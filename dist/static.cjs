@@ -110,10 +110,12 @@ var DARK = {
   "token-change": "#c39aff"
 };
 function resolvePalette(theme) {
-  if (!theme || theme === "light") return LIGHT;
-  if (theme === "dark") return DARK;
-  const { base, ...rest } = theme;
-  return { ...base === "dark" ? DARK : LIGHT, ...rest };
+  const p = !theme || theme === "light" ? LIGHT : theme === "dark" ? DARK : { ...theme.base === "dark" ? DARK : LIGHT, ...stripBase(theme) };
+  return { ...p, mono: p.mono.replace(/"/g, "'"), sans: p.sans.replace(/"/g, "'") };
+}
+function stripBase(t) {
+  const { base: _base, ...rest } = t;
+  return rest;
 }
 function inlineVars(markup, p) {
   return markup.replace(/var\(--uipack-([a-z-]+)(?:,\s*[^)]*)?\)/g, (_, k) => p[k] ?? "currentColor");
@@ -207,7 +209,7 @@ function renderStatic(input, opts = {}) {
   const width = opts.width ?? vw;
   const height = Math.round(width / vw * H);
   const label = fig.alt ? ` role="img" aria-label="${esc(fig.alt)}"` : "";
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${vw} ${H}" width="${width}" height="${height}" color="${p.fg}" font-family="${p.sans}"${label}><style>text{user-select:none}</style>` + border + canvas + head.join("") + `<g transform="translate(${-vx},${hy - vy})">${drawing}</g></svg>
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${vw} ${H}" width="${width}" height="${height}" color="${p.fg}" font-family="${esc(p.sans)}"${label}><style>text{user-select:none}</style>` + border + canvas + head.join("") + `<g transform="translate(${-vx},${hy - vy})">${drawing}</g></svg>
 `;
 }
 // Annotate the CommonJS export names for ESM import in node:

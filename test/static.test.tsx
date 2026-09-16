@@ -84,3 +84,19 @@ describe("renderStatic across bundles", () => {
     expect(svg).toContain("<animateMotion");
   });
 });
+
+describe("renderStatic is well-formed XML", () => {
+  it("survives a double-quoted font stack and parses in a strict XML parser", () => {
+    const svg = renderStatic(fig, { theme: { base: "dark", mono: 'ui-monospace, "JetBrains Mono", Menlo, monospace', sans: '"Segoe UI", sans-serif' } });
+    expect(svg).not.toContain('"JetBrains');
+    const doc = new DOMParser().parseFromString(svg, "image/svg+xml");
+    expect(doc.querySelector("parsererror")).toBeNull();
+    expect(doc.documentElement.getAttribute("font-family")).toContain("'Segoe UI'");
+  });
+  it("every preset exports as parseable XML in both themes", () => {
+    for (const theme of ["light", "dark"] as const) {
+      const doc = new DOMParser().parseFromString(renderStatic(agentLoop(), { theme }), "image/svg+xml");
+      expect(doc.querySelector("parsererror")).toBeNull();
+    }
+  });
+});

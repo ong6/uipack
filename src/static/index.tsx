@@ -88,10 +88,14 @@ export interface StaticOptions {
 }
 
 export function resolvePalette(theme: StaticOptions["theme"]): Palette {
-  if (!theme || theme === "light") return LIGHT;
-  if (theme === "dark") return DARK;
-  const { base, ...rest } = theme;
-  return { ...(base === "dark" ? DARK : LIGHT), ...rest };
+  const p = !theme || theme === "light" ? LIGHT : theme === "dark" ? DARK : { ...(theme.base === "dark" ? DARK : LIGHT), ...stripBase(theme) };
+  // Font stacks land inside attribute values; a double quote there breaks the XML.
+  return { ...p, mono: p.mono.replace(/"/g, "'"), sans: p.sans.replace(/"/g, "'") };
+}
+
+function stripBase(t: Partial<Palette> & { base?: StaticTheme }): Partial<Palette> {
+  const { base: _base, ...rest } = t;
+  return rest;
 }
 
 /** Replace every `var(--uipack-x)` with the palette literal. Unknown names fall back to currentColor. */
@@ -208,7 +212,7 @@ export function renderStatic(input: ReactElement<FigureProps> | StaticFigure, op
   const label = fig.alt ? ` role="img" aria-label="${esc(fig.alt)}"` : "";
 
   return (
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${vw} ${H}" width="${width}" height="${height}" color="${p.fg}" font-family="${p.sans}"${label}>` +
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${vw} ${H}" width="${width}" height="${height}" color="${p.fg}" font-family="${esc(p.sans)}"${label}>` +
     `<style>text{user-select:none}</style>` +
     border +
     canvas +
