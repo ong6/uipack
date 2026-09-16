@@ -19,3 +19,18 @@ Object.defineProperty(window, "matchMedia", {
     dispatchEvent: () => false,
   }),
 });
+
+// jsdom has no PointerEvent, so `pointerType` never reached the handlers and
+// the touch guard was untestable. A minimal constructor carries it through.
+if (typeof window.PointerEvent === "undefined") {
+  class PointerEvent extends MouseEvent {
+    pointerType: string;
+    pointerId: number;
+    constructor(type: string, init: PointerEventInit = {}) {
+      super(type, init);
+      this.pointerType = init.pointerType ?? "";
+      this.pointerId = init.pointerId ?? 1;
+    }
+  }
+  Object.defineProperty(window, "PointerEvent", { writable: true, value: PointerEvent });
+}

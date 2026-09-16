@@ -1,5 +1,5 @@
 export type { Item, FigureMeta, PresetParts, StackStep } from "./shared";
-export { Stack, stackHeight, toFigure, NARROW_W } from "./shared";
+export { Stack, stackHeight, toFigure, presetFigure, PresetFigure, NARROW_W, type PresetFigureProps } from "./shared";
 export { serviceMap, serviceMapParts, defaultServiceMap, type ServiceMapSpec } from "./serviceMap";
 export { agentLoop, agentLoopParts, defaultAgentLoop, type AgentLoopSpec } from "./agentLoop";
 export { ragPipeline, ragPipelineParts, defaultRagPipeline, type RagPipelineSpec } from "./ragPipeline";

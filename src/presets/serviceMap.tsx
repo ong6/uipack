@@ -6,7 +6,7 @@ import { Lane } from "../Lane";
 import { Node } from "../Node";
 import { Packet } from "../Packet";
 import { route, type Point } from "../geometry";
-import { Stack, stackHeight, toFigure, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
+import { Stack, stackHeight, presetFigure, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
 
 export interface ServiceMapSpec {
   figure: FigureMeta;
@@ -63,7 +63,7 @@ export const defaultServiceMap: ServiceMapSpec = {
 const READ = "read";
 const CDC = "cdc";
 
-export function serviceMapParts(spec: ServiceMapSpec = defaultServiceMap, id = "svcmap"): PresetParts {
+export function serviceMapParts(spec: ServiceMapSpec = defaultServiceMap, id: string): PresetParts {
   const [lc, lp, lr] = spec.laneTitles ?? ["Clients", "Platform", "Resources"];
   const client = { x: 24, w: 176, h: 48, step: 56, y0: 96 };
   const store = { x: 1024, w: 200, h: 48, step: 64, y0: 96 };
@@ -180,4 +180,4 @@ export function serviceMapParts(spec: ServiceMapSpec = defaultServiceMap, id = "
   };
 }
 
-export const serviceMap = (spec: ServiceMapSpec = defaultServiceMap, id?: string) => toFigure(spec.figure, serviceMapParts(spec, id), id);
+export const serviceMap = (spec: ServiceMapSpec = defaultServiceMap, id?: string) => presetFigure(spec, serviceMapParts, id);

@@ -6,7 +6,7 @@ import { Lane } from "../Lane";
 import { Node } from "../Node";
 import { Packet } from "../Packet";
 import type { Point } from "../geometry";
-import { Stack, stackHeight, toFigure, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
+import { Stack, stackHeight, presetFigure, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
 
 export interface PipelineSpec {
   figure: FigureMeta;
@@ -36,7 +36,7 @@ export const defaultPipeline: PipelineSpec = {
 
 const FLOW = "job";
 
-export function pipelineParts(spec: PipelineSpec = defaultPipeline, id = "pipe"): PresetParts {
+export function pipelineParts(spec: PipelineSpec = defaultPipeline, id: string): PresetParts {
   const stage = { w: 136, h: 48, step: 176, y: 96 };
   const cy = stage.y + stage.h / 2;
   const slots: ("stage" | "queue")[] = [];
@@ -107,4 +107,4 @@ export function pipelineParts(spec: PipelineSpec = defaultPipeline, id = "pipe")
   };
 }
 
-export const pipeline = (spec: PipelineSpec = defaultPipeline, id?: string) => toFigure(spec.figure, pipelineParts(spec, id), id);
+export const pipeline = (spec: PipelineSpec = defaultPipeline, id?: string) => presetFigure(spec, pipelineParts, id);

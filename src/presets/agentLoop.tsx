@@ -7,7 +7,7 @@ import { Lane } from "../Lane";
 import { Node } from "../Node";
 import { Packet } from "../Packet";
 import type { Point } from "../geometry";
-import { Stack, stackHeight, toFigure, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
+import { Stack, stackHeight, presetFigure, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
 
 export interface AgentLoopSpec {
   figure: FigureMeta;
@@ -43,7 +43,7 @@ const ASK = "ask";
 const TOOLS = "tools";
 const CHECK = "check";
 
-export function agentLoopParts(spec: AgentLoopSpec = defaultAgentLoop, id = "agentloop"): PresetParts {
+export function agentLoopParts(spec: AgentLoopSpec = defaultAgentLoop, id: string): PresetParts {
   const [lu, la, lt] = spec.laneTitles ?? ["User", "Agent", "Tools"];
   const user = { x: 24, y: 96, w: 176, h: 48 };
   const n = spec.tools.length;
@@ -132,4 +132,4 @@ export function agentLoopParts(spec: AgentLoopSpec = defaultAgentLoop, id = "age
   };
 }
 
-export const agentLoop = (spec: AgentLoopSpec = defaultAgentLoop, id?: string) => toFigure(spec.figure, agentLoopParts(spec, id), id);
+export const agentLoop = (spec: AgentLoopSpec = defaultAgentLoop, id?: string) => presetFigure(spec, agentLoopParts, id);

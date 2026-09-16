@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { Connector } from "../Connector";
 import { Defs } from "../Defs";
 import { Figure } from "../Figure";
@@ -33,6 +33,31 @@ export interface PresetParts {
   viewBox: string;
   narrowViewBox: string;
   legend: LegendItem[];
+}
+
+/** Props of the element every preset wrapper returns; `renderStatic` reads them. */
+export interface PresetFigureProps<S> {
+  spec: S;
+  parts: (spec: S, id: string) => PresetParts;
+  id?: string;
+}
+
+const clean = (s: string) => s.replace(/:/g, "");
+
+/**
+ * A preset as a component: the marker and stack ids come from `useId()` unless
+ * the caller passes one, so two figures of the same preset on a page never
+ * collide.
+ */
+export function PresetFigure<S extends { figure: FigureMeta }>({ spec, parts, id }: PresetFigureProps<S>) {
+  const auto = useId();
+  const fid = id ?? `p${clean(auto)}`;
+  return toFigure(spec.figure, parts(spec, fid), fid);
+}
+
+/** Build the element a preset wrapper returns. */
+export function presetFigure<S extends { figure: FigureMeta }>(spec: S, parts: (spec: S, id: string) => PresetParts, id?: string) {
+  return <PresetFigure spec={spec} parts={parts} id={id} />;
 }
 
 export function toFigure(meta: FigureMeta, parts: PresetParts, id?: string) {

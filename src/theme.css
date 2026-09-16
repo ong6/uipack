@@ -95,12 +95,13 @@
 .uipack__controls {
   grid-row: 2 / span 2;
   grid-column: 2;
+  align-self: start;
   display: flex;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 .uipack__ctl {
-  min-height: 36px;
+  min-height: 44px;
   padding: 0 12px;
   display: inline-flex;
   align-items: center;

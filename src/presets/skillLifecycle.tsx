@@ -7,7 +7,7 @@ import { Lane } from "../Lane";
 import { Node } from "../Node";
 import { Packet } from "../Packet";
 import type { Point } from "../geometry";
-import { Stack, stackHeight, toFigure, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
+import { Stack, stackHeight, presetFigure, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
 
 export interface SkillLifecycleSpec {
   figure: FigureMeta;
@@ -40,7 +40,7 @@ export const defaultSkillLifecycle: SkillLifecycleSpec = {
 const FWD = "forward";
 const BACK = "feedback";
 
-export function skillLifecycleParts(spec: SkillLifecycleSpec = defaultSkillLifecycle, id = "skill"): PresetParts {
+export function skillLifecycleParts(spec: SkillLifecycleSpec = defaultSkillLifecycle, id: string): PresetParts {
   const y = 96;
   const author = { x: 24, y, w: 176, h: 48 };
   const evaluate = { x: 264, y: y - 4, w: 192, h: 56 };
@@ -126,4 +126,4 @@ export function skillLifecycleParts(spec: SkillLifecycleSpec = defaultSkillLifec
   };
 }
 
-export const skillLifecycle = (spec: SkillLifecycleSpec = defaultSkillLifecycle, id?: string) => toFigure(spec.figure, skillLifecycleParts(spec, id), id);
+export const skillLifecycle = (spec: SkillLifecycleSpec = defaultSkillLifecycle, id?: string) => presetFigure(spec, skillLifecycleParts, id);

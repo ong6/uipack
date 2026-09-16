@@ -6,7 +6,7 @@ import { Lane } from "../Lane";
 import { Node } from "../Node";
 import { Packet } from "../Packet";
 import type { Point } from "../geometry";
-import { Stack, stackHeight, toFigure, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
+import { Stack, stackHeight, presetFigure, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
 
 export interface SyncLoopSpec {
   figure: FigureMeta;
@@ -46,7 +46,7 @@ export const defaultSyncLoop: SyncLoopSpec = {
 const PULL = "pull";
 const PUSH = "push";
 
-export function syncLoopParts(spec: SyncLoopSpec = defaultSyncLoop, id = "sync"): PresetParts {
+export function syncLoopParts(spec: SyncLoopSpec = defaultSyncLoop, id: string): PresetParts {
   const items = spec.upstream.items;
   const n = spec.consumers.length;
   const con = { x: 720, w: 336, h: 64, step: 88, y0: 72 };
@@ -119,4 +119,4 @@ export function syncLoopParts(spec: SyncLoopSpec = defaultSyncLoop, id = "sync")
   };
 }
 
-export const syncLoop = (spec: SyncLoopSpec = defaultSyncLoop, id?: string) => toFigure(spec.figure, syncLoopParts(spec, id), id);
+export const syncLoop = (spec: SyncLoopSpec = defaultSyncLoop, id?: string) => presetFigure(spec, syncLoopParts, id);

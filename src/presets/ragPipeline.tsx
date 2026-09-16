@@ -6,7 +6,7 @@ import { Lane } from "../Lane";
 import { Node } from "../Node";
 import { Packet } from "../Packet";
 import type { Point } from "../geometry";
-import { Stack, stackHeight, toFigure, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
+import { Stack, stackHeight, presetFigure, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
 
 export interface RagPipelineSpec {
   figure: FigureMeta;
@@ -51,7 +51,7 @@ export const defaultRagPipeline: RagPipelineSpec = {
 const INGEST = "ingest";
 const QUERY = "query";
 
-export function ragPipelineParts(spec: RagPipelineSpec = defaultRagPipeline, id = "rag"): PresetParts {
+export function ragPipelineParts(spec: RagPipelineSpec = defaultRagPipeline, id: string): PresetParts {
   const src = { x: 24, w: 160, h: 48, step: 56, y0: 80 };
   const srcY = (i: number) => src.y0 + i * src.step + src.h / 2;
   const stage = { w: 136, h: 48, step: 176, x0: 248 };
@@ -164,4 +164,4 @@ export function ragPipelineParts(spec: RagPipelineSpec = defaultRagPipeline, id 
   };
 }
 
-export const ragPipeline = (spec: RagPipelineSpec = defaultRagPipeline, id?: string) => toFigure(spec.figure, ragPipelineParts(spec, id), id);
+export const ragPipeline = (spec: RagPipelineSpec = defaultRagPipeline, id?: string) => presetFigure(spec, ragPipelineParts, id);

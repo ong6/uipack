@@ -4,7 +4,7 @@ import { Group } from "../Group";
 import { Node } from "../Node";
 import { Packet } from "../Packet";
 import type { Point } from "../geometry";
-import { Stack, stackHeight, toFigure, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
+import { Stack, stackHeight, presetFigure, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
 
 export interface BeforeAfterPanel {
   title: string;
@@ -48,7 +48,7 @@ export const defaultBeforeAfter: BeforeAfterSpec = {
   },
 };
 
-export function beforeAfterParts(spec: BeforeAfterSpec = defaultBeforeAfter, id = "ba"): PresetParts {
+export function beforeAfterParts(spec: BeforeAfterSpec = defaultBeforeAfter, id: string): PresetParts {
   const stage = { w: 136, h: 48, step: 176 };
   const panelH = 120;
   const panel = (p: BeforeAfterPanel, y: number, flow: string, pid: string) => {
@@ -110,4 +110,4 @@ export function beforeAfterParts(spec: BeforeAfterSpec = defaultBeforeAfter, id 
   };
 }
 
-export const beforeAfter = (spec: BeforeAfterSpec = defaultBeforeAfter, id?: string) => toFigure(spec.figure, beforeAfterParts(spec, id), id);
+export const beforeAfter = (spec: BeforeAfterSpec = defaultBeforeAfter, id?: string) => presetFigure(spec, beforeAfterParts, id);
