@@ -123,3 +123,15 @@ describe("parts", () => {
     expect(container.querySelector("ul")).toBeNull();
   });
 });
+
+describe("Figure headingLevel", () => {
+  it("renders the title at the requested heading level", () => {
+    const { container } = render(
+      <Figure title="Outline" headingLevel={2} viewBox="0 0 10 10">
+        <g />
+      </Figure>
+    );
+    expect(container.querySelector("h2.uipack__title")).not.toBeNull();
+    expect(container.querySelector("h3.uipack__title")).toBeNull();
+  });
+});

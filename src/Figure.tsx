@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode, createElement } from "react";
 import { FigureMotionContext, usePrefersReducedMotion, type FigureMotion } from "./context";
 import { Legend, type LegendItem } from "./Legend";
 
@@ -8,6 +8,8 @@ export interface FigureProps {
   /** Short mono topic after the number: "What is Habitat?". */
   eyebrow?: string;
   title?: string;
+  /** Heading element for the title, so the figure fits the page outline. Default 3. */
+  headingLevel?: 2 | 3 | 4 | 5;
   caption?: string;
   legend?: LegendItem[];
   /** Show Pause and Replay. Hidden automatically under reduced motion. */
@@ -48,6 +50,7 @@ export function Figure({
   number,
   eyebrow,
   title,
+  headingLevel = 3,
   caption,
   legend = [],
   controls = true,
@@ -112,7 +115,7 @@ export function Figure({
                 {eyebrow}
               </p>
             ) : null}
-            {title ? <h3 className="uipack__title">{title}</h3> : null}
+            {title ? createElement(`h${headingLevel}`, { className: "uipack__title" }, title) : null}
             {caption ? <p className="uipack__caption">{caption}</p> : null}
             {showControls ? (
               <div className="uipack__controls">

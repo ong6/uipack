@@ -1,5 +1,5 @@
 // src/Figure.tsx
-import { useCallback, useEffect as useEffect2, useId, useMemo, useRef, useState as useState2 } from "react";
+import { useCallback, useEffect as useEffect2, useId, useMemo, useRef, useState as useState2, createElement } from "react";
 
 // src/context.tsx
 import { createContext, useContext, useEffect, useState } from "react";
@@ -95,6 +95,7 @@ function Figure({
   number,
   eyebrow,
   title,
+  headingLevel = 3,
   caption,
   legend = [],
   controls = true,
@@ -151,7 +152,7 @@ function Figure({
             number && eyebrow ? " \xB7 " : "",
             eyebrow
           ] }) : null,
-          title ? /* @__PURE__ */ jsx3("h3", { className: "uipack__title", children: title }) : null,
+          title ? createElement(`h${headingLevel}`, { className: "uipack__title" }, title) : null,
           caption ? /* @__PURE__ */ jsx3("p", { className: "uipack__caption", children: caption }) : null,
           showControls ? /* @__PURE__ */ jsxs2("div", { className: "uipack__controls", children: [
             /* @__PURE__ */ jsxs2("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: replay, children: [

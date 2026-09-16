@@ -34,6 +34,8 @@ interface FigureProps {
     /** Short mono topic after the number: "What is Habitat?". */
     eyebrow?: string;
     title?: string;
+    /** Heading element for the title, so the figure fits the page outline. Default 3. */
+    headingLevel?: 2 | 3 | 4 | 5;
     caption?: string;
     legend?: LegendItem[];
     /** Show Pause and Replay. Hidden automatically under reduced motion. */
@@ -51,7 +53,7 @@ interface FigureProps {
     theme?: "light" | "dark";
     id?: string;
 }
-declare function Figure({ number, eyebrow, title, caption, legend, controls, viewBox, children, narrow, narrowViewBox, alt, className, theme, id, }: FigureProps): react.JSX.Element;
+declare function Figure({ number, eyebrow, title, headingLevel, caption, legend, controls, viewBox, children, narrow, narrowViewBox, alt, className, theme, id, }: FigureProps): react.JSX.Element;
 
 interface LaneProps {
     /** Left edge and width of the column the header sits over. */

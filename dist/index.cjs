@@ -143,6 +143,7 @@ function Figure({
   number,
   eyebrow,
   title,
+  headingLevel = 3,
   caption,
   legend = [],
   controls = true,
@@ -199,7 +200,7 @@ function Figure({
             number && eyebrow ? " \xB7 " : "",
             eyebrow
           ] }) : null,
-          title ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("h3", { className: "uipack__title", children: title }) : null,
+          title ? (0, import_react2.createElement)(`h${headingLevel}`, { className: "uipack__title" }, title) : null,
           caption ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("p", { className: "uipack__caption", children: caption }) : null,
           showControls ? /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "uipack__controls", children: [
             /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: replay, children: [

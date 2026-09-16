@@ -47,7 +47,7 @@ export function RequestFlow() {
 
 | Component | Props | Does |
 |---|---|---|
-| `Figure` | `number`, `eyebrow`, `title`, `caption`, `legend`, `controls`, `viewBox`, `narrow`, `narrowViewBox`, `alt`, `theme` | The frame: header, legend, Pause and Replay, dotted canvas, wide and narrow drawings swapped at 720px. Owns the SVG timeline. |
+| `Figure` | `number`, `eyebrow`, `title`, `caption`, `legend`, `headingLevel`, `controls`, `viewBox`, `narrow`, `narrowViewBox`, `alt`, `theme` | The frame: header, legend, Pause and Replay, dotted canvas, wide and narrow drawings swapped at 720px. Owns the SVG timeline. |
 | `Legend` | `items: {label, kind, shape}[]` | Shape-coded key. Rendered by `Figure`; exported for use elsewhere. |
 | `Lane` | `x`, `w`, `y`, `title`, `h` | Mono uppercase column header, optional faint rule. |
 | `Group` | `x`, `y`, `w`, `h`, `title`, `variant: solid \| dashed`, `accent` | A boxed service (solid, centred title) or an environment boundary (dashed, mono title). |
