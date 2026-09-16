@@ -9,44 +9,25 @@ import { Badge, Bus, Chip, Connector, Defs, Group, Label, Lane, Legend, Node, Pa
 import { PRESETS, agentLoopParts, beforeAfterParts, pipelineParts, ragPipelineParts, serviceMapParts, skillLifecycleParts, syncLoopParts, type PresetName } from "../src/presets";
 
 const presetParts: Record<PresetName, () => { wide: ReactNode; viewBox: string }> = {
-  serviceMap: () => serviceMapParts(),
-  agentLoop: () => agentLoopParts(),
-  ragPipeline: () => ragPipelineParts(),
-  skillLifecycle: () => skillLifecycleParts(),
-  syncLoop: () => syncLoopParts(),
-  beforeAfter: () => beforeAfterParts(),
-  pipeline: () => pipelineParts(),
+  serviceMap: () => serviceMapParts(undefined, "m-servicemap"),
+  agentLoop: () => agentLoopParts(undefined, "m-agentloop"),
+  ragPipeline: () => ragPipelineParts(undefined, "m-ragpipeline"),
+  skillLifecycle: () => skillLifecycleParts(undefined, "m-skilllifecycle"),
+  syncLoop: () => syncLoopParts(undefined, "m-syncloop"),
+  beforeAfter: () => beforeAfterParts(undefined, "m-beforeafter"),
+  pipeline: () => pipelineParts(undefined, "m-pipeline"),
 };
 import type { Asset } from "../src/browser";
 
 const OUT = "docs/assets";
-const LIGHT: Record<string, string> = {
-  fg: "#1a1c1a",
-  muted: "#5c625e",
-  bg: "#f6f5f1",
-  surface: "#ffffff",
-  "surface-raised": "#f4f6f4",
-  grid: "rgba(26, 28, 26, 0.16)",
-  border: "rgba(26, 28, 26, 0.22)",
-  accent: "#205f49",
-  "token-request": "#4f6fe6",
-  "token-response": "#3fb27f",
-  "token-change": "#9a63e0",
-  mono: "ui-monospace, Menlo, Consolas, monospace",
-  sans: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
-};
+import { LIGHT, renderStatic } from "../src/static";
 
-function inline(markup: string): string {
-  return markup.replace(/var\(--uipack-([a-z-]+)(?:,\s*[^)]*)?\)/g, (_, k: string) => LIGHT[k] ?? "currentColor");
-}
-
+// Every preview goes through the same static renderer the `uipack/static`
+// entry exports, so what the browser shows is what an <img> gets.
 function svgFile(viewBox: string, body: ReactNode, opts: { grid?: boolean; w?: number; h?: number } = {}): string {
-  const [, , w, h] = viewBox.split(" ").map(Number);
-  const inner = inline(renderToStaticMarkup(<>{body}</>));
-  const grid = opts.grid
-    ? `<defs><pattern id="dots" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="${LIGHT.grid}"/></pattern></defs><rect width="${w}" height="${h}" fill="${LIGHT.bg}"/><rect width="${w}" height="${h}" fill="url(#dots)"/>`
-    : "";
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" width="${opts.w ?? w}" height="${opts.h ?? h}" color="${LIGHT.fg}" font-family="${LIGHT.sans}"><style>text{user-select:none}</style>${grid}${inner}</svg>\n`;
+  const [, , w] = viewBox.split(" ").map(Number);
+  const svg = renderStatic({ children: body, viewBox }, { frame: false, background: !!opts.grid, motion: true, width: opts.w ?? w });
+  return opts.h ? svg.replace(/ height="\d+"/, ` height="${opts.h}"`) : svg;
 }
 
 mkdirSync(OUT, { recursive: true });

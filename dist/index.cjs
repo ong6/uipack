@@ -77,9 +77,7 @@ function useFigureMotion() {
 }
 var QUERY = "(prefers-reduced-motion: reduce)";
 function usePrefersReducedMotion() {
-  const [reduced, setReduced] = (0, import_react.useState)(
-    () => typeof window !== "undefined" && typeof window.matchMedia === "function" ? window.matchMedia(QUERY).matches : false
-  );
+  const [reduced, setReduced] = (0, import_react.useState)(false);
   (0, import_react.useEffect)(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
     const mq = window.matchMedia(QUERY);
@@ -665,7 +663,7 @@ function Bus({ axis = "v", at, from, to, stubs, kind, flow, defs, dots = true, i
 var import_react4 = require("react");
 var import_jsx_runtime11 = require("react/jsx-runtime");
 function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at = 0.5, r = 5, reverse, radius = 6, flow, trim: t = [2, 12], id }) {
-  const { reduced } = useFigureMotion();
+  const { reduced, prerender } = useFigureMotion();
   const hover = useFigureHover();
   const base = reverse ? [...points].reverse() : points;
   const pts = trim(base, t[0], t[1]);
@@ -673,7 +671,7 @@ function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at = 0.5,
   const [mounted, setMounted] = (0, import_react4.useState)(false);
   (0, import_react4.useEffect)(() => setMounted(true), []);
   const attrs = hoverAttrs(flow, kind === "neutral" ? void 0 : kind, hover);
-  if (reduced || !mounted) {
+  if (reduced || !mounted && !prerender) {
     const [cx, cy] = pointAlong(pts, at);
     return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("g", { id, "data-uipack": "packet", "data-static": "true", ...attrs, children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Token, { kind, shape, r, cx, cy }) });
   }

@@ -36,7 +36,7 @@ export interface PacketProps {
  * (pauseAnimations, setCurrentTime), so offsets survive a replay.
  */
 export function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at = 0.5, r = 5, reverse, radius = 6, flow, trim: t = [2, 12], id }: PacketProps) {
-  const { reduced } = useFigureMotion();
+  const { reduced, prerender } = useFigureMotion();
   const hover = useFigureHover();
   const base = reverse ? [...points].reverse() : points;
   const pts = trim(base, t[0], t[1]);
@@ -45,7 +45,7 @@ export function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at
   useEffect(() => setMounted(true), []);
   const attrs = hoverAttrs(flow, kind === "neutral" ? undefined : kind, hover);
 
-  if (reduced || !mounted) {
+  if (reduced || (!mounted && !prerender)) {
     const [cx, cy] = pointAlong(pts, at);
     return (
       <g id={id} data-uipack="packet" data-static="true" {...attrs}>

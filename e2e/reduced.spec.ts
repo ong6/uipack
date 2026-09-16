@@ -8,6 +8,8 @@ test.describe("reduced motion", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
   });
   test("renders one static token at the midpoint and hides the controls", async ({ page }) => {
+    const console_: string[] = [];
+    page.on("console", (m) => (m.type() === "error" || m.type() === "warning") && console_.push(m.text()));
     await page.goto("/");
     const packet = page.locator("#e2e-packet");
     await expect(packet).toHaveAttribute("data-static", "true");
@@ -21,6 +23,9 @@ test.describe("reduced motion", () => {
     expect(dist(a, b)).toBeLessThan(0.5);
     const mid = await pathPoint(page, 0.5);
     expect(dist(a, mid)).toBeLessThan(12);
+    // Reduced motion starts false on both server and client and flips in an
+    // effect, so hydration can never disagree about controls or SMIL.
+    expect(console_.filter((m) => /hydrat|did not match/i.test(m))).toEqual([]);
   });
 });
 

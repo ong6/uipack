@@ -7,6 +7,8 @@ export interface FigureMotion {
   reduced: boolean;
   /** Increments on Replay so animated children can restart. */
   cycle: number;
+  /** Emit SMIL on the server render (static export); the client waits for mount. */
+  prerender?: boolean;
   toggle: () => void;
   replay: () => void;
 }
@@ -30,11 +32,9 @@ const QUERY = "(prefers-reduced-motion: reduce)";
 
 /** True when the OS asks for reduced motion. Server render says false. */
 export function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState<boolean>(() =>
-    typeof window !== "undefined" && typeof window.matchMedia === "function"
-      ? window.matchMedia(QUERY).matches
-      : false,
-  );
+  // Starts false on both server and client so hydration matches; the real
+  // value lands in the effect, the same way Packet waits for mount.
+  const [reduced, setReduced] = useState<boolean>(false);
   useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
     const mq = window.matchMedia(QUERY);

@@ -128,6 +128,34 @@ import manifest from "uipack/assets/manifest.json";
 
 `onAction` replaces the copy, `actionLabel` renames the button. The sidebar collapses to a row of chips below 720px; every target is 44px.
 
+## Static export
+
+`uipack/static` turns a figure into one SVG file with no dependency on the page: every CSS variable
+becomes a literal, fonts are declared inline, and the SMIL packets stay in when you want them. Made
+for a README, a Markdown site or a slide, where the file goes through `<img>` and `currentColor`
+never reaches the drawing.
+
+```ts
+import { writeFileSync } from "node:fs";
+import { agentLoop } from "uipack/presets";
+import { renderStatic } from "uipack/static";
+
+writeFileSync("figure.svg", renderStatic(agentLoop(spec), { theme: "dark", motion: true }));
+```
+
+| Option | Default | Does |
+|---|---|---|
+| `theme` | `"light"` | `"light"`, `"dark"`, or `{ base, ...overrides }` with any `--uipack-*` key as a literal |
+| `motion` | `true` | keep `animateMotion` (it runs inside `<img>` in every current browser) or render each packet once at its `at` |
+| `frame` | `true` | draw eyebrow, title, caption, legend and the border in SVG; `false` gives the bare drawing |
+| `background` | `true` | paint the canvas and dotted grid; `false` lets the page surface show through |
+| `width` | viewBox width | the file's `width` attribute; height follows |
+
+The input is what a preset returns, a `<Figure>` element, or a bare `{ children, viewBox }`. The
+asset previews under `docs/assets/` come from the same call, so a preview in the browser and a file
+in a README are the same pixels. Tested through `<img>` in Chromium and WebKit: the packets move
+when `motion` is on and hold still when it is off.
+
 ## Theming
 
 Every colour is a CSS custom property on `.uipack`, so a host restyles by setting variables on any ancestor. Dark mode follows `prefers-color-scheme` and can be forced with `data-theme="dark"` on `<html>` or on the figure.

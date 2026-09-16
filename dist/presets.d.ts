@@ -1,6 +1,7 @@
 import * as react from 'react';
 import { ReactNode } from 'react';
-import { I as IconName, L as LegendItem, T as TokenKind } from './index-BRpg0M9y.js';
+import { b as LegendItem, T as TokenKind } from './Legend-S2FQoAxv.js';
+import { I as IconName } from './index-DwRqkLtz.js';
 
 /** One box in a preset spec. */
 interface Item {
@@ -25,6 +26,24 @@ interface PresetParts {
     narrowViewBox: string;
     legend: LegendItem[];
 }
+/** Props of the element every preset wrapper returns; `renderStatic` reads them. */
+interface PresetFigureProps<S> {
+    spec: S;
+    parts: (spec: S, id: string) => PresetParts;
+    id?: string;
+}
+/**
+ * A preset as a component: the marker and stack ids come from `useId()` unless
+ * the caller passes one, so two figures of the same preset on a page never
+ * collide.
+ */
+declare function PresetFigure<S extends {
+    figure: FigureMeta;
+}>({ spec, parts, id }: PresetFigureProps<S>): react.JSX.Element;
+/** Build the element a preset wrapper returns. */
+declare function presetFigure<S extends {
+    figure: FigureMeta;
+}>(spec: S, parts: (spec: S, id: string) => PresetParts, id?: string): react.JSX.Element;
 declare function toFigure(meta: FigureMeta, parts: PresetParts, id?: string): react.JSX.Element;
 interface StackStep extends Item {
     /** Kind of the connector and packet leading INTO this step. */
@@ -59,7 +78,7 @@ interface PipelineSpec {
     laneTitle?: string;
 }
 declare const defaultPipeline: PipelineSpec;
-declare function pipelineParts(spec?: PipelineSpec, id?: string): PresetParts;
+declare function pipelineParts(spec: PipelineSpec | undefined, id: string): PresetParts;
 declare const pipeline: (spec?: PipelineSpec, id?: string) => react.JSX.Element;
 
 interface BeforeAfterPanel {
@@ -74,7 +93,7 @@ interface BeforeAfterSpec {
     after: BeforeAfterPanel;
 }
 declare const defaultBeforeAfter: BeforeAfterSpec;
-declare function beforeAfterParts(spec?: BeforeAfterSpec, id?: string): PresetParts;
+declare function beforeAfterParts(spec: BeforeAfterSpec | undefined, id: string): PresetParts;
 declare const beforeAfter: (spec?: BeforeAfterSpec, id?: string) => react.JSX.Element;
 
 interface SyncLoopSpec {
@@ -93,7 +112,7 @@ interface SyncLoopSpec {
     push?: string;
 }
 declare const defaultSyncLoop: SyncLoopSpec;
-declare function syncLoopParts(spec?: SyncLoopSpec, id?: string): PresetParts;
+declare function syncLoopParts(spec: SyncLoopSpec | undefined, id: string): PresetParts;
 declare const syncLoop: (spec?: SyncLoopSpec, id?: string) => react.JSX.Element;
 
 interface SkillLifecycleSpec {
@@ -107,7 +126,7 @@ interface SkillLifecycleSpec {
     feedback: Item;
 }
 declare const defaultSkillLifecycle: SkillLifecycleSpec;
-declare function skillLifecycleParts(spec?: SkillLifecycleSpec, id?: string): PresetParts;
+declare function skillLifecycleParts(spec: SkillLifecycleSpec | undefined, id: string): PresetParts;
 declare const skillLifecycle: (spec?: SkillLifecycleSpec, id?: string) => react.JSX.Element;
 
 interface RagPipelineSpec {
@@ -122,7 +141,7 @@ interface RagPipelineSpec {
     answer: Item;
 }
 declare const defaultRagPipeline: RagPipelineSpec;
-declare function ragPipelineParts(spec?: RagPipelineSpec, id?: string): PresetParts;
+declare function ragPipelineParts(spec: RagPipelineSpec | undefined, id: string): PresetParts;
 declare const ragPipeline: (spec?: RagPipelineSpec, id?: string) => react.JSX.Element;
 
 interface AgentLoopSpec {
@@ -136,7 +155,7 @@ interface AgentLoopSpec {
     laneTitles?: [string, string, string];
 }
 declare const defaultAgentLoop: AgentLoopSpec;
-declare function agentLoopParts(spec?: AgentLoopSpec, id?: string): PresetParts;
+declare function agentLoopParts(spec: AgentLoopSpec | undefined, id: string): PresetParts;
 declare const agentLoop: (spec?: AgentLoopSpec, id?: string) => react.JSX.Element;
 
 interface ServiceMapSpec {
@@ -159,7 +178,7 @@ interface ServiceMapSpec {
     laneTitles?: [string, string, string];
 }
 declare const defaultServiceMap: ServiceMapSpec;
-declare function serviceMapParts(spec?: ServiceMapSpec, id?: string): PresetParts;
+declare function serviceMapParts(spec: ServiceMapSpec | undefined, id: string): PresetParts;
 declare const serviceMap: (spec?: ServiceMapSpec, id?: string) => react.JSX.Element;
 
 /** Every preset with its default spec, for catalogues and tests. */
@@ -202,4 +221,4 @@ declare const PRESETS: {
 };
 type PresetName = keyof typeof PRESETS;
 
-export { type AgentLoopSpec, type BeforeAfterPanel, type BeforeAfterSpec, type FigureMeta, type Item, NARROW_W, PRESETS, type PipelineSpec, type PresetName, type PresetParts, type RagPipelineSpec, type ServiceMapSpec, type SkillLifecycleSpec, Stack, type StackStep, type SyncLoopSpec, agentLoop, agentLoopParts, beforeAfter, beforeAfterParts, defaultAgentLoop, defaultBeforeAfter, defaultPipeline, defaultRagPipeline, defaultServiceMap, defaultSkillLifecycle, defaultSyncLoop, pipeline, pipelineParts, ragPipeline, ragPipelineParts, serviceMap, serviceMapParts, skillLifecycle, skillLifecycleParts, stackHeight, syncLoop, syncLoopParts, toFigure };
+export { type AgentLoopSpec, type BeforeAfterPanel, type BeforeAfterSpec, type FigureMeta, type Item, NARROW_W, PRESETS, type PipelineSpec, PresetFigure, type PresetFigureProps, type PresetName, type PresetParts, type RagPipelineSpec, type ServiceMapSpec, type SkillLifecycleSpec, Stack, type StackStep, type SyncLoopSpec, agentLoop, agentLoopParts, beforeAfter, beforeAfterParts, defaultAgentLoop, defaultBeforeAfter, defaultPipeline, defaultRagPipeline, defaultServiceMap, defaultSkillLifecycle, defaultSyncLoop, pipeline, pipelineParts, presetFigure, ragPipeline, ragPipelineParts, serviceMap, serviceMapParts, skillLifecycle, skillLifecycleParts, stackHeight, syncLoop, syncLoopParts, toFigure };

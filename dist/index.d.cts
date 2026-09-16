@@ -1,36 +1,10 @@
+export { F as Figure, a as FigureProps } from './Figure-DxRjhYG8.cjs';
+import { T as TokenKind, a as TokenShape } from './Legend-S2FQoAxv.cjs';
+export { L as Legend, b as LegendItem, c as LegendProps, d as TOKEN_SHAPE, e as Token, f as TokenProps, t as tokenColor } from './Legend-S2FQoAxv.cjs';
 import * as react from 'react';
 import { ReactNode } from 'react';
-import { L as LegendItem, I as IconName, T as TokenKind, a as TokenShape } from './index-BRpg0M9y.cjs';
-export { b as Legend, c as LegendProps, d as TOKEN_SHAPE, e as Token, f as TokenProps, i as icons, t as tokenColor } from './index-BRpg0M9y.cjs';
-
-interface FigureProps {
-    /** "Figure 01" or "Fig. 3". Rendered mono, uppercase, before the eyebrow title. */
-    number?: string;
-    /** Short mono topic after the number: "What is Habitat?". */
-    eyebrow?: string;
-    title?: string;
-    /** Heading element for the title, so the figure fits the page outline. Default 3. */
-    headingLevel?: 2 | 3 | 4 | 5;
-    caption?: string;
-    legend?: LegendItem[];
-    /** Show Pause and Replay. Hidden automatically under reduced motion. */
-    controls?: boolean;
-    /** SVG viewBox for the wide drawing. */
-    viewBox: string;
-    /** Wide drawing. */
-    children: ReactNode;
-    /** Optional narrow drawing shown below 720px. */
-    narrow?: ReactNode;
-    narrowViewBox?: string;
-    /** Accessible description of what the figure shows. */
-    alt: string;
-    className?: string;
-    theme?: "light" | "dark";
-    /** Canvas background: the dotted grid (default), plain, or ruled lines. */
-    background?: "dots" | "plain" | "ruled";
-    id?: string;
-}
-declare function Figure({ number, eyebrow, title, headingLevel, caption, legend, controls, viewBox, children, narrow, narrowViewBox, alt, className, theme, background, id, }: FigureProps): react.JSX.Element;
+import { I as IconName } from './index-DwRqkLtz.cjs';
+export { i as icons } from './index-DwRqkLtz.cjs';
 
 interface LaneProps {
     /** Left edge and width of the column the header sits over. */
@@ -306,6 +280,8 @@ interface FigureMotion {
     reduced: boolean;
     /** Increments on Replay so animated children can restart. */
     cycle: number;
+    /** Emit SMIL on the server render (static export); the client waits for mount. */
+    prerender?: boolean;
     toggle: () => void;
     replay: () => void;
 }
@@ -315,4 +291,4 @@ declare function useFigureMotion(): FigureMotion;
 /** True when the OS asks for reduced motion. Server render says false. */
 declare function usePrefersReducedMotion(): boolean;
 
-export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, Defs, type DefsProps, Figure, type FigureHover, FigureHoverContext, type FigureMotion, FigureMotionContext, type FigureProps, type Flow, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, LegendItem, type MarkName, Node, type NodeProps, Packet, type PacketProps, type Point, type Side, TokenKind, TokenShape, Wordmark, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, marks, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFigureMotion, usePrefersReducedMotion };
+export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, Defs, type DefsProps, type FigureHover, FigureHoverContext, type FigureMotion, FigureMotionContext, type Flow, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, type MarkName, Node, type NodeProps, Packet, type PacketProps, type Point, type Side, TokenKind, TokenShape, Wordmark, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, marks, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFigureMotion, usePrefersReducedMotion };

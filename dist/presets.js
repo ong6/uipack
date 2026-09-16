@@ -11,10 +11,21 @@ import {
   Packet,
   busStub,
   route
-} from "./chunk-WIZHMU2U.js";
+} from "./chunk-BSOMWVK4.js";
+import "./chunk-M6VHM6HZ.js";
 
 // src/presets/shared.tsx
+import { useId } from "react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
+var clean = (s) => s.replace(/:/g, "");
+function PresetFigure({ spec, parts, id }) {
+  const auto = useId();
+  const fid = id ?? `p${clean(auto)}`;
+  return toFigure(spec.figure, parts(spec, fid), fid);
+}
+function presetFigure(spec, parts, id) {
+  return /* @__PURE__ */ jsx(PresetFigure, { spec, parts, id });
+}
 function toFigure(meta, parts, id) {
   return /* @__PURE__ */ jsx(
     Figure,
@@ -105,7 +116,7 @@ var defaultServiceMap = {
 };
 var READ = "read";
 var CDC = "cdc";
-function serviceMapParts(spec = defaultServiceMap, id = "svcmap") {
+function serviceMapParts(spec = defaultServiceMap, id) {
   const [lc, lp, lr] = spec.laneTitles ?? ["Clients", "Platform", "Resources"];
   const client = { x: 24, w: 176, h: 48, step: 56, y0: 96 };
   const store = { x: 1024, w: 200, h: 48, step: 64, y0: 96 };
@@ -198,7 +209,7 @@ function serviceMapParts(spec = defaultServiceMap, id = "svcmap") {
     ]
   };
 }
-var serviceMap = (spec = defaultServiceMap, id) => toFigure(spec.figure, serviceMapParts(spec, id), id);
+var serviceMap = (spec = defaultServiceMap, id) => presetFigure(spec, serviceMapParts, id);
 
 // src/presets/agentLoop.tsx
 import { Fragment as Fragment3, jsx as jsx3, jsxs as jsxs3 } from "react/jsx-runtime";
@@ -223,7 +234,7 @@ var defaultAgentLoop = {
 var ASK = "ask";
 var TOOLS = "tools";
 var CHECK = "check";
-function agentLoopParts(spec = defaultAgentLoop, id = "agentloop") {
+function agentLoopParts(spec = defaultAgentLoop, id) {
   const [lu, la, lt] = spec.laneTitles ?? ["User", "Agent", "Tools"];
   const user = { x: 24, y: 96, w: 176, h: 48 };
   const n = spec.tools.length;
@@ -302,7 +313,7 @@ function agentLoopParts(spec = defaultAgentLoop, id = "agentloop") {
     ]
   };
 }
-var agentLoop = (spec = defaultAgentLoop, id) => toFigure(spec.figure, agentLoopParts(spec, id), id);
+var agentLoop = (spec = defaultAgentLoop, id) => presetFigure(spec, agentLoopParts, id);
 
 // src/presets/ragPipeline.tsx
 import { Fragment as Fragment4, jsx as jsx4, jsxs as jsxs4 } from "react/jsx-runtime";
@@ -335,7 +346,7 @@ var defaultRagPipeline = {
 };
 var INGEST = "ingest";
 var QUERY = "query";
-function ragPipelineParts(spec = defaultRagPipeline, id = "rag") {
+function ragPipelineParts(spec = defaultRagPipeline, id) {
   const src = { x: 24, w: 160, h: 48, step: 56, y0: 80 };
   const srcY = (i) => src.y0 + i * src.step + src.h / 2;
   const stage = { w: 136, h: 48, step: 176, x0: 248 };
@@ -431,7 +442,7 @@ function ragPipelineParts(spec = defaultRagPipeline, id = "rag") {
     ]
   };
 }
-var ragPipeline = (spec = defaultRagPipeline, id) => toFigure(spec.figure, ragPipelineParts(spec, id), id);
+var ragPipeline = (spec = defaultRagPipeline, id) => presetFigure(spec, ragPipelineParts, id);
 
 // src/presets/skillLifecycle.tsx
 import { Fragment as Fragment5, jsx as jsx5, jsxs as jsxs5 } from "react/jsx-runtime";
@@ -455,7 +466,7 @@ var defaultSkillLifecycle = {
 };
 var FWD = "forward";
 var BACK = "feedback";
-function skillLifecycleParts(spec = defaultSkillLifecycle, id = "skill") {
+function skillLifecycleParts(spec = defaultSkillLifecycle, id) {
   const y = 96;
   const author = { x: 24, y, w: 176, h: 48 };
   const evaluate = { x: 264, y: y - 4, w: 192, h: 56 };
@@ -533,7 +544,7 @@ function skillLifecycleParts(spec = defaultSkillLifecycle, id = "skill") {
     ]
   };
 }
-var skillLifecycle = (spec = defaultSkillLifecycle, id) => toFigure(spec.figure, skillLifecycleParts(spec, id), id);
+var skillLifecycle = (spec = defaultSkillLifecycle, id) => presetFigure(spec, skillLifecycleParts, id);
 
 // src/presets/syncLoop.tsx
 import { Fragment as Fragment6, jsx as jsx6, jsxs as jsxs6 } from "react/jsx-runtime";
@@ -564,7 +575,7 @@ var defaultSyncLoop = {
 };
 var PULL = "pull";
 var PUSH = "push";
-function syncLoopParts(spec = defaultSyncLoop, id = "sync") {
+function syncLoopParts(spec = defaultSyncLoop, id) {
   const items = spec.upstream.items;
   const n = spec.consumers.length;
   const con = { x: 720, w: 336, h: 64, step: 88, y0: 72 };
@@ -621,7 +632,7 @@ function syncLoopParts(spec = defaultSyncLoop, id = "sync") {
     ]
   };
 }
-var syncLoop = (spec = defaultSyncLoop, id) => toFigure(spec.figure, syncLoopParts(spec, id), id);
+var syncLoop = (spec = defaultSyncLoop, id) => presetFigure(spec, syncLoopParts, id);
 
 // src/presets/beforeAfter.tsx
 import { Fragment as Fragment7, jsx as jsx7, jsxs as jsxs7 } from "react/jsx-runtime";
@@ -653,7 +664,7 @@ var defaultBeforeAfter = {
     changed: [2]
   }
 };
-function beforeAfterParts(spec = defaultBeforeAfter, id = "ba") {
+function beforeAfterParts(spec = defaultBeforeAfter, id) {
   const stage = { w: 136, h: 48, step: 176 };
   const panelH = 120;
   const panel = (p, y, flow, pid) => {
@@ -704,7 +715,7 @@ function beforeAfterParts(spec = defaultBeforeAfter, id = "ba") {
     ]
   };
 }
-var beforeAfter = (spec = defaultBeforeAfter, id) => toFigure(spec.figure, beforeAfterParts(spec, id), id);
+var beforeAfter = (spec = defaultBeforeAfter, id) => presetFigure(spec, beforeAfterParts, id);
 
 // src/presets/pipeline.tsx
 import { Fragment as Fragment8, jsx as jsx8, jsxs as jsxs8 } from "react/jsx-runtime";
@@ -726,7 +737,7 @@ var defaultPipeline = {
   queue: { label: "Queue", sub: "at-least-once", icon: "queue", after: 2, depth: 3 }
 };
 var FLOW = "job";
-function pipelineParts(spec = defaultPipeline, id = "pipe") {
+function pipelineParts(spec = defaultPipeline, id) {
   const stage = { w: 136, h: 48, step: 176, y: 96 };
   const cy = stage.y + stage.h / 2;
   const slots = [];
@@ -782,7 +793,7 @@ function pipelineParts(spec = defaultPipeline, id = "pipe") {
     ]
   };
 }
-var pipeline = (spec = defaultPipeline, id) => toFigure(spec.figure, pipelineParts(spec, id), id);
+var pipeline = (spec = defaultPipeline, id) => presetFigure(spec, pipelineParts, id);
 
 // src/presets/index.ts
 var PRESETS = {
@@ -797,6 +808,7 @@ var PRESETS = {
 export {
   NARROW_W,
   PRESETS,
+  PresetFigure,
   Stack,
   agentLoop,
   agentLoopParts,
@@ -811,6 +823,7 @@ export {
   defaultSyncLoop,
   pipeline,
   pipelineParts,
+  presetFigure,
   ragPipeline,
   ragPipelineParts,
   serviceMap,

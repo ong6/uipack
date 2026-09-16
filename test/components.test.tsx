@@ -219,3 +219,17 @@ describe("Bus", () => {
     }
   });
 });
+
+describe("touch", () => {
+  it("a touch pointer never sets the hover flow", () => {
+    const { container } = render(
+      <Figure viewBox="0 0 100 100" alt="touch">
+        <Node x={0} y={0} w={10} h={10} label="n" flow="alpha" id="touch-node" />
+      </Figure>,
+    );
+    fireEvent.pointerEnter(container.querySelector("#touch-node")!, { pointerType: "touch" });
+    expect(container.querySelector("figure")).not.toHaveAttribute("data-hover-flow");
+    fireEvent.pointerEnter(container.querySelector("#touch-node")!, { pointerType: "mouse" });
+    expect(container.querySelector("figure")).toHaveAttribute("data-hover-flow", "alpha");
+  });
+});
