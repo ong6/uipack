@@ -15,16 +15,15 @@ test.describe("hover", () => {
     await expect(page.locator("figure", { hasText: "Every part" })).toHaveAttribute("data-hover-flow", "alpha");
     await expect(beta).toHaveAttribute("data-state", "dim");
     await expect(conn).toHaveAttribute("data-state", "hit");
-    await page.waitForTimeout(250); // 160ms transition
-    expect(Number(await beta.evaluate((el) => getComputedStyle(el).opacity))).toBeCloseTo(0.35, 1);
-    expect(Number(await conn.evaluate((el) => getComputedStyle(el).opacity))).toBe(1);
+    // 160ms transition; poll rather than sleep, CI WebKit is slow to settle
+    await expect.poll(() => beta.evaluate((el) => Number(getComputedStyle(el).opacity)), { timeout: 2000 }).toBeCloseTo(0.35, 1);
+    await expect.poll(() => conn.evaluate((el) => Number(getComputedStyle(el).opacity)), { timeout: 2000 }).toBe(1);
     const accent = await page.locator("figure.uipack").first().evaluate((el) => getComputedStyle(el).getPropertyValue("--uipack-accent").trim());
     const stroke = await conn.evaluate((el) => getComputedStyle(el).stroke);
     expect(stroke).toBe(await page.evaluate((c) => { const d = document.createElement("div"); d.style.color = c; document.body.append(d); const v = getComputedStyle(d).color; d.remove(); return v; }, accent));
     await page.mouse.move(0, 0);
     await expect(beta).not.toHaveAttribute("data-state", /.+/);
-    await page.waitForTimeout(250);
-    expect(Number(await beta.evaluate((el) => getComputedStyle(el).opacity))).toBe(1);
+    await expect.poll(() => beta.evaluate((el) => Number(getComputedStyle(el).opacity)), { timeout: 2000 }).toBe(1);
   });
 
   test("hovering a legend item filters by kind", async ({ page }) => {
