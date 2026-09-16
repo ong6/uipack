@@ -35,7 +35,7 @@ export const defaultSyncLoop: SyncLoopSpec = {
     ],
   },
   consumers: [
-    { label: "personal-data-store", sub: "subtree", icon: "git", hooks: ["SessionStart", "Stop"] },
+    { label: "private-notes", sub: "subtree", icon: "git", hooks: ["SessionStart", "Stop"] },
     { label: "junxiong-homepage", sub: "subtree", icon: "git", hooks: ["SessionStart", "Stop"] },
     { label: "Plugin marketplace", sub: "read-only", icon: "cloud", plugin: true },
   ],
