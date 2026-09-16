@@ -1,0 +1,69 @@
+{
+  "name": "uipack",
+  "version": "0.1.0",
+  "description": "React and SVG figure components for engineering write-ups: framed figures, lanes, nodes, connectors, animated packets.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./theme.css": "./dist/theme.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
+  "scripts": {
+    "build": "tsup && cp src/theme.css dist/theme.css",
+    "dev": "vite",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "prepare": "npm run build",
+    "test:e2e": "playwright test",
+    "screenshots": "SHOTS=1 playwright test --project=chromium e2e/screenshots.spec.ts"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^26.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.2.0",
+    "vitest": "^3.0.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ong6/uipack.git"
+  },
+  "homepage": "https://junxiong.dev/uipack",
+  "keywords": [
+    "react",
+    "svg",
+    "diagrams",
+    "figures",
+    "components",
+    "design-system"
+  ],
+  "author": "Ong Jun Xiong",
+  "license": "MIT"
+}

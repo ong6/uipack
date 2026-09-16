@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>uipack playground</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; background: #f6f5f1; color: #1a1c1a; }
+      :root[data-theme="dark"] body { background: #0a100d; color: #e8ece9; }
+      main { max-width: 1280px; margin: 0 auto; padding: 24px 16px 64px; display: grid; gap: 32px; }
+      h1 { font-size: 18px; margin: 0; display: flex; justify-content: space-between; align-items: center; }
+      h2 { font-size: 13px; margin: 0 0 8px; font-family: ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
+      button.theme { font: inherit; padding: 6px 12px; border: 1px solid currentColor; background: transparent; color: inherit; border-radius: 6px; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/main.tsx"></script>
+  </body>
+</html>
