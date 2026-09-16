@@ -95,3 +95,47 @@ export function pointAlong(points: Point[], t: number): Point {
   }
   return points[points.length - 1];
 }
+
+/** Length of a polyline in user units. */
+export function polylineLength(points: Point[]): number {
+  let total = 0;
+  for (let i = 1; i < points.length; i++) total += Math.hypot(points[i][0] - points[i - 1][0], points[i][1] - points[i - 1][1]);
+  return total;
+}
+
+/**
+ * Shorten a polyline by `start` units at its first point and `end` units at
+ * its last, walking along the segments. Used so an arrowhead stops short of a
+ * node border and a packet stops short of the arrowhead. Never inverts: if the
+ * trims meet, the polyline collapses to its midpoint.
+ */
+export function trim(points: Point[], start = 0, end = 0): Point[] {
+  if (points.length < 2) return points;
+  const total = polylineLength(points);
+  if (start + end >= total) {
+    const m = pointAlong(points, 0.5);
+    return [m, m];
+  }
+  const cut = (pts: Point[], by: number): Point[] => {
+    let left = by;
+    let i = 0;
+    while (i < pts.length - 1) {
+      const [ax, ay] = pts[i];
+      const [bx, by2] = pts[i + 1];
+      const l = Math.hypot(bx - ax, by2 - ay);
+      if (left < l || (left === l && i === pts.length - 2)) {
+        const k = l === 0 ? 0 : left / l;
+        return [[ax + (bx - ax) * k, ay + (by2 - ay) * k], ...pts.slice(i + 1)];
+      }
+      left -= l;
+      i++;
+    }
+    return pts.slice(-1);
+  };
+  let out = start > 0 ? cut(points, start) : points;
+  if (end > 0) out = cut([...out].reverse(), end).reverse();
+  return out;
+}
+
+/** Snap a value to the 8px grid. */
+export const grid = (v: number, step = 8): number => Math.round(v / step) * step;

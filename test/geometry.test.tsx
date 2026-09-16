@@ -1,4 +1,4 @@
-import { anchor, pathFromPoints, pointAlong, route } from "../src";
+import { anchor, grid, pathFromPoints, pointAlong, polylineLength, route, trim } from "../src";
 
 describe("geometry", () => {
   it("anchor picks the edge centre by default", () => {
@@ -26,5 +26,19 @@ describe("geometry", () => {
   it("pointAlong walks the polyline by length", () => {
     expect(pointAlong([[0, 0], [100, 0], [100, 100]], 0.5)).toEqual([100, 0]);
     expect(pointAlong([[0, 0], [100, 0], [100, 100]], 0.75)).toEqual([100, 50]);
+  });
+  it("trim shortens both ends along the segments", () => {
+    expect(trim([[0, 0], [100, 0]], 2, 12)).toEqual([[2, 0], [88, 0]]);
+    expect(trim([[0, 0], [10, 0], [10, 50]], 0, 12)).toEqual([[0, 0], [10, 0], [10, 38]]);
+    expect(trim([[0, 0], [10, 0], [10, 5]], 0, 12)).toEqual([[0, 0], [3, 0]]); // eats the last segment
+  });
+  it("trim collapses to the midpoint instead of inverting", () => {
+    expect(trim([[0, 0], [10, 0]], 6, 6)).toEqual([[5, 0], [5, 0]]);
+  });
+  it("polylineLength and grid", () => {
+    expect(polylineLength([[0, 0], [30, 0], [30, 40]])).toBe(70);
+    expect(grid(117)).toBe(120);
+    expect(grid(116)).toBe(120);
+    expect(grid(115)).toBe(112);
   });
 });

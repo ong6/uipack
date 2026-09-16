@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useFigureMotion } from "./context";
-import { pathFromPoints, pointAlong, type Point } from "./geometry";
+import { useFigureHover, hoverAttrs, type Flow } from "./hover";
+import { pathFromPoints, pointAlong, trim, type Point } from "./geometry";
 import { Token, type TokenKind, type TokenShape } from "./tokens";
 
 export interface PacketProps {
@@ -18,6 +19,13 @@ export interface PacketProps {
   /** Ride the path backwards (a response). */
   reverse?: boolean;
   radius?: number;
+  /** Flow names for hover highlighting. */
+  flow?: Flow;
+  /**
+   * Units the trip stops short of its first and last point, so the token
+   * never sits on the arrowhead or the node border. Default 2 and 12.
+   */
+  trim?: [number, number];
   id?: string;
 }
 
@@ -27,23 +35,26 @@ export interface PacketProps {
  * Replay come from the enclosing Figure, which drives the SVG timeline
  * (pauseAnimations, setCurrentTime), so offsets survive a replay.
  */
-export function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at = 0.5, r = 5, reverse, radius = 6, id }: PacketProps) {
+export function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at = 0.5, r = 5, reverse, radius = 6, flow, trim: t = [2, 12], id }: PacketProps) {
   const { reduced } = useFigureMotion();
-  const pts = reverse ? [...points].reverse() : points;
+  const hover = useFigureHover();
+  const base = reverse ? [...points].reverse() : points;
+  const pts = trim(base, t[0], t[1]);
   const d = pathFromPoints(pts, radius);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+  const attrs = hoverAttrs(flow, kind === "neutral" ? undefined : kind, hover);
 
   if (reduced || !mounted) {
     const [cx, cy] = pointAlong(pts, at);
     return (
-      <g id={id} data-uipack="packet" data-static="true">
+      <g id={id} data-uipack="packet" data-static="true" {...attrs}>
         <Token kind={kind} shape={shape} r={r} cx={cx} cy={cy} />
       </g>
     );
   }
   return (
-    <g id={id} data-uipack="packet">
+    <g id={id} data-uipack="packet" {...attrs}>
       <Token kind={kind} shape={shape} r={r} />
       <animateMotion dur={`${dur}s`} begin={`${delay}s`} repeatCount="indefinite" path={d} calcMode="linear" />
     </g>
