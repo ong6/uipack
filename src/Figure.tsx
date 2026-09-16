@@ -2,6 +2,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNod
 import { FigureMotionContext, usePrefersReducedMotion, type FigureMotion } from "./context";
 import { Legend, type LegendItem } from "./Legend";
 import { FigureHoverContext, type FigureHover } from "./hover";
+import { FigureScaleContext, DEFAULT_RENDER_WIDTH, fontFloor } from "./scale";
 
 export interface FigureProps {
   /** "Figure 01" or "Fig. 3". Rendered mono, uppercase, before the eyebrow title. */
@@ -28,7 +29,39 @@ export interface FigureProps {
   theme?: "light" | "dark";
   /** Canvas background: the dotted grid (default), plain, or ruled lines. */
   background?: "dots" | "plain" | "ruled";
+  /**
+   * Smallest rendered text size in CSS px. Every text part (Node, Lane, Label,
+   * Chip, Badge, Group) clamps its font to this once the drawing's scale is
+   * known. Default 11. 0 turns the floor off.
+   */
+  minFont?: number;
+  /**
+   * Width in CSS px the figure renders at, when known (static export, tests).
+   * Otherwise it is measured after mount; before that, 1088 is assumed.
+   */
+  measuredWidth?: number;
   id?: string;
+}
+
+const vbWidth = (viewBox: string) => Number(viewBox.split(/\s+/)[2]) || 0;
+
+/** Rendered width of each drawing, measured by ResizeObserver; 0 while hidden. */
+function useRenderedWidth(ref: React.RefObject<SVGSVGElement>, fixed?: number): number {
+  const [w, setW] = useState(fixed ?? DEFAULT_RENDER_WIDTH);
+  useEffect(() => {
+    if (fixed != null) return;
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const read = () => {
+      const width = el.getBoundingClientRect().width;
+      if (width > 0) setW(width);
+    };
+    read();
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref, fixed]);
+  return fixed ?? w;
 }
 
 const PauseGlyph = () => (
@@ -65,6 +98,8 @@ export function Figure({
   className,
   theme,
   background = "dots",
+  minFont = 11,
+  measuredWidth,
   id,
 }: FigureProps) {
   const auto = useId();
@@ -77,6 +112,10 @@ export function Figure({
   const hover = useMemo<FigureHover>(() => ({ flow: hoverFlow, kind: hoverKind, setFlow: setHoverFlow, setKind: setHoverKind }), [hoverFlow, hoverKind]);
   const wideRef = useRef<SVGSVGElement>(null);
   const narrowRef = useRef<SVGSVGElement>(null);
+  const wideW = useRenderedWidth(wideRef, measuredWidth);
+  const narrowW = useRenderedWidth(narrowRef, measuredWidth);
+  const wideScale = useMemo(() => ({ floor: fontFloor(vbWidth(viewBox), wideW, minFont) }), [viewBox, wideW, minFont]);
+  const narrowScale = useMemo(() => ({ floor: fontFloor(vbWidth(narrowViewBox ?? viewBox), narrowW, minFont) }), [narrowViewBox, viewBox, narrowW, minFont]);
 
   const svgs = () => [wideRef.current, narrowRef.current].filter(Boolean) as SVGSVGElement[];
 
@@ -142,11 +181,11 @@ export function Figure({
         ) : null}
         <div className={`uipack__canvas uipack__canvas--${background}`}>
           <svg ref={wideRef} className="uipack--wide" viewBox={viewBox} role="img" aria-label={alt}>
-            {children}
+            <FigureScaleContext.Provider value={wideScale}>{children}</FigureScaleContext.Provider>
           </svg>
           {narrow ? (
             <svg ref={narrowRef} className="uipack--narrow" viewBox={narrowViewBox ?? viewBox} role="img" aria-label={alt}>
-              {narrow}
+              <FigureScaleContext.Provider value={narrowScale}>{narrow}</FigureScaleContext.Provider>
             </svg>
           ) : null}
         </div>

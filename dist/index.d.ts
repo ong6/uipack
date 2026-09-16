@@ -1,4 +1,4 @@
-export { F as Figure, a as FigureProps } from './Figure-DN8mra4p.js';
+export { F as Figure, a as FigureProps } from './Figure-tZhGRXM2.js';
 import { T as TokenKind, a as TokenShape } from './Legend-S2FQoAxv.js';
 export { L as Legend, b as LegendItem, c as LegendProps, d as TOKEN_SHAPE, e as Token, f as TokenProps, t as tokenColor } from './Legend-S2FQoAxv.js';
 import * as react from 'react';
@@ -17,7 +17,7 @@ interface LaneProps {
     size?: number;
 }
 /** Mono uppercase column header, the way the OpenAI figures label CLIENTS / PLATFORM / STORAGE. */
-declare function Lane({ x, w, y, title, h, size }: LaneProps): react.JSX.Element;
+declare function Lane({ x, w, y, title, h, size: size0 }: LaneProps): react.JSX.Element;
 
 type Flow = string | string[];
 interface FigureHover {
@@ -79,7 +79,7 @@ interface NodeProps {
     subSize?: number;
     id?: string;
 }
-declare function Node({ x, y, w, h, label, sub, icon, align, accent, dashed, flow, hint, href, size, subSize, id, }: NodeProps): react.JSX.Element;
+declare function Node({ x, y, w, h, label, sub, icon, align, accent, dashed, flow, hint, href, size: size0, subSize: subSize0, id, }: NodeProps): react.JSX.Element;
 
 interface ChipProps {
     x: number;
@@ -96,7 +96,7 @@ interface ChipProps {
     size?: number;
 }
 /** Pill: a connection slot, a request in a queue, a status flag. */
-declare function Chip({ x, y, w, h, label, dashed, kind, flow, size }: ChipProps): react.JSX.Element;
+declare function Chip({ x, y, w, h, label, dashed, kind, flow, size: size0 }: ChipProps): react.JSX.Element;
 
 type Point = [number, number];
 type Side = "top" | "right" | "bottom" | "left";
@@ -204,7 +204,11 @@ interface PacketProps {
     dur?: number;
     /** Seconds before the first trip; negative starts mid-path. */
     delay?: number;
-    /** Where the static token sits under reduced motion, 0..1. */
+    /**
+     * Where the static token sits under reduced motion or before mount, 0..1
+     * along the trip. Default spreads packets that share a path by their
+     * `delay`: `(0.5 + delay / dur) mod 1`.
+     */
     at?: number;
     r?: number;
     /** Ride the path backwards (a response). */
@@ -213,8 +217,10 @@ interface PacketProps {
     /** Flow names for hover highlighting. */
     flow?: Flow;
     /**
-     * Units the trip stops short of its first and last point, so the token
-     * never sits on the arrowhead or the node border. Default 2 and 12.
+     * Units the trip stops short of the connector's source end and its
+     * arrowhead end (in the connector's own direction, whatever `reverse`
+     * says), so the token never sits on a node border or an arrowhead.
+     * Default `r + 2` and 12.
      */
     trim?: [number, number];
     id?: string;
@@ -233,9 +239,10 @@ interface BadgeProps {
     text: string;
     accent?: boolean;
     r?: number;
+    size?: number;
 }
 /** A circled step number on a node corner or a connector. */
-declare function Badge({ cx, cy, text, accent, r }: BadgeProps): react.JSX.Element;
+declare function Badge({ cx, cy, text, accent, r, size: size0 }: BadgeProps): react.JSX.Element;
 
 interface LabelProps {
     x: number;
@@ -248,7 +255,7 @@ interface LabelProps {
     font?: "mono" | "sans";
 }
 /** Text with a page-coloured underlay so it can sit on a connector. */
-declare function Label({ x, y, text, anchor, accent, size, font }: LabelProps): react.JSX.Element;
+declare function Label({ x, y, text, anchor, accent, size: size0, font }: LabelProps): react.JSX.Element;
 
 interface DefsProps {
     /** Prefix for marker ids; keep unique per SVG on the page. */
@@ -273,6 +280,27 @@ declare function Wordmark({ size }: {
     size?: number;
 }): react.JSX.Element;
 
+/**
+ * Text floor for one drawing. `floor` is in user units: the smallest font size
+ * that still renders at `minFont` CSS pixels once the SVG is scaled from its
+ * viewBox width to the width it is shown at.
+ */
+interface FigureScale {
+    floor: number;
+}
+declare const FigureScaleContext: react.Context<FigureScale>;
+/** Width a figure is assumed to render at before it is measured (the prose breakout on junxiong.dev). */
+declare const DEFAULT_RENDER_WIDTH = 1088;
+/** User-unit floor for a drawing `vbWidth` wide shown at `renderWidth` CSS px. */
+declare function fontFloor(vbWidth: number, renderWidth: number, minFont: number): number;
+/** Wrap a drawing that is rendered outside a Figure (static export, tests). */
+declare function FigureScaleProvider({ floor, children }: {
+    floor: number;
+    children: ReactNode;
+}): react.JSX.Element;
+/** Clamp a font size to the enclosing figure's floor. Outside a Figure the size is returned as is. */
+declare function useFontFloor(size: number): number;
+
 interface FigureMotion {
     /** False after Pause, or always false under prefers-reduced-motion. */
     playing: boolean;
@@ -291,4 +319,4 @@ declare function useFigureMotion(): FigureMotion;
 /** True when the OS asks for reduced motion. Server render says false. */
 declare function usePrefersReducedMotion(): boolean;
 
-export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, Defs, type DefsProps, type FigureHover, FigureHoverContext, type FigureMotion, FigureMotionContext, type Flow, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, type MarkName, Node, type NodeProps, Packet, type PacketProps, type Point, type Side, TokenKind, TokenShape, Wordmark, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, marks, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFigureMotion, usePrefersReducedMotion };
+export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, DEFAULT_RENDER_WIDTH, Defs, type DefsProps, type FigureHover, FigureHoverContext, type FigureMotion, FigureMotionContext, type FigureScale, FigureScaleContext, FigureScaleProvider, type Flow, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, type MarkName, Node, type NodeProps, Packet, type PacketProps, type Point, type Side, TokenKind, TokenShape, Wordmark, anchor, busStub, busStubs, connectorStroke, flowList, fontFloor, grid, hoverAttrs, marks, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFigureMotion, useFontFloor, usePrefersReducedMotion };

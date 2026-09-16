@@ -1,3 +1,5 @@
+import { useFontFloor } from "./scale";
+
 export interface LaneProps {
   /** Left edge and width of the column the header sits over. */
   x: number;
@@ -10,7 +12,8 @@ export interface LaneProps {
 }
 
 /** Mono uppercase column header, the way the OpenAI figures label CLIENTS / PLATFORM / STORAGE. */
-export function Lane({ x, w, y, title, h, size = 11 }: LaneProps) {
+export function Lane({ x, w, y, title, h, size: size0 = 11 }: LaneProps) {
+  const size = useFontFloor(size0);
   return (
     <g data-uipack="lane">
       <text x={x + w / 2} y={y} textAnchor="middle" fontSize={size} fontWeight={700} fontFamily="var(--uipack-mono)" letterSpacing=".08em" fill="currentColor">

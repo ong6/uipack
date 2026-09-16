@@ -5,6 +5,7 @@
 // a GitHub README, a slide.
 import { isValidElement, type ReactElement, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { FigureScaleProvider, DEFAULT_RENDER_WIDTH, fontFloor } from "../scale";
 import { FigureMotionContext, type FigureMotion } from "../context";
 import type { FigureProps } from "../Figure";
 import type { LegendItem } from "../Legend";
@@ -83,6 +84,8 @@ export interface StaticOptions {
   frame?: boolean;
   /** Output width attribute; height follows the viewBox. Default the viewBox width. */
   width?: number;
+  /** Smallest text size in CSS px at the width the file is shown at (default 1088 wide). Default 11. */
+  minFont?: number;
   /** Paint the canvas background (and the dotted grid). False leaves it transparent so the page shows through. */
   background?: boolean;
 }
@@ -153,7 +156,15 @@ export function renderStatic(input: ReactElement<FigureProps> | StaticFigure, op
   g.__UIPACK_PRERENDER__ = motion;
   let drawing: string;
   try {
-    drawing = inlineVars(renderToStaticMarkup(<FigureMotionContext.Provider value={ctx}>{fig.children}</FigureMotionContext.Provider>), p);
+    const floor = fontFloor(vw, opts.width ?? DEFAULT_RENDER_WIDTH, opts.minFont ?? 11);
+    drawing = inlineVars(
+      renderToStaticMarkup(
+        <FigureMotionContext.Provider value={ctx}>
+          <FigureScaleProvider floor={floor}>{fig.children}</FigureScaleProvider>
+        </FigureMotionContext.Provider>,
+      ),
+      p,
+    );
   } finally {
     g.__UIPACK_PRERENDER__ = prev;
   }

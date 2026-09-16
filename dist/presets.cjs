@@ -52,7 +52,7 @@ __export(presets_exports, {
 module.exports = __toCommonJS(presets_exports);
 
 // src/presets/shared.tsx
-var import_react5 = require("react");
+var import_react6 = require("react");
 
 // src/hover.tsx
 var import_react = require("react");
@@ -159,7 +159,8 @@ function trim(points, start = 0, end = 0) {
       const l = Math.hypot(bx - ax, by2 - ay);
       if (left < l || left === l && i === pts.length - 2) {
         const k = l === 0 ? 0 : left / l;
-        return [[ax + (bx - ax) * k, ay + (by2 - ay) * k], ...pts.slice(i + 1)];
+        const r3 = (v) => Math.round(v * 1e3) / 1e3;
+        return [[r3(ax + (bx - ax) * k), r3(ay + (by2 - ay) * k)], ...pts.slice(i + 1)];
       }
       left -= l;
       i++;
@@ -225,7 +226,7 @@ function Defs({ id }) {
 }
 
 // src/Figure.tsx
-var import_react3 = require("react");
+var import_react4 = require("react");
 
 // src/context.tsx
 var import_react2 = require("react");
@@ -319,16 +320,48 @@ function Legend({ items }) {
   }) });
 }
 
-// src/Figure.tsx
+// src/scale.tsx
+var import_react3 = require("react");
 var import_jsx_runtime5 = require("react/jsx-runtime");
-var PauseGlyph = () => /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: [
-  /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("rect", { x: "2", y: "1.5", width: "3", height: "9", rx: "0.5" }),
-  /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("rect", { x: "7", y: "1.5", width: "3", height: "9", rx: "0.5" })
+var FigureScaleContext = (0, import_react3.createContext)({ floor: 0 });
+var DEFAULT_RENDER_WIDTH = 1088;
+function fontFloor(vbWidth2, renderWidth, minFont) {
+  if (!vbWidth2 || !renderWidth || !minFont) return 0;
+  return minFont * vbWidth2 / renderWidth;
+}
+function useFontFloor(size) {
+  const { floor } = (0, import_react3.useContext)(FigureScaleContext);
+  return Math.max(size, floor);
+}
+
+// src/Figure.tsx
+var import_jsx_runtime6 = require("react/jsx-runtime");
+var vbWidth = (viewBox) => Number(viewBox.split(/\s+/)[2]) || 0;
+function useRenderedWidth(ref, fixed) {
+  const [w, setW] = (0, import_react4.useState)(fixed ?? DEFAULT_RENDER_WIDTH);
+  (0, import_react4.useEffect)(() => {
+    if (fixed != null) return;
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const read = () => {
+      const width = el.getBoundingClientRect().width;
+      if (width > 0) setW(width);
+    };
+    read();
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref, fixed]);
+  return fixed ?? w;
+}
+var PauseGlyph = () => /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: [
+  /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("rect", { x: "2", y: "1.5", width: "3", height: "9", rx: "0.5" }),
+  /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("rect", { x: "7", y: "1.5", width: "3", height: "9", rx: "0.5" })
 ] });
-var PlayGlyph = () => /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("path", { d: "M3 1.5 L10.5 6 L3 10.5 Z" }) });
-var ReplayGlyph = () => /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: [
-  /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("path", { d: "M6 1.5a4.5 4.5 0 1 1-4.2 2.9", fill: "none", stroke: "currentColor", strokeWidth: "1.6", strokeLinecap: "round" }),
-  /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("path", { d: "M1.5 1.5v3h3z" })
+var PlayGlyph = () => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M3 1.5 L10.5 6 L3 10.5 Z" }) });
+var ReplayGlyph = () => /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: [
+  /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M6 1.5a4.5 4.5 0 1 1-4.2 2.9", fill: "none", stroke: "currentColor", strokeWidth: "1.6", strokeLinecap: "round" }),
+  /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M1.5 1.5v3h3z" })
 ] });
 function Figure({
   number,
@@ -346,28 +379,34 @@ function Figure({
   className,
   theme,
   background = "dots",
+  minFont = 11,
+  measuredWidth,
   id
 }) {
-  const auto = (0, import_react3.useId)();
+  const auto = (0, import_react4.useId)();
   const figId = id ?? `uipack-${auto.replace(/:/g, "")}`;
   const reduced = usePrefersReducedMotion();
-  const [playing, setPlaying] = (0, import_react3.useState)(true);
-  const [cycle, setCycle] = (0, import_react3.useState)(0);
-  const [hoverFlow, setHoverFlow] = (0, import_react3.useState)(null);
-  const [hoverKind, setHoverKind] = (0, import_react3.useState)(null);
-  const hover = (0, import_react3.useMemo)(() => ({ flow: hoverFlow, kind: hoverKind, setFlow: setHoverFlow, setKind: setHoverKind }), [hoverFlow, hoverKind]);
-  const wideRef = (0, import_react3.useRef)(null);
-  const narrowRef = (0, import_react3.useRef)(null);
+  const [playing, setPlaying] = (0, import_react4.useState)(true);
+  const [cycle, setCycle] = (0, import_react4.useState)(0);
+  const [hoverFlow, setHoverFlow] = (0, import_react4.useState)(null);
+  const [hoverKind, setHoverKind] = (0, import_react4.useState)(null);
+  const hover = (0, import_react4.useMemo)(() => ({ flow: hoverFlow, kind: hoverKind, setFlow: setHoverFlow, setKind: setHoverKind }), [hoverFlow, hoverKind]);
+  const wideRef = (0, import_react4.useRef)(null);
+  const narrowRef = (0, import_react4.useRef)(null);
+  const wideW = useRenderedWidth(wideRef, measuredWidth);
+  const narrowW = useRenderedWidth(narrowRef, measuredWidth);
+  const wideScale = (0, import_react4.useMemo)(() => ({ floor: fontFloor(vbWidth(viewBox), wideW, minFont) }), [viewBox, wideW, minFont]);
+  const narrowScale = (0, import_react4.useMemo)(() => ({ floor: fontFloor(vbWidth(narrowViewBox ?? viewBox), narrowW, minFont) }), [narrowViewBox, viewBox, narrowW, minFont]);
   const svgs = () => [wideRef.current, narrowRef.current].filter(Boolean);
-  (0, import_react3.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     for (const s of svgs()) {
       if (typeof s.pauseAnimations !== "function") continue;
       if (playing) s.unpauseAnimations();
       else s.pauseAnimations();
     }
   }, [playing]);
-  const toggle = (0, import_react3.useCallback)(() => setPlaying((p) => !p), []);
-  const replay = (0, import_react3.useCallback)(() => {
+  const toggle = (0, import_react4.useCallback)(() => setPlaying((p) => !p), []);
+  const replay = (0, import_react4.useCallback)(() => {
     for (const s of svgs()) {
       if (typeof s.setCurrentTime === "function") s.setCurrentTime(0);
       if (typeof s.unpauseAnimations === "function") s.unpauseAnimations();
@@ -375,13 +414,13 @@ function Figure({
     setPlaying(true);
     setCycle((c) => c + 1);
   }, []);
-  const motion = (0, import_react3.useMemo)(
+  const motion = (0, import_react4.useMemo)(
     () => ({ playing: playing && !reduced, reduced, cycle, toggle, replay }),
     [playing, reduced, cycle, toggle, replay]
   );
   const showControls = controls && !reduced;
   const hasHead = number || eyebrow || title || caption || legend.length || showControls;
-  return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(
     "figure",
     {
       id: figId,
@@ -391,30 +430,30 @@ function Figure({
       "data-hover-kind": hoverKind ?? void 0,
       style: { margin: 0 },
       children: [
-        hasHead ? /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "uipack__head", children: [
-          number || eyebrow ? /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("p", { className: "uipack__eyebrow", children: [
+        hasHead ? /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "uipack__head", children: [
+          number || eyebrow ? /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("p", { className: "uipack__eyebrow", children: [
             number,
             number && eyebrow ? " \xB7 " : "",
             eyebrow
           ] }) : null,
-          title ? (0, import_react3.createElement)(`h${headingLevel}`, { className: "uipack__title" }, title) : null,
-          caption ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("p", { className: "uipack__caption", children: caption }) : null,
-          showControls ? /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "uipack__controls", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: replay, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(ReplayGlyph, {}),
+          title ? (0, import_react4.createElement)(`h${headingLevel}`, { className: "uipack__title" }, title) : null,
+          caption ? /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "uipack__caption", children: caption }) : null,
+          showControls ? /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "uipack__controls", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: replay, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ReplayGlyph, {}),
               " Replay"
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: toggle, "aria-pressed": !playing, children: [
-              playing ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(PauseGlyph, {}) : /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(PlayGlyph, {}),
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: toggle, "aria-pressed": !playing, children: [
+              playing ? /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(PauseGlyph, {}) : /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(PlayGlyph, {}),
               " ",
               playing ? "Pause" : "Play"
             ] })
           ] }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Legend, { items: legend })
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Legend, { items: legend })
         ] }) : null,
-        /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: `uipack__canvas uipack__canvas--${background}`, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("svg", { ref: wideRef, className: "uipack--wide", viewBox, role: "img", "aria-label": alt, children }),
-          narrow ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("svg", { ref: narrowRef, className: "uipack--narrow", viewBox: narrowViewBox ?? viewBox, role: "img", "aria-label": alt, children: narrow }) : null
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: `uipack__canvas uipack__canvas--${background}`, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("svg", { ref: wideRef, className: "uipack--wide", viewBox, role: "img", "aria-label": alt, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(FigureScaleContext.Provider, { value: wideScale, children }) }),
+          narrow ? /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("svg", { ref: narrowRef, className: "uipack--narrow", viewBox: narrowViewBox ?? viewBox, role: "img", "aria-label": alt, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(FigureScaleContext.Provider, { value: narrowScale, children: narrow }) }) : null
         ] })
       ]
     }
@@ -422,111 +461,111 @@ function Figure({
 }
 
 // src/icons/index.tsx
-var import_jsx_runtime6 = require("react/jsx-runtime");
+var import_jsx_runtime7 = require("react/jsx-runtime");
 var icons = {
-  db: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("ellipse", { cx: "8", cy: "3.5", rx: "6", ry: "2.5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M2 3.5v9c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-9" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M2 8c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5" })
+  db: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("ellipse", { cx: "8", cy: "3.5", rx: "6", ry: "2.5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M2 3.5v9c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-9" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M2 8c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5" })
   ] }),
-  cache: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M9 1.5 3.5 9H8l-1 5.5L12.5 7H8z" }) }),
-  queue: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("rect", { x: "1.5", y: "4", width: "13", height: "8", rx: "1.5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M5 4v8M9 4v8" })
+  cache: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M9 1.5 3.5 9H8l-1 5.5L12.5 7H8z" }) }),
+  queue: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "1.5", y: "4", width: "13", height: "8", rx: "1.5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M5 4v8M9 4v8" })
   ] }),
-  service: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("rect", { x: "2", y: "2", width: "12", height: "12", rx: "2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M5 8h6M8 5v6" })
+  service: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "2", y: "2", width: "12", height: "12", rx: "2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M5 8h6M8 5v6" })
   ] }),
-  client: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("rect", { x: "1.5", y: "3", width: "13", height: "8", rx: "1.5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M5.5 14h5M8 11v3" })
+  client: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "1.5", y: "3", width: "13", height: "8", rx: "1.5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M5.5 14h5M8 11v3" })
   ] }),
-  blob: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M8 1.5 14 5v6l-6 3.5L2 11V5z" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M8 8l6-3M8 8 2 5M8 8v6.5" })
+  blob: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 1.5 14 5v6l-6 3.5L2 11V5z" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 8l6-3M8 8 2 5M8 8v6.5" })
   ] }),
-  agent: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "8", cy: "5", r: "3" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M2.5 14.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M8 1v1" })
+  agent: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "8", cy: "5", r: "3" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M2.5 14.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 1v1" })
   ] }),
-  doc: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M4 1.5h5.5L13 5v9.5H4z" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M9.5 1.5V5H13M6 8h4M6 11h4" })
+  doc: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M4 1.5h5.5L13 5v9.5H4z" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M9.5 1.5V5H13M6 8h4M6 11h4" })
   ] }),
-  model: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("rect", { x: "2", y: "4", width: "12", height: "8", rx: "2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "5.5", cy: "8", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "8", cy: "8", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "10.5", cy: "8", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M8 1.5V4M8 12v2.5" })
+  model: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "2", y: "4", width: "12", height: "8", rx: "2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "5.5", cy: "8", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "8", cy: "8", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "10.5", cy: "8", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 1.5V4M8 12v2.5" })
   ] }),
-  tool: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M10.5 2a3.5 3.5 0 0 0-3.3 4.7L2 11.9l2.1 2.1 5.2-5.2A3.5 3.5 0 0 0 14 5.5L11.8 7.7 9.3 6.2l-1-2.4z" }) }),
-  gateway: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M2 8h12M2 8l3-3M2 8l3 3M14 8l-3-3M14 8l-3 3" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("rect", { x: "6", y: "5.5", width: "4", height: "5", rx: "1", fill: "var(--uipack-surface, #fff)" })
+  tool: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M10.5 2a3.5 3.5 0 0 0-3.3 4.7L2 11.9l2.1 2.1 5.2-5.2A3.5 3.5 0 0 0 14 5.5L11.8 7.7 9.3 6.2l-1-2.4z" }) }),
+  gateway: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M2 8h12M2 8l3-3M2 8l3 3M14 8l-3-3M14 8l-3 3" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "6", y: "5.5", width: "4", height: "5", rx: "1", fill: "var(--uipack-surface, #fff)" })
   ] }),
-  lock: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("rect", { x: "3", y: "7", width: "10", height: "7.5", rx: "1.5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M5.5 7V5a2.5 2.5 0 0 1 5 0v2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "8", cy: "10.75", r: "1", fill: "currentColor" })
+  lock: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "3", y: "7", width: "10", height: "7.5", rx: "1.5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M5.5 7V5a2.5 2.5 0 0 1 5 0v2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "8", cy: "10.75", r: "1", fill: "currentColor" })
   ] }),
-  key: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "5.5", cy: "8", r: "3" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M8.5 8H14M12 8v2.5M10 8v2" })
+  key: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "5.5", cy: "8", r: "3" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8.5 8H14M12 8v2.5M10 8v2" })
   ] }),
-  clock: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "8", cy: "8", r: "6" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M8 4.5V8l2.5 1.5" })
+  clock: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "8", cy: "8", r: "6" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 4.5V8l2.5 1.5" })
   ] }),
-  cron: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "8", cy: "8.5", r: "5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M8 5.5v3l2 1M5 2l-2.5 2M11 2l2.5 2" })
+  cron: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "8", cy: "8.5", r: "5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 5.5v3l2 1M5 2l-2.5 2M11 2l2.5 2" })
   ] }),
-  browser: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("rect", { x: "1.5", y: "2.5", width: "13", height: "11", rx: "1.5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M1.5 6h13M4 4.25h.01M6 4.25h.01" })
+  browser: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "1.5", y: "2.5", width: "13", height: "11", rx: "1.5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M1.5 6h13M4 4.25h.01M6 4.25h.01" })
   ] }),
-  terminal: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("rect", { x: "1.5", y: "2.5", width: "13", height: "11", rx: "1.5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M4.5 6l2.5 2-2.5 2M8.5 10.5h3" })
+  terminal: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "1.5", y: "2.5", width: "13", height: "11", rx: "1.5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M4.5 6l2.5 2-2.5 2M8.5 10.5h3" })
   ] }),
-  git: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "4.5", cy: "3.5", r: "1.75" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "4.5", cy: "12.5", r: "1.75" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "11.5", cy: "5.5", r: "1.75" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M4.5 5.25v5.5M11.5 7.25c0 2.5-2 3-4 3.25a3 3 0 0 0-3 .5" })
+  git: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "4.5", cy: "3.5", r: "1.75" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "4.5", cy: "12.5", r: "1.75" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "11.5", cy: "5.5", r: "1.75" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M4.5 5.25v5.5M11.5 7.25c0 2.5-2 3-4 3.25a3 3 0 0 0-3 .5" })
   ] }),
-  cloud: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M4.5 13a3 3 0 0 1-.4-6A4 4 0 0 1 12 6.5a3.25 3.25 0 0 1 0 6.5z" }) }),
-  region: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M8 14.5s4.5-4.2 4.5-8A4.5 4.5 0 0 0 3.5 6.5c0 3.8 4.5 8 4.5 8z" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "8", cy: "6.5", r: "1.5" })
+  cloud: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M4.5 13a3 3 0 0 1-.4-6A4 4 0 0 1 12 6.5a3.25 3.25 0 0 1 0 6.5z" }) }),
+  region: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 14.5s4.5-4.2 4.5-8A4.5 4.5 0 0 0 3.5 6.5c0 3.8 4.5 8 4.5 8z" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "8", cy: "6.5", r: "1.5" })
   ] }),
-  user: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "8", cy: "5.5", r: "3" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M2.5 14.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5" })
+  user: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "8", cy: "5.5", r: "3" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M2.5 14.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5" })
   ] }),
-  robot: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("rect", { x: "3", y: "5", width: "10", height: "8", rx: "2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M8 2v3M6 13v1.5M10 13v1.5M1.5 8.5v2M14.5 8.5v2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "6", cy: "8.5", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "10", cy: "8.5", r: "1", fill: "currentColor" })
+  robot: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "3", y: "5", width: "10", height: "8", rx: "2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 2v3M6 13v1.5M10 13v1.5M1.5 8.5v2M14.5 8.5v2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "6", cy: "8.5", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "10", cy: "8.5", r: "1", fill: "currentColor" })
   ] }),
-  chart: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M2 14h12M4 11V7M8 11V4M12 11V8.5" }) }),
-  warning: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M8 2 14.5 13.5h-13z" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("path", { d: "M8 6.5v3.5M8 12.25h.01" })
+  chart: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M2 14h12M4 11V7M8 11V4M12 11V8.5" }) }),
+  warning: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 2 14.5 13.5h-13z" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 6.5v3.5M8 12.25h.01" })
   ] }),
-  more: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "3", cy: "8", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "8", cy: "8", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("circle", { cx: "13", cy: "8", r: "1", fill: "currentColor" })
+  more: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "3", cy: "8", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "8", cy: "8", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "13", cy: "8", r: "1", fill: "currentColor" })
   ] })
 };
 
 // src/Node.tsx
-var import_jsx_runtime7 = require("react/jsx-runtime");
+var import_jsx_runtime8 = require("react/jsx-runtime");
 function Node({
   x,
   y,
@@ -541,11 +580,13 @@ function Node({
   flow,
   hint,
   href,
-  size = 14,
-  subSize = 11,
+  size: size0 = 14,
+  subSize: subSize0 = 11,
   id
 }) {
   const hover = useFigureHover();
+  const size = useFontFloor(size0);
+  const subSize = useFontFloor(subSize0);
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const glyph = typeof icon === "string" ? icons[icon] : icon;
   const pad = 14;
@@ -557,9 +598,9 @@ function Node({
     onPointerEnter: (e) => isPointer(e) && hover.setFlow(flows[0]),
     onPointerLeave: (e) => isPointer(e) && hover.setFlow(null)
   } : {};
-  const body = /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("g", { id, "data-uipack": "node", ...hoverAttrs(flow, void 0, hover), ...handlers, children: [
-    hint ? /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("title", { children: hint }) : null,
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+  const body = /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("g", { id, "data-uipack": "node", ...hoverAttrs(flow, void 0, hover), ...handlers, children: [
+    hint ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("title", { children: hint }) : null,
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
       "rect",
       {
         x,
@@ -574,49 +615,51 @@ function Node({
         strokeDasharray: dashed ? "4 4" : void 0
       }
     ),
-    glyph ? /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("g", { transform: `translate(${x + pad}, ${y + h / 2 - 8})`, fill: "none", stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round", strokeLinejoin: "round", children: glyph }) : null,
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("text", { x: tx, y: ty, textAnchor: anchor, fontSize: size, fontWeight: 600, fill: accent ? "var(--uipack-accent)" : "currentColor", children: label }),
-    sub ? /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("text", { x: tx, y: y + h / 2 + subSize + 2, textAnchor: anchor, fontSize: subSize, fontFamily: "var(--uipack-mono)", fill: "currentColor", fillOpacity: 0.75, children: sub }) : null
+    glyph ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("g", { transform: `translate(${x + pad}, ${y + h / 2 - 8})`, fill: "none", stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round", strokeLinejoin: "round", children: glyph }) : null,
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("text", { x: tx, y: ty, textAnchor: anchor, fontSize: size, fontWeight: 600, fill: accent ? "var(--uipack-accent)" : "currentColor", children: label }),
+    sub ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("text", { x: tx, y: y + h / 2 + subSize + 2, textAnchor: anchor, fontSize: subSize, fontFamily: "var(--uipack-mono)", fill: "currentColor", fillOpacity: 0.75, children: sub }) : null
   ] });
-  return href ? /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("a", { href, className: "uipack__link", "aria-label": label, children: body }) : body;
+  return href ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("a", { href, className: "uipack__link", "aria-label": label, children: body }) : body;
 }
 
 // src/Packet.tsx
-var import_react4 = require("react");
-var import_jsx_runtime8 = require("react/jsx-runtime");
-function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at = 0.5, r = 5, reverse, radius = 6, flow, trim: t = [2, 12], id }) {
+var import_react5 = require("react");
+var import_jsx_runtime9 = require("react/jsx-runtime");
+function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at, r = 5, reverse, radius = 6, flow, trim: t, id }) {
   const { reduced, prerender } = useFigureMotion();
   const hover = useFigureHover();
-  const base = reverse ? [...points].reverse() : points;
-  const pts = trim(base, t[0], t[1]);
+  const [ts, te] = t ?? [r + 2, 12];
+  const trimmed = trim(points, ts, te);
+  const pts = reverse ? [...trimmed].reverse() : trimmed;
+  const staticAt = at ?? ((0.5 + delay / dur) % 1 + 1) % 1;
   const d = pathFromPoints(pts, radius);
-  const [mounted, setMounted] = (0, import_react4.useState)(false);
-  (0, import_react4.useEffect)(() => setMounted(true), []);
+  const [mounted, setMounted] = (0, import_react5.useState)(false);
+  (0, import_react5.useEffect)(() => setMounted(true), []);
   const attrs = hoverAttrs(flow, kind === "neutral" ? void 0 : kind, hover);
   const pre = prerender || globalThis.__UIPACK_PRERENDER__ === true;
   if (reduced || !mounted && !pre) {
-    const [cx, cy] = pointAlong(pts, at);
-    return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("g", { id, "data-uipack": "packet", "data-static": "true", ...attrs, children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(Token, { kind, shape, r, cx, cy }) });
+    const [cx, cy] = pointAlong(pts, staticAt);
+    return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("g", { id, "data-uipack": "packet", "data-static": "true", ...attrs, children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Token, { kind, shape, r, cx, cy }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("g", { id, "data-uipack": "packet", ...attrs, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(Token, { kind, shape, r }),
-    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("animateMotion", { dur: `${dur}s`, begin: `${delay}s`, repeatCount: "indefinite", path: d, calcMode: "linear" })
+  return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("g", { id, "data-uipack": "packet", ...attrs, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Token, { kind, shape, r }),
+    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("animateMotion", { dur: `${dur}s`, begin: `${delay}s`, repeatCount: "indefinite", path: d, calcMode: "linear" })
   ] });
 }
 
 // src/presets/shared.tsx
-var import_jsx_runtime9 = require("react/jsx-runtime");
+var import_jsx_runtime10 = require("react/jsx-runtime");
 var clean = (s) => s.replace(/:/g, "");
 function PresetFigure({ spec, parts, id }) {
-  const auto = (0, import_react5.useId)();
+  const auto = (0, import_react6.useId)();
   const fid = id ?? `p${clean(auto)}`;
   return toFigure(spec.figure, parts(spec, fid), fid);
 }
 function presetFigure(spec, parts, id) {
-  return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(PresetFigure, { spec, parts, id });
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(PresetFigure, { spec, parts, id });
 }
 function toFigure(meta, parts, id) {
-  return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
     Figure,
     {
       id,
@@ -634,62 +677,90 @@ function toFigure(meta, parts, id) {
     }
   );
 }
+function fits(px, size, mono = false) {
+  return Math.max(3, Math.floor(px / (size * (mono ? 0.62 : 0.55))));
+}
+function fit(text, px, size, mono = false) {
+  const n = fits(px, size, mono);
+  if (text.length <= n) return { text };
+  return { text: text.slice(0, Math.max(1, n - 1)).trimEnd() + "\u2026", hint: text };
+}
+function rows(items, per = 3) {
+  const out = [];
+  for (let i = 0; i < items.length; i += per) out.push(items.slice(i, i + per));
+  return out;
+}
 var NARROW_W = 360;
 var SX = 16;
 var SW = 328;
 var SH = 48;
 var GAP = 40;
+var TIGHT = 8;
+var STACK_TEXT_W = SW - 14 - 26 - 12;
 function stackHeight(n, y0 = 24) {
   return y0 + n * SH + (n - 1) * GAP + 24;
 }
+function stackLayout(steps, y0 = 24) {
+  const ys = [];
+  let y = y0;
+  steps.forEach((s, i) => {
+    if (i > 0) y += SH + (s.link === false ? TIGHT : GAP);
+    ys.push(y);
+  });
+  return { ys, height: (ys[ys.length - 1] ?? y0) + SH + 24 };
+}
+function stackHeightFor(steps, y0 = 24) {
+  return stackLayout(steps, y0).height;
+}
 function Stack({ steps, id, y0 = 24 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_jsx_runtime9.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Defs, { id }),
+  const { ys } = stackLayout(steps, y0);
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Defs, { id }),
     steps.map((s, i) => {
-      const y = y0 + i * (SH + GAP);
+      const y = ys[i];
       const into = [
         [SX + SW / 2, y - GAP],
         [SX + SW / 2, y]
       ];
       const kind = s.kind ?? "request";
-      return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("g", { children: [
-        i > 0 ? /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_jsx_runtime9.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Connector, { points: into, defs: id, kind: kind === "neutral" ? void 0 : kind, flow: s.flow }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Packet, { points: into, kind, dur: 1.4, delay: -i * 0.35, reverse: s.back, flow: s.flow, r: 4 })
+      return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("g", { children: [
+        i > 0 && s.link !== false ? /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Connector, { points: into, defs: id, kind: kind === "neutral" ? void 0 : kind, flow: s.flow }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Packet, { points: into, kind, dur: 1.4, delay: -i * 0.35, reverse: s.back, flow: s.flow, r: 4 })
         ] }) : null,
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Node, { x: SX, y, w: SW, h: SH, label: s.label, sub: s.sub, icon: s.icon, size: 13, subSize: 10, flow: s.flow, accent: s.accent, dashed: s.dashed })
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Node, { x: SX, y, w: SW, h: SH, label: s.label, sub: s.sub, icon: s.icon, hint: s.hint, size: 13, subSize: 10, flow: s.flow, accent: s.accent, dashed: s.dashed })
       ] }, i);
     })
   ] });
 }
 
 // src/Bus.tsx
-var import_jsx_runtime10 = require("react/jsx-runtime");
+var import_jsx_runtime11 = require("react/jsx-runtime");
 function busStub(props, stub) {
   return props.axis === "h" ? [[stub.at, props.at], [stub.at, stub.to]] : [[props.at, stub.at], [stub.to, stub.at]];
 }
 function Bus({ axis = "v", at, from, to, stubs, kind, flow, defs, dots = true, id }) {
   const hover = useFigureHover();
   const trunk = axis === "h" ? [[from, at], [to, at]] : [[at, from], [at, to]];
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("g", { id, "data-uipack": "bus", ...hoverAttrs(flow, kind, hover), children: [
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Connector, { points: trunk, arrow: false, kind, flow, inset: 0 }),
-    stubs.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Connector, { points: busStub({ axis, at }, s), defs, arrow: !!s.arrow, kind, flow: s.flow ?? flow, inset: [0, 2] }, i)),
+  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("g", { id, "data-uipack": "bus", ...hoverAttrs(flow, kind, hover), children: [
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Connector, { points: trunk, arrow: false, kind, flow, inset: 0 }),
+    stubs.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Connector, { points: busStub({ axis, at }, s), defs, arrow: !!s.arrow, kind, flow: s.flow ?? flow, inset: [0, 2] }, i)),
     dots ? stubs.map((s, i) => {
       const [cx, cy] = axis === "h" ? [s.at, at] : [at, s.at];
-      return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("circle", { "data-uipack": "junction", cx, cy, r: 2.5, fill: connectorStroke(kind), fillOpacity: kind ? 1 : 0.7 }, i);
+      return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("circle", { "data-uipack": "junction", cx, cy, r: 2.5, fill: connectorStroke(kind), fillOpacity: kind ? 1 : 0.7 }, i);
     }) : null
   ] });
 }
 
 // src/Group.tsx
-var import_jsx_runtime11 = require("react/jsx-runtime");
+var import_jsx_runtime12 = require("react/jsx-runtime");
 function Group({ x, y, w, h, title, variant = "solid", accent, flow, titleSize, children }) {
   const hover = useFigureHover();
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const dashed = variant === "dashed";
-  const ts = titleSize ?? (dashed ? 11 : 14);
-  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("g", { "data-uipack": "group", ...hoverAttrs(flow, void 0, hover), children: [
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+  const ts = useFontFloor(titleSize ?? (dashed ? 11 : 14));
+  return /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("g", { "data-uipack": "group", ...hoverAttrs(flow, void 0, hover), children: [
+    /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
       "rect",
       {
         x,
@@ -705,22 +776,23 @@ function Group({ x, y, w, h, title, variant = "solid", accent, flow, titleSize, 
         strokeDasharray: dashed ? "4 4" : void 0
       }
     ),
-    title ? dashed ? /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("text", { x: x + 16, y: y + 22, fontSize: ts, fontFamily: "var(--uipack-mono)", letterSpacing: ".08em", fill: stroke, fillOpacity: accent ? 1 : 0.75, children: title.toUpperCase() }) : /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("text", { x: x + w / 2, y: y + 24, textAnchor: "middle", fontSize: ts, fontWeight: 600, fill: stroke, children: title }) : null,
+    title ? dashed ? /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("text", { x: x + 16, y: y + 22, fontSize: ts, fontFamily: "var(--uipack-mono)", letterSpacing: ".08em", fill: stroke, fillOpacity: accent ? 1 : 0.75, children: title.toUpperCase() }) : /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("text", { x: x + w / 2, y: y + 24, textAnchor: "middle", fontSize: ts, fontWeight: 600, fill: stroke, children: title }) : null,
     children
   ] });
 }
 
 // src/Lane.tsx
-var import_jsx_runtime12 = require("react/jsx-runtime");
-function Lane({ x, w, y, title, h, size = 11 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("g", { "data-uipack": "lane", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("text", { x: x + w / 2, y, textAnchor: "middle", fontSize: size, fontWeight: 700, fontFamily: "var(--uipack-mono)", letterSpacing: ".08em", fill: "currentColor", children: title.toUpperCase() }),
-    h ? /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("line", { x1: x + w, y1: y + 12, x2: x + w, y2: y + h, stroke: "currentColor", strokeOpacity: 0.15, strokeDasharray: "2 6" }) : null
+var import_jsx_runtime13 = require("react/jsx-runtime");
+function Lane({ x, w, y, title, h, size: size0 = 11 }) {
+  const size = useFontFloor(size0);
+  return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("g", { "data-uipack": "lane", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("text", { x: x + w / 2, y, textAnchor: "middle", fontSize: size, fontWeight: 700, fontFamily: "var(--uipack-mono)", letterSpacing: ".08em", fill: "currentColor", children: title.toUpperCase() }),
+    h ? /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("line", { x1: x + w, y1: y + 12, x2: x + w, y2: y + h, stroke: "currentColor", strokeOpacity: 0.15, strokeDasharray: "2 6" }) : null
   ] });
 }
 
 // src/presets/serviceMap.tsx
-var import_jsx_runtime13 = require("react/jsx-runtime");
+var import_jsx_runtime14 = require("react/jsx-runtime");
 var defaultServiceMap = {
   figure: {
     number: "Figure 01",
@@ -765,8 +837,8 @@ function serviceMapParts(spec = defaultServiceMap, id) {
   const [lc, lp, lr] = spec.laneTitles ?? ["Clients", "Platform", "Resources"];
   const client = { x: 24, w: 176, h: 48, step: 56, y0: 96 };
   const store = { x: 1024, w: 200, h: 48, step: 64, y0: 96 };
-  const rows = Math.ceil(spec.platform.cells.length / 3);
-  const platform = { x: 328, y: 64, w: 600, h: 44 + rows * 72 + (spec.platform.footer ? 72 : 0) };
+  const rows2 = Math.ceil(spec.platform.cells.length / 3);
+  const platform = { x: 328, y: 64, w: 600, h: 44 + rows2 * 72 + (spec.platform.footer ? 72 : 0) };
   const busX = 232;
   const storeBusX = 1e3;
   const clientY = (i) => client.y0 + i * client.step + client.h / 2;
@@ -800,53 +872,59 @@ function serviceMapParts(spec = defaultServiceMap, id) {
       [via.x + via.w / 2, via.y]
     ];
     const elbow = via.y + via.h + 24;
-    sinks = /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(import_jsx_runtime13.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Connector, { points: viaPath, defs: id, kind: "change", flow: CDC }),
-      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Packet, { points: viaPath, kind: "change", dur: 2, flow: CDC }),
-      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Node, { ...via, label: spec.sinks.via.label, sub: spec.sinks.via.sub, icon: spec.sinks.via.icon ?? "queue", flow: CDC }),
+    sinks = /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)(import_jsx_runtime14.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Connector, { points: viaPath, defs: id, kind: "change", flow: CDC }),
+      /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Packet, { points: viaPath, kind: "change", dur: 2, flow: CDC }),
+      /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Node, { ...via, label: spec.sinks.via.label, sub: spec.sinks.via.sub, icon: spec.sinks.via.icon ?? "queue", flow: CDC }),
       spec.sinks.items.map((s, i) => {
         const p = route([via.x + via.w / 2, via.y + via.h], [x0 + i * (sw + gap) + sw / 2, sinkY], elbow, "v");
-        return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("g", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Connector, { points: p, defs: id, kind: "change", flow: CDC }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Packet, { points: p, kind: "change", dur: 2.2, delay: -i * 0.55, flow: CDC }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Node, { x: x0 + i * (sw + gap), y: sinkY, w: sw, h: 40, label: s.label, icon: s.icon, flow: CDC, size: 13 })
+        return /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("g", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Connector, { points: p, defs: id, kind: "change", flow: CDC }),
+          /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Packet, { points: p, kind: "change", dur: 2.2, delay: -i * 0.55, flow: CDC }),
+          /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Node, { x: x0 + i * (sw + gap), y: sinkY, w: sw, h: 40, label: s.label, icon: s.icon, flow: CDC, size: 13 })
         ] }, s.label);
       })
     ] });
     height = sinkY + 40 + 24;
   }
-  const wide = /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(import_jsx_runtime13.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Defs, { id }),
-    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Lane, { x: client.x, w: client.w, y: 44, title: lc }),
-    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Lane, { x: platform.x, w: platform.w, y: 44, title: lp }),
-    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Lane, { x: store.x, w: store.w, y: 44, title: lr }),
-    spec.clients.map((c, i) => /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Node, { x: client.x, y: client.y0 + i * client.step, w: client.w, h: client.h, label: c.label, sub: c.sub, icon: c.icon, flow: READ }, c.label)),
-    /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(Group, { ...platform, title: spec.platform.title, flow: spec.sinks ? [READ, CDC] : READ, children: [
-      spec.platform.cells.map((c, i) => /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Node, { x: platform.x + 24 + i % 3 * 192, y: platform.y + 44 + Math.floor(i / 3) * 72, w: 168, h: 56, label: c.label, sub: c.sub, align: "left", flow: READ }, c.label)),
-      spec.platform.footer ? /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Node, { x: platform.x + 24, y: platform.y + 44 + rows * 72, w: 552, h: 56, label: spec.platform.footer.label, sub: spec.platform.footer.sub, align: "left", flow: READ }) : null
+  const wide = /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)(import_jsx_runtime14.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Defs, { id }),
+    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Lane, { x: client.x, w: client.w, y: 40, title: lc }),
+    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Lane, { x: platform.x, w: platform.w, y: 40, title: lp }),
+    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Lane, { x: store.x, w: store.w, y: 40, title: lr }),
+    spec.clients.map((c, i) => /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Node, { x: client.x, y: client.y0 + i * client.step, w: client.w, h: client.h, label: c.label, sub: c.sub, icon: c.icon, flow: READ }, c.label)),
+    /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)(Group, { ...platform, title: spec.platform.title, flow: spec.sinks ? [READ, CDC] : READ, children: [
+      spec.platform.cells.map((c, i) => /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Node, { x: platform.x + 24 + i % 3 * 192, y: platform.y + 44 + Math.floor(i / 3) * 72, w: 168, h: 56, label: c.label, sub: c.sub, align: "left", flow: READ }, c.label)),
+      spec.platform.footer ? /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Node, { x: platform.x + 24, y: platform.y + 44 + rows2 * 72, w: 552, h: 56, label: spec.platform.footer.label, sub: spec.platform.footer.sub, align: "left", flow: READ }) : null
     ] }),
-    spec.resources.map((r, i) => /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Node, { x: store.x, y: store.y0 + i * store.step, w: store.w, h: store.h, label: r.label, sub: r.sub, icon: r.icon, flow: READ }, r.label)),
-    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bus, { ...clientBus, from: Math.min(clientY(0), trunkY), to: Math.max(clientY(spec.clients.length - 1), trunkY), defs: id }),
-    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bus, { ...storeBus, from: Math.min(storeY(0), trunkY), to: Math.max(storeY(spec.resources.length - 1), trunkY), defs: id }),
-    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Packet, { points: toPlatform, kind: "request", dur: 2.4, flow: READ }),
-    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Packet, { points: toPlatform, kind: "response", dur: 2.4, delay: -1.2, reverse: true, flow: READ }),
-    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Packet, { points: fromPlatform, kind: "request", dur: 2.4, delay: -0.3, reverse: true, flow: READ }),
-    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Packet, { points: fromPlatform, kind: "response", dur: 2.4, delay: -1.5, flow: READ }),
-    spec.clients.map((_, i) => /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Packet, { points: busStub(clientBus, clientBus.stubs[i]), kind: i % 2 ? "response" : "request", dur: 1.6, delay: -i * 0.4, reverse: i % 2 === 0, r: 4, flow: READ }, i)),
-    spec.resources.map((_, i) => /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Packet, { points: busStub(storeBus, storeBus.stubs[i]), kind: i % 2 ? "response" : "request", dur: 1.6, delay: -i * 0.5, reverse: i % 2 === 1, r: 4, flow: READ }, i)),
+    spec.resources.map((r, i) => /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Node, { x: store.x, y: store.y0 + i * store.step, w: store.w, h: store.h, label: r.label, sub: r.sub, icon: r.icon, flow: READ }, r.label)),
+    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Bus, { ...clientBus, from: Math.min(clientY(0), trunkY), to: Math.max(clientY(spec.clients.length - 1), trunkY), defs: id }),
+    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Bus, { ...storeBus, from: Math.min(storeY(0), trunkY), to: Math.max(storeY(spec.resources.length - 1), trunkY), defs: id }),
+    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Packet, { points: toPlatform, kind: "request", dur: 2.4, flow: READ }),
+    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Packet, { points: toPlatform, kind: "response", dur: 2.4, delay: -1.2, reverse: true, flow: READ }),
+    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Packet, { points: fromPlatform, kind: "request", dur: 2.4, delay: -0.3, reverse: true, flow: READ }),
+    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Packet, { points: fromPlatform, kind: "response", dur: 2.4, delay: -1.5, flow: READ }),
+    spec.clients.map((_, i) => /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Packet, { points: busStub(clientBus, clientBus.stubs[i]), kind: i % 2 ? "response" : "request", dur: 1.6, delay: -i * 0.4, reverse: i % 2 === 0, r: 4, flow: READ }, i)),
+    spec.resources.map((_, i) => /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Packet, { points: busStub(storeBus, storeBus.stubs[i]), kind: i % 2 ? "response" : "request", dur: 1.6, delay: -i * 0.5, reverse: i % 2 === 1, r: 4, flow: READ }, i)),
     sinks
   ] });
+  const row = (items, sub, icon, flow, kind) => rows(items, 3).map((r, i) => {
+    const l = fit(r.map((c) => c.label).join(" \xB7 "), STACK_TEXT_W, 13);
+    return { label: l.text, hint: l.hint, sub: i === 0 ? sub : void 0, icon: i === 0 ? icon : void 0, flow, kind, link: i === 0 ? void 0 : false };
+  });
+  const platformTitle = fit(spec.platform.title, STACK_TEXT_W, 13);
   const steps = [
-    { label: spec.clients.map((c) => c.label).join(" \xB7 "), sub: lc, icon: "client", flow: READ },
-    { label: spec.platform.title, sub: spec.platform.cells.map((c) => c.label).join(" \xB7 "), icon: "service", flow: READ },
-    { label: spec.resources.map((r) => r.label).join(" \xB7 "), sub: lr, icon: "db", flow: READ },
-    ...spec.sinks ? [{ label: spec.sinks.via.label, sub: spec.sinks.items.map((s) => s.label).join(" \xB7 "), icon: "queue", kind: "change", flow: CDC }] : []
+    ...row(spec.clients, lc, "client", READ),
+    { label: platformTitle.text, hint: platformTitle.hint, icon: "service", flow: READ },
+    ...row(spec.platform.cells, "", void 0, READ).map((s) => ({ ...s, link: false, icon: void 0, sub: void 0 })),
+    ...row(spec.resources, lr, "db", READ),
+    ...spec.sinks ? [{ label: fit(spec.sinks.via.label, STACK_TEXT_W, 13).text, icon: "queue", kind: "change", flow: CDC }, ...row(spec.sinks.items, "", void 0, CDC, "change").map((s) => ({ ...s, link: false, icon: void 0, sub: void 0 }))] : []
   ];
   return {
     wide,
-    narrow: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Stack, { steps, id: `${id}-n` }),
+    narrow: /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Stack, { steps, id: `${id}-n` }),
     viewBox: `0 0 1248 ${height}`,
-    narrowViewBox: `0 0 ${NARROW_W} ${stackHeight(steps.length)}`,
+    narrowViewBox: `0 0 ${NARROW_W} ${stackHeightFor(steps)}`,
     legend: [
       { label: "Request", kind: "request" },
       { label: "Response", kind: "response" },
@@ -857,13 +935,14 @@ function serviceMapParts(spec = defaultServiceMap, id) {
 var serviceMap = (spec = defaultServiceMap, id) => presetFigure(spec, serviceMapParts, id);
 
 // src/Label.tsx
-var import_jsx_runtime14 = require("react/jsx-runtime");
-function Label({ x, y, text, anchor = "start", accent, size = 11, font = "mono" }) {
+var import_jsx_runtime15 = require("react/jsx-runtime");
+function Label({ x, y, text, anchor = "start", accent, size: size0 = 11, font = "mono" }) {
+  const size = useFontFloor(size0);
   const w = text.length * size * (font === "mono" ? 0.62 : 0.55) + 8;
   const rx = anchor === "middle" ? x - w / 2 : anchor === "end" ? x - w + 4 : x - 4;
-  return /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("g", { "data-uipack": "label", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("rect", { x: rx, y: y - size + 1, width: w, height: size + 5, fill: "var(--uipack-bg)" }),
-    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)("g", { "data-uipack": "label", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("rect", { x: rx, y: y - size + 1, width: w, height: size + 5, fill: "var(--uipack-bg)" }),
+    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(
       "text",
       {
         x,
@@ -881,7 +960,7 @@ function Label({ x, y, text, anchor = "start", accent, size = 11, font = "mono" 
 }
 
 // src/presets/agentLoop.tsx
-var import_jsx_runtime15 = require("react/jsx-runtime");
+var import_jsx_runtime16 = require("react/jsx-runtime");
 var defaultAgentLoop = {
   figure: {
     number: "Figure 01",
@@ -934,32 +1013,32 @@ function agentLoopParts(spec = defaultAgentLoop, id) {
     [cx, output.y]
   ];
   const height = output.y + output.h + 24;
-  const wide = /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)(import_jsx_runtime15.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Defs, { id }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Lane, { x: user.x, w: user.w, y: 44, title: lu }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Lane, { x: agentBox.x, w: agentBox.w, y: 44, title: la }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Lane, { x: tool.x, w: tool.w, y: 44, title: lt }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { ...user, label: spec.user.label, sub: spec.user.sub, icon: spec.user.icon ?? "user", flow: ASK, hint: "Sends the request, reads the output" }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)(Group, { ...agentBox, title: spec.agent.label, flow: [ASK, TOOLS, CHECK], children: [
-      /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { x: agentBox.x + 24, y: agentBox.y + 40, w: agentBox.w - 48, h: 56, label: spec.agent.sub ?? "plan \xB7 call \xB7 draft", sub: "model", icon: spec.agent.icon ?? "agent", flow: [ASK, TOOLS] }),
-      /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { x: agentBox.x + 24, y: agentBox.y + 112, w: agentBox.w - 48, h: 40, label: "Draft", sub: "structured output", icon: "doc", flow: CHECK, size: 13, subSize: 10 })
+  const wide = /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)(import_jsx_runtime16.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Defs, { id }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Lane, { x: user.x, w: user.w, y: 40, title: lu }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Lane, { x: agentBox.x, w: agentBox.w, y: 40, title: la }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Lane, { x: tool.x, w: tool.w, y: 40, title: lt }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Node, { ...user, label: spec.user.label, sub: spec.user.sub, icon: spec.user.icon ?? "user", flow: ASK, hint: "Sends the request, reads the output" }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)(Group, { ...agentBox, title: spec.agent.label, flow: [ASK, TOOLS, CHECK], children: [
+      /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Node, { x: agentBox.x + 24, y: agentBox.y + 40, w: agentBox.w - 48, h: 56, label: spec.agent.sub ?? "plan \xB7 call \xB7 draft", sub: "model", icon: spec.agent.icon ?? "agent", flow: [ASK, TOOLS] }),
+      /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Node, { x: agentBox.x + 24, y: agentBox.y + 112, w: agentBox.w - 48, h: 40, label: "Draft", sub: "structured output", icon: "doc", flow: CHECK, size: 13, subSize: 10 })
     ] }),
-    spec.tools.map((t, i) => /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { x: tool.x, y: tool.y0 + i * tool.step, w: tool.w, h: tool.h, label: t.label, sub: t.sub, icon: t.icon ?? "tool", flow: TOOLS }, t.label)),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Connector, { points: ask, defs: id, kind: "request", flow: ASK }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Packet, { points: ask, kind: "request", dur: 2, flow: ASK }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Packet, { points: ask, kind: "response", dur: 2, delay: -1, reverse: true, flow: ASK }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Bus, { ...bus, from: Math.min(toolY(0), trunkY), to: Math.max(toolY(n - 1), trunkY), defs: id, kind: "change" }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Packet, { points: fromAgent, kind: "change", dur: 1.8, flow: TOOLS }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Packet, { points: fromAgent, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: TOOLS }),
-    spec.tools.map((_, i) => /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Packet, { points: busStub(bus, bus.stubs[i]), kind: i % 2 ? "response" : "change", dur: 1.4, delay: -i * 0.45, reverse: i % 2 === 1, r: 4, flow: TOOLS }, i)),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Label, { x: (agentBox.x + agentBox.w + busX) / 2, y: trunkY - 10, text: "tool calls", anchor: "middle" }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Connector, { points: toBoundary, defs: id, kind: "request", flow: CHECK }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Packet, { points: toBoundary, kind: "request", dur: 1.6, flow: CHECK }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { ...boundary, label: spec.boundary.label, sub: spec.boundary.sub, icon: spec.boundary.icon ?? "lock", accent: true, dashed: true, flow: CHECK, hint: "Code, not a model, decides what passes" }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Connector, { points: toOutput, defs: id, kind: "accent", flow: CHECK }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Packet, { points: toOutput, kind: "accent", dur: 1.6, delay: -0.8, flow: CHECK }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Label, { x: cx + 12, y: toOutput[0][1] + 28, text: "verdict", accent: true }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { ...output, label: spec.output.label, sub: spec.output.sub, icon: spec.output.icon ?? "doc", flow: CHECK })
+    spec.tools.map((t, i) => /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Node, { x: tool.x, y: tool.y0 + i * tool.step, w: tool.w, h: tool.h, label: t.label, sub: t.sub, icon: t.icon ?? "tool", flow: TOOLS }, t.label)),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Connector, { points: ask, defs: id, kind: "request", flow: ASK }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Packet, { points: ask, kind: "request", dur: 2, flow: ASK }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Packet, { points: ask, kind: "response", dur: 2, delay: -1, reverse: true, flow: ASK }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Bus, { ...bus, from: Math.min(toolY(0), trunkY), to: Math.max(toolY(n - 1), trunkY), defs: id, kind: "change" }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Packet, { points: fromAgent, kind: "change", dur: 1.8, flow: TOOLS }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Packet, { points: fromAgent, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: TOOLS }),
+    spec.tools.map((_, i) => /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Packet, { points: busStub(bus, bus.stubs[i]), kind: i % 2 ? "response" : "change", dur: 1.4, delay: -i * 0.45, reverse: i % 2 === 1, r: 4, flow: TOOLS }, i)),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Label, { x: (agentBox.x + agentBox.w + busX) / 2, y: trunkY - 10, text: "tool calls", anchor: "middle" }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Connector, { points: toBoundary, defs: id, kind: "request", flow: CHECK }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Packet, { points: toBoundary, kind: "request", dur: 1.6, flow: CHECK }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Node, { ...boundary, label: spec.boundary.label, sub: spec.boundary.sub, icon: spec.boundary.icon ?? "lock", accent: true, dashed: true, flow: CHECK, hint: "Code, not a model, decides what passes" }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Connector, { points: toOutput, defs: id, kind: "accent", flow: CHECK }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Packet, { points: toOutput, kind: "accent", dur: 1.6, delay: -0.8, flow: CHECK }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Label, { x: cx + 12, y: toOutput[0][1] + 28, text: "verdict", accent: true }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Node, { ...output, label: spec.output.label, sub: spec.output.sub, icon: spec.output.icon ?? "doc", flow: CHECK })
   ] });
   const steps = [
     { ...spec.user, icon: spec.user.icon ?? "user", flow: ASK },
@@ -971,7 +1050,7 @@ function agentLoopParts(spec = defaultAgentLoop, id) {
   ];
   return {
     wide,
-    narrow: /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Stack, { steps, id: `${id}-n` }),
+    narrow: /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Stack, { steps, id: `${id}-n` }),
     viewBox: `0 0 1120 ${height}`,
     narrowViewBox: `0 0 ${NARROW_W} ${stackHeight(steps.length)}`,
     legend: [
@@ -985,7 +1064,7 @@ function agentLoopParts(spec = defaultAgentLoop, id) {
 var agentLoop = (spec = defaultAgentLoop, id) => presetFigure(spec, agentLoopParts, id);
 
 // src/presets/ragPipeline.tsx
-var import_jsx_runtime16 = require("react/jsx-runtime");
+var import_jsx_runtime17 = require("react/jsx-runtime");
 var defaultRagPipeline = {
   figure: {
     number: "Figure 01",
@@ -1058,38 +1137,38 @@ function ragPipelineParts(spec = defaultRagPipeline, id) {
       [sx(i) + stage.w, y],
       [sx(i + 1), y]
     ];
-    return /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("g", { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Connector, { points: p, defs: id, kind, flow }),
-      /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Packet, { points: p, kind, dur: 1.2, delay: -i * 0.4, r: 4, flow })
+    return /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("g", { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Connector, { points: p, defs: id, kind, flow }),
+      /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Packet, { points: p, kind, dur: 1.2, delay: -i * 0.4, r: 4, flow })
     ] }, i);
   });
-  const wide = /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)(import_jsx_runtime16.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Defs, { id }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Lane, { x: src.x, w: src.w, y: 44, title: "Sources" }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Lane, { x: stage.x0, w: ingestLast - stage.x0, y: 44, title: "Ingest" }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Lane, { x: index.x, w: index.w, y: 44, title: "Index" }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Lane, { x: stage.x0, w: sx(spec.stages.length - 1) + stage.w - stage.x0, y: 252, title: "Query" }),
-    spec.sources.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Node, { x: src.x, y: src.y0 + i * src.step, w: src.w, h: src.h, label: s.label, icon: s.icon ?? "doc", flow: INGEST, size: 13 }, s.label)),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Bus, { ...bus, from: Math.min(srcY(0), iy), to: Math.max(srcY(spec.sources.length - 1), iy), defs: id, kind: "change" }),
-    spec.sources.map((_, i) => /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Packet, { points: busStub(bus, bus.stubs[i]), kind: "change", dur: 1.4, delay: -i * 0.5, reverse: true, r: 4, flow: INGEST }, i)),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Packet, { points: busStub(bus, bus.stubs[spec.sources.length]), kind: "change", dur: 1.2, flow: INGEST, r: 4 }),
-    spec.ingest.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Node, { x: sx(i), y: ingestY, w: stage.w, h: stage.h, label: s.label, sub: s.sub, icon: s.icon, flow: INGEST, size: 13, subSize: 10 }, s.label)),
+  const wide = /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Defs, { id }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Lane, { x: src.x, w: src.w, y: 40, title: "Sources" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Lane, { x: stage.x0, w: ingestLast - stage.x0, y: 40, title: "Ingest" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Lane, { x: index.x, w: index.w, y: 40, title: "Index" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Lane, { x: stage.x0, w: sx(spec.stages.length - 1) + stage.w - stage.x0, y: 248, title: "Query" }),
+    spec.sources.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Node, { x: src.x, y: src.y0 + i * src.step, w: src.w, h: src.h, label: s.label, icon: s.icon ?? "doc", flow: INGEST, size: 13 }, s.label)),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Bus, { ...bus, from: Math.min(srcY(0), iy), to: Math.max(srcY(spec.sources.length - 1), iy), defs: id, kind: "change" }),
+    spec.sources.map((_, i) => /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Packet, { points: busStub(bus, bus.stubs[i]), kind: "change", dur: 1.4, delay: -i * 0.5, reverse: true, r: 4, flow: INGEST }, i)),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Packet, { points: busStub(bus, bus.stubs[spec.sources.length]), kind: "change", dur: 1.2, flow: INGEST, r: 4 }),
+    spec.ingest.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Node, { x: sx(i), y: ingestY, w: stage.w, h: stage.h, label: s.label, sub: s.sub, icon: s.icon, flow: INGEST, size: 13, subSize: 10 }, s.label)),
     chain(spec.ingest, iy, "change", INGEST),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Connector, { points: toIndex, defs: id, kind: "change", flow: INGEST }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Packet, { points: toIndex, kind: "change", dur: 2, flow: INGEST }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Node, { ...index, label: spec.index.label, sub: spec.index.sub, icon: spec.index.icon ?? "db", flow: [INGEST, QUERY2], hint: "Shared by both lanes" }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Node, { x: src.x, y: queryY, w: src.w, h: stage.h, label: spec.query.label, icon: spec.query.icon ?? "user", flow: QUERY2, size: 13 }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Connector, { points: queryIn, defs: id, kind: "request", flow: QUERY2 }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Packet, { points: queryIn, kind: "request", dur: 1.2, flow: QUERY2, r: 4 }),
-    spec.stages.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Node, { x: sx(i), y: queryY, w: stage.w, h: stage.h, label: s.label, sub: s.sub, icon: s.icon, flow: QUERY2, size: 13, subSize: 10 }, s.label)),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Connector, { points: toIndex, defs: id, kind: "change", flow: INGEST }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Packet, { points: toIndex, kind: "change", dur: 2, flow: INGEST }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Node, { ...index, label: spec.index.label, sub: spec.index.sub, icon: spec.index.icon ?? "db", flow: [INGEST, QUERY2], hint: "Shared by both lanes" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Node, { x: src.x, y: queryY, w: src.w, h: stage.h, label: spec.query.label, icon: spec.query.icon ?? "user", flow: QUERY2, size: 13 }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Connector, { points: queryIn, defs: id, kind: "request", flow: QUERY2 }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Packet, { points: queryIn, kind: "request", dur: 1.2, flow: QUERY2, r: 4 }),
+    spec.stages.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Node, { x: sx(i), y: queryY, w: stage.w, h: stage.h, label: s.label, sub: s.sub, icon: s.icon, flow: QUERY2, size: 13, subSize: 10 }, s.label)),
     chain(spec.stages, qy, "request", QUERY2),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Connector, { points: read, defs: id, kind: "request", flow: QUERY2 }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Packet, { points: read, kind: "request", dur: 1.8, flow: QUERY2, r: 4 }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Packet, { points: read, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: QUERY2, r: 4 }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Label, { x: (retrieveX + index.x) / 2, y: index.y + index.h / 2 + 6, text: "top-k", anchor: "middle" }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Connector, { points: toAnswer, defs: id, kind: "response", flow: QUERY2 }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Packet, { points: toAnswer, kind: "response", dur: 1.4, flow: QUERY2, r: 4 }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Node, { ...answer, label: spec.answer.label, sub: spec.answer.sub, icon: spec.answer.icon ?? "doc", flow: QUERY2, size: 13, subSize: 10 })
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Connector, { points: read, defs: id, kind: "request", flow: QUERY2 }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Packet, { points: read, kind: "request", dur: 1.8, flow: QUERY2, r: 4 }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Packet, { points: read, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: QUERY2, r: 4 }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Label, { x: (retrieveX + index.x) / 2, y: index.y + index.h / 2 + 6, text: "top-k", anchor: "middle" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Connector, { points: toAnswer, defs: id, kind: "response", flow: QUERY2 }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Packet, { points: toAnswer, kind: "response", dur: 1.4, flow: QUERY2, r: 4 }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Node, { ...answer, label: spec.answer.label, sub: spec.answer.sub, icon: spec.answer.icon ?? "doc", flow: QUERY2, size: 13, subSize: 10 })
   ] });
   const steps = [
     { label: spec.sources.map((s) => s.label).join(" \xB7 "), sub: "sources", icon: "doc", flow: INGEST },
@@ -1101,7 +1180,7 @@ function ragPipelineParts(spec = defaultRagPipeline, id) {
   ];
   return {
     wide,
-    narrow: /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Stack, { steps, id: `${id}-n` }),
+    narrow: /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Stack, { steps, id: `${id}-n` }),
     viewBox: `0 0 1120 ${height}`,
     narrowViewBox: `0 0 ${NARROW_W} ${stackHeight(steps.length)}`,
     legend: [
@@ -1114,12 +1193,13 @@ function ragPipelineParts(spec = defaultRagPipeline, id) {
 var ragPipeline = (spec = defaultRagPipeline, id) => presetFigure(spec, ragPipelineParts, id);
 
 // src/Chip.tsx
-var import_jsx_runtime17 = require("react/jsx-runtime");
-function Chip({ x, y, w, h = 24, label, dashed, kind, flow, size = 10 }) {
+var import_jsx_runtime18 = require("react/jsx-runtime");
+function Chip({ x, y, w, h = 24, label, dashed, kind, flow, size: size0 = 10 }) {
   const hover = useFigureHover();
+  const size = useFontFloor(size0);
   const fill = !kind ? "var(--uipack-surface)" : kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
-  return /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("g", { "data-uipack": "chip", ...hoverAttrs(flow, kind === "accent" ? void 0 : kind, hover), children: [
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("g", { "data-uipack": "chip", ...hoverAttrs(flow, kind === "accent" ? void 0 : kind, hover), children: [
+    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
       "rect",
       {
         x,
@@ -1135,12 +1215,12 @@ function Chip({ x, y, w, h = 24, label, dashed, kind, flow, size = 10 }) {
         strokeDasharray: dashed ? "3 3" : void 0
       }
     ),
-    label ? /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("text", { x: x + w / 2, y: y + h / 2 + size * 0.36, textAnchor: "middle", fontSize: size, fontWeight: 700, fontFamily: "var(--uipack-mono)", fill: "currentColor", children: label.toUpperCase() }) : null
+    label ? /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("text", { x: x + w / 2, y: y + h / 2 + size * 0.36, textAnchor: "middle", fontSize: size, fontWeight: 700, fontFamily: "var(--uipack-mono)", fill: "currentColor", children: label.toUpperCase() }) : null
   ] });
 }
 
 // src/presets/skillLifecycle.tsx
-var import_jsx_runtime18 = require("react/jsx-runtime");
+var import_jsx_runtime19 = require("react/jsx-runtime");
 var defaultSkillLifecycle = {
   figure: {
     number: "Figure 01",
@@ -1193,32 +1273,32 @@ function skillLifecycleParts(spec = defaultSkillLifecycle, id) {
     [author.x + author.w / 2, author.y + author.h]
   ];
   const height = loopY + 40;
-  const wide = /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)(import_jsx_runtime18.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Defs, { id }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Lane, { x: author.x, w: author.w, y: 44, title: "Author" }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Lane, { x: evaluate.x, w: evaluate.w, y: 44, title: "Evaluate" }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Lane, { x: version.x, w: version.w, y: 44, title: "Version" }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Lane, { x: con.x, w: con.w, y: 44, title: "Consumers" }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { ...author, label: spec.author.label, sub: spec.author.sub, icon: spec.author.icon ?? "user", flow: [FWD, BACK] }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Connector, { points: a2e, defs: id, kind: "request", flow: FWD }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: a2e, kind: "request", dur: 1.4, flow: FWD, r: 4 }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { ...evaluate, label: spec.evaluate.label, sub: spec.evaluate.sub, icon: spec.evaluate.icon ?? "chart", flow: FWD, hint: `Scored against: ${spec.evaluate.baseline}` }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Chip, { x: evaluate.x, y: evaluate.y + evaluate.h + 12, w: evaluate.w, h: 20, label: `baseline \xB7 ${spec.evaluate.baseline}`, size: 9, dashed: true }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Connector, { points: e2v, defs: id, kind: "accent", flow: FWD }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: e2v, kind: "accent", dur: 1.4, delay: -0.7, flow: FWD, r: 4 }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Label, { x: (e2v[0][0] + e2v[1][0]) / 2, y: cy - 10, text: "passes", anchor: "middle", accent: true }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { ...version, label: spec.version.label, sub: spec.version.sub, icon: spec.version.icon ?? "git", flow: FWD }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Bus, { ...bus, from: Math.min(conY(0), cy), to: trunkEnd, defs: id }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: busStub(bus, bus.stubs[n]), kind: "request", dur: 1.2, flow: FWD, r: 4 }),
-    spec.consumers.map((c, i) => /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("g", { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: busStub(bus, bus.stubs[i]), kind: "request", dur: 1.2, delay: -i * 0.4, flow: FWD, r: 4 }),
-      /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, sub: c.sub, icon: c.icon, flow: [FWD, BACK] })
+  const wide = /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(import_jsx_runtime19.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Defs, { id }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Lane, { x: author.x, w: author.w, y: 40, title: "Author" }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Lane, { x: evaluate.x, w: evaluate.w, y: 40, title: "Evaluate" }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Lane, { x: version.x, w: version.w, y: 40, title: "Version" }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Node, { ...author, label: spec.author.label, sub: spec.author.sub, icon: spec.author.icon ?? "user", flow: [FWD, BACK] }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Connector, { points: a2e, defs: id, kind: "request", flow: FWD }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Packet, { points: a2e, kind: "request", dur: 1.4, flow: FWD, r: 4 }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Node, { ...evaluate, label: spec.evaluate.label, sub: spec.evaluate.sub, icon: spec.evaluate.icon ?? "chart", flow: FWD, hint: `Scored against: ${spec.evaluate.baseline}` }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Chip, { x: evaluate.x, y: evaluate.y + evaluate.h + 12, w: evaluate.w, h: 20, label: `baseline \xB7 ${spec.evaluate.baseline}`, dashed: true }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Connector, { points: e2v, defs: id, kind: "accent", flow: FWD }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Packet, { points: e2v, kind: "accent", dur: 1.4, delay: -0.7, flow: FWD, r: 4 }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Label, { x: (e2v[0][0] + e2v[1][0]) / 2, y: cy - 10, text: "passes", anchor: "middle", accent: true }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Node, { ...version, label: spec.version.label, sub: spec.version.sub, icon: spec.version.icon ?? "git", flow: FWD }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Bus, { ...bus, from: Math.min(conY(0), cy), to: trunkEnd, defs: id }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Packet, { points: busStub(bus, bus.stubs[n]), kind: "request", dur: 1.2, flow: FWD, r: 4 }),
+    spec.consumers.map((c, i) => /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("g", { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Packet, { points: busStub(bus, bus.stubs[i]), kind: "request", dur: 1.2, delay: -i * 0.4, flow: FWD, r: 4 }),
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, sub: c.sub, icon: c.icon, flow: [FWD, BACK] })
     ] }, c.label)),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Label, { x: (version.x + version.w + busX) / 2, y: cy - 10, text: "install", anchor: "middle" }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Connector, { points: back, defs: id, kind: "change", flow: BACK, dashed: true }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: back, kind: "change", dur: 3.2, flow: BACK }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: back, kind: "change", dur: 3.2, delay: -1.6, flow: BACK }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Label, { x: (busX + author.x) / 2, y: loopY - 10, text: `${spec.feedback.label} \xB7 ${spec.feedback.sub ?? ""}`.trim(), anchor: "middle" })
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Label, { x: (version.x + version.w + busX) / 2, y: cy - 10, text: "install", anchor: "middle" }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Connector, { points: back, defs: id, kind: "change", flow: BACK, dashed: true }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Packet, { points: back, kind: "change", dur: 3.2, flow: BACK }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Packet, { points: back, kind: "change", dur: 3.2, delay: -1.6, flow: BACK }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Label, { x: (busX + author.x) / 2, y: loopY - 10, text: `${spec.feedback.label} \xB7 ${spec.feedback.sub ?? ""}`.trim(), anchor: "middle" })
   ] });
   const steps = [
     { ...spec.author, icon: spec.author.icon ?? "user", flow: FWD },
@@ -1229,7 +1309,7 @@ function skillLifecycleParts(spec = defaultSkillLifecycle, id) {
   ];
   return {
     wide,
-    narrow: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Stack, { steps, id: `${id}-n` }),
+    narrow: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Stack, { steps, id: `${id}-n` }),
     viewBox: `0 0 1120 ${height}`,
     narrowViewBox: `0 0 ${NARROW_W} ${stackHeight(steps.length)}`,
     legend: [
@@ -1242,7 +1322,7 @@ function skillLifecycleParts(spec = defaultSkillLifecycle, id) {
 var skillLifecycle = (spec = defaultSkillLifecycle, id) => presetFigure(spec, skillLifecycleParts, id);
 
 // src/presets/syncLoop.tsx
-var import_jsx_runtime19 = require("react/jsx-runtime");
+var import_jsx_runtime20 = require("react/jsx-runtime");
 var defaultSyncLoop = {
   figure: {
     number: "Figure 01",
@@ -1277,11 +1357,11 @@ function syncLoopParts(spec = defaultSyncLoop, id) {
   const up = { x: 24, y: 64, w: 320, h: Math.max(48 + items.length * 64 + 8, con.y0 + n * con.step - 64 - 8) };
   const conY = (i) => con.y0 + i * con.step + con.h / 2;
   const height = Math.max(up.y + up.h, con.y0 + n * con.step - 24) + 32;
-  const wide = /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(import_jsx_runtime19.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Defs, { id }),
-    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Lane, { x: up.x, w: up.w, y: 44, title: "Upstream" }),
-    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Lane, { x: con.x, w: con.w, y: 44, title: "Consumers" }),
-    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Group, { ...up, title: spec.upstream.label, flow: [PULL, PUSH], children: items.map((it, i) => /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Node, { x: up.x + 16, y: up.y + 40 + i * 64, w: up.w - 32, h: 48, label: it.label, sub: it.sub, icon: it.icon, align: "left", flow: [PULL, PUSH], size: 13, subSize: 10 }, it.label)) }),
+  const wide = /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Defs, { id }),
+    /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Lane, { x: up.x, w: up.w, y: 40, title: "Upstream" }),
+    /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
+    /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Group, { ...up, title: spec.upstream.label, flow: [PULL, PUSH], children: items.map((it, i) => /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Node, { x: up.x + 16, y: up.y + 40 + i * 64, w: up.w - 32, h: 48, label: it.label, sub: it.sub, icon: it.icon, align: "left", flow: [PULL, PUSH], size: 13, subSize: 10 }, it.label)) }),
     spec.consumers.map((c, i) => {
       const cy = conY(i);
       const pull = [
@@ -1296,21 +1376,21 @@ function syncLoopParts(spec = defaultSyncLoop, id) {
         [up.x + up.w, cy],
         [con.x, cy]
       ];
-      return /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("g", { children: [
-        c.plugin ? /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(import_jsx_runtime19.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Connector, { points: single, defs: id, kind: "request", dashed: true, flow: PULL }),
-          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Packet, { points: single, kind: "request", dur: 2.6, delay: -i * 0.5, flow: PULL, r: 4 })
-        ] }) : /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(import_jsx_runtime19.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Connector, { points: pull, defs: id, kind: "request", flow: PULL }),
-          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Packet, { points: pull, kind: "request", dur: 2.4, delay: -i * 0.6, flow: PULL, r: 4 }),
-          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Connector, { points: push, defs: id, kind: "change", flow: PUSH }),
-          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Packet, { points: push, kind: "change", dur: 2.4, delay: -i * 0.6 - 1.2, flow: PUSH, r: 4 })
+      return /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("g", { children: [
+        c.plugin ? /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Connector, { points: single, defs: id, kind: "request", dashed: true, flow: PULL }),
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Packet, { points: single, kind: "request", dur: 2.6, delay: -i * 0.5, flow: PULL, r: 4 })
+        ] }) : /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Connector, { points: pull, defs: id, kind: "request", flow: PULL }),
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Packet, { points: pull, kind: "request", dur: 2.4, delay: -i * 0.6, flow: PULL, r: 4 }),
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Connector, { points: push, defs: id, kind: "change", flow: PUSH }),
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Packet, { points: push, kind: "change", dur: 2.4, delay: -i * 0.6 - 1.2, flow: PUSH, r: 4 })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, sub: c.hooks ? `${c.sub ?? ""} \xB7 ${c.hooks[0]} \u2192 ${c.hooks[1]}`.replace(/^ · /, "") : c.sub, icon: c.icon, align: "left", flow: c.plugin ? PULL : [PULL, PUSH] })
+        /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, sub: c.hooks ? `${c.sub ?? ""} \xB7 ${c.hooks[0]} \u2192 ${c.hooks[1]}`.replace(/^ · /, "") : c.sub, icon: c.icon, align: "left", flow: c.plugin ? PULL : [PULL, PUSH] })
       ] }, c.label);
     }),
-    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) - 16, text: spec.pull ?? "pull", anchor: "middle" }),
-    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) + 28, text: spec.push ?? "push", anchor: "middle" })
+    /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) - 16, text: spec.pull ?? "pull", anchor: "middle" }),
+    /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) + 28, text: spec.push ?? "push", anchor: "middle" })
   ] });
   const steps = [
     { label: spec.upstream.label, sub: spec.upstream.sub ?? items.map((i) => i.label).join(" \xB7 "), icon: "git", flow: [PULL, PUSH].join(" ") },
@@ -1318,7 +1398,7 @@ function syncLoopParts(spec = defaultSyncLoop, id) {
   ];
   return {
     wide,
-    narrow: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Stack, { steps, id: `${id}-n` }),
+    narrow: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Stack, { steps, id: `${id}-n` }),
     viewBox: `0 0 1120 ${height}`,
     narrowViewBox: `0 0 ${NARROW_W} ${stackHeight(steps.length)}`,
     legend: [
@@ -1330,7 +1410,7 @@ function syncLoopParts(spec = defaultSyncLoop, id) {
 var syncLoop = (spec = defaultSyncLoop, id) => presetFigure(spec, syncLoopParts, id);
 
 // src/presets/beforeAfter.tsx
-var import_jsx_runtime20 = require("react/jsx-runtime");
+var import_jsx_runtime21 = require("react/jsx-runtime");
 var defaultBeforeAfter = {
   figure: {
     number: "Figure 01",
@@ -1369,19 +1449,19 @@ function beforeAfterParts(spec = defaultBeforeAfter, id) {
     const sy = y + 48;
     const cy = sy + stage.h / 2;
     const changed2 = new Set(p.changed ?? []);
-    return /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Group, { x: x0, y, w, h: panelH, title: p.title, variant: "dashed", flow, accent: changed2.size > 0, children: p.stages.map((s, i) => {
+    return /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Group, { x: x0, y, w, h: panelH, title: p.title, variant: "dashed", flow, accent: changed2.size > 0, children: p.stages.map((s, i) => {
       const x = x0 + 24 + i * stage.step;
       const into = [
         [x - stage.step + stage.w, cy],
         [x, cy]
       ];
       const hot = changed2.has(i);
-      return /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("g", { children: [
-        i > 0 ? /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Connector, { points: into, defs: id, kind: hot ? "accent" : "request", flow }),
-          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Packet, { points: into, kind: hot ? "accent" : "request", dur: 1.2, delay: -i * 0.4, flow, r: 4, id: `${pid}-p${i}` })
+      return /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("g", { children: [
+        i > 0 ? /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)(import_jsx_runtime21.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Connector, { points: into, defs: id, kind: hot ? "accent" : "request", flow }),
+          /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Packet, { points: into, kind: hot ? "accent" : "request", dur: 1.2, delay: -i * 0.4, flow, r: 4, id: `${pid}-p${i}` })
         ] }) : null,
-        /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Node, { x, y: sy, w: stage.w, h: stage.h, label: s.label, sub: s.sub, icon: s.icon, accent: hot, flow, size: 13, subSize: 10 })
+        /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Node, { x, y: sy, w: stage.w, h: stage.h, label: s.label, sub: s.sub, icon: s.icon, accent: hot, flow, size: 13, subSize: 10 })
       ] }, s.label + i);
     }) });
   };
@@ -1389,8 +1469,8 @@ function beforeAfterParts(spec = defaultBeforeAfter, id) {
   const height = afterY + panelH + 24;
   const panelW = (p) => 48 + p.stages.length * stage.step - (stage.step - stage.w) + 48;
   const width = Math.max(panelW(spec.before), panelW(spec.after)) + 48;
-  const wide = /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Defs, { id }),
+  const wide = /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)(import_jsx_runtime21.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Defs, { id }),
     panel(spec.before, 24, "before", `${id}-b`),
     panel(spec.after, afterY, "after", `${id}-a`)
   ] });
@@ -1401,7 +1481,7 @@ function beforeAfterParts(spec = defaultBeforeAfter, id) {
   ];
   return {
     wide,
-    narrow: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Stack, { steps, id: `${id}-n` }),
+    narrow: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Stack, { steps, id: `${id}-n` }),
     viewBox: `0 0 ${Math.max(width, 640)} ${height}`,
     narrowViewBox: `0 0 ${NARROW_W} ${stackHeight(steps.length)}`,
     legend: [
@@ -1413,7 +1493,7 @@ function beforeAfterParts(spec = defaultBeforeAfter, id) {
 var beforeAfter = (spec = defaultBeforeAfter, id) => presetFigure(spec, beforeAfterParts, id);
 
 // src/presets/pipeline.tsx
-var import_jsx_runtime21 = require("react/jsx-runtime");
+var import_jsx_runtime22 = require("react/jsx-runtime");
 var defaultPipeline = {
   figure: {
     number: "Figure 01",
@@ -1448,28 +1528,28 @@ function pipelineParts(spec = defaultPipeline, id) {
       [x(slot - 1) + stage.w, cy],
       [x(slot), cy]
     ];
-    const edge = slot > 0 ? /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)(import_jsx_runtime21.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Connector, { points: into, defs: id, kind: kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request", flow: FLOW }),
-      /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Packet, { points: into, kind: kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request", dur: 1.2, delay: -slot * 0.35, flow: FLOW, r: 4 })
+    const edge = slot > 0 ? /* @__PURE__ */ (0, import_jsx_runtime22.jsxs)(import_jsx_runtime22.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(Connector, { points: into, defs: id, kind: kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request", flow: FLOW }),
+      /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(Packet, { points: into, kind: kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request", dur: 1.2, delay: -slot * 0.35, flow: FLOW, r: 4 })
     ] }) : null;
     if (kind === "queue") {
       const q = spec.queue;
       const depth = q.depth ?? 3;
       const cw = (stage.w - 16 - (depth - 1) * 6) / depth;
-      return /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("g", { children: [
+      return /* @__PURE__ */ (0, import_jsx_runtime22.jsxs)("g", { children: [
         edge,
-        /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Group, { x: x(slot), y: stage.y - 16, w: stage.w, h: stage.h + 32, title: q.label, flow: FLOW, accent: true, children: Array.from({ length: depth }).map((_, k) => /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Chip, { x: x(slot) + 8 + k * (cw + 6), y: stage.y + 24, w: cw, h: 18, label: k < depth - 1 ? String(k + 1) : "", kind: k < depth - 1 ? "change" : void 0, dashed: k === depth - 1, size: 9, flow: FLOW }, k)) })
+        /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(Group, { x: x(slot), y: stage.y - 16, w: stage.w, h: stage.h + 32, title: q.label, flow: FLOW, accent: true, children: Array.from({ length: depth }).map((_, k) => /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(Chip, { x: x(slot) + 8 + k * (cw + 6), y: stage.y + 24, w: cw, h: 18, label: k < depth - 1 ? String(k + 1) : "", kind: k < depth - 1 ? "change" : void 0, dashed: k === depth - 1, flow: FLOW }, k)) })
       ] }, "queue");
     }
     const s = spec.stages[si++];
-    return /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("g", { children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime22.jsxs)("g", { children: [
       edge,
-      /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Node, { x: x(slot), y: stage.y, w: stage.w, h: stage.h, label: s.label, sub: s.sub, icon: s.icon, flow: FLOW, size: 13, subSize: 10 })
+      /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(Node, { x: x(slot), y: stage.y, w: stage.w, h: stage.h, label: s.label, sub: s.sub, icon: s.icon, flow: FLOW, size: 13, subSize: 10 })
     ] }, s.label);
   });
-  const wide = /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)(import_jsx_runtime21.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Defs, { id }),
-    /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Lane, { x: 24, w: width - 48, y: 44, title: spec.laneTitle ?? "Stages, left to right" }),
+  const wide = /* @__PURE__ */ (0, import_jsx_runtime22.jsxs)(import_jsx_runtime22.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(Defs, { id }),
+    /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(Lane, { x: 24, w: width - 48, y: 40, title: spec.laneTitle ?? "Stages, left to right" }),
     nodes
   ] });
   const steps = [
@@ -1479,7 +1559,7 @@ function pipelineParts(spec = defaultPipeline, id) {
   ];
   return {
     wide,
-    narrow: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Stack, { steps, id: `${id}-n` }),
+    narrow: /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(Stack, { steps, id: `${id}-n` }),
     viewBox: `0 0 ${Math.max(width, 640)} ${stage.y + stage.h + 48}`,
     narrowViewBox: `0 0 ${NARROW_W} ${stackHeight(steps.length)}`,
     legend: [

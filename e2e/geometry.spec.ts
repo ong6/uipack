@@ -68,4 +68,35 @@ test.describe("geometry", () => {
     expect(off).toEqual([]);
     expect(await page.locator('svg.uipack--wide [data-uipack="junction"]').count()).toBeGreaterThan(10);
   });
+
+  test("lane headers sit on the 8px grid on every preset", async ({ page }) => {
+    await page.goto("/");
+    await page.locator("[data-preset]").first().waitFor();
+    const off = await page.evaluate(() =>
+      [...document.querySelectorAll<SVGTextElement>('[data-preset] svg.uipack--wide [data-uipack="lane"] > text')]
+        .map((t) => Number(t.getAttribute("y")))
+        .filter((y) => y % 8 !== 0),
+    );
+    expect(off).toEqual([]);
+    expect(await page.locator('[data-preset] svg.uipack--wide [data-uipack="lane"] > text').count()).toBeGreaterThan(10);
+  });
+
+  test("no preset text renders under 11px at 1440", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1100 });
+    await page.goto("/");
+    await page.locator("[data-preset]").first().waitFor();
+    await page.waitForTimeout(200); // ResizeObserver has measured
+    const small = await page.evaluate(() => {
+      const out: string[] = [];
+      for (const svg of document.querySelectorAll<SVGSVGElement>("[data-preset] svg.uipack--wide")) {
+        const k = svg.getBoundingClientRect().width / svg.viewBox.baseVal.width;
+        for (const t of svg.querySelectorAll("text")) {
+          const px = Number(t.getAttribute("font-size")) * k;
+          if (px < 11 - 0.05) out.push(`${svg.closest("[data-preset]")?.getAttribute("data-preset")}: "${t.textContent}" ${px.toFixed(1)}px`);
+        }
+      }
+      return out;
+    });
+    expect(small).toEqual([]);
+  });
 });

@@ -78,9 +78,9 @@ export function agentLoopParts(spec: AgentLoopSpec = defaultAgentLoop, id: strin
   const wide = (
     <>
       <Defs id={id} />
-      <Lane x={user.x} w={user.w} y={44} title={lu} />
-      <Lane x={agentBox.x} w={agentBox.w} y={44} title={la} />
-      <Lane x={tool.x} w={tool.w} y={44} title={lt} />
+      <Lane x={user.x} w={user.w} y={40} title={lu} />
+      <Lane x={agentBox.x} w={agentBox.w} y={40} title={la} />
+      <Lane x={tool.x} w={tool.w} y={40} title={lt} />
       <Node {...user} label={spec.user.label} sub={spec.user.sub} icon={spec.user.icon ?? "user"} flow={ASK} hint="Sends the request, reads the output" />
       <Group {...agentBox} title={spec.agent.label} flow={[ASK, TOOLS, CHECK]}>
         <Node x={agentBox.x + 24} y={agentBox.y + 40} w={agentBox.w - 48} h={56} label={spec.agent.sub ?? "plan · call · draft"} sub="model" icon={spec.agent.icon ?? "agent"} flow={[ASK, TOOLS]} />

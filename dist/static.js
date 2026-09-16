@@ -1,8 +1,11 @@
 import {
+  DEFAULT_RENDER_WIDTH,
   FigureMotionContext,
+  FigureScaleProvider,
   TOKEN_SHAPE,
-  Token
-} from "./chunk-M6VHM6HZ.js";
+  Token,
+  fontFloor
+} from "./chunk-G6PKZ6Y3.js";
 
 // src/static/index.tsx
 import { isValidElement } from "react";
@@ -90,7 +93,13 @@ function renderStatic(input, opts = {}) {
   g.__UIPACK_PRERENDER__ = motion;
   let drawing;
   try {
-    drawing = inlineVars(renderToStaticMarkup(/* @__PURE__ */ jsx(FigureMotionContext.Provider, { value: ctx, children: fig.children })), p);
+    const floor = fontFloor(vw, opts.width ?? DEFAULT_RENDER_WIDTH, opts.minFont ?? 11);
+    drawing = inlineVars(
+      renderToStaticMarkup(
+        /* @__PURE__ */ jsx(FigureMotionContext.Provider, { value: ctx, children: /* @__PURE__ */ jsx(FigureScaleProvider, { floor, children: fig.children }) })
+      ),
+      p
+    );
   } finally {
     g.__UIPACK_PRERENDER__ = prev;
   }

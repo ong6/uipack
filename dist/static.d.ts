@@ -1,5 +1,5 @@
 import { ReactNode, ReactElement } from 'react';
-import { a as FigureProps } from './Figure-DN8mra4p.js';
+import { a as FigureProps } from './Figure-tZhGRXM2.js';
 import { b as LegendItem } from './Legend-S2FQoAxv.js';
 
 type StaticTheme = "light" | "dark";
@@ -44,6 +44,8 @@ interface StaticOptions {
     frame?: boolean;
     /** Output width attribute; height follows the viewBox. Default the viewBox width. */
     width?: number;
+    /** Smallest text size in CSS px at the width the file is shown at (default 1088 wide). Default 11. */
+    minFont?: number;
     /** Paint the canvas background (and the dotted grid). False leaves it transparent so the page shows through. */
     background?: boolean;
 }

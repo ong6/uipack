@@ -65,12 +65,34 @@ function Token({ shape, kind = "neutral", r = 5, cx = 0, cy = 0, style }) {
   return /* @__PURE__ */ jsx("rect", { x: cx - r, y: cy - r, width: r * 2, height: r * 2, rx: 1.5, ...common });
 }
 
+// src/scale.tsx
+import { createContext as createContext2, useContext as useContext2 } from "react";
+import { jsx as jsx2 } from "react/jsx-runtime";
+var FigureScaleContext = createContext2({ floor: 0 });
+var DEFAULT_RENDER_WIDTH = 1088;
+function fontFloor(vbWidth, renderWidth, minFont) {
+  if (!vbWidth || !renderWidth || !minFont) return 0;
+  return minFont * vbWidth / renderWidth;
+}
+function FigureScaleProvider({ floor, children }) {
+  return /* @__PURE__ */ jsx2(FigureScaleContext.Provider, { value: { floor }, children });
+}
+function useFontFloor(size) {
+  const { floor } = useContext2(FigureScaleContext);
+  return Math.max(size, floor);
+}
+
 export {
   FigureMotionContext,
   useFigureMotion,
   usePrefersReducedMotion,
   TOKEN_SHAPE,
   tokenColor,
-  Token
+  Token,
+  FigureScaleContext,
+  DEFAULT_RENDER_WIDTH,
+  fontFloor,
+  FigureScaleProvider,
+  useFontFloor
 };
-//# sourceMappingURL=chunk-M6VHM6HZ.js.map
+//# sourceMappingURL=chunk-G6PKZ6Y3.js.map

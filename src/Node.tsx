@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useFigureHover, hoverAttrs, isPointer, flowList, type Flow } from "./hover";
 import { icons, type IconName } from "./icons";
+import { useFontFloor } from "./scale";
 
 export interface NodeProps {
   x: number;
@@ -42,11 +43,13 @@ export function Node({
   flow,
   hint,
   href,
-  size = 14,
-  subSize = 11,
+  size: size0 = 14,
+  subSize: subSize0 = 11,
   id,
 }: NodeProps) {
   const hover = useFigureHover();
+  const size = useFontFloor(size0);
+  const subSize = useFontFloor(subSize0);
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const glyph = typeof icon === "string" ? icons[icon as IconName] : icon;
   const pad = 14;

@@ -25,23 +25,29 @@ import {
   route,
   trim,
   useFigureHover
-} from "./chunk-LMCGX4U3.js";
+} from "./chunk-A4PJWAOX.js";
 import {
+  DEFAULT_RENDER_WIDTH,
   FigureMotionContext,
+  FigureScaleContext,
+  FigureScaleProvider,
   TOKEN_SHAPE,
   Token,
+  fontFloor,
   tokenColor,
   useFigureMotion,
+  useFontFloor,
   usePrefersReducedMotion
-} from "./chunk-M6VHM6HZ.js";
+} from "./chunk-G6PKZ6Y3.js";
 
 // src/Badge.tsx
 import { jsx, jsxs } from "react/jsx-runtime";
-function Badge({ cx, cy, text, accent, r = 9 }) {
+function Badge({ cx, cy, text, accent, r = 9, size: size0 = 10 }) {
+  const size = useFontFloor(size0);
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   return /* @__PURE__ */ jsxs("g", { "data-uipack": "badge", children: [
     /* @__PURE__ */ jsx("circle", { cx, cy, r, fill: "var(--uipack-bg)", stroke, strokeOpacity: accent ? 1 : 0.6, strokeWidth: 1.25 }),
-    /* @__PURE__ */ jsx("text", { x: cx, y: cy + 3.5, textAnchor: "middle", fontSize: 10, fontFamily: "var(--uipack-mono)", fontWeight: 700, fill: stroke, children: text })
+    /* @__PURE__ */ jsx("text", { x: cx, y: cy + size * 0.35, textAnchor: "middle", fontSize: size, fontFamily: "var(--uipack-mono)", fontWeight: 700, fill: stroke, children: text })
   ] });
 }
 
@@ -94,10 +100,13 @@ export {
   Bus,
   Chip,
   Connector,
+  DEFAULT_RENDER_WIDTH,
   Defs,
   Figure,
   FigureHoverContext,
   FigureMotionContext,
+  FigureScaleContext,
+  FigureScaleProvider,
   Group,
   Label,
   Lane,
@@ -112,6 +121,7 @@ export {
   busStubs,
   connectorStroke,
   flowList,
+  fontFloor,
   grid,
   hoverAttrs,
   icons,
@@ -124,6 +134,7 @@ export {
   trim,
   useFigureHover,
   useFigureMotion,
+  useFontFloor,
   usePrefersReducedMotion
 };
 //# sourceMappingURL=index.js.map

@@ -15,4 +15,5 @@ export { icons, type IconName } from "./icons";
 export { marks, Wordmark, type MarkName } from "./marks";
 export { anchor, route, pathFromPoints, pointAlong, trim, polylineLength, grid, type Point, type Side, type Box } from "./geometry";
 export { useFigureHover, FigureHoverContext, hoverAttrs, flowList, type FigureHover, type Flow } from "./hover";
+export { useFontFloor, fontFloor, FigureScaleProvider, FigureScaleContext, DEFAULT_RENDER_WIDTH, type FigureScale } from "./scale";
 export { useFigureMotion, usePrefersReducedMotion, FigureMotionContext, type FigureMotion } from "./context";

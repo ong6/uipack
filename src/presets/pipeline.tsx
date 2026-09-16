@@ -68,7 +68,7 @@ export function pipelineParts(spec: PipelineSpec = defaultPipeline, id: string):
           {edge}
           <Group x={x(slot)} y={stage.y - 16} w={stage.w} h={stage.h + 32} title={q.label} flow={FLOW} accent>
             {Array.from({ length: depth }).map((_, k) => (
-              <Chip key={k} x={x(slot) + 8 + k * (cw + 6)} y={stage.y + 24} w={cw} h={18} label={k < depth - 1 ? String(k + 1) : ""} kind={k < depth - 1 ? "change" : undefined} dashed={k === depth - 1} size={9} flow={FLOW} />
+              <Chip key={k} x={x(slot) + 8 + k * (cw + 6)} y={stage.y + 24} w={cw} h={18} label={k < depth - 1 ? String(k + 1) : ""} kind={k < depth - 1 ? "change" : undefined} dashed={k === depth - 1} flow={FLOW} />
             ))}
           </Group>
         </g>
@@ -86,7 +86,7 @@ export function pipelineParts(spec: PipelineSpec = defaultPipeline, id: string):
   const wide = (
     <>
       <Defs id={id} />
-      <Lane x={24} w={width - 48} y={44} title={spec.laneTitle ?? "Stages, left to right"} />
+      <Lane x={24} w={width - 48} y={40} title={spec.laneTitle ?? "Stages, left to right"} />
       {nodes}
     </>
   );

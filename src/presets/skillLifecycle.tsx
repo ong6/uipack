@@ -76,15 +76,15 @@ export function skillLifecycleParts(spec: SkillLifecycleSpec = defaultSkillLifec
   const wide = (
     <>
       <Defs id={id} />
-      <Lane x={author.x} w={author.w} y={44} title="Author" />
-      <Lane x={evaluate.x} w={evaluate.w} y={44} title="Evaluate" />
-      <Lane x={version.x} w={version.w} y={44} title="Version" />
-      <Lane x={con.x} w={con.w} y={44} title="Consumers" />
+      <Lane x={author.x} w={author.w} y={40} title="Author" />
+      <Lane x={evaluate.x} w={evaluate.w} y={40} title="Evaluate" />
+      <Lane x={version.x} w={version.w} y={40} title="Version" />
+      <Lane x={con.x} w={con.w} y={40} title="Consumers" />
       <Node {...author} label={spec.author.label} sub={spec.author.sub} icon={spec.author.icon ?? "user"} flow={[FWD, BACK]} />
       <Connector points={a2e} defs={id} kind="request" flow={FWD} />
       <Packet points={a2e} kind="request" dur={1.4} flow={FWD} r={4} />
       <Node {...evaluate} label={spec.evaluate.label} sub={spec.evaluate.sub} icon={spec.evaluate.icon ?? "chart"} flow={FWD} hint={`Scored against: ${spec.evaluate.baseline}`} />
-      <Chip x={evaluate.x} y={evaluate.y + evaluate.h + 12} w={evaluate.w} h={20} label={`baseline · ${spec.evaluate.baseline}`} size={9} dashed />
+      <Chip x={evaluate.x} y={evaluate.y + evaluate.h + 12} w={evaluate.w} h={20} label={`baseline · ${spec.evaluate.baseline}`} dashed />
       <Connector points={e2v} defs={id} kind="accent" flow={FWD} />
       <Packet points={e2v} kind="accent" dur={1.4} delay={-0.7} flow={FWD} r={4} />
       <Label x={(e2v[0][0] + e2v[1][0]) / 2} y={cy - 10} text="passes" anchor="middle" accent />

@@ -63,7 +63,7 @@ Three entries, so a page loads only what it draws: `uipack` (the parts, 9 KB gzi
 
 One connector, one arrowhead, at the end, in the request direction. The response is the same points ridden backwards by a `Packet` with `reverse`. Two different relations between the same boxes (pull and push, say) are two connectors 16 units apart. A stub that joins a bus carries no arrowhead; the junction dot marks the join, and only a stub that enters a node gets a head.
 
-Connectors stop 2 units short of their first and last point, and 4 short at the arrow end, so a head never touches a border. Packets stop 2 units after the start and 12 before the end, so a token never sits on a head. The browser suite checks both on every drawing in the playground.
+Connectors stop 2 units short of their first and last point, and 4 short at the arrow end, so a head never touches a border. Packets start `r + 2` units after the source end and stop 12 before the arrowhead end, measured in the connector's own direction whichever way the packet rides, so a token never overlaps a border or a head. The browser suite checks both on every drawing in the playground.
 
 ## Interaction
 
@@ -150,6 +150,7 @@ writeFileSync("figure.svg", renderStatic(agentLoop(spec), { theme: "dark", motio
 | `frame` | `true` | draw eyebrow, title, caption, legend and the border in SVG; `false` gives the bare drawing |
 | `background` | `true` | paint the canvas and dotted grid; `false` lets the page surface show through |
 | `width` | viewBox width | the file's `width` attribute; height follows |
+| `minFont` | `11` | text floor in CSS px at the width the file is shown at (1088 when `width` is not given) |
 
 The input is what a preset returns, a `<Figure>` element, or a bare `{ children, viewBox }`. The
 asset previews under `docs/assets/` come from the same call, so a preview in the browser and a file
@@ -181,15 +182,20 @@ Strokes are `currentColor`, so a figure inherits the page's text colour and one 
 
 Packets animate with SMIL `animateMotion`. I picked SMIL over CSS `offset-path` because `Figure` can then drive the whole SVG timeline with `pauseAnimations()` and `setCurrentTime(0)`, which is what Pause and Replay do; every packet keeps its offset after a replay and nothing needs JavaScript per frame. Chromium and WebKit both pass the browser suite on it.
 
-Under `prefers-reduced-motion: reduce` a packet renders once at `at` (default the path midpoint) and never moves, and the controls disappear. Server rendering also produces the static token; motion starts after mount.
+Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never moves, and the controls disappear. `at` defaults to `(0.5 + delay / dur) mod 1`, so packets that share a path spread out instead of stacking on the midpoint. Server rendering also produces the static token; motion starts after mount.
+
+### Text floor
+
+`Figure` takes `minFont` (default 11 CSS px). It measures the width each drawing renders at with a ResizeObserver (1088 assumed before that, and on the server) and turns the floor into user units from the viewBox width, so Node, Lane, Label, Chip, Badge and Group never draw text under 11px however wide the viewBox is. Pass `measuredWidth` when you know the width up front, or `minFont={0}` to turn the floor off.
 
 ## Testing
 
-`npm test` runs 44 vitest cases in jsdom. `npm run test:e2e` runs 16 Playwright cases in Chromium and WebKit, 32 in total, one skipped in WebKit. What they pin down:
+`npm test` runs 65 vitest cases in jsdom. `npm run test:e2e` runs 23 Playwright cases in Chromium and WebKit, 46 in total, one skipped in WebKit. What they pin down:
 
 - Packets move, hold after Pause, resume on Play, return to the start on Replay, and sit still under reduced motion.
 - Hovering a node dims the rest and lights its flow. Hovering a legend item filters by kind. An `href` node takes focus.
-- No arrowhead ends inside a node, no packet reaches a head, and every bus junction sits on the 8px grid, on every drawing in the playground.
+- No arrowhead ends inside a node, no packet reaches a head, every bus junction and lane header sits on the 8px grid, and no preset text renders under 11px at 1440, on every drawing in the playground.
+- Two packets on one path spread by delay; a departing token clears its source border; a serviceMap with six platform cells wraps its narrow drawing into rows of three and truncates with an ellipsis and a hint.
 - The asset browser filters, searches, copies to the clipboard (Chromium only; Playwright cannot grant that in WebKit), and fits 390px with 44px targets.
 - Both themes render ten figures with no console errors.
 

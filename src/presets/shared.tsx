@@ -79,6 +79,25 @@ export function toFigure(meta: FigureMeta, parts: PresetParts, id?: string) {
   );
 }
 
+/** Characters that fit in `px` at `size` for the mono or sans face (the same estimate Label uses). */
+export function fits(px: number, size: number, mono = false): number {
+  return Math.max(3, Math.floor(px / (size * (mono ? 0.62 : 0.55))));
+}
+
+/** Truncate with an ellipsis when `text` cannot fit; the full text goes to `hint`. */
+export function fit(text: string, px: number, size: number, mono = false): { text: string; hint?: string } {
+  const n = fits(px, size, mono);
+  if (text.length <= n) return { text };
+  return { text: text.slice(0, Math.max(1, n - 1)).trimEnd() + "\u2026", hint: text };
+}
+
+/** Split `items` into rows of at most `per`. */
+export function rows<T>(items: T[], per = 3): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < items.length; i += per) out.push(items.slice(i, i + per));
+  return out;
+}
+
 export interface StackStep extends Item {
   /** Kind of the connector and packet leading INTO this step. */
   kind?: TokenKind;
@@ -87,6 +106,9 @@ export interface StackStep extends Item {
   flow?: string;
   accent?: boolean;
   dashed?: boolean;
+  /** No connector from the step above; sits 8 units under it (a wrapped row of one box). */
+  link?: boolean;
+  hint?: string;
 }
 
 export const NARROW_W = 360;
@@ -95,9 +117,29 @@ const SW = 328;
 const SH = 48;
 const GAP = 40;
 
-/** Height of a narrow stack of `n` steps starting at `y0`. */
+const TIGHT = 8;
+/** Text width inside a narrow node: 328 minus padding and the icon slot. */
+export const STACK_TEXT_W = SW - 14 - 26 - 12;
+
+/** Height of a narrow stack of `n` linked steps starting at `y0`. */
 export function stackHeight(n: number, y0 = 24): number {
   return y0 + n * SH + (n - 1) * GAP + 24;
+}
+
+/** Y of each step, honouring `link: false` rows, and the total height. */
+export function stackLayout(steps: StackStep[], y0 = 24): { ys: number[]; height: number } {
+  const ys: number[] = [];
+  let y = y0;
+  steps.forEach((s, i) => {
+    if (i > 0) y += SH + (s.link === false ? TIGHT : GAP);
+    ys.push(y);
+  });
+  return { ys, height: (ys[ys.length - 1] ?? y0) + SH + 24 };
+}
+
+/** Height of a narrow stack whose steps may include unlinked rows. */
+export function stackHeightFor(steps: StackStep[], y0 = 24): number {
+  return stackLayout(steps, y0).height;
 }
 
 /**
@@ -105,11 +147,12 @@ export function stackHeight(n: number, y0 = 24): number {
  * connector and a packet between each pair. Direction is top to bottom.
  */
 export function Stack({ steps, id, y0 = 24 }: { steps: StackStep[]; id: string; y0?: number }) {
+  const { ys } = stackLayout(steps, y0);
   return (
     <>
       <Defs id={id} />
       {steps.map((s, i) => {
-        const y = y0 + i * (SH + GAP);
+        const y = ys[i];
         const into: Point[] = [
           [SX + SW / 2, y - GAP],
           [SX + SW / 2, y],
@@ -117,13 +160,13 @@ export function Stack({ steps, id, y0 = 24 }: { steps: StackStep[]; id: string; 
         const kind = s.kind ?? "request";
         return (
           <g key={i}>
-            {i > 0 ? (
+            {i > 0 && s.link !== false ? (
               <>
                 <Connector points={into} defs={id} kind={kind === "neutral" ? undefined : (kind as Exclude<TokenKind, "neutral">)} flow={s.flow} />
                 <Packet points={into} kind={kind} dur={1.4} delay={-i * 0.35} reverse={s.back} flow={s.flow} r={4} />
               </>
             ) : null}
-            <Node x={SX} y={y} w={SW} h={SH} label={s.label} sub={s.sub} icon={s.icon} size={13} subSize={10} flow={s.flow} accent={s.accent} dashed={s.dashed} />
+            <Node x={SX} y={y} w={SW} h={SH} label={s.label} sub={s.sub} icon={s.icon} hint={s.hint} size={13} subSize={10} flow={s.flow} accent={s.accent} dashed={s.dashed} />
           </g>
         );
       })}

@@ -28,14 +28,27 @@ __export(static_exports, {
   wrapText: () => wrapText
 });
 module.exports = __toCommonJS(static_exports);
-var import_react2 = require("react");
+var import_react3 = require("react");
 var import_server = require("react-dom/server");
 
-// src/context.tsx
+// src/scale.tsx
 var import_react = require("react");
+var import_jsx_runtime = require("react/jsx-runtime");
+var FigureScaleContext = (0, import_react.createContext)({ floor: 0 });
+var DEFAULT_RENDER_WIDTH = 1088;
+function fontFloor(vbWidth, renderWidth, minFont) {
+  if (!vbWidth || !renderWidth || !minFont) return 0;
+  return minFont * vbWidth / renderWidth;
+}
+function FigureScaleProvider({ floor, children }) {
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FigureScaleContext.Provider, { value: { floor }, children });
+}
+
+// src/context.tsx
+var import_react2 = require("react");
 var noop = () => {
 };
-var FigureMotionContext = (0, import_react.createContext)({
+var FigureMotionContext = (0, import_react2.createContext)({
   playing: true,
   reduced: false,
   cycle: 0,
@@ -44,7 +57,7 @@ var FigureMotionContext = (0, import_react.createContext)({
 });
 
 // src/tokens.tsx
-var import_jsx_runtime = require("react/jsx-runtime");
+var import_jsx_runtime2 = require("react/jsx-runtime");
 var TOKEN_SHAPE = {
   request: "square",
   response: "circle",
@@ -70,16 +83,16 @@ function Token({ shape, kind = "neutral", r = 5, cx = 0, cy = 0, style }) {
   const s = shape ?? TOKEN_SHAPE[kind];
   const fill = tokenColor(kind);
   const common = { fill, stroke: "var(--uipack-bg)", strokeWidth: 1.5, style };
-  if (s === "circle") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx, cy, r, ...common });
+  if (s === "circle") return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx, cy, r, ...common });
   if (s === "diamond") {
     const d = r * 1.2;
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: `M${cx},${cy - d} L${cx + d},${cy} L${cx},${cy + d} L${cx - d},${cy} Z`, ...common });
+    return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: `M${cx},${cy - d} L${cx + d},${cy} L${cx},${cy + d} L${cx - d},${cy} Z`, ...common });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("rect", { x: cx - r, y: cy - r, width: r * 2, height: r * 2, rx: 1.5, ...common });
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("rect", { x: cx - r, y: cy - r, width: r * 2, height: r * 2, rx: 1.5, ...common });
 }
 
 // src/static/index.tsx
-var import_jsx_runtime2 = require("react/jsx-runtime");
+var import_jsx_runtime3 = require("react/jsx-runtime");
 var LIGHT = {
   fg: "#1a1c1a",
   muted: "#5c625e",
@@ -135,7 +148,7 @@ function wrapText(text, chars) {
   return lines;
 }
 function figureOf(input) {
-  if ((0, import_react2.isValidElement)(input)) {
+  if ((0, import_react3.isValidElement)(input)) {
     const pp = input.props;
     if (typeof pp.parts === "function" && pp.spec) {
       const parts = pp.parts(pp.spec, pp.id ?? "static");
@@ -162,7 +175,13 @@ function renderStatic(input, opts = {}) {
   g.__UIPACK_PRERENDER__ = motion;
   let drawing;
   try {
-    drawing = inlineVars((0, import_server.renderToStaticMarkup)(/* @__PURE__ */ (0, import_jsx_runtime2.jsx)(FigureMotionContext.Provider, { value: ctx, children: fig.children })), p);
+    const floor = fontFloor(vw, opts.width ?? DEFAULT_RENDER_WIDTH, opts.minFont ?? 11);
+    drawing = inlineVars(
+      (0, import_server.renderToStaticMarkup)(
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(FigureMotionContext.Provider, { value: ctx, children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(FigureScaleProvider, { floor, children: fig.children }) })
+      ),
+      p
+    );
   } finally {
     g.__UIPACK_PRERENDER__ = prev;
   }
@@ -195,7 +214,7 @@ function renderStatic(input, opts = {}) {
       let lx = pad;
       for (const it of fig.legend) {
         const kind = it.kind ?? "neutral";
-        const tok = inlineVars((0, import_server.renderToStaticMarkup)(/* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Token, { kind, shape: it.shape ?? TOKEN_SHAPE[kind], r: 5.5, cx: lx + 6, cy: hy - 4 })), p);
+        const tok = inlineVars((0, import_server.renderToStaticMarkup)(/* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Token, { kind, shape: it.shape ?? TOKEN_SHAPE[kind], r: 5.5, cx: lx + 6, cy: hy - 4 })), p);
         head.push(tok, `<text x="${lx + 20}" y="${hy}" font-family="${p.sans}" font-size="13" fill="${p.fg}">${esc(it.label)}</text>`);
         lx += 20 + it.label.length * 7.4 + 24;
       }

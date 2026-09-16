@@ -47,3 +47,37 @@ describe("preset ids", () => {
     expect(container.querySelector("#mine-head")).not.toBeNull();
   });
 });
+
+describe("preset layout", () => {
+  it("every lane header sits on the 8px grid", () => {
+    for (const name of Object.keys(PRESETS) as PresetName[]) {
+      const { render: r, spec } = PRESETS[name] as { render: (s: unknown) => JSX.Element; spec: unknown };
+      const { container } = render(r(spec));
+      for (const t of container.querySelectorAll('svg.uipack--wide [data-uipack="lane"] > text')) expect(Number(t.getAttribute("y")) % 8).toBe(0);
+    }
+  });
+  it("serviceMap narrow wraps six cells into rows of three and truncates a long label with a hint", () => {
+    const parts = serviceMapParts(
+      {
+        ...defaultServiceMap,
+        platform: {
+          title: "A platform whose title is far too long to fit inside a narrow node at all",
+          cells: ["Auth", "Rate limit", "Routing", "Caching", "Encryption", "Audit"].map((label) => ({ label })),
+        },
+      },
+      "t",
+    );
+    const { container } = render(<svg>{parts.narrow}</svg>);
+    const labels = [...container.querySelectorAll('[data-uipack="node"] > text:first-of-type')].map((t) => t.textContent ?? "");
+    expect(labels).toContain("Auth · Rate limit · Routing");
+    expect(labels).toContain("Caching · Encryption · Audit");
+    expect(labels.some((l) => l.includes(" · ") && l.split(" · ").length > 3)).toBe(false);
+    const cut = labels.find((l) => l.endsWith("\u2026"))!;
+    expect(cut).toBeDefined();
+    expect(container.querySelector('[data-uipack="node"] > title')?.textContent).toMatch(/far too long/);
+    // every narrow label fits the node's text width at the sizes the stack uses
+    for (const l of labels) expect(l.length * 13 * 0.55).toBeLessThanOrEqual(328);
+    const [, , , h] = parts.narrowViewBox.split(" ").map(Number);
+    expect(h).toBeGreaterThan(300);
+  });
+});

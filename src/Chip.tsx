@@ -1,4 +1,5 @@
 import { useFigureHover, hoverAttrs, type Flow } from "./hover";
+import { useFontFloor } from "./scale";
 
 export interface ChipProps {
   x: number;
@@ -16,8 +17,9 @@ export interface ChipProps {
 }
 
 /** Pill: a connection slot, a request in a queue, a status flag. */
-export function Chip({ x, y, w, h = 24, label, dashed, kind, flow, size = 10 }: ChipProps) {
+export function Chip({ x, y, w, h = 24, label, dashed, kind, flow, size: size0 = 10 }: ChipProps) {
   const hover = useFigureHover();
+  const size = useFontFloor(size0);
   const fill = !kind ? "var(--uipack-surface)" : kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
   return (
     <g data-uipack="chip" {...hoverAttrs(flow, kind === "accent" ? undefined : kind, hover)}>

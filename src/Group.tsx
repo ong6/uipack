@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useFigureHover, hoverAttrs, type Flow } from "./hover";
+import { useFontFloor } from "./scale";
 
 export interface GroupProps {
   x: number;
@@ -20,7 +21,7 @@ export function Group({ x, y, w, h, title, variant = "solid", accent, flow, titl
   const hover = useFigureHover();
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const dashed = variant === "dashed";
-  const ts = titleSize ?? (dashed ? 11 : 14);
+  const ts = useFontFloor(titleSize ?? (dashed ? 11 : 14));
   return (
     <g data-uipack="group" {...hoverAttrs(flow, undefined, hover)}>
       <rect

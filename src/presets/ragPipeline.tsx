@@ -106,10 +106,10 @@ export function ragPipelineParts(spec: RagPipelineSpec = defaultRagPipeline, id:
   const wide = (
     <>
       <Defs id={id} />
-      <Lane x={src.x} w={src.w} y={44} title="Sources" />
-      <Lane x={stage.x0} w={ingestLast - stage.x0} y={44} title="Ingest" />
-      <Lane x={index.x} w={index.w} y={44} title="Index" />
-      <Lane x={stage.x0} w={sx(spec.stages.length - 1) + stage.w - stage.x0} y={252} title="Query" />
+      <Lane x={src.x} w={src.w} y={40} title="Sources" />
+      <Lane x={stage.x0} w={ingestLast - stage.x0} y={40} title="Ingest" />
+      <Lane x={index.x} w={index.w} y={40} title="Index" />
+      <Lane x={stage.x0} w={sx(spec.stages.length - 1) + stage.w - stage.x0} y={248} title="Query" />
       {spec.sources.map((s, i) => (
         <Node key={s.label} x={src.x} y={src.y0 + i * src.step} w={src.w} h={src.h} label={s.label} icon={s.icon ?? "doc"} flow={INGEST} size={13} />
       ))}

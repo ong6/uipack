@@ -1,3 +1,5 @@
+import { useFontFloor } from "./scale";
+
 export interface LabelProps {
   x: number;
   y: number;
@@ -10,7 +12,8 @@ export interface LabelProps {
 }
 
 /** Text with a page-coloured underlay so it can sit on a connector. */
-export function Label({ x, y, text, anchor = "start", accent, size = 11, font = "mono" }: LabelProps) {
+export function Label({ x, y, text, anchor = "start", accent, size: size0 = 11, font = "mono" }: LabelProps) {
+  const size = useFontFloor(size0);
   const w = text.length * size * (font === "mono" ? 0.62 : 0.55) + 8;
   const rx = anchor === "middle" ? x - w / 2 : anchor === "end" ? x - w + 4 : x - 4;
   return (

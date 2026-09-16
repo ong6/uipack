@@ -57,8 +57,8 @@ export function syncLoopParts(spec: SyncLoopSpec = defaultSyncLoop, id: string):
   const wide = (
     <>
       <Defs id={id} />
-      <Lane x={up.x} w={up.w} y={44} title="Upstream" />
-      <Lane x={con.x} w={con.w} y={44} title="Consumers" />
+      <Lane x={up.x} w={up.w} y={40} title="Upstream" />
+      <Lane x={con.x} w={con.w} y={40} title="Consumers" />
       <Group {...up} title={spec.upstream.label} flow={[PULL, PUSH]}>
         {items.map((it, i) => (
           <Node key={it.label} x={up.x + 16} y={up.y + 40 + i * 64} w={up.w - 32} h={48} label={it.label} sub={it.sub} icon={it.icon} align="left" flow={[PULL, PUSH]} size={13} subSize={10} />

@@ -125,7 +125,8 @@ export function trim(points: Point[], start = 0, end = 0): Point[] {
       const l = Math.hypot(bx - ax, by2 - ay);
       if (left < l || (left === l && i === pts.length - 2)) {
         const k = l === 0 ? 0 : left / l;
-        return [[ax + (bx - ax) * k, ay + (by2 - ay) * k], ...pts.slice(i + 1)];
+        const r3 = (v: number) => Math.round(v * 1000) / 1000;
+        return [[r3(ax + (bx - ax) * k), r3(ay + (by2 - ay) * k)], ...pts.slice(i + 1)];
       }
       left -= l;
       i++;

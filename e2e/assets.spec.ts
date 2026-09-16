@@ -60,4 +60,16 @@ test.describe("asset browser", () => {
     await page.keyboard.press("Enter");
     await expect(page.locator(".uipack-browser__action").first()).toHaveText("Copied");
   });
+
+  test("counts and status are full opacity, action buttons are 44px", async ({ page }) => {
+    await page.goto("/assets");
+    await page.locator(".uipack-browser__action").first().waitFor();
+    const opacities = await page.evaluate(() =>
+      [...document.querySelectorAll(".uipack-browser__count, .uipack-browser__status")].map((el) => getComputedStyle(el).opacity),
+    );
+    expect(opacities.length).toBeGreaterThan(1);
+    expect(opacities.every((o) => o === "1")).toBe(true);
+    const box = await page.locator(".uipack-browser__action").first().boundingBox();
+    expect(box!.height).toBeGreaterThanOrEqual(44);
+  });
 });

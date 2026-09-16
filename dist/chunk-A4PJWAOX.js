@@ -1,9 +1,13 @@
 import {
+  DEFAULT_RENDER_WIDTH,
   FigureMotionContext,
+  FigureScaleContext,
   Token,
+  fontFloor,
   useFigureMotion,
+  useFontFloor,
   usePrefersReducedMotion
-} from "./chunk-M6VHM6HZ.js";
+} from "./chunk-G6PKZ6Y3.js";
 
 // src/hover.tsx
 import { createContext, useContext } from "react";
@@ -55,6 +59,24 @@ function Legend({ items }) {
 // src/Figure.tsx
 import { useCallback, useEffect, useId, useMemo, useRef, useState, createElement } from "react";
 import { jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
+var vbWidth = (viewBox) => Number(viewBox.split(/\s+/)[2]) || 0;
+function useRenderedWidth(ref, fixed) {
+  const [w, setW] = useState(fixed ?? DEFAULT_RENDER_WIDTH);
+  useEffect(() => {
+    if (fixed != null) return;
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const read = () => {
+      const width = el.getBoundingClientRect().width;
+      if (width > 0) setW(width);
+    };
+    read();
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref, fixed]);
+  return fixed ?? w;
+}
 var PauseGlyph = () => /* @__PURE__ */ jsxs2("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: [
   /* @__PURE__ */ jsx2("rect", { x: "2", y: "1.5", width: "3", height: "9", rx: "0.5" }),
   /* @__PURE__ */ jsx2("rect", { x: "7", y: "1.5", width: "3", height: "9", rx: "0.5" })
@@ -80,6 +102,8 @@ function Figure({
   className,
   theme,
   background = "dots",
+  minFont = 11,
+  measuredWidth,
   id
 }) {
   const auto = useId();
@@ -92,6 +116,10 @@ function Figure({
   const hover = useMemo(() => ({ flow: hoverFlow, kind: hoverKind, setFlow: setHoverFlow, setKind: setHoverKind }), [hoverFlow, hoverKind]);
   const wideRef = useRef(null);
   const narrowRef = useRef(null);
+  const wideW = useRenderedWidth(wideRef, measuredWidth);
+  const narrowW = useRenderedWidth(narrowRef, measuredWidth);
+  const wideScale = useMemo(() => ({ floor: fontFloor(vbWidth(viewBox), wideW, minFont) }), [viewBox, wideW, minFont]);
+  const narrowScale = useMemo(() => ({ floor: fontFloor(vbWidth(narrowViewBox ?? viewBox), narrowW, minFont) }), [narrowViewBox, viewBox, narrowW, minFont]);
   const svgs = () => [wideRef.current, narrowRef.current].filter(Boolean);
   useEffect(() => {
     for (const s of svgs()) {
@@ -147,8 +175,8 @@ function Figure({
           /* @__PURE__ */ jsx2(Legend, { items: legend })
         ] }) : null,
         /* @__PURE__ */ jsxs2("div", { className: `uipack__canvas uipack__canvas--${background}`, children: [
-          /* @__PURE__ */ jsx2("svg", { ref: wideRef, className: "uipack--wide", viewBox, role: "img", "aria-label": alt, children }),
-          narrow ? /* @__PURE__ */ jsx2("svg", { ref: narrowRef, className: "uipack--narrow", viewBox: narrowViewBox ?? viewBox, role: "img", "aria-label": alt, children: narrow }) : null
+          /* @__PURE__ */ jsx2("svg", { ref: wideRef, className: "uipack--wide", viewBox, role: "img", "aria-label": alt, children: /* @__PURE__ */ jsx2(FigureScaleContext.Provider, { value: wideScale, children }) }),
+          narrow ? /* @__PURE__ */ jsx2("svg", { ref: narrowRef, className: "uipack--narrow", viewBox: narrowViewBox ?? viewBox, role: "img", "aria-label": alt, children: /* @__PURE__ */ jsx2(FigureScaleContext.Provider, { value: narrowScale, children: narrow }) }) : null
         ] })
       ]
     }
@@ -157,7 +185,8 @@ function Figure({
 
 // src/Lane.tsx
 import { jsx as jsx3, jsxs as jsxs3 } from "react/jsx-runtime";
-function Lane({ x, w, y, title, h, size = 11 }) {
+function Lane({ x, w, y, title, h, size: size0 = 11 }) {
+  const size = useFontFloor(size0);
   return /* @__PURE__ */ jsxs3("g", { "data-uipack": "lane", children: [
     /* @__PURE__ */ jsx3("text", { x: x + w / 2, y, textAnchor: "middle", fontSize: size, fontWeight: 700, fontFamily: "var(--uipack-mono)", letterSpacing: ".08em", fill: "currentColor", children: title.toUpperCase() }),
     h ? /* @__PURE__ */ jsx3("line", { x1: x + w, y1: y + 12, x2: x + w, y2: y + h, stroke: "currentColor", strokeOpacity: 0.15, strokeDasharray: "2 6" }) : null
@@ -170,7 +199,7 @@ function Group({ x, y, w, h, title, variant = "solid", accent, flow, titleSize, 
   const hover = useFigureHover();
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const dashed = variant === "dashed";
-  const ts = titleSize ?? (dashed ? 11 : 14);
+  const ts = useFontFloor(titleSize ?? (dashed ? 11 : 14));
   return /* @__PURE__ */ jsxs4("g", { "data-uipack": "group", ...hoverAttrs(flow, void 0, hover), children: [
     /* @__PURE__ */ jsx4(
       "rect",
@@ -313,11 +342,13 @@ function Node({
   flow,
   hint,
   href,
-  size = 14,
-  subSize = 11,
+  size: size0 = 14,
+  subSize: subSize0 = 11,
   id
 }) {
   const hover = useFigureHover();
+  const size = useFontFloor(size0);
+  const subSize = useFontFloor(subSize0);
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const glyph = typeof icon === "string" ? icons[icon] : icon;
   const pad = 14;
@@ -355,8 +386,9 @@ function Node({
 
 // src/Chip.tsx
 import { jsx as jsx7, jsxs as jsxs7 } from "react/jsx-runtime";
-function Chip({ x, y, w, h = 24, label, dashed, kind, flow, size = 10 }) {
+function Chip({ x, y, w, h = 24, label, dashed, kind, flow, size: size0 = 10 }) {
   const hover = useFigureHover();
+  const size = useFontFloor(size0);
   const fill = !kind ? "var(--uipack-surface)" : kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
   return /* @__PURE__ */ jsxs7("g", { "data-uipack": "chip", ...hoverAttrs(flow, kind === "accent" ? void 0 : kind, hover), children: [
     /* @__PURE__ */ jsx7(
@@ -475,7 +507,8 @@ function trim(points, start = 0, end = 0) {
       const l = Math.hypot(bx - ax, by2 - ay);
       if (left < l || left === l && i === pts.length - 2) {
         const k = l === 0 ? 0 : left / l;
-        return [[ax + (bx - ax) * k, ay + (by2 - ay) * k], ...pts.slice(i + 1)];
+        const r3 = (v) => Math.round(v * 1e3) / 1e3;
+        return [[r3(ax + (bx - ax) * k), r3(ay + (by2 - ay) * k)], ...pts.slice(i + 1)];
       }
       left -= l;
       i++;
@@ -540,18 +573,20 @@ function Bus({ axis = "v", at, from, to, stubs, kind, flow, defs, dots = true, i
 // src/Packet.tsx
 import { useEffect as useEffect2, useState as useState2 } from "react";
 import { jsx as jsx10, jsxs as jsxs9 } from "react/jsx-runtime";
-function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at = 0.5, r = 5, reverse, radius = 6, flow, trim: t = [2, 12], id }) {
+function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at, r = 5, reverse, radius = 6, flow, trim: t, id }) {
   const { reduced, prerender } = useFigureMotion();
   const hover = useFigureHover();
-  const base = reverse ? [...points].reverse() : points;
-  const pts = trim(base, t[0], t[1]);
+  const [ts, te] = t ?? [r + 2, 12];
+  const trimmed = trim(points, ts, te);
+  const pts = reverse ? [...trimmed].reverse() : trimmed;
+  const staticAt = at ?? ((0.5 + delay / dur) % 1 + 1) % 1;
   const d = pathFromPoints(pts, radius);
   const [mounted, setMounted] = useState2(false);
   useEffect2(() => setMounted(true), []);
   const attrs = hoverAttrs(flow, kind === "neutral" ? void 0 : kind, hover);
   const pre = prerender || globalThis.__UIPACK_PRERENDER__ === true;
   if (reduced || !mounted && !pre) {
-    const [cx, cy] = pointAlong(pts, at);
+    const [cx, cy] = pointAlong(pts, staticAt);
     return /* @__PURE__ */ jsx10("g", { id, "data-uipack": "packet", "data-static": "true", ...attrs, children: /* @__PURE__ */ jsx10(Token, { kind, shape, r, cx, cy }) });
   }
   return /* @__PURE__ */ jsxs9("g", { id, "data-uipack": "packet", ...attrs, children: [
@@ -562,7 +597,8 @@ function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at = 0.5,
 
 // src/Label.tsx
 import { jsx as jsx11, jsxs as jsxs10 } from "react/jsx-runtime";
-function Label({ x, y, text, anchor: anchor2 = "start", accent, size = 11, font = "mono" }) {
+function Label({ x, y, text, anchor: anchor2 = "start", accent, size: size0 = 11, font = "mono" }) {
+  const size = useFontFloor(size0);
   const w = text.length * size * (font === "mono" ? 0.62 : 0.55) + 8;
   const rx = anchor2 === "middle" ? x - w / 2 : anchor2 === "end" ? x - w + 4 : x - 4;
   return /* @__PURE__ */ jsxs10("g", { "data-uipack": "label", children: [
@@ -637,4 +673,4 @@ export {
   Label,
   Defs
 };
-//# sourceMappingURL=chunk-LMCGX4U3.js.map
+//# sourceMappingURL=chunk-A4PJWAOX.js.map

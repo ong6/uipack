@@ -53,9 +53,12 @@ interface StackStep extends Item {
     flow?: string;
     accent?: boolean;
     dashed?: boolean;
+    /** No connector from the step above; sits 8 units under it (a wrapped row of one box). */
+    link?: boolean;
+    hint?: string;
 }
 declare const NARROW_W = 360;
-/** Height of a narrow stack of `n` steps starting at `y0`. */
+/** Height of a narrow stack of `n` linked steps starting at `y0`. */
 declare function stackHeight(n: number, y0?: number): number;
 /**
  * The narrow drawing every preset falls back to: one column of boxes with a

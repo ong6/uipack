@@ -6,7 +6,7 @@ import { Lane } from "../Lane";
 import { Node } from "../Node";
 import { Packet } from "../Packet";
 import { route, type Point } from "../geometry";
-import { Stack, stackHeight, presetFigure, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
+import { Stack, stackHeightFor, presetFigure, fit, rows as chunk, NARROW_W, STACK_TEXT_W, type FigureMeta, type Item, type PresetParts, type StackStep } from "./shared";
 
 export interface ServiceMapSpec {
   figure: FigureMeta;
@@ -127,9 +127,9 @@ export function serviceMapParts(spec: ServiceMapSpec = defaultServiceMap, id: st
   const wide = (
     <>
       <Defs id={id} />
-      <Lane x={client.x} w={client.w} y={44} title={lc} />
-      <Lane x={platform.x} w={platform.w} y={44} title={lp} />
-      <Lane x={store.x} w={store.w} y={44} title={lr} />
+      <Lane x={client.x} w={client.w} y={40} title={lc} />
+      <Lane x={platform.x} w={platform.w} y={40} title={lp} />
+      <Lane x={store.x} w={store.w} y={40} title={lr} />
       {spec.clients.map((c, i) => (
         <Node key={c.label} x={client.x} y={client.y0 + i * client.step} w={client.w} h={client.h} label={c.label} sub={c.sub} icon={c.icon} flow={READ} />
       ))}
@@ -160,18 +160,27 @@ export function serviceMapParts(spec: ServiceMapSpec = defaultServiceMap, id: st
     </>
   );
 
-  const steps = [
-    { label: spec.clients.map((c) => c.label).join(" · "), sub: lc, icon: "client" as const, flow: READ },
-    { label: spec.platform.title, sub: spec.platform.cells.map((c) => c.label).join(" · "), icon: "service" as const, flow: READ },
-    { label: spec.resources.map((r) => r.label).join(" · "), sub: lr, icon: "db" as const, flow: READ },
-    ...(spec.sinks ? [{ label: spec.sinks.via.label, sub: spec.sinks.items.map((s) => s.label).join(" · "), icon: "queue" as const, kind: "change" as const, flow: CDC }] : []),
+  // Narrow: one box per row of at most three labels, so six platform cells
+  // become two tight rows under the platform title instead of one long line.
+  const row = (items: Item[], sub: string, icon: StackStep["icon"], flow: string, kind?: StackStep["kind"]): StackStep[] =>
+    chunk(items, 3).map((r, i) => {
+      const l = fit(r.map((c) => c.label).join(" · "), STACK_TEXT_W, 13);
+      return { label: l.text, hint: l.hint, sub: i === 0 ? sub : undefined, icon: i === 0 ? icon : undefined, flow, kind, link: i === 0 ? undefined : false };
+    });
+  const platformTitle = fit(spec.platform.title, STACK_TEXT_W, 13);
+  const steps: StackStep[] = [
+    ...row(spec.clients, lc, "client", READ),
+    { label: platformTitle.text, hint: platformTitle.hint, icon: "service", flow: READ },
+    ...row(spec.platform.cells, "", undefined, READ).map((s) => ({ ...s, link: false, icon: undefined, sub: undefined })),
+    ...row(spec.resources, lr, "db", READ),
+    ...(spec.sinks ? [{ label: fit(spec.sinks.via.label, STACK_TEXT_W, 13).text, icon: "queue" as const, kind: "change" as const, flow: CDC }, ...row(spec.sinks.items, "", undefined, CDC, "change").map((s) => ({ ...s, link: false, icon: undefined, sub: undefined }))] : []),
   ];
 
   return {
     wide,
     narrow: <Stack steps={steps} id={`${id}-n`} />,
     viewBox: `0 0 1248 ${height}`,
-    narrowViewBox: `0 0 ${NARROW_W} ${stackHeight(steps.length)}`,
+    narrowViewBox: `0 0 ${NARROW_W} ${stackHeightFor(steps)}`,
     legend: [
       { label: "Request", kind: "request" },
       { label: "Response", kind: "response" },
