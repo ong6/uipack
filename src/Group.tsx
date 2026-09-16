@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useFigureHover, hoverAttrs, type Flow } from "./hover";
 
 export interface GroupProps {
   x: number;
@@ -9,16 +10,19 @@ export interface GroupProps {
   /** "solid" draws a boxed region with a centred title (a service); "dashed" an environment or boundary. */
   variant?: "solid" | "dashed";
   accent?: boolean;
+  /** Flow names for hover highlighting. */
+  flow?: Flow;
   titleSize?: number;
   children?: ReactNode;
 }
 
-export function Group({ x, y, w, h, title, variant = "solid", accent, titleSize, children }: GroupProps) {
+export function Group({ x, y, w, h, title, variant = "solid", accent, flow, titleSize, children }: GroupProps) {
+  const hover = useFigureHover();
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const dashed = variant === "dashed";
   const ts = titleSize ?? (dashed ? 11 : 14);
   return (
-    <g data-uipack="group">
+    <g data-uipack="group" {...hoverAttrs(flow, undefined, hover)}>
       <rect
         x={x}
         y={y}

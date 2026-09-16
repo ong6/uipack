@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode, createElement } from "react";
 import { FigureMotionContext, usePrefersReducedMotion, type FigureMotion } from "./context";
 import { Legend, type LegendItem } from "./Legend";
+import { FigureHoverContext, type FigureHover } from "./hover";
 
 export interface FigureProps {
   /** "Figure 01" or "Fig. 3". Rendered mono, uppercase, before the eyebrow title. */
@@ -25,6 +26,8 @@ export interface FigureProps {
   alt: string;
   className?: string;
   theme?: "light" | "dark";
+  /** Canvas background: the dotted grid (default), plain, or ruled lines. */
+  background?: "dots" | "plain" | "ruled";
   id?: string;
 }
 
@@ -61,6 +64,7 @@ export function Figure({
   alt,
   className,
   theme,
+  background = "dots",
   id,
 }: FigureProps) {
   const auto = useId();
@@ -68,6 +72,9 @@ export function Figure({
   const reduced = usePrefersReducedMotion();
   const [playing, setPlaying] = useState(true);
   const [cycle, setCycle] = useState(0);
+  const [hoverFlow, setHoverFlow] = useState<string | null>(null);
+  const [hoverKind, setHoverKind] = useState<string | null>(null);
+  const hover = useMemo<FigureHover>(() => ({ flow: hoverFlow, kind: hoverKind, setFlow: setHoverFlow, setKind: setHoverKind }), [hoverFlow, hoverKind]);
   const wideRef = useRef<SVGSVGElement>(null);
   const narrowRef = useRef<SVGSVGElement>(null);
 
@@ -101,10 +108,13 @@ export function Figure({
 
   return (
     <FigureMotionContext.Provider value={motion}>
+      <FigureHoverContext.Provider value={hover}>
       <figure
         id={figId}
         className={["uipack", narrow ? "uipack--has-narrow" : "", className ?? ""].join(" ").trim()}
         data-theme={theme}
+        data-hover-flow={hoverFlow ?? undefined}
+        data-hover-kind={hoverKind ?? undefined}
         style={{ margin: 0 }}>
         {hasHead ? (
           <div className="uipack__head">
@@ -130,7 +140,7 @@ export function Figure({
             <Legend items={legend} />
           </div>
         ) : null}
-        <div className="uipack__canvas">
+        <div className={`uipack__canvas uipack__canvas--${background}`}>
           <svg ref={wideRef} className="uipack--wide" viewBox={viewBox} role="img" aria-label={alt}>
             {children}
           </svg>
@@ -141,6 +151,7 @@ export function Figure({
           ) : null}
         </div>
       </figure>
+      </FigureHoverContext.Provider>
     </FigureMotionContext.Provider>
   );
 }

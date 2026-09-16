@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useFigureHover, hoverAttrs, isPointer, flowList, type Flow } from "./hover";
 import { icons, type IconName } from "./icons";
 
 export interface NodeProps {
@@ -16,6 +17,12 @@ export interface NodeProps {
   /** Accent border and title. */
   accent?: boolean;
   dashed?: boolean;
+  /** Flow names this node takes part in; hovering it highlights the flow. */
+  flow?: Flow;
+  /** Native tooltip. */
+  hint?: string;
+  /** Makes the node a link with a focus ring. */
+  href?: string;
   size?: number;
   subSize?: number;
   id?: string;
@@ -32,18 +39,30 @@ export function Node({
   align = icon ? "left" : "center",
   accent,
   dashed,
+  flow,
+  hint,
+  href,
   size = 14,
   subSize = 11,
   id,
 }: NodeProps) {
+  const hover = useFigureHover();
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const glyph = typeof icon === "string" ? icons[icon as IconName] : icon;
   const pad = 14;
   const tx = align === "center" ? x + w / 2 : x + pad + (glyph ? 26 : 0);
   const anchor = align === "center" ? "middle" : "start";
   const ty = sub ? y + h / 2 - 3 : y + h / 2 + size * 0.35;
-  return (
-    <g id={id} data-uipack="node">
+  const flows = flowList(flow);
+  const handlers = flows.length
+    ? {
+        onPointerEnter: (e: React.PointerEvent) => isPointer(e) && hover.setFlow(flows[0]),
+        onPointerLeave: (e: React.PointerEvent) => isPointer(e) && hover.setFlow(null),
+      }
+    : {};
+  const body = (
+    <g id={id} data-uipack="node" {...hoverAttrs(flow, undefined, hover)} {...handlers}>
+      {hint ? <title>{hint}</title> : null}
       <rect
         x={x}
         y={y}
@@ -70,5 +89,12 @@ export function Node({
         </text>
       ) : null}
     </g>
+  );
+  return href ? (
+    <a href={href} className="uipack__link" aria-label={label}>
+      {body}
+    </a>
+  ) : (
+    body
   );
 }

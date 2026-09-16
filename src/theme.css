@@ -154,6 +154,13 @@
   background-image: radial-gradient(var(--uipack-grid) 1px, transparent 1.2px);
   background-size: 12px 12px;
 }
+.uipack__canvas--plain {
+  background-image: none;
+}
+.uipack__canvas--ruled {
+  background-image: linear-gradient(var(--uipack-grid) 1px, transparent 1px);
+  background-size: 100% 24px;
+}
 .uipack__canvas > svg {
   display: block;
   width: 100%;
@@ -191,5 +198,89 @@
 @media (prefers-reduced-motion: reduce) {
   .uipack__ctl--motion {
     display: none;
+  }
+}
+
+/* Surface one step up, for hover. */
+.uipack {
+  --uipack-surface-raised: #f4f6f4;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .uipack {
+    --uipack-surface-raised: #1b2a24;
+  }
+}
+[data-theme="dark"] .uipack,
+.uipack[data-theme="dark"] {
+  --uipack-surface-raised: #1b2a24;
+}
+
+/* Interaction. Every element that names a flow or a kind carries a data-state
+   set by the figure: "hit" for the hovered flow or kind, "dim" for the rest.
+   Only pointer devices get any of this. */
+@media (hover: hover) {
+  .uipack__canvas [data-uipack] {
+    transition: opacity 160ms ease, stroke 160ms ease, fill 160ms ease;
+  }
+  .uipack__canvas [data-uipack="node"] > rect,
+  .uipack__canvas [data-uipack="connector"],
+  .uipack__canvas [data-uipack="group"] > rect {
+    transition: opacity 160ms ease, stroke 160ms ease, fill 160ms ease, stroke-opacity 160ms ease;
+  }
+  .uipack__canvas [data-uipack="node"][data-flow] {
+    cursor: default;
+  }
+  .uipack__canvas [data-uipack="node"]:hover > rect {
+    stroke: var(--uipack-accent);
+    stroke-opacity: 1;
+    fill: var(--uipack-surface-raised);
+  }
+  .uipack__canvas [data-state="dim"] {
+    opacity: 0.35;
+  }
+  .uipack__canvas [data-state="hit"] {
+    opacity: 1;
+  }
+  .uipack__canvas [data-uipack="node"][data-state="hit"] > rect,
+  .uipack__canvas [data-uipack="group"][data-state="hit"] > rect {
+    stroke: var(--uipack-accent);
+    stroke-opacity: 1;
+  }
+  .uipack__canvas [data-uipack="connector"][data-state="hit"] {
+    stroke: var(--uipack-accent);
+    stroke-opacity: 1;
+  }
+  .uipack__canvas [data-uipack="bus"][data-state="hit"] [data-uipack="connector"] {
+    stroke: var(--uipack-accent);
+    stroke-opacity: 1;
+  }
+  .uipack__legend li[data-kind]:not([data-kind="neutral"]) {
+    cursor: default;
+  }
+  .uipack__legend li[data-state="dim"] {
+    opacity: 0.45;
+  }
+  .uipack__legend li {
+    transition: opacity 160ms ease;
+  }
+}
+.uipack__link {
+  cursor: pointer;
+}
+.uipack__link:focus-visible {
+  outline: none;
+}
+.uipack__link:focus-visible > [data-uipack="node"] > rect {
+  stroke: var(--uipack-accent);
+  stroke-opacity: 1;
+  stroke-width: 2;
+}
+@media (prefers-reduced-motion: reduce) {
+  .uipack__canvas [data-uipack],
+  .uipack__canvas [data-uipack="node"] > rect,
+  .uipack__canvas [data-uipack="connector"],
+  .uipack__canvas [data-uipack="group"] > rect,
+  .uipack__legend li {
+    transition: none;
   }
 }

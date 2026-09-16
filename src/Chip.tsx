@@ -1,3 +1,5 @@
+import { useFigureHover, hoverAttrs, type Flow } from "./hover";
+
 export interface ChipProps {
   x: number;
   y: number;
@@ -8,14 +10,17 @@ export interface ChipProps {
   dashed?: boolean;
   /** Filled with a token hue (a busy slot, an overloaded flag). */
   kind?: "request" | "response" | "change" | "accent";
+  /** Flow names for hover highlighting. */
+  flow?: Flow;
   size?: number;
 }
 
 /** Pill: a connection slot, a request in a queue, a status flag. */
-export function Chip({ x, y, w, h = 24, label, dashed, kind, size = 10 }: ChipProps) {
+export function Chip({ x, y, w, h = 24, label, dashed, kind, flow, size = 10 }: ChipProps) {
+  const hover = useFigureHover();
   const fill = !kind ? "var(--uipack-surface)" : kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
   return (
-    <g data-uipack="chip">
+    <g data-uipack="chip" {...hoverAttrs(flow, kind === "accent" ? undefined : kind, hover)}>
       <rect
         x={x}
         y={y}
