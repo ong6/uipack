@@ -1,14 +1,14 @@
 # uipack
 
-React and SVG figure components for engineering write-ups. Framed figures, lanes, nodes, connectors, and packets that move along them. These are the diagrams behind [junxiong.dev](https://junxiong.dev).
+React and SVG figure components for engineering write-ups: framed figures, lanes, nodes, connectors, packets that move along them, seven ready figure presets, and an asset browser. These are the diagrams behind [junxiong.dev](https://junxiong.dev).
 
-I wanted the figures from OpenAI's [Habitat post](https://openai.com/index/scaling-storage-one-billion-users-part-one/): a mono eyebrow, one title, one caption, a shape-coded legend, Pause and Replay, a dotted grid, and small tokens riding the arrows. My site already had hand-laid SVG primitives on an 8px grid. This package is those primitives, extended until they can draw that figure, with the frame and the motion added.
+I wanted the figures from OpenAI's [Habitat post](https://openai.com/index/scaling-storage-one-billion-users-part-one/): a mono eyebrow, one title, one caption, a shape-coded legend, Pause and Replay, a dotted grid, and small tokens riding the arrows. My site already had hand-laid SVG primitives on an 8px grid. This package is those primitives, extended until they draw that figure, with the frame, the motion and the hover added.
 
-![The Habitat overview redrawn with uipack, light theme](docs/playground-1440-light.png)
+![The agent-loop preset, light theme](docs/presets/agentLoop-light.png)
 
 ## Install
 
-Not on npm yet (the name belongs to someone else's placeholder). Install from GitHub; `dist/` is committed so there is no build step on the consumer side.
+Not on npm yet (the bare name belongs to someone else's placeholder). Install from GitHub; `dist/` is committed so there is no build step on the consumer side.
 
 ```sh
 npm install github:ong6/uipack
@@ -31,36 +31,102 @@ export function RequestFlow() {
       viewBox="0 0 640 200"
       alt="A client node on the left connected to a service node on the right.">
       <Defs id="rf" />
-      <Node x={16} y={40} w={200} h={40} label="Client" icon="client" />
-      <Node x={400} y={120} w={200} h={40} label="Service" icon="service" />
-      <Connector points={path} defs="rf" kind="request" />
-      <Packet points={path} kind="request" dur={2} />
-      <Packet points={path} kind="response" dur={2} delay={-1} reverse />
+      <Node x={16} y={40} w={200} h={40} label="Client" icon="client" flow="call" />
+      <Node x={400} y={120} w={200} h={40} label="Service" icon="service" flow="call" />
+      <Connector points={path} defs="rf" kind="request" flow="call" />
+      <Packet points={path} kind="request" dur={2} flow="call" />
+      <Packet points={path} kind="response" dur={2} delay={-1} reverse flow="call" />
     </Figure>
   );
 }
 ```
 
-`examples/Habitat.tsx` is the full Habitat overview, wide and narrow, built from nothing but these parts. `npm run dev` opens a playground that renders every component in both themes.
+Three entries, so a page loads only what it draws: `uipack` (the parts, 9 KB gzipped with the theme), `uipack/presets` (10 KB), `uipack/browser` (1.5 KB plus `uipack/browser.css`).
 
-## Components
+`npm run dev` opens a playground: `/` renders the Habitat example, every part, and every preset; `/assets` renders the asset browser.
 
-| Component | Props | Does |
+## Parts
+
+- `Figure`: the frame. Eyebrow, title (`headingLevel` picks the element), caption, legend, Pause and Replay, a canvas with a `background` of `dots`, `plain` or `ruled`, and a `narrow` drawing swapped in below 720px. Owns the SVG timeline and the hover state.
+- `Lane`: mono uppercase column header, centred over `x..x+w`.
+- `Group`: a boxed service (solid, centred title) or a dashed boundary (mono title).
+- `Node`: a box with a label, a mono `sub`, an `icon`, an optional `hint` (native tooltip) and `href` (renders as a link with a focus ring).
+- `Chip`: a pill for a connection slot, a queued item, a status flag.
+- `Connector`: a rounded orthogonal path with one arrowhead.
+- `Bus`: a trunk with stubs and a junction dot at each join. `busStub` and `busStubs` give the same points to packets.
+- `Packet`: a token that rides a connector's points, looping.
+- `Badge`, `Label`, `Legend`, `Token`, `Defs`: step numbers, text with an underlay, the key, the shape itself, the arrowhead markers.
+- `icons`: 25 line glyphs in a 16px box (db, cache, queue, service, client, blob, agent, doc, model, tool, gateway, lock, key, clock, cron, browser, terminal, git, cloud, region, user, robot, chart, warning, more). `marks`: my own marks for the tool family, plus `Wordmark`.
+- Geometry: `anchor`, `route`, `pathFromPoints`, `pointAlong`, `trim`, `polylineLength`, `grid`.
+
+### The connector rule
+
+One connector, one arrowhead, at the end, in the request direction. The response is the same points ridden backwards by a `Packet` with `reverse`. Two different relations between the same boxes (pull and push, say) are two connectors 16 units apart. A stub that joins a bus carries no arrowhead; the junction dot marks the join, and only a stub that enters a node gets a head.
+
+Connectors stop 2 units short of their first and last point, and 4 short at the arrow end, so a head never touches a border. Packets stop 2 units after the start and 12 before the end, so a token never sits on a head. The browser suite checks both on every drawing in the playground.
+
+## Interaction
+
+Hover is opt-in and CSS-driven. Give parts a `flow` name (a string or a list): hovering a `Node` with a flow sets `data-hover-flow` on the figure, every element sharing that flow gets `data-state="hit"` (accent stroke, full opacity) and everything else `data-state="dim"` (opacity 0.35), with a 160ms transition. Hovering a legend item does the same by `kind`, so "Response" lights every response line and packet. A node on its own lifts its surface and turns its border accent on hover. Touch devices get none of it (`@media (hover: hover)`), and reduced motion drops the transition.
+
+## Presets
+
+Seven figures from a small typed spec, each with wide and narrow drawings, packets on the flows that matter, and hover flows wired. Import from `uipack/presets`; every preset ships a `default…` spec and a `…Parts()` function if you want the drawing without the frame.
+
+| Preset | Spec | Shape |
 |---|---|---|
-| `Figure` | `number`, `eyebrow`, `title`, `caption`, `legend`, `headingLevel`, `controls`, `viewBox`, `narrow`, `narrowViewBox`, `alt`, `theme` | The frame: header, legend, Pause and Replay, dotted canvas, wide and narrow drawings swapped at 720px. Owns the SVG timeline. |
-| `Legend` | `items: {label, kind, shape}[]` | Shape-coded key. Rendered by `Figure`; exported for use elsewhere. |
-| `Lane` | `x`, `w`, `y`, `title`, `h` | Mono uppercase column header, optional faint rule. |
-| `Group` | `x`, `y`, `w`, `h`, `title`, `variant: solid \| dashed`, `accent` | A boxed service (solid, centred title) or an environment boundary (dashed, mono title). |
-| `Node` | `x`, `y`, `w`, `h`, `label`, `sub`, `icon`, `align`, `accent`, `dashed` | A box with a label, a mono second line, and an icon slot. |
-| `Chip` | `x`, `y`, `w`, `h`, `label`, `dashed`, `kind` | A pill: a connection slot, a queued request, a status flag. |
-| `Connector` | `points`, `defs`, `arrow: boolean \| both`, `dashed`, `kind`, `radius`, `id` | A rounded polyline with arrowheads coloured by token kind. |
-| `Packet` | `points`, `kind`, `shape`, `dur`, `delay`, `reverse`, `at`, `r` | A token that rides the same points, looping. |
-| `Badge` | `cx`, `cy`, `text`, `accent` | A circled step number. |
-| `Label` | `x`, `y`, `text`, `anchor`, `font`, `accent` | Text with a page-coloured underlay so it can sit on a line. |
-| `Defs` | `id` | Arrowhead markers, one per token kind. Put one in every SVG. |
-| `Token` | `kind`, `shape`, `r`, `cx`, `cy` | The shape itself: square for request, circle for response, diamond for change. |
+| `serviceMap` | `clients`, `platform { title, cells, footer? }`, `resources`, `sinks?` | Three lanes, a bus each side, a change stream below. The Habitat shape. |
+| `agentLoop` | `user`, `agent`, `tools`, `boundary`, `output` | Request in, tool calls out and results back, a deterministic check before the output. |
+| `ragPipeline` | `sources`, `ingest`, `index`, `query`, `stages`, `answer` | Ingest lane on top writing to an index, query lane below reading from it. |
+| `skillLifecycle` | `author`, `evaluate { baseline }`, `version`, `consumers`, `feedback` | Author, evaluate against a baseline, version, install everywhere, feedback back. |
+| `syncLoop` | `upstream { items }`, `consumers [{ hooks?, plugin? }]` | One upstream, pull and push per consumer, a one-way plugin read. |
+| `beforeAfter` | `before { stages }`, `after { stages, changed }` | Two stacked panels; the changed stage and its inbound edge in accent. |
+| `pipeline` | `stages`, `queue? { after, depth }` | A line of stages with a queue between two of them. |
 
-Helpers: `anchor(box, side, t)` gives a point on a box edge, `route(from, to, via)` builds an orthogonal polyline, `pathFromPoints(points, radius)` turns it into path data, `pointAlong(points, t)` walks it. `icons` holds nine 16px line glyphs: db, cache, queue, service, client, blob, agent, doc, more.
+![Service map](docs/presets/serviceMap-light.png)
+![RAG pipeline](docs/presets/ragPipeline-light.png)
+![Skill lifecycle](docs/presets/skillLifecycle-light.png)
+![Sync loop](docs/presets/syncLoop-light.png)
+![Before and after](docs/presets/beforeAfter-light.png)
+![Pipeline](docs/presets/pipeline-light.png)
+
+`examples/Habitat.tsx` stays as the reference drawing, built from the parts by hand.
+
+## Assets
+
+`assets/manifest.json` lists every asset with a rendered preview under `docs/assets/`, and `AssetBrowser` (from `uipack/browser`) shows it: categories with counts down the left, a search box, a grid of cards with the preview on a light tile even in dark mode, and one action, which copies the import line or the SVG.
+
+![Asset browser](docs/assets-1440-light.png)
+
+```json
+{
+  "version": 1,
+  "generated": "2026-09-16",
+  "assets": [
+    {
+      "id": "icon-lock",
+      "name": "lock",
+      "category": "Icons",
+      "kind": "icon",
+      "preview": "docs/assets/icon-lock.svg",
+      "source": "<Node … icon=\"lock\" />  // or: icons.lock",
+      "tags": ["icon", "lock"]
+    }
+  ]
+}
+```
+
+`kind` is one of `figure`, `part`, `icon`, `motion`, `background`, `mark`. Today: 7 figures, 9 parts, 25 icons, 7 motion, 3 backgrounds, 9 marks. Marks are my own only; no third-party logos. `npm run manifest` re-renders the previews and rewrites the file.
+
+```tsx
+import "uipack/browser.css";
+import { AssetBrowser } from "uipack/browser";
+import manifest from "uipack/assets/manifest.json";
+
+<AssetBrowser manifest={manifest} initialCategory="Figures" base="/uipack/" />
+```
+
+`onAction` replaces the copy, `actionLabel` renames the button. The sidebar collapses to a row of chips below 720px; every target is 44px.
 
 ## Theming
 
@@ -71,6 +137,7 @@ Every colour is a CSS custom property on `.uipack`, so a host restyles by settin
   --uipack-fg: #1a1c1a;
   --uipack-bg: #ffffff;
   --uipack-surface: #ffffff;
+  --uipack-surface-raised: #f4f6f4;
   --uipack-accent: #205f49;
   --uipack-token-request: #4f6fe6;
   --uipack-token-response: #3fb27f;
@@ -90,9 +157,15 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` (default th
 
 ## Testing
 
-`npm test` runs 20 vitest cases in jsdom: geometry, props, the header, Pause state, reduced motion, the narrow swap. `npm run test:e2e` runs 6 Playwright cases in Chromium and WebKit, 12 in total: a packet moves between two samples, holds still after Pause, resumes on Play, returns to the path start on Replay, sits at the midpoint under reduced motion, and both themes render three figures with no console errors. The CI workflow runs both with job timeouts.
+`npm test` runs 44 vitest cases in jsdom. `npm run test:e2e` runs 16 Playwright cases in Chromium and WebKit, 32 in total, one skipped in WebKit. What they pin down:
 
-Playwright is pinned at 1.61.1 because the 1.63 browser build would not download on my network. Bump it when that clears.
+- Packets move, hold after Pause, resume on Play, return to the start on Replay, and sit still under reduced motion.
+- Hovering a node dims the rest and lights its flow. Hovering a legend item filters by kind. An `href` node takes focus.
+- No arrowhead ends inside a node, no packet reaches a head, and every bus junction sits on the 8px grid, on every drawing in the playground.
+- The asset browser filters, searches, copies to the clipboard (Chromium only; Playwright cannot grant that in WebKit), and fits 390px with 44px targets.
+- Both themes render ten figures with no console errors.
+
+CI runs both suites with job timeouts. Playwright is pinned at 1.61.1 because the 1.63 browser build would not download on my network. Bump it when that clears.
 
 ## Roadmap
 
@@ -103,7 +176,7 @@ Playwright is pinned at 1.61.1 because the 1.63 browser build would not download
 
 ## Credit
 
-The look is OpenAI's, from the Habitat post linked above. The idea of typed, validated figures comes from [archify](https://github.com/tt-a1i/archify). The primitives grew out of the diagrams on junxiong.dev.
+The look is OpenAI's, from the Habitat post linked above. The idea of typed, validated figures comes from [archify](https://github.com/tt-a1i/archify). The asset browser follows the shape of Rubric Elements. The primitives grew out of the diagrams on junxiong.dev.
 
 MIT.
 

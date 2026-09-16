@@ -36,7 +36,8 @@ test.describe("packet motion", () => {
     expect(dist(before, start)).toBeGreaterThan(20);
     await figure.getByRole("button", { name: "Replay" }).click();
     const after = await packetCentre(page);
-    expect(dist(after, start)).toBeLessThan(12);
+    // 2s over ~330 units is 165 units/s; the click and the read cost up to ~120ms
+    expect(dist(after, start)).toBeLessThan(28);
   });
 });
 
@@ -47,7 +48,7 @@ test.describe("themes", () => {
       page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
       page.on("pageerror", (e) => errors.push(e.message));
       await page.goto(`/?theme=${theme}`);
-      await expect(page.locator("figure.uipack")).toHaveCount(3);
+      await expect(page.locator("figure.uipack")).toHaveCount(10); // Habitat, parts, seven presets, bare
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
       const bg = await page.locator("figure.uipack").first().evaluate((el) => getComputedStyle(el).backgroundColor);
       expect(bg).toBe(theme === "dark" ? "rgb(14, 21, 18)" : "rgb(255, 255, 255)");

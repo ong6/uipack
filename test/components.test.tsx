@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { Chip, Connector, Defs, Figure, Group, Lane, Legend, Node, Packet, useFigureMotion } from "../src";
+import { Bus, Chip, Connector, Defs, Figure, Group, Lane, Legend, Node, Packet, busStubs, useFigureMotion } from "../src";
 
 const wrap = (ui: React.ReactNode, props: Partial<React.ComponentProps<typeof Figure>> = {}) =>
   render(
@@ -86,13 +86,14 @@ describe("parts", () => {
     const { container } = wrap(
       <>
         <Defs id="t" />
-        <Connector points={[[0, 0], [50, 0], [50, 50]]} defs="t" kind="request" arrow="both" />
+        <Connector points={[[0, 0], [50, 0], [50, 50]]} defs="t" kind="request" />
       </>,
     );
     const p = container.querySelector('[data-uipack="connector"]')!;
-    expect(p.getAttribute("d")).toMatch(/^M0,0 L44,0 Q50,0 50,6 L50,50$/);
+    // inset 2 at the start, 2 + 2 at the arrow end, so the head clears the border
+    expect(p.getAttribute("d")).toMatch(/^M2,0 L44,0 Q50,0 50,6 L50,46$/);
     expect(p.getAttribute("marker-end")).toBe("url(#t-head-request)");
-    expect(p.getAttribute("marker-start")).toBe("url(#t-head-request)");
+    expect(p.getAttribute("marker-start")).toBeNull();
     expect(container.querySelector("#t-head-request")).not.toBeNull();
   });
   it("Packet animates with animateMotion on the same path", () => {
@@ -100,18 +101,19 @@ describe("parts", () => {
     const am = container.querySelector("animateMotion");
     expect(am).not.toBeNull();
     expect(am!.getAttribute("dur")).toBe("2s");
-    expect(am!.getAttribute("path")).toMatch(/^M0,0/);
+    expect(am!.getAttribute("path")).toMatch(/^M2,0/); // trimmed 2 at the start, 12 at the end
   });
   it("Packet reverses the path for a response", () => {
     const { container } = wrap(<Packet points={[[0, 0], [50, 0]]} kind="response" reverse />);
-    expect(container.querySelector("animateMotion")!.getAttribute("path")).toBe("M50,0 L0,0");
+    expect(container.querySelector("animateMotion")!.getAttribute("path")).toBe("M48,0 L12,0");
   });
   it("Packet renders a static token at `at` under reduced motion", () => {
     globalThis.__reduced = true;
     const { container } = wrap(<Packet points={[[0, 0], [100, 0]]} kind="request" at={0.25} />);
     expect(container.querySelector("animateMotion")).toBeNull();
     const rect = container.querySelector('[data-static="true"] rect')!;
-    expect(Number(rect.getAttribute("x"))).toBe(20); // 25 - r(5)
+    // trimmed path runs 2..88, so 0.25 of the way is 23.5; minus r(5)
+    expect(Number(rect.getAttribute("x"))).toBeCloseTo(18.5);
     globalThis.__reduced = false;
   });
   it("Legend draws one shape per item and skips when empty", () => {
@@ -127,11 +129,93 @@ describe("parts", () => {
 describe("Figure headingLevel", () => {
   it("renders the title at the requested heading level", () => {
     const { container } = render(
-      <Figure title="Outline" headingLevel={2} viewBox="0 0 10 10">
+      <Figure title="Outline" headingLevel={2} viewBox="0 0 10 10" alt="outline">
         <g />
       </Figure>
     );
     expect(container.querySelector("h2.uipack__title")).not.toBeNull();
     expect(container.querySelector("h3.uipack__title")).toBeNull();
+  });
+});
+
+describe("hover", () => {
+  const scene = () =>
+    wrap(
+      <>
+        <Defs id="h" />
+        <Node x={0} y={0} w={20} h={10} label="A" flow="alpha" id="na" />
+        <Node x={0} y={20} w={20} h={10} label="B" flow="beta" id="nb" />
+        <Node x={0} y={40} w={20} h={10} label="C" id="nc" />
+        <Connector points={[[20, 5], [60, 5]]} defs="h" kind="request" flow="alpha" id="ca" />
+        <Connector points={[[20, 25], [60, 25]]} defs="h" kind="change" flow="beta" id="cb" />
+      </>,
+      { legend: [{ label: "Request", kind: "request" }, { label: "Change", kind: "change" }] },
+    );
+  it("hovering a node with a flow marks the figure, hits its flow and dims the rest", () => {
+    const { container } = scene();
+    const figure = container.querySelector("figure")!;
+    fireEvent.pointerEnter(container.querySelector("#na")!);
+    expect(figure).toHaveAttribute("data-hover-flow", "alpha");
+    expect(container.querySelector("#na")).toHaveAttribute("data-state", "hit");
+    expect(container.querySelector("#ca")).toHaveAttribute("data-state", "hit");
+    expect(container.querySelector("#nb")).toHaveAttribute("data-state", "dim");
+    expect(container.querySelector("#cb")).toHaveAttribute("data-state", "dim");
+    expect(container.querySelector("#nc")).toHaveAttribute("data-state", "dim"); // no flow: part of "the rest"
+    fireEvent.pointerLeave(container.querySelector("#na")!);
+    expect(figure).not.toHaveAttribute("data-hover-flow");
+    expect(container.querySelector("#nb")).not.toHaveAttribute("data-state");
+  });
+  it("hovering a legend item highlights that kind only", () => {
+    const { container } = scene();
+    fireEvent.pointerEnter(screen.getByText("Change").closest("li")!);
+    expect(container.querySelector("figure")).toHaveAttribute("data-hover-kind", "change");
+    expect(container.querySelector("#cb")).toHaveAttribute("data-state", "hit");
+    expect(container.querySelector("#ca")).toHaveAttribute("data-state", "dim");
+    expect(container.querySelector("#na")).not.toHaveAttribute("data-state"); // nodes have no kind
+    fireEvent.pointerLeave(screen.getByText("Change").closest("li")!);
+    expect(container.querySelector("#ca")).not.toHaveAttribute("data-state");
+  });
+  it("a node with href renders as a link with a title hint", () => {
+    const { container } = wrap(<Node x={0} y={0} w={20} h={10} label="Docs" href="/docs" hint="Open the docs" />);
+    const a = container.querySelector("a.uipack__link")!;
+    expect(a).toHaveAttribute("href", "/docs");
+    expect(a.querySelector("title")).toHaveTextContent("Open the docs");
+  });
+  it("a flow can be a list", () => {
+    const { container } = wrap(<Node x={0} y={0} w={20} h={10} label="X" flow={["a", "b"]} id="nx" />);
+    expect(container.querySelector("#nx")).toHaveAttribute("data-flow", "a b");
+  });
+});
+
+describe("Bus", () => {
+  const props = { axis: "v" as const, at: 232, from: 120, to: 344, stubs: [{ at: 120, to: 200 }, { at: 176, to: 200 }, { at: 232, to: 200 }, { at: 200, to: 328, arrow: true }] };
+  it("draws a trunk, one stub per entry, a junction dot per stub, and a head only where asked", () => {
+    const { container } = wrap(
+      <>
+        <Defs id="b" />
+        <Bus {...props} defs="b" />
+      </>,
+    );
+    const conns = container.querySelectorAll('[data-uipack="bus"] [data-uipack="connector"]');
+    expect(conns).toHaveLength(5);
+    expect(container.querySelectorAll('[data-uipack="junction"]')).toHaveLength(4);
+    const heads = [...conns].filter((c) => c.getAttribute("marker-end"));
+    expect(heads).toHaveLength(1);
+    expect(heads[0].getAttribute("d")).toMatch(/L324,200$/); // 328 minus inset 2 minus head 2
+  });
+  it("busStubs gives packets the same points, junction first", () => {
+    expect(busStubs(props)).toEqual([
+      [[232, 120], [200, 120]],
+      [[232, 176], [200, 176]],
+      [[232, 232], [200, 232]],
+      [[232, 200], [328, 200]],
+    ]);
+  });
+  it("junctions sit on the 8px grid", () => {
+    const { container } = wrap(<Bus {...props} />);
+    for (const c of container.querySelectorAll('[data-uipack="junction"]')) {
+      expect(Number(c.getAttribute("cx")) % 8).toBe(0);
+      expect(Number(c.getAttribute("cy")) % 8).toBe(0);
+    }
   });
 });

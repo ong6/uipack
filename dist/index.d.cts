@@ -1,32 +1,7 @@
 import * as react from 'react';
-import { CSSProperties, ReactNode } from 'react';
-
-type TokenKind = "request" | "response" | "change" | "accent" | "neutral";
-type TokenShape = "square" | "circle" | "diamond";
-declare const TOKEN_SHAPE: Record<TokenKind, TokenShape>;
-declare function tokenColor(kind: TokenKind): string;
-interface TokenProps {
-    shape?: TokenShape;
-    kind?: TokenKind;
-    /** Half the token's width in user units. */
-    r?: number;
-    cx?: number;
-    cy?: number;
-    style?: CSSProperties;
-}
-/** The small shape that rides a connector or sits in a legend. */
-declare function Token({ shape, kind, r, cx, cy, style }: TokenProps): react.JSX.Element;
-
-interface LegendItem {
-    label: string;
-    kind?: TokenKind;
-    shape?: TokenShape;
-}
-interface LegendProps {
-    items: LegendItem[];
-}
-/** Shape-coded key rendered in the Figure header. */
-declare function Legend({ items }: LegendProps): react.JSX.Element | null;
+import { ReactNode } from 'react';
+import { L as LegendItem, I as IconName, T as TokenKind, a as TokenShape } from './index-BRpg0M9y.cjs';
+export { b as Legend, c as LegendProps, d as TOKEN_SHAPE, e as Token, f as TokenProps, i as icons, t as tokenColor } from './index-BRpg0M9y.cjs';
 
 interface FigureProps {
     /** "Figure 01" or "Fig. 3". Rendered mono, uppercase, before the eyebrow title. */
@@ -51,9 +26,11 @@ interface FigureProps {
     alt: string;
     className?: string;
     theme?: "light" | "dark";
+    /** Canvas background: the dotted grid (default), plain, or ruled lines. */
+    background?: "dots" | "plain" | "ruled";
     id?: string;
 }
-declare function Figure({ number, eyebrow, title, headingLevel, caption, legend, controls, viewBox, children, narrow, narrowViewBox, alt, className, theme, id, }: FigureProps): react.JSX.Element;
+declare function Figure({ number, eyebrow, title, headingLevel, caption, legend, controls, viewBox, children, narrow, narrowViewBox, alt, className, theme, background, id, }: FigureProps): react.JSX.Element;
 
 interface LaneProps {
     /** Left edge and width of the column the header sits over. */
@@ -68,6 +45,25 @@ interface LaneProps {
 /** Mono uppercase column header, the way the OpenAI figures label CLIENTS / PLATFORM / STORAGE. */
 declare function Lane({ x, w, y, title, h, size }: LaneProps): react.JSX.Element;
 
+type Flow = string | string[];
+interface FigureHover {
+    /** Flow name under the pointer, or null. */
+    flow: string | null;
+    /** Legend kind under the pointer, or null. */
+    kind: string | null;
+    setFlow: (flow: string | null) => void;
+    setKind: (kind: string | null) => void;
+}
+declare const FigureHoverContext: react.Context<FigureHover>;
+declare function useFigureHover(): FigureHover;
+declare const flowList: (flow?: Flow) => string[];
+/**
+ * Data attributes for an element that takes part in hover highlighting.
+ * `data-state` is "hit" when the element shares the hovered flow or kind,
+ * "dim" when something else is hovered, absent when nothing is.
+ */
+declare function hoverAttrs(flow: Flow | undefined, kind: string | undefined, hover: FigureHover): Record<string, string>;
+
 interface GroupProps {
     x: number;
     y: number;
@@ -77,23 +73,12 @@ interface GroupProps {
     /** "solid" draws a boxed region with a centred title (a service); "dashed" an environment or boundary. */
     variant?: "solid" | "dashed";
     accent?: boolean;
+    /** Flow names for hover highlighting. */
+    flow?: Flow;
     titleSize?: number;
     children?: ReactNode;
 }
-declare function Group({ x, y, w, h, title, variant, accent, titleSize, children }: GroupProps): react.JSX.Element;
-
-declare const icons: {
-    db: react.JSX.Element;
-    cache: react.JSX.Element;
-    queue: react.JSX.Element;
-    service: react.JSX.Element;
-    client: react.JSX.Element;
-    blob: react.JSX.Element;
-    agent: react.JSX.Element;
-    doc: react.JSX.Element;
-    more: react.JSX.Element;
-};
-type IconName = keyof typeof icons;
+declare function Group({ x, y, w, h, title, variant, accent, flow, titleSize, children }: GroupProps): react.JSX.Element;
 
 interface NodeProps {
     x: number;
@@ -110,11 +95,17 @@ interface NodeProps {
     /** Accent border and title. */
     accent?: boolean;
     dashed?: boolean;
+    /** Flow names this node takes part in; hovering it highlights the flow. */
+    flow?: Flow;
+    /** Native tooltip. */
+    hint?: string;
+    /** Makes the node a link with a focus ring. */
+    href?: string;
     size?: number;
     subSize?: number;
     id?: string;
 }
-declare function Node({ x, y, w, h, label, sub, icon, align, accent, dashed, size, subSize, id, }: NodeProps): react.JSX.Element;
+declare function Node({ x, y, w, h, label, sub, icon, align, accent, dashed, flow, hint, href, size, subSize, id, }: NodeProps): react.JSX.Element;
 
 interface ChipProps {
     x: number;
@@ -126,10 +117,12 @@ interface ChipProps {
     dashed?: boolean;
     /** Filled with a token hue (a busy slot, an overloaded flag). */
     kind?: "request" | "response" | "change" | "accent";
+    /** Flow names for hover highlighting. */
+    flow?: Flow;
     size?: number;
 }
 /** Pill: a connection slot, a request in a queue, a status flag. */
-declare function Chip({ x, y, w, h, label, dashed, kind, size }: ChipProps): react.JSX.Element;
+declare function Chip({ x, y, w, h, label, dashed, kind, flow, size }: ChipProps): react.JSX.Element;
 
 type Point = [number, number];
 type Side = "top" | "right" | "bottom" | "left";
@@ -151,23 +144,82 @@ declare function route(from: Point, to: Point, via?: "h" | "v" | number, axis?: 
 declare function pathFromPoints(points: Point[], radius?: number): string;
 /** Total length of a polyline and the point `t` (0..1) of the way along it. */
 declare function pointAlong(points: Point[], t: number): Point;
+/** Length of a polyline in user units. */
+declare function polylineLength(points: Point[]): number;
+/**
+ * Shorten a polyline by `start` units at its first point and `end` units at
+ * its last, walking along the segments. Used so an arrowhead stops short of a
+ * node border and a packet stops short of the arrowhead. Never inverts: if the
+ * trims meet, the polyline collapses to its midpoint.
+ */
+declare function trim(points: Point[], start?: number, end?: number): Point[];
+/** Snap a value to the 8px grid. */
+declare const grid: (v: number, step?: number) => number;
 
+type ConnectorKind = "request" | "response" | "change" | "accent";
 interface ConnectorProps {
     /** Polyline in user units; use `route()` to build an orthogonal one. */
     points: Point[];
-    /** Marker prefix from `<Defs id>`; required for arrowheads. */
+    /** Marker prefix from `<Defs id>`; required for an arrowhead. */
     defs?: string;
-    arrow?: boolean | "both";
+    /**
+     * One arrowhead at the last point. A request/response pair is one connector
+     * drawn in the request direction; the response packet rides it `reverse`.
+     */
+    arrow?: boolean;
     dashed?: boolean;
     /** Colour the stroke and head by token kind. */
-    kind?: "request" | "response" | "change" | "accent";
-    /** Id for `<Packet along>` to follow. */
+    kind?: ConnectorKind;
+    /** Flow names for hover highlighting. */
+    flow?: Flow;
+    /** Id for tests or `<use>`. */
     id?: string;
     radius?: number;
     strokeWidth?: number;
+    /**
+     * Units the path stops short of its first and last point, so the line and
+     * its head never touch a node border. Default 2 at both ends; the head end
+     * gets 2 more so the tip sits clear.
+     */
+    inset?: number | [number, number];
 }
-declare function connectorStroke(kind?: ConnectorProps["kind"]): string;
-declare function Connector({ points, defs, arrow, dashed, kind, id, radius, strokeWidth }: ConnectorProps): react.JSX.Element;
+declare function connectorStroke(kind?: ConnectorKind): string;
+declare function Connector({ points, defs, arrow, dashed, kind, flow, id, radius, strokeWidth, inset }: ConnectorProps): react.JSX.Element;
+
+interface BusStub {
+    /** Position along the trunk (y for a vertical bus, x for a horizontal one). */
+    at: number;
+    /** Where the stub ends: the node edge's x (vertical bus) or y (horizontal). */
+    to: number;
+    flow?: Flow;
+    /** Arrowhead at the node end: only for a stub that enters a node, never one that leaves it. */
+    arrow?: boolean;
+}
+interface BusProps {
+    axis?: "v" | "h";
+    /** Trunk position: x for vertical, y for horizontal. */
+    at: number;
+    /** Trunk extent along its axis. */
+    from: number;
+    to: number;
+    stubs: BusStub[];
+    kind?: ConnectorKind;
+    flow?: Flow;
+    /** Marker prefix from `<Defs id>`, needed by any stub with `arrow`. */
+    defs?: string;
+    /** Draw a junction dot where each stub meets the trunk. Default true. */
+    dots?: boolean;
+    id?: string;
+}
+/** Points of one stub, trunk junction first, node edge last. */
+declare function busStub(props: Pick<BusProps, "axis" | "at">, stub: BusStub): Point[];
+/** Points of every stub, in order, for packets to ride. */
+declare function busStubs(props: Pick<BusProps, "axis" | "at" | "stubs">): Point[][];
+/**
+ * A trunk with stubs and a junction dot at each join. Stubs carry no
+ * arrowhead unless they enter a node; direction comes from the packets.
+ */
+declare function Bus({ axis, at, from, to, stubs, kind, flow, defs, dots, id }: BusProps): react.JSX.Element;
 
 interface PacketProps {
     /** Same points as the Connector it rides. */
@@ -184,6 +236,13 @@ interface PacketProps {
     /** Ride the path backwards (a response). */
     reverse?: boolean;
     radius?: number;
+    /** Flow names for hover highlighting. */
+    flow?: Flow;
+    /**
+     * Units the trip stops short of its first and last point, so the token
+     * never sits on the arrowhead or the node border. Default 2 and 12.
+     */
+    trim?: [number, number];
     id?: string;
 }
 /**
@@ -192,7 +251,7 @@ interface PacketProps {
  * Replay come from the enclosing Figure, which drives the SVG timeline
  * (pauseAnimations, setCurrentTime), so offsets survive a replay.
  */
-declare function Packet({ points, kind, shape, dur, delay, at, r, reverse, radius, id }: PacketProps): react.JSX.Element;
+declare function Packet({ points, kind, shape, dur, delay, at, r, reverse, radius, flow, trim: t, id }: PacketProps): react.JSX.Element;
 
 interface BadgeProps {
     cx: number;
@@ -224,6 +283,22 @@ interface DefsProps {
 /** Arrowhead markers. `url(#<id>-head)` and `url(#<id>-head-accent)`. */
 declare function Defs({ id }: DefsProps): react.JSX.Element;
 
+declare const marks: {
+    uipack: react.JSX.Element;
+    groundplane: react.JSX.Element;
+    jobforge: react.JSX.Element;
+    skillforge: react.JSX.Element;
+    deckforge: react.JSX.Element;
+    proofpack: react.JSX.Element;
+    fieldpack: react.JSX.Element;
+    skillpack: react.JSX.Element;
+};
+type MarkName = keyof typeof marks;
+/** The uipack wordmark: the mark plus the name in mono. */
+declare function Wordmark({ size }: {
+    size?: number;
+}): react.JSX.Element;
+
 interface FigureMotion {
     /** False after Pause, or always false under prefers-reduced-motion. */
     playing: boolean;
@@ -240,4 +315,4 @@ declare function useFigureMotion(): FigureMotion;
 /** True when the OS asks for reduced motion. Server render says false. */
 declare function usePrefersReducedMotion(): boolean;
 
-export { Badge, type BadgeProps, type Box, Chip, type ChipProps, Connector, type ConnectorProps, Defs, type DefsProps, Figure, type FigureMotion, FigureMotionContext, type FigureProps, Group, type GroupProps, type IconName, Label, type LabelProps, Lane, type LaneProps, Legend, type LegendItem, type LegendProps, Node, type NodeProps, Packet, type PacketProps, type Point, type Side, TOKEN_SHAPE, Token, type TokenKind, type TokenProps, type TokenShape, anchor, connectorStroke, icons, pathFromPoints, pointAlong, route, tokenColor, useFigureMotion, usePrefersReducedMotion };
+export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, Defs, type DefsProps, Figure, type FigureHover, FigureHoverContext, type FigureMotion, FigureMotionContext, type FigureProps, type Flow, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, LegendItem, type MarkName, Node, type NodeProps, Packet, type PacketProps, type Point, type Side, TokenKind, TokenShape, Wordmark, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, marks, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFigureMotion, usePrefersReducedMotion };
