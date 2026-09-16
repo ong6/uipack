@@ -25,7 +25,7 @@ import {
   route,
   trim,
   useFigureHover
-} from "./chunk-BSOMWVK4.js";
+} from "./chunk-LMCGX4U3.js";
 import {
   FigureMotionContext,
   TOKEN_SHAPE,

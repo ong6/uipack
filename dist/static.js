@@ -83,7 +83,15 @@ function renderStatic(input, opts = {}) {
   const ctx = { playing: motion, reduced: !motion, cycle: 0, toggle: () => {
   }, replay: () => {
   }, prerender: motion };
-  const drawing = inlineVars(renderToStaticMarkup(/* @__PURE__ */ jsx(FigureMotionContext.Provider, { value: ctx, children: fig.children })), p);
+  const g = globalThis;
+  const prev = g.__UIPACK_PRERENDER__;
+  g.__UIPACK_PRERENDER__ = motion;
+  let drawing;
+  try {
+    drawing = inlineVars(renderToStaticMarkup(/* @__PURE__ */ jsx(FigureMotionContext.Provider, { value: ctx, children: fig.children })), p);
+  } finally {
+    g.__UIPACK_PRERENDER__ = prev;
+  }
   const pad = 28;
   let hy = 0;
   const head = [];

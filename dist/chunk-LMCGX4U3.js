@@ -549,7 +549,8 @@ function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at = 0.5,
   const [mounted, setMounted] = useState2(false);
   useEffect2(() => setMounted(true), []);
   const attrs = hoverAttrs(flow, kind === "neutral" ? void 0 : kind, hover);
-  if (reduced || !mounted && !prerender) {
+  const pre = prerender || globalThis.__UIPACK_PRERENDER__ === true;
+  if (reduced || !mounted && !pre) {
     const [cx, cy] = pointAlong(pts, at);
     return /* @__PURE__ */ jsx10("g", { id, "data-uipack": "packet", "data-static": "true", ...attrs, children: /* @__PURE__ */ jsx10(Token, { kind, shape, r, cx, cy }) });
   }
@@ -636,4 +637,4 @@ export {
   Label,
   Defs
 };
-//# sourceMappingURL=chunk-BSOMWVK4.js.map
+//# sourceMappingURL=chunk-LMCGX4U3.js.map

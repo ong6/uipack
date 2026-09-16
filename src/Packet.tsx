@@ -45,7 +45,11 @@ export function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at
   useEffect(() => setMounted(true), []);
   const attrs = hoverAttrs(flow, kind === "neutral" ? undefined : kind, hover);
 
-  if (reduced || (!mounted && !prerender)) {
+  // `prerender` comes through context in one bundle. A consumer that loads
+  // `uipack` and `uipack/static` as separate CJS files gets two context objects,
+  // so renderStatic also raises a process-wide flag for the duration of the render.
+  const pre = prerender || (globalThis as { __UIPACK_PRERENDER__?: boolean }).__UIPACK_PRERENDER__ === true;
+  if (reduced || (!mounted && !pre)) {
     const [cx, cy] = pointAlong(pts, at);
     return (
       <g id={id} data-uipack="packet" data-static="true" {...attrs}>

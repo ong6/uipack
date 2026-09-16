@@ -144,7 +144,15 @@ export function renderStatic(input: ReactElement<FigureProps> | StaticFigure, op
   const [vx, vy, vw, vh] = fig.viewBox.split(/\s+/).map(Number);
 
   const ctx: FigureMotion = { playing: motion, reduced: !motion, cycle: 0, toggle: () => {}, replay: () => {}, prerender: motion };
-  const drawing = inlineVars(renderToStaticMarkup(<FigureMotionContext.Provider value={ctx}>{fig.children}</FigureMotionContext.Provider>), p);
+  const g = globalThis as { __UIPACK_PRERENDER__?: boolean };
+  const prev = g.__UIPACK_PRERENDER__;
+  g.__UIPACK_PRERENDER__ = motion;
+  let drawing: string;
+  try {
+    drawing = inlineVars(renderToStaticMarkup(<FigureMotionContext.Provider value={ctx}>{fig.children}</FigureMotionContext.Provider>), p);
+  } finally {
+    g.__UIPACK_PRERENDER__ = prev;
+  }
 
   // Header laid out in user units at the drawing's scale, so the frame keeps
   // its proportions whatever width the file is shown at.
