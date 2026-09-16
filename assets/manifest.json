@@ -1,0 +1,754 @@
+{
+  "version": 1,
+  "generated": "2026-09-16",
+  "base": "",
+  "assets": [
+    {
+      "id": "figure-service-map",
+      "name": "Service map",
+      "category": "Figures",
+      "kind": "figure",
+      "source": "import { serviceMap, defaultServiceMap } from \"uipack\";\n\nserviceMap({ ...defaultServiceMap, figure: { ...defaultServiceMap.figure, title: \"…\" } })",
+      "tags": [
+        "preset",
+        "figure",
+        "servicemap"
+      ],
+      "preview": "docs/assets/figure-service-map.svg"
+    },
+    {
+      "id": "figure-agent-loop",
+      "name": "Agent loop",
+      "category": "Figures",
+      "kind": "figure",
+      "source": "import { agentLoop, defaultAgentLoop } from \"uipack\";\n\nagentLoop({ ...defaultAgentLoop, figure: { ...defaultAgentLoop.figure, title: \"…\" } })",
+      "tags": [
+        "preset",
+        "figure",
+        "agentloop"
+      ],
+      "preview": "docs/assets/figure-agent-loop.svg"
+    },
+    {
+      "id": "figure-rag-pipeline",
+      "name": "RAG pipeline",
+      "category": "Figures",
+      "kind": "figure",
+      "source": "import { ragPipeline, defaultRagPipeline } from \"uipack\";\n\nragPipeline({ ...defaultRagPipeline, figure: { ...defaultRagPipeline.figure, title: \"…\" } })",
+      "tags": [
+        "preset",
+        "figure",
+        "ragpipeline"
+      ],
+      "preview": "docs/assets/figure-rag-pipeline.svg"
+    },
+    {
+      "id": "figure-skill-lifecycle",
+      "name": "Skill lifecycle",
+      "category": "Figures",
+      "kind": "figure",
+      "source": "import { skillLifecycle, defaultSkillLifecycle } from \"uipack\";\n\nskillLifecycle({ ...defaultSkillLifecycle, figure: { ...defaultSkillLifecycle.figure, title: \"…\" } })",
+      "tags": [
+        "preset",
+        "figure",
+        "skilllifecycle"
+      ],
+      "preview": "docs/assets/figure-skill-lifecycle.svg"
+    },
+    {
+      "id": "figure-sync-loop",
+      "name": "Sync loop",
+      "category": "Figures",
+      "kind": "figure",
+      "source": "import { syncLoop, defaultSyncLoop } from \"uipack\";\n\nsyncLoop({ ...defaultSyncLoop, figure: { ...defaultSyncLoop.figure, title: \"…\" } })",
+      "tags": [
+        "preset",
+        "figure",
+        "syncloop"
+      ],
+      "preview": "docs/assets/figure-sync-loop.svg"
+    },
+    {
+      "id": "figure-before-after",
+      "name": "Before and after",
+      "category": "Figures",
+      "kind": "figure",
+      "source": "import { beforeAfter, defaultBeforeAfter } from \"uipack\";\n\nbeforeAfter({ ...defaultBeforeAfter, figure: { ...defaultBeforeAfter.figure, title: \"…\" } })",
+      "tags": [
+        "preset",
+        "figure",
+        "beforeafter"
+      ],
+      "preview": "docs/assets/figure-before-after.svg"
+    },
+    {
+      "id": "figure-pipeline",
+      "name": "Pipeline",
+      "category": "Figures",
+      "kind": "figure",
+      "source": "import { pipeline, defaultPipeline } from \"uipack\";\n\npipeline({ ...defaultPipeline, figure: { ...defaultPipeline.figure, title: \"…\" } })",
+      "tags": [
+        "preset",
+        "figure",
+        "pipeline"
+      ],
+      "preview": "docs/assets/figure-pipeline.svg"
+    },
+    {
+      "id": "part-node",
+      "name": "Node",
+      "category": "Parts",
+      "kind": "part",
+      "source": "<Node x={16} y={16} w={200} h={48} label=\"Service\" sub=\"mono line\" icon=\"service\" />",
+      "tags": [
+        "box",
+        "label",
+        "icon"
+      ],
+      "preview": "docs/assets/part-node.svg"
+    },
+    {
+      "id": "part-group",
+      "name": "Group",
+      "category": "Parts",
+      "kind": "part",
+      "source": "<Group x={16} y={16} w={288} h={104} title=\"Platform\">…</Group>",
+      "tags": [
+        "box",
+        "region",
+        "boundary"
+      ],
+      "preview": "docs/assets/part-group.svg"
+    },
+    {
+      "id": "part-lane",
+      "name": "Lane",
+      "category": "Parts",
+      "kind": "part",
+      "source": "<Lane x={0} w={320} y={24} title=\"Clients\" />",
+      "tags": [
+        "header",
+        "column"
+      ],
+      "preview": "docs/assets/part-lane.svg"
+    },
+    {
+      "id": "part-chip",
+      "name": "Chip",
+      "category": "Parts",
+      "kind": "part",
+      "source": "<Chip x={16} y={16} w={72} label=\"A1\" kind=\"request\" />",
+      "tags": [
+        "pill",
+        "slot",
+        "status"
+      ],
+      "preview": "docs/assets/part-chip.svg"
+    },
+    {
+      "id": "part-connector",
+      "name": "Connector",
+      "category": "Parts",
+      "kind": "part",
+      "source": "<Connector points={route(a, b, \"h\")} defs=\"id\" kind=\"request\" />",
+      "tags": [
+        "arrow",
+        "line",
+        "orthogonal"
+      ],
+      "preview": "docs/assets/part-connector.svg"
+    },
+    {
+      "id": "part-bus",
+      "name": "Bus",
+      "category": "Parts",
+      "kind": "part",
+      "source": "<Bus axis=\"v\" at={x} from={y1} to={y2} stubs={[{ at, to, arrow: true }]} defs=\"id\" />",
+      "tags": [
+        "trunk",
+        "stubs",
+        "junction"
+      ],
+      "preview": "docs/assets/part-bus.svg"
+    },
+    {
+      "id": "part-badge",
+      "name": "Badge",
+      "category": "Parts",
+      "kind": "part",
+      "source": "<Badge cx={16} cy={16} text=\"1\" />",
+      "tags": [
+        "step",
+        "number"
+      ],
+      "preview": "docs/assets/part-badge.svg"
+    },
+    {
+      "id": "part-label",
+      "name": "Label",
+      "category": "Parts",
+      "kind": "part",
+      "source": "<Label x={16} y={28} text=\"async · queue\" />",
+      "tags": [
+        "text",
+        "underlay"
+      ],
+      "preview": "docs/assets/part-label.svg"
+    },
+    {
+      "id": "part-legend",
+      "name": "Legend",
+      "category": "Parts",
+      "kind": "part",
+      "source": "legend={[{ label: \"Request\", kind: \"request\" }, { label: \"Response\", kind: \"response\" }]}",
+      "tags": [
+        "key",
+        "tokens"
+      ],
+      "preview": "docs/assets/part-legend.svg"
+    },
+    {
+      "id": "icon-db",
+      "name": "db",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"db\" />  // or: icons.db",
+      "tags": [
+        "icon",
+        "db"
+      ],
+      "preview": "docs/assets/icon-db.svg"
+    },
+    {
+      "id": "icon-cache",
+      "name": "cache",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"cache\" />  // or: icons.cache",
+      "tags": [
+        "icon",
+        "cache"
+      ],
+      "preview": "docs/assets/icon-cache.svg"
+    },
+    {
+      "id": "icon-queue",
+      "name": "queue",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"queue\" />  // or: icons.queue",
+      "tags": [
+        "icon",
+        "queue"
+      ],
+      "preview": "docs/assets/icon-queue.svg"
+    },
+    {
+      "id": "icon-service",
+      "name": "service",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"service\" />  // or: icons.service",
+      "tags": [
+        "icon",
+        "service"
+      ],
+      "preview": "docs/assets/icon-service.svg"
+    },
+    {
+      "id": "icon-client",
+      "name": "client",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"client\" />  // or: icons.client",
+      "tags": [
+        "icon",
+        "client"
+      ],
+      "preview": "docs/assets/icon-client.svg"
+    },
+    {
+      "id": "icon-blob",
+      "name": "blob",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"blob\" />  // or: icons.blob",
+      "tags": [
+        "icon",
+        "blob"
+      ],
+      "preview": "docs/assets/icon-blob.svg"
+    },
+    {
+      "id": "icon-agent",
+      "name": "agent",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"agent\" />  // or: icons.agent",
+      "tags": [
+        "icon",
+        "agent"
+      ],
+      "preview": "docs/assets/icon-agent.svg"
+    },
+    {
+      "id": "icon-doc",
+      "name": "doc",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"doc\" />  // or: icons.doc",
+      "tags": [
+        "icon",
+        "doc"
+      ],
+      "preview": "docs/assets/icon-doc.svg"
+    },
+    {
+      "id": "icon-model",
+      "name": "model",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"model\" />  // or: icons.model",
+      "tags": [
+        "icon",
+        "model"
+      ],
+      "preview": "docs/assets/icon-model.svg"
+    },
+    {
+      "id": "icon-tool",
+      "name": "tool",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"tool\" />  // or: icons.tool",
+      "tags": [
+        "icon",
+        "tool"
+      ],
+      "preview": "docs/assets/icon-tool.svg"
+    },
+    {
+      "id": "icon-gateway",
+      "name": "gateway",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"gateway\" />  // or: icons.gateway",
+      "tags": [
+        "icon",
+        "gateway"
+      ],
+      "preview": "docs/assets/icon-gateway.svg"
+    },
+    {
+      "id": "icon-lock",
+      "name": "lock",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"lock\" />  // or: icons.lock",
+      "tags": [
+        "icon",
+        "lock"
+      ],
+      "preview": "docs/assets/icon-lock.svg"
+    },
+    {
+      "id": "icon-key",
+      "name": "key",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"key\" />  // or: icons.key",
+      "tags": [
+        "icon",
+        "key"
+      ],
+      "preview": "docs/assets/icon-key.svg"
+    },
+    {
+      "id": "icon-clock",
+      "name": "clock",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"clock\" />  // or: icons.clock",
+      "tags": [
+        "icon",
+        "clock"
+      ],
+      "preview": "docs/assets/icon-clock.svg"
+    },
+    {
+      "id": "icon-cron",
+      "name": "cron",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"cron\" />  // or: icons.cron",
+      "tags": [
+        "icon",
+        "cron"
+      ],
+      "preview": "docs/assets/icon-cron.svg"
+    },
+    {
+      "id": "icon-browser",
+      "name": "browser",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"browser\" />  // or: icons.browser",
+      "tags": [
+        "icon",
+        "browser"
+      ],
+      "preview": "docs/assets/icon-browser.svg"
+    },
+    {
+      "id": "icon-terminal",
+      "name": "terminal",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"terminal\" />  // or: icons.terminal",
+      "tags": [
+        "icon",
+        "terminal"
+      ],
+      "preview": "docs/assets/icon-terminal.svg"
+    },
+    {
+      "id": "icon-git",
+      "name": "git",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"git\" />  // or: icons.git",
+      "tags": [
+        "icon",
+        "git"
+      ],
+      "preview": "docs/assets/icon-git.svg"
+    },
+    {
+      "id": "icon-cloud",
+      "name": "cloud",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"cloud\" />  // or: icons.cloud",
+      "tags": [
+        "icon",
+        "cloud"
+      ],
+      "preview": "docs/assets/icon-cloud.svg"
+    },
+    {
+      "id": "icon-region",
+      "name": "region",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"region\" />  // or: icons.region",
+      "tags": [
+        "icon",
+        "region"
+      ],
+      "preview": "docs/assets/icon-region.svg"
+    },
+    {
+      "id": "icon-user",
+      "name": "user",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"user\" />  // or: icons.user",
+      "tags": [
+        "icon",
+        "user"
+      ],
+      "preview": "docs/assets/icon-user.svg"
+    },
+    {
+      "id": "icon-robot",
+      "name": "robot",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"robot\" />  // or: icons.robot",
+      "tags": [
+        "icon",
+        "robot"
+      ],
+      "preview": "docs/assets/icon-robot.svg"
+    },
+    {
+      "id": "icon-chart",
+      "name": "chart",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"chart\" />  // or: icons.chart",
+      "tags": [
+        "icon",
+        "chart"
+      ],
+      "preview": "docs/assets/icon-chart.svg"
+    },
+    {
+      "id": "icon-warning",
+      "name": "warning",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"warning\" />  // or: icons.warning",
+      "tags": [
+        "icon",
+        "warning"
+      ],
+      "preview": "docs/assets/icon-warning.svg"
+    },
+    {
+      "id": "icon-more",
+      "name": "more",
+      "category": "Icons",
+      "kind": "icon",
+      "source": "<Node … icon=\"more\" />  // or: icons.more",
+      "tags": [
+        "icon",
+        "more"
+      ],
+      "preview": "docs/assets/icon-more.svg"
+    },
+    {
+      "id": "motion-token-request",
+      "name": "Token · request",
+      "category": "Motion",
+      "kind": "motion",
+      "source": "<Packet points={path} kind=\"request\" dur={2} />",
+      "tags": [
+        "packet",
+        "token",
+        "request"
+      ],
+      "preview": "docs/assets/motion-token-request.svg"
+    },
+    {
+      "id": "motion-token-response",
+      "name": "Token · response",
+      "category": "Motion",
+      "kind": "motion",
+      "source": "<Packet points={path} kind=\"response\" dur={2} />",
+      "tags": [
+        "packet",
+        "token",
+        "response"
+      ],
+      "preview": "docs/assets/motion-token-response.svg"
+    },
+    {
+      "id": "motion-token-change",
+      "name": "Token · change",
+      "category": "Motion",
+      "kind": "motion",
+      "source": "<Packet points={path} kind=\"change\" dur={2} />",
+      "tags": [
+        "packet",
+        "token",
+        "change"
+      ],
+      "preview": "docs/assets/motion-token-change.svg"
+    },
+    {
+      "id": "motion-token-accent",
+      "name": "Token · accent",
+      "category": "Motion",
+      "kind": "motion",
+      "source": "<Packet points={path} kind=\"accent\" dur={2} />",
+      "tags": [
+        "packet",
+        "token",
+        "accent"
+      ],
+      "preview": "docs/assets/motion-token-accent.svg"
+    },
+    {
+      "id": "motion-token-neutral",
+      "name": "Token · neutral",
+      "category": "Motion",
+      "kind": "motion",
+      "source": "<Packet points={path} kind=\"neutral\" dur={2} />",
+      "tags": [
+        "packet",
+        "token",
+        "neutral"
+      ],
+      "preview": "docs/assets/motion-token-neutral.svg"
+    },
+    {
+      "id": "motion-packet",
+      "name": "Packet in motion",
+      "category": "Motion",
+      "kind": "motion",
+      "source": "<Packet points={path} kind=\"request\" dur={2} />\n<Packet points={path} kind=\"response\" dur={2} delay={-1} reverse />",
+      "tags": [
+        "packet",
+        "animateMotion",
+        "smil"
+      ],
+      "preview": "docs/assets/motion-packet.svg"
+    },
+    {
+      "id": "motion-reduced",
+      "name": "Reduced motion · static token",
+      "category": "Motion",
+      "kind": "motion",
+      "source": "// under prefers-reduced-motion a Packet renders once at `at` (default 0.5) and never moves",
+      "tags": [
+        "reduced-motion",
+        "static",
+        "a11y"
+      ],
+      "preview": "docs/assets/motion-reduced.svg"
+    },
+    {
+      "id": "background-dots",
+      "name": "Canvas · dots",
+      "category": "Backgrounds",
+      "kind": "background",
+      "source": "<Figure background=\"dots\" …>",
+      "tags": [
+        "canvas",
+        "dots"
+      ],
+      "preview": "docs/assets/background-dots.svg"
+    },
+    {
+      "id": "background-plain",
+      "name": "Canvas · plain",
+      "category": "Backgrounds",
+      "kind": "background",
+      "source": "<Figure background=\"plain\" …>",
+      "tags": [
+        "canvas",
+        "plain"
+      ],
+      "preview": "docs/assets/background-plain.svg"
+    },
+    {
+      "id": "background-ruled",
+      "name": "Canvas · ruled",
+      "category": "Backgrounds",
+      "kind": "background",
+      "source": "<Figure background=\"ruled\" …>",
+      "tags": [
+        "canvas",
+        "ruled"
+      ],
+      "preview": "docs/assets/background-ruled.svg"
+    },
+    {
+      "id": "mark-uipack",
+      "name": "uipack mark",
+      "category": "Marks",
+      "kind": "mark",
+      "source": "import { marks } from \"uipack\";\n<svg viewBox=\"0 0 32 32\">{marks.uipack}</svg>",
+      "tags": [
+        "mark",
+        "family",
+        "uipack"
+      ],
+      "preview": "docs/assets/mark-uipack.svg"
+    },
+    {
+      "id": "mark-groundplane",
+      "name": "groundplane mark",
+      "category": "Marks",
+      "kind": "mark",
+      "source": "import { marks } from \"uipack\";\n<svg viewBox=\"0 0 32 32\">{marks.groundplane}</svg>",
+      "tags": [
+        "mark",
+        "family",
+        "groundplane"
+      ],
+      "preview": "docs/assets/mark-groundplane.svg"
+    },
+    {
+      "id": "mark-jobforge",
+      "name": "jobforge mark",
+      "category": "Marks",
+      "kind": "mark",
+      "source": "import { marks } from \"uipack\";\n<svg viewBox=\"0 0 32 32\">{marks.jobforge}</svg>",
+      "tags": [
+        "mark",
+        "family",
+        "jobforge"
+      ],
+      "preview": "docs/assets/mark-jobforge.svg"
+    },
+    {
+      "id": "mark-skillforge",
+      "name": "skillforge mark",
+      "category": "Marks",
+      "kind": "mark",
+      "source": "import { marks } from \"uipack\";\n<svg viewBox=\"0 0 32 32\">{marks.skillforge}</svg>",
+      "tags": [
+        "mark",
+        "family",
+        "skillforge"
+      ],
+      "preview": "docs/assets/mark-skillforge.svg"
+    },
+    {
+      "id": "mark-deckforge",
+      "name": "deckforge mark",
+      "category": "Marks",
+      "kind": "mark",
+      "source": "import { marks } from \"uipack\";\n<svg viewBox=\"0 0 32 32\">{marks.deckforge}</svg>",
+      "tags": [
+        "mark",
+        "family",
+        "deckforge"
+      ],
+      "preview": "docs/assets/mark-deckforge.svg"
+    },
+    {
+      "id": "mark-proofpack",
+      "name": "proofpack mark",
+      "category": "Marks",
+      "kind": "mark",
+      "source": "import { marks } from \"uipack\";\n<svg viewBox=\"0 0 32 32\">{marks.proofpack}</svg>",
+      "tags": [
+        "mark",
+        "family",
+        "proofpack"
+      ],
+      "preview": "docs/assets/mark-proofpack.svg"
+    },
+    {
+      "id": "mark-fieldpack",
+      "name": "fieldpack mark",
+      "category": "Marks",
+      "kind": "mark",
+      "source": "import { marks } from \"uipack\";\n<svg viewBox=\"0 0 32 32\">{marks.fieldpack}</svg>",
+      "tags": [
+        "mark",
+        "family",
+        "fieldpack"
+      ],
+      "preview": "docs/assets/mark-fieldpack.svg"
+    },
+    {
+      "id": "mark-skillpack",
+      "name": "skillpack mark",
+      "category": "Marks",
+      "kind": "mark",
+      "source": "import { marks } from \"uipack\";\n<svg viewBox=\"0 0 32 32\">{marks.skillpack}</svg>",
+      "tags": [
+        "mark",
+        "family",
+        "skillpack"
+      ],
+      "preview": "docs/assets/mark-skillpack.svg"
+    },
+    {
+      "id": "mark-uipack-wordmark",
+      "name": "uipack wordmark",
+      "category": "Marks",
+      "kind": "mark",
+      "source": "import { Wordmark } from \"uipack\";\n<Wordmark size={24} />",
+      "tags": [
+        "wordmark",
+        "uipack"
+      ],
+      "preview": "docs/assets/mark-uipack-wordmark.svg"
+    }
+  ]
+}

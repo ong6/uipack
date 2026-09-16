@@ -12,11 +12,25 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./presets": {
+      "types": "./dist/presets.d.ts",
+      "import": "./dist/presets.js",
+      "require": "./dist/presets.cjs"
+    },
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "import": "./dist/browser.js",
+      "require": "./dist/browser.cjs"
+    },
+    "./browser.css": "./dist/browser.css",
     "./theme.css": "./dist/theme.css",
+    "./assets/manifest.json": "./assets/manifest.json",
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
+    "assets",
+    "docs/assets",
     "README.md",
     "LICENSE"
   ],
@@ -24,13 +38,14 @@
     "*.css"
   ],
   "scripts": {
-    "build": "tsup && cp src/theme.css dist/theme.css",
+    "build": "tsup && cp src/theme.css dist/theme.css && cp src/browser/browser.css dist/browser.css",
     "dev": "vite",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "prepare": "npm run build",
     "test:e2e": "playwright test",
-    "screenshots": "SHOTS=1 playwright test --project=chromium e2e/screenshots.spec.ts"
+    "screenshots": "SHOTS=1 playwright test --project=chromium e2e/screenshots.spec.ts",
+    "manifest": "tsx scripts/build-manifest.tsx"
   },
   "peerDependencies": {
     "react": ">=18",
@@ -40,6 +55,7 @@
     "@playwright/test": "^1.61.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
+    "@types/node": "^22.20.3",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
@@ -47,6 +63,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tsup": "^8.4.0",
+    "tsx": "^4.19.3",
     "typescript": "^5.7.3",
     "vite": "^6.2.0",
     "vitest": "^3.0.7"
