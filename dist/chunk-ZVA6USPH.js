@@ -6,6 +6,9 @@ import {
   useFontFloor
 } from "./chunk-2BHGP5ET.js";
 import {
+  CanvasView
+} from "./chunk-TVMF2KGV.js";
+import {
   FigureMotionContext,
   useFigureMotion,
   usePrefersReducedMotion
@@ -58,11 +61,53 @@ function Legend({ items }) {
   }) });
 }
 
+// src/selection.tsx
+import {
+  createContext as createContext2,
+  useContext as useContext2,
+  useId
+} from "react";
+var SelectionContext = createContext2({ enabled: false, selected: null, select: () => {
+} });
+function useItemSelection(label, detail, flow, enabled = true) {
+  const id = useId();
+  const context = useContext2(SelectionContext);
+  if (!context.enabled || !enabled) return {};
+  const selected = context.selected?.id === id;
+  const toggle = () => context.select(selected ? null : { id, label, detail, flow });
+  return {
+    role: "button",
+    tabIndex: 0,
+    "aria-label": label,
+    "aria-pressed": selected,
+    "data-selected": selected ? "true" : void 0,
+    onClick: (event) => {
+      event.stopPropagation();
+      toggle();
+    },
+    onKeyDown: (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        event.stopPropagation();
+        toggle();
+      }
+    }
+  };
+}
+
 // src/Figure.tsx
-import { useCallback, useEffect, useId, useMemo, useRef, useState, createElement } from "react";
-import { jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
+import {
+  useCallback,
+  useEffect,
+  useId as useId2,
+  useMemo,
+  useRef,
+  useState,
+  createElement
+} from "react";
+import { Fragment, jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
 var vbWidth = (viewBox) => Number(viewBox.split(/\s+/)[2]) || 0;
-function useRenderedWidth(ref, fixed) {
+function useRenderedWidth(ref, fixed, layoutKey) {
   const [w, setW] = useState(fixed ?? DEFAULT_RENDER_WIDTH);
   useEffect(() => {
     if (fixed != null) return;
@@ -76,7 +121,7 @@ function useRenderedWidth(ref, fixed) {
     const ro = new ResizeObserver(read);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [ref, fixed]);
+  }, [ref, fixed, layoutKey]);
   return fixed ?? w;
 }
 var PauseGlyph = () => /* @__PURE__ */ jsxs2("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: [
@@ -85,10 +130,20 @@ var PauseGlyph = () => /* @__PURE__ */ jsxs2("svg", { viewBox: "0 0 12 12", "ari
 ] });
 var PlayGlyph = () => /* @__PURE__ */ jsx2("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ jsx2("path", { d: "M3 1.5 L10.5 6 L3 10.5 Z" }) });
 var ReplayGlyph = () => /* @__PURE__ */ jsxs2("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: [
-  /* @__PURE__ */ jsx2("path", { d: "M6 1.5a4.5 4.5 0 1 1-4.2 2.9", fill: "none", stroke: "currentColor", strokeWidth: "1.6", strokeLinecap: "round" }),
+  /* @__PURE__ */ jsx2(
+    "path",
+    {
+      d: "M6 1.5a4.5 4.5 0 1 1-4.2 2.9",
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: "1.6",
+      strokeLinecap: "round"
+    }
+  ),
   /* @__PURE__ */ jsx2("path", { d: "M1.5 1.5v3h3z" })
 ] });
 function Figure({
+  expandable = true,
   number,
   eyebrow,
   title,
@@ -108,20 +163,40 @@ function Figure({
   measuredWidth,
   id
 }) {
-  const auto = useId();
+  const opener = useRef(null);
+  const auto = useId2();
   const figId = id ?? `uipack-${auto.replace(/:/g, "")}`;
   const reduced = usePrefersReducedMotion();
   const [playing, setPlaying] = useState(true);
   const [cycle, setCycle] = useState(0);
+  const [expanded, setExpanded] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const [selected, select] = useState(null);
   const [hoverFlow, setHoverFlow] = useState(null);
   const [hoverKind, setHoverKind] = useState(null);
-  const hover = useMemo(() => ({ flow: hoverFlow, kind: hoverKind, setFlow: setHoverFlow, setKind: setHoverKind }), [hoverFlow, hoverKind]);
+  const hover = useMemo(
+    () => ({
+      flow: selected?.flow ?? hoverFlow,
+      kind: hoverKind,
+      setFlow: setHoverFlow,
+      setKind: setHoverKind
+    }),
+    [hoverFlow, hoverKind, selected]
+  );
   const wideRef = useRef(null);
   const narrowRef = useRef(null);
-  const wideW = useRenderedWidth(wideRef, measuredWidth);
-  const narrowW = useRenderedWidth(narrowRef, measuredWidth);
-  const wideScale = useMemo(() => ({ floor: fontFloor(vbWidth(viewBox), wideW, minFont) }), [viewBox, wideW, minFont]);
-  const narrowScale = useMemo(() => ({ floor: fontFloor(vbWidth(narrowViewBox ?? viewBox), narrowW, minFont) }), [narrowViewBox, viewBox, narrowW, minFont]);
+  const wideW = useRenderedWidth(wideRef, measuredWidth, expanded);
+  const narrowW = useRenderedWidth(narrowRef, measuredWidth, expanded);
+  const wideScale = useMemo(
+    () => ({ floor: fontFloor(vbWidth(viewBox), wideW, minFont) }),
+    [viewBox, wideW, minFont]
+  );
+  const narrowScale = useMemo(
+    () => ({
+      floor: fontFloor(vbWidth(narrowViewBox ?? viewBox), narrowW, minFont)
+    }),
+    [narrowViewBox, viewBox, narrowW, minFont]
+  );
   const svgs = () => [wideRef.current, narrowRef.current].filter(Boolean);
   useEffect(() => {
     for (const s of svgs()) {
@@ -129,7 +204,7 @@ function Figure({
       if (playing) s.unpauseAnimations();
       else s.pauseAnimations();
     }
-  }, [playing]);
+  }, [playing, expanded]);
   const toggle = useCallback(() => setPlaying((p) => !p), []);
   const replay = useCallback(() => {
     for (const s of svgs()) {
@@ -144,45 +219,165 @@ function Figure({
     [playing, reduced, cycle, toggle, replay]
   );
   const showControls = controls && !reduced;
-  const hasHead = number || eyebrow || title || caption || legend.length || showControls;
-  return /* @__PURE__ */ jsx2(FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsx2(FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxs2(
-    "figure",
+  const hasHead = expandable || selected || number || eyebrow || title || caption || legend.length || showControls;
+  return /* @__PURE__ */ jsx2(
+    CanvasView,
     {
-      id: figId,
-      className: ["uipack", narrow ? "uipack--has-narrow" : "", className ?? ""].join(" ").trim(),
-      "data-theme": theme,
-      "data-hover-flow": hoverFlow ?? void 0,
-      "data-hover-kind": hoverKind ?? void 0,
-      style: { margin: 0 },
-      children: [
-        hasHead ? /* @__PURE__ */ jsxs2("div", { className: "uipack__head", children: [
-          number || eyebrow ? /* @__PURE__ */ jsxs2("p", { className: "uipack__eyebrow", children: [
-            number,
-            number && eyebrow ? " \xB7 " : "",
-            eyebrow
-          ] }) : null,
-          title ? createElement(`h${headingLevel}`, { className: "uipack__title" }, title) : null,
-          caption ? /* @__PURE__ */ jsx2("p", { className: "uipack__caption", children: caption }) : null,
-          showControls ? /* @__PURE__ */ jsxs2("div", { className: "uipack__controls", children: [
-            /* @__PURE__ */ jsxs2("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: replay, children: [
-              /* @__PURE__ */ jsx2(ReplayGlyph, {}),
-              " Replay"
+      restoreFocus: () => opener.current?.focus(),
+      open: expanded,
+      onClose: () => {
+        setExpanded(false);
+        setZoom(1);
+        select(null);
+      },
+      title: title ?? eyebrow ?? "Figure canvas",
+      theme,
+      toolbar: /* @__PURE__ */ jsxs2(Fragment, { children: [
+        /* @__PURE__ */ jsx2(
+          "button",
+          {
+            type: "button",
+            "aria-label": "Zoom out",
+            disabled: zoom <= 1,
+            onClick: () => setZoom((z) => Math.max(1, z - 0.25)),
+            children: "\u2212"
+          }
+        ),
+        /* @__PURE__ */ jsx2("button", { type: "button", onClick: () => setZoom(1), children: "Fit" }),
+        /* @__PURE__ */ jsx2(
+          "button",
+          {
+            type: "button",
+            "aria-label": "Zoom in",
+            disabled: zoom >= 3,
+            onClick: () => setZoom((z) => Math.min(3, z + 0.25)),
+            children: "+"
+          }
+        )
+      ] }),
+      children: /* @__PURE__ */ jsx2(SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ jsx2(FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsx2(FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxs2(
+        "figure",
+        {
+          id: figId,
+          className: [
+            "uipack",
+            narrow ? "uipack--has-narrow" : "",
+            expanded ? "uipack--expanded" : "",
+            className ?? ""
+          ].join(" ").trim(),
+          "data-theme": theme,
+          "data-hover-flow": hoverFlow ?? void 0,
+          "data-hover-kind": hoverKind ?? void 0,
+          onKeyDown: (e) => {
+            if (e.key === "Escape") select(null);
+          },
+          style: {
+            margin: 0,
+            "--figure-width": `${vbWidth(viewBox)}px`
+          },
+          children: [
+            hasHead ? /* @__PURE__ */ jsxs2("div", { className: "uipack__head", children: [
+              number || eyebrow ? /* @__PURE__ */ jsxs2("p", { className: "uipack__eyebrow", children: [
+                number,
+                number && eyebrow ? " \xB7 " : "",
+                eyebrow
+              ] }) : null,
+              title ? createElement(
+                `h${headingLevel}`,
+                { className: "uipack__title" },
+                title
+              ) : null,
+              caption ? /* @__PURE__ */ jsx2("p", { className: "uipack__caption", children: caption }) : null,
+              showControls || expandable ? /* @__PURE__ */ jsxs2("div", { className: "uipack__controls", children: [
+                expandable && !expanded && /* @__PURE__ */ jsx2(
+                  "button",
+                  {
+                    type: "button",
+                    className: "uipack__ctl",
+                    ref: opener,
+                    onClick: () => {
+                      select(null);
+                      setExpanded(true);
+                    },
+                    children: "Open canvas"
+                  }
+                ),
+                showControls && /* @__PURE__ */ jsxs2(Fragment, { children: [
+                  /* @__PURE__ */ jsxs2(
+                    "button",
+                    {
+                      type: "button",
+                      className: "uipack__ctl uipack__ctl--motion",
+                      onClick: replay,
+                      children: [
+                        /* @__PURE__ */ jsx2(ReplayGlyph, {}),
+                        " Replay"
+                      ]
+                    }
+                  ),
+                  /* @__PURE__ */ jsxs2(
+                    "button",
+                    {
+                      type: "button",
+                      className: "uipack__ctl uipack__ctl--motion",
+                      onClick: toggle,
+                      "aria-pressed": !playing,
+                      children: [
+                        playing ? /* @__PURE__ */ jsx2(PauseGlyph, {}) : /* @__PURE__ */ jsx2(PlayGlyph, {}),
+                        " ",
+                        playing ? "Pause" : "Play"
+                      ]
+                    }
+                  )
+                ] })
+              ] }) : null,
+              /* @__PURE__ */ jsx2(Legend, { items: legend })
+            ] }) : null,
+            selected && /* @__PURE__ */ jsxs2("div", { className: "uipack__selection", role: "status", children: [
+              /* @__PURE__ */ jsxs2("span", { children: [
+                /* @__PURE__ */ jsx2("strong", { children: selected.label }),
+                selected.detail && ` \xB7 ${selected.detail}`
+              ] }),
+              /* @__PURE__ */ jsx2("button", { type: "button", onClick: () => select(null), children: "Clear selection" })
             ] }),
-            /* @__PURE__ */ jsxs2("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: toggle, "aria-pressed": !playing, children: [
-              playing ? /* @__PURE__ */ jsx2(PauseGlyph, {}) : /* @__PURE__ */ jsx2(PlayGlyph, {}),
-              " ",
-              playing ? "Pause" : "Play"
-            ] })
-          ] }) : null,
-          /* @__PURE__ */ jsx2(Legend, { items: legend })
-        ] }) : null,
-        /* @__PURE__ */ jsxs2("div", { className: `uipack__canvas uipack__canvas--${background}`, children: [
-          /* @__PURE__ */ jsx2("svg", { ref: wideRef, className: "uipack--wide", viewBox, role: "img", "aria-label": alt, children: /* @__PURE__ */ jsx2(FigureScaleContext.Provider, { value: wideScale, children }) }),
-          narrow ? /* @__PURE__ */ jsx2("svg", { ref: narrowRef, className: "uipack--narrow", viewBox: narrowViewBox ?? viewBox, role: "img", "aria-label": alt, children: /* @__PURE__ */ jsx2(FigureScaleContext.Provider, { value: narrowScale, children: narrow }) }) : null
-        ] })
-      ]
+            /* @__PURE__ */ jsxs2(
+              "div",
+              {
+                className: `uipack__canvas uipack__canvas--${background}`,
+                style: expanded ? { width: `${zoom * 100}%`, boxSizing: "border-box" } : void 0,
+                onClick: () => select(null),
+                children: [
+                  /* @__PURE__ */ jsx2(
+                    "svg",
+                    {
+                      ref: wideRef,
+                      className: "uipack--wide",
+                      style: expanded ? { minWidth: 800 * zoom } : void 0,
+                      viewBox,
+                      role: "group",
+                      "aria-label": alt,
+                      children: /* @__PURE__ */ jsx2(FigureScaleContext.Provider, { value: wideScale, children })
+                    }
+                  ),
+                  narrow ? /* @__PURE__ */ jsx2(
+                    "svg",
+                    {
+                      ref: narrowRef,
+                      className: "uipack--narrow",
+                      viewBox: narrowViewBox ?? viewBox,
+                      role: "group",
+                      "aria-label": alt,
+                      children: /* @__PURE__ */ jsx2(FigureScaleContext.Provider, { value: narrowScale, children: narrow })
+                    }
+                  ) : null
+                ]
+              }
+            )
+          ]
+        }
+      ) }) }) })
     }
-  ) }) });
+  );
 }
 
 // src/Lane.tsx
@@ -197,131 +392,179 @@ function Lane({ x, w, y, title, h, size: size0 = 11 }) {
 
 // src/Group.tsx
 import { jsx as jsx4, jsxs as jsxs4 } from "react/jsx-runtime";
-function Group({ x, y, w, h, title, variant = "solid", accent, flow, titleSize, children }) {
+function Group({
+  x,
+  y,
+  w,
+  h,
+  title,
+  variant = "solid",
+  accent,
+  flow,
+  titleSize,
+  children
+}) {
   const hover = useFigureHover();
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const dashed = variant === "dashed";
   const ts = useFontFloor(titleSize ?? (dashed ? 11 : 14));
-  return /* @__PURE__ */ jsxs4("g", { "data-uipack": "group", ...hoverAttrs(flow, void 0, hover), children: [
-    /* @__PURE__ */ jsx4(
-      "rect",
-      {
-        x,
-        y,
-        width: w,
-        height: h,
-        rx: dashed ? 10 : 6,
-        fill: dashed ? "none" : "var(--uipack-surface)",
-        fillOpacity: dashed ? void 0 : 0.6,
-        stroke,
-        strokeOpacity: accent ? 1 : dashed ? 0.4 : 0.8,
-        strokeWidth: 1.25,
-        strokeDasharray: dashed ? "4 4" : void 0
-      }
-    ),
-    title ? dashed ? /* @__PURE__ */ jsx4("text", { x: x + 16, y: y + 22, fontSize: ts, fontFamily: "var(--uipack-mono)", letterSpacing: ".08em", fill: stroke, fillOpacity: accent ? 1 : 0.75, children: title.toUpperCase() }) : /* @__PURE__ */ jsx4("text", { x: x + w / 2, y: y + 24, textAnchor: "middle", fontSize: ts, fontWeight: 600, fill: stroke, children: title }) : null,
-    children
-  ] });
+  const selection = useItemSelection(
+    title ?? "Group",
+    void 0,
+    void 0,
+    true
+  );
+  return /* @__PURE__ */ jsxs4(
+    "g",
+    {
+      "data-uipack": "group",
+      ...hoverAttrs(flow, void 0, hover),
+      ...selection,
+      children: [
+        /* @__PURE__ */ jsx4(
+          "rect",
+          {
+            x,
+            y,
+            width: w,
+            height: h,
+            rx: dashed ? 10 : 6,
+            fill: dashed ? "none" : "var(--uipack-surface)",
+            fillOpacity: dashed ? void 0 : 0.6,
+            stroke,
+            strokeOpacity: accent ? 1 : dashed ? 0.4 : 0.8,
+            strokeWidth: 1.25,
+            strokeDasharray: dashed ? "4 4" : void 0
+          }
+        ),
+        title ? dashed ? /* @__PURE__ */ jsx4(
+          "text",
+          {
+            x: x + 16,
+            y: y + 22,
+            fontSize: ts,
+            fontFamily: "var(--uipack-mono)",
+            letterSpacing: ".08em",
+            fill: stroke,
+            fillOpacity: accent ? 1 : 0.75,
+            children: title.toUpperCase()
+          }
+        ) : /* @__PURE__ */ jsx4(
+          "text",
+          {
+            x: x + w / 2,
+            y: y + 24,
+            textAnchor: "middle",
+            fontSize: ts,
+            fontWeight: 600,
+            fill: stroke,
+            children: title
+          }
+        ) : null,
+        children
+      ]
+    }
+  );
 }
 
 // src/icons/index.tsx
-import { Fragment, jsx as jsx5, jsxs as jsxs5 } from "react/jsx-runtime";
+import { Fragment as Fragment2, jsx as jsx5, jsxs as jsxs5 } from "react/jsx-runtime";
 var icons = {
-  db: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  db: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("ellipse", { cx: "8", cy: "3.5", rx: "6", ry: "2.5" }),
     /* @__PURE__ */ jsx5("path", { d: "M2 3.5v9c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-9" }),
     /* @__PURE__ */ jsx5("path", { d: "M2 8c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5" })
   ] }),
-  cache: /* @__PURE__ */ jsx5(Fragment, { children: /* @__PURE__ */ jsx5("path", { d: "M9 1.5 3.5 9H8l-1 5.5L12.5 7H8z" }) }),
-  queue: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  cache: /* @__PURE__ */ jsx5(Fragment2, { children: /* @__PURE__ */ jsx5("path", { d: "M9 1.5 3.5 9H8l-1 5.5L12.5 7H8z" }) }),
+  queue: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("rect", { x: "1.5", y: "4", width: "13", height: "8", rx: "1.5" }),
     /* @__PURE__ */ jsx5("path", { d: "M5 4v8M9 4v8" })
   ] }),
-  service: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  service: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("rect", { x: "2", y: "2", width: "12", height: "12", rx: "2" }),
     /* @__PURE__ */ jsx5("path", { d: "M5 8h6M8 5v6" })
   ] }),
-  client: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  client: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("rect", { x: "1.5", y: "3", width: "13", height: "8", rx: "1.5" }),
     /* @__PURE__ */ jsx5("path", { d: "M5.5 14h5M8 11v3" })
   ] }),
-  blob: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  blob: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("path", { d: "M8 1.5 14 5v6l-6 3.5L2 11V5z" }),
     /* @__PURE__ */ jsx5("path", { d: "M8 8l6-3M8 8 2 5M8 8v6.5" })
   ] }),
-  agent: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  agent: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("circle", { cx: "8", cy: "5", r: "3" }),
     /* @__PURE__ */ jsx5("path", { d: "M2.5 14.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5" }),
     /* @__PURE__ */ jsx5("path", { d: "M8 1v1" })
   ] }),
-  doc: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  doc: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("path", { d: "M4 1.5h5.5L13 5v9.5H4z" }),
     /* @__PURE__ */ jsx5("path", { d: "M9.5 1.5V5H13M6 8h4M6 11h4" })
   ] }),
-  model: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  model: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("rect", { x: "2", y: "4", width: "12", height: "8", rx: "2" }),
     /* @__PURE__ */ jsx5("circle", { cx: "5.5", cy: "8", r: "1", fill: "currentColor" }),
     /* @__PURE__ */ jsx5("circle", { cx: "8", cy: "8", r: "1", fill: "currentColor" }),
     /* @__PURE__ */ jsx5("circle", { cx: "10.5", cy: "8", r: "1", fill: "currentColor" }),
     /* @__PURE__ */ jsx5("path", { d: "M8 1.5V4M8 12v2.5" })
   ] }),
-  tool: /* @__PURE__ */ jsx5(Fragment, { children: /* @__PURE__ */ jsx5("path", { d: "M10.5 2a3.5 3.5 0 0 0-3.3 4.7L2 11.9l2.1 2.1 5.2-5.2A3.5 3.5 0 0 0 14 5.5L11.8 7.7 9.3 6.2l-1-2.4z" }) }),
-  gateway: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  tool: /* @__PURE__ */ jsx5(Fragment2, { children: /* @__PURE__ */ jsx5("path", { d: "M10.5 2a3.5 3.5 0 0 0-3.3 4.7L2 11.9l2.1 2.1 5.2-5.2A3.5 3.5 0 0 0 14 5.5L11.8 7.7 9.3 6.2l-1-2.4z" }) }),
+  gateway: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("path", { d: "M2 8h12M2 8l3-3M2 8l3 3M14 8l-3-3M14 8l-3 3" }),
     /* @__PURE__ */ jsx5("rect", { x: "6", y: "5.5", width: "4", height: "5", rx: "1", fill: "var(--uipack-surface, #fff)" })
   ] }),
-  lock: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  lock: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("rect", { x: "3", y: "7", width: "10", height: "7.5", rx: "1.5" }),
     /* @__PURE__ */ jsx5("path", { d: "M5.5 7V5a2.5 2.5 0 0 1 5 0v2" }),
     /* @__PURE__ */ jsx5("circle", { cx: "8", cy: "10.75", r: "1", fill: "currentColor" })
   ] }),
-  key: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  key: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("circle", { cx: "5.5", cy: "8", r: "3" }),
     /* @__PURE__ */ jsx5("path", { d: "M8.5 8H14M12 8v2.5M10 8v2" })
   ] }),
-  clock: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  clock: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("circle", { cx: "8", cy: "8", r: "6" }),
     /* @__PURE__ */ jsx5("path", { d: "M8 4.5V8l2.5 1.5" })
   ] }),
-  cron: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  cron: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("circle", { cx: "8", cy: "8.5", r: "5" }),
     /* @__PURE__ */ jsx5("path", { d: "M8 5.5v3l2 1M5 2l-2.5 2M11 2l2.5 2" })
   ] }),
-  browser: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  browser: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("rect", { x: "1.5", y: "2.5", width: "13", height: "11", rx: "1.5" }),
     /* @__PURE__ */ jsx5("path", { d: "M1.5 6h13M4 4.25h.01M6 4.25h.01" })
   ] }),
-  terminal: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  terminal: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("rect", { x: "1.5", y: "2.5", width: "13", height: "11", rx: "1.5" }),
     /* @__PURE__ */ jsx5("path", { d: "M4.5 6l2.5 2-2.5 2M8.5 10.5h3" })
   ] }),
-  git: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  git: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("circle", { cx: "4.5", cy: "3.5", r: "1.75" }),
     /* @__PURE__ */ jsx5("circle", { cx: "4.5", cy: "12.5", r: "1.75" }),
     /* @__PURE__ */ jsx5("circle", { cx: "11.5", cy: "5.5", r: "1.75" }),
     /* @__PURE__ */ jsx5("path", { d: "M4.5 5.25v5.5M11.5 7.25c0 2.5-2 3-4 3.25a3 3 0 0 0-3 .5" })
   ] }),
-  cloud: /* @__PURE__ */ jsx5(Fragment, { children: /* @__PURE__ */ jsx5("path", { d: "M4.5 13a3 3 0 0 1-.4-6A4 4 0 0 1 12 6.5a3.25 3.25 0 0 1 0 6.5z" }) }),
-  region: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  cloud: /* @__PURE__ */ jsx5(Fragment2, { children: /* @__PURE__ */ jsx5("path", { d: "M4.5 13a3 3 0 0 1-.4-6A4 4 0 0 1 12 6.5a3.25 3.25 0 0 1 0 6.5z" }) }),
+  region: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("path", { d: "M8 14.5s4.5-4.2 4.5-8A4.5 4.5 0 0 0 3.5 6.5c0 3.8 4.5 8 4.5 8z" }),
     /* @__PURE__ */ jsx5("circle", { cx: "8", cy: "6.5", r: "1.5" })
   ] }),
-  user: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  user: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("circle", { cx: "8", cy: "5.5", r: "3" }),
     /* @__PURE__ */ jsx5("path", { d: "M2.5 14.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5" })
   ] }),
-  robot: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  robot: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("rect", { x: "3", y: "5", width: "10", height: "8", rx: "2" }),
     /* @__PURE__ */ jsx5("path", { d: "M8 2v3M6 13v1.5M10 13v1.5M1.5 8.5v2M14.5 8.5v2" }),
     /* @__PURE__ */ jsx5("circle", { cx: "6", cy: "8.5", r: "1", fill: "currentColor" }),
     /* @__PURE__ */ jsx5("circle", { cx: "10", cy: "8.5", r: "1", fill: "currentColor" })
   ] }),
-  chart: /* @__PURE__ */ jsx5(Fragment, { children: /* @__PURE__ */ jsx5("path", { d: "M2 14h12M4 11V7M8 11V4M12 11V8.5" }) }),
-  warning: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  chart: /* @__PURE__ */ jsx5(Fragment2, { children: /* @__PURE__ */ jsx5("path", { d: "M2 14h12M4 11V7M8 11V4M12 11V8.5" }) }),
+  warning: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("path", { d: "M8 2 14.5 13.5h-13z" }),
     /* @__PURE__ */ jsx5("path", { d: "M8 6.5v3.5M8 12.25h.01" })
   ] }),
-  more: /* @__PURE__ */ jsxs5(Fragment, { children: [
+  more: /* @__PURE__ */ jsxs5(Fragment2, { children: [
     /* @__PURE__ */ jsx5("circle", { cx: "3", cy: "8", r: "1", fill: "currentColor" }),
     /* @__PURE__ */ jsx5("circle", { cx: "8", cy: "8", r: "1", fill: "currentColor" }),
     /* @__PURE__ */ jsx5("circle", { cx: "13", cy: "8", r: "1", fill: "currentColor" })
@@ -362,55 +605,137 @@ function Node({
     onPointerEnter: (e) => isPointer(e) && hover.setFlow(flows[0]),
     onPointerLeave: (e) => isPointer(e) && hover.setFlow(null)
   } : {};
-  const body = /* @__PURE__ */ jsxs6("g", { id, "data-uipack": "node", ...hoverAttrs(flow, void 0, hover), ...handlers, children: [
-    hint ? /* @__PURE__ */ jsx6("title", { children: hint }) : null,
-    /* @__PURE__ */ jsx6(
-      "rect",
-      {
-        x,
-        y,
-        width: w,
-        height: h,
-        rx: 6,
-        fill: "var(--uipack-surface)",
-        stroke,
-        strokeOpacity: accent ? 1 : 0.7,
-        strokeWidth: 1.25,
-        strokeDasharray: dashed ? "4 4" : void 0
-      }
-    ),
-    glyph ? /* @__PURE__ */ jsx6("g", { transform: `translate(${x + pad}, ${y + h / 2 - 8})`, fill: "none", stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round", strokeLinejoin: "round", children: glyph }) : null,
-    /* @__PURE__ */ jsx6("text", { x: tx, y: ty, textAnchor: anchor2, fontSize: size, fontWeight: 600, fill: accent ? "var(--uipack-accent)" : "currentColor", children: label }),
-    sub ? /* @__PURE__ */ jsx6("text", { x: tx, y: y + h / 2 + subSize + 2, textAnchor: anchor2, fontSize: subSize, fontFamily: "var(--uipack-mono)", fill: "currentColor", fillOpacity: 0.75, children: sub }) : null
-  ] });
+  const selection = useItemSelection(label, sub ?? hint, flows[0], !href);
+  const body = /* @__PURE__ */ jsxs6(
+    "g",
+    {
+      id,
+      "data-uipack": "node",
+      ...hoverAttrs(flow, void 0, hover),
+      ...handlers,
+      ...selection,
+      children: [
+        hint ? /* @__PURE__ */ jsx6("title", { children: hint }) : null,
+        /* @__PURE__ */ jsx6(
+          "rect",
+          {
+            x,
+            y,
+            width: w,
+            height: h,
+            rx: 6,
+            fill: "var(--uipack-surface)",
+            stroke,
+            strokeOpacity: accent ? 1 : 0.7,
+            strokeWidth: 1.25,
+            strokeDasharray: dashed ? "4 4" : void 0
+          }
+        ),
+        /* @__PURE__ */ jsx6("path", { className: "uipack__touch-target", d: `M ${x} ${y - Math.max(0, 54 - h) / 2} h ${w} v ${Math.max(h, 54)} h ${-w} Z`, fill: "transparent", stroke: "none", "aria-hidden": "true" }),
+        glyph ? /* @__PURE__ */ jsx6(
+          "g",
+          {
+            transform: `translate(${x + pad}, ${y + h / 2 - 8})`,
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: 1.5,
+            strokeLinecap: "round",
+            strokeLinejoin: "round",
+            children: glyph
+          }
+        ) : null,
+        /* @__PURE__ */ jsx6(
+          "text",
+          {
+            x: tx,
+            y: ty,
+            textAnchor: anchor2,
+            fontSize: size,
+            fontWeight: 600,
+            fill: accent ? "var(--uipack-accent)" : "currentColor",
+            children: label
+          }
+        ),
+        sub ? /* @__PURE__ */ jsx6(
+          "text",
+          {
+            x: tx,
+            y: y + h / 2 + subSize + 2,
+            textAnchor: anchor2,
+            fontSize: subSize,
+            fontFamily: "var(--uipack-mono)",
+            fill: "currentColor",
+            fillOpacity: 0.75,
+            children: sub
+          }
+        ) : null
+      ]
+    }
+  );
   return href ? /* @__PURE__ */ jsx6("a", { href, className: "uipack__link", "aria-label": label, children: body }) : body;
 }
 
 // src/Chip.tsx
 import { jsx as jsx7, jsxs as jsxs7 } from "react/jsx-runtime";
-function Chip({ x, y, w, h = 24, label, dashed, kind, flow, size: size0 = 10 }) {
+function Chip({
+  x,
+  y,
+  w,
+  h = 24,
+  label,
+  dashed,
+  kind,
+  flow,
+  size: size0 = 10
+}) {
   const hover = useFigureHover();
   const size = useFontFloor(size0);
   const fill = !kind ? "var(--uipack-surface)" : kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
-  return /* @__PURE__ */ jsxs7("g", { "data-uipack": "chip", ...hoverAttrs(flow, kind === "accent" ? void 0 : kind, hover), children: [
-    /* @__PURE__ */ jsx7(
-      "rect",
-      {
-        x,
-        y,
-        width: w,
-        height: h,
-        rx: h / 2,
-        fill,
-        fillOpacity: kind ? 0.55 : 1,
-        stroke: "currentColor",
-        strokeOpacity: dashed ? 0.5 : 0.8,
-        strokeWidth: 1.25,
-        strokeDasharray: dashed ? "3 3" : void 0
-      }
-    ),
-    label ? /* @__PURE__ */ jsx7("text", { x: x + w / 2, y: y + h / 2 + size * 0.36, textAnchor: "middle", fontSize: size, fontWeight: 700, fontFamily: "var(--uipack-mono)", fill: "currentColor", children: label.toUpperCase() }) : null
-  ] });
+  const selection = useItemSelection(
+    label ?? "Empty slot",
+    void 0,
+    void 0,
+    true
+  );
+  return /* @__PURE__ */ jsxs7(
+    "g",
+    {
+      "data-uipack": "chip",
+      ...hoverAttrs(flow, kind === "accent" ? void 0 : kind, hover),
+      ...selection,
+      children: [
+        /* @__PURE__ */ jsx7(
+          "rect",
+          {
+            x,
+            y,
+            width: w,
+            height: h,
+            rx: h / 2,
+            fill,
+            fillOpacity: kind ? 0.55 : 1,
+            stroke: "currentColor",
+            strokeOpacity: dashed ? 0.5 : 0.8,
+            strokeWidth: 1.25,
+            strokeDasharray: dashed ? "3 3" : void 0
+          }
+        ),
+        label ? /* @__PURE__ */ jsx7(
+          "text",
+          {
+            x: x + w / 2,
+            y: y + h / 2 + size * 0.36,
+            textAnchor: "middle",
+            fontSize: size,
+            fontWeight: 700,
+            fontFamily: "var(--uipack-mono)",
+            fill: "currentColor",
+            children: label.toUpperCase()
+          }
+        ) : null
+      ]
+    }
+  );
 }
 
 // src/geometry.ts
@@ -675,4 +1000,4 @@ export {
   Label,
   Defs
 };
-//# sourceMappingURL=chunk-6IK7GI52.js.map
+//# sourceMappingURL=chunk-ZVA6USPH.js.map

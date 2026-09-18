@@ -1,3 +1,4 @@
+import { useItemSelection } from "./selection";
 import type { ReactNode } from "react";
 import { useFigureHover, hoverAttrs, type Flow } from "./hover";
 import { useFontFloor } from "./scale";
@@ -17,13 +18,34 @@ export interface GroupProps {
   children?: ReactNode;
 }
 
-export function Group({ x, y, w, h, title, variant = "solid", accent, flow, titleSize, children }: GroupProps) {
+export function Group({
+  x,
+  y,
+  w,
+  h,
+  title,
+  variant = "solid",
+  accent,
+  flow,
+  titleSize,
+  children,
+}: GroupProps) {
   const hover = useFigureHover();
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const dashed = variant === "dashed";
   const ts = useFontFloor(titleSize ?? (dashed ? 11 : 14));
+  const selection = useItemSelection(
+    title ?? "Group",
+    undefined,
+    undefined,
+    true,
+  );
   return (
-    <g data-uipack="group" {...hoverAttrs(flow, undefined, hover)}>
+    <g
+      data-uipack="group"
+      {...hoverAttrs(flow, undefined, hover)}
+      {...selection}
+    >
       <rect
         x={x}
         y={y}
@@ -39,11 +61,26 @@ export function Group({ x, y, w, h, title, variant = "solid", accent, flow, titl
       />
       {title ? (
         dashed ? (
-          <text x={x + 16} y={y + 22} fontSize={ts} fontFamily="var(--uipack-mono)" letterSpacing=".08em" fill={stroke} fillOpacity={accent ? 1 : 0.75}>
+          <text
+            x={x + 16}
+            y={y + 22}
+            fontSize={ts}
+            fontFamily="var(--uipack-mono)"
+            letterSpacing=".08em"
+            fill={stroke}
+            fillOpacity={accent ? 1 : 0.75}
+          >
             {title.toUpperCase()}
           </text>
         ) : (
-          <text x={x + w / 2} y={y + 24} textAnchor="middle" fontSize={ts} fontWeight={600} fill={stroke}>
+          <text
+            x={x + w / 2}
+            y={y + 24}
+            textAnchor="middle"
+            fontSize={ts}
+            fontWeight={600}
+            fill={stroke}
+          >
             {title}
           </text>
         )

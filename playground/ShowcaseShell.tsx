@@ -1,3 +1,4 @@
+import { libraryPages, type LibraryPage } from "./catalog";
 import { useState, type ReactNode } from "react";
 import { Wordmark } from "../src";
 
@@ -22,13 +23,13 @@ export function ShowcaseShell({
   flip,
   children,
 }: {
-  active: "figures" | "assets" | "slides";
+  active: LibraryPage;
   theme: "light" | "dark";
   flip: () => void;
   children: ReactNode;
 }) {
   return (
-    <main className="showcase-shell" data-theme={theme}>
+    <main className="showcase-shell" data-theme={theme} data-style="technical">
       <header className="showcase-header">
         <a
           className="showcase-brand"
@@ -38,13 +39,13 @@ export function ShowcaseShell({
           <Wordmark size={22} />
         </a>
         <nav aria-label="Library pages">
-          {(["figures", "assets", "slides"] as const).map((page) => (
+          {libraryPages.map((page) => (
             <a
-              key={page}
-              href={`${page === "figures" ? "/" : `/${page}`}?theme=${theme}`}
-              aria-current={active === page ? "page" : undefined}
+              key={page.id}
+              href={`${page.path}?theme=${theme}`}
+              aria-current={active === page.id ? "page" : undefined}
             >
-              {page}
+              {page.label}
             </a>
           ))}
         </nav>
@@ -52,6 +53,12 @@ export function ShowcaseShell({
           {theme === "dark" ? "light" : "dark"} mode
         </button>
       </header>
+      {active !== "styles" && (
+        <div className="showcase-context">
+          <a href={`/styles?theme=${theme}`}>Technical style</a>
+          <span>{libraryPages.find((p) => p.id === active)?.label}</span>
+        </div>
+      )}
       {children}
     </main>
   );

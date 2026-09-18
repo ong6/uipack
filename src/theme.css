@@ -285,3 +285,25 @@
     transition: none;
   }
 }
+
+.uipack__controls { flex-wrap: wrap; }
+.uipack__ctl { min-height: 44px; }
+.uipack__canvas { overflow-x: auto; overscroll-behavior-x: contain; }
+.uipack:not(.uipack--has-narrow) .uipack__canvas > svg { min-width: min(800px, var(--figure-width, 800px)); }
+.uipack__canvas [role="button"] { cursor: pointer; outline: none; }
+.uipack__canvas [role="button"]:focus-visible > rect { stroke: var(--uipack-accent); stroke-width: 3; }
+.uipack__canvas [data-selected="true"] { opacity: 1 !important; }
+.uipack__canvas [data-selected="true"] > rect { stroke: var(--uipack-accent); stroke-width: 2.5; filter: drop-shadow(0 0 5px var(--uipack-accent)); }
+.uipack__selection { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--uipack-border); font-size: 13px; }
+.uipack__selection button { min-height: 44px; border: 1px solid var(--uipack-border); border-radius: 6px; background: transparent; color: inherit; cursor: pointer; }
+.uipack--expanded { overflow: visible; }
+.uipack--expanded .uipack__canvas > svg.uipack--wide { display: block !important; min-width: 800px; }
+.uipack--expanded .uipack__canvas > svg.uipack--narrow { display: none !important; }
+@media (hover: none) { .uipack__canvas [data-state="hit"] > rect { stroke: var(--uipack-accent); } }
+.uipack__touch-target { display: none; }
+@media (pointer: coarse) { .uipack__touch-target { display: block; pointer-events: all; } }
+.uipack--expanded .uipack__head { display: flex; padding: 8px 16px; }
+.uipack--expanded .uipack__eyebrow,
+.uipack--expanded .uipack__title,
+.uipack--expanded .uipack__caption,
+.uipack--expanded .uipack__legend { display: none; }

@@ -13,6 +13,8 @@ export interface SceneRuntime {
   goTo(stop: SlideStop, immediate?: boolean): void;
   setPaused(value: boolean): void;
   setReducedMotion(value: boolean): void;
+  setSelected(id: string | null): void;
+  setZoom(value: number): void;
   dispose(): void;
 }
 interface Pose {
@@ -40,7 +42,10 @@ export function createSlideScene(
   reduced: boolean,
   onLost: () => void,
   onSettled: (id: string) => void,
+  onSelect: (id: string | null) => void,
 ): SceneRuntime {
+  let selected: string | null = null;
+  let zoom = 1;
   const colors = slidePalettes[theme];
   const tone = (value?: string) =>
     colors[value === "neutral" || !value ? "rule" : (value as "accent")];
@@ -338,7 +343,7 @@ export function createSlideScene(
     camera.position
       .set(cam.x, cam.y, cam.z)
       .sub(target)
-      .multiplyScalar(Math.max(1, 1.45 / camera.aspect))
+      .multiplyScalar(Math.max(1, 1.45 / camera.aspect) / zoom)
       .add(target);
     camera.lookAt(target);
     camera.updateMatrixWorld();
@@ -350,6 +355,10 @@ export function createSlideScene(
       n.group.visible = n.pose.opacity > 0.005;
       n.materials.forEach((m) => {
         m.opacity = n.pose.opacity * (m.userData.baseOpacity ?? 1);
+        if (m instanceof THREE.MeshStandardMaterial) {
+          m.emissive.set(selected === n.spec.id ? colors.accent : 0x000000);
+          m.emissiveIntensity = selected === n.spec.id ? 0.3 : 0;
+        }
       });
       if (!n.label) continue;
       const eligible =
@@ -382,7 +391,7 @@ export function createSlideScene(
         ]) {
           const candidate = {
             x: Math.max(4, Math.min(width - w - 4, x - w / 2 + dx)),
-            y: Math.max(4, Math.min(height - h - 4, y + dy)),
+            y: Math.max(84, Math.min(height - h - 4, y + dy)),
             w,
             h,
           };
@@ -636,11 +645,57 @@ export function createSlideScene(
     });
     wake();
   }
+  const raycaster = new THREE.Raycaster();
+  let down: { x: number; y: number } | null = null;
+  const pointerDown = (event: PointerEvent) => {
+    down = { x: event.clientX, y: event.clientY };
+  };
+  const pointerUp = (event: PointerEvent) => {
+    if (
+      !down ||
+      Math.hypot(event.clientX - down.x, event.clientY - down.y) > 6
+    ) {
+      down = null;
+      return;
+    }
+    down = null;
+    const rect = renderer.domElement.getBoundingClientRect();
+    raycaster.setFromCamera(
+      new THREE.Vector2(
+        ((event.clientX - rect.left) / rect.width) * 2 - 1,
+        (-(event.clientY - rect.top) / rect.height) * 2 + 1,
+      ),
+      camera,
+    );
+    const candidates = [...nodes.values()].filter(
+      (n) => n.spec.kind !== "boundary" && n.pose.opacity > 0.25,
+    );
+    const hit = raycaster.intersectObjects(
+      candidates.map((n) => n.group),
+      true,
+    )[0];
+    let object: THREE.Object3D | undefined = hit?.object;
+    while (object && !nodes.has(object.name))
+      object = object.parent ?? undefined;
+    onSelect(object ? (object.name === selected ? null : object.name) : null);
+  };
+  renderer.domElement.addEventListener("pointerdown", pointerDown);
+  renderer.domElement.addEventListener("pointerup", pointerUp);
   resize();
   onSettled(initial.id);
   wake();
   return {
     goTo,
+    setSelected(id) {
+      selected = id;
+      draw();
+      wake();
+    },
+    setZoom(value) {
+      zoom = Math.max(0.75, Math.min(2, value));
+      draw();
+      wake();
+    },
     setPaused(value) {
       paused = value;
       wake();
@@ -659,6 +714,8 @@ export function createSlideScene(
       intersection?.disconnect();
       document.removeEventListener("visibilitychange", visibilityChanged);
       renderer.domElement.removeEventListener("webglcontextlost", lost);
+      renderer.domElement.removeEventListener("pointerdown", pointerDown);
+      renderer.domElement.removeEventListener("pointerup", pointerUp);
       trackedGeometries.forEach((g) => g.dispose());
       trackedMaterials.forEach((m) => m.dispose());
       renderer.dispose();

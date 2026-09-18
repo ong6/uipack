@@ -1,0 +1,202 @@
+.collection-intro {
+  max-width: 78ch;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--show-muted);
+  margin: 12px 0 24px;
+}
+.style-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  gap: 24px;
+}
+.style-card {
+  padding: 28px;
+  border: 1px solid var(--show-rule);
+  background: var(--show-surface);
+  border-radius: 6px;
+}
+.style-card h3 {
+  font-size: 24px;
+  margin: 24px 0 12px;
+}
+.style-card p {
+  max-width: 60ch;
+  line-height: 1.6;
+  color: var(--show-muted);
+}
+.style-card a {
+  color: var(--show-accent);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-right: 20px;
+}
+.style-swatch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 100px;
+  background-image: radial-gradient(var(--show-rule) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+.style-swatch span {
+  border: 1px solid var(--show-accent);
+  padding: 12px;
+  background: var(--show-surface);
+  border-radius: 6px;
+  font:
+    12px ui-monospace,
+    monospace;
+}
+.deck-chapters,
+.deck-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0;
+}
+.deck-chapters button,
+.deck-navigation button {
+  min-height: 44px;
+  border: 1px solid var(--show-rule);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.deck-chapters [aria-current="step"] {
+  border-color: var(--show-accent);
+  color: var(--show-accent);
+}
+.deck-navigation {
+  justify-content: space-between;
+}
+.deck-navigation button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.composed-deck {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 620px;
+  border: 1px solid var(--show-rule);
+  border-radius: 6px;
+  background: var(--show-surface);
+  overflow: hidden;
+}
+.composed-deck__copy {
+  padding: 52px 20px 40px 40px;
+  align-self: center;
+}
+.composed-deck h1 {
+  font-size: clamp(30px, 3.7vw, 48px);
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+  margin: 20px 0;
+  max-width: 18ch;
+}
+.composed-deck__copy > p:not(.deck-eyebrow) {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--show-muted);
+  max-width: 43ch;
+}
+.deck-eyebrow {
+  color: var(--show-accent);
+  font:
+    12px ui-monospace,
+    monospace;
+}
+.composed-deck__visual {
+  min-width: 0;
+  min-height: 480px;
+}
+.composed-deck footer {
+  grid-column: 1/-1;
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 24px;
+  font:
+    12px ui-monospace,
+    monospace;
+  border-top: 1px solid var(--show-rule);
+  color: var(--show-muted);
+}
+.composed-deck ol {
+  padding-left: 22px;
+  line-height: 2.2;
+}
+.deck-comparison {
+  display: grid;
+  gap: 12px;
+}
+.deck-comparison > div {
+  padding: 12px;
+  border-left: 2px solid var(--show-accent);
+}
+.deck-comparison h3,
+.deck-comparison p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+.deck-takeaway {
+  border-top: 1px solid var(--show-rule);
+  padding-top: 20px;
+}
+@media (max-width: 760px) {
+  .composed-deck {
+    grid-template-columns: 1fr;
+  }
+  .composed-deck__copy {
+    padding: 28px 24px;
+  }
+  .composed-deck__visual {
+    min-height: 400px;
+  }
+  .style-card {
+    padding: 20px;
+  }
+  .style-swatch {
+    gap: 6px;
+  }
+  .style-swatch span {
+    padding: 8px;
+  }
+}
+.composed-deck__visual[hidden] {
+  display: none;
+}
+.composed-deck[data-layout="opening"] {
+  grid-template-columns: 1.15fr 1fr;
+}
+.composed-deck[data-layout="explanation"] {
+  grid-template-columns: 0.8fr 1.2fr;
+}
+.composed-deck[data-layout="closing"] .composed-deck__copy {
+  grid-column: 1/-1;
+  text-align: center;
+  justify-self: center;
+  padding: 64px 28px;
+}
+.composed-deck[data-layout="closing"] h1 {
+  max-width: 24ch;
+}
+.composed-deck[data-layout="closing"] p {
+  margin-left: auto;
+  margin-right: auto;
+}
+.composed-deck__figure {
+  min-width: 0;
+  align-self: center;
+  padding: 24px;
+}
+@media (max-width: 760px) {
+  .composed-deck[data-layout] {
+    grid-template-columns: 1fr;
+  }
+  .composed-deck__figure {
+    padding: 12px;
+  }
+}

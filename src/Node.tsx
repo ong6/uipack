@@ -1,5 +1,12 @@
+import { useItemSelection } from "./selection";
 import type { ReactNode } from "react";
-import { useFigureHover, hoverAttrs, isPointer, flowList, type Flow } from "./hover";
+import {
+  useFigureHover,
+  hoverAttrs,
+  isPointer,
+  flowList,
+  type Flow,
+} from "./hover";
 import { icons, type IconName } from "./icons";
 import { useFontFloor } from "./scale";
 
@@ -59,12 +66,21 @@ export function Node({
   const flows = flowList(flow);
   const handlers = flows.length
     ? {
-        onPointerEnter: (e: React.PointerEvent) => isPointer(e) && hover.setFlow(flows[0]),
-        onPointerLeave: (e: React.PointerEvent) => isPointer(e) && hover.setFlow(null),
+        onPointerEnter: (e: React.PointerEvent) =>
+          isPointer(e) && hover.setFlow(flows[0]),
+        onPointerLeave: (e: React.PointerEvent) =>
+          isPointer(e) && hover.setFlow(null),
       }
     : {};
+  const selection = useItemSelection(label, sub ?? hint, flows[0], !href);
   const body = (
-    <g id={id} data-uipack="node" {...hoverAttrs(flow, undefined, hover)} {...handlers}>
+    <g
+      id={id}
+      data-uipack="node"
+      {...hoverAttrs(flow, undefined, hover)}
+      {...handlers}
+      {...selection}
+    >
       {hint ? <title>{hint}</title> : null}
       <rect
         x={x}
@@ -78,16 +94,39 @@ export function Node({
         strokeWidth={1.25}
         strokeDasharray={dashed ? "4 4" : undefined}
       />
+      <path className="uipack__touch-target" d={`M ${x} ${y - Math.max(0, 54 - h) / 2} h ${w} v ${Math.max(h, 54)} h ${-w} Z`} fill="transparent" stroke="none" aria-hidden="true" />
       {glyph ? (
-        <g transform={`translate(${x + pad}, ${y + h / 2 - 8})`} fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+        <g
+          transform={`translate(${x + pad}, ${y + h / 2 - 8})`}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           {glyph}
         </g>
       ) : null}
-      <text x={tx} y={ty} textAnchor={anchor} fontSize={size} fontWeight={600} fill={accent ? "var(--uipack-accent)" : "currentColor"}>
+      <text
+        x={tx}
+        y={ty}
+        textAnchor={anchor}
+        fontSize={size}
+        fontWeight={600}
+        fill={accent ? "var(--uipack-accent)" : "currentColor"}
+      >
         {label}
       </text>
       {sub ? (
-        <text x={tx} y={y + h / 2 + subSize + 2} textAnchor={anchor} fontSize={subSize} fontFamily="var(--uipack-mono)" fill="currentColor" fillOpacity={0.75}>
+        <text
+          x={tx}
+          y={y + h / 2 + subSize + 2}
+          textAnchor={anchor}
+          fontSize={subSize}
+          fontFamily="var(--uipack-mono)"
+          fill="currentColor"
+          fillOpacity={0.75}
+        >
           {sub}
         </text>
       ) : null}

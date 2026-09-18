@@ -63,14 +63,102 @@ __export(src_exports, {
 });
 module.exports = __toCommonJS(src_exports);
 
+// src/CanvasView.tsx
+var import_react = require("react");
+var import_react_dom = require("react-dom");
+var import_jsx_runtime = require("react/jsx-runtime");
+function CanvasView({
+  open,
+  onClose,
+  title,
+  children,
+  toolbar,
+  theme,
+  restoreFocus
+}) {
+  const dialog = (0, import_react.useRef)(null);
+  const close = (0, import_react.useRef)(onClose);
+  close.current = onClose;
+  (0, import_react.useEffect)(() => {
+    if (!open) return;
+    const opener = document.activeElement;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    dialog.current?.showModal();
+    return () => {
+      document.body.style.overflow = previous;
+      requestAnimationFrame(
+        () => restoreFocus ? restoreFocus() : opener?.focus()
+      );
+    };
+  }, [open]);
+  if (!open || typeof document === "undefined") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children });
+  return (0, import_react_dom.createPortal)(
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+      "dialog",
+      {
+        ref: dialog,
+        className: "uipack-canvas-dialog",
+        "data-theme": theme ?? document.documentElement.dataset.theme,
+        "aria-label": title,
+        onCancel: (e) => {
+          e.preventDefault();
+          close.current();
+        },
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-canvas-toolbar", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: title }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              toolbar,
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: onClose, autoFocus: true, children: "Close canvas" })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "uipack-canvas-content", children })
+        ]
+      }
+    ),
+    document.body
+  );
+}
+
+// src/selection.tsx
+var import_react2 = require("react");
+var SelectionContext = (0, import_react2.createContext)({ enabled: false, selected: null, select: () => {
+} });
+function useItemSelection(label, detail, flow, enabled = true) {
+  const id = (0, import_react2.useId)();
+  const context = (0, import_react2.useContext)(SelectionContext);
+  if (!context.enabled || !enabled) return {};
+  const selected = context.selected?.id === id;
+  const toggle = () => context.select(selected ? null : { id, label, detail, flow });
+  return {
+    role: "button",
+    tabIndex: 0,
+    "aria-label": label,
+    "aria-pressed": selected,
+    "data-selected": selected ? "true" : void 0,
+    onClick: (event) => {
+      event.stopPropagation();
+      toggle();
+    },
+    onKeyDown: (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        event.stopPropagation();
+        toggle();
+      }
+    }
+  };
+}
+
 // src/Figure.tsx
-var import_react4 = require("react");
+var import_react6 = require("react");
 
 // src/context.tsx
-var import_react = require("react");
+var import_react3 = require("react");
 var noop = () => {
 };
-var FigureMotionContext = (0, import_react.createContext)({
+var FigureMotionContext = (0, import_react3.createContext)({
   playing: true,
   reduced: false,
   cycle: 0,
@@ -78,12 +166,12 @@ var FigureMotionContext = (0, import_react.createContext)({
   replay: noop
 });
 function useFigureMotion() {
-  return (0, import_react.useContext)(FigureMotionContext);
+  return (0, import_react3.useContext)(FigureMotionContext);
 }
 var QUERY = "(prefers-reduced-motion: reduce)";
 function usePrefersReducedMotion() {
-  const [reduced, setReduced] = (0, import_react.useState)(false);
-  (0, import_react.useEffect)(() => {
+  const [reduced, setReduced] = (0, import_react3.useState)(false);
+  (0, import_react3.useEffect)(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
     const mq = window.matchMedia(QUERY);
     const onChange = (e) => setReduced(e.matches);
@@ -99,12 +187,12 @@ function usePrefersReducedMotion() {
 }
 
 // src/hover.tsx
-var import_react2 = require("react");
+var import_react4 = require("react");
 var noop2 = () => {
 };
-var FigureHoverContext = (0, import_react2.createContext)({ flow: null, kind: null, setFlow: noop2, setKind: noop2 });
+var FigureHoverContext = (0, import_react4.createContext)({ flow: null, kind: null, setFlow: noop2, setKind: noop2 });
 function useFigureHover() {
-  return (0, import_react2.useContext)(FigureHoverContext);
+  return (0, import_react4.useContext)(FigureHoverContext);
 }
 var flowList = (flow) => flow == null ? [] : Array.isArray(flow) ? flow : [flow];
 function hoverAttrs(flow, kind, hover) {
@@ -121,7 +209,7 @@ function hoverAttrs(flow, kind, hover) {
 var isPointer = (e) => e.pointerType !== "touch";
 
 // src/tokens.tsx
-var import_jsx_runtime = require("react/jsx-runtime");
+var import_jsx_runtime2 = require("react/jsx-runtime");
 var TOKEN_SHAPE = {
   request: "square",
   response: "circle",
@@ -147,23 +235,23 @@ function Token({ shape, kind = "neutral", r = 5, cx = 0, cy = 0, style }) {
   const s = shape ?? TOKEN_SHAPE[kind];
   const fill = tokenColor(kind);
   const common = { fill, stroke: "var(--uipack-bg)", strokeWidth: 1.5, style };
-  if (s === "circle") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx, cy, r, ...common });
+  if (s === "circle") return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx, cy, r, ...common });
   if (s === "diamond") {
     const d = r * 1.2;
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: `M${cx},${cy - d} L${cx + d},${cy} L${cx},${cy + d} L${cx - d},${cy} Z`, ...common });
+    return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: `M${cx},${cy - d} L${cx + d},${cy} L${cx},${cy + d} L${cx - d},${cy} Z`, ...common });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("rect", { x: cx - r, y: cy - r, width: r * 2, height: r * 2, rx: 1.5, ...common });
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("rect", { x: cx - r, y: cy - r, width: r * 2, height: r * 2, rx: 1.5, ...common });
 }
 
 // src/Legend.tsx
-var import_jsx_runtime2 = require("react/jsx-runtime");
+var import_jsx_runtime3 = require("react/jsx-runtime");
 function Legend({ items }) {
   const hover = useFigureHover();
   if (!items.length) return null;
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("ul", { className: "uipack__legend", "aria-label": "Legend", children: items.map((it) => {
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("ul", { className: "uipack__legend", "aria-label": "Legend", children: items.map((it) => {
     const kind = it.kind ?? "neutral";
     const hoverable = kind !== "neutral";
-    return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
       "li",
       {
         "data-kind": kind,
@@ -171,8 +259,8 @@ function Legend({ items }) {
         onPointerEnter: hoverable ? (e) => isPointer(e) && hover.setKind(kind) : void 0,
         onPointerLeave: hoverable ? (e) => isPointer(e) && hover.setKind(null) : void 0,
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("svg", { viewBox: "-8 -8 16 16", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Token, { kind, shape: it.shape, r: 5.5 }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: it.label })
+          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("svg", { viewBox: "-8 -8 16 16", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Token, { kind, shape: it.shape, r: 5.5 }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { children: it.label })
         ]
       },
       it.label
@@ -181,28 +269,28 @@ function Legend({ items }) {
 }
 
 // src/scale.tsx
-var import_react3 = require("react");
-var import_jsx_runtime3 = require("react/jsx-runtime");
-var FigureScaleContext = (0, import_react3.createContext)({ floor: 0 });
+var import_react5 = require("react");
+var import_jsx_runtime4 = require("react/jsx-runtime");
+var FigureScaleContext = (0, import_react5.createContext)({ floor: 0 });
 var DEFAULT_RENDER_WIDTH = 1088;
 function fontFloor(vbWidth2, renderWidth, minFont) {
   if (!vbWidth2 || !renderWidth || !minFont) return 0;
   return minFont * vbWidth2 / renderWidth;
 }
 function FigureScaleProvider({ floor, children }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(FigureScaleContext.Provider, { value: { floor }, children });
+  return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(FigureScaleContext.Provider, { value: { floor }, children });
 }
 function useFontFloor(size) {
-  const { floor } = (0, import_react3.useContext)(FigureScaleContext);
+  const { floor } = (0, import_react5.useContext)(FigureScaleContext);
   return Math.max(size, floor);
 }
 
 // src/Figure.tsx
-var import_jsx_runtime4 = require("react/jsx-runtime");
+var import_jsx_runtime5 = require("react/jsx-runtime");
 var vbWidth = (viewBox) => Number(viewBox.split(/\s+/)[2]) || 0;
-function useRenderedWidth(ref, fixed) {
-  const [w, setW] = (0, import_react4.useState)(fixed ?? DEFAULT_RENDER_WIDTH);
-  (0, import_react4.useEffect)(() => {
+function useRenderedWidth(ref, fixed, layoutKey) {
+  const [w, setW] = (0, import_react6.useState)(fixed ?? DEFAULT_RENDER_WIDTH);
+  (0, import_react6.useEffect)(() => {
     if (fixed != null) return;
     const el = ref.current;
     if (!el || typeof ResizeObserver === "undefined") return;
@@ -214,19 +302,29 @@ function useRenderedWidth(ref, fixed) {
     const ro = new ResizeObserver(read);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [ref, fixed]);
+  }, [ref, fixed, layoutKey]);
   return fixed ?? w;
 }
-var PauseGlyph = () => /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: [
-  /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("rect", { x: "2", y: "1.5", width: "3", height: "9", rx: "0.5" }),
-  /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("rect", { x: "7", y: "1.5", width: "3", height: "9", rx: "0.5" })
+var PauseGlyph = () => /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: [
+  /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("rect", { x: "2", y: "1.5", width: "3", height: "9", rx: "0.5" }),
+  /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("rect", { x: "7", y: "1.5", width: "3", height: "9", rx: "0.5" })
 ] });
-var PlayGlyph = () => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("path", { d: "M3 1.5 L10.5 6 L3 10.5 Z" }) });
-var ReplayGlyph = () => /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: [
-  /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("path", { d: "M6 1.5a4.5 4.5 0 1 1-4.2 2.9", fill: "none", stroke: "currentColor", strokeWidth: "1.6", strokeLinecap: "round" }),
-  /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("path", { d: "M1.5 1.5v3h3z" })
+var PlayGlyph = () => /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("path", { d: "M3 1.5 L10.5 6 L3 10.5 Z" }) });
+var ReplayGlyph = () => /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: [
+  /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+    "path",
+    {
+      d: "M6 1.5a4.5 4.5 0 1 1-4.2 2.9",
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: "1.6",
+      strokeLinecap: "round"
+    }
+  ),
+  /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("path", { d: "M1.5 1.5v3h3z" })
 ] });
 function Figure({
+  expandable = true,
   number,
   eyebrow,
   title,
@@ -246,30 +344,50 @@ function Figure({
   measuredWidth,
   id
 }) {
-  const auto = (0, import_react4.useId)();
+  const opener = (0, import_react6.useRef)(null);
+  const auto = (0, import_react6.useId)();
   const figId = id ?? `uipack-${auto.replace(/:/g, "")}`;
   const reduced = usePrefersReducedMotion();
-  const [playing, setPlaying] = (0, import_react4.useState)(true);
-  const [cycle, setCycle] = (0, import_react4.useState)(0);
-  const [hoverFlow, setHoverFlow] = (0, import_react4.useState)(null);
-  const [hoverKind, setHoverKind] = (0, import_react4.useState)(null);
-  const hover = (0, import_react4.useMemo)(() => ({ flow: hoverFlow, kind: hoverKind, setFlow: setHoverFlow, setKind: setHoverKind }), [hoverFlow, hoverKind]);
-  const wideRef = (0, import_react4.useRef)(null);
-  const narrowRef = (0, import_react4.useRef)(null);
-  const wideW = useRenderedWidth(wideRef, measuredWidth);
-  const narrowW = useRenderedWidth(narrowRef, measuredWidth);
-  const wideScale = (0, import_react4.useMemo)(() => ({ floor: fontFloor(vbWidth(viewBox), wideW, minFont) }), [viewBox, wideW, minFont]);
-  const narrowScale = (0, import_react4.useMemo)(() => ({ floor: fontFloor(vbWidth(narrowViewBox ?? viewBox), narrowW, minFont) }), [narrowViewBox, viewBox, narrowW, minFont]);
+  const [playing, setPlaying] = (0, import_react6.useState)(true);
+  const [cycle, setCycle] = (0, import_react6.useState)(0);
+  const [expanded, setExpanded] = (0, import_react6.useState)(false);
+  const [zoom, setZoom] = (0, import_react6.useState)(1);
+  const [selected, select] = (0, import_react6.useState)(null);
+  const [hoverFlow, setHoverFlow] = (0, import_react6.useState)(null);
+  const [hoverKind, setHoverKind] = (0, import_react6.useState)(null);
+  const hover = (0, import_react6.useMemo)(
+    () => ({
+      flow: selected?.flow ?? hoverFlow,
+      kind: hoverKind,
+      setFlow: setHoverFlow,
+      setKind: setHoverKind
+    }),
+    [hoverFlow, hoverKind, selected]
+  );
+  const wideRef = (0, import_react6.useRef)(null);
+  const narrowRef = (0, import_react6.useRef)(null);
+  const wideW = useRenderedWidth(wideRef, measuredWidth, expanded);
+  const narrowW = useRenderedWidth(narrowRef, measuredWidth, expanded);
+  const wideScale = (0, import_react6.useMemo)(
+    () => ({ floor: fontFloor(vbWidth(viewBox), wideW, minFont) }),
+    [viewBox, wideW, minFont]
+  );
+  const narrowScale = (0, import_react6.useMemo)(
+    () => ({
+      floor: fontFloor(vbWidth(narrowViewBox ?? viewBox), narrowW, minFont)
+    }),
+    [narrowViewBox, viewBox, narrowW, minFont]
+  );
   const svgs = () => [wideRef.current, narrowRef.current].filter(Boolean);
-  (0, import_react4.useEffect)(() => {
+  (0, import_react6.useEffect)(() => {
     for (const s of svgs()) {
       if (typeof s.pauseAnimations !== "function") continue;
       if (playing) s.unpauseAnimations();
       else s.pauseAnimations();
     }
-  }, [playing]);
-  const toggle = (0, import_react4.useCallback)(() => setPlaying((p) => !p), []);
-  const replay = (0, import_react4.useCallback)(() => {
+  }, [playing, expanded]);
+  const toggle = (0, import_react6.useCallback)(() => setPlaying((p) => !p), []);
+  const replay = (0, import_react6.useCallback)(() => {
     for (const s of svgs()) {
       if (typeof s.setCurrentTime === "function") s.setCurrentTime(0);
       if (typeof s.unpauseAnimations === "function") s.unpauseAnimations();
@@ -277,197 +395,365 @@ function Figure({
     setPlaying(true);
     setCycle((c) => c + 1);
   }, []);
-  const motion = (0, import_react4.useMemo)(
+  const motion = (0, import_react6.useMemo)(
     () => ({ playing: playing && !reduced, reduced, cycle, toggle, replay }),
     [playing, reduced, cycle, toggle, replay]
   );
   const showControls = controls && !reduced;
-  const hasHead = number || eyebrow || title || caption || legend.length || showControls;
-  return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(
-    "figure",
+  const hasHead = expandable || selected || number || eyebrow || title || caption || legend.length || showControls;
+  return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+    CanvasView,
     {
-      id: figId,
-      className: ["uipack", narrow ? "uipack--has-narrow" : "", className ?? ""].join(" ").trim(),
-      "data-theme": theme,
-      "data-hover-flow": hoverFlow ?? void 0,
-      "data-hover-kind": hoverKind ?? void 0,
-      style: { margin: 0 },
-      children: [
-        hasHead ? /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "uipack__head", children: [
-          number || eyebrow ? /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("p", { className: "uipack__eyebrow", children: [
-            number,
-            number && eyebrow ? " \xB7 " : "",
-            eyebrow
-          ] }) : null,
-          title ? (0, import_react4.createElement)(`h${headingLevel}`, { className: "uipack__title" }, title) : null,
-          caption ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { className: "uipack__caption", children: caption }) : null,
-          showControls ? /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "uipack__controls", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: replay, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(ReplayGlyph, {}),
-              " Replay"
+      restoreFocus: () => opener.current?.focus(),
+      open: expanded,
+      onClose: () => {
+        setExpanded(false);
+        setZoom(1);
+        select(null);
+      },
+      title: title ?? eyebrow ?? "Figure canvas",
+      theme,
+      toolbar: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_jsx_runtime5.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+          "button",
+          {
+            type: "button",
+            "aria-label": "Zoom out",
+            disabled: zoom <= 1,
+            onClick: () => setZoom((z) => Math.max(1, z - 0.25)),
+            children: "\u2212"
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("button", { type: "button", onClick: () => setZoom(1), children: "Fit" }),
+        /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+          "button",
+          {
+            type: "button",
+            "aria-label": "Zoom in",
+            disabled: zoom >= 3,
+            onClick: () => setZoom((z) => Math.min(3, z + 0.25)),
+            children: "+"
+          }
+        )
+      ] }),
+      children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(
+        "figure",
+        {
+          id: figId,
+          className: [
+            "uipack",
+            narrow ? "uipack--has-narrow" : "",
+            expanded ? "uipack--expanded" : "",
+            className ?? ""
+          ].join(" ").trim(),
+          "data-theme": theme,
+          "data-hover-flow": hoverFlow ?? void 0,
+          "data-hover-kind": hoverKind ?? void 0,
+          onKeyDown: (e) => {
+            if (e.key === "Escape") select(null);
+          },
+          style: {
+            margin: 0,
+            "--figure-width": `${vbWidth(viewBox)}px`
+          },
+          children: [
+            hasHead ? /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "uipack__head", children: [
+              number || eyebrow ? /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("p", { className: "uipack__eyebrow", children: [
+                number,
+                number && eyebrow ? " \xB7 " : "",
+                eyebrow
+              ] }) : null,
+              title ? (0, import_react6.createElement)(
+                `h${headingLevel}`,
+                { className: "uipack__title" },
+                title
+              ) : null,
+              caption ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("p", { className: "uipack__caption", children: caption }) : null,
+              showControls || expandable ? /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "uipack__controls", children: [
+                expandable && !expanded && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+                  "button",
+                  {
+                    type: "button",
+                    className: "uipack__ctl",
+                    ref: opener,
+                    onClick: () => {
+                      select(null);
+                      setExpanded(true);
+                    },
+                    children: "Open canvas"
+                  }
+                ),
+                showControls && /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_jsx_runtime5.Fragment, { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(
+                    "button",
+                    {
+                      type: "button",
+                      className: "uipack__ctl uipack__ctl--motion",
+                      onClick: replay,
+                      children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(ReplayGlyph, {}),
+                        " Replay"
+                      ]
+                    }
+                  ),
+                  /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(
+                    "button",
+                    {
+                      type: "button",
+                      className: "uipack__ctl uipack__ctl--motion",
+                      onClick: toggle,
+                      "aria-pressed": !playing,
+                      children: [
+                        playing ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(PauseGlyph, {}) : /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(PlayGlyph, {}),
+                        " ",
+                        playing ? "Pause" : "Play"
+                      ]
+                    }
+                  )
+                ] })
+              ] }) : null,
+              /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Legend, { items: legend })
+            ] }) : null,
+            selected && /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "uipack__selection", role: "status", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("span", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("strong", { children: selected.label }),
+                selected.detail && ` \xB7 ${selected.detail}`
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("button", { type: "button", onClick: () => select(null), children: "Clear selection" })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: toggle, "aria-pressed": !playing, children: [
-              playing ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(PauseGlyph, {}) : /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(PlayGlyph, {}),
-              " ",
-              playing ? "Pause" : "Play"
-            ] })
-          ] }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Legend, { items: legend })
-        ] }) : null,
-        /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: `uipack__canvas uipack__canvas--${background}`, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("svg", { ref: wideRef, className: "uipack--wide", viewBox, role: "img", "aria-label": alt, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(FigureScaleContext.Provider, { value: wideScale, children }) }),
-          narrow ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("svg", { ref: narrowRef, className: "uipack--narrow", viewBox: narrowViewBox ?? viewBox, role: "img", "aria-label": alt, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(FigureScaleContext.Provider, { value: narrowScale, children: narrow }) }) : null
-        ] })
-      ]
+            /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(
+              "div",
+              {
+                className: `uipack__canvas uipack__canvas--${background}`,
+                style: expanded ? { width: `${zoom * 100}%`, boxSizing: "border-box" } : void 0,
+                onClick: () => select(null),
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+                    "svg",
+                    {
+                      ref: wideRef,
+                      className: "uipack--wide",
+                      style: expanded ? { minWidth: 800 * zoom } : void 0,
+                      viewBox,
+                      role: "group",
+                      "aria-label": alt,
+                      children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(FigureScaleContext.Provider, { value: wideScale, children })
+                    }
+                  ),
+                  narrow ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+                    "svg",
+                    {
+                      ref: narrowRef,
+                      className: "uipack--narrow",
+                      viewBox: narrowViewBox ?? viewBox,
+                      role: "group",
+                      "aria-label": alt,
+                      children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(FigureScaleContext.Provider, { value: narrowScale, children: narrow })
+                    }
+                  ) : null
+                ]
+              }
+            )
+          ]
+        }
+      ) }) }) })
     }
-  ) }) });
+  );
 }
 
 // src/Lane.tsx
-var import_jsx_runtime5 = require("react/jsx-runtime");
+var import_jsx_runtime6 = require("react/jsx-runtime");
 function Lane({ x, w, y, title, h, size: size0 = 11 }) {
   const size = useFontFloor(size0);
-  return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("g", { "data-uipack": "lane", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("text", { x: x + w / 2, y, textAnchor: "middle", fontSize: size, fontWeight: 700, fontFamily: "var(--uipack-mono)", letterSpacing: ".08em", fill: "currentColor", children: title.toUpperCase() }),
-    h ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("line", { x1: x + w, y1: y + 12, x2: x + w, y2: y + h, stroke: "currentColor", strokeOpacity: 0.15, strokeDasharray: "2 6" }) : null
+  return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("g", { "data-uipack": "lane", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("text", { x: x + w / 2, y, textAnchor: "middle", fontSize: size, fontWeight: 700, fontFamily: "var(--uipack-mono)", letterSpacing: ".08em", fill: "currentColor", children: title.toUpperCase() }),
+    h ? /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("line", { x1: x + w, y1: y + 12, x2: x + w, y2: y + h, stroke: "currentColor", strokeOpacity: 0.15, strokeDasharray: "2 6" }) : null
   ] });
 }
 
 // src/Group.tsx
-var import_jsx_runtime6 = require("react/jsx-runtime");
-function Group({ x, y, w, h, title, variant = "solid", accent, flow, titleSize, children }) {
+var import_jsx_runtime7 = require("react/jsx-runtime");
+function Group({
+  x,
+  y,
+  w,
+  h,
+  title,
+  variant = "solid",
+  accent,
+  flow,
+  titleSize,
+  children
+}) {
   const hover = useFigureHover();
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const dashed = variant === "dashed";
   const ts = useFontFloor(titleSize ?? (dashed ? 11 : 14));
-  return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("g", { "data-uipack": "group", ...hoverAttrs(flow, void 0, hover), children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
-      "rect",
-      {
-        x,
-        y,
-        width: w,
-        height: h,
-        rx: dashed ? 10 : 6,
-        fill: dashed ? "none" : "var(--uipack-surface)",
-        fillOpacity: dashed ? void 0 : 0.6,
-        stroke,
-        strokeOpacity: accent ? 1 : dashed ? 0.4 : 0.8,
-        strokeWidth: 1.25,
-        strokeDasharray: dashed ? "4 4" : void 0
-      }
-    ),
-    title ? dashed ? /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("text", { x: x + 16, y: y + 22, fontSize: ts, fontFamily: "var(--uipack-mono)", letterSpacing: ".08em", fill: stroke, fillOpacity: accent ? 1 : 0.75, children: title.toUpperCase() }) : /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("text", { x: x + w / 2, y: y + 24, textAnchor: "middle", fontSize: ts, fontWeight: 600, fill: stroke, children: title }) : null,
-    children
-  ] });
+  const selection = useItemSelection(
+    title ?? "Group",
+    void 0,
+    void 0,
+    true
+  );
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(
+    "g",
+    {
+      "data-uipack": "group",
+      ...hoverAttrs(flow, void 0, hover),
+      ...selection,
+      children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+          "rect",
+          {
+            x,
+            y,
+            width: w,
+            height: h,
+            rx: dashed ? 10 : 6,
+            fill: dashed ? "none" : "var(--uipack-surface)",
+            fillOpacity: dashed ? void 0 : 0.6,
+            stroke,
+            strokeOpacity: accent ? 1 : dashed ? 0.4 : 0.8,
+            strokeWidth: 1.25,
+            strokeDasharray: dashed ? "4 4" : void 0
+          }
+        ),
+        title ? dashed ? /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+          "text",
+          {
+            x: x + 16,
+            y: y + 22,
+            fontSize: ts,
+            fontFamily: "var(--uipack-mono)",
+            letterSpacing: ".08em",
+            fill: stroke,
+            fillOpacity: accent ? 1 : 0.75,
+            children: title.toUpperCase()
+          }
+        ) : /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+          "text",
+          {
+            x: x + w / 2,
+            y: y + 24,
+            textAnchor: "middle",
+            fontSize: ts,
+            fontWeight: 600,
+            fill: stroke,
+            children: title
+          }
+        ) : null,
+        children
+      ]
+    }
+  );
 }
 
 // src/icons/index.tsx
-var import_jsx_runtime7 = require("react/jsx-runtime");
+var import_jsx_runtime8 = require("react/jsx-runtime");
 var icons = {
-  db: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("ellipse", { cx: "8", cy: "3.5", rx: "6", ry: "2.5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M2 3.5v9c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-9" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M2 8c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5" })
+  db: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("ellipse", { cx: "8", cy: "3.5", rx: "6", ry: "2.5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M2 3.5v9c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-9" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M2 8c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5" })
   ] }),
-  cache: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M9 1.5 3.5 9H8l-1 5.5L12.5 7H8z" }) }),
-  queue: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "1.5", y: "4", width: "13", height: "8", rx: "1.5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M5 4v8M9 4v8" })
+  cache: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M9 1.5 3.5 9H8l-1 5.5L12.5 7H8z" }) }),
+  queue: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("rect", { x: "1.5", y: "4", width: "13", height: "8", rx: "1.5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M5 4v8M9 4v8" })
   ] }),
-  service: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "2", y: "2", width: "12", height: "12", rx: "2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M5 8h6M8 5v6" })
+  service: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("rect", { x: "2", y: "2", width: "12", height: "12", rx: "2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M5 8h6M8 5v6" })
   ] }),
-  client: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "1.5", y: "3", width: "13", height: "8", rx: "1.5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M5.5 14h5M8 11v3" })
+  client: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("rect", { x: "1.5", y: "3", width: "13", height: "8", rx: "1.5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M5.5 14h5M8 11v3" })
   ] }),
-  blob: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 1.5 14 5v6l-6 3.5L2 11V5z" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 8l6-3M8 8 2 5M8 8v6.5" })
+  blob: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M8 1.5 14 5v6l-6 3.5L2 11V5z" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M8 8l6-3M8 8 2 5M8 8v6.5" })
   ] }),
-  agent: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "8", cy: "5", r: "3" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M2.5 14.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 1v1" })
+  agent: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "8", cy: "5", r: "3" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M2.5 14.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M8 1v1" })
   ] }),
-  doc: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M4 1.5h5.5L13 5v9.5H4z" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M9.5 1.5V5H13M6 8h4M6 11h4" })
+  doc: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M4 1.5h5.5L13 5v9.5H4z" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M9.5 1.5V5H13M6 8h4M6 11h4" })
   ] }),
-  model: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "2", y: "4", width: "12", height: "8", rx: "2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "5.5", cy: "8", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "8", cy: "8", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "10.5", cy: "8", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 1.5V4M8 12v2.5" })
+  model: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("rect", { x: "2", y: "4", width: "12", height: "8", rx: "2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "5.5", cy: "8", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "8", cy: "8", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "10.5", cy: "8", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M8 1.5V4M8 12v2.5" })
   ] }),
-  tool: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M10.5 2a3.5 3.5 0 0 0-3.3 4.7L2 11.9l2.1 2.1 5.2-5.2A3.5 3.5 0 0 0 14 5.5L11.8 7.7 9.3 6.2l-1-2.4z" }) }),
-  gateway: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M2 8h12M2 8l3-3M2 8l3 3M14 8l-3-3M14 8l-3 3" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "6", y: "5.5", width: "4", height: "5", rx: "1", fill: "var(--uipack-surface, #fff)" })
+  tool: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M10.5 2a3.5 3.5 0 0 0-3.3 4.7L2 11.9l2.1 2.1 5.2-5.2A3.5 3.5 0 0 0 14 5.5L11.8 7.7 9.3 6.2l-1-2.4z" }) }),
+  gateway: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M2 8h12M2 8l3-3M2 8l3 3M14 8l-3-3M14 8l-3 3" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("rect", { x: "6", y: "5.5", width: "4", height: "5", rx: "1", fill: "var(--uipack-surface, #fff)" })
   ] }),
-  lock: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "3", y: "7", width: "10", height: "7.5", rx: "1.5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M5.5 7V5a2.5 2.5 0 0 1 5 0v2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "8", cy: "10.75", r: "1", fill: "currentColor" })
+  lock: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("rect", { x: "3", y: "7", width: "10", height: "7.5", rx: "1.5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M5.5 7V5a2.5 2.5 0 0 1 5 0v2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "8", cy: "10.75", r: "1", fill: "currentColor" })
   ] }),
-  key: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "5.5", cy: "8", r: "3" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8.5 8H14M12 8v2.5M10 8v2" })
+  key: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "5.5", cy: "8", r: "3" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M8.5 8H14M12 8v2.5M10 8v2" })
   ] }),
-  clock: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "8", cy: "8", r: "6" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 4.5V8l2.5 1.5" })
+  clock: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "8", cy: "8", r: "6" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M8 4.5V8l2.5 1.5" })
   ] }),
-  cron: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "8", cy: "8.5", r: "5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 5.5v3l2 1M5 2l-2.5 2M11 2l2.5 2" })
+  cron: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "8", cy: "8.5", r: "5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M8 5.5v3l2 1M5 2l-2.5 2M11 2l2.5 2" })
   ] }),
-  browser: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "1.5", y: "2.5", width: "13", height: "11", rx: "1.5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M1.5 6h13M4 4.25h.01M6 4.25h.01" })
+  browser: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("rect", { x: "1.5", y: "2.5", width: "13", height: "11", rx: "1.5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M1.5 6h13M4 4.25h.01M6 4.25h.01" })
   ] }),
-  terminal: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "1.5", y: "2.5", width: "13", height: "11", rx: "1.5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M4.5 6l2.5 2-2.5 2M8.5 10.5h3" })
+  terminal: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("rect", { x: "1.5", y: "2.5", width: "13", height: "11", rx: "1.5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M4.5 6l2.5 2-2.5 2M8.5 10.5h3" })
   ] }),
-  git: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "4.5", cy: "3.5", r: "1.75" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "4.5", cy: "12.5", r: "1.75" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "11.5", cy: "5.5", r: "1.75" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M4.5 5.25v5.5M11.5 7.25c0 2.5-2 3-4 3.25a3 3 0 0 0-3 .5" })
+  git: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "4.5", cy: "3.5", r: "1.75" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "4.5", cy: "12.5", r: "1.75" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "11.5", cy: "5.5", r: "1.75" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M4.5 5.25v5.5M11.5 7.25c0 2.5-2 3-4 3.25a3 3 0 0 0-3 .5" })
   ] }),
-  cloud: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M4.5 13a3 3 0 0 1-.4-6A4 4 0 0 1 12 6.5a3.25 3.25 0 0 1 0 6.5z" }) }),
-  region: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 14.5s4.5-4.2 4.5-8A4.5 4.5 0 0 0 3.5 6.5c0 3.8 4.5 8 4.5 8z" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "8", cy: "6.5", r: "1.5" })
+  cloud: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M4.5 13a3 3 0 0 1-.4-6A4 4 0 0 1 12 6.5a3.25 3.25 0 0 1 0 6.5z" }) }),
+  region: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M8 14.5s4.5-4.2 4.5-8A4.5 4.5 0 0 0 3.5 6.5c0 3.8 4.5 8 4.5 8z" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "8", cy: "6.5", r: "1.5" })
   ] }),
-  user: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "8", cy: "5.5", r: "3" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M2.5 14.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5" })
+  user: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "8", cy: "5.5", r: "3" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M2.5 14.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5" })
   ] }),
-  robot: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "3", y: "5", width: "10", height: "8", rx: "2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 2v3M6 13v1.5M10 13v1.5M1.5 8.5v2M14.5 8.5v2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "6", cy: "8.5", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "10", cy: "8.5", r: "1", fill: "currentColor" })
+  robot: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("rect", { x: "3", y: "5", width: "10", height: "8", rx: "2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M8 2v3M6 13v1.5M10 13v1.5M1.5 8.5v2M14.5 8.5v2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "6", cy: "8.5", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "10", cy: "8.5", r: "1", fill: "currentColor" })
   ] }),
-  chart: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M2 14h12M4 11V7M8 11V4M12 11V8.5" }) }),
-  warning: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 2 14.5 13.5h-13z" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M8 6.5v3.5M8 12.25h.01" })
+  chart: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M2 14h12M4 11V7M8 11V4M12 11V8.5" }) }),
+  warning: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M8 2 14.5 13.5h-13z" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M8 6.5v3.5M8 12.25h.01" })
   ] }),
-  more: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "3", cy: "8", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "8", cy: "8", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("circle", { cx: "13", cy: "8", r: "1", fill: "currentColor" })
+  more: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "3", cy: "8", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "8", cy: "8", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx: "13", cy: "8", r: "1", fill: "currentColor" })
   ] })
 };
 
 // src/Node.tsx
-var import_jsx_runtime8 = require("react/jsx-runtime");
+var import_jsx_runtime9 = require("react/jsx-runtime");
 function Node({
   x,
   y,
@@ -500,55 +786,137 @@ function Node({
     onPointerEnter: (e) => isPointer(e) && hover.setFlow(flows[0]),
     onPointerLeave: (e) => isPointer(e) && hover.setFlow(null)
   } : {};
-  const body = /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("g", { id, "data-uipack": "node", ...hoverAttrs(flow, void 0, hover), ...handlers, children: [
-    hint ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("title", { children: hint }) : null,
-    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
-      "rect",
-      {
-        x,
-        y,
-        width: w,
-        height: h,
-        rx: 6,
-        fill: "var(--uipack-surface)",
-        stroke,
-        strokeOpacity: accent ? 1 : 0.7,
-        strokeWidth: 1.25,
-        strokeDasharray: dashed ? "4 4" : void 0
-      }
-    ),
-    glyph ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("g", { transform: `translate(${x + pad}, ${y + h / 2 - 8})`, fill: "none", stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round", strokeLinejoin: "round", children: glyph }) : null,
-    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("text", { x: tx, y: ty, textAnchor: anchor2, fontSize: size, fontWeight: 600, fill: accent ? "var(--uipack-accent)" : "currentColor", children: label }),
-    sub ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("text", { x: tx, y: y + h / 2 + subSize + 2, textAnchor: anchor2, fontSize: subSize, fontFamily: "var(--uipack-mono)", fill: "currentColor", fillOpacity: 0.75, children: sub }) : null
-  ] });
-  return href ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("a", { href, className: "uipack__link", "aria-label": label, children: body }) : body;
+  const selection = useItemSelection(label, sub ?? hint, flows[0], !href);
+  const body = /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(
+    "g",
+    {
+      id,
+      "data-uipack": "node",
+      ...hoverAttrs(flow, void 0, hover),
+      ...handlers,
+      ...selection,
+      children: [
+        hint ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("title", { children: hint }) : null,
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
+          "rect",
+          {
+            x,
+            y,
+            width: w,
+            height: h,
+            rx: 6,
+            fill: "var(--uipack-surface)",
+            stroke,
+            strokeOpacity: accent ? 1 : 0.7,
+            strokeWidth: 1.25,
+            strokeDasharray: dashed ? "4 4" : void 0
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("path", { className: "uipack__touch-target", d: `M ${x} ${y - Math.max(0, 54 - h) / 2} h ${w} v ${Math.max(h, 54)} h ${-w} Z`, fill: "transparent", stroke: "none", "aria-hidden": "true" }),
+        glyph ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
+          "g",
+          {
+            transform: `translate(${x + pad}, ${y + h / 2 - 8})`,
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: 1.5,
+            strokeLinecap: "round",
+            strokeLinejoin: "round",
+            children: glyph
+          }
+        ) : null,
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
+          "text",
+          {
+            x: tx,
+            y: ty,
+            textAnchor: anchor2,
+            fontSize: size,
+            fontWeight: 600,
+            fill: accent ? "var(--uipack-accent)" : "currentColor",
+            children: label
+          }
+        ),
+        sub ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
+          "text",
+          {
+            x: tx,
+            y: y + h / 2 + subSize + 2,
+            textAnchor: anchor2,
+            fontSize: subSize,
+            fontFamily: "var(--uipack-mono)",
+            fill: "currentColor",
+            fillOpacity: 0.75,
+            children: sub
+          }
+        ) : null
+      ]
+    }
+  );
+  return href ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("a", { href, className: "uipack__link", "aria-label": label, children: body }) : body;
 }
 
 // src/Chip.tsx
-var import_jsx_runtime9 = require("react/jsx-runtime");
-function Chip({ x, y, w, h = 24, label, dashed, kind, flow, size: size0 = 10 }) {
+var import_jsx_runtime10 = require("react/jsx-runtime");
+function Chip({
+  x,
+  y,
+  w,
+  h = 24,
+  label,
+  dashed,
+  kind,
+  flow,
+  size: size0 = 10
+}) {
   const hover = useFigureHover();
   const size = useFontFloor(size0);
   const fill = !kind ? "var(--uipack-surface)" : kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
-  return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("g", { "data-uipack": "chip", ...hoverAttrs(flow, kind === "accent" ? void 0 : kind, hover), children: [
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
-      "rect",
-      {
-        x,
-        y,
-        width: w,
-        height: h,
-        rx: h / 2,
-        fill,
-        fillOpacity: kind ? 0.55 : 1,
-        stroke: "currentColor",
-        strokeOpacity: dashed ? 0.5 : 0.8,
-        strokeWidth: 1.25,
-        strokeDasharray: dashed ? "3 3" : void 0
-      }
-    ),
-    label ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("text", { x: x + w / 2, y: y + h / 2 + size * 0.36, textAnchor: "middle", fontSize: size, fontWeight: 700, fontFamily: "var(--uipack-mono)", fill: "currentColor", children: label.toUpperCase() }) : null
-  ] });
+  const selection = useItemSelection(
+    label ?? "Empty slot",
+    void 0,
+    void 0,
+    true
+  );
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(
+    "g",
+    {
+      "data-uipack": "chip",
+      ...hoverAttrs(flow, kind === "accent" ? void 0 : kind, hover),
+      ...selection,
+      children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+          "rect",
+          {
+            x,
+            y,
+            width: w,
+            height: h,
+            rx: h / 2,
+            fill,
+            fillOpacity: kind ? 0.55 : 1,
+            stroke: "currentColor",
+            strokeOpacity: dashed ? 0.5 : 0.8,
+            strokeWidth: 1.25,
+            strokeDasharray: dashed ? "3 3" : void 0
+          }
+        ),
+        label ? /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+          "text",
+          {
+            x: x + w / 2,
+            y: y + h / 2 + size * 0.36,
+            textAnchor: "middle",
+            fontSize: size,
+            fontWeight: 700,
+            fontFamily: "var(--uipack-mono)",
+            fill: "currentColor",
+            children: label.toUpperCase()
+          }
+        ) : null
+      ]
+    }
+  );
 }
 
 // src/geometry.ts
@@ -662,7 +1030,7 @@ function trim(points, start = 0, end = 0) {
 var grid = (v, step = 8) => Math.round(v / step) * step;
 
 // src/Connector.tsx
-var import_jsx_runtime10 = require("react/jsx-runtime");
+var import_jsx_runtime11 = require("react/jsx-runtime");
 function connectorStroke(kind) {
   if (!kind) return "currentColor";
   return kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
@@ -672,7 +1040,7 @@ function Connector({ points, defs, arrow = true, dashed, kind, flow, id, radius 
   const [s, e] = Array.isArray(inset) ? inset : [inset, inset];
   const d = pathFromPoints(trim(points, s, arrow ? e + 2 : e), radius);
   const head = defs ? `url(#${defs}-head${kind ? `-${kind}` : ""})` : void 0;
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
     "path",
     {
       id,
@@ -690,7 +1058,7 @@ function Connector({ points, defs, arrow = true, dashed, kind, flow, id, radius 
 }
 
 // src/Bus.tsx
-var import_jsx_runtime11 = require("react/jsx-runtime");
+var import_jsx_runtime12 = require("react/jsx-runtime");
 function busStub(props, stub) {
   return props.axis === "h" ? [[stub.at, props.at], [stub.at, stub.to]] : [[props.at, stub.at], [stub.to, stub.at]];
 }
@@ -700,19 +1068,19 @@ function busStubs(props) {
 function Bus({ axis = "v", at, from, to, stubs, kind, flow, defs, dots = true, id }) {
   const hover = useFigureHover();
   const trunk = axis === "h" ? [[from, at], [to, at]] : [[at, from], [at, to]];
-  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("g", { id, "data-uipack": "bus", ...hoverAttrs(flow, kind, hover), children: [
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Connector, { points: trunk, arrow: false, kind, flow, inset: 0 }),
-    stubs.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Connector, { points: busStub({ axis, at }, s), defs, arrow: !!s.arrow, kind, flow: s.flow ?? flow, inset: [0, 2] }, i)),
+  return /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("g", { id, "data-uipack": "bus", ...hoverAttrs(flow, kind, hover), children: [
+    /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Connector, { points: trunk, arrow: false, kind, flow, inset: 0 }),
+    stubs.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Connector, { points: busStub({ axis, at }, s), defs, arrow: !!s.arrow, kind, flow: s.flow ?? flow, inset: [0, 2] }, i)),
     dots ? stubs.map((s, i) => {
       const [cx, cy] = axis === "h" ? [s.at, at] : [at, s.at];
-      return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("circle", { "data-uipack": "junction", cx, cy, r: 2.5, fill: connectorStroke(kind), fillOpacity: kind ? 1 : 0.7 }, i);
+      return /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("circle", { "data-uipack": "junction", cx, cy, r: 2.5, fill: connectorStroke(kind), fillOpacity: kind ? 1 : 0.7 }, i);
     }) : null
   ] });
 }
 
 // src/Packet.tsx
-var import_react5 = require("react");
-var import_jsx_runtime12 = require("react/jsx-runtime");
+var import_react7 = require("react");
+var import_jsx_runtime13 = require("react/jsx-runtime");
 function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at, r = 5, reverse, radius = 6, flow, trim: t, id }) {
   const { reduced, prerender } = useFigureMotion();
   const hover = useFigureHover();
@@ -721,40 +1089,40 @@ function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at, r = 5
   const pts = reverse ? [...trimmed].reverse() : trimmed;
   const staticAt = at ?? ((0.5 + delay / dur) % 1 + 1) % 1;
   const d = pathFromPoints(pts, radius);
-  const [mounted, setMounted] = (0, import_react5.useState)(false);
-  (0, import_react5.useEffect)(() => setMounted(true), []);
+  const [mounted, setMounted] = (0, import_react7.useState)(false);
+  (0, import_react7.useEffect)(() => setMounted(true), []);
   const attrs = hoverAttrs(flow, kind === "neutral" ? void 0 : kind, hover);
   const pre = prerender || globalThis.__UIPACK_PRERENDER__ === true;
   if (reduced || !mounted && !pre) {
     const [cx, cy] = pointAlong(pts, staticAt);
-    return /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("g", { id, "data-uipack": "packet", "data-static": "true", ...attrs, children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Token, { kind, shape, r, cx, cy }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("g", { id, "data-uipack": "packet", "data-static": "true", ...attrs, children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Token, { kind, shape, r, cx, cy }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("g", { id, "data-uipack": "packet", ...attrs, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Token, { kind, shape, r }),
-    /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("animateMotion", { dur: `${dur}s`, begin: `${delay}s`, repeatCount: "indefinite", path: d, calcMode: "linear" })
+  return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("g", { id, "data-uipack": "packet", ...attrs, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Token, { kind, shape, r }),
+    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("animateMotion", { dur: `${dur}s`, begin: `${delay}s`, repeatCount: "indefinite", path: d, calcMode: "linear" })
   ] });
 }
 
 // src/Badge.tsx
-var import_jsx_runtime13 = require("react/jsx-runtime");
+var import_jsx_runtime14 = require("react/jsx-runtime");
 function Badge({ cx, cy, text, accent, r = 9, size: size0 = 10 }) {
   const size = useFontFloor(size0);
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
-  return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("g", { "data-uipack": "badge", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("circle", { cx, cy, r, fill: "var(--uipack-bg)", stroke, strokeOpacity: accent ? 1 : 0.6, strokeWidth: 1.25 }),
-    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("text", { x: cx, y: cy + size * 0.35, textAnchor: "middle", fontSize: size, fontFamily: "var(--uipack-mono)", fontWeight: 700, fill: stroke, children: text })
+  return /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("g", { "data-uipack": "badge", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("circle", { cx, cy, r, fill: "var(--uipack-bg)", stroke, strokeOpacity: accent ? 1 : 0.6, strokeWidth: 1.25 }),
+    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("text", { x: cx, y: cy + size * 0.35, textAnchor: "middle", fontSize: size, fontFamily: "var(--uipack-mono)", fontWeight: 700, fill: stroke, children: text })
   ] });
 }
 
 // src/Label.tsx
-var import_jsx_runtime14 = require("react/jsx-runtime");
+var import_jsx_runtime15 = require("react/jsx-runtime");
 function Label({ x, y, text, anchor: anchor2 = "start", accent, size: size0 = 11, font = "mono" }) {
   const size = useFontFloor(size0);
   const w = text.length * size * (font === "mono" ? 0.62 : 0.55) + 8;
   const rx = anchor2 === "middle" ? x - w / 2 : anchor2 === "end" ? x - w + 4 : x - 4;
-  return /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("g", { "data-uipack": "label", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("rect", { x: rx, y: y - size + 1, width: w, height: size + 5, fill: "var(--uipack-bg)" }),
-    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)("g", { "data-uipack": "label", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("rect", { x: rx, y: y - size + 1, width: w, height: size + 5, fill: "var(--uipack-bg)" }),
+    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(
       "text",
       {
         x,
@@ -772,9 +1140,9 @@ function Label({ x, y, text, anchor: anchor2 = "start", accent, size: size0 = 11
 }
 
 // src/Defs.tsx
-var import_jsx_runtime15 = require("react/jsx-runtime");
+var import_jsx_runtime16 = require("react/jsx-runtime");
 function Defs({ id }) {
-  const head = (suffix, fill) => /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(
+  const head = (suffix, fill) => /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(
     "marker",
     {
       id: `${id}-head${suffix}`,
@@ -784,10 +1152,10 @@ function Defs({ id }) {
       refY: "4",
       orient: "auto-start-reverse",
       markerUnits: "userSpaceOnUse",
-      children: /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("path", { d: "M0,0 L8,4 L0,8 z", fill })
+      children: /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("path", { d: "M0,0 L8,4 L0,8 z", fill })
     }
   );
-  return /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)("defs", { children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("defs", { children: [
     head("", "currentColor"),
     head("-accent", "var(--uipack-accent)"),
     head("-request", "var(--uipack-token-request)"),
@@ -797,47 +1165,47 @@ function Defs({ id }) {
 }
 
 // src/marks/index.tsx
-var import_jsx_runtime16 = require("react/jsx-runtime");
+var import_jsx_runtime17 = require("react/jsx-runtime");
 var marks = {
-  uipack: /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)(import_jsx_runtime16.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("rect", { x: "4", y: "4", width: "10", height: "10", rx: "2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("rect", { x: "18", y: "4", width: "10", height: "10", rx: "2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("rect", { x: "4", y: "18", width: "10", height: "10", rx: "2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("rect", { x: "18", y: "18", width: "10", height: "10", rx: "5", fill: "currentColor" })
+  uipack: /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("rect", { x: "4", y: "4", width: "10", height: "10", rx: "2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("rect", { x: "18", y: "4", width: "10", height: "10", rx: "2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("rect", { x: "4", y: "18", width: "10", height: "10", rx: "2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("rect", { x: "18", y: "18", width: "10", height: "10", rx: "5", fill: "currentColor" })
   ] }),
-  groundplane: /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)(import_jsx_runtime16.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("path", { d: "M4 22h24" }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("path", { d: "M8 22V10l8-4 8 4v12" }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("path", { d: "M8 16h16", strokeDasharray: "2 2" })
+  groundplane: /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M4 22h24" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M8 22V10l8-4 8 4v12" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M8 16h16", strokeDasharray: "2 2" })
   ] }),
-  jobforge: /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)(import_jsx_runtime16.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("path", { d: "M6 24h20" }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("path", { d: "M10 24V14h12v10" }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("path", { d: "M13 14V9h6v5M16 4v5" })
+  jobforge: /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M6 24h20" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M10 24V14h12v10" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M13 14V9h6v5M16 4v5" })
   ] }),
-  skillforge: /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(import_jsx_runtime16.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("path", { d: "M16 4l3.5 7 7.5 1-5.5 5.3 1.3 7.7L16 21.4 9.2 25l1.3-7.7L5 12l7.5-1z" }) }),
-  deckforge: /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)(import_jsx_runtime16.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("rect", { x: "4", y: "7", width: "24", height: "15", rx: "2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("path", { d: "M12 26h8M16 22v4M9 13h8M9 17h5" })
+  skillforge: /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(import_jsx_runtime17.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M16 4l3.5 7 7.5 1-5.5 5.3 1.3 7.7L16 21.4 9.2 25l1.3-7.7L5 12l7.5-1z" }) }),
+  deckforge: /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("rect", { x: "4", y: "7", width: "24", height: "15", rx: "2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M12 26h8M16 22v4M9 13h8M9 17h5" })
   ] }),
-  proofpack: /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)(import_jsx_runtime16.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("path", { d: "M8 4h11l5 5v19H8z" }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("path", { d: "M19 4v5h5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("path", { d: "M12 18l3 3 5-6" })
+  proofpack: /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M8 4h11l5 5v19H8z" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M19 4v5h5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M12 18l3 3 5-6" })
   ] }),
-  fieldpack: /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)(import_jsx_runtime16.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("rect", { x: "5", y: "10", width: "22", height: "16", rx: "3" }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("path", { d: "M11 10V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v3M5 16h22" })
+  fieldpack: /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("rect", { x: "5", y: "10", width: "22", height: "16", rx: "3" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M11 10V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v3M5 16h22" })
   ] }),
-  skillpack: /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)(import_jsx_runtime16.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("rect", { x: "5", y: "6", width: "22", height: "20", rx: "3" }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("path", { d: "M10 12h12M10 16h12M10 20h7" })
+  skillpack: /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("rect", { x: "5", y: "6", width: "22", height: "20", rx: "3" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M10 12h12M10 16h12M10 20h7" })
   ] })
 };
 function Wordmark({ size = 24 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("svg", { viewBox: "0 0 140 32", width: size * 140 / 32, height: size, role: "img", "aria-label": "uipack", style: { display: "block" }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("g", { fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", children: marks.uipack }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("text", { x: "40", y: "22", fontSize: "18", fontWeight: 700, fontFamily: "var(--uipack-mono, ui-monospace, monospace)", letterSpacing: ".02em", fill: "currentColor", children: "uipack" })
+  return /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("svg", { viewBox: "0 0 140 32", width: size * 140 / 32, height: size, role: "img", "aria-label": "uipack", style: { display: "block" }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("g", { fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", children: marks.uipack }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("text", { x: "40", y: "22", fontSize: "18", fontWeight: 700, fontFamily: "var(--uipack-mono, ui-monospace, monospace)", letterSpacing: ".02em", fill: "currentColor", children: "uipack" })
   ] });
 }
 // Annotate the CommonJS export names for ESM import in node:

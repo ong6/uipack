@@ -44,13 +44,20 @@
     "docs/assets",
     "README.md",
     "LICENSE",
-    "docs/slides.md"
+    "docs/slides.md",
+    "docs/design-direction.md",
+    "docs/interaction.md",
+    "docs/README.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "src/README.md",
+    "playground/README.md"
   ],
   "sideEffects": [
     "*.css"
   ],
   "scripts": {
-    "build": "tsup && cp src/theme.css dist/theme.css && cp src/browser/browser.css dist/browser.css && cp src/slides/slides.css dist/slides.css",
+    "build": "tsup && cat src/theme.css src/canvas.css > dist/theme.css && cp src/browser/browser.css dist/browser.css && cat src/slides/slides.css src/canvas.css > dist/slides.css",
     "dev": "vite",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",

@@ -1,5 +1,5 @@
 import { ReactNode, ReactElement } from 'react';
-import { a as FigureProps } from './Figure-BHv5rLa3.cjs';
+import { a as FigureProps } from './Figure-BF6Zmtho.cjs';
 import { b as LegendItem } from './Legend-S2FQoAxv.cjs';
 
 type StaticTheme = "light" | "dark";

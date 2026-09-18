@@ -1,3 +1,4 @@
+import { CanvasView } from "../CanvasView";
 import {
   useEffect,
   useId,
@@ -13,6 +14,7 @@ import type { SceneRuntime } from "./renderer";
 import type { SlideStop, SlideStory, SlideTheme } from "./types";
 
 export interface SlideSceneProps {
+  zoom?: number;
   story: SlideStory;
   stopId?: string;
   theme?: SlideTheme;
@@ -56,6 +58,7 @@ function Diagram({ story, stop }: { story: SlideStory; stop: SlideStop }) {
 function SceneViewport({
   story,
   stopId,
+  zoom = 1,
   theme = "dark",
   motion = "auto",
   paused = false,
@@ -74,6 +77,7 @@ function SceneViewport({
   const [status, setStatus] = useState<"loading" | "ready" | "fallback">(
     "loading",
   );
+  const [selected, setSelected] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
   const [settled, setSettled] = useState("");
   const [transitioning, setTransitioning] = useState(false);
@@ -105,6 +109,7 @@ function SceneViewport({
                 latest.current.onSettled?.(id);
               }
             },
+            setSelected,
           );
           runtime.current.setPaused(latest.current.paused);
           setStatus("ready");
@@ -139,6 +144,16 @@ function SceneViewport({
   useEffect(() => {
     runtime.current?.setPaused(paused);
   }, [paused]);
+  useEffect(() => {
+    runtime.current?.setSelected(selected);
+  }, [selected, status]);
+  useEffect(() => {
+    runtime.current?.setZoom(zoom);
+  }, [zoom, status]);
+  useEffect(() => {
+    setSelected(null);
+  }, [stop.id]);
+  const chosen = story.nodes.find((n) => n.id === selected);
   return (
     <div
       className={`uipack-slide-scene ${className}`}
@@ -155,10 +170,14 @@ function SceneViewport({
         ref={host}
         aria-hidden="true"
       />
-      <div ref={labels} className="uipack-slide-labels" aria-hidden="true">
+      <div ref={labels} className="uipack-slide-labels">
         {story.nodes.map((n) => (
-          <div
+          <button
+            type="button"
             key={n.id}
+            aria-label={`Inspect ${n.label}`}
+            aria-pressed={selected === n.id}
+            onClick={() => setSelected(selected === n.id ? null : n.id)}
             data-node={n.id}
             data-tone={n.tone}
             className="uipack-slide-label"
@@ -166,8 +185,40 @@ function SceneViewport({
           >
             <strong>{n.label}</strong>
             <span>{n.detail}</span>
-          </div>
+          </button>
         ))}
+      </div>
+      <div className="uipack-slide-inspect">
+        <label>
+          Inspect component{" "}
+          <select
+            aria-label="Inspect component"
+            value={selected ?? ""}
+            onChange={(e) => setSelected(e.target.value || null)}
+          >
+            <option value="">Choose a component</option>
+            {story.nodes
+              .filter(
+                (n) =>
+                  n.kind !== "boundary" &&
+                  resolveNodePose(n, stop).opacity > 0.25,
+              )
+              .map((n) => (
+                <option key={n.id} value={n.id}>
+                  {n.label}
+                </option>
+              ))}
+          </select>
+        </label>
+        {chosen && (
+          <p role="status">
+            <strong>{chosen.label}</strong>
+            {chosen.detail && ` · ${chosen.detail}`}{" "}
+            <button type="button" onClick={() => setSelected(null)}>
+              Clear selection
+            </button>
+          </p>
+        )}
       </div>
       {status !== "ready" && <Diagram story={story} stop={stop} />}
       {status === "ready" && (
@@ -193,6 +244,9 @@ function SceneViewport({
 }
 /** A persistent 3D scene controlled by a named presentation stop. */
 export function SlideScene(props: SlideSceneProps) {
+  const [canvas, setCanvas] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const opener = useRef<HTMLButtonElement>(null);
   const errors = validateSlideStory(props.story);
   if (errors.length)
     return (
@@ -200,7 +254,59 @@ export function SlideScene(props: SlideSceneProps) {
         Invalid slide story: {errors.join(" ")}
       </div>
     );
-  return <SceneViewport key={props.story.id} {...props} />;
+  return (
+    <CanvasView
+      restoreFocus={() => opener.current?.focus()}
+      open={canvas}
+      onClose={() => {
+        setCanvas(false);
+        setZoom(1);
+      }}
+      title={props.story.title}
+      theme={props.theme ?? "dark"}
+      toolbar={
+        <>
+          <button
+            type="button"
+            aria-label="Zoom out"
+            disabled={zoom <= 0.75}
+            onClick={() => setZoom((z) => Math.max(0.75, z - 0.25))}
+          >
+            −
+          </button>
+          <button type="button" onClick={() => setZoom(1)}>
+            Fit
+          </button>
+          <button
+            type="button"
+            aria-label="Zoom in"
+            disabled={zoom >= 2}
+            onClick={() => setZoom((z) => Math.min(2, z + 0.25))}
+          >
+            +
+          </button>
+        </>
+      }
+    >
+      <div className="uipack-scene-card" data-theme={props.theme ?? "dark"}>
+        {!canvas && (
+          <button
+            className="uipack-scene-card__open"
+            ref={opener}
+            type="button"
+            onClick={() => setCanvas(true)}
+          >
+            Open canvas
+          </button>
+        )}
+        <SceneViewport
+          key={props.story.id}
+          {...props}
+          zoom={canvas ? zoom : props.zoom}
+        />
+      </div>
+    </CanvasView>
+  );
 }
 export interface SlidePlayerProps extends SlideSceneProps {
   defaultStopId?: string;
@@ -230,8 +336,11 @@ function Player({
   const [internal, setInternal] = useState(initial),
     [paused, setPaused] = useState(false),
     [present, setPresent] = useState(false),
-    [diagram, setDiagram] = useState(false);
+    [diagram, setDiagram] = useState(false),
+    [canvas, setCanvas] = useState(false),
+    [zoom, setZoom] = useState(1);
   const reduced = usePrefersReducedMotion() || motion === "none";
+  const opener = useRef<HTMLButtonElement>(null);
   const root = useRef<HTMLElement>(null);
   const titleId = useId();
   const index =
@@ -283,121 +392,169 @@ function Player({
     };
   }, [present]);
   return (
-    <section
-      ref={root}
-      tabIndex={0}
-      onKeyDown={keyboard}
-      aria-label={`${story.title} presentation`}
-      className={`uipack-slide-player ${present ? "uipack-slide-player--present" : ""} ${className}`}
-      style={style}
-      data-theme={theme}
-      data-story={story.id}
-      data-stop={stop.id}
+    <CanvasView
+      restoreFocus={() => opener.current?.focus()}
+      open={canvas}
+      onClose={() => {
+        setCanvas(false);
+        setZoom(1);
+      }}
+      title={story.title}
+      theme={theme}
+      toolbar={
+        <>
+          <button
+            type="button"
+            aria-label="Zoom out"
+            disabled={zoom <= 0.75}
+            onClick={() => setZoom((z) => Math.max(0.75, z - 0.25))}
+          >
+            −
+          </button>
+          <button type="button" onClick={() => setZoom(1)}>
+            Fit
+          </button>
+          <button
+            type="button"
+            aria-label="Zoom in"
+            disabled={zoom >= 2}
+            onClick={() => setZoom((z) => Math.min(2, z + 0.25))}
+          >
+            +
+          </button>
+        </>
+      }
     >
-      <div className="uipack-slide-player__top">
-        <span>{story.title}</span>
-        <div>
-          <button
-            type="button"
-            onClick={() => setDiagram((v) => !v)}
-            aria-pressed={diagram}
-          >
-            {diagram ? "3D view" : "Diagram view"}
-          </button>
-          <button
-            type="button"
-            disabled={reduced || externalPaused !== undefined}
-            onClick={() => setPaused((v) => !v)}
-            aria-pressed={paused}
-          >
-            {paused ? "Resume flow" : "Pause flow"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setPresent((v) => !v)}
-            aria-pressed={present}
-          >
-            {present ? "Exit presentation" : "Present"}
-          </button>
-        </div>
-      </div>
-      <div className="uipack-slide-player__body">
-        <header
-          className="uipack-slide-player__copy"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          <span className="uipack-slide-player__count">
-            {String(index + 1).padStart(2, "0")} /{" "}
-            {String(story.stops.length).padStart(2, "0")}
-          </span>
-          <h2 id={titleId}>{stop.title}</h2>
-          <p>{stop.caption}</p>
-          <div className="uipack-slide-legend" aria-label="Flow colors">
-            <span data-tone="request">Request</span>
-            <span data-tone="response">Response</span>
-            <span data-tone="change">Change</span>
-          </div>
-        </header>
-        <SceneViewport
-          story={story}
-          stopId={stop.id}
-          theme={theme}
-          motion={motion}
-          paused={externalPaused ?? paused}
-          renderMode={diagram ? "diagram" : renderMode}
-          onSettled={onSettled}
-        />
-      </div>
-      <nav
-        className="uipack-slide-player__navigation"
-        aria-label="Presentation stops"
+      <section
+        ref={root}
+        tabIndex={0}
+        onKeyDown={keyboard}
+        aria-label={`${story.title} presentation`}
+        className={`uipack-slide-player ${present ? "uipack-slide-player--present" : ""} ${className}`}
+        style={style}
+        data-theme={theme}
+        data-story={story.id}
+        data-stop={stop.id}
       >
-        <button
-          type="button"
-          aria-label="Previous stop"
-          disabled={index === 0}
-          onClick={() => navigate(index - 1)}
-        >
-          ← Previous
-        </button>
-        <div className="uipack-slide-player__stops">
-          {story.stops.map((s, i) => (
+        <div className="uipack-slide-player__top">
+          <span>{story.title}</span>
+          <div>
+            {!canvas && (
+              <button
+                ref={opener}
+                type="button"
+                onClick={() => {
+                  setPresent(false);
+                  setCanvas(true);
+                }}
+              >
+                Open canvas
+              </button>
+            )}
             <button
               type="button"
-              key={s.id}
-              aria-label={`Go to ${s.title}`}
-              aria-current={index === i ? "step" : undefined}
-              title={s.title}
-              onClick={() => navigate(i)}
+              onClick={() => setDiagram((v) => !v)}
+              aria-pressed={diagram}
             >
-              {String(i + 1).padStart(2, "0")}
+              {diagram ? "3D view" : "Diagram view"}
             </button>
-          ))}
+            <button
+              type="button"
+              disabled={reduced || externalPaused !== undefined}
+              onClick={() => setPaused((v) => !v)}
+              aria-pressed={paused}
+            >
+              {paused ? "Resume flow" : "Pause flow"}
+            </button>
+            <button
+              type="button"
+              disabled={canvas}
+              onClick={() => setPresent((v) => !v)}
+              aria-pressed={present}
+            >
+              {present ? "Exit presentation" : "Present"}
+            </button>
+          </div>
         </div>
-        <button
-          type="button"
-          aria-label="Next stop"
-          disabled={index === story.stops.length - 1}
-          onClick={() => navigate(index + 1)}
+        <div className="uipack-slide-player__body">
+          <header
+            className="uipack-slide-player__copy"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <span className="uipack-slide-player__count">
+              {String(index + 1).padStart(2, "0")} /{" "}
+              {String(story.stops.length).padStart(2, "0")}
+            </span>
+            <h2 id={titleId}>{stop.title}</h2>
+            <p>{stop.caption}</p>
+            <div className="uipack-slide-legend" aria-label="Flow colors">
+              <span data-tone="request">Request</span>
+              <span data-tone="response">Response</span>
+              <span data-tone="change">Change</span>
+            </div>
+          </header>
+          <SceneViewport
+            story={story}
+            zoom={zoom}
+            stopId={stop.id}
+            theme={theme}
+            motion={motion}
+            paused={externalPaused ?? paused}
+            renderMode={diagram ? "diagram" : renderMode}
+            onSettled={onSettled}
+          />
+        </div>
+        <nav
+          className="uipack-slide-player__navigation"
+          aria-label="Presentation stops"
         >
-          Next →
-        </button>
-      </nav>
-      <footer className="uipack-slide-player__footer">
-        <span>{footer ?? "UIPACK / Spatial stories"}</span>
-        <span>
-          ← → to navigate <span aria-hidden="true">·</span>{" "}
-          {reduced ? "Reduced motion" : "Click any stop to jump"}
-        </span>
-      </footer>
-      {stop.notes && (
-        <details className="uipack-slide-player__notes">
-          <summary>Presenter notes</summary>
-          <p>{stop.notes}</p>
-        </details>
-      )}
-    </section>
+          <button
+            type="button"
+            aria-label="Previous stop"
+            disabled={index === 0}
+            onClick={() => navigate(index - 1)}
+          >
+            ← Previous
+          </button>
+          <div className="uipack-slide-player__stops">
+            {story.stops.map((s, i) => (
+              <button
+                type="button"
+                key={s.id}
+                aria-label={`Go to ${s.title}`}
+                aria-current={index === i ? "step" : undefined}
+                title={s.title}
+                onClick={() => navigate(i)}
+              >
+                {String(i + 1).padStart(2, "0")}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            aria-label="Next stop"
+            disabled={index === story.stops.length - 1}
+            onClick={() => navigate(index + 1)}
+          >
+            Next →
+          </button>
+        </nav>
+        <footer className="uipack-slide-player__footer">
+          <span>{footer ?? "UIPACK / Spatial stories"}</span>
+          <span>
+            ← → to navigate <span aria-hidden="true">·</span>{" "}
+            {reduced ? "Reduced motion" : "Click any stop to jump"}
+          </span>
+        </footer>
+        {stop.notes && (
+          <details className="uipack-slide-player__notes">
+            <summary>Presenter notes</summary>
+            <p>{stop.notes}</p>
+          </details>
+        )}
+      </section>
+    </CanvasView>
   );
 }
 /** Slide chrome, keyboard navigation, progressive fallback, and a persistent scene. */

@@ -1,4 +1,4 @@
-# Live 3D slides
+# 3D animations
 
 `uipack/slides` adds an opt-in presentation player built with Three.js and GSAP. The existing SVG entries do not import either dependency. Three.js loads when a scene mounts; server rendering produces a readable diagram fallback.
 
@@ -23,7 +23,7 @@ export function HarnessPresentation() {
 }
 ```
 
-Run `npm run dev` in this repository and visit `/slides` for the showcase. Figures, Assets, and Slides share a header, page layout, and theme control. Navigation carries the selected theme in the URL; explicit light is the default. The page supports `?story=harness-dive&stop=context`, `?theme=light`, `?motion=none`, and `?mode=diagram` for direct previews.
+Run `npm run dev` in this repository and visit `/animations` (or the compatible `/slides` URL) for the showcase. Figures, Assets, 3D animations, Presentations, and Styles share a header, page layout, and theme control. Navigation carries the selected theme in the URL; explicit light is the default. The page supports `?story=harness-dive&stop=context`, `?theme=light`, `?motion=none`, and `?mode=diagram` for direct previews.
 
 ### Included stories
 
@@ -120,6 +120,6 @@ The player uses UIPACK's forest/mint palette, shape-coded blue/green/violet flow
 
 ## Scope and limits
 
-This release is a browser presentation component. It does not export PPTX, PNG, MP4, or GLB, load Blender assets, or offer free orbit. The Blender workbench remains a separate render/export path. A native PowerPoint or Keynote file does not execute this React player; use the browser presentation or a separate recording/export workflow.
+This module supplies browser animation components. Complete presentation composition examples live in the playground, separately from reusable animation data. It does not export PPTX, PNG, MP4, or GLB, load Blender assets, or offer free orbit. Open canvas adds modal inspection and bounded camera zoom; component labels and the inspection selector support selection. See [interaction details](interaction.md). The Blender workbench remains a separate render/export path. A native PowerPoint or Keynote file does not execute this React player; use the browser presentation or a separate recording/export workflow.
 
 The main website has not been integrated. A future integration can lazy-load `SlideScene` on selected pages using the same story data, while keeping the existing SVG diagrams as the lightweight default.

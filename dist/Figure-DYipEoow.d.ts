@@ -1,8 +1,10 @@
 import * as react from 'react';
 import { ReactNode } from 'react';
-import { b as LegendItem } from './Legend-S2FQoAxv.cjs';
+import { b as LegendItem } from './Legend-S2FQoAxv.js';
 
 interface FigureProps {
+    /** Allow opening a zoomable canvas. */
+    expandable?: boolean;
     /** "Figure 01" or "Fig. 3". Rendered mono, uppercase, before the eyebrow title. */
     number?: string;
     /** Short mono topic after the number: "What is Habitat?". */
@@ -40,6 +42,6 @@ interface FigureProps {
     measuredWidth?: number;
     id?: string;
 }
-declare function Figure({ number, eyebrow, title, headingLevel, caption, legend, controls, viewBox, children, narrow, narrowViewBox, alt, className, theme, background, minFont, measuredWidth, id, }: FigureProps): react.JSX.Element;
+declare function Figure({ expandable, number, eyebrow, title, headingLevel, caption, legend, controls, viewBox, children, narrow, narrowViewBox, alt, className, theme, background, minFont, measuredWidth, id, }: FigureProps): react.JSX.Element;
 
 export { Figure as F, type FigureProps as a };

@@ -1,4 +1,4 @@
-export { F as Figure, a as FigureProps } from './Figure-BHv5rLa3.cjs';
+export { F as Figure, a as FigureProps } from './Figure-BF6Zmtho.cjs';
 import { T as TokenKind, a as TokenShape } from './Legend-S2FQoAxv.cjs';
 export { L as Legend, b as LegendItem, c as LegendProps, d as TOKEN_SHAPE, e as Token, f as TokenProps, t as tokenColor } from './Legend-S2FQoAxv.cjs';
 import * as react from 'react';
@@ -52,7 +52,7 @@ interface GroupProps {
     titleSize?: number;
     children?: ReactNode;
 }
-declare function Group({ x, y, w, h, title, variant, accent, flow, titleSize, children }: GroupProps): react.JSX.Element;
+declare function Group({ x, y, w, h, title, variant, accent, flow, titleSize, children, }: GroupProps): react.JSX.Element;
 
 interface NodeProps {
     x: number;
@@ -96,7 +96,7 @@ interface ChipProps {
     size?: number;
 }
 /** Pill: a connection slot, a request in a queue, a status flag. */
-declare function Chip({ x, y, w, h, label, dashed, kind, flow, size: size0 }: ChipProps): react.JSX.Element;
+declare function Chip({ x, y, w, h, label, dashed, kind, flow, size: size0, }: ChipProps): react.JSX.Element;
 
 type Point = [number, number];
 type Side = "top" | "right" | "bottom" | "left";

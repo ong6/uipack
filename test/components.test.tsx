@@ -21,7 +21,7 @@ describe("Figure", () => {
     expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent("Title");
     expect(screen.getByText("Caption")).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Legend" })).toHaveTextContent("Request");
-    expect(screen.getByRole("img", { name: "test figure" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "test figure" })).toBeInTheDocument();
   });
   it("Pause toggles aria-pressed and the label", () => {
     wrap(<Node x={0} y={0} w={10} h={10} label="n" />, { title: "t" });
@@ -32,7 +32,7 @@ describe("Figure", () => {
   });
   it("hides controls when controls=false", () => {
     wrap(<Node x={0} y={0} w={10} h={10} label="n" />, { title: "t", controls: false });
-    expect(screen.queryByRole("button")).toBeNull();
+    expect(screen.queryByRole("button", { name: /Pause|Replay/ })).toBeNull();
   });
   it("hides controls and stops motion under prefers-reduced-motion", () => {
     globalThis.__reduced = true;
@@ -41,7 +41,7 @@ describe("Figure", () => {
       return <text data-testid="probe">{`${m.playing}/${m.reduced}`}</text>;
     };
     wrap(<Probe />, { title: "t" });
-    expect(screen.queryByRole("button")).toBeNull();
+    expect(screen.queryByRole("button", { name: /Pause|Replay/ })).toBeNull();
     expect(screen.getByTestId("probe")).toHaveTextContent("false/true");
     globalThis.__reduced = false;
   });

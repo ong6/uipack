@@ -74,6 +74,7 @@ interface SlidePalette {
 }
 
 interface SlideSceneProps {
+    zoom?: number;
     story: SlideStory;
     stopId?: string;
     theme?: SlideTheme;

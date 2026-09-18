@@ -1,3 +1,4 @@
+import { useItemSelection } from "./selection";
 import { useFigureHover, hoverAttrs, type Flow } from "./hover";
 import { useFontFloor } from "./scale";
 
@@ -17,12 +18,36 @@ export interface ChipProps {
 }
 
 /** Pill: a connection slot, a request in a queue, a status flag. */
-export function Chip({ x, y, w, h = 24, label, dashed, kind, flow, size: size0 = 10 }: ChipProps) {
+export function Chip({
+  x,
+  y,
+  w,
+  h = 24,
+  label,
+  dashed,
+  kind,
+  flow,
+  size: size0 = 10,
+}: ChipProps) {
   const hover = useFigureHover();
   const size = useFontFloor(size0);
-  const fill = !kind ? "var(--uipack-surface)" : kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
+  const fill = !kind
+    ? "var(--uipack-surface)"
+    : kind === "accent"
+      ? "var(--uipack-accent)"
+      : `var(--uipack-token-${kind})`;
+  const selection = useItemSelection(
+    label ?? "Empty slot",
+    undefined,
+    undefined,
+    true,
+  );
   return (
-    <g data-uipack="chip" {...hoverAttrs(flow, kind === "accent" ? undefined : kind, hover)}>
+    <g
+      data-uipack="chip"
+      {...hoverAttrs(flow, kind === "accent" ? undefined : kind, hover)}
+      {...selection}
+    >
       <rect
         x={x}
         y={y}
@@ -37,7 +62,15 @@ export function Chip({ x, y, w, h = 24, label, dashed, kind, flow, size: size0 =
         strokeDasharray={dashed ? "3 3" : undefined}
       />
       {label ? (
-        <text x={x + w / 2} y={y + h / 2 + size * 0.36} textAnchor="middle" fontSize={size} fontWeight={700} fontFamily="var(--uipack-mono)" fill="currentColor">
+        <text
+          x={x + w / 2}
+          y={y + h / 2 + size * 0.36}
+          textAnchor="middle"
+          fontSize={size}
+          fontWeight={700}
+          fontFamily="var(--uipack-mono)"
+          fill="currentColor"
+        >
           {label.toUpperCase()}
         </text>
       ) : null}

@@ -1,3 +1,4 @@
+import { animationEntries } from "./catalog";
 import { useState } from "react";
 import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
 import { SlidePlayer, slideStories } from "../src/slides";
@@ -10,6 +11,15 @@ export default function Slides() {
     params.get("story") ?? slideStories[0].id,
   );
   const { theme, flip } = useShowcaseTheme();
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("All");
+  const entries = animationEntries.filter(
+    (e) =>
+      (category === "All" || e.tags.includes(category)) &&
+      `${e.title} ${e.tags.join(" ")}`
+        .toLowerCase()
+        .includes(query.toLowerCase()),
+  );
   const story = slideStories.find((s) => s.id === storyId) ?? slideStories[0];
   const choose = (id: string) => {
     setStoryId(id);
@@ -24,34 +34,51 @@ export default function Slides() {
     history.replaceState(null, "", url);
   };
   return (
-    <ShowcaseShell active="slides" theme={theme} flip={flip}>
+    <ShowcaseShell active="animations" theme={theme} flip={flip}>
       <section className="slides-showcase">
-        <h2>Slides · {slideStories.length} examples</h2>
+        <h2>3D animations · {slideStories.length} examples</h2>
         <p className="slides-showcase__intro">
           Live 3D scenes with camera moves, animated flows, and presentation
           controls.
         </p>
-        <nav className="slides-showcase__tabs" aria-label="Example stories">
-          {slideStories.map((s, i) => (
-            <button
-              key={s.id}
-              aria-pressed={s.id === story.id}
-              onClick={() => choose(s.id)}
+        <div className="catalog-filters">
+          <label>
+            Search animations
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by topic or technique"
+            />
+          </label>
+          <label>
+            Technique
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
             >
-              <span>0{i + 1}</span>
-              {
-                [
-                  "Harness dive",
-                  "Retrieval layers",
-                  "Parallel agents",
-                  "Quarter turn",
-                  "Staged assembly",
-                  "Before / after",
-                ][i]
-              }
+              {["All", "Camera", "Layers", "Transform"].map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+          </label>
+          <span role="status">{entries.length} examples</span>
+        </div>
+        <nav className="slides-showcase__tabs" aria-label="Example stories">
+          {entries.map((entry) => (
+            <button
+              key={entry.id}
+              aria-pressed={entry.id === story.id}
+              onClick={() => choose(entry.id)}
+            >
+              {entry.title}
+              <small>{entry.tags.join(" · ")}</small>
             </button>
           ))}
         </nav>
+        {entries.length === 0 && (
+          <p>No matching examples. Try another search or technique.</p>
+        )}
         <SlidePlayer
           story={story}
           theme={theme}
@@ -68,12 +95,13 @@ export default function Slides() {
           </p>
         </div>
         <details className="slides-showcase__usage">
-          <summary>Use in your own deck</summary>
+          <summary>Use this animation</summary>
           <pre>{`import { SlidePlayer, harnessDive } from "uipack/slides";\nimport "uipack/slides.css";\n\n<SlidePlayer story={harnessDive} />`}</pre>
           <p>
             Install the optional Three.js and GSAP dependencies for live 3D. Use
             a named stop with <code>SlideScene</code> when another deck controls
-            navigation. The main website is a separate integration.
+            navigation. For a complete title, argument, figure, and closing
+            sequence, see the Presentations collection.
           </p>
         </details>
       </section>

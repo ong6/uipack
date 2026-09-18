@@ -41,11 +41,11 @@ export function RequestFlow() {
 }
 ```
 
-Separate entries, so a page loads only what it draws: `uipack` (the parts, 9 KB gzipped with the theme), `uipack/presets` (10 KB), `uipack/browser` (1.5 KB plus `uipack/browser.css`).
+Separate entries, so a page loads only what it draws: `uipack` for parts, `uipack/presets` for ready figures, and `uipack/browser` with `uipack/browser.css` for the asset browser.
 
-`npm run dev` opens a playground: `/` renders the Habitat example, every part, and every preset; `/assets` renders the asset browser; `/slides` renders the live 3D presentation showcase.
+`npm run dev` opens a playground: `/` renders the Habitat example, every part, and every preset; `/assets` renders the asset browser; `/animations` renders the 3D animation collection (`/slides` remains an alias), `/presentations` shows a complete narrative example, and `/styles` indexes visual styles.
 
-## Live 3D slides
+## 3D animations
 
 An optional `uipack/slides` entry adds authored camera transitions, editable scene data, projected HTML labels, keyboard presentation controls, and a diagram fallback. It ships six examples: **Harness dive**, **Retrieval layers**, **Parallel agents**, **Quarter turn**, **Staged assembly**, and **Before / after**, with 23 directly addressable stops in total. Camera arcs, dolly moves, and staggered arrivals are configurable per stop.
 
@@ -66,7 +66,7 @@ Use `SlideScene` with a controlled `stopId` to connect the persistent scene to a
 
 ## Parts
 
-- `Figure`: the frame. Eyebrow, title (`headingLevel` picks the element), caption, legend, Pause and Replay, a canvas with a `background` of `dots`, `plain` or `ruled`, and a `narrow` drawing swapped in below 720px. Owns the SVG timeline and the hover state.
+- `Figure`: the frame. Eyebrow, title (`headingLevel` picks the element), caption, legend, Pause and Replay, a canvas with a `background` of `dots`, `plain` or `ruled`, and a `narrow` drawing swapped in below 720px. Owns the SVG timeline, hover and selection state, and optional expanded canvas.
 - `Lane`: mono uppercase column header, centred over `x..x+w`.
 - `Group`: a boxed service (solid, centred title) or a dashed boundary (mono title).
 - `Node`: a box with a label, a mono `sub`, an `icon`, an optional `hint` (native tooltip) and `href` (renders as a link with a focus ring).
@@ -209,7 +209,7 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
 
 ## Testing
 
-`npm test` runs 75 vitest cases in jsdom. `npm run test:e2e` runs 29 Playwright cases in Chromium and WebKit: 57 pass, with one existing clipboard test skipped in WebKit. What they pin down:
+`npm test` runs 75 vitest cases in jsdom. `npm run test:e2e` runs 32 Playwright cases in Chromium and WebKit: 63 pass, with one existing clipboard test skipped in WebKit. What they pin down:
 
 - Packets move, hold after Pause, resume on Play, return to the start on Replay, and sit still under reduced motion.
 - Hovering a node dims the rest and lights its flow. Hovering a legend item filters by kind. An `href` node takes focus.
@@ -245,3 +245,9 @@ Forges make things, packs bundle them.
 - [proofpack](https://github.com/ong6/proofpack) — pilot evidence, review proposals and customer-safe handovers
 - [fieldpack](https://github.com/ong6/fieldpack) — deckforge, skillforge and proofpack as one local-first suite
 - [skillpack](https://github.com/ong6/skillpack) — the Claude Code and Codex skills used across all of these
+
+## Design and contribution guidance
+
+Read [AGENTS.md](AGENTS.md) before editing. [CLAUDE.md](CLAUDE.md) points to that same canonical guide. [Design direction](docs/design-direction.md) defines the Technical style, catalog taxonomy, mobile behaviour, and presentation composition. Browse the [documentation index](docs/README.md), [source guide](src/README.md), and [playground guide](playground/README.md).
+
+Figures support tap/keyboard selection and Open canvas with bounded zoom. 3D animations have component inspection and their own canvas workspace. See [interaction details and limits](docs/interaction.md). Content type and visual style are separate; Technical is the only implemented style today.

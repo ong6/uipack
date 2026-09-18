@@ -112,3 +112,13 @@ body {
     margin-left: auto;
   }
 }
+.showcase-header { flex-wrap: wrap; }
+.showcase-header nav { flex-wrap: wrap; }
+.showcase-context { display: flex; gap: 12px; font: 12px ui-monospace,monospace; color: var(--show-muted); margin-top: -16px; }
+.showcase-context a { color: var(--show-accent); }
+.catalog-filters { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin: 20px 0; font-size: 13px; color: var(--show-muted); }
+.catalog-filters label { display: grid; gap: 8px; }
+.catalog-filters input,.catalog-filters select { min-height: 44px; max-width: 100%; box-sizing: border-box; border: 1px solid var(--show-rule); border-radius: 6px; padding: 8px 12px; background: var(--show-surface); color: var(--show-ink); font: inherit; }
+.catalog-filters input { width: 280px; }
+.slides-showcase__tabs button small { display: block; margin-top: 6px; color: var(--show-muted); font-size: 11px; }
+@media(max-width: 540px) { .showcase-header nav { gap: 0; } .showcase-header nav a { padding: 0 8px; } }

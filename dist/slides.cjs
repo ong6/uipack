@@ -137,7 +137,9 @@ var renderer_exports = {};
 __export(renderer_exports, {
   createSlideScene: () => createSlideScene
 });
-function createSlideScene(host, labels, story, initial, theme, reduced, onLost, onSettled) {
+function createSlideScene(host, labels, story, initial, theme, reduced, onLost, onSettled, onSelect) {
+  let selected = null;
+  let zoom = 1;
   const colors = slidePalettes[theme];
   const tone = (value) => colors[value === "neutral" || !value ? "rule" : value];
   const renderer = new THREE.WebGLRenderer({
@@ -408,7 +410,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
   function draw() {
     if (disposed) return;
     target.set(cam.tx, cam.ty, cam.tz);
-    camera.position.set(cam.x, cam.y, cam.z).sub(target).multiplyScalar(Math.max(1, 1.45 / camera.aspect)).add(target);
+    camera.position.set(cam.x, cam.y, cam.z).sub(target).multiplyScalar(Math.max(1, 1.45 / camera.aspect) / zoom).add(target);
     camera.lookAt(target);
     camera.updateMatrixWorld();
     const ids = stop.labels ? new Set(stop.labels) : void 0;
@@ -419,6 +421,10 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       n.group.visible = n.pose.opacity > 5e-3;
       n.materials.forEach((m) => {
         m.opacity = n.pose.opacity * (m.userData.baseOpacity ?? 1);
+        if (m instanceof THREE.MeshStandardMaterial) {
+          m.emissive.set(selected === n.spec.id ? colors.accent : 0);
+          m.emissiveIntensity = selected === n.spec.id ? 0.3 : 0;
+        }
       });
       if (!n.label) continue;
       const eligible = (ids ? ids.has(n.spec.id) : n.spec.kind !== "boundary") && n.pose.opacity >= 0.3 && presentation.labels > 0.01;
@@ -438,7 +444,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
         ]) {
           const candidate = {
             x: Math.max(4, Math.min(width - w - 4, x - w / 2 + dx)),
-            y: Math.max(4, Math.min(height - h - 4, y + dy)),
+            y: Math.max(84, Math.min(height - h - 4, y + dy)),
             w,
             h
           };
@@ -666,11 +672,54 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
     });
     wake();
   }
+  const raycaster = new THREE.Raycaster();
+  let down = null;
+  const pointerDown = (event) => {
+    down = { x: event.clientX, y: event.clientY };
+  };
+  const pointerUp = (event) => {
+    if (!down || Math.hypot(event.clientX - down.x, event.clientY - down.y) > 6) {
+      down = null;
+      return;
+    }
+    down = null;
+    const rect = renderer.domElement.getBoundingClientRect();
+    raycaster.setFromCamera(
+      new THREE.Vector2(
+        (event.clientX - rect.left) / rect.width * 2 - 1,
+        -(event.clientY - rect.top) / rect.height * 2 + 1
+      ),
+      camera
+    );
+    const candidates = [...nodes.values()].filter(
+      (n) => n.spec.kind !== "boundary" && n.pose.opacity > 0.25
+    );
+    const hit = raycaster.intersectObjects(
+      candidates.map((n) => n.group),
+      true
+    )[0];
+    let object = hit?.object;
+    while (object && !nodes.has(object.name))
+      object = object.parent ?? void 0;
+    onSelect(object ? object.name === selected ? null : object.name : null);
+  };
+  renderer.domElement.addEventListener("pointerdown", pointerDown);
+  renderer.domElement.addEventListener("pointerup", pointerUp);
   resize();
   onSettled(initial.id);
   wake();
   return {
     goTo,
+    setSelected(id) {
+      selected = id;
+      draw();
+      wake();
+    },
+    setZoom(value) {
+      zoom = Math.max(0.75, Math.min(2, value));
+      draw();
+      wake();
+    },
     setPaused(value) {
       paused = value;
       wake();
@@ -689,6 +738,8 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       intersection?.disconnect();
       document.removeEventListener("visibilitychange", visibilityChanged);
       renderer.domElement.removeEventListener("webglcontextlost", lost);
+      renderer.domElement.removeEventListener("pointerdown", pointerDown);
+      renderer.domElement.removeEventListener("pointerup", pointerUp);
       trackedGeometries.forEach((g) => g.dispose());
       trackedMaterials.forEach((m) => m.dispose());
       renderer.dispose();
@@ -726,14 +777,72 @@ __export(slides_exports, {
 });
 module.exports = __toCommonJS(slides_exports);
 
+// src/CanvasView.tsx
+var import_react = require("react");
+var import_react_dom = require("react-dom");
+var import_jsx_runtime = require("react/jsx-runtime");
+function CanvasView({
+  open,
+  onClose,
+  title,
+  children,
+  toolbar,
+  theme,
+  restoreFocus
+}) {
+  const dialog = (0, import_react.useRef)(null);
+  const close = (0, import_react.useRef)(onClose);
+  close.current = onClose;
+  (0, import_react.useEffect)(() => {
+    if (!open) return;
+    const opener = document.activeElement;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    dialog.current?.showModal();
+    return () => {
+      document.body.style.overflow = previous;
+      requestAnimationFrame(
+        () => restoreFocus ? restoreFocus() : opener?.focus()
+      );
+    };
+  }, [open]);
+  if (!open || typeof document === "undefined") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children });
+  return (0, import_react_dom.createPortal)(
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+      "dialog",
+      {
+        ref: dialog,
+        className: "uipack-canvas-dialog",
+        "data-theme": theme ?? document.documentElement.dataset.theme,
+        "aria-label": title,
+        onCancel: (e) => {
+          e.preventDefault();
+          close.current();
+        },
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-canvas-toolbar", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: title }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              toolbar,
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: onClose, autoFocus: true, children: "Close canvas" })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "uipack-canvas-content", children })
+        ]
+      }
+    ),
+    document.body
+  );
+}
+
 // src/slides/SlidePlayer.tsx
-var import_react2 = require("react");
+var import_react3 = require("react");
 
 // src/context.tsx
-var import_react = require("react");
+var import_react2 = require("react");
 var noop = () => {
 };
-var FigureMotionContext = (0, import_react.createContext)({
+var FigureMotionContext = (0, import_react2.createContext)({
   playing: true,
   reduced: false,
   cycle: 0,
@@ -742,8 +851,8 @@ var FigureMotionContext = (0, import_react.createContext)({
 });
 var QUERY = "(prefers-reduced-motion: reduce)";
 function usePrefersReducedMotion() {
-  const [reduced, setReduced] = (0, import_react.useState)(false);
-  (0, import_react.useEffect)(() => {
+  const [reduced, setReduced] = (0, import_react2.useState)(false);
+  (0, import_react2.useEffect)(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
     const mq = window.matchMedia(QUERY);
     const onChange = (e) => setReduced(e.matches);
@@ -760,21 +869,21 @@ function usePrefersReducedMotion() {
 
 // src/slides/SlidePlayer.tsx
 init_model();
-var import_jsx_runtime = require("react/jsx-runtime");
+var import_jsx_runtime2 = require("react/jsx-runtime");
 function Diagram({ story, stop }) {
   const visible = story.nodes.filter(
     (n) => n.kind !== "boundary" && resolveNodePose(n, stop).opacity > 0.25
   );
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-slide-diagram", "data-testid": "slide-diagram", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "uipack-slide-diagram__heading", children: "Diagram view" }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "uipack-slide-diagram__nodes", children: visible.map((n) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { "data-tone": n.tone, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: n.label }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: n.detail })
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-slide-diagram", "data-testid": "slide-diagram", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { className: "uipack-slide-diagram__heading", children: "Diagram view" }),
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "uipack-slide-diagram__nodes", children: visible.map((n) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { "data-tone": n.tone, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("strong", { children: n.label }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: n.detail })
     ] }, n.id)) }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { "aria-label": "Highlighted connections", children: story.connections.filter((c) => stop.activeConnections?.includes(c.id)).map((c) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("ul", { "aria-label": "Highlighted connections", children: story.connections.filter((c) => stop.activeConnections?.includes(c.id)).map((c) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("li", { children: [
       story.nodes.find((n) => n.id === c.from)?.label,
       " ",
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "aria-label": "to", children: "\u2192" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "aria-label": "to", children: "\u2192" }),
       " ",
       story.nodes.find((n) => n.id === c.to)?.label
     ] }, c.id)) })
@@ -783,6 +892,7 @@ function Diagram({ story, stop }) {
 function SceneViewport({
   story,
   stopId,
+  zoom = 1,
   theme = "dark",
   motion = "auto",
   paused = false,
@@ -790,19 +900,20 @@ function SceneViewport({
   className = "",
   onSettled
 }) {
-  const host = (0, import_react2.useRef)(null), labels = (0, import_react2.useRef)(null), runtime = (0, import_react2.useRef)();
+  const host = (0, import_react3.useRef)(null), labels = (0, import_react3.useRef)(null), runtime = (0, import_react3.useRef)();
   const prefersReduced = usePrefersReducedMotion();
   const reduced = motion === "none" || prefersReduced;
   const stop = story.stops.find((s) => s.id === stopId) ?? story.stops[0];
-  const latest = (0, import_react2.useRef)({ stop, reduced, paused, onSettled });
+  const latest = (0, import_react3.useRef)({ stop, reduced, paused, onSettled });
   latest.current = { stop, reduced, paused, onSettled };
-  const [status, setStatus] = (0, import_react2.useState)(
+  const [status, setStatus] = (0, import_react3.useState)(
     "loading"
   );
-  const [failed, setFailed] = (0, import_react2.useState)(false);
-  const [settled, setSettled] = (0, import_react2.useState)("");
-  const [transitioning, setTransitioning] = (0, import_react2.useState)(false);
-  (0, import_react2.useEffect)(() => {
+  const [selected, setSelected] = (0, import_react3.useState)(null);
+  const [failed, setFailed] = (0, import_react3.useState)(false);
+  const [settled, setSettled] = (0, import_react3.useState)("");
+  const [transitioning, setTransitioning] = (0, import_react3.useState)(false);
+  (0, import_react3.useEffect)(() => {
     let cancelled = false;
     if (renderMode === "diagram" || failed) {
       setStatus("fallback");
@@ -828,7 +939,8 @@ function SceneViewport({
               setTransitioning(false);
               latest.current.onSettled?.(id);
             }
-          }
+          },
+          setSelected
         );
         runtime.current.setPaused(latest.current.paused);
         setStatus("ready");
@@ -844,7 +956,7 @@ function SceneViewport({
       runtime.current = void 0;
     };
   }, [story, theme, renderMode, failed]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (renderMode === "diagram" || failed) {
       setSettled(stop.id);
       setTransitioning(false);
@@ -856,13 +968,23 @@ function SceneViewport({
       runtime.current.goTo(stop, reduced);
     }
   }, [stop, renderMode, failed]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     runtime.current?.setReducedMotion(reduced);
   }, [reduced]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     runtime.current?.setPaused(paused);
   }, [paused]);
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+  (0, import_react3.useEffect)(() => {
+    runtime.current?.setSelected(selected);
+  }, [selected, status]);
+  (0, import_react3.useEffect)(() => {
+    runtime.current?.setZoom(zoom);
+  }, [zoom, status]);
+  (0, import_react3.useEffect)(() => {
+    setSelected(null);
+  }, [stop.id]);
+  const chosen = story.nodes.find((n) => n.id === selected);
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
     "div",
     {
       className: `uipack-slide-scene ${className}`,
@@ -874,7 +996,7 @@ function SceneViewport({
       "data-motion": reduced ? "reduced" : "full",
       "aria-label": `${story.title}: ${stop.title}`,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
           "div",
           {
             className: "uipack-slide-scene__webgl",
@@ -882,30 +1004,60 @@ function SceneViewport({
             "aria-hidden": "true"
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { ref: labels, className: "uipack-slide-labels", "aria-hidden": "true", children: story.nodes.map((n) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-          "div",
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { ref: labels, className: "uipack-slide-labels", children: story.nodes.map((n) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+          "button",
           {
+            type: "button",
+            "aria-label": `Inspect ${n.label}`,
+            "aria-pressed": selected === n.id,
+            onClick: () => setSelected(selected === n.id ? null : n.id),
             "data-node": n.id,
             "data-tone": n.tone,
             className: "uipack-slide-label",
             style: { visibility: "hidden" },
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: n.label }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: n.detail })
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("strong", { children: n.label }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: n.detail })
             ]
           },
           n.id
         )) }),
-        status !== "ready" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Diagram, { story, stop }),
-        status === "ready" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-slide-scene__badge", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-slide-inspect", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("label", { children: [
+            "Inspect component",
+            " ",
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+              "select",
+              {
+                "aria-label": "Inspect component",
+                value: selected ?? "",
+                onChange: (e) => setSelected(e.target.value || null),
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("option", { value: "", children: "Choose a component" }),
+                  story.nodes.filter(
+                    (n) => n.kind !== "boundary" && resolveNodePose(n, stop).opacity > 0.25
+                  ).map((n) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("option", { value: n.id, children: n.label }, n.id))
+                ]
+              }
+            )
+          ] }),
+          chosen && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("p", { role: "status", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("strong", { children: chosen.label }),
+            chosen.detail && ` \xB7 ${chosen.detail}`,
+            " ",
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { type: "button", onClick: () => setSelected(null), children: "Clear selection" })
+          ] })
+        ] }),
+        status !== "ready" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Diagram, { story, stop }),
+        status === "ready" && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-slide-scene__badge", children: [
           "Live 3D ",
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "aria-hidden": "true", children: "\xB7" }),
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "aria-hidden": "true", children: "\xB7" }),
           " ",
           reduced ? "Reduced motion" : "Authored camera"
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "uipack-slide-sr", children: story.nodes.filter(
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "uipack-slide-sr", children: story.nodes.filter(
           (n) => n.kind !== "boundary" && resolveNodePose(n, stop).opacity > 0.25
-        ).map((n) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { children: [
+        ).map((n) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("p", { children: [
           n.label,
           ": ",
           n.detail
@@ -915,13 +1067,71 @@ function SceneViewport({
   );
 }
 function SlideScene(props) {
+  const [canvas, setCanvas] = (0, import_react3.useState)(false);
+  const [zoom, setZoom] = (0, import_react3.useState)(1);
+  const opener = (0, import_react3.useRef)(null);
   const errors = validateSlideStory(props.story);
   if (errors.length)
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { role: "alert", className: "uipack-slide-error", children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { role: "alert", className: "uipack-slide-error", children: [
       "Invalid slide story: ",
       errors.join(" ")
     ] });
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SceneViewport, { ...props }, props.story.id);
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+    CanvasView,
+    {
+      restoreFocus: () => opener.current?.focus(),
+      open: canvas,
+      onClose: () => {
+        setCanvas(false);
+        setZoom(1);
+      },
+      title: props.story.title,
+      theme: props.theme ?? "dark",
+      toolbar: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+          "button",
+          {
+            type: "button",
+            "aria-label": "Zoom out",
+            disabled: zoom <= 0.75,
+            onClick: () => setZoom((z) => Math.max(0.75, z - 0.25)),
+            children: "\u2212"
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { type: "button", onClick: () => setZoom(1), children: "Fit" }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+          "button",
+          {
+            type: "button",
+            "aria-label": "Zoom in",
+            disabled: zoom >= 2,
+            onClick: () => setZoom((z) => Math.min(2, z + 0.25)),
+            children: "+"
+          }
+        )
+      ] }),
+      children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-scene-card", "data-theme": props.theme ?? "dark", children: [
+        !canvas && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+          "button",
+          {
+            className: "uipack-scene-card__open",
+            ref: opener,
+            type: "button",
+            onClick: () => setCanvas(true),
+            children: "Open canvas"
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+          SceneViewport,
+          {
+            ...props,
+            zoom: canvas ? zoom : props.zoom
+          },
+          props.story.id
+        )
+      ] })
+    }
+  );
 }
 function Player({
   story,
@@ -941,10 +1151,11 @@ function Player({
     0,
     story.stops.findIndex((s) => s.id === defaultStopId)
   );
-  const [internal, setInternal] = (0, import_react2.useState)(initial), [paused, setPaused] = (0, import_react2.useState)(false), [present, setPresent] = (0, import_react2.useState)(false), [diagram, setDiagram] = (0, import_react2.useState)(false);
+  const [internal, setInternal] = (0, import_react3.useState)(initial), [paused, setPaused] = (0, import_react3.useState)(false), [present, setPresent] = (0, import_react3.useState)(false), [diagram, setDiagram] = (0, import_react3.useState)(false), [canvas, setCanvas] = (0, import_react3.useState)(false), [zoom, setZoom] = (0, import_react3.useState)(1);
   const reduced = usePrefersReducedMotion() || motion === "none";
-  const root = (0, import_react2.useRef)(null);
-  const titleId = (0, import_react2.useId)();
+  const opener = (0, import_react3.useRef)(null);
+  const root = (0, import_react3.useRef)(null);
+  const titleId = (0, import_react3.useId)();
   const index = stopId === void 0 ? clampStop(internal, story.stops.length) : Math.max(
     0,
     story.stops.findIndex((s) => s.id === stopId)
@@ -966,7 +1177,7 @@ function Player({
     }
     if (event.key === "Escape") setPresent(false);
   }
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (!present) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -975,155 +1186,205 @@ function Player({
       document.body.style.overflow = previous;
     };
   }, [present]);
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-    "section",
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+    CanvasView,
     {
-      ref: root,
-      tabIndex: 0,
-      onKeyDown: keyboard,
-      "aria-label": `${story.title} presentation`,
-      className: `uipack-slide-player ${present ? "uipack-slide-player--present" : ""} ${className}`,
-      style,
-      "data-theme": theme,
-      "data-story": story.id,
-      "data-stop": stop.id,
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-slide-player__top", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: story.title }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-              "button",
-              {
-                type: "button",
-                onClick: () => setDiagram((v) => !v),
-                "aria-pressed": diagram,
-                children: diagram ? "3D view" : "Diagram view"
-              }
-            ),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-              "button",
-              {
-                type: "button",
-                disabled: reduced || externalPaused !== void 0,
-                onClick: () => setPaused((v) => !v),
-                "aria-pressed": paused,
-                children: paused ? "Resume flow" : "Pause flow"
-              }
-            ),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-              "button",
-              {
-                type: "button",
-                onClick: () => setPresent((v) => !v),
-                "aria-pressed": present,
-                children: present ? "Exit presentation" : "Present"
-              }
-            )
-          ] })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-slide-player__body", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-            "header",
-            {
-              className: "uipack-slide-player__copy",
-              "aria-live": "polite",
-              "aria-atomic": "true",
-              children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-slide-player__count", children: [
-                  String(index + 1).padStart(2, "0"),
-                  " /",
-                  " ",
-                  String(story.stops.length).padStart(2, "0")
-                ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { id: titleId, children: stop.title }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: stop.caption }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-slide-legend", "aria-label": "Flow colors", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "data-tone": "request", children: "Request" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "data-tone": "response", children: "Response" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "data-tone": "change", children: "Change" })
-                ] })
-              ]
-            }
-          ),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-            SceneViewport,
-            {
-              story,
-              stopId: stop.id,
-              theme,
-              motion,
-              paused: externalPaused ?? paused,
-              renderMode: diagram ? "diagram" : renderMode,
-              onSettled
-            }
-          )
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-          "nav",
+      restoreFocus: () => opener.current?.focus(),
+      open: canvas,
+      onClose: () => {
+        setCanvas(false);
+        setZoom(1);
+      },
+      title: story.title,
+      theme,
+      toolbar: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+          "button",
           {
-            className: "uipack-slide-player__navigation",
-            "aria-label": "Presentation stops",
-            children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-                "button",
-                {
-                  type: "button",
-                  "aria-label": "Previous stop",
-                  disabled: index === 0,
-                  onClick: () => navigate(index - 1),
-                  children: "\u2190 Previous"
-                }
-              ),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "uipack-slide-player__stops", children: story.stops.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-                "button",
-                {
-                  type: "button",
-                  "aria-label": `Go to ${s.title}`,
-                  "aria-current": index === i ? "step" : void 0,
-                  title: s.title,
-                  onClick: () => navigate(i),
-                  children: String(i + 1).padStart(2, "0")
-                },
-                s.id
-              )) }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-                "button",
-                {
-                  type: "button",
-                  "aria-label": "Next stop",
-                  disabled: index === story.stops.length - 1,
-                  onClick: () => navigate(index + 1),
-                  children: "Next \u2192"
-                }
-              )
-            ]
+            type: "button",
+            "aria-label": "Zoom out",
+            disabled: zoom <= 0.75,
+            onClick: () => setZoom((z) => Math.max(0.75, z - 0.25)),
+            children: "\u2212"
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", { className: "uipack-slide-player__footer", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: footer ?? "UIPACK / Spatial stories" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-            "\u2190 \u2192 to navigate ",
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "aria-hidden": "true", children: "\xB7" }),
-            " ",
-            reduced ? "Reduced motion" : "Click any stop to jump"
-          ] })
-        ] }),
-        stop.notes && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("details", { className: "uipack-slide-player__notes", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("summary", { children: "Presenter notes" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: stop.notes })
-        ] })
-      ]
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { type: "button", onClick: () => setZoom(1), children: "Fit" }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+          "button",
+          {
+            type: "button",
+            "aria-label": "Zoom in",
+            disabled: zoom >= 2,
+            onClick: () => setZoom((z) => Math.min(2, z + 0.25)),
+            children: "+"
+          }
+        )
+      ] }),
+      children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+        "section",
+        {
+          ref: root,
+          tabIndex: 0,
+          onKeyDown: keyboard,
+          "aria-label": `${story.title} presentation`,
+          className: `uipack-slide-player ${present ? "uipack-slide-player--present" : ""} ${className}`,
+          style,
+          "data-theme": theme,
+          "data-story": story.id,
+          "data-stop": stop.id,
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-slide-player__top", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: story.title }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { children: [
+                !canvas && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                  "button",
+                  {
+                    ref: opener,
+                    type: "button",
+                    onClick: () => {
+                      setPresent(false);
+                      setCanvas(true);
+                    },
+                    children: "Open canvas"
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: () => setDiagram((v) => !v),
+                    "aria-pressed": diagram,
+                    children: diagram ? "3D view" : "Diagram view"
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                  "button",
+                  {
+                    type: "button",
+                    disabled: reduced || externalPaused !== void 0,
+                    onClick: () => setPaused((v) => !v),
+                    "aria-pressed": paused,
+                    children: paused ? "Resume flow" : "Pause flow"
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                  "button",
+                  {
+                    type: "button",
+                    disabled: canvas,
+                    onClick: () => setPresent((v) => !v),
+                    "aria-pressed": present,
+                    children: present ? "Exit presentation" : "Present"
+                  }
+                )
+              ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-slide-player__body", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+                "header",
+                {
+                  className: "uipack-slide-player__copy",
+                  "aria-live": "polite",
+                  "aria-atomic": "true",
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-slide-player__count", children: [
+                      String(index + 1).padStart(2, "0"),
+                      " /",
+                      " ",
+                      String(story.stops.length).padStart(2, "0")
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h2", { id: titleId, children: stop.title }),
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { children: stop.caption }),
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-slide-legend", "aria-label": "Flow colors", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "data-tone": "request", children: "Request" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "data-tone": "response", children: "Response" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "data-tone": "change", children: "Change" })
+                    ] })
+                  ]
+                }
+              ),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                SceneViewport,
+                {
+                  story,
+                  zoom,
+                  stopId: stop.id,
+                  theme,
+                  motion,
+                  paused: externalPaused ?? paused,
+                  renderMode: diagram ? "diagram" : renderMode,
+                  onSettled
+                }
+              )
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+              "nav",
+              {
+                className: "uipack-slide-player__navigation",
+                "aria-label": "Presentation stops",
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                    "button",
+                    {
+                      type: "button",
+                      "aria-label": "Previous stop",
+                      disabled: index === 0,
+                      onClick: () => navigate(index - 1),
+                      children: "\u2190 Previous"
+                    }
+                  ),
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "uipack-slide-player__stops", children: story.stops.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                    "button",
+                    {
+                      type: "button",
+                      "aria-label": `Go to ${s.title}`,
+                      "aria-current": index === i ? "step" : void 0,
+                      title: s.title,
+                      onClick: () => navigate(i),
+                      children: String(i + 1).padStart(2, "0")
+                    },
+                    s.id
+                  )) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                    "button",
+                    {
+                      type: "button",
+                      "aria-label": "Next stop",
+                      disabled: index === story.stops.length - 1,
+                      onClick: () => navigate(index + 1),
+                      children: "Next \u2192"
+                    }
+                  )
+                ]
+              }
+            ),
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("footer", { className: "uipack-slide-player__footer", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: footer ?? "UIPACK / Spatial stories" }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { children: [
+                "\u2190 \u2192 to navigate ",
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "aria-hidden": "true", children: "\xB7" }),
+                " ",
+                reduced ? "Reduced motion" : "Click any stop to jump"
+              ] })
+            ] }),
+            stop.notes && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("details", { className: "uipack-slide-player__notes", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("summary", { children: "Presenter notes" }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { children: stop.notes })
+            ] })
+          ]
+        }
+      )
     }
   );
 }
 function SlidePlayer(props) {
   const errors = validateSlideStory(props.story);
   if (errors.length)
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { role: "alert", className: "uipack-slide-error", children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { role: "alert", className: "uipack-slide-error", children: [
       "Invalid slide story: ",
       errors.join(" ")
     ] });
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Player, { ...props }, props.story.id);
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Player, { ...props }, props.story.id);
 }
 
 // src/slides/stories.ts

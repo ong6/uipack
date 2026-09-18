@@ -6,7 +6,9 @@ import {
 // src/slides/renderer.ts
 import * as THREE from "three";
 import { gsap } from "gsap";
-function createSlideScene(host, labels, story, initial, theme, reduced, onLost, onSettled) {
+function createSlideScene(host, labels, story, initial, theme, reduced, onLost, onSettled, onSelect) {
+  let selected = null;
+  let zoom = 1;
   const colors = slidePalettes[theme];
   const tone = (value) => colors[value === "neutral" || !value ? "rule" : value];
   const renderer = new THREE.WebGLRenderer({
@@ -277,7 +279,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
   function draw() {
     if (disposed) return;
     target.set(cam.tx, cam.ty, cam.tz);
-    camera.position.set(cam.x, cam.y, cam.z).sub(target).multiplyScalar(Math.max(1, 1.45 / camera.aspect)).add(target);
+    camera.position.set(cam.x, cam.y, cam.z).sub(target).multiplyScalar(Math.max(1, 1.45 / camera.aspect) / zoom).add(target);
     camera.lookAt(target);
     camera.updateMatrixWorld();
     const ids = stop.labels ? new Set(stop.labels) : void 0;
@@ -288,6 +290,10 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       n.group.visible = n.pose.opacity > 5e-3;
       n.materials.forEach((m) => {
         m.opacity = n.pose.opacity * (m.userData.baseOpacity ?? 1);
+        if (m instanceof THREE.MeshStandardMaterial) {
+          m.emissive.set(selected === n.spec.id ? colors.accent : 0);
+          m.emissiveIntensity = selected === n.spec.id ? 0.3 : 0;
+        }
       });
       if (!n.label) continue;
       const eligible = (ids ? ids.has(n.spec.id) : n.spec.kind !== "boundary") && n.pose.opacity >= 0.3 && presentation.labels > 0.01;
@@ -307,7 +313,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
         ]) {
           const candidate = {
             x: Math.max(4, Math.min(width - w - 4, x - w / 2 + dx)),
-            y: Math.max(4, Math.min(height - h - 4, y + dy)),
+            y: Math.max(84, Math.min(height - h - 4, y + dy)),
             w,
             h
           };
@@ -535,11 +541,54 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
     });
     wake();
   }
+  const raycaster = new THREE.Raycaster();
+  let down = null;
+  const pointerDown = (event) => {
+    down = { x: event.clientX, y: event.clientY };
+  };
+  const pointerUp = (event) => {
+    if (!down || Math.hypot(event.clientX - down.x, event.clientY - down.y) > 6) {
+      down = null;
+      return;
+    }
+    down = null;
+    const rect = renderer.domElement.getBoundingClientRect();
+    raycaster.setFromCamera(
+      new THREE.Vector2(
+        (event.clientX - rect.left) / rect.width * 2 - 1,
+        -(event.clientY - rect.top) / rect.height * 2 + 1
+      ),
+      camera
+    );
+    const candidates = [...nodes.values()].filter(
+      (n) => n.spec.kind !== "boundary" && n.pose.opacity > 0.25
+    );
+    const hit = raycaster.intersectObjects(
+      candidates.map((n) => n.group),
+      true
+    )[0];
+    let object = hit?.object;
+    while (object && !nodes.has(object.name))
+      object = object.parent ?? void 0;
+    onSelect(object ? object.name === selected ? null : object.name : null);
+  };
+  renderer.domElement.addEventListener("pointerdown", pointerDown);
+  renderer.domElement.addEventListener("pointerup", pointerUp);
   resize();
   onSettled(initial.id);
   wake();
   return {
     goTo,
+    setSelected(id) {
+      selected = id;
+      draw();
+      wake();
+    },
+    setZoom(value) {
+      zoom = Math.max(0.75, Math.min(2, value));
+      draw();
+      wake();
+    },
     setPaused(value) {
       paused = value;
       wake();
@@ -558,6 +607,8 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       intersection?.disconnect();
       document.removeEventListener("visibilitychange", visibilityChanged);
       renderer.domElement.removeEventListener("webglcontextlost", lost);
+      renderer.domElement.removeEventListener("pointerdown", pointerDown);
+      renderer.domElement.removeEventListener("pointerup", pointerUp);
       trackedGeometries.forEach((g) => g.dispose());
       trackedMaterials.forEach((m) => m.dispose());
       renderer.dispose();
@@ -569,4 +620,4 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
 export {
   createSlideScene
 };
-//# sourceMappingURL=renderer-4H6F3QNC.js.map
+//# sourceMappingURL=renderer-BUS3ZQAM.js.map

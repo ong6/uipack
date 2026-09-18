@@ -16,7 +16,7 @@ test.describe("reduced motion", () => {
     expect(await page.locator("animateMotion").count()).toBe(0);
     expect(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches)).toBe(true);
     const figure = page.locator("figure", { hasText: "Every part" });
-    await expect(figure.getByRole("button")).toHaveCount(0);
+    await expect(figure.getByRole("button", { name: /Pause|Replay/ })).toHaveCount(0);
     const a = await packetCentre(page);
     await page.waitForTimeout(500);
     const b = await packetCentre(page);
