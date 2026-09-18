@@ -137,7 +137,7 @@ export function App() {
       <h1>
         <Wordmark size={22} />
         <span>
-          <a href="/">figures</a> · <a href="/assets">assets</a>
+          <a href="/">figures</a> · <a href="/assets">assets</a> · <a href="/slides">slides</a>
         </span>
         <button className="theme" type="button" onClick={flip}>
           {theme === "dark" ? "light" : "dark"} mode

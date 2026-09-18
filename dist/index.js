@@ -25,20 +25,22 @@ import {
   route,
   trim,
   useFigureHover
-} from "./chunk-A4PJWAOX.js";
+} from "./chunk-6IK7GI52.js";
 import {
   DEFAULT_RENDER_WIDTH,
-  FigureMotionContext,
   FigureScaleContext,
   FigureScaleProvider,
   TOKEN_SHAPE,
   Token,
   fontFloor,
   tokenColor,
+  useFontFloor
+} from "./chunk-2BHGP5ET.js";
+import {
+  FigureMotionContext,
   useFigureMotion,
-  useFontFloor,
   usePrefersReducedMotion
-} from "./chunk-G6PKZ6Y3.js";
+} from "./chunk-FENTOHP4.js";
 
 // src/Badge.tsx
 import { jsx, jsxs } from "react/jsx-runtime";

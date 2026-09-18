@@ -1,11 +1,13 @@
 import {
   DEFAULT_RENDER_WIDTH,
-  FigureMotionContext,
   FigureScaleProvider,
   TOKEN_SHAPE,
   Token,
   fontFloor
-} from "./chunk-G6PKZ6Y3.js";
+} from "./chunk-2BHGP5ET.js";
+import {
+  FigureMotionContext
+} from "./chunk-FENTOHP4.js";
 
 // src/static/index.tsx
 import { isValidElement } from "react";

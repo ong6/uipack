@@ -1,13 +1,15 @@
 import {
   DEFAULT_RENDER_WIDTH,
-  FigureMotionContext,
   FigureScaleContext,
   Token,
   fontFloor,
+  useFontFloor
+} from "./chunk-2BHGP5ET.js";
+import {
+  FigureMotionContext,
   useFigureMotion,
-  useFontFloor,
   usePrefersReducedMotion
-} from "./chunk-G6PKZ6Y3.js";
+} from "./chunk-FENTOHP4.js";
 
 // src/hover.tsx
 import { createContext, useContext } from "react";
@@ -673,4 +675,4 @@ export {
   Label,
   Defs
 };
-//# sourceMappingURL=chunk-A4PJWAOX.js.map
+//# sourceMappingURL=chunk-6IK7GI52.js.map

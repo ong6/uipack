@@ -41,9 +41,28 @@ export function RequestFlow() {
 }
 ```
 
-Three entries, so a page loads only what it draws: `uipack` (the parts, 9 KB gzipped with the theme), `uipack/presets` (10 KB), `uipack/browser` (1.5 KB plus `uipack/browser.css`).
+Separate entries, so a page loads only what it draws: `uipack` (the parts, 9 KB gzipped with the theme), `uipack/presets` (10 KB), `uipack/browser` (1.5 KB plus `uipack/browser.css`).
 
-`npm run dev` opens a playground: `/` renders the Habitat example, every part, and every preset; `/assets` renders the asset browser.
+`npm run dev` opens a playground: `/` renders the Habitat example, every part, and every preset; `/assets` renders the asset browser; `/slides` renders the live 3D presentation showcase.
+
+## Live 3D slides
+
+An optional `uipack/slides` entry adds authored camera transitions, editable scene data, projected HTML labels, keyboard presentation controls, and a diagram fallback. It ships three examples: **Harness dive**, **Retrieval layers**, and **Parallel agents**, with 13 directly addressable stops in total.
+
+```sh
+npm install three@^0.186.0 gsap@^3.15.0
+```
+
+```tsx
+import { SlidePlayer, harnessDive } from "uipack/slides";
+import "uipack/slides.css";
+
+<SlidePlayer story={harnessDive} theme="dark" />;
+```
+
+Use `SlideScene` with a controlled `stopId` to connect the persistent scene to another deck. Three.js and GSAP are optional peers and are not imported by the SVG figure entries. These are live browser presentations; native slide-file and video export are separate work.
+
+[Slide API, story format, accessibility, and integration guide](docs/slides.md).
 
 ## Parts
 
@@ -190,7 +209,7 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
 
 ## Testing
 
-`npm test` runs 65 vitest cases in jsdom. `npm run test:e2e` runs 23 Playwright cases in Chromium and WebKit, 46 in total, one skipped in WebKit. What they pin down:
+`npm test` runs 74 vitest cases in jsdom. `npm run test:e2e` runs 27 Playwright cases in Chromium and WebKit: 53 pass, with one existing clipboard test skipped in WebKit. What they pin down:
 
 - Packets move, hold after Pause, resume on Play, return to the start on Replay, and sit still under reduced motion.
 - Hovering a node dims the rest and lights its flow. Hovering a legend item filters by kind. An `href` node takes focus.
@@ -198,15 +217,16 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
 - Two packets on one path spread by delay; a departing token clears its source border; a serviceMap with six platform cells wraps its narrow drawing into rows of three and truncates with an ellipsis and a hint.
 - The asset browser filters, searches, copies to the clipboard (Chromium only; Playwright cannot grant that in WebKit), and fits 390px with 44px targets.
 - Both themes render ten figures with no console errors.
+- Live 3D stories retain one canvas across stops, support direct navigation and reduced motion, and provide a diagram fallback.
 
 CI runs both suites with job timeouts. Playwright is pinned at 1.61.1 because the 1.63 browser build would not download on my network. Bump it when that clears.
 
 ## Roadmap
 
-- v2: stepped stories, the 01 / 02 / 03 tabs that change the scene.
+- Stepped stories for the SVG figures (live 3D slide stories are available now).
 - Counters and stat tiles on nodes (the "3 concurrent requests" pattern).
 - Export to PNG and video for slides.
-- 3D and motion beyond the page, once the site needs them.
+- Integrate the optional live 3D scenes into selected website pages.
 
 ## Credit
 

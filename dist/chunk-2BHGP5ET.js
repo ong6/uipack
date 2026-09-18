@@ -1,35 +1,3 @@
-// src/context.tsx
-import { createContext, useContext, useEffect, useState } from "react";
-var noop = () => {
-};
-var FigureMotionContext = createContext({
-  playing: true,
-  reduced: false,
-  cycle: 0,
-  toggle: noop,
-  replay: noop
-});
-function useFigureMotion() {
-  return useContext(FigureMotionContext);
-}
-var QUERY = "(prefers-reduced-motion: reduce)";
-function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const mq = window.matchMedia(QUERY);
-    const onChange = (e) => setReduced(e.matches);
-    setReduced(mq.matches);
-    if (typeof mq.addEventListener === "function") {
-      mq.addEventListener("change", onChange);
-      return () => mq.removeEventListener("change", onChange);
-    }
-    mq.addListener(onChange);
-    return () => mq.removeListener(onChange);
-  }, []);
-  return reduced;
-}
-
 // src/tokens.tsx
 import { jsx } from "react/jsx-runtime";
 var TOKEN_SHAPE = {
@@ -66,9 +34,9 @@ function Token({ shape, kind = "neutral", r = 5, cx = 0, cy = 0, style }) {
 }
 
 // src/scale.tsx
-import { createContext as createContext2, useContext as useContext2 } from "react";
+import { createContext, useContext } from "react";
 import { jsx as jsx2 } from "react/jsx-runtime";
-var FigureScaleContext = createContext2({ floor: 0 });
+var FigureScaleContext = createContext({ floor: 0 });
 var DEFAULT_RENDER_WIDTH = 1088;
 function fontFloor(vbWidth, renderWidth, minFont) {
   if (!vbWidth || !renderWidth || !minFont) return 0;
@@ -78,14 +46,11 @@ function FigureScaleProvider({ floor, children }) {
   return /* @__PURE__ */ jsx2(FigureScaleContext.Provider, { value: { floor }, children });
 }
 function useFontFloor(size) {
-  const { floor } = useContext2(FigureScaleContext);
+  const { floor } = useContext(FigureScaleContext);
   return Math.max(size, floor);
 }
 
 export {
-  FigureMotionContext,
-  useFigureMotion,
-  usePrefersReducedMotion,
   TOKEN_SHAPE,
   tokenColor,
   Token,
@@ -95,4 +60,4 @@ export {
   FigureScaleProvider,
   useFontFloor
 };
-//# sourceMappingURL=chunk-G6PKZ6Y3.js.map
+//# sourceMappingURL=chunk-2BHGP5ET.js.map
