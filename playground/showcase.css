@@ -1,0 +1,114 @@
+:root {
+  --show-bg: #f6f5f1;
+  --show-ink: #1a1c1a;
+  --show-muted: #5c625e;
+  --show-rule: rgba(26, 28, 26, 0.22);
+  --show-accent: #205f49;
+  --show-surface: #fff;
+}
+:root[data-theme="dark"] {
+  --show-bg: #0a100d;
+  --show-ink: #e8ece9;
+  --show-muted: #9aa39e;
+  --show-rule: rgba(232, 236, 233, 0.22);
+  --show-accent: #71dcb2;
+  --show-surface: #14201b;
+}
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  background: var(--show-bg);
+  color: var(--show-ink);
+}
+.showcase-shell {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+  display: grid;
+  gap: 32px;
+}
+.showcase-shell > section {
+  min-width: 0;
+}
+.showcase-shell > section > h2 {
+  font-size: 13px;
+  margin: 0 0 8px;
+  font-family: ui-monospace, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--show-muted);
+}
+.showcase-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-width: 0;
+  border-bottom: 1px solid var(--show-rule);
+  padding-bottom: 16px;
+}
+.showcase-brand {
+  color: inherit;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+.showcase-header nav {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+.showcase-header nav a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  font:
+    500 13px ui-monospace,
+    monospace;
+  color: var(--show-muted);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.showcase-header nav a[aria-current="page"] {
+  color: var(--show-accent);
+  border-bottom-color: var(--show-accent);
+}
+.showcase-header nav a:hover {
+  color: var(--show-ink);
+}
+.showcase-header button.theme {
+  min-height: 44px;
+  font:
+    13px ui-monospace,
+    monospace;
+  padding: 6px 12px;
+  border: 1px solid var(--show-rule);
+  background: transparent;
+  color: inherit;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.showcase-shell a:focus-visible,
+.showcase-shell button:focus-visible,
+.showcase-shell summary:focus-visible {
+  outline: 2px solid var(--show-accent);
+  outline-offset: 3px;
+}
+@media (max-width: 540px) {
+  .showcase-header {
+    flex-wrap: wrap;
+    gap: 8px 16px;
+  }
+  .showcase-header nav {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+  }
+  .showcase-header button.theme {
+    margin-left: auto;
+  }
+}

@@ -118,14 +118,14 @@ var init_model = __esm({
         change: "#c39aff"
       },
       light: {
-        background: "#f1eee6",
-        surface: "#f8f6f0",
-        ink: "#1a2420",
-        muted: "#55675f",
+        background: "#ffffff",
+        surface: "#ffffff",
+        ink: "#1a1c1a",
+        muted: "#5c625e",
         rule: "#bac3bc",
         accent: "#205f49",
         request: "#4f6fe6",
-        response: "#27835a",
+        response: "#3fb27f",
         change: "#9a63e0"
       }
     };

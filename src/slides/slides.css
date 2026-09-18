@@ -9,22 +9,22 @@
   --slide-request: #8ea4ff;
   --slide-response: #5fd39b;
   --slide-change: #c39aff;
-  --slide-sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
-  --slide-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --slide-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --slide-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   color: var(--slide-ink);
   font-family: var(--slide-sans);
   box-sizing: border-box;
 }
 .uipack-slide-player[data-theme="light"],
 .uipack-slide-scene[data-theme="light"] {
-  --slide-bg: #f1eee6;
-  --slide-surface: #f8f6f0;
-  --slide-ink: #1a2420;
-  --slide-muted: #55675f;
+  --slide-bg: #ffffff;
+  --slide-surface: #ffffff;
+  --slide-ink: #1a1c1a;
+  --slide-muted: #5c625e;
   --slide-rule: #bac3bc;
   --slide-accent: #205f49;
   --slide-request: #4f6fe6;
-  --slide-response: #27835a;
+  --slide-response: #3fb27f;
   --slide-change: #9a63e0;
 }
 .uipack-slide-player *,
@@ -73,6 +73,11 @@
   gap: 12px;
   font: 12px/1.5 var(--slide-mono);
   color: var(--slide-muted);
+}
+.uipack-slide-player__top button {
+  min-height: 44px;
+  border-color: var(--slide-rule);
+  font-family: var(--slide-sans);
 }
 .uipack-slide-player__top > div {
   display: flex;
@@ -400,4 +405,16 @@
   .uipack-slide-player__notes {
     display: none;
   }
+}
+
+/* Embedded previews follow figure typography; presentation mode keeps its scale. */
+.uipack-slide-player:not(.uipack-slide-player--present) .uipack-slide-player__copy h2 {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.uipack-slide-player:not(.uipack-slide-player--present) .uipack-slide-player__copy p {
+  font-size: 14px;
+  line-height: 1.55;
 }

@@ -1,22 +1,12 @@
-import { useState } from "react";
+import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
 import { HabitatFigure } from "../examples/Habitat";
-import { Badge, Bus, Chip, Connector, Defs, Figure, Group, Label, Lane, Node, Packet, Wordmark, icons, marks, route, type IconName, type MarkName } from "../src";
+import { Badge, Bus, Chip, Connector, Defs, Figure, Group, Label, Lane, Node, Packet, icons, marks, route, type IconName, type MarkName } from "../src";
 import { PRESETS, type PresetName } from "../src/presets";
 import { AssetBrowser } from "../src/browser";
 import manifest from "../assets/manifest.json";
 import "../src/browser/browser.css";
 
 declare const __UIPACK_ROOT__: string;
-
-function useTheme() {
-  const [theme, setTheme] = useState<string>(document.documentElement.dataset.theme ?? "light");
-  const flip = () => {
-    const next = theme === "dark" ? "light" : "dark";
-    document.documentElement.dataset.theme = next;
-    setTheme(next);
-  };
-  return { theme, flip };
-}
 
 const iconNames = Object.keys(icons) as IconName[];
 const markNames = Object.keys(marks) as MarkName[];
@@ -130,19 +120,10 @@ function Assets() {
 }
 
 export function App() {
-  const { theme, flip } = useTheme();
+  const { theme, flip } = useShowcaseTheme();
   const route_ = location.pathname.replace(/\/$/, "");
   return (
-    <main>
-      <h1>
-        <Wordmark size={22} />
-        <span>
-          <a href="/">figures</a> · <a href="/assets">assets</a> · <a href="/slides">slides</a>
-        </span>
-        <button className="theme" type="button" onClick={flip}>
-          {theme === "dark" ? "light" : "dark"} mode
-        </button>
-      </h1>
+    <ShowcaseShell active={route_ === "/assets" ? "assets" : "figures"} theme={theme} flip={flip}>
       {route_ === "/assets" ? (
         <Assets />
       ) : (
@@ -164,6 +145,6 @@ export function App() {
           </section>
         </>
       )}
-    </main>
+    </ShowcaseShell>
   );
 }

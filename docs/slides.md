@@ -23,7 +23,7 @@ export function HarnessPresentation() {
 }
 ```
 
-Run `npm run dev` in this repository and visit `/slides` for the showcase. The page supports `?story=harness-dive&stop=context`, `?theme=light`, `?motion=none`, and `?mode=diagram` for direct previews.
+Run `npm run dev` in this repository and visit `/slides` for the showcase. Figures, Assets, and Slides share a header, page layout, and theme control. Navigation carries the selected theme in the URL; explicit light is the default. The page supports `?story=harness-dive&stop=context`, `?theme=light`, `?motion=none`, and `?mode=diagram` for direct previews.
 
 ### Included stories
 
@@ -116,7 +116,7 @@ const story: SlideStory = {
 
 ## Style
 
-The player uses UIPACK's forest/mint palette, shape-coded blue/green/violet flows, small corner radii, and sans/mono type roles. It supports explicit `theme="dark"` and `theme="light"`. CSS fonts use installed IBM Plex when available, with local system fallbacks. No font request is made by the package.
+The player uses UIPACK's forest/mint palette, shape-coded blue/green/violet flows, small corner radii, and sans/mono type roles. It supports explicit `theme="dark"` and `theme="light"`. CSS fonts use the same system sans and monospace stacks as the SVG figures. No font request is made by the package.
 
 ## Scope and limits
 

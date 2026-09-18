@@ -1,13 +1,14 @@
 import { lazy, Suspense, StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "../src/theme.css";
+import "./showcase.css";
 import { App } from "./App";
 
 const Slides = lazy(() => import("./SlideShowcase"));
 
 const params = new URLSearchParams(location.search);
 const theme = params.get("theme");
-if (theme === "dark" || theme === "light") document.documentElement.dataset.theme = theme;
+document.documentElement.dataset.theme = theme === "dark" ? "dark" : "light";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

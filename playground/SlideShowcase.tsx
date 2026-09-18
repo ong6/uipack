@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
 import { SlidePlayer, slideStories } from "../src/slides";
 import "../src/slides/slides.css";
 import "./slides-showcase.css";
@@ -8,9 +9,7 @@ export default function Slides() {
   const [storyId, setStoryId] = useState(
     params.get("story") ?? slideStories[0].id,
   );
-  const [theme, setTheme] = useState<"dark" | "light">(
-    params.get("theme") === "light" ? "light" : "dark",
-  );
+  const { theme, flip } = useShowcaseTheme();
   const story = slideStories.find((s) => s.id === storyId) ?? slideStories[0];
   const choose = (id: string) => {
     setStoryId(id);
@@ -25,33 +24,13 @@ export default function Slides() {
     history.replaceState(null, "", url);
   };
   return (
-    <div className="slides-showcase" data-theme={theme}>
-      <header className="slides-showcase__header">
-        <a href="/" className="slides-showcase__brand">
-          ui<span>pack</span>
-          <small> / slides</small>
-        </a>
-        <div>
-          <a href="/">Figures</a>
-          <a href="/assets">Assets</a>
-          <button
-            onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
-          >
-            {theme === "dark" ? "Light" : "Dark"} theme
-          </button>
-        </div>
-      </header>
-      <main className="slides-showcase__main">
-        <div className="slides-showcase__intro">
-          <div>
-            <p className="slides-showcase__eyebrow">Spatial stories</p>
-            <h1>Go inside the explanation.</h1>
-          </div>
-          <p>
-            One scene, several points of view. Move through a system without
-            losing where you are.
-          </p>
-        </div>
+    <ShowcaseShell active="slides" theme={theme} flip={flip}>
+      <section className="slides-showcase">
+        <h2>Slides · {slideStories.length} examples</h2>
+        <p className="slides-showcase__intro">
+          Live 3D scenes with camera moves, animated flows, and presentation
+          controls.
+        </p>
         <nav className="slides-showcase__tabs" aria-label="Example stories">
           {slideStories.map((s, i) => (
             <button
@@ -97,7 +76,7 @@ export default function Slides() {
             navigation. The main website is a separate integration.
           </p>
         </details>
-      </main>
-    </div>
+      </section>
+    </ShowcaseShell>
   );
 }

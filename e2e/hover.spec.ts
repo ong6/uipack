@@ -19,8 +19,9 @@ test.describe("hover", () => {
     await expect.poll(() => beta.evaluate((el) => Number(getComputedStyle(el).opacity)), { timeout: 2000 }).toBeCloseTo(0.35, 1);
     await expect.poll(() => conn.evaluate((el) => Number(getComputedStyle(el).opacity)), { timeout: 2000 }).toBe(1);
     const accent = await page.locator("figure.uipack").first().evaluate((el) => getComputedStyle(el).getPropertyValue("--uipack-accent").trim());
-    const stroke = await conn.evaluate((el) => getComputedStyle(el).stroke);
-    expect(stroke).toBe(await page.evaluate((c) => { const d = document.createElement("div"); d.style.color = c; document.body.append(d); const v = getComputedStyle(d).color; d.remove(); return v; }, accent));
+    const expectedStroke = await page.evaluate((c) => { const d = document.createElement("div"); d.style.color = c; document.body.append(d); const v = getComputedStyle(d).color; d.remove(); return v; }, accent);
+    // Stroke has its own transition; opacity settling does not mean colour has settled.
+    await expect.poll(() => conn.evaluate((el) => getComputedStyle(el).stroke), { timeout: 2000 }).toBe(expectedStroke);
     await page.mouse.move(0, 0);
     await expect(beta).not.toHaveAttribute("data-state", /.+/);
     await expect.poll(() => beta.evaluate((el) => Number(getComputedStyle(el).opacity)), { timeout: 2000 }).toBe(1);

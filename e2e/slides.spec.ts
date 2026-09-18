@@ -108,7 +108,7 @@ test("reduced motion lands immediately and light mode rebuilds exactly one rende
     "data-transitioning",
     "false",
   );
-  await page.getByRole("button", { name: "Dark theme", exact: true }).click();
+  await page.getByRole("button", { name: "dark mode", exact: true }).click();
   await expect(page.locator(player)).toHaveAttribute("data-theme", "dark");
   await expect(page.locator(scene)).not.toHaveAttribute(
     "data-renderer",

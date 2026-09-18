@@ -6,7 +6,7 @@ import {
   resolveNodePose,
   slidePalettes,
   validateSlideStory
-} from "./chunk-335WTXUP.js";
+} from "./chunk-AZPFC2BR.js";
 
 // src/slides/SlidePlayer.tsx
 import {
@@ -66,7 +66,7 @@ function SceneViewport({
       return;
     }
     setStatus("loading");
-    void import("./renderer-CISWFHCW.js").then(({ createSlideScene }) => {
+    void import("./renderer-4H6F3QNC.js").then(({ createSlideScene }) => {
       if (cancelled || !host.current || !labels.current) return;
       try {
         runtime.current = createSlideScene(

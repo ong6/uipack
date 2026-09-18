@@ -209,7 +209,7 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
 
 ## Testing
 
-`npm test` runs 75 vitest cases in jsdom. `npm run test:e2e` runs 28 Playwright cases in Chromium and WebKit: 55 pass, with one existing clipboard test skipped in WebKit. What they pin down:
+`npm test` runs 75 vitest cases in jsdom. `npm run test:e2e` runs 29 Playwright cases in Chromium and WebKit: 57 pass, with one existing clipboard test skipped in WebKit. What they pin down:
 
 - Packets move, hold after Pause, resume on Play, return to the start on Replay, and sit still under reduced motion.
 - Hovering a node dims the rest and lights its flow. Hovering a legend item filters by kind. An `href` node takes focus.

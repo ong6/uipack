@@ -1,7 +1,7 @@
 import {
   resolveNodePose,
   slidePalettes
-} from "./chunk-335WTXUP.js";
+} from "./chunk-AZPFC2BR.js";
 
 // src/slides/renderer.ts
 import * as THREE from "three";
@@ -569,4 +569,4 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
 export {
   createSlideScene
 };
-//# sourceMappingURL=renderer-CISWFHCW.js.map
+//# sourceMappingURL=renderer-4H6F3QNC.js.map
