@@ -171,3 +171,30 @@ test("mobile layout fits the viewport and diagram/3D switching leaves no duplica
     await page.locator("canvas[data-slide-canvas]").count(),
   ).toBeLessThanOrEqual(1);
 });
+
+test("new motion stories settle after forward, reverse, and interrupted navigation", async ({
+  page,
+}) => {
+  await page.goto("/slides?story=quarter-turn");
+  const viewport = page.locator(scene);
+  await expect(viewport).toHaveAttribute("data-renderer", "ready");
+  await page.getByRole("button", { name: "Next stop", exact: true }).click();
+  await expect(viewport).toHaveAttribute("data-transitioning", "true");
+  await expect(viewport).toHaveAttribute("data-settled-stop", "right");
+  await expect(
+    page.locator('.uipack-slide-label[data-node="tools"]'),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Next stop", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Previous stop", exact: true })
+    .click();
+  await expect(viewport).toHaveAttribute("data-settled-stop", "right");
+  await expect(viewport).toHaveAttribute("data-transitioning", "false");
+  await page.getByRole("button", { name: /Staged assembly/ }).click();
+  await page.getByRole("button", { name: "Next stop", exact: true }).click();
+  await expect(viewport).toHaveAttribute("data-settled-stop", "assemble");
+  await page.getByRole("button", { name: /Before \/ after/ }).click();
+  await page.getByRole("button", { name: "Next stop", exact: true }).click();
+  await expect(viewport).toHaveAttribute("data-settled-stop", "after");
+  await expect(page.locator("canvas[data-slide-canvas]")).toHaveCount(1);
+});

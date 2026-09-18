@@ -74,6 +74,15 @@ function validateSlideStory(story) {
   for (const s of story.stops) {
     if (stops.has(s.id)) issues.push(`Duplicate stop id: ${s.id}`);
     stops.add(s.id);
+    if (s.transition) {
+      const t = s.transition;
+      if (t.camera && !["orbit", "dolly"].includes(t.camera))
+        issues.push(`Invalid camera motion: ${s.id}`);
+      if (t.duration !== void 0 && (!Number.isFinite(t.duration) || t.duration < 0.2 || t.duration > 5))
+        issues.push(`Invalid duration: ${s.id}`);
+      if (t.stagger !== void 0 && (!Number.isFinite(t.stagger) || t.stagger < 0 || t.stagger > 0.15))
+        issues.push(`Invalid stagger: ${s.id}`);
+    }
     if (!finite3(s.camera.position) || !finite3(s.camera.target) || s.camera.position.every((v, i) => v === s.camera.target[i]))
       issues.push(`Invalid camera: ${s.id}`);
     for (const [id, pose] of Object.entries(s.nodes ?? {})) {
@@ -328,7 +337,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute(
       "position",
-      new THREE.BufferAttribute(new Float32Array(12), 3)
+      new THREE.BufferAttribute(new Float32Array(75), 3)
     );
     const line = track(new THREE.Line(geometry, material));
     line.frustumCulled = false;
@@ -337,7 +346,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
     const packet = track(
       new THREE.Mesh(
         packetGeometry,
-        new THREE.MeshBasicMaterial({ color: tone(c.tone) })
+        new THREE.MeshBasicMaterial({ color: tone(c.tone), transparent: true })
       )
     );
     if (c.tone === "change") packet.rotation.z = Math.PI / 4;
@@ -375,6 +384,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
   const projected = new THREE.Vector3();
   const target = new THREE.Vector3();
   const up = new THREE.Vector3(0, 1, 0);
+  const presentation = { labels: 1, flow: 1 };
   const active = () => new Set(stop.activeConnections ?? []);
   function pointAt(points, progress) {
     const lengths = points.slice(1).map((p, i) => p.distanceTo(points[i]));
@@ -411,7 +421,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
         m.opacity = n.pose.opacity * (m.userData.baseOpacity ?? 1);
       });
       if (!n.label) continue;
-      const eligible = (ids ? ids.has(n.spec.id) : n.spec.kind !== "boundary") && n.pose.opacity >= 0.3;
+      const eligible = (ids ? ids.has(n.spec.id) : n.spec.kind !== "boundary") && n.pose.opacity >= 0.3 && presentation.labels > 0.01;
       projected.copy(n.group.position);
       projected.y += (n.spec.size?.[1] ?? 0.6) / 2 * n.pose.scale;
       projected.project(camera);
@@ -441,7 +451,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
         }
       }
       n.label.style.visibility = placement ? "visible" : "hidden";
-      n.label.style.opacity = placement ? "1" : "0";
+      n.label.style.opacity = placement ? String(presentation.labels) : "0";
       if (placement) {
         boxes.push(placement);
         n.label.style.transform = `translate(${placement.x}px, ${placement.y}px)`;
@@ -455,13 +465,18 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       const bend1 = start.clone().lerp(end, 0.42), bend2 = start.clone().lerp(end, 0.58);
       bend1.y += 0.2;
       bend2.y += 0.2;
-      l.points = [start, bend1, bend2, end];
+      l.points = new THREE.CubicBezierCurve3(
+        start,
+        bend1,
+        bend2,
+        end
+      ).getPoints(24);
       const attr = l.line.geometry.getAttribute(
         "position"
       );
       l.points.forEach((p, i) => attr.setXYZ(i, p.x, p.y, p.z));
       attr.needsUpdate = true;
-      l.material.opacity = visibility * (currentActive.has(l.spec.id) ? 0.95 : 0.12);
+      l.material.opacity = visibility * (currentActive.has(l.spec.id) ? 0.12 + 0.83 * presentation.flow : 0.12);
       l.line.visible = visibility > 0.05;
       l.arrow.visible = visibility > 0.25 && currentActive.has(l.spec.id);
       l.arrow.position.copy(
@@ -472,13 +487,11 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
         end.clone().sub(bend2).normalize()
       );
       l.packet.visible = visibility > 0.25 && currentActive.has(l.spec.id);
-      if (l.packet.visible)
-        l.packet.position.copy(
-          pointAt(
-            l.points,
-            isReduced ? 0.5 : 0.12 + (clock * 0.38 + links.indexOf(l) * 0.19) % 1 * 0.7
-          )
-        );
+      if (l.packet.visible) {
+        const progress = isReduced ? 0.5 : (clock * 0.27 + links.indexOf(l) * 0.19) % 1;
+        l.packet.position.copy(pointAt(l.points, progress));
+        l.packet.material.opacity = visibility * presentation.flow * Math.min(1, progress * 10, (1 - progress) * 10);
+      }
     }
     renderer.render(scene, camera);
   }
@@ -537,7 +550,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
   function goTo(next, immediate = false) {
     transition?.kill();
     stop = next;
-    const duration = immediate || isReduced ? 0 : 1.35;
+    const duration = immediate || isReduced ? 0 : next.transition?.duration ?? 1.6;
     const destination = {
       x: next.camera.position[0],
       y: next.camera.position[1],
@@ -547,6 +560,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       tz: next.camera.target[2]
     };
     if (!duration) {
+      presentation.labels = presentation.flow = 1;
       Object.assign(cam, destination);
       nodes.forEach((n) => {
         const p = resolveNodePose(n.spec, next);
@@ -570,7 +584,64 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
         onSettled(next.id);
       }
     });
-    transition.to(cam, { ...destination, duration, ease: "power2.inOut" }, 0);
+    transition.to(presentation, { labels: 0, flow: 0, duration: 0.12 }, 0);
+    if (next.transition?.camera === "dolly") {
+      transition.to(
+        cam,
+        { ...destination, duration, ease: "sine.inOut" },
+        0.12
+      );
+    } else {
+      const from = new THREE.Spherical().setFromVector3(
+        new THREE.Vector3(cam.x - cam.tx, cam.y - cam.ty, cam.z - cam.tz)
+      );
+      const to = new THREE.Spherical().setFromVector3(
+        new THREE.Vector3(
+          destination.x - destination.tx,
+          destination.y - destination.ty,
+          destination.z - destination.tz
+        )
+      );
+      const orbit = {
+        radius: from.radius,
+        phi: from.phi,
+        theta: from.theta,
+        tx: cam.tx,
+        ty: cam.ty,
+        tz: cam.tz
+      };
+      const delta = Math.atan2(
+        Math.sin(to.theta - from.theta),
+        Math.cos(to.theta - from.theta)
+      );
+      const offset = new THREE.Vector3();
+      transition.to(
+        orbit,
+        {
+          radius: to.radius,
+          phi: to.phi,
+          theta: from.theta + delta,
+          tx: destination.tx,
+          ty: destination.ty,
+          tz: destination.tz,
+          duration,
+          ease: "sine.inOut",
+          onUpdate: () => {
+            offset.setFromSphericalCoords(orbit.radius, orbit.phi, orbit.theta);
+            Object.assign(cam, {
+              x: orbit.tx + offset.x,
+              y: orbit.ty + offset.y,
+              z: orbit.tz + offset.z,
+              tx: orbit.tx,
+              ty: orbit.ty,
+              tz: orbit.tz
+            });
+          }
+        },
+        0.12
+      );
+    }
+    let arrival = 0;
     nodes.forEach((n) => {
       const p = resolveNodePose(n.spec, next);
       transition.to(
@@ -582,10 +653,16 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
           scale: p.scale,
           opacity: p.opacity,
           duration,
-          ease: "power2.inOut"
+          ease: "sine.inOut"
         },
-        0
+        0.12 + arrival++ * (next.transition?.stagger ?? 0)
       );
+    });
+    transition.to(presentation, {
+      labels: 1,
+      flow: 1,
+      duration: 0.22,
+      ease: "sine.out"
     });
     wake();
   }
@@ -635,13 +712,16 @@ var slides_exports = {};
 __export(slides_exports, {
   SlidePlayer: () => SlidePlayer,
   SlideScene: () => SlideScene,
+  architectureShift: () => architectureShift,
   clampStop: () => clampStop,
   harnessDive: () => harnessDive,
   parallelAgents: () => parallelAgents,
+  quarterTurn: () => quarterTurn,
   resolveNodePose: () => resolveNodePose,
   retrievalLayers: () => retrievalLayers,
   slidePalettes: () => slidePalettes,
   slideStories: () => slideStories,
+  stagedAssembly: () => stagedAssembly,
   validateSlideStory: () => validateSlideStory
 });
 module.exports = __toCommonJS(slides_exports);
@@ -1140,6 +1220,7 @@ var harnessDive = {
     },
     {
       id: "inside",
+      transition: { camera: "dolly", duration: 1.8 },
       title: "Open the harness.",
       caption: "The surrounding machinery becomes visible: context and memory on one side, tools and checks on the other.",
       camera: { position: [8, 9, 13], target: [0, 0, -0.4] },
@@ -1266,6 +1347,7 @@ var retrievalLayers = {
     },
     {
       id: "explode",
+      transition: { stagger: 0.08, duration: 1.5 },
       title: "Separate storage from selection.",
       caption: "The index makes evidence findable. Retrieval and ranking decide what the model will actually see.",
       camera: { position: [11, 7, 15], target: [0, 0.1, 0] },
@@ -1398,6 +1480,7 @@ var parallelAgents = {
     },
     {
       id: "fanout",
+      transition: { stagger: 0.07, duration: 1.5 },
       title: "Give independent work its own lane.",
       caption: "Research, implementation, and review spread into separate lanes with explicit responsibilities.",
       camera: { position: [10, 11, 18], target: [0, 0, 0] },
@@ -1444,10 +1527,249 @@ var parallelAgents = {
     }
   ]
 };
+var quarterTurn = {
+  id: "quarter-turn",
+  title: "One system, four perspectives",
+  description: "A constant-radius quarter turn reveals a different architectural slice without rearranging the system.",
+  nodes: [
+    {
+      id: "core",
+      label: "Runtime",
+      position: [0, 0, 0],
+      kind: "sphere",
+      size: [2, 2, 2],
+      tone: "accent"
+    },
+    {
+      id: "api",
+      label: "Interface",
+      detail: "The caller's view",
+      position: [0, 0, 3.8],
+      tone: "request"
+    },
+    {
+      id: "tools",
+      label: "Execution",
+      detail: "Capabilities + actions",
+      position: [3.8, 0, 0],
+      tone: "change"
+    },
+    {
+      id: "data",
+      label: "State",
+      detail: "Memory + persistence",
+      position: [0, 0, -3.8],
+      tone: "response"
+    },
+    {
+      id: "policy",
+      label: "Control",
+      detail: "Permissions + checks",
+      position: [-3.8, 0, 0],
+      tone: "neutral"
+    }
+  ],
+  connections: ["api", "tools", "data", "policy"].map((id) => ({
+    id,
+    from: id,
+    to: "core",
+    tone: "accent"
+  })),
+  stops: [
+    {
+      id: "front",
+      title: "Start with the interface.",
+      caption: "One architecture stays in place. Each turn changes what you explain.",
+      camera: { position: [0, 10, 19], target: [0, 0, 0] },
+      labels: ["api", "core"]
+    },
+    {
+      id: "right",
+      title: "Turn 90\xB0 to execution.",
+      caption: "Keep the runtime as the anchor while capabilities come to the foreground.",
+      camera: { position: [19, 10, 0], target: [0, 0, 0] },
+      labels: ["tools", "core"],
+      activeConnections: ["tools"]
+    },
+    {
+      id: "back",
+      title: "Another turn reveals state.",
+      caption: "The same system, viewed through its memory and persistence boundary.",
+      camera: { position: [0, 10, -19], target: [0, 0, 0] },
+      labels: ["data", "core"],
+      activeConnections: ["data"]
+    },
+    {
+      id: "left",
+      title: "Finish with control.",
+      caption: "Policy decides which actions may cross the runtime boundary.",
+      camera: { position: [-19, 10, 0], target: [0, 0, 0] },
+      labels: ["policy", "core"],
+      activeConnections: ["policy"]
+    }
+  ]
+};
+var stagedAssembly = {
+  id: "staged-assembly",
+  title: "Build the explanation in layers",
+  description: "A fixed camera lets components arrive in sequence, then separates them for inspection.",
+  nodes: [
+    {
+      id: "data",
+      label: "Evidence",
+      detail: "A reliable foundation",
+      position: [0, -2, 0],
+      size: [6, 0.3, 4],
+      kind: "layer",
+      tone: "response"
+    },
+    {
+      id: "tools",
+      label: "Capabilities",
+      detail: "Bounded operations",
+      position: [0, -0.6, 0],
+      size: [5, 0.3, 3.4],
+      kind: "layer",
+      tone: "change"
+    },
+    {
+      id: "runtime",
+      label: "Runtime",
+      detail: "Coordinate the work",
+      position: [0, 0.8, 0],
+      size: [4, 0.3, 2.8],
+      kind: "layer",
+      tone: "request"
+    },
+    {
+      id: "experience",
+      label: "Experience",
+      detail: "The user's outcome",
+      position: [0, 2.2, 0],
+      size: [3, 0.3, 2.2],
+      kind: "layer",
+      tone: "accent"
+    }
+  ],
+  connections: [],
+  stops: [
+    {
+      id: "foundation",
+      title: "Begin with evidence.",
+      caption: "Introduce the foundation before adding the machinery above it.",
+      camera: { position: [11, 8, 17], target: [0, 0, 0] },
+      labels: ["data"],
+      nodes: {
+        tools: { position: [0, 5, 0], opacity: 0 },
+        runtime: { position: [0, 6, 0], opacity: 0 },
+        experience: { position: [0, 7, 0], opacity: 0 }
+      }
+    },
+    {
+      id: "assemble",
+      title: "Build up the capabilities.",
+      caption: "Each layer arrives in order. The camera stays still so the assembly is the only movement.",
+      camera: { position: [11, 8, 17], target: [0, 0, 0] },
+      transition: { stagger: 0.14, duration: 1.7 },
+      labels: ["tools", "runtime", "experience"]
+    },
+    {
+      id: "separate",
+      title: "Pull apart the responsibilities.",
+      caption: "Lift the layers to explain what each owns and where the boundaries sit.",
+      camera: { position: [11, 8, 17], target: [0, 0, 0] },
+      transition: { stagger: 0.1 },
+      nodes: {
+        data: { position: [0, -3, 0] },
+        tools: { position: [0, -1, 0] },
+        runtime: { position: [0, 1.2, 0] },
+        experience: { position: [0, 3.4, 0] }
+      }
+    }
+  ]
+};
+var architectureShift = {
+  id: "architecture-shift",
+  title: "From handoffs to a shared workflow",
+  description: "Use a spatial before-and-after: preserve component identities while reorganizing their relationships.",
+  nodes: [
+    {
+      id: "request",
+      label: "Request",
+      position: [-4.5, 0, 0],
+      tone: "request"
+    },
+    { id: "plan", label: "Plan", position: [-1.5, 0, 0], tone: "accent" },
+    { id: "execute", label: "Execute", position: [1.5, 0, 0], tone: "change" },
+    { id: "verify", label: "Verify", position: [4.5, 0, 0], tone: "response" },
+    {
+      id: "state",
+      label: "Shared state",
+      detail: "Context + evidence",
+      position: [0, -0.5, 0],
+      kind: "sphere",
+      tone: "accent"
+    }
+  ],
+  connections: [
+    { id: "a", from: "request", to: "plan", tone: "request" },
+    { id: "b", from: "plan", to: "execute", tone: "change" },
+    { id: "c", from: "execute", to: "verify", tone: "response" },
+    ...["request", "plan", "execute", "verify"].map((id) => ({
+      id,
+      from: id,
+      to: "state",
+      tone: "accent"
+    }))
+  ],
+  stops: [
+    {
+      id: "before",
+      title: "A chain of handoffs.",
+      caption: "Each stage passes its output onward. Context has to travel with the handoff.",
+      camera: { position: [5, 10, 20], target: [0, 0, 0] },
+      nodes: { state: { opacity: 0 } },
+      labels: ["request", "plan", "execute", "verify"],
+      activeConnections: ["a", "b", "c"]
+    },
+    {
+      id: "after",
+      title: "Organize around shared state.",
+      caption: "The same components gather around a common record of progress and evidence.",
+      camera: { position: [5, 10, 20], target: [0, 0, 0] },
+      transition: { duration: 2, stagger: 0.06 },
+      nodes: {
+        request: { position: [-3.4, 0, 0] },
+        plan: { position: [0, 0, -3.4] },
+        execute: { position: [3.4, 0, 0] },
+        verify: { position: [0, 0, 3.4] }
+      },
+      labels: ["request", "plan", "execute", "verify", "state"],
+      activeConnections: ["request", "plan", "execute", "verify"]
+    },
+    {
+      id: "focus",
+      title: "Keep the evidence in view.",
+      caption: "Move closer to the shared record while preserving the surrounding responsibilities.",
+      camera: { position: [3, 8, 13], target: [0, -0.5, 0] },
+      transition: { camera: "dolly", duration: 1.8 },
+      nodes: {
+        request: { position: [-3.4, 0, 0], opacity: 0.25 },
+        plan: { position: [0, 0, -3.4], opacity: 0.25 },
+        execute: { position: [3.4, 0, 0], opacity: 0.25 },
+        verify: { position: [0, 0, 3.4], opacity: 0.25 }
+      },
+      labels: ["state"]
+    }
+  ]
+};
 var slideStories = [
   harnessDive,
   retrievalLayers,
-  parallelAgents
+  parallelAgents,
+  quarterTurn,
+  stagedAssembly,
+  architectureShift
 ];
 
 // src/slides/index.ts
@@ -1456,13 +1778,16 @@ init_model();
 0 && (module.exports = {
   SlidePlayer,
   SlideScene,
+  architectureShift,
   clampStop,
   harnessDive,
   parallelAgents,
+  quarterTurn,
   resolveNodePose,
   retrievalLayers,
   slidePalettes,
   slideStories,
+  stagedAssembly,
   validateSlideStory
 });
 //# sourceMappingURL=slides.cjs.map

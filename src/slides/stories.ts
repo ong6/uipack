@@ -96,6 +96,7 @@ export const harnessDive: SlideStory = {
     },
     {
       id: "inside",
+      transition: { camera: "dolly", duration: 1.8 },
       title: "Open the harness.",
       caption:
         "The surrounding machinery becomes visible: context and memory on one side, tools and checks on the other.",
@@ -229,6 +230,7 @@ export const retrievalLayers: SlideStory = {
     },
     {
       id: "explode",
+      transition: { stagger: 0.08, duration: 1.5 },
       title: "Separate storage from selection.",
       caption:
         "The index makes evidence findable. Retrieval and ranking decide what the model will actually see.",
@@ -339,18 +341,14 @@ export const parallelAgents: SlideStory = {
         from: "planner",
         to: id,
         tone: ["request", "change", "response"][i] as
-          | "request"
-          | "change"
-          | "response",
+          "request" | "change" | "response",
       },
       {
         id: `in-${id}`,
         from: id,
         to: "merge",
         tone: ["request", "change", "response"][i] as
-          | "request"
-          | "change"
-          | "response",
+          "request" | "change" | "response",
       },
     ]),
     { id: "result", from: "merge", to: "result", tone: "response" },
@@ -373,6 +371,7 @@ export const parallelAgents: SlideStory = {
     },
     {
       id: "fanout",
+      transition: { stagger: 0.07, duration: 1.5 },
       title: "Give independent work its own lane.",
       caption:
         "Research, implementation, and review spread into separate lanes with explicit responsibilities.",
@@ -422,8 +421,261 @@ export const parallelAgents: SlideStory = {
     },
   ],
 };
+/** Four exact cardinal viewpoints around one unchanged architecture. */
+export const quarterTurn: SlideStory = {
+  id: "quarter-turn",
+  title: "One system, four perspectives",
+  description:
+    "A constant-radius quarter turn reveals a different architectural slice without rearranging the system.",
+  nodes: [
+    {
+      id: "core",
+      label: "Runtime",
+      position: [0, 0, 0],
+      kind: "sphere",
+      size: [2, 2, 2],
+      tone: "accent",
+    },
+    {
+      id: "api",
+      label: "Interface",
+      detail: "The caller's view",
+      position: [0, 0, 3.8],
+      tone: "request",
+    },
+    {
+      id: "tools",
+      label: "Execution",
+      detail: "Capabilities + actions",
+      position: [3.8, 0, 0],
+      tone: "change",
+    },
+    {
+      id: "data",
+      label: "State",
+      detail: "Memory + persistence",
+      position: [0, 0, -3.8],
+      tone: "response",
+    },
+    {
+      id: "policy",
+      label: "Control",
+      detail: "Permissions + checks",
+      position: [-3.8, 0, 0],
+      tone: "neutral",
+    },
+  ],
+  connections: ["api", "tools", "data", "policy"].map((id) => ({
+    id,
+    from: id,
+    to: "core",
+    tone: "accent",
+  })),
+  stops: [
+    {
+      id: "front",
+      title: "Start with the interface.",
+      caption:
+        "One architecture stays in place. Each turn changes what you explain.",
+      camera: { position: [0, 10, 19], target: [0, 0, 0] },
+      labels: ["api", "core"],
+    },
+    {
+      id: "right",
+      title: "Turn 90° to execution.",
+      caption:
+        "Keep the runtime as the anchor while capabilities come to the foreground.",
+      camera: { position: [19, 10, 0], target: [0, 0, 0] },
+      labels: ["tools", "core"],
+      activeConnections: ["tools"],
+    },
+    {
+      id: "back",
+      title: "Another turn reveals state.",
+      caption:
+        "The same system, viewed through its memory and persistence boundary.",
+      camera: { position: [0, 10, -19], target: [0, 0, 0] },
+      labels: ["data", "core"],
+      activeConnections: ["data"],
+    },
+    {
+      id: "left",
+      title: "Finish with control.",
+      caption: "Policy decides which actions may cross the runtime boundary.",
+      camera: { position: [-19, 10, 0], target: [0, 0, 0] },
+      labels: ["policy", "core"],
+      activeConnections: ["policy"],
+    },
+  ],
+};
+
+export const stagedAssembly: SlideStory = {
+  id: "staged-assembly",
+  title: "Build the explanation in layers",
+  description:
+    "A fixed camera lets components arrive in sequence, then separates them for inspection.",
+  nodes: [
+    {
+      id: "data",
+      label: "Evidence",
+      detail: "A reliable foundation",
+      position: [0, -2, 0],
+      size: [6, 0.3, 4],
+      kind: "layer",
+      tone: "response",
+    },
+    {
+      id: "tools",
+      label: "Capabilities",
+      detail: "Bounded operations",
+      position: [0, -0.6, 0],
+      size: [5, 0.3, 3.4],
+      kind: "layer",
+      tone: "change",
+    },
+    {
+      id: "runtime",
+      label: "Runtime",
+      detail: "Coordinate the work",
+      position: [0, 0.8, 0],
+      size: [4, 0.3, 2.8],
+      kind: "layer",
+      tone: "request",
+    },
+    {
+      id: "experience",
+      label: "Experience",
+      detail: "The user's outcome",
+      position: [0, 2.2, 0],
+      size: [3, 0.3, 2.2],
+      kind: "layer",
+      tone: "accent",
+    },
+  ],
+  connections: [],
+  stops: [
+    {
+      id: "foundation",
+      title: "Begin with evidence.",
+      caption: "Introduce the foundation before adding the machinery above it.",
+      camera: { position: [11, 8, 17], target: [0, 0, 0] },
+      labels: ["data"],
+      nodes: {
+        tools: { position: [0, 5, 0], opacity: 0 },
+        runtime: { position: [0, 6, 0], opacity: 0 },
+        experience: { position: [0, 7, 0], opacity: 0 },
+      },
+    },
+    {
+      id: "assemble",
+      title: "Build up the capabilities.",
+      caption:
+        "Each layer arrives in order. The camera stays still so the assembly is the only movement.",
+      camera: { position: [11, 8, 17], target: [0, 0, 0] },
+      transition: { stagger: 0.14, duration: 1.7 },
+      labels: ["tools", "runtime", "experience"],
+    },
+    {
+      id: "separate",
+      title: "Pull apart the responsibilities.",
+      caption:
+        "Lift the layers to explain what each owns and where the boundaries sit.",
+      camera: { position: [11, 8, 17], target: [0, 0, 0] },
+      transition: { stagger: 0.1 },
+      nodes: {
+        data: { position: [0, -3, 0] },
+        tools: { position: [0, -1, 0] },
+        runtime: { position: [0, 1.2, 0] },
+        experience: { position: [0, 3.4, 0] },
+      },
+    },
+  ],
+};
+
+export const architectureShift: SlideStory = {
+  id: "architecture-shift",
+  title: "From handoffs to a shared workflow",
+  description:
+    "Use a spatial before-and-after: preserve component identities while reorganizing their relationships.",
+  nodes: [
+    {
+      id: "request",
+      label: "Request",
+      position: [-4.5, 0, 0],
+      tone: "request",
+    },
+    { id: "plan", label: "Plan", position: [-1.5, 0, 0], tone: "accent" },
+    { id: "execute", label: "Execute", position: [1.5, 0, 0], tone: "change" },
+    { id: "verify", label: "Verify", position: [4.5, 0, 0], tone: "response" },
+    {
+      id: "state",
+      label: "Shared state",
+      detail: "Context + evidence",
+      position: [0, -0.5, 0],
+      kind: "sphere",
+      tone: "accent",
+    },
+  ],
+  connections: [
+    { id: "a", from: "request", to: "plan", tone: "request" },
+    { id: "b", from: "plan", to: "execute", tone: "change" },
+    { id: "c", from: "execute", to: "verify", tone: "response" },
+    ...["request", "plan", "execute", "verify"].map((id) => ({
+      id,
+      from: id,
+      to: "state",
+      tone: "accent" as const,
+    })),
+  ],
+  stops: [
+    {
+      id: "before",
+      title: "A chain of handoffs.",
+      caption:
+        "Each stage passes its output onward. Context has to travel with the handoff.",
+      camera: { position: [5, 10, 20], target: [0, 0, 0] },
+      nodes: { state: { opacity: 0 } },
+      labels: ["request", "plan", "execute", "verify"],
+      activeConnections: ["a", "b", "c"],
+    },
+    {
+      id: "after",
+      title: "Organize around shared state.",
+      caption:
+        "The same components gather around a common record of progress and evidence.",
+      camera: { position: [5, 10, 20], target: [0, 0, 0] },
+      transition: { duration: 2, stagger: 0.06 },
+      nodes: {
+        request: { position: [-3.4, 0, 0] },
+        plan: { position: [0, 0, -3.4] },
+        execute: { position: [3.4, 0, 0] },
+        verify: { position: [0, 0, 3.4] },
+      },
+      labels: ["request", "plan", "execute", "verify", "state"],
+      activeConnections: ["request", "plan", "execute", "verify"],
+    },
+    {
+      id: "focus",
+      title: "Keep the evidence in view.",
+      caption:
+        "Move closer to the shared record while preserving the surrounding responsibilities.",
+      camera: { position: [3, 8, 13], target: [0, -0.5, 0] },
+      transition: { camera: "dolly", duration: 1.8 },
+      nodes: {
+        request: { position: [-3.4, 0, 0], opacity: 0.25 },
+        plan: { position: [0, 0, -3.4], opacity: 0.25 },
+        execute: { position: [3.4, 0, 0], opacity: 0.25 },
+        verify: { position: [0, 0, 3.4], opacity: 0.25 },
+      },
+      labels: ["state"],
+    },
+  ],
+};
 export const slideStories = [
   harnessDive,
   retrievalLayers,
   parallelAgents,
+  quarterTurn,
+  stagedAssembly,
+  architectureShift,
 ] as const;

@@ -32,6 +32,9 @@ Run `npm run dev` in this repository and visit `/slides` for the showcase. The p
 | `harnessDive` | 5 | Wide overview → open the boundary → context → tools → verification |
 | `retrievalLayers` | 4 | Stacked information → exploded layers → query trace → evidence returning |
 | `parallelAgents` | 4 | One goal → fan-out → turn across the lanes → convergence |
+| `quarterTurn` | 4 | Four cardinal camera views around a fixed architecture |
+| `stagedAssembly` | 3 | Sequential layer arrivals → exploded inspection |
+| `architectureShift` | 3 | Linear handoffs → shared state → focused dolly |
 
 These are illustrative systems, not audited diagrams of a deployed product.
 
@@ -69,7 +72,9 @@ A `SlideStory` is plain serializable data:
 - `connections`: directed relationships between node IDs. Request packets are squares, response packets circles, and change packets diamonds.
 - `stops`: camera position/target, title, caption, optional presenter notes, node position/scale/opacity overrides, label IDs, and active connection IDs.
 
-Every stop resolves against the base scene, never the last stop. This makes direct jumps and reverse navigation deterministic. A new action interrupts the old timeline and moves from the current pose to the new target. The camera target and object poses ease together over 1.35 seconds.
+Every stop resolves against the base scene, never the last stop. This makes direct jumps and reverse navigation deterministic. A new action interrupts the old timeline and moves from the current pose to the new target. Camera turns follow the shortest spherical arc around the target with sine easing. Labels fade out before movement and return after the scene settles, avoiding collision-placement jumps. Flow packets travel the full curved route and fade at the endpoints.
+
+Each stop accepts `transition: { camera: "orbit" | "dolly", duration: 1.6, stagger: 0 }`. Orbit is the default; dolly interpolates camera position directly for a deliberate push-in. Duration is 0.2–5 seconds, with optional 0–0.15 seconds of stagger between nodes. Annotation fades add 0.34 seconds; stagger adds time according to node order. Reduced motion bypasses the entire sequence. These settings are serializable and exported as `SlideTransition`.
 
 ```tsx
 import type { SlideStory } from "uipack/slides";

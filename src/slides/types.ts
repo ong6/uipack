@@ -1,11 +1,7 @@
 /** Serializable scene data. Every stop resolves from these defaults, never from the previous stop. */
 export type Vec3 = [number, number, number];
 export type SceneTone =
-  | "accent"
-  | "request"
-  | "response"
-  | "change"
-  | "neutral";
+  "accent" | "request" | "response" | "change" | "neutral";
 export interface SlideNode {
   id: string;
   label: string;
@@ -26,7 +22,14 @@ export interface NodePose {
   opacity?: number;
   scale?: number;
 }
+export interface SlideTransition {
+  camera?: "orbit" | "dolly";
+  duration?: number;
+  /** Seconds between component arrivals; capped at 0.15. */
+  stagger?: number;
+}
 export interface SlideStop {
+  transition?: SlideTransition;
   id: string;
   title: string;
   caption: string;

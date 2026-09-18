@@ -60,7 +60,16 @@ export default function Slides() {
               onClick={() => choose(s.id)}
             >
               <span>0{i + 1}</span>
-              {["Harness dive", "Retrieval layers", "Parallel agents"][i]}
+              {
+                [
+                  "Harness dive",
+                  "Retrieval layers",
+                  "Parallel agents",
+                  "Quarter turn",
+                  "Staged assembly",
+                  "Before / after",
+                ][i]
+              }
             </button>
           ))}
         </nav>

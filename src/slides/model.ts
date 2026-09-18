@@ -78,6 +78,21 @@ export function validateSlideStory(story: SlideStory): string[] {
   for (const s of story.stops) {
     if (stops.has(s.id)) issues.push(`Duplicate stop id: ${s.id}`);
     stops.add(s.id);
+    if (s.transition) {
+      const t = s.transition;
+      if (t.camera && !["orbit", "dolly"].includes(t.camera))
+        issues.push(`Invalid camera motion: ${s.id}`);
+      if (
+        t.duration !== undefined &&
+        (!Number.isFinite(t.duration) || t.duration < 0.2 || t.duration > 5)
+      )
+        issues.push(`Invalid duration: ${s.id}`);
+      if (
+        t.stagger !== undefined &&
+        (!Number.isFinite(t.stagger) || t.stagger < 0 || t.stagger > 0.15)
+      )
+        issues.push(`Invalid stagger: ${s.id}`);
+    }
     if (
       !finite3(s.camera.position) ||
       !finite3(s.camera.target) ||

@@ -47,7 +47,7 @@ Separate entries, so a page loads only what it draws: `uipack` (the parts, 9 KB 
 
 ## Live 3D slides
 
-An optional `uipack/slides` entry adds authored camera transitions, editable scene data, projected HTML labels, keyboard presentation controls, and a diagram fallback. It ships three examples: **Harness dive**, **Retrieval layers**, and **Parallel agents**, with 13 directly addressable stops in total.
+An optional `uipack/slides` entry adds authored camera transitions, editable scene data, projected HTML labels, keyboard presentation controls, and a diagram fallback. It ships six examples: **Harness dive**, **Retrieval layers**, **Parallel agents**, **Quarter turn**, **Staged assembly**, and **Before / after**, with 23 directly addressable stops in total. Camera arcs, dolly moves, and staggered arrivals are configurable per stop.
 
 ```sh
 npm install three@^0.186.0 gsap@^3.15.0
@@ -209,7 +209,7 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
 
 ## Testing
 
-`npm test` runs 74 vitest cases in jsdom. `npm run test:e2e` runs 27 Playwright cases in Chromium and WebKit: 53 pass, with one existing clipboard test skipped in WebKit. What they pin down:
+`npm test` runs 75 vitest cases in jsdom. `npm run test:e2e` runs 28 Playwright cases in Chromium and WebKit: 55 pass, with one existing clipboard test skipped in WebKit. What they pin down:
 
 - Packets move, hold after Pause, resume on Play, return to the start on Replay, and sit still under reduced motion.
 - Hovering a node dims the rest and lights its flow. Hovering a legend item filters by kind. An `href` node takes focus.

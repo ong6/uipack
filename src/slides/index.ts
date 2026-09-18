@@ -9,6 +9,9 @@ export {
   retrievalLayers,
   parallelAgents,
   slideStories,
+  quarterTurn,
+  stagedAssembly,
+  architectureShift,
 } from "./stories";
 export {
   clampStop,
@@ -18,6 +21,7 @@ export {
 } from "./model";
 export type {
   SlideStory,
+  SlideTransition,
   SlideStop,
   SlideNode,
   SlideConnection,

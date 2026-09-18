@@ -24,7 +24,14 @@ interface NodePose {
     opacity?: number;
     scale?: number;
 }
+interface SlideTransition {
+    camera?: "orbit" | "dolly";
+    duration?: number;
+    /** Seconds between component arrivals; capped at 0.15. */
+    stagger?: number;
+}
 interface SlideStop {
+    transition?: SlideTransition;
     id: string;
     title: string;
     caption: string;
@@ -93,11 +100,15 @@ declare function SlidePlayer(props: SlidePlayerProps): react.JSX.Element;
 declare const harnessDive: SlideStory;
 declare const retrievalLayers: SlideStory;
 declare const parallelAgents: SlideStory;
-declare const slideStories: readonly [SlideStory, SlideStory, SlideStory];
+/** Four exact cardinal viewpoints around one unchanged architecture. */
+declare const quarterTurn: SlideStory;
+declare const stagedAssembly: SlideStory;
+declare const architectureShift: SlideStory;
+declare const slideStories: readonly [SlideStory, SlideStory, SlideStory, SlideStory, SlideStory, SlideStory];
 
 declare const slidePalettes: Record<SlideTheme, SlidePalette>;
 declare function clampStop(index: number, count: number): number;
 declare function resolveNodePose(node: SlideNode, stop: SlideStop): ResolvedNodePose;
 declare function validateSlideStory(story: SlideStory): string[];
 
-export { type NodePose, type ResolvedNodePose, type SceneTone, type SlideConnection, type SlideNode, type SlidePalette, SlidePlayer, type SlidePlayerProps, SlideScene, type SlideSceneProps, type SlideStop, type SlideStory, type SlideTheme, type Vec3, clampStop, harnessDive, parallelAgents, resolveNodePose, retrievalLayers, slidePalettes, slideStories, validateSlideStory };
+export { type NodePose, type ResolvedNodePose, type SceneTone, type SlideConnection, type SlideNode, type SlidePalette, SlidePlayer, type SlidePlayerProps, SlideScene, type SlideSceneProps, type SlideStop, type SlideStory, type SlideTheme, type SlideTransition, type Vec3, architectureShift, clampStop, harnessDive, parallelAgents, quarterTurn, resolveNodePose, retrievalLayers, slidePalettes, slideStories, stagedAssembly, validateSlideStory };

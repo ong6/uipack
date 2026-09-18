@@ -31,6 +31,12 @@ describe("slide story contract", () => {
     expect(validateSlideStory(story).join(" ")).toMatch(/camera/);
     expect(validateSlideStory(story).join(" ")).toMatch(/opacity/);
   });
+  it("rejects unsafe animation timings", () => {
+    const story = structuredClone(harnessDive);
+    story.stops[0].transition = { duration: NaN, stagger: -1 };
+    expect(validateSlideStory(story).join(" ")).toMatch(/duration/);
+    expect(validateSlideStory(story).join(" ")).toMatch(/stagger/);
+  });
   it("clamps stale, nonfinite and negative indices", () => {
     expect(clampStop(NaN, 4)).toBe(0);
     expect(clampStop(99, 4)).toBe(3);

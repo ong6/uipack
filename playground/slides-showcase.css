@@ -195,3 +195,7 @@
     gap: 12px;
   }
 }
+
+.slides-showcase__tabs {
+  flex-wrap: wrap;
+}
