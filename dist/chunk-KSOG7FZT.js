@@ -7,7 +7,7 @@ import {
 } from "./chunk-2BHGP5ET.js";
 import {
   CanvasView
-} from "./chunk-TVMF2KGV.js";
+} from "./chunk-GP5TROIA.js";
 import {
   FigureMotionContext,
   useFigureMotion,
@@ -232,29 +232,7 @@ function Figure({
       },
       title: title ?? eyebrow ?? "Figure canvas",
       theme,
-      toolbar: /* @__PURE__ */ jsxs2(Fragment, { children: [
-        /* @__PURE__ */ jsx2(
-          "button",
-          {
-            type: "button",
-            "aria-label": "Zoom out",
-            disabled: zoom <= 1,
-            onClick: () => setZoom((z) => Math.max(1, z - 0.25)),
-            children: "\u2212"
-          }
-        ),
-        /* @__PURE__ */ jsx2("button", { type: "button", onClick: () => setZoom(1), children: "Fit" }),
-        /* @__PURE__ */ jsx2(
-          "button",
-          {
-            type: "button",
-            "aria-label": "Zoom in",
-            disabled: zoom >= 3,
-            onClick: () => setZoom((z) => Math.min(3, z + 0.25)),
-            children: "+"
-          }
-        )
-      ] }),
+      zoom: { value: zoom, min: 1, max: 3, onChange: setZoom },
       children: /* @__PURE__ */ jsx2(SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ jsx2(FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsx2(FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxs2(
         "figure",
         {
@@ -344,7 +322,6 @@ function Figure({
               "div",
               {
                 className: `uipack__canvas uipack__canvas--${background}`,
-                style: expanded ? { width: `${zoom * 100}%`, boxSizing: "border-box" } : void 0,
                 onClick: () => select(null),
                 children: [
                   /* @__PURE__ */ jsx2(
@@ -352,7 +329,7 @@ function Figure({
                     {
                       ref: wideRef,
                       className: "uipack--wide",
-                      style: expanded ? { minWidth: 800 * zoom } : void 0,
+                      style: expanded ? { width: `max(${zoom * 100}%, ${800 * zoom}px)` } : void 0,
                       viewBox,
                       role: "group",
                       "aria-label": alt,
@@ -1000,4 +977,4 @@ export {
   Label,
   Defs
 };
-//# sourceMappingURL=chunk-ZVA6USPH.js.map
+//# sourceMappingURL=chunk-KSOG7FZT.js.map

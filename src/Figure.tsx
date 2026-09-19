@@ -213,29 +213,7 @@ export function Figure({
       }}
       title={title ?? eyebrow ?? "Figure canvas"}
       theme={theme}
-      toolbar={
-        <>
-          <button
-            type="button"
-            aria-label="Zoom out"
-            disabled={zoom <= 1}
-            onClick={() => setZoom((z) => Math.max(1, z - 0.25))}
-          >
-            −
-          </button>
-          <button type="button" onClick={() => setZoom(1)}>
-            Fit
-          </button>
-          <button
-            type="button"
-            aria-label="Zoom in"
-            disabled={zoom >= 3}
-            onClick={() => setZoom((z) => Math.min(3, z + 0.25))}
-          >
-            +
-          </button>
-        </>
-      }
+      zoom={{ value: zoom, min: 1, max: 3, onChange: setZoom }}
     >
       <SelectionContext.Provider value={{ enabled: true, selected, select }}>
         <FigureMotionContext.Provider value={motion}>
@@ -335,17 +313,16 @@ export function Figure({
               )}
               <div
                 className={`uipack__canvas uipack__canvas--${background}`}
-                style={
-                  expanded
-                    ? { width: `${zoom * 100}%`, boxSizing: "border-box" }
-                    : undefined
-                }
                 onClick={() => select(null)}
               >
                 <svg
                   ref={wideRef}
                   className="uipack--wide"
-                  style={expanded ? { minWidth: 800 * zoom } : undefined}
+                  style={
+                    expanded
+                      ? { width: `max(${zoom * 100}%, ${800 * zoom}px)` }
+                      : undefined
+                  }
                   viewBox={viewBox}
                   role="group"
                   aria-label={alt}

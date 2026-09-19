@@ -2,6 +2,7 @@
 
 - Root components and `theme.css`: SVG figures and primitives.
 - `selection.tsx`: persistent semantic selection within Figure.
+- `canvas-gestures.ts`: scoped trackpad/touch inputs, anchored SVG zoom, bounded camera zoom, and reset.
 - `CanvasView.tsx` and `canvas.css`: shared modal canvas workspace. Build appends its CSS to both distributed theme files.
 - `presets/`: typed SVG scene builders with wide and narrow drawings.
 - `slides/`: optional Three.js/GSAP animations; public compatibility entry `uipack/slides`.

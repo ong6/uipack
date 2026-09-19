@@ -67,10 +67,7 @@ test("mobile presets remain readable and selection works without hover", async (
         .evaluate((el) => el.getBoundingClientRect().width),
     )
     .toBeGreaterThan(initialWidth);
-  await expect(dialog.locator(".uipack__canvas")).toHaveAttribute(
-    "style",
-    /125%/,
-  );
+  await expect(dialog.getByLabel("Zoom level")).toHaveText("125%");
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
   await expect(

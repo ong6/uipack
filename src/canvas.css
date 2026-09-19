@@ -8,3 +8,11 @@
 .uipack-canvas-toolbar button:focus-visible { outline: 2px solid #3fb27f; outline-offset: 2px; }
 .uipack-canvas-content { overflow: auto; height: calc(100% - 70px); overscroll-behavior: contain; }
 @media(max-width: 600px) { .uipack-canvas-dialog { width: 100vw; height: 100dvh; border-radius: 0; margin: 0; } .uipack-canvas-toolbar { flex-wrap: wrap; } .uipack-canvas-toolbar strong { font-size: 13px; } .uipack-canvas-content { height: calc(100% - 110px); } }
+
+.uipack-canvas-dialog[open] { display: flex; flex-direction: column; overflow: hidden; }
+.uipack-canvas-toolbar, .uipack-canvas-hint { flex: none; }
+.uipack-canvas-toolbar > div { align-items: center; flex-wrap: wrap; }
+.uipack-canvas-toolbar [role="meter"] { min-width: 4ch; text-align: center; font: 13px ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+.uipack-canvas-hint { margin: 0; padding: 8px 16px; font-size: 12px; opacity: .7; }
+.uipack-canvas-content { flex: 1; min-height: 0; height: auto; }
+.uipack-canvas-content .uipack-slide-scene { touch-action: pan-x pan-y; }

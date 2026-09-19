@@ -307,3 +307,6 @@
 .uipack--expanded .uipack__title,
 .uipack--expanded .uipack__caption,
 .uipack--expanded .uipack__legend { display: none; }
+
+/* Keep one fixed scroll viewport so pinch zoom preserves the pointer's position. */
+.uipack--expanded .uipack__canvas { max-height: calc(100dvh - 240px); overflow: auto; touch-action: pan-x pan-y; }

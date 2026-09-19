@@ -1,6 +1,6 @@
 import {
   CanvasView
-} from "./chunk-TVMF2KGV.js";
+} from "./chunk-GP5TROIA.js";
 import {
   usePrefersReducedMotion
 } from "./chunk-FENTOHP4.js";
@@ -18,7 +18,7 @@ import {
   useRef,
   useState
 } from "react";
-import { Fragment, jsx, jsxs } from "react/jsx-runtime";
+import { jsx, jsxs } from "react/jsx-runtime";
 function Diagram({ story, stop }) {
   const visible = story.nodes.filter(
     (n) => n.kind !== "boundary" && resolveNodePose(n, stop).opacity > 0.25
@@ -236,29 +236,7 @@ function SlideScene(props) {
       },
       title: props.story.title,
       theme: props.theme ?? "dark",
-      toolbar: /* @__PURE__ */ jsxs(Fragment, { children: [
-        /* @__PURE__ */ jsx(
-          "button",
-          {
-            type: "button",
-            "aria-label": "Zoom out",
-            disabled: zoom <= 0.75,
-            onClick: () => setZoom((z) => Math.max(0.75, z - 0.25)),
-            children: "\u2212"
-          }
-        ),
-        /* @__PURE__ */ jsx("button", { type: "button", onClick: () => setZoom(1), children: "Fit" }),
-        /* @__PURE__ */ jsx(
-          "button",
-          {
-            type: "button",
-            "aria-label": "Zoom in",
-            disabled: zoom >= 2,
-            onClick: () => setZoom((z) => Math.min(2, z + 0.25)),
-            children: "+"
-          }
-        )
-      ] }),
+      zoom: { value: zoom, min: 0.75, max: 2, onChange: setZoom },
       children: /* @__PURE__ */ jsxs("div", { className: "uipack-scene-card", "data-theme": props.theme ?? "dark", children: [
         !canvas && /* @__PURE__ */ jsx(
           "button",
@@ -346,29 +324,7 @@ function Player({
       },
       title: story.title,
       theme,
-      toolbar: /* @__PURE__ */ jsxs(Fragment, { children: [
-        /* @__PURE__ */ jsx(
-          "button",
-          {
-            type: "button",
-            "aria-label": "Zoom out",
-            disabled: zoom <= 0.75,
-            onClick: () => setZoom((z) => Math.max(0.75, z - 0.25)),
-            children: "\u2212"
-          }
-        ),
-        /* @__PURE__ */ jsx("button", { type: "button", onClick: () => setZoom(1), children: "Fit" }),
-        /* @__PURE__ */ jsx(
-          "button",
-          {
-            type: "button",
-            "aria-label": "Zoom in",
-            disabled: zoom >= 2,
-            onClick: () => setZoom((z) => Math.min(2, z + 0.25)),
-            children: "+"
-          }
-        )
-      ] }),
+      zoom: { value: zoom, min: 0.75, max: 2, onChange: setZoom },
       children: /* @__PURE__ */ jsxs(
         "section",
         {
