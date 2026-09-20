@@ -1,0 +1,130 @@
+.uipack-object-frame {
+  position: relative;
+  height: 100%;
+  min-height: 260px;
+}
+.uipack-object {
+  --object-bg: #faf9f6;
+  --object-ink: #292e32;
+  --object-accent: #205f49;
+  --object-rule: #d6dcd5;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+  overflow: hidden;
+  border: 1px solid var(--object-rule);
+  border-radius: 6px;
+  background: radial-gradient(
+    ellipse at 50% 36%,
+    #fff 0%,
+    var(--object-bg) 72%
+  );
+  color: var(--object-ink);
+}
+.uipack-object[data-theme="dark"] {
+  --object-bg: #14201b;
+  --object-ink: #e8ece9;
+  --object-accent: #71dcb2;
+  --object-rule: #36463c;
+  background: radial-gradient(
+    ellipse at 50% 36%,
+    #25382f 0%,
+    var(--object-bg) 72%
+  );
+}
+.uipack-object__canvas,
+.uipack-object__fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.uipack-object__canvas {
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.uipack-object__canvas[data-ready="true"] {
+  opacity: 1;
+}
+.uipack-object:has(canvas[data-ready="true"]) .uipack-object__fallback {
+  opacity: 0;
+}
+.uipack-object__fallback {
+  display: grid;
+  place-items: center;
+  color: var(--object-accent);
+}
+.uipack-object__illustration {
+  width: 70%;
+  max-height: 65%;
+}
+.uipack-object__illustration .soft {
+  opacity: 0.5;
+}
+.uipack-object__illustration text {
+  stroke: none;
+  fill: currentColor;
+  font: 10px monospace;
+  text-anchor: middle;
+}
+.uipack-object__motion,
+.uipack-object-open {
+  position: absolute;
+  z-index: 2;
+  bottom: 12px;
+  right: 12px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #87958c;
+  border-radius: 4px;
+  color: inherit;
+  background: var(--object-bg, #faf9f6);
+  font: 500 12px/1.4 system-ui;
+  cursor: pointer;
+}
+.uipack-object-open {
+  top: 12px;
+  bottom: auto;
+  color: #292e32;
+}
+.uipack-object__motion:focus-visible,
+.uipack-object-open:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+.uipack-canvas-content .uipack-object {
+  height: 100%;
+  min-height: 60vh;
+}
+@media (prefers-reduced-motion: reduce) {
+  .uipack-object__canvas {
+    transition: none;
+  }
+}
+
+.uipack-object-edition {
+  position: absolute;
+  z-index: 2;
+  top: 12px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #526459;
+  font: 500 11px/1.4 system-ui;
+  letter-spacing: .025em;
+}
+.uipack-object-edition button {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: 20px system-ui;
+}
+.uipack-object-edition button:hover { background: #205f4910; }
+.uipack-object-edition button:focus-visible { outline: 2px solid currentColor; }
+.uipack-object-frame[data-theme="dark"] .uipack-object-edition { color: #b7c8bf; }

@@ -1,3 +1,4 @@
+import { objectScenes } from "../src/objects";
 /** Content type and visual style are independent axes. Register styles here, never fork the shell. */
 export const visualStyles = [
   {
@@ -25,6 +26,13 @@ export interface CatalogEntry {
   tags: string[];
 }
 export const animationEntries: CatalogEntry[] = [
+  ...objectScenes.map((scene) => ({
+    id: scene.id,
+    title: scene.title,
+    type: "animations" as const,
+    styleId: "technical",
+    tags: ["Objects", "Transform"],
+  })),
   {
     id: "harness-dive",
     title: "Harness dive",

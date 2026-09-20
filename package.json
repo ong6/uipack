@@ -36,7 +36,19 @@
       "import": "./dist/slides.js",
       "require": "./dist/slides.cjs"
     },
-    "./slides.css": "./dist/slides.css"
+    "./slides.css": "./dist/slides.css",
+    "./presentations": {
+      "types": "./dist/presentations.d.ts",
+      "import": "./dist/presentations.js",
+      "require": "./dist/presentations.cjs"
+    },
+    "./presentations.css": "./dist/presentations.css",
+    "./objects": {
+      "types": "./dist/objects.d.ts",
+      "import": "./dist/objects.js",
+      "require": "./dist/objects.cjs"
+    },
+    "./objects.css": "./dist/objects.css"
   },
   "files": [
     "dist",
@@ -51,13 +63,16 @@
     "AGENTS.md",
     "CLAUDE.md",
     "src/README.md",
-    "playground/README.md"
+    "playground/README.md",
+    "docs/objects.md",
+    "docs/presentations.md",
+    "docs/component-first.md"
   ],
   "sideEffects": [
     "*.css"
   ],
   "scripts": {
-    "build": "tsup && cat src/theme.css src/canvas.css > dist/theme.css && cp src/browser/browser.css dist/browser.css && cat src/slides/slides.css src/canvas.css > dist/slides.css",
+    "build": "tsup && cat src/theme.css src/canvas.css > dist/theme.css && cp src/browser/browser.css dist/browser.css && cp src/presentations/presentations.css dist/presentations.css && cat src/slides/slides.css src/canvas.css > dist/slides.css && cat src/objects/objects.css src/canvas.css > dist/objects.css",
     "dev": "vite",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",

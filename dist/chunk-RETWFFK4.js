@@ -6,13 +6,13 @@ import {
   useFontFloor
 } from "./chunk-2BHGP5ET.js";
 import {
-  CanvasView
-} from "./chunk-GP5TROIA.js";
-import {
   FigureMotionContext,
   useFigureMotion,
   usePrefersReducedMotion
 } from "./chunk-FENTOHP4.js";
+import {
+  CanvasView
+} from "./chunk-GP5TROIA.js";
 
 // src/hover.tsx
 import { createContext, useContext } from "react";
@@ -977,4 +977,4 @@ export {
   Label,
   Defs
 };
-//# sourceMappingURL=chunk-KSOG7FZT.js.map
+//# sourceMappingURL=chunk-RETWFFK4.js.map

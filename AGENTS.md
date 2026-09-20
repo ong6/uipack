@@ -27,3 +27,7 @@ Run `npm run typecheck`, `npm test`, `npm run build`, and affected Playwright te
 Inspect real browser screenshots at desktop and 390px, with both themes when colour changes. Automated tests do not prove visual polish. Report failures, skips, and unsupported behaviour honestly. Test the meaning of an interaction, not just matching implementation details.
 
 Never assume the preview is running. Check it before handing over a localhost link. Update README links and API docs with the change. Keep work scoped; do not add unrelated dependencies or publish without authorization.
+
+## Component-first workflow
+
+Read [docs/component-first.md](docs/component-first.md) before building a significant visual. Implement and register it here before a consumer integrates it. Geometry and playback have one owner; consumer code supplies content and theme only.

@@ -25,7 +25,7 @@ import {
   route,
   trim,
   useFigureHover
-} from "./chunk-KSOG7FZT.js";
+} from "./chunk-RETWFFK4.js";
 import {
   DEFAULT_RENDER_WIDTH,
   FigureScaleContext,
@@ -36,12 +36,12 @@ import {
   tokenColor,
   useFontFloor
 } from "./chunk-2BHGP5ET.js";
-import "./chunk-GP5TROIA.js";
 import {
   FigureMotionContext,
   useFigureMotion,
   usePrefersReducedMotion
 } from "./chunk-FENTOHP4.js";
+import "./chunk-GP5TROIA.js";
 
 // src/Badge.tsx
 import { jsx, jsxs } from "react/jsx-runtime";

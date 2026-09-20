@@ -70,6 +70,15 @@
   border-color: var(--show-accent);
   color: var(--show-accent);
 }
+.deck-chapters [aria-pressed="true"] {
+  border-color: var(--show-accent);
+  color: var(--show-accent);
+  background: var(--show-surface);
+}
+.deck-example-heading {
+  margin: 56px 0 0;
+  font-size: 22px;
+}
 .deck-navigation {
   justify-content: space-between;
 }

@@ -41,7 +41,7 @@ export function RequestFlow() {
 }
 ```
 
-Separate entries, so a page loads only what it draws: `uipack` for parts, `uipack/presets` for ready figures, and `uipack/browser` with `uipack/browser.css` for the asset browser.
+Separate entries, so a page loads only what it draws: `uipack` for parts, `uipack/presets` for ready figures, `uipack/presentations` for slide starters and speaker guides, and `uipack/browser` with `uipack/browser.css` for the asset browser.
 
 `npm run dev` opens a playground: `/` renders the Habitat example, every part, and every preset; `/assets` renders the asset browser; `/animations` renders the 3D animation collection (`/slides` remains an alias), `/presentations` shows a complete narrative example, and `/styles` indexes visual styles.
 
@@ -63,6 +63,12 @@ import "uipack/slides.css";
 Use `SlideScene` with a controlled `stopId` to connect the persistent scene to another deck. Three.js and GSAP are optional peers and are not imported by the SVG figure entries. These are live browser presentations; native slide-file and video export are separate work.
 
 [Slide API, story format, accessibility, and integration guide](docs/slides.md).
+
+## Presentation starters
+
+`uipack/presentations` exports typed Opening, Explanation, and System layouts. Each slide carries its visible content and a separate speaker guide with the words to say, a delivery cue, and an optional bridge. `SlideStarter` renders both; `renderSlideSvg` creates a self-contained editable 16:9 SVG without speaker notes.
+
+[Presentation starter API and example](docs/presentations.md).
 
 ## Parts
 
@@ -251,3 +257,7 @@ Forges make things, packs bundle them.
 Read [AGENTS.md](AGENTS.md) before editing. [CLAUDE.md](CLAUDE.md) points to that same canonical guide. [Design direction](docs/design-direction.md) defines the Technical style, catalog taxonomy, mobile behaviour, and presentation composition. Browse the [documentation index](docs/README.md), [source guide](src/README.md), and [playground guide](playground/README.md).
 
 Figures support tap/keyboard selection and Open canvas with bounded pinch zoom, a zoom percentage, and keyboard controls. 3D animations have component inspection and their own canvas workspace. See [interaction details and limits](docs/interaction.md). Content type and visual style are separate; Technical is the only implemented style today.
+
+## Significant UI and object scenes
+
+Follow [the component-first workflow](docs/component-first.md) for substantial visuals. The optional [`uipack/objects`](docs/objects.md) entry provides seven object scenes with three curated looks each, shared playback and fallbacks. Tennis is authored in Blender and played through Three.js.

@@ -3,7 +3,10 @@ import { useState } from "react";
 import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
 import { visualStyles } from "./catalog";
 import { SlideScene, harnessDive } from "../src/slides";
+import { SlideStarter } from "../src/presentations";
+import { presentationStarters } from "./presentationExamples";
 import "../src/slides/slides.css";
+import "../src/presentations/presentations.css";
 import "./presentations.css";
 
 const chapters = [
@@ -130,7 +133,9 @@ export default function CatalogPages() {
   const { theme, flip } = useShowcaseTheme();
   const styles = location.pathname.replace(/\/$/, "") === "/styles";
   const [index, setIndex] = useState(0);
+  const [starterIndex, setStarterIndex] = useState(0);
   const chapter = chapters[index];
+  const starter = presentationStarters[starterIndex];
   return (
     <ShowcaseShell
       active={styles ? "styles" : "presentations"}
@@ -177,6 +182,25 @@ export default function CatalogPages() {
             A complete narrative example: opening, argument, visual explanation,
             comparison, and closing. Animation supports the story.
           </p>
+          <h3>Slide and speech starters</h3>
+          <p className="collection-intro">
+            Choose a layout to see the designed slide and the talk track that goes
+            with it. The reusable component accepts content; these words belong to
+            the playground example.
+          </p>
+          <nav className="deck-chapters" aria-label="Slide starter layouts">
+            {presentationStarters.map((slide, i) => (
+              <button
+                key={slide.id}
+                aria-pressed={i === starterIndex}
+                onClick={() => setStarterIndex(i)}
+              >
+                {slide.title}
+              </button>
+            ))}
+          </nav>
+          <SlideStarter slide={starter} theme={theme} />
+          <h3 className="deck-example-heading">Complete narrative example</h3>
           <nav className="deck-chapters" aria-label="Presentation chapters">
             {chapters.map((c, i) => (
               <button

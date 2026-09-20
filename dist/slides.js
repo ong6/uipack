@@ -1,9 +1,9 @@
 import {
-  CanvasView
-} from "./chunk-GP5TROIA.js";
-import {
   usePrefersReducedMotion
 } from "./chunk-FENTOHP4.js";
+import {
+  CanvasView
+} from "./chunk-GP5TROIA.js";
 import {
   clampStop,
   resolveNodePose,
