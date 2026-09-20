@@ -100,7 +100,7 @@ export default function Slides() {
           <p>{object?.description ?? story.description}</p>
           <p>
             {object
-              ? "One sequence, then rest. Pause or replay at your own pace."
+              ? (object.id === "tennis" || object.id === "trading" ? "Continuous motion. Pause and resume at your own pace." : "One sequence, then rest. Pause or replay at your own pace.")
               : "Illustrative systems / Use Next, the numbered stops, or arrow keys inside the presentation."}
           </p>
         </div>

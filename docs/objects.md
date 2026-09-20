@@ -11,7 +11,7 @@ import "uipack/objects.css";
 
 Seven scenes: `ai`, `contact`, `tennis`, `trading`, `server`, `travel`, `reading`. `tennis` plays an original Blender-authored model; the other six are procedural. `contact` routes three generic communication signals into a shared inbox. `objectScenes` contains their titles and descriptions. Theme is `light` or `dark`; optional `palette` accepts numeric `paper`, `ink`, `muted`, and `accent` colours. Keep a custom palette reference stable.
 
-`active={false}` shows the labelled SVG fallback with no WebGL renderer or Three.js load. Active scenes lazily import Three.js, play once for 5.4 seconds, then offer Replay. Pause/Resume preserve time. Hidden tabs suspend rendering; mobile painting is capped at 30fps. Reduced motion draws the final pose and hides motion controls. Context loss and renderer-load errors retain the fallback. Geometry, materials, textures, observers and animation frames are disposed on unmount.
+`active={false}` shows the labelled SVG fallback with no WebGL renderer or Three.js load. Active scenes lazily import Three.js. Tennis and trading loop continuously; the other scenes play once for 5.4 seconds, then offer Replay. Pause/Resume preserve time. Hidden tabs suspend rendering; mobile painting is capped at 30fps. Reduced motion draws an authored static pose and hides motion controls. Context loss and renderer-load errors retain the fallback. Geometry, materials, textures, observers and animation frames are disposed on unmount.
 
 Use `controls="playback"` in compact consumer embeds. The scene still starts automatically,
 stops off-screen, settles, and exposes Pause/Resume/Replay, but leaves **Another look** and
@@ -21,7 +21,7 @@ Open canvas reuses the shared accessible dialog, with bounded zoom, Escape and f
 
 Review all seven examples in `/animations` (Objects filter). Consumers import the scene and player from `uipack/objects`; geometry and playback stay in the package.
 
-The revised hobby sequences show an agent laptop typing and receiving tool results, a rear-view tennis player returning a ball, red/green market candles and order flow, and a thin sheet turning over layered book pages. The map and inference study retain their existing designs. Tennis contact is checked against the racket face at impact. See [the component-first workflow](component-first.md#complex-modeled-animation) for the Blender authoring path.
+The revised hobby sequences show an agent laptop typing and receiving tool results, two opposing tennis players rallying across a net, a continuously advancing red/green candlestick chart with aligned volume, and a thin sheet turning over layered book pages. The map and inference study retain their existing designs. Both tennis contacts are checked against the exported racket faces at impact. See [the component-first workflow](component-first.md#complex-modeled-animation) for the Blender authoring path.
 
 
 ## Curated variations
@@ -33,7 +33,7 @@ Use `variant={0}`, `{1}` or `{2}` to pin a reproducible look; pinned scenes hide
 The playground accepts `?story=tennis&variant=1`. `objectVariants` exports the names.
 
 Tennis offers grass, clay and blue hardcourt with matching kit. Trading varies the actual candle
-sequence (breakout, pullback, range reversal), preserving red/green meaning. The other scenes vary
+sequence phase (breakout, pullback, range reversal), preserving red/green meaning. The other scenes vary
 curated material accents. Geometry and timing are never randomized frame by frame. Custom `palette`
 sets the base theme; looks 1/2 override the accent. Tennis uses its authored material sets.
 
@@ -46,8 +46,10 @@ in a separately loaded JavaScript chunk so consumers need no asset-copy configur
 editable `.blend`, four pose previews and verification data go to `/tmp/uipack-tennis`. The script
 is the durable, reproducible source; copy the editable file elsewhere before clearing temporary files.
 
-The GLB is 507,900 bytes (139,645 bytes gzip), with 16,488 triangles. JavaScript encoding adds transfer
+The two-player GLB is 655,496 bytes. JavaScript encoding adds transfer
 and decode overhead; measure the built chunk too. Only selecting tennis loads the model. Its baked
 object animation is sampled deterministically; a contact test checks the exported ball against the
-racket at 1.9 seconds. Each instance owns its mixer and materials and disposes them on removal.
+two rackets at 1.9 and 4.9 seconds in a seamless six-second rally. Each instance owns its mixer and materials and disposes them on removal.
 The existing SVG remains visible until model loading succeeds, including on an asset-load failure.
+
+Trading uses a beveled monitor with a flat chart display. Each candle has consistent open, high, low and close prices, and its matching volume below. The view advances toward later bars, bringing new candles in from the right. A 64-bar synthetic history repeats while time labels continue forward; it is explicitly labeled simulated.

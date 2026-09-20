@@ -39,12 +39,12 @@ var objectScenes = [
   {
     id: "tennis",
     title: "Tennis practice",
-    description: "From behind the baseline: split step, incoming ball, forehand return and recovery."
+    description: "Two players trade returns across the net in a continuous rally."
   },
   {
     id: "trading",
     title: "Trading journal",
-    description: "A fast market replay with red and green candles, order flow and a reversal. Simulation; no live data."
+    description: "A continuously panning candlestick chart with consistent OHLC prices and volume. Simulation; no live data."
   },
   {
     id: "server",
@@ -108,53 +108,23 @@ var Fallback = ({ kind, label }) => {
       /* @__PURE__ */ jsx("text", { x: "281", y: "72", children: "INBOX" })
     ] }),
     tennis: /* @__PURE__ */ jsxs(Fragment, { children: [
-      /* @__PURE__ */ jsx(
-        "path",
-        {
-          className: "soft",
-          d: "M30 187l58-108h184l58 108zM66 124h228M180 79v45"
-        }
-      ),
-      /* @__PURE__ */ jsx("path", { d: "M52 113h256m-247 0v28m237-28v28" }),
-      /* @__PURE__ */ jsx("circle", { cx: "166", cy: "51", r: "13" }),
-      /* @__PURE__ */ jsx("path", { d: "M148 71h36l9 53h-54zM150 125l-15 42-12 21m52-63l22 39 9 22M146 79l-21 26m57-27l23 17 28-6" }),
-      /* @__PURE__ */ jsx(
-        "ellipse",
-        {
-          cx: "252",
-          cy: "71",
-          rx: "16",
-          ry: "23",
-          transform: "rotate(45 252 71)"
-        }
-      ),
-      /* @__PURE__ */ jsx("path", { d: "M238 87l-13 12" }),
-      /* @__PURE__ */ jsx("circle", { cx: "288", cy: "60", r: "6" })
+      /* @__PURE__ */ jsx("path", { className: "soft", d: "M45 187l55-162h160l55 162zM69 113h222M86 64h187M180 64v94M62 158h238" }),
+      /* @__PURE__ */ jsx("path", { d: "M70 106h220m-220 0v23m220-23v23" }),
+      /* @__PURE__ */ jsx("circle", { cx: "151", cy: "125", r: "8" }),
+      /* @__PURE__ */ jsx("path", { d: "M140 137h22l5 25h-30zM142 163l-8 19m23-19l10 19M160 141l17 9 12-9" }),
+      /* @__PURE__ */ jsx("ellipse", { cx: "199", cy: "133", rx: "10", ry: "14", transform: "rotate(40 199 133)" }),
+      /* @__PURE__ */ jsx("circle", { cx: "213", cy: "42", r: "7" }),
+      /* @__PURE__ */ jsx("path", { d: "M202 53h21l4 23h-29zM202 77l-9 17m27-17l8 17M202 57l-18 9-10-8" }),
+      /* @__PURE__ */ jsx("ellipse", { cx: "165", cy: "50", rx: "8", ry: "12", transform: "rotate(-40 165 50)" }),
+      /* @__PURE__ */ jsx("circle", { cx: "190", cy: "90", r: "5" })
     ] }),
     trading: /* @__PURE__ */ jsxs(Fragment, { children: [
-      /* @__PURE__ */ jsx("rect", { x: "26", y: "30", width: "308", height: "155", rx: "6" }),
-      /* @__PURE__ */ jsx(
-        "path",
-        {
-          className: "soft",
-          d: "M42 151h190m-190-32h190m-190-32h190M251 63v103"
-        }
-      ),
-      /* @__PURE__ */ jsx(
-        "path",
-        {
-          stroke: "#269764",
-          d: "M62 122v-39m-7 14h14v16H55zm54 19V76m-7 18h14v25h-14zm68 19V69m-7 13h14v39h-14zM270 132h40m-40 15h28m-28 15h36"
-        }
-      ),
-      /* @__PURE__ */ jsx(
-        "path",
-        {
-          stroke: "#d85b65",
-          d: "M85 96v47m-7-32h14v17H78zm57-25v51m-7-36h14v20h-14zm70-38v42m-7-29h14v19h-14zM270 82h36m-36 15h24m-24 15h40"
-        }
-      ),
-      /* @__PURE__ */ jsx("text", { x: "180", y: "49", children: "MARKET REPLAY / SIMULATION" })
+      /* @__PURE__ */ jsx("rect", { x: "26", y: "24", width: "308", height: "152", rx: "8" }),
+      /* @__PURE__ */ jsx("path", { d: "M161 176v18h38v-18m-60 22h82" }),
+      /* @__PURE__ */ jsx("path", { className: "soft", d: "M43 70h268M43 100h268M43 130h268M43 151h268" }),
+      /* @__PURE__ */ jsx("path", { stroke: "#269764", d: "M62 122V73m-7 15h14v23H55zm54 35V63m-7 19h14v29h-14zm68 9V58m-7 14h14v32h-14zm55-20V49m-7 12h14v16h-14zM55 163v-8h14v8m33 0v-11h14v11m54 0v-14h14v14m41 0v-18h14v18" }),
+      /* @__PURE__ */ jsx("path", { stroke: "#d85b65", d: "M85 89v48m-7-35h14v23H78zm57-33v46m-7-33h14v22h-14zm65-47v44m-7-31h14v19h-14zm57-51v49m-7-35h14v24h-14zM78 163v-6h14v6m36 0v-9h14v9m51 0v-11h14v11m43 0v-8h14v8" }),
+      /* @__PURE__ */ jsx("text", { x: "180", y: "43", children: "DEMO / USD \xB7 SIMULATED" })
     ] }),
     server: /* @__PURE__ */ jsxs(Fragment, { children: [
       /* @__PURE__ */ jsx("path", { d: "M78 38h204v142H78zM96 58h168v26H96zM96 96h168v26H96zM96 134h168v26H96z" }),
@@ -284,7 +254,7 @@ function ObjectStage({
       setReady(false);
     };
     canvas.addEventListener("webglcontextlost", handleContextLost);
-    Promise.all([import("three"), import("./scenes-L2CR7IKV.js")]).then(async ([THREE, { createObject, disposeObject }]) => {
+    Promise.all([import("three"), import("./scenes-4PU4ZYIQ.js")]).then(async ([THREE, { createObject, disposeObject }]) => {
       if (disposed) return;
       try {
         renderer = new THREE.WebGLRenderer({
@@ -319,6 +289,9 @@ function ObjectStage({
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 1.15;
         scene.add(key);
+        const loopDuration = object.userData.loopDuration;
+        const restTime = object.userData.restTime ?? REST_START_MS;
+        canvas.dataset.playback = loopDuration ? "loop" : "once";
         let frames = 0;
         let elapsed = 0;
         let lastTickAt;
@@ -330,13 +303,13 @@ function ObjectStage({
           lastPaintAt = frameInterval ? time - (Number.isFinite(lastPaintAt) ? (time - lastPaintAt) % frameInterval : 0) : time;
           frames += 1;
           canvas.dataset.frames = String(frames);
-          canvas.dataset.phase = object.userData.phase;
+          canvas.dataset.phase = reducedRef.current ? "rest" : object.userData.phase;
           canvas.dataset.pose = object.userData.pose.toFixed(3);
           if (hostRef.current)
-            hostRef.current.dataset.phase = object.userData.phase;
+            hostRef.current.dataset.phase = reducedRef.current ? "rest" : object.userData.phase;
         };
         settleRef.current = () => {
-          paint(REST_START_MS, performance.now());
+          paint(restTime, performance.now());
         };
         const render = (time = 0) => {
           frameRef.current = null;
@@ -348,11 +321,11 @@ function ObjectStage({
           if (lastTickAt !== void 0)
             elapsed += Math.min(time - lastTickAt, 50);
           lastTickAt = time;
-          const completing = !reducedRef.current && elapsed >= REST_START_MS && !completedRef.current;
+          const completing = !loopDuration && !reducedRef.current && elapsed >= REST_START_MS && !completedRef.current;
           const shouldPaint = completing || time - lastPaintAt >= frameInterval;
           if (shouldPaint) {
             paint(
-              reducedRef.current || completing ? REST_START_MS : elapsed,
+              reducedRef.current ? restTime : completing ? REST_START_MS : elapsed,
               time
             );
           }

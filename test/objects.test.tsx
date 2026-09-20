@@ -8,6 +8,7 @@ import {
 } from "../src/objects/scenes";
 import { ObjectScene, objectPalettes, objectScenes, chooseObjectVariant } from "../src/objects";
 afterEach(() => vi.restoreAllMocks());
+const drawingContext = () => ({ fillText() {}, fillRect() {}, beginPath() {}, moveTo() {}, lineTo() {}, stroke() {}, save() {}, restore() {}, rect() {}, clip() {} }) as unknown as CanvasRenderingContext2D;
 describe("authored object animation envelopes", () => {
   it("can select every curated look with controlled randomness", () => {
     expect([0, 0.34, 0.99].map(value => chooseObjectVariant(() => value))).toEqual([0, 1, 2]);
@@ -23,13 +24,10 @@ describe("authored object animation envelopes", () => {
   ] as ObjectKind[]) {
     for (const variant of [0, 1, 2] as const)
     it(`${kind} variant ${variant} stays finite, fits the camera through the whole motion, and settles`, async () => {
-      vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
-        fillText() {},
-        fillRect() {},
-      } as unknown as CanvasRenderingContext2D);
+      vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(drawingContext());
       const object = await createObject(kind, objectPalettes.light, variant);
       const halfWidth = kind === "server" ? 3.25 : 2.65;
-      for (let time = 0; time <= 5400; time += 30) {
+      for (let time = 0; time <= (object.userData.loopDuration ?? 5400); time += 30) {
         object.userData.animate(time);
         const box = new Box3().setFromObject(object);
         expect(Math.max(Math.abs(box.min.x), Math.abs(box.max.x))).toBeLessThan(
@@ -39,10 +37,17 @@ describe("authored object animation envelopes", () => {
           2.2,
         );
       }
-      expect(object.userData.phase).toBe("rest");
-      const pose = new Box3().setFromObject(object);
-      object.userData.animate(9000);
-      expect(new Box3().setFromObject(object).equals(pose)).toBe(true);
+      if (object.userData.loopDuration) {
+        object.userData.animate(0);
+        const start = new Box3().setFromObject(object);
+        object.userData.animate(object.userData.loopDuration);
+        expect(new Box3().setFromObject(object).equals(start)).toBe(true);
+      } else {
+        expect(object.userData.phase).toBe("rest");
+        const pose = new Box3().setFromObject(object);
+        object.userData.animate(9000);
+        expect(new Box3().setFromObject(object).equals(pose)).toBe(true);
+      }
       disposeObject(object);
     });
   }
@@ -50,11 +55,18 @@ describe("authored object animation envelopes", () => {
   it("tennis ball meets the racket face at the strike", async () => {
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({ fillText() {}, fillRect() {} } as unknown as CanvasRenderingContext2D);
     const object = await createObject("tennis", objectPalettes.light);
-    object.userData.animate(object.userData.contactTime);
-    object.updateMatrixWorld(true);
-    const ball = object.userData.ball.getWorldPosition(new Vector3());
-    const racket = object.userData.racket.localToWorld(object.userData.racketContact);
-    expect(ball.distanceTo(racket)).toBeLessThan(0.001);
+    for (let i = 0; i < 2; i++) {
+      object.userData.animate(object.userData.contactTimes[i]);
+      object.updateMatrixWorld(true);
+      const ball = object.userData.ball.getWorldPosition(new Vector3());
+      const racket = object.userData.rackets[i].localToWorld(object.userData.racketContact.clone());
+      expect(ball.distanceTo(racket)).toBeLessThan(0.001);
+    }
+    object.userData.animate(5999);
+    const before = object.userData.ball.getWorldPosition(new Vector3());
+    object.userData.animate(6001);
+    const after = object.userData.ball.getWorldPosition(new Vector3());
+    expect(before.distanceTo(after)).toBeLessThan(0.01);
     disposeObject(object);
   });
 

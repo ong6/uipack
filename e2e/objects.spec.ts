@@ -128,7 +128,7 @@ test("switching objects and themes creates a usable renderer every time", async 
   expect(errors).toEqual([]);
 });
 
-test("curated look persists through replay, theme and expanded canvas", async ({ page }) => {
+test("curated look persists through loop, theme and expanded canvas", async ({ page }) => {
   await page.goto("/animations?story=tennis");
   const object = page.locator(".uipack-object");
   const canvas = object.locator("canvas");
@@ -141,8 +141,9 @@ test("curated look persists through replay, theme and expanded canvas", async ({
   await page.getByRole("button", { name: "dark mode", exact: true }).click();
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
   await expect(object).toHaveAttribute("data-variant", next!);
-  await expect(page.getByRole("button", { name: "Replay motion" })).toBeVisible({ timeout: 10000 });
-  await page.getByRole("button", { name: "Replay motion" }).click();
+  await page.waitForTimeout(6500);
+  await expect(page.getByRole("button", { name: "Pause motion" })).toBeVisible();
+  await expect(canvas).toHaveAttribute("data-playback", "loop");
   await expect(object).toHaveAttribute("data-variant", next!);
   await page.getByRole("button", { name: "Open canvas", exact: true }).click();
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
@@ -174,4 +175,28 @@ test("modeled tennis keeps painting within the mobile frame budget", async ({ pa
   await testInfo.attach("mobile-viewport-paint-rate", { body: JSON.stringify({ frames, elapsed, paintsPerSecond: frames * 1000 / elapsed, note: "Desktop browser at 390px, not physical mobile hardware" }), contentType: "application/json" });
   expect(frames).toBeGreaterThan(12);
   expect(frames * 1000 / elapsed).toBeLessThan(34);
+});
+
+for (const kind of ['tennis', 'trading']) test(`${kind} keeps looping, pauses and respects reduced motion`, async ({ page }) => {
+  test.setTimeout(45000);
+  await page.goto(`/animations?story=${kind}&variant=0`);
+  const canvas = page.locator('.uipack-object canvas');
+  await expect(canvas).toHaveAttribute('data-playback', 'loop');
+  await canvas.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(kind === 'tennis' ? 18500 : 6500);
+  await expect(page.getByRole('button', { name: 'Pause motion' })).toBeVisible();
+  const frames = Number(await canvas.getAttribute('data-frames'));
+  await page.waitForTimeout(200);
+  expect(Number(await canvas.getAttribute('data-frames'))).toBeGreaterThan(frames);
+  await page.getByRole('button', { name: 'Pause motion' }).click();
+  const paused = await canvas.getAttribute('data-frames');
+  await page.waitForTimeout(200);
+  expect(await canvas.getAttribute('data-frames')).toBe(paused);
+  await page.getByRole('button', { name: 'Resume motion' }).click();
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(canvas).toHaveAttribute('data-phase', 'rest');
+  const reduced = await canvas.getAttribute('data-frames');
+  await page.waitForTimeout(200);
+  expect(await canvas.getAttribute('data-frames')).toBe(reduced);
+  await expect(page.getByRole('button', { name: /motion$/ })).toHaveCount(0);
 });

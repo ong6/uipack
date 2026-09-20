@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import type { ObjectVariant } from "./variants";
+import { marketBar, MARKET_BAR_MS, MARKET_LOOP_MS } from "./market";
 export type ObjectKind =
   "ai" | "contact" | "tennis" | "trading" | "server" | "travel" | "reading";
 export interface ObjectPalette {
@@ -418,10 +419,10 @@ async function tennis(_c: ObjectPalette, variant: ObjectVariant = 0) {
   const bytes = Uint8Array.from(atob(encoded), (char) => char.charCodeAt(0));
   const model = await new GLTFLoader().parseAsync(bytes.buffer, "");
   const g = new THREE.Group();
-  g.rotation.set(0.40, -0.25, 0);
-  g.position.y = 0.28;
-  model.scene.scale.setScalar(0.90);
-  model.scene.position.y = -1.15;
+  g.rotation.set(0.64, -0.25, 0);
+  g.position.y = 0.10;
+  model.scene.scale.setScalar(0.69);
+  model.scene.position.y = -0.65;
   g.add(model.scene);
   const colors = [
     { Court: 0x326658, "Court surround": 0x284c43, Jersey: 0xeee9db, "Kit accent": 0x27534a, Shorts: 0x283e48 },
@@ -438,189 +439,92 @@ async function tennis(_c: ObjectPalette, variant: ObjectVariant = 0) {
     }
   });
   const mixer = new THREE.AnimationMixer(model.scene);
-  model.animations.forEach((clip) => mixer.clipAction(clip).setLoop(THREE.LoopOnce, 1).play());
+  model.animations.forEach((clip) => mixer.clipAction(clip).setLoop(THREE.LoopRepeat, Infinity).play());
   const ball = model.scene.getObjectByName("Tennis_ball");
   const racket = model.scene.getObjectByName("Racket");
   g.userData.source = "blender";
   g.userData.contactTime = 1900;
+  g.userData.contactTimes = [1900, 4900];
+  g.userData.rackets = [racket, model.scene.getObjectByName("Far_Racket")];
+  g.userData.loopDuration = 6000;
+  g.userData.restTime = 1900;
   g.userData.ball = ball;
   g.userData.racket = racket;
   g.userData.racketContact = new THREE.Vector3(0, 0.63, 0);
   g.userData.dispose = () => { mixer.stopAllAction(); mixer.uncacheRoot(model.scene); };
   g.userData.animate = (time: number) => {
-    const t = Math.min(time, DURATION);
-    // setTime makes pause/replay and reduced-motion sampling deterministic.
-    mixer.setTime(Math.min(t / 1000, 5.399));
-    phase(g, t, t < 550 ? "split-step" : t < 1900 ? "prepare-return" : t < 2600 ? "forehand-return" : "recover", p(t, 0, DURATION));
+    const t = ((time % 6000) + 6000) % 6000;
+    mixer.setTime(t / 1000);
+    g.userData.phase = t < 1900 || t >= 4900 ? "near-return" : "far-return";
+    g.userData.pose = t / 6000;
   };
   return g;
 }
 function trading(c: ObjectPalette, variant: ObjectVariant = 0) {
   const g = new THREE.Group();
-  g.rotation.set(0.08, -0.16, 0);
-  const green = 0x31c88a,
-    red = 0xf06b70,
-    screen = 0x14232c;
-  g.add(
-    slab(4.1, 2.65, 0.15, c.ink),
-    slab(3.9, 2.45, 0.022, screen, 0, 0, 0.1),
-  );
-  g.add(
-    label("MARKET REPLAY", 0xe0eae9, -0.85, 1.02, 0.15, 0.16),
-    label("SIMULATION", 0x93aaa9, 1.23, 1.02, 0.15, 0.13),
-  );
-  for (let i = 0; i < 5; i++)
-    g.add(
-      line(
-        [
-          [-1.78, -0.64 + i * 0.31, 0.14],
-          [0.6, -0.64 + i * 0.31, 0.14],
-        ],
-        0x41555e,
-        0.45,
-      ),
-    );
-  g.add(
-    line(
-      [
-        [0.81, -0.91, 0.14],
-        [0.81, 0.84, 0.14],
-      ],
-      0x526771,
-      0.6,
-    ),
-  );
-  const changes = [
-    [0.22, -0.15, 0.34, 0.21, -0.31, -0.22, 0.43, 0.29, -0.2, 0.33, -0.15, 0.24, -0.38, 0.21, 0.13],
-    [0.32, 0.28, -0.17, 0.23, -0.29, -0.25, -0.18, 0.14, -0.16, 0.30, 0.27, -0.13, 0.21, 0.17, -0.10],
-    [0.16, -0.25, 0.21, -0.15, 0.18, -0.26, 0.20, 0.24, -0.16, 0.26, 0.22, -0.14, 0.24, -0.12, 0.18],
-  ][variant];
-  let value = -0.28;
-  const candles = changes.map((change, i) => {
-    const open = value;
-    value += change;
-    const close = value,
-      color = change > 0 ? green : red;
-    const candle = slab(
-      0.095,
-      Math.abs(change),
-      0.035,
-      color,
-      -1.72 + i * 0.158,
-      (open + close) / 2,
-      0.19,
-      0.012,
-    );
-    const wick = slab(
-      0.018,
-      Math.abs(change) + 0.16,
-      0.018,
-      color,
-      candle.position.x,
-      candle.position.y,
-      0.17,
-      0.004,
-    );
-    const volume = slab(
-      0.1,
-      0.08 + Math.abs(change) * 0.35,
-      0.018,
-      color,
-      candle.position.x,
-      -0.96,
-      0.15,
-      0.008,
-    );
-    g.add(candle, wick, volume);
-    return { candle, wick, volume, open, close };
-  });
-  const rows = Array.from({ length: 10 }, (_, i) => {
-    const color = i < 5 ? red : green;
-    const bar = slab(
-      0.76,
-      0.07,
-      0.016,
-      color,
-      1.35,
-      0.68 - i * 0.145,
-      0.16,
-      0.009,
-    );
-    bar.userData.width = 0.76;
-    g.add(bar);
-    g.add(
-      label(
-        i < 5 ? "SELL" : "BUY",
-        0xe0eae9,
-        1.35,
-        0.68 - i * 0.145,
-        0.19,
-        0.072,
-      ),
-    );
-    return bar;
-  });
-  const marker = mesh(new THREE.SphereGeometry(0.044, 16, 12), green);
-  g.add(marker);
-  const ticker = Array.from({ length: 7 }, (_, i) => {
-    const token = slab(
-      0.29,
-      0.04,
-      0.02,
-      i % 3 === 0 ? red : green,
-      -1.6 + i * 0.52,
-      -1.11,
-      0.16,
-      0.005,
-    );
-    g.add(token);
-    return token;
-  });
+  g.rotation.set(0.06, -0.19, 0);
+  const casing = slab(4.08, 2.62, 0.16, 0x263038, 0, 0.26, 0, 0.055);
+  casing.material.metalness = 0.45; casing.material.roughness = 0.4;
+  g.add(casing, slab(0.32, 0.6, 0.18, 0x303d45, 0, -1.18, -0.04, 0.035));
+  const foot = slab(1.38, 0.5, 0.095, 0x3c4951, 0, -1.51, 0.16, 0.065);
+  foot.rotation.x = -Math.PI / 2; g.add(foot);
+  g.add(label("MARKET STUDY", 0x899b9f, 0, -0.94, 0.10, 0.075));
+  g.add(mesh(new THREE.SphereGeometry(0.019, 12, 8), 0x51bfa6, 1.8, -0.94, 0.105));
+  const canvas = document.createElement("canvas"); canvas.width = 1056; canvas.height = 620;
+  const ctx = canvas.getContext("2d")!;
+  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace;
+  const display = new THREE.Mesh(new THREE.PlaneGeometry(3.82, 2.24), new THREE.MeshBasicMaterial({ map: texture, toneMapped: false }));
+  display.position.set(0, 0.34, 0.12); g.add(display);
+  const green = "#32c99a", red = "#ee6972";
+  const left = 38, right = 958, top = 108, bottom = 422, volumeBottom = 543;
+  const step = (right - left) / 24;
+  const priceY = (value: number) => bottom - (value - 96.5) / 7 * (bottom - top);
+  const stroke = (x1: number, y1: number, x2: number, y2: number, color: string, width = 1) => {
+    ctx.strokeStyle = color; ctx.lineWidth = width; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  };
+  g.userData.loopDuration = MARKET_LOOP_MS;
+  g.userData.restTime = 3600;
+  g.userData.marketBar = (index: number) => marketBar(index, variant);
   g.userData.animate = (time: number) => {
-    const t = Math.min(time, DURATION),
-      head = p(t, 200, 4400) * candles.length,
-      energy = 1 - ease(p(t, 4400, 5200));
-    candles.forEach(({ candle, wick, volume, open, close }, i) => {
-      const q = ease(Math.max(0, Math.min(1, head - i)));
-      candle.visible = wick.visible = volume.visible = q > 0;
-      candle.scale.y = Math.max(0.001, q);
-      candle.position.y = open + ((close - open) * q) / 2;
-      wick.scale.y = Math.max(0.001, q);
-      volume.scale.y = Math.max(0.001, q);
-      volume.position.y = -1.045 + (0.08 + Math.abs(close - open) * 0.35) * q / 2;
-    });
-    rows.forEach((bar, i) => {
-      const width =
-        0.3 + 0.6 * (0.5 + 0.5 * Math.sin(t * 0.009 + i * 2.3)) * energy;
-      bar.scale.x = width;
-      bar.position.x = 1.72 - 0.38 * width;
-    });
-    const i = Math.min(candles.length - 1, Math.floor(head)),
-      q = Math.max(0, Math.min(1, head - i));
-    marker.position.set(
-      candles[i].candle.position.x,
-      mix(candles[i].open, candles[i].close, ease(q)),
-      0.23,
-    );
-    marker.material.color.setHex(
-      candles[i].close >= candles[i].open ? green : red,
-    );
-    ticker.forEach((token, i) => {
-      token.scale.x =
-        0.4 + 0.6 * (0.5 + 0.5 * Math.sin(t * 0.012 + i)) * energy;
-    });
-    phase(
-      g,
-      t,
-      t < 1200
-        ? "opening-ticks"
-        : t < 3200
-          ? "order-flow"
-          : t < 4400
-            ? "market-reversal"
-            : "close-replay",
-      p(t, 200, 4400),
-    );
+    const t = ((time % MARKET_LOOP_MS) + MARKET_LOOP_MS) % MARKET_LOOP_MS;
+    const offset = Math.max(0, time) / MARKET_BAR_MS, first = Math.floor(offset), fraction = offset - first;
+    ctx.fillStyle = "#111a22"; ctx.fillRect(0, 0, 1056, 620);
+    ctx.textAlign = "left"; ctx.font = "600 23px monospace"; ctx.fillStyle = "#e5ebee"; ctx.fillText("DEMO / USD", 30, 39);
+    ctx.font = "15px monospace"; ctx.fillStyle = "#91a4b0"; ctx.fillText("1m  ·  OHLC + VOLUME", 30, 70);
+    ctx.textAlign = "right"; ctx.fillStyle = "#c2ced4"; ctx.fillText("SIMULATED · REPEATING STUDY", 1026, 39);
+    stroke(28, 87, 1028, 87, "#2a3944");
+    ctx.font = "14px monospace";
+    for (let value = 97; value <= 103; value++) {
+      const y = priceY(value); stroke(left, y, right, y, "#25323c");
+      ctx.textAlign = "left"; ctx.fillStyle = "#91a4b0"; ctx.fillText(value.toFixed(2), right + 12, y + 5);
+    }
+    stroke(left, 456, right, 456, "#2c3a44");
+    ctx.textAlign = "left"; ctx.fillStyle = "#91a4b0"; ctx.fillText("VOL", left, 478);
+    ctx.save(); ctx.beginPath(); ctx.rect(left, top, right - left, volumeBottom - top); ctx.clip();
+    for (let i = first - 1; i <= first + 25; i++) {
+      const bar = marketBar(i, variant), x = left + (i - first - fraction + .5) * step;
+      if (i % 6 === 0) stroke(x, top, x, volumeBottom, "#1e2b35");
+      const color = bar.close >= bar.open ? green : red;
+      stroke(x, priceY(bar.high), x, priceY(bar.low), color, 2);
+      ctx.fillStyle = color;
+      ctx.fillRect(x - 9, priceY(Math.max(bar.open, bar.close)), 18, Math.max(2, Math.abs(priceY(bar.open) - priceY(bar.close))));
+      const h = Math.min(57, bar.volume / 12);
+      ctx.globalAlpha = .50; ctx.fillRect(x - 9, volumeBottom - h, 18, h); ctx.globalAlpha = 1;
+    }
+    ctx.restore();
+    ctx.textAlign = "left"; ctx.fillStyle = "#91a4b0";
+    // Time advances with the viewport even when the authored OHLC pattern repeats.
+    for (let i = first; i <= first + 24; i++) if (i % 4 === 0) {
+      const x = left + (i - first - fraction + .5) * step;
+      if (x >= left && x <= right - 40) {
+        const minute = (570 + i) % 1440;
+        ctx.fillText(String(Math.floor(minute / 60)).padStart(2, "0") + ":" + String(minute % 60).padStart(2, "0"), x - 12, 569);
+      }
+    }
+    ctx.fillStyle = "#6f8695"; ctx.font = "13px monospace"; ctx.fillText("Illustrative prices · fixed USD scale · no live feed", left, 603);
+    texture.needsUpdate = true;
+    g.userData.phase = "market-pan"; g.userData.pose = t / MARKET_LOOP_MS;
+    g.userData.scroll = offset;
   };
   return g;
 }
