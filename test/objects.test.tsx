@@ -101,4 +101,20 @@ describe("authored object animation envelopes", () => {
     ).toBeInTheDocument();
     expect(document.querySelector("canvas")).toBeNull();
   });
+
+  it("offers a playback-only mode for compact consumer embeds", () => {
+    render(
+      <div style={{ height: 320 }}>
+        <ObjectScene
+          kind="reading"
+          label="Reading"
+          active={false}
+          controls="playback"
+        />
+      </div>,
+    );
+    expect(screen.queryByRole("button", { name: "Open canvas" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Another look" })).toBeNull();
+    expect(document.querySelector('[data-controls="playback"]')).toBeInTheDocument();
+  });
 });

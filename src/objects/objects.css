@@ -83,6 +83,14 @@
   font: 500 12px/1.4 system-ui;
   cursor: pointer;
 }
+.uipack-object-frame[data-controls="playback"] .uipack-object__motion {
+  bottom: 10px;
+  min-height: 44px;
+  padding: 0 11px;
+  border-color: color-mix(in srgb, currentColor 28%, transparent);
+  background: color-mix(in srgb, var(--object-bg, #faf9f6) 90%, transparent);
+  backdrop-filter: blur(8px);
+}
 .uipack-object-open {
   top: 12px;
   bottom: auto;

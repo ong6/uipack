@@ -19,6 +19,8 @@ interface ObjectSceneProps {
     active?: boolean;
     theme?: "light" | "dark";
     palette?: ObjectPalette;
+    /** Compact embeds can keep playback while leaving gallery controls to the library page. */
+    controls?: "full" | "playback";
     /** Pick once per mount, or pin a curated look for a reproducible preview. */
     variant?: ObjectVariant | "random";
 }

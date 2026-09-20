@@ -1396,7 +1396,8 @@ function ObjectStage({
   theme = "light",
   palette,
   zoom = 1,
-  variant = 0
+  variant = 0,
+  controls = "full"
 }) {
   const hostRef = (0, import_react3.useRef)(null);
   const canvasRef = (0, import_react3.useRef)(null);
@@ -1650,6 +1651,7 @@ function ObjectStage({
       "data-active": active ? "true" : "false",
       "data-kind": kind,
       "data-variant": variant,
+      "data-controls": controls,
       "data-variant-label": objectVariants[kind][variant === "random" ? 0 : variant],
       children: [
         /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Fallback, { kind, label: label2 }),
@@ -1669,7 +1671,8 @@ function ObjectStage({
             className: styles.pause,
             onClick: completed ? replay : togglePaused,
             "aria-pressed": completed ? void 0 : paused,
-            children: completed ? "Replay motion" : paused ? "Resume motion" : "Pause motion"
+            "aria-label": completed ? "Replay motion" : paused ? "Resume motion" : "Pause motion",
+            children: controls === "playback" ? completed ? "Replay" : paused ? "Resume" : "Pause" : completed ? "Replay motion" : paused ? "Resume motion" : "Pause motion"
           }
         )
       ]
@@ -1684,14 +1687,15 @@ function ObjectScene(props) {
     setRandomVariant(chooseObjectVariant());
   }, []);
   const canVary = props.variant === void 0 || props.variant === "random";
+  const controls = props.controls ?? "full";
   const variant = canVary ? randomVariant : props.variant;
   const anotherLook = () => setRandomVariant((current) => ((current ?? 0) + 1) % 3);
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-object-frame", "data-theme": props.theme ?? "light", children: [
-    variant !== null && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-object-edition", children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-object-frame", "data-theme": props.theme ?? "light", "data-controls": controls, children: [
+    controls === "full" && variant !== null && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-object-edition", children: [
       /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: objectVariants[props.kind][variant] }),
       canVary && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { type: "button", onClick: anotherLook, "aria-label": "Another look", children: "\u21BB" })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+    controls === "full" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
       "button",
       {
         ref: opener,

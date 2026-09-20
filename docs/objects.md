@@ -13,6 +13,10 @@ Seven scenes: `ai`, `contact`, `tennis`, `trading`, `server`, `travel`, `reading
 
 `active={false}` shows the labelled SVG fallback with no WebGL renderer or Three.js load. Active scenes lazily import Three.js, play once for 5.4 seconds, then offer Replay. Pause/Resume preserve time. Hidden tabs suspend rendering; mobile painting is capped at 30fps. Reduced motion draws the final pose and hides motion controls. Context loss and renderer-load errors retain the fallback. Geometry, materials, textures, observers and animation frames are disposed on unmount.
 
+Use `controls="playback"` in compact consumer embeds. The scene still starts automatically,
+stops off-screen, settles, and exposes Pause/Resume/Replay, but leaves **Another look** and
+**Open canvas** to the full gallery. The default `controls="full"` preserves the complete player.
+
 Open canvas reuses the shared accessible dialog, with bounded zoom, Escape and focus return. Entering or leaving the dialog remounts the player and restarts its sequence. No orbit or live trading data. The tennis GLB is included in its own lazy asset module; there is no third-party model host. The orthographic camera fits the authored animation envelope to both viewport axes.
 
 Review all seven examples in `/animations` (Objects filter). Consumers import the scene and player from `uipack/objects`; geometry and playback stay in the package.

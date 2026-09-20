@@ -10,6 +10,8 @@ export interface ObjectSceneProps {
   active?: boolean;
   theme?: "light" | "dark";
   palette?: ObjectPalette;
+  /** Compact embeds can keep playback while leaving gallery controls to the library page. */
+  controls?: "full" | "playback";
   /** Pick once per mount, or pin a curated look for a reproducible preview. */
   variant?: ObjectVariant | "random";
 }
@@ -208,6 +210,7 @@ function ObjectStage({
   palette,
   zoom = 1,
   variant = 0,
+  controls = "full",
 }: ObjectSceneProps & { zoom?: number }) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -496,6 +499,7 @@ function ObjectStage({
       data-active={active ? "true" : "false"}
       data-kind={kind}
       data-variant={variant}
+      data-controls={controls}
       data-variant-label={objectVariants[kind][variant === "random" ? 0 : variant]}
     >
       <Fallback kind={kind} label={label} />
@@ -514,12 +518,25 @@ function ObjectStage({
           className={styles.pause}
           onClick={completed ? replay : togglePaused}
           aria-pressed={completed ? undefined : paused}
+          aria-label={
+            completed
+              ? "Replay motion"
+              : paused
+                ? "Resume motion"
+                : "Pause motion"
+          }
         >
-          {completed
-            ? "Replay motion"
-            : paused
-              ? "Resume motion"
-              : "Pause motion"}
+          {controls === "playback"
+            ? completed
+              ? "Replay"
+              : paused
+                ? "Resume"
+                : "Pause"
+            : completed
+              ? "Replay motion"
+              : paused
+                ? "Resume motion"
+                : "Pause motion"}
         </button>
       )}
     </div>
@@ -534,24 +551,27 @@ export function ObjectScene(props: ObjectSceneProps) {
   const [randomVariant, setRandomVariant] = useState<ObjectVariant | null>(null);
   useEffect(() => { setRandomVariant(chooseObjectVariant()); }, []);
   const canVary = props.variant === undefined || props.variant === "random";
+  const controls = props.controls ?? "full";
   const variant = canVary ? randomVariant : props.variant as ObjectVariant;
   const anotherLook = () => setRandomVariant((current) => ((current ?? 0) + 1) % 3 as ObjectVariant);
   return (
-    <div className="uipack-object-frame" data-theme={props.theme ?? "light"}>
-      {variant !== null && (
+    <div className="uipack-object-frame" data-theme={props.theme ?? "light"} data-controls={controls}>
+      {controls === "full" && variant !== null && (
         <div className="uipack-object-edition">
           <span>{objectVariants[props.kind][variant]}</span>
           {canVary && <button type="button" onClick={anotherLook} aria-label="Another look">↻</button>}
         </div>
       )}
-      <button
-        ref={opener}
-        type="button"
-        className="uipack-object-open"
-        onClick={() => setOpen(true)}
-      >
-        Open canvas
-      </button>
+      {controls === "full" && (
+        <button
+          ref={opener}
+          type="button"
+          className="uipack-object-open"
+          onClick={() => setOpen(true)}
+        >
+          Open canvas
+        </button>
+      )}
       <CanvasView
         open={open}
         onClose={() => setOpen(false)}
