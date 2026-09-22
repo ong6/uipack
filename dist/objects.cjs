@@ -2516,7 +2516,8 @@ function ObjectStage({
   zoom = 1,
   variant = 0,
   edition = 0,
-  controls = "full"
+  controls = "full",
+  surface = "styled"
 }) {
   const hostRef = (0, import_react3.useRef)(null);
   const canvasRef = (0, import_react3.useRef)(null);
@@ -2806,6 +2807,7 @@ function ObjectStage({
     {
       ref: hostRef,
       "data-theme": theme,
+      "data-surface": surface,
       className: styles.scene,
       "data-active": active ? "true" : "false",
       "data-kind": kind,

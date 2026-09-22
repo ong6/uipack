@@ -132,3 +132,9 @@ The website's default hobby selection is Cartoon AI, Studio Tennis, Studio Tradi
 Paper Travel and Kinetic Reading. Its My picks control restores this set after a global style preview.
 
 The website Contact page pins Cartoon (variant 3). Compare the other inbox styles in UI Pack; Contact no longer changes style from URL preview parameters.
+
+### Page-integrated artwork
+
+Use `<ObjectScene kind="travel" label="Travel" variant={1} surface="page" controls="playback" theme={theme} />` to reveal the host page behind the artwork. The canvas, stage and border remain transparent in both themes. The default `surface="styled"` retains each direction’s gallery backdrop.
+
+Preview the embedded treatment at `/animations?story=travel&variant=1&surface=page&theme=light` (or `theme=dark`).

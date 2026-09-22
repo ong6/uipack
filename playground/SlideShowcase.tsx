@@ -9,6 +9,7 @@ import "./slides-showcase.css";
 
 export default function Slides() {
   const params = new URLSearchParams(location.search);
+  const surface = params.get("surface") === "page" ? "page" : "styled";
   const [storyId, setStoryId] = useState(
     params.get("story") ?? (location.pathname === "/slides" ? slideStories[0].id : objectScenes[0].id),
   );
@@ -104,7 +105,7 @@ export default function Slides() {
         <div className={object ? "uipack-object-review" : undefined}>
         {object ? (
           <div className="uipack-gallery-stage">
-            <ObjectScene key={object.id} kind={object.id} label={object.title} theme={theme} variant={normalizeObjectVariant(object.id, variant)} edition={edition} />
+            <ObjectScene key={object.id} kind={object.id} label={object.title} surface={surface} theme={theme} variant={normalizeObjectVariant(object.id, variant)} edition={edition} />
           </div>
         ) : (
           <SlidePlayer

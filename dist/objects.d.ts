@@ -78,6 +78,8 @@ interface ObjectSceneProps {
     palette?: ObjectPalette;
     /** Compact embeds can keep playback while leaving gallery controls to the library page. */
     controls?: "full" | "playback";
+    /** Reveal the host page behind the artwork, in either theme. */
+    surface?: "styled" | "page";
     /** Pick once per mount, or pin a curated look for a reproducible preview. */
     variant?: ObjectVariant | "random";
     /** Original edition within Studio; ignored by Paper and Kinetic. */

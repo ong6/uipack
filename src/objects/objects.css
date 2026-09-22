@@ -219,3 +219,10 @@
 .uipack-object-directions button { flex:0 0 auto; white-space:nowrap; }
 @media(max-width:1100px) { .uipack-object-review { grid-template-columns:minmax(0,1fr); } .uipack-direction-list { grid-template-columns:repeat(3,minmax(0,1fr)); } }
 @media(max-width:700px) { .uipack-direction-list button { min-height:82px; } }
+
+/* Embedded artwork shares its host page surface in either theme. */
+.uipack-object[data-theme][data-surface="page"] {
+  background: transparent;
+  border-color: transparent;
+  --object-bg: transparent;
+}

@@ -12,6 +12,8 @@ export interface ObjectSceneProps {
   palette?: ObjectPalette;
   /** Compact embeds can keep playback while leaving gallery controls to the library page. */
   controls?: "full" | "playback";
+  /** Reveal the host page behind the artwork, in either theme. */
+  surface?: "styled" | "page";
   /** Pick once per mount, or pin a curated look for a reproducible preview. */
   variant?: ObjectVariant | "random";
   /** Original edition within Studio; ignored by Paper and Kinetic. */
@@ -195,6 +197,7 @@ function ObjectStage({
   variant = 0,
   edition = 0,
   controls = "full",
+  surface = "styled",
 }: ObjectSceneProps & { zoom?: number }) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -516,6 +519,7 @@ function ObjectStage({
     <div
       ref={hostRef}
       data-theme={theme}
+      data-surface={surface}
       className={styles.scene}
       data-active={active ? "true" : "false"}
       data-kind={kind}

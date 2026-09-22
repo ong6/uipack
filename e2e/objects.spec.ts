@@ -218,3 +218,18 @@ test("offscreen object playback suspends and resumes without racing forward", as
   const next=Number(await canvas.getAttribute("data-pose"));
   expect((next-pose+1)%1).toBeLessThan(.1);
 });
+
+for (const theme of ['light', 'dark']) for (const width of [390, 1440]) {
+  test(`page surface blends at ${width} in ${theme}`, async ({page}) => {
+    await page.setViewportSize({width,height:900});
+    await page.goto(`/animations?story=travel&variant=1&surface=page&theme=${theme}`);
+    const object=page.locator('.uipack-object');
+    await expect(object.locator('canvas')).toHaveAttribute('data-renderer','webgl');
+    await expect(object).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+    await expect(object).toHaveCSS('background-image','none');
+    await expect(object).toHaveCSS('border-top-color','rgba(0, 0, 0, 0)');
+    await page.goto(`/animations?story=travel&variant=1&theme=${theme}`);
+    await expect(object).toHaveAttribute('data-surface','styled');
+    await expect(object).not.toHaveCSS('background-image','none');
+  });
+}
