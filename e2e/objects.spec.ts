@@ -34,7 +34,7 @@ for (const theme of ["light", "dark"])
 test("object playback pauses, finishes, replays and opens one accessible canvas", async ({
   page,
 }) => {
-  await page.goto("/animations?story=travel");
+  await page.goto("/animations?story=travel&variant=0");
   const canvas = page.locator(".uipack-object canvas");
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
   await page.getByRole("button", { name: "Pause motion" }).click();
@@ -104,7 +104,7 @@ test("switching objects and themes creates a usable renderer every time", async 
   ]) {
     await page
       .getByRole("button", {
-        name: `${title} Objects · Transform`,
+        name: title,
         exact: true,
       })
       .click();
@@ -132,9 +132,9 @@ test("curated look persists through loop, theme and expanded canvas", async ({ p
   await page.goto("/animations?story=tennis");
   const object = page.locator(".uipack-object");
   const canvas = object.locator("canvas");
-  await expect(canvas).toHaveAttribute("data-source", "blender");
+  await expect(canvas).toHaveAttribute("data-renderer", "webgl");
   const first = Number(await object.getAttribute("data-variant"));
-  await page.getByRole("button", { name: "Another look", exact: true }).click();
+  await page.getByRole("button", { name: /Paper worlds/ }).click();
   await expect(object).toHaveAttribute("data-variant", String((first + 1) % 3));
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
   const next = await object.getAttribute("data-variant");
@@ -153,8 +153,8 @@ test("curated look persists through loop, theme and expanded canvas", async ({ p
 
 test("a pinned look is reproducible and failed model loading shows the fallback", async ({ page }) => {
   await page.route("**/tennis-asset*", route => route.abort());
-  await page.goto("/animations?story=tennis&variant=1");
-  await expect(page.locator(".uipack-object")).toHaveAttribute("data-variant", "1");
+  await page.goto("/animations?story=tennis&variant=0");
+  await expect(page.locator(".uipack-object")).toHaveAttribute("data-variant", "0");
   await expect(page.locator(".uipack-object canvas")).toHaveAttribute("data-renderer", "fallback");
   await expect(page.getByRole("img", { name: "Tennis practice illustration" })).toBeVisible();
   await expect(page.getByRole("button", { name: /motion$/ })).toHaveCount(0);
@@ -199,4 +199,22 @@ for (const kind of ['tennis', 'trading']) test(`${kind} keeps looping, pauses an
   await page.waitForTimeout(200);
   expect(await canvas.getAttribute('data-frames')).toBe(reduced);
   await expect(page.getByRole('button', { name: /motion$/ })).toHaveCount(0);
+});
+
+test("offscreen object playback suspends and resumes without racing forward", async ({ page }) => {
+  await page.goto("/animations?story=tennis&variant=0");
+  const canvas=page.locator(".uipack-object canvas");
+  await canvas.scrollIntoViewIfNeeded();
+  await expect(canvas).toHaveAttribute("data-renderer","webgl");
+  await page.waitForTimeout(300);
+  await page.evaluate(() => { const spacer=document.createElement("div");spacer.style.height="2000px";document.body.prepend(spacer);window.scrollTo(0,0); });
+  await page.waitForTimeout(150);
+  const frames=await canvas.getAttribute("data-frames");
+  const pose=Number(await canvas.getAttribute("data-pose"));
+  await page.waitForTimeout(650);
+  expect(await canvas.getAttribute("data-frames")).toBe(frames);
+  await canvas.scrollIntoViewIfNeeded();
+  await expect.poll(async()=>Number(await canvas.getAttribute("data-frames"))).toBeGreaterThan(Number(frames));
+  const next=Number(await canvas.getAttribute("data-pose"));
+  expect((next-pose+1)%1).toBeLessThan(.1);
 });

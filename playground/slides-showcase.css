@@ -75,3 +75,8 @@
     gap: 12px;
   }
 }
+
+.slides-showcase .uipack-animation-library .catalog-filters { display:flex; flex-direction:column; align-items:stretch; gap:12px; margin:0 0 20px; }
+.slides-showcase .uipack-animation-library .catalog-filters label { min-width:0; width:100%; }
+.slides-showcase .uipack-animation-library .catalog-filters input,.slides-showcase .uipack-animation-library .catalog-filters select { width:100%; min-width:0; box-sizing:border-box; }
+@media(max-width:700px) { .slides-showcase .uipack-animation-library .catalog-filters { flex-direction:row; flex-wrap:wrap; gap:8px; margin-bottom:12px; } .slides-showcase .uipack-animation-library .catalog-filters label { flex:1; min-width:100px; } .slides-showcase .catalog-filters [role="status"] { display:none; } }

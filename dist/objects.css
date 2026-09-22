@@ -136,6 +136,89 @@
 .uipack-object-edition button:hover { background: #205f4910; }
 .uipack-object-edition button:focus-visible { outline: 2px solid currentColor; }
 .uipack-object-frame[data-theme="dark"] .uipack-object-edition { color: #b7c8bf; }
+
+/* Authored art-direction surfaces, scoped to the object player. */
+.uipack-object[data-art-direction="paper-theatre"] {
+  --object-bg: #f1e6d6;
+  background: radial-gradient(ellipse at 45% 40%, #fffaf1, #eadbc7);
+}
+.uipack-object[data-art-direction="kinetic"] {
+  --object-bg: #ecece6;
+  background: radial-gradient(ellipse at 50% 35%, #fffef7, #dddfd9);
+}
+.uipack-object[data-theme="dark"][data-art-direction="paper-theatre"] {
+  --object-bg: #292e39;
+  background: radial-gradient(ellipse at 45% 40%, #454959, #232833);
+}
+.uipack-object[data-theme="dark"][data-art-direction="kinetic"] {
+  --object-bg: #18232c;
+  background: radial-gradient(ellipse at 50% 35%, #344450, #111a24);
+}
+.uipack-object-directions {
+  display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0;
+}
+.uipack-object-directions button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  min-height: 44px; padding: 8px 14px; border: 1px solid currentColor;
+  border-radius: 6px; color: inherit; background: transparent;
+  font: 500 12px/1.4 system-ui; cursor: pointer;
+}
+.uipack-object-directions button[aria-pressed="true"] {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  box-shadow: inset 0 -3px 0 currentColor;
+}
+.uipack-object-directions button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.uipack-object-directions button span { font-size: 20px; line-height: 1; }
+@media(max-width: 480px) {
+  .uipack-object-directions { gap: 6px; }
+  .uipack-object-directions button { flex: 1 1 90px; padding: 7px 8px; gap: 5px; font-size: 11px; }
+}
+
+/* Gallery furniture remains quiet so each authored world owns the stage. */
+.uipack-animation-workspace { --gallery-ink:#1a1c1a; --gallery-muted:#626c65; --gallery-rule:#d6dcd5; --gallery-surface:#fff; --gallery-accent:#205f49; display:grid; grid-template-columns:200px minmax(0,1fr); border:1px solid var(--gallery-rule); border-radius:8px; color:var(--gallery-ink); overflow:hidden; }
+.uipack-animation-workspace[data-theme="dark"] { --gallery-ink:#e8ece9; --gallery-muted:#a6b4aa; --gallery-rule:#36463c; --gallery-surface:#14201b; --gallery-accent:#71dcb2; }
+.uipack-animation-library { padding:20px 12px; border-right:1px solid var(--gallery-rule); background:var(--gallery-surface); min-width:0; }
+.uipack-animation-library h3 { margin:0 8px 14px; font:600 13px system-ui,sans-serif; }
+.uipack-scene-list { display:flex; flex-direction:column; gap:4px; }
+.uipack-scene-list button { display:flex; align-items:center; justify-content:space-between; text-align:left; gap:8px; width:100%; min-height:44px; padding:10px; border:1px solid transparent; border-radius:4px; background:transparent; color:inherit; cursor:pointer; font:14px system-ui,sans-serif; }
+.uipack-scene-list button span { opacity:0; }
+.uipack-scene-list button[aria-pressed="true"] { border-color:var(--gallery-rule); color:var(--gallery-accent); background:color-mix(in srgb,var(--gallery-accent) 8%,transparent); font-weight:600; }
+.uipack-scene-list button[aria-pressed="true"] span { opacity:1; }
+.uipack-animation-detail { min-width:0; padding:24px; }
+.uipack-animation-heading { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:20px; }
+.uipack-animation-heading h3 { margin:0; font:600 24px system-ui,sans-serif; letter-spacing:-.6px; }
+.uipack-animation-heading > span { color:var(--gallery-muted); font-size:12px; }
+.uipack-object-review { display:grid; grid-template-columns:minmax(0,1fr) 210px; gap:20px; }
+.uipack-gallery-stage { height:460px; min-width:0; }
+.uipack-object-inspector h3 { margin:0 0 12px; font:600 13px system-ui,sans-serif; }
+.uipack-direction-list { display:flex; flex-direction:column; gap:8px; }
+.uipack-direction-list button { display:flex; gap:10px; align-items:flex-start; text-align:left; padding:14px 10px; border:1px solid var(--gallery-rule); border-radius:5px; background:transparent; color:inherit; cursor:pointer; }
+.uipack-direction-list button[aria-pressed="true"] { border-color:var(--gallery-accent); box-shadow:inset 3px 0 var(--gallery-accent); background:color-mix(in srgb,var(--gallery-accent) 6%,transparent); }
+.uipack-direction-symbol { font-size:24px; line-height:1; color:var(--gallery-accent); }
+.uipack-direction-list strong { display:block; font:600 13px system-ui,sans-serif; }
+.uipack-direction-list small,.uipack-edition-select small { display:block; margin-top:6px; color:var(--gallery-muted); font:12px/1.5 system-ui,sans-serif; }
+.uipack-edition-select { display:block; margin-top:20px; font:600 13px system-ui,sans-serif; }
+.uipack-edition-select select { margin-top:10px; width:100%; min-height:44px; border:1px solid var(--gallery-rule); border-radius:4px; padding:8px; color:var(--gallery-ink); background:var(--gallery-surface); font:13px system-ui,sans-serif; }
+.uipack-gallery-description { margin:18px 0 0; max-width:70ch; font:13px/1.65 system-ui,sans-serif; color:var(--gallery-muted); }
+.uipack-animation-workspace button:focus-visible,.uipack-animation-workspace select:focus-visible { outline:2px solid var(--gallery-accent); outline-offset:3px; }
+@media(max-width:1100px) { .uipack-object-review { grid-template-columns:minmax(0,1fr); } .uipack-direction-list { flex-direction:row; } .uipack-direction-list button { flex:1; } .uipack-edition-select { max-width:300px; } }
+@media(max-width:700px) { .uipack-animation-workspace { grid-template-columns:minmax(0,1fr); } .uipack-animation-library { border-right:0; border-bottom:1px solid var(--gallery-rule); padding:14px; } .uipack-scene-list { flex-direction:row; overflow-x:auto; padding-bottom:4px; } .uipack-scene-list button { flex:0 0 auto; width:auto; white-space:nowrap; } .uipack-scene-list button span { display:none; } .uipack-animation-detail { padding:14px; } .uipack-animation-heading h3 { font-size:21px; } .uipack-animation-heading > span { display:none; } .uipack-gallery-stage { height:340px; } .uipack-direction-list button { flex-direction:column; padding:12px 8px; } .uipack-direction-list small { display:none; } .uipack-direction-list strong { font-size:12px; } }
+
+.uipack-object[data-art-direction="cartoon"] { background:radial-gradient(ellipse at 45% 35%,#fff8dc,#dbebdf); }
+.uipack-object[data-art-direction="realistic"] { background:radial-gradient(ellipse at 40% 30%,#f4f1e9,#cfcac0); }
+.uipack-object[data-art-direction="abstract"] { background:radial-gradient(ellipse at 50% 40%,#f8fbff,#d6deef); }
+.uipack-object[data-theme="dark"][data-art-direction="cartoon"] { background:radial-gradient(ellipse at 45% 35%,#374b50,#1a2e31); }
+.uipack-object[data-theme="dark"][data-art-direction="realistic"] { background:radial-gradient(ellipse at 40% 30%,#45433e,#212522); }
+.uipack-object[data-theme="dark"][data-art-direction="abstract"] { background:radial-gradient(ellipse at 50% 40%,#333e61,#141b31); }
+/* Six directions stay compact: two columns beside the stage, three below it. */
+.uipack-object-review { grid-template-columns:minmax(0,1fr) 250px; }
+.uipack-direction-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+.uipack-direction-list button { flex-direction:column; min-height:94px; gap:8px; }
+.uipack-direction-list small { display:none; }
+.uipack-object-directions { flex-wrap:nowrap; overflow-x:auto; }
+.uipack-object-directions button { flex:0 0 auto; white-space:nowrap; }
+@media(max-width:1100px) { .uipack-object-review { grid-template-columns:minmax(0,1fr); } .uipack-direction-list { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-width:700px) { .uipack-direction-list button { min-height:82px; } }
 .uipack-canvas-dialog { box-sizing: border-box; width: calc(100vw - 32px); max-width: none; height: calc(100dvh - 32px); max-height: none; padding: 0; border: 1px solid #bac3bc; border-radius: 8px; background: #fff; color: #1a1c1a; font-family: system-ui, sans-serif; }
 .uipack-canvas-dialog[data-theme="dark"] { background: #0e1512; color: #e8ece9; border-color: #43544b; }
 .uipack-canvas-dialog::backdrop { background: rgb(0 0 0 / .65); }

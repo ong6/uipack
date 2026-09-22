@@ -1,4 +1,4 @@
-import { objectScenes } from "../src/objects";
+import { objectDirections, objectScenes } from "../src/objects";
 /** Content type and visual style are independent axes. Register styles here, never fork the shell. */
 export const visualStyles = [
   {
@@ -9,6 +9,11 @@ export const visualStyles = [
     tokens: "src/theme.css",
     guidance: "docs/design-direction.md",
   },
+  ...objectDirections.map((direction, variant) => ({
+    id: direction.id, name: direction.name, description: direction.description,
+    tokens: variant === 0 ? 'src/objects/objects.css' : variant < 3 ? 'src/objects/art-directions.ts' : 'src/objects/expanded-directions.ts',
+    guidance: 'docs/objects.md', variant,
+  })),
 ] as const;
 export const libraryPages = [
   { id: "figures", label: "Figures", path: "/" },
@@ -76,3 +81,16 @@ export const animationEntries: CatalogEntry[] = [
     tags: ["Transform", "Architecture"],
   },
 ];
+
+/** Each style has six real rendered examples, reachable through the gallery's selector. */
+export const objectStyleEntries = objectDirections.flatMap((direction, variant) =>
+  objectScenes.filter(scene => scene.id !== 'contact').map(scene => ({
+    id: `${scene.id}-${direction.id}`, title: `${scene.title} / ${direction.name}`,
+    type: 'animations' as const, styleId: direction.id,
+    tags: ['Objects', direction.id], href: `/animations?story=${scene.id}&variant=${variant}`,
+  })));
+
+objectStyleEntries.push(...([{variant:3, styleId:'cartoon', title:'Little post office'}, {variant:4, styleId:'kinetic', title:'Correspondence mobile'}] as const).map(item=>({
+  id:`contact-${item.styleId}`,title:`Contact inbox / ${item.title}`,type:'animations' as const,styleId:item.styleId,
+  tags:['Objects',item.styleId],href:`/animations?story=contact&variant=${item.variant}`,
+})));

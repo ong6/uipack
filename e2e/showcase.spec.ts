@@ -24,7 +24,7 @@ test("library pages share navigation and preserve theme across routes and reload
   await page.getByRole("button", { name: "light mode", exact: true }).click();
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
-  await expect(page.locator(".uipack-slide-player")).toHaveAttribute(
+  await expect(page.locator(".uipack-animation-workspace")).toHaveAttribute(
     "data-theme",
     "light",
   );

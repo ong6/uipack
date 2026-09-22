@@ -7,11 +7,11 @@ UIPACK is a library of reusable visual explanations. The browser organizes two i
 | Axis | Values |
 | --- | --- |
 | Content type | Figures, Assets, 3D animations, Presentations |
-| Visual style | Technical today; additional explicitly authored styles later |
+| Visual style | Technical diagrams; Studio, Paper, Kinetic, Cartoon, Realistic and Abstract for 3D objects |
 
 The Styles collection is the index of visual languages. Light and dark are themes within a style. Do not use “slides” as the name for all 3D content. The existing `uipack/slides` API and `/slides` URL remain compatibility paths.
 
-`playground/catalog.ts` owns gallery metadata. An animation entry has an ID, title, content type, style ID, and tags. Search and technique filters read metadata instead of relying on array indices. A new collection should reuse the shared shell. A future style should add its own registry entry, renderer or component mapping, scoped stylesheet, and examples. Register a style only when that implementation exists. The current shell deliberately renders Technical only; adding a metadata entry alone is not a new style implementation.
+`playground/catalog.ts` owns gallery metadata. An animation entry has an ID, title, content type, style ID, and tags. Search and technique filters read metadata instead of relying on array indices. A new collection should reuse the shared shell. A future style should add its own registry entry, renderer or component mapping, scoped stylesheet, and examples. Register a style only when that implementation exists. The shell keeps its Technical navigation language. Object scenes additionally implement Studio, Paper, Kinetic, Cartoon, Realistic and Abstract art directions, each with separate geometry and scoped stage tokens.
 
 ## Technical style
 

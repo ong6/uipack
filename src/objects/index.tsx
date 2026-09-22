@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { chooseObjectVariant, objectVariants, type ObjectVariant } from "./variants";
-export { objectVariants, chooseObjectVariant, type ObjectVariant } from "./variants";
+import { objectDirectionIndex, normalizeObjectVariant, chooseObjectVariant, objectDirections, objectEditions, objectVariants, directionSymbols, parseObjectVariant, type ObjectEdition, type ObjectVariant } from "./variants";
+export { transferObjectVariant, objectDirectionIndex, normalizeObjectVariant, objectDirections, objectEditions, objectVariants, directionSymbols, parseObjectVariant, type ObjectEdition, chooseObjectVariant, type ObjectVariant } from "./variants";
 import { CanvasView } from "../CanvasView";
 import type { ObjectKind, ObjectPalette } from "./scenes";
 export type { ObjectKind, ObjectPalette } from "./scenes";
@@ -14,6 +14,8 @@ export interface ObjectSceneProps {
   controls?: "full" | "playback";
   /** Pick once per mount, or pin a curated look for a reproducible preview. */
   variant?: ObjectVariant | "random";
+  /** Original edition within Studio; ignored by Paper and Kinetic. */
+  edition?: ObjectEdition;
 }
 export const objectPalettes = {
   light: { paper: 0xf3efe7, ink: 0x292e32, muted: 0x9aaba5, accent: 0x205f49 },
@@ -191,6 +193,7 @@ function ObjectStage({
   palette,
   zoom = 1,
   variant = 0,
+  edition = 0,
   controls = "full",
 }: ObjectSceneProps & { zoom?: number }) {
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -258,8 +261,11 @@ function ObjectStage({
     let disposed = false;
     let contextLost = false;
     let renderer: import("three").WebGLRenderer | undefined;
+    let environment: import("three").WebGLRenderTarget | undefined;
     let scene: import("three").Scene | undefined;
     let resizeObserver: ResizeObserver | undefined;
+    let viewportObserver: IntersectionObserver | undefined;
+    let inViewport = true;
     const canvas = canvasRef.current;
     const handleContextLost = (event: Event) => {
       event.preventDefault();
@@ -271,8 +277,8 @@ function ObjectStage({
     };
     canvas.addEventListener("webglcontextlost", handleContextLost);
 
-    Promise.all([import("three"), import("./scenes")])
-      .then(async ([THREE, { createObject, disposeObject }]) => {
+    Promise.all([import("three"), import("./scenes"), import("three/addons/environments/RoomEnvironment.js")])
+      .then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
         if (disposed) return;
         try {
           renderer = new THREE.WebGLRenderer({
@@ -284,26 +290,41 @@ function ObjectStage({
           renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
           renderer.outputColorSpace = THREE.SRGBColorSpace;
           scene = new THREE.Scene();
+          const room = new RoomEnvironment();
+          const pmrem = new THREE.PMREMGenerator(renderer);
+          environment = pmrem.fromScene(room, .04);
+          scene.environment = environment.texture;
+          scene.environmentIntensity = variant === 5 ? .85 : .35;
+          room.dispose(); pmrem.dispose();
           const camera = new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 100);
-          camera.position.set(0, 0, 10);
+          camera.position.set(0, variant === 4 && kind !== "contact" ? -.15 : 0, 10);
           const colors = palette ?? objectPalettes[colorMode];
-          const object = await createObject(kind, colors, variant === "random" ? 0 : variant);
+          const object = await createObject(kind, colors, variant === "random" ? 0 : variant, edition);
           if (disposed || contextLost) { disposeObject(object); return; }
           canvas.dataset.source = object.userData.source ?? "procedural";
-          if (kind === "tennis") {
+          canvas.dataset.artDirection = object.userData.style;
+          const shadows = kind === "tennis" || (variant !== 0 && variant !== 5);
+          if (variant !== 0 && variant !== 5) object.traverse(item => {
+            if (item instanceof THREE.Mesh) { item.castShadow = true; item.receiveShadow = true; }
+          });
+          if (shadows) {
             renderer.shadowMap.enabled = true;
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
           }
-          scene.add(object, new THREE.HemisphereLight(0xffffff, 0x697080, 2.2));
-          const key = new THREE.DirectionalLight(0xffffff, 2.2);
+          scene.add(object, new THREE.HemisphereLight(0xf5f4eb, 0x596778, 2.0));
+          const key = new THREE.DirectionalLight(0xfff2dc, 2.5);
           key.position.set(-3, 5, 7);
-          key.castShadow = kind === "tennis";
+          key.castShadow = shadows;
           key.shadow.mapSize.set(1024, 1024);
           Object.assign(key.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4 });
-          key.shadow.normalBias = 0.035;
+          key.shadow.normalBias = 0.025;
+          key.shadow.bias = -0.0003;
           renderer.toneMapping = THREE.ACESFilmicToneMapping;
-          renderer.toneMappingExposure = 1.15;
+          renderer.toneMappingExposure = 1.05;
           scene.add(key);
+          const rim = new THREE.DirectionalLight(0xc6ddff, 1.4);
+          rim.position.set(4, 2, -3);
+          scene.add(rim);
           const loopDuration = object.userData.loopDuration as number | undefined;
           const restTime = object.userData.restTime ?? REST_START_MS;
           canvas.dataset.playback = loopDuration ? "loop" : "once";
@@ -317,6 +338,8 @@ function ObjectStage({
           const paint = (sceneTime: number, time: number) => {
             object.userData.animate?.(sceneTime);
             renderer!.render(scene!, camera);
+            canvas.dataset.drawCalls = String(renderer!.info.render.calls);
+            canvas.dataset.triangles = String(renderer!.info.render.triangles);
             lastPaintAt = frameInterval
               ? time -
                 (Number.isFinite(lastPaintAt)
@@ -336,7 +359,7 @@ function ObjectStage({
           const render = (time = 0) => {
             frameRef.current = null;
             if (disposed || contextLost) return;
-            if (document.hidden) {
+            if (document.hidden || !inViewport) {
               lastTickAt = undefined;
               return;
             }
@@ -392,8 +415,8 @@ function ObjectStage({
             const height = canvas.clientHeight || 1;
             renderer!.setSize(width, height, false);
             const aspect = width / height;
-            const halfWidth = kind === "server" ? 3.25 : 2.65;
-            const halfHeight = Math.max(2.2, halfWidth / aspect);
+            const halfWidth = variant === 4 && kind !== "contact" ? 2.15 : kind === "server" && variant === 0 ? 3.25 : 2.65;
+            const halfHeight = Math.max(variant === 4 && kind !== "contact" ? 1.75 : 2.2, halfWidth / aspect);
             camera.left = -halfHeight * aspect;
             camera.right = halfHeight * aspect;
             camera.top = halfHeight;
@@ -405,6 +428,17 @@ function ObjectStage({
           resizeRef.current = resize;
           resizeObserver = new ResizeObserver(resize);
           resizeObserver.observe(canvas);
+          viewportObserver = new IntersectionObserver(([entry]) => {
+            inViewport = entry.isIntersecting;
+            if (!inViewport) {
+              if (frameRef.current) cancelAnimationFrame(frameRef.current);
+              frameRef.current = null;
+              lastTickAt = undefined;
+            } else if (activeRef.current && !pausedRef.current && !completedRef.current && !reducedRef.current) {
+              resumeRef.current?.();
+            }
+          });
+          viewportObserver.observe(canvas);
           resize();
           canvas.dataset.renderer = "webgl";
           setReady(true);
@@ -440,6 +474,7 @@ function ObjectStage({
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
       frameRef.current = null;
       resizeObserver?.disconnect();
+      viewportObserver?.disconnect();
       if (scene)
         scene.traverse((item) => {
           item.userData.dispose?.();
@@ -456,13 +491,14 @@ function ObjectStage({
             entry.dispose();
           });
         });
+      environment?.dispose();
       renderer?.dispose();
       renderer?.forceContextLoss();
       drawRef.current = null;
       replayRef.current = null;
       resumeRef.current = null;
     };
-  }, [active, kind, colorMode, palette, variant]);
+  }, [active, kind, colorMode, palette, variant, edition]);
 
   const togglePaused = () => {
     const next = !pausedRef.current;
@@ -484,6 +520,8 @@ function ObjectStage({
       data-active={active ? "true" : "false"}
       data-kind={kind}
       data-variant={variant}
+      data-edition={edition}
+      data-art-direction={objectDirections[objectDirectionIndex(kind, variant === "random" ? 0 : variant)].id}
       data-controls={controls}
       data-variant-label={objectVariants[kind][variant === "random" ? 0 : variant]}
     >
@@ -534,16 +572,17 @@ export function ObjectScene(props: ObjectSceneProps) {
     [zoom, setZoom] = useState(1);
   const opener = useRef<HTMLButtonElement>(null);
   const [randomVariant, setRandomVariant] = useState<ObjectVariant | null>(null);
-  useEffect(() => { setRandomVariant(chooseObjectVariant()); }, []);
+  useEffect(() => { setRandomVariant(chooseObjectVariant(Math.random, props.kind === "contact" ? 5 : objectDirections.length)); }, []);
   const canVary = props.variant === undefined || props.variant === "random";
   const controls = props.controls ?? "full";
-  const variant = canVary ? randomVariant : props.variant as ObjectVariant;
-  const anotherLook = () => setRandomVariant((current) => ((current ?? 0) + 1) % 3 as ObjectVariant);
+  const chosenVariant = canVary ? randomVariant : props.variant as ObjectVariant;
+  const variant = chosenVariant === null ? null : normalizeObjectVariant(props.kind, chosenVariant);
+  const anotherLook = () => setRandomVariant((current) => ((current ?? 0) + 1) % (props.kind === "contact" ? 5 : objectDirections.length) as ObjectVariant);
   return (
     <div className="uipack-object-frame" data-theme={props.theme ?? "light"} data-controls={controls}>
       {controls === "full" && variant !== null && (
         <div className="uipack-object-edition">
-          <span>{objectVariants[props.kind][variant]}</span>
+          <span>{variant === 0 && props.kind !== "contact" ? `Studio · ${objectEditions[props.kind][props.edition ?? 0]}` : objectVariants[props.kind][variant]}</span>
           {canVary && <button type="button" onClick={anotherLook} aria-label="Another look">↻</button>}
         </div>
       )}
@@ -566,7 +605,7 @@ export function ObjectScene(props: ObjectSceneProps) {
         zoom={{ value: zoom, min: 0.75, max: 2, onChange: setZoom }}
       >
         <ObjectStage
-          key={`${props.kind}-${props.theme ?? "light"}-${variant ?? "pending"}`}
+          key={`${props.kind}-${props.theme ?? "light"}-${variant ?? "pending"}-${props.edition ?? 0}`}
           {...props}
           active={(props.active ?? true) && variant !== null}
           variant={variant ?? 0}
@@ -576,3 +615,17 @@ export function ObjectScene(props: ObjectSceneProps) {
     </div>
   );
 }
+
+/** Shared style selector; consumers own the selected value and URL persistence. */
+export function ObjectDirectionPicker({ value, onChange }: {
+  value: ObjectVariant | "random"; onChange: (value: ObjectVariant) => void;
+}) {
+  return <div className="uipack-object-directions" role="group" aria-label="3D art direction">
+    {objectDirections.map((direction, index) => <button key={direction.id} type="button"
+      aria-pressed={value === index} onClick={() => onChange(index as ObjectVariant)}>
+      <span aria-hidden="true">{directionSymbols[index]}</span>{direction.name}
+    </button>)}
+  </div>;
+}
+
+export { ObjectGallery, ObjectInspector, AnimationWorkspace } from "./gallery";

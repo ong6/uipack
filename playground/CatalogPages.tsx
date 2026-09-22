@@ -152,27 +152,27 @@ export default function CatalogPages() {
           <div className="style-grid">
             {visualStyles.map((style) => (
               <article className="style-card" key={style.id}>
-                <div className="style-swatch" aria-hidden="true">
-                  <span>Request</span>
+                <div className="style-swatch" data-style={style.id} aria-hidden="true">
+                  <span>{style.id === "technical" ? "Request" : style.name}</span>
                   <i>→</i>
-                  <span>System</span>
+                  <span>{style.id === "technical" ? "System" : "3D"}</span>
                   <i>→</i>
-                  <span>Evidence</span>
+                  <span>{style.id === "technical" ? "Evidence" : "Motion"}</span>
                 </div>
                 <h3>{style.name}</h3>
                 <p>{style.description}</p>
                 <div>
-                  <a href={`/?theme=${theme}`}>Figures</a>
-                  <a href={`/animations?theme=${theme}`}>3D animations</a>
-                  <a href={`/presentations?theme=${theme}`}>Presentations</a>
+                  {style.id === 'technical' ? <>
+                    <a href={`/?theme=${theme}`}>Figures</a>
+                    <a href={`/animations?theme=${theme}`}>3D animations</a>
+                    <a href={`/presentations?theme=${theme}`}>Presentations</a>
+                  </> : <a href={`/animations?story=travel&variant=${'variant' in style ? style.variant : 0}&theme=${theme}`}>Explore six animated studies</a>}
                 </div>
               </article>
             ))}
           </div>
           <p className="collection-intro">
-            One style is available today. New styles get their own catalog
-            identity, scoped tokens, examples, and guidance; they do not
-            overwrite this collection.
+            Technical diagrams and six object art directions. Each object direction has its own models, materials, perspective and motion.
           </p>
         </section>
       ) : (
