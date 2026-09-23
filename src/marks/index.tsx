@@ -26,7 +26,7 @@ export const marks = {
       <path d="M13 14V9h6v5M16 4v5" />
     </>
   ),
-  skillforge: (
+  skillsmith: (
     <>
       <path d="M16 4l3.5 7 7.5 1-5.5 5.3 1.3 7.7L16 21.4 9.2 25l1.3-7.7L5 12l7.5-1z" />
     </>

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-16",
+  "generated": "2026-09-23",
   "base": "",
   "assets": [
     {
@@ -674,17 +674,17 @@
       "preview": "docs/assets/mark-jobforge.svg"
     },
     {
-      "id": "mark-skillforge",
-      "name": "skillforge mark",
+      "id": "mark-skillsmith",
+      "name": "skillsmith mark",
       "category": "Marks",
       "kind": "mark",
-      "source": "import { marks } from \"uipack\";\n<svg viewBox=\"0 0 32 32\">{marks.skillforge}</svg>",
+      "source": "import { marks } from \"uipack\";\n<svg viewBox=\"0 0 32 32\">{marks.skillsmith}</svg>",
       "tags": [
         "mark",
         "family",
-        "skillforge"
+        "skillsmith"
       ],
-      "preview": "docs/assets/mark-skillforge.svg"
+      "preview": "docs/assets/mark-skillsmith.svg"
     },
     {
       "id": "mark-deckforge",

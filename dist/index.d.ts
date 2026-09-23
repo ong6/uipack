@@ -268,7 +268,7 @@ declare const marks: {
     uipack: react.JSX.Element;
     groundplane: react.JSX.Element;
     jobforge: react.JSX.Element;
-    skillforge: react.JSX.Element;
+    skillsmith: react.JSX.Element;
     deckforge: react.JSX.Element;
     proofpack: react.JSX.Element;
     fieldpack: react.JSX.Element;

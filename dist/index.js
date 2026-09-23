@@ -73,7 +73,7 @@ var marks = {
     /* @__PURE__ */ jsx2("path", { d: "M10 24V14h12v10" }),
     /* @__PURE__ */ jsx2("path", { d: "M13 14V9h6v5M16 4v5" })
   ] }),
-  skillforge: /* @__PURE__ */ jsx2(Fragment, { children: /* @__PURE__ */ jsx2("path", { d: "M16 4l3.5 7 7.5 1-5.5 5.3 1.3 7.7L16 21.4 9.2 25l1.3-7.7L5 12l7.5-1z" }) }),
+  skillsmith: /* @__PURE__ */ jsx2(Fragment, { children: /* @__PURE__ */ jsx2("path", { d: "M16 4l3.5 7 7.5 1-5.5 5.3 1.3 7.7L16 21.4 9.2 25l1.3-7.7L5 12l7.5-1z" }) }),
   deckforge: /* @__PURE__ */ jsxs2(Fragment, { children: [
     /* @__PURE__ */ jsx2("rect", { x: "4", y: "7", width: "24", height: "15", rx: "2" }),
     /* @__PURE__ */ jsx2("path", { d: "M12 26h8M16 22v4M9 13h8M9 17h5" })

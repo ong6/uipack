@@ -246,10 +246,10 @@ Forges make things, packs bundle them.
 
 - [groundplane](https://github.com/ong6/groundplane) — fails the build when an agent asserts a fact its tools never produced
 - [jobforge](https://github.com/ong6/jobforge) — grades the interview plan you say out loud, not the code you submit
-- [skillforge](https://github.com/ong6/skillforge) — skill discovery, versioning and baseline-aware evaluation
+- [skillsmith](https://github.com/ong6/skillsmith) — makes an agent skill from your repo, then proves it beats no skill
 - [deckforge](https://github.com/ong6/deckforge) — agent-first presentation studio with a measured preflight
 - [proofpack](https://github.com/ong6/proofpack) — pilot evidence, review proposals and customer-safe handovers
-- [fieldpack](https://github.com/ong6/fieldpack) — deckforge, skillforge and proofpack as one local-first suite
+- [fieldpack](https://github.com/ong6/fieldpack) — deckforge and proofpack as one local-first suite
 - [skillpack](https://github.com/ong6/skillpack) — the Claude Code and Codex skills used across all of these
 
 ## Design and contribution guidance
