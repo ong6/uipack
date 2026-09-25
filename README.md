@@ -215,7 +215,7 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
 
 ## Testing
 
-`npm test` runs 75 vitest cases in jsdom. `npm run test:e2e` runs 35 Playwright cases in Chromium and WebKit: 69 pass, with one existing clipboard test skipped in WebKit. What they pin down:
+`npm test` runs the Vitest suite in jsdom. `npm run test:e2e` runs Playwright in Chromium and WebKit with one worker, with one clipboard test skipped in WebKit because that engine cannot grant clipboard permissions. What they pin down:
 
 - Packets move, hold after Pause, resume on Play, return to the start on Replay, and sit still under reduced motion.
 - Hovering a node dims the rest and lights its flow. Hovering a legend item filters by kind. An `href` node takes focus.
@@ -224,8 +224,9 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
 - The asset browser filters, searches, copies to the clipboard (Chromium only; Playwright cannot grant that in WebKit), and fits 390px with 44px targets.
 - Both themes render ten figures with no console errors.
 - Live 3D stories retain one canvas across stops, support direct navigation and reduced motion, and provide a diagram fallback.
+- Object art directions cover every combination of six objects, six directions, two themes, and two viewport widths. Each combination has its own test, screenshot, and render-cost attachment. All 30 non-Studio object/direction pairs also retain their geometry and paint-rate budgets, sampled inside the browser after playback starts.
 
-CI runs both suites with job timeouts. Playwright is pinned at 1.61.1 because the 1.63 browser build would not download on my network. Bump it when that clears.
+CI runs both suites with job timeouts. Browser jobs split each engine into two shards with one worker per runner, so software WebGL renderers do not compete for CPU and a retry repeats only the failed case. The 15-minute job limit and default 30-second test limit stay bounded. Reports, screenshots, budget measurements, and failure traces are uploaded for seven days. Reproduce an art-direction failure with `npx playwright test e2e/art-directions.spec.ts --project=chromium --workers=1 --retries=0`; add `--grep` with its object/direction name to isolate it. Playwright is locked at 1.61.1 because the 1.63 browser build would not download on my network. Bump it when that clears.
 
 ## Roadmap
 
