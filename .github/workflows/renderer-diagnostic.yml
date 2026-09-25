@@ -11,11 +11,6 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: sudo apt-get install -y xvfb libgl1-mesa-dri libegl-mesa0 mesa-utils
-      - name: Run unchanged timing assertions without trace recording
-        run: npx playwright test e2e/art-directions.spec.ts --project=chromium --workers=1 --retries=0 --trace=off --reporter=line,json --grep 'mobile geometry and paint budget\x3a (tennis/paper-theatre|reading/realistic|trading/abstract)|direction [12] loops'
-        env:
-          CI: "1"
-          PLAYWRIGHT_JSON_OUTPUT_NAME: renderer-assertions.json
       - name: Compare real renderers and tracing overhead
         if: always()
         run: |
@@ -26,13 +21,13 @@ jobs:
           import { writeFileSync } from 'node:fs';
           const server = spawn(process.execPath, ['node_modules/vite/bin/vite.js', '--port', '5179', '--strictPort'], { stdio: ['ignore', 'ignore', 'inherit'] });
           const report = { cpu: cpus()[0].model, cores: cpus().length, samples: [] };
+          const mesaArgs = ['--use-gl=angle', '--use-angle=gl', '--ignore-gpu-blocklist', '--enable-webgl', '--disable-gpu-sandbox'];
           const modes = [
             { name: 'shell', launch: {} },
-            { name: 'shell-trace-filmstrip', launch: {}, trace: { screenshots: true, snapshots: true } },
-            { name: 'shell-trace-no-filmstrip', launch: {}, trace: { screenshots: false, snapshots: true } },
             { name: 'full', launch: { channel: 'chromium' } },
-            { name: 'full-mesa', launch: { channel: 'chromium', args: ['--use-angle=gl'] } },
-            { name: 'shell-mesa', launch: { args: ['--use-angle=gl'] } },
+            { name: 'full-mesa', launch: { channel: 'chromium', args: mesaArgs } },
+            { name: 'shell-mesa', launch: { args: mesaArgs } },
+            { name: 'headed-mesa', launch: { channel: 'chromium', headless: false, args: mesaArgs } },
           ];
           try {
             for (let attempt = 0; attempt < 80; attempt++) {
@@ -45,10 +40,13 @@ jobs:
                 for (const [kind, variant] of [['tennis', 1], ['reading', 4], ['trading', 5]]) {
                   const context = await browser.newContext({ viewport: { width: 390, height: 900 } });
                   const started = Date.now();
+                  const errors = [];
                   try {
                     if (mode.trace) await context.tracing.start(mode.trace);
                     const page = await context.newPage();
+                    page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
                     await page.goto(`http://localhost:5179/animations?story=${kind}&variant=${variant}`, { timeout: 15000 });
+                    await page.bringToFront();
                     const canvas = page.locator('.uipack-object canvas');
                     await canvas.scrollIntoViewIfNeeded();
                     await page.waitForFunction(() => document.querySelector('.uipack-object canvas')?.dataset.renderer, null, { timeout: 15000 });
@@ -62,11 +60,17 @@ jobs:
                       const elapsed = performance.now() - started, frames = Number(canvas.dataset.frames) - first;
                       return { renderer, elapsed, frames, fps: frames * 1000 / elapsed, calls: Number(canvas.dataset.drawCalls), triangles: Number(canvas.dataset.triangles) };
                     });
-                    const result = { mode: mode.name, kind, variant, duration: Date.now() - started, ...sample };
+                    const result = { mode: mode.name, kind, variant, duration: Date.now() - started, ...sample, errors };
                     report.samples.push(result);
                     console.log(JSON.stringify(result));
                   } catch (error) {
-                    const result = { mode: mode.name, kind, variant, error: error.message };
+                    const state = await context.pages()[0]?.evaluate(() => {
+                      const canvas = document.querySelector('.uipack-object canvas');
+                      const gl = canvas?.getContext('webgl2');
+                      const debug = gl?.getExtension('WEBGL_debug_renderer_info');
+                      return { hidden: document.hidden, renderer: canvas?.dataset.renderer, frames: canvas?.dataset.frames, gl: gl?.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER) };
+                    }).catch(() => null);
+                    const result = { mode: mode.name, kind, variant, error: error.message, state, errors };
                     report.samples.push(result);
                     console.log(JSON.stringify(result));
                   } finally {
@@ -84,6 +88,5 @@ jobs:
           name: renderer-diagnostic
           path: |
             renderer-diagnostic.json
-            renderer-assertions.json
             test-results/
           retention-days: 7
