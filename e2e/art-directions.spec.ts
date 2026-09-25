@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { objectDirections } from '../src/objects/variants';
 test.describe.configure({ mode: 'parallel' });
+// Canvas snapshots and video recording perturb the timings being measured.
+// These tests still retain failure screenshots and their measured JSON samples.
+const timingTest = test.extend({ trace: 'off', video: 'off' });
 const kinds=['ai','tennis','trading','server','travel','reading'];
 // One page/context per combination keeps retries and CI shards bounded. The full
 // 6 objects × 6 directions × 2 themes × 2 widths matrix is still exercised.
@@ -26,8 +29,8 @@ for (const theme of ['light', 'dark']) for (const width of [390, 1440]) {
     });
   }
 }
-for(const variant of [1,2]) test(`direction ${variant} loops, pauses, changes via keyboard, and survives context loss`,async({page})=>{
-  test.setTimeout(60000);
+for(const variant of [1,2]) timingTest(`direction ${variant} loops, pauses, changes via keyboard, and survives context loss`,async({page})=>{
+  timingTest.setTimeout(60000);
   await page.goto(`/animations?story=travel&variant=${variant}`);
   const canvas=page.locator('.uipack-object canvas');
   await expect(canvas).toHaveAttribute('data-playback','loop');
@@ -55,7 +58,7 @@ for(const variant of [1,2]) test(`direction ${variant} loops, pauses, changes vi
   await expect(page.getByRole('img',{name:'Local map illustration'})).toBeVisible();
 });
 for (const variant of [1, 2, 3, 4, 5]) for (const kind of kinds) {
-  test(`mobile geometry and paint budget: ${kind}/${objectDirections[variant].id}`, async ({ page }, info) => {
+  timingTest(`mobile geometry and paint budget: ${kind}/${objectDirections[variant].id}`, async ({ page }, info) => {
     await page.setViewportSize({ width: 390, height: 900 });
     await page.goto(`/animations?story=${kind}&variant=${variant}`);
     const canvas = page.locator('.uipack-object canvas');
@@ -66,11 +69,14 @@ for (const variant of [1, 2, 3, 4, 5]) for (const kind of kinds) {
     await expect.poll(async () => Number(await canvas.getAttribute('data-frames'))).toBeGreaterThan(3);
     const sample = await canvas.evaluate(async element => {
       const canvas = element as HTMLCanvasElement;
+      const gl = canvas.getContext('webgl2');
+      const debug = gl?.getExtension('WEBGL_debug_renderer_info');
+      const renderer = gl?.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER);
       const first = Number(canvas.dataset.frames), started = performance.now();
       await new Promise(resolve => setTimeout(resolve, 1000));
       const elapsed = performance.now() - started;
       const frames = Number(canvas.dataset.frames) - first;
-      return { frames, elapsed, fps: frames * 1000 / elapsed, calls: Number(canvas.dataset.drawCalls), triangles: Number(canvas.dataset.triangles) };
+      return { renderer, frames, elapsed, fps: frames * 1000 / elapsed, calls: Number(canvas.dataset.drawCalls), triangles: Number(canvas.dataset.triangles) };
     });
     const metrics = { kind, variant, ...sample };
     // Attach before asserting so a failing budget retains the measured evidence.

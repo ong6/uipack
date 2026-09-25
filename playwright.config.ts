@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const linuxCI = Boolean(process.env.CI) && process.platform === "linux";
+
 export default defineConfig({
   testDir: "e2e",
   globalSetup: "./e2e/global-setup.ts",
@@ -13,7 +15,7 @@ export default defineConfig({
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: "http://localhost:5179",
-    trace: "retain-on-failure",
+    trace: "on-first-retry",
     screenshot: "only-on-failure",
   },
   webServer: {
@@ -23,7 +25,17 @@ export default defineConfig({
     timeout: 60_000,
   },
   projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        // Linux headless-shell defaults to SwiftShader Subzero. Mesa llvmpipe
+        // under Xvfb meets the same paint budgets without changing scene quality.
+        launchOptions: linuxCI ? {
+          args: ["--use-gl=angle", "--use-angle=gl", "--ignore-gpu-blocklist", "--enable-webgl", "--disable-gpu-sandbox"],
+        } : undefined,
+      },
+    },
     { name: "webkit", use: { ...devices["Desktop Safari"] } },
   ],
 });

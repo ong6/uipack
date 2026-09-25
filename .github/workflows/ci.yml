@@ -29,7 +29,16 @@ jobs:
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: npx playwright install --with-deps ${{ matrix.browser }}
-      - run: npm run test:e2e -- --project=${{ matrix.browser }} --shard=${{ matrix.shard }}/4
+      - name: Install Mesa for Chromium
+        if: matrix.browser == 'chromium'
+        run: sudo apt-get install -y xvfb libgl1-mesa-dri libegl-mesa0
+      - name: Test Chromium with Mesa
+        if: matrix.browser == 'chromium'
+        run: xvfb-run --auto-servernum npm run test:e2e -- --project=chromium --shard=${{ matrix.shard }}/4
+        env: { CI: "1" }
+      - name: Test WebKit
+        if: matrix.browser == 'webkit'
+        run: npm run test:e2e -- --project=webkit --shard=${{ matrix.shard }}/4
         env: { CI: "1" }
       - uses: actions/upload-artifact@v4
         if: always()
