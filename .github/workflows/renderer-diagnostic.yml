@@ -11,7 +11,13 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: sudo apt-get install -y xvfb libgl1-mesa-dri libegl-mesa0 mesa-utils
+      - name: Run unchanged timing assertions without trace recording
+        run: npx playwright test e2e/art-directions.spec.ts --project=chromium --workers=1 --retries=0 --trace=off --reporter=line,json --grep 'mobile geometry and paint budget\x3a (tennis/paper-theatre|reading/realistic|trading/abstract)|direction [12] loops'
+        env:
+          CI: "1"
+          PLAYWRIGHT_JSON_OUTPUT_NAME: renderer-assertions.json
       - name: Compare real renderers and tracing overhead
+        if: always()
         run: |
           xvfb-run --auto-servernum node --input-type=module <<'JS'
           import { chromium } from '@playwright/test';
@@ -76,5 +82,8 @@ jobs:
         if: always()
         with:
           name: renderer-diagnostic
-          path: renderer-diagnostic.json
+          path: |
+            renderer-diagnostic.json
+            renderer-assertions.json
+            test-results/
           retention-days: 7
