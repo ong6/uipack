@@ -228,6 +228,8 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
 
 CI runs both suites with job timeouts. Browser jobs split each engine into two shards with one worker per runner, so software WebGL renderers do not compete for CPU and a retry repeats only the failed case. The 15-minute job limit and default 30-second test limit stay bounded. Reports, screenshots, budget measurements, and failure traces are uploaded for seven days. Reproduce an art-direction failure with `npx playwright test e2e/art-directions.spec.ts --project=chromium --workers=1 --retries=0`; add `--grep` with its object/direction name to isolate it. Playwright is locked at 1.61.1 because the 1.63 browser build would not download on my network. Bump it when that clears.
 
+On macOS, this WebKit build can stop navigating on the 64th fresh browser context, including on the root page; the Linux CI runner does not show this limit. Run the affected WebKit suite in three fresh processes: `for shard in 1 2 3; do npx playwright test e2e/art-directions.spec.ts --project=webkit --workers=1 --retries=0 --shard=$shard/3 || break; done`. Each shard contains at most 60 cases. For larger local WebKit runs, inspect `--list --shard=N/M` and use enough shards to keep each process at 63 cases or fewer.
+
 ## Roadmap
 
 - Stepped stories for the SVG figures (live 3D slide stories are available now).
