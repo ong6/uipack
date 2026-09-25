@@ -6,6 +6,10 @@ test.describe("packet motion", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
     await page.locator("#e2e-packet").waitFor();
+    // The initial token is static until hydration, and offscreen SVG animation
+    // may be throttled by the browser. Measure the visible, animated figure.
+    await expect(page.locator("#e2e-packet animateMotion")).toHaveCount(1);
+    await page.locator("svg", { has: page.locator("#e2e-packet") }).scrollIntoViewIfNeeded();
   });
 
   test("moves while playing", async ({ page }) => {
