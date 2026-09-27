@@ -328,13 +328,15 @@ declare function useFinePointer(): boolean;
  */
 declare function withViewTransition(update: () => void): Promise<void>;
 interface PaintTransitionOptions {
-    /** Milliseconds for the pour. Default 1300: theme changes are rare, so this is delight budget. */
+    /** Milliseconds for the pour. Default 750: long enough to read as a pour, short enough not to wait on. */
     duration?: number;
 }
 /**
  * Run a DOM update (typically a theme change) as paint poured down the page: a sheet
  * with drips that start, accelerate and thin out on their own, new every call. The
- * keyframes live in a <style> added for this transition and removed when it finishes.
+ * keyframes live in a <style> added for this transition, and <html> carries the class
+ * `theme-switching` (which freezes element CSS transitions, so no part of the new live
+ * layer is still fading from the old theme); both are removed when it finishes.
  * Falls back to calling update() directly without View Transitions or under reduced
  * motion. In React, wrap the state change in flushSync.
  */

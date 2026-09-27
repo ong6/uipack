@@ -726,7 +726,7 @@ function withViewTransition(update) {
   }
   return doc.startViewTransition(update).finished.catch(() => void 0);
 }
-var PAINT_STEPS = 48;
+var PAINT_STEPS = 40;
 var rand = (min, max) => min + Math.random() * (max - min);
 var smooth = (t) => t * t * (3 - 2 * t);
 var px = (v) => `${Math.round(v * 10) / 10}px`;
@@ -738,17 +738,18 @@ function rollDrips(width, height, duration) {
     return {
       x: i * slot + rand(0, slot - w),
       w,
-      start: rand(0, 0.4) * duration,
+      start: rand(0, 0.3) * duration,
       // ms after the pour begins
-      g: w / 13 * rand(1200, 3400) * (height / 900),
+      g: w / 13 * rand(4e3, 9e3) * (height / 900),
       // px/s², heavier falls faster
-      max: rand(0.08, 0.5) * height
-      // how far it can run before it thins out
+      // How far it runs ahead before it thins out. Kept short so the sheet catches every
+      // drip quickly and no element stays half-painted.
+      max: rand(0.03, 0.12) * height
     };
   });
 }
 function paintFrame(t, width, height, drips, duration) {
-  const sheet = smooth(Math.min(1, t / (duration * 0.9))) * (height + 40);
+  const sheet = smooth(Math.min(1, t / (duration * 0.85))) * (height * 1.14);
   const pos = ["0px 0px"];
   const size = [`${px(width)} ${px(sheet)}`];
   for (const d of drips) {
@@ -763,7 +764,8 @@ function paintFrame(t, width, height, drips, duration) {
   return `mask-position: ${pos.join(", ")}; mask-size: ${size.join(", ")};`;
 }
 var paintCount = 0;
-function paintTransitionCss(width, height, duration = 1300) {
+var PAINT_SWITCHING = "theme-switching";
+function paintTransitionCss(width, height, duration = 750) {
   const drips = rollDrips(width, height, duration);
   const name = `uipack-paint-${Date.now().toString(36)}-${(paintCount++).toString(36)}`;
   const solid = "linear-gradient(#000, #000)";
@@ -779,6 +781,11 @@ function paintTransitionCss(width, height, duration = 1300) {
   animation: none;
   mix-blend-mode: normal;
 }
+html.${PAINT_SWITCHING} *,
+html.${PAINT_SWITCHING} *::before,
+html.${PAINT_SWITCHING} *::after {
+  transition: none !important;
+}
 ::view-transition-new(root) {
   mask-image: ${images};
   mask-repeat: no-repeat;
@@ -788,7 +795,7 @@ function paintTransitionCss(width, height, duration = 1300) {
 ${keyframes}
 }`;
 }
-function withPaintTransition(update, { duration = 1300 } = {}) {
+function withPaintTransition(update, { duration = 750 } = {}) {
   const doc = transitionDocument();
   if (!doc?.startViewTransition) {
     update();
@@ -798,14 +805,20 @@ function withPaintTransition(update, { duration = 1300 } = {}) {
   style.dataset.uipackPaint = "";
   style.textContent = paintTransitionCss(window.innerWidth, window.innerHeight, duration);
   doc.head.appendChild(style);
+  const root = doc.documentElement;
+  root.classList.add(PAINT_SWITCHING);
+  const cleanup = () => {
+    style.remove();
+    root.classList.remove(PAINT_SWITCHING);
+  };
   let transition;
   try {
     transition = doc.startViewTransition(update);
   } catch (error) {
-    style.remove();
+    cleanup();
     throw error;
   }
-  return transition.finished.catch(() => void 0).finally(() => style.remove());
+  return transition.finished.catch(() => void 0).finally(cleanup);
 }
 
 // src/web/backgrounds.tsx

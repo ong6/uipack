@@ -249,6 +249,7 @@ describe("withPaintTransition", () => {
     expect(start).not.toHaveBeenCalled();
     expect(update).toHaveBeenCalledTimes(2);
     expect(document.head.querySelector("style[data-uipack-paint]")).toBeNull();
+    expect(document.documentElement).not.toHaveClass("theme-switching");
   });
 
   it("injects fresh keyframes for the transition and removes them when it finishes", async () => {
@@ -263,8 +264,12 @@ describe("withPaintTransition", () => {
         return { finished };
       },
     });
+    const html = document.documentElement;
+    expect(html).not.toHaveClass("theme-switching");
     const done = withPaintTransition(update, { duration: 900 });
     expect(update).toHaveBeenCalledTimes(1);
+    expect(html).toHaveClass("theme-switching");
+    expect(styleDuringUpdate).toMatch(/html\.theme-switching \*,[^{]*\{\s*transition: none !important;/);
     expect(styleDuringUpdate).toContain("::view-transition-new(root)");
     expect(styleDuringUpdate).toContain("mix-blend-mode: normal");
     expect(styleDuringUpdate).toContain("900ms linear both");
@@ -272,30 +277,32 @@ describe("withPaintTransition", () => {
     finish();
     await done;
     expect(document.head.querySelector("style[data-uipack-paint]")).toBeNull();
+    expect(html).not.toHaveClass("theme-switching");
   });
 
   it("removes the style even when the transition is skipped", async () => {
     Object.assign(document, { startViewTransition: () => ({ finished: Promise.reject(new Error("skipped")) }) });
     await expect(withPaintTransition(() => undefined)).resolves.toBeUndefined();
     expect(document.head.querySelector("style[data-uipack-paint]")).toBeNull();
+    expect(document.documentElement).not.toHaveClass("theme-switching");
   });
 
-  it("samples 49 keyframes of a sheet plus a body and bead per drip, new drips every call", () => {
+  it("samples 41 keyframes of a sheet plus a body and bead per drip, new drips every call", () => {
     const a = paintTransitionCss(1120, 900);
     const b = paintTransitionCss(1120, 900);
     const frames = a.match(/^\s*[\d.]+% \{ .*\}$/gm) ?? [];
-    expect(frames).toHaveLength(49);
+    expect(frames).toHaveLength(41);
     const first = frames[0]!;
-    const last = frames[48]!;
+    const last = frames[40]!;
     expect(first.startsWith("0% ")).toBe(true);
     expect(last.startsWith("100% ")).toBe(true);
     const drips = Math.max(7, Math.min(26, Math.round(1120 / 56)));
     const images = a.match(/mask-image: (.*);/)![1];
     expect(images.match(/linear-gradient/g)).toHaveLength(1 + drips);
     expect(images.match(/radial-gradient/g)).toHaveLength(drips);
-    // The sheet starts empty and ends past the bottom edge (height + 40).
+    // The sheet starts empty and ends past the bottom edge (1.14 x height).
     expect(first).toContain("mask-size: 1120px 0px");
-    expect(last).toContain("mask-size: 1120px 940px");
+    expect(last).toContain("mask-size: 1120px 1026px");
     // The bead is 1.35x the body's width.
     const sizes = last.match(/mask-size: (.*);/)![1].split(", ");
     const body = parseFloat(sizes[1]!);

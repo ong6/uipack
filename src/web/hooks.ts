@@ -106,7 +106,7 @@ export function withViewTransition(update: () => void): Promise<void> {
 }
 
 export interface PaintTransitionOptions {
-  /** Milliseconds for the pour. Default 1300: theme changes are rare, so this is delight budget. */
+  /** Milliseconds for the pour. Default 750: long enough to read as a pour, short enough not to wait on. */
   duration?: number;
 }
 
@@ -121,7 +121,7 @@ export interface PaintTransitionOptions {
 //
 // The motion is sampled into keyframes (mask-position / mask-size lists), so it runs on the
 // compositor like any CSS animation.
-const PAINT_STEPS = 48;
+const PAINT_STEPS = 40;
 
 interface Drip {
   x: number;
@@ -143,15 +143,19 @@ function rollDrips(width: number, height: number, duration: number): Drip[] {
     return {
       x: i * slot + rand(0, slot - w),
       w,
-      start: rand(0, 0.4) * duration, // ms after the pour begins
-      g: (w / 13) * rand(1200, 3400) * (height / 900), // px/s², heavier falls faster
-      max: rand(0.08, 0.5) * height, // how far it can run before it thins out
+      start: rand(0, 0.3) * duration, // ms after the pour begins
+      g: (w / 13) * rand(4000, 9000) * (height / 900), // px/s², heavier falls faster
+      // How far it runs ahead before it thins out. Kept short so the sheet catches every
+      // drip quickly and no element stays half-painted.
+      max: rand(0.03, 0.12) * height,
     };
   });
 }
 
 function paintFrame(t: number, width: number, height: number, drips: Drip[], duration: number): string {
-  const sheet = smooth(Math.min(1, t / (duration * 0.9))) * (height + 40);
+  // The sheet clears the bottom edge (plus the longest drip) by 85% of the run, so the
+  // last frames are fully the new theme.
+  const sheet = smooth(Math.min(1, t / (duration * 0.85))) * (height * 1.14);
   const pos = ["0px 0px"];
   const size = [`${px(width)} ${px(sheet)}`];
   for (const d of drips) {
@@ -170,8 +174,11 @@ function paintFrame(t: number, width: number, height: number, drips: Drip[], dur
 
 let paintCount = 0;
 
+/** Class on <html> while a paint transition runs; element transitions are frozen under it. */
+const PAINT_SWITCHING = "theme-switching";
+
 /** The stylesheet for one pour: a fresh keyframe animation masking the new root layer. Exported for tests. */
-export function paintTransitionCss(width: number, height: number, duration = 1300): string {
+export function paintTransitionCss(width: number, height: number, duration = 750): string {
   const drips = rollDrips(width, height, duration);
   const name = `uipack-paint-${Date.now().toString(36)}-${(paintCount++).toString(36)}`;
   const solid = "linear-gradient(#000, #000)";
@@ -187,6 +194,11 @@ export function paintTransitionCss(width: number, height: number, duration = 130
   animation: none;
   mix-blend-mode: normal;
 }
+html.${PAINT_SWITCHING} *,
+html.${PAINT_SWITCHING} *::before,
+html.${PAINT_SWITCHING} *::after {
+  transition: none !important;
+}
 ::view-transition-new(root) {
   mask-image: ${images};
   mask-repeat: no-repeat;
@@ -200,11 +212,13 @@ ${keyframes}
 /**
  * Run a DOM update (typically a theme change) as paint poured down the page: a sheet
  * with drips that start, accelerate and thin out on their own, new every call. The
- * keyframes live in a <style> added for this transition and removed when it finishes.
+ * keyframes live in a <style> added for this transition, and <html> carries the class
+ * `theme-switching` (which freezes element CSS transitions, so no part of the new live
+ * layer is still fading from the old theme); both are removed when it finishes.
  * Falls back to calling update() directly without View Transitions or under reduced
  * motion. In React, wrap the state change in flushSync.
  */
-export function withPaintTransition(update: () => void, { duration = 1300 }: PaintTransitionOptions = {}): Promise<void> {
+export function withPaintTransition(update: () => void, { duration = 750 }: PaintTransitionOptions = {}): Promise<void> {
   const doc = transitionDocument();
   if (!doc?.startViewTransition) {
     update();
@@ -214,12 +228,18 @@ export function withPaintTransition(update: () => void, { duration = 1300 }: Pai
   style.dataset.uipackPaint = "";
   style.textContent = paintTransitionCss(window.innerWidth, window.innerHeight, duration);
   doc.head.appendChild(style);
+  const root = doc.documentElement;
+  root.classList.add(PAINT_SWITCHING);
+  const cleanup = () => {
+    style.remove();
+    root.classList.remove(PAINT_SWITCHING);
+  };
   let transition: { finished: Promise<void> };
   try {
     transition = doc.startViewTransition(update);
   } catch (error) {
-    style.remove();
+    cleanup();
     throw error;
   }
-  return transition.finished.catch(() => undefined).finally(() => style.remove());
+  return transition.finished.catch(() => undefined).finally(cleanup);
 }

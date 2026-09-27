@@ -213,6 +213,8 @@ test.describe("/web Landing collection", () => {
     const supported = await page.evaluate(() => "startViewTransition" in document);
     test.skip(!supported, `${browserName} has no View Transitions; the instant fallback is covered above`);
     await expect(page.locator("style[data-uipack-paint]")).toHaveCount(1);
+    await expect(html).toHaveClass(/theme-switching/);
     await expect(page.locator("style[data-uipack-paint]")).toHaveCount(0, { timeout: 5_000 });
+    await expect(html).not.toHaveClass(/theme-switching/);
   });
 });
