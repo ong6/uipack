@@ -1004,7 +1004,27 @@
   transition: translate 200ms var(--web-ease), transform 160ms var(--web-ease), box-shadow 160ms var(--web-ease);
 }
 
-/* Drifting gutters: a dotted grid sliding upward in the side gutters of a centred column.
+
+.uipack-web-scrollx__inner {
+  transform: translateY(var(--st-y, 0)) rotate(var(--st-rotate, 0deg)) scale(var(--st-scale, 1));
+  opacity: var(--st-opacity, 1);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uipack-web-aurora i,
+  .uipack-web-marquee__track { animation: none; }
+  .uipack-web-beams i[data-axis] { animation: none; transform: translate(0, 0); }
+  .uipack-web-beams i[data-axis="h"] { left: 40%; }
+  .uipack-web-beams i[data-axis="v"] { top: 35%; }
+  .uipack-web-revealgroup > * { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; }
+  .uipack-web-tilt,
+  .uipack-web-tilt:focus-visible { transform: none; transition: none; }
+  .uipack-web-magnetic > .uipack-web-cta { translate: none; transition: none; }
+  .uipack-web-gridbg__lit { display: none; }
+}
+/* Drifting gutters (also its own entry, uipack/web-gutters.css, for pages that use
+   nothing else from uipack/web): a dotted grid sliding upward in the side gutters of a centred column.
    Fixed to the viewport (or the nearest transformed ancestor), so it may live outside
    .uipack-web: colour falls back from --web-gutters-color to --web-accent to the light accent.
    Hidden below 1280px by default (DriftingGutters minViewport adds its own rule otherwise). */
@@ -1072,24 +1092,7 @@
 @media print {
   .uipack-web-gutters { display: none !important; }
 }
-
-.uipack-web-scrollx__inner {
-  transform: translateY(var(--st-y, 0)) rotate(var(--st-rotate, 0deg)) scale(var(--st-scale, 1));
-  opacity: var(--st-opacity, 1);
-  will-change: transform;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .uipack-web-aurora i,
-  .uipack-web-marquee__track,
   .uipack-web-gutters__drift,
   .uipack-web-gutters__signal { animation: none; }
-  .uipack-web-beams i[data-axis] { animation: none; transform: translate(0, 0); }
-  .uipack-web-beams i[data-axis="h"] { left: 40%; }
-  .uipack-web-beams i[data-axis="v"] { top: 35%; }
-  .uipack-web-revealgroup > * { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; }
-  .uipack-web-tilt,
-  .uipack-web-tilt:focus-visible { transform: none; transition: none; }
-  .uipack-web-magnetic > .uipack-web-cta { translate: none; transition: none; }
-  .uipack-web-gridbg__lit { display: none; }
 }
