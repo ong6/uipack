@@ -7,6 +7,7 @@ import { App } from "./App";
 
 const CatalogPages = lazy(() => import("./CatalogPages"));
 const Slides = lazy(() => import("./SlideShowcase"));
+const Web = lazy(() => import("./WebShowcase"));
 
 const params = new URLSearchParams(location.search);
 const theme = params.get("theme");
@@ -19,6 +20,10 @@ createRoot(document.getElementById("root")!).render(
     ) ? (
       <Suspense fallback={<p>Loading slides…</p>}>
         <Slides />
+      </Suspense>
+    ) : location.pathname.replace(/\/$/, "") === "/web" ? (
+      <Suspense fallback={<p>Loading web UI…</p>}>
+        <Web />
       </Suspense>
     ) : ["/styles", "/presentations"].includes(
         location.pathname.replace(/\/$/, ""),

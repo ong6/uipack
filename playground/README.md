@@ -6,9 +6,10 @@ Run `npm run dev` from the repo root. Pages:
 - `/assets`: searchable primitives and static assets.
 - `/animations`: 3D animation collection, search, and technique filters. `/slides` is a compatibility alias.
 - `/presentations`: complete five-chapter narrative composition example.
-- `/styles`: visual-language catalog (Technical plus six object art directions).
+- `/web`: Web UI in the Landing style. One composed landing page (glass nav, star hero, demo player, spotlight features, reveal quote, closing CTA), then the flashy and low-key parts and the principles.
+- `/styles`: visual-language catalog (Technical, Landing, and six object art directions).
 
-`ShowcaseShell.tsx` owns shared navigation/theme handling. `showcase.css` owns page tokens and layout. `catalog.ts` owns type/style/tag metadata. Collection pages must not introduce another header or global styles.
+`ShowcaseShell.tsx` owns shared navigation/theme handling; its `styleName` prop names the page's content style in the context line. `showcase.css` owns page tokens and layout. `catalog.ts` owns type/style/tag metadata. Collection pages must not introduce another header or global styles.
 
 To add an animation, export a validated story from `src/slides`, register metadata in `catalog.ts`, and add it to the story list. To add a visual style, follow [the design contract](../docs/design-direction.md); metadata alone does not implement a style.
 

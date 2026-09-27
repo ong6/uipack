@@ -1,5 +1,5 @@
 import { Figure, Node, Connector, Defs, Label } from "../src";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
 import { visualStyles } from "./catalog";
 import { SlideScene, harnessDive } from "../src/slides";
@@ -153,11 +153,12 @@ export default function CatalogPages() {
             {visualStyles.map((style) => (
               <article className="style-card" key={style.id}>
                 <div className="style-swatch" data-style={style.id} aria-hidden="true">
-                  <span>{style.id === "technical" ? "Request" : style.name}</span>
-                  <i>→</i>
-                  <span>{style.id === "technical" ? "System" : "3D"}</span>
-                  <i>→</i>
-                  <span>{style.id === "technical" ? "Evidence" : "Motion"}</span>
+                  {(style.id === "technical" ? ["Request", "System", "Evidence"] : style.id === "landing" ? ["Proof", "Star", "Action"] : [style.name, "3D", "Motion"]).map((word, i) => (
+                    <Fragment key={word}>
+                      {i > 0 && <i>→</i>}
+                      <span>{word}</span>
+                    </Fragment>
+                  ))}
                 </div>
                 <h3>{style.name}</h3>
                 <p>{style.description}</p>
@@ -166,13 +167,13 @@ export default function CatalogPages() {
                     <a href={`/?theme=${theme}`}>Figures</a>
                     <a href={`/animations?theme=${theme}`}>3D animations</a>
                     <a href={`/presentations?theme=${theme}`}>Presentations</a>
-                  </> : <a href={`/animations?story=travel&variant=${'variant' in style ? style.variant : 0}&theme=${theme}`}>Explore six animated studies</a>}
+                  </> : style.id === 'landing' ? <a href={`/web?theme=${theme}`}>Web UI building blocks</a> : <a href={`/animations?story=travel&variant=${'variant' in style ? style.variant : 0}&theme=${theme}`}>Explore six animated studies</a>}
                 </div>
               </article>
             ))}
           </div>
           <p className="collection-intro">
-            Technical diagrams and six object art directions. Each object direction has its own models, materials, perspective and motion.
+            Technical diagrams, the Landing web style, and six object art directions. Each object direction has its own models, materials, perspective and motion.
           </p>
         </section>
       ) : (

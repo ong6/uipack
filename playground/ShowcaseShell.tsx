@@ -22,8 +22,11 @@ export function ShowcaseShell({
   theme,
   flip,
   children,
+  styleName = "Technical",
 }: {
   active: LibraryPage;
+  /** The visual style the page's content uses; the shell itself stays Technical. */
+  styleName?: string;
   theme: "light" | "dark";
   flip: () => void;
   children: ReactNode;
@@ -55,7 +58,7 @@ export function ShowcaseShell({
       </header>
       {active !== "styles" && (
         <div className="showcase-context">
-          <a href={`/styles?theme=${theme}`}>Technical style</a>
+          <a href={`/styles?theme=${theme}`}>{styleName} style</a>
           <span>{libraryPages.find((p) => p.id === active)?.label}</span>
         </div>
       )}

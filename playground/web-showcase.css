@@ -1,0 +1,154 @@
+/* Playground-only layout for /web. Library styles live in src/web/web.css. */
+.web-example {
+  border: 1px solid var(--show-rule);
+  border-radius: 12px;
+  overflow: clip;
+}
+.web-panel {
+  border: 1px solid var(--show-rule);
+  border-radius: 12px;
+  padding: var(--web-s4);
+}
+@media (max-width: 720px) {
+  .web-panel { padding: 16px; }
+}
+.web-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.web-demo-rows {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.web-demo-rows li {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--web-surface);
+  border: 1px solid var(--web-hairline);
+}
+.web-demo-rows strong { font-weight: 600; font-size: 0.9375rem; }
+.web-demo-rows span { font-size: var(--web-step--1); color: var(--web-ink-low); }
+.web-demo-rows[data-skeleton] li { gap: 8px; padding: 12px; }
+.web-demo-rows i {
+  display: block;
+  height: 8px;
+  border-radius: 4px;
+  background: rgb(var(--web-ink-rgb) / 0.1);
+}
+.web-quote {
+  display: grid;
+  justify-items: center;
+  gap: var(--web-s3);
+  text-align: center;
+}
+.web-quote__text {
+  margin: 0;
+  max-width: 28ch;
+  font: 600 var(--web-step-4) / 1.15 var(--web-font-display);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+@container web (max-width: 720px) {
+  .web-quote__text { font-size: var(--web-step-3); }
+}
+.web-closing {
+  display: flex;
+  justify-content: center;
+}
+.web-block {
+  display: grid;
+  align-content: start;
+  gap: var(--web-s2);
+  min-width: 0;
+}
+.web-block > .uipack-web-eyebrow:not(:first-child) { margin-top: var(--web-s2); }
+.web-scale {
+  display: grid;
+  gap: var(--web-s1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.web-scale li {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding-bottom: var(--web-s1);
+  border-bottom: 1px solid var(--web-hairline);
+}
+.web-scale code {
+  font: var(--web-step--1) var(--web-font-mono);
+  color: var(--web-ink-low);
+}
+.web-scale__sample {
+  font-family: var(--web-font-display);
+  font-weight: 600;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+.web-scale__sample[data-step="6"],
+.web-scale__sample[data-step="5"] { letter-spacing: -0.03em; }
+.web-scale__sample[data-step="4"],
+.web-scale__sample[data-step="3"] { letter-spacing: -0.02em; }
+.web-scale__sample[data-step="0"],
+.web-scale__sample[data-step="-1"] { font-weight: 400; line-height: 1.5; }
+.web-hierarchy {
+  display: grid;
+  gap: var(--web-s1);
+  padding: var(--web-s3);
+  border-radius: 12px;
+  background: var(--web-surface);
+  border: 1px solid var(--web-hairline);
+}
+.web-roles {
+  display: flex;
+  min-height: 56px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--web-hairline);
+  font: var(--web-step--1) var(--web-font-mono);
+}
+.web-roles span {
+  display: flex;
+  align-items: flex-end;
+  padding: 8px 10px;
+}
+.web-roles [data-role="neutral"] { flex: 6; background: var(--web-bg); color: var(--web-ink-low); }
+.web-roles [data-role="secondary"] { flex: 3; background: var(--web-secondary); color: var(--web-ink-low); }
+.web-roles [data-role="accent"] { flex: 1; background: var(--web-accent); color: var(--web-on-accent); }
+.web-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--web-s2);
+}
+.web-columns span {
+  display: grid;
+  place-items: center;
+  min-height: 64px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--web-accent) 10%, transparent);
+  font: var(--web-step--1) var(--web-font-mono);
+  color: var(--web-ink-low);
+}
+@container web (max-width: 1023px) {
+  .web-columns .uipack-web-grid__item:nth-child(n + 9) { display: none; }
+}
+@container web (max-width: 639px) {
+  .web-columns .uipack-web-grid__item:nth-child(n + 5) { display: none; }
+}
+.web-principles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 8px 32px;
+  margin: 12px 0 0;
+  padding-left: 1.4em;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.web-principles li::marker { font: 12px ui-monospace, monospace; color: var(--show-muted); }

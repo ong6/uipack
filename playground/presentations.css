@@ -209,3 +209,10 @@
     padding: 12px;
   }
 }
+.style-swatch[data-style="landing"] span {
+  border-color: #4b3fd6;
+  border-radius: 999px;
+}
+:root[data-theme="dark"] .style-swatch[data-style="landing"] span {
+  border-color: #a99dff;
+}

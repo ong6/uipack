@@ -9,6 +9,14 @@ export const visualStyles = [
     tokens: "src/theme.css",
     guidance: "docs/design-direction.md",
   },
+  {
+    id: "landing",
+    name: "Landing",
+    description:
+      "Marketing-site building blocks: a demo-first hero, one star visual, opacity hierarchy, quiet depth and a single accent for calls to action.",
+    tokens: "src/web/web.css",
+    guidance: "docs/web-principles.md",
+  },
   ...objectDirections.map((direction, variant) => ({
     id: direction.id, name: direction.name, description: direction.description,
     tokens: variant === 0 ? 'src/objects/objects.css' : variant < 3 ? 'src/objects/art-directions.ts' : 'src/objects/expanded-directions.ts',
@@ -20,6 +28,7 @@ export const libraryPages = [
   { id: "assets", label: "Assets", path: "/assets" },
   { id: "animations", label: "3D animations", path: "/animations" },
   { id: "presentations", label: "Presentations", path: "/presentations" },
+  { id: "web", label: "Web UI", path: "/web" },
   { id: "styles", label: "Styles", path: "/styles" },
 ] as const;
 export type LibraryPage = (typeof libraryPages)[number]["id"];
@@ -94,3 +103,16 @@ objectStyleEntries.push(...([{variant:3, styleId:'cartoon', title:'Little post o
   id:`contact-${item.styleId}`,title:`Contact inbox / ${item.title}`,type:'animations' as const,styleId:item.styleId,
   tags:['Objects',item.styleId],href:`/animations?story=contact&variant=${item.variant}`,
 })));
+
+/** Landing-style web building blocks, shown on /web. Flashy pieces earn their motion; low-key pieces are the defaults. */
+export const webEntries: CatalogEntry[] = [
+  { id: "demo-player", title: "Demo player", type: "web", styleId: "landing", tags: ["Flashy", "Hero", "Motion"] },
+  { id: "star-hero", title: "Star hero", type: "web", styleId: "landing", tags: ["Flashy", "Hero"] },
+  { id: "spotlight-card", title: "Spotlight card", type: "web", styleId: "landing", tags: ["Flashy", "Card"] },
+  { id: "reveal-text", title: "Reveal text", type: "web", styleId: "landing", tags: ["Flashy", "Type", "Motion"] },
+  { id: "type-scale", title: "Type scale", type: "web", styleId: "landing", tags: ["Low-key", "Type"] },
+  { id: "text-hierarchy", title: "Text hierarchy", type: "web", styleId: "landing", tags: ["Low-key", "Type"] },
+  { id: "cta-button", title: "CTA button", type: "web", styleId: "landing", tags: ["Low-key", "Action"] },
+  { id: "glass-nav", title: "Glass nav", type: "web", styleId: "landing", tags: ["Low-key", "Navigation"] },
+  { id: "feature-grid", title: "Section and feature grid", type: "web", styleId: "landing", tags: ["Low-key", "Layout"] },
+];
