@@ -7,11 +7,15 @@ UIPACK is a library of reusable visual explanations. The browser organizes two i
 | Axis | Values |
 | --- | --- |
 | Content type | Figures, Assets, 3D animations, Presentations |
-| Visual style | Technical diagrams; Studio, Paper, Kinetic, Cartoon, Realistic and Abstract for 3D objects |
+| Visual style | Technical diagrams; Landing for web pages; Studio, Paper, Kinetic, Cartoon, Realistic and Abstract for 3D objects |
 
 The Styles collection is the index of visual languages. Light and dark are themes within a style. Do not use “slides” as the name for all 3D content. The existing `uipack/slides` API and `/slides` URL remain compatibility paths.
 
 `playground/catalog.ts` owns gallery metadata. An animation entry has an ID, title, content type, style ID, and tags. Search and technique filters read metadata instead of relying on array indices. A new collection should reuse the shared shell. A future style should add its own registry entry, renderer or component mapping, scoped stylesheet, and examples. Register a style only when that implementation exists. The shell keeps its Technical navigation language. Object scenes additionally implement Studio, Paper, Kinetic, Cartoon, Realistic and Abstract art directions, each with separate geometry and scoped stage tokens.
+
+## Landing style
+
+Landing is the web style of `uipack/web`, shown at `/web`. Its tokens live in `src/web/web.css` under `.uipack-web`: a neutral page, a secondary tint for bands and panels, and one indigo accent reserved for calls to action and the hero's star. It uses a 16px × 1.25 type scale, opacity hierarchy (100/87/66), a 12/8/4 container grid and 8-pt spacing. It never recolours Technical, and the shared shell keeps its Technical navigation. The rules and their sources are in [web principles](web-principles.md).
 
 ## Technical style
 

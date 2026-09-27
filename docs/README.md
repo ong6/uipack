@@ -7,4 +7,5 @@
 
 Agent instructions live in [AGENTS.md](../AGENTS.md). Setup and verification live in the [root README](../README.md).
 - [Component-first workflow](component-first.md): build, register, verify, then consume significant UI.
+- [Web principles](web-principles.md): the Landing style's numbered rules (`uipack/web`), each with its number and source video.
 - [Object scenes](objects.md): seven reusable, lazy 3D illustrations and their player.
