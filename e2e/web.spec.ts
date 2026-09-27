@@ -110,4 +110,68 @@ test.describe("/web Landing collection", () => {
     await card.getByRole("link", { name: "Web UI building blocks" }).click();
     await expect(page).toHaveURL(/\/web\?theme=light/);
   });
+
+  test("motion: ticker counts in view, reveal shows, marquee moves and pauses", async ({ page }) => {
+    await page.goto("/web");
+    const ticker = page.locator("#web-proof .uipack-web-ticker").first();
+    await expect(ticker.getByTestId("ticker-live")).toHaveText("0");
+    await ticker.scrollIntoViewIfNeeded();
+    await expect(ticker.getByTestId("ticker-live")).toHaveText("37", { timeout: 5_000 });
+    const reveal = page.locator(".web-reveal-list");
+    await reveal.scrollIntoViewIfNeeded();
+    await expect(reveal).toHaveAttribute("data-state", "shown");
+    await expect.poll(() => reveal.locator("> *").last().evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
+    const marquee = page.locator(".uipack-web-marquee");
+    await marquee.scrollIntoViewIfNeeded();
+    const track = marquee.locator(".uipack-web-marquee__track");
+    const x = () => track.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41);
+    const a = await x();
+    await page.waitForTimeout(400);
+    expect(await x()).not.toBe(a);
+    await marquee.getByRole("button", { name: "Pause" }).click();
+    await page.waitForTimeout(100);
+    const held = await x();
+    await page.waitForTimeout(400);
+    expect(await x()).toBe(held);
+    await marquee.getByRole("button", { name: "Play" }).click();
+    await page.locator("body").click({ position: { x: 1, y: 1 } });
+    await page.waitForTimeout(300);
+    expect(await x()).not.toBe(held);
+    await track.hover();
+    await page.waitForTimeout(100);
+    const hovered = await x();
+    await page.waitForTimeout(400);
+    expect(await x()).toBe(hovered);
+  });
+
+  test("backgrounds: moving layers pause off screen and run in view", async ({ page }) => {
+    await page.goto("/web");
+    const aurora = page.locator(".uipack-web-aurora");
+    await expect(aurora).toHaveAttribute("data-paused", "true");
+    await aurora.scrollIntoViewIfNeeded();
+    await expect(aurora).not.toHaveAttribute("data-paused", "true");
+    const beam = page.locator(".uipack-web-beams i").first();
+    const pos = () => beam.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41);
+    const a = await pos();
+    await page.waitForTimeout(300);
+    expect(await pos()).not.toBe(a);
+    // The dot grid lights under the mouse.
+    const tile = page.locator(".web-bg-tile").nth(1);
+    const box = (await tile.boundingBox())!;
+    await page.mouse.move(box.x + 60, box.y + 60);
+    await expect(tile.locator(".uipack-web-gridbg")).toHaveAttribute("data-lit", "true");
+  });
+
+  test("motion and backgrounds hold still under reduced motion", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/web");
+    await expect(page.locator(".uipack-web-marquee")).toHaveAttribute("data-static", "true");
+    await expect(page.locator(".uipack-web-marquee__list")).toHaveCount(1);
+    await expect(page.locator(".uipack-web-marquee").getByRole("button")).toHaveCount(0);
+    await expect(page.locator("#web-proof").getByTestId("ticker-live").first()).toHaveText("37");
+    await expect(page.locator(".uipack-web-scramble .uipack-web-scramble__live").first()).toHaveText("Forty in. Three left.");
+    expect(await page.locator(".uipack-web-beams i").first().evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
+    expect(await page.locator(".uipack-web-aurora i").first().evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
+    await expect(page.locator(".web-reveal-list")).toHaveAttribute("data-state", "static");
+  });
 });

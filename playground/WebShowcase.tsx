@@ -1,4 +1,5 @@
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
+import { flushSync } from "react-dom";
 import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
 import { webEntries } from "./catalog";
 import {
@@ -20,6 +21,22 @@ import {
   WebSurface,
   typeScale,
   type DemoStep,
+  Aurora,
+  BackgroundFrame,
+  BeamLines,
+  DotGrid,
+  GrainOverlay,
+  LineGrid,
+  MagneticButton,
+  Marquee,
+  MaskedStar,
+  NumberTicker,
+  Reveal,
+  ScrollTransform,
+  StarChart,
+  TextScramble,
+  TiltCard,
+  withViewTransition,
 } from "../src/web";
 import "../src/web/web.css";
 import "./presentations.css";
@@ -189,6 +206,26 @@ export default function WebShowcase() {
                 text="I stopped opening my inbox before coffee. It leaves me three things, and they are the right three."
               />
               <Body>Placeholder quote. Replace it with a named customer and a number before you ship.</Body>
+              <dl className="web-stats">
+                <div>
+                  <dt>messages handled this morning</dt>
+                  <dd>
+                    <NumberTicker value={37} />
+                  </dd>
+                </div>
+                <div>
+                  <dt>fewer unread</dt>
+                  <dd>
+                    <NumberTicker value={92} suffix="%" />
+                  </dd>
+                </div>
+                <div>
+                  <dt>to watch the demo</dt>
+                  <dd>
+                    <NumberTicker value={9.4} format={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }} suffix=" s" />
+                  </dd>
+                </div>
+              </dl>
             </div>
           </Section>
           <Section id="web-start" align="center" title="Get your morning back." intro="The same one goal as the hero and the nav.">
@@ -273,6 +310,9 @@ export default function WebShowcase() {
         </WebSurface>
       </section>
 
+      <MotionSection theme={theme} />
+      <BackgroundsSection theme={theme} />
+
       <section>
         <h2>Principles · {principles.length}</h2>
         <ol className="web-principles">
@@ -294,3 +334,165 @@ const flashyNotes: Record<string, string> = {
   "spotlight-card": "A radial light and border glow that follow a fine pointer. Keyboard focus shows it too.",
   "reveal-text": "Words rise in when the quote scrolls into view. Plain text without JavaScript.",
 };
+
+const skills = ["React", "TypeScript", "SVG", "Three.js", "Blender", "Node", "Postgres", "Playwright", "Vite", "Design systems"];
+
+function Replay({ onClick }: { onClick: () => void }) {
+  return (
+    <button type="button" className="web-replay" onClick={onClick}>
+      Replay
+    </button>
+  );
+}
+
+function ViewTransitionDemo() {
+  const [yearly, setYearly] = useState(false);
+  return (
+    <div className="web-block">
+      <Eyebrow>View transition · with fallback</Eyebrow>
+      <div className="web-price" style={{ viewTransitionName: "web-price" } as CSSProperties}>
+        <strong>{yearly ? "$96" : "$10"}</strong>
+        <span>{yearly ? "per year, two months free" : "per month"}</span>
+      </div>
+      <div className="web-buttons">
+        <CtaButton variant="secondary" aria-pressed={yearly} onClick={() => withViewTransition(() => flushSync(() => setYearly((y) => !y)))}>
+          {yearly ? "Show monthly" : "Show yearly"}
+        </CtaButton>
+      </div>
+      <Body>Cross-fades where the browser supports View Transitions; swaps instantly elsewhere and under reduced motion.</Body>
+    </div>
+  );
+}
+
+function MotionSection({ theme }: { theme: "light" | "dark" }) {
+  const [revealKey, setRevealKey] = useState(0);
+  const [scrambleKey, setScrambleKey] = useState(0);
+  return (
+    <section data-section="motion">
+      <h2>Motion · {webEntries.filter((e) => e.tags.includes("Motion")).length}</h2>
+      <p className="collection-intro">
+        Motion explains change: something arrives, resolves, counts up or follows the reader. Everything here pauses off screen, uses only transform,
+        opacity and filter so nothing shifts, and settles to its final state under reduced motion. Hover effects are mouse-only.
+      </p>
+      <WebSurface theme={theme} className="web-panel">
+        <Grid>
+          <GridItem span={[4, 4, 4]}>
+            <div className="web-block">
+              <Eyebrow>Reveal on scroll · staggered</Eyebrow>
+              <Reveal key={revealKey} variant="blur" className="web-reveal-list">
+                <div>Ask in a sentence</div>
+                <div>Watch every action</div>
+                <div>Decide what is left</div>
+              </Reveal>
+              <Replay onClick={() => setRevealKey((k) => k + 1)} />
+            </div>
+          </GridItem>
+          <GridItem span={[4, 4, 4]}>
+            <div className="web-block" key={scrambleKey}>
+              <Eyebrow>Text scramble · typewriter</Eyebrow>
+              <Heading level={3} size={3}>
+                <TextScramble text="Forty in. Three left." />
+              </Heading>
+              <Subhead>
+                <TextScramble text="Typed once, the first time you see it." mode="type" duration={1600} />
+              </Subhead>
+              <Replay onClick={() => setScrambleKey((k) => k + 1)} />
+            </div>
+          </GridItem>
+          <GridItem span={[4, 8, 4]}>
+            <div className="web-block">
+              <Eyebrow>Number ticker · proof stats</Eyebrow>
+              <dl className="web-stats" data-align="start">
+                <div>
+                  <dt>handled</dt>
+                  <dd>
+                    <NumberTicker value={37} />
+                  </dd>
+                </div>
+                <div>
+                  <dt>saved each week</dt>
+                  <dd>
+                    <NumberTicker value={4.5} format={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }} suffix=" h" />
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </GridItem>
+          <GridItem span={[12, 8, 4]}>
+            <div className="web-block">
+              <Eyebrow>Marquee · pauses on hover, focus and its button</Eyebrow>
+              <Marquee label="Tools" items={skills.map((s) => <span className="web-chip">{s}</span>)} />
+            </div>
+          </GridItem>
+          <GridItem span={[6, 4, 4]}>
+            <div className="web-block">
+              <Eyebrow>Tilt card · magnetic button</Eyebrow>
+              <TiltCard href="#web-how">
+                <RhymeIcon at={0.55} />
+                <Heading level={3} size={1}>
+                  Watch every action
+                </Heading>
+                <Body>Tilts a few degrees toward a mouse. Touch and keyboard get a still card with a focus lift.</Body>
+              </TiltCard>
+              <div className="web-buttons">
+                <MagneticButton href="#web-start">Start free</MagneticButton>
+              </div>
+            </div>
+          </GridItem>
+          <GridItem span={[6, 4, 4]}>
+            <ViewTransitionDemo />
+          </GridItem>
+          <GridItem span={[12, 8, 4]}>
+            <div className="web-block">
+              <Eyebrow>Scroll transform · the hero's star, reused down the page</Eyebrow>
+              <BackgroundFrame className="web-scroll-stage" background={<GrainOverlay opacity={0.05} />}>
+                <ScrollTransform rotate={[-8, 4]} scale={[0.86, 1.08]} translateY={[48, -48]} opacity={[0.5, 1]}>
+                  <div className="web-scroll-star">
+                    <StarChart />
+                  </div>
+                </ScrollTransform>
+                <p className="web-scroll-caption">Scroll: the same curve turns and grows with the reader.</p>
+              </BackgroundFrame>
+            </div>
+          </GridItem>
+        </Grid>
+      </WebSurface>
+    </section>
+  );
+}
+
+const backgroundTiles = [
+  { id: "grain", name: "Grain overlay", note: "feTurbulence noise at 7%. Quiet depth, no file, no motion.", bg: <GrainOverlay opacity={0.12} /> },
+  { id: "dots", name: "Dot grid", note: "Radial fade. Lights under a mouse; still on touch.", bg: <DotGrid spotlight /> },
+  { id: "lines", name: "Line grid", note: "Hairlines at 8% ink, faded toward the edges.", bg: <LineGrid spotlight size={32} /> },
+  { id: "aurora", name: "Aurora", note: "Three blurred token colours drift slowly, capped at 28% opacity.", bg: <Aurora /> },
+  { id: "star", name: "Masked star", note: "The hero's star, masked clear of the copy.", bg: <MaskedStar clear="start" /> },
+  { id: "beams", name: "Beam lines", note: "Light rides the grid lines, like packets on a connector.", bg: <BeamLines /> },
+];
+
+function BackgroundsSection({ theme }: { theme: "light" | "dark" }) {
+  return (
+    <section data-section="backgrounds">
+      <h2>Backgrounds · {backgroundTiles.length}</h2>
+      <p className="collection-intro">
+        One ambient effect per viewport on a real page; this gallery breaks that rule to compare them. Backgrounds sit at low contrast so the
+        text above keeps 4.5:1. Moving ones pause off screen and hold still under reduced motion.
+      </p>
+      <WebSurface theme={theme} className="web-panel">
+        <Grid>
+          {backgroundTiles.map((tile) => (
+            <GridItem key={tile.id} span={[4, 4, 4]}>
+              <BackgroundFrame className="web-bg-tile" background={tile.bg}>
+                <Eyebrow>{tile.id}</Eyebrow>
+                <Heading level={3} size={2}>
+                  {tile.name}
+                </Heading>
+                <Body>{tile.note}</Body>
+              </BackgroundFrame>
+            </GridItem>
+          ))}
+        </Grid>
+      </WebSurface>
+    </section>
+  );
+}

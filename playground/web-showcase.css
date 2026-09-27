@@ -152,3 +152,88 @@
   line-height: 1.55;
 }
 .web-principles li::marker { font: 12px ui-monospace, monospace; color: var(--show-muted); }
+.web-stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--web-s3) var(--web-s6);
+  margin: var(--web-s2) 0 0;
+}
+.web-stats[data-align="start"] { justify-content: flex-start; }
+.web-stats > div { display: flex; flex-direction: column-reverse; gap: 4px; }
+.web-stats dt { font-size: var(--web-step--1); color: var(--web-ink-low); }
+.web-stats dd {
+  margin: 0;
+  font: 650 var(--web-step-5) / 1 var(--web-font-display);
+  letter-spacing: -0.03em;
+}
+.web-replay {
+  justify-self: start;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--web-hairline);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--web-ink-medium);
+  font: 500 0.9375rem var(--web-font-sans);
+  cursor: pointer;
+}
+.web-reveal-list { display: grid; gap: var(--web-s1); }
+.web-reveal-list > div {
+  padding: 12px var(--web-s2);
+  border-radius: 10px;
+  background: var(--web-surface);
+  border: 1px solid var(--web-hairline);
+}
+.web-chip {
+  padding: 6px 14px;
+  border: 1px solid var(--web-hairline);
+  border-radius: 999px;
+  background: var(--web-surface);
+}
+.web-price {
+  display: flex;
+  align-items: baseline;
+  gap: var(--web-s1);
+  padding: var(--web-s3);
+  border-radius: 12px;
+  background: var(--web-secondary);
+}
+.web-price strong { font: 650 var(--web-step-5) / 1 var(--web-font-display); letter-spacing: -0.03em; }
+.web-price span { color: var(--web-ink-low); }
+.web-scroll-stage {
+  min-height: 320px;
+  border-radius: 12px;
+  border: 1px solid var(--web-hairline);
+  background: var(--web-surface);
+}
+.web-scroll-stage .uipack-web-bgframe__content { display: grid; place-items: center; min-height: 320px; }
+.web-scroll-star {
+  width: min(560px, 80vw);
+  height: 220px;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent);
+}
+.web-scroll-star svg { width: 100%; height: 100%; }
+.web-scroll-caption {
+  position: absolute;
+  left: var(--web-s3);
+  bottom: var(--web-s2);
+  margin: 0;
+  font-size: var(--web-step--1);
+  color: var(--web-ink-low);
+}
+.web-bg-tile {
+  display: block;
+  min-height: 240px;
+  border-radius: 12px;
+  border: 1px solid var(--web-hairline);
+  background: var(--web-bg);
+}
+.web-bg-tile .uipack-web-bgframe__content {
+  display: grid;
+  align-content: end;
+  gap: var(--web-s1);
+  min-height: 240px;
+  padding: var(--web-s3);
+}

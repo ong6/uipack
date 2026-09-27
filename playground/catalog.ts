@@ -115,4 +115,25 @@ export const webEntries: CatalogEntry[] = [
   { id: "cta-button", title: "CTA button", type: "web", styleId: "landing", tags: ["Low-key", "Action"] },
   { id: "glass-nav", title: "Glass nav", type: "web", styleId: "landing", tags: ["Low-key", "Navigation"] },
   { id: "feature-grid", title: "Section and feature grid", type: "web", styleId: "landing", tags: ["Low-key", "Layout"] },
+  ...(
+    [
+      ["reveal", "Reveal on scroll"],
+      ["text-scramble", "Text scramble and typewriter"],
+      ["number-ticker", "Number ticker"],
+      ["marquee", "Marquee"],
+      ["tilt-magnetic", "Tilt card and magnetic button"],
+      ["scroll-transform", "Scroll transform"],
+      ["view-transition", "View transition helper"],
+    ] as const
+  ).map(([id, title]) => ({ id, title, type: "web" as const, styleId: "landing", tags: ["Motion"] })),
+  ...(
+    [
+      ["grain-overlay", "Grain overlay"],
+      ["dot-grid", "Dot grid"],
+      ["line-grid", "Line grid"],
+      ["aurora", "Aurora"],
+      ["masked-star", "Masked star"],
+      ["beam-lines", "Beam lines"],
+    ] as const
+  ).map(([id, title]) => ({ id, title, type: "web" as const, styleId: "landing", tags: ["Backgrounds"] })),
 ];

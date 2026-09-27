@@ -6,7 +6,7 @@ Run `npm run dev` from the repo root. Pages:
 - `/assets`: searchable primitives and static assets.
 - `/animations`: 3D animation collection, search, and technique filters. `/slides` is a compatibility alias.
 - `/presentations`: complete five-chapter narrative composition example.
-- `/web`: Web UI in the Landing style. One composed landing page (glass nav, star hero, demo player, spotlight features, reveal quote, closing CTA), then the flashy and low-key parts and the principles.
+- `/web`: Web UI in the Landing style. One composed landing page (glass nav, star hero, demo player, spotlight features, reveal quote, closing CTA), then the flashy, low-key, Motion and Backgrounds sections and the principles.
 - `/styles`: visual-language catalog (Technical, Landing, and six object art directions).
 
 `ShowcaseShell.tsx` owns shared navigation/theme handling; its `styleName` prop names the page's content style in the context line. `showcase.css` owns page tokens and layout. `catalog.ts` owns type/style/tag metadata. Collection pages must not introduce another header or global styles.

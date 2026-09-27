@@ -24,6 +24,24 @@ for (const theme of ["light", "dark"] as const) {
       await page.screenshot({ path: `docs/web-${w}-${theme}.png`, fullPage: false });
     });
   }
+  for (const w of [1440, 390] as const) {
+    test(`shot web sections ${theme} ${w}`, async ({ page }) => {
+      test.setTimeout(60_000);
+      await page.setViewportSize({ width: w, height: w === 1440 ? 1000 : 844 });
+      await page.goto(`/web?theme=${theme}`);
+      for (const name of ["motion", "backgrounds"]) {
+        const section = page.locator(`section[data-section="${name}"]`);
+        // Walk through the section so reveals and tickers have played before the capture.
+        const box = (await section.boundingBox())!;
+        for (let y = box.y - 200; y < box.y + box.height; y += 400) {
+          await page.evaluate((top) => window.scrollTo(0, top), y);
+          await page.waitForTimeout(250);
+        }
+        await page.waitForTimeout(1600);
+        await section.screenshot({ path: `docs/web-${name}-${w}-${theme}.png` });
+      }
+    });
+  }
   test(`shot presets ${theme}`, async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1100 });
     await page.goto(`/?theme=${theme}`);
