@@ -11,6 +11,8 @@
   --web-glass: rgb(247 247 244 / 0.72);
   --web-shadow: 0 1px 2px rgb(18 18 23 / 0.06), 0 24px 48px -24px rgb(18 18 23 / 0.28);
   --web-noise-blend: multiply;
+  /* Backgrounds sit at low contrast: one cap for the whole aurora layer. */
+  --web-aurora-opacity: 0.28;
 
   /* Opacity emphasis: 100 / 87 / 66. */
   --web-ink: rgb(var(--web-ink-rgb));
@@ -63,6 +65,7 @@
     --web-glass: rgb(13 13 19 / 0.66);
     --web-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 24px 48px -24px rgb(0 0 0 / 0.7);
     --web-noise-blend: screen;
+    --web-aurora-opacity: 0.34;
   }
 }
 [data-theme="dark"] .uipack-web:not([data-theme="light"]),
@@ -76,6 +79,7 @@
   --web-glass: rgb(13 13 19 / 0.66);
   --web-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 24px 48px -24px rgb(0 0 0 / 0.7);
   --web-noise-blend: screen;
+  --web-aurora-opacity: 0.34;
 }
 
 .uipack-web *,
@@ -754,4 +758,267 @@
     transform: none;
     transition: none;
   }
+}
+
+/* =================================================================== Backgrounds
+   One ambient effect per viewport. Every layer is decorative (aria-hidden), sits
+   under the content at low contrast, and never takes pointer events. */
+.uipack-web-bgframe {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.uipack-web-bgframe__content { position: relative; }
+.uipack-web-gridbg,
+.uipack-web-aurora,
+.uipack-web-maskedstar,
+.uipack-web-beams {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.uipack-web-gridbg {
+  --grid-ink: rgb(var(--web-ink-rgb) / 0.2);
+  --grid-line: rgb(var(--web-ink-rgb) / 0.08);
+}
+.uipack-web-gridbg[data-bg="dots"],
+.uipack-web-gridbg[data-bg="dots"] .uipack-web-gridbg__lit {
+  background-image: radial-gradient(circle at 1px 1px, var(--grid-ink) 1px, transparent 1.5px);
+  background-size: var(--cell) var(--cell);
+}
+.uipack-web-gridbg[data-bg="lines"],
+.uipack-web-gridbg[data-bg="lines"] .uipack-web-gridbg__lit,
+.uipack-web-beams {
+  background-image: linear-gradient(var(--grid-line, rgb(var(--web-ink-rgb) / 0.08)) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line, rgb(var(--web-ink-rgb) / 0.08)) 1px, transparent 1px);
+  background-size: var(--cell) var(--cell);
+}
+.uipack-web-gridbg[data-fade],
+.uipack-web-beams {
+  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 40%, #000 25%, transparent 78%);
+  mask-image: radial-gradient(ellipse 75% 70% at 50% 40%, #000 25%, transparent 78%);
+}
+.uipack-web-gridbg__lit {
+  position: absolute;
+  inset: 0;
+  --grid-ink: var(--web-accent);
+  --grid-line: color-mix(in srgb, var(--web-accent) 55%, transparent);
+  -webkit-mask-image: radial-gradient(180px circle at var(--spot-x, 50%) var(--spot-y, 50%), #000, transparent 70%);
+  mask-image: radial-gradient(180px circle at var(--spot-x, 50%) var(--spot-y, 50%), #000, transparent 70%);
+  opacity: 0;
+  transition: opacity 300ms var(--web-ease);
+}
+.uipack-web-gridbg[data-lit] .uipack-web-gridbg__lit { opacity: 1; }
+
+.uipack-web-aurora {
+  inset: -15%;
+  opacity: var(--web-aurora-opacity);
+  filter: blur(72px);
+}
+.uipack-web-aurora i {
+  position: absolute;
+  width: 55%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  animation: uipack-web-drift var(--aurora-duration, 24s) ease-in-out infinite alternate;
+}
+.uipack-web-aurora i:nth-child(1) { left: 0; top: 0; background: var(--web-accent); }
+.uipack-web-aurora i:nth-child(2) {
+  right: 0;
+  top: 5%;
+  background: color-mix(in srgb, var(--web-accent) 50%, var(--web-bg));
+  animation-direction: alternate-reverse;
+  animation-delay: calc(var(--aurora-duration, 24s) * -0.33);
+}
+.uipack-web-aurora i:nth-child(3) {
+  left: 25%;
+  bottom: -5%;
+  background: var(--web-secondary);
+  animation-delay: calc(var(--aurora-duration, 24s) * -0.66);
+}
+.uipack-web-aurora[data-paused] i { animation-play-state: paused; }
+@keyframes uipack-web-drift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(10%, 8%) scale(1.12); }
+  100% { transform: translate(-8%, 4%) scale(0.94); }
+}
+
+.uipack-web-maskedstar {
+  -webkit-mask-image: radial-gradient(ellipse 50% 42% at 50% 40%, transparent 35%, #000 90%);
+  mask-image: radial-gradient(ellipse 50% 42% at 50% 40%, transparent 35%, #000 90%);
+}
+.uipack-web-maskedstar[data-clear="start"] {
+  -webkit-mask-image: linear-gradient(90deg, transparent 30%, #000 85%);
+  mask-image: linear-gradient(90deg, transparent 30%, #000 85%);
+}
+.uipack-web-maskedstar > svg { width: 100%; height: 100%; display: block; }
+.uipack-web-maskedstar[data-flip="x"] > svg { transform: scaleX(-1); }
+.uipack-web-maskedstar[data-flip="y"] > svg { transform: scaleY(-1); }
+
+.uipack-web-beams {
+  overflow: hidden;
+  container-type: size;
+}
+.uipack-web-beams i {
+  position: absolute;
+  display: block;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.uipack-web-beams i::after {
+  content: "";
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--web-accent);
+  box-shadow: 0 0 8px var(--web-accent);
+}
+.uipack-web-beams i[data-axis="h"] {
+  top: var(--line);
+  left: 0;
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--web-accent));
+  animation-name: uipack-web-beam-x;
+}
+.uipack-web-beams i[data-axis="h"]::after { right: -2px; top: -2px; }
+.uipack-web-beams i[data-axis="v"] {
+  left: var(--line);
+  top: 0;
+  width: 1px;
+  height: 120px;
+  background: linear-gradient(180deg, transparent, var(--web-accent));
+  animation-name: uipack-web-beam-y;
+}
+.uipack-web-beams i[data-axis="v"]::after { bottom: -2px; left: -2px; }
+.uipack-web-beams[data-paused] i { animation-play-state: paused; }
+@keyframes uipack-web-beam-x {
+  from { transform: translateX(-140px); }
+  to { transform: translateX(calc(100cqw + 20px)); }
+}
+@keyframes uipack-web-beam-y {
+  from { transform: translateY(-140px); }
+  to { transform: translateY(calc(100cqh + 20px)); }
+}
+
+/* =================================================================== Motion */
+.uipack-web-revealgroup[data-state="waiting"] > * { opacity: 0; }
+.uipack-web-revealgroup[data-state="waiting"][data-variant="up"] > * { transform: translateY(16px); }
+.uipack-web-revealgroup[data-state="waiting"][data-variant="blur"] > * { filter: blur(8px); transform: translateY(8px); }
+.uipack-web-revealgroup[data-state="shown"] > * {
+  transition: opacity 600ms var(--web-ease), transform 600ms var(--web-ease), filter 600ms var(--web-ease);
+  transition-delay: calc(var(--i, 0) * var(--stagger, 80ms));
+}
+
+.uipack-web-scramble,
+.uipack-web-ticker {
+  display: inline-grid;
+}
+.uipack-web-scramble > *,
+.uipack-web-ticker > * { grid-area: 1 / 1; }
+/* The final text reserves the box and is what assistive tech reads. */
+.uipack-web-scramble__ghost { color: transparent; }
+.uipack-web-scramble__live { pointer-events: none; }
+.uipack-web-scramble:not([data-done])[data-mode="scramble"] .uipack-web-scramble__live { font-variant-ligatures: none; }
+.uipack-web-ticker { font-variant-numeric: tabular-nums; }
+
+.uipack-web-marquee {
+  display: flex;
+  align-items: center;
+  gap: var(--web-s2);
+  min-width: 0;
+}
+.uipack-web-marquee__viewport {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.uipack-web-marquee__track {
+  display: flex;
+  width: max-content;
+  animation: uipack-web-marquee var(--marquee-duration, 30s) linear infinite;
+}
+.uipack-web-marquee[data-reverse] .uipack-web-marquee__track { animation-direction: reverse; }
+.uipack-web-marquee[data-paused] .uipack-web-marquee__track,
+.uipack-web-marquee__viewport:hover .uipack-web-marquee__track,
+.uipack-web-marquee:focus-within .uipack-web-marquee__track { animation-play-state: paused; }
+.uipack-web-marquee__list {
+  display: flex;
+  flex: none;
+  gap: var(--web-s4);
+  margin: 0;
+  padding: 0 var(--web-s4) 0 0;
+  list-style: none;
+}
+.uipack-web-marquee__list li {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  white-space: nowrap;
+  color: var(--web-ink-medium);
+}
+.uipack-web-marquee[data-static] .uipack-web-marquee__viewport { -webkit-mask-image: none; mask-image: none; }
+.uipack-web-marquee[data-static] .uipack-web-marquee__track { width: auto; animation: none; }
+.uipack-web-marquee[data-static] .uipack-web-marquee__list { flex-wrap: wrap; flex: 1; gap: var(--web-s1) var(--web-s4); }
+.uipack-web-marquee__toggle {
+  flex: none;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--web-hairline);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--web-ink-medium);
+  font: 500 0.9375rem var(--web-font-sans);
+  cursor: pointer;
+}
+@keyframes uipack-web-marquee {
+  to { transform: translateX(-50%); }
+}
+
+.uipack-web-tilt {
+  display: grid;
+  align-content: start;
+  gap: var(--web-s2);
+  padding: var(--web-s4);
+  border: 1px solid var(--web-hairline);
+  border-radius: var(--web-radius);
+  background: var(--web-surface);
+  color: inherit;
+  text-decoration: none;
+  transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transition: transform 160ms var(--web-ease), box-shadow 200ms var(--web-ease);
+}
+.uipack-web-tilt:hover { box-shadow: var(--web-shadow); }
+.uipack-web-tilt:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: var(--web-shadow);
+}
+.uipack-web-magnetic { display: inline-block; }
+.uipack-web-magnetic > .uipack-web-cta {
+  translate: var(--pull-x, 0) var(--pull-y, 0);
+  transition: translate 200ms var(--web-ease), transform 160ms var(--web-ease), box-shadow 160ms var(--web-ease);
+}
+
+.uipack-web-scrollx__inner {
+  transform: translateY(var(--st-y, 0)) rotate(var(--st-rotate, 0deg)) scale(var(--st-scale, 1));
+  opacity: var(--st-opacity, 1);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uipack-web-aurora i,
+  .uipack-web-marquee__track { animation: none; }
+  .uipack-web-beams i[data-axis] { animation: none; transform: translate(0, 0); }
+  .uipack-web-beams i[data-axis="h"] { left: 40%; }
+  .uipack-web-beams i[data-axis="v"] { top: 35%; }
+  .uipack-web-revealgroup > * { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; }
+  .uipack-web-tilt,
+  .uipack-web-tilt:focus-visible { transform: none; transition: none; }
+  .uipack-web-magnetic > .uipack-web-cta { translate: none; transition: none; }
+  .uipack-web-gridbg__lit { display: none; }
 }

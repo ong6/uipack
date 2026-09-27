@@ -90,16 +90,26 @@ export function RhymeIcon({ at = 0.5, values = DEFAULT_STAR_VALUES, size = 40 }:
   );
 }
 
-/** Quiet depth: an inline feTurbulence noise layer. No image files, no network. */
-export function NoiseLayer({ opacity = 0.08 }: { opacity?: number }) {
+export interface GrainOverlayProps {
+  /** 0.04–0.08 reads as texture, not noise. */
+  opacity?: number;
+  /** Noise frequency; higher is finer. */
+  frequency?: number;
+}
+
+/** Quiet depth: inline SVG feTurbulence noise. No image file, no request, no motion. */
+export function GrainOverlay({ opacity = 0.07, frequency = 0.8 }: GrainOverlayProps) {
   const id = useId().replace(/:/g, "");
   return (
-    <svg className="uipack-web-noise" aria-hidden="true" focusable="false" style={{ opacity }}>
+    <svg className="uipack-web-noise" aria-hidden="true" focusable="false" style={{ opacity }} data-bg="grain">
       <filter id={`${id}-n`}>
-        <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch" />
+        <feTurbulence type="fractalNoise" baseFrequency={frequency} numOctaves="3" stitchTiles="stitch" />
         <feColorMatrix type="saturate" values="0" />
       </filter>
       <rect width="100%" height="100%" filter={`url(#${id}-n)`} />
     </svg>
   );
 }
+
+/** The noise layer StarHero uses; same as GrainOverlay. */
+export const NoiseLayer = GrainOverlay;

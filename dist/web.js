@@ -238,16 +238,17 @@ function RhymeIcon({ at = 0.5, values = DEFAULT_STAR_VALUES, size = 40 }) {
     /* @__PURE__ */ jsx8("circle", { cx, cy, r: "3" })
   ] });
 }
-function NoiseLayer({ opacity = 0.08 }) {
+function GrainOverlay({ opacity = 0.07, frequency = 0.8 }) {
   const id = useId2().replace(/:/g, "");
-  return /* @__PURE__ */ jsxs4("svg", { className: "uipack-web-noise", "aria-hidden": "true", focusable: "false", style: { opacity }, children: [
+  return /* @__PURE__ */ jsxs4("svg", { className: "uipack-web-noise", "aria-hidden": "true", focusable: "false", style: { opacity }, "data-bg": "grain", children: [
     /* @__PURE__ */ jsxs4("filter", { id: `${id}-n`, children: [
-      /* @__PURE__ */ jsx8("feTurbulence", { type: "fractalNoise", baseFrequency: "0.8", numOctaves: "3", stitchTiles: "stitch" }),
+      /* @__PURE__ */ jsx8("feTurbulence", { type: "fractalNoise", baseFrequency: frequency, numOctaves: "3", stitchTiles: "stitch" }),
       /* @__PURE__ */ jsx8("feColorMatrix", { type: "saturate", values: "0" })
     ] }),
     /* @__PURE__ */ jsx8("rect", { width: "100%", height: "100%", filter: `url(#${id}-n)` })
   ] });
 }
+var NoiseLayer = GrainOverlay;
 
 // src/web/StarHero.tsx
 import { jsx as jsx9, jsxs as jsxs5 } from "react/jsx-runtime";
@@ -543,24 +544,422 @@ var TYPE_STEPS = [-1, 0, 1, 2, 3, 4, 5, 6];
 var EMPHASIS = { high: 1, medium: 0.87, low: 0.66 };
 var SPACE = [0, 8, 16, 24, 32, 48, 64, 96, 128];
 var GRID_COLUMNS = { wide: 12, medium: 8, narrow: 4 };
+
+// src/web/hooks.ts
+import { useEffect as useEffect4, useState as useState4 } from "react";
+function useInView(ref, { threshold = 0, once = false, rootMargin } = {}) {
+  const [inView, setInView] = useState4(false);
+  useEffect4(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setInView(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        setInView(entry.isIntersecting);
+        if (entry.isIntersecting && once) io.disconnect();
+      },
+      { threshold, rootMargin }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref, threshold, once, rootMargin]);
+  return inView;
+}
+function scrollProgressOf(rect, viewport) {
+  const total = viewport + rect.height;
+  if (total <= 0) return 0;
+  return Math.max(0, Math.min(1, (viewport - rect.top) / total));
+}
+function useScrollProgress(ref) {
+  const inView = useInView(ref);
+  const [progress, setProgress] = useState4(0);
+  useEffect4(() => {
+    const el = ref.current;
+    if (!el || !inView || typeof window === "undefined") return;
+    let frame = 0;
+    const measure = () => {
+      frame = 0;
+      setProgress(scrollProgressOf(el.getBoundingClientRect(), window.innerHeight));
+    };
+    const schedule = () => {
+      if (frame) return;
+      frame = typeof requestAnimationFrame === "function" ? requestAnimationFrame(measure) : setTimeout(measure, 16);
+    };
+    measure();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      if (frame && typeof cancelAnimationFrame === "function") cancelAnimationFrame(frame);
+    };
+  }, [ref, inView]);
+  return progress;
+}
+function useFinePointer() {
+  const [fine, setFine] = useState4(false);
+  useEffect4(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    setFine(window.matchMedia("(hover: hover) and (pointer: fine)").matches);
+  }, []);
+  return fine;
+}
+function withViewTransition(update) {
+  const doc = typeof document === "undefined" ? void 0 : document;
+  const reduced = typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!doc?.startViewTransition || reduced) {
+    update();
+    return Promise.resolve();
+  }
+  return doc.startViewTransition(update).finished.catch(() => void 0);
+}
+
+// src/web/backgrounds.tsx
+import { useEffect as useEffect5, useRef as useRef5 } from "react";
+import { jsx as jsx11, jsxs as jsxs7 } from "react/jsx-runtime";
+function BackgroundFrame({ background, children, as: Tag = "div", className = "", style }) {
+  return /* @__PURE__ */ jsxs7(Tag, { className: `uipack-web-bgframe ${className}`.trim(), style, children: [
+    background,
+    /* @__PURE__ */ jsx11("div", { className: "uipack-web-bgframe__content", children })
+  ] });
+}
+function useParentSpotlight(ref, enabled) {
+  useEffect5(() => {
+    const el = ref.current;
+    const host = el?.parentElement;
+    if (!el || !host || !enabled) return;
+    const move = (e) => {
+      if (e.pointerType === "touch") return;
+      const r = host.getBoundingClientRect();
+      el.style.setProperty("--spot-x", `${e.clientX - r.left}px`);
+      el.style.setProperty("--spot-y", `${e.clientY - r.top}px`);
+      el.dataset.lit = "true";
+    };
+    const leave = () => delete el.dataset.lit;
+    host.addEventListener("pointermove", move);
+    host.addEventListener("pointerleave", leave);
+    return () => {
+      host.removeEventListener("pointermove", move);
+      host.removeEventListener("pointerleave", leave);
+    };
+  }, [ref, enabled]);
+}
+function GridBackground({ variant, size = 24, fade = true, spotlight = false }) {
+  const ref = useRef5(null);
+  const reduced = usePrefersReducedMotion();
+  const fine = useFinePointer();
+  useParentSpotlight(ref, spotlight && fine && !reduced);
+  return /* @__PURE__ */ jsx11(
+    "div",
+    {
+      ref,
+      className: "uipack-web-gridbg",
+      "data-bg": variant,
+      "data-fade": fade || void 0,
+      "aria-hidden": "true",
+      style: { "--cell": `${size}px` },
+      children: spotlight && /* @__PURE__ */ jsx11("div", { className: "uipack-web-gridbg__lit" })
+    }
+  );
+}
+function DotGrid(props) {
+  return /* @__PURE__ */ jsx11(GridBackground, { variant: "dots", ...props });
+}
+function LineGrid(props) {
+  return /* @__PURE__ */ jsx11(GridBackground, { variant: "lines", ...props });
+}
+function Aurora({ duration = 24 }) {
+  const ref = useRef5(null);
+  const inView = useInView(ref);
+  return /* @__PURE__ */ jsxs7(
+    "div",
+    {
+      ref,
+      className: "uipack-web-aurora",
+      "data-bg": "aurora",
+      "data-paused": !inView || void 0,
+      "aria-hidden": "true",
+      style: { "--aurora-duration": `${duration}s` },
+      children: [
+        /* @__PURE__ */ jsx11("i", {}),
+        /* @__PURE__ */ jsx11("i", {}),
+        /* @__PURE__ */ jsx11("i", {})
+      ]
+    }
+  );
+}
+function MaskedStar({ values, flip = "none", clear = "center" }) {
+  return /* @__PURE__ */ jsx11("div", { className: "uipack-web-maskedstar", "data-bg": "star", "data-flip": flip, "data-clear": clear, "aria-hidden": "true", children: /* @__PURE__ */ jsx11(StarChart, { values }) });
+}
+function BeamLines({ size = 48, count = 5, duration = 6 }) {
+  const ref = useRef5(null);
+  const inView = useInView(ref);
+  const beams = Array.from({ length: count }, (_, i) => ({
+    axis: i % 2 === 0 ? "h" : "v",
+    line: 2 + i * 3 % 7,
+    delay: -(i * duration / count) * 1.7,
+    dur: duration * (0.8 + i * 7 % 5 / 10)
+  }));
+  return /* @__PURE__ */ jsx11(
+    "div",
+    {
+      ref,
+      className: "uipack-web-beams",
+      "data-bg": "beams",
+      "data-paused": !inView || void 0,
+      "aria-hidden": "true",
+      style: { "--cell": `${size}px` },
+      children: beams.map((b, i) => /* @__PURE__ */ jsx11(
+        "i",
+        {
+          "data-axis": b.axis,
+          style: {
+            "--line": `${b.line * size}px`,
+            animationDelay: `${b.delay}s`,
+            animationDuration: `${b.dur}s`
+          }
+        },
+        i
+      ))
+    }
+  );
+}
+
+// src/web/motion.tsx
+import {
+  useEffect as useEffect6,
+  useRef as useRef6,
+  useState as useState5
+} from "react";
+import { jsx as jsx12, jsxs as jsxs8 } from "react/jsx-runtime";
+function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div", className = "" }) {
+  const ref = useRef6(null);
+  const reduced = usePrefersReducedMotion();
+  const [state, setState] = useState5("static");
+  useEffect6(() => {
+    const el = ref.current;
+    if (!el) return;
+    Array.from(el.children).forEach((c, i) => c.style.setProperty("--i", String(i)));
+    if (reduced || typeof IntersectionObserver === "undefined") {
+      setState("static");
+      return;
+    }
+    setState("waiting");
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setState("shown");
+        io.disconnect();
+      },
+      { threshold: 0.2 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [reduced]);
+  return /* @__PURE__ */ jsx12(
+    Tag,
+    {
+      ref,
+      className: `uipack-web-revealgroup ${className}`.trim(),
+      "data-state": state,
+      "data-variant": variant,
+      style: { "--stagger": `${stagger}ms` },
+      children
+    }
+  );
+}
+var GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/<>_-";
+function scrambleFrame(text, t, mode, seed = 0) {
+  const p = Math.max(0, Math.min(1, t));
+  const settled = Math.floor(p * text.length);
+  if (mode === "type") return text.slice(0, settled);
+  let out = text.slice(0, settled);
+  for (let i = settled; i < text.length; i++) {
+    const ch = text[i];
+    out += ch === " " ? " " : GLYPHS[(i * 7 + seed * 13) % GLYPHS.length];
+  }
+  return out;
+}
+function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "span", className = "" }) {
+  const ref = useRef6(null);
+  const reduced = usePrefersReducedMotion();
+  const inView = useInView(ref, { once: true, threshold: 0.5 });
+  const [t, setT] = useState5(1);
+  const [tick, setTick] = useState5(0);
+  const started = useRef6(false);
+  useEffect6(() => {
+    if (typeof IntersectionObserver !== "undefined" && !started.current) setT(0);
+  }, []);
+  useEffect6(() => {
+    if (reduced || !inView || started.current) return;
+    started.current = true;
+    const start = Date.now();
+    setT(0);
+    const timer = setInterval(() => {
+      const p = (Date.now() - start) / duration;
+      setT(Math.min(1, p));
+      setTick((k) => k + 1);
+      if (p >= 1) clearInterval(timer);
+    }, 40);
+    return () => clearInterval(timer);
+  }, [reduced, inView, duration]);
+  const shown = reduced || t >= 1 ? text : scrambleFrame(text, t, mode, tick);
+  return /* @__PURE__ */ jsxs8(Tag, { ref, className: `uipack-web-scramble ${className}`.trim(), "data-mode": mode, "data-done": shown === text || void 0, children: [
+    /* @__PURE__ */ jsx12("span", { className: "uipack-web-scramble__ghost", children: text }),
+    /* @__PURE__ */ jsxs8("span", { className: "uipack-web-scramble__live", "aria-hidden": "true", children: [
+      shown,
+      mode === "type" && shown !== text && /* @__PURE__ */ jsx12("span", { className: "uipack-web-demo__caret" })
+    ] })
+  ] });
+}
+var easeOut = (t) => 1 - Math.pow(1 - t, 3);
+function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix = "", suffix = "", className = "" }) {
+  const ref = useRef6(null);
+  const reduced = usePrefersReducedMotion();
+  const inView = useInView(ref, { once: true, threshold: 0.6 });
+  const [current, setCurrent] = useState5(value);
+  const started = useRef6(false);
+  useEffect6(() => {
+    if (typeof IntersectionObserver !== "undefined" && !started.current) setCurrent(from);
+  }, [from]);
+  useEffect6(() => {
+    if (reduced || !inView || started.current) return;
+    started.current = true;
+    const start = Date.now();
+    setCurrent(from);
+    const timer = setInterval(() => {
+      const p = Math.min(1, (Date.now() - start) / duration);
+      setCurrent(from + (value - from) * easeOut(p));
+      if (p >= 1) clearInterval(timer);
+    }, 32);
+    return () => clearInterval(timer);
+  }, [reduced, inView, from, value, duration]);
+  const fmt = new Intl.NumberFormat(locale, format ?? { maximumFractionDigits: 0 });
+  const final = `${prefix}${fmt.format(value)}${suffix}`;
+  const live = `${prefix}${fmt.format(reduced ? value : current)}${suffix}`;
+  return /* @__PURE__ */ jsxs8("span", { ref, className: `uipack-web-ticker ${className}`.trim(), children: [
+    /* @__PURE__ */ jsx12("span", { className: "uipack-web-scramble__ghost", children: final }),
+    /* @__PURE__ */ jsx12("span", { className: "uipack-web-scramble__live", "aria-hidden": "true", "data-testid": "ticker-live", children: live })
+  ] });
+}
+function Marquee({ items, label, duration = 30, reverse = false }) {
+  const ref = useRef6(null);
+  const copyRef = useRef6(null);
+  const inView = useInView(ref);
+  const reduced = usePrefersReducedMotion();
+  const [paused, setPaused] = useState5(false);
+  useEffect6(() => {
+    copyRef.current?.setAttribute("inert", "");
+  }, [reduced]);
+  const list = (copy) => /* @__PURE__ */ jsx12("ul", { className: "uipack-web-marquee__list", ref: copy ? copyRef : void 0, "aria-hidden": copy || void 0, children: items.map((item, i) => /* @__PURE__ */ jsx12("li", { children: item }, i)) });
+  return /* @__PURE__ */ jsxs8(
+    "div",
+    {
+      ref,
+      className: "uipack-web-marquee",
+      role: "region",
+      "aria-label": label,
+      "data-static": reduced || void 0,
+      "data-paused": paused || !inView || void 0,
+      "data-reverse": reverse || void 0,
+      style: { "--marquee-duration": `${duration}s` },
+      children: [
+        /* @__PURE__ */ jsx12("div", { className: "uipack-web-marquee__viewport", children: /* @__PURE__ */ jsxs8("div", { className: "uipack-web-marquee__track", children: [
+          list(false),
+          !reduced && list(true)
+        ] }) }),
+        !reduced && /* @__PURE__ */ jsx12("button", { type: "button", className: "uipack-web-marquee__toggle", "aria-pressed": paused, onClick: () => setPaused((p) => !p), children: paused ? "Play" : "Pause" })
+      ]
+    }
+  );
+}
+function useHoverMotion(apply, reset) {
+  const ref = useRef6(null);
+  const reduced = usePrefersReducedMotion();
+  const onPointerMove = (e) => {
+    if (reduced || e.pointerType !== "mouse" && e.pointerType !== "pen") return;
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    apply(el, (e.clientX - r.left) / r.width - 0.5, (e.clientY - r.top) / r.height - 0.5);
+  };
+  const onPointerLeave = () => ref.current && reset(ref.current);
+  return { ref, onPointerMove, onPointerLeave };
+}
+function TiltCard({ children, max = 5, href, className = "" }) {
+  const { ref, onPointerMove, onPointerLeave } = useHoverMotion(
+    (el, x, y) => {
+      el.style.setProperty("--tilt-x", `${(-y * max * 2).toFixed(2)}deg`);
+      el.style.setProperty("--tilt-y", `${(x * max * 2).toFixed(2)}deg`);
+    },
+    (el) => {
+      el.style.removeProperty("--tilt-x");
+      el.style.removeProperty("--tilt-y");
+    }
+  );
+  const cls = `uipack-web-tilt ${className}`.trim();
+  const props = { className: cls, onPointerMove, onPointerLeave };
+  return href ? /* @__PURE__ */ jsx12("a", { ref: (n) => ref.current = n, href, ...props, children }) : /* @__PURE__ */ jsx12("div", { ref: (n) => ref.current = n, ...props, children });
+}
+function MagneticButton({ strength = 6, ...button }) {
+  const { ref, onPointerMove, onPointerLeave } = useHoverMotion(
+    (el, x, y) => {
+      el.style.setProperty("--pull-x", `${(x * strength * 2).toFixed(1)}px`);
+      el.style.setProperty("--pull-y", `${(y * strength * 2).toFixed(1)}px`);
+    },
+    (el) => {
+      el.style.removeProperty("--pull-x");
+      el.style.removeProperty("--pull-y");
+    }
+  );
+  return /* @__PURE__ */ jsx12("span", { ref: (n) => ref.current = n, className: "uipack-web-magnetic", onPointerMove, onPointerLeave, children: /* @__PURE__ */ jsx12(CtaButton, { ...button }) });
+}
+var lerp = ([a, b], t) => a + (b - a) * t;
+function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY = [0, 0], opacity = [1, 1], className = "" }) {
+  const ref = useRef6(null);
+  const reduced = usePrefersReducedMotion();
+  const raw = useScrollProgress(ref);
+  const t = reduced ? 0.5 : raw;
+  const style = {
+    "--st-rotate": `${lerp(rotate, t).toFixed(2)}deg`,
+    "--st-scale": lerp(scale, t).toFixed(3),
+    "--st-y": `${lerp(translateY, t).toFixed(1)}px`,
+    "--st-opacity": lerp(opacity, t).toFixed(3)
+  };
+  return /* @__PURE__ */ jsx12("div", { ref, className: `uipack-web-scrollx ${className}`.trim(), "data-progress": t.toFixed(2), children: /* @__PURE__ */ jsx12("div", { className: "uipack-web-scrollx__inner", style, children }) });
+}
 export {
+  Aurora,
+  BackgroundFrame,
+  BeamLines,
   Body,
   CtaButton,
   DEFAULT_STAR_VALUES,
   DEFAULT_TIMING,
   DemoPlayer,
+  DotGrid,
   EMPHASIS,
   Eyebrow,
   FeatureGrid,
   GRID_COLUMNS,
   GlassNav,
+  GrainOverlay,
   Grid,
   GridItem,
   Heading,
+  LineGrid,
+  MagneticButton,
+  Marquee,
+  MaskedStar,
   NoiseLayer,
+  NumberTicker,
+  Reveal,
   RevealText,
   RhymeIcon,
   SPACE,
+  ScrollTransform,
   Section,
   SpotlightCard,
   StarChart,
@@ -569,13 +968,21 @@ export {
   TYPE_BASE_PX,
   TYPE_RATIO,
   TYPE_STEPS,
+  TextScramble,
+  TiltCard,
   WebSurface,
   curvePath,
   demoCycle,
   demoEnd,
   demoFrame,
+  scrambleFrame,
+  scrollProgressOf,
   stepStart,
   typeMetrics,
-  typeScale
+  typeScale,
+  useFinePointer,
+  useInView,
+  useScrollProgress,
+  withViewTransition
 };
 //# sourceMappingURL=web.js.map

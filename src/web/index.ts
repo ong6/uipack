@@ -20,3 +20,36 @@ export {
   type DemoFrame,
 } from "./timeline";
 export { typeScale, typeMetrics, TYPE_BASE_PX, TYPE_RATIO, TYPE_STEPS, EMPHASIS, SPACE, GRID_COLUMNS, type TypeStep } from "./tokens";
+export { useInView, useScrollProgress, useFinePointer, scrollProgressOf, withViewTransition, type InViewOptions } from "./hooks";
+export {
+  BackgroundFrame,
+  GrainOverlay,
+  DotGrid,
+  LineGrid,
+  Aurora,
+  MaskedStar,
+  BeamLines,
+  type BackgroundFrameProps,
+  type GrainOverlayProps,
+  type GridBackgroundProps,
+  type AuroraProps,
+  type MaskedStarProps,
+  type BeamLinesProps,
+} from "./backgrounds";
+export {
+  Reveal,
+  TextScramble,
+  scrambleFrame,
+  NumberTicker,
+  Marquee,
+  TiltCard,
+  MagneticButton,
+  ScrollTransform,
+  type RevealProps,
+  type TextScrambleProps,
+  type NumberTickerProps,
+  type MarqueeProps,
+  type TiltCardProps,
+  type MagneticButtonProps,
+  type ScrollTransformProps,
+} from "./motion";

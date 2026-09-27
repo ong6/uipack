@@ -1,5 +1,5 @@
 import * as react from 'react';
-import { ReactNode, ElementType, CSSProperties, ButtonHTMLAttributes } from 'react';
+import { ReactNode, ElementType, CSSProperties, ButtonHTMLAttributes, RefObject } from 'react';
 
 interface WebSurfaceProps {
     children: ReactNode;
@@ -202,10 +202,16 @@ interface RhymeIconProps {
 }
 /** A small icon built from the hero's curve, so feature icons visually rhyme with the star. */
 declare function RhymeIcon({ at, values, size }: RhymeIconProps): react.JSX.Element;
-/** Quiet depth: an inline feTurbulence noise layer. No image files, no network. */
-declare function NoiseLayer({ opacity }: {
+interface GrainOverlayProps {
+    /** 0.04–0.08 reads as texture, not noise. */
     opacity?: number;
-}): react.JSX.Element;
+    /** Noise frequency; higher is finer. */
+    frequency?: number;
+}
+/** Quiet depth: inline SVG feTurbulence noise. No image file, no request, no motion. */
+declare function GrainOverlay({ opacity, frequency }: GrainOverlayProps): react.JSX.Element;
+/** The noise layer StarHero uses; same as GrainOverlay. */
+declare const NoiseLayer: typeof GrainOverlay;
 
 /** Pure playback model for DemoPlayer. Time in, frame out: no DOM, easy to test. */
 interface DemoAction {
@@ -290,4 +296,187 @@ interface DemoPlayerProps {
  */
 declare function DemoPlayer({ steps, label, address, initialMetric, metricLabel, placeholder, autoplay, loop, timing: timingProp, cta, className, onStepChange, }: DemoPlayerProps): react.JSX.Element;
 
-export { Body, type BodyProps, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, EMPHASIS, Eyebrow, type Feature, FeatureGrid, type FeatureGridProps, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, Grid, GridItem, type GridItemProps, type GridProps, Heading, type HeadingProps, NoiseLayer, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, SPACE, Section, type SectionProps, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_RATIO, TYPE_STEPS, type TypeStep, WebSurface, type WebSurfaceProps, curvePath, demoCycle, demoEnd, demoFrame, stepStart, typeMetrics, typeScale };
+interface InViewOptions {
+    /** Fraction of the element that must be visible. Default 0. */
+    threshold?: number;
+    /** Stay true after the first time the element is seen. Default false. */
+    once?: boolean;
+    rootMargin?: string;
+}
+/**
+ * True while the element is on screen. Without IntersectionObserver (old browsers, jsdom)
+ * it is always true, so content never waits on an observer that cannot fire.
+ * Starts false on the server and first client render, so hydration matches.
+ */
+declare function useInView(ref: RefObject<Element>, { threshold, once, rootMargin }?: InViewOptions): boolean;
+/** Scroll progress of an element through the viewport: 0 as its top enters the bottom edge, 1 as its bottom leaves the top edge. */
+declare function scrollProgressOf(rect: {
+    top: number;
+    height: number;
+}, viewport: number): number;
+/**
+ * Tracks scrollProgressOf for an element. Listens to scroll only while the element is on
+ * screen and coalesces updates into one per animation frame.
+ */
+declare function useScrollProgress(ref: RefObject<Element>): number;
+/** True on devices with a hovering, fine pointer (mouse, trackpad). False on touch and on the server. */
+declare function useFinePointer(): boolean;
+/**
+ * Run a DOM update inside a View Transition when the browser supports it and the viewer
+ * has not asked for reduced motion; otherwise run it directly. In React, wrap the state
+ * change in flushSync so the DOM is updated inside the callback.
+ */
+declare function withViewTransition(update: () => void): Promise<void>;
+
+interface BackgroundFrameProps {
+    /** One ambient effect: GrainOverlay, DotGrid, LineGrid, Aurora, MaskedStar or BeamLines. */
+    background: ReactNode;
+    children?: ReactNode;
+    as?: ElementType;
+    className?: string;
+    style?: CSSProperties;
+}
+/** A positioned, clipped box that puts one decorative background behind its content. */
+declare function BackgroundFrame({ background, children, as: Tag, className, style }: BackgroundFrameProps): react.JSX.Element;
+
+interface GridBackgroundProps {
+    /** Cell size in px, on the 8-pt grid. Default 24. */
+    size?: number;
+    /** Fade the pattern out towards the edges. Default true. */
+    fade?: boolean;
+    /** Light the pattern under a fine pointer. Off on touch and under reduced motion. */
+    spotlight?: boolean;
+}
+/** A dot pattern with a radial fade; optionally lit under the pointer. */
+declare function DotGrid(props: GridBackgroundProps): react.JSX.Element;
+/** A hairline grid with a radial fade; optionally lit under the pointer. */
+declare function LineGrid(props: GridBackgroundProps): react.JSX.Element;
+interface AuroraProps {
+    /** Seconds for one drift cycle. Slow is the point. Default 24. */
+    duration?: number;
+}
+/**
+ * Two or three blurred colour blobs from the theme tokens, drifting slowly. The blobs sit in
+ * one layer at --web-aurora-opacity, so overlaps never add up past the contrast budget.
+ * Paused off screen; still under reduced motion.
+ */
+declare function Aurora({ duration }: AuroraProps): react.JSX.Element;
+interface MaskedStarProps {
+    values?: number[];
+    /** Mirror the star: "x" rises toward the start edge, "y" hangs from the top. Default "none". */
+    flip?: "x" | "y" | "none";
+    /** Where the copy sits; the mask clears that area. Default "center". */
+    clear?: "center" | "start";
+}
+/** The star of the show behind a headline: flipped, then masked clear of the text. */
+declare function MaskedStar({ values, flip, clear }: MaskedStarProps): react.JSX.Element;
+interface BeamLinesProps {
+    /** Grid cell in px. Default 48. */
+    size?: number;
+    /** Number of beams. Default 5. */
+    count?: number;
+    /** Seconds for a beam to cross. Default 6. */
+    duration?: number;
+}
+/**
+ * Thin light beams travelling along grid lines, like packets on a connector. Positions are
+ * deterministic, so server and client agree. Paused off screen; parked mid-line under reduced motion.
+ */
+declare function BeamLines({ size, count, duration }: BeamLinesProps): react.JSX.Element;
+
+interface RevealProps {
+    children: ReactNode;
+    /** fade, up (fade + 16px rise) or blur (fade + blur-in). Default "up". */
+    variant?: "fade" | "up" | "blur";
+    /** Milliseconds between direct children. Default 80. */
+    stagger?: number;
+    as?: ElementType;
+    className?: string;
+}
+/**
+ * Reveals its direct children, staggered, the first time a fifth of it scrolls into view.
+ * Only opacity, transform and filter change, so nothing shifts. Content is visible without
+ * JavaScript, without IntersectionObserver and under reduced motion.
+ */
+declare function Reveal({ children, variant, stagger, as: Tag, className }: RevealProps): react.JSX.Element;
+/** The frame of a scramble or typewriter at progress t (0..1). Pure, for tests and SSR. */
+declare function scrambleFrame(text: string, t: number, mode: "scramble" | "type", seed?: number): string;
+interface TextScrambleProps {
+    text: string;
+    /** scramble resolves random glyphs left to right; type reveals one character at a time. */
+    mode?: "scramble" | "type";
+    /** Milliseconds for the whole line. Default 1200. */
+    duration?: number;
+    as?: ElementType;
+    className?: string;
+}
+/**
+ * A hero line that resolves once, the first time it is on screen. The final text reserves
+ * the space, so the layout never moves, and screen readers get the final text only.
+ */
+declare function TextScramble({ text, mode, duration, as: Tag, className }: TextScrambleProps): react.JSX.Element;
+interface NumberTickerProps {
+    value: number;
+    from?: number;
+    /** Milliseconds. Default 1400. */
+    duration?: number;
+    /** Intl.NumberFormat options, e.g. { maximumFractionDigits: 1 }. */
+    format?: Intl.NumberFormatOptions;
+    locale?: string;
+    prefix?: string;
+    suffix?: string;
+    className?: string;
+}
+/**
+ * Counts up to a proof stat the first time it is on screen. Tabular figures and a hidden copy
+ * of the final value reserve the width; assistive tech reads the final value only.
+ */
+declare function NumberTicker({ value, from, duration, format, locale, prefix, suffix, className }: NumberTickerProps): react.JSX.Element;
+interface MarqueeProps {
+    items: ReactNode[];
+    /** Accessible name, e.g. "Tools I use". */
+    label: string;
+    /** Seconds for one full loop. Default 30. */
+    duration?: number;
+    reverse?: boolean;
+}
+/**
+ * A logo or skill strip that scrolls. Pauses on hover, on focus, off screen and with its own
+ * Pause button (moving content longer than five seconds needs one). Under reduced motion it is
+ * a static, wrapping row. The duplicate copy is inert, so keyboard focus visits each item once.
+ */
+declare function Marquee({ items, label, duration, reverse }: MarqueeProps): react.JSX.Element;
+interface TiltCardProps {
+    children: ReactNode;
+    /** Maximum tilt in degrees. Subtle: default 5. */
+    max?: number;
+    href?: string;
+    className?: string;
+}
+/** A card that tilts a few degrees toward a mouse pointer. Nothing on touch or under reduced motion; keyboard focus lifts it. */
+declare function TiltCard({ children, max, href, className }: TiltCardProps): react.JSX.Element;
+interface MagneticButtonProps extends CtaButtonProps {
+    /** Maximum pull in px. Subtle: default 6. */
+    strength?: number;
+}
+/** A CtaButton that leans a few pixels toward a mouse pointer. The hit area never moves. */
+declare function MagneticButton({ strength, ...button }: MagneticButtonProps): react.JSX.Element;
+type Range = [from: number, to: number];
+interface ScrollTransformProps {
+    children: ReactNode;
+    /** Degrees across the scroll. */
+    rotate?: Range;
+    scale?: Range;
+    /** Pixels. */
+    translateY?: Range;
+    opacity?: Range;
+    className?: string;
+}
+/**
+ * Drives a transform from the element's scroll progress: reuse the hero's star further down
+ * the page and let it turn or grow as the reader moves. Listens only while on screen; under
+ * reduced motion it holds the midpoint.
+ */
+declare function ScrollTransform({ children, rotate, scale, translateY, opacity, className }: ScrollTransformProps): react.JSX.Element;
+
+export { Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, Body, type BodyProps, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, EMPHASIS, Eyebrow, type Feature, FeatureGrid, type FeatureGridProps, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, Heading, type HeadingProps, type InViewOptions, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, SPACE, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeStep, WebSurface, type WebSurfaceProps, curvePath, demoCycle, demoEnd, demoFrame, scrambleFrame, scrollProgressOf, stepStart, typeMetrics, typeScale, useFinePointer, useInView, useScrollProgress, withViewTransition };
