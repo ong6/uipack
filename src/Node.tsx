@@ -72,7 +72,8 @@ export function Node({
           isPointer(e) && hover.setFlow(null),
       }
     : {};
-  const selection = useItemSelection(label, sub ?? hint, flows[0], !href);
+  // The accessible name carries the visible subtitle too (WCAG 2.5.3).
+  const selection = useItemSelection(label, sub ?? hint, flows[0], !href, sub ? `${label}, ${sub}` : label);
   const body = (
     <g
       id={id}

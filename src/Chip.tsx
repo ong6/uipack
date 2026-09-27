@@ -37,7 +37,7 @@ export function Chip({
       ? "var(--uipack-accent)"
       : `var(--uipack-token-${kind})`;
   const selection = useItemSelection(
-    label ?? "Empty slot",
+    label || "Empty slot",
     undefined,
     undefined,
     true,

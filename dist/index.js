@@ -25,7 +25,7 @@ import {
   route,
   trim,
   useFigureHover
-} from "./chunk-KSOG7FZT.js";
+} from "./chunk-XW7BPNT4.js";
 import {
   DEFAULT_RENDER_WIDTH,
   FigureScaleContext,

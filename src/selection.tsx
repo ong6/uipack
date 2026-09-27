@@ -21,6 +21,8 @@ export function useItemSelection(
   detail?: string,
   flow?: string,
   enabled = true,
+  /** Accessible name; must contain the item's visible text. Defaults to label. */
+  name: string = label,
 ) {
   const id = useId();
   const context = useContext(SelectionContext);
@@ -31,7 +33,7 @@ export function useItemSelection(
   return {
     role: "button",
     tabIndex: 0,
-    "aria-label": label,
+    "aria-label": name,
     "aria-pressed": selected,
     "data-selected": selected ? "true" : undefined,
     onClick: (event: MouseEvent) => {

@@ -532,7 +532,7 @@ function CanvasView({
 var import_react4 = require("react");
 var SelectionContext = (0, import_react4.createContext)({ enabled: false, selected: null, select: () => {
 } });
-function useItemSelection(label, detail, flow, enabled = true) {
+function useItemSelection(label, detail, flow, enabled = true, name = label) {
   const id = (0, import_react4.useId)();
   const context = (0, import_react4.useContext)(SelectionContext);
   if (!context.enabled || !enabled) return {};
@@ -541,7 +541,7 @@ function useItemSelection(label, detail, flow, enabled = true) {
   return {
     role: "button",
     tabIndex: 0,
-    "aria-label": label,
+    "aria-label": name,
     "aria-pressed": selected,
     "data-selected": selected ? "true" : void 0,
     onClick: (event) => {
@@ -1058,7 +1058,7 @@ function Node({
     onPointerEnter: (e) => isPointer(e) && hover.setFlow(flows[0]),
     onPointerLeave: (e) => isPointer(e) && hover.setFlow(null)
   } : {};
-  const selection = useItemSelection(label, sub ?? hint, flows[0], !href);
+  const selection = useItemSelection(label, sub ?? hint, flows[0], !href, sub ? `${label}, ${sub}` : label);
   const body = /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(
     "g",
     {
@@ -1763,7 +1763,7 @@ function Chip({
   const size = useFontFloor(size0);
   const fill = !kind ? "var(--uipack-surface)" : kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
   const selection = useItemSelection(
-    label ?? "Empty slot",
+    label || "Empty slot",
     void 0,
     void 0,
     true
