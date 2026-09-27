@@ -327,6 +327,18 @@ declare function useFinePointer(): boolean;
  * change in flushSync so the DOM is updated inside the callback.
  */
 declare function withViewTransition(update: () => void): Promise<void>;
+interface PaintTransitionOptions {
+    /** Milliseconds for the pour. Default 1300: theme changes are rare, so this is delight budget. */
+    duration?: number;
+}
+/**
+ * Run a DOM update (typically a theme change) as paint poured down the page: a sheet
+ * with drips that start, accelerate and thin out on their own, new every call. The
+ * keyframes live in a <style> added for this transition and removed when it finishes.
+ * Falls back to calling update() directly without View Transitions or under reduced
+ * motion. In React, wrap the state change in flushSync.
+ */
+declare function withPaintTransition(update: () => void, { duration }?: PaintTransitionOptions): Promise<void>;
 
 interface BackgroundFrameProps {
     /** One ambient effect: GrainOverlay, DotGrid, LineGrid, Aurora, MaskedStar or BeamLines. */
@@ -383,6 +395,24 @@ interface BeamLinesProps {
  * deterministic, so server and client agree. Paused off screen; parked mid-line under reduced motion.
  */
 declare function BeamLines({ size, count, duration }: BeamLinesProps): react.JSX.Element;
+interface DriftingGuttersProps {
+    /** Width of the centred content column the gutters flank: px, or any CSS length. Default 1120. */
+    contentWidth?: number | string;
+    /** Top offset in px, e.g. a fixed header's height. Default 72. */
+    top?: number;
+    /** Smallest viewport width in px that shows the gutters; below it they are hidden. Default 1280. */
+    minViewport?: number;
+    /** Seconds for one full drift of the dot grid. Default 48. */
+    drift?: number;
+}
+/**
+ * A dotted grid drifting upward in the empty side gutters of a centred page column, with a
+ * few signal dots pulsing. Fixed to the viewport, decorative, never takes pointer events, and
+ * masked toward the content and the top and bottom edges. Hidden below `minViewport` and still
+ * under reduced motion. Colour: --web-gutters-color, else --web-accent. Render it once per page;
+ * portal it to <body> if an ancestor has a transform, which would otherwise contain it.
+ */
+declare function DriftingGutters({ contentWidth, top, minViewport, drift }: DriftingGuttersProps): react.JSX.Element;
 
 interface RevealProps {
     children: ReactNode;
@@ -479,4 +509,4 @@ interface ScrollTransformProps {
  */
 declare function ScrollTransform({ children, rotate, scale, translateY, opacity, className }: ScrollTransformProps): react.JSX.Element;
 
-export { Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, Body, type BodyProps, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, EMPHASIS, Eyebrow, type Feature, FeatureGrid, type FeatureGridProps, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, Heading, type HeadingProps, type InViewOptions, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, SPACE, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeStep, WebSurface, type WebSurfaceProps, curvePath, demoCycle, demoEnd, demoFrame, scrambleFrame, scrollProgressOf, stepStart, typeMetrics, typeScale, useFinePointer, useInView, useScrollProgress, withViewTransition };
+export { Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, Body, type BodyProps, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, type Feature, FeatureGrid, type FeatureGridProps, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, Heading, type HeadingProps, type InViewOptions, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type PaintTransitionOptions, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, SPACE, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeStep, WebSurface, type WebSurfaceProps, curvePath, demoCycle, demoEnd, demoFrame, scrambleFrame, scrollProgressOf, stepStart, typeMetrics, typeScale, useFinePointer, useInView, useScrollProgress, withPaintTransition, withViewTransition };

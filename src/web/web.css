@@ -1004,6 +1004,75 @@
   transition: translate 200ms var(--web-ease), transform 160ms var(--web-ease), box-shadow 160ms var(--web-ease);
 }
 
+/* Drifting gutters: a dotted grid sliding upward in the side gutters of a centred column.
+   Fixed to the viewport (or the nearest transformed ancestor), so it may live outside
+   .uipack-web: colour falls back from --web-gutters-color to --web-accent to the light accent.
+   Hidden below 1280px by default (DriftingGutters minViewport adds its own rule otherwise). */
+.uipack-web-gutters { display: none; }
+@media (min-width: 1280px) {
+  .uipack-web-gutters:not([data-min]) { display: block; }
+}
+.uipack-web-gutters__side {
+  position: fixed;
+  top: var(--gutters-top, 72px);
+  bottom: 0;
+  width: max(0px, calc((100% - var(--gutters-content, 1120px)) / 2));
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  color: var(--web-gutters-color, var(--web-accent, #4b3fd6));
+  --gutters-mask-y: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+}
+.uipack-web-gutters__side[data-side="left"] {
+  left: 0;
+  -webkit-mask-image: linear-gradient(to left, transparent, #000 45%), var(--gutters-mask-y);
+  mask-image: linear-gradient(to left, transparent, #000 45%), var(--gutters-mask-y);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.uipack-web-gutters__side[data-side="right"] {
+  right: 0;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 45%), var(--gutters-mask-y);
+  mask-image: linear-gradient(to right, transparent, #000 45%), var(--gutters-mask-y);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.uipack-web-gutters__drift {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 200%;
+  background-image: radial-gradient(color-mix(in srgb, currentColor 34%, transparent) 1px, transparent 1.4px);
+  background-size: 16px 16px;
+  animation: uipack-web-gutters-drift var(--gutters-drift, 48s) linear infinite;
+}
+@keyframes uipack-web-gutters-drift { to { transform: translateY(-50%); } }
+.uipack-web-gutters__signal {
+  position: absolute;
+  left: calc(32px + var(--i) * 48px);
+  top: calc(18% + var(--i) * 26%);
+  width: 5px;
+  height: 5px;
+  margin: -2px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  animation: uipack-web-gutters-signal 6s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  animation-delay: calc(var(--i) * 2s);
+}
+.uipack-web-gutters__side[data-side="right"] .uipack-web-gutters__signal {
+  left: auto;
+  right: calc(32px + var(--i) * 48px);
+  animation-delay: calc(var(--i) * 2s + 1s);
+}
+@keyframes uipack-web-gutters-signal {
+  0%, 100% { opacity: 0; transform: scale(0.6); }
+  12% { opacity: 0.9; transform: scale(1.6); }
+  40% { opacity: 0.35; transform: scale(1); }
+}
+@media print {
+  .uipack-web-gutters { display: none !important; }
+}
+
 .uipack-web-scrollx__inner {
   transform: translateY(var(--st-y, 0)) rotate(var(--st-rotate, 0deg)) scale(var(--st-scale, 1));
   opacity: var(--st-opacity, 1);
@@ -1012,7 +1081,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .uipack-web-aurora i,
-  .uipack-web-marquee__track { animation: none; }
+  .uipack-web-marquee__track,
+  .uipack-web-gutters__drift,
+  .uipack-web-gutters__signal { animation: none; }
   .uipack-web-beams i[data-axis] { animation: none; transform: translate(0, 0); }
   .uipack-web-beams i[data-axis="h"] { left: 40%; }
   .uipack-web-beams i[data-axis="v"] { top: 35%; }

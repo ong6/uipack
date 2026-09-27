@@ -177,3 +177,56 @@ export function BeamLines({ size = 48, count = 5, duration = 6 }: BeamLinesProps
     </div>
   );
 }
+
+export interface DriftingGuttersProps {
+  /** Width of the centred content column the gutters flank: px, or any CSS length. Default 1120. */
+  contentWidth?: number | string;
+  /** Top offset in px, e.g. a fixed header's height. Default 72. */
+  top?: number;
+  /** Smallest viewport width in px that shows the gutters; below it they are hidden. Default 1280. */
+  minViewport?: number;
+  /** Seconds for one full drift of the dot grid. Default 48. */
+  drift?: number;
+}
+
+function GutterSide({ side }: { side: "left" | "right" }) {
+  return (
+    <div className="uipack-web-gutters__side" data-side={side}>
+      <div className="uipack-web-gutters__drift" />
+      {[0, 1, 2].map((i) => (
+        <span key={i} className="uipack-web-gutters__signal" style={{ "--i": i } as CSSProperties} />
+      ))}
+    </div>
+  );
+}
+
+/**
+ * A dotted grid drifting upward in the empty side gutters of a centred page column, with a
+ * few signal dots pulsing. Fixed to the viewport, decorative, never takes pointer events, and
+ * masked toward the content and the top and bottom edges. Hidden below `minViewport` and still
+ * under reduced motion. Colour: --web-gutters-color, else --web-accent. Render it once per page;
+ * portal it to <body> if an ancestor has a transform, which would otherwise contain it.
+ */
+export function DriftingGutters({ contentWidth = 1120, top = 72, minViewport = 1280, drift = 48 }: DriftingGuttersProps) {
+  const custom = minViewport !== 1280;
+  return (
+    <div
+      className="uipack-web-gutters"
+      data-bg="gutters"
+      data-min={custom ? minViewport : undefined}
+      aria-hidden="true"
+      style={
+        {
+          "--gutters-content": typeof contentWidth === "number" ? `${contentWidth}px` : contentWidth,
+          "--gutters-top": `${top}px`,
+          "--gutters-drift": `${drift}s`,
+        } as CSSProperties
+      }
+    >
+      {/* A prop cannot drive a stylesheet media query; a non-default breakpoint brings its own rule. */}
+      {custom && <style>{`@media (min-width: ${minViewport}px) { .uipack-web-gutters[data-min="${minViewport}"] { display: block; } }`}</style>}
+      <GutterSide side="left" />
+      <GutterSide side="right" />
+    </div>
+  );
+}

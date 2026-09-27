@@ -18,7 +18,10 @@ import {
   scrambleFrame,
   scrollProgressOf,
   withViewTransition,
+  withPaintTransition,
+  DriftingGutters,
 } from "../src/web";
+import { paintTransitionCss } from "../src/web/hooks";
 
 // A controllable IntersectionObserver: tests decide when things are on screen.
 let observers: { cb: IntersectionObserverCallback; el?: Element }[] = [];
@@ -222,6 +225,119 @@ describe("withViewTransition", () => {
     expect(update).toHaveBeenCalledTimes(3);
     // @ts-expect-error cleanup
     delete document.startViewTransition;
+  });
+});
+
+describe("withPaintTransition", () => {
+  afterEach(() => {
+    // @ts-expect-error cleanup
+    delete document.startViewTransition;
+    document.head.querySelectorAll("style[data-uipack-paint]").forEach((s) => s.remove());
+  });
+
+  it("runs the update directly without the API or under reduced motion, adding no style", async () => {
+    const update = vi.fn();
+    await withPaintTransition(update);
+    expect(update).toHaveBeenCalledTimes(1);
+    const start = vi.fn((cb: () => void) => {
+      cb();
+      return { finished: Promise.resolve() };
+    });
+    Object.assign(document, { startViewTransition: start });
+    globalThis.__reduced = true;
+    await withPaintTransition(update);
+    expect(start).not.toHaveBeenCalled();
+    expect(update).toHaveBeenCalledTimes(2);
+    expect(document.head.querySelector("style[data-uipack-paint]")).toBeNull();
+  });
+
+  it("injects fresh keyframes for the transition and removes them when it finishes", async () => {
+    let finish!: () => void;
+    const finished = new Promise<void>((r) => (finish = r));
+    const update = vi.fn();
+    let styleDuringUpdate: string | null = null;
+    Object.assign(document, {
+      startViewTransition: (cb: () => void) => {
+        styleDuringUpdate = document.head.querySelector("style[data-uipack-paint]")?.textContent ?? null;
+        cb();
+        return { finished };
+      },
+    });
+    const done = withPaintTransition(update, { duration: 900 });
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(styleDuringUpdate).toContain("::view-transition-new(root)");
+    expect(styleDuringUpdate).toContain("mix-blend-mode: normal");
+    expect(styleDuringUpdate).toContain("900ms linear both");
+    expect(document.head.querySelectorAll("style[data-uipack-paint]")).toHaveLength(1);
+    finish();
+    await done;
+    expect(document.head.querySelector("style[data-uipack-paint]")).toBeNull();
+  });
+
+  it("removes the style even when the transition is skipped", async () => {
+    Object.assign(document, { startViewTransition: () => ({ finished: Promise.reject(new Error("skipped")) }) });
+    await expect(withPaintTransition(() => undefined)).resolves.toBeUndefined();
+    expect(document.head.querySelector("style[data-uipack-paint]")).toBeNull();
+  });
+
+  it("samples 49 keyframes of a sheet plus a body and bead per drip, new drips every call", () => {
+    const a = paintTransitionCss(1120, 900);
+    const b = paintTransitionCss(1120, 900);
+    const frames = a.match(/^\s*[\d.]+% \{ .*\}$/gm) ?? [];
+    expect(frames).toHaveLength(49);
+    const first = frames[0]!;
+    const last = frames[48]!;
+    expect(first.startsWith("0% ")).toBe(true);
+    expect(last.startsWith("100% ")).toBe(true);
+    const drips = Math.max(7, Math.min(26, Math.round(1120 / 56)));
+    const images = a.match(/mask-image: (.*);/)![1];
+    expect(images.match(/linear-gradient/g)).toHaveLength(1 + drips);
+    expect(images.match(/radial-gradient/g)).toHaveLength(drips);
+    // The sheet starts empty and ends past the bottom edge (height + 40).
+    expect(first).toContain("mask-size: 1120px 0px");
+    expect(last).toContain("mask-size: 1120px 940px");
+    // The bead is 1.35x the body's width.
+    const sizes = last.match(/mask-size: (.*);/)![1].split(", ");
+    const body = parseFloat(sizes[1]!);
+    const bead = parseFloat(sizes[2]!);
+    expect(bead / body).toBeCloseTo(1.35, 1);
+    expect(a.match(/@keyframes (\S+)/)![1]).not.toBe(b.match(/@keyframes (\S+)/)![1]);
+    expect(a.replace(/uipack-paint-\S+/g, "")).not.toBe(b.replace(/uipack-paint-\S+/g, ""));
+  });
+});
+
+describe("DriftingGutters", () => {
+  it("renders two decorative gutters with drifting grids and signals, driven by props", () => {
+    const { container } = render(<DriftingGutters />);
+    const root = container.querySelector(".uipack-web-gutters") as HTMLElement;
+    expect(root).toHaveAttribute("aria-hidden", "true");
+    expect(root).not.toHaveAttribute("data-min");
+    expect(root.style.getPropertyValue("--gutters-content")).toBe("1120px");
+    expect(root.style.getPropertyValue("--gutters-top")).toBe("72px");
+    expect(root.style.getPropertyValue("--gutters-drift")).toBe("48s");
+    const sides = root.querySelectorAll(".uipack-web-gutters__side");
+    expect([...sides].map((s) => s.getAttribute("data-side"))).toEqual(["left", "right"]);
+    expect(root.querySelectorAll(".uipack-web-gutters__drift")).toHaveLength(2);
+    expect(root.querySelectorAll(".uipack-web-gutters__signal")).toHaveLength(6);
+    expect(root.querySelector("style")).toBeNull();
+    const norm = (html: string) => html.replace(/style="[^"]*"/g, (m) => m.replace(/[\s;]/g, ""));
+    expect(norm(renderToString(<DriftingGutters />))).toBe(norm(container.innerHTML));
+  });
+
+  it("brings its own breakpoint rule for a non-default minViewport", () => {
+    const { container } = render(<DriftingGutters minViewport={960} contentWidth="60%" top={0} drift={20} />);
+    const root = container.querySelector(".uipack-web-gutters") as HTMLElement;
+    expect(root).toHaveAttribute("data-min", "960");
+    expect(root.style.getPropertyValue("--gutters-content")).toBe("60%");
+    expect(root.querySelector("style")?.textContent).toContain("@media (min-width: 960px)");
+  });
+
+  it("stops moving under reduced motion and hides below 1280px in the stylesheet", () => {
+    const css = readFileSync("src/web/web.css", "utf8");
+    const reduced = css.slice(css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
+    expect(reduced).toMatch(/\.uipack-web-gutters__drift,\s*\.uipack-web-gutters__signal \{ animation: none; \}/);
+    expect(css).toMatch(/\.uipack-web-gutters \{ display: none; \}\s*@media \(min-width: 1280px\)/);
+    expect(css).toMatch(/pointer-events: none;[^}]*color: var\(--web-gutters-color, var\(--web-accent/);
   });
 });
 

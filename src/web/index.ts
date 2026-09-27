@@ -20,7 +20,16 @@ export {
   type DemoFrame,
 } from "./timeline";
 export { typeScale, typeMetrics, TYPE_BASE_PX, TYPE_RATIO, TYPE_STEPS, EMPHASIS, SPACE, GRID_COLUMNS, type TypeStep } from "./tokens";
-export { useInView, useScrollProgress, useFinePointer, scrollProgressOf, withViewTransition, type InViewOptions } from "./hooks";
+export {
+  useInView,
+  useScrollProgress,
+  useFinePointer,
+  scrollProgressOf,
+  withViewTransition,
+  withPaintTransition,
+  type InViewOptions,
+  type PaintTransitionOptions,
+} from "./hooks";
 export {
   BackgroundFrame,
   GrainOverlay,
@@ -29,12 +38,14 @@ export {
   Aurora,
   MaskedStar,
   BeamLines,
+  DriftingGutters,
   type BackgroundFrameProps,
   type GrainOverlayProps,
   type GridBackgroundProps,
   type AuroraProps,
   type MaskedStarProps,
   type BeamLinesProps,
+  type DriftingGuttersProps,
 } from "./backgrounds";
 export {
   Reveal,

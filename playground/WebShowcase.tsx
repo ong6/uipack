@@ -37,6 +37,8 @@ import {
   TextScramble,
   TiltCard,
   withViewTransition,
+  withPaintTransition,
+  DriftingGutters,
 } from "../src/web";
 import "../src/web/web.css";
 import "./presentations.css";
@@ -310,7 +312,7 @@ export default function WebShowcase() {
         </WebSurface>
       </section>
 
-      <MotionSection theme={theme} />
+      <MotionSection theme={theme} flip={flip} />
       <BackgroundsSection theme={theme} />
 
       <section>
@@ -364,7 +366,26 @@ function ViewTransitionDemo() {
   );
 }
 
-function MotionSection({ theme }: { theme: "light" | "dark" }) {
+function PaintTransitionDemo({ theme, flip }: { theme: "light" | "dark"; flip: () => void }) {
+  return (
+    <div className="web-block">
+      <Eyebrow>Paint transition · theme change</Eyebrow>
+      <div className="web-paint-swatch" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="web-buttons">
+        <CtaButton variant="secondary" onClick={() => withPaintTransition(() => flushSync(flip))}>
+          {theme === "dark" ? "Pour light theme" : "Pour dark theme"}
+        </CtaButton>
+      </div>
+      <Body>The new theme runs down the whole page with drips that start, fall and thin out on their own, new every time. Instant without View Transitions and under reduced motion.</Body>
+    </div>
+  );
+}
+
+function MotionSection({ theme, flip }: { theme: "light" | "dark"; flip: () => void }) {
   const [revealKey, setRevealKey] = useState(0);
   const [scrambleKey, setScrambleKey] = useState(0);
   return (
@@ -442,6 +463,9 @@ function MotionSection({ theme }: { theme: "light" | "dark" }) {
           <GridItem span={[6, 4, 4]}>
             <ViewTransitionDemo />
           </GridItem>
+          <GridItem span={[6, 4, 4]}>
+            <PaintTransitionDemo theme={theme} flip={flip} />
+          </GridItem>
           <GridItem span={[12, 8, 4]}>
             <div className="web-block">
               <Eyebrow>Scroll transform · the hero's star, reused down the page</Eyebrow>
@@ -473,7 +497,7 @@ const backgroundTiles = [
 function BackgroundsSection({ theme }: { theme: "light" | "dark" }) {
   return (
     <section data-section="backgrounds">
-      <h2>Backgrounds · {backgroundTiles.length}</h2>
+      <h2>Backgrounds · {backgroundTiles.length + 1}</h2>
       <p className="collection-intro">
         One ambient effect per viewport on a real page; this gallery breaks that rule to compare them. Backgrounds sit at low contrast so the
         text above keeps 4.5:1. Moving ones pause off screen and hold still under reduced motion.
@@ -491,6 +515,19 @@ function BackgroundsSection({ theme }: { theme: "light" | "dark" }) {
               </BackgroundFrame>
             </GridItem>
           ))}
+          <GridItem span={[12, 8, 4]}>
+            <div className="web-bg-tile web-gutters-stage" data-bg-tile="gutters">
+              {/* The stage's transform contains the fixed gutters, standing in for the viewport. */}
+              <DriftingGutters contentWidth="56%" top={0} minViewport={0} drift={24} />
+              <div className="web-gutters-column">
+                <Eyebrow>gutters</Eyebrow>
+                <Heading level={3} size={2}>
+                  Drifting gutters
+                </Heading>
+                <Body>A dotted grid drifts up the empty margins beside a centred column. Fixed, faded toward the content; hidden below 1280px by default.</Body>
+              </div>
+            </div>
+          </GridItem>
         </Grid>
       </WebSurface>
     </section>

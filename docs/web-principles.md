@@ -100,4 +100,6 @@ The components enforce what they can; the rest is on the page author.
 | `TiltCard`, `MagneticButton` | 18 |
 | `ScrollTransform`, `useScrollProgress`, `useInView` | 17; midpoint under reduced motion |
 | `withViewTransition` | 14; falls back to an instant update without the API or under reduced motion |
+| `withPaintTransition` | 14; same fallback; its keyframe `<style>` is removed when the transition finishes |
 | `GrainOverlay`, `DotGrid`, `LineGrid`, `Aurora`, `MaskedStar`, `BeamLines`, `BackgroundFrame` | 5, 15, 16, 17 |
+| `DriftingGutters` | 15, 16; fixed and page-level, hidden below `minViewport` (1280), still under reduced motion, absent in print |

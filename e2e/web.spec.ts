@@ -173,5 +173,46 @@ test.describe("/web Landing collection", () => {
     expect(await page.locator(".uipack-web-beams i").first().evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
     expect(await page.locator(".uipack-web-aurora i").first().evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
     await expect(page.locator(".web-reveal-list")).toHaveAttribute("data-state", "static");
+    expect(await page.locator(".uipack-web-gutters__drift").first().evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
+    // The paint transition swaps the theme instantly and leaves no stylesheet behind.
+    const html = page.locator("html");
+    const before = await html.getAttribute("data-theme");
+    await page.getByRole("button", { name: /^Pour (dark|light) theme$/ }).click();
+    await expect(html).not.toHaveAttribute("data-theme", before ?? "light");
+    await expect(page.locator("style[data-uipack-paint]")).toHaveCount(0);
+  });
+
+  test("drifting gutters flank the column and drift; paint transition pours and cleans up", async ({ page, browserName }) => {
+    await page.goto("/web");
+    const stage = page.locator('[data-bg-tile="gutters"]');
+    await stage.scrollIntoViewIfNeeded();
+    const gutters = stage.locator(".uipack-web-gutters");
+    await expect(gutters).toHaveAttribute("aria-hidden", "true");
+    // The wrapper has no box of its own (its sides are fixed); check its display and the sides.
+    expect(await gutters.evaluate((el) => getComputedStyle(el).display)).toBe("block");
+    await expect(stage.locator('[data-side="left"]')).toBeVisible();
+    const stageBox = (await stage.boundingBox())!;
+    const left = (await stage.locator('[data-side="left"]').boundingBox())!;
+    const right = (await stage.locator('[data-side="right"]').boundingBox())!;
+    expect(Math.abs(left.x - stageBox.x)).toBeLessThan(2);
+    expect(Math.abs(right.x + right.width - (stageBox.x + stageBox.width))).toBeLessThan(2);
+    expect(left.width).toBeGreaterThan(stageBox.width * 0.2);
+    expect(await gutters.evaluate((el) => getComputedStyle(el.firstElementChild!.nextElementSibling!).pointerEvents)).toBe("none");
+    const drift = stage.locator(".uipack-web-gutters__drift").first();
+    const y = () => drift.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m42);
+    const a = await y();
+    await page.waitForTimeout(400);
+    expect(await y()).toBeLessThan(a);
+
+    const html = page.locator("html");
+    const before = await html.getAttribute("data-theme");
+    const button = page.getByRole("button", { name: /^Pour (dark|light) theme$/ });
+    await button.scrollIntoViewIfNeeded();
+    await button.click();
+    await expect(html).not.toHaveAttribute("data-theme", before ?? "light");
+    const supported = await page.evaluate(() => "startViewTransition" in document);
+    test.skip(!supported, `${browserName} has no View Transitions; the instant fallback is covered above`);
+    await expect(page.locator("style[data-uipack-paint]")).toHaveCount(1);
+    await expect(page.locator("style[data-uipack-paint]")).toHaveCount(0, { timeout: 5_000 });
   });
 });

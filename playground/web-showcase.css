@@ -237,3 +237,32 @@
   min-height: 240px;
   padding: var(--web-s3);
 }
+.web-gutters-stage {
+  position: relative;
+  overflow: hidden;
+  /* A transform makes this box the containing block for the fixed gutters. */
+  transform: translateZ(0);
+}
+.web-gutters-column {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-content: end;
+  gap: var(--web-s1);
+  width: 56%;
+  min-height: 280px;
+  margin-inline: auto;
+  padding: var(--web-s3);
+  border-inline: 1px solid var(--web-hairline);
+  background: var(--web-surface);
+}
+.web-paint-swatch {
+  display: flex;
+  height: 72px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--web-hairline);
+}
+.web-paint-swatch span { flex: 1; background: var(--web-bg); }
+.web-paint-swatch span:nth-child(2) { background: var(--web-secondary); }
+.web-paint-swatch span:nth-child(3) { flex: 0.4; background: var(--web-accent); }

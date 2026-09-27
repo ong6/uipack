@@ -124,6 +124,7 @@ export const webEntries: CatalogEntry[] = [
       ["tilt-magnetic", "Tilt card and magnetic button"],
       ["scroll-transform", "Scroll transform"],
       ["view-transition", "View transition helper"],
+      ["paint-transition", "Paint transition"],
     ] as const
   ).map(([id, title]) => ({ id, title, type: "web" as const, styleId: "landing", tags: ["Motion"] })),
   ...(
@@ -134,6 +135,7 @@ export const webEntries: CatalogEntry[] = [
       ["aurora", "Aurora"],
       ["masked-star", "Masked star"],
       ["beam-lines", "Beam lines"],
+      ["drifting-gutters", "Drifting gutters"],
     ] as const
   ).map(([id, title]) => ({ id, title, type: "web" as const, styleId: "landing", tags: ["Backgrounds"] })),
 ];

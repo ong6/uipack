@@ -29,6 +29,7 @@ __export(web_exports, {
   DEFAULT_TIMING: () => DEFAULT_TIMING,
   DemoPlayer: () => DemoPlayer,
   DotGrid: () => DotGrid,
+  DriftingGutters: () => DriftingGutters,
   EMPHASIS: () => EMPHASIS,
   Eyebrow: () => Eyebrow,
   FeatureGrid: () => FeatureGrid,
@@ -72,6 +73,7 @@ __export(web_exports, {
   useFinePointer: () => useFinePointer,
   useInView: () => useInView,
   useScrollProgress: () => useScrollProgress,
+  withPaintTransition: () => withPaintTransition,
   withViewTransition: () => withViewTransition
 });
 module.exports = __toCommonJS(web_exports);
@@ -711,14 +713,99 @@ function useFinePointer() {
   }, []);
   return fine;
 }
-function withViewTransition(update) {
+function transitionDocument() {
   const doc = typeof document === "undefined" ? void 0 : document;
   const reduced = typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (!doc?.startViewTransition || reduced) {
+  return doc?.startViewTransition && !reduced ? doc : void 0;
+}
+function withViewTransition(update) {
+  const doc = transitionDocument();
+  if (!doc?.startViewTransition) {
     update();
     return Promise.resolve();
   }
   return doc.startViewTransition(update).finished.catch(() => void 0);
+}
+var PAINT_STEPS = 48;
+var rand = (min, max) => min + Math.random() * (max - min);
+var smooth = (t) => t * t * (3 - 2 * t);
+var px = (v) => `${Math.round(v * 10) / 10}px`;
+function rollDrips(width, height, duration) {
+  const count = Math.max(7, Math.min(26, Math.round(width / 56)));
+  const slot = width / count;
+  return Array.from({ length: count }, (_, i) => {
+    const w = rand(5, 18);
+    return {
+      x: i * slot + rand(0, slot - w),
+      w,
+      start: rand(0, 0.4) * duration,
+      // ms after the pour begins
+      g: w / 13 * rand(1200, 3400) * (height / 900),
+      // px/s², heavier falls faster
+      max: rand(0.08, 0.5) * height
+      // how far it can run before it thins out
+    };
+  });
+}
+function paintFrame(t, width, height, drips, duration) {
+  const sheet = smooth(Math.min(1, t / (duration * 0.9))) * (height + 40);
+  const pos = ["0px 0px"];
+  const size = [`${px(width)} ${px(sheet)}`];
+  for (const d of drips) {
+    const dt = Math.max(0, t - d.start) / 1e3;
+    const len = d.max * (1 - Math.exp(-(0.5 * d.g * dt * dt) / d.max));
+    pos.push(`${px(d.x)} ${px(sheet - 1)}`);
+    size.push(`${px(d.w)} ${px(len + 1)}`);
+    const bead = d.w * 1.35;
+    pos.push(`${px(d.x - (bead - d.w) / 2)} ${px(sheet + len - bead / 2)}`);
+    size.push(`${px(bead)} ${px(bead)}`);
+  }
+  return `mask-position: ${pos.join(", ")}; mask-size: ${size.join(", ")};`;
+}
+var paintCount = 0;
+function paintTransitionCss(width, height, duration = 1300) {
+  const drips = rollDrips(width, height, duration);
+  const name = `uipack-paint-${Date.now().toString(36)}-${(paintCount++).toString(36)}`;
+  const solid = "linear-gradient(#000, #000)";
+  const tip = "radial-gradient(circle closest-side, #000 96%, transparent)";
+  const images = [solid, ...drips.flatMap(() => [solid, tip])].join(", ");
+  const keyframes = Array.from({ length: PAINT_STEPS + 1 }, (_, i) => {
+    const t = i / PAINT_STEPS * duration;
+    return `${Math.round(i / PAINT_STEPS * 1e4) / 100}% { ${paintFrame(t, width, height, drips, duration)} }`;
+  }).join("\n");
+  return `
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  mask-image: ${images};
+  mask-repeat: no-repeat;
+  animation: ${name} ${duration}ms linear both;
+}
+@keyframes ${name} {
+${keyframes}
+}`;
+}
+function withPaintTransition(update, { duration = 1300 } = {}) {
+  const doc = transitionDocument();
+  if (!doc?.startViewTransition) {
+    update();
+    return Promise.resolve();
+  }
+  const style = doc.createElement("style");
+  style.dataset.uipackPaint = "";
+  style.textContent = paintTransitionCss(window.innerWidth, window.innerHeight, duration);
+  doc.head.appendChild(style);
+  let transition;
+  try {
+    transition = doc.startViewTransition(update);
+  } catch (error) {
+    style.remove();
+    throw error;
+  }
+  return transition.finished.catch(() => void 0).finally(() => style.remove());
 }
 
 // src/web/backgrounds.tsx
@@ -828,6 +915,34 @@ function BeamLines({ size = 48, count = 5, duration = 6 }) {
         },
         i
       ))
+    }
+  );
+}
+function GutterSide({ side }) {
+  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "uipack-web-gutters__side", "data-side": side, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "uipack-web-gutters__drift" }),
+    [0, 1, 2].map((i) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "uipack-web-gutters__signal", style: { "--i": i } }, i))
+  ] });
+}
+function DriftingGutters({ contentWidth = 1120, top = 72, minViewport = 1280, drift = 48 }) {
+  const custom = minViewport !== 1280;
+  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(
+    "div",
+    {
+      className: "uipack-web-gutters",
+      "data-bg": "gutters",
+      "data-min": custom ? minViewport : void 0,
+      "aria-hidden": "true",
+      style: {
+        "--gutters-content": typeof contentWidth === "number" ? `${contentWidth}px` : contentWidth,
+        "--gutters-top": `${top}px`,
+        "--gutters-drift": `${drift}s`
+      },
+      children: [
+        custom && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("style", { children: `@media (min-width: ${minViewport}px) { .uipack-web-gutters[data-min="${minViewport}"] { display: block; } }` }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(GutterSide, { side: "left" }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(GutterSide, { side: "right" })
+      ]
     }
   );
 }
@@ -1042,6 +1157,7 @@ function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY
   DEFAULT_TIMING,
   DemoPlayer,
   DotGrid,
+  DriftingGutters,
   EMPHASIS,
   Eyebrow,
   FeatureGrid,
@@ -1085,6 +1201,7 @@ function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY
   useFinePointer,
   useInView,
   useScrollProgress,
+  withPaintTransition,
   withViewTransition
 });
 //# sourceMappingURL=web.cjs.map
