@@ -61,7 +61,28 @@ The components enforce what they can; the rest is on the page author.
 14. **Motion explains change.** Each flashy piece earns its motion: typing shows input, ticks show
     work, the metric falls as it happens, the star draws once. Under `prefers-reduced-motion`, every
     piece renders its final, complete state (`DemoPlayer` lists all steps). Pointer effects stay off
-    on touch. Scroll reveals use IntersectionObserver and CSS; no GSAP needed. (RN, CA)
+    on touch. Scroll reveals use IntersectionObserver and CSS; no GSAP needed. Animate only
+    transform, opacity and filter, and reserve final sizes (`TextScramble` and `NumberTicker` lay the
+    final text under the live one), so nothing shifts. Moving content that runs longer than 5 s
+    gets a Pause control (`Marquee`). (RN, CA)
+
+## Ambient motion and backgrounds
+
+15. **One ambient effect per viewport.** Pick one of grain, grid, aurora, masked star or beams per
+    screen and let it support the star; two moving backgrounds compete with each other and with the
+    demo. Everything ambient pauses off screen (IntersectionObserver) and holds still under reduced
+    motion. (SMWD-6, CA)
+16. **Backgrounds sit at low contrast.** Grain 4–8% opacity, grid lines 8% ink, dots 20% ink, and the
+    aurora layer capped at 28% (light) or 34% (dark) through one `--web-aurora-opacity`, so blobs
+    never add up. Text above keeps 4.5:1: the unit tests blend the accent at that cap over the page
+    and check 66% text on it. (SMWD-5, SMWD-6)
+17. **Reuse the hero asset down the page.** Carry the star into later sections and let scroll drive a
+    small transform (`ScrollTransform`, `useScrollProgress`), rather than adding new decoration. Beams
+    ride grid lines the way UIPACK packets ride connectors: the same idea, rhymed. Keep listeners
+    off while the element is off screen; on mobile a still image is fine. (CA, SMWD-6)
+18. **Hover effects are an enhancement, never the message.** Tilt at most 5°, a magnetic pull of at most 6px,
+    mouse and pen only. Touch and keyboard get an equivalent still state (focus lift, static
+    highlight). In the Technical style, glow stays a selection signal. (RN)
 
 ## Components against the rules
 
@@ -74,3 +95,9 @@ The components enforce what they can; the rest is on the page author.
 | `Eyebrow`, `Heading`, `Subhead`, `Body` | 6, 7 |
 | `CtaButton`, `GlassNav` | 1, 5, 9 |
 | `Section`, `FeatureGrid`, `Grid`, `RhymeIcon` | 4, 8 |
+| `Reveal`, `TextScramble`, `NumberTicker` | 14; final text reserves the space; screen readers get the final value |
+| `Marquee` | 14, 15; Pause button, pauses on hover, focus and off screen; inert duplicate; static row under reduced motion |
+| `TiltCard`, `MagneticButton` | 18 |
+| `ScrollTransform`, `useScrollProgress`, `useInView` | 17; midpoint under reduced motion |
+| `withViewTransition` | 14; falls back to an instant update without the API or under reduced motion |
+| `GrainOverlay`, `DotGrid`, `LineGrid`, `Aurora`, `MaskedStar`, `BeamLines`, `BackgroundFrame` | 5, 15, 16, 17 |

@@ -86,9 +86,22 @@ const steps: DemoStep[] = [
 </WebSurface>;
 ```
 
+**Motion** adds `Reveal` (staggered fade, rise or blur-in on scroll), `TextScramble` (scramble or typewriter, once), `NumberTicker` (counts proof stats up when seen), `Marquee` (pauses on hover, focus, off screen and with its own button), `TiltCard` and `MagneticButton` (mouse-only, subtle), `ScrollTransform` with `useScrollProgress` (reuse the hero's star as the reader scrolls), and `withViewTransition` (View Transitions with an instant fallback). **Backgrounds** add `GrainOverlay`, `DotGrid` and `LineGrid` (radial fade, optional pointer spotlight), `Aurora` (slow blurred token colours under one opacity cap), `MaskedStar` and `BeamLines` (light riding grid lines like packets); put one in a `BackgroundFrame`. All of it is CSS, IntersectionObserver and inline SVG: no GSAP, no new dependencies. Moving pieces pause off screen and hold a static equivalent under reduced motion.
+
+```tsx
+<BackgroundFrame background={<DotGrid spotlight />}>
+  <Reveal variant="blur">
+    <Heading level={2}><TextScramble text="Forty in. Three left." /></Heading>
+    <p><NumberTicker value={37} /> handled this morning</p>
+  </Reveal>
+</BackgroundFrame>
+```
+
 Every class and token is scoped under `.uipack-web`; there are no global element rules and no font requests. Set `--web-font-display` to your headline font. Under reduced motion, DemoPlayer lists all steps next to its final state, and the other pieces render still. `/web` in the playground composes a full example page.
 
 ![Web UI, light](docs/web-1440-light.png)
+![Web UI motion, dark](docs/web-motion-1440-dark.png)
+![Web UI backgrounds, light](docs/web-backgrounds-1440-light.png)
 
 ## Presentation starters
 
@@ -250,7 +263,7 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
 - The asset browser filters, searches, copies to the clipboard (Chromium only; Playwright cannot grant that in WebKit), and fits 390px with 44px targets.
 - Both themes render ten figures with no console errors.
 - Live 3D stories retain one canvas across stops, support direct navigation and reduced motion, and provide a diagram fallback.
-- `/web`: DemoPlayer advances when in view, holds after Pause, restarts on Replay, seeks from keyboard step tabs, and renders statically under reduced motion; the spotlight follows the mouse and lights on keyboard focus; both themes fit 390px with 44px targets and no console errors. Unit tests pin the type scale and compute the 4.5:1 contrast of the Landing tokens.
+- `/web`: DemoPlayer advances when in view, holds after Pause, restarts on Replay, seeks from keyboard step tabs, and renders statically under reduced motion; the spotlight follows the mouse and lights on keyboard focus; both themes fit 390px with 44px targets and no console errors. Motion and backgrounds: the ticker counts only once seen, reveals play, the marquee moves and holds on Pause and hover, aurora and beams pause off screen, the dot grid lights under the mouse, and all of it holds still under reduced motion. Unit tests pin the type scale and compute the 4.5:1 contrast of the Landing tokens, including text over the aurora at its opacity cap.
 - Object art directions cover every combination of six objects, six directions, two themes, and two viewport widths. Each combination has its own test, screenshot, and render-cost attachment. All 30 non-Studio object/direction pairs also retain their geometry and paint-rate budgets, sampled inside the browser after playback starts.
 
 CI runs both suites with job timeouts. Browser jobs split each engine into four shards with one worker per runner, so software WebGL renderers do not compete for CPU and a retry repeats only the failed case. Linux Chromium runs ANGLE with Mesa llvmpipe under Xvfb: its default SwiftShader Subzero backend missed the existing frame-rate budget on the CI CPU. Renderer names are included in the performance samples. The 15-minute job limit and default 30-second test limit stay bounded. Reports, screenshots, budget measurements, and functional-test retry traces are uploaded for seven days. Timing tests disable trace/video recording to keep measurements independent of capture overhead. Reproduce an art-direction failure with `npx playwright test e2e/art-directions.spec.ts --project=chromium --workers=1 --retries=0`; add `--grep` with its object/direction name to isolate it. Playwright is locked at 1.61.1 because the 1.63 browser build would not download on my network. Bump it when that clears.
