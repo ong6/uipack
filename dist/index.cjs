@@ -247,6 +247,14 @@ function useCanvasGestures(ref, open, zoom) {
 // src/CanvasView.tsx
 var import_react_dom = require("react-dom");
 var import_jsx_runtime = require("react/jsx-runtime");
+var CANVAS_TOKENS = [
+  "--uipack-bg",
+  "--uipack-surface",
+  "--uipack-fg",
+  "--uipack-muted",
+  "--uipack-border",
+  "--uipack-accent"
+];
 function CanvasView({
   open,
   onClose,
@@ -254,7 +262,8 @@ function CanvasView({
   children,
   zoom,
   theme,
-  restoreFocus
+  restoreFocus,
+  layout
 }) {
   const content = (0, import_react2.useRef)(null);
   const gestures = useCanvasGestures(content, open, zoom);
@@ -299,6 +308,18 @@ function CanvasView({
       );
     };
   }, [open]);
+  (0, import_react2.useEffect)(() => {
+    const node = dialog.current;
+    if (!open || !node) return;
+    const source = node.querySelector(".uipack");
+    if (!source) return;
+    const style = getComputedStyle(source);
+    for (const name of CANVAS_TOKENS) {
+      const value = style.getPropertyValue(name).trim();
+      if (value) node.style.setProperty(name, value);
+      else node.style.removeProperty(name);
+    }
+  }, [open, theme]);
   if (!open || typeof document === "undefined") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children });
   return (0, import_react_dom.createPortal)(
     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
@@ -358,7 +379,14 @@ function CanvasView({
             ] })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "uipack-canvas-hint", children: "Pinch to zoom \xB7 Two-finger scroll \xB7 + / \u2212 to zoom \xB7 0 to reset" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { ref: content, className: "uipack-canvas-content", children })
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "div",
+            {
+              ref: content,
+              className: `uipack-canvas-content${layout ? ` uipack-canvas-content--${layout}` : ""}`,
+              children
+            }
+          )
         ]
       }
     ),
@@ -459,7 +487,7 @@ var TOKEN_SHAPE = {
   request: "square",
   response: "circle",
   change: "diamond",
-  accent: "square",
+  accent: "ring",
   neutral: "circle"
 };
 function tokenColor(kind) {
@@ -481,6 +509,8 @@ function Token({ shape, kind = "neutral", r = 5, cx = 0, cy = 0, style }) {
   const fill = tokenColor(kind);
   const common = { fill, stroke: "var(--uipack-bg)", strokeWidth: 1.5, style };
   if (s === "circle") return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx, cy, r, ...common });
+  if (s === "ring")
+    return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx, cy, r: r * 0.78, fill: "var(--uipack-bg)", stroke: fill, strokeWidth: r * 0.5, style });
   if (s === "diamond") {
     const d = r * 1.2;
     return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: `M${cx},${cy - d} L${cx + d},${cy} L${cx},${cy + d} L${cx - d},${cy} Z`, ...common });
@@ -696,6 +726,7 @@ function Figure({
       },
       title: title ?? eyebrow ?? "Figure canvas",
       theme,
+      layout: "figure",
       zoom: { value: zoom, min: 1, max: 3, onChange: setZoom },
       children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(
         "figure",
@@ -714,7 +745,8 @@ function Figure({
             if (e.key === "Escape") select(null);
           },
           style: {
-            margin: 0,
+            // Opened, the canvas content is a flex column: auto centres it.
+            margin: expanded ? "auto 0" : 0,
             "--figure-width": `${vbWidth(viewBox)}px`
           },
           children: [

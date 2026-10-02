@@ -56,7 +56,10 @@ function AssetBrowser({ manifest, initialCategory = ALL, onAction, actionLabel =
         ] })
       ] }),
       /* @__PURE__ */ jsx("ul", { className: "uipack-browser__grid", role: "list", children: shown.map((a) => /* @__PURE__ */ jsxs("li", { className: "uipack-browser__card", "data-kind": a.kind, "data-id": a.id, children: [
-        /* @__PURE__ */ jsx("div", { className: "uipack-browser__tile", children: /* @__PURE__ */ jsx("img", { src: `${prefix}${a.preview}`, alt: "", loading: "lazy" }) }),
+        /* @__PURE__ */ jsxs("div", { className: "uipack-browser__tile", children: [
+          /* @__PURE__ */ jsx("img", { src: `${prefix}${a.preview}`, alt: "", loading: "lazy", "data-scheme": "light" }),
+          a.previewDark ? /* @__PURE__ */ jsx("img", { src: `${prefix}${a.previewDark}`, alt: "", loading: "lazy", "data-scheme": "dark" }) : null
+        ] }),
         /* @__PURE__ */ jsxs("div", { className: "uipack-browser__row", children: [
           /* @__PURE__ */ jsx("span", { className: "uipack-browser__name", children: a.name }),
           /* @__PURE__ */ jsx("button", { type: "button", className: "uipack-browser__action", onClick: () => act(a), "aria-label": `${actionLabel} ${a.name}`, "data-flash": flash === a.id ? "true" : void 0, children: flash === a.id ? "Copied" : actionLabel })

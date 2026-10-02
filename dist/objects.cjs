@@ -142,6 +142,7 @@ function createContactDirection(variant) {
       signal.position.set(1.39 * Math.cos(a), 1.39 * Math.sin(a), 0);
     });
   }
+  if (variant === 3) g.userData.narrowFrame = { halfWidth: 1.9, halfHeight: 1.5, y: -0.15 };
   g.userData.style = variant === 3 ? "cartoon" : "kinetic";
   g.userData.source = "procedural";
   g.userData.loopDuration = 12e3;
@@ -2181,6 +2182,14 @@ function useCanvasGestures(ref, open, zoom) {
 // src/CanvasView.tsx
 var import_react_dom = require("react-dom");
 var import_jsx_runtime = require("react/jsx-runtime");
+var CANVAS_TOKENS = [
+  "--uipack-bg",
+  "--uipack-surface",
+  "--uipack-fg",
+  "--uipack-muted",
+  "--uipack-border",
+  "--uipack-accent"
+];
 function CanvasView({
   open,
   onClose,
@@ -2188,7 +2197,8 @@ function CanvasView({
   children,
   zoom,
   theme,
-  restoreFocus
+  restoreFocus,
+  layout
 }) {
   const content = (0, import_react2.useRef)(null);
   const gestures = useCanvasGestures(content, open, zoom);
@@ -2233,6 +2243,18 @@ function CanvasView({
       );
     };
   }, [open]);
+  (0, import_react2.useEffect)(() => {
+    const node = dialog.current;
+    if (!open || !node) return;
+    const source = node.querySelector(".uipack");
+    if (!source) return;
+    const style = getComputedStyle(source);
+    for (const name of CANVAS_TOKENS) {
+      const value = style.getPropertyValue(name).trim();
+      if (value) node.style.setProperty(name, value);
+      else node.style.removeProperty(name);
+    }
+  }, [open, theme]);
   if (!open || typeof document === "undefined") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children });
   return (0, import_react_dom.createPortal)(
     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
@@ -2292,7 +2314,14 @@ function CanvasView({
             ] })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "uipack-canvas-hint", children: "Pinch to zoom \xB7 Two-finger scroll \xB7 + / \u2212 to zoom \xB7 0 to reset" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { ref: content, className: "uipack-canvas-content", children })
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "div",
+            {
+              ref: content,
+              className: `uipack-canvas-content${layout ? ` uipack-canvas-content--${layout}` : ""}`,
+              children
+            }
+          )
         ]
       }
     ),
@@ -2395,6 +2424,7 @@ var objectScenes = [
   }
 ];
 var REST_START_MS = 5400;
+var NARROW_STAGE_PX = 480;
 var MOBILE_FRAME_MS = 1e3 / 30;
 var styles = {
   scene: "uipack-object",
@@ -2454,9 +2484,8 @@ var Fallback = ({ kind, label: label2 }) => {
       /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("rect", { x: "26", y: "24", width: "308", height: "152", rx: "8" }),
       /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M161 176v18h38v-18m-60 22h82" }),
       /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { className: "soft", d: "M43 70h268M43 100h268M43 130h268M43 151h268" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { stroke: "#269764", d: "M62 122V73m-7 15h14v23H55zm54 35V63m-7 19h14v29h-14zm68 9V58m-7 14h14v32h-14zm55-20V49m-7 12h14v16h-14zM55 163v-8h14v8m33 0v-11h14v11m54 0v-14h14v14m41 0v-18h14v18" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { stroke: "#d85b65", d: "M85 89v48m-7-35h14v23H78zm57-33v46m-7-33h14v22h-14zm65-47v44m-7-31h14v19h-14zm57-51v49m-7-35h14v24h-14zM78 163v-6h14v6m36 0v-9h14v9m51 0v-11h14v11m43 0v-8h14v8" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("text", { x: "180", y: "43", children: "DEMO / USD \xB7 SIMULATED" })
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { stroke: "#269764", d: "M62 98V131M55 108h14v16h-14zM109 89V130M102 102h14v20h-14zM170 86V108M163 95h14v22h-14zM218 80V102M211 86h14v11h-14zM55 163v-8h14v8m33 0v-11h14v11m54 0v-14h14v14m41 0v-18h14v18" }),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { stroke: "#d85b65", d: "M85 109V140M78 116h14v16h-14zM135 93V125M128 102h14v15h-14zM193 70V100M186 79h14v13h-14zM243 44V78M236 54h14v16h-14zM78 163v-6h14v6m36 0v-9h14v9m51 0v-11h14v11m43 0v-8h14v8" })
     ] }),
     server: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
       /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M78 38h204v142H78zM96 58h168v26H96zM96 96h168v26H96zM96 134h168v26H96z" }),
@@ -2484,26 +2513,32 @@ var Fallback = ({ kind, label: label2 }) => {
       /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M180 60v132" })
     ] })
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+  const captions = {
+    trading: "DEMO / USD \xB7 SIMULATED"
+  };
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
     "div",
     {
       className: styles.fallback,
       role: "img",
       "aria-label": `${label2} illustration`,
-      children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
-        "svg",
-        {
-          className: styles.fallbackSvg,
-          viewBox: "0 0 360 214",
-          "aria-hidden": "true",
-          fill: "none",
-          stroke: "currentColor",
-          strokeWidth: "3",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          children: scenes[kind]
-        }
-      )
+      children: [
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+          "svg",
+          {
+            className: styles.fallbackSvg,
+            viewBox: "0 0 360 214",
+            "aria-hidden": "true",
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: "3",
+            strokeLinecap: "round",
+            strokeLinejoin: "round",
+            children: scenes[kind]
+          }
+        ),
+        captions[kind] && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-object__fallback-caption", "aria-hidden": "true", children: captions[kind] })
+      ]
     }
   );
 };
@@ -2718,8 +2753,10 @@ function ObjectStage({
           const height = canvas.clientHeight || 1;
           renderer.setSize(width, height, false);
           const aspect = width / height;
-          const halfWidth = variant === 4 && kind !== "contact" ? 2.15 : kind === "server" && variant === 0 ? 3.25 : 2.65;
-          const halfHeight = Math.max(variant === 4 && kind !== "contact" ? 1.75 : 2.2, halfWidth / aspect);
+          const narrow = width < NARROW_STAGE_PX ? object.userData.narrowFrame : void 0;
+          const halfWidth = narrow?.halfWidth ?? (variant === 4 && kind !== "contact" ? 2.15 : kind === "server" && variant === 0 ? 3.25 : 2.65);
+          const halfHeight = Math.max(narrow?.halfHeight ?? (variant === 4 && kind !== "contact" ? 1.75 : 2.2), halfWidth / aspect);
+          camera.position.y = narrow?.y ?? (variant === 4 && kind !== "contact" ? -0.15 : 0);
           camera.left = -halfHeight * aspect;
           camera.right = halfHeight * aspect;
           camera.top = halfHeight;

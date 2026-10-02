@@ -17,7 +17,7 @@ Use `controls="playback"` in compact consumer embeds. The scene still starts aut
 stops off-screen, settles, and exposes Pause/Resume/Replay, but leaves **Another look** and
 **Open canvas** to the full gallery. The default `controls="full"` preserves the complete player.
 
-Open canvas reuses the shared accessible dialog, with bounded zoom, Escape and focus return. Entering or leaving the dialog remounts the player and restarts its sequence. No orbit or live trading data. The tennis GLB is included in its own lazy asset module; there is no third-party model host. The orthographic camera fits the authored animation envelope to both viewport axes.
+Open canvas reuses the shared accessible dialog, with bounded zoom, Escape and focus return. Entering or leaving the dialog remounts the player and restarts its sequence. No orbit or live trading data. The tennis GLB is included in its own lazy asset module; there is no third-party model host. The orthographic camera fits the authored animation envelope to both viewport axes. On stages narrower than 480px an object may set `userData.narrowFrame` (`halfWidth`, `halfHeight`, optional centre `y`) to frame its own envelope tighter; the Cartoon contact mailbox does, so it fills a near-square phone stage. The SVG fallback keeps every mark inside its frame and puts words (the trading chart's "DEMO / USD · SIMULATED") in 12px HTML beneath the drawing. Open canvas over an object uses the same button style as a figure's, in both themes.
 
 Review all seven examples in `/animations` (Objects filter). Consumers import the scene and player from `uipack/objects`; geometry and playback stay in the package.
 

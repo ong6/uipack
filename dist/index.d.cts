@@ -1,6 +1,6 @@
-export { F as Figure, a as FigureProps } from './Figure-BF6Zmtho.cjs';
-import { T as TokenKind, a as TokenShape } from './Legend-S2FQoAxv.cjs';
-export { L as Legend, b as LegendItem, c as LegendProps, d as TOKEN_SHAPE, e as Token, f as TokenProps, t as tokenColor } from './Legend-S2FQoAxv.cjs';
+export { F as Figure, a as FigureProps } from './Figure-SUg9oXfI.cjs';
+import { T as TokenKind, a as TokenShape } from './Legend-Dn1ZWKId.cjs';
+export { L as Legend, b as LegendItem, c as LegendProps, d as TOKEN_SHAPE, e as Token, f as TokenProps, t as tokenColor } from './Legend-Dn1ZWKId.cjs';
 import * as react from 'react';
 import { ReactNode } from 'react';
 import { I as IconName } from './index-DwRqkLtz.cjs';

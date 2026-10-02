@@ -55,15 +55,16 @@ export function renderSlideSvg(
     color: string = colors.ink,
     weight = 400,
     mono = false,
+    anchor: "start" | "end" = "start",
   ) =>
-    `<text x="${x}" y="${y}" font-family="${mono ? "IBM Plex Mono, ui-monospace, monospace" : "IBM Plex Sans, system-ui, sans-serif"}" font-size="${size}" fill="${color}" font-weight="${weight}">${escapeSvgText(value)}</text>`;
+    `<text x="${x}" y="${y}"${anchor === "end" ? ' text-anchor="end"' : ""} font-family="${mono ? "IBM Plex Mono, ui-monospace, monospace" : "IBM Plex Sans, system-ui, sans-serif"}" font-size="${size}" fill="${color}" font-weight="${weight}">${escapeSvgText(value)}</text>`;
   const rule = (x1: number, y: number, x2: number) =>
     `<path d="M${x1} ${y}H${x2}" stroke="${colors.rule}" stroke-width="2"/>`;
   const footer = slide.footer
     ? rule(64, 592, 1136) +
       text(64, 635, slide.footer.label, 18, colors.muted, 400, true) +
       (slide.footer.page
-        ? text(1010, 635, slide.footer.page, 18, colors.muted, 400, true)
+        ? text(1136, 635, slide.footer.page, 18, colors.muted, 400, true, "end")
         : "")
     : "";
 

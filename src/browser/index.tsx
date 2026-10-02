@@ -10,6 +10,8 @@ export interface Asset {
   kind: AssetKind;
   /** Path to a rendered SVG or PNG, relative to the manifest. */
   preview: string;
+  /** The same preview in the dark palette, shown when the browser is in a dark theme. */
+  previewDark?: string;
   /** What the action copies: an import line, a JSX snippet, or raw SVG. */
   source: string;
   tags?: string[];
@@ -62,7 +64,7 @@ export function filterAssets(assets: Asset[], category: string, query: string): 
 
 /**
  * An asset browser in the Rubric Elements shape: categories down the left,
- * a search box, and a grid of cards with a light preview tile, the name and
+ * a search box, and a grid of cards with a themed preview tile, the name and
  * one action. At narrow widths the sidebar becomes a row of chips.
  */
 export function AssetBrowser({ manifest, initialCategory = ALL, onAction, actionLabel = "Copy", base, className }: AssetBrowserProps) {
@@ -115,7 +117,8 @@ export function AssetBrowser({ manifest, initialCategory = ALL, onAction, action
           {shown.map((a) => (
             <li key={a.id} className="uipack-browser__card" data-kind={a.kind} data-id={a.id}>
               <div className="uipack-browser__tile">
-                <img src={`${prefix}${a.preview}`} alt="" loading="lazy" />
+                <img src={`${prefix}${a.preview}`} alt="" loading="lazy" data-scheme="light" />
+                {a.previewDark ? <img src={`${prefix}${a.previewDark}`} alt="" loading="lazy" data-scheme="dark" /> : null}
               </div>
               <div className="uipack-browser__row">
                 <span className="uipack-browser__name">{a.name}</span>

@@ -9,6 +9,8 @@ interface Asset {
     kind: AssetKind;
     /** Path to a rendered SVG or PNG, relative to the manifest. */
     preview: string;
+    /** The same preview in the dark palette, shown when the browser is in a dark theme. */
+    previewDark?: string;
     /** What the action copies: an import line, a JSX snippet, or raw SVG. */
     source: string;
     tags?: string[];
@@ -39,7 +41,7 @@ declare function categories(assets: Asset[]): {
 declare function filterAssets(assets: Asset[], category: string, query: string): Asset[];
 /**
  * An asset browser in the Rubric Elements shape: categories down the left,
- * a search box, and a grid of cards with a light preview tile, the name and
+ * a search box, and a grid of cards with a themed preview tile, the name and
  * one action. At narrow widths the sidebar becomes a row of chips.
  */
 declare function AssetBrowser({ manifest, initialCategory, onAction, actionLabel, base, className }: AssetBrowserProps): react.JSX.Element;

@@ -2,7 +2,7 @@ import * as react from 'react';
 import { CSSProperties } from 'react';
 
 type TokenKind = "request" | "response" | "change" | "accent" | "neutral";
-type TokenShape = "square" | "circle" | "diamond";
+type TokenShape = "square" | "circle" | "diamond" | "ring";
 declare const TOKEN_SHAPE: Record<TokenKind, TokenShape>;
 declare function tokenColor(kind: TokenKind): string;
 interface TokenProps {

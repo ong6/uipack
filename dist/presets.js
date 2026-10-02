@@ -11,9 +11,9 @@ import {
   Packet,
   busStub,
   route
-} from "./chunk-42M53LHW.js";
-import "./chunk-2BHGP5ET.js";
-import "./chunk-GP5TROIA.js";
+} from "./chunk-SUSISIFP.js";
+import "./chunk-BEGV5DNB.js";
+import "./chunk-GEEREXP5.js";
 import "./chunk-FENTOHP4.js";
 
 // src/presets/shared.tsx
@@ -274,10 +274,10 @@ function agentLoopParts(spec = defaultAgentLoop, id) {
   const [lu, la, lt] = spec.laneTitles ?? ["User", "Agent", "Tools"];
   const user = { x: 24, y: 96, w: 176, h: 48 };
   const n = spec.tools.length;
-  const tool = { x: 800, w: 176, h: 48, step: 56, y0: 96 };
+  const tool = { x: 832, w: 176, h: 48, step: 56, y0: 96 };
   const toolY = (i) => tool.y0 + i * tool.step + tool.h / 2;
   const agentBox = { x: 328, y: 64, w: 336, h: Math.max(176, tool.y0 - 64 + n * tool.step - 8 + 16) };
-  const busX = 744;
+  const busX = 776;
   const trunkY = 152;
   const bus = {
     axis: "v",

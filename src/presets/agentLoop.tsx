@@ -47,10 +47,12 @@ export function agentLoopParts(spec: AgentLoopSpec = defaultAgentLoop, id: strin
   const [lu, la, lt] = spec.laneTitles ?? ["User", "Agent", "Tools"];
   const user = { x: 24, y: 96, w: 176, h: 48 };
   const n = spec.tools.length;
-  const tool = { x: 800, w: 176, h: 48, step: 56, y0: 96 };
+  // The gap between the agent and the bus carries the "tool calls" label; it
+  // stays wider than the label at the 12px text floor, with clearance each side.
+  const tool = { x: 832, w: 176, h: 48, step: 56, y0: 96 };
   const toolY = (i: number) => tool.y0 + i * tool.step + tool.h / 2;
   const agentBox = { x: 328, y: 64, w: 336, h: Math.max(176, tool.y0 - 64 + n * tool.step - 8 + 16) };
-  const busX = 744;
+  const busX = 776;
   const trunkY = 152;
   const bus = {
     axis: "v" as const,

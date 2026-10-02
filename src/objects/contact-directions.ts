@@ -83,6 +83,9 @@ export function createContactDirection(variant: 3|4) {
     const signal=sphere(orbit,.075,C.gold);
     ticks.push(a=>{mobile.rotation.y=.3+.38*Math.sin(a);mobile.rotation.z=.06*Math.sin(a);signal.position.set(1.39*Math.cos(a),1.39*Math.sin(a),0);});
   }
+  // Cartoon spans about x ±1.6 and y -1.5…1.2 (the letter's arc included):
+  // on a narrow, near-square stage, frame that instead of the shared extent.
+  if(variant===3)g.userData.narrowFrame={halfWidth:1.9,halfHeight:1.5,y:-.15};
   g.userData.style=variant===3?'cartoon':'kinetic';g.userData.source='procedural';
   g.userData.loopDuration=12000;g.userData.restTime=3200;
   g.userData.animate=(time:number)=>{

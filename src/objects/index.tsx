@@ -71,6 +71,14 @@ export const objectScenes: {
   },
 ];
 const REST_START_MS = 5400;
+/** Stages narrower than this use an object's `userData.narrowFrame`, if it has one. */
+const NARROW_STAGE_PX = 480;
+/** Camera half-extents in world units, and the view's vertical centre. */
+interface ObjectFrame {
+  halfWidth: number;
+  halfHeight: number;
+  y?: number;
+}
 const MOBILE_FRAME_MS = 1000 / 30;
 const styles = {
   scene: "uipack-object",
@@ -131,9 +139,9 @@ const Fallback = ({ kind, label }: { kind: ObjectKind; label: string }) => {
         <rect x="26" y="24" width="308" height="152" rx="8" />
         <path d="M161 176v18h38v-18m-60 22h82" />
         <path className="soft" d="M43 70h268M43 100h268M43 130h268M43 151h268" />
-        <path stroke="#269764" d="M62 122V73m-7 15h14v23H55zm54 35V63m-7 19h14v29h-14zm68 9V58m-7 14h14v32h-14zm55-20V49m-7 12h14v16h-14zM55 163v-8h14v8m33 0v-11h14v11m54 0v-14h14v14m41 0v-18h14v18" />
-        <path stroke="#d85b65" d="M85 89v48m-7-35h14v23H78zm57-33v46m-7-33h14v22h-14zm65-47v44m-7-31h14v19h-14zm57-51v49m-7-35h14v24h-14zM78 163v-6h14v6m36 0v-9h14v9m51 0v-11h14v11m43 0v-8h14v8" />
-        <text x="180" y="43">DEMO / USD · SIMULATED</text>
+        {/* Candles stay inside the plot (y 44–140); the caption is HTML below. */}
+        <path stroke="#269764" d="M62 98V131M55 108h14v16h-14zM109 89V130M102 102h14v20h-14zM170 86V108M163 95h14v22h-14zM218 80V102M211 86h14v11h-14zM55 163v-8h14v8m33 0v-11h14v11m54 0v-14h14v14m41 0v-18h14v18" />
+        <path stroke="#d85b65" d="M85 109V140M78 116h14v16h-14zM135 93V125M128 102h14v15h-14zM193 70V100M186 79h14v13h-14zM243 44V78M236 54h14v16h-14zM78 163v-6h14v6m36 0v-9h14v9m51 0v-11h14v11m43 0v-8h14v8" />
       </>
     ),
     server: (
@@ -165,6 +173,10 @@ const Fallback = ({ kind, label }: { kind: ObjectKind; label: string }) => {
       </>
     ),
   };
+  // Words live in HTML beside the drawing, so they keep the 12px floor at any size.
+  const captions: Partial<Record<ObjectKind, string>> = {
+    trading: "DEMO / USD · SIMULATED",
+  };
   return (
     <div
       className={styles.fallback}
@@ -183,6 +195,11 @@ const Fallback = ({ kind, label }: { kind: ObjectKind; label: string }) => {
       >
         {scenes[kind]}
       </svg>
+      {captions[kind] && (
+        <span className="uipack-object__fallback-caption" aria-hidden="true">
+          {captions[kind]}
+        </span>
+      )}
     </div>
   );
 };
@@ -418,8 +435,12 @@ function ObjectStage({
             const height = canvas.clientHeight || 1;
             renderer!.setSize(width, height, false);
             const aspect = width / height;
-            const halfWidth = variant === 4 && kind !== "contact" ? 2.15 : kind === "server" && variant === 0 ? 3.25 : 2.65;
-            const halfHeight = Math.max(variant === 4 && kind !== "contact" ? 1.75 : 2.2, halfWidth / aspect);
+            // An object may declare a tighter fit for narrow canvases, where the
+            // shared framing leaves a compact model small in a square stage.
+            const narrow = width < NARROW_STAGE_PX ? (object.userData.narrowFrame as ObjectFrame | undefined) : undefined;
+            const halfWidth = narrow?.halfWidth ?? (variant === 4 && kind !== "contact" ? 2.15 : kind === "server" && variant === 0 ? 3.25 : 2.65);
+            const halfHeight = Math.max(narrow?.halfHeight ?? (variant === 4 && kind !== "contact" ? 1.75 : 2.2), halfWidth / aspect);
+            camera.position.y = narrow?.y ?? (variant === 4 && kind !== "contact" ? -.15 : 0);
             camera.left = -halfHeight * aspect;
             camera.right = halfHeight * aspect;
             camera.top = halfHeight;

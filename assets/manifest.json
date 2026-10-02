@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-23",
+  "generated": "2026-10-02",
   "base": "",
   "assets": [
     {
@@ -14,7 +14,8 @@
         "figure",
         "servicemap"
       ],
-      "preview": "docs/assets/figure-service-map.svg"
+      "preview": "docs/assets/figure-service-map.svg",
+      "previewDark": "docs/assets/dark/figure-service-map.svg"
     },
     {
       "id": "figure-agent-loop",
@@ -27,7 +28,8 @@
         "figure",
         "agentloop"
       ],
-      "preview": "docs/assets/figure-agent-loop.svg"
+      "preview": "docs/assets/figure-agent-loop.svg",
+      "previewDark": "docs/assets/dark/figure-agent-loop.svg"
     },
     {
       "id": "figure-rag-pipeline",
@@ -40,7 +42,8 @@
         "figure",
         "ragpipeline"
       ],
-      "preview": "docs/assets/figure-rag-pipeline.svg"
+      "preview": "docs/assets/figure-rag-pipeline.svg",
+      "previewDark": "docs/assets/dark/figure-rag-pipeline.svg"
     },
     {
       "id": "figure-skill-lifecycle",
@@ -53,7 +56,8 @@
         "figure",
         "skilllifecycle"
       ],
-      "preview": "docs/assets/figure-skill-lifecycle.svg"
+      "preview": "docs/assets/figure-skill-lifecycle.svg",
+      "previewDark": "docs/assets/dark/figure-skill-lifecycle.svg"
     },
     {
       "id": "figure-sync-loop",
@@ -66,7 +70,8 @@
         "figure",
         "syncloop"
       ],
-      "preview": "docs/assets/figure-sync-loop.svg"
+      "preview": "docs/assets/figure-sync-loop.svg",
+      "previewDark": "docs/assets/dark/figure-sync-loop.svg"
     },
     {
       "id": "figure-before-after",
@@ -79,7 +84,8 @@
         "figure",
         "beforeafter"
       ],
-      "preview": "docs/assets/figure-before-after.svg"
+      "preview": "docs/assets/figure-before-after.svg",
+      "previewDark": "docs/assets/dark/figure-before-after.svg"
     },
     {
       "id": "figure-pipeline",
@@ -92,7 +98,8 @@
         "figure",
         "pipeline"
       ],
-      "preview": "docs/assets/figure-pipeline.svg"
+      "preview": "docs/assets/figure-pipeline.svg",
+      "previewDark": "docs/assets/dark/figure-pipeline.svg"
     },
     {
       "id": "part-node",
@@ -105,7 +112,8 @@
         "label",
         "icon"
       ],
-      "preview": "docs/assets/part-node.svg"
+      "preview": "docs/assets/part-node.svg",
+      "previewDark": "docs/assets/dark/part-node.svg"
     },
     {
       "id": "part-group",
@@ -118,7 +126,8 @@
         "region",
         "boundary"
       ],
-      "preview": "docs/assets/part-group.svg"
+      "preview": "docs/assets/part-group.svg",
+      "previewDark": "docs/assets/dark/part-group.svg"
     },
     {
       "id": "part-lane",
@@ -130,7 +139,8 @@
         "header",
         "column"
       ],
-      "preview": "docs/assets/part-lane.svg"
+      "preview": "docs/assets/part-lane.svg",
+      "previewDark": "docs/assets/dark/part-lane.svg"
     },
     {
       "id": "part-chip",
@@ -143,7 +153,8 @@
         "slot",
         "status"
       ],
-      "preview": "docs/assets/part-chip.svg"
+      "preview": "docs/assets/part-chip.svg",
+      "previewDark": "docs/assets/dark/part-chip.svg"
     },
     {
       "id": "part-connector",
@@ -156,7 +167,8 @@
         "line",
         "orthogonal"
       ],
-      "preview": "docs/assets/part-connector.svg"
+      "preview": "docs/assets/part-connector.svg",
+      "previewDark": "docs/assets/dark/part-connector.svg"
     },
     {
       "id": "part-bus",
@@ -169,7 +181,8 @@
         "stubs",
         "junction"
       ],
-      "preview": "docs/assets/part-bus.svg"
+      "preview": "docs/assets/part-bus.svg",
+      "previewDark": "docs/assets/dark/part-bus.svg"
     },
     {
       "id": "part-badge",
@@ -181,7 +194,8 @@
         "step",
         "number"
       ],
-      "preview": "docs/assets/part-badge.svg"
+      "preview": "docs/assets/part-badge.svg",
+      "previewDark": "docs/assets/dark/part-badge.svg"
     },
     {
       "id": "part-label",
@@ -193,7 +207,8 @@
         "text",
         "underlay"
       ],
-      "preview": "docs/assets/part-label.svg"
+      "preview": "docs/assets/part-label.svg",
+      "previewDark": "docs/assets/dark/part-label.svg"
     },
     {
       "id": "part-legend",
@@ -205,7 +220,8 @@
         "key",
         "tokens"
       ],
-      "preview": "docs/assets/part-legend.svg"
+      "preview": "docs/assets/part-legend.svg",
+      "previewDark": "docs/assets/dark/part-legend.svg"
     },
     {
       "id": "icon-db",
@@ -217,7 +233,8 @@
         "icon",
         "db"
       ],
-      "preview": "docs/assets/icon-db.svg"
+      "preview": "docs/assets/icon-db.svg",
+      "previewDark": "docs/assets/dark/icon-db.svg"
     },
     {
       "id": "icon-cache",
@@ -229,7 +246,8 @@
         "icon",
         "cache"
       ],
-      "preview": "docs/assets/icon-cache.svg"
+      "preview": "docs/assets/icon-cache.svg",
+      "previewDark": "docs/assets/dark/icon-cache.svg"
     },
     {
       "id": "icon-queue",
@@ -241,7 +259,8 @@
         "icon",
         "queue"
       ],
-      "preview": "docs/assets/icon-queue.svg"
+      "preview": "docs/assets/icon-queue.svg",
+      "previewDark": "docs/assets/dark/icon-queue.svg"
     },
     {
       "id": "icon-service",
@@ -253,7 +272,8 @@
         "icon",
         "service"
       ],
-      "preview": "docs/assets/icon-service.svg"
+      "preview": "docs/assets/icon-service.svg",
+      "previewDark": "docs/assets/dark/icon-service.svg"
     },
     {
       "id": "icon-client",
@@ -265,7 +285,8 @@
         "icon",
         "client"
       ],
-      "preview": "docs/assets/icon-client.svg"
+      "preview": "docs/assets/icon-client.svg",
+      "previewDark": "docs/assets/dark/icon-client.svg"
     },
     {
       "id": "icon-blob",
@@ -277,7 +298,8 @@
         "icon",
         "blob"
       ],
-      "preview": "docs/assets/icon-blob.svg"
+      "preview": "docs/assets/icon-blob.svg",
+      "previewDark": "docs/assets/dark/icon-blob.svg"
     },
     {
       "id": "icon-agent",
@@ -289,7 +311,8 @@
         "icon",
         "agent"
       ],
-      "preview": "docs/assets/icon-agent.svg"
+      "preview": "docs/assets/icon-agent.svg",
+      "previewDark": "docs/assets/dark/icon-agent.svg"
     },
     {
       "id": "icon-doc",
@@ -301,7 +324,8 @@
         "icon",
         "doc"
       ],
-      "preview": "docs/assets/icon-doc.svg"
+      "preview": "docs/assets/icon-doc.svg",
+      "previewDark": "docs/assets/dark/icon-doc.svg"
     },
     {
       "id": "icon-model",
@@ -313,7 +337,8 @@
         "icon",
         "model"
       ],
-      "preview": "docs/assets/icon-model.svg"
+      "preview": "docs/assets/icon-model.svg",
+      "previewDark": "docs/assets/dark/icon-model.svg"
     },
     {
       "id": "icon-tool",
@@ -325,7 +350,8 @@
         "icon",
         "tool"
       ],
-      "preview": "docs/assets/icon-tool.svg"
+      "preview": "docs/assets/icon-tool.svg",
+      "previewDark": "docs/assets/dark/icon-tool.svg"
     },
     {
       "id": "icon-gateway",
@@ -337,7 +363,8 @@
         "icon",
         "gateway"
       ],
-      "preview": "docs/assets/icon-gateway.svg"
+      "preview": "docs/assets/icon-gateway.svg",
+      "previewDark": "docs/assets/dark/icon-gateway.svg"
     },
     {
       "id": "icon-lock",
@@ -349,7 +376,8 @@
         "icon",
         "lock"
       ],
-      "preview": "docs/assets/icon-lock.svg"
+      "preview": "docs/assets/icon-lock.svg",
+      "previewDark": "docs/assets/dark/icon-lock.svg"
     },
     {
       "id": "icon-key",
@@ -361,7 +389,8 @@
         "icon",
         "key"
       ],
-      "preview": "docs/assets/icon-key.svg"
+      "preview": "docs/assets/icon-key.svg",
+      "previewDark": "docs/assets/dark/icon-key.svg"
     },
     {
       "id": "icon-clock",
@@ -373,7 +402,8 @@
         "icon",
         "clock"
       ],
-      "preview": "docs/assets/icon-clock.svg"
+      "preview": "docs/assets/icon-clock.svg",
+      "previewDark": "docs/assets/dark/icon-clock.svg"
     },
     {
       "id": "icon-cron",
@@ -385,7 +415,8 @@
         "icon",
         "cron"
       ],
-      "preview": "docs/assets/icon-cron.svg"
+      "preview": "docs/assets/icon-cron.svg",
+      "previewDark": "docs/assets/dark/icon-cron.svg"
     },
     {
       "id": "icon-browser",
@@ -397,7 +428,8 @@
         "icon",
         "browser"
       ],
-      "preview": "docs/assets/icon-browser.svg"
+      "preview": "docs/assets/icon-browser.svg",
+      "previewDark": "docs/assets/dark/icon-browser.svg"
     },
     {
       "id": "icon-terminal",
@@ -409,7 +441,8 @@
         "icon",
         "terminal"
       ],
-      "preview": "docs/assets/icon-terminal.svg"
+      "preview": "docs/assets/icon-terminal.svg",
+      "previewDark": "docs/assets/dark/icon-terminal.svg"
     },
     {
       "id": "icon-git",
@@ -421,7 +454,8 @@
         "icon",
         "git"
       ],
-      "preview": "docs/assets/icon-git.svg"
+      "preview": "docs/assets/icon-git.svg",
+      "previewDark": "docs/assets/dark/icon-git.svg"
     },
     {
       "id": "icon-cloud",
@@ -433,7 +467,8 @@
         "icon",
         "cloud"
       ],
-      "preview": "docs/assets/icon-cloud.svg"
+      "preview": "docs/assets/icon-cloud.svg",
+      "previewDark": "docs/assets/dark/icon-cloud.svg"
     },
     {
       "id": "icon-region",
@@ -445,7 +480,8 @@
         "icon",
         "region"
       ],
-      "preview": "docs/assets/icon-region.svg"
+      "preview": "docs/assets/icon-region.svg",
+      "previewDark": "docs/assets/dark/icon-region.svg"
     },
     {
       "id": "icon-user",
@@ -457,7 +493,8 @@
         "icon",
         "user"
       ],
-      "preview": "docs/assets/icon-user.svg"
+      "preview": "docs/assets/icon-user.svg",
+      "previewDark": "docs/assets/dark/icon-user.svg"
     },
     {
       "id": "icon-robot",
@@ -469,7 +506,8 @@
         "icon",
         "robot"
       ],
-      "preview": "docs/assets/icon-robot.svg"
+      "preview": "docs/assets/icon-robot.svg",
+      "previewDark": "docs/assets/dark/icon-robot.svg"
     },
     {
       "id": "icon-chart",
@@ -481,7 +519,8 @@
         "icon",
         "chart"
       ],
-      "preview": "docs/assets/icon-chart.svg"
+      "preview": "docs/assets/icon-chart.svg",
+      "previewDark": "docs/assets/dark/icon-chart.svg"
     },
     {
       "id": "icon-warning",
@@ -493,7 +532,8 @@
         "icon",
         "warning"
       ],
-      "preview": "docs/assets/icon-warning.svg"
+      "preview": "docs/assets/icon-warning.svg",
+      "previewDark": "docs/assets/dark/icon-warning.svg"
     },
     {
       "id": "icon-more",
@@ -505,7 +545,8 @@
         "icon",
         "more"
       ],
-      "preview": "docs/assets/icon-more.svg"
+      "preview": "docs/assets/icon-more.svg",
+      "previewDark": "docs/assets/dark/icon-more.svg"
     },
     {
       "id": "motion-token-request",
@@ -518,7 +559,8 @@
         "token",
         "request"
       ],
-      "preview": "docs/assets/motion-token-request.svg"
+      "preview": "docs/assets/motion-token-request.svg",
+      "previewDark": "docs/assets/dark/motion-token-request.svg"
     },
     {
       "id": "motion-token-response",
@@ -531,7 +573,8 @@
         "token",
         "response"
       ],
-      "preview": "docs/assets/motion-token-response.svg"
+      "preview": "docs/assets/motion-token-response.svg",
+      "previewDark": "docs/assets/dark/motion-token-response.svg"
     },
     {
       "id": "motion-token-change",
@@ -544,7 +587,8 @@
         "token",
         "change"
       ],
-      "preview": "docs/assets/motion-token-change.svg"
+      "preview": "docs/assets/motion-token-change.svg",
+      "previewDark": "docs/assets/dark/motion-token-change.svg"
     },
     {
       "id": "motion-token-accent",
@@ -557,7 +601,8 @@
         "token",
         "accent"
       ],
-      "preview": "docs/assets/motion-token-accent.svg"
+      "preview": "docs/assets/motion-token-accent.svg",
+      "previewDark": "docs/assets/dark/motion-token-accent.svg"
     },
     {
       "id": "motion-token-neutral",
@@ -570,7 +615,8 @@
         "token",
         "neutral"
       ],
-      "preview": "docs/assets/motion-token-neutral.svg"
+      "preview": "docs/assets/motion-token-neutral.svg",
+      "previewDark": "docs/assets/dark/motion-token-neutral.svg"
     },
     {
       "id": "motion-packet",
@@ -583,7 +629,8 @@
         "animateMotion",
         "smil"
       ],
-      "preview": "docs/assets/motion-packet.svg"
+      "preview": "docs/assets/motion-packet.svg",
+      "previewDark": "docs/assets/dark/motion-packet.svg"
     },
     {
       "id": "motion-reduced",
@@ -596,7 +643,8 @@
         "static",
         "a11y"
       ],
-      "preview": "docs/assets/motion-reduced.svg"
+      "preview": "docs/assets/motion-reduced.svg",
+      "previewDark": "docs/assets/dark/motion-reduced.svg"
     },
     {
       "id": "background-dots",
@@ -608,7 +656,8 @@
         "canvas",
         "dots"
       ],
-      "preview": "docs/assets/background-dots.svg"
+      "preview": "docs/assets/background-dots.svg",
+      "previewDark": "docs/assets/dark/background-dots.svg"
     },
     {
       "id": "background-plain",
@@ -620,7 +669,8 @@
         "canvas",
         "plain"
       ],
-      "preview": "docs/assets/background-plain.svg"
+      "preview": "docs/assets/background-plain.svg",
+      "previewDark": "docs/assets/dark/background-plain.svg"
     },
     {
       "id": "background-ruled",
@@ -632,7 +682,8 @@
         "canvas",
         "ruled"
       ],
-      "preview": "docs/assets/background-ruled.svg"
+      "preview": "docs/assets/background-ruled.svg",
+      "previewDark": "docs/assets/dark/background-ruled.svg"
     },
     {
       "id": "mark-uipack",
@@ -645,7 +696,8 @@
         "family",
         "uipack"
       ],
-      "preview": "docs/assets/mark-uipack.svg"
+      "preview": "docs/assets/mark-uipack.svg",
+      "previewDark": "docs/assets/dark/mark-uipack.svg"
     },
     {
       "id": "mark-groundplane",
@@ -658,7 +710,8 @@
         "family",
         "groundplane"
       ],
-      "preview": "docs/assets/mark-groundplane.svg"
+      "preview": "docs/assets/mark-groundplane.svg",
+      "previewDark": "docs/assets/dark/mark-groundplane.svg"
     },
     {
       "id": "mark-jobforge",
@@ -671,7 +724,8 @@
         "family",
         "jobforge"
       ],
-      "preview": "docs/assets/mark-jobforge.svg"
+      "preview": "docs/assets/mark-jobforge.svg",
+      "previewDark": "docs/assets/dark/mark-jobforge.svg"
     },
     {
       "id": "mark-skillsmith",
@@ -684,7 +738,8 @@
         "family",
         "skillsmith"
       ],
-      "preview": "docs/assets/mark-skillsmith.svg"
+      "preview": "docs/assets/mark-skillsmith.svg",
+      "previewDark": "docs/assets/dark/mark-skillsmith.svg"
     },
     {
       "id": "mark-deckforge",
@@ -697,7 +752,8 @@
         "family",
         "deckforge"
       ],
-      "preview": "docs/assets/mark-deckforge.svg"
+      "preview": "docs/assets/mark-deckforge.svg",
+      "previewDark": "docs/assets/dark/mark-deckforge.svg"
     },
     {
       "id": "mark-proofpack",
@@ -710,7 +766,8 @@
         "family",
         "proofpack"
       ],
-      "preview": "docs/assets/mark-proofpack.svg"
+      "preview": "docs/assets/mark-proofpack.svg",
+      "previewDark": "docs/assets/dark/mark-proofpack.svg"
     },
     {
       "id": "mark-fieldpack",
@@ -723,7 +780,8 @@
         "family",
         "fieldpack"
       ],
-      "preview": "docs/assets/mark-fieldpack.svg"
+      "preview": "docs/assets/mark-fieldpack.svg",
+      "previewDark": "docs/assets/dark/mark-fieldpack.svg"
     },
     {
       "id": "mark-skillpack",
@@ -736,7 +794,8 @@
         "family",
         "skillpack"
       ],
-      "preview": "docs/assets/mark-skillpack.svg"
+      "preview": "docs/assets/mark-skillpack.svg",
+      "previewDark": "docs/assets/dark/mark-skillpack.svg"
     },
     {
       "id": "mark-uipack-wordmark",
@@ -748,7 +807,8 @@
         "wordmark",
         "uipack"
       ],
-      "preview": "docs/assets/mark-uipack-wordmark.svg"
+      "preview": "docs/assets/mark-uipack-wordmark.svg",
+      "previewDark": "docs/assets/dark/mark-uipack-wordmark.svg"
     }
   ]
 }

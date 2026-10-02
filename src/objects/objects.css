@@ -51,9 +51,16 @@
   opacity: 0;
 }
 .uipack-object__fallback {
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   color: var(--object-accent);
+}
+.uipack-object__fallback-caption {
+  font: 600 12px/1.2 var(--uipack-mono, ui-monospace, monospace);
+  letter-spacing: 0.06em;
 }
 .uipack-object__illustration {
   width: 70%;
@@ -68,8 +75,7 @@
   font: 10px monospace;
   text-anchor: middle;
 }
-.uipack-object__motion,
-.uipack-object-open {
+.uipack-object__motion {
   position: absolute;
   z-index: 2;
   bottom: 12px;
@@ -91,10 +97,40 @@
   background: color-mix(in srgb, var(--object-bg, #faf9f6) 90%, transparent);
   backdrop-filter: blur(8px);
 }
+/* Same control as a figure's Open canvas (.uipack__ctl), in either theme. */
+.uipack-object-frame {
+  --object-control-bg: var(--uipack-surface, #ffffff);
+  --object-control-fg: var(--uipack-fg, #1a1c1a);
+  --object-control-muted: var(--uipack-muted, #526459);
+  --object-control-border: var(--uipack-border, rgba(26, 28, 26, 0.22));
+}
+.uipack-object-frame[data-theme="dark"] {
+  --object-control-bg: var(--uipack-surface, #14201b);
+  --object-control-fg: var(--uipack-fg, #e8ece9);
+  --object-control-muted: var(--uipack-muted, #b7c8bf);
+  --object-control-border: var(--uipack-border, rgba(232, 236, 233, 0.22));
+}
 .uipack-object-open {
+  position: absolute;
+  z-index: 2;
   top: 12px;
-  bottom: auto;
-  color: #292e32;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--object-control-border);
+  border-radius: 6px;
+  color: var(--object-control-fg);
+  background: var(--object-control-bg);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+.uipack-object-open:hover {
+  border-color: var(--object-control-fg);
 }
 .uipack-object__motion:focus-visible,
 .uipack-object-open:focus-visible {
@@ -119,8 +155,8 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #526459;
-  font: 500 11px/1.4 system-ui;
+  color: var(--object-control-muted);
+  font: 500 12px/1.4 system-ui;
   letter-spacing: .025em;
 }
 .uipack-object-edition button {
@@ -133,9 +169,9 @@
   cursor: pointer;
   font: 20px system-ui;
 }
-.uipack-object-edition button:hover { background: #205f4910; }
+.uipack-object-edition button:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
 .uipack-object-edition button:focus-visible { outline: 2px solid currentColor; }
-.uipack-object-frame[data-theme="dark"] .uipack-object-edition { color: #b7c8bf; }
+
 
 /* Authored art-direction surfaces, scoped to the object player. */
 .uipack-object[data-art-direction="paper-theatre"] {
@@ -171,7 +207,7 @@
 .uipack-object-directions button span { font-size: 20px; line-height: 1; }
 @media(max-width: 480px) {
   .uipack-object-directions { gap: 6px; }
-  .uipack-object-directions button { flex: 1 1 90px; padding: 7px 8px; gap: 5px; font-size: 11px; }
+  .uipack-object-directions button { flex: 1 1 90px; padding: 7px 8px; gap: 5px; font-size: 12px; }
 }
 
 /* Gallery furniture remains quiet so each authored world owns the stage. */
@@ -202,7 +238,7 @@
 .uipack-gallery-description { margin:18px 0 0; max-width:70ch; font:13px/1.65 system-ui,sans-serif; color:var(--gallery-muted); }
 .uipack-animation-workspace button:focus-visible,.uipack-animation-workspace select:focus-visible { outline:2px solid var(--gallery-accent); outline-offset:3px; }
 @media(max-width:1100px) { .uipack-object-review { grid-template-columns:minmax(0,1fr); } .uipack-direction-list { flex-direction:row; } .uipack-direction-list button { flex:1; } .uipack-edition-select { max-width:300px; } }
-@media(max-width:700px) { .uipack-animation-workspace { grid-template-columns:minmax(0,1fr); } .uipack-animation-library { border-right:0; border-bottom:1px solid var(--gallery-rule); padding:14px; } .uipack-scene-list { flex-direction:row; overflow-x:auto; padding-bottom:4px; } .uipack-scene-list button { flex:0 0 auto; width:auto; white-space:nowrap; } .uipack-scene-list button span { display:none; } .uipack-animation-detail { padding:14px; } .uipack-animation-heading h3 { font-size:21px; } .uipack-animation-heading > span { display:none; } .uipack-gallery-stage { height:340px; } .uipack-direction-list button { flex-direction:column; padding:12px 8px; } .uipack-direction-list small { display:none; } .uipack-direction-list strong { font-size:12px; } }
+@media(max-width:700px) { .uipack-animation-workspace { grid-template-columns:minmax(0,1fr); } .uipack-animation-library { border-right:0; border-bottom:1px solid var(--gallery-rule); padding:14px; } .uipack-scene-list { flex-direction:row; overflow-x:auto; padding-bottom:4px; } .uipack-scene-list button { flex:0 0 auto; width:auto; white-space:nowrap; } .uipack-scene-list button span { display:none; } .uipack-animation-detail { padding:14px; } .uipack-animation-heading h3 { font-size:21px; } .uipack-animation-heading > span { display:none; } .uipack-gallery-stage { height:340px; } .uipack-direction-list button { flex-direction:column; padding:12px 8px; } .uipack-direction-list small { display:none; } .uipack-direction-list strong { font-size:12px; } .uipack-edition-select { max-width:none; } }
 
 .uipack-object[data-art-direction="cartoon"] { background:radial-gradient(ellipse at 45% 35%,#fff8dc,#dbebdf); }
 .uipack-object[data-art-direction="realistic"] { background:radial-gradient(ellipse at 40% 30%,#f4f1e9,#cfcac0); }

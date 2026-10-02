@@ -1,13 +1,13 @@
 import type { CSSProperties } from "react";
 
 export type TokenKind = "request" | "response" | "change" | "accent" | "neutral";
-export type TokenShape = "square" | "circle" | "diamond";
+export type TokenShape = "square" | "circle" | "diamond" | "ring";
 
 export const TOKEN_SHAPE: Record<TokenKind, TokenShape> = {
   request: "square",
   response: "circle",
   change: "diamond",
-  accent: "square",
+  accent: "ring",
   neutral: "circle",
 };
 
@@ -42,6 +42,10 @@ export function Token({ shape, kind = "neutral", r = 5, cx = 0, cy = 0, style }:
   const fill = tokenColor(kind);
   const common = { fill, stroke: "var(--uipack-bg)", strokeWidth: 1.5, style };
   if (s === "circle") return <circle cx={cx} cy={cy} r={r} {...common} />;
+  // Hollow, so the highlighted path never reads as a request square when the
+  // host's accent and request colours are close.
+  if (s === "ring")
+    return <circle cx={cx} cy={cy} r={r * 0.78} fill="var(--uipack-bg)" stroke={fill} strokeWidth={r * 0.5} style={style} />;
   if (s === "diamond") {
     const d = r * 1.2;
     return <path d={`M${cx},${cy - d} L${cx + d},${cy} L${cx},${cy + d} L${cx - d},${cy} Z`} {...common} />;

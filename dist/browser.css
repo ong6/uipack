@@ -27,6 +27,7 @@
     --uipack-surface-raised: #1b2a24;
     --uipack-border: rgba(232, 236, 233, 0.22);
     --uipack-accent: #71dcb2;
+    --uipack-tile: #0a100d;
   }
 }
 [data-theme="dark"] .uipack-browser,
@@ -38,6 +39,7 @@
   --uipack-surface-raised: #1b2a24;
   --uipack-border: rgba(232, 236, 233, 0.22);
   --uipack-accent: #71dcb2;
+  --uipack-tile: #0a100d;
 }
 .uipack-browser__side,
 .uipack-browser__main {
@@ -58,7 +60,8 @@
   flex-direction: column;
   gap: 2px;
   position: sticky;
-  top: 16px;
+  /* A host with a fixed header sets this to clear it. */
+  top: var(--uipack-browser-sticky-top, 16px);
 }
 .uipack-browser__cat {
   width: 100%;
@@ -92,7 +95,7 @@
   outline-offset: 2px;
 }
 .uipack-browser__count {
-  font: 600 11px/1 var(--uipack-mono);
+  font: 600 12px/1 var(--uipack-mono);
   color: var(--uipack-muted);
 }
 .uipack-browser__bar {
@@ -126,7 +129,7 @@
 }
 .uipack-browser__status {
   margin: 0;
-  font: 600 11px/1 var(--uipack-mono);
+  font: 600 12px/1 var(--uipack-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--uipack-muted);
@@ -159,6 +162,27 @@
   height: auto;
   display: block;
 }
+/* Each preview is rendered in both palettes; the tile shows the one that
+   matches the theme the browser's colour tokens follow. */
+.uipack-browser__tile img[data-scheme="dark"] {
+  display: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .uipack-browser__tile img[data-scheme="light"]:not(:last-child) {
+    display: none;
+  }
+  :root:not([data-theme="light"]) .uipack-browser__tile img[data-scheme="dark"] {
+    display: block;
+  }
+}
+[data-theme="dark"] .uipack-browser__tile img[data-scheme="light"]:not(:last-child),
+.uipack-browser[data-theme="dark"] .uipack-browser__tile img[data-scheme="light"]:not(:last-child) {
+  display: none;
+}
+[data-theme="dark"] .uipack-browser__tile img[data-scheme="dark"],
+.uipack-browser[data-theme="dark"] .uipack-browser__tile img[data-scheme="dark"] {
+  display: block;
+}
 .uipack-browser__card[data-kind="icon"] .uipack-browser__tile img,
 .uipack-browser__card[data-kind="mark"] .uipack-browser__tile img,
 .uipack-browser__card[data-kind="motion"] .uipack-browser__tile img {
@@ -174,11 +198,11 @@
   gap: 8px;
   min-height: 44px;
 }
+/* Names wrap rather than truncate; the row keeps its 44px minimum. */
 .uipack-browser__name {
+  min-width: 0;
   font: 500 14px/1.3 var(--uipack-sans);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
 }
 .uipack-browser__action {
   flex: none;

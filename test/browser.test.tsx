@@ -45,4 +45,13 @@ describe("asset browser", () => {
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: "zzz" } });
     expect(screen.getByText("Nothing matches.")).toBeInTheDocument();
   });
+  it("renders the dark preview beside the light one when the manifest has it", () => {
+    const themed = { ...manifest, assets: [{ ...manifest.assets[0], previewDark: "docs/assets/dark/a.svg" }] };
+    const { container } = render(<AssetBrowser manifest={themed} base="/" />);
+    const imgs = container.querySelectorAll(".uipack-browser__tile img");
+    expect([...imgs].map((i) => [i.getAttribute("data-scheme"), i.getAttribute("src")])).toEqual([
+      ["light", "/docs/assets/a.svg"],
+      ["dark", "/docs/assets/dark/a.svg"],
+    ]);
+  });
 });

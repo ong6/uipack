@@ -6,7 +6,7 @@ import {
 } from "./chunk-AZPFC2BR.js";
 import {
   CanvasView
-} from "./chunk-GP5TROIA.js";
+} from "./chunk-GEEREXP5.js";
 import {
   usePrefersReducedMotion
 } from "./chunk-FENTOHP4.js";

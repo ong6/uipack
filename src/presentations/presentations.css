@@ -86,6 +86,7 @@
   overflow-wrap: anywhere;
 }
 .uipack-speaker-guide__action {
+  position: relative;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -120,12 +121,23 @@
   font-size: 14px;
   line-height: 1.5;
 }
+/* The live region stays in the accessibility tree but takes no space (and no
+   flex gap) until it has something to say. */
+.uipack-speaker-guide__action span:empty {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
 @media (max-width: 600px) {
   .uipack-speaker-guide {
     padding: 20px;
   }
   .uipack-speaker-guide__heading {
-    align-items: flex-start;
+    align-items: center;
   }
   .uipack-speaker-guide__action {
     align-items: flex-start;

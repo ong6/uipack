@@ -42,7 +42,7 @@
   outline-offset: 3px;
 }
 
-.uipack-docs__skip {
+.uipack-docs a.uipack-docs__skip {
   background: var(--docs-ink);
   color: var(--docs-surface);
   font-weight: 700;
@@ -50,12 +50,13 @@
   padding: 10px 14px;
   position: fixed;
   top: 8px;
+  text-decoration: none;
   transform: translateY(-160%);
   transition: transform 150ms ease;
   z-index: 1000;
 }
 
-.uipack-docs__skip:focus {
+.uipack-docs a.uipack-docs__skip:focus {
   transform: translateY(0);
 }
 
@@ -71,7 +72,10 @@
 }
 
 .uipack-docs__identity a {
+  align-items: center;
   color: inherit;
+  display: inline-flex;
+  min-height: 32px;
   text-decoration: none;
 }
 
@@ -111,7 +115,7 @@
 .uipack-docs__toc > p {
   color: var(--docs-muted);
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
   margin: 0 0 7px;
@@ -156,20 +160,30 @@
 }
 
 .uipack-docs__toc a {
+  align-items: center;
+  border-left: 2px solid transparent;
   color: var(--docs-muted);
-  display: block;
+  display: flex;
   font-size: 12px;
   line-height: 1.45;
-  padding: 6px 0 6px 12px;
+  margin-left: -1px;
+  min-height: 32px;
+  padding: 6px 0 6px 11px;
   text-decoration: none;
 }
 
 .uipack-docs__toc li[data-level="3"] a {
-  padding-left: 24px;
+  padding-left: 23px;
 }
 
 .uipack-docs__toc a:hover {
   color: var(--docs-ink);
+}
+
+.uipack-docs__toc a[aria-current="location"] {
+  border-left-color: var(--docs-accent);
+  color: var(--docs-ink);
+  font-weight: 700;
 }
 
 .uipack-docs__mobile-navigation {
@@ -221,12 +235,28 @@
   margin: 28px 0 10px;
 }
 
-.uipack-docs__heading-anchor {
+.uipack-docs__prose a {
+  text-decoration-line: underline;
+}
+
+.uipack-docs__prose a:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* A 32px square target that does not grow the heading's line box. */
+.uipack-docs__prose a.uipack-docs__heading-anchor {
+  align-items: center;
+  display: inline-flex;
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 0.65em;
   font-weight: 400;
+  justify-content: center;
+  margin: -8px 0 -8px -6px;
+  min-height: 32px;
+  min-width: 32px;
   opacity: 0;
   text-decoration: none;
+  vertical-align: middle;
 }
 
 .uipack-docs__prose :is(h1, h2, h3, h4, h5, h6):hover .uipack-docs__heading-anchor,
@@ -241,6 +271,34 @@
 .uipack-docs__prose pre,
 .uipack-docs__table {
   margin: 0 0 24px;
+}
+
+/* Markers sit inside the column, so they are neither clipped at 390px nor
+   hung into the gutter at desktop widths. */
+.uipack-docs__prose ul,
+.uipack-docs__prose ol {
+  padding-left: 1.5em;
+}
+
+.uipack-docs__prose ul {
+  list-style: disc;
+}
+
+.uipack-docs__prose ol {
+  list-style: decimal;
+}
+
+.uipack-docs__prose ul ul {
+  list-style: circle;
+}
+
+.uipack-docs__prose li > ul,
+.uipack-docs__prose li > ol {
+  margin: 7px 0 0;
+}
+
+.uipack-docs__prose li::marker {
+  color: var(--docs-muted);
 }
 
 .uipack-docs__prose li + li {
@@ -315,26 +373,35 @@
 }
 
 .uipack-docs__pagination a {
+  align-content: center;
   color: var(--docs-ink);
   display: grid;
   gap: 5px;
   min-height: 72px;
-  padding: 12px;
+  padding: 12px 0;
   text-decoration: none;
 }
 
-.uipack-docs__pagination a:last-child {
+.uipack-docs__pagination a[rel="prev"] {
+  grid-column: 1;
+  text-align: left;
+}
+
+.uipack-docs__pagination a[rel="next"] {
+  grid-column: 2;
   text-align: right;
 }
 
-.uipack-docs__pagination a:hover {
-  background: var(--docs-surface);
+.uipack-docs__pagination a:hover span {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 
 .uipack-docs__pagination small {
   color: var(--docs-muted);
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -373,13 +440,30 @@
     align-items: center;
     cursor: pointer;
     display: flex;
-    justify-content: space-between;
+    gap: 12px;
+    list-style: none;
     min-height: 52px;
     padding: 8px 2px;
   }
 
-  .uipack-docs__mobile-navigation summary::marker {
-    color: var(--docs-accent);
+  .uipack-docs__mobile-navigation summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .uipack-docs__chevron {
+    fill: none;
+    flex: none;
+    height: 16px;
+    stroke: var(--docs-accent);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+    transition: transform 150ms ease;
+    width: 16px;
+  }
+
+  .uipack-docs__mobile-navigation[open] .uipack-docs__chevron {
+    transform: rotate(180deg);
   }
 
   .uipack-docs__mobile-navigation summary span {
@@ -390,8 +474,8 @@
   .uipack-docs__mobile-navigation summary small {
     color: var(--docs-muted);
     font-family: var(--font-mono, ui-monospace, monospace);
-    font-size: 11px;
-    margin-left: 16px;
+    font-size: 12px;
+    margin-left: auto;
     text-align: right;
   }
 
@@ -402,6 +486,11 @@
 
   .uipack-docs__navigation a {
     min-height: 44px;
+  }
+
+  /* Narrow columns would wrap each cell to many lines; scroll instead. */
+  .uipack-docs__table table {
+    min-width: max(100%, calc(var(--docs-table-columns, 2) * 10rem));
   }
 }
 
@@ -421,20 +510,19 @@
   }
 
   .uipack-docs__pagination {
+    gap: 0;
     grid-template-columns: 1fr;
   }
 
-  .uipack-docs__pagination > span:empty {
-    display: none;
-  }
-
-  .uipack-docs__pagination a:last-child {
-    text-align: left;
+  .uipack-docs__pagination a[rel="prev"],
+  .uipack-docs__pagination a[rel="next"] {
+    grid-column: 1;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .uipack-docs__skip {
+  .uipack-docs a.uipack-docs__skip,
+  .uipack-docs__chevron {
     transition: none;
   }
 }

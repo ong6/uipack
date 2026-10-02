@@ -1,6 +1,6 @@
 import * as react from 'react';
 import { ReactNode } from 'react';
-import { b as LegendItem, T as TokenKind } from './Legend-S2FQoAxv.cjs';
+import { b as LegendItem, T as TokenKind } from './Legend-Dn1ZWKId.cjs';
 import { I as IconName } from './index-DwRqkLtz.cjs';
 
 /** One box in a preset spec. */

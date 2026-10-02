@@ -160,7 +160,7 @@ Seven figures from a small typed spec, each with wide and narrow drawings, packe
 
 ## Assets
 
-`assets/manifest.json` lists every asset with a rendered preview under `docs/assets/`, and `AssetBrowser` (from `uipack/browser`) shows it: categories with counts down the left, a search box, a grid of cards with the preview on a light tile even in dark mode, and one action, which copies the import line or the SVG.
+`assets/manifest.json` lists every asset with a rendered preview under `docs/assets/` (light palette) and `docs/assets/dark/` (dark palette), and `AssetBrowser` (from `uipack/browser`) shows it: categories with counts down the left, a search box, a grid of cards with the preview on a tile that follows the theme, and one action, which copies the import line or the SVG. Names wrap rather than truncate.
 
 ![Asset browser](docs/assets-1440-light.png)
 
@@ -175,6 +175,7 @@ Seven figures from a small typed spec, each with wide and narrow drawings, packe
       "category": "Icons",
       "kind": "icon",
       "preview": "docs/assets/icon-lock.svg",
+      "previewDark": "docs/assets/dark/icon-lock.svg",
       "source": "<Node … icon=\"lock\" />  // or: icons.lock",
       "tags": ["icon", "lock"]
     }
@@ -192,7 +193,7 @@ import manifest from "uipack/assets/manifest.json";
 <AssetBrowser manifest={manifest} initialCategory="Figures" base="/uipack/" />
 ```
 
-`onAction` replaces the copy, `actionLabel` renames the button. The sidebar collapses to a row of chips below 720px; every target is 44px.
+`onAction` replaces the copy, `actionLabel` renames the button. The sidebar collapses to a row of chips below 720px; every target is 44px. On wider screens the category list is sticky at `top: 16px`; a host with a fixed header sets `--uipack-browser-sticky-top` (for example `88px`) on `.uipack-browser` or an ancestor. The tile shows `previewDark` when the browser's colour tokens are dark (`data-theme="dark"` on it or an ancestor, or the OS preference without `data-theme="light"`).
 
 ## Static export
 

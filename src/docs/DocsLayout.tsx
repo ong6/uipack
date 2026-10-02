@@ -1,4 +1,4 @@
-import { useId, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 
 export interface DocsNavItem {
   title: string;
@@ -56,6 +56,51 @@ function SectionNavigation({
   );
 }
 
+/**
+ * The id of the section being read: the last heading whose top has passed the
+ * reading line, 30% down the viewport (the last one in view once the page
+ * can scroll no further). Measured on a passive, frame-throttled scroll
+ * listener: an IntersectionObserver alone misses a jump between two points
+ * where no heading changes visibility, such as two long sections.
+ */
+function useCurrentSection(ids: string[]) {
+  const [current, setCurrent] = useState<string | null>(null);
+  const key = ids.join(" ");
+  useEffect(() => {
+    const headings = ids
+      .map((id) => document.getElementById(id))
+      .filter((element): element is HTMLElement => element !== null);
+    if (headings.length === 0) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const line = window.innerHeight * 0.3;
+      const atEnd =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 2;
+      let next: string | null = null;
+      for (const heading of headings) {
+        const top = heading.getBoundingClientRect().top;
+        if (top <= line || (atEnd && top < window.innerHeight)) next = heading.id;
+      }
+      setCurrent(next);
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+  return current;
+}
+
 export function DocsLayout({
   productTitle,
   productHref,
@@ -69,6 +114,7 @@ export function DocsLayout({
   children,
 }: DocsLayoutProps) {
   const mobileNavigationId = useId();
+  const currentSection = useCurrentSection(onThisPage.map((item) => item.id));
   const current = sections
     .flatMap((section) => section.items)
     .find((item) => item.href === activeHref);
@@ -89,6 +135,14 @@ export function DocsLayout({
         <summary aria-controls={mobileNavigationId}>
           <span>Documentation</span>
           {current && <small>{current.title}</small>}
+          <svg
+            className="uipack-docs__chevron"
+            viewBox="0 0 16 16"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M4 6l4 4 4-4" />
+          </svg>
         </summary>
         <div id={mobileNavigationId}>
           <SectionNavigation sections={sections} activeHref={activeHref} />
@@ -113,13 +167,11 @@ export function DocsLayout({
               className="uipack-docs__pagination"
               aria-label="Previous and next documentation pages"
             >
-              {previous ? (
+              {previous && (
                 <a href={previous.href} rel="prev">
                   <small>Previous</small>
                   <span>← {previous.title}</span>
                 </a>
-              ) : (
-                <span />
               )}
               {next && (
                 <a href={next.href} rel="next">
@@ -137,7 +189,12 @@ export function DocsLayout({
             <ol>
               {onThisPage.map((item) => (
                 <li key={item.id} data-level={item.level}>
-                  <a href={`#${item.id}`}>{item.title}</a>
+                  <a
+                    href={`#${item.id}`}
+                    aria-current={item.id === currentSection ? "location" : undefined}
+                  >
+                    {item.title}
+                  </a>
                 </li>
               ))}
             </ol>

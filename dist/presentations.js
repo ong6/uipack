@@ -28,9 +28,9 @@ function renderSlideSvg(slide, options = {}) {
   const colors = palettes[theme];
   const width = options.width ?? 1200;
   const height = Math.round(width * 9 / 16);
-  const text = (x, y, value, size = 26, color = colors.ink, weight = 400, mono = false) => `<text x="${x}" y="${y}" font-family="${mono ? "IBM Plex Mono, ui-monospace, monospace" : "IBM Plex Sans, system-ui, sans-serif"}" font-size="${size}" fill="${color}" font-weight="${weight}">${escapeSvgText(value)}</text>`;
+  const text = (x, y, value, size = 26, color = colors.ink, weight = 400, mono = false, anchor = "start") => `<text x="${x}" y="${y}"${anchor === "end" ? ' text-anchor="end"' : ""} font-family="${mono ? "IBM Plex Mono, ui-monospace, monospace" : "IBM Plex Sans, system-ui, sans-serif"}" font-size="${size}" fill="${color}" font-weight="${weight}">${escapeSvgText(value)}</text>`;
   const rule = (x1, y, x2) => `<path d="M${x1} ${y}H${x2}" stroke="${colors.rule}" stroke-width="2"/>`;
-  const footer = slide.footer ? rule(64, 592, 1136) + text(64, 635, slide.footer.label, 18, colors.muted, 400, true) + (slide.footer.page ? text(1010, 635, slide.footer.page, 18, colors.muted, 400, true) : "") : "";
+  const footer = slide.footer ? rule(64, 592, 1136) + text(64, 635, slide.footer.label, 18, colors.muted, 400, true) + (slide.footer.page ? text(1136, 635, slide.footer.page, 18, colors.muted, 400, true, "end") : "") : "";
   let body = "";
   if (slide.layout === "opening") {
     body = text(64, 105, slide.content.eyebrow, 22, colors.accent, 700, true) + text(64, 277, slide.content.headline[0], 78, colors.ink, 600) + text(64, 371, slide.content.headline[1], 78, colors.ink, 600) + text(64, 457, slide.content.context, 28, colors.muted);

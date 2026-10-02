@@ -115,6 +115,7 @@ function createContactDirection(variant) {
       signal.position.set(1.39 * Math.cos(a), 1.39 * Math.sin(a), 0);
     });
   }
+  if (variant === 3) g.userData.narrowFrame = { halfWidth: 1.9, halfHeight: 1.5, y: -0.15 };
   g.userData.style = variant === 3 ? "cartoon" : "kinetic";
   g.userData.source = "procedural";
   g.userData.loopDuration = 12e3;
@@ -1850,4 +1851,4 @@ export {
   createObject,
   disposeObject
 };
-//# sourceMappingURL=scenes-NWREIWPC.js.map
+//# sourceMappingURL=scenes-NYF2WKQU.js.map

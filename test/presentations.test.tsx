@@ -34,6 +34,9 @@ describe("presentation starters", () => {
     expect(svg).toContain("<desc>A thesis &amp; context.</desc>");
     expect(svg).toContain("A &lt; B");
     expect(svg).not.toContain(opening.speech.say);
+    // The page number ends where the footer rule ends.
+    expect(svg).toContain('<path d="M64 592H1136"');
+    expect(svg).toMatch(/<text x="1136" y="635" text-anchor="end"[^>]*>01 \/ 03<\/text>/);
   });
 
   it.each(["opening", "explanation", "system"] as const)(

@@ -182,6 +182,14 @@ function useCanvasGestures(ref, open, zoom) {
 // src/CanvasView.tsx
 import { createPortal } from "react-dom";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
+var CANVAS_TOKENS = [
+  "--uipack-bg",
+  "--uipack-surface",
+  "--uipack-fg",
+  "--uipack-muted",
+  "--uipack-border",
+  "--uipack-accent"
+];
 function CanvasView({
   open,
   onClose,
@@ -189,7 +197,8 @@ function CanvasView({
   children,
   zoom,
   theme,
-  restoreFocus
+  restoreFocus,
+  layout
 }) {
   const content = useRef2(null);
   const gestures = useCanvasGestures(content, open, zoom);
@@ -234,6 +243,18 @@ function CanvasView({
       );
     };
   }, [open]);
+  useEffect2(() => {
+    const node = dialog.current;
+    if (!open || !node) return;
+    const source = node.querySelector(".uipack");
+    if (!source) return;
+    const style = getComputedStyle(source);
+    for (const name of CANVAS_TOKENS) {
+      const value = style.getPropertyValue(name).trim();
+      if (value) node.style.setProperty(name, value);
+      else node.style.removeProperty(name);
+    }
+  }, [open, theme]);
   if (!open || typeof document === "undefined") return /* @__PURE__ */ jsx(Fragment, { children });
   return createPortal(
     /* @__PURE__ */ jsxs(
@@ -293,7 +314,14 @@ function CanvasView({
             ] })
           ] }),
           /* @__PURE__ */ jsx("p", { className: "uipack-canvas-hint", children: "Pinch to zoom \xB7 Two-finger scroll \xB7 + / \u2212 to zoom \xB7 0 to reset" }),
-          /* @__PURE__ */ jsx("div", { ref: content, className: "uipack-canvas-content", children })
+          /* @__PURE__ */ jsx(
+            "div",
+            {
+              ref: content,
+              className: `uipack-canvas-content${layout ? ` uipack-canvas-content--${layout}` : ""}`,
+              children
+            }
+          )
         ]
       }
     ),
@@ -304,4 +332,4 @@ function CanvasView({
 export {
   CanvasView
 };
-//# sourceMappingURL=chunk-GP5TROIA.js.map
+//# sourceMappingURL=chunk-GEEREXP5.js.map

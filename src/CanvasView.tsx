@@ -2,6 +2,15 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { useCanvasGestures, type CanvasZoom } from "./canvas-gestures";
 import { createPortal } from "react-dom";
 
+const CANVAS_TOKENS = [
+  "--uipack-bg",
+  "--uipack-surface",
+  "--uipack-fg",
+  "--uipack-muted",
+  "--uipack-border",
+  "--uipack-accent",
+];
+
 /** Native modal semantics: focus containment, Escape, and a deliberate return to the opener. */
 export function CanvasView({
   open,
@@ -11,6 +20,7 @@ export function CanvasView({
   zoom,
   theme,
   restoreFocus,
+  layout,
 }: {
   open: boolean;
   onClose: () => void;
@@ -19,6 +29,8 @@ export function CanvasView({
   zoom: CanvasZoom;
   theme?: string;
   restoreFocus?: () => void;
+  /** "figure" centres a drawing that is shorter than the canvas. */
+  layout?: "figure";
 }) {
   const content = useRef<HTMLDivElement>(null);
   const gestures = useCanvasGestures(content, open, zoom);
@@ -72,6 +84,20 @@ export function CanvasView({
       );
     };
   }, [open]);
+  // The dialog sits in <body>, outside the host's token scope. Take the
+  // tokens the figure inside it resolves, so a host palette applies.
+  useEffect(() => {
+    const node = dialog.current;
+    if (!open || !node) return;
+    const source = node.querySelector<HTMLElement>(".uipack");
+    if (!source) return;
+    const style = getComputedStyle(source);
+    for (const name of CANVAS_TOKENS) {
+      const value = style.getPropertyValue(name).trim();
+      if (value) node.style.setProperty(name, value);
+      else node.style.removeProperty(name);
+    }
+  }, [open, theme]);
   if (!open || typeof document === "undefined") return <>{children}</>;
   return createPortal(
     <dialog
@@ -126,7 +152,10 @@ export function CanvasView({
       <p className="uipack-canvas-hint">
         Pinch to zoom · Two-finger scroll · + / − to zoom · 0 to reset
       </p>
-      <div ref={content} className="uipack-canvas-content">
+      <div
+        ref={content}
+        className={`uipack-canvas-content${layout ? ` uipack-canvas-content--${layout}` : ""}`}
+      >
         {children}
       </div>
     </dialog>,

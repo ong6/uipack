@@ -21,7 +21,7 @@ Landing is the web style of `uipack/web`, shown at `/web`. Its tokens live in `s
 
 - Light: warm off-white page (`#f6f5f1`), white figure surfaces, near-black ink (`#1a1c1a`), forest accent (`#205f49`).
 - Dark: near-black green page (`#0a100d`), forest surfaces (`#0e1512`, `#14201b`), pale ink (`#e8ece9`), mint accent (`#71dcb2`).
-- Blue squares mean requests, green circles mean responses, violet diamonds mean changes. Preserve shape as well as colour.
+- Blue squares mean requests, green circles mean responses, violet diamonds mean changes, and accent rings mark the figure's one highlighted path. Preserve shape as well as colour: a host may set its accent close to the request blue.
 - System sans for titles and explanation; system monospace for metadata, IDs, and controls where appropriate. No font network requests.
 - One shared page width, header, navigation, theme control, and active-page indicator. Theme survives navigation and reload through URL parameters.
 - Restrained borders and small radii. Glow is a selection signal, never ambient decoration. Text and selected state explain the same thing without relying on glow.

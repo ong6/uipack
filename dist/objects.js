@@ -1,6 +1,6 @@
 import {
   CanvasView
-} from "./chunk-GP5TROIA.js";
+} from "./chunk-GEEREXP5.js";
 
 // src/objects/index.tsx
 import { useEffect, useRef, useState } from "react";
@@ -147,6 +147,7 @@ var objectScenes = [
   }
 ];
 var REST_START_MS = 5400;
+var NARROW_STAGE_PX = 480;
 var MOBILE_FRAME_MS = 1e3 / 30;
 var styles = {
   scene: "uipack-object",
@@ -206,9 +207,8 @@ var Fallback = ({ kind, label }) => {
       /* @__PURE__ */ jsx2("rect", { x: "26", y: "24", width: "308", height: "152", rx: "8" }),
       /* @__PURE__ */ jsx2("path", { d: "M161 176v18h38v-18m-60 22h82" }),
       /* @__PURE__ */ jsx2("path", { className: "soft", d: "M43 70h268M43 100h268M43 130h268M43 151h268" }),
-      /* @__PURE__ */ jsx2("path", { stroke: "#269764", d: "M62 122V73m-7 15h14v23H55zm54 35V63m-7 19h14v29h-14zm68 9V58m-7 14h14v32h-14zm55-20V49m-7 12h14v16h-14zM55 163v-8h14v8m33 0v-11h14v11m54 0v-14h14v14m41 0v-18h14v18" }),
-      /* @__PURE__ */ jsx2("path", { stroke: "#d85b65", d: "M85 89v48m-7-35h14v23H78zm57-33v46m-7-33h14v22h-14zm65-47v44m-7-31h14v19h-14zm57-51v49m-7-35h14v24h-14zM78 163v-6h14v6m36 0v-9h14v9m51 0v-11h14v11m43 0v-8h14v8" }),
-      /* @__PURE__ */ jsx2("text", { x: "180", y: "43", children: "DEMO / USD \xB7 SIMULATED" })
+      /* @__PURE__ */ jsx2("path", { stroke: "#269764", d: "M62 98V131M55 108h14v16h-14zM109 89V130M102 102h14v20h-14zM170 86V108M163 95h14v22h-14zM218 80V102M211 86h14v11h-14zM55 163v-8h14v8m33 0v-11h14v11m54 0v-14h14v14m41 0v-18h14v18" }),
+      /* @__PURE__ */ jsx2("path", { stroke: "#d85b65", d: "M85 109V140M78 116h14v16h-14zM135 93V125M128 102h14v15h-14zM193 70V100M186 79h14v13h-14zM243 44V78M236 54h14v16h-14zM78 163v-6h14v6m36 0v-9h14v9m51 0v-11h14v11m43 0v-8h14v8" })
     ] }),
     server: /* @__PURE__ */ jsxs2(Fragment2, { children: [
       /* @__PURE__ */ jsx2("path", { d: "M78 38h204v142H78zM96 58h168v26H96zM96 96h168v26H96zM96 134h168v26H96z" }),
@@ -236,26 +236,32 @@ var Fallback = ({ kind, label }) => {
       /* @__PURE__ */ jsx2("path", { d: "M180 60v132" })
     ] })
   };
-  return /* @__PURE__ */ jsx2(
+  const captions = {
+    trading: "DEMO / USD \xB7 SIMULATED"
+  };
+  return /* @__PURE__ */ jsxs2(
     "div",
     {
       className: styles.fallback,
       role: "img",
       "aria-label": `${label} illustration`,
-      children: /* @__PURE__ */ jsx2(
-        "svg",
-        {
-          className: styles.fallbackSvg,
-          viewBox: "0 0 360 214",
-          "aria-hidden": "true",
-          fill: "none",
-          stroke: "currentColor",
-          strokeWidth: "3",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          children: scenes[kind]
-        }
-      )
+      children: [
+        /* @__PURE__ */ jsx2(
+          "svg",
+          {
+            className: styles.fallbackSvg,
+            viewBox: "0 0 360 214",
+            "aria-hidden": "true",
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: "3",
+            strokeLinecap: "round",
+            strokeLinejoin: "round",
+            children: scenes[kind]
+          }
+        ),
+        captions[kind] && /* @__PURE__ */ jsx2("span", { className: "uipack-object__fallback-caption", "aria-hidden": "true", children: captions[kind] })
+      ]
     }
   );
 };
@@ -343,7 +349,7 @@ function ObjectStage({
       setReady(false);
     };
     canvas.addEventListener("webglcontextlost", handleContextLost);
-    Promise.all([import("three"), import("./scenes-NWREIWPC.js"), import("three/addons/environments/RoomEnvironment.js")]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
+    Promise.all([import("three"), import("./scenes-NYF2WKQU.js"), import("three/addons/environments/RoomEnvironment.js")]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
       if (disposed) return;
       try {
         renderer = new THREE.WebGLRenderer({
@@ -470,8 +476,10 @@ function ObjectStage({
           const height = canvas.clientHeight || 1;
           renderer.setSize(width, height, false);
           const aspect = width / height;
-          const halfWidth = variant === 4 && kind !== "contact" ? 2.15 : kind === "server" && variant === 0 ? 3.25 : 2.65;
-          const halfHeight = Math.max(variant === 4 && kind !== "contact" ? 1.75 : 2.2, halfWidth / aspect);
+          const narrow = width < NARROW_STAGE_PX ? object.userData.narrowFrame : void 0;
+          const halfWidth = narrow?.halfWidth ?? (variant === 4 && kind !== "contact" ? 2.15 : kind === "server" && variant === 0 ? 3.25 : 2.65);
+          const halfHeight = Math.max(narrow?.halfHeight ?? (variant === 4 && kind !== "contact" ? 1.75 : 2.2), halfWidth / aspect);
+          camera.position.y = narrow?.y ?? (variant === 4 && kind !== "contact" ? -0.15 : 0);
           camera.left = -halfHeight * aspect;
           camera.right = halfHeight * aspect;
           camera.top = halfHeight;

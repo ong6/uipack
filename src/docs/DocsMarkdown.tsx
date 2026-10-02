@@ -2,6 +2,7 @@ import {
   Children,
   createElement,
   isValidElement,
+  type CSSProperties,
   type ReactNode,
 } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
@@ -84,6 +85,23 @@ export function extractDocsHeadings(source: string): ExtractedDocsHeading[] {
   return headings;
 }
 
+interface TableNode {
+  type?: string;
+  tagName?: string;
+  children?: TableNode[];
+}
+
+/** Cells in the first row, so a wide table scrolls instead of squeezing. */
+function tableColumns(node: TableNode | undefined): number {
+  const row = (node?.children ?? [])
+    .flatMap((part) => (part.tagName === "tr" ? [part] : part.children ?? []))
+    .find((part) => part.tagName === "tr");
+  const cells = (row?.children ?? []).filter(
+    (cell) => cell.tagName === "th" || cell.tagName === "td",
+  ).length;
+  return Math.max(1, cells || 2);
+}
+
 type HeadingComponent = NonNullable<Components["h1"]>;
 
 function headingComponent(
@@ -123,8 +141,12 @@ export function DocsMarkdown({ source }: DocsMarkdownProps) {
     h4: headingComponent(4, headingIds),
     h5: headingComponent(5, headingIds),
     h6: headingComponent(6, headingIds),
-    table: ({ node: _node, ...props }) => (
-      <div className="uipack-docs__table" tabIndex={0}>
+    table: ({ node, ...props }) => (
+      <div
+        className="uipack-docs__table"
+        tabIndex={0}
+        style={{ "--docs-table-columns": tableColumns(node) } as CSSProperties}
+      >
         <table {...props} />
       </div>
     ),

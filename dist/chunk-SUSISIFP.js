@@ -4,10 +4,10 @@ import {
   Token,
   fontFloor,
   useFontFloor
-} from "./chunk-2BHGP5ET.js";
+} from "./chunk-BEGV5DNB.js";
 import {
   CanvasView
-} from "./chunk-GP5TROIA.js";
+} from "./chunk-GEEREXP5.js";
 import {
   FigureMotionContext,
   useFigureMotion,
@@ -271,6 +271,7 @@ function Figure({
       },
       title: title ?? eyebrow ?? "Figure canvas",
       theme,
+      layout: "figure",
       zoom: { value: zoom, min: 1, max: 3, onChange: setZoom },
       children: /* @__PURE__ */ jsx2(SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ jsx2(FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsx2(FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxs2(
         "figure",
@@ -289,7 +290,8 @@ function Figure({
             if (e.key === "Escape") select(null);
           },
           style: {
-            margin: 0,
+            // Opened, the canvas content is a flex column: auto centres it.
+            margin: expanded ? "auto 0" : 0,
             "--figure-width": `${vbWidth(viewBox)}px`
           },
           children: [
@@ -1018,4 +1020,4 @@ export {
   Label,
   Defs
 };
-//# sourceMappingURL=chunk-42M53LHW.js.map
+//# sourceMappingURL=chunk-SUSISIFP.js.map

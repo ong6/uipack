@@ -25,7 +25,7 @@ import {
   route,
   trim,
   useFigureHover
-} from "./chunk-42M53LHW.js";
+} from "./chunk-SUSISIFP.js";
 import {
   DEFAULT_RENDER_WIDTH,
   FigureScaleContext,
@@ -35,8 +35,8 @@ import {
   fontFloor,
   tokenColor,
   useFontFloor
-} from "./chunk-2BHGP5ET.js";
-import "./chunk-GP5TROIA.js";
+} from "./chunk-BEGV5DNB.js";
+import "./chunk-GEEREXP5.js";
 import {
   FigureMotionContext,
   useFigureMotion,

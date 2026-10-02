@@ -69,7 +69,7 @@ An unrecognized `stopId` falls back to the first stop. Keep the story object sta
 A `SlideStory` is plain serializable data:
 
 - `nodes`: IDs, label/detail text, 3D positions, dimensions, color roles, and shape (`block`, `sphere`, `layer`, or `boundary`).
-- `connections`: directed relationships between node IDs. Request packets are squares, response packets circles, and change packets diamonds.
+- `connections`: directed relationships between node IDs. Request packets are squares, response packets circles, change packets diamonds and accent packets rings.
 - `stops`: camera position/target, title, caption, optional presenter notes, node position/scale/opacity overrides, label IDs, and active connection IDs.
 
 Every stop resolves against the base scene, never the last stop. This makes direct jumps and reverse navigation deterministic. A new action interrupts the old timeline and moves from the current pose to the new target. Camera turns follow the shortest spherical arc around the target with sine easing. Labels fade out before movement and return after the scene settles, avoiding collision-placement jumps. Flow packets travel the full curved route and fade at the endpoints.

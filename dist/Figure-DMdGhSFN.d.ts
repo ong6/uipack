@@ -1,6 +1,6 @@
 import * as react from 'react';
 import { ReactNode } from 'react';
-import { b as LegendItem } from './Legend-S2FQoAxv.cjs';
+import { b as LegendItem } from './Legend-Dn1ZWKId.js';
 
 interface FigureProps {
     /** Allow opening a zoomable canvas. */

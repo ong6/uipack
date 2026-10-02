@@ -62,7 +62,7 @@ var TOKEN_SHAPE = {
   request: "square",
   response: "circle",
   change: "diamond",
-  accent: "square",
+  accent: "ring",
   neutral: "circle"
 };
 function tokenColor(kind) {
@@ -84,6 +84,8 @@ function Token({ shape, kind = "neutral", r = 5, cx = 0, cy = 0, style }) {
   const fill = tokenColor(kind);
   const common = { fill, stroke: "var(--uipack-bg)", strokeWidth: 1.5, style };
   if (s === "circle") return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx, cy, r, ...common });
+  if (s === "ring")
+    return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx, cy, r: r * 0.78, fill: "var(--uipack-bg)", stroke: fill, strokeWidth: r * 0.5, style });
   if (s === "diamond") {
     const d = r * 1.2;
     return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: `M${cx},${cy - d} L${cx + d},${cy} L${cx},${cy + d} L${cx - d},${cy} Z`, ...common });

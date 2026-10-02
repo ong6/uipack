@@ -82,4 +82,29 @@ describe("product documentation", () => {
     expect(html).toContain('href="#details"');
     expect(html).not.toContain("private-review-path");
   });
+
+  it("gives tables their column count so narrow layouts can scroll them", () => {
+    const html = renderToString(
+      <DocsMarkdown source={"| A | B | C |\n|---|---|---|\n| 1 | 2 | 3 |"} />,
+    );
+    expect(html).toContain("--docs-table-columns:3");
+  });
+
+  it("places a lone previous link without a placeholder", () => {
+    const { container } = render(
+      <DocsLayout
+        productTitle="Product"
+        productHref="/product"
+        sections={sections}
+        activeHref="/docs/next"
+        previous={{ title: "Overview", href: "/docs" }}
+      >
+        <p>Last page</p>
+      </DocsLayout>,
+    );
+    const pagination = container.querySelector(".uipack-docs__pagination")!;
+    expect(pagination.children).toHaveLength(1);
+    expect(pagination.firstElementChild).toHaveAttribute("rel", "prev");
+    expect(container.querySelector(".uipack-docs__chevron")).toBeInTheDocument();
+  });
 });

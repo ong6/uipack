@@ -1,6 +1,7 @@
-// Renders every asset to a standalone SVG under docs/assets/ and writes
-// assets/manifest.json. Run: npm run manifest. Previews use the light palette
-// with variables inlined, so they render the same inside <img> anywhere.
+// Renders every asset to a standalone SVG under docs/assets/ (light palette)
+// and docs/assets/dark/ (dark palette), and writes assets/manifest.json.
+// Run: npm run manifest. Variables are inlined, so each file renders the same
+// inside <img> anywhere; the browser picks the file that matches its theme.
 import { mkdirSync, writeFileSync, readdirSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import type { ReactNode } from "react";
@@ -20,25 +21,32 @@ const presetParts: Record<PresetName, () => { wide: ReactNode; viewBox: string }
 import type { Asset } from "../src/browser";
 
 const OUT = "docs/assets";
-import { LIGHT, renderStatic } from "../src/static";
+import { DARK, LIGHT, renderStatic, type Palette, type StaticTheme } from "../src/static";
+const OUT_DARK = `${OUT}/dark`;
 
 // Every preview goes through the same static renderer the `uipack/static`
 // entry exports, so what the browser shows is what an <img> gets.
-function svgFile(viewBox: string, body: ReactNode, opts: { grid?: boolean; w?: number; h?: number } = {}): string {
+type Themed = (theme: StaticTheme) => string;
+function svgFile(viewBox: string, body: ReactNode, opts: { grid?: boolean; w?: number; h?: number } = {}): Themed {
   const [, , w] = viewBox.split(" ").map(Number);
-  const svg = renderStatic({ children: body, viewBox }, { frame: false, background: !!opts.grid, motion: true, width: opts.w ?? w });
-  return opts.h ? svg.replace(/ height="\d+"/, ` height="${opts.h}"`) : svg;
+  return (theme) => {
+    const svg = renderStatic({ children: body, viewBox }, { theme, frame: false, background: !!opts.grid, motion: true, width: opts.w ?? w });
+    return opts.h ? svg.replace(/ height="\d+"/, ` height="${opts.h}"`) : svg;
+  };
 }
 
-mkdirSync(OUT, { recursive: true });
-for (const f of readdirSync(OUT)) if (f.endsWith(".svg")) unlinkSync(join(OUT, f));
+for (const dir of [OUT, OUT_DARK]) {
+  mkdirSync(dir, { recursive: true });
+  for (const f of readdirSync(dir)) if (f.endsWith(".svg")) unlinkSync(join(dir, f));
+}
 
 const assets: Asset[] = [];
-const add = (a: Omit<Asset, "preview"> & { svg: string }) => {
+const add = (a: Omit<Asset, "preview" | "previewDark"> & { svg: Themed }) => {
   const file = `${a.id}.svg`;
-  writeFileSync(join(OUT, file), a.svg);
+  writeFileSync(join(OUT, file), a.svg("light"));
+  writeFileSync(join(OUT_DARK, file), a.svg("dark"));
   const { svg, ...rest } = a;
-  assets.push({ ...rest, preview: `${OUT}/${file}` });
+  assets.push({ ...rest, preview: `${OUT}/${file}`, previewDark: `${OUT_DARK}/${file}` });
 };
 
 // Figures: every preset's wide drawing with its default spec.
@@ -84,10 +92,11 @@ add({ id: "motion-packet", name: "Packet in motion", category: "Motion", kind: "
 add({ id: "motion-reduced", name: "Reduced motion · static token", category: "Motion", kind: "motion", source: '// under prefers-reduced-motion a Packet renders once at `at` (default 0.5) and never moves', tags: ["reduced-motion", "static", "a11y"], svg: svgFile("0 0 320 80", (<><Defs id="r" /><Connector points={[[16, 40], [304, 40]]} defs="r" kind="request" /><Token kind="request" cx={160} cy={40} /></>)) });
 
 // Backgrounds.
-const bgTile = (kind: "dots" | "plain" | "ruled") => {
+const bgTile = (kind: "dots" | "plain" | "ruled"): Themed => (theme) => {
+  const p: Palette = theme === "dark" ? DARK : LIGHT;
   const w = 320, h = 160;
-  const body = kind === "dots" ? `<defs><pattern id="d" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="${LIGHT.grid}"/></pattern></defs><rect width="${w}" height="${h}" fill="url(#d)"/>` : kind === "ruled" ? `<defs><pattern id="r" width="${w}" height="24" patternUnits="userSpaceOnUse"><rect width="${w}" height="1" fill="${LIGHT.grid}"/></pattern></defs><rect width="${w}" height="${h}" fill="url(#r)"/>` : "";
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><rect width="${w}" height="${h}" fill="${LIGHT.bg}"/>${body}</svg>\n`;
+  const body = kind === "dots" ? `<defs><pattern id="d" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="${p.grid}"/></pattern></defs><rect width="${w}" height="${h}" fill="url(#d)"/>` : kind === "ruled" ? `<defs><pattern id="r" width="${w}" height="24" patternUnits="userSpaceOnUse"><rect width="${w}" height="1" fill="${p.grid}"/></pattern></defs><rect width="${w}" height="${h}" fill="url(#r)"/>` : "";
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><rect width="${w}" height="${h}" fill="${p.bg}"/>${body}</svg>\n`;
 };
 for (const kind of ["dots", "plain", "ruled"] as const) add({ id: `background-${kind}`, name: `Canvas · ${kind}`, category: "Backgrounds", kind: "background", source: `<Figure background="${kind}" …>`, tags: ["canvas", kind], svg: bgTile(kind) });
 

@@ -262,6 +262,7 @@ export function Figure({
       }}
       title={title ?? eyebrow ?? "Figure canvas"}
       theme={theme}
+      layout="figure"
       zoom={{ value: zoom, min: 1, max: 3, onChange: setZoom }}
     >
       <SelectionContext.Provider value={{ enabled: true, selected, select }}>
@@ -285,7 +286,8 @@ export function Figure({
               }}
               style={
                 {
-                  margin: 0,
+                  // Opened, the canvas content is a flex column: auto centres it.
+                  margin: expanded ? "auto 0" : 0,
                   "--figure-width": `${vbWidth(viewBox)}px`,
                 } as React.CSSProperties
               }
@@ -373,6 +375,8 @@ export function Figure({
                 <svg
                   ref={wideRef}
                   className="uipack--wide"
+                  // Opened, the drawing is never narrower than 800px, so
+                  // labels stay readable on a phone; pan to see the rest.
                   style={
                     expanded
                       ? { width: `max(${zoom * 100}%, ${800 * zoom}px)` }
