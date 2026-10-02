@@ -86,32 +86,41 @@ function DocsLayout({
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-docs__grid", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("aside", { className: "uipack-docs__sidebar", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SectionNavigation, { sections, activeHref }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "uipack-docs__article", id: "docs-content", tabIndex: -1, children: [
-        children,
-        (previous || next) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-          "nav",
-          {
-            className: "uipack-docs__pagination",
-            "aria-label": "Previous and next documentation pages",
-            children: [
-              previous ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", { href: previous.href, rel: "prev", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Previous" }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-                  "\u2190 ",
-                  previous.title
-                ] })
-              ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {}),
-              next && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", { href: next.href, rel: "next", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Next" }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-                  next.title,
-                  " \u2192"
-                ] })
-              ] })
-            ]
-          }
-        )
-      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+        "section",
+        {
+          className: "uipack-docs__article",
+          id: "docs-content",
+          "aria-label": "Documentation content",
+          tabIndex: -1,
+          children: [
+            children,
+            (previous || next) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+              "nav",
+              {
+                className: "uipack-docs__pagination",
+                "aria-label": "Previous and next documentation pages",
+                children: [
+                  previous ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", { href: previous.href, rel: "prev", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Previous" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+                      "\u2190 ",
+                      previous.title
+                    ] })
+                  ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {}),
+                  next && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", { href: next.href, rel: "next", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Next" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+                      next.title,
+                      " \u2192"
+                    ] })
+                  ] })
+                ]
+              }
+            )
+          ]
+        }
+      ),
       onThisPage.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("aside", { className: "uipack-docs__toc", "aria-label": "On this page", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "On this page" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ol", { children: onThisPage.map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { "data-level": item.level, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { href: `#${item.id}`, children: item.title }) }, item.id)) })

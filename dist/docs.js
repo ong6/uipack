@@ -47,32 +47,41 @@ function DocsLayout({
     ] }),
     /* @__PURE__ */ jsxs("div", { className: "uipack-docs__grid", children: [
       /* @__PURE__ */ jsx("aside", { className: "uipack-docs__sidebar", children: /* @__PURE__ */ jsx(SectionNavigation, { sections, activeHref }) }),
-      /* @__PURE__ */ jsxs("article", { className: "uipack-docs__article", id: "docs-content", tabIndex: -1, children: [
-        children,
-        (previous || next) && /* @__PURE__ */ jsxs(
-          "nav",
-          {
-            className: "uipack-docs__pagination",
-            "aria-label": "Previous and next documentation pages",
-            children: [
-              previous ? /* @__PURE__ */ jsxs("a", { href: previous.href, rel: "prev", children: [
-                /* @__PURE__ */ jsx("small", { children: "Previous" }),
-                /* @__PURE__ */ jsxs("span", { children: [
-                  "\u2190 ",
-                  previous.title
-                ] })
-              ] }) : /* @__PURE__ */ jsx("span", {}),
-              next && /* @__PURE__ */ jsxs("a", { href: next.href, rel: "next", children: [
-                /* @__PURE__ */ jsx("small", { children: "Next" }),
-                /* @__PURE__ */ jsxs("span", { children: [
-                  next.title,
-                  " \u2192"
-                ] })
-              ] })
-            ]
-          }
-        )
-      ] }),
+      /* @__PURE__ */ jsxs(
+        "section",
+        {
+          className: "uipack-docs__article",
+          id: "docs-content",
+          "aria-label": "Documentation content",
+          tabIndex: -1,
+          children: [
+            children,
+            (previous || next) && /* @__PURE__ */ jsxs(
+              "nav",
+              {
+                className: "uipack-docs__pagination",
+                "aria-label": "Previous and next documentation pages",
+                children: [
+                  previous ? /* @__PURE__ */ jsxs("a", { href: previous.href, rel: "prev", children: [
+                    /* @__PURE__ */ jsx("small", { children: "Previous" }),
+                    /* @__PURE__ */ jsxs("span", { children: [
+                      "\u2190 ",
+                      previous.title
+                    ] })
+                  ] }) : /* @__PURE__ */ jsx("span", {}),
+                  next && /* @__PURE__ */ jsxs("a", { href: next.href, rel: "next", children: [
+                    /* @__PURE__ */ jsx("small", { children: "Next" }),
+                    /* @__PURE__ */ jsxs("span", { children: [
+                      next.title,
+                      " \u2192"
+                    ] })
+                  ] })
+                ]
+              }
+            )
+          ]
+        }
+      ),
       onThisPage.length > 0 && /* @__PURE__ */ jsxs("aside", { className: "uipack-docs__toc", "aria-label": "On this page", children: [
         /* @__PURE__ */ jsx("p", { children: "On this page" }),
         /* @__PURE__ */ jsx("ol", { children: onThisPage.map((item) => /* @__PURE__ */ jsx("li", { "data-level": item.level, children: /* @__PURE__ */ jsx("a", { href: `#${item.id}`, children: item.title }) }, item.id)) })

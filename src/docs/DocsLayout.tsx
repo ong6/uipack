@@ -100,7 +100,12 @@ export function DocsLayout({
           <SectionNavigation sections={sections} activeHref={activeHref} />
         </aside>
 
-        <article className="uipack-docs__article" id="docs-content" tabIndex={-1}>
+        <section
+          className="uipack-docs__article"
+          id="docs-content"
+          aria-label="Documentation content"
+          tabIndex={-1}
+        >
           {children}
 
           {(previous || next) && (
@@ -124,7 +129,7 @@ export function DocsLayout({
               )}
             </nav>
           )}
-        </article>
+        </section>
 
         {onThisPage.length > 0 && (
           <aside className="uipack-docs__toc" aria-label="On this page">
