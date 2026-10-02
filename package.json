@@ -54,8 +54,14 @@
       "import": "./dist/web.js",
       "require": "./dist/web.cjs"
     },
+    "./docs": {
+      "types": "./dist/docs.d.ts",
+      "import": "./dist/docs.js",
+      "require": "./dist/docs.cjs"
+    },
     "./web.css": "./dist/web.css",
-    "./web-gutters.css": "./dist/web-gutters.css"
+    "./web-gutters.css": "./dist/web-gutters.css",
+    "./docs.css": "./dist/docs.css"
   },
   "files": [
     "dist",
@@ -73,6 +79,7 @@
     "playground/README.md",
     "docs/objects.md",
     "docs/presentations.md",
+    "docs/docs-layout.md",
     "docs/component-first.md",
     "docs/web-principles.md"
   ],
@@ -80,7 +87,7 @@
     "*.css"
   ],
   "scripts": {
-    "build": "tsup && cat src/theme.css src/canvas.css > dist/theme.css && cp src/browser/browser.css dist/browser.css && cp src/presentations/presentations.css dist/presentations.css && cat src/slides/slides.css src/canvas.css > dist/slides.css && cat src/objects/objects.css src/canvas.css > dist/objects.css && cat src/web/web.css src/web/gutters.css > dist/web.css && cp src/web/gutters.css dist/web-gutters.css",
+    "build": "tsup && cat src/theme.css src/canvas.css > dist/theme.css && cp src/browser/browser.css dist/browser.css && cp src/presentations/presentations.css dist/presentations.css && cat src/slides/slides.css src/canvas.css > dist/slides.css && cat src/objects/objects.css src/canvas.css > dist/objects.css && cat src/web/web.css src/web/gutters.css > dist/web.css && cp src/web/gutters.css dist/web-gutters.css && cp src/docs/docs.css dist/docs.css",
     "dev": "vite",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
@@ -90,10 +97,10 @@
     "manifest": "tsx scripts/build-manifest.tsx"
   },
   "peerDependencies": {
+    "gsap": "^3.15.0",
     "react": ">=18",
     "react-dom": ">=18",
-    "three": "^0.186.0",
-    "gsap": "^3.15.0"
+    "three": "^0.186.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
@@ -137,5 +144,9 @@
     "gsap": {
       "optional": true
     }
+  },
+  "dependencies": {
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   }
 }

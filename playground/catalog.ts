@@ -29,6 +29,7 @@ export const libraryPages = [
   { id: "animations", label: "3D animations", path: "/animations" },
   { id: "presentations", label: "Presentations", path: "/presentations" },
   { id: "web", label: "Web UI", path: "/web" },
+  { id: "docs", label: "Docs layout", path: "/docs" },
   { id: "styles", label: "Styles", path: "/styles" },
 ] as const;
 export type LibraryPage = (typeof libraryPages)[number]["id"];
@@ -138,4 +139,15 @@ export const webEntries: CatalogEntry[] = [
       ["drifting-gutters", "Drifting gutters"],
     ] as const
   ).map(([id, title]) => ({ id, title, type: "web" as const, styleId: "landing", tags: ["Backgrounds"] })),
+];
+
+/** Documentation layouts, rendered on /docs with real navigation and Markdown. */
+export const docsEntries: CatalogEntry[] = [
+  {
+    id: "product-docs-layout",
+    title: "Product documentation layout",
+    type: "docs",
+    styleId: "technical",
+    tags: ["Layout", "Navigation", "Markdown"],
+  },
 ];

@@ -10,6 +10,7 @@ export default defineConfig({
     presentations: "src/presentations/index.ts",
     objects: "src/objects/index.tsx",
     web: "src/web/index.ts",
+    docs: "src/docs/index.ts",
   },
   format: ["esm", "cjs"],
   dts: true,
