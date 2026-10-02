@@ -212,7 +212,7 @@ function DocsMarkdown({ source }) {
     h6: headingComponent(6, headingIds),
     table: ({ node: _node, ...props }) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "uipack-docs__table", tabIndex: 0, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("table", { ...props }) })
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "uipack-docs__prose", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_markdown.default, { components, remarkPlugins: [import_remark_gfm.default], children: source }) });
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "uipack-docs__prose", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_markdown.default, { components, remarkPlugins: [import_remark_gfm.default], skipHtml: true, children: source }) });
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

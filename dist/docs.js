@@ -177,7 +177,7 @@ function DocsMarkdown({ source }) {
     h6: headingComponent(6, headingIds),
     table: ({ node: _node, ...props }) => /* @__PURE__ */ jsx2("div", { className: "uipack-docs__table", tabIndex: 0, children: /* @__PURE__ */ jsx2("table", { ...props }) })
   };
-  return /* @__PURE__ */ jsx2("div", { className: "uipack-docs__prose", children: /* @__PURE__ */ jsx2(ReactMarkdown, { components, remarkPlugins: [remarkGfm], children: source }) });
+  return /* @__PURE__ */ jsx2("div", { className: "uipack-docs__prose", children: /* @__PURE__ */ jsx2(ReactMarkdown, { components, remarkPlugins: [remarkGfm], skipHtml: true, children: source }) });
 }
 export {
   DocsLayout,

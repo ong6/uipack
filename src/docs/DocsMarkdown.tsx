@@ -132,7 +132,7 @@ export function DocsMarkdown({ source }: DocsMarkdownProps) {
 
   return (
     <div className="uipack-docs__prose">
-      <ReactMarkdown components={components} remarkPlugins={[remarkGfm]}>
+      <ReactMarkdown components={components} remarkPlugins={[remarkGfm]} skipHtml>
         {source}
       </ReactMarkdown>
     </div>

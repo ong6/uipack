@@ -20,6 +20,8 @@ Use \`paper mode\`.
 | ready | The input passed. |
 
 ### Details
+
+<!-- sources: private-review-path.md -->
 `;
 
 const sections: DocsSection[] = [
@@ -78,5 +80,6 @@ describe("product documentation", () => {
     expect(html).toContain("<code>paper mode</code>");
     expect(html).toContain('id="first-step"');
     expect(html).toContain('href="#details"');
+    expect(html).not.toContain("private-review-path");
   });
 });
