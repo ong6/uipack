@@ -5,9 +5,13 @@ test("docs gallery renders desktop navigation and table of contents", async ({ p
   await page.goto("/docs?theme=light");
 
   await expect(page.locator('[data-catalog-entry="product-docs-layout"]')).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "Documentation" })).toBeVisible();
+  await expect(
+    page.getByRole("navigation", { name: "Documentation", exact: true }),
+  ).toBeVisible();
   await expect(page.getByRole("complementary", { name: "On this page" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Overview" }).last()).toHaveAttribute(
+  await expect(
+    page.getByRole("link", { name: "Overview", exact: true }).last(),
+  ).toHaveAttribute(
     "aria-current",
     "page",
   );
