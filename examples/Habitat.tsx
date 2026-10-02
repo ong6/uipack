@@ -143,7 +143,7 @@ export function HabitatNarrow() {
       <Defs id={`${ID}-n`} />
       <Lane x={16} w={328} y={20} title="Clients" />
       {CLIENTS.slice(0, 4).map(([label, icon], i) => (
-        <Node key={label} x={16 + (i % 2) * 168} y={40 + Math.floor(i / 2) * 56} w={160} h={40} label={label} icon={icon} size={13} flow={READ} />
+        <Node key={label} x={16 + (i % 2) * 168} y={40 + Math.floor(i / 2) * 56} w={160} h={40} label={label} icon={icon} size={13} flow={READ} hint={`${label} reads and writes through Habitat`} />
       ))}
       <Connector points={down} defs={`${ID}-n`} flow={READ} />
       <Packet points={down} kind="request" dur={1.6} flow={READ} />

@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -61,6 +62,33 @@ export interface FigureProps {
 }
 
 const vbWidth = (viewBox: string) => Number(viewBox.split(/\s+/)[2]) || 0;
+
+// SSR-safe layout effect: the note is measured before paint in the browser.
+const useIsoLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
+
+const NOTE_GAP = 8;
+
+/**
+ * Place the selection note against its item, inside the canvas's scrolled
+ * content: centred above the item (below when the canvas has no room above),
+ * clamped to the visible part of the canvas.
+ */
+function placeNote(canvas: HTMLElement, note: HTMLElement, anchor: Element) {
+  const box = anchor.querySelector(":scope > rect") ?? anchor;
+  const c = canvas.getBoundingClientRect();
+  const a = box.getBoundingClientRect();
+  const w = note.offsetWidth;
+  const h = note.offsetHeight;
+  const x = a.left - c.left - canvas.clientLeft + canvas.scrollLeft;
+  const y = a.top - c.top - canvas.clientTop + canvas.scrollTop;
+  const minLeft = canvas.scrollLeft + NOTE_GAP;
+  const maxLeft = canvas.scrollLeft + canvas.clientWidth - w - NOTE_GAP;
+  const left = Math.max(minLeft, Math.min(x + a.width / 2 - w / 2, maxLeft));
+  const above = y - NOTE_GAP - h;
+  const top = above >= canvas.scrollTop + NOTE_GAP ? above : y + a.height + NOTE_GAP;
+  return { left, top };
+}
 
 /** Rendered width of each drawing, measured by ResizeObserver; 0 while hidden. */
 function useRenderedWidth(
@@ -150,6 +178,11 @@ export function Figure({
     }),
     [hoverFlow, hoverKind, selected],
   );
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const noteRef = useRef<HTMLDivElement>(null);
+  const [notePos, setNotePos] = useState<{ left: number; top: number } | null>(
+    null,
+  );
   const wideRef = useRef<SVGSVGElement>(null);
   const narrowRef = useRef<SVGSVGElement>(null);
   const wideW = useRenderedWidth(wideRef, measuredWidth, expanded);
@@ -191,10 +224,26 @@ export function Figure({
     [playing, reduced, cycle, toggle, replay],
   );
 
+  const note = selected?.detail ? selected : null;
+  useIsoLayoutEffect(() => {
+    setNotePos(null);
+    const canvas = canvasRef.current;
+    const el = noteRef.current;
+    const anchor = note?.anchor;
+    if (!canvas || !el || !anchor) return;
+    const place = () => {
+      if (anchor.isConnected) setNotePos(placeNote(canvas, el, anchor));
+    };
+    place();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(place);
+    ro.observe(canvas);
+    return () => ro.disconnect();
+  }, [note, zoom, expanded]);
+
   const showControls = controls && !reduced;
   const hasHead =
     expandable ||
-    selected ||
     number ||
     eyebrow ||
     title ||
@@ -300,21 +349,27 @@ export function Figure({
                   <Legend items={legend} />
                 </div>
               ) : null}
-              {selected && (
-                <div className="uipack__selection" role="status">
-                  <span>
-                    <strong>{selected.label}</strong>
-                    {selected.detail && ` · ${selected.detail}`}
-                  </span>
-                  <button type="button" onClick={() => select(null)}>
-                    Clear selection
-                  </button>
-                </div>
-              )}
+              <p className="uipack__sr" role="status">
+                {note ? `${note.label}: ${note.detail}` : ""}
+              </p>
               <div
+                ref={canvasRef}
                 className={`uipack__canvas uipack__canvas--${background}`}
                 onClick={() => select(null)}
               >
+                {note ? (
+                  <div
+                    ref={noteRef}
+                    className="uipack__note"
+                    aria-hidden="true"
+                    data-placed={notePos ? "true" : undefined}
+                    style={notePos ?? undefined}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <strong>{note.label}</strong>
+                    <span>{note.detail}</span>
+                  </div>
+                ) : null}
                 <svg
                   ref={wideRef}
                   className="uipack--wide"

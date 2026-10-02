@@ -535,9 +535,9 @@ var SelectionContext = (0, import_react4.createContext)({ enabled: false, select
 function useItemSelection(label, detail, flow, enabled = true, name = label) {
   const id = (0, import_react4.useId)();
   const context = (0, import_react4.useContext)(SelectionContext);
-  if (!context.enabled || !enabled) return {};
+  if (!context.enabled || !enabled || !(detail || flow)) return {};
   const selected = context.selected?.id === id;
-  const toggle = () => context.select(selected ? null : { id, label, detail, flow });
+  const toggle = (anchor) => context.select(selected ? null : { id, label, detail, flow, anchor });
   return {
     role: "button",
     tabIndex: 0,
@@ -546,13 +546,13 @@ function useItemSelection(label, detail, flow, enabled = true, name = label) {
     "data-selected": selected ? "true" : void 0,
     onClick: (event) => {
       event.stopPropagation();
-      toggle();
+      toggle(event.currentTarget);
     },
     onKeyDown: (event) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         event.stopPropagation();
-        toggle();
+        toggle(event.currentTarget);
       }
     }
   };
@@ -670,6 +670,23 @@ function useFontFloor(size) {
 // src/Figure.tsx
 var import_jsx_runtime7 = require("react/jsx-runtime");
 var vbWidth = (viewBox) => Number(viewBox.split(/\s+/)[2]) || 0;
+var useIsoLayoutEffect = typeof window === "undefined" ? import_react7.useEffect : import_react7.useLayoutEffect;
+var NOTE_GAP = 8;
+function placeNote(canvas, note, anchor) {
+  const box = anchor.querySelector(":scope > rect") ?? anchor;
+  const c = canvas.getBoundingClientRect();
+  const a = box.getBoundingClientRect();
+  const w = note.offsetWidth;
+  const h = note.offsetHeight;
+  const x = a.left - c.left - canvas.clientLeft + canvas.scrollLeft;
+  const y = a.top - c.top - canvas.clientTop + canvas.scrollTop;
+  const minLeft = canvas.scrollLeft + NOTE_GAP;
+  const maxLeft = canvas.scrollLeft + canvas.clientWidth - w - NOTE_GAP;
+  const left = Math.max(minLeft, Math.min(x + a.width / 2 - w / 2, maxLeft));
+  const above = y - NOTE_GAP - h;
+  const top = above >= canvas.scrollTop + NOTE_GAP ? above : y + a.height + NOTE_GAP;
+  return { left, top };
+}
 function useRenderedWidth(ref, fixed, layoutKey) {
   const [w, setW] = (0, import_react7.useState)(fixed ?? DEFAULT_RENDER_WIDTH);
   (0, import_react7.useEffect)(() => {
@@ -746,6 +763,11 @@ function Figure({
     }),
     [hoverFlow, hoverKind, selected]
   );
+  const canvasRef = (0, import_react7.useRef)(null);
+  const noteRef = (0, import_react7.useRef)(null);
+  const [notePos, setNotePos] = (0, import_react7.useState)(
+    null
+  );
   const wideRef = (0, import_react7.useRef)(null);
   const narrowRef = (0, import_react7.useRef)(null);
   const wideW = useRenderedWidth(wideRef, measuredWidth, expanded);
@@ -781,8 +803,24 @@ function Figure({
     () => ({ playing: playing && !reduced, reduced, cycle, toggle, replay }),
     [playing, reduced, cycle, toggle, replay]
   );
+  const note = selected?.detail ? selected : null;
+  useIsoLayoutEffect(() => {
+    setNotePos(null);
+    const canvas = canvasRef.current;
+    const el = noteRef.current;
+    const anchor = note?.anchor;
+    if (!canvas || !el || !anchor) return;
+    const place = () => {
+      if (anchor.isConnected) setNotePos(placeNote(canvas, el, anchor));
+    };
+    place();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(place);
+    ro.observe(canvas);
+    return () => ro.disconnect();
+  }, [note, zoom, expanded]);
   const showControls = controls && !reduced;
-  const hasHead = expandable || selected || number || eyebrow || title || caption || legend.length || showControls;
+  const hasHead = expandable || number || eyebrow || title || caption || legend.length || showControls;
   return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
     CanvasView,
     {
@@ -874,19 +912,29 @@ function Figure({
               ] }) : null,
               /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Legend, { items: legend })
             ] }) : null,
-            selected && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "uipack__selection", role: "status", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("strong", { children: selected.label }),
-                selected.detail && ` \xB7 ${selected.detail}`
-              ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("button", { type: "button", onClick: () => select(null), children: "Clear selection" })
-            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { className: "uipack__sr", role: "status", children: note ? `${note.label}: ${note.detail}` : "" }),
             /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(
               "div",
               {
+                ref: canvasRef,
                 className: `uipack__canvas uipack__canvas--${background}`,
                 onClick: () => select(null),
                 children: [
+                  note ? /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(
+                    "div",
+                    {
+                      ref: noteRef,
+                      className: "uipack__note",
+                      "aria-hidden": "true",
+                      "data-placed": notePos ? "true" : void 0,
+                      style: notePos ?? void 0,
+                      onClick: (e) => e.stopPropagation(),
+                      children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("strong", { children: note.label }),
+                        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: note.detail })
+                      ]
+                    }
+                  ) : null,
                   /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
                     "svg",
                     {
@@ -1058,7 +1106,7 @@ function Node({
     onPointerEnter: (e) => isPointer(e) && hover.setFlow(flows[0]),
     onPointerLeave: (e) => isPointer(e) && hover.setFlow(null)
   } : {};
-  const selection = useItemSelection(label, sub ?? hint, flows[0], !href, sub ? `${label}, ${sub}` : label);
+  const selection = useItemSelection(label, hint, flows[0], !href, sub ? `${label}, ${sub}` : label);
   const body = /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(
     "g",
     {
@@ -1068,7 +1116,7 @@ function Node({
       ...handlers,
       ...selection,
       children: [
-        hint ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("title", { children: hint }) : null,
+        hint && !selection.role ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("title", { children: hint }) : null,
         /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
           "rect",
           {
@@ -1270,18 +1318,14 @@ function Group({
   accent,
   flow,
   titleSize,
+  hint,
   children
 }) {
   const hover = useFigureHover();
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const dashed = variant === "dashed";
   const ts = useFontFloor(titleSize ?? (dashed ? 11 : 14));
-  const selection = useItemSelection(
-    title ?? "Group",
-    void 0,
-    void 0,
-    true
-  );
+  const selection = useItemSelection(title ?? "Group", hint);
   return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(
     "g",
     {
@@ -1429,13 +1473,13 @@ function serviceMapParts(spec = defaultServiceMap, id) {
     sinks = /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)(import_jsx_runtime15.Fragment, { children: [
       /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Connector, { points: viaPath, defs: id, kind: "change", flow: CDC }),
       /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Packet, { points: viaPath, kind: "change", dur: 2, flow: CDC }),
-      /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { ...via, label: spec.sinks.via.label, sub: spec.sinks.via.sub, icon: spec.sinks.via.icon ?? "queue", flow: CDC }),
+      /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { ...via, label: spec.sinks.via.label, hint: spec.sinks.via.hint, sub: spec.sinks.via.sub, icon: spec.sinks.via.icon ?? "queue", flow: CDC }),
       spec.sinks.items.map((s, i) => {
         const p = route([via.x + via.w / 2, via.y + via.h], [x0 + i * (sw + gap) + sw / 2, sinkY], elbow, "v");
         return /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)("g", { children: [
           /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Connector, { points: p, defs: id, kind: "change", flow: CDC }),
           /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Packet, { points: p, kind: "change", dur: 2.2, delay: -i * 0.55, flow: CDC }),
-          /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { x: x0 + i * (sw + gap), y: sinkY, w: sw, h: 40, label: s.label, icon: s.icon, flow: CDC, size: 13 })
+          /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { x: x0 + i * (sw + gap), y: sinkY, w: sw, h: 40, label: s.label, hint: s.hint, icon: s.icon, flow: CDC, size: 13 })
         ] }, s.label);
       })
     ] });
@@ -1446,12 +1490,12 @@ function serviceMapParts(spec = defaultServiceMap, id) {
     /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Lane, { x: client.x, w: client.w, y: 40, title: lc }),
     /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Lane, { x: platform.x, w: platform.w, y: 40, title: lp }),
     /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Lane, { x: store.x, w: store.w, y: 40, title: lr }),
-    spec.clients.map((c, i) => /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { x: client.x, y: client.y0 + i * client.step, w: client.w, h: client.h, label: c.label, sub: c.sub, icon: c.icon, flow: READ }, c.label)),
+    spec.clients.map((c, i) => /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { x: client.x, y: client.y0 + i * client.step, w: client.w, h: client.h, label: c.label, hint: c.hint, sub: c.sub, icon: c.icon, flow: READ }, c.label)),
     /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)(Group, { ...platform, title: spec.platform.title, flow: spec.sinks ? [READ, CDC] : READ, children: [
-      spec.platform.cells.map((c, i) => /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { x: platform.x + 24 + i % 3 * 192, y: platform.y + 44 + Math.floor(i / 3) * 72, w: 168, h: 56, label: c.label, sub: c.sub, align: "left", flow: READ }, c.label)),
-      spec.platform.footer ? /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { x: platform.x + 24, y: platform.y + 44 + rows2 * 72, w: 552, h: 56, label: spec.platform.footer.label, sub: spec.platform.footer.sub, align: "left", flow: READ }) : null
+      spec.platform.cells.map((c, i) => /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { x: platform.x + 24 + i % 3 * 192, y: platform.y + 44 + Math.floor(i / 3) * 72, w: 168, h: 56, label: c.label, hint: c.hint, sub: c.sub, align: "left", flow: READ }, c.label)),
+      spec.platform.footer ? /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { x: platform.x + 24, y: platform.y + 44 + rows2 * 72, w: 552, h: 56, label: spec.platform.footer.label, hint: spec.platform.footer.hint, sub: spec.platform.footer.sub, align: "left", flow: READ }) : null
     ] }),
-    spec.resources.map((r, i) => /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { x: store.x, y: store.y0 + i * store.step, w: store.w, h: store.h, label: r.label, sub: r.sub, icon: r.icon, flow: READ }, r.label)),
+    spec.resources.map((r, i) => /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Node, { x: store.x, y: store.y0 + i * store.step, w: store.w, h: store.h, label: r.label, hint: r.hint, sub: r.sub, icon: r.icon, flow: READ }, r.label)),
     /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Bus, { ...clientBus, from: Math.min(clientY(0), trunkY), to: Math.max(clientY(spec.clients.length - 1), trunkY), defs: id }),
     /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Bus, { ...storeBus, from: Math.min(storeY(0), trunkY), to: Math.max(storeY(spec.resources.length - 1), trunkY), defs: id }),
     /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Packet, { points: toPlatform, kind: "request", dur: 2.4, flow: READ }),
@@ -1572,12 +1616,12 @@ function agentLoopParts(spec = defaultAgentLoop, id) {
     /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Lane, { x: user.x, w: user.w, y: 40, title: lu }),
     /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Lane, { x: agentBox.x, w: agentBox.w, y: 40, title: la }),
     /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Lane, { x: tool.x, w: tool.w, y: 40, title: lt }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Node, { ...user, label: spec.user.label, sub: spec.user.sub, icon: spec.user.icon ?? "user", flow: ASK, hint: "Sends the request, reads the output" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Node, { ...user, label: spec.user.label, sub: spec.user.sub, icon: spec.user.icon ?? "user", flow: ASK, hint: spec.user.hint ?? "Sends the request, reads the output" }),
     /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(Group, { ...agentBox, title: spec.agent.label, flow: [ASK, TOOLS, CHECK], children: [
       /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Node, { x: agentBox.x + 24, y: agentBox.y + 40, w: agentBox.w - 48, h: 56, label: spec.agent.sub ?? "plan \xB7 call \xB7 draft", sub: "model", icon: spec.agent.icon ?? "agent", flow: [ASK, TOOLS] }),
       /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Node, { x: agentBox.x + 24, y: agentBox.y + 112, w: agentBox.w - 48, h: 40, label: "Draft", sub: "structured output", icon: "doc", flow: CHECK, size: 13, subSize: 10 })
     ] }),
-    spec.tools.map((t, i) => /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Node, { x: tool.x, y: tool.y0 + i * tool.step, w: tool.w, h: tool.h, label: t.label, sub: t.sub, icon: t.icon ?? "tool", flow: TOOLS }, t.label)),
+    spec.tools.map((t, i) => /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Node, { x: tool.x, y: tool.y0 + i * tool.step, w: tool.w, h: tool.h, label: t.label, hint: t.hint, sub: t.sub, icon: t.icon ?? "tool", flow: TOOLS }, t.label)),
     /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Connector, { points: ask, defs: id, kind: "request", flow: ASK }),
     /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Packet, { points: ask, kind: "request", dur: 2, flow: ASK }),
     /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Packet, { points: ask, kind: "response", dur: 2, delay: -1, reverse: true, flow: ASK }),
@@ -1588,11 +1632,11 @@ function agentLoopParts(spec = defaultAgentLoop, id) {
     /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Label, { x: (agentBox.x + agentBox.w + busX) / 2, y: trunkY - 10, text: "tool calls", anchor: "middle" }),
     /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Connector, { points: toBoundary, defs: id, kind: "request", flow: CHECK }),
     /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Packet, { points: toBoundary, kind: "request", dur: 1.6, flow: CHECK }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Node, { ...boundary, label: spec.boundary.label, sub: spec.boundary.sub, icon: spec.boundary.icon ?? "lock", accent: true, dashed: true, flow: CHECK, hint: "Code, not a model, decides what passes" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Node, { ...boundary, label: spec.boundary.label, sub: spec.boundary.sub, icon: spec.boundary.icon ?? "lock", accent: true, dashed: true, flow: CHECK, hint: spec.boundary.hint ?? "Code, not a model, decides what passes" }),
     /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Connector, { points: toOutput, defs: id, kind: "accent", flow: CHECK }),
     /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Packet, { points: toOutput, kind: "accent", dur: 1.6, delay: -0.8, flow: CHECK }),
     /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Label, { x: cx + 12, y: toOutput[0][1] + 28, text: "verdict", accent: true }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Node, { ...output, label: spec.output.label, sub: spec.output.sub, icon: spec.output.icon ?? "doc", flow: CHECK })
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Node, { ...output, label: spec.output.label, hint: spec.output.hint, sub: spec.output.sub, icon: spec.output.icon ?? "doc", flow: CHECK })
   ] });
   const steps = [
     { ...spec.user, icon: spec.user.icon ?? "user", flow: ASK },
@@ -1702,19 +1746,19 @@ function ragPipelineParts(spec = defaultRagPipeline, id) {
     /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Lane, { x: stage.x0, w: ingestLast - stage.x0, y: 40, title: "Ingest" }),
     /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Lane, { x: index.x, w: index.w, y: 40, title: "Index" }),
     /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Lane, { x: stage.x0, w: sx(spec.stages.length - 1) + stage.w - stage.x0, y: 248, title: "Query" }),
-    spec.sources.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { x: src.x, y: src.y0 + i * src.step, w: src.w, h: src.h, label: s.label, icon: s.icon ?? "doc", flow: INGEST, size: 13 }, s.label)),
+    spec.sources.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { x: src.x, y: src.y0 + i * src.step, w: src.w, h: src.h, label: s.label, hint: s.hint, icon: s.icon ?? "doc", flow: INGEST, size: 13 }, s.label)),
     /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Bus, { ...bus, from: Math.min(srcY(0), iy), to: Math.max(srcY(spec.sources.length - 1), iy), defs: id, kind: "change" }),
     spec.sources.map((_, i) => /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: busStub(bus, bus.stubs[i]), kind: "change", dur: 1.4, delay: -i * 0.5, reverse: true, r: 4, flow: INGEST }, i)),
     /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: busStub(bus, bus.stubs[spec.sources.length]), kind: "change", dur: 1.2, flow: INGEST, r: 4 }),
-    spec.ingest.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { x: sx(i), y: ingestY, w: stage.w, h: stage.h, label: s.label, sub: s.sub, icon: s.icon, flow: INGEST, size: 13, subSize: 10 }, s.label)),
+    spec.ingest.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { x: sx(i), y: ingestY, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: INGEST, size: 13, subSize: 10 }, s.label)),
     chain(spec.ingest, iy, "change", INGEST),
     /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Connector, { points: toIndex, defs: id, kind: "change", flow: INGEST }),
     /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: toIndex, kind: "change", dur: 2, flow: INGEST }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { ...index, label: spec.index.label, sub: spec.index.sub, icon: spec.index.icon ?? "db", flow: [INGEST, QUERY2], hint: "Shared by both lanes" }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { x: src.x, y: queryY, w: src.w, h: stage.h, label: spec.query.label, icon: spec.query.icon ?? "user", flow: QUERY2, size: 13 }),
+    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { ...index, label: spec.index.label, sub: spec.index.sub, icon: spec.index.icon ?? "db", flow: [INGEST, QUERY2], hint: spec.index.hint ?? "Shared by both lanes" }),
+    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { x: src.x, y: queryY, w: src.w, h: stage.h, label: spec.query.label, hint: spec.query.hint, icon: spec.query.icon ?? "user", flow: QUERY2, size: 13 }),
     /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Connector, { points: queryIn, defs: id, kind: "request", flow: QUERY2 }),
     /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: queryIn, kind: "request", dur: 1.2, flow: QUERY2, r: 4 }),
-    spec.stages.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { x: sx(i), y: queryY, w: stage.w, h: stage.h, label: s.label, sub: s.sub, icon: s.icon, flow: QUERY2, size: 13, subSize: 10 }, s.label)),
+    spec.stages.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { x: sx(i), y: queryY, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: QUERY2, size: 13, subSize: 10 }, s.label)),
     chain(spec.stages, qy, "request", QUERY2),
     /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Connector, { points: read, defs: id, kind: "request", flow: QUERY2 }),
     /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: read, kind: "request", dur: 1.8, flow: QUERY2, r: 4 }),
@@ -1722,7 +1766,7 @@ function ragPipelineParts(spec = defaultRagPipeline, id) {
     /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Label, { x: (retrieveX + index.x) / 2, y: index.y + index.h / 2 + 6, text: "top-k", anchor: "middle" }),
     /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Connector, { points: toAnswer, defs: id, kind: "response", flow: QUERY2 }),
     /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: toAnswer, kind: "response", dur: 1.4, flow: QUERY2, r: 4 }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { ...answer, label: spec.answer.label, sub: spec.answer.sub, icon: spec.answer.icon ?? "doc", flow: QUERY2, size: 13, subSize: 10 })
+    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { ...answer, label: spec.answer.label, hint: spec.answer.hint, sub: spec.answer.sub, icon: spec.answer.icon ?? "doc", flow: QUERY2, size: 13, subSize: 10 })
   ] });
   const steps = [
     { label: spec.sources.map((s) => s.label).join(" \xB7 "), sub: "sources", icon: "doc", flow: INGEST },
@@ -1757,17 +1801,13 @@ function Chip({
   dashed,
   kind,
   flow,
-  size: size0 = 10
+  size: size0 = 10,
+  hint
 }) {
   const hover = useFigureHover();
   const size = useFontFloor(size0);
   const fill = !kind ? "var(--uipack-surface)" : kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
-  const selection = useItemSelection(
-    label || "Empty slot",
-    void 0,
-    void 0,
-    true
-  );
+  const selection = useItemSelection(label || "Empty slot", hint);
   return /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(
     "g",
     {
@@ -1869,20 +1909,20 @@ function skillLifecycleParts(spec = defaultSkillLifecycle, id) {
     /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Lane, { x: evaluate.x, w: evaluate.w, y: 40, title: "Evaluate" }),
     /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Lane, { x: version.x, w: version.w, y: 40, title: "Version" }),
     /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
-    /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Node, { ...author, label: spec.author.label, sub: spec.author.sub, icon: spec.author.icon ?? "user", flow: [FWD, BACK] }),
+    /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Node, { ...author, label: spec.author.label, hint: spec.author.hint, sub: spec.author.sub, icon: spec.author.icon ?? "user", flow: [FWD, BACK] }),
     /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Connector, { points: a2e, defs: id, kind: "request", flow: FWD }),
     /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Packet, { points: a2e, kind: "request", dur: 1.4, flow: FWD, r: 4 }),
-    /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Node, { ...evaluate, label: spec.evaluate.label, sub: spec.evaluate.sub, icon: spec.evaluate.icon ?? "chart", flow: FWD, hint: `Scored against: ${spec.evaluate.baseline}` }),
+    /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Node, { ...evaluate, label: spec.evaluate.label, sub: spec.evaluate.sub, icon: spec.evaluate.icon ?? "chart", flow: FWD, hint: spec.evaluate.hint ?? `Scored against: ${spec.evaluate.baseline}` }),
     /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Chip, { x: evaluate.x, y: evaluate.y + evaluate.h + 12, w: evaluate.w, h: 20, label: `baseline \xB7 ${spec.evaluate.baseline}`, dashed: true }),
     /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Connector, { points: e2v, defs: id, kind: "accent", flow: FWD }),
     /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Packet, { points: e2v, kind: "accent", dur: 1.4, delay: -0.7, flow: FWD, r: 4 }),
     /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Label, { x: (e2v[0][0] + e2v[1][0]) / 2, y: cy - 10, text: "passes", anchor: "middle", accent: true }),
-    /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Node, { ...version, label: spec.version.label, sub: spec.version.sub, icon: spec.version.icon ?? "git", flow: FWD }),
+    /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Node, { ...version, label: spec.version.label, hint: spec.version.hint, sub: spec.version.sub, icon: spec.version.icon ?? "git", flow: FWD }),
     /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Bus, { ...bus, from: Math.min(conY(0), cy), to: trunkEnd, defs: id }),
     /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Packet, { points: busStub(bus, bus.stubs[n]), kind: "request", dur: 1.2, flow: FWD, r: 4 }),
     spec.consumers.map((c, i) => /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("g", { children: [
       /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Packet, { points: busStub(bus, bus.stubs[i]), kind: "request", dur: 1.2, delay: -i * 0.4, flow: FWD, r: 4 }),
-      /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, sub: c.sub, icon: c.icon, flow: [FWD, BACK] })
+      /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, hint: c.hint, sub: c.sub, icon: c.icon, flow: [FWD, BACK] })
     ] }, c.label)),
     /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Label, { x: (version.x + version.w + busX) / 2, y: cy - 10, text: "install", anchor: "middle" }),
     /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Connector, { points: back, defs: id, kind: "change", flow: BACK, dashed: true }),
@@ -1951,7 +1991,7 @@ function syncLoopParts(spec = defaultSyncLoop, id) {
     /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Defs, { id }),
     /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Lane, { x: up.x, w: up.w, y: 40, title: "Upstream" }),
     /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
-    /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Group, { ...up, title: spec.upstream.label, flow: [PULL, PUSH], children: items.map((it, i) => /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Node, { x: up.x + 16, y: up.y + 40 + i * 64, w: up.w - 32, h: 48, label: it.label, sub: it.sub, icon: it.icon, align: "left", flow: [PULL, PUSH], size: 13, subSize: 10 }, it.label)) }),
+    /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Group, { ...up, title: spec.upstream.label, flow: [PULL, PUSH], children: items.map((it, i) => /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Node, { x: up.x + 16, y: up.y + 40 + i * 64, w: up.w - 32, h: 48, label: it.label, hint: it.hint, sub: it.sub, icon: it.icon, align: "left", flow: [PULL, PUSH], size: 13, subSize: 10 }, it.label)) }),
     spec.consumers.map((c, i) => {
       const cy = conY(i);
       const pull = [
@@ -1976,7 +2016,7 @@ function syncLoopParts(spec = defaultSyncLoop, id) {
           /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Connector, { points: push, defs: id, kind: "change", flow: PUSH }),
           /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Packet, { points: push, kind: "change", dur: 2.4, delay: -i * 0.6 - 1.2, flow: PUSH, r: 4 })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, sub: c.hooks ? `${c.sub ?? ""} \xB7 ${c.hooks[0]} \u2192 ${c.hooks[1]}`.replace(/^ · /, "") : c.sub, icon: c.icon, align: "left", flow: c.plugin ? PULL : [PULL, PUSH] })
+        /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, hint: c.hint, sub: c.hooks ? `${c.sub ?? ""} \xB7 ${c.hooks[0]} \u2192 ${c.hooks[1]}`.replace(/^ · /, "") : c.sub, icon: c.icon, align: "left", flow: c.plugin ? PULL : [PULL, PUSH] })
       ] }, c.label);
     }),
     /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) - 16, text: spec.pull ?? "pull", anchor: "middle" }),
@@ -2051,7 +2091,7 @@ function beforeAfterParts(spec = defaultBeforeAfter, id) {
           /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(Connector, { points: into, defs: id, kind: hot ? "accent" : "request", flow }),
           /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(Packet, { points: into, kind: hot ? "accent" : "request", dur: 1.2, delay: -i * 0.4, flow, r: 4, id: `${pid}-p${i}` })
         ] }) : null,
-        /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(Node, { x, y: sy, w: stage.w, h: stage.h, label: s.label, sub: s.sub, icon: s.icon, accent: hot, flow, size: 13, subSize: 10 })
+        /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(Node, { x, y: sy, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, accent: hot, flow, size: 13, subSize: 10 })
       ] }, s.label + i);
     }) });
   };
@@ -2134,7 +2174,7 @@ function pipelineParts(spec = defaultPipeline, id) {
     const s = spec.stages[si++];
     return /* @__PURE__ */ (0, import_jsx_runtime23.jsxs)("g", { children: [
       edge,
-      /* @__PURE__ */ (0, import_jsx_runtime23.jsx)(Node, { x: x(slot), y: stage.y, w: stage.w, h: stage.h, label: s.label, sub: s.sub, icon: s.icon, flow: FLOW, size: 13, subSize: 10 })
+      /* @__PURE__ */ (0, import_jsx_runtime23.jsx)(Node, { x: x(slot), y: stage.y, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: FLOW, size: 13, subSize: 10 })
     ] }, s.label);
   });
   const wide = /* @__PURE__ */ (0, import_jsx_runtime23.jsxs)(import_jsx_runtime23.Fragment, { children: [

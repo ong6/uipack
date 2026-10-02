@@ -81,13 +81,13 @@ export function agentLoopParts(spec: AgentLoopSpec = defaultAgentLoop, id: strin
       <Lane x={user.x} w={user.w} y={40} title={lu} />
       <Lane x={agentBox.x} w={agentBox.w} y={40} title={la} />
       <Lane x={tool.x} w={tool.w} y={40} title={lt} />
-      <Node {...user} label={spec.user.label} sub={spec.user.sub} icon={spec.user.icon ?? "user"} flow={ASK} hint="Sends the request, reads the output" />
+      <Node {...user} label={spec.user.label} sub={spec.user.sub} icon={spec.user.icon ?? "user"} flow={ASK} hint={spec.user.hint ?? "Sends the request, reads the output"} />
       <Group {...agentBox} title={spec.agent.label} flow={[ASK, TOOLS, CHECK]}>
         <Node x={agentBox.x + 24} y={agentBox.y + 40} w={agentBox.w - 48} h={56} label={spec.agent.sub ?? "plan · call · draft"} sub="model" icon={spec.agent.icon ?? "agent"} flow={[ASK, TOOLS]} />
         <Node x={agentBox.x + 24} y={agentBox.y + 112} w={agentBox.w - 48} h={40} label="Draft" sub="structured output" icon="doc" flow={CHECK} size={13} subSize={10} />
       </Group>
       {spec.tools.map((t, i) => (
-        <Node key={t.label} x={tool.x} y={tool.y0 + i * tool.step} w={tool.w} h={tool.h} label={t.label} sub={t.sub} icon={t.icon ?? "tool"} flow={TOOLS} />
+        <Node key={t.label} x={tool.x} y={tool.y0 + i * tool.step} w={tool.w} h={tool.h} label={t.label} hint={t.hint} sub={t.sub} icon={t.icon ?? "tool"} flow={TOOLS} />
       ))}
       <Connector points={ask} defs={id} kind="request" flow={ASK} />
       <Packet points={ask} kind="request" dur={2} flow={ASK} />
@@ -101,11 +101,11 @@ export function agentLoopParts(spec: AgentLoopSpec = defaultAgentLoop, id: strin
       <Label x={(agentBox.x + agentBox.w + busX) / 2} y={trunkY - 10} text="tool calls" anchor="middle" />
       <Connector points={toBoundary} defs={id} kind="request" flow={CHECK} />
       <Packet points={toBoundary} kind="request" dur={1.6} flow={CHECK} />
-      <Node {...boundary} label={spec.boundary.label} sub={spec.boundary.sub} icon={spec.boundary.icon ?? "lock"} accent dashed flow={CHECK} hint="Code, not a model, decides what passes" />
+      <Node {...boundary} label={spec.boundary.label} sub={spec.boundary.sub} icon={spec.boundary.icon ?? "lock"} accent dashed flow={CHECK} hint={spec.boundary.hint ?? "Code, not a model, decides what passes"} />
       <Connector points={toOutput} defs={id} kind="accent" flow={CHECK} />
       <Packet points={toOutput} kind="accent" dur={1.6} delay={-0.8} flow={CHECK} />
       <Label x={cx + 12} y={toOutput[0][1] + 28} text="verdict" accent />
-      <Node {...output} label={spec.output.label} sub={spec.output.sub} icon={spec.output.icon ?? "doc"} flow={CHECK} />
+      <Node {...output} label={spec.output.label} hint={spec.output.hint} sub={spec.output.sub} icon={spec.output.icon ?? "doc"} flow={CHECK} />
     </>
   );
 

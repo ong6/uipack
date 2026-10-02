@@ -50,9 +50,11 @@ interface GroupProps {
     /** Flow names for hover highlighting. */
     flow?: Flow;
     titleSize?: number;
+    /** One short sentence on what the region is. Makes the group selectable inside a Figure. */
+    hint?: string;
     children?: ReactNode;
 }
-declare function Group({ x, y, w, h, title, variant, accent, flow, titleSize, children, }: GroupProps): react.JSX.Element;
+declare function Group({ x, y, w, h, title, variant, accent, flow, titleSize, hint, children, }: GroupProps): react.JSX.Element;
 
 interface NodeProps {
     x: number;
@@ -71,7 +73,7 @@ interface NodeProps {
     dashed?: boolean;
     /** Flow names this node takes part in; hovering it highlights the flow. */
     flow?: Flow;
-    /** Native tooltip. */
+    /** One short sentence on what the box does. Inside a Figure, selecting the node shows it in a note beside the box; elsewhere it is a native tooltip. */
     hint?: string;
     /** Makes the node a link with a focus ring. */
     href?: string;
@@ -94,9 +96,11 @@ interface ChipProps {
     /** Flow names for hover highlighting. */
     flow?: Flow;
     size?: number;
+    /** One short sentence on what the chip stands for. Makes it selectable inside a Figure. */
+    hint?: string;
 }
 /** Pill: a connection slot, a request in a queue, a status flag. */
-declare function Chip({ x, y, w, h, label, dashed, kind, flow, size: size0, }: ChipProps): react.JSX.Element;
+declare function Chip({ x, y, w, h, label, dashed, kind, flow, size: size0, hint, }: ChipProps): react.JSX.Element;
 
 type Point = [number, number];
 type Side = "top" | "right" | "bottom" | "left";

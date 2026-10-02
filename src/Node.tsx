@@ -27,7 +27,7 @@ export interface NodeProps {
   dashed?: boolean;
   /** Flow names this node takes part in; hovering it highlights the flow. */
   flow?: Flow;
-  /** Native tooltip. */
+  /** One short sentence on what the box does. Inside a Figure, selecting the node shows it in a note beside the box; elsewhere it is a native tooltip. */
   hint?: string;
   /** Makes the node a link with a focus ring. */
   href?: string;
@@ -73,7 +73,7 @@ export function Node({
       }
     : {};
   // The accessible name carries the visible subtitle too (WCAG 2.5.3).
-  const selection = useItemSelection(label, sub ?? hint, flows[0], !href, sub ? `${label}, ${sub}` : label);
+  const selection = useItemSelection(label, hint, flows[0], !href, sub ? `${label}, ${sub}` : label);
   const body = (
     <g
       id={id}
@@ -82,7 +82,7 @@ export function Node({
       {...handlers}
       {...selection}
     >
-      {hint ? <title>{hint}</title> : null}
+      {hint && !selection.role ? <title>{hint}</title> : null}
       <rect
         x={x}
         y={y}

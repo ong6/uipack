@@ -8,8 +8,11 @@ import {
 export interface SelectedItem {
   id: string;
   label: string;
+  /** Short explanation shown in a note beside the item. No note without it. */
   detail?: string;
   flow?: string;
+  /** The selected element; the note is placed against it. */
+  anchor?: Element;
 }
 export const SelectionContext = createContext<{
   enabled: boolean;
@@ -26,10 +29,11 @@ export function useItemSelection(
 ) {
   const id = useId();
   const context = useContext(SelectionContext);
-  if (!context.enabled || !enabled) return {};
+  // Selecting must show something: a detail note, or a pinned flow highlight.
+  if (!context.enabled || !enabled || !(detail || flow)) return {};
   const selected = context.selected?.id === id;
-  const toggle = () =>
-    context.select(selected ? null : { id, label, detail, flow });
+  const toggle = (anchor: Element) =>
+    context.select(selected ? null : { id, label, detail, flow, anchor });
   return {
     role: "button",
     tabIndex: 0,
@@ -38,13 +42,13 @@ export function useItemSelection(
     "data-selected": selected ? "true" : undefined,
     onClick: (event: MouseEvent) => {
       event.stopPropagation();
-      toggle();
+      toggle(event.currentTarget);
     },
     onKeyDown: (event: KeyboardEvent) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         event.stopPropagation();
-        toggle();
+        toggle(event.currentTarget);
       }
     },
   };

@@ -108,14 +108,14 @@ export function serviceMapParts(spec: ServiceMapSpec = defaultServiceMap, id: st
       <>
         <Connector points={viaPath} defs={id} kind="change" flow={CDC} />
         <Packet points={viaPath} kind="change" dur={2} flow={CDC} />
-        <Node {...via} label={spec.sinks.via.label} sub={spec.sinks.via.sub} icon={spec.sinks.via.icon ?? "queue"} flow={CDC} />
+        <Node {...via} label={spec.sinks.via.label} hint={spec.sinks.via.hint} sub={spec.sinks.via.sub} icon={spec.sinks.via.icon ?? "queue"} flow={CDC} />
         {spec.sinks.items.map((s, i) => {
           const p = route([via.x + via.w / 2, via.y + via.h], [x0 + i * (sw + gap) + sw / 2, sinkY], elbow, "v");
           return (
             <g key={s.label}>
               <Connector points={p} defs={id} kind="change" flow={CDC} />
               <Packet points={p} kind="change" dur={2.2} delay={-i * 0.55} flow={CDC} />
-              <Node x={x0 + i * (sw + gap)} y={sinkY} w={sw} h={40} label={s.label} icon={s.icon} flow={CDC} size={13} />
+              <Node x={x0 + i * (sw + gap)} y={sinkY} w={sw} h={40} label={s.label} hint={s.hint} icon={s.icon} flow={CDC} size={13} />
             </g>
           );
         })}
@@ -131,18 +131,18 @@ export function serviceMapParts(spec: ServiceMapSpec = defaultServiceMap, id: st
       <Lane x={platform.x} w={platform.w} y={40} title={lp} />
       <Lane x={store.x} w={store.w} y={40} title={lr} />
       {spec.clients.map((c, i) => (
-        <Node key={c.label} x={client.x} y={client.y0 + i * client.step} w={client.w} h={client.h} label={c.label} sub={c.sub} icon={c.icon} flow={READ} />
+        <Node key={c.label} x={client.x} y={client.y0 + i * client.step} w={client.w} h={client.h} label={c.label} hint={c.hint} sub={c.sub} icon={c.icon} flow={READ} />
       ))}
       <Group {...platform} title={spec.platform.title} flow={spec.sinks ? [READ, CDC] : READ}>
         {spec.platform.cells.map((c, i) => (
-          <Node key={c.label} x={platform.x + 24 + (i % 3) * 192} y={platform.y + 44 + Math.floor(i / 3) * 72} w={168} h={56} label={c.label} sub={c.sub} align="left" flow={READ} />
+          <Node key={c.label} x={platform.x + 24 + (i % 3) * 192} y={platform.y + 44 + Math.floor(i / 3) * 72} w={168} h={56} label={c.label} hint={c.hint} sub={c.sub} align="left" flow={READ} />
         ))}
         {spec.platform.footer ? (
-          <Node x={platform.x + 24} y={platform.y + 44 + rows * 72} w={552} h={56} label={spec.platform.footer.label} sub={spec.platform.footer.sub} align="left" flow={READ} />
+          <Node x={platform.x + 24} y={platform.y + 44 + rows * 72} w={552} h={56} label={spec.platform.footer.label} hint={spec.platform.footer.hint} sub={spec.platform.footer.sub} align="left" flow={READ} />
         ) : null}
       </Group>
       {spec.resources.map((r, i) => (
-        <Node key={r.label} x={store.x} y={store.y0 + i * store.step} w={store.w} h={store.h} label={r.label} sub={r.sub} icon={r.icon} flow={READ} />
+        <Node key={r.label} x={store.x} y={store.y0 + i * store.step} w={store.w} h={store.h} label={r.label} hint={r.hint} sub={r.sub} icon={r.icon} flow={READ} />
       ))}
       <Bus {...clientBus} from={Math.min(clientY(0), trunkY)} to={Math.max(clientY(spec.clients.length - 1), trunkY)} defs={id} />
       <Bus {...storeBus} from={Math.min(storeY(0), trunkY)} to={Math.max(storeY(spec.resources.length - 1), trunkY)} defs={id} />

@@ -15,6 +15,8 @@ export interface ChipProps {
   /** Flow names for hover highlighting. */
   flow?: Flow;
   size?: number;
+  /** One short sentence on what the chip stands for. Makes it selectable inside a Figure. */
+  hint?: string;
 }
 
 /** Pill: a connection slot, a request in a queue, a status flag. */
@@ -28,6 +30,7 @@ export function Chip({
   kind,
   flow,
   size: size0 = 10,
+  hint,
 }: ChipProps) {
   const hover = useFigureHover();
   const size = useFontFloor(size0);
@@ -36,12 +39,7 @@ export function Chip({
     : kind === "accent"
       ? "var(--uipack-accent)"
       : `var(--uipack-token-${kind})`;
-  const selection = useItemSelection(
-    label || "Empty slot",
-    undefined,
-    undefined,
-    true,
-  );
+  const selection = useItemSelection(label || "Empty slot", hint);
   return (
     <g
       data-uipack="chip"

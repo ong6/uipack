@@ -72,9 +72,9 @@ var SelectionContext = createContext2({ enabled: false, selected: null, select: 
 function useItemSelection(label, detail, flow, enabled = true, name = label) {
   const id = useId();
   const context = useContext2(SelectionContext);
-  if (!context.enabled || !enabled) return {};
+  if (!context.enabled || !enabled || !(detail || flow)) return {};
   const selected = context.selected?.id === id;
-  const toggle = () => context.select(selected ? null : { id, label, detail, flow });
+  const toggle = (anchor2) => context.select(selected ? null : { id, label, detail, flow, anchor: anchor2 });
   return {
     role: "button",
     tabIndex: 0,
@@ -83,13 +83,13 @@ function useItemSelection(label, detail, flow, enabled = true, name = label) {
     "data-selected": selected ? "true" : void 0,
     onClick: (event) => {
       event.stopPropagation();
-      toggle();
+      toggle(event.currentTarget);
     },
     onKeyDown: (event) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         event.stopPropagation();
-        toggle();
+        toggle(event.currentTarget);
       }
     }
   };
@@ -100,6 +100,7 @@ import {
   useCallback,
   useEffect,
   useId as useId2,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -107,6 +108,23 @@ import {
 } from "react";
 import { Fragment, jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
 var vbWidth = (viewBox) => Number(viewBox.split(/\s+/)[2]) || 0;
+var useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
+var NOTE_GAP = 8;
+function placeNote(canvas, note, anchor2) {
+  const box = anchor2.querySelector(":scope > rect") ?? anchor2;
+  const c = canvas.getBoundingClientRect();
+  const a = box.getBoundingClientRect();
+  const w = note.offsetWidth;
+  const h = note.offsetHeight;
+  const x = a.left - c.left - canvas.clientLeft + canvas.scrollLeft;
+  const y = a.top - c.top - canvas.clientTop + canvas.scrollTop;
+  const minLeft = canvas.scrollLeft + NOTE_GAP;
+  const maxLeft = canvas.scrollLeft + canvas.clientWidth - w - NOTE_GAP;
+  const left = Math.max(minLeft, Math.min(x + a.width / 2 - w / 2, maxLeft));
+  const above = y - NOTE_GAP - h;
+  const top = above >= canvas.scrollTop + NOTE_GAP ? above : y + a.height + NOTE_GAP;
+  return { left, top };
+}
 function useRenderedWidth(ref, fixed, layoutKey) {
   const [w, setW] = useState(fixed ?? DEFAULT_RENDER_WIDTH);
   useEffect(() => {
@@ -183,6 +201,11 @@ function Figure({
     }),
     [hoverFlow, hoverKind, selected]
   );
+  const canvasRef = useRef(null);
+  const noteRef = useRef(null);
+  const [notePos, setNotePos] = useState(
+    null
+  );
   const wideRef = useRef(null);
   const narrowRef = useRef(null);
   const wideW = useRenderedWidth(wideRef, measuredWidth, expanded);
@@ -218,8 +241,24 @@ function Figure({
     () => ({ playing: playing && !reduced, reduced, cycle, toggle, replay }),
     [playing, reduced, cycle, toggle, replay]
   );
+  const note = selected?.detail ? selected : null;
+  useIsoLayoutEffect(() => {
+    setNotePos(null);
+    const canvas = canvasRef.current;
+    const el = noteRef.current;
+    const anchor2 = note?.anchor;
+    if (!canvas || !el || !anchor2) return;
+    const place = () => {
+      if (anchor2.isConnected) setNotePos(placeNote(canvas, el, anchor2));
+    };
+    place();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(place);
+    ro.observe(canvas);
+    return () => ro.disconnect();
+  }, [note, zoom, expanded]);
   const showControls = controls && !reduced;
-  const hasHead = expandable || selected || number || eyebrow || title || caption || legend.length || showControls;
+  const hasHead = expandable || number || eyebrow || title || caption || legend.length || showControls;
   return /* @__PURE__ */ jsx2(
     CanvasView,
     {
@@ -311,19 +350,29 @@ function Figure({
               ] }) : null,
               /* @__PURE__ */ jsx2(Legend, { items: legend })
             ] }) : null,
-            selected && /* @__PURE__ */ jsxs2("div", { className: "uipack__selection", role: "status", children: [
-              /* @__PURE__ */ jsxs2("span", { children: [
-                /* @__PURE__ */ jsx2("strong", { children: selected.label }),
-                selected.detail && ` \xB7 ${selected.detail}`
-              ] }),
-              /* @__PURE__ */ jsx2("button", { type: "button", onClick: () => select(null), children: "Clear selection" })
-            ] }),
+            /* @__PURE__ */ jsx2("p", { className: "uipack__sr", role: "status", children: note ? `${note.label}: ${note.detail}` : "" }),
             /* @__PURE__ */ jsxs2(
               "div",
               {
+                ref: canvasRef,
                 className: `uipack__canvas uipack__canvas--${background}`,
                 onClick: () => select(null),
                 children: [
+                  note ? /* @__PURE__ */ jsxs2(
+                    "div",
+                    {
+                      ref: noteRef,
+                      className: "uipack__note",
+                      "aria-hidden": "true",
+                      "data-placed": notePos ? "true" : void 0,
+                      style: notePos ?? void 0,
+                      onClick: (e) => e.stopPropagation(),
+                      children: [
+                        /* @__PURE__ */ jsx2("strong", { children: note.label }),
+                        /* @__PURE__ */ jsx2("span", { children: note.detail })
+                      ]
+                    }
+                  ) : null,
                   /* @__PURE__ */ jsx2(
                     "svg",
                     {
@@ -379,18 +428,14 @@ function Group({
   accent,
   flow,
   titleSize,
+  hint,
   children
 }) {
   const hover = useFigureHover();
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const dashed = variant === "dashed";
   const ts = useFontFloor(titleSize ?? (dashed ? 11 : 14));
-  const selection = useItemSelection(
-    title ?? "Group",
-    void 0,
-    void 0,
-    true
-  );
+  const selection = useItemSelection(title ?? "Group", hint);
   return /* @__PURE__ */ jsxs4(
     "g",
     {
@@ -582,7 +627,7 @@ function Node({
     onPointerEnter: (e) => isPointer(e) && hover.setFlow(flows[0]),
     onPointerLeave: (e) => isPointer(e) && hover.setFlow(null)
   } : {};
-  const selection = useItemSelection(label, sub ?? hint, flows[0], !href, sub ? `${label}, ${sub}` : label);
+  const selection = useItemSelection(label, hint, flows[0], !href, sub ? `${label}, ${sub}` : label);
   const body = /* @__PURE__ */ jsxs6(
     "g",
     {
@@ -592,7 +637,7 @@ function Node({
       ...handlers,
       ...selection,
       children: [
-        hint ? /* @__PURE__ */ jsx6("title", { children: hint }) : null,
+        hint && !selection.role ? /* @__PURE__ */ jsx6("title", { children: hint }) : null,
         /* @__PURE__ */ jsx6(
           "rect",
           {
@@ -663,17 +708,13 @@ function Chip({
   dashed,
   kind,
   flow,
-  size: size0 = 10
+  size: size0 = 10,
+  hint
 }) {
   const hover = useFigureHover();
   const size = useFontFloor(size0);
   const fill = !kind ? "var(--uipack-surface)" : kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
-  const selection = useItemSelection(
-    label || "Empty slot",
-    void 0,
-    void 0,
-    true
-  );
+  const selection = useItemSelection(label || "Empty slot", hint);
   return /* @__PURE__ */ jsxs7(
     "g",
     {
@@ -977,4 +1018,4 @@ export {
   Label,
   Defs
 };
-//# sourceMappingURL=chunk-XW7BPNT4.js.map
+//# sourceMappingURL=chunk-42M53LHW.js.map

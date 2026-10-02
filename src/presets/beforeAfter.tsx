@@ -75,7 +75,7 @@ export function beforeAfterParts(spec: BeforeAfterSpec = defaultBeforeAfter, id:
                   <Packet points={into} kind={hot ? "accent" : "request"} dur={1.2} delay={-i * 0.4} flow={flow} r={4} id={`${pid}-p${i}`} />
                 </>
               ) : null}
-              <Node x={x} y={sy} w={stage.w} h={stage.h} label={s.label} sub={s.sub} icon={s.icon} accent={hot} flow={flow} size={13} subSize={10} />
+              <Node x={x} y={sy} w={stage.w} h={stage.h} label={s.label} hint={s.hint} sub={s.sub} icon={s.icon} accent={hot} flow={flow} size={13} subSize={10} />
             </g>
           );
         })}

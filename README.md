@@ -116,7 +116,7 @@ Every class and token is scoped under `.uipack-web`; there are no global element
 - `Figure`: the frame. Eyebrow, title (`headingLevel` picks the element), caption, legend, Pause and Replay, a canvas with a `background` of `dots`, `plain` or `ruled`, and a `narrow` drawing swapped in below 720px. Owns the SVG timeline, hover and selection state, and optional expanded canvas.
 - `Lane`: mono uppercase column header, centred over `x..x+w`.
 - `Group`: a boxed service (solid, centred title) or a dashed boundary (mono title).
-- `Node`: a box with a label, a mono `sub`, an `icon`, an optional `hint` (native tooltip) and `href` (renders as a link with a focus ring).
+- `Node`: a box with a label, a mono `sub`, an `icon`, an optional `hint` (one short sentence shown in a note beside the box when it is selected inside a Figure; a native tooltip elsewhere) and `href` (renders as a link with a focus ring). `Chip` and `Group` take the same `hint`.
 - `Chip`: a pill for a connection slot, a queued item, a status flag.
 - `Connector`: a rounded orthogonal path with one arrowhead.
 - `Bus`: a trunk with stubs and a junction dot at each join. `busStub` and `busStubs` give the same points to packets.

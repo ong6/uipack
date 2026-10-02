@@ -78,7 +78,7 @@ export function pipelineParts(spec: PipelineSpec = defaultPipeline, id: string):
     return (
       <g key={s.label}>
         {edge}
-        <Node x={x(slot)} y={stage.y} w={stage.w} h={stage.h} label={s.label} sub={s.sub} icon={s.icon} flow={FLOW} size={13} subSize={10} />
+        <Node x={x(slot)} y={stage.y} w={stage.w} h={stage.h} label={s.label} hint={s.hint} sub={s.sub} icon={s.icon} flow={FLOW} size={13} subSize={10} />
       </g>
     );
   });

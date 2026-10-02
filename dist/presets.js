@@ -11,7 +11,7 @@ import {
   Packet,
   busStub,
   route
-} from "./chunk-XW7BPNT4.js";
+} from "./chunk-42M53LHW.js";
 import "./chunk-2BHGP5ET.js";
 import "./chunk-GP5TROIA.js";
 import "./chunk-FENTOHP4.js";
@@ -188,13 +188,13 @@ function serviceMapParts(spec = defaultServiceMap, id) {
     sinks = /* @__PURE__ */ jsxs2(Fragment2, { children: [
       /* @__PURE__ */ jsx2(Connector, { points: viaPath, defs: id, kind: "change", flow: CDC }),
       /* @__PURE__ */ jsx2(Packet, { points: viaPath, kind: "change", dur: 2, flow: CDC }),
-      /* @__PURE__ */ jsx2(Node, { ...via, label: spec.sinks.via.label, sub: spec.sinks.via.sub, icon: spec.sinks.via.icon ?? "queue", flow: CDC }),
+      /* @__PURE__ */ jsx2(Node, { ...via, label: spec.sinks.via.label, hint: spec.sinks.via.hint, sub: spec.sinks.via.sub, icon: spec.sinks.via.icon ?? "queue", flow: CDC }),
       spec.sinks.items.map((s, i) => {
         const p = route([via.x + via.w / 2, via.y + via.h], [x0 + i * (sw + gap) + sw / 2, sinkY], elbow, "v");
         return /* @__PURE__ */ jsxs2("g", { children: [
           /* @__PURE__ */ jsx2(Connector, { points: p, defs: id, kind: "change", flow: CDC }),
           /* @__PURE__ */ jsx2(Packet, { points: p, kind: "change", dur: 2.2, delay: -i * 0.55, flow: CDC }),
-          /* @__PURE__ */ jsx2(Node, { x: x0 + i * (sw + gap), y: sinkY, w: sw, h: 40, label: s.label, icon: s.icon, flow: CDC, size: 13 })
+          /* @__PURE__ */ jsx2(Node, { x: x0 + i * (sw + gap), y: sinkY, w: sw, h: 40, label: s.label, hint: s.hint, icon: s.icon, flow: CDC, size: 13 })
         ] }, s.label);
       })
     ] });
@@ -205,12 +205,12 @@ function serviceMapParts(spec = defaultServiceMap, id) {
     /* @__PURE__ */ jsx2(Lane, { x: client.x, w: client.w, y: 40, title: lc }),
     /* @__PURE__ */ jsx2(Lane, { x: platform.x, w: platform.w, y: 40, title: lp }),
     /* @__PURE__ */ jsx2(Lane, { x: store.x, w: store.w, y: 40, title: lr }),
-    spec.clients.map((c, i) => /* @__PURE__ */ jsx2(Node, { x: client.x, y: client.y0 + i * client.step, w: client.w, h: client.h, label: c.label, sub: c.sub, icon: c.icon, flow: READ }, c.label)),
+    spec.clients.map((c, i) => /* @__PURE__ */ jsx2(Node, { x: client.x, y: client.y0 + i * client.step, w: client.w, h: client.h, label: c.label, hint: c.hint, sub: c.sub, icon: c.icon, flow: READ }, c.label)),
     /* @__PURE__ */ jsxs2(Group, { ...platform, title: spec.platform.title, flow: spec.sinks ? [READ, CDC] : READ, children: [
-      spec.platform.cells.map((c, i) => /* @__PURE__ */ jsx2(Node, { x: platform.x + 24 + i % 3 * 192, y: platform.y + 44 + Math.floor(i / 3) * 72, w: 168, h: 56, label: c.label, sub: c.sub, align: "left", flow: READ }, c.label)),
-      spec.platform.footer ? /* @__PURE__ */ jsx2(Node, { x: platform.x + 24, y: platform.y + 44 + rows2 * 72, w: 552, h: 56, label: spec.platform.footer.label, sub: spec.platform.footer.sub, align: "left", flow: READ }) : null
+      spec.platform.cells.map((c, i) => /* @__PURE__ */ jsx2(Node, { x: platform.x + 24 + i % 3 * 192, y: platform.y + 44 + Math.floor(i / 3) * 72, w: 168, h: 56, label: c.label, hint: c.hint, sub: c.sub, align: "left", flow: READ }, c.label)),
+      spec.platform.footer ? /* @__PURE__ */ jsx2(Node, { x: platform.x + 24, y: platform.y + 44 + rows2 * 72, w: 552, h: 56, label: spec.platform.footer.label, hint: spec.platform.footer.hint, sub: spec.platform.footer.sub, align: "left", flow: READ }) : null
     ] }),
-    spec.resources.map((r, i) => /* @__PURE__ */ jsx2(Node, { x: store.x, y: store.y0 + i * store.step, w: store.w, h: store.h, label: r.label, sub: r.sub, icon: r.icon, flow: READ }, r.label)),
+    spec.resources.map((r, i) => /* @__PURE__ */ jsx2(Node, { x: store.x, y: store.y0 + i * store.step, w: store.w, h: store.h, label: r.label, hint: r.hint, sub: r.sub, icon: r.icon, flow: READ }, r.label)),
     /* @__PURE__ */ jsx2(Bus, { ...clientBus, from: Math.min(clientY(0), trunkY), to: Math.max(clientY(spec.clients.length - 1), trunkY), defs: id }),
     /* @__PURE__ */ jsx2(Bus, { ...storeBus, from: Math.min(storeY(0), trunkY), to: Math.max(storeY(spec.resources.length - 1), trunkY), defs: id }),
     /* @__PURE__ */ jsx2(Packet, { points: toPlatform, kind: "request", dur: 2.4, flow: READ }),
@@ -306,12 +306,12 @@ function agentLoopParts(spec = defaultAgentLoop, id) {
     /* @__PURE__ */ jsx3(Lane, { x: user.x, w: user.w, y: 40, title: lu }),
     /* @__PURE__ */ jsx3(Lane, { x: agentBox.x, w: agentBox.w, y: 40, title: la }),
     /* @__PURE__ */ jsx3(Lane, { x: tool.x, w: tool.w, y: 40, title: lt }),
-    /* @__PURE__ */ jsx3(Node, { ...user, label: spec.user.label, sub: spec.user.sub, icon: spec.user.icon ?? "user", flow: ASK, hint: "Sends the request, reads the output" }),
+    /* @__PURE__ */ jsx3(Node, { ...user, label: spec.user.label, sub: spec.user.sub, icon: spec.user.icon ?? "user", flow: ASK, hint: spec.user.hint ?? "Sends the request, reads the output" }),
     /* @__PURE__ */ jsxs3(Group, { ...agentBox, title: spec.agent.label, flow: [ASK, TOOLS, CHECK], children: [
       /* @__PURE__ */ jsx3(Node, { x: agentBox.x + 24, y: agentBox.y + 40, w: agentBox.w - 48, h: 56, label: spec.agent.sub ?? "plan \xB7 call \xB7 draft", sub: "model", icon: spec.agent.icon ?? "agent", flow: [ASK, TOOLS] }),
       /* @__PURE__ */ jsx3(Node, { x: agentBox.x + 24, y: agentBox.y + 112, w: agentBox.w - 48, h: 40, label: "Draft", sub: "structured output", icon: "doc", flow: CHECK, size: 13, subSize: 10 })
     ] }),
-    spec.tools.map((t, i) => /* @__PURE__ */ jsx3(Node, { x: tool.x, y: tool.y0 + i * tool.step, w: tool.w, h: tool.h, label: t.label, sub: t.sub, icon: t.icon ?? "tool", flow: TOOLS }, t.label)),
+    spec.tools.map((t, i) => /* @__PURE__ */ jsx3(Node, { x: tool.x, y: tool.y0 + i * tool.step, w: tool.w, h: tool.h, label: t.label, hint: t.hint, sub: t.sub, icon: t.icon ?? "tool", flow: TOOLS }, t.label)),
     /* @__PURE__ */ jsx3(Connector, { points: ask, defs: id, kind: "request", flow: ASK }),
     /* @__PURE__ */ jsx3(Packet, { points: ask, kind: "request", dur: 2, flow: ASK }),
     /* @__PURE__ */ jsx3(Packet, { points: ask, kind: "response", dur: 2, delay: -1, reverse: true, flow: ASK }),
@@ -322,11 +322,11 @@ function agentLoopParts(spec = defaultAgentLoop, id) {
     /* @__PURE__ */ jsx3(Label, { x: (agentBox.x + agentBox.w + busX) / 2, y: trunkY - 10, text: "tool calls", anchor: "middle" }),
     /* @__PURE__ */ jsx3(Connector, { points: toBoundary, defs: id, kind: "request", flow: CHECK }),
     /* @__PURE__ */ jsx3(Packet, { points: toBoundary, kind: "request", dur: 1.6, flow: CHECK }),
-    /* @__PURE__ */ jsx3(Node, { ...boundary, label: spec.boundary.label, sub: spec.boundary.sub, icon: spec.boundary.icon ?? "lock", accent: true, dashed: true, flow: CHECK, hint: "Code, not a model, decides what passes" }),
+    /* @__PURE__ */ jsx3(Node, { ...boundary, label: spec.boundary.label, sub: spec.boundary.sub, icon: spec.boundary.icon ?? "lock", accent: true, dashed: true, flow: CHECK, hint: spec.boundary.hint ?? "Code, not a model, decides what passes" }),
     /* @__PURE__ */ jsx3(Connector, { points: toOutput, defs: id, kind: "accent", flow: CHECK }),
     /* @__PURE__ */ jsx3(Packet, { points: toOutput, kind: "accent", dur: 1.6, delay: -0.8, flow: CHECK }),
     /* @__PURE__ */ jsx3(Label, { x: cx + 12, y: toOutput[0][1] + 28, text: "verdict", accent: true }),
-    /* @__PURE__ */ jsx3(Node, { ...output, label: spec.output.label, sub: spec.output.sub, icon: spec.output.icon ?? "doc", flow: CHECK })
+    /* @__PURE__ */ jsx3(Node, { ...output, label: spec.output.label, hint: spec.output.hint, sub: spec.output.sub, icon: spec.output.icon ?? "doc", flow: CHECK })
   ] });
   const steps = [
     { ...spec.user, icon: spec.user.icon ?? "user", flow: ASK },
@@ -436,19 +436,19 @@ function ragPipelineParts(spec = defaultRagPipeline, id) {
     /* @__PURE__ */ jsx4(Lane, { x: stage.x0, w: ingestLast - stage.x0, y: 40, title: "Ingest" }),
     /* @__PURE__ */ jsx4(Lane, { x: index.x, w: index.w, y: 40, title: "Index" }),
     /* @__PURE__ */ jsx4(Lane, { x: stage.x0, w: sx(spec.stages.length - 1) + stage.w - stage.x0, y: 248, title: "Query" }),
-    spec.sources.map((s, i) => /* @__PURE__ */ jsx4(Node, { x: src.x, y: src.y0 + i * src.step, w: src.w, h: src.h, label: s.label, icon: s.icon ?? "doc", flow: INGEST, size: 13 }, s.label)),
+    spec.sources.map((s, i) => /* @__PURE__ */ jsx4(Node, { x: src.x, y: src.y0 + i * src.step, w: src.w, h: src.h, label: s.label, hint: s.hint, icon: s.icon ?? "doc", flow: INGEST, size: 13 }, s.label)),
     /* @__PURE__ */ jsx4(Bus, { ...bus, from: Math.min(srcY(0), iy), to: Math.max(srcY(spec.sources.length - 1), iy), defs: id, kind: "change" }),
     spec.sources.map((_, i) => /* @__PURE__ */ jsx4(Packet, { points: busStub(bus, bus.stubs[i]), kind: "change", dur: 1.4, delay: -i * 0.5, reverse: true, r: 4, flow: INGEST }, i)),
     /* @__PURE__ */ jsx4(Packet, { points: busStub(bus, bus.stubs[spec.sources.length]), kind: "change", dur: 1.2, flow: INGEST, r: 4 }),
-    spec.ingest.map((s, i) => /* @__PURE__ */ jsx4(Node, { x: sx(i), y: ingestY, w: stage.w, h: stage.h, label: s.label, sub: s.sub, icon: s.icon, flow: INGEST, size: 13, subSize: 10 }, s.label)),
+    spec.ingest.map((s, i) => /* @__PURE__ */ jsx4(Node, { x: sx(i), y: ingestY, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: INGEST, size: 13, subSize: 10 }, s.label)),
     chain(spec.ingest, iy, "change", INGEST),
     /* @__PURE__ */ jsx4(Connector, { points: toIndex, defs: id, kind: "change", flow: INGEST }),
     /* @__PURE__ */ jsx4(Packet, { points: toIndex, kind: "change", dur: 2, flow: INGEST }),
-    /* @__PURE__ */ jsx4(Node, { ...index, label: spec.index.label, sub: spec.index.sub, icon: spec.index.icon ?? "db", flow: [INGEST, QUERY], hint: "Shared by both lanes" }),
-    /* @__PURE__ */ jsx4(Node, { x: src.x, y: queryY, w: src.w, h: stage.h, label: spec.query.label, icon: spec.query.icon ?? "user", flow: QUERY, size: 13 }),
+    /* @__PURE__ */ jsx4(Node, { ...index, label: spec.index.label, sub: spec.index.sub, icon: spec.index.icon ?? "db", flow: [INGEST, QUERY], hint: spec.index.hint ?? "Shared by both lanes" }),
+    /* @__PURE__ */ jsx4(Node, { x: src.x, y: queryY, w: src.w, h: stage.h, label: spec.query.label, hint: spec.query.hint, icon: spec.query.icon ?? "user", flow: QUERY, size: 13 }),
     /* @__PURE__ */ jsx4(Connector, { points: queryIn, defs: id, kind: "request", flow: QUERY }),
     /* @__PURE__ */ jsx4(Packet, { points: queryIn, kind: "request", dur: 1.2, flow: QUERY, r: 4 }),
-    spec.stages.map((s, i) => /* @__PURE__ */ jsx4(Node, { x: sx(i), y: queryY, w: stage.w, h: stage.h, label: s.label, sub: s.sub, icon: s.icon, flow: QUERY, size: 13, subSize: 10 }, s.label)),
+    spec.stages.map((s, i) => /* @__PURE__ */ jsx4(Node, { x: sx(i), y: queryY, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: QUERY, size: 13, subSize: 10 }, s.label)),
     chain(spec.stages, qy, "request", QUERY),
     /* @__PURE__ */ jsx4(Connector, { points: read, defs: id, kind: "request", flow: QUERY }),
     /* @__PURE__ */ jsx4(Packet, { points: read, kind: "request", dur: 1.8, flow: QUERY, r: 4 }),
@@ -456,7 +456,7 @@ function ragPipelineParts(spec = defaultRagPipeline, id) {
     /* @__PURE__ */ jsx4(Label, { x: (retrieveX + index.x) / 2, y: index.y + index.h / 2 + 6, text: "top-k", anchor: "middle" }),
     /* @__PURE__ */ jsx4(Connector, { points: toAnswer, defs: id, kind: "response", flow: QUERY }),
     /* @__PURE__ */ jsx4(Packet, { points: toAnswer, kind: "response", dur: 1.4, flow: QUERY, r: 4 }),
-    /* @__PURE__ */ jsx4(Node, { ...answer, label: spec.answer.label, sub: spec.answer.sub, icon: spec.answer.icon ?? "doc", flow: QUERY, size: 13, subSize: 10 })
+    /* @__PURE__ */ jsx4(Node, { ...answer, label: spec.answer.label, hint: spec.answer.hint, sub: spec.answer.sub, icon: spec.answer.icon ?? "doc", flow: QUERY, size: 13, subSize: 10 })
   ] });
   const steps = [
     { label: spec.sources.map((s) => s.label).join(" \xB7 "), sub: "sources", icon: "doc", flow: INGEST },
@@ -540,20 +540,20 @@ function skillLifecycleParts(spec = defaultSkillLifecycle, id) {
     /* @__PURE__ */ jsx5(Lane, { x: evaluate.x, w: evaluate.w, y: 40, title: "Evaluate" }),
     /* @__PURE__ */ jsx5(Lane, { x: version.x, w: version.w, y: 40, title: "Version" }),
     /* @__PURE__ */ jsx5(Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
-    /* @__PURE__ */ jsx5(Node, { ...author, label: spec.author.label, sub: spec.author.sub, icon: spec.author.icon ?? "user", flow: [FWD, BACK] }),
+    /* @__PURE__ */ jsx5(Node, { ...author, label: spec.author.label, hint: spec.author.hint, sub: spec.author.sub, icon: spec.author.icon ?? "user", flow: [FWD, BACK] }),
     /* @__PURE__ */ jsx5(Connector, { points: a2e, defs: id, kind: "request", flow: FWD }),
     /* @__PURE__ */ jsx5(Packet, { points: a2e, kind: "request", dur: 1.4, flow: FWD, r: 4 }),
-    /* @__PURE__ */ jsx5(Node, { ...evaluate, label: spec.evaluate.label, sub: spec.evaluate.sub, icon: spec.evaluate.icon ?? "chart", flow: FWD, hint: `Scored against: ${spec.evaluate.baseline}` }),
+    /* @__PURE__ */ jsx5(Node, { ...evaluate, label: spec.evaluate.label, sub: spec.evaluate.sub, icon: spec.evaluate.icon ?? "chart", flow: FWD, hint: spec.evaluate.hint ?? `Scored against: ${spec.evaluate.baseline}` }),
     /* @__PURE__ */ jsx5(Chip, { x: evaluate.x, y: evaluate.y + evaluate.h + 12, w: evaluate.w, h: 20, label: `baseline \xB7 ${spec.evaluate.baseline}`, dashed: true }),
     /* @__PURE__ */ jsx5(Connector, { points: e2v, defs: id, kind: "accent", flow: FWD }),
     /* @__PURE__ */ jsx5(Packet, { points: e2v, kind: "accent", dur: 1.4, delay: -0.7, flow: FWD, r: 4 }),
     /* @__PURE__ */ jsx5(Label, { x: (e2v[0][0] + e2v[1][0]) / 2, y: cy - 10, text: "passes", anchor: "middle", accent: true }),
-    /* @__PURE__ */ jsx5(Node, { ...version, label: spec.version.label, sub: spec.version.sub, icon: spec.version.icon ?? "git", flow: FWD }),
+    /* @__PURE__ */ jsx5(Node, { ...version, label: spec.version.label, hint: spec.version.hint, sub: spec.version.sub, icon: spec.version.icon ?? "git", flow: FWD }),
     /* @__PURE__ */ jsx5(Bus, { ...bus, from: Math.min(conY(0), cy), to: trunkEnd, defs: id }),
     /* @__PURE__ */ jsx5(Packet, { points: busStub(bus, bus.stubs[n]), kind: "request", dur: 1.2, flow: FWD, r: 4 }),
     spec.consumers.map((c, i) => /* @__PURE__ */ jsxs5("g", { children: [
       /* @__PURE__ */ jsx5(Packet, { points: busStub(bus, bus.stubs[i]), kind: "request", dur: 1.2, delay: -i * 0.4, flow: FWD, r: 4 }),
-      /* @__PURE__ */ jsx5(Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, sub: c.sub, icon: c.icon, flow: [FWD, BACK] })
+      /* @__PURE__ */ jsx5(Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, hint: c.hint, sub: c.sub, icon: c.icon, flow: [FWD, BACK] })
     ] }, c.label)),
     /* @__PURE__ */ jsx5(Label, { x: (version.x + version.w + busX) / 2, y: cy - 10, text: "install", anchor: "middle" }),
     /* @__PURE__ */ jsx5(Connector, { points: back, defs: id, kind: "change", flow: BACK, dashed: true }),
@@ -622,7 +622,7 @@ function syncLoopParts(spec = defaultSyncLoop, id) {
     /* @__PURE__ */ jsx6(Defs, { id }),
     /* @__PURE__ */ jsx6(Lane, { x: up.x, w: up.w, y: 40, title: "Upstream" }),
     /* @__PURE__ */ jsx6(Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
-    /* @__PURE__ */ jsx6(Group, { ...up, title: spec.upstream.label, flow: [PULL, PUSH], children: items.map((it, i) => /* @__PURE__ */ jsx6(Node, { x: up.x + 16, y: up.y + 40 + i * 64, w: up.w - 32, h: 48, label: it.label, sub: it.sub, icon: it.icon, align: "left", flow: [PULL, PUSH], size: 13, subSize: 10 }, it.label)) }),
+    /* @__PURE__ */ jsx6(Group, { ...up, title: spec.upstream.label, flow: [PULL, PUSH], children: items.map((it, i) => /* @__PURE__ */ jsx6(Node, { x: up.x + 16, y: up.y + 40 + i * 64, w: up.w - 32, h: 48, label: it.label, hint: it.hint, sub: it.sub, icon: it.icon, align: "left", flow: [PULL, PUSH], size: 13, subSize: 10 }, it.label)) }),
     spec.consumers.map((c, i) => {
       const cy = conY(i);
       const pull = [
@@ -647,7 +647,7 @@ function syncLoopParts(spec = defaultSyncLoop, id) {
           /* @__PURE__ */ jsx6(Connector, { points: push, defs: id, kind: "change", flow: PUSH }),
           /* @__PURE__ */ jsx6(Packet, { points: push, kind: "change", dur: 2.4, delay: -i * 0.6 - 1.2, flow: PUSH, r: 4 })
         ] }),
-        /* @__PURE__ */ jsx6(Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, sub: c.hooks ? `${c.sub ?? ""} \xB7 ${c.hooks[0]} \u2192 ${c.hooks[1]}`.replace(/^ · /, "") : c.sub, icon: c.icon, align: "left", flow: c.plugin ? PULL : [PULL, PUSH] })
+        /* @__PURE__ */ jsx6(Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, hint: c.hint, sub: c.hooks ? `${c.sub ?? ""} \xB7 ${c.hooks[0]} \u2192 ${c.hooks[1]}`.replace(/^ · /, "") : c.sub, icon: c.icon, align: "left", flow: c.plugin ? PULL : [PULL, PUSH] })
       ] }, c.label);
     }),
     /* @__PURE__ */ jsx6(Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) - 16, text: spec.pull ?? "pull", anchor: "middle" }),
@@ -722,7 +722,7 @@ function beforeAfterParts(spec = defaultBeforeAfter, id) {
           /* @__PURE__ */ jsx7(Connector, { points: into, defs: id, kind: hot ? "accent" : "request", flow }),
           /* @__PURE__ */ jsx7(Packet, { points: into, kind: hot ? "accent" : "request", dur: 1.2, delay: -i * 0.4, flow, r: 4, id: `${pid}-p${i}` })
         ] }) : null,
-        /* @__PURE__ */ jsx7(Node, { x, y: sy, w: stage.w, h: stage.h, label: s.label, sub: s.sub, icon: s.icon, accent: hot, flow, size: 13, subSize: 10 })
+        /* @__PURE__ */ jsx7(Node, { x, y: sy, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, accent: hot, flow, size: 13, subSize: 10 })
       ] }, s.label + i);
     }) });
   };
@@ -805,7 +805,7 @@ function pipelineParts(spec = defaultPipeline, id) {
     const s = spec.stages[si++];
     return /* @__PURE__ */ jsxs8("g", { children: [
       edge,
-      /* @__PURE__ */ jsx8(Node, { x: x(slot), y: stage.y, w: stage.w, h: stage.h, label: s.label, sub: s.sub, icon: s.icon, flow: FLOW, size: 13, subSize: 10 })
+      /* @__PURE__ */ jsx8(Node, { x: x(slot), y: stage.y, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: FLOW, size: 13, subSize: 10 })
     ] }, s.label);
   });
   const wide = /* @__PURE__ */ jsxs8(Fragment8, { children: [

@@ -14,6 +14,8 @@ export interface Item {
   label: string;
   sub?: string;
   icon?: IconName;
+  /** One short sentence on what the box does, shown when it is selected. */
+  hint?: string;
 }
 
 /** Header fields every preset takes. `alt` is required: it is the figure's accessible description. */
@@ -108,7 +110,6 @@ export interface StackStep extends Item {
   dashed?: boolean;
   /** No connector from the step above; sits 8 units under it (a wrapped row of one box). */
   link?: boolean;
-  hint?: string;
 }
 
 export const NARROW_W = 360;

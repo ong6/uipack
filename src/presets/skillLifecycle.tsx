@@ -80,21 +80,21 @@ export function skillLifecycleParts(spec: SkillLifecycleSpec = defaultSkillLifec
       <Lane x={evaluate.x} w={evaluate.w} y={40} title="Evaluate" />
       <Lane x={version.x} w={version.w} y={40} title="Version" />
       <Lane x={con.x} w={con.w} y={40} title="Consumers" />
-      <Node {...author} label={spec.author.label} sub={spec.author.sub} icon={spec.author.icon ?? "user"} flow={[FWD, BACK]} />
+      <Node {...author} label={spec.author.label} hint={spec.author.hint} sub={spec.author.sub} icon={spec.author.icon ?? "user"} flow={[FWD, BACK]} />
       <Connector points={a2e} defs={id} kind="request" flow={FWD} />
       <Packet points={a2e} kind="request" dur={1.4} flow={FWD} r={4} />
-      <Node {...evaluate} label={spec.evaluate.label} sub={spec.evaluate.sub} icon={spec.evaluate.icon ?? "chart"} flow={FWD} hint={`Scored against: ${spec.evaluate.baseline}`} />
+      <Node {...evaluate} label={spec.evaluate.label} sub={spec.evaluate.sub} icon={spec.evaluate.icon ?? "chart"} flow={FWD} hint={spec.evaluate.hint ?? `Scored against: ${spec.evaluate.baseline}`} />
       <Chip x={evaluate.x} y={evaluate.y + evaluate.h + 12} w={evaluate.w} h={20} label={`baseline · ${spec.evaluate.baseline}`} dashed />
       <Connector points={e2v} defs={id} kind="accent" flow={FWD} />
       <Packet points={e2v} kind="accent" dur={1.4} delay={-0.7} flow={FWD} r={4} />
       <Label x={(e2v[0][0] + e2v[1][0]) / 2} y={cy - 10} text="passes" anchor="middle" accent />
-      <Node {...version} label={spec.version.label} sub={spec.version.sub} icon={spec.version.icon ?? "git"} flow={FWD} />
+      <Node {...version} label={spec.version.label} hint={spec.version.hint} sub={spec.version.sub} icon={spec.version.icon ?? "git"} flow={FWD} />
       <Bus {...bus} from={Math.min(conY(0), cy)} to={trunkEnd} defs={id} />
       <Packet points={busStub(bus, bus.stubs[n])} kind="request" dur={1.2} flow={FWD} r={4} />
       {spec.consumers.map((c, i) => (
         <g key={c.label}>
           <Packet points={busStub(bus, bus.stubs[i])} kind="request" dur={1.2} delay={-i * 0.4} flow={FWD} r={4} />
-          <Node x={con.x} y={con.y0 + i * con.step} w={con.w} h={con.h} label={c.label} sub={c.sub} icon={c.icon} flow={[FWD, BACK]} />
+          <Node x={con.x} y={con.y0 + i * con.step} w={con.w} h={con.h} label={c.label} hint={c.hint} sub={c.sub} icon={c.icon} flow={[FWD, BACK]} />
         </g>
       ))}
       <Label x={(version.x + version.w + busX) / 2} y={cy - 10} text="install" anchor="middle" />

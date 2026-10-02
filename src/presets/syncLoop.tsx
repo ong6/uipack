@@ -61,7 +61,7 @@ export function syncLoopParts(spec: SyncLoopSpec = defaultSyncLoop, id: string):
       <Lane x={con.x} w={con.w} y={40} title="Consumers" />
       <Group {...up} title={spec.upstream.label} flow={[PULL, PUSH]}>
         {items.map((it, i) => (
-          <Node key={it.label} x={up.x + 16} y={up.y + 40 + i * 64} w={up.w - 32} h={48} label={it.label} sub={it.sub} icon={it.icon} align="left" flow={[PULL, PUSH]} size={13} subSize={10} />
+          <Node key={it.label} x={up.x + 16} y={up.y + 40 + i * 64} w={up.w - 32} h={48} label={it.label} hint={it.hint} sub={it.sub} icon={it.icon} align="left" flow={[PULL, PUSH]} size={13} subSize={10} />
         ))}
       </Group>
       {spec.consumers.map((c, i) => {
@@ -93,7 +93,7 @@ export function syncLoopParts(spec: SyncLoopSpec = defaultSyncLoop, id: string):
                 <Packet points={push} kind="change" dur={2.4} delay={-i * 0.6 - 1.2} flow={PUSH} r={4} />
               </>
             )}
-            <Node x={con.x} y={con.y0 + i * con.step} w={con.w} h={con.h} label={c.label} sub={c.hooks ? `${c.sub ?? ""} · ${c.hooks[0]} → ${c.hooks[1]}`.replace(/^ · /, "") : c.sub} icon={c.icon} align="left" flow={c.plugin ? PULL : [PULL, PUSH]} />
+            <Node x={con.x} y={con.y0 + i * con.step} w={con.w} h={con.h} label={c.label} hint={c.hint} sub={c.hooks ? `${c.sub ?? ""} · ${c.hooks[0]} → ${c.hooks[1]}`.replace(/^ · /, "") : c.sub} icon={c.icon} align="left" flow={c.plugin ? PULL : [PULL, PUSH]} />
           </g>
         );
       })}

@@ -15,6 +15,8 @@ export interface GroupProps {
   /** Flow names for hover highlighting. */
   flow?: Flow;
   titleSize?: number;
+  /** One short sentence on what the region is. Makes the group selectable inside a Figure. */
+  hint?: string;
   children?: ReactNode;
 }
 
@@ -28,18 +30,14 @@ export function Group({
   accent,
   flow,
   titleSize,
+  hint,
   children,
 }: GroupProps) {
   const hover = useFigureHover();
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const dashed = variant === "dashed";
   const ts = useFontFloor(titleSize ?? (dashed ? 11 : 14));
-  const selection = useItemSelection(
-    title ?? "Group",
-    undefined,
-    undefined,
-    true,
-  );
+  const selection = useItemSelection(title ?? "Group", hint);
   return (
     <g
       data-uipack="group"
