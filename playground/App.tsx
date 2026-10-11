@@ -5,6 +5,11 @@ import { PRESETS, type PresetName } from "../src/presets";
 import { AssetBrowser } from "../src/browser";
 import manifest from "../assets/manifest.json";
 import "../src/browser/browser.css";
+import { useEffect, useRef } from "react";
+import { LayerStack, SpanChart, enhanceSpanChart } from "../src/charts";
+import { aiStack, aiStackDiagram } from "../examples/aiStack";
+import { figureEntries } from "./catalog";
+import "../src/charts/charts.css";
 
 declare const __UIPACK_ROOT__: string;
 
@@ -110,6 +115,23 @@ function Presets() {
   );
 }
 
+// Client-rendered here; the same markup works as static HTML. The playground
+// opts into the optional enhancement (repeat activation and Escape clear).
+function SpanChartDemo() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const root = ref.current?.querySelector<HTMLElement>(".uipack-span");
+    return root ? enhanceSpanChart(root) : undefined;
+  }, []);
+  return (
+    <div ref={ref}>
+      <SpanChart {...aiStack} />
+    </div>
+  );
+}
+
+const entry = (id: string) => figureEntries.find((e) => e.id === id)!;
+
 function Assets() {
   return (
     <section data-route="assets">
@@ -135,6 +157,14 @@ export function App() {
           <section>
             <h2>every part</h2>
             <Parts />
+          </section>
+          <section data-catalog-entry="layer-stack" id="layer-stack">
+            <h2>charts/{entry("layer-stack").title}</h2>
+            <LayerStack {...aiStackDiagram} />
+          </section>
+          <section data-catalog-entry="span-chart" id="span-chart">
+            <h2>charts/{entry("span-chart").title}</h2>
+            <SpanChartDemo />
           </section>
           <Presets />
           <section>

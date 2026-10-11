@@ -1,0 +1,1197 @@
+/* uipack/charts.css — SpanChart and LayerStack, Technical style. Every rule
+   is scoped under .uipack-span or .uipack-stack. Colours come from the shared
+   --uipack-* properties: a host that sets them on any ancestor wins; unset
+   ones fall back to the Technical light or dark defaults, switched like
+   src/theme.css. */
+.uipack-span,
+.uipack-stack {
+  --sp-fg: var(--uipack-fg, #1a1c1a);
+  --sp-muted: var(--uipack-muted, #5c625e);
+  --sp-bg: var(--uipack-bg, #ffffff);
+  --sp-surface: var(--uipack-surface, #ffffff);
+  --sp-raised: var(--uipack-surface-raised, #f4f6f4);
+  --sp-border: var(--uipack-border, rgba(26, 28, 26, 0.22));
+  --sp-accent: var(--uipack-accent, #205f49);
+  --sp-change: var(--uipack-token-change, #9a63e0);
+  --sp-request: var(--uipack-token-request, #4f6fe6);
+  --sp-logo-bg: var(--uipack-span-logo-bg, #ffffff);
+  --sp-logo-filter: var(--uipack-span-logo-filter, none);
+  --sp-mono: var(--uipack-mono, ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+  --sp-sans: var(--uipack-sans, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+  --sp-name: var(--uipack-span-name-width, 220px);
+  --sp-sticky: var(--uipack-span-sticky-top, 0px);
+
+  /* Derived once; they follow whichever theme the base tokens resolve to. */
+  --sp-hair: var(--uipack-span-hairline, color-mix(in srgb, var(--sp-fg) 10%, transparent));
+  --sp-tint: var(--uipack-span-tint, color-mix(in srgb, var(--sp-accent) 15%, var(--sp-bg)));
+  --sp-line: color-mix(in srgb, var(--sp-accent) 55%, var(--sp-bg));
+  --sp-sep: color-mix(in srgb, var(--sp-accent) 22%, var(--sp-tint));
+  --sp-band: color-mix(in srgb, var(--sp-accent) 8%, transparent);
+  --sp-change-ink: color-mix(in srgb, var(--sp-change) 80%, var(--sp-fg));
+  --sp-inset: 3px;
+}
+.uipack-span {
+  container: uipack-span / inline-size;
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+  color: var(--sp-fg);
+  background: var(--sp-bg);
+  font: 400 14px/1.4 var(--sp-sans);
+  letter-spacing: normal;
+  text-align: left;
+  border: 1px solid var(--sp-border);
+  border-radius: 4px;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .uipack-span,
+  :root:not([data-theme="light"]) .uipack-stack {
+    --sp-fg: var(--uipack-fg, #e8ece9);
+    --sp-muted: var(--uipack-muted, #9aa39e);
+    --sp-bg: var(--uipack-bg, #0e1512);
+    --sp-surface: var(--uipack-surface, #14201b);
+    --sp-raised: var(--uipack-surface-raised, #1b2a24);
+    --sp-border: var(--uipack-border, rgba(232, 236, 233, 0.22));
+    --sp-accent: var(--uipack-accent, #71dcb2);
+    --sp-change: var(--uipack-token-change, #c39aff);
+    --sp-request: var(--uipack-token-request, #8ea4ff);
+    --sp-logo-bg: var(--uipack-span-logo-bg, #dfe5e1);
+    --sp-logo-filter: var(--uipack-span-logo-filter, brightness(0.92));
+  }
+}
+[data-theme="dark"] .uipack-span,
+.uipack-span[data-theme="dark"],
+[data-theme="dark"] .uipack-stack,
+.uipack-stack[data-theme="dark"] {
+  --sp-fg: var(--uipack-fg, #e8ece9);
+  --sp-muted: var(--uipack-muted, #9aa39e);
+  --sp-bg: var(--uipack-bg, #0e1512);
+  --sp-surface: var(--uipack-surface, #14201b);
+  --sp-raised: var(--uipack-surface-raised, #1b2a24);
+  --sp-border: var(--uipack-border, rgba(232, 236, 233, 0.22));
+  --sp-accent: var(--uipack-accent, #71dcb2);
+  --sp-change: var(--uipack-token-change, #c39aff);
+  --sp-request: var(--uipack-token-request, #8ea4ff);
+  --sp-logo-bg: var(--uipack-span-logo-bg, #dfe5e1);
+  --sp-logo-filter: var(--uipack-span-logo-filter, brightness(0.92));
+}
+
+.uipack-span *,
+.uipack-span *::before,
+.uipack-span *::after,
+.uipack-stack *,
+.uipack-stack *::before,
+.uipack-stack *::after {
+  box-sizing: border-box;
+}
+/* Host prose rules (h3, p, ul, li, img) must not reach inside the chart. */
+.uipack-span :is(h2, h3, h4, h5, h6, p, ul, li, dl, dt, dd, details, summary, label),
+.uipack-stack :is(h2, h3, h4, h5, h6, p, ul, li, details, summary) {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  text-transform: none;
+  background: none;
+  border: 0;
+}
+.uipack-span :is(ul, ol) > li::before {
+  content: none;
+}
+.uipack-span .uipack-span__sr,
+.uipack-span .uipack-span__input,
+.uipack-stack .uipack-stack__sr,
+.uipack-stack .uipack-stack__rail-tip {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- head: title, caption, legend, key ---------- */
+.uipack-span .uipack-span__head {
+  display: grid;
+  gap: 8px;
+  padding: 16px 16px 12px;
+}
+.uipack-span .uipack-span__title {
+  font: 700 20px/1.25 var(--sp-sans);
+  letter-spacing: -0.01em;
+}
+.uipack-span .uipack-span__caption {
+  max-width: 68ch;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.uipack-span .uipack-span__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-top: 4px;
+  list-style: none;
+  font-size: 13px;
+  line-height: 18px;
+}
+.uipack-span .uipack-span__legend > li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.uipack-span .uipack-span__swatch {
+  flex: none;
+  width: 24px;
+  height: 12px;
+  border-radius: 3px;
+}
+.uipack-span .uipack-span__swatch--main {
+  background: var(--sp-accent);
+}
+.uipack-span .uipack-span__swatch--also {
+  background: var(--sp-tint);
+  box-shadow: inset 0 0 0 1px var(--sp-line);
+}
+/* Size filter: chips built like the column headers, radios inside labels. */
+.uipack-span .uipack-span__sizes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+.uipack-span .uipack-span__sizes-label {
+  margin-right: 4px;
+  font: 500 11px/16px var(--sp-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sp-muted);
+}
+.uipack-span .uipack-span__chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--sp-border);
+  border-radius: 999px;
+  background: var(--sp-surface);
+  font: 500 13px/1 var(--sp-sans);
+  color: var(--sp-fg);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.uipack-span .uipack-span__chip-range {
+  font: 400 11px/1 var(--sp-mono);
+  color: var(--sp-muted);
+}
+/* Selected: a check mark and a heavier border, not only the accent. */
+.uipack-span .uipack-span__chip:has(:checked) {
+  border: 2px solid var(--sp-accent);
+  padding: 0 11px 0 9px;
+  background: var(--sp-band);
+  font-weight: 700;
+}
+.uipack-span .uipack-span__chip:has(:checked)::before {
+  content: "✓";
+  content: "✓" / "";
+  font: 700 12px/1 var(--sp-sans);
+  color: var(--sp-accent);
+}
+.uipack-span .uipack-span__chip:has(:focus-visible) {
+  outline: 2px solid var(--sp-accent);
+  outline-offset: 2px;
+}
+.uipack-span .uipack-span__key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--sp-muted);
+}
+.uipack-span .uipack-span__key > div {
+  display: inline-flex;
+  gap: 6px;
+}
+.uipack-span .uipack-span__key dt {
+  font: 600 11px/18px var(--sp-mono);
+  color: var(--sp-fg);
+}
+
+/* ---------- grid ---------- */
+.uipack-span .uipack-span__chart {
+  --sp-name-col: 0px;
+  padding: 0 16px;
+}
+.uipack-span .uipack-span__header {
+  position: sticky;
+  top: var(--sp-sticky);
+  z-index: 3;
+  margin: 0 -8px;
+  padding: 0 8px;
+  background: var(--sp-bg);
+  border-bottom: 1px solid var(--sp-border);
+}
+.uipack-span .uipack-span__zones,
+.uipack-span .uipack-span__cols {
+  display: grid;
+  grid-template-columns: var(--sp-name-col) repeat(var(--sp-cols), minmax(0, 1fr));
+}
+.uipack-span .uipack-span__zones {
+  padding-top: 8px;
+}
+.uipack-span .uipack-span__zone {
+  grid-row: 1;
+  min-width: 0;
+  padding: 0 2px;
+  text-align: center;
+}
+.uipack-span .uipack-span__zone > span {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--sp-border);
+  font: 500 11px/16px var(--sp-sans);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--sp-muted);
+}
+.uipack-span .uipack-span__corner {
+  position: relative;
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: flex-end;
+  min-width: 0;
+  min-height: 32px;
+  padding: 8px 0 4px;
+  font: 500 12px/16px var(--sp-sans);
+  color: var(--sp-muted);
+}
+.uipack-span .uipack-span__corner-reset {
+  display: none;
+}
+.uipack-span .uipack-span__col {
+  position: relative;
+  grid-row: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: 0;
+  min-height: 32px;
+  padding: 6px 0;
+  text-align: center;
+  color: var(--sp-fg);
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.uipack-span .uipack-span__full {
+  display: none;
+  max-width: 100%;
+  font: 500 11px/14px var(--sp-sans);
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+.uipack-span .uipack-span__abbr {
+  display: block;
+  font: 600 11px/16px var(--sp-mono);
+  letter-spacing: 0.02em;
+}
+.uipack-span .uipack-span__col:has(:checked) {
+  color: var(--sp-accent);
+  background: var(--sp-band);
+}
+.uipack-span .uipack-span__col:has(:checked) .uipack-span__full,
+.uipack-span .uipack-span__col:has(:checked) .uipack-span__abbr {
+  font-weight: 700;
+}
+/* The selected column's marker sits on the header rule: shape, not only colour. */
+.uipack-span .uipack-span__col:has(:checked)::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: -1px;
+  height: 3px;
+  border-radius: 2px 2px 0 0;
+  background: var(--sp-accent);
+}
+.uipack-span .uipack-span__col:has(:focus-visible),
+.uipack-span .uipack-span__corner:has(:focus-visible) {
+  outline: 2px solid var(--sp-accent);
+  outline-offset: -2px;
+}
+.uipack-span .uipack-span__zone[data-zone-start] > span,
+.uipack-span .uipack-span__col[data-zone-start] {
+  box-shadow: inset 1px 0 0 var(--sp-hair);
+}
+.uipack-span:has(.uipack-span__layer-input:checked) .uipack-span__corner {
+  cursor: pointer;
+}
+.uipack-span:has(.uipack-span__layer-input:checked) .uipack-span__corner-idle {
+  display: none;
+}
+.uipack-span:has(.uipack-span__layer-input:checked) .uipack-span__corner-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sp-accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.uipack-span .uipack-span__corner-reset::before {
+  content: "×";
+  content: "×" / "";
+  font: 600 14px/1 var(--sp-sans);
+  text-decoration: none;
+}
+
+/* ---------- body: zone rules, the filter band, groups and rows ---------- */
+.uipack-span .uipack-span__body {
+  position: relative;
+}
+.uipack-span .uipack-span__rule,
+.uipack-span .uipack-span__body::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.uipack-span .uipack-span__rule {
+  display: none;
+  left: calc(var(--sp-name-col) + (100% - var(--sp-name-col)) * var(--k) / var(--sp-cols));
+  width: 1px;
+  background: var(--sp-hair);
+}
+.uipack-span .uipack-span__body::before {
+  content: "";
+  display: none;
+  left: calc(var(--sp-name-col) + (100% - var(--sp-name-col)) * var(--sp-active, 0) / var(--sp-cols));
+  width: calc((100% - var(--sp-name-col)) / var(--sp-cols));
+  background: var(--sp-band);
+}
+
+.uipack-span .uipack-span__group-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 16px 0 6px;
+  font: 600 13px/18px var(--sp-sans);
+}
+.uipack-span .uipack-span__count {
+  font: 500 11px/18px var(--sp-mono);
+  color: var(--sp-muted);
+}
+.uipack-span [data-span-key],
+.uipack-span .uipack-span__empty {
+  display: none;
+}
+.uipack-span:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked) .uipack-span__count:not([data-span-key]) {
+  display: none;
+}
+.uipack-span .uipack-span__empty {
+  padding: 24px 0;
+  font-size: 13px;
+  color: var(--sp-muted);
+  text-align: center;
+}
+
+.uipack-span .uipack-span__rows {
+  list-style: none;
+}
+.uipack-span .uipack-span__item {
+  display: block;
+  margin: 0 -8px;
+  border-top: 1px solid var(--sp-hair);
+}
+.uipack-span .uipack-span__row {
+  display: block;
+}
+.uipack-span .uipack-span__summary {
+  display: block;
+  padding: 0 8px;
+  list-style: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.uipack-span .uipack-span__summary::-webkit-details-marker {
+  display: none;
+}
+.uipack-span .uipack-span__summary::marker {
+  content: "";
+}
+.uipack-span .uipack-span__summary:focus-visible {
+  outline: 2px solid var(--sp-accent);
+  outline-offset: -2px;
+}
+.uipack-span .uipack-span__row[open] > .uipack-span__summary {
+  background: var(--sp-raised);
+}
+.uipack-span .uipack-span__line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 6px;
+  padding: 8px 0 10px;
+}
+
+/* Name cell: chevron and logo, then the name with its size beside it; a
+   status badge and tags, when present, sit on a second line under the name. */
+.uipack-span .uipack-span__name {
+  display: grid;
+  grid-template-columns: 8px 24px minmax(0, max-content) auto 1fr;
+  grid-template-areas:
+    "chev logo label value ."
+    "chev logo sub sub sub";
+  align-items: center;
+  column-gap: 8px;
+  min-width: 0;
+}
+.uipack-span .uipack-span__chevron {
+  grid-area: chev;
+  justify-self: center;
+  width: 6px;
+  height: 6px;
+  margin: 0 2px 2px 0;
+  border-right: 1.5px solid var(--sp-muted);
+  border-bottom: 1.5px solid var(--sp-muted);
+  transform: rotate(-45deg);
+  transition: transform 120ms ease;
+}
+.uipack-span .uipack-span__row[open] .uipack-span__chevron {
+  transform: translateY(-1px) rotate(45deg);
+}
+.uipack-span .uipack-span__logo {
+  grid-area: logo;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  overflow: hidden;
+  border: 1px solid var(--sp-hair);
+  border-radius: 6px;
+  background: var(--sp-logo-bg);
+}
+.uipack-span .uipack-span__logo img {
+  display: block;
+  width: 20px;
+  height: 20px;
+  max-width: none;
+  object-fit: contain;
+  filter: var(--sp-logo-filter);
+}
+.uipack-span .uipack-span__logo--mono {
+  background: var(--sp-raised);
+  font: 700 11px/1 var(--sp-mono);
+  letter-spacing: -0.02em;
+  color: var(--sp-fg);
+}
+.uipack-span .uipack-span__label {
+  grid-area: label;
+  align-self: baseline;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 500;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.uipack-span .uipack-span__sub {
+  grid-area: sub;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin-top: 2px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.uipack-span .uipack-span__value {
+  grid-area: value;
+  align-self: baseline;
+  font: 400 11px/16px var(--sp-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--sp-muted);
+  white-space: nowrap;
+}
+.uipack-span .uipack-span__tag {
+  font: 400 11px/16px var(--sp-mono);
+  color: var(--sp-muted);
+  white-space: nowrap;
+}
+.uipack-span .uipack-span__badge {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0 6px;
+  border: 1px solid var(--sp-change);
+  border-radius: 999px;
+  font: 500 11px/14px var(--sp-mono);
+  color: var(--sp-change-ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.uipack-span .uipack-span__badge[data-kind="shutdown"] {
+  border-color: var(--sp-border);
+  color: var(--sp-muted);
+}
+.uipack-span .uipack-span__legend .uipack-span__badge {
+  flex: none;
+}
+
+.uipack-span .uipack-span__track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--sp-cols), minmax(0, 1fr));
+  align-items: center;
+  height: 16px;
+}
+/* Narrow rows stack the name above the bars, so the filter band is drawn per
+   track instead of down the body, where it would cross the names. */
+.uipack-span:has(.uipack-span__layer-input:checked) .uipack-span__track::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  left: calc(100% * var(--sp-active, 0) / var(--sp-cols));
+  width: calc(100% / var(--sp-cols));
+  background: var(--sp-band);
+  pointer-events: none;
+}
+.uipack-span .uipack-span__run {
+  position: relative;
+  z-index: 2;
+  height: 14px;
+  margin: 0 var(--sp-inset);
+  overflow: hidden;
+  border: 1px solid var(--sp-line);
+  border-radius: 4px;
+  /* A faint tick on each column boundary inside a long bar. */
+  background:
+    linear-gradient(to left, var(--sp-sep) 1px, transparent 1px) calc(-1 * (var(--sp-inset) + 1px)) 0 /
+      calc((100% + 2 * (var(--sp-inset) + 1px)) / var(--len)) 100% repeat-x,
+    var(--sp-tint);
+}
+.uipack-span .uipack-span__main {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--at) * (100% + 2 * (var(--sp-inset) + 1px)) / var(--len) - var(--sp-inset) - 1px);
+  width: calc((100% + 2 * (var(--sp-inset) + 1px)) / var(--len));
+  background: var(--sp-accent);
+}
+
+.uipack-span .uipack-span__detail {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 4px;
+  padding: 0 8px 12px 32px;
+  background: var(--sp-raised);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.uipack-span .uipack-span__note {
+  max-width: 72ch;
+}
+.uipack-span .uipack-span__note strong {
+  font-weight: 600;
+}
+.uipack-span .uipack-span__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 16px;
+  font-size: 12px;
+  color: var(--sp-muted);
+}
+.uipack-span .uipack-span__meta a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  color: var(--sp-accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.uipack-span .uipack-span__meta a:focus-visible {
+  outline: 2px solid var(--sp-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ---------- footer: expand control, filter count, date ---------- */
+.uipack-span .uipack-span__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  min-height: 44px;
+  margin: 0 -8px;
+  padding: 12px 8px 16px;
+  border-top: 1px solid var(--sp-border);
+}
+.uipack-span .uipack-span__toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 16px 0 14px;
+  border: 1px solid var(--sp-border);
+  border-radius: 6px;
+  background: var(--sp-surface);
+  color: var(--sp-fg);
+  font: 600 13px/1 var(--sp-sans);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.uipack-span .uipack-span__toggle:has(:focus-visible) {
+  outline: 2px solid var(--sp-accent);
+  outline-offset: 2px;
+}
+.uipack-span .uipack-span__toggle-icon {
+  width: 7px;
+  height: 7px;
+  margin-top: -3px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 120ms ease;
+}
+.uipack-span .uipack-span__toggle:has(:checked) .uipack-span__toggle-icon {
+  margin-top: 3px;
+  transform: rotate(-135deg);
+}
+.uipack-span .uipack-span__less,
+.uipack-span .uipack-span__toggle:has(:checked) .uipack-span__more {
+  display: none;
+}
+.uipack-span .uipack-span__toggle:has(:checked) .uipack-span__less {
+  display: inline;
+}
+.uipack-span:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked) .uipack-span__toggle {
+  display: none;
+}
+.uipack-span .uipack-span__status {
+  font-size: 13px;
+  font-weight: 500;
+}
+.uipack-span .uipack-span__asof {
+  margin-left: auto;
+  font: 400 11px/16px var(--sp-mono);
+  color: var(--sp-muted);
+}
+
+/* ---------- subset and filter state ---------- */
+/* Collapsed and unfiltered: only featured rows. Any active filter shows every
+   matching row, featured or not. */
+.uipack-span:has(.uipack-span__expand:not(:checked)):not(:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked)) .uipack-span__item:not([data-featured]),
+.uipack-span:has(.uipack-span__expand:not(:checked)):not(:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked)) .uipack-span__group:not([data-featured]) {
+  display: none;
+}
+
+@media (hover: hover) {
+  .uipack-span .uipack-span__summary:hover,
+  .uipack-span .uipack-span__col:not(:has(:checked)):hover {
+    background: var(--sp-raised);
+  }
+  .uipack-span .uipack-span__toggle:hover,
+  .uipack-span .uipack-span__chip:not(:has(:checked)):hover {
+    border-color: var(--sp-fg);
+  }
+}
+
+/* ---------- wide: name column beside the bars ---------- */
+@container uipack-span (min-width: 640px) {
+  .uipack-span .uipack-span__head {
+    padding: 24px 24px 16px;
+  }
+  .uipack-span .uipack-span__chart {
+    --sp-name-col: var(--sp-name);
+    padding: 0 24px;
+  }
+  .uipack-span .uipack-span__zone {
+    padding: 0 4px;
+  }
+  .uipack-span .uipack-span__zone > span {
+    font-family: var(--sp-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .uipack-span .uipack-span__corner {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 44px;
+    padding: 8px 12px 8px 0;
+  }
+  .uipack-span .uipack-span__col {
+    grid-row: 1;
+    min-height: 44px;
+    padding: 8px 1px;
+  }
+  .uipack-span .uipack-span__line {
+    grid-template-columns: var(--sp-name-col) minmax(0, 1fr);
+    align-items: center;
+    min-height: 36px;
+    padding: 0;
+  }
+  .uipack-span .uipack-span__name {
+    grid-template-columns: 8px 24px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "chev logo label value"
+      "chev logo sub sub";
+    padding: 6px 12px 6px 0;
+  }
+  .uipack-span .uipack-span__detail {
+    padding: 2px 8px 12px 48px;
+  }
+  .uipack-span .uipack-span__rule,
+  .uipack-span:has(.uipack-span__layer-input:checked) .uipack-span__body::before {
+    display: block;
+  }
+  .uipack-span:has(.uipack-span__layer-input:checked) .uipack-span__track::before {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uipack-span .uipack-span__chevron,
+  .uipack-span .uipack-span__toggle-icon {
+    transition: none;
+  }
+}
+
+/* ==================== LayerStack ==================== */
+.uipack-stack {
+  --ls-bracket-w: 148px;
+  --ls-rail-w: 44px;
+  container: uipack-stack / inline-size;
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+  color: var(--sp-fg);
+  background: var(--sp-bg);
+  font: 400 14px/1.45 var(--sp-sans);
+  letter-spacing: normal;
+  text-align: left;
+  border: 1px solid var(--sp-border);
+  border-radius: 4px;
+  -webkit-text-size-adjust: 100%;
+}
+/* Zone tones come from the existing semantic tokens, bottom zone first. */
+.uipack-stack [data-tone="0"] {
+  --ls-tone: var(--sp-muted);
+}
+.uipack-stack [data-tone="1"] {
+  --ls-tone: var(--sp-request);
+}
+.uipack-stack [data-tone="2"] {
+  --ls-tone: var(--sp-change);
+}
+.uipack-stack [data-tone="3"] {
+  --ls-tone: var(--sp-accent);
+}
+.uipack-stack [data-tone] {
+  --ls-tint: color-mix(in srgb, var(--ls-tone) 7%, var(--sp-bg));
+  --ls-tint-hover: color-mix(in srgb, var(--ls-tone) 12%, var(--sp-bg));
+  --ls-edge: color-mix(in srgb, var(--ls-tone) 75%, var(--sp-bg));
+  --ls-line: color-mix(in srgb, var(--ls-tone) 22%, var(--sp-bg));
+}
+
+.uipack-stack .uipack-stack__head {
+  display: grid;
+  gap: 8px;
+  padding: 16px 16px 4px;
+}
+.uipack-stack .uipack-stack__title {
+  font: 700 20px/1.25 var(--sp-sans);
+  letter-spacing: -0.01em;
+}
+.uipack-stack .uipack-stack__caption {
+  max-width: 68ch;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.uipack-stack .uipack-stack__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 4px;
+  padding: 4px 16px 16px;
+}
+.uipack-stack .uipack-stack__zone,
+.uipack-stack .uipack-stack__band,
+.uipack-stack .uipack-stack__bracket,
+.uipack-stack .uipack-stack__rail {
+  grid-column: 1 / -1;
+  grid-row: var(--rn);
+  min-width: 0;
+}
+
+.uipack-stack .uipack-stack__zone {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0 4px;
+  font: 600 11px/16px var(--sp-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sp-muted);
+}
+.uipack-stack .uipack-stack__zone::before {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--ls-edge);
+}
+
+.uipack-stack .uipack-stack__band {
+  display: block;
+  border: 1px solid var(--ls-line);
+  border-radius: 6px;
+  background: var(--ls-tint);
+  box-shadow: inset 3px 0 0 var(--ls-edge);
+}
+.uipack-stack .uipack-stack__face {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 12px;
+  grid-template-areas:
+    "idx name chev"
+    "idx summary chev"
+    "idx metric chev";
+  column-gap: 12px;
+  align-items: start;
+  padding: 12px 12px 12px 16px;
+  border-radius: 5px;
+  list-style: none;
+}
+summary.uipack-stack__face {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.uipack-stack .uipack-stack__face::-webkit-details-marker {
+  display: none;
+}
+.uipack-stack .uipack-stack__face::marker {
+  content: "";
+}
+.uipack-stack .uipack-stack__face:focus-visible {
+  outline: 2px solid var(--sp-accent);
+  outline-offset: 2px;
+}
+.uipack-stack .uipack-stack__band[open] {
+  background: var(--ls-tint-hover);
+}
+.uipack-stack .uipack-stack__index {
+  grid-area: idx;
+  padding-top: 2px;
+  font: 500 11px/16px var(--sp-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--sp-muted);
+}
+.uipack-stack .uipack-stack__name {
+  grid-area: name;
+  font: 600 15px/20px var(--sp-sans);
+}
+.uipack-stack .uipack-stack__summary {
+  grid-area: summary;
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--sp-muted);
+}
+.uipack-stack .uipack-stack__metric {
+  grid-area: metric;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 8px;
+  margin-top: 6px;
+}
+.uipack-stack .uipack-stack__metric-value {
+  font: 600 15px/20px var(--sp-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.uipack-stack .uipack-stack__metric-label {
+  font: 400 11px/14px var(--sp-mono);
+  color: var(--sp-muted);
+}
+.uipack-stack .uipack-stack__chevron {
+  grid-area: chev;
+  align-self: center;
+  justify-self: center;
+  width: 7px;
+  height: 7px;
+  margin-top: -4px;
+  border-right: 1.5px solid var(--sp-muted);
+  border-bottom: 1.5px solid var(--sp-muted);
+  transform: rotate(45deg);
+  transition: transform 120ms ease;
+}
+.uipack-stack .uipack-stack__band[open] .uipack-stack__chevron {
+  margin-top: 4px;
+  transform: rotate(-135deg);
+}
+.uipack-stack .uipack-stack__detail {
+  display: grid;
+  gap: 8px;
+  padding: 0 16px 14px 52px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.uipack-stack .uipack-stack__check {
+  margin-right: 4px;
+  font: 600 11px/1 var(--sp-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sp-muted);
+}
+.uipack-stack .uipack-stack__read {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  color: var(--sp-accent);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.uipack-stack .uipack-stack__read:focus-visible,
+.uipack-stack .uipack-stack__rail:focus-visible {
+  outline: 2px solid var(--sp-accent);
+  outline-offset: 2px;
+}
+
+/* Narrow: a bracket is a small label above the zone it starts in. */
+.uipack-stack .uipack-stack__bracket {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 16px;
+  font: 500 12px/16px var(--sp-sans);
+  font-style: italic;
+  color: var(--sp-muted);
+}
+.uipack-stack .uipack-stack__bracket::before {
+  content: "";
+  flex: none;
+  width: 10px;
+  height: 8px;
+  margin-top: 6px;
+  border: 1px solid var(--sp-muted);
+  border-bottom: 0;
+  border-right: 0;
+  border-radius: 3px 0 0 0;
+}
+.uipack-stack .uipack-stack__zone[data-after-bracket] {
+  padding-top: 4px;
+}
+.uipack-stack .uipack-stack__zone[data-top-narrow],
+.uipack-stack .uipack-stack__bracket[data-top-narrow] {
+  padding-top: 0;
+}
+
+/* Narrow: rails are chips under the stack, under a small caption. */
+.uipack-stack .uipack-stack__rails-caption {
+  grid-column: 1 / -1;
+  grid-row: var(--rn);
+  padding-top: 16px;
+  font: 600 11px/16px var(--sp-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sp-muted);
+}
+.uipack-stack .uipack-stack__rail {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  margin-top: 4px;
+  padding: 0 14px;
+  border: 1px solid var(--sp-border);
+  border-radius: 999px;
+  background: var(--sp-surface);
+  color: var(--sp-fg);
+  text-decoration: none;
+}
+.uipack-stack .uipack-stack__rail-label {
+  font: 600 13px/1.2 var(--sp-sans);
+}
+.uipack-stack .uipack-stack__rail-span {
+  font: 400 11px/1.2 var(--sp-mono);
+  color: var(--sp-muted);
+}
+.uipack-stack a.uipack-stack__rail .uipack-stack__rail-label {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.uipack-stack .uipack-stack__rail-span::before {
+  content: "· ";
+  content: "· " / "";
+}
+
+@media (hover: hover) {
+  .uipack-stack summary.uipack-stack__face:hover {
+    background: var(--ls-tint-hover);
+  }
+  .uipack-stack a.uipack-stack__rail:hover {
+    border-color: var(--sp-accent);
+  }
+}
+
+/* ---------- wide: brackets left, the stack, rails right ---------- */
+@container uipack-stack (min-width: 640px) {
+  .uipack-stack .uipack-stack__head {
+    padding: 24px 24px 8px;
+  }
+  .uipack-stack .uipack-stack__grid {
+    grid-template-columns: var(--ls-bracket-w) minmax(0, 1fr) repeat(var(--ls-rails), var(--ls-rail-w));
+    padding: 8px 24px 24px;
+  }
+  .uipack-stack:not([data-brackets]) .uipack-stack__grid {
+    --ls-bracket-w: 0px;
+  }
+  .uipack-stack[data-rails="0"] .uipack-stack__grid {
+    grid-template-columns: var(--ls-bracket-w) minmax(0, 1fr);
+  }
+  .uipack-stack .uipack-stack__zone,
+  .uipack-stack .uipack-stack__band {
+    grid-column: 2;
+    grid-row: var(--rw);
+  }
+  .uipack-stack .uipack-stack__zone[data-after-bracket],
+  .uipack-stack .uipack-stack__zone[data-top-narrow] {
+    padding-top: 16px;
+  }
+  .uipack-stack .uipack-stack__zone[data-top-wide] {
+    padding-top: 0;
+  }
+  .uipack-stack .uipack-stack__face {
+    grid-template-columns: 28px minmax(0, 1fr) minmax(96px, auto) 12px;
+    grid-template-areas:
+      "idx name metric chev"
+      "idx summary metric chev";
+    column-gap: 16px;
+    padding: 12px 16px 12px 16px;
+  }
+  .uipack-stack .uipack-stack__metric {
+    flex-direction: column;
+    align-items: flex-end;
+    align-self: center;
+    margin-top: 0;
+    text-align: right;
+  }
+  .uipack-stack .uipack-stack__metric-value {
+    font-size: 18px;
+    line-height: 22px;
+  }
+  .uipack-stack .uipack-stack__detail {
+    padding: 0 48px 16px 60px;
+  }
+
+  .uipack-stack .uipack-stack__bracket {
+    grid-column: 1;
+    grid-row: var(--rw);
+    position: relative;
+    justify-content: flex-end;
+    padding: 0 20px 0 0;
+    font-style: normal;
+    text-align: right;
+  }
+  .uipack-stack .uipack-stack__bracket::before {
+    position: absolute;
+    right: 6px;
+    top: 6px;
+    bottom: 6px;
+    width: 6px;
+    height: auto;
+    margin: 0;
+    border: 1px solid var(--sp-muted);
+    border-right: 0;
+    border-radius: 4px 0 0 4px;
+  }
+
+  .uipack-stack .uipack-stack__rail {
+    position: relative;
+    grid-column: var(--c);
+    grid-row: var(--rw);
+    justify-self: stretch;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 6px;
+    min-height: 0;
+    margin: 0 0 0 8px;
+    padding: 12px 0;
+    border-radius: 6px;
+  }
+  .uipack-stack .uipack-stack__rails-caption {
+    display: none;
+  }
+  .uipack-stack .uipack-stack__rail-label,
+  .uipack-stack .uipack-stack__rail-span {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+  }
+  .uipack-stack a.uipack-stack__rail .uipack-stack__rail-label {
+    text-decoration: none;
+  }
+  .uipack-stack .uipack-stack__rail-span::before {
+    content: none;
+  }
+  .uipack-stack .uipack-stack__rail-label {
+    order: 2;
+  }
+  .uipack-stack .uipack-stack__rail-span {
+    order: 1;
+  }
+  /* Hover or keyboard focus shows the rail's one-line summary beside it. */
+  .uipack-stack .uipack-stack__rail:hover .uipack-stack__rail-tip,
+  .uipack-stack .uipack-stack__rail:focus-visible .uipack-stack__rail-tip {
+    top: 8px;
+    right: calc(100% + 8px);
+    z-index: 4;
+    width: max-content;
+    max-width: 240px;
+    height: auto;
+    padding: 8px 10px;
+    clip-path: none;
+    white-space: normal;
+    opacity: 1;
+    border: 1px solid var(--sp-border);
+    border-radius: 6px;
+    background: var(--sp-surface);
+    color: var(--sp-fg);
+    font: 400 13px/1.45 var(--sp-sans);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uipack-stack .uipack-stack__chevron {
+    transition: none;
+  }
+}

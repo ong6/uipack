@@ -41,11 +41,39 @@ export function RequestFlow() {
 }
 ```
 
-Separate entries, so a page loads only what it draws: `uipack` for parts, `uipack/presets` for ready figures, `uipack/presentations` for slide starters and speaker guides, `uipack/web` with `uipack/web.css` for landing-page blocks, and `uipack/browser` with `uipack/browser.css` for the asset browser.
+Separate entries, so a page loads only what it draws: `uipack` for parts, `uipack/presets` for ready figures, `uipack/charts` with `uipack/charts.css` for the span chart and layer stack, `uipack/presentations` for slide starters and speaker guides, `uipack/web` with `uipack/web.css` for landing-page blocks, and `uipack/browser` with `uipack/browser.css` for the asset browser.
 
 `uipack/docs` with `uipack/docs.css` provides a product-documentation shell and Markdown renderer: grouped navigation, a 680px prose column, an h2/h3 table of contents, mobile disclosure, heading anchors, and previous/next links. See the [docs layout guide](docs/docs-layout.md) and the rendered `/docs` gallery entry.
 
-`npm run dev` opens a playground: `/` renders the Habitat example, every part, and every preset; `/assets` renders the asset browser; `/animations` renders the 3D animation collection (`/slides` remains an alias), `/presentations` shows a complete narrative example, `/web` shows the Landing web building blocks, and `/styles` indexes visual styles.
+`npm run dev` opens a playground: `/` renders the Habitat example, every part, the layer stack and span chart, and every preset; `/assets` renders the asset browser; `/animations` renders the 3D animation collection (`/slides` remains an alias), `/presentations` shows a complete narrative example, `/web` shows the Landing web building blocks, and `/styles` indexes visual styles.
+
+## Charts
+
+`uipack/charts` holds two article figures made of HTML and CSS, with no JavaScript needed in the browser: render them with `renderToStaticMarkup` and ship `uipack/charts.css`. **SpanChart** places companies on the layers of a stack. Each row is a company, and each bar covers the layers it works in, solid where its main business sits. Rows are grouped by main layer into a staircase and sorted largest first. Readers can filter by layer (click a column header) and by size tier, expand from the featured subset to every row, and open a row for its note and links. **LayerStack** walks a stack bottom-up as banded layers. Each band opens to a self-test question and a section link, with cross-cutting rails on the right and bracket annotations on the left.
+
+```tsx
+import { renderToStaticMarkup } from "react-dom/server";
+import { LayerStack, SpanChart } from "uipack/charts";
+import "uipack/charts.css";
+
+const html = renderToStaticMarkup(
+  <SpanChart
+    id="ai-stack"
+    title="Who builds which layer of the AI stack"
+    layers={[
+      { id: "chips", label: "Chips and memory", abbr: "CHP" },
+      { id: "inference", label: "Inference", abbr: "INF" },
+    ]}
+    tiers={[{ id: "large", label: "Large", range: "$50B+" }]}
+    items={[{ id: "nvidia", name: "Nvidia", primary: "chips", also: ["inference"], featured: true, tier: "large", value: 4500, valueLabel: "$4.5T" }]}
+  />,
+);
+```
+
+Every behaviour is native `<details>`, radios and CSS `:has()`, so static HTML works with JavaScript off. The optional `enhanceSpanChart(root)` adds repeat-to-clear, Escape and a live count. Colours follow the shared `--uipack-*` properties, light and dark. Bad data throws at render time, so a static build fails loudly. [SpanChart and LayerStack API, layouts and theming](docs/charts.md).
+
+![SpanChart, light](docs/span-chart-1440-light.png)
+![LayerStack, dark](docs/layer-stack-1440-dark.png)
 
 ## 3D animations
 
@@ -265,6 +293,7 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
 - Two packets on one path spread by delay; a departing token clears its source border; a serviceMap with six platform cells wraps its narrow drawing into rows of three and truncates with an ellipsis and a hint.
 - The asset browser filters, searches, copies to the clipboard (Chromium only; Playwright cannot grant that in WebKit), and fits 390px with 44px targets.
 - Both themes render ten figures with no console errors.
+- SpanChart expands and collapses by click and keyboard, filters by layer and by size (combined), hides empty groups, opens rows with their links, clears on repeat activation and Escape with the enhancement, and works as static HTML with JavaScript off, including 160 rows at 390px. LayerStack draws the first layer at the bottom, spans rails over exactly their layers, opens bands by click and keyboard, and turns rails into chips at 390px. Both fit 390px with every label at 11px or more in both themes. Unit tests pin grouping, sorting, runs, the scoped filter rules, screen-reader sentences, counts and validation errors.
 - Live 3D stories retain one canvas across stops, support direct navigation and reduced motion, and provide a diagram fallback.
 - `/web`: DemoPlayer advances when in view, holds after Pause, restarts on Replay, seeks from keyboard step tabs, and renders statically under reduced motion; the spotlight follows the mouse and lights on keyboard focus; both themes fit 390px with 44px targets and no console errors. Motion and backgrounds: the ticker counts only once seen, reveals play, the marquee moves and holds on Pause and hover, aurora and beams pause off screen, the dot grid lights under the mouse, and all of it holds still under reduced motion. Unit tests pin the type scale and compute the 4.5:1 contrast of the Landing tokens, including text over the aurora at its opacity cap.
 - Object art directions cover every combination of six objects, six directions, two themes, and two viewport widths. Each combination has its own test, screenshot, and render-cost attachment. All 30 non-Studio object/direction pairs also retain their geometry and paint-rate budgets, sampled inside the browser after playback starts.
@@ -293,7 +322,7 @@ MIT.
 
 ## Design and contribution guidance
 
-Read [AGENTS.md](AGENTS.md) before editing. [CLAUDE.md](CLAUDE.md) points to that same canonical guide. [Design direction](docs/design-direction.md) defines the Technical style, catalog taxonomy, mobile behaviour, and presentation composition. Browse the [documentation index](docs/README.md), [source guide](src/README.md), and [playground guide](playground/README.md).
+Read [AGENTS.md](AGENTS.md) before editing. [CLAUDE.md](CLAUDE.md) points to that same canonical guide. Charts: [docs/charts.md](docs/charts.md). [Design direction](docs/design-direction.md) defines the Technical style, catalog taxonomy, mobile behaviour, and presentation composition. Browse the [documentation index](docs/README.md), [source guide](src/README.md), and [playground guide](playground/README.md).
 
 Figures support tap/keyboard selection and Open canvas with bounded pinch zoom, a zoom percentage, and keyboard controls. 3D animations have component inspection and their own canvas workspace. See [interaction details and limits](docs/interaction.md). Content type and visual style are separate. Implemented styles are Technical, Landing (`uipack/web`), and the six object art directions.
 

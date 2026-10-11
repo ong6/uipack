@@ -10,6 +10,7 @@
 - `browser/`: searchable asset browser.
 - `web/`: Landing-style web building blocks (`uipack/web`, `uipack/web.css`): DemoPlayer and its pure timeline, StarHero, SpotlightCard, RevealText, text hierarchy, CtaButton, GlassNav, Section, FeatureGrid and Grid; `motion.tsx` (Reveal, TextScramble, NumberTicker, Marquee, TiltCard, MagneticButton, ScrollTransform), `backgrounds.tsx` (GrainOverlay, DotGrid, LineGrid, Aurora, MaskedStar, BeamLines, BackgroundFrame, DriftingGutters) and `hooks.ts` (useInView, useScrollProgress, withViewTransition, withPaintTransition). Tokens and rules are scoped under `.uipack-web`. See [web principles](../docs/web-principles.md).
 - `static/`: self-contained SVG export, independent of browser interaction.
+- `charts/`: HTML/CSS article figures (`uipack/charts`, `uipack/charts.css`). `SpanChart` (`model.ts` validates, groups, sorts and generates the chart's scoped filter rules; `enhance.ts` is the optional script) and `LayerStack`. No JavaScript is needed in the browser, and no Three.js or GSAP. See [charts](../docs/charts.md).
 
 Follow [agent guidance](../AGENTS.md) and [design direction](../docs/design-direction.md). Never pull Three.js into the default SVG entry. Preserve SSR and static export behaviour. Rebuild `dist/` before committing library changes.
 

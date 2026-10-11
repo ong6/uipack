@@ -141,6 +141,24 @@ export const webEntries: CatalogEntry[] = [
   ).map(([id, title]) => ({ id, title, type: "web" as const, styleId: "landing", tags: ["Backgrounds"] })),
 ];
 
+/** Figures beyond the SVG parts and presets, rendered on / (uipack/charts). */
+export const figureEntries: CatalogEntry[] = [
+  {
+    id: "layer-stack",
+    title: "Layer stack",
+    type: "figures",
+    styleId: "technical",
+    tags: ["Diagram", "Layers", "Disclosure", "Hero"],
+  },
+  {
+    id: "span-chart",
+    title: "Span chart",
+    type: "figures",
+    styleId: "technical",
+    tags: ["Chart", "Comparison", "Filter", "Layers"],
+  },
+];
+
 /** Documentation layouts, rendered on /docs with real navigation and Markdown. */
 export const docsEntries: CatalogEntry[] = [
   {
