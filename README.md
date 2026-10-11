@@ -49,20 +49,26 @@ Separate entries, so a page loads only what it draws: `uipack` for parts, `uipac
 
 ## Charts
 
-`uipack/charts` holds two article figures made of HTML and CSS, with no JavaScript needed in the browser: render them with `renderToStaticMarkup` and ship `uipack/charts.css`. **SpanChart** places companies on the layers of a stack. Each row is a company, and each bar covers the layers it works in, solid where its main business sits. Rows are grouped by main layer into a staircase and sorted largest first. Readers can filter by layer (click a column header) and by size tier, expand from the featured subset to every row, and open a row for its note and links. **LayerStack** walks a stack bottom-up as banded layers. Each band opens to a self-test question and a section link, with cross-cutting rails on the right and bracket annotations on the left.
+`uipack/charts` holds two article figures made of HTML and CSS, with no JavaScript needed in the browser: render them with `renderToStaticMarkup` and ship `uipack/charts.css`.
+
+- **SpanChart** places companies on the layers of a stack.
+  - Each row's bar covers the layers the company works in, solid where its main business sits. Rows are grouped by main layer into a staircase and sorted largest first.
+  - Readers filter by layer (a column heading or a chip), by size tier and by deals; the filters combine. They expand from the featured subset in place and open a row for its note and links.
+  - Column labels go from codes on phones to short words at a 56rem figure width to full labels on wide screens.
+- **LayerStack** walks a stack bottom-up, drawn top-down. Its bands open to a self-test question and a section link. Rails beside the stack and an "Across the stack" list cover the topics that span layers.
 
 ```tsx
 import { renderToStaticMarkup } from "react-dom/server";
-import { LayerStack, SpanChart } from "uipack/charts";
+import { SpanChart } from "uipack/charts";
 import "uipack/charts.css";
 
 const html = renderToStaticMarkup(
   <SpanChart
     id="ai-stack"
-    title="Who builds which layer of the AI stack"
+    headingLevel="none"
     layers={[
-      { id: "chips", label: "Chips and memory", abbr: "CHP" },
-      { id: "inference", label: "Inference", abbr: "INF" },
+      { id: "chips", label: "Chips and memory", short: "Chips", abbr: "CHP" },
+      { id: "inference", label: "Inference", short: "Inference", abbr: "INF" },
     ]}
     tiers={[{ id: "large", label: "Large", range: "$50B+" }]}
     items={[{ id: "nvidia", name: "Nvidia", primary: "chips", also: ["inference"], featured: true, tier: "large", value: 4500, valueLabel: "$4.5T" }]}
@@ -70,10 +76,18 @@ const html = renderToStaticMarkup(
 );
 ```
 
-Every behaviour is native `<details>`, radios and CSS `:has()`, so static HTML works with JavaScript off. The optional `enhanceSpanChart(root)` adds repeat-to-clear, Escape and a live count. Colours follow the shared `--uipack-*` properties, light and dark. Bad data throws at render time, so a static build fails loudly. [SpanChart and LayerStack API, layouts and theming](docs/charts.md).
+Every behaviour is native `<details>`, radios, a reset button and CSS `:has()`, so static HTML works with JavaScript off. The optional `enhanceSpanChart(root)` adds:
 
-![SpanChart, light](docs/span-chart-1440-light.png)
-![LayerStack, dark](docs/layer-stack-1440-dark.png)
+- repeat-to-clear and Escape;
+- live counts;
+- scroll restoration;
+- find-in-page for collapsed rows;
+- links to a filtered view.
+
+Colours follow the shared `--uipack-*` properties, light and dark. Bad data throws at render time, so a static build fails loudly. [SpanChart and LayerStack API, layouts and theming](docs/charts.md).
+
+![SpanChart at a 56rem figure width, light](docs/span-chart-896-light.png)
+![LayerStack at a 56rem figure width, dark](docs/layer-stack-896-dark.png)
 
 ## 3D animations
 
@@ -293,7 +307,13 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
 - Two packets on one path spread by delay; a departing token clears its source border; a serviceMap with six platform cells wraps its narrow drawing into rows of three and truncates with an ellipsis and a hint.
 - The asset browser filters, searches, copies to the clipboard (Chromium only; Playwright cannot grant that in WebKit), and fits 390px with 44px targets.
 - Both themes render ten figures with no console errors.
-- SpanChart expands and collapses by click and keyboard, filters by layer and by size (combined), hides empty groups, opens rows with their links, clears on repeat activation and Escape with the enhancement, and works as static HTML with JavaScript off, including 160 rows at 390px. LayerStack draws the first layer at the bottom, spans rails over exactly their layers, opens bands by click and keyboard, and turns rails into chips at 390px. Both fit 390px with every label at 11px or more in both themes. Unit tests pin grouping, sorting, runs, the scoped filter rules, screen-reader sentences, counts and validation errors.
+- Charts, in the playground's 896px host frame and at 720, 390 and 320:
+  - SpanChart shows short layer names at 896 and stacked rows at 720. It expands in place from the top or the foot, filters by column heading or chip (kept in sync) and combines layer, size and deals filters.
+  - It hides empty groups, clears from the empty state, opens rows with their links, honours repeat activation, Escape and hash links, and keeps collapsed rows findable in Chromium. The same flows work as static HTML with JavaScript off, including 160 rows.
+  - A host article whose prose CSS loads after `charts.css` keeps every bar under its column.
+  - LayerStack reads top-down with equal bands and rails spanning exactly their layers. It keeps its zone edge on hover and turns rails into a list on phones.
+  - Labels stay at 11px or more with 44px touch targets and no overflow.
+  - Unit tests pin grouping, sorting, runs, the breakpoints, the scoped rules, screen-reader sentences, validation, and the 3:1 and 4.5:1 contrast of the cell and badge colours on four palettes.
 - Live 3D stories retain one canvas across stops, support direct navigation and reduced motion, and provide a diagram fallback.
 - `/web`: DemoPlayer advances when in view, holds after Pause, restarts on Replay, seeks from keyboard step tabs, and renders statically under reduced motion; the spotlight follows the mouse and lights on keyboard focus; both themes fit 390px with 44px targets and no console errors. Motion and backgrounds: the ticker counts only once seen, reveals play, the marquee moves and holds on Pause and hover, aurora and beams pause off screen, the dot grid lights under the mouse, and all of it holds still under reduced motion. Unit tests pin the type scale and compute the 4.5:1 contrast of the Landing tokens, including text over the aurora at its opacity cap.
 - Object art directions cover every combination of six objects, six directions, two themes, and two viewport widths. Each combination has its own test, screenshot, and render-cost attachment. All 30 non-Studio object/direction pairs also retain their geometry and paint-rate budgets, sampled inside the browser after playback starts.

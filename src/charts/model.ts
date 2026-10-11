@@ -1,6 +1,7 @@
-/* SpanChart data model: validation, grouping, sorting, runs, counts and the
-   scoped filter rules. Pure functions, so a static build and a client render
-   produce the same markup, and bad data fails the consumer's build. */
+/* SpanChart data model: validation, grouping, sorting, runs, layout
+   thresholds and the scoped filter rules. Pure functions, so a static build
+   and a client render produce the same markup, and bad data fails the
+   consumer's build. */
 
 export type SpanStatusKind = "acquired" | "pending" | "licensed" | "shutdown";
 
@@ -8,8 +9,10 @@ export type SpanStatusKind = "acquired" | "pending" | "licensed" | "shutdown";
 export interface SpanLayer {
   id: string;
   label: string;
-  /** Three-letter code used when the full labels do not fit, e.g. "INF". */
+  /** Three-letter code for phone widths, e.g. "INF". */
   abbr: string;
+  /** One word for mid widths, e.g. "Inference" or "Post-train". Defaults to `abbr`. */
+  short?: string;
   /** Zone id; layers of one zone must be consecutive. */
   zone?: string;
 }
@@ -42,14 +45,15 @@ export interface SpanItem {
   primary: string;
   /** Other layers the item also covers. */
   also?: string[];
-  /** Image URL for the logo tile; missing gives a monogram tile. */
+  /** Image URL for the logo tile; missing gives a two-letter monogram. */
   logo?: string;
   /** The item's website. */
   href?: string;
   /** One sentence shown when the row is opened. */
   note?: string;
+  /** A deal or shutdown. Any kind but `shutdown` counts as a deal for the Deals filter. */
   status?: SpanStatus;
-  /** Short mono tags shown after the name, e.g. "voice". */
+  /** Short tags shown under the name, e.g. "voice"; explained by `labels.tagLegend`. */
   tags?: string[];
   /** Part of the initial subset. */
   featured?: boolean;
@@ -63,36 +67,48 @@ export interface SpanItem {
   valueLabel?: string;
 }
 
-/** Interface text. `{n}`, `{total}`, `{layer}`, `{size}` and `{date}` are replaced where noted. */
+/** Interface text. `{n}`, `{total}` and `{date}` are replaced where noted. */
 export interface SpanChartLabels {
-  /** First-column header while no layer filter is active. */
+  /** First-column header. */
   company: string;
   /** Expand control, `{n}` = all items. */
   showAll: string;
   /** Collapse control, `{n}` = featured items. */
   showFeatured: string;
-  /** First-column header while a layer filter is active; it clears the layer filter. */
+  /** Line above the list, `{n}` shown of `{total}`. */
+  shown: string;
+  /** Name of the layer filter and its chip row. */
+  layer: string;
+  /** The "all" layer chip. */
   allLayers: string;
+  /** Name of the size filter and its chip row. */
+  size: string;
+  /** The "all" size chip. */
+  allSizes: string;
+  /** The deals toggle: items with a status other than shutdown. */
+  deals: string;
+  /** Prefix of the active-filter row in the sticky header. */
+  showing: string;
+  /** Short reset control in the sticky header. */
+  clear: string;
+  /** Reset control's accessible name, and the empty state's control. */
+  clearFilters: string;
+  /** Narrow screens: the disclosure holding the key and filters. */
+  filtersAndKey: string;
+  /** Shown in place of rows when the filters match nothing. */
+  empty: string;
   /** Legend and screen-reader name for the primary layer. */
   main: string;
   /** Legend and screen-reader name for the other layers. */
   also: string;
-  /** Accessible name of the layer filter. */
-  filter: string;
-  /** Name of the size filter and of the size in the screen-reader sentence. */
-  size: string;
-  /** First size chip; it clears the size filter. */
-  allSizes: string;
   /** Legend text beside a sample value label. */
   valueLegend: string;
-  /** Footer line while filtered by layer, `{n}`, `{total}`, `{layer}`. */
-  showing: string;
-  /** Footer line while filtered by size, `{n}`, `{total}`, `{size}`. */
-  showingSize: string;
-  /** Footer line while filtered by both, `{n}`, `{total}`, `{layer}`, `{size}`. */
-  showingBoth: string;
-  /** Shown in place of rows when the filters match nothing. */
-  empty: string;
+  /** Legend text beside a sample tag, e.g. "model type". */
+  tagLegend: string;
+  /** Legend text beside a sample deal badge. */
+  legendChange: string;
+  /** Legend text beside the shut badge. */
+  legendShutdown: string;
   /** Footer date line, `{date}`. */
   asOf: string;
   website: string;
@@ -102,26 +118,29 @@ export interface SpanChartLabels {
   pending: string;
   licensed: string;
   shutdown: string;
-  /** Legend text for the → badge and the shut badge. */
-  legendChange: string;
-  legendShutdown: string;
 }
 
 export const DEFAULT_LABELS: SpanChartLabels = {
   company: "Company",
   showAll: "Show all {n} companies",
   showFeatured: "Show the {n} featured",
+  shown: "{n} of {total} shown",
+  layer: "Layer",
   allLayers: "All layers",
-  main: "Main layer",
-  also: "Also in",
-  filter: "Filter by layer",
   size: "Size",
   allSizes: "All sizes",
-  valueLegend: "Size, largest first in each layer",
-  showing: "{n} of {total} in {layer}",
-  showingSize: "{n} of {total} · {size}",
-  showingBoth: "{n} of {total} in {layer} · {size}",
-  empty: "Nothing matches both filters.",
+  deals: "Deals",
+  showing: "Showing",
+  clear: "Clear",
+  clearFilters: "Clear filters",
+  filtersAndKey: "Filters and key",
+  empty: "Nothing matches these filters.",
+  main: "Main layer",
+  also: "Also in",
+  valueLegend: "size, largest first in each layer",
+  tagLegend: "tag",
+  legendChange: "deal: acquired, sale pending or licensed",
+  legendShutdown: "shut down",
   asOf: "As of {date}",
   website: "Website",
   source: "Source",
@@ -129,8 +148,6 @@ export const DEFAULT_LABELS: SpanChartLabels = {
   pending: "Sale agreed to {label}",
   licensed: "Technology licensed to {label}",
   shutdown: "Shut down",
-  legendChange: "Acquired, being sold or licensed to",
-  legendShutdown: "Shut down",
 };
 
 export interface SpanChartInput {
@@ -138,7 +155,7 @@ export interface SpanChartInput {
   layers: SpanLayer[];
   zones?: SpanZone[];
   items: SpanItem[];
-  /** Size tiers, largest first. Adds the size filter. */
+  /** Size tiers, largest first. Adds the size filter. Any number. */
   tiers?: SpanTier[];
   initial?: "featured" | "all";
   groupBy?: "primary" | "none";
@@ -162,14 +179,20 @@ export interface SpanRowModel {
   layerLabels: string[];
   primaryIndex: number;
   tier: SpanTier | null;
+  /** Has a status other than shutdown. */
+  deal: boolean;
   monogram: string;
   sentence: string;
   statusText: string | null;
   badge: string | null;
 }
 
-/** A filter state: a layer id or null (all layers), a tier id or null (all sizes). */
-export type SpanFilter = readonly [layer: string | null, tier: string | null];
+/** A filter state: a layer id, a tier id and the deals toggle; null means inactive. */
+export interface SpanFilter {
+  layer: string | null;
+  tier: string | null;
+  deals: boolean;
+}
 
 export interface SpanGroupModel {
   /** The primary layer, or null when `groupBy` is "none". */
@@ -179,16 +202,29 @@ export interface SpanGroupModel {
   featured: number;
   layerIds: string[];
   tierIds: string[];
-  /** "layer|tier" pairs present in the group, for the combined filter. */
-  pairs: string[];
-  /** Matching rows per filter state, keyed by `filterKey`; only non-zero entries. */
-  counts: Map<string, number>;
+  hasDeal: boolean;
+  /** Combined-filter keys present in this group, only those a rule tests. */
+  keys: string[];
 }
 
 export interface SpanZoneSpan {
   zone: SpanZone;
   start: number;
   end: number;
+}
+
+/** Container widths at which the layout and the column labels change. */
+export interface SpanThresholds {
+  /** Below this the codes alternate between two lines so neighbours do not touch. */
+  stagger: number;
+  /** Name column beside the bars from here; stacked rows below. */
+  wide: number;
+  /** Short labels from here; codes below. */
+  short: number;
+  /** Full labels at 11px from here. */
+  full: number;
+  /** Full labels at 12px from here. */
+  large: number;
 }
 
 export interface SpanChartModel {
@@ -199,25 +235,23 @@ export interface SpanChartModel {
   groups: SpanGroupModel[];
   total: number;
   featured: number;
-  /** Every filter state except "all, all", with its matching row count. */
-  filters: { filter: SpanFilter; key: string; count: number }[];
+  deals: number;
   hasToggle: boolean;
   initialAll: boolean;
   labels: SpanChartLabels;
-  /** Container width at which the full column labels fit on two lines at 11px. */
-  fullLabelsAt: number;
-  /** Container width at which they fit at 12px. */
-  largeLabelsAt: number;
-  hasChange: boolean;
-  hasShutdown: boolean;
-  /** The largest item's value label, shown as the legend's example. */
-  valueSample: string | null;
+  thresholds: SpanThresholds;
+  /** Multi-filter states that need a group rule, and their keys. */
+  groupRules: { filter: SpanFilter; key: string }[];
+  /** The smallest filter states that match no rows. */
+  emptyStates: SpanFilter[];
+  /** Legend samples taken from the data. */
+  samples: { value: string | null; badge: string | null; tag: string | null; shut: boolean };
 }
 
 export const fill = (template: string, values: Record<string, string | number>) =>
   template.replace(/\{(\w+)\}/g, (match, key: string) => (key in values ? String(values[key]) : match));
 
-export const filterKey = ([layer, tier]: SpanFilter) => `${layer ?? "*"}|${tier ?? "*"}`;
+export const filterKey = ({ layer, tier, deals }: SpanFilter) => `${layer ?? "*"}|${tier ?? "*"}|${deals ? "d" : "*"}`;
 
 const fail = (chart: string, message: string): never => {
   throw new Error(`SpanChart "${chart}": ${message}`);
@@ -226,15 +260,19 @@ const fail = (chart: string, message: string): never => {
 const NO_SPACE = /^\S+$/;
 const STATUS_KINDS: SpanStatusKind[] = ["acquired", "pending", "licensed", "shutdown"];
 
-/** One or two initials: words, hyphen parts and camelCase humps ("OpenRouter" → "OR"). */
+/**
+ * Two letters that tell rows apart: the initials of the first two words or
+ * camelCase humps ("OpenRouter" → "OR"), else the first two letters ("Groq" → "Gr").
+ */
 export function monogram(name: string) {
   const words = name
     .replace(/([a-z])([A-Z])/g, "$1 $2")
     .split(/[\s-]+/)
     .map((w) => w.replace(/^[^\p{L}\p{N}]+/u, ""))
     .filter(Boolean);
-  const letters = words.map((w) => w[0]);
-  return (letters.length >= 2 ? letters[0] + letters[1] : letters[0] ?? "?").toUpperCase();
+  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+  const word = words[0] ?? "?";
+  return word[0].toUpperCase() + (word[1] ?? "");
 }
 
 /** Contiguous runs of sorted column indices. */
@@ -265,9 +303,8 @@ export function statusSentence(status: SpanStatus, labels: SpanChartLabels) {
 }
 
 /* Approximate advance widths (em) of a medium-weight system sans, calibrated
-   against SF Pro at 12px. Enough to place the breakpoint where the two-line
-   column labels fit; a wider host font wraps a label to a third line rather
-   than clipping it. */
+   against SF Pro. Enough to place the label breakpoints; a wider host font
+   wraps a label to another line rather than clipping it. */
 const EM: Record<string, number> = {};
 for (const [chars, w] of [
   ["iljI.,:;'|!", 0.24],
@@ -288,33 +325,66 @@ function textWidth(text: string, px: number) {
   return w * px * 1.08;
 }
 
-/** Narrowest width a label needs to fit on at most two lines at `px`. */
+/** Narrowest width a label needs to fit on at most two lines at `px`; lines break at spaces and after hyphens. */
 export function twoLineWidth(label: string, px = 12) {
-  const words = label.split(/\s+/).filter(Boolean);
+  const words = label.split(/(?<=-)|\s+/).filter(Boolean);
+  const join = (parts: string[]) => parts.join(" ").replace(/- /g, "-");
   let best = textWidth(label, px);
   for (let i = 1; i < words.length; i++) {
-    const a = textWidth(words.slice(0, i).join(" "), px);
-    const b = textWidth(words.slice(i).join(" "), px);
-    best = Math.min(best, Math.max(a, b));
+    best = Math.min(best, Math.max(textWidth(join(words.slice(0, i)), px), textWidth(join(words.slice(i)), px)));
   }
   return Math.max(best, ...words.map((w) => textWidth(w, px)));
 }
 
-/* Layout constants shared with charts.css. */
-export const NAME_WIDTH = 220;
-export const SIDE_PADDING = 24;
-export const NARROW_BELOW = 640;
-/** Least space between two neighbouring centred column labels. */
-const LABEL_GAP = 8;
-
-/** Column width at which every label fits on two lines without crowding its neighbour. */
-export function fullLabelColumn(labels: string[], px = 12) {
+/** Column width at which every label fits on two lines with `gap` to its neighbour. */
+export function fullLabelColumn(labels: string[], px = 12, gap = 8) {
   const w = labels.map((l) => twoLineWidth(l, px));
-  return Math.max(...w.map((x, i) => Math.max(x + 2, i ? (x + w[i - 1]) / 2 + LABEL_GAP : 0)));
+  return Math.max(...w.map((x, i) => Math.max(x + 2, i ? (x + w[i - 1]) / 2 + gap : 0)));
 }
 
-const matches = (row: SpanRowModel, [layer, tier]: SpanFilter) =>
-  (layer === null || row.layerIds.includes(layer)) && (tier === null || row.tier?.id === tier);
+/* Layout constants shared with charts.css. */
+export const NARROW_BELOW = 640;
+export const ROOMY_FROM = 1000;
+/** Name column below and from ROOMY_FROM. */
+export const NAME_WIDTH = [192, 220] as const;
+/** Chart side padding below and from ROOMY_FROM. */
+export const SIDE_PADDING = [16, 24] as const;
+/** Short labels need at least this much column. */
+const SHORT_MIN = 48;
+
+/** Width of one layer column at container width `c`. */
+export function columnWidth(c: number, layers: number, wide: boolean) {
+  const roomy = c >= ROOMY_FROM ? 1 : 0;
+  return (c - 2 * SIDE_PADDING[roomy] - (wide ? NAME_WIDTH[roomy] : 0)) / layers;
+}
+
+/** Smallest container width from which `ok(c)` holds for every wider container. */
+function from(ok: (c: number) => boolean, floor = 0) {
+  let w = 2400;
+  for (let c = 2400; c >= floor; c--) {
+    if (!ok(c)) break;
+    w = c;
+  }
+  return w;
+}
+
+export function spanThresholds(layers: SpanLayer[]): SpanThresholds {
+  const n = layers.length;
+  const shortCol = Math.max(SHORT_MIN, fullLabelColumn(layers.map((l) => l.short ?? l.abbr), 11, 4));
+  const wide = from((c) => columnWidth(c, n, true) >= shortCol, NARROW_BELOW);
+  const col = (c: number) => columnWidth(c, n, c >= wide);
+  const full = fullLabelColumn(layers.map((l) => l.label), 11);
+  const large = fullLabelColumn(layers.map((l) => l.label), 12);
+  const short = from((c) => col(c) >= shortCol, 200);
+  // A code needs its own width plus a gap; below that, alternate lines.
+  const codeCol = Math.max(...layers.map((l) => l.abbr.length)) * 6.6 + 6;
+  const stagger = from((c) => col(c) >= codeCol, 200);
+  const fullAt = Math.max(short, from((c) => col(c) >= full, 200));
+  return { stagger, wide, short, full: fullAt, large: Math.max(fullAt, from((c) => col(c) >= large, 200)) };
+}
+
+const matches = (row: SpanRowModel, f: SpanFilter) =>
+  (f.layer === null || row.layerIds.includes(f.layer)) && (f.tier === null || row.tier?.id === f.tier) && (!f.deals || row.deal);
 
 export function buildSpanModel(input: SpanChartInput): SpanChartModel {
   const { id, layers, items } = input;
@@ -403,6 +473,7 @@ export function buildSpanModel(input: SpanChartInput): SpanChartModel {
       layerLabels: [layers[primaryIndex!].label, ...alsoLabels],
       primaryIndex: primaryIndex!,
       tier,
+      deal: Boolean(item.status && item.status.kind !== "shutdown"),
       monogram: monogram(item.name),
       sentence,
       statusText,
@@ -416,43 +487,53 @@ export function buildSpanModel(input: SpanChartInput): SpanChartModel {
   const order = (a: SpanRowModel, b: SpanRowModel) =>
     (b.item.value ?? -Infinity) - (a.item.value ?? -Infinity) || byName.compare(a.item.name, b.item.name);
 
-  // Every filter state except "all layers, all sizes".
-  const states: SpanFilter[] = [];
-  for (const layer of [null, ...layers.map((l) => l.id)]) {
-    for (const tier of [null, ...tiers.map((t) => t.id)]) if (layer !== null || tier !== null) states.push([layer, tier]);
-  }
-
-  const group = (layer: SpanLayer | null, index: number, members: SpanRowModel[]): SpanGroupModel => {
-    const counts = new Map<string, number>();
-    for (const state of states) {
-      const n = members.filter((r) => matches(r, state)).length;
-      if (n) counts.set(filterKey(state), n);
-    }
-    const unique = (values: string[]) => [...new Set(values)];
-    return {
-      layer,
-      index,
-      rows: [...members].sort(order),
-      featured: members.filter((r) => r.item.featured).length,
-      layerIds: unique(members.flatMap((r) => r.layerIds)).sort((a, b) => layerIndex.get(a)! - layerIndex.get(b)!),
-      tierIds: tiers.map((t) => t.id).filter((t) => members.some((r) => r.tier?.id === t)),
-      pairs: unique(members.flatMap((r) => (r.tier ? r.layerIds.map((l) => `${l}|${r.tier!.id}`) : []))),
-      counts,
-    };
-  };
-  const groups =
+  const unique = (values: string[]) => [...new Set(values)];
+  const groups: SpanGroupModel[] = (
     input.groupBy === "none"
       ? rows.length
-        ? [group(null, -1, rows)]
+        ? [{ layer: null, index: -1, members: rows }]
         : []
-      : layers
-          .map((layer, i) => group(layer, i, rows.filter((r) => r.primaryIndex === i)))
-          .filter((g) => g.rows.length > 0);
+      : layers.map((layer, i) => ({ layer, index: i, members: rows.filter((r) => r.primaryIndex === i) })).filter((g) => g.members.length)
+  ).map(({ layer, index, members }) => ({
+    layer,
+    index,
+    rows: [...members].sort(order),
+    featured: members.filter((r) => r.item.featured).length,
+    layerIds: unique(members.flatMap((r) => r.layerIds)).sort((a, b) => layerIndex.get(a)! - layerIndex.get(b)!),
+    tierIds: tiers.map((t) => t.id).filter((t) => members.some((r) => r.tier?.id === t)),
+    hasDeal: members.some((r) => r.deal),
+    keys: [],
+  }));
+
+  // Every filter state. Single filters hide rows and groups with one rule
+  // each; a combination needs its own rule only where a group passes each
+  // filter alone but has no row that passes them all.
+  const dealOptions = rows.some((r) => r.deal) ? [false, true] : [false];
+  const states: SpanFilter[] = [];
+  for (const layer of [null, ...layers.map((l) => l.id)])
+    for (const tier of [null, ...tiers.map((t) => t.id)])
+      for (const deals of dealOptions) if (layer !== null || tier !== null || deals) states.push({ layer, tier, deals });
+  const active = (f: SpanFilter) => Number(f.layer !== null) + Number(f.tier !== null) + Number(f.deals);
+  const passesEach = (g: SpanGroupModel, f: SpanFilter) =>
+    (f.layer === null || g.layerIds.includes(f.layer)) && (f.tier === null || g.tierIds.includes(f.tier)) && (!f.deals || g.hasDeal);
+  const groupRules: { filter: SpanFilter; key: string }[] = [];
+  for (const f of states) {
+    if (active(f) < 2) continue;
+    const lacking = groups.filter((g) => passesEach(g, f) && !g.rows.some((r) => matches(r, f)));
+    if (!lacking.length) continue;
+    const key = filterKey(f);
+    groupRules.push({ filter: f, key });
+    for (const g of groups) if (g.rows.some((r) => matches(r, f))) g.keys.push(key);
+  }
+  // Smallest empty states only: a superset of an empty state is empty too.
+  const empty = states.filter((f) => !rows.some((r) => matches(r, f)));
+  const within = (a: SpanFilter, b: SpanFilter) =>
+    (a.layer === null || a.layer === b.layer) && (a.tier === null || a.tier === b.tier) && (!a.deals || b.deals) && filterKey(a) !== filterKey(b);
+  const emptyStates = empty.filter((f) => !empty.some((g) => within(g, f)));
 
   const featured = rows.filter((r) => r.item.featured).length;
   const hasToggle = featured > 0 && featured < rows.length;
-  const at = (px: number) =>
-    Math.max(NARROW_BELOW, Math.ceil(SIDE_PADDING * 2 + NAME_WIDTH + fullLabelColumn(layers.map((l) => l.label), px) * layers.length));
+  const firstBadge = rows.find((r) => r.item.status?.kind === "acquired") ?? rows.find((r) => r.deal);
 
   return {
     id,
@@ -462,74 +543,93 @@ export function buildSpanModel(input: SpanChartInput): SpanChartModel {
     groups,
     total: rows.length,
     featured,
-    filters: states.map((filter) => ({ filter, key: filterKey(filter), count: rows.filter((r) => matches(r, filter)).length })),
+    deals: rows.filter((r) => r.deal).length,
     hasToggle,
     initialAll: !hasToggle || input.initial === "all",
     labels,
-    fullLabelsAt: at(11),
-    largeLabelsAt: at(12),
-    hasChange: rows.some((r) => r.item.status && r.item.status.kind !== "shutdown"),
-    hasShutdown: rows.some((r) => r.item.status?.kind === "shutdown"),
-    valueSample:
-      rows
-        .filter((r) => r.item.valueLabel && r.item.value !== undefined)
-        .sort((a, b) => b.item.value! - a.item.value!)[0]?.item.valueLabel ?? null,
+    thresholds: spanThresholds(layers),
+    groupRules,
+    emptyStates,
+    samples: {
+      value:
+        rows
+          .filter((r) => r.item.valueLabel && r.item.value !== undefined)
+          .sort((a, b) => b.item.value! - a.item.value!)[0]?.item.valueLabel ?? null,
+      badge: firstBadge?.badge ?? null,
+      tag: rows.find((r) => r.item.tags?.length)?.item.tags![0] ?? null,
+      shut: rows.some((r) => r.item.status?.kind === "shutdown"),
+    },
   };
 }
 
-/** The footer line for a filter state. */
-export function filterStatus(model: SpanChartModel, [layer, tier]: SpanFilter, count: number) {
-  const values = {
-    n: count,
-    total: model.total,
-    layer: model.layers.find((l) => l.id === layer)?.label ?? "",
-    size: model.tiers.find((t) => t.id === tier)?.label ?? "",
-  };
-  const template = layer && tier ? model.labels.showingBoth : layer ? model.labels.showing : model.labels.showingSize;
-  return fill(template, values);
-}
+/** A CSS identifier, escaped like CSS.escape, for ids in selectors. */
+export const cssIdent = (value: string) =>
+  value
+    .replace(/[^a-zA-Z0-9_\u00a0-\uffff-]/g, (c) => `\\${c.codePointAt(0)!.toString(16)} `)
+    .replace(/^(-?)(\d)/, (_, dash: string, d: string) => `${dash}\\3${d} `);
 
 /** A CSS string literal: safe inside a quoted attribute selector and inside <style>. */
 export const cssString = (value: string) =>
   `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/</g, "\\3c ").replace(/\n/g, "\\a ")}"`;
 
+/** Input ids, shared by the component, its rules and the enhancement. */
+export const inputId = {
+  layer: (chart: string, layer: string) => `${chart}-layer-${layer}`,
+  layerAll: (chart: string) => `${chart}-layer-all`,
+  tier: (chart: string, tier: string) => `${chart}-tier-${tier}`,
+  tierAll: (chart: string) => `${chart}-tier-all`,
+  deals: (chart: string) => `${chart}-deals`,
+  expand: (chart: string) => `${chart}-all`,
+};
+
 /**
- * The chart's own rules, scoped by its id. Choosing layer L marks its column
- * and hides rows and groups that do not touch L; choosing tier T hides rows
- * and groups outside T; with both, a group stays only if one row matches both.
- * Each filter state shows its own counts, and the empty message when nothing
- * matches. Also switches the column headers to full labels once the
- * container is wide enough for them.
+ * The chart's own rules, keyed by its id.
+ *
+ * - Choosing layer L marks every label for L (`--sp-sel`), shows its name in
+ *   the active-filter row (`--sp-now`), tints its column (`--sp-active`) and
+ *   hides rows and groups that do not touch L. Tiers work the same way.
+ * - Where filters combine, a group stays only if one row passes them all; a
+ *   combination that matches nothing shows the empty state.
+ * - The layout switches to a name column beside the bars at `wide`, and the
+ *   column labels go from codes to short words to full labels as they fit.
  */
 export function spanChartCss(model: SpanChartModel) {
-  const root = `.uipack-span[id=${cssString(model.id)}]`;
-  const layerOn = (l: string) => `:has(.uipack-span__layer-input[value=${cssString(l)}]:checked)`;
-  const tierOn = (t: string) => `:has(.uipack-span__tier-input[value=${cssString(t)}]:checked)`;
-  const state = ([l, t]: SpanFilter) =>
-    `${root}${l === null ? ":has(.uipack-span__all-input:checked)" : layerOn(l)}${t === null ? (model.tiers.length ? ":has(.uipack-span__tier-all:checked)" : "") : tierOn(t)}`;
+  const id = model.id;
+  const root = `#${cssIdent(id)}`;
+  const on = (input: string, pseudo = "checked") => `:has(#${cssIdent(input)}:${pseudo})`;
+  const state = (f: SpanFilter) =>
+    `${root}${f.layer !== null ? on(inputId.layer(id, f.layer)) : ""}${f.tier !== null ? on(inputId.tier(id, f.tier)) : ""}${f.deals ? on(inputId.deals(id)) : ""}`;
   const rules: string[] = [];
   model.layers.forEach((layer, k) => {
-    const on = `${root}${layerOn(layer.id)}`;
+    const input = inputId.layer(id, layer.id);
     const value = cssString(layer.id);
-    rules.push(`${on}{--sp-active:${k}}`);
-    rules.push(`${on} .uipack-span__item:not([data-layers~=${value}]),${on} .uipack-span__group:not([data-layers~=${value}]){display:none}`);
+    rules.push(`${root}${on(input)}{--sp-active:${k}}`);
+    rules.push(`${root}${on(input)} [data-l=${value}]{--sp-sel:1;--sp-now:inline-flex}`);
+    rules.push(`${root}${on(input, "focus-visible")} [data-l=${value}]{--sp-focus:1}`);
+    rules.push(`${root}${on(input)} .uipack-span__item:not([data-layers~=${value}]),${root}${on(input)} .uipack-span__group:not([data-layers~=${value}]){display:none}`);
   });
   for (const tier of model.tiers) {
-    const on = `${root}${tierOn(tier.id)}`;
+    const input = inputId.tier(id, tier.id);
     const value = cssString(tier.id);
-    rules.push(`${on} .uipack-span__item:not([data-tier=${value}]),${on} .uipack-span__group:not([data-tiers~=${value}]){display:none}`);
-    for (const layer of model.layers) {
-      rules.push(`${root}${layerOn(layer.id)}${tierOn(tier.id)} .uipack-span__group:not([data-pairs~=${cssString(`${layer.id}|${tier.id}`)}]){display:none}`);
-    }
+    rules.push(`${root}${on(input)} [data-t=${value}]{--sp-sel:1;--sp-now:inline-flex}`);
+    rules.push(`${root}${on(input, "focus-visible")} [data-t=${value}]{--sp-focus:1}`);
+    rules.push(`${root}${on(input)} .uipack-span__item:not([data-tier=${value}]),${root}${on(input)} .uipack-span__group:not([data-tiers~=${value}]){display:none}`);
   }
-  for (const { filter, key, count } of model.filters) {
-    rules.push(`${state(filter)} [data-span-key=${cssString(key)}]{display:inline}`);
-    if (count === 0) rules.push(`${state(filter)} .uipack-span__empty{display:block}`);
-  }
-  // Codes and a key until the full labels fit on two lines: first at 11px, then at 12px.
+  for (const { filter, key } of model.groupRules) rules.push(`${state(filter)} .uipack-span__group:not([data-k~=${cssString(key)}]){display:none}`);
+  for (const f of model.emptyStates) rules.push(`${state(f)} .uipack-span__empty{display:block}`);
+
+  // Layout: the name column, then label tiers, each from its computed width.
+  const t = model.thresholds;
+  const container = (w: number, body: string) => `@container uipack-span (min-width: ${w}px){${body}}`;
   rules.push(
-    `@container uipack-span (min-width: ${model.fullLabelsAt}px){${root} .uipack-span__full{display:block}${root} .uipack-span__abbr{display:none}${root} .uipack-span__key{display:none}}`,
-    `@container uipack-span (min-width: ${model.largeLabelsAt}px){${root} .uipack-span__full{font-size:12px;line-height:15px}}`,
+    `@container uipack-span (max-width: ${t.stagger - 0.02}px){${root} .uipack-span__col:nth-child(odd){padding-bottom:22px}${root} .uipack-span__col>span{white-space:nowrap}}`,
+    container(
+      t.wide,
+      `${root} .uipack-span__form{--sp-name-col:var(--sp-name);--sp-wide:block;--sp-stacked:none;--sp-line-cols:var(--sp-name) minmax(0,1fr);--sp-name-cols:8px 24px minmax(0,1fr) auto;--sp-name-areas:"chev logo label value" "chev logo sub sub";--sp-line-pad:0;--sp-name-pad:6px 12px 6px 0;--sp-detail-pad:2px 8px 12px 56px;--sp-tick-top:19px;--sp-tick-bottom:auto}`,
+    ),
+    container(t.short, `${root} .uipack-span__form{--sp-label-abbr:none;--sp-label-short:block}`),
+    container(t.full, `${root} .uipack-span__form{--sp-label-short:none;--sp-label-full:block}`),
+    container(t.large, `${root} .uipack-span__form{--sp-label-size:12px}`),
   );
   return rules.join("\n");
 }

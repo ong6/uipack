@@ -13,37 +13,24 @@
   --sp-border: var(--uipack-border, rgba(26, 28, 26, 0.22));
   --sp-accent: var(--uipack-accent, #205f49);
   --sp-change: var(--uipack-token-change, #9a63e0);
-  --sp-request: var(--uipack-token-request, #4f6fe6);
-  --sp-logo-bg: var(--uipack-span-logo-bg, #ffffff);
-  --sp-logo-filter: var(--uipack-span-logo-filter, none);
   --sp-mono: var(--uipack-mono, ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
   --sp-sans: var(--uipack-sans, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
-  --sp-name: var(--uipack-span-name-width, 220px);
   --sp-sticky: var(--uipack-span-sticky-top, 0px);
+  --sp-logo-bg: var(--uipack-span-logo-bg, var(--sp-surface));
+  --sp-logo-filter: var(--uipack-span-logo-filter, none);
+  --sp-band-mix: 10%;
 
   /* Derived once; they follow whichever theme the base tokens resolve to. */
   --sp-hair: var(--uipack-span-hairline, color-mix(in srgb, var(--sp-fg) 10%, transparent));
-  --sp-tint: var(--uipack-span-tint, color-mix(in srgb, var(--sp-accent) 15%, var(--sp-bg)));
-  --sp-line: color-mix(in srgb, var(--sp-accent) 55%, var(--sp-bg));
-  --sp-sep: color-mix(in srgb, var(--sp-accent) 22%, var(--sp-tint));
-  --sp-band: color-mix(in srgb, var(--sp-accent) 8%, transparent);
-  --sp-change-ink: color-mix(in srgb, var(--sp-change) 80%, var(--sp-fg));
+  /* "Also" cells: fill and border at 3:1 against the page in both themes. */
+  --sp-tint: var(--uipack-span-tint, color-mix(in srgb, var(--sp-accent) 20%, var(--sp-bg)));
+  --sp-line: color-mix(in srgb, var(--sp-accent) 72%, var(--sp-bg));
+  --sp-sep: color-mix(in srgb, var(--sp-accent) 40%, var(--sp-tint));
+  --sp-band: var(--uipack-span-column-highlight, color-mix(in srgb, var(--sp-accent) var(--sp-band-mix), transparent));
+  /* Badge text: 4.5:1 on light and dark pages. */
+  --sp-change-ink: color-mix(in srgb, var(--sp-change) 70%, var(--sp-fg));
+  --sp-chevron: color-mix(in srgb, var(--sp-fg) 70%, transparent);
   --sp-inset: 3px;
-}
-.uipack-span {
-  container: uipack-span / inline-size;
-  position: relative;
-  display: block;
-  margin: 0;
-  padding: 0;
-  color: var(--sp-fg);
-  background: var(--sp-bg);
-  font: 400 14px/1.4 var(--sp-sans);
-  letter-spacing: normal;
-  text-align: left;
-  border: 1px solid var(--sp-border);
-  border-radius: 4px;
-  -webkit-text-size-adjust: 100%;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -57,9 +44,9 @@
     --sp-border: var(--uipack-border, rgba(232, 236, 233, 0.22));
     --sp-accent: var(--uipack-accent, #71dcb2);
     --sp-change: var(--uipack-token-change, #c39aff);
-    --sp-request: var(--uipack-token-request, #8ea4ff);
-    --sp-logo-bg: var(--uipack-span-logo-bg, #dfe5e1);
-    --sp-logo-filter: var(--uipack-span-logo-filter, brightness(0.92));
+    --sp-logo-bg: var(--uipack-span-logo-bg, color-mix(in srgb, var(--sp-fg) 82%, var(--sp-bg)));
+    --sp-logo-filter: var(--uipack-span-logo-filter, brightness(0.88));
+    --sp-band-mix: 20%;
   }
 }
 [data-theme="dark"] .uipack-span,
@@ -74,11 +61,30 @@
   --sp-border: var(--uipack-border, rgba(232, 236, 233, 0.22));
   --sp-accent: var(--uipack-accent, #71dcb2);
   --sp-change: var(--uipack-token-change, #c39aff);
-  --sp-request: var(--uipack-token-request, #8ea4ff);
-  --sp-logo-bg: var(--uipack-span-logo-bg, #dfe5e1);
-  --sp-logo-filter: var(--uipack-span-logo-filter, brightness(0.92));
+  --sp-logo-bg: var(--uipack-span-logo-bg, color-mix(in srgb, var(--sp-fg) 82%, var(--sp-bg)));
+  --sp-logo-filter: var(--uipack-span-logo-filter, brightness(0.88));
+  --sp-band-mix: 20%;
 }
 
+.uipack-span,
+.uipack-stack {
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+  color: var(--sp-fg);
+  background: var(--sp-bg);
+  font: 400 14px/1.4 var(--sp-sans);
+  letter-spacing: normal;
+  text-align: left;
+  /* Host prose often sets overflow-wrap: anywhere; codes must not split. */
+  overflow-wrap: normal;
+  word-break: keep-all;
+  hyphens: manual;
+  border: 1px solid var(--sp-border);
+  border-radius: 4px;
+  -webkit-text-size-adjust: 100%;
+}
 .uipack-span *,
 .uipack-span *::before,
 .uipack-span *::after,
@@ -87,25 +93,31 @@
 .uipack-stack *::after {
   box-sizing: border-box;
 }
-/* Host prose rules (h3, p, ul, li, img) must not reach inside the chart. */
-.uipack-span :is(h2, h3, h4, h5, h6, p, ul, li, dl, dt, dd, details, summary, label),
-.uipack-stack :is(h2, h3, h4, h5, h6, p, ul, li, details, summary) {
+/* Host prose rules (.prose ul, .prose p, .prose h3) must not reach inside,
+   whichever stylesheet loads last: the doubled root class outranks them, and
+   :where keeps this reset below the component's own rules. */
+.uipack-span.uipack-span :where(h2, h3, h4, h5, h6, p, ul, ol, li, dl, dt, dd, details, summary, label, button, form, b, em, i, strong),
+.uipack-stack.uipack-stack :where(h2, h3, h4, h5, h6, p, ul, ol, li, details, summary, button, b, em, i, strong) {
   margin: 0;
   padding: 0;
   font: inherit;
   color: inherit;
   letter-spacing: inherit;
   text-transform: none;
+  text-decoration: none;
   background: none;
   border: 0;
+  list-style: none;
 }
-.uipack-span :is(ul, ol) > li::before {
+.uipack-span.uipack-span :where(li)::before,
+.uipack-span.uipack-span :where(li)::marker,
+.uipack-stack.uipack-stack :where(li)::before,
+.uipack-stack.uipack-stack :where(li)::marker {
   content: none;
 }
 .uipack-span .uipack-span__sr,
-.uipack-span .uipack-span__input,
-.uipack-stack .uipack-stack__sr,
-.uipack-stack .uipack-stack__rail-tip {
+.uipack-span .uipack-span__inputs,
+.uipack-stack .uipack-stack__sr {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -115,15 +127,36 @@
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
-  opacity: 0;
-  pointer-events: none;
 }
 
-/* ---------- head: title, caption, legend, key ---------- */
+/* ==================== SpanChart ==================== */
+.uipack-span {
+  container: uipack-span / inline-size;
+}
+.uipack-span .uipack-span__form {
+  --sp-pad: 16px;
+  --sp-name: var(--uipack-span-name-width, 192px);
+  --sp-target: 36px;
+  display: block;
+}
+@media (pointer: coarse) {
+  .uipack-span .uipack-span__form {
+    --sp-target: 44px;
+  }
+}
+@container uipack-span (min-width: 1000px) {
+  .uipack-span .uipack-span__form {
+    --sp-pad: 24px;
+    --sp-name: var(--uipack-span-name-width, 220px);
+  }
+}
+
+/* ---------- head: title, caption, legend, filters ---------- */
 .uipack-span .uipack-span__head {
+  position: relative;
   display: grid;
   gap: 8px;
-  padding: 16px 16px 12px;
+  padding: var(--sp-pad) var(--sp-pad) 8px;
 }
 .uipack-span .uipack-span__title {
   font: 700 20px/1.25 var(--sp-sans);
@@ -137,19 +170,19 @@
 .uipack-span .uipack-span__legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 24px;
-  margin-top: 4px;
-  list-style: none;
+  align-items: baseline;
+  gap: 6px 20px;
   font-size: 13px;
   line-height: 18px;
 }
 .uipack-span .uipack-span__legend > li {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   gap: 8px;
 }
 .uipack-span .uipack-span__swatch {
   flex: none;
+  align-self: center;
   width: 24px;
   height: 12px;
   border-radius: 3px;
@@ -161,78 +194,211 @@
   background: var(--sp-tint);
   box-shadow: inset 0 0 0 1px var(--sp-line);
 }
-/* Size filter: chips built like the column headers, radios inside labels. */
-.uipack-span .uipack-span__sizes {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-top: 4px;
+.uipack-span .uipack-span__sample {
+  font: 400 11px/16px var(--sp-mono);
+  color: var(--sp-muted);
 }
-.uipack-span .uipack-span__sizes-label {
-  margin-right: 4px;
-  font: 500 11px/16px var(--sp-mono);
-  letter-spacing: 0.06em;
+
+/* Filters: chips are labels for the hidden inputs; the selected one gets a
+   check mark, a heavier accent border and a tint (--sp-sel, set by the
+   chart's own rules). */
+.uipack-span .uipack-span__panel {
+  display: none;
+  gap: 12px;
+}
+.uipack-span .uipack-span__filters {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.uipack-span .uipack-span__frow {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px 8px;
+  min-width: 0;
+}
+.uipack-span .uipack-span__frow > .uipack-span__scroll {
+  grid-column: 2 / -1;
+}
+.uipack-span .uipack-span__flabel {
+  font: 600 11px/16px var(--sp-mono);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--sp-muted);
 }
+.uipack-span .uipack-span__scroll {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+  padding: 2px 32px 2px 2px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+}
+.uipack-span .uipack-span__scroll::-webkit-scrollbar {
+  display: none;
+}
+.uipack-span .uipack-span__wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 2px;
+}
 .uipack-span .uipack-span__chip {
   position: relative;
+  flex: none;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-height: 32px;
+  min-height: var(--sp-target);
   padding: 0 12px;
-  border: 1px solid var(--sp-border);
+  border: 1px solid color-mix(in srgb, var(--sp-accent) calc(var(--sp-sel, 0) * 100%), var(--sp-border));
   border-radius: 999px;
-  background: var(--sp-surface);
+  background: color-mix(in srgb, var(--sp-band) calc(var(--sp-sel, 0) * 100%), var(--sp-surface));
+  box-shadow: inset 0 0 0 calc(var(--sp-sel, 0) * 1px) var(--sp-accent);
+  outline: calc(var(--sp-focus, 0) * 2px) solid var(--sp-accent);
+  outline-offset: 2px;
   font: 500 13px/1 var(--sp-sans);
+  font-weight: calc(500 + var(--sp-sel, 0) * 150);
   color: var(--sp-fg);
+  white-space: nowrap;
+  scroll-snap-align: start;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.uipack-span .uipack-span__chip-range {
+.uipack-span .uipack-span__chip::before {
+  content: "✓";
+  content: "✓" / "";
+  display: inline-block;
+  overflow: hidden;
+  width: calc(var(--sp-sel, 0) * 14px);
+  font-weight: 700;
+  color: var(--sp-accent);
+}
+/* "All" is the resting state: a check mark, no heavy border. */
+.uipack-span .uipack-span__chip--all {
+  box-shadow: none;
+  font-weight: 500;
+}
+.uipack-span .uipack-span__code {
+  display: var(--sp-label-abbr, inline);
+  margin-right: 6px;
+  font: 600 11px/1 var(--sp-mono);
+  color: var(--sp-muted);
+}
+.uipack-span .uipack-span__range {
+  margin-left: 6px;
   font: 400 11px/1 var(--sp-mono);
   color: var(--sp-muted);
 }
-/* Selected: a check mark and a heavier border, not only the accent. */
-.uipack-span .uipack-span__chip:has(:checked) {
-  border: 2px solid var(--sp-accent);
-  padding: 0 11px 0 9px;
-  background: var(--sp-band);
-  font-weight: 700;
+.uipack-span .uipack-span__chip--toggle {
+  grid-column: 3;
+  align-self: start;
+  margin-top: 2px;
 }
-.uipack-span .uipack-span__chip:has(:checked)::before {
-  content: "✓";
-  content: "✓" / "";
-  font: 700 12px/1 var(--sp-sans);
-  color: var(--sp-accent);
+
+/* Narrow: the key and filters fold into one closed disclosure. */
+.uipack-span .uipack-span__drawer {
+  display: block;
+  border: 1px solid var(--sp-border);
+  border-radius: 6px;
 }
-.uipack-span .uipack-span__chip:has(:focus-visible) {
+.uipack-span .uipack-span__drawer > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+  min-height: 44px;
+  padding: 8px 12px 8px 32px;
+  position: relative;
+  font: 600 13px/18px var(--sp-sans);
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.uipack-span .uipack-span__drawer > summary::-webkit-details-marker {
+  display: none;
+}
+.uipack-span .uipack-span__drawer > summary::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  margin-top: -4px;
+  border-right: 1.75px solid var(--sp-chevron);
+  border-bottom: 1.75px solid var(--sp-chevron);
+  transform: rotate(-45deg);
+  transition: transform 120ms ease;
+}
+.uipack-span .uipack-span__drawer[open] > summary::before {
+  transform: rotate(45deg);
+}
+.uipack-span .uipack-span__drawer > summary:focus-visible {
   outline: 2px solid var(--sp-accent);
   outline-offset: 2px;
 }
-.uipack-span .uipack-span__key {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px 16px;
-  font-size: 12px;
-  line-height: 18px;
+.uipack-span:has(.uipack-span__inputs :focus-visible) .uipack-span__drawer:not([open]) > summary {
+  outline: 2px solid var(--sp-accent);
+  outline-offset: 2px;
+}
+.uipack-span .uipack-span__now-text {
+  display: var(--sp-now, none);
+  font-weight: 400;
   color: var(--sp-muted);
 }
-.uipack-span .uipack-span__key > div {
-  display: inline-flex;
-  gap: 6px;
+.uipack-span .uipack-span__now-text::before {
+  content: "·\00a0";
+  content: "·\00a0" / "";
 }
-.uipack-span .uipack-span__key dt {
-  font: 600 11px/18px var(--sp-mono);
-  color: var(--sp-fg);
+.uipack-span .uipack-span__drawer[open] {
+  display: grid;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+.uipack-span .uipack-span__drawer > :not(summary) {
+  margin: 0 12px;
+}
+/* In the drawer each row stacks: its label, then the chips across the full
+   width, then the deals toggle. */
+.uipack-span .uipack-span__drawer .uipack-span__frow {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+}
+.uipack-span .uipack-span__drawer .uipack-span__frow > * {
+  grid-column: 1;
+}
+.uipack-span .uipack-span__drawer .uipack-span__filters {
+  margin-top: 4px;
+}
+.uipack-span .uipack-span__drawer .uipack-span__chip--toggle {
+  justify-self: start;
+  margin: 4px 0 0 2px;
 }
 
-/* ---------- grid ---------- */
+/* Resting and active states shared by every label for a filter value. */
+.uipack-span:has(.uipack-span__all-input:checked) [data-l="*"],
+.uipack-span:has(.uipack-span__tier-all:checked) [data-t="*"],
+.uipack-span:has(.uipack-span__deals-input:checked) [data-d] {
+  --sp-sel: 1;
+  --sp-now: inline;
+}
+.uipack-span:has(.uipack-span__all-input:focus-visible) [data-l="*"],
+.uipack-span:has(.uipack-span__tier-all:focus-visible) [data-t="*"],
+.uipack-span:has(.uipack-span__deals-input:focus-visible) [data-d] {
+  --sp-focus: 1;
+}
+
+/* ---------- the grid: sticky header, then groups of rows ----------
+   Layout values arrive as custom properties: stacked rows by default, and
+   the chart's own container rule switches to a name column beside the bars
+   at the width its columns need. */
 .uipack-span .uipack-span__chart {
-  --sp-name-col: 0px;
-  padding: 0 16px;
+  padding: 0 var(--sp-pad);
 }
 .uipack-span .uipack-span__header {
   position: sticky;
@@ -243,122 +409,213 @@
   background: var(--sp-bg);
   border-bottom: 1px solid var(--sp-border);
 }
+.uipack-span .uipack-span__now-row {
+  display: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  padding: 8px 0 2px;
+}
+.uipack-span:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked) .uipack-span__now-row {
+  display: flex;
+}
+.uipack-span .uipack-span__now-label {
+  font: 600 11px/16px var(--sp-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sp-muted);
+}
+.uipack-span .uipack-span__now {
+  display: var(--sp-now, none);
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--sp-band);
+  box-shadow: inset 0 0 0 1px var(--sp-accent);
+  font: 600 12px/1 var(--sp-sans);
+  color: var(--sp-fg);
+  cursor: pointer;
+}
+.uipack-span .uipack-span__now > span {
+  font-size: 14px;
+  color: var(--sp-muted);
+}
+.uipack-span .uipack-span__clear {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--sp-target);
+  padding: 0 4px;
+  font: 600 12px/1 var(--sp-sans);
+  color: var(--sp-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  appearance: none;
+}
+.uipack-span .uipack-span__clear:focus-visible {
+  outline: 2px solid var(--sp-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 .uipack-span .uipack-span__zones,
 .uipack-span .uipack-span__cols {
   display: grid;
-  grid-template-columns: var(--sp-name-col) repeat(var(--sp-cols), minmax(0, 1fr));
+  grid-template-columns: var(--sp-name-col, 0px) repeat(var(--sp-cols), minmax(0, 1fr));
 }
 .uipack-span .uipack-span__zones {
   padding-top: 8px;
 }
-.uipack-span .uipack-span__zone {
+.uipack-span .uipack-span__zones > span {
   grid-row: 1;
   min-width: 0;
-  padding: 0 2px;
+  padding: 0 1px;
   text-align: center;
 }
-.uipack-span .uipack-span__zone > span {
+.uipack-span .uipack-span__zones > span > span {
   display: block;
-  overflow: hidden;
   padding-bottom: 4px;
   border-bottom: 1px solid var(--sp-border);
   font: 500 11px/16px var(--sp-sans);
-  text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--sp-muted);
 }
 .uipack-span .uipack-span__corner {
-  position: relative;
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: flex-end;
-  min-width: 0;
-  min-height: 32px;
-  padding: 8px 0 4px;
+  display: var(--sp-wide, none);
+  grid-column: 1;
+  grid-row: 1;
+  align-self: end;
+  padding: 0 12px 8px 0;
   font: 500 12px/16px var(--sp-sans);
   color: var(--sp-muted);
 }
-.uipack-span .uipack-span__corner-reset {
-  display: none;
-}
+/* Column headers are filter controls at rest: a dotted underline marks them;
+   the chosen one gets bold accent text, a tint and a 3px bar. */
 .uipack-span .uipack-span__col {
   position: relative;
-  grid-row: 2;
+  grid-row: 1;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   min-width: 0;
-  min-height: 32px;
-  padding: 6px 0;
+  min-height: var(--sp-target);
+  padding: 6px 1px;
   text-align: center;
-  color: var(--sp-fg);
+  color: color-mix(in srgb, var(--sp-accent) calc(var(--sp-sel, 0) * 100%), var(--sp-fg));
+  background: color-mix(in srgb, var(--sp-band) calc(var(--sp-sel, 0) * 100%), transparent);
   border-radius: 4px 4px 0 0;
+  outline: calc(var(--sp-focus, 0) * 2px) solid var(--sp-accent);
+  outline-offset: -2px;
+  font-weight: 500;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.uipack-span .uipack-span__full {
-  display: none;
-  max-width: 100%;
-  font: 500 11px/14px var(--sp-sans);
-  overflow-wrap: break-word;
-  hyphens: auto;
-}
-.uipack-span .uipack-span__abbr {
-  display: block;
-  font: 600 11px/16px var(--sp-mono);
-  letter-spacing: 0.02em;
-}
-.uipack-span .uipack-span__col:has(:checked) {
-  color: var(--sp-accent);
-  background: var(--sp-band);
-}
-.uipack-span .uipack-span__col:has(:checked) .uipack-span__full,
-.uipack-span .uipack-span__col:has(:checked) .uipack-span__abbr {
-  font-weight: 700;
-}
-/* The selected column's marker sits on the header rule: shape, not only colour. */
-.uipack-span .uipack-span__col:has(:checked)::after {
+.uipack-span .uipack-span__col::after {
   content: "";
   position: absolute;
   left: 4px;
   right: 4px;
   bottom: -1px;
-  height: 3px;
+  height: calc(var(--sp-sel, 0) * 3px);
   border-radius: 2px 2px 0 0;
   background: var(--sp-accent);
 }
-.uipack-span .uipack-span__col:has(:focus-visible),
-.uipack-span .uipack-span__corner:has(:focus-visible) {
-  outline: 2px solid var(--sp-accent);
-  outline-offset: -2px;
+.uipack-span .uipack-span__col > span {
+  max-width: 100%;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--sp-muted);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
-.uipack-span .uipack-span__zone[data-zone-start] > span,
+.uipack-span .uipack-span__abbr {
+  display: var(--sp-label-abbr, block);
+  font: inherit;
+  font-family: var(--sp-mono);
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+.uipack-span .uipack-span__short {
+  display: var(--sp-label-short, none);
+  /* One word per line: "Post-train" breaks after its hyphen, single words stay whole. */
+  width: min-content;
+  font-size: 11px;
+  line-height: 14px;
+}
+.uipack-span .uipack-span__full {
+  display: var(--sp-label-full, none);
+  font-size: var(--sp-label-size, 11px);
+  line-height: 1.25;
+}
+.uipack-span .uipack-span__zones > [data-zone-start] > span,
 .uipack-span .uipack-span__col[data-zone-start] {
   box-shadow: inset 1px 0 0 var(--sp-hair);
 }
-.uipack-span:has(.uipack-span__layer-input:checked) .uipack-span__corner {
-  cursor: pointer;
+
+/* Shown count and the expand control, above the list and at its foot. */
+.uipack-span .uipack-span__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 12px;
+  min-height: var(--sp-target);
+  padding: 0;
+  font-size: 12px;
+  color: var(--sp-muted);
 }
-.uipack-span:has(.uipack-span__layer-input:checked) .uipack-span__corner-idle {
-  display: none;
-}
-.uipack-span:has(.uipack-span__layer-input:checked) .uipack-span__corner-reset {
+.uipack-span .uipack-span__toggle {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.uipack-span .uipack-span__toggle--top {
+  min-height: var(--sp-target);
+  font: 600 12px/1 var(--sp-sans);
   color: var(--sp-accent);
-  font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.uipack-span .uipack-span__corner-reset::before {
-  content: "×";
-  content: "×" / "";
-  font: 600 14px/1 var(--sp-sans);
-  text-decoration: none;
+.uipack-span .uipack-span__toggle--foot {
+  min-height: 44px;
+  padding: 0 16px 0 14px;
+  border: 1px solid var(--sp-border);
+  border-radius: 6px;
+  background: var(--sp-raised);
+  color: var(--sp-fg);
+  font: 600 13px/1 var(--sp-sans);
+}
+.uipack-span .uipack-span__toggle--foot::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin-top: -3px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 120ms ease;
+}
+.uipack-span:has(.uipack-span__expand:checked) .uipack-span__toggle--foot::before {
+  margin-top: 3px;
+  transform: rotate(-135deg);
+}
+.uipack-span:has(.uipack-span__expand:focus-visible) .uipack-span__toggle {
+  outline: 2px solid var(--sp-accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.uipack-span .uipack-span__less,
+.uipack-span:has(.uipack-span__expand:checked) .uipack-span__more {
+  display: none;
+}
+.uipack-span:has(.uipack-span__expand:checked) .uipack-span__less {
+  display: inline;
 }
 
-/* ---------- body: zone rules, the filter band, groups and rows ---------- */
+/* ---------- body: zone rules, the column band, groups, rows ---------- */
 .uipack-span .uipack-span__body {
   position: relative;
 }
@@ -371,107 +628,131 @@
   pointer-events: none;
 }
 .uipack-span .uipack-span__rule {
-  display: none;
-  left: calc(var(--sp-name-col) + (100% - var(--sp-name-col)) * var(--k) / var(--sp-cols));
+  display: var(--sp-wide, none);
+  left: calc(var(--sp-name-col, 0px) + (100% - var(--sp-name-col, 0px)) * var(--k) / var(--sp-cols));
   width: 1px;
   background: var(--sp-hair);
 }
 .uipack-span .uipack-span__body::before {
   content: "";
   display: none;
-  left: calc(var(--sp-name-col) + (100% - var(--sp-name-col)) * var(--sp-active, 0) / var(--sp-cols));
-  width: calc((100% - var(--sp-name-col)) / var(--sp-cols));
+  left: calc(var(--sp-name-col, 0px) + (100% - var(--sp-name-col, 0px)) * var(--sp-active, 0) / var(--sp-cols));
+  width: calc((100% - var(--sp-name-col, 0px)) / var(--sp-cols));
   background: var(--sp-band);
+}
+.uipack-span:has(.uipack-span__layer-input:checked) .uipack-span__body::before {
+  display: var(--sp-wide, none);
 }
 
 .uipack-span .uipack-span__group-head {
+  position: relative;
   display: flex;
   align-items: baseline;
   gap: 8px;
-  padding: 16px 0 6px;
-  font: 600 13px/18px var(--sp-sans);
+  padding: 12px 0 6px;
+  font: 600 12px/16px var(--sp-sans);
+  color: var(--sp-muted);
+}
+/* The group's own column, marked under its heading: the staircase reads
+   even when each group shows one row. */
+.uipack-span .uipack-span__tick {
+  position: absolute;
+  top: var(--sp-tick-top, auto);
+  bottom: var(--sp-tick-bottom, 0);
+  left: calc(var(--sp-name-col, 0px) + (100% - var(--sp-name-col, 0px)) * var(--k) / var(--sp-cols) + var(--sp-inset));
+  width: calc((100% - var(--sp-name-col, 0px)) / var(--sp-cols) - 2 * var(--sp-inset));
+  height: 2px;
+  border-radius: 1px;
+  background: var(--sp-accent);
 }
 .uipack-span .uipack-span__count {
-  font: 500 11px/18px var(--sp-mono);
+  font: 500 11px/16px var(--sp-mono);
+  font-variant-numeric: tabular-nums;
   color: var(--sp-muted);
 }
-.uipack-span [data-span-key],
-.uipack-span .uipack-span__empty {
+/* "1 of 6" in the featured view, the total when expanded or filtered, and the
+   live count from enhanceSpanChart under a filter. */
+.uipack-span .uipack-span__count--featured,
+.uipack-span .uipack-span__count--live,
+.uipack-span:has(.uipack-span__expand:not(:checked)):not(:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked)) .uipack-span__count--total,
+.uipack-span[data-span-counting]:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked) .uipack-span__count--total {
   display: none;
 }
-.uipack-span:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked) .uipack-span__count:not([data-span-key]) {
-  display: none;
-}
-.uipack-span .uipack-span__empty {
-  padding: 24px 0;
-  font-size: 13px;
-  color: var(--sp-muted);
-  text-align: center;
+.uipack-span:has(.uipack-span__expand:not(:checked)):not(:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked)) .uipack-span__count--featured,
+.uipack-span[data-span-counting]:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked) .uipack-span__count--live {
+  display: inline;
 }
 
 .uipack-span .uipack-span__rows {
-  list-style: none;
+  padding: 0;
 }
 .uipack-span .uipack-span__item {
   display: block;
   margin: 0 -8px;
-  border-top: 1px solid var(--sp-hair);
+  border-bottom: 1px solid var(--sp-hair);
 }
-.uipack-span .uipack-span__row {
+/* Rows hidden in the featured view with hidden="until-found" (enhanced). */
+.uipack-span .uipack-span__item[hidden],
+.uipack-span .uipack-span__group[hidden] {
+  border: 0;
+}
+.uipack-span .uipack-span__item > details {
   display: block;
 }
-.uipack-span .uipack-span__summary {
+.uipack-span .uipack-span__item summary {
   display: block;
   padding: 0 8px;
   list-style: none;
   cursor: pointer;
+  scroll-margin-top: calc(var(--sp-sticky) + 120px);
   -webkit-tap-highlight-color: transparent;
 }
-.uipack-span .uipack-span__summary::-webkit-details-marker {
+.uipack-span .uipack-span__item summary::-webkit-details-marker {
   display: none;
 }
-.uipack-span .uipack-span__summary::marker {
+.uipack-span .uipack-span__item summary::marker {
   content: "";
 }
-.uipack-span .uipack-span__summary:focus-visible {
+.uipack-span .uipack-span__item summary:focus-visible {
   outline: 2px solid var(--sp-accent);
   outline-offset: -2px;
 }
-.uipack-span .uipack-span__row[open] > .uipack-span__summary {
+.uipack-span .uipack-span__item > details[open] > summary {
   background: var(--sp-raised);
 }
 .uipack-span .uipack-span__line {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: var(--sp-line-cols, minmax(0, 1fr));
+  align-items: center;
   row-gap: 6px;
-  padding: 8px 0 10px;
+  min-height: 36px;
+  padding: var(--sp-line-pad, 8px 0 10px);
 }
 
-/* Name cell: chevron and logo, then the name with its size beside it; a
-   status badge and tags, when present, sit on a second line under the name. */
+/* Name cell: chevron and logo, the name (up to two lines) with its size, and
+   any badge and tags on a line under the name. */
 .uipack-span .uipack-span__name {
   display: grid;
-  grid-template-columns: 8px 24px minmax(0, max-content) auto 1fr;
-  grid-template-areas:
-    "chev logo label value ."
-    "chev logo sub sub sub";
+  grid-template-columns: var(--sp-name-cols, 8px 24px minmax(0, max-content) auto 1fr);
+  grid-template-areas: var(--sp-name-areas, "chev logo label value ." "chev logo sub sub sub");
   align-items: center;
   column-gap: 8px;
   min-width: 0;
+  padding: var(--sp-name-pad, 0);
 }
-.uipack-span .uipack-span__chevron {
+.uipack-span .uipack-span__name > i {
   grid-area: chev;
   justify-self: center;
-  width: 6px;
-  height: 6px;
-  margin: 0 2px 2px 0;
-  border-right: 1.5px solid var(--sp-muted);
-  border-bottom: 1.5px solid var(--sp-muted);
+  width: 8px;
+  height: 8px;
+  margin-right: 2px;
+  border-right: 1.75px solid var(--sp-chevron);
+  border-bottom: 1.75px solid var(--sp-chevron);
   transform: rotate(-45deg);
   transition: transform 120ms ease;
 }
-.uipack-span .uipack-span__row[open] .uipack-span__chevron {
-  transform: translateY(-1px) rotate(45deg);
+.uipack-span .uipack-span__item > details[open] .uipack-span__name > i {
+  transform: translateY(-2px) rotate(45deg);
 }
 .uipack-span .uipack-span__logo {
   grid-area: logo;
@@ -483,42 +764,38 @@
   border: 1px solid var(--sp-hair);
   border-radius: 6px;
   background: var(--sp-logo-bg);
+  filter: var(--sp-logo-filter);
 }
 .uipack-span .uipack-span__logo img {
   display: block;
   width: 20px;
   height: 20px;
   max-width: none;
+  margin: 0;
   object-fit: contain;
-  filter: var(--sp-logo-filter);
 }
+/* No logo: two letters on a transparent tile, so a column of them stays quiet. */
 .uipack-span .uipack-span__logo--mono {
-  background: var(--sp-raised);
+  border-color: transparent;
+  background: transparent;
+  filter: none;
   font: 700 11px/1 var(--sp-mono);
   letter-spacing: -0.02em;
-  color: var(--sp-fg);
+  color: var(--sp-muted);
 }
-.uipack-span .uipack-span__label {
+.uipack-span .uipack-span__name > b {
   grid-area: label;
   align-self: baseline;
+  display: -webkit-box;
   min-width: 0;
   overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   font-weight: 500;
   line-height: 20px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
 }
-.uipack-span .uipack-span__sub {
-  grid-area: sub;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  margin-top: 2px;
-  overflow: hidden;
-  white-space: nowrap;
-}
-.uipack-span .uipack-span__value {
+.uipack-span .uipack-span__name > em {
   grid-area: value;
   align-self: baseline;
   font: 400 11px/16px var(--sp-mono);
@@ -526,19 +803,28 @@
   color: var(--sp-muted);
   white-space: nowrap;
 }
+.uipack-span .uipack-span__sub {
+  grid-area: sub;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  min-width: 0;
+  margin-top: 2px;
+}
 .uipack-span .uipack-span__tag {
   font: 400 11px/16px var(--sp-mono);
   color: var(--sp-muted);
   white-space: nowrap;
 }
 .uipack-span .uipack-span__badge {
-  flex: 0 1 auto;
-  min-width: 0;
+  flex: none;
+  max-width: 100%;
   overflow: hidden;
-  padding: 0 6px;
+  padding: 0 7px;
   border: 1px solid var(--sp-change);
   border-radius: 999px;
-  font: 500 11px/14px var(--sp-mono);
+  font: 500 12px/16px var(--sp-sans);
   color: var(--sp-change-ink);
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -546,9 +832,6 @@
 .uipack-span .uipack-span__badge[data-kind="shutdown"] {
   border-color: var(--sp-border);
   color: var(--sp-muted);
-}
-.uipack-span .uipack-span__legend .uipack-span__badge {
-  flex: none;
 }
 
 .uipack-span .uipack-span__track {
@@ -558,21 +841,10 @@
   align-items: center;
   height: 16px;
 }
-/* Narrow rows stack the name above the bars, so the filter band is drawn per
-   track instead of down the body, where it would cross the names. */
-.uipack-span:has(.uipack-span__layer-input:checked) .uipack-span__track::before {
-  content: "";
-  position: absolute;
-  top: -4px;
-  bottom: -4px;
-  left: calc(100% * var(--sp-active, 0) / var(--sp-cols));
-  width: calc(100% / var(--sp-cols));
-  background: var(--sp-band);
-  pointer-events: none;
-}
-.uipack-span .uipack-span__run {
+.uipack-span .uipack-span__track > span {
   position: relative;
   z-index: 2;
+  grid-column: var(--a) / span var(--n);
   height: 14px;
   margin: 0 var(--sp-inset);
   overflow: hidden;
@@ -581,16 +853,33 @@
   /* A faint tick on each column boundary inside a long bar. */
   background:
     linear-gradient(to left, var(--sp-sep) 1px, transparent 1px) calc(-1 * (var(--sp-inset) + 1px)) 0 /
-      calc((100% + 2 * (var(--sp-inset) + 1px)) / var(--len)) 100% repeat-x,
+      calc((100% + 2 * (var(--sp-inset) + 1px)) / var(--n)) 100% repeat-x,
     var(--sp-tint);
 }
-.uipack-span .uipack-span__main {
+.uipack-span .uipack-span__track > span > span {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: calc(var(--at) * (100% + 2 * (var(--sp-inset) + 1px)) / var(--len) - var(--sp-inset) - 1px);
-  width: calc((100% + 2 * (var(--sp-inset) + 1px)) / var(--len));
+  left: calc(var(--at) * (100% + 2 * (var(--sp-inset) + 1px)) / var(--n) - var(--sp-inset) - 1px);
+  width: calc((100% + 2 * (var(--sp-inset) + 1px)) / var(--n));
   background: var(--sp-accent);
+}
+/* Under a layer filter every visible bar touches the chosen column: give the
+   bars full accent edges so they stay distinct inside the band. */
+.uipack-span:has(.uipack-span__layer-input:checked) .uipack-span__track > span {
+  border-color: var(--sp-accent);
+}
+/* Stacked rows: the band is drawn per track so it never crosses a name. */
+.uipack-span:has(.uipack-span__layer-input:checked) .uipack-span__track::before {
+  content: "";
+  display: var(--sp-stacked, block);
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  left: calc(100% * var(--sp-active, 0) / var(--sp-cols));
+  width: calc(100% / var(--sp-cols));
+  background: var(--sp-band);
+  pointer-events: none;
 }
 
 .uipack-span .uipack-span__detail {
@@ -598,29 +887,30 @@
   z-index: 2;
   display: grid;
   gap: 4px;
-  padding: 0 8px 12px 32px;
+  padding: var(--sp-detail-pad, 0 8px 12px 48px);
   background: var(--sp-raised);
   font-size: 13px;
   line-height: 1.5;
 }
-.uipack-span .uipack-span__note {
+.uipack-span .uipack-span__detail > p:first-child:not(.uipack-span__meta) {
   max-width: 72ch;
-}
-.uipack-span .uipack-span__note strong {
-  font-weight: 600;
 }
 .uipack-span .uipack-span__meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0 16px;
   font-size: 12px;
   color: var(--sp-muted);
+}
+.uipack-span .uipack-span__meta > span:not(:last-child)::after {
+  content: "·";
+  content: "·" / "";
+  margin: 0 8px;
 }
 .uipack-span .uipack-span__meta a {
   display: inline-flex;
   align-items: center;
-  min-height: 24px;
+  min-height: var(--sp-target);
   color: var(--sp-accent);
   font-weight: 600;
   text-decoration: underline;
@@ -633,7 +923,19 @@
   border-radius: 2px;
 }
 
-/* ---------- footer: expand control, filter count, date ---------- */
+.uipack-span .uipack-span__empty {
+  display: none;
+  padding: 24px 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--sp-muted);
+}
+.uipack-span .uipack-span__empty .uipack-span__clear {
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+/* ---------- footer ---------- */
 .uipack-span .uipack-span__foot {
   display: flex;
   flex-wrap: wrap;
@@ -642,49 +944,6 @@
   min-height: 44px;
   margin: 0 -8px;
   padding: 12px 8px 16px;
-  border-top: 1px solid var(--sp-border);
-}
-.uipack-span .uipack-span__toggle {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 44px;
-  padding: 0 16px 0 14px;
-  border: 1px solid var(--sp-border);
-  border-radius: 6px;
-  background: var(--sp-surface);
-  color: var(--sp-fg);
-  font: 600 13px/1 var(--sp-sans);
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-.uipack-span .uipack-span__toggle:has(:focus-visible) {
-  outline: 2px solid var(--sp-accent);
-  outline-offset: 2px;
-}
-.uipack-span .uipack-span__toggle-icon {
-  width: 7px;
-  height: 7px;
-  margin-top: -3px;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
-  transform: rotate(45deg);
-  transition: transform 120ms ease;
-}
-.uipack-span .uipack-span__toggle:has(:checked) .uipack-span__toggle-icon {
-  margin-top: 3px;
-  transform: rotate(-135deg);
-}
-.uipack-span .uipack-span__less,
-.uipack-span .uipack-span__toggle:has(:checked) .uipack-span__more {
-  display: none;
-}
-.uipack-span .uipack-span__toggle:has(:checked) .uipack-span__less {
-  display: inline;
-}
-.uipack-span:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked) .uipack-span__toggle {
-  display: none;
 }
 .uipack-span .uipack-span__status {
   font-size: 13px;
@@ -698,119 +957,72 @@
 
 /* ---------- subset and filter state ---------- */
 /* Collapsed and unfiltered: only featured rows. Any active filter shows every
-   matching row, featured or not. */
-.uipack-span:has(.uipack-span__expand:not(:checked)):not(:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked)) .uipack-span__item:not([data-featured]),
-.uipack-span:has(.uipack-span__expand:not(:checked)):not(:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked)) .uipack-span__group:not([data-featured]) {
+   matching row, featured or not. With find-in-page support the enhancement
+   hides them with hidden="until-found" instead. */
+.uipack-span:not([data-span-find]):has(.uipack-span__expand:not(:checked)):not(:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked)) .uipack-span__item:not([data-featured]),
+.uipack-span:not([data-span-find]):has(.uipack-span__expand:not(:checked)):not(:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked)) .uipack-span__group:not([data-featured]),
+.uipack-span:has(.uipack-span__deals-input:checked) .uipack-span__item:not([data-deal]),
+.uipack-span:has(.uipack-span__deals-input:checked) .uipack-span__group:not([data-deals]),
+.uipack-span:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked) .uipack-span__top,
+.uipack-span:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked) .uipack-span__toggle--foot {
   display: none;
 }
 
 @media (hover: hover) {
-  .uipack-span .uipack-span__summary:hover,
-  .uipack-span .uipack-span__col:not(:has(:checked)):hover {
+  .uipack-span .uipack-span__item summary:hover,
+  .uipack-span .uipack-span__col:hover {
     background: var(--sp-raised);
   }
-  .uipack-span .uipack-span__toggle:hover,
-  .uipack-span .uipack-span__chip:not(:has(:checked)):hover {
+  .uipack-span .uipack-span__chip:hover,
+  .uipack-span .uipack-span__toggle--foot:hover {
     border-color: var(--sp-fg);
   }
 }
 
-/* ---------- wide: name column beside the bars ---------- */
+/* Wide containers: the key and filters sit open above the chart. */
 @container uipack-span (min-width: 640px) {
-  .uipack-span .uipack-span__head {
-    padding: 24px 24px 16px;
+  .uipack-span .uipack-span__panel {
+    display: grid;
   }
-  .uipack-span .uipack-span__chart {
-    --sp-name-col: var(--sp-name);
-    padding: 0 24px;
-  }
-  .uipack-span .uipack-span__zone {
-    padding: 0 4px;
-  }
-  .uipack-span .uipack-span__zone > span {
-    font-family: var(--sp-mono);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-  .uipack-span .uipack-span__corner {
-    grid-column: 1;
-    grid-row: 1;
-    min-height: 44px;
-    padding: 8px 12px 8px 0;
-  }
-  .uipack-span .uipack-span__col {
-    grid-row: 1;
-    min-height: 44px;
-    padding: 8px 1px;
-  }
-  .uipack-span .uipack-span__line {
-    grid-template-columns: var(--sp-name-col) minmax(0, 1fr);
-    align-items: center;
-    min-height: 36px;
-    padding: 0;
-  }
-  .uipack-span .uipack-span__name {
-    grid-template-columns: 8px 24px minmax(0, 1fr) auto;
-    grid-template-areas:
-      "chev logo label value"
-      "chev logo sub sub";
-    padding: 6px 12px 6px 0;
-  }
-  .uipack-span .uipack-span__detail {
-    padding: 2px 8px 12px 48px;
-  }
-  .uipack-span .uipack-span__rule,
-  .uipack-span:has(.uipack-span__layer-input:checked) .uipack-span__body::before {
-    display: block;
-  }
-  .uipack-span:has(.uipack-span__layer-input:checked) .uipack-span__track::before {
+  .uipack-span .uipack-span__drawer {
     display: none;
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .uipack-span .uipack-span__chevron,
-  .uipack-span .uipack-span__toggle-icon {
-    transition: none;
+  .uipack-span .uipack-span__zones > span {
+    padding: 0 4px;
+  }
+  .uipack-span .uipack-span__zones > span > span {
+    overflow: hidden;
+    font: 600 11px/16px var(--sp-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-overflow: ellipsis;
   }
 }
 
 /* ==================== LayerStack ==================== */
 .uipack-stack {
   --ls-bracket-w: 148px;
-  --ls-rail-w: 44px;
+  --ls-rail-w: 34px;
+  --ls-target: 36px;
   container: uipack-stack / inline-size;
-  position: relative;
-  display: block;
-  margin: 0;
-  padding: 0;
-  color: var(--sp-fg);
-  background: var(--sp-bg);
-  font: 400 14px/1.45 var(--sp-sans);
-  letter-spacing: normal;
-  text-align: left;
-  border: 1px solid var(--sp-border);
-  border-radius: 4px;
-  -webkit-text-size-adjust: 100%;
+  font-size: 14px;
+  line-height: 1.45;
 }
-/* Zone tones come from the existing semantic tokens, bottom zone first. */
-.uipack-stack [data-tone="0"] {
-  --ls-tone: var(--sp-muted);
+@media (pointer: coarse) {
+  .uipack-stack {
+    --ls-target: 44px;
+  }
 }
-.uipack-stack [data-tone="1"] {
-  --ls-tone: var(--sp-request);
+/* One accent ramp up the stack (30% at the bottom zone to 90% at the top) on
+   the band edges and zone marks; zones alternate a faint neutral tint. No
+   other hues, so the figure agrees with SpanChart's uncoloured zones. */
+.uipack-stack .uipack-stack__zone-head,
+.uipack-stack .uipack-stack__band {
+  --ls-edge: color-mix(in srgb, var(--sp-accent) var(--ls-ramp, 70%), var(--sp-bg));
+  --ls-tint: var(--sp-bg);
 }
-.uipack-stack [data-tone="2"] {
-  --ls-tone: var(--sp-change);
-}
-.uipack-stack [data-tone="3"] {
-  --ls-tone: var(--sp-accent);
-}
-.uipack-stack [data-tone] {
-  --ls-tint: color-mix(in srgb, var(--ls-tone) 7%, var(--sp-bg));
-  --ls-tint-hover: color-mix(in srgb, var(--ls-tone) 12%, var(--sp-bg));
-  --ls-edge: color-mix(in srgb, var(--ls-tone) 75%, var(--sp-bg));
-  --ls-line: color-mix(in srgb, var(--ls-tone) 22%, var(--sp-bg));
+.uipack-stack [data-alt] {
+  --ls-tint: color-mix(in srgb, var(--sp-fg) 3%, var(--sp-bg));
 }
 
 .uipack-stack .uipack-stack__head {
@@ -831,55 +1043,75 @@
 .uipack-stack .uipack-stack__grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  row-gap: 4px;
-  padding: 4px 16px 16px;
+  row-gap: 3px;
+  padding: 8px 16px 16px;
 }
-.uipack-stack .uipack-stack__zone,
+.uipack-stack .uipack-stack__head + .uipack-stack__grid {
+  padding-top: 4px;
+}
+.uipack-stack .uipack-stack__zone {
+  display: contents;
+}
+.uipack-stack .uipack-stack__zone-head,
 .uipack-stack .uipack-stack__band,
-.uipack-stack .uipack-stack__bracket,
-.uipack-stack .uipack-stack__rail {
+.uipack-stack .uipack-stack__bracket {
   grid-column: 1 / -1;
-  grid-row: var(--rn);
+  grid-row: var(--rc);
   min-width: 0;
 }
 
-.uipack-stack .uipack-stack__zone {
+/* Zone heading: "MODELS · built once per model". */
+.uipack-stack .uipack-stack__zone-head {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 16px 0 4px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  padding: 10px 0 2px;
   font: 600 11px/16px var(--sp-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--sp-muted);
 }
-.uipack-stack .uipack-stack__zone::before {
+.uipack-stack .uipack-stack__zone:first-child > .uipack-stack__zone-head:first-child {
+  padding-top: 0;
+}
+.uipack-stack .uipack-stack__zone-head::before {
   content: "";
   flex: none;
+  align-self: center;
   width: 8px;
   height: 8px;
   border-radius: 2px;
   background: var(--ls-edge);
 }
+.uipack-stack .uipack-stack__note {
+  font: 400 12px/16px var(--sp-sans);
+  letter-spacing: normal;
+  text-transform: none;
+}
+.uipack-stack .uipack-stack__note::before {
+  content: "· ";
+  content: "· " / "";
+}
 
+/* Band: the zone edge is a real left border, so hover and open keep it. */
 .uipack-stack .uipack-stack__band {
   display: block;
-  border: 1px solid var(--ls-line);
+  border: 1px solid var(--sp-hair);
+  border-left: 3px solid var(--ls-edge);
   border-radius: 6px;
   background: var(--ls-tint);
-  box-shadow: inset 3px 0 0 var(--ls-edge);
 }
 .uipack-stack .uipack-stack__face {
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) 12px;
+  grid-template-columns: 8px 20px minmax(0, 1fr);
   grid-template-areas:
-    "idx name chev"
-    "idx summary chev"
-    "idx metric chev";
-  column-gap: 12px;
-  align-items: start;
-  padding: 12px 12px 12px 16px;
-  border-radius: 5px;
+    "chev idx text"
+    ". . metric";
+  column-gap: 10px;
+  align-items: baseline;
+  padding: 10px 12px 10px 10px;
+  border-radius: 0 5px 5px 0;
   list-style: none;
 }
 summary.uipack-stack__face {
@@ -896,22 +1128,42 @@ summary.uipack-stack__face {
   outline: 2px solid var(--sp-accent);
   outline-offset: 2px;
 }
-.uipack-stack .uipack-stack__band[open] {
-  background: var(--ls-tint-hover);
+/* The same disclosure mark as SpanChart rows: right-pointing, turns down. */
+.uipack-stack .uipack-stack__face > i {
+  grid-area: chev;
+  align-self: center;
+  justify-self: center;
+  width: 8px;
+  height: 8px;
+  margin-right: 2px;
+  border-right: 1.75px solid var(--sp-chevron);
+  border-bottom: 1.75px solid var(--sp-chevron);
+  transform: rotate(-45deg);
+  transition: transform 120ms ease;
+}
+.uipack-stack .uipack-stack__face[data-static] > i {
+  visibility: hidden;
+}
+.uipack-stack .uipack-stack__band[open] .uipack-stack__face > i {
+  transform: translateY(-2px) rotate(45deg);
 }
 .uipack-stack .uipack-stack__index {
   grid-area: idx;
-  padding-top: 2px;
   font: 500 11px/16px var(--sp-mono);
   font-variant-numeric: tabular-nums;
   color: var(--sp-muted);
 }
-.uipack-stack .uipack-stack__name {
-  grid-area: name;
+.uipack-stack .uipack-stack__text {
+  grid-area: text;
+  min-width: 0;
+  text-wrap: pretty;
+}
+.uipack-stack .uipack-stack__text > b {
+  display: block;
   font: 600 15px/20px var(--sp-sans);
 }
 .uipack-stack .uipack-stack__summary {
-  grid-area: summary;
+  display: block;
   margin-top: 2px;
   font-size: 13px;
   line-height: 18px;
@@ -920,40 +1172,23 @@ summary.uipack-stack__face {
 .uipack-stack .uipack-stack__metric {
   grid-area: metric;
   display: flex;
-  align-items: baseline;
   flex-wrap: wrap;
+  align-items: baseline;
   gap: 0 8px;
   margin-top: 6px;
 }
-.uipack-stack .uipack-stack__metric-value {
-  font: 600 15px/20px var(--sp-mono);
+.uipack-stack .uipack-stack__metric > strong {
+  font: 600 15px/20px var(--sp-sans);
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
 }
-.uipack-stack .uipack-stack__metric-label {
-  font: 400 11px/14px var(--sp-mono);
+.uipack-stack .uipack-stack__metric > span:last-child {
+  font: 400 12px/16px var(--sp-sans);
   color: var(--sp-muted);
-}
-.uipack-stack .uipack-stack__chevron {
-  grid-area: chev;
-  align-self: center;
-  justify-self: center;
-  width: 7px;
-  height: 7px;
-  margin-top: -4px;
-  border-right: 1.5px solid var(--sp-muted);
-  border-bottom: 1.5px solid var(--sp-muted);
-  transform: rotate(45deg);
-  transition: transform 120ms ease;
-}
-.uipack-stack .uipack-stack__band[open] .uipack-stack__chevron {
-  margin-top: 4px;
-  transform: rotate(-135deg);
 }
 .uipack-stack .uipack-stack__detail {
   display: grid;
-  gap: 8px;
-  padding: 0 16px 14px 52px;
+  gap: 4px;
+  padding: 0 16px 10px 48px;
   font-size: 14px;
   line-height: 1.5;
 }
@@ -964,31 +1199,35 @@ summary.uipack-stack__face {
   text-transform: uppercase;
   color: var(--sp-muted);
 }
-.uipack-stack .uipack-stack__read {
-  justify-self: start;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 32px;
+.uipack-stack .uipack-stack__read,
+.uipack-stack .uipack-stack__across a {
   color: var(--sp-accent);
-  font-size: 13px;
   font-weight: 600;
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
+.uipack-stack .uipack-stack__read {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--ls-target);
+  font-size: 13px;
+}
 .uipack-stack .uipack-stack__read:focus-visible,
-.uipack-stack .uipack-stack__rail:focus-visible {
+.uipack-stack .uipack-stack__across a:focus-visible {
   outline: 2px solid var(--sp-accent);
   outline-offset: 2px;
+  border-radius: 2px;
 }
 
-/* Narrow: a bracket is a small label above the zone it starts in. */
+/* Below 1000px a bracket is a small label above the zone it starts in. */
 .uipack-stack .uipack-stack__bracket {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-top: 16px;
+  padding-top: 12px;
   font: 500 12px/16px var(--sp-sans);
   font-style: italic;
   color: var(--sp-muted);
@@ -1004,124 +1243,231 @@ summary.uipack-stack__face {
   border-right: 0;
   border-radius: 3px 0 0 0;
 }
-.uipack-stack .uipack-stack__zone[data-after-bracket] {
-  padding-top: 4px;
+.uipack-stack .uipack-stack__bracket + .uipack-stack__zone-head {
+  padding-top: 2px;
 }
-.uipack-stack .uipack-stack__zone[data-top-narrow],
-.uipack-stack .uipack-stack__bracket[data-top-narrow] {
+.uipack-stack .uipack-stack__zone:first-child > .uipack-stack__bracket:first-child {
   padding-top: 0;
 }
 
-/* Narrow: rails are chips under the stack, under a small caption. */
-.uipack-stack .uipack-stack__rails-caption {
-  grid-column: 1 / -1;
-  grid-row: var(--rn);
-  padding-top: 16px;
+/* Rails: a bar per cross-cutting topic beside the stack (from 640px), its
+   label at the top. The list under the stack carries the words and links. */
+.uipack-stack .uipack-stack__rail {
+  display: none;
+}
+.uipack-stack .uipack-stack__across {
+  display: grid;
+  gap: 8px;
+  margin: 0 16px 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--sp-hair);
+}
+.uipack-stack .uipack-stack__across-head {
   font: 600 11px/16px var(--sp-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--sp-muted);
 }
-.uipack-stack .uipack-stack__rail {
-  justify-self: start;
+.uipack-stack .uipack-stack__across ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px 24px;
+}
+.uipack-stack .uipack-stack__across li {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  min-width: 0;
+}
+.uipack-stack .uipack-stack__across-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 8px;
+}
+.uipack-stack .uipack-stack__across a {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 36px;
-  margin-top: 4px;
-  padding: 0 14px;
-  border: 1px solid var(--sp-border);
-  border-radius: 999px;
-  background: var(--sp-surface);
-  color: var(--sp-fg);
-  text-decoration: none;
+  min-height: 28px;
+  font-size: 14px;
 }
-.uipack-stack .uipack-stack__rail-label {
-  font: 600 13px/1.2 var(--sp-sans);
+.uipack-stack .uipack-stack__across strong {
+  font-weight: 600;
 }
-.uipack-stack .uipack-stack__rail-span {
-  font: 400 11px/1.2 var(--sp-mono);
+.uipack-stack .uipack-stack__span {
+  font: 400 11px/16px var(--sp-mono);
   color: var(--sp-muted);
 }
-.uipack-stack a.uipack-stack__rail .uipack-stack__rail-label {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-}
-.uipack-stack .uipack-stack__rail-span::before {
-  content: "· ";
-  content: "· " / "";
+.uipack-stack .uipack-stack__across-summary {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--sp-muted);
 }
 
 @media (hover: hover) {
   .uipack-stack summary.uipack-stack__face:hover {
-    background: var(--ls-tint-hover);
+    background: color-mix(in srgb, var(--sp-fg) 4%, var(--ls-tint));
   }
   .uipack-stack a.uipack-stack__rail:hover {
-    border-color: var(--sp-accent);
+    background: color-mix(in srgb, var(--sp-accent) 10%, var(--sp-bg));
   }
 }
 
-/* ---------- wide: brackets left, the stack, rails right ---------- */
+/* From 640px: rails beside the stack, one line per band. */
 @container uipack-stack (min-width: 640px) {
   .uipack-stack .uipack-stack__head {
-    padding: 24px 24px 8px;
+    padding: 24px 24px 4px;
   }
   .uipack-stack .uipack-stack__grid {
-    grid-template-columns: var(--ls-bracket-w) minmax(0, 1fr) repeat(var(--ls-rails), var(--ls-rail-w));
-    padding: 8px 24px 24px;
+    grid-template-columns: minmax(0, 1fr) repeat(var(--ls-rails), var(--ls-rail-w));
+    padding: 8px 24px 20px;
   }
-  .uipack-stack:not([data-brackets]) .uipack-stack__grid {
-    --ls-bracket-w: 0px;
+  .uipack-stack .uipack-stack__head + .uipack-stack__grid {
+    padding-top: 8px;
   }
   .uipack-stack[data-rails="0"] .uipack-stack__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .uipack-stack .uipack-stack__zone-head,
+  .uipack-stack .uipack-stack__band,
+  .uipack-stack .uipack-stack__bracket {
+    grid-column: 1;
+  }
+  /* Name over the constraint (two lines at most), metric on the right. */
+  .uipack-stack .uipack-stack__face {
+    grid-template-columns: 8px 20px minmax(0, 1fr) auto;
+    grid-template-areas: "chev idx text metric";
+    align-items: center;
+    column-gap: 12px;
+    min-height: 62px;
+    padding: 6px 16px 6px 12px;
+  }
+  .uipack-stack .uipack-stack__summary {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .uipack-stack .uipack-stack__band[open] .uipack-stack__summary {
+    display: block;
+  }
+  .uipack-stack .uipack-stack__metric {
+    display: grid;
+    justify-items: end;
+    gap: 0;
+    margin: 0;
+    text-align: right;
+  }
+  .uipack-stack .uipack-stack__metric > strong {
+    font-size: 15px;
+    line-height: 17px;
+  }
+  .uipack-stack .uipack-stack__metric > span:last-child {
+    font-size: 11px;
+    line-height: 13px;
+  }
+  .uipack-stack .uipack-stack__detail {
+    padding: 0 16px 8px 64px;
+  }
+  .uipack-stack .uipack-stack__across ul {
+    gap: 8px 24px;
+  }
+  .uipack-stack .uipack-stack__across-summary {
+    font-size: 12px;
+    line-height: 16px;
+  }
+  .uipack-stack .uipack-stack__rail {
+    display: flex;
+    grid-column: var(--cn);
+    grid-row: var(--rc);
+    justify-content: center;
+    min-height: 0;
+    overflow: hidden;
+    /* Sized by the rows it spans, never the other way round. */
+    contain: size;
+    margin-left: 6px;
+    padding: 10px 0;
+    border-top: 2px solid var(--sp-accent);
+    border-radius: 0 0 4px 4px;
+    background: color-mix(in srgb, var(--sp-fg) 5%, var(--sp-bg));
+    color: var(--sp-fg);
+    text-decoration: none;
+  }
+  /* The label reads down from the top and wraps into a second vertical
+     line rather than stretching the rows it spans. */
+  .uipack-stack .uipack-stack__rail > span {
+    max-height: 100%;
+    overflow: hidden;
+    writing-mode: vertical-rl;
+    font: 600 12px/14px var(--sp-sans);
+  }
+  .uipack-stack .uipack-stack__across {
+    margin: 0 24px 20px;
+  }
+}
+
+/* From 860px: one line per band. Name and constraint run together, cut
+   with an ellipsis; opening the band shows the whole constraint. Every band
+   has the same height, so the stack reads as layers, not cards. */
+@container uipack-stack (min-width: 860px) {
+  .uipack-stack .uipack-stack__face {
+    min-height: 40px;
+    padding: 4px 16px 4px 12px;
+  }
+  .uipack-stack .uipack-stack__text {
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 19px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .uipack-stack .uipack-stack__band[open] .uipack-stack__text {
+    white-space: normal;
+  }
+  .uipack-stack .uipack-stack__text > b,
+  .uipack-stack .uipack-stack__summary,
+  .uipack-stack .uipack-stack__band[open] .uipack-stack__summary {
+    display: inline;
+  }
+  .uipack-stack .uipack-stack__text > b {
+    margin-right: 8px;
+    font-size: 14px;
+    line-height: 19px;
+  }
+  .uipack-stack .uipack-stack__summary {
+    margin: 0;
+    line-height: 19px;
+  }
+}
+
+/* From 1000px with brackets: a bracket column on the left, rows without the
+   label rows. */
+@container uipack-stack (min-width: 1000px) {
+  .uipack-stack[data-brackets] .uipack-stack__grid {
+    grid-template-columns: var(--ls-bracket-w) minmax(0, 1fr) repeat(var(--ls-rails), var(--ls-rail-w));
+  }
+  .uipack-stack[data-brackets][data-rails="0"] .uipack-stack__grid {
     grid-template-columns: var(--ls-bracket-w) minmax(0, 1fr);
   }
-  .uipack-stack .uipack-stack__zone,
-  .uipack-stack .uipack-stack__band {
+  .uipack-stack[data-brackets] .uipack-stack__zone-head,
+  .uipack-stack[data-brackets] .uipack-stack__band {
     grid-column: 2;
     grid-row: var(--rw);
   }
-  .uipack-stack .uipack-stack__zone[data-after-bracket],
-  .uipack-stack .uipack-stack__zone[data-top-narrow] {
-    padding-top: 16px;
+  .uipack-stack[data-brackets] .uipack-stack__rail {
+    grid-column: var(--cw);
+    grid-row: var(--rw);
   }
-  .uipack-stack .uipack-stack__zone[data-top-wide] {
-    padding-top: 0;
-  }
-  .uipack-stack .uipack-stack__face {
-    grid-template-columns: 28px minmax(0, 1fr) minmax(96px, auto) 12px;
-    grid-template-areas:
-      "idx name metric chev"
-      "idx summary metric chev";
-    column-gap: 16px;
-    padding: 12px 16px 12px 16px;
-  }
-  .uipack-stack .uipack-stack__metric {
-    flex-direction: column;
-    align-items: flex-end;
-    align-self: center;
-    margin-top: 0;
-    text-align: right;
-  }
-  .uipack-stack .uipack-stack__metric-value {
-    font-size: 18px;
-    line-height: 22px;
-  }
-  .uipack-stack .uipack-stack__detail {
-    padding: 0 48px 16px 60px;
-  }
-
-  .uipack-stack .uipack-stack__bracket {
+  .uipack-stack[data-brackets] .uipack-stack__bracket {
+    position: relative;
     grid-column: 1;
     grid-row: var(--rw);
-    position: relative;
     justify-content: flex-end;
     padding: 0 20px 0 0;
     font-style: normal;
     text-align: right;
   }
-  .uipack-stack .uipack-stack__bracket::before {
+  .uipack-stack[data-brackets] .uipack-stack__bracket::before {
     position: absolute;
     right: 6px;
     top: 6px;
@@ -1133,65 +1479,16 @@ summary.uipack-stack__face {
     border-right: 0;
     border-radius: 4px 0 0 4px;
   }
-
-  .uipack-stack .uipack-stack__rail {
-    position: relative;
-    grid-column: var(--c);
-    grid-row: var(--rw);
-    justify-self: stretch;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: 6px;
-    min-height: 0;
-    margin: 0 0 0 8px;
-    padding: 12px 0;
-    border-radius: 6px;
-  }
-  .uipack-stack .uipack-stack__rails-caption {
-    display: none;
-  }
-  .uipack-stack .uipack-stack__rail-label,
-  .uipack-stack .uipack-stack__rail-span {
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    white-space: nowrap;
-  }
-  .uipack-stack a.uipack-stack__rail .uipack-stack__rail-label {
-    text-decoration: none;
-  }
-  .uipack-stack .uipack-stack__rail-span::before {
-    content: none;
-  }
-  .uipack-stack .uipack-stack__rail-label {
-    order: 2;
-  }
-  .uipack-stack .uipack-stack__rail-span {
-    order: 1;
-  }
-  /* Hover or keyboard focus shows the rail's one-line summary beside it. */
-  .uipack-stack .uipack-stack__rail:hover .uipack-stack__rail-tip,
-  .uipack-stack .uipack-stack__rail:focus-visible .uipack-stack__rail-tip {
-    top: 8px;
-    right: calc(100% + 8px);
-    z-index: 4;
-    width: max-content;
-    max-width: 240px;
-    height: auto;
-    padding: 8px 10px;
-    clip-path: none;
-    white-space: normal;
-    opacity: 1;
-    border: 1px solid var(--sp-border);
-    border-radius: 6px;
-    background: var(--sp-surface);
-    color: var(--sp-fg);
-    font: 400 13px/1.45 var(--sp-sans);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  .uipack-stack[data-brackets] .uipack-stack__bracket + .uipack-stack__zone-head {
+    padding-top: 12px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .uipack-stack .uipack-stack__chevron {
+  .uipack-span .uipack-span__name > i,
+  .uipack-span .uipack-span__toggle--foot::before,
+  .uipack-span .uipack-span__drawer > summary::before,
+  .uipack-stack .uipack-stack__face > i {
     transition: none;
   }
 }

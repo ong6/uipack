@@ -6,8 +6,10 @@ type SpanStatusKind = "acquired" | "pending" | "licensed" | "shutdown";
 interface SpanLayer {
     id: string;
     label: string;
-    /** Three-letter code used when the full labels do not fit, e.g. "INF". */
+    /** Three-letter code for phone widths, e.g. "INF". */
     abbr: string;
+    /** One word for mid widths, e.g. "Inference" or "Post-train". Defaults to `abbr`. */
+    short?: string;
     /** Zone id; layers of one zone must be consecutive. */
     zone?: string;
 }
@@ -36,14 +38,15 @@ interface SpanItem {
     primary: string;
     /** Other layers the item also covers. */
     also?: string[];
-    /** Image URL for the logo tile; missing gives a monogram tile. */
+    /** Image URL for the logo tile; missing gives a two-letter monogram. */
     logo?: string;
     /** The item's website. */
     href?: string;
     /** One sentence shown when the row is opened. */
     note?: string;
+    /** A deal or shutdown. Any kind but `shutdown` counts as a deal for the Deals filter. */
     status?: SpanStatus;
-    /** Short mono tags shown after the name, e.g. "voice". */
+    /** Short tags shown under the name, e.g. "voice"; explained by `labels.tagLegend`. */
     tags?: string[];
     /** Part of the initial subset. */
     featured?: boolean;
@@ -56,36 +59,48 @@ interface SpanItem {
     /** Short display text for the size, e.g. "$17.5B". */
     valueLabel?: string;
 }
-/** Interface text. `{n}`, `{total}`, `{layer}`, `{size}` and `{date}` are replaced where noted. */
+/** Interface text. `{n}`, `{total}` and `{date}` are replaced where noted. */
 interface SpanChartLabels {
-    /** First-column header while no layer filter is active. */
+    /** First-column header. */
     company: string;
     /** Expand control, `{n}` = all items. */
     showAll: string;
     /** Collapse control, `{n}` = featured items. */
     showFeatured: string;
-    /** First-column header while a layer filter is active; it clears the layer filter. */
+    /** Line above the list, `{n}` shown of `{total}`. */
+    shown: string;
+    /** Name of the layer filter and its chip row. */
+    layer: string;
+    /** The "all" layer chip. */
     allLayers: string;
+    /** Name of the size filter and its chip row. */
+    size: string;
+    /** The "all" size chip. */
+    allSizes: string;
+    /** The deals toggle: items with a status other than shutdown. */
+    deals: string;
+    /** Prefix of the active-filter row in the sticky header. */
+    showing: string;
+    /** Short reset control in the sticky header. */
+    clear: string;
+    /** Reset control's accessible name, and the empty state's control. */
+    clearFilters: string;
+    /** Narrow screens: the disclosure holding the key and filters. */
+    filtersAndKey: string;
+    /** Shown in place of rows when the filters match nothing. */
+    empty: string;
     /** Legend and screen-reader name for the primary layer. */
     main: string;
     /** Legend and screen-reader name for the other layers. */
     also: string;
-    /** Accessible name of the layer filter. */
-    filter: string;
-    /** Name of the size filter and of the size in the screen-reader sentence. */
-    size: string;
-    /** First size chip; it clears the size filter. */
-    allSizes: string;
     /** Legend text beside a sample value label. */
     valueLegend: string;
-    /** Footer line while filtered by layer, `{n}`, `{total}`, `{layer}`. */
-    showing: string;
-    /** Footer line while filtered by size, `{n}`, `{total}`, `{size}`. */
-    showingSize: string;
-    /** Footer line while filtered by both, `{n}`, `{total}`, `{layer}`, `{size}`. */
-    showingBoth: string;
-    /** Shown in place of rows when the filters match nothing. */
-    empty: string;
+    /** Legend text beside a sample tag, e.g. "model type". */
+    tagLegend: string;
+    /** Legend text beside a sample deal badge. */
+    legendChange: string;
+    /** Legend text beside the shut badge. */
+    legendShutdown: string;
     /** Footer date line, `{date}`. */
     asOf: string;
     website: string;
@@ -95,9 +110,6 @@ interface SpanChartLabels {
     pending: string;
     licensed: string;
     shutdown: string;
-    /** Legend text for the → badge and the shut badge. */
-    legendChange: string;
-    legendShutdown: string;
 }
 declare const DEFAULT_LABELS: SpanChartLabels;
 interface SpanChartInput {
@@ -105,7 +117,7 @@ interface SpanChartInput {
     layers: SpanLayer[];
     zones?: SpanZone[];
     items: SpanItem[];
-    /** Size tiers, largest first. Adds the size filter. */
+    /** Size tiers, largest first. Adds the size filter. Any number. */
     tiers?: SpanTier[];
     initial?: "featured" | "all";
     groupBy?: "primary" | "none";
@@ -127,13 +139,19 @@ interface SpanRowModel {
     layerLabels: string[];
     primaryIndex: number;
     tier: SpanTier | null;
+    /** Has a status other than shutdown. */
+    deal: boolean;
     monogram: string;
     sentence: string;
     statusText: string | null;
     badge: string | null;
 }
-/** A filter state: a layer id or null (all layers), a tier id or null (all sizes). */
-type SpanFilter = readonly [layer: string | null, tier: string | null];
+/** A filter state: a layer id, a tier id and the deals toggle; null means inactive. */
+interface SpanFilter {
+    layer: string | null;
+    tier: string | null;
+    deals: boolean;
+}
 interface SpanGroupModel {
     /** The primary layer, or null when `groupBy` is "none". */
     layer: SpanLayer | null;
@@ -142,15 +160,27 @@ interface SpanGroupModel {
     featured: number;
     layerIds: string[];
     tierIds: string[];
-    /** "layer|tier" pairs present in the group, for the combined filter. */
-    pairs: string[];
-    /** Matching rows per filter state, keyed by `filterKey`; only non-zero entries. */
-    counts: Map<string, number>;
+    hasDeal: boolean;
+    /** Combined-filter keys present in this group, only those a rule tests. */
+    keys: string[];
 }
 interface SpanZoneSpan {
     zone: SpanZone;
     start: number;
     end: number;
+}
+/** Container widths at which the layout and the column labels change. */
+interface SpanThresholds {
+    /** Below this the codes alternate between two lines so neighbours do not touch. */
+    stagger: number;
+    /** Name column beside the bars from here; stacked rows below. */
+    wide: number;
+    /** Short labels from here; codes below. */
+    short: number;
+    /** Full labels at 11px from here. */
+    full: number;
+    /** Full labels at 12px from here. */
+    large: number;
 }
 interface SpanChartModel {
     id: string;
@@ -160,37 +190,45 @@ interface SpanChartModel {
     groups: SpanGroupModel[];
     total: number;
     featured: number;
-    /** Every filter state except "all, all", with its matching row count. */
-    filters: {
-        filter: SpanFilter;
-        key: string;
-        count: number;
-    }[];
+    deals: number;
     hasToggle: boolean;
     initialAll: boolean;
     labels: SpanChartLabels;
-    /** Container width at which the full column labels fit on two lines at 11px. */
-    fullLabelsAt: number;
-    /** Container width at which they fit at 12px. */
-    largeLabelsAt: number;
-    hasChange: boolean;
-    hasShutdown: boolean;
-    /** The largest item's value label, shown as the legend's example. */
-    valueSample: string | null;
+    thresholds: SpanThresholds;
+    /** Multi-filter states that need a group rule, and their keys. */
+    groupRules: {
+        filter: SpanFilter;
+        key: string;
+    }[];
+    /** The smallest filter states that match no rows. */
+    emptyStates: SpanFilter[];
+    /** Legend samples taken from the data. */
+    samples: {
+        value: string | null;
+        badge: string | null;
+        tag: string | null;
+        shut: boolean;
+    };
 }
+declare function spanThresholds(layers: SpanLayer[]): SpanThresholds;
 declare function buildSpanModel(input: SpanChartInput): SpanChartModel;
 /**
- * The chart's own rules, scoped by its id. Choosing layer L marks its column
- * and hides rows and groups that do not touch L; choosing tier T hides rows
- * and groups outside T; with both, a group stays only if one row matches both.
- * Each filter state shows its own counts, and the empty message when nothing
- * matches. Also switches the column headers to full labels once the
- * container is wide enough for them.
+ * The chart's own rules, keyed by its id.
+ *
+ * - Choosing layer L marks every label for L (`--sp-sel`), shows its name in
+ *   the active-filter row (`--sp-now`), tints its column (`--sp-active`) and
+ *   hides rows and groups that do not touch L. Tiers work the same way.
+ * - Where filters combine, a group stays only if one row passes them all; a
+ *   combination that matches nothing shows the empty state.
+ * - The layout switches to a name column beside the bars at `wide`, and the
+ *   column labels go from codes to short words to full labels as they fit.
  */
 declare function spanChartCss(model: SpanChartModel): string;
 
+/** A heading level, or "none"/false to render titles and group labels as plain text with group roles. */
+type ChartHeadingLevel = 2 | 3 | 4 | 5 | "none" | false;
 interface SpanChartProps extends SpanChartInput {
-    /** Unique on the page. Prefixes the input ids and scopes the chart's own rules. */
+    /** Unique on the page, no spaces. Prefixes the input ids and keys the chart's own rules. */
     id: string;
     title?: ReactNode;
     caption?: ReactNode;
@@ -201,20 +239,28 @@ interface SpanChartProps extends SpanChartInput {
     /** "primary" groups rows under their main layer in column order; "none" is one list. */
     groupBy?: "primary" | "none";
     labels?: Partial<SpanChartLabels>;
-    /** Heading level of the title; group headings sit one level below it. Default 3. */
-    headingLevel?: 2 | 3 | 4 | 5;
+    /**
+     * Heading level of the title; group headings sit one level below it.
+     * Default 3. "none" (or false) renders them as text, with each group a
+     * `role="group"` named by its label, for charts placed before the page's
+     * first heading.
+     */
+    headingLevel?: ChartHeadingLevel;
 }
 /**
  * A sideways bar chart that places items on the ordered layers of a stack.
- * Every behaviour (expand, layer and size filters, row detail) is native form
- * state and CSS, so `renderToStaticMarkup` output works without JavaScript.
- * `enhanceSpanChart` optionally adds repeat-to-clear and Escape.
+ * Every behaviour (expand, layer, size and deals filters, row detail) is
+ * native form state and CSS, so `renderToStaticMarkup` output works without
+ * JavaScript. `enhanceSpanChart` optionally adds repeat-to-clear, Escape,
+ * live counts, scroll restoration and find-in-page for hidden rows.
  */
 declare function SpanChart(props: SpanChartProps): react.JSX.Element;
 
 interface StackZone {
     id: string;
     label: string;
+    /** A short phrase after the label, e.g. "built once per model". */
+    note?: string;
 }
 interface StackLayer {
     id: string;
@@ -232,7 +278,7 @@ interface StackLayer {
     /** The article section about this layer. */
     href?: string;
 }
-/** A cross-cutting column beside the stack, spanning a contiguous range of layers. */
+/** A cross-cutting topic beside the stack, spanning a contiguous range of layers. */
 interface StackRail {
     id: string;
     label: string;
@@ -243,7 +289,7 @@ interface StackRail {
     summary?: string;
     href?: string;
 }
-/** A side annotation over a contiguous range of layers. */
+/** A side annotation over a contiguous range of layers (a left column from 1000px, a label above the zone below that). */
 interface StackBracket {
     label: string;
     from: string;
@@ -256,11 +302,11 @@ interface LayerStackLabels {
     layers: string;
     /** Singular of `layers`, for a one-layer range. */
     layerOne: string;
-    /** Heading of the opened band's detail. */
+    /** Lead-in of the opened band's detail. */
     check: string;
     /** Link to the band's section. */
     read: string;
-    /** Caption over the rail chips on narrow screens. */
+    /** Heading of the rail list under the stack. */
     rails: string;
 }
 declare const LAYER_STACK_LABELS: LayerStackLabels;
@@ -270,19 +316,22 @@ interface LayerStackProps {
     title?: ReactNode;
     caption?: ReactNode;
     zones: StackZone[];
-    /** Bottom to top: the first layer is drawn at the bottom of the stack. */
+    /** Bottom to top: the first layer is drawn at the bottom of the stack and numbered 01. */
     layers: StackLayer[];
     rails?: StackRail[];
     brackets?: StackBracket[];
     labels?: Partial<LayerStackLabels>;
-    /** Heading level of the title; zone headings sit one level below it. Default 3. */
-    headingLevel?: 2 | 3 | 4 | 5;
+    /**
+     * Heading level of the title; zone and rail-list headings sit one level
+     * below it. Default 3. "none" (or false) renders them as text, each zone a
+     * `role="group"` named by its label.
+     */
+    headingLevel?: ChartHeadingLevel;
 }
+/** Grid rows: `wide` from 1000px with a bracket column; `compact` below, with bracket labels above zones. */
 interface Placed {
-    /** Wide grid: first row and row count. */
     wide: [number, number];
-    /** Narrow grid: row. */
-    narrow: number;
+    compact: [number, number];
 }
 /** Validates the stack and assigns grid rows. Exported for tests. */
 declare function buildLayerStack(props: LayerStackProps): {
@@ -295,18 +344,23 @@ declare function buildLayerStack(props: LayerStackProps): {
         read: string;
         rails: string;
     };
-    layers: {
-        layer: StackLayer;
-        number: string;
-        tone: number;
-        place: Placed;
-    }[];
     zones: {
+        ramp: number;
+        alt: boolean;
         place: Placed;
-        /** A bracket label sits directly above this zone heading on narrow screens. */
-        afterBracket: boolean;
+        layers: {
+            layer: StackLayer;
+            i: number;
+            number: string;
+            place: Placed;
+        }[];
+        brackets: {
+            place: Placed;
+            bracket: StackBracket;
+            lo: number;
+            hi: number;
+        }[];
         zone: StackZone;
-        tone: number;
         start: number;
         end: number;
     }[];
@@ -317,18 +371,12 @@ declare function buildLayerStack(props: LayerStackProps): {
         hi: number;
         span: string;
     }[];
-    railsCaptionRow: number;
-    brackets: {
-        place: Placed;
-        bracket: StackBracket;
-        lo: number;
-        hi: number;
-    }[];
+    brackets: number;
 };
 /**
  * A stacked-layer diagram for walking a stack bottom-up. Each band opens to
- * show its detail and a link to the section; rails beside the stack link to
- * cross-cutting topics; brackets annotate ranges. Works as static HTML.
+ * show its detail and a link to the section; rails beside the stack and the
+ * list under it link to cross-cutting topics. Works as static HTML.
  */
 declare function LayerStack(props: LayerStackProps): react.JSX.Element;
 
@@ -336,16 +384,23 @@ declare function LayerStack(props: LayerStackProps): react.JSX.Element;
  * Optional progressive enhancement for a rendered SpanChart. Without it every
  * behaviour still works through native inputs and CSS; with it:
  *
- * - activating the selected column header or size chip again (click, tap,
- *   Space or Enter) clears that filter;
- * - Escape clears both filters while focus is in the chart or the chart was
+ * - activating the selected layer or size again (click, tap, Space or Enter)
+ *   clears that filter; Enter also selects, like Space;
+ * - Escape clears every filter while focus is in the chart or the chart was
  *   the last thing clicked or tapped (Safari does not focus a radio when its
  *   label is clicked, so focus alone is not enough);
- * - Enter on an unselected header or chip selects it, like Space;
- * - a polite live region announces the filtered count.
+ * - group headings and the footer show live counts under a filter, and a
+ *   polite live region announces them;
+ * - collapsing the list, or filtering while the chart top is above the
+ *   viewport, scrolls the chart top back into view;
+ * - rows hidden in the featured view become findable with the browser's
+ *   find-in-page where `hidden="until-found"` is supported; a match expands
+ *   the list;
+ * - a URL hash naming a filter input (e.g. `#ai-stack-layer-control`)
+ *   selects it, so an article can link to a filtered view.
  *
  * Returns a cleanup function that removes every listener.
  */
 declare function enhanceSpanChart(root: HTMLElement): () => void;
 
-export { LAYER_STACK_LABELS, LayerStack, type LayerStackLabels, type LayerStackProps, DEFAULT_LABELS as SPAN_CHART_LABELS, SpanChart, type SpanChartLabels, type SpanChartModel, type SpanChartProps, type SpanFilter, type SpanItem, type SpanLayer, type SpanRun, type SpanStatus, type SpanStatusKind, type SpanTier, type SpanZone, type StackBracket, type StackLayer, type StackRail, type StackZone, buildLayerStack, buildSpanModel, enhanceSpanChart, spanChartCss };
+export { type ChartHeadingLevel, LAYER_STACK_LABELS, LayerStack, type LayerStackLabels, type LayerStackProps, DEFAULT_LABELS as SPAN_CHART_LABELS, SpanChart, type SpanChartLabels, type SpanChartModel, type SpanChartProps, type SpanFilter, type SpanItem, type SpanLayer, type SpanRun, type SpanStatus, type SpanStatusKind, type SpanThresholds, type SpanTier, type SpanZone, type StackBracket, type StackLayer, type StackRail, type StackZone, buildLayerStack, buildSpanModel, enhanceSpanChart, spanChartCss, spanThresholds };

@@ -54,7 +54,8 @@ for (const theme of ["light", "dark"] as const) {
   });
 }
 
-// SpanChart and LayerStack, each state in both themes at 1440 and 390. The
+// SpanChart and LayerStack, each state in both themes, at the notes site's
+// figure width (896px, in the playground's host frame) and at 390. The
 // chart's header is sticky, so shots are clipped from a full-page capture
 // taken at the top rather than scrolled element shots.
 async function shootElement(page: import("@playwright/test").Page, selector: string, path: string) {
@@ -68,18 +69,25 @@ async function shootElement(page: import("@playwright/test").Page, selector: str
 }
 
 for (const theme of ["light", "dark"] as const) {
-  for (const w of [1440, 390] as const) {
+  for (const [w, viewport, frame] of [[896, 1440, "896"], [390, 390, "full"]] as const) {
     test(`shot charts ${theme} ${w}`, async ({ page }) => {
       test.setTimeout(60_000);
-      await page.setViewportSize({ width: w, height: 1000 });
-      await page.goto(`/?theme=${theme}#span-chart`);
+      await page.setViewportSize({ width: viewport, height: 1000 });
+      await page.goto(`/?theme=${theme}&frame=${frame}#span-chart`);
       const chart = "#ai-stack";
       await page.locator(chart).waitFor();
+      // Walk the page once so lazy logos load before the full-page captures.
+      await page.evaluate(async () => {
+        for (let y = 0; y < document.body.scrollHeight; y += 500) {
+          scrollTo(0, y);
+          await new Promise((r) => setTimeout(r, 40));
+        }
+      });
       await shootElement(page, chart, `docs/span-chart-${w}-${theme}.png`);
-      await page.locator(`${chart} .uipack-span__toggle`).click();
+      await page.locator(`${chart} .uipack-span__toggle--foot`).click();
       await shootElement(page, chart, `docs/span-chart-expanded-${w}-${theme}.png`);
-      await page.locator(`${chart} .uipack-span__toggle`).click();
-      await page.locator(`${chart} .uipack-span__col:has(input[value="inference"])`).click();
+      await page.locator(`${chart} .uipack-span__toggle--foot`).click();
+      await page.locator(`${chart} .uipack-span__col[data-l="inference"]`).click();
       await shootElement(page, chart, `docs/span-chart-filtered-${w}-${theme}.png`);
       await page.keyboard.press("Escape");
       await page.locator(`${chart} [data-item="fireworks"] summary`).click();

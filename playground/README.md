@@ -2,7 +2,7 @@
 
 Run `npm run dev` from the repo root. Pages:
 
-- `/`: figures and presets, plus the `uipack/charts` examples: the layer stack (`#layer-stack`) and the span chart (`#span-chart`, with `enhanceSpanChart`). Their data is `examples/aiStack.ts`; `scripts/build-static-fixtures.tsx` renders the same data to static HTML for the no-JavaScript tests.
+- `/`: figures and presets, plus the `uipack/charts` examples: the layer stack (`#layer-stack`) and the span chart (`#span-chart`, with `enhanceSpanChart`). They render in a frame at a host's real figure width, 896px by default; `?frame=720|390|320|full` changes it. Their data is `examples/aiStack.ts`; `scripts/build-static-fixtures.tsx` renders the same data to static HTML for the no-JavaScript tests, including a host article whose prose CSS loads after `charts.css`.
 - `/assets`: searchable primitives and static assets.
 - `/animations`: 3D animation collection, search, and technique filters. `/slides` is a compatibility alias.
 - `/presentations`: complete five-chapter narrative composition example.

@@ -8,7 +8,7 @@
 Agent instructions live in [AGENTS.md](../AGENTS.md). Setup and verification live in the [root README](../README.md).
 - [Component-first workflow](component-first.md): build, register, verify, then consume significant UI.
 - [Web principles](web-principles.md): the Landing style's numbered rules (`uipack/web`), each with its number and source video, including motion and backgrounds.
-- [Charts](charts.md): `SpanChart` (companies on the layers of a stack, CSS-only layer and size filters) and `LayerStack` (a bottom-up layer diagram with rails and brackets), static HTML with no JavaScript.
+- [Charts](charts.md): `SpanChart` (companies on the layers of a stack, with CSS-only layer, size and deals filters) and `LayerStack` (a bottom-up layer diagram with zone notes and cross-cutting rails), both static HTML with no JavaScript.
 - [Product documentation layout](docs-layout.md): the `uipack/docs` shell, Markdown renderer, navigation, anchors, and responsive behavior.
 - [Portfolio ideas](portfolio-ideas.md): prioritized places where `uipack/web` pieces would improve junxiong.dev, and what to avoid.
 - [Object scenes](objects.md): seven reusable, lazy 3D illustrations and their player.

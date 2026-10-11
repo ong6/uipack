@@ -1,12 +1,17 @@
 import type { CSSProperties, ReactNode } from "react";
+import type { ChartHeadingLevel } from "./SpanChart";
 
-/* LayerStack: a stacked-layer diagram, bottom layer drawn at the bottom.
-   Bands are native <details>, rails are links, brackets are annotations; one
-   CSS grid places all of them, so static HTML needs no JavaScript. */
+/* LayerStack: a stacked-layer diagram. Layers are given bottom to top and
+   numbered that way (01 at the bottom), but drawn and read top-down, so the
+   eye, the Tab key and a screen reader meet them in the same order. Bands are
+   native <details>, rails and their list are links, and one CSS grid places
+   everything, so static HTML needs no JavaScript. */
 
 export interface StackZone {
   id: string;
   label: string;
+  /** A short phrase after the label, e.g. "built once per model". */
+  note?: string;
 }
 
 export interface StackLayer {
@@ -23,7 +28,7 @@ export interface StackLayer {
   href?: string;
 }
 
-/** A cross-cutting column beside the stack, spanning a contiguous range of layers. */
+/** A cross-cutting topic beside the stack, spanning a contiguous range of layers. */
 export interface StackRail {
   id: string;
   label: string;
@@ -35,7 +40,7 @@ export interface StackRail {
   href?: string;
 }
 
-/** A side annotation over a contiguous range of layers. */
+/** A side annotation over a contiguous range of layers (a left column from 1000px, a label above the zone below that). */
 export interface StackBracket {
   label: string;
   from: string;
@@ -49,11 +54,11 @@ export interface LayerStackLabels {
   layers: string;
   /** Singular of `layers`, for a one-layer range. */
   layerOne: string;
-  /** Heading of the opened band's detail. */
+  /** Lead-in of the opened band's detail. */
   check: string;
   /** Link to the band's section. */
   read: string;
-  /** Caption over the rail chips on narrow screens. */
+  /** Heading of the rail list under the stack. */
   rails: string;
 }
 
@@ -63,7 +68,7 @@ export const LAYER_STACK_LABELS: LayerStackLabels = {
   layerOne: "layer",
   check: "Check yourself",
   read: "Read the section",
-  rails: "Across layers",
+  rails: "Across the stack",
 };
 
 export interface LayerStackProps {
@@ -72,13 +77,17 @@ export interface LayerStackProps {
   title?: ReactNode;
   caption?: ReactNode;
   zones: StackZone[];
-  /** Bottom to top: the first layer is drawn at the bottom of the stack. */
+  /** Bottom to top: the first layer is drawn at the bottom of the stack and numbered 01. */
   layers: StackLayer[];
   rails?: StackRail[];
   brackets?: StackBracket[];
   labels?: Partial<LayerStackLabels>;
-  /** Heading level of the title; zone headings sit one level below it. Default 3. */
-  headingLevel?: 2 | 3 | 4 | 5;
+  /**
+   * Heading level of the title; zone and rail-list headings sit one level
+   * below it. Default 3. "none" (or false) renders them as text, each zone a
+   * `role="group"` named by its label.
+   */
+  headingLevel?: ChartHeadingLevel;
 }
 
 const fail = (chart: string, message: string): never => {
@@ -87,11 +96,10 @@ const fail = (chart: string, message: string): never => {
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
+/** Grid rows: `wide` from 1000px with a bracket column; `compact` below, with bracket labels above zones. */
 interface Placed {
-  /** Wide grid: first row and row count. */
   wide: [number, number];
-  /** Narrow grid: row. */
-  narrow: number;
+  compact: [number, number];
 }
 
 /** Validates the stack and assigns grid rows. Exported for tests. */
@@ -117,14 +125,13 @@ export function buildLayerStack(props: LayerStackProps) {
   });
 
   // Zones bottom to top, each a contiguous run of layers.
-  const groups: { zone: StackZone; tone: number; start: number; end: number }[] = [];
+  const runs: { zone: StackZone; start: number; end: number }[] = [];
   layers.forEach((layer, i) => {
-    const last = groups[groups.length - 1];
+    const last = runs[runs.length - 1];
     if (last?.zone.id === layer.zone) last.end = i;
-    else if (groups.some((g) => g.zone.id === layer.zone)) fail(id, `zone "${layer.zone}" must cover consecutive layers; "${layer.id}" is separated from the rest`);
-    else groups.push({ zone: zoneById.get(layer.zone)!, tone: groups.length % 4, start: i, end: i });
+    else if (runs.some((g) => g.zone.id === layer.zone)) fail(id, `zone "${layer.zone}" must cover consecutive layers; "${layer.id}" is separated from the rest`);
+    else runs.push({ zone: zoneById.get(layer.zone)!, start: i, end: i });
   });
-  const zoneOf = (i: number) => groups.find((g) => i >= g.start && i <= g.end)!;
 
   const range = (kind: string, name: string, from: string, to: string) => {
     const a = index.get(from);
@@ -149,76 +156,72 @@ export function buildLayerStack(props: LayerStackProps) {
     return { bracket, lo, hi };
   });
 
-  // Wide rows, top to bottom: each zone's heading, then its layers, top first.
-  const wideRow = new Map<string, number>();
-  let r = 1;
-  for (const g of [...groups].reverse()) {
-    wideRow.set(`zone:${g.zone.id}`, r++);
-    for (let i = g.end; i >= g.start; i--) wideRow.set(`layer:${i}`, r++);
-  }
-  const wideSpan = (lo: number, hi: number): [number, number] => {
-    const top = wideRow.get(`layer:${hi}`)!;
-    return [top, wideRow.get(`layer:${lo}`)! - top + 1];
+  // Rows, top to bottom. Compact rows put each bracket's label just above
+  // the zone heading of its top layer, or above that layer mid-zone.
+  const rows = (compact: boolean) => {
+    const at = new Map<string, number>();
+    let r = 1;
+    for (const g of [...runs].reverse()) {
+      if (compact) brackets.forEach((b, k) => b.hi === g.end && at.set(`bracket:${k}`, r++));
+      at.set(`zone:${g.zone.id}`, r++);
+      for (let i = g.end; i >= g.start; i--) {
+        if (compact) brackets.forEach((b, k) => b.hi === i && i !== g.end && at.set(`bracket:${k}`, r++));
+        at.set(`layer:${i}`, r++);
+      }
+    }
+    return at;
+  };
+  const wide = rows(false);
+  const compact = rows(true);
+  const one = (key: string): Placed => ({ wide: [wide.get(key) ?? 0, 1], compact: [compact.get(key)!, 1] });
+  const span = (lo: number, hi: number, map: Map<string, number>): [number, number] => {
+    const top = map.get(`layer:${hi}`)!;
+    return [top, map.get(`layer:${lo}`)! - top + 1];
   };
 
-  // Narrow rows: a bracket's label sits just above the zone heading of its
-  // top layer (or above that layer when the bracket starts mid-zone).
-  const narrowRow = new Map<string, number>();
-  const bracketRows: number[] = new Array(brackets.length);
-  r = 1;
-  for (const g of [...groups].reverse()) {
-    brackets.forEach((b, k) => {
-      if (b.hi === g.end) bracketRows[k] = r++;
-    });
-    narrowRow.set(`zone:${g.zone.id}`, r++);
-    for (let i = g.end; i >= g.start; i--) {
-      brackets.forEach((b, k) => {
-        if (b.hi === i && i !== g.end) bracketRows[k] = r++;
-      });
-      narrowRow.set(`layer:${i}`, r++);
-    }
-  }
-  // The narrow rail list starts with its caption row.
-  const railsRow = r + 1;
+  // Top zone first. Edges ramp up the stack in the accent; tints alternate.
+  const zoneCount = runs.length;
+  const zonesTopDown = [...runs].reverse().map((g) => {
+    const k = runs.indexOf(g);
+    return {
+      ...g,
+      ramp: zoneCount === 1 ? 70 : Math.round(30 + (60 * k) / (zoneCount - 1)),
+      alt: k % 2 === 0,
+      place: one(`zone:${g.zone.id}`),
+      layers: layers
+        .map((layer, i) => ({ layer, i, number: pad(i + 1), place: one(`layer:${i}`) }))
+        .filter(({ i }) => i >= g.start && i <= g.end)
+        .reverse(),
+      brackets: brackets
+        .map((b, k2) => ({ ...b, place: { wide: span(b.lo, b.hi, wide), compact: [compact.get(`bracket:${k2}`)!, 1] } as Placed }))
+        .filter((b) => b.hi >= g.start && b.hi <= g.end),
+    };
+  });
 
   return {
     id,
     labels,
-    layers: layers.map((layer, i) => ({
-      layer,
-      number: pad(i + 1),
-      tone: zoneOf(i).tone,
-      place: { wide: [wideRow.get(`layer:${i}`)!, 1], narrow: narrowRow.get(`layer:${i}`)! } as Placed,
-    })),
-    zones: groups.map((g) => {
-      const narrow = narrowRow.get(`zone:${g.zone.id}`)!;
-      return {
-        ...g,
-        place: { wide: [wideRow.get(`zone:${g.zone.id}`)!, 1], narrow } as Placed,
-        /** A bracket label sits directly above this zone heading on narrow screens. */
-        afterBracket: bracketRows.includes(narrow - 1),
-      };
-    }),
-    rails: rails.map((x, k) => ({ ...x, place: { wide: wideSpan(x.lo, x.hi), narrow: railsRow + k } as Placed })),
-    railsCaptionRow: railsRow - 1,
-    brackets: brackets.map((x, k) => ({ ...x, place: { wide: wideSpan(x.lo, x.hi), narrow: bracketRows[k] } as Placed })),
+    zones: zonesTopDown,
+    rails: rails.map((x) => ({ ...x, place: { wide: span(x.lo, x.hi, wide), compact: span(x.lo, x.hi, compact) } as Placed })),
+    brackets: brackets.length,
   };
 }
 
 const place = (p: Placed, extra: Record<string, string | number> = {}) =>
-  ({ "--rw": `${p.wide[0]} / span ${p.wide[1]}`, "--rn": p.narrow, ...extra }) as CSSProperties;
+  ({ "--rw": `${p.wide[0]} / span ${p.wide[1]}`, "--rc": `${p.compact[0]} / span ${p.compact[1]}`, ...extra }) as CSSProperties;
 
 /**
  * A stacked-layer diagram for walking a stack bottom-up. Each band opens to
- * show its detail and a link to the section; rails beside the stack link to
- * cross-cutting topics; brackets annotate ranges. Works as static HTML.
+ * show its detail and a link to the section; rails beside the stack and the
+ * list under it link to cross-cutting topics. Works as static HTML.
  */
 export function LayerStack(props: LayerStackProps) {
   const model = buildLayerStack(props);
   const { id, labels } = model;
   const level = props.headingLevel ?? 3;
-  const Title = `h${level}` as const;
-  const Zone = `h${props.title ? Math.min(level + 1, 6) : level}` as "h4";
+  const plain = level === "none" || level === false;
+  const Title = plain ? "p" : (`h${level}` as "h3");
+  const Sub = plain ? "p" : (`h${props.title ? Math.min(level + 1, 6) : level}` as "h4");
 
   return (
     <section
@@ -226,7 +229,7 @@ export function LayerStack(props: LayerStackProps) {
       id={id}
       aria-labelledby={props.title ? `${id}-title` : undefined}
       data-rails={model.rails.length}
-      data-brackets={model.brackets.length ? "" : undefined}
+      data-brackets={model.brackets ? "" : undefined}
       style={{ "--ls-rails": model.rails.length } as CSSProperties}
     >
       {props.title || props.caption ? (
@@ -240,101 +243,110 @@ export function LayerStack(props: LayerStackProps) {
         </div>
       ) : null}
       <div className="uipack-stack__grid">
-        {model.zones.map((g) => (
-          <Zone
-            className="uipack-stack__zone"
-            key={g.zone.id}
-            data-tone={g.tone}
-            data-top-wide={g.place.wide[0] === 1 ? "" : undefined}
-            data-top-narrow={g.place.narrow === 1 ? "" : undefined}
-            data-after-bracket={g.afterBracket ? "" : undefined}
-            style={place(g.place)}
-          >
-            {g.zone.label}
-          </Zone>
-        ))}
-        {model.layers.map(({ layer, number, tone, place: p }) => {
-          const body = (
-            <>
-              <span className="uipack-stack__index">
-                <span className="uipack-stack__sr">{labels.layer} </span>
-                {number}
-              </span>
-              <span className="uipack-stack__name">{layer.label}</span>
-              <span className="uipack-stack__summary">{layer.summary}</span>
-              {layer.metric ? (
-                <span className="uipack-stack__metric">
-                  <span className="uipack-stack__metric-value">{layer.metric.value}</span>
-                  <span className="uipack-stack__metric-label">{layer.metric.label}</span>
-                </span>
-              ) : null}
-            </>
-          );
-          const open = layer.detail || layer.href;
-          return open ? (
-            <details className="uipack-stack__band" key={layer.id} id={`${id}-${layer.id}`} data-tone={tone} style={place(p)}>
-              <summary className="uipack-stack__face">
-                {body}
-                <span className="uipack-stack__chevron" aria-hidden="true" />
-              </summary>
-              <div className="uipack-stack__detail">
-                {layer.detail ? (
-                  <p>
-                    <span className="uipack-stack__check">{labels.check}</span> {layer.detail}
-                  </p>
-                ) : null}
-                {layer.href ? (
-                  <a className="uipack-stack__read" href={layer.href}>
-                    {labels.read} <span aria-hidden="true">→</span>
-                  </a>
-                ) : null}
-              </div>
-            </details>
-          ) : (
-            <div className="uipack-stack__band" key={layer.id} id={`${id}-${layer.id}`} data-tone={tone} style={place(p)}>
-              <div className="uipack-stack__face">{body}</div>
+        {model.zones.map((g) => {
+          const headId = `${id}-z-${g.zone.id}`;
+          const tone = { "--ls-ramp": `${g.ramp}%` };
+          return (
+            <div className="uipack-stack__zone" key={g.zone.id} role={plain ? "group" : undefined} aria-labelledby={plain ? headId : undefined}>
+              {g.brackets.map(({ bracket, lo, hi, place: p }) => (
+                <p className="uipack-stack__bracket" key={`${bracket.label}-${lo}`} style={place(p)}>
+                  {bracket.label}
+                  <span className="uipack-stack__sr">
+                    {", "}
+                    {labels.layers} {lo + 1}–{hi + 1}
+                  </span>
+                </p>
+              ))}
+              <Sub className="uipack-stack__zone-head" id={headId} data-alt={g.alt ? "" : undefined} style={place(g.place, tone)}>
+                <span>{g.zone.label}</span>
+                {g.zone.note ? <span className="uipack-stack__note">{g.zone.note}</span> : null}
+              </Sub>
+              {g.layers.map(({ layer, number, place: p }) => {
+                const face = (
+                  <>
+                    <i aria-hidden="true" />
+                    <span className="uipack-stack__index">
+                      <span className="uipack-stack__sr">{labels.layer} </span>
+                      {number}
+                    </span>
+                    <span className="uipack-stack__text">
+                      <b>{layer.label}</b>
+                      <span className="uipack-stack__sr">. </span> <span className="uipack-stack__summary">{layer.summary}</span>
+                    </span>
+                    {layer.metric ? (
+                      <span className="uipack-stack__metric">
+                        <span className="uipack-stack__sr">. </span>
+                        <strong>{layer.metric.value}</strong> <span>{layer.metric.label}</span>
+                      </span>
+                    ) : null}
+                  </>
+                );
+                const attrs = {
+                  className: "uipack-stack__band",
+                  id: `${id}-${layer.id}`,
+                  "data-alt": g.alt ? "" : undefined,
+                  style: place(p, tone),
+                };
+                return layer.detail || layer.href ? (
+                  <details {...attrs} key={layer.id}>
+                    <summary className="uipack-stack__face">{face}</summary>
+                    <div className="uipack-stack__detail">
+                      {layer.detail ? (
+                        <p>
+                          <span className="uipack-stack__check">{labels.check}</span> {layer.detail}
+                        </p>
+                      ) : null}
+                      {layer.href ? (
+                        <a className="uipack-stack__read" href={layer.href}>
+                          {labels.read} <span aria-hidden="true">→</span>
+                        </a>
+                      ) : null}
+                    </div>
+                  </details>
+                ) : (
+                  <div {...attrs} key={layer.id}>
+                    <div className="uipack-stack__face" data-static="">
+                      {face}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           );
         })}
-        {model.brackets.map(({ bracket, lo, hi, place: p }) => (
-          <p
-            className="uipack-stack__bracket"
-            key={`${bracket.label}-${lo}`}
-            data-top-narrow={p.narrow === 1 ? "" : undefined}
-            style={place(p)}
-          >
-            <span className="uipack-stack__bracket-label">{bracket.label}</span>
-            <span className="uipack-stack__sr">
-              {", "}
-              {labels.layers} {lo + 1}–{hi + 1}
-            </span>
-          </p>
-        ))}
-        {model.rails.length ? (
-          <p className="uipack-stack__rails-caption" aria-hidden="true" style={{ "--rn": model.railsCaptionRow } as CSSProperties}>
-            {labels.rails}
-          </p>
-        ) : null}
-        {model.rails.map(({ rail, span, place: p }, k) => {
-          const inner = (
-            <>
-              <span className="uipack-stack__rail-label">{rail.label}</span>
-              <span className="uipack-stack__rail-span">{span}</span>
-              {rail.summary ? <span className="uipack-stack__rail-tip">{rail.summary}</span> : null}
-            </>
-          );
-          const style = place(p, { "--c": k + 3 });
+        {model.rails.map(({ rail, place: p }, k) => {
+          // The bars are a pointer shortcut; the list under the stack is the accessible route.
+          // Rail columns: after the stack, or after the bracket column from 1000px.
+          const style = place(p, { "--cn": k + 2, "--cw": k + 3 });
           return rail.href ? (
-            <a className="uipack-stack__rail" href={rail.href} key={rail.id} style={style}>
-              {inner}
+            <a className="uipack-stack__rail" href={rail.href} key={rail.id} style={style} aria-hidden="true" tabIndex={-1}>
+              <span>{rail.label}</span>
             </a>
           ) : (
-            <span className="uipack-stack__rail" key={rail.id} style={style}>
-              {inner}
+            <span className="uipack-stack__rail" key={rail.id} style={style} aria-hidden="true">
+              <span>{rail.label}</span>
             </span>
           );
         })}
       </div>
+      {model.rails.length ? (
+        <div className="uipack-stack__across">
+          <Sub className="uipack-stack__across-head" id={`${id}-across`}>
+            {labels.rails}
+          </Sub>
+          <ul role="list" aria-labelledby={`${id}-across`}>
+            {model.rails.map(({ rail, span }) => (
+              <li key={rail.id}>
+                <span className="uipack-stack__across-name">
+                  {rail.href ? <a href={rail.href}>{rail.label}</a> : <strong>{rail.label}</strong>}
+                  <span className="uipack-stack__span">{span}</span>
+                </span>
+                {rail.summary ? <span className="uipack-stack__across-summary">{rail.summary}</span> : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </section>
   );
 }

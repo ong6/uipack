@@ -1,4 +1,4 @@
-export { SpanChart, type SpanChartProps } from "./SpanChart";
+export { SpanChart, type SpanChartProps, type ChartHeadingLevel } from "./SpanChart";
 export {
   LayerStack,
   buildLayerStack,
@@ -14,6 +14,7 @@ export { enhanceSpanChart } from "./enhance";
 export {
   buildSpanModel,
   spanChartCss,
+  spanThresholds,
   DEFAULT_LABELS as SPAN_CHART_LABELS,
   type SpanLayer,
   type SpanZone,
@@ -24,5 +25,6 @@ export {
   type SpanStatusKind,
   type SpanChartLabels,
   type SpanChartModel,
+  type SpanThresholds,
   type SpanRun,
 } from "./model";

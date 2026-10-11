@@ -132,6 +132,38 @@ function SpanChartDemo() {
 
 const entry = (id: string) => figureEntries.find((e) => e.id === id)!;
 
+/* The charts are previewed in a frame at a host's real figure width (the notes
+   site's slot is 56rem, 896px), so a layout that only works at 1280px cannot
+   hide here. ?frame=896|720|390|320|full picks the width. */
+const FRAMES = ["896", "720", "390", "320", "full"] as const;
+function useFrame() {
+  const value = new URLSearchParams(location.search).get("frame");
+  return (FRAMES as readonly string[]).includes(value ?? "") ? (value as (typeof FRAMES)[number]) : "896";
+}
+function ChartFrame({ children }: { children: React.ReactNode }) {
+  const frame = useFrame();
+  const pick = (next: string) => {
+    const url = new URL(location.href);
+    url.searchParams.set("frame", next);
+    location.assign(url);
+  };
+  return (
+    <>
+      <p className="chart-frame__bar">
+        Host width
+        {FRAMES.map((f) => (
+          <button type="button" key={f} aria-pressed={f === frame} onClick={() => pick(f)}>
+            {f === "full" ? "full" : `${f}px`}
+          </button>
+        ))}
+      </p>
+      <div className="chart-frame" data-frame={frame} style={{ maxWidth: frame === "full" ? undefined : `${frame}px` }}>
+        {children}
+      </div>
+    </>
+  );
+}
+
 function Assets() {
   return (
     <section data-route="assets">
@@ -160,11 +192,15 @@ export function App() {
           </section>
           <section data-catalog-entry="layer-stack" id="layer-stack">
             <h2>charts/{entry("layer-stack").title}</h2>
-            <LayerStack {...aiStackDiagram} />
+            <ChartFrame>
+              <LayerStack {...aiStackDiagram} />
+            </ChartFrame>
           </section>
           <section data-catalog-entry="span-chart" id="span-chart">
             <h2>charts/{entry("span-chart").title}</h2>
-            <SpanChartDemo />
+            <ChartFrame>
+              <SpanChartDemo />
+            </ChartFrame>
           </section>
           <Presets />
           <section>

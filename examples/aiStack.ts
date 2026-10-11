@@ -12,18 +12,18 @@ export const aiStackZones: SpanZone[] = [
 ];
 
 export const aiStackLayers: SpanLayer[] = [
-  { id: "power", label: "Power and sites", abbr: "PWR", zone: "infrastructure" },
-  { id: "chips", label: "Chips and memory", abbr: "CHP", zone: "infrastructure" },
-  { id: "systems", label: "Racks and networks", abbr: "NET", zone: "infrastructure" },
-  { id: "cloud", label: "Cloud and capital", abbr: "CLD", zone: "infrastructure" },
-  { id: "data", label: "Data", abbr: "DAT", zone: "models" },
-  { id: "pretraining", label: "Pretraining", abbr: "PRE", zone: "models" },
-  { id: "post-training", label: "Post-training", abbr: "PST", zone: "models" },
-  { id: "inference", label: "Inference", abbr: "INF", zone: "serving" },
-  { id: "control", label: "Gateways and observability", abbr: "CTL", zone: "serving" },
-  { id: "evals", label: "Evals", abbr: "EVL", zone: "serving" },
-  { id: "harness", label: "Harness", abbr: "HRN", zone: "product" },
-  { id: "apps", label: "Apps", abbr: "APP", zone: "product" },
+  { id: "power", label: "Power and sites", short: "Power", abbr: "PWR", zone: "infrastructure" },
+  { id: "chips", label: "Chips and memory", short: "Chips", abbr: "CHP", zone: "infrastructure" },
+  { id: "systems", label: "Racks and networks", short: "Racks", abbr: "NET", zone: "infrastructure" },
+  { id: "cloud", label: "Cloud and capital", short: "Cloud", abbr: "CLD", zone: "infrastructure" },
+  { id: "data", label: "Data", short: "Data", abbr: "DAT", zone: "models" },
+  { id: "pretraining", label: "Pretraining", short: "Pretrain", abbr: "PRE", zone: "models" },
+  { id: "post-training", label: "Post-training", short: "Post-train", abbr: "PST", zone: "models" },
+  { id: "inference", label: "Inference", short: "Inference", abbr: "INF", zone: "serving" },
+  { id: "control", label: "Gateways and observability", short: "Gateways", abbr: "GWY", zone: "serving" },
+  { id: "evals", label: "Evals", short: "Evals", abbr: "EVL", zone: "serving" },
+  { id: "harness", label: "Harness", short: "Harness", abbr: "HRN", zone: "product" },
+  { id: "apps", label: "Apps", short: "Apps", abbr: "APP", zone: "product" },
 ];
 
 const svg = (body: string) =>
@@ -51,6 +51,7 @@ export const aiStackTiers: SpanTier[] = [
   { id: "large", label: "Large", range: "$50B+" },
   { id: "mid", label: "Mid", range: "$5–50B" },
   { id: "small", label: "Small", range: "under $5B" },
+  { id: "unsized", label: "Not sized", range: "no public figure" },
 ];
 
 /* Rough market capitalisation or last reported private valuation, USD
@@ -146,19 +147,20 @@ const placements: SpanItem[] = [
 
 export const aiStackItems: SpanItem[] = placements.map((item) => {
   const value = valuations[item.id];
-  return value === undefined ? { ...item, valueLabel: "—" } : { ...item, value, valueLabel: money(value), tier: tierOf(value) };
+  return value === undefined ? { ...item, valueLabel: "—", tier: "unsized" } : { ...item, value, valueLabel: money(value), tier: tierOf(value) };
 });
 
 export const aiStack = {
   id: "ai-stack",
   title: "Who builds which layer of the AI stack",
   caption:
-    "Each row is a company; its bar covers the layers it works in, solid where its main business sits. Choose a column to see everyone in that layer, or open a row for the details.",
+    "Each row is a company; its bar covers the layers it works in, solid where its main business sits. Long bars are companies that span the stack. Tap a column heading or a chip to filter; open a row for details.",
   asOf: "2026-10",
   layers: aiStackLayers,
   zones: aiStackZones,
   tiers: aiStackTiers,
   items: aiStackItems,
+  labels: { tagLegend: "focus" },
 };
 
 /** A synthetic set of `count` rows for scale tests: every row valid, a fixed share featured. */
@@ -188,9 +190,12 @@ export function syntheticStack(count: number): SpanItem[] {
 export const aiStackDiagram: LayerStackProps = {
   id: "ai-stack-layers",
   title: "The AI stack, bottom up",
-  caption:
-    "Ten layers from the power grid to the apps people use. Each band names the constraint that layer lives under; the rails beside it cut across several layers. Open a band for a question to test yourself.",
-  zones: aiStackZones,
+  caption: "Ten layers from the power grid to the apps people use, each with the constraint it lives under. Open a band for a question to test yourself.",
+  zones: [
+    { id: "infrastructure", label: "Infrastructure", note: "shared by building and serving" },
+    { id: "models", label: "Models", note: "built once per model" },
+    { id: "serving", label: "Serving and product", note: "run on every request" },
+  ],
   layers: [
     { id: "power", label: "Power and sites", zone: "infrastructure", summary: "Grid connections and permits now set how fast new clusters come online.", metric: { value: "1 GW+", label: "per frontier campus" }, detail: "Why can a data centre be built in two years but take five to connect to the grid?", href: "#power" },
     { id: "chips", label: "Chips and memory", zone: "infrastructure", summary: "Accelerators are bound by high-bandwidth memory and advanced packaging, not just transistors.", metric: { value: "288 GB", label: "HBM on one GPU" }, detail: "Which part of an accelerator runs out first when models get bigger: compute or memory?", href: "#chips" },
@@ -200,17 +205,12 @@ export const aiStackDiagram: LayerStackProps = {
     { id: "pretraining", label: "Pretraining", zone: "models", summary: "One run teaches a base model language and knowledge, at the cost of months on a whole cluster.", metric: { value: "~10²⁶", label: "FLOP, frontier run" }, detail: "What does a base model know that an assistant does not, and the other way round?", href: "#pretraining" },
     { id: "post-training", label: "Post-training", zone: "models", summary: "Fine-tuning and reinforcement learning turn a base model into an assistant that follows instructions.", detail: "Where does the reward come from in reinforcement learning for a coding model?", href: "#post-training" },
     { id: "inference", label: "Inference", zone: "serving", summary: "Every request costs compute, so speed and price per token decide the margin.", metric: { value: "280×", label: "cheaper tokens, 2022–24" }, detail: "Why does a longer answer cost more than a longer question?", href: "#inference" },
-    { id: "harness", label: "Harness", zone: "product", summary: "The loop around the model: tools, memory, retries and permissions turn it into an agent.", detail: "Which failures belong to the harness rather than the model?", href: "#harness" },
-    { id: "apps", label: "Apps", zone: "product", summary: "Products people pay for, where distribution and fit with the workflow matter more than the model inside.", metric: { value: "800M", label: "weekly ChatGPT users" }, detail: "What would make you switch the model inside an app you use every day?", href: "#apps" },
+    { id: "harness", label: "Harness", zone: "serving", summary: "The loop around the model: tools, memory, retries and permissions turn it into an agent.", detail: "Which failures belong to the harness rather than the model?", href: "#harness" },
+    { id: "apps", label: "Apps", zone: "serving", summary: "Products people pay for, where distribution and fit with the workflow matter more than the model inside.", metric: { value: "800M", label: "weekly ChatGPT users" }, detail: "What would make you switch the model inside an app you use every day?", href: "#apps" },
   ],
   rails: [
     { id: "gateways", label: "Gateways and observability", from: "inference", to: "apps", summary: "Route, log and meter every model call across providers.", href: "#gateways" },
     { id: "evals", label: "Evals", from: "post-training", to: "apps", summary: "Measure whether a change made the model or the product better.", href: "#evals" },
     { id: "safety", label: "Safety", from: "power", to: "apps", summary: "Security and safety work that runs through every layer, from site access to model behaviour.", href: "#safety" },
-  ],
-  brackets: [
-    { label: "Shared by training and serving", from: "power", to: "cloud" },
-    { label: "Built once per model", from: "data", to: "post-training" },
-    { label: "Run on every request", from: "inference", to: "apps" },
   ],
 };
