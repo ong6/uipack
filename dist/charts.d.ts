@@ -93,22 +93,32 @@ interface SpanChartLabels {
     main: string;
     /** Legend and screen-reader name for the other layers. */
     also: string;
-    /** Legend text beside a sample value label. */
+    /** Key: section labels (shown uppercase) and the two bar swatches. */
+    keyBars: string;
+    keyDeals: string;
+    keySize: string;
+    keyType: string;
+    keyMain: string;
+    keyAlso: string;
+    /** Key text beside a sample value label, e.g. "market cap or valuation". */
     valueLegend: string;
-    /** Legend text beside a sample tag, e.g. "model type". */
+    /** Key text beside a sample tag, e.g. "model type". */
     tagLegend: string;
-    /** Sample counterparty in the legend's badges. */
-    legendBuyer: string;
-    legendLicensee: string;
-    /** Legend text beside a sample of each badge kind. */
+    /** Key words inside each badge sample. */
     legendAcquired: string;
     legendPending: string;
     legendLicensed: string;
     legendShutdown: string;
-    /** Beside the size chips where the column headers carry names: how to filter by layer. */
+    /** In the column header's corner, where headers carry names: how to filter by layer. */
     layerHint: string;
     /** The same hint on touch screens. */
     layerHintTouch: string;
+    /** The search field (shown by enhanceSpanChart). */
+    find: string;
+    /** Empty search result, `{q}` = the query. */
+    noMatch: string;
+    /** Clears the search. */
+    clearSearch: string;
     /** Footer date line, `{date}`. */
     asOf: string;
     website: string;
@@ -199,6 +209,10 @@ interface SpanChartModel {
     total: number;
     featured: number;
     deals: number;
+    /** Rows per tier, in tier order. */
+    tierCounts: number[];
+    /** Rows that touch each layer, in column order. */
+    layerCounts: number[];
     hasToggle: boolean;
     initialAll: boolean;
     labels: SpanChartLabels;
@@ -276,20 +290,21 @@ interface StackLayer {
     zone: string;
     /** One line: the constraint this layer lives under. */
     summary: string;
+    /** Optional figure at the band's right edge; nothing is drawn without it. */
     metric?: {
         value: string;
         label: string;
     };
-    /** Shown when the band is opened, e.g. a self-test question. */
+    /** Optional: makes the band open to show this text (e.g. a self-test question) and a link to the section. */
     detail?: string;
-    /** The article section about this layer. */
+    /** The article section about this layer: the whole band links to it. */
     href?: string;
 }
 /** A cross-cutting topic beside the stack, spanning a contiguous range of layers. */
 interface StackRail {
     id: string;
     label: string;
-    /** A shorter label for the vertical bar beside the stack, e.g. "Gateways"; the list under the stack uses `label`. */
+    /** A shorter label for the bracket beside the stack, e.g. "Gateways"; screen readers and the phone list use `label`. */
     short?: string;
     /** Lowest layer id the rail covers. */
     from: string;
@@ -311,11 +326,13 @@ interface LayerStackLabels {
     layers: string;
     /** Singular of `layers`, for a one-layer range. */
     layerOne: string;
-    /** Lead-in of the opened band's detail. */
+    /** Lead-in of an opened band's detail (only for layers with `detail`). */
     check: string;
-    /** Link to the band's section. */
+    /** Link to the section inside an opened band (only for layers with `detail`). */
     read: string;
-    /** Heading of the rail list under the stack. */
+    /** Right-aligned affordance on a linked band; phones show only the arrow. */
+    go: string;
+    /** Heading of the rail list that replaces the brackets on phones. */
     rails: string;
 }
 declare const LAYER_STACK_LABELS: LayerStackLabels;
@@ -351,12 +368,13 @@ declare function buildLayerStack(props: LayerStackProps): {
         layerOne: string;
         check: string;
         read: string;
+        go: string;
         rails: string;
     };
     zones: {
-        ramp: number;
-        alt: boolean;
         place: Placed;
+        box: Placed;
+        endRow: Placed;
         layers: {
             layer: StackLayer;
             i: number;
@@ -383,9 +401,11 @@ declare function buildLayerStack(props: LayerStackProps): {
     brackets: number;
 };
 /**
- * A stacked-layer diagram for walking a stack bottom-up. Each band opens to
- * show its detail and a link to the section; rails beside the stack and the
- * list under it link to cross-cutting topics. Works as static HTML.
+ * A stacked-layer diagram for walking a stack bottom-up. Each band is a node
+ * that links to its section (or opens, when it has `detail`); zones are dashed
+ * group boxes; rails are bracket connectors beside the stack, replaced on
+ * phones by a list under it. Works as static HTML; `enhanceLayerStack` adds
+ * smooth scrolling to the sections.
  */
 declare function LayerStack(props: LayerStackProps): react.JSX.Element;
 
@@ -408,10 +428,24 @@ declare function LayerStack(props: LayerStackProps): react.JSX.Element;
  *   from screen readers until shown); a match expands the list;
  * - group labels stick under the header while their rows scroll past;
  * - a URL hash naming a filter input (e.g. `#ai-stack-layer-control`)
- *   selects it, so an article can link to a filtered view.
+ *   selects it, so an article can link to a filtered view;
+ * - the "Find a company" field appears: it matches names, tags and deals,
+ *   ignoring case and accents, shows matches whether featured or not, and
+ *   combines with the filters; Escape or its clear button resets it;
+ * - showing all rows or the featured subset is announced;
+ * - on fine pointers, the column under the pointer in the rows shows a faint
+ *   band and its header lights up (headers do this without script).
  *
  * Returns a cleanup function that removes every listener.
  */
 declare function enhanceSpanChart(root: HTMLElement): () => void;
+/**
+ * Optional enhancement for a rendered LayerStack. Without it every band and
+ * rail is a plain in-page link; with it, following one scrolls smoothly to the
+ * section (instantly under reduced motion, where the plain link is left
+ * alone), records the hash and moves focus there so Tab continues from the
+ * section. Returns a cleanup function.
+ */
+declare function enhanceLayerStack(root: HTMLElement): () => void;
 
-export { type ChartHeadingLevel, LAYER_STACK_LABELS, LayerStack, type LayerStackLabels, type LayerStackProps, DEFAULT_LABELS as SPAN_CHART_LABELS, SpanChart, type SpanChartLabels, type SpanChartModel, type SpanChartProps, type SpanFilter, type SpanItem, type SpanLayer, type SpanRun, type SpanStatus, type SpanStatusKind, type SpanThresholds, type SpanTier, type SpanZone, type StackBracket, type StackLayer, type StackRail, type StackZone, buildLayerStack, buildSpanModel, enhanceSpanChart, spanChartCss, spanThresholds };
+export { type ChartHeadingLevel, LAYER_STACK_LABELS, LayerStack, type LayerStackLabels, type LayerStackProps, DEFAULT_LABELS as SPAN_CHART_LABELS, SpanChart, type SpanChartLabels, type SpanChartModel, type SpanChartProps, type SpanFilter, type SpanItem, type SpanLayer, type SpanRun, type SpanStatus, type SpanStatusKind, type SpanThresholds, type SpanTier, type SpanZone, type StackBracket, type StackLayer, type StackRail, type StackZone, buildLayerStack, buildSpanModel, enhanceLayerStack, enhanceSpanChart, spanChartCss, spanThresholds };

@@ -101,22 +101,32 @@ export interface SpanChartLabels {
   main: string;
   /** Legend and screen-reader name for the other layers. */
   also: string;
-  /** Legend text beside a sample value label. */
+  /** Key: section labels (shown uppercase) and the two bar swatches. */
+  keyBars: string;
+  keyDeals: string;
+  keySize: string;
+  keyType: string;
+  keyMain: string;
+  keyAlso: string;
+  /** Key text beside a sample value label, e.g. "market cap or valuation". */
   valueLegend: string;
-  /** Legend text beside a sample tag, e.g. "model type". */
+  /** Key text beside a sample tag, e.g. "model type". */
   tagLegend: string;
-  /** Sample counterparty in the legend's badges. */
-  legendBuyer: string;
-  legendLicensee: string;
-  /** Legend text beside a sample of each badge kind. */
+  /** Key words inside each badge sample. */
   legendAcquired: string;
   legendPending: string;
   legendLicensed: string;
   legendShutdown: string;
-  /** Beside the size chips where the column headers carry names: how to filter by layer. */
+  /** In the column header's corner, where headers carry names: how to filter by layer. */
   layerHint: string;
   /** The same hint on touch screens. */
   layerHintTouch: string;
+  /** The search field (shown by enhanceSpanChart). */
+  find: string;
+  /** Empty search result, `{q}` = the query. */
+  noMatch: string;
+  /** Clears the search. */
+  clearSearch: string;
   /** Footer date line, `{date}`. */
   asOf: string;
   website: string;
@@ -145,16 +155,23 @@ export const DEFAULT_LABELS: SpanChartLabels = {
   empty: "Nothing matches these filters.",
   main: "Main layer",
   also: "Also in",
-  valueLegend: "size, largest first in each layer",
+  keyBars: "Bars",
+  keyDeals: "Deals",
+  keySize: "Size",
+  keyType: "Type",
+  keyMain: "Main",
+  keyAlso: "Also in",
+  valueLegend: "largest first",
   tagLegend: "tag",
-  legendBuyer: "Buyer",
-  legendLicensee: "Licensee",
   legendAcquired: "acquired",
-  legendPending: "sale pending",
-  legendLicensed: "technology licensed",
+  legendPending: "pending",
+  legendLicensed: "licensed",
   legendShutdown: "shut down",
-  layerHint: "Click a column to filter by layer",
-  layerHintTouch: "Tap a column to filter by layer",
+  layerHint: "Click a column to filter",
+  layerHintTouch: "Tap a column to filter",
+  find: "Find a company",
+  noMatch: "No company matches “{q}”",
+  clearSearch: "Clear",
   asOf: "As of {date}",
   website: "Website",
   source: "Source",
@@ -250,6 +267,10 @@ export interface SpanChartModel {
   total: number;
   featured: number;
   deals: number;
+  /** Rows per tier, in tier order. */
+  tierCounts: number[];
+  /** Rows that touch each layer, in column order. */
+  layerCounts: number[];
   hasToggle: boolean;
   initialAll: boolean;
   labels: SpanChartLabels;
@@ -362,9 +383,9 @@ export function fullLabelColumn(labels: string[], px = 12, gap = LABEL_GAP, trac
 export const NARROW_BELOW = 640;
 export const ROOMY_FROM = 1000;
 /** Name column below and from ROOMY_FROM. */
-export const NAME_WIDTH = [192, 220] as const;
+export const NAME_WIDTH = [216, 240] as const;
 /** Chart side padding below and from ROOMY_FROM. */
-export const SIDE_PADDING = [12, 24] as const;
+export const SIDE_PADDING = [0, 0] as const;
 /** Short labels need at least this much column. */
 const SHORT_MIN = 48;
 /** Least space between two neighbouring column labels. */
@@ -564,6 +585,8 @@ export function buildSpanModel(input: SpanChartInput): SpanChartModel {
     total: rows.length,
     featured,
     deals: rows.filter((r) => r.deal).length,
+    tierCounts: tiers.map((t) => rows.filter((r) => r.tier?.id === t.id).length),
+    layerCounts: layers.map((l) => rows.filter((r) => r.layerIds.includes(l.id)).length),
     hasToggle,
     initialAll: !hasToggle || input.initial === "all",
     labels,
@@ -634,8 +657,15 @@ export function spanChartCss(model: SpanChartModel) {
     rules.push(`${root}${on(input, "focus-visible")} [data-t=${value}]{--sp-focus:1}`);
     rules.push(`${root}${on(input)} .uipack-span__item:not([data-tier=${value}]),${root}${on(input)} .uipack-span__group:not([data-tiers~=${value}]){display:none}`);
   }
+  // Fine pointers: hovering a column header shows that column's band, fainter
+  // than the chosen layer's.
+  rules.push(
+    `@media (hover: hover) and (pointer: fine){${model.layers
+      .map((layer, k) => `${root}:has(.uipack-span__col[data-l=${cssString(layer.id)}]:hover){--sp-hover:${k};--sp-hover-on:block}`)
+      .join("")}}`,
+  );
   for (const { filter, key } of model.groupRules) rules.push(`${state(filter)} .uipack-span__group:not([data-k~=${cssString(key)}]){display:none}`);
-  for (const f of model.emptyStates) rules.push(`${state(f)} .uipack-span__empty{display:block}`);
+  for (const f of model.emptyStates) rules.push(`${state(f)} .uipack-span__empty{display:grid}`);
 
   // Layout: the name column, then label tiers, each from its computed width.
   const t = model.thresholds;
@@ -644,9 +674,13 @@ export function spanChartCss(model: SpanChartModel) {
     `@container uipack-span (max-width: ${t.stagger - 0.02}px){${root} .uipack-span__col:nth-child(odd){padding-bottom:22px}${root} .uipack-span__col>span{white-space:nowrap}}`,
     container(
       t.wide,
-      `${root} .uipack-span__form{--sp-name-col:var(--sp-name);--sp-wide:block;--sp-stacked:none;--sp-line-cols:var(--sp-name) minmax(0,1fr);--sp-label-grow:1;--sp-line-pad:0;--sp-line-min:44px;--sp-name-pad:4px 12px 4px 0;--sp-detail-pad:2px 8px 12px 56px;--sp-tick-top:19px;--sp-tick-bottom:auto}`,
+      `${root} .uipack-span__form{--sp-name-col:var(--sp-name);--sp-wide:block;--sp-stacked:none;--sp-line-cols:var(--sp-name) minmax(0,1fr);--sp-label-grow:1;--sp-line-pad:0;--sp-line-min:44px;--sp-name-pad:4px 12px 4px 0;--sp-detail-margin:0 8px 10px 56px;--sp-tick-top:16px;--sp-tick-bottom:auto;--sp-group-pad:6px;--sp-ccount:block}`,
     ),
-    container(t.short, `${root} .uipack-span__form{--sp-label-abbr:none;--sp-label-short:block;--sp-layer-chips:none;--sp-layer-hint:inline;--sp-all-ring:2px}`),
+    // Where headers carry words the key and toolbar sit open; with codes the
+    // drawer holds them, its layer chips doubling as the code key.
+    container(t.short, `${root} .uipack-span__form{--sp-label-abbr:none;--sp-label-short:block;--sp-open:flex;--sp-closed:none;--sp-all-ring:2px;--sp-hint-toolbar:block;--sp-find-max:280px}`),
+    // With the name column the hint sits in the header's corner instead.
+    container(t.wide, `${root} .uipack-span__form{--sp-hint-toolbar:none}`),
     container(t.full, `${root} .uipack-span__form{--sp-label-short:none;--sp-label-full:block}`),
     container(t.large, `${root} .uipack-span__form{--sp-label-size:12px}`),
   );

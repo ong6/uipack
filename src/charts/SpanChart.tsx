@@ -117,96 +117,119 @@ function Row({ row, labels }: { row: SpanRowModel; labels: SpanChartLabels }) {
   );
 }
 
-function Legend({ model }: { model: SpanChartModel }) {
+/** Template text with `{n}` set in mono: "Show all {n} companies" → "Show all <num>158</num> companies". */
+function withCount(template: string, n: number) {
+  const [before, after = ""] = template.split("{n}");
+  return template.includes("{n}") ? (
+    <>
+      {before}
+      <span className="uipack-span__num">{n}</span>
+      {after}
+    </>
+  ) : (
+    template
+  );
+}
+
+/**
+ * The key: one bordered strip of sections ("BARS", "DEALS", "SIZE", "TYPE"),
+ * each with samples in the chart's own marks. On phones the same sections sit
+ * in the drawer as a two-column grid.
+ */
+function Key({ model }: { model: SpanChartModel }) {
   const { labels, samples } = model;
+  const word = (kind: string) => labels[`legend${kind[0].toUpperCase()}${kind.slice(1)}` as "legendAcquired"];
   return (
-    <ul className="uipack-span__legend" role="list">
+    <ul className="uipack-span__key" role="list">
       <li>
-        <span className="uipack-span__swatch uipack-span__swatch--main" aria-hidden="true" />
-        {labels.main}
+        <span className="uipack-span__key-label">{labels.keyBars}</span>
+        <span className="uipack-span__key-item">
+          <span className="uipack-span__swatch uipack-span__swatch--main" aria-hidden="true" />
+          {labels.keyMain}
+        </span>
+        <span className="uipack-span__key-item">
+          <span className="uipack-span__swatch uipack-span__swatch--also" aria-hidden="true" />
+          {labels.keyAlso}
+        </span>
       </li>
-      <li>
-        <span className="uipack-span__swatch uipack-span__swatch--also" aria-hidden="true" />
-        {labels.also}
-      </li>
-      {samples.value ? (
+      {samples.badges.length ? (
         <li>
-          <em className="uipack-span__sample" aria-hidden="true">
-            {samples.value}
-          </em>
-          {labels.valueLegend}
+          <span className="uipack-span__key-label">{labels.keyDeals}</span>
+          {samples.badges.map((kind) => (
+            <span className="uipack-span__badge" data-kind={kind} key={kind}>
+              {kind === "shutdown" ? word(kind) : `${kind === "licensed" ? "↝" : "→"} ${word(kind)}`}
+            </span>
+          ))}
         </li>
       ) : null}
-      {samples.badges.map((kind) => (
-        <li key={kind}>
-          <span className="uipack-span__badge" data-kind={kind} aria-hidden="true">
-            {kind === "shutdown" ? "shut" : `${kind === "licensed" ? "↝" : "→"} ${kind === "licensed" ? labels.legendLicensee : labels.legendBuyer}`}
+      {samples.value ? (
+        <li>
+          <span className="uipack-span__key-label">{labels.keySize}</span>
+          <span className="uipack-span__key-item">
+            <em className="uipack-span__sample">{samples.value}</em>
+            {labels.valueLegend}
           </span>
-          {labels[`legend${kind[0].toUpperCase()}${kind.slice(1)}` as "legendAcquired"]}
         </li>
-      ))}
+      ) : null}
       {samples.tag ? (
         <li>
-          <span className="uipack-span__tag" aria-hidden="true">
-            {samples.tag}
+          <span className="uipack-span__key-label">{labels.keyType}</span>
+          <span className="uipack-span__key-item">
+            <span className="uipack-span__tag">{samples.tag}</span>
+            {labels.tagLegend}
           </span>
-          {labels.tagLegend}
         </li>
       ) : null}
     </ul>
   );
 }
 
-/** Chip rows: labels for the hidden inputs, so every copy stays in sync. Hidden from screen readers, which use the inputs. */
-function Filters({ model }: { model: SpanChartModel }) {
-  const { id, labels, layers, tiers } = model;
+/** The size filter as a segmented control: a SIZE cell, then "All", then each tier with its count. Labels for the hidden radios. */
+function SizeControl({ model }: { model: SpanChartModel }) {
+  const { id, labels, tiers } = model;
+  if (!tiers.length) return null;
   return (
-    <div className="uipack-span__filters" aria-hidden="true">
-      <div className="uipack-span__frow uipack-span__frow--layer">
-        <span className="uipack-span__flabel">{labels.layer}</span>
-        <span className="uipack-span__wrap">
-          <label htmlFor={inputId.layerAll(id)} className="uipack-span__chip uipack-span__chip--all" data-l="*">
-            {labels.allLayers}
-          </label>
-          {layers.map((layer) => (
-            <label htmlFor={inputId.layer(id, layer.id)} className="uipack-span__chip" data-l={layer.id} key={layer.id}>
-              <span className="uipack-span__code">{layer.abbr}</span>
-              {layer.short ?? layer.label}
-            </label>
-          ))}
-        </span>
-      </div>
-      {tiers.length || model.deals ? (
-        <div className="uipack-span__frow">
-          {tiers.length ? (
-            <>
-              <span className="uipack-span__flabel">{labels.size}</span>
-              <span className="uipack-span__wrap">
-                <label htmlFor={inputId.tierAll(id)} className="uipack-span__chip uipack-span__chip--all" data-t="*">
-                  {labels.allSizes}
-                </label>
-                {tiers.map((tier) => (
-                  <label htmlFor={inputId.tier(id, tier.id)} className="uipack-span__chip" data-t={tier.id} key={tier.id}>
-                    {tier.label}
-                    {tier.range ? <span className="uipack-span__range">{tier.range}</span> : null}
-                  </label>
-                ))}
-              </span>
-            </>
-          ) : null}
-          {model.deals ? (
-            <label htmlFor={inputId.deals(id)} className="uipack-span__chip uipack-span__chip--toggle" data-d="">
-              {labels.deals}
-              <span className="uipack-span__range">{model.deals}</span>
-            </label>
-          ) : null}
-        </div>
-      ) : null}
-      <p className="uipack-span__hint">
-        <span>{labels.layerHint}</span>
-        <span>{labels.layerHintTouch}</span>
-      </p>
-    </div>
+    <span className="uipack-span__seg" aria-hidden="true">
+      <span className="uipack-span__seg-label">{labels.size}</span>
+      <label htmlFor={inputId.tierAll(id)} className="uipack-span__chip uipack-span__chip--all" data-t="*">
+        {labels.allSizes}
+        <span className="uipack-span__num">{model.total}</span>
+      </label>
+      {tiers.map((tier, k) => (
+        <label htmlFor={inputId.tier(id, tier.id)} className="uipack-span__chip" data-t={tier.id} key={tier.id} title={tier.range}>
+          {tier.label}
+          <span className="uipack-span__num">{model.tierCounts[k]}</span>
+        </label>
+      ))}
+    </span>
+  );
+}
+
+function DealsToggle({ model }: { model: SpanChartModel }) {
+  return model.deals ? (
+    <label htmlFor={inputId.deals(model.id)} className="uipack-span__chip uipack-span__chip--toggle" data-d="" aria-hidden="true">
+      {model.labels.deals}
+      <span className="uipack-span__num">{model.deals}</span>
+    </label>
+  ) : null;
+}
+
+/** Layer chips for the drawer, where column headers show codes: each chip is also the code's key. */
+function LayerChips({ model }: { model: SpanChartModel }) {
+  const { id, labels, layers } = model;
+  return (
+    <span className="uipack-span__wrap" aria-hidden="true">
+      <span className="uipack-span__seg-label">{labels.layer}</span>
+      <label htmlFor={inputId.layerAll(id)} className="uipack-span__chip uipack-span__chip--all" data-l="*">
+        {labels.allLayers}
+      </label>
+      {layers.map((layer) => (
+        <label htmlFor={inputId.layer(id, layer.id)} className="uipack-span__chip" data-l={layer.id} key={layer.id}>
+          <span className="uipack-span__code">{layer.abbr}</span>
+          {layer.short ?? layer.label}
+        </label>
+      ))}
+    </span>
   );
 }
 
@@ -228,8 +251,8 @@ export function SpanChart(props: SpanChartProps) {
   const toggle = (where: string) =>
     model.hasToggle ? (
       <label htmlFor={inputId.expand(id)} className={`uipack-span__toggle uipack-span__toggle--${where}`}>
-        <span className="uipack-span__more">{fill(labels.showAll, { n: model.total })}</span>
-        <span className="uipack-span__less">{fill(labels.showFeatured, { n: model.featured })}</span>
+        <span className="uipack-span__more">{withCount(labels.showAll, model.total)}</span>
+        <span className="uipack-span__less">{withCount(labels.showFeatured, model.featured)}</span>
       </label>
     ) : null;
 
@@ -252,10 +275,24 @@ export function SpanChart(props: SpanChartProps) {
           ) : null}
           {props.caption ? <p className="uipack-span__caption">{props.caption}</p> : null}
 
+          {/* Open when the column headers carry words: the key strip, then the toolbar. */}
           <div className="uipack-span__panel">
-            <Legend model={model} />
-            <Filters model={model} />
+            <Key model={model} />
           </div>
+          <div className="uipack-span__toolbar">
+            <SizeControl model={model} />
+            <DealsToggle model={model} />
+            <p className="uipack-span__hint uipack-span__hint--toolbar" aria-hidden="true">
+              <span>{labels.layerHint}</span>
+              <span>{labels.layerHintTouch}</span>
+            </p>
+            {/* Shown by enhanceSpanChart; without script, find-in-page reaches every row. */}
+            <label className="uipack-span__find" hidden>
+              <span className="uipack-span__sr">{labels.find}</span>
+              <input type="search" placeholder={labels.find} autoComplete="off" spellCheck={false} data-span-search="" />
+            </label>
+          </div>
+          {/* With code headers (phones): the key and every filter fold into one closed disclosure. */}
           <details className="uipack-span__drawer">
             <summary>
               <span className="uipack-span__drawer-title">{labels.filtersAndKey}</span>
@@ -268,40 +305,41 @@ export function SpanChart(props: SpanChartProps) {
                 </span>
               ))}
               {tiers.length ? (
-                <span className="uipack-span__now-text uipack-span__now-text--then" data-t="*">
+                <span className="uipack-span__now-text" data-t="*">
                   {labels.allSizes}
                 </span>
               ) : null}
               {tiers.map((tier) => (
-                <span className="uipack-span__now-text uipack-span__now-text--then" data-t={tier.id} key={tier.id}>
+                <span className="uipack-span__now-text" data-t={tier.id} key={tier.id}>
                   {tier.label}
                 </span>
               ))}
               {model.deals ? (
-                <span className="uipack-span__now-text uipack-span__now-text--then" data-d="">
+                <span className="uipack-span__now-text" data-d="">
                   {labels.deals}
                 </span>
               ) : null}
             </summary>
-            <Legend model={model} />
-            <Filters model={model} />
+            <Key model={model} />
+            <div className="uipack-span__filters">
+              <LayerChips model={model} />
+              <span className="uipack-span__wrap">
+                <SizeControl model={model} />
+                <DealsToggle model={model} />
+              </span>
+            </div>
           </details>
           {/* Phones: enough key to read the bars without opening the drawer, and Deals in one tap. */}
           <p className="uipack-span__keyline">
             <span>
               <span className="uipack-span__swatch uipack-span__swatch--main" aria-hidden="true" />
-              {labels.main}
+              {labels.keyMain}
             </span>
             <span>
               <span className="uipack-span__swatch uipack-span__swatch--also" aria-hidden="true" />
-              {labels.also}
+              {labels.keyAlso}
             </span>
-            {model.deals ? (
-              <label htmlFor={inputId.deals(id)} className="uipack-span__chip uipack-span__chip--toggle" data-d="" aria-hidden="true">
-                {labels.deals}
-                <span className="uipack-span__range">{model.deals}</span>
-              </label>
-            ) : null}
+            <DealsToggle model={model} />
           </p>
         </div>
 
@@ -382,7 +420,13 @@ export function SpanChart(props: SpanChartProps) {
               </div>
             ) : null}
             <div className="uipack-span__cols" aria-hidden="true">
-              <span className="uipack-span__corner">{labels.company}</span>
+              <span className="uipack-span__corner">
+                <span className="uipack-span__hint">
+                  <span>{labels.layerHint}</span>
+                  <span>{labels.layerHintTouch}</span>
+                </span>
+                {labels.company}
+              </span>
               {layers.map((layer, k) => (
                 <label
                   htmlFor={inputId.layer(id, layer.id)}
@@ -396,6 +440,7 @@ export function SpanChart(props: SpanChartProps) {
                   <span className="uipack-span__abbr">{layer.abbr}</span>
                   <span className="uipack-span__short">{breakable(layer.short ?? layer.abbr)}</span>
                   <span className="uipack-span__full">{layer.label}</span>
+                  <span className="uipack-span__ccount">{model.layerCounts[k]}</span>
                 </label>
               ))}
             </div>
@@ -437,7 +482,7 @@ export function SpanChart(props: SpanChartProps) {
                       ) : null}
                       <span className="uipack-span__count uipack-span__count--total">{group.rows.length}</span>
                       <span className="uipack-span__count uipack-span__count--live" data-span-count="" />
-                      <span className="uipack-span__tick" aria-hidden="true" style={vars({ "--k": group.index })} />
+                      <span className="uipack-span__mark" aria-hidden="true" style={vars({ "--k": group.index })} />
                     </GroupHead>
                   ) : null}
                   <ul className="uipack-span__rows" role="list">
@@ -452,6 +497,12 @@ export function SpanChart(props: SpanChartProps) {
               <p>{labels.empty}</p>
               <button type="reset" className="uipack-span__clear">
                 {labels.clearFilters}
+              </button>
+            </div>
+            <div className="uipack-span__nomatch" hidden data-span-nomatch={labels.noMatch}>
+              <p />
+              <button type="button" className="uipack-span__clear" data-span-clear-search="">
+                {labels.clearSearch}
               </button>
             </div>
           </div>

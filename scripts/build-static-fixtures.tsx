@@ -22,7 +22,7 @@ const page = (title: string, body: string, head = `<style>${css}</style>`) => `<
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title}</title>
-<style>body{margin:0;padding:24px 16px;background:#f6f5f1;font-family:system-ui,sans-serif}main{max-width:896px;margin:0 auto;display:grid;gap:32px}</style>
+<style>body{margin:0;padding:24px 16px;background:#f6f5f1;font-family:system-ui,sans-serif}main{max-width:896px;margin:0 auto;display:grid;gap:32px;--uipack-bg:#f6f5f1}</style>
 ${head}
 </head>
 <body><main>${body}</main></body>
@@ -50,11 +50,25 @@ const stressItems = [
   { id: "pk", name: "Portkey", primary: "control", status: { kind: "acquired" as const, label: "Palo Alto Networks, 2026" }, valueLabel: "$117M", featured: true },
   { id: "arize", name: "Arize AI", primary: "evals", also: ["control"], status: { kind: "pending" as const, label: "Dynatrace, 2026" }, valueLabel: "$915M", featured: true },
   { id: "short", name: "Oklo", primary: "power", valueLabel: "$15B", featured: true },
-  { id: "plain", name: "Plain Co", primary: "data" },
+  { id: "plain", name: "Plain Co", primary: "data", status: { kind: "shutdown" as const, label: "2025" } },
+  { id: "nv", name: "Nvidia", primary: "chips", also: ["systems", "cloud"], valueLabel: "$5.5T", value: 5500, featured: true },
 ];
 writeFileSync(
   `${OUT}/span-chart-stress.html`,
-  page("SpanChart stress", renderToStaticMarkup(<SpanChart id="stress" headingLevel="none" layers={aiStackLayers} zones={aiStackZones} items={stressItems} />)),
+  page(
+    "SpanChart stress",
+    // The notes site's longest key words, so the key strip is measured at its widest.
+    renderToStaticMarkup(
+      <SpanChart
+        id="stress"
+        headingLevel="none"
+        layers={aiStackLayers}
+        zones={aiStackZones}
+        items={stressItems}
+        labels={{ tagLegend: "model type", valueLegend: "market cap or valuation" }}
+      />,
+    ),
+  ),
 );
 
 // A host article: prose rules like a blog's, loaded AFTER charts.css, so they

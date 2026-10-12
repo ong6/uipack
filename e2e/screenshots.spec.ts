@@ -93,10 +93,11 @@ for (const theme of ["light", "dark"] as const) {
       await page.locator(`${chart} [data-item="fireworks"] summary`).click();
       await shootElement(page, chart, `docs/span-chart-open-${w}-${theme}.png`);
 
-      const stack = "#ai-stack-layers";
-      await shootElement(page, stack, `docs/layer-stack-${w}-${theme}.png`);
-      await page.locator(`${stack} #ai-stack-layers-inference summary`).click();
-      await shootElement(page, stack, `docs/layer-stack-open-${w}-${theme}.png`);
+      await page.locator(`${chart} [data-item="fireworks"] summary`).click();
+      await page.locator(`${chart} input[type="search"]`).fill("nvidia");
+      await shootElement(page, chart, `docs/span-chart-search-${w}-${theme}.png`);
+
+      await shootElement(page, "#ai-stack-layers", `docs/layer-stack-${w}-${theme}.png`);
     });
   }
 }

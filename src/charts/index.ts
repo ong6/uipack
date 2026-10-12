@@ -10,7 +10,7 @@ export {
   type StackRail,
   type StackBracket,
 } from "./LayerStack";
-export { enhanceSpanChart } from "./enhance";
+export { enhanceSpanChart, enhanceLayerStack } from "./enhance";
 export {
   buildSpanModel,
   spanChartCss,

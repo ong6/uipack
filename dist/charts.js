@@ -16,16 +16,23 @@ var DEFAULT_LABELS = {
   empty: "Nothing matches these filters.",
   main: "Main layer",
   also: "Also in",
-  valueLegend: "size, largest first in each layer",
+  keyBars: "Bars",
+  keyDeals: "Deals",
+  keySize: "Size",
+  keyType: "Type",
+  keyMain: "Main",
+  keyAlso: "Also in",
+  valueLegend: "largest first",
   tagLegend: "tag",
-  legendBuyer: "Buyer",
-  legendLicensee: "Licensee",
   legendAcquired: "acquired",
-  legendPending: "sale pending",
-  legendLicensed: "technology licensed",
+  legendPending: "pending",
+  legendLicensed: "licensed",
   legendShutdown: "shut down",
-  layerHint: "Click a column to filter by layer",
-  layerHintTouch: "Tap a column to filter by layer",
+  layerHint: "Click a column to filter",
+  layerHintTouch: "Tap a column to filter",
+  find: "Find a company",
+  noMatch: "No company matches \u201C{q}\u201D",
+  clearSearch: "Clear",
   asOf: "As of {date}",
   website: "Website",
   source: "Source",
@@ -98,8 +105,8 @@ function fullLabelColumn(labels, px = 12, gap = LABEL_GAP, tracking = 0) {
 }
 var NARROW_BELOW = 640;
 var ROOMY_FROM = 1e3;
-var NAME_WIDTH = [192, 220];
-var SIDE_PADDING = [12, 24];
+var NAME_WIDTH = [216, 240];
+var SIDE_PADDING = [0, 0];
 var SHORT_MIN = 48;
 var LABEL_GAP = 8;
 var SHORT_TRACKING = -0.01;
@@ -258,6 +265,8 @@ function buildSpanModel(input) {
     total: rows.length,
     featured,
     deals: rows.filter((r) => r.deal).length,
+    tierCounts: tiers.map((t) => rows.filter((r) => r.tier?.id === t.id).length),
+    layerCounts: layers.map((l) => rows.filter((r) => r.layerIds.includes(l.id)).length),
     hasToggle,
     initialAll: !hasToggle || input.initial === "all",
     labels,
@@ -302,17 +311,24 @@ function spanChartCss(model) {
     rules.push(`${root}${on(input, "focus-visible")} [data-t=${value}]{--sp-focus:1}`);
     rules.push(`${root}${on(input)} .uipack-span__item:not([data-tier=${value}]),${root}${on(input)} .uipack-span__group:not([data-tiers~=${value}]){display:none}`);
   }
+  rules.push(
+    `@media (hover: hover) and (pointer: fine){${model.layers.map((layer, k) => `${root}:has(.uipack-span__col[data-l=${cssString(layer.id)}]:hover){--sp-hover:${k};--sp-hover-on:block}`).join("")}}`
+  );
   for (const { filter, key } of model.groupRules) rules.push(`${state(filter)} .uipack-span__group:not([data-k~=${cssString(key)}]){display:none}`);
-  for (const f of model.emptyStates) rules.push(`${state(f)} .uipack-span__empty{display:block}`);
+  for (const f of model.emptyStates) rules.push(`${state(f)} .uipack-span__empty{display:grid}`);
   const t = model.thresholds;
   const container = (w, body) => `@container uipack-span (min-width: ${w}px){${body}}`;
   rules.push(
     `@container uipack-span (max-width: ${t.stagger - 0.02}px){${root} .uipack-span__col:nth-child(odd){padding-bottom:22px}${root} .uipack-span__col>span{white-space:nowrap}}`,
     container(
       t.wide,
-      `${root} .uipack-span__form{--sp-name-col:var(--sp-name);--sp-wide:block;--sp-stacked:none;--sp-line-cols:var(--sp-name) minmax(0,1fr);--sp-label-grow:1;--sp-line-pad:0;--sp-line-min:44px;--sp-name-pad:4px 12px 4px 0;--sp-detail-pad:2px 8px 12px 56px;--sp-tick-top:19px;--sp-tick-bottom:auto}`
+      `${root} .uipack-span__form{--sp-name-col:var(--sp-name);--sp-wide:block;--sp-stacked:none;--sp-line-cols:var(--sp-name) minmax(0,1fr);--sp-label-grow:1;--sp-line-pad:0;--sp-line-min:44px;--sp-name-pad:4px 12px 4px 0;--sp-detail-margin:0 8px 10px 56px;--sp-tick-top:16px;--sp-tick-bottom:auto;--sp-group-pad:6px;--sp-ccount:block}`
     ),
-    container(t.short, `${root} .uipack-span__form{--sp-label-abbr:none;--sp-label-short:block;--sp-layer-chips:none;--sp-layer-hint:inline;--sp-all-ring:2px}`),
+    // Where headers carry words the key and toolbar sit open; with codes the
+    // drawer holds them, its layer chips doubling as the code key.
+    container(t.short, `${root} .uipack-span__form{--sp-label-abbr:none;--sp-label-short:block;--sp-open:flex;--sp-closed:none;--sp-all-ring:2px;--sp-hint-toolbar:block;--sp-find-max:280px}`),
+    // With the name column the hint sits in the header's corner instead.
+    container(t.wide, `${root} .uipack-span__form{--sp-hint-toolbar:none}`),
     container(t.full, `${root} .uipack-span__form{--sp-label-short:none;--sp-label-full:block}`),
     container(t.large, `${root} .uipack-span__form{--sp-label-size:12px}`)
   );
@@ -371,64 +387,79 @@ function Row({ row, labels }) {
     }
   );
 }
-function Legend({ model }) {
+function withCount(template, n) {
+  const [before, after = ""] = template.split("{n}");
+  return template.includes("{n}") ? /* @__PURE__ */ jsxs(Fragment, { children: [
+    before,
+    /* @__PURE__ */ jsx("span", { className: "uipack-span__num", children: n }),
+    after
+  ] }) : template;
+}
+function Key({ model }) {
   const { labels, samples } = model;
-  return /* @__PURE__ */ jsxs("ul", { className: "uipack-span__legend", role: "list", children: [
+  const word = (kind) => labels[`legend${kind[0].toUpperCase()}${kind.slice(1)}`];
+  return /* @__PURE__ */ jsxs("ul", { className: "uipack-span__key", role: "list", children: [
     /* @__PURE__ */ jsxs("li", { children: [
-      /* @__PURE__ */ jsx("span", { className: "uipack-span__swatch uipack-span__swatch--main", "aria-hidden": "true" }),
-      labels.main
+      /* @__PURE__ */ jsx("span", { className: "uipack-span__key-label", children: labels.keyBars }),
+      /* @__PURE__ */ jsxs("span", { className: "uipack-span__key-item", children: [
+        /* @__PURE__ */ jsx("span", { className: "uipack-span__swatch uipack-span__swatch--main", "aria-hidden": "true" }),
+        labels.keyMain
+      ] }),
+      /* @__PURE__ */ jsxs("span", { className: "uipack-span__key-item", children: [
+        /* @__PURE__ */ jsx("span", { className: "uipack-span__swatch uipack-span__swatch--also", "aria-hidden": "true" }),
+        labels.keyAlso
+      ] })
     ] }),
-    /* @__PURE__ */ jsxs("li", { children: [
-      /* @__PURE__ */ jsx("span", { className: "uipack-span__swatch uipack-span__swatch--also", "aria-hidden": "true" }),
-      labels.also
-    ] }),
-    samples.value ? /* @__PURE__ */ jsxs("li", { children: [
-      /* @__PURE__ */ jsx("em", { className: "uipack-span__sample", "aria-hidden": "true", children: samples.value }),
-      labels.valueLegend
+    samples.badges.length ? /* @__PURE__ */ jsxs("li", { children: [
+      /* @__PURE__ */ jsx("span", { className: "uipack-span__key-label", children: labels.keyDeals }),
+      samples.badges.map((kind) => /* @__PURE__ */ jsx("span", { className: "uipack-span__badge", "data-kind": kind, children: kind === "shutdown" ? word(kind) : `${kind === "licensed" ? "\u219D" : "\u2192"} ${word(kind)}` }, kind))
     ] }) : null,
-    samples.badges.map((kind) => /* @__PURE__ */ jsxs("li", { children: [
-      /* @__PURE__ */ jsx("span", { className: "uipack-span__badge", "data-kind": kind, "aria-hidden": "true", children: kind === "shutdown" ? "shut" : `${kind === "licensed" ? "\u219D" : "\u2192"} ${kind === "licensed" ? labels.legendLicensee : labels.legendBuyer}` }),
-      labels[`legend${kind[0].toUpperCase()}${kind.slice(1)}`]
-    ] }, kind)),
+    samples.value ? /* @__PURE__ */ jsxs("li", { children: [
+      /* @__PURE__ */ jsx("span", { className: "uipack-span__key-label", children: labels.keySize }),
+      /* @__PURE__ */ jsxs("span", { className: "uipack-span__key-item", children: [
+        /* @__PURE__ */ jsx("em", { className: "uipack-span__sample", children: samples.value }),
+        labels.valueLegend
+      ] })
+    ] }) : null,
     samples.tag ? /* @__PURE__ */ jsxs("li", { children: [
-      /* @__PURE__ */ jsx("span", { className: "uipack-span__tag", "aria-hidden": "true", children: samples.tag }),
-      labels.tagLegend
+      /* @__PURE__ */ jsx("span", { className: "uipack-span__key-label", children: labels.keyType }),
+      /* @__PURE__ */ jsxs("span", { className: "uipack-span__key-item", children: [
+        /* @__PURE__ */ jsx("span", { className: "uipack-span__tag", children: samples.tag }),
+        labels.tagLegend
+      ] })
     ] }) : null
   ] });
 }
-function Filters({ model }) {
-  const { id, labels, layers, tiers } = model;
-  return /* @__PURE__ */ jsxs("div", { className: "uipack-span__filters", "aria-hidden": "true", children: [
-    /* @__PURE__ */ jsxs("div", { className: "uipack-span__frow uipack-span__frow--layer", children: [
-      /* @__PURE__ */ jsx("span", { className: "uipack-span__flabel", children: labels.layer }),
-      /* @__PURE__ */ jsxs("span", { className: "uipack-span__wrap", children: [
-        /* @__PURE__ */ jsx("label", { htmlFor: inputId.layerAll(id), className: "uipack-span__chip uipack-span__chip--all", "data-l": "*", children: labels.allLayers }),
-        layers.map((layer) => /* @__PURE__ */ jsxs("label", { htmlFor: inputId.layer(id, layer.id), className: "uipack-span__chip", "data-l": layer.id, children: [
-          /* @__PURE__ */ jsx("span", { className: "uipack-span__code", children: layer.abbr }),
-          layer.short ?? layer.label
-        ] }, layer.id))
-      ] })
+function SizeControl({ model }) {
+  const { id, labels, tiers } = model;
+  if (!tiers.length) return null;
+  return /* @__PURE__ */ jsxs("span", { className: "uipack-span__seg", "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsx("span", { className: "uipack-span__seg-label", children: labels.size }),
+    /* @__PURE__ */ jsxs("label", { htmlFor: inputId.tierAll(id), className: "uipack-span__chip uipack-span__chip--all", "data-t": "*", children: [
+      labels.allSizes,
+      /* @__PURE__ */ jsx("span", { className: "uipack-span__num", children: model.total })
     ] }),
-    tiers.length || model.deals ? /* @__PURE__ */ jsxs("div", { className: "uipack-span__frow", children: [
-      tiers.length ? /* @__PURE__ */ jsxs(Fragment, { children: [
-        /* @__PURE__ */ jsx("span", { className: "uipack-span__flabel", children: labels.size }),
-        /* @__PURE__ */ jsxs("span", { className: "uipack-span__wrap", children: [
-          /* @__PURE__ */ jsx("label", { htmlFor: inputId.tierAll(id), className: "uipack-span__chip uipack-span__chip--all", "data-t": "*", children: labels.allSizes }),
-          tiers.map((tier) => /* @__PURE__ */ jsxs("label", { htmlFor: inputId.tier(id, tier.id), className: "uipack-span__chip", "data-t": tier.id, children: [
-            tier.label,
-            tier.range ? /* @__PURE__ */ jsx("span", { className: "uipack-span__range", children: tier.range }) : null
-          ] }, tier.id))
-        ] })
-      ] }) : null,
-      model.deals ? /* @__PURE__ */ jsxs("label", { htmlFor: inputId.deals(id), className: "uipack-span__chip uipack-span__chip--toggle", "data-d": "", children: [
-        labels.deals,
-        /* @__PURE__ */ jsx("span", { className: "uipack-span__range", children: model.deals })
-      ] }) : null
-    ] }) : null,
-    /* @__PURE__ */ jsxs("p", { className: "uipack-span__hint", children: [
-      /* @__PURE__ */ jsx("span", { children: labels.layerHint }),
-      /* @__PURE__ */ jsx("span", { children: labels.layerHintTouch })
-    ] })
+    tiers.map((tier, k) => /* @__PURE__ */ jsxs("label", { htmlFor: inputId.tier(id, tier.id), className: "uipack-span__chip", "data-t": tier.id, title: tier.range, children: [
+      tier.label,
+      /* @__PURE__ */ jsx("span", { className: "uipack-span__num", children: model.tierCounts[k] })
+    ] }, tier.id))
+  ] });
+}
+function DealsToggle({ model }) {
+  return model.deals ? /* @__PURE__ */ jsxs("label", { htmlFor: inputId.deals(model.id), className: "uipack-span__chip uipack-span__chip--toggle", "data-d": "", "aria-hidden": "true", children: [
+    model.labels.deals,
+    /* @__PURE__ */ jsx("span", { className: "uipack-span__num", children: model.deals })
+  ] }) : null;
+}
+function LayerChips({ model }) {
+  const { id, labels, layers } = model;
+  return /* @__PURE__ */ jsxs("span", { className: "uipack-span__wrap", "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsx("span", { className: "uipack-span__seg-label", children: labels.layer }),
+    /* @__PURE__ */ jsx("label", { htmlFor: inputId.layerAll(id), className: "uipack-span__chip uipack-span__chip--all", "data-l": "*", children: labels.allLayers }),
+    layers.map((layer) => /* @__PURE__ */ jsxs("label", { htmlFor: inputId.layer(id, layer.id), className: "uipack-span__chip", "data-l": layer.id, children: [
+      /* @__PURE__ */ jsx("span", { className: "uipack-span__code", children: layer.abbr }),
+      layer.short ?? layer.label
+    ] }, layer.id))
   ] });
 }
 function SpanChart(props) {
@@ -440,8 +471,8 @@ function SpanChart(props) {
   const GroupHead = plain ? "p" : `h${props.title ? Math.min(level + 1, 6) : level}`;
   const zoneStarts = new Set(model.zones.slice(1).map((z) => z.start));
   const toggle = (where) => model.hasToggle ? /* @__PURE__ */ jsxs("label", { htmlFor: inputId.expand(id), className: `uipack-span__toggle uipack-span__toggle--${where}`, children: [
-    /* @__PURE__ */ jsx("span", { className: "uipack-span__more", children: fill(labels.showAll, { n: model.total }) }),
-    /* @__PURE__ */ jsx("span", { className: "uipack-span__less", children: fill(labels.showFeatured, { n: model.featured }) })
+    /* @__PURE__ */ jsx("span", { className: "uipack-span__more", children: withCount(labels.showAll, model.total) }),
+    /* @__PURE__ */ jsx("span", { className: "uipack-span__less", children: withCount(labels.showFeatured, model.featured) })
   ] }) : null;
   return /* @__PURE__ */ jsxs(
     "section",
@@ -457,35 +488,47 @@ function SpanChart(props) {
           /* @__PURE__ */ jsxs("div", { className: "uipack-span__head", children: [
             props.title ? /* @__PURE__ */ jsx(Title, { className: "uipack-span__title", id: `${id}-title`, children: props.title }) : null,
             props.caption ? /* @__PURE__ */ jsx("p", { className: "uipack-span__caption", children: props.caption }) : null,
-            /* @__PURE__ */ jsxs("div", { className: "uipack-span__panel", children: [
-              /* @__PURE__ */ jsx(Legend, { model }),
-              /* @__PURE__ */ jsx(Filters, { model })
+            /* @__PURE__ */ jsx("div", { className: "uipack-span__panel", children: /* @__PURE__ */ jsx(Key, { model }) }),
+            /* @__PURE__ */ jsxs("div", { className: "uipack-span__toolbar", children: [
+              /* @__PURE__ */ jsx(SizeControl, { model }),
+              /* @__PURE__ */ jsx(DealsToggle, { model }),
+              /* @__PURE__ */ jsxs("p", { className: "uipack-span__hint uipack-span__hint--toolbar", "aria-hidden": "true", children: [
+                /* @__PURE__ */ jsx("span", { children: labels.layerHint }),
+                /* @__PURE__ */ jsx("span", { children: labels.layerHintTouch })
+              ] }),
+              /* @__PURE__ */ jsxs("label", { className: "uipack-span__find", hidden: true, children: [
+                /* @__PURE__ */ jsx("span", { className: "uipack-span__sr", children: labels.find }),
+                /* @__PURE__ */ jsx("input", { type: "search", placeholder: labels.find, autoComplete: "off", spellCheck: false, "data-span-search": "" })
+              ] })
             ] }),
             /* @__PURE__ */ jsxs("details", { className: "uipack-span__drawer", children: [
               /* @__PURE__ */ jsxs("summary", { children: [
                 /* @__PURE__ */ jsx("span", { className: "uipack-span__drawer-title", children: labels.filtersAndKey }),
                 /* @__PURE__ */ jsx("span", { className: "uipack-span__now-text", "data-l": "*", children: labels.allLayers }),
                 layers.map((layer) => /* @__PURE__ */ jsx("span", { className: "uipack-span__now-text", "data-l": layer.id, children: layer.short ?? layer.label }, layer.id)),
-                tiers.length ? /* @__PURE__ */ jsx("span", { className: "uipack-span__now-text uipack-span__now-text--then", "data-t": "*", children: labels.allSizes }) : null,
-                tiers.map((tier) => /* @__PURE__ */ jsx("span", { className: "uipack-span__now-text uipack-span__now-text--then", "data-t": tier.id, children: tier.label }, tier.id)),
-                model.deals ? /* @__PURE__ */ jsx("span", { className: "uipack-span__now-text uipack-span__now-text--then", "data-d": "", children: labels.deals }) : null
+                tiers.length ? /* @__PURE__ */ jsx("span", { className: "uipack-span__now-text", "data-t": "*", children: labels.allSizes }) : null,
+                tiers.map((tier) => /* @__PURE__ */ jsx("span", { className: "uipack-span__now-text", "data-t": tier.id, children: tier.label }, tier.id)),
+                model.deals ? /* @__PURE__ */ jsx("span", { className: "uipack-span__now-text", "data-d": "", children: labels.deals }) : null
               ] }),
-              /* @__PURE__ */ jsx(Legend, { model }),
-              /* @__PURE__ */ jsx(Filters, { model })
+              /* @__PURE__ */ jsx(Key, { model }),
+              /* @__PURE__ */ jsxs("div", { className: "uipack-span__filters", children: [
+                /* @__PURE__ */ jsx(LayerChips, { model }),
+                /* @__PURE__ */ jsxs("span", { className: "uipack-span__wrap", children: [
+                  /* @__PURE__ */ jsx(SizeControl, { model }),
+                  /* @__PURE__ */ jsx(DealsToggle, { model })
+                ] })
+              ] })
             ] }),
             /* @__PURE__ */ jsxs("p", { className: "uipack-span__keyline", children: [
               /* @__PURE__ */ jsxs("span", { children: [
                 /* @__PURE__ */ jsx("span", { className: "uipack-span__swatch uipack-span__swatch--main", "aria-hidden": "true" }),
-                labels.main
+                labels.keyMain
               ] }),
               /* @__PURE__ */ jsxs("span", { children: [
                 /* @__PURE__ */ jsx("span", { className: "uipack-span__swatch uipack-span__swatch--also", "aria-hidden": "true" }),
-                labels.also
+                labels.keyAlso
               ] }),
-              model.deals ? /* @__PURE__ */ jsxs("label", { htmlFor: inputId.deals(id), className: "uipack-span__chip uipack-span__chip--toggle", "data-d": "", "aria-hidden": "true", children: [
-                labels.deals,
-                /* @__PURE__ */ jsx("span", { className: "uipack-span__range", children: model.deals })
-              ] }) : null
+              /* @__PURE__ */ jsx(DealsToggle, { model })
             ] })
           ] }),
           /* @__PURE__ */ jsxs("div", { className: "uipack-span__chart", children: [
@@ -544,7 +587,13 @@ function SpanChart(props) {
               ] }),
               model.zones.length ? /* @__PURE__ */ jsx("div", { className: "uipack-span__zones", "aria-hidden": "true", children: model.zones.map(({ zone, start, end }) => /* @__PURE__ */ jsx("span", { "data-zone-start": zoneStarts.has(start) ? "" : void 0, style: { gridColumn: `${start + 2} / ${end + 3}` }, title: zone.label, children: /* @__PURE__ */ jsx("span", { children: zone.label }) }, zone.id)) }) : null,
               /* @__PURE__ */ jsxs("div", { className: "uipack-span__cols", "aria-hidden": "true", children: [
-                /* @__PURE__ */ jsx("span", { className: "uipack-span__corner", children: labels.company }),
+                /* @__PURE__ */ jsxs("span", { className: "uipack-span__corner", children: [
+                  /* @__PURE__ */ jsxs("span", { className: "uipack-span__hint", children: [
+                    /* @__PURE__ */ jsx("span", { children: labels.layerHint }),
+                    /* @__PURE__ */ jsx("span", { children: labels.layerHintTouch })
+                  ] }),
+                  labels.company
+                ] }),
                 layers.map((layer, k) => /* @__PURE__ */ jsxs(
                   "label",
                   {
@@ -557,7 +606,8 @@ function SpanChart(props) {
                     children: [
                       /* @__PURE__ */ jsx("span", { className: "uipack-span__abbr", children: layer.abbr }),
                       /* @__PURE__ */ jsx("span", { className: "uipack-span__short", children: breakable(layer.short ?? layer.abbr) }),
-                      /* @__PURE__ */ jsx("span", { className: "uipack-span__full", children: layer.label })
+                      /* @__PURE__ */ jsx("span", { className: "uipack-span__full", children: layer.label }),
+                      /* @__PURE__ */ jsx("span", { className: "uipack-span__ccount", children: model.layerCounts[k] })
                     ]
                   },
                   layer.id
@@ -594,7 +644,7 @@ function SpanChart(props) {
                         ] }) : null,
                         /* @__PURE__ */ jsx("span", { className: "uipack-span__count uipack-span__count--total", children: group.rows.length }),
                         /* @__PURE__ */ jsx("span", { className: "uipack-span__count uipack-span__count--live", "data-span-count": "" }),
-                        /* @__PURE__ */ jsx("span", { className: "uipack-span__tick", "aria-hidden": "true", style: vars({ "--k": group.index }) })
+                        /* @__PURE__ */ jsx("span", { className: "uipack-span__mark", "aria-hidden": "true", style: vars({ "--k": group.index }) })
                       ] }) : null,
                       /* @__PURE__ */ jsx("ul", { className: "uipack-span__rows", role: "list", children: group.rows.map((row) => /* @__PURE__ */ jsx(Row, { row, labels }, row.item.id)) })
                     ]
@@ -605,6 +655,10 @@ function SpanChart(props) {
               /* @__PURE__ */ jsxs("div", { className: "uipack-span__empty", children: [
                 /* @__PURE__ */ jsx("p", { children: labels.empty }),
                 /* @__PURE__ */ jsx("button", { type: "reset", className: "uipack-span__clear", children: labels.clearFilters })
+              ] }),
+              /* @__PURE__ */ jsxs("div", { className: "uipack-span__nomatch", hidden: true, "data-span-nomatch": labels.noMatch, children: [
+                /* @__PURE__ */ jsx("p", {}),
+                /* @__PURE__ */ jsx("button", { type: "button", className: "uipack-span__clear", "data-span-clear-search": "", children: labels.clearSearch })
               ] })
             ] }),
             /* @__PURE__ */ jsxs("div", { className: "uipack-span__foot", children: [
@@ -622,13 +676,13 @@ function SpanChart(props) {
 
 // src/charts/LayerStack.tsx
 import { Fragment as Fragment2, jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
-import { createElement } from "react";
 var LAYER_STACK_LABELS = {
   layer: "Layer",
   layers: "layers",
   layerOne: "layer",
   check: "Check yourself",
   read: "Read the section",
+  go: "Go to section",
   rails: "Across the stack"
 };
 var fail2 = (chart, message) => {
@@ -693,6 +747,7 @@ function buildLayerStack(props) {
         if (compact2) brackets.forEach((b, k) => b.hi === i && i !== g.end && at.set(`bracket:${k}`, r++));
         at.set(`layer:${i}`, r++);
       }
+      at.set(`end:${g.zone.id}`, r++);
     }
     return at;
   };
@@ -703,14 +758,16 @@ function buildLayerStack(props) {
     const top = map.get(`layer:${hi}`);
     return [top, map.get(`layer:${lo}`) - top + 1];
   };
-  const zoneCount = runs.length;
+  const box = (zone, map) => {
+    const top = map.get(`zone:${zone}`);
+    return [top, map.get(`end:${zone}`) - top + 1];
+  };
   const zonesTopDown = [...runs].reverse().map((g) => {
-    const k = runs.indexOf(g);
     return {
       ...g,
-      ramp: zoneCount === 1 ? 100 : Math.round(75 + 25 * k / (zoneCount - 1)),
-      alt: k % 2 === 0,
       place: one(`zone:${g.zone.id}`),
+      box: { wide: box(g.zone.id, wide), compact: box(g.zone.id, compact) },
+      endRow: one(`end:${g.zone.id}`),
       layers: layers.map((layer, i) => ({ layer, i, number: pad(i + 1), place: one(`layer:${i}`) })).filter(({ i }) => i >= g.start && i <= g.end).reverse(),
       brackets: brackets.map((b, k2) => ({ ...b, place: { wide: span(b.lo, b.hi, wide), compact: [compact.get(`bracket:${k2}`), 1] } })).filter((b) => b.hi >= g.start && b.hi <= g.end)
     };
@@ -731,6 +788,10 @@ function LayerStack(props) {
   const plain = level === "none" || level === false;
   const Title = plain ? "p" : `h${level}`;
   const Sub = plain ? "p" : `h${props.title ? Math.min(level + 1, 6) : level}`;
+  const go = /* @__PURE__ */ jsxs2("span", { className: "uipack-stack__go", "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsx2("span", { className: "uipack-stack__go-text", children: labels.go }),
+    " \u2193"
+  ] });
   return /* @__PURE__ */ jsxs2(
     "section",
     {
@@ -748,10 +809,10 @@ function LayerStack(props) {
         /* @__PURE__ */ jsxs2("div", { className: "uipack-stack__grid", children: [
           model.zones.map((g) => {
             const headId = `${id}-z-${g.zone.id}`;
-            const tone = { "--ls-ramp": `${g.ramp}%` };
             return /* @__PURE__ */ jsxs2("div", { className: "uipack-stack__zone", role: plain ? "group" : void 0, "aria-labelledby": plain ? headId : void 0, children: [
-              g.brackets.map(({ bracket, lo, hi, place: p }) => /* @__PURE__ */ jsxs2("p", { className: "uipack-stack__bracket", style: place(p), children: [
-                bracket.label,
+              /* @__PURE__ */ jsx2("span", { className: "uipack-stack__box", "aria-hidden": "true", style: place(g.box) }),
+              g.brackets.map(({ bracket, lo, hi, place: p }) => /* @__PURE__ */ jsxs2("p", { className: "uipack-stack__bracket", "data-inside": hi !== g.end ? "" : void 0, style: place(p), children: [
+                /* @__PURE__ */ jsx2("span", { children: bracket.label }),
                 /* @__PURE__ */ jsxs2("span", { className: "uipack-stack__sr", children: [
                   ", ",
                   labels.layers,
@@ -761,13 +822,12 @@ function LayerStack(props) {
                   hi + 1
                 ] })
               ] }, `${bracket.label}-${lo}`)),
-              /* @__PURE__ */ jsxs2(Sub, { className: "uipack-stack__zone-head", id: headId, "data-alt": g.alt ? "" : void 0, style: place(g.place, tone), children: [
+              /* @__PURE__ */ jsxs2(Sub, { className: "uipack-stack__zone-head", id: headId, style: place(g.place), children: [
                 /* @__PURE__ */ jsx2("span", { children: g.zone.label }),
                 g.zone.note ? /* @__PURE__ */ jsx2("span", { className: "uipack-stack__note", children: g.zone.note }) : null
               ] }),
               g.layers.map(({ layer, number, place: p }) => {
                 const face = /* @__PURE__ */ jsxs2(Fragment2, { children: [
-                  /* @__PURE__ */ jsx2("i", { "aria-hidden": "true" }),
                   /* @__PURE__ */ jsxs2("span", { className: "uipack-stack__index", children: [
                     /* @__PURE__ */ jsxs2("span", { className: "uipack-stack__sr", children: [
                       labels.layer,
@@ -775,10 +835,12 @@ function LayerStack(props) {
                     ] }),
                     number
                   ] }),
+                  " ",
                   /* @__PURE__ */ jsxs2("span", { className: "uipack-stack__text", children: [
-                    /* @__PURE__ */ jsx2("b", { children: layer.label }),
-                    /* @__PURE__ */ jsx2("span", { className: "uipack-stack__sr", children: ". " }),
-                    " ",
+                    /* @__PURE__ */ jsxs2("b", { children: [
+                      layer.label,
+                      /* @__PURE__ */ jsx2("span", { className: "uipack-stack__sr", children: ". " })
+                    ] }),
                     /* @__PURE__ */ jsx2("span", { className: "uipack-stack__summary", children: layer.summary })
                   ] }),
                   layer.metric ? /* @__PURE__ */ jsxs2("span", { className: "uipack-stack__metric", children: [
@@ -788,41 +850,53 @@ function LayerStack(props) {
                     /* @__PURE__ */ jsx2("span", { children: layer.metric.label })
                   ] }) : null
                 ] });
-                const attrs = {
-                  className: "uipack-stack__band",
-                  id: `${id}-${layer.id}`,
-                  "data-alt": g.alt ? "" : void 0,
-                  style: place(p, tone)
-                };
-                return layer.detail || layer.href ? /* @__PURE__ */ createElement("details", { ...attrs, key: layer.id }, /* @__PURE__ */ jsx2("summary", { className: "uipack-stack__face", children: face }), /* @__PURE__ */ jsxs2("div", { className: "uipack-stack__detail", children: [
-                  layer.detail ? /* @__PURE__ */ jsxs2("p", { children: [
-                    /* @__PURE__ */ jsx2("span", { className: "uipack-stack__check", children: labels.check }),
-                    " ",
-                    layer.detail
-                  ] }) : null,
-                  layer.href ? /* @__PURE__ */ jsxs2("a", { className: "uipack-stack__read", href: layer.href, children: [
-                    labels.read,
-                    " ",
-                    /* @__PURE__ */ jsx2("span", { "aria-hidden": "true", children: "\u2192" })
-                  ] }) : null
-                ] })) : /* @__PURE__ */ createElement("div", { ...attrs, key: layer.id }, /* @__PURE__ */ jsx2("div", { className: "uipack-stack__face", "data-static": "", children: face }));
-              })
+                const common = { id: `${id}-${layer.id}`, style: place(p) };
+                const name = `${labels.layer} ${number} ${layer.label}. ${layer.summary}${layer.metric ? `. ${layer.metric.value} ${layer.metric.label}` : ""}`;
+                if (layer.detail) {
+                  return /* @__PURE__ */ jsxs2("details", { className: "uipack-stack__band", ...common, children: [
+                    /* @__PURE__ */ jsxs2("summary", { className: "uipack-stack__face", "aria-label": name, children: [
+                      face,
+                      /* @__PURE__ */ jsx2("i", { "aria-hidden": "true" })
+                    ] }),
+                    /* @__PURE__ */ jsxs2("div", { className: "uipack-stack__detail", children: [
+                      /* @__PURE__ */ jsxs2("p", { children: [
+                        /* @__PURE__ */ jsx2("span", { className: "uipack-stack__check", children: labels.check }),
+                        " ",
+                        layer.detail
+                      ] }),
+                      layer.href ? /* @__PURE__ */ jsxs2("a", { className: "uipack-stack__read", href: layer.href, children: [
+                        labels.read,
+                        " ",
+                        /* @__PURE__ */ jsx2("span", { "aria-hidden": "true", children: "\u2193" })
+                      ] }) : null
+                    ] })
+                  ] }, layer.id);
+                }
+                return layer.href ? /* @__PURE__ */ jsxs2("a", { className: "uipack-stack__band uipack-stack__face", href: layer.href, "aria-label": name, ...common, children: [
+                  face,
+                  go
+                ] }, layer.id) : /* @__PURE__ */ jsx2("div", { className: "uipack-stack__band uipack-stack__face", ...common, children: face }, layer.id);
+              }),
+              /* @__PURE__ */ jsx2("span", { className: "uipack-stack__end", "aria-hidden": "true", style: place(g.endRow) })
             ] }, g.zone.id);
           }),
-          model.rails.map(({ rail, place: p }, k) => {
+          model.rails.map(({ rail, span, place: p }, k) => {
             const style = place(p, { "--cn": k + 2, "--cw": k + 3 });
-            return rail.href ? /* @__PURE__ */ jsx2("a", { className: "uipack-stack__rail", href: rail.href, style, "aria-hidden": "true", tabIndex: -1, children: /* @__PURE__ */ jsx2("span", { children: rail.short ?? rail.label }) }, rail.id) : /* @__PURE__ */ jsx2("span", { className: "uipack-stack__rail", style, "aria-hidden": "true", children: /* @__PURE__ */ jsx2("span", { children: rail.short ?? rail.label }) }, rail.id);
+            const name = `${rail.label}, ${span}`;
+            const label = /* @__PURE__ */ jsx2("span", { className: "uipack-stack__rail-label", children: rail.short ?? rail.label });
+            return rail.href ? /* @__PURE__ */ jsx2("a", { className: "uipack-stack__rail", href: rail.href, style, "aria-label": name, title: rail.summary, children: label }, rail.id) : /* @__PURE__ */ jsx2("span", { className: "uipack-stack__rail", style, role: "note", "aria-label": name, title: rail.summary, children: label }, rail.id);
           })
         ] }),
         model.rails.length ? /* @__PURE__ */ jsxs2("div", { className: "uipack-stack__across", children: [
           /* @__PURE__ */ jsx2(Sub, { className: "uipack-stack__across-head", id: `${id}-across`, children: labels.rails }),
-          /* @__PURE__ */ jsx2("ul", { role: "list", "aria-labelledby": `${id}-across`, children: model.rails.map(({ rail, span }) => /* @__PURE__ */ jsxs2("li", { children: [
-            /* @__PURE__ */ jsxs2("span", { className: "uipack-stack__across-name", children: [
-              rail.href ? /* @__PURE__ */ jsx2("a", { href: rail.href, children: rail.label }) : /* @__PURE__ */ jsx2("strong", { children: rail.label }),
-              /* @__PURE__ */ jsx2("span", { className: "uipack-stack__span", children: span })
-            ] }),
-            rail.summary ? /* @__PURE__ */ jsx2("span", { className: "uipack-stack__across-summary", children: rail.summary }) : null
-          ] }, rail.id)) })
+          /* @__PURE__ */ jsx2("ul", { role: "list", "aria-labelledby": `${id}-across`, children: model.rails.map(({ rail, span }) => {
+            const body = /* @__PURE__ */ jsxs2(Fragment2, { children: [
+              /* @__PURE__ */ jsx2("b", { children: rail.label }),
+              /* @__PURE__ */ jsx2("span", { className: "uipack-stack__span", children: span }),
+              rail.summary ? /* @__PURE__ */ jsx2("span", { className: "uipack-stack__across-summary", children: rail.summary }) : null
+            ] });
+            return /* @__PURE__ */ jsx2("li", { children: rail.href ? /* @__PURE__ */ jsx2("a", { className: "uipack-stack__node", href: rail.href, children: body }) : /* @__PURE__ */ jsx2("span", { className: "uipack-stack__node", children: body }) }, rail.id);
+          }) })
         ] }) : null
       ]
     }
@@ -849,10 +923,17 @@ function enhanceSpanChart(root) {
   const items = all(".uipack-span__item");
   const total = items.length;
   const findable = typeof root.onbeforematch !== "undefined";
+  const search = find("[data-span-search]");
+  const noMatch = find("[data-span-nomatch]");
+  const fold = (text) => text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+  const haystacks = items.map(
+    (el) => fold([el.querySelector(".uipack-span__nv > b"), ...el.querySelectorAll(".uipack-span__sub > *")].map((n) => n?.textContent ?? "").join(" "))
+  );
+  let query = "";
   const sync = () => {
     for (const g of groups) g.current = root.querySelector(`.${g.cls}:checked`)?.value ?? null;
   };
-  const filtered = () => groups.some((g) => g.current !== null) || Boolean(deals?.checked);
+  const filtered = () => groups.some((g) => g.current !== null) || Boolean(deals?.checked) || query !== "";
   const visible = (el) => !el.hidden && el.getClientRects().length > 0;
   const markFindable = () => {
     if (!findable) return;
@@ -869,8 +950,18 @@ function enhanceSpanChart(root) {
     for (const el of items) mark(el, collapsed && !el.hasAttribute("data-featured"));
     for (const el of all(".uipack-span__group")) mark(el, collapsed && !el.hasAttribute("data-featured"));
   };
+  const shownText = (n) => (form.getAttribute("data-shown") ?? "{n} of {total} shown").replace("{n}", String(n)).replace("{total}", String(total));
+  const applySearch = () => {
+    query = search ? fold(search.value.trim()) : "";
+    root.toggleAttribute("data-span-searching", query !== "");
+    items.forEach((el, i) => el.toggleAttribute("data-span-miss", query !== "" && !haystacks[i].includes(query)));
+    for (const g of all(".uipack-span__group")) {
+      g.toggleAttribute("data-span-miss", query !== "" && !g.querySelector(".uipack-span__item:not([data-span-miss])"));
+    }
+  };
   const update = (announce) => {
     markFindable();
+    if (noMatch) noMatch.hidden = true;
     if (!filtered()) {
       if (status) status.textContent = "";
       if (announce && live) live.textContent = groups.map((g) => g.all.getAttribute("aria-label") ?? "").join(", ");
@@ -881,9 +972,15 @@ function enhanceSpanChart(root) {
       if (count) count.textContent = String([...group.querySelectorAll(".uipack-span__item")].filter(visible).length);
     }
     const shown = items.filter(visible).length;
-    const text = (form.getAttribute("data-shown") ?? "{n} of {total} shown").replace("{n}", String(shown)).replace("{total}", String(total));
+    const text = shownText(shown);
     if (status) status.textContent = text;
     if (announce && live) live.textContent = text;
+    if (noMatch) {
+      const emptyShown = Boolean(find(".uipack-span__empty")?.getClientRects().length);
+      noMatch.hidden = !(query && shown === 0 && !emptyShown);
+      const p = noMatch.querySelector("p");
+      if (p && search) p.textContent = (noMatch.getAttribute("data-span-nomatch") ?? "").replace("{q}", search.value.trim());
+    }
   };
   const restore = () => {
     if (!win) return;
@@ -904,8 +1001,10 @@ function enhanceSpanChart(root) {
   };
   const onChange = (event) => {
     const input = event.target;
+    if (input === search) return;
     if (input === expand) {
       update(false);
+      if (live) live.textContent = shownText(expand.checked ? total : items.filter((el) => el.hasAttribute("data-featured")).length);
       if (!expand.checked) restore();
       return;
     }
@@ -919,6 +1018,7 @@ function enhanceSpanChart(root) {
   const onReset = () => {
     win?.setTimeout(() => {
       sync();
+      applySearch();
       update(true);
       restore();
       groups[0].all.focus({ preventScroll: true });
@@ -947,9 +1047,30 @@ function enhanceSpanChart(root) {
     engaged = root.contains(event.target);
   };
   const onDocKeyDown = (event) => {
+    if (event.key === "Escape" && search && event.target === search && search.value) {
+      event.preventDefault();
+      clearSearch(false);
+      return;
+    }
     if (event.key !== "Escape" || !(engaged || root.contains(event.target)) || !filtered()) return;
+    if (search?.value) clearSearch(false);
     for (const g of groups) if (g.current !== null) select(g.all);
     if (deals?.checked) select(deals, false);
+  };
+  const clearSearch = (focus) => {
+    if (!search) return;
+    search.value = "";
+    applySearch();
+    update(true);
+    if (focus) search.focus({ preventScroll: true });
+  };
+  const onSearch = () => {
+    applySearch();
+    update(true);
+  };
+  const onSubmit = (event) => event.preventDefault();
+  const onClearClick = (event) => {
+    if (event.target.closest?.("[data-span-clear-search]")) clearSearch(true);
   };
   const onBeforeMatch = () => {
     if (expand && !expand.checked) select(expand);
@@ -962,6 +1083,33 @@ function enhanceSpanChart(root) {
     else if (!target.checked) select(target);
     root.scrollIntoView({ block: "start" });
   };
+  const cols = all(".uipack-span__col");
+  const body = find(".uipack-span__body");
+  const fine = win?.matchMedia?.("(hover: hover) and (pointer: fine)");
+  let edges = [];
+  let hovered = -1;
+  const setHover = (k) => {
+    if (k === hovered) return;
+    cols[hovered]?.removeAttribute("data-span-hover");
+    hovered = k;
+    if (k < 0) {
+      root.style.removeProperty("--sp-hover");
+      root.style.removeProperty("--sp-hover-on");
+      return;
+    }
+    cols[k].setAttribute("data-span-hover", "");
+    root.style.setProperty("--sp-hover", String(k));
+    root.style.setProperty("--sp-hover-on", "block");
+  };
+  const onBodyMove = (event) => {
+    if (event.pointerType !== "mouse" || !fine?.matches) return;
+    if (!edges.length) edges = cols.map((c) => c.getBoundingClientRect());
+    setHover(edges.findIndex((r) => event.clientX >= r.left && event.clientX < r.right));
+  };
+  const onBodyLeave = () => {
+    edges = [];
+    setHover(-1);
+  };
   const header = find(".uipack-span__header");
   const measure = () => header && root.style.setProperty("--sp-head-h", `${header.offsetHeight}px`);
   const Observer = win && win.ResizeObserver;
@@ -969,6 +1117,13 @@ function enhanceSpanChart(root) {
   observer?.observe(header);
   measure();
   root.addEventListener("click", onClick);
+  root.addEventListener("click", onClearClick);
+  body?.addEventListener("pointermove", onBodyMove);
+  body?.addEventListener("pointerleave", onBodyLeave);
+  search?.addEventListener("input", onSearch);
+  form.addEventListener("submit", onSubmit);
+  const searchLabel = search?.closest("label");
+  if (searchLabel) searchLabel.hidden = false;
   root.addEventListener("change", onChange);
   root.addEventListener("keydown", onKeyDown);
   root.addEventListener("beforematch", onBeforeMatch);
@@ -984,6 +1139,16 @@ function enhanceSpanChart(root) {
   onHash();
   return () => {
     root.removeEventListener("click", onClick);
+    root.removeEventListener("click", onClearClick);
+    body?.removeEventListener("pointermove", onBodyMove);
+    body?.removeEventListener("pointerleave", onBodyLeave);
+    setHover(-1);
+    search?.removeEventListener("input", onSearch);
+    if (searchLabel) searchLabel.hidden = true;
+    if (search) search.value = "";
+    applySearch();
+    if (noMatch) noMatch.hidden = true;
+    form.removeEventListener("submit", onSubmit);
     root.removeEventListener("change", onChange);
     root.removeEventListener("keydown", onKeyDown);
     root.removeEventListener("beforematch", onBeforeMatch);
@@ -993,13 +1158,36 @@ function enhanceSpanChart(root) {
     win?.removeEventListener("hashchange", onHash);
     observer?.disconnect();
     root.style.removeProperty("--sp-head-h");
-    for (const el of root.querySelectorAll("[hidden]")) {
+    for (const el of [...items, ...all(".uipack-span__group")]) {
       el.removeAttribute("hidden");
       el.removeAttribute("aria-hidden");
     }
     root.removeAttribute("data-span-enhanced");
     root.removeAttribute("data-span-counting");
     root.removeAttribute("data-span-find");
+  };
+}
+function enhanceLayerStack(root) {
+  const doc = root.ownerDocument;
+  const win = doc.defaultView;
+  const onClick = (event) => {
+    if (!win || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link = event.target.closest?.('a[href^="#"]');
+    if (!link || !root.contains(link) || win.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    const hash = link.getAttribute("href");
+    const target = doc.getElementById(decodeURIComponent(hash.slice(1)));
+    if (!target) return;
+    event.preventDefault();
+    win.history.pushState(null, "", hash);
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (!target.matches("a[href], button, input, select, textarea, summary, [tabindex]")) target.setAttribute("tabindex", "-1");
+    target.focus({ preventScroll: true });
+  };
+  root.addEventListener("click", onClick);
+  root.setAttribute("data-stack-enhanced", "");
+  return () => {
+    root.removeEventListener("click", onClick);
+    root.removeAttribute("data-stack-enhanced");
   };
 }
 export {
@@ -1009,6 +1197,7 @@ export {
   SpanChart,
   buildLayerStack,
   buildSpanModel,
+  enhanceLayerStack,
   enhanceSpanChart,
   spanChartCss,
   spanThresholds

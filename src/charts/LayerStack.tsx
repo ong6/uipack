@@ -1,11 +1,13 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { ChartHeadingLevel } from "./SpanChart";
 
-/* LayerStack: a stacked-layer diagram. Layers are given bottom to top and
-   numbered that way (01 at the bottom), but drawn and read top-down, so the
-   eye, the Tab key and a screen reader meet them in the same order. Bands are
-   native <details>, rails and their list are links, and one CSS grid places
-   everything, so static HTML needs no JavaScript. */
+/* LayerStack: a stacked-layer diagram in the site's diagram language. Layers
+   are given bottom to top and numbered that way (01 at the bottom), but drawn
+   and read top-down, so the eye, the Tab key and a screen reader meet them in
+   the same order. Each band is a node that links to its section; zones are
+   dashed group boxes; rails are bracket connectors beside the stack that link
+   to cross-cutting topics. One CSS grid places everything, so static HTML
+   needs no JavaScript. */
 
 export interface StackZone {
   id: string;
@@ -21,10 +23,11 @@ export interface StackLayer {
   zone: string;
   /** One line: the constraint this layer lives under. */
   summary: string;
+  /** Optional figure at the band's right edge; nothing is drawn without it. */
   metric?: { value: string; label: string };
-  /** Shown when the band is opened, e.g. a self-test question. */
+  /** Optional: makes the band open to show this text (e.g. a self-test question) and a link to the section. */
   detail?: string;
-  /** The article section about this layer. */
+  /** The article section about this layer: the whole band links to it. */
   href?: string;
 }
 
@@ -32,7 +35,7 @@ export interface StackLayer {
 export interface StackRail {
   id: string;
   label: string;
-  /** A shorter label for the vertical bar beside the stack, e.g. "Gateways"; the list under the stack uses `label`. */
+  /** A shorter label for the bracket beside the stack, e.g. "Gateways"; screen readers and the phone list use `label`. */
   short?: string;
   /** Lowest layer id the rail covers. */
   from: string;
@@ -56,11 +59,13 @@ export interface LayerStackLabels {
   layers: string;
   /** Singular of `layers`, for a one-layer range. */
   layerOne: string;
-  /** Lead-in of the opened band's detail. */
+  /** Lead-in of an opened band's detail (only for layers with `detail`). */
   check: string;
-  /** Link to the band's section. */
+  /** Link to the section inside an opened band (only for layers with `detail`). */
   read: string;
-  /** Heading of the rail list under the stack. */
+  /** Right-aligned affordance on a linked band; phones show only the arrow. */
+  go: string;
+  /** Heading of the rail list that replaces the brackets on phones. */
   rails: string;
 }
 
@@ -70,6 +75,7 @@ export const LAYER_STACK_LABELS: LayerStackLabels = {
   layerOne: "layer",
   check: "Check yourself",
   read: "Read the section",
+  go: "Go to section",
   rails: "Across the stack",
 };
 
@@ -158,8 +164,9 @@ export function buildLayerStack(props: LayerStackProps) {
     return { bracket, lo, hi };
   });
 
-  // Rows, top to bottom. Compact rows put each bracket's label just above
-  // the zone heading of its top layer, or above that layer mid-zone.
+  // Rows, top to bottom: per zone a label row, its bands and an end row
+  // that pads the bottom of the zone's box. Compact rows put each bracket's
+  // label just above the zone of its top layer, or above that layer mid-zone.
   const rows = (compact: boolean) => {
     const at = new Map<string, number>();
     let r = 1;
@@ -170,6 +177,7 @@ export function buildLayerStack(props: LayerStackProps) {
         if (compact) brackets.forEach((b, k) => b.hi === i && i !== g.end && at.set(`bracket:${k}`, r++));
         at.set(`layer:${i}`, r++);
       }
+      at.set(`end:${g.zone.id}`, r++);
     }
     return at;
   };
@@ -181,16 +189,17 @@ export function buildLayerStack(props: LayerStackProps) {
     return [top, map.get(`layer:${lo}`)! - top + 1];
   };
 
-  // Top zone first. Edges ramp up the stack in the accent, 75% to 100% so
-  // every edge is at least 3:1 against its band; tints alternate.
-  const zoneCount = runs.length;
+  // Top zone first. The box runs from the label row to the end row.
+  const box = (zone: string, map: Map<string, number>): [number, number] => {
+    const top = map.get(`zone:${zone}`)!;
+    return [top, map.get(`end:${zone}`)! - top + 1];
+  };
   const zonesTopDown = [...runs].reverse().map((g) => {
-    const k = runs.indexOf(g);
     return {
       ...g,
-      ramp: zoneCount === 1 ? 100 : Math.round(75 + (25 * k) / (zoneCount - 1)),
-      alt: k % 2 === 0,
       place: one(`zone:${g.zone.id}`),
+      box: { wide: box(g.zone.id, wide), compact: box(g.zone.id, compact) } as Placed,
+      endRow: one(`end:${g.zone.id}`),
       layers: layers
         .map((layer, i) => ({ layer, i, number: pad(i + 1), place: one(`layer:${i}`) }))
         .filter(({ i }) => i >= g.start && i <= g.end)
@@ -214,9 +223,11 @@ const place = (p: Placed, extra: Record<string, string | number> = {}) =>
   ({ "--rw": `${p.wide[0]} / span ${p.wide[1]}`, "--rc": `${p.compact[0]} / span ${p.compact[1]}`, ...extra }) as CSSProperties;
 
 /**
- * A stacked-layer diagram for walking a stack bottom-up. Each band opens to
- * show its detail and a link to the section; rails beside the stack and the
- * list under it link to cross-cutting topics. Works as static HTML.
+ * A stacked-layer diagram for walking a stack bottom-up. Each band is a node
+ * that links to its section (or opens, when it has `detail`); zones are dashed
+ * group boxes; rails are bracket connectors beside the stack, replaced on
+ * phones by a list under it. Works as static HTML; `enhanceLayerStack` adds
+ * smooth scrolling to the sections.
  */
 export function LayerStack(props: LayerStackProps) {
   const model = buildLayerStack(props);
@@ -225,6 +236,11 @@ export function LayerStack(props: LayerStackProps) {
   const plain = level === "none" || level === false;
   const Title = plain ? "p" : (`h${level}` as "h3");
   const Sub = plain ? "p" : (`h${props.title ? Math.min(level + 1, 6) : level}` as "h4");
+  const go = (
+    <span className="uipack-stack__go" aria-hidden="true">
+      <span className="uipack-stack__go-text">{labels.go}</span> ↓
+    </span>
+  );
 
   return (
     <section
@@ -248,33 +264,35 @@ export function LayerStack(props: LayerStackProps) {
       <div className="uipack-stack__grid">
         {model.zones.map((g) => {
           const headId = `${id}-z-${g.zone.id}`;
-          const tone = { "--ls-ramp": `${g.ramp}%` };
           return (
             <div className="uipack-stack__zone" key={g.zone.id} role={plain ? "group" : undefined} aria-labelledby={plain ? headId : undefined}>
+              <span className="uipack-stack__box" aria-hidden="true" style={place(g.box)} />
               {g.brackets.map(({ bracket, lo, hi, place: p }) => (
-                <p className="uipack-stack__bracket" key={`${bracket.label}-${lo}`} style={place(p)}>
-                  {bracket.label}
+                <p className="uipack-stack__bracket" key={`${bracket.label}-${lo}`} data-inside={hi !== g.end ? "" : undefined} style={place(p)}>
+                  <span>{bracket.label}</span>
                   <span className="uipack-stack__sr">
                     {", "}
                     {labels.layers} {lo + 1}–{hi + 1}
                   </span>
                 </p>
               ))}
-              <Sub className="uipack-stack__zone-head" id={headId} data-alt={g.alt ? "" : undefined} style={place(g.place, tone)}>
+              <Sub className="uipack-stack__zone-head" id={headId} style={place(g.place)}>
                 <span>{g.zone.label}</span>
                 {g.zone.note ? <span className="uipack-stack__note">{g.zone.note}</span> : null}
               </Sub>
               {g.layers.map(({ layer, number, place: p }) => {
                 const face = (
                   <>
-                    <i aria-hidden="true" />
                     <span className="uipack-stack__index">
                       <span className="uipack-stack__sr">{labels.layer} </span>
                       {number}
-                    </span>
+                    </span>{" "}
                     <span className="uipack-stack__text">
-                      <b>{layer.label}</b>
-                      <span className="uipack-stack__sr">. </span> <span className="uipack-stack__summary">{layer.summary}</span>
+                      <b>
+                        {layer.label}
+                        <span className="uipack-stack__sr">. </span>
+                      </b>
+                      <span className="uipack-stack__summary">{layer.summary}</span>
                     </span>
                     {layer.metric ? (
                       <span className="uipack-stack__metric">
@@ -284,50 +302,58 @@ export function LayerStack(props: LayerStackProps) {
                     ) : null}
                   </>
                 );
-                const attrs = {
-                  className: "uipack-stack__band",
-                  id: `${id}-${layer.id}`,
-                  "data-alt": g.alt ? "" : undefined,
-                  style: place(p, tone),
-                };
-                return layer.detail || layer.href ? (
-                  <details {...attrs} key={layer.id}>
-                    <summary className="uipack-stack__face">{face}</summary>
-                    <div className="uipack-stack__detail">
-                      {layer.detail ? (
+                const common = { id: `${id}-${layer.id}`, style: place(p) };
+                // One sentence for screen readers: flex items would otherwise be read with stray spaces.
+                const name = `${labels.layer} ${number} ${layer.label}. ${layer.summary}${layer.metric ? `. ${layer.metric.value} ${layer.metric.label}` : ""}`;
+                if (layer.detail) {
+                  return (
+                    <details className="uipack-stack__band" key={layer.id} {...common}>
+                      <summary className="uipack-stack__face" aria-label={name}>
+                        {face}
+                        <i aria-hidden="true" />
+                      </summary>
+                      <div className="uipack-stack__detail">
                         <p>
                           <span className="uipack-stack__check">{labels.check}</span> {layer.detail}
                         </p>
-                      ) : null}
-                      {layer.href ? (
-                        <a className="uipack-stack__read" href={layer.href}>
-                          {labels.read} <span aria-hidden="true">→</span>
-                        </a>
-                      ) : null}
-                    </div>
-                  </details>
+                        {layer.href ? (
+                          <a className="uipack-stack__read" href={layer.href}>
+                            {labels.read} <span aria-hidden="true">↓</span>
+                          </a>
+                        ) : null}
+                      </div>
+                    </details>
+                  );
+                }
+                return layer.href ? (
+                  <a className="uipack-stack__band uipack-stack__face" href={layer.href} key={layer.id} aria-label={name} {...common}>
+                    {face}
+                    {go}
+                  </a>
                 ) : (
-                  <div {...attrs} key={layer.id}>
-                    <div className="uipack-stack__face" data-static="">
-                      {face}
-                    </div>
+                  <div className="uipack-stack__band uipack-stack__face" key={layer.id} {...common}>
+                    {face}
                   </div>
                 );
               })}
+              <span className="uipack-stack__end" aria-hidden="true" style={place(g.endRow)} />
             </div>
           );
         })}
-        {model.rails.map(({ rail, place: p }, k) => {
-          // The bars are a pointer shortcut; the list under the stack is the accessible route.
+        {model.rails.map(({ rail, span, place: p }, k) => {
+          // Bracket connectors, from 640px: a line over exactly the rail's
+          // bands with a square at each end and the short label at the top.
           // Rail columns: after the stack, or after the bracket column from 1000px.
           const style = place(p, { "--cn": k + 2, "--cw": k + 3 });
+          const name = `${rail.label}, ${span}`;
+          const label = <span className="uipack-stack__rail-label">{rail.short ?? rail.label}</span>;
           return rail.href ? (
-            <a className="uipack-stack__rail" href={rail.href} key={rail.id} style={style} aria-hidden="true" tabIndex={-1}>
-              <span>{rail.short ?? rail.label}</span>
+            <a className="uipack-stack__rail" href={rail.href} key={rail.id} style={style} aria-label={name} title={rail.summary}>
+              {label}
             </a>
           ) : (
-            <span className="uipack-stack__rail" key={rail.id} style={style} aria-hidden="true">
-              <span>{rail.short ?? rail.label}</span>
+            <span className="uipack-stack__rail" key={rail.id} style={style} role="note" aria-label={name} title={rail.summary}>
+              {label}
             </span>
           );
         })}
@@ -338,15 +364,26 @@ export function LayerStack(props: LayerStackProps) {
             {labels.rails}
           </Sub>
           <ul role="list" aria-labelledby={`${id}-across`}>
-            {model.rails.map(({ rail, span }) => (
-              <li key={rail.id}>
-                <span className="uipack-stack__across-name">
-                  {rail.href ? <a href={rail.href}>{rail.label}</a> : <strong>{rail.label}</strong>}
+            {model.rails.map(({ rail, span }) => {
+              const body = (
+                <>
+                  <b>{rail.label}</b>
                   <span className="uipack-stack__span">{span}</span>
-                </span>
-                {rail.summary ? <span className="uipack-stack__across-summary">{rail.summary}</span> : null}
-              </li>
-            ))}
+                  {rail.summary ? <span className="uipack-stack__across-summary">{rail.summary}</span> : null}
+                </>
+              );
+              return (
+                <li key={rail.id}>
+                  {rail.href ? (
+                    <a className="uipack-stack__node" href={rail.href}>
+                      {body}
+                    </a>
+                  ) : (
+                    <span className="uipack-stack__node">{body}</span>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       ) : null}

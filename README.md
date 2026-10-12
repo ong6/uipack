@@ -49,13 +49,13 @@ Separate entries, so a page loads only what it draws: `uipack` for parts, `uipac
 
 ## Charts
 
-`uipack/charts` holds two article figures made of HTML and CSS, with no JavaScript needed in the browser: render them with `renderToStaticMarkup` and ship `uipack/charts.css`.
+`uipack/charts` holds two article figures made of HTML and CSS, with no JavaScript needed in the browser: render them with `renderToStaticMarkup` and ship `uipack/charts.css`. Both use the site-diagram language: raised boxes with a 1.25px edge, tracked uppercase labels, dashed group boxes, and no outer frame.
 
 - **SpanChart** places companies on the layers of a stack.
   - Each row's bar covers the layers the company works in, solid where its main business sits. Rows are grouped by main layer into a staircase and sorted largest first.
-  - Readers filter by layer (a column heading or a chip), by size tier and by deals; the filters combine. They expand from the featured subset in place and open a row for its note and links.
+  - A one-row key strip explains bars, deals, size and type. Readers filter by layer (a column heading), by size (a segmented control with counts) and by deals; the filters combine. They expand from the featured subset in place and open a row for its note and links.
   - Column labels go from codes on phones to short words at a 56rem figure width to full labels on wide screens.
-- **LayerStack** walks a stack bottom-up, drawn top-down. Its bands open to a self-test question and a section link. Rails beside the stack and an "Across the stack" list cover the topics that span layers.
+- **LayerStack** walks a stack bottom-up, drawn top-down. Each band is a node that links to its section ("Go to section ↓"), inside a dashed zone box. Bracket rails beside the stack (an "Across the stack" list on phones) cover the topics that span layers.
 
 ```tsx
 import { renderToStaticMarkup } from "react-dom/server";
@@ -82,7 +82,11 @@ Every behaviour is native `<details>`, radios, a reset button and CSS `:has()`, 
 - live counts;
 - scroll restoration;
 - find-in-page for collapsed rows;
-- links to a filtered view.
+- links to a filtered view;
+- a "Find a company" search over names, tags and deals;
+- a column crosshair under a mouse pointer.
+
+`enhanceLayerStack(root)` makes the band links scroll smoothly (not under reduced motion).
 
 Colours follow the shared `--uipack-*` properties, light and dark. Bad data throws at render time, so a static build fails loudly. [SpanChart and LayerStack API, layouts and theming](docs/charts.md).
 
@@ -308,12 +312,12 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
 - The asset browser filters, searches, copies to the clipboard (Chromium only; Playwright cannot grant that in WebKit), and fits 390px with 44px targets.
 - Both themes render ten figures with no console errors.
 - Charts, in the playground's 896px host frame and at 720, 390 and 320:
-  - SpanChart shows short layer names at 896 and stacked rows at 720. It expands in place from the top or the foot, filters by column heading or chip (kept in sync) and combines layer, size and deals filters.
+  - SpanChart shows short layer names with counts at 896 and stacked rows at 720; its key strip is one row at 896 and 1088 with the notes site's longest words. It expands in place from the top or the foot, filters by column heading or chip (kept in sync), combines layer, size, deals and search, and shows a column band under the pointer.
   - It hides empty groups, clears from the empty state, opens rows with their links, honours repeat activation, Escape and hash links, and keeps collapsed rows findable in Chromium. The same flows work as static HTML with JavaScript off, including 160 rows.
   - A host article whose prose CSS loads after `charts.css` keeps every bar under its column.
   - After filtering from the stuck header deep in the list, or collapsing from the foot, the chart top and first result are on screen in Chromium and WebKit.
   - Stress rows (long names, long value labels, long buyer names) never crush a name or cut a badge, and column labels keep 8px apart in every label mode.
-  - LayerStack reads top-down with equal bands and rails spanning exactly their layers. It never truncates a constraint, keeps its zone edge on hover, and turns rails into a list on phones.
+  - LayerStack reads top-down with one-line linked bands at 896, dashed zone boxes, bracket rails spanning exactly their layers, no rotated text and no outer frame. It never truncates a constraint, marks hover and focus with an accent edge, and turns rails into a list of nodes on phones.
   - Labels stay at 11px or more with 44px touch targets and no overflow.
   - Unit tests pin grouping, sorting, runs, the breakpoints, the scoped rules, screen-reader sentences, validation, and the 3:1 and 4.5:1 contrast of the cell and badge colours on four palettes.
 - Live 3D stories retain one canvas across stops, support direct navigation and reduced motion, and provide a diagram fallback.

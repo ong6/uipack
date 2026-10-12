@@ -6,7 +6,7 @@ import { AssetBrowser } from "../src/browser";
 import manifest from "../assets/manifest.json";
 import "../src/browser/browser.css";
 import { useEffect, useRef } from "react";
-import { LayerStack, SpanChart, enhanceSpanChart } from "../src/charts";
+import { LayerStack, SpanChart, enhanceLayerStack, enhanceSpanChart } from "../src/charts";
 import { aiStack, aiStackDiagram } from "../examples/aiStack";
 import { figureEntries } from "./catalog";
 import "../src/charts/charts.css";
@@ -130,6 +130,20 @@ function SpanChartDemo() {
   );
 }
 
+// The stack's optional enhancement: band and rail links scroll smoothly.
+function LayerStackDemo() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const root = ref.current?.querySelector<HTMLElement>(".uipack-stack");
+    return root ? enhanceLayerStack(root) : undefined;
+  }, []);
+  return (
+    <div ref={ref}>
+      <LayerStack {...aiStackDiagram} />
+    </div>
+  );
+}
+
 const entry = (id: string) => figureEntries.find((e) => e.id === id)!;
 
 /* The charts are previewed in a frame at a host's real figure width (the notes
@@ -193,7 +207,7 @@ export function App() {
           <section data-catalog-entry="layer-stack" id="layer-stack">
             <h2>charts/{entry("layer-stack").title}</h2>
             <ChartFrame>
-              <LayerStack {...aiStackDiagram} />
+              <LayerStackDemo />
             </ChartFrame>
           </section>
           <section data-catalog-entry="span-chart" id="span-chart">
