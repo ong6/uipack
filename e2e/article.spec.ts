@@ -254,8 +254,11 @@ test.describe("Article parts: links, focus and hover", () => {
     await expect(card).toHaveClass("uipack-notecard");
     // The clamped description is still in the link's name.
     await expect(section.getByRole("link", { name: /Which one you care about decides what hardware to buy\./ })).toHaveCount(1);
+    // Clamped to three lines on screen (whether this text overflows depends on the
+    // platform's fonts, so check the clamp itself), while the full text stays in the DOM.
     const quant = section.locator('a.uipack-notecard[href$="quantization-what-it-costs"] .uipack-notecard__desc');
-    expect(await quant.evaluate((el) => el.scrollHeight > el.clientHeight + 1)).toBe(true);
+    expect(await quant.evaluate((el) => getComputedStyle(el).webkitLineClamp)).toBe("3");
+    expect(await quant.evaluate((el) => el.clientHeight <= 3 * parseFloat(getComputedStyle(el).lineHeight) + 1)).toBe(true);
     await expect(section.getByRole("link", { name: /need separate budgets\./ })).toHaveCount(1);
 
     await expect(section.getByRole("link", { name: "The PagedAttention paper arxiv.org" })).toHaveAttribute("href", "https://arxiv.org/abs/2309.06180");
