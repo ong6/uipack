@@ -35,17 +35,20 @@ The playground renders every part on `/article`, inside a 40rem prose column wit
 
 | Mark | Drawn as | Used by |
 | --- | --- | --- |
-| Node box | `--uipack-surface-raised` fill, 1.25px edge at 70% ink, `--uipack-radius` (6px) | NoteCard, Callout |
+| Node box | `--uipack-surface-raised` fill, 1.25px edge at 70% ink, `--uipack-radius` (6px). Reserved for links. | NoteCard |
 | Title | sans 600, 16px | NoteCard title, self-test question |
-| Sub-label | 13px at 75% ink | NoteCard description, cluster note |
-| Label | uppercase, 12px, letter-spacing 0.06em, 80% ink, `var(--uipack-label-font, var(--uipack-mono))` | every part |
+| Sub-label | 13px at 75% ink, sentence case | NoteCard description, cluster note, LayerHead metric label |
+| Label | uppercase, 12px, letter-spacing 0.06em, 80% ink, `var(--uipack-label-font, var(--uipack-mono))` | every part except the metric label |
+| Accent rule | 3px accent on the left, no fill, no other edge | Callout (self-test) |
+| Ink rule | 1.25px at 70% ink on the left, no fill | ChangeNote |
+| Inline list | 15px text, a centred `·` between items drawn in CSS | TermList |
 | Numbers | mono | dates, minutes, counts, index, metric value, domains |
 | Group | dashed 1.25px box at 50% ink, 10px radius, label inside at the top left | NoteCluster |
 | Planned | dashed edge | NoteCard `status="planned"` |
 | Marker | 8px square, 1.5px radius, accent | LayerHead index, self-test label |
 | Emphasis, hover, focus | accent edge and accent title; focus adds a 2px accent ring | NoteCard, links |
 
-Ink steps are `color-mix()` of `--uipack-fg` with transparent. Contrast, checked against the Technical palette and the notes site's in both themes: text at least 4.78:1 (accent title on the raised surface), node edges at least 6:1, the dashed group edge at least 3.2:1. The group edge is 50% ink rather than the SVG groups' 40% so it clears 3:1.
+Ink steps are `color-mix()` of `--uipack-fg` with transparent. Contrast, checked against the Technical palette and the notes site's in both themes: text at least 4.78:1 (accent title on the raised surface; ChangeNote's body at 85% ink is above 10:1), node edges at least 6:1, the self-test's accent rule at least 5.2:1, the dashed group edge at least 3.2:1. The group edge is 50% ink rather than the SVG groups' 40% so it clears 3:1.
 
 ## Theming and host setup
 
@@ -60,13 +63,15 @@ The parts read only `--uipack-*` custom properties, each with a Technical fallba
 | `--uipack-label-font` | uppercase labels (default mono; the notes site maps it to sans) |
 | `--uipack-radius` | node radius (6px) |
 | `--uipack-article-gap` | space above and below each block (1.5rem) |
+| `--uipack-article-step` | space between consecutive TermList, ChangeNote, Callout and LinkList (0.9rem) |
 | `--uipack-article-wide` | width of a wide cluster (min(56rem, 100vw − 2.5rem)) |
 
 A host maps its palette on any ancestor of the parts. The notes site does this in its `.fig-html` block for charts; the article parts need the same mapping on the article (for example on `.prose`), or the parts fall back to the Technical palette.
 
-Two rules reach outside a part, on purpose:
+Three rules reach outside a part, on purpose:
 
 - `.uipack-layerhead + h1…h6` sets the heading's top margin to 4px, so the strip sits on its heading.
+- TermList, ChangeNote, Callout and LinkList that follow each other read as one block: `--uipack-article-step` (0.9rem) apart, with the full `--uipack-article-gap` (1.5rem) above the first and below the last. This uses `:has()`; a browser without it keeps 1.5rem between them.
 - `.uipack-cluster--wide` sets its own width and a negative left margin, centring it on the text column, like the notes site's `.fig-media`.
 
 Host prose rules (`.prose p`, `.prose ul`, `.prose li`, `.prose a`) do not reach the parts' own elements, whichever stylesheet loads last: every rule names two classes. Content passed in as children (links, emphasis, code in a Callout, ChangeNote or LinkList body) keeps the host's styling. ChangeNote's body also keeps the host's prose font.
@@ -182,7 +187,7 @@ Props: `label`, `note?`, `notes?: NoteCardProps[]` or NoteCard `children`, `coun
 | `uipack-layerhead__zone` | `span` | Label style. |
 | `uipack-layerhead__metric` | `p` | Optional. |
 | `uipack-layerhead__value` | `span` | Mono 600. |
-| `uipack-layerhead__label` | `span` | Label style. |
+| `uipack-layerhead__label` | `span` | Sentence case, 13px sans at 75% ink, not tracked, so units keep their case ("32k", "TB/s"). |
 | `uipack-layerhead__map` | `a[href]` | Text "Map"; CSS draws the "↑" (not underlined, not read). 44px target. |
 
 Props: `index` (a number is padded: 8 → "08"), `zone?`, `metric?: { value, label? }`, `mapHref?`, `mapLabel?` ("Map"), `indexLabel?` ("Layer"), `id?`, `className?`.
@@ -203,8 +208,8 @@ Props: `index` (a number is padded: 8 → "08"), `zone?`, `metric?: { value, lab
 | --- | --- | --- |
 | `uipack-terms` | `div` (required) | |
 | `uipack-terms__label` | `p` (required) | Label style. |
-| `uipack-terms__list` | `ul[role="list"]` (required) | Wrapping row, 6px gaps. |
-| `uipack-terms__term` | `li` (required) | Square tag: 2px radius, 1px hairline edge, 14px sans. Not a link. |
+| `uipack-terms__list` | `ul[role="list"]` (required) | A plain inline list, 15px sans, not chips. |
+| `uipack-terms__term` | `li` (required) | Inline text, no border or fill. Every term after the first gets a centred `·` from CSS (not read aloud); no space touches the dot, so it never starts or ends a line, and lines break inside terms. Not a link. |
 
 Props: `terms`, `label?` ("Learn"), `id?`, `className?`.
 
@@ -219,9 +224,9 @@ Props: `terms`, `label?` ("Learn"), `id?`, `className?`.
 
 | Class | Element | Notes |
 | --- | --- | --- |
-| `uipack-callout` | `div` (required) | Node box. |
-| `uipack-callout--selftest` | modifier | Square marker before the label; the body is set like a node title (sans 600, 16px), a question to answer before moving on. |
-| `uipack-callout--note` | modifier | Generic aside: no marker, body 15px regular. |
+| `uipack-callout` | `div` (required) | Not a box (the filled node box means a link): no fill, no edge but a 3px rule on the left. |
+| `uipack-callout--selftest` | modifier | Accent rule, square marker before the label; the body is set like a node title (sans 600, 16px), a question to answer before moving on. |
+| `uipack-callout--note` | modifier | Generic aside: a 3px rule at 50% ink, no marker, body 15px regular. |
 | `uipack-callout__label` | `p` (required) | "Self-test" or "Note", label style. |
 | `uipack-callout__body` | `div` (required) | Inline children; host link and code styles apply. |
 
@@ -238,10 +243,10 @@ Props: `kind?: "selftest" | "note"` (default selftest), `label?`, `children`, `i
 
 | Class | Element | Notes |
 | --- | --- | --- |
-| `uipack-change` | `div` (required) | Quieter than a Callout: no fill, a 1.25px rule at 70% ink on the left. |
+| `uipack-change` | `div` (required) | Quieter than a Callout: no fill, a 1.25px rule at 70% ink on the left. The weight and the colour of the rule tell it from a self-test's 3px accent rule. |
 | `uipack-change__label` | `p` (required) | Label style. |
 | `uipack-change__kicker` | `span` | Mono, not uppercase, 75% ink. |
-| `uipack-change__body` | `div` (required) | The host's prose type and links. |
+| `uipack-change__body` | `div` (required) | The host's prose font at 0.94em, ink at 85%; links keep the host's colour. |
 
 Props: `label?` ("What changed"), `kicker?`, `children`, `id?`, `className?`.
 
@@ -274,6 +279,15 @@ Props: `label?` ("What changed"), `kicker?`, `children`, `id?`, `className?`.
 | `uipack-links__body` | `div` | Inline children: after the rows, or instead of them when links cannot be split out. |
 
 Props: `label?` ("Go deeper"), `links?: { href, title, domain?: string | false }[]`, `children?`, `id?`, `className?`. A list with neither links nor children throws.
+
+## Section rhythm
+
+Measured on the Inference section of the static notes-layout fixture (`scripts/build-article-fixtures.tsx`), in Chromium, from the top of its LayerHead to the top of the next one. The Learn row became text, the self-test lost its box, and consecutive parts moved to 0.9rem apart:
+
+| Viewport | Section before | Section after | TermList to LinkList before | after |
+| --- | --- | --- | --- | --- |
+| 1440 (664px column) | 1674.2px | 1555.5px | 649.8px | 531.1px |
+| 390 (350px column) | 2673.6px | 2493.5px | 978.9px | 797.7px |
 
 ## Helpers
 

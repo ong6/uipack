@@ -133,7 +133,8 @@ function audit() {
   const edgeSamples = [
     { name: "notecard edge", el: document.querySelector("a.uipack-notecard"), side: "Top" as const },
     { name: "planned edge", el: document.querySelector(".uipack-notecard--planned"), side: "Top" as const },
-    { name: "callout edge", el: document.querySelector(".uipack-callout"), side: "Top" as const },
+    { name: "self-test rule", el: document.querySelector(".uipack-callout--selftest"), side: "Left" as const },
+    { name: "note rule", el: document.querySelector(".uipack-callout--note"), side: "Left" as const },
     { name: "cluster edge", el: document.querySelector(".uipack-cluster"), side: "Top" as const },
     { name: "change rule", el: document.querySelector(".uipack-change"), side: "Left" as const },
   ].flatMap(({ name, el, side }) => (el ? [{ name, ratio: edgeContrast(el, side) }] : []));
@@ -398,6 +399,97 @@ test.describe("Article parts as static HTML in the notes site, JavaScript off", 
         await close();
       });
     }
+  }
+
+  for (const width of [1440, 390]) {
+    test(`${width}px: only links are boxes, and the labelled parts read as one block`, async ({ browser }) => {
+      for (const theme of THEMES) {
+        const { page, close } = await open(browser, width, "/e2e-static/article-notes.html", { javaScriptEnabled: false, colorScheme: theme });
+        const accent = theme === "light" ? "rgb(15, 122, 85)" : "rgb(25, 158, 112)";
+        const style = (sel: string, pseudo?: string) =>
+          page.locator(sel).first().evaluate((el, p) => {
+            const s = getComputedStyle(el, p);
+            return {
+              bg: s.backgroundColor,
+              top: s.borderTopWidth,
+              right: s.borderRightWidth,
+              bottom: s.borderBottomWidth,
+              left: s.borderLeftWidth,
+              leftColor: s.borderLeftColor,
+              display: s.display,
+              font: `${s.fontWeight} ${s.fontSize}`,
+              family: s.fontFamily,
+              transform: s.textTransform,
+              tracking: s.letterSpacing,
+              content: s.content,
+              color: s.color,
+            };
+          }, pseudo);
+
+        // Learn: plain inline text at 15px, a centred dot between terms, no chips.
+        const term = await style(".uipack-terms__term");
+        expect(term.display).toBe("inline");
+        expect(term.font).toBe("400 15px");
+        expect([term.top, term.left, term.bg]).toEqual(["0px", "0px", "rgba(0, 0, 0, 0)"]);
+        expect((await style(".uipack-terms__term", "::before")).content).toBe("none");
+        expect((await style(".uipack-terms__term + .uipack-terms__term", "::before")).content).toMatch(/^"·"/);
+
+        // Self-test: no fill, no box, a 3px accent rule, the marker label, the question at sans 600 16px.
+        const callout = await style(".uipack-callout--selftest");
+        expect(callout.bg).toBe("rgba(0, 0, 0, 0)");
+        expect([callout.top, callout.right, callout.bottom]).toEqual(["0px", "0px", "0px"]);
+        expect(callout.left).toBe("3px");
+        expect(callout.leftColor).toBe(accent);
+        expect((await style(".uipack-callout--selftest .uipack-callout__label", "::before")).bg).toBe(accent);
+        const question = await style(".uipack-callout--selftest .uipack-callout__body");
+        expect(question.font).toBe("600 16px");
+        expect(question.family).toMatch(/^ui-sans-serif/);
+
+        // What changed: a thinner ink rule (not the accent), and a quieter body: 0.94em at 85% ink.
+        const change = await style(".uipack-change");
+        expect(parseFloat(change.left)).toBeLessThan(2);
+        expect(change.leftColor).not.toBe(accent);
+        expect(change.bg).toBe("rgba(0, 0, 0, 0)");
+        const host = parseFloat(await page.locator(".prose > p").first().evaluate((el) => getComputedStyle(el).fontSize));
+        const body = await style(".uipack-change__body");
+        expect(parseFloat(body.font.split(" ")[1])).toBeCloseTo(host * 0.94, 1);
+        expect(body.color).toMatch(/ \/ 0\.85\)$|, 0\.85\)$/);
+
+        // The strip: the zone stays an uppercase label, the metric label is sentence case.
+        const zone = await style(".uipack-layerhead__zone");
+        expect(zone.transform).toBe("uppercase");
+        const label = await style(".uipack-layerhead__label");
+        expect(label.transform).toBe("none");
+        expect(label.font).toBe("400 13px");
+        expect(["normal", "0px"]).toContain(label.tracking);
+
+        // Only cards (links) keep the filled node box.
+        const filled = await page.evaluate(() =>
+          [...document.querySelectorAll(".uipack-terms, .uipack-terms *, .uipack-callout, .uipack-callout *, .uipack-change, .uipack-links, .uipack-layerhead")].filter(
+            (el) => getComputedStyle(el).backgroundColor !== "rgba(0, 0, 0, 0)",
+          ).length,
+        );
+        expect(filled).toBe(0);
+
+        // Rhythm: 0.9rem between consecutive parts, 1.5rem above the first and below the last.
+        const gaps = await page.evaluate(() => {
+          const terms = document.querySelector(".uipack-terms")!;
+          const run = [terms, terms.nextElementSibling!, terms.nextElementSibling!.nextElementSibling!, terms.nextElementSibling!.nextElementSibling!.nextElementSibling!];
+          const box = (el: Element) => el.getBoundingClientRect();
+          return {
+            names: run.map((el) => el.classList[0]),
+            between: run.slice(1).map((el, i) => box(el).top - box(run[i]).bottom),
+            before: box(terms).top - box(terms.previousElementSibling!).bottom,
+            after: box(run[3].nextElementSibling!).top - box(run[3]).bottom,
+          };
+        });
+        expect(gaps.names).toEqual(["uipack-terms", "uipack-change", "uipack-callout", "uipack-links"]);
+        for (const gap of gaps.between) expect(gap).toBeCloseTo(14.4, 0);
+        expect(gaps.before).toBeCloseTo(24, 0);
+        expect(gaps.after).toBeCloseTo(24, 0);
+        await close();
+      }
+    });
   }
 
   test("links are plain anchors and the static page needs no script", async ({ page }) => {

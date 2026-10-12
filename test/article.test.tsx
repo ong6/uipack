@@ -361,6 +361,7 @@ describe("class contract", () => {
     expect(used).toEqual([
       "--uipack-accent",
       "--uipack-article-gap",
+      "--uipack-article-step",
       "--uipack-article-wide",
       "--uipack-fg",
       "--uipack-label-font",
@@ -373,6 +374,45 @@ describe("class contract", () => {
     // Colours are tokens: the only literals are the Technical fallbacks inside var().
     const literals = css.replace(/var\(--uipack-[\w-]+, #[0-9a-f]{6}\)/g, "").match(/#[0-9a-f]{3,8}\b/gi);
     expect(literals).toBeNull();
+  });
+});
+
+describe("the stylesheet keeps boxes for links", () => {
+  const css = readFileSync("src/article/article.css", "utf8");
+  const rule = (selector: string) => {
+    const at = css.indexOf(`${selector} {`);
+    expect(at, selector).toBeGreaterThan(-1);
+    return css.slice(at, css.indexOf("}", at));
+  };
+
+  it("draws terms as plain inline text with a CSS dot that is not read aloud", () => {
+    const term = rule(".uipack-terms .uipack-terms__term");
+    expect(term).toMatch(/display: inline;/);
+    expect(term).not.toMatch(/border|background|padding/);
+    expect(rule(".uipack-terms .uipack-terms__term + .uipack-terms__term::before")).toMatch(/content: "·" \/ "";/);
+    expect(rule(".uipack-terms.uipack-terms")).toMatch(/font: 400 15px/);
+  });
+
+  it("gives a self-test a 3px accent rule and no box, unlike ChangeNote's 1.25px ink rule", () => {
+    const callout = rule(".uipack-callout.uipack-callout");
+    expect(callout).toMatch(/background: none;/);
+    expect(callout).toMatch(/border: 0;/);
+    expect(callout).toMatch(/border-left: 3px solid var\(--ua-accent\);/);
+    expect(callout).not.toMatch(/--ua-raised|--ua-edge/);
+    expect(rule(".uipack-change.uipack-change")).toMatch(/border-left: 1\.25px solid var\(--ua-edge\);/);
+    expect(rule(".uipack-change .uipack-change__body")).toMatch(/font-size: 0\.94em;[\s\S]*85%/);
+    // Only the cards, which are links, keep the filled node box.
+    expect(css.match(/background: var\(--ua-raised\)/g)).toHaveLength(1);
+  });
+
+  it("sets the metric label in sentence case and keeps the zone uppercase", () => {
+    const label = rule(".uipack-layerhead .uipack-layerhead__label");
+    expect(label).toMatch(/text-transform: none;/);
+    expect(label).toMatch(/letter-spacing: 0;/);
+    expect(label).toMatch(/13px/);
+    const upper = css.slice(css.indexOf("/* Uppercase labels"), css.indexOf("/* 8px square markers"));
+    expect(upper).toContain(".uipack-layerhead .uipack-layerhead__zone");
+    expect(upper).not.toContain("uipack-layerhead__label");
   });
 });
 

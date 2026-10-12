@@ -23,15 +23,17 @@
   /* Uppercase labels: mono by default, like the diagrams; a host may map them to sans. */
   --ua-label-font: var(--uipack-label-font, var(--ua-mono));
   --ua-radius: var(--uipack-radius, 6px);
-  /* Space above and below each block in running prose. */
+  /* Space above and below each block in running prose, and between parts
+     that follow each other (TermList, ChangeNote, Callout, LinkList). */
   --ua-gap: var(--uipack-article-gap, 1.5rem);
+  --ua-step: var(--uipack-article-step, 0.9rem);
 
   /* Ink steps, derived once, as the diagrams draw them. */
   --ua-edge: color-mix(in srgb, var(--ua-fg) 70%, transparent); /* node edge */
   --ua-sub: color-mix(in srgb, var(--ua-fg) 75%, transparent); /* sub-label */
   --ua-label: color-mix(in srgb, var(--ua-fg) 80%, transparent); /* uppercase label */
   --ua-group: color-mix(in srgb, var(--ua-fg) 50%, transparent); /* dashed group edge, 3:1 */
-  --ua-hair: color-mix(in srgb, var(--ua-fg) 22%, transparent); /* rules and tag outlines */
+  --ua-hair: color-mix(in srgb, var(--ua-fg) 22%, transparent); /* hairline rules */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -100,7 +102,6 @@
 .uipack-notecard .uipack-notecard__status,
 .uipack-cluster .uipack-cluster__label,
 .uipack-layerhead .uipack-layerhead__zone,
-.uipack-layerhead .uipack-layerhead__label,
 .uipack-layerhead .uipack-layerhead__map,
 .uipack-terms .uipack-terms__label,
 .uipack-callout .uipack-callout__label,
@@ -359,6 +360,13 @@ a.uipack-notecard.uipack-notecard:focus-visible .uipack-notecard__go {
   font-variant-numeric: tabular-nums;
   color: var(--ua-fg);
 }
+/* Sentence case, not tracked: units and counts ("TB/s", "32k") keep their case. */
+.uipack-layerhead .uipack-layerhead__label {
+  font: 400 13px/16px var(--ua-sans);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ua-sub);
+}
 .uipack-layerhead .uipack-layerhead__map {
   grid-area: map;
   display: block;
@@ -403,57 +411,68 @@ a.uipack-notecard.uipack-notecard:focus-visible .uipack-notecard__go {
 }
 
 /* ==================== TermList ==================== */
+/* A plain inline list, not chips: the terms are not controls. */
 .uipack-terms.uipack-terms {
   display: block;
   margin: var(--ua-gap) 0;
   padding: 0;
   color: var(--ua-fg);
-  font: 400 14px/20px var(--ua-sans);
+  font: 400 15px/1.6 var(--ua-sans);
   letter-spacing: normal;
   text-align: left;
   overflow-wrap: break-word;
 }
 .uipack-terms .uipack-terms__label {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 .uipack-terms .uipack-terms__list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  display: block;
 }
 .uipack-terms .uipack-terms__term {
-  max-width: 100%;
-  padding: 3px 8px;
-  border: 1px solid var(--ua-hair);
-  border-radius: 2px;
-  font: 400 14px/20px var(--ua-sans);
+  display: inline;
+  font: inherit;
   color: var(--ua-fg);
+}
+/* A centred dot between terms, drawn in CSS and not read aloud. No space
+   touches it, so it never starts or ends a line. */
+.uipack-terms .uipack-terms__term + .uipack-terms__term::before {
+  content: "·";
+  content: "·" / "";
+  margin: 0 0.5em;
+  color: var(--ua-sub);
 }
 
 /* ==================== Callout ==================== */
+/* Not a box: the filled, edged node box means "a link" (NoteCard). A 3px
+   accent rule marks a question to answer; ChangeNote's 1.25px ink rule
+   marks context. */
 .uipack-callout.uipack-callout {
   display: block;
   margin: var(--ua-gap) 0;
-  padding: 12px 16px 14px;
+  padding: 2px 0 2px 16px;
   color: var(--ua-fg);
-  background: var(--ua-raised);
-  border: 1.25px solid var(--ua-edge);
-  border-radius: var(--ua-radius);
+  background: none;
+  border: 0;
+  border-left: 3px solid var(--ua-accent);
+  border-radius: 0;
   font: 400 15px/1.5 var(--ua-sans);
   letter-spacing: normal;
   text-align: left;
   overflow-wrap: break-word;
 }
+.uipack-callout.uipack-callout--note {
+  border-left-color: var(--ua-group);
+}
 .uipack-callout .uipack-callout__label {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 .uipack-callout.uipack-callout--note .uipack-callout__body {
   font: 400 15px/1.5 var(--ua-sans);
 }
-/* A self-test reads as the box's title: one question to answer before moving on. */
+/* A self-test is one question to answer before moving on. */
 .uipack-callout.uipack-callout--selftest .uipack-callout__body {
   font: 600 16px/1.45 var(--ua-sans);
   letter-spacing: -0.005em;
@@ -470,7 +489,8 @@ a.uipack-notecard.uipack-notecard:focus-visible .uipack-notecard__go {
 }
 
 /* ==================== ChangeNote ==================== */
-/* Quieter than a Callout: no fill, one 1.25px rule. The body keeps the host's prose type. */
+/* Quieter than a Callout: no fill, one 1.25px ink rule. The body keeps the
+   host's prose font, a step smaller and at 85% ink; links keep their colour. */
 .uipack-change.uipack-change {
   display: block;
   margin: var(--ua-gap) 0;
@@ -487,6 +507,10 @@ a.uipack-notecard.uipack-notecard:focus-visible .uipack-notecard__go {
   align-items: baseline;
   gap: 2px 10px;
   margin-bottom: 4px;
+}
+.uipack-change .uipack-change__body {
+  font-size: 0.94em;
+  color: color-mix(in srgb, var(--ua-fg) 85%, transparent);
 }
 .uipack-change .uipack-change__kicker {
   font: 400 12px/16px var(--ua-mono);
@@ -569,6 +593,15 @@ a.uipack-notecard.uipack-notecard:focus-visible .uipack-notecard__go {
 }
 .uipack-links .uipack-links__body {
   margin-top: 10px;
+}
+
+/* Rhythm: parts that follow each other read as one block, --ua-step apart,
+   with the full --ua-gap above the first and below the last. */
+:is(.uipack-terms, .uipack-change, .uipack-callout, .uipack-links):has(+ :is(.uipack-terms, .uipack-change, .uipack-callout, .uipack-links)) {
+  margin-bottom: 0;
+}
+:is(.uipack-terms, .uipack-change, .uipack-callout, .uipack-links) + :is(.uipack-terms, .uipack-change, .uipack-callout, .uipack-links) {
+  margin-top: var(--ua-step);
 }
 
 @media (prefers-reduced-motion: no-preference) {
