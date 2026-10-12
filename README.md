@@ -53,9 +53,9 @@ Separate entries, so a page loads only what it draws: `uipack` for parts, `uipac
 
 - **SpanChart** places companies on the layers of a stack.
   - Each row's bar covers the layers the company works in, solid where its main business sits. Rows are grouped by main layer into a staircase and sorted largest first.
-  - A one-row key strip explains bars, deals, size and type. Readers filter by layer (a column heading), by size (a segmented control with counts) and by deals; the filters combine. They expand from the featured subset in place and open a row for its note and links.
+  - An unframed one-row key explains bars, deals, size and type. Readers filter by layer (a column heading), by size (a segmented control with counts) and by deals; the filters combine. They expand from the featured subset in place and open a row for its note and links.
   - Column labels go from codes on phones to short words at a 56rem figure width to full labels on wide screens.
-- **LayerStack** walks a stack bottom-up, drawn top-down. Each band is a node that links to its section ("Go to section ↓"), inside a dashed zone box. Bracket rails beside the stack (an "Across the stack" list on phones) cover the topics that span layers.
+- **LayerStack** walks a stack bottom-up, drawn top-down. Each band is a node that links to its section (a "↓" that reads "Go to section ↓" on hover and focus), inside a dashed zone box; on phones each band is one line. Bracket rails beside the stack (an "Across the stack" list on phones) cover the topics that span layers.
 
 ```tsx
 import { renderToStaticMarkup } from "react-dom/server";

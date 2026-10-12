@@ -674,11 +674,16 @@ export function spanChartCss(model: SpanChartModel) {
     `@container uipack-span (max-width: ${t.stagger - 0.02}px){${root} .uipack-span__col:nth-child(odd){padding-bottom:22px}${root} .uipack-span__col>span{white-space:nowrap}}`,
     container(
       t.wide,
-      `${root} .uipack-span__form{--sp-name-col:var(--sp-name);--sp-wide:block;--sp-stacked:none;--sp-line-cols:var(--sp-name) minmax(0,1fr);--sp-label-grow:1;--sp-line-pad:0;--sp-line-min:44px;--sp-name-pad:4px 12px 4px 0;--sp-detail-margin:0 8px 10px 56px;--sp-tick-top:16px;--sp-tick-bottom:auto;--sp-group-pad:6px;--sp-ccount:block}`,
+      `${root} .uipack-span__form{--sp-name-col:var(--sp-name);--sp-wide:block;--sp-stacked:none;--sp-line-cols:var(--sp-name) minmax(0,1fr);--sp-label-grow:1;--sp-line-pad:0;--sp-line-min:44px;--sp-name-pad:4px 12px 4px 0;--sp-detail-margin:0 8px 10px 56px;--sp-ccount:block}`,
     ),
     // Where headers carry words the key and toolbar sit open; with codes the
     // drawer holds them, its layer chips doubling as the code key.
     container(t.short, `${root} .uipack-span__form{--sp-label-abbr:none;--sp-label-short:block;--sp-open:flex;--sp-closed:none;--sp-all-ring:2px;--sp-hint-toolbar:block;--sp-find-max:280px}`),
+    // No size or deals control: the search field sits on the key's row.
+    container(
+      t.short,
+      `${root}[data-lean] .uipack-span__head{grid-template-columns:minmax(0,1fr) auto}${root}[data-lean] .uipack-span__head>*{grid-column:1/-1}${root}[data-lean] .uipack-span__panel{grid-column:1;align-self:center}${root}[data-lean] .uipack-span__toolbar{grid-column:2}${root}[data-lean] .uipack-span__find:not([hidden]){flex:none;width:260px}`,
+    ),
     // With the name column the hint sits in the header's corner instead.
     container(t.wide, `${root} .uipack-span__form{--sp-hint-toolbar:none}`),
     container(t.full, `${root} .uipack-span__form{--sp-label-short:none;--sp-label-full:block}`),

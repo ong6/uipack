@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import { CaseSafe } from "./caseSafe";
 import type { ChartHeadingLevel } from "./SpanChart";
 
 /* LayerStack: a stacked-layer diagram in the site's diagram language. Layers
@@ -63,7 +64,7 @@ export interface LayerStackLabels {
   check: string;
   /** Link to the section inside an opened band (only for layers with `detail`). */
   read: string;
-  /** Right-aligned affordance on a linked band; phones show only the arrow. */
+  /** Words of a linked band's "↓", shown on hover and focus and read with the band's name. */
   go: string;
   /** Heading of the rail list that replaces the brackets on phones. */
   rails: string;
@@ -103,6 +104,13 @@ const fail = (chart: string, message: string): never => {
 };
 
 const pad = (n: number) => String(n).padStart(2, "0");
+
+/** "A", "B." and "C" → "A. B. C": one stop between parts, never two. */
+const sentences = (...parts: (string | undefined)[]) =>
+  parts
+    .filter((p): p is string => Boolean(p))
+    .map((p) => p.trim().replace(/[.!?]$/, ""))
+    .join(". ");
 
 /** Grid rows: `wide` from 1000px with a bracket column; `compact` below, with bracket labels above zones. */
 interface Placed {
@@ -236,11 +244,24 @@ export function LayerStack(props: LayerStackProps) {
   const plain = level === "none" || level === false;
   const Title = plain ? "p" : (`h${level}` as "h3");
   const Sub = plain ? "p" : (`h${props.title ? Math.min(level + 1, 6) : level}` as "h4");
+  // "↓" at rest; its words appear on hover and focus, in the metric's place
+  // (and are always in the link's name).
   const go = (
-    <span className="uipack-stack__go" aria-hidden="true">
-      <span className="uipack-stack__go-text">{labels.go}</span> ↓
+    <>
+      <span className="uipack-stack__go-text" aria-hidden="true">
+        {labels.go}
+      </span>
+      <span className="uipack-stack__go" aria-hidden="true">
+        ↓
+      </span>
+    </>
+  );
+  const arrow = (
+    <span className="uipack-stack__arrow" aria-hidden="true">
+      ↓
     </span>
   );
+  const keep = (text: string) => <CaseSafe text={text} keep="uipack-stack__keep" />;
 
   return (
     <section
@@ -277,8 +298,8 @@ export function LayerStack(props: LayerStackProps) {
                 </p>
               ))}
               <Sub className="uipack-stack__zone-head" id={headId} style={place(g.place)}>
-                <span>{g.zone.label}</span>
-                {g.zone.note ? <span className="uipack-stack__note">{g.zone.note}</span> : null}
+                <span>{keep(g.zone.label)}</span>
+                {g.zone.note ? <span className="uipack-stack__note">{keep(g.zone.note)}</span> : null}
               </Sub>
               {g.layers.map(({ layer, number, place: p }) => {
                 const face = (
@@ -304,11 +325,11 @@ export function LayerStack(props: LayerStackProps) {
                 );
                 const common = { id: `${id}-${layer.id}`, style: place(p) };
                 // One sentence for screen readers: flex items would otherwise be read with stray spaces.
-                const name = `${labels.layer} ${number} ${layer.label}. ${layer.summary}${layer.metric ? `. ${layer.metric.value} ${layer.metric.label}` : ""}`;
+                const said = sentences(`${labels.layer} ${number} ${layer.label}`, layer.summary, layer.metric && `${layer.metric.value} ${layer.metric.label}`);
                 if (layer.detail) {
                   return (
                     <details className="uipack-stack__band" key={layer.id} {...common}>
-                      <summary className="uipack-stack__face" aria-label={name}>
+                      <summary className="uipack-stack__face" aria-label={said}>
                         {face}
                         <i aria-hidden="true" />
                       </summary>
@@ -326,7 +347,7 @@ export function LayerStack(props: LayerStackProps) {
                   );
                 }
                 return layer.href ? (
-                  <a className="uipack-stack__band uipack-stack__face" href={layer.href} key={layer.id} aria-label={name} {...common}>
+                  <a className="uipack-stack__band uipack-stack__face" href={layer.href} key={layer.id} aria-label={sentences(said, labels.go)} {...common}>
                     {face}
                     {go}
                   </a>
@@ -346,7 +367,12 @@ export function LayerStack(props: LayerStackProps) {
           // Rail columns: after the stack, or after the bracket column from 1000px.
           const style = place(p, { "--cn": k + 2, "--cw": k + 3 });
           const name = `${rail.label}, ${span}`;
-          const label = <span className="uipack-stack__rail-label">{rail.short ?? rail.label}</span>;
+          const label = (
+            <span className="uipack-stack__rail-label">
+              {keep(rail.short ?? rail.label)}
+              {rail.href ? <> {arrow}</> : null}
+            </span>
+          );
           return rail.href ? (
             <a className="uipack-stack__rail" href={rail.href} key={rail.id} style={style} aria-label={name} title={rail.summary}>
               {label}
@@ -370,6 +396,7 @@ export function LayerStack(props: LayerStackProps) {
                   <b>{rail.label}</b>
                   <span className="uipack-stack__span">{span}</span>
                   {rail.summary ? <span className="uipack-stack__across-summary">{rail.summary}</span> : null}
+                  {rail.href ? arrow : null}
                 </>
               );
               return (

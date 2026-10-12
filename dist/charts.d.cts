@@ -330,7 +330,7 @@ interface LayerStackLabels {
     check: string;
     /** Link to the section inside an opened band (only for layers with `detail`). */
     read: string;
-    /** Right-aligned affordance on a linked band; phones show only the arrow. */
+    /** Words of a linked band's "↓", shown on hover and focus and read with the band's name. */
     go: string;
     /** Heading of the rail list that replaces the brackets on phones. */
     rails: string;

@@ -34,7 +34,7 @@ The playground renders both on `/` inside a frame at a host's real figure width:
 Rows are items, and columns are ordered layers, with the bottom of the stack on the left. Each item has one primary layer and zero or more other layers.
 
 - **Bars.** A row draws one flat bar per contiguous run of covered layers, with a 1px end radius. The primary cell is solid accent, the other cells are a tint with a 1px accent edge and 1px dividers, and gaps stay empty.
-- **Groups.** Rows are grouped by primary layer in column order, so the chart reads as a staircase. Each group heading is a tracked uppercase label ("CHIPS AND MEMORY 2 OF 6") with a small accent square in the group's own column, so the staircase reads even when a group shows one row.
+- **Groups.** Rows are grouped by primary layer in column order, so the chart reads as a staircase. Each group heading is a tracked uppercase label ("CHIPS AND MEMORY 2 OF 6"). Beside a name column it carries a small accent square on its line, in the group's own column, so the staircase reads even when a group shows one row; the stacked layouts leave the square out rather than give it a line of its own. Uppercase labels keep units and names as written: a word with a digit beside a letter, or a capital after its first letter ("32k", "TB/s", "GPUs"), is not uppercased.
 - **Order.** Within a group, rows sort by `value` (largest first, rows without a value last), then by name.
 - **Scale.** Add rows by adding data. The chart is tested with 160 rows, and each row costs about 0.9–1.2 KB of HTML.
 
@@ -102,11 +102,13 @@ The notes site's 56rem (896px) figure slot gets the name column, the short words
 
 ### Key
 
-The key is one bordered strip of labelled sections divided by 1px rules: **BARS** (square swatches for "Main" and "Also in"), **DEALS** (a sample of each kind present: "→ acquired", a dashed "→ pending", "↝ licensed", "shut down"), **SIZE** (the largest value and `valueLegend`, e.g. "$5.5T market cap or valuation") and **TYPE** (a sample tag and `tagLegend`). Sections never split: if a host is too narrow for one row, whole sections wrap. With the notes site's longest words the strip needs 888px, so it is one row in a 56rem (896px) slot; its section labels are 10px there (11px elsewhere) to make that fit. On phones the same sections sit in the "Filters and key" drawer as a two-column grid.
+The key is an unframed row, like a chart legend (no box, no fill, so it does not read as one more control), of labelled sections divided by thin vertical rules: **BARS** (square swatches for "Main" and "Also in"), **DEALS** (a sample of each kind present: "→ acquired", a dashed "→ pending", "↝ licensed", "shut down"), **SIZE** (the largest value and `valueLegend`, e.g. "$5.5T market cap or valuation") and **TYPE** (a sample tag and `tagLegend`). Sections never split: if a host is too narrow for one row, whole sections wrap. With the notes site's longest words the row needs about 890px, so it is one row in a 56rem (896px) slot; its section labels are 10px there (11px elsewhere) to make that fit. On phones the same sections sit in the "Filters and key" drawer as a ruled two-column grid.
+
+A chart with no size tiers and no deals has no toolbar of its own, so where the key shows, its search field sits on the key's row, at the right (260px), instead of on a row by itself.
 
 ### Filters
 
-All filter state lives in one set of hidden inputs, placed inside the sticky header. Every visible control is a `<label>` for one of them, so the copies always agree. Chromium focuses a radio when its label is clicked; because the radios are in the header, that focus never scrolls the page.
+All filter state lives in one set of hidden inputs. Every visible control is a `<label>` for one of them, so the copies always agree. Chromium focuses a radio when its label is clicked, so each input sits beside the controls that label it and that focus never scrolls the page: the size radios and the Deals checkbox in the toolbar, the layer radios in the sticky header with the column headers. The Tab order is therefore the order the controls are drawn: size, Deals, the search field, Clear (with a filter on), then the columns.
 
 - **Layer.** Each column header is a label for its layer's radio. Headers carry a dotted underline at rest so they read as controls. Choosing a layer tints its column down the chart (`--uipack-span-column-highlight`) and marks the header with a 3px bar. On a fine pointer, hovering a header shows that column's band at half strength. Where headers show names, there is no row of layer chips: the corner cell (or, in the stacked layout, the toolbar) says "Click a column to filter". Where headers show codes, layer chips ("PWR Power") wrap by box in the drawer, so none is ever cut off.
 - **Size.** With `tiers`, a segmented control: a "SIZE" cell, then joined boxes for "All sizes 158" and each tier with its count ("Large 41", "Not sized 54"); the tier's range is its tooltip. The chosen box gets an accent edge, accent text and a tint, so the state is not shown by colour alone.
@@ -114,6 +116,7 @@ All filter state lives in one set of hidden inputs, placed inside the sticky hea
 - **Combined.** The filters combine with AND, and any active filter shows every matching row, featured or not. Groups without a matching row hide; the chart's own rules include exactly the layer × size × deals combinations this needs. The sticky header shows the active state as square tags ("SHOWING Inference × Large × Deals ×") with a boxed "Clear" button.
 - **Empty and clearing.** A combination that matches nothing shows "Nothing matches these filters." with "Clear filters". Clearing works without JavaScript: the chart is a `<form method="dialog">` (submission is a no-op) and both controls are reset buttons. The expand checkbox sits outside the form, so clearing does not collapse the list.
 - **Targets.** Chips, headers and the active-filter chips are 36px tall with a fine pointer and 44px with a coarse pointer; the links in an opened row are 24px and 44px.
+- **Contrast.** Chosen chips, headers and filter tags set their words and counts in the accent ink (75% accent, 25% ink), which reaches 4.5:1 on the accent tint in both themes.
 
 Where headers show codes, the key and every filter fold into a closed "Filters and key" box. Its summary states the active filters ("Filters and key · All layers · All sizes"); each "· part" wraps as a unit. Outside the closed box, a one-line key shows the two swatches and the Deals toggle, so a phone reader can read the bars and reach Deals in one tap; opening the box hides that line, since the box holds the whole key.
 
@@ -170,14 +173,15 @@ Each message names the chart and the item, for example `SpanChart "ai-stack": it
 A hero diagram for an article that walks a stack from the bottom up. Every band is a link to its section.
 
 - **Order.** Layers are given bottom to top and numbered that way, with 01 at the bottom. They are drawn, tabbed and read top-down, so the eye, the keyboard and a screen reader meet them in the same order.
-- **Bands.** Each band is one diagram node and one `<a href>`: a muted mono index ("08"), the bold title, the constraint as a muted sub-label on the same line where it fits (under the title otherwise), and a right-aligned "Go to section ↓" (`labels.go`; just "↓" on phones), muted at rest. Hover and focus give it an accent edge and an accent title. A screen reader hears one sentence: "Layer 08 Inference. Every token re-reads the weights…".
+- **Bands.** Each band is one diagram node and one `<a href>`: a muted mono index ("08"), the bold title, the constraint as a muted sub-label on the same line where it fits (under the title otherwise), and a right-aligned "↓", muted at rest. Hover and focus give it an accent edge and an accent title, and (from 640px) show the words "Go to section" (`labels.go`) in space kept for them, where a metric would be. A screen reader hears one sentence: "Layer 08 Inference. Every token re-reads the weights…. Go to section".
+- **Phones.** Below a 480px container each band is one 44px line: index, name and arrow. The constraint and any metric leave the screen but stay in the link's name.
 - **Zones.** Each zone is a dashed box around its bands, labelled inside at the top left in the tracked uppercase style: "SERVING AND PRODUCT · RUN ON EVERY REQUEST" (the note takes its own line on phones).
-- **Rails.** From 640px each rail is a bracket connector beside the stack: a 1.25px line over exactly its bands, an 8px square at each end, and its label (`short` when given) horizontal beside the top square. The whole rail is a link to its section, named for screen readers by its full label and range ("Gateways and observability, layers 8–10"). Below 640px the rails give way to an "Across the stack" list of boxed nodes with the full name, the range and the summary.
+- **Rails.** From 640px each rail is a bracket connector beside the stack: a 1.25px line over exactly its bands, an 8px square at each end, and its label (`short` when given) horizontal beside the top square, with the link's "↓" under it. The whole rail is a link to its section, named for screen readers by its full label and range ("Gateways and observability, layers 8–10"). Below 640px the rails give way to an "Across the stack" list of boxed nodes, each a link with the full name and range on one line, the summary under them and a "↓".
 - **Optional parts.** `metric` adds a figure at the band's right edge (under the words on phones); `detail` makes the band open instead, showing "Check yourself", the text and "Read the section ↓". Neither draws anything unless given.
 - **Brackets.** From 1000px they sit in a left column, drawn like the rails but facing the stack; below that, each becomes a small label above the zone it starts in.
 - **Validation.** Unknown zones, rails or brackets that name an unknown layer, a zone split by another zone, and duplicate ids all throw.
 
-At 896px the example's ten bands are each one 44px line, in about 640px of height.
+At 896px the example's ten bands are each one 44px line, in about 640px of height; at 390px the notes site's map is about 910px tall, list included.
 
 ```ts
 interface StackZone { id: string; label: string; note?: string }

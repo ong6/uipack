@@ -9,6 +9,7 @@ import {
   type SpanChartModel,
   type SpanRowModel,
 } from "./model";
+import { CaseSafe } from "./caseSafe";
 
 /** A heading level, or "none"/false to render titles and group labels as plain text with group roles. */
 export type ChartHeadingLevel = 2 | 3 | 4 | 5 | "none" | false;
@@ -262,6 +263,7 @@ export function SpanChart(props: SpanChartProps) {
       id={id}
       aria-labelledby={props.title ? `${id}-title` : undefined}
       data-group-by={props.groupBy === "none" ? "none" : "primary"}
+      data-lean={!tiers.length && !model.deals ? "" : undefined}
       style={vars({ "--sp-cols": layers.length })}
     >
       <style dangerouslySetInnerHTML={{ __html: spanChartCss(model) }} />
@@ -275,22 +277,9 @@ export function SpanChart(props: SpanChartProps) {
           ) : null}
           {props.caption ? <p className="uipack-span__caption">{props.caption}</p> : null}
 
-          {/* Open when the column headers carry words: the key strip, then the toolbar. */}
+          {/* Open when the column headers carry words: the key strip, then the toolbar below. */}
           <div className="uipack-span__panel">
             <Key model={model} />
-          </div>
-          <div className="uipack-span__toolbar">
-            <SizeControl model={model} />
-            <DealsToggle model={model} />
-            <p className="uipack-span__hint uipack-span__hint--toolbar" aria-hidden="true">
-              <span>{labels.layerHint}</span>
-              <span>{labels.layerHintTouch}</span>
-            </p>
-            {/* Shown by enhanceSpanChart; without script, find-in-page reaches every row. */}
-            <label className="uipack-span__find" hidden>
-              <span className="uipack-span__sr">{labels.find}</span>
-              <input type="search" placeholder={labels.find} autoComplete="off" spellCheck={false} data-span-search="" />
-            </label>
           </div>
           {/* With code headers (phones): the key and every filter fold into one closed disclosure. */}
           <details className="uipack-span__drawer">
@@ -341,20 +330,14 @@ export function SpanChart(props: SpanChartProps) {
             </span>
             <DealsToggle model={model} />
           </p>
-        </div>
-
-        <div className="uipack-span__chart">
-          <div className="uipack-span__header">
-                {/* The filter state. Every visible control is a label for one of these.
-                    They live in the sticky header, so focusing one (Chromium focuses a
-                    radio when its label is clicked) never scrolls the page. */}
+          {/* Size, Deals, then the search field: the Tab order follows what the eye
+              meets. The size and deals inputs sit here, beside the controls that
+              label them, so focusing one (Chromium focuses a radio when its label
+              is clicked) never scrolls the page; the layer radios live in the
+              sticky header for the same reason. */}
+          <div className="uipack-span__toolbar">
+            {tiers.length || model.deals ? (
               <div className="uipack-span__inputs">
-                <div role="radiogroup" aria-label={labels.layer}>
-                  <input type="radio" className="uipack-span__all-input" name={`${id}-layer`} id={inputId.layerAll(id)} value="*" defaultChecked aria-label={labels.allLayers} />
-                  {layers.map((layer) => (
-                    <input type="radio" className="uipack-span__layer-input" name={`${id}-layer`} id={inputId.layer(id, layer.id)} value={layer.id} aria-label={layer.label} key={layer.id} />
-                  ))}
-                </div>
                 {tiers.length ? (
                   <div role="radiogroup" aria-label={labels.size}>
                     <input type="radio" className="uipack-span__tier-all" name={`${id}-tier`} id={inputId.tierAll(id)} value="*" defaultChecked aria-label={labels.allSizes} />
@@ -374,18 +357,24 @@ export function SpanChart(props: SpanChartProps) {
                 {model.deals ? (
                   <input type="checkbox" className="uipack-span__deals-input" id={inputId.deals(id)} aria-label={`${labels.deals}, ${model.deals}`} />
                 ) : null}
-                {model.hasToggle ? (
-                  // Outside the form, so "Clear filters" does not collapse the list.
-                  <input
-                    type="checkbox"
-                    className="uipack-span__expand"
-                    id={inputId.expand(id)}
-                    form={`${id}-keep`}
-                    defaultChecked={model.initialAll}
-                    aria-label={fill(labels.showAll, { n: model.total })}
-                  />
-                ) : null}
               </div>
+            ) : null}
+            <SizeControl model={model} />
+            <DealsToggle model={model} />
+            <p className="uipack-span__hint uipack-span__hint--toolbar" aria-hidden="true">
+              <span>{labels.layerHint}</span>
+              <span>{labels.layerHintTouch}</span>
+            </p>
+            {/* Shown by enhanceSpanChart; without script, find-in-page reaches every row. */}
+            <label className="uipack-span__find" hidden>
+              <span className="uipack-span__sr">{labels.find}</span>
+              <input type="search" placeholder={labels.find} autoComplete="off" spellCheck={false} data-span-search="" />
+            </label>
+          </div>
+        </div>
+
+        <div className="uipack-span__chart">
+          <div className="uipack-span__header">
             <div className="uipack-span__now-row">
               <span className="uipack-span__now-label">{labels.showing}</span>
               {layers.map((layer) => (
@@ -410,11 +399,35 @@ export function SpanChart(props: SpanChartProps) {
                 {labels.clear}
               </button>
             </div>
+            {/* The layer state (and the expand toggle). Every visible control is a
+                label for one of these. They live in the sticky header, with the column
+                headers that label them, so focusing one never scrolls the page. */}
+              <div className="uipack-span__inputs">
+                <div role="radiogroup" aria-label={labels.layer}>
+                  <input type="radio" className="uipack-span__all-input" name={`${id}-layer`} id={inputId.layerAll(id)} value="*" defaultChecked aria-label={labels.allLayers} />
+                  {layers.map((layer) => (
+                    <input type="radio" className="uipack-span__layer-input" name={`${id}-layer`} id={inputId.layer(id, layer.id)} value={layer.id} aria-label={layer.label} key={layer.id} />
+                  ))}
+                </div>
+                {model.hasToggle ? (
+                  // Outside the form, so "Clear filters" does not collapse the list.
+                  <input
+                    type="checkbox"
+                    className="uipack-span__expand"
+                    id={inputId.expand(id)}
+                    form={`${id}-keep`}
+                    defaultChecked={model.initialAll}
+                    aria-label={fill(labels.showAll, { n: model.total })}
+                  />
+                ) : null}
+              </div>
             {model.zones.length ? (
               <div className="uipack-span__zones" aria-hidden="true">
                 {model.zones.map(({ zone, start, end }) => (
                   <span key={zone.id} data-zone-start={zoneStarts.has(start) ? "" : undefined} style={{ gridColumn: `${start + 2} / ${end + 3}` }} title={zone.label}>
-                    <span>{zone.label}</span>
+                    <span>
+                      <CaseSafe text={zone.label} keep="uipack-span__keep" />
+                    </span>
                   </span>
                 ))}
               </div>
@@ -474,7 +487,9 @@ export function SpanChart(props: SpanChartProps) {
                 >
                   {group.layer ? (
                     <GroupHead className="uipack-span__group-head" id={headId}>
-                      <span>{group.layer.label}</span>
+                      <span>
+                        <CaseSafe text={group.layer.label} keep="uipack-span__keep" />
+                      </span>
                       {model.hasToggle ? (
                         <span className="uipack-span__count uipack-span__count--featured">
                           {group.featured} of {group.rows.length}

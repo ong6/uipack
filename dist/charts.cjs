@@ -357,11 +357,16 @@ function spanChartCss(model) {
     `@container uipack-span (max-width: ${t.stagger - 0.02}px){${root} .uipack-span__col:nth-child(odd){padding-bottom:22px}${root} .uipack-span__col>span{white-space:nowrap}}`,
     container(
       t.wide,
-      `${root} .uipack-span__form{--sp-name-col:var(--sp-name);--sp-wide:block;--sp-stacked:none;--sp-line-cols:var(--sp-name) minmax(0,1fr);--sp-label-grow:1;--sp-line-pad:0;--sp-line-min:44px;--sp-name-pad:4px 12px 4px 0;--sp-detail-margin:0 8px 10px 56px;--sp-tick-top:16px;--sp-tick-bottom:auto;--sp-group-pad:6px;--sp-ccount:block}`
+      `${root} .uipack-span__form{--sp-name-col:var(--sp-name);--sp-wide:block;--sp-stacked:none;--sp-line-cols:var(--sp-name) minmax(0,1fr);--sp-label-grow:1;--sp-line-pad:0;--sp-line-min:44px;--sp-name-pad:4px 12px 4px 0;--sp-detail-margin:0 8px 10px 56px;--sp-ccount:block}`
     ),
     // Where headers carry words the key and toolbar sit open; with codes the
     // drawer holds them, its layer chips doubling as the code key.
     container(t.short, `${root} .uipack-span__form{--sp-label-abbr:none;--sp-label-short:block;--sp-open:flex;--sp-closed:none;--sp-all-ring:2px;--sp-hint-toolbar:block;--sp-find-max:280px}`),
+    // No size or deals control: the search field sits on the key's row.
+    container(
+      t.short,
+      `${root}[data-lean] .uipack-span__head{grid-template-columns:minmax(0,1fr) auto}${root}[data-lean] .uipack-span__head>*{grid-column:1/-1}${root}[data-lean] .uipack-span__panel{grid-column:1;align-self:center}${root}[data-lean] .uipack-span__toolbar{grid-column:2}${root}[data-lean] .uipack-span__find:not([hidden]){flex:none;width:260px}`
+    ),
     // With the name column the hint sits in the header's corner instead.
     container(t.wide, `${root} .uipack-span__form{--sp-hint-toolbar:none}`),
     container(t.full, `${root} .uipack-span__form{--sp-label-short:none;--sp-label-full:block}`),
@@ -370,10 +375,22 @@ function spanChartCss(model) {
   return rules.join("\n");
 }
 
-// src/charts/SpanChart.tsx
+// src/charts/caseSafe.tsx
+var import_react = require("react");
 var import_jsx_runtime = require("react/jsx-runtime");
+function CaseSafe({ text, keep }) {
+  const parts = text.split(/(\s+)/);
+  if (!parts.some(mangled)) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children: text });
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children: parts.map(
+    (part, i) => mangled(part) ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: keep, children: part }, i) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react.Fragment, { children: part }, i)
+  ) });
+}
+var mangled = (word) => /\d/.test(word) && /[a-z]/.test(word) || /[a-z]/.test(word) && /^.+[A-Z]/u.test(word.replace(/^[^A-Za-z]*/, ""));
+
+// src/charts/SpanChart.tsx
+var import_jsx_runtime2 = require("react/jsx-runtime");
 var vars = (values) => values;
-var breakable = (text) => text.split(/(?<=-)/).map((part, i, parts) => i < parts.length - 1 ? [part, /* @__PURE__ */ (0, import_jsx_runtime.jsx)("wbr", {}, i)] : part);
+var breakable = (text) => text.split(/(?<=-)/).map((part, i, parts) => i < parts.length - 1 ? [part, /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("wbr", {}, i)] : part);
 function Row({ row, labels }) {
   const { item } = row;
   const meta = [
@@ -382,7 +399,7 @@ function Row({ row, labels }) {
     item.valueLabel || row.tier ? `${labels.size}: ${[item.valueLabel, row.tier?.label].filter(Boolean).join(", ")}` : null,
     row.statusText
   ].filter(Boolean);
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
     "li",
     {
       className: "uipack-span__item",
@@ -391,31 +408,31 @@ function Row({ row, labels }) {
       "data-tier": row.tier?.id,
       "data-deal": row.deal ? "" : void 0,
       "data-featured": item.featured ? "" : void 0,
-      children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("details", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("summary", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__sr", children: row.sentence }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__line", "aria-hidden": "true", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__name", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", {}),
-              item.logo ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__logo", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", { src: item.logo, alt: "", width: 20, height: 20, loading: "lazy", decoding: "async" }) }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__logo uipack-span__logo--mono", children: row.monogram }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__nv", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("b", { title: item.name.length > 18 ? item.name : void 0, children: item.name }),
-                item.valueLabel ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("em", { title: item.valueLabel.length > 8 ? item.valueLabel : void 0, children: item.valueLabel }) : null
+      children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("details", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("summary", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__sr", children: row.sentence }),
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-span__line", "aria-hidden": "true", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-span__name", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("i", {}),
+              item.logo ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__logo", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("img", { src: item.logo, alt: "", width: 20, height: 20, loading: "lazy", decoding: "async" }) }) : /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__logo uipack-span__logo--mono", children: row.monogram }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-span__nv", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("b", { title: item.name.length > 18 ? item.name : void 0, children: item.name }),
+                item.valueLabel ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("em", { title: item.valueLabel.length > 8 ? item.valueLabel : void 0, children: item.valueLabel }) : null
               ] }),
-              row.badge || item.tags?.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__sub", children: [
-                row.badge && item.status ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__badge", "data-kind": item.status.kind, children: row.badge }) : null,
-                item.tags?.map((tag) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__tag", children: tag }, tag))
+              row.badge || item.tags?.length ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-span__sub", children: [
+                row.badge && item.status ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__badge", "data-kind": item.status.kind, children: row.badge }) : null,
+                item.tags?.map((tag) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__tag", children: tag }, tag))
               ] }) : null
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__track", children: row.runs.map((run) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: vars({ "--a": run.start + 1, "--n": run.end - run.start + 1 }), children: run.main !== null ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: vars({ "--at": run.main - run.start }) }) : null }, run.start)) })
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__track", children: row.runs.map((run) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: vars({ "--a": run.start + 1, "--n": run.end - run.start + 1 }), children: run.main !== null ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: vars({ "--at": run.main - run.start }) }) : null }, run.start)) })
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__detail", children: [
-          item.note ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: item.note }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "uipack-span__meta", children: [
-            meta.map((text) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: text }, text)),
-            item.href ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { href: item.href, children: labels.website }) }) : null,
-            item.source ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { href: item.source, children: labels.source }) }) : null
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-span__detail", children: [
+          item.note ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { children: item.note }) : null,
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("p", { className: "uipack-span__meta", children: [
+            meta.map((text) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: text }, text)),
+            item.href ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("a", { href: item.href, children: labels.website }) }) : null,
+            item.source ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("a", { href: item.source, children: labels.source }) }) : null
           ] })
         ] })
       ] })
@@ -424,42 +441,42 @@ function Row({ row, labels }) {
 }
 function withCount(template, n) {
   const [before, after = ""] = template.split("{n}");
-  return template.includes("{n}") ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+  return template.includes("{n}") ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
     before,
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__num", children: n }),
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__num", children: n }),
     after
   ] }) : template;
 }
 function Key({ model }) {
   const { labels, samples } = model;
   const word = (kind) => labels[`legend${kind[0].toUpperCase()}${kind.slice(1)}`];
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("ul", { className: "uipack-span__key", role: "list", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__key-label", children: labels.keyBars }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__key-item", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__swatch uipack-span__swatch--main", "aria-hidden": "true" }),
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("ul", { className: "uipack-span__key", role: "list", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("li", { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__key-label", children: labels.keyBars }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-span__key-item", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__swatch uipack-span__swatch--main", "aria-hidden": "true" }),
         labels.keyMain
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__key-item", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__swatch uipack-span__swatch--also", "aria-hidden": "true" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-span__key-item", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__swatch uipack-span__swatch--also", "aria-hidden": "true" }),
         labels.keyAlso
       ] })
     ] }),
-    samples.badges.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__key-label", children: labels.keyDeals }),
-      samples.badges.map((kind) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__badge", "data-kind": kind, children: kind === "shutdown" ? word(kind) : `${kind === "licensed" ? "\u219D" : "\u2192"} ${word(kind)}` }, kind))
+    samples.badges.length ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("li", { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__key-label", children: labels.keyDeals }),
+      samples.badges.map((kind) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__badge", "data-kind": kind, children: kind === "shutdown" ? word(kind) : `${kind === "licensed" ? "\u219D" : "\u2192"} ${word(kind)}` }, kind))
     ] }) : null,
-    samples.value ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__key-label", children: labels.keySize }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__key-item", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("em", { className: "uipack-span__sample", children: samples.value }),
+    samples.value ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("li", { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__key-label", children: labels.keySize }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-span__key-item", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("em", { className: "uipack-span__sample", children: samples.value }),
         labels.valueLegend
       ] })
     ] }) : null,
-    samples.tag ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__key-label", children: labels.keyType }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__key-item", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__tag", children: samples.tag }),
+    samples.tag ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("li", { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__key-label", children: labels.keyType }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-span__key-item", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__tag", children: samples.tag }),
         labels.tagLegend
       ] })
     ] }) : null
@@ -468,31 +485,31 @@ function Key({ model }) {
 function SizeControl({ model }) {
   const { id, labels, tiers } = model;
   if (!tiers.length) return null;
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__seg", "aria-hidden": "true", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__seg-label", children: labels.size }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { htmlFor: inputId.tierAll(id), className: "uipack-span__chip uipack-span__chip--all", "data-t": "*", children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-span__seg", "aria-hidden": "true", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__seg-label", children: labels.size }),
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("label", { htmlFor: inputId.tierAll(id), className: "uipack-span__chip uipack-span__chip--all", "data-t": "*", children: [
       labels.allSizes,
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__num", children: model.total })
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__num", children: model.total })
     ] }),
-    tiers.map((tier, k) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { htmlFor: inputId.tier(id, tier.id), className: "uipack-span__chip", "data-t": tier.id, title: tier.range, children: [
+    tiers.map((tier, k) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("label", { htmlFor: inputId.tier(id, tier.id), className: "uipack-span__chip", "data-t": tier.id, title: tier.range, children: [
       tier.label,
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__num", children: model.tierCounts[k] })
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__num", children: model.tierCounts[k] })
     ] }, tier.id))
   ] });
 }
 function DealsToggle({ model }) {
-  return model.deals ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { htmlFor: inputId.deals(model.id), className: "uipack-span__chip uipack-span__chip--toggle", "data-d": "", "aria-hidden": "true", children: [
+  return model.deals ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("label", { htmlFor: inputId.deals(model.id), className: "uipack-span__chip uipack-span__chip--toggle", "data-d": "", "aria-hidden": "true", children: [
     model.labels.deals,
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__num", children: model.deals })
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__num", children: model.deals })
   ] }) : null;
 }
 function LayerChips({ model }) {
   const { id, labels, layers } = model;
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__wrap", "aria-hidden": "true", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__seg-label", children: labels.layer }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { htmlFor: inputId.layerAll(id), className: "uipack-span__chip uipack-span__chip--all", "data-l": "*", children: labels.allLayers }),
-    layers.map((layer) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { htmlFor: inputId.layer(id, layer.id), className: "uipack-span__chip", "data-l": layer.id, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__code", children: layer.abbr }),
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-span__wrap", "aria-hidden": "true", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__seg-label", children: labels.layer }),
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("label", { htmlFor: inputId.layerAll(id), className: "uipack-span__chip uipack-span__chip--all", "data-l": "*", children: labels.allLayers }),
+    layers.map((layer) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("label", { htmlFor: inputId.layer(id, layer.id), className: "uipack-span__chip", "data-l": layer.id, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__code", children: layer.abbr }),
       layer.short ?? layer.label
     ] }, layer.id))
   ] });
@@ -505,77 +522,60 @@ function SpanChart(props) {
   const Title = plain ? "p" : `h${level}`;
   const GroupHead = plain ? "p" : `h${props.title ? Math.min(level + 1, 6) : level}`;
   const zoneStarts = new Set(model.zones.slice(1).map((z) => z.start));
-  const toggle = (where) => model.hasToggle ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { htmlFor: inputId.expand(id), className: `uipack-span__toggle uipack-span__toggle--${where}`, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__more", children: withCount(labels.showAll, model.total) }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__less", children: withCount(labels.showFeatured, model.featured) })
+  const toggle = (where) => model.hasToggle ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("label", { htmlFor: inputId.expand(id), className: `uipack-span__toggle uipack-span__toggle--${where}`, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__more", children: withCount(labels.showAll, model.total) }),
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__less", children: withCount(labels.showFeatured, model.featured) })
   ] }) : null;
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
     "section",
     {
       className: "uipack-span",
       id,
       "aria-labelledby": props.title ? `${id}-title` : void 0,
       "data-group-by": props.groupBy === "none" ? "none" : "primary",
+      "data-lean": !tiers.length && !model.deals ? "" : void 0,
       style: vars({ "--sp-cols": layers.length }),
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("style", { dangerouslySetInnerHTML: { __html: spanChartCss(model) } }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", { className: "uipack-span__form", method: "dialog", id: `${id}-form`, "data-shown": labels.shown, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__head", children: [
-            props.title ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Title, { className: "uipack-span__title", id: `${id}-title`, children: props.title }) : null,
-            props.caption ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "uipack-span__caption", children: props.caption }) : null,
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "uipack-span__panel", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Key, { model }) }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__toolbar", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SizeControl, { model }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DealsToggle, { model }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "uipack-span__hint uipack-span__hint--toolbar", "aria-hidden": "true", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: labels.layerHint }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: labels.layerHintTouch })
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("style", { dangerouslySetInnerHTML: { __html: spanChartCss(model) } }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("form", { className: "uipack-span__form", method: "dialog", id: `${id}-form`, "data-shown": labels.shown, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-span__head", children: [
+            props.title ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Title, { className: "uipack-span__title", id: `${id}-title`, children: props.title }) : null,
+            props.caption ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { className: "uipack-span__caption", children: props.caption }) : null,
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "uipack-span__panel", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Key, { model }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("details", { className: "uipack-span__drawer", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("summary", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__drawer-title", children: labels.filtersAndKey }),
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__now-text", "data-l": "*", children: labels.allLayers }),
+                layers.map((layer) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__now-text", "data-l": layer.id, children: layer.short ?? layer.label }, layer.id)),
+                tiers.length ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__now-text", "data-t": "*", children: labels.allSizes }) : null,
+                tiers.map((tier) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__now-text", "data-t": tier.id, children: tier.label }, tier.id)),
+                model.deals ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__now-text", "data-d": "", children: labels.deals }) : null
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { className: "uipack-span__find", hidden: true, children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__sr", children: labels.find }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "search", placeholder: labels.find, autoComplete: "off", spellCheck: false, "data-span-search": "" })
-              ] })
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("details", { className: "uipack-span__drawer", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("summary", { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__drawer-title", children: labels.filtersAndKey }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__now-text", "data-l": "*", children: labels.allLayers }),
-                layers.map((layer) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__now-text", "data-l": layer.id, children: layer.short ?? layer.label }, layer.id)),
-                tiers.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__now-text", "data-t": "*", children: labels.allSizes }) : null,
-                tiers.map((tier) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__now-text", "data-t": tier.id, children: tier.label }, tier.id)),
-                model.deals ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__now-text", "data-d": "", children: labels.deals }) : null
-              ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Key, { model }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__filters", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LayerChips, { model }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__wrap", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SizeControl, { model }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DealsToggle, { model })
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Key, { model }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-span__filters", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(LayerChips, { model }),
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-span__wrap", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(SizeControl, { model }),
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(DealsToggle, { model })
                 ] })
               ] })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "uipack-span__keyline", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__swatch uipack-span__swatch--main", "aria-hidden": "true" }),
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("p", { className: "uipack-span__keyline", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__swatch uipack-span__swatch--main", "aria-hidden": "true" }),
                 labels.keyMain
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__swatch uipack-span__swatch--also", "aria-hidden": "true" }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__swatch uipack-span__swatch--also", "aria-hidden": "true" }),
                 labels.keyAlso
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DealsToggle, { model })
-            ] })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__chart", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__header", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__inputs", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { role: "radiogroup", "aria-label": labels.layer, children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "radio", className: "uipack-span__all-input", name: `${id}-layer`, id: inputId.layerAll(id), value: "*", defaultChecked: true, "aria-label": labels.allLayers }),
-                  layers.map((layer) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "radio", className: "uipack-span__layer-input", name: `${id}-layer`, id: inputId.layer(id, layer.id), value: layer.id, "aria-label": layer.label }, layer.id))
-                ] }),
-                tiers.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { role: "radiogroup", "aria-label": labels.size, children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "radio", className: "uipack-span__tier-all", name: `${id}-tier`, id: inputId.tierAll(id), value: "*", defaultChecked: true, "aria-label": labels.allSizes }),
-                  tiers.map((tier) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(DealsToggle, { model })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-span__toolbar", children: [
+              tiers.length || model.deals ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-span__inputs", children: [
+                tiers.length ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { role: "radiogroup", "aria-label": labels.size, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("input", { type: "radio", className: "uipack-span__tier-all", name: `${id}-tier`, id: inputId.tierAll(id), value: "*", defaultChecked: true, "aria-label": labels.allSizes }),
+                  tiers.map((tier) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
                     "input",
                     {
                       type: "radio",
@@ -588,10 +588,46 @@ function SpanChart(props) {
                     tier.id
                   ))
                 ] }) : null,
-                model.deals ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "checkbox", className: "uipack-span__deals-input", id: inputId.deals(id), "aria-label": `${labels.deals}, ${model.deals}` }) : null,
+                model.deals ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("input", { type: "checkbox", className: "uipack-span__deals-input", id: inputId.deals(id), "aria-label": `${labels.deals}, ${model.deals}` }) : null
+              ] }) : null,
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(SizeControl, { model }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(DealsToggle, { model }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("p", { className: "uipack-span__hint uipack-span__hint--toolbar", "aria-hidden": "true", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: labels.layerHint }),
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: labels.layerHintTouch })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("label", { className: "uipack-span__find", hidden: true, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__sr", children: labels.find }),
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("input", { type: "search", placeholder: labels.find, autoComplete: "off", spellCheck: false, "data-span-search": "" })
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-span__chart", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-span__header", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-span__now-row", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__now-label", children: labels.showing }),
+                layers.map((layer) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("label", { htmlFor: inputId.layerAll(id), className: "uipack-span__now", "data-l": layer.id, children: [
+                  layer.short ?? layer.label,
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "aria-hidden": "true", children: "\xD7" })
+                ] }, layer.id)),
+                tiers.map((tier) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("label", { htmlFor: inputId.tierAll(id), className: "uipack-span__now", "data-t": tier.id, children: [
+                  tier.label,
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "aria-hidden": "true", children: "\xD7" })
+                ] }, tier.id)),
+                model.deals ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("label", { htmlFor: inputId.deals(id), className: "uipack-span__now", "data-d": "", children: [
+                  labels.deals,
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "aria-hidden": "true", children: "\xD7" })
+                ] }) : null,
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { type: "reset", className: "uipack-span__clear", "aria-label": labels.clearFilters, children: labels.clear })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-span__inputs", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { role: "radiogroup", "aria-label": labels.layer, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("input", { type: "radio", className: "uipack-span__all-input", name: `${id}-layer`, id: inputId.layerAll(id), value: "*", defaultChecked: true, "aria-label": labels.allLayers }),
+                  layers.map((layer) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("input", { type: "radio", className: "uipack-span__layer-input", name: `${id}-layer`, id: inputId.layer(id, layer.id), value: layer.id, "aria-label": layer.label }, layer.id))
+                ] }),
                 model.hasToggle ? (
                   // Outside the form, so "Clear filters" does not collapse the list.
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
                     "input",
                     {
                       type: "checkbox",
@@ -604,32 +640,16 @@ function SpanChart(props) {
                   )
                 ) : null
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__now-row", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__now-label", children: labels.showing }),
-                layers.map((layer) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { htmlFor: inputId.layerAll(id), className: "uipack-span__now", "data-l": layer.id, children: [
-                  layer.short ?? layer.label,
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "aria-hidden": "true", children: "\xD7" })
-                ] }, layer.id)),
-                tiers.map((tier) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { htmlFor: inputId.tierAll(id), className: "uipack-span__now", "data-t": tier.id, children: [
-                  tier.label,
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "aria-hidden": "true", children: "\xD7" })
-                ] }, tier.id)),
-                model.deals ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { htmlFor: inputId.deals(id), className: "uipack-span__now", "data-d": "", children: [
-                  labels.deals,
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "aria-hidden": "true", children: "\xD7" })
-                ] }) : null,
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "reset", className: "uipack-span__clear", "aria-label": labels.clearFilters, children: labels.clear })
-              ] }),
-              model.zones.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "uipack-span__zones", "aria-hidden": "true", children: model.zones.map(({ zone, start, end }) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "data-zone-start": zoneStarts.has(start) ? "" : void 0, style: { gridColumn: `${start + 2} / ${end + 3}` }, title: zone.label, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: zone.label }) }, zone.id)) }) : null,
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__cols", "aria-hidden": "true", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__corner", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__hint", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: labels.layerHint }),
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: labels.layerHintTouch })
+              model.zones.length ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "uipack-span__zones", "aria-hidden": "true", children: model.zones.map(({ zone, start, end }) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "data-zone-start": zoneStarts.has(start) ? "" : void 0, style: { gridColumn: `${start + 2} / ${end + 3}` }, title: zone.label, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(CaseSafe, { text: zone.label, keep: "uipack-span__keep" }) }) }, zone.id)) }) : null,
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-span__cols", "aria-hidden": "true", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-span__corner", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-span__hint", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: labels.layerHint }),
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: labels.layerHintTouch })
                   ] }),
                   labels.company
                 ] }),
-                layers.map((layer, k) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                layers.map((layer, k) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
                   "label",
                   {
                     htmlFor: inputId.layer(id, layer.id),
@@ -639,26 +659,26 @@ function SpanChart(props) {
                     style: { gridColumn: String(k + 2) },
                     title: layer.label,
                     children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__abbr", children: layer.abbr }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__short", children: breakable(layer.short ?? layer.abbr) }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__full", children: layer.label }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__ccount", children: model.layerCounts[k] })
+                      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__abbr", children: layer.abbr }),
+                      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__short", children: breakable(layer.short ?? layer.abbr) }),
+                      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__full", children: layer.label }),
+                      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__ccount", children: model.layerCounts[k] })
                     ]
                   },
                   layer.id
                 ))
               ] })
             ] }),
-            model.hasToggle ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "uipack-span__top", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__more", children: fill(labels.shown, { n: model.featured, total: model.total }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__less", children: fill(labels.shown, { n: model.total, total: model.total }) }),
+            model.hasToggle ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("p", { className: "uipack-span__top", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__more", children: fill(labels.shown, { n: model.featured, total: model.total }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__less", children: fill(labels.shown, { n: model.total, total: model.total }) }),
               toggle("top")
             ] }) : null,
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__body", children: [
-              model.zones.slice(1).map(({ zone, start }) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__rule", "aria-hidden": "true", style: vars({ "--k": start }) }, zone.id)),
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-span__body", children: [
+              model.zones.slice(1).map(({ zone, start }) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__rule", "aria-hidden": "true", style: vars({ "--k": start }) }, zone.id)),
               model.groups.map((group) => {
                 const headId = `${id}-g-${group.layer?.id ?? "all"}`;
-                return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
                   "div",
                   {
                     className: "uipack-span__group",
@@ -670,47 +690,47 @@ function SpanChart(props) {
                     role: plain && group.layer ? "group" : void 0,
                     "aria-labelledby": plain && group.layer ? headId : void 0,
                     children: [
-                      group.layer ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(GroupHead, { className: "uipack-span__group-head", id: headId, children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: group.layer.label }),
-                        model.hasToggle ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__count uipack-span__count--featured", children: [
+                      group.layer ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(GroupHead, { className: "uipack-span__group-head", id: headId, children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(CaseSafe, { text: group.layer.label, keep: "uipack-span__keep" }) }),
+                        model.hasToggle ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-span__count uipack-span__count--featured", children: [
                           group.featured,
                           " of ",
                           group.rows.length
                         ] }) : null,
-                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__count uipack-span__count--total", children: group.rows.length }),
-                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__count uipack-span__count--live", "data-span-count": "" }),
-                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__mark", "aria-hidden": "true", style: vars({ "--k": group.index }) })
+                        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__count uipack-span__count--total", children: group.rows.length }),
+                        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__count uipack-span__count--live", "data-span-count": "" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__mark", "aria-hidden": "true", style: vars({ "--k": group.index }) })
                       ] }) : null,
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { className: "uipack-span__rows", role: "list", children: group.rows.map((row) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Row, { row, labels }, row.item.id)) })
+                      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("ul", { className: "uipack-span__rows", role: "list", children: group.rows.map((row) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Row, { row, labels }, row.item.id)) })
                     ]
                   },
                   group.layer?.id ?? "all"
                 );
               }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__empty", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: labels.empty }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "reset", className: "uipack-span__clear", children: labels.clearFilters })
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-span__empty", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { children: labels.empty }),
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { type: "reset", className: "uipack-span__clear", children: labels.clearFilters })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__nomatch", hidden: true, "data-span-nomatch": labels.noMatch, children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {}),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", className: "uipack-span__clear", "data-span-clear-search": "", children: labels.clearSearch })
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-span__nomatch", hidden: true, "data-span-nomatch": labels.noMatch, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", {}),
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { type: "button", className: "uipack-span__clear", "data-span-clear-search": "", children: labels.clearSearch })
               ] })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__foot", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-span__foot", children: [
               toggle("foot"),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__status", "data-span-status": "" }),
-              props.asOf ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__asof", children: fill(labels.asOf, { date: props.asOf }) }) : null
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__status", "data-span-status": "" }),
+              props.asOf ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-span__asof", children: fill(labels.asOf, { date: props.asOf }) }) : null
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "uipack-span__sr", "aria-live": "polite", "data-span-live": "" })
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { className: "uipack-span__sr", "aria-live": "polite", "data-span-live": "" })
       ]
     }
   );
 }
 
 // src/charts/LayerStack.tsx
-var import_jsx_runtime2 = require("react/jsx-runtime");
+var import_jsx_runtime3 = require("react/jsx-runtime");
 var LAYER_STACK_LABELS = {
   layer: "Layer",
   layers: "layers",
@@ -724,6 +744,7 @@ var fail2 = (chart, message) => {
   throw new Error(`LayerStack "${chart}": ${message}`);
 };
 var pad = (n) => String(n).padStart(2, "0");
+var sentences = (...parts) => parts.filter((p) => Boolean(p)).map((p) => p.trim().replace(/[.!?]$/, "")).join(". ");
 function buildLayerStack(props) {
   const { id, layers, zones } = props;
   if (typeof id !== "string" || !/^\S+$/.test(id)) fail2(String(id), "`id` must be a non-empty string without spaces");
@@ -823,11 +844,13 @@ function LayerStack(props) {
   const plain = level === "none" || level === false;
   const Title = plain ? "p" : `h${level}`;
   const Sub = plain ? "p" : `h${props.title ? Math.min(level + 1, 6) : level}`;
-  const go = /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-stack__go", "aria-hidden": "true", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-stack__go-text", children: labels.go }),
-    " \u2193"
+  const go = /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__go-text", "aria-hidden": "true", children: labels.go }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__go", "aria-hidden": "true", children: "\u2193" })
   ] });
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+  const arrow = /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__arrow", "aria-hidden": "true", children: "\u2193" });
+  const keep = (text) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(CaseSafe, { text, keep: "uipack-stack__keep" });
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
     "section",
     {
       className: "uipack-stack",
@@ -837,18 +860,18 @@ function LayerStack(props) {
       "data-brackets": model.brackets ? "" : void 0,
       style: { "--ls-rails": model.rails.length },
       children: [
-        props.title || props.caption ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-stack__head", children: [
-          props.title ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Title, { className: "uipack-stack__title", id: `${id}-title`, children: props.title }) : null,
-          props.caption ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { className: "uipack-stack__caption", children: props.caption }) : null
+        props.title || props.caption ? /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "uipack-stack__head", children: [
+          props.title ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Title, { className: "uipack-stack__title", id: `${id}-title`, children: props.title }) : null,
+          props.caption ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("p", { className: "uipack-stack__caption", children: props.caption }) : null
         ] }) : null,
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-stack__grid", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "uipack-stack__grid", children: [
           model.zones.map((g) => {
             const headId = `${id}-z-${g.zone.id}`;
-            return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-stack__zone", role: plain ? "group" : void 0, "aria-labelledby": plain ? headId : void 0, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-stack__box", "aria-hidden": "true", style: place(g.box) }),
-              g.brackets.map(({ bracket, lo, hi, place: p }) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("p", { className: "uipack-stack__bracket", "data-inside": hi !== g.end ? "" : void 0, style: place(p), children: [
-                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: bracket.label }),
-                /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-stack__sr", children: [
+            return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "uipack-stack__zone", role: plain ? "group" : void 0, "aria-labelledby": plain ? headId : void 0, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__box", "aria-hidden": "true", style: place(g.box) }),
+              g.brackets.map(({ bracket, lo, hi, place: p }) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("p", { className: "uipack-stack__bracket", "data-inside": hi !== g.end ? "" : void 0, style: place(p), children: [
+                /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { children: bracket.label }),
+                /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("span", { className: "uipack-stack__sr", children: [
                   ", ",
                   labels.layers,
                   " ",
@@ -857,80 +880,87 @@ function LayerStack(props) {
                   hi + 1
                 ] })
               ] }, `${bracket.label}-${lo}`)),
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(Sub, { className: "uipack-stack__zone-head", id: headId, style: place(g.place), children: [
-                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: g.zone.label }),
-                g.zone.note ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-stack__note", children: g.zone.note }) : null
+              /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(Sub, { className: "uipack-stack__zone-head", id: headId, style: place(g.place), children: [
+                /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { children: keep(g.zone.label) }),
+                g.zone.note ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__note", children: keep(g.zone.note) }) : null
               ] }),
               g.layers.map(({ layer, number, place: p }) => {
-                const face = /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-stack__index", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-stack__sr", children: [
+                const face = /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("span", { className: "uipack-stack__index", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("span", { className: "uipack-stack__sr", children: [
                       labels.layer,
                       " "
                     ] }),
                     number
                   ] }),
                   " ",
-                  /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-stack__text", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("b", { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("span", { className: "uipack-stack__text", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("b", { children: [
                       layer.label,
-                      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-stack__sr", children: ". " })
+                      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__sr", children: ". " })
                     ] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-stack__summary", children: layer.summary })
+                    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__summary", children: layer.summary })
                   ] }),
-                  layer.metric ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-stack__metric", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-stack__sr", children: ". " }),
-                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("strong", { children: layer.metric.value }),
+                  layer.metric ? /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("span", { className: "uipack-stack__metric", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__sr", children: ". " }),
+                    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("strong", { children: layer.metric.value }),
                     " ",
-                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: layer.metric.label })
+                    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { children: layer.metric.label })
                   ] }) : null
                 ] });
                 const common = { id: `${id}-${layer.id}`, style: place(p) };
-                const name = `${labels.layer} ${number} ${layer.label}. ${layer.summary}${layer.metric ? `. ${layer.metric.value} ${layer.metric.label}` : ""}`;
+                const said = sentences(`${labels.layer} ${number} ${layer.label}`, layer.summary, layer.metric && `${layer.metric.value} ${layer.metric.label}`);
                 if (layer.detail) {
-                  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("details", { className: "uipack-stack__band", ...common, children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("summary", { className: "uipack-stack__face", "aria-label": name, children: [
+                  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("details", { className: "uipack-stack__band", ...common, children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("summary", { className: "uipack-stack__face", "aria-label": said, children: [
                       face,
-                      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("i", { "aria-hidden": "true" })
+                      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("i", { "aria-hidden": "true" })
                     ] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-stack__detail", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("p", { children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-stack__check", children: labels.check }),
+                    /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "uipack-stack__detail", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("p", { children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__check", children: labels.check }),
                         " ",
                         layer.detail
                       ] }),
-                      layer.href ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("a", { className: "uipack-stack__read", href: layer.href, children: [
+                      layer.href ? /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("a", { className: "uipack-stack__read", href: layer.href, children: [
                         labels.read,
                         " ",
-                        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "aria-hidden": "true", children: "\u2193" })
+                        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { "aria-hidden": "true", children: "\u2193" })
                       ] }) : null
                     ] })
                   ] }, layer.id);
                 }
-                return layer.href ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("a", { className: "uipack-stack__band uipack-stack__face", href: layer.href, "aria-label": name, ...common, children: [
+                return layer.href ? /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("a", { className: "uipack-stack__band uipack-stack__face", href: layer.href, "aria-label": sentences(said, labels.go), ...common, children: [
                   face,
                   go
-                ] }, layer.id) : /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "uipack-stack__band uipack-stack__face", ...common, children: face }, layer.id);
+                ] }, layer.id) : /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "uipack-stack__band uipack-stack__face", ...common, children: face }, layer.id);
               }),
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-stack__end", "aria-hidden": "true", style: place(g.endRow) })
+              /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__end", "aria-hidden": "true", style: place(g.endRow) })
             ] }, g.zone.id);
           }),
           model.rails.map(({ rail, span, place: p }, k) => {
             const style = place(p, { "--cn": k + 2, "--cw": k + 3 });
             const name = `${rail.label}, ${span}`;
-            const label = /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-stack__rail-label", children: rail.short ?? rail.label });
-            return rail.href ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("a", { className: "uipack-stack__rail", href: rail.href, style, "aria-label": name, title: rail.summary, children: label }, rail.id) : /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-stack__rail", style, role: "note", "aria-label": name, title: rail.summary, children: label }, rail.id);
+            const label = /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("span", { className: "uipack-stack__rail-label", children: [
+              keep(rail.short ?? rail.label),
+              rail.href ? /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
+                " ",
+                arrow
+              ] }) : null
+            ] });
+            return rail.href ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("a", { className: "uipack-stack__rail", href: rail.href, style, "aria-label": name, title: rail.summary, children: label }, rail.id) : /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__rail", style, role: "note", "aria-label": name, title: rail.summary, children: label }, rail.id);
           })
         ] }),
-        model.rails.length ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-stack__across", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Sub, { className: "uipack-stack__across-head", id: `${id}-across`, children: labels.rails }),
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("ul", { role: "list", "aria-labelledby": `${id}-across`, children: model.rails.map(({ rail, span }) => {
-            const body = /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("b", { children: rail.label }),
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-stack__span", children: span }),
-              rail.summary ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-stack__across-summary", children: rail.summary }) : null
+        model.rails.length ? /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "uipack-stack__across", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Sub, { className: "uipack-stack__across-head", id: `${id}-across`, children: labels.rails }),
+          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("ul", { role: "list", "aria-labelledby": `${id}-across`, children: model.rails.map(({ rail, span }) => {
+            const body = /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("b", { children: rail.label }),
+              /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__span", children: span }),
+              rail.summary ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__across-summary", children: rail.summary }) : null,
+              rail.href ? arrow : null
             ] });
-            return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("li", { children: rail.href ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("a", { className: "uipack-stack__node", href: rail.href, children: body }) : /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-stack__node", children: body }) }, rail.id);
+            return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("li", { children: rail.href ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("a", { className: "uipack-stack__node", href: rail.href, children: body }) : /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__node", children: body }) }, rail.id);
           }) })
         ] }) : null
       ]

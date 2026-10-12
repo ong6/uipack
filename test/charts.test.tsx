@@ -272,9 +272,50 @@ describe("SpanChart markup", () => {
     expect(none).toHaveAttribute("data-span-nomatch", "No company matches “{q}”");
   });
 
-  it("puts the filter inputs in the sticky header, so focusing one never scrolls the page", () => {
-    const header = host().querySelector(".uipack-span__header")!;
-    expect(header.querySelectorAll("input")).toHaveLength(aiStackLayers.length + 1 + aiStackTiers.length + 1 + 2);
+  it("keeps each input beside the controls that label it, in the order the eye meets them", () => {
+    const h = host();
+    // Layer radios and the expand toggle stick with the column headers.
+    const header = h.querySelector(".uipack-span__header")!;
+    expect(header.querySelectorAll("input")).toHaveLength(aiStackLayers.length + 1 + 1);
+    // Size and Deals sit in the toolbar, before the search field.
+    const toolbar = h.querySelector(".uipack-span__toolbar")!;
+    expect(toolbar.querySelectorAll(".uipack-span__inputs input")).toHaveLength(aiStackTiers.length + 1 + 1);
+    // Tab order: size, Deals, search, then (with a filter on) Clear, then the columns.
+    const stops = [...h.querySelectorAll<HTMLElement>("input, button, summary")]
+      .filter((el) => !(el instanceof HTMLInputElement && el.type === "radio" && !el.defaultChecked))
+      .map((el) => el.id.replace("ai-stack-", "") || el.getAttribute("type") || el.tagName.toLowerCase());
+    expect(stops.slice(0, 6)).toEqual(["summary", "tier-all", "deals", "search", "reset", "layer-all"]);
+    expect(stops.indexOf("tier-all")).toBeLessThan(stops.indexOf("search"));
+    expect(stops.indexOf("search")).toBeLessThan(stops.indexOf("layer-all"));
+  });
+
+  it("puts the search field on the key's row when there is no size or deals control", () => {
+    const lean = mount(<SpanChart id="lean" layers={layers} items={[item("x"), item("y", { tags: ["coding"] })]} />);
+    const root = lean.querySelector(".uipack-span")!;
+    expect(root).toHaveAttribute("data-lean", "");
+    expect(lean.querySelector(".uipack-span__toolbar .uipack-span__inputs")).toBeNull();
+    const css = spanChartCss(buildSpanModel({ id: "lean", layers, items: [item("x")] }));
+    expect(css).toContain("#lean[data-lean] .uipack-span__toolbar{grid-column:2}");
+    expect(host().querySelector(".uipack-span")).not.toHaveAttribute("data-lean");
+  });
+
+  it("keeps units and names as written in uppercase labels", () => {
+    const h = mount(
+      <SpanChart
+        id="units"
+        layers={[
+          { id: "a", label: "Memory (TB/s)", abbr: "MEM", zone: "z" },
+          { id: "b", label: "Tools and MCP", abbr: "TLS", zone: "z" },
+        ]}
+        zones={[{ id: "z", label: "32k context" }]}
+        items={[item("x"), item("y", { primary: "b" })]}
+      />,
+    );
+    const head = h.querySelector('[id="units-g-a"] > span')!;
+    expect(head.textContent).toBe("Memory (TB/s)");
+    expect([...head.querySelectorAll(".uipack-span__keep")].map((k) => k.textContent)).toEqual(["(TB/s)"]);
+    expect(h.querySelector('[id="units-g-b"] .uipack-span__keep')).toBeNull();
+    expect(h.querySelector(".uipack-span__zones .uipack-span__keep")!.textContent).toBe("32k");
   });
 
   it("puts the column hint in the corner cell (or the toolbar), and the layer chips only in the phone drawer", () => {
@@ -539,11 +580,16 @@ describe("LayerStack", () => {
     expect(host.querySelector("details, summary, .uipack-stack__check, .uipack-stack__metric")).toBeNull();
     const inference = host.querySelector<HTMLAnchorElement>("#ai-stack-layers-inference")!;
     expect(inference.getAttribute("href")).toBe("#inference");
+    // "↓" at rest; the words show on hover and focus and are part of the name.
     expect(inference.querySelector(".uipack-stack__go")).toHaveAttribute("aria-hidden", "true");
-    expect(inference.querySelector(".uipack-stack__go")!.textContent).toBe("Go to section ↓");
-    expect(inference).toHaveAttribute("aria-label", "Layer 08 Inference. Every request costs compute; price per token sets the margin.");
-    expect(inference.textContent!.replace("Go to section ↓", "")).toBe("Layer 08 Inference. Every request costs compute; price per token sets the margin.");
-    expect(mount(<LayerStack {...aiStackDiagram} id="g2" labels={{ go: "Read" }} />).querySelector(".uipack-stack__go")!.textContent).toBe("Read ↓");
+    expect(inference.querySelector(".uipack-stack__go")!.textContent).toBe("↓");
+    expect(inference.querySelector(".uipack-stack__go-text")).toHaveAttribute("aria-hidden", "true");
+    expect(inference.querySelector(".uipack-stack__go-text")!.textContent).toBe("Go to section");
+    expect(inference).toHaveAttribute("aria-label", "Layer 08 Inference. Every request costs compute; price per token sets the margin. Go to section");
+    expect(inference.textContent!.replace("Go to section↓", "")).toBe("Layer 08 Inference. Every request costs compute; price per token sets the margin.");
+    const relabelled = mount(<LayerStack {...aiStackDiagram} id="g2" labels={{ go: "Read" }} />);
+    expect(relabelled.querySelector(".uipack-stack__go-text")!.textContent).toBe("Read");
+    expect(relabelled.querySelector(".uipack-stack__band")!.getAttribute("aria-label")).toMatch(/\. Read$/);
   });
 
   it("opens a band with detail and shows a metric only when given", () => {
@@ -571,14 +617,15 @@ describe("LayerStack", () => {
   it("draws rails as named links with their short label, and lists them as nodes for phones", () => {
     const host = mount(<LayerStack {...aiStackDiagram} />);
     const rail = host.querySelector('a.uipack-stack__rail[href="#gateways"]')!;
-    expect(rail.textContent).toBe("Gateways");
+    expect(rail.textContent).toBe("Gateways ↓");
+    expect(rail.querySelector(".uipack-stack__arrow")).toHaveAttribute("aria-hidden", "true");
     expect(rail).toHaveAttribute("aria-label", "Gateways and observability, layers 8–10");
     expect(rail).toHaveAttribute("title", "Route, log and meter every model call across providers.");
     expect(rail).not.toHaveAttribute("aria-hidden");
     expect(rail).not.toHaveAttribute("tabindex");
     const list = [...host.querySelectorAll<HTMLAnchorElement>(".uipack-stack__across a.uipack-stack__node")];
     expect(list.map((a) => a.getAttribute("href"))).toEqual(["#gateways", "#evals", "#safety"]);
-    expect(list[1].textContent).toBe("Evalslayers 7–10Measure whether a change made the model or the product better.");
+    expect(list[1].textContent).toBe("Evalslayers 7–10Measure whether a change made the model or the product better.↓");
     expect(host.querySelectorAll(".uipack-stack__note")).toHaveLength(3);
   });
 
@@ -725,5 +772,11 @@ describe("charts.css", () => {
     expect(contrast(mix(fg, bg, 0.7), bg)).toBeGreaterThanOrEqual(3);
     expect(contrast(mix(fg, bg, 0.8), bg)).toBeGreaterThanOrEqual(4.5);
     expect(contrast(mix(fg, bg, 0.75), bg)).toBeGreaterThanOrEqual(4.5);
+    // Chosen chips, headers and filter tags: accent ink (75% accent) on the
+    // band tint (accent 10% light, 20% dark), counts included.
+    expect(css).toContain("--sp-accent-ink: color-mix(in srgb, var(--sp-accent) 75%, var(--sp-fg))");
+    expect(css).toContain("color: color-mix(in srgb, var(--sp-accent) calc(var(--sp-sel, 0) * 75%), var(--sp-fg));");
+    const tint = mix(accent, bg, _name.endsWith("dark") ? 0.2 : 0.1);
+    expect(contrast(mix(accent, fg, 0.75), tint)).toBeGreaterThanOrEqual(4.5);
   });
 });

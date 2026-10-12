@@ -7,7 +7,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { agentLoop } from "../src/presets";
 import { renderStatic } from "../src/static";
 import { LayerStack, SpanChart } from "../src/charts";
-import { aiStack, aiStackDiagram, aiStackLayers, aiStackTiers, aiStackZones, syntheticStack } from "../examples/aiStack";
+import { resolve } from "node:path";
+import { aiStack, aiStackDiagram, aiStackItems, aiStackLayers, aiStackTiers, aiStackZones, syntheticStack } from "../examples/aiStack";
 
 const OUT = "playground/e2e-static";
 mkdirSync(OUT, { recursive: true });
@@ -68,6 +69,26 @@ writeFileSync(
         labels={{ tagLegend: "model type", valueLegend: "market cap or valuation" }}
       />,
     ),
+  ),
+);
+
+// A chart with no size tiers and no deals (like the notes site's harness
+// chart), with the enhancement loaded from source so the search field shows.
+writeFileSync(
+  `${OUT}/span-chart-lean.html`,
+  page(
+    "SpanChart without size or deals",
+    renderToStaticMarkup(
+      <SpanChart
+        id="lean"
+        headingLevel="none"
+        layers={aiStackLayers}
+        zones={aiStackZones}
+        items={aiStackItems.slice(0, 10).map(({ status: _s, tier: _t, ...rest }) => ({ ...rest, featured: undefined }))}
+        labels={{ find: "Find a harness", tagLegend: "what it is built for", keyType: "Kind" }}
+      />,
+    ) +
+      `<script type="module">import { enhanceSpanChart } from "/@fs${resolve("src/charts/enhance.ts")}"; document.querySelectorAll(".uipack-span").forEach((el) => enhanceSpanChart(el));</script>`,
   ),
 );
 
