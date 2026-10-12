@@ -428,14 +428,18 @@ a.uipack-notecard.uipack-notecard:focus-visible .uipack-notecard__go {
 .uipack-terms .uipack-terms__list {
   display: block;
 }
+/* Each term is an atomic box, so a line breaks between terms and a term moves
+   whole to the next line (a split term reads as two). Only a term longer than
+   the whole line wraps, inside its own box. */
 .uipack-terms .uipack-terms__term {
-  display: inline;
+  display: inline-block;
+  max-width: 100%;
   font: inherit;
   color: var(--ua-fg);
 }
-/* A centred dot between terms, drawn in CSS and not read aloud. No space
-   touches it, so it never starts or ends a line. */
-.uipack-terms .uipack-terms__term + .uipack-terms__term::before {
+/* A centred dot after every term but the last, drawn in CSS and not read
+   aloud: a wrapped line ends on a dot, like a comma. */
+.uipack-terms .uipack-terms__term:not(:last-child)::after {
   content: "·";
   content: "·" / "";
   margin: 0 0.5em;

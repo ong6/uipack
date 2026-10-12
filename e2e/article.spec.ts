@@ -429,13 +429,14 @@ test.describe("Article parts as static HTML in the notes site, JavaScript off", 
             };
           }, pseudo);
 
-        // Learn: plain inline text at 15px, a centred dot between terms, no chips.
+        // Learn: plain text at 15px, each term whole on one line, a centred dot after each but the last, no chips.
         const term = await style(".uipack-terms__term");
-        expect(term.display).toBe("inline");
+        expect(term.display).toBe("inline-block");
         expect(term.font).toBe("400 15px");
         expect([term.top, term.left, term.bg]).toEqual(["0px", "0px", "rgba(0, 0, 0, 0)"]);
         expect((await style(".uipack-terms__term", "::before")).content).toBe("none");
-        expect((await style(".uipack-terms__term + .uipack-terms__term", "::before")).content).toMatch(/^"·"/);
+        expect((await style(".uipack-terms__term:not(:last-child)", "::after")).content).toMatch(/^"·"/);
+        expect((await style(".uipack-terms__term:last-child", "::after")).content).toBe("none");
 
         // Self-test: no fill, no box, a 3px accent rule, the marker label, the question at sans 600 16px.
         const callout = await style(".uipack-callout--selftest");

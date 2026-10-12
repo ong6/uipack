@@ -209,7 +209,7 @@ Props: `index` (a number is padded: 8 → "08"), `zone?`, `metric?: { value, lab
 | `uipack-terms` | `div` (required) | |
 | `uipack-terms__label` | `p` (required) | Label style. |
 | `uipack-terms__list` | `ul[role="list"]` (required) | A plain inline list, 15px sans, not chips. |
-| `uipack-terms__term` | `li` (required) | Inline text, no border or fill. Every term after the first gets a centred `·` from CSS (not read aloud); no space touches the dot, so it never starts or ends a line, and lines break inside terms. Not a link. |
+| `uipack-terms__term` | `li` (required) | An atomic inline box with no border or fill, so lines break between terms and a term moves whole to the next line (a split term reads as two); only a term longer than the line wraps inside itself. Every term but the last ends with a centred `·` from CSS (not read aloud), so a wrapped line ends on a dot. Not a link. |
 
 Props: `terms`, `label?` ("Learn"), `id?`, `className?`.
 

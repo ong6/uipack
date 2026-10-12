@@ -38,7 +38,7 @@
   --sp-node-fill: var(--sp-raised);
   --sp-node-edge: color-mix(in srgb, var(--sp-fg) 70%, transparent);
   --sp-edge: var(--sp-node-edge);
-  --sp-group-edge: color-mix(in srgb, var(--sp-fg) 40%, transparent);
+  --sp-group-edge: color-mix(in srgb, var(--sp-fg) 50%, transparent);
   --sp-label-font: var(--uipack-label-font, var(--sp-mono));
   --sp-label-ink: color-mix(in srgb, var(--sp-fg) 80%, transparent);
   --sp-band-hover: color-mix(in srgb, var(--sp-accent) calc(var(--sp-band-mix) / 2), transparent);
@@ -456,22 +456,20 @@
 .uipack-span .uipack-span__drawer > :not(summary) {
   margin: 0 12px;
 }
-/* In the drawer the key is a two-column grid of the same sections, ruled
-   like a table. */
+/* In the drawer the key is a two-column grid of the same sections, unframed
+   like the legend row, with a rule above each row; it keeps the drawer's inset. */
 .uipack-span .uipack-span__drawer .uipack-span__key {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 12px;
   row-gap: 0;
-  margin-left: 0;
-  border: 1px solid var(--sp-border);
-  border-radius: var(--sp-radius);
 }
 .uipack-span .uipack-span__drawer .uipack-span__key > li {
   flex-wrap: wrap;
   align-content: center;
   gap: 4px 8px;
   min-height: 32px;
-  margin: -1px 0 0 -1px;
+  margin: 0;
   padding: 6px 8px;
   border-top: 1px solid var(--sp-border);
   white-space: normal;

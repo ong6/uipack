@@ -770,6 +770,9 @@ describe("charts.css", () => {
     expect(css).toContain("--sp-node-edge: color-mix(in srgb, var(--sp-fg) 70%, transparent)");
     expect(css).toContain("--sp-label-ink: color-mix(in srgb, var(--sp-fg) 80%, transparent)");
     expect(contrast(mix(fg, bg, 0.7), bg)).toBeGreaterThanOrEqual(3);
+    // Dashed zone boxes: 50% ink, the article clusters' group edge, at 3:1.
+    expect(css).toContain("--sp-group-edge: color-mix(in srgb, var(--sp-fg) 50%, transparent)");
+    expect(contrast(mix(fg, bg, 0.5), bg)).toBeGreaterThanOrEqual(3);
     expect(contrast(mix(fg, bg, 0.8), bg)).toBeGreaterThanOrEqual(4.5);
     expect(contrast(mix(fg, bg, 0.75), bg)).toBeGreaterThanOrEqual(4.5);
     // Chosen chips, headers and filter tags: accent ink (75% accent) on the

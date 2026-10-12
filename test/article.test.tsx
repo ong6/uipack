@@ -385,11 +385,12 @@ describe("the stylesheet keeps boxes for links", () => {
     return css.slice(at, css.indexOf("}", at));
   };
 
-  it("draws terms as plain inline text with a CSS dot that is not read aloud", () => {
+  it("draws terms as plain text, each whole on one line, with a CSS dot that is not read aloud", () => {
     const term = rule(".uipack-terms .uipack-terms__term");
-    expect(term).toMatch(/display: inline;/);
+    expect(term).toMatch(/display: inline-block;/);
+    expect(term).toMatch(/max-width: 100%;/);
     expect(term).not.toMatch(/border|background|padding/);
-    expect(rule(".uipack-terms .uipack-terms__term + .uipack-terms__term::before")).toMatch(/content: "·" \/ "";/);
+    expect(rule(".uipack-terms .uipack-terms__term:not(:last-child)::after")).toMatch(/content: "·" \/ "";/);
     expect(rule(".uipack-terms.uipack-terms")).toMatch(/font: 400 15px/);
   });
 
