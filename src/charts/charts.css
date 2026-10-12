@@ -437,6 +437,13 @@
 .uipack-span:has(.uipack-span__deals-input:focus-visible) [data-d] {
   --sp-focus: 1;
 }
+/* Where the column headers filter, the Layer chips are hidden and "All layers"
+   has no chip of its own, so its focus rings the column-header row. */
+.uipack-span:has(.uipack-span__all-input:focus-visible) .uipack-span__cols {
+  outline: var(--sp-all-ring, 0px) solid var(--sp-accent);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
 
 /* ---------- the grid: sticky header, then groups of rows ----------
    Layout values arrive as custom properties: stacked rows by default, and
@@ -448,7 +455,7 @@
 .uipack-span .uipack-span__header {
   position: sticky;
   top: var(--sp-sticky);
-  z-index: 3;
+  z-index: 4;
   margin: 0 -8px;
   padding: 0 8px;
   background: var(--sp-bg);
@@ -703,11 +710,13 @@
   color: var(--sp-muted);
 }
 /* With the enhancement measuring the header, each group's label sticks under
-   it while the group's rows scroll past. */
+   it while the group's rows scroll past. It stacks above the bars and an open
+   row (z-index 2) and below the header (4), which it slides under at the
+   group's end. */
 .uipack-span[data-span-enhanced] .uipack-span__group-head {
   position: sticky;
   top: calc(var(--sp-sticky) + var(--sp-head-h, 0px));
-  z-index: 2;
+  z-index: 3;
   margin: 0 -8px;
   padding: 12px 8px 6px;
   background: var(--sp-bg);

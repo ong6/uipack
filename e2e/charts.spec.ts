@@ -240,6 +240,31 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
     const header = (await chart.locator(".uipack-span__header").boundingBox())!;
     const stuck = (await head.boundingBox())!;
     expect(Math.abs(stuck.y - (header.y + header.height))).toBeLessThanOrEqual(2);
+
+    // The stuck label paints above the bars scrolling under it: with the bars
+    // made hit-testable, the label wins wherever a bar overlaps it.
+    const onTop = await chart.evaluate((el, box) => {
+      const head = el.querySelector("#ai-stack-g-pretraining")!;
+      const bars = [...el.querySelectorAll<HTMLElement>(".uipack-span__track > span")];
+      bars.forEach((s) => (s.style.pointerEvents = "auto"));
+      const under = bars.map((s) => s.getBoundingClientRect()).filter((r) => r.top < box.y + box.height - 1 && r.bottom > box.y + 1);
+      const hits = under.map((r) => document.elementFromPoint((r.left + r.right) / 2, (Math.max(r.top, box.y) + Math.min(r.bottom, box.y + box.height)) / 2));
+      return under.length > 0 && hits.every((hit) => !!hit && head.contains(hit));
+    }, stuck);
+    expect(onTop).toBe(true);
+  });
+
+  test("focus on All layers shows on the column-header row when the chips are hidden", async ({ page }) => {
+    const chart = page.locator("#ai-stack");
+    await expect(chip(chart, 'data-l="*"')).toBeHidden();
+    // The first Tab stop in the header, reached by keyboard (as after Clear).
+    await page.keyboard.press("Shift");
+    await chart.locator("#ai-stack-layer-all").focus();
+    expect(await chart.locator("#ai-stack-layer-all").evaluate((el) => el.matches(":focus-visible"))).toBe(true);
+    const ring = (el: Element) => getComputedStyle(el).outlineWidth;
+    expect(await chart.locator(".uipack-span__cols").evaluate(ring)).toBe("2px");
+    await page.keyboard.press("ArrowRight");
+    expect(await chart.locator(".uipack-span__cols").evaluate((el) => getComputedStyle(el).outlineStyle)).toBe("none");
   });
 
   test("a link to a filter input opens that view", async ({ page }) => {

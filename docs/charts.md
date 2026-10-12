@@ -127,7 +127,7 @@ On narrow containers (under 640px), the legend and the chip rows fold into a clo
 `enhanceSpanChart(root)` adds the design-direction behaviour. Everything else works without it.
 
 - Activating the selected header or chip again (click, tap, Space or Enter) clears that filter. Escape clears every filter. Escape is heard on the document while focus is in the chart, or the chart was the last thing clicked, because Safari does not focus a radio when its label is clicked.
-- After "Clear" or "Clear filters", focus moves to the "All layers" control in the sticky header, not past the chart.
+- After "Clear" or "Clear filters", focus moves to the "All layers" control in the sticky header, not past the chart. Where the column headers filter and the Layer chips are hidden, that control's focus ring outlines the column-header row.
 - Group labels stick under the header while their rows scroll past. The enhancement measures the header (`--sp-head-h`); without it the labels simply scroll.
 - Under a filter, group headings show live counts, the footer reads "14 of 45 shown", and a polite live region announces it. Without JavaScript, the headings show totals.
 - Collapsing the list, or filtering while the chart top is above the viewport, scrolls the chart top back into view (offset by `--uipack-span-sticky-top`), in Chromium and WebKit.

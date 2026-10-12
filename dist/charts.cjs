@@ -346,7 +346,7 @@ function spanChartCss(model) {
       t.wide,
       `${root} .uipack-span__form{--sp-name-col:var(--sp-name);--sp-wide:block;--sp-stacked:none;--sp-line-cols:var(--sp-name) minmax(0,1fr);--sp-label-grow:1;--sp-line-pad:0;--sp-line-min:44px;--sp-name-pad:4px 12px 4px 0;--sp-detail-pad:2px 8px 12px 56px;--sp-tick-top:19px;--sp-tick-bottom:auto}`
     ),
-    container(t.short, `${root} .uipack-span__form{--sp-label-abbr:none;--sp-label-short:block;--sp-layer-chips:none;--sp-layer-hint:inline}`),
+    container(t.short, `${root} .uipack-span__form{--sp-label-abbr:none;--sp-label-short:block;--sp-layer-chips:none;--sp-layer-hint:inline;--sp-all-ring:2px}`),
     container(t.full, `${root} .uipack-span__form{--sp-label-short:none;--sp-label-full:block}`),
     container(t.large, `${root} .uipack-span__form{--sp-label-size:12px}`)
   );
