@@ -41,11 +41,11 @@ export function RequestFlow() {
 }
 ```
 
-Separate entries, so a page loads only what it draws: `uipack` for parts, `uipack/presets` for ready figures, `uipack/charts` with `uipack/charts.css` for the span chart and layer stack, `uipack/presentations` for slide starters and speaker guides, `uipack/web` with `uipack/web.css` for landing-page blocks, and `uipack/browser` with `uipack/browser.css` for the asset browser.
+Separate entries, so a page loads only what it draws: `uipack` for parts, `uipack/presets` for ready figures, `uipack/charts` with `uipack/charts.css` for the span chart and layer stack, `uipack/article` with `uipack/article.css` for the labelled blocks of a long article, `uipack/presentations` for slide starters and speaker guides, `uipack/web` with `uipack/web.css` for landing-page blocks, and `uipack/browser` with `uipack/browser.css` for the asset browser.
 
 `uipack/docs` with `uipack/docs.css` provides a product-documentation shell and Markdown renderer: grouped navigation, a 680px prose column, an h2/h3 table of contents, mobile disclosure, heading anchors, and previous/next links. See the [docs layout guide](docs/docs-layout.md) and the rendered `/docs` gallery entry.
 
-`npm run dev` opens a playground: `/` renders the Habitat example, every part, the layer stack and span chart, and every preset; `/assets` renders the asset browser; `/animations` renders the 3D animation collection (`/slides` remains an alias), `/presentations` shows a complete narrative example, `/web` shows the Landing web building blocks, and `/styles` indexes visual styles.
+`npm run dev` opens a playground: `/` renders the Habitat example, every part, the layer stack and span chart, and every preset; `/assets` renders the asset browser; `/animations` renders the 3D animation collection (`/slides` remains an alias), `/presentations` shows a complete narrative example, `/web` shows the Landing web building blocks, `/article` shows the article parts in a host article, and `/styles` indexes visual styles.
 
 ## Charts
 
@@ -92,6 +92,31 @@ Colours follow the shared `--uipack-*` properties, light and dark. Bad data thro
 
 ![SpanChart at a 56rem figure width, light](docs/span-chart-896-light.png)
 ![LayerStack at a 56rem figure width, dark](docs/layer-stack-896-dark.png)
+
+## Article parts
+
+`uipack/article` holds the labelled blocks of a long article section, drawn in the figures' language (node boxes, uppercase labels, dashed groups, square markers). Like the charts they are plain HTML and CSS: render with `renderToStaticMarkup`, ship `uipack/article.css`, no JavaScript in the browser. Each part has a documented HTML and class contract, so a Markdown pipeline can emit the same markup without React.
+
+- **NoteCard** is one link to the author's own article: kicker, title, a description clamped to three lines (still in the link's name), date and reading time, and a "→". A planned note is a dashed box that is not a link and says "Coming next".
+- **NoteCluster** groups cards in a dashed box with a count. Its grid follows its own width: one column, two from 560px, three from 860px, cards in a row the same height. `wide` breaks out to the 56rem figure slot.
+- **LayerHead** is a strip above a section's heading (the heading stays in the outline): index, zone, one key number, and "↑ Map" back to the diagram. One line from 560px; on phones the number wraps under.
+- **TermList** ("Learn") shows terms as square tags; **Callout** is a node box with a self-test question; **ChangeNote** ("What changed") is quieter, with a rule on the left; **LinkList** ("Go deeper") shows compact rows with each link's domain in mono.
+
+```tsx
+import { Callout, LayerHead, NoteCluster, TermList } from "uipack/article";
+import "uipack/article.css";
+
+<LayerHead index={8} zone="Serving and product" metric={{ value: "~10 GB", label: "KV cache, one 32k chat" }} mapHref="#ai-stack-layers" />
+<h3 id="inference">Inference</h3>
+<TermList terms={["KV cache and PagedAttention", "continuous batching"]} />
+<Callout kind="selftest">Why does one 32k-token conversation reduce how many users a GPU can serve at once?</Callout>
+<NoteCluster label="My notes on serving and product" notes={[{ href: "/prefill-vs-decode", title: "Prefill and decode want different machines", description: "…", date: "2026-08-30", minutes: 7 }]} />
+```
+
+Colours follow the shared `--uipack-*` properties, light and dark; uppercase labels use `--uipack-label-font` (mono by default). [Article parts API, class contract and measurements](docs/article.md).
+
+![An article section at a 40rem column, notes site palette, light](docs/article-section-640-light.png)
+![A wide note cluster at the 56rem slot, dark](docs/article-cluster-896-dark.png)
 
 ## 3D animations
 
@@ -303,7 +328,7 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
 
 ## Testing
 
-`npm test` runs the Vitest suite in jsdom. `npm run test:e2e` runs Playwright in Chromium and WebKit with one worker, with one clipboard test skipped in WebKit because that engine cannot grant clipboard permissions. What they pin down:
+`npm test` runs the Vitest suite in jsdom. `npm run test:e2e` runs Playwright in Chromium and WebKit with one worker (on port 5179; set `E2E_PORT` when a second checkout, such as a git worktree, runs its own server, or Playwright reuses the other checkout's), with one clipboard test skipped in WebKit because that engine cannot grant clipboard permissions. What they pin down:
 
 - Packets move, hold after Pause, resume on Play, return to the start on Replay, and sit still under reduced motion.
 - Hovering a node dims the rest and lights its flow. Hovering a legend item filters by kind. An `href` node takes focus.
@@ -320,6 +345,7 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
   - LayerStack reads top-down with one-line linked bands at 896, dashed zone boxes, bracket rails spanning exactly their layers, no rotated text and no outer frame. It never truncates a constraint, marks hover and focus with an accent edge, and turns rails into a list of nodes on phones.
   - Labels stay at 11px or more with 44px touch targets and no overflow.
   - Unit tests pin grouping, sorting, runs, the breakpoints, the scoped rules, screen-reader sentences, validation, and the 3:1 and 4.5:1 contrast of the cell and badge colours on four palettes.
+- Article parts, in the playground's host article and as static HTML (JavaScript off) in a copy of the notes site's article layout and palette, at 390, 896 and 1440 in both themes: no page overflow; one, two or three cluster columns by the cluster's own width; equal card heights in every row; a wide cluster centred on the column; text at 12px or more; 4.5:1 text and 3:1 edges computed from the rendered colours; 44px link targets; the strip's one-line and phone layouts. Cards, rows and the map link are real links that navigate (a planned card is not), keyboard focus draws an accent ring and accent title, hover an accent edge, reduced motion drops the transitions, and host prose CSS loaded after `article.css` does not reach in. Unit tests pin the markup, the accessibility attributes, validation, and that every emitted class is documented in `docs/article.md` and styled, with nothing else styled.
 - Live 3D stories retain one canvas across stops, support direct navigation and reduced motion, and provide a diagram fallback.
 - `/web`: DemoPlayer advances when in view, holds after Pause, restarts on Replay, seeks from keyboard step tabs, and renders statically under reduced motion; the spotlight follows the mouse and lights on keyboard focus; both themes fit 390px with 44px targets and no console errors. Motion and backgrounds: the ticker counts only once seen, reveals play, the marquee moves and holds on Pause and hover, aurora and beams pause off screen, the dot grid lights under the mouse, and all of it holds still under reduced motion. Unit tests pin the type scale and compute the 4.5:1 contrast of the Landing tokens, including text over the aurora at its opacity cap.
 - Object art directions cover every combination of six objects, six directions, two themes, and two viewport widths. Each combination has its own test, screenshot, and render-cost attachment. All 30 non-Studio object/direction pairs also retain their geometry and paint-rate budgets, sampled inside the browser after playback starts.

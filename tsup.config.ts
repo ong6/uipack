@@ -12,6 +12,7 @@ export default defineConfig({
     web: "src/web/index.ts",
     docs: "src/docs/index.ts",
     charts: "src/charts/index.ts",
+    article: "src/article/index.ts",
   },
   format: ["esm", "cjs"],
   dts: true,

@@ -30,6 +30,7 @@ export const libraryPages = [
   { id: "presentations", label: "Presentations", path: "/presentations" },
   { id: "web", label: "Web UI", path: "/web" },
   { id: "docs", label: "Docs layout", path: "/docs" },
+  { id: "article", label: "Article parts", path: "/article" },
   { id: "styles", label: "Styles", path: "/styles" },
 ] as const;
 export type LibraryPage = (typeof libraryPages)[number]["id"];
@@ -168,4 +169,16 @@ export const docsEntries: CatalogEntry[] = [
     styleId: "technical",
     tags: ["Layout", "Navigation", "Markdown"],
   },
+];
+
+/** Article parts (uipack/article), rendered on /article in a host article's prose column. */
+export const articleEntries: CatalogEntry[] = [
+  { id: "layer-section", title: "Layer section", type: "article", styleId: "technical", tags: ["Article", "Composition"] },
+  { id: "note-card", title: "Note card", type: "article", styleId: "technical", tags: ["Article", "Link", "Card"] },
+  { id: "note-cluster", title: "Note cluster", type: "article", styleId: "technical", tags: ["Article", "Link", "Group", "Grid"] },
+  { id: "layer-head", title: "Layer head", type: "article", styleId: "technical", tags: ["Article", "Heading", "Metric"] },
+  { id: "term-list", title: "Term list", type: "article", styleId: "technical", tags: ["Article", "Tags"] },
+  { id: "callout", title: "Callout", type: "article", styleId: "technical", tags: ["Article", "Self-test"] },
+  { id: "change-note", title: "Change note", type: "article", styleId: "technical", tags: ["Article", "Aside"] },
+  { id: "link-list", title: "Link list", type: "article", styleId: "technical", tags: ["Article", "Link"] },
 ];

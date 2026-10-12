@@ -1,0 +1,593 @@
+/* uipack/article.css — article parts, Technical style: NoteCard, NoteCluster,
+   LayerHead, TermList, Callout, ChangeNote and LinkList. They draw in the
+   SVG figures' language: node boxes (raised fill, 1.25px edge at 70% ink, 6px
+   radius), uppercase labels at 80% ink, dashed group boxes, 8px square
+   markers, and accent edge plus accent title for emphasis, hover and focus.
+
+   Every rule is scoped under one of the seven root classes. Colours come from
+   the shared --uipack-* properties: a host that sets them on any ancestor
+   wins; unset ones fall back to the Technical light or dark defaults,
+   switched like src/theme.css. The class contract is in docs/article.md. */
+.uipack-notecard,
+.uipack-cluster,
+.uipack-layerhead,
+.uipack-terms,
+.uipack-callout,
+.uipack-change,
+.uipack-links {
+  --ua-fg: var(--uipack-fg, #1a1c1a);
+  --ua-raised: var(--uipack-surface-raised, #f4f6f4);
+  --ua-accent: var(--uipack-accent, #205f49);
+  --ua-sans: var(--uipack-sans, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+  --ua-mono: var(--uipack-mono, ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+  /* Uppercase labels: mono by default, like the diagrams; a host may map them to sans. */
+  --ua-label-font: var(--uipack-label-font, var(--ua-mono));
+  --ua-radius: var(--uipack-radius, 6px);
+  /* Space above and below each block in running prose. */
+  --ua-gap: var(--uipack-article-gap, 1.5rem);
+
+  /* Ink steps, derived once, as the diagrams draw them. */
+  --ua-edge: color-mix(in srgb, var(--ua-fg) 70%, transparent); /* node edge */
+  --ua-sub: color-mix(in srgb, var(--ua-fg) 75%, transparent); /* sub-label */
+  --ua-label: color-mix(in srgb, var(--ua-fg) 80%, transparent); /* uppercase label */
+  --ua-group: color-mix(in srgb, var(--ua-fg) 50%, transparent); /* dashed group edge, 3:1 */
+  --ua-hair: color-mix(in srgb, var(--ua-fg) 22%, transparent); /* rules and tag outlines */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) :is(.uipack-notecard, .uipack-cluster, .uipack-layerhead, .uipack-terms, .uipack-callout, .uipack-change, .uipack-links) {
+    --ua-fg: var(--uipack-fg, #e8ece9);
+    --ua-raised: var(--uipack-surface-raised, #1b2a24);
+    --ua-accent: var(--uipack-accent, #71dcb2);
+  }
+}
+[data-theme="dark"] :is(.uipack-notecard, .uipack-cluster, .uipack-layerhead, .uipack-terms, .uipack-callout, .uipack-change, .uipack-links),
+:is(.uipack-notecard, .uipack-cluster, .uipack-layerhead, .uipack-terms, .uipack-callout, .uipack-change, .uipack-links)[data-theme="dark"] {
+  --ua-fg: var(--uipack-fg, #e8ece9);
+  --ua-raised: var(--uipack-surface-raised, #1b2a24);
+  --ua-accent: var(--uipack-accent, #71dcb2);
+}
+
+.uipack-notecard,
+.uipack-cluster,
+.uipack-layerhead,
+.uipack-terms,
+.uipack-callout,
+.uipack-change,
+.uipack-links,
+:is(.uipack-notecard, .uipack-cluster, .uipack-layerhead, .uipack-terms, .uipack-callout, .uipack-change, .uipack-links) *,
+:is(.uipack-notecard, .uipack-cluster, .uipack-layerhead, .uipack-terms, .uipack-callout, .uipack-change, .uipack-links) ::before,
+:is(.uipack-notecard, .uipack-cluster, .uipack-layerhead, .uipack-terms, .uipack-callout, .uipack-change, .uipack-links) ::after {
+  box-sizing: border-box;
+}
+
+/* Host prose rules (.prose p, .prose ul, .prose li, .prose a) must not reach
+   the parts' own elements, whichever stylesheet loads last: every rule below
+   names two classes, which outranks a class plus a tag. Content passed in as
+   children (links, emphasis, code) keeps the host's styling on purpose. */
+.uipack-cluster .uipack-cluster__head,
+.uipack-cluster .uipack-cluster__note,
+.uipack-cluster .uipack-cluster__grid,
+.uipack-cluster .uipack-cluster__item,
+.uipack-layerhead .uipack-layerhead__where,
+.uipack-layerhead .uipack-layerhead__metric,
+.uipack-terms .uipack-terms__label,
+.uipack-terms .uipack-terms__list,
+.uipack-terms .uipack-terms__term,
+.uipack-callout .uipack-callout__label,
+.uipack-change .uipack-change__label,
+.uipack-links .uipack-links__label,
+.uipack-links .uipack-links__list,
+.uipack-links .uipack-links__item {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  list-style: none;
+  text-indent: 0;
+}
+.uipack-cluster .uipack-cluster__item::before,
+.uipack-cluster .uipack-cluster__item::marker,
+.uipack-terms .uipack-terms__term::before,
+.uipack-terms .uipack-terms__term::marker,
+.uipack-links .uipack-links__item::before,
+.uipack-links .uipack-links__item::marker {
+  content: none;
+}
+
+/* Uppercase labels, as the diagrams set them. */
+.uipack-notecard .uipack-notecard__kicker,
+.uipack-notecard .uipack-notecard__status,
+.uipack-cluster .uipack-cluster__label,
+.uipack-layerhead .uipack-layerhead__zone,
+.uipack-layerhead .uipack-layerhead__label,
+.uipack-layerhead .uipack-layerhead__map,
+.uipack-terms .uipack-terms__label,
+.uipack-callout .uipack-callout__label,
+.uipack-change .uipack-change__label,
+.uipack-links .uipack-links__label {
+  font: 400 12px/16px var(--ua-label-font);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ua-label);
+}
+
+/* 8px square markers with a 1.5px radius, like the diagrams' packets. */
+.uipack-layerhead .uipack-layerhead__index::before,
+.uipack-callout.uipack-callout--selftest .uipack-callout__label::before {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 1.5px;
+  background: var(--ua-accent);
+}
+
+.uipack-layerhead .uipack-layerhead__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==================== NoteCard ==================== */
+.uipack-notecard.uipack-notecard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  min-height: 44px;
+  margin: var(--ua-gap) 0;
+  padding: 14px 16px 12px;
+  color: var(--ua-fg);
+  background: var(--ua-raised);
+  border: 1.25px solid var(--ua-edge);
+  border-radius: var(--ua-radius);
+  font: 400 14px/1.45 var(--ua-sans);
+  letter-spacing: normal;
+  text-align: left;
+  text-decoration: none;
+  overflow-wrap: break-word;
+  -webkit-tap-highlight-color: transparent;
+}
+.uipack-notecard.uipack-notecard--planned {
+  border-style: dashed;
+}
+.uipack-notecard .uipack-notecard__kicker,
+.uipack-notecard .uipack-notecard__title,
+.uipack-notecard .uipack-notecard__desc,
+.uipack-notecard .uipack-notecard__meta {
+  display: block;
+  margin: 0;
+}
+.uipack-notecard .uipack-notecard__title {
+  font: 600 16px/1.35 var(--ua-sans);
+  letter-spacing: -0.005em;
+  color: var(--ua-fg);
+  text-wrap: pretty;
+}
+/* Three lines on screen; the rest stays in the DOM, so in the link's name. */
+.uipack-notecard .uipack-notecard__desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  font: 400 13px/1.5 var(--ua-sans);
+  color: var(--ua-sub);
+}
+.uipack-notecard .uipack-notecard__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-top: auto;
+  padding-top: 4px;
+  font: 400 12px/16px var(--ua-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ua-sub);
+}
+.uipack-notecard .uipack-notecard__date + .uipack-notecard__time::before {
+  content: "·";
+  content: "·" / "";
+  margin-right: 8px;
+}
+.uipack-notecard .uipack-notecard__go {
+  margin-left: auto;
+  font: 400 16px/16px var(--ua-sans);
+  color: var(--ua-fg);
+}
+@media (hover: hover) {
+  a.uipack-notecard.uipack-notecard:hover {
+    border-color: var(--ua-accent);
+  }
+  a.uipack-notecard.uipack-notecard:hover .uipack-notecard__title,
+  a.uipack-notecard.uipack-notecard:hover .uipack-notecard__go {
+    color: var(--ua-accent);
+  }
+}
+a.uipack-notecard.uipack-notecard:focus-visible {
+  border-color: var(--ua-accent);
+  outline: 2px solid var(--ua-accent);
+  outline-offset: 2px;
+}
+a.uipack-notecard.uipack-notecard:focus-visible .uipack-notecard__title,
+a.uipack-notecard.uipack-notecard:focus-visible .uipack-notecard__go {
+  color: var(--ua-accent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  a.uipack-notecard.uipack-notecard {
+    transition: border-color 160ms ease;
+  }
+  a.uipack-notecard .uipack-notecard__title,
+  a.uipack-notecard .uipack-notecard__go {
+    transition: color 160ms ease, transform 160ms ease;
+  }
+  @media (hover: hover) {
+    a.uipack-notecard.uipack-notecard:hover .uipack-notecard__go {
+      transform: translateX(3px);
+    }
+  }
+}
+
+/* ==================== NoteCluster ==================== */
+/* A dashed group box; its grid answers to the box's own width (1 column,
+   2 from 560px, 3 from 860px, measured on the outside of the box). */
+.uipack-cluster.uipack-cluster {
+  container: uipack-cluster / inline-size;
+  display: block;
+  margin: var(--ua-gap) 0;
+  padding: 12px 16px 16px;
+  color: var(--ua-fg);
+  background: none;
+  border: 1.25px dashed var(--ua-group);
+  border-radius: 10px;
+  font: 400 14px/1.45 var(--ua-sans);
+  letter-spacing: normal;
+  text-align: left;
+  overflow-wrap: break-word;
+}
+.uipack-cluster.uipack-cluster--wide {
+  --ua-wide: var(--uipack-article-wide, min(56rem, calc(100vw - 2.5rem)));
+  width: var(--ua-wide);
+  max-width: none;
+  margin-left: calc(50% - var(--ua-wide) / 2);
+}
+.uipack-cluster .uipack-cluster__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  margin-bottom: 12px;
+}
+.uipack-cluster .uipack-cluster__count {
+  font: 400 12px/16px var(--ua-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ua-label);
+}
+.uipack-cluster .uipack-cluster__note {
+  margin: -6px 0 12px;
+  font: 400 13px/1.5 var(--ua-sans);
+  color: var(--ua-sub);
+}
+.uipack-cluster .uipack-cluster__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+/* Cards in a row share the row's height. */
+.uipack-cluster .uipack-cluster__item {
+  display: flex;
+  min-width: 0;
+}
+.uipack-cluster .uipack-cluster__item > .uipack-notecard {
+  flex: 1 1 auto;
+  margin: 0;
+}
+/* Content-box thresholds: 525 + 16 + 16 + 2.5 ≈ 560, 825 + 34.5 ≈ 860. */
+@container uipack-cluster (min-width: 525px) {
+  .uipack-cluster .uipack-cluster__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@container uipack-cluster (min-width: 825px) {
+  .uipack-cluster .uipack-cluster__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ==================== LayerHead ==================== */
+.uipack-layerhead.uipack-layerhead {
+  container: uipack-layerhead / inline-size;
+  display: block;
+  margin: calc(var(--ua-gap) + 1rem) 0 0;
+  padding: 0;
+  color: var(--ua-fg);
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--ua-hair);
+  font: 400 12px/16px var(--ua-sans);
+  letter-spacing: normal;
+  text-align: left;
+  overflow-wrap: break-word;
+}
+/* The heading right after the strip sits close under it. */
+.uipack-layerhead.uipack-layerhead + :is(h1, h2, h3, h4, h5, h6) {
+  margin-top: 4px;
+}
+/* Narrow: index and zone with the map link, the metric on its own line. */
+.uipack-layerhead .uipack-layerhead__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "where map"
+    "metric metric";
+  align-items: center;
+}
+.uipack-layerhead .uipack-layerhead__where {
+  grid-area: where;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  min-height: 44px;
+}
+.uipack-layerhead .uipack-layerhead__index {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 13px/16px var(--ua-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ua-fg);
+}
+.uipack-layerhead .uipack-layerhead__metric {
+  grid-area: metric;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  padding-bottom: 8px;
+}
+.uipack-layerhead .uipack-layerhead__value {
+  font: 600 13px/16px var(--ua-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ua-fg);
+}
+.uipack-layerhead .uipack-layerhead__map {
+  grid-area: map;
+  display: block;
+  min-width: 44px;
+  margin: 0 -6px 0 10px;
+  padding: 0 6px;
+  border-radius: 2px;
+  line-height: 44px;
+  text-align: center;
+  color: var(--ua-label);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+/* The arrow is drawn, not text: no underline, and not read aloud. */
+.uipack-layerhead .uipack-layerhead__map::before {
+  content: "↑";
+  content: "↑" / "";
+  display: inline-block;
+  margin-right: 4px;
+}
+.uipack-layerhead .uipack-layerhead__map:hover {
+  color: var(--ua-accent);
+}
+.uipack-layerhead .uipack-layerhead__map:focus-visible {
+  color: var(--ua-accent);
+  outline: 2px solid var(--ua-accent);
+  outline-offset: -2px;
+}
+/* One line from 560px: where, then the metric pushed right, then the map link. */
+@container uipack-layerhead (min-width: 560px) {
+  .uipack-layerhead .uipack-layerhead__row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "where metric map";
+  }
+  .uipack-layerhead .uipack-layerhead__metric {
+    justify-content: flex-end;
+    padding: 4px 0 4px 16px;
+    text-align: right;
+  }
+}
+
+/* ==================== TermList ==================== */
+.uipack-terms.uipack-terms {
+  display: block;
+  margin: var(--ua-gap) 0;
+  padding: 0;
+  color: var(--ua-fg);
+  font: 400 14px/20px var(--ua-sans);
+  letter-spacing: normal;
+  text-align: left;
+  overflow-wrap: break-word;
+}
+.uipack-terms .uipack-terms__label {
+  margin-bottom: 8px;
+}
+.uipack-terms .uipack-terms__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.uipack-terms .uipack-terms__term {
+  max-width: 100%;
+  padding: 3px 8px;
+  border: 1px solid var(--ua-hair);
+  border-radius: 2px;
+  font: 400 14px/20px var(--ua-sans);
+  color: var(--ua-fg);
+}
+
+/* ==================== Callout ==================== */
+.uipack-callout.uipack-callout {
+  display: block;
+  margin: var(--ua-gap) 0;
+  padding: 12px 16px 14px;
+  color: var(--ua-fg);
+  background: var(--ua-raised);
+  border: 1.25px solid var(--ua-edge);
+  border-radius: var(--ua-radius);
+  font: 400 15px/1.5 var(--ua-sans);
+  letter-spacing: normal;
+  text-align: left;
+  overflow-wrap: break-word;
+}
+.uipack-callout .uipack-callout__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.uipack-callout.uipack-callout--note .uipack-callout__body {
+  font: 400 15px/1.5 var(--ua-sans);
+}
+/* A self-test reads as the box's title: one question to answer before moving on. */
+.uipack-callout.uipack-callout--selftest .uipack-callout__body {
+  font: 600 16px/1.45 var(--ua-sans);
+  letter-spacing: -0.005em;
+}
+.uipack-callout .uipack-callout__body > :first-child,
+.uipack-change .uipack-change__body > :first-child,
+.uipack-links .uipack-links__body > :first-child {
+  margin-top: 0;
+}
+.uipack-callout .uipack-callout__body > :last-child,
+.uipack-change .uipack-change__body > :last-child,
+.uipack-links .uipack-links__body > :last-child {
+  margin-bottom: 0;
+}
+
+/* ==================== ChangeNote ==================== */
+/* Quieter than a Callout: no fill, one 1.25px rule. The body keeps the host's prose type. */
+.uipack-change.uipack-change {
+  display: block;
+  margin: var(--ua-gap) 0;
+  padding: 2px 0 2px 16px;
+  background: none;
+  border: 0;
+  border-left: 1.25px solid var(--ua-edge);
+  border-radius: 0;
+  text-align: left;
+}
+.uipack-change .uipack-change__label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  margin-bottom: 4px;
+}
+.uipack-change .uipack-change__kicker {
+  font: 400 12px/16px var(--ua-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ua-sub);
+}
+
+/* ==================== LinkList ==================== */
+.uipack-links.uipack-links {
+  container: uipack-links / inline-size;
+  display: block;
+  margin: var(--ua-gap) 0;
+  padding: 0;
+  color: var(--ua-fg);
+  font: 400 15px/1.4 var(--ua-sans);
+  letter-spacing: normal;
+  text-align: left;
+  overflow-wrap: break-word;
+}
+.uipack-links .uipack-links__label {
+  margin-bottom: 6px;
+}
+.uipack-links .uipack-links__list {
+  border-top: 1px solid var(--ua-hair);
+}
+.uipack-links .uipack-links__item {
+  border-bottom: 1px solid var(--ua-hair);
+}
+.uipack-links .uipack-links__link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 16px;
+  min-height: 44px;
+  padding: 11px 0;
+  border-radius: 2px;
+  color: var(--ua-fg);
+  background: none;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.uipack-links .uipack-links__title {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--ua-group);
+}
+.uipack-links .uipack-links__domain {
+  font: 400 12px/16px var(--ua-mono);
+  color: var(--ua-sub);
+  text-align: right;
+  white-space: nowrap;
+}
+@media (hover: hover) {
+  .uipack-links .uipack-links__link:hover .uipack-links__title {
+    color: var(--ua-accent);
+    text-decoration-color: currentColor;
+  }
+}
+.uipack-links .uipack-links__link:focus-visible {
+  outline: 2px solid var(--ua-accent);
+  outline-offset: 2px;
+}
+.uipack-links .uipack-links__link:focus-visible .uipack-links__title {
+  color: var(--ua-accent);
+  text-decoration-color: currentColor;
+}
+/* Narrow: the domain moves under the title instead of squeezing it. */
+@container uipack-links (max-width: 419px) {
+  .uipack-links .uipack-links__link {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .uipack-links .uipack-links__domain {
+    text-align: left;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+.uipack-links .uipack-links__body {
+  margin-top: 10px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .uipack-links .uipack-links__title,
+  .uipack-layerhead .uipack-layerhead__map {
+    transition: color 160ms ease, text-decoration-color 160ms ease;
+  }
+}
+
+/* Windows high contrast: keep the markers and the focus ring. */
+@media (forced-colors: active) {
+  .uipack-layerhead .uipack-layerhead__index::before,
+  .uipack-callout.uipack-callout--selftest .uipack-callout__label::before {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+  a.uipack-notecard.uipack-notecard:focus-visible,
+  .uipack-links .uipack-links__link:focus-visible,
+  .uipack-layerhead .uipack-layerhead__map:focus-visible {
+    outline-color: Highlight;
+  }
+}

@@ -1,6 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const linuxCI = Boolean(process.env.CI) && process.platform === "linux";
+// A second checkout (a git worktree) needs its own server: reuseExistingServer
+// would otherwise run these tests against the other checkout's code.
+const port = Number(process.env.E2E_PORT ?? 5179);
 
 export default defineConfig({
   testDir: "e2e",
@@ -14,13 +17,13 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
-    baseURL: "http://localhost:5179",
+    baseURL: `http://localhost:${port}`,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },
   webServer: {
-    command: "npx vite --port 5179 --strictPort",
-    url: "http://localhost:5179",
+    command: `npx vite --port ${port} --strictPort`,
+    url: `http://localhost:${port}`,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
   },

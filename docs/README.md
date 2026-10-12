@@ -9,6 +9,7 @@ Agent instructions live in [AGENTS.md](../AGENTS.md). Setup and verification liv
 - [Component-first workflow](component-first.md): build, register, verify, then consume significant UI.
 - [Web principles](web-principles.md): the Landing style's numbered rules (`uipack/web`), each with its number and source video, including motion and backgrounds.
 - [Charts](charts.md): `SpanChart` (companies on the layers of a stack, with CSS-only layer, size and deals filters) and `LayerStack` (a bottom-up layer diagram with zone notes and cross-cutting rails), both static HTML with no JavaScript.
+- [Article parts](article.md): `uipack/article` (NoteCard, NoteCluster, LayerHead, TermList, Callout, ChangeNote, LinkList), the labelled blocks of a long article section, with the HTML and class contract for hosts that emit the markup without React.
 - [Product documentation layout](docs-layout.md): the `uipack/docs` shell, Markdown renderer, navigation, anchors, and responsive behavior.
 - [Portfolio ideas](portfolio-ideas.md): prioritized places where `uipack/web` pieces would improve junxiong.dev, and what to avoid.
 - [Object scenes](objects.md): seven reusable, lazy 3D illustrations and their player.

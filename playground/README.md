@@ -7,6 +7,7 @@ Run `npm run dev` from the repo root. Pages:
 - `/animations`: 3D animation collection, search, and technique filters. `/slides` is a compatibility alias.
 - `/presentations`: complete five-chapter narrative composition example.
 - `/web`: Web UI in the Landing style. One composed landing page (glass nav, star hero, demo player, spotlight features, reveal quote, closing CTA), then the flashy, low-key, Motion and Backgrounds sections and the principles.
+- `/article`: the `uipack/article` parts in a host article: a 40rem prose column with blog-like prose CSS and a 56rem slot for wide clusters. `#layer-section` composes the Inference and Harness sections; the other anchors show each part's variants. `?host=notes` maps the tokens to the notes site's palette. The content is `examples/articleParts.tsx`; `scripts/build-article-fixtures.tsx` renders it to static HTML in a copy of the notes site's article layout for the no-JavaScript tests.
 - `/styles`: visual-language catalog (Technical, Landing, and six object art directions).
 
 `ShowcaseShell.tsx` owns shared navigation/theme handling; its `styleName` prop names the page's content style in the context line. `showcase.css` owns page tokens and layout. `catalog.ts` owns type/style/tag metadata. Collection pages must not introduce another header or global styles.
