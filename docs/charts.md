@@ -39,7 +39,7 @@ Rows are items, and columns are ordered layers, with the bottom of the stack on 
 ```ts
 interface SpanLayer {
   id: string; label: string;  // full label, e.g. "Gateways and observability"
-  short?: string;             // one word for mid widths, e.g. "Gateways" (default: abbr)
+  short?: string;             // one word for mid widths, e.g. "Gateway" (default: abbr)
   abbr: string;               // code for phones, e.g. "GWY"
   zone?: string;              // header band over consecutive columns
 }
@@ -77,36 +77,49 @@ The consumer computes `tier`, `value` and `valueLabel`, including any "Not sized
 
 ### Layout and column labels
 
-The chart root is a size container, and the chart picks its layout and its column labels from the width its own data needs. The model computes these breakpoints from the labels (`spanThresholds`, using a calibrated width table), so any number of layers works. The example's twelve layers resolve as follows:
+The chart root is a size container, and the chart picks its layout and its column labels from the width its own data needs. The model computes these breakpoints from the labels with `spanThresholds`. It uses a table of the system sans's measured glyph widths at 11 and 12px, and every mode keeps **at least 8px between neighbouring labels**. The example's twelve layers resolve as follows:
 
 | Container | Layout | Column labels |
 |---|---|---|
-| under 342px | name above a full-width bar track | codes (`abbr`) on two alternating lines |
-| 342–689px | stacked, as above | codes, one line |
-| 690–881px | stacked | `short` words |
-| 882–1208px | a 192px name column beside the bars | `short` words |
-| 1209px and up | 220px name column from 1000px | full labels, 11px then 12px, at most two lines |
+| under 358px | name above a full-width bar track | codes (`abbr`) on two alternating lines |
+| 358–695px | stacked, as above | codes, one line |
+| 696–887px | stacked | `short` words, 11px, −0.01em tracking |
+| 888–1197px | a 192px name column beside the bars | `short` words |
+| 1198px and up | 220px name column from 1000px | full labels, 11px then 12px, at most two lines |
 
-The notes site's 56rem (896px) figure slot gets the name column and the short words. Phones get codes, and the codes also appear in the filter chips. Long names wrap to two lines rather than truncating. Status badges and tags sit on a line under the name and wrap; they do not shrink. The value label sits right-aligned in the name column, or next to the name when rows are stacked. Every label is at least 11px, and nothing overflows the page at 320px.
+The notes site's 56rem (896px) figure slot gets the name column and the short words.
+
+- **Short labels.** These are one word, and a hyphenated short breaks after its hyphen ("Post-/train"), with an explicit `<wbr>` because WebKit does not break there on its own. Single-line and two-line labels share a bottom edge. A short label that is too wide for its neighbours moves the layout breakpoint, rather than crowding them. The example uses "Gateway", not "Gateways", for that reason.
+- **Phones.** Phones get codes, and the codes also appear in the filter chips.
+- **Names and values.** The name and its value share one flexible line. The name gives way first, wrapping to two lines but never narrower than 9ch (about 82px). Only then does the value shrink: it is capped at 72px and cut with an ellipsis, so a long value ("part of ByteDance") can never crush a name, and its full text is in the row's sentence and its opened detail. In the wide layout values sit at the cell's right edge. Names over 18 characters also carry a hover title.
+- **Status badges and tags.** These sit on a line under the name. Badges wrap inside the pill; they are never cut.
+- **Row height.** Rows are 44px in the wide layout whether or not they have a badge line, unless a name wraps.
+- **Readability.** Every label is at least 11px, and nothing overflows the page at 320px.
 
 ### Filters
 
-All filter state lives in one set of hidden inputs. Every visible control is a `<label>` for one of them, so the copies always agree.
+All filter state lives in one set of hidden inputs, placed inside the sticky header. Every visible control is a `<label>` for one of them, so the copies always agree. Chromium focuses a radio when its label is clicked; because the radios are in the header, that focus never scrolls the page.
 
-- **Layer.** Each column header is a label for its layer's radio. Headers carry a dotted underline at rest so they read as controls. A "Layer" chip row labels the same radios: it scrolls sideways with a fade on the trailing edge. Choosing a layer tints its column down the chart and marks the header with a 3px bar. The chip gets a check mark and a heavier border, so the state is not shown by colour alone.
-- **Size.** With `tiers`, a chip row offers "All sizes" and each tier with its range.
+- **Layer.** Each column header is a label for its layer's radio. Headers carry a dotted underline at rest so they read as controls. Choosing a layer tints its column down the chart (`--uipack-span-column-highlight`) and marks the header with a 3px bar. Where the headers show names, the open filter panel skips a second row of layer chips and shows "Click a column to filter by layer" ("Tap…" on touch screens; `labels.layerHint` and `labels.layerHintTouch`). Where headers show codes, layer chips ("PWR Power") wrap in the filter area, so none is ever cut off.
+- **Size.** With `tiers`, a chip row offers "All sizes" and each tier with its range. Chips get a check mark and a heavier border when chosen, so the state is not shown by colour alone.
 - **Deals.** When any item has a status other than `shutdown`, a toggle chip shows the deal count, e.g. "Deals 6". Its text comes from `labels.deals`.
 - **Combined.** The filters combine with AND, and any active filter shows every matching row, featured or not. Groups without a matching row hide; the chart's own rules include exactly the layer × size × deals combinations this needs. The sticky header shows the active state ("Showing Inference × Large × Deals ×") with a "Clear" control.
 - **Empty and clearing.** A combination that matches nothing shows "Nothing matches these filters." with "Clear filters". Clearing works without JavaScript: the chart is a `<form method="dialog">` (submission is a no-op) and both controls are reset buttons. The expand checkbox sits outside the form, so clearing does not collapse the list.
-- **Targets.** Chips and headers are 36px tall with a fine pointer and 44px with a coarse pointer.
+- **Targets.** Chips, headers and the active-filter chips are 36px tall with a fine pointer and 44px with a coarse pointer; the links in an opened row are 24px and 44px.
 
-On narrow containers (under 640px), the legend and the chip rows fold into a closed "Filters and key" disclosure. Its summary states the active filters. The first company then appears about 200px below the chart top on a phone, when the host supplies its own caption.
+On narrow containers (under 640px), the legend and the chip rows fold into a closed "Filters and key" disclosure. Its summary states the active filters ("Filters and key · All layers · All sizes"); each "· part" wraps as a unit. Above the chart, outside the closed disclosure, a one-line key shows the two swatches and the Deals chip, so a phone reader can read the bars and reach Deals in one tap.
 
 ### Subset, groups and rows
 
 - **Featured subset.** With any featured item, only featured rows show at first. "13 of 45 shown · Show all 45 companies" sits above the list, and a matching control sits at its foot. Both are labels for one checkbox, and expanding reveals the other rows in place. Group headings read "2 of 6" in the featured view and the total when expanded. They are quieter and shorter than a row.
-- **Row detail.** Each row is a `<details>`. Opening it shows the note, then a meta line: main layer, other layers, size, status in words, "Website" and "Source". Links stay links. Each summary has one visually hidden sentence, such as "Fireworks AI. Main layer: Inference. Also in: Post-training. Size: $4B, Small.", and the drawn cells are `aria-hidden`.
-- **Badges.** `acquired` → "→ Stripe", `pending` → "→ Nvidia (pending)", `licensed` → "→ Nvidia (licensed)", in the change colour; `shutdown` → "shut", muted. Screen readers hear "Acquired by Stripe, 2026", "Sale agreed to Nvidia, 2026", "Technology licensed to Nvidia, 2025" and "Shut down".
+- **Row detail.** Each row is a `<details>`. Opening it shows the note, then the facts: main layer, other layers, size, status in words, "Website" and "Source". They are separated by gaps rather than dots, so a wrap never strands a separator. Links stay links. Each summary has one visually hidden sentence, such as "Fireworks AI. Main layer: Inference. Also in: Post-training. Size: $4B, Small.", and the drawn cells are `aria-hidden`.
+- **Badges.** The pill carries only the counterparty, at 11px in the change colour:
+  - `acquired`: "→ Stripe" in a solid pill.
+  - `pending`: "→ Nvidia" in a dashed pill.
+  - `licensed`: "↝ Nvidia", with a wave arrow.
+  - `shutdown`: "shut", muted.
+
+  The legend explains each kind present with a sample ("→ Buyer acquired", "↝ Licensee technology licensed"). Screen readers hear "Acquired by Stripe, 2026", "Sale agreed to Nvidia, 2026", "Technology licensed to Nvidia, 2025" and "Shut down".
 - **Logos.** Logos sit on a hairline tile. In dark mode the tile colour derives from the host's ink and is dimmed slightly, because favicons are often dark glyphs on a transparent ground. A missing logo gives two letters on a transparent tile that tell similar names apart: "Cerebras" → "Ce", "Cursor" → "Cu", "OpenRouter" → "OR".
 
 ### Optional enhancement
@@ -114,9 +127,11 @@ On narrow containers (under 640px), the legend and the chip rows fold into a clo
 `enhanceSpanChart(root)` adds the design-direction behaviour. Everything else works without it.
 
 - Activating the selected header or chip again (click, tap, Space or Enter) clears that filter. Escape clears every filter. Escape is heard on the document while focus is in the chart, or the chart was the last thing clicked, because Safari does not focus a radio when its label is clicked.
+- After "Clear" or "Clear filters", focus moves to the "All layers" control in the sticky header, not past the chart.
+- Group labels stick under the header while their rows scroll past. The enhancement measures the header (`--sp-head-h`); without it the labels simply scroll.
 - Under a filter, group headings show live counts, the footer reads "14 of 45 shown", and a polite live region announces it. Without JavaScript, the headings show totals.
-- Collapsing the list, or filtering while the chart top is above the viewport, scrolls the chart top back into view (offset by `--uipack-span-sticky-top`).
-- Where `hidden="until-found"` is supported (Chromium), rows hidden in the featured view stay findable with the browser's find-in-page, and a match expands the list. Elsewhere the CSS subset applies.
+- Collapsing the list, or filtering while the chart top is above the viewport, scrolls the chart top back into view (offset by `--uipack-span-sticky-top`), in Chromium and WebKit.
+- Where `hidden="until-found"` is supported (Chromium), rows hidden in the featured view stay findable with the browser's find-in-page, and a match expands the list. While hidden they also carry `aria-hidden`, so screen readers do not hear empty list items. Elsewhere the CSS subset applies.
 - A URL hash naming a filter input (`#ai-stack-layer-control`, `#ai-stack-tier-small`, `#ai-stack-deals`) selects it, so an article can link to a filtered view.
 
 ```js
@@ -145,7 +160,7 @@ A hero diagram for an article that walks a stack from the bottom up.
 
 - **Order.** Layers are given bottom to top and numbered that way, with 01 at the bottom. They are drawn, tabbed and read top-down, so the eye, the keyboard and a screen reader meet them in the same order.
 - **Zones.** Each zone heading comes right before its bands, with an optional note, e.g. "MODELS · built once per model".
-- **Colour.** One accent ramps up the stack on the band edges and zone marks, 30% at the bottom zone to 90% at the top. Zones alternate a faint neutral tint. There are no other hues, so the figure agrees with SpanChart's uncoloured zones.
+- **Colour.** One accent ramps up the stack on the band edges and zone marks, 75% at the bottom zone to 100% at the top, so every edge is at least 3:1 against its band in both themes. Zones alternate a faint neutral tint. There are no other hues, so the figure agrees with SpanChart's uncoloured zones.
 
 ```ts
 interface StackZone { id: string; label: string; note?: string }
@@ -156,7 +171,7 @@ interface StackLayer {
   detail?: string;                          // shown when opened, e.g. a self-test question
   href?: string;                            // the article section, "Read the section →"
 }
-interface StackRail { id: string; label: string; from: string; to: string; summary?: string; href?: string }
+interface StackRail { id: string; label: string; short?: string; from: string; to: string; summary?: string; href?: string } // short: the bar's label, e.g. "Gateways"
 interface StackBracket { label: string; from: string; to: string }
 interface LayerStackProps {
   id: string; title?: ReactNode; caption?: ReactNode;
@@ -171,10 +186,10 @@ interface LayerStackProps {
 
 - **Bands.** A band is a `<details>` when it has a `detail` or an `href`. Opening it shows "Check yourself", the question and "Read the section →". The zone edge is a real left border, so hover and the open state keep it.
 - **Band layout.**
-  - From 860px each band is one line of equal height: number, then name and constraint, cut with an ellipsis, with the metric on the right. Opening a band shows the whole constraint. The 896px host shows the whole stack in about 700px.
-  - From 640px the constraint gets two lines under the name.
-  - Below 640px the metric moves under the summary.
-- **Rails.** From 640px each rail is a tinted bar beside the stack with a 2px accent top and its label at the top. One CSS grid sizes the bar to exactly the rows of its layers. The bars are pointer shortcuts (`aria-hidden`, out of the tab order). At every width an "Across the stack" list under the stack carries each rail's name as a link, its range ("layers 7–10") and its summary. Nothing is hover-only.
+  - From 860px each band is one line: number, then name (15px) and constraint, with the metric on the right. A constraint written to the one-line budget gives equal bands; at 896 that is roughly 400px of 13px text after the name. The 896px host shows the whole stack in about 700px. Prose is never cut: a longer constraint takes a second line.
+  - From 640px the constraint sits under the name, wrapping as needed.
+  - Below 640px the metric moves under the summary, and zone notes take their own line, with no dot to strand.
+- **Rails.** From 640px each rail is a 38px tinted bar beside the stack with a 2px accent top and its label at the top: `short` when given, else `label`, wrapping into a second vertical line rather than being cut. One CSS grid sizes the bar to exactly the rows of its layers. The bars are pointer shortcuts (`aria-hidden`, out of the tab order). At every width an "Across the stack" list under the stack carries each rail's name as a link, its range ("layers 7–10") and its summary. Nothing is hover-only.
 - **Brackets.** From 1000px they sit in a left column; below that, each becomes a small label above the zone it starts in.
 - **Validation.** Unknown zones, rails or brackets that name an unknown layer, a zone split by another zone, and duplicate ids all throw.
 
@@ -197,7 +212,7 @@ Both components read the shared `--uipack-*` properties, with the Technical defa
 | `--uipack-token-change` | status badges (text mixed 70% with `fg` for 4.5:1) |
 | `--uipack-sans`, `--uipack-mono` | type (system fonts by default; no font requests) |
 | `--uipack-span-column-highlight` | the chosen column's band (accent 10% in light, 20% in dark) |
-| `--uipack-span-name-width` | SpanChart's name column (192px, 220px from 1000px) |
+| `--uipack-span-name-width` | SpanChart's name column (192px, 220px from 1000px; the breakpoints assume these) |
 | `--uipack-span-sticky-top` | offset of the sticky header and of scroll restoration under a fixed site header (0px) |
 | `--uipack-span-tint`, `--uipack-span-hairline` | the "also" fill and the row separators |
 | `--uipack-span-logo-bg`, `--uipack-span-logo-filter` | the logo tile (surface; in dark, 82% `fg` with `brightness(0.88)`) |

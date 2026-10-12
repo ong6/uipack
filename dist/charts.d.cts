@@ -97,10 +97,18 @@ interface SpanChartLabels {
     valueLegend: string;
     /** Legend text beside a sample tag, e.g. "model type". */
     tagLegend: string;
-    /** Legend text beside a sample deal badge. */
-    legendChange: string;
-    /** Legend text beside the shut badge. */
+    /** Sample counterparty in the legend's badges. */
+    legendBuyer: string;
+    legendLicensee: string;
+    /** Legend text beside a sample of each badge kind. */
+    legendAcquired: string;
+    legendPending: string;
+    legendLicensed: string;
     legendShutdown: string;
+    /** Beside the size chips where the column headers carry names: how to filter by layer. */
+    layerHint: string;
+    /** The same hint on touch screens. */
+    layerHintTouch: string;
     /** Footer date line, `{date}`. */
     asOf: string;
     website: string;
@@ -202,12 +210,11 @@ interface SpanChartModel {
     }[];
     /** The smallest filter states that match no rows. */
     emptyStates: SpanFilter[];
-    /** Legend samples taken from the data. */
+    /** Legend samples: a value and a tag from the data, and the badge kinds present. */
     samples: {
         value: string | null;
-        badge: string | null;
         tag: string | null;
-        shut: boolean;
+        badges: SpanStatusKind[];
     };
 }
 declare function spanThresholds(layers: SpanLayer[]): SpanThresholds;
@@ -282,6 +289,8 @@ interface StackLayer {
 interface StackRail {
     id: string;
     label: string;
+    /** A shorter label for the vertical bar beside the stack, e.g. "Gateways"; the list under the stack uses `label`. */
+    short?: string;
     /** Lowest layer id the rail covers. */
     from: string;
     /** Highest layer id the rail covers. */
@@ -385,7 +394,8 @@ declare function LayerStack(props: LayerStackProps): react.JSX.Element;
  * behaviour still works through native inputs and CSS; with it:
  *
  * - activating the selected layer or size again (click, tap, Space or Enter)
- *   clears that filter; Enter also selects, like Space;
+ *   clears that filter; Enter also selects, like Space; "Clear" returns focus
+ *   to the "All layers" control;
  * - Escape clears every filter while focus is in the chart or the chart was
  *   the last thing clicked or tapped (Safari does not focus a radio when its
  *   label is clicked, so focus alone is not enough);
@@ -394,8 +404,9 @@ declare function LayerStack(props: LayerStackProps): react.JSX.Element;
  * - collapsing the list, or filtering while the chart top is above the
  *   viewport, scrolls the chart top back into view;
  * - rows hidden in the featured view become findable with the browser's
- *   find-in-page where `hidden="until-found"` is supported; a match expands
- *   the list;
+ *   find-in-page where `hidden="until-found"` is supported (and stay hidden
+ *   from screen readers until shown); a match expands the list;
+ * - group labels stick under the header while their rows scroll past;
  * - a URL hash naming a filter input (e.g. `#ai-stack-layer-control`)
  *   selects it, so an article can link to a filtered view.
  *

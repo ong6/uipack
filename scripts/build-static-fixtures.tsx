@@ -40,6 +40,23 @@ writeFileSync(
 );
 writeFileSync(`${OUT}/layer-stack.html`, page("LayerStack static", renderToStaticMarkup(<LayerStack {...aiStackDiagram} />)));
 
+// Stress rows at a host's 896px slot: long names, long value labels, long
+// buyer names and several tags, which must never crush a name or cut a badge.
+const stressItems = [
+  { id: "bds", name: "ByteDance Seed", primary: "pretraining", also: ["apps"], valueLabel: "part of ByteDance", tags: ["video", "image"], featured: true },
+  { id: "gh", name: "GitHub", primary: "harness", also: ["apps"], valueLabel: "part of Microsoft", featured: true },
+  { id: "hpe", name: "Hewlett Packard Enterprise", primary: "systems", valueLabel: "$30B", featured: true },
+  { id: "hume", name: "Hume AI", primary: "apps", tags: ["voice"], status: { kind: "licensed" as const, label: "Google DeepMind, 2026" }, valueLabel: "—", featured: true },
+  { id: "pk", name: "Portkey", primary: "control", status: { kind: "acquired" as const, label: "Palo Alto Networks, 2026" }, valueLabel: "$117M", featured: true },
+  { id: "arize", name: "Arize AI", primary: "evals", also: ["control"], status: { kind: "pending" as const, label: "Dynatrace, 2026" }, valueLabel: "$915M", featured: true },
+  { id: "short", name: "Oklo", primary: "power", valueLabel: "$15B", featured: true },
+  { id: "plain", name: "Plain Co", primary: "data" },
+];
+writeFileSync(
+  `${OUT}/span-chart-stress.html`,
+  page("SpanChart stress", renderToStaticMarkup(<SpanChart id="stress" headingLevel="none" layers={aiStackLayers} zones={aiStackZones} items={stressItems} />)),
+);
+
 // A host article: prose rules like a blog's, loaded AFTER charts.css, so they
 // win every tie. The charts sit in a 56rem figure slot with no title or
 // caption of their own (the host captions the figure) and no headings.

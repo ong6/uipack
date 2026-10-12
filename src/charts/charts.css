@@ -134,14 +134,16 @@
   container: uipack-span / inline-size;
 }
 .uipack-span .uipack-span__form {
-  --sp-pad: 16px;
+  --sp-pad: 12px;
   --sp-name: var(--uipack-span-name-width, 192px);
   --sp-target: 36px;
+  --sp-link-target: 24px;
   display: block;
 }
 @media (pointer: coarse) {
   .uipack-span .uipack-span__form {
     --sp-target: 44px;
+    --sp-link-target: 44px;
   }
 }
 @container uipack-span (min-width: 1000px) {
@@ -218,8 +220,34 @@
   gap: 6px 8px;
   min-width: 0;
 }
-.uipack-span .uipack-span__frow > .uipack-span__scroll {
+.uipack-span .uipack-span__frow--layer > .uipack-span__wrap {
   grid-column: 2 / -1;
+}
+/* Where the column headers carry names they are the layer filter, so the
+   open panel drops its layer chips for a one-line hint. */
+.uipack-span .uipack-span__panel .uipack-span__frow--layer {
+  display: var(--sp-layer-chips, grid);
+}
+.uipack-span .uipack-span__hint {
+  display: none;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--sp-muted);
+}
+.uipack-span .uipack-span__panel .uipack-span__hint {
+  display: var(--sp-layer-hint, none);
+  margin-left: 52px;
+}
+.uipack-span .uipack-span__hint > span:last-child {
+  display: none;
+}
+@media (pointer: coarse) {
+  .uipack-span .uipack-span__hint > span:first-child {
+    display: none;
+  }
+  .uipack-span .uipack-span__hint > span:last-child {
+    display: inline;
+  }
 }
 .uipack-span .uipack-span__flabel {
   font: 600 11px/16px var(--sp-mono);
@@ -227,25 +255,11 @@
   text-transform: uppercase;
   color: var(--sp-muted);
 }
-.uipack-span .uipack-span__scroll {
-  display: flex;
-  gap: 6px;
-  min-width: 0;
-  padding: 2px 32px 2px 2px;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x proximity;
-  scrollbar-width: none;
-  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
-  mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
-}
-.uipack-span .uipack-span__scroll::-webkit-scrollbar {
-  display: none;
-}
 .uipack-span .uipack-span__wrap {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  min-width: 0;
   padding: 2px;
 }
 .uipack-span .uipack-span__chip {
@@ -265,7 +279,6 @@
   font-weight: calc(500 + var(--sp-sel, 0) * 150);
   color: var(--sp-fg);
   white-space: nowrap;
-  scroll-snap-align: start;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -309,7 +322,7 @@
 .uipack-span .uipack-span__drawer > summary {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: baseline;
   gap: 2px 6px;
   min-height: 44px;
   padding: 8px 12px 8px 32px;
@@ -346,10 +359,16 @@
   outline: 2px solid var(--sp-accent);
   outline-offset: 2px;
 }
+.uipack-span .uipack-span__drawer-title {
+  margin-right: 2px;
+}
+/* The state line: the layer, then "· size", "· Deals". Each part keeps its
+   dot, so a wrap never leaves one at a line end. */
 .uipack-span .uipack-span__now-text {
-  display: var(--sp-now, none);
+  display: var(--sp-now-text, none);
   font-weight: 400;
   color: var(--sp-muted);
+  white-space: nowrap;
 }
 .uipack-span .uipack-span__now-text::before {
   content: "·\00a0";
@@ -363,6 +382,9 @@
 .uipack-span .uipack-span__drawer > :not(summary) {
   margin: 0 12px;
 }
+.uipack-span .uipack-span__drawer .uipack-span__frow--layer {
+  display: grid;
+}
 /* In the drawer each row stacks: its label, then the chips across the full
    width, then the deals toggle. */
 .uipack-span .uipack-span__drawer .uipack-span__frow {
@@ -373,19 +395,42 @@
   grid-column: 1;
 }
 .uipack-span .uipack-span__drawer .uipack-span__filters {
-  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--sp-hair);
 }
 .uipack-span .uipack-span__drawer .uipack-span__chip--toggle {
   justify-self: start;
   margin: 4px 0 0 2px;
 }
 
+/* Phones: the two swatches (and Deals) outside the closed drawer. */
+.uipack-span .uipack-span__keyline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+  font-size: 13px;
+  line-height: 18px;
+}
+.uipack-span .uipack-span__keyline > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.uipack-span .uipack-span__keyline > .uipack-span__chip {
+  margin-left: auto;
+}
+
 /* Resting and active states shared by every label for a filter value. */
 .uipack-span:has(.uipack-span__all-input:checked) [data-l="*"],
-.uipack-span:has(.uipack-span__tier-all:checked) [data-t="*"],
+.uipack-span:has(.uipack-span__tier-all:checked) [data-t="*"] {
+  --sp-sel: 1;
+  --sp-now-text: inline;
+}
 .uipack-span:has(.uipack-span__deals-input:checked) [data-d] {
   --sp-sel: 1;
-  --sp-now: inline;
+  --sp-now: inline-flex;
+  --sp-now-text: inline;
 }
 .uipack-span:has(.uipack-span__all-input:focus-visible) [data-l="*"],
 .uipack-span:has(.uipack-span__tier-all:focus-visible) [data-t="*"],
@@ -429,8 +474,8 @@
   display: var(--sp-now, none);
   align-items: center;
   gap: 6px;
-  min-height: 28px;
-  padding: 0 10px;
+  min-height: var(--sp-target);
+  padding: 0 12px;
   border-radius: 999px;
   background: var(--sp-band);
   box-shadow: inset 0 0 0 1px var(--sp-accent);
@@ -543,6 +588,7 @@
   width: min-content;
   font-size: 11px;
   line-height: 14px;
+  letter-spacing: -0.01em;
 }
 .uipack-span .uipack-span__full {
   display: var(--sp-label-full, none);
@@ -552,6 +598,9 @@
 .uipack-span .uipack-span__zones > [data-zone-start] > span,
 .uipack-span .uipack-span__col[data-zone-start] {
   box-shadow: inset 1px 0 0 var(--sp-hair);
+}
+.uipack-span .uipack-span__col[data-zone-start] {
+  border-top-left-radius: 0;
 }
 
 /* Shown count and the expand control, above the list and at its foot. */
@@ -653,6 +702,16 @@
   font: 600 12px/16px var(--sp-sans);
   color: var(--sp-muted);
 }
+/* With the enhancement measuring the header, each group's label sticks under
+   it while the group's rows scroll past. */
+.uipack-span[data-span-enhanced] .uipack-span__group-head {
+  position: sticky;
+  top: calc(var(--sp-sticky) + var(--sp-head-h, 0px));
+  z-index: 2;
+  margin: 0 -8px;
+  padding: 12px 8px 6px;
+  background: var(--sp-bg);
+}
 /* The group's own column, marked under its heading: the staircase reads
    even when each group shows one row. */
 .uipack-span .uipack-span__tick {
@@ -704,7 +763,7 @@
   padding: 0 8px;
   list-style: none;
   cursor: pointer;
-  scroll-margin-top: calc(var(--sp-sticky) + 120px);
+  scroll-margin-top: calc(var(--sp-sticky) + var(--sp-head-h, 100px) + 40px);
   -webkit-tap-highlight-color: transparent;
 }
 .uipack-span .uipack-span__item summary::-webkit-details-marker {
@@ -725,7 +784,8 @@
   grid-template-columns: var(--sp-line-cols, minmax(0, 1fr));
   align-items: center;
   row-gap: 6px;
-  min-height: 36px;
+  /* Every row the same height in the wide layout, with or without a badge. */
+  min-height: var(--sp-line-min, 36px);
   padding: var(--sp-line-pad, 8px 0 10px);
 }
 
@@ -733,8 +793,10 @@
    any badge and tags on a line under the name. */
 .uipack-span .uipack-span__name {
   display: grid;
-  grid-template-columns: var(--sp-name-cols, 8px 24px minmax(0, max-content) auto 1fr);
-  grid-template-areas: var(--sp-name-areas, "chev logo label value ." "chev logo sub sub sub");
+  grid-template-columns: 8px 24px minmax(0, 1fr);
+  grid-template-areas:
+    "chev logo nv"
+    "chev logo sub";
   align-items: center;
   column-gap: 8px;
   min-width: 0;
@@ -783,24 +845,39 @@
   letter-spacing: -0.02em;
   color: var(--sp-muted);
 }
-.uipack-span .uipack-span__name > b {
-  grid-area: label;
-  align-self: baseline;
-  display: -webkit-box;
+/* Name and size on one line. The name gives way first, wrapping to two lines
+   down to about 9ch (82px at 14px); only then does the size shrink, cut with an ellipsis
+   (its full text is in the row's sentence and detail). In the wide layout
+   the name grows, so sizes sit at the cell's right edge. */
+.uipack-span .uipack-span__nv {
+  grid-area: nv;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
   min-width: 0;
+}
+.uipack-span .uipack-span__nv > b {
+  flex: var(--sp-label-grow, 0) 1 auto;
+  min-width: min(9ch, 100%);
+  display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   font-weight: 500;
-  line-height: 20px;
+  line-height: 18px;
   overflow-wrap: break-word;
 }
-.uipack-span .uipack-span__name > em {
-  grid-area: value;
-  align-self: baseline;
+.uipack-span .uipack-span__nv > em {
+  flex: 0 0.0001 auto;
+  margin-left: auto;
+  max-width: 72px;
+  min-width: 0;
+  overflow: hidden;
+  text-align: right;
   font: 400 11px/16px var(--sp-mono);
   font-variant-numeric: tabular-nums;
   color: var(--sp-muted);
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 .uipack-span .uipack-span__sub {
@@ -808,26 +885,30 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 8px;
+  gap: 2px 8px;
   min-width: 0;
   margin-top: 2px;
 }
 .uipack-span .uipack-span__tag {
-  font: 400 11px/16px var(--sp-mono);
+  font: 400 11px/14px var(--sp-mono);
   color: var(--sp-muted);
   white-space: nowrap;
 }
+/* Deal badges never cut: the pill wraps inside a long buyer name. Pending is
+   a dashed pill and licensed a wave arrow; the legend and each row's
+   sentence say so in words. */
 .uipack-span .uipack-span__badge {
-  flex: none;
+  min-width: 0;
   max-width: 100%;
-  overflow: hidden;
-  padding: 0 7px;
+  padding: 0 6px;
   border: 1px solid var(--sp-change);
-  border-radius: 999px;
-  font: 500 12px/16px var(--sp-sans);
+  border-radius: 8px;
+  font: 500 11px/14px var(--sp-sans);
   color: var(--sp-change-ink);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-wrap: balance;
+}
+.uipack-span .uipack-span__badge[data-kind="pending"] {
+  border-style: dashed;
 }
 .uipack-span .uipack-span__badge[data-kind="shutdown"] {
   border-color: var(--sp-border);
@@ -899,18 +980,15 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  /* Gaps, not separator glyphs, so a wrap never leaves a dangling dot. */
+  gap: 2px 16px;
   font-size: 12px;
   color: var(--sp-muted);
-}
-.uipack-span .uipack-span__meta > span:not(:last-child)::after {
-  content: "·";
-  content: "·" / "";
-  margin: 0 8px;
 }
 .uipack-span .uipack-span__meta a {
   display: inline-flex;
   align-items: center;
-  min-height: var(--sp-target);
+  min-height: var(--sp-link-target);
   color: var(--sp-accent);
   font-weight: 600;
   text-decoration: underline;
@@ -925,7 +1003,10 @@
 
 .uipack-span .uipack-span__empty {
   display: none;
+  position: relative;
+  z-index: 2;
   padding: 24px 0;
+  background: var(--sp-bg);
   text-align: center;
   font-size: 13px;
   color: var(--sp-muted);
@@ -973,7 +1054,9 @@
   .uipack-span .uipack-span__col:hover {
     background: var(--sp-raised);
   }
-  .uipack-span .uipack-span__chip:hover,
+  .uipack-span .uipack-span__chip:hover {
+    border-color: color-mix(in srgb, var(--sp-accent) calc(var(--sp-sel, 0) * 100%), var(--sp-fg));
+  }
   .uipack-span .uipack-span__toggle--foot:hover {
     border-color: var(--sp-fg);
   }
@@ -984,7 +1067,8 @@
   .uipack-span .uipack-span__panel {
     display: grid;
   }
-  .uipack-span .uipack-span__drawer {
+  .uipack-span .uipack-span__drawer,
+  .uipack-span .uipack-span__keyline {
     display: none;
   }
   .uipack-span .uipack-span__zones > span {
@@ -1002,8 +1086,9 @@
 /* ==================== LayerStack ==================== */
 .uipack-stack {
   --ls-bracket-w: 148px;
-  --ls-rail-w: 34px;
+  --ls-rail-w: 38px;
   --ls-target: 36px;
+  --ls-link-target: 28px;
   container: uipack-stack / inline-size;
   font-size: 14px;
   line-height: 1.45;
@@ -1011,6 +1096,7 @@
 @media (pointer: coarse) {
   .uipack-stack {
     --ls-target: 44px;
+    --ls-link-target: 44px;
   }
 }
 /* One accent ramp up the stack (30% at the bottom zone to 90% at the top) on
@@ -1085,13 +1171,12 @@
   background: var(--ls-edge);
 }
 .uipack-stack .uipack-stack__note {
+  /* Narrow: the note takes its own line, so no dot can end or start a line. */
+  flex-basis: 100%;
+  padding-left: 16px;
   font: 400 12px/16px var(--sp-sans);
   letter-spacing: normal;
   text-transform: none;
-}
-.uipack-stack .uipack-stack__note::before {
-  content: "· ";
-  content: "· " / "";
 }
 
 /* Band: the zone edge is a real left border, so hover and open keep it. */
@@ -1131,7 +1216,8 @@ summary.uipack-stack__face {
 /* The same disclosure mark as SpanChart rows: right-pointing, turns down. */
 .uipack-stack .uipack-stack__face > i {
   grid-area: chev;
-  align-self: center;
+  align-self: start;
+  margin-top: 6px;
   justify-self: center;
   width: 8px;
   height: 8px;
@@ -1168,6 +1254,7 @@ summary.uipack-stack__face {
   font-size: 13px;
   line-height: 18px;
   color: var(--sp-muted);
+  text-wrap: pretty;
 }
 .uipack-stack .uipack-stack__metric {
   grid-area: metric;
@@ -1288,7 +1375,7 @@ summary.uipack-stack__face {
 .uipack-stack .uipack-stack__across a {
   display: inline-flex;
   align-items: center;
-  min-height: 28px;
+  min-height: var(--ls-link-target);
   font-size: 14px;
 }
 .uipack-stack .uipack-stack__across strong {
@@ -1333,7 +1420,22 @@ summary.uipack-stack__face {
   .uipack-stack .uipack-stack__bracket {
     grid-column: 1;
   }
-  /* Name over the constraint (two lines at most), metric on the right. */
+  .uipack-stack .uipack-stack__note {
+    flex-basis: auto;
+    padding-left: 0;
+  }
+  .uipack-stack .uipack-stack__note::before {
+    content: "·\00a0";
+    content: "·\00a0" / "";
+  }
+  .uipack-stack .uipack-stack__face > i {
+    align-self: center;
+    margin-top: 0;
+  }
+  .uipack-stack .uipack-stack__across-name {
+    display: grid;
+  }
+  /* Name over the constraint, metric on the right. */
   .uipack-stack .uipack-stack__face {
     grid-template-columns: 8px 20px minmax(0, 1fr) auto;
     grid-template-areas: "chev idx text metric";
@@ -1341,15 +1443,6 @@ summary.uipack-stack__face {
     column-gap: 12px;
     min-height: 62px;
     padding: 6px 16px 6px 12px;
-  }
-  .uipack-stack .uipack-stack__summary {
-    display: -webkit-box;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-  }
-  .uipack-stack .uipack-stack__band[open] .uipack-stack__summary {
-    display: block;
   }
   .uipack-stack .uipack-stack__metric {
     display: grid;
@@ -1406,23 +1499,21 @@ summary.uipack-stack__face {
   }
 }
 
-/* From 860px: one line per band. Name and constraint run together, cut
-   with an ellipsis; opening the band shows the whole constraint. Every band
-   has the same height, so the stack reads as layers, not cards. */
+/* From 860px: one line per band where the words fit. Name and constraint
+   run together, so with constraints written to that budget every band has
+   the same height and the stack reads as layers, not cards. Prose is never
+   cut: a longer constraint takes a second line. */
 @container uipack-stack (min-width: 860px) {
   .uipack-stack .uipack-stack__face {
     min-height: 40px;
     padding: 4px 16px 4px 12px;
   }
+  /* One line when it fits; a longer constraint wraps to a second line
+     rather than being cut. */
   .uipack-stack .uipack-stack__text {
-    overflow: hidden;
     font-size: 13px;
     line-height: 19px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .uipack-stack .uipack-stack__band[open] .uipack-stack__text {
-    white-space: normal;
+    text-wrap: pretty;
   }
   .uipack-stack .uipack-stack__text > b,
   .uipack-stack .uipack-stack__summary,
@@ -1431,7 +1522,7 @@ summary.uipack-stack__face {
   }
   .uipack-stack .uipack-stack__text > b {
     margin-right: 8px;
-    font-size: 14px;
+    font-size: 15px;
     line-height: 19px;
   }
   .uipack-stack .uipack-stack__summary {

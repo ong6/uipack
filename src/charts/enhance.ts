@@ -3,7 +3,8 @@
  * behaviour still works through native inputs and CSS; with it:
  *
  * - activating the selected layer or size again (click, tap, Space or Enter)
- *   clears that filter; Enter also selects, like Space;
+ *   clears that filter; Enter also selects, like Space; "Clear" returns focus
+ *   to the "All layers" control;
  * - Escape clears every filter while focus is in the chart or the chart was
  *   the last thing clicked or tapped (Safari does not focus a radio when its
  *   label is clicked, so focus alone is not enough);
@@ -12,8 +13,9 @@
  * - collapsing the list, or filtering while the chart top is above the
  *   viewport, scrolls the chart top back into view;
  * - rows hidden in the featured view become findable with the browser's
- *   find-in-page where `hidden="until-found"` is supported; a match expands
- *   the list;
+ *   find-in-page where `hidden="until-found"` is supported (and stay hidden
+ *   from screen readers until shown); a match expands the list;
+ * - group labels stick under the header while their rows scroll past;
  * - a URL hash naming a filter input (e.g. `#ai-stack-layer-control`)
  *   selects it, so an article can link to a filtered view.
  *
@@ -48,15 +50,17 @@ export function enhanceSpanChart(root: HTMLElement): () => void {
   const markFindable = () => {
     if (!findable) return;
     const collapsed = Boolean(expand && !expand.checked) && !filtered();
-    for (const el of items) {
-      const hide = collapsed && !el.hasAttribute("data-featured");
-      if (hide) el.setAttribute("hidden", "until-found");
-      else el.removeAttribute("hidden");
-    }
-    for (const el of all<HTMLElement>(".uipack-span__group")) {
-      if (collapsed && !el.hasAttribute("data-featured")) el.setAttribute("hidden", "until-found");
-      else el.removeAttribute("hidden");
-    }
+    const mark = (el: HTMLElement, hide: boolean) => {
+      if (hide) {
+        el.setAttribute("hidden", "until-found");
+        el.setAttribute("aria-hidden", "true");
+      } else {
+        el.removeAttribute("hidden");
+        el.removeAttribute("aria-hidden");
+      }
+    };
+    for (const el of items) mark(el, collapsed && !el.hasAttribute("data-featured"));
+    for (const el of all<HTMLElement>(".uipack-span__group")) mark(el, collapsed && !el.hasAttribute("data-featured"));
   };
 
   const update = (announce: boolean) => {
@@ -114,17 +118,26 @@ export function enhanceSpanChart(root: HTMLElement): () => void {
     restore();
   };
   const onReset = () => {
-    // The reset event fires before the controls change.
+    // The reset event fires before the controls change. Focus would otherwise
+    // fall to the page when the pressed button disappears.
     win?.setTimeout(() => {
       sync();
       update(true);
       restore();
+      groups[0].all.focus({ preventScroll: true });
     }, 0);
   };
   const onKeyDown = (event: KeyboardEvent) => {
     const input = event.target as HTMLInputElement;
-    if (event.key !== "Enter" || !(input instanceof HTMLInputElement)) return;
+    if (!(input instanceof HTMLInputElement)) return;
     const g = owner(input);
+    // Space on the selected radio does nothing natively; make it clear, like a repeat click.
+    if (event.key === " " && g && input !== g.all && input.value === g.current) {
+      event.preventDefault();
+      select(g.all);
+      return;
+    }
+    if (event.key !== "Enter") return;
     if (g && input !== g.all) {
       event.preventDefault();
       select(input.value === g.current ? g.all : input);
@@ -157,6 +170,15 @@ export function enhanceSpanChart(root: HTMLElement): () => void {
     root.scrollIntoView({ block: "start" });
   };
 
+  // Sticky group labels need the header's height, which changes with the
+  // active-filter row; without a measurement they simply do not stick.
+  const header = find<HTMLElement>(".uipack-span__header");
+  const measure = () => header && root.style.setProperty("--sp-head-h", `${header.offsetHeight}px`);
+  const Observer = win && (win as unknown as { ResizeObserver?: typeof ResizeObserver }).ResizeObserver;
+  const observer = Observer && header ? new Observer(measure) : null;
+  observer?.observe(header!);
+  measure();
+
   root.addEventListener("click", onClick);
   root.addEventListener("change", onChange);
   root.addEventListener("keydown", onKeyDown);
@@ -181,7 +203,12 @@ export function enhanceSpanChart(root: HTMLElement): () => void {
     doc.removeEventListener("pointerdown", onPointerDown, true);
     doc.removeEventListener("keydown", onDocKeyDown);
     win?.removeEventListener("hashchange", onHash);
-    for (const el of root.querySelectorAll("[hidden]")) el.removeAttribute("hidden");
+    observer?.disconnect();
+    root.style.removeProperty("--sp-head-h");
+    for (const el of root.querySelectorAll("[hidden]")) {
+      el.removeAttribute("hidden");
+      el.removeAttribute("aria-hidden");
+    }
     root.removeAttribute("data-span-enhanced");
     root.removeAttribute("data-span-counting");
     root.removeAttribute("data-span-find");

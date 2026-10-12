@@ -311,7 +311,9 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
   - SpanChart shows short layer names at 896 and stacked rows at 720. It expands in place from the top or the foot, filters by column heading or chip (kept in sync) and combines layer, size and deals filters.
   - It hides empty groups, clears from the empty state, opens rows with their links, honours repeat activation, Escape and hash links, and keeps collapsed rows findable in Chromium. The same flows work as static HTML with JavaScript off, including 160 rows.
   - A host article whose prose CSS loads after `charts.css` keeps every bar under its column.
-  - LayerStack reads top-down with equal bands and rails spanning exactly their layers. It keeps its zone edge on hover and turns rails into a list on phones.
+  - After filtering from the stuck header deep in the list, or collapsing from the foot, the chart top and first result are on screen in Chromium and WebKit.
+  - Stress rows (long names, long value labels, long buyer names) never crush a name or cut a badge, and column labels keep 8px apart in every label mode.
+  - LayerStack reads top-down with equal bands and rails spanning exactly their layers. It never truncates a constraint, keeps its zone edge on hover, and turns rails into a list on phones.
   - Labels stay at 11px or more with 44px touch targets and no overflow.
   - Unit tests pin grouping, sorting, runs, the breakpoints, the scoped rules, screen-reader sentences, validation, and the 3:1 and 4.5:1 contrast of the cell and badge colours on four palettes.
 - Live 3D stories retain one canvas across stops, support direct navigation and reduced motion, and provide a diagram fallback.

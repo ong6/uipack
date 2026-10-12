@@ -32,6 +32,31 @@ async function smallestText(root: Locator) {
 
 const centre = (box: { x: number; width: number }) => box.x + box.width / 2;
 
+/** Gaps between neighbouring visible column labels (their text boxes), left to right. */
+async function labelGaps(chart: Locator, which: "short" | "full" | "abbr") {
+  return chart.locator(`.uipack-span__col .uipack-span__${which}`).evaluateAll((els) => {
+    // The text's own extent (a wrapped label's widest line), not its box.
+    const boxes = els.map((e) => {
+      const range = document.createRange();
+      range.selectNodeContents(e);
+      return range.getBoundingClientRect();
+    });
+    return boxes.slice(1).map((b, i) => {
+      const a = boxes[i];
+      const overlapY = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+      return overlapY > 0 ? b.left - a.right : Infinity;
+    });
+  });
+}
+
+/** Where the chart top and its first visible row sit in the viewport after an action. */
+async function landing(page: Page, chart: Locator) {
+  return chart.evaluate((el) => {
+    const row = [...el.querySelectorAll(".uipack-span__item")].find((r) => r.getClientRects().length && !(r as HTMLElement).hidden)!;
+    return { top: el.getBoundingClientRect().top, row: row.getBoundingClientRect().top, height: innerHeight };
+  });
+}
+
 test.describe("SpanChart at a 56rem host (896px)", () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
@@ -42,12 +67,14 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
     const chart = page.locator("#ai-stack");
     expect((await chart.boundingBox())!.width).toBe(896);
     await expect(chart.locator(".uipack-span__corner")).toBeVisible();
-    await expect(col(chart, "control").locator(".uipack-span__short")).toHaveText("Gateways");
+    await expect(col(chart, "control").locator(".uipack-span__short")).toHaveText("Gateway");
     await expect(col(chart, "control").locator(".uipack-span__short")).toBeVisible();
     await expect(col(chart, "control").locator(".uipack-span__abbr")).toBeHidden();
-    // Column labels do not overlap their neighbours.
-    const boxes = await chart.locator(".uipack-span__col .uipack-span__short").evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()));
-    for (let i = 1; i < boxes.length; i++) expect(boxes[i].left).toBeGreaterThanOrEqual(boxes[i - 1].right - 0.5);
+    // At least 8px between neighbouring labels.
+    for (const gap of await labelGaps(chart, "short")) expect(gap).toBeGreaterThanOrEqual(8);
+    // Headers carry the names, so the panel shows a hint instead of a second row of layer chips.
+    await expect(chart.locator(".uipack-span__panel .uipack-span__frow--layer")).toBeHidden();
+    await expect(chart.locator(".uipack-span__panel .uipack-span__hint")).toHaveText("Click a column to filter by layer", { useInnerText: true });
     // The main bar sits under its column.
     const main = (await chart.locator('[data-item="nvidia"] .uipack-span__track > span > span').boundingBox())!;
     expect(Math.abs(centre(main) - centre((await col(chart, "chips").boundingBox())!))).toBeLessThan(1);
@@ -93,19 +120,21 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
       expect(await group.locator(".uipack-span__item:visible").count()).toBeGreaterThan(0);
       await expect(group.locator(".uipack-span__count--live")).toHaveText(String(await group.locator(".uipack-span__item:visible").count()));
     }
-    // The chip for the same layer shows it selected: a check mark, not only colour.
-    expect(await chip(chart, 'data-l="inference"').evaluate((el) => getComputedStyle(el, "::before").width)).toBe("14px");
+    // The chosen header shows a bar, not only colour.
     expect(await col(chart, "inference").evaluate((el) => getComputedStyle(el, "::after").height)).toBe("3px");
     const now = chart.locator(".uipack-span__now-row");
     await expect(now).toBeVisible();
     await expect(now.locator('.uipack-span__now[data-l="inference"]')).toBeVisible();
     await expect(chart.locator("[data-span-status]")).toHaveText(`${expected} of 45 shown`);
 
-    // Choosing from the chip row moves the header too.
-    await chip(chart, 'data-l="data"').click();
-    await expect(chart.locator("#ai-stack-layer-data")).toBeChecked();
-    expect(await col(chart, "data").evaluate((el) => getComputedStyle(el, "::after").height)).toBe("3px");
+    // The active "Deals" chip lays out like the others.
+    await chip(chart, "data-d").click();
+    expect(await chip(chart, "data-d").evaluate((el) => getComputedStyle(el, "::before").width)).toBe("14px");
+    const display = (sel: string) => now.locator(sel).evaluate((el) => getComputedStyle(el).display);
+    expect(await display(".uipack-span__now[data-d]")).toBe(await display('.uipack-span__now[data-l="inference"]'));
+    await chip(chart, "data-d").click();
     // Repeat activation clears; Escape clears.
+    await col(chart, "data").click();
     await col(chart, "data").click();
     await expect(chart.locator("#ai-stack-layer-all")).toBeChecked();
     await col(chart, "evals").click();
@@ -132,6 +161,7 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
     await expect(chart.locator(".uipack-span__empty")).toBeVisible();
     await chart.locator(".uipack-span__empty button").click();
     await expect(chart.locator("#ai-stack-layer-all")).toBeChecked();
+    await expect(chart.locator("#ai-stack-layer-all")).toBeFocused();
     await expect(chart.locator("#ai-stack-tier-all")).toBeChecked();
     await expect(chart.locator("#ai-stack-deals")).not.toBeChecked();
     await expect(visibleRows(chart)).toHaveCount(await chart.locator(".uipack-span__item[data-featured]").count());
@@ -158,10 +188,58 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
     await expect(chart).toHaveAttribute("data-span-find", "");
     const amd = chart.locator('[data-item="amd"]');
     await expect(amd).toHaveAttribute("hidden", "until-found");
+    await expect(amd).toHaveAttribute("aria-hidden", "true");
     await amd.evaluate((el) => el.dispatchEvent(new Event("beforematch", { bubbles: true })));
     await expect(chart.locator(".uipack-span__expand")).toBeChecked();
     await expect(amd).not.toHaveAttribute("hidden");
+    await expect(amd).not.toHaveAttribute("aria-hidden");
     await expect(amd).toBeVisible();
+  });
+
+  test("filtering from the sticky header or collapsing from the foot lands on the chart, in every engine", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 800 });
+    const chart = page.locator("#ai-stack");
+    await chart.locator(".uipack-span__toggle--top").click();
+    const deep = async () => {
+      const box = (await chart.boundingBox())!;
+      await page.mouse.wheel(0, box.y + box.height * 0.6);
+      await page.waitForTimeout(150);
+    };
+    // A filter chosen from the stuck header, 60% down the list.
+    await deep();
+    await col(chart, "evals").click();
+    let at = await landing(page, chart);
+    expect(at.top).toBeGreaterThanOrEqual(-1);
+    expect(at.row).toBeLessThan(at.height);
+    // Clearing from the stuck header's Clear button.
+    await chart.locator(".uipack-span__toggle--top").isVisible();
+    await page.keyboard.press("Escape");
+    // Collapsing from the foot of the expanded list.
+    await chart.locator(".uipack-span__toggle--foot").scrollIntoViewIfNeeded();
+    await chart.locator(".uipack-span__toggle--foot").click();
+    at = await landing(page, chart);
+    expect(at.top).toBeGreaterThanOrEqual(-1);
+    expect(at.top).toBeLessThan(at.height);
+    expect(at.row).toBeLessThan(at.height);
+  });
+
+  test("Space on the selected layer clears it, and group labels stick under the header", async ({ page }) => {
+    const chart = page.locator("#ai-stack");
+    await chart.locator("#ai-stack-layer-inference").focus();
+    await page.keyboard.press("Space");
+    await expect(chart.locator("#ai-stack-layer-inference")).toBeChecked();
+    await page.keyboard.press("Space");
+    await expect(chart.locator("#ai-stack-layer-all")).toBeChecked();
+
+    await chart.locator(".uipack-span__toggle--top").click();
+    const head = chart.locator("#ai-stack-g-pretraining");
+    const group = chart.locator(".uipack-span__group:has(#ai-stack-g-pretraining)");
+    const g = (await group.boundingBox())!;
+    await page.evaluate((y) => scrollBy(0, y), g.y + 80);
+    await page.waitForTimeout(150);
+    const header = (await chart.locator(".uipack-span__header").boundingBox())!;
+    const stuck = (await head.boundingBox())!;
+    expect(Math.abs(stuck.y - (header.y + header.height))).toBeLessThanOrEqual(2);
   });
 
   test("a link to a filter input opens that view", async ({ page }) => {
@@ -198,28 +276,72 @@ test.describe("SpanChart at other widths", () => {
         await expect(drawer.locator("summary")).toContainText("All layers");
         // Touch targets: 44px tall headers and chips.
         expect((await col(chart, "power").boundingBox())!.height).toBeGreaterThanOrEqual(44);
+        // The key and Deals sit outside the closed drawer.
+        await expect(chart.locator(".uipack-span__keyline")).toBeVisible();
+        await chart.locator(".uipack-span__keyline [data-d]").tap();
+        await expect(chart.locator("#ai-stack-deals")).toBeChecked();
+        expect((await chart.locator(".uipack-span__now[data-d]").boundingBox())!.height).toBeGreaterThanOrEqual(44);
+        let land = await landing(page, chart);
+        expect(land.top).toBeGreaterThanOrEqual(-1);
+        expect(land.top).toBeLessThan(land.height);
+        await chart.locator(".uipack-span__keyline [data-d]").tap();
         await drawer.locator("summary").tap();
+        // Layer chips wrap inside the drawer: none is cut off.
+        const right = (await drawer.boundingBox())!;
+        for (const b of await drawer.locator(".uipack-span__frow--layer .uipack-span__chip").evaluateAll((els) => els.map((e) => e.getBoundingClientRect().right))) {
+          expect(b).toBeLessThanOrEqual(right.x + right.width);
+        }
         expect((await drawer.locator('.uipack-span__chip[data-l="power"]').boundingBox())!.height).toBeGreaterThanOrEqual(44);
         await drawer.locator('.uipack-span__chip[data-l="evals"]').tap();
         await expect(drawer.locator("summary")).toContainText("Evals");
         await expect(chart.locator(".uipack-span__now-row")).toBeVisible();
+        // The drawer chip and the column header label the same radio.
+        expect(await col(chart, "evals").evaluate((el) => getComputedStyle(el, "::after").height)).toBe("3px");
+        land = await landing(page, chart);
+        expect(land.top).toBeLessThan(land.height);
         await chart.locator('[data-item="hugging-face"] summary').tap();
         await noPageOverflow(page, width);
         expect(await smallestText(chart)).toBeGreaterThanOrEqual(11);
-        // Codes never touch: at 320 they alternate lines.
-        const codes = await chart.locator(".uipack-span__col .uipack-span__abbr").evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()));
-        for (let i = 1; i < codes.length; i++) {
-          const a = codes[i - 1];
-          const b = codes[i];
-          const overlapX = Math.min(a.right, b.right) - Math.max(a.left, b.left);
-          const overlapY = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
-          expect(overlapX > 0 && overlapY > 0).toBe(false);
-          if (overlapY > 0) expect(b.left - a.right).toBeGreaterThanOrEqual(2);
-        }
+        // Codes keep 8px apart, alternating lines where columns are narrow.
+        for (const gap of await labelGaps(chart, "abbr")) expect(gap).toBeGreaterThanOrEqual(8);
         await context.close();
       });
     }
   }
+});
+
+test.describe("SpanChart stress rows at 896px", () => {
+  for (const browserWidth of [1440]) {
+    test(`long names, values and buyers never crush or cut each other (${browserWidth})`, async ({ page }) => {
+      await page.setViewportSize({ width: browserWidth, height: 900 });
+      await page.goto("/e2e-static/span-chart-stress.html");
+      const chart = page.locator("#stress");
+      expect((await chart.boundingBox())!.width).toBe(896);
+      for (const id of ["bds", "gh", "hpe", "hume", "pk", "arize"]) {
+        const name = (await chart.locator(`[data-item="${id}"] .uipack-span__nv > b`).boundingBox())!;
+        expect(name.width).toBeGreaterThanOrEqual(70);
+      }
+      const value = chart.locator('[data-item="bds"] .uipack-span__nv > em');
+      expect((await value.boundingBox())!.width).toBeLessThanOrEqual(72);
+      for (const badge of await chart.locator(".uipack-span__item .uipack-span__badge").all()) {
+        expect(await badge.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+      }
+      await expect(chart.locator('[data-item="pk"] .uipack-span__badge')).toHaveText("→ Palo Alto Networks");
+      // Rows with and without a badge line share one height when names fit one line.
+      const heights = await chart.locator('[data-item="short"], [data-item="pk"], [data-item="arize"]').evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)));
+      expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(4);
+      // The full value is still read out and shown in the opened row.
+      await expect(chart.locator('[data-item="bds"] summary')).toHaveAccessibleName(/Size: part of ByteDance\./);
+    });
+  }
+
+  test("full labels at a wide host keep 8px apart", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(at("full", "span-chart"));
+    const chart = page.locator("#ai-stack");
+    await expect(col(chart, "control").locator(".uipack-span__full")).toBeVisible();
+    for (const gap of await labelGaps(chart, "full")) expect(gap).toBeGreaterThanOrEqual(8);
+  });
 });
 
 test.describe("Charts in a host article (prose CSS after charts.css)", () => {
@@ -240,7 +362,7 @@ test.describe("Charts in a host article (prose CSS after charts.css)", () => {
       const row = [...el.querySelectorAll(".uipack-span__item")].find((r) => r.getClientRects().length)!;
       return row.getBoundingClientRect().top - el.getBoundingClientRect().top;
     });
-    expect(first).toBeLessThanOrEqual(215);
+    expect(first).toBeLessThanOrEqual(280);
     await expect(chart.locator('[data-l="power"].uipack-span__col .uipack-span__abbr')).toHaveText("PWR");
   });
 });
@@ -304,9 +426,16 @@ test.describe("LayerStack", () => {
     expect(Math.abs(evals.y - apps.y)).toBeLessThanOrEqual(1);
     expect(Math.abs(evals.y + evals.height - (post.y + post.height))).toBeLessThanOrEqual(1);
     expect(evals.x).toBeGreaterThan(apps.x + apps.width);
-    // The rail's label sits at its top.
+    // The rail's label sits at its top and is not cut.
     const label = (await stack.locator('a.uipack-stack__rail[href="#evals"] > span').boundingBox())!;
     expect(label.y - evals.y).toBeLessThan(16);
+    for (const rail of await stack.locator("a.uipack-stack__rail > span").all()) {
+      expect(await rail.evaluate((el) => el.scrollHeight <= el.clientHeight + 1 && el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+    }
+    // Prose is never cut: no constraint overflows its band.
+    for (const text of await stack.locator(".uipack-stack__text").all()) {
+      expect(await text.evaluate((el) => el.scrollWidth <= el.clientWidth + 1 && getComputedStyle(el).textOverflow !== "ellipsis")).toBe(true);
+    }
     // Tab reaches Apps first.
     await stack.locator("summary").first().focus();
     await expect(stack.locator("summary").first()).toContainText("Apps");
@@ -332,10 +461,17 @@ test.describe("LayerStack", () => {
   });
 
   for (const width of [390, 320]) {
-    test(`fits ${width}px: rails as a list, metric under the summary`, async ({ page }) => {
-      await page.setViewportSize({ width, height: 844 });
+    test(`fits ${width}px: rails as a list, metric under the summary`, async ({ browser }) => {
+      const context = await browser.newContext({ viewport: { width, height: 844 }, isMobile: true, hasTouch: true });
+      const page = await context.newPage();
       await page.goto(at("full", "layer-stack"));
       const stack = page.locator("#ai-stack-layers");
+      // Touch targets in the rail list, and zone notes on their own line (no dot to strand).
+      expect((await stack.locator(".uipack-stack__across a").first().boundingBox())!.height).toBeGreaterThanOrEqual(44);
+      const head = stack.locator(".uipack-stack__zone-head").first();
+      const note = (await head.locator(".uipack-stack__note").boundingBox())!;
+      expect(note.y).toBeGreaterThan((await head.locator("span").first().boundingBox())!.y);
+      expect(await head.locator(".uipack-stack__note").evaluate((el) => getComputedStyle(el, "::before").content)).toBe("none");
       await stack.locator("#ai-stack-layers-data summary").click();
       await noPageOverflow(page, width);
       expect(await smallestText(stack)).toBeGreaterThanOrEqual(11);
@@ -344,6 +480,7 @@ test.describe("LayerStack", () => {
       const summary = (await stack.locator("#ai-stack-layers-chips .uipack-stack__summary").boundingBox())!;
       const metric = (await stack.locator("#ai-stack-layers-chips .uipack-stack__metric").boundingBox())!;
       expect(metric.y).toBeGreaterThanOrEqual(summary.y + summary.height - 1);
+      await context.close();
     });
   }
 

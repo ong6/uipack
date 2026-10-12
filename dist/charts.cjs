@@ -52,8 +52,14 @@ var DEFAULT_LABELS = {
   also: "Also in",
   valueLegend: "size, largest first in each layer",
   tagLegend: "tag",
-  legendChange: "deal: acquired, sale pending or licensed",
+  legendBuyer: "Buyer",
+  legendLicensee: "Licensee",
+  legendAcquired: "acquired",
+  legendPending: "sale pending",
+  legendLicensed: "technology licensed",
   legendShutdown: "shut down",
+  layerHint: "Click a column to filter by layer",
+  layerHintTouch: "Tap a column to filter by layer",
   asOf: "As of {date}",
   website: "Website",
   source: "Source",
@@ -89,51 +95,48 @@ var statusShort = (label = "") => label.split(",")[0].trim();
 function statusBadge(status) {
   if (status.kind === "shutdown") return "shut";
   const who = statusShort(status.label);
-  if (status.kind === "pending") return `\u2192 ${who} (pending)`;
-  if (status.kind === "licensed") return `\u2192 ${who} (licensed)`;
-  return `\u2192 ${who}`;
+  return `${status.kind === "licensed" ? "\u219D" : "\u2192"} ${who}`;
 }
 function statusSentence(status, labels) {
   if (status.kind === "shutdown") return status.label ? `${labels.shutdown}, ${status.label}` : labels.shutdown;
   return fill(labels[status.kind], { label: status.label ?? "" });
 }
-var EM = {};
-for (const [chars, w] of [
-  ["iljI.,:;'|!", 0.24],
-  ["frt()- ", 0.34],
-  ["sczJ", 0.48],
-  ["aekvxy", 0.53],
-  ["bdghnopquL", 0.57],
-  ["FPTZ", 0.6],
-  ["ABEKRSVXY", 0.64],
-  ["CDGHNOQU", 0.7],
-  ["mM", 0.84],
-  ["wW", 0.78]
-])
-  for (const ch of chars) EM[ch] = w;
-function textWidth(text, px) {
+var ADVANCE = {
+  11: "7r98eai1i1qwk98wb7b7dei18wde8w8wi6dihbhzighriagtifia8w8wi1i1i1etprjfirkakjgygal1l683fpiyg7orl1lqi6lqipi8i0kvjbrfjiiviob78wb7i1fre2fuhkfzhkgbaphfgx7e7efs7lowgsguhghgbheuargsfmmdf9frfeb77qb7i1",
+  12: "7l92e4hwhwqqk38qb1b1d8hw8qd88q8qi0dch5htiahli4goi9i48q8qhwhwhwenplj9ilk4kdgsg5kvl07xfjisg1olkvlki0lkiji2hvkpj5r9jcipijb18qb1hwfldwfoheftheg5ajhagr7878fn7forgmgphbhabbeoalgmfgm7f3flf8b17kb1hw"
+};
+var advance = (px) => {
+  const table = ADVANCE[px <= 11 ? 11 : 12];
+  return (ch) => {
+    const i = ch.charCodeAt(0) - 32;
+    return i >= 0 && i < 95 ? parseInt(table.slice(i * 2, i * 2 + 2), 36) / 1e3 : 0.6;
+  };
+};
+function textWidth(text, px, tracking = 0) {
+  const em = advance(px);
   let w = 0;
-  for (const ch of text) w += EM[ch] ?? 0.58;
-  return w * px * 1.08;
+  for (const ch of text) w += em(ch) + tracking;
+  return w * px;
 }
-function twoLineWidth(label, px = 12) {
+function twoLineWidth(label, px = 12, tracking = 0) {
   const words = label.split(/(?<=-)|\s+/).filter(Boolean);
   const join = (parts) => parts.join(" ").replace(/- /g, "-");
-  let best = textWidth(label, px);
-  for (let i = 1; i < words.length; i++) {
-    best = Math.min(best, Math.max(textWidth(join(words.slice(0, i)), px), textWidth(join(words.slice(i)), px)));
-  }
-  return Math.max(best, ...words.map((w) => textWidth(w, px)));
+  const w = (t) => textWidth(t, px, tracking);
+  let best = w(label);
+  for (let i = 1; i < words.length; i++) best = Math.min(best, Math.max(w(join(words.slice(0, i))), w(join(words.slice(i)))));
+  return Math.max(best, ...words.map(w));
 }
-function fullLabelColumn(labels, px = 12, gap = 8) {
-  const w = labels.map((l) => twoLineWidth(l, px));
+function fullLabelColumn(labels, px = 12, gap = LABEL_GAP, tracking = 0) {
+  const w = labels.map((l) => twoLineWidth(l, px, tracking));
   return Math.max(...w.map((x, i) => Math.max(x + 2, i ? (x + w[i - 1]) / 2 + gap : 0)));
 }
 var NARROW_BELOW = 640;
 var ROOMY_FROM = 1e3;
 var NAME_WIDTH = [192, 220];
-var SIDE_PADDING = [16, 24];
+var SIDE_PADDING = [12, 24];
 var SHORT_MIN = 48;
+var LABEL_GAP = 8;
+var SHORT_TRACKING = -0.01;
 function columnWidth(c, layers, wide) {
   const roomy = c >= ROOMY_FROM ? 1 : 0;
   return (c - 2 * SIDE_PADDING[roomy] - (wide ? NAME_WIDTH[roomy] : 0)) / layers;
@@ -148,13 +151,13 @@ function from(ok, floor = 0) {
 }
 function spanThresholds(layers) {
   const n = layers.length;
-  const shortCol = Math.max(SHORT_MIN, fullLabelColumn(layers.map((l) => l.short ?? l.abbr), 11, 4));
+  const shortCol = Math.max(SHORT_MIN, fullLabelColumn(layers.map((l) => (l.short ?? l.abbr).replace(/-/g, "- ")), 11, LABEL_GAP, SHORT_TRACKING));
   const wide = from((c) => columnWidth(c, n, true) >= shortCol, NARROW_BELOW);
   const col = (c) => columnWidth(c, n, c >= wide);
   const full = fullLabelColumn(layers.map((l) => l.label), 11);
   const large = fullLabelColumn(layers.map((l) => l.label), 12);
   const short = from((c) => col(c) >= shortCol, 200);
-  const codeCol = Math.max(...layers.map((l) => l.abbr.length)) * 6.6 + 6;
+  const codeCol = Math.max(...layers.map((l) => l.abbr.length)) * 6.6 + LABEL_GAP;
   const stagger = from((c) => col(c) >= codeCol, 200);
   const fullAt = Math.max(short, from((c) => col(c) >= full, 200));
   return { stagger, wide, short, full: fullAt, large: Math.max(fullAt, from((c) => col(c) >= large, 200)) };
@@ -280,7 +283,6 @@ function buildSpanModel(input) {
   const emptyStates = empty.filter((f) => !empty.some((g) => within(g, f)));
   const featured = rows.filter((r) => r.item.featured).length;
   const hasToggle = featured > 0 && featured < rows.length;
-  const firstBadge = rows.find((r) => r.item.status?.kind === "acquired") ?? rows.find((r) => r.deal);
   return {
     id,
     layers,
@@ -298,9 +300,8 @@ function buildSpanModel(input) {
     emptyStates,
     samples: {
       value: rows.filter((r) => r.item.valueLabel && r.item.value !== void 0).sort((a, b) => b.item.value - a.item.value)[0]?.item.valueLabel ?? null,
-      badge: firstBadge?.badge ?? null,
       tag: rows.find((r) => r.item.tags?.length)?.item.tags[0] ?? null,
-      shut: rows.some((r) => r.item.status?.kind === "shutdown")
+      badges: STATUS_KINDS.filter((kind) => rows.some((r) => r.item.status?.kind === kind))
     }
   };
 }
@@ -324,14 +325,14 @@ function spanChartCss(model) {
     const input = inputId.layer(id, layer.id);
     const value = cssString(layer.id);
     rules.push(`${root}${on(input)}{--sp-active:${k}}`);
-    rules.push(`${root}${on(input)} [data-l=${value}]{--sp-sel:1;--sp-now:inline-flex}`);
+    rules.push(`${root}${on(input)} [data-l=${value}]{--sp-sel:1;--sp-now:inline-flex;--sp-now-text:inline}`);
     rules.push(`${root}${on(input, "focus-visible")} [data-l=${value}]{--sp-focus:1}`);
     rules.push(`${root}${on(input)} .uipack-span__item:not([data-layers~=${value}]),${root}${on(input)} .uipack-span__group:not([data-layers~=${value}]){display:none}`);
   });
   for (const tier of model.tiers) {
     const input = inputId.tier(id, tier.id);
     const value = cssString(tier.id);
-    rules.push(`${root}${on(input)} [data-t=${value}]{--sp-sel:1;--sp-now:inline-flex}`);
+    rules.push(`${root}${on(input)} [data-t=${value}]{--sp-sel:1;--sp-now:inline-flex;--sp-now-text:inline}`);
     rules.push(`${root}${on(input, "focus-visible")} [data-t=${value}]{--sp-focus:1}`);
     rules.push(`${root}${on(input)} .uipack-span__item:not([data-tier=${value}]),${root}${on(input)} .uipack-span__group:not([data-tiers~=${value}]){display:none}`);
   }
@@ -343,9 +344,9 @@ function spanChartCss(model) {
     `@container uipack-span (max-width: ${t.stagger - 0.02}px){${root} .uipack-span__col:nth-child(odd){padding-bottom:22px}${root} .uipack-span__col>span{white-space:nowrap}}`,
     container(
       t.wide,
-      `${root} .uipack-span__form{--sp-name-col:var(--sp-name);--sp-wide:block;--sp-stacked:none;--sp-line-cols:var(--sp-name) minmax(0,1fr);--sp-name-cols:8px 24px minmax(0,1fr) auto;--sp-name-areas:"chev logo label value" "chev logo sub sub";--sp-line-pad:0;--sp-name-pad:6px 12px 6px 0;--sp-detail-pad:2px 8px 12px 56px;--sp-tick-top:19px;--sp-tick-bottom:auto}`
+      `${root} .uipack-span__form{--sp-name-col:var(--sp-name);--sp-wide:block;--sp-stacked:none;--sp-line-cols:var(--sp-name) minmax(0,1fr);--sp-label-grow:1;--sp-line-pad:0;--sp-line-min:44px;--sp-name-pad:4px 12px 4px 0;--sp-detail-pad:2px 8px 12px 56px;--sp-tick-top:19px;--sp-tick-bottom:auto}`
     ),
-    container(t.short, `${root} .uipack-span__form{--sp-label-abbr:none;--sp-label-short:block}`),
+    container(t.short, `${root} .uipack-span__form{--sp-label-abbr:none;--sp-label-short:block;--sp-layer-chips:none;--sp-layer-hint:inline}`),
     container(t.full, `${root} .uipack-span__form{--sp-label-short:none;--sp-label-full:block}`),
     container(t.large, `${root} .uipack-span__form{--sp-label-size:12px}`)
   );
@@ -355,6 +356,7 @@ function spanChartCss(model) {
 // src/charts/SpanChart.tsx
 var import_jsx_runtime = require("react/jsx-runtime");
 var vars = (values) => values;
+var breakable = (text) => text.split(/(?<=-)/).map((part, i, parts) => i < parts.length - 1 ? [part, /* @__PURE__ */ (0, import_jsx_runtime.jsx)("wbr", {}, i)] : part);
 function Row({ row, labels }) {
   const { item } = row;
   const meta = [
@@ -379,8 +381,10 @@ function Row({ row, labels }) {
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__name", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", {}),
               item.logo ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__logo", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", { src: item.logo, alt: "", width: 20, height: 20, loading: "lazy", decoding: "async" }) }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__logo uipack-span__logo--mono", children: row.monogram }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("b", { children: item.name }),
-              item.valueLabel ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("em", { children: item.valueLabel }) : null,
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__nv", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("b", { title: item.name.length > 18 ? item.name : void 0, children: item.name }),
+                item.valueLabel ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("em", { title: item.valueLabel.length > 8 ? item.valueLabel : void 0, children: item.valueLabel }) : null
+              ] }),
               row.badge || item.tags?.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__sub", children: [
                 row.badge && item.status ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__badge", "data-kind": item.status.kind, children: row.badge }) : null,
                 item.tags?.map((tag) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__tag", children: tag }, tag))
@@ -416,14 +420,10 @@ function Legend({ model }) {
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("em", { className: "uipack-span__sample", "aria-hidden": "true", children: samples.value }),
       labels.valueLegend
     ] }) : null,
-    samples.badge ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__badge", "data-kind": "acquired", "aria-hidden": "true", children: samples.badge }),
-      labels.legendChange
-    ] }) : null,
-    samples.shut ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__badge", "data-kind": "shutdown", "aria-hidden": "true", children: "shut" }),
-      labels.legendShutdown
-    ] }) : null,
+    samples.badges.map((kind) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__badge", "data-kind": kind, "aria-hidden": "true", children: kind === "shutdown" ? "shut" : `${kind === "licensed" ? "\u219D" : "\u2192"} ${kind === "licensed" ? labels.legendLicensee : labels.legendBuyer}` }),
+      labels[`legend${kind[0].toUpperCase()}${kind.slice(1)}`]
+    ] }, kind)),
     samples.tag ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", { children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__tag", "aria-hidden": "true", children: samples.tag }),
       labels.tagLegend
@@ -433,9 +433,9 @@ function Legend({ model }) {
 function Filters({ model }) {
   const { id, labels, layers, tiers } = model;
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__filters", "aria-hidden": "true", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__frow", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__frow uipack-span__frow--layer", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__flabel", children: labels.layer }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__scroll", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-span__wrap", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { htmlFor: inputId.layerAll(id), className: "uipack-span__chip uipack-span__chip--all", "data-l": "*", children: labels.allLayers }),
         layers.map((layer) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { htmlFor: inputId.layer(id, layer.id), className: "uipack-span__chip", "data-l": layer.id, children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__code", children: layer.abbr }),
@@ -458,7 +458,11 @@ function Filters({ model }) {
         labels.deals,
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__range", children: model.deals })
       ] }) : null
-    ] }) : null
+    ] }) : null,
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "uipack-span__hint", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: labels.layerHint }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: labels.layerHintTouch })
+    ] })
   ] });
 }
 function SpanChart(props) {
@@ -487,61 +491,75 @@ function SpanChart(props) {
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__head", children: [
             props.title ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Title, { className: "uipack-span__title", id: `${id}-title`, children: props.title }) : null,
             props.caption ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "uipack-span__caption", children: props.caption }) : null,
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__inputs", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { role: "radiogroup", "aria-label": labels.layer, children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "radio", className: "uipack-span__all-input", name: `${id}-layer`, id: inputId.layerAll(id), value: "*", defaultChecked: true, "aria-label": labels.allLayers }),
-                layers.map((layer) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "radio", className: "uipack-span__layer-input", name: `${id}-layer`, id: inputId.layer(id, layer.id), value: layer.id, "aria-label": layer.label }, layer.id))
-              ] }),
-              tiers.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { role: "radiogroup", "aria-label": labels.size, children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "radio", className: "uipack-span__tier-all", name: `${id}-tier`, id: inputId.tierAll(id), value: "*", defaultChecked: true, "aria-label": labels.allSizes }),
-                tiers.map((tier) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-                  "input",
-                  {
-                    type: "radio",
-                    className: "uipack-span__tier-input",
-                    name: `${id}-tier`,
-                    id: inputId.tier(id, tier.id),
-                    value: tier.id,
-                    "aria-label": tier.range ? `${tier.label}, ${tier.range}` : tier.label
-                  },
-                  tier.id
-                ))
-              ] }) : null,
-              model.deals ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "checkbox", className: "uipack-span__deals-input", id: inputId.deals(id), "aria-label": `${labels.deals}, ${model.deals}` }) : null,
-              model.hasToggle ? (
-                // Outside the form, so "Clear filters" does not collapse the list.
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-                  "input",
-                  {
-                    type: "checkbox",
-                    className: "uipack-span__expand",
-                    id: inputId.expand(id),
-                    form: `${id}-keep`,
-                    defaultChecked: model.initialAll,
-                    "aria-label": fill(labels.showAll, { n: model.total })
-                  }
-                )
-              ) : null
-            ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__panel", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Legend, { model }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Filters, { model })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("details", { className: "uipack-span__drawer", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("summary", { children: [
-                labels.filtersAndKey,
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__drawer-title", children: labels.filtersAndKey }),
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__now-text", "data-l": "*", children: labels.allLayers }),
                 layers.map((layer) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__now-text", "data-l": layer.id, children: layer.short ?? layer.label }, layer.id)),
-                tiers.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__now-text", "data-t": "*", children: labels.allSizes }) : null,
-                tiers.map((tier) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__now-text", "data-t": tier.id, children: tier.label }, tier.id)),
-                model.deals ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__now-text", "data-d": "", children: labels.deals }) : null
+                tiers.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__now-text uipack-span__now-text--then", "data-t": "*", children: labels.allSizes }) : null,
+                tiers.map((tier) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__now-text uipack-span__now-text--then", "data-t": tier.id, children: tier.label }, tier.id)),
+                model.deals ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__now-text uipack-span__now-text--then", "data-d": "", children: labels.deals }) : null
               ] }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Legend, { model }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Filters, { model })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "uipack-span__keyline", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__swatch uipack-span__swatch--main", "aria-hidden": "true" }),
+                labels.main
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__swatch uipack-span__swatch--also", "aria-hidden": "true" }),
+                labels.also
+              ] }),
+              model.deals ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { htmlFor: inputId.deals(id), className: "uipack-span__chip uipack-span__chip--toggle", "data-d": "", "aria-hidden": "true", children: [
+                labels.deals,
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__range", children: model.deals })
+              ] }) : null
             ] })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__chart", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__header", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__inputs", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { role: "radiogroup", "aria-label": labels.layer, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "radio", className: "uipack-span__all-input", name: `${id}-layer`, id: inputId.layerAll(id), value: "*", defaultChecked: true, "aria-label": labels.allLayers }),
+                  layers.map((layer) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "radio", className: "uipack-span__layer-input", name: `${id}-layer`, id: inputId.layer(id, layer.id), value: layer.id, "aria-label": layer.label }, layer.id))
+                ] }),
+                tiers.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { role: "radiogroup", "aria-label": labels.size, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "radio", className: "uipack-span__tier-all", name: `${id}-tier`, id: inputId.tierAll(id), value: "*", defaultChecked: true, "aria-label": labels.allSizes }),
+                  tiers.map((tier) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                    "input",
+                    {
+                      type: "radio",
+                      className: "uipack-span__tier-input",
+                      name: `${id}-tier`,
+                      id: inputId.tier(id, tier.id),
+                      value: tier.id,
+                      "aria-label": tier.range ? `${tier.label}, ${tier.range}` : tier.label
+                    },
+                    tier.id
+                  ))
+                ] }) : null,
+                model.deals ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "checkbox", className: "uipack-span__deals-input", id: inputId.deals(id), "aria-label": `${labels.deals}, ${model.deals}` }) : null,
+                model.hasToggle ? (
+                  // Outside the form, so "Clear filters" does not collapse the list.
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                    "input",
+                    {
+                      type: "checkbox",
+                      className: "uipack-span__expand",
+                      id: inputId.expand(id),
+                      form: `${id}-keep`,
+                      defaultChecked: model.initialAll,
+                      "aria-label": fill(labels.showAll, { n: model.total })
+                    }
+                  )
+                ) : null
+              ] }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-span__now-row", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__now-label", children: labels.showing }),
                 layers.map((layer) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { htmlFor: inputId.layerAll(id), className: "uipack-span__now", "data-l": layer.id, children: [
@@ -572,7 +590,7 @@ function SpanChart(props) {
                     title: layer.label,
                     children: [
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__abbr", children: layer.abbr }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__short", children: layer.short ?? layer.abbr }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__short", children: breakable(layer.short ?? layer.abbr) }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-span__full", children: layer.label })
                     ]
                   },
@@ -724,7 +742,7 @@ function buildLayerStack(props) {
     const k = runs.indexOf(g);
     return {
       ...g,
-      ramp: zoneCount === 1 ? 70 : Math.round(30 + 60 * k / (zoneCount - 1)),
+      ramp: zoneCount === 1 ? 100 : Math.round(75 + 25 * k / (zoneCount - 1)),
       alt: k % 2 === 0,
       place: one(`zone:${g.zone.id}`),
       layers: layers.map((layer, i) => ({ layer, i, number: pad(i + 1), place: one(`layer:${i}`) })).filter(({ i }) => i >= g.start && i <= g.end).reverse(),
@@ -827,7 +845,7 @@ function LayerStack(props) {
           }),
           model.rails.map(({ rail, place: p }, k) => {
             const style = place(p, { "--cn": k + 2, "--cw": k + 3 });
-            return rail.href ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("a", { className: "uipack-stack__rail", href: rail.href, style, "aria-hidden": "true", tabIndex: -1, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: rail.label }) }, rail.id) : /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-stack__rail", style, "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: rail.label }) }, rail.id);
+            return rail.href ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("a", { className: "uipack-stack__rail", href: rail.href, style, "aria-hidden": "true", tabIndex: -1, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: rail.short ?? rail.label }) }, rail.id) : /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-stack__rail", style, "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: rail.short ?? rail.label }) }, rail.id);
           })
         ] }),
         model.rails.length ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-stack__across", children: [
@@ -873,15 +891,17 @@ function enhanceSpanChart(root) {
   const markFindable = () => {
     if (!findable) return;
     const collapsed = Boolean(expand && !expand.checked) && !filtered();
-    for (const el of items) {
-      const hide = collapsed && !el.hasAttribute("data-featured");
-      if (hide) el.setAttribute("hidden", "until-found");
-      else el.removeAttribute("hidden");
-    }
-    for (const el of all(".uipack-span__group")) {
-      if (collapsed && !el.hasAttribute("data-featured")) el.setAttribute("hidden", "until-found");
-      else el.removeAttribute("hidden");
-    }
+    const mark = (el, hide) => {
+      if (hide) {
+        el.setAttribute("hidden", "until-found");
+        el.setAttribute("aria-hidden", "true");
+      } else {
+        el.removeAttribute("hidden");
+        el.removeAttribute("aria-hidden");
+      }
+    };
+    for (const el of items) mark(el, collapsed && !el.hasAttribute("data-featured"));
+    for (const el of all(".uipack-span__group")) mark(el, collapsed && !el.hasAttribute("data-featured"));
   };
   const update = (announce) => {
     markFindable();
@@ -935,12 +955,19 @@ function enhanceSpanChart(root) {
       sync();
       update(true);
       restore();
+      groups[0].all.focus({ preventScroll: true });
     }, 0);
   };
   const onKeyDown = (event) => {
     const input = event.target;
-    if (event.key !== "Enter" || !(input instanceof HTMLInputElement)) return;
+    if (!(input instanceof HTMLInputElement)) return;
     const g = owner(input);
+    if (event.key === " " && g && input !== g.all && input.value === g.current) {
+      event.preventDefault();
+      select(g.all);
+      return;
+    }
+    if (event.key !== "Enter") return;
     if (g && input !== g.all) {
       event.preventDefault();
       select(input.value === g.current ? g.all : input);
@@ -969,6 +996,12 @@ function enhanceSpanChart(root) {
     else if (!target.checked) select(target);
     root.scrollIntoView({ block: "start" });
   };
+  const header = find(".uipack-span__header");
+  const measure = () => header && root.style.setProperty("--sp-head-h", `${header.offsetHeight}px`);
+  const Observer = win && win.ResizeObserver;
+  const observer = Observer && header ? new Observer(measure) : null;
+  observer?.observe(header);
+  measure();
   root.addEventListener("click", onClick);
   root.addEventListener("change", onChange);
   root.addEventListener("keydown", onKeyDown);
@@ -992,7 +1025,12 @@ function enhanceSpanChart(root) {
     doc.removeEventListener("pointerdown", onPointerDown, true);
     doc.removeEventListener("keydown", onDocKeyDown);
     win?.removeEventListener("hashchange", onHash);
-    for (const el of root.querySelectorAll("[hidden]")) el.removeAttribute("hidden");
+    observer?.disconnect();
+    root.style.removeProperty("--sp-head-h");
+    for (const el of root.querySelectorAll("[hidden]")) {
+      el.removeAttribute("hidden");
+      el.removeAttribute("aria-hidden");
+    }
     root.removeAttribute("data-span-enhanced");
     root.removeAttribute("data-span-counting");
     root.removeAttribute("data-span-find");

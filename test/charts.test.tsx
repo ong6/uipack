@@ -11,7 +11,7 @@ import {
   type SpanItem,
   type SpanLayer,
 } from "../src/charts";
-import { cssIdent, monogram, spanRuns, spanThresholds, twoLineWidth } from "../src/charts/model";
+import { cssIdent, LABEL_GAP, columnWidth, monogram, spanRuns, spanThresholds, textWidth, twoLineWidth } from "../src/charts/model";
 import { aiStack, aiStackDiagram, aiStackItems, aiStackLayers, aiStackTiers, aiStackZones, syntheticStack } from "../examples/aiStack";
 
 const mount = (el: ReactElement) => {
@@ -70,11 +70,13 @@ describe("SpanChart model", () => {
     expect(monogram("Weights & Biases")).toBe("WB");
   });
 
-  it("estimates label widths close to system sans, breaking after hyphens", () => {
-    // Measured in Chromium on macOS at 12px/500: "Gateways and" is 80.9px wide.
-    const w = twoLineWidth("Gateways and observability");
-    expect(w).toBeGreaterThan(80);
-    expect(w).toBeLessThan(90);
+  it("estimates label widths within a few percent of the system sans, breaking after hyphens", () => {
+    // Measured in Chromium on macOS at 500 weight: "Gateways and" 80.91px at 12px, "Inference" 50.46px and "Gateway" 46.18px at 11px.
+    expect(twoLineWidth("Gateways and observability")).toBeGreaterThan(80.9);
+    expect(twoLineWidth("Gateways and observability")).toBeLessThan(83);
+    expect(textWidth("Inference", 11)).toBeGreaterThanOrEqual(50.46);
+    expect(textWidth("Inference", 11)).toBeLessThan(51.5);
+    expect(textWidth("Gateway", 11)).toBeGreaterThanOrEqual(46.18);
     expect(twoLineWidth("Post-train", 11)).toBeLessThan(35);
   });
 
@@ -82,10 +84,21 @@ describe("SpanChart model", () => {
     const t = spanThresholds(aiStackLayers);
     expect(t.wide).toBeLessThanOrEqual(894); // a 896px figure: name column beside the bars
     expect(t.short).toBeLessThanOrEqual(718); // a 720px figure: stacked rows with short labels
-    expect(t.stagger).toBeGreaterThan(318); // a 320px phone: codes alternate lines
-    expect(t.stagger).toBeLessThan(388); // a 390px phone does not need to
+    expect(t.stagger).toBeGreaterThan(318); // phones: codes alternate lines to keep an 8px gap
     expect(t.full).toBeGreaterThan(1000);
     expect(t.large).toBeGreaterThanOrEqual(t.full);
+  });
+
+  it("keeps at least 8px between neighbouring short labels wherever they show", () => {
+    const t = spanThresholds(aiStackLayers);
+    const width = (l: (typeof aiStackLayers)[number]) => textWidth(l.short!.split("-")[0] + (l.short!.includes("-") ? "-" : ""), 11, -0.01);
+    for (const c of [t.short, t.wide, 894, t.full - 1]) {
+      const col = columnWidth(c, aiStackLayers.length, c >= t.wide);
+      for (let i = 1; i < aiStackLayers.length; i++) {
+        const gap = col - (width(aiStackLayers[i]) + width(aiStackLayers[i - 1])) / 2;
+        expect(gap).toBeGreaterThanOrEqual(LABEL_GAP);
+      }
+    }
   });
 });
 
@@ -117,6 +130,7 @@ describe("SpanChart markup", () => {
     const labels = [...h.querySelectorAll("label[for]")];
     expect(labels.length).toBeGreaterThan(40);
     for (const label of labels) expect(ids.has(label.getAttribute("for")!)).toBe(true);
+    expect(h.querySelectorAll('label[for="ai-stack-deals"]')).toHaveLength(4); // panel, drawer, phone key line, active row
     expect(h.querySelectorAll('input[name="ai-stack-layer"]')).toHaveLength(aiStackLayers.length + 1);
     expect(h.querySelectorAll('input[name="ai-stack-tier"]')).toHaveLength(aiStackTiers.length + 1);
     expect(h.querySelector('[role="radiogroup"][aria-label="Layer"]')).not.toBeNull();
@@ -141,7 +155,7 @@ describe("SpanChart markup", () => {
     const css = spanChartCss(model);
     const on = (id: string) => `:has(#ai-stack-${id}:checked)`;
     expect(css).toContain(`#ai-stack${on("layer-inference")}{--sp-active:7}`);
-    expect(css).toContain(`#ai-stack${on("layer-inference")} [data-l="inference"]{--sp-sel:1;--sp-now:inline-flex}`);
+    expect(css).toContain(`#ai-stack${on("layer-inference")} [data-l="inference"]{--sp-sel:1;--sp-now:inline-flex;--sp-now-text:inline}`);
     expect(css).toContain(`#ai-stack${on("layer-inference")} .uipack-span__item:not([data-layers~="inference"])`);
     expect(css).toContain(`#ai-stack${on("tier-small")} .uipack-span__item:not([data-tier="small"])`);
     expect(css).toContain(`#ai-stack:has(#ai-stack-layer-inference:focus-visible) [data-l="inference"]{--sp-focus:1}`);
@@ -182,24 +196,55 @@ describe("SpanChart markup", () => {
     expect(fireworks.querySelector(".uipack-span__line")).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("states deals and shutdowns in words, pending differently from acquired", () => {
+  it("states deals and shutdowns in words; pills carry only the counterparty and differ by kind", () => {
     const h = host();
     const sr = (id: string) => h.querySelector(`[data-item="${id}"] .uipack-span__sr`)!.textContent;
-    const badge = (id: string) => h.querySelector(`[data-item="${id}"] .uipack-span__badge`)!.textContent;
+    const badge = (id: string) => h.querySelector(`[data-item="${id}"] .uipack-span__badge`)!;
     expect(sr("openrouter")).toContain("Acquired by Stripe, 2026.");
-    expect(badge("openrouter")).toBe("→ Stripe");
+    expect(badge("openrouter").textContent).toBe("→ Stripe");
     expect(sr("hugging-face")).toContain("Sale agreed to Nvidia, 2026.");
-    expect(badge("hugging-face")).toBe("→ Nvidia (pending)");
+    expect(badge("hugging-face").textContent).toBe("→ Nvidia");
+    expect(badge("hugging-face")).toHaveAttribute("data-kind", "pending");
     expect(sr("groq")).toContain("Technology licensed to Nvidia, 2025.");
+    expect(badge("groq").textContent).toBe("↝ Nvidia");
     expect(sr("builder")).toContain("Shut down, 2025.");
-    expect(badge("builder")).toBe("shut");
+    expect(badge("builder").textContent).toBe("shut");
   });
 
-  it("explains values, deals and tags in the legend with samples from the data", () => {
+  it("explains values, each badge kind and tags in the legend", () => {
     const legend = host().querySelector(".uipack-span__legend")!;
     expect(legend.textContent).toContain("$4.5T");
-    expect(legend.textContent).toContain("→ Stripe");
+    const kinds = [...legend.querySelectorAll(".uipack-span__badge")].map((b) => [b.getAttribute("data-kind"), b.textContent, b.parentElement!.textContent!.replace(b.textContent!, "")]);
+    expect(kinds).toEqual([
+      ["acquired", "→ Buyer", "acquired"],
+      ["pending", "→ Buyer", "sale pending"],
+      ["licensed", "↝ Licensee", "technology licensed"],
+      ["shutdown", "shut", "shut down"],
+    ]);
     expect(legend.textContent).toContain("nuclearfocus");
+  });
+
+  it("puts the filter inputs in the sticky header, so focusing one never scrolls the page", () => {
+    const header = host().querySelector(".uipack-span__header")!;
+    expect(header.querySelectorAll("input")).toHaveLength(aiStackLayers.length + 1 + aiStackTiers.length + 1 + 2);
+  });
+
+  it("hides the layer chips where headers carry names, with a hint, and keeps them in the phone drawer", () => {
+    const h = host();
+    const css = spanChartCss(buildSpanModel(aiStack));
+    expect(css).toMatch(/--sp-layer-chips:none;--sp-layer-hint:inline/);
+    expect(h.querySelector(".uipack-span__panel .uipack-span__hint")!.textContent).toBe("Click a column to filter by layerTap a column to filter by layer");
+    expect(h.querySelectorAll(".uipack-span__drawer .uipack-span__frow--layer .uipack-span__chip")).toHaveLength(aiStackLayers.length + 1);
+    // Nothing focusable or scrollable sits inside the hidden chip rows.
+    expect(h.querySelector(".uipack-span__scroll")).toBeNull();
+    expect(h.querySelectorAll('[aria-hidden="true"] :is(a[href], button, input, summary, [tabindex]:not([tabindex="-1"]))')).toHaveLength(0);
+  });
+
+  it("shows the two swatches and the deals toggle outside the phone drawer", () => {
+    const key = host().querySelector(".uipack-span__keyline")!;
+    expect(key.textContent).toContain("Main layer");
+    expect(key.textContent).toContain("Also in");
+    expect(key.querySelector('label[for="ai-stack-deals"]')).not.toBeNull();
   });
 
   it("loads logos lazily with empty alt, and shows two letters without one", () => {
@@ -316,7 +361,11 @@ describe("enhanceSpanChart", () => {
     inference.click();
     expect(inference.checked).toBe(true); // not treated as a repeat
 
+    expect(document.activeElement).toBe($("#ai-stack-layer-all")); // focus lands on the chart's first filter after a reset
     inference.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    expect($("#ai-stack-layer-all").checked).toBe(true);
+    inference.click();
+    inference.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true }));
     expect($("#ai-stack-layer-all").checked).toBe(true);
 
     cleanup();
@@ -368,13 +417,19 @@ describe("LayerStack", () => {
     expect(safety.place.wide).toEqual([row("apps"), row("power") - row("apps") + 1]);
   });
 
-  it("ramps the zone edge up the stack in one hue and alternates the tints", () => {
+  it("ramps the zone edge up the stack in one hue, every step at 3:1, and alternates the tints", () => {
     const model = buildLayerStack(aiStackDiagram);
     expect(model.zones.map((z) => [z.zone.id, z.ramp, z.alt])).toEqual([
-      ["serving", 90, true],
-      ["models", 60, false],
-      ["infrastructure", 30, true],
+      ["serving", 100, true],
+      ["models", 88, false],
+      ["infrastructure", 75, true],
     ]);
+  });
+
+  it("labels a rail bar with its short name and lists the full one under the stack", () => {
+    const host = mount(<LayerStack {...aiStackDiagram} />);
+    expect(host.querySelector('a.uipack-stack__rail[href="#gateways"]')!.textContent).toBe("Gateways");
+    expect(host.querySelector(".uipack-stack__across")!.textContent).toContain("Gateways and observability");
   });
 
   it("puts bracket labels above the zone they start in, below 1000px", () => {
@@ -502,5 +557,8 @@ describe("charts.css", () => {
     expect(contrast(mix(change, fg, 0.7), bg)).toBeGreaterThanOrEqual(4.5);
     // Main and also cells stay distinct from each other.
     expect(contrast(accent, mix(accent, bg, 0.2))).toBeGreaterThanOrEqual(2.5);
+    // LayerStack: the lowest zone edge (75% accent) against either band tint.
+    expect(css).toContain("--ls-edge: color-mix(in srgb, var(--sp-accent) var(--ls-ramp, 70%), var(--sp-bg))");
+    for (const band of [bg, mix(fg, bg, 0.03)]) expect(contrast(mix(accent, bg, 0.75), band)).toBeGreaterThanOrEqual(3);
   });
 });

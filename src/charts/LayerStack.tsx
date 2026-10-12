@@ -32,6 +32,8 @@ export interface StackLayer {
 export interface StackRail {
   id: string;
   label: string;
+  /** A shorter label for the vertical bar beside the stack, e.g. "Gateways"; the list under the stack uses `label`. */
+  short?: string;
   /** Lowest layer id the rail covers. */
   from: string;
   /** Highest layer id the rail covers. */
@@ -179,13 +181,14 @@ export function buildLayerStack(props: LayerStackProps) {
     return [top, map.get(`layer:${lo}`)! - top + 1];
   };
 
-  // Top zone first. Edges ramp up the stack in the accent; tints alternate.
+  // Top zone first. Edges ramp up the stack in the accent, 75% to 100% so
+  // every edge is at least 3:1 against its band; tints alternate.
   const zoneCount = runs.length;
   const zonesTopDown = [...runs].reverse().map((g) => {
     const k = runs.indexOf(g);
     return {
       ...g,
-      ramp: zoneCount === 1 ? 70 : Math.round(30 + (60 * k) / (zoneCount - 1)),
+      ramp: zoneCount === 1 ? 100 : Math.round(75 + (25 * k) / (zoneCount - 1)),
       alt: k % 2 === 0,
       place: one(`zone:${g.zone.id}`),
       layers: layers
@@ -320,11 +323,11 @@ export function LayerStack(props: LayerStackProps) {
           const style = place(p, { "--cn": k + 2, "--cw": k + 3 });
           return rail.href ? (
             <a className="uipack-stack__rail" href={rail.href} key={rail.id} style={style} aria-hidden="true" tabIndex={-1}>
-              <span>{rail.label}</span>
+              <span>{rail.short ?? rail.label}</span>
             </a>
           ) : (
             <span className="uipack-stack__rail" key={rail.id} style={style} aria-hidden="true">
-              <span>{rail.label}</span>
+              <span>{rail.short ?? rail.label}</span>
             </span>
           );
         })}

@@ -105,10 +105,18 @@ export interface SpanChartLabels {
   valueLegend: string;
   /** Legend text beside a sample tag, e.g. "model type". */
   tagLegend: string;
-  /** Legend text beside a sample deal badge. */
-  legendChange: string;
-  /** Legend text beside the shut badge. */
+  /** Sample counterparty in the legend's badges. */
+  legendBuyer: string;
+  legendLicensee: string;
+  /** Legend text beside a sample of each badge kind. */
+  legendAcquired: string;
+  legendPending: string;
+  legendLicensed: string;
   legendShutdown: string;
+  /** Beside the size chips where the column headers carry names: how to filter by layer. */
+  layerHint: string;
+  /** The same hint on touch screens. */
+  layerHintTouch: string;
   /** Footer date line, `{date}`. */
   asOf: string;
   website: string;
@@ -139,8 +147,14 @@ export const DEFAULT_LABELS: SpanChartLabels = {
   also: "Also in",
   valueLegend: "size, largest first in each layer",
   tagLegend: "tag",
-  legendChange: "deal: acquired, sale pending or licensed",
+  legendBuyer: "Buyer",
+  legendLicensee: "Licensee",
+  legendAcquired: "acquired",
+  legendPending: "sale pending",
+  legendLicensed: "technology licensed",
   legendShutdown: "shut down",
+  layerHint: "Click a column to filter by layer",
+  layerHintTouch: "Tap a column to filter by layer",
   asOf: "As of {date}",
   website: "Website",
   source: "Source",
@@ -244,8 +258,8 @@ export interface SpanChartModel {
   groupRules: { filter: SpanFilter; key: string }[];
   /** The smallest filter states that match no rows. */
   emptyStates: SpanFilter[];
-  /** Legend samples taken from the data. */
-  samples: { value: string | null; badge: string | null; tag: string | null; shut: boolean };
+  /** Legend samples: a value and a tag from the data, and the badge kinds present. */
+  samples: { value: string | null; tag: string | null; badges: SpanStatusKind[] };
 }
 
 export const fill = (template: string, values: Record<string, string | number>) =>
@@ -289,12 +303,15 @@ export function spanRuns(columns: number[], main: number): SpanRun[] {
 
 const statusShort = (label = "") => label.split(",")[0].trim();
 
+/**
+ * The pill's text: the counterparty after a glyph. Pending and licensed read
+ * differently by style (a dashed pill, a wave arrow), in the legend and in
+ * the screen-reader sentence, so the pill never needs a qualifier.
+ */
 export function statusBadge(status: SpanStatus) {
   if (status.kind === "shutdown") return "shut";
   const who = statusShort(status.label);
-  if (status.kind === "pending") return `→ ${who} (pending)`;
-  if (status.kind === "licensed") return `→ ${who} (licensed)`;
-  return `→ ${who}`;
+  return `${status.kind === "licensed" ? "↝" : "→"} ${who}`;
 }
 
 export function statusSentence(status: SpanStatus, labels: SpanChartLabels) {
@@ -302,43 +319,42 @@ export function statusSentence(status: SpanStatus, labels: SpanChartLabels) {
   return fill(labels[status.kind], { label: status.label ?? "" });
 }
 
-/* Approximate advance widths (em) of a medium-weight system sans, calibrated
-   against SF Pro. Enough to place the label breakpoints; a wider host font
+/* Advance widths of the system sans at weight 500, measured in Chromium on
+   macOS (SF Pro Text) at 11px and 12px, for ASCII 32–126, in thousandths of
+   an em, base-36 pairs. They place the label breakpoints; a wider host font
    wraps a label to another line rather than clipping it. */
-const EM: Record<string, number> = {};
-for (const [chars, w] of [
-  ["iljI.,:;'|!", 0.24],
-  ["frt()- ", 0.34],
-  ["sczJ", 0.48],
-  ["aekvxy", 0.53],
-  ["bdghnopquL", 0.57],
-  ["FPTZ", 0.6],
-  ["ABEKRSVXY", 0.64],
-  ["CDGHNOQU", 0.7],
-  ["mM", 0.84],
-  ["wW", 0.78],
-] as const)
-  for (const ch of chars) EM[ch] = w;
-function textWidth(text: string, px: number) {
+const ADVANCE = {
+  11: "7r98eai1i1qwk98wb7b7dei18wde8w8wi6dihbhzighriagtifia8w8wi1i1i1etprjfirkakjgygal1l683fpiyg7orl1lqi6lqipi8i0kvjbrfjiiviob78wb7i1fre2fuhkfzhkgbaphfgx7e7efs7lowgsguhghgbheuargsfmmdf9frfeb77qb7i1",
+  12: "7l92e4hwhwqqk38qb1b1d8hw8qd88q8qi0dch5htiahli4goi9i48q8qhwhwhwenplj9ilk4kdgsg5kvl07xfjisg1olkvlki0lkiji2hvkpj5r9jcipijb18qb1hwfldwfoheftheg5ajhagr7878fn7forgmgphbhabbeoalgmfgm7f3flf8b17kb1hw",
+};
+const advance = (px: number) => {
+  const table = ADVANCE[px <= 11 ? 11 : 12];
+  return (ch: string) => {
+    const i = ch.charCodeAt(0) - 32;
+    return i >= 0 && i < 95 ? parseInt(table.slice(i * 2, i * 2 + 2), 36) / 1000 : 0.6;
+  };
+};
+/** Rendered width of `text` at `px`, with `tracking` in em. Single-glyph advances run about 1% over a word's real width (no kerning), which is the margin. */
+export function textWidth(text: string, px: number, tracking = 0) {
+  const em = advance(px);
   let w = 0;
-  for (const ch of text) w += EM[ch] ?? 0.58;
-  return w * px * 1.08;
+  for (const ch of text) w += em(ch) + tracking;
+  return w * px;
 }
 
 /** Narrowest width a label needs to fit on at most two lines at `px`; lines break at spaces and after hyphens. */
-export function twoLineWidth(label: string, px = 12) {
+export function twoLineWidth(label: string, px = 12, tracking = 0) {
   const words = label.split(/(?<=-)|\s+/).filter(Boolean);
   const join = (parts: string[]) => parts.join(" ").replace(/- /g, "-");
-  let best = textWidth(label, px);
-  for (let i = 1; i < words.length; i++) {
-    best = Math.min(best, Math.max(textWidth(join(words.slice(0, i)), px), textWidth(join(words.slice(i)), px)));
-  }
-  return Math.max(best, ...words.map((w) => textWidth(w, px)));
+  const w = (t: string) => textWidth(t, px, tracking);
+  let best = w(label);
+  for (let i = 1; i < words.length; i++) best = Math.min(best, Math.max(w(join(words.slice(0, i))), w(join(words.slice(i)))));
+  return Math.max(best, ...words.map(w));
 }
 
-/** Column width at which every label fits on two lines with `gap` to its neighbour. */
-export function fullLabelColumn(labels: string[], px = 12, gap = 8) {
-  const w = labels.map((l) => twoLineWidth(l, px));
+/** Column width at which every label fits on two lines with at least `gap` to its neighbour. */
+export function fullLabelColumn(labels: string[], px = 12, gap = LABEL_GAP, tracking = 0) {
+  const w = labels.map((l) => twoLineWidth(l, px, tracking));
   return Math.max(...w.map((x, i) => Math.max(x + 2, i ? (x + w[i - 1]) / 2 + gap : 0)));
 }
 
@@ -348,9 +364,13 @@ export const ROOMY_FROM = 1000;
 /** Name column below and from ROOMY_FROM. */
 export const NAME_WIDTH = [192, 220] as const;
 /** Chart side padding below and from ROOMY_FROM. */
-export const SIDE_PADDING = [16, 24] as const;
+export const SIDE_PADDING = [12, 24] as const;
 /** Short labels need at least this much column. */
 const SHORT_MIN = 48;
+/** Least space between two neighbouring column labels. */
+export const LABEL_GAP = 8;
+/** Short labels are set 11px with -0.01em tracking (charts.css). */
+const SHORT_TRACKING = -0.01;
 
 /** Width of one layer column at container width `c`. */
 export function columnWidth(c: number, layers: number, wide: boolean) {
@@ -370,14 +390,15 @@ function from(ok: (c: number) => boolean, floor = 0) {
 
 export function spanThresholds(layers: SpanLayer[]): SpanThresholds {
   const n = layers.length;
-  const shortCol = Math.max(SHORT_MIN, fullLabelColumn(layers.map((l) => l.short ?? l.abbr), 11, 4));
+  // Short labels sit one word per line (a hyphenated label breaks after its hyphen).
+  const shortCol = Math.max(SHORT_MIN, fullLabelColumn(layers.map((l) => (l.short ?? l.abbr).replace(/-/g, "- ")), 11, LABEL_GAP, SHORT_TRACKING));
   const wide = from((c) => columnWidth(c, n, true) >= shortCol, NARROW_BELOW);
   const col = (c: number) => columnWidth(c, n, c >= wide);
   const full = fullLabelColumn(layers.map((l) => l.label), 11);
   const large = fullLabelColumn(layers.map((l) => l.label), 12);
   const short = from((c) => col(c) >= shortCol, 200);
   // A code needs its own width plus a gap; below that, alternate lines.
-  const codeCol = Math.max(...layers.map((l) => l.abbr.length)) * 6.6 + 6;
+  const codeCol = Math.max(...layers.map((l) => l.abbr.length)) * 6.6 + LABEL_GAP;
   const stagger = from((c) => col(c) >= codeCol, 200);
   const fullAt = Math.max(short, from((c) => col(c) >= full, 200));
   return { stagger, wide, short, full: fullAt, large: Math.max(fullAt, from((c) => col(c) >= large, 200)) };
@@ -533,7 +554,6 @@ export function buildSpanModel(input: SpanChartInput): SpanChartModel {
 
   const featured = rows.filter((r) => r.item.featured).length;
   const hasToggle = featured > 0 && featured < rows.length;
-  const firstBadge = rows.find((r) => r.item.status?.kind === "acquired") ?? rows.find((r) => r.deal);
 
   return {
     id,
@@ -555,9 +575,8 @@ export function buildSpanModel(input: SpanChartInput): SpanChartModel {
         rows
           .filter((r) => r.item.valueLabel && r.item.value !== undefined)
           .sort((a, b) => b.item.value! - a.item.value!)[0]?.item.valueLabel ?? null,
-      badge: firstBadge?.badge ?? null,
       tag: rows.find((r) => r.item.tags?.length)?.item.tags![0] ?? null,
-      shut: rows.some((r) => r.item.status?.kind === "shutdown"),
+      badges: STATUS_KINDS.filter((kind) => rows.some((r) => r.item.status?.kind === kind)),
     },
   };
 }
@@ -604,14 +623,14 @@ export function spanChartCss(model: SpanChartModel) {
     const input = inputId.layer(id, layer.id);
     const value = cssString(layer.id);
     rules.push(`${root}${on(input)}{--sp-active:${k}}`);
-    rules.push(`${root}${on(input)} [data-l=${value}]{--sp-sel:1;--sp-now:inline-flex}`);
+    rules.push(`${root}${on(input)} [data-l=${value}]{--sp-sel:1;--sp-now:inline-flex;--sp-now-text:inline}`);
     rules.push(`${root}${on(input, "focus-visible")} [data-l=${value}]{--sp-focus:1}`);
     rules.push(`${root}${on(input)} .uipack-span__item:not([data-layers~=${value}]),${root}${on(input)} .uipack-span__group:not([data-layers~=${value}]){display:none}`);
   });
   for (const tier of model.tiers) {
     const input = inputId.tier(id, tier.id);
     const value = cssString(tier.id);
-    rules.push(`${root}${on(input)} [data-t=${value}]{--sp-sel:1;--sp-now:inline-flex}`);
+    rules.push(`${root}${on(input)} [data-t=${value}]{--sp-sel:1;--sp-now:inline-flex;--sp-now-text:inline}`);
     rules.push(`${root}${on(input, "focus-visible")} [data-t=${value}]{--sp-focus:1}`);
     rules.push(`${root}${on(input)} .uipack-span__item:not([data-tier=${value}]),${root}${on(input)} .uipack-span__group:not([data-tiers~=${value}]){display:none}`);
   }
@@ -625,9 +644,9 @@ export function spanChartCss(model: SpanChartModel) {
     `@container uipack-span (max-width: ${t.stagger - 0.02}px){${root} .uipack-span__col:nth-child(odd){padding-bottom:22px}${root} .uipack-span__col>span{white-space:nowrap}}`,
     container(
       t.wide,
-      `${root} .uipack-span__form{--sp-name-col:var(--sp-name);--sp-wide:block;--sp-stacked:none;--sp-line-cols:var(--sp-name) minmax(0,1fr);--sp-name-cols:8px 24px minmax(0,1fr) auto;--sp-name-areas:"chev logo label value" "chev logo sub sub";--sp-line-pad:0;--sp-name-pad:6px 12px 6px 0;--sp-detail-pad:2px 8px 12px 56px;--sp-tick-top:19px;--sp-tick-bottom:auto}`,
+      `${root} .uipack-span__form{--sp-name-col:var(--sp-name);--sp-wide:block;--sp-stacked:none;--sp-line-cols:var(--sp-name) minmax(0,1fr);--sp-label-grow:1;--sp-line-pad:0;--sp-line-min:44px;--sp-name-pad:4px 12px 4px 0;--sp-detail-pad:2px 8px 12px 56px;--sp-tick-top:19px;--sp-tick-bottom:auto}`,
     ),
-    container(t.short, `${root} .uipack-span__form{--sp-label-abbr:none;--sp-label-short:block}`),
+    container(t.short, `${root} .uipack-span__form{--sp-label-abbr:none;--sp-label-short:block;--sp-layer-chips:none;--sp-layer-hint:inline}`),
     container(t.full, `${root} .uipack-span__form{--sp-label-short:none;--sp-label-full:block}`),
     container(t.large, `${root} .uipack-span__form{--sp-label-size:12px}`),
   );

@@ -36,6 +36,10 @@ export interface SpanChartProps extends SpanChartInput {
 
 const vars = (values: Record<string, string | number>) => values as CSSProperties;
 
+/** A break opportunity after each hyphen: WebKit does not break there on its own. */
+const breakable = (text: string) =>
+  text.split(/(?<=-)/).map((part, i, parts) => (i < parts.length - 1 ? [part, <wbr key={i} />] : part));
+
 function Row({ row, labels }: { row: SpanRowModel; labels: SpanChartLabels }) {
   const { item } = row;
   const meta = [
@@ -66,8 +70,10 @@ function Row({ row, labels }: { row: SpanRowModel; labels: SpanChartLabels }) {
               ) : (
                 <span className="uipack-span__logo uipack-span__logo--mono">{row.monogram}</span>
               )}
-              <b>{item.name}</b>
-              {item.valueLabel ? <em>{item.valueLabel}</em> : null}
+              <span className="uipack-span__nv">
+                <b title={item.name.length > 18 ? item.name : undefined}>{item.name}</b>
+                {item.valueLabel ? <em title={item.valueLabel.length > 8 ? item.valueLabel : undefined}>{item.valueLabel}</em> : null}
+              </span>
               {row.badge || item.tags?.length ? (
                 <span className="uipack-span__sub">
                   {row.badge && item.status ? <span className="uipack-span__badge" data-kind={item.status.kind}>{row.badge}</span> : null}
@@ -131,22 +137,14 @@ function Legend({ model }: { model: SpanChartModel }) {
           {labels.valueLegend}
         </li>
       ) : null}
-      {samples.badge ? (
-        <li>
-          <span className="uipack-span__badge" data-kind="acquired" aria-hidden="true">
-            {samples.badge}
+      {samples.badges.map((kind) => (
+        <li key={kind}>
+          <span className="uipack-span__badge" data-kind={kind} aria-hidden="true">
+            {kind === "shutdown" ? "shut" : `${kind === "licensed" ? "↝" : "→"} ${kind === "licensed" ? labels.legendLicensee : labels.legendBuyer}`}
           </span>
-          {labels.legendChange}
+          {labels[`legend${kind[0].toUpperCase()}${kind.slice(1)}` as "legendAcquired"]}
         </li>
-      ) : null}
-      {samples.shut ? (
-        <li>
-          <span className="uipack-span__badge" data-kind="shutdown" aria-hidden="true">
-            shut
-          </span>
-          {labels.legendShutdown}
-        </li>
-      ) : null}
+      ))}
       {samples.tag ? (
         <li>
           <span className="uipack-span__tag" aria-hidden="true">
@@ -164,9 +162,9 @@ function Filters({ model }: { model: SpanChartModel }) {
   const { id, labels, layers, tiers } = model;
   return (
     <div className="uipack-span__filters" aria-hidden="true">
-      <div className="uipack-span__frow">
+      <div className="uipack-span__frow uipack-span__frow--layer">
         <span className="uipack-span__flabel">{labels.layer}</span>
-        <span className="uipack-span__scroll">
+        <span className="uipack-span__wrap">
           <label htmlFor={inputId.layerAll(id)} className="uipack-span__chip uipack-span__chip--all" data-l="*">
             {labels.allLayers}
           </label>
@@ -204,6 +202,10 @@ function Filters({ model }: { model: SpanChartModel }) {
           ) : null}
         </div>
       ) : null}
+      <p className="uipack-span__hint">
+        <span>{labels.layerHint}</span>
+        <span>{labels.layerHintTouch}</span>
+      </p>
     </div>
   );
 }
@@ -250,53 +252,13 @@ export function SpanChart(props: SpanChartProps) {
           ) : null}
           {props.caption ? <p className="uipack-span__caption">{props.caption}</p> : null}
 
-          {/* The filter state. Every visible control is a label for one of these. */}
-          <div className="uipack-span__inputs">
-            <div role="radiogroup" aria-label={labels.layer}>
-              <input type="radio" className="uipack-span__all-input" name={`${id}-layer`} id={inputId.layerAll(id)} value="*" defaultChecked aria-label={labels.allLayers} />
-              {layers.map((layer) => (
-                <input type="radio" className="uipack-span__layer-input" name={`${id}-layer`} id={inputId.layer(id, layer.id)} value={layer.id} aria-label={layer.label} key={layer.id} />
-              ))}
-            </div>
-            {tiers.length ? (
-              <div role="radiogroup" aria-label={labels.size}>
-                <input type="radio" className="uipack-span__tier-all" name={`${id}-tier`} id={inputId.tierAll(id)} value="*" defaultChecked aria-label={labels.allSizes} />
-                {tiers.map((tier) => (
-                  <input
-                    type="radio"
-                    className="uipack-span__tier-input"
-                    name={`${id}-tier`}
-                    id={inputId.tier(id, tier.id)}
-                    value={tier.id}
-                    aria-label={tier.range ? `${tier.label}, ${tier.range}` : tier.label}
-                    key={tier.id}
-                  />
-                ))}
-              </div>
-            ) : null}
-            {model.deals ? (
-              <input type="checkbox" className="uipack-span__deals-input" id={inputId.deals(id)} aria-label={`${labels.deals}, ${model.deals}`} />
-            ) : null}
-            {model.hasToggle ? (
-              // Outside the form, so "Clear filters" does not collapse the list.
-              <input
-                type="checkbox"
-                className="uipack-span__expand"
-                id={inputId.expand(id)}
-                form={`${id}-keep`}
-                defaultChecked={model.initialAll}
-                aria-label={fill(labels.showAll, { n: model.total })}
-              />
-            ) : null}
-          </div>
-
           <div className="uipack-span__panel">
             <Legend model={model} />
             <Filters model={model} />
           </div>
           <details className="uipack-span__drawer">
             <summary>
-              {labels.filtersAndKey}
+              <span className="uipack-span__drawer-title">{labels.filtersAndKey}</span>
               <span className="uipack-span__now-text" data-l="*">
                 {labels.allLayers}
               </span>
@@ -306,17 +268,17 @@ export function SpanChart(props: SpanChartProps) {
                 </span>
               ))}
               {tiers.length ? (
-                <span className="uipack-span__now-text" data-t="*">
+                <span className="uipack-span__now-text uipack-span__now-text--then" data-t="*">
                   {labels.allSizes}
                 </span>
               ) : null}
               {tiers.map((tier) => (
-                <span className="uipack-span__now-text" data-t={tier.id} key={tier.id}>
+                <span className="uipack-span__now-text uipack-span__now-text--then" data-t={tier.id} key={tier.id}>
                   {tier.label}
                 </span>
               ))}
               {model.deals ? (
-                <span className="uipack-span__now-text" data-d="">
+                <span className="uipack-span__now-text uipack-span__now-text--then" data-d="">
                   {labels.deals}
                 </span>
               ) : null}
@@ -324,10 +286,68 @@ export function SpanChart(props: SpanChartProps) {
             <Legend model={model} />
             <Filters model={model} />
           </details>
+          {/* Phones: enough key to read the bars without opening the drawer, and Deals in one tap. */}
+          <p className="uipack-span__keyline">
+            <span>
+              <span className="uipack-span__swatch uipack-span__swatch--main" aria-hidden="true" />
+              {labels.main}
+            </span>
+            <span>
+              <span className="uipack-span__swatch uipack-span__swatch--also" aria-hidden="true" />
+              {labels.also}
+            </span>
+            {model.deals ? (
+              <label htmlFor={inputId.deals(id)} className="uipack-span__chip uipack-span__chip--toggle" data-d="" aria-hidden="true">
+                {labels.deals}
+                <span className="uipack-span__range">{model.deals}</span>
+              </label>
+            ) : null}
+          </p>
         </div>
 
         <div className="uipack-span__chart">
           <div className="uipack-span__header">
+                {/* The filter state. Every visible control is a label for one of these.
+                    They live in the sticky header, so focusing one (Chromium focuses a
+                    radio when its label is clicked) never scrolls the page. */}
+              <div className="uipack-span__inputs">
+                <div role="radiogroup" aria-label={labels.layer}>
+                  <input type="radio" className="uipack-span__all-input" name={`${id}-layer`} id={inputId.layerAll(id)} value="*" defaultChecked aria-label={labels.allLayers} />
+                  {layers.map((layer) => (
+                    <input type="radio" className="uipack-span__layer-input" name={`${id}-layer`} id={inputId.layer(id, layer.id)} value={layer.id} aria-label={layer.label} key={layer.id} />
+                  ))}
+                </div>
+                {tiers.length ? (
+                  <div role="radiogroup" aria-label={labels.size}>
+                    <input type="radio" className="uipack-span__tier-all" name={`${id}-tier`} id={inputId.tierAll(id)} value="*" defaultChecked aria-label={labels.allSizes} />
+                    {tiers.map((tier) => (
+                      <input
+                        type="radio"
+                        className="uipack-span__tier-input"
+                        name={`${id}-tier`}
+                        id={inputId.tier(id, tier.id)}
+                        value={tier.id}
+                        aria-label={tier.range ? `${tier.label}, ${tier.range}` : tier.label}
+                        key={tier.id}
+                      />
+                    ))}
+                  </div>
+                ) : null}
+                {model.deals ? (
+                  <input type="checkbox" className="uipack-span__deals-input" id={inputId.deals(id)} aria-label={`${labels.deals}, ${model.deals}`} />
+                ) : null}
+                {model.hasToggle ? (
+                  // Outside the form, so "Clear filters" does not collapse the list.
+                  <input
+                    type="checkbox"
+                    className="uipack-span__expand"
+                    id={inputId.expand(id)}
+                    form={`${id}-keep`}
+                    defaultChecked={model.initialAll}
+                    aria-label={fill(labels.showAll, { n: model.total })}
+                  />
+                ) : null}
+              </div>
             <div className="uipack-span__now-row">
               <span className="uipack-span__now-label">{labels.showing}</span>
               {layers.map((layer) => (
@@ -374,7 +394,7 @@ export function SpanChart(props: SpanChartProps) {
                   key={layer.id}
                 >
                   <span className="uipack-span__abbr">{layer.abbr}</span>
-                  <span className="uipack-span__short">{layer.short ?? layer.abbr}</span>
+                  <span className="uipack-span__short">{breakable(layer.short ?? layer.abbr)}</span>
                   <span className="uipack-span__full">{layer.label}</span>
                 </label>
               ))}
