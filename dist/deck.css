@@ -101,8 +101,12 @@
 }
 
 /* Stage and canvas */
+/* The stage never grows taller than the viewport leaves room for, so the slide and the controls
+   under it fit on one screen. --deck-chrome is the height the host keeps around the stage (the
+   controls, and any page header above the deck). */
 .uipack-deck-stage {
   position: relative;
+  max-width: max(min(100%, 560px), calc((100svh - var(--deck-chrome, 76px)) * 16 / 9));
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border: 1px solid var(--deck-rule);
@@ -398,6 +402,7 @@
 }
 .uipack-deck:fullscreen .uipack-deck-stage {
   width: min(100vw, calc(100vh * 16 / 9));
+  max-width: none;
   border: 0;
   border-radius: 0;
 }
@@ -523,9 +528,59 @@
   padding: 12px 0;
   border-block: 1px solid var(--deck-rule);
 }
-.uipack-deck-presenter__clock span {
+.uipack-deck-presenter__clock {
+  flex-wrap: wrap;
+}
+.uipack-deck-presenter__clock > span:first-child {
   font: 500 36px/1 var(--deck-mono);
   font-variant-numeric: tabular-nums;
+}
+/* The budget: the total, how this slide's window compares with the clock, and a bar of both. */
+.uipack-deck-presenter__budget {
+  display: grid;
+  flex: 1 1 160px;
+  gap: 6px;
+  font: 500 13px/1.3 var(--deck-mono);
+  font-variant-numeric: tabular-nums;
+}
+.uipack-deck-presenter__budget > span:first-child {
+  font-size: 20px;
+}
+.uipack-deck-presenter__pace {
+  color: var(--deck-muted);
+}
+.uipack-deck-presenter__pace[data-pace="behind"] {
+  color: #b4471f;
+}
+.uipack-deck[data-theme="dark"] .uipack-deck-presenter__pace[data-pace="behind"] {
+  color: #f08a5d;
+}
+.uipack-deck-presenter__bar {
+  position: relative;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--deck-rule);
+}
+.uipack-deck-presenter__bar > i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: color-mix(in srgb, var(--deck-accent) 55%, transparent);
+}
+.uipack-deck-presenter__bar > b {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 3px;
+  margin-left: -1px;
+  background: var(--deck-fg);
+}
+.uipack-deck-presenter__cue {
+  margin: 0 0 10px;
+  padding-left: 10px;
+  border-left: 3px solid var(--deck-accent);
+  font-size: 15px;
+  line-height: 1.4;
 }
 .uipack-deck-presenter__end {
   margin: 0;
@@ -570,15 +625,41 @@
     gap: 12px;
   }
 }
-.uipack-deck-read__notes h3 {
-  margin: 0 0 8px;
-  font-size: 17px;
-  line-height: 1.35;
+/* The claim is the heading; the slide's short name sits above it, small. */
+.uipack-deck-read__notes h2 {
+  margin: 0 0 10px;
+  font-size: 19px;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
 }
-.uipack-deck-read__notes h3 span {
-  margin-right: 6px;
+.uipack-deck-read__notes .uipack-deck-read__title {
+  margin: 0 0 6px;
   color: var(--deck-muted);
-  font: 600 12px/1 var(--deck-mono);
+  font: 600 12px/1.3 var(--deck-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.uipack-deck-read__title span {
+  margin-right: 6px;
+}
+/* A tour's details, as smaller stills under the slide, each with its caption. */
+.uipack-deck-read__stills {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.uipack-deck-read__stills > .uipack-deck-thumb {
+  grid-column: 1 / -1;
+}
+.uipack-deck-read__detail {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+.uipack-deck-read__detail figcaption {
+  color: var(--deck-muted);
+  font: 500 12px/1.35 var(--deck-mono);
 }
 .uipack-deck-read__notes p {
   margin: 0 0 12px;
@@ -790,13 +871,18 @@
 }
 .uipack-deck-print__notes h3 {
   margin: 0 0 12px;
-  font-size: 17px;
-  line-height: 1.35;
+  font-size: 19px;
+  line-height: 1.3;
 }
-.uipack-deck-print__notes h3 span {
-  margin-right: 6px;
+.uipack-deck-print__notes .uipack-deck-print__title {
+  margin: 0 0 6px;
   color: #5c625e;
-  font: 600 12px/1 var(--deck-mono);
+  font: 600 11px/1.3 var(--deck-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.uipack-deck-print__title span {
+  margin-right: 6px;
 }
 .uipack-deck-print__notes p {
   margin: 0;
@@ -828,6 +914,9 @@
 /* The bento's box is the camera's window: zoomed cells never spill over the heading or footer.
    The grid is inset 3px so cell outlines aren't clipped at rest. */
 .uipack-deck-bento {
+  /* The page's surface and rule, resolved here so a dimmed ink or accent cell can take them. */
+  --uipack-bento-dim-bg: var(--deck-surface);
+  --uipack-bento-dim-rule: color-mix(in srgb, var(--deck-fg) 9%, transparent);
   position: relative;
   flex: 1;
   min-height: 0;
@@ -855,7 +944,9 @@
   border-radius: 28px;
   background: var(--deck-surface);
   box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--deck-fg) 9%, transparent);
-  transition: opacity 420ms ease;
+  transition:
+    opacity 420ms ease,
+    background-color 420ms ease;
 }
 .uipack-deck-bento__cell[data-tone] {
   background: var(--deck-bg);
@@ -865,6 +956,12 @@
    would read as a bug, and dim text still competes with the focused cell. */
 .uipack-deck-bento__cell[data-dimmed] {
   opacity: 0.4;
+}
+/* A dimmed ink or accent cell takes the same pale surface as the rest: at 40% a dark fill would
+   read as a heavy grey slab beside the focused cell. */
+.uipack-deck-bento__cell[data-dimmed][data-tone] {
+  background: var(--uipack-bento-dim-bg);
+  box-shadow: 0 0 0 1.5px var(--uipack-bento-dim-rule);
 }
 .uipack-deck-bento__face,
 .uipack-deck-bento__detail {
@@ -894,6 +991,10 @@
   opacity: 0;
   transition-delay: 0ms;
 }
+.uipack-deck-bento[data-still] .uipack-deck-bento__grid,
+.uipack-deck-bento[data-still] .uipack-deck-bento__cell,
+.uipack-deck-bento[data-still] .uipack-deck-bento__face,
+.uipack-deck-bento[data-still] .uipack-deck-bento__detail,
 .uipack-deck[data-motion="none"] .uipack-deck-bento__cell,
 .uipack-deck[data-motion="none"] .uipack-deck-bento__face,
 .uipack-deck[data-motion="none"] .uipack-deck-bento__detail {

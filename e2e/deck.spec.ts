@@ -74,6 +74,41 @@ test.describe("/deck player", () => {
     await page.getByRole("button", { name: "All slides" }).click();
     await dialog.getByRole("button", { name: /06 One clock/ }).click();
     await expect(deck(page)).toHaveAttribute("data-index", "5");
+    // Picking a slide hands focus to the deck, so Space moves on rather than reopening the overview.
+    await expect(deck(page)).toBeFocused();
+    await settled(page);
+    await page.keyboard.press("Space");
+    await expect(dialog).toBeHidden();
+    await expect(deck(page)).toHaveAttribute("data-index", "6");
+  });
+
+  for (const [width, height] of [
+    [390, 844],
+    [1280, 900],
+  ] as const) {
+    test(`Read then Present shows a scaled slide at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto("/deck?view=read");
+      await page.getByRole("button", { name: /Present from slide 3/ }).click();
+      await expect(deck(page)).toHaveAttribute("data-index", "2");
+      const canvas = page.locator(".uipack-deck-stage .uipack-deck-canvas");
+      await expect(canvas).toBeVisible();
+      const scale = await canvas.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a);
+      expect(scale).toBeGreaterThan(0);
+      await expect(page.locator(".uipack-deck-stage .uipack-deck-slide").first()).toBeVisible();
+      // And back to reading, then Present from the top.
+      await page.getByRole("button", { name: "Read", exact: true }).click();
+      await page.getByRole("button", { name: "Present", exact: true }).click();
+      await expect(deck(page)).toHaveAttribute("data-index", "0");
+      expect(await canvas.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a)).toBeGreaterThan(0);
+    });
+  }
+
+  test("at 1280×900 the slide and its controls fit the first screen", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/deck?view=present");
+    const bottom = await page.locator(".uipack-deck-controls").evaluate((el) => el.getBoundingClientRect().bottom);
+    expect(bottom).toBeLessThanOrEqual(900);
   });
 
   // WebKit's default Tab skips buttons, so a dialog of buttons that leaves Tab to the browser
@@ -167,13 +202,13 @@ test.describe("/deck player", () => {
 test.describe("/deck bento", () => {
   const bento = (page: Page) => page.locator(".uipack-deck-bento");
 
-  test("the camera tours three cells inside the bento box, then zooms from a cell into the next slide", async ({ page }) => {
+  test("the camera tours two cells inside the bento box, then zooms from the risk cell into the risk slide", async ({ page }) => {
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(e.message));
     await page.goto("/deck?deck=bento&slide=quarter&view=present");
     await deck(page).focus();
     const box = await bento(page).boundingBox();
-    for (const id of ["latency", "shipped", "risk"]) {
+    for (const id of ["latency", "shipped"]) {
       await page.keyboard.press("ArrowRight");
       await expect(bento(page)).toHaveAttribute("data-focus", id);
       // The camera settles with the cell larger than at rest and centred in the bento's own box.
@@ -188,6 +223,7 @@ test.describe("/deck bento", () => {
     await expect(bento(page)).not.toHaveAttribute("data-focus");
     await page.keyboard.press("ArrowRight");
     await expect(deck(page)).toHaveAttribute("data-index", "2");
+    await expect(page).toHaveURL(/slide=risk/);
     await settled(page);
     expect(errors).toEqual([]);
   });
@@ -208,16 +244,18 @@ const at = <T,>(page: Page, ms: number, read: () => T) =>
   ) as Promise<T>;
 
 test.describe("/deck motion: no mid-flight glitches", () => {
-  test("a text morph shows one copy after the first 10%, never both", async ({ page }) => {
+  test("a morphing shape shows one copy once the crossfade ends, and travels as it grows", async ({ page }) => {
     await page.goto("/deck?view=present");
     await deck(page).focus();
     await page.keyboard.press("ArrowRight");
-    const mid = await at(page, 0.1 * 760, () => {
+    const mid = await at(page, 0.4 * 760, () => {
       const layers = Array.from(document.querySelectorAll<HTMLElement>(".uipack-deck-layer"));
-      const copy = (id: string) => getComputedStyle(layers.find((l) => l.dataset.slide === id)!.querySelector('[data-morph="title"]')!).opacity;
-      return { out: copy("cover"), in: copy("moves") };
+      const strip = (id: string) => layers.find((l) => l.dataset.slide === id)!.querySelector<HTMLElement>('[data-morph="strip"]')!;
+      const r = strip("moves").getBoundingClientRect();
+      const end = strip("moves").offsetWidth * (layers[0].getBoundingClientRect().width / 1920);
+      return { out: getComputedStyle(strip("cover")).opacity, in: getComputedStyle(strip("moves")).opacity, growing: r.width > end * 0.34 && r.width < end * 0.99 };
     });
-    expect(mid).toEqual({ out: "0", in: "1" });
+    expect(mid).toEqual({ out: "0", in: "1", growing: true });
   });
 
   test("a number morphs alone: its tile loses its box and the words beside it wait", async ({ page }) => {
@@ -236,8 +274,8 @@ test.describe("/deck motion: no mid-flight glitches", () => {
     expect(mid.words).toBe(0);
   });
 
-  test("a zoom into an ink slide keeps the outgoing paper slide paper, and clears its neighbours", async ({ page }) => {
-    await page.goto("/deck?deck=bento&slide=quarter&step=4&view=present");
+  test("a zoom out of a bento cell keeps the outgoing slide's paper, and clears its neighbours", async ({ page }) => {
+    await page.goto("/deck?deck=bento&slide=quarter&step=3&view=present");
     await deck(page).focus();
     await page.keyboard.press("ArrowRight");
     const first = await at(page, 10, () => {
@@ -249,6 +287,49 @@ test.describe("/deck motion: no mid-flight glitches", () => {
       Number(getComputedStyle(document.querySelector('.uipack-deck-layer[data-slide="quarter"] [data-bento-cell="cost"]')!).opacity),
     );
     expect(later).toBe(0);
+  });
+
+  test("a zoom moves the camera from the first 10%, and the target's box fades instead of scaling into bars", async ({ page }) => {
+    await page.goto("/deck?slide=system&view=present");
+    await deck(page).focus();
+    await settled(page);
+    await page.keyboard.press("ArrowRight");
+    const early = await at(page, 0.1 * 1150, () => {
+      const outer = document.querySelector<HTMLElement>('.uipack-deck-layer[data-slide="system"]')!;
+      return new DOMMatrix(getComputedStyle(outer).transform).a;
+    });
+    expect(early).toBeGreaterThan(1.04);
+    const mid = await at(page, 0.5 * 1150, () => {
+      const box = document.querySelector<HTMLElement>('.uipack-deck-layer[data-slide="system"] [data-morph="checks"]')!;
+      const cs = getComputedStyle(box);
+      return { border: cs.borderTopColor, bg: cs.backgroundColor, shadow: cs.boxShadow };
+    });
+    expect(mid.border).toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
+    expect(mid.bg).toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
+    expect(mid.shadow).toBe("none");
+  });
+
+  test("a morph keeps the outgoing panels until the incoming ones arrive", async ({ page }) => {
+    await page.goto("/deck?deck=consulting&view=present");
+    await deck(page).focus();
+    await page.keyboard.press("ArrowRight");
+    const opacityOf = () =>
+      Number(getComputedStyle(document.querySelector('.uipack-deck-layer[data-slide="summary"] .uipack-cx-sowhat')!).opacity);
+    expect(await at(page, 0.3 * 760, opacityOf)).toBeGreaterThan(0.9);
+    expect(await at(page, 0.62 * 760, opacityOf)).toBe(0);
+  });
+
+  test("each build on the machine slide changes what the machine shows", async ({ page }) => {
+    await page.goto("/deck?slide=gate&view=present");
+    await deck(page).focus();
+    const machine = page.locator(".uipack-deck-layer:not([aria-hidden]) .deck-demo-gate__machine");
+    const seen: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      if (i) await page.keyboard.press("ArrowRight");
+      seen.push(`${await machine.getAttribute("data-pose")}/${await machine.getAttribute("data-view")}/${await machine.locator(".deck-demo-gate__status").textContent()}`);
+    }
+    expect(new Set(seen).size).toBe(3);
+    expect(seen[1]).toMatch(/^return\/arm\//);
   });
 
   test("a bento cell never shows its face and its detail at once", async ({ page }) => {
@@ -297,9 +378,14 @@ test.describe("/deck layout", () => {
 test.describe("/deck print and PDF", () => {
   test("?view=print saves a PDF with one 16:9 page per slide", async ({ page, browserName }) => {
     test.skip(browserName !== "chromium", "page.pdf() is Chromium-only");
-    for (const [id, count] of [["moves", 7], ["bento", 5], ["consulting", 8]] as const) {
+    // The bento deck's two tour details print as pages of their own after the quarter slide.
+    for (const [id, count] of [["moves", 7], ["bento", 7], ["consulting", 8]] as const) {
       await page.goto(`/deck?deck=${id}&view=print`);
       await expect(page.locator(".uipack-deck-print__page")).toHaveCount(count);
+      if (id === "bento") {
+        await expect(page.locator(".uipack-deck-print__page[data-detail]")).toHaveCount(2);
+        await expect(page.locator(".uipack-deck-print__page[data-detail]").first()).toHaveAttribute("aria-label", /detail: Where the 214 ms went/);
+      }
       await page.evaluate(() => document.fonts.ready);
       const pdf = (await page.pdf({ preferCSSPageSize: true, printBackground: true })).toString("latin1");
       expect(pdf.match(/\/Type\s*\/Page[^s]/g), `${id} pages`).toHaveLength(count);

@@ -18,27 +18,27 @@ For information-dense slides in the strategy-consulting style (panels of charts,
 import { DeckPlayer, Slide, starterDeck, type DeckSlide } from "uipack/deck";
 import "uipack/deck.css";
 
-const footer = "Search platform · Q3 review";
+const footer = "Search platform · Index migration update";
 const draft = starterDeck("project-update", { footer });
 
-// Keep each stub's id and role; replace the rest as you write.
+// Keep each stub's id and role; replace the rest as you write, about the same project as the stubs.
 const written: Record<string, Partial<DeckSlide>> = {
   "project-update-1": {
-    headline: "Search got twice as fast this quarter, and cheaper to run.",
+    headline: "The index migration is on track: 70% of queries moved, no regressions.",
     render: () => (
-      <Slide eyebrow="Q3 review" footer={footer} layout="center">
-        <h2 className="uipack-deck-title">Search got twice as fast this quarter, and cheaper to run.</h2>
+      <Slide eyebrow="Index migration · status" footer={footer} layout="center">
+        <h2 className="uipack-deck-title">The index migration is on track: 70% of queries moved, no regressions.</h2>
       </Slide>
     ),
-    notes: { say: "Search is twice as fast as in Q2 and costs less to serve. Source: latency dashboard.", delivery: "Slowly." },
+    notes: { say: "Seventy percent of queries now run on the new index, with no regressions. Source: the migration dashboard.", delivery: "Slowly." },
   },
 };
 const slides = draft.map((s) => ({ ...s, ...written[s.id] }));
 
-<DeckPlayer id="q3-review" title="Q3 search review" slides={slides} lint={{ template: "project-update", minutes: 10 }} />;
+<DeckPlayer id="index-migration" title="Index migration update" slides={slides} lint={{ template: "project-update" }} minutes={6} />;
 ```
 
-[`examples/deckStarter.tsx`](../examples/deckStarter.tsx) is the same starter as a whole file (tested, so it keeps working): copy it and change its imports to `uipack/deck`.
+[`examples/deckStarter.tsx`](../examples/deckStarter.tsx) is the same starter as a whole file, every stub rewritten for one example project (the index migration the project-update template describes), lint-clean and tested: copy it and change its imports to `uipack/deck`.
 
 ## A deck by hand
 
@@ -84,18 +84,18 @@ A slide's `transition` says how it arrives; going back plays it in reverse. Jump
 | Value | Use it when | What happens |
 | --- | --- | --- |
 | `advance` (default) | Almost always | The outgoing slide steps aside; the incoming slide's top-level blocks settle in, in reading order. The footer stays put. |
-| `morph` | The same thing appears on both slides and its change is the point (a number becoming a table row, a title becoming a running header) | `Morph` elements with the same `id` travel and resize; one copy is on screen at a time. Text scales by font-size ratio, so it never stretches, and swaps to the incoming copy in the first 61 ms. The outgoing slide clears in 160 ms (a box around a traveller, such as a KPI tile, loses its fill and border rather than staying as a bare frame). Incoming blocks arrive from 40%, except those the traveller still has to cross, and words on its line, which wait until it lands. |
-| `{ zoom: id }` | The next slide is the inside of one part of this one | The camera scales about one fixed point into the `Morph id` element; that element opens, clipped, into the new slide. Everything around the target clears in the first 30% and the target's own words leave before the new slide appears inside it, so two slides never overlap. Scale grows evenly in log space. The incoming tone shows only inside the clip. |
+| `morph` | The same thing appears on both slides and its change is the point (a number becoming a table row, a strip of slides coming forward) | `Morph` elements with the same `id` travel and resize; one copy is on screen at a time. Text scales by font-size ratio, so it never stretches, and swaps to the incoming copy in the first 61 ms. Outgoing blocks the traveller passes over leave in 160 ms (a box around a traveller, such as a KPI tile, loses its fill and border rather than staying as a bare frame); the rest of the outgoing slide holds for a third of the flight and is gone by 60%, crossfading with the incoming blocks, which arrive from 40%. Blocks the traveller still has to cross, and words on its line, wait until it lands. Builds not yet reached stay hidden. |
+| `{ zoom: id }` | The next slide is the inside of one part of this one | The camera scales about one fixed point into the `Morph id` element; that element opens, clipped, into the new slide. Scale grows evenly in log space, paced by `deckMotion.camera`, so the camera is visibly moving by 10% of the clock while everything around the target clears (in the first 30%). The target's words leave first and its box (fill, border, ring) fades in the first 22%, so no scaled-up border sweeps across the screen; the clip reaches the full 16:9 frame by 55% of the way in, so the new slide's title isn't cropped for long. The incoming tone shows only inside the clip. |
 | `fade` / `none` | Rarely | Crossfade / cut. |
 
-Every move reads `deckMotion` (quick 160, base 320, slow 560, morph 760, zoom 1150 ms; settle, exit and travel curves), so a deck never mixes speeds. Reduced motion (`prefers-reduced-motion` or `motion="none"`) turns every move into a 160 ms fade with no movement.
+Every move reads `deckMotion` (quick 160, base 320, slow 560, morph 760, zoom 1150 ms; settle, exit, travel and camera curves), so a deck never mixes speeds. Reduced motion (`prefers-reduced-motion` or `motion="none"`) turns every move into a 160 ms fade with no movement.
 
 Authoring notes:
 
 - Wrap blocks in `Slide` so `advance` can stagger them. Keep each slide's blocks to a handful.
 - `Morph` ids are per pair of slides. Put one on the zoom target. A morph with no shared ids falls back to a fade.
 - Morph a number or a short phrase, not its container: wrap the value (`<Morph as="span">`), and the tile or panel around it fades its box.
-- For a title that shrinks into a running header, give both copies the same weight, tracking and `max-width` in `ch`, so they break at the same words and the morph is a pure scale.
+- For a shape that grows (the example deck's strip of ten slides), size everything inside it in `em` and change only its `font-size`, so both copies have the same proportions and the morph is a pure scale. For text, give both copies the same weight, tracking and `max-width` in `ch`, so they break at the same words.
 - Tables inside morph slides need `border-collapse: separate`, or their collapsed borders ignore row fades.
 - `render` receives `{ step, active, thumbnail, theme, reducedMotion }`. Render something still and cheap when `thumbnail` is true: the overview, read view and speaker view render every slide. Never start a WebGL scene in a thumbnail.
 
@@ -120,7 +120,7 @@ Authoring notes:
 </Slide>
 ```
 
-Every cell is also a `Morph` target with its ID, so the next slide can arrive with `transition: { zoom: "next" }` and open out of that box. Tour stops count as build steps; thumbnails and the read view show the overview. At a stop, the other cells keep their shape but hide their words (text cut off at the bento's edge would read as a bug), and a cell's face leaves before its detail arrives, so the two never overlap. Fill a detail to its box: a small chart or a short table reads better under the camera than a sentence floating in space. Classes for cell type: `uipack-deck-bento-label`, `-value`, `-title`, `-note`, and for details `-detail-title`, `-small`, `-list`. `/deck?deck=bento` is the example.
+Every cell is also a `Morph` target with its ID, so the next slide can arrive with `transition: { zoom: "risk" }` and open out of that box (the example zooms from its risk cell into the risk slide). Tour stops count as build steps; thumbnails show the overview, and the read view and the PDF add a still per stop whose cell has a `detail`, captioned with the detail's first line, so a forwarded deck keeps what the camera showed. (A part of your own gets the same pages by setting `data-detail-stops="1 2"` and `data-tour="<id per step>"` on its root.) At a stop, the other cells keep their shape but hide their words (text cut off at the bento's edge would read as a bug), and a cell's face leaves before its detail arrives, so the two never overlap. Fill a detail to its box: a small chart or a short table reads better under the camera than a sentence floating in space. Classes for cell type: `uipack-deck-bento-label`, `-value`, `-title`, `-note`, and for details `-detail-title`, `-small`, `-list`. `/deck?deck=bento` is the example.
 
 ## Controls
 
@@ -136,25 +136,27 @@ Every cell is also a `Morph` target with its ID, so the next slide can arrive wi
 
 Keys work while the deck has focus (`keyboard="focus"`, the default) or anywhere on the page (`keyboard="global"`). Keys typed into inputs, and Space/Enter on buttons and links inside slides, are left alone. Mark a region `data-deck-keys="own"` to keep its keys.
 
-All slides is a modal dialog: Tab and Shift+Tab cycle through its own controls (in every browser, WebKit included), Escape or a click on its background closes it and returns focus to the All slides button, and the rest of the page is inert while it is open.
+All slides is a modal dialog: Tab and Shift+Tab cycle through its own controls (in every browser, WebKit included), Escape or a click on its background closes it and returns focus to the All slides button, picking a slide focuses the deck (so Space moves on), and the rest of the page is inert while it is open.
+
+The stage never grows taller than the viewport leaves for it, so the slide and its controls fit on one screen: its width is capped at `(100svh − --deck-chrome) × 16/9`. `--deck-chrome` defaults to 76px (the controls); set it on the deck or an ancestor to include a page header above the deck, as the playground does.
 
 ## Speaker view
 
-The Speaker view button opens the same page with `presenter=1` (override with `presenterHref`) and the host renders `mode="presenter"`. Windows showing the same deck `id` stay in step over `BroadcastChannel`, both ways; opening a speaker window never moves the audience. It shows the current slide, the next slide, the talk track (`notes`: say, delivery, bridge), the slide's role and the question it answers, and a clock.
+The Speaker view button opens the same page with `presenter=1` (override with `presenterHref`) and the host renders `mode="presenter"`. Windows showing the same deck `id` stay in step over `BroadcastChannel`, both ways; opening a speaker window never moves the audience. It shows the current slide; what the next press does (`Build 2 of 3: Policy…`, `camera to Where the 214 ms went`, the pull-back, or the next slide's name) above the next slide; the talk track (`notes`: say, delivery, bridge); the slide's role and the question it answers; and a paced clock: elapsed time against the budget (the `minutes` prop, else `lint.minutes`, else the talk tracks' own length at 135 words a minute), this slide's planned window, and how far ahead or behind you are.
 
 ## Read view
 
-`view="read"` (or the Read button) stacks every slide, fully built, with its talk track. Use it on phones and for decks people read on their own after you have presented. The playground opens it by default below 600px.
+`view="read"` (or the Read button) stacks every slide, fully built, with its claim (`headline`) as the heading, the short `title` small above it, and its talk track. Tour details appear as captioned stills under their slide. Use it on phones and for decks people read on their own after you have presented. The playground opens it by default below 600px.
 
 ## PDF and print
 
-The **PDF / Print** button prints every slide, fully built, one per 16:9 page (1280×720 CSS px, the 13.33×7.5 in slide size), appendix included; the browser's print dialog saves it as a PDF named after the deck's `title`. The player mounts a print copy at the end of `<body>`, and the print stylesheet hides the rest of the page while it prints, so the host page needs no print CSS of its own. Pass `printNotes` to put each slide's headline and talk track beside it (the slide prints at half size on the same page).
+The **PDF / Print** button prints every slide, fully built, one per 16:9 page (1280×720 CSS px, the 13.33×7.5 in slide size), appendix included; the browser's print dialog saves it as a PDF named after the deck's `title`. The player mounts a print copy at the end of `<body>`, and the print stylesheet hides the rest of the page while it prints, so the host page needs no print CSS of its own. A slide with tour details prints a page per detail after it. Pass `printNotes` to put each slide's headline (the claim, with the short title small above it) and talk track beside it (the slide prints at half size on the same page).
 
-`view="print"` renders the same pages in place, for a print-only route: the playground's `/deck?view=print` (add `&notes=1` for notes). In Chromium, `page.pdf({ preferCSSPageSize: true, printBackground: true })` on that page gives one page per slide; `e2e/deck.spec.ts` checks the count. The pages use the deck's theme; print the light theme to save ink.
+`view="print"` renders the same pages in place, for a print-only route: the playground's `/deck?view=print` (add `&notes=1` for notes). In Chromium, `page.pdf({ preferCSSPageSize: true, printBackground: true })` on that page gives one page per slide and detail; `e2e/deck.spec.ts` checks the count. The pages use the deck's theme; print the light theme to save ink.
 
 ## Storyline and checks
 
-Give slides a `role` (`cover`, `answer`, `context`, `problem`, `evidence`, `mechanism`, `option`, `recommendation`, `plan`, `risk`, `ask`, `demo`, `appendix`) and a `headline` (the one-sentence action title). The overview's Storyline tab lists the headlines in order: read alone, they should make the argument. Pass `lint` (or `lint={{ template: "decision-request", minutes: 10 }}`) to show `lintDeck` findings there: titles that are labels rather than claims, a missing early answer, no concrete closing ask, unsourced numbers, missing talk tracks, and length against the time budget. Leave `lint` off for the audience. The templates, roles and every rule are in [deck storytelling](deck-storytelling.md).
+Give slides a `role` (`cover`, `answer`, `context`, `problem`, `evidence`, `mechanism`, `option`, `recommendation`, `plan`, `risk`, `ask`, `demo`, `appendix`) and a `headline` (the one-sentence action title). The overview's Storyline tab lists the headlines in order: read alone, they should make the argument. Pass `lint` (or `lint={{ template: "decision-request", minutes: 10 }}`) to show `lintDeck` findings there: titles that are labels rather than claims, a missing early answer, no concrete closing ask, unsourced numbers, missing or thin talk tracks, and length against the time budget. A deck with no roles still gets the answer-first and closing-ask checks, on roles read from its titles. Leave `lint` off for the audience. The templates, roles and every rule are in [deck storytelling](deck-storytelling.md).
 
 ## URL and position
 

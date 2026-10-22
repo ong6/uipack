@@ -65,8 +65,9 @@ declare const deckMotion: {
     readonly settle: "cubic-bezier(0.2, 0.7, 0.2, 1)";
     readonly exit: "cubic-bezier(0.4, 0, 1, 1)";
     readonly travel: "cubic-bezier(0.55, 0, 0.15, 1)";
+    /** The zoom camera's progress (in log scale): moving by 10% of the clock, landing softly. */
+    readonly camera: "cubic-bezier(0.3, 0.05, 0.25, 1)";
 };
-
 type TransitionKind = "advance" | "morph" | "fade" | "none" | "zoom";
 interface ResolvedTransition {
     kind: TransitionKind;
@@ -82,8 +83,14 @@ declare function resolveTransition(from: number, to: number, transitionOf: (inde
  * canvas. Named apart from the root's, whose third argument is a width, not a sample count.
  */
 declare const slideZoomFrame: (target: Rect, width?: number, height?: number) => ZoomFrame | null;
-/** Sampled keyframes for a zoom on the slide canvas. `forward` flies in; backwards plays the same path out. */
-declare const slideZoomSamples: (target: Rect, forward: boolean, samples?: number, width?: number, height?: number) => ZoomSample[] | null;
+/**
+ * Sampled keyframes for a zoom on the slide canvas. `forward` flies in; backwards plays the same
+ * path out. Scale is even in log space (Z^p) and p follows `deckMotion.camera`, so the camera is
+ * visibly moving by 10% of the clock while the slide around the target clears, rather than
+ * holding still and then jumping. The clip opens to the full 16:9 frame by 55% of the way in, so
+ * the incoming slide's title is never cropped for long.
+ */
+declare function slideZoomSamples(target: Rect, forward: boolean, samples?: number, width?: number, height?: number): ZoomSample[] | null;
 /**
  * FLIP: the transform that puts an element laid out at `to` where it was at `from`.
  * `scale` converts screen pixels back to canvas pixels. Similar shapes scale uniformly so text
@@ -277,6 +284,11 @@ interface DeckPlayerProps {
     printNotes?: boolean;
     /** Run the storyline checks and show findings in the overview's Storyline tab. For authoring, not for the audience. */
     lint?: boolean | LintOptions;
+    /**
+     * Speaking budget in minutes. The speaker view paces against it (elapsed against where each slide
+     * should start). Defaults to `lint.minutes`, else the talk tracks' own length at 135 words a minute.
+     */
+    minutes?: number;
     className?: string;
 }
 /**
@@ -286,11 +298,13 @@ interface DeckPlayerProps {
 declare function DeckPlayer(props: DeckPlayerProps): react.JSX.Element;
 
 /** A still, scaled copy of one slide, fully built. Used by the overview and the speaker view. */
-declare function SlideThumbnail({ slide, index, count, theme, }: {
+declare function SlideThumbnail({ slide, index, count, theme, step, }: {
     slide: DeckSlide;
     index: number;
     count: number;
     theme?: DeckTheme;
+    /** The build step to show. Fully built by default; a detail stop for the read view's extra stills. */
+    step?: number;
 }): react.JSX.Element;
 
 interface DeckSlideState {

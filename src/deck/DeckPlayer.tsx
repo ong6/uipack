@@ -46,6 +46,11 @@ export interface DeckPlayerProps {
   printNotes?: boolean;
   /** Run the storyline checks and show findings in the overview's Storyline tab. For authoring, not for the audience. */
   lint?: boolean | LintOptions;
+  /**
+   * Speaking budget in minutes. The speaker view paces against it (elapsed against where each slide
+   * should start). Defaults to `lint.minutes`, else the talk tracks' own length at 135 words a minute.
+   */
+  minutes?: number;
   className?: string;
 }
 
@@ -97,6 +102,7 @@ function Player({
   view: initialView = "present",
   printNotes = false,
   lint = false,
+  minutes,
   className,
 }: DeckPlayerProps) {
   const count = slides.length;
@@ -113,7 +119,7 @@ function Player({
   // The viewer's setting (shared with every entry) or the deck's own motion="none".
   const prefersReduced = usePrefersReducedMotion();
   const reducedMotion = motion === "none" || prefersReduced;
-  const { ref: stageRef, scale } = useCanvasScale();
+  const { ref: stageRef, el: stageEl, scale } = useCanvasScale();
   const rootRef = useRef<HTMLDivElement>(null);
   const fromRef = useRef<HTMLDivElement>(null);
   const toRef = useRef<HTMLDivElement>(null);
@@ -129,7 +135,7 @@ function Player({
   };
 
   const { settle, fly } = useLayerFlight(() =>
-    stageRef.current?.querySelectorAll<HTMLElement>(".uipack-deck-layer").forEach((el) => {
+    stageEl.current?.querySelectorAll<HTMLElement>(".uipack-deck-layer").forEach((el) => {
       el.style.zIndex = "";
       el.style.visibility = "";
     }),
@@ -175,6 +181,13 @@ function Player({
       ),
     );
   }, [view.index, slides]);
+
+  // The speaker view's cue for the next press: the next build, tour stop or slide.
+  const [cue, setCue] = useState("");
+  useIsoLayoutEffect(() => {
+    if (mode !== "presenter") return;
+    setCue(nextCue(toRef.current, Math.min(view.step, maxStep), maxStep, slides[view.index + 1]));
+  }, [mode, view.index, view.step, maxStep, slides]);
 
   // Run the transition once both layers are in the DOM, before the browser paints.
   useIsoLayoutEffect(() => {
@@ -444,7 +457,18 @@ function Player({
         />
       ) : (
         <>
-          {mode === "presenter" ? <Presenter slides={slides} index={view.index} theme={theme} stage={stage} /> : stage}
+          {mode === "presenter" ? (
+            <Presenter
+              slides={slides}
+              index={view.index}
+              theme={theme}
+              stage={stage}
+              cue={cue}
+              minutes={minutes ?? (typeof lint === "object" ? lint.minutes : undefined)}
+            />
+          ) : (
+            stage
+          )}
           {controls}
         </>
       )}
@@ -471,11 +495,39 @@ function Player({
           findings={lint ? lintDeck(slides, lint === true ? {} : lint) : undefined}
           onPick={(i) => {
             go(i, 0);
-            closeOverview();
+            // Focus the deck, not the All slides button, so Space and the arrows move through the
+            // picked slide instead of reopening the overview.
+            setOverview(false);
+            requestAnimationFrame(() => rootRef.current?.focus({ preventScroll: true }));
           }}
           onClose={closeOverview}
         />
       )}
     </div>
   );
+}
+
+/**
+ * What the next press does, for the speaker: the next build (its first words), the next tour stop
+ * (the cell's detail title or label), the pull-back after a tour, or the next slide.
+ */
+function nextCue(layer: HTMLElement | null, step: number, maxStep: number, upcoming: DeckSlide | undefined): string {
+  const words = (el: Element | null | undefined, max = 64) => {
+    const t = (el?.textContent ?? "").replace(/\s+/g, " ").trim();
+    return t.length > max ? `${t.slice(0, max - 1).trimEnd()}…` : t;
+  };
+  if (layer && step < maxStep) {
+    const next = step + 1;
+    const tour = layer.querySelector<HTMLElement>("[data-tour]");
+    if (tour) {
+      const ids = (tour.dataset.tour ?? "").split(" ");
+      if (next > ids.length) return `Build ${next} of ${maxStep}: camera pulls back to the whole grid`;
+      const cell = tour.querySelector(`[data-bento-cell="${CSS.escape(ids[next - 1])}"]`);
+      const label = words(cell?.querySelector(".uipack-deck-bento__detail > *")) || words(cell?.querySelector(".uipack-deck-bento-label")) || ids[next - 1];
+      return `Build ${next} of ${maxStep}: camera to ${label}`;
+    }
+    const build = layer.querySelector(`[data-build="${next}"]`);
+    return `Build ${next} of ${maxStep}${build ? `: ${words(build)}` : ""}`;
+  }
+  return upcoming ? `Next slide: ${upcoming.title}` : "End of deck";
 }

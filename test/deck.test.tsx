@@ -18,6 +18,7 @@ import {
   slideZoomSamples,
   type DeckSlide,
 } from "../src/deck";
+import { slidePlan } from "../src/deck/player/Presenter";
 
 const slides: DeckSlide[] = [
   {
@@ -348,5 +349,69 @@ describe("Bento", () => {
     press("ArrowLeft");
     expect(current()).toBe("0");
     expect(grid()).not.toHaveAttribute("data-focus");
+  });
+
+  const toured: DeckSlide[] = [
+    {
+      id: "grid",
+      title: "Grid",
+      headline: "The grid proves the claim.",
+      render: () => (
+        <Bento tour={["a", "b"]}>
+          <BentoCell id="a" detail={<p>Where the time went</p>}>
+            <p className="uipack-deck-bento-label">Latency</p>
+          </BentoCell>
+          <BentoCell id="b">
+            <p className="uipack-deck-bento-label">Shipped</p>
+          </BentoCell>
+        </Bento>
+      ),
+      notes: { say: "Walk the grid.", delivery: "" },
+    },
+    { id: "after", title: "After", headline: "After the grid, the ask.", render: () => <p>After</p>, notes: "Ask." },
+  ];
+
+  it("read view: the claim is the heading, the short title sits small above it, and a tour's details get stills", () => {
+    render(<DeckPlayer id="t10" title="Test deck" slides={toured} view="read" />);
+    expect(screen.getByRole("heading", { level: 2, name: "The grid proves the claim." })).toBeInTheDocument();
+    expect(screen.getByText("Grid", { selector: ".uipack-deck-read__title" , exact: false })).toBeInTheDocument();
+    // Only the stop whose cell has a detail gets a still, captioned with the detail's title.
+    expect(screen.getAllByText(/^Detail · /).map((el) => el.textContent)).toEqual(["Detail · Where the time went"]);
+    const still = screen.getByText("Detail · Where the time went").closest("figure")!;
+    expect(still.querySelector(".uipack-deck-bento")).toHaveAttribute("data-focus", "a");
+  });
+
+  it("print view: a page per slide plus a page per tour detail, headed by the claim beside notes", () => {
+    render(<DeckPlayer id="t11" title="Test deck" slides={toured} view="print" printNotes />);
+    const pages = Array.from(deck().querySelectorAll(".uipack-deck-print__page"));
+    expect(pages.map((p) => p.getAttribute("aria-label"))).toEqual(["01: Grid", "01: Grid, detail: Where the time went", "02: After"]);
+    expect(pages[1].querySelector(".uipack-deck-bento")).toHaveAttribute("data-focus", "a");
+    expect(pages[1].querySelector(".uipack-deck-bento")).toHaveAttribute("data-still", "");
+    expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual([
+      "The grid proves the claim.",
+      "Where the time went",
+      "After the grid, the ask.",
+    ]);
+  });
+
+  it("speaker view: cues the next build or tour stop, and paces the clock against the budget", () => {
+    render(<DeckPlayer id="t12" title="Test deck" slides={toured} mode="presenter" minutes={2} />);
+    const cue = () => deck().querySelector(".uipack-deck-presenter__cue")!.textContent;
+    expect(cue()).toBe("Build 1 of 3: camera to Where the time went");
+    press("ArrowRight");
+    expect(cue()).toBe("Build 2 of 3: camera to Shipped");
+    press("ArrowRight");
+    expect(cue()).toBe("Build 3 of 3: camera pulls back to the whole grid");
+    press("ArrowRight");
+    expect(cue()).toBe("Next slide: After");
+    expect(screen.getByLabelText("Time budget")).toHaveTextContent("/ 02:00");
+    expect(deck().querySelector(".uipack-deck-presenter__pace")).toHaveTextContent(/on pace · this slide 00:00–01:/);
+  });
+
+  it("paces each slide by its share of the talk track, scaled to the budget", () => {
+    const plan = slidePlan(toured, 120);
+    expect(plan[0].start).toBe(0);
+    expect(plan[plan.length - 1].end).toBeCloseTo(120);
+    expect(plan[0].end).toBeGreaterThan(plan[1].end - plan[1].start);
   });
 });

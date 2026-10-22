@@ -1,5 +1,5 @@
 import type { DeckTransition } from "./types";
-import { smoothstep, zoomFrame, zoomSamples, type Rect } from "../zoom-math";
+import { innerClipStart, smoothstep, zoomFrame, type Rect, type ZoomSample } from "../zoom-math";
 
 /** Slides are authored on one fixed canvas and scaled to fit, so sizes in slides are canvas pixels. */
 export const CANVAS_WIDTH = 1920;
@@ -16,7 +16,31 @@ export const deckMotion = {
   settle: "cubic-bezier(0.2, 0.7, 0.2, 1)",
   exit: "cubic-bezier(0.4, 0, 1, 1)",
   travel: "cubic-bezier(0.55, 0, 0.15, 1)",
+  /** The zoom camera's progress (in log scale): moving by 10% of the clock, landing softly. */
+  camera: "cubic-bezier(0.3, 0.05, 0.25, 1)",
 } as const;
+
+/** A CSS cubic-bezier as a function of time, for sampled keyframes that need the eased value. */
+export function cubicBezier(x1: number, y1: number, x2: number, y2: number) {
+  const cx = 3 * x1;
+  const bx = 3 * (x2 - x1) - cx;
+  const ax = 1 - cx - bx;
+  const cy = 3 * y1;
+  const by = 3 * (y2 - y1) - cy;
+  const ay = 1 - cy - by;
+  const x = (t: number) => ((ax * t + bx) * t + cx) * t;
+  const dx = (t: number) => (3 * ax * t + 2 * bx) * t + cx;
+  return (time: number) => {
+    let t = time;
+    for (let i = 0; i < 8; i++) {
+      const d = dx(t);
+      if (Math.abs(d) < 1e-6) break;
+      t = Math.min(1, Math.max(0, t - (x(t) - time) / d));
+    }
+    return ((ay * t + by) * t + cy) * t;
+  };
+}
+const cameraEase = cubicBezier(0.3, 0.05, 0.25, 1);
 
 export type { Rect } from "../zoom-math";
 
@@ -49,9 +73,41 @@ export function resolveTransition(
  */
 export const slideZoomFrame = (target: Rect, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomFrame(target, width, height);
 
-/** Sampled keyframes for a zoom on the slide canvas. `forward` flies in; backwards plays the same path out. */
-export const slideZoomSamples = (target: Rect, forward: boolean, samples = 24, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) =>
-  zoomSamples(target, forward, width, height, { samples, radius: 6 });
+/**
+ * Sampled keyframes for a zoom on the slide canvas. `forward` flies in; backwards plays the same
+ * path out. Scale is even in log space (Z^p) and p follows `deckMotion.camera`, so the camera is
+ * visibly moving by 10% of the clock while the slide around the target clears, rather than
+ * holding still and then jumping. The clip opens to the full 16:9 frame by 55% of the way in, so
+ * the incoming slide's title is never cropped for long.
+ */
+export function slideZoomSamples(
+  target: Rect,
+  forward: boolean,
+  samples = 24,
+  width = CANVAS_WIDTH,
+  height = CANVAS_HEIGHT,
+): ZoomSample[] | null {
+  const frame = zoomFrame(target, width, height);
+  if (!frame) return null;
+  const start = innerClipStart(target, frame, width, height);
+  const radiusStart = 6 * frame.Z;
+  const out: ZoomSample[] = [];
+  for (let i = 0; i <= samples; i++) {
+    const t = i / samples;
+    const p = forward ? cameraEase(t) : 1 - cameraEase(t);
+    const clipT = smoothstep(0.08, 0.55, p);
+    const inset = (v: number) => (v * (1 - clipT)).toFixed(2);
+    out.push({
+      offset: t,
+      p,
+      outer: `scale(${Math.pow(frame.Z, p).toFixed(5)})`,
+      inner: `scale(${Math.pow(frame.Z, p - 1).toFixed(5)})`,
+      clip: `inset(${inset(start.top)}px ${inset(start.right)}px ${inset(start.bottom)}px ${inset(start.left)}px round ${(radiusStart * (1 - clipT)).toFixed(2)}px)`,
+      innerOpacity: smoothstep(0.08, 0.36, p),
+    });
+  }
+  return out;
+}
 
 /**
  * FLIP: the transform that puts an element laid out at `to` where it was at `from`.
@@ -157,6 +213,9 @@ function paintFrames(el: Element, visible: "from" | "to"): Keyframe[] {
   return visible === "from" ? [shown, clear] : [clear, shown];
 }
 
+/** A build not yet revealed: its own CSS keeps it hidden, so a transition must not fade it in. */
+const unbuilt = (el: Element) => el.hasAttribute("data-build") && !el.hasAttribute("data-built");
+
 const isText = (el: Element) => /^(H[1-6]|P|SPAN|B|STRONG|EM|SMALL|LABEL|Q|BLOCKQUOTE)$/.test(el.tagName);
 const fontSizeOf = (el: Element) => parseFloat(getComputedStyle(el).fontSize) || 1;
 
@@ -212,13 +271,23 @@ export function runTransition(opts: RunOptions): Animation[] {
       for (const child of Array.from(target!.children)) {
         play(child, samples.map((s) => ({ offset: s.offset, opacity: 1 - smoothstep(0.01, 0.09, s.p) })), timing);
       }
+      // Its box (fill, border, ring) fades as the camera starts, so no scaled-up border sweeps across
+      // the screen as thick bars: the incoming slide's clip is the only edge in flight.
+      if (paintsBox(target!)) {
+        const frames = paintFrames(target!, "from");
+        play(
+          target!,
+          zoomInto ? [frames[0], { ...frames[1], offset: 0.22 }, frames[1]] : [frames[1], { ...frames[1], offset: 0.78 }, frames[0]],
+          timing,
+        );
+      }
       // Everything around the target clears in the first 30% of a zoom in (and returns in the last
       // 30% of a zoom out), so two dense slides never overlap: only the target and what opens
       // inside it are on screen mid-flight.
       const around = partitionForMorph(outer, new Set([opts.transition.zoom!])).rest;
       const fade = zoomInto
-        ? [{ opacity: 1 }, { opacity: 0, offset: 0.3 }, { opacity: 0 }]
-        : [{ opacity: 0 }, { opacity: 0, offset: 0.7 }, { opacity: 1 }];
+        ? [{ opacity: 1, easing: "ease-out" }, { opacity: 0, offset: 0.3 }, { opacity: 0 }]
+        : [{ opacity: 0 }, { opacity: 0, offset: 0.7, easing: "ease-in" }, { opacity: 1 }];
       for (const el of around) play(el, fade, timing);
       return anims;
     }
@@ -234,6 +303,8 @@ export function runTransition(opts: RunOptions): Animation[] {
       const travel = { duration: deckMotion.morph, easing: deckMotion.travel };
       // Where the travellers still are in the second half of the flight, in screen pixels.
       const path: Rect[] = [];
+      // Everywhere they pass: outgoing blocks on the way leave at once.
+      const early: Rect[] = [];
       for (const key of shared) {
         const a = out.matched.get(key);
         const b = inn.matched.get(key);
@@ -249,6 +320,7 @@ export function runTransition(opts: RunOptions): Animation[] {
         const start = text ? { x: ra.x, y: ra.y, w: rb.w * text, h: rb.h * text } : ra;
         // Eased progress from about 45% of the flight on, when incoming blocks become visible.
         for (const p of [0.7, 0.85, 0.95]) path.push(lerpRect(start, rb, p));
+        for (const p of [0, 0.1, 0.25, 0.45, 0.65, 0.85, 1]) early.push(lerpRect(start, rb, p));
         const fromB = flipFrom(ra, rb, scale, fit, text).transform;
         const fromA = flipFrom(rb, ra, scale, fit, text && 1 / text).transform;
         // Movement eases; the swap runs on clock time, so "8%" means the first 61 ms, not 8% of an
@@ -265,8 +337,24 @@ export function runTransition(opts: RunOptions): Animation[] {
       // incoming copy that takes its place.
       const leave = { duration: deckMotion.quick, easing: deckMotion.exit };
       const besideOut = (el: HTMLElement) => Boolean(el.parentElement && out.containers.includes(el.parentElement) && isText(el.parentElement));
-      for (const el of out.rest) {
-        play(el, [{ opacity: 1 }, { opacity: 0 }], besideOut(el) ? { duration: deckMotion.morph * 0.08, easing: "linear" } : leave);
+      const crossed = (el: HTMLElement) => {
+        const r = rectOf(el);
+        return early.some((p) => overlaps(p, r));
+      };
+      // Blocks the traveller crosses leave at once, so it never passes over words. The rest of the
+      // outgoing slide holds for a third of the flight and is gone by 60%, crossfading with the
+      // incoming blocks (from 40%), so the slide never clears to a lone number on a blank page.
+      // A large block (a grid of panels) is judged panel by panel.
+      const fromArea = rectOf(from).w * rectOf(from).h;
+      const outgoing = out.rest.flatMap((el) => {
+        const r = rectOf(el);
+        const kids = Array.from(el.children).filter((c): c is HTMLElement => c instanceof HTMLElement);
+        return r.w * r.h > fromArea / 6 && kids.length > 1 && crossed(el) ? kids : [el];
+      });
+      for (const el of outgoing) {
+        if (besideOut(el)) play(el, [{ opacity: 1 }, { opacity: 0 }], { duration: deckMotion.morph * 0.08, easing: "linear" });
+        else if (crossed(el)) play(el, [{ opacity: 1 }, { opacity: 0 }], leave);
+        else play(el, [{ opacity: 1 }, { opacity: 1, offset: 0.55, easing: "ease-in-out" }, { opacity: 0 }], { duration: deckMotion.morph * 0.6, easing: "linear" });
       }
       for (const el of out.containers) if (paintsBox(el)) play(el, paintFrames(el, "from"), leave);
       // Incoming blocks settle in once the outgoing slide has cleared. Blocks a traveller still has
@@ -284,7 +372,7 @@ export function runTransition(opts: RunOptions): Animation[] {
         const r = rectOf(el);
         const kids = Array.from(el.children).filter((c): c is HTMLElement => c instanceof HTMLElement);
         return r.w * r.h > layerArea / 6 && kids.length > 1 && underPath(el) ? kids : [el];
-      });
+      }).filter((el) => !unbuilt(el));
       let i = 0;
       for (const el of incoming) {
         if (beside(el) || underPath(el)) {
@@ -300,9 +388,11 @@ export function runTransition(opts: RunOptions): Animation[] {
       for (const el of inn.containers) {
         if (paintsBox(el)) play(el, paintFrames(el, "to"), { duration: deckMotion.slow, delay: deckMotion.morph * 0.4, easing: deckMotion.settle });
       }
-      // The incoming background crosses over while the outgoing slide clears; invisible when tones match.
+      // The incoming background (it paints over the outgoing layer) crosses over as the outgoing
+      // slide finishes leaving, at 45–62% of the clock, so it never veils the outgoing panels
+      // early; invisible when tones match.
       const bg = bgOf(to);
-      if (bg) play(bg, [{ opacity: 0 }, { opacity: 0, offset: 0.15 }, { opacity: 1, offset: 0.55 }, { opacity: 1 }], travel);
+      if (bg) play(bg, [{ opacity: 0 }, { opacity: 0, offset: 0.45 }, { opacity: 1, offset: 0.62 }, { opacity: 1 }], { duration: deckMotion.morph, easing: "linear" });
       return anims;
     }
   }
@@ -314,7 +404,7 @@ export function runTransition(opts: RunOptions): Animation[] {
     // slide's blocks start as it goes, so two slides' words never overlap.
     play(from, [{ transform: "none" }, { transform: `translateX(${-shift}px)` }], { duration: deckMotion.base, easing: deckMotion.exit });
     play(from, [{ opacity: 1 }, { opacity: 0 }], { duration: deckMotion.quick, easing: "ease-in" });
-    const blocks = blocksOf(to);
+    const blocks = blocksOf(to).filter((el) => !unbuilt(el));
     (blocks.length ? blocks : [to]).forEach((el, i) =>
       play(el, [{ opacity: 0, transform: `translateX(${shift * 1.4}px)` }, { opacity: 1, transform: "none" }], {
         duration: deckMotion.slow,

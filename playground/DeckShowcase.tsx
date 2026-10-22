@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from "react";
 import { DeckPlayer } from "../src/deck";
 import "../src/deck/deck.css";
 import "../src/deck/bento.css";
@@ -47,8 +48,26 @@ const moves = [
   ["fade / none", "Jumps", "Overview jumps and Home/End crossfade. none cuts."],
 ];
 
+/**
+ * Keeps the slide and its controls on the first screen: the stage may be as tall as the viewport
+ * leaves below the page header (deck.css reads --deck-chrome).
+ */
+function useFitBelowHeader() {
+  const ref = useRef<HTMLElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const fit = () => el.style.setProperty("--deck-chrome", `${Math.round(el.getBoundingClientRect().top + window.scrollY) + 80}px`);
+    fit();
+    window.addEventListener("resize", fit);
+    return () => window.removeEventListener("resize", fit);
+  }, []);
+  return ref;
+}
+
 export default function DeckShowcase() {
   const { theme, flip } = useShowcaseTheme();
+  const fitRef = useFitBelowHeader();
   const initial = { slide: params.get("slide") ?? undefined, step: Number(params.get("step") ?? 0) || 0 };
 
   if (view === "print") {
@@ -76,6 +95,7 @@ export default function DeckShowcase() {
           theme={theme}
           motion={motion}
           mode="presenter"
+          minutes={example.lint?.minutes}
           keyboard="global"
           initial={initial}
           onPositionChange={syncUrl}
@@ -86,7 +106,7 @@ export default function DeckShowcase() {
 
   return (
     <ShowcaseShell active="deck" theme={theme} flip={flip}>
-      <section className="deck-showcase" data-catalog-entry={deckEntries[0].id}>
+      <section ref={fitRef} className="deck-showcase" data-catalog-entry={deckEntries[0].id}>
         <DeckPlayer
           id={deckId}
           title="Deck player example"

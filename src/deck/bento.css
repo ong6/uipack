@@ -2,6 +2,9 @@
 /* The bento's box is the camera's window: zoomed cells never spill over the heading or footer.
    The grid is inset 3px so cell outlines aren't clipped at rest. */
 .uipack-deck-bento {
+  /* The page's surface and rule, resolved here so a dimmed ink or accent cell can take them. */
+  --uipack-bento-dim-bg: var(--deck-surface);
+  --uipack-bento-dim-rule: color-mix(in srgb, var(--deck-fg) 9%, transparent);
   position: relative;
   flex: 1;
   min-height: 0;
@@ -29,7 +32,9 @@
   border-radius: 28px;
   background: var(--deck-surface);
   box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--deck-fg) 9%, transparent);
-  transition: opacity 420ms ease;
+  transition:
+    opacity 420ms ease,
+    background-color 420ms ease;
 }
 .uipack-deck-bento__cell[data-tone] {
   background: var(--deck-bg);
@@ -39,6 +44,12 @@
    would read as a bug, and dim text still competes with the focused cell. */
 .uipack-deck-bento__cell[data-dimmed] {
   opacity: 0.4;
+}
+/* A dimmed ink or accent cell takes the same pale surface as the rest: at 40% a dark fill would
+   read as a heavy grey slab beside the focused cell. */
+.uipack-deck-bento__cell[data-dimmed][data-tone] {
+  background: var(--uipack-bento-dim-bg);
+  box-shadow: 0 0 0 1.5px var(--uipack-bento-dim-rule);
 }
 .uipack-deck-bento__face,
 .uipack-deck-bento__detail {
@@ -68,6 +79,10 @@
   opacity: 0;
   transition-delay: 0ms;
 }
+.uipack-deck-bento[data-still] .uipack-deck-bento__grid,
+.uipack-deck-bento[data-still] .uipack-deck-bento__cell,
+.uipack-deck-bento[data-still] .uipack-deck-bento__face,
+.uipack-deck-bento[data-still] .uipack-deck-bento__detail,
 .uipack-deck[data-motion="none"] .uipack-deck-bento__cell,
 .uipack-deck[data-motion="none"] .uipack-deck-bento__face,
 .uipack-deck[data-motion="none"] .uipack-deck-bento__detail {
