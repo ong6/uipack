@@ -2,19 +2,19 @@ import {
   forwardRef,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
+import { usePrefersReducedMotion } from "../context";
+import { useIsoLayoutEffect } from "../env";
 import { DeckSlideContext } from "./parts";
 import { SLIDE_ROLES, lintDeck, storylineOf, talkSeconds, type LintFinding, type LintOptions } from "./storyline";
 import { CANVAS_WIDTH, resolveTransition, runTransition } from "./transitions";
 import type { DeckPosition, DeckSlide, DeckTheme, DeckTransition } from "./types";
 
-const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 export interface DeckPlayerProps {
   slides: DeckSlide[];
@@ -47,20 +47,6 @@ interface View {
   step: number;
   from: { index: number; step: number } | null;
   seq: number;
-}
-
-function usePrefersReducedMotion(motion: "auto" | "none") {
-  const [reduced, setReduced] = useState(motion === "none");
-  useEffect(() => {
-    if (motion === "none") return setReduced(true);
-    if (typeof matchMedia === "undefined") return setReduced(false);
-    const mq = matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReduced(mq.matches);
-    update();
-    mq.addEventListener?.("change", update);
-    return () => mq.removeEventListener?.("change", update);
-  }, [motion]);
-  return reduced;
 }
 
 /** Screen pixels per canvas pixel for a 16:9 box. */
@@ -172,7 +158,9 @@ export function DeckPlayer({
   const [overview, setOverview] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [reading, setReading] = useState(initialView === "read");
-  const reducedMotion = usePrefersReducedMotion(motion);
+  // The viewer's setting (shared with every entry) or the deck's own motion="none".
+  const prefersReduced = usePrefersReducedMotion();
+  const reducedMotion = motion === "none" || prefersReduced;
   const { ref: stageRef, scale } = useCanvasScale();
   const rootRef = useRef<HTMLDivElement>(null);
   const fromRef = useRef<HTMLDivElement>(null);

@@ -1,7 +1,6 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useIsoLayoutEffect } from "../../env";
 import { useDeckSlide } from "../parts";
-
-const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 /**
  * The layout size of a chart's box in canvas pixels. ResizeObserver reports layout sizes, which

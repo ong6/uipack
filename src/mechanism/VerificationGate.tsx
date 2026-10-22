@@ -1,4 +1,5 @@
 import * as React from "react";
+import { REDUCED_MOTION_QUERY } from "../env";
 import type { Point3, SolidPaths } from "./kit/iso-kit";
 import { Dots, Line, Solid } from "./kit/draw";
 import { asksForStillness, follow, spring, type Spring } from "./kit/live";
@@ -27,7 +28,7 @@ import {
   type TokenPaths,
 } from "./geometry";
 import { LIMIT, SCALE } from "./gate";
-import { RUN_LONG, contactOver, sceneAt, stillScene, STILL_AT, type GatePose, type Layer, type Scene } from "./motion";
+import { RUN_LONG, clamp, contactOver, sceneAt, stillScene, STILL_AT, type GatePose, type Layer, type Scene } from "./motion";
 import { ASSEMBLIES, GX, HEIGHT, MOVES, WIDTH, at, move, type Assembly } from "./view";
 import { MechanismFrame } from "./MechanismFrame";
 
@@ -92,7 +93,6 @@ interface Display {
   shares: Record<Assembly, Spring>;
 }
 
-const clamp = (value: number, low: number, high: number) => Math.min(high, Math.max(low, value));
 const fine = (value: number) => Math.round(value * 100) / 100;
 const sharesAt = (value: number) => Object.fromEntries(ASSEMBLIES.map((name) => [name, { at: value, rate: 0 }])) as Record<Assembly, Spring>;
 
@@ -419,7 +419,7 @@ export function GateMachine({ pose = "idle", theme, motion = "auto", interactive
   // Reduced motion switched on mid-flight: settle on the still frame.
   React.useEffect(() => {
     if (!interactive || typeof window === "undefined" || !window.matchMedia) return;
-    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const query = window.matchMedia(REDUCED_MOTION_QUERY);
     const changed = () => {
       const s = state.current;
       if (query.matches) {

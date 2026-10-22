@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
+import { REDUCED_MOTION_QUERY } from "../env";
 
 /* ------------------------------------------------------------------ Pure math (tested) */
 
@@ -85,7 +86,7 @@ export const SMOOTH_SCROLL_ATTR = "data-uipack-smooth-scroll";
 /** Put on an element whose wheel events must stay native, like Lenis's data-lenis-prevent. */
 export const SMOOTH_SCROLL_PREVENT_ATTR = "data-smooth-scroll-prevent";
 
-const REDUCED = "(prefers-reduced-motion: reduce)";
+const REDUCED = REDUCED_MOTION_QUERY;
 const SCROLL_KEYS = new Set([" ", "PageUp", "PageDown", "ArrowUp", "ArrowDown", "Home", "End"]);
 const FINE = "(hover: hover) and (pointer: fine)";
 

@@ -4,7 +4,6 @@ import {
   useCallback,
   useEffect,
   useId,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -12,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { CanvasView } from "../CanvasView";
+import { useIsoLayoutEffect } from "../env";
 import { PauseGlyph, PlayGlyph, ReplayGlyph, placeNote } from "../Figure";
 import { Legend } from "../Legend";
 import { FigureMotionContext, usePrefersReducedMotion, type FigureMotion } from "../context";
@@ -79,7 +79,6 @@ interface View {
   flight: Flight | null;
 }
 
-const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 const last = (p: DrillPath) => p[p.length - 1];
 
 const BackGlyph = () => (

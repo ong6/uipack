@@ -1,4 +1,5 @@
 import { useEffect, useState, type RefObject } from "react";
+import { prefersReducedMotion } from "../env";
 
 export interface InViewOptions {
   /** Fraction of the element that must be visible. Default 0. */
@@ -87,7 +88,7 @@ type TransitionDocument = Document & { startViewTransition?: (cb: () => void) =>
 /** The document when View Transitions are available and the viewer allows motion; otherwise undefined. */
 function transitionDocument(): TransitionDocument | undefined {
   const doc = typeof document === "undefined" ? undefined : (document as TransitionDocument);
-  const reduced = typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduced = prefersReducedMotion();
   return doc?.startViewTransition && !reduced ? doc : undefined;
 }
 

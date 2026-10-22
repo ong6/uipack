@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
-import { harveyWedge } from "./scale";
+import { harveyQuarters, harveyWedge } from "./scale";
 
 const LEVEL_WORDS = ["None", "Low", "Medium", "High", "Full"] as const;
 
 /** A Harvey ball: 0 (empty) to 4 (full) quarters. Its level is also in the accessible name. */
 export function HarveyBall({ level, size = 36, label }: { level: number; size?: number; label?: string }) {
-  const q = Math.max(0, Math.min(4, Math.round(level)));
+  const q = harveyQuarters(level);
   const r = size / 2 - 1.5;
   const c = size / 2;
   return (

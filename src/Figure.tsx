@@ -1,10 +1,10 @@
 import { CanvasView } from "./CanvasView";
+import { useIsoLayoutEffect } from "./env";
 import { SelectionContext, type SelectedItem } from "./selection";
 import {
   useCallback,
   useEffect,
   useId,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -63,9 +63,7 @@ export interface FigureProps {
 
 const vbWidth = (viewBox: string) => Number(viewBox.split(/\s+/)[2]) || 0;
 
-// SSR-safe layout effect: the note is measured before paint in the browser.
-const useIsoLayoutEffect =
-  typeof window === "undefined" ? useEffect : useLayoutEffect;
+// The selection note is measured before paint in the browser (useIsoLayoutEffect).
 
 const NOTE_GAP = 8;
 

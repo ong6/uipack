@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, type RefObject } from "react";
+import { useIsoLayoutEffect as useBrowserLayoutEffect } from "./env";
 
 export interface CanvasZoom {
   value: number;
@@ -6,8 +7,6 @@ export interface CanvasZoom {
   max: number;
   onChange: (value: number) => void;
 }
-const useBrowserLayoutEffect =
-  typeof window === "undefined" ? useEffect : useLayoutEffect;
 type Point = { x: number; y: number };
 type GestureEvent = Event & { scale: number; clientX: number; clientY: number };
 

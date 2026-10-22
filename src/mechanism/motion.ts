@@ -5,6 +5,7 @@
 import type { Point3 } from "./kit/iso-kit";
 import { checkAt, tallyOf, tallyText, verdictText, PASS_CHECK, RETURN_CHECK, type Check } from "./gate";
 import { ARM_SWING, ASSEMBLIES, BELT_X1, BT, CHUTE_MID, CHUTE_X0, CHUTE_X1, GX, LIFTED, PIVOT, RAIL_OUT, RESULT_TRAY, RETURN_TRAY, TOKEN_R, TRAY_FLOOR, APRON_TOP, chuteTop } from "./view";
+import { smoothstep } from "../zoom-math";
 
 export type GatePose = "idle" | "pass" | "return" | "apart";
 export type Layer = "belt" | "chute" | "tray";
@@ -70,11 +71,9 @@ export const PERIOD = 5.4;
 export const IDLE_START = 4 * PERIOD + 0.4;
 const KEEP_RETURNED = 1.8;
 
-const clamp = (value: number, low = 0, high = 1) => Math.min(high, Math.max(low, value));
-const smooth = (value: number) => {
-  const t = clamp(value);
-  return t * t * (3 - 2 * t);
-};
+/** `value` held within [low, high] (0..1 by default). */
+export const clamp = (value: number, low = 0, high = 1) => Math.min(high, Math.max(low, value));
+const smooth = (value: number) => smoothstep(0, 1, value);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const mix3 = (a: Point3, b: Point3, t: number): Point3 => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
 

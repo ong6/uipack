@@ -150,12 +150,15 @@ export function stackSegments(values: number[], percent = false): StackSegment[]
   });
 }
 
+/** A Harvey level as whole quarters, 0 (empty) to 4 (full). */
+export const harveyQuarters = (level: number) => Math.max(0, Math.min(4, Math.round(level)));
+
 /**
  * The filled wedge of a Harvey ball: `level` quarters of a circle of radius `r` centred on (cx, cy),
  * clockwise from 12 o'clock. Returns "" for 0 and a full circle path for 4.
  */
 export function harveyWedge(level: number, cx: number, cy: number, r: number): string {
-  const q = Math.max(0, Math.min(4, Math.round(level)));
+  const q = harveyQuarters(level);
   if (q === 0) return "";
   if (q === 4) return `M${cx - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`;
   const angle = (q / 4) * Math.PI * 2;

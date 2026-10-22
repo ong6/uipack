@@ -27,6 +27,7 @@
  *
  * Returns a cleanup function that removes every listener.
  */
+import { prefersReducedMotion } from "../env";
 export function enhanceSpanChart(root: HTMLElement): () => void {
   const form = root.querySelector<HTMLFormElement>("form.uipack-span__form");
   const doc = root.ownerDocument;
@@ -336,7 +337,7 @@ export function enhanceLayerStack(root: HTMLElement): () => void {
   const onClick = (event: MouseEvent) => {
     if (!win || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const link = (event.target as Element).closest?.<HTMLAnchorElement>('a[href^="#"]');
-    if (!link || !root.contains(link) || win.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    if (!link || !root.contains(link) || prefersReducedMotion(win)) return;
     const hash = link.getAttribute("href")!;
     const target = doc.getElementById(decodeURIComponent(hash.slice(1)));
     if (!target) return;

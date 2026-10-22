@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { objectDirectionIndex, normalizeObjectVariant, chooseObjectVariant, objectDirections, objectEditions, objectVariants, directionSymbols, parseObjectVariant, type ObjectEdition, type ObjectVariant } from "./variants";
 export { transferObjectVariant, objectDirectionIndex, normalizeObjectVariant, objectDirections, objectEditions, objectVariants, directionSymbols, parseObjectVariant, type ObjectEdition, chooseObjectVariant, type ObjectVariant } from "./variants";
 import { CanvasView } from "../CanvasView";
+import { REDUCED_MOTION_QUERY } from "../env";
 import type { ObjectKind, ObjectPalette } from "./scenes";
 export type { ObjectKind, ObjectPalette } from "./scenes";
 export interface ObjectSceneProps {
@@ -240,7 +241,7 @@ function ObjectStage({
   }, [zoom]);
 
   useEffect(() => {
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const media = window.matchMedia(REDUCED_MOTION_QUERY);
     const update = () => {
       reducedRef.current = media.matches;
       setReduced(media.matches);
