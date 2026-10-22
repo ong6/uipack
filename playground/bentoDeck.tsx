@@ -196,7 +196,9 @@ export const bentoDeck: DeckSlide[] = [
             <p className="uipack-deck-bento-value">
               198<small>ms</small>
             </p>
-            <p className="uipack-deck-bento-note">down from 412 ms in Q2</p>
+            <p className="uipack-deck-bento-note">
+              down from 412 ms in Q2 · <b>−140 ms from caching</b>
+            </p>
           </BentoCell>
           <BentoCell id="cost" col={3}>
             <p className="uipack-deck-bento-label">Cost per 1k queries</p>

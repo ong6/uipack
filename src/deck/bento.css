@@ -223,3 +223,8 @@
   margin-bottom: 36px;
   font-size: 60px;
 }
+/* A note's bold words (the one number it adds) take the cell's ink, not its muted grey. */
+.uipack-deck-bento-note b {
+  color: var(--deck-fg);
+  font-weight: 600;
+}
