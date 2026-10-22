@@ -1,4 +1,13 @@
+/* Shell tokens. Type: the Technical stacks, no font requests. Controls: one set for every playground
+   control (and the Mechanism page's, through its --font-mono hook): mono 500, 13px on the page and
+   12px inside a figure or stage frame, a 6px radius. Radius scale: docs/design-direction.md. */
 :root {
+  --show-font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --show-font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --show-control-font: 500 13px/1.2 var(--show-font-mono);
+  --show-control-font-sm: 500 12px/1.2 var(--show-font-mono);
+  --show-control-radius: 6px;
+  --show-radius: 6px;
   --show-bg: #f6f5f1;
   --show-ink: #1a1c1a;
   --show-muted: #5c625e;
@@ -16,11 +25,7 @@
 }
 body {
   margin: 0;
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    sans-serif;
+  font-family: var(--show-font-sans);
   background: var(--show-bg);
   color: var(--show-ink);
 }
@@ -54,7 +59,7 @@ body {
   padding: 0 16px;
   box-sizing: border-box;
   border: 2px solid var(--show-accent);
-  border-radius: 6px;
+  border-radius: var(--show-control-radius);
   background: var(--show-surface);
   color: var(--show-ink);
   font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -100,14 +105,12 @@ body {
 }
 .showcase-header button.theme {
   min-height: 44px;
-  font:
-    13px ui-monospace,
-    monospace;
+  font: var(--show-control-font);
   padding: 6px 12px;
   border: 1px solid var(--show-rule);
   background: transparent;
   color: inherit;
-  border-radius: 6px;
+  border-radius: var(--show-control-radius);
   cursor: pointer;
 }
 /* Two rows of links: groups, then the active group's pages. Rows scroll sideways
@@ -258,7 +261,7 @@ body {
 }
 .catalog-filters { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin: 20px 0; font-size: 13px; color: var(--show-muted); }
 .catalog-filters label { display: grid; gap: 8px; }
-.catalog-filters input,.catalog-filters select { min-height: 44px; max-width: 100%; box-sizing: border-box; border: 1px solid var(--show-rule); border-radius: 6px; padding: 8px 12px; background: var(--show-surface); color: var(--show-ink); font: inherit; }
+.catalog-filters input,.catalog-filters select { min-height: 44px; max-width: 100%; box-sizing: border-box; border: 1px solid var(--show-rule); border-radius: var(--show-control-radius); padding: 8px 12px; background: var(--show-surface); color: var(--show-ink); font: inherit; }
 .catalog-filters input { width: 280px; }
 .slides-showcase__tabs button small { display: block; margin-top: 6px; color: var(--show-muted); font-size: 12px; }
 
@@ -267,7 +270,7 @@ body {
 .chart-frame { margin: 0 auto; width: 100%; --uipack-bg: var(--show-bg); }
 .chart-frame__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 12px; font: 12px ui-monospace, monospace; color: var(--show-muted); }
 /* Only the widths that fit are offered, so on a phone the label and its buttons share one row. */
-.chart-frame__bar button { min-height: 36px; padding: 0 10px; font-size: 12px; }
+.chart-frame__bar button { min-height: 36px; padding: 0 10px; font: var(--show-control-font-sm); }
 
 /* Section intros and sub-headings, shared by every page. `.collection-intro` is the older name
    of the same thing; both read alike on every page. */
@@ -349,7 +352,7 @@ body {
     padding: 0 12px;
     box-sizing: border-box;
     border: 1px solid var(--show-ink);
-    border-radius: 6px;
+    border-radius: var(--show-control-radius);
     background: var(--show-surface);
     color: var(--show-ink);
     font: 600 13px ui-monospace, monospace;
@@ -423,7 +426,7 @@ body {
     min-height: 44px;
     padding: 0 16px;
     border: 1px solid var(--show-rule);
-    border-radius: 6px;
+    border-radius: var(--show-control-radius);
     background: transparent;
     color: inherit;
     font: inherit;
@@ -532,10 +535,10 @@ body {
   min-height: 44px;
   padding: 0 14px;
   border: 1px solid var(--show-rule);
-  border-radius: 6px;
+  border-radius: var(--show-control-radius);
   background: transparent;
   color: var(--show-ink);
-  font: 500 13px/1.2 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font: var(--show-control-font);
   cursor: pointer;
 }
 :is(.deck-chapters, .deck-navigation, .chart-frame__bar, .slides-showcase__tabs, .mechanism-poses) button:hover:not(:disabled) {
@@ -556,11 +559,11 @@ body {
   min-height: 44px;
   padding: 0 36px 0 12px;
   border: 1px solid var(--show-rule);
-  border-radius: 6px;
+  border-radius: var(--show-control-radius);
   background: var(--show-surface) no-repeat right 12px center / 12px 12px
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%235c625e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   color: var(--show-ink);
-  font: 500 13px/1.2 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font: var(--show-control-font);
   cursor: pointer;
 }
 :root[data-theme="dark"] .showcase-shell :is(.catalog-filters select, .uipack-edition-select select) {
@@ -569,7 +572,21 @@ body {
 .showcase-shell :is(.catalog-filters select, .uipack-edition-select select):hover {
   border-color: var(--show-ink);
 }
-/* The 3D stage's Open canvas, in the same mono as the figure's (.uipack__ctl). */
-.showcase-shell .uipack-object-open {
-  font: 500 12px/1 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+/* Controls inside a figure or stage frame: the 3D stage's Open canvas and Pause, the machine's
+   Pause. The same mono as the figure's own (.uipack__ctl), at the in-frame size. */
+.showcase-shell :is(.uipack-object-open, .uipack-object__motion, .uipack-mechanism .um-motion) {
+  font: var(--show-control-font-sm);
+  border-radius: var(--show-control-radius);
+}
+/* The 3D library's scene list and art-direction cards are option tiles, not controls: the shell
+   sans, deliberately, with the control radius. */
+.showcase-shell .uipack-scene-list button {
+  font-family: var(--show-font-sans);
+  border-radius: var(--show-control-radius);
+}
+.showcase-shell .uipack-direction-list button {
+  border-radius: var(--show-control-radius);
+}
+.showcase-shell .uipack-direction-list :is(strong, small) {
+  font-family: var(--show-font-sans);
 }
