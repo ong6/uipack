@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef } from "react";
 /** `clearLayers` returns the owner's layers to rest (no inline z-index or visibility left behind). */
 export function useLayerFlight(clearLayers: () => void) {
   const anims = useRef<Animation[]>([]);
-  // Bumped by every settle and on unmount, so a flight that was replaced never lands.
+  // Bumped by every fly, every settle and on unmount, so a flight that was replaced never lands.
   const generation = useRef(0);
   const clear = useRef(clearLayers);
   clear.current = clearLayers;
@@ -20,11 +20,14 @@ export function useLayerFlight(clearLayers: () => void) {
     clear.current();
   }, []);
 
-  /** Track `run`, and call `land` once all of it has finished: straight away if nothing runs. */
+  /**
+   * Track `run`, and call `land` once all of it has finished: straight away if nothing runs.
+   * A newer fly or settle replaces this flight, so it never lands after one.
+   */
   const fly = useCallback((run: Animation[], land: () => void) => {
+    const at = ++generation.current;
     anims.current = run;
     if (!run.length) return land();
-    const at = generation.current;
     Promise.all(run.map((a) => a.finished)).then(
       () => {
         if (generation.current === at) land();
