@@ -102,7 +102,7 @@ test.describe("geometry", () => {
   });
 
   for (const width of [1440, 390]) {
-    test(`node text stays inside its box on every drawing at ${width}`, async ({ page }) => {
+    test(`node text stays inside its box, clear of the border, on every drawing at ${width}`, async ({ page }) => {
       await page.setViewportSize({ width, height: 1100 });
       await page.goto("/");
       await page.locator("[data-section] figure.uipack").first().waitFor();
@@ -115,8 +115,9 @@ test.describe("geometry", () => {
           for (const t of node.querySelectorAll<SVGTextElement>(":scope > text")) {
             const b = t.getBBox();
             if (!b.width) continue;
-            // 1 unit of slack: a glyph's side bearing may touch the stroke without crossing it.
-            if (b.x < box.x - 1 || b.x + b.width > box.x + box.width + 1)
+            // Text fits with room to spare: at least 4 units between it and either side of the box,
+            // so no label or subtitle reads as touching the border.
+            if (b.x < box.x + 4 || b.x + b.width > box.x + box.width - 4)
               out.push(`${node.closest("[data-section]")?.getAttribute("data-section")}: "${t.textContent}" ${b.x.toFixed(0)}..${(b.x + b.width).toFixed(0)} in ${box.x}..${box.x + box.width}`);
           }
         }

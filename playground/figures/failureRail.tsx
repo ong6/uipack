@@ -29,7 +29,7 @@ const SW = 112;
 const SH = 56;
 const STEP = 152;
 const sx = (i: number) => 208 + i * STEP; // stage centres 264, 416, 568, 720, 872: on the 8px grid
-const upload = { x: 16, y: CY - 28, w: 128, h: 56 };
+const upload = { x: 16, y: CY - 28, w: 152, h: 56 }; // wide enough that "file received" clears the edge
 const ready = { x: 960, y: CY - 28, w: 152, h: 56 };
 const RAIL = 272;
 const dlq = { x: 960, y: RAIL - 28, w: 152, h: 56 };

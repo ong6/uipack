@@ -22,6 +22,9 @@ const PLATFORM = [
   ["Rate limiting", "Request shaping"],
 ] as const;
 
+// The phone drawing's cells are 144 wide: a name too long for one keeps clear of its edges this way.
+const NARROW_LABEL: Record<string, string> = { "Placement & residency": "Residency" };
+
 const STORES = [
   ["Azure Cosmos DB", "Online storage", "db"],
   ["Nanobase", "Online storage", "db"],
@@ -150,7 +153,7 @@ export function HabitatNarrow() {
       <Packet points={down} kind="response" dur={1.6} delay={-0.8} reverse flow={READ} />
       <Group {...platform} title="Habitat" flow={READ}>
         {PLATFORM.slice(0, 4).map(([label], i) => (
-          <Node key={label} x={platform.x + 16 + (i % 2) * 152} y={platform.y + 40 + Math.floor(i / 2) * 56} w={136} h={40} label={label} size={12} flow={READ} />
+          <Node key={label} x={platform.x + 16 + (i % 2) * 152} y={platform.y + 40 + Math.floor(i / 2) * 56} w={144} h={40} label={NARROW_LABEL[label] ?? label} size={12} flow={READ} />
         ))}
       </Group>
       <Connector points={toStore} defs={`${ID}-n`} flow={READ} />
