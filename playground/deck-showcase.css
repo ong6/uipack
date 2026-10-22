@@ -49,12 +49,20 @@
 }
 
 /* Example deck: three moves */
+/* The cover title shrinks into this running header. Same weight, tracking, balance and measure in
+   ch as .deck-demo-cover-title, so both copies break their lines at the same words and the morph
+   is a pure scale with no rewrap. */
 .deck-demo-running {
-  margin: 0 0 40px;
+  /* A hair wider than the title's 21ch: small sizes round glyph advances up, and balanced lines
+     break at the same words whenever the line count matches. */
+  max-width: 21.6ch;
+  margin: 0 0 36px;
   color: var(--deck-muted);
-  font-size: 34px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: 30px;
+  font-weight: 650;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 .deck-demo-moves {
   display: grid;
@@ -149,62 +157,112 @@
   font-size: 36px;
 }
 
-/* Example deck: one clock */
-.deck-demo-clock {
+/* Example deck: cover and close carry a full-sentence claim, so they set smaller than a label title. */
+.deck-demo-cover-title.uipack-deck-title {
+  max-width: 21ch;
+  font-size: 92px;
+  line-height: 1.04;
+}
+
+/* Example deck: one clock (durations as bars, curves drawn) */
+.uipack-deck-slide.deck-demo-timing {
+  grid-template-columns: 0.9fr 1.1fr;
+  column-gap: 96px;
+}
+.deck-demo-timing__copy {
   align-self: center;
 }
-.deck-demo-clock .uipack-deck-number {
-  color: var(--deck-accent);
+.deck-demo-curves {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  margin: 64px 0 0;
+  padding: 0;
+  list-style: none;
 }
-.deck-demo-clock .uipack-deck-label {
-  margin-top: 24px;
+.deck-demo-curves li {
+  display: grid;
+  gap: 6px;
 }
-.deck-demo-clock__copy {
+.deck-demo-curves b {
+  margin-top: 12px;
+  font: 600 24px/1.2 var(--deck-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.deck-demo-curves span {
+  color: var(--deck-muted);
+  font-size: 24px;
+}
+.deck-demo-curve {
+  width: 132px;
+  height: 132px;
+  overflow: visible;
+}
+.deck-demo-curve path {
+  fill: none;
+  stroke: var(--deck-accent);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+.deck-demo-curve path.deck-demo-curve__frame {
+  stroke: var(--deck-rule);
+  stroke-width: 2;
+}
+.deck-demo-durations {
   align-self: center;
-}
-.deck-demo-tokens {
   width: 100%;
-  margin-top: 72px;
-  /* Separate borders belong to cells, so they fade with their rows during a morph. */
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 34px;
 }
-.deck-demo-tokens th,
-.deck-demo-tokens td {
-  padding: 22px 0;
+.deck-demo-durations caption {
+  margin-bottom: 20px;
+  text-align: left;
+}
+.deck-demo-durations th,
+.deck-demo-durations td {
+  padding: 18px 0;
   border-top: 1.5px solid var(--deck-rule);
   text-align: left;
-  vertical-align: baseline;
+  vertical-align: middle;
 }
-.deck-demo-tokens th {
-  width: 300px;
+.deck-demo-durations th {
+  width: 150px;
   color: var(--deck-muted);
-  font: 600 26px/1 var(--deck-mono);
+  font: 600 24px/1 var(--deck-mono);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
-.deck-demo-tokens td:nth-child(2) {
-  width: 320px;
+.deck-demo-durations td {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 20px;
+  row-gap: 8px;
 }
-.deck-demo-tokens td:last-child {
-  color: var(--deck-muted);
+.deck-demo-durations__bar {
+  grid-column: 1 / -1;
+  height: 14px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--deck-fg) 34%, transparent);
 }
-.deck-demo-tokens__ms {
-  display: inline-block;
-  font-size: 56px;
+.deck-demo-durations__ms {
+  font-size: 44px;
   font-weight: 600;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
-.deck-demo-tokens small {
-  margin-left: 10px;
+.deck-demo-durations__use {
   color: var(--deck-muted);
-  font: 500 22px/1 var(--deck-mono);
+  font-size: 26px;
 }
-.deck-demo-tokens tr[data-current] th,
-.deck-demo-tokens tr[data-current] .deck-demo-tokens__ms {
+.deck-demo-durations tr[data-current] th,
+.deck-demo-durations tr[data-current] .deck-demo-durations__ms {
   color: var(--deck-accent);
+}
+.deck-demo-durations tr[data-current] .deck-demo-durations__bar {
+  background: var(--deck-accent);
 }
 
 /* Example deck: the verification gate machine gets the larger column */
@@ -242,4 +300,211 @@
   width: 118%;
   height: auto;
   margin: -6% -9% -6% -9%;
+}
+
+/* Bento example: Q2 against Q3 on one scale, inside the latency box (canvas pixels at overview scale). */
+.deck-bento-ba {
+  display: grid;
+  gap: 10px;
+  margin: 26px 0 0;
+}
+.deck-bento-ba > div {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  align-items: center;
+  gap: 12px;
+}
+.deck-bento-ba dt {
+  color: var(--deck-muted);
+  font: 600 18px/1 var(--deck-mono);
+  letter-spacing: 0.08em;
+}
+.deck-bento-ba dd {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+.deck-bento-ba dd span {
+  height: 18px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--deck-fg) 34%, transparent);
+}
+.deck-bento-ba [data-now] dd span {
+  background: var(--deck-fg);
+}
+.deck-bento-ba dd b {
+  font: 600 18px/1 var(--deck-mono);
+  white-space: nowrap;
+}
+/* In the detail card the same bars are read under the camera, so they set small. */
+.uipack-deck-bento__detail .deck-bento-ba {
+  gap: 6px;
+  margin: 14px 0 0;
+}
+.uipack-deck-bento__detail .deck-bento-ba > div {
+  grid-template-columns: 28px 1fr;
+  gap: 8px;
+}
+.uipack-deck-bento__detail .deck-bento-ba dt,
+.uipack-deck-bento__detail .deck-bento-ba dd b {
+  font-size: 12px;
+}
+.uipack-deck-bento__detail .deck-bento-ba dd span {
+  height: 10px;
+}
+
+/* Bento example: savings as bars on one scale. */
+.deck-bento-bars {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.3;
+}
+.deck-bento-bars li {
+  display: grid;
+  grid-template-columns: 1fr 64px;
+  column-gap: 12px;
+  row-gap: 4px;
+  padding-top: 7px;
+  border-top: 1px solid var(--deck-rule);
+}
+.deck-bento-bars li > span:first-child {
+  grid-column: 1 / -1;
+}
+.deck-bento-bars b {
+  font-weight: 650;
+}
+.deck-bento-bars__track {
+  height: 10px;
+  align-self: center;
+}
+.deck-bento-bars__track i {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  border-radius: 2px;
+  background: var(--deck-fg);
+}
+.deck-bento-bars__value {
+  font: 500 12px/1 var(--deck-mono);
+  text-align: right;
+  white-space: nowrap;
+}
+.deck-bento-source {
+  margin-top: auto;
+  padding-top: 10px;
+  color: var(--deck-muted);
+}
+
+/* Bento example: memory forecast (an SVG that scales with its box). */
+.deck-bento-forecast {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 4px 0 10px;
+  overflow: visible;
+}
+.deck-bento-forecast path {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.deck-bento-forecast__measured {
+  stroke: var(--deck-fg);
+}
+.deck-bento-forecast__projected {
+  stroke: var(--deck-accent);
+  stroke-dasharray: 6 6;
+}
+.deck-bento-forecast__limit {
+  stroke: var(--deck-muted);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 4;
+}
+.deck-bento-forecast circle {
+  fill: var(--deck-fg);
+}
+.deck-bento-forecast text {
+  fill: var(--deck-muted);
+  font: 500 11px var(--deck-mono);
+}
+
+/* Bento example: the plan, one row per item with its date. */
+.deck-bento-plan {
+  display: grid;
+  margin: 72px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.deck-bento-plan li {
+  display: grid;
+  grid-template-columns: 88px 500px 1fr 140px;
+  align-items: baseline;
+  padding: 34px 0;
+  border-top: 1.5px solid var(--deck-rule);
+}
+.deck-bento-plan b {
+  font-size: 46px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.deck-bento-plan li > span:nth-child(3) {
+  color: var(--deck-muted);
+  font-size: 32px;
+}
+.deck-bento-plan li > span:last-child {
+  text-align: right;
+}
+
+/* Bento example: the risk slide, terms on the left and the forecast on the right. */
+.deck-bento-risk > .uipack-deck-heading {
+  max-width: 30ch;
+}
+.deck-bento-risk__body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 96px;
+  align-items: center;
+  margin-top: 56px;
+}
+.deck-bento-risk__terms {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+.deck-bento-risk__terms > div {
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  padding: 22px 0;
+  border-top: 1.5px solid var(--deck-rule);
+}
+.deck-bento-risk__terms dt {
+  color: var(--deck-muted);
+  font: 600 22px/1.5 var(--deck-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.deck-bento-risk__terms dd {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.4;
+}
+
+/* ?view=print: the printable deck alone, no shell. */
+.deck-print-page {
+  margin: 0;
+  padding: 24px;
+  background: #d9dcd9;
+}
+@media print {
+  .deck-print-page {
+    padding: 0;
+    background: none;
+  }
 }

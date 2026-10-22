@@ -13,11 +13,14 @@ const presenter = params.get("presenter") === "1";
 const example = deckExamples.find((d) => d.id === params.get("deck")) ?? deckExamples[0];
 const deckId = `uipack-deck-${example.id}`;
 const motion = params.get("motion") === "none" ? "none" : "auto";
-// Phones open the deck as a document; presenting is a desktop or projector job.
+// Phones open the deck as a document; presenting is a desktop or projector job. ?view=print is the
+// printable page (one slide per 16:9 page; &notes=1 adds the talk track).
 const view =
-  params.get("view") === "read" || (params.get("view") !== "present" && matchMedia("(max-width: 600px)").matches)
-    ? "read"
-    : "present";
+  params.get("view") === "print"
+    ? "print"
+    : params.get("view") === "read" || (params.get("view") !== "present" && matchMedia("(max-width: 600px)").matches)
+      ? "read"
+      : "present";
 
 function syncUrl({ id, step }: { id: string; step: number }) {
   const url = new URL(location.href);
@@ -47,6 +50,21 @@ const moves = [
 export default function DeckShowcase() {
   const { theme, flip } = useShowcaseTheme();
   const initial = { slide: params.get("slide") ?? undefined, step: Number(params.get("step") ?? 0) || 0 };
+
+  if (view === "print") {
+    return (
+      <main className="deck-print-page" data-theme={theme}>
+        <DeckPlayer
+          id={deckId}
+          title={`${example.name} deck`}
+          slides={example.slides}
+          theme={theme}
+          view="print"
+          printNotes={params.get("notes") === "1"}
+        />
+      </main>
+    );
+  }
 
   if (presenter) {
     return (

@@ -2,7 +2,7 @@
 
 `uipack/deck` includes parts for information-dense slides in the strategy-consulting style: a lot of evidence on one page, still readable when projected. Each slide carries one full-sentence claim, the panels that prove it, a "so what", and footnotes with a source. They play in the [deck player](deck.md) like any other slide. Morph and zoom work on them too, so you can zoom from a dense slide into one panel.
 
-Run `npm run dev` and open `/deck?deck=consulting` to see the example: a seven-slide decision request with illustrative data.
+Run `npm run dev` and open `/deck?deck=consulting` to see the example: a seven-slide decision request with illustrative data, plus an appendix slide holding the cost model behind every number.
 
 ![Summary slide, light](deck-consulting-summary-light.png)
 

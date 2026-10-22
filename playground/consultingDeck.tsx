@@ -31,13 +31,25 @@ const dollars = formatter({ prefix: "$", decimals: 2 });
 const millions = formatter({ prefix: "$", suffix: "M" });
 const oneDp = formatter({ decimals: 1 });
 
-const sites = [
-  { label: "Northgate", value: 10.9, highlight: true },
-  { label: "Riverside", value: 10.1, highlight: true },
-  { label: "Eastfield", value: 7.6 },
-  { label: "Harbour", value: 7.2 },
-  { label: "Westpark", value: 6.8 },
+/* One table of site facts, read by every slide that shows a site, so the slides can't disagree.
+   Weighted by orders, the five average $8.41 (the network's $8.40), and Northgate and Riverside
+   ($10.68) cost 46% more than the other three ($7.32). */
+const siteFacts = [
+  { label: "Northgate", cost: 11.0, utilisation: 56, orders: 1.9, highlight: true, labelAt: "left" as const },
+  { label: "Riverside", cost: 10.4, utilisation: 62, orders: 2.2, highlight: true },
+  { label: "Eastfield", cost: 7.4, utilisation: 70, orders: 2.8, labelAt: "left" as const },
+  { label: "Harbour", cost: 7.6, utilisation: 82, orders: 3.1, labelAt: "top" as const },
+  { label: "Westpark", cost: 6.9, utilisation: 94, orders: 2.6, labelAt: "left" as const },
 ];
+const sites = siteFacts.map(({ label, cost, highlight }) => ({ label, value: cost, highlight }));
+const sitePoints = siteFacts.map(({ label, cost, utilisation, orders, highlight, labelAt }) => ({
+  label,
+  x: utilisation,
+  y: cost,
+  size: orders,
+  highlight,
+  labelAt,
+}));
 
 export const consultingDeckLint: LintOptions = { template: "decision-request" };
 
@@ -226,13 +238,7 @@ export const consultingDeck: DeckSlide[] = [
             quadrants={["Consolidate", "Fix the cost base", "Fill capacity", "Keep and grow"]}
             focus="tl"
             maxRadius={40}
-            points={[
-              { label: "Northgate", x: 56, y: 10.9, size: 1.9, highlight: true, labelAt: "left" },
-              { label: "Riverside", x: 62, y: 10.1, size: 2.2, highlight: true },
-              { label: "Eastfield", x: 70, y: 7.4, size: 2.8, labelAt: "left" },
-              { label: "Harbour", x: 82, y: 7.9, size: 3.1, labelAt: "top" },
-              { label: "Westpark", x: 94, y: 6.9, size: 2.6, labelAt: "left" },
-            ]}
+            points={sitePoints}
             callout={{ label: "Northgate", text: "Manual picking; 56% of shifts used", dx: 120, dy: -58, width: 240 }}
           />
         </Panel>
@@ -264,15 +270,15 @@ export const consultingDeck: DeckSlide[] = [
   },
   {
     id: "options",
-    title: "Four options compared",
-    headline: "Of four options, only consolidating to two hubs saves over $10M at acceptable risk",
+    title: "Two hubs beat outsourcing",
+    headline: "Two hubs save $3M a year more than outsourcing and keep peak capacity in-house",
     role: "option",
     render: () => (
       <ConsultingSlide
         tracker={tracker("Options")}
         sticker={sticker}
         label={label}
-        title="Of four options, only consolidating to two hubs saves over $10M at acceptable risk"
+        title="Two hubs save $3M a year more than outsourcing and keep peak capacity in-house"
         subtitle="Fulfilment network options, FY27 run-rate; $M"
         takeaway="Two hubs is the only option that restores FY22 margin; its cost is a nine-month transition that is hard to reverse."
         notes={["Run-rate from FY27; $M.", "Full ball = most favourable: highest margin, lowest service risk, fastest, easiest to undo."]}
@@ -504,7 +510,66 @@ export const consultingDeck: DeckSlide[] = [
     notes: {
       say: "We need three decisions. First and most urgent: approve the nine million by the fourteenth of March, so Operations can sign the hub lease in the second quarter. Second, confirm that Northgate and Riverside close next year. Third, name a full-time transition lead by the end of March. Every quarter we wait forgoes about three and a half million. I own the business case and will bring the lease terms to the next review.",
       delivery: "Stop talking after the ask and wait for the decision.",
-      next: "Take questions; the cost model is in the appendix pack.",
+      next: "Take questions; the cost model behind every number is the appendix slide.",
+    },
+  },
+  {
+    id: "appendix",
+    title: "Appendix: cost model",
+    headline: "Cost model: two hubs stay ahead unless hub cost passes $7.80 an order",
+    role: "appendix",
+    render: () => (
+      <ConsultingSlide
+        sticker={sticker}
+        label={label}
+        title="Cost model: two hubs stay ahead unless hub cost passes $7.80 an order"
+        subtitle={<>Appendix · inputs behind every number in this deck, including the $9M one-off cost<Ref n={2} />; FY25 unless stated</>}
+        notes={[
+          "Run-rate saving = (Northgate and Riverside cost per order − hub cost per order) × their 4.1M orders, less $0.7M a year of hub overhead.",
+          "One-off $9M: hub fit-out $5.5M, site exits $2.4M, dual running $1.1M.",
+        ]}
+        source={source}
+      >
+        <Panel title="Five sites, weighted by orders" unit="FY25 actuals; the network average is the order-weighted mean" cols={7}>
+          <HarveyTable
+            corner="Site"
+            showKey={false}
+            columns={[
+              { key: "orders", label: "Orders, M", kind: "text", width: "22%" },
+              { key: "cost", label: "Cost per order", kind: "text", width: "26%" },
+              { key: "util", label: "Utilisation", kind: "text", width: "22%" },
+            ]}
+            rows={[
+              ...siteFacts.map((f) => ({
+                label: f.label,
+                highlight: f.highlight,
+                tag: f.highlight ? "Close" : undefined,
+                cells: { orders: oneDp(f.orders), cost: dollars(f.cost), util: `${f.utilisation}%` },
+              })),
+              { label: "Network", cells: { orders: "12.6", cost: "$8.40", util: "—" } },
+            ]}
+          />
+        </Panel>
+        <Panel title="The saving falls $1.2M for every 30¢ of hub cost" unit={<>Run-rate saving<Ref n={1} />, $M a year, by hub cost per order</>} cols={5}>
+          <BarChart
+            format={formatter({ prefix: "$", suffix: "M", decimals: 1 })}
+            domain={[0, 16]}
+            reference={{ value: 11, label: "Outsource $11M" }}
+            data={[
+              { label: "$6.80", value: 15.2 },
+              { label: "$7.10", value: 14.0, highlight: true },
+              { label: "$7.40", value: 12.8 },
+              { label: "$7.70", value: 11.5 },
+              { label: "$8.00", value: 10.3 },
+            ]}
+          />
+        </Panel>
+      </ConsultingSlide>
+    ),
+    notes: {
+      say: "Backup for questions. Every number in the deck comes from these inputs: five sites' orders, cost per order and utilisation, a hub cost of seven dollars ten an order, and a one-off cost of nine million. The saving stays above outsourcing's eleven million unless hub cost passes seven eighty an order.",
+      delivery: "Don't present this slide; open it when someone asks where a number comes from.",
+      next: "Back to the decision.",
     },
   },
 ];

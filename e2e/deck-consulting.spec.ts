@@ -5,7 +5,7 @@ const settled = async (page: Page) => {
   await expect(deck(page)).not.toHaveAttribute("data-transitioning", "");
   await expect(page.locator(".uipack-deck-layer")).toHaveCount(1);
 };
-const ids = ["summary", "situation", "sites", "options", "recommendation", "plan", "ask"];
+const ids = ["summary", "situation", "sites", "options", "recommendation", "plan", "ask", "appendix"];
 
 /** Layout checks on the slide on screen, in canvas pixels (layout sizes ignore the stage scale). */
 const inspect = (page: Page) =>

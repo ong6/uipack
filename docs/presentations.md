@@ -2,6 +2,8 @@
 
 `uipack/presentations` keeps slide design and spoken delivery in one serializable object. It supplies three generic 16:9 layouts: Opening, Explanation, and System. Consumers own the words.
 
+For talks, use [`uipack/deck`](deck.md): it plays a whole deck with one transition grammar, a speaker view and PDF export. These starters are single 16:9 layouts.
+
 ```tsx
 import { SlideStarter, type SlideStarterData } from "uipack/presentations";
 import "uipack/presentations.css";

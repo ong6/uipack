@@ -2,6 +2,8 @@
 
 `uipack/slides` adds an opt-in presentation player built with Three.js and GSAP. The existing SVG entries do not import either dependency. Three.js loads when a scene mounts; server rendering produces a readable diagram fallback.
 
+For talks, use [`uipack/deck`](deck.md): it plays a whole deck with one transition grammar, a speaker view and PDF export. `uipack/slides` is for 3D animations inside a slide or page.
+
 ## Install
 
 UIPACK is installed from GitHub. These changes must be available in the commit or branch you install before the `slides` entry exists:

@@ -35,15 +35,21 @@
   background: var(--deck-bg);
   color: var(--deck-fg);
 }
+/* Neighbours keep their shape as context but lose their words: text cut off at the bento's edge
+   would read as a bug, and dim text still competes with the focused cell. */
 .uipack-deck-bento__cell[data-dimmed] {
-  opacity: 0.2;
+  opacity: 0.4;
 }
 .uipack-deck-bento__face,
 .uipack-deck-bento__detail {
   display: flex;
   flex-direction: column;
   height: 100%;
-  transition: opacity 320ms ease;
+}
+/* One cell never shows its face and its detail at once: what leaves goes first (no delay), and what
+   arrives waits for it (300 ms delay). The face also waits on the way back from a detail. */
+.uipack-deck-bento__face {
+  transition: opacity 280ms ease 300ms;
 }
 .uipack-deck-bento__detail {
   position: absolute;
@@ -51,13 +57,16 @@
   padding: 26px 30px;
   opacity: 0;
   pointer-events: none;
+  transition: opacity 280ms ease;
 }
 .uipack-deck-bento__cell[data-focused] .uipack-deck-bento__detail {
   opacity: 1;
   transition-delay: 300ms;
 }
-.uipack-deck-bento__cell[data-focused] .uipack-deck-bento__face:has(+ .uipack-deck-bento__detail) {
+.uipack-deck-bento__cell[data-focused] .uipack-deck-bento__face:has(+ .uipack-deck-bento__detail),
+.uipack-deck-bento__cell[data-dimmed] .uipack-deck-bento__face {
   opacity: 0;
+  transition-delay: 0ms;
 }
 .uipack-deck[data-motion="none"] .uipack-deck-bento__cell,
 .uipack-deck[data-motion="none"] .uipack-deck-bento__face,
@@ -78,7 +87,7 @@
   font-size: 104px;
   font-weight: 600;
   line-height: 0.95;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
 .uipack-deck-bento-value small {

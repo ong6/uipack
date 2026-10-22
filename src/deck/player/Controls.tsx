@@ -15,6 +15,8 @@ export interface ControlsProps {
   onPrev: () => void;
   onNext: () => void;
   onRead: () => void;
+  /** Print every slide, one per 16:9 page; the browser's dialog also saves a PDF. */
+  onPrint: () => void;
   onOverview: () => void;
   onPresenter: () => void;
   onFullscreen: () => void;
@@ -33,6 +35,7 @@ export function Controls({
   onPrev,
   onNext,
   onRead,
+  onPrint,
   onOverview,
   onPresenter,
   onFullscreen,
@@ -59,6 +62,11 @@ export function Controls({
         {mode === "audience" && (
           <button type="button" onClick={onRead}>
             Read
+          </button>
+        )}
+        {mode === "audience" && (
+          <button type="button" onClick={onPrint} title="Download as PDF or print: one slide per 16:9 page">
+            PDF / Print
           </button>
         )}
         <button type="button" ref={overviewButtonRef} onClick={onOverview} aria-keyshortcuts="G">

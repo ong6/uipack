@@ -391,12 +391,14 @@ describe("example consulting deck", () => {
       "recommendation",
       "plan",
       "ask",
+      "appendix",
     ]);
   });
 
   test("every slide has a headline, a full talk track and an Illustrative sticker", () => {
     expect(consultingDeck.length).toBeGreaterThanOrEqual(5);
-    expect(consultingDeck.length).toBeLessThanOrEqual(7);
+    // Seven presented slides and one appendix slide.
+    expect(consultingDeck.filter((s) => s.role !== "appendix").length).toBeLessThanOrEqual(7);
     for (const [i, slide] of consultingDeck.entries()) {
       expect(slide.headline, slide.id).toBeTruthy();
       const notes = slide.notes as { say: string; delivery: string; next?: string };
@@ -411,6 +413,34 @@ describe("example consulting deck", () => {
       expect(container.querySelector(".uipack-cx-title")?.textContent).toBe(slide.headline);
       unmount();
     }
+  });
+
+  test("slides that show the same site show the same numbers", () => {
+    const text = (i: number) => {
+      const { container, unmount } = render(
+        <DeckSlideContext.Provider value={{ step: Infinity, active: false, thumbnail: true, index: i, count: consultingDeck.length }}>
+          {consultingDeck[i].render({ step: Infinity, active: false, thumbnail: true, theme: "light", reducedMotion: true })}
+        </DeckSlideContext.Provider>,
+      );
+      // Chart marks carry "<site>: <value>" tooltips; collect them per site.
+      const values = new Map<string, string>();
+      for (const t of Array.from(container.querySelectorAll("title"))) {
+        const m = /^(Northgate|Riverside|Eastfield|Harbour|Westpark)\b.*?(\$\d+\.\d{2})/.exec(t.textContent ?? "");
+        if (m) values.set(m[1], m[2]);
+      }
+      unmount();
+      return values;
+    };
+    const situation = text(consultingDeck.findIndex((s) => s.id === "situation"));
+    const sites = text(consultingDeck.findIndex((s) => s.id === "sites"));
+    expect(situation.size).toBe(5);
+    expect(sites.size).toBe(5);
+    expect(Object.fromEntries(sites)).toEqual(Object.fromEntries(situation));
+  });
+
+  test("the talk track only points at slides that exist", () => {
+    const mentionsAppendix = consultingDeck.some((s) => JSON.stringify(s.notes).toLowerCase().includes("appendix"));
+    if (mentionsAppendix) expect(consultingDeck.some((s) => s.role === "appendix")).toBe(true);
   });
 
   test("zooms into a panel that exists on the previous slide, and morphs a KPI value into the next title", () => {

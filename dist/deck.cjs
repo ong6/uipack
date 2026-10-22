@@ -4,6 +4,7 @@ var _chunkYEVVKV3Jcjs = require('./chunk-YEVVKV3J.cjs');
 
 
 
+
 var _chunkVGPFDDCPcjs = require('./chunk-VGPFDDCP.cjs');
 
 
@@ -37,6 +38,7 @@ function Controls({
   onPrev,
   onNext,
   onRead,
+  onPrint,
   onOverview,
   onPresenter,
   onFullscreen
@@ -56,6 +58,7 @@ function Controls({
     /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", className: "uipack-deck-step", onClick: onNext, disabled: atEnd, "aria-label": "Next", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "aria-hidden": "true", children: "\u2192" }) }),
     /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-deck-tools", children: [
       mode === "audience" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: onRead, children: "Read" }),
+      mode === "audience" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: onPrint, title: "Download as PDF or print: one slide per 16:9 page", children: "PDF / Print" }),
       /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", ref: overviewButtonRef, onClick: onOverview, "aria-keyshortcuts": "G", children: "All slides" }),
       mode === "audience" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: onPresenter, "aria-keyshortcuts": "S", children: "Speaker view" }),
       canFullscreen && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: onFullscreen, "aria-keyshortcuts": "F", "aria-pressed": fullscreen, children: fullscreen ? "Exit full screen" : "Full screen" })
@@ -168,6 +171,13 @@ function flipFrom(from, to, scale, fit = "auto", textScale) {
     transform: `translate(${((from.x - to.x) / scale).toFixed(2)}px, ${((from.y - to.y) / scale).toFixed(2)}px) scale(${sx.toFixed(4)}, ${sy.toFixed(4)})`
   };
 }
+var lerpRect = (a, b, p) => ({
+  x: a.x + (b.x - a.x) * p,
+  y: a.y + (b.y - a.y) * p,
+  w: a.w + (b.w - a.w) * p,
+  h: a.h + (b.h - a.h) * p
+});
+var overlaps = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 var rectOf = (el) => {
   const r = el.getBoundingClientRect();
   return { x: r.left, y: r.top, w: r.width, h: r.height };
@@ -185,18 +195,32 @@ function blocksOf(layer) {
 function partitionForMorph(root, keys) {
   const matched = /* @__PURE__ */ new Map();
   const rest = [];
+  const containers = [];
   const walk = (el) => {
     for (const child of Array.from(el.children)) {
       if (!(child instanceof HTMLElement) && !(child instanceof SVGElement)) continue;
       if (child.classList.contains("uipack-deck-layer__bg")) continue;
       const key = child.getAttribute("data-morph");
       if (key && keys.has(key)) matched.set(key, child);
-      else if (keys.size && child.querySelector(Array.from(keys, (k) => `[data-morph="${CSS.escape(k)}"]`).join(","))) walk(child);
-      else rest.push(child);
+      else if (keys.size && child.querySelector(Array.from(keys, (k) => `[data-morph="${CSS.escape(k)}"]`).join(","))) {
+        containers.push(child);
+        walk(child);
+      } else rest.push(child);
     }
   };
   walk(root);
-  return { matched, rest };
+  return { matched, rest, containers };
+}
+function paintsBox(el) {
+  const cs = getComputedStyle(el);
+  const clear = (c) => c === "transparent" || /rgba\(.*,\s*0\)$/.test(c);
+  return !clear(cs.backgroundColor) || parseFloat(cs.borderTopWidth) > 0 && !clear(cs.borderTopColor) || parseFloat(cs.borderLeftWidth) > 0 && !clear(cs.borderLeftColor) || cs.boxShadow && cs.boxShadow !== "none";
+}
+function paintFrames(el, visible) {
+  const cs = getComputedStyle(el);
+  const shown = { backgroundColor: cs.backgroundColor, borderColor: cs.borderTopColor, boxShadow: cs.boxShadow };
+  const clear = { backgroundColor: "transparent", borderColor: "transparent", boxShadow: "none" };
+  return visible === "from" ? [shown, clear] : [clear, shown];
 }
 var isText = (el) => /^(H[1-6]|P|SPAN|B|STRONG|EM|SMALL|LABEL|Q|BLOCKQUOTE)$/.test(el.tagName);
 var fontSizeOf = (el) => parseFloat(getComputedStyle(el).fontSize) || 1;
@@ -234,8 +258,11 @@ function runTransition(opts) {
       play(outer, samples.map((s) => ({ offset: s.offset, transform: s.outer, transformOrigin: origin })), timing);
       play(inner, samples.map((s) => ({ offset: s.offset, transform: s.inner, transformOrigin: origin, clipPath: s.clip, opacity: s.innerOpacity })), timing);
       for (const child of Array.from(target.children)) {
-        play(child, samples.map((s) => ({ offset: s.offset, opacity: 1 - s.innerOpacity })), timing);
+        play(child, samples.map((s) => ({ offset: s.offset, opacity: 1 - _chunkVGPFDDCPcjs.smoothstep.call(void 0, 0.01, 0.09, s.p) })), timing);
       }
+      const around = partitionForMorph(outer, /* @__PURE__ */ new Set([opts.transition.zoom])).rest;
+      const fade = zoomInto ? [{ opacity: 1 }, { opacity: 0, offset: 0.3 }, { opacity: 0 }] : [{ opacity: 0 }, { opacity: 0, offset: 0.7 }, { opacity: 1 }];
+      for (const el of around) play(el, fade, timing);
       return anims;
     }
   }
@@ -247,6 +274,7 @@ function runTransition(opts) {
       const out = partitionForMorph(from, shared);
       const inn = partitionForMorph(to, shared);
       const travel = { duration: deckMotion.morph, easing: deckMotion.travel };
+      const path = [];
       for (const key of shared) {
         const a = out.matched.get(key);
         const b = inn.matched.get(key);
@@ -255,47 +283,64 @@ function runTransition(opts) {
         const rb = rectOf(b);
         const fit = _nullishCoalesce(b.getAttribute("data-morph-fit"), () => ( "auto"));
         const text = isText(a) && isText(b) ? fontSizeOf(a) / fontSizeOf(b) : void 0;
-        const [x0, x1] = text ? [0.06, 0.32] : [0, 0.45];
+        const [bIn, aOut] = text ? [0.08, 0.06] : [0.3, 0.36];
+        const start = text ? { x: ra.x, y: ra.y, w: rb.w * text, h: rb.h * text } : ra;
+        for (const p of [0.7, 0.85, 0.95]) path.push(lerpRect(start, rb, p));
         const fromB = flipFrom(ra, rb, scale, fit, text).transform;
         const fromA = flipFrom(rb, ra, scale, fit, text && 1 / text).transform;
-        play(b, [
-          { offset: 0, transformOrigin: "0 0", transform: fromB, opacity: 0 },
-          { offset: x0, opacity: 0 },
-          { offset: x1, opacity: 1 },
-          { offset: 1, transformOrigin: "0 0", transform: "none", opacity: 1 }
-        ], travel);
-        play(a, [
-          { offset: 0, transformOrigin: "0 0", transform: "none", opacity: 1 },
-          { offset: text ? x0 : x1, opacity: 1 },
-          { offset: text ? x1 : 1, opacity: 0 },
-          { offset: 1, transformOrigin: "0 0", transform: fromA, opacity: 0 }
-        ], travel);
+        const swap = { duration: deckMotion.morph, easing: "linear" };
+        play(b, [{ transformOrigin: "0 0", transform: fromB }, { transformOrigin: "0 0", transform: "none" }], travel);
+        play(b, [{ opacity: 0 }, { opacity: 1, offset: bIn }, { opacity: 1 }], swap);
+        play(a, [{ transformOrigin: "0 0", transform: "none" }, { transformOrigin: "0 0", transform: fromA }], travel);
+        play(a, [{ opacity: 1 }, { opacity: 1, offset: text ? 0 : bIn * 0.6 }, { opacity: 0, offset: aOut }, { opacity: 0 }], swap);
       }
-      for (const el of out.rest) play(el, [{ opacity: 1 }, { opacity: 0 }], { duration: deckMotion.base * 0.75, easing: deckMotion.exit });
-      inn.rest.forEach(
-        (el, i) => play(el, [{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }], {
-          duration: deckMotion.slow,
-          delay: deckMotion.morph * 0.5 + Math.min(i, 6) * deckMotion.stagger,
-          easing: deckMotion.settle
-        })
-      );
+      const leave = { duration: deckMotion.quick, easing: deckMotion.exit };
+      const besideOut = (el) => Boolean(el.parentElement && out.containers.includes(el.parentElement) && isText(el.parentElement));
+      for (const el of out.rest) {
+        play(el, [{ opacity: 1 }, { opacity: 0 }], besideOut(el) ? { duration: deckMotion.morph * 0.08, easing: "linear" } : leave);
+      }
+      for (const el of out.containers) if (paintsBox(el)) play(el, paintFrames(el, "from"), leave);
+      const beside = (el) => Boolean(el.parentElement && inn.containers.includes(el.parentElement) && isText(el.parentElement));
+      const underPath = (el) => {
+        const r = rectOf(el);
+        return path.some((p) => overlaps(p, r));
+      };
+      const layerArea = rectOf(to).w * rectOf(to).h;
+      const incoming = inn.rest.flatMap((el) => {
+        const r = rectOf(el);
+        const kids = Array.from(el.children).filter((c) => c instanceof HTMLElement);
+        return r.w * r.h > layerArea / 6 && kids.length > 1 && underPath(el) ? kids : [el];
+      });
+      let i = 0;
+      for (const el of incoming) {
+        if (beside(el) || underPath(el)) {
+          play(el, [{ opacity: 0 }, { opacity: 1 }], { duration: deckMotion.base, delay: deckMotion.morph * 0.72, easing: deckMotion.settle });
+        } else {
+          play(el, [{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }], {
+            duration: deckMotion.slow,
+            delay: deckMotion.morph * 0.4 + Math.min(i++, 6) * deckMotion.stagger,
+            easing: deckMotion.settle
+          });
+        }
+      }
+      for (const el of inn.containers) {
+        if (paintsBox(el)) play(el, paintFrames(el, "to"), { duration: deckMotion.slow, delay: deckMotion.morph * 0.4, easing: deckMotion.settle });
+      }
       const bg = bgOf(to);
-      if (bg) play(bg, [{ opacity: 0 }, { opacity: 0, offset: 0.4 }, { opacity: 1 }], travel);
+      if (bg) play(bg, [{ opacity: 0 }, { opacity: 0, offset: 0.15 }, { opacity: 1, offset: 0.55 }, { opacity: 1 }], travel);
       return anims;
     }
   }
   if (kind === "advance") {
     from.style.zIndex = "2";
     const shift = 40 * direction;
-    play(from, [{ opacity: 1, transform: "none" }, { opacity: 0, transform: `translateX(${-shift}px)` }], {
-      duration: deckMotion.base,
-      easing: deckMotion.exit
-    });
+    play(from, [{ transform: "none" }, { transform: `translateX(${-shift}px)` }], { duration: deckMotion.base, easing: deckMotion.exit });
+    play(from, [{ opacity: 1 }, { opacity: 0 }], { duration: deckMotion.quick, easing: "ease-in" });
     const blocks = blocksOf(to);
     (blocks.length ? blocks : [to]).forEach(
       (el, i) => play(el, [{ opacity: 0, transform: `translateX(${shift * 1.4}px)` }, { opacity: 1, transform: "none" }], {
         duration: deckMotion.slow,
-        delay: deckMotion.quick * 0.6 + Math.min(i, 7) * deckMotion.stagger,
+        delay: deckMotion.quick + Math.min(i, 7) * deckMotion.stagger,
         easing: deckMotion.settle
       })
     );
@@ -366,7 +411,7 @@ var SLIDE_ROLES = {
   cover: {
     label: "Cover",
     question: "What is this and why am I here?",
-    job: "Name the talk. Best when its title already states the answer."
+    job: "State the outcome the talk is about, in business terms, not the name of the system."
   },
   answer: {
     label: "Answer",
@@ -438,6 +483,7 @@ var STORYLINE_TEMPLATES = [
     slides: { min: 5, max: 8 },
     minutes: { min: 5, max: 10 },
     answerFirst: true,
+    remember: "Whether it's on track, the one number that proves it, and what you need from them.",
     beats: [
       {
         role: "answer",
@@ -492,6 +538,7 @@ var STORYLINE_TEMPLATES = [
     slides: { min: 6, max: 9 },
     minutes: { min: 8, max: 15 },
     answerFirst: true,
+    remember: "The choice, what it costs, what it returns, and the date they have to decide by.",
     beats: [
       {
         role: "answer",
@@ -559,12 +606,13 @@ var STORYLINE_TEMPLATES = [
     slides: { min: 7, max: 12 },
     minutes: { min: 12, max: 25 },
     answerFirst: false,
+    remember: "One idea about how the system works, the number that shows it works, and the trade-off it makes.",
     beats: [
       {
         role: "answer",
         purpose: "The one idea the audience should leave with.",
         titlePattern: "<System> achieves <property> by <key idea>",
-        example: "The rate limiter stays fast by deciding locally and syncing counts later",
+        example: "The rate limiter adds 0.2 ms by deciding locally and syncing counts later",
         guidance: "A thesis, not a title. Everything after it explains or tests this sentence."
       },
       {
@@ -625,7 +673,7 @@ var STORYLINE_TEMPLATES = [
         role: "ask",
         purpose: "What you want from the experts in the room.",
         titlePattern: "<Review/adopt/try> <what> by <date>",
-        example: "Review the sync design doc by Friday; I'll fold in every comment",
+        example: "Storage team: review the sync design doc by Friday; I'll fold in every comment",
         guidance: "Engineers respond to a specific review request, not 'any questions?'."
       }
     ]
@@ -637,6 +685,7 @@ var STORYLINE_TEMPLATES = [
     slides: { min: 5, max: 8 },
     minutes: { min: 5, max: 12 },
     answerFirst: true,
+    remember: "What users can do now that they couldn't before, the early result, and who switches it on next.",
     beats: [
       {
         role: "answer",
@@ -699,6 +748,7 @@ var STORYLINE_TEMPLATES = [
     slides: { min: 6, max: 9 },
     minutes: { min: 8, max: 15 },
     answerFirst: true,
+    remember: "The impact in one number, the cause in one sentence, and the fix that stops it happening again.",
     beats: [
       {
         role: "answer",
@@ -759,6 +809,7 @@ var STORYLINE_TEMPLATES = [
     slides: { min: 5, max: 8 },
     minutes: { min: 5, max: 10 },
     answerFirst: true,
+    remember: "Two or three outcomes with numbers, what other teams can now do, and the one ask.",
     beats: [
       {
         role: "answer",
@@ -801,7 +852,7 @@ var STORYLINE_TEMPLATES = [
         role: "ask",
         purpose: "The support you need: scope, headcount, sponsorship.",
         titlePattern: "We need <owner> to <support> by <date>",
-        example: "We need you to approve one more engineer by July for the payouts work",
+        example: "We need the payments director to approve one more engineer by July",
         guidance: "A review without an ask leaves your growth to someone else's memory."
       }
     ]
@@ -825,6 +876,10 @@ var LINT_RULES = {
     check: "The title states a claim of three or more words, not a topic label like 'Background' or 'Architecture'."
   },
   "title-length": { severity: "warn", check: "The title is at most 14 words." },
+  "title-specific": {
+    severity: "warn",
+    check: "An answer or evidence title carries a number, a comparison or a named result, not an adjective like 'great' or 'good'."
+  },
   "one-idea": { severity: "tip", check: "The title is one sentence: one idea per slide." },
   "notes-present": { severity: "warn", check: "Every presented slide has a talk track." },
   "number-source": { severity: "warn", check: "A number in a title has a source in the notes or on the slide." },
@@ -833,8 +888,15 @@ var LINT_RULES = {
     severity: "error",
     check: "The answer or recommendation appears within the first three content slides."
   },
+  "outcome-first": {
+    severity: "tip",
+    check: "Slide one names the business outcome (faster, cheaper, safer, by how much), not the system that produced it."
+  },
   "closing-ask": { severity: "error", check: "The last presented slide is an ask." },
-  "ask-concrete": { severity: "warn", check: "The ask names a decision or action, an owner and a date." },
+  "ask-concrete": {
+    severity: "warn",
+    check: "The ask names a decision or action, an owner (a team, role or person, not 'we' or 'the team') and a calendar date ('next quarter' is not one)."
+  },
   "role-repeat": {
     severity: "warn",
     check: "No two adjacent slides share a role, except evidence, mechanism, demo and appendix."
@@ -926,24 +988,28 @@ var TOPIC_LABELS = /* @__PURE__ */ new Set(
 );
 var MONTH = "jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?";
 var WEEKDAY = "mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:rs(?:day)?)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?";
+var capitalised = (alternatives) => alternatives.replace(/(^|\|)([a-z])/g, (_, bar, c) => bar + c.toUpperCase());
 var DATE_RE = new RegExp(
   [
-    `\\b(?:${MONTH})\\b`,
-    `\\b(?:${WEEKDAY})\\b`,
+    // Capitalised, so "may", "sat" and "wed" as ordinary words don't count as dates.
+    `\\b(?:${capitalised(MONTH)})\\b`,
+    `\\b(?:${capitalised(WEEKDAY)})\\b`,
     String.raw`\b\d{4}-\d{2}-\d{2}\b`,
     String.raw`\b\d{1,2}/\d{1,2}\b`,
-    String.raw`\b[QH][1-4]\b`,
-    String.raw`\b(?:today|tomorrow|tonight|eod|eow|eom|eoq)\b`,
-    String.raw`\b(?:this|next) (?:week|month|quarter|sprint|sync|review)\b`,
-    String.raw`\bend of (?:the )?(?:day|week|month|quarter|sprint|half|year)\b`,
-    String.raw`\bwithin \w+ (?:days?|weeks?|months?)\b`
-  ].join("|"),
-  "i"
+    String.raw`\b(?:FY\s?'?\d{2,4}\s?)?[QH][1-4]\b`,
+    String.raw`\b(?:[Tt]oday|[Tt]omorrow|[Tt]onight|EOD|eod)\b`
+  ].join("|")
 );
+var RELATIVE_DATE_RE = /\b(?:(?:this|next|coming|following) (?:week|month|quarter|half|sprint|year|cycle)|end of (?:the )?(?:week|month|quarter|half|year)|soon|asap|going forward|in the future|over time|eventually|later this year)\b/i;
 var DECISION_RE = /\b(?:approve|approves|decide|decision|agree|choose|pick|sign(?:s)? off|fund|staff|prioriti[sz]e|review|commit|allocate|assign|adopt|join|try|confirm|accept|enable|switch|turn on|send|share|sponsor|support|unblock|escalate|ship|green-?light|vote|nominate|give|grant|lend|provide|attend|book|hire|move|freeze|pause|stop|start|own)\b/i;
-var OWNER_WORD_RE = /\b(?:owner|owners|owns|lead|leads|manager|managers|director|vp|pm|em|tl|team|teams|sponsor|i|i'll|we|we'll|you|me|us)\b|@\w/i;
+var OWNER_ROLE_RE = /\b(?:owner|owners|owns|lead|leads|manager|managers|director|directors|vp|vps|head of|pm|pms|em|ems|tl|tls|sponsor|sponsors|committee|board|council|ceo|cto|cfo|coo|cpo|on-call|chair)\b|@\w/i;
+var NAMED_GROUP_RE = /\b(?!the\b|our\b|my\b|your\b|this\b|that\b|a\b|whole\b|entire\b)[\p{L}-]+ (?:team|teams|org|group|squad|guild)\b/iu;
+var NOT_AN_OWNER = /^(?:I|I'll|I'm|I've|I'd|OK|Please|Thanks|Thank)$/;
+var NUMBER_WORD_RE = /\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty|thirty|forty|fifty|hundred|thousand|million|billion|dozen|half|halve[ds]?|twice|double[ds]?|triple[ds]?|third|thirds|quarter of|zero|no (?:rollbacks?|regressions?|incidents?|outages?|errors?|downtime))\b/i;
+var COMPARISON_RE = /\b(?:than|versus|vs\.?|compared (?:to|with)|instead of|rather than|ahead of|behind|beat|beats|missed|against (?:a|an|the|our|its|their) \w+)\b|\bfrom\b[^.;:]{1,40}?\bto\b/i;
+var OUTCOME_RE = /\b(?:faster|slower|cheaper|safer|fewer|more|less|cut|cuts|saved?|saves|saving|grew|grow|fell|fall|rose|raised?|reduced?|reduces|improved?|improves|doubled?|halved?|ended|ends|stops?|stopped|prevents?|unblock(?:s|ed)?|launch(?:es|ed)?|ship(?:s|ped)?|on track|at risk|done|delivered|won|lost|missed|recovered|restored)\b/i;
 var SOURCE_RE = /\b(?:source|sources|sourced|per|from|measured|dashboard|according|data|logs?|survey|benchmark|experiment|query|report|ticket|estimate|estimated|study|trace|traces|a\/b)\b|https?:\/\//i;
-var NOT_A_NAME = new RegExp(`^(?:${MONTH}|${WEEKDAY}|[QH][1-4])$`, "i");
+var NOT_A_NAME = new RegExp(`^(?:${MONTH}|${WEEKDAY}|[QH][1-4]|FY\\d*)$`, "i");
 function wordsOf(text) {
   return _nullishCoalesce(text.match(/[\p{L}\p{N}][\p{L}\p{N}'’.%,&/-]*/gu), () => ( []));
 }
@@ -975,14 +1041,19 @@ function hasClaimNumber(text) {
   const stripped = text.replace(new RegExp(String.raw`\b\d{1,2}(?:st|nd|rd|th)?\s+(?:${MONTH})\b`, "gi"), " ").replace(new RegExp(String.raw`\b(?:${MONTH})\s+\d{1,2}(?:st|nd|rd|th)?\b`, "gi"), " ").replace(/\b\d{4}-\d{2}-\d{2}\b/g, " ").replace(/\b[QH][1-4](?:\s*(?:FY)?'?\d{2,4})?\b/gi, " ").replace(/\bFY\s?'?\d{2,4}\b/gi, " ").replace(/\b(?:19|20)\d{2}\b/g, " ").replace(/\bv\d+(?:\.\d+)*\b/gi, " ").replace(/\b(?:p|sev-?)\d\b/gi, " ").replace(/\b\d{1,2}:\d{2}\b/g, " ");
   return /\d/.test(stripped);
 }
-function hasOwner(text) {
-  if (OWNER_WORD_RE.test(text)) return true;
+function hasProperNoun(text) {
   const words = text.split(/\s+/).filter(Boolean);
   return words.some((w, i) => {
     if (i === 0 || /[.!?:;]["”’)]?$/.test(words[i - 1])) return false;
-    const bare = w.replace(/[^\p{L}\p{N}]/gu, "");
-    return /^\p{Lu}/u.test(bare) && !NOT_A_NAME.test(bare);
+    const bare = w.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}']+$/gu, "");
+    return /^\p{Lu}/u.test(bare) && !NOT_A_NAME.test(bare) && !NOT_AN_OWNER.test(bare);
   });
+}
+function hasOwner(text) {
+  return OWNER_ROLE_RE.test(text) || NAMED_GROUP_RE.test(text) || hasProperNoun(text);
+}
+function isSpecific(text) {
+  return /\d/.test(text) || NUMBER_WORD_RE.test(text) || COMPARISON_RE.test(text) || hasProperNoun(text);
 }
 function lintDeck(slides, options = {}) {
   const findings = [];
@@ -1036,6 +1107,14 @@ function lintDeck(slides, options = {}) {
           slide.id
         );
       }
+      if ((slide.role === "answer" || slide.role === "evidence") && !isSpecific(headline)) {
+        add(
+          "title-specific",
+          "warn",
+          `"${headline}" could describe any quarter. Put the number, the comparison or the named result in the title.`,
+          slide.id
+        );
+      }
       if (/[.!?]["”’)]?\s+\S/.test(headline)) {
         add("one-idea", "tip", "Title has more than one sentence. One idea per slide: split it or pick one.", slide.id);
       }
@@ -1075,6 +1154,18 @@ function lintDeck(slides, options = {}) {
         );
       }
     }
+    if (answerFirst) {
+      const first = presented[0];
+      const text = first ? headlineOf(first) : "";
+      if (first && text && !isSpecific(text) && !OUTCOME_RE.test(text)) {
+        add(
+          "outcome-first",
+          "tip",
+          "Slide one names the work, not the outcome. Say what got faster, cheaper or safer for the business, and by how much.",
+          first.id
+        );
+      }
+    }
     const asks = presented.filter((s) => s.role === "ask");
     const last = presented[presented.length - 1];
     if (asks.length === 0) {
@@ -1089,7 +1180,12 @@ function lintDeck(slides, options = {}) {
       if (!hasOwner(text)) missing.push("an owner");
       if (!DATE_RE.test(text)) missing.push("a date");
       if (missing.length) {
-        add("ask-concrete", "warn", `The ask is missing ${missing.join(", ")}.`, ask.id);
+        const relative = _optionalChain([text, 'access', _4 => _4.match, 'call', _5 => _5(RELATIVE_DATE_RE), 'optionalAccess', _6 => _6[0]]);
+        const hints = [
+          missing.includes("an owner") && "Name the team or person who acts; 'we' and 'the team' name nobody.",
+          missing.includes("a date") && relative && `"${relative}" moves with the calendar; give a date such as 14 March.`
+        ].filter(Boolean);
+        add("ask-concrete", "warn", [`The ask is missing ${missing.join(", ")}.`, ...hints].join(" "), ask.id);
       }
     }
     for (let i = 1; i < slides.length; i++) {
@@ -1101,7 +1197,7 @@ function lintDeck(slides, options = {}) {
     }
   }
   const count = presented.length;
-  const budget = _nullishCoalesce(options.minutes, () => ( _optionalChain([template, 'optionalAccess', _4 => _4.minutes, 'access', _5 => _5.max])));
+  const budget = _nullishCoalesce(options.minutes, () => ( _optionalChain([template, 'optionalAccess', _7 => _7.minutes, 'access', _8 => _8.max])));
   if (options.minutes !== void 0 && count > 0) {
     if (count > options.minutes) {
       add(
@@ -1136,7 +1232,7 @@ function lintDeck(slides, options = {}) {
   return findings;
 }
 function talkSeconds(slides) {
-  const words = slides.filter((s) => s.role !== "appendix").reduce((sum, s) => sum + (_nullishCoalesce(_optionalChain([sayOf, 'call', _6 => _6(s.notes), 'access', _7 => _7.match, 'call', _8 => _8(/\S+/g), 'optionalAccess', _9 => _9.length]), () => ( 0))), 0);
+  const words = slides.filter((s) => s.role !== "appendix").reduce((sum, s) => sum + (_nullishCoalesce(_optionalChain([sayOf, 'call', _9 => _9(s.notes), 'access', _10 => _10.match, 'call', _11 => _11(/\S+/g), 'optionalAccess', _12 => _12.length]), () => ( 0))), 0);
   return Math.round(words / WORDS_PER_MINUTE * 60);
 }
 function storylineOf(slides) {
@@ -1168,7 +1264,7 @@ function Storyline({
   onPick
 }) {
   const entries = storylineOf(slides);
-  const deckWide = _nullishCoalesce(_optionalChain([findings, 'optionalAccess', _10 => _10.filter, 'call', _11 => _11((f) => !f.slideId)]), () => ( []));
+  const deckWide = _nullishCoalesce(_optionalChain([findings, 'optionalAccess', _13 => _13.filter, 'call', _14 => _14((f) => !f.slideId)]), () => ( []));
   const minutes = Math.round(talkSeconds(slides) / 6) / 10;
   return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-deck-storyline", children: [
     /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-deck-storyline__intro", children: [
@@ -1182,7 +1278,7 @@ function Storyline({
       f.message
     ] }, i)) }),
     /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ol", { children: entries.map((e, i) => {
-      const own = _nullishCoalesce(_optionalChain([findings, 'optionalAccess', _12 => _12.filter, 'call', _13 => _13((f) => f.slideId === e.id)]), () => ( []));
+      const own = _nullishCoalesce(_optionalChain([findings, 'optionalAccess', _15 => _15.filter, 'call', _16 => _16((f) => f.slideId === e.id)]), () => ( []));
       return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { "data-appendix": e.appendix ? "" : void 0, children: [
         /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "button", { type: "button", "data-tile": "", "aria-current": i === index ? "true" : void 0, onClick: () => onPick(i), children: [
           /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-deck-storyline__num", children: pad(e.number) }),
@@ -1212,7 +1308,7 @@ function Overview({
   const ref = _react.useRef.call(void 0, null);
   const [tab, setTab] = _react.useState.call(void 0, "slides");
   _react.useEffect.call(void 0, () => {
-    _optionalChain([ref, 'access', _14 => _14.current, 'optionalAccess', _15 => _15.querySelector, 'call', _16 => _16('[aria-current="true"]'), 'optionalAccess', _17 => _17.focus, 'call', _18 => _18()]);
+    _optionalChain([ref, 'access', _17 => _17.current, 'optionalAccess', _18 => _18.querySelector, 'call', _19 => _19('[aria-current="true"]'), 'optionalAccess', _20 => _20.focus, 'call', _21 => _21()]);
   }, []);
   const onKeyDown = (e) => {
     e.stopPropagation();
@@ -1221,7 +1317,7 @@ function Overview({
       onClose();
       return;
     }
-    const buttons = Array.from(_nullishCoalesce(_optionalChain([ref, 'access', _19 => _19.current, 'optionalAccess', _20 => _20.querySelectorAll, 'call', _21 => _21("button")]), () => ( [])));
+    const buttons = Array.from(_nullishCoalesce(_optionalChain([ref, 'access', _22 => _22.current, 'optionalAccess', _23 => _23.querySelectorAll, 'call', _24 => _24("button")]), () => ( [])));
     const at = buttons.indexOf(document.activeElement);
     if (e.key === "Tab" && buttons.length) {
       if (e.shiftKey && at <= 0) {
@@ -1314,18 +1410,81 @@ function Presenter({
           "\u201D"
         ] }),
         /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h3", { children: "Say" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: _nullishCoalesce(_optionalChain([notes, 'optionalAccess', _22 => _22.say]), () => ( "No talk track for this slide.")) }),
-        _optionalChain([notes, 'optionalAccess', _23 => _23.delivery]) && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: _nullishCoalesce(_optionalChain([notes, 'optionalAccess', _25 => _25.say]), () => ( "No talk track for this slide.")) }),
+        _optionalChain([notes, 'optionalAccess', _26 => _26.delivery]) && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
           /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h3", { children: "Delivery" }),
           /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: notes.delivery })
         ] }),
-        _optionalChain([notes, 'optionalAccess', _24 => _24.next]) && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
+        _optionalChain([notes, 'optionalAccess', _27 => _27.next]) && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
           /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h3", { children: "Bridge" }),
           /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: notes.next })
         ] })
       ] })
     ] })
   ] });
+}
+
+// src/deck/player/Print.tsx
+
+var _reactdom = require('react-dom');
+
+function Printout({ slides, theme, notes = false }) {
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-deck-print", "data-notes": notes ? "" : void 0, children: slides.map((s, i) => {
+    const talk = notesOf(s);
+    return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "section", { className: "uipack-deck-print__page", "data-tone": _nullishCoalesce(s.tone, () => ( "paper")), "aria-label": `${pad(i + 1)}: ${s.title}`, children: [
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-deck-print__slide", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-deck-canvas", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Layer, { slide: s, index: i, count: slides.length, step: Infinity, active: false, thumbnail: true, theme, reducedMotion: true }) }) }),
+      notes && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-deck-print__notes", children: [
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "h3", { children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: pad(i + 1) }),
+          " ",
+          _nullishCoalesce(s.headline, () => ( s.title))
+        ] }),
+        _optionalChain([talk, 'optionalAccess', _28 => _28.say]) && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: talk.say })
+      ] })
+    ] }, s.id);
+  }) });
+}
+function PrintJob({
+  slides,
+  theme,
+  title,
+  notes,
+  onDone
+}) {
+  const done = _react.useRef.call(void 0, onDone);
+  done.current = onDone;
+  _react.useEffect.call(void 0, () => {
+    let cancelled = false;
+    const previous = document.title;
+    const finish = () => {
+      window.removeEventListener("afterprint", finish);
+      window.removeEventListener("focus", finish);
+      document.title = previous;
+      if (!cancelled) done.current();
+      cancelled = true;
+    };
+    const frame = () => new Promise((r) => requestAnimationFrame(() => r(null)));
+    void (async () => {
+      await (_nullishCoalesce(_optionalChain([document, 'access', _29 => _29.fonts, 'optionalAccess', _30 => _30.ready]), () => ( Promise.resolve())));
+      await frame();
+      await frame();
+      if (cancelled) return;
+      document.title = title;
+      window.addEventListener("afterprint", finish);
+      window.print();
+      setTimeout(() => !cancelled && window.addEventListener("focus", finish, { once: true }), 0);
+    })();
+    return () => {
+      cancelled = true;
+      window.removeEventListener("afterprint", finish);
+      window.removeEventListener("focus", finish);
+      document.title = previous;
+    };
+  }, [title]);
+  return _reactdom.createPortal.call(void 0, 
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-deck-print-root", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-deck", "data-theme": theme, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Printout, { slides, theme, notes }) }) }),
+    document.body
+  );
 }
 
 // src/deck/player/Reader.tsx
@@ -1354,7 +1513,7 @@ function Reader({
             " ",
             s.title
           ] }),
-          _optionalChain([notes, 'optionalAccess', _25 => _25.say]) && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: notes.say }),
+          _optionalChain([notes, 'optionalAccess', _31 => _31.say]) && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: notes.say }),
           /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: () => onPresent(i), "aria-label": `Present from slide ${i + 1}: ${s.title}`, children: "Present from here" })
         ] })
       ] }, s.id);
@@ -1394,19 +1553,21 @@ function Player({
   presenterHref,
   keyboard = "focus",
   view: initialView = "present",
+  printNotes = false,
   lint = false,
   className
 }) {
   const count = slides.length;
   const startIndex = (() => {
-    const s = _optionalChain([initial, 'optionalAccess', _26 => _26.slide]);
+    const s = _optionalChain([initial, 'optionalAccess', _32 => _32.slide]);
     const i = typeof s === "number" ? s : s ? slides.findIndex((x) => x.id === s) : 0;
     return Math.min(Math.max(i, 0), Math.max(count - 1, 0));
   })();
-  const [view, setView] = _react.useState.call(void 0, { index: startIndex, step: _nullishCoalesce(_optionalChain([initial, 'optionalAccess', _27 => _27.step]), () => ( 0)), from: null, seq: 0 });
+  const [view, setView] = _react.useState.call(void 0, { index: startIndex, step: _nullishCoalesce(_optionalChain([initial, 'optionalAccess', _33 => _33.step]), () => ( 0)), from: null, seq: 0 });
   const [overview, setOverview] = _react.useState.call(void 0, false);
   const [fullscreen, setFullscreen] = _react.useState.call(void 0, false);
   const [reading, setReading] = _react.useState.call(void 0, initialView === "read");
+  const [printing, setPrinting] = _react.useState.call(void 0, false);
   const prefersReduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
   const reducedMotion = motion === "none" || prefersReduced;
   const { ref: stageRef, scale } = useCanvasScale();
@@ -1421,7 +1582,7 @@ function Player({
     setView(next2);
   };
   const { settle, fly } = _chunkYEVVKV3Jcjs.useLayerFlight.call(void 0, 
-    () => _optionalChain([stageRef, 'access', _28 => _28.current, 'optionalAccess', _29 => _29.querySelectorAll, 'call', _30 => _30(".uipack-deck-layer"), 'access', _31 => _31.forEach, 'call', _32 => _32((el) => {
+    () => _optionalChain([stageRef, 'access', _34 => _34.current, 'optionalAccess', _35 => _35.querySelectorAll, 'call', _36 => _36(".uipack-deck-layer"), 'access', _37 => _37.forEach, 'call', _38 => _38((el) => {
       el.style.zIndex = "";
       el.style.visibility = "";
     })])
@@ -1470,7 +1631,7 @@ function Player({
       if (viewRef.current.seq === seq) commit({ ...viewRef.current, from: null });
     };
     if (!from2 || !to || !scale) return done();
-    const resolved = resolveTransition(view.from.index, view.index, (i) => _optionalChain([slides, 'access', _33 => _33[i], 'optionalAccess', _34 => _34.transition]), transition);
+    const resolved = resolveTransition(view.from.index, view.index, (i) => _optionalChain([slides, 'access', _39 => _39[i], 'optionalAccess', _40 => _40.transition]), transition);
     const started = runTransition({
       transition: resolved,
       from: from2,
@@ -1511,12 +1672,12 @@ function Player({
     const last = reported.current;
     if (last.index === view.index && last.step === view.step) return;
     reported.current = { index: view.index, step: view.step };
-    _optionalChain([onPositionChange, 'optionalCall', _35 => _35({ index: view.index, step: view.step, id: slides[view.index].id })]);
+    _optionalChain([onPositionChange, 'optionalCall', _41 => _41({ index: view.index, step: view.step, id: slides[view.index].id })]);
     if (remote.current) {
       remote.current = false;
       return;
     }
-    _optionalChain([channel, 'access', _36 => _36.current, 'optionalAccess', _37 => _37.postMessage, 'call', _38 => _38({ type: "go", index: view.index, step: view.step })]);
+    _optionalChain([channel, 'access', _42 => _42.current, 'optionalAccess', _43 => _43.postMessage, 'call', _44 => _44({ type: "go", index: view.index, step: view.step })]);
   }, [view.index, view.step]);
   const [canFullscreen, setCanFullscreen] = _react.useState.call(void 0, false);
   _react.useEffect.call(void 0, () => {
@@ -1526,9 +1687,9 @@ function Player({
     return () => document.removeEventListener("fullscreenchange", onChange);
   }, []);
   const toggleFullscreen = () => {
-    if (document.fullscreenElement) void _optionalChain([document, 'access', _39 => _39.exitFullscreen, 'optionalCall', _40 => _40()]);
-    else void _optionalChain([rootRef, 'access', _41 => _41.current, 'optionalAccess', _42 => _42.requestFullscreen, 'optionalCall', _43 => _43()]);
-    _optionalChain([rootRef, 'access', _44 => _44.current, 'optionalAccess', _45 => _45.focus, 'call', _46 => _46()]);
+    if (document.fullscreenElement) void _optionalChain([document, 'access', _45 => _45.exitFullscreen, 'optionalCall', _46 => _46()]);
+    else void _optionalChain([rootRef, 'access', _47 => _47.current, 'optionalAccess', _48 => _48.requestFullscreen, 'optionalCall', _49 => _49()]);
+    _optionalChain([rootRef, 'access', _50 => _50.current, 'optionalAccess', _51 => _51.focus, 'call', _52 => _52()]);
   };
   const openPresenter = () => {
     let href = presenterHref;
@@ -1542,13 +1703,13 @@ function Player({
   };
   const closeOverview = () => {
     setOverview(false);
-    requestAnimationFrame(() => _optionalChain([overviewButtonRef, 'access', _47 => _47.current, 'optionalAccess', _48 => _48.focus, 'call', _49 => _49()]));
+    requestAnimationFrame(() => _optionalChain([overviewButtonRef, 'access', _53 => _53.current, 'optionalAccess', _54 => _54.focus, 'call', _55 => _55()]));
   };
   const onKeyDown = (e) => {
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || overview || reading) return;
     const t = e.target;
-    if (_optionalChain([t, 'optionalAccess', _50 => _50.closest, 'optionalCall', _51 => _51('input, textarea, select, [contenteditable="true"], [contenteditable=""], [data-deck-keys="own"]')])) return;
-    const onControl = Boolean(_optionalChain([t, 'optionalAccess', _52 => _52.closest, 'optionalCall', _53 => _53("button, a, summary")])) && t !== rootRef.current;
+    if (_optionalChain([t, 'optionalAccess', _56 => _56.closest, 'optionalCall', _57 => _57('input, textarea, select, [contenteditable="true"], [contenteditable=""], [data-deck-keys="own"]')])) return;
+    const onControl = Boolean(_optionalChain([t, 'optionalAccess', _58 => _58.closest, 'optionalCall', _59 => _59("button, a, summary")])) && t !== rootRef.current;
     switch (e.key) {
       case "ArrowRight":
       case "ArrowDown":
@@ -1596,7 +1757,7 @@ function Player({
   _react.useEffect.call(void 0, () => {
     if (keyboard !== "global") return;
     const handler = (e) => {
-      if (_optionalChain([rootRef, 'access', _54 => _54.current, 'optionalAccess', _55 => _55.contains, 'call', _56 => _56(e.target)])) return;
+      if (_optionalChain([rootRef, 'access', _60 => _60.current, 'optionalAccess', _61 => _61.contains, 'call', _62 => _62(e.target)])) return;
       keyHandler.current(e);
     };
     window.addEventListener("keydown", handler);
@@ -1674,6 +1835,7 @@ function Player({
       onPrev: prev,
       onNext: next,
       onRead: () => setReading(true),
+      onPrint: () => setPrinting(true),
       onOverview: () => setOverview(true),
       onPresenter: openPresenter,
       onFullscreen: toggleFullscreen
@@ -1697,7 +1859,7 @@ function Player({
       tabIndex: 0,
       onKeyDown,
       children: [
-        reading ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+        initialView === "print" ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Printout, { slides, theme, notes: printNotes }) : reading ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
           Reader,
           {
             slides,
@@ -1705,13 +1867,26 @@ function Player({
             onPresent: (i) => {
               setReading(false);
               go(i, 0);
-              requestAnimationFrame(() => _optionalChain([rootRef, 'access', _57 => _57.current, 'optionalAccess', _58 => _58.focus, 'call', _59 => _59({ preventScroll: true })]));
+              requestAnimationFrame(() => _optionalChain([rootRef, 'access', _63 => _63.current, 'optionalAccess', _64 => _64.focus, 'call', _65 => _65({ preventScroll: true })]));
             }
           }
         ) : /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
           mode === "presenter" ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Presenter, { slides, index: view.index, theme, stage }) : stage,
           controls
         ] }),
+        printing && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+          PrintJob,
+          {
+            slides,
+            theme,
+            title,
+            notes: printNotes,
+            onDone: () => {
+              setPrinting(false);
+              _optionalChain([rootRef, 'access', _66 => _66.current, 'optionalAccess', _67 => _67.focus, 'call', _68 => _68({ preventScroll: true })]);
+            }
+          }
+        ),
         /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-deck-sr", "aria-live": "polite", children: [
           "Slide ",
           view.index + 1,
@@ -1821,6 +1996,26 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
       )
     }
   );
+}
+
+// src/deck/starter.tsx
+
+function starterDeck(template, { footer } = {}) {
+  const t = getStorylineTemplate(template);
+  return templateOutline(t).map((s, i) => {
+    const beat = t.beats[i];
+    return {
+      id: s.id,
+      title: s.title,
+      headline: s.title,
+      role: beat.role,
+      render: () => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, Slide, { eyebrow: `${SLIDE_ROLES[beat.role].label} \xB7 draft`, footer: _nullishCoalesce(footer, () => ( t.name)), children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h2", { className: "uipack-deck-heading", children: s.title }),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack-deck-lede", children: beat.titlePattern }),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack-deck-body uipack-deck-starter-note", children: beat.guidance })
+      ] })
+    };
+  });
 }
 
 // src/deck/consulting/frame.tsx
@@ -2144,11 +2339,11 @@ function Annotation({ x, y, tx, ty, text, width = 260, align = "start" }) {
 function useChartSize(fixed, fallback = { width: 640, height: 360 }) {
   const ref = _react.useRef.call(void 0, null);
   const [size, setSize] = _react.useState.call(void 0, {
-    width: _nullishCoalesce(_optionalChain([fixed, 'optionalAccess', _60 => _60.width]), () => ( fallback.width)),
-    height: _nullishCoalesce(_optionalChain([fixed, 'optionalAccess', _61 => _61.height]), () => ( fallback.height))
+    width: _nullishCoalesce(_optionalChain([fixed, 'optionalAccess', _69 => _69.width]), () => ( fallback.width)),
+    height: _nullishCoalesce(_optionalChain([fixed, 'optionalAccess', _70 => _70.height]), () => ( fallback.height))
   });
-  const fixedW = _optionalChain([fixed, 'optionalAccess', _62 => _62.width]);
-  const fixedH = _optionalChain([fixed, 'optionalAccess', _63 => _63.height]);
+  const fixedW = _optionalChain([fixed, 'optionalAccess', _71 => _71.width]);
+  const fixedH = _optionalChain([fixed, 'optionalAccess', _72 => _72.height]);
   _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
     const el = ref.current;
     if (!el || fixedW !== void 0 && fixedH !== void 0) return;
@@ -2325,7 +2520,7 @@ function BarChart({
   }
   const labelLines = rows.map((d) => d.label);
   const bandsProbe = bandLayout(rows.length, 0, W, 0.56, 64);
-  const wrapped = labelLines.map((l) => wrapToWidth(l, CX_TYPE.label, (_nullishCoalesce(_optionalChain([bandsProbe, 'access', _64 => _64[0], 'optionalAccess', _65 => _65.size]), () => ( W))) - 8, 2));
+  const wrapped = labelLines.map((l) => wrapToWidth(l, CX_TYPE.label, (_nullishCoalesce(_optionalChain([bandsProbe, 'access', _73 => _73[0], 'optionalAccess', _74 => _74.size]), () => ( W))) - 8, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = 36;
   const y = linearScale(dom, [H - bottom, top]);
@@ -2432,7 +2627,7 @@ function LineChart({
   const W = size.width;
   const H = size.height;
   const all = series.flatMap((s) => s.values.filter((v) => v !== null));
-  const nice = niceTicks(Math.min(...all, _nullishCoalesce(_optionalChain([reference, 'optionalAccess', _66 => _66.value]), () => ( Infinity))), Math.max(...all, _nullishCoalesce(_optionalChain([reference, 'optionalAccess', _67 => _67.value]), () => ( -Infinity))), 4);
+  const nice = niceTicks(Math.min(...all, _nullishCoalesce(_optionalChain([reference, 'optionalAccess', _75 => _75.value]), () => ( Infinity))), Math.max(...all, _nullishCoalesce(_optionalChain([reference, 'optionalAccess', _76 => _76.value]), () => ( -Infinity))), 4);
   const dom = _nullishCoalesce(domain, () => ( nice.domain));
   const ticks = domain ? niceTicks(domain[0], domain[1], 4).ticks.filter((t) => t >= domain[0] && t <= domain[1]) : nice.ticks;
   const tf = _nullishCoalesce(tickFormat, () => ( format));
@@ -2459,7 +2654,7 @@ function LineChart({
     const li = lastOf(s);
     return li >= 0 ? { x: xs(li), y: ys(s.values[li]) } : null;
   });
-  const placed = spreadLabels(ends.map((e) => _nullishCoalesce(_optionalChain([e, 'optionalAccess', _68 => _68.y]), () => ( 0))), CX_TYPE.label * 1.3, top, bottom);
+  const placed = spreadLabels(ends.map((e) => _nullishCoalesce(_optionalChain([e, 'optionalAccess', _77 => _77.y]), () => ( 0))), CX_TYPE.label * 1.3, top, bottom);
   const everyN = Math.max(1, Math.ceil(Math.max(...periods.map((p) => textWidth(p, CX_TYPE.tick))) / Math.max(1, (right - left) / periods.length - 12)));
   return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, Frame, { size, label, children: [
     ticks.map((t) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
@@ -2513,7 +2708,7 @@ function LineChart({
     }),
     annotate && (() => {
       const si = typeof annotate.series === "number" ? annotate.series : series.findIndex((s) => s.name === annotate.series);
-      const v = _optionalChain([series, 'access', _69 => _69[si], 'optionalAccess', _70 => _70.values, 'access', _71 => _71[annotate.index]]);
+      const v = _optionalChain([series, 'access', _78 => _78[si], 'optionalAccess', _79 => _79.values, 'access', _80 => _80[annotate.index]]);
       if (v === null || v === void 0) return null;
       const px = xs(annotate.index);
       const py = ys(v);
@@ -2712,7 +2907,7 @@ function StackedBar({
     ] });
   }
   const bandsProbe = bandLayout(categories.length, 0, W, 0.56, 88);
-  const wrapped = categories.map((c) => wrapToWidth(c.label, CX_TYPE.label, (_nullishCoalesce(_optionalChain([bandsProbe, 'access', _72 => _72[0], 'optionalAccess', _73 => _73.size]), () => ( W))) - 8, 2));
+  const wrapped = categories.map((c) => wrapToWidth(c.label, CX_TYPE.label, (_nullishCoalesce(_optionalChain([bandsProbe, 'access', _81 => _81[0], 'optionalAccess', _82 => _82.size]), () => ( W))) - 8, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = legendH + (totals && !percent ? 40 : 12);
   const y = linearScale([0, max], [H - bottom, top]);
@@ -2767,7 +2962,7 @@ function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain
   const dom = _nullishCoalesce(domain, () => ( zeroBasedDomain(levels)));
   const broken = dom[0] > 0;
   const bandsProbe = bandLayout(bars.length, 0, W, 0.62, 76);
-  const wrapped = bars.map((b) => wrapToWidth(b.label, CX_TYPE.label, (_nullishCoalesce(_optionalChain([bandsProbe, 'access', _74 => _74[0], 'optionalAccess', _75 => _75.size]), () => ( W))) - 6, 2));
+  const wrapped = bars.map((b) => wrapToWidth(b.label, CX_TYPE.label, (_nullishCoalesce(_optionalChain([bandsProbe, 'access', _83 => _83[0], 'optionalAccess', _84 => _84.size]), () => ( W))) - 6, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = 40;
   const y = linearScale(dom, [H - bottom, top]);
@@ -2970,5 +3165,6 @@ function HarveyTable({ columns, rows, corner = "Option", showKey = true, keyNote
 
 
 
-exports.Annotation = Annotation; exports.BarChart = BarChart; exports.Bento = Bento; exports.BentoCell = BentoCell; exports.Build = Build; exports.CANVAS_HEIGHT = CANVAS_HEIGHT; exports.CANVAS_WIDTH = CANVAS_WIDTH; exports.CX_TYPE = CX_TYPE; exports.ConsultingSlide = ConsultingSlide; exports.DeckPlayer = DeckPlayer; exports.DeckSlideContext = DeckSlideContext; exports.HarveyBall = HarveyBall; exports.HarveyTable = HarveyTable; exports.KpiTiles = KpiTiles; exports.LINT_RULES = LINT_RULES; exports.LineChart = LineChart; exports.MAX_TITLE_WORDS = MAX_TITLE_WORDS; exports.MIN_TEXT_PX = MIN_TEXT_PX; exports.Matrix2x2 = Matrix2x2; exports.Morph = Morph; exports.Panel = Panel; exports.REPEATABLE_ROLES = REPEATABLE_ROLES; exports.Ref = Ref; exports.SLIDE_ROLES = SLIDE_ROLES; exports.STORYLINE_TEMPLATES = STORYLINE_TEMPLATES; exports.Slide = Slide; exports.SlideThumbnail = SlideThumbnail; exports.SoWhat = SoWhat; exports.Sparkline = Sparkline; exports.StackedBar = StackedBar; exports.Tracker = Tracker; exports.WORDS_PER_MINUTE = WORDS_PER_MINUTE; exports.Waterfall = Waterfall; exports.annotationGeometry = annotationGeometry; exports.bandLayout = bandLayout; exports.barPath = barPath; exports.bentoCamera = bentoCamera; exports.bentoFocusAt = bentoFocusAt; exports.bubbleRadius = bubbleRadius; exports.deckMotion = deckMotion; exports.flipFrom = flipFrom; exports.formatStoryline = formatStoryline; exports.formatValue = formatValue; exports.formatter = formatter; exports.getStorylineTemplate = getStorylineTemplate; exports.harveyQuarters = harveyQuarters; exports.harveyWedge = harveyWedge; exports.linearScale = linearScale; exports.lintDeck = lintDeck; exports.niceStep = niceStep; exports.niceTicks = niceTicks; exports.resolveTransition = resolveTransition; exports.runTransition = runTransition; exports.slideZoomFrame = slideZoomFrame; exports.slideZoomSamples = slideZoomSamples; exports.spreadLabels = spreadLabels; exports.stackSegments = stackSegments; exports.storylineOf = storylineOf; exports.talkSeconds = talkSeconds; exports.templateOutline = templateOutline; exports.textWidth = textWidth; exports.useDeckSlide = useDeckSlide; exports.waterfallBars = waterfallBars; exports.wrapToWidth = wrapToWidth; exports.zeroBasedDomain = zeroBasedDomain;
+
+exports.Annotation = Annotation; exports.BarChart = BarChart; exports.Bento = Bento; exports.BentoCell = BentoCell; exports.Build = Build; exports.CANVAS_HEIGHT = CANVAS_HEIGHT; exports.CANVAS_WIDTH = CANVAS_WIDTH; exports.CX_TYPE = CX_TYPE; exports.ConsultingSlide = ConsultingSlide; exports.DeckPlayer = DeckPlayer; exports.DeckSlideContext = DeckSlideContext; exports.HarveyBall = HarveyBall; exports.HarveyTable = HarveyTable; exports.KpiTiles = KpiTiles; exports.LINT_RULES = LINT_RULES; exports.LineChart = LineChart; exports.MAX_TITLE_WORDS = MAX_TITLE_WORDS; exports.MIN_TEXT_PX = MIN_TEXT_PX; exports.Matrix2x2 = Matrix2x2; exports.Morph = Morph; exports.Panel = Panel; exports.REPEATABLE_ROLES = REPEATABLE_ROLES; exports.Ref = Ref; exports.SLIDE_ROLES = SLIDE_ROLES; exports.STORYLINE_TEMPLATES = STORYLINE_TEMPLATES; exports.Slide = Slide; exports.SlideThumbnail = SlideThumbnail; exports.SoWhat = SoWhat; exports.Sparkline = Sparkline; exports.StackedBar = StackedBar; exports.Tracker = Tracker; exports.WORDS_PER_MINUTE = WORDS_PER_MINUTE; exports.Waterfall = Waterfall; exports.annotationGeometry = annotationGeometry; exports.bandLayout = bandLayout; exports.barPath = barPath; exports.bentoCamera = bentoCamera; exports.bentoFocusAt = bentoFocusAt; exports.bubbleRadius = bubbleRadius; exports.deckMotion = deckMotion; exports.flipFrom = flipFrom; exports.formatStoryline = formatStoryline; exports.formatValue = formatValue; exports.formatter = formatter; exports.getStorylineTemplate = getStorylineTemplate; exports.harveyQuarters = harveyQuarters; exports.harveyWedge = harveyWedge; exports.linearScale = linearScale; exports.lintDeck = lintDeck; exports.niceStep = niceStep; exports.niceTicks = niceTicks; exports.resolveTransition = resolveTransition; exports.runTransition = runTransition; exports.slideZoomFrame = slideZoomFrame; exports.slideZoomSamples = slideZoomSamples; exports.spreadLabels = spreadLabels; exports.stackSegments = stackSegments; exports.starterDeck = starterDeck; exports.storylineOf = storylineOf; exports.talkSeconds = talkSeconds; exports.templateOutline = templateOutline; exports.textWidth = textWidth; exports.useDeckSlide = useDeckSlide; exports.waterfallBars = waterfallBars; exports.wrapToWidth = wrapToWidth; exports.zeroBasedDomain = zeroBasedDomain;
 //# sourceMappingURL=deck.cjs.map

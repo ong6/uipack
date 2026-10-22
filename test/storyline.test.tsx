@@ -23,7 +23,7 @@ const say = (text: string) => ({ say: text, delivery: "Pause after the number.",
 const good: StorySlide[] = [
   {
     id: "answer",
-    title: "Move resizing to a queue to stop upload timeouts",
+    title: "Move resizing to a queue to stop upload timeouts with one engineer",
     role: "answer",
     notes: say("We should move image resizing to a queue. That ends upload timeouts, and we need one engineer."),
   },
@@ -89,7 +89,7 @@ describe("storyline templates", () => {
 
     for (const beat of t.beats) {
       expect(roles).toContain(beat.role);
-      for (const field of [beat.purpose, beat.titlePattern, beat.example, beat.guidance]) {
+      for (const field of [beat.purpose, beat.titlePattern, beat.example, beat.guidance, t.remember]) {
         expect(field.trim().length).toBeGreaterThan(0);
       }
     }
@@ -129,7 +129,7 @@ describe("storyline templates", () => {
       expect(SLIDE_ROLES[role].question).toBeTruthy();
     }
     expect(REPEATABLE_ROLES).toContain("evidence");
-    expect(Object.keys(LINT_RULES)).toHaveLength(15);
+    expect(Object.keys(LINT_RULES)).toHaveLength(17);
   });
 });
 
@@ -306,8 +306,63 @@ describe("lintDeck", () => {
     });
 
     it("accepts verb, owner and date across title and notes", () => {
-      expect(ask("Approve the queue migration", "We need your call by Friday.")).toEqual([]);
+      expect(ask("Approve the queue migration", "We need the platform leads' call by Friday.")).toEqual([]);
       expect(ask("Prioritise the canary work in Q3 planning; Release Engineering owns it")).toEqual([]);
+      expect(ask("Storage team: review the design doc by 14 March")).toEqual([]);
+    });
+
+    it("rejects a vague ask: no named owner, and a date that moves with the calendar", () => {
+      const [hit] = ask("Please support the team going forward next quarter");
+      expect(hit).toMatchObject({ slideId: "ask", severity: "warn" });
+      expect(hit.message).toMatch(/missing an owner, a date/);
+      expect(hit.message).not.toMatch(/verb/);
+    });
+
+    it("treats pronouns as no owner and relative dates as no date", () => {
+      expect(ask("We need you to approve one more engineer by July")[0].message).toMatch(/^The ask is missing an owner\./);
+      const [relative] = ask("Platform leads: approve one more engineer next quarter");
+      expect(relative.message).toMatch(/missing a date/);
+      expect(relative.message).toMatch(/"next quarter" moves with the calendar/);
+      // "may" the verb is not May the month.
+      expect(ask("Platform leads may approve one more engineer")[0].message).toMatch(/missing a date/);
+    });
+  });
+
+  describe("title-specific", () => {
+    const specific = (title: string, role: SlideRole = "evidence") =>
+      find(lintDeck(withSlide(good, "context", { title, role, notes: "Source: search dashboard, Q3." })), "title-specific");
+
+    it.each([
+      "Search is in a good place and the team did great work",
+      "Things are trending in the right direction overall",
+      "Please support the team going forward next quarter",
+    ])("flags the vague claim %s", (title) => {
+      expect(specific(title)).toEqual([expect.objectContaining({ slideId: "context", severity: "warn" })]);
+      expect(specific(title, "answer")).toHaveLength(1);
+    });
+
+    it("accepts a number, a comparison or a named result", () => {
+      expect(specific("Caching did most of it: 140 of 214 ms saved, six launches, no rollbacks")).toEqual([]);
+      expect(specific("Search got twice as fast this quarter, and cheaper to run")).toEqual([]);
+      expect(specific("The new ranker beats the old one on every query class")).toEqual([]);
+      expect(specific("Two product teams launched on the new API without our help")).toEqual([]);
+    });
+
+    it("only checks answer and evidence slides", () => {
+      expect(specific("Things are trending in the right direction overall", "context")).toEqual([]);
+    });
+  });
+
+  describe("outcome-first", () => {
+    it("tips when slide one names the system instead of the outcome", () => {
+      const deck = withSlide(good, "answer", { title: "The new upload pipeline architecture explained" });
+      expect(find(lintDeck(deck), "outcome-first")).toEqual([expect.objectContaining({ slideId: "answer", severity: "tip" })]);
+      expect(find(lintDeck(good), "outcome-first")).toEqual([]);
+    });
+
+    it("is off for teaching talks that build up to their idea", () => {
+      const deck = withSlide(good, "answer", { title: "The new upload pipeline architecture explained" });
+      expect(find(lintDeck(deck, { template: "deep-dive" }), "outcome-first")).toEqual([]);
     });
   });
 
@@ -366,7 +421,7 @@ describe("storylineOf", () => {
     expect(outline[0]).toEqual({
       number: 1,
       id: "answer",
-      title: "Move resizing to a queue to stop upload timeouts",
+      title: "Move resizing to a queue to stop upload timeouts with one engineer",
       role: "answer",
       roleLabel: "Answer",
       appendix: false,
@@ -379,7 +434,7 @@ describe("storylineOf", () => {
     const text = formatStoryline([...good.slice(0, 2), { id: "bare", title: "" }]);
     expect(text).toBe(
       [
-        "1. [Answer] Move resizing to a queue to stop upload timeouts",
+        "1. [Answer] Move resizing to a queue to stop upload timeouts with one engineer",
         "2. [Context] Uploads resize every image before the request returns",
         "3. (untitled)",
       ].join("\n"),

@@ -9,11 +9,13 @@ The code lives in [`src/deck/storyline.ts`](../src/deck/storyline.ts): slide rol
 | Principle | What it means | Quick test |
 |---|---|---|
 | **Answer first** | Open with the conclusion: the status, the recommendation or the thesis (Minto's pyramid). The rest of the deck supports it. | If the meeting ended after slide two, would they know the point? |
+| **Slide one names the outcome, not the system** | Leadership funds results. "Search got twice as fast and cheaper to run" beats "The new caching tier". Name the system on slide two, as the reason. | Would a director who has never heard of the system repeat slide one to their boss? |
+| **Specific, not upbeat** | An answer or evidence title carries a number, a comparison or a named result. "In a good place", "great work" and "trending the right way" could describe any quarter. | Could the same title appear in last quarter's deck? Then it says nothing. |
 | **Action titles** | Every title is a full claim ("Index freshness fell from 40 to 6 minutes"), not a topic ("Results"). 3–14 words. | Does the title say what to conclude? |
 | **Ghost deck** | Read only the titles, in order. They should tell the whole argument. | Run `storylineOf`; does it read as a story? |
 | **One idea per slide** | One claim, and a body that proves it. Two claims means two slides. | Can you state the slide in one sentence? |
 | **Evidence with sources** | Every number has a baseline, a window and a source: on the slide when it changes the decision, otherwise in the notes. | "Where's that from?" has an answer. |
-| **A specific ask** | End on a decision or action, an owner and a date. Not "Questions?" | Could someone act on it tomorrow? |
+| **A specific ask** | End on a decision or action, a named owner (a team, role or person, not "we" or "the team") and a calendar date ("next quarter" is not one). Not "Questions?" | Could someone act on it tomorrow, and would they know it's theirs? |
 | **Design serves the claim** | The dominant visual element is the evidence for the title. Cut decoration, logos and anything the title doesn't need. | Cover the title: does the visual still point at it? |
 
 For a decision deck, use SCQA: **S**ituation (what the room accepts), **C**omplication (what changed), **Q**uestion (what to do), **A**nswer (the recommendation). With an exec audience, put the A first and let S and C follow as support.
@@ -24,7 +26,7 @@ Tag each slide with the job it does. The linter and the ghost deck read these ta
 
 | Role | Answers | Its job |
 |---|---|---|
-| `cover` | What is this? | Names the talk. Better still, states the answer. |
+| `cover` | What is this? | States the outcome the talk is about, in business terms ("Search got twice as fast"), not the system's name. |
 | `answer` | What's the point? | The governing thought in one sentence. |
 | `context` | Where are we? | The situation everyone already agrees with. One slide. |
 | `problem` | What changed or went wrong? | The complication, with a number, and why it matters now. |
@@ -42,9 +44,11 @@ Tag each slide with the job it does. The linter and the ghost deck read these ta
 
 ## The six storylines
 
-Each template is an ordered list of beats (`role`, `purpose`, `titlePattern`, `example`, `guidance`, and sometimes a suggested `move`). `templateOutline(id)` turns one into a scaffold deck. The example titles below describe generic projects; the numbers are illustrative.
+Each template is an ordered list of beats (`role`, `purpose`, `titlePattern`, `example`, `guidance`, and sometimes a suggested `move`), plus `remember`: what leadership should be able to repeat a week later. Draft that line first; slide one and the ask should carry it. `templateOutline(id)` turns a template into a scaffold deck. The example titles below describe generic projects; the numbers are illustrative.
 
 ### Project update / results (5–8 slides, 5–10 min)
+
+**What leadership remembers:** whether it's on track, the one number that proves it, and what you need from them.
 
 | # | Role | Ghost-deck title |
 |---|---|---|
@@ -58,6 +62,8 @@ Each template is an ordered list of beats (`role`, `purpose`, `titlePattern`, `e
 Put the status word first. If the project is at risk, say so on slide one. With no asks, end on "No asks; next update on <date>".
 
 ### Proposal / decision request (6–9 slides, 8–15 min)
+
+**What leadership remembers:** the choice, what it costs, what it returns, and the date they have to decide by.
 
 | # | Role | Ghost-deck title |
 |---|---|---|
@@ -74,9 +80,11 @@ Compare the options on one slide using the same criteria, and always include "do
 
 ### Technical deep dive (7–12 slides, 12–25 min)
 
+**What leadership remembers:** one idea about how the system works, the number that shows it works, and the trade-off it makes.
+
 | # | Role | Move | Ghost-deck title |
 |---|---|---|---|
-| 1 | answer | advance | The rate limiter stays fast by deciding locally and syncing counts later |
+| 1 | answer | advance | The rate limiter adds 0.2 ms by deciding locally and syncing counts later |
 | 2 | problem | advance | A central counter adds a network hop to every request |
 | 3 | mechanism | advance | Three parts: a local bucket, a sync loop and a global budget |
 | 4 | mechanism | **zoom** | Each local bucket refills from its share of the global budget |
@@ -84,11 +92,13 @@ Compare the options on one slide using the same criteria, and always include "do
 | 6 | evidence | advance | Load tests show 0.2 ms added latency and 3% overshoot at peak |
 | 7 | option | advance | We accept brief overshoot in exchange for no extra network hop |
 | 8 | plan *(optional)* | advance | Next: per-tenant budgets in Q3; fairness under bursts is still open |
-| 9 | ask | advance | Review the sync design doc by Friday; I'll fold in every comment |
+| 9 | ask | advance | Storage team: review the sync design doc by Friday; I'll fold in every comment |
 
 This is the one template that doesn't require answer first: a teaching talk may build up to its idea. Still state the thesis on slide one; engineers follow the mechanism better when they know where it leads.
 
 ### Launch / demo (5–8 slides, 5–12 min)
+
+**What leadership remembers:** what users can do now that they couldn't before, the early result, and who switches it on next.
 
 | # | Role | Move | Ghost-deck title |
 |---|---|---|---|
@@ -104,6 +114,8 @@ Rehearse one path through the demo and keep a recording ready in case it fails. 
 
 ### Postmortem / incident review (6–9 slides, 8–15 min)
 
+**What leadership remembers:** the impact in one number, the cause in one sentence, and the fix that stops it happening again.
+
 | # | Role | Move | Ghost-deck title |
 |---|---|---|---|
 | 1 | answer | advance | A bad config push took checkout down for 42 minutes; fixed and guarded |
@@ -118,6 +130,8 @@ Keep it blameless: write about systems and safeguards, not people. The gaps in t
 
 ### Quarterly / performance review highlights (5–8 slides, 5–10 min)
 
+**What leadership remembers:** two or three outcomes with numbers, what other teams can now do, and the one ask.
+
 | # | Role | Ghost-deck title |
 |---|---|---|
 | 1 | answer | This half we cut payment failures by a third and unblocked two launches |
@@ -125,7 +139,7 @@ Keep it blameless: write about systems and safeguards, not people. The gaps in t
 | 3 | evidence | Two product teams launched on the new API without our help |
 | 4 | problem *(optional)* | The fraud-rule rewrite slipped a quarter; we now ship rules behind flags |
 | 5 | plan | Next half: halve payout latency to support instant withdrawals |
-| 6 | ask | We need you to approve one more engineer by July for the payouts work |
+| 6 | ask | We need the payments director to approve one more engineer by July |
 
 Report impact, not activity. "Cut failures by a third" is impact; "worked on retries" is activity. Show one outcome per slide with its baseline and source, and say which part was yours and which was the team's. Leverage, meaning what others can now do because of your work, is what senior reviewers look for. One honest miss makes the wins believable.
 
@@ -163,13 +177,15 @@ People will read your deck without you in the room. Write it so it still works:
 | `title-present` | error | Every slide has a title. |
 | `title-claim` | error / warn / tip | The title is a claim of three or more words, not a topic label like "Background" or "Agenda". A short label-like phrase warns; a "Label: claim" title gets a tip; on a cover every finding is softened to a tip. |
 | `title-length` | warn | The title has 14 words or fewer. |
+| `title-specific` | warn | An `answer` or `evidence` title carries a number (digits or words like "twice", "a third"), a comparison ("than", "from X to Y", "instead of") or a named result (a proper noun: a product, team or site). "Search is in a good place and the team did great work" fails. |
 | `one-idea` | tip | The title is a single sentence. |
 | `notes-present` | warn | Every presented slide has a `say` talk track. |
 | `number-source` | warn | A number in a title (dates, quarters and versions excluded) has a source in the notes or `source`. Plan and ask slides are exempt, because they hold targets. |
 | `roles-missing` | tip | No slide has a role, so the storyline checks below were skipped. |
 | `answer-first` | error / warn | An `answer` or `recommendation` slide exists and appears within the first three content slides. Off for the deep-dive template. |
+| `outcome-first` | tip | Slide one's title names an outcome (a number, a comparison, or a word like faster, cheaper, cut, saved, unblocked, on track), not just the system. Off where `answer-first` is off. |
 | `closing-ask` | error / warn | An `ask` slide exists and is the last presented slide. |
-| `ask-concrete` | warn | The ask, title plus notes, names an action, an owner and a date. |
+| `ask-concrete` | warn | The ask, title plus notes, names an action, an owner and a date. The owner is a role ("Platform leads", "the payments director"), a named team ("Storage team"), a proper noun or an @handle; "we", "you" and "the team" don't count. The date is on a calendar: a month, a weekday, a numeric date, Q3 or H2, or today. "Next quarter", "soon" and "going forward" don't count. |
 | `role-repeat` | warn | No two adjacent slides share a role, except evidence, mechanism, demo and appendix. |
 | `deck-length` | warn / tip | About one to two minutes per presented slide; with only a template given, the slide count falls inside its range. |
 | `talk-time` | warn | The `say` text fits the time budget at 135 words a minute. |
