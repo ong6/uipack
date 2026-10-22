@@ -5,6 +5,7 @@ import {
   type DocsSection,
 } from "../src/docs";
 import "../src/docs/docs.css";
+import "./docs-showcase.css";
 import { docsEntries } from "./catalog";
 import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
 
@@ -62,6 +63,7 @@ export default function DocsShowcase() {
     <ShowcaseShell active="docs" theme={theme} flip={flip}>
       <section data-route="docs" data-catalog-entry={docsEntries[0].id}>
         <h2>{docsEntries[0].title}</h2>
+        <div className="docs-frame">
         <DocsLayout
           productTitle="Example product"
           productHref="/docs"
@@ -70,9 +72,11 @@ export default function DocsShowcase() {
           onThisPage={onThisPage}
           next={{ title: "Getting started", href: "/docs/getting-started" }}
           theme={theme}
+          palette="technical"
         >
           <DocsMarkdown source={source} />
         </DocsLayout>
+        </div>
       </section>
     </ShowcaseShell>
   );

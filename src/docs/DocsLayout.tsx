@@ -26,6 +26,11 @@ export interface DocsLayoutProps {
   previous?: DocsNavItem | null;
   next?: DocsNavItem | null;
   theme?: "light" | "dark";
+  /**
+   * The colour tokens. "warm" (the default) is the paper-and-blue look hosts already use;
+   * "technical" takes UI Pack's Technical palette (forest/mint accent, green-black dark).
+   */
+  palette?: "warm" | "technical";
   children: ReactNode;
 }
 
@@ -111,6 +116,7 @@ export function DocsLayout({
   previous,
   next,
   theme,
+  palette = "warm",
   children,
 }: DocsLayoutProps) {
   const mobileNavigationId = useId();
@@ -120,7 +126,7 @@ export function DocsLayout({
     .find((item) => item.href === activeHref);
 
   return (
-    <div className="uipack-docs" data-theme={theme}>
+    <div className="uipack-docs" data-theme={theme} data-palette={palette}>
       <a className="uipack-docs__skip" href="#docs-content">
         Skip to documentation content
       </a>
