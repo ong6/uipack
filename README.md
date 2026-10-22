@@ -257,7 +257,7 @@ Seven figures from a small typed spec, each with wide and narrow drawings, packe
 
 ## Assets
 
-`assets/manifest.json` lists every asset with a rendered preview under `docs/assets/` (light palette) and `docs/assets/dark/` (dark palette), and `AssetBrowser` (from `uipack/browser`) shows it: categories with counts down the left, a search box, a grid of cards with the preview on a tile that follows the theme, and one action, which copies the import line or the SVG. Names wrap rather than truncate.
+`assets/manifest.json` lists every asset with a rendered preview under `docs/assets/` (light palette) and `docs/assets/dark/` (dark palette), and `AssetBrowser` (from `uipack/browser`) shows it: categories with counts down the left, a search box, a grid of cards with the preview on a tile that follows the theme, and one action, which copies the import line or the SVG. Names wrap rather than truncate. When nothing matches, it says what was searched (and in which category) and offers Clear search, Show all assets or Clear filters, which puts focus back in the search box.
 
 ![Asset browser](docs/assets-1440-light.png)
 

@@ -43,7 +43,21 @@ describe("asset browser", () => {
   it("says so when nothing matches", () => {
     render(<AssetBrowser manifest={manifest} />);
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: "zzz" } });
-    expect(screen.getByText("Nothing matches.")).toBeInTheDocument();
+    expect(screen.getByText("Nothing matches “zzz”.")).toBeInTheDocument();
+    // A way out, as on /animations: Clear search empties the field and focuses it.
+    fireEvent.click(screen.getByRole("button", { name: "Clear search" }));
+    expect(screen.getByRole("searchbox")).toHaveValue("");
+    expect(screen.getByRole("searchbox")).toHaveFocus();
+    expect(screen.queryByText(/Nothing matches/)).toBeNull();
+  });
+  it("names the category in the empty state and clears both filters", () => {
+    render(<AssetBrowser manifest={manifest} />);
+    fireEvent.click(screen.getByRole("button", { name: /^Icons/ }));
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "zzz" } });
+    expect(screen.getByText("Nothing matches “zzz” in Icons.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
+    expect(screen.getByRole("status")).toHaveTextContent("3 assets");
+    expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
   });
   it("renders the dark preview beside the light one when the manifest has it", () => {
     const themed = { ...manifest, assets: [{ ...manifest.assets[0], previewDark: "docs/assets/dark/a.svg" }] };

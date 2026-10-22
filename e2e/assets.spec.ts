@@ -61,6 +61,22 @@ test.describe("asset browser", () => {
     await expect(page.locator(".uipack-browser__action").first()).toHaveText("Copied");
   });
 
+  test("an empty search offers Clear search, which empties the field and puts focus back in it", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/assets");
+    await page.locator(".uipack-browser__card").first().waitFor();
+    const search = page.getByRole("searchbox");
+    await search.fill("zzqqxx");
+    await expect(page.getByText("Nothing matches “zzqqxx”.")).toBeVisible();
+    const clear = page.getByRole("button", { name: "Clear search" });
+    expect((await clear.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await clear.click();
+    await expect(search).toHaveValue("");
+    await expect(search).toBeFocused();
+    await expect(page.locator(".uipack-browser__card").first()).toBeVisible();
+    await expect(page.locator(".uipack-browser__empty")).toHaveCount(0);
+  });
+
   test("under reduced motion the packet preview is its still; the plain canvas has an edge", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/assets?theme=dark");
