@@ -580,13 +580,13 @@ describe("LayerStack", () => {
     expect(host.querySelector("details, summary, .uipack-stack__check, .uipack-stack__metric")).toBeNull();
     const inference = host.querySelector<HTMLAnchorElement>("#ai-stack-layers-inference")!;
     expect(inference.getAttribute("href")).toBe("#inference");
-    // "↓" at rest; the words show on hover and focus and are part of the name.
+    // "↓" at rest (CSS content, so not text a label-in-name check compares); the words show on hover and focus and are part of the name.
     expect(inference.querySelector(".uipack-stack__go")).toHaveAttribute("aria-hidden", "true");
-    expect(inference.querySelector(".uipack-stack__go")!.textContent).toBe("↓");
+    expect(inference.querySelector(".uipack-stack__go")!.textContent).toBe("");
     expect(inference.querySelector(".uipack-stack__go-text")).toHaveAttribute("aria-hidden", "true");
     expect(inference.querySelector(".uipack-stack__go-text")!.textContent).toBe("Go to section");
     expect(inference).toHaveAttribute("aria-label", "Layer 08 Inference. Every request costs compute; price per token sets the margin. Go to section");
-    expect(inference.textContent!.replace("Go to section↓", "")).toBe("Layer 08 Inference. Every request costs compute; price per token sets the margin.");
+    expect(inference.textContent!.replace("Go to section", "")).toBe("Layer 08 Inference. Every request costs compute; price per token sets the margin.");
     const relabelled = mount(<LayerStack {...aiStackDiagram} id="g2" labels={{ go: "Read" }} />);
     expect(relabelled.querySelector(".uipack-stack__go-text")!.textContent).toBe("Read");
     expect(relabelled.querySelector(".uipack-stack__band")!.getAttribute("aria-label")).toMatch(/\. Read$/);
@@ -617,7 +617,7 @@ describe("LayerStack", () => {
   it("draws rails as named links with their short label, and lists them as nodes for phones", () => {
     const host = mount(<LayerStack {...aiStackDiagram} />);
     const rail = host.querySelector('a.uipack-stack__rail[href="#gateways"]')!;
-    expect(rail.textContent).toBe("Gateways ↓");
+    expect(rail.textContent).toBe("Gateways ");
     expect(rail.querySelector(".uipack-stack__arrow")).toHaveAttribute("aria-hidden", "true");
     expect(rail).toHaveAttribute("aria-label", "Gateways and observability, layers 8–10");
     expect(rail).toHaveAttribute("title", "Route, log and meter every model call across providers.");
@@ -625,7 +625,7 @@ describe("LayerStack", () => {
     expect(rail).not.toHaveAttribute("tabindex");
     const list = [...host.querySelectorAll<HTMLAnchorElement>(".uipack-stack__across a.uipack-stack__node")];
     expect(list.map((a) => a.getAttribute("href"))).toEqual(["#gateways", "#evals", "#safety"]);
-    expect(list[1].textContent).toBe("Evalslayers 7–10Measure whether a change made the model or the product better.↓");
+    expect(list[1].textContent).toBe("Evalslayers 7–10Measure whether a change made the model or the product better.");
     expect(host.querySelectorAll(".uipack-stack__note")).toHaveLength(3);
   });
 

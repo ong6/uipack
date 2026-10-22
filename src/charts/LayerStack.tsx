@@ -308,13 +308,14 @@ export function LayerStack(props: LayerStackProps) {
                     <span className="uipack-stack__text">
                       <b>
                         {layer.label}
-                        <span className="uipack-stack__sr">. </span>
+                        <span className="uipack-stack__sr">.</span>
                       </b>{" "}
                       <span className="uipack-stack__summary">{layer.summary}</span>
-                    </span>{" "}
+                    </span>
                     {layer.metric ? (
                       <span className="uipack-stack__metric">
-                        <span className="uipack-stack__sr">. </span>
+                        {/* Spaces sit outside the visually hidden spans, so the visible words stay apart for label-in-name checks. */}
+                        <span className="uipack-stack__sr">.</span>{" "}
                         <strong>{layer.metric.value}</strong> <span>{layer.metric.label}</span>
                       </span>
                     ) : null}
