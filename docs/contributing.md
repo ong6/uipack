@@ -101,7 +101,7 @@ The diagrams page shows each pattern once, simplest first. Add one the first tim
 
 ## Formatting
 
-Prettier owns the format: print width 130, double quotes. The config, `npm run format` and `npm run format:check` (also run in CI) are being added; until then, match the surrounding code and do not reformat lines a change does not touch. ESLint (`eslint.config.js`) checks correctness only: the rules of hooks, unhandled promises and unused code. `tsc` also fails on unused locals and parameters; prefix a parameter kept for its position with `_`.
+Prettier owns the format of code, styles and config (`.prettierrc.json`: print width 130, double quotes, semicolons, trailing commas). Run `npm run format` before committing; CI runs `npm run format:check` and fails on any unformatted file. `.prettierignore` leaves out what tools write (`dist/`, `assets/manifest.json`, `docs/assets/`, `package-lock.json`), the vendored Anatomy kit (`src/mechanism/kit/`), and Markdown, whose compact tables Prettier would pad to their widest cell. In Markdown, keep tables unpadded and one paragraph to a line. ESLint (`eslint.config.js`) checks correctness only: the rules of hooks, unhandled promises and unused code. `tsc` also fails on unused locals and parameters; prefix a parameter kept for its position with `_`.
 
 ## Candidates
 
