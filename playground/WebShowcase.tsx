@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { flushSync } from "react-dom";
 import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
 import { webEntries } from "./catalog";
@@ -41,7 +41,13 @@ import {
   DriftingGutters,
   SmoothScroll,
   TYPE_FACES,
+  FAQ,
+  JsonLd,
+  useHead,
+  headTagsToHtml,
+  jsonLdTag,
 } from "../src/web";
+import { tidyFaq, tidySeo } from "./web-seo";
 import "../src/web/web.css";
 // Playground-only display alternates for the type specimen's comparison toggle. Not shipped:
 // the package carries Instrument Serif, IBM Plex Sans and IBM Plex Mono only.
@@ -286,21 +292,26 @@ export default function WebShowcase() {
   const { theme, flip } = useShowcaseTheme();
   const [face, setFace] = useState<DisplayFaceId>("instrument-serif");
   const surfaceStyle = faceStyle(face);
+  // The demo page publishes a real head (title, description, canonical, Open Graph), JSON-LD for
+  // the product and its Pricing offer, and an FAQ, all from playground/web-seo.ts.
+  const seo = useMemo(() => tidySeo(location.origin), []);
+  useHead(seo.meta);
   const flashy = webEntries.filter((e) => e.tags.includes("Flashy"));
   const lowKey = webEntries.filter((e) => e.tags.includes("Low-key"));
   return (
     <ShowcaseShell active="web" theme={theme} flip={flip} styleName="Landing">
       <SmoothScroll />
       <section data-route="web" id="web-example" className="web-anchor">
-        <h2>Web UI · Landing style</h2>
         <p className="collection-intro">
           Landing-page building blocks from <code>uipack/web</code>. The example below is one page with one goal: a demo-first hero
           that shows the product working, one star visual, rhyming icons, and the call to action repeated three times. Flashy pieces
           each earn their motion; the low-key pieces are the defaults. Wheel scrolling on this page is eased by <code>SmoothScroll</code>;
-          touch and reduced motion keep native scrolling.
+          touch and reduced motion keep native scrolling. The page also sets its own head, JSON-LD and FAQ from the discoverability
+          kit; the disclosures under the example show what it publishes.
         </p>
         <PageIndex />
         <WebSurface theme={theme} className="web-example" style={surfaceStyle}>
+          <JsonLd data={seo.jsonLd} />
           <GlassNav
             brand={
               <a href="#web-top" className="web-brand">
@@ -382,6 +393,12 @@ export default function WebShowcase() {
               </dl>
             </div>
           </Section>
+          <FAQ
+            id="web-faq"
+            items={tidyFaq}
+            url={seo.url}
+            intro="Example answers for an illustrative product. Each first sentence answers the question on its own, so an answer engine can quote it alone."
+          />
           <Section
             id="web-pricing"
             align="center"
@@ -398,6 +415,7 @@ export default function WebShowcase() {
             </div>
           </Section>
         </WebSurface>
+        <GeneratedFiles seo={seo} />
       </section>
 
       <TypeSpecimen theme={theme} face={face} setFace={setFace} />
@@ -491,6 +509,46 @@ export default function WebShowcase() {
         </p>
       </section>
     </ShowcaseShell>
+  );
+}
+
+function GeneratedFiles({ seo }: { seo: ReturnType<typeof tidySeo> }) {
+  const head = headTagsToHtml([...seo.meta, jsonLdTag(seo.jsonLd)]);
+  return (
+    <div className="web-generated">
+      <details>
+        <summary>View generated robots.txt / sitemap.xml / llms.txt</summary>
+        <p className="web-generated__note">
+          <code>buildCrawlFiles()</code> output for this origin. A real site serves these at its root; the AI crawler stance is{" "}
+          <code>allow-all</code>, with a comment per crawler.
+        </p>
+        {Object.entries(seo.files).map(([name, body]) => (
+          <figure key={name}>
+            <figcaption>
+              <code>{name}</code>
+            </figcaption>
+            <pre tabIndex={0} aria-label={name}>
+              <code>{body}</code>
+            </pre>
+          </figure>
+        ))}
+      </details>
+      <details>
+        <summary>View generated head tags and JSON-LD</summary>
+        <p className="web-generated__note">
+          <code>pageMeta()</code> and <code>jsonLd()</code> output. This playground applies it with <code>useHead</code>; a
+          server-rendered page puts the same tags in its HTML with <code>HeadTags</code> or <code>headTagsToHtml</code>.
+        </p>
+        <figure>
+          <figcaption>
+            <code>&lt;head&gt;</code>
+          </figcaption>
+          <pre tabIndex={0} aria-label="Head tags">
+            <code>{head}</code>
+          </pre>
+        </figure>
+      </details>
+    </div>
   );
 }
 

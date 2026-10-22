@@ -534,6 +534,78 @@
   .uipack-web-section { --web-section-pad: var(--web-s8); padding: var(--web-section-pad) var(--web-s2); }
   .uipack-web-section__inner { gap: var(--web-s4); }
 }
+/* Below-the-fold sections can skip layout and paint until they near the viewport. The content
+   stays in the DOM (crawlers, find-in-page, screen readers); `auto` remembers the rendered size
+   so the scrollbar does not jump once a section has been seen. */
+.uipack-web-section[data-lazy] {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 720px;
+}
+
+/* ---------- FAQ ---------- */
+.uipack-web-faq__list {
+  display: grid;
+  margin: 0;
+  border-top: 1px solid var(--web-hairline);
+}
+.uipack-web-faq__item {
+  display: grid;
+  gap: var(--web-s1);
+  padding: var(--web-s3) 0;
+  border-bottom: 1px solid var(--web-hairline);
+}
+.uipack-web-faq__answer {
+  display: grid;
+  gap: var(--web-s1);
+  max-width: 64ch;
+}
+.uipack-web-faq__answer > p { margin: 0; }
+.uipack-web-faq__list[data-variant="accordion"] .uipack-web-faq__item { padding: 0; gap: 0; }
+.uipack-web-faq__list[data-variant="accordion"] summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--web-s2);
+  min-height: 44px;
+  padding: var(--web-s2) 0;
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--web-step-1);
+  font-weight: 600;
+  line-height: 1.35;
+}
+.uipack-web-faq__list[data-variant="accordion"] summary::-webkit-details-marker { display: none; }
+.uipack-web-faq__list[data-variant="accordion"] summary:focus-visible { outline: 2px solid var(--web-accent); outline-offset: 3px; }
+.uipack-web-faq__list[data-variant="accordion"] .uipack-web-faq__answer { padding-bottom: var(--web-s3); }
+.uipack-web-faq__icon {
+  position: relative;
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+.uipack-web-faq__icon::before,
+.uipack-web-faq__icon::after {
+  content: "";
+  position: absolute;
+  inset: 7px 0;
+  background: var(--web-ink-low);
+  border-radius: 1px;
+}
+.uipack-web-faq__icon::after { rotate: 90deg; transition: rotate 200ms var(--web-ease); }
+.uipack-web-faq__item[open] .uipack-web-faq__icon::after { rotate: 0deg; }
+@container web (min-width: 1024px) {
+  /* Head beside the questions: 5 of 12 columns, then 7. */
+  .uipack-web-faq .uipack-web-section__inner {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: start;
+    column-gap: var(--web-s4);
+  }
+  .uipack-web-faq[data-align="center"] .uipack-web-section__inner { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .uipack-web-faq__icon::after { transition: none; }
+}
+
 .uipack-web-feature,
 .uipack-web-spotlight {
   display: grid;
@@ -1036,8 +1108,10 @@
 
 .uipack-web-scramble { display: inline-grid; }
 .uipack-web-scramble > * { grid-area: 1 / 1; }
-/* The final text reserves the box and is what assistive tech reads. */
-.uipack-web-scramble__ghost { color: transparent; }
+/* The final text reserves the box and is what assistive tech reads. Server HTML and the first
+   render show it as plain text; once mounted (data-armed) the live layer draws over it. */
+.uipack-web-scramble[data-armed] > .uipack-web-scramble__ghost,
+.uipack-web-ticker[data-armed] > .uipack-web-scramble__ghost { color: transparent; }
 .uipack-web-scramble__live { pointer-events: none; }
 .uipack-web-scramble:not([data-done])[data-mode="scramble"] .uipack-web-scramble__live { font-variant-ligatures: none; }
 /* Big numbers use the display face. Its figures are proportional, so the count is laid over

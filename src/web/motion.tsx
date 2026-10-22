@@ -102,9 +102,13 @@ export function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag
   const inView = useInView(ref, { once: true, threshold: 0.5 });
   const [t, setT] = useState(1);
   const [tick, setTick] = useState(0);
+  // Server HTML and the first client render carry the final text once, as plain visible text, so
+  // crawlers and no-JS readers get one clean copy. The animated layer exists only after mount.
+  const [armed, setArmed] = useState(false);
   const started = useRef(false);
-  // Server and no-JS render the final text; once an observer can start the effect, wait unresolved.
+  // Once an observer can start the effect, wait unresolved.
   useEffect(() => {
+    setArmed(true);
     if (typeof IntersectionObserver !== "undefined" && !started.current) setT(0);
   }, []);
   useEffect(() => {
@@ -122,12 +126,20 @@ export function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag
   }, [reduced, inView, duration]);
   const shown = reduced || t >= 1 ? text : scrambleFrame(text, t, mode, tick);
   return (
-    <Tag ref={ref} className={`uipack-web-scramble ${className}`.trim()} data-mode={mode} data-done={shown === text || undefined}>
+    <Tag
+      ref={ref}
+      className={`uipack-web-scramble ${className}`.trim()}
+      data-mode={mode}
+      data-done={shown === text || undefined}
+      data-armed={armed || undefined}
+    >
       <span className="uipack-web-scramble__ghost">{text}</span>
-      <span className="uipack-web-scramble__live" aria-hidden="true">
-        {shown}
-        {mode === "type" && shown !== text && <span className="uipack-web-demo__caret" />}
-      </span>
+      {armed && (
+        <span className="uipack-web-scramble__live" aria-hidden="true">
+          {shown}
+          {mode === "type" && shown !== text && <span className="uipack-web-demo__caret" />}
+        </span>
+      )}
     </Tag>
   );
 }
@@ -160,9 +172,12 @@ export function NumberTicker({ value, from = 0, duration = 1400, format, locale,
   const reduced = usePrefersReducedMotion();
   const inView = useInView(ref, { once: true, threshold: 0.6 });
   const [current, setCurrent] = useState(value);
+  // Server HTML and the first client render carry the final value once, as plain visible text.
+  const [armed, setArmed] = useState(false);
   const started = useRef(false);
-  // Server and no-JS render the final value; once an observer can start the count, wait at `from`.
+  // Once an observer can start the count, wait at `from`.
   useEffect(() => {
+    setArmed(true);
     if (typeof IntersectionObserver !== "undefined" && !started.current) setCurrent(from);
   }, [from]);
   useEffect(() => {
@@ -181,11 +196,13 @@ export function NumberTicker({ value, from = 0, duration = 1400, format, locale,
   const final = `${prefix}${fmt.format(value)}${suffix}`;
   const live = `${prefix}${fmt.format(reduced ? value : current)}${suffix}`;
   return (
-    <span ref={ref} className={`uipack-web-ticker ${className}`.trim()} data-face={face}>
+    <span ref={ref} className={`uipack-web-ticker ${className}`.trim()} data-face={face} data-armed={armed || undefined}>
       <span className="uipack-web-scramble__ghost">{final}</span>
-      <span className="uipack-web-scramble__live" aria-hidden="true" data-testid="ticker-live">
-        {live}
-      </span>
+      {armed && (
+        <span className="uipack-web-scramble__live" aria-hidden="true" data-testid="ticker-live">
+          {live}
+        </span>
+      )}
     </span>
   );
 }
@@ -204,7 +221,8 @@ export interface MarqueeProps {
 /**
  * A logo or skill strip that scrolls. Pauses on hover, on focus, off screen and with its own
  * Pause button (moving content longer than five seconds needs one). Under reduced motion it is
- * a static, wrapping row. The duplicate copy is inert, so keyboard focus visits each item once.
+ * a static, wrapping row. The duplicate copy is inert, so keyboard focus visits each item once,
+ * and it is added after mount, so server HTML lists each item once.
  */
 export function Marquee({ items, label, duration = 30, reverse = false }: MarqueeProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -212,9 +230,12 @@ export function Marquee({ items, label, duration = 30, reverse = false }: Marque
   const inView = useInView(ref);
   const reduced = usePrefersReducedMotion();
   const [paused, setPaused] = useState(false);
+  // The looping copy is added after mount: server HTML lists each item once, for crawlers and no-JS.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   useEffect(() => {
     copyRef.current?.setAttribute("inert", "");
-  }, [reduced]);
+  }, [reduced, mounted]);
   const list = (copy: boolean) => (
     <ul className="uipack-web-marquee__list" ref={copy ? copyRef : undefined} aria-hidden={copy || undefined}>
       {items.map((item, i) => (
@@ -236,7 +257,7 @@ export function Marquee({ items, label, duration = 30, reverse = false }: Marque
       <div className="uipack-web-marquee__viewport">
         <div className="uipack-web-marquee__track">
           {list(false)}
-          {!reduced && list(true)}
+          {mounted && !reduced && list(true)}
         </div>
       </div>
       {!reduced && (

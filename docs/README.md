@@ -13,6 +13,7 @@
 Agent instructions live in [AGENTS.md](../AGENTS.md). Setup and verification live in the [root README](../README.md).
 - [Component-first workflow](component-first.md): build, register, verify, then consume significant UI.
 - [Web principles](web-principles.md): the Landing style's numbered rules (`uipack/web`), each with its number and source video, including motion and backgrounds.
+- [Web discoverability](web-discoverability.md): how a Landing page gets found and quoted by search and answer engines: the checklist, `pageMeta`, JSON-LD builders, `FAQ`, `buildCrawlFiles` (robots.txt with an AI-crawler stance, sitemap.xml, llms.txt), `fontPreloads`, and measured before/after numbers.
 - [Charts](charts.md): `SpanChart` (companies on the layers of a stack, with CSS-only layer, size and deals filters) and `LayerStack` (a bottom-up layer diagram with zone notes and cross-cutting rails), both static HTML with no JavaScript.
 - [Article parts](article.md): `uipack/article` (NoteCard, NoteCluster, LayerHead, TermList, Callout, ChangeNote, LinkList), the labelled blocks of a long article section, with the HTML and class contract for hosts that emit the markup without React.
 - [Product documentation layout](docs-layout.md): the `uipack/docs` shell, Markdown renderer, navigation, anchors, and responsive behavior.

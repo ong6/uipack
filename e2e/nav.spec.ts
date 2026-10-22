@@ -14,8 +14,9 @@ const ALL = GROUPS.flatMap((g) => g.pages.map(([label, path]) => ({ group: g.lab
 // /web renders a whole landing page, including its own hero h1, inside the shell, and
 // DeckShowcase still renders its own "Deck player" h1 and each slide an h1 beside the shell's. Both belong to
 // other branches; drop the deck entries once DeckShowcase stops rendering an h1.
-const EMBEDDED_H1 = new Set(["/web"]);
-const title = (page: Page) => page.locator(".showcase-title h1");
+// /web hosts a complete sample landing page: its hero is the one h1 and the shell title is plain text.
+const EMBEDDED_H1 = new Set<string>();
+const title = (page: Page) => page.locator(".showcase-title h1, .showcase-title .showcase-title__name");
 
 // Deck sub-views share one page title.
 const h1Of = (label: string) => (["Tech talk", "Bento", "Consulting"].includes(label) ? "Deck player" : label);
@@ -131,7 +132,7 @@ test.describe("headings", () => {
       if (EMBEDDED_H1.has(path)) await expect.poll(() => page.locator("h1").count()).toBeGreaterThanOrEqual(2);
       else await expect(page.locator("h1")).toHaveCount(1);
       await expect(title(page)).toHaveText(h1Of(label));
-      await expect(page.locator(".showcase-title p")).not.toBeEmpty();
+      await expect(page.locator(".showcase-title > p:not(.showcase-title__name)")).not.toBeEmpty();
       // Wait for the page body to render (lazy chunks) before reading the outline.
       await expect(page.locator(".showcase-shell > section, .showcase-shell > div:not(.showcase-title)").first()).toBeVisible();
       const headings = await outline(page);

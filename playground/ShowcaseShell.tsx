@@ -181,7 +181,11 @@ export function ShowcaseShell({
         )}
       </p>
       <div className="showcase-title">
-        <h1>{page.title ?? page.label}</h1>
+        {"hostsPage" in page && page.hostsPage ? (
+          <p className="showcase-title__name">{page.title ?? page.label}</p>
+        ) : (
+          <h1>{page.title ?? page.label}</h1>
+        )}
         <p>{page.intro}</p>
       </div>
       {children}

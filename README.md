@@ -41,7 +41,7 @@ export function RequestFlow() {
 }
 ```
 
-Separate entries, so a page loads only what it draws: `uipack` for parts, `uipack/presets` for ready figures, `uipack/charts` with `uipack/charts.css` for the span chart and layer stack, `uipack/article` with `uipack/article.css` for the labelled blocks of a long article, `uipack/presentations` for slide starters and speaker guides, `uipack/deck` with `uipack/deck.css` for the deck player, `uipack/web` with `uipack/web.css` for landing-page blocks, `uipack/mechanism` with `uipack/mechanism.css` for crafted isometric machines, and `uipack/browser` with `uipack/browser.css` for the asset browser.
+Separate entries, so a page loads only what it draws: `uipack` for parts, `uipack/presets` for ready figures, `uipack/charts` with `uipack/charts.css` for the span chart and layer stack, `uipack/article` with `uipack/article.css` for the labelled blocks of a long article, `uipack/presentations` for slide starters and speaker guides, `uipack/deck` with `uipack/deck.css` for the deck player, `uipack/web` with `uipack/web.css` for landing-page blocks (with head, JSON-LD, FAQ and crawl-file helpers: [web discoverability](docs/web-discoverability.md)), `uipack/mechanism` with `uipack/mechanism.css` for crafted isometric machines, and `uipack/browser` with `uipack/browser.css` for the asset browser.
 
 `uipack/docs` with `uipack/docs.css` provides a product-documentation shell and Markdown renderer: grouped navigation, a 680px prose column, an h2/h3 table of contents, mobile disclosure, heading anchors, and previous/next links. See the [docs layout guide](docs/docs-layout.md) and the rendered `/docs` gallery entry.
 

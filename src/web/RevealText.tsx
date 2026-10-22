@@ -48,7 +48,9 @@ export function RevealText({ text = "", lines, as: Tag = "p", className = "", st
           <span className="uipack-web-reveal__unit" style={{ "--i": i, "--stagger": `${stagger}ms` } as CSSProperties}>
             {u}
           </span>
-          {!byLine && i < units.length - 1 ? " " : null}
+          {/* A space between units, lines included: block lines collapse it visually, but text
+              extraction (crawlers, reader modes, copy) keeps words from running together. */}
+          {i < units.length - 1 ? " " : null}
         </Fragment>
       ))}
     </Tag>
