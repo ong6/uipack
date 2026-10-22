@@ -5,6 +5,9 @@ import { innerClipStart, smoothstep, zoomFrame, type Rect, type ZoomSample } fro
 export const CANVAS_WIDTH = 1920;
 export const CANVAS_HEIGHT = 1080;
 
+/** The zoom camera's cubic-bezier control points: one curve for the CSS (`deckMotion.camera`) and the sampled keyframes. */
+const CAMERA_CURVE = [0.3, 0.05, 0.25, 1] as const;
+
 /** The deck's one clock. Every transition and build reads these, so a deck moves consistently. */
 export const deckMotion = {
   quick: 160,
@@ -17,7 +20,7 @@ export const deckMotion = {
   exit: "cubic-bezier(0.4, 0, 1, 1)",
   travel: "cubic-bezier(0.55, 0, 0.15, 1)",
   /** The zoom camera's progress (in log scale): moving by 10% of the clock, landing softly. */
-  camera: "cubic-bezier(0.3, 0.05, 0.25, 1)",
+  camera: `cubic-bezier(${CAMERA_CURVE.join(", ")})`,
 } as const;
 
 /** A CSS cubic-bezier as a function of time, for sampled keyframes that need the eased value. */
@@ -40,7 +43,7 @@ export function cubicBezier(x1: number, y1: number, x2: number, y2: number) {
     return ((ay * t + by) * t + cy) * t;
   };
 }
-const cameraEase = cubicBezier(0.3, 0.05, 0.25, 1);
+const cameraEase = cubicBezier(...CAMERA_CURVE);
 
 export type { Rect } from "../zoom-math";
 
