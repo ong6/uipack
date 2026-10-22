@@ -537,6 +537,12 @@ test.describe("SpanChart at other widths", () => {
         await chart.locator('[data-item="hugging-face"] summary').tap();
         await noPageOverflow(page, width);
         expect(await smallestText(chart)).toBeGreaterThanOrEqual(11);
+        // Words, not marks, are 12px on a phone: the key's section labels and the deal badges.
+        const wordSizes = await chart
+          .locator(".uipack-span__key-label, .uipack-span__badge")
+          .evaluateAll((els) => els.filter((e) => e.getClientRects().length).map((e) => parseFloat(getComputedStyle(e).fontSize)));
+        expect(wordSizes.length).toBeGreaterThan(0);
+        expect(Math.min(...wordSizes)).toBeGreaterThanOrEqual(12);
         // Codes keep 8px apart, alternating lines where columns are narrow.
         for (const gap of await labelGaps(chart, "abbr")) expect(gap).toBeGreaterThanOrEqual(8);
         // No group squares where they would need a line of their own.

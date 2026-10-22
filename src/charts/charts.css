@@ -1252,6 +1252,15 @@
 }
 
 /* ==================== LayerStack ==================== */
+/* On a phone the chart's small print steps up to 12px: the key's section
+   labels and the deal badges, which read as words, not marks. */
+@container uipack-span (max-width: 639.98px) {
+  .uipack-span .uipack-span__key-label,
+  .uipack-span .uipack-span__drawer .uipack-span__key > li > .uipack-span__key-label,
+  .uipack-span .uipack-span__badge {
+    font-size: 12px;
+  }
+}
 /* The site's diagram language: bands are nodes (raised fill, 1.25px edge at
    70% ink, the shared radius) that link to their sections; zones are dashed
    group boxes labelled inside at the top left; rails are bracket connectors,
