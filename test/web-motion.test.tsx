@@ -248,6 +248,24 @@ describe("scroll and reveal", () => {
     );
     expect(plain.container.firstElementChild).toHaveAttribute("data-state", "static");
   });
+  it("clears the timer fallback on unmount when requestAnimationFrame is missing", () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("requestAnimationFrame", undefined);
+    vi.stubGlobal("cancelAnimationFrame", undefined);
+    try {
+      const { unmount } = render(
+        <ScrollTransform rotate={[-10, 10]}>
+          <i />
+        </ScrollTransform>,
+      );
+      window.dispatchEvent(new Event("scroll"));
+      expect(vi.getTimerCount()).toBe(1);
+      unmount();
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
 });
 
 describe("withViewTransition", () => {
