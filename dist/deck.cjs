@@ -427,7 +427,7 @@ function useCanvasScale() {
     const measure = () => setScale(node.clientWidth / CANVAS_WIDTH);
     measure();
     if (typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(measure);
+    const ro = new ResizeObserver(() => reactDom.flushSync(measure));
     ro.observe(node);
     return () => ro.disconnect();
   }, [node]);

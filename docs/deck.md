@@ -138,7 +138,7 @@ Keys work while the deck has focus (`keyboard="focus"`, the default) or anywhere
 
 All slides is a modal dialog: Tab and Shift+Tab cycle through its own controls (in every browser, WebKit included), Escape or a click on its background closes it and returns focus to the All slides button, picking a slide focuses the deck (so Space moves on), and the rest of the page is inert while it is open.
 
-The stage never grows taller than the viewport leaves for it, so the slide and its controls fit on one screen: its width is capped at `(100svh − --deck-chrome) × 16/9`. `--deck-chrome` defaults to 76px (the controls); set it on the deck or an ancestor to include a page header above the deck, as the playground does.
+The stage never grows taller than the viewport leaves for it, so the slide and its controls fit on one screen: its width is capped at `(100svh − --deck-chrome) × 16/9`. `--deck-chrome` defaults to 76px (the controls); set it on the deck or an ancestor to include a page header above the deck, as the playground does. The controls share the stage's width, so their right edge (Full screen) lines up with the slide's; when the slide is too narrow for one row, the tools move to a second row, right-aligned, and the host should count that row in `--deck-chrome` (the playground measures the controls' height).
 
 ## Speaker view
 

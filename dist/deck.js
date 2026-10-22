@@ -3,7 +3,7 @@ import { zoomFrame, innerClipStart, smoothstep } from './chunk-VZ4PJUMF.js';
 import { usePrefersReducedMotion, useIsoLayoutEffect } from './chunk-KYO6UXHN.js';
 import { createContext, useContext, useState, useRef, useCallback, useEffect, Children, isValidElement, forwardRef } from 'react';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { createPortal } from 'react-dom';
+import { flushSync, createPortal } from 'react-dom';
 
 // src/deck/player/format.ts
 var railAt = (i, count) => `${count > 1 ? i / (count - 1) * 100 : 0}%`;
@@ -425,7 +425,7 @@ function useCanvasScale() {
     const measure = () => setScale(node.clientWidth / CANVAS_WIDTH);
     measure();
     if (typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(measure);
+    const ro = new ResizeObserver(() => flushSync(measure));
     ro.observe(node);
     return () => ro.disconnect();
   }, [node]);
