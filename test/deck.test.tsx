@@ -429,7 +429,7 @@ describe("DeckPlayer", () => {
     expect(screen.getByText("Say the first thing.")).toBeInTheDocument();
     expect(screen.getByText("Walk the two points.")).toBeInTheDocument();
     act(() => {
-      fireEvent.click(screen.getByRole("button", { name: "Present from slide 2: Three points" }));
+      fireEvent.click(screen.getByRole("button", { name: "Present from here, slide 2: Three points" }));
     });
     expect(current()).toBe("1");
     expect(deck().querySelector(".uipack-deck-stage")).not.toBeNull();

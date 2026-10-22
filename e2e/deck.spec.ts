@@ -99,7 +99,7 @@ test.describe("/deck player", () => {
     test(`Read then Present shows a scaled slide at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await page.goto("/deck?view=read");
-      await page.getByRole("button", { name: /Present from slide 3/ }).click();
+      await page.getByRole("button", { name: /Present from here, slide 3/ }).click();
       await expect(deck(page)).toHaveAttribute("data-index", "2");
       const canvas = page.locator(".uipack-deck-stage .uipack-deck-canvas");
       await expect(canvas).toBeVisible();
@@ -120,7 +120,7 @@ test.describe("/deck player", () => {
 
     test("Present from here brings the stage on screen, and Read returns to that slide, focused", async ({ page }) => {
       await page.goto("/deck");
-      const fromFive = page.getByRole("button", { name: /Present from slide 5/ });
+      const fromFive = page.getByRole("button", { name: /Present from here, slide 5/ });
       await fromFive.scrollIntoViewIfNeeded();
       await fromFive.tap();
       await expect(deck(page)).toHaveAttribute("data-index", "4");
@@ -131,7 +131,7 @@ test.describe("/deck player", () => {
       await expect(page.locator(".uipack-deck-controls")).toBeInViewport();
 
       await page.getByRole("button", { name: "Read", exact: true }).tap();
-      const back = page.getByRole("button", { name: /Present from slide 5/ });
+      const back = page.getByRole("button", { name: /Present from here, slide 5/ });
       await expect(back).toBeFocused();
       await expect(back).toBeInViewport();
       const item = page.locator(".uipack-deck-read > ol > li").nth(4);
@@ -363,7 +363,7 @@ test.describe("/deck player", () => {
     await expect(page.getByText("Reading · 7 slides")).toBeVisible();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
-    await page.getByRole("button", { name: /Present from slide 3/ }).click();
+    await page.getByRole("button", { name: /Present from here, slide 3/ }).click();
     await expect(deck(page)).toHaveAttribute("data-index", "2");
     const controlsOverflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     expect(controlsOverflow).toBeLessThanOrEqual(0);
