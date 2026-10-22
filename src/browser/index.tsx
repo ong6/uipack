@@ -165,7 +165,7 @@ export function AssetBrowser({
                 <button
                   type="button"
                   className="uipack-browser__action"
-                  onClick={() => act(a)}
+                  onClick={() => void act(a)}
                   aria-label={`${actionLabel} ${a.name}`}
                   data-flash={flash === a.id ? "true" : undefined}
                 >

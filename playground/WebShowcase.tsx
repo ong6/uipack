@@ -673,7 +673,7 @@ function ViewTransitionDemo() {
         <CtaButton
           variant="secondary"
           aria-pressed={yearly}
-          onClick={() => withViewTransition(() => flushSync(() => setYearly((y) => !y)))}
+          onClick={() => void withViewTransition(() => flushSync(() => setYearly((y) => !y)))}
         >
           {yearly ? "Show monthly" : "Show yearly"}
         </CtaButton>
@@ -693,7 +693,7 @@ function PaintTransitionDemo({ theme, flip }: { theme: "light" | "dark"; flip: (
         <span />
       </div>
       <div className="web-buttons">
-        <CtaButton variant="secondary" onClick={() => withPaintTransition(() => flushSync(flip))}>
+        <CtaButton variant="secondary" onClick={() => void withPaintTransition(() => flushSync(flip))}>
           {theme === "dark" ? "Pour light theme" : "Pour dark theme"}
         </CtaButton>
       </div>
