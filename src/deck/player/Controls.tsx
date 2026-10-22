@@ -66,23 +66,39 @@ export function Controls({
         )}
         {mode === "audience" && (
           <button type="button" onClick={onPrint} title="Download as PDF or print: one slide per 16:9 page">
-            PDF / Print
+            <Label long="PDF / Print" short="PDF" />
           </button>
         )}
         <button type="button" ref={overviewButtonRef} onClick={onOverview} aria-keyshortcuts="G">
-          All slides
+          <Label long="All slides" short="Slides" />
         </button>
         {mode === "audience" && (
           <button type="button" onClick={onPresenter} aria-keyshortcuts="S">
-            Speaker view
+            <Label long="Speaker view" short="Speaker" />
           </button>
         )}
         {canFullscreen && (
           <button type="button" onClick={onFullscreen} aria-keyshortcuts="F" aria-pressed={fullscreen}>
-            {fullscreen ? "Exit full screen" : "Full screen"}
+            {fullscreen ? <Label long="Exit full screen" short="Exit" /> : "Full screen"}
           </button>
         )}
       </span>
     </div>
+  );
+}
+
+/**
+ * A tool's name, with a shorter form for a narrow bar (deck.css swaps them by the bar's width), so
+ * the tools keep to the counter's row under a laptop-sized slide. The full name stays the button's
+ * accessible name, and it contains the short one, so voice control finds it by what it shows.
+ */
+function Label({ long, short }: { long: string; short: string }) {
+  return (
+    <>
+      <span className="uipack-deck-tool-long">{long}</span>
+      <span className="uipack-deck-tool-short" aria-hidden="true">
+        {short}
+      </span>
+    </>
   );
 }

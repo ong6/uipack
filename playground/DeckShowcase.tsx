@@ -85,19 +85,29 @@ const moves = [
   ["fade / none", "Jumps", "Overview jumps and Home/End crossfade. none cuts."],
 ];
 
+/** The width kept for the column beside the slide in the side layout, with the gap before it. */
+const SIDE_COLUMN = 340;
+/** The page height around a slide that sits under the intro: header, title, intro and controls. */
+const STACKED_CHROME = 484;
+
 /**
  * Keeps the slide and its controls on the first screen: the stage may be as tall as the viewport
- * leaves below the page header and the controls (deck.css reads --deck-chrome). The controls are
- * capped to the stage's width, so on a short window they wrap onto a second row; their measured
- * height keeps that row on screen too. (A wrap only shrinks the stage, so it settles at once.)
+ * leaves below the page header and the controls (deck.css reads --deck-chrome).
+ *
+ * Under the intro on a wide, short window (a laptop), the slide would be height-bound and leave a
+ * third of the column empty beside it. There the page takes its side layout (`data-layout="side"`,
+ * deck-showcase.css): the slide starts right under the title, as wide as the window's height allows,
+ * and the intro and the reference tables sit in a column beside it. The choice reads only the
+ * window and the column, never the layout it makes, so it cannot flip back and forth. The controls'
+ * measured height is counted too, should they wrap.
  */
 function useFitBelowHeader() {
   const ref = useRef<HTMLElement>(null);
   useLayoutEffect(() => {
     const el = ref.current;
-    if (!el) return;
-    // The deck mounts after this page (it is lazy), so the controls are found, and observed, when
-    // they appear: the page's own box changes size then.
+    const main = el?.closest("main");
+    if (!el || !main) return;
+    // The controls are found, and observed, when they appear; main's box changes size then.
     let watched: Element | null = null;
     const ro = typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(() => fit());
     const fit = () => {
@@ -106,15 +116,31 @@ function useFitBelowHeader() {
         if (watched) ro.unobserve(watched);
         ro.observe((watched = controls));
       }
-      const below = controls ? controls.offsetHeight + 14 + 22 : 80;
-      el.style.setProperty("--deck-chrome", `${Math.round(el.getBoundingClientRect().top + window.scrollY + below)}px`);
+      const column = main.clientWidth;
+      const stacked = Math.min(column, ((window.innerHeight - STACKED_CHROME) * 16) / 9);
+      const side = window.innerWidth >= 960 && stacked <= column - SIDE_COLUMN;
+      if ((el.dataset.layout === "side") !== side) {
+        if (side) el.dataset.layout = "side";
+        else delete el.dataset.layout;
+      }
+      // The deck, not the section: in the side layout the section has no box of its own.
+      const deck = el.querySelector(".uipack-deck") ?? el;
+      const top = deck.getBoundingClientRect().top + window.scrollY;
+      // On main, whose grid sizes the slide's column from it in the side layout. One row of controls
+      // first; if they still wrap at the width that gives, their measured height. (Trying one row
+      // each time means a window made taller gets the larger slide back once the row fits again.)
+      const chrome = (controlsHeight: number) =>
+        main.style.setProperty("--deck-chrome", `${Math.round(top + controlsHeight + 14 + 22)}px`);
+      chrome(44);
+      if (controls && controls.offsetHeight > 48) chrome(controls.offsetHeight);
     };
     fit();
-    ro?.observe(el);
+    ro?.observe(main);
     window.addEventListener("resize", fit);
     return () => {
       window.removeEventListener("resize", fit);
       ro?.disconnect();
+      main.style.removeProperty("--deck-chrome");
     };
   }, []);
   return ref;

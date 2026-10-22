@@ -12,6 +12,45 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
   gap: 32px;
 }
+/* Side layout, on a wide, short window (useFitBelowHeader in DeckShowcase.tsx): the slide and its
+   controls take the left column, as wide as the window's height allows, starting right under the
+   title; the intro and the reference tables run down a column beside it. The title block and the
+   page's section give their children to main's grid; the reading order stays title, intro, deck,
+   reference. */
+.showcase-shell:has(> .deck-showcase[data-layout="side"]) {
+  grid-template-columns:
+    minmax(0, min(100% - 340px, (100svh - var(--deck-chrome, 76px)) * 16 / 9))
+    minmax(0, 1fr);
+  column-gap: 40px;
+  align-items: start;
+}
+.showcase-shell:has(> .deck-showcase[data-layout="side"]) > * {
+  grid-column: 1 / -1;
+}
+.showcase-shell:has(> .deck-showcase[data-layout="side"]) > :is(.showcase-title, .deck-showcase) {
+  display: contents;
+}
+.showcase-shell:has(> .deck-showcase[data-layout="side"]) > .showcase-title > h1 {
+  grid-column: 1 / -1;
+  margin-top: -8px;
+}
+.showcase-shell:has(> .deck-showcase[data-layout="side"]) > .showcase-title > p {
+  grid-column: 2;
+  margin: 0;
+}
+.showcase-shell:has(> .deck-showcase[data-layout="side"]) > .showcase-title > p:not(.showcase-title__note) {
+  grid-row: 3;
+}
+.deck-showcase[data-layout="side"] > .uipack-deck {
+  grid-column: 1;
+  grid-row: 3 / span 4;
+  margin: 0;
+}
+.deck-showcase[data-layout="side"] > .deck-showcase__reference {
+  grid-column: 2;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+}
 .deck-showcase__reference h2 {
   margin: 0 0 8px;
   font-size: 20px;
@@ -50,7 +89,7 @@
   font: var(--show-control-font);
 }
 /* Under a narrow slide the tools tighten to the small control size, as the library's do. */
-@container (max-width: 760px) {
+@container (max-width: 860px) {
   :is(.deck-showcase, .deck-speaker-page) .uipack-deck-tools button {
     font: var(--show-control-font-sm);
   }

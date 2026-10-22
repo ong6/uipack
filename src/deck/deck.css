@@ -383,10 +383,33 @@
   margin-left: auto;
 }
 /* Under a narrow slide the tools tighten, so they keep to one row of their own. */
-@container (max-width: 760px) {
+@container (max-width: 860px) {
   .uipack-deck-tools button {
     padding: 0 9px;
     font-size: 12px;
+  }
+}
+/* A tool's short name (PDF, Slides, Speaker) shows only under a laptop-sized slide or narrower,
+   where it keeps the tools on the counter's row; the full name stays the accessible name. */
+.uipack-deck-tool-short {
+  display: none;
+}
+@container (max-width: 790px) {
+  .uipack-deck-rail {
+    flex-basis: 32px;
+    min-width: 32px;
+    margin: 0 4px;
+  }
+  .uipack-deck-tool-short {
+    display: inline;
+  }
+  .uipack-deck-tool-long {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 }
 @media (max-width: 640px) {
