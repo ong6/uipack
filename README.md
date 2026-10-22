@@ -41,11 +41,11 @@ export function RequestFlow() {
 }
 ```
 
-Separate entries, so a page loads only what it draws: `uipack` for parts, `uipack/presets` for ready figures, `uipack/charts` with `uipack/charts.css` for the span chart and layer stack, `uipack/article` with `uipack/article.css` for the labelled blocks of a long article, `uipack/presentations` for slide starters and speaker guides, `uipack/web` with `uipack/web.css` for landing-page blocks, and `uipack/browser` with `uipack/browser.css` for the asset browser.
+Separate entries, so a page loads only what it draws: `uipack` for parts, `uipack/presets` for ready figures, `uipack/charts` with `uipack/charts.css` for the span chart and layer stack, `uipack/article` with `uipack/article.css` for the labelled blocks of a long article, `uipack/presentations` for slide starters and speaker guides, `uipack/deck` with `uipack/deck.css` for the deck player, `uipack/web` with `uipack/web.css` for landing-page blocks, and `uipack/browser` with `uipack/browser.css` for the asset browser.
 
 `uipack/docs` with `uipack/docs.css` provides a product-documentation shell and Markdown renderer: grouped navigation, a 680px prose column, an h2/h3 table of contents, mobile disclosure, heading anchors, and previous/next links. See the [docs layout guide](docs/docs-layout.md) and the rendered `/docs` gallery entry.
 
-`npm run dev` opens a playground: `/` renders the Habitat example, every part, the layer stack and span chart, and every preset; `/assets` renders the asset browser; `/animations` renders the 3D animation collection (`/slides` remains an alias), `/presentations` shows a complete narrative example, `/web` shows the Landing web building blocks, `/article` shows the article parts in a host article, and `/styles` indexes visual styles.
+`npm run dev` opens a playground: `/` renders the Habitat example, every part, the layer stack and span chart, and every preset; `/assets` renders the asset browser; `/animations` renders the 3D animation collection (`/slides` remains an alias), `/presentations` shows a complete narrative example, `/deck` plays an example deck, `/web` shows the Landing web building blocks, `/article` shows the article parts in a host article, and `/styles` indexes visual styles.
 
 ## Charts
 
@@ -181,6 +181,10 @@ Every class and token is scoped under `.uipack-web`; there are no global element
 `uipack/presentations` exports typed Opening, Explanation, and System layouts. Each slide carries its visible content and a separate speaker guide with the words to say, a delivery cue, and an optional bridge. `SlideStarter` renders both; `renderSlideSvg` creates a self-contained editable 16:9 SVG without speaker notes.
 
 [Presentation starter API and example](docs/presentations.md).
+
+## Deck player
+
+`uipack/deck` presents a deck consistently: a 1920×1080 canvas, one transition grammar (advance by default, morph for the same thing changing, zoom into a part), builds, an overview with a storyline view, full screen, a synced speaker window and a read view for phones and async readers. Slides carry a role and an action headline, and `lintDeck` checks the argument. [Deck player](docs/deck.md) · [Deck storytelling](docs/deck-storytelling.md).
 
 ## Parts
 

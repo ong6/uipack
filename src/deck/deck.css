@@ -1,0 +1,686 @@
+/* uipack/deck — the deck player and the slide parts it ships. Sizes inside slides are canvas
+   pixels on a 1920×1080 canvas; the player scales the canvas to fit. */
+
+.uipack-deck {
+  --deck-bg: #f6f5f1;
+  --deck-surface: #ffffff;
+  --deck-fg: #1a1c1a;
+  --deck-muted: #5c625e;
+  --deck-rule: #c4ccc6;
+  --deck-accent: #205f49;
+  --deck-node: #fbfaf6;
+  --deck-sans: var(--font-sans, "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+  --deck-mono: var(--font-mono, "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+  --deck-settle: cubic-bezier(0.2, 0.7, 0.2, 1);
+  position: relative;
+  color: var(--deck-fg);
+  font-family: var(--deck-sans);
+  outline: none;
+}
+.uipack-deck[data-theme="dark"] {
+  --deck-bg: #0a100d;
+  --deck-surface: #14201b;
+  --deck-fg: #e8ece9;
+  --deck-muted: #aeb8b2;
+  --deck-rule: #34443b;
+  --deck-accent: #71dcb2;
+  --deck-node: #0e1512;
+}
+.uipack-deck:focus-visible {
+  outline: 2px solid var(--deck-accent);
+  outline-offset: 6px;
+  border-radius: 6px;
+}
+.uipack-deck *,
+.uipack-deck *::before,
+.uipack-deck *::after {
+  box-sizing: border-box;
+}
+
+/* Tones: an inverse "ink" slide and an "accent" slide, in both themes. */
+.uipack-deck [data-tone="ink"] {
+  --deck-bg: #111814;
+  --deck-surface: #18221d;
+  --deck-fg: #eef1ee;
+  --deck-muted: #a9b3ad;
+  --deck-rule: #3a4a41;
+  --deck-accent: #71dcb2;
+  --deck-node: #18221d;
+}
+.uipack-deck[data-theme="dark"] [data-tone="ink"] {
+  --deck-bg: #e8ece9;
+  --deck-surface: #ffffff;
+  --deck-fg: #0e1512;
+  --deck-muted: #4c5751;
+  --deck-rule: #b5c0b9;
+  --deck-accent: #205f49;
+  --deck-node: #f6f5f1;
+}
+.uipack-deck [data-tone="accent"] {
+  --deck-bg: #205f49;
+  --deck-surface: #2a6b54;
+  --deck-fg: #f6f5f1;
+  --deck-muted: #cfe3d9;
+  --deck-rule: #5b927d;
+  --deck-accent: #f6f5f1;
+  --deck-node: #2a6b54;
+}
+.uipack-deck[data-theme="dark"] [data-tone="accent"] {
+  --deck-bg: #71dcb2;
+  --deck-surface: #8fe4c3;
+  --deck-fg: #07110c;
+  --deck-muted: #1d4a38;
+  --deck-rule: #3f9c78;
+  --deck-accent: #07110c;
+  --deck-node: #8fe4c3;
+}
+
+/* Stage and canvas */
+.uipack-deck-stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--deck-rule);
+  border-radius: 6px;
+  background: var(--deck-bg);
+  transition: background-color 560ms var(--deck-settle);
+  touch-action: pan-y pinch-zoom;
+}
+.uipack-deck-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: 0 0;
+}
+.uipack-deck-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: var(--deck-fg);
+  font-family: var(--deck-sans);
+}
+.uipack-deck-layer__bg {
+  position: absolute;
+  inset: 0;
+  background: var(--deck-bg);
+}
+.uipack-deck-layer > :not(.uipack-deck-layer__bg, .uipack-deck-slide) {
+  position: relative; /* paint above the absolutely positioned background */
+}
+
+/* Slide frame and type, in canvas pixels */
+.uipack-deck-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 112px 144px 88px;
+}
+.uipack-deck-slide[data-layout="center"] > :first-child {
+  margin-top: auto;
+}
+.uipack-deck-slide[data-layout="split"] {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  column-gap: 112px;
+  align-items: start;
+}
+.uipack-deck-slide[data-layout="split"] > .uipack-deck-eyebrow,
+.uipack-deck-slide[data-layout="split"] > .uipack-deck-footer {
+  grid-column: 1 / -1;
+}
+.uipack-deck-eyebrow,
+.uipack-deck-label {
+  margin: 0;
+  font: 600 24px/1.3 var(--deck-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.uipack-deck-eyebrow {
+  margin-bottom: 44px;
+  color: var(--deck-accent);
+}
+.uipack-deck-label {
+  color: var(--deck-muted);
+  font-size: 22px;
+  letter-spacing: 0.1em;
+}
+.uipack-deck-title,
+.uipack-deck-heading {
+  margin: 0;
+  font-weight: 650;
+  text-wrap: balance;
+}
+.uipack-deck-title {
+  max-width: 15ch;
+  font-size: 120px;
+  line-height: 1.02;
+  letter-spacing: -0.038em;
+}
+.uipack-deck-heading {
+  max-width: 22ch;
+  font-size: 76px;
+  line-height: 1.08;
+  letter-spacing: -0.028em;
+}
+.uipack-deck-lede {
+  max-width: 34ch;
+  margin: 44px 0 0;
+  color: var(--deck-muted);
+  font-size: 42px;
+  line-height: 1.38;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+.uipack-deck-body {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+.uipack-deck-number {
+  margin: 0;
+  font-weight: 600;
+  font-size: 360px;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  font-variant-numeric: tabular-nums;
+}
+.uipack-deck-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1.5px solid var(--deck-rule);
+  color: var(--deck-muted);
+  font: 500 20px/1.4 var(--deck-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Diagram node on a slide: the same spec as UI Pack figures, at slide scale. */
+.uipack-deck-node {
+  display: grid;
+  align-content: center;
+  gap: 10px;
+  padding: 28px 32px;
+  border: 2px solid color-mix(in srgb, var(--deck-fg) 70%, transparent);
+  border-radius: 10px;
+  background: var(--deck-node);
+}
+.uipack-deck-node > b {
+  font: 600 24px/1.2 var(--deck-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.uipack-deck-node > span {
+  color: var(--deck-muted);
+  font-size: 26px;
+  line-height: 1.35;
+}
+.uipack-deck-node[data-accent] {
+  border-color: var(--deck-accent);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--deck-accent) 18%, transparent);
+}
+
+/* Builds */
+.uipack-deck [data-build] {
+  transition:
+    opacity 320ms var(--deck-settle),
+    transform 420ms var(--deck-settle);
+}
+.uipack-deck [data-build]:not([data-built]) {
+  opacity: 0;
+  transform: translateY(18px);
+}
+.uipack-deck[data-motion="none"] [data-build] {
+  transition: opacity 160ms linear;
+  transform: none;
+}
+
+/* Controls: arrows, the progress rail with square stops, the counter and tools */
+.uipack-deck-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  margin-top: 14px;
+}
+.uipack-deck-controls button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--deck-rule);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--deck-fg);
+  font: 500 13px/1 var(--deck-mono);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.uipack-deck-controls button:hover:not(:disabled) {
+  border-color: var(--deck-accent);
+  color: var(--deck-accent);
+}
+.uipack-deck-controls button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.uipack-deck-controls button:focus-visible,
+.uipack-deck-overview__head button:focus-visible,
+.uipack-deck-overview__grid > li > button:focus-visible,
+.uipack-deck-presenter__side button:focus-visible {
+  outline: 2px solid var(--deck-accent);
+  outline-offset: 2px;
+}
+.uipack-deck-step {
+  padding: 0;
+  font-size: 18px;
+}
+.uipack-deck-rail {
+  position: relative;
+  flex: 1 1 48px;
+  min-width: 48px;
+  height: 44px;
+  margin: 0 10px;
+}
+.uipack-deck-rail::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--deck-rule);
+}
+.uipack-deck-rail > span,
+.uipack-deck-rail > i {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.uipack-deck-rail > span {
+  width: 5px;
+  height: 5px;
+  background: var(--deck-rule);
+}
+.uipack-deck-rail > span[data-passed] {
+  background: var(--deck-muted);
+}
+.uipack-deck-rail > i {
+  width: 11px;
+  height: 11px;
+  background: var(--deck-accent);
+  transition: left 560ms var(--deck-settle);
+}
+.uipack-deck[data-motion="none"] .uipack-deck-rail > i {
+  transition: none;
+}
+.uipack-deck-counter {
+  min-width: 7ch;
+  color: var(--deck-muted);
+  font: 500 13px/1 var(--deck-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+.uipack-deck-tools {
+  display: flex;
+  gap: 8px;
+}
+@media (max-width: 640px) {
+  .uipack-deck-tools {
+    flex: 1 0 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .uipack-deck-tools button {
+    padding: 0 8px;
+  }
+}
+.uipack-deck-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Full screen: the stage fills the screen, letterboxed; controls appear on hover or focus. */
+.uipack-deck:fullscreen {
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  height: 100vh;
+  background: #050806;
+}
+.uipack-deck:fullscreen .uipack-deck-stage {
+  width: min(100vw, calc(100vh * 16 / 9));
+  border: 0;
+  border-radius: 0;
+}
+.uipack-deck:fullscreen .uipack-deck-controls {
+  position: fixed;
+  right: 16px;
+  bottom: 12px;
+  left: 16px;
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--deck-bg) 92%, transparent);
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.uipack-deck:fullscreen .uipack-deck-controls:hover,
+.uipack-deck:fullscreen .uipack-deck-controls:focus-within {
+  opacity: 1;
+}
+
+/* Overview */
+.uipack-deck-overview {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow: auto;
+  padding: 24px clamp(16px, 4vw, 48px) 48px;
+  background: var(--deck-bg);
+}
+.uipack-deck-overview__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1280px;
+  margin: 0 auto 20px;
+}
+.uipack-deck-overview__head p {
+  margin: 0;
+  color: var(--deck-muted);
+  font: 600 13px/1 var(--deck-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.uipack-deck-overview__head button,
+.uipack-deck-overview__grid > li > button,
+.uipack-deck-presenter__side button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--deck-rule);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--deck-fg);
+  font: 500 13px/1 var(--deck-mono);
+  cursor: pointer;
+}
+.uipack-deck-overview__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+  gap: 20px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+.uipack-deck-overview__grid > li > button {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 8px 12px;
+  border-radius: 6px;
+  text-align: left;
+}
+.uipack-deck-overview__grid > li > button[aria-current="true"] {
+  border-color: var(--deck-accent);
+  box-shadow: 0 0 0 1px var(--deck-accent);
+}
+.uipack-deck-overview__grid > li > button > span {
+  font: 400 14px/1.4 var(--deck-sans);
+}
+.uipack-deck-overview__grid > li > button > span > b {
+  margin-right: 6px;
+  color: var(--deck-muted);
+  font: 600 12px/1 var(--deck-mono);
+}
+.uipack-deck-thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--deck-rule);
+  border-radius: 4px;
+  background: var(--deck-bg);
+  pointer-events: none;
+}
+
+/* Speaker view */
+.uipack-deck-presenter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+  gap: 24px;
+  align-items: start;
+}
+.uipack-deck-presenter__side {
+  display: grid;
+  gap: 20px;
+}
+.uipack-deck-presenter__side h3 {
+  margin: 0 0 8px;
+  color: var(--deck-accent);
+  font: 600 12px/1.4 var(--deck-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.uipack-deck-presenter__notes > p {
+  margin: 0 0 16px;
+  font-size: 18px;
+  line-height: 1.6;
+}
+.uipack-deck-presenter__clock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-block: 1px solid var(--deck-rule);
+}
+.uipack-deck-presenter__clock span {
+  font: 500 36px/1 var(--deck-mono);
+  font-variant-numeric: tabular-nums;
+}
+.uipack-deck-presenter__end {
+  margin: 0;
+  color: var(--deck-muted);
+}
+@media (max-width: 900px) {
+  .uipack-deck-presenter {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Read view: the deck as a document */
+.uipack-deck-read__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.uipack-deck-read__head p {
+  margin: 0;
+  color: var(--deck-muted);
+  font: 600 13px/1 var(--deck-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.uipack-deck-read > ol {
+  display: grid;
+  gap: 40px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.uipack-deck-read > ol > li {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(220px, 2fr);
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .uipack-deck-read > ol > li {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+.uipack-deck-read__notes h3 {
+  margin: 0 0 8px;
+  font-size: 17px;
+  line-height: 1.35;
+}
+.uipack-deck-read__notes h3 span {
+  margin-right: 6px;
+  color: var(--deck-muted);
+  font: 600 12px/1 var(--deck-mono);
+}
+.uipack-deck-read__notes p {
+  margin: 0 0 12px;
+  color: var(--deck-muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.uipack-deck-read button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--deck-rule);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--deck-fg);
+  font: 500 13px/1 var(--deck-mono);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.uipack-deck-read button:hover {
+  border-color: var(--deck-accent);
+  color: var(--deck-accent);
+}
+.uipack-deck-read button:focus-visible {
+  outline: 2px solid var(--deck-accent);
+  outline-offset: 2px;
+}
+
+/* Overview tabs and the storyline (ghost deck) */
+.uipack-deck-overview__tabs {
+  display: flex;
+  gap: 8px;
+}
+.uipack-deck-overview__tabs button[aria-pressed="true"] {
+  border-color: var(--deck-fg);
+  box-shadow: inset 0 -2px 0 var(--deck-accent);
+}
+.uipack-deck-storyline {
+  max-width: 920px;
+  margin: 0 auto;
+}
+.uipack-deck-storyline__intro {
+  margin: 0 0 16px;
+  color: var(--deck-muted);
+  font-size: 15px;
+}
+.uipack-deck-storyline > ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--deck-rule);
+}
+.uipack-deck-storyline > ol > li {
+  border-bottom: 1px solid var(--deck-rule);
+}
+.uipack-deck-storyline > ol > li[data-appendix] {
+  opacity: 0.6;
+}
+.uipack-deck-storyline > ol > li > button {
+  display: grid;
+  grid-template-columns: 3ch 13ch 1fr;
+  gap: 12px;
+  align-items: baseline;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--deck-fg);
+  text-align: left;
+  cursor: pointer;
+}
+.uipack-deck-storyline > ol > li > button:hover {
+  background: color-mix(in srgb, var(--deck-accent) 8%, transparent);
+}
+.uipack-deck-storyline > ol > li > button:focus-visible {
+  outline: 2px solid var(--deck-accent);
+  outline-offset: -2px;
+}
+.uipack-deck-storyline > ol > li > button[aria-current="true"] {
+  box-shadow: inset 3px 0 0 var(--deck-accent);
+}
+.uipack-deck-storyline__num,
+.uipack-deck-storyline__role {
+  color: var(--deck-muted);
+  font: 600 12px/1.4 var(--deck-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.uipack-deck-storyline__title {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+@media (max-width: 640px) {
+  .uipack-deck-storyline > ol > li > button {
+    grid-template-columns: 3ch 1fr;
+  }
+  .uipack-deck-storyline__title {
+    grid-column: 1 / -1;
+  }
+}
+.uipack-deck-storyline__findings {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 12px;
+  padding: 0 8px 0 calc(3ch + 20px);
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.uipack-deck-storyline > .uipack-deck-storyline__findings {
+  padding-left: 0;
+}
+.uipack-deck-storyline__findings b {
+  margin-right: 6px;
+  font: 700 11px/1 var(--deck-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.uipack-deck-storyline__findings [data-severity="error"] b {
+  color: #b42318;
+}
+.uipack-deck[data-theme="dark"] .uipack-deck-storyline__findings [data-severity="error"] b {
+  color: #ff8a7a;
+}
+.uipack-deck-storyline__findings [data-severity="warn"] b {
+  color: var(--deck-fg);
+}
+.uipack-deck-storyline__findings [data-severity="tip"] b {
+  color: var(--deck-muted);
+}
+.uipack-deck-presenter__role {
+  margin: 0 0 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--deck-rule);
+  color: var(--deck-muted);
+  font-size: 15px;
+}
+.uipack-deck-presenter__role b {
+  color: var(--deck-fg);
+}

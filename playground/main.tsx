@@ -10,6 +10,7 @@ const Slides = lazy(() => import("./SlideShowcase"));
 const Web = lazy(() => import("./WebShowcase"));
 const Docs = lazy(() => import("./DocsShowcase"));
 const Article = lazy(() => import("./ArticleShowcase"));
+const Deck = lazy(() => import("./DeckShowcase"));
 
 const params = new URLSearchParams(location.search);
 const theme = params.get("theme");
@@ -30,6 +31,10 @@ createRoot(document.getElementById("root")!).render(
     ) : location.pathname.replace(/\/$/, "") === "/docs" ? (
       <Suspense fallback={<p>Loading docs layout…</p>}>
         <Docs />
+      </Suspense>
+    ) : location.pathname.replace(/\/$/, "") === "/deck" ? (
+      <Suspense fallback={<p>Loading deck…</p>}>
+        <Deck />
       </Suspense>
     ) : location.pathname.replace(/\/$/, "") === "/article" ? (
       <Suspense fallback={<p>Loading article parts…</p>}>

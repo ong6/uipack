@@ -28,6 +28,7 @@ export const libraryPages = [
   { id: "assets", label: "Assets", path: "/assets" },
   { id: "animations", label: "3D animations", path: "/animations" },
   { id: "presentations", label: "Presentations", path: "/presentations" },
+  { id: "deck", label: "Deck player", path: "/deck" },
   { id: "web", label: "Web UI", path: "/web" },
   { id: "docs", label: "Docs layout", path: "/docs" },
   { id: "article", label: "Article parts", path: "/article" },
@@ -181,4 +182,13 @@ export const articleEntries: CatalogEntry[] = [
   { id: "callout", title: "Callout", type: "article", styleId: "technical", tags: ["Article", "Self-test"] },
   { id: "change-note", title: "Change note", type: "article", styleId: "technical", tags: ["Article", "Aside"] },
   { id: "link-list", title: "Link list", type: "article", styleId: "technical", tags: ["Article", "Link"] },
+];
+
+/** The deck player (uipack/deck), rendered on /deck with an example deck that explains its own transitions. */
+export const deckEntries: CatalogEntry[] = [
+  { id: "deck-player", title: "Deck player", type: "deck", styleId: "technical", tags: ["Presentation", "Keyboard", "Speaker view", "Overview"] },
+  { id: "deck-advance", title: "Advance transition", type: "deck", styleId: "technical", tags: ["Transition", "Motion", "Default"] },
+  { id: "deck-morph", title: "Morph transition", type: "deck", styleId: "technical", tags: ["Transition", "Motion", "Shared element"] },
+  { id: "deck-zoom", title: "Zoom transition", type: "deck", styleId: "technical", tags: ["Transition", "Motion", "Camera"] },
+  { id: "deck-read", title: "Read view", type: "deck", styleId: "technical", tags: ["Presentation", "Mobile", "Async"] },
 ];
