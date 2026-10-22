@@ -255,8 +255,7 @@ body {
 /* The charts have no frame of their own: their sticky header paints the host page colour. */
 .chart-frame { margin: 0 auto; width: 100%; --uipack-bg: var(--show-bg); }
 .chart-frame__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 12px; font: 12px ui-monospace, monospace; color: var(--show-muted); }
-/* Below 480px the label takes its own line, so the five widths stay together on one row. */
-@media (max-width: 479px) { .chart-frame__bar > span { flex-basis: 100%; } }
+/* Only the widths that fit are offered, so on a phone the label and its buttons share one row. */
 .chart-frame__bar button { min-height: 36px; padding: 0 10px; font-size: 12px; }
 
 /* Section intros and sub-headings, shared by every page. `.collection-intro` is the older name

@@ -53,7 +53,8 @@ function useFrame() {
 function ChartFrame({ children }: { children: React.ReactNode }) {
   const frame = useFrame();
   // The width the page can actually give the frame. A host width wider than that cannot be
-  // shown, so its button is disabled and the frame is reported as "full" at the real width.
+  // shown, so its button is left out (a phone offers only what fits, on one row) and the frame
+  // is reported as "full" at the real width.
   const bar = useRef<HTMLParagraphElement>(null);
   const [room, setRoom] = useState<number | null>(null);
   useEffect(() => {
@@ -76,8 +77,8 @@ function ChartFrame({ children }: { children: React.ReactNode }) {
     <>
       <p className="chart-frame__bar" ref={bar}>
         <span>Host width{shown === "full" && room !== null ? ` · ${room}px` : ""}</span>
-        {FRAMES.map((f) => (
-          <button type="button" key={f} aria-pressed={f === shown} disabled={!fits(f)} title={fits(f) ? undefined : "Wider than this screen"} onClick={() => pick(f)}>
+        {FRAMES.filter(fits).map((f) => (
+          <button type="button" key={f} aria-pressed={f === shown} onClick={() => pick(f)}>
             {f === "full" ? "full" : `${f}px`}
           </button>
         ))}
