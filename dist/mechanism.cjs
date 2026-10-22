@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkGVSVZ2EW_cjs = require('./chunk-GVSVZ2EW.cjs');
+var chunkSDBNPDW6_cjs = require('./chunk-SDBNPDW6.cjs');
 var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
 var React2 = require('react');
 var jsxRuntime = require('react/jsx-runtime');
@@ -570,8 +570,8 @@ var RETURN_AT = [RETURN_TRAY.x + 13, RETURN_TRAY.y + RETURN_TRAY.d / 2, TRAY_FLO
 var PERIOD = 5.4;
 var IDLE_START = 4 * PERIOD + 0.4;
 var KEEP_RETURNED = 1.8;
-var smooth = (value) => chunkGVSVZ2EW_cjs.smoothstep(0, 1, value);
-var mix3 = (a, b, t) => [chunkGVSVZ2EW_cjs.lerp(a[0], b[0], t), chunkGVSVZ2EW_cjs.lerp(a[1], b[1], t), chunkGVSVZ2EW_cjs.lerp(a[2], b[2], t)];
+var smooth = (value) => chunkSDBNPDW6_cjs.smoothstep(0, 1, value);
+var mix3 = (a, b, t) => [chunkSDBNPDW6_cjs.lerp(a[0], b[0], t), chunkSDBNPDW6_cjs.lerp(a[1], b[1], t), chunkSDBNPDW6_cjs.lerp(a[2], b[2], t)];
 function tokenAt(u, check, slot) {
   const onBelt = (x) => [x, 0, BT];
   if (u < ARRIVE) {
@@ -584,9 +584,9 @@ function tokenAt(u, check, slot) {
     const leave = (BELT_X1 + 4 - GX) / SPEED;
     if (v < leave) return { pos: onBelt(GX + SPEED * v), layer: "belt", alpha: 1, done: false };
     const [tx, ty] = TRAY_SLOTS[slot % TRAY_SLOTS.length];
-    const fall2 = chunkGVSVZ2EW_cjs.clamp((v - leave) / DROP);
+    const fall2 = chunkSDBNPDW6_cjs.clamp((v - leave) / DROP);
     const from2 = onBelt(BELT_X1 + 4);
-    const pos2 = [chunkGVSVZ2EW_cjs.lerp(from2[0], tx, fall2), chunkGVSVZ2EW_cjs.lerp(0, ty, fall2), BT - (BT - TRAY_FLOOR) * fall2 * fall2];
+    const pos2 = [chunkSDBNPDW6_cjs.lerp(from2[0], tx, fall2), chunkSDBNPDW6_cjs.lerp(0, ty, fall2), BT - (BT - TRAY_FLOOR) * fall2 * fall2];
     return { pos: pos2, layer: pos2[0] > BELT_X1 + 6 ? "tray" : "belt", alpha: 1, done: fall2 >= 1 };
   }
   if (v < TO_CONTACT) return { pos: onBelt(GX + SPEED * v), layer: "belt", alpha: 1, done: false };
@@ -600,12 +600,12 @@ function tokenAt(u, check, slot) {
   const start = [CONTACT_X + ARM_DIR[0] * SLIDE_LONG, CHUTE_MID, APRON_TOP];
   const r = w - SLIDE;
   if (r < CHUTE_RUN) {
-    const t = chunkGVSVZ2EW_cjs.clamp(r / CHUTE_RUN);
+    const t = chunkSDBNPDW6_cjs.clamp(r / CHUTE_RUN);
     const ease = t * t * (1.6 - 0.6 * t);
-    const x = chunkGVSVZ2EW_cjs.lerp(start[0], CHUTE_X0, ease);
+    const x = chunkSDBNPDW6_cjs.lerp(start[0], CHUTE_X0, ease);
     return { pos: [x, CHUTE_MID, x > CHUTE_X1 ? APRON_TOP : chuteTop(x)], layer: "chute", alpha: 1, done: false };
   }
-  const fall = chunkGVSVZ2EW_cjs.clamp((r - CHUTE_RUN) / DROP);
+  const fall = chunkSDBNPDW6_cjs.clamp((r - CHUTE_RUN) / DROP);
   const from = [CHUTE_X0, CHUTE_MID, chuteTop(CHUTE_X0)];
   const pos = mix3(from, RETURN_AT, fall);
   pos[2] = from[2] - (from[2] - RETURN_AT[2]) * fall * fall;
@@ -1363,7 +1363,7 @@ var shareMove = (name, share) => {
   const [x, y, z] = MOVES[name];
   return move([x * share, y * share, z * share]);
 };
-var readingOf = (display) => chunkGVSVZ2EW_cjs.clamp(display.tip.at, 0, SCALE);
+var readingOf = (display) => chunkSDBNPDW6_cjs.clamp(display.tip.at, 0, SCALE);
 function writeSolid(group, solid) {
   if (!group) return;
   group.querySelector(":scope > .iso-fill")?.setAttribute("d", solid.fill);
@@ -1414,9 +1414,9 @@ function paintDisplay(svg, display, heights) {
   setAttr(svg.querySelector("[data-part=slats]"), "d", slatsOf(display.phase));
   setAttr(svg.querySelector("[data-part=plunger]"), "transform", move([0, 0, display.tip.at]));
   setAttr(svg.querySelector("[data-part=needle]"), "d", needleOf(readingOf(display)));
-  setAttr(svg.querySelector("[data-part=drag]"), "d", dragOf(chunkGVSVZ2EW_cjs.clamp(display.drag, 0, SCALE)));
-  writeSolid(svg.querySelector("[data-part=arm]"), armOf(chunkGVSVZ2EW_cjs.clamp(display.arm.at, -0.05, 1.05)));
-  setAttr(svg.querySelector("[data-part=pointer]"), "d", armPointerOf(chunkGVSVZ2EW_cjs.clamp(display.arm.at, -0.05, 1.05)));
+  setAttr(svg.querySelector("[data-part=drag]"), "d", dragOf(chunkSDBNPDW6_cjs.clamp(display.drag, 0, SCALE)));
+  writeSolid(svg.querySelector("[data-part=arm]"), armOf(chunkSDBNPDW6_cjs.clamp(display.arm.at, -0.05, 1.05)));
+  setAttr(svg.querySelector("[data-part=pointer]"), "d", armPointerOf(chunkSDBNPDW6_cjs.clamp(display.arm.at, -0.05, 1.05)));
   for (const name of ASSEMBLIES) {
     const transform = shareMove(name, Math.abs(display.shares[name].at) < 1e-4 ? 0 : display.shares[name].at);
     svg.querySelectorAll(`[data-assembly="${name}"]`).forEach((group) => setAttr(group, "transform", transform));
@@ -1547,7 +1547,7 @@ function GateArt({ uid, alt, shown }) {
       /* @__PURE__ */ jsxRuntime.jsx(Line, { d: GAUGE_FRONT.major, tone: "mid" }),
       /* @__PURE__ */ jsxRuntime.jsx(Line, { d: GAUGE_FRONT.band0, tone: "mid" }),
       /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-line um-limit", d: GAUGE_FRONT.limit }),
-      /* @__PURE__ */ jsxRuntime.jsx("path", { "data-part": "drag", className: "iso-line um-drag", d: dragOf(chunkGVSVZ2EW_cjs.clamp(shown.drag, 0, SCALE)) }),
+      /* @__PURE__ */ jsxRuntime.jsx("path", { "data-part": "drag", className: "iso-line um-drag", d: dragOf(chunkSDBNPDW6_cjs.clamp(shown.drag, 0, SCALE)) }),
       /* @__PURE__ */ jsxRuntime.jsx("path", { "data-part": "needle", className: "iso-line um-needle", d: needleOf(reading) }),
       /* @__PURE__ */ jsxRuntime.jsx(Line, { d: GAUGE_FRONT.hub, tone: "mid" })
     ] }),

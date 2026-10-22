@@ -1,7 +1,7 @@
-import { Figure, Defs, Connector, Packet, Node, busStub, route, Lane, Group, Bus, Label, Chip } from './chunk-N4IMUF3F.js';
+import { Figure, Defs, Connector, Packet, Node, busStub, route, Lane, Group, Bus, Label, Chip } from './chunk-LL24QD5P.js';
 import './chunk-3R6VZY52.js';
 import './chunk-D3TRNW7E.js';
-import './chunk-BN5H6RB6.js';
+import './chunk-V4CVL4FJ.js';
 import './chunk-I6LF4PLF.js';
 import { useId } from 'react';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';

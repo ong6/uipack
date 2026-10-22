@@ -143,7 +143,7 @@ function mountObjectScene(canvas, options) {
     onReady(false);
   };
   canvas.addEventListener("webglcontextlost", handleContextLost);
-  Promise.all([import('three'), import('./scenes-UV5XI52M.js'), import('three/addons/environments/RoomEnvironment.js')]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
+  Promise.all([import('three'), import('./scenes-HV7RKZFX.js'), import('three/addons/environments/RoomEnvironment.js')]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
     if (disposed) return;
     try {
       const gl = new THREE.WebGLRenderer({

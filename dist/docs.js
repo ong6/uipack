@@ -14,7 +14,7 @@ function useCurrentSection(ids) {
   const [current, setCurrent] = useState(null);
   const key = ids.join(" ");
   useEffect(() => {
-    const headings = ids.map((id) => document.getElementById(id)).filter((element) => element !== null);
+    const headings = (key ? key.split(" ") : []).map((id) => document.getElementById(id)).filter((element) => element !== null);
     if (headings.length === 0) return;
     let frame = 0;
     const update = () => {

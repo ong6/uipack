@@ -39,22 +39,21 @@ function SceneViewport({
   const prefersReduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
   const reduced = motion === "none" || prefersReduced;
   const stop = story.stops.find((s) => s.id === stopId) ?? story.stops[0];
-  const latest = react.useRef({ stop, reduced, paused, onSettled });
-  latest.current = { stop, reduced, paused, onSettled };
-  const [status, setStatus] = react.useState("loading");
-  const [selected, setSelected] = react.useState(null);
+  const latestRef = chunkKV6PPCWS_cjs.useLatest({ stop, reduced, paused, onSettled });
   const [failed, setFailed] = react.useState(false);
-  const [settled, setSettled] = react.useState("");
-  const [transitioning, setTransitioning] = react.useState(false);
+  const fallback = renderMode === "diagram" || failed;
+  const [ready, setReady] = react.useState(false);
+  const status = fallback ? "fallback" : ready ? "ready" : "loading";
+  const [selection, setSelection] = react.useState({ stopId: stop.id, id: null });
+  const selected = selection.stopId === stop.id ? selection.id : null;
+  const setSelected = react.useCallback((id) => setSelection({ stopId: latestRef.current.stop.id, id }), [latestRef]);
+  const [liveSettled, setSettled] = react.useState("");
+  const [liveTransitioning, setTransitioning] = react.useState(false);
+  const settled = fallback ? stop.id : liveSettled;
+  const transitioning = !fallback && liveTransitioning;
   react.useEffect(() => {
     let cancelled = false;
-    if (renderMode === "diagram" || failed) {
-      setStatus("fallback");
-      setTransitioning(false);
-      setSettled(latest.current.stop.id);
-      return;
-    }
-    setStatus("loading");
+    if (fallback) return;
     void import('./renderer-KT5PA5QF.cjs').then(({ createSlideScene }) => {
       if (cancelled || !host.current || !labels.current) return;
       try {
@@ -62,21 +61,21 @@ function SceneViewport({
           host.current,
           labels.current,
           story,
-          latest.current.stop,
+          latestRef.current.stop,
           theme,
-          latest.current.reduced,
+          latestRef.current.reduced,
           () => setFailed(true),
           (id) => {
             if (!cancelled) {
               setSettled(id);
               setTransitioning(false);
-              latest.current.onSettled?.(id);
+              latestRef.current.onSettled?.(id);
             }
           },
           setSelected
         );
-        runtime.current.setPaused(latest.current.paused);
-        setStatus("ready");
+        runtime.current.setPaused(latestRef.current.paused);
+        setReady(true);
       } catch {
         if (!cancelled) setFailed(true);
       }
@@ -87,20 +86,21 @@ function SceneViewport({
       cancelled = true;
       runtime.current?.dispose();
       runtime.current = void 0;
-    };
-  }, [story, theme, renderMode, failed]);
-  react.useEffect(() => {
-    if (renderMode === "diagram" || failed) {
-      setSettled(stop.id);
+      setReady(false);
       setTransitioning(false);
-      onSettled?.(stop.id);
+    };
+  }, [story, theme, fallback, latestRef, setSelected]);
+  react.useEffect(() => {
+    const { reduced: reduced2, onSettled: onSettled2 } = latestRef.current;
+    if (fallback) {
+      onSettled2?.(stop.id);
       return;
     }
     if (runtime.current) {
-      setTransitioning(!reduced);
-      runtime.current.goTo(stop, reduced);
+      setTransitioning(!reduced2);
+      runtime.current.goTo(stop, reduced2);
     }
-  }, [stop, renderMode, failed]);
+  }, [stop, fallback, latestRef]);
   react.useEffect(() => {
     runtime.current?.setReducedMotion(reduced);
   }, [reduced]);
@@ -113,9 +113,6 @@ function SceneViewport({
   react.useEffect(() => {
     runtime.current?.setZoom(zoom);
   }, [zoom, status]);
-  react.useEffect(() => {
-    setSelected(null);
-  }, [stop.id]);
   const chosen = story.nodes.find((n) => n.id === selected);
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",

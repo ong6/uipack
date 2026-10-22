@@ -1,6 +1,8 @@
-import { easeInOutCubic, smoothstep } from './chunk-BN5H6RB6.js';
-import { useLatest } from './chunk-I6LF4PLF.js';
-import { useRef, useCallback, useEffect } from 'react';
+'use strict';
+
+var chunkSDBNPDW6_cjs = require('./chunk-SDBNPDW6.cjs');
+var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
+var react = require('react');
 
 // src/zoom-math.ts
 function zoomFrame(target, width, height) {
@@ -30,8 +32,8 @@ function zoomSamples(target, forward, width, height, { samples = 24, radius = 6 
   const out = [];
   for (let i = 0; i <= samples; i++) {
     const t = i / samples;
-    const p = easeInOutCubic(forward ? t : 1 - t);
-    const clipT = smoothstep(0.15, 0.85, p);
+    const p = chunkSDBNPDW6_cjs.easeInOutCubic(forward ? t : 1 - t);
+    const clipT = chunkSDBNPDW6_cjs.smoothstep(0.15, 0.85, p);
     const inset = (v) => (v * (1 - clipT)).toFixed(2);
     out.push({
       offset: t,
@@ -39,22 +41,22 @@ function zoomSamples(target, forward, width, height, { samples = 24, radius = 6 
       outer: `scale(${Math.pow(frame.Z, p).toFixed(5)})`,
       inner: `scale(${Math.pow(frame.Z, p - 1).toFixed(5)})`,
       clip: `inset(${inset(start.top)}px ${inset(start.right)}px ${inset(start.bottom)}px ${inset(start.left)}px round ${(radiusStart * (1 - clipT)).toFixed(2)}px)`,
-      innerOpacity: smoothstep(0.08, 0.4, p)
+      innerOpacity: chunkSDBNPDW6_cjs.smoothstep(0.08, 0.4, p)
     });
   }
   return out;
 }
 function useLayerFlight(clearLayers) {
-  const anims = useRef([]);
-  const generation = useRef(0);
-  const clearRef = useLatest(clearLayers);
-  const settle = useCallback(() => {
+  const anims = react.useRef([]);
+  const generation = react.useRef(0);
+  const clearRef = chunkKV6PPCWS_cjs.useLatest(clearLayers);
+  const settle = react.useCallback(() => {
     generation.current += 1;
     for (const a of anims.current) a.cancel();
     anims.current = [];
     clearRef.current();
   }, [clearRef]);
-  const fly = useCallback((run, land) => {
+  const fly = react.useCallback((run, land) => {
     const at = ++generation.current;
     for (const a of anims.current) if (!run.includes(a)) a.cancel();
     anims.current = run;
@@ -67,7 +69,7 @@ function useLayerFlight(clearLayers) {
       }
     );
   }, []);
-  useEffect(() => {
+  react.useEffect(() => {
     const running = anims;
     return () => {
       generation.current += 1;
@@ -77,4 +79,7 @@ function useLayerFlight(clearLayers) {
   return { anims, settle, fly };
 }
 
-export { innerClipStart, useLayerFlight, zoomFrame, zoomSamples };
+exports.innerClipStart = innerClipStart;
+exports.useLayerFlight = useLayerFlight;
+exports.zoomFrame = zoomFrame;
+exports.zoomSamples = zoomSamples;

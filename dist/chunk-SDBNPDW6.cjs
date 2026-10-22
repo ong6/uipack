@@ -16,12 +16,39 @@ function easeOutExpo(t) {
   if (t >= 1) return 1;
   return 1 - Math.pow(2, -10 * t);
 }
+var lerpRect = (a, b, t) => ({
+  x: lerp(a.x, b.x, t),
+  y: lerp(a.y, b.y, t),
+  w: lerp(a.w, b.w, t),
+  h: lerp(a.h, b.h, t)
+});
+function cubicBezier(x1, y1, x2, y2) {
+  const cx = 3 * x1;
+  const bx = 3 * (x2 - x1) - cx;
+  const ax = 1 - cx - bx;
+  const cy = 3 * y1;
+  const by = 3 * (y2 - y1) - cy;
+  const ay = 1 - cy - by;
+  const x = (t) => ((ax * t + bx) * t + cx) * t;
+  const dx = (t) => (3 * ax * t + 2 * bx) * t + cx;
+  return (time) => {
+    let t = time;
+    for (let i = 0; i < 8; i++) {
+      const d = dx(t);
+      if (Math.abs(d) < 1e-6) break;
+      t = clamp(t - (x(t) - time) / d);
+    }
+    return ((ay * t + by) * t + cy) * t;
+  };
+}
 
 exports.clamp = clamp;
+exports.cubicBezier = cubicBezier;
 exports.easeInOutCubic = easeInOutCubic;
 exports.easeOutCubic = easeOutCubic;
 exports.easeOutExpo = easeOutExpo;
 exports.lerp = lerp;
+exports.lerpRect = lerpRect;
 exports.progress = progress;
 exports.smootherstep = smootherstep;
 exports.smoothstep = smoothstep;

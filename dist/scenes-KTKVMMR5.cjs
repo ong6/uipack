@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkGVSVZ2EW_cjs = require('./chunk-GVSVZ2EW.cjs');
+var chunkSDBNPDW6_cjs = require('./chunk-SDBNPDW6.cjs');
 var THREE5 = require('three');
 var RoundedBoxGeometry_js = require('three/addons/geometries/RoundedBoxGeometry.js');
 
@@ -117,14 +117,14 @@ function cartoonMailbox(root, ticks) {
   letter.name = "arriving-letter";
   ticks.push((angle) => {
     const p = angle / TAU;
-    const fly = p > 0.8 ? (1 - p) / 0.2 : chunkGVSVZ2EW_cjs.clamp((p - 0.1) / 0.62);
-    const ease = chunkGVSVZ2EW_cjs.smoothstep(0, 1, fly);
+    const fly = p > 0.8 ? (1 - p) / 0.2 : chunkSDBNPDW6_cjs.clamp((p - 0.1) / 0.62);
+    const ease = chunkSDBNPDW6_cjs.smoothstep(0, 1, fly);
     letter.position.set(-1 * (1 - ease), 1.02 + 0.86 * Math.sin(Math.PI * fly), 0.31 + 1.15 * (1 - ease));
     letter.rotation.set(0.12 * (1 - ease), -0.24 * (1 - ease), -0.22 * (1 - ease));
-    const scale = chunkGVSVZ2EW_cjs.clamp((p - 0.06) / 0.08) * chunkGVSVZ2EW_cjs.clamp((0.79 - p) / 0.09);
+    const scale = chunkSDBNPDW6_cjs.clamp((p - 0.06) / 0.08) * chunkSDBNPDW6_cjs.clamp((0.79 - p) / 0.09);
     letter.scale.setScalar(scale * 0.85);
     letter.visible = scale > 0;
-    flag.rotation.z = -0.65 + 0.65 * Math.sin(Math.PI * chunkGVSVZ2EW_cjs.clamp((p - 0.55) / 0.35));
+    flag.rotation.z = -0.65 + 0.65 * Math.sin(Math.PI * chunkSDBNPDW6_cjs.clamp((p - 0.55) / 0.35));
   });
 }
 function kineticMobile(root, ticks) {
@@ -1512,9 +1512,9 @@ function ai(palette) {
   result.position.set(0, -0.49, 0.16);
   group2.add(result);
   group2.userData.animate = (time) => {
-    const t = Math.min(time, DURATION), typing = chunkGVSVZ2EW_cjs.progress(t, 100, 2700) * 7;
+    const t = Math.min(time, DURATION), typing = chunkSDBNPDW6_cjs.progress(t, 100, 2700) * 7;
     code.forEach((strip, i) => {
-      const f = chunkGVSVZ2EW_cjs.smootherstep(chunkGVSVZ2EW_cjs.clamp(typing - i));
+      const f = chunkSDBNPDW6_cjs.smootherstep(chunkSDBNPDW6_cjs.clamp(typing - i));
       strip.visible = f > 0;
       strip.scale.x = Math.max(1e-3, f);
       strip.position.x = strip.userData.left + strip.userData.length * f / 2;
@@ -1527,22 +1527,22 @@ function ai(palette) {
     );
     cursor.visible = t < 2850;
     satellites.forEach((chip, i) => {
-      const f = chunkGVSVZ2EW_cjs.smootherstep(chunkGVSVZ2EW_cjs.progress(t, 300 + i * 300, 1100 + i * 300));
-      chip.position.y = chunkGVSVZ2EW_cjs.lerp(0.95, 0.6, f);
+      const f = chunkSDBNPDW6_cjs.smootherstep(chunkSDBNPDW6_cjs.progress(t, 300 + i * 300, 1100 + i * 300));
+      chip.position.y = chunkSDBNPDW6_cjs.lerp(0.95, 0.6, f);
       chip.rotation.z = (i ? 1 : -1) * 0.07 * (1 - f);
     });
     packets.forEach((packet, i) => {
-      const q = chunkGVSVZ2EW_cjs.progress(t, 1100 + i * 400, 3450 + i * 400);
-      packet.position.copy(paths[i].getPoint(chunkGVSVZ2EW_cjs.smootherstep(q)));
+      const q = chunkSDBNPDW6_cjs.progress(t, 1100 + i * 400, 3450 + i * 400);
+      packet.position.copy(paths[i].getPoint(chunkSDBNPDW6_cjs.smootherstep(q)));
       packet.scale.setScalar(Math.max(1e-3, Math.sin(q * Math.PI)));
     });
-    const done = chunkGVSVZ2EW_cjs.smootherstep(chunkGVSVZ2EW_cjs.progress(t, 4e3, 4700));
+    const done = chunkSDBNPDW6_cjs.smootherstep(chunkSDBNPDW6_cjs.progress(t, 4e3, 4700));
     result.scale.setScalar(Math.max(1e-3, done));
     phase(
       group2,
       t,
       t < 700 ? "prompt" : t < 2100 ? "prompt-to-tools" : t < 2850 ? "tools" : t < 4250 ? "tools-to-check" : "check",
-      chunkGVSVZ2EW_cjs.progress(t, 700, 4250)
+      chunkSDBNPDW6_cjs.progress(t, 700, 4250)
     );
   };
   return group2;
@@ -1643,28 +1643,28 @@ function contact(palette) {
   group2.userData.animate = (time) => {
     const t = Math.min(time, DURATION);
     sources.forEach((source, index) => {
-      const enter = chunkGVSVZ2EW_cjs.smootherstep(chunkGVSVZ2EW_cjs.progress(t, 120 + index * 140, 780 + index * 140));
-      source.position.x = chunkGVSVZ2EW_cjs.lerp(-1.9, -1.62, enter);
+      const enter = chunkSDBNPDW6_cjs.smootherstep(chunkSDBNPDW6_cjs.progress(t, 120 + index * 140, 780 + index * 140));
+      source.position.x = chunkSDBNPDW6_cjs.lerp(-1.9, -1.62, enter);
       source.rotation.z = (index - 1) * 0.055 * (1 - enter);
     });
     packets.forEach((packet, index) => {
-      const travel2 = chunkGVSVZ2EW_cjs.smootherstep(chunkGVSVZ2EW_cjs.progress(t, 700 + index * 430, 2750 + index * 430));
+      const travel2 = chunkSDBNPDW6_cjs.smootherstep(chunkSDBNPDW6_cjs.progress(t, 700 + index * 430, 2750 + index * 430));
       packet.position.copy(routes[index].getPoint(travel2));
       packet.rotation.z = travel2 * Math.PI * 2;
       packet.scale.setScalar(Math.max(1e-3, Math.sin(travel2 * Math.PI)));
-      const received = chunkGVSVZ2EW_cjs.smootherstep(chunkGVSVZ2EW_cjs.progress(t, 2600 + index * 430, 3300 + index * 430));
+      const received = chunkSDBNPDW6_cjs.smootherstep(chunkSDBNPDW6_cjs.progress(t, 2600 + index * 430, 3300 + index * 430));
       receipts[index].scale.x = Math.max(1e-3, received);
-      receipts[index].position.x = chunkGVSVZ2EW_cjs.lerp(-0.18, 0, received);
+      receipts[index].position.x = chunkSDBNPDW6_cjs.lerp(-0.18, 0, received);
     });
-    const acknowledge = chunkGVSVZ2EW_cjs.smootherstep(chunkGVSVZ2EW_cjs.progress(t, 3900, 4750));
+    const acknowledge = chunkSDBNPDW6_cjs.smootherstep(chunkSDBNPDW6_cjs.progress(t, 3900, 4750));
     status.scale.setScalar(Math.max(1e-3, acknowledge));
-    status.rotation.z = chunkGVSVZ2EW_cjs.lerp(-Math.PI, 0, acknowledge);
-    inbox.position.y = 0.035 * Math.sin(chunkGVSVZ2EW_cjs.progress(t, 3900, 4750) * Math.PI);
+    status.rotation.z = chunkSDBNPDW6_cjs.lerp(-Math.PI, 0, acknowledge);
+    inbox.position.y = 0.035 * Math.sin(chunkSDBNPDW6_cjs.progress(t, 3900, 4750) * Math.PI);
     phase(
       group2,
       t,
       t < 900 ? "open-channels" : t < 3650 ? "route-signals" : t < 4750 ? "collect-messages" : "contact-ready",
-      chunkGVSVZ2EW_cjs.progress(t, 700, 4750)
+      chunkSDBNPDW6_cjs.progress(t, 700, 4750)
     );
   };
   return group2;
@@ -1946,11 +1946,11 @@ function server(palette) {
   group2.userData.animate = (time) => {
     const t = Math.min(time, DURATION);
     trays.forEach((tray, i) => {
-      const q = chunkGVSVZ2EW_cjs.smootherstep(chunkGVSVZ2EW_cjs.progress(t, 180 + i * 650, 1500 + i * 650));
-      tray.position.z = chunkGVSVZ2EW_cjs.lerp(1, 0, q);
-      tray.position.x = chunkGVSVZ2EW_cjs.lerp(i % 2 ? -0.3 : 0.3, 0, q);
+      const q = chunkSDBNPDW6_cjs.smootherstep(chunkSDBNPDW6_cjs.progress(t, 180 + i * 650, 1500 + i * 650));
+      tray.position.z = chunkSDBNPDW6_cjs.lerp(1, 0, q);
+      tray.position.x = chunkSDBNPDW6_cjs.lerp(i % 2 ? -0.3 : 0.3, 0, q);
     });
-    const power = chunkGVSVZ2EW_cjs.smootherstep(chunkGVSVZ2EW_cjs.progress(t, 2800, 4200));
+    const power = chunkSDBNPDW6_cjs.smootherstep(chunkSDBNPDW6_cjs.progress(t, 2800, 4200));
     fans.forEach((fan, i) => fan.rotation.z = power * (Math.PI * 3 + i * 0.35));
     lamps.forEach((lamp) => {
       const material2 = lamp.material;
@@ -1961,7 +1961,7 @@ function server(palette) {
       group2,
       t,
       t < 1500 ? "place-chassis" : t < 2450 ? "place-compute" : t < 3550 ? "place-memory" : "bandwidth-check",
-      chunkGVSVZ2EW_cjs.progress(t, 180, 4200)
+      chunkSDBNPDW6_cjs.progress(t, 180, 4200)
     );
   };
   return group2;
@@ -2082,9 +2082,9 @@ function travel(palette, variant = 0) {
   const count = route.geometry.index.count;
   group2.userData.mapFolds = folds;
   group2.userData.animate = (time) => {
-    const t = Math.min(time, DURATION), open = chunkGVSVZ2EW_cjs.smootherstep(chunkGVSVZ2EW_cjs.progress(t, 200, 1600)), draw = chunkGVSVZ2EW_cjs.smootherstep(chunkGVSVZ2EW_cjs.progress(t, 1700, 4650));
-    folds[0].rotation.y = chunkGVSVZ2EW_cjs.lerp(1.05, 0, open);
-    folds[2].rotation.y = chunkGVSVZ2EW_cjs.lerp(-1.05, 0, open);
+    const t = Math.min(time, DURATION), open = chunkSDBNPDW6_cjs.smootherstep(chunkSDBNPDW6_cjs.progress(t, 200, 1600)), draw = chunkSDBNPDW6_cjs.smootherstep(chunkSDBNPDW6_cjs.progress(t, 1700, 4650));
+    folds[0].rotation.y = chunkSDBNPDW6_cjs.lerp(1.05, 0, open);
+    folds[2].rotation.y = chunkSDBNPDW6_cjs.lerp(-1.05, 0, open);
     route.geometry.setDrawRange(0, Math.floor(draw * count / 3) * 3);
     route.visible = pin.visible = ring3.visible = t >= 1700;
     compass.visible = t >= 1600;
@@ -2130,7 +2130,7 @@ function reading(palette) {
       half.add(
         line(
           Array.from({ length: 17 }, (_, step) => {
-            const u = chunkGVSVZ2EW_cjs.lerp(start, end, step / 16);
+            const u = chunkSDBNPDW6_cjs.lerp(start, end, step / 16);
             return [side * u, 0.64 - row * 0.145, 0.07 + 0.025 * Math.sin(u / width * Math.PI) - 0.06 * u];
           }),
           palette.muted,
@@ -2184,7 +2184,7 @@ function reading(palette) {
   const ribbon = slab(0.11, 0.48, 0.012, 11949896, 0.67, -1.04, -0.11, 5e-3);
   group2.add(ribbon);
   group2.userData.animate = (time) => {
-    const t = Math.min(time, DURATION), q = chunkGVSVZ2EW_cjs.smootherstep(chunkGVSVZ2EW_cjs.progress(t, 750, 4050)), theta = Math.PI * q;
+    const t = Math.min(time, DURATION), q = chunkSDBNPDW6_cjs.smootherstep(chunkSDBNPDW6_cjs.progress(t, 750, 4050)), theta = Math.PI * q;
     for (let i = 0; i < positions.count; i++) {
       const u = original[i * 3], v = original[i * 3 + 1];
       const curl = 0.62 * Math.sin(theta), segments = 12;

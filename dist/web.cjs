@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkGVSVZ2EW_cjs = require('./chunk-GVSVZ2EW.cjs');
+var chunkSDBNPDW6_cjs = require('./chunk-SDBNPDW6.cjs');
 var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
 var jsxRuntime = require('react/jsx-runtime');
 var react = require('react');
@@ -220,7 +220,7 @@ function RhymeIcon({ at = 0.5, values = DEFAULT_STAR_VALUES, size = 40 }) {
   const d = curvePath(values, 28, 20, 2);
   const min = Math.min(...values);
   const span = Math.max(...values) - min || 1;
-  const idx = Math.round(chunkGVSVZ2EW_cjs.clamp(at) * (values.length - 1));
+  const idx = Math.round(chunkSDBNPDW6_cjs.clamp(at) * (values.length - 1));
   const cx = 6 + idx / (values.length - 1) * 28;
   const cy = 10 + 2 + (1 - (values[idx] - min) / span) * 16;
   return /* @__PURE__ */ jsxRuntime.jsxs("svg", { className: "uipack-web-rhyme", viewBox: "0 0 40 40", width: size, height: size, "aria-hidden": "true", focusable: "false", children: [
@@ -581,7 +581,7 @@ function useInView(ref2, { threshold = 0, once = false, rootMargin } = {}) {
 function scrollProgressOf(rect, viewport) {
   const total = viewport + rect.height;
   if (total <= 0) return 0;
-  return chunkGVSVZ2EW_cjs.clamp((viewport - rect.top) / total);
+  return chunkSDBNPDW6_cjs.clamp((viewport - rect.top) / total);
 }
 function useScrollProgress(ref2) {
   const inView = useInView(ref2);
@@ -660,7 +660,7 @@ function rollDrips(width, height, duration) {
   });
 }
 function paintFrame(t, width, height, drips, duration) {
-  const sheet = chunkGVSVZ2EW_cjs.smoothstep(0, 1, t / (duration * 0.85)) * (height * 1.14);
+  const sheet = chunkSDBNPDW6_cjs.smoothstep(0, 1, t / (duration * 0.85)) * (height * 1.14);
   const pos = ["0px 0px"];
   const size = [`${px(width)} ${px(sheet)}`];
   for (const d of drips) {
@@ -910,7 +910,7 @@ function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div", class
 }
 var GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/<>_-";
 function scrambleFrame(text, t, mode, seed = 0) {
-  const p = chunkGVSVZ2EW_cjs.clamp(t);
+  const p = chunkSDBNPDW6_cjs.clamp(t);
   const settled = Math.floor(p * text.length);
   if (mode === "type") return text.slice(0, settled);
   let out = text.slice(0, settled);
@@ -1001,7 +1001,7 @@ function NumberTicker({
     show(origin);
     const timer = setInterval(() => {
       const p = Math.min(1, (Date.now() - start) / duration);
-      show(origin + (value - origin) * chunkGVSVZ2EW_cjs.easeOutCubic(p));
+      show(origin + (value - origin) * chunkSDBNPDW6_cjs.easeOutCubic(p));
       if (p >= 1) clearInterval(timer);
     }, 32);
     return () => clearInterval(timer);
@@ -1096,7 +1096,7 @@ function MagneticButton({ strength = 6, ...button }) {
     }
   );
 }
-var rangeAt = ([from, to], t) => chunkGVSVZ2EW_cjs.lerp(from, to, t);
+var rangeAt = ([from, to], t) => chunkSDBNPDW6_cjs.lerp(from, to, t);
 function ScrollTransform({
   children,
   rotate = [0, 0],
@@ -1161,7 +1161,7 @@ function nativeScrollTo(target, { offset, immediate } = {}) {
   if (!canUseDom()) return;
   const y = resolveTop(target, offset);
   if (y === null) return;
-  window.scrollTo({ top: chunkGVSVZ2EW_cjs.clamp(y, 0, maxScroll()), behavior: immediate || chunkKV6PPCWS_cjs.prefersReducedMotion() ? "auto" : "smooth" });
+  window.scrollTo({ top: chunkSDBNPDW6_cjs.clamp(y, 0, maxScroll()), behavior: immediate || chunkKV6PPCWS_cjs.prefersReducedMotion() ? "auto" : "smooth" });
 }
 function pageOwnsWheel(e) {
   const root = document.documentElement;
@@ -1229,11 +1229,11 @@ function createSmoothScroll({
       const y = resolveTop(aim.el, aim.offset);
       if (y !== null) target = y;
     }
-    target = chunkGVSVZ2EW_cjs.clamp(target, 0, maxScroll());
+    target = chunkSDBNPDW6_cjs.clamp(target, 0, maxScroll());
     if (tween) {
       tween.to = target;
-      const t = chunkGVSVZ2EW_cjs.clamp((now - tween.start) / tween.duration, 0, 1);
-      current = tween.from + (tween.to - tween.from) * chunkGVSVZ2EW_cjs.easeOutExpo(t);
+      const t = chunkSDBNPDW6_cjs.clamp((now - tween.start) / tween.duration, 0, 1);
+      current = tween.from + (tween.to - tween.from) * chunkSDBNPDW6_cjs.easeOutExpo(t);
       if (t >= 1) current = tween.to;
     } else {
       current = followStep(current, target, rate, dt);
@@ -1263,7 +1263,7 @@ function createSmoothScroll({
       tween = null;
       aim = null;
     }
-    target = chunkGVSVZ2EW_cjs.clamp(target + y * wheelMultiplier, 0, maxScroll());
+    target = chunkSDBNPDW6_cjs.clamp(target + y * wheelMultiplier, 0, maxScroll());
     run();
   };
   const onScroll = () => {
@@ -1282,7 +1282,7 @@ function createSmoothScroll({
       return;
     }
     current += moved;
-    target = chunkGVSVZ2EW_cjs.clamp(target + moved, 0, maxScroll());
+    target = chunkSDBNPDW6_cjs.clamp(target + moved, 0, maxScroll());
     lastSet = y;
   };
   const onKeyDown = (e) => {
@@ -1295,7 +1295,7 @@ function createSmoothScroll({
     if (document.visibilityState === "hidden") stop();
   };
   const onResize = () => {
-    target = chunkGVSVZ2EW_cjs.clamp(target, 0, maxScroll());
+    target = chunkSDBNPDW6_cjs.clamp(target, 0, maxScroll());
   };
   const onClick = (e) => {
     if (!anchors || active !== controller || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
@@ -1361,7 +1361,7 @@ function createSmoothScroll({
       const el = typeof t === "string" ? safeQuery(t) : typeof t === "number" ? null : t;
       const y = resolveTop(el ?? t, options.offset);
       if (y === null) return;
-      const to = chunkGVSVZ2EW_cjs.clamp(y, 0, maxScroll());
+      const to = chunkSDBNPDW6_cjs.clamp(y, 0, maxScroll());
       if (options.immediate) {
         stop();
         window.scrollTo(window.scrollX, to);
@@ -2123,7 +2123,7 @@ ${channel.join("\n")}
 
 Object.defineProperty(exports, "easeOutExpo", {
   enumerable: true,
-  get: function () { return chunkGVSVZ2EW_cjs.easeOutExpo; }
+  get: function () { return chunkSDBNPDW6_cjs.easeOutExpo; }
 });
 exports.AI_CRAWLERS = AI_CRAWLERS;
 exports.Aurora = Aurora;

@@ -1,9 +1,9 @@
-import { zoomFrame, useLayerFlight, innerClipStart } from './chunk-DZG73W3D.js';
+import { useLayerFlight, zoomFrame, innerClipStart } from './chunk-JZZTE6QO.js';
 import { WORDS_PER_MINUTE } from './chunk-K7T4NUBP.js';
 export { WORDS_PER_MINUTE } from './chunk-K7T4NUBP.js';
-import { smoothstep } from './chunk-BN5H6RB6.js';
-import { usePrefersReducedMotion, useIsoLayoutEffect } from './chunk-I6LF4PLF.js';
-import { createContext, useContext, useState, useRef, useMemo, useCallback, useEffect, Children, isValidElement, forwardRef } from 'react';
+import { cubicBezier, smoothstep, lerpRect } from './chunk-V4CVL4FJ.js';
+import { usePrefersReducedMotion, useIsoLayoutEffect, useLatest, useHydrated } from './chunk-I6LF4PLF.js';
+import { createContext, useContext, useState, useRef, useMemo, Children, isValidElement, useCallback, forwardRef, useEffect } from 'react';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { flushSync, createPortal } from 'react-dom';
 
@@ -55,6 +55,34 @@ function Label({ long, short }) {
     /* @__PURE__ */ jsx("span", { className: "uipack-deck-tool-long", children: long }),
     /* @__PURE__ */ jsx("span", { className: "uipack-deck-tool-short", "aria-hidden": "true", children: short })
   ] });
+}
+function nextCue(layer, step, maxStep, upcoming) {
+  const words = (el, max = 64) => {
+    const t = (el?.textContent ?? "").replace(/\s+/g, " ").trim();
+    return t.length > max ? `${t.slice(0, max - 1).trimEnd()}\u2026` : t;
+  };
+  if (layer && step < maxStep) {
+    const next = step + 1;
+    const tour = layer.querySelector("[data-tour]");
+    if (tour) {
+      const ids = (tour.dataset.tour ?? "").split(" ");
+      if (next > ids.length) return `Build ${next} of ${maxStep}: camera pulls back to the whole grid`;
+      const cell = tour.querySelector(`[data-bento-cell="${CSS.escape(ids[next - 1])}"]`);
+      const label = words(cell?.querySelector(".uipack-deck-bento__detail > *")) || words(cell?.querySelector(".uipack-deck-bento-label")) || ids[next - 1];
+      return `Build ${next} of ${maxStep}: camera to ${label}`;
+    }
+    const build = layer.querySelector(`[data-build="${next}"]`);
+    return `Build ${next} of ${maxStep}${build ? `: ${words(build)}` : ""}`;
+  }
+  return upcoming ? `Next slide: ${upcoming.title}` : "End of deck";
+}
+function useNextCue(enabled, toRef, index, step, maxStep, slides) {
+  const [cue, setCue] = useState("");
+  useIsoLayoutEffect(() => {
+    if (!enabled) return;
+    setCue(nextCue(toRef.current, Math.min(step, maxStep), maxStep, slides[index + 1]));
+  }, [enabled, toRef, index, step, maxStep, slides]);
+  return cue;
 }
 var DeckSlideContext = /* @__PURE__ */ createContext({
   step: Infinity,
@@ -120,7 +148,6 @@ function Slide({
 // src/deck/transitions.ts
 var CANVAS_WIDTH = 1920;
 var CANVAS_HEIGHT = 1080;
-var CAMERA_CURVE = [0.3, 0.05, 0.25, 1];
 var TRAVEL_CURVE = [0.55, 0, 0.15, 1];
 var deckMotion = {
   quick: 160,
@@ -135,31 +162,14 @@ var deckMotion = {
   handoff: 90,
   settle: "cubic-bezier(0.2, 0.7, 0.2, 1)",
   exit: "cubic-bezier(0.4, 0, 1, 1)",
-  travel: `cubic-bezier(${TRAVEL_CURVE.join(", ")})`,
+  // Literals, not built from the curves: a module-level call would keep this module in every bundle
+  // that imports the deck entry, used or not. test/deck.test.tsx checks they match the curves.
+  travel: "cubic-bezier(0.55, 0, 0.15, 1)",
   travelCurve: TRAVEL_CURVE,
   /** The zoom camera's progress (in log scale): moving by 10% of the clock, landing softly. */
-  camera: `cubic-bezier(${CAMERA_CURVE.join(", ")})`
+  camera: "cubic-bezier(0.3, 0.05, 0.25, 1)"
 };
-function cubicBezier(x1, y1, x2, y2) {
-  const cx2 = 3 * x1;
-  const bx = 3 * (x2 - x1) - cx2;
-  const ax = 1 - cx2 - bx;
-  const cy = 3 * y1;
-  const by = 3 * (y2 - y1) - cy;
-  const ay = 1 - cy - by;
-  const x = (t) => ((ax * t + bx) * t + cx2) * t;
-  const dx = (t) => (3 * ax * t + 2 * bx) * t + cx2;
-  return (time) => {
-    let t = time;
-    for (let i = 0; i < 8; i++) {
-      const d = dx(t);
-      if (Math.abs(d) < 1e-6) break;
-      t = Math.min(1, Math.max(0, t - (x(t) - time) / d));
-    }
-    return ((ay * t + by) * t + cy) * t;
-  };
-}
-var cameraEase = cubicBezier(...CAMERA_CURVE);
+var cameraEase = /* @__PURE__ */ cubicBezier(0.3, 0.05, 0.25, 1);
 function resolveTransition(from, to, transitionOf, fallback = "advance") {
   if (from === to) return { kind: "none" };
   if (Math.abs(from - to) !== 1) return { kind: "fade" };
@@ -214,12 +224,6 @@ function flipFrom(from, to, scale, fit = "auto", textScale) {
     transform: `translate(${((from.x - to.x) / scale).toFixed(2)}px, ${((from.y - to.y) / scale).toFixed(2)}px) scale(${sx.toFixed(4)}, ${sy.toFixed(4)})`
   };
 }
-var lerpRect = (a, b, p) => ({
-  x: a.x + (b.x - a.x) * p,
-  y: a.y + (b.y - a.y) * p,
-  w: a.w + (b.w - a.w) * p,
-  h: a.h + (b.h - a.h) * p
-});
 var overlaps = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 var rectOf = (el) => {
   const r = el.getBoundingClientRect();
@@ -1664,8 +1668,7 @@ function Overview({
 }) {
   const ref = useRef(null);
   const [tab, setTab] = useState("slides");
-  const close = useRef(onClose);
-  close.current = onClose;
+  const closeRef = useLatest(onClose);
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
@@ -1682,7 +1685,7 @@ function Overview({
       if (e.defaultPrevented || root.contains(e.target)) return;
       if (e.key === "Escape") {
         e.preventDefault();
-        close.current();
+        closeRef.current();
       } else if (e.key === "Tab") {
         e.preventDefault();
         const items = focusables(root);
@@ -1694,7 +1697,7 @@ function Overview({
       document.removeEventListener("keydown", onDocumentKeyDown);
       for (const el of made) el.removeAttribute("inert");
     };
-  }, []);
+  }, [closeRef]);
   const onKeyDown = (e) => {
     e.stopPropagation();
     if (e.key === "Escape") {
@@ -1994,8 +1997,7 @@ function PrintJob({
   notes,
   onDone
 }) {
-  const done = useRef(onDone);
-  done.current = onDone;
+  const doneRef = useLatest(onDone);
   useEffect(() => {
     let cancelled = false;
     const previous = document.title;
@@ -2003,7 +2005,7 @@ function PrintJob({
       window.removeEventListener("afterprint", finish);
       window.removeEventListener("focus", finish);
       document.title = previous;
-      if (!cancelled) done.current();
+      if (!cancelled) doneRef.current();
       cancelled = true;
     };
     const frame = () => new Promise((r) => requestAnimationFrame(() => r(null)));
@@ -2023,7 +2025,7 @@ function PrintJob({
       window.removeEventListener("focus", finish);
       document.title = previous;
     };
-  }, [title]);
+  }, [title, doneRef]);
   return createPortal(
     /* @__PURE__ */ jsx("div", { className: "uipack-deck-print-root", children: /* @__PURE__ */ jsx("div", { className: "uipack-deck", "data-theme": theme, children: /* @__PURE__ */ jsx(Printout, { slides, theme, notes }) }) }),
     document.body
@@ -2037,13 +2039,15 @@ function Reader({
   onPresent
 }) {
   const listRef = useRef(null);
+  const openAt = useRef({ open, index });
   useEffect(() => {
-    if (!open) return;
+    const { open: open2, index: index2 } = openAt.current;
+    if (!open2) return;
     const raf = requestAnimationFrame(() => {
-      const item = listRef.current?.children[index];
+      const item = listRef.current?.children[index2];
       if (!item) return;
       item.scrollIntoView({ block: "start" });
-      if (open.focus) item.querySelector(".uipack-deck-read__present")?.focus({ preventScroll: true });
+      if (open2.focus) item.querySelector(".uipack-deck-read__present")?.focus({ preventScroll: true });
     });
     return () => cancelAnimationFrame(raf);
   }, []);
@@ -2101,6 +2105,249 @@ function ReadItem({
     ] })
   ] });
 }
+function useDeckKeys({ rootRef, keyboard, enabled, actions }) {
+  const onKeyDown = (e) => {
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || !enabled) return;
+    const t = e.target;
+    if (t?.closest?.('input, textarea, select, [contenteditable="true"], [contenteditable=""], [data-deck-keys="own"]')) return;
+    const onControl = Boolean(t?.closest?.("button, a, summary")) && t !== rootRef.current;
+    switch (e.key) {
+      case "ArrowRight":
+      case "ArrowDown":
+      case "PageDown":
+        actions.next();
+        break;
+      case "ArrowLeft":
+      case "ArrowUp":
+      case "PageUp":
+        actions.prev();
+        break;
+      case " ":
+      case "Enter":
+        if (onControl) return;
+        if (e.shiftKey) actions.prev();
+        else actions.next();
+        break;
+      case "Home":
+        actions.first();
+        break;
+      case "End":
+        actions.last();
+        break;
+      case "g":
+      case "G":
+      case "o":
+        actions.overview();
+        break;
+      case "f":
+      case "F":
+        actions.fullscreen();
+        break;
+      case "s":
+      case "S":
+        if (!actions.presenter) return;
+        actions.presenter();
+        break;
+      default:
+        return;
+    }
+    e.preventDefault();
+  };
+  const handlerRef = useLatest(onKeyDown);
+  useEffect(() => {
+    if (keyboard !== "global") return;
+    const handler = (e) => {
+      if (rootRef.current?.contains(e.target)) return;
+      handlerRef.current(e);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [keyboard, rootRef, handlerRef]);
+  return onKeyDown;
+}
+function useSwipe(next, prev) {
+  const start = useRef(null);
+  return {
+    onPointerDown: (e) => {
+      start.current = e.pointerType === "mouse" ? null : { x: e.clientX, y: e.clientY };
+    },
+    onPointerUp: (e) => {
+      const s = start.current;
+      start.current = null;
+      if (!s) return;
+      const dx = e.clientX - s.x;
+      const dy = e.clientY - s.y;
+      if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) (dx < 0 ? next : prev)();
+    },
+    onPointerCancel: () => {
+      start.current = null;
+    }
+  };
+}
+function useDeckSync({ id, view, viewRef, commit, go, slides, onPositionChange }) {
+  const channel = useRef(null);
+  const remote = useRef(false);
+  const reported = useRef({ index: view.index, step: view.step });
+  useEffect(() => {
+    if (typeof BroadcastChannel === "undefined") return;
+    const ch = new BroadcastChannel(`uipack-deck:${id}`);
+    channel.current = ch;
+    ch.onmessage = (e) => {
+      const msg = e.data;
+      const v = viewRef.current;
+      if (msg.type === "hello") {
+        ch.postMessage({ type: "go", index: v.index, step: v.step });
+      } else if (msg.type === "go" && typeof msg.index === "number") {
+        if (v.index === msg.index && v.step === msg.step) return;
+        remote.current = true;
+        if (v.index === msg.index) commit({ ...v, step: msg.step ?? 0 });
+        else go(msg.index, msg.step ?? 0);
+      }
+    };
+    ch.postMessage({ type: "hello" });
+    return () => {
+      ch.close();
+      channel.current = null;
+    };
+  }, [id, go, commit, viewRef]);
+  const reportRef = useLatest({ slides, onPositionChange });
+  useEffect(() => {
+    const last = reported.current;
+    if (last.index === view.index && last.step === view.step) return;
+    reported.current = { index: view.index, step: view.step };
+    const { slides: slides2, onPositionChange: onPositionChange2 } = reportRef.current;
+    onPositionChange2?.({ index: view.index, step: view.step, id: slides2[view.index].id });
+    if (remote.current) {
+      remote.current = false;
+      return;
+    }
+    channel.current?.postMessage({ type: "go", index: view.index, step: view.step });
+  }, [view.index, view.step, reportRef]);
+}
+var fullscreenElement = () => document.fullscreenElement ?? document.webkitFullscreenElement ?? null;
+function fullscreenAvailable() {
+  const doc = document;
+  const prefixed = doc.fullscreenEnabled === void 0 && doc.webkitFullscreenEnabled !== false && typeof doc.documentElement.webkitRequestFullscreen === "function";
+  return doc.fullscreenEnabled === true || prefixed;
+}
+function useFullscreen(rootRef) {
+  const hydrated = useHydrated();
+  const available = hydrated && fullscreenAvailable();
+  const [fullscreen, setFullscreen] = useState(false);
+  useEffect(() => {
+    const onChange = () => setFullscreen(fullscreenElement() === rootRef.current);
+    document.addEventListener("fullscreenchange", onChange);
+    document.addEventListener("webkitfullscreenchange", onChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onChange);
+      document.removeEventListener("webkitfullscreenchange", onChange);
+    };
+  }, [rootRef]);
+  const toggle = () => {
+    if (!available) return;
+    const doc = document;
+    const root = rootRef.current;
+    if (fullscreenElement()) {
+      if (doc.exitFullscreen) void doc.exitFullscreen();
+      else doc.webkitExitFullscreen?.();
+    } else if (root?.requestFullscreen) void root.requestFullscreen();
+    else root?.webkitRequestFullscreen?.();
+    root?.focus();
+  };
+  return { available, fullscreen, toggle };
+}
+function startIndexOf(slides, slide) {
+  const i = typeof slide === "number" ? slide : slide ? slides.findIndex((x) => x.id === slide) : 0;
+  return Math.min(Math.max(i, 0), Math.max(slides.length - 1, 0));
+}
+function buildsOn(layer) {
+  return Array.from(layer.querySelectorAll("[data-build], [data-steps]")).reduce(
+    (m, el) => Math.max(m, Number(el.getAttribute("data-build") ?? el.getAttribute("data-steps")) || 0),
+    0
+  );
+}
+function useDeckPosition({ slides, initial, toRef, settle }) {
+  const count = slides.length;
+  const [view, setView] = useState(() => ({
+    index: startIndexOf(slides, initial?.slide),
+    step: initial?.step ?? 0,
+    from: null,
+    seq: 0
+  }));
+  const viewRef = useRef(view);
+  const commit = useCallback((next2) => {
+    viewRef.current = next2;
+    setView(next2);
+  }, []);
+  const [maxStep, setMaxStep] = useState(0);
+  useIsoLayoutEffect(() => {
+    const layer = toRef.current;
+    if (layer) setMaxStep(buildsOn(layer));
+  }, [view.index, slides, toRef]);
+  const go = useCallback(
+    (index, step = 0) => {
+      const target = Math.min(Math.max(index, 0), count - 1);
+      settle();
+      const v = viewRef.current;
+      commit(
+        v.index === target ? { ...v, step, from: null } : { index: target, step, from: { index: v.index, step: v.step }, seq: v.seq + 1 }
+      );
+    },
+    [count, settle, commit]
+  );
+  const next = useCallback(() => {
+    const v = viewRef.current;
+    if (v.step < maxStep) commit({ ...v, step: v.step + 1 });
+    else if (v.index < count - 1) go(v.index + 1, 0);
+  }, [count, go, maxStep, commit]);
+  const prev = useCallback(() => {
+    const v = viewRef.current;
+    const step = Math.min(v.step, maxStep);
+    if (step > 0) commit({ ...v, step: step - 1 });
+    else if (v.index > 0) go(v.index - 1, Infinity);
+  }, [go, maxStep, commit]);
+  return { view, viewRef, commit, go, next, prev, maxStep };
+}
+
+// src/deck/player/useTransition.ts
+function useDeckTransition({
+  view,
+  viewRef,
+  commit,
+  fromRef,
+  toRef,
+  scale,
+  slides,
+  transition,
+  reducedMotion,
+  fly,
+  settle
+}) {
+  const latestRef = useLatest({ view, scale, slides, transition, reducedMotion });
+  useIsoLayoutEffect(() => {
+    const { view: view2, scale: scale2, slides: slides2, transition: transition2, reducedMotion: reducedMotion2 } = latestRef.current;
+    if (!view2.from) return;
+    const from = fromRef.current;
+    const to = toRef.current;
+    const seq = view2.seq;
+    const done = () => {
+      settle();
+      if (from) from.style.visibility = "hidden";
+      if (viewRef.current.seq === seq) commit({ ...viewRef.current, from: null });
+    };
+    if (!from || !to || !scale2) return done();
+    const resolved = resolveTransition(view2.from.index, view2.index, (i) => slides2[i]?.transition, transition2);
+    const started = runTransition({
+      transition: resolved,
+      from,
+      to,
+      direction: view2.index > view2.from.index ? 1 : -1,
+      scale: scale2,
+      reducedMotion: reducedMotion2
+    });
+    fly(started, done);
+  }, [view.seq, latestRef, fromRef, toRef, viewRef, commit, fly, settle]);
+}
 function DeckPlayer(props) {
   if (props.slides.length === 0) return /* @__PURE__ */ jsx(EmptyDeck, { ...props });
   return /* @__PURE__ */ jsx(Player, { ...props });
@@ -2137,16 +2384,11 @@ function Player({
   className
 }) {
   const count = slides.length;
-  const startIndex = (() => {
-    const s = initial?.slide;
-    const i = typeof s === "number" ? s : s ? slides.findIndex((x) => x.id === s) : 0;
-    return Math.min(Math.max(i, 0), Math.max(count - 1, 0));
-  })();
-  const [view, setView] = useState({ index: startIndex, step: initial?.step ?? 0, from: null, seq: 0 });
   const [overview, setOverview] = useState(false);
-  const [fullscreen, setFullscreen] = useState(false);
   const [reading, setReading] = useState(initialView === "read");
-  const [readOpen, setReadOpen] = useState(startIndex > 0 ? { focus: false } : null);
+  const [readOpen, setReadOpen] = useState(
+    () => startIndexOf(slides, initial?.slide) > 0 ? { focus: false } : null
+  );
   const [printing, setPrinting] = useState(false);
   const prefersReduced = usePrefersReducedMotion();
   const reducedMotion = motion === "none" || prefersReduced;
@@ -2160,139 +2402,17 @@ function Player({
     () => overview && lintKey ? lintDeck(slides, JSON.parse(lintKey)) : void 0,
     [overview, slides, lintKey]
   );
-  const [maxStep, setMaxStep] = useState(0);
-  const viewRef = useRef(view);
-  const commit = (next2) => {
-    viewRef.current = next2;
-    setView(next2);
-  };
   const { settle, fly } = useLayerFlight(
     () => stageEl.current?.querySelectorAll(".uipack-deck-layer").forEach((el) => {
       el.style.zIndex = "";
       el.style.visibility = "";
     })
   );
-  const go = useCallback(
-    (index, step = 0) => {
-      const target = Math.min(Math.max(index, 0), count - 1);
-      settle();
-      const v = viewRef.current;
-      commit(
-        v.index === target ? { ...v, step, from: null } : { index: target, step, from: { index: v.index, step: v.step }, seq: v.seq + 1 }
-      );
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [count]
-  );
-  const next = useCallback(() => {
-    const v = viewRef.current;
-    if (v.step < maxStep) commit({ ...v, step: v.step + 1 });
-    else if (v.index < count - 1) go(v.index + 1, 0);
-  }, [count, go, maxStep]);
-  const prev = useCallback(() => {
-    const v = viewRef.current;
-    const step = Math.min(v.step, maxStep);
-    if (step > 0) commit({ ...v, step: step - 1 });
-    else if (v.index > 0) go(v.index - 1, Infinity);
-  }, [go, maxStep]);
-  useIsoLayoutEffect(() => {
-    const layer = toRef.current;
-    if (!layer) return;
-    setMaxStep(
-      Array.from(layer.querySelectorAll("[data-build], [data-steps]")).reduce(
-        (m, el) => Math.max(m, Number(el.getAttribute("data-build") ?? el.getAttribute("data-steps")) || 0),
-        0
-      )
-    );
-  }, [view.index, slides]);
-  const [cue, setCue] = useState("");
-  useIsoLayoutEffect(() => {
-    if (mode !== "presenter") return;
-    setCue(nextCue(toRef.current, Math.min(view.step, maxStep), maxStep, slides[view.index + 1]));
-  }, [mode, view.index, view.step, maxStep, slides]);
-  useIsoLayoutEffect(() => {
-    if (!view.from) return;
-    const from2 = fromRef.current;
-    const to = toRef.current;
-    const seq = view.seq;
-    const done = () => {
-      settle();
-      if (from2) from2.style.visibility = "hidden";
-      if (viewRef.current.seq === seq) commit({ ...viewRef.current, from: null });
-    };
-    if (!from2 || !to || !scale) return done();
-    const resolved = resolveTransition(view.from.index, view.index, (i) => slides[i]?.transition, transition);
-    const started = runTransition({
-      transition: resolved,
-      from: from2,
-      to,
-      direction: view.index > view.from.index ? 1 : -1,
-      scale,
-      reducedMotion
-    });
-    fly(started, done);
-  }, [view.seq]);
-  const channel = useRef(null);
-  const remote = useRef(false);
-  const reported = useRef({ index: view.index, step: view.step });
-  useEffect(() => {
-    if (typeof BroadcastChannel === "undefined") return;
-    const ch = new BroadcastChannel(`uipack-deck:${id}`);
-    channel.current = ch;
-    ch.onmessage = (e) => {
-      const msg = e.data;
-      if (msg.type === "hello") {
-        const v = viewRef.current;
-        ch.postMessage({ type: "go", index: v.index, step: v.step });
-      } else if (msg.type === "go" && typeof msg.index === "number") {
-        const v = viewRef.current;
-        if (v.index === msg.index && v.step === msg.step) return;
-        remote.current = true;
-        if (v.index === msg.index) commit({ ...v, step: msg.step ?? 0 });
-        else go(msg.index, msg.step ?? 0);
-      }
-    };
-    ch.postMessage({ type: "hello" });
-    return () => {
-      ch.close();
-      channel.current = null;
-    };
-  }, [id, go]);
-  useEffect(() => {
-    const last = reported.current;
-    if (last.index === view.index && last.step === view.step) return;
-    reported.current = { index: view.index, step: view.step };
-    onPositionChange?.({ index: view.index, step: view.step, id: slides[view.index].id });
-    if (remote.current) {
-      remote.current = false;
-      return;
-    }
-    channel.current?.postMessage({ type: "go", index: view.index, step: view.step });
-  }, [view.index, view.step]);
-  const [canFullscreen, setCanFullscreen] = useState(false);
-  useEffect(() => {
-    const doc = document;
-    const prefixed = doc.fullscreenEnabled === void 0 && doc.webkitFullscreenEnabled !== false && typeof rootRef.current?.webkitRequestFullscreen === "function";
-    setCanFullscreen(doc.fullscreenEnabled === true || prefixed);
-    const onChange = () => setFullscreen(fullscreenElement() === rootRef.current);
-    document.addEventListener("fullscreenchange", onChange);
-    document.addEventListener("webkitfullscreenchange", onChange);
-    return () => {
-      document.removeEventListener("fullscreenchange", onChange);
-      document.removeEventListener("webkitfullscreenchange", onChange);
-    };
-  }, []);
-  const toggleFullscreen = () => {
-    if (!canFullscreen) return;
-    const doc = document;
-    const root = rootRef.current;
-    if (fullscreenElement()) {
-      if (doc.exitFullscreen) void doc.exitFullscreen();
-      else doc.webkitExitFullscreen?.();
-    } else if (root?.requestFullscreen) void root.requestFullscreen();
-    else root?.webkitRequestFullscreen?.();
-    rootRef.current?.focus();
-  };
+  const { view, viewRef, commit, go, next, prev, maxStep } = useDeckPosition({ slides, initial, toRef, settle });
+  const cue = useNextCue(mode === "presenter", toRef, view.index, view.step, maxStep, slides);
+  useDeckTransition({ view, viewRef, commit, fromRef, toRef, scale, slides, transition, reducedMotion, fly, settle });
+  useDeckSync({ id, view, viewRef, commit, go, slides, onPositionChange });
+  const fullscreen = useFullscreen(rootRef);
   const openPresenter = () => {
     let href = presenterHref;
     if (!href) {
@@ -2311,122 +2431,56 @@ function Player({
     setOverview(false);
     requestAnimationFrame(() => overviewButtonRef.current?.focus());
   };
-  const onKeyDown = (e) => {
-    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || overview || reading) return;
-    const t = e.target;
-    if (t?.closest?.('input, textarea, select, [contenteditable="true"], [contenteditable=""], [data-deck-keys="own"]')) return;
-    const onControl = Boolean(t?.closest?.("button, a, summary")) && t !== rootRef.current;
-    switch (e.key) {
-      case "ArrowRight":
-      case "ArrowDown":
-      case "PageDown":
-        next();
-        break;
-      case "ArrowLeft":
-      case "ArrowUp":
-      case "PageUp":
-        prev();
-        break;
-      case " ":
-      case "Enter":
-        if (onControl) return;
-        if (e.shiftKey) prev();
-        else next();
-        break;
-      case "Home":
-        go(0, 0);
-        break;
-      case "End":
-        go(count - 1, Infinity);
-        break;
-      case "g":
-      case "G":
-      case "o":
-        setOverview(true);
-        break;
-      case "f":
-      case "F":
-        toggleFullscreen();
-        break;
-      case "s":
-      case "S":
-        if (mode === "presenter") return;
-        openPresenter();
-        break;
-      default:
-        return;
+  const onKeyDown = useDeckKeys({
+    rootRef,
+    keyboard,
+    enabled: !overview && !reading,
+    actions: {
+      next,
+      prev,
+      first: () => go(0, 0),
+      last: () => go(count - 1, Infinity),
+      overview: () => setOverview(true),
+      fullscreen: fullscreen.toggle,
+      presenter: mode === "presenter" ? void 0 : openPresenter
     }
-    e.preventDefault();
-  };
-  const keyHandler = useRef(onKeyDown);
-  keyHandler.current = onKeyDown;
-  useEffect(() => {
-    if (keyboard !== "global") return;
-    const handler = (e) => {
-      if (rootRef.current?.contains(e.target)) return;
-      keyHandler.current(e);
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [keyboard]);
-  const swipe = useRef(null);
-  const onPointerDown = (e) => {
-    swipe.current = e.pointerType === "mouse" ? null : { x: e.clientX, y: e.clientY };
-  };
-  const onPointerUp = (e) => {
-    const s = swipe.current;
-    swipe.current = null;
-    if (!s) return;
-    const dx = e.clientX - s.x;
-    const dy = e.clientY - s.y;
-    if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) (dx < 0 ? next : prev)();
-  };
+  });
+  const swipe = useSwipe(next, prev);
   const current = slides[view.index];
   const from = view.from ? slides[view.from.index] : null;
   const stepNow = Math.min(view.step, maxStep);
   const atStart = view.index === 0 && stepNow === 0;
   const atEnd = view.index === count - 1 && view.step >= maxStep;
-  const stage = /* @__PURE__ */ jsx(
-    "div",
-    {
-      ref: stageRef,
-      className: "uipack-deck-stage",
-      "data-tone": current.tone ?? "paper",
-      onPointerDown,
-      onPointerUp,
-      onPointerCancel: () => swipe.current = null,
-      children: /* @__PURE__ */ jsxs("div", { className: "uipack-deck-canvas", style: { transform: `scale(${scale})`, visibility: scale ? void 0 : "hidden" }, children: [
-        from && view.from && /* @__PURE__ */ jsx(
-          Layer,
-          {
-            ref: fromRef,
-            slide: from,
-            index: view.from.index,
-            count,
-            step: view.from.step,
-            active: false,
-            theme,
-            reducedMotion
-          },
-          `layer-${view.from.index}`
-        ),
-        /* @__PURE__ */ jsx(
-          Layer,
-          {
-            ref: toRef,
-            slide: current,
-            index: view.index,
-            count,
-            step: view.step,
-            active: true,
-            theme,
-            reducedMotion
-          },
-          `layer-${view.index}`
-        )
-      ] })
-    }
-  );
+  const stage = /* @__PURE__ */ jsx("div", { ref: stageRef, className: "uipack-deck-stage", "data-tone": current.tone ?? "paper", ...swipe, children: /* @__PURE__ */ jsxs("div", { className: "uipack-deck-canvas", style: { transform: `scale(${scale})`, visibility: scale ? void 0 : "hidden" }, children: [
+    from && view.from && /* @__PURE__ */ jsx(
+      Layer,
+      {
+        ref: fromRef,
+        slide: from,
+        index: view.from.index,
+        count,
+        step: view.from.step,
+        active: false,
+        theme,
+        reducedMotion
+      },
+      `layer-${view.from.index}`
+    ),
+    /* @__PURE__ */ jsx(
+      Layer,
+      {
+        ref: toRef,
+        slide: current,
+        index: view.index,
+        count,
+        step: view.step,
+        active: true,
+        theme,
+        reducedMotion
+      },
+      `layer-${view.index}`
+    )
+  ] }) });
   const controls = /* @__PURE__ */ jsx(
     Controls,
     {
@@ -2435,8 +2489,8 @@ function Player({
       atStart,
       atEnd,
       mode,
-      canFullscreen,
-      fullscreen,
+      canFullscreen: fullscreen.available,
+      fullscreen: fullscreen.fullscreen,
       overviewButtonRef,
       onPrev: prev,
       onNext: next,
@@ -2444,7 +2498,7 @@ function Player({
       onPrint: () => setPrinting(true),
       onOverview: () => setOverview(true),
       onPresenter: openPresenter,
-      onFullscreen: toggleFullscreen
+      onFullscreen: fullscreen.toggle
     }
   );
   return /* @__PURE__ */ jsxs(
@@ -2545,27 +2599,6 @@ function Player({
     }
   );
 }
-var fullscreenElement = () => document.fullscreenElement ?? document.webkitFullscreenElement ?? null;
-function nextCue(layer, step, maxStep, upcoming) {
-  const words = (el, max = 64) => {
-    const t = (el?.textContent ?? "").replace(/\s+/g, " ").trim();
-    return t.length > max ? `${t.slice(0, max - 1).trimEnd()}\u2026` : t;
-  };
-  if (layer && step < maxStep) {
-    const next = step + 1;
-    const tour = layer.querySelector("[data-tour]");
-    if (tour) {
-      const ids = (tour.dataset.tour ?? "").split(" ");
-      if (next > ids.length) return `Build ${next} of ${maxStep}: camera pulls back to the whole grid`;
-      const cell = tour.querySelector(`[data-bento-cell="${CSS.escape(ids[next - 1])}"]`);
-      const label = words(cell?.querySelector(".uipack-deck-bento__detail > *")) || words(cell?.querySelector(".uipack-deck-bento-label")) || ids[next - 1];
-      return `Build ${next} of ${maxStep}: camera to ${label}`;
-    }
-    const build = layer.querySelector(`[data-build="${next}"]`);
-    return `Build ${next} of ${maxStep}${build ? `: ${words(build)}` : ""}`;
-  }
-  return upcoming ? `Next slide: ${upcoming.title}` : "End of deck";
-}
 function BentoCell(_) {
   return null;
 }
@@ -2652,7 +2685,9 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
       )
     );
   }, [focus, maxScale]);
+  const latestRef = useLatest({ focus, leaving, thumbnail, prefersReduced });
   useIsoLayoutEffect(() => {
+    const { focus: focus2, leaving: leaving2, thumbnail: thumbnail2, prefersReduced: prefersReduced2 } = latestRef.current;
     const grid = gridRef.current;
     if (!grid) return;
     facesRef.current.forEach((a) => a.cancel());
@@ -2663,19 +2698,19 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
     fromRef.current = to;
     const first = !shownRef.current;
     shownRef.current = true;
-    const moving = !first && !thumbnail && !prefersReduced && grid.closest('[data-motion="none"]') === null && typeof grid.animate === "function" && (from.s !== to.s || from.tx !== to.tx || from.ty !== to.ty);
+    const moving = !first && !thumbnail2 && !prefersReduced2 && grid.closest('[data-motion="none"]') === null && typeof grid.animate === "function" && (from.s !== to.s || from.tx !== to.tx || from.ty !== to.ty);
     const ease = cubicBezier(...deckMotion.travelCurve);
     for (const cell of Array.from(grid.querySelectorAll(":scope > [data-bento-cell]"))) {
       const id = cell.dataset.bentoCell;
       const words = wordsBox(cell);
-      cell.toggleAttribute("data-clipped", Boolean(focus && id !== focus && !inBox(words, to, view)));
-      if (!moving || id === focus) continue;
-      const left = id === leaving && cell.querySelector(":scope > .uipack-deck-bento__detail");
+      cell.toggleAttribute("data-clipped", Boolean(focus2 && id !== focus2 && !inBox(words, to, view)));
+      if (!moving || id === focus2) continue;
+      const left = id === leaving2 && cell.querySelector(":scope > .uipack-deck-bento__detail");
       const frames = faceFrames(words, view, from, to, deckMotion.pan, ease, left ? DETAIL_HOLD + DETAIL_FADE : 0);
       const face = cell.querySelector(":scope > .uipack-deck-bento__face");
       if (frames && face) facesRef.current.push(face.animate(frames, { duration: deckMotion.pan, easing: "linear" }));
     }
-  }, [camera]);
+  }, [camera, latestRef]);
   useIsoLayoutEffect(() => () => facesRef.current.forEach((a) => a.cancel()), []);
   const cells = Children.toArray(children).filter(
     (c) => isValidElement(c) && c.type === BentoCell
@@ -3925,4 +3960,4 @@ function HarveyTable({
   ] });
 }
 
-export { Annotation, BarChart, Bento, BentoCell, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, ConsultingSlide, DeckPlayer, DeckSlideContext, HarveyBall, HarveyTable, KpiTiles, LINT_RULES, LineChart, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, Morph, Panel, REPEATABLE_ROLES, Ref, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, SlideThumbnail, SoWhat, Sparkline, StackedBar, Tracker, Waterfall, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, slideZoomFrame, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };
+export { Annotation, BarChart, Bento, BentoCell, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, ConsultingSlide, DeckPlayer, DeckSlideContext, HarveyBall, HarveyTable, KpiTiles, LINT_RULES, LineChart, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, Morph, Panel, REPEATABLE_ROLES, Ref, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, SlideThumbnail, SoWhat, Sparkline, StackedBar, Tracker, Waterfall, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };

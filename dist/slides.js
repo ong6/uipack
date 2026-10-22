@@ -1,8 +1,8 @@
 import { validateSlideStory, resolveNodePose, clampStop } from './chunk-FDQ4SBOZ.js';
 export { clampStop, resolveNodePose, slidePalettes, validateSlideStory } from './chunk-FDQ4SBOZ.js';
 import { CanvasView } from './chunk-D3TRNW7E.js';
-import { usePrefersReducedMotion } from './chunk-I6LF4PLF.js';
-import { useState, useRef, useEffect, useId } from 'react';
+import { usePrefersReducedMotion, useLatest } from './chunk-I6LF4PLF.js';
+import { useState, useRef, useCallback, useEffect, useId } from 'react';
 import { jsxs, jsx } from 'react/jsx-runtime';
 
 function Diagram({ story, stop }) {
@@ -38,22 +38,21 @@ function SceneViewport({
   const prefersReduced = usePrefersReducedMotion();
   const reduced = motion === "none" || prefersReduced;
   const stop = story.stops.find((s) => s.id === stopId) ?? story.stops[0];
-  const latest = useRef({ stop, reduced, paused, onSettled });
-  latest.current = { stop, reduced, paused, onSettled };
-  const [status, setStatus] = useState("loading");
-  const [selected, setSelected] = useState(null);
+  const latestRef = useLatest({ stop, reduced, paused, onSettled });
   const [failed, setFailed] = useState(false);
-  const [settled, setSettled] = useState("");
-  const [transitioning, setTransitioning] = useState(false);
+  const fallback = renderMode === "diagram" || failed;
+  const [ready, setReady] = useState(false);
+  const status = fallback ? "fallback" : ready ? "ready" : "loading";
+  const [selection, setSelection] = useState({ stopId: stop.id, id: null });
+  const selected = selection.stopId === stop.id ? selection.id : null;
+  const setSelected = useCallback((id) => setSelection({ stopId: latestRef.current.stop.id, id }), [latestRef]);
+  const [liveSettled, setSettled] = useState("");
+  const [liveTransitioning, setTransitioning] = useState(false);
+  const settled = fallback ? stop.id : liveSettled;
+  const transitioning = !fallback && liveTransitioning;
   useEffect(() => {
     let cancelled = false;
-    if (renderMode === "diagram" || failed) {
-      setStatus("fallback");
-      setTransitioning(false);
-      setSettled(latest.current.stop.id);
-      return;
-    }
-    setStatus("loading");
+    if (fallback) return;
     void import('./renderer-M5ZWAWHJ.js').then(({ createSlideScene }) => {
       if (cancelled || !host.current || !labels.current) return;
       try {
@@ -61,21 +60,21 @@ function SceneViewport({
           host.current,
           labels.current,
           story,
-          latest.current.stop,
+          latestRef.current.stop,
           theme,
-          latest.current.reduced,
+          latestRef.current.reduced,
           () => setFailed(true),
           (id) => {
             if (!cancelled) {
               setSettled(id);
               setTransitioning(false);
-              latest.current.onSettled?.(id);
+              latestRef.current.onSettled?.(id);
             }
           },
           setSelected
         );
-        runtime.current.setPaused(latest.current.paused);
-        setStatus("ready");
+        runtime.current.setPaused(latestRef.current.paused);
+        setReady(true);
       } catch {
         if (!cancelled) setFailed(true);
       }
@@ -86,20 +85,21 @@ function SceneViewport({
       cancelled = true;
       runtime.current?.dispose();
       runtime.current = void 0;
-    };
-  }, [story, theme, renderMode, failed]);
-  useEffect(() => {
-    if (renderMode === "diagram" || failed) {
-      setSettled(stop.id);
+      setReady(false);
       setTransitioning(false);
-      onSettled?.(stop.id);
+    };
+  }, [story, theme, fallback, latestRef, setSelected]);
+  useEffect(() => {
+    const { reduced: reduced2, onSettled: onSettled2 } = latestRef.current;
+    if (fallback) {
+      onSettled2?.(stop.id);
       return;
     }
     if (runtime.current) {
-      setTransitioning(!reduced);
-      runtime.current.goTo(stop, reduced);
+      setTransitioning(!reduced2);
+      runtime.current.goTo(stop, reduced2);
     }
-  }, [stop, renderMode, failed]);
+  }, [stop, fallback, latestRef]);
   useEffect(() => {
     runtime.current?.setReducedMotion(reduced);
   }, [reduced]);
@@ -112,9 +112,6 @@ function SceneViewport({
   useEffect(() => {
     runtime.current?.setZoom(zoom);
   }, [zoom, status]);
-  useEffect(() => {
-    setSelected(null);
-  }, [stop.id]);
   const chosen = story.nodes.find((n) => n.id === selected);
   return /* @__PURE__ */ jsxs(
     "div",
