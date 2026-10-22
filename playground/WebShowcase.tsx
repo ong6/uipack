@@ -304,7 +304,7 @@ export default function WebShowcase() {
       <SmoothScroll />
       <section data-route="web" id="web-example" className="web-anchor">
         <p className="collection-intro">
-          Landing-page building blocks from <code>uipack/web</code>. The example below is one page with one goal: a demo-first hero
+          The example below, built from <code>uipack/web</code>, is one page with one goal: a demo-first hero
           that shows the product working, one star visual, rhyming icons, and the call to action repeated three times. Flashy pieces
           each earn their motion; the low-key pieces are the defaults. Wheel scrolling on this page is eased by <code>SmoothScroll</code>;
           touch and reduced motion keep native scrolling. The page also sets its own head, JSON-LD and FAQ from the discoverability

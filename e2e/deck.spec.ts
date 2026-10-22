@@ -76,6 +76,44 @@ test.describe("/deck player", () => {
     await expect(deck(page)).toHaveAttribute("data-index", "5");
   });
 
+  // WebKit's default Tab skips buttons, so a dialog of buttons that leaves Tab to the browser
+  // loses focus to the page: Escape then does nothing and the deck keys stay off. Runs in both engines.
+  test("the overview keeps Tab inside, Escape still closes it, the page behind is inert, a backdrop click closes it", async ({ page }) => {
+    await page.goto("/deck?view=present");
+    await deck(page).focus();
+    await page.keyboard.press("g");
+    const dialog = page.getByRole("dialog", { name: "All slides" });
+    await expect(dialog).toBeVisible();
+    const items = await dialog.locator("button").evaluateAll((els) => els.filter((el) => !el.closest("[inert]")).length);
+    for (let i = 0; i < items + 2; i++) {
+      await page.keyboard.press(i % 3 === 2 ? "Shift+Tab" : "Tab");
+      expect(await dialog.evaluate((el) => el.contains(document.activeElement)), `after Tab ${i + 1}`).toBe(true);
+    }
+    // Everything outside the dialog is inert while it is open.
+    await expect(page.locator(".showcase-header")).toHaveAttribute("inert", "");
+    await expect(page.locator(".uipack-deck-controls")).toHaveAttribute("inert", "");
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(page.getByRole("button", { name: "All slides" })).toBeFocused();
+    await expect(page.locator("[inert]:not(.uipack-deck-layer)")).toHaveCount(0);
+    // The deck keys work again.
+    await deck(page).focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(deck(page)).toHaveAttribute("data-index", "1");
+    // Escape still closes it when focus has left the dialog for the page body.
+    await page.keyboard.press("g");
+    await expect(dialog).toBeVisible();
+    await page.evaluate(() => (document.activeElement as HTMLElement).blur());
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    // A click on the backdrop, outside the header and tiles, closes it.
+    await deck(page).focus();
+    await page.keyboard.press("g");
+    await expect(dialog).toBeVisible();
+    await page.mouse.click(5, 5);
+    await expect(dialog).toBeHidden();
+  });
+
   test("a speaker window stays in step with the audience window", async ({ page, context }) => {
     await page.goto("/deck?view=present");
     const speaker = await context.newPage();

@@ -277,6 +277,13 @@
 .web-paint-swatch span:nth-child(2) { background: var(--web-secondary); }
 .web-paint-swatch span:nth-child(3) { flex: 0.4; background: var(--web-accent); }
 
+/* Each flashy card's title links to its piece in the example. The title is one short line, so the
+   link reaches 24px and more with spacing; on touch, padding grows it to 44px without moving the text. */
+#web-flashy h3 a { display: inline-block; min-height: 24px; }
+@media (pointer: coarse) {
+  #web-flashy h3 a { padding: 10px 0; margin: -10px 0; min-height: 44px; box-sizing: border-box; }
+}
+
 /* ---------- Page index: in-page links that SmoothScroll eases ---------- */
 .web-anchor { scroll-margin-top: 24px; }
 .web-index { margin: 0 0 16px; }

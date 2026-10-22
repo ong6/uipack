@@ -1297,6 +1297,12 @@ function Storyline({
 
 // src/deck/player/Overview.tsx
 
+var FOCUSABLE = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+function focusables(root) {
+  return Array.from(_nullishCoalesce(_optionalChain([root, 'optionalAccess', _17 => _17.querySelectorAll, 'call', _18 => _18(FOCUSABLE)]), () => ( []))).filter(
+    (el) => !el.closest("[inert]") && el.getClientRects().length > 0
+  );
+}
 function Overview({
   slides,
   index,
@@ -1307,8 +1313,36 @@ function Overview({
 }) {
   const ref = _react.useRef.call(void 0, null);
   const [tab, setTab] = _react.useState.call(void 0, "slides");
+  const close = _react.useRef.call(void 0, onClose);
+  close.current = onClose;
   _react.useEffect.call(void 0, () => {
-    _optionalChain([ref, 'access', _17 => _17.current, 'optionalAccess', _18 => _18.querySelector, 'call', _19 => _19('[aria-current="true"]'), 'optionalAccess', _20 => _20.focus, 'call', _21 => _21()]);
+    const root = ref.current;
+    if (!root) return;
+    _optionalChain([root, 'access', _19 => _19.querySelector, 'call', _20 => _20('[aria-current="true"]'), 'optionalAccess', _21 => _21.focus, 'call', _22 => _22()]);
+    const made = [];
+    for (let el = root; el.parentElement && el !== document.body; el = el.parentElement) {
+      for (const sibling of Array.from(el.parentElement.children)) {
+        if (sibling === el || sibling.hasAttribute("inert")) continue;
+        sibling.setAttribute("inert", "");
+        made.push(sibling);
+      }
+    }
+    const onDocumentKeyDown = (e) => {
+      if (e.defaultPrevented || root.contains(e.target)) return;
+      if (e.key === "Escape") {
+        e.preventDefault();
+        close.current();
+      } else if (e.key === "Tab") {
+        e.preventDefault();
+        const items = focusables(root);
+        _optionalChain([items, 'access', _23 => _23[e.shiftKey ? items.length - 1 : 0], 'optionalAccess', _24 => _24.focus, 'call', _25 => _25()]);
+      }
+    };
+    document.addEventListener("keydown", onDocumentKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onDocumentKeyDown);
+      for (const el of made) el.removeAttribute("inert");
+    };
   }, []);
   const onKeyDown = (e) => {
     e.stopPropagation();
@@ -1317,45 +1351,57 @@ function Overview({
       onClose();
       return;
     }
-    const buttons = Array.from(_nullishCoalesce(_optionalChain([ref, 'access', _22 => _22.current, 'optionalAccess', _23 => _23.querySelectorAll, 'call', _24 => _24("button")]), () => ( [])));
-    const at = buttons.indexOf(document.activeElement);
-    if (e.key === "Tab" && buttons.length) {
-      if (e.shiftKey && at <= 0) {
-        e.preventDefault();
-        buttons[buttons.length - 1].focus();
-      } else if (!e.shiftKey && at === buttons.length - 1) {
-        e.preventDefault();
-        buttons[0].focus();
-      }
+    const items = focusables(ref.current);
+    const at = items.indexOf(document.activeElement);
+    if (e.key === "Tab") {
+      e.preventDefault();
+      if (!items.length) return;
+      const step = e.shiftKey ? -1 : 1;
+      items[at < 0 ? e.shiftKey ? items.length - 1 : 0 : (at + step + items.length) % items.length].focus();
+      return;
     }
-    const tiles = buttons.filter((b) => b.dataset.tile !== void 0);
+    const tiles = items.filter((b) => b.dataset.tile !== void 0);
     const ti = tiles.indexOf(document.activeElement);
     if (ti >= 0 && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
       e.preventDefault();
       tiles[Math.min(Math.max(ti + (e.key === "ArrowRight" ? 1 : -1), 0), tiles.length - 1)].focus();
     }
   };
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { ref, className: "uipack-deck-overview", role: "dialog", "aria-modal": "true", "aria-label": "All slides", onKeyDown, children: [
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-deck-overview__head", children: [
-      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { children: [
-        "All slides \xB7 ",
-        slides.length
-      ] }),
-      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-deck-overview__tabs", children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", "aria-pressed": tab === "slides", onClick: () => setTab("slides"), children: "Slides" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", "aria-pressed": tab === "storyline", onClick: () => setTab("storyline"), children: "Storyline" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: onClose, children: "Close" })
-      ] })
-    ] }),
-    tab === "storyline" ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Storyline, { slides, index, findings, onPick }) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ol", { className: "uipack-deck-overview__grid", children: slides.map((s, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "li", { children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "button", { type: "button", "data-tile": "", "aria-current": i === index ? "true" : void 0, onClick: () => onPick(i), children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, SlideThumbnail, { slide: s, index: i, count: slides.length, theme }),
-      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "b", { children: pad(i + 1) }),
-        " ",
-        s.title
-      ] })
-    ] }) }, s.id)) })
-  ] });
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+    "div",
+    {
+      ref,
+      className: "uipack-deck-overview",
+      role: "dialog",
+      "aria-modal": "true",
+      "aria-label": "All slides",
+      onKeyDown,
+      onClick: (e) => {
+        if (e.target === e.currentTarget) onClose();
+      },
+      children: [
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-deck-overview__head", children: [
+          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { children: [
+            "All slides \xB7 ",
+            slides.length
+          ] }),
+          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-deck-overview__tabs", children: [
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", "aria-pressed": tab === "slides", onClick: () => setTab("slides"), children: "Slides" }),
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", "aria-pressed": tab === "storyline", onClick: () => setTab("storyline"), children: "Storyline" }),
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: onClose, children: "Close" })
+          ] })
+        ] }),
+        tab === "storyline" ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Storyline, { slides, index, findings, onPick }) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ol", { className: "uipack-deck-overview__grid", children: slides.map((s, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "li", { children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "button", { type: "button", "data-tile": "", "aria-current": i === index ? "true" : void 0, onClick: () => onPick(i), children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, SlideThumbnail, { slide: s, index: i, count: slides.length, theme }),
+          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { children: [
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "b", { children: pad(i + 1) }),
+            " ",
+            s.title
+          ] })
+        ] }) }, s.id)) })
+      ]
+    }
+  );
 }
 
 // src/deck/player/Presenter.tsx
@@ -1410,12 +1456,12 @@ function Presenter({
           "\u201D"
         ] }),
         /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h3", { children: "Say" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: _nullishCoalesce(_optionalChain([notes, 'optionalAccess', _25 => _25.say]), () => ( "No talk track for this slide.")) }),
-        _optionalChain([notes, 'optionalAccess', _26 => _26.delivery]) && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: _nullishCoalesce(_optionalChain([notes, 'optionalAccess', _26 => _26.say]), () => ( "No talk track for this slide.")) }),
+        _optionalChain([notes, 'optionalAccess', _27 => _27.delivery]) && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
           /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h3", { children: "Delivery" }),
           /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: notes.delivery })
         ] }),
-        _optionalChain([notes, 'optionalAccess', _27 => _27.next]) && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
+        _optionalChain([notes, 'optionalAccess', _28 => _28.next]) && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
           /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h3", { children: "Bridge" }),
           /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: notes.next })
         ] })
@@ -1439,7 +1485,7 @@ function Printout({ slides, theme, notes = false }) {
           " ",
           _nullishCoalesce(s.headline, () => ( s.title))
         ] }),
-        _optionalChain([talk, 'optionalAccess', _28 => _28.say]) && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: talk.say })
+        _optionalChain([talk, 'optionalAccess', _29 => _29.say]) && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: talk.say })
       ] })
     ] }, s.id);
   }) });
@@ -1465,7 +1511,7 @@ function PrintJob({
     };
     const frame = () => new Promise((r) => requestAnimationFrame(() => r(null)));
     void (async () => {
-      await (_nullishCoalesce(_optionalChain([document, 'access', _29 => _29.fonts, 'optionalAccess', _30 => _30.ready]), () => ( Promise.resolve())));
+      await (_nullishCoalesce(_optionalChain([document, 'access', _30 => _30.fonts, 'optionalAccess', _31 => _31.ready]), () => ( Promise.resolve())));
       await frame();
       await frame();
       if (cancelled) return;
@@ -1513,7 +1559,7 @@ function Reader({
             " ",
             s.title
           ] }),
-          _optionalChain([notes, 'optionalAccess', _31 => _31.say]) && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: notes.say }),
+          _optionalChain([notes, 'optionalAccess', _32 => _32.say]) && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: notes.say }),
           /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: () => onPresent(i), "aria-label": `Present from slide ${i + 1}: ${s.title}`, children: "Present from here" })
         ] })
       ] }, s.id);
@@ -1559,11 +1605,11 @@ function Player({
 }) {
   const count = slides.length;
   const startIndex = (() => {
-    const s = _optionalChain([initial, 'optionalAccess', _32 => _32.slide]);
+    const s = _optionalChain([initial, 'optionalAccess', _33 => _33.slide]);
     const i = typeof s === "number" ? s : s ? slides.findIndex((x) => x.id === s) : 0;
     return Math.min(Math.max(i, 0), Math.max(count - 1, 0));
   })();
-  const [view, setView] = _react.useState.call(void 0, { index: startIndex, step: _nullishCoalesce(_optionalChain([initial, 'optionalAccess', _33 => _33.step]), () => ( 0)), from: null, seq: 0 });
+  const [view, setView] = _react.useState.call(void 0, { index: startIndex, step: _nullishCoalesce(_optionalChain([initial, 'optionalAccess', _34 => _34.step]), () => ( 0)), from: null, seq: 0 });
   const [overview, setOverview] = _react.useState.call(void 0, false);
   const [fullscreen, setFullscreen] = _react.useState.call(void 0, false);
   const [reading, setReading] = _react.useState.call(void 0, initialView === "read");
@@ -1582,7 +1628,7 @@ function Player({
     setView(next2);
   };
   const { settle, fly } = _chunkYEVVKV3Jcjs.useLayerFlight.call(void 0, 
-    () => _optionalChain([stageRef, 'access', _34 => _34.current, 'optionalAccess', _35 => _35.querySelectorAll, 'call', _36 => _36(".uipack-deck-layer"), 'access', _37 => _37.forEach, 'call', _38 => _38((el) => {
+    () => _optionalChain([stageRef, 'access', _35 => _35.current, 'optionalAccess', _36 => _36.querySelectorAll, 'call', _37 => _37(".uipack-deck-layer"), 'access', _38 => _38.forEach, 'call', _39 => _39((el) => {
       el.style.zIndex = "";
       el.style.visibility = "";
     })])
@@ -1631,7 +1677,7 @@ function Player({
       if (viewRef.current.seq === seq) commit({ ...viewRef.current, from: null });
     };
     if (!from2 || !to || !scale) return done();
-    const resolved = resolveTransition(view.from.index, view.index, (i) => _optionalChain([slides, 'access', _39 => _39[i], 'optionalAccess', _40 => _40.transition]), transition);
+    const resolved = resolveTransition(view.from.index, view.index, (i) => _optionalChain([slides, 'access', _40 => _40[i], 'optionalAccess', _41 => _41.transition]), transition);
     const started = runTransition({
       transition: resolved,
       from: from2,
@@ -1672,12 +1718,12 @@ function Player({
     const last = reported.current;
     if (last.index === view.index && last.step === view.step) return;
     reported.current = { index: view.index, step: view.step };
-    _optionalChain([onPositionChange, 'optionalCall', _41 => _41({ index: view.index, step: view.step, id: slides[view.index].id })]);
+    _optionalChain([onPositionChange, 'optionalCall', _42 => _42({ index: view.index, step: view.step, id: slides[view.index].id })]);
     if (remote.current) {
       remote.current = false;
       return;
     }
-    _optionalChain([channel, 'access', _42 => _42.current, 'optionalAccess', _43 => _43.postMessage, 'call', _44 => _44({ type: "go", index: view.index, step: view.step })]);
+    _optionalChain([channel, 'access', _43 => _43.current, 'optionalAccess', _44 => _44.postMessage, 'call', _45 => _45({ type: "go", index: view.index, step: view.step })]);
   }, [view.index, view.step]);
   const [canFullscreen, setCanFullscreen] = _react.useState.call(void 0, false);
   _react.useEffect.call(void 0, () => {
@@ -1687,9 +1733,9 @@ function Player({
     return () => document.removeEventListener("fullscreenchange", onChange);
   }, []);
   const toggleFullscreen = () => {
-    if (document.fullscreenElement) void _optionalChain([document, 'access', _45 => _45.exitFullscreen, 'optionalCall', _46 => _46()]);
-    else void _optionalChain([rootRef, 'access', _47 => _47.current, 'optionalAccess', _48 => _48.requestFullscreen, 'optionalCall', _49 => _49()]);
-    _optionalChain([rootRef, 'access', _50 => _50.current, 'optionalAccess', _51 => _51.focus, 'call', _52 => _52()]);
+    if (document.fullscreenElement) void _optionalChain([document, 'access', _46 => _46.exitFullscreen, 'optionalCall', _47 => _47()]);
+    else void _optionalChain([rootRef, 'access', _48 => _48.current, 'optionalAccess', _49 => _49.requestFullscreen, 'optionalCall', _50 => _50()]);
+    _optionalChain([rootRef, 'access', _51 => _51.current, 'optionalAccess', _52 => _52.focus, 'call', _53 => _53()]);
   };
   const openPresenter = () => {
     let href = presenterHref;
@@ -1703,13 +1749,13 @@ function Player({
   };
   const closeOverview = () => {
     setOverview(false);
-    requestAnimationFrame(() => _optionalChain([overviewButtonRef, 'access', _53 => _53.current, 'optionalAccess', _54 => _54.focus, 'call', _55 => _55()]));
+    requestAnimationFrame(() => _optionalChain([overviewButtonRef, 'access', _54 => _54.current, 'optionalAccess', _55 => _55.focus, 'call', _56 => _56()]));
   };
   const onKeyDown = (e) => {
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || overview || reading) return;
     const t = e.target;
-    if (_optionalChain([t, 'optionalAccess', _56 => _56.closest, 'optionalCall', _57 => _57('input, textarea, select, [contenteditable="true"], [contenteditable=""], [data-deck-keys="own"]')])) return;
-    const onControl = Boolean(_optionalChain([t, 'optionalAccess', _58 => _58.closest, 'optionalCall', _59 => _59("button, a, summary")])) && t !== rootRef.current;
+    if (_optionalChain([t, 'optionalAccess', _57 => _57.closest, 'optionalCall', _58 => _58('input, textarea, select, [contenteditable="true"], [contenteditable=""], [data-deck-keys="own"]')])) return;
+    const onControl = Boolean(_optionalChain([t, 'optionalAccess', _59 => _59.closest, 'optionalCall', _60 => _60("button, a, summary")])) && t !== rootRef.current;
     switch (e.key) {
       case "ArrowRight":
       case "ArrowDown":
@@ -1757,7 +1803,7 @@ function Player({
   _react.useEffect.call(void 0, () => {
     if (keyboard !== "global") return;
     const handler = (e) => {
-      if (_optionalChain([rootRef, 'access', _60 => _60.current, 'optionalAccess', _61 => _61.contains, 'call', _62 => _62(e.target)])) return;
+      if (_optionalChain([rootRef, 'access', _61 => _61.current, 'optionalAccess', _62 => _62.contains, 'call', _63 => _63(e.target)])) return;
       keyHandler.current(e);
     };
     window.addEventListener("keydown", handler);
@@ -1867,7 +1913,7 @@ function Player({
             onPresent: (i) => {
               setReading(false);
               go(i, 0);
-              requestAnimationFrame(() => _optionalChain([rootRef, 'access', _63 => _63.current, 'optionalAccess', _64 => _64.focus, 'call', _65 => _65({ preventScroll: true })]));
+              requestAnimationFrame(() => _optionalChain([rootRef, 'access', _64 => _64.current, 'optionalAccess', _65 => _65.focus, 'call', _66 => _66({ preventScroll: true })]));
             }
           }
         ) : /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
@@ -1883,7 +1929,7 @@ function Player({
             notes: printNotes,
             onDone: () => {
               setPrinting(false);
-              _optionalChain([rootRef, 'access', _66 => _66.current, 'optionalAccess', _67 => _67.focus, 'call', _68 => _68({ preventScroll: true })]);
+              _optionalChain([rootRef, 'access', _67 => _67.current, 'optionalAccess', _68 => _68.focus, 'call', _69 => _69({ preventScroll: true })]);
             }
           }
         ),
@@ -2339,11 +2385,11 @@ function Annotation({ x, y, tx, ty, text, width = 260, align = "start" }) {
 function useChartSize(fixed, fallback = { width: 640, height: 360 }) {
   const ref = _react.useRef.call(void 0, null);
   const [size, setSize] = _react.useState.call(void 0, {
-    width: _nullishCoalesce(_optionalChain([fixed, 'optionalAccess', _69 => _69.width]), () => ( fallback.width)),
-    height: _nullishCoalesce(_optionalChain([fixed, 'optionalAccess', _70 => _70.height]), () => ( fallback.height))
+    width: _nullishCoalesce(_optionalChain([fixed, 'optionalAccess', _70 => _70.width]), () => ( fallback.width)),
+    height: _nullishCoalesce(_optionalChain([fixed, 'optionalAccess', _71 => _71.height]), () => ( fallback.height))
   });
-  const fixedW = _optionalChain([fixed, 'optionalAccess', _71 => _71.width]);
-  const fixedH = _optionalChain([fixed, 'optionalAccess', _72 => _72.height]);
+  const fixedW = _optionalChain([fixed, 'optionalAccess', _72 => _72.width]);
+  const fixedH = _optionalChain([fixed, 'optionalAccess', _73 => _73.height]);
   _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
     const el = ref.current;
     if (!el || fixedW !== void 0 && fixedH !== void 0) return;
@@ -2520,7 +2566,7 @@ function BarChart({
   }
   const labelLines = rows.map((d) => d.label);
   const bandsProbe = bandLayout(rows.length, 0, W, 0.56, 64);
-  const wrapped = labelLines.map((l) => wrapToWidth(l, CX_TYPE.label, (_nullishCoalesce(_optionalChain([bandsProbe, 'access', _73 => _73[0], 'optionalAccess', _74 => _74.size]), () => ( W))) - 8, 2));
+  const wrapped = labelLines.map((l) => wrapToWidth(l, CX_TYPE.label, (_nullishCoalesce(_optionalChain([bandsProbe, 'access', _74 => _74[0], 'optionalAccess', _75 => _75.size]), () => ( W))) - 8, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = 36;
   const y = linearScale(dom, [H - bottom, top]);
@@ -2627,7 +2673,7 @@ function LineChart({
   const W = size.width;
   const H = size.height;
   const all = series.flatMap((s) => s.values.filter((v) => v !== null));
-  const nice = niceTicks(Math.min(...all, _nullishCoalesce(_optionalChain([reference, 'optionalAccess', _75 => _75.value]), () => ( Infinity))), Math.max(...all, _nullishCoalesce(_optionalChain([reference, 'optionalAccess', _76 => _76.value]), () => ( -Infinity))), 4);
+  const nice = niceTicks(Math.min(...all, _nullishCoalesce(_optionalChain([reference, 'optionalAccess', _76 => _76.value]), () => ( Infinity))), Math.max(...all, _nullishCoalesce(_optionalChain([reference, 'optionalAccess', _77 => _77.value]), () => ( -Infinity))), 4);
   const dom = _nullishCoalesce(domain, () => ( nice.domain));
   const ticks = domain ? niceTicks(domain[0], domain[1], 4).ticks.filter((t) => t >= domain[0] && t <= domain[1]) : nice.ticks;
   const tf = _nullishCoalesce(tickFormat, () => ( format));
@@ -2654,7 +2700,7 @@ function LineChart({
     const li = lastOf(s);
     return li >= 0 ? { x: xs(li), y: ys(s.values[li]) } : null;
   });
-  const placed = spreadLabels(ends.map((e) => _nullishCoalesce(_optionalChain([e, 'optionalAccess', _77 => _77.y]), () => ( 0))), CX_TYPE.label * 1.3, top, bottom);
+  const placed = spreadLabels(ends.map((e) => _nullishCoalesce(_optionalChain([e, 'optionalAccess', _78 => _78.y]), () => ( 0))), CX_TYPE.label * 1.3, top, bottom);
   const everyN = Math.max(1, Math.ceil(Math.max(...periods.map((p) => textWidth(p, CX_TYPE.tick))) / Math.max(1, (right - left) / periods.length - 12)));
   return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, Frame, { size, label, children: [
     ticks.map((t) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
@@ -2708,7 +2754,7 @@ function LineChart({
     }),
     annotate && (() => {
       const si = typeof annotate.series === "number" ? annotate.series : series.findIndex((s) => s.name === annotate.series);
-      const v = _optionalChain([series, 'access', _78 => _78[si], 'optionalAccess', _79 => _79.values, 'access', _80 => _80[annotate.index]]);
+      const v = _optionalChain([series, 'access', _79 => _79[si], 'optionalAccess', _80 => _80.values, 'access', _81 => _81[annotate.index]]);
       if (v === null || v === void 0) return null;
       const px = xs(annotate.index);
       const py = ys(v);
@@ -2907,7 +2953,7 @@ function StackedBar({
     ] });
   }
   const bandsProbe = bandLayout(categories.length, 0, W, 0.56, 88);
-  const wrapped = categories.map((c) => wrapToWidth(c.label, CX_TYPE.label, (_nullishCoalesce(_optionalChain([bandsProbe, 'access', _81 => _81[0], 'optionalAccess', _82 => _82.size]), () => ( W))) - 8, 2));
+  const wrapped = categories.map((c) => wrapToWidth(c.label, CX_TYPE.label, (_nullishCoalesce(_optionalChain([bandsProbe, 'access', _82 => _82[0], 'optionalAccess', _83 => _83.size]), () => ( W))) - 8, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = legendH + (totals && !percent ? 40 : 12);
   const y = linearScale([0, max], [H - bottom, top]);
@@ -2962,7 +3008,7 @@ function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain
   const dom = _nullishCoalesce(domain, () => ( zeroBasedDomain(levels)));
   const broken = dom[0] > 0;
   const bandsProbe = bandLayout(bars.length, 0, W, 0.62, 76);
-  const wrapped = bars.map((b) => wrapToWidth(b.label, CX_TYPE.label, (_nullishCoalesce(_optionalChain([bandsProbe, 'access', _83 => _83[0], 'optionalAccess', _84 => _84.size]), () => ( W))) - 6, 2));
+  const wrapped = bars.map((b) => wrapToWidth(b.label, CX_TYPE.label, (_nullishCoalesce(_optionalChain([bandsProbe, 'access', _84 => _84[0], 'optionalAccess', _85 => _85.size]), () => ( W))) - 6, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = 40;
   const y = linearScale(dom, [H - bottom, top]);

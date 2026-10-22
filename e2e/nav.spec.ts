@@ -14,8 +14,11 @@ const ALL = GROUPS.flatMap((g) => g.pages.map(([label, path]) => ({ group: g.lab
 // /web hosts a complete sample landing page: its hero is the one h1 and the shell title is plain text.
 const title = (page: Page) => page.locator(".showcase-title h1, .showcase-title .showcase-title__name");
 
-// Deck sub-views share one page title.
-const h1Of = (label: string) => (["Tech talk", "Bento", "Consulting"].includes(label) ? "Deck player" : label);
+// Deck sub-views share one page, named before the sub-view.
+const isDeck = (label: string) => ["Tech talk", "Bento", "Consulting"].includes(label);
+const h1Of = (label: string) => (isDeck(label) ? `Deck player · ${label}` : label);
+// The browser tab: the sub-view first. /web hosts a sample page that sets its own head.
+const tabOf = (label: string) => (isDeck(label) ? `${label} · Deck player · uipack` : `${label} · uipack`);
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const groupsNav = (page: Page) => page.getByRole("navigation", { name: "Library groups" });
@@ -44,6 +47,7 @@ test("every page is reachable through both nav rows with the right current marke
       await pagesNav(page).getByRole("link", { name: label, exact: true }).click();
       await expect(page).toHaveURL(new RegExp(`${escape(path)}${path.includes("?") ? "&" : "\\?"}theme=dark$`));
       await expect(title(page)).toHaveText(h1Of(label));
+      if (path !== "/web") await expect(page).toHaveTitle(tabOf(label));
       await expect(pagesNav(page).locator('[aria-current="page"]')).toHaveText(label);
       await expect(groupsNav(page).locator('[aria-current="page"]')).toHaveText(group.label);
       // The theme survives navigation, in the document and in every nav link.
@@ -296,4 +300,94 @@ test.describe("deck sub-views in the 390px menu", () => {
     await expect(page).toHaveURL(/\/deck\?deck=bento&theme=light$/);
     await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Presentations: Bento");
   });
+});
+
+test("each page names itself in the browser tab, deck sub-views included", async ({ page }) => {
+  for (const { label, path } of ALL.filter((p) => p.path !== "/web")) {
+    await page.goto(path);
+    await expect(page).toHaveTitle(tabOf(label));
+  }
+  // The deck sub-views tell their tabs apart.
+  await page.goto("/deck?deck=bento");
+  await expect(page).toHaveTitle("Bento · Deck player · uipack");
+});
+
+test.describe("desktop deck sub-views", () => {
+  test.use({ viewport: { width: 1280, height: 900 } });
+  test("sit together under a Deck player label, ended by a divider, and the h1 names the sub-view", async ({ page }) => {
+    await page.goto("/deck?deck=bento");
+    const run = pagesNav(page).getByRole("group", { name: "Deck player" });
+    await expect(run).toBeVisible();
+    await expect(run.getByRole("link")).toHaveText(["Tech talk", "Bento", "Consulting"]);
+    await expect(run.getByRole("link", { name: "Bento" })).toHaveAttribute("aria-current", "page");
+    // Slide starters is a page of its own, outside the run.
+    await expect(pagesNav(page).getByRole("link", { name: "Slide starters" })).toBeVisible();
+    await expect(run.getByRole("link", { name: "Slide starters" })).toHaveCount(0);
+    // The label sits before the first sub-view on the same row.
+    const label = (await run.locator(".showcase-pages__label").boundingBox())!;
+    const first = (await run.getByRole("link").first().boundingBox())!;
+    expect(label.x + label.width).toBeLessThanOrEqual(first.x + 1);
+    expect(Math.abs(label.y + label.height / 2 - (first.y + first.height / 2))).toBeLessThan(2);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Deck player · Bento");
+  });
+});
+
+test.describe("landmarks and skip link", () => {
+  for (const width of [1280, 390]) {
+    test(`${width}px: banner outside main, a skip link first that lands in main`, async ({ page, browserName }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/charts");
+      // One banner (the shell header) and one main; the navs sit in the banner, not in main.
+      await expect(page.getByRole("banner")).toHaveCount(1);
+      await expect(page.getByRole("main")).toHaveCount(1);
+      await expect(page.locator("main header, main nav.showcase-groups, main nav.showcase-pages")).toHaveCount(0);
+      await expect(page.locator("main h1")).toHaveText("Charts");
+      // The skip link is hidden until it takes focus, as the first Tab stop.
+      const skip = page.getByRole("link", { name: "Skip to content" });
+      expect((await skip.boundingBox())!.y + (await skip.boundingBox())!.height).toBeLessThanOrEqual(0);
+      const firstFocusable = await page.evaluate(
+        () => document.querySelector<HTMLElement>("a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex='-1'])")?.textContent,
+      );
+      expect(firstFocusable).toBe("Skip to content");
+      // WebKit's default Tab reaches text fields only, so there the link takes focus directly.
+      if (browserName === "webkit") await skip.focus();
+      else await page.keyboard.press("Tab");
+      await expect(skip).toBeFocused();
+      const box = (await skip.boundingBox())!;
+      expect(box.y).toBeGreaterThanOrEqual(0);
+      expect(box.height).toBeGreaterThanOrEqual(44);
+      await page.keyboard.press("Enter");
+      await expect(page.getByRole("main")).toBeFocused();
+      // The next Tab continues from inside main, past the header.
+      if (browserName === "webkit") return;
+      await page.keyboard.press("Tab");
+      expect(await page.evaluate(() => !!document.activeElement?.closest("main"))).toBe(true);
+    });
+  }
+});
+
+test("an unknown address says so and links to every page", async ({ page }) => {
+  await page.goto("/nope?theme=dark");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Page not found");
+  await expect(page).toHaveTitle("Page not found · uipack");
+  // Not the diagrams page in disguise.
+  await expect(page.locator('section[data-section="pipeline"]')).toHaveCount(0);
+  await expect(groupsNav(page).locator('[aria-current="page"]')).toHaveCount(0);
+  const links = page.getByRole("main").getByRole("link");
+  await expect(links).toHaveCount(ALL.length);
+  const hrefs = await links.evaluateAll((els) => els.map((a) => a.getAttribute("href")));
+  expect(hrefs.every((h) => h!.endsWith("theme=dark"))).toBe(true);
+  await page.getByRole("main").getByRole("link", { name: "Charts" }).click();
+  await expect(page).toHaveURL(/\/charts\?theme=dark$/);
+  await expect(title(page)).toHaveText("Charts");
+});
+
+test("an unknown deck shows a visible note and the default deck", async ({ page }) => {
+  await page.goto("/deck?deck=bogus");
+  await expect(page.getByRole("status").filter({ hasText: "not found" })).toHaveText("Deck “bogus” not found, showing Tech talk.");
+  await expect(title(page)).toHaveText("Deck player · Tech talk");
+  await page.goto("/deck?deck=bento");
+  await expect(page.locator(".showcase-title__note")).toHaveCount(0);
+  await page.goto("/deck");
+  await expect(page.locator(".showcase-title__note")).toHaveCount(0);
 });

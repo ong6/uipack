@@ -100,6 +100,30 @@ export function resolvePage(id: string, search: string): PageDef {
   const exact = same.find((p) => p.query && Object.entries(p.query).every(([k, v]) => params.get(k) === v));
   return exact ?? same.find((p) => p.isDefault) ?? base;
 }
+
+/** The h1: the page, then the sub-view it shows ("Deck player · Bento"). */
+export function pageHeading(page: PageDef) {
+  return page.query && page.title ? `${page.title} · ${page.label}` : (page.title ?? page.label);
+}
+
+/** The browser tab title: the sub-view first, so tabs tell apart ("Bento · Deck player · uipack"). */
+export function documentTitle(page: PageDef) {
+  return [page.query && page.title ? page.label : null, page.title ?? page.label, "uipack"].filter(Boolean).join(" · ");
+}
+
+/**
+ * A sub-view query that names nothing (`/deck?deck=bogus`): the param, its value and the entry
+ * shown instead, or null when the query is absent or matches a page.
+ */
+export function unknownSubView(page: PageDef, search: string) {
+  const params = new URLSearchParams(search);
+  const same = pageDefs.filter((p) => p.path === page.path && p.query);
+  for (const key of new Set(same.flatMap((p) => Object.keys(p.query!)))) {
+    const value = params.get(key);
+    if (value !== null && !same.some((p) => p.query![key] === value)) return { key, value, shown: page };
+  }
+  return null;
+}
 export interface CatalogEntry {
   id: string;
   title: string;
