@@ -121,12 +121,16 @@
 .uipack-speaker-guide__action button {
   min-height: 44px;
   padding: 8px 14px;
-  border: 1px solid var(--presentation-rule);
-  border-radius: 6px;
+  /* The host's control tokens when it has them (the playground's --show-*), else the guide's own. */
+  border: 1px solid var(--show-rule, var(--presentation-rule));
+  border-radius: var(--show-control-radius, 6px);
   background: transparent;
   color: var(--presentation-ink);
   /* Controls are mono, like the playground shell and the slide player. */
-  font: 500 13px/1.4 var(--font-mono, "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+  font: var(
+    --show-control-font,
+    500 13px/1.4 var(--font-mono, "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace)
+  );
   cursor: pointer;
 }
 .uipack-speaker-guide__action button:hover {
