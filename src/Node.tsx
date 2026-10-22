@@ -1,4 +1,4 @@
-import { useItemSelection } from "./selection";
+import { FocusRing, useItemSelection } from "./selection";
 import type { ReactNode } from "react";
 import { useFigureHover, hoverAttrs, isPointer, flowList, type Flow } from "./hover";
 import { icons, type IconName } from "./icons";
@@ -89,6 +89,7 @@ export function Node({
         strokeWidth={1.25}
         strokeDasharray={dashed ? "4 4" : undefined}
       />
+      {selection.role ? <FocusRing x={x} y={y} w={w} h={h} rx={6} /> : null}
       {inlay}
       <path
         className="uipack__touch-target"

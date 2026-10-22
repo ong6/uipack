@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
 import { Node, nodeName, type NodeProps } from "../Node";
-import { SelectionContext } from "../selection";
+import { FocusRing, SelectionContext } from "../selection";
 import { FigureMotionContext, type FigureMotion } from "../context";
 import { FigureScaleContext } from "../scale";
 import { DrillContext, useDrill, type DrillContextValue } from "./context";
@@ -214,6 +214,7 @@ export function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...
           }
         />
       </SelectionContext.Provider>
+      {interactive ? <FocusRing x={box.x} y={box.y} w={box.w} h={box.h} rx={RADIUS} /> : null}
       <g
         className="uipack-drill-node__mark"
         transform={`translate(${mx}, ${my})`}
