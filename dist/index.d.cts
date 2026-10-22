@@ -1,10 +1,11 @@
-export { F as Figure, a as FigureProps } from './Figure-SUg9oXfI.cjs';
-import { T as TokenKind, a as TokenShape } from './Legend-Dn1ZWKId.cjs';
-export { L as Legend, b as LegendItem, c as LegendProps, d as TOKEN_SHAPE, e as Token, f as TokenProps, t as tokenColor } from './Legend-Dn1ZWKId.cjs';
+export { F as Figure, a as FigureProps } from './Figure-BOwZLWzg.cjs';
+import { T as TokenKind, a as TokenShape, L as LegendItem } from './Legend-n6GikDm_.cjs';
+export { b as Legend, c as LegendProps, d as TOKEN_SHAPE, e as Token, f as TokenProps, t as tokenColor } from './Legend-n6GikDm_.cjs';
 import * as react from 'react';
 import { ReactNode } from 'react';
 import { I as IconName } from './index-DwRqkLtz.cjs';
 export { i as icons } from './index-DwRqkLtz.cjs';
+export { Z as ZoomFrame, R as ZoomRect, a as ZoomSample, b as ZoomSampleOptions, e as easeInOutCubic, i as innerClipStart, s as smoothstep, z as zoomFrame, c as zoomSamples } from './zoom-math-DNtJhg8j.cjs';
 
 interface LaneProps {
     /** Left edge and width of the column the header sits over. */
@@ -80,8 +81,10 @@ interface NodeProps {
     size?: number;
     subSize?: number;
     id?: string;
+    /** Drawn inside the box, above its fill and under the icon and text (a drill-down preview). */
+    inlay?: ReactNode;
 }
-declare function Node({ x, y, w, h, label, sub, icon, align, accent, dashed, flow, hint, href, size: size0, subSize: subSize0, id, }: NodeProps): react.JSX.Element;
+declare function Node({ x, y, w, h, label, sub, icon, align, accent, dashed, flow, hint, href, size: size0, subSize: subSize0, id, inlay, }: NodeProps): react.JSX.Element;
 
 interface ChipProps {
     x: number;
@@ -323,4 +326,170 @@ declare function useFigureMotion(): FigureMotion;
 /** True when the OS asks for reduced motion. Server render says false. */
 declare function usePrefersReducedMotion(): boolean;
 
-export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, DEFAULT_RENDER_WIDTH, Defs, type DefsProps, type FigureHover, FigureHoverContext, type FigureMotion, FigureMotionContext, type FigureScale, FigureScaleContext, FigureScaleProvider, type Flow, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, type MarkName, Node, type NodeProps, Packet, type PacketProps, type Point, type Side, TokenKind, TokenShape, Wordmark, anchor, busStub, busStubs, connectorStroke, flowList, fontFloor, grid, hoverAttrs, marks, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFigureMotion, useFontFloor, usePrefersReducedMotion };
+/** What a level's `render` receives. */
+interface DrillRenderContext {
+    /** Prefix for every SVG id in this drawing (`<Defs id={ctx.id}>`). Unique while mounted, ghosts included. */
+    id: string;
+    /** Which drawing is being rendered: the wide one, or the authored narrow one below 720px. */
+    variant: "wide" | "narrow";
+    /** True when the drawing is the faint preview inside a drillable node of the level above. */
+    ghost: boolean;
+    level: DrillLevel;
+}
+/** One figure in a drill-down stack. */
+interface DrillLevel {
+    /** Stable id; `DrillNode drill="<id>"` opens it and the path is a list of these. */
+    id: string;
+    /** Short name: the breadcrumb, the drillable node's accessible name, the announcement. */
+    label: string;
+    /** Heading while the level is open. Defaults to `label`. */
+    title?: string;
+    caption?: string;
+    /** Accessible description of the drawing. */
+    alt: string;
+    legend?: LegendItem[];
+    /** "3 parts inside". Read in the drillable node's name; counted from the drawing when omitted. */
+    summary?: string;
+    /** This level's viewBox. Defaults to the figure's; a different aspect is fitted (letterboxed). */
+    viewBox?: string;
+    narrowViewBox?: string;
+    /** The wide drawing. */
+    render: (ctx: DrillRenderContext) => ReactNode;
+    /** Optional narrow drawing shown below 720px. Give every level one, or none. */
+    narrow?: (ctx: DrillRenderContext) => ReactNode;
+}
+type DrillPath = readonly string[];
+type DrillAction = {
+    type: "open";
+    id: string;
+} | {
+    type: "up";
+} | {
+    type: "to";
+    depth: number;
+} | {
+    type: "set";
+    path: DrillPath;
+};
+/**
+ * Keep the valid prefix of `path`: it starts at the root, names known levels,
+ * and never revisits one. Anything after the first bad entry is dropped.
+ */
+declare function normalizePath(path: DrillPath | undefined, ids: ReadonlySet<string> | readonly string[], root: string): string[];
+/** The path stack. Pure: same input, same output; unchanged input returns the same array. */
+declare function drillReducer(path: DrillPath, action: DrillAction, ids: ReadonlySet<string> | readonly string[], root?: string): DrillPath;
+type DrillMove = "none" | "in" | "out" | "jump";
+/** One level down is "in", one level up is "out"; anything else crossfades. */
+declare function drillMove(from: DrillPath, to: DrillPath): DrillMove;
+type DrillFocus = {
+    kind: "heading";
+} | {
+    kind: "node";
+    drill: string;
+};
+/**
+ * Where focus goes once a move settles. Going down lands on the new level's
+ * heading. Going up returns to the node in the now-open level that leads back
+ * toward where you were, so Enter takes you straight back in.
+ */
+declare function drillFocusTarget(from: DrillPath, to: DrillPath): DrillFocus;
+/** Polite announcement for a move. */
+declare function drillAnnouncement(from: DrillPath, to: DrillPath, labelOf: (id: string) => string): string;
+/** Size step for drillable nodes: grow the box about its centre, `grow` units taller. */
+declare function drillBox<B extends {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+}>(box: B, grow?: number): B;
+/** Default height step of a drillable node, in user units (56 → 64, +14%). */
+declare const DRILL_GROW = 8;
+
+/** The shape `renderStatic` takes (mirrors `StaticFigure` in uipack/static). */
+interface DrillStaticFigure {
+    children: React.ReactNode;
+    viewBox: string;
+    legend?: LegendItem[];
+    number?: string;
+    eyebrow?: string;
+    title?: string;
+    caption?: string;
+    alt?: string;
+    background?: "dots" | "plain" | "ruled";
+}
+/**
+ * One level of a DrillFigure as a static figure: the level at `path` (default
+ * the figure's `path`, else `defaultPath`, else the root), its drillable nodes
+ * drawn with their glow, preview and marker but no button. The eyebrow carries
+ * the breadcrumb below the root. `renderStatic(<DrillFigure …/>)` calls this.
+ */
+declare function drillStatic(props: DrillFigureProps, path?: DrillPath): DrillStaticFigure;
+
+interface DrillFigureProps {
+    /** Every level, flat. The first is the root unless `root` says otherwise. */
+    levels: DrillLevel[];
+    root?: string;
+    /** The stage frame every level is drawn into (and the default level viewBox). */
+    viewBox: string;
+    /** Stage frame below 720px, when levels have narrow drawings. */
+    narrowViewBox?: string;
+    /** Controlled path of level ids from the root, e.g. ["harness", "checks"]. */
+    path?: DrillPath;
+    /** Starting path when uncontrolled. */
+    defaultPath?: DrillPath;
+    /** Called with the next path on every drill, back or breadcrumb jump. */
+    onPathChange?: (path: string[]) => void;
+    number?: string;
+    /** Short mono topic after the number. */
+    eyebrow?: string;
+    headingLevel?: 2 | 3 | 4 | 5;
+    /** Allow opening a zoomable canvas of the current level. */
+    expandable?: boolean;
+    /** Show Pause and Replay. Hidden automatically under reduced motion. */
+    controls?: boolean;
+    theme?: "light" | "dark";
+    background?: "dots" | "plain" | "ruled";
+    /** Smallest rendered text size in CSS px, as on Figure. Default 11. */
+    minFont?: number;
+    /** Zoom duration in ms. Default 1000. Reduced motion always crossfades in 160ms. */
+    duration?: number;
+    className?: string;
+    id?: string;
+}
+/**
+ * A stack of figures in the Figure style. A `DrillNode` inside a level opens
+ * its child level: the parent zooms into the node while the child opens from a
+ * clip shaped like the node box, and Back reverses the same path. The header
+ * carries a breadcrumb, a Back control, Open canvas and the motion controls.
+ */
+declare function DrillFigure({ levels, root, viewBox, narrowViewBox, path, defaultPath, onPathChange, number, eyebrow, headingLevel, expandable, controls, theme, background, minFont, duration, className, id, }: DrillFigureProps): react.JSX.Element | null;
+declare namespace DrillFigure {
+    var toStatic: (props: DrillFigureProps) => DrillStaticFigure;
+}
+
+interface DrillNodeProps extends Omit<NodeProps, "label" | "href" | "inlay"> {
+    /** Id of the level this node opens. */
+    drill: string;
+    /** Visible label. Defaults to the child level's label. */
+    label?: string;
+    /** Height step in user units, added about the centre (default 8: a 56 box draws 64). 0 keeps the box as given. */
+    grow?: number;
+    /** Show the faint miniature of the child level inside the box. Default true. */
+    preview?: boolean;
+}
+/**
+ * A Node that opens another level of a DrillFigure. It draws one size step
+ * larger, with a soft accent glow and a faint miniature of the level inside,
+ * so it reads as "there's more in here" before anyone clicks. Outside a
+ * DrillFigure (or in a ghost preview) it is a plain Node.
+ */
+declare function DrillNode({ drill, label, grow, preview, ...node }: DrillNodeProps): react.JSX.Element;
+
+/** The drill-down clock. */
+declare const drillMotion: {
+    readonly zoom: 1000;
+    readonly fade: 320;
+    readonly reduced: 160;
+};
+
+export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, DEFAULT_RENDER_WIDTH, DRILL_GROW, Defs, type DefsProps, type DrillAction, DrillFigure, type DrillFigureProps, type DrillFocus, type DrillLevel, type DrillMove, DrillNode, type DrillNodeProps, type DrillPath, type DrillRenderContext, type DrillStaticFigure, type FigureHover, FigureHoverContext, type FigureMotion, FigureMotionContext, type FigureScale, FigureScaleContext, FigureScaleProvider, type Flow, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, LegendItem, type MarkName, Node, type NodeProps, Packet, type PacketProps, type Point, type Side, TokenKind, TokenShape, Wordmark, anchor, busStub, busStubs, connectorStroke, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, flowList, fontFloor, grid, hoverAttrs, marks, normalizePath as normalizeDrillPath, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFigureMotion, useFontFloor, usePrefersReducedMotion };

@@ -151,6 +151,8 @@ function wrapText(text, chars) {
 }
 function figureOf(input) {
   if ((0, import_react3.isValidElement)(input)) {
+    const toStatic = input.type.toStatic;
+    if (typeof toStatic === "function") return toStatic(input.props);
     const pp = input.props;
     if (typeof pp.parts === "function" && pp.spec) {
       const parts = pp.parts(pp.spec, pp.id ?? "static");

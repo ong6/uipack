@@ -34,6 +34,8 @@ export interface NodeProps {
   size?: number;
   subSize?: number;
   id?: string;
+  /** Drawn inside the box, above its fill and under the icon and text (a drill-down preview). */
+  inlay?: ReactNode;
 }
 
 export function Node({
@@ -53,6 +55,7 @@ export function Node({
   size: size0 = 14,
   subSize: subSize0 = 11,
   id,
+  inlay,
 }: NodeProps) {
   const hover = useFigureHover();
   const size = useFontFloor(size0);
@@ -95,6 +98,7 @@ export function Node({
         strokeWidth={1.25}
         strokeDasharray={dashed ? "4 4" : undefined}
       />
+      {inlay}
       <path className="uipack__touch-target" d={`M ${x} ${y - Math.max(0, 54 - h) / 2} h ${w} v ${Math.max(h, 54)} h ${-w} Z`} fill="transparent" stroke="none" aria-hidden="true" />
       {glyph ? (
         <g

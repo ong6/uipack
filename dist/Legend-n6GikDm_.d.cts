@@ -28,4 +28,4 @@ interface LegendProps {
 /** Shape-coded key rendered in the Figure header. Hovering an item highlights every element of that kind. */
 declare function Legend({ items }: LegendProps): react.JSX.Element | null;
 
-export { Legend as L, type TokenKind as T, type TokenShape as a, type LegendItem as b, type LegendProps as c, TOKEN_SHAPE as d, Token as e, type TokenProps as f, tokenColor as t };
+export { type LegendItem as L, type TokenKind as T, type TokenShape as a, Legend as b, type LegendProps as c, TOKEN_SHAPE as d, Token as e, type TokenProps as f, tokenColor as t };

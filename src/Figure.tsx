@@ -74,7 +74,7 @@ const NOTE_GAP = 8;
  * content: centred above the item (below when the canvas has no room above),
  * clamped to the visible part of the canvas.
  */
-function placeNote(canvas: HTMLElement, note: HTMLElement, anchor: Element) {
+export function placeNote(canvas: HTMLElement, note: HTMLElement, anchor: Element) {
   const box = anchor.querySelector(":scope > rect") ?? anchor;
   const c = canvas.getBoundingClientRect();
   const a = box.getBoundingClientRect();
@@ -113,18 +113,18 @@ function useRenderedWidth(
   return fixed ?? w;
 }
 
-const PauseGlyph = () => (
+export const PauseGlyph = () => (
   <svg viewBox="0 0 12 12" aria-hidden="true">
     <rect x="2" y="1.5" width="3" height="9" rx="0.5" />
     <rect x="7" y="1.5" width="3" height="9" rx="0.5" />
   </svg>
 );
-const PlayGlyph = () => (
+export const PlayGlyph = () => (
   <svg viewBox="0 0 12 12" aria-hidden="true">
     <path d="M3 1.5 L10.5 6 L3 10.5 Z" />
   </svg>
 );
-const ReplayGlyph = () => (
+export const ReplayGlyph = () => (
   <svg viewBox="0 0 12 12" aria-hidden="true">
     <path
       d="M6 1.5a4.5 4.5 0 1 1-4.2 2.9"

@@ -12,6 +12,19 @@ const Docs = lazy(() => import("./DocsShowcase"));
 const Article = lazy(() => import("./ArticleShowcase"));
 const Deck = lazy(() => import("./DeckShowcase"));
 const Mechanism = lazy(() => import("./MechanismShowcase"));
+// Temporary: /drill shows the drill-down section until the diagrams page mounts it.
+const Drill = lazy(() =>
+  Promise.all([import("./ShowcaseShell"), import("./DrillSection")]).then(([shell, drill]) => ({
+    default: function DrillPage() {
+      const { theme, flip } = shell.useShowcaseTheme();
+      return (
+        <shell.ShowcaseShell active="figures" theme={theme} flip={flip}>
+          <drill.DrillSection theme={theme} />
+        </shell.ShowcaseShell>
+      );
+    },
+  })),
+);
 
 const params = new URLSearchParams(location.search);
 const theme = params.get("theme");
@@ -32,6 +45,10 @@ createRoot(document.getElementById("root")!).render(
     ) : location.pathname.replace(/\/$/, "") === "/docs" ? (
       <Suspense fallback={<p>Loading docs layout…</p>}>
         <Docs />
+      </Suspense>
+    ) : location.pathname.replace(/\/$/, "") === "/drill" ? (
+      <Suspense fallback={<p>Loading drill-down…</p>}>
+        <Drill />
       </Suspense>
     ) : location.pathname.replace(/\/$/, "") === "/deck" ? (
       <Suspense fallback={<p>Loading deck…</p>}>

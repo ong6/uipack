@@ -1,6 +1,7 @@
 import * as react from 'react';
 import { ReactNode, ElementType, CSSProperties, ReactElement } from 'react';
 import { S as SpeechGuide } from './types-CMN3hTzQ.cjs';
+import { R as Rect, Z as ZoomFrame, a as ZoomSample } from './zoom-math-DNtJhg8j.cjs';
 
 /**
  * The content layer for decks: what each slide is for, proven storylines for the decks an engineer
@@ -284,12 +285,7 @@ declare const deckMotion: {
     readonly exit: "cubic-bezier(0.4, 0, 1, 1)";
     readonly travel: "cubic-bezier(0.55, 0, 0.15, 1)";
 };
-interface Rect {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-}
+
 type TransitionKind = "advance" | "morph" | "fade" | "none" | "zoom";
 interface ResolvedTransition {
     kind: TransitionKind;
@@ -300,26 +296,10 @@ interface ResolvedTransition {
  * back reverses the way you came in. Jumps (overview, Home/End) crossfade.
  */
 declare function resolveTransition(from: number, to: number, transitionOf: (index: number) => DeckTransition | undefined, fallback?: DeckTransition): ResolvedTransition;
-/**
- * A zoom into `target` (canvas coordinates) is a pure scale about one fixed point F, chosen so the
- * target ends centred and as large as the canvas allows. The outer slide scales by Z^p and the
- * inner slide by Z^(p-1) about the same point, so the inner slide stays locked inside the target
- * for the whole flight and the zoom feels even (exponential), not accelerating.
- */
-declare function zoomFrame(target: Rect, width?: number, height?: number): {
-    Z: number;
-    fx: number;
-    fy: number;
-} | null;
-interface ZoomSample {
-    offset: number;
-    outer: string;
-    inner: string;
-    clip: string;
-    innerOpacity: number;
-}
-/** Sampled keyframes for a zoom. `forward` flies in; backwards plays the same path out. */
-declare function zoomSamples(target: Rect, forward: boolean, samples?: number, width?: number, height?: number): ZoomSample[] | null;
+/** The deck's zoom is the shared fixed-point zoom (`src/zoom-math.ts`) on the 1920×1080 canvas. */
+declare const zoomFrame: (target: Rect, width?: number, height?: number) => ZoomFrame | null;
+/** Sampled keyframes for a zoom on the slide canvas. `forward` flies in; backwards plays the same path out. */
+declare const zoomSamples: (target: Rect, forward: boolean, samples?: number, width?: number, height?: number) => ZoomSample[] | null;
 /**
  * FLIP: the transform that puts an element laid out at `to` where it was at `from`.
  * `scale` converts screen pixels back to canvas pixels. Similar shapes scale uniformly so text
@@ -843,4 +823,4 @@ interface HarveyTableProps {
 /** Options × criteria: Harvey balls (0–4) and text cells, with one row marked as the recommendation. */
 declare function HarveyTable({ columns, rows, corner, showKey, keyNote }: HarveyTableProps): react.JSX.Element;
 
-export { type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, Callout, type CalloutGeometry, type CalloutProps, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, REPEATABLE_ROLES, type Rect, Ref, type ResolvedTransition, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, Tracker, type TrackerProps, type TransitionKind, WORDS_PER_MINUTE, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, calloutGeometry, deckMotion, flipFrom, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, resolveTransition, runTransition, spreadLabels, stackSegments, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapText, zeroBasedDomain, zoomFrame, zoomSamples };
+export { type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, Callout, type CalloutGeometry, type CalloutProps, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, REPEATABLE_ROLES, Rect, Ref, type ResolvedTransition, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, Tracker, type TrackerProps, type TransitionKind, WORDS_PER_MINUTE, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, calloutGeometry, deckMotion, flipFrom, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, resolveTransition, runTransition, spreadLabels, stackSegments, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapText, zeroBasedDomain, zoomFrame, zoomSamples };

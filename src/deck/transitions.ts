@@ -1,4 +1,5 @@
 import type { DeckTransition } from "./types";
+import { zoomFrame as zoomFrameAt, zoomSamples as zoomSamplesAt, type Rect } from "../zoom-math";
 
 /** Slides are authored on one fixed canvas and scaled to fit, so sizes in slides are canvas pixels. */
 export const CANVAS_WIDTH = 1920;
@@ -17,12 +18,7 @@ export const deckMotion = {
   travel: "cubic-bezier(0.55, 0, 0.15, 1)",
 } as const;
 
-export interface Rect {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-}
+export type { Rect } from "../zoom-math";
 
 export type TransitionKind = "advance" | "morph" | "fade" | "none" | "zoom";
 
@@ -47,78 +43,12 @@ export function resolveTransition(
   return typeof t === "string" ? { kind: t } : { kind: "zoom", zoom: t.zoom };
 }
 
-export const easeInOutCubic = (p: number) =>
-  p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+/** The deck's zoom is the shared fixed-point zoom (`src/zoom-math.ts`) on the 1920×1080 canvas. */
+export const zoomFrame = (target: Rect, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomFrameAt(target, width, height);
 
-export const smoothstep = (a: number, b: number, x: number) => {
-  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
-  return t * t * (3 - 2 * t);
-};
-
-/**
- * A zoom into `target` (canvas coordinates) is a pure scale about one fixed point F, chosen so the
- * target ends centred and as large as the canvas allows. The outer slide scales by Z^p and the
- * inner slide by Z^(p-1) about the same point, so the inner slide stays locked inside the target
- * for the whole flight and the zoom feels even (exponential), not accelerating.
- */
-export function zoomFrame(target: Rect, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) {
-  const Z = Math.min(width / target.w, height / target.h);
-  if (!Number.isFinite(Z) || Z < 1.05) return null;
-  const cx = target.x + target.w / 2;
-  const cy = target.y + target.h / 2;
-  return {
-    Z,
-    fx: (cx * Z - width / 2) / (Z - 1),
-    fy: (cy * Z - height / 2) / (Z - 1),
-  };
-}
-
-/** Where the target lands in the inner slide's own coordinates: the clip the inner slide opens from. */
-export function innerClipStart(target: Rect, frame: { Z: number; fx: number; fy: number }, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) {
-  const map = (v: number, f: number) => (v - f) * frame.Z + f;
-  const left = map(target.x, frame.fx);
-  const top = map(target.y, frame.fy);
-  const right = width - map(target.x + target.w, frame.fx);
-  const bottom = height - map(target.y + target.h, frame.fy);
-  return { top, right, bottom, left };
-}
-
-export interface ZoomSample {
-  offset: number;
-  outer: string;
-  inner: string;
-  clip: string;
-  innerOpacity: number;
-}
-
-/** Sampled keyframes for a zoom. `forward` flies in; backwards plays the same path out. */
-export function zoomSamples(
-  target: Rect,
-  forward: boolean,
-  samples = 24,
-  width = CANVAS_WIDTH,
-  height = CANVAS_HEIGHT,
-): ZoomSample[] | null {
-  const frame = zoomFrame(target, width, height);
-  if (!frame) return null;
-  const start = innerClipStart(target, frame, width, height);
-  const radiusStart = 6 * frame.Z;
-  const out: ZoomSample[] = [];
-  for (let i = 0; i <= samples; i++) {
-    const t = i / samples;
-    const p = easeInOutCubic(forward ? t : 1 - t);
-    const clipT = smoothstep(0.15, 0.85, p);
-    const inset = (v: number) => (v * (1 - clipT)).toFixed(2);
-    out.push({
-      offset: t,
-      outer: `scale(${Math.pow(frame.Z, p).toFixed(5)})`,
-      inner: `scale(${Math.pow(frame.Z, p - 1).toFixed(5)})`,
-      clip: `inset(${inset(start.top)}px ${inset(start.right)}px ${inset(start.bottom)}px ${inset(start.left)}px round ${(radiusStart * (1 - clipT)).toFixed(2)}px)`,
-      innerOpacity: smoothstep(0.08, 0.4, p),
-    });
-  }
-  return out;
-}
+/** Sampled keyframes for a zoom on the slide canvas. `forward` flies in; backwards plays the same path out. */
+export const zoomSamples = (target: Rect, forward: boolean, samples = 24, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) =>
+  zoomSamplesAt(target, forward, width, height, { samples, radius: 6 });
 
 /**
  * FLIP: the transform that puts an element laid out at `to` where it was at `from`.
