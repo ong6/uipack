@@ -222,7 +222,10 @@ export function DeckPlayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view.index, view.step]);
 
+  // Known only in the browser, so set after mount: the server and the first client render agree.
+  const [canFullscreen, setCanFullscreen] = useState(false);
   useEffect(() => {
+    setCanFullscreen(document.fullscreenEnabled !== false);
     const onChange = () => setFullscreen(document.fullscreenElement === rootRef.current);
     document.addEventListener("fullscreenchange", onChange);
     return () => document.removeEventListener("fullscreenchange", onChange);
@@ -374,7 +377,7 @@ export function DeckPlayer({
       atStart={atStart}
       atEnd={atEnd}
       mode={mode}
-      canFullscreen={typeof document !== "undefined" && document.fullscreenEnabled !== false}
+      canFullscreen={canFullscreen}
       fullscreen={fullscreen}
       overviewButtonRef={overviewButtonRef}
       onPrev={prev}
