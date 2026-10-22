@@ -30,15 +30,15 @@ A style is an implementation, not a label: register it only when its renderer ex
 2. The components or renderer that draw in it, with real example data.
 3. A guidance doc (`docs/<style>.md`): when to use it, type roles, palette, motion rules. Add a row to the style table in `docs/design-direction.md` and its type roles to the typography line in `AGENTS.md`.
 4. Register it in `visualStyles` in `playground/catalog.ts` (`id`, `name`, `description`, `tokens`, `guidance`). `/styles` renders a card from it; `test/catalog.test.tsx` checks both files exist.
-5. A page that shows it (next recipe), with `styleName` on `ShowcaseShell` so the context line names the style.
+5. A page that shows it (next recipe), with `styleName` on its `libraryPages` entry so the shell's context line names the style.
 6. Evidence: screenshots at 1440 and 390 in both themes in `docs/`, referenced from the doc.
 7. `npm run build` and commit `dist/` with the change.
 
 ## A new playground page
 
-1. `libraryPages` in `playground/catalog.ts`: `id`, `group` (one of `libraryGroups`), `label` (nav text and `h1`), `path`, `intro` (one sentence). Optional: `title` when the label names only a sub-view, `query` and `isDefault` for sub-views of one path (the decks), `hostsPage` when the page renders a complete sample page with its own `h1` (`/web`).
-2. The page component, `playground/<Name>Showcase.tsx`, default export, wrapped in `<ShowcaseShell active="<id>" theme flip styleName>`. Sections are `<section data-catalog-entry id>` with a sentence-case `h2`; figures inside keep `headingLevel` 3. Its CSS is `playground/<name>-showcase.css`, imported by the page, with classes no library entry uses.
-3. `pageComponents` in `playground/main.tsx`: map the id to the component (lazy-import it). The typecheck fails until you do.
+1. `libraryPages` in `playground/catalog.ts`: `id`, `group` (one of `libraryGroups`), `label` (nav text and `h1`), `path`, `intro` (one sentence). Optional: `title` when the label names only a sub-view, `query` and `isDefault` for sub-views of one path (the decks), `hostsPage` when the page renders a complete sample page with its own `h1` (`/web`), `styleName` when its content is not Technical.
+2. The page component, `playground/<Name>Showcase.tsx`, default export, rendering only the page's content: `main.tsx` puts it inside `ShowcaseShell` (header, `h1`, intro), and `useShowcaseTheme()` gives it the theme. Sections are `<section data-catalog-entry id>` with a sentence-case `h2`; figures inside keep `headingLevel` 3. Its CSS is `playground/<name>-showcase.css`, imported by the page (with `src/theme.css` and `src/canvas.css` if it shows figures), with classes no library entry uses: it loads with the page's chunk, and only `showcase.css` is in the entry.
+3. `pageModules` in `playground/routes.ts`: map the id to the module name. The typecheck fails until you do. `main.tsx` lazy-loads it (a module named `App`, `CatalogPages` or `*Showcase`), and the build preloads its chunk from `index.html`.
 4. The nav table in `e2e/nav.spec.ts` (`GROUPS`, written out on purpose) and the table in `playground/README.md`.
 5. Run `e2e/nav.spec.ts` and `e2e/alignment.spec.ts`; add the path to `PAGES` in `alignment.spec.ts`.
 

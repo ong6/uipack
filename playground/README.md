@@ -1,6 +1,6 @@
 # Library playground
 
-Run `npm run dev` from the repo root. The nav has two rows: groups, then the active group's pages. Both come from `libraryGroups` and `libraryPages` in `catalog.ts`; a page's sub-views (the decks) sit together after the page's name. The shell renders a Skip to content link, the header (the banner landmark), then in `<main>` the context line, the page's `h1` (its label, or "Deck player · Bento" for a sub-view) and its intro (`intro`) from the same entry, and sets the tab title ("Bento · Deck player · uipack"). An unknown path shows a Page not found page listing every page, and an unknown `?deck=` says which deck it shows instead. To add a page, add a `libraryPages` entry with a `group`, then map its id to the page component in `pageComponents` (`main.tsx`), which also derives the routes; the typecheck fails until it is mapped. Every recipe is in [contributing](../docs/contributing.md).
+Run `npm run dev` from the repo root. The nav has two rows: groups, then the active group's pages. Both come from `libraryGroups` and `libraryPages` in `catalog.ts`; a page's sub-views (the decks) sit together after the page's name. The shell renders a Skip to content link, the header (the banner landmark), then in `<main>` the context line, the page's `h1` (its label, or "Deck player · Bento" for a sub-view) and its intro (`intro`) from the same entry, and sets the tab title ("Bento · Deck player · uipack"). An unknown path shows a Page not found page listing every page, and an unknown `?deck=` says which deck it shows instead. To add a page, add a `libraryPages` entry with a `group`, then map its id to the page's module in `pageModules` (`routes.ts`), which also derives the routes; the typecheck fails until it is mapped. Each page is a lazy chunk: `main.tsx` renders the shell at once and the page below it when its chunk arrives (a "Loading …" status line shows if that takes more than 300 ms), and in a build `index.html` preloads the current page's chunk and CSS alongside the entry. Every recipe is in [contributing](../docs/contributing.md).
 
 | Group | Page | Path |
 |---|---|---|
@@ -29,13 +29,13 @@ Every page has the same headings: the context line (`<Group> · <Style> style`),
 - `/mechanism`: the Mechanism style. The verification gate in its card with pose buttons (`?pose=idle|pass|return|apart`), and the four still thumbnails a deck would render (`interactive={false}`, `frame={false}`).
 - `/styles`: visual-language catalog (Technical, Landing, Mechanism, and six object art directions). Each card shows the style itself (`StylePreviews.tsx`): a live figure, Landing hero and gate machine, and stills of the travel study for the six WebGL directions (`assets/styles/`, regenerated with `node scripts/style-stills.mjs` while the dev server runs on port 5285).
 
-`ShowcaseShell.tsx` owns shared navigation/theme handling; its `styleName` prop names the page's content style in the context line. `showcase.css` owns page tokens and layout. `catalog.ts` owns type/style/tag metadata. Collection pages must not introduce another header or global styles.
+`ShowcaseShell.tsx` owns shared navigation/theme handling (`ShowcaseThemeProvider`, `useShowcaseTheme`); a page's `styleName` in `catalog.ts` names its content style in the context line. `showcase.css` owns page tokens and layout. `catalog.ts` owns type/style/tag metadata. Collection pages must not introduce another header or global styles.
 
 To add an animation, export a validated story from `src/slides`, register metadata in `catalog.ts`, and add it to the story list. To add a visual style, follow [the design contract](../docs/design-direction.md); metadata alone does not implement a style.
 
 Presentation layouts belong in `CatalogPages.tsx` and `presentations.css` until there are enough reusable examples to extract a separate library API. Keep 3D assets independent from those layouts.
 
-Object scenes also appear in `/animations` under the Objects filter. Add source metadata to `objectScenes` in `src/objects/ObjectScene.tsx`; `catalog.ts` registers those entries.
+Object scenes also appear in `/animations` under the Objects filter. Add source metadata to `objectScenes` in `src/objects/scene-list.ts` (plain data, so the catalog in the playground's entry does not pull in the 3D player); `catalog.ts` registers those entries.
 
 For reproducible object reviews, use /animations?story=travel&variant=0 (variants 0–5). The hobby variants select Studio, Paper, Kinetic, Cartoon, Realistic and Abstract. Use the named selector to compare all six hobbies.
 

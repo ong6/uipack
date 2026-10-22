@@ -86,6 +86,8 @@ test("aliases /diagrams, /drill and /slides open their pages", async ({ page }) 
 
 test("diagrams page has its named sections and charts moved out", async ({ page }) => {
   await page.goto("/");
+  // The page's sections load after the shell (a lazy chunk).
+  await page.locator("[data-section]").first().waitFor();
   const headings = (await outline(page)).filter((h) => h.level === 2).map((h) => h.text);
   // One section per pattern, simplest first: the same list as figureEntries in catalog.ts.
   expect(headings).toEqual([
@@ -115,6 +117,7 @@ test("diagrams page has its named sections and charts moved out", async ({ page 
   expect(found).toHaveLength(headings.length - 1);
   await expect(page.locator("#layer-stack, #span-chart")).toHaveCount(0);
   await page.goto("/charts");
+  await page.locator("#span-chart").waitFor();
   expect((await outline(page)).filter((h) => h.level === 2).map((h) => h.text)).toEqual(["Layer stack", "Span chart"]);
 });
 
@@ -390,4 +393,28 @@ test("an unknown deck shows a visible note and the default deck", async ({ page 
   await expect(page.locator(".showcase-title__note")).toHaveCount(0);
   await page.goto("/deck");
   await expect(page.locator(".showcase-title__note")).toHaveCount(0);
+});
+
+test("while a page's chunk loads, the shell stays and a status line says what is loading", async ({ page }) => {
+  // Hold the page module until the shell has been checked. Dev serves it as /DocsShowcase.tsx; a build as a hashed chunk.
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => (release = resolve));
+  await page.route(/\/(assets\/)?DocsShowcase[-.][^/]*$/, async (route) => {
+    await held;
+    await route.continue();
+  });
+  await page.goto("/docs?theme=dark");
+  await expect(page.getByRole("banner")).toBeVisible();
+  await expect(groupsNav(page).locator('[aria-current="page"]')).toHaveText("Web");
+  await expect(pagesNav(page).locator('[aria-current="page"]')).toHaveText("Docs layout");
+  await expect(title(page)).toHaveText("Docs layout");
+  const status = page.getByRole("main").getByRole("status");
+  await expect(status).toHaveText("Loading Docs layout…");
+  const titleBox = await title(page).boundingBox();
+  release();
+  await expect(status).toHaveCount(0);
+  await expect(page.locator('section[data-route="docs"]')).toBeVisible();
+  await expect(page.getByRole("banner")).toBeVisible();
+  // The page fills in below the intro; nothing above it moves.
+  expect(await title(page).boundingBox()).toEqual(titleBox);
 });

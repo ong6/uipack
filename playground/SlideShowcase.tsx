@@ -2,9 +2,10 @@ import { transferObjectVariant, objectDirectionIndex, normalizeObjectVariant, Ob
 import "../src/objects/objects.css";
 import { animationEntries } from "./catalog";
 import { useState } from "react";
-import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
+import { useShowcaseTheme } from "./ShowcaseShell";
 import { SlidePlayer, slideStories } from "../src/slides";
 import "../src/slides/slides.css";
+import "../src/canvas.css";
 import "./slides-showcase.css";
 import { keepFocusedInView } from "../src/env";
 
@@ -14,7 +15,7 @@ export default function Slides() {
   const [storyId, setStoryId] = useState(
     params.get("story") ?? (location.pathname === "/slides" ? slideStories[0].id : objectScenes[0].id),
   );
-  const { theme, flip } = useShowcaseTheme();
+  const { theme } = useShowcaseTheme();
   const [variant, setVariant] = useState<ObjectVariant>(
     parseObjectVariant(params.get("variant")));
   const [edition, setEdition] = useState<ObjectEdition>(["0", "1", "2"].includes(params.get("edition") ?? "") ? Number(params.get("edition")) as ObjectEdition : 0);
@@ -54,7 +55,7 @@ export default function Slides() {
     history.replaceState(null, "", url);
   };
   return (
-    <ShowcaseShell active="animations" theme={theme} flip={flip}>
+    <>
       <section className="slides-showcase">
         <h2>Scene library and preview</h2>
         <AnimationWorkspace theme={theme} library={<>
@@ -140,6 +141,6 @@ export default function Slides() {
         </details>
         </AnimationWorkspace>
       </section>
-    </ShowcaseShell>
+    </>
   );
 }
