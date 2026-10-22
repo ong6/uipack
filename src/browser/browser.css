@@ -380,9 +380,15 @@
     margin: -6px;
     scroll-padding-inline: 6px;
     -webkit-overflow-scrolling: touch;
+    /* A fade at the edge says the chips scroll; the last chip clears it at the end. */
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent);
   }
   .uipack-browser__side li {
     flex: none;
+  }
+  .uipack-browser__side li:last-child {
+    margin-right: 48px;
   }
   .uipack-browser__cat {
     width: auto;
