@@ -1,7 +1,8 @@
 import { Children, isValidElement, useRef, useState, type CSSProperties, type ReactElement, type ReactNode } from "react";
 import { useIsoLayoutEffect, useLatest, usePrefersReducedMotion } from "../env";
 import { useDeckSlide } from "./parts";
-import { cubicBezier, deckMotion } from "./transitions";
+import { cubicBezier } from "../math";
+import { deckMotion } from "./transitions";
 
 export interface BentoCellProps {
   /** Stable ID: the tour refers to it, and a `{ zoom: id }` transition can fly into it. */

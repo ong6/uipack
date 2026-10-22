@@ -1,12 +1,10 @@
 import type { DeckTransition } from "./types";
+import { cubicBezier, lerpRect } from "../math";
 import { innerClipStart, smoothstep, zoomFrame, type Rect, type ZoomSample } from "../zoom-math";
 
 /** Slides are authored on one fixed canvas and scaled to fit, so sizes in slides are canvas pixels. */
 export const CANVAS_WIDTH = 1920;
 export const CANVAS_HEIGHT = 1080;
-
-/** The zoom camera's cubic-bezier control points: one curve for the CSS (`deckMotion.camera`) and the sampled keyframes. */
-const CAMERA_CURVE = [0.3, 0.05, 0.25, 1] as const;
 
 /** The travel curve's control points: `deckMotion.travel` in CSS, and sampled where a move needs the eased value. */
 const TRAVEL_CURVE = [0.55, 0, 0.15, 1] as const;
@@ -25,33 +23,16 @@ export const deckMotion = {
   handoff: 90,
   settle: "cubic-bezier(0.2, 0.7, 0.2, 1)",
   exit: "cubic-bezier(0.4, 0, 1, 1)",
-  travel: `cubic-bezier(${TRAVEL_CURVE.join(", ")})`,
+  // Literals, not built from the curves: a module-level call would keep this module in every bundle
+  // that imports the deck entry, used or not. test/deck.test.tsx checks they match the curves.
+  travel: "cubic-bezier(0.55, 0, 0.15, 1)",
   travelCurve: TRAVEL_CURVE,
   /** The zoom camera's progress (in log scale): moving by 10% of the clock, landing softly. */
-  camera: `cubic-bezier(${CAMERA_CURVE.join(", ")})`,
+  camera: "cubic-bezier(0.3, 0.05, 0.25, 1)",
 } as const;
 
-/** A CSS cubic-bezier as a function of time, for sampled keyframes that need the eased value. */
-export function cubicBezier(x1: number, y1: number, x2: number, y2: number) {
-  const cx = 3 * x1;
-  const bx = 3 * (x2 - x1) - cx;
-  const ax = 1 - cx - bx;
-  const cy = 3 * y1;
-  const by = 3 * (y2 - y1) - cy;
-  const ay = 1 - cy - by;
-  const x = (t: number) => ((ax * t + bx) * t + cx) * t;
-  const dx = (t: number) => (3 * ax * t + 2 * bx) * t + cx;
-  return (time: number) => {
-    let t = time;
-    for (let i = 0; i < 8; i++) {
-      const d = dx(t);
-      if (Math.abs(d) < 1e-6) break;
-      t = Math.min(1, Math.max(0, t - (x(t) - time) / d));
-    }
-    return ((ay * t + by) * t + cy) * t;
-  };
-}
-const cameraEase = cubicBezier(...CAMERA_CURVE);
+/** The zoom camera's eased progress: the same curve as `deckMotion.camera`, for sampled keyframes. */
+const cameraEase = /*#__PURE__*/ cubicBezier(0.3, 0.05, 0.25, 1);
 
 export type { Rect } from "../zoom-math";
 
@@ -163,12 +144,6 @@ export function flipFrom(
   };
 }
 
-const lerpRect = (a: Rect, b: Rect, p: number): Rect => ({
-  x: a.x + (b.x - a.x) * p,
-  y: a.y + (b.y - a.y) * p,
-  w: a.w + (b.w - a.w) * p,
-  h: a.h + (b.h - a.h) * p,
-});
 const overlaps = (a: Rect, b: Rect) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 
 const rectOf = (el: Element): Rect => {
