@@ -15,6 +15,9 @@ export default defineConfig({
   // rather than competing renderer processes on the same runner.
   workers: 1,
   retries: process.env.CI ? 1 : 0,
+  // The retry keeps a pull request moving past a one-off flake, but a test that passes only on
+  // its retry is reported as flaky, and on main any flaky test fails the run so it gets fixed.
+  failOnFlakyTests: Boolean(process.env.CI) && process.env.GITHUB_REF === "refs/heads/main",
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: `http://localhost:${port}`,
