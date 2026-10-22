@@ -79,8 +79,8 @@
  *   the pan while they are inside the box and leaves just before the edge would cut them, so the
  *   neighbours stay readable, dimmed, wherever they fit.
  * - Into a cell: the target's face holds while it grows (it stays inside the box; it leaves
- *   340–520 ms), and its detail arrives as the camera settles (from 560 ms). Face and detail never
- *   overlap.
+ *   320–460 ms), and its detail arrives straight after, as the camera slows (from 470 ms). Face and
+ *   detail never overlap.
  * - Cell to cell, a crossfade: the cell being left keeps its detail until 420 ms and dims as it
  *   fades (420–620 ms); the next cell brightens from 200 ms, its face clears by 300 ms and its
  *   detail arrives from 300 ms, so the two details share the middle of the pan.
@@ -91,10 +91,10 @@
   transition: opacity 200ms ease 420ms;
 }
 .uipack-deck-bento__cell[data-focused] .uipack-deck-bento__detail {
-  transition: opacity 240ms ease 560ms;
+  transition: opacity 240ms ease 470ms;
 }
 .uipack-deck-bento__cell[data-focused] .uipack-deck-bento__face:has(+ .uipack-deck-bento__detail) {
-  transition: opacity 180ms ease 340ms;
+  transition: opacity 140ms ease 320ms;
 }
 .uipack-deck-bento[data-move="cell"]
   .uipack-deck-bento__cell[data-focused]
