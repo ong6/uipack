@@ -108,7 +108,7 @@
     "*.css"
   ],
   "scripts": {
-    "build": "tsup && cat src/theme.css src/canvas.css > dist/theme.css && cp src/browser/browser.css dist/browser.css && cp src/presentations/presentations.css dist/presentations.css && cat src/slides/slides.css src/canvas.css > dist/slides.css && cat src/objects/objects.css src/canvas.css > dist/objects.css && cat src/web/web.css src/web/gutters.css > dist/web.css && cp src/web/gutters.css dist/web-gutters.css && cp src/docs/docs.css dist/docs.css && cp src/charts/charts.css dist/charts.css && cp src/article/article.css dist/article.css && cp src/deck/deck.css dist/deck.css",
+    "build": "tsup && cat src/theme.css src/canvas.css > dist/theme.css && cp src/browser/browser.css dist/browser.css && cp src/presentations/presentations.css dist/presentations.css && cat src/slides/slides.css src/canvas.css > dist/slides.css && cat src/objects/objects.css src/canvas.css > dist/objects.css && cat src/web/web.css src/web/gutters.css > dist/web.css && cp src/web/gutters.css dist/web-gutters.css && cp src/docs/docs.css dist/docs.css && cp src/charts/charts.css dist/charts.css && cp src/article/article.css dist/article.css && cat src/deck/deck.css src/deck/bento.css src/deck/consulting/consulting.css > dist/deck.css",
     "dev": "vite",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",

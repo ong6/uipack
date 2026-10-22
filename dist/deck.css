@@ -684,3 +684,5 @@
 .uipack-deck-presenter__role b {
   color: var(--deck-fg);
 }
+/* Bento slides: a grid of containers the camera moves between (canvas pixels). */
+/* Consulting-style dense slide parts (canvas pixels). */

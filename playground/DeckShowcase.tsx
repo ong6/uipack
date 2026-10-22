@@ -1,11 +1,13 @@
 import { DeckPlayer } from "../src/deck";
 import "../src/deck/deck.css";
 import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
-import { deckExample } from "./deckExample";
+import { deckExamples } from "./deckExamples";
 import "./deck-showcase.css";
 
 const params = new URLSearchParams(location.search);
 const presenter = params.get("presenter") === "1";
+const example = deckExamples.find((d) => d.id === params.get("deck")) ?? deckExamples[0];
+const deckId = `uipack-deck-${example.id}`;
 const motion = params.get("motion") === "none" ? "none" : "auto";
 // Phones open the deck as a document; presenting is a desktop or projector job.
 const view =
@@ -46,9 +48,9 @@ export default function DeckShowcase() {
     return (
       <main className="deck-speaker-page" data-theme={theme}>
         <DeckPlayer
-          id="uipack-deck-example"
+          id={deckId}
           title="Deck player example, speaker view"
-          slides={deckExample}
+          slides={example.slides}
           theme={theme}
           motion={motion}
           mode="presenter"
@@ -68,14 +70,21 @@ export default function DeckShowcase() {
           One consistent way to present: slides on a 1920×1080 canvas, one transition grammar, builds, an overview,
           full screen and a speaker view. Click the deck, then use the arrow keys.
         </p>
+        <nav className="deck-showcase__examples" aria-label="Example decks">
+          {deckExamples.map((d) => (
+            <a key={d.id} href={`/deck?deck=${d.id}&theme=${theme}`} aria-current={d.id === example.id ? "page" : undefined}>
+              {d.label}
+            </a>
+          ))}
+        </nav>
         <DeckPlayer
-          id="uipack-deck-example"
+          id={deckId}
           title="Deck player example"
-          slides={deckExample}
+          slides={example.slides}
           theme={theme}
           motion={motion}
           view={view}
-          lint={{ template: "deep-dive" }}
+          lint={example.lint ?? true}
           initial={initial}
           onPositionChange={syncUrl}
         />
