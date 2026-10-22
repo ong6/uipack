@@ -334,7 +334,7 @@ export function DrillSection({ theme }: { theme?: "light" | "dark" }) {
   const other = theme === "dark" ? "light" : "dark";
   return (
     <section data-catalog-entry="drill-figure" id="drill" className="drill-section">
-      <h2>drill/DrillFigure</h2>
+      <h2>Drill-down figure</h2>
       <DrillFigure
         id="drill-main"
         number="Figure 05"
@@ -345,7 +345,7 @@ export function DrillSection({ theme }: { theme?: "light" | "dark" }) {
         path={path ?? ["harness"]}
         onPathChange={setPath}
       />
-      <h2 style={{ marginTop: 32 }}>drill/DrillFigure · {other} theme, opened at Checks</h2>
+      <h2 style={{ marginTop: 32 }}>Drill-down figure in the {other} theme, opened at Checks</h2>
       <DrillFigure
         id="drill-alt"
         number="Figure 05b"

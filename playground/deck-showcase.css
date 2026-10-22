@@ -7,27 +7,6 @@
 .deck-showcase .uipack-deck {
   margin: 16px 0 40px;
 }
-.deck-showcase__examples {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 20px;
-}
-.deck-showcase__examples a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--rule, #c4ccc6);
-  border-radius: 4px;
-  color: inherit;
-  font: 500 13px/1 var(--font-mono, ui-monospace, Menlo, monospace);
-  text-decoration: none;
-}
-.deck-showcase__examples a[aria-current="page"] {
-  border-color: currentColor;
-  box-shadow: inset 0 -2px 0 var(--accent, #205f49);
-}
 .deck-showcase__reference {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));

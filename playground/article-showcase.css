@@ -21,10 +21,10 @@
 .article-host > section > h2 {
   max-width: 40rem;
   margin: 0 auto 8px;
-  font: 13px ui-monospace, monospace;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--show-muted);
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 650;
+  color: var(--show-ink);
 }
 
 /* The notes site's palette and token map (app/globals.css, .fig-html). */

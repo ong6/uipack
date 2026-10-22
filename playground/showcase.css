@@ -35,50 +35,29 @@ body {
   min-width: 0;
 }
 .showcase-shell > section > h2 {
-  font-size: 13px;
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 650;
   margin: 0 0 8px;
-  font-family: ui-monospace, monospace;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--show-muted);
+  color: var(--show-ink);
 }
 .showcase-header {
-  display: flex;
-  align-items: center;
-  gap: 24px;
+  display: grid;
+  gap: 0;
   min-width: 0;
   border-bottom: 1px solid var(--show-rule);
-  padding-bottom: 16px;
+}
+.showcase-header__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 .showcase-brand {
   color: inherit;
   display: flex;
   align-items: center;
   min-height: 44px;
-}
-.showcase-header nav {
-  display: flex;
-  gap: 8px;
-  margin-left: auto;
-}
-.showcase-header nav a {
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0 12px;
-  font:
-    500 13px ui-monospace,
-    monospace;
-  color: var(--show-muted);
-  text-decoration: none;
-  border-bottom: 2px solid transparent;
-}
-.showcase-header nav a[aria-current="page"] {
-  color: var(--show-accent);
-  border-bottom-color: var(--show-accent);
-}
-.showcase-header nav a:hover {
-  color: var(--show-ink);
 }
 .showcase-header button.theme {
   min-height: 44px;
@@ -92,36 +71,105 @@ body {
   border-radius: 6px;
   cursor: pointer;
 }
+/* Two rows of links: groups, then the active group's pages. Rows scroll sideways
+   when they do not fit, so the header never widens the page. */
+.showcase-groups,
+.showcase-pages {
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.showcase-groups::-webkit-scrollbar,
+.showcase-pages::-webkit-scrollbar {
+  display: none;
+}
+.showcase-groups a,
+.showcase-pages a {
+  flex: none;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  font:
+    500 13px ui-monospace,
+    monospace;
+  color: var(--show-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+}
+.showcase-groups a {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.showcase-groups a:first-child,
+.showcase-pages a:first-child {
+  padding-left: 0;
+}
+.showcase-pages {
+  border-top: 1px solid var(--show-rule);
+}
+.showcase-groups a[aria-current="page"],
+.showcase-pages a[aria-current="page"] {
+  color: var(--show-accent);
+  border-bottom-color: var(--show-accent);
+}
+.showcase-groups a:hover,
+.showcase-pages a:hover {
+  color: var(--show-ink);
+}
+.showcase-shell .showcase-groups a:focus-visible,
+.showcase-shell .showcase-pages a:focus-visible {
+  outline-offset: -3px;
+}
 .showcase-shell a:focus-visible,
 .showcase-shell button:focus-visible,
 .showcase-shell summary:focus-visible {
   outline: 2px solid var(--show-accent);
   outline-offset: 3px;
 }
+.showcase-context {
+  display: flex;
+  gap: 8px;
+  margin: -16px 0 0;
+  font: 12px ui-monospace, monospace;
+  color: var(--show-muted);
+}
+.showcase-context a {
+  color: var(--show-accent);
+}
+.showcase-title {
+  margin-top: -8px;
+  min-width: 0;
+}
+.showcase-title h1 {
+  margin: 0;
+  font-size: clamp(28px, 4.5vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.showcase-title p {
+  margin: 12px 0 0;
+  max-width: 72ch;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--show-muted);
+}
 @media (max-width: 540px) {
-  .showcase-header {
-    flex-wrap: wrap;
-    gap: 8px 16px;
-  }
-  .showcase-header nav {
-    order: 3;
-    width: 100%;
-    margin-left: 0;
-  }
-  .showcase-header button.theme {
-    margin-left: auto;
+  .showcase-groups a,
+  .showcase-pages a {
+    padding: 0 10px;
   }
 }
-.showcase-header { flex-wrap: wrap; }
-.showcase-header nav { flex-wrap: wrap; }
-.showcase-context { display: flex; gap: 12px; font: 12px ui-monospace,monospace; color: var(--show-muted); margin-top: -16px; }
-.showcase-context a { color: var(--show-accent); }
 .catalog-filters { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin: 20px 0; font-size: 13px; color: var(--show-muted); }
 .catalog-filters label { display: grid; gap: 8px; }
 .catalog-filters input,.catalog-filters select { min-height: 44px; max-width: 100%; box-sizing: border-box; border: 1px solid var(--show-rule); border-radius: 6px; padding: 8px 12px; background: var(--show-surface); color: var(--show-ink); font: inherit; }
 .catalog-filters input { width: 280px; }
 .slides-showcase__tabs button small { display: block; margin-top: 6px; color: var(--show-muted); font-size: 11px; }
-@media(max-width: 540px) { .showcase-header nav { gap: 0; } .showcase-header nav a { padding: 0 8px; } }
 
 /* Chart preview frame (Figures page): a host's figure width. */
 /* The charts have no frame of their own: their sticky header paints the host page colour. */
@@ -129,3 +177,193 @@ body {
 .chart-frame__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 12px; font: 12px ui-monospace, monospace; color: var(--show-muted); }
 .chart-frame__bar button { min-height: 36px; padding: 0 10px; border: 1px solid var(--show-rule); border-radius: 6px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
 .chart-frame__bar button[aria-pressed="true"] { border-color: var(--show-accent); color: var(--show-accent); font-weight: 700; }
+
+/* Section intros and sub-headings, shared by every page. */
+.showcase-section-intro {
+  max-width: 72ch;
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--show-muted);
+}
+.showcase-subhead {
+  margin: 0 0 12px;
+  font: 600 13px ui-monospace, monospace;
+  letter-spacing: 0.04em;
+  color: var(--show-muted);
+}
+[data-preset] + [data-preset] {
+  margin-top: 40px;
+}
+
+/* Compact header and menu sheet. Desktop keeps the two rows; below 720px one
+   row holds the brand, a button naming the current page, and the theme toggle. */
+.showcase-header > * {
+  min-width: 0;
+}
+.showcase-header__actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.showcase-menu-button,
+.theme__icon {
+  display: none;
+}
+.showcase-menu {
+  display: none;
+}
+.showcase-menu[open] {
+  display: none;
+}
+@media (max-width: 719px) {
+  .showcase-header {
+    padding-bottom: 8px;
+  }
+  .showcase-header__bar {
+    gap: 8px;
+  }
+  .showcase-header__actions {
+    flex: 1 1 0;
+  }
+  .showcase-groups,
+  .showcase-pages,
+  .showcase-context {
+    display: none;
+  }
+  .showcase-title {
+    margin-top: -16px;
+  }
+  .showcase-menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 44px;
+    min-width: 0;
+    max-width: 100%;
+    padding: 0 12px;
+    box-sizing: border-box;
+    border: 1px solid var(--show-ink);
+    border-radius: 6px;
+    background: var(--show-surface);
+    color: var(--show-ink);
+    font: 600 13px ui-monospace, monospace;
+    cursor: pointer;
+  }
+  .showcase-menu-button > span:first-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .showcase-header button.theme {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    font-size: 18px;
+    line-height: 1;
+  }
+  .theme__text {
+    display: none;
+  }
+  .theme__icon {
+    display: block;
+  }
+  .showcase-menu[open] {
+    display: block;
+    position: fixed;
+    inset: 0 0 auto 0;
+    margin: 0;
+    width: 100%;
+    max-width: none;
+    max-height: 100dvh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 0 16px 24px;
+    border: 0;
+    border-bottom: 1px solid var(--show-rule);
+    background: var(--show-bg);
+    color: var(--show-ink);
+  }
+  .showcase-menu::backdrop {
+    background: rgba(0, 0, 0, 0.45);
+  }
+  .showcase-menu__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 56px;
+    font: 600 13px ui-monospace, monospace;
+    color: var(--show-muted);
+  }
+  .showcase-menu__bar button {
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--show-rule);
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+  .showcase-menu__group {
+    border-top: 1px solid var(--show-rule);
+    padding-top: 12px;
+    margin-top: 12px;
+  }
+  .showcase-menu__group p {
+    margin: 0 0 4px;
+    font: 600 12px ui-monospace, monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--show-muted);
+  }
+  .showcase-menu__group a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    min-height: 48px;
+    padding: 0 12px;
+    border-left: 3px solid transparent;
+    color: var(--show-ink);
+    font-size: 16px;
+    text-decoration: none;
+  }
+  .showcase-menu__group a[aria-current="page"] {
+    border-left-color: var(--show-accent);
+    background: var(--show-surface);
+    font-weight: 700;
+  }
+  .showcase-menu__group a[aria-current="page"]::after {
+    content: "✓ Current";
+    font: 600 12px ui-monospace, monospace;
+    color: var(--show-accent);
+  }
+  .chart-frame__bar button {
+    min-height: 44px;
+  }
+}
+
+/* Touch targets in page chrome. */
+.showcase-context a { padding: 14px 0; margin: -14px 0; }
+.chart-frame__bar button { min-height: 44px; }
+
+/* Sub-views of one page (decks) sit indented under a label in the menu sheet. */
+@media (max-width: 719px) {
+  .showcase-menu__sub {
+    display: block;
+    padding: 12px 12px 4px;
+    font: 600 12px ui-monospace, monospace;
+    color: var(--show-muted);
+  }
+  .showcase-menu__group a.is-sub {
+    padding-left: 32px;
+  }
+}

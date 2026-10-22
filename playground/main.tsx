@@ -1,4 +1,4 @@
-import { lazy, Suspense, StrictMode } from "react";
+import { lazy, Suspense, StrictMode, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 import "../src/theme.css";
 import "./showcase.css";
@@ -18,7 +18,7 @@ const Drill = lazy(() =>
     default: function DrillPage() {
       const { theme, flip } = shell.useShowcaseTheme();
       return (
-        <shell.ShowcaseShell active="figures" theme={theme} flip={flip}>
+        <shell.ShowcaseShell active="drill" theme={theme} flip={flip}>
           <drill.DrillSection theme={theme} />
         </shell.ShowcaseShell>
       );
@@ -26,50 +26,31 @@ const Drill = lazy(() =>
   })),
 );
 
+/** One line per path; a branch adding a page adds a line here and an entry in catalog.ts. Unlisted paths render App. */
+const routes: Record<string, ComponentType> = {
+  "/slides": Slides,
+  "/animations": Slides,
+  "/web": Web,
+  "/docs": Docs,
+  "/article": Article,
+  "/styles": CatalogPages,
+  "/presentations": CatalogPages,
+  "/deck": Deck,
+  "/mechanism": Mechanism,
+  "/drill": Drill,
+};
+
 const params = new URLSearchParams(location.search);
 const theme = params.get("theme");
 document.documentElement.dataset.theme = theme === "dark" ? "dark" : "light";
 
+// App serves "/", "/diagrams", "/charts" and "/assets".
+const Page = routes[location.pathname.replace(/\/$/, "")] ?? App;
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    {["/slides", "/animations"].includes(
-      location.pathname.replace(/\/$/, ""),
-    ) ? (
-      <Suspense fallback={<p>Loading slides…</p>}>
-        <Slides />
-      </Suspense>
-    ) : location.pathname.replace(/\/$/, "") === "/web" ? (
-      <Suspense fallback={<p>Loading web UI…</p>}>
-        <Web />
-      </Suspense>
-    ) : location.pathname.replace(/\/$/, "") === "/docs" ? (
-      <Suspense fallback={<p>Loading docs layout…</p>}>
-        <Docs />
-      </Suspense>
-    ) : location.pathname.replace(/\/$/, "") === "/drill" ? (
-      <Suspense fallback={<p>Loading drill-down…</p>}>
-        <Drill />
-      </Suspense>
-    ) : location.pathname.replace(/\/$/, "") === "/deck" ? (
-      <Suspense fallback={<p>Loading deck…</p>}>
-        <Deck />
-      </Suspense>
-    ) : location.pathname.replace(/\/$/, "") === "/article" ? (
-      <Suspense fallback={<p>Loading article parts…</p>}>
-        <Article />
-      </Suspense>
-    ) : location.pathname.replace(/\/$/, "") === "/mechanism" ? (
-      <Suspense fallback={<p>Loading mechanism…</p>}>
-        <Mechanism />
-      </Suspense>
-    ) : ["/styles", "/presentations"].includes(
-        location.pathname.replace(/\/$/, ""),
-      ) ? (
-      <Suspense fallback={<p>Loading collection…</p>}>
-        <CatalogPages />
-      </Suspense>
-    ) : (
-      <App />
-    )}
+    <Suspense fallback={<p>Loading…</p>}>
+      <Page />
+    </Suspense>
   </StrictMode>,
 );

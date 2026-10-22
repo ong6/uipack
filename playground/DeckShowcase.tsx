@@ -68,18 +68,6 @@ export default function DeckShowcase() {
   return (
     <ShowcaseShell active="deck" theme={theme} flip={flip}>
       <section className="deck-showcase">
-        <h1>Deck player</h1>
-        <p className="collection-intro">
-          One consistent way to present: slides on a 1920×1080 canvas, one transition grammar, builds, an overview,
-          full screen and a speaker view. Click the deck, then use the arrow keys.
-        </p>
-        <nav className="deck-showcase__examples" aria-label="Example decks">
-          {deckExamples.map((d) => (
-            <a key={d.id} href={`/deck?deck=${d.id}&theme=${theme}`} aria-current={d.id === example.id ? "page" : undefined}>
-              {d.label}
-            </a>
-          ))}
-        </nav>
         <DeckPlayer
           id={deckId}
           title="Deck player example"

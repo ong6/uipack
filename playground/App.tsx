@@ -8,7 +8,7 @@ import "../src/browser/browser.css";
 import { useEffect, useRef } from "react";
 import { LayerStack, SpanChart, enhanceLayerStack, enhanceSpanChart } from "../src/charts";
 import { aiStack, aiStackDiagram } from "../examples/aiStack";
-import { figureEntries } from "./catalog";
+import { chartEntries } from "./catalog";
 import "../src/charts/charts.css";
 
 declare const __UIPACK_ROOT__: string;
@@ -99,17 +99,17 @@ function Parts() {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function renderPreset(name: PresetName, number: string) {
   const { render, spec } = PRESETS[name] as { render: (s: any) => JSX.Element; spec: { figure: object } };
-  return render({ ...spec, figure: { ...spec.figure, number } });
+  return render({ ...spec, figure: { ...spec.figure, number, headingLevel: 4 } });
 }
 
 function Presets() {
   return (
     <>
       {(Object.keys(PRESETS) as PresetName[]).map((name, i) => (
-        <section key={name} data-preset={name}>
-          <h2>presets.{name}</h2>
+        <div key={name} data-preset={name}>
+          <h3 className="showcase-subhead">{PRESETS[name].name}</h3>
           {renderPreset(name, `Figure ${String(i + 3).padStart(2, "0")}`)}
-        </section>
+        </div>
       ))}
     </>
   );
@@ -144,7 +144,7 @@ function LayerStackDemo() {
   );
 }
 
-const entry = (id: string) => figureEntries.find((e) => e.id === id)!;
+const entry = (id: string) => chartEntries.find((e) => e.id === id)!;
 
 /* The charts are previewed in a frame at a host's real figure width (the notes
    site's slot is 56rem, 896px), so a layout that only works at 1280px cannot
@@ -181,50 +181,85 @@ function ChartFrame({ children }: { children: React.ReactNode }) {
 function Assets() {
   return (
     <section data-route="assets">
-      <h2>assets · {manifest.assets.length}</h2>
+      <h2>Browse and copy</h2>
+      <p className="showcase-section-intro">
+        Filter by category, search by name or tag, then copy the import line or the SVG.
+        Diagrams are coded figures, so they live on the Architecture diagrams page instead.
+      </p>
       <AssetBrowser manifest={manifest as never} base={`/@fs${__UIPACK_ROOT__}/`} />
     </section>
   );
 }
 
+function Charts() {
+  return (
+    <>
+      <section data-catalog-entry="layer-stack" id="layer-stack">
+        <h2>{entry("layer-stack").title}</h2>
+        <p className="showcase-section-intro">
+          A stack of layers that opens band by band, for explaining how a system is built up.
+        </p>
+        <ChartFrame>
+          <LayerStackDemo />
+        </ChartFrame>
+      </section>
+      <section data-catalog-entry="span-chart" id="span-chart">
+        <h2>{entry("span-chart").title}</h2>
+        <p className="showcase-section-intro">
+          A comparison across the same layers, with filters that keep one selection at a time.
+        </p>
+        <ChartFrame>
+          <SpanChartDemo />
+        </ChartFrame>
+      </section>
+    </>
+  );
+}
+
+function Diagrams() {
+  return (
+    <>
+      <section id="presets" data-section="presets">
+        <h2>Presets</h2>
+        <p className="showcase-section-intro">
+          Seven figures drawn from a small typed spec, each with a wide and a narrow drawing.
+        </p>
+        <Presets />
+      </section>
+      <section id="reference-figure" data-section="reference-figure">
+        <h2>Reference figure</h2>
+        <p className="showcase-section-intro">
+          The Habitat drawing, built from the parts by hand. It is the look the rest follows.
+        </p>
+        <HabitatFigure />
+      </section>
+      <section id="parts" data-section="parts">
+        <h2>Parts</h2>
+        <p className="showcase-section-intro">
+          Every part once, on the 8px grid: nodes, groups, chips, connectors, packets, icons and marks.
+        </p>
+        <Parts />
+      </section>
+      <section id="bare-figure" data-section="bare-figure">
+        <h2>Bare figure</h2>
+        <p className="showcase-section-intro">
+          A figure with no header, controls or caption, on a ruled background.
+        </p>
+        <Figure viewBox="0 0 400 80" alt="A single node." controls={false} background="ruled">
+          <Node x={100} y={20} w={200} h={40} label="Just a canvas" />
+        </Figure>
+      </section>
+    </>
+  );
+}
+
 export function App() {
   const { theme, flip } = useShowcaseTheme();
-  const route_ = location.pathname.replace(/\/$/, "");
+  const path = location.pathname.replace(/\/$/, "");
+  const active = path === "/assets" ? "assets" : path === "/charts" ? "charts" : "figures";
   return (
-    <ShowcaseShell active={route_ === "/assets" ? "assets" : "figures"} theme={theme} flip={flip}>
-      {route_ === "/assets" ? (
-        <Assets />
-      ) : (
-        <>
-          <section>
-            <h2>examples/Habitat.tsx</h2>
-            <HabitatFigure />
-          </section>
-          <section>
-            <h2>every part</h2>
-            <Parts />
-          </section>
-          <section data-catalog-entry="layer-stack" id="layer-stack">
-            <h2>charts/{entry("layer-stack").title}</h2>
-            <ChartFrame>
-              <LayerStackDemo />
-            </ChartFrame>
-          </section>
-          <section data-catalog-entry="span-chart" id="span-chart">
-            <h2>charts/{entry("span-chart").title}</h2>
-            <ChartFrame>
-              <SpanChartDemo />
-            </ChartFrame>
-          </section>
-          <Presets />
-          <section>
-            <h2>bare figure, no header, ruled background</h2>
-            <Figure viewBox="0 0 400 80" alt="A single node." controls={false} background="ruled">
-              <Node x={100} y={20} w={200} h={40} label="Just a canvas" />
-            </Figure>
-          </section>
-        </>
-      )}
+    <ShowcaseShell active={active} theme={theme} flip={flip}>
+      {active === "assets" ? <Assets /> : active === "charts" ? <Charts /> : <Diagrams />}
     </ShowcaseShell>
   );
 }

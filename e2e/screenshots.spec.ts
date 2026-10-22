@@ -46,10 +46,10 @@ for (const theme of ["light", "dark"] as const) {
     await page.setViewportSize({ width: 1440, height: 1100 });
     await page.goto(`/?theme=${theme}`);
     await page.waitForTimeout(600);
-    await page.locator("section").first().locator("figure").screenshot({ path: `docs/habitat-${theme}.png` });
-    await page.locator("section").nth(1).locator("figure").screenshot({ path: `docs/parts-${theme}.png` });
+    await page.locator('section[data-section="reference-figure"] figure').screenshot({ path: `docs/habitat-${theme}.png` });
+    await page.locator('section[data-section="parts"] figure').screenshot({ path: `docs/parts-${theme}.png` });
     for (const name of PRESETS) {
-      await page.locator(`section[data-preset="${name}"] figure`).screenshot({ path: `docs/presets/${name}-${theme}.png` });
+      await page.locator(`[data-preset="${name}"] figure`).screenshot({ path: `docs/presets/${name}-${theme}.png` });
     }
   });
 }
@@ -73,7 +73,7 @@ for (const theme of ["light", "dark"] as const) {
     test(`shot charts ${theme} ${w}`, async ({ page }) => {
       test.setTimeout(60_000);
       await page.setViewportSize({ width: viewport, height: 1000 });
-      await page.goto(`/?theme=${theme}&frame=${frame}#span-chart`);
+      await page.goto(`/charts?theme=${theme}&frame=${frame}#span-chart`);
       const chart = "#ai-stack";
       await page.locator(chart).waitFor();
       // Walk the page once so lazy logos load before the full-page captures.

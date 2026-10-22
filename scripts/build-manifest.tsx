@@ -1,23 +1,15 @@
 // Renders every asset to a standalone SVG under docs/assets/ (light palette)
 // and docs/assets/dark/ (dark palette), and writes assets/manifest.json.
+// Assets are icons, marks, backgrounds and motion tokens. Diagram presets and
+// the part sampler are coded React/SVG figures; they live on the playground's
+// Architecture diagrams page, not here.
 // Run: npm run manifest. Variables are inlined, so each file renders the same
 // inside <img> anywhere; the browser picks the file that matches its theme.
 import { mkdirSync, writeFileSync, readdirSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { Badge, Bus, Chip, Connector, Defs, Group, Label, Lane, Legend, Node, Packet, Token, icons, marks, route, type IconName, type TokenKind } from "../src";
-import { PRESETS, agentLoopParts, beforeAfterParts, pipelineParts, ragPipelineParts, serviceMapParts, skillLifecycleParts, syncLoopParts, type PresetName } from "../src/presets";
-
-const presetParts: Record<PresetName, () => { wide: ReactNode; viewBox: string }> = {
-  serviceMap: () => serviceMapParts(undefined, "m-servicemap"),
-  agentLoop: () => agentLoopParts(undefined, "m-agentloop"),
-  ragPipeline: () => ragPipelineParts(undefined, "m-ragpipeline"),
-  skillLifecycle: () => skillLifecycleParts(undefined, "m-skilllifecycle"),
-  syncLoop: () => syncLoopParts(undefined, "m-syncloop"),
-  beforeAfter: () => beforeAfterParts(undefined, "m-beforeafter"),
-  pipeline: () => pipelineParts(undefined, "m-pipeline"),
-};
+import { Connector, Defs, Token, icons, marks, route, type IconName, type TokenKind } from "../src";
 import type { Asset } from "../src/browser";
 
 const OUT = "docs/assets";
@@ -48,35 +40,6 @@ const add = (a: Omit<Asset, "preview" | "previewDark"> & { svg: Themed }) => {
   const { svg, ...rest } = a;
   assets.push({ ...rest, preview: `${OUT}/${file}`, previewDark: `${OUT_DARK}/${file}` });
 };
-
-// Figures: every preset's wide drawing with its default spec.
-for (const name of Object.keys(PRESETS) as PresetName[]) {
-  const preset = PRESETS[name];
-  const p = presetParts[name]();
-  add({
-    id: `figure-${name.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase())}`,
-    name: preset.name,
-    category: "Figures",
-    kind: "figure",
-    source: `import { ${name}, default${name[0].toUpperCase()}${name.slice(1)} } from "uipack";\n\n${name}({ ...default${name[0].toUpperCase()}${name.slice(1)}, figure: { ...default${name[0].toUpperCase()}${name.slice(1)}.figure, title: "…" } })`,
-    tags: ["preset", "figure", name.toLowerCase()],
-    svg: svgFile(p.viewBox, p.wide, { grid: true }),
-  });
-}
-
-// Parts: one scene each.
-const partScenes: { id: string; name: string; body: ReactNode; viewBox: string; source: string; tags: string[] }[] = [
-  { id: "part-node", name: "Node", viewBox: "0 0 320 120", source: '<Node x={16} y={16} w={200} h={48} label="Service" sub="mono line" icon="service" />', tags: ["box", "label", "icon"], body: (<><Node x={40} y={16} w={240} h={48} label="Service" sub="mono second line" icon="service" /><Node x={40} y={72} w={240} h={32} label="Accent" accent size={12} /></>) },
-  { id: "part-group", name: "Group", viewBox: "0 0 320 140", source: '<Group x={16} y={16} w={288} h={104} title="Platform">…</Group>', tags: ["box", "region", "boundary"], body: (<><Group x={16} y={8} w={288} h={64} title="Solid"><Node x={32} y={36} w={120} h={24} label="cell" size={11} /></Group><Group x={16} y={84} w={288} h={48} title="dashed boundary" variant="dashed" accent /></>) },
-  { id: "part-lane", name: "Lane", viewBox: "0 0 320 80", source: '<Lane x={0} w={320} y={24} title="Clients" />', tags: ["header", "column"], body: (<><Lane x={0} w={160} y={24} title="Clients" /><Lane x={160} w={160} y={24} title="Platform" /><Node x={24} y={40} w={112} h={28} label="a" size={11} /><Node x={184} y={40} w={112} h={28} label="b" size={11} /></>) },
-  { id: "part-chip", name: "Chip", viewBox: "0 0 320 60", source: '<Chip x={16} y={16} w={72} label="A1" kind="request" />', tags: ["pill", "slot", "status"], body: (<><Chip x={16} y={18} w={64} label="A1" /><Chip x={88} y={18} w={64} label="B2" kind="request" /><Chip x={160} y={18} w={64} label="busy" kind="accent" /><Chip x={232} y={18} w={64} dashed /></>) },
-  { id: "part-connector", name: "Connector", viewBox: "0 0 320 120", source: '<Connector points={route(a, b, "h")} defs="id" kind="request" />', tags: ["arrow", "line", "orthogonal"], body: (<><Defs id="c" /><Connector points={route([16, 24], [304, 96], "h")} defs="c" kind="request" /><Connector points={[[16, 96], [140, 96]]} defs="c" dashed /><Connector points={[[16, 60], [140, 60]]} defs="c" kind="change" /></>) },
-  { id: "part-bus", name: "Bus", viewBox: "0 0 320 160", source: '<Bus axis="v" at={x} from={y1} to={y2} stubs={[{ at, to, arrow: true }]} defs="id" />', tags: ["trunk", "stubs", "junction"], body: (<><Defs id="b" /><Node x={16} y={16} w={104} h={32} label="a" size={11} /><Node x={16} y={64} w={104} h={32} label="b" size={11} /><Node x={16} y={112} w={104} h={32} label="c" size={11} /><Node x={200} y={64} w={104} h={32} label="svc" size={11} /><Bus axis="v" at={152} from={32} to={128} stubs={[{ at: 32, to: 120 }, { at: 80, to: 120 }, { at: 128, to: 120 }, { at: 80, to: 200, arrow: true }]} defs="b" /></>) },
-  { id: "part-badge", name: "Badge", viewBox: "0 0 320 60", source: '<Badge cx={16} cy={16} text="1" />', tags: ["step", "number"], body: (<><Badge cx={40} cy={30} text="1" /><Badge cx={80} cy={30} text="2" /><Badge cx={120} cy={30} text="A" accent /></>) },
-  { id: "part-label", name: "Label", viewBox: "0 0 320 60", source: '<Label x={16} y={28} text="async · queue" />', tags: ["text", "underlay"], body: (<><Defs id="l" /><Connector points={[[16, 30], [304, 30]]} defs="l" /><Label x={160} y={34} text="on the line" anchor="middle" /></>) },
-  { id: "part-legend", name: "Legend", viewBox: "0 0 320 60", source: 'legend={[{ label: "Request", kind: "request" }, { label: "Response", kind: "response" }]}', tags: ["key", "tokens"], body: (<>{(["request", "response", "change"] as TokenKind[]).map((k, i) => (<g key={k}><Token kind={k} cx={40 + i * 96} cy={30} r={6} /><text x={52 + i * 96} y={34} fontSize={12} fill="currentColor">{k}</text></g>))}</>) },
-];
-for (const s of partScenes) add({ id: s.id, name: s.name, category: "Parts", kind: "part", source: s.source, tags: s.tags, svg: svgFile(s.viewBox, s.body) });
 
 // Icons.
 for (const name of Object.keys(icons) as IconName[]) {

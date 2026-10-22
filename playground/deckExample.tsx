@@ -35,7 +35,7 @@ export const deckExample: DeckSlide[] = [
     role: "cover",
     render: () => (
       <Slide eyebrow="Deck player" footer={footer} layout="center">
-        <Morph id="title" as="h1" className="uipack-deck-title">
+        <Morph id="title" as="h2" className="uipack-deck-title">
           One deck. One way to move.
         </Morph>
         <p className="uipack-deck-lede">

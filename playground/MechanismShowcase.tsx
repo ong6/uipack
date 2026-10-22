@@ -34,7 +34,7 @@ export default function MechanismShowcase() {
   return (
     <ShowcaseShell active="mechanism" theme={theme} flip={flip} styleName="Mechanism">
       <section data-catalog-entry={entry.id} id={entry.id} className="mechanism-page">
-        <h2>mechanism/{entry.title}</h2>
+        <h2>{entry.title}</h2>
         <p className="collection-intro">
           The object is the explanation: an agent proposes, a check stands between proposal and result. Choose a pose the way a slide would; the
           machine moves there from wherever it is.
@@ -52,7 +52,7 @@ export default function MechanismShowcase() {
         </div>
       </section>
       <section className="mechanism-page" id="thumbnails">
-        <h2>mechanism/Thumbnails</h2>
+        <h2>Thumbnails</h2>
         <p className="collection-intro">
           <code>interactive={"{false}"}</code> and <code>frame={"{false}"}</code>: one still frame per pose, no loops and no card, as a deck renders
           its slide strip.

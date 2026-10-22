@@ -22,7 +22,7 @@ export const bentoDeck: DeckSlide[] = [
     role: "answer",
     render: () => (
       <Slide eyebrow="Q3 review · Illustrative" footer={footer} layout="center">
-        <h1 className="uipack-deck-title">Search got twice as fast this quarter, and cheaper to run.</h1>
+        <h2 className="uipack-deck-title">Search got twice as fast this quarter, and cheaper to run.</h2>
         <p className="uipack-deck-lede">p95 latency fell from 412 ms to 198 ms while cost per query dropped 18%.</p>
       </Slide>
     ),

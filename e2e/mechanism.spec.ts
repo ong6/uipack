@@ -106,7 +106,7 @@ test("the machine is reachable and operable from the keyboard", async ({ page })
 });
 
 test("every drawn line ends on something, in every pose (Anatomy's line-end check)", async ({ browser }) => {
-  const context = await browser.newContext({ reducedMotion: "reduce", viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 2 });
+  const context = await browser.newContext({ reducedMotion: "reduce", viewport: { width: 1440, height: 1500 }, deviceScaleFactor: 2 });
   const page = await context.newPage();
   for (const pose of ["idle", "pass", "return", "apart"]) {
     await page.goto(`/mechanism?pose=${pose}`);

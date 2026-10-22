@@ -8,9 +8,8 @@ import "../src/docs/docs.css";
 import { docsEntries } from "./catalog";
 import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
 
-const source = `# Product guide
-
-This layout keeps product navigation, readable prose, and local context visible without narrowing the article.
+// The page's h1 is the playground's; the sample document starts at its h2 sections.
+const source = `This layout keeps product navigation, readable prose, and local context visible without narrowing the article.
 
 ## Start with one workflow
 
@@ -63,10 +62,6 @@ export default function DocsShowcase() {
     <ShowcaseShell active="docs" theme={theme} flip={flip}>
       <section data-route="docs" data-catalog-entry={docsEntries[0].id}>
         <h2>{docsEntries[0].title}</h2>
-        <p className="collection-intro">
-          A three-column product documentation shell with responsive navigation,
-          Markdown prose, heading anchors, and adjacent-page links.
-        </p>
         <DocsLayout
           productTitle="Example product"
           productHref="/docs"

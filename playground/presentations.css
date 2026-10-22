@@ -84,7 +84,7 @@
   color: var(--show-accent);
   background: var(--show-surface);
 }
-.deck-example-heading {
+.showcase-shell > section > .deck-example-heading {
   margin: 56px 0 0;
   font-size: 22px;
 }
@@ -108,7 +108,7 @@
   padding: 52px 20px 40px 40px;
   align-self: center;
 }
-.composed-deck h1 {
+.composed-deck__title {
   font-size: clamp(30px, 3.7vw, 48px);
   line-height: 1.12;
   letter-spacing: -0.035em;
@@ -154,7 +154,7 @@
   padding: 12px;
   border-left: 2px solid var(--show-accent);
 }
-.deck-comparison h3,
+.deck-comparison h4,
 .deck-comparison p {
   margin: 4px 0;
   font-size: 14px;
@@ -198,7 +198,7 @@
   justify-self: center;
   padding: 64px 28px;
 }
-.composed-deck[data-layout="closing"] h1 {
+.composed-deck[data-layout="closing"] .composed-deck__title {
   max-width: 24ch;
 }
 .composed-deck[data-layout="closing"] p {
