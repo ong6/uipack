@@ -12,7 +12,13 @@ import {
 import { createContext, Fragment, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { Wordmark } from "../src";
 
-type ShowcaseTheme = { theme: "light" | "dark"; flip: () => void };
+type ShowcaseTheme = {
+  theme: "light" | "dark";
+  flip: () => void;
+  /** A page's own "not found, showing X" line for a bad query (a story, a variant); the shell shows it under the intro. */
+  note: string | null;
+  setNote: (note: string | null) => void;
+};
 const ShowcaseThemeContext = createContext<ShowcaseTheme | null>(null);
 
 /** The page's theme, held once by main.tsx above the shell and the page: `?theme=` and `data-theme` follow it. */
@@ -28,7 +34,8 @@ export function ShowcaseThemeProvider({ children }: { children: ReactNode }) {
     history.replaceState(null, "", url);
     setTheme(next);
   };
-  return <ShowcaseThemeContext.Provider value={{ theme, flip }}>{children}</ShowcaseThemeContext.Provider>;
+  const [note, setNote] = useState<string | null>(null);
+  return <ShowcaseThemeContext.Provider value={{ theme, flip, note, setNote }}>{children}</ShowcaseThemeContext.Provider>;
 }
 
 /** The current theme and the toggle, for the shell and for pages that theme their content. */
@@ -36,6 +43,15 @@ export function useShowcaseTheme(): ShowcaseTheme {
   const value = useContext(ShowcaseThemeContext);
   if (!value) throw new Error("useShowcaseTheme needs a ShowcaseThemeProvider (main.tsx renders it)");
   return value;
+}
+
+/** A page names what a bad query fell back to; the shell shows it under the intro until it changes or the page goes. */
+export function useShowcaseNote(note: string | null) {
+  const { setNote } = useShowcaseTheme();
+  useEffect(() => {
+    setNote(note);
+    return () => setNote(null);
+  }, [note, setNote]);
 }
 
 /** Keep the current item visible in a horizontally scrolling row without moving the page. */
@@ -81,7 +97,7 @@ function pageRuns(pages: readonly PageDef[]) {
  * `active="not-found"` is the page for an unknown address.
  */
 export function ShowcaseShell({ active, children }: { active: LibraryPage | "not-found"; children: ReactNode }) {
-  const { theme, flip } = useShowcaseTheme();
+  const { theme, flip, note } = useShowcaseTheme();
   // A page with sub-views (a deck, say) resolves to the entry its query names.
   const notFound = active === "not-found";
   const page = notFound ? notFoundPage : resolvePage(active, location.search);
@@ -96,11 +112,12 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const mainRef = useRef<HTMLElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  // Every page names itself in the tab. A page that hosts a complete sample page (/web) sets its own head.
+  // Every page names itself in the tab, /web too: the sample page it hosts publishes the rest of its
+  // head (description, canonical, Open Graph, JSON-LD), but the tab says which playground page it is.
   const hostsPage = "hostsPage" in page && page.hostsPage;
   useEffect(() => {
-    if (!hostsPage) document.title = documentTitle(page);
-  }, [page, hostsPage]);
+    document.title = documentTitle(page);
+  }, [page]);
   return (
     <div className="showcase-frame" data-theme={theme} data-style="technical">
       <a
@@ -213,28 +230,31 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
             Close
           </button>
         </div>
-        {libraryGroups.map((g) => (
-          <div key={g.id} role="group" aria-labelledby={`menu-${g.id}`} className="showcase-menu__group">
-            <p id={`menu-${g.id}`}>{g.label}</p>
-            {pageDefs
-              .filter((p) => p.group === g.id)
-              .map((p, i, all) => (
-                <Fragment key={p.id}>
-                  {/* Sub-views of one page sit indented under a label naming it. */}
-                  {p.query && all[i - 1]?.path !== p.path && (
-                    <span className="showcase-menu__sub">{p.title ?? p.label}</span>
-                  )}
-                  <a
-                    href={pageHref(p, theme)}
-                    className={p.query ? "is-sub" : undefined}
-                    aria-current={page.id === p.id ? "page" : undefined}
-                  >
-                    {p.label}
-                  </a>
-                </Fragment>
-              ))}
-          </div>
-        ))}
+        {/* A navigation landmark on phones too, where the header's two navs are hidden. */}
+        <nav aria-label="All library pages">
+          {libraryGroups.map((g) => (
+            <div key={g.id} role="group" aria-labelledby={`menu-${g.id}`} className="showcase-menu__group">
+              <p id={`menu-${g.id}`}>{g.label}</p>
+              {pageDefs
+                .filter((p) => p.group === g.id)
+                .map((p, i, all) => (
+                  <Fragment key={p.id}>
+                    {/* Sub-views of one page sit indented under a label naming it. */}
+                    {p.query && all[i - 1]?.path !== p.path && (
+                      <span className="showcase-menu__sub">{p.title ?? p.label}</span>
+                    )}
+                    <a
+                      href={pageHref(p, theme)}
+                      className={p.query ? "is-sub" : undefined}
+                      aria-current={page.id === p.id ? "page" : undefined}
+                    >
+                      {p.label}
+                    </a>
+                  </Fragment>
+                ))}
+            </div>
+          ))}
+        </nav>
       </dialog>
       <main className="showcase-shell" id="showcase-main" tabIndex={-1} ref={mainRef}>
         {group && (
@@ -267,6 +287,11 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
           {missing && (
             <p className="showcase-title__note" role="status">
               {missing.key[0].toUpperCase() + missing.key.slice(1)} “{missing.value}” not found, showing {missing.shown.label}.
+            </p>
+          )}
+          {note && (
+            <p className="showcase-title__note" role="status">
+              {note}
             </p>
           )}
         </div>

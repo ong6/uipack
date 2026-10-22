@@ -242,6 +242,14 @@ describe("DemoPlayer", () => {
     expect(screen.getByRole("link", { name: "Try it yourself" })).toBeInTheDocument();
   });
 
+  it("opens on the plan: the first acting step's actions listed as queued, not an empty pane", () => {
+    render(<DemoPlayer steps={steps} label="Demo" timing={timing} autoplay={false} />);
+    const log = screen.getByRole("list", { name: "Agent actions" });
+    expect([...log.children].map((li) => li.getAttribute("data-state"))).toEqual(["pending", "pending"]);
+    expect(log.textContent).toContain("Archived");
+    expect(log.textContent).toContain("(queued)");
+  });
+
   it("server-renders the first frame without touching window", () => {
     const html = renderToString(<DemoPlayer steps={steps} label="Demo" initialMetric={40} />);
     expect(html).toContain("Clear it");

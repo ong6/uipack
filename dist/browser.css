@@ -134,24 +134,33 @@
   text-transform: uppercase;
   color: var(--uipack-muted);
 }
+/* Dense cards (six a row in a 1056px column): the preview and its name in one frame, the name on
+   a strip under the preview, the copy action at the strip's end. */
 .uipack-browser__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px 16px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
 }
 .uipack-browser__card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
   min-width: 0;
+  border: 1px solid var(--uipack-border);
+  border-radius: 6px;
+  background: var(--uipack-surface);
+  transition: border-color 120ms ease;
+}
+.uipack-browser__card:hover,
+.uipack-browser__card:focus-within {
+  border-color: color-mix(in srgb, var(--uipack-fg) 45%, transparent);
 }
 .uipack-browser__tile {
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 3 / 2;
   display: grid;
   place-items: center;
   padding: 12px;
-  border: 1px solid var(--uipack-border);
-  border-radius: 6px;
+  border-bottom: 1px solid var(--uipack-border);
+  border-radius: 5px 5px 0 0;
   background: var(--uipack-tile);
   overflow: hidden;
 }
@@ -205,48 +214,108 @@
   border-radius: 4px;
 }
 .uipack-browser__row {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 4px;
   min-height: 44px;
+  padding-left: 10px;
 }
-/* Names wrap rather than truncate; the row keeps its 44px minimum. */
+/* Names are identifiers, in mono; they wrap rather than truncate and the row keeps its 44px. */
 .uipack-browser__name {
   min-width: 0;
-  font: 500 14px/1.3 var(--uipack-sans);
-  overflow-wrap: break-word;
+  padding: 6px 0;
+  font: 500 12px/1.3 var(--uipack-mono);
+  overflow-wrap: anywhere;
 }
+/* The action is an icon and a word on the strip, flush with the card's corner: no box of its own. */
 .uipack-browser__action {
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   min-height: 44px;
-  min-width: 64px;
-  padding: 0 12px;
-  border: 1px solid var(--uipack-border);
-  border-radius: 6px;
-  background: var(--uipack-surface);
+  min-width: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 0 0 5px 0;
+  background: transparent;
   color: var(--uipack-fg);
   font: 500 12px/1 var(--uipack-mono);
   cursor: pointer;
 }
-.uipack-browser__action:hover {
-  border-color: var(--uipack-fg);
+.uipack-browser__action::before,
+.uipack-browser__row::after {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  -webkit-mask: var(--uipack-browser-copy-icon) center / contain no-repeat;
+  mask: var(--uipack-browser-copy-icon) center / contain no-repeat;
 }
-/* With a mouse, a card's action appears on hover or focus, so 44 buttons do not crowd the grid.
-   Touch screens (no hover) always show it; it stays in the tab order either way. */
+.uipack-browser {
+  --uipack-browser-copy-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.5' stroke-linejoin='round'%3E%3Crect x='5.5' y='5.5' width='8.5' height='8.5' rx='1.5'/%3E%3Cpath d='M10.5 5.5V3.5A1.5 1.5 0 0 0 9 2H3.5A1.5 1.5 0 0 0 2 3.5V9a1.5 1.5 0 0 0 1.5 1.5h2'/%3E%3C/svg%3E");
+}
+/* The resting hint is the bare icon, drawn by the row where the action sits; touch shows the action. */
+.uipack-browser__row::after {
+  display: none;
+}
+.uipack-browser__action:hover {
+  background: var(--uipack-surface-raised);
+}
+/* With a mouse, a card's action is a 44px copy icon (its name says "Copy <asset>") that comes up on
+   hover or focus, so 44 buttons do not crowd the grid; at rest a faint copy icon in its place says
+   it is there, and "Copied" spells itself out. Touch screens (no hover) always show the icon and
+   word; the action stays in the tab order either way. */
 @media (hover: hover) {
   .uipack-browser__action {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    justify-content: center;
+    gap: 0;
+    padding: 0;
+    background: var(--uipack-surface);
+    font-size: 0;
     opacity: 0;
     transition: opacity 120ms ease;
+  }
+  .uipack-browser__action[data-flash="true"] {
+    gap: 6px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .uipack-browser__row {
+    padding-right: 44px;
+  }
+  .uipack-browser__row::after {
+    display: block;
+    position: absolute;
+    pointer-events: none;
+    top: 50%;
+    right: 15px;
+    margin-top: -7px;
+    color: var(--uipack-muted);
+    opacity: 0.75; /* 3:1 or better on the strip in either theme */
   }
   .uipack-browser__card:hover .uipack-browser__action,
   .uipack-browser__card:focus-within .uipack-browser__action,
   .uipack-browser__action[data-flash="true"] {
     opacity: 1;
   }
+  .uipack-browser__card:is(:hover, :focus-within) .uipack-browser__row::after {
+    visibility: hidden;
+  }
+  .uipack-browser__card:hover .uipack-browser__action:hover {
+    background: var(--uipack-surface-raised);
+  }
 }
 @media (hover: hover) and (prefers-reduced-motion: reduce) {
-  .uipack-browser__action {
+  .uipack-browser__action,
+  .uipack-browser__card {
     transition: none;
   }
 }
@@ -287,13 +356,13 @@
   .uipack-browser__bar {
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
+    gap: 16px;
   }
   .uipack-browser__search {
     max-width: none;
   }
   .uipack-browser__grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 16px 12px;
+    gap: 12px;
   }
 }

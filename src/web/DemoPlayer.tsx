@@ -147,11 +147,16 @@ export function DemoPlayer({
   const promptText = promptStep === undefined ? "" : steps[promptStep].prompt!;
   const visiblePrompt = promptStep === frame.step ? promptText.slice(0, frame.typed) : promptText;
   const typing = !reduced && promptStep === frame.step && frame.typed < promptText.length;
-  // The activity log shows this step's actions, or the most recent step that had any.
-  const actionStep = step?.actions?.length ? frame.step : lastWith(steps, frame.step, (s) => (s.actions?.length ? steps.indexOf(s) : undefined));
+  // The activity log shows this step's actions, or the most recent step that had any. Before any
+  // step has acted, it lists the next step's actions as queued, so the first frame shows the plan
+  // rather than an empty pane.
+  const pastActionStep = step?.actions?.length ? frame.step : lastWith(steps, frame.step, (s) => (s.actions?.length ? steps.indexOf(s) : undefined));
+  const nextActionStep = steps.findIndex((s, i) => i > frame.step && !!s.actions?.length);
+  const queuedOnly = pastActionStep === undefined && nextActionStep >= 0;
+  const actionStep = queuedOnly ? nextActionStep : pastActionStep;
   const actions = actionStep === undefined ? [] : (steps[actionStep].actions ?? []).map(toAction);
   const isCurrent = actionStep === frame.step;
-  const doneCount = isCurrent ? frame.actionsDone : actions.length;
+  const doneCount = queuedOnly ? 0 : isCurrent ? frame.actionsDone : actions.length;
   const promptDone = !step?.prompt || frame.typed >= (step.prompt?.length ?? 0);
   const runningIdx = isCurrent && promptDone && !frame.settled && frame.actionsDone < actions.length ? frame.actionsDone : -1;
   const screen = lastWith(steps, frame.settled ? frame.step : frame.step - 1, (s) => s.screen ?? undefined);
@@ -185,7 +190,6 @@ export function DemoPlayer({
             <ol className="uipack-web-demo__log" aria-label="Agent actions">
               {actions.map((a, i) => {
                 const state = i < doneCount ? "done" : i === runningIdx ? "running" : "pending";
-                if (state === "pending") return null;
                 return (
                   <li key={`${actionStep}-${i}`} data-state={state}>
                     <span className="uipack-web-demo__tick" aria-hidden="true">
@@ -198,6 +202,7 @@ export function DemoPlayer({
                     <span>{a.label}</span>
                     {a.detail && <small>{a.detail}</small>}
                     {state === "running" && <span className="uipack-web-demo__sr"> (in progress)</span>}
+                    {state === "pending" && <span className="uipack-web-demo__sr"> (queued)</span>}
                   </li>
                 );
               })}

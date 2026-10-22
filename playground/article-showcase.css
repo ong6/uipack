@@ -58,7 +58,9 @@
   line-height: 1.7;
   overflow-wrap: anywhere;
 }
-.article-host__prose h3 { font-size: 1.15rem; margin: 1.9rem 0 0.6rem; line-height: 1.4; }
+/* A section heading clearly above the 19px body (the notes site sets 1.3rem; this frame steps it
+   up to 22px so the heading never reads as body text). */
+.article-host__prose h3 { font-size: 1.375rem; margin: 1.9rem 0 0.6rem; line-height: 1.3; }
 .article-host__prose p { margin: 1.15rem 0; }
 .article-host__prose ul { padding-left: 1.4rem; }
 .article-host__prose li { margin: 0.45rem 0; }

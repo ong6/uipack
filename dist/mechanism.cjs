@@ -1340,6 +1340,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
   const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
   const stillness = React2__namespace.useRef(reduced);
   stillness.current = reduced;
+  const [paused, setPaused] = React2__namespace.useState(false);
   const start = React2__namespace.useRef(null);
   if (!start.current || !interactive) {
     const calm = !animated || reduced;
@@ -1476,6 +1477,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
       s.t = calm ? STILL_AT[pose] : 0;
       s.round++;
       s.paused = false;
+      setPaused(false);
     }
     aim(pose === "apart", calm);
     if (calm) {
@@ -1531,8 +1533,10 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
     const s = state.current;
     const current = poseRef.current;
     const calm = stillness.current || motion === "none";
-    if (current === "idle") s.paused = !s.paused;
-    else if (current === "apart") {
+    if (current === "idle") {
+      s.paused = !s.paused;
+      setPaused(s.paused);
+    } else if (current === "apart") {
       const open = ASSEMBLIES.every((name) => s.targets[name] === 1);
       aim(!open, calm);
     } else {
@@ -1728,7 +1732,15 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
       ]
     }
   );
-  return machine;
+  if (!animated || reduced || pose !== "idle") return machine;
+  const control = /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", className: "um-motion", onClick: act, children: paused ? "Resume motion" : "Pause motion" });
+  return bare ? /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-mechanism um-live", "data-theme": theme, children: [
+    machine,
+    control
+  ] }) : /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+    machine,
+    control
+  ] });
 }
 function Tokens({ layer, slots }) {
   return /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, { children: slots.map((slot, index) => {

@@ -93,3 +93,29 @@
     mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
   }
 }
+
+/* No scene matches: say what was searched and offer the way back, as the asset browser does. */
+.slides-showcase__empty {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--show-muted);
+}
+.slides-showcase__empty p {
+  margin: 0;
+}
+.slides-showcase__empty button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--show-rule);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--show-ink);
+  font: 500 13px/1.2 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  cursor: pointer;
+}
+.slides-showcase__empty button:hover {
+  border-color: var(--show-ink);
+}

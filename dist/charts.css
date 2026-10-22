@@ -201,13 +201,15 @@
   color: var(--sp-label-ink);
 }
 
-/* The key: an unframed row of labelled sections divided by thin vertical
-   rules, like a chart legend, so it does not read as one more control. If a
-   host is too narrow for one row, whole sections wrap, never single samples;
-   the clipped left margin hides the rule that would start each row. */
+/* The key: an unframed legend of labelled sections divided by thin vertical
+   rules, so it does not read as one more control. Two sections a line, in
+   columns (BARS | DEALS, then SIZE | TYPE), so four groups never crowd one
+   line; a section never splits. The clipped left margin hides the rule that
+   would start each line. */
 .uipack-span .uipack-span__key {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  justify-content: start;
   row-gap: 4px;
   margin-left: -9px;
   overflow: hidden;
@@ -858,16 +860,18 @@
   background: var(--sp-bg);
   --sp-gh-inset: 8px;
 }
-/* The group's own column, marked by a square on its heading line: the
-   staircase reads even when each group shows one row. Only beside a name
-   column; in the stacked layouts it would need a line of its own. */
+/* The group's own column, underlined on its heading line across that column's
+   width (inset 6px a side), so it reads as "this column" rather than a stray
+   point: the staircase reads even when each group shows one row. Only beside
+   a name column; in the stacked layouts it would need a line of its own. */
 .uipack-span .uipack-span__mark {
+  --sp-col-w: calc((100% - 2 * var(--sp-gh-inset, 0px) - var(--sp-name-col, 0px)) / var(--sp-cols));
   display: var(--sp-wide, none);
   position: absolute;
-  top: 16px;
-  left: calc(var(--sp-gh-inset, 0px) + var(--sp-name-col, 0px) + (100% - 2 * var(--sp-gh-inset, 0px) - var(--sp-name-col, 0px)) * (var(--k) + 0.5) / var(--sp-cols) - 4px);
-  width: 8px;
-  height: 8px;
+  top: 18.5px;
+  left: calc(var(--sp-gh-inset, 0px) + var(--sp-name-col, 0px) + var(--sp-col-w) * var(--k) + 6px);
+  width: calc(var(--sp-col-w) - 12px);
+  height: 3px;
   border-radius: 1.5px;
   background: var(--sp-accent);
 }
@@ -1311,7 +1315,8 @@
 .uipack-stack .uipack-stack__rail-label,
 .uipack-stack .uipack-stack__across-head,
 .uipack-stack .uipack-stack__bracket {
-  font: 600 11px/16px var(--sp-label-font);
+  /* 12px: the stack's smallest text, labels and notes included. */
+  font: 600 12px/16px var(--sp-label-font);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--sp-label-ink);
@@ -1366,7 +1371,7 @@
 }
 .uipack-stack .uipack-stack__index {
   grid-area: idx;
-  font: 500 11px/20px var(--sp-mono);
+  font: 500 12px/20px var(--sp-mono);
   font-variant-numeric: tabular-nums;
   color: var(--sp-muted);
 }
@@ -1403,7 +1408,7 @@
   font-variant-numeric: tabular-nums;
 }
 .uipack-stack .uipack-stack__metric > span:last-child {
-  font: 400 11px/14px var(--sp-sans);
+  font: 400 12px/14px var(--sp-sans);
   color: var(--sp-muted);
 }
 .uipack-stack .uipack-stack__go,
@@ -1582,7 +1587,7 @@
   font: 600 14px/20px var(--sp-sans);
 }
 .uipack-stack .uipack-stack__span {
-  font: 400 11px/16px var(--sp-mono);
+  font: 400 12px/16px var(--sp-mono);
   color: var(--sp-muted);
 }
 .uipack-stack .uipack-stack__node > .uipack-stack__arrow {

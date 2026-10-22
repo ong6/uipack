@@ -17,7 +17,7 @@ const title = (page: Page) => page.locator(".showcase-title h1, .showcase-title 
 // Deck sub-views share one page, named before the sub-view.
 const isDeck = (label: string) => ["Tech talk", "Bento", "Consulting"].includes(label);
 const h1Of = (label: string) => (isDeck(label) ? `Deck player · ${label}` : label);
-// The browser tab: the sub-view first. /web hosts a sample page that sets its own head.
+// The browser tab: the sub-view first. /web too: its sample page keeps the rest of its own head.
 const tabOf = (label: string) => (isDeck(label) ? `${label} · Deck player · uipack` : `${label} · uipack`);
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -216,6 +216,8 @@ test.describe("390px header and menu", () => {
     // Every group heading and every page is listed, in order, with 48px rows.
     await expect(sheet.locator(".showcase-menu__group > p")).toHaveText(GROUPS.map((g) => g.label));
     await expect(sheet.getByRole("link")).toHaveText(ALL.map((p) => p.label));
+    // The links are a navigation landmark, the phone's only one while the header's navs are hidden.
+    await expect(sheet.getByRole("navigation", { name: "All library pages" }).getByRole("link")).toHaveCount(ALL.length);
     const heights = await sheet.getByRole("link").evaluateAll((els) => els.map((a) => a.getBoundingClientRect().height));
     expect(Math.min(...heights)).toBeGreaterThanOrEqual(48);
     // The current page is marked for assistive tech and visibly, beyond colour.
@@ -306,7 +308,7 @@ test.describe("deck sub-views in the 390px menu", () => {
 });
 
 test("each page names itself in the browser tab, deck sub-views included", async ({ page }) => {
-  for (const { label, path } of ALL.filter((p) => p.path !== "/web")) {
+  for (const { label, path } of ALL) {
     await page.goto(path);
     await expect(page).toHaveTitle(tabOf(label));
   }

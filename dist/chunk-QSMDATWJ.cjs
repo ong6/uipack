@@ -691,7 +691,7 @@ function Chip({
             height: h,
             rx: h / 2,
             fill,
-            fillOpacity: kind ? 0.55 : 1,
+            style: kind ? { fillOpacity: "var(--uipack-chip-tint, 0.55)" } : void 0,
             stroke: "currentColor",
             strokeOpacity: dashed ? 0.5 : 0.8,
             strokeWidth: 1.25,

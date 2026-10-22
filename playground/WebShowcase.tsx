@@ -316,7 +316,9 @@ export default function WebShowcase() {
   // The demo page publishes a real head (title, description, canonical, Open Graph), JSON-LD for
   // the product and its Pricing offer, and an FAQ, all from playground/web-seo.ts.
   const seo = useMemo(() => tidySeo(location.origin), []);
-  useHead(seo.meta);
+  // Its <title> stays in the generated head shown below; the tab keeps the playground's "Web UI · uipack".
+  const head = useMemo(() => seo.meta.filter((tag) => tag.tag !== "title"), [seo]);
+  useHead(head);
   const flashy = webEntries.filter((e) => e.tags.includes("Flashy"));
   const lowKey = webEntries.filter((e) => e.tags.includes("Low-key"));
   const painted = usePainted();

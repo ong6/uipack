@@ -392,10 +392,13 @@ function DemoPlayer({
   const promptText = promptStep === void 0 ? "" : steps[promptStep].prompt;
   const visiblePrompt = promptStep === frame.step ? promptText.slice(0, frame.typed) : promptText;
   const typing = !reduced && promptStep === frame.step && frame.typed < promptText.length;
-  const actionStep = step?.actions?.length ? frame.step : lastWith(steps, frame.step, (s) => s.actions?.length ? steps.indexOf(s) : void 0);
+  const pastActionStep = step?.actions?.length ? frame.step : lastWith(steps, frame.step, (s) => s.actions?.length ? steps.indexOf(s) : void 0);
+  const nextActionStep = steps.findIndex((s, i) => i > frame.step && !!s.actions?.length);
+  const queuedOnly = pastActionStep === void 0 && nextActionStep >= 0;
+  const actionStep = queuedOnly ? nextActionStep : pastActionStep;
   const actions = actionStep === void 0 ? [] : (steps[actionStep].actions ?? []).map(toAction);
   const isCurrent = actionStep === frame.step;
-  const doneCount = isCurrent ? frame.actionsDone : actions.length;
+  const doneCount = queuedOnly ? 0 : isCurrent ? frame.actionsDone : actions.length;
   const promptDone = !step?.prompt || frame.typed >= (step.prompt?.length ?? 0);
   const runningIdx = isCurrent && promptDone && !frame.settled && frame.actionsDone < actions.length ? frame.actionsDone : -1;
   const screen = lastWith(steps, frame.settled ? frame.step : frame.step - 1, (s) => s.screen ?? void 0);
@@ -426,12 +429,12 @@ function DemoPlayer({
               ] }),
               /* @__PURE__ */ jsxRuntime.jsx("ol", { className: "uipack-web-demo__log", "aria-label": "Agent actions", children: actions.map((a, i) => {
                 const state = i < doneCount ? "done" : i === runningIdx ? "running" : "pending";
-                if (state === "pending") return null;
                 return /* @__PURE__ */ jsxRuntime.jsxs("li", { "data-state": state, children: [
                   /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__tick", "aria-hidden": "true", children: state === "done" ? /* @__PURE__ */ jsxRuntime.jsx("svg", { viewBox: "0 0 16 16", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M3.5 8.5l3 3 6-7" }) }) : null }),
                   /* @__PURE__ */ jsxRuntime.jsx("span", { children: a.label }),
                   a.detail && /* @__PURE__ */ jsxRuntime.jsx("small", { children: a.detail }),
-                  state === "running" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__sr", children: " (in progress)" })
+                  state === "running" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__sr", children: " (in progress)" }),
+                  state === "pending" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__sr", children: " (queued)" })
                 ] }, `${actionStep}-${i}`);
               }) })
             ] }),

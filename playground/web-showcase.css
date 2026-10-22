@@ -9,6 +9,14 @@
   border-radius: 12px;
   padding: var(--web-s4);
 }
+/* In dark, the Landing's blue-black and the shell's green-black meet at the frame. A double rule (the
+   Landing's indigo hairline inside, the shell's rule 4px outside) makes that edge a window onto
+   another style rather than a seam; the Landing keeps its own colours inside. */
+:root[data-theme="dark"] :is(.web-example, .web-panel) {
+  border-color: rgb(169 157 255 / 0.24);
+  outline: 1px solid var(--show-rule);
+  outline-offset: 4px;
+}
 @media (max-width: 720px) {
   .web-panel { padding: 16px; }
 }
@@ -407,7 +415,7 @@
 }
 .web-face-toggle label:has(:checked) { border-color: var(--web-ink); background: var(--web-secondary); }
 .web-face-toggle label:has(:focus-visible) { outline: 2px solid var(--web-accent); outline-offset: 3px; }
-.web-face-toggle input { margin: 0; accent-color: var(--web-ink); }
+.web-face-toggle input { margin: 0; font: inherit; accent-color: var(--web-ink); }
 .web-face-toggle__note { margin: 0; color: var(--web-ink-low); font-size: 0.9375rem; }
 @container web (max-width: 720px) {
   .web-role { padding: var(--web-s3); }
