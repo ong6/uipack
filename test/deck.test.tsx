@@ -166,17 +166,28 @@ describe("DeckPlayer", () => {
     document.body.append(host);
     const recoverable: unknown[] = [];
     const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+    // jsdom has no Fullscreen API; this browser says it has one.
+    Object.defineProperty(document, "fullscreenEnabled", { value: true, configurable: true });
     try {
       const root = await act(async () => hydrateRoot(host, <DeckPlayer id="h" title="Test deck" slides={slides} />, { onRecoverableError: (e) => recoverable.push(e) }));
       expect(recoverable).toEqual([]);
       expect(errors).not.toHaveBeenCalled();
-      // After mount the browser's support is known: jsdom does not say full screen is unavailable.
+      // After mount the browser's support is known.
       expect(screen.getByRole("button", { name: "Full screen" })).toBeInTheDocument();
       act(() => root.unmount());
     } finally {
+      delete (document as { fullscreenEnabled?: boolean }).fullscreenEnabled;
       errors.mockRestore();
       host.remove();
     }
+  });
+
+  it("offers no Full screen where the API is missing (iPhone Safari: fullscreenEnabled undefined)", () => {
+    expect(document.fullscreenEnabled).toBeUndefined();
+    const { unmount } = render(<DeckPlayer id="nf" title="Test deck" slides={slides} />);
+    expect(screen.getByRole("button", { name: "All slides" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Full screen" })).toBeNull();
+    unmount();
   });
 
   it("reveals builds before changing slide, and going back lands fully built", () => {
