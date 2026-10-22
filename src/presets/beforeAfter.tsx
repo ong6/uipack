@@ -4,7 +4,7 @@ import { Group } from "../Group";
 import { Node } from "../Node";
 import { Packet } from "../Packet";
 import type { Point } from "../geometry";
-import { Stack, stackHeight, presetFigure, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
+import { Stack, stackHeight, presetFigure, nodeWidthFor, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
 
 export interface BeforeAfterPanel {
   title: string;
@@ -49,7 +49,9 @@ export const defaultBeforeAfter: BeforeAfterSpec = {
 };
 
 export function beforeAfterParts(spec: BeforeAfterSpec = defaultBeforeAfter, id: string): PresetParts {
-  const stage = { w: 136, h: 48, step: 176 };
+  // Stages widen (both panels alike) until the longest label or sub fits; 136 is the floor.
+  const sw = nodeWidthFor([...spec.before.stages, ...spec.after.stages], { min: 136, size: 13, subSize: 10 });
+  const stage = { w: sw, h: 48, step: sw + 40 };
   const panelH = 120;
   const panel = (p: BeforeAfterPanel, y: number, flow: string, pid: string) => {
     const n = p.stages.length;

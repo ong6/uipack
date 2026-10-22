@@ -20,6 +20,27 @@ describe("presets", () => {
     expect(container.textContent).not.toContain("Warehouse");
     expect(parts.legend.map((l) => l.kind)).toEqual(["request", "response"]);
   });
+  it("every default node's text fits inside its box (estimated: 0.55em sans, 0.6em mono advance)", () => {
+    const over: string[] = [];
+    for (const name of Object.keys(PRESETS) as PresetName[]) {
+      const { render: r, spec } = PRESETS[name] as { render: (s: unknown) => JSX.Element; spec: unknown };
+      const { container } = render(r(spec));
+      for (const node of container.querySelectorAll<SVGGElement>("svg.uipack--wide [data-uipack='node']")) {
+        const rect = node.querySelector("rect")!;
+        const x = Number(rect.getAttribute("x"));
+        const right = x + Number(rect.getAttribute("width"));
+        for (const t of node.querySelectorAll("text")) {
+          const size = Number(t.getAttribute("font-size"));
+          const mono = t.getAttribute("font-family")?.includes("mono") ?? false;
+          const tx = Number(t.getAttribute("x"));
+          const w = (t.textContent ?? "").length * size * (mono ? 0.6 : 0.55);
+          const end = t.getAttribute("text-anchor") === "middle" ? tx + w / 2 : tx + w;
+          if (end > right) over.push(`${name}: "${t.textContent}" ends at ${end.toFixed(0)}, box ends at ${right}`);
+        }
+      }
+    }
+    expect(over).toEqual([]);
+  });
   it("every connector carries at most one arrowhead", () => {
     for (const name of Object.keys(PRESETS) as PresetName[]) {
       const { render: r, spec } = PRESETS[name] as { render: (s: unknown) => JSX.Element; spec: unknown };

@@ -86,6 +86,21 @@ export function fits(px: number, size: number, mono = false): number {
   return Math.max(3, Math.floor(px / (size * (mono ? 0.62 : 0.55))));
 }
 
+/** Estimated width in px of `text` at `size` (the inverse of `fits`). */
+export const textPx = (text: string, size: number, mono = false) => text.length * size * (mono ? 0.62 : 0.55);
+
+/**
+ * The narrowest Node width (snapped to the 8px grid, at least `min`) that holds every item's label
+ * and mono sub at the given sizes, with Node's 14px padding and 26px icon column.
+ */
+export function nodeWidthFor(items: readonly Item[], { min, size = 14, subSize = 11 }: { min: number; size?: number; subSize?: number }): number {
+  const need = Math.max(
+    0,
+    ...items.map((s) => (s.icon ? 26 : 0) + Math.max(textPx(s.label, size), s.sub ? textPx(s.sub, subSize, true) : 0) + 28),
+  );
+  return Math.max(min, Math.ceil(need / 8) * 8);
+}
+
 /** Truncate with an ellipsis when `text` cannot fit; the full text goes to `hint`. */
 export function fit(text: string, px: number, size: number, mono = false): { text: string; hint?: string } {
   const n = fits(px, size, mono);
