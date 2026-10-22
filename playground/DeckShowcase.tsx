@@ -1,5 +1,7 @@
 import { DeckPlayer } from "../src/deck";
 import "../src/deck/deck.css";
+import "../src/deck/bento.css";
+import "../src/deck/consulting/consulting.css";
 import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
 import { deckExamples } from "./deckExamples";
 import "./deck-showcase.css";

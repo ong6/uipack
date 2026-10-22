@@ -223,8 +223,9 @@ export function DeckPlayer({
   useIsoLayoutEffect(() => {
     const layer = toRef.current;
     if (!layer) return;
-    maxStep.current = Array.from(layer.querySelectorAll("[data-build]")).reduce(
-      (m, el) => Math.max(m, Number(el.getAttribute("data-build")) || 0),
+    // Builds reveal at `data-build`; a part with its own stops (a bento tour) declares `data-steps`.
+    maxStep.current = Array.from(layer.querySelectorAll("[data-build], [data-steps]")).reduce(
+      (m, el) => Math.max(m, Number(el.getAttribute("data-build") ?? el.getAttribute("data-steps")) || 0),
       0,
     );
   }, [view.index, slides]);

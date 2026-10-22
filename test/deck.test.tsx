@@ -1,8 +1,12 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import {
+  Bento,
+  BentoCell,
   Build,
   DeckPlayer,
+  bentoCamera,
+  bentoFocusAt,
   Morph,
   Slide,
   flipFrom,
@@ -227,5 +231,53 @@ describe("DeckPlayer", () => {
     expect(screen.getByLabelText("Elapsed time")).toHaveTextContent("00:00");
     expect(screen.queryByText(/answers “/)).toBeNull();
     expect(screen.queryByRole("button", { name: "Speaker view" })).toBeNull();
+  });
+});
+
+describe("Bento", () => {
+  it("centres a focused cell in the bento's box, as large as fits, within the max scale", () => {
+    const cam = bentoCamera({ x: 0, y: 0, w: 400, h: 200 }, { w: 1600, h: 700 }, 3);
+    expect(cam.s).toBeCloseTo(3); // capped: 1504/400 = 3.76, 658/200 = 3.29
+    expect(cam.tx + cam.s * 200).toBeCloseTo(800);
+    expect(cam.ty + cam.s * 100).toBeCloseTo(350);
+    expect(bentoCamera({ x: 0, y: 0, w: 1600, h: 700 }, { w: 1600, h: 700 }).s).toBe(1);
+  });
+
+  it("maps build steps to tour stops: overview, each cell, then back to the overview", () => {
+    const tour = ["a", "b"];
+    expect([0, 1, 2, 3, Infinity].map((s) => bentoFocusAt(s, tour))).toEqual([null, "a", "b", null, null]);
+  });
+
+  it("counts the tour as steps, so Next walks the cells before leaving the slide", () => {
+    const bento: DeckSlide[] = [
+      {
+        id: "grid",
+        title: "Grid",
+        render: () => (
+          <Bento tour={["a", "b"]}>
+            <BentoCell id="a" detail={<p>Detail A</p>}>
+              Face A
+            </BentoCell>
+            <BentoCell id="b">Face B</BentoCell>
+          </Bento>
+        ),
+      },
+      { id: "after", title: "After", render: () => <p>After</p> },
+    ];
+    render(<DeckPlayer id="t9" title="Test deck" slides={bento} />);
+    const grid = () => deck().querySelector(".uipack-deck-bento")!;
+    press("ArrowRight");
+    expect(grid()).toHaveAttribute("data-focus", "a");
+    expect(screen.getByText("Detail A").parentElement).not.toHaveAttribute("aria-hidden");
+    press("ArrowRight");
+    expect(grid()).toHaveAttribute("data-focus", "b");
+    press("ArrowRight");
+    expect(grid()).not.toHaveAttribute("data-focus");
+    expect(current()).toBe("0");
+    press("ArrowRight");
+    expect(current()).toBe("1");
+    press("ArrowLeft");
+    expect(current()).toBe("0");
+    expect(grid()).not.toHaveAttribute("data-focus");
   });
 });

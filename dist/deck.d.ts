@@ -1,5 +1,5 @@
 import * as react from 'react';
-import { ReactNode, ElementType, CSSProperties } from 'react';
+import { ReactNode, ElementType, CSSProperties, ReactElement } from 'react';
 import { S as SpeechGuide } from './types-CMN3hTzQ.js';
 
 /**
@@ -342,4 +342,63 @@ interface RunOptions {
 /** Start a transition between two mounted layers. Returns the animations so a caller can cancel them. */
 declare function runTransition(opts: RunOptions): Animation[];
 
-export { Build, CANVAS_HEIGHT, CANVAS_WIDTH, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, LINT_RULES, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_TITLE_WORDS, Morph, REPEATABLE_ROLES, type Rect, type ResolvedTransition, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, type TransitionKind, WORDS_PER_MINUTE, deckMotion, flipFrom, formatStoryline, getStorylineTemplate, lintDeck, resolveTransition, runTransition, storylineOf, talkSeconds, templateOutline, useDeckSlide, zoomFrame, zoomSamples };
+interface BentoCellProps {
+    /** Stable ID: the tour refers to it, and a `{ zoom: id }` transition can fly into it. */
+    id: string;
+    /** Columns and rows on the bento's grid. */
+    col?: number;
+    row?: number;
+    tone?: "surface" | "accent" | "ink";
+    /** Shown at overview scale. Keep it to a number, a label and one line. */
+    children?: ReactNode;
+    /**
+     * Shown in place of `children` while the camera is on this cell. Write it small: the camera
+     * scales the cell up, so dense detail becomes readable without leaving the slide.
+     */
+    detail?: ReactNode;
+    className?: string;
+}
+/** One container in a `Bento`. Its layout box never changes, so the camera can measure it. */
+declare function BentoCell(_: BentoCellProps): ReactElement | null;
+interface BentoProps {
+    /** Grid columns and rows. Cells place themselves in order with `col` × `row` spans. */
+    columns?: number;
+    rows?: number;
+    /**
+     * Cell IDs to visit, one per press of Next. After the last stop the camera pulls back to the
+     * whole grid, so going back into the slide lands on the overview.
+     */
+    tour?: string[];
+    /** The largest the camera may scale a cell. */
+    maxScale?: number;
+    className?: string;
+    style?: CSSProperties;
+    children?: ReactNode;
+}
+/**
+ * Where the camera rests for a focused cell: centred in the bento's own box (so the slide's
+ * heading and footer stay put) and as large as fits with a small margin.
+ */
+declare function bentoCamera(cell: {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+}, view: {
+    w: number;
+    h: number;
+}, maxScale?: number, fill?: number): {
+    s: number;
+    tx: number;
+    ty: number;
+};
+/** The tour stop for a build step: 0 is the overview, 1…n focus cells, n + 1 pulls back. */
+declare const bentoFocusAt: (step: number, tour: readonly string[]) => string | null;
+/**
+ * Apple-style bento: a grid of containers, and a camera that moves between them on Next. Each
+ * focused cell swaps its summary for denser detail that is readable at the camera's scale.
+ * Steps count as builds, so the deck's Next and Back drive the tour.
+ */
+declare function Bento({ columns, rows, tour, maxScale, className, style, children }: BentoProps): react.JSX.Element;
+
+export { Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, LINT_RULES, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_TITLE_WORDS, Morph, REPEATABLE_ROLES, type Rect, type ResolvedTransition, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, type TransitionKind, WORDS_PER_MINUTE, bentoCamera, bentoFocusAt, deckMotion, flipFrom, formatStoryline, getStorylineTemplate, lintDeck, resolveTransition, runTransition, storylineOf, talkSeconds, templateOutline, useDeckSlide, zoomFrame, zoomSamples };

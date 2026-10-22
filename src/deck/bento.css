@@ -1,1 +1,144 @@
 /* Bento slides: a grid of containers the camera moves between (canvas pixels). */
+/* The bento's box is the camera's window: zoomed cells never spill over the heading or footer.
+   The grid is inset 3px so cell outlines aren't clipped at rest. */
+.uipack-deck-bento {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: 8px 0 32px;
+  padding: 3px;
+  overflow: hidden;
+  border-radius: 30px;
+}
+.uipack-deck-bento__grid {
+  display: grid;
+  gap: 22px;
+  height: 100%;
+  transform-origin: 0 0;
+  transition: transform 860ms cubic-bezier(0.55, 0, 0.15, 1);
+}
+.uipack-deck[data-motion="none"] .uipack-deck-bento__grid {
+  transition: none;
+}
+.uipack-deck-bento__cell {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  padding: 34px 38px;
+  border-radius: 28px;
+  background: var(--deck-surface);
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--deck-fg) 9%, transparent);
+  transition: opacity 420ms ease;
+}
+.uipack-deck-bento__cell[data-tone] {
+  background: var(--deck-bg);
+  color: var(--deck-fg);
+}
+.uipack-deck-bento__cell[data-dimmed] {
+  opacity: 0.2;
+}
+.uipack-deck-bento__face,
+.uipack-deck-bento__detail {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: opacity 320ms ease;
+}
+.uipack-deck-bento__detail {
+  position: absolute;
+  inset: 0;
+  padding: 26px 30px;
+  opacity: 0;
+  pointer-events: none;
+}
+.uipack-deck-bento__cell[data-focused] .uipack-deck-bento__detail {
+  opacity: 1;
+  transition-delay: 300ms;
+}
+.uipack-deck-bento__cell[data-focused] .uipack-deck-bento__face:has(+ .uipack-deck-bento__detail) {
+  opacity: 0;
+}
+.uipack-deck[data-motion="none"] .uipack-deck-bento__cell,
+.uipack-deck[data-motion="none"] .uipack-deck-bento__face,
+.uipack-deck[data-motion="none"] .uipack-deck-bento__detail {
+  transition: none;
+}
+
+/* Type inside cells. Faces are read at overview scale; details are read under the camera. */
+.uipack-deck-bento-label {
+  margin: 0;
+  color: var(--deck-muted);
+  font: 600 19px/1.3 var(--deck-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.uipack-deck-bento-value {
+  margin: auto 0 0;
+  font-size: 104px;
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  font-variant-numeric: tabular-nums;
+}
+.uipack-deck-bento-value small {
+  margin-left: 8px;
+  color: var(--deck-muted);
+  font-size: 0.32em;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.uipack-deck-bento-title {
+  margin: 14px 0 0;
+  font-size: 38px;
+  font-weight: 650;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.uipack-deck-bento-note {
+  margin: 12px 0 0;
+  color: var(--deck-muted);
+  font-size: 24px;
+  line-height: 1.35;
+}
+.uipack-deck-bento-detail-title {
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.uipack-deck-bento-small {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.uipack-deck-bento-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.uipack-deck-bento-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 6px;
+  border-top: 1px solid var(--deck-rule);
+}
+.uipack-deck-bento-list li span:last-child {
+  color: var(--deck-muted);
+  font-family: var(--deck-mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* A bento slide's heading sits on one line so the grid gets the height. */
+.uipack-deck-slide:has(> .uipack-deck-bento) > .uipack-deck-heading {
+  max-width: none;
+  margin-bottom: 36px;
+  font-size: 60px;
+}

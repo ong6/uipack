@@ -61,6 +61,25 @@ Authoring notes:
 
 `<Build step={n}>` reveals at step `n` (1-based). Next reveals the remaining builds before it changes slide; going back into a slide lands fully built.
 
+## Bento slides
+
+`Bento` lays out containers on a grid (`columns` × `rows`; each `BentoCell` spans `col` × `row`), Apple-keynote style. Give it a `tour` of cell IDs and Next moves a camera from cell to cell inside the bento's own box (the heading and footer stay put), dimming the rest; after the last stop it pulls back to the whole grid. A cell's `detail` replaces its face while the camera is on it: write it small, because the camera scales the cell up (up to `maxScale`, default 3), so a dense slide stays readable one box at a time.
+
+```tsx
+<Slide footer="Q3 review">
+  <h2 className="uipack-deck-heading">Four numbers and two lists tell the whole quarter.</h2>
+  <Bento columns={6} rows={4} tour={["latency", "shipped"]}>
+    <BentoCell id="latency" col={3} row={2} detail={<LatencyBreakdown />}>
+      <p className="uipack-deck-bento-label">p95 latency</p>
+      <p className="uipack-deck-bento-value">198<small>ms</small></p>
+    </BentoCell>
+    <BentoCell id="next" col={2} row={2} tone="ink">…</BentoCell>
+  </Bento>
+</Slide>
+```
+
+Every cell is also a `Morph` target with its ID, so the next slide can arrive with `transition: { zoom: "next" }` and open out of that box. Tour stops count as build steps; thumbnails and the read view show the overview. Classes for cell type: `uipack-deck-bento-label`, `-value`, `-title`, `-note`, and for details `-detail-title`, `-small`, `-list`. `/deck?deck=bento` is the example.
+
 ## Controls
 
 | Key | Action |

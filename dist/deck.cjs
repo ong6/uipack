@@ -20,6 +20,8 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/deck/index.ts
 var deck_exports = {};
 __export(deck_exports, {
+  Bento: () => Bento,
+  BentoCell: () => BentoCell,
   Build: () => Build,
   CANVAS_HEIGHT: () => CANVAS_HEIGHT,
   CANVAS_WIDTH: () => CANVAS_WIDTH,
@@ -34,6 +36,8 @@ __export(deck_exports, {
   Slide: () => Slide,
   SlideThumbnail: () => SlideThumbnail,
   WORDS_PER_MINUTE: () => WORDS_PER_MINUTE,
+  bentoCamera: () => bentoCamera,
+  bentoFocusAt: () => bentoFocusAt,
   deckMotion: () => deckMotion,
   flipFrom: () => flipFrom,
   formatStoryline: () => formatStoryline,
@@ -1270,8 +1274,8 @@ function DeckPlayer({
   useIsoLayoutEffect(() => {
     const layer = toRef.current;
     if (!layer) return;
-    maxStep.current = Array.from(layer.querySelectorAll("[data-build]")).reduce(
-      (m, el) => Math.max(m, Number(el.getAttribute("data-build")) || 0),
+    maxStep.current = Array.from(layer.querySelectorAll("[data-build], [data-steps]")).reduce(
+      (m, el) => Math.max(m, Number(el.getAttribute("data-build") ?? el.getAttribute("data-steps")) || 0),
       0
     );
   }, [view.index, slides]);
@@ -1741,8 +1745,89 @@ function Presenter({
     ] })
   ] });
 }
+
+// src/deck/bento.tsx
+var import_react3 = require("react");
+var import_jsx_runtime3 = require("react/jsx-runtime");
+function BentoCell(_) {
+  return null;
+}
+function bentoCamera(cell, view, maxScale = 3, fill = 0.94) {
+  const s = Math.max(1, Math.min(view.w * fill / cell.w, view.h * fill / cell.h, maxScale));
+  return {
+    s,
+    tx: view.w / 2 - s * (cell.x + cell.w / 2),
+    ty: view.h / 2 - s * (cell.y + cell.h / 2)
+  };
+}
+var bentoFocusAt = (step, tour) => step >= 1 && step <= tour.length ? tour[step - 1] : null;
+function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, style, children }) {
+  const { step, thumbnail } = useDeckSlide();
+  const focus = thumbnail ? null : bentoFocusAt(step, tour);
+  const gridRef = (0, import_react3.useRef)(null);
+  const [camera, setCamera] = (0, import_react3.useState)(null);
+  (0, import_react3.useLayoutEffect)(() => {
+    const grid = gridRef.current;
+    if (!grid || !focus) return setCamera(null);
+    const cell = grid.querySelector(`[data-bento-cell="${CSS.escape(focus)}"]`);
+    if (!cell) return setCamera(null);
+    setCamera(
+      bentoCamera(
+        { x: cell.offsetLeft, y: cell.offsetTop, w: cell.offsetWidth, h: cell.offsetHeight },
+        { w: grid.offsetWidth, h: grid.offsetHeight },
+        maxScale
+      )
+    );
+  }, [focus, maxScale]);
+  const cells = import_react3.Children.toArray(children).filter(
+    (c) => (0, import_react3.isValidElement)(c) && c.type === BentoCell
+  );
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+    "div",
+    {
+      className: ["uipack-deck-bento", className].filter(Boolean).join(" "),
+      "data-steps": tour.length ? tour.length + 1 : void 0,
+      "data-focus": focus ?? void 0,
+      style,
+      children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+        "div",
+        {
+          ref: gridRef,
+          className: "uipack-deck-bento__grid",
+          style: {
+            gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+            gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+            transform: camera ? `translate(${camera.tx}px, ${camera.ty}px) scale(${camera.s})` : void 0
+          },
+          children: cells.map(({ props: p }) => {
+            const focused = focus === p.id;
+            return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
+              "div",
+              {
+                className: ["uipack-deck-bento__cell", p.className].filter(Boolean).join(" "),
+                "data-bento-cell": p.id,
+                "data-morph": p.id,
+                "data-tone": p.tone && p.tone !== "surface" ? p.tone : void 0,
+                "data-focused": focused ? "" : void 0,
+                "data-dimmed": focus && !focused ? "" : void 0,
+                style: { gridColumn: `span ${p.col ?? 2}`, gridRow: `span ${p.row ?? 1}` },
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "uipack-deck-bento__face", "aria-hidden": focused && p.detail ? true : void 0, children: p.children }),
+                  p.detail && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "uipack-deck-bento__detail", "aria-hidden": focused ? void 0 : true, children: p.detail })
+                ]
+              },
+              p.id
+            );
+          })
+        }
+      )
+    }
+  );
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  Bento,
+  BentoCell,
   Build,
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
@@ -1757,6 +1842,8 @@ function Presenter({
   Slide,
   SlideThumbnail,
   WORDS_PER_MINUTE,
+  bentoCamera,
+  bentoFocusAt,
   deckMotion,
   flipFrom,
   formatStoryline,

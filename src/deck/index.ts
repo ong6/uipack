@@ -14,6 +14,6 @@ export {
   type TransitionKind,
 } from "./transitions";
 export * from "./storyline";
-export * from "./bento";
+export { Bento, BentoCell, bentoCamera, bentoFocusAt, type BentoProps, type BentoCellProps } from "./bento";
 export * from "./consulting";
 export type { DeckPosition, DeckRenderContext, DeckSlide, DeckTheme, DeckTransition } from "./types";

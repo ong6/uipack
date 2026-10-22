@@ -125,3 +125,32 @@ test.describe("/deck player", () => {
     expect(bg).toBe("rgb(232, 236, 233)");
   });
 });
+
+test.describe("/deck bento", () => {
+  const bento = (page: Page) => page.locator(".uipack-deck-bento");
+
+  test("the camera tours three cells inside the bento box, then zooms from a cell into the next slide", async ({ page }) => {
+    const errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    await page.goto("/deck?deck=bento&slide=quarter&view=present");
+    await deck(page).focus();
+    const box = await bento(page).boundingBox();
+    for (const id of ["latency", "shipped", "risk"]) {
+      await page.keyboard.press("ArrowRight");
+      await expect(bento(page)).toHaveAttribute("data-focus", id);
+      // The camera settles with the cell larger than at rest and centred in the bento's own box.
+      await expect
+        .poll(async () => {
+          const cell = await page.locator(`[data-bento-cell="${id}"]`).boundingBox();
+          return cell!.width > box!.width * 0.4 && Math.abs(cell!.x + cell!.width / 2 - (box!.x + box!.width / 2)) < 4;
+        }, { timeout: 5_000 })
+        .toBe(true);
+    }
+    await page.keyboard.press("ArrowRight");
+    await expect(bento(page)).not.toHaveAttribute("data-focus");
+    await page.keyboard.press("ArrowRight");
+    await expect(deck(page)).toHaveAttribute("data-index", "2");
+    await settled(page);
+    expect(errors).toEqual([]);
+  });
+});
