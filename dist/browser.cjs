@@ -37,6 +37,7 @@ function AssetBrowser({ manifest, initialCategory = ALL, onAction, actionLabel =
   const [query, setQuery] = react.useState("");
   const [flash, setFlash] = react.useState(null);
   const timer = react.useRef(void 0);
+  const searchRef = react.useRef(null);
   const cats = react.useMemo(() => categories(manifest.assets), [manifest.assets]);
   const shown = react.useMemo(() => filterAssets(manifest.assets, category, query), [manifest.assets, category, query]);
   const prefix = base ?? manifest.base ?? "";
@@ -57,7 +58,7 @@ function AssetBrowser({ manifest, initialCategory = ALL, onAction, actionLabel =
       /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-browser__bar", children: [
         /* @__PURE__ */ jsxRuntime.jsxs("label", { className: "uipack-browser__search", children: [
           /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-browser__sr", children: "Search assets" }),
-          /* @__PURE__ */ jsxRuntime.jsx("input", { type: "search", placeholder: "Search", value: query, onChange: (e) => setQuery(e.target.value) })
+          /* @__PURE__ */ jsxRuntime.jsx("input", { ref: searchRef, type: "search", placeholder: "Search", value: query, onChange: (e) => setQuery(e.target.value) })
         ] }),
         /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-browser__status", role: "status", children: [
           shown.length,
@@ -76,7 +77,26 @@ function AssetBrowser({ manifest, initialCategory = ALL, onAction, actionLabel =
           /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", className: "uipack-browser__action", onClick: () => act(a), "aria-label": `${actionLabel} ${a.name}`, "data-flash": flash === a.id ? "true" : void 0, children: flash === a.id ? "Copied" : actionLabel })
         ] })
       ] }, a.id)) }),
-      shown.length === 0 ? /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-browser__empty", children: "Nothing matches." }) : null
+      shown.length === 0 ? /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-browser__empty", children: [
+        /* @__PURE__ */ jsxRuntime.jsxs("p", { children: [
+          "Nothing matches",
+          query.trim() ? ` \u201C${query.trim()}\u201D` : "",
+          category !== ALL ? ` in ${category}` : "",
+          "."
+        ] }),
+        query || category !== ALL ? /* @__PURE__ */ jsxRuntime.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => {
+              setQuery("");
+              setCategory(ALL);
+              searchRef.current?.focus();
+            },
+            children: category !== ALL && query ? "Clear filters" : category !== ALL ? "Show all assets" : "Clear search"
+          }
+        ) : null
+      ] }) : null
     ] })
   ] });
 }
