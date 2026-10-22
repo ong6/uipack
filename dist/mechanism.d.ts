@@ -232,7 +232,7 @@ interface VerificationGateProps extends GateMachineProps {
 declare const GATE_CAPTION = "Illustrative, not data from a real system. A dial indicator measures every proposal before it can become a result: tokens at or under the limit (6.0) ride on to the result tray, taller ones are swung into the return chute and slide back to the hopper's tray, to be revised and tried again.";
 /** The verification gate without its card. */
 /** `bare` (internal): the machine is its own styled root; VerificationGate passes false inside its card, which carries the theme. */
-declare function GateMachine({ pose, theme, motion, interactive, alt, onReadout, className, bare }: GateMachineProps & {
+declare function GateMachine({ pose, theme, motion, interactive, alt, onReadout, className, bare, }: GateMachineProps & {
     bare?: boolean;
 }): react.JSX.Element;
 /**

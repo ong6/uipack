@@ -528,7 +528,10 @@ function prismOf(face, along, projection) {
   const count = face.length;
   const far = face.map((point) => add(point, along));
   const vertices = [...face, ...far];
-  const centre = vertices.reduce((sum, point) => add(sum, [point[0] / vertices.length, point[1] / vertices.length, point[2] / vertices.length]), [0, 0, 0]);
+  const centre = vertices.reduce(
+    (sum, point) => add(sum, [point[0] / vertices.length, point[1] / vertices.length, point[2] / vertices.length]),
+    [0, 0, 0]
+  );
   const faces = [
     face.map((_, index) => index),
     face.map((_, index) => count + index),
@@ -548,7 +551,10 @@ function prismOf(face, along, projection) {
   });
   const visible = normals.map((normal) => dot(normal, view) > 1e-6);
   const flat = vertices.map((point) => iso(point, projection));
-  const polygon = (ids) => pathOf(ids.map((id) => flat[id]), true);
+  const polygon = (ids) => pathOf(
+    ids.map((id) => flat[id]),
+    true
+  );
   const buckets = Array.from({ length: SHADES }, () => []);
   const tops = [];
   faces.forEach((ids, index) => {
@@ -601,7 +607,9 @@ function circleIn(centre, radius, axis, steps = 28) {
   });
 }
 function faceCircle(centre, radius, axis, projection, steps = 24) {
-  return pathOf([...circleIn(centre, radius, axis, steps), circleIn(centre, radius, axis, steps)[0]].map((point) => iso(point, projection)));
+  return pathOf(
+    [...circleIn(centre, radius, axis, steps), circleIn(centre, radius, axis, steps)[0]].map((point) => iso(point, projection))
+  );
 }
 
 // src/mechanism/gate/model.ts
@@ -735,7 +743,11 @@ var join = (paths) => paths.filter(Boolean).join("");
 var seg = (a, b) => segment(a, b, P);
 var byDepth = (points) => [...points].sort((a, b) => depthOf([a[0], a[1], 0], P) - depthOf([b[0], b[1], 0], P));
 var faceRect = (x0, x1, y, z0, z1) => pathOf([at([x0, y, z0]), at([x1, y, z0]), at([x1, y, z1]), at([x0, y, z1])], true);
-var profile = (points, y0, y1) => prismOf(points.map(([x, z]) => [x, y0, z]), [0, y1 - y0, 0], P);
+var profile = (points, y0, y1) => prismOf(
+  points.map(([x, z]) => [x, y0, z]),
+  [0, y1 - y0, 0],
+  P
+);
 var FEET = byDepth(corners(BASE, 20));
 var BASE_SCREWS = corners(BASE, 9);
 var STRIP = { x: -120, y: BASE.y + BASE.d - 9, w: 196, d: 6, r: 1 };
@@ -754,7 +766,18 @@ var BASE_ART = {
   stripScrews: [at([STRIP.x + 2, STRIP.y + 3, 0.6]), at([STRIP.x + STRIP.w - 2, STRIP.y + 3, 0.6])],
   label: slab(LABEL, 0, 0.8, 4),
   labelLine: planOutline(insetPlan(LABEL, 1.6), 0.8, P),
-  labelRule: join([0, 1, 2].map((row) => onTop([[LABEL.x + 7, LABEL.y + 3.4 + row * 2.1], [LABEL.x + (row === 1 ? 26 : 36), LABEL.y + 3.4 + row * 2.1]], 0.8, P))),
+  labelRule: join(
+    [0, 1, 2].map(
+      (row) => onTop(
+        [
+          [LABEL.x + 7, LABEL.y + 3.4 + row * 2.1],
+          [LABEL.x + (row === 1 ? 26 : 36), LABEL.y + 3.4 + row * 2.1]
+        ],
+        0.8,
+        P
+      )
+    )
+  ),
   labelScrews: [at([LABEL.x + 3.2, LABEL.y + LABEL.d / 2, 0.8]), at([LABEL.x + LABEL.w - 3.2, LABEL.y + LABEL.d / 2, 0.8])]
 };
 var legPlan = (x, y) => ({ x: x - LEG / 2, y: y - LEG / 2, w: LEG, d: LEG, r: 0.8 });
@@ -781,7 +804,11 @@ function motorBand(y) {
 }
 var BOX = { x: BELT_X1 - 4, y: RAIL_OUT + 2.5, w: 8, d: 6, r: 1 };
 var CONVEYOR_BACK = {
-  legs: LEGS.map(([x, y]) => ({ foot: slab(insetPlan(legPlan(x, y), -2.4), 0, 1.2, 3), post: slab(legPlan(x, y), 1.2, RAIL_Z - 1.2, 3), screws: [at([x - 3.6, y, 1.2]), at([x + 3.6, y, 1.2])] })),
+  legs: LEGS.map(([x, y]) => ({
+    foot: slab(insetPlan(legPlan(x, y), -2.4), 0, 1.2, 3),
+    post: slab(legPlan(x, y), 1.2, RAIL_Z - 1.2, 3),
+    screws: [at([x - 3.6, y, 1.2]), at([x + 3.6, y, 1.2])]
+  })),
   stretchers: [-15, 15].map((y) => slab(stretcher(y), 6, 3, 2)),
   backRail: slab(BACK_RAIL, RAIL_Z, BT - RAIL_Z, 3, 0.4),
   backLip: slab(BACK_RAIL, BT, LIP, 3, 0.3),
@@ -815,12 +842,19 @@ var CONVEYOR_FRONT = {
   motorCap: faceCircle([MOTOR_C[0], MOTOR_C[1] + MOTOR_LONG, MOTOR_C[2]], MOTOR_R - 1.4, "y", P, 28),
   motorBolts: [0, 1, 2, 3].map((index) => {
     const angle = Math.PI / 4 + index * Math.PI / 2;
-    return at([MOTOR_C[0] + (MOTOR_R - 2.6) * Math.cos(angle), MOTOR_C[1] + MOTOR_LONG, MOTOR_C[2] + (MOTOR_R - 2.6) * Math.sin(angle)]);
+    return at([
+      MOTOR_C[0] + (MOTOR_R - 2.6) * Math.cos(angle),
+      MOTOR_C[1] + MOTOR_LONG,
+      MOTOR_C[2] + (MOTOR_R - 2.6) * Math.sin(angle)
+    ]);
   }),
   motorShaft: at([MOTOR_C[0], MOTOR_C[1] + MOTOR_LONG, MOTOR_C[2]]),
   box: slab(BOX, MOTOR_C[2] + MOTOR_R - 0.6, 4.6, 3, 0.4),
   boxLine: planOutline(insetPlan(BOX, 1.4), MOTOR_C[2] + MOTOR_R + 4, P, 3),
-  boxScrews: [at([BOX.x + 1.6, BOX.y + 1.6, MOTOR_C[2] + MOTOR_R + 4]), at([BOX.x + BOX.w - 1.6, BOX.y + BOX.d - 1.6, MOTOR_C[2] + MOTOR_R + 4])]
+  boxScrews: [
+    at([BOX.x + 1.6, BOX.y + 1.6, MOTOR_C[2] + MOTOR_R + 4]),
+    at([BOX.x + BOX.w - 1.6, BOX.y + BOX.d - 1.6, MOTOR_C[2] + MOTOR_R + 4])
+  ]
 };
 var CHEEK = (y) => ({ x: MAG.x + 2, y, w: MAG.w - 4, d: RAIL_OUT - RAIL_IN, r: 0.5 });
 var WINDOW = [MAG.x + 8, MAG.x + 16, MAG_Z + 8, MAG_TOP - 7];
@@ -865,7 +899,10 @@ var BEAM = { x: GX - 5, y: -POST_Y - 5, w: 10, d: POST_Y * 2 + 10, r: 1.5 };
 var DIAL_FROM = -DIAL_SWEEP / 2;
 var angleOf = (reading) => (DIAL_FROM + reading / SCALE * DIAL_SWEEP) * Math.PI / 180;
 var DIAL_TICKS = radialTicks(GX, 0, DIAL_R - 3, 20, 2, DIAL_TOP, [1.3, 2.8], P, angleOf(0), DIAL_SWEEP * Math.PI / 180);
-var onDial = (reading, radius) => [GX + Math.sin(angleOf(reading)) * radius, -Math.cos(angleOf(reading)) * radius];
+var onDial = (reading, radius) => [
+  GX + Math.sin(angleOf(reading)) * radius,
+  -Math.cos(angleOf(reading)) * radius
+];
 function arcOnDial(from, to, radius) {
   const points = [];
   for (let step2 = 0; step2 <= 24; step2++) points.push(onDial(from + (to - from) * step2 / 24, radius));
@@ -892,7 +929,9 @@ var GAUGE_FRONT = {
   hub: ring(GX, 0, 1.6, DIAL_TOP, P, 16),
   crown: slab({ x: GX + DIAL_R - 1, y: -2.4, w: 5, d: 4.8, r: 1.2 }, DIAL_Z + 2, 4.4, 3),
   crownCap: slab({ x: GX + DIAL_R + 3.6, y: -3.2, w: 2.6, d: 6.4, r: 1.2 }, DIAL_Z + 1.4, 6, 3),
-  crownKnurl: join([-2.2, -1.1, 0, 1.1, 2.2].map((y) => seg([GX + DIAL_R + 6.2, y, DIAL_Z + 1.9], [GX + DIAL_R + 6.2, y, DIAL_Z + 6.9])))
+  crownKnurl: join(
+    [-2.2, -1.1, 0, 1.1, 2.2].map((y) => seg([GX + DIAL_R + 6.2, y, DIAL_Z + 1.9], [GX + DIAL_R + 6.2, y, DIAL_Z + 6.9]))
+  )
 };
 var PLUNGER = {
   rod: cyl(GX, 0, ROD_R, BT + TIP_H, ROD_LONG, 16),
@@ -913,12 +952,17 @@ var BRACKET = { x: PIVOT[0] - 6, y: PIVOT[1] - 6, w: 12, d: -RAIL_OUT - (PIVOT[1
 var HEAD_Z = ARM_Z + ARM_H + 1;
 var DIVERTER = {
   bracket: slab(BRACKET, RAIL_Z + 3, 4, 3, 0.4),
-  bracketScrews: [at([BRACKET.x + 2.4, -RAIL_OUT - 1.6, RAIL_Z + 7]), at([BRACKET.x + BRACKET.w - 2.4, -RAIL_OUT - 1.6, RAIL_Z + 7])],
+  bracketScrews: [
+    at([BRACKET.x + 2.4, -RAIL_OUT - 1.6, RAIL_Z + 7]),
+    at([BRACKET.x + BRACKET.w - 2.4, -RAIL_OUT - 1.6, RAIL_Z + 7])
+  ],
   post: cyl(PIVOT[0], PIVOT[1], 2.2, RAIL_Z + 7, ARM_Z - RAIL_Z - 7, 20),
   hub: cyl(PIVOT[0], PIVOT[1], 3.4, ARM_Z, ARM_H + 1, 24, 0.3),
   head: cyl(PIVOT[0], PIVOT[1], 4.6, HEAD_Z, 5, 32, 0.5),
   headKnurl: knurl(PIVOT[0], PIVOT[1], 4.6, HEAD_Z, HEAD_Z + 5, 36, P),
-  stops: [0, ARM_SWING].map((deg) => at([PIVOT[0] + Math.cos(deg * Math.PI / 180) * 3.6, PIVOT[1] + Math.sin(deg * Math.PI / 180) * 3.6, HEAD_Z + 5]))
+  stops: [0, ARM_SWING].map(
+    (deg) => at([PIVOT[0] + Math.cos(deg * Math.PI / 180) * 3.6, PIVOT[1] + Math.sin(deg * Math.PI / 180) * 3.6, HEAD_Z + 5])
+  )
 };
 function armOf(share) {
   const angle = share * ARM_SWING * Math.PI / 180;
@@ -939,7 +983,12 @@ function armOf(share) {
 }
 function armPointerOf(share) {
   const angle = share * ARM_SWING * Math.PI / 180;
-  return lineOnTop([PIVOT[0] - Math.cos(angle) * 1.4, PIVOT[1] - Math.sin(angle) * 1.4], [PIVOT[0] + Math.cos(angle) * 3.6, PIVOT[1] + Math.sin(angle) * 3.6], HEAD_Z + 5, P);
+  return lineOnTop(
+    [PIVOT[0] - Math.cos(angle) * 1.4, PIVOT[1] - Math.sin(angle) * 1.4],
+    [PIVOT[0] + Math.cos(angle) * 3.6, PIVOT[1] + Math.sin(angle) * 3.6],
+    HEAD_Z + 5,
+    P
+  );
 }
 var floorBottom = 1.5;
 var chuteFloor = profile(
@@ -986,8 +1035,12 @@ var CHUTE_BACK = {
   trayBack: slab(RETURN_WALLS.back, TRAY_FLOOR, TRAY_WALL - TRAY_FLOOR, 2),
   trayLeft: slab(RETURN_WALLS.left, TRAY_FLOOR, TRAY_WALL - TRAY_FLOOR, 2),
   floor: chuteFloor,
-  floorLines: join([CHUTE_Y[0] + 5.3, CHUTE_Y[1] - 5.3].map((y) => seg([CHUTE_X0, y, CHUTE_LOW], [CHUTE_X1, y, chuteTop(CHUTE_X1)]))),
-  apronLines: join([CHUTE_Y[0] + 5.3, CHUTE_Y[1] - 5.3].map((y) => lineOnTop([APRON.x, y], [APRON.x + APRON.w, y], APRON_TOP, P))),
+  floorLines: join(
+    [CHUTE_Y[0] + 5.3, CHUTE_Y[1] - 5.3].map((y) => seg([CHUTE_X0, y, CHUTE_LOW], [CHUTE_X1, y, chuteTop(CHUTE_X1)]))
+  ),
+  apronLines: join(
+    [CHUTE_Y[0] + 5.3, CHUTE_Y[1] - 5.3].map((y) => lineOnTop([APRON.x, y], [APRON.x + APRON.w, y], APRON_TOP, P))
+  ),
   apron: slab(APRON, APRON_TOP - floorBottom, floorBottom, 3, 0.3),
   backWall: wallOf(CHUTE_Y[0] - CHUTE_WALL)
 };
@@ -1005,7 +1058,16 @@ var RESULT_WALLS = trayWalls(RESULT_TRAY, 8);
 var TRAY_BACK = {
   floor: slab(RESULT_TRAY, 0, TRAY_FLOOR, 4, 0.3),
   floorGrid: join(
-    [RESULT_TRAY.x + 19].map((x) => onTop([[x, RESULT_TRAY.y + 2], [x, RESULT_TRAY.y + RESULT_TRAY.d - 2]], TRAY_FLOOR, P))
+    [RESULT_TRAY.x + 19].map(
+      (x) => onTop(
+        [
+          [x, RESULT_TRAY.y + 2],
+          [x, RESULT_TRAY.y + RESULT_TRAY.d - 2]
+        ],
+        TRAY_FLOOR,
+        P
+      )
+    )
   ),
   back: slab(RESULT_WALLS.back, TRAY_FLOOR, 8 - TRAY_FLOOR, 2),
   left: slab(RESULT_WALLS.left, TRAY_FLOOR, 8 - TRAY_FLOOR, 2)
@@ -1176,7 +1238,16 @@ function apartScene() {
   const tokens = history(3);
   const check = checkAt(4);
   tokens.push({ key: "apart-0", check, pos: [-60, 0, BT], layer: "belt", alpha: 1, lit: true });
-  return { tokens, lift: 0, arm: 0, belt: 0, apart: true, drag: 0, readout: `apart \xB7 ${ASSEMBLIES.length} assemblies`, phase: "apart" };
+  return {
+    tokens,
+    lift: 0,
+    arm: 0,
+    belt: 0,
+    apart: true,
+    drag: 0,
+    readout: `apart \xB7 ${ASSEMBLIES.length} assemblies`,
+    phase: "apart"
+  };
 }
 function sceneAt(pose, t, round = 0) {
   if (pose === "apart") return apartScene();
@@ -1228,12 +1299,34 @@ function contactOf(slots) {
   return top;
 }
 function displayOf(scene, shares = scene.apart ? 1 : 0) {
-  const slots = Array.from({ length: SLOTS }, () => ({ key: null, value: 5, pos: [0, 0, 0], layer: "belt", alpha: 0, lit: false }));
+  const slots = Array.from({ length: SLOTS }, () => ({
+    key: null,
+    value: 5,
+    pos: [0, 0, 0],
+    layer: "belt",
+    alpha: 0,
+    lit: false
+  }));
   scene.tokens.slice(0, SLOTS).forEach((token, index) => {
-    slots[index] = { key: token.key, value: token.check.value, pos: [...token.pos], layer: token.layer, alpha: token.alpha, lit: token.lit };
+    slots[index] = {
+      key: token.key,
+      value: token.check.value,
+      pos: [...token.pos],
+      layer: token.layer,
+      alpha: token.alpha,
+      lit: token.lit
+    };
   });
   const tip = Math.max(scene.lift, contactOf(slots));
-  return { slots, tip: { at: tip, rate: 0 }, arm: { at: scene.arm, rate: 0 }, drag: scene.drag, beltV: 0, phase: 0, shares: sharesAt(shares) };
+  return {
+    slots,
+    tip: { at: tip, rate: 0 },
+    arm: { at: scene.arm, rate: 0 },
+    drag: scene.drag,
+    beltV: 0,
+    phase: 0,
+    shares: sharesAt(shares)
+  };
 }
 function step(display, scene, dt, calm, targets) {
   let moving = false;
@@ -1249,7 +1342,14 @@ function step(display, scene, dt, calm, targets) {
     let slot = display.slots.find((candidate) => candidate.key === token.key);
     if (!slot) {
       slot = display.slots.find((candidate) => !candidate.key) ?? [...display.slots].sort((a, b) => a.alpha - b.alpha)[0];
-      Object.assign(slot, { key: token.key, value: token.check.value, pos: [...token.pos], layer: token.layer, alpha: calm ? token.alpha : 0, lit: token.lit });
+      Object.assign(slot, {
+        key: token.key,
+        value: token.check.value,
+        pos: [...token.pos],
+        layer: token.layer,
+        alpha: calm ? token.alpha : 0,
+        lit: token.lit
+      });
       moving = true;
       continue;
     }
@@ -1332,7 +1432,16 @@ function useId2() {
   const id = React2__namespace.useId();
   return `um${id.replace(/[^a-zA-Z0-9_-]/g, "")}`;
 }
-function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true, alt = LABEL2, onReadout, className, bare = true }) {
+function GateMachine({
+  pose = "idle",
+  theme,
+  motion = "auto",
+  interactive = true,
+  alt = LABEL2,
+  onReadout,
+  className,
+  bare = true
+}) {
   const uid = useId2();
   const root = React2__namespace.useRef(null);
   const live = React2__namespace.useRef(null);
@@ -1371,60 +1480,59 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
     const s = state.current;
     const calm = stillness.current || motion === "none";
     const scene = calm ? stillScene(poseRef.current) : sceneAt(poseRef.current, s.t, s.round);
-    if (s.paused && poseRef.current === "idle") return { ...scene, belt: 0, readout: `${scene.readout} \xB7 paused`, phase: "paused" };
+    if (s.paused && poseRef.current === "idle")
+      return { ...scene, belt: 0, readout: `${scene.readout} \xB7 paused`, phase: "paused" };
     return scene;
   }, [motion]);
-  const draw = React2__namespace.useCallback(
-    (scene) => {
-      const node = root.current;
-      if (!node) return;
-      const s = state.current;
-      const display = s.display;
-      const svg = node.querySelector("svg");
-      if (!svg) return;
-      display.slots.forEach((slot, index) => {
-        const value = Math.round(slot.value * 10);
-        const rebuild = s.heights[index] !== value;
-        s.heights[index] = value;
-        for (const layer of LAYERS) {
-          const group = svg.querySelector(`[data-slot="${index}"][data-layer="${layer}"]`);
-          if (!group) continue;
-          const on = slot.key !== null && slot.layer === layer && slot.alpha > 5e-3;
-          if (rebuild) writeToken(group, tokenPaths(slot.value));
-          setAttr(group, "display", on ? "" : "none");
-          if (!on) continue;
-          setAttr(group, "transform", tokenMove(slot.pos));
-          setAttr(group, "opacity", slot.alpha >= 0.995 ? "" : slot.alpha.toFixed(2));
-          if (slot.lit) group.setAttribute("data-lit", "");
-          else group.removeAttribute("data-lit");
-        }
-      });
-      setAttr(svg.querySelector("[data-part=slats]"), "d", slatsOf(display.phase));
-      setAttr(svg.querySelector("[data-part=plunger]"), "transform", move([0, 0, display.tip.at]));
-      setAttr(svg.querySelector("[data-part=needle]"), "d", needleOf(readingOf(display)));
-      setAttr(svg.querySelector("[data-part=drag]"), "d", dragOf(clamp(display.drag, 0, SCALE)));
-      writeSolid(svg.querySelector("[data-part=arm]"), armOf(clamp(display.arm.at, -0.05, 1.05)));
-      setAttr(svg.querySelector("[data-part=pointer]"), "d", armPointerOf(clamp(display.arm.at, -0.05, 1.05)));
-      for (const name of ASSEMBLIES) {
-        const transform = shareMove(name, Math.abs(display.shares[name].at) < 1e-4 ? 0 : display.shares[name].at);
-        svg.querySelectorAll(`[data-assembly="${name}"]`).forEach((group) => setAttr(group, "transform", transform));
+  const draw = React2__namespace.useCallback((scene) => {
+    const node = root.current;
+    if (!node) return;
+    const s = state.current;
+    const display = s.display;
+    const svg = node.querySelector("svg");
+    if (!svg) return;
+    display.slots.forEach((slot, index) => {
+      const value = Math.round(slot.value * 10);
+      const rebuild = s.heights[index] !== value;
+      s.heights[index] = value;
+      for (const layer of LAYERS) {
+        const group = svg.querySelector(`[data-slot="${index}"][data-layer="${layer}"]`);
+        if (!group) continue;
+        const on = slot.key !== null && slot.layer === layer && slot.alpha > 5e-3;
+        if (rebuild) writeToken(group, tokenPaths(slot.value));
+        setAttr(group, "display", on ? "" : "none");
+        if (!on) continue;
+        setAttr(group, "transform", tokenMove(slot.pos));
+        setAttr(group, "opacity", slot.alpha >= 0.995 ? "" : slot.alpha.toFixed(2));
+        if (slot.lit) group.setAttribute("data-lit", "");
+        else group.removeAttribute("data-lit");
       }
-      let text = scene.readout;
-      if (poseRef.current === "apart" && ASSEMBLIES.some((name) => Math.abs(display.shares[name].at - 1) > 0.01)) text = "taking apart";
-      else if (poseRef.current !== "apart" && ASSEMBLIES.some((name) => display.shares[name].at > 0.01)) text = "closing up";
-      if (text !== s.readout) {
-        s.readout = text;
-        const slot = node.closest(".um-frame")?.querySelector("[data-readout]");
-        if (slot && slot.textContent !== text) slot.textContent = text;
-        readoutRef.current?.(text);
-      }
-      if (scene.phase !== s.phase && live.current) {
-        s.phase = scene.phase;
-        if (document.activeElement === node) live.current.textContent = scene.phase;
-      }
-    },
-    []
-  );
+    });
+    setAttr(svg.querySelector("[data-part=slats]"), "d", slatsOf(display.phase));
+    setAttr(svg.querySelector("[data-part=plunger]"), "transform", move([0, 0, display.tip.at]));
+    setAttr(svg.querySelector("[data-part=needle]"), "d", needleOf(readingOf(display)));
+    setAttr(svg.querySelector("[data-part=drag]"), "d", dragOf(clamp(display.drag, 0, SCALE)));
+    writeSolid(svg.querySelector("[data-part=arm]"), armOf(clamp(display.arm.at, -0.05, 1.05)));
+    setAttr(svg.querySelector("[data-part=pointer]"), "d", armPointerOf(clamp(display.arm.at, -0.05, 1.05)));
+    for (const name of ASSEMBLIES) {
+      const transform = shareMove(name, Math.abs(display.shares[name].at) < 1e-4 ? 0 : display.shares[name].at);
+      svg.querySelectorAll(`[data-assembly="${name}"]`).forEach((group) => setAttr(group, "transform", transform));
+    }
+    let text = scene.readout;
+    if (poseRef.current === "apart" && ASSEMBLIES.some((name) => Math.abs(display.shares[name].at - 1) > 0.01))
+      text = "taking apart";
+    else if (poseRef.current !== "apart" && ASSEMBLIES.some((name) => display.shares[name].at > 0.01)) text = "closing up";
+    if (text !== s.readout) {
+      s.readout = text;
+      const slot = node.closest(".um-frame")?.querySelector("[data-readout]");
+      if (slot && slot.textContent !== text) slot.textContent = text;
+      readoutRef.current?.(text);
+    }
+    if (scene.phase !== s.phase && live.current) {
+      s.phase = scene.phase;
+      if (document.activeElement === node) live.current.textContent = scene.phase;
+    }
+  }, []);
   const run = React2__namespace.useCallback(() => {
     const s = state.current;
     if (s.frame || !s.visible) return;
@@ -1549,7 +1657,8 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
       draw(scene);
     }
     run();
-    if (live.current) live.current.textContent = current === "idle" ? s.paused ? "paused" : "running" : current === "apart" ? "reassembling or taking apart" : "running again";
+    if (live.current)
+      live.current.textContent = current === "idle" ? s.paused ? "paused" : "running" : current === "apart" ? "reassembling or taking apart" : "running again";
   };
   const reading = readingOf(shown);
   const arm = armOf(shown.arm.at);
@@ -1761,12 +1870,31 @@ function Tokens({ layer, slots }) {
     );
   }) });
 }
-function VerificationGate({ frame = true, number = "Fig 1", title = "Verification gate", hint, caption = GATE_CAPTION, theme, ...machine }) {
+function VerificationGate({
+  frame = true,
+  number = "Fig 1",
+  title = "Verification gate",
+  hint,
+  caption = GATE_CAPTION,
+  theme,
+  ...machine
+}) {
   const pose = machine.pose ?? "idle";
   if (!frame) return /* @__PURE__ */ jsxRuntime.jsx(GateMachine, { ...machine, theme });
   const interactive = machine.interactive ?? true;
   const shownHint = hint ?? (interactive ? HINTS[pose] : void 0);
-  return /* @__PURE__ */ jsxRuntime.jsx(MechanismFrame, { number, title, hint: shownHint, readout: stillScene(pose).readout, caption, theme, children: /* @__PURE__ */ jsxRuntime.jsx(GateMachine, { ...machine, bare: false }) });
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    MechanismFrame,
+    {
+      number,
+      title,
+      hint: shownHint,
+      readout: stillScene(pose).readout,
+      caption,
+      theme,
+      children: /* @__PURE__ */ jsxRuntime.jsx(GateMachine, { ...machine, bare: false })
+    }
+  );
 }
 var GATE_LIMIT = LIMIT;
 

@@ -48,6 +48,6 @@ declare function filterAssets(assets: Asset[], category: string, query: string):
  * a search box, and a grid of cards with a themed preview tile, the name and
  * one action. At narrow widths the sidebar becomes a row of chips.
  */
-declare function AssetBrowser({ manifest, initialCategory, onAction, actionLabel, base, className }: AssetBrowserProps): react.JSX.Element;
+declare function AssetBrowser({ manifest, initialCategory, onAction, actionLabel, base, className, }: AssetBrowserProps): react.JSX.Element;
 
 export { ALL, type Asset, AssetBrowser, type AssetBrowserProps, type AssetKind, type AssetManifest, categories, filterAssets };

@@ -86,7 +86,7 @@ declare const objectPalettes: {
 /** Framework-independent player. The scene is mounted once, including in Open canvas. */
 declare function ObjectScene(props: ObjectSceneProps): react.JSX.Element;
 /** Shared style selector; consumers own the selected value and URL persistence. */
-declare function ObjectDirectionPicker({ value, onChange }: {
+declare function ObjectDirectionPicker({ value, onChange, }: {
     value: ObjectVariant | "random";
     onChange: (value: ObjectVariant) => void;
 }): react.JSX.Element;

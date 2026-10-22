@@ -1,6 +1,64 @@
 import * as react from 'react';
-import { a as SlideStarterData, P as PresentationTheme, S as SpeechGuide } from './types-CMN3hTzQ.js';
-export { E as ExplanationSlideStarter, O as OpeningSlideStarter, b as SlideFooter, c as SystemSlideStarter } from './types-CMN3hTzQ.js';
+import { S as SpeechGuide } from './speech-BOroEnEA.js';
+
+type PresentationTheme = "light" | "dark";
+
+interface SlideFooter {
+    label: string;
+    page?: string;
+}
+interface SlideStarterBase {
+    id: string;
+    title: string;
+    description: string;
+    speech: SpeechGuide;
+    footer?: SlideFooter;
+}
+interface OpeningSlideStarter extends SlideStarterBase {
+    layout: "opening";
+    content: {
+        eyebrow: string;
+        headline: [string, string];
+        context: string;
+    };
+}
+interface ExplanationSlideStarter extends SlideStarterBase {
+    layout: "explanation";
+    content: {
+        eyebrow: string;
+        headline: string;
+        foundation: {
+            title: string;
+            detail: string;
+        };
+        applications: [{
+            title: string;
+            detail: string;
+        }, {
+            title: string;
+            detail: string;
+        }];
+    };
+}
+interface SystemSlideStarter extends SlideStarterBase {
+    layout: "system";
+    content: {
+        eyebrow: string;
+        headline: string;
+        steps: [{
+            title: string;
+            detail: string;
+        }, {
+            title: string;
+            detail: string;
+        }, {
+            title: string;
+            detail: string;
+        }];
+        caption: string;
+    };
+}
+type SlideStarterData = OpeningSlideStarter | ExplanationSlideStarter | SystemSlideStarter;
 
 interface SlideStarterProps {
     slide: SlideStarterData;
@@ -9,7 +67,7 @@ interface SlideStarterProps {
     className?: string;
     onCopySpeech?: (text: string) => void;
 }
-declare function SlideStarter({ slide, theme, showSpeech, className, onCopySpeech, }: SlideStarterProps): react.JSX.Element;
+declare function SlideStarter({ slide, theme, showSpeech, className, onCopySpeech }: SlideStarterProps): react.JSX.Element;
 
 declare function estimateSpeechSeconds(say: string): number;
 declare function formatSpeechGuide(speech: SpeechGuide): string;
@@ -20,7 +78,7 @@ interface SpeakerGuideProps {
     className?: string;
     theme?: PresentationTheme;
 }
-declare function SpeakerGuide({ speech, slideTitle, onCopy, className, theme, }: SpeakerGuideProps): react.JSX.Element;
+declare function SpeakerGuide({ speech, slideTitle, onCopy, className, theme }: SpeakerGuideProps): react.JSX.Element;
 
 interface RenderSlideSvgOptions {
     theme?: PresentationTheme;
@@ -29,4 +87,4 @@ interface RenderSlideSvgOptions {
 declare function escapeSvgText(value: string): string;
 declare function renderSlideSvg(slide: SlideStarterData, options?: RenderSlideSvgOptions): string;
 
-export { PresentationTheme, type RenderSlideSvgOptions, SlideStarter, SlideStarterData, type SlideStarterProps, SpeakerGuide, type SpeakerGuideProps, SpeechGuide, SpeechGuide as SpeechGuideData, escapeSvgText, estimateSpeechSeconds, formatSpeechGuide, renderSlideSvg };
+export { type ExplanationSlideStarter, type OpeningSlideStarter, type PresentationTheme, type RenderSlideSvgOptions, type SlideFooter, SlideStarter, type SlideStarterData, type SlideStarterProps, SpeakerGuide, type SpeakerGuideProps, SpeechGuide, SpeechGuide as SpeechGuideData, type SystemSlideStarter, escapeSvgText, estimateSpeechSeconds, formatSpeechGuide, renderSlideSvg };

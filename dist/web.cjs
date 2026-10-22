@@ -29,7 +29,15 @@ function Subhead({ children, className = "", as: Tag = "p", id }) {
 function Body({ children, emphasis = "low", className = "", as: Tag = "p", id }) {
   return /* @__PURE__ */ jsxRuntime.jsx(Tag, { id, className: `uipack-web-body ${className}`.trim(), "data-emphasis": emphasis, children });
 }
-function CtaButton({ children, variant = "primary", href, size = "md", className = "", type = "button", ...rest }) {
+function CtaButton({
+  children,
+  variant = "primary",
+  href,
+  size = "md",
+  className = "",
+  type = "button",
+  ...rest
+}) {
   const cls = `uipack-web-cta ${className}`.trim();
   if (href)
     return /* @__PURE__ */ jsxRuntime.jsx("a", { className: cls, href, "data-variant": variant, "data-size": size, children });
@@ -86,7 +94,17 @@ function SpotlightCard({ children, href, className = "" }) {
     return /* @__PURE__ */ jsxRuntime.jsx("a", { ref: (n) => ref2.current = n, className: cls, href, onPointerMove: onMove, onPointerLeave: onLeave, children });
   return /* @__PURE__ */ jsxRuntime.jsx("div", { ref: (n) => ref2.current = n, className: cls, onPointerMove: onMove, onPointerLeave: onLeave, children });
 }
-function Section({ eyebrow, title, intro, children, tone = "default", align = "start", id, className = "", lazyRender = false }) {
+function Section({
+  eyebrow,
+  title,
+  intro,
+  children,
+  tone = "default",
+  align = "start",
+  id,
+  className = "",
+  lazyRender = false
+}) {
   const headingId = id ? `${id}-title` : void 0;
   return /* @__PURE__ */ jsxRuntime.jsx(
     "section",
@@ -153,10 +171,7 @@ function curvePath(values, w, h, pad = 0) {
   const min = Math.min(...values);
   const max = Math.max(...values);
   const span = max - min || 1;
-  const pts = values.map((v, i) => [
-    i / (values.length - 1) * w,
-    pad + (1 - (v - min) / span) * (h - pad * 2)
-  ]);
+  const pts = values.map((v, i) => [i / (values.length - 1) * w, pad + (1 - (v - min) / span) * (h - pad * 2)]);
   let d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
   for (let i = 1; i < pts.length; i++) {
     const [x0, y0] = pts[i - 1];
@@ -225,7 +240,17 @@ function GrainOverlay({ opacity = 0.07, frequency = 0.8 }) {
   ] });
 }
 var NoiseLayer = GrainOverlay;
-function StarHero({ eyebrow, title, subtitle, actions, visual, values, children, noise = 0.07, headingId }) {
+function StarHero({
+  eyebrow,
+  title,
+  subtitle,
+  actions,
+  visual,
+  values,
+  children,
+  noise = 0.07,
+  headingId
+}) {
   return /* @__PURE__ */ jsxRuntime.jsxs("section", { className: "uipack-web-hero", "aria-labelledby": headingId, children: [
     /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__visual", children: visual ?? /* @__PURE__ */ jsxRuntime.jsx(StarChart, { values }) }),
     noise > 0 && /* @__PURE__ */ jsxRuntime.jsx(NoiseLayer, { opacity: noise }),
@@ -730,7 +755,12 @@ function useParentSpotlight(ref2, enabled) {
     };
   }, [ref2, enabled]);
 }
-function GridBackground({ variant, size = 24, fade = true, spotlight = false }) {
+function GridBackground({
+  variant,
+  size = 24,
+  fade = true,
+  spotlight = false
+}) {
   const ref2 = react.useRef(null);
   const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
   const fine = useFinePointer();
@@ -932,7 +962,17 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
   );
 }
 var easeOut = (t) => 1 - Math.pow(1 - t, 3);
-function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix = "", suffix = "", className = "", face = "display" }) {
+function NumberTicker({
+  value,
+  from = 0,
+  duration = 1400,
+  format,
+  locale,
+  prefix = "",
+  suffix = "",
+  className = "",
+  face = "display"
+}) {
   const ref2 = react.useRef(null);
   const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
   const inView = useInView(ref2, { once: true, threshold: 0.6 });
@@ -1044,10 +1084,26 @@ function MagneticButton({ strength = 6, ...button }) {
       el.style.removeProperty("--pull-y");
     }
   );
-  return /* @__PURE__ */ jsxRuntime.jsx("span", { ref: (n) => ref2.current = n, className: "uipack-web-magnetic", onPointerMove, onPointerLeave, children: /* @__PURE__ */ jsxRuntime.jsx(CtaButton, { ...button }) });
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    "span",
+    {
+      ref: (n) => ref2.current = n,
+      className: "uipack-web-magnetic",
+      onPointerMove,
+      onPointerLeave,
+      children: /* @__PURE__ */ jsxRuntime.jsx(CtaButton, { ...button })
+    }
+  );
 }
 var lerp = ([a, b], t) => a + (b - a) * t;
-function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY = [0, 0], opacity = [1, 1], className = "" }) {
+function ScrollTransform({
+  children,
+  rotate = [0, 0],
+  scale = [1, 1],
+  translateY = [0, 0],
+  opacity = [1, 1],
+  className = ""
+}) {
   const ref2 = react.useRef(null);
   const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
   const raw = useScrollProgress(ref2);
@@ -1076,7 +1132,8 @@ var WHEEL_LINE_PX = 40;
 var WHEEL_PAGE_FRACTION = 0.875;
 function normalizeWheel(e, viewport) {
   if (e.deltaMode === 1) return { x: e.deltaX * WHEEL_LINE_PX, y: e.deltaY * WHEEL_LINE_PX };
-  if (e.deltaMode === 2) return { x: e.deltaX * viewport.width * WHEEL_PAGE_FRACTION, y: e.deltaY * viewport.height * WHEEL_PAGE_FRACTION };
+  if (e.deltaMode === 2)
+    return { x: e.deltaX * viewport.width * WHEEL_PAGE_FRACTION, y: e.deltaY * viewport.height * WHEEL_PAGE_FRACTION };
   return { x: e.deltaX, y: e.deltaY };
 }
 var clamp = (v, min, max) => Math.min(max, Math.max(min, v));
@@ -1113,7 +1170,8 @@ function nativeScrollTo(target, { offset, immediate } = {}) {
 }
 function pageOwnsWheel(e) {
   const root = document.documentElement;
-  if (getComputedStyle(root).overflowY === "hidden" || document.body && getComputedStyle(document.body).overflowY === "hidden") return false;
+  if (getComputedStyle(root).overflowY === "hidden" || document.body && getComputedStyle(document.body).overflowY === "hidden")
+    return false;
   const path = typeof e.composedPath === "function" ? e.composedPath() : [];
   const chain = path.length ? path : [];
   if (!chain.length) for (let n = e.target; n; n = n.parentElement) chain.push(n);
@@ -1136,7 +1194,11 @@ function focusTarget(el) {
   }
   el.focus({ preventScroll: true });
 }
-function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = true } = {}) {
+function createSmoothScroll({
+  lerp: lerp2 = 0.1,
+  wheelMultiplier = 1,
+  anchors = true
+} = {}) {
   if (!canUseDom()) {
     return { scrollTo: () => void 0, stop: () => void 0, enabled: false, destroy: () => void 0 };
   }
@@ -1241,11 +1303,13 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
     target = clamp(target, 0, maxScroll());
   };
   const onClick = (e) => {
-    if (!anchors || active !== controller || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (!anchors || active !== controller || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+      return;
     const a = e.target instanceof Element ? e.target.closest("a[href]") : null;
     if (!(a instanceof HTMLAnchorElement) || a.target && a.target !== "_self" || a.hasAttribute("download")) return;
     const url = new URL(a.href, location.href);
-    if (!url.hash || url.origin !== location.origin || url.pathname !== location.pathname || url.search !== location.search) return;
+    if (!url.hash || url.origin !== location.origin || url.pathname !== location.pathname || url.search !== location.search)
+      return;
     let id = url.hash.slice(1);
     try {
       id = decodeURIComponent(id);
@@ -1341,7 +1405,11 @@ function smoothScrollTo(target, options) {
   if (active) active.scrollTo(target, options);
   else nativeScrollTo(target, options);
 }
-function useSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = true } = {}) {
+function useSmoothScroll({
+  lerp: lerp2 = 0.1,
+  wheelMultiplier = 1,
+  anchors = true
+} = {}) {
   const instance = react.useRef(null);
   react.useEffect(() => {
     const c = createSmoothScroll({ lerp: lerp2, wheelMultiplier, anchors });
@@ -1384,8 +1452,10 @@ function pageMeta(o) {
     { tag: "link", attrs: { rel: "canonical", href: o.url } }
   ];
   if (o.robots) tags.push({ tag: "meta", attrs: { name: "robots", content: o.robots } });
-  if (o.markdown) tags.push({ tag: "link", attrs: { rel: "alternate", type: "text/markdown", href: absoluteUrl(o.markdown, o.url) } });
-  if (o.llmsTxt) tags.push({ tag: "link", attrs: { rel: "describedby", type: "text/markdown", href: absoluteUrl(o.llmsTxt, o.url) } });
+  if (o.markdown)
+    tags.push({ tag: "link", attrs: { rel: "alternate", type: "text/markdown", href: absoluteUrl(o.markdown, o.url) } });
+  if (o.llmsTxt)
+    tags.push({ tag: "link", attrs: { rel: "describedby", type: "text/markdown", href: absoluteUrl(o.llmsTxt, o.url) } });
   const rss = typeof o.rss === "string" ? { url: o.rss } : o.rss;
   if (rss) {
     const title = rss.title ?? o.siteName;
@@ -1429,7 +1499,8 @@ function headTagsToHtml(tags) {
 function headTagKey(t) {
   if (t.tag === "title") return "title";
   const a = t.attrs;
-  if (t.tag === "meta") return a.name ? `meta:name:${a.name}` : a.property ? `meta:property:${a.property}` : `meta:${JSON.stringify(a)}`;
+  if (t.tag === "meta")
+    return a.name ? `meta:name:${a.name}` : a.property ? `meta:property:${a.property}` : `meta:${JSON.stringify(a)}`;
   if (t.tag === "link") return a.rel === "canonical" ? "link:canonical" : `link:${a.rel}:${a.href}`;
   return `script:${a.id ?? a.type}:${t.text.length}`;
 }
@@ -1446,7 +1517,13 @@ function fontPreloads({ faces = ["display"], base = "/fonts/", href, media } = {
   const dir = base.endsWith("/") ? base : `${base}/`;
   return faces.map((face) => {
     const file = WEB_FONT_FILES[face];
-    const attrs = { rel: "preload", href: href ? href(file, face) : `${dir}${file}`, as: "font", type: "font/woff2", crossorigin: "anonymous" };
+    const attrs = {
+      rel: "preload",
+      href: href ? href(file, face) : `${dir}${file}`,
+      as: "font",
+      type: "font/woff2",
+      crossorigin: "anonymous"
+    };
     if (media) attrs.media = media;
     return { tag: "link", attrs };
   });
@@ -1462,7 +1539,15 @@ function clean(o) {
   return out;
 }
 function organization(o) {
-  return clean({ "@type": "Organization", "@id": o.id ?? nodeId(o.url, "organization"), name: o.name, url: o.url, logo: o.logo, description: o.description, sameAs: o.sameAs });
+  return clean({
+    "@type": "Organization",
+    "@id": o.id ?? nodeId(o.url, "organization"),
+    name: o.name,
+    url: o.url,
+    logo: o.logo,
+    description: o.description,
+    sameAs: o.sameAs
+  });
 }
 function person(o) {
   return clean({
@@ -1557,7 +1642,8 @@ function schemaDate(d, field) {
     if (Number.isNaN(d.getTime())) throw new Error(`${field}: invalid Date`);
     return d.toISOString();
   }
-  if (!/^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/.test(d)) throw new Error(`${field} must be ISO 8601, e.g. 2026-10-22 (got "${d}")`);
+  if (!/^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/.test(d))
+    throw new Error(`${field} must be ISO 8601, e.g. 2026-10-22 (got "${d}")`);
   return d;
 }
 function pageDates(published, modified, builder) {
@@ -1622,7 +1708,13 @@ function profilePage(o) {
   const entity = "@type" in o.person ? o.person : person(o.person);
   const name = typeof entity.name === "string" ? entity.name : void 0;
   if (!name) throw new Error("profilePage: the person needs a name");
-  const page = webPage({ ...o, type: "ProfilePage", name: o.name ?? name, mainEntity: entity, id: o.id ?? nodeId(o.url, "profilepage") });
+  const page = webPage({
+    ...o,
+    type: "ProfilePage",
+    name: o.name ?? name,
+    mainEntity: entity,
+    id: o.id ?? nodeId(o.url, "profilepage")
+  });
   return clean({ ...page, dateCreated: schemaDate(o.dateCreated, "profilePage: dateCreated") });
 }
 function softwareSourceCode(o) {
@@ -1644,7 +1736,11 @@ function softwareSourceCode(o) {
   });
 }
 function itemList(items, o = {}) {
-  const order = { ascending: "ItemListOrderAscending", descending: "ItemListOrderDescending", unordered: "ItemListUnordered" };
+  const order = {
+    ascending: "ItemListOrderAscending",
+    descending: "ItemListOrderDescending",
+    unordered: "ItemListUnordered"
+  };
   return clean({
     "@type": "ItemList",
     "@id": o.id,
@@ -1658,7 +1754,12 @@ function itemList(items, o = {}) {
 }
 function collectionPage(o) {
   const { items, order, ...page } = o;
-  return webPage({ ...page, type: "CollectionPage", id: o.id ?? nodeId(o.url, "collection"), mainEntity: itemList(items, { order, id: nodeId(o.url, "items") }) });
+  return webPage({
+    ...page,
+    type: "CollectionPage",
+    id: o.id ?? nodeId(o.url, "collection"),
+    mainEntity: itemList(items, { order, id: nodeId(o.url, "items") })
+  });
 }
 function jsonLd(...nodes) {
   if (nodes.length === 1) return { "@context": "https://schema.org", ...nodes[0] };
@@ -1670,12 +1771,21 @@ function serializeJsonLd(data) {
   return JSON.stringify(data).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026").split(LS).join("\\u2028").split(PS).join("\\u2029");
 }
 function jsonLdTag(data, id) {
-  return { tag: "script", attrs: id ? { type: "application/ld+json", id } : { type: "application/ld+json" }, text: serializeJsonLd(data) };
+  return {
+    tag: "script",
+    attrs: id ? { type: "application/ld+json", id } : { type: "application/ld+json" },
+    text: serializeJsonLd(data)
+  };
 }
 function slugify(s) {
   return s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 64);
 }
-var REACT_ATTR = { crossorigin: "crossOrigin", "http-equiv": "httpEquiv", charset: "charSet", hreflang: "hrefLang" };
+var REACT_ATTR = {
+  crossorigin: "crossOrigin",
+  "http-equiv": "httpEquiv",
+  charset: "charSet",
+  hreflang: "hrefLang"
+};
 function toProps(attrs) {
   const out = {};
   for (const [k, v] of Object.entries(attrs)) out[REACT_ATTR[k] ?? k] = v;
@@ -1768,17 +1878,83 @@ function FAQ({
 
 // src/web/crawl.ts
 var AI_CRAWLERS = [
-  { agent: "OAI-SearchBot", operator: "OpenAI", purpose: "search", note: "Shows the site in ChatGPT search answers. Blocked sites appear only as navigational links.", docs: "https://platform.openai.com/docs/bots" },
-  { agent: "ChatGPT-User", operator: "OpenAI", purpose: "user", note: "Fetches a page when a ChatGPT user asks. User-initiated, so OpenAI says robots.txt rules may not apply.", docs: "https://platform.openai.com/docs/bots" },
-  { agent: "GPTBot", operator: "OpenAI", purpose: "training", note: "Collects pages that may train OpenAI's foundation models. Independent of search.", docs: "https://platform.openai.com/docs/bots" },
-  { agent: "Claude-SearchBot", operator: "Anthropic", purpose: "search", note: "Indexes pages for Claude's search results. Blocking it reduces visibility in Claude answers.", docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler" },
-  { agent: "Claude-User", operator: "Anthropic", purpose: "user", note: "Fetches a page when a Claude user asks. Blocking it stops Claude retrieving the page for users.", docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler" },
-  { agent: "ClaudeBot", operator: "Anthropic", purpose: "training", note: "Collects pages that may train Anthropic's models.", docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler" },
-  { agent: "PerplexityBot", operator: "Perplexity", purpose: "search", note: "Indexes and links the site in Perplexity answers. Not used for training foundation models.", docs: "https://docs.perplexity.ai/guides/bots" },
-  { agent: "Perplexity-User", operator: "Perplexity", purpose: "user", note: "Fetches a page when a Perplexity user asks. Perplexity says it generally ignores robots.txt.", docs: "https://docs.perplexity.ai/guides/bots" },
-  { agent: "Google-Extended", operator: "Google", purpose: "training", note: "Gemini model training and grounding in Gemini Apps and Vertex AI. Does not affect Google Search or AI Overviews (Googlebot).", docs: "https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers" },
-  { agent: "Applebot-Extended", operator: "Apple", purpose: "training", note: "Apple foundation-model training. It crawls nothing itself; Applebot search (Siri, Spotlight, Safari) is unaffected.", docs: "https://support.apple.com/en-us/119829" },
-  { agent: "CCBot", operator: "Common Crawl", purpose: "training", note: "Common Crawl's open web archive, which many model training sets are built from.", docs: "https://commoncrawl.org/ccbot" }
+  {
+    agent: "OAI-SearchBot",
+    operator: "OpenAI",
+    purpose: "search",
+    note: "Shows the site in ChatGPT search answers. Blocked sites appear only as navigational links.",
+    docs: "https://platform.openai.com/docs/bots"
+  },
+  {
+    agent: "ChatGPT-User",
+    operator: "OpenAI",
+    purpose: "user",
+    note: "Fetches a page when a ChatGPT user asks. User-initiated, so OpenAI says robots.txt rules may not apply.",
+    docs: "https://platform.openai.com/docs/bots"
+  },
+  {
+    agent: "GPTBot",
+    operator: "OpenAI",
+    purpose: "training",
+    note: "Collects pages that may train OpenAI's foundation models. Independent of search.",
+    docs: "https://platform.openai.com/docs/bots"
+  },
+  {
+    agent: "Claude-SearchBot",
+    operator: "Anthropic",
+    purpose: "search",
+    note: "Indexes pages for Claude's search results. Blocking it reduces visibility in Claude answers.",
+    docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler"
+  },
+  {
+    agent: "Claude-User",
+    operator: "Anthropic",
+    purpose: "user",
+    note: "Fetches a page when a Claude user asks. Blocking it stops Claude retrieving the page for users.",
+    docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler"
+  },
+  {
+    agent: "ClaudeBot",
+    operator: "Anthropic",
+    purpose: "training",
+    note: "Collects pages that may train Anthropic's models.",
+    docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler"
+  },
+  {
+    agent: "PerplexityBot",
+    operator: "Perplexity",
+    purpose: "search",
+    note: "Indexes and links the site in Perplexity answers. Not used for training foundation models.",
+    docs: "https://docs.perplexity.ai/guides/bots"
+  },
+  {
+    agent: "Perplexity-User",
+    operator: "Perplexity",
+    purpose: "user",
+    note: "Fetches a page when a Perplexity user asks. Perplexity says it generally ignores robots.txt.",
+    docs: "https://docs.perplexity.ai/guides/bots"
+  },
+  {
+    agent: "Google-Extended",
+    operator: "Google",
+    purpose: "training",
+    note: "Gemini model training and grounding in Gemini Apps and Vertex AI. Does not affect Google Search or AI Overviews (Googlebot).",
+    docs: "https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers"
+  },
+  {
+    agent: "Applebot-Extended",
+    operator: "Apple",
+    purpose: "training",
+    note: "Apple foundation-model training. It crawls nothing itself; Applebot search (Siri, Spotlight, Safari) is unaffected.",
+    docs: "https://support.apple.com/en-us/119829"
+  },
+  {
+    agent: "CCBot",
+    operator: "Common Crawl",
+    purpose: "training",
+    note: "Common Crawl's open web archive, which many model training sets are built from.",
+    docs: "https://commoncrawl.org/ccbot"
+  }
 ];
 function resolveAiCrawlers(policy = "allow-all") {
   const preset = typeof policy === "string" ? policy : policy.preset ?? "allow-all";
@@ -1800,7 +1976,12 @@ function checkPath(p) {
   if (!p.startsWith("/")) throw new Error(`robots.txt paths start with "/" (got "${p}")`);
   return p;
 }
-function robotsTxt({ site, aiCrawlers, disallow = [], sitemapPath = "/sitemap.xml" }) {
+function robotsTxt({
+  site,
+  aiCrawlers,
+  disallow = [],
+  sitemapPath = "/sitemap.xml"
+}) {
   const root = siteRoot(site);
   const paths = disallow.map(checkPath);
   const rules = resolveAiCrawlers(aiCrawlers);
@@ -1816,7 +1997,10 @@ function robotsTxt({ site, aiCrawlers, disallow = [], sitemapPath = "/sitemap.xm
     ...allowLines
   ];
   for (const purpose of ["search", "user", "training"]) {
-    lines.push("", `# ---- ${purpose === "search" ? "AI search indexes" : purpose === "user" ? "AI fetches a user asked for" : "AI model training"}`);
+    lines.push(
+      "",
+      `# ---- ${purpose === "search" ? "AI search indexes" : purpose === "user" ? "AI fetches a user asked for" : "AI model training"}`
+    );
     for (const c of AI_CRAWLERS.filter((x) => x.purpose === purpose)) {
       const rule = rules[c.agent];
       lines.push("", `# ${c.operator}: ${rule === "allow" ? "allowed" : "blocked"}. ${c.note}`, `User-agent: ${c.agent}`);
@@ -1832,7 +2016,8 @@ function formatLastmod(d) {
     if (Number.isNaN(d.getTime())) throw new Error("sitemap lastmod: invalid Date");
     return d.toISOString().slice(0, 10);
   }
-  if (!/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2}))?$/.test(d)) throw new Error(`sitemap lastmod must be W3C datetime, e.g. 2026-10-22 (got "${d}")`);
+  if (!/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2}))?$/.test(d))
+    throw new Error(`sitemap lastmod must be W3C datetime, e.g. 2026-10-22 (got "${d}")`);
   return d;
 }
 function sitemapXml({ site, pages }) {
@@ -1880,7 +2065,8 @@ function llmsFullTxt({ site, pages, llms }) {
   out.push("", `Source: ${siteRoot(site)}`);
   const withText = pages.filter((p) => !p.noindex && p.content?.trim());
   const sections = /* @__PURE__ */ new Map();
-  for (const p of withText.filter((x) => !x.optional)) sections.set(p.section ?? "Pages", [...sections.get(p.section ?? "Pages") ?? [], p]);
+  for (const p of withText.filter((x) => !x.optional))
+    sections.set(p.section ?? "Pages", [...sections.get(p.section ?? "Pages") ?? [], p]);
   for (const p of [...[...sections.values()].flat(), ...withText.filter((x) => x.optional)]) {
     out.push("", "---", "", `# ${oneLine(p.title)}`, "", `URL: ${pageUrl(site, p.path)}`);
     if (p.lastmod) out.push(`Updated: ${formatLastmod(p.lastmod)}`);

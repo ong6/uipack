@@ -43,13 +43,23 @@ function playLoop(object, ticks, restTime, phase2) {
 var colors = { cream: 16181706, coral: 15301725, blue: 6920109, green: 9155483, dark: 2703177, gold: 12490332 };
 var REST_MS = 3200;
 function addMesh(parent, geometry, color, x = 0, y = 0, z = 0, metal = false) {
-  const mesh3 = new THREE5__namespace.Mesh(geometry, new THREE5__namespace.MeshStandardMaterial({ color, roughness: metal ? 0.28 : 0.65, metalness: metal ? 0.65 : 0.02 }));
+  const mesh3 = new THREE5__namespace.Mesh(
+    geometry,
+    new THREE5__namespace.MeshStandardMaterial({ color, roughness: metal ? 0.28 : 0.65, metalness: metal ? 0.65 : 0.02 })
+  );
   mesh3.position.set(x, y, z);
   parent.add(mesh3);
   return mesh3;
 }
 function box(parent, width, height, depth, color, x = 0, y = 0, z = 0) {
-  return addMesh(parent, new RoundedBoxGeometry_js.RoundedBoxGeometry(width, height, depth, 2, Math.min(0.09, width / 4, height / 4, depth / 4)), color, x, y, z);
+  return addMesh(
+    parent,
+    new RoundedBoxGeometry_js.RoundedBoxGeometry(width, height, depth, 2, Math.min(0.09, width / 4, height / 4, depth / 4)),
+    color,
+    x,
+    y,
+    z
+  );
 }
 function rod(parent, from, to, color = colors.gold, radius = 0.018) {
   const delta = to.clone().sub(from), mesh3 = addMesh(parent, new THREE5__namespace.CylinderGeometry(radius, radius, delta.length(), 12), color, 0, 0, 0, true);
@@ -168,7 +178,15 @@ function createContactDirection(variant) {
   playLoop(root, ticks, REST_MS, variant === 3 ? "letter-delivery" : "correspondence-mobile");
   return root;
 }
-var colors2 = { cream: 15983547, coral: 15497563, blue: 6331070, mint: 8436128, ink: 2504523, gold: 12884824, white: 16446953 };
+var colors2 = {
+  cream: 15983547,
+  coral: 15497563,
+  blue: 6331070,
+  mint: 8436128,
+  ink: 2504523,
+  gold: 12884824,
+  white: 16446953
+};
 var REST_MS2 = 1800;
 var standard = (color, roughness = 0.68, metalness = 0.04) => new THREE5__namespace.MeshStandardMaterial({ color, roughness, metalness });
 function mesh(parent, geometry, surface, x = 0, y = 0, z = 0) {
@@ -178,7 +196,14 @@ function mesh(parent, geometry, surface, x = 0, y = 0, z = 0) {
   return object;
 }
 function block(parent, width, height, depth, surface, x = 0, y = 0, z = 0, radius = 0.055) {
-  return mesh(parent, new RoundedBoxGeometry_js.RoundedBoxGeometry(width, height, depth, 2, Math.min(radius, width / 3, height / 3, depth / 3)), surface, x, y, z);
+  return mesh(
+    parent,
+    new RoundedBoxGeometry_js.RoundedBoxGeometry(width, height, depth, 2, Math.min(radius, width / 3, height / 3, depth / 3)),
+    surface,
+    x,
+    y,
+    z
+  );
 }
 function sphere2(parent, radius, surface, x = 0, y = 0, z = 0) {
   return mesh(parent, new THREE5__namespace.SphereGeometry(radius, 24, 16), surface, x, y, z);
@@ -228,7 +253,14 @@ function roof(parent, width, height, depth, x = 0, y = 0, z = 0) {
   shape.lineTo(0, height);
   shape.lineTo(width / 2, 0);
   shape.closePath();
-  const geometry = new THREE5__namespace.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelSize: 0.035, bevelThickness: 0.025, bevelSegments: 2, steps: 1 });
+  const geometry = new THREE5__namespace.ExtrudeGeometry(shape, {
+    depth,
+    bevelEnabled: true,
+    bevelSize: 0.035,
+    bevelThickness: 0.025,
+    bevelSegments: 2,
+    steps: 1
+  });
   geometry.translate(0, 0, -depth / 2);
   return mesh(parent, geometry, colors2.coral, x, y, z);
 }
@@ -252,7 +284,8 @@ var cartoonModels = {
     const train = group(world, 0, 0.22, 0.54);
     block(train, 0.72, 0.3, 0.31, colors2.coral);
     block(train, 0.43, 0.19, 0.29, colors2.cream, -0.08, 0.23);
-    for (const x of [-0.23, 0.23]) for (const z of [-0.17, 0.17]) cylinder(train, 0.095, 0.04, colors2.ink, x, -0.14, z).rotation.x = Math.PI / 2;
+    for (const x of [-0.23, 0.23])
+      for (const z of [-0.17, 0.17]) cylinder(train, 0.095, 0.04, colors2.ink, x, -0.14, z).rotation.x = Math.PI / 2;
     for (const x of [-0.2, 0]) block(train, 0.13, 0.11, 0.015, colors2.blue, x, 0.25, 0.16);
     ticks.push((angle) => {
       train.position.x = 0.68 * Math.sin(angle);
@@ -351,7 +384,8 @@ var cartoonModels = {
     for (let i = 0; i < 5; i++) {
       const height = TOWER_HEIGHTS[i], x = -0.91 + i * 0.46;
       block(world, 0.35, height, 0.62, i === 3 ? colors2.coral : colors2.blue, x, height / 2, -0.23);
-      for (let j = 0; j < Math.floor(height / 0.22); j++) for (const dx of [-0.09, 0.09]) block(world, 0.075, 0.1, 0.018, colors2.cream, x + dx, 0.17 + j * 0.21, 0.09);
+      for (let j = 0; j < Math.floor(height / 0.22); j++)
+        for (const dx of [-0.09, 0.09]) block(world, 0.075, 0.1, 0.018, colors2.cream, x + dx, 0.17 + j * 0.21, 0.09);
     }
     const tram = group(world, 0, 0.2, 0.59);
     block(tram, 0.6, 0.23, 0.29, colors2.coral);
@@ -397,12 +431,27 @@ var realisticModels = {
     block(keyboard, 2.5, 0.25, 1.2, graphite);
     for (let row = 0; row < 3; row++)
       for (let col = 0; col < 8; col++) {
-        const key = block(keyboard, 0.25, 0.16, 0.27, col === 7 ? leather : paper2, -1.04 + col * 0.296, 0.17, -0.4 + row * 0.34, 0.035);
+        const key = block(
+          keyboard,
+          0.25,
+          0.16,
+          0.27,
+          col === 7 ? leather : paper2,
+          -1.04 + col * 0.296,
+          0.17,
+          -0.4 + row * 0.34,
+          0.035
+        );
         block(key, 0.07, 6e-3, 0.025, col === 7 ? paper2 : graphite, -0.055, 0.083, -0.04, 2e-3);
         const phase2 = (row * 8 + col) / 24 * TAU;
         ticks.push((angle) => key.position.y = 0.17 - 0.055 * Math.max(0, Math.cos(angle - phase2)) ** 18);
       }
-    const cable = path(stage, [vec(1, -0.42, -0.49), vec(1.3, -0.27, -0.9), vec(0.5, -0.13, -1), vec(-0.5, -0.1, -0.78)], graphite, 0.037);
+    const cable = path(
+      stage,
+      [vec(1, -0.42, -0.49), vec(1.3, -0.27, -0.9), vec(0.5, -0.13, -1), vec(-0.5, -0.1, -0.78)],
+      graphite,
+      0.037
+    );
     cable.rotation.y = 0.02;
     const cap = group(stage, 0.36, 0.67, 0.05);
     block(cap, 0.64, 0.32, 0.64, paper2, 0, 0.09, 0, 0.09);
@@ -423,7 +472,11 @@ var realisticModels = {
     const ball2 = sphere2(stage, BALL_RADIUS, felt, -0.5, -0.2, 0.15);
     const seamPoints = Array.from({ length: 97 }, (_, i) => {
       const a = i / 96 * TAU;
-      return vec(0.567 * Math.cos(a), 0.567 * Math.sin(a) * Math.cos(0.5 * Math.cos(a * 2)), 0.567 * Math.sin(a) * Math.sin(0.5 * Math.cos(a * 2)));
+      return vec(
+        0.567 * Math.cos(a),
+        0.567 * Math.sin(a) * Math.cos(0.5 * Math.cos(a * 2)),
+        0.567 * Math.sin(a) * Math.sin(0.5 * Math.cos(a * 2))
+      );
     });
     path(ball2, seamPoints, paper2, 0.015, true);
     const racket2 = group(stage, 0.57, 0.22, -0.1);
@@ -453,7 +506,17 @@ var realisticModels = {
     ring(compass, 0.78, 0.033, graphite, 0, 0, 0.105);
     for (let i = 0; i < 48; i++) {
       const a = i * TAU / 48;
-      const mark = block(compass, 0.014, i % 4 === 0 ? 0.12 : 0.05, 0.012, graphite, 0.67 * Math.sin(a), 0.67 * Math.cos(a), 0.12, 2e-3);
+      const mark = block(
+        compass,
+        0.014,
+        i % 4 === 0 ? 0.12 : 0.05,
+        0.012,
+        graphite,
+        0.67 * Math.sin(a),
+        0.67 * Math.cos(a),
+        0.12,
+        2e-3
+      );
       mark.rotation.z = -a;
     }
     const needle = group(compass, 0, 0, 0.15);
@@ -636,7 +699,8 @@ var abstractModels = {
         core.rotation.y = -0.35 * Math.sin(angle + i * 0.55);
       });
     }
-    for (const x of [-0.98, 0.98]) path(root, [vec(x, -1.2), vec(x * 1.22, -0.5, 0.2), vec(x * 1.22, 0.5, -0.2), vec(x, 1.2)], cobalt, 0.03);
+    for (const x of [-0.98, 0.98])
+      path(root, [vec(x, -1.2), vec(x * 1.22, -0.5, 0.2), vec(x * 1.22, 0.5, -0.2), vec(x, 1.2)], cobalt, 0.03);
   },
   /** A cobalt traveller loops through four receding portals. */
   travel(root, ticks, { glass, amber, chrome, cobalt }) {
@@ -671,7 +735,14 @@ var abstractModels = {
       for (let j = 1; j < 33; j++) ribbon.lineTo(points[j].x, points[j].y);
       for (let j = 32; j >= 0; j--) ribbon.lineTo(points[j].x, points[j].y - 0.05);
       ribbon.closePath();
-      const geometry = new THREE5__namespace.ExtrudeGeometry(ribbon, { depth: 0.55, bevelEnabled: true, bevelThickness: 0.015, bevelSize: 0.012, bevelSegments: 2, steps: 1 });
+      const geometry = new THREE5__namespace.ExtrudeGeometry(ribbon, {
+        depth: 0.55,
+        bevelEnabled: true,
+        bevelThickness: 0.015,
+        bevelSize: 0.012,
+        bevelSegments: 2,
+        steps: 1
+      });
       geometry.translate(0, 0, -0.275);
       const leaf = mesh(root, geometry, i % 3 === 0 ? glass : i % 2 ? chrome : amber, 0, -1.12 + i * 0.27, (i - 3) * 0.11);
       leaf.rotation.y = 0.4;
@@ -686,8 +757,25 @@ function abstract(kind, ticks) {
   const root = new THREE5__namespace.Group();
   root.rotation.set(0.12, -0.25, 0);
   const glazes = {
-    glass: new THREE5__namespace.MeshPhysicalMaterial({ color: 10868961, roughness: 0.12, metalness: 0.05, transmission: 0.72, thickness: 0.6, ior: 1.45, clearcoat: 1, envMapIntensity: 1.2 }),
-    amber: new THREE5__namespace.MeshPhysicalMaterial({ color: 15377510, roughness: 0.16, metalness: 0.05, transmission: 0.55, thickness: 0.5, ior: 1.4, clearcoat: 1 }),
+    glass: new THREE5__namespace.MeshPhysicalMaterial({
+      color: 10868961,
+      roughness: 0.12,
+      metalness: 0.05,
+      transmission: 0.72,
+      thickness: 0.6,
+      ior: 1.45,
+      clearcoat: 1,
+      envMapIntensity: 1.2
+    }),
+    amber: new THREE5__namespace.MeshPhysicalMaterial({
+      color: 15377510,
+      roughness: 0.16,
+      metalness: 0.05,
+      transmission: 0.55,
+      thickness: 0.5,
+      ior: 1.4,
+      clearcoat: 1
+    }),
     chrome: standard(11057353, 0.18, 0.86),
     cobalt: standard(4414154, 0.32, 0.25)
   };
@@ -722,7 +810,14 @@ function addMesh2(parent, geometry, color, x = 0, y = 0, z = 0, metal = false) {
   return mesh3;
 }
 function box2(parent, width, height, depth, color, x = 0, y = 0, z = 0) {
-  return addMesh2(parent, new RoundedBoxGeometry_js.RoundedBoxGeometry(width, height, depth, 1, Math.min(0.018, width / 4, height / 4, depth / 4)), color, x, y, z);
+  return addMesh2(
+    parent,
+    new RoundedBoxGeometry_js.RoundedBoxGeometry(width, height, depth, 1, Math.min(0.018, width / 4, height / 4, depth / 4)),
+    color,
+    x,
+    y,
+    z
+  );
 }
 function ball(parent, radius, color, x = 0, y = 0, z = 0, metal = false) {
   return addMesh2(parent, new THREE5__namespace.SphereGeometry(radius, 24, 16), color, x, y, z, metal);
@@ -739,7 +834,14 @@ function cutout(parent, points, color, z = 0, depth = 0.065) {
   const shape = new THREE5__namespace.Shape();
   points.forEach(([x, y], i) => i ? shape.lineTo(x, y) : shape.moveTo(x, y));
   shape.closePath();
-  const geometry = new THREE5__namespace.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelThickness: 6e-3, bevelSize: 8e-3, bevelSegments: 1, steps: 1 });
+  const geometry = new THREE5__namespace.ExtrudeGeometry(shape, {
+    depth,
+    bevelEnabled: true,
+    bevelThickness: 6e-3,
+    bevelSize: 8e-3,
+    bevelSegments: 1,
+    steps: 1
+  });
   return addMesh2(parent, geometry, color, 0, 0, z);
 }
 function curve(parent, points, color, radius = 0.018) {
@@ -758,14 +860,53 @@ function paperTree(parent, x, y, z, scale = 1) {
   tree2.scale.setScalar(scale);
   parent.add(tree2);
   box2(tree2, 0.045, 0.6, 0.08, 8149317, 0, 0.18);
-  cutout(tree2, [[-0.28, 0.24], [0, 0.91], [0.28, 0.24]], paper.teal, 0.02);
-  cutout(tree2, [[-0.22, 0.5], [0, 1.08], [0.22, 0.5]], 6657413, 0.07);
+  cutout(
+    tree2,
+    [
+      [-0.28, 0.24],
+      [0, 0.91],
+      [0.28, 0.24]
+    ],
+    paper.teal,
+    0.02
+  );
+  cutout(
+    tree2,
+    [
+      [-0.22, 0.5],
+      [0, 1.08],
+      [0.22, 0.5]
+    ],
+    6657413,
+    0.07
+  );
   return tree2;
 }
 function plane(parent, color) {
   const craft = new THREE5__namespace.Group();
-  cutout(craft, [[0, 0.32], [-0.28, -0.18], [0, -0.06], [0.28, -0.18]], color, 0, 0.04);
-  cutout(craft, [[0, 0.32], [-0.045, -0.23], [0.045, -0.23]], 16775141, 0.045, 0.03);
+  cutout(
+    craft,
+    [
+      [0, 0.32],
+      [-0.28, -0.18],
+      [0, -0.06],
+      [0.28, -0.18]
+    ],
+    color,
+    0,
+    0.04
+  );
+  cutout(
+    craft,
+    [
+      [0, 0.32],
+      [-0.045, -0.23],
+      [0.045, -0.23]
+    ],
+    16775141,
+    0.045,
+    0.03
+  );
   parent.add(craft);
   return craft;
 }
@@ -801,10 +942,54 @@ var paperModels = {
   /** Layered hills, a road and trees, with a paper plane looping overhead. */
   travel(root, ticks) {
     disc(root, 0.34, 0.045, paper.coral, 0.78, 0.88, -0.2);
-    cutout(root, [[-1.53, -0.54], [-0.93, 0.9], [-0.27, -0.05], [0.28, 0.77], [1.51, -0.55], [1.25, -1.05], [-1.25, -1.05]], paper.blue, -0.11);
-    cutout(root, [[-1.45, -0.65], [-0.62, 0.38], [0.13, -0.21], [0.9, 0.48], [1.46, -0.62], [1.16, -1.15], [-1.16, -1.15]], paper.teal, 0.17);
-    cutout(root, [[-1.25, -1.02], [-0.91, -0.48], [-0.18, -0.77], [0.57, -0.44], [1.24, -0.97], [0.74, -1.42], [-0.64, -1.42]], 9547149, 0.43);
-    curve(root, [vec(-0.83, -1.04, 0.52), vec(-0.17, -0.75, 0.53), vec(0.12, -0.46, 0.28), vec(0.54, -0.35, 0.25)], paper.cream, 0.055);
+    cutout(
+      root,
+      [
+        [-1.53, -0.54],
+        [-0.93, 0.9],
+        [-0.27, -0.05],
+        [0.28, 0.77],
+        [1.51, -0.55],
+        [1.25, -1.05],
+        [-1.25, -1.05]
+      ],
+      paper.blue,
+      -0.11
+    );
+    cutout(
+      root,
+      [
+        [-1.45, -0.65],
+        [-0.62, 0.38],
+        [0.13, -0.21],
+        [0.9, 0.48],
+        [1.46, -0.62],
+        [1.16, -1.15],
+        [-1.16, -1.15]
+      ],
+      paper.teal,
+      0.17
+    );
+    cutout(
+      root,
+      [
+        [-1.25, -1.02],
+        [-0.91, -0.48],
+        [-0.18, -0.77],
+        [0.57, -0.44],
+        [1.24, -0.97],
+        [0.74, -1.42],
+        [-0.64, -1.42]
+      ],
+      9547149,
+      0.43
+    );
+    curve(
+      root,
+      [vec(-0.83, -1.04, 0.52), vec(-0.17, -0.75, 0.53), vec(0.12, -0.46, 0.28), vec(0.54, -0.35, 0.25)],
+      paper.cream,
+      0.055
+    );
     paperTree(root, -0.89, -0.82, 0.5, 0.55);
     paperTree(root, 0.9, -0.87, 0.49, 0.4);
     const flyer = plane(root, paper.cream);
@@ -832,7 +1017,16 @@ var paperModels = {
     root.add(portal);
     box2(portal, 0.3, 1.25, 0.14, paper.blue, -0.58, 0.53);
     box2(portal, 0.3, 1.25, 0.14, paper.blue, 0.58, 0.53);
-    cutout(portal, [[-0.84, 1.05], [0, 1.69], [0.84, 1.05]], paper.coral, 0.02);
+    cutout(
+      portal,
+      [
+        [-0.84, 1.05],
+        [0, 1.69],
+        [0.84, 1.05]
+      ],
+      paper.coral,
+      0.02
+    );
     for (let i = 0; i < 5; i++) box2(root, 0.78, 0.1, 0.22, paper.peach, 0, -0.91 + i * 0.1, 1.13 - i * 0.14);
     paperTree(root, -1.04, -0.64, 0.71, 0.53);
     paperTree(root, 1.06, -0.64, 0.64, 0.4);
@@ -887,13 +1081,27 @@ var paperModels = {
       card.position.set(0.64 + i * 0.15, 0.23 - i * 0.4, 0.05 + i * 0.28);
       card.rotation.z = -0.12;
       box2(card, 0.85, 0.52, 0.07, [paper.peach, paper.cream, paper.teal][i]);
-      for (let j = 0; j < 3; j++) box2(card, 0.55 - j * 0.08, 0.025, 0.01, i === 2 ? paper.cream : paper.ink, -j * 0.04, 0.13 - j * 0.11, 0.045);
+      for (let j = 0; j < 3; j++)
+        box2(card, 0.55 - j * 0.08, 0.025, 0.01, i === 2 ? paper.cream : paper.ink, -j * 0.04, 0.13 - j * 0.11, 0.045);
       ticks.push((angle) => {
         card.position.x = 0.64 + i * 0.15 + 0.06 * Math.sin(angle + i * 0.9);
         card.rotation.y = 0.14 * Math.sin(angle + i * 0.9);
       });
     }
-    cutout(root, [[-1.07, -0.58], [-0.1, -0.58], [-0.1, -0.87], [0.1, -0.7], [-0.1, -0.48], [-0.1, -0.65], [-1.07, -0.65]], paper.coral, 0.58);
+    cutout(
+      root,
+      [
+        [-1.07, -0.58],
+        [-0.1, -0.58],
+        [-0.1, -0.87],
+        [0.1, -0.7],
+        [-0.1, -0.48],
+        [-0.1, -0.65],
+        [-1.07, -0.65]
+      ],
+      paper.coral,
+      0.58
+    );
     ticks.push((angle) => {
       head.rotation.z = 0.06 * Math.sin(angle);
       head.position.y = 0.14 + 0.06 * Math.cos(angle);
@@ -912,7 +1120,17 @@ var paperModels = {
       box2(layer, 1.38, 0.25, 0.025, paper.cream, 0, 0, 0.29);
       for (let j = 0; j < 6; j++) box2(layer, 0.075, 0.12, 0.024, paper.ink, -0.5 + j * 0.145, 0, 0.32);
       disc(layer, 0.042, 0.03, paper.coral, 0.54, 0, 0.33);
-      const tab = cutout(layer, [[0.8, -0.12], [1.02, -0.12], [1.02, 0.12], [0.8, 0.12]], paper.peach, -0.05);
+      const tab = cutout(
+        layer,
+        [
+          [0.8, -0.12],
+          [1.02, -0.12],
+          [1.02, 0.12],
+          [0.8, 0.12]
+        ],
+        paper.peach,
+        -0.05
+      );
       ticks.push((angle) => {
         layer.position.x = 0.12 * Math.sin(angle + i * 0.7);
         tab.rotation.y = 0.15 * Math.sin(angle);
@@ -938,7 +1156,12 @@ var paperModels = {
       box2(panel, 0.19, 0.12 + i % 3 * 0.045, 0.025, paper.blue, 0, -0.74, 0.08);
       ticks.push((angle) => panel.rotation.y = (i % 2 ? 1 : -1) * (0.18 + 0.11 * Math.sin(angle)));
     }
-    curve(root, [vec(-1.3, -1.14, 0.66), vec(-0.6, -1.02, 0.66), vec(0.3, -1.1, 0.66), vec(1.27, -0.9, 0.66)], paper.coral, 0.025);
+    curve(
+      root,
+      [vec(-1.3, -1.14, 0.66), vec(-0.6, -1.02, 0.66), vec(0.3, -1.1, 0.66), vec(1.27, -0.9, 0.66)],
+      paper.coral,
+      0.025
+    );
   }
 };
 function paperWorld(kind, ticks) {
@@ -1075,11 +1298,17 @@ var kineticModels = {
       hinge.rotation.y = -1.3 + i * 0.21;
       const cover = i === 0 || i === LEAVES - 1;
       box2(hinge, 1.16, 1.59, 0.025, cover ? kinetic.dark : kinetic.ivory, 0.59, 0, 0);
-      if (i % 3 === 0 && i > 0 && i < LEAVES - 1) for (let j = 0; j < 7; j++) box2(hinge, 0.72, 0.012, 7e-3, kinetic.gold, 0.62, 0.49 - j * 0.15, 0.017);
+      if (i % 3 === 0 && i > 0 && i < LEAVES - 1)
+        for (let j = 0; j < 7; j++) box2(hinge, 0.72, 0.012, 7e-3, kinetic.gold, 0.62, 0.49 - j * 0.15, 0.017);
       ticks.push((angle) => hinge.rotation.y = -1.3 + i * 0.21 + 0.045 * Math.sin(angle + i * 0.22));
     }
     rod3(book, vec(0, -0.91), vec(0, 0.91), kinetic.gold, 0.06);
-    const ribbon = curve(root, [vec(-0.85, -1.03, 0.3), vec(-1.2, -0.4, 0.5), vec(-1.05, 0.5, 0.2), vec(-0.48, 1.3, -0.2), vec(0.58, 1.15, -0.4)], kinetic.gold, 0.022);
+    const ribbon = curve(
+      root,
+      [vec(-0.85, -1.03, 0.3), vec(-1.2, -0.4, 0.5), vec(-1.05, 0.5, 0.2), vec(-0.48, 1.3, -0.2), vec(0.58, 1.15, -0.4)],
+      kinetic.gold,
+      0.022
+    );
     ticks.push((angle) => {
       book.rotation.y = -0.4 + angle;
       book.rotation.z = -0.15 + 0.075 * Math.sin(angle);

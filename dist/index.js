@@ -1,11 +1,11 @@
 import { useLayerFlight } from './chunk-5GCY6KJP.js';
 import { zoomSamples, zoomFrame, smoothstep } from './chunk-VZ4PJUMF.js';
 export { easeInOutCubic, innerClipStart, smoothstep, zoomFrame, zoomSamples } from './chunk-VZ4PJUMF.js';
-import { useFigureHover, hoverAttrs, connectorStroke, Node, nodeName, SelectionContext, useRovingFocus, FigureHoverContext, ReplayGlyph, PauseGlyph, PlayGlyph, Legend, placeNote } from './chunk-4DSMASDX.js';
-export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-4DSMASDX.js';
+import { useFigureHover, hoverAttrs, connectorStroke, Node, nodeName, SelectionContext, useRovingFocus, FigureHoverContext, ReplayGlyph, PauseGlyph, PlayGlyph, Legend, placeNote } from './chunk-7IASEYZU.js';
+export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-7IASEYZU.js';
 import { useFontFloor, FigureMotionContext, FigureScaleContext } from './chunk-3R6VZY52.js';
 export { DEFAULT_RENDER_WIDTH, FigureMotionContext, FigureScaleContext, FigureScaleProvider, TOKEN_SHAPE, Token, fontFloor, tokenColor, useFigureMotion, useFontFloor } from './chunk-3R6VZY52.js';
-import { CanvasView } from './chunk-WTI575DG.js';
+import { CanvasView } from './chunk-NSE7TINL.js';
 import { usePrefersReducedMotion, useIsoLayoutEffect } from './chunk-KYO6UXHN.js';
 export { usePrefersReducedMotion } from './chunk-KYO6UXHN.js';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
@@ -16,7 +16,19 @@ function Badge({ cx, cy, text, accent, r = 9, size: size0 = 10 }) {
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   return /* @__PURE__ */ jsxs("g", { "data-uipack": "badge", children: [
     /* @__PURE__ */ jsx("circle", { cx, cy, r, fill: "var(--uipack-bg)", stroke, strokeOpacity: accent ? 1 : 0.6, strokeWidth: 1.25 }),
-    /* @__PURE__ */ jsx("text", { x: cx, y: cy + size * 0.35, textAnchor: "middle", fontSize: size, fontFamily: "var(--uipack-mono)", fontWeight: 700, fill: stroke, children: text })
+    /* @__PURE__ */ jsx(
+      "text",
+      {
+        x: cx,
+        y: cy + size * 0.35,
+        textAnchor: "middle",
+        fontSize: size,
+        fontFamily: "var(--uipack-mono)",
+        fontWeight: 700,
+        fill: stroke,
+        children: text
+      }
+    )
   ] });
 }
 function wallSegments(from, to, holes = [], gap = 9) {
@@ -33,14 +45,36 @@ function Wall({ at, from, to, holes = [], axis = "v", thickness: t = 16, gap = 9
   const hover = useFigureHover();
   return /* @__PURE__ */ jsx("g", { "data-uipack": "wall", ...hoverAttrs(flow, void 0, hover), children: wallSegments(from, to, holes, gap).map(([a, b]) => {
     const r = axis === "v" ? { x: at - t / 2, y: a, width: t, height: b - a } : { x: a, y: at - t / 2, width: b - a, height: t };
-    return /* @__PURE__ */ jsx("rect", { ...r, rx: 2, fill: "var(--uipack-surface-raised)", stroke: "currentColor", strokeOpacity: 0.55, strokeWidth: 1.25 }, a);
+    return /* @__PURE__ */ jsx(
+      "rect",
+      {
+        ...r,
+        rx: 2,
+        fill: "var(--uipack-surface-raised)",
+        stroke: "currentColor",
+        strokeOpacity: 0.55,
+        strokeWidth: 1.25
+      },
+      a
+    );
   }) });
 }
 function Cross({ x, y, r = 5, kind }) {
-  return /* @__PURE__ */ jsxs("g", { "data-uipack": "cross", stroke: connectorStroke(kind), strokeOpacity: kind ? 1 : 0.8, strokeWidth: 1.75, strokeLinecap: "round", "aria-hidden": "true", children: [
-    /* @__PURE__ */ jsx("line", { x1: x - r, y1: y - r, x2: x + r, y2: y + r }),
-    /* @__PURE__ */ jsx("line", { x1: x - r, y1: y + r, x2: x + r, y2: y - r })
-  ] });
+  return /* @__PURE__ */ jsxs(
+    "g",
+    {
+      "data-uipack": "cross",
+      stroke: connectorStroke(kind),
+      strokeOpacity: kind ? 1 : 0.8,
+      strokeWidth: 1.75,
+      strokeLinecap: "round",
+      "aria-hidden": "true",
+      children: [
+        /* @__PURE__ */ jsx("line", { x1: x - r, y1: y - r, x2: x + r, y2: y + r }),
+        /* @__PURE__ */ jsx("line", { x1: x - r, y1: y + r, x2: x + r, y2: y - r })
+      ]
+    }
+  );
 }
 var marks = {
   uipack: /* @__PURE__ */ jsxs(Fragment, { children: [
@@ -81,7 +115,19 @@ var marks = {
 function Wordmark({ size = 24 }) {
   return /* @__PURE__ */ jsxs("svg", { viewBox: "0 0 140 32", width: size * 140 / 32, height: size, role: "img", "aria-label": "uipack", style: { display: "block" }, children: [
     /* @__PURE__ */ jsx("g", { fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", children: marks.uipack }),
-    /* @__PURE__ */ jsx("text", { x: "40", y: "22", fontSize: "18", fontWeight: 700, fontFamily: "var(--uipack-mono, ui-monospace, monospace)", letterSpacing: ".02em", fill: "currentColor", children: "uipack" })
+    /* @__PURE__ */ jsx(
+      "text",
+      {
+        x: "40",
+        y: "22",
+        fontSize: "18",
+        fontWeight: 700,
+        fontFamily: "var(--uipack-mono, ui-monospace, monospace)",
+        letterSpacing: ".02em",
+        fill: "currentColor",
+        children: "uipack"
+      }
+    )
   ] });
 }
 
@@ -98,9 +144,7 @@ function findDrillNode(layer, id) {
 var cssEscape = (s) => typeof CSS !== "undefined" && CSS.escape ? CSS.escape(s) : s.replace(/["\\]/g, "\\$&");
 var boxOf = (node) => node.querySelector('[data-uipack="node"] > rect') ?? node;
 var faceOf = (node) => Array.from(
-  node.querySelectorAll(
-    '[data-uipack="node"] > :not(rect):not(.uipack__touch-target), .uipack-drill-node__mark'
-  )
+  node.querySelectorAll('[data-uipack="node"] > :not(rect):not(.uipack__touch-target), .uipack-drill-node__mark')
 );
 function paintInner(inner, canvas) {
   if (!canvas) return;
@@ -163,19 +207,39 @@ function runDrill(opts) {
   const timing = { duration: opts.duration ?? drillMotion.zoom, easing: "linear" };
   play(
     outer,
-    samples.map((s) => ({ offset: s.offset, transform: s.outer, transformOrigin: origin, opacity: 1 - smoothstep(0.88, 0.99, s.p) })),
+    samples.map((s) => ({
+      offset: s.offset,
+      transform: s.outer,
+      transformOrigin: origin,
+      opacity: 1 - smoothstep(0.88, 0.99, s.p)
+    })),
     timing
   );
   play(
     inner,
-    samples.map((s) => ({ offset: s.offset, transform: s.inner, transformOrigin: origin, clipPath: s.clip, opacity: s.innerOpacity })),
+    samples.map((s) => ({
+      offset: s.offset,
+      transform: s.inner,
+      transformOrigin: origin,
+      clipPath: s.clip,
+      opacity: s.innerOpacity
+    })),
     timing
   );
   for (const part of faceOf(opts.target)) {
-    play(part, samples.map((s) => ({ offset: s.offset, opacity: 1 - s.innerOpacity })), timing);
+    play(
+      part,
+      samples.map((s) => ({ offset: s.offset, opacity: 1 - s.innerOpacity })),
+      timing
+    );
   }
   const halo = opts.target.querySelector(".uipack-drill-node__halo");
-  if (halo) play(halo, samples.map((s) => ({ offset: s.offset, opacity: 1 - smoothstep(0, 0.25, s.p) })), timing);
+  if (halo)
+    play(
+      halo,
+      samples.map((s) => ({ offset: s.offset, opacity: 1 - smoothstep(0, 0.25, s.p) })),
+      timing
+    );
   return anims;
 }
 var DrillContext = /* @__PURE__ */ createContext(null);
@@ -258,7 +322,14 @@ function drillStatic(props, path) {
     children: /* @__PURE__ */ jsx(
       DrillContext.Provider,
       {
-        value: { levels, frame: { wide: props.viewBox, narrow: props.narrowViewBox }, idPrefix: lid, variant: "wide", interactive: false, ghost: false },
+        value: {
+          levels,
+          frame: { wide: props.viewBox, narrow: props.narrowViewBox },
+          idPrefix: lid,
+          variant: "wide",
+          interactive: false,
+          ghost: false
+        },
         children: level.render({ id: lid, variant: "wide", ghost: false, level })
       }
     ),
@@ -273,8 +344,27 @@ function drillStatic(props, path) {
   };
 }
 var last = (p) => p[p.length - 1];
-var BackGlyph = () => /* @__PURE__ */ jsx("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ jsx("path", { d: "M7.5 2.5 4 6l3.5 3.5", fill: "none", stroke: "currentColor", strokeWidth: "1.6", strokeLinecap: "round", strokeLinejoin: "round" }) });
-var DrillLayer = /* @__PURE__ */ memo(function DrillLayer2({ level, figId, frame, floorWide, floorNarrow, levels, open, current }) {
+var BackGlyph = () => /* @__PURE__ */ jsx("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ jsx(
+  "path",
+  {
+    d: "M7.5 2.5 4 6l3.5 3.5",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "1.6",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }
+) });
+var DrillLayer = /* @__PURE__ */ memo(function DrillLayer2({
+  level,
+  figId,
+  frame,
+  floorWide,
+  floorNarrow,
+  levels,
+  open,
+  current
+}) {
   const lid = `${figId}-${cleanId(level.id)}`;
   const ctx = (variant) => ({
     levels,
@@ -391,7 +481,9 @@ function DrillFigureRoot({
     },
     [navigate, ids]
   );
-  const layerEl = (lid) => stageRef.current?.querySelector(`:scope > [data-level="${typeof CSS !== "undefined" && CSS.escape ? CSS.escape(lid) : lid}"]`) ?? null;
+  const layerEl = (lid) => stageRef.current?.querySelector(
+    `:scope > [data-level="${typeof CSS !== "undefined" && CSS.escape ? CSS.escape(lid) : lid}"]`
+  ) ?? null;
   const { anims, settle, fly } = useLayerFlight(
     () => stageRef.current?.querySelectorAll(":scope > .uipack-drill__layer").forEach(clearLayer)
   );
@@ -426,7 +518,10 @@ function DrillFigureRoot({
     }
     const move = drillMove(from, requested);
     seq.current += 1;
-    setView({ path: requested, flight: { from, kind: move === "in" ? "in" : move === "out" ? "out" : "fade", seq: seq.current } });
+    setView({
+      path: requested,
+      flight: { from, kind: move === "in" ? "in" : move === "out" ? "out" : "fade", seq: seq.current }
+    });
   }, [requested]);
   const flightSeq = view.flight?.seq;
   useIsoLayoutEffect(() => {
@@ -583,10 +678,19 @@ function DrillFigureRoot({
               ),
               current.caption ? /* @__PURE__ */ jsx("p", { className: "uipack__caption", children: current.caption }) : null,
               /* @__PURE__ */ jsxs("div", { className: "uipack__controls", children: [
-                depth > 0 ? /* @__PURE__ */ jsxs("button", { type: "button", className: "uipack__ctl uipack-drill__back", "aria-label": `Back to ${parentLabel}`, onClick: up, children: [
-                  /* @__PURE__ */ jsx(BackGlyph, {}),
-                  " Back"
-                ] }) : null,
+                depth > 0 ? /* @__PURE__ */ jsxs(
+                  "button",
+                  {
+                    type: "button",
+                    className: "uipack__ctl uipack-drill__back",
+                    "aria-label": `Back to ${parentLabel}`,
+                    onClick: up,
+                    children: [
+                      /* @__PURE__ */ jsx(BackGlyph, {}),
+                      " Back"
+                    ]
+                  }
+                ) : null,
                 expandable && !expanded ? /* @__PURE__ */ jsx(
                   "button",
                   {
@@ -677,7 +781,12 @@ var stillMotion = { playing: false, reduced: true, cycle: 0, toggle: () => {
 var RADIUS = 6;
 var MINI_ABOVE = 0.4;
 var MINI_SCALE = 0.3;
-function Ghost({ child, ctx, box, uid }) {
+function Ghost({
+  child,
+  ctx,
+  box,
+  uid
+}) {
   const narrow = ctx.variant === "narrow" && !!ctx.frame.narrow;
   const frame = narrow ? ctx.frame.narrow : ctx.frame.wide;
   const render = narrow && child.narrow ? child.narrow : child.render;
@@ -687,7 +796,13 @@ function Ghost({ child, ctx, box, uid }) {
   const slice = Math.max(box.w / f.w, box.h / f.h);
   const mini = slice > MINI_ABOVE;
   const k = MINI_SCALE;
-  const port = mini ? { x: box.x + box.w - f.w * k - 30, y: box.y, width: f.w * k, height: box.h, viewBox: `0 ${(f.h - box.h / k) / 2} ${f.w} ${box.h / k}` } : { x: box.x, y: box.y, width: box.w, height: box.h, viewBox: `0 0 ${f.w} ${f.h}` };
+  const port = mini ? {
+    x: box.x + box.w - f.w * k - 30,
+    y: box.y,
+    width: f.w * k,
+    height: box.h,
+    viewBox: `0 ${(f.h - box.h / k) / 2} ${f.w} ${box.h / k}`
+  } : { x: box.x, y: box.y, width: box.w, height: box.h, viewBox: `0 0 ${f.w} ${f.h}` };
   return /* @__PURE__ */ jsx("svg", { ...port, preserveAspectRatio: "xMidYMid slice", overflow: "hidden", children: /* @__PURE__ */ jsx("svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ jsx(SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsx(FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ jsx(FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ jsx(DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) });
 }
 function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node }) {
@@ -761,7 +876,18 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
             ...box,
             label: text,
             inlay: /* @__PURE__ */ jsxs("g", { className: "uipack-drill-node__inlay", clipPath: `url(#${uid}-clip)`, "aria-hidden": "true", pointerEvents: "none", children: [
-              /* @__PURE__ */ jsx("rect", { className: "uipack-drill-node__wash", x: box.x, y: box.y, width: box.w, height: box.h, fill: "var(--uipack-accent)", fillOpacity: 0.035 }),
+              /* @__PURE__ */ jsx(
+                "rect",
+                {
+                  className: "uipack-drill-node__wash",
+                  x: box.x,
+                  y: box.y,
+                  width: box.w,
+                  height: box.h,
+                  fill: "var(--uipack-accent)",
+                  fillOpacity: 0.035
+                }
+              ),
               /* @__PURE__ */ jsx(
                 "rect",
                 {

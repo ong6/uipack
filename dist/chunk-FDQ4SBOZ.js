@@ -1,5 +1,3 @@
-'use strict';
-
 // src/slides/model.ts
 var slidePalettes = {
   dark: {
@@ -26,13 +24,7 @@ var slidePalettes = {
   }
 };
 function clampStop(index, count) {
-  return Math.max(
-    0,
-    Math.min(
-      Math.max(0, count - 1),
-      Number.isFinite(index) ? Math.trunc(index) : 0
-    )
-  );
+  return Math.max(0, Math.min(Math.max(0, count - 1), Number.isFinite(index) ? Math.trunc(index) : 0));
 }
 function resolveNodePose(node, stop) {
   const pose = stop.nodes?.[node.id];
@@ -48,21 +40,17 @@ function validateSlideStory(story) {
   const finite3 = (value) => Array.isArray(value) && value.length === 3 && value.every(Number.isFinite);
   if (!story.stops.length) issues.push("A story needs at least one stop.");
   for (const n of story.nodes) {
-    if (!n.id || ids.has(n.id))
-      issues.push(`Duplicate or empty node id: ${n.id}`);
+    if (!n.id || ids.has(n.id)) issues.push(`Duplicate or empty node id: ${n.id}`);
     ids.add(n.id);
     if (!finite3(n.position)) issues.push(`Invalid position: ${n.id}`);
-    if (n.size && (!finite3(n.size) || n.size.some((v) => v <= 0)))
-      issues.push(`Invalid size: ${n.id}`);
+    if (n.size && (!finite3(n.size) || n.size.some((v) => v <= 0))) issues.push(`Invalid size: ${n.id}`);
   }
   const edges = /* @__PURE__ */ new Set();
   for (const c of story.connections) {
     if (edges.has(c.id)) issues.push(`Duplicate connection id: ${c.id}`);
     edges.add(c.id);
-    if (!ids.has(c.from) || !ids.has(c.to))
-      issues.push(`Unknown connection endpoint: ${c.id}`);
-    if (c.from === c.to)
-      issues.push(`Self-connections are unsupported: ${c.id}`);
+    if (!ids.has(c.from) || !ids.has(c.to)) issues.push(`Unknown connection endpoint: ${c.id}`);
+    if (c.from === c.to) issues.push(`Self-connections are unsupported: ${c.id}`);
   }
   const stops = /* @__PURE__ */ new Set();
   for (const s of story.stops) {
@@ -70,8 +58,7 @@ function validateSlideStory(story) {
     stops.add(s.id);
     if (s.transition) {
       const t = s.transition;
-      if (t.camera && !["orbit", "dolly"].includes(t.camera))
-        issues.push(`Invalid camera motion: ${s.id}`);
+      if (t.camera && !["orbit", "dolly"].includes(t.camera)) issues.push(`Invalid camera motion: ${s.id}`);
       if (t.duration !== void 0 && (!Number.isFinite(t.duration) || t.duration < 0.2 || t.duration > 5))
         issues.push(`Invalid duration: ${s.id}`);
       if (t.stagger !== void 0 && (!Number.isFinite(t.stagger) || t.stagger < 0 || t.stagger > 0.15))
@@ -81,22 +68,15 @@ function validateSlideStory(story) {
       issues.push(`Invalid camera: ${s.id}`);
     for (const [id, pose] of Object.entries(s.nodes ?? {})) {
       if (!ids.has(id)) issues.push(`Unknown node: ${id}`);
-      if (pose.position && !finite3(pose.position))
-        issues.push(`Invalid pose position: ${id}`);
+      if (pose.position && !finite3(pose.position)) issues.push(`Invalid pose position: ${id}`);
       if (pose.opacity !== void 0 && (!Number.isFinite(pose.opacity) || pose.opacity < 0 || pose.opacity > 1))
         issues.push(`Invalid opacity: ${id}`);
-      if (pose.scale !== void 0 && (!Number.isFinite(pose.scale) || pose.scale <= 0))
-        issues.push(`Invalid scale: ${id}`);
+      if (pose.scale !== void 0 && (!Number.isFinite(pose.scale) || pose.scale <= 0)) issues.push(`Invalid scale: ${id}`);
     }
-    for (const id of s.labels ?? [])
-      if (!ids.has(id)) issues.push(`Unknown label: ${id}`);
-    for (const id of s.activeConnections ?? [])
-      if (!edges.has(id)) issues.push(`Unknown active connection: ${id}`);
+    for (const id of s.labels ?? []) if (!ids.has(id)) issues.push(`Unknown label: ${id}`);
+    for (const id of s.activeConnections ?? []) if (!edges.has(id)) issues.push(`Unknown active connection: ${id}`);
   }
   return issues;
 }
 
-exports.clampStop = clampStop;
-exports.resolveNodePose = resolveNodePose;
-exports.slidePalettes = slidePalettes;
-exports.validateSlideStory = validateSlideStory;
+export { clampStop, resolveNodePose, slidePalettes, validateSlideStory };

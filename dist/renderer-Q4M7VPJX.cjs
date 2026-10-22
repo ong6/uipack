@@ -1,6 +1,28 @@
-import { slidePalettes, resolveNodePose } from './chunk-BBBJN4JA.js';
-import * as THREE from 'three';
-import { gsap } from 'gsap';
+'use strict';
+
+var chunkE5LSWYRN_cjs = require('./chunk-E5LSWYRN.cjs');
+var THREE = require('three');
+var gsap = require('gsap');
+
+function _interopNamespace(e) {
+  if (e && e.__esModule) return e;
+  var n = Object.create(null);
+  if (e) {
+    Object.keys(e).forEach(function (k) {
+      if (k !== 'default') {
+        var d = Object.getOwnPropertyDescriptor(e, k);
+        Object.defineProperty(n, k, d.get ? d : {
+          enumerable: true,
+          get: function () { return e[k]; }
+        });
+      }
+    });
+  }
+  n.default = e;
+  return Object.freeze(n);
+}
+
+var THREE__namespace = /*#__PURE__*/_interopNamespace(THREE);
 
 var DEFAULT_NODE_SIZE = [1.65, 0.6, 1.05];
 var FADE_OUT_S = 0.12;
@@ -15,11 +37,11 @@ var CLICK_SLOP_PX = 6;
 function createSlideScene(host, labels, story, initial, theme, reduced, onLost, onSettled, onSelect) {
   let selected = null;
   let zoom = 1;
-  const colors = slidePalettes[theme];
+  const colors = chunkE5LSWYRN_cjs.slidePalettes[theme];
   const tone = (value) => colors[value === "neutral" || !value ? "rule" : value];
   const renderer = createRenderer(host, colors);
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 160);
+  const scene = new THREE__namespace.Scene();
+  const camera = new THREE__namespace.PerspectiveCamera(32, 1, 0.1, 160);
   addLights(scene, theme);
   const resources = createResourceTracker();
   const track = resources.track;
@@ -33,7 +55,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
   let stop = initial, paused = false, isReduced = reduced, disposed = false, raf = 0, transition;
   let clock = 0, lastTime = 0, visible = true, width = 1, height = 1;
   const cam = cameraState(initial);
-  const target = new THREE.Vector3();
+  const target = new THREE__namespace.Vector3();
   const presentation = { labels: 1, flow: 1 };
   function draw() {
     if (disposed) return;
@@ -118,7 +140,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       wake();
       return;
     }
-    transition = gsap.timeline({
+    transition = gsap.gsap.timeline({
       onUpdate: wake,
       onComplete: () => {
         draw();
@@ -126,8 +148,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       }
     });
     transition.to(presentation, { labels: 0, flow: 0, duration: FADE_OUT_S }, 0);
-    if (next.transition?.camera === "dolly")
-      transition.to(cam, { ...destination, duration, ease: "sine.inOut" }, FADE_OUT_S);
+    if (next.transition?.camera === "dolly") transition.to(cam, { ...destination, duration, ease: "sine.inOut" }, FADE_OUT_S);
     else addOrbit(transition, cam, destination, duration, FADE_OUT_S);
     let arrival = 0;
     nodes.forEach((n) => {
@@ -140,7 +161,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
     transition.to(presentation, { labels: 1, flow: 1, duration: 0.22, ease: "sine.out" });
     wake();
   }
-  const raycaster = new THREE.Raycaster();
+  const raycaster = new THREE__namespace.Raycaster();
   let down = null;
   const pointerDown = (event) => {
     down = { x: event.clientX, y: event.clientY };
@@ -197,36 +218,36 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
   };
 }
 function createRenderer(host, colors) {
-  const renderer = new THREE.WebGLRenderer({
+  const renderer = new THREE__namespace.WebGLRenderer({
     antialias: true,
     alpha: true,
     powerPreference: "low-power"
   });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
   renderer.setClearColor(colors.background, 0);
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.outputColorSpace = THREE__namespace.SRGBColorSpace;
   renderer.domElement.setAttribute("aria-hidden", "true");
   renderer.domElement.dataset.slideCanvas = "true";
   host.prepend(renderer.domElement);
   return renderer;
 }
 function addLights(scene, theme) {
-  scene.add(new THREE.HemisphereLight(theme === "dark" ? 14286830 : 16777215, 2111019, 2.2));
-  const key = new THREE.DirectionalLight(16777215, 3.1);
+  scene.add(new THREE__namespace.HemisphereLight(theme === "dark" ? 14286830 : 16777215, 2111019, 2.2));
+  const key = new THREE__namespace.DirectionalLight(16777215, 3.1);
   key.position.set(4, 12, 8);
   scene.add(key);
-  const fill = new THREE.DirectionalLight(7462066, 1.2);
+  const fill = new THREE__namespace.DirectionalLight(7462066, 1.2);
   fill.position.set(-8, 2, -6);
   scene.add(fill);
 }
 function createFloorGrid(colors) {
   const points = [];
   for (let x = -GRID_HALF; x <= GRID_HALF; x++) for (let z = -GRID_HALF; z <= GRID_HALF; z++) points.push(x, GRID_Y, z);
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.Float32BufferAttribute(points, 3));
-  return new THREE.Points(
+  const geometry = new THREE__namespace.BufferGeometry();
+  geometry.setAttribute("position", new THREE__namespace.Float32BufferAttribute(points, 3));
+  return new THREE__namespace.Points(
     geometry,
-    new THREE.PointsMaterial({
+    new THREE__namespace.PointsMaterial({
       color: colors.rule,
       size: 0.036,
       transparent: true,
@@ -254,11 +275,11 @@ function withBaseOpacity(material, baseOpacity) {
   return material;
 }
 function buildNodeView(scene, n, initial, label, colors, tone, track) {
-  const group = new THREE.Group();
+  const group = new THREE__namespace.Group();
   group.name = n.id;
   scene.add(group);
   const size = n.size ?? DEFAULT_NODE_SIZE;
-  const geometry = n.kind === "sphere" ? new THREE.IcosahedronGeometry(size[0] / 2, 2) : new THREE.BoxGeometry(...size);
+  const geometry = n.kind === "sphere" ? new THREE__namespace.IcosahedronGeometry(size[0] / 2, 2) : new THREE__namespace.BoxGeometry(...size);
   const materials = [];
   const add = (object, material) => {
     group.add(track(object));
@@ -274,8 +295,8 @@ function buildNodeView(scene, n, initial, label, colors, tone, track) {
 function addNodeBody(n, geometry, colors, tone, add) {
   const boundary = n.kind === "boundary";
   const material = withBaseOpacity(
-    new THREE.MeshStandardMaterial({
-      color: new THREE.Color(colors.surface).lerp(new THREE.Color(tone(n.tone)), boundary ? 0 : 0.09),
+    new THREE__namespace.MeshStandardMaterial({
+      color: new THREE__namespace.Color(colors.surface).lerp(new THREE__namespace.Color(tone(n.tone)), boundary ? 0 : 0.09),
       roughness: 0.52,
       metalness: 0.15,
       transparent: true,
@@ -284,21 +305,24 @@ function addNodeBody(n, geometry, colors, tone, add) {
     }),
     boundary ? 0.025 : 1
   );
-  add(new THREE.Mesh(geometry, material), material);
+  add(new THREE__namespace.Mesh(geometry, material), material);
   const edgeMaterial = withBaseOpacity(
-    new THREE.LineBasicMaterial({
+    new THREE__namespace.LineBasicMaterial({
       color: boundary ? colors.accent : tone(n.tone),
       transparent: true,
       opacity: boundary ? 0.5 : 0.9
     }),
     boundary ? 0.72 : 0.85
   );
-  add(new THREE.LineSegments(new THREE.EdgesGeometry(geometry), edgeMaterial), edgeMaterial);
+  add(new THREE__namespace.LineSegments(new THREE__namespace.EdgesGeometry(geometry), edgeMaterial), edgeMaterial);
 }
 function addSphereRings(n, size, tone, add) {
   for (const angle of [0, Math.PI / 2]) {
-    const ringMaterial = withBaseOpacity(new THREE.MeshBasicMaterial({ color: tone(n.tone), transparent: true, opacity: 0.35 }), 0.35);
-    const ring = add(new THREE.Mesh(new THREE.TorusGeometry(size[0] * 0.66, 0.012, 6, 64), ringMaterial), ringMaterial);
+    const ringMaterial = withBaseOpacity(
+      new THREE__namespace.MeshBasicMaterial({ color: tone(n.tone), transparent: true, opacity: 0.35 }),
+      0.35
+    );
+    const ring = add(new THREE__namespace.Mesh(new THREE__namespace.TorusGeometry(size[0] * 0.66, 0.012, 6, 64), ringMaterial), ringMaterial);
     ring.rotation.x = Math.PI / 2;
     ring.rotation.y = angle;
   }
@@ -307,11 +331,11 @@ function addLayerRecords(n, size, tone, add) {
   const COLUMNS = 7;
   const COUNT = 28;
   const recordMaterial = withBaseOpacity(
-    new THREE.MeshStandardMaterial({ color: tone(n.tone), roughness: 0.8, transparent: true, opacity: 0.28 }),
+    new THREE__namespace.MeshStandardMaterial({ color: tone(n.tone), roughness: 0.8, transparent: true, opacity: 0.28 }),
     0.28
   );
-  const records = new THREE.InstancedMesh(new THREE.BoxGeometry(0.48, 0.035, 0.6), recordMaterial, COUNT);
-  const matrix = new THREE.Matrix4();
+  const records = new THREE__namespace.InstancedMesh(new THREE__namespace.BoxGeometry(0.48, 0.035, 0.6), recordMaterial, COUNT);
+  const matrix = new THREE__namespace.Matrix4();
   for (let i = 0; i < COUNT; i++) {
     matrix.makeTranslation((i % COLUMNS - 3) * 0.76, size[1] / 2 + 0.04, (Math.floor(i / COLUMNS) - 1.5) * 0.86);
     records.setMatrixAt(i, matrix);
@@ -319,18 +343,21 @@ function addLayerRecords(n, size, tone, add) {
   add(records, recordMaterial);
 }
 function addTopStripe(n, geometry, size, tone, add) {
-  const stripeMaterial = withBaseOpacity(new THREE.MeshBasicMaterial({ color: tone(n.tone), transparent: true }), 0.85);
-  const stripe = add(new THREE.Mesh(new THREE.BoxGeometry(size[0] * 0.72, 0.025, 0.025), stripeMaterial), stripeMaterial);
+  const stripeMaterial = withBaseOpacity(new THREE__namespace.MeshBasicMaterial({ color: tone(n.tone), transparent: true }), 0.85);
+  const stripe = add(new THREE__namespace.Mesh(new THREE__namespace.BoxGeometry(size[0] * 0.72, 0.025, 0.025), stripeMaterial), stripeMaterial);
   stripe.position.set(0, size[1] / 2 + 0.012, size[2] * 0.32);
   if (n.kind !== "layer") return;
   for (let i = 1; i <= 2; i++) {
-    const layerMaterial = withBaseOpacity(new THREE.LineBasicMaterial({ color: tone(n.tone), transparent: true, opacity: 0.35 }), 0.35);
-    const edge = add(new THREE.LineSegments(new THREE.EdgesGeometry(geometry), layerMaterial), layerMaterial);
+    const layerMaterial = withBaseOpacity(
+      new THREE__namespace.LineBasicMaterial({ color: tone(n.tone), transparent: true, opacity: 0.35 }),
+      0.35
+    );
+    const edge = add(new THREE__namespace.LineSegments(new THREE__namespace.EdgesGeometry(geometry), layerMaterial), layerMaterial);
     edge.position.y = -i * 0.16;
   }
 }
 function poseAt(n, stop) {
-  const pose = resolveNodePose(n, stop);
+  const pose = chunkE5LSWYRN_cjs.resolveNodePose(n, stop);
   return {
     x: pose.position[0],
     y: pose.position[1],
@@ -345,13 +372,13 @@ function applyNodePose(n, isSelected, colors) {
   n.group.visible = n.pose.opacity > 5e-3;
   n.materials.forEach((m) => {
     m.opacity = n.pose.opacity * (m.userData.baseOpacity ?? 1);
-    if (m instanceof THREE.MeshStandardMaterial) {
+    if (m instanceof THREE__namespace.MeshStandardMaterial) {
       m.emissive.set(isSelected ? colors.accent : 0);
       m.emissiveIntensity = isSelected ? 0.3 : 0;
     }
   });
 }
-var projected = new THREE.Vector3();
+var projected = new THREE__namespace.Vector3();
 function drawLabel(n, label, camera, width, height, shown, labelOpacity, placed) {
   const eligible = (shown ? shown.has(n.spec.id) : n.spec.kind !== "boundary") && n.pose.opacity >= 0.3 && labelOpacity > 0.01;
   projected.copy(n.group.position);
@@ -391,24 +418,24 @@ function placeLabel(x, y, w, h, width, height, placed) {
   return void 0;
 }
 function buildLinkView(scene, c, tone, track) {
-  const material = new THREE.LineBasicMaterial({
+  const material = new THREE__namespace.LineBasicMaterial({
     color: tone(c.tone),
     transparent: true,
     opacity: 0.35
   });
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array((LINK_SEGMENTS + 1) * 3), 3));
-  const line = track(new THREE.Line(geometry, material));
+  const geometry = new THREE__namespace.BufferGeometry();
+  geometry.setAttribute("position", new THREE__namespace.BufferAttribute(new Float32Array((LINK_SEGMENTS + 1) * 3), 3));
+  const line = track(new THREE__namespace.Line(geometry, material));
   line.frustumCulled = false;
   scene.add(line);
-  const packetGeometry = c.tone === "response" ? new THREE.SphereGeometry(0.07, 10, 6) : new THREE.BoxGeometry(0.12, 0.12, 0.12);
-  const packet = track(new THREE.Mesh(packetGeometry, new THREE.MeshBasicMaterial({ color: tone(c.tone), transparent: true })));
+  const packetGeometry = c.tone === "response" ? new THREE__namespace.SphereGeometry(0.07, 10, 6) : new THREE__namespace.BoxGeometry(0.12, 0.12, 0.12);
+  const packet = track(new THREE__namespace.Mesh(packetGeometry, new THREE__namespace.MeshBasicMaterial({ color: tone(c.tone), transparent: true })));
   if (c.tone === "change") packet.rotation.z = Math.PI / 4;
   scene.add(packet);
   const arrow = track(
-    new THREE.Mesh(
-      new THREE.ConeGeometry(0.055, 0.15, 8),
-      new THREE.MeshBasicMaterial({
+    new THREE__namespace.Mesh(
+      new THREE__namespace.ConeGeometry(0.055, 0.15, 8),
+      new THREE__namespace.MeshBasicMaterial({
         color: tone(c.tone),
         transparent: true,
         opacity: 0.6
@@ -418,7 +445,7 @@ function buildLinkView(scene, c, tone, track) {
   scene.add(arrow);
   return { spec: c, line, material, packet, arrow, points: [] };
 }
-var up = new THREE.Vector3(0, 1, 0);
+var up = new THREE__namespace.Vector3(0, 1, 0);
 function drawLink(l, nodes, isActive, flow, flowProgress) {
   const source = nodes.get(l.spec.from), dest = nodes.get(l.spec.to);
   const visibility = Math.min(source.pose.opacity, dest.pose.opacity);
@@ -426,7 +453,7 @@ function drawLink(l, nodes, isActive, flow, flowProgress) {
   const bend1 = start.clone().lerp(end, 0.42), bend2 = start.clone().lerp(end, 0.58);
   bend1.y += 0.2;
   bend2.y += 0.2;
-  l.points = new THREE.CubicBezierCurve3(start, bend1, bend2, end).getPoints(LINK_SEGMENTS);
+  l.points = new THREE__namespace.CubicBezierCurve3(start, bend1, bend2, end).getPoints(LINK_SEGMENTS);
   const attr = l.line.geometry.getAttribute("position");
   l.points.forEach((p, i) => attr.setXYZ(i, p.x, p.y, p.z));
   attr.needsUpdate = true;
@@ -456,7 +483,9 @@ function pointAt(points, progress) {
 function anchor(node, toward) {
   const center = node.group.position.clone(), d = toward.clone().sub(center);
   const size = node.spec.size ?? DEFAULT_NODE_SIZE;
-  const distances = [d.x, d.y, d.z].map((v, i) => Math.abs(v) > 1e-4 ? size[i] * node.pose.scale / 2 / Math.abs(v) : Infinity);
+  const distances = [d.x, d.y, d.z].map(
+    (v, i) => Math.abs(v) > 1e-4 ? size[i] * node.pose.scale / 2 / Math.abs(v) : Infinity
+  );
   return center.addScaledVector(d, Math.min(...distances, 0.45)).addScaledVector(d.clone().normalize(), 0.11);
 }
 function cameraState(stop) {
@@ -470,9 +499,9 @@ function cameraState(stop) {
   };
 }
 function addOrbit(transition, cam, destination, duration, at) {
-  const from = new THREE.Spherical().setFromVector3(new THREE.Vector3(cam.x - cam.tx, cam.y - cam.ty, cam.z - cam.tz));
-  const to = new THREE.Spherical().setFromVector3(
-    new THREE.Vector3(destination.x - destination.tx, destination.y - destination.ty, destination.z - destination.tz)
+  const from = new THREE__namespace.Spherical().setFromVector3(new THREE__namespace.Vector3(cam.x - cam.tx, cam.y - cam.ty, cam.z - cam.tz));
+  const to = new THREE__namespace.Spherical().setFromVector3(
+    new THREE__namespace.Vector3(destination.x - destination.tx, destination.y - destination.ty, destination.z - destination.tz)
   );
   const orbit = {
     radius: from.radius,
@@ -483,7 +512,7 @@ function addOrbit(transition, cam, destination, duration, at) {
     tz: cam.tz
   };
   const delta = Math.atan2(Math.sin(to.theta - from.theta), Math.cos(to.theta - from.theta));
-  const offset = new THREE.Vector3();
+  const offset = new THREE__namespace.Vector3();
   transition.to(
     orbit,
     {
@@ -513,7 +542,7 @@ function addOrbit(transition, cam, destination, duration, at) {
 function pickNode(event, canvas, camera, raycaster, nodes) {
   const rect = canvas.getBoundingClientRect();
   raycaster.setFromCamera(
-    new THREE.Vector2((event.clientX - rect.left) / rect.width * 2 - 1, -(event.clientY - rect.top) / rect.height * 2 + 1),
+    new THREE__namespace.Vector2((event.clientX - rect.left) / rect.width * 2 - 1, -(event.clientY - rect.top) / rect.height * 2 + 1),
     camera
   );
   const candidates = [...nodes.values()].filter((n) => n.spec.kind !== "boundary" && n.pose.opacity > 0.25);
@@ -526,4 +555,4 @@ function pickNode(event, canvas, camera, raycaster, nodes) {
   return object ? object.name : null;
 }
 
-export { createSlideScene };
+exports.createSlideScene = createSlideScene;

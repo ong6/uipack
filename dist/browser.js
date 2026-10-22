@@ -20,7 +20,9 @@ function categories(assets) {
 }
 function filterAssets(assets, category, query) {
   const q = query.trim().toLowerCase();
-  return assets.filter((a) => (category === ALL || a.category === category) && (!q || a.name.toLowerCase().includes(q) || a.id.includes(q) || (a.tags ?? []).some((t) => t.includes(q))));
+  return assets.filter(
+    (a) => (category === ALL || a.category === category) && (!q || a.name.toLowerCase().includes(q) || a.id.includes(q) || (a.tags ?? []).some((t) => t.includes(q)))
+  );
 }
 function Preview({ src, still, scheme }) {
   const img = /* @__PURE__ */ jsx("img", { src, alt: "", loading: "lazy", "data-scheme": scheme });
@@ -30,7 +32,14 @@ function Preview({ src, still, scheme }) {
     img
   ] });
 }
-function AssetBrowser({ manifest, initialCategory = ALL, onAction, actionLabel = "Copy", base, className }) {
+function AssetBrowser({
+  manifest,
+  initialCategory = ALL,
+  onAction,
+  actionLabel = "Copy",
+  base,
+  className
+}) {
   const [category, setCategory] = useState(initialCategory);
   const [query, setQuery] = useState("");
   const [flash, setFlash] = useState(null);
@@ -48,10 +57,19 @@ function AssetBrowser({ manifest, initialCategory = ALL, onAction, actionLabel =
     timer.current = window.setTimeout(() => setFlash(null), 1400);
   };
   return /* @__PURE__ */ jsxs("div", { className: ["uipack-browser", className ?? ""].join(" ").trim(), "data-category": category, children: [
-    /* @__PURE__ */ jsx("nav", { className: "uipack-browser__side", "aria-label": "Asset categories", children: /* @__PURE__ */ jsx("ul", { role: "list", onFocus: keepFocusedInView, children: cats.map((c) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs("button", { type: "button", className: "uipack-browser__cat", "aria-pressed": category === c.name, onClick: () => setCategory(c.name), children: [
-      /* @__PURE__ */ jsx("span", { children: c.name }),
-      /* @__PURE__ */ jsx("span", { className: "uipack-browser__count", "aria-label": `${c.count} assets`, children: c.count })
-    ] }) }, c.name)) }) }),
+    /* @__PURE__ */ jsx("nav", { className: "uipack-browser__side", "aria-label": "Asset categories", children: /* @__PURE__ */ jsx("ul", { role: "list", onFocus: keepFocusedInView, children: cats.map((c) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs(
+      "button",
+      {
+        type: "button",
+        className: "uipack-browser__cat",
+        "aria-pressed": category === c.name,
+        onClick: () => setCategory(c.name),
+        children: [
+          /* @__PURE__ */ jsx("span", { children: c.name }),
+          /* @__PURE__ */ jsx("span", { className: "uipack-browser__count", "aria-label": `${c.count} assets`, children: c.count })
+        ]
+      }
+    ) }, c.name)) }) }),
     /* @__PURE__ */ jsxs("div", { className: "uipack-browser__main", children: [
       /* @__PURE__ */ jsxs("div", { className: "uipack-browser__bar", children: [
         /* @__PURE__ */ jsxs("label", { className: "uipack-browser__search", children: [
@@ -68,11 +86,28 @@ function AssetBrowser({ manifest, initialCategory = ALL, onAction, actionLabel =
       /* @__PURE__ */ jsx("ul", { className: "uipack-browser__grid", role: "list", children: shown.map((a) => /* @__PURE__ */ jsxs("li", { className: "uipack-browser__card", "data-kind": a.kind, "data-id": a.id, children: [
         /* @__PURE__ */ jsxs("div", { className: "uipack-browser__tile", children: [
           /* @__PURE__ */ jsx(Preview, { src: `${prefix}${a.preview}`, still: a.previewStatic && `${prefix}${a.previewStatic}`, scheme: "light" }),
-          a.previewDark ? /* @__PURE__ */ jsx(Preview, { src: `${prefix}${a.previewDark}`, still: a.previewStaticDark && `${prefix}${a.previewStaticDark}`, scheme: "dark" }) : null
+          a.previewDark ? /* @__PURE__ */ jsx(
+            Preview,
+            {
+              src: `${prefix}${a.previewDark}`,
+              still: a.previewStaticDark && `${prefix}${a.previewStaticDark}`,
+              scheme: "dark"
+            }
+          ) : null
         ] }),
         /* @__PURE__ */ jsxs("div", { className: "uipack-browser__row", children: [
           /* @__PURE__ */ jsx("span", { className: "uipack-browser__name", children: a.name }),
-          /* @__PURE__ */ jsx("button", { type: "button", className: "uipack-browser__action", onClick: () => act(a), "aria-label": `${actionLabel} ${a.name}`, "data-flash": flash === a.id ? "true" : void 0, children: flash === a.id ? "Copied" : actionLabel })
+          /* @__PURE__ */ jsx(
+            "button",
+            {
+              type: "button",
+              className: "uipack-browser__action",
+              onClick: () => void act(a),
+              "aria-label": `${actionLabel} ${a.name}`,
+              "data-flash": flash === a.id ? "true" : void 0,
+              children: flash === a.id ? "Copied" : actionLabel
+            }
+          )
         ] })
       ] }, a.id)) }),
       shown.length === 0 ? /* @__PURE__ */ jsxs("div", { className: "uipack-browser__empty", children: [
