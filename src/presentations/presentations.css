@@ -27,7 +27,9 @@
   margin: 0;
 }
 .uipack-slide-starter__preview {
+  /* One card style with the Speaker guide below it: the same rule and 6px radius. */
   border: 1px solid var(--presentation-rule);
+  border-radius: 6px;
   overflow: hidden;
   background: var(--presentation-bg);
 }

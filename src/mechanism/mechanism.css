@@ -82,7 +82,7 @@
   padding: 48px 24px;
   background: var(--anatomy-card);
   border: 1px solid var(--um-edge);
-  border-radius: 4px;
+  border-radius: 6px;
   overflow: hidden;
   --anatomy-paper: var(--anatomy-card);
 }

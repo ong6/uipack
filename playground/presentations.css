@@ -11,7 +11,7 @@
   padding: 28px;
   border: 1px solid var(--show-rule);
   background: var(--show-surface);
-  border-radius: 6px;
+  border-radius: var(--show-radius);
 }
 .style-card > :last-child {
   display: flex;
@@ -48,7 +48,7 @@
   container-type: inline-size;
   overflow: hidden;
   border: 1px solid var(--show-rule);
-  border-radius: 4px;
+  border-radius: var(--show-radius);
   background: var(--show-bg);
 }
 .style-preview > img {
@@ -156,7 +156,7 @@
   grid-template-rows: 1fr auto;
   min-height: 620px;
   border: 1px solid var(--show-rule);
-  border-radius: 6px;
+  border-radius: var(--show-radius);
   background: var(--show-surface);
   overflow: hidden;
 }

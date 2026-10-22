@@ -20,7 +20,8 @@
   background: var(--uipack-bg);
   font-family: var(--uipack-sans);
   border: 1px solid var(--uipack-border);
-  border-radius: 4px;
+  /* Containers share the Technical radius with charts, the article and the shell. */
+  border-radius: var(--uipack-radius);
   overflow: hidden;
   box-sizing: border-box;
 }
