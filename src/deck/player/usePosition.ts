@@ -51,12 +51,27 @@ export function useDeckPosition({ slides, initial, toRef, settle }: DeckPosition
     setView(next);
   }, []);
 
+  // The deck lost slides under the position (a list filtered or reloaded shorter): land on the last
+  // slide left, at its start, without a transition. Corrected during render, so this render already
+  // shows a slide that exists; the new seq retires any flight in progress (its layers may be gone).
+  let shown = view;
+  if (view.index >= count || (view.from && view.from.index >= count)) {
+    const index = Math.min(view.index, count - 1);
+    shown = { index, step: index === view.index ? view.step : 0, from: null, seq: view.seq + 1 };
+    setView(shown);
+  }
+  // The latest position follows the state once it renders (commit sets both at once; a correction
+  // made during render reaches the ref here, before any press can read it).
+  useIsoLayoutEffect(() => {
+    viewRef.current = view;
+  }, [view]);
+
   // The current slide's last build step, counted from its DOM after each slide change.
   const [maxStep, setMaxStep] = useState(0);
   useIsoLayoutEffect(() => {
     const layer = toRef.current;
     if (layer) setMaxStep(buildsOn(layer));
-  }, [view.index, slides, toRef]);
+  }, [shown.index, slides, toRef]);
 
   /** Show slide `index` at build `step` (Infinity: fully built), with a transition when the slide changes. */
   const go = useCallback(
@@ -86,5 +101,5 @@ export function useDeckPosition({ slides, initial, toRef, settle }: DeckPosition
     else if (v.index > 0) go(v.index - 1, Infinity);
   }, [go, maxStep, commit]);
 
-  return { view, viewRef, commit, go, next, prev, maxStep };
+  return { view: shown, viewRef, commit, go, next, prev, maxStep };
 }
