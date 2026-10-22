@@ -15,10 +15,13 @@ const CRAWL_TYPES: Record<string, string> = {
  * origin, matching the page's own "View generated" panel; a build also emits them, for
  * `UIPACK_PLAYGROUND_ORIGIN` (default https://tidy.example). The playground pages stay
  * `noindex`; these files only describe the demo, as a real Landing site would serve them.
+ * Paths under /.well-known/ get a 404 instead of the SPA fallback.
  */
 function crawlFiles(): Plugin {
   const serve = (req: IncomingMessage, res: ServerResponse, next: () => void) => {
     const name = (req.url ?? "").split("?")[0].replace(/^\//, "");
+    // Nothing is published under /.well-known (e.g. ai-catalog.json): answer 404, not the SPA's HTML.
+    if (name.startsWith(".well-known/")) return void ((res.statusCode = 404), res.end());
     if (!(name in CRAWL_TYPES)) return next();
     const origin = `http://${req.headers.host ?? "localhost"}`;
     res.setHeader("Content-Type", CRAWL_TYPES[name]);
