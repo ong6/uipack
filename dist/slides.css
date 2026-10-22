@@ -467,9 +467,9 @@
   width: fit-content;
   max-width: 100%;
   margin: 0;
+  /* One box, the select's: the label sits beside it on the scene's ground, not in a second frame. */
   padding: 4px 4px 4px 12px;
   background: var(--slide-bg);
-  border: 1px solid var(--slide-rule);
   border-radius: 6px;
 }
 .uipack-slide-inspect select,
@@ -532,12 +532,20 @@
   min-height: 44px;
   margin: 0;
   padding: 8px 12px;
-  border: 1px solid currentColor;
-  border-radius: 6px;
+  /* The host's control tokens when it has them (the playground's --show-*), else the same values:
+     a hairline in the card's ink, never the brightest line on the card. */
+  border: 1px solid var(--show-rule, rgba(232, 236, 233, 0.22));
+  border-radius: var(--show-control-radius, 6px);
   background: inherit;
   color: inherit;
-  font: 500 12px/1 var(--slide-mono, ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+  font: var(--show-control-font-sm, 500 12px/1.2 var(--slide-mono, ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace));
   cursor: pointer;
+}
+.uipack-scene-card[data-theme="light"] .uipack-scene-card__open {
+  border-color: var(--show-rule, rgba(26, 28, 26, 0.22));
+}
+.uipack-scene-card__open:hover {
+  border-color: var(--slide-accent, #71dcb2);
 }
 .uipack-scene-card > .uipack-slide-scene .uipack-slide-inspect {
   right: 148px;

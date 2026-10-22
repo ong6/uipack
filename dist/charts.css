@@ -365,7 +365,9 @@
   box-shadow: inset 0 0 0 calc(var(--sp-sel, 0) * 1px) var(--sp-accent);
   outline: calc(var(--sp-focus, 0) * 2px) solid var(--sp-accent);
   outline-offset: 2px;
-  font: 500 13px/1 var(--sp-sans);
+  /* The host's control font inside a figure (the playground's --show-control-font-sm), else the
+     chart's own. The weight still marks the chosen one. */
+  font: var(--show-control-font-sm, 500 13px/1 var(--sp-sans));
   font-weight: calc(500 + var(--sp-sel, 0) * 150);
   /* Chosen: the accent ink (accent 75%, ink 25%), 4.5:1 on the tint in both themes. */
   color: color-mix(in srgb, var(--sp-accent) calc(var(--sp-sel, 0) * 75%), var(--sp-fg));
@@ -403,7 +405,7 @@
   min-height: 44px;
   padding: 8px 12px 8px 32px;
   position: relative;
-  font: 600 13px/18px var(--sp-sans);
+  font: var(--show-control-font-sm, 600 13px/18px var(--sp-sans));
   cursor: pointer;
   list-style: none;
   -webkit-tap-highlight-color: transparent;
@@ -599,7 +601,7 @@
   border: 1.25px solid var(--sp-accent);
   border-radius: 4px;
   background: var(--sp-band);
-  font: 600 12px/1 var(--sp-sans);
+  font: var(--show-control-font-sm, 600 12px/1 var(--sp-sans));
   color: var(--sp-accent-ink);
   cursor: pointer;
 }
@@ -618,7 +620,7 @@
   border: 1.25px solid var(--sp-edge);
   border-radius: var(--sp-radius);
   background: var(--sp-node-fill);
-  font: 600 12px/1 var(--sp-sans);
+  font: var(--show-control-font-sm, 600 12px/1 var(--sp-sans));
   color: var(--sp-fg);
   cursor: pointer;
   appearance: none;
@@ -1674,12 +1676,17 @@
   .uipack-stack .uipack-stack__bracket {
     grid-column: 1;
   }
+  /* Beside the zone's name, the note follows a dot with a no-break space on each side, and no flex
+     gap on top of them: "SERVING AND PRODUCT · RUN". */
+  .uipack-stack .uipack-stack__zone-head {
+    column-gap: 0;
+  }
   .uipack-stack .uipack-stack__note {
     flex-basis: auto;
   }
   .uipack-stack .uipack-stack__note::before {
-    content: "·\00a0";
-    content: "·\00a0" / "";
+    content: "\00a0·\00a0";
+    content: "\00a0·\00a0" / "";
   }
   .uipack-stack .uipack-stack__face {
     grid-template-columns: 20px minmax(0, 1fr) auto auto;

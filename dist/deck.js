@@ -1,4 +1,4 @@
-import { useLayerFlight, zoomFrame, innerClipStart } from './chunk-JZZTE6QO.js';
+import { useLayerFlight, zoomFrame } from './chunk-JZZTE6QO.js';
 import { WORDS_PER_MINUTE } from './chunk-K7T4NUBP.js';
 export { WORDS_PER_MINUTE } from './chunk-K7T4NUBP.js';
 import { cubicBezier, smoothstep, lerpRect } from './chunk-V4CVL4FJ.js';
@@ -76,11 +76,17 @@ function nextCue(layer, step, maxStep, upcoming) {
   }
   return upcoming ? `Next slide: ${upcoming.title}` : "End of deck";
 }
+function stopAt(layer, step) {
+  const tour = layer?.querySelector("[data-tour]");
+  const ids = (tour?.dataset.tour ?? "").split(" ").filter(Boolean);
+  return step >= 1 && step <= ids.length ? ids[step - 1] : null;
+}
 function useNextCue(enabled, toRef, index, step, maxStep, slides) {
-  const [cue, setCue] = useState("");
+  const [cue, setCue] = useState({ cue: "", stop: null });
   useIsoLayoutEffect(() => {
     if (!enabled) return;
-    setCue(nextCue(toRef.current, Math.min(step, maxStep), maxStep, slides[index + 1]));
+    const at = Math.min(step, maxStep);
+    setCue({ cue: nextCue(toRef.current, at, maxStep, slides[index + 1]), stop: stopAt(toRef.current, at) });
   }, [enabled, toRef, index, step, maxStep, slides]);
   return cue;
 }
@@ -177,33 +183,28 @@ function resolveTransition(from, to, transitionOf, fallback = "advance") {
   return typeof t === "string" ? { kind: t } : { kind: "zoom", zoom: t.zoom };
 }
 var slideZoomFrame = (target, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomFrame(target, width, height);
-function slideZoomSamples(target, forward, samples = 24, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) {
-  const frame = zoomFrame(target, width, height);
+function slideZoomWindow(target, width = CANVAS_WIDTH, height = CANVAS_HEIGHT, margin = 0.06) {
+  const m = Math.min(target.w, target.h) * margin;
+  const s = Math.max(0, Math.min((target.w - 2 * m) / width, (target.h - 2 * m) / height));
+  const w = width * s;
+  const h = height * s;
+  return { x: target.x + (target.w - w) / 2, y: target.y + (target.h - h) / 2, w, h };
+}
+function slideZoomSamples(target, forward, samples = 24, width = CANVAS_WIDTH, height = CANVAS_HEIGHT, radius = 6) {
+  const frame = zoomFrame(slideZoomWindow(target, width, height), width, height);
   if (!frame) return null;
-  const start = innerClipStart(target, frame, width, height);
-  const radiusStart = 6 * frame.Z;
   const out = [];
   for (let i = 0; i <= samples; i++) {
     const t = i / samples;
     const p = forward ? cameraEase(t) : 1 - cameraEase(t);
-    const clipT = smoothstep(0.06, 0.4, p);
-    const inset = (v) => (v * (1 - clipT)).toFixed(2);
-    const k = Math.pow(frame.Z, p - 1);
-    const shift = (lo, hi, f, size) => {
-      const a = f + k * (lo - f);
-      const b = f + k * (hi - f);
-      return b > size ? size - b : a < 0 ? -a : 0;
-    };
-    const dx = shift(start.left * (1 - clipT), width - start.right * (1 - clipT), frame.fx, width);
-    const dy = shift(start.top * (1 - clipT), height - start.bottom * (1 - clipT), frame.fy, height);
-    const pan = Math.abs(dx) > 5e-3 || Math.abs(dy) > 5e-3 ? `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) ` : "";
+    const corner = radius * frame.Z * (1 - smoothstep(0.6, 1, p));
     out.push({
       offset: t,
       p,
-      outer: `${pan}scale(${Math.pow(frame.Z, p).toFixed(5)})`,
-      inner: `${pan}scale(${k.toFixed(5)})`,
-      clip: `inset(${inset(start.top)}px ${inset(start.right)}px ${inset(start.bottom)}px ${inset(start.left)}px round ${(radiusStart * (1 - clipT)).toFixed(2)}px)`,
-      innerOpacity: smoothstep(0.08, 0.36, p)
+      outer: `scale(${Math.pow(frame.Z, p).toFixed(5)})`,
+      inner: `scale(${Math.pow(frame.Z, p - 1).toFixed(5)})`,
+      clip: `inset(0px round ${corner.toFixed(2)}px)`,
+      innerOpacity: smoothstep(0.03, 0.12, p)
     });
   }
   return out;
@@ -296,10 +297,11 @@ function runTransition(opts) {
       w: box.w / scale,
       h: box.h / scale
     };
-    const samples = local ? slideZoomSamples(local, zoomInto) : null;
+    const radius = target ? parseFloat(getComputedStyle(target).borderTopLeftRadius) / scale || 0 : 0;
+    const samples = local ? slideZoomSamples(local, zoomInto, 24, CANVAS_WIDTH, CANVAS_HEIGHT, radius) : null;
     if (!samples) kind = "fade";
     else {
-      const frame = slideZoomFrame(local);
+      const frame = slideZoomFrame(slideZoomWindow(local));
       const origin = `${frame.fx.toFixed(2)}px ${frame.fy.toFixed(2)}px`;
       inner.style.zIndex = "2";
       const timing = { duration: deckMotion.zoom, easing: "linear" };
@@ -322,20 +324,23 @@ function runTransition(opts) {
       for (const child of Array.from(target.children)) {
         play(
           child,
-          samples.map((s) => ({ offset: s.offset, opacity: 1 - smoothstep(0.01, 0.09, s.p) })),
+          samples.map((s) => ({ offset: s.offset, opacity: 1 - smoothstep(0, 0.05, s.p) })),
           timing
         );
       }
       if (paintsBox(target)) {
-        const frames = paintFrames(target, "from");
+        const cs = getComputedStyle(target);
+        const edge = { borderColor: cs.borderTopColor, boxShadow: cs.boxShadow };
+        const clear = { borderColor: "transparent", boxShadow: "none" };
+        const at = (p) => samples.find((s) => zoomInto ? s.p >= p : s.p <= p)?.offset ?? 1;
         play(
           target,
-          zoomInto ? [frames[0], { ...frames[1], offset: 0.22 }, frames[1]] : [frames[1], { ...frames[1], offset: 0.78 }, frames[0]],
+          zoomInto ? [edge, { ...edge, offset: at(0.42) }, { ...clear, offset: at(0.66) }, clear] : [clear, { ...clear, offset: at(0.66) }, { ...edge, offset: at(0.42) }, edge],
           timing
         );
       }
       const around = partitionForMorph(outer, /* @__PURE__ */ new Set([opts.transition.zoom])).rest;
-      const fade = zoomInto ? [{ opacity: 1, easing: "ease-out" }, { opacity: 0, offset: 0.2 }, { opacity: 0 }] : [{ opacity: 0 }, { opacity: 0, offset: 0.8, easing: "ease-in" }, { opacity: 1 }];
+      const fade = zoomInto ? [{ opacity: 1, easing: "ease-in-out" }, { opacity: 0, offset: 0.25 }, { opacity: 0 }] : [{ opacity: 0 }, { opacity: 0, offset: 0.75, easing: "ease-in-out" }, { opacity: 1 }];
       for (const el of around) play(el, fade, timing);
       return anims;
     }
@@ -1780,6 +1785,7 @@ function Presenter({
   theme,
   stage,
   cue,
+  stop,
   minutes
 }) {
   const [started, setStarted] = useState(() => Date.now());
@@ -1788,7 +1794,8 @@ function Presenter({
     const t = setInterval(() => setNow(Date.now()), 1e3);
     return () => clearInterval(t);
   }, []);
-  const elapsed = Math.max(0, Math.floor((now - started) / 1e3));
+  const hydrated = useHydrated();
+  const elapsed = hydrated ? Math.max(0, Math.floor((now - started) / 1e3)) : 0;
   const plan = slidePlan(slides, minutes ? minutes * 60 : void 0);
   const budget = plan.length ? plan[plan.length - 1].end : 0;
   const { start, end } = plan[index] ?? { start: 0, end: 0 };
@@ -1804,66 +1811,75 @@ function Presenter({
     const check = () => setMore(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
     check();
     el.addEventListener("scroll", check, { passive: true });
+    el.addEventListener("toggle", check, true);
     const ro = typeof ResizeObserver === "undefined" ? void 0 : new ResizeObserver(check);
     ro?.observe(el);
     return () => {
       el.removeEventListener("scroll", check);
+      el.removeEventListener("toggle", check, true);
       ro?.disconnect();
     };
-  }, [index]);
+  }, [index, stop]);
   const upcoming = slides[index + 1];
   const role = slides[index].role;
+  const stopSay = stop ? notes?.stops?.[stop] : void 0;
   return /* @__PURE__ */ jsxs("div", { className: "uipack-deck-presenter", children: [
-    /* @__PURE__ */ jsx("div", { className: "uipack-deck-presenter__current", children: stage }),
-    /* @__PURE__ */ jsxs("aside", { className: "uipack-deck-presenter__side", children: [
-      /* @__PURE__ */ jsxs("section", { className: "uipack-deck-presenter__next", children: [
-        /* @__PURE__ */ jsx("h3", { children: "Next press" }),
-        cue && /* @__PURE__ */ jsx("p", { className: "uipack-deck-presenter__cue", children: cue }),
-        /* @__PURE__ */ jsx("h3", { children: "Next slide" }),
-        upcoming ? /* @__PURE__ */ jsx(SlideThumbnail, { slide: upcoming, index: index + 1, count: slides.length, theme }) : /* @__PURE__ */ jsx("p", { className: "uipack-deck-presenter__end", children: "End of deck" })
-      ] }),
-      /* @__PURE__ */ jsxs("section", { className: "uipack-deck-presenter__clock", children: [
-        /* @__PURE__ */ jsxs("span", { role: "timer", children: [
-          /* @__PURE__ */ jsx("span", { className: "uipack-deck-sr", children: "Elapsed time " }),
-          clock(elapsed)
+    /* @__PURE__ */ jsxs("div", { className: "uipack-deck-presenter__current", children: [
+      stage,
+      /* @__PURE__ */ jsxs("div", { className: "uipack-deck-presenter__under", children: [
+        /* @__PURE__ */ jsxs("section", { className: "uipack-deck-presenter__press", children: [
+          /* @__PURE__ */ jsx("h3", { children: "Next press" }),
+          cue && /* @__PURE__ */ jsx("p", { className: "uipack-deck-presenter__cue", children: cue })
         ] }),
-        budget > 0 && /* @__PURE__ */ jsxs("span", { className: "uipack-deck-presenter__budget", children: [
-          /* @__PURE__ */ jsxs("span", { children: [
-            /* @__PURE__ */ jsx("span", { className: "uipack-deck-sr", children: minutes ? "Time budget " : "Talk track length " }),
-            "/ ",
-            clock(budget)
+        /* @__PURE__ */ jsxs("section", { className: "uipack-deck-presenter__next", children: [
+          /* @__PURE__ */ jsx("h3", { children: "Next slide" }),
+          upcoming ? /* @__PURE__ */ jsx(SlideThumbnail, { slide: upcoming, index: index + 1, count: slides.length, theme }) : /* @__PURE__ */ jsx("p", { className: "uipack-deck-presenter__end", children: "End of deck" })
+        ] }),
+        /* @__PURE__ */ jsxs("section", { className: "uipack-deck-presenter__clock", children: [
+          /* @__PURE__ */ jsxs("span", { role: "timer", children: [
+            /* @__PURE__ */ jsx("span", { className: "uipack-deck-sr", children: "Elapsed time " }),
+            clock(elapsed)
           ] }),
-          /* @__PURE__ */ jsxs(
-            "span",
+          budget > 0 && /* @__PURE__ */ jsxs("span", { className: "uipack-deck-presenter__budget", children: [
+            /* @__PURE__ */ jsxs("span", { children: [
+              /* @__PURE__ */ jsx("span", { className: "uipack-deck-sr", children: minutes ? "Time budget " : "Talk track length " }),
+              "/ ",
+              clock(budget)
+            ] }),
+            /* @__PURE__ */ jsxs(
+              "span",
+              {
+                className: "uipack-deck-presenter__pace",
+                "data-pace": Math.abs(drift) < 15 ? "on" : drift > 0 ? "behind" : "ahead",
+                children: [
+                  pace,
+                  " \xB7 this slide ",
+                  clock(start),
+                  "\u2013",
+                  clock(end)
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxs("span", { className: "uipack-deck-presenter__bar", "aria-hidden": "true", children: [
+              /* @__PURE__ */ jsx("i", { style: { left: `${start / budget * 100}%`, width: `${(end - start) / budget * 100}%` } }),
+              /* @__PURE__ */ jsx("b", { style: { left: `${Math.min(1, elapsed / budget) * 100}%` } })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsx(
+            "button",
             {
-              className: "uipack-deck-presenter__pace",
-              "data-pace": Math.abs(drift) < 15 ? "on" : drift > 0 ? "behind" : "ahead",
-              children: [
-                pace,
-                " \xB7 this slide ",
-                clock(start),
-                "\u2013",
-                clock(end)
-              ]
+              type: "button",
+              onClick: () => {
+                setStarted(Date.now());
+                setNow(Date.now());
+              },
+              children: "Reset clock"
             }
-          ),
-          /* @__PURE__ */ jsxs("span", { className: "uipack-deck-presenter__bar", "aria-hidden": "true", children: [
-            /* @__PURE__ */ jsx("i", { style: { left: `${start / budget * 100}%`, width: `${(end - start) / budget * 100}%` } }),
-            /* @__PURE__ */ jsx("b", { style: { left: `${Math.min(1, elapsed / budget) * 100}%` } })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsx(
-          "button",
-          {
-            type: "button",
-            onClick: () => {
-              setStarted(Date.now());
-              setNow(Date.now());
-            },
-            children: "Reset clock"
-          }
-        )
-      ] }),
+          )
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxs("aside", { className: "uipack-deck-presenter__side", children: [
       /* @__PURE__ */ jsxs(
         "section",
         {
@@ -1879,8 +1895,17 @@ function Presenter({
               SLIDE_ROLES[role].question,
               "\u201D"
             ] }),
-            /* @__PURE__ */ jsx("h3", { children: "Say" }),
-            /* @__PURE__ */ jsx("p", { children: notes?.say ?? "No talk track for this slide." }),
+            stopSay && notes ? /* @__PURE__ */ jsxs(Fragment, { children: [
+              /* @__PURE__ */ jsx("h3", { children: "Say at this stop" }),
+              /* @__PURE__ */ jsx("p", { children: stopSay }),
+              /* @__PURE__ */ jsxs("details", { className: "uipack-deck-presenter__track", children: [
+                /* @__PURE__ */ jsx("summary", { children: "The whole slide's track" }),
+                /* @__PURE__ */ jsx("p", { children: notes.say })
+              ] })
+            ] }) : /* @__PURE__ */ jsxs(Fragment, { children: [
+              /* @__PURE__ */ jsx("h3", { children: "Say" }),
+              /* @__PURE__ */ jsx("p", { children: notes?.say ?? "No talk track for this slide." })
+            ] }),
             notes?.delivery && /* @__PURE__ */ jsxs(Fragment, { children: [
               /* @__PURE__ */ jsx("h3", { children: "Delivery" }),
               /* @__PURE__ */ jsx("p", { children: notes.delivery })
@@ -2188,6 +2213,7 @@ function useDeckSync({ id, view, viewRef, commit, go, slides, onPositionChange }
   const channel = useRef(null);
   const remote = useRef(false);
   const reported = useRef({ index: view.index, step: view.step });
+  const countRef = useLatest(slides.length);
   useEffect(() => {
     if (typeof BroadcastChannel === "undefined") return;
     const ch = new BroadcastChannel(`uipack-deck:${id}`);
@@ -2198,10 +2224,12 @@ function useDeckSync({ id, view, viewRef, commit, go, slides, onPositionChange }
       if (msg.type === "hello") {
         ch.postMessage({ type: "go", index: v.index, step: v.step });
       } else if (msg.type === "go" && typeof msg.index === "number") {
-        if (v.index === msg.index && v.step === msg.step) return;
+        const index = Math.min(Math.max(msg.index, 0), countRef.current - 1);
+        const step = msg.step ?? 0;
+        if (v.index === index && v.step === step) return;
         remote.current = true;
-        if (v.index === msg.index) commit({ ...v, step: msg.step ?? 0 });
-        else go(msg.index, msg.step ?? 0);
+        if (v.index === index) commit({ ...v, step });
+        else go(index, step);
       }
     };
     ch.postMessage({ type: "hello" });
@@ -2209,7 +2237,7 @@ function useDeckSync({ id, view, viewRef, commit, go, slides, onPositionChange }
       ch.close();
       channel.current = null;
     };
-  }, [id, go, commit, viewRef]);
+  }, [id, go, commit, viewRef, countRef]);
   const reportRef = useLatest({ slides, onPositionChange });
   useEffect(() => {
     const last = reported.current;
@@ -2256,6 +2284,30 @@ function useFullscreen(rootRef) {
   };
   return { available, fullscreen, toggle };
 }
+var DEV = typeof process !== "undefined" && process.env.NODE_ENV !== "production";
+var plain = (text) => text.replace(/[\s ]+/g, " ").trim().replace(/\.$/, "");
+function headlineDrift(slide, layer) {
+  if (!slide.headline) return null;
+  const el = layer.querySelector("h1, h2");
+  if (!el) return null;
+  const heading = plain(el.textContent ?? "");
+  return heading === plain(slide.headline) ? null : { headline: slide.headline, heading };
+}
+function useHeadlineCheck(layerRef, slide) {
+  const warned = useRef(/* @__PURE__ */ new Set());
+  useEffect(() => {
+    const layer = layerRef.current;
+    if (!DEV || !layer || warned.current.has(slide.id)) return;
+    const drift = headlineDrift(slide, layer);
+    if (!drift) return;
+    warned.current.add(slide.id);
+    console.warn(
+      `uipack/deck: slide "${slide.id}" says one thing on the slide and another in its headline (the storyline view reads the headline).
+  headline: ${drift.headline}
+  on slide: ${drift.heading}`
+    );
+  }, [layerRef, slide]);
+}
 function startIndexOf(slides, slide) {
   const i = typeof slide === "number" ? slide : slide ? slides.findIndex((x) => x.id === slide) : 0;
   return Math.min(Math.max(i, 0), Math.max(slides.length - 1, 0));
@@ -2279,11 +2331,20 @@ function useDeckPosition({ slides, initial, toRef, settle }) {
     viewRef.current = next2;
     setView(next2);
   }, []);
+  let shown = view;
+  if (view.index >= count || view.from && view.from.index >= count) {
+    const index = Math.min(view.index, count - 1);
+    shown = { index, step: index === view.index ? view.step : 0, from: null, seq: view.seq + 1 };
+    setView(shown);
+  }
+  useIsoLayoutEffect(() => {
+    viewRef.current = view;
+  }, [view]);
   const [maxStep, setMaxStep] = useState(0);
   useIsoLayoutEffect(() => {
     const layer = toRef.current;
     if (layer) setMaxStep(buildsOn(layer));
-  }, [view.index, slides, toRef]);
+  }, [shown.index, slides, toRef]);
   const go = useCallback(
     (index, step = 0) => {
       const target = Math.min(Math.max(index, 0), count - 1);
@@ -2306,7 +2367,7 @@ function useDeckPosition({ slides, initial, toRef, settle }) {
     if (step > 0) commit({ ...v, step: step - 1 });
     else if (v.index > 0) go(v.index - 1, Infinity);
   }, [go, maxStep, commit]);
-  return { view, viewRef, commit, go, next, prev, maxStep };
+  return { view: shown, viewRef, commit, go, next, prev, maxStep };
 }
 
 // src/deck/player/useTransition.ts
@@ -2378,6 +2439,7 @@ function Player({
   presenterHref,
   keyboard = "focus",
   view: initialView = "present",
+  onViewChange,
   printNotes = false,
   lint = false,
   minutes,
@@ -2409,7 +2471,7 @@ function Player({
     })
   );
   const { view, viewRef, commit, go, next, prev, maxStep } = useDeckPosition({ slides, initial, toRef, settle });
-  const cue = useNextCue(mode === "presenter", toRef, view.index, view.step, maxStep, slides);
+  const { cue, stop } = useNextCue(mode === "presenter", toRef, view.index, view.step, maxStep, slides);
   useDeckTransition({ view, viewRef, commit, fromRef, toRef, scale, slides, transition, reducedMotion, fly, settle });
   useDeckSync({ id, view, viewRef, commit, go, slides, onPositionChange });
   const fullscreen = useFullscreen(rootRef);
@@ -2426,6 +2488,7 @@ function Player({
   const openReader = () => {
     setReadOpen({ focus: true });
     setReading(true);
+    onViewChange?.("read");
   };
   const closeOverview = () => {
     setOverview(false);
@@ -2447,6 +2510,7 @@ function Player({
   });
   const swipe = useSwipe(next, prev);
   const current = slides[view.index];
+  useHeadlineCheck(toRef, current);
   const from = view.from ? slides[view.from.index] : null;
   const stepNow = Math.min(view.step, maxStep);
   const atStart = view.index === 0 && stepNow === 0;
@@ -2528,6 +2592,7 @@ function Player({
             open: readOpen,
             onPresent: (i) => {
               setReading(false);
+              onViewChange?.("present");
               go(i, 0);
               requestAnimationFrame(() => {
                 const root = rootRef.current;
@@ -2554,6 +2619,7 @@ function Player({
               theme,
               stage,
               cue,
+              stop,
               minutes: minutes ?? (typeof lint === "object" ? lint.minutes : void 0)
             }
           ) : stage,
@@ -2615,7 +2681,7 @@ function cameraOf(transform) {
   const m = new DOMMatrixReadOnly(transform);
   return { s: m.a, tx: m.e, ty: m.f };
 }
-function faceFrames(words, view, from, to, duration, ease, holdUntil = 0, ramp = 120, stepMs = 10) {
+function insideOpacity(words, view, from, to, duration, ease, holdUntil = 0, ramp = 120, stepMs = 10) {
   const n = Math.round(duration / stepMs);
   const edge = 3;
   const inside = [];
@@ -2629,8 +2695,7 @@ function faceFrames(words, view, from, to, duration, ease, holdUntil = 0, ramp =
       t >= holdUntil && x >= -edge && y >= -edge && x + s * words.w <= view.w + edge && y + s * words.h <= view.h + edge
     );
   }
-  if (inside.every((v) => v === inside[0])) return null;
-  const opacity = inside.map((v, i) => {
+  return inside.map((v, i) => {
     if (!v) return 0;
     let before = Infinity;
     let after = Infinity;
@@ -2638,19 +2703,39 @@ function faceFrames(words, view, from, to, duration, ease, holdUntil = 0, ramp =
     for (let j = i; j <= n; j++) if (!inside[j]) after = (j - i) * stepMs, j = n + 1;
     return Math.min(1, before / ramp, after / ramp);
   });
-  return opacity.map((o, i) => ({ offset: i / n, opacity: Number(o.toFixed(3)) }));
 }
-function wordsBox(cell) {
-  const face = cell.querySelector(":scope > .uipack-deck-bento__face");
-  const kids = face ? Array.from(face.children).filter((k) => k instanceof HTMLElement) : [];
-  if (!kids.length) return { x: cell.offsetLeft, y: cell.offsetTop, w: cell.offsetWidth, h: cell.offsetHeight };
+var framesOf = (opacity) => opacity.every((o) => o === opacity[0]) ? null : opacity.map((o, i) => ({ offset: i / (opacity.length - 1), opacity: Number(o.toFixed(3)) }));
+function wordsBox(cell, part = "face") {
+  const layer = cell.querySelector(`:scope > .uipack-deck-bento__${part}`);
+  const kids = layer ? Array.from(layer.children).filter((k) => k instanceof HTMLElement) : [];
+  if (!layer || !kids.length) return boxOf(cell);
+  const base = part === "detail" ? { x: layer.offsetLeft, y: layer.offsetTop } : { x: 0, y: 0 };
   const boxes = kids.map((k) => ({ x: k.offsetLeft ?? 0, y: k.offsetTop ?? 0, w: k.offsetWidth ?? 0, h: k.offsetHeight ?? 0 }));
   const x0 = Math.min(...boxes.map((b) => b.x));
   const y0 = Math.min(...boxes.map((b) => b.y));
   const x1 = Math.max(...boxes.map((b) => b.x + b.w));
   const y1 = Math.max(...boxes.map((b) => b.y + b.h));
-  return { x: cell.offsetLeft + x0, y: cell.offsetTop + y0, w: x1 - x0, h: y1 - y0 };
+  return { x: cell.offsetLeft + base.x + x0, y: cell.offsetTop + base.y + y0, w: x1 - x0, h: y1 - y0 };
 }
+function detailLines(cell) {
+  const detail = cell.querySelector(":scope > .uipack-deck-bento__detail");
+  if (!detail) return [];
+  const c = cell.getBoundingClientRect();
+  const k = cell.offsetWidth && c.width ? c.width / cell.offsetWidth : 1;
+  return Array.from(detail.children).flatMap((child) => /^(UL|OL|DL)$/.test(child.tagName) ? Array.from(child.children) : [child]).map((el) => {
+    const r = el.getBoundingClientRect();
+    return {
+      el,
+      box: {
+        x: cell.offsetLeft + (r.left - c.left) / k,
+        y: cell.offsetTop + (r.top - c.top) / k,
+        w: r.width / k,
+        h: r.height / k
+      }
+    };
+  });
+}
+var boxOf = (cell) => ({ x: cell.offsetLeft, y: cell.offsetTop, w: cell.offsetWidth, h: cell.offsetHeight });
 var inBox = (b, cam, view) => {
   const x = cam.tx + cam.s * b.x;
   const y = cam.ty + cam.s * b.y;
@@ -2658,6 +2743,10 @@ var inBox = (b, cam, view) => {
 };
 var DETAIL_HOLD = 420;
 var DETAIL_FADE = 200;
+var OUT_DETAIL_HOLD = 90;
+var OUT_DETAIL_FADE = 160;
+var CELL_DETAIL_IN = 300;
+var DIMMED = 0.4;
 var bentoFocusAt = (step, tour) => step >= 1 && step <= tour.length ? tour[step - 1] : null;
 function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, style, children }) {
   const { step, thumbnail } = useDeckSlide();
@@ -2700,15 +2789,101 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
     shownRef.current = true;
     const moving = !first && !thumbnail2 && !prefersReduced2 && grid.closest('[data-motion="none"]') === null && typeof grid.animate === "function" && (from.s !== to.s || from.tx !== to.tx || from.ty !== to.ty);
     const ease = cubicBezier(...deckMotion.travelCurve);
+    const duration = deckMotion.pan;
+    const steps = (values) => Array.from({ length: Math.round(duration / 10) + 1 }, (_, i) => values(i * 10));
+    const out = !focus2;
+    const dimBg = getComputedStyle(grid).getPropertyValue("--uipack-bento-dim-bg").trim();
+    const dimRule = getComputedStyle(grid).getPropertyValue("--uipack-bento-dim-rule").trim();
+    const run = (el, frames) => {
+      if (frames) facesRef.current.push(el.animate(frames, { duration, easing: "linear" }));
+    };
+    const drive = (cell, timed) => {
+      const detail = cell.querySelector(":scope > .uipack-deck-bento__detail");
+      if (!detail) return null;
+      detail.style.transition = "none";
+      const anim = detail.animate(
+        timed.map((o, i) => ({ offset: i / (timed.length - 1), opacity: Number(o.toFixed(3)) })),
+        { duration, easing: "linear" }
+      );
+      const restore = () => detail.style.transition = "";
+      anim.addEventListener("finish", restore);
+      anim.addEventListener("cancel", restore);
+      facesRef.current.push(anim);
+      const lines = detailLines(cell).map(({ el, box }) => {
+        const edge = insideOpacity(box, view, from, to, duration, ease);
+        run(el, framesOf(edge));
+        return edge;
+      });
+      return timed.map((o, i) => o * Math.max(0, ...lines.map((l) => l[i])));
+    };
     for (const cell of Array.from(grid.querySelectorAll(":scope > [data-bento-cell]"))) {
       const id = cell.dataset.bentoCell;
       const words = wordsBox(cell);
+      const wasCut = cell.hasAttribute("data-cut");
       cell.toggleAttribute("data-clipped", Boolean(focus2 && id !== focus2 && !inBox(words, to, view)));
-      if (!moving || id === focus2) continue;
-      const left = id === leaving2 && cell.querySelector(":scope > .uipack-deck-bento__detail");
-      const frames = faceFrames(words, view, from, to, deckMotion.pan, ease, left ? DETAIL_HOLD + DETAIL_FADE : 0);
+      cell.toggleAttribute("data-cut", Boolean(focus2 && id !== focus2 && !inBox(boxOf(cell), to, view)));
+      if (!moving) continue;
+      if (id === focus2) {
+        if (leaving2)
+          drive(
+            cell,
+            steps((t) => Math.max(0, Math.min(1, (t - CELL_DETAIL_IN) / 260)))
+          );
+        continue;
+      }
+      let detailGone = 0;
+      let detailShown = null;
+      if (id === leaving2) {
+        const [hold, fade] = out ? [OUT_DETAIL_HOLD, OUT_DETAIL_FADE] : [DETAIL_HOLD, DETAIL_FADE];
+        detailShown = drive(
+          cell,
+          steps((t) => Math.max(0, Math.min(1, 1 - (t - hold) / fade)))
+        );
+        if (detailShown) {
+          const shown = detailShown;
+          const gone = shown.findIndex((o, i) => o === 0 && shown.slice(i).every((v) => v === 0));
+          detailGone = gone < 0 ? duration : gone * 10;
+        }
+      }
+      const faceOpacity = insideOpacity(words, view, from, to, duration, ease, detailGone);
       const face = cell.querySelector(":scope > .uipack-deck-bento__face");
-      if (frames && face) facesRef.current.push(face.animate(frames, { duration: deckMotion.pan, easing: "linear" }));
+      if (face) run(face, framesOf(faceOpacity));
+      const start = id === leaving2 || !leaving2 ? 1 : wasCut ? 0 : DIMMED;
+      const cut = cell.hasAttribute("data-cut");
+      const back = faceOpacity.findIndex((o) => o > 0);
+      const opacity = faceOpacity.map((o, i) => {
+        const t = i * 10;
+        if (out && id === leaving2) return 1;
+        if (out) {
+          const pale = start + (DIMMED - start) * Math.min(1, t / 300);
+          return back < 0 || i < back ? pale : Math.max(pale, DIMMED + (1 - DIMMED) * o);
+        }
+        if (id === leaving2) {
+          const dim2 = detailShown ? Math.max(DIMMED, detailShown[i]) : t < detailGone ? 1 : DIMMED;
+          return !cut || t <= 560 ? dim2 : dim2 * Math.max(0, 1 - (t - 560) / 240);
+        }
+        const dim = start + ((cut && start === 0 ? 0 : DIMMED) - start) * Math.min(1, t / 300);
+        return !cut || t <= 560 ? dim : dim * Math.max(0, 1 - (t - 560) / 240);
+      });
+      run(cell, framesOf(opacity));
+      if (!out && id === leaving2 && cell.hasAttribute("data-tone") && detailShown) {
+        const fading = detailShown.findIndex((o) => o < 1);
+        const at = Math.max(0, fading) / (detailShown.length - 1);
+        const tone = getComputedStyle(cell);
+        const own = {
+          backgroundColor: tone.getPropertyValue("--deck-bg").trim(),
+          boxShadow: `0 0 0 1.5px color-mix(in srgb, ${tone.getPropertyValue("--deck-fg").trim()} 9%, transparent)`
+        };
+        const pale = { backgroundColor: dimBg, boxShadow: `0 0 0 1.5px ${dimRule}` };
+        run(cell, [own, { ...own, offset: at }, { ...pale, offset: Math.max(at, detailGone / duration) }, pale]);
+      }
+      if (out && id !== leaving2 && cell.hasAttribute("data-tone") && back > 0) {
+        const cs = getComputedStyle(cell);
+        const at = back * 10 / duration;
+        const pale = { backgroundColor: dimBg, boxShadow: `0 0 0 1.5px ${dimRule}` };
+        const own = { backgroundColor: cs.backgroundColor, boxShadow: cs.boxShadow };
+        run(cell, [pale, { ...pale, offset: at }, { ...own, offset: Math.min(1, at + 120 / duration) }, own]);
+      }
     }
   }, [camera, latestRef]);
   useIsoLayoutEffect(() => () => facesRef.current.forEach((a) => a.cancel()), []);

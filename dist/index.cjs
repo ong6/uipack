@@ -873,8 +873,8 @@ function Ghost({
   const f = vbSize(frame);
   const inner = { ...ctx, ghost: true, interactive: false, open: void 0 };
   const left = box.x + box.w * (1 - PREVIEW_SHARE);
-  const port = { x: left, y: box.y + 26, width: box.x + box.w - 8 - left, height: box.h - 32, viewBox: `0 0 ${f.w} ${f.h}` };
-  const fade = clearOf + 4 > left ? { from: clearOf + 2, to: Math.min(clearOf + 22, port.x + port.width) } : null;
+  const port = { x: left, y: box.y + 26, width: box.x + box.w - 12 - left, height: box.h - 32, viewBox: `0 0 ${f.w} ${f.h}` };
+  const fade = clearOf + 12 > left ? { from: clearOf + 10, to: Math.min(clearOf + 30, port.x + port.width) } : null;
   return /* @__PURE__ */ jsxRuntime.jsxs("g", { mask: fade ? `url(#${uid}-fade)` : void 0, children: [
     fade ? /* @__PURE__ */ jsxRuntime.jsxs("mask", { id: `${uid}-fade`, maskUnits: "userSpaceOnUse", x: port.x, y: port.y, width: port.width, height: port.height, children: [
       /* @__PURE__ */ jsxRuntime.jsxs("linearGradient", { id: `${uid}-fade-g`, gradientUnits: "userSpaceOnUse", x1: fade.from, x2: fade.to, y1: 0, y2: 0, children: [

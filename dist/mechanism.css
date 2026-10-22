@@ -98,8 +98,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--anatomy-muted);
-  font: 500 11px/1.2 var(--um-mono);
-  letter-spacing: 0.08em;
+  font: var(--show-eyebrow-font, 600 12px/1.3 var(--um-mono));
+  letter-spacing: var(--show-eyebrow-tracking, 0.08em);
   text-transform: uppercase;
 }
 .uipack-mechanism .um-corner[data-corner="fig"] {

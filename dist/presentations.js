@@ -32,17 +32,19 @@ function renderSlideSvg(slide, options = {}) {
   const colors = palettes[theme];
   const width = options.width ?? 1200;
   const height = Math.round(width * 9 / 16);
-  const text = (x, y, value, size = 26, color = colors.ink, weight = 400, mono = false, anchor = "start", role) => `<text x="${x}" y="${y}"${anchor === "end" ? ' text-anchor="end"' : ""}${role ? ` class="uipack-slide-starter__${role}"` : ""} font-family="${mono ? "IBM Plex Mono, ui-monospace, monospace" : "IBM Plex Sans, system-ui, sans-serif"}" font-size="${size}" fill="${color}" font-weight="${weight}">${escapeSvgText(value)}</text>`;
+  const text = (x, y, value, size = 26, color = colors.ink, weight = 400, mono = false, anchor = "start", role, tracking) => `<text x="${x}" y="${y}"${anchor === "end" ? ' text-anchor="end"' : ""}${role ? ` class="uipack-slide-starter__${role}"` : ""} font-family="${mono ? "IBM Plex Mono, ui-monospace, monospace" : "IBM Plex Sans, system-ui, sans-serif"}" font-size="${size}" fill="${color}" font-weight="${weight}"${tracking ? ` letter-spacing="${tracking}em"` : ""}>${escapeSvgText(tracking ? value.toUpperCase() : value)}</text>`;
+  const eyebrow = (value) => text(64, 105, value, 15, colors.accent, 600, true, "start", "label", 0.14);
+  const foot = (x, value, anchor) => text(x, 635, value, 13, colors.muted, 500, true, anchor, "label", 0.06);
   const rule = (x1, y, x2) => `<path d="M${x1} ${y}H${x2}" stroke="${colors.rule}" stroke-width="2"/>`;
-  const footer = slide.footer ? rule(64, 592, 1136) + text(64, 635, slide.footer.label, 18, colors.muted, 400, true, "start", "label") + (slide.footer.page ? text(1136, 635, slide.footer.page, 18, colors.muted, 400, true, "end", "label") : "") : "";
+  const footer = slide.footer ? rule(64, 592, 1136) + foot(64, slide.footer.label, "start") + (slide.footer.page ? foot(1136, slide.footer.page, "end") : "") : "";
   let body = "";
   if (slide.layout === "opening") {
-    body = text(64, 105, slide.content.eyebrow, 22, colors.accent, 700, true, "start", "label") + text(64, 277, slide.content.headline[0], 78, colors.ink, 600) + text(64, 371, slide.content.headline[1], 78, colors.ink, 600) + text(64, 457, slide.content.context, 28, colors.muted, 400, false, "start", "fine");
+    body = eyebrow(slide.content.eyebrow) + text(64, 277, slide.content.headline[0], 78, colors.ink, 600) + text(64, 371, slide.content.headline[1], 78, colors.ink, 600) + text(64, 457, slide.content.context, 28, colors.muted, 400, false, "start", "fine");
   } else if (slide.layout === "explanation") {
     const [first, second] = slide.content.applications;
-    body = text(64, 105, slide.content.eyebrow, 22, colors.accent, 700, true, "start", "label") + text(64, 196, slide.content.headline, 52, colors.ink, 600) + `<rect x="64" y="264" width="440" height="256" fill="${colors.surface}" stroke="${colors.rule}"/>` + text(96, 328, slide.content.foundation.title, 22, colors.accent, 700, true, "start", "label") + text(96, 399, slide.content.foundation.detail, 30, colors.ink, 600, false, "start", "boxed") + text(568, 310, first.title, 30, colors.ink, 600, false, "start", "boxed") + text(568, 358, first.detail, 24, colors.muted, 400, false, "start", "fine") + text(568, 442, second.title, 30, colors.ink, 600, false, "start", "boxed") + text(568, 490, second.detail, 24, colors.muted, 400, false, "start", "fine");
+    body = eyebrow(slide.content.eyebrow) + text(64, 196, slide.content.headline, 52, colors.ink, 600) + `<rect x="64" y="264" width="440" height="256" fill="${colors.surface}" stroke="${colors.rule}"/>` + text(96, 328, slide.content.foundation.title, 22, colors.accent, 700, true, "start", "label") + text(96, 399, slide.content.foundation.detail, 30, colors.ink, 600, false, "start", "boxed") + text(568, 310, first.title, 30, colors.ink, 600, false, "start", "boxed") + text(568, 358, first.detail, 24, colors.muted, 400, false, "start", "fine") + text(568, 442, second.title, 30, colors.ink, 600, false, "start", "boxed") + text(568, 490, second.detail, 24, colors.muted, 400, false, "start", "fine");
   } else {
-    body = text(64, 105, slide.content.eyebrow, 22, colors.accent, 700, true, "start", "label") + text(64, 196, slide.content.headline, 52, colors.ink, 600);
+    body = eyebrow(slide.content.eyebrow) + text(64, 196, slide.content.headline, 52, colors.ink, 600);
     slide.content.steps.forEach((step, index) => {
       const x = 64 + index * 392;
       body += `<rect x="${x}" y="295" width="288" height="138" fill="${colors.surface}" stroke="${colors.rule}" stroke-width="2"/>` + text(x + 24, 351, step.title, 30, colors.ink, 600, false, "start", "boxed") + text(x + 24, 394, step.detail, 20, colors.muted, 400, true, "start", "boxed");

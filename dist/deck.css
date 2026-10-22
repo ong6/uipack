@@ -318,7 +318,7 @@
 .uipack-deck-controls button:focus-visible,
 .uipack-deck-overview__head button:focus-visible,
 .uipack-deck-overview__grid > li > button:focus-visible,
-.uipack-deck-presenter__side button:focus-visible {
+.uipack-deck-presenter__clock button:focus-visible {
   outline: 2px solid var(--deck-accent);
   outline-offset: 2px;
 }
@@ -528,7 +528,7 @@
 }
 .uipack-deck-overview__head button,
 .uipack-deck-overview__grid > li > button,
-.uipack-deck-presenter__side button {
+.uipack-deck-presenter__clock button {
   min-height: 44px;
   padding: 0 14px;
   border: 1px solid var(--deck-rule);
@@ -584,10 +584,15 @@
   gap: 24px;
   align-items: start;
 }
-.uipack-deck-presenter__side {
+.uipack-deck-presenter__side,
+.uipack-deck-presenter__under {
   display: grid;
   gap: 20px;
 }
+.uipack-deck-presenter__under {
+  margin-top: 20px;
+}
+.uipack-deck-presenter__under h3,
 .uipack-deck-presenter__side h3 {
   margin: 0 0 8px;
   color: var(--deck-accent);
@@ -666,12 +671,28 @@
   margin: 0;
   color: var(--deck-muted);
 }
-/* A wide screen: the side column fits the screen above the controls, beside the slide, and the talk track scrolls
-   inside it when it is longer; its foot fades and says "More below" while there is more. The next
-   slide's thumbnail is capped, so the track gets the height. */
+/* A wide screen: the slide is sized so the next press, the next slide and the clock fit in one band
+   under it (about 220px), all above the controls; the talk track takes a column of its own beside
+   them, one screen tall, as wide as the rest of the window, and scrolls inside it when it is longer.
+   Its foot fades and says "More below" while there is more. (The page's padding, the band's margin
+   and the controls under it: about 120px.) */
 @media (min-width: 901px) {
   .uipack-deck-presenter {
-    grid-template-columns: minmax(0, 1fr) minmax(300px, clamp(380px, 27vw, 520px));
+    grid-template-columns: minmax(0, min(100% - 400px, (100svh - 340px) * 16 / 9)) minmax(340px, 1fr);
+  }
+  .uipack-deck-presenter__under {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .uipack-deck-presenter__under .uipack-deck-thumb {
+    max-width: 300px;
+  }
+  .uipack-deck-presenter__under .uipack-deck-presenter__clock {
+    align-self: stretch;
+    align-content: start;
+    padding: 0;
+    border-block: 0;
   }
   .uipack-deck-presenter__side {
     position: sticky;
@@ -681,9 +702,6 @@
     gap: 16px;
     /* Room for the page's padding and the controls under it (44px and its margin). */
     max-height: calc(100svh - 100px);
-  }
-  .uipack-deck-presenter__next .uipack-deck-thumb {
-    max-width: 360px;
   }
   .uipack-deck-presenter__notes {
     flex: 1 1 auto;
@@ -696,6 +714,24 @@
     -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
     mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
   }
+}
+/* At a camera stop the stop's words lead; the whole slide's track is one click away. */
+.uipack-deck-presenter__track {
+  margin: 0 0 16px;
+  color: var(--deck-muted);
+}
+.uipack-deck-presenter__track > summary {
+  min-height: 32px;
+  color: var(--deck-accent);
+  font: 600 12px/32px var(--deck-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.uipack-deck-presenter__track > p {
+  margin: 8px 0 0;
+  font-size: 16px;
+  line-height: 1.6;
 }
 .uipack-deck-presenter__notes:focus-visible {
   outline: 2px solid var(--deck-accent);
@@ -1167,10 +1203,13 @@
  *   320–460 ms), and its detail arrives straight after, as the camera slows (from 470 ms). Face and
  *   detail never overlap.
  * - Cell to cell, a crossfade: the cell being left keeps its detail until 420 ms and dims as it
- *   fades (420–620 ms); the next cell brightens from 200 ms, its face clears by 300 ms and its
- *   detail arrives from 300 ms, so the two details share the middle of the pan.
- * - Pull-back: the focused cell's detail holds until 420 ms (gone by 620 ms) while the faces
- *   return one by one as the grid comes back inside the box; its own face returns after its detail.
+ *   fades (420–620 ms), sooner if the edge would cut its words (Bento animates it); the next cell
+ *   brightens from 200 ms, its face clears by 300 ms and its detail arrives from 300 ms, so the
+ *   two details share the middle of the pan.
+ * - Pull-back: the focused cell's detail leaves by 250 ms and its face returns straight after;
+ *   the neighbours come in dimmed and each steps forward, face and tone together, once its words
+ *   are inside the box (Bento animates both).
+ * - At a stop, a cell the edge cuts off is hidden whole; it fades as the camera carries it out.
  */
 .uipack-deck-bento__detail {
   transition: opacity 200ms ease 420ms;
@@ -1202,10 +1241,20 @@
     opacity 240ms ease 200ms,
     background-color 240ms ease 200ms;
 }
-.uipack-deck-bento[data-move="out"] .uipack-deck-bento__cell:not([data-dimmed]) {
-  transition:
-    opacity 280ms ease 300ms,
-    background-color 280ms ease 300ms;
+/* While the camera moves, Bento animates every cell but the focused one (its opacity, and pulling
+   back its tone too), so their own opacity transitions stand aside. */
+.uipack-deck-bento[data-move] .uipack-deck-bento__cell:not([data-focused]) {
+  transition: background-color 300ms ease;
+}
+.uipack-deck-bento[data-move="cell"] .uipack-deck-bento__cell[data-leaving] {
+  transition: none;
+}
+.uipack-deck-bento[data-move="out"] .uipack-deck-bento__cell:not([data-leaving]) {
+  transition: none;
+}
+/* A cell the edge cuts off at a stop is hidden whole (data-cut, set by Bento). */
+.uipack-deck-bento .uipack-deck-bento__grid > .uipack-deck-bento__cell[data-cut] {
+  opacity: 0;
 }
 .uipack-deck-bento[data-still] .uipack-deck-bento__grid,
 .uipack-deck-bento[data-still] .uipack-deck-bento__cell,
@@ -1294,6 +1343,11 @@
   max-width: none;
   margin-bottom: 36px;
   font-size: 60px;
+}
+/* A note's bold words (the one number it adds) take the cell's ink, not its muted grey. */
+.uipack-deck-bento-note b {
+  color: var(--deck-fg);
+  font-weight: 600;
 }
 /* Consulting-style dense slide parts (canvas pixels on the 1920×1080 deck canvas).
    Minimum text is 20px (about 14px when the canvas is shown 1366 wide); test/deck-consulting

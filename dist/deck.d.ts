@@ -33,7 +33,8 @@ interface DeckRenderContext {
 interface DeckNotes extends SpeechGuide {
     /**
      * What to say at a camera stop, by the stop's cell ID (a bento `tour` entry): the relevant part
-     * of `say`. The notes PDF prints it under that stop's detail page; without it the page repeats `say`.
+     * of `say`. The speaker view leads with it at that stop and the notes PDF prints it under that
+     * stop's detail page; without it both show `say`.
      */
     stops?: Record<string, string>;
 }
@@ -245,6 +246,11 @@ interface DeckPlayerProps {
      * `print` lays every slide out as a 16:9 page for printing or saving as PDF.
      */
     view?: "present" | "read" | "print";
+    /**
+     * Called when the viewer switches between presenting and the read view (Read, Present). A host
+     * page can give a presented deck the whole window, for instance by scrolling past its own header.
+     */
+    onViewChange?: (view: "present" | "read") => void;
     /** Print each slide's headline and talk track beside it (the PDF / Print button and `view="print"`). */
     printNotes?: boolean;
     /** Run the storyline checks and show findings in the overview's Storyline tab. For authoring, not for the audience. */
