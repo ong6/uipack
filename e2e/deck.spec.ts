@@ -146,6 +146,21 @@ test.describe("/deck player", () => {
     });
   });
 
+  test("Full screen shows only where the page can go full screen (not on iPhone Safari)", async ({ page }) => {
+    await page.goto("/deck?view=present");
+    await expect(page.getByRole("button", { name: "Full screen" })).toBeVisible();
+    // iPhone Safari: no fullscreenEnabled, no element requestFullscreen, standard or prefixed.
+    await page.addInitScript(() => {
+      Object.defineProperty(Document.prototype, "fullscreenEnabled", { get: () => undefined, configurable: true });
+      for (const name of ["requestFullscreen", "webkitRequestFullscreen"]) {
+        Object.defineProperty(Element.prototype, name, { value: undefined, configurable: true });
+      }
+    });
+    await page.reload();
+    await expect(page.getByRole("button", { name: "All slides" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Full screen" })).toHaveCount(0);
+  });
+
   test("at 1280×900 the slide and its controls fit the first screen", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("/deck?view=present");
