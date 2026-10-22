@@ -49,3 +49,30 @@ for (const [width, section] of [
     }
   });
 }
+
+// Form controls do not inherit the page's font: a button, select or text field without a font rule
+// falls back to the browser's own (Arial in Chromium). Every one, shown or not (a phone menu, a
+// closed dialog), names a face from its style. Check boxes and radios carry no text.
+for (const width of [1440, 390]) {
+  test.describe(`control faces at ${width}`, () => {
+    test.use({ viewport: { width, height: 900 } });
+    for (const path of [...PAGES, "/slides"]) {
+      test(`${path}: no button, select or text field falls back to the browser's default face`, async ({ page }) => {
+        await page.goto(path);
+        await expect(page.locator(".showcase-title")).toBeVisible();
+        // Lazy sections mount as they scroll into view.
+        const height = await page.evaluate(() => document.documentElement.scrollHeight);
+        for (let y = 0; y < height; y += 800) await page.evaluate((top) => window.scrollTo(0, top), y);
+        await page.evaluate(() => window.scrollTo(0, 0));
+        const fallback = await page.evaluate(() =>
+          [...document.querySelectorAll<HTMLElement>("button, select, textarea, input")]
+            .filter((el) => !(el instanceof HTMLInputElement && ["checkbox", "radio", "hidden", "range", "color"].includes(el.type)))
+            .map((el) => ({ el, face: getComputedStyle(el).fontFamily }))
+            .filter(({ face }) => /^\s*"?(arial|helvetica|times|serif|sans-serif|-webkit-)/i.test(face))
+            .map(({ el, face }) => `${el.tagName.toLowerCase()} "${(el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 30)}": ${face}`),
+        );
+        expect(fallback).toEqual([]);
+      });
+    }
+  });
+}

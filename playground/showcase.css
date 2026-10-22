@@ -302,6 +302,14 @@ body {
 .showcase-menu[open] {
   display: none;
 }
+/* Their type is set outside the phone query, so no control ever falls back to the UA's Arial. */
+.showcase-menu-button,
+.showcase-menu__bar {
+  font: 600 13px ui-monospace, monospace;
+}
+.showcase-menu__bar button {
+  font: inherit;
+}
 @media (max-width: 719px) {
   .showcase-header {
     padding-bottom: 8px;

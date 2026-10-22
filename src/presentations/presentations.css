@@ -101,7 +101,8 @@
   border-radius: 4px;
   background: transparent;
   color: var(--presentation-ink);
-  font: 600 14px/1.4 var(--font-sans, "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+  /* Controls are mono, like the playground shell and the slide player. */
+  font: 500 13px/1.4 var(--font-mono, "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
   cursor: pointer;
 }
 .uipack-speaker-guide__action button:hover {

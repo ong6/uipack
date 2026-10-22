@@ -86,7 +86,8 @@
   border-radius: 4px;
   color: inherit;
   background: var(--object-bg, #faf9f6);
-  font: 500 12px/1.4 system-ui;
+  /* Mono, like Open canvas beside it and every Technical control. */
+  font: 500 12px/1.4 var(--uipack-mono, ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
   cursor: pointer;
 }
 .uipack-object-frame[data-controls="playback"] .uipack-object__motion {
@@ -123,10 +124,7 @@
   border-radius: 6px;
   color: var(--object-control-fg);
   background: var(--object-control-bg);
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1;
+  font: 500 12px/1 var(--uipack-mono, ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
   cursor: pointer;
 }
 .uipack-object-open:hover {
@@ -228,7 +226,7 @@
 .uipack-gallery-stage { height:460px; min-width:0; }
 .uipack-object-inspector h3 { margin:0 0 12px; font:600 13px system-ui,sans-serif; }
 .uipack-direction-list { display:flex; flex-direction:column; gap:8px; }
-.uipack-direction-list button { display:flex; gap:10px; align-items:flex-start; text-align:left; padding:14px 10px; border:1px solid var(--gallery-rule); border-radius:5px; background:transparent; color:inherit; cursor:pointer; }
+.uipack-direction-list button { font:inherit; display:flex; gap:10px; align-items:flex-start; text-align:left; padding:14px 10px; border:1px solid var(--gallery-rule); border-radius:5px; background:transparent; color:inherit; cursor:pointer; }
 .uipack-direction-list button[aria-pressed="true"] { border-color:var(--gallery-accent); box-shadow:inset 3px 0 var(--gallery-accent); background:color-mix(in srgb,var(--gallery-accent) 6%,transparent); }
 .uipack-direction-symbol { font-size:24px; line-height:1; color:var(--gallery-accent); }
 .uipack-direction-list strong { display:block; font:600 13px system-ui,sans-serif; }

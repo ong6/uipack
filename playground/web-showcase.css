@@ -407,7 +407,7 @@
 }
 .web-face-toggle label:has(:checked) { border-color: var(--web-ink); background: var(--web-secondary); }
 .web-face-toggle label:has(:focus-visible) { outline: 2px solid var(--web-accent); outline-offset: 3px; }
-.web-face-toggle input { margin: 0; accent-color: var(--web-ink); }
+.web-face-toggle input { margin: 0; font: inherit; accent-color: var(--web-ink); }
 .web-face-toggle__note { margin: 0; color: var(--web-ink-low); font-size: 0.9375rem; }
 @container web (max-width: 720px) {
   .web-role { padding: var(--web-s3); }
