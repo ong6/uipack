@@ -112,7 +112,8 @@
   border-radius: 6px;
   background: var(--uipack-surface);
   color: var(--uipack-fg);
-  font: 600 12px/1 var(--uipack-sans);
+  /* Controls are mono, like the rest of the Technical chrome (labels, IDs, the shell's buttons). */
+  font: 500 12px/1 var(--uipack-mono);
   cursor: pointer;
 }
 .uipack__ctl:hover {

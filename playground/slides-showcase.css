@@ -5,16 +5,7 @@
   margin-bottom: 20px;
 }
 .slides-showcase__tabs button {
-  min-height: 44px;
-  padding: 8px 12px;
-  font:
-    13px system-ui,
-    sans-serif;
-  border: 1px solid var(--show-rule);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--show-ink);
-  cursor: pointer;
+  padding: 8px 14px;
 }
 .slides-showcase__tabs button > span {
   margin-right: 8px;
@@ -22,11 +13,6 @@
     11px ui-monospace,
     monospace;
   color: var(--show-muted);
-}
-.slides-showcase__tabs button[aria-pressed="true"] {
-  color: var(--show-accent);
-  border-color: var(--show-accent);
-  background: var(--show-surface);
 }
 .slides-showcase__below {
   display: flex;

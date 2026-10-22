@@ -7,21 +7,6 @@
   gap: 8px;
   margin: 0 0 8px;
 }
-.mechanism-poses button {
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--show-rule);
-  border-radius: 6px;
-  background: transparent;
-  color: inherit;
-  font: 500 13px ui-monospace, monospace;
-  cursor: pointer;
-}
-.mechanism-poses button[aria-pressed="true"] {
-  border-color: var(--show-accent);
-  color: var(--show-accent);
-  background: var(--show-surface);
-}
 .mechanism-poses button:focus-visible,
 .mechanism-thumbs button:focus-visible {
   outline: 2px solid var(--show-accent);

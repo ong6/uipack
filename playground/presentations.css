@@ -138,25 +138,6 @@
   gap: 8px;
   margin: 20px 0;
 }
-.deck-chapters button,
-.deck-navigation button {
-  min-height: 44px;
-  border: 1px solid var(--show-rule);
-  border-radius: 6px;
-  background: transparent;
-  color: inherit;
-  padding: 8px 14px;
-  cursor: pointer;
-}
-.deck-chapters [aria-current="step"] {
-  border-color: var(--show-accent);
-  color: var(--show-accent);
-}
-.deck-chapters [aria-pressed="true"] {
-  border-color: var(--show-accent);
-  color: var(--show-accent);
-  background: var(--show-surface);
-}
 /* A second h2 inside one section: the shell's h2, with the section gap above it. */
 .showcase-shell > section > .deck-example-heading {
   margin: 32px 0 8px;
