@@ -43,11 +43,17 @@ function Controls({
     /* @__PURE__ */ jsx("button", { type: "button", className: "uipack-deck-step", onClick: onNext, disabled: atEnd, "aria-label": "Next", children: /* @__PURE__ */ jsx("span", { "aria-hidden": "true", children: "\u2192" }) }),
     /* @__PURE__ */ jsxs("span", { className: "uipack-deck-tools", children: [
       mode === "audience" && /* @__PURE__ */ jsx("button", { type: "button", onClick: onRead, children: "Read" }),
-      mode === "audience" && /* @__PURE__ */ jsx("button", { type: "button", onClick: onPrint, title: "Download as PDF or print: one slide per 16:9 page", children: "PDF / Print" }),
-      /* @__PURE__ */ jsx("button", { type: "button", ref: overviewButtonRef, onClick: onOverview, "aria-keyshortcuts": "G", children: "All slides" }),
-      mode === "audience" && /* @__PURE__ */ jsx("button", { type: "button", onClick: onPresenter, "aria-keyshortcuts": "S", children: "Speaker view" }),
-      canFullscreen && /* @__PURE__ */ jsx("button", { type: "button", onClick: onFullscreen, "aria-keyshortcuts": "F", "aria-pressed": fullscreen, children: fullscreen ? "Exit full screen" : "Full screen" })
+      mode === "audience" && /* @__PURE__ */ jsx("button", { type: "button", onClick: onPrint, title: "Download as PDF or print: one slide per 16:9 page", children: /* @__PURE__ */ jsx(Label, { long: "PDF / Print", short: "PDF" }) }),
+      /* @__PURE__ */ jsx("button", { type: "button", ref: overviewButtonRef, onClick: onOverview, "aria-keyshortcuts": "G", children: /* @__PURE__ */ jsx(Label, { long: "All slides", short: "Slides" }) }),
+      mode === "audience" && /* @__PURE__ */ jsx("button", { type: "button", onClick: onPresenter, "aria-keyshortcuts": "S", children: /* @__PURE__ */ jsx(Label, { long: "Speaker view", short: "Speaker" }) }),
+      canFullscreen && /* @__PURE__ */ jsx("button", { type: "button", onClick: onFullscreen, "aria-keyshortcuts": "F", "aria-pressed": fullscreen, children: fullscreen ? /* @__PURE__ */ jsx(Label, { long: "Exit full screen", short: "Exit" }) : "Full screen" })
     ] })
+  ] });
+}
+function Label({ long, short }) {
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("span", { className: "uipack-deck-tool-long", children: long }),
+    /* @__PURE__ */ jsx("span", { className: "uipack-deck-tool-short", "aria-hidden": "true", children: short })
   ] });
 }
 var DeckSlideContext = /* @__PURE__ */ createContext({
@@ -115,16 +121,22 @@ function Slide({
 var CANVAS_WIDTH = 1920;
 var CANVAS_HEIGHT = 1080;
 var CAMERA_CURVE = [0.3, 0.05, 0.25, 1];
+var TRAVEL_CURVE = [0.55, 0, 0.15, 1];
 var deckMotion = {
   quick: 160,
   base: 320,
   slow: 560,
   morph: 760,
   zoom: 1150,
+  /** A bento camera move, cell to cell or back to the whole grid. */
+  pan: 860,
   stagger: 45,
+  /** When an advance's incoming blocks start: while the outgoing slide is still leaving (it is gone at `quick`), so no frame is blank. */
+  handoff: 90,
   settle: "cubic-bezier(0.2, 0.7, 0.2, 1)",
   exit: "cubic-bezier(0.4, 0, 1, 1)",
-  travel: "cubic-bezier(0.55, 0, 0.15, 1)",
+  travel: `cubic-bezier(${TRAVEL_CURVE.join(", ")})`,
+  travelCurve: TRAVEL_CURVE,
   /** The zoom camera's progress (in log scale): moving by 10% of the clock, landing softly. */
   camera: `cubic-bezier(${CAMERA_CURVE.join(", ")})`
 };
@@ -472,7 +484,7 @@ function runTransition(opts) {
         ],
         {
           duration: deckMotion.slow,
-          delay: deckMotion.quick + Math.min(i, 7) * deckMotion.stagger,
+          delay: deckMotion.handoff + Math.min(i, 7) * deckMotion.stagger,
           easing: deckMotion.settle
         }
       )
@@ -1736,7 +1748,10 @@ function Overview({
     }
   );
 }
-var clock = (seconds) => `${pad(Math.floor(seconds / 60))}:${pad(Math.round(seconds) % 60)}`;
+var clock = (seconds) => {
+  const s = Math.round(seconds);
+  return `${pad(Math.floor(s / 60))}:${pad(s % 60)}`;
+};
 function slidePlan(slides, budget) {
   const own = slides.map(
     (s) => s.role === "appendix" ? 0 : (notesOf(s)?.say.match(/\S+/g)?.length ?? 0) / WORDS_PER_MINUTE * 60
@@ -1771,6 +1786,22 @@ function Presenter({
   const drift = elapsed > end ? elapsed - end : elapsed < start ? elapsed - start : 0;
   const pace = Math.abs(drift) < 15 ? "on pace" : drift > 0 ? `${clock(drift)} behind` : `${clock(-drift)} ahead`;
   const notes = notesOf(slides[index]);
+  const notesRef = useRef(null);
+  const [more, setMore] = useState(false);
+  useEffect(() => {
+    const el = notesRef.current;
+    if (!el) return;
+    el.scrollTop = 0;
+    const check = () => setMore(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
+    check();
+    el.addEventListener("scroll", check, { passive: true });
+    const ro = typeof ResizeObserver === "undefined" ? void 0 : new ResizeObserver(check);
+    ro?.observe(el);
+    return () => {
+      el.removeEventListener("scroll", check);
+      ro?.disconnect();
+    };
+  }, [index]);
   const upcoming = slides[index + 1];
   const role = slides[index].role;
   return /* @__PURE__ */ jsxs("div", { className: "uipack-deck-presenter", children: [
@@ -1824,24 +1855,35 @@ function Presenter({
           }
         )
       ] }),
-      /* @__PURE__ */ jsxs("section", { className: "uipack-deck-presenter__notes", children: [
-        role && /* @__PURE__ */ jsxs("p", { className: "uipack-deck-presenter__role", children: [
-          /* @__PURE__ */ jsx("b", { children: SLIDE_ROLES[role].label }),
-          " answers \u201C",
-          SLIDE_ROLES[role].question,
-          "\u201D"
-        ] }),
-        /* @__PURE__ */ jsx("h3", { children: "Say" }),
-        /* @__PURE__ */ jsx("p", { children: notes?.say ?? "No talk track for this slide." }),
-        notes?.delivery && /* @__PURE__ */ jsxs(Fragment, { children: [
-          /* @__PURE__ */ jsx("h3", { children: "Delivery" }),
-          /* @__PURE__ */ jsx("p", { children: notes.delivery })
-        ] }),
-        notes?.next && /* @__PURE__ */ jsxs(Fragment, { children: [
-          /* @__PURE__ */ jsx("h3", { children: "Bridge" }),
-          /* @__PURE__ */ jsx("p", { children: notes.next })
-        ] })
-      ] })
+      /* @__PURE__ */ jsxs(
+        "section",
+        {
+          ref: notesRef,
+          className: "uipack-deck-presenter__notes",
+          tabIndex: 0,
+          "aria-label": "Talk track",
+          "data-more": more ? "" : void 0,
+          children: [
+            role && /* @__PURE__ */ jsxs("p", { className: "uipack-deck-presenter__role", children: [
+              /* @__PURE__ */ jsx("b", { children: SLIDE_ROLES[role].label }),
+              " answers \u201C",
+              SLIDE_ROLES[role].question,
+              "\u201D"
+            ] }),
+            /* @__PURE__ */ jsx("h3", { children: "Say" }),
+            /* @__PURE__ */ jsx("p", { children: notes?.say ?? "No talk track for this slide." }),
+            notes?.delivery && /* @__PURE__ */ jsxs(Fragment, { children: [
+              /* @__PURE__ */ jsx("h3", { children: "Delivery" }),
+              /* @__PURE__ */ jsx("p", { children: notes.delivery })
+            ] }),
+            notes?.next && /* @__PURE__ */ jsxs(Fragment, { children: [
+              /* @__PURE__ */ jsx("h3", { children: "Bridge" }),
+              /* @__PURE__ */ jsx("p", { children: notes.next })
+            ] })
+          ]
+        }
+      ),
+      more && /* @__PURE__ */ jsx("p", { className: "uipack-deck-presenter__more", "aria-hidden": "true", children: "More below \u2193" })
     ] })
   ] });
 }
@@ -1852,7 +1894,7 @@ function detailStopsOf(root) {
     return (part.dataset.detailStops ?? "").split(" ").map(Number).filter((step) => step > 0).map((step) => {
       const id = tour[step - 1] ?? String(step);
       const detail = part.querySelector(`[data-bento-cell="${CSS.escape(id)}"] .uipack-deck-bento__detail`);
-      return { step, label: detail?.firstElementChild?.textContent?.trim() || id };
+      return { step, id, label: detail?.firstElementChild?.textContent?.trim() || id };
     });
   });
 }
@@ -1864,8 +1906,23 @@ function useDetailStops(ref, key) {
   }, [ref, key]);
   return stops;
 }
-function Printout({ slides, theme, notes = false }) {
-  return /* @__PURE__ */ jsx("div", { className: "uipack-deck-print", "data-notes": notes ? "" : void 0, children: slides.map((s, i) => /* @__PURE__ */ jsx(PrintSlide, { slide: s, index: i, count: slides.length, theme, notes }, s.id)) });
+function Printout({
+  slides,
+  theme,
+  notes = false,
+  inPlace = false
+}) {
+  return /* @__PURE__ */ jsx(
+    "div",
+    {
+      className: "uipack-deck-print",
+      "data-notes": notes ? "" : void 0,
+      tabIndex: inPlace ? 0 : void 0,
+      role: inPlace ? "region" : void 0,
+      "aria-label": inPlace ? "Printable pages" : void 0,
+      children: slides.map((s, i) => /* @__PURE__ */ jsx(PrintSlide, { slide: s, index: i, count: slides.length, theme, notes }, s.id))
+    }
+  );
 }
 function PrintSlide({
   slide: s,
@@ -1877,46 +1934,51 @@ function PrintSlide({
   const ref = useRef(null);
   const stops = useDetailStops(ref, s);
   const talk = notesOf(s);
-  const page = (step, detail) => /* @__PURE__ */ jsxs(
-    "section",
-    {
-      ref: detail ? void 0 : ref,
-      className: "uipack-deck-print__page",
-      "data-tone": s.tone ?? "paper",
-      "data-detail": detail ? "" : void 0,
-      "aria-label": `${pad(i + 1)}: ${s.title}${detail ? `, detail: ${detail}` : ""}`,
-      children: [
-        /* @__PURE__ */ jsx("div", { className: "uipack-deck-print__slide", children: /* @__PURE__ */ jsx("div", { className: "uipack-deck-canvas", children: /* @__PURE__ */ jsx(Layer, { slide: s, index: i, count, step, active: false, thumbnail: true, theme, reducedMotion: true }) }) }),
-        notes && /* @__PURE__ */ jsxs("div", { className: "uipack-deck-print__notes", children: [
-          /* @__PURE__ */ jsxs("p", { className: "uipack-deck-print__title", children: [
-            /* @__PURE__ */ jsx("span", { children: pad(i + 1) }),
-            " ",
-            s.title,
-            detail && /* @__PURE__ */ jsx(Fragment, { children: " \xB7 detail" })
+  const sayAt = (stop) => stop ? talk?.stops?.[stop.id] ?? talk?.say : talk?.say;
+  const page = (step, stop) => {
+    const detail = stop?.label;
+    const say = sayAt(stop);
+    return /* @__PURE__ */ jsxs(
+      "section",
+      {
+        ref: detail ? void 0 : ref,
+        className: "uipack-deck-print__page",
+        "data-tone": s.tone ?? "paper",
+        "data-detail": detail ? "" : void 0,
+        "aria-label": `${pad(i + 1)}: ${s.title}${detail ? `, detail: ${detail}` : ""}`,
+        children: [
+          /* @__PURE__ */ jsx("div", { className: "uipack-deck-print__slide", children: /* @__PURE__ */ jsx("div", { className: "uipack-deck-canvas", children: /* @__PURE__ */ jsx(Layer, { slide: s, index: i, count, step, active: false, thumbnail: true, theme, reducedMotion: true }) }) }),
+          notes && /* @__PURE__ */ jsxs("div", { className: "uipack-deck-print__notes", children: [
+            /* @__PURE__ */ jsxs("p", { className: "uipack-deck-print__title", children: [
+              /* @__PURE__ */ jsx("span", { children: pad(i + 1) }),
+              " ",
+              s.title,
+              detail && /* @__PURE__ */ jsx(Fragment, { children: " \xB7 detail" })
+            ] }),
+            /* @__PURE__ */ jsx("h2", { children: detail ?? s.headline ?? s.title }),
+            !detail && talk?.delivery && /* @__PURE__ */ jsxs("p", { className: "uipack-deck-print__cue", children: [
+              /* @__PURE__ */ jsx("b", { children: "Delivery" }),
+              " ",
+              talk.delivery
+            ] }),
+            !detail && talk?.next && /* @__PURE__ */ jsxs("p", { className: "uipack-deck-print__cue", children: [
+              /* @__PURE__ */ jsx("b", { children: "Next" }),
+              " ",
+              talk.next
+            ] })
           ] }),
-          /* @__PURE__ */ jsx("h3", { children: detail ?? s.headline ?? s.title }),
-          !detail && talk?.delivery && /* @__PURE__ */ jsxs("p", { className: "uipack-deck-print__cue", children: [
-            /* @__PURE__ */ jsx("b", { children: "Delivery" }),
-            " ",
-            talk.delivery
-          ] }),
-          !detail && talk?.next && /* @__PURE__ */ jsxs("p", { className: "uipack-deck-print__cue", children: [
-            /* @__PURE__ */ jsx("b", { children: "Next" }),
-            " ",
-            talk.next
+          notes && say && /* @__PURE__ */ jsxs("div", { className: "uipack-deck-print__say", children: [
+            /* @__PURE__ */ jsx("b", { children: "Say" }),
+            /* @__PURE__ */ jsx("p", { children: say })
           ] })
-        ] }),
-        notes && !detail && talk?.say && /* @__PURE__ */ jsxs("div", { className: "uipack-deck-print__say", children: [
-          /* @__PURE__ */ jsx("b", { children: "Say" }),
-          /* @__PURE__ */ jsx("p", { children: talk.say })
-        ] })
-      ]
-    },
-    step
-  );
+        ]
+      },
+      step
+    );
+  };
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     page(Infinity),
-    stops.map((stop) => page(stop.step, stop.label))
+    stops.map((stop) => page(stop.step, stop))
   ] });
 }
 function PrintJob({
@@ -2235,6 +2297,10 @@ function Player({
     }
     window.open(href, `uipack-deck-speaker-${id}`, "popup,width=1280,height=820");
   };
+  const openReader = () => {
+    setReadOpen({ focus: true });
+    setReading(true);
+  };
   const closeOverview = () => {
     setOverview(false);
     requestAnimationFrame(() => overviewButtonRef.current?.focus());
@@ -2368,10 +2434,7 @@ function Player({
       overviewButtonRef,
       onPrev: prev,
       onNext: next,
-      onRead: () => {
-        setReadOpen({ focus: true });
-        setReading(true);
-      },
+      onRead: openReader,
       onPrint: () => setPrinting(true),
       onOverview: () => setOverview(true),
       onPresenter: openPresenter,
@@ -2396,7 +2459,7 @@ function Player({
       tabIndex: 0,
       onKeyDown,
       children: [
-        initialView === "print" ? /* @__PURE__ */ jsx(Printout, { slides, theme, notes: printNotes }) : reading ? /* @__PURE__ */ jsx(
+        initialView === "print" ? /* @__PURE__ */ jsx(Printout, { slides, theme, notes: printNotes, inPlace: true }) : reading ? /* @__PURE__ */ jsx(
           Reader,
           {
             slides,
@@ -2417,6 +2480,12 @@ function Player({
             }
           }
         ) : /* @__PURE__ */ jsxs(Fragment, { children: [
+          mode === "audience" && // Shown on a phone only (deck.css): a 1920px slide is drawn at a fifth of its size there.
+          /* @__PURE__ */ jsxs("p", { className: "uipack-deck-phone-hint", children: [
+            "Slides are small on a phone; the read view is easier.",
+            " ",
+            /* @__PURE__ */ jsx("button", { type: "button", onClick: openReader, children: "Read view" })
+          ] }),
           mode === "presenter" ? /* @__PURE__ */ jsx(
             Presenter,
             {
@@ -2502,6 +2571,54 @@ function bentoCamera(cell, view, maxScale = 3, fill2 = 0.94) {
     ty: view.h / 2 - s * (cell.y + cell.h / 2)
   };
 }
+function cameraOf(transform) {
+  if (!transform || transform === "none" || typeof DOMMatrixReadOnly === "undefined") return { s: 1, tx: 0, ty: 0 };
+  const m = new DOMMatrixReadOnly(transform);
+  return { s: m.a, tx: m.e, ty: m.f };
+}
+function faceFrames(words, view, from, to, duration, ease, holdUntil = 0, ramp = 120, stepMs = 10) {
+  const n = Math.round(duration / stepMs);
+  const edge = 3;
+  const inside = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i * stepMs;
+    const p = ease(Math.min(1, t / duration));
+    const s = from.s + (to.s - from.s) * p;
+    const x = from.tx + (to.tx - from.tx) * p + s * words.x;
+    const y = from.ty + (to.ty - from.ty) * p + s * words.y;
+    inside.push(
+      t >= holdUntil && x >= -edge && y >= -edge && x + s * words.w <= view.w + edge && y + s * words.h <= view.h + edge
+    );
+  }
+  if (inside.every((v) => v === inside[0])) return null;
+  const opacity = inside.map((v, i) => {
+    if (!v) return 0;
+    let before = Infinity;
+    let after = Infinity;
+    for (let j = i; j >= 0; j--) if (!inside[j]) before = (i - j) * stepMs, j = -1;
+    for (let j = i; j <= n; j++) if (!inside[j]) after = (j - i) * stepMs, j = n + 1;
+    return Math.min(1, before / ramp, after / ramp);
+  });
+  return opacity.map((o, i) => ({ offset: i / n, opacity: Number(o.toFixed(3)) }));
+}
+function wordsBox(cell) {
+  const face = cell.querySelector(":scope > .uipack-deck-bento__face");
+  const kids = face ? Array.from(face.children).filter((k) => k instanceof HTMLElement) : [];
+  if (!kids.length) return { x: cell.offsetLeft, y: cell.offsetTop, w: cell.offsetWidth, h: cell.offsetHeight };
+  const boxes = kids.map((k) => ({ x: k.offsetLeft ?? 0, y: k.offsetTop ?? 0, w: k.offsetWidth ?? 0, h: k.offsetHeight ?? 0 }));
+  const x0 = Math.min(...boxes.map((b) => b.x));
+  const y0 = Math.min(...boxes.map((b) => b.y));
+  const x1 = Math.max(...boxes.map((b) => b.x + b.w));
+  const y1 = Math.max(...boxes.map((b) => b.y + b.h));
+  return { x: cell.offsetLeft + x0, y: cell.offsetTop + y0, w: x1 - x0, h: y1 - y0 };
+}
+var inBox = (b, cam, view) => {
+  const x = cam.tx + cam.s * b.x;
+  const y = cam.ty + cam.s * b.y;
+  return x >= -3 && y >= -3 && x + cam.s * b.w <= view.w + 3 && y + cam.s * b.h <= view.h + 3;
+};
+var DETAIL_HOLD = 420;
+var DETAIL_FADE = 200;
 var bentoFocusAt = (step, tour) => step >= 1 && step <= tour.length ? tour[step - 1] : null;
 function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, style, children }) {
   const { step, thumbnail } = useDeckSlide();
@@ -2511,8 +2628,13 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
   const leaving = trail.focus === focus ? trail.leaving : trail.focus;
   const gridRef = useRef(null);
   const [camera, setCamera] = useState(null);
+  const fromRef = useRef({ s: 1, tx: 0, ty: 0 });
+  const facesRef = useRef([]);
+  const shownRef = useRef(false);
+  const prefersReduced = usePrefersReducedMotion();
   useIsoLayoutEffect(() => {
     const grid = gridRef.current;
+    if (grid && shownRef.current) fromRef.current = cameraOf(getComputedStyle(grid).transform);
     if (!grid || !focus) return setCamera(null);
     const cell = grid.querySelector(`[data-bento-cell="${CSS.escape(focus)}"]`);
     if (!cell) return setCamera(null);
@@ -2524,6 +2646,31 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
       )
     );
   }, [focus, maxScale]);
+  useIsoLayoutEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    facesRef.current.forEach((a) => a.cancel());
+    facesRef.current = [];
+    const view = { w: grid.offsetWidth, h: grid.offsetHeight };
+    const to = camera ?? { s: 1, tx: 0, ty: 0 };
+    const from = fromRef.current;
+    fromRef.current = to;
+    const first = !shownRef.current;
+    shownRef.current = true;
+    const moving = !first && !thumbnail && !prefersReduced && grid.closest('[data-motion="none"]') === null && typeof grid.animate === "function" && (from.s !== to.s || from.tx !== to.tx || from.ty !== to.ty);
+    const ease = cubicBezier(...deckMotion.travelCurve);
+    for (const cell of Array.from(grid.querySelectorAll(":scope > [data-bento-cell]"))) {
+      const id = cell.dataset.bentoCell;
+      const words = wordsBox(cell);
+      cell.toggleAttribute("data-clipped", Boolean(focus && id !== focus && !inBox(words, to, view)));
+      if (!moving || id === focus) continue;
+      const left = id === leaving && cell.querySelector(":scope > .uipack-deck-bento__detail");
+      const frames = faceFrames(words, view, from, to, deckMotion.pan, ease, left ? DETAIL_HOLD + DETAIL_FADE : 0);
+      const face = cell.querySelector(":scope > .uipack-deck-bento__face");
+      if (frames && face) facesRef.current.push(face.animate(frames, { duration: deckMotion.pan, easing: "linear" }));
+    }
+  }, [camera]);
+  useIsoLayoutEffect(() => () => facesRef.current.forEach((a) => a.cancel()), []);
   const cells = Children.toArray(children).filter(
     (c) => isValidElement(c) && c.type === BentoCell
   );
@@ -2547,7 +2694,8 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
           style: {
             gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
             gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
-            transform: camera ? `translate(${camera.tx}px, ${camera.ty}px) scale(${camera.s})` : void 0
+            transform: camera ? `translate(${camera.tx}px, ${camera.ty}px) scale(${camera.s})` : void 0,
+            transition: `transform ${deckMotion.pan}ms ${deckMotion.travel}`
           },
           children: cells.map(({ props: p }) => {
             const focused = focus === p.id;
@@ -3710,6 +3858,7 @@ function HarveyBall({ level, size = 36, label }) {
   const q = harveyQuarters(level);
   const r = size / 2 - 1.5;
   const c = size / 2;
+  const decorative = label === "";
   return /* @__PURE__ */ jsxs(
     "svg",
     {
@@ -3717,8 +3866,9 @@ function HarveyBall({ level, size = 36, label }) {
       width: size,
       height: size,
       viewBox: `0 0 ${size} ${size}`,
-      role: "img",
-      "aria-label": label ?? `${LEVEL_WORDS[q]} (${q} of 4)`,
+      role: decorative ? void 0 : "img",
+      "aria-label": decorative ? void 0 : label ?? `${LEVEL_WORDS[q]} (${q} of 4)`,
+      "aria-hidden": decorative ? true : void 0,
       "data-level": q,
       children: [
         /* @__PURE__ */ jsx("circle", { className: "uipack-cx-harvey__ring", cx: c, cy: c, r }),

@@ -77,6 +77,10 @@ function useItemSelection(label, detail, flow, enabled = true, name = label) {
     }
   };
 }
+function FocusRing({ x, y, w, h, rx }) {
+  const gap = 4;
+  return /* @__PURE__ */ jsx("g", { className: "uipack__focus-ring", "aria-hidden": "true", pointerEvents: "none", children: /* @__PURE__ */ jsx("rect", { x: x - gap, y: y - gap, width: w + gap * 2, height: h + gap * 2, rx: rx + gap }) });
+}
 var ITEM = 'a[href], [role="button"]';
 var DRAWING = 'svg[role="group"]';
 var itemsOf = (drawing) => Array.from(drawing.querySelectorAll(ITEM)).filter((el) => el.closest(DRAWING) === drawing);
@@ -468,6 +472,7 @@ function Group({ x, y, w, h, title, variant = "solid", accent, flow, titleSize, 
               strokeDasharray: dashed ? "4 4" : void 0
             }
           ),
+          selection.role ? /* @__PURE__ */ jsx(FocusRing, { x, y, w, h, rx: dashed ? 10 : 6 }) : null,
           title ? dashed ? /* @__PURE__ */ jsx(
             "text",
             {
@@ -641,6 +646,7 @@ function Node({
         strokeDasharray: dashed ? "4 4" : void 0
       }
     ),
+    selection.role ? /* @__PURE__ */ jsx(FocusRing, { x, y, w, h, rx: 6 }) : null,
     inlay,
     /* @__PURE__ */ jsx(
       "path",
@@ -715,6 +721,7 @@ function Chip({ x, y, w, h = 24, label, dashed, kind, flow, size: size0 = 10, hi
         strokeDasharray: dashed ? "3 3" : void 0
       }
     ),
+    selection.role ? /* @__PURE__ */ jsx(FocusRing, { x, y, w, h, rx: h / 2 }) : null,
     label ? /* @__PURE__ */ jsx(
       "text",
       {
@@ -1007,4 +1014,4 @@ function Defs({ id }) {
   ] });
 }
 
-export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, Packet, PauseGlyph, PlayGlyph, ReplayGlyph, SelectionContext, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, nodeName, pathFromPoints, placeNote, pointAlong, polylineLength, route, trim, useFigureHover, useRovingFocus };
+export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, FocusRing, Group, Label, Lane, Legend, Node, Packet, PauseGlyph, PlayGlyph, ReplayGlyph, SelectionContext, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, nodeName, pathFromPoints, placeNote, pointAlong, polylineLength, route, trim, useFigureHover, useRovingFocus };

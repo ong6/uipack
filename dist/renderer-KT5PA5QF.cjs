@@ -66,6 +66,10 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
     const shownLabels = stop.labels ? new Set(stop.labels) : void 0;
     const placed = [];
     for (const n of nodes.values()) {
+      const mark = nodeMark(n, camera, width, height);
+      if (mark) placed.push(mark);
+    }
+    for (const n of nodes.values()) {
       applyNodePose(n, selected === n.spec.id, colors);
       if (n.label) drawLabel(n, n.label, camera, width, height, shownLabels, presentation.labels, placed);
     }
@@ -381,13 +385,18 @@ function applyNodePose(n, isSelected, colors) {
 var projected = new THREE__namespace.Vector3();
 function drawLabel(n, label, camera, width, height, shown, labelOpacity, placed) {
   const eligible = (shown ? shown.has(n.spec.id) : n.spec.kind !== "boundary") && n.pose.opacity >= 0.3 && labelOpacity > 0.01;
+  const half = (n.spec.size?.[1] ?? DEFAULT_NODE_SIZE[1]) / 2 * n.pose.scale;
   projected.copy(n.group.position);
-  projected.y += (n.spec.size?.[1] ?? DEFAULT_NODE_SIZE[1]) / 2 * n.pose.scale;
+  projected.y -= half;
+  projected.project(camera);
+  const bottom = (-projected.y * 0.5 + 0.5) * height;
+  projected.copy(n.group.position);
+  projected.y += half;
   projected.project(camera);
   const x = (projected.x * 0.5 + 0.5) * width, y = (-projected.y * 0.5 + 0.5) * height;
   const w = label.offsetWidth || 130, h = label.offsetHeight || 44;
   const onScreen = projected.z > -1 && projected.z < 1 && x >= 0 && x <= width && y >= 0 && y <= height;
-  const placement = eligible && onScreen ? placeLabel(x, y, w, h, width, height, placed) : void 0;
+  const placement = eligible && onScreen ? placeLabel(x, y, Math.max(bottom, y + 24), w, h, width, height, placed) : void 0;
   label.style.visibility = placement ? "visible" : "hidden";
   label.style.opacity = placement ? String(labelOpacity) : "0";
   if (placement) {
@@ -395,13 +404,34 @@ function drawLabel(n, label, camera, width, height, shown, labelOpacity, placed)
     label.style.transform = `translate(${placement.x}px, ${placement.y}px)`;
   }
 }
-function placeLabel(x, y, w, h, width, height, placed) {
+function nodeMark(n, camera, width, height) {
+  if (n.spec.kind === "boundary" || n.pose.opacity < 0.3) return void 0;
+  const half = (n.spec.size?.[1] ?? DEFAULT_NODE_SIZE[1]) / 2 * n.pose.scale;
+  projected.copy(n.group.position);
+  projected.y += half;
+  projected.project(camera);
+  if (projected.z <= -1 || projected.z >= 1) return void 0;
+  const x = (projected.x * 0.5 + 0.5) * width, top = (-projected.y * 0.5 + 0.5) * height;
+  projected.copy(n.group.position);
+  projected.y -= half;
+  projected.project(camera);
+  const bottom = Math.max(top + 24, (-projected.y * 0.5 + 0.5) * height);
+  return { x: x - 16, y: top, w: 32, h: bottom - top };
+}
+function placeLabel(x, y, bottom, w, h, width, height, placed) {
+  const mid = (y + bottom) / 2 - y;
   const offsets = [
     [0, -h - 10],
-    [0, 20],
-    [-w * 0.55, -h / 2],
-    [w * 0.55, -h / 2],
-    [0, -h * 2 - 16]
+    [0, bottom - y + 12],
+    [-w / 2 - 28, mid - h / 2],
+    [w / 2 + 28, mid - h / 2],
+    [0, -h * 2 - 16],
+    // A crowded (narrow) scene: the diagonals, then a second row below.
+    [-w * 0.6, -h - 10],
+    [w * 0.6, -h - 10],
+    [-w * 0.6, bottom - y + 12],
+    [w * 0.6, bottom - y + 12],
+    [0, bottom - y + h + 20]
   ];
   for (const [dx, dy] of offsets) {
     const candidate = {

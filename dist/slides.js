@@ -54,7 +54,7 @@ function SceneViewport({
       return;
     }
     setStatus("loading");
-    void import('./renderer-SSZDKXNV.js').then(({ createSlideScene }) => {
+    void import('./renderer-M5ZWAWHJ.js').then(({ createSlideScene }) => {
       if (cancelled || !host.current || !labels.current) return;
       try {
         runtime.current = createSlideScene(

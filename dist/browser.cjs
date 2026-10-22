@@ -98,7 +98,7 @@ function AssetBrowser({
           ) : null
         ] }),
         /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-browser__row", children: [
-          /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-browser__name", children: a.name }),
+          /* @__PURE__ */ jsxRuntime.jsx(AssetName, { name: a.name }),
           /* @__PURE__ */ jsxRuntime.jsx(
             "button",
             {
@@ -133,6 +133,16 @@ function AssetBrowser({
         ) : null
       ] }) : null
     ] })
+  ] });
+}
+function AssetName({ name }) {
+  const at = name.indexOf(" \xB7 ");
+  if (at < 0) return /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-browser__name", children: name });
+  return /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-browser__name", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-browser__family", children: name.slice(0, at) }),
+    " ",
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-browser__sr", children: "\xB7 " }),
+    name.slice(at + 3)
   ] });
 }
 

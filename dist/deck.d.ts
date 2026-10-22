@@ -29,6 +29,14 @@ interface DeckRenderContext {
     /** True when the viewer prefers reduced motion or `motion="none"` was passed. */
     reducedMotion: boolean;
 }
+/** A slide's talk track: the shared speech guide, plus what to say at each camera stop. */
+interface DeckNotes extends SpeechGuide {
+    /**
+     * What to say at a camera stop, by the stop's cell ID (a bento `tour` entry): the relevant part
+     * of `say`. The notes PDF prints it under that stop's detail page; without it the page repeats `say`.
+     */
+    stops?: Record<string, string>;
+}
 interface DeckSlide {
     /** Stable ID, used in URLs and by the presenter sync. */
     id: string;
@@ -44,7 +52,7 @@ interface DeckSlide {
     /** Background tone. The stage cross-fades between tones. */
     tone?: "paper" | "ink" | "accent";
     /** Talk track for the presenter view. A string is treated as `say`. */
-    notes?: SpeechGuide | string;
+    notes?: DeckNotes | string;
     render: (context: DeckRenderContext) => ReactNode;
 }
 interface DeckPosition {
@@ -62,10 +70,15 @@ declare const deckMotion: {
     readonly slow: 560;
     readonly morph: 760;
     readonly zoom: 1150;
+    /** A bento camera move, cell to cell or back to the whole grid. */
+    readonly pan: 860;
     readonly stagger: 45;
+    /** When an advance's incoming blocks start: while the outgoing slide is still leaving (it is gone at `quick`), so no frame is blank. */
+    readonly handoff: 90;
     readonly settle: "cubic-bezier(0.2, 0.7, 0.2, 1)";
     readonly exit: "cubic-bezier(0.4, 0, 1, 1)";
-    readonly travel: "cubic-bezier(0.55, 0, 0.15, 1)";
+    readonly travel: `cubic-bezier(${string})`;
+    readonly travelCurve: readonly [0.55, 0, 0.15, 1];
     /** The zoom camera's progress (in log scale): moving by 10% of the clock, landing softly. */
     readonly camera: `cubic-bezier(${string})`;
 };
@@ -202,7 +215,9 @@ interface StorySlide {
     title: string;
     role?: SlideRole;
     /** Talk track. A string is treated as `say`. */
-    notes?: SpeechGuide | string;
+    notes?: (SpeechGuide & {
+        stops?: Record<string, string>;
+    }) | string;
     /** The action title shown on the slide. */
     headline?: string;
     /** On-slide source line for the slide's numbers. */
@@ -836,7 +851,10 @@ interface WaterfallProps extends ChartSize {
 /** A bridge from a start total through signed deltas to an end total. */
 declare function Waterfall({ steps, format, goodDirection, domain, callout, alt, width, height, }: WaterfallProps): react.JSX.Element;
 
-/** A Harvey ball: 0 (empty) to 4 (full) quarters. Its level is also in the accessible name. */
+/**
+ * A Harvey ball: 0 (empty) to 4 (full) quarters. Its level is also in the accessible name; an empty
+ * `label` marks it decorative (the key's balls sit beside their word), hidden from assistive tech.
+ */
 declare function HarveyBall({ level, size, label }: {
     level: number;
     size?: number;
@@ -873,4 +891,4 @@ interface HarveyTableProps {
 /** Options × criteria: Harvey balls (0–4) and text cells, with one row marked as the recommendation. */
 declare function HarveyTable({ columns, rows, corner, showKey, keyNote, }: HarveyTableProps): react.JSX.Element;
 
-export { Annotation, type AnnotationGeometry, type AnnotationProps, type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, REPEATABLE_ROLES, Rect, Ref, type ResolvedTransition, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, Tracker, type TrackerProps, type TransitionKind, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, flipFrom, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, resolveTransition, runTransition, slideZoomFrame, slideZoomSamples, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };
+export { Annotation, type AnnotationGeometry, type AnnotationProps, type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, type DeckNotes, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, REPEATABLE_ROLES, Rect, Ref, type ResolvedTransition, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, Tracker, type TrackerProps, type TransitionKind, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, flipFrom, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, resolveTransition, runTransition, slideZoomFrame, slideZoomSamples, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };
