@@ -1,4 +1,5 @@
 import { expect, test, waitForStable, type Page } from "./fixtures";
+import { pauseClock } from "./helpers";
 
 const demo = (page: Page) => page.locator(".uipack-web-demo");
 /** Pixels between the sticky nav's bottom edge and the first line (eyebrow) of a section. */
@@ -12,21 +13,28 @@ const stepOf = async (page: Page) => Number(await demo(page).getAttribute("data-
 
 test.describe("/web Landing collection", () => {
   test("DemoPlayer advances in view, holds after Pause, and Replay restarts", async ({ page }) => {
+    // The demo's clock is the page's: it counts real elapsed time, so under load it could run to
+    // its end (about 9.4s) before the test pressed Pause. On a paused fake clock it moves only when
+    // the test moves time.
+    await page.clock.install();
     await page.goto("/web");
     await demo(page).scrollIntoViewIfNeeded();
     await expect(demo(page)).toHaveAttribute("data-state", "playing");
-    await expect.poll(() => stepOf(page), { timeout: 10_000 }).toBeGreaterThanOrEqual(1);
-    await expect.poll(() => page.getByTestId("demo-metric").textContent(), { timeout: 10_000 }).not.toBe("40");
+    await pauseClock(page);
+    // 5.5s in: the second step (data-step 1, from 3.8s) with one action done, so the metric has left 40.
+    await page.clock.fastForward(5_500);
+    await expect(demo(page)).toHaveAttribute("data-step", "1");
+    await expect(page.getByTestId("demo-metric")).not.toHaveText("40");
     await demo(page).getByRole("button", { name: "Pause" }).click();
     await expect(demo(page)).toHaveAttribute("data-state", "paused");
     const held = await page.getByTestId("demo-metric").textContent();
-    const heldStep = await stepOf(page);
-    // Wall clock on purpose: a paused demo must not advance while time passes.
-    await page.waitForTimeout(1500);
+    // Paused, the demo holds however much time passes.
+    await page.clock.fastForward(5_000);
+    await expect(demo(page)).toHaveAttribute("data-state", "paused");
     expect(await page.getByTestId("demo-metric").textContent()).toBe(held);
-    expect(await stepOf(page)).toBe(heldStep);
+    expect(await stepOf(page)).toBe(1);
     await demo(page).getByRole("button", { name: "Replay" }).click();
-    expect(await stepOf(page)).toBe(0);
+    await expect(demo(page)).toHaveAttribute("data-step", "0");
     await expect(page.getByTestId("demo-metric")).toHaveText("40");
     await expect(demo(page)).toHaveAttribute("data-state", "playing");
   });

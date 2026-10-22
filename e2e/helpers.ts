@@ -35,8 +35,25 @@ export const dist = (a: { x: number; y: number }, b: { x: number; y: number }) =
  */
 export async function playAnimationTime(page: Page, ms: number) {
   const FRAME_MS = 50;
-  // Pause a frame ahead of the page's (fake) now, which keeps moving until the pause lands.
-  await page.clock.pauseAt((await page.evaluate(() => Date.now())) + FRAME_MS);
+  await pauseClock(page);
   for (let played = 0; played < ms; played += FRAME_MS) await page.clock.fastForward(FRAME_MS);
   await page.clock.resume();
+}
+
+/**
+ * Pauses Playwright's installed fake clock at about the page's current time. `pauseAt` takes an
+ * absolute time that must not be in the page's past, and the page's (fake) clock keeps running
+ * while the test reads it, longer on a busy page. So aim a little ahead and, when the page has
+ * already passed that time, read it again and aim further ahead. Returns the paused time.
+ */
+export async function pauseClock(page: Page): Promise<number> {
+  for (let ahead = 50; ; ahead *= 2) {
+    const at = (await page.evaluate(() => Date.now())) + ahead;
+    try {
+      await page.clock.pauseAt(at);
+      return at;
+    } catch (error) {
+      if (!String(error).includes("to the past") || ahead >= 5_000) throw error;
+    }
+  }
 }

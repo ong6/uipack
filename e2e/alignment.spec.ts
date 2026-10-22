@@ -1,5 +1,5 @@
 import { pageDefs, pagePath } from "../playground/catalog";
-import { expect, test, type Page } from "./fixtures";
+import { expect, test, waitForPage, type Page } from "./fixtures";
 
 // Component-level layout rules, checked on every playground page rather than per component:
 // cards that share a row share a height and an action row, controls side by side share a
@@ -8,12 +8,8 @@ const PAGES = pageDefs.map(pagePath);
 
 async function open(page: Page, path: string) {
   await page.goto(path);
-  await expect(page.locator(".showcase-title")).toBeVisible();
-  // Lazy page chunks and fonts settle the layout being measured.
-  await expect(
-    page.locator(".showcase-shell > :not(header):not(dialog):not(.showcase-context):not(.showcase-title)").first(),
-  ).toBeVisible();
-  await page.evaluate(() => document.fonts.ready);
+  // The lazy page chunk and the fonts settle the layout being measured.
+  await waitForPage(page);
 }
 
 // Rows of card-like boxes (a border or a fill, taller than 80px) in grids and wrapping flex rows.

@@ -1,5 +1,5 @@
 import { figureEntries, libraryGroups, pageDefs, pagePath } from "../playground/catalog";
-import { expect, test, waitForStable, type Page } from "./fixtures";
+import { expect, test, waitForPage, waitForStable, type Page } from "./fixtures";
 
 // The information architecture the shell must render, read from the catalog: the groups in
 // order, each with the page it opens on and its pages as [label, path].
@@ -390,6 +390,8 @@ test.describe("landmarks and skip link", () => {
     test(`${width}px: banner outside main, a skip link first that lands in main`, async ({ page, browserName }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/charts");
+      // Tab order is only final once the lazy page has rendered its controls into main.
+      await waitForPage(page);
       // One banner (the shell header) and one main; the navs sit in the banner, not in main.
       await expect(page.getByRole("banner")).toHaveCount(1);
       await expect(page.getByRole("main")).toHaveCount(1);

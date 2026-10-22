@@ -104,6 +104,9 @@ test("curated look persists through loop, theme and expanded canvas", async ({ p
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
   const next = await object.getAttribute("data-variant");
   await page.getByRole("button", { name: "dark mode", exact: true }).click();
+  // The theme remounts the stage with a new canvas. Until the new stage is up, `canvas` still finds
+  // the light one, already "webgl", so wait for the dark stage before reading its renderer.
+  await expect(object).toHaveAttribute("data-theme", "dark");
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
   await expect(object).toHaveAttribute("data-variant", next!);
   // Past the 5.4s a once-only scene takes to come to rest, a loop still plays.
