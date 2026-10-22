@@ -8,7 +8,8 @@ Every package entry (`uipack`, `uipack/deck`, `uipack/mechanism`…) has the sam
 
 | Part | Where | Checked by |
 | --- | --- | --- |
-| A barrel that lists every export by name (no `export *`) | `src/<entry>/index.ts` | review; a name clash fails the build's `.d.ts` step |
+| A barrel that lists every export by name (no `export *`) | `src/<entry>/index.ts` | `test/exports.test.tsx` (no name in two entries) |
+| A main component that renders on the server | the entry | `test/ssr.test.tsx` (node environment, no React warnings) |
 | CSS scoped under one root class (`.uipack-<entry>`), tokens on that class, no bare element rules | `src/<entry>/<entry>.css` | review |
 | A doc with the import, the props table and the limits | `docs/<entry>.md`, linked from `docs/README.md` and the root README | `files` ships `docs/*.md` |
 | A playground page or section, registered in the catalog | `playground/catalog.ts` | `test/catalog.test.tsx` |
@@ -31,6 +32,7 @@ A style is an implementation, not a label: register it only when its renderer ex
 4. Register it in `visualStyles` in `playground/catalog.ts` (`id`, `name`, `description`, `tokens`, `guidance`). `/styles` renders a card from it; `test/catalog.test.tsx` checks both files exist.
 5. A page that shows it (next recipe), with `styleName` on `ShowcaseShell` so the context line names the style.
 6. Evidence: screenshots at 1440 and 390 in both themes in `docs/`, referenced from the doc.
+7. `npm run build` and commit `dist/` with the change.
 
 ## A new playground page
 
@@ -53,8 +55,9 @@ A style is an implementation, not a label: register it only when its renderer ex
 1. The part: layout parts in `src/deck/parts.tsx` (or `bento.tsx`), consulting charts one per file in `src/deck/consulting/charts/` (shared frame, text and fills in `shared.tsx`; add the new file to `charts/index.ts`). Sizes are canvas pixels; a chart measures its box with `useChartSize` and takes `alt`, `width` and `height` like the others.
 2. Its maths as pure functions in `src/deck/consulting/scale.ts` (scales, ticks, layouts, `wrapToWidth`, `formatValue`), unit-tested in `test/deck-consulting.test.tsx`.
 3. Styles in `src/deck/deck.css` or `src/deck/consulting/consulting.css`, under `.uipack-deck`, using the deck tokens (`--deck-fg`, `--deck-accent`, `--deck-radius`, `--deck-settle`…). Text on a slide is at least `MIN_TEXT_PX` on the canvas.
-4. Export it by name from `src/deck/consulting/index.ts` and again in the consulting block of `src/deck/index.ts`. Check the name is not already used by another entry (`Callout` is article's; deck's is `Annotation`).
+4. Export it by name from `src/deck/consulting/index.ts` and again in the consulting block of `src/deck/index.ts`. `test/exports.test.tsx` fails if the second is missing or another entry already uses the name (`Callout` is article's; deck's is `Annotation`).
 5. Document it in the parts table of `docs/deck-consulting.md` (or `docs/deck.md`), and use it on a slide of an example deck.
+6. `npm run build` and commit `dist/` with the change.
 
 ## A new figure pattern on `/`
 
@@ -63,7 +66,7 @@ The diagrams page shows each pattern once, simplest first. Add one the first tim
 1. The figure: `playground/figures/<pattern>.tsx`, a `Figure` built from library parts, with a wide drawing and an authored `narrow` drawing below 720px, neutral content (no real systems), and `controls={false}` if nothing moves.
 2. A `figureEntries` row in `playground/catalog.ts`: `[id, "Pattern: what it teaches", tags]`, placed by complexity.
 3. A `figureSections` entry in `playground/figures/index.tsx` with the same `id`, an `intro` that starts "Use when…" and names the parts it is built from, and `render(number)`. `test/figures-page.test.tsx` checks the two lists match.
-4. If the figure needs a mark that published figures share (as `Wall` and `Cross` were), promote it to `src/` with a test and a README line instead of drawing it locally. Candidates still drawn locally are listed at the end of this page.
+4. If the figure needs a mark that published figures share (as `Wall` and `Cross` were), promote it to `src/` with a test and a README line instead of drawing it locally, then `npm run build` and commit `dist/`. Candidates still drawn locally are listed at the end of this page.
 5. `e2e/geometry.spec.ts` checks every figure on the page: arrowheads clear of nodes, packets clear of heads, text inside node boxes at 1440 and 390, the 11px text floor, no motion controls on a still figure.
 
 ## A new Mechanism machine
@@ -74,13 +77,14 @@ The diagrams page shows each pattern once, simplest first. Add one the first tim
 4. Register it in `mechanismEntries` in `playground/catalog.ts` and give it a section on `playground/MechanismShowcase.tsx`.
 5. Tests: the model and the scripts' continuity in `test/mechanism.test.tsx` (the no-Three.js check covers the new folder), interaction and both themes in `e2e/mechanism.spec.ts`.
 6. Document it in `docs/mechanism.md` (what moves and what it means, its parts, its API), following the craft rules there.
+7. `npm run build` and commit `dist/` with the change.
 
 ## A new package entry
 
-1. `src/<entry>/index.ts`, exporting every name explicitly.
+1. `src/<entry>/index.ts`, exporting every name explicitly. Add its main component to `entries` in `test/ssr.test.tsx`, which fails until every entry renders on the server.
 2. `scripts/entries.ts`: `<entry>: "src/<entry>/index.ts"`. tsup builds `dist/<entry>.{js,cjs,d.ts}` from it.
 3. `package.json` `exports`: `"./<entry>": { "types": "./dist/<entry>.d.ts", "import": "./dist/<entry>.js", "require": "./dist/<entry>.cjs" }`.
-4. If it has styles: a line in `scripts/css-bundles.ts` (`{ out: "<entry>.css", from: [...] }`) and `"./<entry>.css": "./dist/<entry>.css"` in `exports`. `test/package.test.tsx` fails until entries, bundles and exports agree.
+4. If it has styles: a line in `scripts/css-bundles.ts` (`{ out: "<entry>.css", from: [...] }`) and `"./<entry>.css": "./dist/<entry>.css"` in `exports`. `test/package.test.tsx` fails until entries, bundles and exports agree. (`exports` stays hand-written: npm reads `package.json` as it is, and the test names the line you missed.)
 5. Keep heavy dependencies out of the default entry: Three.js and GSAP only behind an optional, lazy entry, and add them to tsup's `external` list.
 6. Docs: `docs/<entry>.md` (shipped by the `docs/*.md` glob in `files`), a line in `docs/README.md`, a section in the root README and a line in `src/README.md`.
 7. `npm run build`, commit `dist/`, and load every built entry in both module systems with `node scripts/load-entries.mjs` (CI runs it, and fails if `dist/` differs from a fresh build).
