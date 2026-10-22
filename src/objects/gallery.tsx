@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { ObjectScene, objectScenes } from "./ObjectScene";
+import { ObjectScene } from "./ObjectScene";
+import { objectScenes } from "./scene-list";
 import type { ObjectKind, ObjectPalette } from "./scenes";
 import {
   objectDirectionIndex,
