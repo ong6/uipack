@@ -79,6 +79,7 @@
     "./article.css": "./dist/article.css",
     "./web.css": "./dist/web.css",
     "./web-gutters.css": "./dist/web-gutters.css",
+    "./fonts/*": "./dist/fonts/*",
     "./docs.css": "./dist/docs.css"
   },
   "files": [
@@ -108,7 +109,7 @@
     "*.css"
   ],
   "scripts": {
-    "build": "tsup && cat src/theme.css src/canvas.css > dist/theme.css && cp src/browser/browser.css dist/browser.css && cp src/presentations/presentations.css dist/presentations.css && cat src/slides/slides.css src/canvas.css > dist/slides.css && cat src/objects/objects.css src/canvas.css > dist/objects.css && cat src/web/web.css src/web/gutters.css > dist/web.css && cp src/web/gutters.css dist/web-gutters.css && cp src/docs/docs.css dist/docs.css && cp src/charts/charts.css dist/charts.css && cp src/article/article.css dist/article.css && cat src/deck/deck.css src/deck/bento.css src/deck/consulting/consulting.css > dist/deck.css",
+    "build": "tsup && cat src/theme.css src/canvas.css > dist/theme.css && cp src/browser/browser.css dist/browser.css && cp src/presentations/presentations.css dist/presentations.css && cat src/slides/slides.css src/canvas.css > dist/slides.css && cat src/objects/objects.css src/canvas.css > dist/objects.css && cat src/web/web.css src/web/gutters.css > dist/web.css && cp src/web/gutters.css dist/web-gutters.css && cp src/docs/docs.css dist/docs.css && cp src/charts/charts.css dist/charts.css && cp src/article/article.css dist/article.css && cat src/deck/deck.css src/deck/bento.css src/deck/consulting/consulting.css > dist/deck.css && mkdir -p dist/fonts && cp src/web/fonts/*.woff2 src/web/fonts/*.txt dist/fonts/",
     "dev": "vite",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
@@ -124,6 +125,11 @@
     "three": "^0.186.0"
   },
   "devDependencies": {
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@fontsource/ibm-plex-serif": "^5.3.0",
+    "@fontsource/instrument-serif": "^5.3.0",
+    "@fontsource/space-grotesk": "^5.3.0",
     "@playwright/test": "^1.61.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",

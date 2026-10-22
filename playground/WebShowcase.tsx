@@ -39,8 +39,14 @@ import {
   withViewTransition,
   withPaintTransition,
   DriftingGutters,
+  SmoothScroll,
+  TYPE_FACES,
 } from "../src/web";
 import "../src/web/web.css";
+// Playground-only display alternates for the type specimen's comparison toggle. Not shipped:
+// the package carries Instrument Serif, IBM Plex Sans and IBM Plex Mono only.
+import "@fontsource/ibm-plex-serif/latin-400.css";
+import "@fontsource/space-grotesk/latin-500.css";
 import "../src/web/gutters.css";
 import "./presentations.css";
 import "./web-showcase.css";
@@ -140,20 +146,161 @@ function TypeScaleSpecimen() {
   );
 }
 
+type DisplayFaceId = "instrument-serif" | "ibm-plex-serif" | "space-grotesk";
+
+// Each alternate brings its own weight and tracking: a grotesk needs more weight and tighter
+// tracking than a hairline serif to hold the same headline.
+const displayFaces: { id: DisplayFaceId; name: string; family: string; note: string; style?: CSSProperties }[] = [
+  {
+    id: "instrument-serif",
+    name: "Instrument Serif",
+    family: "var(--web-font-display)",
+    note: "Default. A high-contrast editorial serif with one weight and a real italic.",
+  },
+  {
+    id: "ibm-plex-serif",
+    name: "IBM Plex Serif",
+    family: '"IBM Plex Serif", "Instrument Serif Fallback", Georgia, serif',
+    note: "Plex's own serif: calmer and wider, the same voice as the text face. Its italic is synthesised here.",
+    style: { "--web-display-weight": 400, "--web-display-tracking": "-0.02em" } as CSSProperties,
+  },
+  {
+    id: "space-grotesk",
+    name: "Space Grotesk",
+    family: '"Space Grotesk", "IBM Plex Sans Fallback", system-ui, sans-serif',
+    note: "A geometric grotesk at 500: technical and punchy, close to the text face. It has no italic.",
+    style: { "--web-display-weight": 500, "--web-display-tracking": "-0.03em" } as CSSProperties,
+  },
+];
+
+const faceStyle = (id: DisplayFaceId): CSSProperties | undefined => {
+  const f = displayFaces.find((d) => d.id === id)!;
+  return f.style ? ({ ...f.style, "--web-font-display": f.family } as CSSProperties) : undefined;
+};
+
+const pageIndex = [
+  { href: "#web-example", label: "Example page" },
+  { href: "#web-type", label: "Type" },
+  { href: "#web-flashy", label: "Flashy" },
+  { href: "#web-lowkey", label: "Low-key" },
+  { href: "#web-motion", label: "Motion" },
+  { href: "#web-backgrounds", label: "Backgrounds" },
+  { href: "#web-principles", label: "Principles" },
+];
+
+function PageIndex() {
+  return (
+    <nav className="web-index" aria-label="On this page">
+      <ol>
+        {pageIndex.map((l) => (
+          <li key={l.href}>
+            <a href={l.href}>{l.label}</a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
+function TypeSpecimen({ theme, face, setFace }: { theme: "light" | "dark"; face: DisplayFaceId; setFace: (id: DisplayFaceId) => void }) {
+  const current = displayFaces.find((f) => f.id === face)!;
+  return (
+    <section id="web-type" data-section="type" className="web-anchor">
+      <h2>Type · 3 roles</h2>
+      <p className="collection-intro">
+        Three faces, each with one job. The display face carries the brand in headlines and big numbers, the text face is quiet enough to
+        read and press, and the mono face marks labels and data. All three are self-hosted woff2 files in the package (latin only) and swap in
+        over metric-matched fallbacks.
+      </p>
+      <WebSurface theme={theme} className="web-panel" style={faceStyle(face)}>
+        <Grid>
+          <GridItem span={[12, 8, 4]}>
+            <div className="web-role" data-role="display">
+              <Eyebrow>Display · {face === "instrument-serif" ? `${TYPE_FACES.display} 400 + italic` : `${current.name} (preview)`}</Eyebrow>
+              <p className="web-role__display">
+                Forty in. <em>Three</em> left.
+              </p>
+              <Body>
+                Headings at steps 4–6 (39–61px, or 31px and up in narrow containers), the hero, big numbers and pull quotes. One weight;
+                the italic marks the phrase that matters.
+              </Body>
+            </div>
+          </GridItem>
+          <GridItem span={[6, 4, 4]}>
+            <div className="web-role" data-role="text">
+              <Eyebrow>Text · {TYPE_FACES.text} 400 / 500 / 600</Eyebrow>
+              <Heading level={3} size={2}>
+                Watch every action
+              </Heading>
+              <Body emphasis="medium">
+                Body, subheads, buttons, nav and headings at steps 0–3. At those sizes a hairline serif loses its contrast, so small
+                headings stay in the sans at 600.
+              </Body>
+              <div className="web-buttons">
+                <CtaButton>Start free</CtaButton>
+                <CtaButton variant="secondary">See how it works</CtaButton>
+              </div>
+            </div>
+          </GridItem>
+          <GridItem span={[6, 4, 4]}>
+            <div className="web-role" data-role="mono">
+              <Eyebrow>Mono · {TYPE_FACES.mono} 400 / 600</Eyebrow>
+              <dl className="web-role__data">
+                <div>
+                  <dt>step</dt>
+                  <dd>03 / 03</dd>
+                </div>
+                <div>
+                  <dt>handled</dt>
+                  <dd>37 messages</dd>
+                </div>
+                <div>
+                  <dt>address</dt>
+                  <dd>tidy.example/inbox</dd>
+                </div>
+              </dl>
+              <Body>Eyebrows, labels, step numbers, data, code and metadata. Fixed widths keep columns of figures aligned.</Body>
+            </div>
+          </GridItem>
+        </Grid>
+        <fieldset className="web-face-toggle">
+          <legend>Compare display faces</legend>
+          <div className="web-face-toggle__options">
+            {displayFaces.map((f) => (
+              <label key={f.id}>
+                <input type="radio" name="web-display-face" value={f.id} checked={face === f.id} onChange={() => setFace(f.id)} />
+                <span style={{ fontFamily: f.family }}>{f.name}</span>
+              </label>
+            ))}
+          </div>
+          <p className="web-face-toggle__note" aria-live="polite">
+            {current.note} The choice previews on every Landing surface on this page; the package ships Instrument Serif only.
+          </p>
+        </fieldset>
+      </WebSurface>
+    </section>
+  );
+}
+
 export default function WebShowcase() {
   const { theme, flip } = useShowcaseTheme();
+  const [face, setFace] = useState<DisplayFaceId>("instrument-serif");
+  const surfaceStyle = faceStyle(face);
   const flashy = webEntries.filter((e) => e.tags.includes("Flashy"));
   const lowKey = webEntries.filter((e) => e.tags.includes("Low-key"));
   return (
     <ShowcaseShell active="web" theme={theme} flip={flip} styleName="Landing">
-      <section data-route="web">
+      <SmoothScroll />
+      <section data-route="web" id="web-example" className="web-anchor">
         <h2>Web UI · Landing style</h2>
         <p className="collection-intro">
           Landing-page building blocks from <code>uipack/web</code>. The example below is one page with one goal: a demo-first hero
           that shows the product working, one star visual, rhyming icons, and the call to action repeated three times. Flashy pieces
-          each earn their motion; the low-key pieces are the defaults.
+          each earn their motion; the low-key pieces are the defaults. Wheel scrolling on this page is eased by <code>SmoothScroll</code>;
+          touch and reduced motion keep native scrolling.
         </p>
-        <WebSurface theme={theme} className="web-example">
+        <PageIndex />
+        <WebSurface theme={theme} className="web-example" style={surfaceStyle}>
           <GlassNav
             brand={
               <a href="#web-top" className="web-brand">
@@ -163,19 +310,23 @@ export default function WebShowcase() {
             links={[
               { label: "How it works", href: "#web-how" },
               { label: "Proof", href: "#web-proof" },
-              { label: "Pricing", href: "#web-start" },
+              { label: "Pricing", href: "#web-pricing" },
             ]}
-            cta={<CtaButton href="#web-start">Start free</CtaButton>}
+            cta={<CtaButton href="#web-pricing">Start free</CtaButton>}
           />
           <div id="web-top">
             <StarHero
               headingId="web-hero-title"
               eyebrow="Inbox agent"
-              title="Forty emails in. Three that need you."
+              title={
+                <>
+                  Forty emails in. Three that <em>need you.</em>
+                </>
+              }
               subtitle="Tidy reads, files and drafts while you watch. You keep the decisions only you can make."
               actions={
                 <>
-                  <CtaButton size="lg" href="#web-start">
+                  <CtaButton size="lg" href="#web-pricing">
                     Start free
                   </CtaButton>
                   <CtaButton size="lg" variant="secondary" href="#web-how">
@@ -191,7 +342,7 @@ export default function WebShowcase() {
                 initialMetric={40}
                 metricLabel="in your inbox"
                 cta={
-                  <CtaButton variant="secondary" href="#web-start">
+                  <CtaButton variant="secondary" href="#web-pricing">
                     Try it yourself
                   </CtaButton>
                 }
@@ -231,7 +382,17 @@ export default function WebShowcase() {
               </dl>
             </div>
           </Section>
-          <Section id="web-start" align="center" title="Get your morning back." intro="The same one goal as the hero and the nav.">
+          <Section
+            id="web-pricing"
+            align="center"
+            eyebrow="Pricing"
+            title={
+              <>
+                Get your morning back for <em>$8 a month.</em>
+              </>
+            }
+            intro="Free for 30 days, no card needed. One inbox, every action visible."
+          >
             <div className="web-closing">
               <CtaButton size="lg">Start free</CtaButton>
             </div>
@@ -239,14 +400,16 @@ export default function WebShowcase() {
         </WebSurface>
       </section>
 
-      <section>
+      <TypeSpecimen theme={theme} face={face} setFace={setFace} />
+
+      <section id="web-flashy" className="web-anchor">
         <h2>Flashy · {flashy.length}</h2>
         <p className="collection-intro">
           Each one explains something. The demo proves the claim, the star carries the story, the spotlight shows what is
           interactive, and the reveal paces a single quote. Pointer effects are off on touch; every piece settles to a static,
           complete state under reduced motion.
         </p>
-        <WebSurface theme={theme} className="web-panel">
+        <WebSurface theme={theme} className="web-panel" style={surfaceStyle}>
           <Grid as="ul">
             {flashy.map((entry) => (
               <GridItem as="li" key={entry.id} span={[3, 4, 4]}>
@@ -262,10 +425,10 @@ export default function WebShowcase() {
         </WebSurface>
       </section>
 
-      <section>
+      <section id="web-lowkey" className="web-anchor">
         <h2>Low-key · {lowKey.length}</h2>
         <p className="collection-intro">The defaults that make a page read as designed: scale, hierarchy, one accent, and a grid.</p>
-        <WebSurface theme={theme} className="web-panel web-lowkey">
+        <WebSurface theme={theme} className="web-panel web-lowkey" style={surfaceStyle}>
           <Grid>
             <GridItem span={[7, 8, 4]}>
               <div className="web-block">
@@ -313,10 +476,10 @@ export default function WebShowcase() {
         </WebSurface>
       </section>
 
-      <MotionSection theme={theme} flip={flip} />
-      <BackgroundsSection theme={theme} />
+      <MotionSection theme={theme} flip={flip} surfaceStyle={surfaceStyle} />
+      <BackgroundsSection theme={theme} surfaceStyle={surfaceStyle} />
 
-      <section>
+      <section id="web-principles" className="web-anchor">
         <h2>Principles · {principles.length}</h2>
         <ol className="web-principles">
           {principles.map((p) => (
@@ -386,17 +549,17 @@ function PaintTransitionDemo({ theme, flip }: { theme: "light" | "dark"; flip: (
   );
 }
 
-function MotionSection({ theme, flip }: { theme: "light" | "dark"; flip: () => void }) {
+function MotionSection({ theme, flip, surfaceStyle }: { theme: "light" | "dark"; flip: () => void; surfaceStyle?: CSSProperties }) {
   const [revealKey, setRevealKey] = useState(0);
   const [scrambleKey, setScrambleKey] = useState(0);
   return (
-    <section data-section="motion">
+    <section data-section="motion" id="web-motion" className="web-anchor">
       <h2>Motion · {webEntries.filter((e) => e.tags.includes("Motion")).length}</h2>
       <p className="collection-intro">
         Motion explains change: something arrives, resolves, counts up or follows the reader. Everything here pauses off screen, uses only transform,
         opacity and filter so nothing shifts, and settles to its final state under reduced motion. Hover effects are mouse-only.
       </p>
-      <WebSurface theme={theme} className="web-panel">
+      <WebSurface theme={theme} className="web-panel" style={surfaceStyle}>
         <Grid>
           <GridItem span={[4, 4, 4]}>
             <div className="web-block">
@@ -457,7 +620,7 @@ function MotionSection({ theme, flip }: { theme: "light" | "dark"; flip: () => v
                 <Body>Tilts a few degrees toward a mouse. Touch and keyboard get a still card with a focus lift.</Body>
               </TiltCard>
               <div className="web-buttons">
-                <MagneticButton href="#web-start">Start free</MagneticButton>
+                <MagneticButton href="#web-pricing">Start free</MagneticButton>
               </div>
             </div>
           </GridItem>
@@ -495,15 +658,15 @@ const backgroundTiles = [
   { id: "beams", name: "Beam lines", note: "Light rides the grid lines, like packets on a connector.", bg: <BeamLines /> },
 ];
 
-function BackgroundsSection({ theme }: { theme: "light" | "dark" }) {
+function BackgroundsSection({ theme, surfaceStyle }: { theme: "light" | "dark"; surfaceStyle?: CSSProperties }) {
   return (
-    <section data-section="backgrounds">
+    <section data-section="backgrounds" id="web-backgrounds" className="web-anchor">
       <h2>Backgrounds · {backgroundTiles.length + 1}</h2>
       <p className="collection-intro">
         One ambient effect per viewport on a real page; this gallery breaks that rule to compare them. Backgrounds sit at low contrast so the
         text above keeps 4.5:1. Moving ones pause off screen and hold still under reduced motion.
       </p>
-      <WebSurface theme={theme} className="web-panel">
+      <WebSurface theme={theme} className="web-panel" style={surfaceStyle}>
         <Grid>
           {backgroundTiles.map((tile) => (
             <GridItem key={tile.id} span={[4, 4, 4]}>
