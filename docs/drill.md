@@ -62,7 +62,7 @@ Reduced motion replaces every move with a 160ms crossfade, no scaling. Without W
 
 ## Interaction and accessibility
 
-- A drillable node is a button named by its visible text first, then what activating it does: `Checks, before it ships, open: 7 parts inside` (label, `sub`, then the count from the child drawing; `summary` on the level overrides the count). Starting with the visible words satisfies WCAG 2.5.3 (label in name). Click, tap, Enter or Space opens it.
+- A drillable node is a button named by its visible text first, then what activating it does: `Checks, before it ships, open: 7 parts inside` (label, `sub`, then the count from the child drawing; `summary` on the level overrides the count). Starting with the visible words satisfies WCAG 2.5.3 (label in name). Click, tap, Enter or Space opens it. A level's drawing is one Tab stop; the arrow keys, Home and End move between its nodes (see [interaction](interaction.md#svg-figures)).
 - The header carries a breadcrumb (`Agent harness › Checks › Policy`; ancestors are buttons), the level's heading and caption, Back, Open canvas and the motion controls.
 - Escape (after clearing any selection) and Backspace go up one level. In the canvas, Escape keeps closing the canvas; Backspace and Back still go up.
 - Focus lands on the new level's heading after going down, and on the node you came from after going up. A polite live region announces `Opened Checks. Agent harness › Checks` or `Back to Agent harness`.

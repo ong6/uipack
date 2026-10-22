@@ -34,7 +34,7 @@ Mechanism is `uipack/mechanism`, shown at `/mechanism`: one isometric machine wh
 
 ## Interaction and mobile
 
-Click or tap a semantic component to select it. Enter/Space do the same. Selecting another item replaces the selection; repeat activation, Escape, or the empty canvas clears it. There is no separate clear button. A selection must reveal something: a short `hint` note beside the item, or a pinned flow highlight. Parts with neither are not buttons. Nodes with href retain normal navigation. Lines, lane headings, and motion tokens remain explanatory marks rather than artificial buttons.
+Click or tap a semantic component to select it. Enter/Space do the same. A drawing is one Tab stop; the arrow keys move between its parts. Selecting another item replaces the selection; repeat activation, Escape, or the empty canvas clears it. There is no separate clear button. A selection must reveal something: a short `hint` note beside the item, or a pinned flow highlight. Parts with neither are not buttons. Nodes with href retain normal navigation. Lines, lane headings, and motion tokens remain explanatory marks rather than artificial buttons.
 
 Use authored stacked drawings below 720px where available. Dense drawings without a narrow alternative keep a readable internal width with horizontal scrolling. Opening a canvas offers a wide drawing with zoom and scroll. Expanded canvases support trackpad and touch pinch zoom, preserve native scrolling, and expose keyboard zoom/reset. Figure zoom stays anchored to the pointer; 3D zoom uses the authored camera target. Free 3D orbit is not implemented. Check page overflow, label sizes, clipping, control reachability, focus, and reduced motion at 390px.
 
