@@ -193,6 +193,8 @@ test.describe("/web Landing collection", () => {
     expect(new Set(await states())).toEqual(new Set(["paused"]));
     const beam = section.locator(".uipack-web-beams i").first();
     const pos = () => beam.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41);
+    // WebKit settles a paused animation's position on the next frames, so read it after two.
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
     const held = await pos();
     await page.waitForTimeout(300);
     expect(await pos()).toBe(held);
