@@ -12,12 +12,11 @@ import {
   deckMotion,
   Morph,
   Slide,
-  flipFrom,
-  resolveTransition,
   slideZoomFrame,
-  slideZoomSamples,
   type DeckSlide,
 } from "../src/deck";
+// Internal to the player: tested at their module, not exported from uipack/deck.
+import { flipFrom, resolveTransition, slideZoomSamples } from "../src/deck/transitions";
 import { slidePlan } from "../src/deck/player/Presenter";
 
 const slides: DeckSlide[] = [
