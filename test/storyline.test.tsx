@@ -1,5 +1,6 @@
 import type { DeckSlide } from "../src/deck/types";
 import {
+  LINT_CHECKS,
   LINT_RULES,
   MAX_TITLE_WORDS,
   REPEATABLE_ROLES,
@@ -147,6 +148,22 @@ describe("storyline templates", () => {
 });
 
 describe("lintDeck", () => {
+  it("has one check per rule of the checklist, and every finding names its check's rule", () => {
+    expect(LINT_CHECKS.map((c) => c.rule).sort()).toEqual(Object.keys(LINT_RULES).sort());
+    expect(new Set(LINT_CHECKS.map((c) => c.rule)).size).toBe(LINT_CHECKS.length);
+    // A finding never reports a severity stronger than its rule's documented one.
+    const rank = { tip: 0, warn: 1, error: 2 };
+    const findings = [
+      lintDeck([]),
+      lintDeck(good),
+      lintDeck([
+        { id: "a", title: "Overview" },
+        { id: "a", title: "" },
+      ]),
+    ].flat();
+    for (const f of findings) expect(rank[f.severity], f.rule).toBeLessThanOrEqual(rank[LINT_RULES[f.rule].severity]);
+  });
+
   it("passes a clean answer-first deck", () => {
     // Seven presented slides at about 90 words each fill half of eight minutes. The template needs a plan.
     const plan: StorySlide = {
