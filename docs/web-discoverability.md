@@ -149,7 +149,13 @@ article({ …, author: { "@id": "https://jun.example/#person", name: "Jun" } });
 | `product({ name, description, url, image?, brand?, sku?, offers?, aggregateRating? })` | `Product` | For physical or generic products. |
 | `faqPage(items, { url? })` | `FAQPage` | `FAQ` calls it for you. |
 | `breadcrumbList([{ name, url? }])` | `BreadcrumbList` | The last item may omit `url`. |
-| `article({ headline, url, datePublished, author, dateModified?, image?, publisher?, type? })` | `Article` / `BlogPosting` / … | `dateModified` defaults to `datePublished`. `author` takes `{ name, url? }`, a `person()` node, or a Person's `{ "@id", name }` (or an array of them); with an `@id` it emits a compact `{ "@type": "Person", "@id", name, url? }` that links to the full Person node. |
+| `article({ headline, url, datePublished, author, dateModified?, image?, publisher?, type?, id?, isPartOf? })` | `Article` / `BlogPosting` / … | `dateModified` defaults to `datePublished` and may not precede it; dates take a `Date` or an ISO 8601 string. `author` takes `{ name, url? }`, a `person()` node, or a Person's `{ "@id", name }` (or an array of them); with an `@id` it emits a compact `{ "@type": "Person", "@id", name, url? }` that links to the full Person node. A bare `{ "@id" }` throws. |
+| `personRef(personOrIdAndName)` | `Person` (reference) | The compact `{ "@type": "Person", "@id", name, url? }` the builders use for `author`; use it in hand-written nodes too. Throws without a name. |
+| `webPage({ url, name, description?, type?, isPartOf?, about?, mainEntity?, author?, image?, breadcrumb?, datePublished?, dateModified?, inLanguage? })` | `WebPage` / `AboutPage` / … | `@id` defaults to `url#webpage`. `isPartOf` the WebSite, `about` the site owner. |
+| `profilePage({ url, person, name?, isPartOf?, dateCreated?, dateModified? })` | `ProfilePage` | `mainEntity` is the full Person from `person()` options or node, with its `sameAs`; keep the home site's `@id`. `@id` defaults to `url#profilepage`. |
+| `softwareSourceCode({ name, codeRepository, description?, url?, programmingLanguage?, runtimePlatform?, license?, version?, author?, keywords?, datePublished?, dateModified? })` | `SoftwareSourceCode` | For a library or tool page; `@id` defaults to `(url ?? codeRepository)#code`. |
+| `itemList(entries, { name?, order?, id? })` | `ItemList` | Entries are `{ url, name, description? }` or nodes (an `article()`), numbered in page order. |
+| `collectionPage({ url, name, items, order?, … })` | `CollectionPage` | A blog or project index; `mainEntity` is `itemList(items)` with `@id` `url#items`. |
 | `jsonLd(...nodes)` | | One node, or an `@graph`, with `@context`. |
 | `serializeJsonLd(data)` / `jsonLdTag(doc)` | | Escapes `<`, `>`, `&`, U+2028 and U+2029 as JSON escapes, so `</script>` in a value cannot close the tag; parses back to the same data. |
 
@@ -159,6 +165,42 @@ Structured data must describe content visible on the page and must not mislead
 features ([AI optimization guide][g-aio]). The FAQ markup stays because it costs nothing, is
 generated from the visible text, and other consumers read schema.org; the visible questions and
 answers are what gets quoted.
+
+#### Use these on your site
+
+A personal site and its notes subdomain, sharing one Person. This avoids two failures seen on real
+sites: an author written as a bare `{ "@id": "…#person" }`, which names nobody to a reader of that
+page alone (Google's article guidelines ask for the author's name), and a `dateModified` set to the
+build date, which changes on every deploy and so says nothing about the content.
+
+```ts
+import { jsonLd, person, personRef, profilePage, article, webPage, collectionPage } from "uipack/web";
+
+// One Person, published in full on the profile page, referenced everywhere else.
+const me = { name: "Jun", url: "https://jun.example/", id: "https://jun.example/#person",
+  sameAs: ["https://github.com/jun", "https://www.linkedin.com/in/jun", "https://notes.jun.example/about"] };
+
+// /about on either site:
+jsonLd(profilePage({ url: "https://notes.jun.example/about", person: me, dateModified: aboutUpdated }));
+
+// A post: the author is { "@type": "Person", "@id", name }, never ref(me) alone.
+jsonLd(article({
+  type: "BlogPosting", headline: post.title, url: post.url, author: personRef(person(me)),
+  datePublished: post.created,          // from the post's frontmatter
+  dateModified: post.updated,           // the last real edit, not new Date() at build time
+}));
+
+// A hand-maintained page: date it from its source file's last commit, not the deploy.
+//   git log -1 --format=%cs -- pages/ai-tooling.mdx   → "2026-10-20"
+jsonLd(webPage({ url, name, isPartOf: "https://jun.example/#website", about: me.id, dateModified: lastCommit }));
+
+// The notes index:
+jsonLd(collectionPage({ url: "https://notes.jun.example/", name: "Notes", order: "descending",
+  items: posts.map((p) => ({ url: p.url, name: p.title, description: p.description })) }));
+```
+
+When a page has no reliable change date, leave `dateModified` out rather than fill it with today.
+The same rule holds for sitemap `<lastmod>` (below).
 
 ### `FAQ`
 
@@ -199,6 +241,7 @@ const files = buildCrawlFiles({
   llms: { title: "Tidy", summary: "Tidy is an inbox agent that …", details: "Optional paragraph." },
 });
 // files["robots.txt"], files["sitemap.xml"], files["llms.txt"]
+// Give pages `content: "<their Markdown>"` and files["llms-full.txt"] appears too.
 ```
 
 - **robots.txt**: a `*` group, then one group per AI crawler with a comment saying what it does and
@@ -214,8 +257,12 @@ const files = buildCrawlFiles({
   sections of `- [name](url): notes`, and `## Optional` last for links an agent may skip. Pages with
   `markdown` link their Markdown copy. Google Search does not use llms.txt and it neither helps nor
   hurts there ([AI optimization guide][g-aio]); it is a cheap courtesy to tools that read it.
+- **llms-full.txt**, when any page has `content` (its Markdown): the llms.txt header and a
+  `Source:` line, then each page as `# Title`, `URL:`, `Updated:` (from `lastmod`) and its text,
+  separated by `---`, in llms.txt order. Frontmatter and a leading H1 that repeats the title are
+  dropped. llms.txt then lists it under `## Optional` as "Full text". `llmsFullTxt()` builds it alone.
 
-`scripts/build-crawl-files.ts` writes the three files:
+`scripts/build-crawl-files.ts` writes the files:
 
 ```sh
 npx tsx scripts/build-crawl-files.ts --out public                    # the /web demo's files
@@ -291,6 +338,11 @@ paragraph (the LCP element, below). The fix was in the playground shell, not in 
 - `/web` paints its intro and page index first and renders the example in the next task, so its
   font requests start after the LCP paint. Without that step mobile LCP was 2.59 s.
 - `/web` no longer loads `presentations.css` (8 KB compressed), which styles only `/styles`.
+
+The specimen's two comparison faces (IBM Plex Serif, Space Grotesk; playground only) now load
+when their toggle nears the viewport, not with the page. Same method, 2026-10-23: `/web` mobile
+fetches 7 font files (143 KB) instead of 9 (176 KB), and 240 KB in total instead of 273 KB.
+Score, FCP and LCP are unchanged (99, 1.43 s, 1.67 s): those files were never on the LCP path.
 
 `/` trades some mobile LCP (1.56 s before, when its sections were in the entry chunk) for an
 entry chunk less than half the size; its score is unchanged.

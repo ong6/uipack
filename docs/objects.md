@@ -44,7 +44,9 @@ The six hobby scenes have six distinct art directions. Contact retains its three
 | 4 | Realistic close-ups | Material-focused studies of keys, felt, steel, paper and circuitry | Key travel, ball study, ticker spool, cooling fans, compass needle and quiet book stack |
 | 5 | Abstract forms | Transmissive glass, polished metal, arcs and ribbons | Thought lattice, elastic exchange, risk rhythm, signal stack, portals and curved leaves |
 
-`src/objects/art-directions.ts` and `src/objects/expanded-directions.ts` are the editable sources for all thirty non-Studio scenes.
+`src/objects/art-directions.ts` and `src/objects/expanded-directions.ts` are the editable sources for all thirty non-Studio scenes:
+one builder per kind in each direction's table (`paperModels`, `kineticModels`, `cartoonModels`, `realisticModels`, `abstractModels`),
+on a shared stage per direction. `src/objects/procedural.ts` holds the 12 s loop clock (`playLoop`) they and `contact-directions.ts` share.
 `directionTokens` and the expanded direction material factories own their materials, and the scoped direction rules in `objects.css` own their
 light/dark stage backgrounds. Custom palettes continue to control Studio; the other directions
 retain their authored material palette. All geometry is original, MIT licensed, with no downloaded
@@ -66,11 +68,12 @@ Physical mobile performance must be measured separately from desktop browser vie
 
 Run `blender --background --factory-startup --python-exit-code 1 --python scripts/objects/tennis.py`
 from the repository. The original model uses no external assets or textures. The script produces
-`assets/objects/tennis-return.glb`, the file the runtime fetches. Generated
+`assets/objects/tennis-return.glb`; compress it before committing (below). Generated
 editable `.blend`, four pose previews and verification data go to `/tmp/uipack-tennis`. The script
 is the durable, reproducible source; copy the editable file elsewhere before clearing temporary files.
 
-The two-player GLB is 716,300 bytes. Only selecting Studio tennis loads the model. Its baked
+The two-player GLB is 278,892 bytes, meshopt-compressed from Blender's 716,300-byte export (below).
+Only selecting Studio tennis loads the model. Its baked
 object animation is sampled deterministically; a contact test checks the exported ball against the
 two rackets at 1.9 and 4.9 seconds in a seamless six-second rally. Each instance owns its mixer and materials and disposes them on removal.
 The existing SVG remains visible until model loading succeeds, including on an asset-load failure.
@@ -78,7 +81,7 @@ The existing SVG remains visible until model loading succeeds, including on an a
 ### Loading the tennis model
 
 Studio tennis fetches the GLB as a file, not as JavaScript: it was a 955 KB base64 chunk (and
-1.08 MB inlined into `objects.cjs`), now 716 KB of binary that the browser caches like an image.
+1.08 MB inlined into `objects.cjs`), then 716 KB of binary, now 279 KB that the browser caches like an image.
 The URL comes from `new URL("../assets/objects/tennis-return.glb", import.meta.url)` in
 `src/package-assets.ts`, which Vite, Rollup (with an import-meta-assets plugin), webpack 5 and
 Next recognise: they copy the file into the build and rewrite the URL. Checked from the packed
@@ -102,6 +105,45 @@ Serve the file yourself and pass `modelUrl` when the default cannot resolve:
 Copy the file from `uipack/assets/objects/tennis-return.glb` (exported) into your public folder,
 e.g. in a prebuild script with `require.resolve("uipack/package.json")`. A failed fetch keeps the
 labelled SVG fallback.
+
+### Model compression
+
+The committed GLB is Blender's export after three [glTF Transform](https://gltf-transform.dev) steps:
+
+```sh
+npx @gltf-transform/cli@4 dedup    tennis-return.glb a.glb   # shared accessors once
+npx @gltf-transform/cli@4 resample a.glb b.glb               # drop keyframes that linear interpolation reproduces
+npx @gltf-transform/cli@4 meshopt  b.glb tennis-return.glb --level medium   # quantize + EXT_meshopt_compression
+```
+
+716,300 → 278,892 bytes (−61 %); in the npm tarball, which is gzipped, its share falls from about
+260 KB to 119 KB. The model has no textures, so texture resizing has nothing to act on. Checked
+against the original export: across 240 sampled times in the six-second loop, every mesh's world
+bounding box and centroid moves at most 0.00019 units, and the rest pose's vertices at most 0.00023
+units (Hausdorff distance), on a model about 4 units across; colours, shadow flags and the
+ball-on-racket contact test are unchanged. Reduced-motion renders at 1280 × 900 (2× DPR) differ in
+0.05 % of pixels by more than 16/255, all antialiasing on thin court lines and strings.
+
+Options weighed:
+
+| Option | Bytes | Decoder | Notes |
+| --- | --- | --- | --- |
+| Original export | 716,300 | none | Float32 positions, normals and 30 fps sampled keys. |
+| `dedup` + `resample` | 543,500 | none | Lossless to 0.0002 units; no extension. |
+| `resample` + `quantize` | 465,524 | none | `KHR_mesh_quantization`, which three's `GLTFLoader` reads natively. |
+| **`resample` + `meshopt`** (shipped) | **278,892** | `MeshoptDecoder` | Same quantization error as above, about 40 % smaller again. |
+| `resample` + Draco | 266,976 | `DRACOLoader` + hosted wasm | Needs `setDecoderPath` and the decoder files served by the consumer; rejected. |
+
+The Studio scene sets the decoder itself (`GLTFLoader.setMeshoptDecoder` with
+`three/addons/libs/meshopt_decoder.module.js`, loaded with the loader only when tennis is shown;
+about 8 KB gzipped, WebAssembly inline), so `ObjectScene`, `ObjectGallery` and `modelUrl` need no
+setup. Loading the file with your own `GLTFLoader` needs the same line:
+
+```ts
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
+const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(url);
+```
 
 Trading uses a beveled monitor with a flat chart display. Each candle has consistent open, high, low and close prices, and its matching volume below. The view advances toward later bars, bringing new candles in from the right. A 64-bar synthetic history repeats while time labels continue forward; it is explicitly labeled simulated.
 

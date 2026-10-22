@@ -500,7 +500,8 @@ interface NumberTickerProps {
     face?: "display" | "inherit";
 }
 /**
- * Counts up to a proof stat the first time it is on screen. Tabular figures and a hidden copy
+ * Counts up to a proof stat the first time it is on screen; a later `value` counts on from the
+ * number shown. Tabular figures and a hidden copy
  * of the final value reserve the width; assistive tech reads the final value only.
  */
 declare function NumberTicker({ value, from, duration, format, locale, prefix, suffix, className, face }: NumberTickerProps): react.JSX.Element;
@@ -890,14 +891,34 @@ interface BreadcrumbItem {
     url?: string;
 }
 declare function breadcrumbList(items: BreadcrumbItem[]): JsonLdNode;
+/**
+ * A schema.org date: a `Date` (serialised as ISO 8601 in UTC) or an ISO 8601 string as given.
+ * Use the date the content last changed, from its source (frontmatter, `git log -1 --format=%cI -- file`),
+ * never the build time: a dateModified that moves on every deploy tells engines nothing.
+ */
+type SchemaDate = Date | string;
+/** An author or creator: plain name and url, a Person's `@id` and name, or a `person()` node. */
+type ArticleAuthor = {
+    name: string;
+    url?: string;
+    "@id"?: string;
+} | JsonLdNode;
+/**
+ * A compact Person reference, `{ "@type": "Person", "@id", name, url? }`, for an author, creator or
+ * `about`. Keeps the name beside the `@id`: a bare `{ "@id" }` names nobody to a reader of this page
+ * alone, and Google's article guidelines ask for the author's name. Takes a `person()` node or
+ * `{ "@id"?, name, url? }`; throws without a name.
+ */
+declare function personRef(a: ArticleAuthor): JsonLdNode;
 interface ArticleOptions {
     headline: string;
     description?: string;
     url: string;
     image?: string | string[];
-    /** ISO 8601 dates. */
-    datePublished: string;
-    dateModified?: string;
+    /** ISO 8601 string or Date: first publication. */
+    datePublished: SchemaDate;
+    /** Last substantive change to the text, not the build date. Defaults to `datePublished`. */
+    dateModified?: SchemaDate;
     /**
      * A name (and url), a `person()` node, or a Person's `{ "@id", name }`. With an `@id` the author
      * links to that Person node, wherever it is published; the name stays for readers of this page alone.
@@ -907,14 +928,104 @@ interface ArticleOptions {
         "@id"?: string;
     } | string;
     type?: "Article" | "BlogPosting" | "NewsArticle" | "TechArticle";
+    /** Default none, as before; e.g. `${url}#article` to link the article from a WebPage or ItemList. */
+    id?: string;
+    /** The WebPage or Blog (node or "@id") the article belongs to. */
+    isPartOf?: {
+        "@id"?: string;
+    } | string;
 }
-/** An article author: plain name and url, a Person's `@id` and name, or a `person()` node. */
-type ArticleAuthor = {
-    name: string;
-    url?: string;
-    "@id"?: string;
-} | JsonLdNode;
 declare function article(o: ArticleOptions): JsonLdNode;
+interface WebPageOptions {
+    url: string;
+    /** The page's own title, as in its `<h1>` (not the `<title>` with the brand suffix). */
+    name: string;
+    description?: string;
+    /** Default "WebPage". */
+    type?: "WebPage" | "AboutPage" | "ContactPage" | "ItemPage" | "CollectionPage" | "ProfilePage";
+    /** The WebSite (node or "@id") this page belongs to. */
+    isPartOf?: {
+        "@id"?: string;
+    } | string;
+    /** What the page is about, e.g. the site owner's Person (node or "@id"). */
+    about?: {
+        "@id"?: string;
+    } | string;
+    /** The page's main subject, as a full node or a reference. */
+    mainEntity?: JsonLdNode | {
+        "@id": string;
+    };
+    author?: ArticleAuthor | ArticleAuthor[];
+    /** Absolute URL of the page's main image. */
+    image?: string;
+    breadcrumb?: JsonLdNode;
+    datePublished?: SchemaDate;
+    /** When the page's content last changed (not the deploy). Defaults to `datePublished`. */
+    dateModified?: SchemaDate;
+    inLanguage?: string;
+    /** Default `${url}#webpage`. */
+    id?: string;
+}
+/** A WebPage (or a subtype), linked to its WebSite and to what it is about. */
+declare function webPage(o: WebPageOptions): JsonLdNode;
+interface ProfilePageOptions extends Omit<WebPageOptions, "type" | "mainEntity" | "about" | "author" | "name"> {
+    /** The page title; defaults to the person's name. */
+    name?: string;
+    /**
+     * The person the page is about: `person()` options or node. Its `sameAs` (GitHub, LinkedIn, the
+     * home site) is what lets engines join this profile to the same person elsewhere; keep the `@id`
+     * the home site uses.
+     */
+    person: PersonOptions | JsonLdNode;
+    /** When the profile was first published. */
+    dateCreated?: SchemaDate;
+}
+/** A ProfilePage (an about page, an author page) whose mainEntity is the full Person, with sameAs. */
+declare function profilePage(o: ProfilePageOptions): JsonLdNode;
+interface SoftwareSourceCodeOptions {
+    name: string;
+    /** The repository, e.g. "https://github.com/acme/tidy". */
+    codeRepository: string;
+    description?: string;
+    /** The project's own page, if it has one. Default the repository. */
+    url?: string;
+    /** e.g. "TypeScript", or ["TypeScript", "CSS"]. */
+    programmingLanguage?: string | string[];
+    /** e.g. "Node.js 20", "React 18". */
+    runtimePlatform?: string;
+    /** A licence URL or SPDX name, e.g. "https://opensource.org/licenses/MIT". */
+    license?: string;
+    version?: string;
+    author?: ArticleAuthor | ArticleAuthor[];
+    datePublished?: SchemaDate;
+    dateModified?: SchemaDate;
+    keywords?: string | string[];
+    /** Default `${url ?? codeRepository}#code`. */
+    id?: string;
+}
+/** SoftwareSourceCode: an open-source library or tool, linked to its repository and author. */
+declare function softwareSourceCode(o: SoftwareSourceCodeOptions): JsonLdNode;
+/** One entry of an ItemList: a link with its name, or a node (an article, a project) shown in the list. */
+type ItemListEntry = {
+    url: string;
+    name: string;
+    description?: string;
+} | JsonLdNode;
+interface ItemListOptions {
+    name?: string;
+    /** "ItemListOrderAscending", "ItemListOrderDescending" (newest first) or "ItemListUnordered". */
+    order?: "ascending" | "descending" | "unordered";
+    id?: string;
+}
+/** An ItemList of ListItems with 1-based positions, in the order the page shows them. */
+declare function itemList(items: ItemListEntry[], o?: ItemListOptions): JsonLdNode;
+interface CollectionPageOptions extends Omit<WebPageOptions, "type" | "mainEntity"> {
+    /** The entries the page lists (posts, projects), in the order shown. */
+    items: ItemListEntry[];
+    order?: ItemListOptions["order"];
+}
+/** A CollectionPage (an index of posts or projects) whose mainEntity is the ItemList it shows. */
+declare function collectionPage(o: CollectionPageOptions): JsonLdNode;
 /** Wrap one node, or several as an "@graph", in a JSON-LD document with its "@context". */
 declare function jsonLd(...nodes: JsonLdNode[]): JsonLdDocument;
 declare function serializeJsonLd(data: unknown): string;
@@ -1102,6 +1213,11 @@ interface CrawlPage {
     optional?: boolean;
     /** A clean Markdown copy of the page (llmstxt.org suggests `page.md`); llms.txt links it instead. */
     markdown?: string;
+    /**
+     * The page's text as Markdown, for llms-full.txt. YAML frontmatter and a leading `# Title` are
+     * dropped (the file writes its own heading). Pages without it are left out of llms-full.txt.
+     */
+    content?: string;
     /** Leave out of sitemap.xml and llms.txt (e.g. a thank-you page). */
     noindex?: boolean;
 }
@@ -1126,7 +1242,11 @@ interface CrawlFiles {
     "robots.txt": string;
     "sitemap.xml": string;
     "llms.txt": string;
+    /** Present when at least one page has `content`. */
+    "llms-full.txt"?: string;
 }
+/** Where buildCrawlFiles serves the full-text file, linked from llms.txt's Optional section. */
+declare const LLMS_FULL_PATH = "/llms-full.txt";
 /**
  * robots.txt. Each listed AI crawler gets its own group with a comment saying what it does,
  * because a crawler obeys only the most specific group that names it and ignores `*`: site-wide
@@ -1145,7 +1265,14 @@ declare function sitemapXml({ site, pages }: Pick<BuildCrawlFilesOptions, "site"
  * of `- [name](url): notes` links, with "Optional" last for links an agent can skip.
  */
 declare function llmsTxt({ site, pages, llms }: Pick<BuildCrawlFilesOptions, "site" | "pages" | "llms">): string;
-/** robots.txt, sitemap.xml and llms.txt for one site, keyed by file name. */
+/**
+ * llms-full.txt: the llms.txt header, then each page's Markdown in one file, so an agent can read the
+ * whole site in one request. Each page opens with its title as an H1, its URL and, when known, the
+ * date it last changed, and pages are separated by `---`. The same order as llms.txt: sections, then
+ * Optional. Only pages with `content` are included; noindex pages never are.
+ */
+declare function llmsFullTxt({ site, pages, llms }: Pick<BuildCrawlFilesOptions, "site" | "pages" | "llms">): string;
+/** robots.txt, sitemap.xml, llms.txt and (when pages carry `content`) llms-full.txt, keyed by file name. */
 declare function buildCrawlFiles(o: BuildCrawlFilesOptions): CrawlFiles;
 
-export { AI_CRAWLERS, type AiCrawler, type AiCrawlerAgent, type AiCrawlerPolicy, type AiCrawlerPreset, type ArticleAuthor, type ArticleOptions, Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, Body, type BodyProps, type BreadcrumbItem, type BuildCrawlFilesOptions, type CrawlFiles, type CrawlPage, type CrawlRule, type CrawlerPurpose, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, FAQ, type FAQProps, type FaqItem, type Feature, FeatureGrid, type FeatureGridProps, type FontPreloadOptions, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, type HeadTag, HeadTags, type HeadTagsProps, Heading, type HeadingProps, type InViewOptions, JsonLd, type JsonLdDocument, type JsonLdNode, type JsonLdProps, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type OfferOptions, type OrganizationOptions, type PageMetaOptions, type PaintTransitionOptions, type PersonOptions, type ProductOptions, type RatingOptions, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SmoothScroll, type SmoothScrollController, type SmoothScrollHandle, type SmoothScrollOptions, type SmoothScrollProps, type SmoothScrollTarget, type SmoothScrollToOptions, type SoftwareApplicationOptions, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeRole, type TypeStep, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, type WebFontFace, type WebSiteOptions, WebSurface, type WebSurfaceProps, type WheelLike, article, breadcrumbList, buildCrawlFiles, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, easeOutExpo, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, jsonLd, jsonLdTag, llmsTxt, normalizeWheel, offer, organization, pageMeta, person, product, ref, resolveAiCrawlers, robotsTxt, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webSite, withPaintTransition, withViewTransition };
+export { AI_CRAWLERS, type AiCrawler, type AiCrawlerAgent, type AiCrawlerPolicy, type AiCrawlerPreset, type ArticleAuthor, type ArticleOptions, Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, Body, type BodyProps, type BreadcrumbItem, type BuildCrawlFilesOptions, type CollectionPageOptions, type CrawlFiles, type CrawlPage, type CrawlRule, type CrawlerPurpose, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, FAQ, type FAQProps, type FaqItem, type Feature, FeatureGrid, type FeatureGridProps, type FontPreloadOptions, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, type HeadTag, HeadTags, type HeadTagsProps, Heading, type HeadingProps, type InViewOptions, type ItemListEntry, type ItemListOptions, JsonLd, type JsonLdDocument, type JsonLdNode, type JsonLdProps, LLMS_FULL_PATH, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type OfferOptions, type OrganizationOptions, type PageMetaOptions, type PaintTransitionOptions, type PersonOptions, type ProductOptions, type ProfilePageOptions, type RatingOptions, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, type SchemaDate, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SmoothScroll, type SmoothScrollController, type SmoothScrollHandle, type SmoothScrollOptions, type SmoothScrollProps, type SmoothScrollTarget, type SmoothScrollToOptions, type SoftwareApplicationOptions, type SoftwareSourceCodeOptions, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeRole, type TypeStep, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, type WebFontFace, type WebPageOptions, type WebSiteOptions, WebSurface, type WebSurfaceProps, type WheelLike, article, breadcrumbList, buildCrawlFiles, collectionPage, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, easeOutExpo, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, itemList, jsonLd, jsonLdTag, llmsFullTxt, llmsTxt, normalizeWheel, offer, organization, pageMeta, person, personRef, product, profilePage, ref, resolveAiCrawlers, robotsTxt, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, softwareSourceCode, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webPage, webSite, withPaintTransition, withViewTransition };

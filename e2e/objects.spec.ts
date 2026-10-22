@@ -1,4 +1,5 @@
 import { test, expect, waitForStable } from "./fixtures";
+import { playAnimationTime } from "./helpers";
 const kinds = [
   "ai",
   "contact",
@@ -133,6 +134,7 @@ test("switching objects and themes creates a usable renderer every time", async 
 });
 
 test("curated look persists through loop, theme and expanded canvas", async ({ page }) => {
+  await page.clock.install();
   await page.goto("/animations?story=tennis");
   const object = page.locator(".uipack-object");
   const canvas = object.locator("canvas");
@@ -145,8 +147,8 @@ test("curated look persists through loop, theme and expanded canvas", async ({ p
   await page.getByRole("button", { name: "dark mode", exact: true }).click();
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
   await expect(object).toHaveAttribute("data-variant", next!);
-  // Wall clock on purpose: past the 5.4s a once-only scene takes to come to rest, a loop still plays.
-  await page.waitForTimeout(6500);
+  // Past the 5.4s a once-only scene takes to come to rest, a loop still plays.
+  await playAnimationTime(page, 6500);
   await expect(page.getByRole("button", { name: "Pause motion" })).toBeVisible();
   await expect(canvas).toHaveAttribute("data-playback", "loop");
   await expect(object).toHaveAttribute("data-variant", next!);
@@ -184,13 +186,13 @@ test("modeled tennis keeps painting within the mobile frame budget", async ({ pa
 });
 
 for (const kind of ['tennis', 'trading']) test(`${kind} keeps looping, pauses and respects reduced motion`, async ({ page }) => {
-  test.setTimeout(45000);
+  await page.clock.install();
   await page.goto(`/animations?story=${kind}&variant=0`);
   const canvas = page.locator('.uipack-object canvas');
   await expect(canvas).toHaveAttribute('data-playback', 'loop');
   await canvas.scrollIntoViewIfNeeded();
-  // Wall clock on purpose: past the end of one loop (tennis) or the rest point (trading), it still plays.
-  await page.waitForTimeout(kind === 'tennis' ? 18500 : 6500);
+  // Past the end of the 6s tennis loop, and past the 5.4s rest point of a once-only scene (trading), it still plays.
+  await playAnimationTime(page, 6500);
   await expect(page.getByRole('button', { name: 'Pause motion' })).toBeVisible();
   const frames = Number(await canvas.getAttribute('data-frames'));
   await expect.poll(async () => Number(await canvas.getAttribute('data-frames'))).toBeGreaterThan(frames);

@@ -112,6 +112,9 @@ export const SLIDE_ROLES: Readonly<Record<SlideRole, SlideRoleInfo>> = {
   },
 };
 
+/** Roles whose titles must quantify their claim; a plan needs a date or a number. */
+const QUANTIFIED_ROLES: readonly SlideRole[] = ["answer", "evidence", "problem", "recommendation"];
+
 /** Roles that may sit next to themselves: stacked findings, a zoom through parts, demo steps, backup. */
 export const REPEATABLE_ROLES: readonly SlideRole[] = ["evidence", "mechanism", "demo", "appendix"];
 
@@ -264,7 +267,7 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
         role: "recommendation",
         purpose: "Why the chosen option wins and what you trade away.",
         titlePattern: "<Option> wins on <criterion>; the cost is <trade-off>",
-        example: "A queue ends timeouts; thumbnails arrive a few seconds later",
+        example: "A queue ends timeouts; thumbnails arrive about 5 seconds later",
         guidance: "Naming the cost is what makes the recommendation credible.",
       },
       {
@@ -311,7 +314,7 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
         role: "problem",
         purpose: "Why it matters: the constraint that makes the obvious design fail.",
         titlePattern: "<Naive approach> fails because <constraint>",
-        example: "A central counter adds a network hop to every request",
+        example: "A central counter adds a 2 ms network hop to every request",
         guidance: "Engineers care about the design only once they feel the constraint.",
       },
       {
@@ -383,7 +386,7 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
         role: "answer",
         purpose: "What shipped, for whom, and the change it makes.",
         titlePattern: "<Who> can now <do what> <how much better>",
-        example: "Support agents can now issue refunds in one click instead of a ticket",
+        example: "Support agents can now issue refunds in one click instead of a two-day ticket",
         guidance: "The user and the outcome, not the feature name.",
       },
       {
@@ -475,7 +478,7 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
         role: "problem",
         purpose: "Why it wasn't caught: testing, detection and response gaps.",
         titlePattern: "<Process gap> let <cause> reach <scope>",
-        example: "Config changes skipped canary, so the bad value reached all regions at once",
+        example: "Config changes skipped canary, so the bad value reached all 14 regions at once",
         guidance: "Ask why the safeguards missed it, not who pushed the change.",
       },
       {
@@ -522,14 +525,14 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
         role: "evidence",
         purpose: "Leverage: what others can do now because of the work.",
         titlePattern: "<Who> can now <do what> without <old cost>",
-        example: "Two product teams launched on the new API without our help",
+        example: "Two product teams launched on the new API in three weeks, without our help",
         guidance: "Multipliers are what reviewers look for at senior levels.",
       },
       {
         role: "problem",
         purpose: "What didn't land, and what changed because of it.",
         titlePattern: "<Miss> happened; we now <changed practice>",
-        example: "The fraud-rule rewrite slipped a quarter; we now ship rules behind flags",
+        example: "The fraud-rule rewrite slipped three months; we now ship rules behind flags",
         guidance: "One honest miss makes the wins believable.",
         optional: true,
       },
@@ -603,7 +606,8 @@ export type LintRule =
   | "ask-concrete"
   | "role-repeat"
   | "deck-length"
-  | "talk-time";
+  | "talk-time"
+  | "template-beats";
 
 export interface LintFinding {
   slideId?: string;
@@ -633,13 +637,13 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   "title-length": { severity: "warn", check: "The title is at most 14 words." },
   "title-specific": {
     severity: "warn",
-    check: "An answer or evidence title carries a quantity: a number, a number word ('twice', 'a third') or a from→to or X vs Y comparison with one. Adjectives ('better', 'great') and names don't count.",
+    check: "An answer, evidence, problem or recommendation title quantifies its claim: a number that isn't a date or a version, a multiple or fraction ('twice', 'a third'), a number word with a unit ('three weeks', 'one engineer'), or a comparison of two quantities ('one meeting, not three'). A plan title carries a date or a number. A bare count ('two teams', 'one big improvement'), 'no regressions', adjectives and names don't count.",
   },
   "one-idea": { severity: "tip", check: "The title is one sentence: one idea per slide." },
   "notes-present": { severity: "warn", check: "Every presented slide has a talk track." },
   "number-source": {
     severity: "warn",
-    check: "A number in a title names its source in the notes (a dashboard, query, test, survey, report, benchmark, logs, experiment or URL) or in the slide's `source`.",
+    check: "A number in a title names its source in the notes: a named artifact ('the search latency dashboard', 'load test 12', 'the Q3 user survey') or a URL, with no hedge ('trust me', 'someone mentioned', 'said so'); or in the slide's `source`.",
   },
   "roles-missing": {
     severity: "warn",
@@ -656,7 +660,7 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   "closing-ask": { severity: "error", check: "The last presented slide is an ask." },
   "ask-concrete": {
     severity: "warn",
-    check: "The ask names a decision or action, an owner (a team or role such as 'platform leads', 'the payments team', 'VP Eng' or an @handle; not 'we', 'the team' or a bare name) and a calendar date ('next quarter' is not one).",
+    check: "The ask names a decision or action, an owner (a team or role such as 'platform leads', 'the payments team', 'VP Eng' or an @handle; not 'we', 'the team', a bare name, 'owner TBD' or 'lead' as a verb) and a firm calendar date ('next quarter', 'Monday-ish' and 'next Monday maybe' are not).",
   },
   "role-repeat": {
     severity: "warn",
@@ -666,6 +670,10 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   "talk-time": {
     severity: "warn",
     check: "The talk track fits the time budget at 135 words a minute, and covers at least half of it.",
+  },
+  "template-beats": {
+    severity: "warn",
+    check: "With a template, every beat it requires has a slide in that role: a decision request has its options, a postmortem its plan.",
   },
 };
 
@@ -714,12 +722,27 @@ const DECISION_RE =
   /\b(?:approve|approves|decide|decision|agree|choose|pick|sign(?:s)? off|fund|staff|prioriti[sz]e|review|commit|allocate|assign|adopt|join|try|confirm|accept|enable|switch|turn on|send|share|sponsor|support|unblock|escalate|ship|green-?light|vote|nominate|give|grant|lend|provide|attend|book|hire|move|freeze|pause|stop|start|own)\b/i;
 
 /**
- * A role that can own an ask: "platform leads", "the payments director", "VP Eng", "@handle".
- * Pronouns ("we", "you"), a bare "the team" and a capitalised word ("Support", "Bob") name nobody
- * who would know the ask is theirs.
+ * A role that can own an ask: "the payments director", "VP Eng", "@handle". Pronouns ("we",
+ * "you"), a bare "the team" and a capitalised word ("Support", "Bob") name nobody who would know
+ * the ask is theirs.
  */
 const OWNER_ROLE_RE =
-  /\b(?:owner|owners|lead|leads|manager|managers|director|directors|head of|sponsor|sponsors|committee|board|council|on-call|chair|architect|architects|approver|approvers|reviewer|reviewers)\b|(?:^|[\s(])@\w/i;
+  /\b(?:manager|managers|director|directors|head of|committee|board|council|on-call|architect|architects|approver|approvers|reviewer|reviewers)\b|(?:^|[\s(])@\w/i;
+/**
+ * Words that name an owner only with a qualifier in front ("platform leads", "the service owner",
+ * "our exec sponsor"). Alone they are a placeholder ("owner TBD", "Leads to approve") or a verb
+ * ("we will lead the review"), and a placeholder after them ("platform owner: TBD") names nobody.
+ */
+const QUALIFIED_OWNER_RE =
+  /([\p{L}][\p{L}'’-]*)\s+(?:lead|leads|owner|owners|sponsor|sponsors|chair)\b(?![\s:,–—-]*(?:TBD|TBC|TBA|tbd|to be (?:decided|confirmed|named|agreed)|unknown|unassigned|\?))/gu;
+/** Words that can't qualify an owner: pronouns, articles, modals and links ("we will lead", "the owner"). */
+const NOT_A_QUALIFIER = new Set(
+  (
+    "i we you they he she it me us them this that these those which who whom what the a an our your their my his her its " +
+    "will would can could should shall may might must to and or but then also please not never always just " +
+    "do does did let lets let's help who'll we'll i'll you'll they'll whoever someone somebody anyone nobody no"
+  ).split(" "),
+);
 /** Job-title acronyms, case-sensitive so "3 pm" and "them" don't count. */
 const OWNER_ACRONYM_RE = /\b(?:VPs?|SVPs?|EVPs?|CEO|CTO|CFO|COO|CPO|CIO|CISO|PMs?|EMs?|TLs?|TPMs?|SREs?)\b/;
 /** "<name> team", "<name> org": a named group. "the team", "our team" don't count. */
@@ -728,20 +751,76 @@ const NAMED_GROUP_RE =
 /** "Release Engineering owns it": a named group stated as the owner. */
 const NAMED_OWNS_RE = /\b\p{Lu}[\p{L}-]*(?: \p{Lu}[\p{L}-]*)* (?:owns|will own)\b/u;
 
-/** Number words that make a claim specific: "twice as fast", "a third", "one engineer". */
-const NUMBER_WORD_RE =
-  /\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty|thirty|forty|fifty|hundred|thousand|million|billion|dozen|half|halve[ds]?|twice|double[ds]?|triple[ds]?|third|thirds|quarter of|zero|no (?:rollbacks?|regressions?|incidents?|outages?|errors?|downtime))\b/i;
+/** A date said with a shrug isn't one: "Monday-ish", "next Monday maybe", "14 March, TBC". */
+const HEDGED_DATE_RE =
+  /-?\bish\b|\b(?:maybe|perhaps|probably|possibly|hopefully|tentatively|roughly|approximately|sometime|some time|or so|give or take|if possible|ideally|TBD|TBC|TBA|tbd|tbc)\b/i;
+
+/** Number words, for quantities written out. */
+const NUM_WORD =
+  "one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|billion|dozen";
+/** Units a quantity is measured in: time, share, multiples, money, data and people. */
+const UNIT =
+  "ms|milliseconds?|seconds?|secs?|minutes?|mins?|hours?|hrs?|days?|weeks?|months?|quarters?|years?|sprints?|percent|per cent|percentage points?|points?|pts|times|dollars|cents|euros|pounds|[KMGT]B|engineers?|engineer-(?:days|weeks|months)|people|persons?|hires?|headcount|FTEs?";
+/** A multiple or a fraction: "twice as fast", "cut by half", "a third of queries". */
+const MULTIPLE_RE =
+  /\b(?:twice|half|halve[ds]?|halving|double[ds]?|doubling|triple[ds]?|tripling|quadrupled|tenfold|[a-z]+-fold|a third|thirds|two-thirds|a quarter|a fifth|a tenth)\b/i;
+/** A number word with its unit: "three weeks", "one engineer", "nine more months", "a two-day ticket". */
+const NUMBER_UNIT_RE = new RegExp(
+  String.raw`\b(?:${NUM_WORD})(?:[\s-]+(?:more|fewer|extra|full|whole|additional|business|working|calendar))?[\s-]+(?:${UNIT})\b`,
+  "i",
+);
+/** Two quantities compared: "one meeting, not three", "from forty to six", "nine in ten". */
+const NUMBER_COMPARISON_RE = new RegExp(
+  String.raw`\b(?:${NUM_WORD}|\d[\d,.]*)\b[^.;:!?]{0,40}?\b(?:not|instead of|rather than|vs\.?|versus|against|down from|up from|from|to|of|in|out of)\s+(?:about\s+|around\s+|a\s+|the\s+|every\s+)?(?:${NUM_WORD})\b`,
+  "i",
+);
 
 /** Outcome words for slide one: what changed for the business. */
 const OUTCOME_RE =
   /\b(?:faster|slower|cheaper|safer|fewer|more|less|cut|cuts|saved?|saves|saving|grew|grow|fell|fall|rose|raised?|reduced?|reduces|improved?|improves|doubled?|halved?|ended|ends|stops?|stopped|prevents?|unblock(?:s|ed)?|launch(?:es|ed)?|ship(?:s|ped)?|on track|at risk|done|delivered|won|lost|missed|recovered|restored)\b/i;
 
 /**
- * Where a number came from: a named kind of evidence a reader could open. "Measured", "from" and
- * "per" say nothing about where ("I measured this from my laptop once").
+ * Where a number came from: a named artifact a reader could open. A kind of evidence counts with a
+ * name: a word in front ("the search latency dashboard", "load test", "the Q3 user survey") or an
+ * ID or name after it ("benchmark suite", "dashboard SRCH-12"). Bare or hedged mentions don't: "the
+ * test I ran once on staging, trust me", "a report someone mentioned", "the dashboard chat".
  */
-const SOURCE_RE =
-  /\b(?:dashboards?|quer(?:y|ies)|tests?|load[- ]tests?|a\/b|surveys?|reports?|benchmarks?|logs?|experiments?|traces?|telemetry|studies|study|(?:management|finance|financial) accounts|(?:cost|capacity|pricing|financial) model)\b|https?:\/\/|\bwww\.\w/i;
+const SOURCE_KIND_RE =
+  /^(?:dashboards?|quer(?:y|ies)|tests?|surveys?|reports?|benchmarks?|logs?|experiments?|traces?|telemetry|studies|study|forecasts?|trackers?|ledgers?|notebooks?|spreadsheets?)$/i;
+/** Named sources in a fixed phrase. */
+const SOURCE_PHRASE_RE = /\b(?:management|finance|financial) accounts\b|\b(?:cost|capacity|pricing|financial|forecast) model\b|https?:\/\/|\bwww\.\w/i;
+/** Words that make a sentence's source hearsay. */
+const HEDGED_SOURCE_RE =
+  /\b(?:trust me|someone|somebody|said so|i think|i believe|i heard|i guess|heard|mentioned|rumou?rs?|anecdotal(?:ly)?|ballpark|eyeball(?:ed)?|gut feel(?:ing)?|from memory|my laptop|off the top of my head|guess(?:ed|timate)?|ran (?:it )?once|once on staging)\b/i;
+/** What follows a kind of evidence that makes it a modifier, not the source: "the dashboard chat". */
+const SOURCE_MODIFIED_RE = /^(?:chat|channel|thread|meeting|call|conversation|discussion|rumou?r|gossip|screenshot|people|team|owner)$/i;
+/** Words after a kind of evidence that name it: "benchmark suite", "test run 4". */
+const SOURCE_NAME_AFTER_RE = /^(?:suite|suites|run|runs|notebook|sheet|page|tab|panel|export|entry|row|link|doc|id)$/i;
+const SOURCE_STOP = new Set(
+  (
+    "i we you they he she it me us them this that these those which who what the a an our your their my his her its " +
+    "some any one per from in on at of by for to with and or but see source sources is was were are be been said says " +
+    "ran run did do so just once maybe probably trust according"
+  ).split(" "),
+);
+
+function namedSource(text: string): boolean {
+  if (SOURCE_PHRASE_RE.test(text)) return true;
+  // Sentences; a decimal point ("0.41") or an abbreviation doesn't end one.
+  return text.split(/(?<!\d)[.;!?](?!\d)|\n/).some((sentence) => {
+    if (HEDGED_SOURCE_RE.test(sentence)) return false;
+    const words = sentence.split(/[\s,:()“”"]+/).filter(Boolean).map((w) => w.replace(/['’]s$/, ""));
+    return words.some((word, i) => {
+      if (!SOURCE_KIND_RE.test(word)) return false;
+      const before = words[i - 1];
+      const after = words[i + 1];
+      if (after && SOURCE_MODIFIED_RE.test(after)) return false;
+      const namedBefore = Boolean(before && /^[\p{L}\p{N}]/u.test(before) && !SOURCE_STOP.has(before.toLowerCase()));
+      const namedAfter = Boolean(after && (/\d/.test(after) || (/^\p{Lu}/u.test(after) && after !== "I") || SOURCE_NAME_AFTER_RE.test(after)));
+      return namedBefore || namedAfter;
+    });
+  });
+}
 
 /** Titles that open like a topic, however long: "Overview of…", "How X works", "Status of…". */
 const TOPIC_OPENING_RE =
@@ -807,6 +886,11 @@ function hasClaimNumber(text: string): boolean {
     .replace(/\bFY\s?'?\d{2,4}\b/gi, " ")
     .replace(/\b(?:19|20)\d{2}\b/g, " ")
     .replace(/\bv\d+(?:\.\d+)*\b/gi, " ")
+    // A product's version ("Kafka 3 migration", "Python 3.12"), unless a unit or a counted plural follows.
+    .replace(
+      /\b\p{Lu}[\p{L}]*\s+\d+(?:\.\d+)*\b(?!\s*(?:%|[x×]\b|ms\b|of\b|to\b|in\b|out of\b|per\b|vs\b|versus\b|more\b|fewer\b|less\b|times\b|(?!(?:is|was|has|does|this|its|us)\b)\p{L}{2,}s\b))/gu,
+      " ",
+    )
     .replace(/\b(?:p|sev-?)\d\b/gi, " ")
     .replace(/\b\d{1,2}:\d{2}\b/g, " ");
   return /\d/.test(stripped);
@@ -818,16 +902,24 @@ function hasClaimNumber(text: string): boolean {
  * capitalised word are not owners.
  */
 function hasOwner(text: string): boolean {
-  return OWNER_ROLE_RE.test(text) || OWNER_ACRONYM_RE.test(text) || NAMED_GROUP_RE.test(text) || NAMED_OWNS_RE.test(text);
+  const qualified = Array.from(text.matchAll(QUALIFIED_OWNER_RE)).some((m) => !NOT_A_QUALIFIER.has(m[1].toLowerCase()));
+  return qualified || OWNER_ROLE_RE.test(text) || OWNER_ACRONYM_RE.test(text) || NAMED_GROUP_RE.test(text) || NAMED_OWNS_RE.test(text);
+}
+
+/** A date someone can put in a diary, said firmly: a clause with a date and no hedge ("Monday-ish", "maybe"). */
+function hasFirmDate(text: string): boolean {
+  return text.split(/[,;!?()\n—–]|\.(?!\d)/).some((clause) => DATE_RE.test(clause) && !HEDGED_DATE_RE.test(clause));
 }
 
 /**
- * A claim is specific when it carries a quantity: a number that isn't a date or version, or a
- * number word. A from→to or X-vs-Y comparison counts only with a quantity in it, and a proper
- * noun never does: "The new Kafka pipeline is much better than before" says nothing.
+ * A claim is specific when it quantifies something: a number that isn't a date or a version, a
+ * multiple or fraction ("twice", "a third"), a number word with its unit ("three weeks", "one
+ * engineer") or two quantities compared ("one meeting, not three", "nine in ten"). A bare count
+ * ("Two teams worked hard"), "no regressions" and a proper noun don't: "The new Kafka pipeline is
+ * much better than before" says nothing.
  */
 function isSpecific(text: string): boolean {
-  return hasClaimNumber(text) || NUMBER_WORD_RE.test(text);
+  return hasClaimNumber(text) || MULTIPLE_RE.test(text) || NUMBER_UNIT_RE.test(text) || NUMBER_COMPARISON_RE.test(text);
 }
 
 /** Roles read from titles, for a deck with none tagged: enough to run answer-first and closing-ask. */
@@ -836,7 +928,7 @@ function inferRoles(slides: readonly StorySlide[]): (SlideRole | undefined)[] {
     const text = headlineOf(slide);
     if (i === 0) return isSpecific(text) || OUTCOME_RE.test(text) ? "answer" : "cover";
     if (PLAN_TITLE_RE.test(text)) return "plan";
-    if (i === slides.length - 1 && !QUESTIONS_SLIDE_RE.test(text) && DECISION_RE.test(text) && (hasOwner(text) || DATE_RE.test(text))) {
+    if (i === slides.length - 1 && !QUESTIONS_SLIDE_RE.test(text) && DECISION_RE.test(text) && (hasOwner(text) || hasFirmDate(text))) {
       return "ask";
     }
     return undefined;
@@ -913,11 +1005,18 @@ export function lintDeck(slides: readonly StorySlide[], options: LintOptions = {
           slide.id,
         );
       }
-      if ((slide.role === "answer" || slide.role === "evidence") && !isSpecific(headline)) {
+      if (slide.role && QUANTIFIED_ROLES.includes(slide.role) && !isSpecific(headline)) {
         add(
           "title-specific",
           "warn",
-          `"${headline}" could describe any quarter. Put the quantity in the title: the number, or the from→to it moved.`,
+          `"${headline}" could describe any quarter. Put the quantity in the title: the number with its unit, or the from→to it moved; a bare count ("two teams") doesn't say how much.`,
+          slide.id,
+        );
+      } else if (slide.role === "plan" && !isSpecific(headline) && !hasFirmDate(headline)) {
+        add(
+          "title-specific",
+          "warn",
+          `"${headline}" has no date and no number. Say when each milestone lands, or what it costs.`,
           slide.id,
         );
       }
@@ -936,13 +1035,13 @@ export function lintDeck(slides: readonly StorySlide[], options: LintOptions = {
       slide.role !== "ask" &&
       !isAppendix &&
       hasClaimNumber(headline) &&
-      !SOURCE_RE.test(notesText(slide.notes)) &&
+      !namedSource(notesText(slide.notes)) &&
       !(slide.source && slide.source.trim())
     ) {
       add(
         "number-source",
         "warn",
-        "The title has a number but no source. Name where it came from (a dashboard, query, test, survey, report, benchmark, logs, experiment or URL) and its window in the notes, or set the slide's `source`.",
+        "The title has a number but no source. Name the artifact it came from (\"the search latency dashboard\", \"load test 12\", \"the Q3 user survey\", a URL) and its window in the notes, or set the slide's `source`. Hearsay (\"someone mentioned\", \"trust me\") doesn't count.",
         slide.id,
       );
     }
@@ -1016,13 +1115,15 @@ export function lintDeck(slides: readonly StorySlide[], options: LintOptions = {
     const missing: string[] = [];
     if (!DECISION_RE.test(text)) missing.push("a decision or action verb");
     if (!hasOwner(text)) missing.push("an owner");
-    if (!DATE_RE.test(text)) missing.push("a date");
+    if (!hasFirmDate(text)) missing.push("a date");
     if (missing.length) {
       const relative = text.match(RELATIVE_DATE_RE)?.[0];
+      const hedged = DATE_RE.test(text) && !relative;
       const hints = [
         missing.includes("an owner") &&
-          "Name the team or role who acts (\"platform leads\", \"the payments team\", \"VP Eng\", an @handle); 'we', 'the team' and a bare name don't say whose it is.",
+          "Name the team or role who acts (\"platform leads\", \"the payments team\", \"VP Eng\", an @handle); 'we', 'the team', a bare name and 'owner TBD' don't say whose it is.",
         missing.includes("a date") && relative && `"${relative}" moves with the calendar; give a date such as 14 March.`,
+        missing.includes("a date") && hedged && "The date is hedged (\"-ish\", \"maybe\", \"TBC\"); commit to one.",
       ].filter(Boolean);
       add("ask-concrete", "warn", [`The ask is missing ${missing.join(", ")}.`, ...hints].join(" "), ask.id);
     }
@@ -1038,6 +1139,28 @@ export function lintDeck(slides: readonly StorySlide[], options: LintOptions = {
         ? "Two option slides in a row. Compare the options side by side on one slide, on the same criteria."
         : `Two ${SLIDE_ROLES[role].label.toLowerCase()} slides in a row. Merge them, or give the second its own role.`;
     add("role-repeat", "warn", message, slides[i].id);
+  }
+
+  // A template's required beats: a decision request without its options slide has skipped a step.
+  if (template && !inferred) {
+    const have = new Set(presented.map((s) => s.role));
+    const required = [...new Set(template.beats.filter((b) => !b.optional).map((b) => b.role))];
+    const missing = required.filter((r) => !have.has(r));
+    if (missing.length === 1) {
+      const beat = template.beats.find((b) => b.role === missing[0])!;
+      const label = SLIDE_ROLES[missing[0]].label.toLowerCase();
+      add(
+        "template-beats",
+        "warn",
+        `A ${template.name.toLowerCase()} needs ${/^[aeiou]/.test(label) ? "an" : "a"} ${label} slide (${beat.purpose.charAt(0).toLowerCase()}${beat.purpose.slice(1).replace(/\.$/, "")}), and no slide has role "${missing[0]}".`,
+      );
+    } else if (missing.length > 1) {
+      add(
+        "template-beats",
+        "warn",
+        `A ${template.name.toLowerCase()} needs these beats, and no slide has their role: ${missing.map((r) => `"${r}"`).join(", ")}.`,
+      );
+    }
   }
 
   // Length against the budget.

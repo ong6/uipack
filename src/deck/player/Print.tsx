@@ -46,7 +46,23 @@ function PrintSlide({ slide: s, index: i, count, theme, notes }: { slide: DeckSl
             {detail && <> · detail</>}
           </p>
           <h3>{detail ?? s.headline ?? s.title}</h3>
-          {!detail && talk?.say && <p>{talk.say}</p>}
+          {!detail && talk?.delivery && (
+            <p className="uipack-deck-print__cue">
+              <b>Delivery</b> {talk.delivery}
+            </p>
+          )}
+          {!detail && talk?.next && (
+            <p className="uipack-deck-print__cue">
+              <b>Next</b> {talk.next}
+            </p>
+          )}
+        </div>
+      )}
+      {/* The talk track runs the width of the slide, under it, so the page has no empty band. */}
+      {notes && !detail && talk?.say && (
+        <div className="uipack-deck-print__say">
+          <b>Say</b>
+          <p>{talk.say}</p>
         </div>
       )}
     </section>

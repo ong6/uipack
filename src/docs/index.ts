@@ -10,5 +10,6 @@ export {
   extractDocsHeadings,
   slugifyDocsHeading,
   type DocsMarkdownProps,
+  type ExtractDocsHeadingsOptions,
   type ExtractedDocsHeading,
 } from "./DocsMarkdown";

@@ -565,14 +565,15 @@ function useScrollProgress(ref2) {
   react.useEffect(() => {
     const el = ref2.current;
     if (!el || !inView || typeof window === "undefined") return;
-    let frame = 0;
+    const hasFrames = typeof requestAnimationFrame === "function" && typeof cancelAnimationFrame === "function";
+    let pending;
     const measure = () => {
-      frame = 0;
+      pending = void 0;
       setProgress(scrollProgressOf(el.getBoundingClientRect(), window.innerHeight));
     };
     const schedule = () => {
-      if (frame) return;
-      frame = typeof requestAnimationFrame === "function" ? requestAnimationFrame(measure) : setTimeout(measure, 16);
+      if (pending !== void 0) return;
+      pending = hasFrames ? requestAnimationFrame(measure) : setTimeout(measure, 16);
     };
     measure();
     window.addEventListener("scroll", schedule, { passive: true });
@@ -580,7 +581,9 @@ function useScrollProgress(ref2) {
     return () => {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
-      if (frame && typeof cancelAnimationFrame === "function") cancelAnimationFrame(frame);
+      if (pending === void 0) return;
+      if (hasFrames) cancelAnimationFrame(pending);
+      else clearTimeout(pending);
     };
   }, [ref2, inView]);
   return progress;
@@ -891,19 +894,19 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
   const [t, setT] = react.useState(1);
   const [tick, setTick] = react.useState(0);
   const [armed, setArmed] = react.useState(false);
-  const started = react.useRef(false);
+  const progress = react.useRef(0);
   react.useEffect(() => {
     setArmed(true);
-    if (typeof IntersectionObserver !== "undefined" && !started.current) setT(0);
+    if (typeof IntersectionObserver !== "undefined" && progress.current === 0) setT(0);
   }, []);
   react.useEffect(() => {
-    if (reduced || !inView || started.current) return;
-    started.current = true;
-    const start = Date.now();
-    setT(0);
+    if (reduced || !inView || progress.current >= 1) return;
+    const start = Date.now() - progress.current * duration;
+    setT(progress.current);
     const timer = setInterval(() => {
-      const p = (Date.now() - start) / duration;
-      setT(Math.min(1, p));
+      const p = Math.min(1, (Date.now() - start) / duration);
+      progress.current = p;
+      setT(p);
       setTick((k) => k + 1);
       if (p >= 1) clearInterval(timer);
     }, 40);
@@ -935,19 +938,28 @@ function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix
   const inView = useInView(ref2, { once: true, threshold: 0.6 });
   const [current, setCurrent] = react.useState(value);
   const [armed, setArmed] = react.useState(false);
-  const started = react.useRef(false);
+  const shown = react.useRef(null);
   react.useEffect(() => {
     setArmed(true);
-    if (typeof IntersectionObserver !== "undefined" && !started.current) setCurrent(from);
+    if (typeof IntersectionObserver !== "undefined" && shown.current === null) setCurrent(from);
   }, [from]);
   react.useEffect(() => {
-    if (reduced || !inView || started.current) return;
-    started.current = true;
+    if (reduced || !inView) return;
+    const origin = shown.current ?? from;
+    if (origin === value) {
+      shown.current = value;
+      setCurrent(value);
+      return;
+    }
+    const show = (n) => {
+      shown.current = n;
+      setCurrent(n);
+    };
     const start = Date.now();
-    setCurrent(from);
+    show(origin);
     const timer = setInterval(() => {
       const p = Math.min(1, (Date.now() - start) / duration);
-      setCurrent(from + (value - from) * easeOut(p));
+      show(origin + (value - origin) * easeOut(p));
       if (p >= 1) clearInterval(timer);
     }, 32);
     return () => clearInterval(timer);
@@ -1539,26 +1551,114 @@ function breadcrumbList(items) {
     itemListElement: items.map((b, i) => clean({ "@type": "ListItem", position: i + 1, name: b.name, item: b.url }))
   };
 }
-function authorNode(a) {
+function schemaDate(d, field) {
+  if (d === void 0 || d === "") return void 0;
+  if (d instanceof Date) {
+    if (Number.isNaN(d.getTime())) throw new Error(`${field}: invalid Date`);
+    return d.toISOString();
+  }
+  if (!/^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/.test(d)) throw new Error(`${field} must be ISO 8601, e.g. 2026-10-22 (got "${d}")`);
+  return d;
+}
+function pageDates(published, modified, builder) {
+  const datePublished = schemaDate(published, `${builder}: datePublished`);
+  const dateModified = schemaDate(modified, `${builder}: dateModified`) ?? datePublished;
+  if (datePublished && dateModified && Date.parse(dateModified) < Date.parse(datePublished))
+    throw new Error(`${builder}: dateModified (${dateModified}) is before datePublished (${datePublished})`);
+  return { datePublished, dateModified };
+}
+function personRef(a) {
   const name = typeof a.name === "string" ? a.name : void 0;
-  if (!name) throw new Error("article: every author needs a name");
+  if (!name) throw new Error("personRef: every author needs a name, not only an @id");
   const url = typeof a.url === "string" ? a.url : void 0;
   return clean({ "@type": "Person", "@id": typeof a["@id"] === "string" ? a["@id"] : void 0, name, url });
 }
+var people = (a) => {
+  if (a === void 0) return void 0;
+  const list = (Array.isArray(a) ? a : [a]).map(personRef);
+  return list.length === 1 ? list[0] : list;
+};
+var optRef = (n) => n ? ref(n) : void 0;
 function article(o) {
-  const authors = (Array.isArray(o.author) ? o.author : [o.author]).map(authorNode);
+  const authors = (Array.isArray(o.author) ? o.author : [o.author]).map((a) => {
+    try {
+      return personRef(a);
+    } catch {
+      throw new Error("article: every author needs a name");
+    }
+  });
   return clean({
     "@type": o.type ?? "Article",
+    "@id": o.id,
     headline: o.headline,
     description: o.description,
     url: o.url,
     mainEntityOfPage: o.url,
     image: o.image,
-    datePublished: o.datePublished,
-    dateModified: o.dateModified ?? o.datePublished,
+    ...pageDates(o.datePublished, o.dateModified, "article"),
     author: authors.length === 1 ? authors[0] : authors,
-    publisher: o.publisher ? ref(o.publisher) : void 0
+    publisher: optRef(o.publisher),
+    isPartOf: optRef(o.isPartOf)
   });
+}
+function webPage(o) {
+  return clean({
+    "@type": o.type ?? "WebPage",
+    "@id": o.id ?? nodeId(o.url, "webpage"),
+    url: o.url,
+    name: o.name,
+    description: o.description,
+    inLanguage: o.inLanguage,
+    isPartOf: optRef(o.isPartOf),
+    about: optRef(o.about),
+    mainEntity: o.mainEntity,
+    author: people(o.author),
+    primaryImageOfPage: o.image,
+    breadcrumb: o.breadcrumb,
+    ...pageDates(o.datePublished, o.dateModified, "webPage")
+  });
+}
+function profilePage(o) {
+  const entity = "@type" in o.person ? o.person : person(o.person);
+  const name = typeof entity.name === "string" ? entity.name : void 0;
+  if (!name) throw new Error("profilePage: the person needs a name");
+  const page = webPage({ ...o, type: "ProfilePage", name: o.name ?? name, mainEntity: entity, id: o.id ?? nodeId(o.url, "profilepage") });
+  return clean({ ...page, dateCreated: schemaDate(o.dateCreated, "profilePage: dateCreated") });
+}
+function softwareSourceCode(o) {
+  const url = o.url ?? o.codeRepository;
+  return clean({
+    "@type": "SoftwareSourceCode",
+    "@id": o.id ?? nodeId(url, "code"),
+    name: o.name,
+    description: o.description,
+    url,
+    codeRepository: o.codeRepository,
+    programmingLanguage: o.programmingLanguage,
+    runtimePlatform: o.runtimePlatform,
+    license: o.license,
+    version: o.version,
+    keywords: Array.isArray(o.keywords) ? o.keywords.join(", ") : o.keywords,
+    author: people(o.author),
+    ...pageDates(o.datePublished, o.dateModified, "softwareSourceCode")
+  });
+}
+function itemList(items, o = {}) {
+  const order = { ascending: "ItemListOrderAscending", descending: "ItemListOrderDescending", unordered: "ItemListUnordered" };
+  return clean({
+    "@type": "ItemList",
+    "@id": o.id,
+    name: o.name,
+    itemListOrder: o.order ? `https://schema.org/${order[o.order]}` : void 0,
+    numberOfItems: items.length,
+    itemListElement: items.map(
+      (it, i) => "@type" in it ? { "@type": "ListItem", position: i + 1, item: it } : clean({ "@type": "ListItem", position: i + 1, url: it.url, name: it.name, description: it.description })
+    )
+  });
+}
+function collectionPage(o) {
+  const { items, order, ...page } = o;
+  return webPage({ ...page, type: "CollectionPage", id: o.id ?? nodeId(o.url, "collection"), mainEntity: itemList(items, { order, id: nodeId(o.url, "items") }) });
 }
 function jsonLd(...nodes) {
   if (nodes.length === 1) return { "@context": "https://schema.org", ...nodes[0] };
@@ -1690,6 +1790,7 @@ function resolveAiCrawlers(policy = "allow-all") {
   }
   return out;
 }
+var LLMS_FULL_PATH = "/llms-full.txt";
 var siteRoot = (site) => {
   if (!/^https?:\/\//i.test(site)) throw new Error(`buildCrawlFiles: site must be an absolute URL (got "${site}")`);
   return site.endsWith("/") ? site : `${site}/`;
@@ -1761,16 +1862,41 @@ function llmsTxt({ site, pages, llms }) {
   }
   const item = (p) => `- [${oneLine(p.title).replace(/[[\]]/g, "")}](${pageUrl(site, p.markdown ?? p.path)})${p.description ? `: ${oneLine(p.description)}` : ""}`;
   for (const [name, list] of sections) out.push("", `## ${name}`, "", ...list.map(item));
-  if (optional.length) out.push("", "## Optional", "", ...optional.map(item));
+  const full = pages.some((p) => !p.noindex && p.content?.trim()) ? [`- [Full text](${pageUrl(site, LLMS_FULL_PATH)}): every page above as Markdown in one file`] : [];
+  if (optional.length || full.length) out.push("", "## Optional", "", ...optional.map(item), ...full);
+  return `${out.join("\n")}
+`;
+}
+function pageBody(content, title) {
+  let body = content.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
+  body = body.replace(/^---\n[\s\S]*?\n---\n/, "");
+  const h1 = /^\s*#\s+(.+?)\s*#*\s*\n/.exec(body);
+  if (h1 && oneLine(h1[1]) === oneLine(title)) body = body.slice(h1[0].length);
+  return body.trim();
+}
+function llmsFullTxt({ site, pages, llms }) {
+  const out = [`# ${oneLine(llms.title)}`, "", `> ${oneLine(llms.summary)}`];
+  if (llms.details) out.push("", llms.details.trim());
+  out.push("", `Source: ${siteRoot(site)}`);
+  const withText = pages.filter((p) => !p.noindex && p.content?.trim());
+  const sections = /* @__PURE__ */ new Map();
+  for (const p of withText.filter((x) => !x.optional)) sections.set(p.section ?? "Pages", [...sections.get(p.section ?? "Pages") ?? [], p]);
+  for (const p of [...[...sections.values()].flat(), ...withText.filter((x) => x.optional)]) {
+    out.push("", "---", "", `# ${oneLine(p.title)}`, "", `URL: ${pageUrl(site, p.path)}`);
+    if (p.lastmod) out.push(`Updated: ${formatLastmod(p.lastmod)}`);
+    out.push("", pageBody(p.content ?? "", p.title));
+  }
   return `${out.join("\n")}
 `;
 }
 function buildCrawlFiles(o) {
-  return {
+  const files = {
     "robots.txt": robotsTxt(o),
     "sitemap.xml": sitemapXml(o),
     "llms.txt": llmsTxt(o)
   };
+  if (o.pages.some((p) => !p.noindex && p.content?.trim())) files["llms-full.txt"] = llmsFullTxt(o);
+  return files;
 }
 
 exports.AI_CRAWLERS = AI_CRAWLERS;
@@ -1797,6 +1923,7 @@ exports.GridItem = GridItem;
 exports.HeadTags = HeadTags;
 exports.Heading = Heading;
 exports.JsonLd = JsonLd;
+exports.LLMS_FULL_PATH = LLMS_FULL_PATH;
 exports.LineGrid = LineGrid;
 exports.MagneticButton = MagneticButton;
 exports.Marquee = Marquee;
@@ -1829,6 +1956,7 @@ exports.WebSurface = WebSurface;
 exports.article = article;
 exports.breadcrumbList = breadcrumbList;
 exports.buildCrawlFiles = buildCrawlFiles;
+exports.collectionPage = collectionPage;
 exports.createSmoothScroll = createSmoothScroll;
 exports.curvePath = curvePath;
 exports.demoCycle = demoCycle;
@@ -1842,15 +1970,19 @@ exports.fontPreloads = fontPreloads;
 exports.formatLastmod = formatLastmod;
 exports.headTagKey = headTagKey;
 exports.headTagsToHtml = headTagsToHtml;
+exports.itemList = itemList;
 exports.jsonLd = jsonLd;
 exports.jsonLdTag = jsonLdTag;
+exports.llmsFullTxt = llmsFullTxt;
 exports.llmsTxt = llmsTxt;
 exports.normalizeWheel = normalizeWheel;
 exports.offer = offer;
 exports.organization = organization;
 exports.pageMeta = pageMeta;
 exports.person = person;
+exports.personRef = personRef;
 exports.product = product;
+exports.profilePage = profilePage;
 exports.ref = ref;
 exports.resolveAiCrawlers = resolveAiCrawlers;
 exports.robotsTxt = robotsTxt;
@@ -1861,6 +1993,7 @@ exports.sitemapXml = sitemapXml;
 exports.slugify = slugify;
 exports.smoothScrollTo = smoothScrollTo;
 exports.softwareApplication = softwareApplication;
+exports.softwareSourceCode = softwareSourceCode;
 exports.stepStart = stepStart;
 exports.typeMetrics = typeMetrics;
 exports.typeRole = typeRole;
@@ -1870,6 +2003,7 @@ exports.useHead = useHead;
 exports.useInView = useInView;
 exports.useScrollProgress = useScrollProgress;
 exports.useSmoothScroll = useSmoothScroll;
+exports.webPage = webPage;
 exports.webSite = webSite;
 exports.withPaintTransition = withPaintTransition;
 exports.withViewTransition = withViewTransition;

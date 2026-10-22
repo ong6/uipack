@@ -87,8 +87,9 @@ declare const slideZoomFrame: (target: Rect, width?: number, height?: number) =>
  * Sampled keyframes for a zoom on the slide canvas. `forward` flies in; backwards plays the same
  * path out. Scale is even in log space (Z^p) and p follows `deckMotion.camera`, so the camera is
  * visibly moving by 10% of the clock while the slide around the target clears, rather than
- * holding still and then jumping. The clip opens to the full 16:9 frame by 55% of the way in, so
- * the incoming slide's title is never cropped for long.
+ * holding still and then jumping. The clip opens to the full 16:9 frame by 40% of the way in
+ * (about 27% of the clock), so the incoming slide is never cropped for long, and both layers pan
+ * as needed so the opening slide never runs off the canvas edge.
  */
 declare function slideZoomSamples(target: Rect, forward: boolean, samples?: number, width?: number, height?: number): ZoomSample[] | null;
 /**
@@ -206,7 +207,7 @@ interface StorySlide {
     source?: string;
 }
 type LintSeverity = "error" | "warn" | "tip";
-type LintRule = "deck-empty" | "duplicate-id" | "title-present" | "title-claim" | "title-length" | "title-specific" | "one-idea" | "notes-present" | "number-source" | "roles-missing" | "answer-first" | "outcome-first" | "closing-ask" | "ask-concrete" | "role-repeat" | "deck-length" | "talk-time";
+type LintRule = "deck-empty" | "duplicate-id" | "title-present" | "title-claim" | "title-length" | "title-specific" | "one-idea" | "notes-present" | "number-source" | "roles-missing" | "answer-first" | "outcome-first" | "closing-ask" | "ask-concrete" | "role-repeat" | "deck-length" | "talk-time" | "template-beats";
 interface LintFinding {
     slideId?: string;
     rule: LintRule;

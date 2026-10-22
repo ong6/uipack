@@ -38,16 +38,26 @@ A style is an implementation, not a label: register it only when its renderer ex
 
 1. `libraryPages` in `playground/catalog.ts`: `id`, `group` (one of `libraryGroups`), `label` (nav text and `h1`), `path`, `intro` (one sentence). Optional: `title` when the label names only a sub-view, `query` and `isDefault` for sub-views of one path (the decks), `hostsPage` when the page renders a complete sample page with its own `h1` (`/web`), `styleName` when its content is not Technical.
 2. The page component, `playground/<Name>Showcase.tsx`, default export, rendering only the page's content: `main.tsx` puts it inside `ShowcaseShell` (header, `h1`, intro), and `useShowcaseTheme()` gives it the theme. Sections are `<section data-catalog-entry id>` with a sentence-case `h2`; figures inside keep `headingLevel` 3. Its CSS is `playground/<name>-showcase.css`, imported by the page (with `src/theme.css` and `src/canvas.css` if it shows figures), with classes no library entry uses: it loads with the page's chunk, and only `showcase.css` is in the entry.
-3. `pageModules` in `playground/routes.ts`: map the id to the module name. The typecheck fails until you do. `main.tsx` lazy-loads it (a module named `App`, `CatalogPages` or `*Showcase`), and the build preloads its chunk from `index.html`.
-4. The nav table in `e2e/nav.spec.ts` (`GROUPS`, written out on purpose) and the table in `playground/README.md`.
-5. Run `e2e/nav.spec.ts` and `e2e/alignment.spec.ts`; add the path to `PAGES` in `alignment.spec.ts`.
+3. `pageModules` in `playground/routes.ts`: map the id to the module name. The typecheck fails until you do. Name a new module `<Name>Showcase`: `main.tsx` lazy-loads only modules matching its `import.meta.glob` (`App`, `CatalogPages` and `*Showcase`), and `test/catalog.test.tsx` fails on any other name. The build preloads the page's chunk from `index.html`.
+4. The table in `playground/README.md`. The nav and alignment tests read their page lists from the catalog, so the page is covered once it is registered.
+5. Run `e2e/nav.spec.ts` and `e2e/alignment.spec.ts`.
+
+## Which slide system
+
+Three entries draw slides. New slide work goes in `uipack/deck`; the other two are kept so existing imports and links keep working.
+
+| Entry | Role | Add to it when |
+| --- | --- | --- |
+| `uipack/deck` | The deck player: a whole talk on a 1920×1080 canvas with one transition grammar, builds, an overview and storyline lint, a speaker view, a read view and PDF export. Slide parts and the consulting charts live here. | Any new slide, part, chart, transition or example deck. |
+| `uipack/presentations` | Slide starters: three single 16:9 layouts (Opening, Explanation, System) as serializable data with a speaker guide, rendered by `SlideStarter` or exported to SVG by `renderSlideSvg`. | Fixes to those three layouts and their SVG output only. |
+| `uipack/slides` | Three.js and GSAP 3D animations (`SlidePlayer`, `SlideScene`): a persistent scene with camera stops, shown in the playground as 3D animations (`/animations`, alias `/slides`). The name is historical. | A 3D animation to embed in a slide or page, not a deck. |
 
 ## A new example deck
 
 1. `playground/<name>Deck.tsx` exports `DeckSlide[]` (and `LintOptions` if it follows a storyline template). Build slides from `Slide`, `Morph`, `Build`, `Bento` and the consulting parts; sizes are canvas pixels on 1920×1080.
 2. Add `{ id, slides, lint }` to `deckExamples` in `playground/deckExamples.ts`.
 3. Add its nav entry to `libraryPages`: `group: "presentations"`, `title: "Deck player"`, `path: "/deck"`, `query: { deck: "<id>" }`, a `label` and an `intro`. `test/catalog.test.tsx` fails until the two lists match. `/deck?deck=<id>` now opens it.
-4. Add the row to `GROUPS` in `e2e/nav.spec.ts` and to the deck row in `playground/README.md`.
+4. Add it to the deck row in `playground/README.md` (`e2e/nav.spec.ts` reads its nav table from the catalog).
 5. Run `lintDeck` on it (the overview's Storyline tab shows the findings) and `e2e/deck.spec.ts`.
 
 ## A new slide part or chart
@@ -65,7 +75,7 @@ The diagrams page shows each pattern once, simplest first. Add one the first tim
 
 1. The figure: `playground/figures/<pattern>.tsx`, a `Figure` built from library parts, with a wide drawing and an authored `narrow` drawing below 720px, neutral content (no real systems), and `controls={false}` if nothing moves.
 2. A `figureEntries` row in `playground/catalog.ts`: `[id, "Pattern: what it teaches", tags]`, placed by complexity.
-3. A `figureSections` entry in `playground/figures/index.tsx` with the same `id`, an `intro` that starts "Use when…" and names the parts it is built from, and `render(number)`. `test/figures-page.test.tsx` checks the two lists match.
+3. A `figureDetails` entry in `playground/figures/index.tsx` under the same id, with an `intro` that starts "Use when…" and names the parts it is built from, and `render(number)`. The page's `figureSections` are derived from `figureEntries`, so the order is the catalog's; the typecheck fails until every id has its entry.
 4. If the figure needs a mark that published figures share (as `Wall` and `Cross` were), promote it to `src/` with a test and a README line instead of drawing it locally, then `npm run build` and commit `dist/`. Candidates still drawn locally are listed at the end of this page.
 5. `e2e/geometry.spec.ts` checks every figure on the page: arrowheads clear of nodes, packets clear of heads, text inside node boxes at 1440 and 390, the 11px text floor, no motion controls on a still figure.
 
@@ -85,9 +95,13 @@ The diagrams page shows each pattern once, simplest first. Add one the first tim
 2. `scripts/entries.ts`: `<entry>: "src/<entry>/index.ts"`. tsup builds `dist/<entry>.{js,cjs,d.ts}` from it.
 3. `package.json` `exports`: `"./<entry>": { "types": "./dist/<entry>.d.ts", "import": "./dist/<entry>.js", "require": "./dist/<entry>.cjs" }`.
 4. If it has styles: a line in `scripts/css-bundles.ts` (`{ out: "<entry>.css", from: [...] }`) and `"./<entry>.css": "./dist/<entry>.css"` in `exports`. `test/package.test.tsx` fails until entries, bundles and exports agree. (`exports` stays hand-written: npm reads `package.json` as it is, and the test names the line you missed.)
-5. Keep heavy dependencies out of the default entry: Three.js and GSAP only behind an optional, lazy entry, and add them to tsup's `external` list.
+5. Keep heavy dependencies out of the default entry: Three.js and GSAP only behind an optional, lazy entry. A heavy dependency an entry needs goes in three places: `peerDependencies` in `package.json`, `peerDependenciesMeta` with `{ "optional": true }` (so consumers who skip the entry never install it), and `external` in `tsup.config.ts` (so it is never bundled into `dist/`).
 6. Docs: `docs/<entry>.md` (shipped by the `docs/*.md` glob in `files`), a line in `docs/README.md`, a section in the root README and a line in `src/README.md`.
 7. `npm run build`, commit `dist/`, and load every built entry in both module systems with `node scripts/load-entries.mjs` (CI runs it, and fails if `dist/` differs from a fresh build).
+
+## Formatting
+
+Prettier owns the format: print width 130, double quotes. The config, `npm run format` and `npm run format:check` (also run in CI) are being added; until then, match the surrounding code and do not reformat lines a change does not touch. ESLint (`eslint.config.js`) checks correctness only: the rules of hooks, unhandled promises and unused code. `tsc` also fails on unused locals and parameters; prefix a parameter kept for its position with `_`.
 
 ## Candidates
 

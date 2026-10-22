@@ -73,7 +73,7 @@ export const libraryPages = [
   { id: "figures", group: "diagrams", label: "Architecture diagrams", path: "/", intro: "The figure design system: each diagram pattern once, from the bare canvas to a figure you drill into, with the parts it is built from." },
   { id: "charts", group: "diagrams", label: "Charts", path: "/charts", intro: "Layered and comparative charts for articles, previewed at a host's real figure width." },
   { id: "article", group: "diagrams", label: "Article parts", path: "/article", intro: "Prose-friendly parts for long reads, shown inside a host article's text column." },
-  { id: "deck", group: "presentations", label: "Tech talk", title: "Deck player", path: "/deck", query: { deck: "moves" }, isDefault: true, intro: "Tech talk deck: a talk that explains its own moves (advance, morph and zoom, builds, and a machine slide). Swipe on a touch screen, or click the deck and use the arrow keys." },
+  { id: "deck", group: "presentations", label: "Tech talk", title: "Deck player", path: "/deck", query: { deck: "moves" }, isDefault: true, intro: "Tech talk deck: a team lead argues that reviews should open with their answer, with evidence, a pilot and a dated ask. Every slide advances except one morph (the same number becoming a table row) and one zoom (into the slide the ghost deck flags). Swipe on a touch screen, or click the deck and use the arrow keys." },
   { id: "deck-bento", group: "presentations", label: "Bento", title: "Deck player", path: "/deck", query: { deck: "bento" }, intro: "Bento review deck: a quarterly review on one bento slide. Next moves a camera between the containers, and each one shows denser detail when it is in focus." },
   { id: "deck-consulting", group: "presentations", label: "Consulting", title: "Deck player", path: "/deck", query: { deck: "consulting" }, intro: "Consulting deck: a decision request in consulting style, with dense charts, callouts, a so-what panel and sources, read headline by headline." },
   { id: "presentations", group: "presentations", label: "Slide starters", path: "/presentations", intro: "Slide layouts with their speech notes, then a complete five-chapter narrative built from them." },
@@ -88,6 +88,12 @@ export type LibraryPage = (typeof libraryPages)[number]["id"];
 
 /** The same list, typed for code that reads the optional fields. */
 export const pageDefs: readonly PageDef[] = libraryPages;
+
+/** A page's path with its sub-view query, without the theme ("/deck?deck=bento"). */
+export function pagePath(page: PageDef) {
+  const query = new URLSearchParams(page.query).toString();
+  return query ? `${page.path}?${query}` : page.path;
+}
 
 /** Link target for a page, with its query and the theme. */
 export function pageHref(page: PageDef, theme: string) {
@@ -241,28 +247,29 @@ export const webEntries: CatalogEntry[] = [
  * The page is the design-system reference for figures: each distinct pattern once, simplest
  * first. Add an entry here and its section in playground/figures/index.tsx together.
  */
-export const figureEntries: CatalogEntry[] = (
-  [
-    ["bare-figure", "Bare figure: just the canvas", ["Frame", "Canvas"]],
-    ["parts", "Parts: every primitive once", ["Node", "Group", "Chip", "Connector", "Packet", "Bus", "Wall", "Cross", "Icon", "Mark"]],
-    ["pipeline", "Pipeline: stages in a line", ["Preset", "Pipeline", "Queue"]],
-    ["loops", "Loops: repeat a step, return to the start", ["Loop", "Feedback", "Return path"]],
-    ["decision-tree", "Decision tree: one question per level", ["Decision", "Branch", "Tree"]],
-    ["before-after", "Before and after: the same flow, changed", ["Preset", "Comparison"]],
-    ["fan-out-fan-in", "Fan-out and fan-in: parallel work, one merge", ["Bus", "Parallel", "Merge"]],
-    ["two-way-sync", "Two-way sync: one source, many copies", ["Preset", "Sync", "Bidirectional"]],
-    ["agent-loop", "Agent loop: calls out, results back, a check before output", ["Preset", "Agents", "Tools", "Gate"]],
-    ["failure-rail", "Failure rail: every stage fails to one place", ["Vertical", "Errors", "Dead letter"]],
-    ["queue-callouts", "Queue and callouts: where work piles up", ["Queue", "Callout", "Bottleneck"]],
-    ["sequence", "Sequence: messages between actors, in order", ["Sequence", "Lifeline", "Protocol"]],
-    ["nested-groups", "Nested groups: what runs inside what", ["Group", "Containment", "Replicas"]],
-    ["numbered-steps", "Numbered steps: one path across column lanes", ["Badge", "Walkthrough", "Lanes"]],
-    ["service-map", "Service map: clients, one platform, its stores", ["Reference", "Bus", "Hub", "Lanes"]],
-    ["layered-checks", "Layered checks: each layer stops some, one slips through", ["Filter", "Defence in depth"]],
-    ["flow-volumes", "Flow volumes: where every item ends up", ["Sankey", "Volumes"]],
-    ["drill-figure", "Drill-down: a figure inside a node", ["Drill-down", "Zoom", "Levels"]],
-  ] as const
-).map(([id, title, tags]) => ({ id, title, type: "figures" as const, styleId: "technical", tags: [...tags] }));
+const figureRows = [
+  ["bare-figure", "Bare figure: just the canvas", ["Frame", "Canvas"]],
+  ["parts", "Parts: every primitive once", ["Node", "Group", "Chip", "Connector", "Packet", "Bus", "Wall", "Cross", "Icon", "Mark"]],
+  ["pipeline", "Pipeline: stages in a line", ["Preset", "Pipeline", "Queue"]],
+  ["loops", "Loops: repeat a step, return to the start", ["Loop", "Feedback", "Return path"]],
+  ["decision-tree", "Decision tree: one question per level", ["Decision", "Branch", "Tree"]],
+  ["before-after", "Before and after: the same flow, changed", ["Preset", "Comparison"]],
+  ["fan-out-fan-in", "Fan-out and fan-in: parallel work, one merge", ["Bus", "Parallel", "Merge"]],
+  ["two-way-sync", "Two-way sync: one source, many copies", ["Preset", "Sync", "Bidirectional"]],
+  ["agent-loop", "Agent loop: calls out, results back, a check before output", ["Preset", "Agents", "Tools", "Gate"]],
+  ["failure-rail", "Failure rail: every stage fails to one place", ["Vertical", "Errors", "Dead letter"]],
+  ["queue-callouts", "Queue and callouts: where work piles up", ["Queue", "Callout", "Bottleneck"]],
+  ["sequence", "Sequence: messages between actors, in order", ["Sequence", "Lifeline", "Protocol"]],
+  ["nested-groups", "Nested groups: what runs inside what", ["Group", "Containment", "Replicas"]],
+  ["numbered-steps", "Numbered steps: one path across column lanes", ["Badge", "Walkthrough", "Lanes"]],
+  ["service-map", "Service map: clients, one platform, its stores", ["Reference", "Bus", "Hub", "Lanes"]],
+  ["layered-checks", "Layered checks: each layer stops some, one slips through", ["Filter", "Defence in depth"]],
+  ["flow-volumes", "Flow volumes: where every item ends up", ["Sankey", "Volumes"]],
+  ["drill-figure", "Drill-down: a figure inside a node", ["Drill-down", "Zoom", "Levels"]],
+] as const;
+/** A diagram pattern's id. `figureDetails` in playground/figures/index.tsx needs one entry per id. */
+export type FigureId = (typeof figureRows)[number][0];
+export const figureEntries: (CatalogEntry & { id: FigureId })[] = figureRows.map(([id, title, tags]) => ({ id, title, type: "figures" as const, styleId: "technical", tags: [...tags] }));
 
 /** Charts (uipack/charts), rendered on /charts. */
 export const chartEntries: CatalogEntry[] = [
@@ -305,7 +312,7 @@ export const articleEntries: CatalogEntry[] = [
   { id: "link-list", title: "Link list", type: "article", styleId: "technical", tags: ["Article", "Link"] },
 ];
 
-/** The deck player (uipack/deck), rendered on /deck with an example deck that explains its own transitions. */
+/** The deck player (uipack/deck), rendered on /deck with an example tech talk that uses each move where its story needs it. */
 export const deckEntries: CatalogEntry[] = [
   { id: "deck-player", title: "Deck player", type: "deck", styleId: "technical", tags: ["Presentation", "Keyboard", "Speaker view", "Overview"] },
   { id: "deck-advance", title: "Advance transition", type: "deck", styleId: "technical", tags: ["Transition", "Motion", "Default"] },

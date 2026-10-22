@@ -318,8 +318,13 @@ function contact(c: ObjectPalette) {
   return g;
 }
 async function tennis(_c: ObjectPalette, variant: ObjectEdition = 0, modelUrl?: string) {
-  const { GLTFLoader } = await import("three/addons/loaders/GLTFLoader.js");
-  const model = await new GLTFLoader().loadAsync(modelUrl ?? tennisModelUrl());
+  // The packaged model is meshopt-compressed (EXT_meshopt_compression, docs/objects.md). Three's
+  // decoder is plain ESM with its WebAssembly inline, so it needs no file hosting or bundler setup.
+  const [{ GLTFLoader }, { MeshoptDecoder }] = await Promise.all([
+    import("three/addons/loaders/GLTFLoader.js"),
+    import("three/addons/libs/meshopt_decoder.module.js"),
+  ]);
+  const model = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(modelUrl ?? tennisModelUrl());
   const g = new THREE.Group();
   g.rotation.set(0.64, -0.25, 0);
   g.position.y = 0.1;
@@ -387,7 +392,7 @@ async function tennis(_c: ObjectPalette, variant: ObjectEdition = 0, modelUrl?: 
   };
   return g;
 }
-function trading(c: ObjectPalette, variant: ObjectEdition = 0) {
+function trading(_palette: ObjectPalette, variant: ObjectEdition = 0) {
   const g = new THREE.Group();
   g.rotation.set(0.06, -0.19, 0);
   const casing = slab(4.08, 2.62, 0.16, 0x263038, 0, 0.26, 0, 0.055);
@@ -904,7 +909,7 @@ export async function createObject(
     kind === "contact" && (variant === 3 || variant === 4)
       ? createContactDirection(variant)
       : kind !== "contact" && variant !== 0
-        ? createArtDirection(kind, palette, variant)
+        ? createArtDirection(kind, variant)
         : kind === "tennis"
           ? await tennis({ ...palette, accent }, finish, modelUrl)
           : await builders[kind]({ ...palette, accent }, finish);

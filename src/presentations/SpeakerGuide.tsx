@@ -95,7 +95,7 @@ export function SpeakerGuide({
         </div>
       )}
       <div className="uipack-speaker-guide__action">
-        <button type="button" onClick={copy}>
+        <button type="button" onClick={() => void copy()}>
           Copy talk track
         </button>
         <span role="status" aria-live="polite" aria-atomic="true">

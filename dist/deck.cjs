@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkRMV7QAIQ_cjs = require('./chunk-RMV7QAIQ.cjs');
+var chunkAASFR6RT_cjs = require('./chunk-AASFR6RT.cjs');
 var chunkKQ7UFCOU_cjs = require('./chunk-KQ7UFCOU.cjs');
 var chunkYMPVJRTJ_cjs = require('./chunk-YMPVJRTJ.cjs');
 var react = require('react');
@@ -163,13 +163,22 @@ function slideZoomSamples(target, forward, samples = 24, width = CANVAS_WIDTH, h
   for (let i = 0; i <= samples; i++) {
     const t = i / samples;
     const p = forward ? cameraEase(t) : 1 - cameraEase(t);
-    const clipT = chunkKQ7UFCOU_cjs.smoothstep(0.08, 0.55, p);
+    const clipT = chunkKQ7UFCOU_cjs.smoothstep(0.06, 0.4, p);
     const inset = (v) => (v * (1 - clipT)).toFixed(2);
+    const k = Math.pow(frame.Z, p - 1);
+    const shift = (lo, hi, f, size) => {
+      const a = f + k * (lo - f);
+      const b = f + k * (hi - f);
+      return b > size ? size - b : a < 0 ? -a : 0;
+    };
+    const dx = shift(start.left * (1 - clipT), width - start.right * (1 - clipT), frame.fx, width);
+    const dy = shift(start.top * (1 - clipT), height - start.bottom * (1 - clipT), frame.fy, height);
+    const pan = Math.abs(dx) > 5e-3 || Math.abs(dy) > 5e-3 ? `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) ` : "";
     out.push({
       offset: t,
       p,
-      outer: `scale(${Math.pow(frame.Z, p).toFixed(5)})`,
-      inner: `scale(${Math.pow(frame.Z, p - 1).toFixed(5)})`,
+      outer: `${pan}scale(${Math.pow(frame.Z, p).toFixed(5)})`,
+      inner: `${pan}scale(${k.toFixed(5)})`,
       clip: `inset(${inset(start.top)}px ${inset(start.right)}px ${inset(start.bottom)}px ${inset(start.left)}px round ${(radiusStart * (1 - clipT)).toFixed(2)}px)`,
       innerOpacity: chunkKQ7UFCOU_cjs.smoothstep(0.08, 0.36, p)
     });
@@ -291,7 +300,7 @@ function runTransition(opts) {
         );
       }
       const around = partitionForMorph(outer, /* @__PURE__ */ new Set([opts.transition.zoom])).rest;
-      const fade = zoomInto ? [{ opacity: 1, easing: "ease-out" }, { opacity: 0, offset: 0.3 }, { opacity: 0 }] : [{ opacity: 0 }, { opacity: 0, offset: 0.7, easing: "ease-in" }, { opacity: 1 }];
+      const fade = zoomInto ? [{ opacity: 1, easing: "ease-out" }, { opacity: 0, offset: 0.2 }, { opacity: 0 }] : [{ opacity: 0 }, { opacity: 0, offset: 0.8, easing: "ease-in" }, { opacity: 1 }];
       for (const el of around) play(el, fade, timing);
       return anims;
     }
@@ -338,10 +347,15 @@ function runTransition(opts) {
         const kids = Array.from(el.children).filter((c) => c instanceof HTMLElement);
         return r.w * r.h > fromArea / 6 && kids.length > 1 && crossed(el) ? kids : [el];
       });
+      const incomingText = inn.rest.filter((el) => isText(el) && !unbuilt(el)).map(rectOf);
+      const handedOver = [];
       for (const el of outgoing) {
         if (besideOut(el)) play(el, [{ opacity: 1 }, { opacity: 0 }], { duration: deckMotion.morph * 0.08, easing: "linear" });
         else if (crossed(el)) play(el, [{ opacity: 1 }, { opacity: 0 }], leave);
-        else play(el, [{ opacity: 1 }, { opacity: 1, offset: 0.55, easing: "ease-in-out" }, { opacity: 0 }], { duration: deckMotion.morph * 0.6, easing: "linear" });
+        else if (isText(el) && incomingText.some((r) => overlaps(r, rectOf(el)))) {
+          handedOver.push(rectOf(el));
+          play(el, [{ opacity: 1 }, { opacity: 1, offset: 0.66, easing: "ease-in" }, { opacity: 0 }], { duration: deckMotion.morph * 0.5, easing: "linear" });
+        } else play(el, [{ opacity: 1 }, { opacity: 1, offset: 0.55, easing: "ease-in-out" }, { opacity: 0 }], { duration: deckMotion.morph * 0.6, easing: "linear" });
       }
       for (const el of out.containers) if (paintsBox(el)) play(el, paintFrames(el, "from"), leave);
       const beside = (el) => Boolean(el.parentElement && inn.containers.includes(el.parentElement) && isText(el.parentElement));
@@ -360,9 +374,10 @@ function runTransition(opts) {
         if (beside(el) || underPath(el)) {
           play(el, [{ opacity: 0 }, { opacity: 1 }], { duration: deckMotion.base, delay: deckMotion.morph * 0.72, easing: deckMotion.settle });
         } else {
+          const after = isText(el) && handedOver.some((r) => overlaps(r, rectOf(el))) ? deckMotion.morph * 0.5 : 0;
           play(el, [{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }], {
             duration: deckMotion.slow,
-            delay: deckMotion.morph * 0.4 + Math.min(i++, 6) * deckMotion.stagger,
+            delay: Math.max(after, deckMotion.morph * 0.4 + Math.min(i++, 6) * deckMotion.stagger),
             easing: deckMotion.settle
           });
         }
@@ -412,7 +427,7 @@ function useCanvasScale() {
     const measure = () => setScale(node.clientWidth / CANVAS_WIDTH);
     measure();
     if (typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(measure);
+    const ro = new ResizeObserver(() => reactDom.flushSync(measure));
     ro.observe(node);
     return () => ro.disconnect();
   }, [node]);
@@ -517,6 +532,7 @@ var SLIDE_ROLES = {
     job: "Backup for questions and async readers. Not presented."
   }
 };
+var QUANTIFIED_ROLES = ["answer", "evidence", "problem", "recommendation"];
 var REPEATABLE_ROLES = ["evidence", "mechanism", "demo", "appendix"];
 var STORYLINE_TEMPLATES = [
   {
@@ -615,7 +631,7 @@ var STORYLINE_TEMPLATES = [
         role: "recommendation",
         purpose: "Why the chosen option wins and what you trade away.",
         titlePattern: "<Option> wins on <criterion>; the cost is <trade-off>",
-        example: "A queue ends timeouts; thumbnails arrive a few seconds later",
+        example: "A queue ends timeouts; thumbnails arrive about 5 seconds later",
         guidance: "Naming the cost is what makes the recommendation credible."
       },
       {
@@ -662,7 +678,7 @@ var STORYLINE_TEMPLATES = [
         role: "problem",
         purpose: "Why it matters: the constraint that makes the obvious design fail.",
         titlePattern: "<Naive approach> fails because <constraint>",
-        example: "A central counter adds a network hop to every request",
+        example: "A central counter adds a 2 ms network hop to every request",
         guidance: "Engineers care about the design only once they feel the constraint."
       },
       {
@@ -734,7 +750,7 @@ var STORYLINE_TEMPLATES = [
         role: "answer",
         purpose: "What shipped, for whom, and the change it makes.",
         titlePattern: "<Who> can now <do what> <how much better>",
-        example: "Support agents can now issue refunds in one click instead of a ticket",
+        example: "Support agents can now issue refunds in one click instead of a two-day ticket",
         guidance: "The user and the outcome, not the feature name."
       },
       {
@@ -826,7 +842,7 @@ var STORYLINE_TEMPLATES = [
         role: "problem",
         purpose: "Why it wasn't caught: testing, detection and response gaps.",
         titlePattern: "<Process gap> let <cause> reach <scope>",
-        example: "Config changes skipped canary, so the bad value reached all regions at once",
+        example: "Config changes skipped canary, so the bad value reached all 14 regions at once",
         guidance: "Ask why the safeguards missed it, not who pushed the change."
       },
       {
@@ -873,14 +889,14 @@ var STORYLINE_TEMPLATES = [
         role: "evidence",
         purpose: "Leverage: what others can do now because of the work.",
         titlePattern: "<Who> can now <do what> without <old cost>",
-        example: "Two product teams launched on the new API without our help",
+        example: "Two product teams launched on the new API in three weeks, without our help",
         guidance: "Multipliers are what reviewers look for at senior levels."
       },
       {
         role: "problem",
         purpose: "What didn't land, and what changed because of it.",
         titlePattern: "<Miss> happened; we now <changed practice>",
-        example: "The fraud-rule rewrite slipped a quarter; we now ship rules behind flags",
+        example: "The fraud-rule rewrite slipped three months; we now ship rules behind flags",
         guidance: "One honest miss makes the wins believable.",
         optional: true
       },
@@ -921,13 +937,13 @@ var LINT_RULES = {
   "title-length": { severity: "warn", check: "The title is at most 14 words." },
   "title-specific": {
     severity: "warn",
-    check: "An answer or evidence title carries a quantity: a number, a number word ('twice', 'a third') or a from\u2192to or X vs Y comparison with one. Adjectives ('better', 'great') and names don't count."
+    check: "An answer, evidence, problem or recommendation title quantifies its claim: a number that isn't a date or a version, a multiple or fraction ('twice', 'a third'), a number word with a unit ('three weeks', 'one engineer'), or a comparison of two quantities ('one meeting, not three'). A plan title carries a date or a number. A bare count ('two teams', 'one big improvement'), 'no regressions', adjectives and names don't count."
   },
   "one-idea": { severity: "tip", check: "The title is one sentence: one idea per slide." },
   "notes-present": { severity: "warn", check: "Every presented slide has a talk track." },
   "number-source": {
     severity: "warn",
-    check: "A number in a title names its source in the notes (a dashboard, query, test, survey, report, benchmark, logs, experiment or URL) or in the slide's `source`."
+    check: "A number in a title names its source in the notes: a named artifact ('the search latency dashboard', 'load test 12', 'the Q3 user survey') or a URL, with no hedge ('trust me', 'someone mentioned', 'said so'); or in the slide's `source`."
   },
   "roles-missing": {
     severity: "warn",
@@ -944,7 +960,7 @@ var LINT_RULES = {
   "closing-ask": { severity: "error", check: "The last presented slide is an ask." },
   "ask-concrete": {
     severity: "warn",
-    check: "The ask names a decision or action, an owner (a team or role such as 'platform leads', 'the payments team', 'VP Eng' or an @handle; not 'we', 'the team' or a bare name) and a calendar date ('next quarter' is not one)."
+    check: "The ask names a decision or action, an owner (a team or role such as 'platform leads', 'the payments team', 'VP Eng' or an @handle; not 'we', 'the team', a bare name, 'owner TBD' or 'lead' as a verb) and a firm calendar date ('next quarter', 'Monday-ish' and 'next Monday maybe' are not)."
   },
   "role-repeat": {
     severity: "warn",
@@ -954,6 +970,10 @@ var LINT_RULES = {
   "talk-time": {
     severity: "warn",
     check: "The talk track fits the time budget at 135 words a minute, and covers at least half of it."
+  },
+  "template-beats": {
+    severity: "warn",
+    check: "With a template, every beat it requires has a slide in that role: a decision request has its options, a postmortem its plan."
   }
 };
 var MAX_TITLE_WORDS = 14;
@@ -1054,13 +1074,51 @@ var DATE_RE = new RegExp(
 );
 var RELATIVE_DATE_RE = /\b(?:(?:this|next|coming|following) (?:week|month|quarter|half|sprint|year|cycle)|end of (?:the )?(?:week|month|quarter|half|year)|soon|asap|going forward|in the future|over time|eventually|later this year)\b/i;
 var DECISION_RE = /\b(?:approve|approves|decide|decision|agree|choose|pick|sign(?:s)? off|fund|staff|prioriti[sz]e|review|commit|allocate|assign|adopt|join|try|confirm|accept|enable|switch|turn on|send|share|sponsor|support|unblock|escalate|ship|green-?light|vote|nominate|give|grant|lend|provide|attend|book|hire|move|freeze|pause|stop|start|own)\b/i;
-var OWNER_ROLE_RE = /\b(?:owner|owners|lead|leads|manager|managers|director|directors|head of|sponsor|sponsors|committee|board|council|on-call|chair|architect|architects|approver|approvers|reviewer|reviewers)\b|(?:^|[\s(])@\w/i;
+var OWNER_ROLE_RE = /\b(?:manager|managers|director|directors|head of|committee|board|council|on-call|architect|architects|approver|approvers|reviewer|reviewers)\b|(?:^|[\s(])@\w/i;
+var QUALIFIED_OWNER_RE = /([\p{L}][\p{L}'’-]*)\s+(?:lead|leads|owner|owners|sponsor|sponsors|chair)\b(?![\s:,–—-]*(?:TBD|TBC|TBA|tbd|to be (?:decided|confirmed|named|agreed)|unknown|unassigned|\?))/gu;
+var NOT_A_QUALIFIER = new Set(
+  "i we you they he she it me us them this that these those which who whom what the a an our your their my his her its will would can could should shall may might must to and or but then also please not never always just do does did let lets let's help who'll we'll i'll you'll they'll whoever someone somebody anyone nobody no".split(" ")
+);
 var OWNER_ACRONYM_RE = /\b(?:VPs?|SVPs?|EVPs?|CEO|CTO|CFO|COO|CPO|CIO|CISO|PMs?|EMs?|TLs?|TPMs?|SREs?)\b/;
 var NAMED_GROUP_RE = /\b(?!the\b|our\b|my\b|your\b|this\b|that\b|a\b|whole\b|entire\b|each\b|every\b|any\b|other\b|same\b|new\b)[\p{L}-]+ (?:team|teams|org|group|squad|guild|committee)\b/iu;
 var NAMED_OWNS_RE = /\b\p{Lu}[\p{L}-]*(?: \p{Lu}[\p{L}-]*)* (?:owns|will own)\b/u;
-var NUMBER_WORD_RE = /\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty|thirty|forty|fifty|hundred|thousand|million|billion|dozen|half|halve[ds]?|twice|double[ds]?|triple[ds]?|third|thirds|quarter of|zero|no (?:rollbacks?|regressions?|incidents?|outages?|errors?|downtime))\b/i;
+var HEDGED_DATE_RE = /-?\bish\b|\b(?:maybe|perhaps|probably|possibly|hopefully|tentatively|roughly|approximately|sometime|some time|or so|give or take|if possible|ideally|TBD|TBC|TBA|tbd|tbc)\b/i;
+var NUM_WORD = "one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|billion|dozen";
+var UNIT = "ms|milliseconds?|seconds?|secs?|minutes?|mins?|hours?|hrs?|days?|weeks?|months?|quarters?|years?|sprints?|percent|per cent|percentage points?|points?|pts|times|dollars|cents|euros|pounds|[KMGT]B|engineers?|engineer-(?:days|weeks|months)|people|persons?|hires?|headcount|FTEs?";
+var MULTIPLE_RE = /\b(?:twice|half|halve[ds]?|halving|double[ds]?|doubling|triple[ds]?|tripling|quadrupled|tenfold|[a-z]+-fold|a third|thirds|two-thirds|a quarter|a fifth|a tenth)\b/i;
+var NUMBER_UNIT_RE = new RegExp(
+  String.raw`\b(?:${NUM_WORD})(?:[\s-]+(?:more|fewer|extra|full|whole|additional|business|working|calendar))?[\s-]+(?:${UNIT})\b`,
+  "i"
+);
+var NUMBER_COMPARISON_RE = new RegExp(
+  String.raw`\b(?:${NUM_WORD}|\d[\d,.]*)\b[^.;:!?]{0,40}?\b(?:not|instead of|rather than|vs\.?|versus|against|down from|up from|from|to|of|in|out of)\s+(?:about\s+|around\s+|a\s+|the\s+|every\s+)?(?:${NUM_WORD})\b`,
+  "i"
+);
 var OUTCOME_RE = /\b(?:faster|slower|cheaper|safer|fewer|more|less|cut|cuts|saved?|saves|saving|grew|grow|fell|fall|rose|raised?|reduced?|reduces|improved?|improves|doubled?|halved?|ended|ends|stops?|stopped|prevents?|unblock(?:s|ed)?|launch(?:es|ed)?|ship(?:s|ped)?|on track|at risk|done|delivered|won|lost|missed|recovered|restored)\b/i;
-var SOURCE_RE = /\b(?:dashboards?|quer(?:y|ies)|tests?|load[- ]tests?|a\/b|surveys?|reports?|benchmarks?|logs?|experiments?|traces?|telemetry|studies|study|(?:management|finance|financial) accounts|(?:cost|capacity|pricing|financial) model)\b|https?:\/\/|\bwww\.\w/i;
+var SOURCE_KIND_RE = /^(?:dashboards?|quer(?:y|ies)|tests?|surveys?|reports?|benchmarks?|logs?|experiments?|traces?|telemetry|studies|study|forecasts?|trackers?|ledgers?|notebooks?|spreadsheets?)$/i;
+var SOURCE_PHRASE_RE = /\b(?:management|finance|financial) accounts\b|\b(?:cost|capacity|pricing|financial|forecast) model\b|https?:\/\/|\bwww\.\w/i;
+var HEDGED_SOURCE_RE = /\b(?:trust me|someone|somebody|said so|i think|i believe|i heard|i guess|heard|mentioned|rumou?rs?|anecdotal(?:ly)?|ballpark|eyeball(?:ed)?|gut feel(?:ing)?|from memory|my laptop|off the top of my head|guess(?:ed|timate)?|ran (?:it )?once|once on staging)\b/i;
+var SOURCE_MODIFIED_RE = /^(?:chat|channel|thread|meeting|call|conversation|discussion|rumou?r|gossip|screenshot|people|team|owner)$/i;
+var SOURCE_NAME_AFTER_RE = /^(?:suite|suites|run|runs|notebook|sheet|page|tab|panel|export|entry|row|link|doc|id)$/i;
+var SOURCE_STOP = new Set(
+  "i we you they he she it me us them this that these those which who what the a an our your their my his her its some any one per from in on at of by for to with and or but see source sources is was were are be been said says ran run did do so just once maybe probably trust according".split(" ")
+);
+function namedSource(text) {
+  if (SOURCE_PHRASE_RE.test(text)) return true;
+  return text.split(/(?<!\d)[.;!?](?!\d)|\n/).some((sentence) => {
+    if (HEDGED_SOURCE_RE.test(sentence)) return false;
+    const words = sentence.split(/[\s,:()“”"]+/).filter(Boolean).map((w) => w.replace(/['’]s$/, ""));
+    return words.some((word, i) => {
+      if (!SOURCE_KIND_RE.test(word)) return false;
+      const before = words[i - 1];
+      const after = words[i + 1];
+      if (after && SOURCE_MODIFIED_RE.test(after)) return false;
+      const namedBefore = Boolean(before && /^[\p{L}\p{N}]/u.test(before) && !SOURCE_STOP.has(before.toLowerCase()));
+      const namedAfter = Boolean(after && (/\d/.test(after) || /^\p{Lu}/u.test(after) && after !== "I" || SOURCE_NAME_AFTER_RE.test(after)));
+      return namedBefore || namedAfter;
+    });
+  });
+}
 var TOPIC_OPENING_RE = /^(?:overview of|an overview of|introduction to|intro to|update on|an update on|status\b|some of|how\b[^.;:?!]*\bworks?\b|thanks\b|thank you\b|any questions\b|questions\b)/i;
 function topicOpening(title) {
   const m = title.match(TOPIC_OPENING_RE)?.[0] ?? "";
@@ -1096,21 +1154,28 @@ function edgeLabel(phrase) {
   return void 0;
 }
 function hasClaimNumber(text) {
-  const stripped = text.replace(new RegExp(String.raw`\b\d{1,2}(?:st|nd|rd|th)?\s+(?:${MONTH})\b`, "gi"), " ").replace(new RegExp(String.raw`\b(?:${MONTH})\s+\d{1,2}(?:st|nd|rd|th)?\b`, "gi"), " ").replace(/\b\d{4}-\d{2}-\d{2}\b/g, " ").replace(/\b[QH][1-4](?:\s*(?:FY)?'?\d{2,4})?\b/gi, " ").replace(/\bFY\s?'?\d{2,4}\b/gi, " ").replace(/\b(?:19|20)\d{2}\b/g, " ").replace(/\bv\d+(?:\.\d+)*\b/gi, " ").replace(/\b(?:p|sev-?)\d\b/gi, " ").replace(/\b\d{1,2}:\d{2}\b/g, " ");
+  const stripped = text.replace(new RegExp(String.raw`\b\d{1,2}(?:st|nd|rd|th)?\s+(?:${MONTH})\b`, "gi"), " ").replace(new RegExp(String.raw`\b(?:${MONTH})\s+\d{1,2}(?:st|nd|rd|th)?\b`, "gi"), " ").replace(/\b\d{4}-\d{2}-\d{2}\b/g, " ").replace(/\b[QH][1-4](?:\s*(?:FY)?'?\d{2,4})?\b/gi, " ").replace(/\bFY\s?'?\d{2,4}\b/gi, " ").replace(/\b(?:19|20)\d{2}\b/g, " ").replace(/\bv\d+(?:\.\d+)*\b/gi, " ").replace(
+    /\b\p{Lu}[\p{L}]*\s+\d+(?:\.\d+)*\b(?!\s*(?:%|[x×]\b|ms\b|of\b|to\b|in\b|out of\b|per\b|vs\b|versus\b|more\b|fewer\b|less\b|times\b|(?!(?:is|was|has|does|this|its|us)\b)\p{L}{2,}s\b))/gu,
+    " "
+  ).replace(/\b(?:p|sev-?)\d\b/gi, " ").replace(/\b\d{1,2}:\d{2}\b/g, " ");
   return /\d/.test(stripped);
 }
 function hasOwner(text) {
-  return OWNER_ROLE_RE.test(text) || OWNER_ACRONYM_RE.test(text) || NAMED_GROUP_RE.test(text) || NAMED_OWNS_RE.test(text);
+  const qualified = Array.from(text.matchAll(QUALIFIED_OWNER_RE)).some((m) => !NOT_A_QUALIFIER.has(m[1].toLowerCase()));
+  return qualified || OWNER_ROLE_RE.test(text) || OWNER_ACRONYM_RE.test(text) || NAMED_GROUP_RE.test(text) || NAMED_OWNS_RE.test(text);
+}
+function hasFirmDate(text) {
+  return text.split(/[,;!?()\n—–]|\.(?!\d)/).some((clause) => DATE_RE.test(clause) && !HEDGED_DATE_RE.test(clause));
 }
 function isSpecific(text) {
-  return hasClaimNumber(text) || NUMBER_WORD_RE.test(text);
+  return hasClaimNumber(text) || MULTIPLE_RE.test(text) || NUMBER_UNIT_RE.test(text) || NUMBER_COMPARISON_RE.test(text);
 }
 function inferRoles(slides) {
   return slides.map((slide, i) => {
     const text = headlineOf(slide);
     if (i === 0) return isSpecific(text) || OUTCOME_RE.test(text) ? "answer" : "cover";
     if (PLAN_TITLE_RE.test(text)) return "plan";
-    if (i === slides.length - 1 && !QUESTIONS_SLIDE_RE.test(text) && DECISION_RE.test(text) && (hasOwner(text) || DATE_RE.test(text))) {
+    if (i === slides.length - 1 && !QUESTIONS_SLIDE_RE.test(text) && DECISION_RE.test(text) && (hasOwner(text) || hasFirmDate(text))) {
       return "ask";
     }
     return void 0;
@@ -1175,11 +1240,18 @@ function lintDeck(slides, options = {}) {
           slide.id
         );
       }
-      if ((slide.role === "answer" || slide.role === "evidence") && !isSpecific(headline)) {
+      if (slide.role && QUANTIFIED_ROLES.includes(slide.role) && !isSpecific(headline)) {
         add(
           "title-specific",
           "warn",
-          `"${headline}" could describe any quarter. Put the quantity in the title: the number, or the from\u2192to it moved.`,
+          `"${headline}" could describe any quarter. Put the quantity in the title: the number with its unit, or the from\u2192to it moved; a bare count ("two teams") doesn't say how much.`,
+          slide.id
+        );
+      } else if (slide.role === "plan" && !isSpecific(headline) && !hasFirmDate(headline)) {
+        add(
+          "title-specific",
+          "warn",
+          `"${headline}" has no date and no number. Say when each milestone lands, or what it costs.`,
           slide.id
         );
       }
@@ -1190,11 +1262,11 @@ function lintDeck(slides, options = {}) {
     if (!isAppendix && !sayOf(slide.notes)) {
       add("notes-present", "warn", "No talk track. Notes carry what you say; the title carries the claim.", slide.id);
     }
-    if (headline && slide.role !== "plan" && slide.role !== "ask" && !isAppendix && hasClaimNumber(headline) && !SOURCE_RE.test(notesText(slide.notes)) && !(slide.source && slide.source.trim())) {
+    if (headline && slide.role !== "plan" && slide.role !== "ask" && !isAppendix && hasClaimNumber(headline) && !namedSource(notesText(slide.notes)) && !(slide.source && slide.source.trim())) {
       add(
         "number-source",
         "warn",
-        "The title has a number but no source. Name where it came from (a dashboard, query, test, survey, report, benchmark, logs, experiment or URL) and its window in the notes, or set the slide's `source`.",
+        'The title has a number but no source. Name the artifact it came from ("the search latency dashboard", "load test 12", "the Q3 user survey", a URL) and its window in the notes, or set the slide\'s `source`. Hearsay ("someone mentioned", "trust me") doesn\'t count.',
         slide.id
       );
     }
@@ -1256,12 +1328,14 @@ function lintDeck(slides, options = {}) {
     const missing = [];
     if (!DECISION_RE.test(text)) missing.push("a decision or action verb");
     if (!hasOwner(text)) missing.push("an owner");
-    if (!DATE_RE.test(text)) missing.push("a date");
+    if (!hasFirmDate(text)) missing.push("a date");
     if (missing.length) {
       const relative = text.match(RELATIVE_DATE_RE)?.[0];
+      const hedged = DATE_RE.test(text) && !relative;
       const hints = [
-        missing.includes("an owner") && `Name the team or role who acts ("platform leads", "the payments team", "VP Eng", an @handle); 'we', 'the team' and a bare name don't say whose it is.`,
-        missing.includes("a date") && relative && `"${relative}" moves with the calendar; give a date such as 14 March.`
+        missing.includes("an owner") && `Name the team or role who acts ("platform leads", "the payments team", "VP Eng", an @handle); 'we', 'the team', a bare name and 'owner TBD' don't say whose it is.`,
+        missing.includes("a date") && relative && `"${relative}" moves with the calendar; give a date such as 14 March.`,
+        missing.includes("a date") && hedged && 'The date is hedged ("-ish", "maybe", "TBC"); commit to one.'
       ].filter(Boolean);
       add("ask-concrete", "warn", [`The ask is missing ${missing.join(", ")}.`, ...hints].join(" "), ask.id);
     }
@@ -1272,6 +1346,26 @@ function lintDeck(slides, options = {}) {
     if (!role || role !== prev || REPEATABLE_ROLES.includes(role)) continue;
     const message = role === "option" ? "Two option slides in a row. Compare the options side by side on one slide, on the same criteria." : `Two ${SLIDE_ROLES[role].label.toLowerCase()} slides in a row. Merge them, or give the second its own role.`;
     add("role-repeat", "warn", message, slides[i].id);
+  }
+  if (template && !inferred) {
+    const have = new Set(presented.map((s) => s.role));
+    const required = [...new Set(template.beats.filter((b) => !b.optional).map((b) => b.role))];
+    const missing = required.filter((r) => !have.has(r));
+    if (missing.length === 1) {
+      const beat = template.beats.find((b) => b.role === missing[0]);
+      const label = SLIDE_ROLES[missing[0]].label.toLowerCase();
+      add(
+        "template-beats",
+        "warn",
+        `A ${template.name.toLowerCase()} needs ${/^[aeiou]/.test(label) ? "an" : "a"} ${label} slide (${beat.purpose.charAt(0).toLowerCase()}${beat.purpose.slice(1).replace(/\.$/, "")}), and no slide has role "${missing[0]}".`
+      );
+    } else if (missing.length > 1) {
+      add(
+        "template-beats",
+        "warn",
+        `A ${template.name.toLowerCase()} needs these beats, and no slide has their role: ${missing.map((r) => `"${r}"`).join(", ")}.`
+      );
+    }
   }
   const count = presented.length;
   const budget = options.minutes ?? template?.minutes.max;
@@ -1626,7 +1720,20 @@ function PrintSlide({ slide: s, index: i, count, theme, notes }) {
             detail && /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, { children: " \xB7 detail" })
           ] }),
           /* @__PURE__ */ jsxRuntime.jsx("h3", { children: detail ?? s.headline ?? s.title }),
-          !detail && talk?.say && /* @__PURE__ */ jsxRuntime.jsx("p", { children: talk.say })
+          !detail && talk?.delivery && /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-deck-print__cue", children: [
+            /* @__PURE__ */ jsxRuntime.jsx("b", { children: "Delivery" }),
+            " ",
+            talk.delivery
+          ] }),
+          !detail && talk?.next && /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-deck-print__cue", children: [
+            /* @__PURE__ */ jsxRuntime.jsx("b", { children: "Next" }),
+            " ",
+            talk.next
+          ] })
+        ] }),
+        notes && !detail && talk?.say && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-deck-print__say", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("b", { children: "Say" }),
+          /* @__PURE__ */ jsxRuntime.jsx("p", { children: talk.say })
         ] })
       ]
     },
@@ -1788,7 +1895,7 @@ function Player({
     viewRef.current = next2;
     setView(next2);
   };
-  const { settle, fly } = chunkRMV7QAIQ_cjs.useLayerFlight(
+  const { settle, fly } = chunkAASFR6RT_cjs.useLayerFlight(
     () => stageEl.current?.querySelectorAll(".uipack-deck-layer").forEach((el) => {
       el.style.zIndex = "";
       el.style.visibility = "";
@@ -2171,6 +2278,9 @@ var bentoFocusAt = (step, tour) => step >= 1 && step <= tour.length ? tour[step 
 function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, style, children }) {
   const { step, thumbnail } = useDeckSlide();
   const focus = bentoFocusAt(step, tour);
+  const [trail, setTrail] = react.useState({ focus, leaving: null });
+  if (trail.focus !== focus) setTrail({ focus, leaving: trail.focus });
+  const leaving = trail.focus === focus ? trail.leaving : trail.focus;
   const gridRef = react.useRef(null);
   const [camera, setCamera] = react.useState(null);
   chunkYMPVJRTJ_cjs.useIsoLayoutEffect(() => {
@@ -2199,6 +2309,7 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
       "data-detail-stops": detailStops.length ? detailStops.join(" ") : void 0,
       "data-still": thumbnail ? "" : void 0,
       "data-focus": focus ?? void 0,
+      "data-move": focus && leaving ? "cell" : focus ? "in" : leaving ? "out" : void 0,
       style,
       children: /* @__PURE__ */ jsxRuntime.jsx(
         "div",
@@ -2221,6 +2332,7 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
                 "data-tone": p.tone && p.tone !== "surface" ? p.tone : void 0,
                 "data-focused": focused ? "" : void 0,
                 "data-dimmed": focus && !focused ? "" : void 0,
+                "data-leaving": leaving === p.id && !focused ? "" : void 0,
                 style: { gridColumn: `span ${p.col ?? 2}`, gridRow: `span ${p.row ?? 1}` },
                 children: [
                   /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-deck-bento__face", "aria-hidden": focused && p.detail ? true : void 0, children: p.children }),

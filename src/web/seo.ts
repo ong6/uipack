@@ -414,14 +414,64 @@ export function breadcrumbList(items: BreadcrumbItem[]): JsonLdNode {
   };
 }
 
+/**
+ * A schema.org date: a `Date` (serialised as ISO 8601 in UTC) or an ISO 8601 string as given.
+ * Use the date the content last changed, from its source (frontmatter, `git log -1 --format=%cI -- file`),
+ * never the build time: a dateModified that moves on every deploy tells engines nothing.
+ */
+export type SchemaDate = Date | string;
+
+function schemaDate(d: SchemaDate | undefined, field: string): string | undefined {
+  if (d === undefined || d === "") return undefined;
+  if (d instanceof Date) {
+    if (Number.isNaN(d.getTime())) throw new Error(`${field}: invalid Date`);
+    return d.toISOString();
+  }
+  if (!/^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/.test(d)) throw new Error(`${field} must be ISO 8601, e.g. 2026-10-22 (got "${d}")`);
+  return d;
+}
+
+/** datePublished and dateModified as strings; dateModified defaults to datePublished and may not precede it. */
+function pageDates(published: SchemaDate | undefined, modified: SchemaDate | undefined, builder: string) {
+  const datePublished = schemaDate(published, `${builder}: datePublished`);
+  const dateModified = schemaDate(modified, `${builder}: dateModified`) ?? datePublished;
+  if (datePublished && dateModified && Date.parse(dateModified) < Date.parse(datePublished))
+    throw new Error(`${builder}: dateModified (${dateModified}) is before datePublished (${datePublished})`);
+  return { datePublished, dateModified };
+}
+
+/** An author or creator: plain name and url, a Person's `@id` and name, or a `person()` node. */
+export type ArticleAuthor = { name: string; url?: string; "@id"?: string } | JsonLdNode;
+
+/**
+ * A compact Person reference, `{ "@type": "Person", "@id", name, url? }`, for an author, creator or
+ * `about`. Keeps the name beside the `@id`: a bare `{ "@id" }` names nobody to a reader of this page
+ * alone, and Google's article guidelines ask for the author's name. Takes a `person()` node or
+ * `{ "@id"?, name, url? }`; throws without a name.
+ */
+export function personRef(a: ArticleAuthor): JsonLdNode {
+  const name = typeof a.name === "string" ? a.name : undefined;
+  if (!name) throw new Error("personRef: every author needs a name, not only an @id");
+  const url = typeof a.url === "string" ? a.url : undefined;
+  return clean({ "@type": "Person", "@id": typeof a["@id"] === "string" ? a["@id"] : undefined, name, url });
+}
+
+const people = (a: ArticleAuthor | ArticleAuthor[] | undefined) => {
+  if (a === undefined) return undefined;
+  const list = (Array.isArray(a) ? a : [a]).map(personRef);
+  return list.length === 1 ? list[0] : list;
+};
+const optRef = (n: { "@id"?: string } | string | undefined) => (n ? ref(n) : undefined);
+
 export interface ArticleOptions {
   headline: string;
   description?: string;
   url: string;
   image?: string | string[];
-  /** ISO 8601 dates. */
-  datePublished: string;
-  dateModified?: string;
+  /** ISO 8601 string or Date: first publication. */
+  datePublished: SchemaDate;
+  /** Last substantive change to the text, not the build date. Defaults to `datePublished`. */
+  dateModified?: SchemaDate;
   /**
    * A name (and url), a `person()` node, or a Person's `{ "@id", name }`. With an `@id` the author
    * links to that Person node, wherever it is published; the name stays for readers of this page alone.
@@ -429,32 +479,180 @@ export interface ArticleOptions {
   author: ArticleAuthor | ArticleAuthor[];
   publisher?: { "@id"?: string } | string;
   type?: "Article" | "BlogPosting" | "NewsArticle" | "TechArticle";
-}
-
-/** An article author: plain name and url, a Person's `@id` and name, or a `person()` node. */
-export type ArticleAuthor = { name: string; url?: string; "@id"?: string } | JsonLdNode;
-
-function authorNode(a: ArticleAuthor): JsonLdNode {
-  const name = typeof a.name === "string" ? a.name : undefined;
-  if (!name) throw new Error("article: every author needs a name");
-  const url = typeof a.url === "string" ? a.url : undefined;
-  return clean({ "@type": "Person", "@id": typeof a["@id"] === "string" ? a["@id"] : undefined, name, url });
+  /** Default none, as before; e.g. `${url}#article` to link the article from a WebPage or ItemList. */
+  id?: string;
+  /** The WebPage or Blog (node or "@id") the article belongs to. */
+  isPartOf?: { "@id"?: string } | string;
 }
 
 export function article(o: ArticleOptions): JsonLdNode {
-  const authors = (Array.isArray(o.author) ? o.author : [o.author]).map(authorNode);
+  const authors = (Array.isArray(o.author) ? o.author : [o.author]).map((a) => {
+    try {
+      return personRef(a);
+    } catch {
+      throw new Error("article: every author needs a name");
+    }
+  });
   return clean({
     "@type": o.type ?? "Article",
+    "@id": o.id,
     headline: o.headline,
     description: o.description,
     url: o.url,
     mainEntityOfPage: o.url,
     image: o.image,
-    datePublished: o.datePublished,
-    dateModified: o.dateModified ?? o.datePublished,
+    ...pageDates(o.datePublished, o.dateModified, "article"),
     author: authors.length === 1 ? authors[0] : authors,
-    publisher: o.publisher ? ref(o.publisher) : undefined,
+    publisher: optRef(o.publisher),
+    isPartOf: optRef(o.isPartOf),
   });
+}
+
+export interface WebPageOptions {
+  url: string;
+  /** The page's own title, as in its `<h1>` (not the `<title>` with the brand suffix). */
+  name: string;
+  description?: string;
+  /** Default "WebPage". */
+  type?: "WebPage" | "AboutPage" | "ContactPage" | "ItemPage" | "CollectionPage" | "ProfilePage";
+  /** The WebSite (node or "@id") this page belongs to. */
+  isPartOf?: { "@id"?: string } | string;
+  /** What the page is about, e.g. the site owner's Person (node or "@id"). */
+  about?: { "@id"?: string } | string;
+  /** The page's main subject, as a full node or a reference. */
+  mainEntity?: JsonLdNode | { "@id": string };
+  author?: ArticleAuthor | ArticleAuthor[];
+  /** Absolute URL of the page's main image. */
+  image?: string;
+  breadcrumb?: JsonLdNode;
+  datePublished?: SchemaDate;
+  /** When the page's content last changed (not the deploy). Defaults to `datePublished`. */
+  dateModified?: SchemaDate;
+  inLanguage?: string;
+  /** Default `${url}#webpage`. */
+  id?: string;
+}
+
+/** A WebPage (or a subtype), linked to its WebSite and to what it is about. */
+export function webPage(o: WebPageOptions): JsonLdNode {
+  return clean({
+    "@type": o.type ?? "WebPage",
+    "@id": o.id ?? nodeId(o.url, "webpage"),
+    url: o.url,
+    name: o.name,
+    description: o.description,
+    inLanguage: o.inLanguage,
+    isPartOf: optRef(o.isPartOf),
+    about: optRef(o.about),
+    mainEntity: o.mainEntity,
+    author: people(o.author),
+    primaryImageOfPage: o.image,
+    breadcrumb: o.breadcrumb,
+    ...pageDates(o.datePublished, o.dateModified, "webPage"),
+  });
+}
+
+export interface ProfilePageOptions extends Omit<WebPageOptions, "type" | "mainEntity" | "about" | "author" | "name"> {
+  /** The page title; defaults to the person's name. */
+  name?: string;
+  /**
+   * The person the page is about: `person()` options or node. Its `sameAs` (GitHub, LinkedIn, the
+   * home site) is what lets engines join this profile to the same person elsewhere; keep the `@id`
+   * the home site uses.
+   */
+  person: PersonOptions | JsonLdNode;
+  /** When the profile was first published. */
+  dateCreated?: SchemaDate;
+}
+
+/** A ProfilePage (an about page, an author page) whose mainEntity is the full Person, with sameAs. */
+export function profilePage(o: ProfilePageOptions): JsonLdNode {
+  const entity = "@type" in o.person ? (o.person as JsonLdNode) : person(o.person as PersonOptions);
+  const name = typeof entity.name === "string" ? entity.name : undefined;
+  if (!name) throw new Error("profilePage: the person needs a name");
+  const page = webPage({ ...o, type: "ProfilePage", name: o.name ?? name, mainEntity: entity, id: o.id ?? nodeId(o.url, "profilepage") });
+  return clean({ ...page, dateCreated: schemaDate(o.dateCreated, "profilePage: dateCreated") });
+}
+
+export interface SoftwareSourceCodeOptions {
+  name: string;
+  /** The repository, e.g. "https://github.com/acme/tidy". */
+  codeRepository: string;
+  description?: string;
+  /** The project's own page, if it has one. Default the repository. */
+  url?: string;
+  /** e.g. "TypeScript", or ["TypeScript", "CSS"]. */
+  programmingLanguage?: string | string[];
+  /** e.g. "Node.js 20", "React 18". */
+  runtimePlatform?: string;
+  /** A licence URL or SPDX name, e.g. "https://opensource.org/licenses/MIT". */
+  license?: string;
+  version?: string;
+  author?: ArticleAuthor | ArticleAuthor[];
+  datePublished?: SchemaDate;
+  dateModified?: SchemaDate;
+  keywords?: string | string[];
+  /** Default `${url ?? codeRepository}#code`. */
+  id?: string;
+}
+
+/** SoftwareSourceCode: an open-source library or tool, linked to its repository and author. */
+export function softwareSourceCode(o: SoftwareSourceCodeOptions): JsonLdNode {
+  const url = o.url ?? o.codeRepository;
+  return clean({
+    "@type": "SoftwareSourceCode",
+    "@id": o.id ?? nodeId(url, "code"),
+    name: o.name,
+    description: o.description,
+    url,
+    codeRepository: o.codeRepository,
+    programmingLanguage: o.programmingLanguage,
+    runtimePlatform: o.runtimePlatform,
+    license: o.license,
+    version: o.version,
+    keywords: Array.isArray(o.keywords) ? o.keywords.join(", ") : o.keywords,
+    author: people(o.author),
+    ...pageDates(o.datePublished, o.dateModified, "softwareSourceCode"),
+  });
+}
+
+/** One entry of an ItemList: a link with its name, or a node (an article, a project) shown in the list. */
+export type ItemListEntry = { url: string; name: string; description?: string } | JsonLdNode;
+
+export interface ItemListOptions {
+  name?: string;
+  /** "ItemListOrderAscending", "ItemListOrderDescending" (newest first) or "ItemListUnordered". */
+  order?: "ascending" | "descending" | "unordered";
+  id?: string;
+}
+
+/** An ItemList of ListItems with 1-based positions, in the order the page shows them. */
+export function itemList(items: ItemListEntry[], o: ItemListOptions = {}): JsonLdNode {
+  const order = { ascending: "ItemListOrderAscending", descending: "ItemListOrderDescending", unordered: "ItemListUnordered" } as const;
+  return clean({
+    "@type": "ItemList",
+    "@id": o.id,
+    name: o.name,
+    itemListOrder: o.order ? `https://schema.org/${order[o.order]}` : undefined,
+    numberOfItems: items.length,
+    itemListElement: items.map((it, i) =>
+      "@type" in it
+        ? { "@type": "ListItem", position: i + 1, item: it }
+        : clean({ "@type": "ListItem", position: i + 1, url: it.url, name: it.name, description: it.description }),
+    ),
+  });
+}
+
+export interface CollectionPageOptions extends Omit<WebPageOptions, "type" | "mainEntity"> {
+  /** The entries the page lists (posts, projects), in the order shown. */
+  items: ItemListEntry[];
+  order?: ItemListOptions["order"];
+}
+
+/** A CollectionPage (an index of posts or projects) whose mainEntity is the ItemList it shows. */
+export function collectionPage(o: CollectionPageOptions): JsonLdNode {
+  const { items, order, ...page } = o;
+  return webPage({ ...page, type: "CollectionPage", id: o.id ?? nodeId(o.url, "collection"), mainEntity: itemList(items, { order, id: nodeId(o.url, "items") }) });
 }
 
 /** Wrap one node, or several as an "@graph", in a JSON-LD document with its "@context". */

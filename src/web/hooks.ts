@@ -52,14 +52,16 @@ export function useScrollProgress(ref: RefObject<Element>): number {
   useEffect(() => {
     const el = ref.current;
     if (!el || !inView || typeof window === "undefined") return;
-    let frame = 0;
+    // One pending measure at a time: an animation frame, or a timer where rAF is missing.
+    const hasFrames = typeof requestAnimationFrame === "function" && typeof cancelAnimationFrame === "function";
+    let pending: number | ReturnType<typeof setTimeout> | undefined;
     const measure = () => {
-      frame = 0;
+      pending = undefined;
       setProgress(scrollProgressOf(el.getBoundingClientRect(), window.innerHeight));
     };
     const schedule = () => {
-      if (frame) return;
-      frame = typeof requestAnimationFrame === "function" ? requestAnimationFrame(measure) : (setTimeout(measure, 16) as unknown as number);
+      if (pending !== undefined) return;
+      pending = hasFrames ? requestAnimationFrame(measure) : setTimeout(measure, 16);
     };
     measure();
     window.addEventListener("scroll", schedule, { passive: true });
@@ -67,7 +69,9 @@ export function useScrollProgress(ref: RefObject<Element>): number {
     return () => {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
-      if (frame && typeof cancelAnimationFrame === "function") cancelAnimationFrame(frame);
+      if (pending === undefined) return;
+      if (hasFrames) cancelAnimationFrame(pending as number);
+      else clearTimeout(pending);
     };
   }, [ref, inView]);
   return progress;

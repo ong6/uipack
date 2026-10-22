@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { flushSync } from "react-dom";
 import { useShowcaseTheme } from "./ShowcaseShell";
 import { webEntries } from "./catalog";
@@ -49,10 +49,6 @@ import {
 } from "../src/web";
 import { tidyFaq, tidySeo } from "./web-seo";
 import "../src/web/web.css";
-// Playground-only display alternates for the type specimen's comparison toggle. Not shipped:
-// the package carries Instrument Serif, IBM Plex Sans and IBM Plex Mono only.
-import "@fontsource/ibm-plex-serif/latin-400.css";
-import "@fontsource/space-grotesk/latin-500.css";
 import "../src/web/gutters.css";
 import "./web-showcase.css";
 import { keepFocusedInView, usePrefersReducedMotion } from "../src/env";
@@ -154,6 +150,13 @@ function TypeScaleSpecimen() {
 
 type DisplayFaceId = "instrument-serif" | "ibm-plex-serif" | "space-grotesk";
 
+// Playground-only display alternates for the type specimen's comparison toggle. Not shipped:
+// the package carries Instrument Serif, IBM Plex Sans and IBM Plex Mono only. Their CSS (and so
+// their two font files) loads when the toggle nears the viewport or is used, not with /web's first view.
+let alternateFaces: Promise<unknown> | undefined;
+const loadAlternateFaces = () =>
+  (alternateFaces ??= Promise.all([import("@fontsource/ibm-plex-serif/latin-400.css"), import("@fontsource/space-grotesk/latin-500.css")]));
+
 // Each alternate brings its own weight and tracking: a grotesk needs more weight and tighter
 // tracking than a hairline serif to hold the same headline.
 const displayFaces: { id: DisplayFaceId; name: string; family: string; note: string; style?: CSSProperties }[] = [
@@ -210,6 +213,21 @@ function PageIndex() {
 
 function TypeSpecimen({ theme, face, setFace }: { theme: "light" | "dark"; face: DisplayFaceId; setFace: (id: DisplayFaceId) => void }) {
   const current = displayFaces.find((f) => f.id === face)!;
+  const toggle = useRef<HTMLFieldSetElement>(null);
+  useEffect(() => {
+    const el = toggle.current;
+    if (!el || typeof IntersectionObserver === "undefined") return void loadAlternateFaces();
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        void loadAlternateFaces();
+      },
+      { rootMargin: "600px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
   return (
     <section id="web-type" data-section="type" className="web-anchor">
       <h2>Type · 3 roles</h2>
@@ -269,7 +287,7 @@ function TypeSpecimen({ theme, face, setFace }: { theme: "light" | "dark"; face:
             </div>
           </GridItem>
         </Grid>
-        <fieldset className="web-face-toggle">
+        <fieldset className="web-face-toggle" ref={toggle} onFocus={() => void loadAlternateFaces()}>
           <legend>Compare display faces</legend>
           <div className="web-face-toggle__options">
             {displayFaces.map((f) => (

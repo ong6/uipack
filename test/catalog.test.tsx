@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { libraryGroups, libraryPages, pageDefs, visualStyles } from "../playground/catalog";
 import { deckExamples } from "../playground/deckExamples";
+import { pageModules } from "../playground/routes";
 
 // catalog.ts is the playground's one registry. These checks name the second file a new page,
 // deck or style must touch (docs/contributing.md has the recipes).
@@ -26,6 +27,15 @@ describe("playground catalog", () => {
   it("every example deck has its nav entry (query deck=<id>) and every deck entry has a deck", () => {
     const deckPages = pageDefs.filter((p) => p.path === "/deck").map((p) => p.query?.deck);
     expect(deckPages.sort()).toEqual(deckExamples.map((d) => d.id).sort());
+  });
+
+  it("every page module exists and is named so main.tsx can lazy-load it (App, CatalogPages or *Showcase)", () => {
+    // The patterns of import.meta.glob in playground/main.tsx, which takes literals only.
+    const loadable = /^(App|CatalogPages|[A-Z][A-Za-z]*Showcase)$/;
+    for (const [id, name] of Object.entries(pageModules)) {
+      expect(name, id).toMatch(loadable);
+      expect(existsSync(`playground/${name}.tsx`), name).toBe(true);
+    }
   });
 
   it("a page's style names a registered visual style", () => {

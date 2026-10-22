@@ -50,17 +50,35 @@ const moves = [
 
 /**
  * Keeps the slide and its controls on the first screen: the stage may be as tall as the viewport
- * leaves below the page header (deck.css reads --deck-chrome).
+ * leaves below the page header and the controls (deck.css reads --deck-chrome). The controls are
+ * capped to the stage's width, so on a short window they wrap onto a second row; their measured
+ * height keeps that row on screen too. (A wrap only shrinks the stage, so it settles at once.)
  */
 function useFitBelowHeader() {
   const ref = useRef<HTMLElement>(null);
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const fit = () => el.style.setProperty("--deck-chrome", `${Math.round(el.getBoundingClientRect().top + window.scrollY) + 80}px`);
+    // The deck mounts after this page (it is lazy), so the controls are found, and observed, when
+    // they appear: the page's own box changes size then.
+    let watched: Element | null = null;
+    const ro = typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(() => fit());
+    const fit = () => {
+      const controls = el.querySelector<HTMLElement>(".uipack-deck-controls");
+      if (ro && controls && controls !== watched) {
+        if (watched) ro.unobserve(watched);
+        ro.observe((watched = controls));
+      }
+      const below = controls ? controls.offsetHeight + 14 + 22 : 80;
+      el.style.setProperty("--deck-chrome", `${Math.round(el.getBoundingClientRect().top + window.scrollY + below)}px`);
+    };
     fit();
+    ro?.observe(el);
     window.addEventListener("resize", fit);
-    return () => window.removeEventListener("resize", fit);
+    return () => {
+      window.removeEventListener("resize", fit);
+      ro?.disconnect();
+    };
   }, []);
   return ref;
 }

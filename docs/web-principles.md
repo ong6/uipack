@@ -128,7 +128,8 @@ The components enforce what they can; the rest is on the page author.
 
 The `/web` playground's type specimen compares two alternates, IBM Plex Serif 400 and Space
 Grotesk 500 (−0.03em), across every Landing surface on the page. They load from `@fontsource` in the
-playground only and are not in the package.
+playground only and are not in the package, and only when the toggle comes within 600px of the
+viewport or takes focus, so `/web`'s first view requests the package's seven files and no others.
 
 ## Smooth scrolling
 

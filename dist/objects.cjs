@@ -252,7 +252,7 @@ function ObjectStage({
       setReady(false);
     };
     canvas.addEventListener("webglcontextlost", handleContextLost);
-    Promise.all([import('three'), import('./scenes-6HLHAXP7.cjs'), import('three/addons/environments/RoomEnvironment.js')]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
+    Promise.all([import('three'), import('./scenes-FOPA6CBL.cjs'), import('three/addons/environments/RoomEnvironment.js')]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
       if (disposed) return;
       try {
         renderer = new THREE.WebGLRenderer({
