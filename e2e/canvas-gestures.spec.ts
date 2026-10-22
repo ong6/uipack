@@ -1,10 +1,14 @@
-import { expect, test } from "./fixtures";
+import { expect, test, type Page } from "./fixtures";
+
+const expandableFigure = (page: Page) =>
+  page.locator("figure").filter({ has: page.getByRole("button", { name: "Open canvas", exact: true }) }).first();
 
 test("trackpad pinch zooms around the pointer, clamps, resets, and stays inside the canvas", async ({
   page,
 }) => {
   await page.goto("/?theme=light");
-  const inline = page.locator("figure").first();
+  // The first figure that offers a canvas (the bare figure at the top of the page does not).
+  const inline = expandableFigure(page);
   const outsidePrevented = await inline
     .locator(".uipack__canvas")
     .evaluate((el) => {
@@ -86,9 +90,7 @@ test("Safari gesture events and touch pinch share bounded zoom without double ap
 }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/?theme=dark");
-  await page
-    .locator("figure")
-    .first()
+  await expandableFigure(page)
     .getByRole("button", { name: "Open canvas", exact: true })
     .click();
   const dialog = page.getByRole("dialog");
