@@ -39,6 +39,8 @@ const slides: DeckSlide[] = [
 <DeckPlayer id="platform-review" title="Platform review" slides={slides} theme="light" />;
 ```
 
+Slide type comes from classes on the canvas scale, so every deck sets text the same way: `uipack-deck-eyebrow`, `-label`, `-title` (120px), `-heading` (76px), `-lede`, `-body` (32px) and `-number` (a 360px figure). Slide colours come from the tone (`paper`, `ink`, `accent`) and the deck tokens (`--deck-fg`, `--deck-muted`, `--deck-accent`, `--deck-rule`, `--deck-radius`). A new part or chart follows [contributing](contributing.md#a-new-slide-part-or-chart).
+
 ## Transitions
 
 A slide's `transition` says how it arrives; going back plays it in reverse. Jumps (overview, Home/End) crossfade.
