@@ -302,13 +302,13 @@ export const bentoDeck: DeckSlide[] = [
   },
   {
     id: "plan",
-    title: "Next quarter",
-    headline: "Next quarter we hold latency and cut cost another 10%.",
+    title: "By January",
+    headline: "By January we hold latency and cut cost another 10%.",
     role: "plan",
     tone: "ink",
     render: () => (
-      <Slide eyebrow="Next quarter · cost per 1k queries" footer={footer}>
-        <h2 className="uipack-deck-heading">Next quarter we hold latency and cut cost another 10%.</h2>
+      <Slide eyebrow="By January · cost per 1k queries" footer={footer}>
+        <h2 className="uipack-deck-heading">By January we hold latency and cut cost another 10%.</h2>
         <ol className="deck-bento-plan">
           {[
             ["Shard the cache", "Smaller nodes; the gain holds through the peak.", "−1%", "20 Nov"],

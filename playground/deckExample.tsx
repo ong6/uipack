@@ -61,8 +61,8 @@ export const deckExample: DeckSlide[] = [
           Reviews that open with the answer were decided in one meeting, not three.
         </h2>
         <p className="uipack-deck-lede deck-demo-lede">
-          <span className="deck-demo-caveat">(Same teams, same quarter; not proof of cause.)</span> So, team leads: send me your
-          next review's titles, answer first, by 6{"\u00a0"}November, and present it in the deck player.
+          <span className="deck-demo-caveat">(Same teams, same six months; not proof of cause.)</span> So, team leads: send me
+          your next review's titles, answer first, by 6{"\u00a0"}November, and present it in the deck player.
         </p>
       </Slide>
     ),
@@ -153,7 +153,7 @@ export const deckExample: DeckSlide[] = [
       </Slide>
     ),
     notes: {
-      say: "Here is the nineteen again, as one row of a comparison. The review log splits our twenty-four reviews into two groups. Eleven opened with their answer: a median of one meeting and six days to a decision. Thirteen buried it: three meetings and nineteen days. Same teams, same kinds of decision, same quarter. The difference is the order of the slides. We can't prove the order caused all of it, but in every pair of reviews from the same team, the answer-first one was decided sooner. Source: the platform review log, April to September 2026, median per group.",
+      say: "Here is the nineteen again, as one row of a comparison. The review log splits our twenty-four reviews into two groups. Eleven opened with their answer: a median of one meeting and six days to a decision. Thirteen buried it: three meetings and nineteen days. Same teams, same kinds of decision, same six months. The difference is the order of the slides. We can't prove the order caused all of it, but in every pair of reviews from the same team, the answer-first one was decided sooner. Source: the platform review log, April to September 2026, median per group.",
       delivery: "Trace the two bars left to right, then read the meetings column.",
       next: "So how do you check a review before you give it?",
     },

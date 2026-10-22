@@ -389,7 +389,7 @@ export const consultingDeck: DeckSlide[] = [
               {
                 label: "Outsource to a 3PL",
                 detail: "A logistics provider runs all five sites",
-                cells: { saving: "$11M", cost: "$3M", margin: 3, service: 1, speed: 3, undo: 1 },
+                cells: { saving: "$11M", cost: "$3M", margin: 3, service: 1, speed: 2, undo: 1 },
               },
             ]}
           />
@@ -723,7 +723,7 @@ export const consultingDeck: DeckSlide[] = [
             data={[
               { label: "$6.80", value: 15.2 },
               { label: "$7.10", value: 14.0, highlight: true },
-              { label: "$7.40", value: 12.8 },
+              { label: "$7.40", value: 12.7 },
               { label: "$7.70", value: 11.5 },
               { label: "$8.00", value: 10.3 },
             ]}
