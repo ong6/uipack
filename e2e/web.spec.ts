@@ -238,6 +238,9 @@ test.describe("/web Landing collection", () => {
     expect(await family(".uipack-web-hero .uipack-web-eyebrow")).toBe("IBM Plex Mono");
     expect(await family(".uipack-web-demo__address")).toBe("IBM Plex Mono");
     // The specimen's toggle previews another display face on every Landing surface, then returns.
+    // Its alternates load as the toggle nears the viewport; let the labels settle in their faces first.
+    await page.locator(".web-face-toggle").scrollIntoViewIfNeeded();
+    await expect.poll(loaded).toEqual(expect.arrayContaining(["IBM Plex Serif 400 normal", "Space Grotesk 500 normal"]));
     await page.getByRole("radio", { name: "Space Grotesk" }).check();
     await expect.poll(() => family(".uipack-web-hero h1")).toBe("Space Grotesk");
     expect(await weight(".uipack-web-hero h1")).toBe("500");
