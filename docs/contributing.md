@@ -16,7 +16,7 @@ Every package entry (`uipack`, `uipack/deck`, `uipack/mechanism`…) has the sam
 
 Shared building blocks, so a new part does not grow its own copy:
 
-- `src/env.ts`: `useIsoLayoutEffect` (SSR-safe layout effect), `REDUCED_MOTION_QUERY`, `prefersReducedMotion()`. The hook is `usePrefersReducedMotion()` from `src/context.tsx`.
+- `src/env.ts`: `useIsoLayoutEffect` (SSR-safe layout effect), `REDUCED_MOTION_QUERY`, `prefersReducedMotion()`, and `keepFocusedInView` (onFocus for a horizontally scrolling row, so a focused item and its ring are never half hidden). The hook is `usePrefersReducedMotion()` from `src/context.tsx`.
 - `src/zoom-math.ts`: the fixed-point zoom (`zoomFrame`, `zoomSamples`, `easeInOutCubic`, `smoothstep`).
 - `src/presets/shared.tsx`: `textPx`, `fits`, `fit` and `nodeWidthFor`, the text-width estimates presets size boxes with.
 - Prop names: `theme` (`"light" | "dark"`; omitted, follow an ancestor's `data-theme`), `motion` (`"auto" | "none"`), `interactive` (`false` renders one still frame: thumbnails), `alt` (the accessible description), `number` (the figure number), `className`. Use these names for the same ideas.
