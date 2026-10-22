@@ -86,7 +86,7 @@ for (const theme of ["light", "dark"] as const) {
         }
       });
       await shootElement(page, chart, `docs/span-chart-${w}-${theme}.png`);
-      await page.locator(`${chart} .uipack-span__toggle--foot`).click();
+      await page.locator(`${chart} .uipack-span__toggle--top`).click();
       await shootElement(page, chart, `docs/span-chart-expanded-${w}-${theme}.png`);
       await page.locator(`${chart} .uipack-span__toggle--foot`).click();
       await page.locator(`${chart} .uipack-span__col[data-l="inference"]`).click();
