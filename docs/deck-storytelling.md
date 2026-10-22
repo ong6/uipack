@@ -10,12 +10,12 @@ The code lives in [`src/deck/storyline.ts`](../src/deck/storyline.ts): slide rol
 |---|---|---|
 | **Answer first** | Open with the conclusion: the status, the recommendation or the thesis (Minto's pyramid). The rest of the deck supports it. | If the meeting ended after slide two, would they know the point? |
 | **Slide one names the outcome, not the system** | Leadership funds results. "Search got twice as fast and cheaper to run" beats "The new caching tier". Name the system on slide two, as the reason. | Would a director who has never heard of the system repeat slide one to their boss? |
-| **Specific, not upbeat** | An answer or evidence title carries a quantity: a number, a number word ("twice", "a third"), or a from→to with one. "In a good place", "great work", "much better than before" and a product name on its own could describe any quarter. | Could the same title appear in last quarter's deck? Then it says nothing. |
+| **Specific, not upbeat** | An answer, evidence, problem or recommendation title quantifies its claim: a number with what it measures, a multiple ("twice", "a third"), a number word with its unit ("three weeks", "one engineer") or two quantities compared ("one meeting, not three"). "In a good place", "two teams worked hard", "no regressions and lots of wins" and a product version ("Kafka 3") could describe any quarter. A plan title carries a date or a number. | Could the same title appear in last quarter's deck? Then it says nothing. |
 | **Action titles** | Every title is a full claim ("Index freshness fell from 40 to 6 minutes"), not a topic ("Results"). 3–14 words. | Does the title say what to conclude? |
 | **Ghost deck** | Read only the titles, in order. They should tell the whole argument. | Run `storylineOf`; does it read as a story? |
 | **One idea per slide** | One claim, and a body that proves it. Two claims means two slides. | Can you state the slide in one sentence? |
 | **Evidence with sources** | Every number has a baseline, a window and a source: on the slide when it changes the decision, otherwise in the notes. | "Where's that from?" has an answer. |
-| **A specific ask** | End on a decision or action, a named owner (a team or role: "platform leads", "the payments team", "VP Eng", an @handle; not "we", "the team" or a first name) and a calendar date ("next quarter" is not one). Not "Questions?" | Could someone act on it tomorrow, and would they know it's theirs? |
+| **A specific ask** | End on a decision or action, a named owner (a team or role: "platform leads", "the payments team", "VP Eng", an @handle; not "we", "the team", a first name or "owner TBD") and a firm calendar date ("next quarter", "Monday-ish" and "next Monday maybe" are not). Not "Questions?" | Could someone act on it tomorrow, and would they know it's theirs? |
 | **Design serves the claim** | The dominant visual element is the evidence for the title. Cut decoration, logos and anything the title doesn't need. | Cover the title: does the visual still point at it? |
 
 For a decision deck, use SCQA: **S**ituation (what the room accepts), **C**omplication (what changed), **Q**uestion (what to do), **A**nswer (the recommendation). With an exec audience, put the A first and let S and C follow as support.
@@ -71,7 +71,7 @@ Put the status word first. If the project is at risk, say so on slide one. With 
 | 2 | context | Uploads resize every image inline before the request returns |
 | 3 | problem | Large uploads time out 4% of the time, and volume doubles by Q4 |
 | 4 | option | Three options: bigger servers, a resize queue, or doing nothing |
-| 5 | recommendation | A queue ends timeouts; thumbnails arrive a few seconds later |
+| 5 | recommendation | A queue ends timeouts; thumbnails arrive about 5 seconds later |
 | 6 | plan | Six engineer-weeks; done when upload timeouts drop below 0.1% |
 | 7 | risk *(optional)* | If queue lag passes one minute, we fall back to inline resizing |
 | 8 | ask | Platform leads: decide by 14 March so the work is staffed in Q2 |
@@ -85,7 +85,7 @@ Compare the options on one slide using the same criteria, and always include "do
 | # | Role | Move | Ghost-deck title |
 |---|---|---|---|
 | 1 | answer | advance | The rate limiter adds 0.2 ms by deciding locally and syncing counts later |
-| 2 | problem | advance | A central counter adds a network hop to every request |
+| 2 | problem | advance | A central counter adds a 2 ms network hop to every request |
 | 3 | mechanism | advance | Three parts: a local bucket, a sync loop and a global budget |
 | 4 | mechanism | **zoom** | Each local bucket refills from its share of the global budget |
 | 5 | mechanism *(optional)* | **morph** | A burst drains one bucket while the others keep serving |
@@ -102,7 +102,7 @@ This is the one template that doesn't require answer first: a teaching talk may 
 
 | # | Role | Move | Ghost-deck title |
 |---|---|---|---|
-| 1 | answer | advance | Support agents can now issue refunds in one click instead of a ticket |
+| 1 | answer | advance | Support agents can now issue refunds in one click instead of a two-day ticket |
 | 2 | problem | advance | Refunds took two days because every one needed an engineer |
 | 3 | demo | **morph** | Watch an agent refund a duplicate charge in under a minute |
 | 4 | mechanism *(optional)* | advance | Refunds over an agent's limit still route to a lead for approval |
@@ -122,7 +122,7 @@ Rehearse one path through the demo and keep a recording ready in case it fails. 
 | 2 | evidence | advance | About 18,000 orders failed; most customers retried within an hour |
 | 3 | evidence | advance | Alerts fired after 9 minutes; rollback took 25 because the tool was slow |
 | 4 | mechanism | **zoom** | A missing default let one bad value disable every payment provider |
-| 5 | problem | advance | Config changes skipped canary, so the bad value reached all regions at once |
+| 5 | problem | advance | Config changes skipped canary, so the bad value reached all 14 regions at once |
 | 6 | plan | advance | Three fixes: canary config pushes, schema defaults and faster rollback by June |
 | 7 | ask | advance | Prioritise the canary work in Q3 planning; Release Engineering owns it |
 
@@ -136,8 +136,8 @@ Keep it blameless: write about systems and safeguards, not people. The gaps in t
 |---|---|---|
 | 1 | answer | This half we cut payment failures by a third and unblocked two launches |
 | 2 | evidence | Smarter retries cut failed payments from 3% to 2% of attempts |
-| 3 | evidence | Two product teams launched on the new API without our help |
-| 4 | problem *(optional)* | The fraud-rule rewrite slipped a quarter; we now ship rules behind flags |
+| 3 | evidence | Two product teams launched on the new API in three weeks, without our help |
+| 4 | problem *(optional)* | The fraud-rule rewrite slipped three months; we now ship rules behind flags |
 | 5 | plan | Next half: halve payout latency to support instant withdrawals |
 | 6 | ask | We need the payments director to approve one more engineer by July |
 
@@ -177,17 +177,18 @@ People will read your deck without you in the room. Write it so it still works:
 | `title-present` | error | Every slide has a title. |
 | `title-claim` | error / warn / tip | The title is a claim of three or more words, not a topic label like "Background" or "Agenda". A short label-like phrase warns, and so does a title of any length that opens like a topic: "Overview of…", "How … works", "Status…", "Some of…", "Introduction to…", "Update on…", "Thanks…", "Questions…". A "Label: claim" title gets a tip; on a cover every finding is softened to a tip. |
 | `title-length` | warn | The title has 14 words or fewer. |
-| `title-specific` | warn | An `answer` or `evidence` title carries a quantity: digits that aren't a date, quarter or version, or a number word ("twice", "a third", "six", "no regressions"). A comparison counts only with a quantity in it ("from 40 to 6 minutes", "3 to 1"), and proper nouns never count. "Search is in a good place and the team did great work", "The new Kafka pipeline is much better than before" and "The team worked really hard on Redis" fail. |
+| `title-specific` | warn | An `answer`, `evidence`, `problem` or `recommendation` title quantifies its claim: digits that aren't a date, quarter or version ("v2", "Kafka 3", "Python 3.12"), a multiple or fraction ("twice", "halved", "a third"), a number word with its unit ("three weeks", "nine months", "one engineer") or two quantities compared ("one meeting, not three", "nine in ten", "from 40 to 6 minutes"). A bare count, "no regressions" and proper nouns don't: "Two teams worked hard and things are better", "One big improvement in search quality", "No regressions and lots of wins" and "The new Kafka pipeline is much better than before" fail. A `plan` title needs a date or a number ("We will keep improving things going forward" fails). |
 | `one-idea` | tip | The title is a single sentence. |
 | `notes-present` | warn | Every presented slide has a `say` talk track. |
-| `number-source` | warn | A number in a title (dates, quarters and versions excluded) names its source: a dashboard, query, test, survey, report, benchmark, logs, experiment, trace, cost model or a URL in the notes, or the slide's `source`. "I measured this from my laptop once" doesn't count. Plan and ask slides are exempt, because they hold targets. |
+| `number-source` | warn | A number in a title (dates, quarters and versions excluded) names its source: a named artifact in the notes (a dashboard, query, test, survey, report, benchmark, log, experiment, trace or forecast with a name in front, "the search latency dashboard", "load test 12", "the Q3 user survey", or a name after it, "benchmark suite"; management accounts, a cost model or a URL), or the slide's `source`. Bare and hedged mentions don't count: "I measured this from my laptop once", "Per the test I ran once on staging, trust me", "From a report someone mentioned", "Finance said so in the dashboard chat". Plan and ask slides are exempt, because they hold targets. |
 | `roles-missing` | warn | No slide has a role. Roles are then read from the titles (slide one is the answer if it states a quantity or an outcome, else the cover; "Next steps" is the plan; a last slide asking for a decision with an owner or a date is the ask) and the answer-first, outcome-first, closing-ask and ask-concrete checks run on them. A deck closing on "Questions?", "Thank you" or "Q&A" hears that its ask is missing. Role rhythm needs real roles. |
 | `answer-first` | error / warn | An `answer` or `recommendation` slide exists and appears within the first three content slides. Off for the deep-dive template. |
 | `outcome-first` | tip | Slide one's title names an outcome (a number, a comparison, or a word like faster, cheaper, cut, saved, unblocked, on track), not just the system. Off where `answer-first` is off. |
 | `closing-ask` | error / warn | An `ask` slide exists and is the last presented slide. |
-| `ask-concrete` | warn | The ask, title plus notes, names an action, an owner and a date. The owner is a role ("Platform leads", "the payments director", "VP Eng", "Dana, our platform lead"), a named team ("Storage team", "the payments team"), "<Name> owns it" or an @handle; "we", "you", "the team" and a bare capitalised word ("Please continue to Support this effort", "Thanks Bob") don't count. The date is on a calendar: a month, a weekday, a numeric date, Q3 or H2, or today. "Next quarter", "soon" and "going forward" don't count. |
+| `ask-concrete` | warn | The ask, title plus notes, names an action, an owner and a date. The owner is a role ("Platform leads", "the payments director", "VP Eng", "Dana, our platform lead"), a named team ("Storage team", "the payments team"), "<Name> owns it" or an @handle; "we", "you", "the team", a bare capitalised word ("Please continue to Support this effort", "Thanks Bob"), a placeholder ("owner TBD", "Leads to approve") and "lead" as a verb ("We will lead the review") don't count. The date is on a calendar and said firmly: a month, a weekday, a numeric date, Q3 or H2, or today. "Next quarter", "soon", "going forward", "Monday-ish" and "Next Monday maybe" don't count. |
 | `role-repeat` | warn | No two adjacent slides share a role, except evidence, mechanism, demo and appendix. |
 | `deck-length` | warn / tip | About one to two minutes per presented slide; with only a template given, the slide count falls inside its range. |
+| `template-beats` | warn | With a `template`, every beat it doesn't mark optional has a slide in that role: a decision request without an options slide, or a postmortem without its plan, hears which beat is missing. |
 | `talk-time` | warn | The `say` text fits the time budget at 135 words a minute, and, once every slide has a track, covers at least half of it (the `minutes` given, else the template's shortest length). A thin track leaves the speaker view's clock and a forwarded deck with nothing to go on. |
 
 These checks are heuristics. They catch a missing ask or a topic-label title, but they can't tell whether a claim is true. Rehearse the deck out loud and have someone else read the ghost deck cold.

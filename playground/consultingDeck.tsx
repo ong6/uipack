@@ -214,7 +214,8 @@ export const consultingDeck: DeckSlide[] = [
     id: "sites",
     title: "Two sites cost 46% more",
     headline: "Northgate and Riverside cost 46% more per order than the other three sites",
-    role: "evidence",
+    // The complication: where the cost comes from, sized.
+    role: "problem",
     transition: { zoom: "site-costs" },
     render: () => (
       <ConsultingSlide

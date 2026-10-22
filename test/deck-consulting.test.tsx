@@ -386,7 +386,7 @@ describe("example consulting deck", () => {
     expect(storylineOf(consultingDeck).map((e) => e.role)).toEqual([
       "answer",
       "context",
-      "evidence",
+      "problem",
       "option",
       "recommendation",
       "plan",
