@@ -5,26 +5,63 @@ import { docsEntries } from "./catalog";
 import { useShowcaseTheme } from "./ShowcaseShell";
 
 // The page's h1 is the playground's; the sample document starts at its h2 sections.
-const source = `This layout keeps product navigation, readable prose, and local context visible without narrowing the article.
+const source = `Example product checks a pull request against the team's review rules before a person reads it. This page takes you from install to a first passing run in about five minutes.
 
-## Start with one workflow
+## Install
 
-Use the left navigation to move between pages. The right rail follows the headings in the current article.
+Add the CLI to the repository as a development dependency, then confirm it runs.
+
+\`\`\`sh
+npm install --save-dev @example/review
+npx review --version
+\`\`\`
 
 > **Note:** On a narrow screen, documentation navigation moves into a disclosure and the local table of contents is hidden.
 
-## Inspect the details
+## Configure your first rule
 
-Inline \`code\`, fenced examples, and tables share the same measured reading column.
+Rules live in \`review.config.ts\` at the repository root. Each one names what it checks, how serious a miss is, and where it applies.
 
-| Part | Purpose |
-|---|---|
-| Sidebar | Groups pages by section |
-| Contents | Links to h2 and h3 headings |
+\`\`\`ts
+import { defineConfig } from "@example/review";
 
-### Follow the evidence
+export default defineConfig({
+  rules: [
+    {
+      id: "answer-first",
+      check: "The description opens with the decision it asks for.",
+      severity: "error",
+      paths: ["docs/**", "proposals/**"],
+    },
+  ],
+});
+\`\`\`
 
-Heading links remain keyboard focusable and every page ends with previous and next navigation.
+### Choose a severity
+
+| Severity | On a miss | Use it for |
+|---|---|---|
+| \`error\` | Fails the check | Rules the team has agreed on |
+| \`warn\` | Comments, passes | Rules you are still trying out |
+| \`off\` | Nothing | Pausing a rule without deleting it |
+
+### Scope it to paths
+
+\`paths\` takes globs relative to the root. Leave it out to check every changed file.
+
+## Run it on a pull request
+
+Run the check locally first; the same command runs in CI.
+
+\`\`\`sh
+npx review --base main
+\`\`\`
+
+Each miss prints the rule, the file and line, and the sentence that broke it, so the author can fix it before asking for review.
+
+### Read the result
+
+A run exits with \`0\` when every \`error\` rule passes and \`1\` otherwise, so CI needs no extra parsing. Warnings print but never fail the run.
 `;
 
 const sections: DocsSection[] = [
@@ -39,7 +76,15 @@ const sections: DocsSection[] = [
     title: "How it works",
     items: [
       { title: "System overview", href: "/docs/system-overview" },
+      { title: "Rules and severities", href: "/docs/rules" },
       { title: "Operations", href: "/docs/operations" },
+    ],
+  },
+  {
+    title: "Reference",
+    items: [
+      { title: "Configuration", href: "/docs/configuration" },
+      { title: "CLI", href: "/docs/cli" },
     ],
   },
 ];

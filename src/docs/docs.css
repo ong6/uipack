@@ -58,6 +58,7 @@
 
 .uipack-docs a:focus-visible,
 .uipack-docs summary:focus-visible,
+.uipack-docs__prose pre:focus-visible,
 .uipack-docs__table:focus-visible {
   border-radius: 2px;
   outline: 2px solid var(--docs-focus);
