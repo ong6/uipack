@@ -6,10 +6,11 @@ import {
 } from "./chunk-AZPFC2BR.js";
 import {
   CanvasView
-} from "./chunk-GEEREXP5.js";
+} from "./chunk-BK4QH7YO.js";
 import {
   usePrefersReducedMotion
-} from "./chunk-FENTOHP4.js";
+} from "./chunk-PH4YUQN4.js";
+import "./chunk-YUGHDI4S.js";
 
 // src/slides/SlidePlayer.tsx
 import {
@@ -27,6 +28,7 @@ function Diagram({ story, stop }) {
     /* @__PURE__ */ jsx("p", { className: "uipack-slide-diagram__heading", children: "Diagram view" }),
     /* @__PURE__ */ jsx("div", { className: "uipack-slide-diagram__nodes", children: visible.map((n) => /* @__PURE__ */ jsxs("div", { "data-tone": n.tone, children: [
       /* @__PURE__ */ jsx("strong", { children: n.label }),
+      " ",
       /* @__PURE__ */ jsx("span", { children: n.detail })
     ] }, n.id)) }),
     /* @__PURE__ */ jsx("ul", { "aria-label": "Highlighted connections", children: story.connections.filter((c) => stop.activeConnections?.includes(c.id)).map((c) => /* @__PURE__ */ jsxs("li", { children: [
@@ -157,7 +159,6 @@ function SceneViewport({
           "button",
           {
             type: "button",
-            "aria-label": `Inspect ${n.label}`,
             "aria-pressed": selected === n.id,
             onClick: () => setSelected(selected === n.id ? null : n.id),
             "data-node": n.id,
@@ -166,6 +167,7 @@ function SceneViewport({
             style: { visibility: "hidden" },
             children: [
               /* @__PURE__ */ jsx("strong", { children: n.label }),
+              " ",
               /* @__PURE__ */ jsx("span", { children: n.detail })
             ]
           },

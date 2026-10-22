@@ -846,9 +846,9 @@ function LayerStack(props) {
   const Sub = plain ? "p" : `h${props.title ? Math.min(level + 1, 6) : level}`;
   const go = /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
     /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__go-text", "aria-hidden": "true", children: labels.go }),
-    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__go", "aria-hidden": "true", children: "\u2193" })
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__go", "aria-hidden": "true" })
   ] });
-  const arrow = /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__arrow", "aria-hidden": "true", children: "\u2193" });
+  const arrow = /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__arrow", "aria-hidden": "true" });
   const keep = (text) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(CaseSafe, { text, keep: "uipack-stack__keep" });
   return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
     "section",
@@ -897,12 +897,14 @@ function LayerStack(props) {
                   /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("span", { className: "uipack-stack__text", children: [
                     /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("b", { children: [
                       layer.label,
-                      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__sr", children: ". " })
+                      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__sr", children: "." })
                     ] }),
+                    " ",
                     /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__summary", children: layer.summary })
                   ] }),
                   layer.metric ? /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("span", { className: "uipack-stack__metric", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__sr", children: ". " }),
+                    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-stack__sr", children: "." }),
+                    " ",
                     /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("strong", { children: layer.metric.value }),
                     " ",
                     /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { children: layer.metric.label })
@@ -966,6 +968,13 @@ function LayerStack(props) {
       ]
     }
   );
+}
+
+// src/env.ts
+var import_react2 = require("react");
+var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+function prefersReducedMotion(win = typeof window === "undefined" ? void 0 : window) {
+  return typeof win?.matchMedia === "function" && win.matchMedia(REDUCED_MOTION_QUERY).matches;
 }
 
 // src/charts/enhance.ts
@@ -1238,7 +1247,7 @@ function enhanceLayerStack(root) {
   const onClick = (event) => {
     if (!win || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const link = event.target.closest?.('a[href^="#"]');
-    if (!link || !root.contains(link) || win.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    if (!link || !root.contains(link) || prefersReducedMotion(win)) return;
     const hash = link.getAttribute("href");
     const target = doc.getElementById(decodeURIComponent(hash.slice(1)));
     if (!target) return;

@@ -24,6 +24,7 @@ __export(src_exports, {
   Bus: () => Bus,
   Chip: () => Chip,
   Connector: () => Connector,
+  Cross: () => Cross,
   DEFAULT_RENDER_WIDTH: () => DEFAULT_RENDER_WIDTH,
   DRILL_GROW: () => DRILL_GROW,
   Defs: () => Defs,
@@ -42,6 +43,7 @@ __export(src_exports, {
   Packet: () => Packet,
   TOKEN_SHAPE: () => TOKEN_SHAPE,
   Token: () => Token,
+  Wall: () => Wall,
   Wordmark: () => Wordmark,
   anchor: () => anchor,
   busStub: () => busStub,
@@ -74,24 +76,31 @@ __export(src_exports, {
   useFigureMotion: () => useFigureMotion,
   useFontFloor: () => useFontFloor,
   usePrefersReducedMotion: () => usePrefersReducedMotion,
+  wallSegments: () => wallSegments,
   zoomFrame: () => zoomFrame,
   zoomSamples: () => zoomSamples
 });
 module.exports = __toCommonJS(src_exports);
 
 // src/CanvasView.tsx
-var import_react2 = require("react");
+var import_react3 = require("react");
 
 // src/canvas-gestures.ts
+var import_react2 = require("react");
+
+// src/env.ts
 var import_react = require("react");
-var useBrowserLayoutEffect = typeof window === "undefined" ? import_react.useEffect : import_react.useLayoutEffect;
+var useIsoLayoutEffect = typeof window === "undefined" ? import_react.useEffect : import_react.useLayoutEffect;
+var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+// src/canvas-gestures.ts
 function useCanvasGestures(ref, open, zoom) {
-  const latest = (0, import_react.useRef)(zoom);
+  const latest = (0, import_react2.useRef)(zoom);
   latest.current = zoom;
-  const pending = (0, import_react.useRef)();
-  const queued = (0, import_react.useRef)(zoom.value);
-  const frame = (0, import_react.useRef)(0);
-  useBrowserLayoutEffect(() => {
+  const pending = (0, import_react2.useRef)();
+  const queued = (0, import_react2.useRef)(zoom.value);
+  const frame = (0, import_react2.useRef)(0);
+  useIsoLayoutEffect(() => {
     queued.current = zoom.value;
     const anchor2 = pending.current;
     if (!anchor2) return;
@@ -131,9 +140,9 @@ function useCanvasGestures(ref, open, zoom) {
       () => config.onChange(queued.current)
     );
   };
-  const changeRef = (0, import_react.useRef)(change);
+  const changeRef = (0, import_react2.useRef)(change);
   changeRef.current = change;
-  (0, import_react.useEffect)(() => {
+  (0, import_react2.useEffect)(() => {
     const host = ref.current;
     if (!open || !host) return;
     let safariScale = null;
@@ -281,12 +290,12 @@ function CanvasView({
   restoreFocus,
   layout
 }) {
-  const content = (0, import_react2.useRef)(null);
+  const content = (0, import_react3.useRef)(null);
   const gestures = useCanvasGestures(content, open, zoom);
-  const dialog = (0, import_react2.useRef)(null);
-  const actions = (0, import_react2.useRef)(gestures);
+  const dialog = (0, import_react3.useRef)(null);
+  const actions = (0, import_react3.useRef)(gestures);
   actions.current = gestures;
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (!open) return;
     const keyboard = (event) => {
       const target = event.target;
@@ -309,9 +318,9 @@ function CanvasView({
     document.addEventListener("keydown", keyboard);
     return () => document.removeEventListener("keydown", keyboard);
   }, [open]);
-  const close = (0, import_react2.useRef)(onClose);
+  const close = (0, import_react3.useRef)(onClose);
   close.current = onClose;
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (!open) return;
     const opener = document.activeElement;
     const previous = document.body.style.overflow;
@@ -324,7 +333,7 @@ function CanvasView({
       );
     };
   }, [open]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     const node = dialog.current;
     if (!open || !node) return;
     const source = node.querySelector(".uipack");
@@ -411,12 +420,12 @@ function CanvasView({
 }
 
 // src/selection.tsx
-var import_react3 = require("react");
-var SelectionContext = (0, import_react3.createContext)({ enabled: false, selected: null, select: () => {
+var import_react4 = require("react");
+var SelectionContext = (0, import_react4.createContext)({ enabled: false, selected: null, select: () => {
 } });
 function useItemSelection(label, detail, flow, enabled = true, name = label) {
-  const id = (0, import_react3.useId)();
-  const context = (0, import_react3.useContext)(SelectionContext);
+  const id = (0, import_react4.useId)();
+  const context = (0, import_react4.useContext)(SelectionContext);
   if (!context.enabled || !enabled || !(detail || flow)) return {};
   const selected = context.selected?.id === id;
   const toggle = (anchor2) => context.select(selected ? null : { id, label, detail, flow, anchor: anchor2 });
@@ -441,13 +450,13 @@ function useItemSelection(label, detail, flow, enabled = true, name = label) {
 }
 
 // src/Figure.tsx
-var import_react7 = require("react");
+var import_react8 = require("react");
 
 // src/context.tsx
-var import_react4 = require("react");
+var import_react5 = require("react");
 var noop = () => {
 };
-var FigureMotionContext = (0, import_react4.createContext)({
+var FigureMotionContext = (0, import_react5.createContext)({
   playing: true,
   reduced: false,
   cycle: 0,
@@ -455,14 +464,13 @@ var FigureMotionContext = (0, import_react4.createContext)({
   replay: noop
 });
 function useFigureMotion() {
-  return (0, import_react4.useContext)(FigureMotionContext);
+  return (0, import_react5.useContext)(FigureMotionContext);
 }
-var QUERY = "(prefers-reduced-motion: reduce)";
 function usePrefersReducedMotion() {
-  const [reduced, setReduced] = (0, import_react4.useState)(false);
-  (0, import_react4.useEffect)(() => {
+  const [reduced, setReduced] = (0, import_react5.useState)(false);
+  (0, import_react5.useEffect)(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const mq = window.matchMedia(QUERY);
+    const mq = window.matchMedia(REDUCED_MOTION_QUERY);
     const onChange = (e) => setReduced(e.matches);
     setReduced(mq.matches);
     if (typeof mq.addEventListener === "function") {
@@ -476,12 +484,12 @@ function usePrefersReducedMotion() {
 }
 
 // src/hover.tsx
-var import_react5 = require("react");
+var import_react6 = require("react");
 var noop2 = () => {
 };
-var FigureHoverContext = (0, import_react5.createContext)({ flow: null, kind: null, setFlow: noop2, setKind: noop2 });
+var FigureHoverContext = (0, import_react6.createContext)({ flow: null, kind: null, setFlow: noop2, setKind: noop2 });
 function useFigureHover() {
-  return (0, import_react5.useContext)(FigureHoverContext);
+  return (0, import_react6.useContext)(FigureHoverContext);
 }
 var flowList = (flow) => flow == null ? [] : Array.isArray(flow) ? flow : [flow];
 function hoverAttrs(flow, kind, hover) {
@@ -560,9 +568,9 @@ function Legend({ items }) {
 }
 
 // src/scale.tsx
-var import_react6 = require("react");
+var import_react7 = require("react");
 var import_jsx_runtime4 = require("react/jsx-runtime");
-var FigureScaleContext = (0, import_react6.createContext)({ floor: 0 });
+var FigureScaleContext = (0, import_react7.createContext)({ floor: 0 });
 var DEFAULT_RENDER_WIDTH = 1088;
 function fontFloor(vbWidth2, renderWidth, minFont) {
   if (!vbWidth2 || !renderWidth || !minFont) return 0;
@@ -572,14 +580,13 @@ function FigureScaleProvider({ floor, children }) {
   return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(FigureScaleContext.Provider, { value: { floor }, children });
 }
 function useFontFloor(size) {
-  const { floor } = (0, import_react6.useContext)(FigureScaleContext);
+  const { floor } = (0, import_react7.useContext)(FigureScaleContext);
   return Math.max(size, floor);
 }
 
 // src/Figure.tsx
 var import_jsx_runtime5 = require("react/jsx-runtime");
 var vbWidth = (viewBox) => Number(viewBox.split(/\s+/)[2]) || 0;
-var useIsoLayoutEffect = typeof window === "undefined" ? import_react7.useEffect : import_react7.useLayoutEffect;
 var NOTE_GAP = 8;
 function placeNote(canvas, note, anchor2) {
   const box = anchor2.querySelector(":scope > rect") ?? anchor2;
@@ -597,8 +604,8 @@ function placeNote(canvas, note, anchor2) {
   return { left, top };
 }
 function useRenderedWidth(ref, fixed, layoutKey) {
-  const [w, setW] = (0, import_react7.useState)(fixed ?? DEFAULT_RENDER_WIDTH);
-  (0, import_react7.useEffect)(() => {
+  const [w, setW] = (0, import_react8.useState)(fixed ?? DEFAULT_RENDER_WIDTH);
+  (0, import_react8.useEffect)(() => {
     if (fixed != null) return;
     const el = ref.current;
     if (!el || typeof ResizeObserver === "undefined") return;
@@ -652,18 +659,18 @@ function Figure({
   measuredWidth,
   id
 }) {
-  const opener = (0, import_react7.useRef)(null);
-  const auto = (0, import_react7.useId)();
+  const opener = (0, import_react8.useRef)(null);
+  const auto = (0, import_react8.useId)();
   const figId = id ?? `uipack-${auto.replace(/:/g, "")}`;
   const reduced = usePrefersReducedMotion();
-  const [playing, setPlaying] = (0, import_react7.useState)(true);
-  const [cycle, setCycle] = (0, import_react7.useState)(0);
-  const [expanded, setExpanded] = (0, import_react7.useState)(false);
-  const [zoom, setZoom] = (0, import_react7.useState)(1);
-  const [selected, select] = (0, import_react7.useState)(null);
-  const [hoverFlow, setHoverFlow] = (0, import_react7.useState)(null);
-  const [hoverKind, setHoverKind] = (0, import_react7.useState)(null);
-  const hover = (0, import_react7.useMemo)(
+  const [playing, setPlaying] = (0, import_react8.useState)(true);
+  const [cycle, setCycle] = (0, import_react8.useState)(0);
+  const [expanded, setExpanded] = (0, import_react8.useState)(false);
+  const [zoom, setZoom] = (0, import_react8.useState)(1);
+  const [selected, select] = (0, import_react8.useState)(null);
+  const [hoverFlow, setHoverFlow] = (0, import_react8.useState)(null);
+  const [hoverKind, setHoverKind] = (0, import_react8.useState)(null);
+  const hover = (0, import_react8.useMemo)(
     () => ({
       flow: selected?.flow ?? hoverFlow,
       kind: hoverKind,
@@ -672,35 +679,35 @@ function Figure({
     }),
     [hoverFlow, hoverKind, selected]
   );
-  const canvasRef = (0, import_react7.useRef)(null);
-  const noteRef = (0, import_react7.useRef)(null);
-  const [notePos, setNotePos] = (0, import_react7.useState)(
+  const canvasRef = (0, import_react8.useRef)(null);
+  const noteRef = (0, import_react8.useRef)(null);
+  const [notePos, setNotePos] = (0, import_react8.useState)(
     null
   );
-  const wideRef = (0, import_react7.useRef)(null);
-  const narrowRef = (0, import_react7.useRef)(null);
+  const wideRef = (0, import_react8.useRef)(null);
+  const narrowRef = (0, import_react8.useRef)(null);
   const wideW = useRenderedWidth(wideRef, measuredWidth, expanded);
   const narrowW = useRenderedWidth(narrowRef, measuredWidth, expanded);
-  const wideScale = (0, import_react7.useMemo)(
+  const wideScale = (0, import_react8.useMemo)(
     () => ({ floor: fontFloor(vbWidth(viewBox), wideW, minFont) }),
     [viewBox, wideW, minFont]
   );
-  const narrowScale = (0, import_react7.useMemo)(
+  const narrowScale = (0, import_react8.useMemo)(
     () => ({
       floor: fontFloor(vbWidth(narrowViewBox ?? viewBox), narrowW, minFont)
     }),
     [narrowViewBox, viewBox, narrowW, minFont]
   );
   const svgs = () => [wideRef.current, narrowRef.current].filter(Boolean);
-  (0, import_react7.useEffect)(() => {
+  (0, import_react8.useEffect)(() => {
     for (const s of svgs()) {
       if (typeof s.pauseAnimations !== "function") continue;
       if (playing) s.unpauseAnimations();
       else s.pauseAnimations();
     }
   }, [playing, expanded]);
-  const toggle = (0, import_react7.useCallback)(() => setPlaying((p) => !p), []);
-  const replay = (0, import_react7.useCallback)(() => {
+  const toggle = (0, import_react8.useCallback)(() => setPlaying((p) => !p), []);
+  const replay = (0, import_react8.useCallback)(() => {
     for (const s of svgs()) {
       if (typeof s.setCurrentTime === "function") s.setCurrentTime(0);
       if (typeof s.unpauseAnimations === "function") s.unpauseAnimations();
@@ -708,7 +715,7 @@ function Figure({
     setPlaying(true);
     setCycle((c) => c + 1);
   }, []);
-  const motion = (0, import_react7.useMemo)(
+  const motion = (0, import_react8.useMemo)(
     () => ({ playing: playing && !reduced, reduced, cycle, toggle, replay }),
     [playing, reduced, cycle, toggle, replay]
   );
@@ -772,7 +779,7 @@ function Figure({
                 number && eyebrow ? " \xB7 " : "",
                 eyebrow
               ] }) : null,
-              title ? (0, import_react7.createElement)(
+              title ? (0, import_react8.createElement)(
                 `h${headingLevel}`,
                 { className: "uipack__title" },
                 title
@@ -913,49 +920,51 @@ function Group({
     "g",
     {
       "data-uipack": "group",
+      "data-selected": "data-selected" in selection ? selection["data-selected"] : void 0,
       ...hoverAttrs(flow, void 0, hover),
-      ...selection,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
-          "rect",
-          {
-            x,
-            y,
-            width: w,
-            height: h,
-            rx: dashed ? 10 : 6,
-            fill: dashed ? "none" : "var(--uipack-surface)",
-            fillOpacity: dashed ? void 0 : 0.6,
-            stroke,
-            strokeOpacity: accent ? 1 : dashed ? 0.4 : 0.8,
-            strokeWidth: 1.25,
-            strokeDasharray: dashed ? "4 4" : void 0
-          }
-        ),
-        title ? dashed ? /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
-          "text",
-          {
-            x: x + 16,
-            y: y + 22,
-            fontSize: ts,
-            fontFamily: "var(--uipack-mono)",
-            letterSpacing: ".08em",
-            fill: stroke,
-            fillOpacity: accent ? 1 : 0.75,
-            children: title.toUpperCase()
-          }
-        ) : /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
-          "text",
-          {
-            x: x + w / 2,
-            y: y + 24,
-            textAnchor: "middle",
-            fontSize: ts,
-            fontWeight: 600,
-            fill: stroke,
-            children: title
-          }
-        ) : null,
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("g", { className: "uipack__group-frame", ...selection, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+            "rect",
+            {
+              x,
+              y,
+              width: w,
+              height: h,
+              rx: dashed ? 10 : 6,
+              fill: dashed ? "none" : "var(--uipack-surface)",
+              fillOpacity: dashed ? void 0 : 0.6,
+              stroke,
+              strokeOpacity: accent ? 1 : dashed ? 0.4 : 0.8,
+              strokeWidth: 1.25,
+              strokeDasharray: dashed ? "4 4" : void 0
+            }
+          ),
+          title ? dashed ? /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+            "text",
+            {
+              x: x + 16,
+              y: y + 22,
+              fontSize: ts,
+              fontFamily: "var(--uipack-mono)",
+              letterSpacing: ".08em",
+              fill: stroke,
+              fillOpacity: accent ? 1 : 0.75,
+              children: title.toUpperCase()
+            }
+          ) : /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+            "text",
+            {
+              x: x + w / 2,
+              y: y + 24,
+              textAnchor: "middle",
+              fontSize: ts,
+              fontWeight: 600,
+              fill: stroke,
+              children: title
+            }
+          ) : null
+        ] }),
         children
       ]
     }
@@ -1068,6 +1077,7 @@ var icons = {
 
 // src/Node.tsx
 var import_jsx_runtime9 = require("react/jsx-runtime");
+var nodeName = (label, sub) => sub ? `${label}, ${sub}` : label;
 function Node({
   x,
   y,
@@ -1101,7 +1111,8 @@ function Node({
     onPointerEnter: (e) => isPointer(e) && hover.setFlow(flows[0]),
     onPointerLeave: (e) => isPointer(e) && hover.setFlow(null)
   } : {};
-  const selection = useItemSelection(label, hint, flows[0], !href, sub ? `${label}, ${sub}` : label);
+  const name = nodeName(label, sub);
+  const selection = useItemSelection(label, hint, flows[0], !href && !!label, name);
   const body = /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(
     "g",
     {
@@ -1153,6 +1164,7 @@ function Node({
             children: label
           }
         ),
+        sub ? " " : null,
         sub ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
           "text",
           {
@@ -1169,7 +1181,7 @@ function Node({
       ]
     }
   );
-  return href ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("a", { href, className: "uipack__link", "aria-label": label, children: body }) : body;
+  return href ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("a", { href, className: "uipack__link", "aria-label": name, children: body }) : body;
 }
 
 // src/Chip.tsx
@@ -1391,7 +1403,7 @@ function Bus({ axis = "v", at, from, to, stubs, kind, flow, defs, dots = true, i
 }
 
 // src/Packet.tsx
-var import_react8 = require("react");
+var import_react9 = require("react");
 var import_jsx_runtime13 = require("react/jsx-runtime");
 function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at, r = 5, reverse, radius = 6, flow, trim: t, id }) {
   const { reduced, prerender } = useFigureMotion();
@@ -1401,8 +1413,8 @@ function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at, r = 5
   const pts = reverse ? [...trimmed].reverse() : trimmed;
   const staticAt = at ?? ((0.5 + delay / dur) % 1 + 1) % 1;
   const d = pathFromPoints(pts, radius);
-  const [mounted, setMounted] = (0, import_react8.useState)(false);
-  (0, import_react8.useEffect)(() => setMounted(true), []);
+  const [mounted, setMounted] = (0, import_react9.useState)(false);
+  (0, import_react9.useEffect)(() => setMounted(true), []);
   const attrs = hoverAttrs(flow, kind === "neutral" ? void 0 : kind, hover);
   const pre = prerender || globalThis.__UIPACK_PRERENDER__ === true;
   if (reduced || !mounted && !pre) {
@@ -1426,15 +1438,44 @@ function Badge({ cx, cy, text, accent, r = 9, size: size0 = 10 }) {
   ] });
 }
 
-// src/Label.tsx
+// src/Wall.tsx
 var import_jsx_runtime15 = require("react/jsx-runtime");
+function wallSegments(from, to, holes = [], gap = 9) {
+  const segs = [];
+  let s = from;
+  for (const c of [...holes].sort((a, b) => a - b)) {
+    if (c - gap > s) segs.push([s, c - gap]);
+    s = Math.max(s, c + gap);
+  }
+  if (to > s) segs.push([s, to]);
+  return segs;
+}
+function Wall({ at, from, to, holes = [], axis = "v", thickness: t = 16, gap = 9, flow }) {
+  const hover = useFigureHover();
+  return /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("g", { "data-uipack": "wall", ...hoverAttrs(flow, void 0, hover), children: wallSegments(from, to, holes, gap).map(([a, b]) => {
+    const r = axis === "v" ? { x: at - t / 2, y: a, width: t, height: b - a } : { x: a, y: at - t / 2, width: b - a, height: t };
+    return /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("rect", { ...r, rx: 2, fill: "var(--uipack-surface-raised)", stroke: "currentColor", strokeOpacity: 0.55, strokeWidth: 1.25 }, a);
+  }) });
+}
+
+// src/Cross.tsx
+var import_jsx_runtime16 = require("react/jsx-runtime");
+function Cross({ x, y, r = 5, kind }) {
+  return /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("g", { "data-uipack": "cross", stroke: connectorStroke(kind), strokeOpacity: kind ? 1 : 0.8, strokeWidth: 1.75, strokeLinecap: "round", "aria-hidden": "true", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("line", { x1: x - r, y1: y - r, x2: x + r, y2: y + r }),
+    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("line", { x1: x - r, y1: y + r, x2: x + r, y2: y - r })
+  ] });
+}
+
+// src/Label.tsx
+var import_jsx_runtime17 = require("react/jsx-runtime");
 function Label({ x, y, text, anchor: anchor2 = "start", accent, size: size0 = 11, font = "mono" }) {
   const size = useFontFloor(size0);
   const w = text.length * size * (font === "mono" ? 0.62 : 0.55) + 8;
   const rx = anchor2 === "middle" ? x - w / 2 : anchor2 === "end" ? x - w + 4 : x - 4;
-  return /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)("g", { "data-uipack": "label", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("rect", { x: rx, y: y - size + 1, width: w, height: size + 5, fill: "var(--uipack-bg)" }),
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("g", { "data-uipack": "label", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("rect", { x: rx, y: y - size + 1, width: w, height: size + 5, fill: "var(--uipack-bg)" }),
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(
       "text",
       {
         x,
@@ -1452,9 +1493,9 @@ function Label({ x, y, text, anchor: anchor2 = "start", accent, size: size0 = 11
 }
 
 // src/Defs.tsx
-var import_jsx_runtime16 = require("react/jsx-runtime");
+var import_jsx_runtime18 = require("react/jsx-runtime");
 function Defs({ id }) {
-  const head = (suffix, fill) => /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(
+  const head = (suffix, fill) => /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
     "marker",
     {
       id: `${id}-head${suffix}`,
@@ -1464,10 +1505,10 @@ function Defs({ id }) {
       refY: "4",
       orient: "auto-start-reverse",
       markerUnits: "userSpaceOnUse",
-      children: /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("path", { d: "M0,0 L8,4 L0,8 z", fill })
+      children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("path", { d: "M0,0 L8,4 L0,8 z", fill })
     }
   );
-  return /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("defs", { children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("defs", { children: [
     head("", "currentColor"),
     head("-accent", "var(--uipack-accent)"),
     head("-request", "var(--uipack-token-request)"),
@@ -1477,52 +1518,52 @@ function Defs({ id }) {
 }
 
 // src/marks/index.tsx
-var import_jsx_runtime17 = require("react/jsx-runtime");
+var import_jsx_runtime19 = require("react/jsx-runtime");
 var marks = {
-  uipack: /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("rect", { x: "4", y: "4", width: "10", height: "10", rx: "2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("rect", { x: "18", y: "4", width: "10", height: "10", rx: "2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("rect", { x: "4", y: "18", width: "10", height: "10", rx: "2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("rect", { x: "18", y: "18", width: "10", height: "10", rx: "5", fill: "currentColor" })
+  uipack: /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(import_jsx_runtime19.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("rect", { x: "4", y: "4", width: "10", height: "10", rx: "2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("rect", { x: "18", y: "4", width: "10", height: "10", rx: "2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("rect", { x: "4", y: "18", width: "10", height: "10", rx: "2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("rect", { x: "18", y: "18", width: "10", height: "10", rx: "5", fill: "currentColor" })
   ] }),
-  groundplane: /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M4 22h24" }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M8 22V10l8-4 8 4v12" }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M8 16h16", strokeDasharray: "2 2" })
+  groundplane: /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(import_jsx_runtime19.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("path", { d: "M4 22h24" }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("path", { d: "M8 22V10l8-4 8 4v12" }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("path", { d: "M8 16h16", strokeDasharray: "2 2" })
   ] }),
-  jobforge: /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M6 24h20" }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M10 24V14h12v10" }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M13 14V9h6v5M16 4v5" })
+  jobforge: /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(import_jsx_runtime19.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("path", { d: "M6 24h20" }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("path", { d: "M10 24V14h12v10" }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("path", { d: "M13 14V9h6v5M16 4v5" })
   ] }),
-  skillsmith: /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(import_jsx_runtime17.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M16 4l3.5 7 7.5 1-5.5 5.3 1.3 7.7L16 21.4 9.2 25l1.3-7.7L5 12l7.5-1z" }) }),
-  deckforge: /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("rect", { x: "4", y: "7", width: "24", height: "15", rx: "2" }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M12 26h8M16 22v4M9 13h8M9 17h5" })
+  skillsmith: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(import_jsx_runtime19.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("path", { d: "M16 4l3.5 7 7.5 1-5.5 5.3 1.3 7.7L16 21.4 9.2 25l1.3-7.7L5 12l7.5-1z" }) }),
+  deckforge: /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(import_jsx_runtime19.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("rect", { x: "4", y: "7", width: "24", height: "15", rx: "2" }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("path", { d: "M12 26h8M16 22v4M9 13h8M9 17h5" })
   ] }),
-  proofpack: /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M8 4h11l5 5v19H8z" }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M19 4v5h5" }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M12 18l3 3 5-6" })
+  proofpack: /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(import_jsx_runtime19.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("path", { d: "M8 4h11l5 5v19H8z" }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("path", { d: "M19 4v5h5" }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("path", { d: "M12 18l3 3 5-6" })
   ] }),
-  fieldpack: /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("rect", { x: "5", y: "10", width: "22", height: "16", rx: "3" }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M11 10V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v3M5 16h22" })
+  fieldpack: /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(import_jsx_runtime19.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("rect", { x: "5", y: "10", width: "22", height: "16", rx: "3" }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("path", { d: "M11 10V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v3M5 16h22" })
   ] }),
-  skillpack: /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("rect", { x: "5", y: "6", width: "22", height: "20", rx: "3" }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("path", { d: "M10 12h12M10 16h12M10 20h7" })
+  skillpack: /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(import_jsx_runtime19.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("rect", { x: "5", y: "6", width: "22", height: "20", rx: "3" }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("path", { d: "M10 12h12M10 16h12M10 20h7" })
   ] })
 };
 function Wordmark({ size = 24 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("svg", { viewBox: "0 0 140 32", width: size * 140 / 32, height: size, role: "img", "aria-label": "uipack", style: { display: "block" }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("g", { fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", children: marks.uipack }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("text", { x: "40", y: "22", fontSize: "18", fontWeight: 700, fontFamily: "var(--uipack-mono, ui-monospace, monospace)", letterSpacing: ".02em", fill: "currentColor", children: "uipack" })
+  return /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("svg", { viewBox: "0 0 140 32", width: size * 140 / 32, height: size, role: "img", "aria-label": "uipack", style: { display: "block" }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("g", { fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", children: marks.uipack }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("text", { x: "40", y: "22", fontSize: "18", fontWeight: 700, fontFamily: "var(--uipack-mono, ui-monospace, monospace)", letterSpacing: ".02em", fill: "currentColor", children: "uipack" })
   ] });
 }
 
 // src/drill/DrillFigure.tsx
-var import_react10 = require("react");
+var import_react11 = require("react");
 
 // src/zoom-math.ts
 var easeInOutCubic = (p) => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
@@ -1667,9 +1708,9 @@ function runDrill(opts) {
 }
 
 // src/drill/context.tsx
-var import_react9 = require("react");
-var DrillContext = (0, import_react9.createContext)(null);
-var useDrill = () => (0, import_react9.useContext)(DrillContext);
+var import_react10 = require("react");
+var DrillContext = (0, import_react10.createContext)(null);
+var useDrill = () => (0, import_react10.useContext)(DrillContext);
 
 // src/drill/model.ts
 function normalizePath(path, ids, root) {
@@ -1739,7 +1780,7 @@ function drillBox(box, grow = DRILL_GROW) {
 var DRILL_GROW = 8;
 
 // src/drill/static.tsx
-var import_jsx_runtime18 = require("react/jsx-runtime");
+var import_jsx_runtime20 = require("react/jsx-runtime");
 function drillStatic(props, path) {
   const levels = new Map(props.levels.map((l) => [l.id, l]));
   const root = props.root ?? props.levels[0]?.id ?? "";
@@ -1748,7 +1789,7 @@ function drillStatic(props, path) {
   const trail = p.length > 1 ? p.map((id) => levels.get(id)?.label ?? id).join(" \u203A ") : "";
   const lid = `static-${cleanId(level.id)}`;
   return {
-    children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
+    children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(
       DrillContext.Provider,
       {
         value: { levels, frame: { wide: props.viewBox, narrow: props.narrowViewBox }, idPrefix: lid, variant: "wide", interactive: false, ghost: false },
@@ -1767,11 +1808,10 @@ function drillStatic(props, path) {
 }
 
 // src/drill/DrillFigure.tsx
-var import_jsx_runtime19 = require("react/jsx-runtime");
-var useIsoLayoutEffect2 = typeof window === "undefined" ? import_react10.useEffect : import_react10.useLayoutEffect;
+var import_jsx_runtime21 = require("react/jsx-runtime");
 var last = (p) => p[p.length - 1];
-var BackGlyph = () => /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("path", { d: "M7.5 2.5 4 6l3.5 3.5", fill: "none", stroke: "currentColor", strokeWidth: "1.6", strokeLinecap: "round", strokeLinejoin: "round" }) });
-var DrillLayer = (0, import_react10.memo)(function DrillLayer2({ level, figId, frame, floorWide, floorNarrow, levels, open, current }) {
+var BackGlyph = () => /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("path", { d: "M7.5 2.5 4 6l3.5 3.5", fill: "none", stroke: "currentColor", strokeWidth: "1.6", strokeLinecap: "round", strokeLinejoin: "round" }) });
+var DrillLayer = (0, import_react11.memo)(function DrillLayer2({ level, figId, frame, floorWide, floorNarrow, levels, open, current }) {
   const lid = `${figId}-${cleanId(level.id)}`;
   const ctx = (variant) => ({
     levels,
@@ -1782,7 +1822,7 @@ var DrillLayer = (0, import_react10.memo)(function DrillLayer2({ level, figId, f
     ghost: false,
     open: (id) => open(level.id, id)
   });
-  const draw = (variant, render, vb, floor) => /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(
+  const draw = (variant, render, vb, floor) => /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
     "svg",
     {
       className: `uipack-drill__${variant}`,
@@ -1790,10 +1830,10 @@ var DrillLayer = (0, import_react10.memo)(function DrillLayer2({ level, figId, f
       preserveAspectRatio: "xMidYMid meet",
       role: "group",
       "aria-label": level.alt,
-      children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(DrillContext.Provider, { value: ctx(variant), children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(FigureScaleContext.Provider, { value: { floor }, children: render({ id: variant === "wide" ? lid : `${lid}-n`, variant, ghost: false, level }) }) })
+      children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DrillContext.Provider, { value: ctx(variant), children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(FigureScaleContext.Provider, { value: { floor }, children: render({ id: variant === "wide" ? lid : `${lid}-n`, variant, ghost: false, level }) }) })
     }
   );
-  return /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "uipack-drill__layer", "data-level": level.id, "data-current": current ? "true" : void 0, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: "uipack-drill__layer", "data-level": level.id, "data-current": current ? "true" : void 0, children: [
     draw("wide", level.render, level.viewBox ?? frame.wide, floorWide),
     frame.narrow ? draw("narrow", level.narrow ?? level.render, level.narrowViewBox ?? frame.narrow, floorNarrow) : null
   ] });
@@ -1818,47 +1858,47 @@ function DrillFigure({
   className,
   id
 }) {
-  const auto = (0, import_react10.useId)();
+  const auto = (0, import_react11.useId)();
   const figId = id ?? `uipack-drill-${cleanId(auto)}`;
-  const levelMap = (0, import_react10.useMemo)(() => new Map(levels.map((l) => [l.id, l])), [levels]);
-  const ids = (0, import_react10.useMemo)(() => new Set(levelMap.keys()), [levelMap]);
+  const levelMap = (0, import_react11.useMemo)(() => new Map(levels.map((l) => [l.id, l])), [levels]);
+  const ids = (0, import_react11.useMemo)(() => new Set(levelMap.keys()), [levelMap]);
   const rootId = root ?? levels[0]?.id ?? "";
-  const labelOf = (0, import_react10.useCallback)((lid) => levelMap.get(lid)?.label ?? lid, [levelMap]);
-  const [own, setOwn] = (0, import_react10.useState)(() => normalizePath(defaultPath, ids, rootId));
+  const labelOf = (0, import_react11.useCallback)((lid) => levelMap.get(lid)?.label ?? lid, [levelMap]);
+  const [own, setOwn] = (0, import_react11.useState)(() => normalizePath(defaultPath, ids, rootId));
   const requestedRaw = normalizePath(path ?? own, ids, rootId);
   const requestedKey = requestedRaw.join("\0");
-  const requested = (0, import_react10.useMemo)(() => requestedRaw, [requestedKey]);
-  const requestedRef = (0, import_react10.useRef)(requested);
+  const requested = (0, import_react11.useMemo)(() => requestedRaw, [requestedKey]);
+  const requestedRef = (0, import_react11.useRef)(requested);
   requestedRef.current = requested;
-  const [view, setView] = (0, import_react10.useState)(() => ({ path: requested, flight: null }));
-  const viewRef = (0, import_react10.useRef)(view);
+  const [view, setView] = (0, import_react11.useState)(() => ({ path: requested, flight: null }));
+  const viewRef = (0, import_react11.useRef)(view);
   viewRef.current = view;
-  const anims = (0, import_react10.useRef)([]);
-  const seq = (0, import_react10.useRef)(0);
-  const focusIntent = (0, import_react10.useRef)(false);
-  const pendingFocus = (0, import_react10.useRef)(null);
-  const [announcement, setAnnouncement] = (0, import_react10.useState)("");
+  const anims = (0, import_react11.useRef)([]);
+  const seq = (0, import_react11.useRef)(0);
+  const focusIntent = (0, import_react11.useRef)(false);
+  const pendingFocus = (0, import_react11.useRef)(null);
+  const [announcement, setAnnouncement] = (0, import_react11.useState)("");
   const reduced = usePrefersReducedMotion();
-  const [playing, setPlaying] = (0, import_react10.useState)(true);
-  const [cycle, setCycle] = (0, import_react10.useState)(0);
-  const [expanded, setExpanded] = (0, import_react10.useState)(false);
-  const [zoom, setZoom] = (0, import_react10.useState)(1);
-  const [selected, select] = (0, import_react10.useState)(null);
-  const [hoverFlow, setHoverFlow] = (0, import_react10.useState)(null);
-  const [hoverKind, setHoverKind] = (0, import_react10.useState)(null);
-  const hover = (0, import_react10.useMemo)(
+  const [playing, setPlaying] = (0, import_react11.useState)(true);
+  const [cycle, setCycle] = (0, import_react11.useState)(0);
+  const [expanded, setExpanded] = (0, import_react11.useState)(false);
+  const [zoom, setZoom] = (0, import_react11.useState)(1);
+  const [selected, select] = (0, import_react11.useState)(null);
+  const [hoverFlow, setHoverFlow] = (0, import_react11.useState)(null);
+  const [hoverKind, setHoverKind] = (0, import_react11.useState)(null);
+  const hover = (0, import_react11.useMemo)(
     () => ({ flow: selected?.flow ?? hoverFlow, kind: hoverKind, setFlow: setHoverFlow, setKind: setHoverKind }),
     [hoverFlow, hoverKind, selected]
   );
-  const opener = (0, import_react10.useRef)(null);
-  const headingRef = (0, import_react10.useRef)(null);
-  const currentCrumbRef = (0, import_react10.useRef)(null);
-  const canvasRef = (0, import_react10.useRef)(null);
-  const stageRef = (0, import_react10.useRef)(null);
-  const noteRef = (0, import_react10.useRef)(null);
-  const [notePos, setNotePos] = (0, import_react10.useState)(null);
-  const [stageW, setStageW] = (0, import_react10.useState)(1088);
-  (0, import_react10.useEffect)(() => {
+  const opener = (0, import_react11.useRef)(null);
+  const headingRef = (0, import_react11.useRef)(null);
+  const currentCrumbRef = (0, import_react11.useRef)(null);
+  const canvasRef = (0, import_react11.useRef)(null);
+  const stageRef = (0, import_react11.useRef)(null);
+  const noteRef = (0, import_react11.useRef)(null);
+  const [notePos, setNotePos] = (0, import_react11.useState)(null);
+  const [stageW, setStageW] = (0, import_react11.useState)(1088);
+  (0, import_react11.useEffect)(() => {
     const el = stageRef.current;
     if (!el || typeof ResizeObserver === "undefined") return;
     const read = () => {
@@ -1870,17 +1910,17 @@ function DrillFigure({
     ro.observe(el);
     return () => ro.disconnect();
   }, [expanded]);
-  const frame = (0, import_react10.useMemo)(() => ({ wide: viewBox, narrow: narrowViewBox }), [viewBox, narrowViewBox]);
-  const controlled = (0, import_react10.useRef)({ path, onPathChange });
+  const frame = (0, import_react11.useMemo)(() => ({ wide: viewBox, narrow: narrowViewBox }), [viewBox, narrowViewBox]);
+  const controlled = (0, import_react11.useRef)({ path, onPathChange });
   controlled.current = { path, onPathChange };
-  const navigate = (0, import_react10.useCallback)((next) => {
+  const navigate = (0, import_react11.useCallback)((next) => {
     if (samePath(next, requestedRef.current)) return;
     focusIntent.current = true;
     if (controlled.current.path === void 0) setOwn(next);
     controlled.current.onPathChange?.([...next]);
   }, []);
-  const up = (0, import_react10.useCallback)(() => navigate(drillReducer(requestedRef.current, { type: "up" }, ids)), [navigate, ids]);
-  const openFrom = (0, import_react10.useCallback)(
+  const up = (0, import_react11.useCallback)(() => navigate(drillReducer(requestedRef.current, { type: "up" }, ids)), [navigate, ids]);
+  const openFrom = (0, import_react11.useCallback)(
     (from, child) => {
       const cur = requestedRef.current;
       const at = cur.indexOf(from);
@@ -1903,7 +1943,7 @@ function DrillFigure({
     settle();
     setView({ path: v.path, flight: null });
   };
-  useIsoLayoutEffect2(() => {
+  useIsoLayoutEffect(() => {
     const v = viewRef.current;
     if (samePath(requested, v.path)) return;
     select(null);
@@ -1929,7 +1969,7 @@ function DrillFigure({
     setView({ path: requested, flight: { from, kind: move === "in" ? "in" : move === "out" ? "out" : "fade", seq: seq.current } });
   }, [requested]);
   const flightSeq = view.flight?.seq;
-  useIsoLayoutEffect2(() => {
+  useIsoLayoutEffect(() => {
     const f = viewRef.current.flight;
     const stage = stageRef.current;
     if (!f || !stage) return;
@@ -1953,8 +1993,8 @@ function DrillFigure({
       }
     );
   }, [flightSeq]);
-  (0, import_react10.useEffect)(() => () => anims.current.forEach((a) => a.cancel()), []);
-  useIsoLayoutEffect2(() => {
+  (0, import_react11.useEffect)(() => () => anims.current.forEach((a) => a.cancel()), []);
+  useIsoLayoutEffect(() => {
     if (view.flight || !pendingFocus.current) return;
     const { from, to } = pendingFocus.current;
     pendingFocus.current = null;
@@ -1972,15 +2012,15 @@ function DrillFigure({
     else currentCrumbRef.current?.focus({ preventScroll: true });
   }, [view]);
   const svgs = () => Array.from(stageRef.current?.querySelectorAll(":scope > .uipack-drill__layer > svg") ?? []);
-  (0, import_react10.useEffect)(() => {
+  (0, import_react11.useEffect)(() => {
     for (const s of svgs()) {
       if (typeof s.pauseAnimations !== "function") continue;
       if (playing) s.unpauseAnimations();
       else s.pauseAnimations();
     }
   }, [playing, expanded, view]);
-  const toggle = (0, import_react10.useCallback)(() => setPlaying((p) => !p), []);
-  const replay = (0, import_react10.useCallback)(() => {
+  const toggle = (0, import_react11.useCallback)(() => setPlaying((p) => !p), []);
+  const replay = (0, import_react11.useCallback)(() => {
     for (const s of svgs()) {
       if (typeof s.setCurrentTime === "function") s.setCurrentTime(0);
       if (typeof s.unpauseAnimations === "function") s.unpauseAnimations();
@@ -1988,12 +2028,12 @@ function DrillFigure({
     setPlaying(true);
     setCycle((c) => c + 1);
   }, []);
-  const motion = (0, import_react10.useMemo)(
+  const motion = (0, import_react11.useMemo)(
     () => ({ playing: playing && !reduced, reduced, cycle, toggle, replay }),
     [playing, reduced, cycle, toggle, replay]
   );
   const note = selected?.detail ? selected : null;
-  useIsoLayoutEffect2(() => {
+  useIsoLayoutEffect(() => {
     setNotePos(null);
     const canvas = canvasRef.current;
     const el = noteRef.current;
@@ -2022,7 +2062,7 @@ function DrillFigure({
     return order.indexOf(a) - order.indexOf(b);
   });
   const showControls = controls && !reduced;
-  return /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
     CanvasView,
     {
       restoreFocus: () => opener.current?.focus(),
@@ -2036,7 +2076,7 @@ function DrillFigure({
       theme,
       layout: "figure",
       zoom: { value: zoom, min: 1, max: 3, onChange: setZoom },
-      children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(
+      children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)(
         "figure",
         {
           id: figId,
@@ -2076,28 +2116,28 @@ function DrillFigure({
             "--drill-aspect-narrow": fn ? `${fn.w} / ${fn.h}` : void 0
           },
           children: [
-            /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "uipack__head", children: [
-              number || eyebrow ? /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("p", { className: "uipack__eyebrow", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: "uipack__head", children: [
+              number || eyebrow ? /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("p", { className: "uipack__eyebrow", children: [
                 number,
                 number && eyebrow ? " \xB7 " : "",
                 eyebrow
               ] }) : null,
-              /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("nav", { className: "uipack-drill__crumbs", "aria-label": "Figure levels", children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("ol", { children: crumbs.map((lid, i) => /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("li", { children: [
-                i > 0 ? /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { className: "uipack-drill__sep", "aria-hidden": "true", children: "\u203A" }) : null,
-                i < depth ? /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("button", { type: "button", className: "uipack-drill__crumb", onClick: () => navigate(crumbs.slice(0, i + 1)), children: labelOf(lid) }) : /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { className: "uipack-drill__here", "aria-current": "location", tabIndex: -1, ref: currentCrumbRef, children: labelOf(lid) })
+              /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("nav", { className: "uipack-drill__crumbs", "aria-label": "Figure levels", children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("ol", { children: crumbs.map((lid, i) => /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("li", { children: [
+                i > 0 ? /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("span", { className: "uipack-drill__sep", "aria-hidden": "true", children: "\u203A" }) : null,
+                i < depth ? /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("button", { type: "button", className: "uipack-drill__crumb", onClick: () => navigate(crumbs.slice(0, i + 1)), children: labelOf(lid) }) : /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("span", { className: "uipack-drill__here", "aria-current": "location", tabIndex: -1, ref: currentCrumbRef, children: labelOf(lid) })
               ] }, lid)) }) }),
-              (0, import_react10.createElement)(
+              (0, import_react11.createElement)(
                 `h${headingLevel}`,
                 { className: "uipack__title", tabIndex: -1, ref: headingRef },
                 current.title ?? current.label
               ),
-              current.caption ? /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("p", { className: "uipack__caption", children: current.caption }) : null,
-              /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "uipack__controls", children: [
-                depth > 0 ? /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("button", { type: "button", className: "uipack__ctl uipack-drill__back", "aria-label": `Back to ${parentLabel}`, onClick: up, children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(BackGlyph, {}),
+              current.caption ? /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("p", { className: "uipack__caption", children: current.caption }) : null,
+              /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: "uipack__controls", children: [
+                depth > 0 ? /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("button", { type: "button", className: "uipack__ctl uipack-drill__back", "aria-label": `Back to ${parentLabel}`, onClick: up, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(BackGlyph, {}),
                   " Back"
                 ] }) : null,
-                expandable && !expanded ? /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(
+                expandable && !expanded ? /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
                   "button",
                   {
                     type: "button",
@@ -2110,24 +2150,24 @@ function DrillFigure({
                     children: "Open canvas"
                   }
                 ) : null,
-                showControls ? /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(import_jsx_runtime19.Fragment, { children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: replay, children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(ReplayGlyph, {}),
+                showControls ? /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)(import_jsx_runtime21.Fragment, { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: replay, children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(ReplayGlyph, {}),
                     " Replay"
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: toggle, "aria-pressed": !playing, children: [
-                    playing ? /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(PauseGlyph, {}) : /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(PlayGlyph, {}),
+                  /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: toggle, "aria-pressed": !playing, children: [
+                    playing ? /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(PauseGlyph, {}) : /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(PlayGlyph, {}),
                     " ",
                     playing ? "Pause" : "Play"
                   ] })
                 ] }) : null
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Legend, { items: current.legend ?? [] })
+              /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Legend, { items: current.legend ?? [] })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("p", { className: "uipack__sr", role: "status", children: note ? `${note.label}: ${note.detail}` : "" }),
-            /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("p", { className: "uipack__sr", "aria-live": "polite", "data-drill-announce": "", children: announcement }),
-            /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { ref: canvasRef, className: `uipack__canvas uipack__canvas--${background}`, onClick: () => select(null), children: [
-              note ? /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(
+            /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("p", { className: "uipack__sr", role: "status", children: note ? `${note.label}: ${note.detail}` : "" }),
+            /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("p", { className: "uipack__sr", "aria-live": "polite", "data-drill-announce": "", children: announcement }),
+            /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { ref: canvasRef, className: `uipack__canvas uipack__canvas--${background}`, onClick: () => select(null), children: [
+              note ? /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)(
                 "div",
                 {
                   ref: noteRef,
@@ -2137,12 +2177,12 @@ function DrillFigure({
                   style: notePos ?? void 0,
                   onClick: (e) => e.stopPropagation(),
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("strong", { children: note.label }),
-                    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { children: note.detail })
+                    /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("strong", { children: note.label }),
+                    /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("span", { children: note.detail })
                   ]
                 }
               ) : null,
-              /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
                 "div",
                 {
                   ref: stageRef,
@@ -2151,7 +2191,7 @@ function DrillFigure({
                   style: expanded ? { width: `max(${zoom * 100}%, ${800 * zoom}px)` } : void 0,
                   children: mounted.map((lid) => {
                     const lvl = levelMap.get(lid);
-                    return /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(
+                    return /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
                       DrillLayer,
                       {
                         level: lvl,
@@ -2178,8 +2218,8 @@ function DrillFigure({
 DrillFigure.toStatic = (props) => drillStatic(props);
 
 // src/drill/DrillNode.tsx
-var import_react11 = require("react");
-var import_jsx_runtime20 = require("react/jsx-runtime");
+var import_react12 = require("react");
+var import_jsx_runtime22 = require("react/jsx-runtime");
 var noSelection = { enabled: false, selected: null, select: () => {
 } };
 var stillMotion = { playing: false, reduced: true, cycle: 0, toggle: () => {
@@ -2199,24 +2239,24 @@ function Ghost({ child, ctx, box, uid }) {
   const mini = slice > MINI_ABOVE;
   const k = MINI_SCALE;
   const port = mini ? { x: box.x + box.w - f.w * k - 30, y: box.y, width: f.w * k, height: box.h, viewBox: `0 ${(f.h - box.h / k) / 2} ${f.w} ${box.h / k}` } : { x: box.x, y: box.y, width: box.w, height: box.h, viewBox: `0 0 ${f.w} ${f.h}` };
-  return /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("svg", { ...port, preserveAspectRatio: "xMidYMid slice", overflow: "hidden", children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) });
+  return /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("svg", { ...port, preserveAspectRatio: "xMidYMid slice", overflow: "hidden", children: /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) });
 }
 function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node }) {
   const ctx = useDrill();
-  const uid = cleanId((0, import_react11.useId)());
+  const uid = cleanId((0, import_react12.useId)());
   const child = ctx?.levels.get(drill);
   const text = label ?? child?.label ?? drill;
-  const ghostRef = (0, import_react11.useRef)(null);
-  const [count, setCount] = (0, import_react11.useState)(0);
-  (0, import_react11.useEffect)(() => {
+  const ghostRef = (0, import_react12.useRef)(null);
+  const [count, setCount] = (0, import_react12.useState)(0);
+  (0, import_react12.useEffect)(() => {
     const g = ghostRef.current;
     if (g) setCount(g.querySelectorAll('[data-uipack="node"]').length);
   }, [drill, ctx?.variant]);
-  if (!ctx || !child) return /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Node, { ...node, label: text });
+  if (!ctx || !child) return /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(Node, { ...node, label: text });
   const box = drillBox({ x: node.x, y: node.y, w: node.w, h: node.h }, grow);
-  if (ctx.ghost) return /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Node, { ...node, ...box, label: text });
+  if (ctx.ghost) return /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(Node, { ...node, ...box, label: text });
   const summary = child.summary ?? (count ? `${count} part${count === 1 ? "" : "s"} inside` : "");
-  const name = `Open ${child.label}${summary ? `: ${summary}` : ""}`;
+  const name = `${nodeName(text, node.sub)}, open${summary ? `: ${summary}` : ""}`;
   const interactive = ctx.interactive && !!ctx.open;
   const activate = (e) => {
     e.preventDefault();
@@ -2227,7 +2267,7 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
   const region = { x: box.x - pad, y: box.y - pad, width: box.w + pad * 2, height: box.h + pad * 2 };
   const mx = box.x + box.w - 22;
   const my = box.y + 10;
-  return /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime22.jsxs)(
     "g",
     {
       className: "uipack-drill-node",
@@ -2243,12 +2283,12 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
         }
       } : {},
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("defs", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("filter", { id: `${uid}-halo`, filterUnits: "userSpaceOnUse", ...region, children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("feGaussianBlur", { stdDeviation: 7 }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("filter", { id: `${uid}-soft`, filterUnits: "userSpaceOnUse", ...region, children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("feGaussianBlur", { stdDeviation: 5 }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("clipPath", { id: `${uid}-clip`, children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("rect", { x: box.x, y: box.y, width: box.w, height: box.h, rx: RADIUS }) })
+        /* @__PURE__ */ (0, import_jsx_runtime22.jsxs)("defs", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("filter", { id: `${uid}-halo`, filterUnits: "userSpaceOnUse", ...region, children: /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("feGaussianBlur", { stdDeviation: 7 }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("filter", { id: `${uid}-soft`, filterUnits: "userSpaceOnUse", ...region, children: /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("feGaussianBlur", { stdDeviation: 5 }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("clipPath", { id: `${uid}-clip`, children: /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("rect", { x: box.x, y: box.y, width: box.w, height: box.h, rx: RADIUS }) })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(
           "rect",
           {
             className: "uipack-drill-node__halo",
@@ -2265,15 +2305,15 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
             "aria-hidden": "true"
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(
           Node,
           {
             ...node,
             ...box,
             label: text,
-            inlay: /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("g", { className: "uipack-drill-node__inlay", clipPath: `url(#${uid}-clip)`, "aria-hidden": "true", pointerEvents: "none", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("rect", { className: "uipack-drill-node__wash", x: box.x, y: box.y, width: box.w, height: box.h, fill: "var(--uipack-accent)", fillOpacity: 0.035 }),
-              /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(
+            inlay: /* @__PURE__ */ (0, import_jsx_runtime22.jsxs)("g", { className: "uipack-drill-node__inlay", clipPath: `url(#${uid}-clip)`, "aria-hidden": "true", pointerEvents: "none", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("rect", { className: "uipack-drill-node__wash", x: box.x, y: box.y, width: box.w, height: box.h, fill: "var(--uipack-accent)", fillOpacity: 0.035 }),
+              /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(
                 "rect",
                 {
                   className: "uipack-drill-node__inner",
@@ -2289,11 +2329,11 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
                   filter: `url(#${uid}-soft)`
                 }
               ),
-              preview ? /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("g", { ref: ghostRef, className: "uipack-drill-node__ghost", opacity: 0.16, children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Ghost, { child, ctx, box, uid }) }) : null
+              preview ? /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("g", { ref: ghostRef, className: "uipack-drill-node__ghost", opacity: 0.16, children: /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(Ghost, { child, ctx, box, uid }) }) : null
             ] })
           }
         ) }),
-        /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(
           "g",
           {
             className: "uipack-drill-node__mark",
@@ -2305,7 +2345,7 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
             strokeLinejoin: "round",
             "aria-hidden": "true",
             pointerEvents: "none",
-            children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("path", { d: "M2.5 9.5 9.5 2.5M5.5 2.5h4v4M2.5 5.5v4h4" })
+            children: /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("path", { d: "M2.5 9.5 9.5 2.5M5.5 2.5h4v4M2.5 5.5v4h4" })
           }
         )
       ]
@@ -2318,6 +2358,7 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
   Bus,
   Chip,
   Connector,
+  Cross,
   DEFAULT_RENDER_WIDTH,
   DRILL_GROW,
   Defs,
@@ -2336,6 +2377,7 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
   Packet,
   TOKEN_SHAPE,
   Token,
+  Wall,
   Wordmark,
   anchor,
   busStub,
@@ -2368,6 +2410,7 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
   useFigureMotion,
   useFontFloor,
   usePrefersReducedMotion,
+  wallSegments,
   zoomFrame,
   zoomSamples
 });

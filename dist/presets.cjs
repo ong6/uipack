@@ -52,7 +52,7 @@ __export(presets_exports, {
 module.exports = __toCommonJS(presets_exports);
 
 // src/presets/shared.tsx
-var import_react9 = require("react");
+var import_react10 = require("react");
 
 // src/hover.tsx
 var import_react = require("react");
@@ -226,18 +226,24 @@ function Defs({ id }) {
 }
 
 // src/CanvasView.tsx
-var import_react3 = require("react");
+var import_react4 = require("react");
 
 // src/canvas-gestures.ts
+var import_react3 = require("react");
+
+// src/env.ts
 var import_react2 = require("react");
-var useBrowserLayoutEffect = typeof window === "undefined" ? import_react2.useEffect : import_react2.useLayoutEffect;
+var useIsoLayoutEffect = typeof window === "undefined" ? import_react2.useEffect : import_react2.useLayoutEffect;
+var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+// src/canvas-gestures.ts
 function useCanvasGestures(ref, open, zoom) {
-  const latest = (0, import_react2.useRef)(zoom);
+  const latest = (0, import_react3.useRef)(zoom);
   latest.current = zoom;
-  const pending = (0, import_react2.useRef)();
-  const queued = (0, import_react2.useRef)(zoom.value);
-  const frame = (0, import_react2.useRef)(0);
-  useBrowserLayoutEffect(() => {
+  const pending = (0, import_react3.useRef)();
+  const queued = (0, import_react3.useRef)(zoom.value);
+  const frame = (0, import_react3.useRef)(0);
+  useIsoLayoutEffect(() => {
     queued.current = zoom.value;
     const anchor = pending.current;
     if (!anchor) return;
@@ -277,9 +283,9 @@ function useCanvasGestures(ref, open, zoom) {
       () => config.onChange(queued.current)
     );
   };
-  const changeRef = (0, import_react2.useRef)(change);
+  const changeRef = (0, import_react3.useRef)(change);
   changeRef.current = change;
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     const host = ref.current;
     if (!open || !host) return;
     let safariScale = null;
@@ -427,12 +433,12 @@ function CanvasView({
   restoreFocus,
   layout
 }) {
-  const content = (0, import_react3.useRef)(null);
+  const content = (0, import_react4.useRef)(null);
   const gestures = useCanvasGestures(content, open, zoom);
-  const dialog = (0, import_react3.useRef)(null);
-  const actions = (0, import_react3.useRef)(gestures);
+  const dialog = (0, import_react4.useRef)(null);
+  const actions = (0, import_react4.useRef)(gestures);
   actions.current = gestures;
-  (0, import_react3.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     if (!open) return;
     const keyboard = (event) => {
       const target = event.target;
@@ -455,9 +461,9 @@ function CanvasView({
     document.addEventListener("keydown", keyboard);
     return () => document.removeEventListener("keydown", keyboard);
   }, [open]);
-  const close = (0, import_react3.useRef)(onClose);
+  const close = (0, import_react4.useRef)(onClose);
   close.current = onClose;
-  (0, import_react3.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     if (!open) return;
     const opener = document.activeElement;
     const previous = document.body.style.overflow;
@@ -470,7 +476,7 @@ function CanvasView({
       );
     };
   }, [open]);
-  (0, import_react3.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     const node = dialog.current;
     if (!open || !node) return;
     const source = node.querySelector(".uipack");
@@ -557,12 +563,12 @@ function CanvasView({
 }
 
 // src/selection.tsx
-var import_react4 = require("react");
-var SelectionContext = (0, import_react4.createContext)({ enabled: false, selected: null, select: () => {
+var import_react5 = require("react");
+var SelectionContext = (0, import_react5.createContext)({ enabled: false, selected: null, select: () => {
 } });
 function useItemSelection(label, detail, flow, enabled = true, name = label) {
-  const id = (0, import_react4.useId)();
-  const context = (0, import_react4.useContext)(SelectionContext);
+  const id = (0, import_react5.useId)();
+  const context = (0, import_react5.useContext)(SelectionContext);
   if (!context.enabled || !enabled || !(detail || flow)) return {};
   const selected = context.selected?.id === id;
   const toggle = (anchor) => context.select(selected ? null : { id, label, detail, flow, anchor });
@@ -587,13 +593,13 @@ function useItemSelection(label, detail, flow, enabled = true, name = label) {
 }
 
 // src/Figure.tsx
-var import_react7 = require("react");
+var import_react8 = require("react");
 
 // src/context.tsx
-var import_react5 = require("react");
+var import_react6 = require("react");
 var noop2 = () => {
 };
-var FigureMotionContext = (0, import_react5.createContext)({
+var FigureMotionContext = (0, import_react6.createContext)({
   playing: true,
   reduced: false,
   cycle: 0,
@@ -601,14 +607,13 @@ var FigureMotionContext = (0, import_react5.createContext)({
   replay: noop2
 });
 function useFigureMotion() {
-  return (0, import_react5.useContext)(FigureMotionContext);
+  return (0, import_react6.useContext)(FigureMotionContext);
 }
-var QUERY = "(prefers-reduced-motion: reduce)";
 function usePrefersReducedMotion() {
-  const [reduced, setReduced] = (0, import_react5.useState)(false);
-  (0, import_react5.useEffect)(() => {
+  const [reduced, setReduced] = (0, import_react6.useState)(false);
+  (0, import_react6.useEffect)(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const mq = window.matchMedia(QUERY);
+    const mq = window.matchMedia(REDUCED_MOTION_QUERY);
     const onChange = (e) => setReduced(e.matches);
     setReduced(mq.matches);
     if (typeof mq.addEventListener === "function") {
@@ -684,23 +689,22 @@ function Legend({ items }) {
 }
 
 // src/scale.tsx
-var import_react6 = require("react");
+var import_react7 = require("react");
 var import_jsx_runtime6 = require("react/jsx-runtime");
-var FigureScaleContext = (0, import_react6.createContext)({ floor: 0 });
+var FigureScaleContext = (0, import_react7.createContext)({ floor: 0 });
 var DEFAULT_RENDER_WIDTH = 1088;
 function fontFloor(vbWidth2, renderWidth, minFont) {
   if (!vbWidth2 || !renderWidth || !minFont) return 0;
   return minFont * vbWidth2 / renderWidth;
 }
 function useFontFloor(size) {
-  const { floor } = (0, import_react6.useContext)(FigureScaleContext);
+  const { floor } = (0, import_react7.useContext)(FigureScaleContext);
   return Math.max(size, floor);
 }
 
 // src/Figure.tsx
 var import_jsx_runtime7 = require("react/jsx-runtime");
 var vbWidth = (viewBox) => Number(viewBox.split(/\s+/)[2]) || 0;
-var useIsoLayoutEffect = typeof window === "undefined" ? import_react7.useEffect : import_react7.useLayoutEffect;
 var NOTE_GAP = 8;
 function placeNote(canvas, note, anchor) {
   const box = anchor.querySelector(":scope > rect") ?? anchor;
@@ -718,8 +722,8 @@ function placeNote(canvas, note, anchor) {
   return { left, top };
 }
 function useRenderedWidth(ref, fixed, layoutKey) {
-  const [w, setW] = (0, import_react7.useState)(fixed ?? DEFAULT_RENDER_WIDTH);
-  (0, import_react7.useEffect)(() => {
+  const [w, setW] = (0, import_react8.useState)(fixed ?? DEFAULT_RENDER_WIDTH);
+  (0, import_react8.useEffect)(() => {
     if (fixed != null) return;
     const el = ref.current;
     if (!el || typeof ResizeObserver === "undefined") return;
@@ -773,18 +777,18 @@ function Figure({
   measuredWidth,
   id
 }) {
-  const opener = (0, import_react7.useRef)(null);
-  const auto = (0, import_react7.useId)();
+  const opener = (0, import_react8.useRef)(null);
+  const auto = (0, import_react8.useId)();
   const figId = id ?? `uipack-${auto.replace(/:/g, "")}`;
   const reduced = usePrefersReducedMotion();
-  const [playing, setPlaying] = (0, import_react7.useState)(true);
-  const [cycle, setCycle] = (0, import_react7.useState)(0);
-  const [expanded, setExpanded] = (0, import_react7.useState)(false);
-  const [zoom, setZoom] = (0, import_react7.useState)(1);
-  const [selected, select] = (0, import_react7.useState)(null);
-  const [hoverFlow, setHoverFlow] = (0, import_react7.useState)(null);
-  const [hoverKind, setHoverKind] = (0, import_react7.useState)(null);
-  const hover = (0, import_react7.useMemo)(
+  const [playing, setPlaying] = (0, import_react8.useState)(true);
+  const [cycle, setCycle] = (0, import_react8.useState)(0);
+  const [expanded, setExpanded] = (0, import_react8.useState)(false);
+  const [zoom, setZoom] = (0, import_react8.useState)(1);
+  const [selected, select] = (0, import_react8.useState)(null);
+  const [hoverFlow, setHoverFlow] = (0, import_react8.useState)(null);
+  const [hoverKind, setHoverKind] = (0, import_react8.useState)(null);
+  const hover = (0, import_react8.useMemo)(
     () => ({
       flow: selected?.flow ?? hoverFlow,
       kind: hoverKind,
@@ -793,35 +797,35 @@ function Figure({
     }),
     [hoverFlow, hoverKind, selected]
   );
-  const canvasRef = (0, import_react7.useRef)(null);
-  const noteRef = (0, import_react7.useRef)(null);
-  const [notePos, setNotePos] = (0, import_react7.useState)(
+  const canvasRef = (0, import_react8.useRef)(null);
+  const noteRef = (0, import_react8.useRef)(null);
+  const [notePos, setNotePos] = (0, import_react8.useState)(
     null
   );
-  const wideRef = (0, import_react7.useRef)(null);
-  const narrowRef = (0, import_react7.useRef)(null);
+  const wideRef = (0, import_react8.useRef)(null);
+  const narrowRef = (0, import_react8.useRef)(null);
   const wideW = useRenderedWidth(wideRef, measuredWidth, expanded);
   const narrowW = useRenderedWidth(narrowRef, measuredWidth, expanded);
-  const wideScale = (0, import_react7.useMemo)(
+  const wideScale = (0, import_react8.useMemo)(
     () => ({ floor: fontFloor(vbWidth(viewBox), wideW, minFont) }),
     [viewBox, wideW, minFont]
   );
-  const narrowScale = (0, import_react7.useMemo)(
+  const narrowScale = (0, import_react8.useMemo)(
     () => ({
       floor: fontFloor(vbWidth(narrowViewBox ?? viewBox), narrowW, minFont)
     }),
     [narrowViewBox, viewBox, narrowW, minFont]
   );
   const svgs = () => [wideRef.current, narrowRef.current].filter(Boolean);
-  (0, import_react7.useEffect)(() => {
+  (0, import_react8.useEffect)(() => {
     for (const s of svgs()) {
       if (typeof s.pauseAnimations !== "function") continue;
       if (playing) s.unpauseAnimations();
       else s.pauseAnimations();
     }
   }, [playing, expanded]);
-  const toggle = (0, import_react7.useCallback)(() => setPlaying((p) => !p), []);
-  const replay = (0, import_react7.useCallback)(() => {
+  const toggle = (0, import_react8.useCallback)(() => setPlaying((p) => !p), []);
+  const replay = (0, import_react8.useCallback)(() => {
     for (const s of svgs()) {
       if (typeof s.setCurrentTime === "function") s.setCurrentTime(0);
       if (typeof s.unpauseAnimations === "function") s.unpauseAnimations();
@@ -829,7 +833,7 @@ function Figure({
     setPlaying(true);
     setCycle((c) => c + 1);
   }, []);
-  const motion = (0, import_react7.useMemo)(
+  const motion = (0, import_react8.useMemo)(
     () => ({ playing: playing && !reduced, reduced, cycle, toggle, replay }),
     [playing, reduced, cycle, toggle, replay]
   );
@@ -893,7 +897,7 @@ function Figure({
                 number && eyebrow ? " \xB7 " : "",
                 eyebrow
               ] }) : null,
-              title ? (0, import_react7.createElement)(
+              title ? (0, import_react8.createElement)(
                 `h${headingLevel}`,
                 { className: "uipack__title" },
                 title
@@ -1106,6 +1110,7 @@ var icons = {
 
 // src/Node.tsx
 var import_jsx_runtime9 = require("react/jsx-runtime");
+var nodeName = (label, sub) => sub ? `${label}, ${sub}` : label;
 function Node({
   x,
   y,
@@ -1139,7 +1144,8 @@ function Node({
     onPointerEnter: (e) => isPointer(e) && hover.setFlow(flows[0]),
     onPointerLeave: (e) => isPointer(e) && hover.setFlow(null)
   } : {};
-  const selection = useItemSelection(label, hint, flows[0], !href, sub ? `${label}, ${sub}` : label);
+  const name = nodeName(label, sub);
+  const selection = useItemSelection(label, hint, flows[0], !href && !!label, name);
   const body = /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(
     "g",
     {
@@ -1191,6 +1197,7 @@ function Node({
             children: label
           }
         ),
+        sub ? " " : null,
         sub ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
           "text",
           {
@@ -1207,11 +1214,11 @@ function Node({
       ]
     }
   );
-  return href ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("a", { href, className: "uipack__link", "aria-label": label, children: body }) : body;
+  return href ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("a", { href, className: "uipack__link", "aria-label": name, children: body }) : body;
 }
 
 // src/Packet.tsx
-var import_react8 = require("react");
+var import_react9 = require("react");
 var import_jsx_runtime10 = require("react/jsx-runtime");
 function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at, r = 5, reverse, radius = 6, flow, trim: t, id }) {
   const { reduced, prerender } = useFigureMotion();
@@ -1221,8 +1228,8 @@ function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at, r = 5
   const pts = reverse ? [...trimmed].reverse() : trimmed;
   const staticAt = at ?? ((0.5 + delay / dur) % 1 + 1) % 1;
   const d = pathFromPoints(pts, radius);
-  const [mounted, setMounted] = (0, import_react8.useState)(false);
-  (0, import_react8.useEffect)(() => setMounted(true), []);
+  const [mounted, setMounted] = (0, import_react9.useState)(false);
+  (0, import_react9.useEffect)(() => setMounted(true), []);
   const attrs = hoverAttrs(flow, kind === "neutral" ? void 0 : kind, hover);
   const pre = prerender || globalThis.__UIPACK_PRERENDER__ === true;
   if (reduced || !mounted && !pre) {
@@ -1239,7 +1246,7 @@ function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at, r = 5
 var import_jsx_runtime11 = require("react/jsx-runtime");
 var clean = (s) => s.replace(/:/g, "");
 function PresetFigure({ spec, parts, id }) {
-  const auto = (0, import_react9.useId)();
+  const auto = (0, import_react10.useId)();
   const fid = id ?? `p${clean(auto)}`;
   return toFigure(spec.figure, parts(spec, fid), fid);
 }
@@ -1267,6 +1274,14 @@ function toFigure(meta, parts, id) {
 }
 function fits(px, size, mono = false) {
   return Math.max(3, Math.floor(px / (size * (mono ? 0.62 : 0.55))));
+}
+var textPx = (text, size, mono = false) => text.length * size * (mono ? 0.62 : 0.55);
+function nodeWidthFor(items, { min, size = 14, subSize = 11 }) {
+  const need = Math.max(
+    0,
+    ...items.map((s) => (s.icon ? 26 : 0) + Math.max(textPx(s.label, size), s.sub ? textPx(s.sub, subSize, true) : 0) + 28)
+  );
+  return Math.max(min, Math.ceil(need / 8) * 8);
 }
 function fit(text, px, size, mono = false) {
   const n = fits(px, size, mono);
@@ -1364,49 +1379,51 @@ function Group({
     "g",
     {
       "data-uipack": "group",
+      "data-selected": "data-selected" in selection ? selection["data-selected"] : void 0,
       ...hoverAttrs(flow, void 0, hover),
-      ...selection,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
-          "rect",
-          {
-            x,
-            y,
-            width: w,
-            height: h,
-            rx: dashed ? 10 : 6,
-            fill: dashed ? "none" : "var(--uipack-surface)",
-            fillOpacity: dashed ? void 0 : 0.6,
-            stroke,
-            strokeOpacity: accent ? 1 : dashed ? 0.4 : 0.8,
-            strokeWidth: 1.25,
-            strokeDasharray: dashed ? "4 4" : void 0
-          }
-        ),
-        title ? dashed ? /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
-          "text",
-          {
-            x: x + 16,
-            y: y + 22,
-            fontSize: ts,
-            fontFamily: "var(--uipack-mono)",
-            letterSpacing: ".08em",
-            fill: stroke,
-            fillOpacity: accent ? 1 : 0.75,
-            children: title.toUpperCase()
-          }
-        ) : /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
-          "text",
-          {
-            x: x + w / 2,
-            y: y + 24,
-            textAnchor: "middle",
-            fontSize: ts,
-            fontWeight: 600,
-            fill: stroke,
-            children: title
-          }
-        ) : null,
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("g", { className: "uipack__group-frame", ...selection, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
+            "rect",
+            {
+              x,
+              y,
+              width: w,
+              height: h,
+              rx: dashed ? 10 : 6,
+              fill: dashed ? "none" : "var(--uipack-surface)",
+              fillOpacity: dashed ? void 0 : 0.6,
+              stroke,
+              strokeOpacity: accent ? 1 : dashed ? 0.4 : 0.8,
+              strokeWidth: 1.25,
+              strokeDasharray: dashed ? "4 4" : void 0
+            }
+          ),
+          title ? dashed ? /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
+            "text",
+            {
+              x: x + 16,
+              y: y + 22,
+              fontSize: ts,
+              fontFamily: "var(--uipack-mono)",
+              letterSpacing: ".08em",
+              fill: stroke,
+              fillOpacity: accent ? 1 : 0.75,
+              children: title.toUpperCase()
+            }
+          ) : /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
+            "text",
+            {
+              x: x + w / 2,
+              y: y + 24,
+              textAnchor: "middle",
+              fontSize: ts,
+              fontWeight: 600,
+              fill: stroke,
+              children: title
+            }
+          ) : null
+        ] }),
         children
       ]
     }
@@ -1725,7 +1742,7 @@ var defaultRagPipeline = {
   answer: { label: "Answer", sub: "with citations", icon: "doc" }
 };
 var INGEST = "ingest";
-var QUERY2 = "query";
+var QUERY = "query";
 function ragPipelineParts(spec = defaultRagPipeline, id) {
   const src = { x: 24, w: 160, h: 48, step: 56, y0: 80 };
   const srcY = (i) => src.y0 + i * src.step + src.h / 2;
@@ -1788,27 +1805,27 @@ function ragPipelineParts(spec = defaultRagPipeline, id) {
     chain(spec.ingest, iy, "change", INGEST),
     /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Connector, { points: toIndex, defs: id, kind: "change", flow: INGEST }),
     /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: toIndex, kind: "change", dur: 2, flow: INGEST }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { ...index, label: spec.index.label, sub: spec.index.sub, icon: spec.index.icon ?? "db", flow: [INGEST, QUERY2], hint: spec.index.hint ?? "Shared by both lanes" }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { x: src.x, y: queryY, w: src.w, h: stage.h, label: spec.query.label, hint: spec.query.hint, icon: spec.query.icon ?? "user", flow: QUERY2, size: 13 }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Connector, { points: queryIn, defs: id, kind: "request", flow: QUERY2 }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: queryIn, kind: "request", dur: 1.2, flow: QUERY2, r: 4 }),
-    spec.stages.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { x: sx(i), y: queryY, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: QUERY2, size: 13, subSize: 10 }, s.label)),
-    chain(spec.stages, qy, "request", QUERY2),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Connector, { points: read, defs: id, kind: "request", flow: QUERY2 }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: read, kind: "request", dur: 1.8, flow: QUERY2, r: 4 }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: read, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: QUERY2, r: 4 }),
+    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { ...index, label: spec.index.label, sub: spec.index.sub, icon: spec.index.icon ?? "db", flow: [INGEST, QUERY], hint: spec.index.hint ?? "Shared by both lanes" }),
+    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { x: src.x, y: queryY, w: src.w, h: stage.h, label: spec.query.label, hint: spec.query.hint, icon: spec.query.icon ?? "user", flow: QUERY, size: 13 }),
+    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Connector, { points: queryIn, defs: id, kind: "request", flow: QUERY }),
+    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: queryIn, kind: "request", dur: 1.2, flow: QUERY, r: 4 }),
+    spec.stages.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { x: sx(i), y: queryY, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: QUERY, size: 13, subSize: 10 }, s.label)),
+    chain(spec.stages, qy, "request", QUERY),
+    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Connector, { points: read, defs: id, kind: "request", flow: QUERY }),
+    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: read, kind: "request", dur: 1.8, flow: QUERY, r: 4 }),
+    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: read, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: QUERY, r: 4 }),
     /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Label, { x: (retrieveX + index.x) / 2, y: index.y + index.h / 2 + 6, text: "top-k", anchor: "middle" }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Connector, { points: toAnswer, defs: id, kind: "response", flow: QUERY2 }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: toAnswer, kind: "response", dur: 1.4, flow: QUERY2, r: 4 }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { ...answer, label: spec.answer.label, hint: spec.answer.hint, sub: spec.answer.sub, icon: spec.answer.icon ?? "doc", flow: QUERY2, size: 13, subSize: 10 })
+    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Connector, { points: toAnswer, defs: id, kind: "response", flow: QUERY }),
+    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Packet, { points: toAnswer, kind: "response", dur: 1.4, flow: QUERY, r: 4 }),
+    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Node, { ...answer, label: spec.answer.label, hint: spec.answer.hint, sub: spec.answer.sub, icon: spec.answer.icon ?? "doc", flow: QUERY, size: 13, subSize: 10 })
   ] });
   const steps = [
     { label: spec.sources.map((s) => s.label).join(" \xB7 "), sub: "sources", icon: "doc", flow: INGEST },
     ...spec.ingest.map((s) => ({ ...s, kind: "change", flow: INGEST })),
-    { ...spec.index, icon: spec.index.icon ?? "db", kind: "change", flow: [INGEST, QUERY2].join(" ") },
-    { ...spec.query, icon: spec.query.icon ?? "user", kind: "request", flow: QUERY2 },
-    ...spec.stages.map((s) => ({ ...s, kind: "request", flow: QUERY2 })),
-    { ...spec.answer, icon: spec.answer.icon ?? "doc", kind: "response", flow: QUERY2 }
+    { ...spec.index, icon: spec.index.icon ?? "db", kind: "change", flow: [INGEST, QUERY].join(" ") },
+    { ...spec.query, icon: spec.query.icon ?? "user", kind: "request", flow: QUERY },
+    ...spec.stages.map((s) => ({ ...s, kind: "request", flow: QUERY })),
+    { ...spec.answer, icon: spec.answer.icon ?? "doc", kind: "response", flow: QUERY }
   ];
   return {
     wide,
@@ -2104,7 +2121,8 @@ var defaultBeforeAfter = {
   }
 };
 function beforeAfterParts(spec = defaultBeforeAfter, id) {
-  const stage = { w: 136, h: 48, step: 176 };
+  const sw = nodeWidthFor([...spec.before.stages, ...spec.after.stages], { min: 136, size: 13, subSize: 10 });
+  const stage = { w: sw, h: 48, step: sw + 40 };
   const panelH = 120;
   const panel = (p, y, flow, pid) => {
     const n = p.stages.length;

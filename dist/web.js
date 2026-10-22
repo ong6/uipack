@@ -1,6 +1,10 @@
 import {
   usePrefersReducedMotion
-} from "./chunk-FENTOHP4.js";
+} from "./chunk-PH4YUQN4.js";
+import {
+  REDUCED_MOTION_QUERY,
+  prefersReducedMotion
+} from "./chunk-YUGHDI4S.js";
 
 // src/web/Surface.tsx
 import { jsx } from "react/jsx-runtime";
@@ -629,7 +633,7 @@ function useFinePointer() {
 }
 function transitionDocument() {
   const doc = typeof document === "undefined" ? void 0 : document;
-  const reduced = typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduced = prefersReducedMotion();
   return doc?.startViewTransition && !reduced ? doc : void 0;
 }
 function withViewTransition(update) {
@@ -1118,7 +1122,7 @@ function normalizeWheel(e, viewport) {
 var clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 var SMOOTH_SCROLL_ATTR = "data-uipack-smooth-scroll";
 var SMOOTH_SCROLL_PREVENT_ATTR = "data-smooth-scroll-prevent";
-var REDUCED = "(prefers-reduced-motion: reduce)";
+var REDUCED = REDUCED_MOTION_QUERY;
 var SCROLL_KEYS = /* @__PURE__ */ new Set([" ", "PageUp", "PageDown", "ArrowUp", "ArrowDown", "Home", "End"]);
 var FINE = "(hover: hover) and (pointer: fine)";
 var active = null;

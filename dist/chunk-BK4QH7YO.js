@@ -1,16 +1,19 @@
+import {
+  useIsoLayoutEffect
+} from "./chunk-YUGHDI4S.js";
+
 // src/CanvasView.tsx
 import { useEffect as useEffect2, useRef as useRef2 } from "react";
 
 // src/canvas-gestures.ts
-import { useEffect, useLayoutEffect, useRef } from "react";
-var useBrowserLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
+import { useEffect, useRef } from "react";
 function useCanvasGestures(ref, open, zoom) {
   const latest = useRef(zoom);
   latest.current = zoom;
   const pending = useRef();
   const queued = useRef(zoom.value);
   const frame = useRef(0);
-  useBrowserLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     queued.current = zoom.value;
     const anchor = pending.current;
     if (!anchor) return;
@@ -332,4 +335,4 @@ function CanvasView({
 export {
   CanvasView
 };
-//# sourceMappingURL=chunk-GEEREXP5.js.map
+//# sourceMappingURL=chunk-BK4QH7YO.js.map

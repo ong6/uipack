@@ -251,6 +251,48 @@ interface BadgeProps {
 /** A circled step number on a node corner or a connector. */
 declare function Badge({ cx, cy, text, accent, r, size: size0 }: BadgeProps): react.JSX.Element;
 
+interface WallProps {
+    /** Position across the wall's axis: x for a standing wall, y for a lying one. */
+    at: number;
+    /** Start and end along the wall's axis. */
+    from: number;
+    to: number;
+    /** Centres along the axis where something passes; each opens a gap. */
+    holes?: number[];
+    /** "v" stands up (x = at), "h" lies across (y = at). Default "v". */
+    axis?: "v" | "h";
+    /** Slab thickness in user units. Default 16. */
+    thickness?: number;
+    /** Half the opening at each hole. Default 9. */
+    gap?: number;
+    /** Flow names for hover highlighting. */
+    flow?: Flow;
+}
+/** The solid runs of a wall between its holes, as [start, end] pairs along the axis. */
+declare function wallSegments(from: number, to: number, holes?: readonly number[], gap?: number): [number, number][];
+/**
+ * A wall: solid slabs with a gap wherever an item passes. One layer of a
+ * defence-in-depth figure, a filter, a boundary that lets some lines through.
+ * Lines that stop at it end short of the slab; lines that pass go through a hole.
+ */
+declare function Wall({ at, from, to, holes, axis, thickness: t, gap, flow }: WallProps): react.JSX.Element;
+
+interface CrossProps {
+    /** Centre of the mark. */
+    x: number;
+    y: number;
+    /** Half the mark's width in user units. Default 5. */
+    r?: number;
+    /** Colour by token kind; default the ink. */
+    kind?: ConnectorKind;
+}
+/**
+ * A ✕ where something stops: a lost message at the end of a dashed Connector
+ * with `arrow={false}`, a dropped item, a refused call. End the connector
+ * `r + 6` units short of where the line would have arrived.
+ */
+declare function Cross({ x, y, r, kind }: CrossProps): react.JSX.Element;
+
 interface LabelProps {
     x: number;
     y: number;
@@ -492,4 +534,4 @@ declare const drillMotion: {
     readonly reduced: 160;
 };
 
-export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, DEFAULT_RENDER_WIDTH, DRILL_GROW, Defs, type DefsProps, type DrillAction, DrillFigure, type DrillFigureProps, type DrillFocus, type DrillLevel, type DrillMove, DrillNode, type DrillNodeProps, type DrillPath, type DrillRenderContext, type DrillStaticFigure, type FigureHover, FigureHoverContext, type FigureMotion, FigureMotionContext, type FigureScale, FigureScaleContext, FigureScaleProvider, type Flow, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, LegendItem, type MarkName, Node, type NodeProps, Packet, type PacketProps, type Point, type Side, TokenKind, TokenShape, Wordmark, anchor, busStub, busStubs, connectorStroke, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, flowList, fontFloor, grid, hoverAttrs, marks, normalizePath as normalizeDrillPath, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFigureMotion, useFontFloor, usePrefersReducedMotion };
+export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, Cross, type CrossProps, DEFAULT_RENDER_WIDTH, DRILL_GROW, Defs, type DefsProps, type DrillAction, DrillFigure, type DrillFigureProps, type DrillFocus, type DrillLevel, type DrillMove, DrillNode, type DrillNodeProps, type DrillPath, type DrillRenderContext, type DrillStaticFigure, type FigureHover, FigureHoverContext, type FigureMotion, FigureMotionContext, type FigureScale, FigureScaleContext, FigureScaleProvider, type Flow, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, LegendItem, type MarkName, Node, type NodeProps, Packet, type PacketProps, type Point, type Side, TokenKind, TokenShape, Wall, type WallProps, Wordmark, anchor, busStub, busStubs, connectorStroke, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, flowList, fontFloor, grid, hoverAttrs, marks, normalizePath as normalizeDrillPath, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFigureMotion, useFontFloor, usePrefersReducedMotion, wallSegments };

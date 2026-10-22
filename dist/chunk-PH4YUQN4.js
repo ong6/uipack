@@ -1,3 +1,7 @@
+import {
+  REDUCED_MOTION_QUERY
+} from "./chunk-YUGHDI4S.js";
+
 // src/context.tsx
 import { createContext, useContext, useEffect, useState } from "react";
 var noop = () => {
@@ -12,12 +16,11 @@ var FigureMotionContext = createContext({
 function useFigureMotion() {
   return useContext(FigureMotionContext);
 }
-var QUERY = "(prefers-reduced-motion: reduce)";
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false);
   useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const mq = window.matchMedia(QUERY);
+    const mq = window.matchMedia(REDUCED_MOTION_QUERY);
     const onChange = (e) => setReduced(e.matches);
     setReduced(mq.matches);
     if (typeof mq.addEventListener === "function") {
@@ -35,4 +38,4 @@ export {
   useFigureMotion,
   usePrefersReducedMotion
 };
-//# sourceMappingURL=chunk-FENTOHP4.js.map
+//# sourceMappingURL=chunk-PH4YUQN4.js.map

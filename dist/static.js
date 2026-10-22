@@ -7,7 +7,8 @@ import {
 } from "./chunk-BEGV5DNB.js";
 import {
   FigureMotionContext
-} from "./chunk-FENTOHP4.js";
+} from "./chunk-PH4YUQN4.js";
+import "./chunk-YUGHDI4S.js";
 
 // src/static/index.tsx
 import { isValidElement } from "react";

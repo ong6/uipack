@@ -409,35 +409,6 @@ declare function buildLayerStack(props: LayerStackProps): {
  */
 declare function LayerStack(props: LayerStackProps): react.JSX.Element;
 
-/**
- * Optional progressive enhancement for a rendered SpanChart. Without it every
- * behaviour still works through native inputs and CSS; with it:
- *
- * - activating the selected layer or size again (click, tap, Space or Enter)
- *   clears that filter; Enter also selects, like Space; "Clear" returns focus
- *   to the "All layers" control;
- * - Escape clears every filter while focus is in the chart or the chart was
- *   the last thing clicked or tapped (Safari does not focus a radio when its
- *   label is clicked, so focus alone is not enough);
- * - group headings and the footer show live counts under a filter, and a
- *   polite live region announces them;
- * - collapsing the list, or filtering while the chart top is above the
- *   viewport, scrolls the chart top back into view;
- * - rows hidden in the featured view become findable with the browser's
- *   find-in-page where `hidden="until-found"` is supported (and stay hidden
- *   from screen readers until shown); a match expands the list;
- * - group labels stick under the header while their rows scroll past;
- * - a URL hash naming a filter input (e.g. `#ai-stack-layer-control`)
- *   selects it, so an article can link to a filtered view;
- * - the "Find a company" field appears: it matches names, tags and deals,
- *   ignoring case and accents, shows matches whether featured or not, and
- *   combines with the filters; Escape or its clear button resets it;
- * - showing all rows or the featured subset is announced;
- * - on fine pointers, the column under the pointer in the rows shows a faint
- *   band and its header lights up (headers do this without script).
- *
- * Returns a cleanup function that removes every listener.
- */
 declare function enhanceSpanChart(root: HTMLElement): () => void;
 /**
  * Optional enhancement for a rendered LayerStack. Without it every band and

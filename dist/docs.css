@@ -96,6 +96,9 @@
   align-self: start;
   max-height: calc(100vh - 112px);
   overflow: auto;
+  /* Room for a link's focus ring (2px + 3px offset) inside the scroll box, without moving the column. */
+  padding: 5px;
+  margin: -5px;
   position: sticky;
   top: 96px;
 }

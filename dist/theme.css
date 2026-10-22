@@ -156,6 +156,10 @@
   background-image: radial-gradient(var(--uipack-grid) 1px, transparent 1.2px);
   background-size: 12px 12px;
 }
+/* A figure with no header: the figure's own border is the canvas's top edge (no double line). */
+.uipack > .uipack__sr:first-child + .uipack__canvas {
+  border-top: 0;
+}
 .uipack__canvas--plain {
   background-image: none;
 }
@@ -226,7 +230,7 @@
   }
   .uipack__canvas [data-uipack="node"] > rect,
   .uipack__canvas [data-uipack="connector"],
-  .uipack__canvas [data-uipack="group"] > rect {
+  .uipack__canvas [data-uipack="group"] > .uipack__group-frame > rect {
     transition: opacity 160ms ease, stroke 160ms ease, fill 160ms ease, stroke-opacity 160ms ease;
   }
   .uipack__canvas [data-uipack="node"][data-flow] {
@@ -244,7 +248,7 @@
     opacity: 1;
   }
   .uipack__canvas [data-uipack="node"][data-state="hit"] > rect,
-  .uipack__canvas [data-uipack="group"][data-state="hit"] > rect {
+  .uipack__canvas [data-uipack="group"][data-state="hit"] > .uipack__group-frame > rect {
     stroke: var(--uipack-accent);
     stroke-opacity: 1;
   }
@@ -281,7 +285,7 @@
   .uipack__canvas [data-uipack],
   .uipack__canvas [data-uipack="node"] > rect,
   .uipack__canvas [data-uipack="connector"],
-  .uipack__canvas [data-uipack="group"] > rect,
+  .uipack__canvas [data-uipack="group"] > .uipack__group-frame > rect,
   .uipack__legend li {
     transition: none;
   }

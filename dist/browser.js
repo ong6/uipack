@@ -1,3 +1,7 @@
+import {
+  keepFocusedInView
+} from "./chunk-YUGHDI4S.js";
+
 // src/browser/index.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import { jsx, jsxs } from "react/jsx-runtime";
@@ -38,7 +42,7 @@ function AssetBrowser({ manifest, initialCategory = ALL, onAction, actionLabel =
     timer.current = window.setTimeout(() => setFlash(null), 1400);
   };
   return /* @__PURE__ */ jsxs("div", { className: ["uipack-browser", className ?? ""].join(" ").trim(), "data-category": category, children: [
-    /* @__PURE__ */ jsx("nav", { className: "uipack-browser__side", "aria-label": "Asset categories", children: /* @__PURE__ */ jsx("ul", { role: "list", children: cats.map((c) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs("button", { type: "button", className: "uipack-browser__cat", "aria-pressed": category === c.name, onClick: () => setCategory(c.name), children: [
+    /* @__PURE__ */ jsx("nav", { className: "uipack-browser__side", "aria-label": "Asset categories", children: /* @__PURE__ */ jsx("ul", { role: "list", onFocus: keepFocusedInView, children: cats.map((c) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs("button", { type: "button", className: "uipack-browser__cat", "aria-pressed": category === c.name, onClick: () => setCategory(c.name), children: [
       /* @__PURE__ */ jsx("span", { children: c.name }),
       /* @__PURE__ */ jsx("span", { className: "uipack-browser__count", "aria-label": `${c.count} assets`, children: c.count })
     ] }) }, c.name)) }) }),

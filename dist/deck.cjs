@@ -20,6 +20,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/deck/index.ts
 var deck_exports = {};
 __export(deck_exports, {
+  Annotation: () => Annotation,
   BarChart: () => BarChart,
   Bento: () => Bento,
   BentoCell: () => BentoCell,
@@ -27,7 +28,6 @@ __export(deck_exports, {
   CANVAS_HEIGHT: () => CANVAS_HEIGHT,
   CANVAS_WIDTH: () => CANVAS_WIDTH,
   CX_TYPE: () => CX_TYPE,
-  Callout: () => Callout,
   ConsultingSlide: () => ConsultingSlide,
   DeckPlayer: () => DeckPlayer,
   DeckSlideContext: () => DeckSlideContext,
@@ -53,18 +53,19 @@ __export(deck_exports, {
   Tracker: () => Tracker,
   WORDS_PER_MINUTE: () => WORDS_PER_MINUTE,
   Waterfall: () => Waterfall,
+  annotationGeometry: () => annotationGeometry,
   bandLayout: () => bandLayout,
   barPath: () => barPath,
   bentoCamera: () => bentoCamera,
   bentoFocusAt: () => bentoFocusAt,
   bubbleRadius: () => bubbleRadius,
-  calloutGeometry: () => calloutGeometry,
   deckMotion: () => deckMotion,
   flipFrom: () => flipFrom,
   formatStoryline: () => formatStoryline,
   formatValue: () => formatValue,
   formatter: () => formatter,
   getStorylineTemplate: () => getStorylineTemplate,
+  harveyQuarters: () => harveyQuarters,
   harveyWedge: () => harveyWedge,
   linearScale: () => linearScale,
   lintDeck: () => lintDeck,
@@ -72,6 +73,8 @@ __export(deck_exports, {
   niceTicks: () => niceTicks,
   resolveTransition: () => resolveTransition,
   runTransition: () => runTransition,
+  slideZoomFrame: () => slideZoomFrame,
+  slideZoomSamples: () => slideZoomSamples,
   spreadLabels: () => spreadLabels,
   stackSegments: () => stackSegments,
   storylineOf: () => storylineOf,
@@ -80,27 +83,60 @@ __export(deck_exports, {
   textWidth: () => textWidth,
   useDeckSlide: () => useDeckSlide,
   waterfallBars: () => waterfallBars,
-  wrapText: () => wrapText,
-  zeroBasedDomain: () => zeroBasedDomain,
-  zoomFrame: () => zoomFrame2,
-  zoomSamples: () => zoomSamples2
+  wrapToWidth: () => wrapToWidth,
+  zeroBasedDomain: () => zeroBasedDomain
 });
 module.exports = __toCommonJS(deck_exports);
 
 // src/deck/DeckPlayer.tsx
+var import_react4 = require("react");
+
+// src/context.tsx
 var import_react2 = require("react");
 
-// src/deck/parts.tsx
+// src/env.ts
 var import_react = require("react");
+var useIsoLayoutEffect = typeof window === "undefined" ? import_react.useEffect : import_react.useLayoutEffect;
+var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+// src/context.tsx
+var noop = () => {
+};
+var FigureMotionContext = (0, import_react2.createContext)({
+  playing: true,
+  reduced: false,
+  cycle: 0,
+  toggle: noop,
+  replay: noop
+});
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = (0, import_react2.useState)(false);
+  (0, import_react2.useEffect)(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia(REDUCED_MOTION_QUERY);
+    const onChange = (e) => setReduced(e.matches);
+    setReduced(mq.matches);
+    if (typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", onChange);
+      return () => mq.removeEventListener("change", onChange);
+    }
+    mq.addListener(onChange);
+    return () => mq.removeListener(onChange);
+  }, []);
+  return reduced;
+}
+
+// src/deck/parts.tsx
+var import_react3 = require("react");
 var import_jsx_runtime = require("react/jsx-runtime");
-var DeckSlideContext = (0, import_react.createContext)({
+var DeckSlideContext = (0, import_react3.createContext)({
   step: Infinity,
   active: true,
   thumbnail: false,
   index: 0,
   count: 1
 });
-var useDeckSlide = () => (0, import_react.useContext)(DeckSlideContext);
+var useDeckSlide = () => (0, import_react3.useContext)(DeckSlideContext);
 function Morph({
   id,
   as: Tag = "div",
@@ -1019,8 +1055,8 @@ function resolveTransition(from, to, transitionOf, fallback = "advance") {
   const t = transitionOf(Math.max(from, to)) ?? fallback;
   return typeof t === "string" ? { kind: t } : { kind: "zoom", zoom: t.zoom };
 }
-var zoomFrame2 = (target, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomFrame(target, width, height);
-var zoomSamples2 = (target, forward, samples = 24, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomSamples(target, forward, width, height, { samples, radius: 6 });
+var slideZoomFrame = (target, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomFrame(target, width, height);
+var slideZoomSamples = (target, forward, samples = 24, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomSamples(target, forward, width, height, { samples, radius: 6 });
 function flipFrom(from, to, scale, fit = "auto", textScale) {
   if (textScale && fit !== "stretch") {
     return {
@@ -1093,10 +1129,10 @@ function runTransition(opts) {
       w: box.w / scale,
       h: box.h / scale
     };
-    const samples = local ? zoomSamples2(local, zoomInto) : null;
+    const samples = local ? slideZoomSamples(local, zoomInto) : null;
     if (!samples) kind = "fade";
     else {
-      const frame = zoomFrame2(local);
+      const frame = slideZoomFrame(local);
       const origin = `${frame.fx.toFixed(2)}px ${frame.fy.toFixed(2)}px`;
       inner.style.zIndex = "2";
       const timing = { duration: deckMotion.zoom, easing: "linear" };
@@ -1182,23 +1218,9 @@ function runTransition(opts) {
 
 // src/deck/DeckPlayer.tsx
 var import_jsx_runtime2 = require("react/jsx-runtime");
-var useIsoLayoutEffect = typeof window === "undefined" ? import_react2.useEffect : import_react2.useLayoutEffect;
-function usePrefersReducedMotion(motion) {
-  const [reduced, setReduced] = (0, import_react2.useState)(motion === "none");
-  (0, import_react2.useEffect)(() => {
-    if (motion === "none") return setReduced(true);
-    if (typeof matchMedia === "undefined") return setReduced(false);
-    const mq = matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReduced(mq.matches);
-    update();
-    mq.addEventListener?.("change", update);
-    return () => mq.removeEventListener?.("change", update);
-  }, [motion]);
-  return reduced;
-}
 function useCanvasScale() {
-  const ref = (0, import_react2.useRef)(null);
-  const [scale, setScale] = (0, import_react2.useState)(0);
+  const ref = (0, import_react4.useRef)(null);
+  const [scale, setScale] = (0, import_react4.useState)(0);
   useIsoLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -1214,7 +1236,7 @@ function useCanvasScale() {
 var railAt = (i, count) => `${count > 1 ? i / (count - 1) * 100 : 0}%`;
 var pad = (n) => String(n).padStart(2, "0");
 var notesOf = (slide) => !slide?.notes ? void 0 : typeof slide.notes === "string" ? { say: slide.notes, delivery: "", next: void 0 } : slide.notes;
-var Layer = (0, import_react2.forwardRef)(function Layer2({ slide, index, count, step, active, thumbnail = false, theme, reducedMotion }, ref) {
+var Layer = (0, import_react4.forwardRef)(function Layer2({ slide, index, count, step, active, thumbnail = false, theme, reducedMotion }, ref) {
   return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
     "div",
     {
@@ -1265,19 +1287,20 @@ function DeckPlayer({
     const i = typeof s === "number" ? s : s ? slides.findIndex((x) => x.id === s) : 0;
     return Math.min(Math.max(i, 0), Math.max(count - 1, 0));
   })();
-  const [view, setView] = (0, import_react2.useState)({ index: startIndex, step: initial?.step ?? 0, from: null, seq: 0 });
-  const [overview, setOverview] = (0, import_react2.useState)(false);
-  const [fullscreen, setFullscreen] = (0, import_react2.useState)(false);
-  const [reading, setReading] = (0, import_react2.useState)(initialView === "read");
-  const reducedMotion = usePrefersReducedMotion(motion);
+  const [view, setView] = (0, import_react4.useState)({ index: startIndex, step: initial?.step ?? 0, from: null, seq: 0 });
+  const [overview, setOverview] = (0, import_react4.useState)(false);
+  const [fullscreen, setFullscreen] = (0, import_react4.useState)(false);
+  const [reading, setReading] = (0, import_react4.useState)(initialView === "read");
+  const prefersReduced = usePrefersReducedMotion();
+  const reducedMotion = motion === "none" || prefersReduced;
   const { ref: stageRef, scale } = useCanvasScale();
-  const rootRef = (0, import_react2.useRef)(null);
-  const fromRef = (0, import_react2.useRef)(null);
-  const toRef = (0, import_react2.useRef)(null);
-  const overviewButtonRef = (0, import_react2.useRef)(null);
-  const anims = (0, import_react2.useRef)([]);
-  const maxStep = (0, import_react2.useRef)(0);
-  const viewRef = (0, import_react2.useRef)(view);
+  const rootRef = (0, import_react4.useRef)(null);
+  const fromRef = (0, import_react4.useRef)(null);
+  const toRef = (0, import_react4.useRef)(null);
+  const overviewButtonRef = (0, import_react4.useRef)(null);
+  const anims = (0, import_react4.useRef)([]);
+  const maxStep = (0, import_react4.useRef)(0);
+  const viewRef = (0, import_react4.useRef)(view);
   const commit = (next2) => {
     viewRef.current = next2;
     setView(next2);
@@ -1290,7 +1313,7 @@ function DeckPlayer({
       el.style.visibility = "";
     });
   };
-  const go = (0, import_react2.useCallback)(
+  const go = (0, import_react4.useCallback)(
     (index, step = 0) => {
       const target = Math.min(Math.max(index, 0), count - 1);
       settle();
@@ -1302,12 +1325,12 @@ function DeckPlayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [count]
   );
-  const next = (0, import_react2.useCallback)(() => {
+  const next = (0, import_react4.useCallback)(() => {
     const v = viewRef.current;
     if (v.step < maxStep.current) commit({ ...v, step: v.step + 1 });
     else if (v.index < count - 1) go(v.index + 1, 0);
   }, [count, go]);
-  const prev = (0, import_react2.useCallback)(() => {
+  const prev = (0, import_react4.useCallback)(() => {
     const v = viewRef.current;
     const step = Math.min(v.step, maxStep.current);
     if (step > 0) commit({ ...v, step: step - 1 });
@@ -1348,10 +1371,10 @@ function DeckPlayer({
     }, () => {
     });
   }, [view.seq]);
-  const channel = (0, import_react2.useRef)(null);
-  const remote = (0, import_react2.useRef)(false);
-  const reported = (0, import_react2.useRef)({ index: view.index, step: view.step });
-  (0, import_react2.useEffect)(() => {
+  const channel = (0, import_react4.useRef)(null);
+  const remote = (0, import_react4.useRef)(false);
+  const reported = (0, import_react4.useRef)({ index: view.index, step: view.step });
+  (0, import_react4.useEffect)(() => {
     if (typeof BroadcastChannel === "undefined") return;
     const ch = new BroadcastChannel(`uipack-deck:${id}`);
     channel.current = ch;
@@ -1374,7 +1397,7 @@ function DeckPlayer({
       channel.current = null;
     };
   }, [id, go]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     const last = reported.current;
     if (last.index === view.index && last.step === view.step) return;
     reported.current = { index: view.index, step: view.step };
@@ -1385,7 +1408,7 @@ function DeckPlayer({
     }
     channel.current?.postMessage({ type: "go", index: view.index, step: view.step });
   }, [view.index, view.step]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     const onChange = () => setFullscreen(document.fullscreenElement === rootRef.current);
     document.addEventListener("fullscreenchange", onChange);
     return () => document.removeEventListener("fullscreenchange", onChange);
@@ -1456,9 +1479,9 @@ function DeckPlayer({
     }
     e.preventDefault();
   };
-  const keyHandler = (0, import_react2.useRef)(onKeyDown);
+  const keyHandler = (0, import_react4.useRef)(onKeyDown);
   keyHandler.current = onKeyDown;
-  (0, import_react2.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     if (keyboard !== "global") return;
     const handler = (e) => {
       if (rootRef.current?.contains(e.target)) return;
@@ -1467,7 +1490,7 @@ function DeckPlayer({
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [keyboard]);
-  const swipe = (0, import_react2.useRef)(null);
+  const swipe = (0, import_react4.useRef)(null);
   const onPointerDown = (e) => {
     swipe.current = e.pointerType === "mouse" ? null : { x: e.clientX, y: e.clientY };
   };
@@ -1642,9 +1665,9 @@ function Overview({
   onPick,
   onClose
 }) {
-  const ref = (0, import_react2.useRef)(null);
-  const [tab, setTab] = (0, import_react2.useState)("slides");
-  (0, import_react2.useEffect)(() => {
+  const ref = (0, import_react4.useRef)(null);
+  const [tab, setTab] = (0, import_react4.useState)("slides");
+  (0, import_react4.useEffect)(() => {
     ref.current?.querySelector('[aria-current="true"]')?.focus();
   }, []);
   const onKeyDown = (e) => {
@@ -1738,9 +1761,9 @@ function Presenter({
   theme,
   stage
 }) {
-  const [started, setStarted] = (0, import_react2.useState)(() => Date.now());
-  const [now, setNow] = (0, import_react2.useState)(() => Date.now());
-  (0, import_react2.useEffect)(() => {
+  const [started, setStarted] = (0, import_react4.useState)(() => Date.now());
+  const [now, setNow] = (0, import_react4.useState)(() => Date.now());
+  (0, import_react4.useEffect)(() => {
     const t = setInterval(() => setNow(Date.now()), 1e3);
     return () => clearInterval(t);
   }, []);
@@ -1789,7 +1812,7 @@ function Presenter({
 }
 
 // src/deck/bento.tsx
-var import_react3 = require("react");
+var import_react5 = require("react");
 var import_jsx_runtime3 = require("react/jsx-runtime");
 function BentoCell(_) {
   return null;
@@ -1806,9 +1829,9 @@ var bentoFocusAt = (step, tour) => step >= 1 && step <= tour.length ? tour[step 
 function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, style, children }) {
   const { step, thumbnail } = useDeckSlide();
   const focus = thumbnail ? null : bentoFocusAt(step, tour);
-  const gridRef = (0, import_react3.useRef)(null);
-  const [camera, setCamera] = (0, import_react3.useState)(null);
-  (0, import_react3.useLayoutEffect)(() => {
+  const gridRef = (0, import_react5.useRef)(null);
+  const [camera, setCamera] = (0, import_react5.useState)(null);
+  (0, import_react5.useLayoutEffect)(() => {
     const grid = gridRef.current;
     if (!grid || !focus) return setCamera(null);
     const cell = grid.querySelector(`[data-bento-cell="${CSS.escape(focus)}"]`);
@@ -1821,8 +1844,8 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
       )
     );
   }, [focus, maxScale]);
-  const cells = import_react3.Children.toArray(children).filter(
-    (c) => (0, import_react3.isValidElement)(c) && c.type === BentoCell
+  const cells = import_react5.Children.toArray(children).filter(
+    (c) => (0, import_react5.isValidElement)(c) && c.type === BentoCell
   );
   return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
     "div",
@@ -1868,7 +1891,7 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
 }
 
 // src/deck/consulting/frame.tsx
-var import_react4 = require("react");
+var import_react6 = require("react");
 var import_jsx_runtime4 = require("react/jsx-runtime");
 var cx = (...names) => names.filter(Boolean).join(" ");
 function Tracker({ sections, current }) {
@@ -1899,7 +1922,7 @@ function ConsultingSlide({
       sticker && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { className: "uipack-cx-sticker", children: sticker })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("header", { className: "uipack-cx-head", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h2", { className: "uipack-cx-title", children: import_react4.Children.map(title, (child) => typeof child === "string" ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("span", { children: child }) : child) }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h2", { className: "uipack-cx-title", children: import_react6.Children.map(title, (child) => typeof child === "string" ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("span", { children: child }) : child) }),
       subtitle && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { className: "uipack-cx-subtitle", children: subtitle })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: "uipack-cx-body", style: rows ? { gridTemplateRows: rows } : void 0, children }),
@@ -1958,17 +1981,16 @@ function SoWhat({ title = "So what", children, ...grid }) {
 }
 
 // src/deck/consulting/hooks.ts
-var import_react5 = require("react");
-var useIsoLayoutEffect2 = typeof window === "undefined" ? import_react5.useEffect : import_react5.useLayoutEffect;
+var import_react7 = require("react");
 function useChartSize(fixed, fallback = { width: 640, height: 360 }) {
-  const ref = (0, import_react5.useRef)(null);
-  const [size, setSize] = (0, import_react5.useState)({
+  const ref = (0, import_react7.useRef)(null);
+  const [size, setSize] = (0, import_react7.useState)({
     width: fixed?.width ?? fallback.width,
     height: fixed?.height ?? fallback.height
   });
   const fixedW = fixed?.width;
   const fixedH = fixed?.height;
-  useIsoLayoutEffect2(() => {
+  useIsoLayoutEffect(() => {
     const el = ref.current;
     if (!el || fixedW !== void 0 && fixedH !== void 0) return;
     const measure = () => {
@@ -1986,8 +2008,8 @@ function useChartSize(fixed, fallback = { width: 640, height: 360 }) {
 }
 function useGrown() {
   const { active, thumbnail } = useDeckSlide();
-  const [grown, setGrown] = (0, import_react5.useState)(!active || thumbnail);
-  (0, import_react5.useEffect)(() => {
+  const [grown, setGrown] = (0, import_react7.useState)(!active || thumbnail);
+  (0, import_react7.useEffect)(() => {
     if (grown) return;
     let second = 0;
     const first = requestAnimationFrame(() => {
@@ -2083,8 +2105,9 @@ function stackSegments(values, percent = false) {
     return seg;
   });
 }
+var harveyQuarters = (level) => Math.max(0, Math.min(4, Math.round(level)));
 function harveyWedge(level, cx2, cy, r) {
-  const q = Math.max(0, Math.min(4, Math.round(level)));
+  const q = harveyQuarters(level);
   if (q === 0) return "";
   if (q === 4) return `M${cx2 - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`;
   const angle = q / 4 * Math.PI * 2;
@@ -2138,7 +2161,7 @@ function textWidth(text, size, weight = 400) {
   }
   return em * size * (weight === 600 ? 1.05 : 1);
 }
-function wrapText(text, size, maxWidth, maxLines = 3) {
+function wrapToWidth(text, size, maxWidth, maxLines = 3) {
   const words = text.split(/\s+/).filter(Boolean);
   const lines = [];
   let line = "";
@@ -2255,8 +2278,8 @@ function Lines({ x, y, lines, size = CX_TYPE.label, anchor = "middle", weight, m
     }
   );
 }
-function calloutGeometry(point, at, text, maxWidth = 260, align = "start", size = CX_TYPE.callout) {
-  const lines = wrapText(text, size, maxWidth, 4);
+function annotationGeometry(point, at, text, maxWidth = 260, align = "start", size = CX_TYPE.callout) {
+  const lines = wrapToWidth(text, size, maxWidth, 4);
   const w = Math.max(...lines.map((l) => textWidth(l, size)));
   const h = lines.length * size * 1.25;
   const bx = align === "end" ? at.x - w : at.x;
@@ -2276,8 +2299,8 @@ function calloutGeometry(point, at, text, maxWidth = 260, align = "start", size 
   }
   return { lines, box, leader: { x1, y1, x2: point.x, y2: point.y } };
 }
-function Callout({ x, y, tx, ty, text, width = 260, align = "start" }) {
-  const g = calloutGeometry({ x, y }, { x: tx, y: ty }, text, width, align);
+function Annotation({ x, y, tx, ty, text, width = 260, align = "start" }) {
+  const g = annotationGeometry({ x, y }, { x: tx, y: ty }, text, width, align);
   const size = CX_TYPE.callout;
   const textX = align === "end" ? g.box.x + g.box.w : g.box.x;
   return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("g", { className: "uipack-cx-callout", children: [
@@ -2305,7 +2328,7 @@ function BarChart({
   domain,
   reference,
   callout,
-  ariaLabel,
+  alt,
   width,
   height
 }) {
@@ -2319,7 +2342,7 @@ function BarChart({
   const colour = (d) => !emphasis || d.highlight ? fill.accent : fill.context;
   const values = rows.map((d) => d.value);
   const dom = domain ?? zeroBasedDomain(reference ? [...values, reference.value] : values);
-  const label = ariaLabel ?? `Bar chart. ${rows.map((d) => `${d.label}: ${format(d.value)}`).join("; ")}.`;
+  const label = alt ?? `Bar chart. ${rows.map((d) => `${d.label}: ${format(d.value)}`).join("; ")}.`;
   const valueW = Math.max(...rows.map((d) => textWidth(format(d.value), CX_TYPE.value, 600))) + 14;
   const refTop = reference ? 40 : 4;
   if (orientation === "horizontal") {
@@ -2335,7 +2358,7 @@ function BarChart({
       rows.map((d, i) => {
         const b = bands[i];
         const end = x(d.value);
-        const lines = wrapText(d.label, CX_TYPE.label, labelW - 20, 2);
+        const lines = wrapToWidth(d.label, CX_TYPE.label, labelW - 20, 2);
         return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("g", { children: [
           /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Lines, { x: labelW - 16, y: b.centre, lines, anchor: "end", weight: d.highlight ? 600 : void 0 }),
           /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
@@ -2357,13 +2380,13 @@ function BarChart({
         if (i < 0) return null;
         const px = x(rows[i].value);
         const py = bands[i].centre;
-        return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Callout, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+        return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
       })()
     ] });
   }
   const labelLines = rows.map((d) => d.label);
   const bandsProbe = bandLayout(rows.length, 0, W, 0.56, 64);
-  const wrapped = labelLines.map((l) => wrapText(l, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 8, 2));
+  const wrapped = labelLines.map((l) => wrapToWidth(l, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 8, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = 36;
   const y = linearScale(dom, [H - bottom, top]);
@@ -2397,11 +2420,11 @@ function BarChart({
       if (i < 0) return null;
       const px = bandsProbe[i].centre;
       const py = y(rows[i].value);
-      return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Callout, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+      return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
     })()
   ] });
 }
-function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain, callout, ariaLabel, width, height }) {
+function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain, callout, alt, width, height }) {
   const size = useChartSize({ width, height });
   const W = size.width;
   const H = size.height;
@@ -2410,12 +2433,12 @@ function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain
   const dom = domain ?? zeroBasedDomain(levels);
   const broken = dom[0] > 0;
   const bandsProbe = bandLayout(bars.length, 0, W, 0.62, 76);
-  const wrapped = bars.map((b) => wrapText(b.label, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 6, 2));
+  const wrapped = bars.map((b) => wrapToWidth(b.label, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 6, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = 40;
   const y = linearScale(dom, [H - bottom, top]);
   const base = y(dom[0]);
-  const label = ariaLabel ?? `Waterfall. ${bars.map((b) => `${b.label}: ${b.kind === "total" ? format(b.value) : (b.value >= 0 ? "+" : "") + format(b.value)}`).join("; ")}.`;
+  const label = alt ?? `Waterfall. ${bars.map((b) => `${b.label}: ${b.kind === "total" ? format(b.value) : (b.value >= 0 ? "+" : "") + format(b.value)}`).join("; ")}.`;
   const show = (b) => b.kind === "total" ? format(b.value) : `${b.value > 0 ? "+" : ""}${format(b.value)}`;
   return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(Frame, { size, label, children: [
     bars.map((b, i) => {
@@ -2484,7 +2507,7 @@ function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain
       const b = bars[i];
       const px = bandsProbe[i].centre;
       const py = (y(b.from) + y(b.to)) / 2;
-      return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Callout, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+      return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
     })()
   ] });
 }
@@ -2496,7 +2519,7 @@ function StackedBar({
   format = defaultFormat,
   segmentFormat,
   totals = true,
-  ariaLabel,
+  alt,
   width,
   height
 }) {
@@ -2508,7 +2531,7 @@ function StackedBar({
   const sums = categories.map((c) => c.values.reduce((a, b) => a + Math.max(0, b), 0));
   const max = percent ? 100 : Math.max(...sums, 1);
   const fmtSeg = (s) => percent ? `${Math.round(s.share * 100)}%` : (segmentFormat ?? format)(s.value);
-  const label = ariaLabel ?? `Stacked bar chart, ${series.join(", ")}. ${categories.map((c, i) => `${c.label}: ${stacks[i].map((s, k) => `${series[k]} ${fmtSeg(s)}`).join(", ")}`).join("; ")}.`;
+  const label = alt ?? `Stacked bar chart, ${series.join(", ")}. ${categories.map((c, i) => `${c.label}: ${stacks[i].map((s, k) => `${series[k]} ${fmtSeg(s)}`).join(", ")}`).join("; ")}.`;
   const legendH = 36;
   let lx = 0;
   const legend = series.map((name, i) => {
@@ -2547,7 +2570,7 @@ function StackedBar({
       categories.map((c, i) => {
         const b = bands[i];
         return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("g", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Lines, { x: labelW - 16, y: b.centre, lines: wrapText(c.label, CX_TYPE.label, labelW - 20, 2), anchor: "end", weight: c.highlight ? 600 : void 0 }),
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Lines, { x: labelW - 16, y: b.centre, lines: wrapToWidth(c.label, CX_TYPE.label, labelW - 20, 2), anchor: "end", weight: c.highlight ? 600 : void 0 }),
           /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("g", { className: "uipack-cx-grow", "data-axis": "x", style: growStyle("0% 50%", i * 40), children: stacks[i].map((s, k) => {
             const x0 = x(s.from) + (k > 0 ? 1 : 0);
             const x1 = x(s.to) - (k < stacks[i].length - 1 ? 1 : 0);
@@ -2574,7 +2597,7 @@ function StackedBar({
     ] });
   }
   const bandsProbe = bandLayout(categories.length, 0, W, 0.56, 88);
-  const wrapped = categories.map((c) => wrapText(c.label, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 8, 2));
+  const wrapped = categories.map((c) => wrapToWidth(c.label, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 8, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = legendH + (totals && !percent ? 40 : 12);
   const y = linearScale([0, max], [H - bottom, top]);
@@ -2625,7 +2648,7 @@ function LineChart({
   domain,
   reference,
   annotate,
-  ariaLabel,
+  alt,
   width,
   height
 }) {
@@ -2655,7 +2678,7 @@ function LineChart({
   const bottom = H - CX_TYPE.tick - 22;
   const xs = (i) => periods.length <= 1 ? left : left + i / (periods.length - 1) * (right - left - 16) + 8;
   const ys = linearScale(dom, [bottom, top]);
-  const label = ariaLabel ?? `Line chart, ${periods[0]} to ${periods[periods.length - 1]}. ${series.map((s) => `${s.name}: ${s.values.map((v) => v === null ? "n/a" : format(v)).join(", ")}`).join("; ")}.`;
+  const label = alt ?? `Line chart, ${periods[0]} to ${periods[periods.length - 1]}. ${series.map((s) => `${s.name}: ${s.values.map((v) => v === null ? "n/a" : format(v)).join(", ")}`).join("; ")}.`;
   const ends = series.map((s) => {
     const li = lastOf(s);
     return li >= 0 ? { x: xs(li), y: ys(s.values[li]) } : null;
@@ -2718,7 +2741,7 @@ function LineChart({
       if (v === null || v === void 0) return null;
       const px = xs(annotate.index);
       const py = ys(v);
-      return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Callout, { x: px, y: py, tx: px + annotate.dx, ty: py + annotate.dy, text: annotate.text, width: annotate.width, align: annotate.align });
+      return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Annotation, { x: px, y: py, tx: px + annotate.dx, ty: py + annotate.dy, text: annotate.text, width: annotate.width, align: annotate.align });
     })()
   ] });
 }
@@ -2769,7 +2792,7 @@ function KpiTiles({ items, columns }) {
     k.label
   )) });
 }
-function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, callout, ariaLabel, width, height }) {
+function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, callout, alt, width, height }) {
   const size = useChartSize({ width, height });
   const W = size.width;
   const H = size.height;
@@ -2795,7 +2818,7 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
     bl: { x: left, y: midY, w: midX - left, h: bottom - midY },
     br: { x: midX, y: midY, w: right - midX, h: bottom - midY }
   };
-  const label = ariaLabel ?? `2 by 2 matrix: ${xa.label} against ${ya.label}. ${points.map((p) => `${p.label}: ${fx(p.x)}, ${fy(p.y)}${p.size !== void 0 ? `, size ${p.size}` : ""}`).join("; ")}.`;
+  const label = alt ?? `2 by 2 matrix: ${xa.label} against ${ya.label}. ${points.map((p) => `${p.label}: ${fx(p.x)}, ${fy(p.y)}${p.size !== void 0 ? `, size ${p.size}` : ""}`).join("; ")}.`;
   const sorted = [...points].sort((a, b) => (b.size ?? 1) - (a.size ?? 1));
   return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(Frame, { size, label, children: [
     focus && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("rect", { className: "uipack-cx-quad-focus", ...{ x: quads[focus].x, y: quads[focus].y, width: quads[focus].w, height: quads[focus].h } }),
@@ -2806,7 +2829,7 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
       const r = quads[q];
       const atRight = q === "tr" || q === "br";
       const atBottom = q === "bl" || q === "br";
-      const lines = wrapText(quadrants[i].toUpperCase(), CX_TYPE.quadrant, r.w * 0.55, 2);
+      const lines = wrapToWidth(quadrants[i].toUpperCase(), CX_TYPE.quadrant, r.w * 0.55, 2);
       const lh = CX_TYPE.quadrant * 1.25;
       return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
         "text",
@@ -2864,7 +2887,7 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
       if (!p) return null;
       const px = xs(p.x);
       const py = ys(p.y);
-      return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Callout, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+      return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
     })()
   ] });
 }
@@ -2873,7 +2896,7 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
 var import_jsx_runtime6 = require("react/jsx-runtime");
 var LEVEL_WORDS = ["None", "Low", "Medium", "High", "Full"];
 function HarveyBall({ level, size = 36, label }) {
-  const q = Math.max(0, Math.min(4, Math.round(level)));
+  const q = harveyQuarters(level);
   const r = size / 2 - 1.5;
   const c = size / 2;
   return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(
@@ -2929,6 +2952,7 @@ function HarveyTable({ columns, rows, corner = "Option", showKey = true, keyNote
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  Annotation,
   BarChart,
   Bento,
   BentoCell,
@@ -2936,7 +2960,6 @@ function HarveyTable({ columns, rows, corner = "Option", showKey = true, keyNote
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
   CX_TYPE,
-  Callout,
   ConsultingSlide,
   DeckPlayer,
   DeckSlideContext,
@@ -2962,18 +2985,19 @@ function HarveyTable({ columns, rows, corner = "Option", showKey = true, keyNote
   Tracker,
   WORDS_PER_MINUTE,
   Waterfall,
+  annotationGeometry,
   bandLayout,
   barPath,
   bentoCamera,
   bentoFocusAt,
   bubbleRadius,
-  calloutGeometry,
   deckMotion,
   flipFrom,
   formatStoryline,
   formatValue,
   formatter,
   getStorylineTemplate,
+  harveyQuarters,
   harveyWedge,
   linearScale,
   lintDeck,
@@ -2981,6 +3005,8 @@ function HarveyTable({ columns, rows, corner = "Option", showKey = true, keyNote
   niceTicks,
   resolveTransition,
   runTransition,
+  slideZoomFrame,
+  slideZoomSamples,
   spreadLabels,
   stackSegments,
   storylineOf,
@@ -2989,9 +3015,7 @@ function HarveyTable({ columns, rows, corner = "Option", showKey = true, keyNote
   textWidth,
   useDeckSlide,
   waterfallBars,
-  wrapText,
-  zeroBasedDomain,
-  zoomFrame,
-  zoomSamples
+  wrapToWidth,
+  zeroBasedDomain
 });
 //# sourceMappingURL=deck.cjs.map

@@ -38,7 +38,6 @@ __export(mechanism_exports, {
   GATE_CAPTION: () => GATE_CAPTION,
   GATE_LIMIT: () => GATE_LIMIT,
   GateMachine: () => GateMachine,
-  ISO_CSS: () => ISO_CSS,
   LIMIT: () => LIMIT,
   Line: () => Line,
   MechanismFrame: () => MechanismFrame,
@@ -63,16 +62,10 @@ __export(mechanism_exports, {
   cylinder: () => cylinder,
   depthOf: () => depthOf,
   dotGrid: () => dotGrid,
-  dotsSvg: () => dotsSvg,
   extrude: () => extrude,
   faceCircle: () => faceCircle,
-  faceTextSvg: () => faceTextSvg,
-  fadeLineSvg: () => fadeLineSvg,
-  fadedSvg: () => fadedSvg,
-  figureSvg: () => figureSvg,
   fitProjection: () => fitProjection,
   follow: () => follow,
-  groupSvg: () => groupSvg,
   haloOf: () => haloOf,
   holdStill: () => holdStill,
   insetPlan: () => insetPlan,
@@ -80,12 +73,9 @@ __export(mechanism_exports, {
   joinPaths: () => joinPaths,
   knurl: () => knurl,
   lineOnTop: () => lineOnTop,
-  lineSvg: () => lineSvg,
   onTop: () => onTop,
-  pageHtml: () => pageHtml,
   pathOf: () => pathOf,
   planOutline: () => planOutline,
-  plateHtml: () => plateHtml,
   pointsAt: () => pointsAt,
   prismOf: () => prismOf,
   radialTicks: () => radialTicks,
@@ -103,7 +93,6 @@ __export(mechanism_exports, {
   sideSeam: () => sideSeam,
   sideTicks: () => sideTicks,
   slabOf: () => slabOf,
-  solidSvg: () => solidSvg,
   spring: () => spring,
   stillScene: () => stillScene,
   tallyOf: () => tallyOf,
@@ -116,13 +105,16 @@ __export(mechanism_exports, {
   useStillness: () => useStillness,
   verdictOf: () => verdictOf,
   verdictText: () => verdictText,
-  viewOf: () => viewOf,
-  wireSvg: () => wireSvg
+  viewOf: () => viewOf
 });
 module.exports = __toCommonJS(mechanism_exports);
 
-// src/mechanism/VerificationGate.tsx
+// src/mechanism/gate/VerificationGate.tsx
 var React2 = __toESM(require("react"), 1);
+
+// src/env.ts
+var import_react = require("react");
+var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
 // src/mechanism/kit/iso-kit.ts
 var AZIMUTH = 45;
@@ -514,249 +506,6 @@ function fitProjection(points, width, height, { pad = 24, headroom = 0, azimuth 
     elevation
   };
 }
-var escape = (text) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-var attrs = (pairs) => Object.entries(pairs).filter(([, value]) => value !== void 0 && value !== false).map(([key, value]) => ` ${key}="${escape(String(value))}"`).join("");
-function solidSvg(paths, { tone = "hi", crease = "faint", halo = false, lit = false, flat = false, className, inner = "" } = {}) {
-  const parts = [];
-  if (halo) parts.push(`<path class="iso-halo" d="${paths.fill}"/>`);
-  parts.push(`<path class="iso-fill" d="${paths.fill}"/>`);
-  if (!flat) {
-    paths.shades.forEach((d, shade) => {
-      if (d) parts.push(`<path class="iso-shade" data-shade="${shade}" d="${d}"/>`);
-    });
-    parts.push(`<path class="iso-top" d="${paths.top}"/>`);
-  }
-  if (crease !== "none" && paths.crease) parts.push(`<path class="iso-line iso-crease" data-tone="${crease}" d="${paths.crease}"/>`);
-  if (crease !== "none" && paths.bevel) parts.push(`<path class="iso-line iso-bevel" data-tone="${crease}" d="${paths.bevel}"/>`);
-  if (inner) parts.push(inner);
-  parts.push(`<path class="iso-line iso-edge" data-tone="${tone}" d="${paths.outline}"/>`);
-  return `<g${attrs({ class: className ? `iso-solid ${className}` : "iso-solid", "data-lit": lit ? "" : void 0, "data-seamless": paths.seamless ? "" : void 0 })}>${parts.join("")}</g>`;
-}
-function lineSvg(d, { tone = "lo", dotted = false, dashed = false, flow = false, className, free } = {}) {
-  if (!d) return "";
-  return `<path${attrs({
-    class: className ? `iso-line ${className}` : "iso-line",
-    "data-tone": tone,
-    "data-free": free === true ? "" : free || void 0,
-    "data-dotted": dotted ? "" : void 0,
-    "data-dashed": dashed ? "" : void 0,
-    "data-flow": flow ? "" : void 0,
-    d
-  })}/>`;
-}
-function dotsSvg(points, { size = 0.5, tone = "mid", pulse = false } = {}) {
-  const dots = points.map(([x, y, alpha], index) => `<circle cx="${tenth(x)}" cy="${tenth(y)}" r="${size}"${alpha !== void 0 && alpha < 1 ? ` fill-opacity="${Math.max(0, alpha).toFixed(2)}"` : ""}${pulse ? ` data-pulse="" style="--pulse-at:${index * 137 % 1600}ms"` : ""}/>`).join("");
-  return `<g class="iso-dots" data-tone="${tone}">${dots}</g>`;
-}
-function fadedSvg(list, style = {}) {
-  const groups = /* @__PURE__ */ new Map();
-  for (const entry of list) {
-    const [d, alpha] = Array.isArray(entry) ? entry : [entry.d, entry.alpha];
-    if (!d || !(alpha > 0.02)) continue;
-    const level = Math.min(1, Math.round(alpha * 20) / 20);
-    groups.set(level, (groups.get(level) ?? "") + d);
-  }
-  return [...groups].map(([alpha, d]) => alpha >= 1 ? lineSvg(d, style) : `<g opacity="${alpha.toFixed(2)}">${lineSvg(d, style)}</g>`).join("");
-}
-function fadeLineSvg(points, { fade = [0, 0], tone = "lo", className, stops = 6 } = {}) {
-  if (points.length < 2) return "";
-  const ease = (t) => t * t * (3 - 2 * t);
-  const hashOf = (text) => {
-    let hash = 2166136261;
-    for (let index = 0; index < text.length; index++) hash = Math.imul(hash ^ text.charCodeAt(index), 16777619);
-    return (hash >>> 0).toString(36);
-  };
-  const lengths = [0];
-  for (let index = 1; index < points.length; index++) lengths.push(lengths[index - 1] + Math.hypot(points[index][0] - points[index - 1][0], points[index][1] - points[index - 1][1]));
-  const at2 = (length) => {
-    let index = 1;
-    while (index < points.length - 1 && lengths[index] < length) index++;
-    const span = lengths[index] - lengths[index - 1] || 1;
-    const t = Math.max(0, Math.min(1, (length - lengths[index - 1]) / span));
-    return [points[index - 1][0] + (points[index][0] - points[index - 1][0]) * t, points[index - 1][1] + (points[index][1] - points[index - 1][1]) * t];
-  };
-  const pieceOf = (from, to) => [at2(from), ...points.filter((_, index) => lengths[index] > from + 1e-6 && lengths[index] < to - 1e-6), at2(to)];
-  const total = lengths[lengths.length - 1];
-  if (total < 1e-6) return "";
-  let [start, end] = Array.isArray(fade) ? fade : [fade, fade];
-  if (start + end > total) {
-    const share = total / (start + end);
-    start *= share;
-    end *= share;
-  }
-  const paint = `var(--anatomy-${tone})`;
-  const ramp = (piece, rising) => {
-    const d = pathOf(piece);
-    const [x1, y1] = piece[0];
-    const [x2, y2] = piece[piece.length - 1];
-    const id = `iso-fade-${hashOf(`${d}|${tone}|${rising}`)}`;
-    const marks = Array.from({ length: stops + 1 }, (_, index) => {
-      const t = index / stops;
-      const alpha = ease(rising ? t : 1 - t);
-      return `<stop offset="${t.toFixed(3)}" stop-opacity="${alpha.toFixed(3)}" style="stop-color:${paint}"/>`;
-    }).join("");
-    const gradient = `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${tenth(x1)}" y1="${tenth(y1)}" x2="${tenth(x2)}" y2="${tenth(y2)}">${marks}</linearGradient>`;
-    return `<defs>${gradient}</defs><path${attrs({ class: className ? `iso-line ${className}` : "iso-line", "data-tone": tone, "data-free": rising ? "start" : "end", d, style: `stroke:url(#${id})` })}/>`;
-  };
-  const parts = [];
-  if (start > 0.05) parts.push(ramp(pieceOf(0, start), true));
-  if (total - end - start > 0.05) parts.push(lineSvg(pathOf(pieceOf(start, total - end)), { tone, className }));
-  if (end > 0.05) parts.push(ramp(pieceOf(total - end, total), false));
-  return `<g class="iso-fade">${parts.join("")}</g>`;
-}
-function wireSvg(from, to, { via = [], tone = "lo", dotted = false, dashed = false, flow = false, ends = "both", size = 1.2 } = {}) {
-  const d = pathOf([from, ...via, to]);
-  const end = ([x, y]) => `<circle class="iso-wire-end" cx="${tenth(x)}" cy="${tenth(y)}" r="${size}"/>`;
-  return `<g class="iso-wire" data-tone="${tone}">${lineSvg(d, { tone, dotted, dashed, flow })}${ends === "both" || ends === "from" ? end(from) : ""}${ends === "both" || ends === "to" ? end(to) : ""}</g>`;
-}
-function faceTextSvg(transform, text, { size = 3, tone = "mid", anchor = "start" } = {}) {
-  return `<text class="iso-face-text" data-tone="${tone}" transform="${transform}" font-size="${size}" text-anchor="${anchor}">${escape(text)}</text>`;
-}
-function groupSvg(children, extra = {}) {
-  return `<g${attrs(extra)}>${Array.isArray(children) ? children.join("") : children}</g>`;
-}
-function figureSvg({ width, height, label, body, standalone = false, className }) {
-  const style = standalone ? `<style>${ISO_CSS}</style>` : "";
-  return `<svg${attrs({
-    xmlns: "http://www.w3.org/2000/svg",
-    class: `iso-svg${standalone ? " iso" : ""}${className ? ` ${className}` : ""}`,
-    "data-theme": standalone || void 0,
-    viewBox: `0 0 ${width} ${height}`,
-    role: "img",
-    "aria-label": label
-  })}>${style}${Array.isArray(body) ? body.join("") : body}</svg>`;
-}
-function swatchSvg(mark) {
-  if (mark === "raised" || mark === "flat" || mark === "lit") {
-    const body = mark === "flat" ? "M2 6.5 8 3.5 14 6.5 8 9.5Z" : "M2 4.5 8 1.5 14 4.5 14 6 8 9 2 6Z";
-    const crease = mark === "flat" ? "" : `<path class="iso-swatch-crease" d="M2 4.5 8 7.5 14 4.5"/>`;
-    return `<svg class="iso-swatch" data-mark="${mark}" viewBox="0 0 16 10" aria-hidden="true"><path d="${body}"/>${crease}</svg>`;
-  }
-  return `<svg class="iso-swatch" data-mark="${mark}" viewBox="0 0 16 10" aria-hidden="true"><path d="M1.5 5h13"/></svg>`;
-}
-function plateHtml({ fig, title, hint, readout = "", keys = [], caption, body }) {
-  const corner = (name, text, extra = "") => `<span class="iso-plate-corner" data-corner="${name}"${extra}>${escape(text)}</span>`;
-  const legend = keys.length || caption ? `<figcaption class="iso-legend">${keys.length ? `<span class="iso-keys">${keys.map((key) => `<span class="iso-key">${swatchSvg(key.mark)}${escape(key.label)}</span>`).join("")}</span>` : ""}${caption ? `<span class="iso-caption">${escape(caption)}</span>` : ""}</figcaption>` : "";
-  return `<figure class="iso-figure"><div class="iso-plate"><div class="iso-plate-corners" aria-hidden="true">${corner("fig", fig)}${title ? corner("title", title) : ""}${hint ? corner("hint", hint) : ""}${corner("readout", readout, " data-readout")}</div>${body}</div>${legend}</figure>`;
-}
-function pageHtml({ title, theme = "dark", body, script = "", width = 650 }) {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escape(title)}</title><style>${ISO_CSS}${PAGE_CSS.replace("__WIDTH__", String(width))}</style></head><body class="iso" data-theme="${theme}"><main class="iso-page">${body}</main>${script ? `<script type="module">${script.replace(/<\/(script)/gi, "<\\/$1")}</script>` : ""}</body></html>`;
-}
-var PAGE_CSS = `
-*{box-sizing:border-box}
-html{color-scheme:dark}
-body[data-theme="light"]{color-scheme:light}
-body{margin:0;background:var(--anatomy-page);color:var(--anatomy-text);font:14px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
-.iso-page{width:min(__WIDTH__px,100% - 32px);margin:64px auto 96px}
-`;
-var ISO_CSS = `
-.iso{
-  --anatomy-page:#0b0b0b;--anatomy-card:#131313;--anatomy-text:#a3a3a3;--anatomy-strong:#e6e6e6;--anatomy-muted:#6e6e6e;
-  --anatomy-paper:#131313;--anatomy-face:#1b1b1b;--anatomy-top:#1c1c1c;
-  --anatomy-shade-0:#0f0f0f;--anatomy-shade-1:#121212;--anatomy-shade-2:#151515;--anatomy-shade-3:#181818;
-  --anatomy-lit-top:#262626;--anatomy-lit-shade:#1d1d1d;
-  --anatomy-hi:#d4d4d4;--anatomy-mid:#6a6a6a;--anatomy-lo:#3e3e3e;--anatomy-faint:#2a2a2a;--anatomy-lit:#ffffff;
-  --anatomy-halo:#050505;--anatomy-halo-opacity:.9;--anatomy-dot:#e6e6e6;
-  --anatomy-red:#ff6b6b;--anatomy-green:#6be0a0;--anatomy-blue:#6b9bff;
-  --anatomy-weight:.6px;--anatomy-ease:cubic-bezier(.32,.72,0,1);
-  --anatomy-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-  --anatomy-lift:inset 0 1px 0 0 #ffffff0a,inset 0 0 0 1px #ffffff06,0 0 0 1px #00000026,0 1px 1px -.5px #00000014,0 3px 3px -1.5px #00000014,0 6px 6px -3px #00000014,0 12px 12px -6px #00000014;
-}
-.iso[data-theme="light"]{
-  --anatomy-page:#f2f2ef;--anatomy-card:#fbfbfa;--anatomy-text:#57575a;--anatomy-strong:#18181a;--anatomy-muted:#8c8c90;
-  --anatomy-paper:#fbfbfa;--anatomy-face:#ffffff;--anatomy-top:#ffffff;
-  --anatomy-shade-0:#dcdcd9;--anatomy-shade-1:#e5e5e2;--anatomy-shade-2:#ededea;--anatomy-shade-3:#f4f4f1;
-  --anatomy-lit-top:#ffffff;--anatomy-lit-shade:#eeeeeb;
-  --anatomy-hi:#26262a;--anatomy-mid:#8a8a8f;--anatomy-lo:#b4b4b8;--anatomy-faint:#d4d4d6;--anatomy-lit:#000000;
-  --anatomy-halo:#8a8a80;--anatomy-halo-opacity:.32;--anatomy-dot:#3a3a3e;
-  --anatomy-red:#e5484d;--anatomy-green:#30a46c;--anatomy-blue:#3e63dd;
-  --anatomy-lift:inset 0 1px 0 0 #ffffff,0 0 0 1px #0000000f,0 1px 1px -.5px #0000000a,0 3px 3px -1.5px #0000000a,0 6px 6px -3px #0000000a,0 12px 12px -6px #0000000a;
-}
-.iso-svg{display:block;width:100%;height:auto;overflow:visible}
-.iso-svg path,.iso-svg circle{vector-effect:non-scaling-stroke}
-.iso-fill{fill:var(--anatomy-paper);stroke:none}
-.iso-solid[data-lit]>.iso-fill{fill:var(--anatomy-face)}
-.iso-shade,.iso-top{stroke:none}
-.iso-shade[data-shade="0"]{fill:var(--anatomy-shade-0)}
-.iso-shade[data-shade="1"]{fill:var(--anatomy-shade-1)}
-.iso-shade[data-shade="2"]{fill:var(--anatomy-shade-2)}
-.iso-shade[data-shade="3"]{fill:var(--anatomy-shade-3)}
-.iso-top{fill:var(--anatomy-top)}
-.iso-solid[data-lit]>.iso-top{fill:var(--anatomy-lit-top)}
-.iso-solid[data-lit]>.iso-shade{fill:var(--anatomy-lit-shade)}
-.iso-solid[data-seamless]>.iso-shade,.iso-solid[data-seamless]>.iso-top{stroke-width:.4;stroke-linejoin:round}
-.iso-solid[data-seamless]>.iso-shade[data-shade="0"]{stroke:var(--anatomy-shade-0)}
-.iso-solid[data-seamless]>.iso-shade[data-shade="1"]{stroke:var(--anatomy-shade-1)}
-.iso-solid[data-seamless]>.iso-shade[data-shade="2"]{stroke:var(--anatomy-shade-2)}
-.iso-solid[data-seamless]>.iso-shade[data-shade="3"]{stroke:var(--anatomy-shade-3)}
-.iso-solid[data-seamless]>.iso-top{stroke:var(--anatomy-top)}
-.iso-solid[data-seamless][data-lit]>.iso-top{stroke:var(--anatomy-lit-top)}
-.iso-solid[data-seamless][data-lit]>.iso-shade{stroke:var(--anatomy-lit-shade)}
-.iso-solid[data-lit]>.iso-edge{stroke:var(--anatomy-lit)}
-.iso-halo{fill:var(--anatomy-halo);stroke:none;filter:blur(9px);opacity:var(--anatomy-halo-opacity);transform:translateY(3px)}
-.iso-line{fill:none;stroke:var(--anatomy-lo);stroke-width:var(--anatomy-weight);stroke-linecap:round;stroke-linejoin:round}
-.iso-line[data-tone="hi"]{stroke:var(--anatomy-hi)}
-.iso-line[data-tone="mid"]{stroke:var(--anatomy-mid)}
-.iso-line[data-tone="lo"]{stroke:var(--anatomy-lo)}
-.iso-line[data-tone="faint"]{stroke:var(--anatomy-faint)}
-.iso-line[data-tone="lit"]{stroke:var(--anatomy-lit)}
-.iso-line[data-tone="red"]{stroke:var(--anatomy-red)}
-.iso-line[data-tone="green"]{stroke:var(--anatomy-green)}
-.iso-line[data-tone="blue"]{stroke:var(--anatomy-blue)}
-.iso-line[data-dotted]{stroke-dasharray:.01 3.5;stroke-width:1}
-.iso-line[data-dashed]{stroke-dasharray:3 3}
-.iso-line[data-flow]{stroke-dasharray:2 6}
-.iso-wire-end{fill:var(--anatomy-paper);stroke:var(--anatomy-lo);stroke-width:var(--anatomy-weight)}
-.iso-wire[data-tone="hi"] .iso-wire-end{stroke:var(--anatomy-hi)}
-.iso-wire[data-tone="mid"] .iso-wire-end{stroke:var(--anatomy-mid)}
-.iso-wire[data-tone="faint"] .iso-wire-end{stroke:var(--anatomy-faint)}
-.iso-wire[data-tone="lit"] .iso-wire-end{stroke:var(--anatomy-lit)}
-.iso-dots circle{fill:var(--anatomy-dot);stroke:none;opacity:.32}
-.iso-dots[data-tone="hi"] circle{opacity:.85}
-.iso-dots[data-tone="mid"] circle{opacity:.45}
-.iso-dots[data-tone="lo"] circle{opacity:.22}
-.iso-dots[data-tone="faint"] circle{opacity:.12}
-.iso-face-text{fill:var(--anatomy-mid);font-family:var(--anatomy-mono);letter-spacing:.04em}
-.iso-face-text[data-tone="hi"]{fill:var(--anatomy-hi)}
-.iso-face-text[data-tone="lo"]{fill:var(--anatomy-lo)}
-.iso-face-text[data-tone="faint"]{fill:var(--anatomy-faint)}
-.tb-body{fill:var(--anatomy-shade-2);stroke:none}
-.tb-shine{fill:var(--anatomy-top);stroke:none}
-.tb-shade{fill:var(--anatomy-shade-0);stroke:none}
-.tb-ring{fill:none;stroke:var(--anatomy-lo);stroke-width:.45;stroke-linecap:butt;stroke-linejoin:round}
-.tb-ring[data-tone="mid"]{stroke:var(--anatomy-mid)}
-.tb-ring[data-tone="faint"]{stroke:var(--anatomy-faint)}
-.tb-ring[data-tone="hi"]{stroke:var(--anatomy-hi)}
-@keyframes iso-flow{to{stroke-dashoffset:-32}}
-@keyframes iso-pulse{0%,100%{opacity:.18}12%{opacity:1}40%{opacity:.18}}
-.iso-line[data-flow]{animation:iso-flow 1600ms linear infinite}
-.iso-dots circle[data-pulse]{animation:iso-pulse 1600ms steps(1,end) infinite;animation-delay:var(--pulse-at,0ms)}
-.iso-figure{margin:32px 0 36px}
-.iso-plate{position:relative;padding:52px 24px;border-radius:0;background:var(--anatomy-card);box-shadow:0 0 0 1px var(--anatomy-mid);--anatomy-paper:var(--anatomy-card)}
-.iso-plate-corners{position:absolute;inset:18px 20px;pointer-events:none}
-.iso-plate-corner{position:absolute;color:var(--anatomy-muted);font-family:var(--anatomy-mono);font-size:10.5px;line-height:1;letter-spacing:.04em;white-space:nowrap}
-.iso-plate-corner[data-corner="fig"]{top:0;left:0;color:var(--anatomy-text)}
-.iso-plate-corner[data-corner="title"]{top:0;right:0;text-transform:uppercase;letter-spacing:.1em}
-.iso-plate-corner[data-corner="hint"]{bottom:0;left:0;text-transform:uppercase;letter-spacing:.1em}
-.iso-plate-corner[data-corner="readout"]{right:0;bottom:0;color:var(--anatomy-text);font-variant-numeric:tabular-nums}
-.iso-plate .iso-svg{margin:0 auto}
-.iso-legend{display:grid;gap:8px;margin-top:12px;color:var(--anatomy-muted);font-size:13px;line-height:1.55}
-.iso-keys{display:flex;flex-wrap:wrap;gap:6px 18px}
-.iso-key{display:inline-flex;align-items:center;gap:7px}
-.iso-swatch{width:16px;height:10px;flex:none;overflow:visible}
-.iso-swatch path{fill:none;stroke:var(--anatomy-hi);stroke-width:1;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
-.iso-swatch[data-mark="raised"] path,.iso-swatch[data-mark="flat"] path{stroke:var(--anatomy-mid)}
-.iso-swatch[data-mark="lit"] path{stroke:var(--anatomy-lit)}
-.iso-swatch[data-mark="dim"] path{stroke:var(--anatomy-lo)}
-.iso-swatch[data-mark="dotted"] path{stroke-dasharray:.01 3;stroke-width:1.4}
-.iso-swatch[data-mark="dashed"] path{stroke-dasharray:3 2.5}
-.iso-swatch[data-mark="red"] path{stroke:var(--anatomy-red)}
-.iso-swatch[data-mark="green"] path{stroke:var(--anatomy-green)}
-.iso-swatch[data-mark="blue"] path{stroke:var(--anatomy-blue)}
-.iso-swatch-crease{stroke:var(--anatomy-lo)!important}
-@media (max-width:560px){.iso-plate{padding:48px 12px 70px}.iso-plate-corner[data-corner="hint"]{bottom:18px}}
-@media (prefers-reduced-motion:reduce){.iso-line[data-flow],.iso-dots circle[data-pulse]{animation:none}}
-`;
 
 // src/mechanism/kit/live.tsx
 var React = __toESM(require("react"), 1);
@@ -967,7 +716,7 @@ function faceCircle(centre, radius, axis, projection, steps = 24) {
   return pathOf([...circleIn(centre, radius, axis, steps), circleIn(centre, radius, axis, steps)[0]].map((point) => iso(point, projection)));
 }
 
-// src/mechanism/gate.ts
+// src/mechanism/gate/model.ts
 var LIMIT = 6;
 var SCALE = 10;
 var CYCLE = [
@@ -1008,7 +757,7 @@ function verdictText(check) {
   return check.verdict === "pass" ? `reads ${one(check.value)} \u2264 ${one(LIMIT)} \xB7 passed` : `reads ${one(check.value)} > ${one(LIMIT)} \xB7 returned`;
 }
 
-// src/mechanism/view.ts
+// src/mechanism/gate/view.ts
 var WIDTH = 600;
 var HEIGHT = 360;
 var AZIMUTH2 = 57;
@@ -1091,7 +840,7 @@ var P = fitProjection(
 var at = (point) => iso(point, P);
 var move = (by) => translateAlong(P, by);
 
-// src/mechanism/geometry.ts
+// src/mechanism/gate/geometry.ts
 var slab = (plan, z, h, steps = 4, bevel = 0) => slabOf(plan, z, h, P, steps, bevel);
 var cyl = (x, y, r, z, h, steps = 32, bevel = 0) => cylinder(x, y, r, z, h, P, steps, bevel);
 var join = (paths) => paths.filter(Boolean).join("");
@@ -1384,7 +1133,13 @@ function tokenOf(height) {
 }
 var ORIGIN = at([0, 0, 0]);
 
-// src/mechanism/motion.ts
+// src/zoom-math.ts
+var smoothstep = (a, b, x) => {
+  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
+  return t * t * (3 - 2 * t);
+};
+
+// src/mechanism/gate/motion.ts
 var SPEED = 52;
 var X_IN = -104;
 var X_SHOWN = -90;
@@ -1415,10 +1170,7 @@ var PERIOD = 5.4;
 var IDLE_START = 4 * PERIOD + 0.4;
 var KEEP_RETURNED = 1.8;
 var clamp = (value, low = 0, high = 1) => Math.min(high, Math.max(low, value));
-var smooth = (value) => {
-  const t = clamp(value);
-  return t * t * (3 - 2 * t);
-};
+var smooth = (value) => smoothstep(0, 1, value);
 var lerp = (a, b, t) => a + (b - a) * t;
 var mix3 = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
 function tokenAt(u, check, slot) {
@@ -1562,11 +1314,11 @@ function contactOver(distance, height) {
 
 // src/mechanism/MechanismFrame.tsx
 var import_jsx_runtime3 = require("react/jsx-runtime");
-function MechanismFrame({ fig, title, hint, readout, caption, theme, className, children }) {
+function MechanismFrame({ number, title, hint, readout, caption, theme, className, children }) {
   return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("figure", { className: `uipack-mechanism um-frame${className ? ` ${className}` : ""}`, "data-theme": theme, children: [
     /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "um-plate", children: [
       /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "um-corners", "aria-hidden": "true", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "um-corner", "data-corner": "fig", children: fig }),
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "um-corner", "data-corner": "fig", children: number }),
         title ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "um-corner", "data-corner": "title", children: title }) : null,
         hint ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "um-corner", "data-corner": "hint", children: hint }) : null,
         /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "um-corner", "data-corner": "readout", "data-readout": "", children: readout })
@@ -1577,7 +1329,7 @@ function MechanismFrame({ fig, title, hint, readout, caption, theme, className, 
   ] });
 }
 
-// src/mechanism/VerificationGate.tsx
+// src/mechanism/gate/VerificationGate.tsx
 var import_jsx_runtime4 = require("react/jsx-runtime");
 var LAYERS = ["belt", "chute", "tray"];
 var SLOTS = 8;
@@ -1589,7 +1341,6 @@ var HINTS = {
   return: "Tap or Space to run again",
   apart: "Tap or Space to reassemble"
 };
-var clamp2 = (value, low, high) => Math.min(high, Math.max(low, value));
 var fine2 = (value) => Math.round(value * 100) / 100;
 var sharesAt = (value) => Object.fromEntries(ASSEMBLIES.map((name) => [name, { at: value, rate: 0 }]));
 function contactOf(slots) {
@@ -1658,7 +1409,7 @@ var shareMove = (name, share) => {
   const [x, y, z] = MOVES[name];
   return move([x * share, y * share, z * share]);
 };
-var readingOf = (display) => clamp2(display.tip.at, 0, SCALE);
+var readingOf = (display) => clamp(display.tip.at, 0, SCALE);
 function TokenArt({ paths }) {
   const { solid } = paths;
   return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_jsx_runtime4.Fragment, { children: [
@@ -1705,7 +1456,7 @@ function useId2() {
   const id = React2.useId();
   return `um${id.replace(/[^a-zA-Z0-9_-]/g, "")}`;
 }
-function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true, label = LABEL2, onReadout, className, bare = true }) {
+function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true, alt = LABEL2, onReadout, className, bare = true }) {
   const uid = useId2();
   const root = React2.useRef(null);
   const live = React2.useRef(null);
@@ -1771,9 +1522,9 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
       setAttr(svg.querySelector("[data-part=slats]"), "d", slatsOf(display.phase));
       setAttr(svg.querySelector("[data-part=plunger]"), "transform", move([0, 0, display.tip.at]));
       setAttr(svg.querySelector("[data-part=needle]"), "d", needleOf(readingOf(display)));
-      setAttr(svg.querySelector("[data-part=drag]"), "d", dragOf(clamp2(display.drag, 0, SCALE)));
-      writeSolid(svg.querySelector("[data-part=arm]"), armOf(clamp2(display.arm.at, -0.05, 1.05)));
-      setAttr(svg.querySelector("[data-part=pointer]"), "d", armPointerOf(clamp2(display.arm.at, -0.05, 1.05)));
+      setAttr(svg.querySelector("[data-part=drag]"), "d", dragOf(clamp(display.drag, 0, SCALE)));
+      writeSolid(svg.querySelector("[data-part=arm]"), armOf(clamp(display.arm.at, -0.05, 1.05)));
+      setAttr(svg.querySelector("[data-part=pointer]"), "d", armPointerOf(clamp(display.arm.at, -0.05, 1.05)));
       for (const name of ASSEMBLIES) {
         const transform = shareMove(name, Math.abs(display.shares[name].at) < 1e-4 ? 0 : display.shares[name].at);
         svg.querySelectorAll(`[data-assembly="${name}"]`).forEach((group) => setAttr(group, "transform", transform));
@@ -1883,7 +1634,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
   }, [interactive, run, stop]);
   React2.useEffect(() => {
     if (!interactive || typeof window === "undefined" || !window.matchMedia) return;
-    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const query = window.matchMedia(REDUCED_MOTION_QUERY);
     const changed = () => {
       const s = state.current;
       if (query.matches) {
@@ -1921,7 +1672,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
   const reading = readingOf(shown);
   const arm = armOf(shown.arm.at);
   const hint = HINTS[pose];
-  const art = /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("svg", { className: "iso-svg", viewBox: `0 0 ${WIDTH} ${HEIGHT}`, role: "img", "aria-label": label, focusable: "false", children: [
+  const art = /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("svg", { className: "iso-svg", viewBox: `0 0 ${WIDTH} ${HEIGHT}`, role: "img", "aria-label": alt, focusable: "false", children: [
     /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("title", { id: `${uid}-title`, children: "Verification gate" }),
     /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("g", { "data-part": "base", children: [
       /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("path", { className: "iso-halo", d: BASE_ART.halo }),
@@ -2038,7 +1789,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
       /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Line, { d: GAUGE_FRONT.major, tone: "mid" }),
       /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Line, { d: GAUGE_FRONT.band0, tone: "mid" }),
       /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("path", { className: "iso-line um-limit", d: GAUGE_FRONT.limit }),
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("path", { "data-part": "drag", className: "iso-line um-drag", d: dragOf(clamp2(shown.drag, 0, SCALE)) }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("path", { "data-part": "drag", className: "iso-line um-drag", d: dragOf(clamp(shown.drag, 0, SCALE)) }),
       /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("path", { "data-part": "needle", className: "iso-line um-needle", d: needleOf(reading) }),
       /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Line, { d: GAUGE_FRONT.hub, tone: "mid" })
     ] }),
@@ -2120,12 +1871,12 @@ function Tokens({ layer, slots }) {
     );
   }) });
 }
-function VerificationGate({ frame = true, fig = "Fig 1", title = "Verification gate", hint, caption = GATE_CAPTION, theme, ...machine }) {
+function VerificationGate({ frame = true, number = "Fig 1", title = "Verification gate", hint, caption = GATE_CAPTION, theme, ...machine }) {
   const pose = machine.pose ?? "idle";
   if (!frame) return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(GateMachine, { ...machine, theme });
   const interactive = machine.interactive ?? true;
   const shownHint = hint ?? (interactive ? HINTS[pose] : void 0);
-  return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(MechanismFrame, { fig, title, hint: shownHint, readout: stillScene(pose).readout, caption, theme, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(GateMachine, { ...machine, bare: false }) });
+  return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(MechanismFrame, { number, title, hint: shownHint, readout: stillScene(pose).readout, caption, theme, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(GateMachine, { ...machine, bare: false }) });
 }
 var GATE_LIMIT = LIMIT;
 // Annotate the CommonJS export names for ESM import in node:
@@ -2138,7 +1889,6 @@ var GATE_LIMIT = LIMIT;
   GATE_CAPTION,
   GATE_LIMIT,
   GateMachine,
-  ISO_CSS,
   LIMIT,
   Line,
   MechanismFrame,
@@ -2163,16 +1913,10 @@ var GATE_LIMIT = LIMIT;
   cylinder,
   depthOf,
   dotGrid,
-  dotsSvg,
   extrude,
   faceCircle,
-  faceTextSvg,
-  fadeLineSvg,
-  fadedSvg,
-  figureSvg,
   fitProjection,
   follow,
-  groupSvg,
   haloOf,
   holdStill,
   insetPlan,
@@ -2180,12 +1924,9 @@ var GATE_LIMIT = LIMIT;
   joinPaths,
   knurl,
   lineOnTop,
-  lineSvg,
   onTop,
-  pageHtml,
   pathOf,
   planOutline,
-  plateHtml,
   pointsAt,
   prismOf,
   radialTicks,
@@ -2203,7 +1944,6 @@ var GATE_LIMIT = LIMIT;
   sideSeam,
   sideTicks,
   slabOf,
-  solidSvg,
   spring,
   stillScene,
   tallyOf,
@@ -2216,7 +1956,6 @@ var GATE_LIMIT = LIMIT;
   useStillness,
   verdictOf,
   verdictText,
-  viewOf,
-  wireSvg
+  viewOf
 });
 //# sourceMappingURL=mechanism.cjs.map

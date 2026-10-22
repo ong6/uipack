@@ -1,3 +1,7 @@
+import {
+  prefersReducedMotion
+} from "./chunk-YUGHDI4S.js";
+
 // src/charts/model.ts
 var DEFAULT_LABELS = {
   company: "Company",
@@ -811,9 +815,9 @@ function LayerStack(props) {
   const Sub = plain ? "p" : `h${props.title ? Math.min(level + 1, 6) : level}`;
   const go = /* @__PURE__ */ jsxs2(Fragment4, { children: [
     /* @__PURE__ */ jsx3("span", { className: "uipack-stack__go-text", "aria-hidden": "true", children: labels.go }),
-    /* @__PURE__ */ jsx3("span", { className: "uipack-stack__go", "aria-hidden": "true", children: "\u2193" })
+    /* @__PURE__ */ jsx3("span", { className: "uipack-stack__go", "aria-hidden": "true" })
   ] });
-  const arrow = /* @__PURE__ */ jsx3("span", { className: "uipack-stack__arrow", "aria-hidden": "true", children: "\u2193" });
+  const arrow = /* @__PURE__ */ jsx3("span", { className: "uipack-stack__arrow", "aria-hidden": "true" });
   const keep = (text) => /* @__PURE__ */ jsx3(CaseSafe, { text, keep: "uipack-stack__keep" });
   return /* @__PURE__ */ jsxs2(
     "section",
@@ -862,12 +866,14 @@ function LayerStack(props) {
                   /* @__PURE__ */ jsxs2("span", { className: "uipack-stack__text", children: [
                     /* @__PURE__ */ jsxs2("b", { children: [
                       layer.label,
-                      /* @__PURE__ */ jsx3("span", { className: "uipack-stack__sr", children: ". " })
+                      /* @__PURE__ */ jsx3("span", { className: "uipack-stack__sr", children: "." })
                     ] }),
+                    " ",
                     /* @__PURE__ */ jsx3("span", { className: "uipack-stack__summary", children: layer.summary })
                   ] }),
                   layer.metric ? /* @__PURE__ */ jsxs2("span", { className: "uipack-stack__metric", children: [
-                    /* @__PURE__ */ jsx3("span", { className: "uipack-stack__sr", children: ". " }),
+                    /* @__PURE__ */ jsx3("span", { className: "uipack-stack__sr", children: "." }),
+                    " ",
                     /* @__PURE__ */ jsx3("strong", { children: layer.metric.value }),
                     " ",
                     /* @__PURE__ */ jsx3("span", { children: layer.metric.label })
@@ -1203,7 +1209,7 @@ function enhanceLayerStack(root) {
   const onClick = (event) => {
     if (!win || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const link = event.target.closest?.('a[href^="#"]');
-    if (!link || !root.contains(link) || win.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    if (!link || !root.contains(link) || prefersReducedMotion(win)) return;
     const hash = link.getAttribute("href");
     const target = doc.getElementById(decodeURIComponent(hash.slice(1)));
     if (!target) return;

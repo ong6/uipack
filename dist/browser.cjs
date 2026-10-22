@@ -26,7 +26,15 @@ __export(browser_exports, {
   filterAssets: () => filterAssets
 });
 module.exports = __toCommonJS(browser_exports);
+var import_react2 = require("react");
+
+// src/env.ts
 var import_react = require("react");
+function keepFocusedInView(event) {
+  event.target?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+}
+
+// src/browser/index.tsx
 var import_jsx_runtime = require("react/jsx-runtime");
 var ALL = "All";
 async function copy(text) {
@@ -49,14 +57,14 @@ function filterAssets(assets, category, query) {
   return assets.filter((a) => (category === ALL || a.category === category) && (!q || a.name.toLowerCase().includes(q) || a.id.includes(q) || (a.tags ?? []).some((t) => t.includes(q))));
 }
 function AssetBrowser({ manifest, initialCategory = ALL, onAction, actionLabel = "Copy", base, className }) {
-  const [category, setCategory] = (0, import_react.useState)(initialCategory);
-  const [query, setQuery] = (0, import_react.useState)("");
-  const [flash, setFlash] = (0, import_react.useState)(null);
-  const timer = (0, import_react.useRef)(void 0);
-  const cats = (0, import_react.useMemo)(() => categories(manifest.assets), [manifest.assets]);
-  const shown = (0, import_react.useMemo)(() => filterAssets(manifest.assets, category, query), [manifest.assets, category, query]);
+  const [category, setCategory] = (0, import_react2.useState)(initialCategory);
+  const [query, setQuery] = (0, import_react2.useState)("");
+  const [flash, setFlash] = (0, import_react2.useState)(null);
+  const timer = (0, import_react2.useRef)(void 0);
+  const cats = (0, import_react2.useMemo)(() => categories(manifest.assets), [manifest.assets]);
+  const shown = (0, import_react2.useMemo)(() => filterAssets(manifest.assets, category, query), [manifest.assets, category, query]);
   const prefix = base ?? manifest.base ?? "";
-  (0, import_react.useEffect)(() => () => window.clearTimeout(timer.current), []);
+  (0, import_react2.useEffect)(() => () => window.clearTimeout(timer.current), []);
   const act = async (a) => {
     if (onAction) await onAction(a);
     else await copy(a.source);
@@ -65,7 +73,7 @@ function AssetBrowser({ manifest, initialCategory = ALL, onAction, actionLabel =
     timer.current = window.setTimeout(() => setFlash(null), 1400);
   };
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: ["uipack-browser", className ?? ""].join(" ").trim(), "data-category": category, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("nav", { className: "uipack-browser__side", "aria-label": "Asset categories", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { role: "list", children: cats.map((c) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", className: "uipack-browser__cat", "aria-pressed": category === c.name, onClick: () => setCategory(c.name), children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("nav", { className: "uipack-browser__side", "aria-label": "Asset categories", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { role: "list", onFocus: keepFocusedInView, children: cats.map((c) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", className: "uipack-browser__cat", "aria-pressed": category === c.name, onClick: () => setCategory(c.name), children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: c.name }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "uipack-browser__count", "aria-label": `${c.count} assets`, children: c.count })
     ] }) }, c.name)) }) }),

@@ -1949,7 +1949,7 @@ __export(objects_exports, {
   transferObjectVariant: () => transferObjectVariant
 });
 module.exports = __toCommonJS(objects_exports);
-var import_react3 = require("react");
+var import_react4 = require("react");
 
 // src/objects/variants.ts
 var objectDirections = [
@@ -1999,18 +1999,27 @@ function transferObjectVariant(from, to, variant) {
 }
 
 // src/CanvasView.tsx
-var import_react2 = require("react");
+var import_react3 = require("react");
 
 // src/canvas-gestures.ts
+var import_react2 = require("react");
+
+// src/env.ts
 var import_react = require("react");
-var useBrowserLayoutEffect = typeof window === "undefined" ? import_react.useEffect : import_react.useLayoutEffect;
+var useIsoLayoutEffect = typeof window === "undefined" ? import_react.useEffect : import_react.useLayoutEffect;
+var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+function keepFocusedInView(event) {
+  event.target?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+}
+
+// src/canvas-gestures.ts
 function useCanvasGestures(ref, open, zoom) {
-  const latest = (0, import_react.useRef)(zoom);
+  const latest = (0, import_react2.useRef)(zoom);
   latest.current = zoom;
-  const pending = (0, import_react.useRef)();
-  const queued = (0, import_react.useRef)(zoom.value);
-  const frame = (0, import_react.useRef)(0);
-  useBrowserLayoutEffect(() => {
+  const pending = (0, import_react2.useRef)();
+  const queued = (0, import_react2.useRef)(zoom.value);
+  const frame = (0, import_react2.useRef)(0);
+  useIsoLayoutEffect(() => {
     queued.current = zoom.value;
     const anchor = pending.current;
     if (!anchor) return;
@@ -2050,9 +2059,9 @@ function useCanvasGestures(ref, open, zoom) {
       () => config.onChange(queued.current)
     );
   };
-  const changeRef = (0, import_react.useRef)(change);
+  const changeRef = (0, import_react2.useRef)(change);
   changeRef.current = change;
-  (0, import_react.useEffect)(() => {
+  (0, import_react2.useEffect)(() => {
     const host = ref.current;
     if (!open || !host) return;
     let safariScale = null;
@@ -2200,12 +2209,12 @@ function CanvasView({
   restoreFocus,
   layout
 }) {
-  const content = (0, import_react2.useRef)(null);
+  const content = (0, import_react3.useRef)(null);
   const gestures = useCanvasGestures(content, open, zoom);
-  const dialog = (0, import_react2.useRef)(null);
-  const actions = (0, import_react2.useRef)(gestures);
+  const dialog = (0, import_react3.useRef)(null);
+  const actions = (0, import_react3.useRef)(gestures);
   actions.current = gestures;
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (!open) return;
     const keyboard = (event) => {
       const target = event.target;
@@ -2228,9 +2237,9 @@ function CanvasView({
     document.addEventListener("keydown", keyboard);
     return () => document.removeEventListener("keydown", keyboard);
   }, [open]);
-  const close = (0, import_react2.useRef)(onClose);
+  const close = (0, import_react3.useRef)(onClose);
   close.current = onClose;
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (!open) return;
     const opener = document.activeElement;
     const previous = document.body.style.overflow;
@@ -2243,7 +2252,7 @@ function CanvasView({
       );
     };
   }, [open]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     const node = dialog.current;
     if (!open || !node) return;
     const source = node.querySelector(".uipack");
@@ -2363,7 +2372,7 @@ function ObjectGallery({ kind, variant = 0, edition = 0, theme = "light", palett
   const scene = objectScenes.find((item) => item.id === kind);
   return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(AnimationWorkspace, { theme, library: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
     /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h3", { children: "Object library" }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("nav", { "aria-label": "Choose an object", className: "uipack-scene-list", children: objectScenes.map((item) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("button", { type: "button", "aria-pressed": kind === item.id, onClick: () => onChange(item.id, transferObjectVariant(kind, item.id, variant), edition), children: [
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("nav", { "aria-label": "Choose an object", className: "uipack-scene-list", onFocus: keepFocusedInView, children: objectScenes.map((item) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("button", { type: "button", "aria-pressed": kind === item.id, onClick: () => onChange(item.id, transferObjectVariant(kind, item.id, variant), edition), children: [
       item.title,
       /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "aria-hidden": "true", children: "\u2197" })
     ] }, item.id)) })
@@ -2554,30 +2563,30 @@ function ObjectStage({
   controls = "full",
   surface = "styled"
 }) {
-  const hostRef = (0, import_react3.useRef)(null);
-  const canvasRef = (0, import_react3.useRef)(null);
-  const frameRef = (0, import_react3.useRef)(null);
-  const drawRef = (0, import_react3.useRef)(null);
-  const replayRef = (0, import_react3.useRef)(null);
-  const resumeRef = (0, import_react3.useRef)(null);
-  const activeRef = (0, import_react3.useRef)(active);
-  const pausedRef = (0, import_react3.useRef)(false);
-  const completedRef = (0, import_react3.useRef)(false);
-  const reducedRef = (0, import_react3.useRef)(false);
-  const settleRef = (0, import_react3.useRef)(null);
-  const [ready, setReady] = (0, import_react3.useState)(false);
-  const [paused, setPaused] = (0, import_react3.useState)(false);
-  const [completed, setCompleted] = (0, import_react3.useState)(false);
-  const [reduced, setReduced] = (0, import_react3.useState)(false);
+  const hostRef = (0, import_react4.useRef)(null);
+  const canvasRef = (0, import_react4.useRef)(null);
+  const frameRef = (0, import_react4.useRef)(null);
+  const drawRef = (0, import_react4.useRef)(null);
+  const replayRef = (0, import_react4.useRef)(null);
+  const resumeRef = (0, import_react4.useRef)(null);
+  const activeRef = (0, import_react4.useRef)(active);
+  const pausedRef = (0, import_react4.useRef)(false);
+  const completedRef = (0, import_react4.useRef)(false);
+  const reducedRef = (0, import_react4.useRef)(false);
+  const settleRef = (0, import_react4.useRef)(null);
+  const [ready, setReady] = (0, import_react4.useState)(false);
+  const [paused, setPaused] = (0, import_react4.useState)(false);
+  const [completed, setCompleted] = (0, import_react4.useState)(false);
+  const [reduced, setReduced] = (0, import_react4.useState)(false);
   const colorMode = theme;
-  const zoomRef = (0, import_react3.useRef)(zoom);
+  const zoomRef = (0, import_react4.useRef)(zoom);
   zoomRef.current = zoom;
-  const resizeRef = (0, import_react3.useRef)(null);
-  (0, import_react3.useEffect)(() => {
+  const resizeRef = (0, import_react4.useRef)(null);
+  (0, import_react4.useEffect)(() => {
     resizeRef.current?.();
   }, [zoom]);
-  (0, import_react3.useEffect)(() => {
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+  (0, import_react4.useEffect)(() => {
+    const media = window.matchMedia(REDUCED_MOTION_QUERY);
     const update = () => {
       reducedRef.current = media.matches;
       setReduced(media.matches);
@@ -2593,12 +2602,12 @@ function ObjectStage({
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
   }, []);
-  (0, import_react3.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     activeRef.current = active;
     if (active && !pausedRef.current && !reducedRef.current)
       drawRef.current?.();
   }, [active]);
-  (0, import_react3.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     if (!active || !canvasRef.current) {
       setReady(false);
       return void 0;
@@ -2880,10 +2889,10 @@ function ObjectStage({
   );
 }
 function ObjectScene(props) {
-  const [open, setOpen] = (0, import_react3.useState)(false), [zoom, setZoom] = (0, import_react3.useState)(1);
-  const opener = (0, import_react3.useRef)(null);
-  const [randomVariant, setRandomVariant] = (0, import_react3.useState)(null);
-  (0, import_react3.useEffect)(() => {
+  const [open, setOpen] = (0, import_react4.useState)(false), [zoom, setZoom] = (0, import_react4.useState)(1);
+  const opener = (0, import_react4.useRef)(null);
+  const [randomVariant, setRandomVariant] = (0, import_react4.useState)(null);
+  (0, import_react4.useEffect)(() => {
     setRandomVariant(chooseObjectVariant(Math.random, props.kind === "contact" ? 5 : objectDirections.length));
   }, []);
   const canVary = props.variant === void 0 || props.variant === "random";

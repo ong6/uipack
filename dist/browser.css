@@ -239,7 +239,10 @@
     flex-wrap: nowrap;
     overflow-x: auto;
     gap: 6px;
-    padding-bottom: 4px;
+    /* Room for a focus ring the scroll box would otherwise clip, without moving the row. */
+    padding: 6px;
+    margin: -6px;
+    scroll-padding-inline: 6px;
     -webkit-overflow-scrolling: touch;
   }
   .uipack-browser__side li {

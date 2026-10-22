@@ -3,6 +3,109 @@ import { ReactNode, ElementType, CSSProperties, ReactElement } from 'react';
 import { S as SpeechGuide } from './types-CMN3hTzQ.cjs';
 import { R as Rect, Z as ZoomFrame, a as ZoomSample } from './zoom-math-DNtJhg8j.cjs';
 
+type DeckTheme = "light" | "dark";
+/**
+ * How a slide arrives. Going back plays the same transition in reverse.
+ * - `advance` (default): the deck's one consistent move. The outgoing slide steps aside and
+ *   the incoming slide's blocks settle in, in reading order.
+ * - `morph`: elements wrapped in `<Morph id>` on both slides travel to their new place and size;
+ *   everything else fades out and in. Keynote calls this Magic Move.
+ * - `{ zoom: id }`: the camera flies into the `<Morph id>` element on the previous slide, and that
+ *   element opens into this slide. Use it for "here is a part; now look inside it".
+ * - `fade`: a plain crossfade. `none`: cut.
+ */
+type DeckTransition = "advance" | "morph" | "fade" | "none" | {
+    zoom: string;
+};
+interface DeckRenderContext {
+    /** Build step reached on this slide. `Infinity` means fully built. */
+    step: number;
+    /** False for the outgoing copy during a transition, thumbnails and the next-slide preview. */
+    active: boolean;
+    /** True in the overview grid and presenter previews. Render something cheap and still. */
+    thumbnail: boolean;
+    theme: DeckTheme;
+    /** True when the viewer prefers reduced motion or `motion="none"` was passed. */
+    reducedMotion: boolean;
+}
+interface DeckSlide {
+    /** Stable ID, used in URLs and by the presenter sync. */
+    id: string;
+    /** Short name for the overview, the counter and screen readers. */
+    title: string;
+    /** The action title on the slide: one sentence that states the point. Read in order, the
+     * headlines should tell the whole argument (the storyline view and `lintDeck` check this). */
+    headline?: string;
+    /** What job the slide does in the argument. See `SLIDE_ROLES`. */
+    role?: SlideRole;
+    /** How this slide arrives. Defaults to the deck's `transition`, which defaults to `advance`. */
+    transition?: DeckTransition;
+    /** Background tone. The stage cross-fades between tones. */
+    tone?: "paper" | "ink" | "accent";
+    /** Talk track for the presenter view. A string is treated as `say`. */
+    notes?: SpeechGuide | string;
+    render: (context: DeckRenderContext) => ReactNode;
+}
+interface DeckPosition {
+    index: number;
+    step: number;
+}
+
+/** Slides are authored on one fixed canvas and scaled to fit, so sizes in slides are canvas pixels. */
+declare const CANVAS_WIDTH = 1920;
+declare const CANVAS_HEIGHT = 1080;
+/** The deck's one clock. Every transition and build reads these, so a deck moves consistently. */
+declare const deckMotion: {
+    readonly quick: 160;
+    readonly base: 320;
+    readonly slow: 560;
+    readonly morph: 760;
+    readonly zoom: 1150;
+    readonly stagger: 45;
+    readonly settle: "cubic-bezier(0.2, 0.7, 0.2, 1)";
+    readonly exit: "cubic-bezier(0.4, 0, 1, 1)";
+    readonly travel: "cubic-bezier(0.55, 0, 0.15, 1)";
+};
+
+type TransitionKind = "advance" | "morph" | "fade" | "none" | "zoom";
+interface ResolvedTransition {
+    kind: TransitionKind;
+    zoom?: string;
+}
+/**
+ * The transition between two positions. Adjacent moves use the later slide's transition, so going
+ * back reverses the way you came in. Jumps (overview, Home/End) crossfade.
+ */
+declare function resolveTransition(from: number, to: number, transitionOf: (index: number) => DeckTransition | undefined, fallback?: DeckTransition): ResolvedTransition;
+/**
+ * The deck's zoom is the shared fixed-point zoom (`zoomFrame` in the root entry) on the 1920×1080
+ * canvas. Named apart from the root's, whose third argument is a width, not a sample count.
+ */
+declare const slideZoomFrame: (target: Rect, width?: number, height?: number) => ZoomFrame | null;
+/** Sampled keyframes for a zoom on the slide canvas. `forward` flies in; backwards plays the same path out. */
+declare const slideZoomSamples: (target: Rect, forward: boolean, samples?: number, width?: number, height?: number) => ZoomSample[] | null;
+/**
+ * FLIP: the transform that puts an element laid out at `to` where it was at `from`.
+ * `scale` converts screen pixels back to canvas pixels. Similar shapes scale uniformly so text
+ * keeps its proportions; differently shaped boxes stretch.
+ */
+declare function flipFrom(from: Rect, to: Rect, scale: number, fit?: "auto" | "uniform" | "stretch", 
+/** For text: the font-size ratio. Text may rewrap between slides, so its box shape is no guide. */
+textScale?: number): {
+    transform: string;
+};
+interface RunOptions {
+    transition: ResolvedTransition;
+    from: HTMLElement;
+    to: HTMLElement;
+    direction: 1 | -1;
+    /** Screen pixels per canvas pixel. */
+    scale: number;
+    reducedMotion: boolean;
+}
+/** Start a transition between two mounted layers. Returns the animations so a caller can cancel them. */
+declare function runTransition(opts: RunOptions): Animation[];
+
 /**
  * The content layer for decks: what each slide is for, proven storylines for the decks an engineer
  * gives inside a company, and a linter for the argument (not the pixels).
@@ -31,8 +134,8 @@ interface SlideRoleInfo {
 declare const SLIDE_ROLES: Readonly<Record<SlideRole, SlideRoleInfo>>;
 /** Roles that may sit next to themselves: stacked findings, a zoom through parts, demo steps, backup. */
 declare const REPEATABLE_ROLES: readonly SlideRole[];
-/** How a beat should arrive in the deck player. `advance` unless the story needs the other two. */
-type StoryMove = "advance" | "morph" | "zoom";
+/** How a beat should arrive in the deck player: one of its authored transitions. `advance` unless the story needs the other two. */
+type StoryMove = Extract<TransitionKind, "advance" | "morph" | "zoom">;
 interface StoryBeat {
     role: SlideRole;
     /** What this beat must achieve. */
@@ -136,54 +239,6 @@ declare function storylineOf(slides: readonly StorySlide[]): StorylineEntry[];
 /** The ghost deck as plain text, one line per slide, for copying into a doc or a review. */
 declare function formatStoryline(slides: readonly StorySlide[]): string;
 
-type DeckTheme = "light" | "dark";
-/**
- * How a slide arrives. Going back plays the same transition in reverse.
- * - `advance` (default): the deck's one consistent move. The outgoing slide steps aside and
- *   the incoming slide's blocks settle in, in reading order.
- * - `morph`: elements wrapped in `<Morph id>` on both slides travel to their new place and size;
- *   everything else fades out and in. Keynote calls this Magic Move.
- * - `{ zoom: id }`: the camera flies into the `<Morph id>` element on the previous slide, and that
- *   element opens into this slide. Use it for "here is a part; now look inside it".
- * - `fade`: a plain crossfade. `none`: cut.
- */
-type DeckTransition = "advance" | "morph" | "fade" | "none" | {
-    zoom: string;
-};
-interface DeckRenderContext {
-    /** Build step reached on this slide. `Infinity` means fully built. */
-    step: number;
-    /** False for the outgoing copy during a transition, thumbnails and the next-slide preview. */
-    active: boolean;
-    /** True in the overview grid and presenter previews. Render something cheap and still. */
-    thumbnail: boolean;
-    theme: DeckTheme;
-    /** True when the viewer prefers reduced motion or `motion="none"` was passed. */
-    reducedMotion: boolean;
-}
-interface DeckSlide {
-    /** Stable ID, used in URLs and by the presenter sync. */
-    id: string;
-    /** Short name for the overview, the counter and screen readers. */
-    title: string;
-    /** The action title on the slide: one sentence that states the point. Read in order, the
-     * headlines should tell the whole argument (the storyline view and `lintDeck` check this). */
-    headline?: string;
-    /** What job the slide does in the argument. See `SLIDE_ROLES`. */
-    role?: SlideRole;
-    /** How this slide arrives. Defaults to the deck's `transition`, which defaults to `advance`. */
-    transition?: DeckTransition;
-    /** Background tone. The stage cross-fades between tones. */
-    tone?: "paper" | "ink" | "accent";
-    /** Talk track for the presenter view. A string is treated as `say`. */
-    notes?: SpeechGuide | string;
-    render: (context: DeckRenderContext) => ReactNode;
-}
-interface DeckPosition {
-    index: number;
-    step: number;
-}
-
 interface DeckPlayerProps {
     slides: DeckSlide[];
     /** Stable deck ID. Windows showing the same ID stay in step (audience and speaker view). */
@@ -269,58 +324,6 @@ declare function Slide({ eyebrow, footer, layout, className, children, }: {
     className?: string;
     children?: ReactNode;
 }): react.JSX.Element;
-
-/** Slides are authored on one fixed canvas and scaled to fit, so sizes in slides are canvas pixels. */
-declare const CANVAS_WIDTH = 1920;
-declare const CANVAS_HEIGHT = 1080;
-/** The deck's one clock. Every transition and build reads these, so a deck moves consistently. */
-declare const deckMotion: {
-    readonly quick: 160;
-    readonly base: 320;
-    readonly slow: 560;
-    readonly morph: 760;
-    readonly zoom: 1150;
-    readonly stagger: 45;
-    readonly settle: "cubic-bezier(0.2, 0.7, 0.2, 1)";
-    readonly exit: "cubic-bezier(0.4, 0, 1, 1)";
-    readonly travel: "cubic-bezier(0.55, 0, 0.15, 1)";
-};
-
-type TransitionKind = "advance" | "morph" | "fade" | "none" | "zoom";
-interface ResolvedTransition {
-    kind: TransitionKind;
-    zoom?: string;
-}
-/**
- * The transition between two positions. Adjacent moves use the later slide's transition, so going
- * back reverses the way you came in. Jumps (overview, Home/End) crossfade.
- */
-declare function resolveTransition(from: number, to: number, transitionOf: (index: number) => DeckTransition | undefined, fallback?: DeckTransition): ResolvedTransition;
-/** The deck's zoom is the shared fixed-point zoom (`src/zoom-math.ts`) on the 1920×1080 canvas. */
-declare const zoomFrame: (target: Rect, width?: number, height?: number) => ZoomFrame | null;
-/** Sampled keyframes for a zoom on the slide canvas. `forward` flies in; backwards plays the same path out. */
-declare const zoomSamples: (target: Rect, forward: boolean, samples?: number, width?: number, height?: number) => ZoomSample[] | null;
-/**
- * FLIP: the transform that puts an element laid out at `to` where it was at `from`.
- * `scale` converts screen pixels back to canvas pixels. Similar shapes scale uniformly so text
- * keeps its proportions; differently shaped boxes stretch.
- */
-declare function flipFrom(from: Rect, to: Rect, scale: number, fit?: "auto" | "uniform" | "stretch", 
-/** For text: the font-size ratio. Text may rewrap between slides, so its box shape is no guide. */
-textScale?: number): {
-    transform: string;
-};
-interface RunOptions {
-    transition: ResolvedTransition;
-    from: HTMLElement;
-    to: HTMLElement;
-    direction: 1 | -1;
-    /** Screen pixels per canvas pixel. */
-    scale: number;
-    reducedMotion: boolean;
-}
-/** Start a transition between two mounted layers. Returns the animations so a caller can cancel them. */
-declare function runTransition(opts: RunOptions): Animation[];
 
 interface BentoCellProps {
     /** Stable ID: the tour refers to it, and a `{ zoom: id }` transition can fly into it. */
@@ -528,6 +531,8 @@ interface StackSegment {
 }
 /** Stacks one category's values. `percent` rescales the stack to 0–100. Negative values count as 0. */
 declare function stackSegments(values: number[], percent?: boolean): StackSegment[];
+/** A Harvey level as whole quarters, 0 (empty) to 4 (full). */
+declare const harveyQuarters: (level: number) => number;
 /**
  * The filled wedge of a Harvey ball: `level` quarters of a circle of radius `r` centred on (cx, cy),
  * clockwise from 12 o'clock. Returns "" for 0 and a full circle path for 4.
@@ -546,7 +551,7 @@ declare function barPath(orientation: "horizontal" | "vertical", base: number, e
  */
 declare function textWidth(text: string, size: number, weight?: 400 | 600): number;
 /** Greedy word wrap to `maxWidth`, at most `maxLines` lines (the last line keeps the overflow). */
-declare function wrapText(text: string, size: number, maxWidth: number, maxLines?: number): string[];
+declare function wrapToWidth(text: string, size: number, maxWidth: number, maxLines?: number): string[];
 /**
  * Spreads labels that want to sit at `ys` (in order of any kind) so neighbours are at least `gap`
  * apart, staying inside [min, max]. Returns the placed positions in the input order.
@@ -572,7 +577,7 @@ interface ChartSize {
     width?: number;
     height?: number;
 }
-interface CalloutGeometry {
+interface AnnotationGeometry {
     lines: string[];
     box: {
         x: number;
@@ -593,14 +598,14 @@ interface CalloutGeometry {
  * `align: "end"`) sits at (tx, ty); the leader leaves the nearest edge of the block and ends on
  * the data point (x, y).
  */
-declare function calloutGeometry(point: {
+declare function annotationGeometry(point: {
     x: number;
     y: number;
 }, at: {
     x: number;
     y: number;
-}, text: string, maxWidth?: number, align?: "start" | "end", size?: number): CalloutGeometry;
-interface CalloutProps {
+}, text: string, maxWidth?: number, align?: "start" | "end", size?: number): AnnotationGeometry;
+interface AnnotationProps {
     /** The data point the leader ends on. */
     x: number;
     y: number;
@@ -613,7 +618,7 @@ interface CalloutProps {
     align?: "start" | "end";
 }
 /** An annotation inside a chart's SVG: wrapped text, and a leader line that ends on the data point it explains. */
-declare function Callout({ x, y, tx, ty, text, width, align }: CalloutProps): react.JSX.Element;
+declare function Annotation({ x, y, tx, ty, text, width, align }: AnnotationProps): react.JSX.Element;
 /** Where to annotate a chart: offsets of the text block from the data point. */
 interface ChartCallout {
     text: string;
@@ -648,10 +653,10 @@ interface BarChartProps extends ChartSize {
         label: string;
     };
     /** Accessible summary. Defaults to the labels and values. */
-    ariaLabel?: string;
+    alt?: string;
 }
 /** Ranked horizontal bars or vertical columns, value at the tip, one optional highlight. */
-declare function BarChart({ data, orientation, sort, format, domain, reference, callout, ariaLabel, width, height, }: BarChartProps): react.JSX.Element;
+declare function BarChart({ data, orientation, sort, format, domain, reference, callout, alt, width, height, }: BarChartProps): react.JSX.Element;
 interface WaterfallProps extends ChartSize {
     /** Start total → deltas → end total. A total without `value` closes at the running level. */
     steps: readonly WaterfallInput[];
@@ -663,10 +668,10 @@ interface WaterfallProps extends ChartSize {
     callout?: ChartCallout & {
         label: string;
     };
-    ariaLabel?: string;
+    alt?: string;
 }
 /** A bridge from a start total through signed deltas to an end total. */
-declare function Waterfall({ steps, format, goodDirection, domain, callout, ariaLabel, width, height }: WaterfallProps): react.JSX.Element;
+declare function Waterfall({ steps, format, goodDirection, domain, callout, alt, width, height }: WaterfallProps): react.JSX.Element;
 interface StackedBarProps extends ChartSize {
     /** One entry per bar; `values` follow `series` order. */
     categories: readonly {
@@ -684,10 +689,10 @@ interface StackedBarProps extends ChartSize {
     segmentFormat?: Format;
     /** Show the total above each bar (absolute mode). Default true. */
     totals?: boolean;
-    ariaLabel?: string;
+    alt?: string;
 }
 /** Stacked bars (or 100% bars) with a legend, segment values where they fit and totals on top. */
-declare function StackedBar({ categories, series, mode, orientation, format, segmentFormat, totals, ariaLabel, width, height, }: StackedBarProps): react.JSX.Element;
+declare function StackedBar({ categories, series, mode, orientation, format, segmentFormat, totals, alt, width, height, }: StackedBarProps): react.JSX.Element;
 interface LineSeries {
     name: string;
     values: readonly (number | null)[];
@@ -713,10 +718,10 @@ interface LineChartProps extends ChartSize {
         series: string | number;
         index: number;
     };
-    ariaLabel?: string;
+    alt?: string;
 }
 /** One to four lines over periods, with end labels, a reference line and one annotated point. */
-declare function LineChart({ x: periods, series, format, tickFormat, domain, reference, annotate, ariaLabel, width, height, }: LineChartProps): react.JSX.Element;
+declare function LineChart({ x: periods, series, format, tickFormat, domain, reference, annotate, alt, width, height, }: LineChartProps): react.JSX.Element;
 /** A 2px trend line in the de-emphasis grey, with the latest point in the accent. */
 declare function Sparkline({ values, width, height }: {
     values: readonly number[];
@@ -781,10 +786,10 @@ interface Matrix2x2Props extends ChartSize {
     callout?: ChartCallout & {
         label: string;
     };
-    ariaLabel?: string;
+    alt?: string;
 }
 /** A 2×2: labelled axes, quadrant names, sized bubbles and direct labels. */
-declare function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius, callout, ariaLabel, width, height }: Matrix2x2Props): react.JSX.Element;
+declare function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius, callout, alt, width, height }: Matrix2x2Props): react.JSX.Element;
 
 /** A Harvey ball: 0 (empty) to 4 (full) quarters. Its level is also in the accessible name. */
 declare function HarveyBall({ level, size, label }: {
@@ -823,4 +828,4 @@ interface HarveyTableProps {
 /** Options × criteria: Harvey balls (0–4) and text cells, with one row marked as the recommendation. */
 declare function HarveyTable({ columns, rows, corner, showKey, keyNote }: HarveyTableProps): react.JSX.Element;
 
-export { type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, Callout, type CalloutGeometry, type CalloutProps, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, REPEATABLE_ROLES, Rect, Ref, type ResolvedTransition, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, Tracker, type TrackerProps, type TransitionKind, WORDS_PER_MINUTE, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, calloutGeometry, deckMotion, flipFrom, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, resolveTransition, runTransition, spreadLabels, stackSegments, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapText, zeroBasedDomain, zoomFrame, zoomSamples };
+export { Annotation, type AnnotationGeometry, type AnnotationProps, type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, REPEATABLE_ROLES, Rect, Ref, type ResolvedTransition, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, Tracker, type TrackerProps, type TransitionKind, WORDS_PER_MINUTE, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, flipFrom, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, resolveTransition, runTransition, slideZoomFrame, slideZoomSamples, spreadLabels, stackSegments, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };

@@ -1,14 +1,19 @@
 import {
   zoomFrame,
   zoomSamples
-} from "./chunk-QVG5ZQTT.js";
+} from "./chunk-QQDTNXY7.js";
+import {
+  usePrefersReducedMotion
+} from "./chunk-PH4YUQN4.js";
+import {
+  useIsoLayoutEffect
+} from "./chunk-YUGHDI4S.js";
 
 // src/deck/DeckPlayer.tsx
 import {
   forwardRef,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState
 } from "react";
@@ -894,8 +899,8 @@ function resolveTransition(from, to, transitionOf, fallback = "advance") {
   const t = transitionOf(Math.max(from, to)) ?? fallback;
   return typeof t === "string" ? { kind: t } : { kind: "zoom", zoom: t.zoom };
 }
-var zoomFrame2 = (target, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomFrame(target, width, height);
-var zoomSamples2 = (target, forward, samples = 24, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomSamples(target, forward, width, height, { samples, radius: 6 });
+var slideZoomFrame = (target, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomFrame(target, width, height);
+var slideZoomSamples = (target, forward, samples = 24, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomSamples(target, forward, width, height, { samples, radius: 6 });
 function flipFrom(from, to, scale, fit = "auto", textScale) {
   if (textScale && fit !== "stretch") {
     return {
@@ -968,10 +973,10 @@ function runTransition(opts) {
       w: box.w / scale,
       h: box.h / scale
     };
-    const samples = local ? zoomSamples2(local, zoomInto) : null;
+    const samples = local ? slideZoomSamples(local, zoomInto) : null;
     if (!samples) kind = "fade";
     else {
-      const frame = zoomFrame2(local);
+      const frame = slideZoomFrame(local);
       const origin = `${frame.fx.toFixed(2)}px ${frame.fy.toFixed(2)}px`;
       inner.style.zIndex = "2";
       const timing = { duration: deckMotion.zoom, easing: "linear" };
@@ -1057,20 +1062,6 @@ function runTransition(opts) {
 
 // src/deck/DeckPlayer.tsx
 import { Fragment, jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
-var useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
-function usePrefersReducedMotion(motion) {
-  const [reduced, setReduced] = useState(motion === "none");
-  useEffect(() => {
-    if (motion === "none") return setReduced(true);
-    if (typeof matchMedia === "undefined") return setReduced(false);
-    const mq = matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReduced(mq.matches);
-    update();
-    mq.addEventListener?.("change", update);
-    return () => mq.removeEventListener?.("change", update);
-  }, [motion]);
-  return reduced;
-}
 function useCanvasScale() {
   const ref = useRef(null);
   const [scale, setScale] = useState(0);
@@ -1144,7 +1135,8 @@ function DeckPlayer({
   const [overview, setOverview] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [reading, setReading] = useState(initialView === "read");
-  const reducedMotion = usePrefersReducedMotion(motion);
+  const prefersReduced = usePrefersReducedMotion();
+  const reducedMotion = motion === "none" || prefersReduced;
   const { ref: stageRef, scale } = useCanvasScale();
   const rootRef = useRef(null);
   const fromRef = useRef(null);
@@ -1667,7 +1659,7 @@ function Presenter({
 import {
   Children,
   isValidElement,
-  useLayoutEffect as useLayoutEffect2,
+  useLayoutEffect,
   useRef as useRef2,
   useState as useState2
 } from "react";
@@ -1689,7 +1681,7 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
   const focus = thumbnail ? null : bentoFocusAt(step, tour);
   const gridRef = useRef2(null);
   const [camera, setCamera] = useState2(null);
-  useLayoutEffect2(() => {
+  useLayoutEffect(() => {
     const grid = gridRef.current;
     if (!grid || !focus) return setCamera(null);
     const cell = grid.querySelector(`[data-bento-cell="${CSS.escape(focus)}"]`);
@@ -1839,8 +1831,7 @@ function SoWhat({ title = "So what", children, ...grid }) {
 }
 
 // src/deck/consulting/hooks.ts
-import { useEffect as useEffect2, useLayoutEffect as useLayoutEffect3, useRef as useRef3, useState as useState3 } from "react";
-var useIsoLayoutEffect2 = typeof window === "undefined" ? useEffect2 : useLayoutEffect3;
+import { useEffect as useEffect2, useRef as useRef3, useState as useState3 } from "react";
 function useChartSize(fixed, fallback = { width: 640, height: 360 }) {
   const ref = useRef3(null);
   const [size, setSize] = useState3({
@@ -1849,7 +1840,7 @@ function useChartSize(fixed, fallback = { width: 640, height: 360 }) {
   });
   const fixedW = fixed?.width;
   const fixedH = fixed?.height;
-  useIsoLayoutEffect2(() => {
+  useIsoLayoutEffect(() => {
     const el = ref.current;
     if (!el || fixedW !== void 0 && fixedH !== void 0) return;
     const measure = () => {
@@ -1964,8 +1955,9 @@ function stackSegments(values, percent = false) {
     return seg;
   });
 }
+var harveyQuarters = (level) => Math.max(0, Math.min(4, Math.round(level)));
 function harveyWedge(level, cx2, cy, r) {
-  const q = Math.max(0, Math.min(4, Math.round(level)));
+  const q = harveyQuarters(level);
   if (q === 0) return "";
   if (q === 4) return `M${cx2 - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`;
   const angle = q / 4 * Math.PI * 2;
@@ -2019,7 +2011,7 @@ function textWidth(text, size, weight = 400) {
   }
   return em * size * (weight === 600 ? 1.05 : 1);
 }
-function wrapText(text, size, maxWidth, maxLines = 3) {
+function wrapToWidth(text, size, maxWidth, maxLines = 3) {
   const words = text.split(/\s+/).filter(Boolean);
   const lines = [];
   let line = "";
@@ -2136,8 +2128,8 @@ function Lines({ x, y, lines, size = CX_TYPE.label, anchor = "middle", weight, m
     }
   );
 }
-function calloutGeometry(point, at, text, maxWidth = 260, align = "start", size = CX_TYPE.callout) {
-  const lines = wrapText(text, size, maxWidth, 4);
+function annotationGeometry(point, at, text, maxWidth = 260, align = "start", size = CX_TYPE.callout) {
+  const lines = wrapToWidth(text, size, maxWidth, 4);
   const w = Math.max(...lines.map((l) => textWidth(l, size)));
   const h = lines.length * size * 1.25;
   const bx = align === "end" ? at.x - w : at.x;
@@ -2157,8 +2149,8 @@ function calloutGeometry(point, at, text, maxWidth = 260, align = "start", size 
   }
   return { lines, box, leader: { x1, y1, x2: point.x, y2: point.y } };
 }
-function Callout({ x, y, tx, ty, text, width = 260, align = "start" }) {
-  const g = calloutGeometry({ x, y }, { x: tx, y: ty }, text, width, align);
+function Annotation({ x, y, tx, ty, text, width = 260, align = "start" }) {
+  const g = annotationGeometry({ x, y }, { x: tx, y: ty }, text, width, align);
   const size = CX_TYPE.callout;
   const textX = align === "end" ? g.box.x + g.box.w : g.box.x;
   return /* @__PURE__ */ jsxs5("g", { className: "uipack-cx-callout", children: [
@@ -2186,7 +2178,7 @@ function BarChart({
   domain,
   reference,
   callout,
-  ariaLabel,
+  alt,
   width,
   height
 }) {
@@ -2200,7 +2192,7 @@ function BarChart({
   const colour = (d) => !emphasis || d.highlight ? fill.accent : fill.context;
   const values = rows.map((d) => d.value);
   const dom = domain ?? zeroBasedDomain(reference ? [...values, reference.value] : values);
-  const label = ariaLabel ?? `Bar chart. ${rows.map((d) => `${d.label}: ${format(d.value)}`).join("; ")}.`;
+  const label = alt ?? `Bar chart. ${rows.map((d) => `${d.label}: ${format(d.value)}`).join("; ")}.`;
   const valueW = Math.max(...rows.map((d) => textWidth(format(d.value), CX_TYPE.value, 600))) + 14;
   const refTop = reference ? 40 : 4;
   if (orientation === "horizontal") {
@@ -2216,7 +2208,7 @@ function BarChart({
       rows.map((d, i) => {
         const b = bands[i];
         const end = x(d.value);
-        const lines = wrapText(d.label, CX_TYPE.label, labelW - 20, 2);
+        const lines = wrapToWidth(d.label, CX_TYPE.label, labelW - 20, 2);
         return /* @__PURE__ */ jsxs5("g", { children: [
           /* @__PURE__ */ jsx5(Lines, { x: labelW - 16, y: b.centre, lines, anchor: "end", weight: d.highlight ? 600 : void 0 }),
           /* @__PURE__ */ jsx5(
@@ -2238,13 +2230,13 @@ function BarChart({
         if (i < 0) return null;
         const px = x(rows[i].value);
         const py = bands[i].centre;
-        return /* @__PURE__ */ jsx5(Callout, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+        return /* @__PURE__ */ jsx5(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
       })()
     ] });
   }
   const labelLines = rows.map((d) => d.label);
   const bandsProbe = bandLayout(rows.length, 0, W, 0.56, 64);
-  const wrapped = labelLines.map((l) => wrapText(l, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 8, 2));
+  const wrapped = labelLines.map((l) => wrapToWidth(l, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 8, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = 36;
   const y = linearScale(dom, [H - bottom, top]);
@@ -2278,11 +2270,11 @@ function BarChart({
       if (i < 0) return null;
       const px = bandsProbe[i].centre;
       const py = y(rows[i].value);
-      return /* @__PURE__ */ jsx5(Callout, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+      return /* @__PURE__ */ jsx5(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
     })()
   ] });
 }
-function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain, callout, ariaLabel, width, height }) {
+function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain, callout, alt, width, height }) {
   const size = useChartSize({ width, height });
   const W = size.width;
   const H = size.height;
@@ -2291,12 +2283,12 @@ function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain
   const dom = domain ?? zeroBasedDomain(levels);
   const broken = dom[0] > 0;
   const bandsProbe = bandLayout(bars.length, 0, W, 0.62, 76);
-  const wrapped = bars.map((b) => wrapText(b.label, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 6, 2));
+  const wrapped = bars.map((b) => wrapToWidth(b.label, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 6, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = 40;
   const y = linearScale(dom, [H - bottom, top]);
   const base = y(dom[0]);
-  const label = ariaLabel ?? `Waterfall. ${bars.map((b) => `${b.label}: ${b.kind === "total" ? format(b.value) : (b.value >= 0 ? "+" : "") + format(b.value)}`).join("; ")}.`;
+  const label = alt ?? `Waterfall. ${bars.map((b) => `${b.label}: ${b.kind === "total" ? format(b.value) : (b.value >= 0 ? "+" : "") + format(b.value)}`).join("; ")}.`;
   const show = (b) => b.kind === "total" ? format(b.value) : `${b.value > 0 ? "+" : ""}${format(b.value)}`;
   return /* @__PURE__ */ jsxs5(Frame, { size, label, children: [
     bars.map((b, i) => {
@@ -2365,7 +2357,7 @@ function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain
       const b = bars[i];
       const px = bandsProbe[i].centre;
       const py = (y(b.from) + y(b.to)) / 2;
-      return /* @__PURE__ */ jsx5(Callout, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+      return /* @__PURE__ */ jsx5(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
     })()
   ] });
 }
@@ -2377,7 +2369,7 @@ function StackedBar({
   format = defaultFormat,
   segmentFormat,
   totals = true,
-  ariaLabel,
+  alt,
   width,
   height
 }) {
@@ -2389,7 +2381,7 @@ function StackedBar({
   const sums = categories.map((c) => c.values.reduce((a, b) => a + Math.max(0, b), 0));
   const max = percent ? 100 : Math.max(...sums, 1);
   const fmtSeg = (s) => percent ? `${Math.round(s.share * 100)}%` : (segmentFormat ?? format)(s.value);
-  const label = ariaLabel ?? `Stacked bar chart, ${series.join(", ")}. ${categories.map((c, i) => `${c.label}: ${stacks[i].map((s, k) => `${series[k]} ${fmtSeg(s)}`).join(", ")}`).join("; ")}.`;
+  const label = alt ?? `Stacked bar chart, ${series.join(", ")}. ${categories.map((c, i) => `${c.label}: ${stacks[i].map((s, k) => `${series[k]} ${fmtSeg(s)}`).join(", ")}`).join("; ")}.`;
   const legendH = 36;
   let lx = 0;
   const legend = series.map((name, i) => {
@@ -2428,7 +2420,7 @@ function StackedBar({
       categories.map((c, i) => {
         const b = bands[i];
         return /* @__PURE__ */ jsxs5("g", { children: [
-          /* @__PURE__ */ jsx5(Lines, { x: labelW - 16, y: b.centre, lines: wrapText(c.label, CX_TYPE.label, labelW - 20, 2), anchor: "end", weight: c.highlight ? 600 : void 0 }),
+          /* @__PURE__ */ jsx5(Lines, { x: labelW - 16, y: b.centre, lines: wrapToWidth(c.label, CX_TYPE.label, labelW - 20, 2), anchor: "end", weight: c.highlight ? 600 : void 0 }),
           /* @__PURE__ */ jsx5("g", { className: "uipack-cx-grow", "data-axis": "x", style: growStyle("0% 50%", i * 40), children: stacks[i].map((s, k) => {
             const x0 = x(s.from) + (k > 0 ? 1 : 0);
             const x1 = x(s.to) - (k < stacks[i].length - 1 ? 1 : 0);
@@ -2455,7 +2447,7 @@ function StackedBar({
     ] });
   }
   const bandsProbe = bandLayout(categories.length, 0, W, 0.56, 88);
-  const wrapped = categories.map((c) => wrapText(c.label, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 8, 2));
+  const wrapped = categories.map((c) => wrapToWidth(c.label, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 8, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = legendH + (totals && !percent ? 40 : 12);
   const y = linearScale([0, max], [H - bottom, top]);
@@ -2506,7 +2498,7 @@ function LineChart({
   domain,
   reference,
   annotate,
-  ariaLabel,
+  alt,
   width,
   height
 }) {
@@ -2536,7 +2528,7 @@ function LineChart({
   const bottom = H - CX_TYPE.tick - 22;
   const xs = (i) => periods.length <= 1 ? left : left + i / (periods.length - 1) * (right - left - 16) + 8;
   const ys = linearScale(dom, [bottom, top]);
-  const label = ariaLabel ?? `Line chart, ${periods[0]} to ${periods[periods.length - 1]}. ${series.map((s) => `${s.name}: ${s.values.map((v) => v === null ? "n/a" : format(v)).join(", ")}`).join("; ")}.`;
+  const label = alt ?? `Line chart, ${periods[0]} to ${periods[periods.length - 1]}. ${series.map((s) => `${s.name}: ${s.values.map((v) => v === null ? "n/a" : format(v)).join(", ")}`).join("; ")}.`;
   const ends = series.map((s) => {
     const li = lastOf(s);
     return li >= 0 ? { x: xs(li), y: ys(s.values[li]) } : null;
@@ -2599,7 +2591,7 @@ function LineChart({
       if (v === null || v === void 0) return null;
       const px = xs(annotate.index);
       const py = ys(v);
-      return /* @__PURE__ */ jsx5(Callout, { x: px, y: py, tx: px + annotate.dx, ty: py + annotate.dy, text: annotate.text, width: annotate.width, align: annotate.align });
+      return /* @__PURE__ */ jsx5(Annotation, { x: px, y: py, tx: px + annotate.dx, ty: py + annotate.dy, text: annotate.text, width: annotate.width, align: annotate.align });
     })()
   ] });
 }
@@ -2650,7 +2642,7 @@ function KpiTiles({ items, columns }) {
     k.label
   )) });
 }
-function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, callout, ariaLabel, width, height }) {
+function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, callout, alt, width, height }) {
   const size = useChartSize({ width, height });
   const W = size.width;
   const H = size.height;
@@ -2676,7 +2668,7 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
     bl: { x: left, y: midY, w: midX - left, h: bottom - midY },
     br: { x: midX, y: midY, w: right - midX, h: bottom - midY }
   };
-  const label = ariaLabel ?? `2 by 2 matrix: ${xa.label} against ${ya.label}. ${points.map((p) => `${p.label}: ${fx(p.x)}, ${fy(p.y)}${p.size !== void 0 ? `, size ${p.size}` : ""}`).join("; ")}.`;
+  const label = alt ?? `2 by 2 matrix: ${xa.label} against ${ya.label}. ${points.map((p) => `${p.label}: ${fx(p.x)}, ${fy(p.y)}${p.size !== void 0 ? `, size ${p.size}` : ""}`).join("; ")}.`;
   const sorted = [...points].sort((a, b) => (b.size ?? 1) - (a.size ?? 1));
   return /* @__PURE__ */ jsxs5(Frame, { size, label, children: [
     focus && /* @__PURE__ */ jsx5("rect", { className: "uipack-cx-quad-focus", ...{ x: quads[focus].x, y: quads[focus].y, width: quads[focus].w, height: quads[focus].h } }),
@@ -2687,7 +2679,7 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
       const r = quads[q];
       const atRight = q === "tr" || q === "br";
       const atBottom = q === "bl" || q === "br";
-      const lines = wrapText(quadrants[i].toUpperCase(), CX_TYPE.quadrant, r.w * 0.55, 2);
+      const lines = wrapToWidth(quadrants[i].toUpperCase(), CX_TYPE.quadrant, r.w * 0.55, 2);
       const lh = CX_TYPE.quadrant * 1.25;
       return /* @__PURE__ */ jsx5(
         "text",
@@ -2745,7 +2737,7 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
       if (!p) return null;
       const px = xs(p.x);
       const py = ys(p.y);
-      return /* @__PURE__ */ jsx5(Callout, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+      return /* @__PURE__ */ jsx5(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
     })()
   ] });
 }
@@ -2754,7 +2746,7 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
 import { jsx as jsx6, jsxs as jsxs6 } from "react/jsx-runtime";
 var LEVEL_WORDS = ["None", "Low", "Medium", "High", "Full"];
 function HarveyBall({ level, size = 36, label }) {
-  const q = Math.max(0, Math.min(4, Math.round(level)));
+  const q = harveyQuarters(level);
   const r = size / 2 - 1.5;
   const c = size / 2;
   return /* @__PURE__ */ jsxs6(
@@ -2809,6 +2801,7 @@ function HarveyTable({ columns, rows, corner = "Option", showKey = true, keyNote
   ] });
 }
 export {
+  Annotation,
   BarChart,
   Bento,
   BentoCell,
@@ -2816,7 +2809,6 @@ export {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
   CX_TYPE,
-  Callout,
   ConsultingSlide,
   DeckPlayer,
   DeckSlideContext,
@@ -2842,18 +2834,19 @@ export {
   Tracker,
   WORDS_PER_MINUTE,
   Waterfall,
+  annotationGeometry,
   bandLayout,
   barPath,
   bentoCamera,
   bentoFocusAt,
   bubbleRadius,
-  calloutGeometry,
   deckMotion,
   flipFrom,
   formatStoryline,
   formatValue,
   formatter,
   getStorylineTemplate,
+  harveyQuarters,
   harveyWedge,
   linearScale,
   lintDeck,
@@ -2861,6 +2854,8 @@ export {
   niceTicks,
   resolveTransition,
   runTransition,
+  slideZoomFrame,
+  slideZoomSamples,
   spreadLabels,
   stackSegments,
   storylineOf,
@@ -2869,9 +2864,7 @@ export {
   textWidth,
   useDeckSlide,
   waterfallBars,
-  wrapText,
-  zeroBasedDomain,
-  zoomFrame2 as zoomFrame,
-  zoomSamples2 as zoomSamples
+  wrapToWidth,
+  zeroBasedDomain
 };
 //# sourceMappingURL=deck.js.map

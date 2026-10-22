@@ -1,6 +1,10 @@
 import {
   CanvasView
-} from "./chunk-GEEREXP5.js";
+} from "./chunk-BK4QH7YO.js";
+import {
+  REDUCED_MOTION_QUERY,
+  keepFocusedInView
+} from "./chunk-YUGHDI4S.js";
 
 // src/objects/index.tsx
 import { useEffect, useRef, useState } from "react";
@@ -86,7 +90,7 @@ function ObjectGallery({ kind, variant = 0, edition = 0, theme = "light", palett
   const scene = objectScenes.find((item) => item.id === kind);
   return /* @__PURE__ */ jsxs(AnimationWorkspace, { theme, library: /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx("h3", { children: "Object library" }),
-    /* @__PURE__ */ jsx("nav", { "aria-label": "Choose an object", className: "uipack-scene-list", children: objectScenes.map((item) => /* @__PURE__ */ jsxs("button", { type: "button", "aria-pressed": kind === item.id, onClick: () => onChange(item.id, transferObjectVariant(kind, item.id, variant), edition), children: [
+    /* @__PURE__ */ jsx("nav", { "aria-label": "Choose an object", className: "uipack-scene-list", onFocus: keepFocusedInView, children: objectScenes.map((item) => /* @__PURE__ */ jsxs("button", { type: "button", "aria-pressed": kind === item.id, onClick: () => onChange(item.id, transferObjectVariant(kind, item.id, variant), edition), children: [
       item.title,
       /* @__PURE__ */ jsx("span", { "aria-hidden": "true", children: "\u2197" })
     ] }, item.id)) })
@@ -300,7 +304,7 @@ function ObjectStage({
     resizeRef.current?.();
   }, [zoom]);
   useEffect(() => {
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const media = window.matchMedia(REDUCED_MOTION_QUERY);
     const update = () => {
       reducedRef.current = media.matches;
       setReduced(media.matches);

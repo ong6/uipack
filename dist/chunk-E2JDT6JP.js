@@ -7,12 +7,15 @@ import {
 } from "./chunk-BEGV5DNB.js";
 import {
   CanvasView
-} from "./chunk-GEEREXP5.js";
+} from "./chunk-BK4QH7YO.js";
 import {
   FigureMotionContext,
   useFigureMotion,
   usePrefersReducedMotion
-} from "./chunk-FENTOHP4.js";
+} from "./chunk-PH4YUQN4.js";
+import {
+  useIsoLayoutEffect
+} from "./chunk-YUGHDI4S.js";
 
 // src/hover.tsx
 import { createContext, useContext } from "react";
@@ -100,7 +103,6 @@ import {
   useCallback,
   useEffect,
   useId as useId2,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -108,7 +110,6 @@ import {
 } from "react";
 import { Fragment, jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
 var vbWidth = (viewBox) => Number(viewBox.split(/\s+/)[2]) || 0;
-var useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 var NOTE_GAP = 8;
 function placeNote(canvas, note, anchor2) {
   const box = anchor2.querySelector(":scope > rect") ?? anchor2;
@@ -442,49 +443,51 @@ function Group({
     "g",
     {
       "data-uipack": "group",
+      "data-selected": "data-selected" in selection ? selection["data-selected"] : void 0,
       ...hoverAttrs(flow, void 0, hover),
-      ...selection,
       children: [
-        /* @__PURE__ */ jsx4(
-          "rect",
-          {
-            x,
-            y,
-            width: w,
-            height: h,
-            rx: dashed ? 10 : 6,
-            fill: dashed ? "none" : "var(--uipack-surface)",
-            fillOpacity: dashed ? void 0 : 0.6,
-            stroke,
-            strokeOpacity: accent ? 1 : dashed ? 0.4 : 0.8,
-            strokeWidth: 1.25,
-            strokeDasharray: dashed ? "4 4" : void 0
-          }
-        ),
-        title ? dashed ? /* @__PURE__ */ jsx4(
-          "text",
-          {
-            x: x + 16,
-            y: y + 22,
-            fontSize: ts,
-            fontFamily: "var(--uipack-mono)",
-            letterSpacing: ".08em",
-            fill: stroke,
-            fillOpacity: accent ? 1 : 0.75,
-            children: title.toUpperCase()
-          }
-        ) : /* @__PURE__ */ jsx4(
-          "text",
-          {
-            x: x + w / 2,
-            y: y + 24,
-            textAnchor: "middle",
-            fontSize: ts,
-            fontWeight: 600,
-            fill: stroke,
-            children: title
-          }
-        ) : null,
+        /* @__PURE__ */ jsxs4("g", { className: "uipack__group-frame", ...selection, children: [
+          /* @__PURE__ */ jsx4(
+            "rect",
+            {
+              x,
+              y,
+              width: w,
+              height: h,
+              rx: dashed ? 10 : 6,
+              fill: dashed ? "none" : "var(--uipack-surface)",
+              fillOpacity: dashed ? void 0 : 0.6,
+              stroke,
+              strokeOpacity: accent ? 1 : dashed ? 0.4 : 0.8,
+              strokeWidth: 1.25,
+              strokeDasharray: dashed ? "4 4" : void 0
+            }
+          ),
+          title ? dashed ? /* @__PURE__ */ jsx4(
+            "text",
+            {
+              x: x + 16,
+              y: y + 22,
+              fontSize: ts,
+              fontFamily: "var(--uipack-mono)",
+              letterSpacing: ".08em",
+              fill: stroke,
+              fillOpacity: accent ? 1 : 0.75,
+              children: title.toUpperCase()
+            }
+          ) : /* @__PURE__ */ jsx4(
+            "text",
+            {
+              x: x + w / 2,
+              y: y + 24,
+              textAnchor: "middle",
+              fontSize: ts,
+              fontWeight: 600,
+              fill: stroke,
+              children: title
+            }
+          ) : null
+        ] }),
         children
       ]
     }
@@ -597,6 +600,7 @@ var icons = {
 
 // src/Node.tsx
 import { jsx as jsx6, jsxs as jsxs6 } from "react/jsx-runtime";
+var nodeName = (label, sub) => sub ? `${label}, ${sub}` : label;
 function Node({
   x,
   y,
@@ -630,7 +634,8 @@ function Node({
     onPointerEnter: (e) => isPointer(e) && hover.setFlow(flows[0]),
     onPointerLeave: (e) => isPointer(e) && hover.setFlow(null)
   } : {};
-  const selection = useItemSelection(label, hint, flows[0], !href, sub ? `${label}, ${sub}` : label);
+  const name = nodeName(label, sub);
+  const selection = useItemSelection(label, hint, flows[0], !href && !!label, name);
   const body = /* @__PURE__ */ jsxs6(
     "g",
     {
@@ -682,6 +687,7 @@ function Node({
             children: label
           }
         ),
+        sub ? " " : null,
         sub ? /* @__PURE__ */ jsx6(
           "text",
           {
@@ -698,7 +704,7 @@ function Node({
       ]
     }
   );
-  return href ? /* @__PURE__ */ jsx6("a", { href, className: "uipack__link", "aria-label": label, children: body }) : body;
+  return href ? /* @__PURE__ */ jsx6("a", { href, className: "uipack__link", "aria-label": name, children: body }) : body;
 }
 
 // src/Chip.tsx
@@ -1009,6 +1015,7 @@ export {
   Lane,
   Group,
   icons,
+  nodeName,
   Node,
   Chip,
   anchor,
@@ -1027,4 +1034,4 @@ export {
   Label,
   Defs
 };
-//# sourceMappingURL=chunk-25MKEQQW.js.map
+//# sourceMappingURL=chunk-E2JDT6JP.js.map

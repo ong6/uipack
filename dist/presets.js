@@ -11,10 +11,11 @@ import {
   Packet,
   busStub,
   route
-} from "./chunk-25MKEQQW.js";
+} from "./chunk-E2JDT6JP.js";
 import "./chunk-BEGV5DNB.js";
-import "./chunk-GEEREXP5.js";
-import "./chunk-FENTOHP4.js";
+import "./chunk-BK4QH7YO.js";
+import "./chunk-PH4YUQN4.js";
+import "./chunk-YUGHDI4S.js";
 
 // src/presets/shared.tsx
 import { useId } from "react";
@@ -49,6 +50,14 @@ function toFigure(meta, parts, id) {
 }
 function fits(px, size, mono = false) {
   return Math.max(3, Math.floor(px / (size * (mono ? 0.62 : 0.55))));
+}
+var textPx = (text, size, mono = false) => text.length * size * (mono ? 0.62 : 0.55);
+function nodeWidthFor(items, { min, size = 14, subSize = 11 }) {
+  const need = Math.max(
+    0,
+    ...items.map((s) => (s.icon ? 26 : 0) + Math.max(textPx(s.label, size), s.sub ? textPx(s.sub, subSize, true) : 0) + 28)
+  );
+  return Math.max(min, Math.ceil(need / 8) * 8);
 }
 function fit(text, px, size, mono = false) {
   const n = fits(px, size, mono);
@@ -701,7 +710,8 @@ var defaultBeforeAfter = {
   }
 };
 function beforeAfterParts(spec = defaultBeforeAfter, id) {
-  const stage = { w: 136, h: 48, step: 176 };
+  const sw = nodeWidthFor([...spec.before.stages, ...spec.after.stages], { min: 136, size: 13, subSize: 10 });
+  const stage = { w: sw, h: 48, step: sw + 40 };
   const panelH = 120;
   const panel = (p, y, flow, pid) => {
     const n = p.stages.length;

@@ -257,25 +257,33 @@ function FeatureGrid({ features, spotlight = false }) {
 }
 
 // src/web/RevealText.tsx
-var import_react4 = require("react");
+var import_react5 = require("react");
 
 // src/context.tsx
+var import_react4 = require("react");
+
+// src/env.ts
 var import_react3 = require("react");
+var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+function prefersReducedMotion(win = typeof window === "undefined" ? void 0 : window) {
+  return typeof win?.matchMedia === "function" && win.matchMedia(REDUCED_MOTION_QUERY).matches;
+}
+
+// src/context.tsx
 var noop = () => {
 };
-var FigureMotionContext = (0, import_react3.createContext)({
+var FigureMotionContext = (0, import_react4.createContext)({
   playing: true,
   reduced: false,
   cycle: 0,
   toggle: noop,
   replay: noop
 });
-var QUERY = "(prefers-reduced-motion: reduce)";
 function usePrefersReducedMotion() {
-  const [reduced, setReduced] = (0, import_react3.useState)(false);
-  (0, import_react3.useEffect)(() => {
+  const [reduced, setReduced] = (0, import_react4.useState)(false);
+  (0, import_react4.useEffect)(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const mq = window.matchMedia(QUERY);
+    const mq = window.matchMedia(REDUCED_MOTION_QUERY);
     const onChange = (e) => setReduced(e.matches);
     setReduced(mq.matches);
     if (typeof mq.addEventListener === "function") {
@@ -291,10 +299,10 @@ function usePrefersReducedMotion() {
 // src/web/RevealText.tsx
 var import_jsx_runtime7 = require("react/jsx-runtime");
 function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger = 45 }) {
-  const ref2 = (0, import_react4.useRef)(null);
+  const ref2 = (0, import_react5.useRef)(null);
   const reduced = usePrefersReducedMotion();
-  const [state, setState] = (0, import_react4.useState)("static");
-  (0, import_react4.useEffect)(() => {
+  const [state, setState] = (0, import_react5.useState)("static");
+  (0, import_react5.useEffect)(() => {
     const el = ref2.current;
     if (!el || reduced || typeof IntersectionObserver === "undefined") {
       setState("static");
@@ -314,14 +322,14 @@ function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger =
   }, [reduced]);
   const units = lines ?? text.split(/\s+/).filter(Boolean);
   const byLine = !!lines;
-  return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Tag, { ref: ref2, className: `uipack-web-reveal ${className}`.trim(), "data-state": state, "data-by": byLine ? "line" : "word", children: units.map((u, i) => /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_react4.Fragment, { children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Tag, { ref: ref2, className: `uipack-web-reveal ${className}`.trim(), "data-state": state, "data-by": byLine ? "line" : "word", children: units.map((u, i) => /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_react5.Fragment, { children: [
     /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "uipack-web-reveal__unit", style: { "--i": i, "--stagger": `${stagger}ms` }, children: u }),
     i < units.length - 1 ? " " : null
   ] }, i)) });
 }
 
 // src/web/motif.tsx
-var import_react5 = require("react");
+var import_react6 = require("react");
 var import_jsx_runtime8 = require("react/jsx-runtime");
 var DEFAULT_STAR_VALUES = [0, 1, 2, 5, 9, 16, 22, 31, 33, 35, 37, 37];
 function curvePath(values, w, h, pad = 0) {
@@ -343,7 +351,7 @@ function curvePath(values, w, h, pad = 0) {
   return d;
 }
 function StarChart({ values = DEFAULT_STAR_VALUES, className = "" }) {
-  const id = (0, import_react5.useId)().replace(/:/g, "");
+  const id = (0, import_react6.useId)().replace(/:/g, "");
   const W = 1200;
   const H = 560;
   const line = curvePath(values, W, H, 72);
@@ -391,7 +399,7 @@ function RhymeIcon({ at = 0.5, values = DEFAULT_STAR_VALUES, size = 40 }) {
   ] });
 }
 function GrainOverlay({ opacity = 0.07, frequency = 0.8 }) {
-  const id = (0, import_react5.useId)().replace(/:/g, "");
+  const id = (0, import_react6.useId)().replace(/:/g, "");
   return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("svg", { className: "uipack-web-noise", "aria-hidden": "true", focusable: "false", style: { opacity }, "data-bg": "grain", children: [
     /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("filter", { id: `${id}-n`, children: [
       /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("feTurbulence", { type: "fractalNoise", baseFrequency: frequency, numOctaves: "3", stitchTiles: "stitch" }),
@@ -419,7 +427,7 @@ function StarHero({ eyebrow, title, subtitle, actions, visual, values, children,
 }
 
 // src/web/DemoPlayer.tsx
-var import_react6 = require("react");
+var import_react7 = require("react");
 
 // src/web/timeline.ts
 var DEFAULT_TIMING = { leadMs: 450, typeMs: 34, actionMs: 720, holdMs: 1800 };
@@ -504,17 +512,17 @@ function DemoPlayer({
   className = "",
   onStepChange
 }) {
-  const timing = (0, import_react6.useMemo)(() => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
+  const timing = (0, import_react7.useMemo)(() => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
   const reduced = usePrefersReducedMotion();
-  const rootRef = (0, import_react6.useRef)(null);
-  const tabsRef = (0, import_react6.useRef)(null);
-  const [elapsed, setElapsed] = (0, import_react6.useState)(0);
-  const [playing, setPlaying] = (0, import_react6.useState)(autoplay);
-  const [inView, setInView] = (0, import_react6.useState)(false);
-  const id = (0, import_react6.useId)();
+  const rootRef = (0, import_react7.useRef)(null);
+  const tabsRef = (0, import_react7.useRef)(null);
+  const [elapsed, setElapsed] = (0, import_react7.useState)(0);
+  const [playing, setPlaying] = (0, import_react7.useState)(autoplay);
+  const [inView, setInView] = (0, import_react7.useState)(false);
+  const id = (0, import_react7.useId)();
   const end = demoEnd(steps, timing);
   const cycle = demoCycle(steps, timing);
-  (0, import_react6.useEffect)(() => {
+  (0, import_react7.useEffect)(() => {
     const el = rootRef.current;
     if (!el || typeof IntersectionObserver === "undefined") {
       setInView(true);
@@ -525,7 +533,7 @@ function DemoPlayer({
     return () => io.disconnect();
   }, []);
   const running = playing && inView && !reduced;
-  (0, import_react6.useEffect)(() => {
+  (0, import_react7.useEffect)(() => {
     if (!running) return;
     let last = Date.now();
     const timer = setInterval(() => {
@@ -543,14 +551,14 @@ function DemoPlayer({
   const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
   const frame = reduced ? finalFrame : demoFrame(steps, elapsed, timing, initialMetric);
   const finished = !loop && frame.done;
-  (0, import_react6.useEffect)(() => {
+  (0, import_react7.useEffect)(() => {
     if (finished) setPlaying(false);
   }, [finished]);
   const step = steps[frame.step];
-  (0, import_react6.useEffect)(() => {
+  (0, import_react7.useEffect)(() => {
     onStepChange?.(frame.step);
   }, [frame.step]);
-  const seek = (0, import_react6.useCallback)(
+  const seek = (0, import_react7.useCallback)(
     (i) => {
       setElapsed(stepStart(steps, i, timing));
       setPlaying(true);
@@ -718,10 +726,10 @@ var SPACE = [0, 8, 16, 24, 32, 48, 64, 96, 128];
 var GRID_COLUMNS = { wide: 12, medium: 8, narrow: 4 };
 
 // src/web/hooks.ts
-var import_react7 = require("react");
+var import_react8 = require("react");
 function useInView(ref2, { threshold = 0, once = false, rootMargin } = {}) {
-  const [inView, setInView] = (0, import_react7.useState)(false);
-  (0, import_react7.useEffect)(() => {
+  const [inView, setInView] = (0, import_react8.useState)(false);
+  (0, import_react8.useEffect)(() => {
     const el = ref2.current;
     if (!el || typeof IntersectionObserver === "undefined") {
       setInView(true);
@@ -746,8 +754,8 @@ function scrollProgressOf(rect, viewport) {
 }
 function useScrollProgress(ref2) {
   const inView = useInView(ref2);
-  const [progress, setProgress] = (0, import_react7.useState)(0);
-  (0, import_react7.useEffect)(() => {
+  const [progress, setProgress] = (0, import_react8.useState)(0);
+  (0, import_react8.useEffect)(() => {
     const el = ref2.current;
     if (!el || !inView || typeof window === "undefined") return;
     let frame = 0;
@@ -771,8 +779,8 @@ function useScrollProgress(ref2) {
   return progress;
 }
 function useFinePointer() {
-  const [fine, setFine] = (0, import_react7.useState)(false);
-  (0, import_react7.useEffect)(() => {
+  const [fine, setFine] = (0, import_react8.useState)(false);
+  (0, import_react8.useEffect)(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
     setFine(window.matchMedia("(hover: hover) and (pointer: fine)").matches);
   }, []);
@@ -780,7 +788,7 @@ function useFinePointer() {
 }
 function transitionDocument() {
   const doc = typeof document === "undefined" ? void 0 : document;
-  const reduced = typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduced = prefersReducedMotion();
   return doc?.startViewTransition && !reduced ? doc : void 0;
 }
 function withViewTransition(update) {
@@ -887,7 +895,7 @@ function withPaintTransition(update, { duration = 750 } = {}) {
 }
 
 // src/web/backgrounds.tsx
-var import_react8 = require("react");
+var import_react9 = require("react");
 var import_jsx_runtime11 = require("react/jsx-runtime");
 function BackgroundFrame({ background, children, as: Tag = "div", className = "", style }) {
   return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(Tag, { className: `uipack-web-bgframe ${className}`.trim(), style, children: [
@@ -896,7 +904,7 @@ function BackgroundFrame({ background, children, as: Tag = "div", className = ""
   ] });
 }
 function useParentSpotlight(ref2, enabled) {
-  (0, import_react8.useEffect)(() => {
+  (0, import_react9.useEffect)(() => {
     const el = ref2.current;
     const host = el?.parentElement;
     if (!el || !host || !enabled) return;
@@ -917,7 +925,7 @@ function useParentSpotlight(ref2, enabled) {
   }, [ref2, enabled]);
 }
 function GridBackground({ variant, size = 24, fade = true, spotlight = false }) {
-  const ref2 = (0, import_react8.useRef)(null);
+  const ref2 = (0, import_react9.useRef)(null);
   const reduced = usePrefersReducedMotion();
   const fine = useFinePointer();
   useParentSpotlight(ref2, spotlight && fine && !reduced);
@@ -941,7 +949,7 @@ function LineGrid(props) {
   return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(GridBackground, { variant: "lines", ...props });
 }
 function Aurora({ duration = 24 }) {
-  const ref2 = (0, import_react8.useRef)(null);
+  const ref2 = (0, import_react9.useRef)(null);
   const inView = useInView(ref2);
   return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(
     "div",
@@ -964,7 +972,7 @@ function MaskedStar({ values, flip = "none", clear = "center" }) {
   return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "uipack-web-maskedstar", "data-bg": "star", "data-flip": flip, "data-clear": clear, "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(StarChart, { values }) });
 }
 function BeamLines({ size = 48, count = 5, duration = 6 }) {
-  const ref2 = (0, import_react8.useRef)(null);
+  const ref2 = (0, import_react9.useRef)(null);
   const inView = useInView(ref2);
   const beams = Array.from({ length: count }, (_, i) => ({
     axis: i % 2 === 0 ? "h" : "v",
@@ -1026,13 +1034,13 @@ function DriftingGutters({ contentWidth = 1120, top = 72, minViewport = 1280, dr
 }
 
 // src/web/motion.tsx
-var import_react9 = require("react");
+var import_react10 = require("react");
 var import_jsx_runtime12 = require("react/jsx-runtime");
 function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div", className = "" }) {
-  const ref2 = (0, import_react9.useRef)(null);
+  const ref2 = (0, import_react10.useRef)(null);
   const reduced = usePrefersReducedMotion();
-  const [state, setState] = (0, import_react9.useState)("static");
-  (0, import_react9.useEffect)(() => {
+  const [state, setState] = (0, import_react10.useState)("static");
+  (0, import_react10.useEffect)(() => {
     const el = ref2.current;
     if (!el) return;
     Array.from(el.children).forEach((c, i) => c.style.setProperty("--i", String(i)));
@@ -1077,18 +1085,18 @@ function scrambleFrame(text, t, mode, seed = 0) {
   return out;
 }
 function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "span", className = "" }) {
-  const ref2 = (0, import_react9.useRef)(null);
+  const ref2 = (0, import_react10.useRef)(null);
   const reduced = usePrefersReducedMotion();
   const inView = useInView(ref2, { once: true, threshold: 0.5 });
-  const [t, setT] = (0, import_react9.useState)(1);
-  const [tick, setTick] = (0, import_react9.useState)(0);
-  const [armed, setArmed] = (0, import_react9.useState)(false);
-  const started = (0, import_react9.useRef)(false);
-  (0, import_react9.useEffect)(() => {
+  const [t, setT] = (0, import_react10.useState)(1);
+  const [tick, setTick] = (0, import_react10.useState)(0);
+  const [armed, setArmed] = (0, import_react10.useState)(false);
+  const started = (0, import_react10.useRef)(false);
+  (0, import_react10.useEffect)(() => {
     setArmed(true);
     if (typeof IntersectionObserver !== "undefined" && !started.current) setT(0);
   }, []);
-  (0, import_react9.useEffect)(() => {
+  (0, import_react10.useEffect)(() => {
     if (reduced || !inView || started.current) return;
     started.current = true;
     const start = Date.now();
@@ -1122,17 +1130,17 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
 }
 var easeOut = (t) => 1 - Math.pow(1 - t, 3);
 function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix = "", suffix = "", className = "", face = "display" }) {
-  const ref2 = (0, import_react9.useRef)(null);
+  const ref2 = (0, import_react10.useRef)(null);
   const reduced = usePrefersReducedMotion();
   const inView = useInView(ref2, { once: true, threshold: 0.6 });
-  const [current, setCurrent] = (0, import_react9.useState)(value);
-  const [armed, setArmed] = (0, import_react9.useState)(false);
-  const started = (0, import_react9.useRef)(false);
-  (0, import_react9.useEffect)(() => {
+  const [current, setCurrent] = (0, import_react10.useState)(value);
+  const [armed, setArmed] = (0, import_react10.useState)(false);
+  const started = (0, import_react10.useRef)(false);
+  (0, import_react10.useEffect)(() => {
     setArmed(true);
     if (typeof IntersectionObserver !== "undefined" && !started.current) setCurrent(from);
   }, [from]);
-  (0, import_react9.useEffect)(() => {
+  (0, import_react10.useEffect)(() => {
     if (reduced || !inView || started.current) return;
     started.current = true;
     const start = Date.now();
@@ -1153,14 +1161,14 @@ function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix
   ] });
 }
 function Marquee({ items, label, duration = 30, reverse = false }) {
-  const ref2 = (0, import_react9.useRef)(null);
-  const copyRef = (0, import_react9.useRef)(null);
+  const ref2 = (0, import_react10.useRef)(null);
+  const copyRef = (0, import_react10.useRef)(null);
   const inView = useInView(ref2);
   const reduced = usePrefersReducedMotion();
-  const [paused, setPaused] = (0, import_react9.useState)(false);
-  const [mounted, setMounted] = (0, import_react9.useState)(false);
-  (0, import_react9.useEffect)(() => setMounted(true), []);
-  (0, import_react9.useEffect)(() => {
+  const [paused, setPaused] = (0, import_react10.useState)(false);
+  const [mounted, setMounted] = (0, import_react10.useState)(false);
+  (0, import_react10.useEffect)(() => setMounted(true), []);
+  (0, import_react10.useEffect)(() => {
     copyRef.current?.setAttribute("inert", "");
   }, [reduced, mounted]);
   const list = (copy) => /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("ul", { className: "uipack-web-marquee__list", ref: copy ? copyRef : void 0, "aria-hidden": copy || void 0, children: items.map((item, i) => /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("li", { children: item }, i)) });
@@ -1186,7 +1194,7 @@ function Marquee({ items, label, duration = 30, reverse = false }) {
   );
 }
 function useHoverMotion(apply, reset) {
-  const ref2 = (0, import_react9.useRef)(null);
+  const ref2 = (0, import_react10.useRef)(null);
   const reduced = usePrefersReducedMotion();
   const onPointerMove = (e) => {
     if (reduced || e.pointerType !== "mouse" && e.pointerType !== "pen") return;
@@ -1228,7 +1236,7 @@ function MagneticButton({ strength = 6, ...button }) {
 }
 var lerp = ([a, b], t) => a + (b - a) * t;
 function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY = [0, 0], opacity = [1, 1], className = "" }) {
-  const ref2 = (0, import_react9.useRef)(null);
+  const ref2 = (0, import_react10.useRef)(null);
   const reduced = usePrefersReducedMotion();
   const raw = useScrollProgress(ref2);
   const t = reduced ? 0.5 : raw;
@@ -1242,7 +1250,7 @@ function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY
 }
 
 // src/web/SmoothScroll.tsx
-var import_react10 = require("react");
+var import_react11 = require("react");
 function followRate(lerp2) {
   const l = Math.min(0.999, Math.max(1e-3, lerp2));
   return -Math.log(1 - l) * 60;
@@ -1265,7 +1273,7 @@ function normalizeWheel(e, viewport) {
 var clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 var SMOOTH_SCROLL_ATTR = "data-uipack-smooth-scroll";
 var SMOOTH_SCROLL_PREVENT_ATTR = "data-smooth-scroll-prevent";
-var REDUCED = "(prefers-reduced-motion: reduce)";
+var REDUCED = REDUCED_MOTION_QUERY;
 var SCROLL_KEYS = /* @__PURE__ */ new Set([" ", "PageUp", "PageDown", "ArrowUp", "ArrowDown", "Home", "End"]);
 var FINE = "(hover: hover) and (pointer: fine)";
 var active = null;
@@ -1525,8 +1533,8 @@ function smoothScrollTo(target, options) {
   else nativeScrollTo(target, options);
 }
 function useSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = true } = {}) {
-  const instance = (0, import_react10.useRef)(null);
-  (0, import_react10.useEffect)(() => {
+  const instance = (0, import_react11.useRef)(null);
+  (0, import_react11.useEffect)(() => {
     const c = createSmoothScroll({ lerp: lerp2, wheelMultiplier, anchors });
     instance.current = c;
     return () => {
@@ -1534,7 +1542,7 @@ function useSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = tru
       if (instance.current === c) instance.current = null;
     };
   }, [lerp2, wheelMultiplier, anchors]);
-  return (0, import_react10.useMemo)(
+  return (0, import_react11.useMemo)(
     () => ({
       scrollTo: (t, o) => instance.current ? instance.current.scrollTo(t, o) : nativeScrollTo(t, o),
       stop: () => instance.current?.stop(),
@@ -1743,7 +1751,7 @@ function slugify(s) {
 }
 
 // src/web/Head.tsx
-var import_react11 = require("react");
+var import_react12 = require("react");
 var import_jsx_runtime13 = require("react/jsx-runtime");
 var REACT_ATTR = { crossorigin: "crossOrigin", "http-equiv": "httpEquiv", charset: "charSet", hreflang: "hrefLang" };
 function toProps(attrs) {
@@ -1756,7 +1764,7 @@ function HeadTags({ tags }) {
     const key = headTagKey(t);
     if (t.tag === "title") return /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("title", { children: t.text }, key);
     if (t.tag === "script") return /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("script", { ...toProps(t.attrs), dangerouslySetInnerHTML: { __html: t.text } }, key);
-    return (0, import_react11.createElement)(t.tag, { key, ...toProps(t.attrs) });
+    return (0, import_react12.createElement)(t.tag, { key, ...toProps(t.attrs) });
   }) });
 }
 var MARK = "data-uipack-head";
@@ -1771,7 +1779,7 @@ function findExisting(t) {
 }
 function useHead(tags) {
   const signature = JSON.stringify(tags);
-  (0, import_react11.useEffect)(() => {
+  (0, import_react12.useEffect)(() => {
     if (typeof document === "undefined") return;
     const undo = [];
     for (const t of JSON.parse(signature)) {

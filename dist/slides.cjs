@@ -778,18 +778,24 @@ __export(slides_exports, {
 module.exports = __toCommonJS(slides_exports);
 
 // src/CanvasView.tsx
-var import_react2 = require("react");
+var import_react3 = require("react");
 
 // src/canvas-gestures.ts
+var import_react2 = require("react");
+
+// src/env.ts
 var import_react = require("react");
-var useBrowserLayoutEffect = typeof window === "undefined" ? import_react.useEffect : import_react.useLayoutEffect;
+var useIsoLayoutEffect = typeof window === "undefined" ? import_react.useEffect : import_react.useLayoutEffect;
+var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+// src/canvas-gestures.ts
 function useCanvasGestures(ref, open, zoom) {
-  const latest = (0, import_react.useRef)(zoom);
+  const latest = (0, import_react2.useRef)(zoom);
   latest.current = zoom;
-  const pending = (0, import_react.useRef)();
-  const queued = (0, import_react.useRef)(zoom.value);
-  const frame = (0, import_react.useRef)(0);
-  useBrowserLayoutEffect(() => {
+  const pending = (0, import_react2.useRef)();
+  const queued = (0, import_react2.useRef)(zoom.value);
+  const frame = (0, import_react2.useRef)(0);
+  useIsoLayoutEffect(() => {
     queued.current = zoom.value;
     const anchor = pending.current;
     if (!anchor) return;
@@ -829,9 +835,9 @@ function useCanvasGestures(ref, open, zoom) {
       () => config.onChange(queued.current)
     );
   };
-  const changeRef = (0, import_react.useRef)(change);
+  const changeRef = (0, import_react2.useRef)(change);
   changeRef.current = change;
-  (0, import_react.useEffect)(() => {
+  (0, import_react2.useEffect)(() => {
     const host = ref.current;
     if (!open || !host) return;
     let safariScale = null;
@@ -979,12 +985,12 @@ function CanvasView({
   restoreFocus,
   layout
 }) {
-  const content = (0, import_react2.useRef)(null);
+  const content = (0, import_react3.useRef)(null);
   const gestures = useCanvasGestures(content, open, zoom);
-  const dialog = (0, import_react2.useRef)(null);
-  const actions = (0, import_react2.useRef)(gestures);
+  const dialog = (0, import_react3.useRef)(null);
+  const actions = (0, import_react3.useRef)(gestures);
   actions.current = gestures;
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (!open) return;
     const keyboard = (event) => {
       const target = event.target;
@@ -1007,9 +1013,9 @@ function CanvasView({
     document.addEventListener("keydown", keyboard);
     return () => document.removeEventListener("keydown", keyboard);
   }, [open]);
-  const close = (0, import_react2.useRef)(onClose);
+  const close = (0, import_react3.useRef)(onClose);
   close.current = onClose;
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (!open) return;
     const opener = document.activeElement;
     const previous = document.body.style.overflow;
@@ -1022,7 +1028,7 @@ function CanvasView({
       );
     };
   }, [open]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     const node = dialog.current;
     if (!open || !node) return;
     const source = node.querySelector(".uipack");
@@ -1109,25 +1115,24 @@ function CanvasView({
 }
 
 // src/slides/SlidePlayer.tsx
-var import_react4 = require("react");
+var import_react5 = require("react");
 
 // src/context.tsx
-var import_react3 = require("react");
+var import_react4 = require("react");
 var noop = () => {
 };
-var FigureMotionContext = (0, import_react3.createContext)({
+var FigureMotionContext = (0, import_react4.createContext)({
   playing: true,
   reduced: false,
   cycle: 0,
   toggle: noop,
   replay: noop
 });
-var QUERY = "(prefers-reduced-motion: reduce)";
 function usePrefersReducedMotion() {
-  const [reduced, setReduced] = (0, import_react3.useState)(false);
-  (0, import_react3.useEffect)(() => {
+  const [reduced, setReduced] = (0, import_react4.useState)(false);
+  (0, import_react4.useEffect)(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const mq = window.matchMedia(QUERY);
+    const mq = window.matchMedia(REDUCED_MOTION_QUERY);
     const onChange = (e) => setReduced(e.matches);
     setReduced(mq.matches);
     if (typeof mq.addEventListener === "function") {
@@ -1151,6 +1156,7 @@ function Diagram({ story, stop }) {
     /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { className: "uipack-slide-diagram__heading", children: "Diagram view" }),
     /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "uipack-slide-diagram__nodes", children: visible.map((n) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { "data-tone": n.tone, children: [
       /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("strong", { children: n.label }),
+      " ",
       /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: n.detail })
     ] }, n.id)) }),
     /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("ul", { "aria-label": "Highlighted connections", children: story.connections.filter((c) => stop.activeConnections?.includes(c.id)).map((c) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("li", { children: [
@@ -1173,20 +1179,20 @@ function SceneViewport({
   className = "",
   onSettled
 }) {
-  const host = (0, import_react4.useRef)(null), labels = (0, import_react4.useRef)(null), runtime = (0, import_react4.useRef)();
+  const host = (0, import_react5.useRef)(null), labels = (0, import_react5.useRef)(null), runtime = (0, import_react5.useRef)();
   const prefersReduced = usePrefersReducedMotion();
   const reduced = motion === "none" || prefersReduced;
   const stop = story.stops.find((s) => s.id === stopId) ?? story.stops[0];
-  const latest = (0, import_react4.useRef)({ stop, reduced, paused, onSettled });
+  const latest = (0, import_react5.useRef)({ stop, reduced, paused, onSettled });
   latest.current = { stop, reduced, paused, onSettled };
-  const [status, setStatus] = (0, import_react4.useState)(
+  const [status, setStatus] = (0, import_react5.useState)(
     "loading"
   );
-  const [selected, setSelected] = (0, import_react4.useState)(null);
-  const [failed, setFailed] = (0, import_react4.useState)(false);
-  const [settled, setSettled] = (0, import_react4.useState)("");
-  const [transitioning, setTransitioning] = (0, import_react4.useState)(false);
-  (0, import_react4.useEffect)(() => {
+  const [selected, setSelected] = (0, import_react5.useState)(null);
+  const [failed, setFailed] = (0, import_react5.useState)(false);
+  const [settled, setSettled] = (0, import_react5.useState)("");
+  const [transitioning, setTransitioning] = (0, import_react5.useState)(false);
+  (0, import_react5.useEffect)(() => {
     let cancelled = false;
     if (renderMode === "diagram" || failed) {
       setStatus("fallback");
@@ -1229,7 +1235,7 @@ function SceneViewport({
       runtime.current = void 0;
     };
   }, [story, theme, renderMode, failed]);
-  (0, import_react4.useEffect)(() => {
+  (0, import_react5.useEffect)(() => {
     if (renderMode === "diagram" || failed) {
       setSettled(stop.id);
       setTransitioning(false);
@@ -1241,19 +1247,19 @@ function SceneViewport({
       runtime.current.goTo(stop, reduced);
     }
   }, [stop, renderMode, failed]);
-  (0, import_react4.useEffect)(() => {
+  (0, import_react5.useEffect)(() => {
     runtime.current?.setReducedMotion(reduced);
   }, [reduced]);
-  (0, import_react4.useEffect)(() => {
+  (0, import_react5.useEffect)(() => {
     runtime.current?.setPaused(paused);
   }, [paused]);
-  (0, import_react4.useEffect)(() => {
+  (0, import_react5.useEffect)(() => {
     runtime.current?.setSelected(selected);
   }, [selected, status]);
-  (0, import_react4.useEffect)(() => {
+  (0, import_react5.useEffect)(() => {
     runtime.current?.setZoom(zoom);
   }, [zoom, status]);
-  (0, import_react4.useEffect)(() => {
+  (0, import_react5.useEffect)(() => {
     setSelected(null);
   }, [stop.id]);
   const chosen = story.nodes.find((n) => n.id === selected);
@@ -1281,7 +1287,6 @@ function SceneViewport({
           "button",
           {
             type: "button",
-            "aria-label": `Inspect ${n.label}`,
             "aria-pressed": selected === n.id,
             onClick: () => setSelected(selected === n.id ? null : n.id),
             "data-node": n.id,
@@ -1290,6 +1295,7 @@ function SceneViewport({
             style: { visibility: "hidden" },
             children: [
               /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("strong", { children: n.label }),
+              " ",
               /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: n.detail })
             ]
           },
@@ -1340,9 +1346,9 @@ function SceneViewport({
   );
 }
 function SlideScene(props) {
-  const [canvas, setCanvas] = (0, import_react4.useState)(false);
-  const [zoom, setZoom] = (0, import_react4.useState)(1);
-  const opener = (0, import_react4.useRef)(null);
+  const [canvas, setCanvas] = (0, import_react5.useState)(false);
+  const [zoom, setZoom] = (0, import_react5.useState)(1);
+  const opener = (0, import_react5.useRef)(null);
   const errors = validateSlideStory(props.story);
   if (errors.length)
     return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { role: "alert", className: "uipack-slide-error", children: [
@@ -1402,11 +1408,11 @@ function Player({
     0,
     story.stops.findIndex((s) => s.id === defaultStopId)
   );
-  const [internal, setInternal] = (0, import_react4.useState)(initial), [paused, setPaused] = (0, import_react4.useState)(false), [present, setPresent] = (0, import_react4.useState)(false), [diagram, setDiagram] = (0, import_react4.useState)(false), [canvas, setCanvas] = (0, import_react4.useState)(false), [zoom, setZoom] = (0, import_react4.useState)(1);
+  const [internal, setInternal] = (0, import_react5.useState)(initial), [paused, setPaused] = (0, import_react5.useState)(false), [present, setPresent] = (0, import_react5.useState)(false), [diagram, setDiagram] = (0, import_react5.useState)(false), [canvas, setCanvas] = (0, import_react5.useState)(false), [zoom, setZoom] = (0, import_react5.useState)(1);
   const reduced = usePrefersReducedMotion() || motion === "none";
-  const opener = (0, import_react4.useRef)(null);
-  const root = (0, import_react4.useRef)(null);
-  const titleId = (0, import_react4.useId)();
+  const opener = (0, import_react5.useRef)(null);
+  const root = (0, import_react5.useRef)(null);
+  const titleId = (0, import_react5.useId)();
   const index = stopId === void 0 ? clampStop(internal, story.stops.length) : Math.max(
     0,
     story.stops.findIndex((s) => s.id === stopId)
@@ -1428,7 +1434,7 @@ function Player({
     }
     if (event.key === "Escape") setPresent(false);
   }
-  (0, import_react4.useEffect)(() => {
+  (0, import_react5.useEffect)(() => {
     if (!present) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";

@@ -104,7 +104,6 @@ interface SolidStyle {
     className?: string;
     inner?: string;
 }
-declare function solidSvg(paths: SolidPaths, { tone, crease, halo, lit, flat, className, inner }?: SolidStyle): string;
 interface LineStyle {
     tone?: LineTone;
     dotted?: boolean;
@@ -113,24 +112,16 @@ interface LineStyle {
     className?: string;
     free?: boolean | "start" | "end";
 }
-declare function lineSvg(d: string, { tone, dotted, dashed, flow, className, free }?: LineStyle): string;
-declare function dotsSvg(points: Array<Flat | [number, number, number]>, { size, tone, pulse }?: {
-    size?: number;
-    tone?: Tone;
-    pulse?: boolean;
-}): string;
 type Faded = {
     d: string;
     alpha: number;
 } | [string, number];
-declare function fadedSvg(list: Faded[], style?: LineStyle): string;
 interface FadeLineStyle {
     fade?: number | [number, number];
     tone?: LineTone;
     className?: string;
     stops?: number;
 }
-declare function fadeLineSvg(points: Flat[], { fade, tone, className, stops }?: FadeLineStyle): string;
 interface WireStyle {
     via?: Flat[];
     tone?: LineTone;
@@ -140,47 +131,6 @@ interface WireStyle {
     ends?: "both" | "from" | "to" | "none";
     size?: number;
 }
-declare function wireSvg(from: Flat, to: Flat, { via, tone, dotted, dashed, flow, ends, size }?: WireStyle): string;
-declare function faceTextSvg(transform: string, text: string, { size, tone, anchor }?: {
-    size?: number;
-    tone?: Tone;
-    anchor?: "start" | "middle" | "end";
-}): string;
-declare function groupSvg(children: string | string[], extra?: Record<string, string | number | undefined | false>): string;
-type Theme = "dark" | "light";
-interface FigureOptions {
-    width: number;
-    height: number;
-    label: string;
-    body: string | string[];
-    standalone?: Theme | false;
-    className?: string;
-}
-declare function figureSvg({ width, height, label, body, standalone, className }: FigureOptions): string;
-type KeyMark = "raised" | "flat" | "lit" | "edge" | "dim" | "dotted" | "dashed" | "red" | "green" | "blue";
-interface LegendKey {
-    mark: KeyMark;
-    label: string;
-}
-interface PlateOptions {
-    fig: string;
-    title?: string;
-    hint?: string;
-    readout?: string;
-    keys?: LegendKey[];
-    caption?: string;
-    body: string;
-}
-declare function plateHtml({ fig, title, hint, readout, keys, caption, body }: PlateOptions): string;
-interface PageOptions {
-    title: string;
-    theme?: Theme;
-    body: string;
-    script?: string;
-    width?: number;
-}
-declare function pageHtml({ title, theme, body, script, width }: PageOptions): string;
-declare const ISO_CSS = "\n.iso{\n  --anatomy-page:#0b0b0b;--anatomy-card:#131313;--anatomy-text:#a3a3a3;--anatomy-strong:#e6e6e6;--anatomy-muted:#6e6e6e;\n  --anatomy-paper:#131313;--anatomy-face:#1b1b1b;--anatomy-top:#1c1c1c;\n  --anatomy-shade-0:#0f0f0f;--anatomy-shade-1:#121212;--anatomy-shade-2:#151515;--anatomy-shade-3:#181818;\n  --anatomy-lit-top:#262626;--anatomy-lit-shade:#1d1d1d;\n  --anatomy-hi:#d4d4d4;--anatomy-mid:#6a6a6a;--anatomy-lo:#3e3e3e;--anatomy-faint:#2a2a2a;--anatomy-lit:#ffffff;\n  --anatomy-halo:#050505;--anatomy-halo-opacity:.9;--anatomy-dot:#e6e6e6;\n  --anatomy-red:#ff6b6b;--anatomy-green:#6be0a0;--anatomy-blue:#6b9bff;\n  --anatomy-weight:.6px;--anatomy-ease:cubic-bezier(.32,.72,0,1);\n  --anatomy-mono:ui-monospace,\"SF Mono\",Menlo,Consolas,monospace;\n  --anatomy-lift:inset 0 1px 0 0 #ffffff0a,inset 0 0 0 1px #ffffff06,0 0 0 1px #00000026,0 1px 1px -.5px #00000014,0 3px 3px -1.5px #00000014,0 6px 6px -3px #00000014,0 12px 12px -6px #00000014;\n}\n.iso[data-theme=\"light\"]{\n  --anatomy-page:#f2f2ef;--anatomy-card:#fbfbfa;--anatomy-text:#57575a;--anatomy-strong:#18181a;--anatomy-muted:#8c8c90;\n  --anatomy-paper:#fbfbfa;--anatomy-face:#ffffff;--anatomy-top:#ffffff;\n  --anatomy-shade-0:#dcdcd9;--anatomy-shade-1:#e5e5e2;--anatomy-shade-2:#ededea;--anatomy-shade-3:#f4f4f1;\n  --anatomy-lit-top:#ffffff;--anatomy-lit-shade:#eeeeeb;\n  --anatomy-hi:#26262a;--anatomy-mid:#8a8a8f;--anatomy-lo:#b4b4b8;--anatomy-faint:#d4d4d6;--anatomy-lit:#000000;\n  --anatomy-halo:#8a8a80;--anatomy-halo-opacity:.32;--anatomy-dot:#3a3a3e;\n  --anatomy-red:#e5484d;--anatomy-green:#30a46c;--anatomy-blue:#3e63dd;\n  --anatomy-lift:inset 0 1px 0 0 #ffffff,0 0 0 1px #0000000f,0 1px 1px -.5px #0000000a,0 3px 3px -1.5px #0000000a,0 6px 6px -3px #0000000a,0 12px 12px -6px #0000000a;\n}\n.iso-svg{display:block;width:100%;height:auto;overflow:visible}\n.iso-svg path,.iso-svg circle{vector-effect:non-scaling-stroke}\n.iso-fill{fill:var(--anatomy-paper);stroke:none}\n.iso-solid[data-lit]>.iso-fill{fill:var(--anatomy-face)}\n.iso-shade,.iso-top{stroke:none}\n.iso-shade[data-shade=\"0\"]{fill:var(--anatomy-shade-0)}\n.iso-shade[data-shade=\"1\"]{fill:var(--anatomy-shade-1)}\n.iso-shade[data-shade=\"2\"]{fill:var(--anatomy-shade-2)}\n.iso-shade[data-shade=\"3\"]{fill:var(--anatomy-shade-3)}\n.iso-top{fill:var(--anatomy-top)}\n.iso-solid[data-lit]>.iso-top{fill:var(--anatomy-lit-top)}\n.iso-solid[data-lit]>.iso-shade{fill:var(--anatomy-lit-shade)}\n.iso-solid[data-seamless]>.iso-shade,.iso-solid[data-seamless]>.iso-top{stroke-width:.4;stroke-linejoin:round}\n.iso-solid[data-seamless]>.iso-shade[data-shade=\"0\"]{stroke:var(--anatomy-shade-0)}\n.iso-solid[data-seamless]>.iso-shade[data-shade=\"1\"]{stroke:var(--anatomy-shade-1)}\n.iso-solid[data-seamless]>.iso-shade[data-shade=\"2\"]{stroke:var(--anatomy-shade-2)}\n.iso-solid[data-seamless]>.iso-shade[data-shade=\"3\"]{stroke:var(--anatomy-shade-3)}\n.iso-solid[data-seamless]>.iso-top{stroke:var(--anatomy-top)}\n.iso-solid[data-seamless][data-lit]>.iso-top{stroke:var(--anatomy-lit-top)}\n.iso-solid[data-seamless][data-lit]>.iso-shade{stroke:var(--anatomy-lit-shade)}\n.iso-solid[data-lit]>.iso-edge{stroke:var(--anatomy-lit)}\n.iso-halo{fill:var(--anatomy-halo);stroke:none;filter:blur(9px);opacity:var(--anatomy-halo-opacity);transform:translateY(3px)}\n.iso-line{fill:none;stroke:var(--anatomy-lo);stroke-width:var(--anatomy-weight);stroke-linecap:round;stroke-linejoin:round}\n.iso-line[data-tone=\"hi\"]{stroke:var(--anatomy-hi)}\n.iso-line[data-tone=\"mid\"]{stroke:var(--anatomy-mid)}\n.iso-line[data-tone=\"lo\"]{stroke:var(--anatomy-lo)}\n.iso-line[data-tone=\"faint\"]{stroke:var(--anatomy-faint)}\n.iso-line[data-tone=\"lit\"]{stroke:var(--anatomy-lit)}\n.iso-line[data-tone=\"red\"]{stroke:var(--anatomy-red)}\n.iso-line[data-tone=\"green\"]{stroke:var(--anatomy-green)}\n.iso-line[data-tone=\"blue\"]{stroke:var(--anatomy-blue)}\n.iso-line[data-dotted]{stroke-dasharray:.01 3.5;stroke-width:1}\n.iso-line[data-dashed]{stroke-dasharray:3 3}\n.iso-line[data-flow]{stroke-dasharray:2 6}\n.iso-wire-end{fill:var(--anatomy-paper);stroke:var(--anatomy-lo);stroke-width:var(--anatomy-weight)}\n.iso-wire[data-tone=\"hi\"] .iso-wire-end{stroke:var(--anatomy-hi)}\n.iso-wire[data-tone=\"mid\"] .iso-wire-end{stroke:var(--anatomy-mid)}\n.iso-wire[data-tone=\"faint\"] .iso-wire-end{stroke:var(--anatomy-faint)}\n.iso-wire[data-tone=\"lit\"] .iso-wire-end{stroke:var(--anatomy-lit)}\n.iso-dots circle{fill:var(--anatomy-dot);stroke:none;opacity:.32}\n.iso-dots[data-tone=\"hi\"] circle{opacity:.85}\n.iso-dots[data-tone=\"mid\"] circle{opacity:.45}\n.iso-dots[data-tone=\"lo\"] circle{opacity:.22}\n.iso-dots[data-tone=\"faint\"] circle{opacity:.12}\n.iso-face-text{fill:var(--anatomy-mid);font-family:var(--anatomy-mono);letter-spacing:.04em}\n.iso-face-text[data-tone=\"hi\"]{fill:var(--anatomy-hi)}\n.iso-face-text[data-tone=\"lo\"]{fill:var(--anatomy-lo)}\n.iso-face-text[data-tone=\"faint\"]{fill:var(--anatomy-faint)}\n.tb-body{fill:var(--anatomy-shade-2);stroke:none}\n.tb-shine{fill:var(--anatomy-top);stroke:none}\n.tb-shade{fill:var(--anatomy-shade-0);stroke:none}\n.tb-ring{fill:none;stroke:var(--anatomy-lo);stroke-width:.45;stroke-linecap:butt;stroke-linejoin:round}\n.tb-ring[data-tone=\"mid\"]{stroke:var(--anatomy-mid)}\n.tb-ring[data-tone=\"faint\"]{stroke:var(--anatomy-faint)}\n.tb-ring[data-tone=\"hi\"]{stroke:var(--anatomy-hi)}\n@keyframes iso-flow{to{stroke-dashoffset:-32}}\n@keyframes iso-pulse{0%,100%{opacity:.18}12%{opacity:1}40%{opacity:.18}}\n.iso-line[data-flow]{animation:iso-flow 1600ms linear infinite}\n.iso-dots circle[data-pulse]{animation:iso-pulse 1600ms steps(1,end) infinite;animation-delay:var(--pulse-at,0ms)}\n.iso-figure{margin:32px 0 36px}\n.iso-plate{position:relative;padding:52px 24px;border-radius:0;background:var(--anatomy-card);box-shadow:0 0 0 1px var(--anatomy-mid);--anatomy-paper:var(--anatomy-card)}\n.iso-plate-corners{position:absolute;inset:18px 20px;pointer-events:none}\n.iso-plate-corner{position:absolute;color:var(--anatomy-muted);font-family:var(--anatomy-mono);font-size:10.5px;line-height:1;letter-spacing:.04em;white-space:nowrap}\n.iso-plate-corner[data-corner=\"fig\"]{top:0;left:0;color:var(--anatomy-text)}\n.iso-plate-corner[data-corner=\"title\"]{top:0;right:0;text-transform:uppercase;letter-spacing:.1em}\n.iso-plate-corner[data-corner=\"hint\"]{bottom:0;left:0;text-transform:uppercase;letter-spacing:.1em}\n.iso-plate-corner[data-corner=\"readout\"]{right:0;bottom:0;color:var(--anatomy-text);font-variant-numeric:tabular-nums}\n.iso-plate .iso-svg{margin:0 auto}\n.iso-legend{display:grid;gap:8px;margin-top:12px;color:var(--anatomy-muted);font-size:13px;line-height:1.55}\n.iso-keys{display:flex;flex-wrap:wrap;gap:6px 18px}\n.iso-key{display:inline-flex;align-items:center;gap:7px}\n.iso-swatch{width:16px;height:10px;flex:none;overflow:visible}\n.iso-swatch path{fill:none;stroke:var(--anatomy-hi);stroke-width:1;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}\n.iso-swatch[data-mark=\"raised\"] path,.iso-swatch[data-mark=\"flat\"] path{stroke:var(--anatomy-mid)}\n.iso-swatch[data-mark=\"lit\"] path{stroke:var(--anatomy-lit)}\n.iso-swatch[data-mark=\"dim\"] path{stroke:var(--anatomy-lo)}\n.iso-swatch[data-mark=\"dotted\"] path{stroke-dasharray:.01 3;stroke-width:1.4}\n.iso-swatch[data-mark=\"dashed\"] path{stroke-dasharray:3 2.5}\n.iso-swatch[data-mark=\"red\"] path{stroke:var(--anatomy-red)}\n.iso-swatch[data-mark=\"green\"] path{stroke:var(--anatomy-green)}\n.iso-swatch[data-mark=\"blue\"] path{stroke:var(--anatomy-blue)}\n.iso-swatch-crease{stroke:var(--anatomy-lo)!important}\n@media (max-width:560px){.iso-plate{padding:48px 12px 70px}.iso-plate-corner[data-corner=\"hint\"]{bottom:18px}}\n@media (prefers-reduced-motion:reduce){.iso-line[data-flow],.iso-dots circle[data-pulse]{animation:none}}\n";
 
 /** The check's limit, in the dial's units (0 to 10). */
 declare const LIMIT = 6;
@@ -266,8 +216,8 @@ interface GateMachineProps {
     motion?: "auto" | "none";
     /** false renders one still frame of the pose: no loops, observers or handlers (deck thumbnails). */
     interactive?: boolean;
-    /** The SVG's accessible description; a default describes the machine. */
-    label?: string;
+    /** The SVG's accessible description (as Figure's `alt`); a default describes the machine. */
+    alt?: string;
     /** Called with the readout text whenever it changes. */
     onReadout?: (text: string) => void;
     className?: string;
@@ -275,14 +225,16 @@ interface GateMachineProps {
 interface VerificationGateProps extends GateMachineProps {
     /** false renders the bare machine with no card, for a slide that places it itself. */
     frame?: boolean;
-    fig?: string;
+    /** Top-left corner, as Figure's `number`: "Fig 1". */
+    number?: string;
     title?: string;
     hint?: react.ReactNode;
     caption?: react.ReactNode;
 }
 declare const GATE_CAPTION = "Illustrative, not data from a real system. A dial indicator measures every proposal before it can become a result: tokens at or under the limit (6.0) ride on to the result tray, taller ones are swung into the return chute and slide back to the hopper's tray, to be revised and tried again.";
 /** The verification gate without its card. */
-declare function GateMachine({ pose, theme, motion, interactive, label, onReadout, className, bare }: GateMachineProps & {
+/** `bare` (internal): the machine is its own styled root; VerificationGate passes false inside its card, which carries the theme. */
+declare function GateMachine({ pose, theme, motion, interactive, alt, onReadout, className, bare }: GateMachineProps & {
     bare?: boolean;
 }): react.JSX.Element;
 /**
@@ -290,12 +242,12 @@ declare function GateMachine({ pose, theme, motion, interactive, label, onReadou
  * a dial indicator measures each against a limit, passing ones reach the
  * result tray and failing ones are swung into a chute back to the hopper.
  */
-declare function VerificationGate({ frame, fig, title, hint, caption, theme, ...machine }: VerificationGateProps): react.JSX.Element;
+declare function VerificationGate({ frame, number, title, hint, caption, theme, ...machine }: VerificationGateProps): react.JSX.Element;
 declare const GATE_LIMIT = 6;
 
 interface MechanismFrameProps {
-    /** Top left, e.g. "Fig 3". */
-    fig: string;
+    /** Top left, e.g. "Fig 3" (Figure's `number`). */
+    number: string;
     /** Top right: a short title. */
     title?: string;
     /** Bottom left: how to interact. */
@@ -313,7 +265,7 @@ interface MechanismFrameProps {
  * title top right, hint bottom left, live readout bottom right, caption
  * below. Any machine placed inside writes its readout into the corner.
  */
-declare function MechanismFrame({ fig, title, hint, readout, caption, theme, className, children }: MechanismFrameProps): react.JSX.Element;
+declare function MechanismFrame({ number, title, hint, readout, caption, theme, className, children }: MechanismFrameProps): react.JSX.Element;
 
 interface SolidProps {
     paths: SolidPaths;
@@ -384,4 +336,4 @@ declare function circleIn(centre: Point3, radius: number, axis: "x" | "y", steps
 /** A closed circle drawn on a vertical face (a bearing ring, a bore, a motor cap). */
 declare function faceCircle(centre: Point3, radius: number, axis: "x" | "y", projection: Projection, steps?: number): string;
 
-export { AZIMUTH, CYCLE_LENGTH, type Check, Dots, ELEVATION, type ExtrudeOptions, FaceText, type FadeLineStyle, type Faded, type FigureOptions, type FitOptions, type Flat, GATE_CAPTION, GATE_LIMIT, GateMachine, type GateMachineProps, type GatePose, ISO_CSS, type KeyMark, LIMIT, type Layer, type LegendKey, Line, type LineStyle, type LineTone, MechanismFrame, type MechanismFrameProps, PASS_CHECK, PERIOD, type PageOptions, type Plan, type Plane, type PlateOptions, type Point3, type Projection, RETURN_CHECK, RUN_LONG, SCALE, SHADES, type Scene, Solid, type SolidPaths, type SolidStyle, type Spring, type Tally, type Theme, type Ticks, type TokenTarget, type Tone, type Verdict, VerificationGate, type VerificationGateProps, Wire, type WireStyle, asksForStillness, axisVector, boxCorners, cameraOf, checkAt, circleIn, circleRing, coil, corners, cylinder, depthOf, dotGrid, dotsSvg, extrude, faceCircle, faceTextSvg, fadeLineSvg, fadedSvg, figureSvg, fitProjection, follow, groupSvg, haloOf, holdStill, insetPlan, iso, joinPaths, knurl, lineOnTop, lineSvg, onTop, pageHtml, pathOf, planOutline, plateHtml, pointsAt, prismOf, radialTicks, ring, ringOf, ringSeam, rise, roundedPlan, sceneAt, screenRise, segment, sideArc, sideMatrix, sideRing, sideSeam, sideTicks, slabOf, solidSvg, spring, stillScene, tallyOf, tallyText, tokenAt, topMatrix, topTicks, towardViewer, translateAlong, useStillness, verdictOf, verdictText, viewOf, wireSvg };
+export { AZIMUTH, CYCLE_LENGTH, type Check, Dots, ELEVATION, type ExtrudeOptions, FaceText, type FadeLineStyle, type Faded, type FitOptions, type Flat, GATE_CAPTION, GATE_LIMIT, GateMachine, type GateMachineProps, type GatePose, LIMIT, type Layer, Line, type LineStyle, type LineTone, MechanismFrame, type MechanismFrameProps, PASS_CHECK, PERIOD, type Plan, type Plane, type Point3, type Projection, RETURN_CHECK, RUN_LONG, SCALE, SHADES, type Scene, Solid, type SolidPaths, type SolidStyle, type Spring, type Tally, type Ticks, type TokenTarget, type Tone, type Verdict, VerificationGate, type VerificationGateProps, Wire, type WireStyle, asksForStillness, axisVector, boxCorners, cameraOf, checkAt, circleIn, circleRing, coil, corners, cylinder, depthOf, dotGrid, extrude, faceCircle, fitProjection, follow, haloOf, holdStill, insetPlan, iso, joinPaths, knurl, lineOnTop, onTop, pathOf, planOutline, pointsAt, prismOf, radialTicks, ring, ringOf, ringSeam, rise, roundedPlan, sceneAt, screenRise, segment, sideArc, sideMatrix, sideRing, sideSeam, sideTicks, slabOf, spring, stillScene, tallyOf, tallyText, tokenAt, topMatrix, topTicks, towardViewer, translateAlong, useStillness, verdictOf, verdictText, viewOf };
