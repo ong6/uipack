@@ -1,6 +1,8 @@
+import "../src/theme.css";
+import "../src/canvas.css";
 import { Figure, Node, Connector, Defs, Label } from "../src";
 import { useState } from "react";
-import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
+import { useShowcaseTheme } from "./ShowcaseShell";
 import { visualStyles } from "./catalog";
 import { SlideScene, harnessDive } from "../src/slides";
 import { SlideStarter } from "../src/presentations";
@@ -141,18 +143,14 @@ function VerificationFigure() {
 }
 
 export default function CatalogPages() {
-  const { theme, flip } = useShowcaseTheme();
+  const { theme } = useShowcaseTheme();
   const styles = location.pathname.replace(/\/$/, "") === "/styles";
   const [index, setIndex] = useState(0);
   const [starterIndex, setStarterIndex] = useState(0);
   const chapter = chapters[index];
   const starter = presentationStarters[starterIndex];
   return (
-    <ShowcaseShell
-      active={styles ? "styles" : "presentations"}
-      theme={theme}
-      flip={flip}
-    >
+    <>
       {styles ? (
         <section>
           <h2>Visual styles</h2>
@@ -310,6 +308,6 @@ export default function CatalogPages() {
           </p>
         </section>
       )}
-    </ShowcaseShell>
+    </>
   );
 }

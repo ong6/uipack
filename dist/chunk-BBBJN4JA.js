@@ -94,9 +94,4 @@ function validateSlideStory(story) {
   return issues;
 }
 
-export {
-  slidePalettes,
-  clampStop,
-  resolveNodePose,
-  validateSlideStory
-};
+export { clampStop, resolveNodePose, slidePalettes, validateSlideStory };

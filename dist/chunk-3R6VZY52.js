@@ -1,5 +1,7 @@
+import { createContext, useContext } from 'react';
+import { jsx } from 'react/jsx-runtime';
+
 // src/context.tsx
-import { createContext, useContext } from "react";
 var noop = () => {
 };
 var FigureMotionContext = /* @__PURE__ */ createContext({
@@ -12,9 +14,6 @@ var FigureMotionContext = /* @__PURE__ */ createContext({
 function useFigureMotion() {
   return useContext(FigureMotionContext);
 }
-
-// src/tokens.tsx
-import { jsx } from "react/jsx-runtime";
 var TOKEN_SHAPE = {
   request: "square",
   response: "circle",
@@ -49,33 +48,18 @@ function Token({ shape, kind = "neutral", r = 5, cx = 0, cy = 0, style }) {
   }
   return /* @__PURE__ */ jsx("rect", { x: cx - r, y: cy - r, width: r * 2, height: r * 2, rx: 1.5, ...common });
 }
-
-// src/scale.tsx
-import { createContext as createContext2, useContext as useContext2 } from "react";
-import { jsx as jsx2 } from "react/jsx-runtime";
-var FigureScaleContext = /* @__PURE__ */ createContext2({ floor: 0 });
+var FigureScaleContext = /* @__PURE__ */ createContext({ floor: 0 });
 var DEFAULT_RENDER_WIDTH = 1088;
 function fontFloor(vbWidth, renderWidth, minFont) {
   if (!vbWidth || !renderWidth || !minFont) return 0;
   return minFont * vbWidth / renderWidth;
 }
 function FigureScaleProvider({ floor, children }) {
-  return /* @__PURE__ */ jsx2(FigureScaleContext.Provider, { value: { floor }, children });
+  return /* @__PURE__ */ jsx(FigureScaleContext.Provider, { value: { floor }, children });
 }
 function useFontFloor(size) {
-  const { floor } = useContext2(FigureScaleContext);
+  const { floor } = useContext(FigureScaleContext);
   return Math.max(size, floor);
 }
 
-export {
-  FigureMotionContext,
-  useFigureMotion,
-  TOKEN_SHAPE,
-  tokenColor,
-  Token,
-  FigureScaleContext,
-  DEFAULT_RENDER_WIDTH,
-  fontFloor,
-  FigureScaleProvider,
-  useFontFloor
-};
+export { DEFAULT_RENDER_WIDTH, FigureMotionContext, FigureScaleContext, FigureScaleProvider, TOKEN_SHAPE, Token, fontFloor, tokenColor, useFigureMotion, useFontFloor };

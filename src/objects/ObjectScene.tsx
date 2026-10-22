@@ -28,53 +28,6 @@ export const objectPalettes = {
   light: { paper: 0xf3efe7, ink: 0x292e32, muted: 0x9aaba5, accent: 0x205f49 },
   dark: { paper: 0xd8ded9, ink: 0x394c48, muted: 0x81958a, accent: 0x71bda3 },
 };
-export const objectScenes: {
-  id: ObjectKind;
-  title: string;
-  description: string;
-}[] = [
-  {
-    id: "ai",
-    title: "Agent session",
-    description:
-      "Code streams into a laptop while tool calls return a completed result.",
-  },
-  {
-    id: "contact",
-    title: "Contact inbox",
-    description: "Email, chat and web signals converge into one inbox.",
-  },
-  {
-    id: "tennis",
-    title: "Tennis practice",
-    description:
-      "Two players trade returns across the net in a continuous rally.",
-  },
-  {
-    id: "trading",
-    title: "Trading journal",
-    description:
-      "A continuously panning candlestick chart with consistent OHLC prices and volume. Simulation; no live data.",
-  },
-  {
-    id: "server",
-    title: "Inference study",
-    description:
-      "An exploded hardware study assembles inside a chassis outline.",
-  },
-  {
-    id: "travel",
-    title: "Local map",
-    description:
-      "A paper map opens and a route traces continuously to its destination.",
-  },
-  {
-    id: "reading",
-    title: "Open book",
-    description:
-      "Layered paper, a cloth spine and a thin page curling across an open book.",
-  },
-];
 const REST_START_MS = 5400;
 /** Stages narrower than this use an object's `userData.narrowFrame`, if it has one. */
 const NARROW_STAGE_PX = 480;

@@ -1,3 +1,6 @@
+import { useId, useState } from 'react';
+import { jsxs, jsx } from 'react/jsx-runtime';
+
 // src/presentations/renderSlideSvg.ts
 var palettes = {
   light: {
@@ -51,10 +54,6 @@ function renderSlideSvg(slide, options = {}) {
   }
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 1200 675" role="img"><title>${escapeSvgText(`${slide.title}: ${accessibleTitle(slide)}`)}</title><desc>${escapeSvgText(slide.description)}</desc><rect width="1200" height="675" fill="${colors.paper}"/>${body}${footer}</svg>`;
 }
-
-// src/presentations/SpeakerGuide.tsx
-import { useId, useState } from "react";
-import { jsx, jsxs } from "react/jsx-runtime";
 function estimateSpeechSeconds(say) {
   const words = say.trim().match(/\S+/g)?.length ?? 0;
   if (!words) return 0;
@@ -143,9 +142,6 @@ function SpeakerGuide({
     }
   );
 }
-
-// src/presentations/SlideStarter.tsx
-import { jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
 function SlideStarter({
   slide,
   theme = "light",
@@ -153,15 +149,15 @@ function SlideStarter({
   className = "",
   onCopySpeech
 }) {
-  return /* @__PURE__ */ jsxs2(
+  return /* @__PURE__ */ jsxs(
     "section",
     {
       className: `uipack-slide-starter ${className}`.trim(),
       "data-theme": theme,
       "data-layout": slide.layout,
       children: [
-        /* @__PURE__ */ jsxs2("figure", { className: "uipack-slide-starter__figure", children: [
-          /* @__PURE__ */ jsx2(
+        /* @__PURE__ */ jsxs("figure", { className: "uipack-slide-starter__figure", children: [
+          /* @__PURE__ */ jsx(
             "div",
             {
               className: "uipack-slide-starter__preview",
@@ -170,12 +166,12 @@ function SlideStarter({
               }
             }
           ),
-          /* @__PURE__ */ jsxs2("figcaption", { children: [
-            /* @__PURE__ */ jsx2("strong", { children: slide.title }),
-            /* @__PURE__ */ jsx2("span", { children: slide.description })
+          /* @__PURE__ */ jsxs("figcaption", { children: [
+            /* @__PURE__ */ jsx("strong", { children: slide.title }),
+            /* @__PURE__ */ jsx("span", { children: slide.description })
           ] })
         ] }),
-        showSpeech && /* @__PURE__ */ jsx2(
+        showSpeech && /* @__PURE__ */ jsx(
           SpeakerGuide,
           {
             speech: slide.speech,
@@ -188,11 +184,5 @@ function SlideStarter({
     }
   );
 }
-export {
-  SlideStarter,
-  SpeakerGuide,
-  escapeSvgText,
-  estimateSpeechSeconds,
-  formatSpeechGuide,
-  renderSlideSvg
-};
+
+export { SlideStarter, SpeakerGuide, escapeSvgText, estimateSpeechSeconds, formatSpeechGuide, renderSlideSvg };

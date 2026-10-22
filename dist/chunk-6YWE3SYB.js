@@ -1,5 +1,6 @@
+import { useRef, useCallback, useEffect } from 'react';
+
 // src/flight.ts
-import { useCallback, useEffect, useRef } from "react";
 function useLayerFlight(clearLayers) {
   const anims = useRef([]);
   const generation = useRef(0);
@@ -33,6 +34,4 @@ function useLayerFlight(clearLayers) {
   return { anims, settle, fly };
 }
 
-export {
-  useLayerFlight
-};
+export { useLayerFlight };

@@ -1,11 +1,12 @@
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
 // src/objects/contact-directions.ts
-import * as T from "three";
-import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 var C = { cream: 16181706, coral: 15301725, blue: 6920109, green: 9155483, dark: 2703177, gold: 12490332 };
 var tau = Math.PI * 2;
-var v = (x, y, z = 0) => new T.Vector3(x, y, z);
+var v = (x, y, z = 0) => new THREE.Vector3(x, y, z);
 function mesh(g, geo, color, x = 0, y = 0, z = 0, metal = false) {
-  const m = new T.Mesh(geo, new T.MeshStandardMaterial({ color, roughness: metal ? 0.28 : 0.65, metalness: metal ? 0.65 : 0.02 }));
+  const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color, roughness: metal ? 0.28 : 0.65, metalness: metal ? 0.65 : 0.02 }));
   m.position.set(x, y, z);
   g.add(m);
   return m;
@@ -14,16 +15,16 @@ function box(g, w, h, d, color, x = 0, y = 0, z = 0) {
   return mesh(g, new RoundedBoxGeometry(w, h, d, 2, Math.min(0.09, w / 4, h / 4, d / 4)), color, x, y, z);
 }
 function rod(g, a, b, color = C.gold, r = 0.018) {
-  const delta = b.clone().sub(a), m = mesh(g, new T.CylinderGeometry(r, r, delta.length(), 12), color, 0, 0, 0, true);
+  const delta = b.clone().sub(a), m = mesh(g, new THREE.CylinderGeometry(r, r, delta.length(), 12), color, 0, 0, 0, true);
   m.position.copy(a).add(b).multiplyScalar(0.5);
   m.quaternion.setFromUnitVectors(v(0, 1), delta.normalize());
   return m;
 }
 function sphere(g, r, color, x = 0, y = 0, z = 0) {
-  return mesh(g, new T.SphereGeometry(r, 24, 16), color, x, y, z);
+  return mesh(g, new THREE.SphereGeometry(r, 24, 16), color, x, y, z);
 }
 function envelope(parent, color = C.cream) {
-  const g = new T.Group();
+  const g = new THREE.Group();
   parent.add(g);
   box(g, 0.64, 0.43, 0.07, color);
   for (const z of [-0.041, 0.041]) {
@@ -33,9 +34,9 @@ function envelope(parent, color = C.cream) {
   return g;
 }
 function createContactDirection(variant) {
-  const g = new T.Group(), ticks = [];
+  const g = new THREE.Group(), ticks = [];
   if (variant === 3) {
-    const world = new T.Group();
+    const world = new THREE.Group();
     g.add(world);
     world.rotation.set(0.35, -0.38, 0);
     world.position.y = -0.57;
@@ -44,16 +45,16 @@ function createContactDirection(variant) {
     for (let i = 0; i < 4; i++) box(world, 0.48, 0.045, 0.24, 15324594, 0.22, -0.1, 0.48 + i * 0.25);
     box(world, 0.17, 0.62, 0.17, C.cream, 0, 0.15, -0.18);
     box(world, 0.55, 0.08, 0.43, C.coral, 0, -0.12, -0.18);
-    const mailbox = new T.Group();
+    const mailbox = new THREE.Group();
     world.add(mailbox);
     mailbox.position.set(0, 0.85, -0.18);
     box(mailbox, 1.16, 0.88, 0.87, C.coral);
     box(mailbox, 0.99, 0.72, 0.045, C.cream, 0, 0, 0.455);
     box(mailbox, 0.72, 0.11, 0.02, C.dark, 0, 0.17, 0.486);
     for (const x of [-0.24, 0.24]) sphere(mailbox, 0.043, C.dark, x, -0.1, 0.49);
-    const smile = mesh(mailbox, new T.TorusGeometry(0.12, 0.015, 8, 24, Math.PI), C.coral, 0, -0.14, 0.49);
+    const smile = mesh(mailbox, new THREE.TorusGeometry(0.12, 0.015, 8, 24, Math.PI), C.coral, 0, -0.14, 0.49);
     smile.rotation.z = Math.PI;
-    const flag = new T.Group();
+    const flag = new THREE.Group();
     mailbox.add(flag);
     flag.position.set(0.62, -0.12, 0);
     rod(flag, v(0, 0), v(0, 0.78), C.gold, 0.025);
@@ -78,17 +79,17 @@ function createContactDirection(variant) {
     });
   } else {
     g.rotation.set(0.12, -0.2, 0);
-    mesh(g, new T.CylinderGeometry(0.98, 1.04, 0.16, 64), C.dark, 0, -1.45);
-    const rim = mesh(g, new T.TorusGeometry(0.98, 0.022, 8, 80), C.gold, 0, -1.36, 0, true);
+    mesh(g, new THREE.CylinderGeometry(0.98, 1.04, 0.16, 64), C.dark, 0, -1.45);
+    const rim = mesh(g, new THREE.TorusGeometry(0.98, 0.022, 8, 80), C.gold, 0, -1.36, 0, true);
     rim.rotation.x = Math.PI / 2;
     rod(g, v(0, -1.37, -0.3), v(0, 1.45, -0.3), C.gold, 0.04);
-    const mobile = new T.Group();
+    const mobile = new THREE.Group();
     g.add(mobile);
     mobile.position.set(0, 0.95, -0.3);
     rod(mobile, v(-1.18, 0), v(1.18, 0), C.gold, 0.028);
     sphere(mobile, 0.09, C.gold);
     for (let i = 0; i < 3; i++) {
-      const hanger = new T.Group();
+      const hanger = new THREE.Group();
       mobile.add(hanger);
       hanger.position.x = (i - 1) * 0.98;
       const length = [0.65, 1.05, 0.48][i];
@@ -103,11 +104,11 @@ function createContactDirection(variant) {
     box(g, 1.25, 0.1, 0.78, C.cream, 0, -1.23, 0.16);
     for (const x of [-0.59, 0.59]) box(g, 0.08, 0.18, 0.78, C.cream, x, -1.11, 0.16);
     box(g, 1.25, 0.18, 0.08, C.cream, 0, -1.11, -0.2);
-    const orbit = new T.Group();
+    const orbit = new THREE.Group();
     g.add(orbit);
     orbit.rotation.set(0.85, 0.3, 0);
     orbit.position.y = -0.05;
-    mesh(orbit, new T.TorusGeometry(1.39, 0.012, 8, 80), C.gold, 0, 0, 0, true);
+    mesh(orbit, new THREE.TorusGeometry(1.39, 0.012, 8, 80), C.gold, 0, 0, 0, true);
     const signal = sphere(orbit, 0.075, C.gold);
     ticks.push((a) => {
       mobile.rotation.y = 0.3 + 0.38 * Math.sin(a);
@@ -128,41 +129,30 @@ function createContactDirection(variant) {
   };
   return g;
 }
-
-// src/objects/scenes.ts
-import * as THREE from "three";
-
-// src/objects/art-directions.ts
-import * as T3 from "three";
-import { RoundedBoxGeometry as RoundedBoxGeometry3 } from "three/addons/geometries/RoundedBoxGeometry.js";
-
-// src/objects/expanded-directions.ts
-import * as T2 from "three";
-import { RoundedBoxGeometry as RoundedBoxGeometry2 } from "three/addons/geometries/RoundedBoxGeometry.js";
 var tau2 = Math.PI * 2;
-var V = (x, y, z = 0) => new T2.Vector3(x, y, z);
+var V = (x, y, z = 0) => new THREE.Vector3(x, y, z);
 var C2 = { cream: 15983547, coral: 15497563, blue: 6331070, mint: 8436128, ink: 2504523, gold: 12884824, white: 16446953 };
-var standard = (color, roughness = 0.68, metalness = 0.04) => new T2.MeshStandardMaterial({ color, roughness, metalness });
+var standard = (color, roughness = 0.68, metalness = 0.04) => new THREE.MeshStandardMaterial({ color, roughness, metalness });
 function mesh2(parent, geo, material2, x = 0, y = 0, z = 0) {
-  const m = new T2.Mesh(geo, typeof material2 === "number" ? standard(material2) : material2);
+  const m = new THREE.Mesh(geo, typeof material2 === "number" ? standard(material2) : material2);
   m.position.set(x, y, z);
   parent.add(m);
   return m;
 }
 function block(parent, w, h, d, material2, x = 0, y = 0, z = 0, radius = 0.055) {
-  return mesh2(parent, new RoundedBoxGeometry2(w, h, d, 2, Math.min(radius, w / 3, h / 3, d / 3)), material2, x, y, z);
+  return mesh2(parent, new RoundedBoxGeometry(w, h, d, 2, Math.min(radius, w / 3, h / 3, d / 3)), material2, x, y, z);
 }
 function sphere2(parent, r, material2, x = 0, y = 0, z = 0) {
-  return mesh2(parent, new T2.SphereGeometry(r, 24, 16), material2, x, y, z);
+  return mesh2(parent, new THREE.SphereGeometry(r, 24, 16), material2, x, y, z);
 }
 function ring(parent, r, tube2, material2, x = 0, y = 0, z = 0) {
-  return mesh2(parent, new T2.TorusGeometry(r, tube2, 8, 64), material2, x, y, z);
+  return mesh2(parent, new THREE.TorusGeometry(r, tube2, 8, 64), material2, x, y, z);
 }
 function cylinder(parent, r, h, material2, x = 0, y = 0, z = 0) {
-  return mesh2(parent, new T2.CylinderGeometry(r, r, h, 40), material2, x, y, z);
+  return mesh2(parent, new THREE.CylinderGeometry(r, r, h, 40), material2, x, y, z);
 }
 function path(parent, points, color, radius = 0.018, closed = false) {
-  return mesh2(parent, new T2.TubeGeometry(new T2.CatmullRomCurve3(points, closed), 80, radius, 6, closed), color);
+  return mesh2(parent, new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points, closed), 80, radius, 6, closed), color);
 }
 function rod2(parent, a, b, color, radius = 0.02) {
   const delta = b.clone().sub(a), m = cylinder(parent, radius, delta.length(), color);
@@ -171,7 +161,7 @@ function rod2(parent, a, b, color, radius = 0.02) {
   return m;
 }
 function group(parent, x = 0, y = 0, z = 0) {
-  const g = new T2.Group();
+  const g = new THREE.Group();
   g.position.set(x, y, z);
   parent.add(g);
   return g;
@@ -190,12 +180,12 @@ function cloud(parent, x, y, z) {
   return g;
 }
 function roof(parent, w, h, d, x = 0, y = 0, z = 0) {
-  const shape = new T2.Shape();
+  const shape = new THREE.Shape();
   shape.moveTo(-w / 2, 0);
   shape.lineTo(0, h);
   shape.lineTo(w / 2, 0);
   shape.closePath();
-  const geo = new T2.ExtrudeGeometry(shape, { depth: d, bevelEnabled: true, bevelSize: 0.035, bevelThickness: 0.025, bevelSegments: 2, steps: 1 });
+  const geo = new THREE.ExtrudeGeometry(shape, { depth: d, bevelEnabled: true, bevelSize: 0.035, bevelThickness: 0.025, bevelSegments: 2, steps: 1 });
   geo.translate(0, 0, -d / 2);
   return mesh2(parent, geo, C2.coral, x, y, z);
 }
@@ -208,7 +198,7 @@ function toyHouse(parent, x, z) {
   return h;
 }
 function cartoon(kind, ticks) {
-  const g = new T2.Group(), world = group(g, 0, -0.48, 0);
+  const g = new THREE.Group(), world = group(g, 0, -0.48, 0);
   world.rotation.set(0.48, -0.55, 0);
   block(world, 2.65, 0.32, 2.16, C2.cream, 0, -0.2, 0, 0.16);
   block(world, 2.56, 0.08, 2.07, 12177325, 0, 0, 0, 0.13);
@@ -241,7 +231,7 @@ function cartoon(kind, ticks) {
     book.rotation.x = -0.2;
     const lamp = group(world, -0.86, 0.06, -0.36);
     rod2(lamp, V(0, 0), V(0, 1.32), C2.gold, 0.045);
-    mesh2(lamp, new T2.ConeGeometry(0.28, 0.34, 32), C2.coral, 0, 1.35);
+    mesh2(lamp, new THREE.ConeGeometry(0.28, 0.34, 32), C2.coral, 0, 1.35);
     sphere2(lamp, 0.1, 16767363, 0, 1.2);
     tree(world, 0.93, 0.5, 0.68);
     ticks.push((a) => {
@@ -333,14 +323,14 @@ function grain() {
     const value = 160 + seed % 80;
     data.set([value, value, value, 255], i * 4);
   }
-  const texture = new T2.DataTexture(data, size, size);
-  texture.wrapS = texture.wrapT = T2.RepeatWrapping;
+  const texture = new THREE.DataTexture(data, size, size);
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
   texture.repeat.set(6, 6);
   texture.needsUpdate = true;
   return texture;
 }
 function realistic(kind, ticks) {
-  const g = new T2.Group(), texture = grain();
+  const g = new THREE.Group(), texture = grain();
   const steel = standard(10200490, 0.28, 0.82), graphite = standard(2370866, 0.52, 0.3), paper = standard(15787213, 0.95), leather = standard(8603956, 0.84);
   for (const m of [steel, graphite, paper, leather]) m.roughnessMap = texture;
   g.userData.dispose = () => texture.dispose();
@@ -403,13 +393,13 @@ function realistic(kind, ticks) {
       mark.rotation.z = -a;
     }
     const needle = group(compass, 0, 0, 0.15);
-    const shape = new T2.Shape();
+    const shape = new THREE.Shape();
     shape.moveTo(-0.1, 0);
     shape.lineTo(0, 0.57);
     shape.lineTo(0.1, 0);
     shape.lineTo(0, -0.45);
     shape.closePath();
-    mesh2(needle, new T2.ExtrudeGeometry(shape, { depth: 0.035, bevelEnabled: false }), leather);
+    mesh2(needle, new THREE.ExtrudeGeometry(shape, { depth: 0.035, bevelEnabled: false }), leather);
     sphere2(compass, 0.055, steel, 0, 0, 0.21);
     ring(compass, 0.17, 0.033, steel, 0, 1.01, 0.03);
     for (let i = 0; i < 8; i++) path(stage, Array.from({ length: 20 }, (_, j) => {
@@ -485,10 +475,10 @@ function realistic(kind, ticks) {
   return g;
 }
 function abstract(kind, ticks) {
-  const g = new T2.Group();
+  const g = new THREE.Group();
   g.rotation.set(0.12, -0.25, 0);
-  const glass = new T2.MeshPhysicalMaterial({ color: 10868961, roughness: 0.12, metalness: 0.05, transmission: 0.72, thickness: 0.6, ior: 1.45, clearcoat: 1, envMapIntensity: 1.2 });
-  const amber = new T2.MeshPhysicalMaterial({ color: 15377510, roughness: 0.16, metalness: 0.05, transmission: 0.55, thickness: 0.5, ior: 1.4, clearcoat: 1 });
+  const glass = new THREE.MeshPhysicalMaterial({ color: 10868961, roughness: 0.12, metalness: 0.05, transmission: 0.72, thickness: 0.6, ior: 1.45, clearcoat: 1, envMapIntensity: 1.2 });
+  const amber = new THREE.MeshPhysicalMaterial({ color: 15377510, roughness: 0.16, metalness: 0.05, transmission: 0.55, thickness: 0.5, ior: 1.4, clearcoat: 1 });
   const chrome = standard(11057353, 0.18, 0.86), cobalt = standard(4414154, 0.32, 0.25);
   if (kind === "ai") {
     const lattice = group(g);
@@ -498,7 +488,7 @@ function abstract(kind, ticks) {
       hoop.rotation.set(i * 0.8, i * 0.6, 0.2);
       ticks.push((a) => hoop.rotation.z = a * (i % 2 ? 1 : -1));
     }
-    mesh2(lattice, new T2.OctahedronGeometry(0.49), amber);
+    mesh2(lattice, new THREE.OctahedronGeometry(0.49), amber);
     for (let i = 0; i < 6; i++) {
       const dot = sphere2(g, 0.105, cobalt);
       ticks.push((a) => {
@@ -563,12 +553,12 @@ function abstract(kind, ticks) {
         const t = j / 32;
         return V((t - 0.5) * 2.2, Math.sin(t * Math.PI) * 0.8, 0);
       });
-      const ribbon = new T2.Shape();
+      const ribbon = new THREE.Shape();
       ribbon.moveTo(-1.1, 0);
       for (let j = 1; j < 33; j++) ribbon.lineTo(points[j].x, points[j].y);
       for (let j = 32; j >= 0; j--) ribbon.lineTo(points[j].x, points[j].y - 0.05);
       ribbon.closePath();
-      const geo = new T2.ExtrudeGeometry(ribbon, { depth: 0.55, bevelEnabled: true, bevelThickness: 0.015, bevelSize: 0.012, bevelSegments: 2, steps: 1 });
+      const geo = new THREE.ExtrudeGeometry(ribbon, { depth: 0.55, bevelEnabled: true, bevelThickness: 0.015, bevelSize: 0.012, bevelSegments: 2, steps: 1 });
       geo.translate(0, 0, -0.275);
       const leaf = mesh2(g, geo, i % 3 === 0 ? glass : i % 2 ? chrome : amber, 0, -1.12 + i * 0.27, (i - 3) * 0.11);
       leaf.rotation.y = 0.4;
@@ -603,46 +593,46 @@ var directionTokens = {
   kinetic: { ivory: 15984588, gold: 12357970, dark: 2504777, blue: 6654873, orange: 12676166 }
 };
 var tau3 = Math.PI * 2;
-var material = (color, metal = false) => new T3.MeshStandardMaterial({ color, roughness: metal ? 0.3 : 0.87, metalness: metal ? 0.55 : 0.02 });
+var material = (color, metal = false) => new THREE.MeshStandardMaterial({ color, roughness: metal ? 0.3 : 0.87, metalness: metal ? 0.55 : 0.02 });
 function add(g, geometry, color, x = 0, y = 0, z = 0, metal = false) {
-  const m = new T3.Mesh(geometry, material(color, metal));
+  const m = new THREE.Mesh(geometry, material(color, metal));
   m.position.set(x, y, z);
   g.add(m);
   return m;
 }
 function box2(g, w, h, d, color, x = 0, y = 0, z = 0) {
-  return add(g, new RoundedBoxGeometry3(w, h, d, 1, Math.min(0.018, w / 4, h / 4, d / 4)), color, x, y, z);
+  return add(g, new RoundedBoxGeometry(w, h, d, 1, Math.min(0.018, w / 4, h / 4, d / 4)), color, x, y, z);
 }
 function ball(g, r, color, x = 0, y = 0, z = 0, metal = false) {
-  return add(g, new T3.SphereGeometry(r, 24, 16), color, x, y, z, metal);
+  return add(g, new THREE.SphereGeometry(r, 24, 16), color, x, y, z, metal);
 }
 function disc(g, r, depth, color, x = 0, y = 0, z = 0) {
-  const m = add(g, new T3.CylinderGeometry(r, r, depth, 64), color, x, y, z);
+  const m = add(g, new THREE.CylinderGeometry(r, r, depth, 64), color, x, y, z);
   m.rotation.x = Math.PI / 2;
   return m;
 }
 function ring2(g, r, width, color, x = 0, y = 0, z = 0, metal = false) {
-  return add(g, new T3.TorusGeometry(r, width, 10, 80), color, x, y, z, metal);
+  return add(g, new THREE.TorusGeometry(r, width, 10, 80), color, x, y, z, metal);
 }
 function cut(g, points, color, z = 0, depth = 0.065) {
-  const s = new T3.Shape();
+  const s = new THREE.Shape();
   points.forEach(([x, y], i) => i ? s.lineTo(x, y) : s.moveTo(x, y));
   s.closePath();
-  return add(g, new T3.ExtrudeGeometry(s, { depth, bevelEnabled: true, bevelThickness: 6e-3, bevelSize: 8e-3, bevelSegments: 1, steps: 1 }), color, 0, 0, z);
+  return add(g, new THREE.ExtrudeGeometry(s, { depth, bevelEnabled: true, bevelThickness: 6e-3, bevelSize: 8e-3, bevelSegments: 1, steps: 1 }), color, 0, 0, z);
 }
 function curve(g, points, color, radius = 0.018) {
-  return add(g, new T3.TubeGeometry(new T3.CatmullRomCurve3(points), 64, radius, 6, false), color);
+  return add(g, new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 64, radius, 6, false), color);
 }
 function rod3(g, a, b, color, radius = 0.015) {
   const d = b.clone().sub(a);
-  const m = add(g, new T3.CylinderGeometry(radius, radius, d.length(), 8), color);
+  const m = add(g, new THREE.CylinderGeometry(radius, radius, d.length(), 8), color);
   m.position.copy(a).add(b).multiplyScalar(0.5);
-  m.quaternion.setFromUnitVectors(new T3.Vector3(0, 1, 0), d.normalize());
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize());
   return m;
 }
-var v2 = (x, y, z = 0) => new T3.Vector3(x, y, z);
+var v2 = (x, y, z = 0) => new THREE.Vector3(x, y, z);
 function paperTree(g, x, y, z, s = 1) {
-  const t = new T3.Group();
+  const t = new THREE.Group();
   t.position.set(x, y, z);
   t.scale.setScalar(s);
   g.add(t);
@@ -652,14 +642,14 @@ function paperTree(g, x, y, z, s = 1) {
   return t;
 }
 function plane(g, color) {
-  const a = new T3.Group();
+  const a = new THREE.Group();
   cut(a, [[0, 0.32], [-0.28, -0.18], [0, -0.06], [0.28, -0.18]], color, 0, 0.04);
   cut(a, [[0, 0.32], [-0.045, -0.23], [0.045, -0.23]], 16775141, 0.045, 0.03);
   g.add(a);
   return a;
 }
 function racket(g, color, metal = false) {
-  const a = new T3.Group();
+  const a = new THREE.Group();
   g.add(a);
   const hoop = ring2(a, 0.47, 0.038, color, 0, 0.2, 0, metal);
   hoop.scale.y = 1.25;
@@ -677,7 +667,7 @@ function racket(g, color, metal = false) {
   return a;
 }
 function paperWorld(kind, c, ticks) {
-  const g = new T3.Group(), C3 = directionTokens.paper;
+  const g = new THREE.Group(), C3 = directionTokens.paper;
   disc(g, 1.74, 0.14, C3.peach, 0, 0, -0.45);
   disc(g, 1.6, 0.08, C3.cream, 0, 0, -0.34);
   const halo = ring2(g, 1.68, 0.035, C3.coral, 0, 0, -0.28);
@@ -697,18 +687,18 @@ function paperWorld(kind, c, ticks) {
       flyer.rotation.z = Math.atan2(0.21 * Math.cos(a), -1.25 * Math.sin(a)) - Math.PI / 2;
     });
   } else if (kind === "reading") {
-    const book = new T3.Group();
+    const book = new THREE.Group();
     g.add(book);
     book.position.set(0, -0.85, 0.63);
     book.rotation.x = 0.65;
     for (const side of [-1, 1]) {
-      const leaf = new T3.Group();
+      const leaf = new THREE.Group();
       book.add(leaf);
       leaf.rotation.y = side * 0.14;
       box2(leaf, 1.25, 0.14, 1.48, C3.coral, side * 0.64, 0, 0);
       for (let i = 0; i < 5; i++) box2(leaf, 1.2, 0.024, 1.4, C3.cream, side * 0.62, 0.1 + i * 0.032, 0);
     }
-    const portal = new T3.Group();
+    const portal = new THREE.Group();
     portal.position.set(0, -0.49, 0.5);
     g.add(portal);
     box2(portal, 0.3, 1.25, 0.14, C3.blue, -0.58, 0.53);
@@ -727,7 +717,7 @@ function paperWorld(kind, c, ticks) {
     }
     ticks.push((a) => portal.rotation.y = 0.1 * Math.sin(a));
   } else if (kind === "tennis") {
-    const court = new T3.Group();
+    const court = new THREE.Group();
     g.add(court);
     court.rotation.z = -0.25;
     box2(court, 1.83, 2.62, 0.08, C3.teal, 0, 0, 0.12);
@@ -749,7 +739,7 @@ function paperWorld(kind, c, ticks) {
       r2.rotation.z = Math.PI + 0.25 * Math.cos(a);
     });
   } else if (kind === "ai") {
-    const head = new T3.Group();
+    const head = new THREE.Group();
     g.add(head);
     head.position.set(-0.54, 0.14, 0.47);
     box2(head, 1.14, 0.94, 0.3, C3.blue);
@@ -759,7 +749,7 @@ function paperWorld(kind, c, ticks) {
     rod3(head, v2(0, 0.47), v2(0, 0.73), C3.coral, 0.028);
     ball(head, 0.085, C3.coral, 0, 0.78);
     for (let i = 0; i < 3; i++) {
-      const card = new T3.Group();
+      const card = new THREE.Group();
       g.add(card);
       card.position.set(0.64 + i * 0.15, 0.23 - i * 0.4, 0.05 + i * 0.28);
       card.rotation.z = -0.12;
@@ -776,11 +766,11 @@ function paperWorld(kind, c, ticks) {
       head.position.y = 0.14 + 0.06 * Math.cos(a);
     });
   } else if (kind === "server") {
-    const tower = new T3.Group();
+    const tower = new THREE.Group();
     g.add(tower);
     tower.rotation.y = -0.35;
     for (let i = 0; i < 4; i++) {
-      const layer = new T3.Group();
+      const layer = new THREE.Group();
       tower.add(layer);
       layer.position.y = -0.94 + i * 0.61;
       box2(layer, 1.6, 0.42, 0.55, [C3.blue, C3.teal, C3.coral, C3.blue][i]);
@@ -799,7 +789,7 @@ function paperWorld(kind, c, ticks) {
     }
   } else {
     for (let i = 0; i < 7; i++) {
-      const panel = new T3.Group();
+      const panel = new THREE.Group();
       g.add(panel);
       panel.position.set(-1.2 + i * 0.39, 0, 0.12 + i * 0.055);
       panel.rotation.y = (i % 2 ? 1 : -1) * 0.2;
@@ -818,16 +808,16 @@ function paperWorld(kind, c, ticks) {
   return g;
 }
 function kineticWorld(kind, c, ticks) {
-  const g = new T3.Group(), C3 = directionTokens.kinetic;
-  const base = add(g, new T3.CylinderGeometry(0.93, 1.05, 0.16, 64), C3.dark, 0, -1.49, 0);
+  const g = new THREE.Group(), C3 = directionTokens.kinetic;
+  const base = add(g, new THREE.CylinderGeometry(0.93, 1.05, 0.16, 64), C3.dark, 0, -1.49, 0);
   base.rotation.x = 0;
   ring2(g, 0.96, 0.012, C3.gold, 0, -1.48, 0, true).rotation.x = Math.PI / 2;
-  const foot = add(g, new T3.CylinderGeometry(0.85, 0.91, 0.06, 64), C3.dark, 0, -1.59, 0);
+  add(g, new THREE.CylinderGeometry(0.85, 0.91, 0.06, 64), C3.dark, 0, -1.59, 0);
   ring2(g, 0.94, 0.018, C3.gold, 0, -1.4, 0, true).rotation.x = Math.PI / 2;
   if (kind === "ai") {
-    const core = add(g, new T3.IcosahedronGeometry(0.52, 0), C3.gold, 0, 0.1, 0, true);
+    const core = add(g, new THREE.IcosahedronGeometry(0.52, 0), C3.gold, 0, 0.1, 0, true);
     for (let i = 0; i < 3; i++) {
-      const orbit = new T3.Group();
+      const orbit = new THREE.Group();
       g.add(orbit);
       orbit.position.y = 0.1;
       orbit.rotation.set(0.7 + i * 0.6, i * 0.8, 0.3 + i * 0.7);
@@ -847,7 +837,7 @@ function kineticWorld(kind, c, ticks) {
       core.rotation.set(a / 1, 0.5 * Math.sin(a), a);
     });
   } else if (kind === "travel") {
-    const globe = new T3.Group();
+    const globe = new THREE.Group();
     g.add(globe);
     globe.position.y = 0.08;
     globe.rotation.z = -0.28;
@@ -864,7 +854,7 @@ function kineticWorld(kind, c, ticks) {
     meridian.rotation.y = 0.3;
     meridian.rotation.z = -0.28;
     rod3(g, v2(0, -1.41), v2(0, -1), C3.gold, 0.055);
-    const orbit = new T3.Group();
+    const orbit = new THREE.Group();
     g.add(orbit);
     orbit.position.y = 0.08;
     orbit.rotation.set(0.6, -0.3, -0.35);
@@ -881,7 +871,7 @@ function kineticWorld(kind, c, ticks) {
     r.scale.setScalar(1.17);
     r.position.set(-0.34, 0.12, 0.12);
     r.rotation.set(0.15, -0.4, -0.4);
-    const path2 = new T3.Group();
+    const path2 = new THREE.Group();
     g.add(path2);
     path2.rotation.set(0.65, -0.4, -0.35);
     path2.position.set(0.22, 0.35, 0.1);
@@ -895,11 +885,11 @@ function kineticWorld(kind, c, ticks) {
     });
     rod3(g, v2(-0.3, -1.4), v2(-0.3, -0.8), C3.gold, 0.035);
   } else if (kind === "server") {
-    const tower = new T3.Group();
+    const tower = new THREE.Group();
     g.add(tower);
     tower.rotation.set(0.4, -0.48, 0);
     for (let i = 0; i < 4; i++) {
-      const layer = new T3.Group();
+      const layer = new THREE.Group();
       tower.add(layer);
       box2(layer, 1.4, 0.1, 0.95, i % 2 ? C3.ivory : C3.dark);
       const fan = ring2(layer, 0.28, 0.024, C3.gold, 0, 0.09, 0, true);
@@ -917,13 +907,13 @@ function kineticWorld(kind, c, ticks) {
     for (const x of [-0.61, 0.61]) rod3(tower, v2(x, -1.3, -0.4), v2(x, 1.21, -0.4), C3.gold, 0.018);
     ticks.push((a) => tower.rotation.y = -0.48 + 0.12 * Math.sin(a));
   } else if (kind === "reading") {
-    const book = new T3.Group();
+    const book = new THREE.Group();
     g.add(book);
     book.name = "kinetic-folio";
     book.rotation.set(0.32, -0.4, -0.15);
     book.position.y = 0.12;
     for (let i = 0; i < 13; i++) {
-      const hinge = new T3.Group();
+      const hinge = new THREE.Group();
       book.add(hinge);
       hinge.rotation.y = -1.3 + i * 0.21;
       box2(hinge, 1.16, 1.59, 0.025, i === 0 || i === 12 ? C3.dark : C3.ivory, 0.59, 0, 0);
@@ -940,16 +930,16 @@ function kineticWorld(kind, c, ticks) {
   } else {
     rod3(g, v2(0, -1.4), v2(0, 0.94), C3.gold, 0.045);
     ball(g, 0.09, C3.gold, 0, 0.94, 0, true);
-    const beam = new T3.Group();
+    const beam = new THREE.Group();
     g.add(beam);
     beam.position.y = 0.94;
     rod3(beam, v2(-1.2, 0), v2(1.2, 0), C3.gold, 0.037);
     for (const side of [-1, 1]) {
-      const tray = new T3.Group();
+      const tray = new THREE.Group();
       beam.add(tray);
       tray.position.x = side * 0.91;
       for (const x of [-0.37, 0.37]) rod3(tray, v2(0, 0), v2(x, -0.95), C3.gold, 0.012);
-      const platter = add(tray, new T3.CylinderGeometry(0.48, 0.4, 0.08, 40), C3.ivory, 0, -1, 0);
+      const platter = add(tray, new THREE.CylinderGeometry(0.48, 0.4, 0.08, 40), C3.ivory, 0, -1, 0);
       for (let i = 0; i < 3; i++) {
         const h = [0.32, 0.57, 0.43][i];
         box2(tray, 0.12, h, 0.12, side < 0 ? C3.blue : C3.orange, -0.22 + i * 0.22, -0.92 + h / 2, 0);
@@ -1001,6 +991,7 @@ function marketBar(index, variant = 0) {
 
 // src/package-assets.ts
 function tennisModelUrl() {
+  if (!import.meta.url) throw new Error("uipack: the CommonJS build cannot locate assets/objects/tennis-return.glb; pass modelUrl");
   return new URL("../assets/objects/tennis-return.glb", import.meta.url).href;
 }
 
@@ -1294,7 +1285,7 @@ function contact(c) {
   return g;
 }
 async function tennis(_c, variant = 0, modelUrl) {
-  const { GLTFLoader } = await import("three/addons/loaders/GLTFLoader.js");
+  const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
   const model = await new GLTFLoader().loadAsync(modelUrl ?? tennisModelUrl());
   const g = new THREE.Group();
   g.rotation.set(0.64, -0.25, 0);
@@ -1839,7 +1830,7 @@ async function createObject(kind, palette, variant = 0, edition = 0, modelUrl) {
   var _a;
   const finish = kind === "contact" ? variant % 3 : edition;
   const accent = kind === "reading" ? [palette.accent, 7945795, 3164775][finish] : [palette.accent, 4619160, 10512718][finish];
-  const object = kind === "contact" && (variant === 3 || variant === 4) ? createContactDirection(variant) : kind !== "contact" && variant !== 0 ? createArtDirection(kind, palette, variant) : kind === "tennis" ? await tennis({ ...palette, accent }, finish, modelUrl) : await builders[kind]({ ...palette, accent }, finish);
+  const object = kind === "contact" && (variant === 3 || variant === 4) ? createContactDirection(variant) : kind !== "contact" && variant !== 0 ? createArtDirection(kind, palette, variant) : kind === "tennis" ? await tennis({ ...palette}, finish, modelUrl) : await builders[kind]({ ...palette, accent }, finish);
   (_a = object.userData).style ?? (_a.style = "studio");
   object.userData.variant = variant;
   object.userData.animate(0);
@@ -1862,9 +1853,5 @@ function disposeObject(scene) {
   materials.forEach((m) => m.dispose());
   geometries.forEach((g) => g.dispose());
 }
-export {
-  DURATION,
-  builders,
-  createObject,
-  disposeObject
-};
+
+export { DURATION, builders, createObject, disposeObject };

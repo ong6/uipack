@@ -1,4 +1,6 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }// src/slides/model.ts
+'use strict';
+
+// src/slides/model.ts
 var slidePalettes = {
   dark: {
     background: "#0e1512",
@@ -33,11 +35,11 @@ function clampStop(index, count) {
   );
 }
 function resolveNodePose(node, stop) {
-  const pose = _optionalChain([stop, 'access', _ => _.nodes, 'optionalAccess', _2 => _2[node.id]]);
+  const pose = stop.nodes?.[node.id];
   return {
-    position: [..._nullishCoalesce(_optionalChain([pose, 'optionalAccess', _3 => _3.position]), () => ( node.position))],
-    opacity: _nullishCoalesce(_optionalChain([pose, 'optionalAccess', _4 => _4.opacity]), () => ( 1)),
-    scale: _nullishCoalesce(_optionalChain([pose, 'optionalAccess', _5 => _5.scale]), () => ( 1))
+    position: [...pose?.position ?? node.position],
+    opacity: pose?.opacity ?? 1,
+    scale: pose?.scale ?? 1
   };
 }
 function validateSlideStory(story) {
@@ -77,7 +79,7 @@ function validateSlideStory(story) {
     }
     if (!finite3(s.camera.position) || !finite3(s.camera.target) || s.camera.position.every((v, i) => v === s.camera.target[i]))
       issues.push(`Invalid camera: ${s.id}`);
-    for (const [id, pose] of Object.entries(_nullishCoalesce(s.nodes, () => ( {})))) {
+    for (const [id, pose] of Object.entries(s.nodes ?? {})) {
       if (!ids.has(id)) issues.push(`Unknown node: ${id}`);
       if (pose.position && !finite3(pose.position))
         issues.push(`Invalid pose position: ${id}`);
@@ -86,17 +88,15 @@ function validateSlideStory(story) {
       if (pose.scale !== void 0 && (!Number.isFinite(pose.scale) || pose.scale <= 0))
         issues.push(`Invalid scale: ${id}`);
     }
-    for (const id of _nullishCoalesce(s.labels, () => ( [])))
+    for (const id of s.labels ?? [])
       if (!ids.has(id)) issues.push(`Unknown label: ${id}`);
-    for (const id of _nullishCoalesce(s.activeConnections, () => ( [])))
+    for (const id of s.activeConnections ?? [])
       if (!edges.has(id)) issues.push(`Unknown active connection: ${id}`);
   }
   return issues;
 }
 
-
-
-
-
-
-exports.slidePalettes = slidePalettes; exports.clampStop = clampStop; exports.resolveNodePose = resolveNodePose; exports.validateSlideStory = validateSlideStory;
+exports.clampStop = clampStop;
+exports.resolveNodePose = resolveNodePose;
+exports.slidePalettes = slidePalettes;
+exports.validateSlideStory = validateSlideStory;

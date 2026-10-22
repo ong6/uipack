@@ -4,7 +4,7 @@ import "../src/deck/deck.css";
 import "../src/deck/bento.css";
 import "../src/deck/consulting/consulting.css";
 import "../src/mechanism/mechanism.css";
-import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
+import { useShowcaseTheme } from "./ShowcaseShell";
 import { deckEntries } from "./catalog";
 import { deckExamples } from "./deckExamples";
 import "./deck-showcase.css";
@@ -66,7 +66,7 @@ function useFitBelowHeader() {
 }
 
 export default function DeckShowcase() {
-  const { theme, flip } = useShowcaseTheme();
+  const { theme } = useShowcaseTheme();
   const fitRef = useFitBelowHeader();
   const initial = { slide: params.get("slide") ?? undefined, step: Number(params.get("step") ?? 0) || 0 };
 
@@ -105,7 +105,7 @@ export default function DeckShowcase() {
   }
 
   return (
-    <ShowcaseShell active="deck" theme={theme} flip={flip}>
+    <>
       <section ref={fitRef} className="deck-showcase" data-catalog-entry={deckEntries[0].id}>
         <DeckPlayer
           id={deckId}
@@ -153,6 +153,6 @@ export default function DeckShowcase() {
           </section>
         </div>
       </section>
-    </ShowcaseShell>
+    </>
   );
 }

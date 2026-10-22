@@ -1,22 +1,9 @@
-import {
-  DEFAULT_RENDER_WIDTH,
-  FigureMotionContext,
-  FigureScaleContext,
-  Token,
-  fontFloor,
-  useFigureMotion,
-  useFontFloor
-} from "./chunk-3R6VZY52.js";
-import {
-  CanvasView
-} from "./chunk-WTI575DG.js";
-import {
-  useIsoLayoutEffect,
-  usePrefersReducedMotion
-} from "./chunk-KYO6UXHN.js";
+import { Token, fontFloor, FigureMotionContext, FigureScaleContext, useFontFloor, useFigureMotion, DEFAULT_RENDER_WIDTH } from './chunk-3R6VZY52.js';
+import { CanvasView } from './chunk-WTI575DG.js';
+import { usePrefersReducedMotion, useIsoLayoutEffect } from './chunk-KYO6UXHN.js';
+import { createContext, useContext, useRef, useId, useState, useMemo, useEffect, useCallback, createElement } from 'react';
+import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 
-// src/hover.tsx
-import { createContext, useContext } from "react";
 var noop = () => {
 };
 var FigureHoverContext = /* @__PURE__ */ createContext({ flow: null, kind: null, setFlow: noop, setKind: noop });
@@ -36,9 +23,6 @@ function hoverAttrs(flow, kind, hover) {
   return attrs;
 }
 var isPointer = (e) => e.pointerType !== "touch";
-
-// src/Legend.tsx
-import { jsx, jsxs } from "react/jsx-runtime";
 function Legend({ items }) {
   const hover = useFigureHover();
   if (!items.length) return null;
@@ -61,18 +45,11 @@ function Legend({ items }) {
     );
   }) });
 }
-
-// src/selection.tsx
-import {
-  createContext as createContext2,
-  useContext as useContext2,
-  useId
-} from "react";
-var SelectionContext = /* @__PURE__ */ createContext2({ enabled: false, selected: null, select: () => {
+var SelectionContext = /* @__PURE__ */ createContext({ enabled: false, selected: null, select: () => {
 } });
 function useItemSelection(label, detail, flow, enabled = true, name = label) {
   const id = useId();
-  const context = useContext2(SelectionContext);
+  const context = useContext(SelectionContext);
   if (!context.enabled || !enabled || !(detail || flow)) return {};
   const selected = context.selected?.id === id;
   const toggle = (anchor2) => context.select(selected ? null : { id, label, detail, flow, anchor: anchor2 });
@@ -95,18 +72,6 @@ function useItemSelection(label, detail, flow, enabled = true, name = label) {
     }
   };
 }
-
-// src/Figure.tsx
-import {
-  useCallback,
-  useEffect,
-  useId as useId2,
-  useMemo,
-  useRef,
-  useState,
-  createElement
-} from "react";
-import { Fragment, jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
 var vbWidth = (viewBox) => Number(viewBox.split(/\s+/)[2]) || 0;
 var NOTE_GAP = 8;
 function placeNote(canvas, note, anchor2) {
@@ -141,13 +106,13 @@ function useRenderedWidth(ref, fixed, layoutKey) {
   }, [ref, fixed, layoutKey]);
   return fixed ?? w;
 }
-var PauseGlyph = () => /* @__PURE__ */ jsxs2("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: [
-  /* @__PURE__ */ jsx2("rect", { x: "2", y: "1.5", width: "3", height: "9", rx: "0.5" }),
-  /* @__PURE__ */ jsx2("rect", { x: "7", y: "1.5", width: "3", height: "9", rx: "0.5" })
+var PauseGlyph = () => /* @__PURE__ */ jsxs("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: [
+  /* @__PURE__ */ jsx("rect", { x: "2", y: "1.5", width: "3", height: "9", rx: "0.5" }),
+  /* @__PURE__ */ jsx("rect", { x: "7", y: "1.5", width: "3", height: "9", rx: "0.5" })
 ] });
-var PlayGlyph = () => /* @__PURE__ */ jsx2("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ jsx2("path", { d: "M3 1.5 L10.5 6 L3 10.5 Z" }) });
-var ReplayGlyph = () => /* @__PURE__ */ jsxs2("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: [
-  /* @__PURE__ */ jsx2(
+var PlayGlyph = () => /* @__PURE__ */ jsx("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ jsx("path", { d: "M3 1.5 L10.5 6 L3 10.5 Z" }) });
+var ReplayGlyph = () => /* @__PURE__ */ jsxs("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: [
+  /* @__PURE__ */ jsx(
     "path",
     {
       d: "M6 1.5a4.5 4.5 0 1 1-4.2 2.9",
@@ -157,7 +122,7 @@ var ReplayGlyph = () => /* @__PURE__ */ jsxs2("svg", { viewBox: "0 0 12 12", "ar
       strokeLinecap: "round"
     }
   ),
-  /* @__PURE__ */ jsx2("path", { d: "M1.5 1.5v3h3z" })
+  /* @__PURE__ */ jsx("path", { d: "M1.5 1.5v3h3z" })
 ] });
 function Figure({
   expandable = true,
@@ -181,7 +146,7 @@ function Figure({
   id
 }) {
   const opener = useRef(null);
-  const auto = useId2();
+  const auto = useId();
   const figId = id ?? `uipack-${auto.replace(/:/g, "")}`;
   const reduced = usePrefersReducedMotion();
   const [playing, setPlaying] = useState(true);
@@ -258,7 +223,7 @@ function Figure({
   }, [note, zoom, expanded]);
   const showControls = controls && !reduced;
   const hasHead = expandable || number || eyebrow || title || caption || legend.length || showControls;
-  return /* @__PURE__ */ jsx2(
+  return /* @__PURE__ */ jsx(
     CanvasView,
     {
       restoreFocus: () => opener.current?.focus(),
@@ -272,7 +237,7 @@ function Figure({
       theme,
       layout: "figure",
       zoom: { value: zoom, min: 1, max: 3, onChange: setZoom },
-      children: /* @__PURE__ */ jsx2(SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ jsx2(FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsx2(FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxs2(
+      children: /* @__PURE__ */ jsx(SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ jsx(FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsx(FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxs(
         "figure",
         {
           id: figId,
@@ -294,8 +259,8 @@ function Figure({
             "--figure-width": `${vbWidth(viewBox)}px`
           },
           children: [
-            hasHead ? /* @__PURE__ */ jsxs2("div", { className: "uipack__head", children: [
-              number || eyebrow ? /* @__PURE__ */ jsxs2("p", { className: "uipack__eyebrow", children: [
+            hasHead ? /* @__PURE__ */ jsxs("div", { className: "uipack__head", children: [
+              number || eyebrow ? /* @__PURE__ */ jsxs("p", { className: "uipack__eyebrow", children: [
                 number,
                 number && eyebrow ? " \xB7 " : "",
                 eyebrow
@@ -305,9 +270,9 @@ function Figure({
                 { className: "uipack__title" },
                 title
               ) : null,
-              caption ? /* @__PURE__ */ jsx2("p", { className: "uipack__caption", children: caption }) : null,
-              showControls || expandable ? /* @__PURE__ */ jsxs2("div", { className: "uipack__controls", children: [
-                expandable && !expanded && /* @__PURE__ */ jsx2(
+              caption ? /* @__PURE__ */ jsx("p", { className: "uipack__caption", children: caption }) : null,
+              showControls || expandable ? /* @__PURE__ */ jsxs("div", { className: "uipack__controls", children: [
+                expandable && !expanded && /* @__PURE__ */ jsx(
                   "button",
                   {
                     type: "button",
@@ -320,20 +285,20 @@ function Figure({
                     children: "Open canvas"
                   }
                 ),
-                showControls && /* @__PURE__ */ jsxs2(Fragment, { children: [
-                  /* @__PURE__ */ jsxs2(
+                showControls && /* @__PURE__ */ jsxs(Fragment, { children: [
+                  /* @__PURE__ */ jsxs(
                     "button",
                     {
                       type: "button",
                       className: "uipack__ctl uipack__ctl--motion",
                       onClick: replay,
                       children: [
-                        /* @__PURE__ */ jsx2(ReplayGlyph, {}),
+                        /* @__PURE__ */ jsx(ReplayGlyph, {}),
                         " Replay"
                       ]
                     }
                   ),
-                  /* @__PURE__ */ jsxs2(
+                  /* @__PURE__ */ jsxs(
                     "button",
                     {
                       type: "button",
@@ -341,7 +306,7 @@ function Figure({
                       onClick: toggle,
                       "aria-pressed": !playing,
                       children: [
-                        playing ? /* @__PURE__ */ jsx2(PauseGlyph, {}) : /* @__PURE__ */ jsx2(PlayGlyph, {}),
+                        playing ? /* @__PURE__ */ jsx(PauseGlyph, {}) : /* @__PURE__ */ jsx(PlayGlyph, {}),
                         " ",
                         playing ? "Pause" : "Play"
                       ]
@@ -349,17 +314,17 @@ function Figure({
                   )
                 ] })
               ] }) : null,
-              /* @__PURE__ */ jsx2(Legend, { items: legend })
+              /* @__PURE__ */ jsx(Legend, { items: legend })
             ] }) : null,
-            /* @__PURE__ */ jsx2("p", { className: "uipack__sr", role: "status", children: note ? `${note.label}: ${note.detail}` : "" }),
-            /* @__PURE__ */ jsxs2(
+            /* @__PURE__ */ jsx("p", { className: "uipack__sr", role: "status", children: note ? `${note.label}: ${note.detail}` : "" }),
+            /* @__PURE__ */ jsxs(
               "div",
               {
                 ref: canvasRef,
                 className: `uipack__canvas uipack__canvas--${background}`,
                 onClick: () => select(null),
                 children: [
-                  note ? /* @__PURE__ */ jsxs2(
+                  note ? /* @__PURE__ */ jsxs(
                     "div",
                     {
                       ref: noteRef,
@@ -369,12 +334,12 @@ function Figure({
                       style: notePos ?? void 0,
                       onClick: (e) => e.stopPropagation(),
                       children: [
-                        /* @__PURE__ */ jsx2("strong", { children: note.label }),
-                        /* @__PURE__ */ jsx2("span", { children: note.detail })
+                        /* @__PURE__ */ jsx("strong", { children: note.label }),
+                        /* @__PURE__ */ jsx("span", { children: note.detail })
                       ]
                     }
                   ) : null,
-                  /* @__PURE__ */ jsx2(
+                  /* @__PURE__ */ jsx(
                     "svg",
                     {
                       ref: wideRef,
@@ -383,10 +348,10 @@ function Figure({
                       viewBox,
                       role: "group",
                       "aria-label": alt,
-                      children: /* @__PURE__ */ jsx2(FigureScaleContext.Provider, { value: wideScale, children })
+                      children: /* @__PURE__ */ jsx(FigureScaleContext.Provider, { value: wideScale, children })
                     }
                   ),
-                  narrow ? /* @__PURE__ */ jsx2(
+                  narrow ? /* @__PURE__ */ jsx(
                     "svg",
                     {
                       ref: narrowRef,
@@ -394,7 +359,7 @@ function Figure({
                       viewBox: narrowViewBox ?? viewBox,
                       role: "group",
                       "aria-label": alt,
-                      children: /* @__PURE__ */ jsx2(FigureScaleContext.Provider, { value: narrowScale, children: narrow })
+                      children: /* @__PURE__ */ jsx(FigureScaleContext.Provider, { value: narrowScale, children: narrow })
                     }
                   ) : null
                 ]
@@ -406,19 +371,13 @@ function Figure({
     }
   );
 }
-
-// src/Lane.tsx
-import { jsx as jsx3, jsxs as jsxs3 } from "react/jsx-runtime";
 function Lane({ x, w, y, title, h, size: size0 = 11 }) {
   const size = useFontFloor(size0);
-  return /* @__PURE__ */ jsxs3("g", { "data-uipack": "lane", children: [
-    /* @__PURE__ */ jsx3("text", { x: x + w / 2, y, textAnchor: "middle", fontSize: size, fontWeight: 700, fontFamily: "var(--uipack-mono)", letterSpacing: ".08em", fill: "currentColor", children: title.toUpperCase() }),
-    h ? /* @__PURE__ */ jsx3("line", { x1: x + w, y1: y + 12, x2: x + w, y2: y + h, stroke: "currentColor", strokeOpacity: 0.15, strokeDasharray: "2 6" }) : null
+  return /* @__PURE__ */ jsxs("g", { "data-uipack": "lane", children: [
+    /* @__PURE__ */ jsx("text", { x: x + w / 2, y, textAnchor: "middle", fontSize: size, fontWeight: 700, fontFamily: "var(--uipack-mono)", letterSpacing: ".08em", fill: "currentColor", children: title.toUpperCase() }),
+    h ? /* @__PURE__ */ jsx("line", { x1: x + w, y1: y + 12, x2: x + w, y2: y + h, stroke: "currentColor", strokeOpacity: 0.15, strokeDasharray: "2 6" }) : null
   ] });
 }
-
-// src/Group.tsx
-import { jsx as jsx4, jsxs as jsxs4 } from "react/jsx-runtime";
 function Group({
   x,
   y,
@@ -437,15 +396,15 @@ function Group({
   const dashed = variant === "dashed";
   const ts = useFontFloor(titleSize ?? (dashed ? 11 : 14));
   const selection = useItemSelection(title ?? "Group", hint);
-  return /* @__PURE__ */ jsxs4(
+  return /* @__PURE__ */ jsxs(
     "g",
     {
       "data-uipack": "group",
       "data-selected": "data-selected" in selection ? selection["data-selected"] : void 0,
       ...hoverAttrs(flow, void 0, hover),
       children: [
-        /* @__PURE__ */ jsxs4("g", { className: "uipack__group-frame", ...selection, children: [
-          /* @__PURE__ */ jsx4(
+        /* @__PURE__ */ jsxs("g", { className: "uipack__group-frame", ...selection, children: [
+          /* @__PURE__ */ jsx(
             "rect",
             {
               x,
@@ -461,7 +420,7 @@ function Group({
               strokeDasharray: dashed ? "4 4" : void 0
             }
           ),
-          title ? dashed ? /* @__PURE__ */ jsx4(
+          title ? dashed ? /* @__PURE__ */ jsx(
             "text",
             {
               x: x + 16,
@@ -473,7 +432,7 @@ function Group({
               fillOpacity: accent ? 1 : 0.75,
               children: title.toUpperCase()
             }
-          ) : /* @__PURE__ */ jsx4(
+          ) : /* @__PURE__ */ jsx(
             "text",
             {
               x: x + w / 2,
@@ -491,113 +450,107 @@ function Group({
     }
   );
 }
-
-// src/icons/index.tsx
-import { Fragment as Fragment2, jsx as jsx5, jsxs as jsxs5 } from "react/jsx-runtime";
 var icons = {
-  db: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("ellipse", { cx: "8", cy: "3.5", rx: "6", ry: "2.5" }),
-    /* @__PURE__ */ jsx5("path", { d: "M2 3.5v9c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-9" }),
-    /* @__PURE__ */ jsx5("path", { d: "M2 8c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5" })
+  db: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("ellipse", { cx: "8", cy: "3.5", rx: "6", ry: "2.5" }),
+    /* @__PURE__ */ jsx("path", { d: "M2 3.5v9c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-9" }),
+    /* @__PURE__ */ jsx("path", { d: "M2 8c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5" })
   ] }),
-  cache: /* @__PURE__ */ jsx5(Fragment2, { children: /* @__PURE__ */ jsx5("path", { d: "M9 1.5 3.5 9H8l-1 5.5L12.5 7H8z" }) }),
-  queue: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("rect", { x: "1.5", y: "4", width: "13", height: "8", rx: "1.5" }),
-    /* @__PURE__ */ jsx5("path", { d: "M5 4v8M9 4v8" })
+  cache: /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("path", { d: "M9 1.5 3.5 9H8l-1 5.5L12.5 7H8z" }) }),
+  queue: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("rect", { x: "1.5", y: "4", width: "13", height: "8", rx: "1.5" }),
+    /* @__PURE__ */ jsx("path", { d: "M5 4v8M9 4v8" })
   ] }),
-  service: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("rect", { x: "2", y: "2", width: "12", height: "12", rx: "2" }),
-    /* @__PURE__ */ jsx5("path", { d: "M5 8h6M8 5v6" })
+  service: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("rect", { x: "2", y: "2", width: "12", height: "12", rx: "2" }),
+    /* @__PURE__ */ jsx("path", { d: "M5 8h6M8 5v6" })
   ] }),
-  client: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("rect", { x: "1.5", y: "3", width: "13", height: "8", rx: "1.5" }),
-    /* @__PURE__ */ jsx5("path", { d: "M5.5 14h5M8 11v3" })
+  client: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("rect", { x: "1.5", y: "3", width: "13", height: "8", rx: "1.5" }),
+    /* @__PURE__ */ jsx("path", { d: "M5.5 14h5M8 11v3" })
   ] }),
-  blob: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("path", { d: "M8 1.5 14 5v6l-6 3.5L2 11V5z" }),
-    /* @__PURE__ */ jsx5("path", { d: "M8 8l6-3M8 8 2 5M8 8v6.5" })
+  blob: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("path", { d: "M8 1.5 14 5v6l-6 3.5L2 11V5z" }),
+    /* @__PURE__ */ jsx("path", { d: "M8 8l6-3M8 8 2 5M8 8v6.5" })
   ] }),
-  agent: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("circle", { cx: "8", cy: "5", r: "3" }),
-    /* @__PURE__ */ jsx5("path", { d: "M2.5 14.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5" }),
-    /* @__PURE__ */ jsx5("path", { d: "M8 1v1" })
+  agent: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("circle", { cx: "8", cy: "5", r: "3" }),
+    /* @__PURE__ */ jsx("path", { d: "M2.5 14.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5" }),
+    /* @__PURE__ */ jsx("path", { d: "M8 1v1" })
   ] }),
-  doc: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("path", { d: "M4 1.5h5.5L13 5v9.5H4z" }),
-    /* @__PURE__ */ jsx5("path", { d: "M9.5 1.5V5H13M6 8h4M6 11h4" })
+  doc: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("path", { d: "M4 1.5h5.5L13 5v9.5H4z" }),
+    /* @__PURE__ */ jsx("path", { d: "M9.5 1.5V5H13M6 8h4M6 11h4" })
   ] }),
-  model: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("rect", { x: "2", y: "4", width: "12", height: "8", rx: "2" }),
-    /* @__PURE__ */ jsx5("circle", { cx: "5.5", cy: "8", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ jsx5("circle", { cx: "8", cy: "8", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ jsx5("circle", { cx: "10.5", cy: "8", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ jsx5("path", { d: "M8 1.5V4M8 12v2.5" })
+  model: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("rect", { x: "2", y: "4", width: "12", height: "8", rx: "2" }),
+    /* @__PURE__ */ jsx("circle", { cx: "5.5", cy: "8", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ jsx("circle", { cx: "8", cy: "8", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ jsx("circle", { cx: "10.5", cy: "8", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ jsx("path", { d: "M8 1.5V4M8 12v2.5" })
   ] }),
-  tool: /* @__PURE__ */ jsx5(Fragment2, { children: /* @__PURE__ */ jsx5("path", { d: "M10.5 2a3.5 3.5 0 0 0-3.3 4.7L2 11.9l2.1 2.1 5.2-5.2A3.5 3.5 0 0 0 14 5.5L11.8 7.7 9.3 6.2l-1-2.4z" }) }),
-  gateway: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("path", { d: "M2 8h12M2 8l3-3M2 8l3 3M14 8l-3-3M14 8l-3 3" }),
-    /* @__PURE__ */ jsx5("rect", { x: "6", y: "5.5", width: "4", height: "5", rx: "1", fill: "var(--uipack-surface, #fff)" })
+  tool: /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("path", { d: "M10.5 2a3.5 3.5 0 0 0-3.3 4.7L2 11.9l2.1 2.1 5.2-5.2A3.5 3.5 0 0 0 14 5.5L11.8 7.7 9.3 6.2l-1-2.4z" }) }),
+  gateway: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("path", { d: "M2 8h12M2 8l3-3M2 8l3 3M14 8l-3-3M14 8l-3 3" }),
+    /* @__PURE__ */ jsx("rect", { x: "6", y: "5.5", width: "4", height: "5", rx: "1", fill: "var(--uipack-surface, #fff)" })
   ] }),
-  lock: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("rect", { x: "3", y: "7", width: "10", height: "7.5", rx: "1.5" }),
-    /* @__PURE__ */ jsx5("path", { d: "M5.5 7V5a2.5 2.5 0 0 1 5 0v2" }),
-    /* @__PURE__ */ jsx5("circle", { cx: "8", cy: "10.75", r: "1", fill: "currentColor" })
+  lock: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("rect", { x: "3", y: "7", width: "10", height: "7.5", rx: "1.5" }),
+    /* @__PURE__ */ jsx("path", { d: "M5.5 7V5a2.5 2.5 0 0 1 5 0v2" }),
+    /* @__PURE__ */ jsx("circle", { cx: "8", cy: "10.75", r: "1", fill: "currentColor" })
   ] }),
-  key: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("circle", { cx: "5.5", cy: "8", r: "3" }),
-    /* @__PURE__ */ jsx5("path", { d: "M8.5 8H14M12 8v2.5M10 8v2" })
+  key: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("circle", { cx: "5.5", cy: "8", r: "3" }),
+    /* @__PURE__ */ jsx("path", { d: "M8.5 8H14M12 8v2.5M10 8v2" })
   ] }),
-  clock: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("circle", { cx: "8", cy: "8", r: "6" }),
-    /* @__PURE__ */ jsx5("path", { d: "M8 4.5V8l2.5 1.5" })
+  clock: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("circle", { cx: "8", cy: "8", r: "6" }),
+    /* @__PURE__ */ jsx("path", { d: "M8 4.5V8l2.5 1.5" })
   ] }),
-  cron: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("circle", { cx: "8", cy: "8.5", r: "5" }),
-    /* @__PURE__ */ jsx5("path", { d: "M8 5.5v3l2 1M5 2l-2.5 2M11 2l2.5 2" })
+  cron: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("circle", { cx: "8", cy: "8.5", r: "5" }),
+    /* @__PURE__ */ jsx("path", { d: "M8 5.5v3l2 1M5 2l-2.5 2M11 2l2.5 2" })
   ] }),
-  browser: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("rect", { x: "1.5", y: "2.5", width: "13", height: "11", rx: "1.5" }),
-    /* @__PURE__ */ jsx5("path", { d: "M1.5 6h13M4 4.25h.01M6 4.25h.01" })
+  browser: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("rect", { x: "1.5", y: "2.5", width: "13", height: "11", rx: "1.5" }),
+    /* @__PURE__ */ jsx("path", { d: "M1.5 6h13M4 4.25h.01M6 4.25h.01" })
   ] }),
-  terminal: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("rect", { x: "1.5", y: "2.5", width: "13", height: "11", rx: "1.5" }),
-    /* @__PURE__ */ jsx5("path", { d: "M4.5 6l2.5 2-2.5 2M8.5 10.5h3" })
+  terminal: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("rect", { x: "1.5", y: "2.5", width: "13", height: "11", rx: "1.5" }),
+    /* @__PURE__ */ jsx("path", { d: "M4.5 6l2.5 2-2.5 2M8.5 10.5h3" })
   ] }),
-  git: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("circle", { cx: "4.5", cy: "3.5", r: "1.75" }),
-    /* @__PURE__ */ jsx5("circle", { cx: "4.5", cy: "12.5", r: "1.75" }),
-    /* @__PURE__ */ jsx5("circle", { cx: "11.5", cy: "5.5", r: "1.75" }),
-    /* @__PURE__ */ jsx5("path", { d: "M4.5 5.25v5.5M11.5 7.25c0 2.5-2 3-4 3.25a3 3 0 0 0-3 .5" })
+  git: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("circle", { cx: "4.5", cy: "3.5", r: "1.75" }),
+    /* @__PURE__ */ jsx("circle", { cx: "4.5", cy: "12.5", r: "1.75" }),
+    /* @__PURE__ */ jsx("circle", { cx: "11.5", cy: "5.5", r: "1.75" }),
+    /* @__PURE__ */ jsx("path", { d: "M4.5 5.25v5.5M11.5 7.25c0 2.5-2 3-4 3.25a3 3 0 0 0-3 .5" })
   ] }),
-  cloud: /* @__PURE__ */ jsx5(Fragment2, { children: /* @__PURE__ */ jsx5("path", { d: "M4.5 13a3 3 0 0 1-.4-6A4 4 0 0 1 12 6.5a3.25 3.25 0 0 1 0 6.5z" }) }),
-  region: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("path", { d: "M8 14.5s4.5-4.2 4.5-8A4.5 4.5 0 0 0 3.5 6.5c0 3.8 4.5 8 4.5 8z" }),
-    /* @__PURE__ */ jsx5("circle", { cx: "8", cy: "6.5", r: "1.5" })
+  cloud: /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("path", { d: "M4.5 13a3 3 0 0 1-.4-6A4 4 0 0 1 12 6.5a3.25 3.25 0 0 1 0 6.5z" }) }),
+  region: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("path", { d: "M8 14.5s4.5-4.2 4.5-8A4.5 4.5 0 0 0 3.5 6.5c0 3.8 4.5 8 4.5 8z" }),
+    /* @__PURE__ */ jsx("circle", { cx: "8", cy: "6.5", r: "1.5" })
   ] }),
-  user: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("circle", { cx: "8", cy: "5.5", r: "3" }),
-    /* @__PURE__ */ jsx5("path", { d: "M2.5 14.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5" })
+  user: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("circle", { cx: "8", cy: "5.5", r: "3" }),
+    /* @__PURE__ */ jsx("path", { d: "M2.5 14.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5" })
   ] }),
-  robot: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("rect", { x: "3", y: "5", width: "10", height: "8", rx: "2" }),
-    /* @__PURE__ */ jsx5("path", { d: "M8 2v3M6 13v1.5M10 13v1.5M1.5 8.5v2M14.5 8.5v2" }),
-    /* @__PURE__ */ jsx5("circle", { cx: "6", cy: "8.5", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ jsx5("circle", { cx: "10", cy: "8.5", r: "1", fill: "currentColor" })
+  robot: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("rect", { x: "3", y: "5", width: "10", height: "8", rx: "2" }),
+    /* @__PURE__ */ jsx("path", { d: "M8 2v3M6 13v1.5M10 13v1.5M1.5 8.5v2M14.5 8.5v2" }),
+    /* @__PURE__ */ jsx("circle", { cx: "6", cy: "8.5", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ jsx("circle", { cx: "10", cy: "8.5", r: "1", fill: "currentColor" })
   ] }),
-  chart: /* @__PURE__ */ jsx5(Fragment2, { children: /* @__PURE__ */ jsx5("path", { d: "M2 14h12M4 11V7M8 11V4M12 11V8.5" }) }),
-  warning: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("path", { d: "M8 2 14.5 13.5h-13z" }),
-    /* @__PURE__ */ jsx5("path", { d: "M8 6.5v3.5M8 12.25h.01" })
+  chart: /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("path", { d: "M2 14h12M4 11V7M8 11V4M12 11V8.5" }) }),
+  warning: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("path", { d: "M8 2 14.5 13.5h-13z" }),
+    /* @__PURE__ */ jsx("path", { d: "M8 6.5v3.5M8 12.25h.01" })
   ] }),
-  more: /* @__PURE__ */ jsxs5(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("circle", { cx: "3", cy: "8", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ jsx5("circle", { cx: "8", cy: "8", r: "1", fill: "currentColor" }),
-    /* @__PURE__ */ jsx5("circle", { cx: "13", cy: "8", r: "1", fill: "currentColor" })
+  more: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("circle", { cx: "3", cy: "8", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ jsx("circle", { cx: "8", cy: "8", r: "1", fill: "currentColor" }),
+    /* @__PURE__ */ jsx("circle", { cx: "13", cy: "8", r: "1", fill: "currentColor" })
   ] })
 };
-
-// src/Node.tsx
-import { jsx as jsx6, jsxs as jsxs6 } from "react/jsx-runtime";
 var nodeName = (label, sub) => sub ? `${label}, ${sub}` : label;
 function Node({
   x,
@@ -634,7 +587,7 @@ function Node({
   } : {};
   const name = nodeName(label, sub);
   const selection = useItemSelection(label, hint, flows[0], !href && !!label, name);
-  const body = /* @__PURE__ */ jsxs6(
+  const body = /* @__PURE__ */ jsxs(
     "g",
     {
       id,
@@ -643,8 +596,8 @@ function Node({
       ...handlers,
       ...selection,
       children: [
-        hint && !selection.role ? /* @__PURE__ */ jsx6("title", { children: hint }) : null,
-        /* @__PURE__ */ jsx6(
+        hint && !selection.role ? /* @__PURE__ */ jsx("title", { children: hint }) : null,
+        /* @__PURE__ */ jsx(
           "rect",
           {
             x,
@@ -660,8 +613,8 @@ function Node({
           }
         ),
         inlay,
-        /* @__PURE__ */ jsx6("path", { className: "uipack__touch-target", d: `M ${x} ${y - Math.max(0, 54 - h) / 2} h ${w} v ${Math.max(h, 54)} h ${-w} Z`, fill: "transparent", stroke: "none", "aria-hidden": "true" }),
-        glyph ? /* @__PURE__ */ jsx6(
+        /* @__PURE__ */ jsx("path", { className: "uipack__touch-target", d: `M ${x} ${y - Math.max(0, 54 - h) / 2} h ${w} v ${Math.max(h, 54)} h ${-w} Z`, fill: "transparent", stroke: "none", "aria-hidden": "true" }),
+        glyph ? /* @__PURE__ */ jsx(
           "g",
           {
             transform: `translate(${x + pad}, ${y + h / 2 - 8})`,
@@ -673,7 +626,7 @@ function Node({
             children: glyph
           }
         ) : null,
-        /* @__PURE__ */ jsx6(
+        /* @__PURE__ */ jsx(
           "text",
           {
             x: tx,
@@ -686,7 +639,7 @@ function Node({
           }
         ),
         sub ? " " : null,
-        sub ? /* @__PURE__ */ jsx6(
+        sub ? /* @__PURE__ */ jsx(
           "text",
           {
             x: tx,
@@ -702,11 +655,8 @@ function Node({
       ]
     }
   );
-  return href ? /* @__PURE__ */ jsx6("a", { href, className: "uipack__link", "aria-label": name, children: body }) : body;
+  return href ? /* @__PURE__ */ jsx("a", { href, className: "uipack__link", "aria-label": name, children: body }) : body;
 }
-
-// src/Chip.tsx
-import { jsx as jsx7, jsxs as jsxs7 } from "react/jsx-runtime";
 function Chip({
   x,
   y,
@@ -723,14 +673,14 @@ function Chip({
   const size = useFontFloor(size0);
   const fill = !kind ? "var(--uipack-surface)" : kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
   const selection = useItemSelection(label || "Empty slot", hint);
-  return /* @__PURE__ */ jsxs7(
+  return /* @__PURE__ */ jsxs(
     "g",
     {
       "data-uipack": "chip",
       ...hoverAttrs(flow, kind === "accent" ? void 0 : kind, hover),
       ...selection,
       children: [
-        /* @__PURE__ */ jsx7(
+        /* @__PURE__ */ jsx(
           "rect",
           {
             x,
@@ -746,7 +696,7 @@ function Chip({
             strokeDasharray: dashed ? "3 3" : void 0
           }
         ),
-        label ? /* @__PURE__ */ jsx7(
+        label ? /* @__PURE__ */ jsx(
           "text",
           {
             x: x + w / 2,
@@ -873,9 +823,6 @@ function trim(points, start = 0, end = 0) {
   return out;
 }
 var grid = (v, step = 8) => Math.round(v / step) * step;
-
-// src/Connector.tsx
-import { jsx as jsx8 } from "react/jsx-runtime";
 function connectorStroke(kind) {
   if (!kind) return "currentColor";
   return kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
@@ -885,7 +832,7 @@ function Connector({ points, defs, arrow = true, dashed, kind, flow, id, radius 
   const [s, e] = Array.isArray(inset) ? inset : [inset, inset];
   const d = pathFromPoints(trim(points, s, arrow ? e + 2 : e), radius);
   const head = defs ? `url(#${defs}-head${kind ? `-${kind}` : ""})` : void 0;
-  return /* @__PURE__ */ jsx8(
+  return /* @__PURE__ */ jsx(
     "path",
     {
       id,
@@ -901,9 +848,6 @@ function Connector({ points, defs, arrow = true, dashed, kind, flow, id, radius 
     }
   );
 }
-
-// src/Bus.tsx
-import { jsx as jsx9, jsxs as jsxs8 } from "react/jsx-runtime";
 function busStub(props, stub) {
   return props.axis === "h" ? [[stub.at, props.at], [stub.at, stub.to]] : [[props.at, stub.at], [stub.to, stub.at]];
 }
@@ -913,19 +857,15 @@ function busStubs(props) {
 function Bus({ axis = "v", at, from, to, stubs, kind, flow, defs, dots = true, id }) {
   const hover = useFigureHover();
   const trunk = axis === "h" ? [[from, at], [to, at]] : [[at, from], [at, to]];
-  return /* @__PURE__ */ jsxs8("g", { id, "data-uipack": "bus", ...hoverAttrs(flow, kind, hover), children: [
-    /* @__PURE__ */ jsx9(Connector, { points: trunk, arrow: false, kind, flow, inset: 0 }),
-    stubs.map((s, i) => /* @__PURE__ */ jsx9(Connector, { points: busStub({ axis, at }, s), defs, arrow: !!s.arrow, kind, flow: s.flow ?? flow, inset: [0, 2] }, i)),
+  return /* @__PURE__ */ jsxs("g", { id, "data-uipack": "bus", ...hoverAttrs(flow, kind, hover), children: [
+    /* @__PURE__ */ jsx(Connector, { points: trunk, arrow: false, kind, flow, inset: 0 }),
+    stubs.map((s, i) => /* @__PURE__ */ jsx(Connector, { points: busStub({ axis, at }, s), defs, arrow: !!s.arrow, kind, flow: s.flow ?? flow, inset: [0, 2] }, i)),
     dots ? stubs.map((s, i) => {
       const [cx, cy] = axis === "h" ? [s.at, at] : [at, s.at];
-      return /* @__PURE__ */ jsx9("circle", { "data-uipack": "junction", cx, cy, r: 2.5, fill: connectorStroke(kind), fillOpacity: kind ? 1 : 0.7 }, i);
+      return /* @__PURE__ */ jsx("circle", { "data-uipack": "junction", cx, cy, r: 2.5, fill: connectorStroke(kind), fillOpacity: kind ? 1 : 0.7 }, i);
     }) : null
   ] });
 }
-
-// src/Packet.tsx
-import { useEffect as useEffect2, useState as useState2 } from "react";
-import { jsx as jsx10, jsxs as jsxs9 } from "react/jsx-runtime";
 function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at, r = 5, reverse, radius = 6, flow, trim: t, id }) {
   const { reduced, prerender } = useFigureMotion();
   const hover = useFigureHover();
@@ -934,29 +874,26 @@ function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at, r = 5
   const pts = reverse ? [...trimmed].reverse() : trimmed;
   const staticAt = at ?? ((0.5 + delay / dur) % 1 + 1) % 1;
   const d = pathFromPoints(pts, radius);
-  const [mounted, setMounted] = useState2(false);
-  useEffect2(() => setMounted(true), []);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const attrs = hoverAttrs(flow, kind === "neutral" ? void 0 : kind, hover);
   const pre = prerender || globalThis.__UIPACK_PRERENDER__ === true;
   if (reduced || !mounted && !pre) {
     const [cx, cy] = pointAlong(pts, staticAt);
-    return /* @__PURE__ */ jsx10("g", { id, "data-uipack": "packet", "data-static": "true", ...attrs, children: /* @__PURE__ */ jsx10(Token, { kind, shape, r, cx, cy }) });
+    return /* @__PURE__ */ jsx("g", { id, "data-uipack": "packet", "data-static": "true", ...attrs, children: /* @__PURE__ */ jsx(Token, { kind, shape, r, cx, cy }) });
   }
-  return /* @__PURE__ */ jsxs9("g", { id, "data-uipack": "packet", ...attrs, children: [
-    /* @__PURE__ */ jsx10(Token, { kind, shape, r }),
-    /* @__PURE__ */ jsx10("animateMotion", { dur: `${dur}s`, begin: `${delay}s`, repeatCount: "indefinite", path: d, calcMode: "linear" })
+  return /* @__PURE__ */ jsxs("g", { id, "data-uipack": "packet", ...attrs, children: [
+    /* @__PURE__ */ jsx(Token, { kind, shape, r }),
+    /* @__PURE__ */ jsx("animateMotion", { dur: `${dur}s`, begin: `${delay}s`, repeatCount: "indefinite", path: d, calcMode: "linear" })
   ] });
 }
-
-// src/Label.tsx
-import { jsx as jsx11, jsxs as jsxs10 } from "react/jsx-runtime";
 function Label({ x, y, text, anchor: anchor2 = "start", accent, size: size0 = 11, font = "mono" }) {
   const size = useFontFloor(size0);
   const w = text.length * size * (font === "mono" ? 0.62 : 0.55) + 8;
   const rx = anchor2 === "middle" ? x - w / 2 : anchor2 === "end" ? x - w + 4 : x - 4;
-  return /* @__PURE__ */ jsxs10("g", { "data-uipack": "label", children: [
-    /* @__PURE__ */ jsx11("rect", { x: rx, y: y - size + 1, width: w, height: size + 5, fill: "var(--uipack-bg)" }),
-    /* @__PURE__ */ jsx11(
+  return /* @__PURE__ */ jsxs("g", { "data-uipack": "label", children: [
+    /* @__PURE__ */ jsx("rect", { x: rx, y: y - size + 1, width: w, height: size + 5, fill: "var(--uipack-bg)" }),
+    /* @__PURE__ */ jsx(
       "text",
       {
         x,
@@ -972,11 +909,8 @@ function Label({ x, y, text, anchor: anchor2 = "start", accent, size: size0 = 11
     )
   ] });
 }
-
-// src/Defs.tsx
-import { jsx as jsx12, jsxs as jsxs11 } from "react/jsx-runtime";
 function Defs({ id }) {
-  const head = (suffix, fill) => /* @__PURE__ */ jsx12(
+  const head = (suffix, fill) => /* @__PURE__ */ jsx(
     "marker",
     {
       id: `${id}-head${suffix}`,
@@ -986,10 +920,10 @@ function Defs({ id }) {
       refY: "4",
       orient: "auto-start-reverse",
       markerUnits: "userSpaceOnUse",
-      children: /* @__PURE__ */ jsx12("path", { d: "M0,0 L8,4 L0,8 z", fill })
+      children: /* @__PURE__ */ jsx("path", { d: "M0,0 L8,4 L0,8 z", fill })
     }
   );
-  return /* @__PURE__ */ jsxs11("defs", { children: [
+  return /* @__PURE__ */ jsxs("defs", { children: [
     head("", "currentColor"),
     head("-accent", "var(--uipack-accent)"),
     head("-request", "var(--uipack-token-request)"),
@@ -998,37 +932,4 @@ function Defs({ id }) {
   ] });
 }
 
-export {
-  SelectionContext,
-  FigureHoverContext,
-  useFigureHover,
-  flowList,
-  hoverAttrs,
-  Legend,
-  placeNote,
-  PauseGlyph,
-  PlayGlyph,
-  ReplayGlyph,
-  Figure,
-  Lane,
-  Group,
-  icons,
-  nodeName,
-  Node,
-  Chip,
-  anchor,
-  route,
-  pathFromPoints,
-  pointAlong,
-  polylineLength,
-  trim,
-  grid,
-  connectorStroke,
-  Connector,
-  busStub,
-  busStubs,
-  Bus,
-  Packet,
-  Label,
-  Defs
-};
+export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, Packet, PauseGlyph, PlayGlyph, ReplayGlyph, SelectionContext, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, nodeName, pathFromPoints, placeNote, pointAlong, polylineLength, route, trim, useFigureHover };

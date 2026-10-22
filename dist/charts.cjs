@@ -1,6 +1,8 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
+'use strict';
 
-var _chunkYMPVJRTJcjs = require('./chunk-YMPVJRTJ.cjs');
+var chunkYMPVJRTJ_cjs = require('./chunk-YMPVJRTJ.cjs');
+var react = require('react');
+var jsxRuntime = require('react/jsx-runtime');
 
 // src/charts/model.ts
 var DEFAULT_LABELS = {
@@ -46,7 +48,7 @@ var DEFAULT_LABELS = {
   shutdown: "Shut down"
 };
 var fill = (template, values) => template.replace(/\{(\w+)\}/g, (match, key) => key in values ? String(values[key]) : match);
-var filterKey = ({ layer, tier, deals }) => `${_nullishCoalesce(layer, () => ( "*"))}|${_nullishCoalesce(tier, () => ( "*"))}|${deals ? "d" : "*"}`;
+var filterKey = ({ layer, tier, deals }) => `${layer ?? "*"}|${tier ?? "*"}|${deals ? "d" : "*"}`;
 var fail = (chart, message) => {
   throw new Error(`SpanChart "${chart}": ${message}`);
 };
@@ -55,8 +57,8 @@ var STATUS_KINDS = ["acquired", "pending", "licensed", "shutdown"];
 function monogram(name) {
   const words = name.replace(/([a-z])([A-Z])/g, "$1 $2").split(/[\s-]+/).map((w) => w.replace(/^[^\p{L}\p{N}]+/u, "")).filter(Boolean);
   if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
-  const word = _nullishCoalesce(words[0], () => ( "?"));
-  return word[0].toUpperCase() + (_nullishCoalesce(word[1], () => ( "")));
+  const word = words[0] ?? "?";
+  return word[0].toUpperCase() + (word[1] ?? "");
 }
 function spanRuns(columns, main) {
   const runs = [];
@@ -76,7 +78,7 @@ function statusBadge(status) {
 }
 function statusSentence(status, labels) {
   if (status.kind === "shutdown") return status.label ? `${labels.shutdown}, ${status.label}` : labels.shutdown;
-  return fill(labels[status.kind], { label: _nullishCoalesce(status.label, () => ( "")) });
+  return fill(labels[status.kind], { label: status.label ?? "" });
 }
 var ADVANCE = {
   11: "7r98eai1i1qwk98wb7b7dei18wde8w8wi6dihbhzighriagtifia8w8wi1i1i1etprjfirkakjgygal1l683fpiyg7orl1lqi6lqipi8i0kvjbrfjiiviob78wb7i1fre2fuhkfzhkgbaphfgx7e7efs7lowgsguhghgbheuargsfmmdf9frfeb77qb7i1",
@@ -128,7 +130,7 @@ function from(ok, floor = 0) {
 }
 function spanThresholds(layers) {
   const n = layers.length;
-  const shortCol = Math.max(SHORT_MIN, fullLabelColumn(layers.map((l) => (_nullishCoalesce(l.short, () => ( l.abbr))).replace(/-/g, "- ")), 11, LABEL_GAP, SHORT_TRACKING));
+  const shortCol = Math.max(SHORT_MIN, fullLabelColumn(layers.map((l) => (l.short ?? l.abbr).replace(/-/g, "- ")), 11, LABEL_GAP, SHORT_TRACKING));
   const wide = from((c) => columnWidth(c, n, true) >= shortCol, NARROW_BELOW);
   const col = (c) => columnWidth(c, n, c >= wide);
   const full = fullLabelColumn(layers.map((l) => l.label), 11);
@@ -139,7 +141,7 @@ function spanThresholds(layers) {
   const fullAt = Math.max(short, from((c) => col(c) >= full, 200));
   return { stagger, wide, short, full: fullAt, large: Math.max(fullAt, from((c) => col(c) >= large, 200)) };
 }
-var matches = (row, f) => (f.layer === null || row.layerIds.includes(f.layer)) && (f.tier === null || _optionalChain([row, 'access', _2 => _2.tier, 'optionalAccess', _3 => _3.id]) === f.tier) && (!f.deals || row.deal);
+var matches = (row, f) => (f.layer === null || row.layerIds.includes(f.layer)) && (f.tier === null || row.tier?.id === f.tier) && (!f.deals || row.deal);
 function buildSpanModel(input) {
   const { id, layers, items } = input;
   if (typeof id !== "string" || !NO_SPACE.test(id)) fail(String(id), "`id` must be a non-empty string without spaces");
@@ -155,7 +157,7 @@ function buildSpanModel(input) {
     layerIndex.set(layer.id, i);
   });
   const known = () => [...layerIndex.keys()].join(", ");
-  const tiers = _nullishCoalesce(input.tiers, () => ( []));
+  const tiers = input.tiers ?? [];
   const tierById = /* @__PURE__ */ new Map();
   tiers.forEach((tier, i) => {
     if (!tier || typeof tier.id !== "string" || !NO_SPACE.test(tier.id)) fail(id, `tier ${i} needs an \`id\` without spaces`);
@@ -164,7 +166,7 @@ function buildSpanModel(input) {
     tierById.set(tier.id, tier);
   });
   const zoneById = /* @__PURE__ */ new Map();
-  for (const zone of _nullishCoalesce(input.zones, () => ( []))) {
+  for (const zone of input.zones ?? []) {
     if (!zone || !zone.id) fail(id, "every zone needs an `id`");
     if (zoneById.has(zone.id)) fail(id, `zone id "${zone.id}" is used twice`);
     zoneById.set(zone.id, zone);
@@ -187,7 +189,7 @@ function buildSpanModel(input) {
     if (!item.name) fail(id, `item "${item.id}" needs a \`name\``);
     const primaryIndex = layerIndex.get(item.primary);
     if (primaryIndex === void 0) fail(id, `item "${item.id}" has unknown primary layer "${item.primary}". Known layers: ${known()}`);
-    for (const extra of _nullishCoalesce(item.also, () => ( []))) {
+    for (const extra of item.also ?? []) {
       if (!layerIndex.has(extra)) fail(id, `item "${item.id}" lists unknown layer "${extra}" in \`also\`. Known layers: ${known()}`);
     }
     if (item.status) {
@@ -199,17 +201,17 @@ function buildSpanModel(input) {
     }
     if (item.value !== void 0 && !Number.isFinite(item.value)) fail(id, `item "${item.id}" has a non-numeric \`value\``);
     const tier = item.tier !== void 0 ? tierById.get(item.tier) : null;
-    const columns = [.../* @__PURE__ */ new Set([primaryIndex, ...(_nullishCoalesce(item.also, () => ( []))).map((l) => layerIndex.get(l))])].sort((a, b) => a - b);
+    const columns = [.../* @__PURE__ */ new Set([primaryIndex, ...(item.also ?? []).map((l) => layerIndex.get(l))])].sort((a, b) => a - b);
     const alsoLabels = columns.filter((c) => c !== primaryIndex).map((c) => layers[c].label);
     const statusText = item.status ? statusSentence(item.status, labels) : null;
-    const size = [item.valueLabel, _optionalChain([tier, 'optionalAccess', _4 => _4.label])].filter(Boolean).join(", ");
+    const size = [item.valueLabel, tier?.label].filter(Boolean).join(", ");
     const sentence = [
       `${item.name}.`,
       `${labels.main}: ${layers[primaryIndex].label}.`,
       alsoLabels.length ? `${labels.also}: ${alsoLabels.join(", ")}.` : "",
       size ? `${labels.size}: ${size}.` : "",
       statusText ? `${statusText}.` : "",
-      _optionalChain([item, 'access', _5 => _5.tags, 'optionalAccess', _6 => _6.length]) ? `${item.tags.join(", ")}.` : ""
+      item.tags?.length ? `${item.tags.join(", ")}.` : ""
     ].filter(Boolean).join(" ");
     return {
       item,
@@ -227,7 +229,7 @@ function buildSpanModel(input) {
     };
   });
   const byName = new Intl.Collator("en", { sensitivity: "base", numeric: true });
-  const order = (a, b) => (_nullishCoalesce(b.item.value, () => ( -Infinity))) - (_nullishCoalesce(a.item.value, () => ( -Infinity))) || byName.compare(a.item.name, b.item.name);
+  const order = (a, b) => (b.item.value ?? -Infinity) - (a.item.value ?? -Infinity) || byName.compare(a.item.name, b.item.name);
   const unique = (values) => [...new Set(values)];
   const groups = (input.groupBy === "none" ? rows.length ? [{ layer: null, index: -1, members: rows }] : [] : layers.map((layer, i) => ({ layer, index: i, members: rows.filter((r) => r.primaryIndex === i) })).filter((g) => g.members.length)).map(({ layer, index, members }) => ({
     layer,
@@ -235,7 +237,7 @@ function buildSpanModel(input) {
     rows: [...members].sort(order),
     featured: members.filter((r) => r.item.featured).length,
     layerIds: unique(members.flatMap((r) => r.layerIds)).sort((a, b) => layerIndex.get(a) - layerIndex.get(b)),
-    tierIds: tiers.map((t) => t.id).filter((t) => members.some((r) => _optionalChain([r, 'access', _7 => _7.tier, 'optionalAccess', _8 => _8.id]) === t)),
+    tierIds: tiers.map((t) => t.id).filter((t) => members.some((r) => r.tier?.id === t)),
     hasDeal: members.some((r) => r.deal),
     keys: []
   }));
@@ -269,7 +271,7 @@ function buildSpanModel(input) {
     total: rows.length,
     featured,
     deals: rows.filter((r) => r.deal).length,
-    tierCounts: tiers.map((t) => rows.filter((r) => _optionalChain([r, 'access', _9 => _9.tier, 'optionalAccess', _10 => _10.id]) === t.id).length),
+    tierCounts: tiers.map((t) => rows.filter((r) => r.tier?.id === t.id).length),
     layerCounts: layers.map((l) => rows.filter((r) => r.layerIds.includes(l.id)).length),
     hasToggle,
     initialAll: !hasToggle || input.initial === "all",
@@ -278,9 +280,9 @@ function buildSpanModel(input) {
     groupRules,
     emptyStates,
     samples: {
-      value: _nullishCoalesce(_optionalChain([rows, 'access', _11 => _11.filter, 'call', _12 => _12((r) => r.item.valueLabel && r.item.value !== void 0), 'access', _13 => _13.sort, 'call', _14 => _14((a, b) => b.item.value - a.item.value), 'access', _15 => _15[0], 'optionalAccess', _16 => _16.item, 'access', _17 => _17.valueLabel]), () => ( null)),
-      tag: _nullishCoalesce(_optionalChain([rows, 'access', _18 => _18.find, 'call', _19 => _19((r) => _optionalChain([r, 'access', _20 => _20.item, 'access', _21 => _21.tags, 'optionalAccess', _22 => _22.length])), 'optionalAccess', _23 => _23.item, 'access', _24 => _24.tags, 'access', _25 => _25[0]]), () => ( null)),
-      badges: STATUS_KINDS.filter((kind) => rows.some((r) => _optionalChain([r, 'access', _26 => _26.item, 'access', _27 => _27.status, 'optionalAccess', _28 => _28.kind]) === kind))
+      value: rows.filter((r) => r.item.valueLabel && r.item.value !== void 0).sort((a, b) => b.item.value - a.item.value)[0]?.item.valueLabel ?? null,
+      tag: rows.find((r) => r.item.tags?.length)?.item.tags[0] ?? null,
+      badges: STATUS_KINDS.filter((kind) => rows.some((r) => r.item.status?.kind === kind))
     }
   };
 }
@@ -343,65 +345,58 @@ function spanChartCss(model) {
   );
   return rules.join("\n");
 }
-
-// src/charts/caseSafe.tsx
-var _react = require('react');
-var _jsxruntime = require('react/jsx-runtime');
 function CaseSafe({ text, keep }) {
   const parts = text.split(/(\s+)/);
-  if (!parts.some(mangled)) return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _jsxruntime.Fragment, { children: text });
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _jsxruntime.Fragment, { children: parts.map(
-    (part, i) => mangled(part) ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: keep, children: part }, i) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _react.Fragment, { children: part }, i)
+  if (!parts.some(mangled)) return /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, { children: text });
+  return /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, { children: parts.map(
+    (part, i) => mangled(part) ? /* @__PURE__ */ jsxRuntime.jsx("span", { className: keep, children: part }, i) : /* @__PURE__ */ jsxRuntime.jsx(react.Fragment, { children: part }, i)
   ) });
 }
 var mangled = (word) => /\d/.test(word) && /[a-z]/.test(word) || /[a-z]/.test(word) && /^.+[A-Z]/u.test(word.replace(/^[^A-Za-z]*/, ""));
-
-// src/charts/SpanChart.tsx
-
 var vars = (values) => values;
-var breakable = (text) => text.split(/(?<=-)/).map((part, i, parts) => i < parts.length - 1 ? [part, /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "wbr", {}, i)] : part);
+var breakable = (text) => text.split(/(?<=-)/).map((part, i, parts) => i < parts.length - 1 ? [part, /* @__PURE__ */ jsxRuntime.jsx("wbr", {}, i)] : part);
 function Row({ row, labels }) {
   const { item } = row;
   const meta = [
     `${labels.main}: ${row.layerLabels[0]}`,
     row.layerLabels.length > 1 ? `${labels.also}: ${row.layerLabels.slice(1).join(", ")}` : null,
-    item.valueLabel || row.tier ? `${labels.size}: ${[item.valueLabel, _optionalChain([row, 'access', _29 => _29.tier, 'optionalAccess', _30 => _30.label])].filter(Boolean).join(", ")}` : null,
+    item.valueLabel || row.tier ? `${labels.size}: ${[item.valueLabel, row.tier?.label].filter(Boolean).join(", ")}` : null,
     row.statusText
   ].filter(Boolean);
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+  return /* @__PURE__ */ jsxRuntime.jsx(
     "li",
     {
       className: "uipack-span__item",
       "data-item": item.id,
       "data-layers": row.layerIds.join(" "),
-      "data-tier": _optionalChain([row, 'access', _31 => _31.tier, 'optionalAccess', _32 => _32.id]),
+      "data-tier": row.tier?.id,
       "data-deal": row.deal ? "" : void 0,
       "data-featured": item.featured ? "" : void 0,
-      children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "details", { children: [
-        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "summary", { children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__sr", children: row.sentence }),
-          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-span__line", "aria-hidden": "true", children: [
-            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-span__name", children: [
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "i", {}),
-              item.logo ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__logo", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "img", { src: item.logo, alt: "", width: 20, height: 20, loading: "lazy", decoding: "async" }) }) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__logo uipack-span__logo--mono", children: row.monogram }),
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-span__nv", children: [
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "b", { title: item.name.length > 18 ? item.name : void 0, children: item.name }),
-                item.valueLabel ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "em", { title: item.valueLabel.length > 8 ? item.valueLabel : void 0, children: item.valueLabel }) : null
+      children: /* @__PURE__ */ jsxRuntime.jsxs("details", { children: [
+        /* @__PURE__ */ jsxRuntime.jsxs("summary", { children: [
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__sr", children: row.sentence }),
+          /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-span__line", "aria-hidden": "true", children: [
+            /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-span__name", children: [
+              /* @__PURE__ */ jsxRuntime.jsx("i", {}),
+              item.logo ? /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__logo", children: /* @__PURE__ */ jsxRuntime.jsx("img", { src: item.logo, alt: "", width: 20, height: 20, loading: "lazy", decoding: "async" }) }) : /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__logo uipack-span__logo--mono", children: row.monogram }),
+              /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-span__nv", children: [
+                /* @__PURE__ */ jsxRuntime.jsx("b", { title: item.name.length > 18 ? item.name : void 0, children: item.name }),
+                item.valueLabel ? /* @__PURE__ */ jsxRuntime.jsx("em", { title: item.valueLabel.length > 8 ? item.valueLabel : void 0, children: item.valueLabel }) : null
               ] }),
-              row.badge || _optionalChain([item, 'access', _33 => _33.tags, 'optionalAccess', _34 => _34.length]) ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-span__sub", children: [
-                row.badge && item.status ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__badge", "data-kind": item.status.kind, children: row.badge }) : null,
-                _optionalChain([item, 'access', _35 => _35.tags, 'optionalAccess', _36 => _36.map, 'call', _37 => _37((tag) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__tag", children: tag }, tag))])
+              row.badge || item.tags?.length ? /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-span__sub", children: [
+                row.badge && item.status ? /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__badge", "data-kind": item.status.kind, children: row.badge }) : null,
+                item.tags?.map((tag) => /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__tag", children: tag }, tag))
               ] }) : null
             ] }),
-            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__track", children: row.runs.map((run) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { style: vars({ "--a": run.start + 1, "--n": run.end - run.start + 1 }), children: run.main !== null ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { style: vars({ "--at": run.main - run.start }) }) : null }, run.start)) })
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__track", children: row.runs.map((run) => /* @__PURE__ */ jsxRuntime.jsx("span", { style: vars({ "--a": run.start + 1, "--n": run.end - run.start + 1 }), children: run.main !== null ? /* @__PURE__ */ jsxRuntime.jsx("span", { style: vars({ "--at": run.main - run.start }) }) : null }, run.start)) })
           ] })
         ] }),
-        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-span__detail", children: [
-          item.note ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: item.note }) : null,
-          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-span__meta", children: [
-            meta.map((text) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: text }, text)),
-            item.href ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { href: item.href, children: labels.website }) }) : null,
-            item.source ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { href: item.source, children: labels.source }) }) : null
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-span__detail", children: [
+          item.note ? /* @__PURE__ */ jsxRuntime.jsx("p", { children: item.note }) : null,
+          /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-span__meta", children: [
+            meta.map((text) => /* @__PURE__ */ jsxRuntime.jsx("span", { children: text }, text)),
+            item.href ? /* @__PURE__ */ jsxRuntime.jsx("span", { children: /* @__PURE__ */ jsxRuntime.jsx("a", { href: item.href, children: labels.website }) }) : null,
+            item.source ? /* @__PURE__ */ jsxRuntime.jsx("span", { children: /* @__PURE__ */ jsxRuntime.jsx("a", { href: item.source, children: labels.source }) }) : null
           ] })
         ] })
       ] })
@@ -410,42 +405,42 @@ function Row({ row, labels }) {
 }
 function withCount(template, n) {
   const [before, after = ""] = template.split("{n}");
-  return template.includes("{n}") ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
+  return template.includes("{n}") ? /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
     before,
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__num", children: n }),
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__num", children: n }),
     after
   ] }) : template;
 }
 function Key({ model }) {
   const { labels, samples } = model;
   const word = (kind) => labels[`legend${kind[0].toUpperCase()}${kind.slice(1)}`];
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "ul", { className: "uipack-span__key", role: "list", children: [
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__key-label", children: labels.keyBars }),
-      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-span__key-item", children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__swatch uipack-span__swatch--main", "aria-hidden": "true" }),
+  return /* @__PURE__ */ jsxRuntime.jsxs("ul", { className: "uipack-span__key", role: "list", children: [
+    /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__key-label", children: labels.keyBars }),
+      /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-span__key-item", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__swatch uipack-span__swatch--main", "aria-hidden": "true" }),
         labels.keyMain
       ] }),
-      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-span__key-item", children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__swatch uipack-span__swatch--also", "aria-hidden": "true" }),
+      /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-span__key-item", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__swatch uipack-span__swatch--also", "aria-hidden": "true" }),
         labels.keyAlso
       ] })
     ] }),
-    samples.badges.length ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__key-label", children: labels.keyDeals }),
-      samples.badges.map((kind) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__badge", "data-kind": kind, children: kind === "shutdown" ? word(kind) : `${kind === "licensed" ? "\u219D" : "\u2192"} ${word(kind)}` }, kind))
+    samples.badges.length ? /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__key-label", children: labels.keyDeals }),
+      samples.badges.map((kind) => /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__badge", "data-kind": kind, children: kind === "shutdown" ? word(kind) : `${kind === "licensed" ? "\u219D" : "\u2192"} ${word(kind)}` }, kind))
     ] }) : null,
-    samples.value ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__key-label", children: labels.keySize }),
-      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-span__key-item", children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "em", { className: "uipack-span__sample", children: samples.value }),
+    samples.value ? /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__key-label", children: labels.keySize }),
+      /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-span__key-item", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("em", { className: "uipack-span__sample", children: samples.value }),
         labels.valueLegend
       ] })
     ] }) : null,
-    samples.tag ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__key-label", children: labels.keyType }),
-      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-span__key-item", children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__tag", children: samples.tag }),
+    samples.tag ? /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__key-label", children: labels.keyType }),
+      /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-span__key-item", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__tag", children: samples.tag }),
         labels.tagLegend
       ] })
     ] }) : null
@@ -454,48 +449,48 @@ function Key({ model }) {
 function SizeControl({ model }) {
   const { id, labels, tiers } = model;
   if (!tiers.length) return null;
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-span__seg", "aria-hidden": "true", children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__seg-label", children: labels.size }),
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "label", { htmlFor: inputId.tierAll(id), className: "uipack-span__chip uipack-span__chip--all", "data-t": "*", children: [
+  return /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-span__seg", "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__seg-label", children: labels.size }),
+    /* @__PURE__ */ jsxRuntime.jsxs("label", { htmlFor: inputId.tierAll(id), className: "uipack-span__chip uipack-span__chip--all", "data-t": "*", children: [
       labels.allSizes,
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__num", children: model.total })
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__num", children: model.total })
     ] }),
-    tiers.map((tier, k) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "label", { htmlFor: inputId.tier(id, tier.id), className: "uipack-span__chip", "data-t": tier.id, title: tier.range, children: [
+    tiers.map((tier, k) => /* @__PURE__ */ jsxRuntime.jsxs("label", { htmlFor: inputId.tier(id, tier.id), className: "uipack-span__chip", "data-t": tier.id, title: tier.range, children: [
       tier.label,
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__num", children: model.tierCounts[k] })
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__num", children: model.tierCounts[k] })
     ] }, tier.id))
   ] });
 }
 function DealsToggle({ model }) {
-  return model.deals ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "label", { htmlFor: inputId.deals(model.id), className: "uipack-span__chip uipack-span__chip--toggle", "data-d": "", "aria-hidden": "true", children: [
+  return model.deals ? /* @__PURE__ */ jsxRuntime.jsxs("label", { htmlFor: inputId.deals(model.id), className: "uipack-span__chip uipack-span__chip--toggle", "data-d": "", "aria-hidden": "true", children: [
     model.labels.deals,
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__num", children: model.deals })
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__num", children: model.deals })
   ] }) : null;
 }
 function LayerChips({ model }) {
   const { id, labels, layers } = model;
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-span__wrap", "aria-hidden": "true", children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__seg-label", children: labels.layer }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "label", { htmlFor: inputId.layerAll(id), className: "uipack-span__chip uipack-span__chip--all", "data-l": "*", children: labels.allLayers }),
-    layers.map((layer) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "label", { htmlFor: inputId.layer(id, layer.id), className: "uipack-span__chip", "data-l": layer.id, children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__code", children: layer.abbr }),
-      _nullishCoalesce(layer.short, () => ( layer.label))
+  return /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-span__wrap", "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__seg-label", children: labels.layer }),
+    /* @__PURE__ */ jsxRuntime.jsx("label", { htmlFor: inputId.layerAll(id), className: "uipack-span__chip uipack-span__chip--all", "data-l": "*", children: labels.allLayers }),
+    layers.map((layer) => /* @__PURE__ */ jsxRuntime.jsxs("label", { htmlFor: inputId.layer(id, layer.id), className: "uipack-span__chip", "data-l": layer.id, children: [
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__code", children: layer.abbr }),
+      layer.short ?? layer.label
     ] }, layer.id))
   ] });
 }
 function SpanChart(props) {
   const model = buildSpanModel(props);
   const { id, labels, layers, tiers } = model;
-  const level = _nullishCoalesce(props.headingLevel, () => ( 3));
+  const level = props.headingLevel ?? 3;
   const plain = level === "none" || level === false;
   const Title = plain ? "p" : `h${level}`;
   const GroupHead = plain ? "p" : `h${props.title ? Math.min(level + 1, 6) : level}`;
   const zoneStarts = new Set(model.zones.slice(1).map((z) => z.start));
-  const toggle = (where) => model.hasToggle ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "label", { htmlFor: inputId.expand(id), className: `uipack-span__toggle uipack-span__toggle--${where}`, children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__more", children: withCount(labels.showAll, model.total) }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__less", children: withCount(labels.showFeatured, model.featured) })
+  const toggle = (where) => model.hasToggle ? /* @__PURE__ */ jsxRuntime.jsxs("label", { htmlFor: inputId.expand(id), className: `uipack-span__toggle uipack-span__toggle--${where}`, children: [
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__more", children: withCount(labels.showAll, model.total) }),
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__less", children: withCount(labels.showFeatured, model.featured) })
   ] }) : null;
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+  return /* @__PURE__ */ jsxRuntime.jsxs(
     "section",
     {
       className: "uipack-span",
@@ -505,46 +500,46 @@ function SpanChart(props) {
       "data-lean": !tiers.length && !model.deals ? "" : void 0,
       style: vars({ "--sp-cols": layers.length }),
       children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "style", { dangerouslySetInnerHTML: { __html: spanChartCss(model) } }),
-        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "form", { className: "uipack-span__form", method: "dialog", id: `${id}-form`, "data-shown": labels.shown, children: [
-          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-span__head", children: [
-            props.title ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Title, { className: "uipack-span__title", id: `${id}-title`, children: props.title }) : null,
-            props.caption ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack-span__caption", children: props.caption }) : null,
-            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-span__panel", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Key, { model }) }),
-            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "details", { className: "uipack-span__drawer", children: [
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "summary", { children: [
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__drawer-title", children: labels.filtersAndKey }),
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__now-text", "data-l": "*", children: labels.allLayers }),
-                layers.map((layer) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__now-text", "data-l": layer.id, children: _nullishCoalesce(layer.short, () => ( layer.label)) }, layer.id)),
-                tiers.length ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__now-text", "data-t": "*", children: labels.allSizes }) : null,
-                tiers.map((tier) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__now-text", "data-t": tier.id, children: tier.label }, tier.id)),
-                model.deals ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__now-text", "data-d": "", children: labels.deals }) : null
+        /* @__PURE__ */ jsxRuntime.jsx("style", { dangerouslySetInnerHTML: { __html: spanChartCss(model) } }),
+        /* @__PURE__ */ jsxRuntime.jsxs("form", { className: "uipack-span__form", method: "dialog", id: `${id}-form`, "data-shown": labels.shown, children: [
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-span__head", children: [
+            props.title ? /* @__PURE__ */ jsxRuntime.jsx(Title, { className: "uipack-span__title", id: `${id}-title`, children: props.title }) : null,
+            props.caption ? /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-span__caption", children: props.caption }) : null,
+            /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-span__panel", children: /* @__PURE__ */ jsxRuntime.jsx(Key, { model }) }),
+            /* @__PURE__ */ jsxRuntime.jsxs("details", { className: "uipack-span__drawer", children: [
+              /* @__PURE__ */ jsxRuntime.jsxs("summary", { children: [
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__drawer-title", children: labels.filtersAndKey }),
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__now-text", "data-l": "*", children: labels.allLayers }),
+                layers.map((layer) => /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__now-text", "data-l": layer.id, children: layer.short ?? layer.label }, layer.id)),
+                tiers.length ? /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__now-text", "data-t": "*", children: labels.allSizes }) : null,
+                tiers.map((tier) => /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__now-text", "data-t": tier.id, children: tier.label }, tier.id)),
+                model.deals ? /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__now-text", "data-d": "", children: labels.deals }) : null
               ] }),
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Key, { model }),
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-span__filters", children: [
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, LayerChips, { model }),
-                /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-span__wrap", children: [
-                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, SizeControl, { model }),
-                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, DealsToggle, { model })
+              /* @__PURE__ */ jsxRuntime.jsx(Key, { model }),
+              /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-span__filters", children: [
+                /* @__PURE__ */ jsxRuntime.jsx(LayerChips, { model }),
+                /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-span__wrap", children: [
+                  /* @__PURE__ */ jsxRuntime.jsx(SizeControl, { model }),
+                  /* @__PURE__ */ jsxRuntime.jsx(DealsToggle, { model })
                 ] })
               ] })
             ] }),
-            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-span__keyline", children: [
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { children: [
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__swatch uipack-span__swatch--main", "aria-hidden": "true" }),
+            /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-span__keyline", children: [
+              /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__swatch uipack-span__swatch--main", "aria-hidden": "true" }),
                 labels.keyMain
               ] }),
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { children: [
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__swatch uipack-span__swatch--also", "aria-hidden": "true" }),
+              /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__swatch uipack-span__swatch--also", "aria-hidden": "true" }),
                 labels.keyAlso
               ] }),
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, DealsToggle, { model })
+              /* @__PURE__ */ jsxRuntime.jsx(DealsToggle, { model })
             ] }),
-            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-span__toolbar", children: [
-              tiers.length || model.deals ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-span__inputs", children: [
-                tiers.length ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { role: "radiogroup", "aria-label": labels.size, children: [
-                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "input", { type: "radio", className: "uipack-span__tier-all", name: `${id}-tier`, id: inputId.tierAll(id), value: "*", defaultChecked: true, "aria-label": labels.allSizes }),
-                  tiers.map((tier) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+            /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-span__toolbar", children: [
+              tiers.length || model.deals ? /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-span__inputs", children: [
+                tiers.length ? /* @__PURE__ */ jsxRuntime.jsxs("div", { role: "radiogroup", "aria-label": labels.size, children: [
+                  /* @__PURE__ */ jsxRuntime.jsx("input", { type: "radio", className: "uipack-span__tier-all", name: `${id}-tier`, id: inputId.tierAll(id), value: "*", defaultChecked: true, "aria-label": labels.allSizes }),
+                  tiers.map((tier) => /* @__PURE__ */ jsxRuntime.jsx(
                     "input",
                     {
                       type: "radio",
@@ -557,46 +552,46 @@ function SpanChart(props) {
                     tier.id
                   ))
                 ] }) : null,
-                model.deals ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "input", { type: "checkbox", className: "uipack-span__deals-input", id: inputId.deals(id), "aria-label": `${labels.deals}, ${model.deals}` }) : null
+                model.deals ? /* @__PURE__ */ jsxRuntime.jsx("input", { type: "checkbox", className: "uipack-span__deals-input", id: inputId.deals(id), "aria-label": `${labels.deals}, ${model.deals}` }) : null
               ] }) : null,
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, SizeControl, { model }),
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, DealsToggle, { model }),
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-span__hint uipack-span__hint--toolbar", "aria-hidden": "true", children: [
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: labels.layerHint }),
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: labels.layerHintTouch })
+              /* @__PURE__ */ jsxRuntime.jsx(SizeControl, { model }),
+              /* @__PURE__ */ jsxRuntime.jsx(DealsToggle, { model }),
+              /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-span__hint uipack-span__hint--toolbar", "aria-hidden": "true", children: [
+                /* @__PURE__ */ jsxRuntime.jsx("span", { children: labels.layerHint }),
+                /* @__PURE__ */ jsxRuntime.jsx("span", { children: labels.layerHintTouch })
               ] }),
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "label", { className: "uipack-span__find", hidden: true, children: [
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__sr", children: labels.find }),
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "input", { type: "search", placeholder: labels.find, autoComplete: "off", spellCheck: false, "data-span-search": "" })
+              /* @__PURE__ */ jsxRuntime.jsxs("label", { className: "uipack-span__find", hidden: true, children: [
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__sr", children: labels.find }),
+                /* @__PURE__ */ jsxRuntime.jsx("input", { type: "search", placeholder: labels.find, autoComplete: "off", spellCheck: false, "data-span-search": "" })
               ] })
             ] })
           ] }),
-          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-span__chart", children: [
-            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-span__header", children: [
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-span__now-row", children: [
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__now-label", children: labels.showing }),
-                layers.map((layer) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "label", { htmlFor: inputId.layerAll(id), className: "uipack-span__now", "data-l": layer.id, children: [
-                  _nullishCoalesce(layer.short, () => ( layer.label)),
-                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "aria-hidden": "true", children: "\xD7" })
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-span__chart", children: [
+            /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-span__header", children: [
+              /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-span__now-row", children: [
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__now-label", children: labels.showing }),
+                layers.map((layer) => /* @__PURE__ */ jsxRuntime.jsxs("label", { htmlFor: inputId.layerAll(id), className: "uipack-span__now", "data-l": layer.id, children: [
+                  layer.short ?? layer.label,
+                  /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", children: "\xD7" })
                 ] }, layer.id)),
-                tiers.map((tier) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "label", { htmlFor: inputId.tierAll(id), className: "uipack-span__now", "data-t": tier.id, children: [
+                tiers.map((tier) => /* @__PURE__ */ jsxRuntime.jsxs("label", { htmlFor: inputId.tierAll(id), className: "uipack-span__now", "data-t": tier.id, children: [
                   tier.label,
-                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "aria-hidden": "true", children: "\xD7" })
+                  /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", children: "\xD7" })
                 ] }, tier.id)),
-                model.deals ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "label", { htmlFor: inputId.deals(id), className: "uipack-span__now", "data-d": "", children: [
+                model.deals ? /* @__PURE__ */ jsxRuntime.jsxs("label", { htmlFor: inputId.deals(id), className: "uipack-span__now", "data-d": "", children: [
                   labels.deals,
-                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "aria-hidden": "true", children: "\xD7" })
+                  /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", children: "\xD7" })
                 ] }) : null,
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "reset", className: "uipack-span__clear", "aria-label": labels.clearFilters, children: labels.clear })
+                /* @__PURE__ */ jsxRuntime.jsx("button", { type: "reset", className: "uipack-span__clear", "aria-label": labels.clearFilters, children: labels.clear })
               ] }),
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-span__inputs", children: [
-                /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { role: "radiogroup", "aria-label": labels.layer, children: [
-                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "input", { type: "radio", className: "uipack-span__all-input", name: `${id}-layer`, id: inputId.layerAll(id), value: "*", defaultChecked: true, "aria-label": labels.allLayers }),
-                  layers.map((layer) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "input", { type: "radio", className: "uipack-span__layer-input", name: `${id}-layer`, id: inputId.layer(id, layer.id), value: layer.id, "aria-label": layer.label }, layer.id))
+              /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-span__inputs", children: [
+                /* @__PURE__ */ jsxRuntime.jsxs("div", { role: "radiogroup", "aria-label": labels.layer, children: [
+                  /* @__PURE__ */ jsxRuntime.jsx("input", { type: "radio", className: "uipack-span__all-input", name: `${id}-layer`, id: inputId.layerAll(id), value: "*", defaultChecked: true, "aria-label": labels.allLayers }),
+                  layers.map((layer) => /* @__PURE__ */ jsxRuntime.jsx("input", { type: "radio", className: "uipack-span__layer-input", name: `${id}-layer`, id: inputId.layer(id, layer.id), value: layer.id, "aria-label": layer.label }, layer.id))
                 ] }),
                 model.hasToggle ? (
                   // Outside the form, so "Clear filters" does not collapse the list.
-                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+                  /* @__PURE__ */ jsxRuntime.jsx(
                     "input",
                     {
                       type: "checkbox",
@@ -609,16 +604,16 @@ function SpanChart(props) {
                   )
                 ) : null
               ] }),
-              model.zones.length ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-span__zones", "aria-hidden": "true", children: model.zones.map(({ zone, start, end }) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "data-zone-start": zoneStarts.has(start) ? "" : void 0, style: { gridColumn: `${start + 2} / ${end + 3}` }, title: zone.label, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, CaseSafe, { text: zone.label, keep: "uipack-span__keep" }) }) }, zone.id)) }) : null,
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-span__cols", "aria-hidden": "true", children: [
-                /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-span__corner", children: [
-                  /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-span__hint", children: [
-                    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: labels.layerHint }),
-                    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: labels.layerHintTouch })
+              model.zones.length ? /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-span__zones", "aria-hidden": "true", children: model.zones.map(({ zone, start, end }) => /* @__PURE__ */ jsxRuntime.jsx("span", { "data-zone-start": zoneStarts.has(start) ? "" : void 0, style: { gridColumn: `${start + 2} / ${end + 3}` }, title: zone.label, children: /* @__PURE__ */ jsxRuntime.jsx("span", { children: /* @__PURE__ */ jsxRuntime.jsx(CaseSafe, { text: zone.label, keep: "uipack-span__keep" }) }) }, zone.id)) }) : null,
+              /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-span__cols", "aria-hidden": "true", children: [
+                /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-span__corner", children: [
+                  /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-span__hint", children: [
+                    /* @__PURE__ */ jsxRuntime.jsx("span", { children: labels.layerHint }),
+                    /* @__PURE__ */ jsxRuntime.jsx("span", { children: labels.layerHintTouch })
                   ] }),
                   labels.company
                 ] }),
-                layers.map((layer, k) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+                layers.map((layer, k) => /* @__PURE__ */ jsxRuntime.jsxs(
                   "label",
                   {
                     htmlFor: inputId.layer(id, layer.id),
@@ -628,26 +623,26 @@ function SpanChart(props) {
                     style: { gridColumn: String(k + 2) },
                     title: layer.label,
                     children: [
-                      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__abbr", children: layer.abbr }),
-                      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__short", children: breakable(_nullishCoalesce(layer.short, () => ( layer.abbr))) }),
-                      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__full", children: layer.label }),
-                      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__ccount", children: model.layerCounts[k] })
+                      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__abbr", children: layer.abbr }),
+                      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__short", children: breakable(layer.short ?? layer.abbr) }),
+                      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__full", children: layer.label }),
+                      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__ccount", children: model.layerCounts[k] })
                     ]
                   },
                   layer.id
                 ))
               ] })
             ] }),
-            model.hasToggle ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-span__top", children: [
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__more", children: fill(labels.shown, { n: model.featured, total: model.total }) }),
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__less", children: fill(labels.shown, { n: model.total, total: model.total }) }),
+            model.hasToggle ? /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-span__top", children: [
+              /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__more", children: fill(labels.shown, { n: model.featured, total: model.total }) }),
+              /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__less", children: fill(labels.shown, { n: model.total, total: model.total }) }),
               toggle("top")
             ] }) : null,
-            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-span__body", children: [
-              model.zones.slice(1).map(({ zone, start }) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__rule", "aria-hidden": "true", style: vars({ "--k": start }) }, zone.id)),
+            /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-span__body", children: [
+              model.zones.slice(1).map(({ zone, start }) => /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__rule", "aria-hidden": "true", style: vars({ "--k": start }) }, zone.id)),
               model.groups.map((group) => {
-                const headId = `${id}-g-${_nullishCoalesce(_optionalChain([group, 'access', _38 => _38.layer, 'optionalAccess', _39 => _39.id]), () => ( "all"))}`;
-                return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+                const headId = `${id}-g-${group.layer?.id ?? "all"}`;
+                return /* @__PURE__ */ jsxRuntime.jsxs(
                   "div",
                   {
                     className: "uipack-span__group",
@@ -659,47 +654,44 @@ function SpanChart(props) {
                     role: plain && group.layer ? "group" : void 0,
                     "aria-labelledby": plain && group.layer ? headId : void 0,
                     children: [
-                      group.layer ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, GroupHead, { className: "uipack-span__group-head", id: headId, children: [
-                        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, CaseSafe, { text: group.layer.label, keep: "uipack-span__keep" }) }),
-                        model.hasToggle ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-span__count uipack-span__count--featured", children: [
+                      group.layer ? /* @__PURE__ */ jsxRuntime.jsxs(GroupHead, { className: "uipack-span__group-head", id: headId, children: [
+                        /* @__PURE__ */ jsxRuntime.jsx("span", { children: /* @__PURE__ */ jsxRuntime.jsx(CaseSafe, { text: group.layer.label, keep: "uipack-span__keep" }) }),
+                        model.hasToggle ? /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-span__count uipack-span__count--featured", children: [
                           group.featured,
                           " of ",
                           group.rows.length
                         ] }) : null,
-                        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__count uipack-span__count--total", children: group.rows.length }),
-                        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__count uipack-span__count--live", "data-span-count": "" }),
-                        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__mark", "aria-hidden": "true", style: vars({ "--k": group.index }) })
+                        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__count uipack-span__count--total", children: group.rows.length }),
+                        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__count uipack-span__count--live", "data-span-count": "" }),
+                        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__mark", "aria-hidden": "true", style: vars({ "--k": group.index }) })
                       ] }) : null,
-                      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { className: "uipack-span__rows", role: "list", children: group.rows.map((row) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Row, { row, labels }, row.item.id)) })
+                      /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "uipack-span__rows", role: "list", children: group.rows.map((row) => /* @__PURE__ */ jsxRuntime.jsx(Row, { row, labels }, row.item.id)) })
                     ]
                   },
-                  _nullishCoalesce(_optionalChain([group, 'access', _40 => _40.layer, 'optionalAccess', _41 => _41.id]), () => ( "all"))
+                  group.layer?.id ?? "all"
                 );
               }),
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-span__empty", children: [
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: labels.empty }),
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "reset", className: "uipack-span__clear", children: labels.clearFilters })
+              /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-span__empty", children: [
+                /* @__PURE__ */ jsxRuntime.jsx("p", { children: labels.empty }),
+                /* @__PURE__ */ jsxRuntime.jsx("button", { type: "reset", className: "uipack-span__clear", children: labels.clearFilters })
               ] }),
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-span__nomatch", hidden: true, "data-span-nomatch": labels.noMatch, children: [
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", {}),
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", className: "uipack-span__clear", "data-span-clear-search": "", children: labels.clearSearch })
+              /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-span__nomatch", hidden: true, "data-span-nomatch": labels.noMatch, children: [
+                /* @__PURE__ */ jsxRuntime.jsx("p", {}),
+                /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", className: "uipack-span__clear", "data-span-clear-search": "", children: labels.clearSearch })
               ] })
             ] }),
-            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-span__foot", children: [
+            /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-span__foot", children: [
               toggle("foot"),
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__status", "data-span-status": "" }),
-              props.asOf ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-span__asof", children: fill(labels.asOf, { date: props.asOf }) }) : null
+              /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__status", "data-span-status": "" }),
+              props.asOf ? /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-span__asof", children: fill(labels.asOf, { date: props.asOf }) }) : null
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack-span__sr", "aria-live": "polite", "data-span-live": "" })
+        /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-span__sr", "aria-live": "polite", "data-span-live": "" })
       ]
     }
   );
 }
-
-// src/charts/LayerStack.tsx
-
 var LAYER_STACK_LABELS = {
   layer: "Layer",
   layers: "layers",
@@ -720,14 +712,14 @@ function buildLayerStack(props) {
   if (!Array.isArray(layers) || !layers.length) fail2(id, "`layers` must list at least one layer");
   const labels = { ...LAYER_STACK_LABELS, ...props.labels };
   const zoneById = /* @__PURE__ */ new Map();
-  for (const zone of _nullishCoalesce(zones, () => ( []))) {
-    if (!_optionalChain([zone, 'optionalAccess', _42 => _42.id])) fail2(id, "every zone needs an `id`");
+  for (const zone of zones ?? []) {
+    if (!zone?.id) fail2(id, "every zone needs an `id`");
     if (zoneById.has(zone.id)) fail2(id, `zone id "${zone.id}" is used twice`);
     zoneById.set(zone.id, zone);
   }
   const index = /* @__PURE__ */ new Map();
   layers.forEach((layer, i) => {
-    if (!_optionalChain([layer, 'optionalAccess', _43 => _43.id])) fail2(id, `layer ${i} needs an \`id\``);
+    if (!layer?.id) fail2(id, `layer ${i} needs an \`id\``);
     if (index.has(layer.id)) fail2(id, `layer id "${layer.id}" is used twice`);
     if (!layer.label) fail2(id, `layer "${layer.id}" needs a \`label\``);
     if (!zoneById.has(layer.zone)) fail2(id, `layer "${layer.id}" names unknown zone "${layer.zone}"`);
@@ -736,7 +728,7 @@ function buildLayerStack(props) {
   const runs = [];
   layers.forEach((layer, i) => {
     const last = runs[runs.length - 1];
-    if (_optionalChain([last, 'optionalAccess', _44 => _44.zone, 'access', _45 => _45.id]) === layer.zone) last.end = i;
+    if (last?.zone.id === layer.zone) last.end = i;
     else if (runs.some((g) => g.zone.id === layer.zone)) fail2(id, `zone "${layer.zone}" must cover consecutive layers; "${layer.id}" is separated from the rest`);
     else runs.push({ zone: zoneById.get(layer.zone), start: i, end: i });
   });
@@ -748,8 +740,8 @@ function buildLayerStack(props) {
     return [Math.min(a, b), Math.max(a, b)];
   };
   const railIds = /* @__PURE__ */ new Set();
-  const rails = (_nullishCoalesce(props.rails, () => ( []))).map((rail) => {
-    if (!_optionalChain([rail, 'optionalAccess', _46 => _46.id])) fail2(id, "every rail needs an `id`");
+  const rails = (props.rails ?? []).map((rail) => {
+    if (!rail?.id) fail2(id, "every rail needs an `id`");
     if (railIds.has(rail.id)) fail2(id, `rail id "${rail.id}" is used twice`);
     railIds.add(rail.id);
     if (!rail.label) fail2(id, `rail "${rail.id}" needs a \`label\``);
@@ -757,8 +749,8 @@ function buildLayerStack(props) {
     const span2 = lo === hi ? `${labels.layerOne} ${lo + 1}` : `${labels.layers} ${lo + 1}\u2013${hi + 1}`;
     return { rail, lo, hi, span: span2 };
   });
-  const brackets = (_nullishCoalesce(props.brackets, () => ( []))).map((bracket) => {
-    if (!_optionalChain([bracket, 'optionalAccess', _47 => _47.label])) fail2(id, "every bracket needs a `label`");
+  const brackets = (props.brackets ?? []).map((bracket) => {
+    if (!bracket?.label) fail2(id, "every bracket needs a `label`");
     const [lo, hi] = range("bracket", bracket.label, bracket.from, bracket.to);
     return { bracket, lo, hi };
   });
@@ -778,7 +770,7 @@ function buildLayerStack(props) {
   };
   const wide = rows(false);
   const compact = rows(true);
-  const one = (key) => ({ wide: [_nullishCoalesce(wide.get(key), () => ( 0)), 1], compact: [compact.get(key), 1] });
+  const one = (key) => ({ wide: [wide.get(key) ?? 0, 1], compact: [compact.get(key), 1] });
   const span = (lo, hi, map) => {
     const top = map.get(`layer:${hi}`);
     return [top, map.get(`layer:${lo}`) - top + 1];
@@ -809,17 +801,17 @@ var place = (p, extra = {}) => ({ "--rw": `${p.wide[0]} / span ${p.wide[1]}`, "-
 function LayerStack(props) {
   const model = buildLayerStack(props);
   const { id, labels } = model;
-  const level = _nullishCoalesce(props.headingLevel, () => ( 3));
+  const level = props.headingLevel ?? 3;
   const plain = level === "none" || level === false;
   const Title = plain ? "p" : `h${level}`;
   const Sub = plain ? "p" : `h${props.title ? Math.min(level + 1, 6) : level}`;
-  const go = /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-stack__go-text", "aria-hidden": "true", children: labels.go }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-stack__go", "aria-hidden": "true" })
+  const go = /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-stack__go-text", "aria-hidden": "true", children: labels.go }),
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-stack__go", "aria-hidden": "true" })
   ] });
-  const arrow = /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-stack__arrow", "aria-hidden": "true" });
-  const keep = (text) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, CaseSafe, { text, keep: "uipack-stack__keep" });
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+  const arrow = /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-stack__arrow", "aria-hidden": "true" });
+  const keep = (text) => /* @__PURE__ */ jsxRuntime.jsx(CaseSafe, { text, keep: "uipack-stack__keep" });
+  return /* @__PURE__ */ jsxRuntime.jsxs(
     "section",
     {
       className: "uipack-stack",
@@ -829,18 +821,18 @@ function LayerStack(props) {
       "data-brackets": model.brackets ? "" : void 0,
       style: { "--ls-rails": model.rails.length },
       children: [
-        props.title || props.caption ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-stack__head", children: [
-          props.title ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Title, { className: "uipack-stack__title", id: `${id}-title`, children: props.title }) : null,
-          props.caption ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack-stack__caption", children: props.caption }) : null
+        props.title || props.caption ? /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-stack__head", children: [
+          props.title ? /* @__PURE__ */ jsxRuntime.jsx(Title, { className: "uipack-stack__title", id: `${id}-title`, children: props.title }) : null,
+          props.caption ? /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-stack__caption", children: props.caption }) : null
         ] }) : null,
-        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-stack__grid", children: [
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-stack__grid", children: [
           model.zones.map((g) => {
             const headId = `${id}-z-${g.zone.id}`;
-            return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-stack__zone", role: plain ? "group" : void 0, "aria-labelledby": plain ? headId : void 0, children: [
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-stack__box", "aria-hidden": "true", style: place(g.box) }),
-              g.brackets.map(({ bracket, lo, hi, place: p }) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-stack__bracket", "data-inside": hi !== g.end ? "" : void 0, style: place(p), children: [
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: bracket.label }),
-                /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-stack__sr", children: [
+            return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-stack__zone", role: plain ? "group" : void 0, "aria-labelledby": plain ? headId : void 0, children: [
+              /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-stack__box", "aria-hidden": "true", style: place(g.box) }),
+              g.brackets.map(({ bracket, lo, hi, place: p }) => /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-stack__bracket", "data-inside": hi !== g.end ? "" : void 0, style: place(p), children: [
+                /* @__PURE__ */ jsxRuntime.jsx("span", { children: bracket.label }),
+                /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-stack__sr", children: [
                   ", ",
                   labels.layers,
                   " ",
@@ -849,89 +841,89 @@ function LayerStack(props) {
                   hi + 1
                 ] })
               ] }, `${bracket.label}-${lo}`)),
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, Sub, { className: "uipack-stack__zone-head", id: headId, style: place(g.place), children: [
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: keep(g.zone.label) }),
-                g.zone.note ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-stack__note", children: keep(g.zone.note) }) : null
+              /* @__PURE__ */ jsxRuntime.jsxs(Sub, { className: "uipack-stack__zone-head", id: headId, style: place(g.place), children: [
+                /* @__PURE__ */ jsxRuntime.jsx("span", { children: keep(g.zone.label) }),
+                g.zone.note ? /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-stack__note", children: keep(g.zone.note) }) : null
               ] }),
               g.layers.map(({ layer, number, place: p }) => {
-                const face = /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-                  /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-stack__index", children: [
-                    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-stack__sr", children: [
+                const face = /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+                  /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-stack__index", children: [
+                    /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-stack__sr", children: [
                       labels.layer,
                       " "
                     ] }),
                     number
                   ] }),
                   " ",
-                  /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-stack__text", children: [
-                    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "b", { children: [
+                  /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-stack__text", children: [
+                    /* @__PURE__ */ jsxRuntime.jsxs("b", { children: [
                       layer.label,
-                      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-stack__sr", children: "." })
+                      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-stack__sr", children: "." })
                     ] }),
                     " ",
-                    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-stack__summary", children: layer.summary })
+                    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-stack__summary", children: layer.summary })
                   ] }),
-                  layer.metric ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-stack__metric", children: [
-                    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-stack__sr", children: "." }),
+                  layer.metric ? /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-stack__metric", children: [
+                    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-stack__sr", children: "." }),
                     " ",
-                    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "strong", { children: layer.metric.value }),
+                    /* @__PURE__ */ jsxRuntime.jsx("strong", { children: layer.metric.value }),
                     " ",
-                    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: layer.metric.label })
+                    /* @__PURE__ */ jsxRuntime.jsx("span", { children: layer.metric.label })
                   ] }) : null
                 ] });
                 const common = { id: `${id}-${layer.id}`, style: place(p) };
                 const said = sentences(`${labels.layer} ${number} ${layer.label}`, layer.summary, layer.metric && `${layer.metric.value} ${layer.metric.label}`);
                 if (layer.detail) {
-                  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "details", { className: "uipack-stack__band", ...common, children: [
-                    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "summary", { className: "uipack-stack__face", "aria-label": said, children: [
+                  return /* @__PURE__ */ jsxRuntime.jsxs("details", { className: "uipack-stack__band", ...common, children: [
+                    /* @__PURE__ */ jsxRuntime.jsxs("summary", { className: "uipack-stack__face", "aria-label": said, children: [
                       face,
-                      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "i", { "aria-hidden": "true" })
+                      /* @__PURE__ */ jsxRuntime.jsx("i", { "aria-hidden": "true" })
                     ] }),
-                    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-stack__detail", children: [
-                      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { children: [
-                        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-stack__check", children: labels.check }),
+                    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-stack__detail", children: [
+                      /* @__PURE__ */ jsxRuntime.jsxs("p", { children: [
+                        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-stack__check", children: labels.check }),
                         " ",
                         layer.detail
                       ] }),
-                      layer.href ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "a", { className: "uipack-stack__read", href: layer.href, children: [
+                      layer.href ? /* @__PURE__ */ jsxRuntime.jsxs("a", { className: "uipack-stack__read", href: layer.href, children: [
                         labels.read,
                         " ",
-                        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "aria-hidden": "true", children: "\u2193" })
+                        /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", children: "\u2193" })
                       ] }) : null
                     ] })
                   ] }, layer.id);
                 }
-                return layer.href ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "a", { className: "uipack-stack__band uipack-stack__face", href: layer.href, "aria-label": sentences(said, labels.go), ...common, children: [
+                return layer.href ? /* @__PURE__ */ jsxRuntime.jsxs("a", { className: "uipack-stack__band uipack-stack__face", href: layer.href, "aria-label": sentences(said, labels.go), ...common, children: [
                   face,
                   go
-                ] }, layer.id) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-stack__band uipack-stack__face", ...common, children: face }, layer.id);
+                ] }, layer.id) : /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-stack__band uipack-stack__face", ...common, children: face }, layer.id);
               }),
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-stack__end", "aria-hidden": "true", style: place(g.endRow) })
+              /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-stack__end", "aria-hidden": "true", style: place(g.endRow) })
             ] }, g.zone.id);
           }),
           model.rails.map(({ rail, span, place: p }, k) => {
             const style = place(p, { "--cn": k + 2, "--cw": k + 3 });
             const name = `${rail.label}, ${span}`;
-            const label = /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-stack__rail-label", children: [
-              keep(_nullishCoalesce(rail.short, () => ( rail.label))),
-              rail.href ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
+            const label = /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-stack__rail-label", children: [
+              keep(rail.short ?? rail.label),
+              rail.href ? /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
                 " ",
                 arrow
               ] }) : null
             ] });
-            return rail.href ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { className: "uipack-stack__rail", href: rail.href, style, "aria-label": name, title: rail.summary, children: label }, rail.id) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-stack__rail", style, role: "note", "aria-label": name, title: rail.summary, children: label }, rail.id);
+            return rail.href ? /* @__PURE__ */ jsxRuntime.jsx("a", { className: "uipack-stack__rail", href: rail.href, style, "aria-label": name, title: rail.summary, children: label }, rail.id) : /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-stack__rail", style, role: "note", "aria-label": name, title: rail.summary, children: label }, rail.id);
           })
         ] }),
-        model.rails.length ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-stack__across", children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Sub, { className: "uipack-stack__across-head", id: `${id}-across`, children: labels.rails }),
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { role: "list", "aria-labelledby": `${id}-across`, children: model.rails.map(({ rail, span }) => {
-            const body = /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "b", { children: rail.label }),
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-stack__span", children: span }),
-              rail.summary ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-stack__across-summary", children: rail.summary }) : null,
+        model.rails.length ? /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-stack__across", children: [
+          /* @__PURE__ */ jsxRuntime.jsx(Sub, { className: "uipack-stack__across-head", id: `${id}-across`, children: labels.rails }),
+          /* @__PURE__ */ jsxRuntime.jsx("ul", { role: "list", "aria-labelledby": `${id}-across`, children: model.rails.map(({ rail, span }) => {
+            const body = /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntime.jsx("b", { children: rail.label }),
+              /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-stack__span", children: span }),
+              rail.summary ? /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-stack__across-summary", children: rail.summary }) : null,
               rail.href ? arrow : null
             ] });
-            return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "li", { children: rail.href ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { className: "uipack-stack__node", href: rail.href, children: body }) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-stack__node", children: body }) }, rail.id);
+            return /* @__PURE__ */ jsxRuntime.jsx("li", { children: rail.href ? /* @__PURE__ */ jsxRuntime.jsx("a", { className: "uipack-stack__node", href: rail.href, children: body }) : /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-stack__node", children: body }) }, rail.id);
           }) })
         ] }) : null
       ]
@@ -963,13 +955,13 @@ function enhanceSpanChart(root) {
   const noMatch = find("[data-span-nomatch]");
   const fold = (text) => text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
   const haystacks = items.map(
-    (el) => fold([el.querySelector(".uipack-span__nv > b"), ...el.querySelectorAll(".uipack-span__sub > *")].map((n) => _nullishCoalesce(_optionalChain([n, 'optionalAccess', _48 => _48.textContent]), () => ( ""))).join(" "))
+    (el) => fold([el.querySelector(".uipack-span__nv > b"), ...el.querySelectorAll(".uipack-span__sub > *")].map((n) => n?.textContent ?? "").join(" "))
   );
   let query = "";
   const sync = () => {
-    for (const g of groups) g.current = _nullishCoalesce(_optionalChain([root, 'access', _49 => _49.querySelector, 'call', _50 => _50(`.${g.cls}:checked`), 'optionalAccess', _51 => _51.value]), () => ( null));
+    for (const g of groups) g.current = root.querySelector(`.${g.cls}:checked`)?.value ?? null;
   };
-  const filtered = () => groups.some((g) => g.current !== null) || Boolean(_optionalChain([deals, 'optionalAccess', _52 => _52.checked])) || query !== "";
+  const filtered = () => groups.some((g) => g.current !== null) || Boolean(deals?.checked) || query !== "";
   const visible = (el) => !el.hidden && el.getClientRects().length > 0;
   const markFindable = () => {
     if (!findable) return;
@@ -986,7 +978,7 @@ function enhanceSpanChart(root) {
     for (const el of items) mark(el, collapsed && !el.hasAttribute("data-featured"));
     for (const el of all(".uipack-span__group")) mark(el, collapsed && !el.hasAttribute("data-featured"));
   };
-  const shownText = (n) => (_nullishCoalesce(form.getAttribute("data-shown"), () => ( "{n} of {total} shown"))).replace("{n}", String(n)).replace("{total}", String(total));
+  const shownText = (n) => (form.getAttribute("data-shown") ?? "{n} of {total} shown").replace("{n}", String(n)).replace("{total}", String(total));
   const applySearch = () => {
     query = search ? fold(search.value.trim()) : "";
     root.toggleAttribute("data-span-searching", query !== "");
@@ -1000,7 +992,7 @@ function enhanceSpanChart(root) {
     if (noMatch) noMatch.hidden = true;
     if (!filtered()) {
       if (status) status.textContent = "";
-      if (announce && live) live.textContent = groups.map((g) => _nullishCoalesce(g.all.getAttribute("aria-label"), () => ( ""))).join(", ");
+      if (announce && live) live.textContent = groups.map((g) => g.all.getAttribute("aria-label") ?? "").join(", ");
       return;
     }
     for (const group of all(".uipack-span__group")) {
@@ -1012,10 +1004,10 @@ function enhanceSpanChart(root) {
     if (status) status.textContent = text;
     if (announce && live) live.textContent = text;
     if (noMatch) {
-      const emptyShown = Boolean(_optionalChain([find, 'call', _53 => _53(".uipack-span__empty"), 'optionalAccess', _54 => _54.getClientRects, 'call', _55 => _55(), 'access', _56 => _56.length]));
+      const emptyShown = Boolean(find(".uipack-span__empty")?.getClientRects().length);
       noMatch.hidden = !(query && shown === 0 && !emptyShown);
       const p = noMatch.querySelector("p");
-      if (p && search) p.textContent = (_nullishCoalesce(noMatch.getAttribute("data-span-nomatch"), () => ( ""))).replace("{q}", search.value.trim());
+      if (p && search) p.textContent = (noMatch.getAttribute("data-span-nomatch") ?? "").replace("{q}", search.value.trim());
     }
   };
   const restore = () => {
@@ -1052,13 +1044,13 @@ function enhanceSpanChart(root) {
     restore();
   };
   const onReset = () => {
-    _optionalChain([win, 'optionalAccess', _57 => _57.setTimeout, 'call', _58 => _58(() => {
+    win?.setTimeout(() => {
       sync();
       applySearch();
       update(true);
       restore();
       groups[0].all.focus({ preventScroll: true });
-    }, 0)]);
+    }, 0);
   };
   const onKeyDown = (event) => {
     const input = event.target;
@@ -1089,9 +1081,9 @@ function enhanceSpanChart(root) {
       return;
     }
     if (event.key !== "Escape" || !(engaged || root.contains(event.target)) || !filtered()) return;
-    if (_optionalChain([search, 'optionalAccess', _59 => _59.value])) clearSearch(false);
+    if (search?.value) clearSearch(false);
     for (const g of groups) if (g.current !== null) select(g.all);
-    if (_optionalChain([deals, 'optionalAccess', _60 => _60.checked])) select(deals, false);
+    if (deals?.checked) select(deals, false);
   };
   const clearSearch = (focus) => {
     if (!search) return;
@@ -1106,7 +1098,7 @@ function enhanceSpanChart(root) {
   };
   const onSubmit = (event) => event.preventDefault();
   const onClearClick = (event) => {
-    if (_optionalChain([event, 'access', _61 => _61.target, 'access', _62 => _62.closest, 'optionalCall', _63 => _63("[data-span-clear-search]")])) clearSearch(true);
+    if (event.target.closest?.("[data-span-clear-search]")) clearSearch(true);
   };
   const onBeforeMatch = () => {
     if (expand && !expand.checked) select(expand);
@@ -1121,12 +1113,12 @@ function enhanceSpanChart(root) {
   };
   const cols = all(".uipack-span__col");
   const body = find(".uipack-span__body");
-  const fine = _optionalChain([win, 'optionalAccess', _64 => _64.matchMedia, 'optionalCall', _65 => _65("(hover: hover) and (pointer: fine)")]);
+  const fine = win?.matchMedia?.("(hover: hover) and (pointer: fine)");
   let edges = [];
   let hovered = -1;
   const setHover = (k) => {
     if (k === hovered) return;
-    _optionalChain([cols, 'access', _66 => _66[hovered], 'optionalAccess', _67 => _67.removeAttribute, 'call', _68 => _68("data-span-hover")]);
+    cols[hovered]?.removeAttribute("data-span-hover");
     hovered = k;
     if (k < 0) {
       root.style.removeProperty("--sp-hover");
@@ -1138,7 +1130,7 @@ function enhanceSpanChart(root) {
     root.style.setProperty("--sp-hover-on", "block");
   };
   const onBodyMove = (event) => {
-    if (event.pointerType !== "mouse" || !_optionalChain([fine, 'optionalAccess', _69 => _69.matches])) return;
+    if (event.pointerType !== "mouse" || !fine?.matches) return;
     if (!edges.length) edges = cols.map((c) => c.getBoundingClientRect());
     setHover(edges.findIndex((r) => event.clientX >= r.left && event.clientX < r.right));
   };
@@ -1150,15 +1142,15 @@ function enhanceSpanChart(root) {
   const measure = () => header && root.style.setProperty("--sp-head-h", `${header.offsetHeight}px`);
   const Observer = win && win.ResizeObserver;
   const observer = Observer && header ? new Observer(measure) : null;
-  _optionalChain([observer, 'optionalAccess', _70 => _70.observe, 'call', _71 => _71(header)]);
+  observer?.observe(header);
   measure();
   root.addEventListener("click", onClick);
   root.addEventListener("click", onClearClick);
-  _optionalChain([body, 'optionalAccess', _72 => _72.addEventListener, 'call', _73 => _73("pointermove", onBodyMove)]);
-  _optionalChain([body, 'optionalAccess', _74 => _74.addEventListener, 'call', _75 => _75("pointerleave", onBodyLeave)]);
-  _optionalChain([search, 'optionalAccess', _76 => _76.addEventListener, 'call', _77 => _77("input", onSearch)]);
+  body?.addEventListener("pointermove", onBodyMove);
+  body?.addEventListener("pointerleave", onBodyLeave);
+  search?.addEventListener("input", onSearch);
   form.addEventListener("submit", onSubmit);
-  const searchLabel = _optionalChain([search, 'optionalAccess', _78 => _78.closest, 'call', _79 => _79("label")]);
+  const searchLabel = search?.closest("label");
   if (searchLabel) searchLabel.hidden = false;
   root.addEventListener("change", onChange);
   root.addEventListener("keydown", onKeyDown);
@@ -1166,7 +1158,7 @@ function enhanceSpanChart(root) {
   form.addEventListener("reset", onReset);
   doc.addEventListener("pointerdown", onPointerDown, true);
   doc.addEventListener("keydown", onDocKeyDown);
-  _optionalChain([win, 'optionalAccess', _80 => _80.addEventListener, 'call', _81 => _81("hashchange", onHash)]);
+  win?.addEventListener("hashchange", onHash);
   root.setAttribute("data-span-enhanced", "");
   root.setAttribute("data-span-counting", "");
   if (findable) root.setAttribute("data-span-find", "");
@@ -1176,10 +1168,10 @@ function enhanceSpanChart(root) {
   return () => {
     root.removeEventListener("click", onClick);
     root.removeEventListener("click", onClearClick);
-    _optionalChain([body, 'optionalAccess', _82 => _82.removeEventListener, 'call', _83 => _83("pointermove", onBodyMove)]);
-    _optionalChain([body, 'optionalAccess', _84 => _84.removeEventListener, 'call', _85 => _85("pointerleave", onBodyLeave)]);
+    body?.removeEventListener("pointermove", onBodyMove);
+    body?.removeEventListener("pointerleave", onBodyLeave);
     setHover(-1);
-    _optionalChain([search, 'optionalAccess', _86 => _86.removeEventListener, 'call', _87 => _87("input", onSearch)]);
+    search?.removeEventListener("input", onSearch);
     if (searchLabel) searchLabel.hidden = true;
     if (search) search.value = "";
     applySearch();
@@ -1191,8 +1183,8 @@ function enhanceSpanChart(root) {
     form.removeEventListener("reset", onReset);
     doc.removeEventListener("pointerdown", onPointerDown, true);
     doc.removeEventListener("keydown", onDocKeyDown);
-    _optionalChain([win, 'optionalAccess', _88 => _88.removeEventListener, 'call', _89 => _89("hashchange", onHash)]);
-    _optionalChain([observer, 'optionalAccess', _90 => _90.disconnect, 'call', _91 => _91()]);
+    win?.removeEventListener("hashchange", onHash);
+    observer?.disconnect();
     root.style.removeProperty("--sp-head-h");
     for (const el of [...items, ...all(".uipack-span__group")]) {
       el.removeAttribute("hidden");
@@ -1208,8 +1200,8 @@ function enhanceLayerStack(root) {
   const win = doc.defaultView;
   const onClick = (event) => {
     if (!win || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    const link = _optionalChain([event, 'access', _92 => _92.target, 'access', _93 => _93.closest, 'optionalCall', _94 => _94('a[href^="#"]')]);
-    if (!link || !root.contains(link) || _chunkYMPVJRTJcjs.prefersReducedMotion.call(void 0, win)) return;
+    const link = event.target.closest?.('a[href^="#"]');
+    if (!link || !root.contains(link) || chunkYMPVJRTJ_cjs.prefersReducedMotion(win)) return;
     const hash = link.getAttribute("href");
     const target = doc.getElementById(decodeURIComponent(hash.slice(1)));
     if (!target) return;
@@ -1227,14 +1219,13 @@ function enhanceLayerStack(root) {
   };
 }
 
-
-
-
-
-
-
-
-
-
-
-exports.LAYER_STACK_LABELS = LAYER_STACK_LABELS; exports.LayerStack = LayerStack; exports.SPAN_CHART_LABELS = DEFAULT_LABELS; exports.SpanChart = SpanChart; exports.buildLayerStack = buildLayerStack; exports.buildSpanModel = buildSpanModel; exports.enhanceLayerStack = enhanceLayerStack; exports.enhanceSpanChart = enhanceSpanChart; exports.spanChartCss = spanChartCss; exports.spanThresholds = spanThresholds;
+exports.LAYER_STACK_LABELS = LAYER_STACK_LABELS;
+exports.LayerStack = LayerStack;
+exports.SPAN_CHART_LABELS = DEFAULT_LABELS;
+exports.SpanChart = SpanChart;
+exports.buildLayerStack = buildLayerStack;
+exports.buildSpanModel = buildSpanModel;
+exports.enhanceLayerStack = enhanceLayerStack;
+exports.enhanceSpanChart = enhanceSpanChart;
+exports.spanChartCss = spanChartCss;
+exports.spanThresholds = spanThresholds;

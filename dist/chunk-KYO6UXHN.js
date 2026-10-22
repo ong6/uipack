@@ -1,5 +1,6 @@
+import { useEffect, useLayoutEffect, useSyncExternalStore } from 'react';
+
 // src/env.ts
-import { useEffect, useLayoutEffect, useSyncExternalStore } from "react";
 var useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 function prefersReducedMotion(win = typeof window === "undefined" ? void 0 : window) {
@@ -25,10 +26,4 @@ function keepFocusedInView(event) {
   event.target?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
 }
 
-export {
-  useIsoLayoutEffect,
-  prefersReducedMotion,
-  onReducedMotionChange,
-  usePrefersReducedMotion,
-  keepFocusedInView
-};
+export { keepFocusedInView, onReducedMotionChange, prefersReducedMotion, useIsoLayoutEffect, usePrefersReducedMotion };

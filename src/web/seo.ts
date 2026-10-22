@@ -468,8 +468,8 @@ export function jsonLd(...nodes: JsonLdNode[]): JsonLdDocument {
  * escapes, so a value containing "</script>" or "<!--" cannot end the script early, and escapes
  * the line and paragraph separators (U+2028, U+2029). The result parses back to the same data.
  */
-const LS = String.fromCharCode(0x2028);
-const PS = String.fromCharCode(0x2029);
+const LS = /*#__PURE__*/ String.fromCharCode(0x2028);
+const PS = /*#__PURE__*/ String.fromCharCode(0x2029);
 export function serializeJsonLd(data: unknown): string {
   return JSON.stringify(data)
     .replace(/</g, "\\u003c")

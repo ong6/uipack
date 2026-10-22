@@ -1,6 +1,6 @@
-import { useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { flushSync } from "react-dom";
-import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
+import { useShowcaseTheme } from "./ShowcaseShell";
 import { webEntries } from "./catalog";
 import {
   Body,
@@ -54,7 +54,6 @@ import "../src/web/web.css";
 import "@fontsource/ibm-plex-serif/latin-400.css";
 import "@fontsource/space-grotesk/latin-500.css";
 import "../src/web/gutters.css";
-import "./presentations.css";
 import "./web-showcase.css";
 import { keepFocusedInView } from "../src/env";
 
@@ -289,6 +288,27 @@ function TypeSpecimen({ theme, face, setFace }: { theme: "light" | "dark"; face:
   );
 }
 
+/**
+ * False for the first paint, then true. The page paints its intro and index first and renders
+ * the Landing example and the sections under it in the next task: the first paint on a slow phone
+ * no longer waits for the example's render and layout, and the Landing faces (requested by that
+ * layout) load after the intro is up. Nothing above moves; the rest appears below it.
+ */
+function usePainted() {
+  const [painted, setPainted] = useState(false);
+  useEffect(() => {
+    // A hidden tab never paints (and pauses animation frames), so render at once there.
+    if (document.visibilityState === "hidden") return void setPainted(true);
+    let timer = 0;
+    const frame = requestAnimationFrame(() => void (timer = window.setTimeout(() => setPainted(true))));
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(timer);
+    };
+  }, []);
+  return painted;
+}
+
 export default function WebShowcase() {
   const { theme, flip } = useShowcaseTheme();
   const [face, setFace] = useState<DisplayFaceId>("instrument-serif");
@@ -299,8 +319,9 @@ export default function WebShowcase() {
   useHead(seo.meta);
   const flashy = webEntries.filter((e) => e.tags.includes("Flashy"));
   const lowKey = webEntries.filter((e) => e.tags.includes("Low-key"));
+  const painted = usePainted();
   return (
-    <ShowcaseShell active="web" theme={theme} flip={flip} styleName="Landing">
+    <>
       <SmoothScroll />
       <section data-route="web" id="web-example" className="web-anchor">
         <p className="collection-intro">
@@ -311,205 +332,213 @@ export default function WebShowcase() {
           kit; the disclosures under the example show what it publishes.
         </p>
         <PageIndex />
-        <WebSurface theme={theme} className="web-example" style={surfaceStyle}>
-          <JsonLd data={seo.jsonLd} />
-          <GlassNav
-            brand={
-              <a href="#web-top" className="web-brand">
-                <RhymeIcon at={1} size={28} /> Tidy
-              </a>
-            }
-            links={[
-              { label: "How it works", href: "#web-how" },
-              { label: "Proof", href: "#web-proof" },
-              { label: "Pricing", href: "#web-pricing" },
-            ]}
-            cta={<CtaButton href="#web-pricing">Start free</CtaButton>}
-          />
-          <div id="web-top">
-            <StarHero
-              headingId="web-hero-title"
-              eyebrow="Inbox agent"
-              title={
-                <>
-                  Forty emails in. Three that <em>need you.</em>
-                </>
-              }
-              subtitle="Tidy reads, files and drafts while you watch. You keep the decisions only you can make."
-              actions={
-                <>
-                  <CtaButton size="lg" href="#web-pricing">
-                    Start free
-                  </CtaButton>
-                  <CtaButton size="lg" variant="secondary" href="#web-how">
-                    See how it works
-                  </CtaButton>
-                </>
-              }
-            >
-              <DemoPlayer
-                label="Product demo: clearing an inbox"
-                address="tidy.example/inbox"
-                steps={demoSteps}
-                initialMetric={40}
-                metricLabel="in your inbox"
-                cta={
-                  <CtaButton variant="secondary" href="#web-pricing">
-                    Try it yourself
-                  </CtaButton>
+        {painted && (
+          <>
+            <WebSurface theme={theme} className="web-example" style={surfaceStyle}>
+              <JsonLd data={seo.jsonLd} />
+              <GlassNav
+                brand={
+                  <a href="#web-top" className="web-brand">
+                    <RhymeIcon at={1} size={28} /> Tidy
+                  </a>
                 }
+                links={[
+                  { label: "How it works", href: "#web-how" },
+                  { label: "Proof", href: "#web-proof" },
+                  { label: "Pricing", href: "#web-pricing" },
+                ]}
+                cta={<CtaButton href="#web-pricing">Start free</CtaButton>}
               />
-            </StarHero>
-          </div>
-          <Section id="web-how" eyebrow="How it works" title="Three steps, all of them visible." intro="The same curve from the hero marks each step, so the page reads as one idea.">
-            <FeatureGrid features={features} spotlight />
-          </Section>
-          <Section id="web-proof" tone="secondary" align="center" eyebrow="Social proof slot">
-            <div className="web-quote">
-              <RevealText
-                as="blockquote"
-                className="web-quote__text"
-                text="I stopped opening my inbox before coffee. It leaves me three things, and they are the right three."
+              <div id="web-top">
+                <StarHero
+                  headingId="web-hero-title"
+                  eyebrow="Inbox agent"
+                  title={
+                    <>
+                      Forty emails in. Three that <em>need you.</em>
+                    </>
+                  }
+                  subtitle="Tidy reads, files and drafts while you watch. You keep the decisions only you can make."
+                  actions={
+                    <>
+                      <CtaButton size="lg" href="#web-pricing">
+                        Start free
+                      </CtaButton>
+                      <CtaButton size="lg" variant="secondary" href="#web-how">
+                        See how it works
+                      </CtaButton>
+                    </>
+                  }
+                >
+                  <DemoPlayer
+                    label="Product demo: clearing an inbox"
+                    address="tidy.example/inbox"
+                    steps={demoSteps}
+                    initialMetric={40}
+                    metricLabel="in your inbox"
+                    cta={
+                      <CtaButton variant="secondary" href="#web-pricing">
+                        Try it yourself
+                      </CtaButton>
+                    }
+                  />
+                </StarHero>
+              </div>
+              <Section id="web-how" eyebrow="How it works" title="Three steps, all of them visible." intro="The same curve from the hero marks each step, so the page reads as one idea.">
+                <FeatureGrid features={features} spotlight />
+              </Section>
+              <Section id="web-proof" tone="secondary" align="center" eyebrow="Social proof slot">
+                <div className="web-quote">
+                  <RevealText
+                    as="blockquote"
+                    className="web-quote__text"
+                    text="I stopped opening my inbox before coffee. It leaves me three things, and they are the right three."
+                  />
+                  <Body>Placeholder quote. Replace it with a named customer and a number before you ship.</Body>
+                  <dl className="web-stats">
+                    <div>
+                      <dt>messages handled this morning</dt>
+                      <dd>
+                        <NumberTicker value={37} />
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>fewer unread</dt>
+                      <dd>
+                        <NumberTicker value={92} suffix="%" />
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>to watch the demo</dt>
+                      <dd>
+                        <NumberTicker value={9.4} format={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }} suffix=" s" />
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              </Section>
+              <FAQ
+                id="web-faq"
+                items={tidyFaq}
+                url={seo.url}
+                intro="Example answers for an illustrative product. Each first sentence answers the question on its own, so an answer engine can quote it alone."
               />
-              <Body>Placeholder quote. Replace it with a named customer and a number before you ship.</Body>
-              <dl className="web-stats">
-                <div>
-                  <dt>messages handled this morning</dt>
-                  <dd>
-                    <NumberTicker value={37} />
-                  </dd>
+              <Section
+                id="web-pricing"
+                align="center"
+                eyebrow="Pricing"
+                title={
+                  <>
+                    Get your morning back for <em>$8 a month.</em>
+                  </>
+                }
+                intro="Free for 30 days, no card needed. One inbox, every action visible."
+              >
+                <div className="web-closing">
+                  <CtaButton size="lg">Start free</CtaButton>
                 </div>
-                <div>
-                  <dt>fewer unread</dt>
-                  <dd>
-                    <NumberTicker value={92} suffix="%" />
-                  </dd>
-                </div>
-                <div>
-                  <dt>to watch the demo</dt>
-                  <dd>
-                    <NumberTicker value={9.4} format={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }} suffix=" s" />
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          </Section>
-          <FAQ
-            id="web-faq"
-            items={tidyFaq}
-            url={seo.url}
-            intro="Example answers for an illustrative product. Each first sentence answers the question on its own, so an answer engine can quote it alone."
-          />
-          <Section
-            id="web-pricing"
-            align="center"
-            eyebrow="Pricing"
-            title={
-              <>
-                Get your morning back for <em>$8 a month.</em>
-              </>
-            }
-            intro="Free for 30 days, no card needed. One inbox, every action visible."
-          >
-            <div className="web-closing">
-              <CtaButton size="lg">Start free</CtaButton>
-            </div>
-          </Section>
-        </WebSurface>
-        <GeneratedFiles seo={seo} />
+              </Section>
+            </WebSurface>
+            <GeneratedFiles seo={seo} />
+          </>
+        )}
       </section>
 
-      <TypeSpecimen theme={theme} face={face} setFace={setFace} />
+      {painted && (
+        <>
+          <TypeSpecimen theme={theme} face={face} setFace={setFace} />
 
-      <section id="web-flashy" className="web-anchor">
-        <h2>Flashy · {flashy.length}</h2>
-        <p className="collection-intro">
-          Each one explains something. The demo proves the claim, the star carries the story, the spotlight shows what is
-          interactive, and the reveal paces a single quote. Pointer effects are off on touch; every piece settles to a static,
-          complete state under reduced motion.
-        </p>
-        <WebSurface theme={theme} className="web-panel" style={surfaceStyle}>
-          <Grid as="ul">
-            {flashy.map((entry) => (
-              <GridItem as="li" key={entry.id} span={[3, 4, 4]}>
-                <SpotlightCard>
-                  <Heading level={3} size={1}>
-                    <a href={entry.id === "reveal-text" ? "#web-proof" : entry.id === "spotlight-card" ? "#web-how" : "#web-top"}>{entry.title}</a>
-                  </Heading>
-                  <Body>{flashyNotes[entry.id]}</Body>
-                </SpotlightCard>
-              </GridItem>
-            ))}
-          </Grid>
-        </WebSurface>
-      </section>
+          <section id="web-flashy" className="web-anchor">
+            <h2>Flashy · {flashy.length}</h2>
+            <p className="collection-intro">
+              Each one explains something. The demo proves the claim, the star carries the story, the spotlight shows what is
+              interactive, and the reveal paces a single quote. Pointer effects are off on touch; every piece settles to a static,
+              complete state under reduced motion.
+            </p>
+            <WebSurface theme={theme} className="web-panel" style={surfaceStyle}>
+              <Grid as="ul">
+                {flashy.map((entry) => (
+                  <GridItem as="li" key={entry.id} span={[3, 4, 4]}>
+                    <SpotlightCard>
+                      <Heading level={3} size={1}>
+                        <a href={entry.id === "reveal-text" ? "#web-proof" : entry.id === "spotlight-card" ? "#web-how" : "#web-top"}>{entry.title}</a>
+                      </Heading>
+                      <Body>{flashyNotes[entry.id]}</Body>
+                    </SpotlightCard>
+                  </GridItem>
+                ))}
+              </Grid>
+            </WebSurface>
+          </section>
 
-      <section id="web-lowkey" className="web-anchor">
-        <h2>Low-key · {lowKey.length}</h2>
-        <p className="collection-intro">The defaults that make a page read as designed: scale, hierarchy, one accent, and a grid.</p>
-        <WebSurface theme={theme} className="web-panel web-lowkey" style={surfaceStyle}>
-          <Grid>
-            <GridItem span={[7, 8, 4]}>
-              <div className="web-block">
-                <Eyebrow>Type scale · 16 × 1.25</Eyebrow>
-                <TypeScaleSpecimen />
-              </div>
-            </GridItem>
-            <GridItem span={[5, 8, 4]}>
-              <div className="web-block">
-                <Eyebrow>Hierarchy by opacity</Eyebrow>
-                <div className="web-hierarchy">
-                  <Eyebrow>Eyebrow · 66%</Eyebrow>
-                  <Heading level={3} size={4}>
-                    Heading · 100%
-                  </Heading>
-                  <Subhead>Subhead at 87%, one step above body.</Subhead>
-                  <Body>Body at 66%. One ink colour, three emphasis levels, no extra greys to maintain.</Body>
-                </div>
-                <Eyebrow>Colour roles · 60 / 30 / 10</Eyebrow>
-                <div className="web-roles" role="img" aria-label="Neutral 60 percent, secondary 30 percent, accent 10 percent">
-                  <span data-role="neutral">60 neutral</span>
-                  <span data-role="secondary">30</span>
-                  <span data-role="accent">10</span>
-                </div>
-                <Eyebrow>CTA · accent is reserved for the goal</Eyebrow>
-                <div className="web-buttons">
-                  <CtaButton>Start free</CtaButton>
-                  <CtaButton variant="secondary">See how it works</CtaButton>
-                </div>
-              </div>
-            </GridItem>
-            <GridItem span={[12, 8, 4]}>
-              <div className="web-block">
-                <Eyebrow>Grid · 12 / 8 / 4 columns, 8-pt gutters</Eyebrow>
-                <Grid className="web-columns">
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <GridItem key={i} span={[1, 1, 1]}>
-                      <span>{i + 1}</span>
-                    </GridItem>
-                  ))}
-                </Grid>
-              </div>
-            </GridItem>
-          </Grid>
-        </WebSurface>
-      </section>
+          <section id="web-lowkey" className="web-anchor">
+            <h2>Low-key · {lowKey.length}</h2>
+            <p className="collection-intro">The defaults that make a page read as designed: scale, hierarchy, one accent, and a grid.</p>
+            <WebSurface theme={theme} className="web-panel web-lowkey" style={surfaceStyle}>
+              <Grid>
+                <GridItem span={[7, 8, 4]}>
+                  <div className="web-block">
+                    <Eyebrow>Type scale · 16 × 1.25</Eyebrow>
+                    <TypeScaleSpecimen />
+                  </div>
+                </GridItem>
+                <GridItem span={[5, 8, 4]}>
+                  <div className="web-block">
+                    <Eyebrow>Hierarchy by opacity</Eyebrow>
+                    <div className="web-hierarchy">
+                      <Eyebrow>Eyebrow · 66%</Eyebrow>
+                      <Heading level={3} size={4}>
+                        Heading · 100%
+                      </Heading>
+                      <Subhead>Subhead at 87%, one step above body.</Subhead>
+                      <Body>Body at 66%. One ink colour, three emphasis levels, no extra greys to maintain.</Body>
+                    </div>
+                    <Eyebrow>Colour roles · 60 / 30 / 10</Eyebrow>
+                    <div className="web-roles" role="img" aria-label="Neutral 60 percent, secondary 30 percent, accent 10 percent">
+                      <span data-role="neutral">60 neutral</span>
+                      <span data-role="secondary">30</span>
+                      <span data-role="accent">10</span>
+                    </div>
+                    <Eyebrow>CTA · accent is reserved for the goal</Eyebrow>
+                    <div className="web-buttons">
+                      <CtaButton>Start free</CtaButton>
+                      <CtaButton variant="secondary">See how it works</CtaButton>
+                    </div>
+                  </div>
+                </GridItem>
+                <GridItem span={[12, 8, 4]}>
+                  <div className="web-block">
+                    <Eyebrow>Grid · 12 / 8 / 4 columns, 8-pt gutters</Eyebrow>
+                    <Grid className="web-columns">
+                      {Array.from({ length: 12 }, (_, i) => (
+                        <GridItem key={i} span={[1, 1, 1]}>
+                          <span>{i + 1}</span>
+                        </GridItem>
+                      ))}
+                    </Grid>
+                  </div>
+                </GridItem>
+              </Grid>
+            </WebSurface>
+          </section>
 
-      <MotionSection theme={theme} flip={flip} surfaceStyle={surfaceStyle} />
-      <BackgroundsSection theme={theme} surfaceStyle={surfaceStyle} />
+          <MotionSection theme={theme} flip={flip} surfaceStyle={surfaceStyle} />
+          <BackgroundsSection theme={theme} surfaceStyle={surfaceStyle} />
 
-      <section id="web-principles" className="web-anchor">
-        <h2>Principles · {principles.length}</h2>
-        <ol className="web-principles">
-          {principles.map((p) => (
-            <li key={p}>{p}</li>
-          ))}
-        </ol>
-        <p className="collection-intro">
-          Each rule has its number and source video in <a href={docsUrl}>docs/web-principles.md</a>.
-        </p>
-      </section>
-    </ShowcaseShell>
+          <section id="web-principles" className="web-anchor">
+            <h2>Principles · {principles.length}</h2>
+            <ol className="web-principles">
+              {principles.map((p) => (
+                <li key={p}>{p}</li>
+              ))}
+            </ol>
+            <p className="collection-intro">
+              Each rule has its number and source video in <a href={docsUrl}>docs/web-principles.md</a>.
+            </p>
+          </section>
+        </>
+      )}
+    </>
   );
 }
 

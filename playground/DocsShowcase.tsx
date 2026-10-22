@@ -7,7 +7,7 @@ import {
 import "../src/docs/docs.css";
 import "./docs-showcase.css";
 import { docsEntries } from "./catalog";
-import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
+import { useShowcaseTheme } from "./ShowcaseShell";
 
 // The page's h1 is the playground's; the sample document starts at its h2 sections.
 const source = `This layout keeps product navigation, readable prose, and local context visible without narrowing the article.
@@ -50,7 +50,7 @@ const sections: DocsSection[] = [
 ];
 
 export default function DocsShowcase() {
-  const { theme, flip } = useShowcaseTheme();
+  const { theme } = useShowcaseTheme();
   const onThisPage = extractDocsHeadings(source)
     .filter((heading) => heading.level === 2 || heading.level === 3)
     .map(({ id, level, title }) => ({
@@ -60,7 +60,7 @@ export default function DocsShowcase() {
     }));
 
   return (
-    <ShowcaseShell active="docs" theme={theme} flip={flip}>
+    <>
       <section data-route="docs" data-catalog-entry={docsEntries[0].id}>
         <h2>{docsEntries[0].title}</h2>
         <div className="docs-frame">
@@ -78,6 +78,6 @@ export default function DocsShowcase() {
         </DocsLayout>
         </div>
       </section>
-    </ShowcaseShell>
+    </>
   );
 }

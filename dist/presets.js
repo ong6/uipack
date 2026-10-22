@@ -1,24 +1,10 @@
-import {
-  Bus,
-  Chip,
-  Connector,
-  Defs,
-  Figure,
-  Group,
-  Label,
-  Lane,
-  Node,
-  Packet,
-  busStub,
-  route
-} from "./chunk-NJF7MMJY.js";
-import "./chunk-3R6VZY52.js";
-import "./chunk-WTI575DG.js";
-import "./chunk-KYO6UXHN.js";
+import { Figure, Defs, Connector, Packet, Node, busStub, route, Lane, Group, Bus, Label, Chip } from './chunk-NJF7MMJY.js';
+import './chunk-3R6VZY52.js';
+import './chunk-WTI575DG.js';
+import './chunk-KYO6UXHN.js';
+import { useId } from 'react';
+import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 
-// src/presets/shared.tsx
-import { useId } from "react";
-import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 var clean = (s) => s.replace(/:/g, "");
 function PresetFigure({ spec, parts, id }) {
   const auto = useId();
@@ -111,9 +97,6 @@ function Stack({ steps, id, y0 = 24 }) {
     })
   ] });
 }
-
-// src/presets/serviceMap.tsx
-import { Fragment as Fragment2, jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
 var defaultServiceMap = {
   figure: {
     number: "Figure 01",
@@ -193,40 +176,40 @@ function serviceMapParts(spec = defaultServiceMap, id) {
       [via.x + via.w / 2, via.y]
     ];
     const elbow = via.y + via.h + 24;
-    sinks = /* @__PURE__ */ jsxs2(Fragment2, { children: [
-      /* @__PURE__ */ jsx2(Connector, { points: viaPath, defs: id, kind: "change", flow: CDC }),
-      /* @__PURE__ */ jsx2(Packet, { points: viaPath, kind: "change", dur: 2, flow: CDC }),
-      /* @__PURE__ */ jsx2(Node, { ...via, label: spec.sinks.via.label, hint: spec.sinks.via.hint, sub: spec.sinks.via.sub, icon: spec.sinks.via.icon ?? "queue", flow: CDC }),
+    sinks = /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx(Connector, { points: viaPath, defs: id, kind: "change", flow: CDC }),
+      /* @__PURE__ */ jsx(Packet, { points: viaPath, kind: "change", dur: 2, flow: CDC }),
+      /* @__PURE__ */ jsx(Node, { ...via, label: spec.sinks.via.label, hint: spec.sinks.via.hint, sub: spec.sinks.via.sub, icon: spec.sinks.via.icon ?? "queue", flow: CDC }),
       spec.sinks.items.map((s, i) => {
         const p = route([via.x + via.w / 2, via.y + via.h], [x0 + i * (sw + gap) + sw / 2, sinkY], elbow, "v");
-        return /* @__PURE__ */ jsxs2("g", { children: [
-          /* @__PURE__ */ jsx2(Connector, { points: p, defs: id, kind: "change", flow: CDC }),
-          /* @__PURE__ */ jsx2(Packet, { points: p, kind: "change", dur: 2.2, delay: -i * 0.55, flow: CDC }),
-          /* @__PURE__ */ jsx2(Node, { x: x0 + i * (sw + gap), y: sinkY, w: sw, h: 40, label: s.label, hint: s.hint, icon: s.icon, flow: CDC, size: 13 })
+        return /* @__PURE__ */ jsxs("g", { children: [
+          /* @__PURE__ */ jsx(Connector, { points: p, defs: id, kind: "change", flow: CDC }),
+          /* @__PURE__ */ jsx(Packet, { points: p, kind: "change", dur: 2.2, delay: -i * 0.55, flow: CDC }),
+          /* @__PURE__ */ jsx(Node, { x: x0 + i * (sw + gap), y: sinkY, w: sw, h: 40, label: s.label, hint: s.hint, icon: s.icon, flow: CDC, size: 13 })
         ] }, s.label);
       })
     ] });
     height = sinkY + 40 + 24;
   }
-  const wide = /* @__PURE__ */ jsxs2(Fragment2, { children: [
-    /* @__PURE__ */ jsx2(Defs, { id }),
-    /* @__PURE__ */ jsx2(Lane, { x: client.x, w: client.w, y: 40, title: lc }),
-    /* @__PURE__ */ jsx2(Lane, { x: platform.x, w: platform.w, y: 40, title: lp }),
-    /* @__PURE__ */ jsx2(Lane, { x: store.x, w: store.w, y: 40, title: lr }),
-    spec.clients.map((c, i) => /* @__PURE__ */ jsx2(Node, { x: client.x, y: client.y0 + i * client.step, w: client.w, h: client.h, label: c.label, hint: c.hint, sub: c.sub, icon: c.icon, flow: READ }, c.label)),
-    /* @__PURE__ */ jsxs2(Group, { ...platform, title: spec.platform.title, flow: spec.sinks ? [READ, CDC] : READ, children: [
-      spec.platform.cells.map((c, i) => /* @__PURE__ */ jsx2(Node, { x: platform.x + 24 + i % 3 * 192, y: platform.y + 44 + Math.floor(i / 3) * 72, w: 168, h: 56, label: c.label, hint: c.hint, sub: c.sub, align: "left", flow: READ }, c.label)),
-      spec.platform.footer ? /* @__PURE__ */ jsx2(Node, { x: platform.x + 24, y: platform.y + 44 + rows2 * 72, w: 552, h: 56, label: spec.platform.footer.label, hint: spec.platform.footer.hint, sub: spec.platform.footer.sub, align: "left", flow: READ }) : null
+  const wide = /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx(Defs, { id }),
+    /* @__PURE__ */ jsx(Lane, { x: client.x, w: client.w, y: 40, title: lc }),
+    /* @__PURE__ */ jsx(Lane, { x: platform.x, w: platform.w, y: 40, title: lp }),
+    /* @__PURE__ */ jsx(Lane, { x: store.x, w: store.w, y: 40, title: lr }),
+    spec.clients.map((c, i) => /* @__PURE__ */ jsx(Node, { x: client.x, y: client.y0 + i * client.step, w: client.w, h: client.h, label: c.label, hint: c.hint, sub: c.sub, icon: c.icon, flow: READ }, c.label)),
+    /* @__PURE__ */ jsxs(Group, { ...platform, title: spec.platform.title, flow: spec.sinks ? [READ, CDC] : READ, children: [
+      spec.platform.cells.map((c, i) => /* @__PURE__ */ jsx(Node, { x: platform.x + 24 + i % 3 * 192, y: platform.y + 44 + Math.floor(i / 3) * 72, w: 168, h: 56, label: c.label, hint: c.hint, sub: c.sub, align: "left", flow: READ }, c.label)),
+      spec.platform.footer ? /* @__PURE__ */ jsx(Node, { x: platform.x + 24, y: platform.y + 44 + rows2 * 72, w: 552, h: 56, label: spec.platform.footer.label, hint: spec.platform.footer.hint, sub: spec.platform.footer.sub, align: "left", flow: READ }) : null
     ] }),
-    spec.resources.map((r, i) => /* @__PURE__ */ jsx2(Node, { x: store.x, y: store.y0 + i * store.step, w: store.w, h: store.h, label: r.label, hint: r.hint, sub: r.sub, icon: r.icon, flow: READ }, r.label)),
-    /* @__PURE__ */ jsx2(Bus, { ...clientBus, from: Math.min(clientY(0), trunkY), to: Math.max(clientY(spec.clients.length - 1), trunkY), defs: id }),
-    /* @__PURE__ */ jsx2(Bus, { ...storeBus, from: Math.min(storeY(0), trunkY), to: Math.max(storeY(spec.resources.length - 1), trunkY), defs: id }),
-    /* @__PURE__ */ jsx2(Packet, { points: toPlatform, kind: "request", dur: 2.4, flow: READ }),
-    /* @__PURE__ */ jsx2(Packet, { points: toPlatform, kind: "response", dur: 2.4, delay: -1.2, reverse: true, flow: READ }),
-    /* @__PURE__ */ jsx2(Packet, { points: fromPlatform, kind: "request", dur: 2.4, delay: -0.3, reverse: true, flow: READ }),
-    /* @__PURE__ */ jsx2(Packet, { points: fromPlatform, kind: "response", dur: 2.4, delay: -1.5, flow: READ }),
-    spec.clients.map((_, i) => /* @__PURE__ */ jsx2(Packet, { points: busStub(clientBus, clientBus.stubs[i]), kind: i % 2 ? "response" : "request", dur: 1.6, delay: -i * 0.4, reverse: i % 2 === 0, r: 4, flow: READ }, i)),
-    spec.resources.map((_, i) => /* @__PURE__ */ jsx2(Packet, { points: busStub(storeBus, storeBus.stubs[i]), kind: i % 2 ? "response" : "request", dur: 1.6, delay: -i * 0.5, reverse: i % 2 === 1, r: 4, flow: READ }, i)),
+    spec.resources.map((r, i) => /* @__PURE__ */ jsx(Node, { x: store.x, y: store.y0 + i * store.step, w: store.w, h: store.h, label: r.label, hint: r.hint, sub: r.sub, icon: r.icon, flow: READ }, r.label)),
+    /* @__PURE__ */ jsx(Bus, { ...clientBus, from: Math.min(clientY(0), trunkY), to: Math.max(clientY(spec.clients.length - 1), trunkY), defs: id }),
+    /* @__PURE__ */ jsx(Bus, { ...storeBus, from: Math.min(storeY(0), trunkY), to: Math.max(storeY(spec.resources.length - 1), trunkY), defs: id }),
+    /* @__PURE__ */ jsx(Packet, { points: toPlatform, kind: "request", dur: 2.4, flow: READ }),
+    /* @__PURE__ */ jsx(Packet, { points: toPlatform, kind: "response", dur: 2.4, delay: -1.2, reverse: true, flow: READ }),
+    /* @__PURE__ */ jsx(Packet, { points: fromPlatform, kind: "request", dur: 2.4, delay: -0.3, reverse: true, flow: READ }),
+    /* @__PURE__ */ jsx(Packet, { points: fromPlatform, kind: "response", dur: 2.4, delay: -1.5, flow: READ }),
+    spec.clients.map((_, i) => /* @__PURE__ */ jsx(Packet, { points: busStub(clientBus, clientBus.stubs[i]), kind: i % 2 ? "response" : "request", dur: 1.6, delay: -i * 0.4, reverse: i % 2 === 0, r: 4, flow: READ }, i)),
+    spec.resources.map((_, i) => /* @__PURE__ */ jsx(Packet, { points: busStub(storeBus, storeBus.stubs[i]), kind: i % 2 ? "response" : "request", dur: 1.6, delay: -i * 0.5, reverse: i % 2 === 1, r: 4, flow: READ }, i)),
     sinks
   ] });
   const row = (items, sub, icon, flow, kind) => rows(items, 3).map((r, i) => {
@@ -243,7 +226,7 @@ function serviceMapParts(spec = defaultServiceMap, id) {
   ];
   return {
     wide,
-    narrow: /* @__PURE__ */ jsx2(Stack, { steps, id: `${id}-n` }),
+    narrow: /* @__PURE__ */ jsx(Stack, { steps, id: `${id}-n` }),
     viewBox: `0 0 1248 ${height}`,
     narrowViewBox: `0 0 ${NARROW_W} ${stackHeightFor(steps)}`,
     legend: [
@@ -254,9 +237,6 @@ function serviceMapParts(spec = defaultServiceMap, id) {
   };
 }
 var serviceMap = (spec = defaultServiceMap, id) => presetFigure(spec, serviceMapParts, id);
-
-// src/presets/agentLoop.tsx
-import { Fragment as Fragment3, jsx as jsx3, jsxs as jsxs3 } from "react/jsx-runtime";
 var defaultAgentLoop = {
   figure: {
     number: "Figure 01",
@@ -309,32 +289,32 @@ function agentLoopParts(spec = defaultAgentLoop, id) {
     [cx, output.y]
   ];
   const height = output.y + output.h + 24;
-  const wide = /* @__PURE__ */ jsxs3(Fragment3, { children: [
-    /* @__PURE__ */ jsx3(Defs, { id }),
-    /* @__PURE__ */ jsx3(Lane, { x: user.x, w: user.w, y: 40, title: lu }),
-    /* @__PURE__ */ jsx3(Lane, { x: agentBox.x, w: agentBox.w, y: 40, title: la }),
-    /* @__PURE__ */ jsx3(Lane, { x: tool.x, w: tool.w, y: 40, title: lt }),
-    /* @__PURE__ */ jsx3(Node, { ...user, label: spec.user.label, sub: spec.user.sub, icon: spec.user.icon ?? "user", flow: ASK, hint: spec.user.hint ?? "Sends the request, reads the output" }),
-    /* @__PURE__ */ jsxs3(Group, { ...agentBox, title: spec.agent.label, flow: [ASK, TOOLS, CHECK], children: [
-      /* @__PURE__ */ jsx3(Node, { x: agentBox.x + 24, y: agentBox.y + 40, w: agentBox.w - 48, h: 56, label: spec.agent.sub ?? "plan \xB7 call \xB7 draft", sub: "model", icon: spec.agent.icon ?? "agent", flow: [ASK, TOOLS] }),
-      /* @__PURE__ */ jsx3(Node, { x: agentBox.x + 24, y: agentBox.y + 112, w: agentBox.w - 48, h: 40, label: "Draft", sub: "structured output", icon: "doc", flow: CHECK, size: 13, subSize: 10 })
+  const wide = /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx(Defs, { id }),
+    /* @__PURE__ */ jsx(Lane, { x: user.x, w: user.w, y: 40, title: lu }),
+    /* @__PURE__ */ jsx(Lane, { x: agentBox.x, w: agentBox.w, y: 40, title: la }),
+    /* @__PURE__ */ jsx(Lane, { x: tool.x, w: tool.w, y: 40, title: lt }),
+    /* @__PURE__ */ jsx(Node, { ...user, label: spec.user.label, sub: spec.user.sub, icon: spec.user.icon ?? "user", flow: ASK, hint: spec.user.hint ?? "Sends the request, reads the output" }),
+    /* @__PURE__ */ jsxs(Group, { ...agentBox, title: spec.agent.label, flow: [ASK, TOOLS, CHECK], children: [
+      /* @__PURE__ */ jsx(Node, { x: agentBox.x + 24, y: agentBox.y + 40, w: agentBox.w - 48, h: 56, label: spec.agent.sub ?? "plan \xB7 call \xB7 draft", sub: "model", icon: spec.agent.icon ?? "agent", flow: [ASK, TOOLS] }),
+      /* @__PURE__ */ jsx(Node, { x: agentBox.x + 24, y: agentBox.y + 112, w: agentBox.w - 48, h: 40, label: "Draft", sub: "structured output", icon: "doc", flow: CHECK, size: 13, subSize: 10 })
     ] }),
-    spec.tools.map((t, i) => /* @__PURE__ */ jsx3(Node, { x: tool.x, y: tool.y0 + i * tool.step, w: tool.w, h: tool.h, label: t.label, hint: t.hint, sub: t.sub, icon: t.icon ?? "tool", flow: TOOLS }, t.label)),
-    /* @__PURE__ */ jsx3(Connector, { points: ask, defs: id, kind: "request", flow: ASK }),
-    /* @__PURE__ */ jsx3(Packet, { points: ask, kind: "request", dur: 2, flow: ASK }),
-    /* @__PURE__ */ jsx3(Packet, { points: ask, kind: "response", dur: 2, delay: -1, reverse: true, flow: ASK }),
-    /* @__PURE__ */ jsx3(Bus, { ...bus, from: Math.min(toolY(0), trunkY), to: Math.max(toolY(n - 1), trunkY), defs: id, kind: "change" }),
-    /* @__PURE__ */ jsx3(Packet, { points: fromAgent, kind: "change", dur: 1.8, flow: TOOLS }),
-    /* @__PURE__ */ jsx3(Packet, { points: fromAgent, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: TOOLS }),
-    spec.tools.map((_, i) => /* @__PURE__ */ jsx3(Packet, { points: busStub(bus, bus.stubs[i]), kind: i % 2 ? "response" : "change", dur: 1.4, delay: -i * 0.45, reverse: i % 2 === 1, r: 4, flow: TOOLS }, i)),
-    /* @__PURE__ */ jsx3(Label, { x: (agentBox.x + agentBox.w + busX) / 2, y: trunkY - 10, text: "tool calls", anchor: "middle" }),
-    /* @__PURE__ */ jsx3(Connector, { points: toBoundary, defs: id, kind: "request", flow: CHECK }),
-    /* @__PURE__ */ jsx3(Packet, { points: toBoundary, kind: "request", dur: 1.6, flow: CHECK }),
-    /* @__PURE__ */ jsx3(Node, { ...boundary, label: spec.boundary.label, sub: spec.boundary.sub, icon: spec.boundary.icon ?? "lock", accent: true, dashed: true, flow: CHECK, hint: spec.boundary.hint ?? "Code, not a model, decides what passes" }),
-    /* @__PURE__ */ jsx3(Connector, { points: toOutput, defs: id, kind: "accent", flow: CHECK }),
-    /* @__PURE__ */ jsx3(Packet, { points: toOutput, kind: "accent", dur: 1.6, delay: -0.8, flow: CHECK }),
-    /* @__PURE__ */ jsx3(Label, { x: cx + 12, y: toOutput[0][1] + 28, text: "verdict", accent: true }),
-    /* @__PURE__ */ jsx3(Node, { ...output, label: spec.output.label, hint: spec.output.hint, sub: spec.output.sub, icon: spec.output.icon ?? "doc", flow: CHECK })
+    spec.tools.map((t, i) => /* @__PURE__ */ jsx(Node, { x: tool.x, y: tool.y0 + i * tool.step, w: tool.w, h: tool.h, label: t.label, hint: t.hint, sub: t.sub, icon: t.icon ?? "tool", flow: TOOLS }, t.label)),
+    /* @__PURE__ */ jsx(Connector, { points: ask, defs: id, kind: "request", flow: ASK }),
+    /* @__PURE__ */ jsx(Packet, { points: ask, kind: "request", dur: 2, flow: ASK }),
+    /* @__PURE__ */ jsx(Packet, { points: ask, kind: "response", dur: 2, delay: -1, reverse: true, flow: ASK }),
+    /* @__PURE__ */ jsx(Bus, { ...bus, from: Math.min(toolY(0), trunkY), to: Math.max(toolY(n - 1), trunkY), defs: id, kind: "change" }),
+    /* @__PURE__ */ jsx(Packet, { points: fromAgent, kind: "change", dur: 1.8, flow: TOOLS }),
+    /* @__PURE__ */ jsx(Packet, { points: fromAgent, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: TOOLS }),
+    spec.tools.map((_, i) => /* @__PURE__ */ jsx(Packet, { points: busStub(bus, bus.stubs[i]), kind: i % 2 ? "response" : "change", dur: 1.4, delay: -i * 0.45, reverse: i % 2 === 1, r: 4, flow: TOOLS }, i)),
+    /* @__PURE__ */ jsx(Label, { x: (agentBox.x + agentBox.w + busX) / 2, y: trunkY - 10, text: "tool calls", anchor: "middle" }),
+    /* @__PURE__ */ jsx(Connector, { points: toBoundary, defs: id, kind: "request", flow: CHECK }),
+    /* @__PURE__ */ jsx(Packet, { points: toBoundary, kind: "request", dur: 1.6, flow: CHECK }),
+    /* @__PURE__ */ jsx(Node, { ...boundary, label: spec.boundary.label, sub: spec.boundary.sub, icon: spec.boundary.icon ?? "lock", accent: true, dashed: true, flow: CHECK, hint: spec.boundary.hint ?? "Code, not a model, decides what passes" }),
+    /* @__PURE__ */ jsx(Connector, { points: toOutput, defs: id, kind: "accent", flow: CHECK }),
+    /* @__PURE__ */ jsx(Packet, { points: toOutput, kind: "accent", dur: 1.6, delay: -0.8, flow: CHECK }),
+    /* @__PURE__ */ jsx(Label, { x: cx + 12, y: toOutput[0][1] + 28, text: "verdict", accent: true }),
+    /* @__PURE__ */ jsx(Node, { ...output, label: spec.output.label, hint: spec.output.hint, sub: spec.output.sub, icon: spec.output.icon ?? "doc", flow: CHECK })
   ] });
   const steps = [
     { ...spec.user, icon: spec.user.icon ?? "user", flow: ASK },
@@ -346,7 +326,7 @@ function agentLoopParts(spec = defaultAgentLoop, id) {
   ];
   return {
     wide,
-    narrow: /* @__PURE__ */ jsx3(Stack, { steps, id: `${id}-n` }),
+    narrow: /* @__PURE__ */ jsx(Stack, { steps, id: `${id}-n` }),
     viewBox: `0 0 1120 ${height}`,
     narrowViewBox: `0 0 ${NARROW_W} ${stackHeight(steps.length)}`,
     legend: [
@@ -358,9 +338,6 @@ function agentLoopParts(spec = defaultAgentLoop, id) {
   };
 }
 var agentLoop = (spec = defaultAgentLoop, id) => presetFigure(spec, agentLoopParts, id);
-
-// src/presets/ragPipeline.tsx
-import { Fragment as Fragment4, jsx as jsx4, jsxs as jsxs4 } from "react/jsx-runtime";
 var defaultRagPipeline = {
   figure: {
     number: "Figure 01",
@@ -433,38 +410,38 @@ function ragPipelineParts(spec = defaultRagPipeline, id) {
       [sx(i) + stage.w, y],
       [sx(i + 1), y]
     ];
-    return /* @__PURE__ */ jsxs4("g", { children: [
-      /* @__PURE__ */ jsx4(Connector, { points: p, defs: id, kind, flow }),
-      /* @__PURE__ */ jsx4(Packet, { points: p, kind, dur: 1.2, delay: -i * 0.4, r: 4, flow })
+    return /* @__PURE__ */ jsxs("g", { children: [
+      /* @__PURE__ */ jsx(Connector, { points: p, defs: id, kind, flow }),
+      /* @__PURE__ */ jsx(Packet, { points: p, kind, dur: 1.2, delay: -i * 0.4, r: 4, flow })
     ] }, i);
   });
-  const wide = /* @__PURE__ */ jsxs4(Fragment4, { children: [
-    /* @__PURE__ */ jsx4(Defs, { id }),
-    /* @__PURE__ */ jsx4(Lane, { x: src.x, w: src.w, y: 40, title: "Sources" }),
-    /* @__PURE__ */ jsx4(Lane, { x: stage.x0, w: ingestLast - stage.x0, y: 40, title: "Ingest" }),
-    /* @__PURE__ */ jsx4(Lane, { x: index.x, w: index.w, y: 40, title: "Index" }),
-    /* @__PURE__ */ jsx4(Lane, { x: stage.x0, w: sx(spec.stages.length - 1) + stage.w - stage.x0, y: 248, title: "Query" }),
-    spec.sources.map((s, i) => /* @__PURE__ */ jsx4(Node, { x: src.x, y: src.y0 + i * src.step, w: src.w, h: src.h, label: s.label, hint: s.hint, icon: s.icon ?? "doc", flow: INGEST, size: 13 }, s.label)),
-    /* @__PURE__ */ jsx4(Bus, { ...bus, from: Math.min(srcY(0), iy), to: Math.max(srcY(spec.sources.length - 1), iy), defs: id, kind: "change" }),
-    spec.sources.map((_, i) => /* @__PURE__ */ jsx4(Packet, { points: busStub(bus, bus.stubs[i]), kind: "change", dur: 1.4, delay: -i * 0.5, reverse: true, r: 4, flow: INGEST }, i)),
-    /* @__PURE__ */ jsx4(Packet, { points: busStub(bus, bus.stubs[spec.sources.length]), kind: "change", dur: 1.2, flow: INGEST, r: 4 }),
-    spec.ingest.map((s, i) => /* @__PURE__ */ jsx4(Node, { x: sx(i), y: ingestY, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: INGEST, size: 13, subSize: 10 }, s.label)),
+  const wide = /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx(Defs, { id }),
+    /* @__PURE__ */ jsx(Lane, { x: src.x, w: src.w, y: 40, title: "Sources" }),
+    /* @__PURE__ */ jsx(Lane, { x: stage.x0, w: ingestLast - stage.x0, y: 40, title: "Ingest" }),
+    /* @__PURE__ */ jsx(Lane, { x: index.x, w: index.w, y: 40, title: "Index" }),
+    /* @__PURE__ */ jsx(Lane, { x: stage.x0, w: sx(spec.stages.length - 1) + stage.w - stage.x0, y: 248, title: "Query" }),
+    spec.sources.map((s, i) => /* @__PURE__ */ jsx(Node, { x: src.x, y: src.y0 + i * src.step, w: src.w, h: src.h, label: s.label, hint: s.hint, icon: s.icon ?? "doc", flow: INGEST, size: 13 }, s.label)),
+    /* @__PURE__ */ jsx(Bus, { ...bus, from: Math.min(srcY(0), iy), to: Math.max(srcY(spec.sources.length - 1), iy), defs: id, kind: "change" }),
+    spec.sources.map((_, i) => /* @__PURE__ */ jsx(Packet, { points: busStub(bus, bus.stubs[i]), kind: "change", dur: 1.4, delay: -i * 0.5, reverse: true, r: 4, flow: INGEST }, i)),
+    /* @__PURE__ */ jsx(Packet, { points: busStub(bus, bus.stubs[spec.sources.length]), kind: "change", dur: 1.2, flow: INGEST, r: 4 }),
+    spec.ingest.map((s, i) => /* @__PURE__ */ jsx(Node, { x: sx(i), y: ingestY, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: INGEST, size: 13, subSize: 10 }, s.label)),
     chain(spec.ingest, iy, "change", INGEST),
-    /* @__PURE__ */ jsx4(Connector, { points: toIndex, defs: id, kind: "change", flow: INGEST }),
-    /* @__PURE__ */ jsx4(Packet, { points: toIndex, kind: "change", dur: 2, flow: INGEST }),
-    /* @__PURE__ */ jsx4(Node, { ...index, label: spec.index.label, sub: spec.index.sub, icon: spec.index.icon ?? "db", flow: [INGEST, QUERY], hint: spec.index.hint ?? "Shared by both lanes" }),
-    /* @__PURE__ */ jsx4(Node, { x: src.x, y: queryY, w: src.w, h: stage.h, label: spec.query.label, hint: spec.query.hint, icon: spec.query.icon ?? "user", flow: QUERY, size: 13 }),
-    /* @__PURE__ */ jsx4(Connector, { points: queryIn, defs: id, kind: "request", flow: QUERY }),
-    /* @__PURE__ */ jsx4(Packet, { points: queryIn, kind: "request", dur: 1.2, flow: QUERY, r: 4 }),
-    spec.stages.map((s, i) => /* @__PURE__ */ jsx4(Node, { x: sx(i), y: queryY, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: QUERY, size: 13, subSize: 10 }, s.label)),
+    /* @__PURE__ */ jsx(Connector, { points: toIndex, defs: id, kind: "change", flow: INGEST }),
+    /* @__PURE__ */ jsx(Packet, { points: toIndex, kind: "change", dur: 2, flow: INGEST }),
+    /* @__PURE__ */ jsx(Node, { ...index, label: spec.index.label, sub: spec.index.sub, icon: spec.index.icon ?? "db", flow: [INGEST, QUERY], hint: spec.index.hint ?? "Shared by both lanes" }),
+    /* @__PURE__ */ jsx(Node, { x: src.x, y: queryY, w: src.w, h: stage.h, label: spec.query.label, hint: spec.query.hint, icon: spec.query.icon ?? "user", flow: QUERY, size: 13 }),
+    /* @__PURE__ */ jsx(Connector, { points: queryIn, defs: id, kind: "request", flow: QUERY }),
+    /* @__PURE__ */ jsx(Packet, { points: queryIn, kind: "request", dur: 1.2, flow: QUERY, r: 4 }),
+    spec.stages.map((s, i) => /* @__PURE__ */ jsx(Node, { x: sx(i), y: queryY, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: QUERY, size: 13, subSize: 10 }, s.label)),
     chain(spec.stages, qy, "request", QUERY),
-    /* @__PURE__ */ jsx4(Connector, { points: read, defs: id, kind: "request", flow: QUERY }),
-    /* @__PURE__ */ jsx4(Packet, { points: read, kind: "request", dur: 1.8, flow: QUERY, r: 4 }),
-    /* @__PURE__ */ jsx4(Packet, { points: read, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: QUERY, r: 4 }),
-    /* @__PURE__ */ jsx4(Label, { x: (retrieveX + index.x) / 2, y: index.y + index.h / 2 + 6, text: "top-k", anchor: "middle" }),
-    /* @__PURE__ */ jsx4(Connector, { points: toAnswer, defs: id, kind: "response", flow: QUERY }),
-    /* @__PURE__ */ jsx4(Packet, { points: toAnswer, kind: "response", dur: 1.4, flow: QUERY, r: 4 }),
-    /* @__PURE__ */ jsx4(Node, { ...answer, label: spec.answer.label, hint: spec.answer.hint, sub: spec.answer.sub, icon: spec.answer.icon ?? "doc", flow: QUERY, size: 13, subSize: 10 })
+    /* @__PURE__ */ jsx(Connector, { points: read, defs: id, kind: "request", flow: QUERY }),
+    /* @__PURE__ */ jsx(Packet, { points: read, kind: "request", dur: 1.8, flow: QUERY, r: 4 }),
+    /* @__PURE__ */ jsx(Packet, { points: read, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: QUERY, r: 4 }),
+    /* @__PURE__ */ jsx(Label, { x: (retrieveX + index.x) / 2, y: index.y + index.h / 2 + 6, text: "top-k", anchor: "middle" }),
+    /* @__PURE__ */ jsx(Connector, { points: toAnswer, defs: id, kind: "response", flow: QUERY }),
+    /* @__PURE__ */ jsx(Packet, { points: toAnswer, kind: "response", dur: 1.4, flow: QUERY, r: 4 }),
+    /* @__PURE__ */ jsx(Node, { ...answer, label: spec.answer.label, hint: spec.answer.hint, sub: spec.answer.sub, icon: spec.answer.icon ?? "doc", flow: QUERY, size: 13, subSize: 10 })
   ] });
   const steps = [
     { label: spec.sources.map((s) => s.label).join(" \xB7 "), sub: "sources", icon: "doc", flow: INGEST },
@@ -476,7 +453,7 @@ function ragPipelineParts(spec = defaultRagPipeline, id) {
   ];
   return {
     wide,
-    narrow: /* @__PURE__ */ jsx4(Stack, { steps, id: `${id}-n` }),
+    narrow: /* @__PURE__ */ jsx(Stack, { steps, id: `${id}-n` }),
     viewBox: `0 0 1120 ${height}`,
     narrowViewBox: `0 0 ${NARROW_W} ${stackHeight(steps.length)}`,
     legend: [
@@ -487,9 +464,6 @@ function ragPipelineParts(spec = defaultRagPipeline, id) {
   };
 }
 var ragPipeline = (spec = defaultRagPipeline, id) => presetFigure(spec, ragPipelineParts, id);
-
-// src/presets/skillLifecycle.tsx
-import { Fragment as Fragment5, jsx as jsx5, jsxs as jsxs5 } from "react/jsx-runtime";
 var defaultSkillLifecycle = {
   figure: {
     number: "Figure 01",
@@ -542,32 +516,32 @@ function skillLifecycleParts(spec = defaultSkillLifecycle, id) {
     [author.x + author.w / 2, author.y + author.h]
   ];
   const height = loopY + 40;
-  const wide = /* @__PURE__ */ jsxs5(Fragment5, { children: [
-    /* @__PURE__ */ jsx5(Defs, { id }),
-    /* @__PURE__ */ jsx5(Lane, { x: author.x, w: author.w, y: 40, title: "Author" }),
-    /* @__PURE__ */ jsx5(Lane, { x: evaluate.x, w: evaluate.w, y: 40, title: "Evaluate" }),
-    /* @__PURE__ */ jsx5(Lane, { x: version.x, w: version.w, y: 40, title: "Version" }),
-    /* @__PURE__ */ jsx5(Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
-    /* @__PURE__ */ jsx5(Node, { ...author, label: spec.author.label, hint: spec.author.hint, sub: spec.author.sub, icon: spec.author.icon ?? "user", flow: [FWD, BACK] }),
-    /* @__PURE__ */ jsx5(Connector, { points: a2e, defs: id, kind: "request", flow: FWD }),
-    /* @__PURE__ */ jsx5(Packet, { points: a2e, kind: "request", dur: 1.4, flow: FWD, r: 4 }),
-    /* @__PURE__ */ jsx5(Node, { ...evaluate, label: spec.evaluate.label, sub: spec.evaluate.sub, icon: spec.evaluate.icon ?? "chart", flow: FWD, hint: spec.evaluate.hint ?? `Scored against: ${spec.evaluate.baseline}` }),
-    /* @__PURE__ */ jsx5(Chip, { x: evaluate.x, y: evaluate.y + evaluate.h + 12, w: evaluate.w, h: 20, label: `baseline \xB7 ${spec.evaluate.baseline}`, dashed: true }),
-    /* @__PURE__ */ jsx5(Connector, { points: e2v, defs: id, kind: "accent", flow: FWD }),
-    /* @__PURE__ */ jsx5(Packet, { points: e2v, kind: "accent", dur: 1.4, delay: -0.7, flow: FWD, r: 4 }),
-    /* @__PURE__ */ jsx5(Label, { x: (e2v[0][0] + e2v[1][0]) / 2, y: cy - 10, text: "passes", anchor: "middle", accent: true }),
-    /* @__PURE__ */ jsx5(Node, { ...version, label: spec.version.label, hint: spec.version.hint, sub: spec.version.sub, icon: spec.version.icon ?? "git", flow: FWD }),
-    /* @__PURE__ */ jsx5(Bus, { ...bus, from: Math.min(conY(0), cy), to: trunkEnd, defs: id }),
-    /* @__PURE__ */ jsx5(Packet, { points: busStub(bus, bus.stubs[n]), kind: "request", dur: 1.2, flow: FWD, r: 4 }),
-    spec.consumers.map((c, i) => /* @__PURE__ */ jsxs5("g", { children: [
-      /* @__PURE__ */ jsx5(Packet, { points: busStub(bus, bus.stubs[i]), kind: "request", dur: 1.2, delay: -i * 0.4, flow: FWD, r: 4 }),
-      /* @__PURE__ */ jsx5(Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, hint: c.hint, sub: c.sub, icon: c.icon, flow: [FWD, BACK] })
+  const wide = /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx(Defs, { id }),
+    /* @__PURE__ */ jsx(Lane, { x: author.x, w: author.w, y: 40, title: "Author" }),
+    /* @__PURE__ */ jsx(Lane, { x: evaluate.x, w: evaluate.w, y: 40, title: "Evaluate" }),
+    /* @__PURE__ */ jsx(Lane, { x: version.x, w: version.w, y: 40, title: "Version" }),
+    /* @__PURE__ */ jsx(Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
+    /* @__PURE__ */ jsx(Node, { ...author, label: spec.author.label, hint: spec.author.hint, sub: spec.author.sub, icon: spec.author.icon ?? "user", flow: [FWD, BACK] }),
+    /* @__PURE__ */ jsx(Connector, { points: a2e, defs: id, kind: "request", flow: FWD }),
+    /* @__PURE__ */ jsx(Packet, { points: a2e, kind: "request", dur: 1.4, flow: FWD, r: 4 }),
+    /* @__PURE__ */ jsx(Node, { ...evaluate, label: spec.evaluate.label, sub: spec.evaluate.sub, icon: spec.evaluate.icon ?? "chart", flow: FWD, hint: spec.evaluate.hint ?? `Scored against: ${spec.evaluate.baseline}` }),
+    /* @__PURE__ */ jsx(Chip, { x: evaluate.x, y: evaluate.y + evaluate.h + 12, w: evaluate.w, h: 20, label: `baseline \xB7 ${spec.evaluate.baseline}`, dashed: true }),
+    /* @__PURE__ */ jsx(Connector, { points: e2v, defs: id, kind: "accent", flow: FWD }),
+    /* @__PURE__ */ jsx(Packet, { points: e2v, kind: "accent", dur: 1.4, delay: -0.7, flow: FWD, r: 4 }),
+    /* @__PURE__ */ jsx(Label, { x: (e2v[0][0] + e2v[1][0]) / 2, y: cy - 10, text: "passes", anchor: "middle", accent: true }),
+    /* @__PURE__ */ jsx(Node, { ...version, label: spec.version.label, hint: spec.version.hint, sub: spec.version.sub, icon: spec.version.icon ?? "git", flow: FWD }),
+    /* @__PURE__ */ jsx(Bus, { ...bus, from: Math.min(conY(0), cy), to: trunkEnd, defs: id }),
+    /* @__PURE__ */ jsx(Packet, { points: busStub(bus, bus.stubs[n]), kind: "request", dur: 1.2, flow: FWD, r: 4 }),
+    spec.consumers.map((c, i) => /* @__PURE__ */ jsxs("g", { children: [
+      /* @__PURE__ */ jsx(Packet, { points: busStub(bus, bus.stubs[i]), kind: "request", dur: 1.2, delay: -i * 0.4, flow: FWD, r: 4 }),
+      /* @__PURE__ */ jsx(Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, hint: c.hint, sub: c.sub, icon: c.icon, flow: [FWD, BACK] })
     ] }, c.label)),
-    /* @__PURE__ */ jsx5(Label, { x: (version.x + version.w + busX) / 2, y: cy - 10, text: "install", anchor: "middle" }),
-    /* @__PURE__ */ jsx5(Connector, { points: back, defs: id, kind: "change", flow: BACK, dashed: true }),
-    /* @__PURE__ */ jsx5(Packet, { points: back, kind: "change", dur: 3.2, flow: BACK }),
-    /* @__PURE__ */ jsx5(Packet, { points: back, kind: "change", dur: 3.2, delay: -1.6, flow: BACK }),
-    /* @__PURE__ */ jsx5(Label, { x: (busX + author.x) / 2, y: loopY - 10, text: `${spec.feedback.label} \xB7 ${spec.feedback.sub ?? ""}`.trim(), anchor: "middle" })
+    /* @__PURE__ */ jsx(Label, { x: (version.x + version.w + busX) / 2, y: cy - 10, text: "install", anchor: "middle" }),
+    /* @__PURE__ */ jsx(Connector, { points: back, defs: id, kind: "change", flow: BACK, dashed: true }),
+    /* @__PURE__ */ jsx(Packet, { points: back, kind: "change", dur: 3.2, flow: BACK }),
+    /* @__PURE__ */ jsx(Packet, { points: back, kind: "change", dur: 3.2, delay: -1.6, flow: BACK }),
+    /* @__PURE__ */ jsx(Label, { x: (busX + author.x) / 2, y: loopY - 10, text: `${spec.feedback.label} \xB7 ${spec.feedback.sub ?? ""}`.trim(), anchor: "middle" })
   ] });
   const steps = [
     { ...spec.author, icon: spec.author.icon ?? "user", flow: FWD },
@@ -578,7 +552,7 @@ function skillLifecycleParts(spec = defaultSkillLifecycle, id) {
   ];
   return {
     wide,
-    narrow: /* @__PURE__ */ jsx5(Stack, { steps, id: `${id}-n` }),
+    narrow: /* @__PURE__ */ jsx(Stack, { steps, id: `${id}-n` }),
     viewBox: `0 0 1120 ${height}`,
     narrowViewBox: `0 0 ${NARROW_W} ${stackHeight(steps.length)}`,
     legend: [
@@ -589,9 +563,6 @@ function skillLifecycleParts(spec = defaultSkillLifecycle, id) {
   };
 }
 var skillLifecycle = (spec = defaultSkillLifecycle, id) => presetFigure(spec, skillLifecycleParts, id);
-
-// src/presets/syncLoop.tsx
-import { Fragment as Fragment6, jsx as jsx6, jsxs as jsxs6 } from "react/jsx-runtime";
 var defaultSyncLoop = {
   figure: {
     number: "Figure 01",
@@ -626,11 +597,11 @@ function syncLoopParts(spec = defaultSyncLoop, id) {
   const up = { x: 24, y: 64, w: 320, h: Math.max(48 + items.length * 64 + 8, con.y0 + n * con.step - 64 - 8) };
   const conY = (i) => con.y0 + i * con.step + con.h / 2;
   const height = Math.max(up.y + up.h, con.y0 + n * con.step - 24) + 32;
-  const wide = /* @__PURE__ */ jsxs6(Fragment6, { children: [
-    /* @__PURE__ */ jsx6(Defs, { id }),
-    /* @__PURE__ */ jsx6(Lane, { x: up.x, w: up.w, y: 40, title: "Upstream" }),
-    /* @__PURE__ */ jsx6(Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
-    /* @__PURE__ */ jsx6(Group, { ...up, title: spec.upstream.label, flow: [PULL, PUSH], children: items.map((it, i) => /* @__PURE__ */ jsx6(Node, { x: up.x + 16, y: up.y + 40 + i * 64, w: up.w - 32, h: 48, label: it.label, hint: it.hint, sub: it.sub, icon: it.icon, align: "left", flow: [PULL, PUSH], size: 13, subSize: 10 }, it.label)) }),
+  const wide = /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx(Defs, { id }),
+    /* @__PURE__ */ jsx(Lane, { x: up.x, w: up.w, y: 40, title: "Upstream" }),
+    /* @__PURE__ */ jsx(Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
+    /* @__PURE__ */ jsx(Group, { ...up, title: spec.upstream.label, flow: [PULL, PUSH], children: items.map((it, i) => /* @__PURE__ */ jsx(Node, { x: up.x + 16, y: up.y + 40 + i * 64, w: up.w - 32, h: 48, label: it.label, hint: it.hint, sub: it.sub, icon: it.icon, align: "left", flow: [PULL, PUSH], size: 13, subSize: 10 }, it.label)) }),
     spec.consumers.map((c, i) => {
       const cy = conY(i);
       const pull = [
@@ -645,21 +616,21 @@ function syncLoopParts(spec = defaultSyncLoop, id) {
         [up.x + up.w, cy],
         [con.x, cy]
       ];
-      return /* @__PURE__ */ jsxs6("g", { children: [
-        c.plugin ? /* @__PURE__ */ jsxs6(Fragment6, { children: [
-          /* @__PURE__ */ jsx6(Connector, { points: single, defs: id, kind: "request", dashed: true, flow: PULL }),
-          /* @__PURE__ */ jsx6(Packet, { points: single, kind: "request", dur: 2.6, delay: -i * 0.5, flow: PULL, r: 4 })
-        ] }) : /* @__PURE__ */ jsxs6(Fragment6, { children: [
-          /* @__PURE__ */ jsx6(Connector, { points: pull, defs: id, kind: "request", flow: PULL }),
-          /* @__PURE__ */ jsx6(Packet, { points: pull, kind: "request", dur: 2.4, delay: -i * 0.6, flow: PULL, r: 4 }),
-          /* @__PURE__ */ jsx6(Connector, { points: push, defs: id, kind: "change", flow: PUSH }),
-          /* @__PURE__ */ jsx6(Packet, { points: push, kind: "change", dur: 2.4, delay: -i * 0.6 - 1.2, flow: PUSH, r: 4 })
+      return /* @__PURE__ */ jsxs("g", { children: [
+        c.plugin ? /* @__PURE__ */ jsxs(Fragment, { children: [
+          /* @__PURE__ */ jsx(Connector, { points: single, defs: id, kind: "request", dashed: true, flow: PULL }),
+          /* @__PURE__ */ jsx(Packet, { points: single, kind: "request", dur: 2.6, delay: -i * 0.5, flow: PULL, r: 4 })
+        ] }) : /* @__PURE__ */ jsxs(Fragment, { children: [
+          /* @__PURE__ */ jsx(Connector, { points: pull, defs: id, kind: "request", flow: PULL }),
+          /* @__PURE__ */ jsx(Packet, { points: pull, kind: "request", dur: 2.4, delay: -i * 0.6, flow: PULL, r: 4 }),
+          /* @__PURE__ */ jsx(Connector, { points: push, defs: id, kind: "change", flow: PUSH }),
+          /* @__PURE__ */ jsx(Packet, { points: push, kind: "change", dur: 2.4, delay: -i * 0.6 - 1.2, flow: PUSH, r: 4 })
         ] }),
-        /* @__PURE__ */ jsx6(Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, hint: c.hint, sub: c.hooks ? `${c.sub ?? ""} \xB7 ${c.hooks[0]} \u2192 ${c.hooks[1]}`.replace(/^ · /, "") : c.sub, icon: c.icon, align: "left", flow: c.plugin ? PULL : [PULL, PUSH] })
+        /* @__PURE__ */ jsx(Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, hint: c.hint, sub: c.hooks ? `${c.sub ?? ""} \xB7 ${c.hooks[0]} \u2192 ${c.hooks[1]}`.replace(/^ · /, "") : c.sub, icon: c.icon, align: "left", flow: c.plugin ? PULL : [PULL, PUSH] })
       ] }, c.label);
     }),
-    /* @__PURE__ */ jsx6(Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) - 16, text: spec.pull ?? "pull", anchor: "middle" }),
-    /* @__PURE__ */ jsx6(Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) + 28, text: spec.push ?? "push", anchor: "middle" })
+    /* @__PURE__ */ jsx(Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) - 16, text: spec.pull ?? "pull", anchor: "middle" }),
+    /* @__PURE__ */ jsx(Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) + 28, text: spec.push ?? "push", anchor: "middle" })
   ] });
   const steps = [
     { label: spec.upstream.label, sub: spec.upstream.sub ?? items.map((i) => i.label).join(" \xB7 "), icon: "git", flow: [PULL, PUSH].join(" ") },
@@ -667,7 +638,7 @@ function syncLoopParts(spec = defaultSyncLoop, id) {
   ];
   return {
     wide,
-    narrow: /* @__PURE__ */ jsx6(Stack, { steps, id: `${id}-n` }),
+    narrow: /* @__PURE__ */ jsx(Stack, { steps, id: `${id}-n` }),
     viewBox: `0 0 1120 ${height}`,
     narrowViewBox: `0 0 ${NARROW_W} ${stackHeight(steps.length)}`,
     legend: [
@@ -677,9 +648,6 @@ function syncLoopParts(spec = defaultSyncLoop, id) {
   };
 }
 var syncLoop = (spec = defaultSyncLoop, id) => presetFigure(spec, syncLoopParts, id);
-
-// src/presets/beforeAfter.tsx
-import { Fragment as Fragment7, jsx as jsx7, jsxs as jsxs7 } from "react/jsx-runtime";
 var defaultBeforeAfter = {
   figure: {
     number: "Figure 01",
@@ -719,19 +687,19 @@ function beforeAfterParts(spec = defaultBeforeAfter, id) {
     const sy = y + 48;
     const cy = sy + stage.h / 2;
     const changed2 = new Set(p.changed ?? []);
-    return /* @__PURE__ */ jsx7(Group, { x: x0, y, w, h: panelH, title: p.title, variant: "dashed", flow, accent: changed2.size > 0, children: p.stages.map((s, i) => {
+    return /* @__PURE__ */ jsx(Group, { x: x0, y, w, h: panelH, title: p.title, variant: "dashed", flow, accent: changed2.size > 0, children: p.stages.map((s, i) => {
       const x = x0 + 24 + i * stage.step;
       const into = [
         [x - stage.step + stage.w, cy],
         [x, cy]
       ];
       const hot = changed2.has(i);
-      return /* @__PURE__ */ jsxs7("g", { children: [
-        i > 0 ? /* @__PURE__ */ jsxs7(Fragment7, { children: [
-          /* @__PURE__ */ jsx7(Connector, { points: into, defs: id, kind: hot ? "accent" : "request", flow }),
-          /* @__PURE__ */ jsx7(Packet, { points: into, kind: hot ? "accent" : "request", dur: 1.2, delay: -i * 0.4, flow, r: 4, id: `${pid}-p${i}` })
+      return /* @__PURE__ */ jsxs("g", { children: [
+        i > 0 ? /* @__PURE__ */ jsxs(Fragment, { children: [
+          /* @__PURE__ */ jsx(Connector, { points: into, defs: id, kind: hot ? "accent" : "request", flow }),
+          /* @__PURE__ */ jsx(Packet, { points: into, kind: hot ? "accent" : "request", dur: 1.2, delay: -i * 0.4, flow, r: 4, id: `${pid}-p${i}` })
         ] }) : null,
-        /* @__PURE__ */ jsx7(Node, { x, y: sy, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, accent: hot, flow, size: 13, subSize: 10 })
+        /* @__PURE__ */ jsx(Node, { x, y: sy, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, accent: hot, flow, size: 13, subSize: 10 })
       ] }, s.label + i);
     }) });
   };
@@ -739,8 +707,8 @@ function beforeAfterParts(spec = defaultBeforeAfter, id) {
   const height = afterY + panelH + 24;
   const panelW = (p) => 48 + p.stages.length * stage.step - (stage.step - stage.w) + 48;
   const width = Math.max(panelW(spec.before), panelW(spec.after)) + 48;
-  const wide = /* @__PURE__ */ jsxs7(Fragment7, { children: [
-    /* @__PURE__ */ jsx7(Defs, { id }),
+  const wide = /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx(Defs, { id }),
     panel(spec.before, 24, "before", `${id}-b`),
     panel(spec.after, afterY, "after", `${id}-a`)
   ] });
@@ -751,7 +719,7 @@ function beforeAfterParts(spec = defaultBeforeAfter, id) {
   ];
   return {
     wide,
-    narrow: /* @__PURE__ */ jsx7(Stack, { steps, id: `${id}-n` }),
+    narrow: /* @__PURE__ */ jsx(Stack, { steps, id: `${id}-n` }),
     viewBox: `0 0 ${Math.max(width, 640)} ${height}`,
     narrowViewBox: `0 0 ${NARROW_W} ${stackHeight(steps.length)}`,
     legend: [
@@ -761,9 +729,6 @@ function beforeAfterParts(spec = defaultBeforeAfter, id) {
   };
 }
 var beforeAfter = (spec = defaultBeforeAfter, id) => presetFigure(spec, beforeAfterParts, id);
-
-// src/presets/pipeline.tsx
-import { Fragment as Fragment8, jsx as jsx8, jsxs as jsxs8 } from "react/jsx-runtime";
 var defaultPipeline = {
   figure: {
     number: "Figure 01",
@@ -798,28 +763,28 @@ function pipelineParts(spec = defaultPipeline, id) {
       [x(slot - 1) + stage.w, cy],
       [x(slot), cy]
     ];
-    const edge = slot > 0 ? /* @__PURE__ */ jsxs8(Fragment8, { children: [
-      /* @__PURE__ */ jsx8(Connector, { points: into, defs: id, kind: kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request", flow: FLOW }),
-      /* @__PURE__ */ jsx8(Packet, { points: into, kind: kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request", dur: 1.2, delay: -slot * 0.35, flow: FLOW, r: 4 })
+    const edge = slot > 0 ? /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx(Connector, { points: into, defs: id, kind: kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request", flow: FLOW }),
+      /* @__PURE__ */ jsx(Packet, { points: into, kind: kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request", dur: 1.2, delay: -slot * 0.35, flow: FLOW, r: 4 })
     ] }) : null;
     if (kind === "queue") {
       const q = spec.queue;
       const depth = q.depth ?? 3;
       const cw = (stage.w - 16 - (depth - 1) * 6) / depth;
-      return /* @__PURE__ */ jsxs8("g", { children: [
+      return /* @__PURE__ */ jsxs("g", { children: [
         edge,
-        /* @__PURE__ */ jsx8(Group, { x: x(slot), y: stage.y - 16, w: stage.w, h: stage.h + 32, title: q.label, flow: FLOW, accent: true, children: Array.from({ length: depth }).map((_, k) => /* @__PURE__ */ jsx8(Chip, { x: x(slot) + 8 + k * (cw + 6), y: stage.y + 24, w: cw, h: 18, label: k < depth - 1 ? String(k + 1) : "", kind: k < depth - 1 ? "change" : void 0, dashed: k === depth - 1, flow: FLOW }, k)) })
+        /* @__PURE__ */ jsx(Group, { x: x(slot), y: stage.y - 16, w: stage.w, h: stage.h + 32, title: q.label, flow: FLOW, accent: true, children: Array.from({ length: depth }).map((_, k) => /* @__PURE__ */ jsx(Chip, { x: x(slot) + 8 + k * (cw + 6), y: stage.y + 24, w: cw, h: 18, label: k < depth - 1 ? String(k + 1) : "", kind: k < depth - 1 ? "change" : void 0, dashed: k === depth - 1, flow: FLOW }, k)) })
       ] }, "queue");
     }
     const s = spec.stages[si++];
-    return /* @__PURE__ */ jsxs8("g", { children: [
+    return /* @__PURE__ */ jsxs("g", { children: [
       edge,
-      /* @__PURE__ */ jsx8(Node, { x: x(slot), y: stage.y, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: FLOW, size: 13, subSize: 10 })
+      /* @__PURE__ */ jsx(Node, { x: x(slot), y: stage.y, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: FLOW, size: 13, subSize: 10 })
     ] }, s.label);
   });
-  const wide = /* @__PURE__ */ jsxs8(Fragment8, { children: [
-    /* @__PURE__ */ jsx8(Defs, { id }),
-    /* @__PURE__ */ jsx8(Lane, { x: 24, w: width - 48, y: 40, title: spec.laneTitle ?? "Stages, left to right" }),
+  const wide = /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx(Defs, { id }),
+    /* @__PURE__ */ jsx(Lane, { x: 24, w: width - 48, y: 40, title: spec.laneTitle ?? "Stages, left to right" }),
     nodes
   ] });
   const steps = [
@@ -829,7 +794,7 @@ function pipelineParts(spec = defaultPipeline, id) {
   ];
   return {
     wide,
-    narrow: /* @__PURE__ */ jsx8(Stack, { steps, id: `${id}-n` }),
+    narrow: /* @__PURE__ */ jsx(Stack, { steps, id: `${id}-n` }),
     viewBox: `0 0 ${Math.max(width, 640)} ${stage.y + stage.h + 48}`,
     narrowViewBox: `0 0 ${NARROW_W} ${stackHeight(steps.length)}`,
     legend: [
@@ -850,33 +815,5 @@ var PRESETS = {
   beforeAfter: { render: beforeAfter, spec: defaultBeforeAfter, name: "Before and after" },
   pipeline: { render: pipeline, spec: defaultPipeline, name: "Pipeline" }
 };
-export {
-  NARROW_W,
-  PRESETS,
-  PresetFigure,
-  Stack,
-  agentLoop,
-  agentLoopParts,
-  beforeAfter,
-  beforeAfterParts,
-  defaultAgentLoop,
-  defaultBeforeAfter,
-  defaultPipeline,
-  defaultRagPipeline,
-  defaultServiceMap,
-  defaultSkillLifecycle,
-  defaultSyncLoop,
-  pipeline,
-  pipelineParts,
-  presetFigure,
-  ragPipeline,
-  ragPipelineParts,
-  serviceMap,
-  serviceMapParts,
-  skillLifecycle,
-  skillLifecycleParts,
-  stackHeight,
-  syncLoop,
-  syncLoopParts,
-  toFigure
-};
+
+export { NARROW_W, PRESETS, PresetFigure, Stack, agentLoop, agentLoopParts, beforeAfter, beforeAfterParts, defaultAgentLoop, defaultBeforeAfter, defaultPipeline, defaultRagPipeline, defaultServiceMap, defaultSkillLifecycle, defaultSyncLoop, pipeline, pipelineParts, presetFigure, ragPipeline, ragPipelineParts, serviceMap, serviceMapParts, skillLifecycle, skillLifecycleParts, stackHeight, syncLoop, syncLoopParts, toFigure };

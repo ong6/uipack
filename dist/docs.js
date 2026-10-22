@@ -1,6 +1,9 @@
+import { useId, useState, useEffect, createElement, Children, isValidElement } from 'react';
+import { jsxs, jsx } from 'react/jsx-runtime';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
 // src/docs/DocsLayout.tsx
-import { useEffect, useId, useState } from "react";
-import { jsx, jsxs } from "react/jsx-runtime";
 function SectionNavigation({
   sections,
   activeHref
@@ -140,16 +143,6 @@ function DocsLayout({
     ] })
   ] });
 }
-
-// src/docs/DocsMarkdown.tsx
-import {
-  Children,
-  createElement,
-  isValidElement
-} from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { jsx as jsx2 } from "react/jsx-runtime";
 function textFromChildren(children) {
   return Children.toArray(children).map((child) => {
     if (typeof child === "string" || typeof child === "number") {
@@ -210,13 +203,13 @@ function headingComponent(level, headingIds) {
       { ...props, id, "aria-label": title },
       children,
       " ",
-      /* @__PURE__ */ jsx2(
+      /* @__PURE__ */ jsx(
         "a",
         {
           className: "uipack-docs__heading-anchor",
           href: `#${id}`,
           "aria-label": `Link to ${title}`,
-          children: /* @__PURE__ */ jsx2("span", { "aria-hidden": "true", children: "#" })
+          children: /* @__PURE__ */ jsx("span", { "aria-hidden": "true", children: "#" })
         }
       )
     );
@@ -233,21 +226,17 @@ function DocsMarkdown({ source }) {
     h4: headingComponent(4, headingIds),
     h5: headingComponent(5, headingIds),
     h6: headingComponent(6, headingIds),
-    table: ({ node, ...props }) => /* @__PURE__ */ jsx2(
+    table: ({ node, ...props }) => /* @__PURE__ */ jsx(
       "div",
       {
         className: "uipack-docs__table",
         tabIndex: 0,
         style: { "--docs-table-columns": tableColumns(node) },
-        children: /* @__PURE__ */ jsx2("table", { ...props })
+        children: /* @__PURE__ */ jsx("table", { ...props })
       }
     )
   };
-  return /* @__PURE__ */ jsx2("div", { className: "uipack-docs__prose", children: /* @__PURE__ */ jsx2(ReactMarkdown, { components, remarkPlugins: [remarkGfm], skipHtml: true, children: source }) });
+  return /* @__PURE__ */ jsx("div", { className: "uipack-docs__prose", children: /* @__PURE__ */ jsx(ReactMarkdown, { components, remarkPlugins: [remarkGfm], skipHtml: true, children: source }) });
 }
-export {
-  DocsLayout,
-  DocsMarkdown,
-  extractDocsHeadings,
-  slugifyDocsHeading
-};
+
+export { DocsLayout, DocsMarkdown, extractDocsHeadings, slugifyDocsHeading };

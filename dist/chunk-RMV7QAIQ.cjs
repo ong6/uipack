@@ -1,17 +1,20 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true});// src/flight.ts
-var _react = require('react');
+'use strict';
+
+var react = require('react');
+
+// src/flight.ts
 function useLayerFlight(clearLayers) {
-  const anims = _react.useRef.call(void 0, []);
-  const generation = _react.useRef.call(void 0, 0);
-  const clear = _react.useRef.call(void 0, clearLayers);
+  const anims = react.useRef([]);
+  const generation = react.useRef(0);
+  const clear = react.useRef(clearLayers);
   clear.current = clearLayers;
-  const settle = _react.useCallback.call(void 0, () => {
+  const settle = react.useCallback(() => {
     generation.current += 1;
     for (const a of anims.current) a.cancel();
     anims.current = [];
     clear.current();
   }, []);
-  const fly = _react.useCallback.call(void 0, (run, land) => {
+  const fly = react.useCallback((run, land) => {
     anims.current = run;
     if (!run.length) return land();
     const at = generation.current;
@@ -23,7 +26,7 @@ function useLayerFlight(clearLayers) {
       }
     );
   }, []);
-  _react.useEffect.call(void 0, () => {
+  react.useEffect(() => {
     const running = anims;
     return () => {
       generation.current += 1;
@@ -32,7 +35,5 @@ function useLayerFlight(clearLayers) {
   }, []);
   return { anims, settle, fly };
 }
-
-
 
 exports.useLayerFlight = useLayerFlight;
