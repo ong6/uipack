@@ -16,6 +16,12 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+      - name: dist is committed as built
+        run: |
+          git diff --exit-code --stat dist
+          test -z "$(git status --porcelain dist)" || { git status --porcelain dist; echo "Rebuild and commit dist/"; exit 1; }
+      - name: Load every built entry with import and require
+        run: node scripts/load-entries.mjs
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 15

@@ -83,7 +83,7 @@ The diagrams page shows each pattern once, simplest first. Add one the first tim
 4. If it has styles: a line in `scripts/css-bundles.ts` (`{ out: "<entry>.css", from: [...] }`) and `"./<entry>.css": "./dist/<entry>.css"` in `exports`. `test/package.test.tsx` fails until entries, bundles and exports agree.
 5. Keep heavy dependencies out of the default entry: Three.js and GSAP only behind an optional, lazy entry, and add them to tsup's `external` list.
 6. Docs: `docs/<entry>.md` (shipped by the `docs/*.md` glob in `files`), a line in `docs/README.md`, a section in the root README and a line in `src/README.md`.
-7. `npm run build`, commit `dist/`, and load the built entry in both module systems: `node --input-type=module -e "import('uipack/<entry>')"` and `node -e "require('uipack/<entry>')"` from a directory where the package resolves (or `npm pack` and install the archive).
+7. `npm run build`, commit `dist/`, and load every built entry in both module systems with `node scripts/load-entries.mjs` (CI runs it, and fails if `dist/` differs from a fresh build).
 
 ## Candidates
 
