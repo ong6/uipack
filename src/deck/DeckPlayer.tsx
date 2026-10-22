@@ -89,7 +89,8 @@ export function DeckPlayer({
   const toRef = useRef<HTMLDivElement>(null);
   const overviewButtonRef = useRef<HTMLButtonElement>(null);
   const anims = useRef<Animation[]>([]);
-  const maxStep = useRef(0);
+  // The current slide's last build step, counted from its DOM after each slide change.
+  const [maxStep, setMaxStep] = useState(0);
   // The latest position, updated as soon as it changes, so quick repeated presses (a clicker's
   // double tap) each apply to where the previous one left the deck, not to the last render.
   const viewRef = useRef(view);
@@ -124,25 +125,27 @@ export function DeckPlayer({
 
   const next = useCallback(() => {
     const v = viewRef.current;
-    if (v.step < maxStep.current) commit({ ...v, step: v.step + 1 });
+    if (v.step < maxStep) commit({ ...v, step: v.step + 1 });
     else if (v.index < count - 1) go(v.index + 1, 0);
-  }, [count, go]);
+  }, [count, go, maxStep]);
 
   const prev = useCallback(() => {
     const v = viewRef.current;
-    const step = Math.min(v.step, maxStep.current);
+    const step = Math.min(v.step, maxStep);
     if (step > 0) commit({ ...v, step: step - 1 });
     else if (v.index > 0) go(v.index - 1, Infinity);
-  }, [go]);
+  }, [go, maxStep]);
 
   // Count the builds on the current slide.
   useIsoLayoutEffect(() => {
     const layer = toRef.current;
     if (!layer) return;
     // Builds reveal at `data-build`; a part with its own stops (a bento tour) declares `data-steps`.
-    maxStep.current = Array.from(layer.querySelectorAll("[data-build], [data-steps]")).reduce(
-      (m, el) => Math.max(m, Number(el.getAttribute("data-build") ?? el.getAttribute("data-steps")) || 0),
-      0,
+    setMaxStep(
+      Array.from(layer.querySelectorAll("[data-build], [data-steps]")).reduce(
+        (m, el) => Math.max(m, Number(el.getAttribute("data-build") ?? el.getAttribute("data-steps")) || 0),
+        0,
+      ),
     );
   }, [view.index, slides]);
 
@@ -331,9 +334,9 @@ export function DeckPlayer({
 
   const current = slides[view.index];
   const from = view.from ? slides[view.from.index] : null;
-  const stepNow = Math.min(view.step, maxStep.current);
+  const stepNow = Math.min(view.step, maxStep);
   const atStart = view.index === 0 && stepNow === 0;
-  const atEnd = view.index === count - 1 && view.step >= maxStep.current;
+  const atEnd = view.index === count - 1 && view.step >= maxStep;
 
   const stage = (
     <div

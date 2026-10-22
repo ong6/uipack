@@ -147,6 +147,29 @@ describe("DeckPlayer", () => {
     expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
   });
 
+  it("disables Next as soon as it lands on the last slide's last step, mid-transition", () => {
+    // A measurable stage and animations that never finish, so the transition holds (no settle re-render).
+    const width = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(960);
+    const running = { finished: new Promise(() => {}), cancel: vi.fn(), reverse: vi.fn() };
+    const animate = vi.fn(() => running as unknown as Animation);
+    Object.defineProperty(HTMLElement.prototype, "animate", { value: animate, configurable: true });
+    try {
+      const { unmount } = render(<DeckPlayer id="t9" title="Test deck" slides={slides} initial={{ slide: "two", step: 2 }} />);
+      expect(screen.getByRole("button", { name: "Next" })).toBeEnabled();
+      // The last slide has no builds; the previous one had two. The count must follow the slide.
+      press("ArrowRight");
+      expect(current()).toBe("2");
+      expect(deck()).toHaveAttribute("data-transitioning");
+      expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
+      // Unmounting mid-transition stops the animations.
+      unmount();
+      expect(running.cancel).toHaveBeenCalled();
+    } finally {
+      width.mockRestore();
+      delete (HTMLElement.prototype as { animate?: unknown }).animate;
+    }
+  });
+
   it("announces the slide and reports positions after mount, not on mount", () => {
     const seen: string[] = [];
     render(<DeckPlayer id="t2" title="Test deck" slides={slides} onPositionChange={(p) => seen.push(`${p.id}:${p.step}`)} />);
