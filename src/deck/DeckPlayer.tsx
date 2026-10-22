@@ -1,22 +1,19 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type KeyboardEvent as ReactKeyboardEvent,
-  type PointerEvent as ReactPointerEvent,
-} from "react";
-import { useIsoLayoutEffect, usePrefersReducedMotion } from "../env";
+import { useMemo, useRef, useState } from "react";
+import { usePrefersReducedMotion } from "../env";
 import { useLayerFlight } from "../flight";
 import { Controls } from "./player/Controls";
+import { useNextCue } from "./player/cue";
 import { Layer, useCanvasScale } from "./player/Layer";
 import { Overview } from "./player/Overview";
 import { Presenter } from "./player/Presenter";
 import { PrintJob, Printout } from "./player/Print";
 import { Reader } from "./player/Reader";
+import { useDeckKeys, useSwipe } from "./player/useDeckKeys";
+import { useDeckSync } from "./player/useDeckSync";
+import { useFullscreen } from "./player/useFullscreen";
+import { startIndexOf, useDeckPosition } from "./player/usePosition";
+import { useDeckTransition } from "./player/useTransition";
 import { lintDeck, type LintOptions } from "./storyline";
-import { resolveTransition, runTransition } from "./transitions";
 import type { DeckPosition, DeckSlide, DeckTheme, DeckTransition } from "./types";
 
 export interface DeckPlayerProps {
@@ -53,13 +50,6 @@ export interface DeckPlayerProps {
    */
   minutes?: number;
   className?: string;
-}
-
-interface View {
-  index: number;
-  step: number;
-  from: { index: number; step: number } | null;
-  seq: number;
 }
 
 /**
@@ -107,18 +97,13 @@ function Player({
   className,
 }: DeckPlayerProps) {
   const count = slides.length;
-  const startIndex = (() => {
-    const s = initial?.slide;
-    const i = typeof s === "number" ? s : s ? slides.findIndex((x) => x.id === s) : 0;
-    return Math.min(Math.max(i, 0), Math.max(count - 1, 0));
-  })();
-  const [view, setView] = useState<View>({ index: startIndex, step: initial?.step ?? 0, from: null, seq: 0 });
   const [overview, setOverview] = useState(false);
-  const [fullscreen, setFullscreen] = useState(false);
   const [reading, setReading] = useState(initialView === "read");
   // How the reader opens: at the current slide when a link named one, focused when the viewer
   // switched from presenting (so Read keeps their place); at the top otherwise.
-  const [readOpen, setReadOpen] = useState<{ focus: boolean } | null>(startIndex > 0 ? { focus: false } : null);
+  const [readOpen, setReadOpen] = useState<{ focus: boolean } | null>(() =>
+    startIndexOf(slides, initial?.slide) > 0 ? { focus: false } : null,
+  );
   const [printing, setPrinting] = useState(false);
   // The viewer's setting (shared with every entry) or the deck's own motion="none".
   const prefersReduced = usePrefersReducedMotion();
@@ -135,15 +120,6 @@ function Player({
     () => (overview && lintKey ? lintDeck(slides, JSON.parse(lintKey) as LintOptions) : undefined),
     [overview, slides, lintKey],
   );
-  // The current slide's last build step, counted from its DOM after each slide change.
-  const [maxStep, setMaxStep] = useState(0);
-  // The latest position, updated as soon as it changes, so quick repeated presses (a clicker's
-  // double tap) each apply to where the previous one left the deck, not to the last render.
-  const viewRef = useRef(view);
-  const commit = (next: View) => {
-    viewRef.current = next;
-    setView(next);
-  };
 
   const { settle, fly } = useLayerFlight(() =>
     stageEl.current?.querySelectorAll<HTMLElement>(".uipack-deck-layer").forEach((el) => {
@@ -151,156 +127,11 @@ function Player({
       el.style.visibility = "";
     }),
   );
-
-  const go = useCallback(
-    (index: number, step = 0) => {
-      const target = Math.min(Math.max(index, 0), count - 1);
-      settle();
-      const v = viewRef.current;
-      commit(
-        v.index === target
-          ? { ...v, step, from: null }
-          : { index: target, step, from: { index: v.index, step: v.step }, seq: v.seq + 1 },
-      );
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [count],
-  );
-
-  const next = useCallback(() => {
-    const v = viewRef.current;
-    if (v.step < maxStep) commit({ ...v, step: v.step + 1 });
-    else if (v.index < count - 1) go(v.index + 1, 0);
-  }, [count, go, maxStep]);
-
-  const prev = useCallback(() => {
-    const v = viewRef.current;
-    const step = Math.min(v.step, maxStep);
-    if (step > 0) commit({ ...v, step: step - 1 });
-    else if (v.index > 0) go(v.index - 1, Infinity);
-  }, [go, maxStep]);
-
-  // Count the builds on the current slide.
-  useIsoLayoutEffect(() => {
-    const layer = toRef.current;
-    if (!layer) return;
-    // Builds reveal at `data-build`; a part with its own stops (a bento tour) declares `data-steps`.
-    setMaxStep(
-      Array.from(layer.querySelectorAll("[data-build], [data-steps]")).reduce(
-        (m, el) => Math.max(m, Number(el.getAttribute("data-build") ?? el.getAttribute("data-steps")) || 0),
-        0,
-      ),
-    );
-  }, [view.index, slides]);
-
-  // The speaker view's cue for the next press: the next build, tour stop or slide.
-  const [cue, setCue] = useState("");
-  useIsoLayoutEffect(() => {
-    if (mode !== "presenter") return;
-    setCue(nextCue(toRef.current, Math.min(view.step, maxStep), maxStep, slides[view.index + 1]));
-  }, [mode, view.index, view.step, maxStep, slides]);
-
-  // Run the transition once both layers are in the DOM, before the browser paints.
-  useIsoLayoutEffect(() => {
-    if (!view.from) return;
-    const from = fromRef.current;
-    const to = toRef.current;
-    const seq = view.seq;
-    const done = () => {
-      settle();
-      // Hide the outgoing copy until React removes it, so it never flashes back at full opacity.
-      if (from) from.style.visibility = "hidden";
-      if (viewRef.current.seq === seq) commit({ ...viewRef.current, from: null });
-    };
-    if (!from || !to || !scale) return done();
-    const resolved = resolveTransition(view.from.index, view.index, (i) => slides[i]?.transition, transition);
-    const started = runTransition({
-      transition: resolved,
-      from,
-      to,
-      direction: view.index > view.from.index ? 1 : -1,
-      scale,
-      reducedMotion,
-    });
-    fly(started, done);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view.seq]);
-
-  // Speaker view sync: every window showing this deck ID follows the last one moved.
-  const channel = useRef<BroadcastChannel | null>(null);
-  const remote = useRef(false);
-  // The last position this window reported. Mounting (and StrictMode's second mount) reports nothing,
-  // so opening a speaker window never moves the audience window.
-  const reported = useRef({ index: view.index, step: view.step });
-  useEffect(() => {
-    if (typeof BroadcastChannel === "undefined") return;
-    const ch = new BroadcastChannel(`uipack-deck:${id}`);
-    channel.current = ch;
-    ch.onmessage = (e: MessageEvent) => {
-      const msg = e.data as { type: string; index?: number; step?: number };
-      if (msg.type === "hello") {
-        const v = viewRef.current;
-        ch.postMessage({ type: "go", index: v.index, step: v.step });
-      } else if (msg.type === "go" && typeof msg.index === "number") {
-        const v = viewRef.current;
-        if (v.index === msg.index && v.step === msg.step) return;
-        remote.current = true;
-        if (v.index === msg.index) commit({ ...v, step: msg.step ?? 0 });
-        else go(msg.index, msg.step ?? 0);
-      }
-    };
-    ch.postMessage({ type: "hello" });
-    return () => {
-      ch.close();
-      channel.current = null;
-    };
-  }, [id, go]);
-
-  useEffect(() => {
-    const last = reported.current;
-    if (last.index === view.index && last.step === view.step) return;
-    reported.current = { index: view.index, step: view.step };
-    onPositionChange?.({ index: view.index, step: view.step, id: slides[view.index].id });
-    if (remote.current) {
-      remote.current = false;
-      return;
-    }
-    channel.current?.postMessage({ type: "go", index: view.index, step: view.step });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view.index, view.step]);
-
-  // Known only in the browser, so set after mount: the server and the first client render agree.
-  const [canFullscreen, setCanFullscreen] = useState(false);
-  useEffect(() => {
-    // iPhone Safari has no element full screen: fullscreenEnabled is undefined there, so the button
-    // shows only where the standard API is on, or the WebKit-prefixed one exists (older iPad Safari).
-    // (Where the standard API says false, a frame's policy forbids it: the prefixed method is no use then.)
-    const doc = document as Document & { webkitFullscreenEnabled?: boolean };
-    const prefixed =
-      doc.fullscreenEnabled === undefined &&
-      doc.webkitFullscreenEnabled !== false &&
-      typeof (rootRef.current as PrefixedFullscreen | null)?.webkitRequestFullscreen === "function";
-    setCanFullscreen(doc.fullscreenEnabled === true || prefixed);
-    const onChange = () => setFullscreen(fullscreenElement() === rootRef.current);
-    document.addEventListener("fullscreenchange", onChange);
-    document.addEventListener("webkitfullscreenchange", onChange);
-    return () => {
-      document.removeEventListener("fullscreenchange", onChange);
-      document.removeEventListener("webkitfullscreenchange", onChange);
-    };
-  }, []);
-
-  const toggleFullscreen = () => {
-    if (!canFullscreen) return;
-    const doc = document as Document & { webkitExitFullscreen?: () => void };
-    const root = rootRef.current as PrefixedFullscreen | null;
-    if (fullscreenElement()) {
-      if (doc.exitFullscreen) void doc.exitFullscreen();
-      else doc.webkitExitFullscreen?.();
-    } else if (root?.requestFullscreen) void root.requestFullscreen();
-    else root?.webkitRequestFullscreen?.();
-    rootRef.current?.focus();
-  };
+  const { view, viewRef, commit, go, next, prev, maxStep } = useDeckPosition({ slides, initial, toRef, settle });
+  const cue = useNextCue(mode === "presenter", toRef, view.index, view.step, maxStep, slides);
+  useDeckTransition({ view, viewRef, commit, fromRef, toRef, scale, slides, transition, reducedMotion, fly, settle });
+  useDeckSync({ id, view, viewRef, commit, go, slides, onPositionChange });
+  const fullscreen = useFullscreen(rootRef);
 
   const openPresenter = () => {
     let href = presenterHref;
@@ -323,78 +154,21 @@ function Player({
     requestAnimationFrame(() => overviewButtonRef.current?.focus());
   };
 
-  const onKeyDown = (e: KeyboardEvent | ReactKeyboardEvent) => {
-    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || overview || reading) return;
-    const t = e.target as HTMLElement | null;
-    if (t?.closest?.('input, textarea, select, [contenteditable="true"], [contenteditable=""], [data-deck-keys="own"]')) return;
-    const onControl = Boolean(t?.closest?.("button, a, summary")) && t !== rootRef.current;
-    switch (e.key) {
-      case "ArrowRight":
-      case "ArrowDown":
-      case "PageDown":
-        next();
-        break;
-      case "ArrowLeft":
-      case "ArrowUp":
-      case "PageUp":
-        prev();
-        break;
-      case " ":
-      case "Enter":
-        if (onControl) return;
-        if (e.shiftKey) prev();
-        else next();
-        break;
-      case "Home":
-        go(0, 0);
-        break;
-      case "End":
-        go(count - 1, Infinity);
-        break;
-      case "g":
-      case "G":
-      case "o":
-        setOverview(true);
-        break;
-      case "f":
-      case "F":
-        toggleFullscreen();
-        break;
-      case "s":
-      case "S":
-        if (mode === "presenter") return;
-        openPresenter();
-        break;
-      default:
-        return;
-    }
-    e.preventDefault();
-  };
-  const keyHandler = useRef(onKeyDown);
-  keyHandler.current = onKeyDown;
-  useEffect(() => {
-    if (keyboard !== "global") return;
-    const handler = (e: KeyboardEvent) => {
-      if (rootRef.current?.contains(e.target as Node)) return; // the root handler already ran
-      keyHandler.current(e);
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [keyboard]);
-
-  // Touch: a horizontal swipe on the stage changes slide.
-  const swipe = useRef<{ x: number; y: number } | null>(null);
-  const onPointerDown = (e: ReactPointerEvent) => {
-    swipe.current = e.pointerType === "mouse" ? null : { x: e.clientX, y: e.clientY };
-  };
-  const onPointerUp = (e: ReactPointerEvent) => {
-    const s = swipe.current;
-    swipe.current = null;
-    if (!s) return;
-    const dx = e.clientX - s.x;
-    const dy = e.clientY - s.y;
-    if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) (dx < 0 ? next : prev)();
-  };
+  const onKeyDown = useDeckKeys({
+    rootRef,
+    keyboard,
+    enabled: !overview && !reading,
+    actions: {
+      next,
+      prev,
+      first: () => go(0, 0),
+      last: () => go(count - 1, Infinity),
+      overview: () => setOverview(true),
+      fullscreen: fullscreen.toggle,
+      presenter: mode === "presenter" ? undefined : openPresenter,
+    },
+  });
+  const swipe = useSwipe(next, prev);
 
   const current = slides[view.index];
   const from = view.from ? slides[view.from.index] : null;
@@ -403,14 +177,7 @@ function Player({
   const atEnd = view.index === count - 1 && view.step >= maxStep;
 
   const stage = (
-    <div
-      ref={stageRef}
-      className="uipack-deck-stage"
-      data-tone={current.tone ?? "paper"}
-      onPointerDown={onPointerDown}
-      onPointerUp={onPointerUp}
-      onPointerCancel={() => (swipe.current = null)}
-    >
+    <div ref={stageRef} className="uipack-deck-stage" data-tone={current.tone ?? "paper"} {...swipe}>
       <div className="uipack-deck-canvas" style={{ transform: `scale(${scale})`, visibility: scale ? undefined : "hidden" }}>
         {from && view.from && (
           <Layer
@@ -447,8 +214,8 @@ function Player({
       atStart={atStart}
       atEnd={atEnd}
       mode={mode}
-      canFullscreen={canFullscreen}
-      fullscreen={fullscreen}
+      canFullscreen={fullscreen.available}
+      fullscreen={fullscreen.fullscreen}
       overviewButtonRef={overviewButtonRef}
       onPrev={prev}
       onNext={next}
@@ -456,7 +223,7 @@ function Player({
       onPrint={() => setPrinting(true)}
       onOverview={() => setOverview(true)}
       onPresenter={openPresenter}
-      onFullscreen={toggleFullscreen}
+      onFullscreen={fullscreen.toggle}
     />
   );
 
@@ -558,38 +325,4 @@ function Player({
       )}
     </div>
   );
-}
-
-type PrefixedFullscreen = HTMLDivElement & { webkitRequestFullscreen?: () => void };
-const fullscreenElement = () =>
-  document.fullscreenElement ??
-  (document as Document & { webkitFullscreenElement?: Element | null }).webkitFullscreenElement ??
-  null;
-
-/**
- * What the next press does, for the speaker: the next build (its first words), the next tour stop
- * (the cell's detail title or label), the pull-back after a tour, or the next slide.
- */
-function nextCue(layer: HTMLElement | null, step: number, maxStep: number, upcoming: DeckSlide | undefined): string {
-  const words = (el: Element | null | undefined, max = 64) => {
-    const t = (el?.textContent ?? "").replace(/\s+/g, " ").trim();
-    return t.length > max ? `${t.slice(0, max - 1).trimEnd()}…` : t;
-  };
-  if (layer && step < maxStep) {
-    const next = step + 1;
-    const tour = layer.querySelector<HTMLElement>("[data-tour]");
-    if (tour) {
-      const ids = (tour.dataset.tour ?? "").split(" ");
-      if (next > ids.length) return `Build ${next} of ${maxStep}: camera pulls back to the whole grid`;
-      const cell = tour.querySelector(`[data-bento-cell="${CSS.escape(ids[next - 1])}"]`);
-      const label =
-        words(cell?.querySelector(".uipack-deck-bento__detail > *")) ||
-        words(cell?.querySelector(".uipack-deck-bento-label")) ||
-        ids[next - 1];
-      return `Build ${next} of ${maxStep}: camera to ${label}`;
-    }
-    const build = layer.querySelector(`[data-build="${next}"]`);
-    return `Build ${next} of ${maxStep}${build ? `: ${words(build)}` : ""}`;
-  }
-  return upcoming ? `Next slide: ${upcoming.title}` : "End of deck";
 }
