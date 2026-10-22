@@ -159,16 +159,33 @@
 @container web (max-width: 639px) {
   .web-columns .uipack-web-grid__item:nth-child(n + 5) { display: none; }
 }
+/* Numbers sit inside the content edge in a fixed two-digit column, so 1-9 and 10-12 align and
+   nothing hangs past the section's left edge. */
 .web-principles {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
   gap: 8px 32px;
   margin: 12px 0 0;
-  padding-left: 1.4em;
+  padding: 0;
+  list-style: none;
+  counter-reset: web-principle;
   font-size: 15px;
   line-height: 1.55;
 }
-.web-principles li::marker { font: 12px ui-monospace, monospace; color: var(--show-muted); }
+.web-principles li {
+  display: grid;
+  grid-template-columns: 3ch minmax(0, 1fr);
+  column-gap: 8px;
+  counter-increment: web-principle;
+}
+.web-principles li::before {
+  content: counter(web-principle, decimal-leading-zero);
+  padding-top: 0.2em;
+  font: 12px/1.55 var(--show-font-mono);
+  color: var(--show-muted);
+  font-variant-numeric: tabular-nums;
+}
+.web-principles + .collection-intro { margin: 24px 0 0; }
 .web-stats {
   display: flex;
   flex-wrap: wrap;

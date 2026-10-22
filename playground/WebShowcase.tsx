@@ -529,7 +529,7 @@ export default function WebShowcase() {
 
           <section id="web-principles" className="web-anchor">
             <h2>Principles · {principles.length}</h2>
-            <ol className="web-principles">
+            <ol className="web-principles" role="list">
               {principles.map((p) => (
                 <li key={p}>{p}</li>
               ))}
