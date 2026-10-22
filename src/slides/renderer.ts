@@ -1,14 +1,7 @@
 import * as THREE from "three";
 import { gsap } from "gsap";
 import { resolveNodePose, slidePalettes } from "./model";
-import type {
-  SlideConnection,
-  SlideNode,
-  SlidePalette,
-  SlideStop,
-  SlideStory,
-  SlideTheme,
-} from "./types";
+import type { SlideConnection, SlideNode, SlidePalette, SlideStop, SlideStory, SlideTheme } from "./types";
 
 export interface SceneRuntime {
   goTo(stop: SlideStop, immediate?: boolean): void;
@@ -222,8 +215,7 @@ export function createSlideScene(
     });
     // Fade annotations before movement, then bring them back at stable positions.
     transition.to(presentation, { labels: 0, flow: 0, duration: FADE_OUT_S }, 0);
-    if (next.transition?.camera === "dolly")
-      transition.to(cam, { ...destination, duration, ease: "sine.inOut" }, FADE_OUT_S);
+    if (next.transition?.camera === "dolly") transition.to(cam, { ...destination, duration, ease: "sine.inOut" }, FADE_OUT_S);
     else addOrbit(transition, cam, destination, duration, FADE_OUT_S);
     let arrival = 0;
     nodes.forEach((n) => {
@@ -421,7 +413,10 @@ function addNodeBody(n: SlideNode, geometry: THREE.BufferGeometry, colors: Slide
 /** Two crossed rings around a sphere. */
 function addSphereRings(n: SlideNode, size: readonly number[], tone: Tone, add: AddPart) {
   for (const angle of [0, Math.PI / 2]) {
-    const ringMaterial = withBaseOpacity(new THREE.MeshBasicMaterial({ color: tone(n.tone), transparent: true, opacity: 0.35 }), 0.35);
+    const ringMaterial = withBaseOpacity(
+      new THREE.MeshBasicMaterial({ color: tone(n.tone), transparent: true, opacity: 0.35 }),
+      0.35,
+    );
     const ring = add(new THREE.Mesh(new THREE.TorusGeometry(size[0] * 0.66, 0.012, 6, 64), ringMaterial), ringMaterial);
     ring.rotation.x = Math.PI / 2;
     ring.rotation.y = angle;
@@ -452,7 +447,10 @@ function addTopStripe(n: SlideNode, geometry: THREE.BufferGeometry, size: readon
   stripe.position.set(0, size[1] / 2 + 0.012, size[2] * 0.32);
   if (n.kind !== "layer") return;
   for (let i = 1; i <= 2; i++) {
-    const layerMaterial = withBaseOpacity(new THREE.LineBasicMaterial({ color: tone(n.tone), transparent: true, opacity: 0.35 }), 0.35);
+    const layerMaterial = withBaseOpacity(
+      new THREE.LineBasicMaterial({ color: tone(n.tone), transparent: true, opacity: 0.35 }),
+      0.35,
+    );
     const edge = add(new THREE.LineSegments(new THREE.EdgesGeometry(geometry), layerMaterial), layerMaterial);
     edge.position.y = -i * 0.16;
   }
@@ -611,7 +609,8 @@ function drawLink(l: LinkView, nodes: Map<string, NodeView>, isActive: boolean, 
   if (l.packet.visible) {
     l.packet.position.copy(pointAt(l.points, flowProgress));
     // Fades in over the first tenth of the path and out over the last.
-    (l.packet.material as THREE.MeshBasicMaterial).opacity = visibility * flow * Math.min(1, flowProgress * 10, (1 - flowProgress) * 10);
+    (l.packet.material as THREE.MeshBasicMaterial).opacity =
+      visibility * flow * Math.min(1, flowProgress * 10, (1 - flowProgress) * 10);
   }
 }
 
@@ -633,7 +632,9 @@ function anchor(node: NodeView, toward: THREE.Vector3) {
   const center = node.group.position.clone(),
     d = toward.clone().sub(center);
   const size = node.spec.size ?? DEFAULT_NODE_SIZE;
-  const distances = [d.x, d.y, d.z].map((v, i) => (Math.abs(v) > 0.0001 ? (size[i] * node.pose.scale) / 2 / Math.abs(v) : Infinity));
+  const distances = [d.x, d.y, d.z].map((v, i) =>
+    Math.abs(v) > 0.0001 ? (size[i] * node.pose.scale) / 2 / Math.abs(v) : Infinity,
+  );
   return center.addScaledVector(d, Math.min(...distances, 0.45)).addScaledVector(d.clone().normalize(), 0.11);
 }
 

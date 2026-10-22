@@ -68,7 +68,7 @@ interface LayerHeadProps {
  * heading, which stays in the page outline. One line from 560px; narrower, the
  * metric moves under the index and zone.
  */
-declare function LayerHead({ index, zone, metric, mapHref, mapLabel, indexLabel, id, className }: LayerHeadProps): react.JSX.Element;
+declare function LayerHead({ index, zone, metric, mapHref, mapLabel, indexLabel, id, className, }: LayerHeadProps): react.JSX.Element;
 interface TermListProps {
     /** The terms to learn, in order. They are not links. */
     terms: ReactNode[];

@@ -4,7 +4,25 @@
    with springs and exponential easing, so a pose change never jumps. */
 import type { Point3 } from "../kit/iso-kit";
 import { checkAt, tallyOf, tallyText, verdictText, PASS_CHECK, RETURN_CHECK, type Check } from "./model";
-import { ARM_SWING, ASSEMBLIES, BELT_X1, BT, CHUTE_MID, CHUTE_X0, CHUTE_X1, GX, LIFTED, PIVOT, RAIL_OUT, RESULT_TRAY, RETURN_TRAY, TOKEN_R, TRAY_FLOOR, APRON_TOP, chuteTop } from "./view";
+import {
+  ARM_SWING,
+  ASSEMBLIES,
+  BELT_X1,
+  BT,
+  CHUTE_MID,
+  CHUTE_X0,
+  CHUTE_X1,
+  GX,
+  LIFTED,
+  PIVOT,
+  RAIL_OUT,
+  RESULT_TRAY,
+  RETURN_TRAY,
+  TOKEN_R,
+  TRAY_FLOOR,
+  APRON_TOP,
+  chuteTop,
+} from "./view";
 import { smoothstep } from "../../zoom-math";
 
 export type GatePose = "idle" | "pass" | "return" | "apart";
@@ -213,7 +231,16 @@ export function apartScene(): Scene {
   const tokens = history(3);
   const check = checkAt(4);
   tokens.push({ key: "apart-0", check, pos: [-60, 0, BT], layer: "belt", alpha: 1, lit: true });
-  return { tokens, lift: 0, arm: 0, belt: 0, apart: true, drag: 0, readout: `apart · ${ASSEMBLIES.length} assemblies`, phase: "apart" };
+  return {
+    tokens,
+    lift: 0,
+    arm: 0,
+    belt: 0,
+    apart: true,
+    drag: 0,
+    readout: `apart · ${ASSEMBLIES.length} assemblies`,
+    phase: "apart",
+  };
 }
 
 /** The scene for a pose at `t` seconds since it was set. */

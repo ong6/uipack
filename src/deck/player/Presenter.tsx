@@ -12,7 +12,9 @@ const clock = (seconds: number) => `${pad(Math.floor(seconds / 60))}:${pad(Math.
  * Appendix slides take no time.
  */
 export function slidePlan(slides: DeckSlide[], budget?: number) {
-  const own = slides.map((s) => (s.role === "appendix" ? 0 : ((notesOf(s)?.say.match(/\S+/g)?.length ?? 0) / WORDS_PER_MINUTE) * 60));
+  const own = slides.map((s) =>
+    s.role === "appendix" ? 0 : ((notesOf(s)?.say.match(/\S+/g)?.length ?? 0) / WORDS_PER_MINUTE) * 60,
+  );
   const total = own.reduce((a, b) => a + b, 0);
   const k = budget && total ? budget / total : 1;
   let at = 0;
@@ -82,7 +84,10 @@ export function Presenter({
               <span>
                 <span className="uipack-deck-sr">{minutes ? "Time budget " : "Talk track length "}</span>/ {clock(budget)}
               </span>
-              <span className="uipack-deck-presenter__pace" data-pace={Math.abs(drift) < 15 ? "on" : drift > 0 ? "behind" : "ahead"}>
+              <span
+                className="uipack-deck-presenter__pace"
+                data-pace={Math.abs(drift) < 15 ? "on" : drift > 0 ? "behind" : "ahead"}
+              >
                 {pace} · this slide {clock(start)}–{clock(end)}
               </span>
               <span className="uipack-deck-presenter__bar" aria-hidden="true">

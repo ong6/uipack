@@ -1,8 +1,6 @@
 import { expect, test } from "./fixtures";
 
-test("library pages share navigation and preserve theme across routes and reloads", async ({
-  page,
-}) => {
+test("library pages share navigation and preserve theme across routes and reloads", async ({ page }) => {
   test.setTimeout(90_000);
   await page.goto("/?theme=dark");
   const header = page.locator(".showcase-header");
@@ -14,31 +12,18 @@ test("library pages share navigation and preserve theme across routes and reload
   await pages.getByRole("link", { name: "Icons & marks", exact: true }).click();
   await groups.getByRole("link", { name: "Motion & 3D", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await expect(
-    pages.getByRole("link", { name: "3D animations", exact: true }),
-  ).toHaveAttribute("aria-current", "page");
+  await expect(pages.getByRole("link", { name: "3D animations", exact: true })).toHaveAttribute("aria-current", "page");
   await groups.getByRole("link", { name: "Diagrams", exact: true }).click();
-  await expect(
-    pages.getByRole("link", { name: "Architecture diagrams", exact: true }),
-  ).toHaveAttribute("aria-current", "page");
-  expect(
-    await header.evaluate((el) => el.getBoundingClientRect().width),
-  ).toBe(width);
+  await expect(pages.getByRole("link", { name: "Architecture diagrams", exact: true })).toHaveAttribute("aria-current", "page");
+  expect(await header.evaluate((el) => el.getBoundingClientRect().width)).toBe(width);
   await groups.getByRole("link", { name: "Motion & 3D", exact: true }).click();
   await page.getByRole("button", { name: "light mode", exact: true }).click();
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
-  await expect(page.locator(".uipack-animation-workspace")).toHaveAttribute(
-    "data-theme",
-    "light",
-  );
+  await expect(page.locator(".uipack-animation-workspace")).toHaveAttribute("data-theme", "light");
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName(
-    "Motion & 3D: 3D animations",
-  );
-  expect(
-    await page.evaluate(() => document.documentElement.scrollWidth),
-  ).toBeLessThanOrEqual(390);
+  await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Motion & 3D: 3D animations");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 
 test.describe("3D animations library", () => {
@@ -56,10 +41,15 @@ test.describe("3D animations library", () => {
   test("an unknown story or variant says what it shows instead", async ({ page }) => {
     await page.goto("/animations?story=bogus&variant=99");
     const note = page.locator(".showcase-title__note");
-    await expect(note).toHaveText("Story “bogus” not found, showing Agent session. Variant “99” not found, showing Studio objects.");
+    await expect(note).toHaveText(
+      "Story “bogus” not found, showing Agent session. Variant “99” not found, showing Studio objects.",
+    );
     await expect(page.locator(".uipack-animation-heading h3")).toHaveText("Agent session");
     // Choosing a story rewrites the address, and the note goes.
-    await page.getByRole("navigation", { name: "Example stories" }).getByRole("button", { name: /Contact inbox/ }).click();
+    await page
+      .getByRole("navigation", { name: "Example stories" })
+      .getByRole("button", { name: /Contact inbox/ })
+      .click();
     await expect(note).toHaveCount(0);
   });
 });

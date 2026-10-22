@@ -1,5 +1,23 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { Badge, Bus, Chip, Connector, Cross, Defs, Figure, Group, Label, Lane, Legend, Node, Packet, Wall, busStubs, useFigureMotion, wallSegments } from "../src";
+import {
+  Badge,
+  Bus,
+  Chip,
+  Connector,
+  Cross,
+  Defs,
+  Figure,
+  Group,
+  Label,
+  Lane,
+  Legend,
+  Node,
+  Packet,
+  Wall,
+  busStubs,
+  useFigureMotion,
+  wallSegments,
+} from "../src";
 
 const wrap = (ui: React.ReactNode, props: Partial<React.ComponentProps<typeof Figure>> = {}) =>
   render(
@@ -86,7 +104,15 @@ describe("parts", () => {
     const { container } = wrap(
       <>
         <Defs id="t" />
-        <Connector points={[[0, 0], [50, 0], [50, 50]]} defs="t" kind="request" />
+        <Connector
+          points={[
+            [0, 0],
+            [50, 0],
+            [50, 50],
+          ]}
+          defs="t"
+          kind="request"
+        />
       </>,
     );
     const p = container.querySelector('[data-uipack="connector"]')!;
@@ -97,20 +123,48 @@ describe("parts", () => {
     expect(container.querySelector("#t-head-request")).not.toBeNull();
   });
   it("Packet animates with animateMotion on the same path", () => {
-    const { container } = wrap(<Packet points={[[0, 0], [50, 0], [50, 50]]} kind="change" dur={2} />);
+    const { container } = wrap(
+      <Packet
+        points={[
+          [0, 0],
+          [50, 0],
+          [50, 50],
+        ]}
+        kind="change"
+        dur={2}
+      />,
+    );
     const am = container.querySelector("animateMotion");
     expect(am).not.toBeNull();
     expect(am!.getAttribute("dur")).toBe("2s");
     expect(am!.getAttribute("path")).toMatch(/^M7,0/); // trimmed 2 at the start, 12 at the end
   });
   it("Packet reverses the path for a response", () => {
-    const { container } = wrap(<Packet points={[[0, 0], [50, 0]]} kind="response" reverse />);
+    const { container } = wrap(
+      <Packet
+        points={[
+          [0, 0],
+          [50, 0],
+        ]}
+        kind="response"
+        reverse
+      />,
+    );
     // trims are in the connector's direction: r+2 (7) at the source, 12 at the head, then reversed
     expect(container.querySelector("animateMotion")!.getAttribute("path")).toBe("M38,0 L7,0");
   });
   it("Packet renders a static token at `at` under reduced motion", () => {
     globalThis.__reduced = true;
-    const { container } = wrap(<Packet points={[[0, 0], [100, 0]]} kind="request" at={0.25} />);
+    const { container } = wrap(
+      <Packet
+        points={[
+          [0, 0],
+          [100, 0],
+        ]}
+        kind="request"
+        at={0.25}
+      />,
+    );
     expect(container.querySelector("animateMotion")).toBeNull();
     const rect = container.querySelector('[data-static="true"] rect')!;
     // trimmed path runs 7..88, so 0.25 of the way is 27.25; minus r(5)
@@ -118,7 +172,14 @@ describe("parts", () => {
     globalThis.__reduced = false;
   });
   it("Legend draws one shape per item and skips when empty", () => {
-    const { container, rerender } = render(<Legend items={[{ label: "A", kind: "request" }, { label: "B", kind: "change" }]} />);
+    const { container, rerender } = render(
+      <Legend
+        items={[
+          { label: "A", kind: "request" },
+          { label: "B", kind: "change" },
+        ]}
+      />,
+    );
     expect(container.querySelectorAll("li")).toHaveLength(2);
     expect(container.querySelector("li:nth-child(1) rect")).not.toBeNull();
     expect(container.querySelector("li:nth-child(2) path")).not.toBeNull();
@@ -129,7 +190,11 @@ describe("parts", () => {
 
 describe("Wall and Cross", () => {
   it("wallSegments opens a gap of 2×gap round every hole, in any order, and drops empty runs", () => {
-    expect(wallSegments(0, 100, [60, 20], 5)).toEqual([[0, 15], [25, 55], [65, 100]]);
+    expect(wallSegments(0, 100, [60, 20], 5)).toEqual([
+      [0, 15],
+      [25, 55],
+      [65, 100],
+    ]);
     expect(wallSegments(0, 100, [2], 5)).toEqual([[7, 100]]);
     expect(wallSegments(0, 100)).toEqual([[0, 100]]);
   });
@@ -141,21 +206,46 @@ describe("Wall and Cross", () => {
       </svg>,
     );
     const [v, h] = container.querySelectorAll('[data-uipack="wall"]');
-    expect([...v.querySelectorAll("rect")].map((r) => [r.getAttribute("x"), r.getAttribute("width"), r.getAttribute("y"), r.getAttribute("height")])).toEqual([
+    expect(
+      [...v.querySelectorAll("rect")].map((r) => [
+        r.getAttribute("x"),
+        r.getAttribute("width"),
+        r.getAttribute("y"),
+        r.getAttribute("height"),
+      ]),
+    ).toEqual([
       ["92", "16", "0", "41"],
       ["92", "16", "59", "41"],
     ]);
-    expect([...h.querySelectorAll("rect")].map((r) => [r.getAttribute("y"), r.getAttribute("height"), r.getAttribute("x"), r.getAttribute("width")])).toEqual([
+    expect(
+      [...h.querySelectorAll("rect")].map((r) => [
+        r.getAttribute("y"),
+        r.getAttribute("height"),
+        r.getAttribute("x"),
+        r.getAttribute("width"),
+      ]),
+    ).toEqual([
       ["35", "10", "0", "43"],
       ["35", "10", "57", "43"],
     ]);
   });
   it("Cross draws two strokes through its centre in the kind's colour, hidden from assistive tech", () => {
-    const { container } = render(<svg><Cross x={10} y={20} r={4} kind="accent" /></svg>);
+    const { container } = render(
+      <svg>
+        <Cross x={10} y={20} r={4} kind="accent" />
+      </svg>,
+    );
     const g = container.querySelector('[data-uipack="cross"]')!;
     expect(g).toHaveAttribute("aria-hidden", "true");
     expect(g).toHaveAttribute("stroke", "var(--uipack-accent)");
-    expect([...g.querySelectorAll("line")].map((l) => [l.getAttribute("x1"), l.getAttribute("y1"), l.getAttribute("x2"), l.getAttribute("y2")])).toEqual([
+    expect(
+      [...g.querySelectorAll("line")].map((l) => [
+        l.getAttribute("x1"),
+        l.getAttribute("y1"),
+        l.getAttribute("x2"),
+        l.getAttribute("y2"),
+      ]),
+    ).toEqual([
       ["6", "16", "14", "24"],
       ["6", "24", "14", "16"],
     ]);
@@ -167,7 +257,7 @@ describe("Figure headingLevel", () => {
     const { container } = render(
       <Figure title="Outline" headingLevel={2} viewBox="0 0 10 10" alt="outline">
         <g />
-      </Figure>
+      </Figure>,
     );
     expect(container.querySelector("h2.uipack__title")).not.toBeNull();
     expect(container.querySelector("h3.uipack__title")).toBeNull();
@@ -182,10 +272,33 @@ describe("hover", () => {
         <Node x={0} y={0} w={20} h={10} label="A" flow="alpha" id="na" />
         <Node x={0} y={20} w={20} h={10} label="B" flow="beta" id="nb" />
         <Node x={0} y={40} w={20} h={10} label="C" id="nc" />
-        <Connector points={[[20, 5], [60, 5]]} defs="h" kind="request" flow="alpha" id="ca" />
-        <Connector points={[[20, 25], [60, 25]]} defs="h" kind="change" flow="beta" id="cb" />
+        <Connector
+          points={[
+            [20, 5],
+            [60, 5],
+          ]}
+          defs="h"
+          kind="request"
+          flow="alpha"
+          id="ca"
+        />
+        <Connector
+          points={[
+            [20, 25],
+            [60, 25],
+          ]}
+          defs="h"
+          kind="change"
+          flow="beta"
+          id="cb"
+        />
       </>,
-      { legend: [{ label: "Request", kind: "request" }, { label: "Change", kind: "change" }] },
+      {
+        legend: [
+          { label: "Request", kind: "request" },
+          { label: "Change", kind: "change" },
+        ],
+      },
     );
   it("hovering a node with a flow marks the figure, hits its flow and dims the rest", () => {
     const { container } = scene();
@@ -224,7 +337,18 @@ describe("hover", () => {
 });
 
 describe("Bus", () => {
-  const props = { axis: "v" as const, at: 232, from: 120, to: 344, stubs: [{ at: 120, to: 200 }, { at: 176, to: 200 }, { at: 232, to: 200 }, { at: 200, to: 328, arrow: true }] };
+  const props = {
+    axis: "v" as const,
+    at: 232,
+    from: 120,
+    to: 344,
+    stubs: [
+      { at: 120, to: 200 },
+      { at: 176, to: 200 },
+      { at: 232, to: 200 },
+      { at: 200, to: 328, arrow: true },
+    ],
+  };
   it("draws a trunk, one stub per entry, a junction dot per stub, and a head only where asked", () => {
     const { container } = wrap(
       <>
@@ -241,10 +365,22 @@ describe("Bus", () => {
   });
   it("busStubs gives packets the same points, junction first", () => {
     expect(busStubs(props)).toEqual([
-      [[232, 120], [200, 120]],
-      [[232, 176], [200, 176]],
-      [[232, 232], [200, 232]],
-      [[232, 200], [328, 200]],
+      [
+        [232, 120],
+        [200, 120],
+      ],
+      [
+        [232, 176],
+        [200, 176],
+      ],
+      [
+        [232, 232],
+        [200, 232],
+      ],
+      [
+        [232, 200],
+        [328, 200],
+      ],
     ]);
   });
   it("junctions sit on the 8px grid", () => {
@@ -318,20 +454,77 @@ describe("packet static position", () => {
   };
   it("two packets on the same points spread by delay", () => {
     globalThis.__reduced = true;
-    const a = wrap(<Packet points={[[0, 0], [200, 0]]} dur={2} delay={0} />);
-    const b = wrap(<Packet points={[[0, 0], [200, 0]]} dur={2} delay={-0.5} />);
-    const c = wrap(<Packet points={[[0, 0], [200, 0]]} dur={2} delay={-0.5} at={0.5} />);
+    const a = wrap(
+      <Packet
+        points={[
+          [0, 0],
+          [200, 0],
+        ]}
+        dur={2}
+        delay={0}
+      />,
+    );
+    const b = wrap(
+      <Packet
+        points={[
+          [0, 0],
+          [200, 0],
+        ]}
+        dur={2}
+        delay={-0.5}
+      />,
+    );
+    const c = wrap(
+      <Packet
+        points={[
+          [0, 0],
+          [200, 0],
+        ]}
+        dur={2}
+        delay={-0.5}
+        at={0.5}
+      />,
+    );
     expect(cx(a.container)).not.toBeCloseTo(cx(b.container));
     expect(cx(c.container)).toBeCloseTo(cx(a.container));
     globalThis.__reduced = false;
   });
   it("starts at least r from the source and 12 from the head, whichever way it rides", () => {
     globalThis.__reduced = true;
-    const fwd = wrap(<Packet points={[[0, 0], [100, 0]]} r={5} at={0} />);
+    const fwd = wrap(
+      <Packet
+        points={[
+          [0, 0],
+          [100, 0],
+        ]}
+        r={5}
+        at={0}
+      />,
+    );
     expect(cx(fwd.container)).toBeGreaterThanOrEqual(7);
-    const back = wrap(<Packet points={[[0, 0], [100, 0]]} r={5} at={0} reverse />);
+    const back = wrap(
+      <Packet
+        points={[
+          [0, 0],
+          [100, 0],
+        ]}
+        r={5}
+        at={0}
+        reverse
+      />,
+    );
     expect(cx(back.container)).toBeLessThanOrEqual(88);
-    const backEnd = wrap(<Packet points={[[0, 0], [100, 0]]} r={5} at={1} reverse />);
+    const backEnd = wrap(
+      <Packet
+        points={[
+          [0, 0],
+          [100, 0],
+        ]}
+        r={5}
+        at={1}
+        reverse
+      />,
+    );
     expect(cx(backEnd.container)).toBeGreaterThanOrEqual(7);
     globalThis.__reduced = false;
   });

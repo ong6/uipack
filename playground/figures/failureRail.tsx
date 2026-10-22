@@ -40,18 +40,54 @@ function Wide() {
     [sx(i) + SW, CY],
     [sx(i + 1), CY],
   ]);
-  const queued: Point[] = [[upload.x + upload.w, CY], [sx(0), CY]];
-  const done: Point[] = [[sx(STAGES.length - 1) + SW, CY], [ready.x, CY]];
-  const rail: Point[] = [[sx(0) + SW / 2, RAIL], [dlq.x, RAIL]];
+  const queued: Point[] = [
+    [upload.x + upload.w, CY],
+    [sx(0), CY],
+  ];
+  const done: Point[] = [
+    [sx(STAGES.length - 1) + SW, CY],
+    [ready.x, CY],
+  ];
+  const rail: Point[] = [
+    [sx(0) + SW / 2, RAIL],
+    [dlq.x, RAIL],
+  ];
   return (
     <>
       <Defs id={id} />
-      <Group x={184} y={64} w={768} h={136} title="Async job" variant="dashed" accent flow={DOC} hint="Runs off the request path, one checkpoint per stage" />
-      <Node {...upload} label="Upload" sub="file received" icon="user" flow={DOC} hint="The request returns as soon as the job is queued" />
+      <Group
+        x={184}
+        y={64}
+        w={768}
+        h={136}
+        title="Async job"
+        variant="dashed"
+        accent
+        flow={DOC}
+        hint="Runs off the request path, one checkpoint per stage"
+      />
+      <Node
+        {...upload}
+        label="Upload"
+        sub="file received"
+        icon="user"
+        flow={DOC}
+        hint="The request returns as soon as the job is queued"
+      />
       <Connector points={queued} defs={id} kind="accent" flow={DOC} />
       <Packet points={queued} kind="change" dur={1.4} r={4} flow={DOC} />
       {STAGES.map((s, i) => (
-        <Node key={s.label} x={sx(i)} y={CY - SH / 2} w={SW} h={SH} label={s.label} sub={s.sub} hint={s.hint} flow={[DOC, FAIL]} />
+        <Node
+          key={s.label}
+          x={sx(i)}
+          y={CY - SH / 2}
+          w={SW}
+          h={SH}
+          label={s.label}
+          sub={s.sub}
+          hint={s.hint}
+          flow={[DOC, FAIL]}
+        />
       ))}
       {hops.map((p, i) => (
         <g key={i}>
@@ -61,16 +97,41 @@ function Wide() {
       ))}
       <Connector points={done} defs={id} kind="change" flow={DOC} />
       <Packet points={done} kind="change" dur={1.4} delay={-0.7} r={4} flow={DOC} />
-      <Node {...ready} label="Ready" sub="searchable" icon="doc" flow={DOC} hint="Shown as ready once the last stage has written" />
+      <Node
+        {...ready}
+        label="Ready"
+        sub="searchable"
+        icon="doc"
+        flow={DOC}
+        hint="Shown as ready once the last stage has written"
+      />
 
       {/* Every stage can drop out: a dashed stub down to one rail. */}
       {STAGES.map((s, i) => (
-        <Connector key={s.label} points={[[sx(i) + SW / 2, CY + SH / 2], [sx(i) + SW / 2, RAIL]]} arrow={false} dashed inset={[2, 0]} flow={FAIL} />
+        <Connector
+          key={s.label}
+          points={[
+            [sx(i) + SW / 2, CY + SH / 2],
+            [sx(i) + SW / 2, RAIL],
+          ]}
+          arrow={false}
+          dashed
+          inset={[2, 0]}
+          flow={FAIL}
+        />
       ))}
       <Connector points={rail} defs={id} dashed flow={FAIL} />
       <Packet points={rail} kind="neutral" dur={6} r={4} flow={FAIL} />
       <Label x={sx(0) + SW / 2 + 8} y={RAIL + 24} text="on failure, from any stage" />
-      <Node {...dlq} label="Dead letters" sub="retry from step" icon="queue" dashed flow={FAIL} hint="Failed jobs keep their payload and error, and rerun from the stage that failed" />
+      <Node
+        {...dlq}
+        label="Dead letters"
+        sub="retry from step"
+        icon="queue"
+        dashed
+        flow={FAIL}
+        hint="Failed jobs keep their payload and error, and rerun from the stage that failed"
+      />
     </>
   );
 }
@@ -87,9 +148,18 @@ const nDlq = { x: 16, y: 600, w: 232, h: NH };
 
 function Narrow() {
   const id = "fig-rail-n";
-  const queued: Point[] = [[NC, 64], [NC, ny(0)]];
-  const done: Point[] = [[NC, ny(STAGES.length - 1) + NH], [NC, nReady.y]];
-  const rail: Point[] = [[N_RAIL, ny(0) + NH / 2], [N_RAIL, nDlq.y]];
+  const queued: Point[] = [
+    [NC, 64],
+    [NC, ny(0)],
+  ];
+  const done: Point[] = [
+    [NC, ny(STAGES.length - 1) + NH],
+    [NC, nReady.y],
+  ];
+  const rail: Point[] = [
+    [N_RAIL, ny(0) + NH / 2],
+    [N_RAIL, nDlq.y],
+  ];
   return (
     <>
       <Defs id={id} />
@@ -102,11 +172,38 @@ function Narrow() {
           <Node x={NX} y={ny(i)} w={NW} h={NH} label={s.label} sub={s.sub} icon={s.icon} hint={s.hint} flow={[DOC, FAIL]} />
           {i > 0 ? (
             <>
-              <Connector points={[[NC, ny(i - 1) + NH], [NC, ny(i)]]} defs={id} kind="change" flow={DOC} />
-              <Packet points={[[NC, ny(i - 1) + NH], [NC, ny(i)]]} kind="change" dur={1} delay={-i * 0.25} r={4} flow={DOC} />
+              <Connector
+                points={[
+                  [NC, ny(i - 1) + NH],
+                  [NC, ny(i)],
+                ]}
+                defs={id}
+                kind="change"
+                flow={DOC}
+              />
+              <Packet
+                points={[
+                  [NC, ny(i - 1) + NH],
+                  [NC, ny(i)],
+                ]}
+                kind="change"
+                dur={1}
+                delay={-i * 0.25}
+                r={4}
+                flow={DOC}
+              />
             </>
           ) : null}
-          <Connector points={[[NX, ny(i) + NH / 2], [N_RAIL, ny(i) + NH / 2]]} arrow={false} dashed inset={[2, 0]} flow={FAIL} />
+          <Connector
+            points={[
+              [NX, ny(i) + NH / 2],
+              [N_RAIL, ny(i) + NH / 2],
+            ]}
+            arrow={false}
+            dashed
+            inset={[2, 0]}
+            flow={FAIL}
+          />
         </g>
       ))}
       <Connector points={done} defs={id} kind="change" flow={DOC} />
@@ -132,7 +229,8 @@ export function FailureRailFigure({ number }: { number: string }) {
       viewBox="0 0 1120 320"
       narrow={<Narrow />}
       narrowViewBox="0 0 360 664"
-      alt="An upload is queued into an async job of five stages, fingerprint, fetch, extract, redact and index, that ends with the document ready. Each stage has a dashed line down to one failure rail that ends in a dead-letter queue, where failed jobs retry from the stage that failed.">
+      alt="An upload is queued into an async job of five stages, fingerprint, fetch, extract, redact and index, that ends with the document ready. Each stage has a dashed line down to one failure rail that ends in a dead-letter queue, where failed jobs retry from the stage that failed."
+    >
       <Wide />
     </Figure>
   );

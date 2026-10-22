@@ -7,11 +7,33 @@ const drawing = (
     <Defs id="s" />
     <Node x={16} y={16} w={120} h={40} label="A" sub="mono" icon="db" />
     <Node x={200} y={16} w={120} h={40} label="B" accent />
-    <Connector points={[[136, 36], [200, 36]]} defs="s" kind="request" />
-    <Packet points={[[136, 36], [200, 36]]} kind="request" dur={2} id="pk" />
+    <Connector
+      points={[
+        [136, 36],
+        [200, 36],
+      ]}
+      defs="s"
+      kind="request"
+    />
+    <Packet
+      points={[
+        [136, 36],
+        [200, 36],
+      ]}
+      kind="request"
+      dur={2}
+      id="pk"
+    />
   </>
 );
-const fig = { children: drawing, viewBox: "0 0 336 72", title: "T", caption: "A caption that is long enough to wrap when the column is narrow, which it is here.", legend: [{ label: "Request", kind: "request" as const }], alt: "alt" };
+const fig = {
+  children: drawing,
+  viewBox: "0 0 336 72",
+  title: "T",
+  caption: "A caption that is long enough to wrap when the column is narrow, which it is here.",
+  legend: [{ label: "Request", kind: "request" as const }],
+  alt: "alt",
+};
 
 describe("renderStatic", () => {
   it("resolves every CSS variable and keeps no var() behind", () => {
@@ -40,7 +62,7 @@ describe("renderStatic", () => {
     const bare = renderStatic(fig, { frame: false });
     expect(bare).not.toContain(">T<");
     expect(bare).toContain('viewBox="0 0 336 72"');
-    expect(bare).not.toContain("<rect x=\"0.5\"");
+    expect(bare).not.toContain('<rect x="0.5"');
   });
   it("dark and custom palettes reach the drawing", () => {
     const dark = renderStatic(fig, { theme: "dark" });
@@ -79,15 +101,23 @@ describe("renderStatic across bundles", () => {
     const main = req("../dist/index.cjs") as typeof import("../src");
     const stat = req("../dist/static.cjs") as typeof import("../src/static");
     const { createElement } = req("react") as typeof import("react");
-    const pts: [number, number][] = [[0, 10], [100, 10]];
-    const svg = stat.renderStatic({ viewBox: "0 0 120 20", children: createElement(main.Packet, { points: pts, kind: "request", dur: 2 }) }, { motion: true, frame: false });
+    const pts: [number, number][] = [
+      [0, 10],
+      [100, 10],
+    ];
+    const svg = stat.renderStatic(
+      { viewBox: "0 0 120 20", children: createElement(main.Packet, { points: pts, kind: "request", dur: 2 }) },
+      { motion: true, frame: false },
+    );
     expect(svg).toContain("<animateMotion");
   });
 });
 
 describe("renderStatic is well-formed XML", () => {
   it("survives a double-quoted font stack and parses in a strict XML parser", () => {
-    const svg = renderStatic(fig, { theme: { base: "dark", mono: 'ui-monospace, "JetBrains Mono", Menlo, monospace', sans: '"Segoe UI", sans-serif' } });
+    const svg = renderStatic(fig, {
+      theme: { base: "dark", mono: 'ui-monospace, "JetBrains Mono", Menlo, monospace', sans: '"Segoe UI", sans-serif' },
+    });
     expect(svg).not.toContain('"JetBrains');
     const doc = new DOMParser().parseFromString(svg, "image/svg+xml");
     expect(doc.querySelector("parsererror")).toBeNull();

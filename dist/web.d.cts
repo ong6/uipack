@@ -143,7 +143,7 @@ interface SectionProps {
     lazyRender?: boolean;
 }
 /** A page section on the 8-pt rhythm, with an optional eyebrow, heading and intro. */
-declare function Section({ eyebrow, title, intro, children, tone, align, id, className, lazyRender }: SectionProps): react.JSX.Element;
+declare function Section({ eyebrow, title, intro, children, tone, align, id, className, lazyRender, }: SectionProps): react.JSX.Element;
 interface Feature {
     title: string;
     body: ReactNode;
@@ -208,7 +208,7 @@ interface StarHeroProps {
  * One focal visual derived from the product story, masked so it never fights the headline,
  * with a quiet noise layer for depth. Copy uses opacity hierarchy, not extra colours.
  */
-declare function StarHero({ eyebrow, title, subtitle, actions, visual, values, children, noise, headingId }: StarHeroProps): react.JSX.Element;
+declare function StarHero({ eyebrow, title, subtitle, actions, visual, values, children, noise, headingId, }: StarHeroProps): react.JSX.Element;
 
 /** Default story data: messages handled over a morning (40 in, 3 left). Rising, so it reads as progress. */
 declare const DEFAULT_STAR_VALUES: number[];
@@ -504,7 +504,7 @@ interface NumberTickerProps {
  * number shown. Tabular figures and a hidden copy
  * of the final value reserve the width; assistive tech reads the final value only.
  */
-declare function NumberTicker({ value, from, duration, format, locale, prefix, suffix, className, face }: NumberTickerProps): react.JSX.Element;
+declare function NumberTicker({ value, from, duration, format, locale, prefix, suffix, className, face, }: NumberTickerProps): react.JSX.Element;
 interface MarqueeProps {
     items: ReactNode[];
     /** Accessible name, e.g. "Tools I use". */
@@ -551,7 +551,7 @@ interface ScrollTransformProps {
  * the page and let it turn or grow as the reader moves. Listens only while on screen; under
  * reduced motion it holds the midpoint.
  */
-declare function ScrollTransform({ children, rotate, scale, translateY, opacity, className }: ScrollTransformProps): react.JSX.Element;
+declare function ScrollTransform({ children, rotate, scale, translateY, opacity, className, }: ScrollTransformProps): react.JSX.Element;
 
 /**
  * Rate, per second, of an exponential follow that closes `lerp` of the remaining gap every
@@ -632,7 +632,7 @@ declare const SMOOTH_SCROLL_PREVENT_ATTR = "data-smooth-scroll-prevent";
  *   smooth on touch, an instant jump under reduced motion.
  * - Stops when the tab is hidden or the scrollbar is grabbed.
  */
-declare function createSmoothScroll({ lerp, wheelMultiplier, anchors }?: SmoothScrollOptions): SmoothScrollController;
+declare function createSmoothScroll({ lerp, wheelMultiplier, anchors, }?: SmoothScrollOptions): SmoothScrollController;
 /**
  * Scroll the page through the mounted SmoothScroll, or natively (smooth unless reduced
  * motion) when none is mounted or it is off. Safe to call on the server.
@@ -644,7 +644,7 @@ type SmoothScrollHandle = Omit<SmoothScrollController, "destroy">;
  * stable handle. Mount it once per page. Its scrollTo works before mount and when easing is
  * off, falling back to the browser's own scroll.
  */
-declare function useSmoothScroll({ lerp, wheelMultiplier, anchors }?: SmoothScrollOptions): SmoothScrollHandle;
+declare function useSmoothScroll({ lerp, wheelMultiplier, anchors, }?: SmoothScrollOptions): SmoothScrollHandle;
 type SmoothScrollProps = SmoothScrollOptions;
 /**
  * Opt-in smooth wheel scrolling for a landing page: render it once, anywhere on the page.
@@ -1252,7 +1252,7 @@ declare const LLMS_FULL_PATH = "/llms-full.txt";
  * because a crawler obeys only the most specific group that names it and ignores `*`: site-wide
  * `disallow` paths are therefore repeated in every allowed group.
  */
-declare function robotsTxt({ site, aiCrawlers, disallow, sitemapPath }: Pick<BuildCrawlFilesOptions, "site" | "aiCrawlers" | "disallow" | "sitemapPath">): string;
+declare function robotsTxt({ site, aiCrawlers, disallow, sitemapPath, }: Pick<BuildCrawlFilesOptions, "site" | "aiCrawlers" | "disallow" | "sitemapPath">): string;
 /** W3C datetime for <lastmod>: a Date becomes YYYY-MM-DD (UTC); a string must already be one. */
 declare function formatLastmod(d: Date | string): string;
 /**

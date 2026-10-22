@@ -67,7 +67,10 @@ describe("wheel normalisation", () => {
   });
   it("turns lines into pixels (Firefox mouse wheels)", () => {
     expect(normalizeWheel({ deltaX: 0, deltaY: 3, deltaMode: 1 }, viewport)).toEqual({ x: 0, y: 3 * WHEEL_LINE_PX });
-    expect(normalizeWheel({ deltaX: -1, deltaY: -3, deltaMode: 1 }, viewport)).toEqual({ x: -WHEEL_LINE_PX, y: -3 * WHEEL_LINE_PX });
+    expect(normalizeWheel({ deltaX: -1, deltaY: -3, deltaMode: 1 }, viewport)).toEqual({
+      x: -WHEEL_LINE_PX,
+      y: -3 * WHEEL_LINE_PX,
+    });
   });
   it("turns pages into the viewport less the Page Down overlap", () => {
     expect(normalizeWheel({ deltaX: 1, deltaY: 1, deltaMode: 2 }, viewport)).toEqual({ x: 1050, y: 700 });

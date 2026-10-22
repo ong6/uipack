@@ -1,4 +1,23 @@
-import { Badge, Bus, Chip, Connector, Cross, Defs, Figure, Group, Label, Lane, Node, Packet, Wall, icons, marks, route, type IconName, type MarkName } from "../../src";
+import {
+  Badge,
+  Bus,
+  Chip,
+  Connector,
+  Cross,
+  Defs,
+  Figure,
+  Group,
+  Label,
+  Lane,
+  Node,
+  Packet,
+  Wall,
+  icons,
+  marks,
+  route,
+  type IconName,
+  type MarkName,
+} from "../../src";
 
 const iconNames = Object.keys(icons) as IconName[];
 const markNames = Object.keys(marks) as MarkName[];
@@ -24,11 +43,23 @@ export function PartsFigure({ number }: { number: string }) {
         { label: "Neutral", kind: "neutral" },
       ]}
       viewBox="0 0 1120 448"
-      alt="A sampler of every uipack component.">
+      alt="A sampler of every uipack component."
+    >
       <Defs id="parts" />
       <Lane x={16} w={240} y={24} title="Nodes" />
       <Node x={16} y={40} w={240} h={40} label="Plain" flow="alpha" id="e2e-node-alpha" hint="Hover: highlights flow alpha" />
-      <Node x={16} y={96} w={240} h={56} label="With sub" sub="mono second line" align="left" icon="service" flow="beta" id="e2e-node-beta" />
+      <Node
+        x={16}
+        y={96}
+        w={240}
+        h={56}
+        label="With sub"
+        sub="mono second line"
+        align="left"
+        icon="service"
+        flow="beta"
+        id="e2e-node-beta"
+      />
       <Node x={16} y={168} w={240} h={40} label="Accent" accent flow="alpha" />
       <Node x={16} y={224} w={240} h={40} label="Link" dashed href="#link" hint="A node with href is a link" />
       <Badge cx={256} cy={40} text="1" />
@@ -42,8 +73,21 @@ export function PartsFigure({ number }: { number: string }) {
       <Packet points={b} kind="response" dur={2.5} delay={-1} flow="beta" />
       <Connector points={c} defs="parts" kind="change" id="e2e-conn-change" flow="beta" />
       <Packet points={c} kind="change" dur={2} flow="beta" id="e2e-packet-change" />
-      <Connector points={[[288, 288], [560, 288]]} defs="parts" />
-      <Packet points={[[288, 288], [560, 288]]} kind="neutral" dur={3} />
+      <Connector
+        points={[
+          [288, 288],
+          [560, 288],
+        ]}
+        defs="parts"
+      />
+      <Packet
+        points={[
+          [288, 288],
+          [560, 288],
+        ]}
+        kind="neutral"
+        dur={3}
+      />
       <Label x={424} y={280} text="plain connector" anchor="middle" />
       <Label x={424} y={324} text="Label with underlay, sans" anchor="middle" font="sans" size={12} />
 
@@ -62,25 +106,76 @@ export function PartsFigure({ number }: { number: string }) {
       <Node x={864} y={168} w={96} h={32} label="a" size={12} flow="beta" />
       <Node x={864} y={216} w={96} h={32} label="b" size={12} flow="beta" />
       <Node x={1008} y={192} w={96} h={32} label="svc" size={12} flow="beta" id="e2e-node-svc" />
-      <Bus axis="v" at={984} from={184} to={232} stubs={[{ at: 184, to: 960, flow: "beta" }, { at: 232, to: 960, flow: "beta" }, { at: 208, to: 1008, arrow: true, flow: "beta" }]} defs="parts" flow="beta" />
-      <Packet points={[[984, 208], [1008, 208]]} kind="request" dur={1.2} r={4} flow="beta" />
+      <Bus
+        axis="v"
+        at={984}
+        from={184}
+        to={232}
+        stubs={[
+          { at: 184, to: 960, flow: "beta" },
+          { at: 232, to: 960, flow: "beta" },
+          { at: 208, to: 1008, arrow: true, flow: "beta" },
+        ]}
+        defs="parts"
+        flow="beta"
+      />
+      <Packet
+        points={[
+          [984, 208],
+          [1008, 208],
+        ]}
+        kind="request"
+        dur={1.2}
+        r={4}
+        flow="beta"
+      />
 
       <Lane x={592} w={512} y={296} title="Wall, cross" />
       <Wall at={720} from={312} to={376} holes={[344]} />
-      <Connector points={[[608, 344], [832, 344]]} defs="parts" />
-      <Connector points={[[880, 344], [1080, 344]]} arrow={false} dashed inset={[2, 8]} />
+      <Connector
+        points={[
+          [608, 344],
+          [832, 344],
+        ]}
+        defs="parts"
+      />
+      <Connector
+        points={[
+          [880, 344],
+          [1080, 344],
+        ]}
+        arrow={false}
+        dashed
+        inset={[2, 8]}
+      />
       <Cross x={1088} y={344} />
 
       <Lane x={16} w={240} y={392} title="Icons" />
       {iconNames.map((n, i) => (
-        <g key={n} transform={`translate(${16 + (i % 25) * 28}, 408)`} fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+        <g
+          key={n}
+          transform={`translate(${16 + (i % 25) * 28}, 408)`}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <title>{n}</title>
           {icons[n]}
         </g>
       ))}
       <Lane x={760} w={344} y={392} title="Marks" />
       {markNames.map((n, i) => (
-        <g key={n} transform={`translate(${760 + i * 40}, 404)`} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        <g
+          key={n}
+          transform={`translate(${760 + i * 40}, 404)`}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <title>{n}</title>
           <g transform="scale(0.75)">{marks[n]}</g>
         </g>

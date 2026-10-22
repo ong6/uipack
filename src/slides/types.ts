@@ -1,7 +1,6 @@
 /** Serializable scene data. Every stop resolves from these defaults, never from the previous stop. */
 export type Vec3 = [number, number, number];
-export type SceneTone =
-  "accent" | "request" | "response" | "change" | "neutral";
+export type SceneTone = "accent" | "request" | "response" | "change" | "neutral";
 export interface SlideNode {
   id: string;
   label: string;

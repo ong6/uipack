@@ -1,3 +1,4 @@
+import { WORDS_PER_MINUTE } from './chunk-K7T4NUBP.js';
 import { useId, useState } from 'react';
 import { jsxs, jsx } from 'react/jsx-runtime';
 
@@ -57,7 +58,7 @@ function renderSlideSvg(slide, options = {}) {
 function estimateSpeechSeconds(say) {
   const words = say.trim().match(/\S+/g)?.length ?? 0;
   if (!words) return 0;
-  return Math.max(5, Math.round(words / 135 * 12) * 5);
+  return Math.max(5, Math.round(words / WORDS_PER_MINUTE * 12) * 5);
 }
 function formatSpeechGuide(speech) {
   return [
@@ -85,17 +86,9 @@ async function copyText(value) {
   field.remove();
   if (!copied) throw new Error("Copy is unavailable.");
 }
-function SpeakerGuide({
-  speech,
-  slideTitle = "Slide",
-  onCopy,
-  className = "",
-  theme = "light"
-}) {
+function SpeakerGuide({ speech, slideTitle = "Slide", onCopy, className = "", theme = "light" }) {
   const headingId = useId();
-  const [status, setStatus] = useState(
-    "idle"
-  );
+  const [status, setStatus] = useState("idle");
   const seconds = estimateSpeechSeconds(speech.say);
   const text = formatSpeechGuide(speech);
   const copy = async () => {
@@ -107,82 +100,52 @@ function SpeakerGuide({
       setStatus("error");
     }
   };
-  return /* @__PURE__ */ jsxs(
-    "aside",
-    {
-      className: `uipack-speaker-guide ${className}`.trim(),
-      "aria-labelledby": headingId,
-      "data-theme": theme,
-      children: [
-        /* @__PURE__ */ jsxs("div", { className: "uipack-speaker-guide__heading", children: [
-          /* @__PURE__ */ jsx("h3", { id: headingId, children: "Speaker guide" }),
-          /* @__PURE__ */ jsxs("span", { "aria-label": `Estimated speaking time ${seconds} seconds`, children: [
-            "~",
-            seconds,
-            " sec"
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxs("div", { className: "uipack-speaker-guide__section", children: [
-          /* @__PURE__ */ jsx("h4", { children: "Say this" }),
-          /* @__PURE__ */ jsx("p", { children: speech.say })
-        ] }),
-        /* @__PURE__ */ jsxs("div", { className: "uipack-speaker-guide__section", children: [
-          /* @__PURE__ */ jsx("h4", { children: "Delivery" }),
-          /* @__PURE__ */ jsx("p", { children: speech.delivery })
-        ] }),
-        speech.next && /* @__PURE__ */ jsxs("div", { className: "uipack-speaker-guide__section", children: [
-          /* @__PURE__ */ jsx("h4", { children: "Into the next slide" }),
-          /* @__PURE__ */ jsx("p", { children: speech.next })
-        ] }),
-        /* @__PURE__ */ jsxs("div", { className: "uipack-speaker-guide__action", children: [
-          /* @__PURE__ */ jsx("button", { type: "button", onClick: () => void copy(), children: "Copy talk track" }),
-          /* @__PURE__ */ jsx("span", { role: "status", "aria-live": "polite", "aria-atomic": "true", children: status === "copied" ? `${slideTitle} talk track copied.` : status === "error" ? "Could not copy the talk track. Select the text instead." : "" })
-        ] })
-      ]
-    }
-  );
+  return /* @__PURE__ */ jsxs("aside", { className: `uipack-speaker-guide ${className}`.trim(), "aria-labelledby": headingId, "data-theme": theme, children: [
+    /* @__PURE__ */ jsxs("div", { className: "uipack-speaker-guide__heading", children: [
+      /* @__PURE__ */ jsx("h3", { id: headingId, children: "Speaker guide" }),
+      /* @__PURE__ */ jsxs("span", { "aria-label": `Estimated speaking time ${seconds} seconds`, children: [
+        "~",
+        seconds,
+        " sec"
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxs("div", { className: "uipack-speaker-guide__section", children: [
+      /* @__PURE__ */ jsx("h4", { children: "Say this" }),
+      /* @__PURE__ */ jsx("p", { children: speech.say })
+    ] }),
+    /* @__PURE__ */ jsxs("div", { className: "uipack-speaker-guide__section", children: [
+      /* @__PURE__ */ jsx("h4", { children: "Delivery" }),
+      /* @__PURE__ */ jsx("p", { children: speech.delivery })
+    ] }),
+    speech.next && /* @__PURE__ */ jsxs("div", { className: "uipack-speaker-guide__section", children: [
+      /* @__PURE__ */ jsx("h4", { children: "Into the next slide" }),
+      /* @__PURE__ */ jsx("p", { children: speech.next })
+    ] }),
+    /* @__PURE__ */ jsxs("div", { className: "uipack-speaker-guide__action", children: [
+      /* @__PURE__ */ jsx("button", { type: "button", onClick: () => void copy(), children: "Copy talk track" }),
+      /* @__PURE__ */ jsx("span", { role: "status", "aria-live": "polite", "aria-atomic": "true", children: status === "copied" ? `${slideTitle} talk track copied.` : status === "error" ? "Could not copy the talk track. Select the text instead." : "" })
+    ] })
+  ] });
 }
-function SlideStarter({
-  slide,
-  theme = "light",
-  showSpeech = true,
-  className = "",
-  onCopySpeech
-}) {
-  return /* @__PURE__ */ jsxs(
-    "section",
-    {
-      className: `uipack-slide-starter ${className}`.trim(),
-      "data-theme": theme,
-      "data-layout": slide.layout,
-      children: [
-        /* @__PURE__ */ jsxs("figure", { className: "uipack-slide-starter__figure", children: [
-          /* @__PURE__ */ jsx(
-            "div",
-            {
-              className: "uipack-slide-starter__preview",
-              dangerouslySetInnerHTML: {
-                __html: renderSlideSvg(slide, { theme })
-              }
-            }
-          ),
-          /* @__PURE__ */ jsxs("figcaption", { children: [
-            /* @__PURE__ */ jsx("strong", { children: slide.title }),
-            /* @__PURE__ */ jsx("span", { children: slide.description })
-          ] })
-        ] }),
-        showSpeech && /* @__PURE__ */ jsx(
-          SpeakerGuide,
-          {
-            speech: slide.speech,
-            slideTitle: slide.title,
-            theme,
-            onCopy: onCopySpeech
+function SlideStarter({ slide, theme = "light", showSpeech = true, className = "", onCopySpeech }) {
+  return /* @__PURE__ */ jsxs("section", { className: `uipack-slide-starter ${className}`.trim(), "data-theme": theme, "data-layout": slide.layout, children: [
+    /* @__PURE__ */ jsxs("figure", { className: "uipack-slide-starter__figure", children: [
+      /* @__PURE__ */ jsx(
+        "div",
+        {
+          className: "uipack-slide-starter__preview",
+          dangerouslySetInnerHTML: {
+            __html: renderSlideSvg(slide, { theme })
           }
-        )
-      ]
-    }
-  );
+        }
+      ),
+      /* @__PURE__ */ jsxs("figcaption", { children: [
+        /* @__PURE__ */ jsx("strong", { children: slide.title }),
+        /* @__PURE__ */ jsx("span", { children: slide.description })
+      ] })
+    ] }),
+    showSpeech && /* @__PURE__ */ jsx(SpeakerGuide, { speech: slide.speech, slideTitle: slide.title, theme, onCopy: onCopySpeech })
+  ] });
 }
 
 export { SlideStarter, SpeakerGuide, escapeSvgText, estimateSpeechSeconds, formatSpeechGuide, renderSlideSvg };

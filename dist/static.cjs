@@ -43,7 +43,10 @@ function stripBase(t) {
   return rest;
 }
 function inlineVars(markup, p) {
-  return markup.replace(/var\(--uipack-([a-z-]+)(?:,\s*[^)]*)?\)/g, (_, k) => p[k] ?? "currentColor");
+  return markup.replace(
+    /var\(--uipack-([a-z-]+)(?:,\s*[^)]*)?\)/g,
+    (_, k) => p[k] ?? "currentColor"
+  );
 }
 var esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 function wrapText(text, chars) {
@@ -67,10 +70,29 @@ function figureOf(input) {
     if (typeof pp.parts === "function" && pp.spec) {
       const parts = pp.parts(pp.spec, pp.id ?? "static");
       const m = pp.spec.figure;
-      return { children: parts.wide, viewBox: parts.viewBox, legend: parts.legend, number: m.number, eyebrow: m.eyebrow, title: m.title, caption: m.caption, alt: m.alt };
+      return {
+        children: parts.wide,
+        viewBox: parts.viewBox,
+        legend: parts.legend,
+        number: m.number,
+        eyebrow: m.eyebrow,
+        title: m.title,
+        caption: m.caption,
+        alt: m.alt
+      };
     }
     const p = input.props;
-    return { children: p.children, viewBox: p.viewBox, legend: p.legend, number: p.number, eyebrow: p.eyebrow, title: p.title, caption: p.caption, alt: p.alt, background: p.background };
+    return {
+      children: p.children,
+      viewBox: p.viewBox,
+      legend: p.legend,
+      number: p.number,
+      eyebrow: p.eyebrow,
+      title: p.title,
+      caption: p.caption,
+      alt: p.alt,
+      background: p.background
+    };
   }
   return input;
 }
@@ -81,9 +103,16 @@ function renderStatic(input, opts = {}) {
   const frame = opts.frame ?? true;
   const paint = opts.background ?? true;
   const [vx, vy, vw, vh] = fig.viewBox.split(/\s+/).map(Number);
-  const ctx = { playing: motion, reduced: !motion, cycle: 0, toggle: () => {
-  }, replay: () => {
-  }, prerender: motion };
+  const ctx = {
+    playing: motion,
+    reduced: !motion,
+    cycle: 0,
+    toggle: () => {
+    },
+    replay: () => {
+    },
+    prerender: motion
+  };
   const g = globalThis;
   const prev = g.__UIPACK_PRERENDER__;
   g.__UIPACK_PRERENDER__ = motion;
@@ -107,12 +136,16 @@ function renderStatic(input, opts = {}) {
     const eyebrow = [fig.number, fig.eyebrow].filter(Boolean).join(" \xB7 ");
     if (eyebrow) {
       hy += 11;
-      head.push(`<text x="${pad}" y="${hy}" font-family="${p.mono}" font-size="11" font-weight="700" letter-spacing=".08em" fill="${p.fg}">${esc(eyebrow.toUpperCase())}</text>`);
+      head.push(
+        `<text x="${pad}" y="${hy}" font-family="${p.mono}" font-size="11" font-weight="700" letter-spacing=".08em" fill="${p.fg}">${esc(eyebrow.toUpperCase())}</text>`
+      );
       hy += 8;
     }
     if (fig.title) {
       hy += 20;
-      head.push(`<text x="${pad}" y="${hy}" font-family="${p.sans}" font-size="20" font-weight="700" letter-spacing="-0.01em" fill="${p.fg}">${esc(fig.title)}</text>`);
+      head.push(
+        `<text x="${pad}" y="${hy}" font-family="${p.sans}" font-size="20" font-weight="700" letter-spacing="-0.01em" fill="${p.fg}">${esc(fig.title)}</text>`
+      );
       hy += 6;
     }
     if (fig.caption) {
@@ -128,8 +161,14 @@ function renderStatic(input, opts = {}) {
       let lx = pad;
       for (const it of fig.legend) {
         const kind = it.kind ?? "neutral";
-        const tok = inlineVars(server.renderToStaticMarkup(/* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.Token, { kind, shape: it.shape ?? chunkXEK5V7KF_cjs.TOKEN_SHAPE[kind], r: 5.5, cx: lx + 6, cy: hy - 4 })), p);
-        head.push(tok, `<text x="${lx + 20}" y="${hy}" font-family="${p.sans}" font-size="13" fill="${p.fg}">${esc(it.label)}</text>`);
+        const tok = inlineVars(
+          server.renderToStaticMarkup(/* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.Token, { kind, shape: it.shape ?? chunkXEK5V7KF_cjs.TOKEN_SHAPE[kind], r: 5.5, cx: lx + 6, cy: hy - 4 })),
+          p
+        );
+        head.push(
+          tok,
+          `<text x="${lx + 20}" y="${hy}" font-family="${p.sans}" font-size="13" fill="${p.fg}">${esc(it.label)}</text>`
+        );
         lx += 20 + it.label.length * 7.4 + 24;
       }
     }

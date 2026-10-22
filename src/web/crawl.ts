@@ -25,17 +25,83 @@ export interface AiCrawler {
  * cite the page; training agents decide whether the page may be used to train models.
  */
 export const AI_CRAWLERS = [
-  { agent: "OAI-SearchBot", operator: "OpenAI", purpose: "search", note: "Shows the site in ChatGPT search answers. Blocked sites appear only as navigational links.", docs: "https://platform.openai.com/docs/bots" },
-  { agent: "ChatGPT-User", operator: "OpenAI", purpose: "user", note: "Fetches a page when a ChatGPT user asks. User-initiated, so OpenAI says robots.txt rules may not apply.", docs: "https://platform.openai.com/docs/bots" },
-  { agent: "GPTBot", operator: "OpenAI", purpose: "training", note: "Collects pages that may train OpenAI's foundation models. Independent of search.", docs: "https://platform.openai.com/docs/bots" },
-  { agent: "Claude-SearchBot", operator: "Anthropic", purpose: "search", note: "Indexes pages for Claude's search results. Blocking it reduces visibility in Claude answers.", docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler" },
-  { agent: "Claude-User", operator: "Anthropic", purpose: "user", note: "Fetches a page when a Claude user asks. Blocking it stops Claude retrieving the page for users.", docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler" },
-  { agent: "ClaudeBot", operator: "Anthropic", purpose: "training", note: "Collects pages that may train Anthropic's models.", docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler" },
-  { agent: "PerplexityBot", operator: "Perplexity", purpose: "search", note: "Indexes and links the site in Perplexity answers. Not used for training foundation models.", docs: "https://docs.perplexity.ai/guides/bots" },
-  { agent: "Perplexity-User", operator: "Perplexity", purpose: "user", note: "Fetches a page when a Perplexity user asks. Perplexity says it generally ignores robots.txt.", docs: "https://docs.perplexity.ai/guides/bots" },
-  { agent: "Google-Extended", operator: "Google", purpose: "training", note: "Gemini model training and grounding in Gemini Apps and Vertex AI. Does not affect Google Search or AI Overviews (Googlebot).", docs: "https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers" },
-  { agent: "Applebot-Extended", operator: "Apple", purpose: "training", note: "Apple foundation-model training. It crawls nothing itself; Applebot search (Siri, Spotlight, Safari) is unaffected.", docs: "https://support.apple.com/en-us/119829" },
-  { agent: "CCBot", operator: "Common Crawl", purpose: "training", note: "Common Crawl's open web archive, which many model training sets are built from.", docs: "https://commoncrawl.org/ccbot" },
+  {
+    agent: "OAI-SearchBot",
+    operator: "OpenAI",
+    purpose: "search",
+    note: "Shows the site in ChatGPT search answers. Blocked sites appear only as navigational links.",
+    docs: "https://platform.openai.com/docs/bots",
+  },
+  {
+    agent: "ChatGPT-User",
+    operator: "OpenAI",
+    purpose: "user",
+    note: "Fetches a page when a ChatGPT user asks. User-initiated, so OpenAI says robots.txt rules may not apply.",
+    docs: "https://platform.openai.com/docs/bots",
+  },
+  {
+    agent: "GPTBot",
+    operator: "OpenAI",
+    purpose: "training",
+    note: "Collects pages that may train OpenAI's foundation models. Independent of search.",
+    docs: "https://platform.openai.com/docs/bots",
+  },
+  {
+    agent: "Claude-SearchBot",
+    operator: "Anthropic",
+    purpose: "search",
+    note: "Indexes pages for Claude's search results. Blocking it reduces visibility in Claude answers.",
+    docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler",
+  },
+  {
+    agent: "Claude-User",
+    operator: "Anthropic",
+    purpose: "user",
+    note: "Fetches a page when a Claude user asks. Blocking it stops Claude retrieving the page for users.",
+    docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler",
+  },
+  {
+    agent: "ClaudeBot",
+    operator: "Anthropic",
+    purpose: "training",
+    note: "Collects pages that may train Anthropic's models.",
+    docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler",
+  },
+  {
+    agent: "PerplexityBot",
+    operator: "Perplexity",
+    purpose: "search",
+    note: "Indexes and links the site in Perplexity answers. Not used for training foundation models.",
+    docs: "https://docs.perplexity.ai/guides/bots",
+  },
+  {
+    agent: "Perplexity-User",
+    operator: "Perplexity",
+    purpose: "user",
+    note: "Fetches a page when a Perplexity user asks. Perplexity says it generally ignores robots.txt.",
+    docs: "https://docs.perplexity.ai/guides/bots",
+  },
+  {
+    agent: "Google-Extended",
+    operator: "Google",
+    purpose: "training",
+    note: "Gemini model training and grounding in Gemini Apps and Vertex AI. Does not affect Google Search or AI Overviews (Googlebot).",
+    docs: "https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers",
+  },
+  {
+    agent: "Applebot-Extended",
+    operator: "Apple",
+    purpose: "training",
+    note: "Apple foundation-model training. It crawls nothing itself; Applebot search (Siri, Spotlight, Safari) is unaffected.",
+    docs: "https://support.apple.com/en-us/119829",
+  },
+  {
+    agent: "CCBot",
+    operator: "Common Crawl",
+    purpose: "training",
+    note: "Common Crawl's open web archive, which many model training sets are built from.",
+    docs: "https://commoncrawl.org/ccbot",
+  },
 ] as const satisfies readonly AiCrawler[];
 
 export type AiCrawlerAgent = (typeof AI_CRAWLERS)[number]["agent"];
@@ -53,11 +119,12 @@ export type AiCrawlerPolicy = AiCrawlerPreset | ({ preset?: AiCrawlerPreset } & 
 
 /** The rule each listed AI crawler gets under a policy. */
 export function resolveAiCrawlers(policy: AiCrawlerPolicy = "allow-all"): Record<AiCrawlerAgent, CrawlRule> {
-  const preset = typeof policy === "string" ? policy : policy.preset ?? "allow-all";
+  const preset = typeof policy === "string" ? policy : (policy.preset ?? "allow-all");
   const overrides = typeof policy === "string" ? {} : policy;
   const out = {} as Record<AiCrawlerAgent, CrawlRule>;
   for (const c of AI_CRAWLERS) {
-    const base: CrawlRule = preset === "block-all" ? "disallow" : preset === "search-only" && c.purpose === "training" ? "disallow" : "allow";
+    const base: CrawlRule =
+      preset === "block-all" ? "disallow" : preset === "search-only" && c.purpose === "training" ? "disallow" : "allow";
     out[c.agent] = (overrides as Partial<Record<AiCrawlerAgent, CrawlRule>>)[c.agent] ?? base;
   }
   return out;
@@ -127,11 +194,16 @@ function checkPath(p: string): string {
  * because a crawler obeys only the most specific group that names it and ignores `*`: site-wide
  * `disallow` paths are therefore repeated in every allowed group.
  */
-export function robotsTxt({ site, aiCrawlers, disallow = [], sitemapPath = "/sitemap.xml" }: Pick<BuildCrawlFilesOptions, "site" | "aiCrawlers" | "disallow" | "sitemapPath">): string {
+export function robotsTxt({
+  site,
+  aiCrawlers,
+  disallow = [],
+  sitemapPath = "/sitemap.xml",
+}: Pick<BuildCrawlFilesOptions, "site" | "aiCrawlers" | "disallow" | "sitemapPath">): string {
   const root = siteRoot(site);
   const paths = disallow.map(checkPath);
   const rules = resolveAiCrawlers(aiCrawlers);
-  const preset = typeof aiCrawlers === "string" ? aiCrawlers : aiCrawlers?.preset ?? "allow-all";
+  const preset = typeof aiCrawlers === "string" ? aiCrawlers : (aiCrawlers?.preset ?? "allow-all");
   const allowLines = ["Allow: /", ...paths.map((p) => `Disallow: ${p}`)];
   const lines: string[] = [
     `# robots.txt for ${root}`,
@@ -143,7 +215,10 @@ export function robotsTxt({ site, aiCrawlers, disallow = [], sitemapPath = "/sit
     ...allowLines,
   ];
   for (const purpose of ["search", "user", "training"] as const) {
-    lines.push("", `# ---- ${purpose === "search" ? "AI search indexes" : purpose === "user" ? "AI fetches a user asked for" : "AI model training"}`);
+    lines.push(
+      "",
+      `# ---- ${purpose === "search" ? "AI search indexes" : purpose === "user" ? "AI fetches a user asked for" : "AI model training"}`,
+    );
     for (const c of AI_CRAWLERS.filter((x) => x.purpose === purpose)) {
       const rule = rules[c.agent];
       lines.push("", `# ${c.operator}: ${rule === "allow" ? "allowed" : "blocked"}. ${c.note}`, `User-agent: ${c.agent}`);
@@ -154,7 +229,8 @@ export function robotsTxt({ site, aiCrawlers, disallow = [], sitemapPath = "/sit
   return lines.join("\n");
 }
 
-const escapeXml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+const escapeXml = (s: string) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 
 /** W3C datetime for <lastmod>: a Date becomes YYYY-MM-DD (UTC); a string must already be one. */
 export function formatLastmod(d: Date | string): string {
@@ -162,7 +238,8 @@ export function formatLastmod(d: Date | string): string {
     if (Number.isNaN(d.getTime())) throw new Error("sitemap lastmod: invalid Date");
     return d.toISOString().slice(0, 10);
   }
-  if (!/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2}))?$/.test(d)) throw new Error(`sitemap lastmod must be W3C datetime, e.g. 2026-10-22 (got "${d}")`);
+  if (!/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2}))?$/.test(d))
+    throw new Error(`sitemap lastmod must be W3C datetime, e.g. 2026-10-22 (got "${d}")`);
   return d;
 }
 
@@ -197,7 +274,8 @@ export function llmsTxt({ site, pages, llms }: Pick<BuildCrawlFilesOptions, "sit
     if (p.optional) optional.push(p);
     else sections.set(p.section ?? "Pages", [...(sections.get(p.section ?? "Pages") ?? []), p]);
   }
-  const item = (p: CrawlPage) => `- [${oneLine(p.title).replace(/[[\]]/g, "")}](${pageUrl(site, p.markdown ?? p.path)})${p.description ? `: ${oneLine(p.description)}` : ""}`;
+  const item = (p: CrawlPage) =>
+    `- [${oneLine(p.title).replace(/[[\]]/g, "")}](${pageUrl(site, p.markdown ?? p.path)})${p.description ? `: ${oneLine(p.description)}` : ""}`;
   for (const [name, list] of sections) out.push("", `## ${name}`, "", ...list.map(item));
   const full = pages.some((p) => !p.noindex && p.content?.trim())
     ? [`- [Full text](${pageUrl(site, LLMS_FULL_PATH)}): every page above as Markdown in one file`]
@@ -227,7 +305,8 @@ export function llmsFullTxt({ site, pages, llms }: Pick<BuildCrawlFilesOptions, 
   out.push("", `Source: ${siteRoot(site)}`);
   const withText = pages.filter((p) => !p.noindex && p.content?.trim());
   const sections = new Map<string, CrawlPage[]>();
-  for (const p of withText.filter((x) => !x.optional)) sections.set(p.section ?? "Pages", [...(sections.get(p.section ?? "Pages") ?? []), p]);
+  for (const p of withText.filter((x) => !x.optional))
+    sections.set(p.section ?? "Pages", [...(sections.get(p.section ?? "Pages") ?? []), p]);
   for (const p of [...[...sections.values()].flat(), ...withText.filter((x) => x.optional)]) {
     out.push("", "---", "", `# ${oneLine(p.title)}`, "", `URL: ${pageUrl(site, p.path)}`);
     if (p.lastmod) out.push(`Updated: ${formatLastmod(p.lastmod)}`);

@@ -95,7 +95,8 @@ interface Display {
 }
 
 const fine = (value: number) => Math.round(value * 100) / 100;
-const sharesAt = (value: number) => Object.fromEntries(ASSEMBLIES.map((name) => [name, { at: value, rate: 0 }])) as Record<Assembly, Spring>;
+const sharesAt = (value: number) =>
+  Object.fromEntries(ASSEMBLIES.map((name) => [name, { at: value, rate: 0 }])) as Record<Assembly, Spring>;
 
 function contactOf(slots: Slot[]) {
   let top = 0;
@@ -108,12 +109,34 @@ function contactOf(slots: Slot[]) {
 
 /** Snap a display to a scene (first render, still frames, reduced motion). */
 function displayOf(scene: Scene, shares = scene.apart ? 1 : 0): Display {
-  const slots: Slot[] = Array.from({ length: SLOTS }, () => ({ key: null, value: 5, pos: [0, 0, 0] as Point3, layer: "belt" as Layer, alpha: 0, lit: false }));
+  const slots: Slot[] = Array.from({ length: SLOTS }, () => ({
+    key: null,
+    value: 5,
+    pos: [0, 0, 0] as Point3,
+    layer: "belt" as Layer,
+    alpha: 0,
+    lit: false,
+  }));
   scene.tokens.slice(0, SLOTS).forEach((token, index) => {
-    slots[index] = { key: token.key, value: token.check.value, pos: [...token.pos] as Point3, layer: token.layer, alpha: token.alpha, lit: token.lit };
+    slots[index] = {
+      key: token.key,
+      value: token.check.value,
+      pos: [...token.pos] as Point3,
+      layer: token.layer,
+      alpha: token.alpha,
+      lit: token.lit,
+    };
   });
   const tip = Math.max(scene.lift, contactOf(slots));
-  return { slots, tip: { at: tip, rate: 0 }, arm: { at: scene.arm, rate: 0 }, drag: scene.drag, beltV: 0, phase: 0, shares: sharesAt(shares) };
+  return {
+    slots,
+    tip: { at: tip, rate: 0 },
+    arm: { at: scene.arm, rate: 0 },
+    drag: scene.drag,
+    beltV: 0,
+    phase: 0,
+    shares: sharesAt(shares),
+  };
 }
 
 /** Follow a scene for `dt` seconds. Returns true while anything still moves. */
@@ -131,7 +154,14 @@ function step(display: Display, scene: Scene, dt: number, calm: boolean, targets
     let slot = display.slots.find((candidate) => candidate.key === token.key);
     if (!slot) {
       slot = display.slots.find((candidate) => !candidate.key) ?? [...display.slots].sort((a, b) => a.alpha - b.alpha)[0]!;
-      Object.assign(slot, { key: token.key, value: token.check.value, pos: [...token.pos], layer: token.layer, alpha: calm ? token.alpha : 0, lit: token.lit });
+      Object.assign(slot, {
+        key: token.key,
+        value: token.check.value,
+        pos: [...token.pos],
+        layer: token.layer,
+        alpha: calm ? token.alpha : 0,
+        lit: token.lit,
+      });
       moving = true;
       continue;
     }
@@ -228,7 +258,16 @@ function useId() {
 
 /** The verification gate without its card. */
 /** `bare` (internal): the machine is its own styled root; VerificationGate passes false inside its card, which carries the theme. */
-export function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true, alt = LABEL, onReadout, className, bare = true }: GateMachineProps & { bare?: boolean }) {
+export function GateMachine({
+  pose = "idle",
+  theme,
+  motion = "auto",
+  interactive = true,
+  alt = LABEL,
+  onReadout,
+  className,
+  bare = true,
+}: GateMachineProps & { bare?: boolean }) {
   const uid = useId();
   const root = React.useRef<HTMLDivElement>(null);
   const live = React.useRef<HTMLSpanElement>(null);
@@ -273,61 +312,60 @@ export function GateMachine({ pose = "idle", theme, motion = "auto", interactive
     const s = state.current;
     const calm = stillness.current || motion === "none";
     const scene = calm ? stillScene(poseRef.current) : sceneAt(poseRef.current, s.t, s.round);
-    if (s.paused && poseRef.current === "idle") return { ...scene, belt: 0, readout: `${scene.readout} · paused`, phase: "paused" };
+    if (s.paused && poseRef.current === "idle")
+      return { ...scene, belt: 0, readout: `${scene.readout} · paused`, phase: "paused" };
     return scene;
   }, [motion]);
 
-  const draw = React.useCallback(
-    (scene: Scene) => {
-      const node = root.current;
-      if (!node) return;
-      const s = state.current;
-      const display = s.display;
-      const svg = node.querySelector("svg");
-      if (!svg) return;
-      display.slots.forEach((slot, index) => {
-        const value = Math.round(slot.value * 10);
-        const rebuild = s.heights[index] !== value;
-        s.heights[index] = value;
-        for (const layer of LAYERS) {
-          const group = svg.querySelector(`[data-slot="${index}"][data-layer="${layer}"]`);
-          if (!group) continue;
-          const on = slot.key !== null && slot.layer === layer && slot.alpha > 0.005;
-          if (rebuild) writeToken(group, tokenPaths(slot.value));
-          setAttr(group, "display", on ? "" : "none");
-          if (!on) continue;
-          setAttr(group, "transform", tokenMove(slot.pos));
-          setAttr(group, "opacity", slot.alpha >= 0.995 ? "" : slot.alpha.toFixed(2));
-          if (slot.lit) group.setAttribute("data-lit", "");
-          else group.removeAttribute("data-lit");
-        }
-      });
-      setAttr(svg.querySelector("[data-part=slats]"), "d", slatsOf(display.phase));
-      setAttr(svg.querySelector("[data-part=plunger]"), "transform", move([0, 0, display.tip.at]));
-      setAttr(svg.querySelector("[data-part=needle]"), "d", needleOf(readingOf(display)));
-      setAttr(svg.querySelector("[data-part=drag]"), "d", dragOf(clamp(display.drag, 0, SCALE)));
-      writeSolid(svg.querySelector("[data-part=arm]"), armOf(clamp(display.arm.at, -0.05, 1.05)));
-      setAttr(svg.querySelector("[data-part=pointer]"), "d", armPointerOf(clamp(display.arm.at, -0.05, 1.05)));
-      for (const name of ASSEMBLIES) {
-        const transform = shareMove(name, Math.abs(display.shares[name].at) < 1e-4 ? 0 : display.shares[name].at);
-        svg.querySelectorAll(`[data-assembly="${name}"]`).forEach((group) => setAttr(group, "transform", transform));
+  const draw = React.useCallback((scene: Scene) => {
+    const node = root.current;
+    if (!node) return;
+    const s = state.current;
+    const display = s.display;
+    const svg = node.querySelector("svg");
+    if (!svg) return;
+    display.slots.forEach((slot, index) => {
+      const value = Math.round(slot.value * 10);
+      const rebuild = s.heights[index] !== value;
+      s.heights[index] = value;
+      for (const layer of LAYERS) {
+        const group = svg.querySelector(`[data-slot="${index}"][data-layer="${layer}"]`);
+        if (!group) continue;
+        const on = slot.key !== null && slot.layer === layer && slot.alpha > 0.005;
+        if (rebuild) writeToken(group, tokenPaths(slot.value));
+        setAttr(group, "display", on ? "" : "none");
+        if (!on) continue;
+        setAttr(group, "transform", tokenMove(slot.pos));
+        setAttr(group, "opacity", slot.alpha >= 0.995 ? "" : slot.alpha.toFixed(2));
+        if (slot.lit) group.setAttribute("data-lit", "");
+        else group.removeAttribute("data-lit");
       }
-      let text = scene.readout;
-      if (poseRef.current === "apart" && ASSEMBLIES.some((name) => Math.abs(display.shares[name].at - 1) > 0.01)) text = "taking apart";
-      else if (poseRef.current !== "apart" && ASSEMBLIES.some((name) => display.shares[name].at > 0.01)) text = "closing up";
-      if (text !== s.readout) {
-        s.readout = text;
-        const slot = node.closest(".um-frame")?.querySelector("[data-readout]");
-        if (slot && slot.textContent !== text) slot.textContent = text;
-        readoutRef.current?.(text);
-      }
-      if (scene.phase !== s.phase && live.current) {
-        s.phase = scene.phase;
-        if (document.activeElement === node) live.current.textContent = scene.phase;
-      }
-    },
-    [],
-  );
+    });
+    setAttr(svg.querySelector("[data-part=slats]"), "d", slatsOf(display.phase));
+    setAttr(svg.querySelector("[data-part=plunger]"), "transform", move([0, 0, display.tip.at]));
+    setAttr(svg.querySelector("[data-part=needle]"), "d", needleOf(readingOf(display)));
+    setAttr(svg.querySelector("[data-part=drag]"), "d", dragOf(clamp(display.drag, 0, SCALE)));
+    writeSolid(svg.querySelector("[data-part=arm]"), armOf(clamp(display.arm.at, -0.05, 1.05)));
+    setAttr(svg.querySelector("[data-part=pointer]"), "d", armPointerOf(clamp(display.arm.at, -0.05, 1.05)));
+    for (const name of ASSEMBLIES) {
+      const transform = shareMove(name, Math.abs(display.shares[name].at) < 1e-4 ? 0 : display.shares[name].at);
+      svg.querySelectorAll(`[data-assembly="${name}"]`).forEach((group) => setAttr(group, "transform", transform));
+    }
+    let text = scene.readout;
+    if (poseRef.current === "apart" && ASSEMBLIES.some((name) => Math.abs(display.shares[name].at - 1) > 0.01))
+      text = "taking apart";
+    else if (poseRef.current !== "apart" && ASSEMBLIES.some((name) => display.shares[name].at > 0.01)) text = "closing up";
+    if (text !== s.readout) {
+      s.readout = text;
+      const slot = node.closest(".um-frame")?.querySelector("[data-readout]");
+      if (slot && slot.textContent !== text) slot.textContent = text;
+      readoutRef.current?.(text);
+    }
+    if (scene.phase !== s.phase && live.current) {
+      s.phase = scene.phase;
+      if (document.activeElement === node) live.current.textContent = scene.phase;
+    }
+  }, []);
 
   const run = React.useCallback(() => {
     const s = state.current;
@@ -342,7 +380,10 @@ export function GateMachine({ pose = "idle", theme, motion = "auto", interactive
       const scene = sceneNow();
       const moving = step(s.display, scene, dt, calm, s.targets);
       draw(scene);
-      const scripted = !calm && !s.paused && (current === "idle" || ((current === "pass" || current === "return") && s.t < RUN_LONG[current] + 0.2));
+      const scripted =
+        !calm &&
+        !s.paused &&
+        (current === "idle" || ((current === "pass" || current === "return") && s.t < RUN_LONG[current] + 0.2));
       const pending = s.timers.length > 0;
       s.frame = s.visible && (moving || scripted || pending) ? requestAnimationFrame(tick) : 0;
     };
@@ -463,7 +504,15 @@ export function GateMachine({ pose = "idle", theme, motion = "auto", interactive
       draw(scene);
     }
     run();
-    if (live.current) live.current.textContent = current === "idle" ? (s.paused ? "paused" : "running") : current === "apart" ? "reassembling or taking apart" : "running again";
+    if (live.current)
+      live.current.textContent =
+        current === "idle"
+          ? s.paused
+            ? "paused"
+            : "running"
+          : current === "apart"
+            ? "reassembling or taking apart"
+            : "running again";
   };
 
   const reading = readingOf(shown);
@@ -557,33 +606,33 @@ export function GateMachine({ pose = "idle", theme, motion = "auto", interactive
           <path className="iso-line iso-bevel" data-tone="faint" d={arm.bevel ?? ""} />
           <path className="iso-line iso-edge" data-tone="mid" d={arm.outline} />
         </g>
-      <g data-assembly="conveyor" transform={shareMove("conveyor", shown.shares.conveyor.at) || undefined}>
-        <Tokens layer="belt" slots={shown.slots} />
-      </g>
-      <g data-assembly="conveyor" transform={shareMove("conveyor", shown.shares.conveyor.at) || undefined}>
-        <Solid paths={CONVEYOR_FRONT.rail} tone="mid" inner={<Line d={CONVEYOR_FRONT.railSeam} tone="faint" />} />
-        <Dots points={CONVEYOR_FRONT.railScrews} size={0.45} tone="mid" />
-        {CONVEYOR_FRONT.lips.map((paths, index) => (
-          <Solid key={index} paths={paths} tone="mid" />
-        ))}
-        <Line d={CONVEYOR_FRONT.lipMinor} tone="lo" />
-        <Line d={CONVEYOR_FRONT.lipMajor} tone="mid" />
-        <Line d={CONVEYOR_FRONT.zero} tone="hi" />
-        <Solid paths={CONVEYOR_FRONT.bearing} tone="mid" />
-        <Line d={CONVEYOR_FRONT.bearingBore} tone="lo" />
-        <Dots points={CONVEYOR_FRONT.bearingScrews} size={0.45} tone="mid" />
-        <Solid paths={CONVEYOR_FRONT.motor} tone="mid" inner={<Line d={CONVEYOR_FRONT.motorBands} tone="faint" />} />
-        <Line d={CONVEYOR_FRONT.motorCap} tone="lo" />
-        <Dots points={CONVEYOR_FRONT.motorBolts} size={0.45} tone="mid" />
-        <Dots points={[CONVEYOR_FRONT.motorShaft]} size={0.8} tone="hi" />
-        <Solid paths={CONVEYOR_FRONT.box} tone="mid" />
-        <Line d={CONVEYOR_FRONT.boxLine} tone="faint" />
-        <Dots points={CONVEYOR_FRONT.boxScrews} size={0.4} tone="mid" />
-      </g>
-      <g data-assembly="hopper" transform={shareMove("hopper", shown.shares.hopper.at) || undefined}>
-        <Solid paths={HOPPER_FRONT.cheek} tone="mid" />
-        <Dots points={HOPPER_FRONT.cheekScrews} size={0.45} tone="mid" />
-      </g>
+        <g data-assembly="conveyor" transform={shareMove("conveyor", shown.shares.conveyor.at) || undefined}>
+          <Tokens layer="belt" slots={shown.slots} />
+        </g>
+        <g data-assembly="conveyor" transform={shareMove("conveyor", shown.shares.conveyor.at) || undefined}>
+          <Solid paths={CONVEYOR_FRONT.rail} tone="mid" inner={<Line d={CONVEYOR_FRONT.railSeam} tone="faint" />} />
+          <Dots points={CONVEYOR_FRONT.railScrews} size={0.45} tone="mid" />
+          {CONVEYOR_FRONT.lips.map((paths, index) => (
+            <Solid key={index} paths={paths} tone="mid" />
+          ))}
+          <Line d={CONVEYOR_FRONT.lipMinor} tone="lo" />
+          <Line d={CONVEYOR_FRONT.lipMajor} tone="mid" />
+          <Line d={CONVEYOR_FRONT.zero} tone="hi" />
+          <Solid paths={CONVEYOR_FRONT.bearing} tone="mid" />
+          <Line d={CONVEYOR_FRONT.bearingBore} tone="lo" />
+          <Dots points={CONVEYOR_FRONT.bearingScrews} size={0.45} tone="mid" />
+          <Solid paths={CONVEYOR_FRONT.motor} tone="mid" inner={<Line d={CONVEYOR_FRONT.motorBands} tone="faint" />} />
+          <Line d={CONVEYOR_FRONT.motorCap} tone="lo" />
+          <Dots points={CONVEYOR_FRONT.motorBolts} size={0.45} tone="mid" />
+          <Dots points={[CONVEYOR_FRONT.motorShaft]} size={0.8} tone="hi" />
+          <Solid paths={CONVEYOR_FRONT.box} tone="mid" />
+          <Line d={CONVEYOR_FRONT.boxLine} tone="faint" />
+          <Dots points={CONVEYOR_FRONT.boxScrews} size={0.4} tone="mid" />
+        </g>
+        <g data-assembly="hopper" transform={shareMove("hopper", shown.shares.hopper.at) || undefined}>
+          <Solid paths={HOPPER_FRONT.cheek} tone="mid" />
+          <Dots points={HOPPER_FRONT.cheekScrews} size={0.45} tone="mid" />
+        </g>
       </g>
       <g data-assembly="gauge" transform={shareMove("gauge", shown.shares.gauge.at) || undefined}>
         <g data-part="plunger" transform={move([0, 0, shown.tip.at])}>
@@ -724,13 +773,28 @@ function Tokens({ layer, slots }: { layer: Layer; slots: Slot[] }) {
  * a dial indicator measures each against a limit, passing ones reach the
  * result tray and failing ones are swung into a chute back to the hopper.
  */
-export function VerificationGate({ frame = true, number = "Fig 1", title = "Verification gate", hint, caption = GATE_CAPTION, theme, ...machine }: VerificationGateProps) {
+export function VerificationGate({
+  frame = true,
+  number = "Fig 1",
+  title = "Verification gate",
+  hint,
+  caption = GATE_CAPTION,
+  theme,
+  ...machine
+}: VerificationGateProps) {
   const pose = machine.pose ?? "idle";
   if (!frame) return <GateMachine {...machine} theme={theme} />;
   const interactive = machine.interactive ?? true;
   const shownHint = hint ?? (interactive ? HINTS[pose] : undefined);
   return (
-    <MechanismFrame number={number} title={title} hint={shownHint} readout={stillScene(pose).readout} caption={caption} theme={theme}>
+    <MechanismFrame
+      number={number}
+      title={title}
+      hint={shownHint}
+      readout={stillScene(pose).readout}
+      caption={caption}
+      theme={theme}
+    >
       <GateMachine {...machine} bare={false} />
     </MechanismFrame>
   );

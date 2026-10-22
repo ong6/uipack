@@ -29,4 +29,3 @@ test.describe("reduced motion", () => {
     expect(console_.filter((m) => /hydrat|did not match/i.test(m))).toEqual([]);
   });
 });
-

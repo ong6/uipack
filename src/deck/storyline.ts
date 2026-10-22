@@ -2,14 +2,15 @@
  * The content layer for decks: what each slide is for, proven storylines for the decks an engineer
  * gives inside a company, and a linter for the argument (not the pixels).
  *
- * Plain data and pure functions: no React, no DOM, no runtime imports. Everything here serialises
+ * Plain data and pure functions: no React, no DOM, no runtime imports but the shared speaking pace
+ * (src/speech.ts). Everything here serialises
  * to JSON, so a CLI, an editor panel or the player's speaker view can all read it.
  *
  * Practice it encodes: answer first (Minto's pyramid), SCQA for decisions, action titles that
  * read as claims, the ghost-deck test (the titles alone tell the argument), one idea per slide,
  * numbers that carry a source, and a closing ask with a decision, an owner and a date.
  */
-import type { SpeechGuide } from "../presentations/types";
+import { WORDS_PER_MINUTE, type SpeechGuide } from "../speech";
 import type { TransitionKind } from "./transitions";
 
 // ---------------------------------------------------------------------------------------------
@@ -144,12 +145,7 @@ export interface StoryBeat {
 }
 
 export type StorylineTemplateId =
-  | "project-update"
-  | "decision-request"
-  | "deep-dive"
-  | "launch-demo"
-  | "postmortem"
-  | "review-highlights";
+  "project-update" | "decision-request" | "deep-dive" | "launch-demo" | "postmortem" | "review-highlights";
 
 export interface StorylineTemplate {
   id: StorylineTemplateId;
@@ -637,17 +633,20 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   "title-length": { severity: "warn", check: "The title is at most 14 words." },
   "title-specific": {
     severity: "warn",
-    check: "An answer, evidence, problem or recommendation title quantifies its claim: a number that isn't a date or a version, a multiple or fraction ('twice', 'a third'), a number word with a unit ('three weeks', 'one engineer'), or a comparison of two quantities ('one meeting, not three'). A plan title carries a date or a number. A bare count ('two teams', 'one big improvement'), 'no regressions', adjectives and names don't count.",
+    check:
+      "An answer, evidence, problem or recommendation title quantifies its claim: a number that isn't a date or a version, a multiple or fraction ('twice', 'a third'), a number word with a unit ('three weeks', 'one engineer'), or a comparison of two quantities ('one meeting, not three'). A plan title carries a date or a number. A bare count ('two teams', 'one big improvement'), 'no regressions', adjectives and names don't count.",
   },
   "one-idea": { severity: "tip", check: "The title is one sentence: one idea per slide." },
   "notes-present": { severity: "warn", check: "Every presented slide has a talk track." },
   "number-source": {
     severity: "warn",
-    check: "A number in a title names its source in the notes: a named artifact ('the search latency dashboard', 'load test 12', 'the Q3 user survey') or a URL, with no hedge ('trust me', 'someone mentioned', 'said so'); or in the slide's `source`.",
+    check:
+      "A number in a title names its source in the notes: a named artifact ('the search latency dashboard', 'load test 12', 'the Q3 user survey') or a URL, with no hedge ('trust me', 'someone mentioned', 'said so'); or in the slide's `source`.",
   },
   "roles-missing": {
     severity: "warn",
-    check: "Slides are tagged with roles. Without them, roles are inferred from the titles and only the answer-first and closing-ask checks run.",
+    check:
+      "Slides are tagged with roles. Without them, roles are inferred from the titles and only the answer-first and closing-ask checks run.",
   },
   "answer-first": {
     severity: "error",
@@ -660,7 +659,8 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   "closing-ask": { severity: "error", check: "The last presented slide is an ask." },
   "ask-concrete": {
     severity: "warn",
-    check: "The ask names a decision or action, an owner (a team or role such as 'platform leads', 'the payments team', 'VP Eng' or an @handle; not 'we', 'the team', a bare name, 'owner TBD' or 'lead' as a verb) and a firm calendar date ('next quarter', 'Monday-ish' and 'next Monday maybe' are not).",
+    check:
+      "The ask names a decision or action, an owner (a team or role such as 'platform leads', 'the payments team', 'VP Eng' or an @handle; not 'we', 'the team', a bare name, 'owner TBD' or 'lead' as a verb) and a firm calendar date ('next quarter', 'Monday-ish' and 'next Monday maybe' are not).",
   },
   "role-repeat": {
     severity: "warn",
@@ -673,35 +673,101 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   },
   "template-beats": {
     severity: "warn",
-    check: "With a template, every beat it requires has a slide in that role: a decision request has its options, a postmortem its plan.",
+    check:
+      "With a template, every beat it requires has a slide in that role: a decision request has its options, a postmortem its plan.",
   },
 };
 
 export const MAX_TITLE_WORDS = 14;
-/** Matches `estimateSpeechSeconds` in the presentations module. */
-export const WORDS_PER_MINUTE = 135;
+// The speaking pace (135 words a minute) is shared with the presentations entry's estimateSpeechSeconds.
+export { WORDS_PER_MINUTE };
 
-const TOPIC_LABELS = new Set(
-  [
-    "about me", "action items", "agenda", "alternatives", "appendix", "approach", "architecture",
-    "background", "budget", "challenges", "conclusion", "conclusions", "context", "cost", "costs",
-    "data", "deep dive", "demo", "design", "executive summary", "faq", "findings", "goals",
-    "highlights", "how it works", "impact", "intro", "introduction", "issues", "key takeaways",
-    "kpis", "learnings", "lessons learned", "live demo", "metrics", "motivation", "next",
-    "next steps", "objectives", "options", "overview", "plan", "problem", "problem statement",
-    "progress", "q&a", "q and a", "questions", "recap", "recommendation", "recommendations",
-    "requirements", "results", "risks", "risks and mitigations", "roadmap", "root cause", "scope",
-    "solution", "status", "status update", "success metrics", "summary", "system architecture",
-    "takeaways", "team", "thank you", "thanks", "timeline", "trade-offs", "tradeoffs", "update",
-    "what's next", "whats next", "why", "why now",
-  ],
-);
+const TOPIC_LABELS = new Set([
+  "about me",
+  "action items",
+  "agenda",
+  "alternatives",
+  "appendix",
+  "approach",
+  "architecture",
+  "background",
+  "budget",
+  "challenges",
+  "conclusion",
+  "conclusions",
+  "context",
+  "cost",
+  "costs",
+  "data",
+  "deep dive",
+  "demo",
+  "design",
+  "executive summary",
+  "faq",
+  "findings",
+  "goals",
+  "highlights",
+  "how it works",
+  "impact",
+  "intro",
+  "introduction",
+  "issues",
+  "key takeaways",
+  "kpis",
+  "learnings",
+  "lessons learned",
+  "live demo",
+  "metrics",
+  "motivation",
+  "next",
+  "next steps",
+  "objectives",
+  "options",
+  "overview",
+  "plan",
+  "problem",
+  "problem statement",
+  "progress",
+  "q&a",
+  "q and a",
+  "questions",
+  "recap",
+  "recommendation",
+  "recommendations",
+  "requirements",
+  "results",
+  "risks",
+  "risks and mitigations",
+  "roadmap",
+  "root cause",
+  "scope",
+  "solution",
+  "status",
+  "status update",
+  "success metrics",
+  "summary",
+  "system architecture",
+  "takeaways",
+  "team",
+  "thank you",
+  "thanks",
+  "timeline",
+  "trade-offs",
+  "tradeoffs",
+  "update",
+  "what's next",
+  "whats next",
+  "why",
+  "why now",
+]);
 
-const MONTH = "jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?";
+const MONTH =
+  "jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?";
 const WEEKDAY = "mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:rs(?:day)?)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?";
 
 /** A calendar date someone can put in a diary: a month, a weekday, a numeric date, a named quarter or half, or today. */
-const capitalised = (alternatives: string) => alternatives.replace(/(^|\|)([a-z])/g, (_, bar: string, c: string) => bar + c.toUpperCase());
+const capitalised = (alternatives: string) =>
+  alternatives.replace(/(^|\|)([a-z])/g, (_, bar: string, c: string) => bar + c.toUpperCase());
 const DATE_RE = new RegExp(
   [
     // Capitalised, so "may", "sat" and "wed" as ordinary words don't count as dates.
@@ -788,12 +854,14 @@ const OUTCOME_RE =
 const SOURCE_KIND_RE =
   /^(?:dashboards?|quer(?:y|ies)|tests?|surveys?|reports?|benchmarks?|logs?|experiments?|traces?|telemetry|studies|study|forecasts?|trackers?|ledgers?|notebooks?|spreadsheets?)$/i;
 /** Named sources in a fixed phrase. */
-const SOURCE_PHRASE_RE = /\b(?:management|finance|financial) accounts\b|\b(?:cost|capacity|pricing|financial|forecast) model\b|https?:\/\/|\bwww\.\w/i;
+const SOURCE_PHRASE_RE =
+  /\b(?:management|finance|financial) accounts\b|\b(?:cost|capacity|pricing|financial|forecast) model\b|https?:\/\/|\bwww\.\w/i;
 /** Words that make a sentence's source hearsay. */
 const HEDGED_SOURCE_RE =
   /\b(?:trust me|someone|somebody|said so|i think|i believe|i heard|i guess|heard|mentioned|rumou?rs?|anecdotal(?:ly)?|ballpark|eyeball(?:ed)?|gut feel(?:ing)?|from memory|my laptop|off the top of my head|guess(?:ed|timate)?|ran (?:it )?once|once on staging)\b/i;
 /** What follows a kind of evidence that makes it a modifier, not the source: "the dashboard chat". */
-const SOURCE_MODIFIED_RE = /^(?:chat|channel|thread|meeting|call|conversation|discussion|rumou?r|gossip|screenshot|people|team|owner)$/i;
+const SOURCE_MODIFIED_RE =
+  /^(?:chat|channel|thread|meeting|call|conversation|discussion|rumou?r|gossip|screenshot|people|team|owner)$/i;
 /** Words after a kind of evidence that name it: "benchmark suite", "test run 4". */
 const SOURCE_NAME_AFTER_RE = /^(?:suite|suites|run|runs|notebook|sheet|page|tab|panel|export|entry|row|link|doc|id)$/i;
 const SOURCE_STOP = new Set(
@@ -809,14 +877,19 @@ function namedSource(text: string): boolean {
   // Sentences; a decimal point ("0.41") or an abbreviation doesn't end one.
   return text.split(/(?<!\d)[.;!?](?!\d)|\n/).some((sentence) => {
     if (HEDGED_SOURCE_RE.test(sentence)) return false;
-    const words = sentence.split(/[\s,:()“”"]+/).filter(Boolean).map((w) => w.replace(/['’]s$/, ""));
+    const words = sentence
+      .split(/[\s,:()“”"]+/)
+      .filter(Boolean)
+      .map((w) => w.replace(/['’]s$/, ""));
     return words.some((word, i) => {
       if (!SOURCE_KIND_RE.test(word)) return false;
       const before = words[i - 1];
       const after = words[i + 1];
       if (after && SOURCE_MODIFIED_RE.test(after)) return false;
       const namedBefore = Boolean(before && /^[\p{L}\p{N}]/u.test(before) && !SOURCE_STOP.has(before.toLowerCase()));
-      const namedAfter = Boolean(after && (/\d/.test(after) || (/^\p{Lu}/u.test(after) && after !== "I") || SOURCE_NAME_AFTER_RE.test(after)));
+      const namedAfter = Boolean(
+        after && (/\d/.test(after) || (/^\p{Lu}/u.test(after) && after !== "I") || SOURCE_NAME_AFTER_RE.test(after)),
+      );
       return namedBefore || namedAfter;
     });
   });
@@ -903,7 +976,9 @@ function hasClaimNumber(text: string): boolean {
  */
 function hasOwner(text: string): boolean {
   const qualified = Array.from(text.matchAll(QUALIFIED_OWNER_RE)).some((m) => !NOT_A_QUALIFIER.has(m[1].toLowerCase()));
-  return qualified || OWNER_ROLE_RE.test(text) || OWNER_ACRONYM_RE.test(text) || NAMED_GROUP_RE.test(text) || NAMED_OWNS_RE.test(text);
+  return (
+    qualified || OWNER_ROLE_RE.test(text) || OWNER_ACRONYM_RE.test(text) || NAMED_GROUP_RE.test(text) || NAMED_OWNS_RE.test(text)
+  );
 }
 
 /** A date someone can put in a diary, said firmly: a clause with a date and no hedge ("Monday-ish", "maybe"). */
@@ -928,286 +1003,378 @@ function inferRoles(slides: readonly StorySlide[]): (SlideRole | undefined)[] {
     const text = headlineOf(slide);
     if (i === 0) return isSpecific(text) || OUTCOME_RE.test(text) ? "answer" : "cover";
     if (PLAN_TITLE_RE.test(text)) return "plan";
-    if (i === slides.length - 1 && !QUESTIONS_SLIDE_RE.test(text) && DECISION_RE.test(text) && (hasOwner(text) || hasFirmDate(text))) {
+    if (
+      i === slides.length - 1 &&
+      !QUESTIONS_SLIDE_RE.test(text) &&
+      DECISION_RE.test(text) &&
+      (hasOwner(text) || hasFirmDate(text))
+    ) {
       return "ask";
     }
     return undefined;
   });
 }
 
+/** What every check reads: the deck, its options, and what is derived from them once. */
+interface LintContext {
+  slides: readonly StorySlide[];
+  options: LintOptions;
+  template?: StorylineTemplate;
+  /** Whether the answer-first checks run: the option, else the template's setting, else true. */
+  answerFirst: boolean;
+  /** Roles read from the titles when no slide has one; undefined when the author tagged roles. */
+  inferred?: (SlideRole | undefined)[];
+  /** A slide's role: the author's, else the inferred one. */
+  roleAt: (slide: StorySlide) => SlideRole | undefined;
+  /** The slides presented: all but the appendix. */
+  presented: readonly StorySlide[];
+  /** The presented slides whose role is the ask. */
+  asks: readonly StorySlide[];
+}
+type Report = (severity: LintSeverity, message: string, slideId?: string) => void;
+
+/** One rule of the checklist (`LINT_RULES` has its wording) and the check that reports it. */
+export interface LintCheck {
+  rule: LintRule;
+  check: (deck: LintContext, report: Report) => void;
+}
+
+/** A presented slide with a title: what the per-slide title checks read. */
+function titledSlides(deck: LintContext) {
+  return deck.slides
+    .filter((slide) => slide.role !== "appendix")
+    .map((slide) => ({ slide, headline: headlineOf(slide) }))
+    .filter(({ headline }) => headline);
+}
+
+/**
+ * The checks, in the order their findings are listed: the deck's identity, then each slide's title
+ * and notes, then the storyline (answer, ask, rhythm, beats), then length. A slide's own findings
+ * keep this order. Every other check assumes at least one slide, so `deck-empty` stops the run.
+ */
+export const LINT_CHECKS: readonly LintCheck[] = [
+  {
+    rule: "deck-empty",
+    check: ({ slides }, report) => {
+      if (slides.length === 0) report("error", "The deck has no slides.");
+    },
+  },
+  {
+    rule: "duplicate-id",
+    check: ({ slides }, report) => {
+      const seen = new Set<string>();
+      for (const slide of slides) {
+        if (seen.has(slide.id)) report("error", `Slide ID "${slide.id}" is used more than once.`, slide.id);
+        seen.add(slide.id);
+      }
+    },
+  },
+  {
+    rule: "title-present",
+    check: ({ slides }, report) => {
+      for (const slide of slides)
+        if (!headlineOf(slide)) report("error", "No title. Write the slide's point as a sentence.", slide.id);
+    },
+  },
+  {
+    rule: "title-claim",
+    check: (deck, report) => {
+      for (const { slide, headline } of titledSlides(deck)) {
+        const words = wordsOf(headline);
+        const label = normaliseLabel(headline);
+        const prefix = headline.includes(":") ? normaliseLabel(headline.slice(0, headline.indexOf(":"))) : "";
+        // A cover may be a label; it is only a tip there.
+        const soften = (s: LintSeverity): LintSeverity => (slide.role === "cover" ? "tip" : s);
+        if (TOPIC_LABELS.has(label)) {
+          report(
+            soften("error"),
+            `"${headline}" is a topic label. Say what the audience should conclude from this slide.`,
+            slide.id,
+          );
+        } else if (words.length < 3) {
+          report(soften("warn"), `"${headline}" is under three words; it reads as a label, not a claim.`, slide.id);
+        } else if (words.length <= 4 && edgeLabel(label)) {
+          report(soften("warn"), `"${headline}" reads like a section label. State the finding instead.`, slide.id);
+        } else if (prefix && TOPIC_LABELS.has(prefix) && prefix !== "next") {
+          report(
+            soften("tip"),
+            `"${headline}" opens with a section label. Lead with the claim; put the section in the eyebrow.`,
+            slide.id,
+          );
+        } else if (TOPIC_OPENING_RE.test(headline)) {
+          report(
+            soften("warn"),
+            `"${headline}" opens like a topic ("${topicOpening(headline)}"), however long it runs. Say what the audience should conclude.`,
+            slide.id,
+          );
+        }
+      }
+    },
+  },
+  {
+    rule: "title-length",
+    check: (deck, report) => {
+      for (const { slide, headline } of titledSlides(deck)) {
+        const words = wordsOf(headline).length;
+        if (words > MAX_TITLE_WORDS)
+          report("warn", `Title is ${words} words; keep it to ${MAX_TITLE_WORDS} or move detail to the body.`, slide.id);
+      }
+    },
+  },
+  {
+    rule: "title-specific",
+    check: (deck, report) => {
+      for (const { slide, headline } of titledSlides(deck)) {
+        if (slide.role && QUANTIFIED_ROLES.includes(slide.role) && !isSpecific(headline)) {
+          report(
+            "warn",
+            `"${headline}" could describe any quarter. Put the quantity in the title: the number with its unit, or the from→to it moved; a bare count ("two teams") doesn't say how much.`,
+            slide.id,
+          );
+        } else if (slide.role === "plan" && !isSpecific(headline) && !hasFirmDate(headline)) {
+          report("warn", `"${headline}" has no date and no number. Say when each milestone lands, or what it costs.`, slide.id);
+        }
+      }
+    },
+  },
+  {
+    rule: "one-idea",
+    check: (deck, report) => {
+      for (const { slide, headline } of titledSlides(deck))
+        if (/[.!?]["”’)]?\s+\S/.test(headline))
+          report("tip", "Title has more than one sentence. One idea per slide: split it or pick one.", slide.id);
+    },
+  },
+  {
+    rule: "notes-present",
+    check: ({ presented }, report) => {
+      for (const slide of presented)
+        if (!sayOf(slide.notes))
+          report("warn", "No talk track. Notes carry what you say; the title carries the claim.", slide.id);
+    },
+  },
+  {
+    rule: "number-source",
+    check: (deck, report) => {
+      for (const { slide, headline } of titledSlides(deck)) {
+        if (slide.role === "plan" || slide.role === "ask" || !hasClaimNumber(headline)) continue;
+        if (namedSource(notesText(slide.notes)) || (slide.source && slide.source.trim())) continue;
+        report(
+          "warn",
+          'The title has a number but no source. Name the artifact it came from ("the search latency dashboard", "load test 12", "the Q3 user survey", a URL) and its window in the notes, or set the slide\'s `source`. Hearsay ("someone mentioned", "trust me") doesn\'t count.',
+          slide.id,
+        );
+      }
+    },
+  },
+  {
+    // Storyline checks need roles. An untagged deck gets roles read from its titles (slide one is
+    // the cover or the answer, "Next steps" is the plan, a last slide asking for something is the
+    // ask), so a deck of topic labels still hears that it has no answer and no ask.
+    rule: "roles-missing",
+    check: ({ inferred }, report) => {
+      if (inferred)
+        report(
+          "warn",
+          "No slide has a role. Roles were guessed from the titles for the answer-first and closing-ask checks; tag each slide's role for the rest.",
+        );
+    },
+  },
+  {
+    rule: "answer-first",
+    check: ({ answerFirst, presented, roleAt, inferred, slides }, report) => {
+      if (!answerFirst) return;
+      const content = presented.filter((s) => roleAt(s) !== "cover");
+      const at = content.findIndex((s) => roleAt(s) === "answer" || roleAt(s) === "recommendation");
+      if (at === -1) {
+        report(
+          "error",
+          inferred
+            ? `No slide states the answer: "${headlineOf(slides[0])}" opens the deck without a conclusion. Put the result or recommendation first, with its number.`
+            : "No slide states the answer or recommendation. Put the conclusion up front (role 'answer').",
+        );
+      } else if (at > 2) {
+        report(
+          "warn",
+          `The answer arrives on content slide ${at + 1}. Move it into the first three; busy readers stop early.`,
+          content[at].id,
+        );
+      }
+    },
+  },
+  {
+    rule: "outcome-first",
+    check: ({ answerFirst, presented }, report) => {
+      const first = presented[0];
+      const text = first ? headlineOf(first) : "";
+      if (answerFirst && first && text && !isSpecific(text) && !OUTCOME_RE.test(text)) {
+        report(
+          "tip",
+          "Slide one names the work, not the outcome. Say what got faster, cheaper or safer for the business, and by how much.",
+          first.id,
+        );
+      }
+    },
+  },
+  {
+    rule: "closing-ask",
+    check: ({ presented, asks, roleAt }, report) => {
+      const last = presented[presented.length - 1];
+      const closesOnQuestions = last && QUESTIONS_SLIDE_RE.test(headlineOf(last));
+      if (asks.length === 0) {
+        report(
+          "error",
+          closesOnQuestions
+            ? `The deck closes on "${headlineOf(last)}", so the ask is missing. End on the decision or action you need, from whom, by when, and take questions with it on screen.`
+            : "No ask. End with the decision or action you need, from whom, by when.",
+          closesOnQuestions ? last.id : undefined,
+        );
+      } else if (last && roleAt(last) !== "ask") {
+        report("warn", "The deck doesn't end on the ask. Close on it so it's the last thing on screen.", last.id);
+      }
+    },
+  },
+  {
+    rule: "ask-concrete",
+    check: ({ asks }, report) => {
+      for (const ask of asks) {
+        const text = `${headlineOf(ask)}. ${notesText(ask.notes)}`;
+        const missing: string[] = [];
+        if (!DECISION_RE.test(text)) missing.push("a decision or action verb");
+        if (!hasOwner(text)) missing.push("an owner");
+        if (!hasFirmDate(text)) missing.push("a date");
+        if (!missing.length) continue;
+        const relative = text.match(RELATIVE_DATE_RE)?.[0];
+        const hedged = DATE_RE.test(text) && !relative;
+        const hints = [
+          missing.includes("an owner") &&
+            "Name the team or role who acts (\"platform leads\", \"the payments team\", \"VP Eng\", an @handle); 'we', 'the team', a bare name and 'owner TBD' don't say whose it is.",
+          missing.includes("a date") && relative && `"${relative}" moves with the calendar; give a date such as 14 March.`,
+          missing.includes("a date") && hedged && 'The date is hedged ("-ish", "maybe", "TBC"); commit to one.',
+        ].filter(Boolean);
+        report("warn", [`The ask is missing ${missing.join(", ")}.`, ...hints].join(" "), ask.id);
+      }
+    },
+  },
+  {
+    // Rhythm needs the author's roles; guesses would only echo the titles.
+    rule: "role-repeat",
+    check: ({ slides, inferred }, report) => {
+      if (inferred) return;
+      for (let i = 1; i < slides.length; i++) {
+        const prev = slides[i - 1].role;
+        const role = slides[i].role;
+        if (!role || role !== prev || REPEATABLE_ROLES.includes(role)) continue;
+        const message =
+          role === "option"
+            ? "Two option slides in a row. Compare the options side by side on one slide, on the same criteria."
+            : `Two ${SLIDE_ROLES[role].label.toLowerCase()} slides in a row. Merge them, or give the second its own role.`;
+        report("warn", message, slides[i].id);
+      }
+    },
+  },
+  {
+    // A template's required beats: a decision request without its options slide has skipped a step.
+    rule: "template-beats",
+    check: ({ template, inferred, presented }, report) => {
+      if (!template || inferred) return;
+      const have = new Set(presented.map((s) => s.role));
+      const required = [...new Set(template.beats.filter((b) => !b.optional).map((b) => b.role))];
+      const missing = required.filter((r) => !have.has(r));
+      if (missing.length === 1) {
+        const beat = template.beats.find((b) => b.role === missing[0])!;
+        const label = SLIDE_ROLES[missing[0]].label.toLowerCase();
+        report(
+          "warn",
+          `A ${template.name.toLowerCase()} needs ${/^[aeiou]/.test(label) ? "an" : "a"} ${label} slide (${beat.purpose.charAt(0).toLowerCase()}${beat.purpose.slice(1).replace(/\.$/, "")}), and no slide has role "${missing[0]}".`,
+        );
+      } else if (missing.length > 1) {
+        report(
+          "warn",
+          `A ${template.name.toLowerCase()} needs these beats, and no slide has their role: ${missing.map((r) => `"${r}"`).join(", ")}.`,
+        );
+      }
+    },
+  },
+  {
+    rule: "deck-length",
+    check: ({ presented, options, template }, report) => {
+      const count = presented.length;
+      if (options.minutes !== undefined && count > 0) {
+        if (count > options.minutes) {
+          report(
+            "warn",
+            `${count} slides for ${options.minutes} minutes is under a minute each. Cut, merge, or move detail to the appendix.`,
+          );
+        } else if (options.minutes / count > 2) {
+          report(
+            "tip",
+            `${count} slides for ${options.minutes} minutes is over two minutes each. Fine for discussion; otherwise split a dense slide.`,
+          );
+        }
+      } else if (template && (count < template.slides.min || count > template.slides.max)) {
+        report(
+          "tip",
+          `${count} presented slides; a ${template.name.toLowerCase()} usually runs ${template.slides.min}–${template.slides.max}.`,
+        );
+      }
+    },
+  },
+  {
+    rule: "talk-time",
+    check: ({ slides, presented, options, template }, report) => {
+      const budget = options.minutes ?? template?.minutes.max;
+      if (budget === undefined) return;
+      const seconds = talkSeconds(slides);
+      // The shortest budget this talk should fill: the given minutes, else the template's minimum.
+      const floor = options.minutes ?? template!.minutes.min;
+      if (seconds > budget * 60) {
+        report(
+          "warn",
+          `The talk track runs about ${Math.round(seconds / 60)} minutes at ${WORDS_PER_MINUTE} words a minute, over the ${budget}-minute budget.`,
+        );
+      } else if (seconds < floor * 30 && presented.every((s) => sayOf(s.notes))) {
+        // Only once every slide has a track: a missing one is already its own finding.
+        report(
+          "warn",
+          `The talk track covers about ${formatDuration(seconds)} of the ${floor}-minute budget, under half. Write what you'll say in full sentences; a forwarded deck and the speaker view's clock both read it.`,
+        );
+      }
+    },
+  },
+];
+
+function lintContext(slides: readonly StorySlide[], options: LintOptions): LintContext {
+  const template = options.template ? getStorylineTemplate(options.template) : undefined;
+  const inferred = slides.some((s) => s.role) ? undefined : inferRoles(slides);
+  const roleAt = (s: StorySlide) => (inferred ? inferred[slides.indexOf(s)] : s.role);
+  const presented = slides.filter((s) => s.role !== "appendix");
+  return {
+    slides,
+    options,
+    template,
+    answerFirst: options.answerFirst ?? template?.answerFirst ?? true,
+    inferred,
+    roleAt,
+    presented,
+    asks: presented.filter((s) => roleAt(s) === "ask"),
+  };
+}
+
 /**
  * Check a deck's argument: action titles, answer first, a concrete closing ask, role rhythm,
- * talk tracks, sources for numbers, and length against the time budget. Pure; no DOM.
+ * talk tracks, sources for numbers, and length against the time budget. Runs `LINT_CHECKS` in
+ * order. Pure; no DOM.
  */
 export function lintDeck(slides: readonly StorySlide[], options: LintOptions = {}): LintFinding[] {
   const findings: LintFinding[] = [];
-  const add = (rule: LintRule, severity: LintSeverity, message: string, slideId?: string) =>
-    findings.push(slideId === undefined ? { rule, severity, message } : { slideId, rule, severity, message });
-
-  if (slides.length === 0) {
-    add("deck-empty", "error", "The deck has no slides.");
-    return findings;
-  }
-
-  const template = options.template ? getStorylineTemplate(options.template) : undefined;
-  const answerFirst = options.answerFirst ?? template?.answerFirst ?? true;
-
-  const seen = new Set<string>();
-  for (const slide of slides) {
-    if (seen.has(slide.id)) add("duplicate-id", "error", `Slide ID "${slide.id}" is used more than once.`, slide.id);
-    seen.add(slide.id);
-  }
-
-  // Per-slide checks.
-  for (const slide of slides) {
-    const headline = headlineOf(slide);
-    const isAppendix = slide.role === "appendix";
-    const isCover = slide.role === "cover";
-
-    if (!headline) {
-      add("title-present", "error", "No title. Write the slide's point as a sentence.", slide.id);
-    } else if (!isAppendix) {
-      const words = wordsOf(headline);
-      const label = normaliseLabel(headline);
-      const prefix = headline.includes(":") ? normaliseLabel(headline.slice(0, headline.indexOf(":"))) : "";
-      const soften = (s: LintSeverity): LintSeverity => (isCover ? "tip" : s);
-      if (TOPIC_LABELS.has(label)) {
-        add(
-          "title-claim",
-          soften("error"),
-          `"${headline}" is a topic label. Say what the audience should conclude from this slide.`,
-          slide.id,
-        );
-      } else if (words.length < 3) {
-        add("title-claim", soften("warn"), `"${headline}" is under three words; it reads as a label, not a claim.`, slide.id);
-      } else if (words.length <= 4 && edgeLabel(label)) {
-        add("title-claim", soften("warn"), `"${headline}" reads like a section label. State the finding instead.`, slide.id);
-      } else if (prefix && TOPIC_LABELS.has(prefix) && prefix !== "next") {
-        add(
-          "title-claim",
-          soften("tip"),
-          `"${headline}" opens with a section label. Lead with the claim; put the section in the eyebrow.`,
-          slide.id,
-        );
-      } else if (TOPIC_OPENING_RE.test(headline)) {
-        add(
-          "title-claim",
-          soften("warn"),
-          `"${headline}" opens like a topic ("${topicOpening(headline)}"), however long it runs. Say what the audience should conclude.`,
-          slide.id,
-        );
-      }
-      if (words.length > MAX_TITLE_WORDS) {
-        add(
-          "title-length",
-          "warn",
-          `Title is ${words.length} words; keep it to ${MAX_TITLE_WORDS} or move detail to the body.`,
-          slide.id,
-        );
-      }
-      if (slide.role && QUANTIFIED_ROLES.includes(slide.role) && !isSpecific(headline)) {
-        add(
-          "title-specific",
-          "warn",
-          `"${headline}" could describe any quarter. Put the quantity in the title: the number with its unit, or the from→to it moved; a bare count ("two teams") doesn't say how much.`,
-          slide.id,
-        );
-      } else if (slide.role === "plan" && !isSpecific(headline) && !hasFirmDate(headline)) {
-        add(
-          "title-specific",
-          "warn",
-          `"${headline}" has no date and no number. Say when each milestone lands, or what it costs.`,
-          slide.id,
-        );
-      }
-      if (/[.!?]["”’)]?\s+\S/.test(headline)) {
-        add("one-idea", "tip", "Title has more than one sentence. One idea per slide: split it or pick one.", slide.id);
-      }
-    }
-
-    if (!isAppendix && !sayOf(slide.notes)) {
-      add("notes-present", "warn", "No talk track. Notes carry what you say; the title carries the claim.", slide.id);
-    }
-
-    if (
-      headline &&
-      slide.role !== "plan" &&
-      slide.role !== "ask" &&
-      !isAppendix &&
-      hasClaimNumber(headline) &&
-      !namedSource(notesText(slide.notes)) &&
-      !(slide.source && slide.source.trim())
-    ) {
-      add(
-        "number-source",
-        "warn",
-        "The title has a number but no source. Name the artifact it came from (\"the search latency dashboard\", \"load test 12\", \"the Q3 user survey\", a URL) and its window in the notes, or set the slide's `source`. Hearsay (\"someone mentioned\", \"trust me\") doesn't count.",
-        slide.id,
-      );
-    }
-  }
-
-  const tagged = slides.some((s) => s.role);
-  // Storyline checks need roles. An untagged deck gets roles read from its titles (slide one is
-  // the cover or the answer, "Next steps" is the plan, a last slide asking for something is the
-  // ask), so a deck of topic labels still hears that it has no answer and no ask.
-  const inferred = tagged ? undefined : inferRoles(slides);
-  const roleAt = (s: StorySlide) => (inferred ? inferred[slides.indexOf(s)] : s.role);
-  const presented = slides.filter((s) => s.role !== "appendix");
-  if (inferred) {
-    add(
-      "roles-missing",
-      "warn",
-      "No slide has a role. Roles were guessed from the titles for the answer-first and closing-ask checks; tag each slide's role for the rest.",
+  const deck = lintContext(slides, options);
+  for (const { rule, check } of LINT_CHECKS) {
+    check(deck, (severity, message, slideId) =>
+      findings.push(slideId === undefined ? { rule, severity, message } : { slideId, rule, severity, message }),
     );
+    if (rule === "deck-empty" && findings.length) break;
   }
-
-  if (answerFirst) {
-    const content = presented.filter((s) => roleAt(s) !== "cover");
-    const at = content.findIndex((s) => roleAt(s) === "answer" || roleAt(s) === "recommendation");
-    if (at === -1) {
-      add(
-        "answer-first",
-        "error",
-        inferred
-          ? `No slide states the answer: "${headlineOf(slides[0])}" opens the deck without a conclusion. Put the result or recommendation first, with its number.`
-          : "No slide states the answer or recommendation. Put the conclusion up front (role 'answer').",
-      );
-    } else if (at > 2) {
-      add(
-        "answer-first",
-        "warn",
-        `The answer arrives on content slide ${at + 1}. Move it into the first three; busy readers stop early.`,
-        content[at].id,
-      );
-    }
-
-    const first = presented[0];
-    const text = first ? headlineOf(first) : "";
-    if (first && text && !isSpecific(text) && !OUTCOME_RE.test(text)) {
-      add(
-        "outcome-first",
-        "tip",
-        "Slide one names the work, not the outcome. Say what got faster, cheaper or safer for the business, and by how much.",
-        first.id,
-      );
-    }
-  }
-
-  const asks = presented.filter((s) => roleAt(s) === "ask");
-  const last = presented[presented.length - 1];
-  const closesOnQuestions = last && QUESTIONS_SLIDE_RE.test(headlineOf(last));
-  if (asks.length === 0) {
-    add(
-      "closing-ask",
-      "error",
-      closesOnQuestions
-        ? `The deck closes on "${headlineOf(last)}", so the ask is missing. End on the decision or action you need, from whom, by when, and take questions with it on screen.`
-        : "No ask. End with the decision or action you need, from whom, by when.",
-      closesOnQuestions ? last.id : undefined,
-    );
-  } else if (last && roleAt(last) !== "ask") {
-    add("closing-ask", "warn", "The deck doesn't end on the ask. Close on it so it's the last thing on screen.", last.id);
-  }
-
-  for (const ask of asks) {
-    const text = `${headlineOf(ask)}. ${notesText(ask.notes)}`;
-    const missing: string[] = [];
-    if (!DECISION_RE.test(text)) missing.push("a decision or action verb");
-    if (!hasOwner(text)) missing.push("an owner");
-    if (!hasFirmDate(text)) missing.push("a date");
-    if (missing.length) {
-      const relative = text.match(RELATIVE_DATE_RE)?.[0];
-      const hedged = DATE_RE.test(text) && !relative;
-      const hints = [
-        missing.includes("an owner") &&
-          "Name the team or role who acts (\"platform leads\", \"the payments team\", \"VP Eng\", an @handle); 'we', 'the team', a bare name and 'owner TBD' don't say whose it is.",
-        missing.includes("a date") && relative && `"${relative}" moves with the calendar; give a date such as 14 March.`,
-        missing.includes("a date") && hedged && "The date is hedged (\"-ish\", \"maybe\", \"TBC\"); commit to one.",
-      ].filter(Boolean);
-      add("ask-concrete", "warn", [`The ask is missing ${missing.join(", ")}.`, ...hints].join(" "), ask.id);
-    }
-  }
-
-  // Rhythm needs the author's roles; guesses would only echo the titles.
-  for (let i = 1; i < slides.length && !inferred; i++) {
-    const prev = slides[i - 1].role;
-    const role = slides[i].role;
-    if (!role || role !== prev || REPEATABLE_ROLES.includes(role)) continue;
-    const message =
-      role === "option"
-        ? "Two option slides in a row. Compare the options side by side on one slide, on the same criteria."
-        : `Two ${SLIDE_ROLES[role].label.toLowerCase()} slides in a row. Merge them, or give the second its own role.`;
-    add("role-repeat", "warn", message, slides[i].id);
-  }
-
-  // A template's required beats: a decision request without its options slide has skipped a step.
-  if (template && !inferred) {
-    const have = new Set(presented.map((s) => s.role));
-    const required = [...new Set(template.beats.filter((b) => !b.optional).map((b) => b.role))];
-    const missing = required.filter((r) => !have.has(r));
-    if (missing.length === 1) {
-      const beat = template.beats.find((b) => b.role === missing[0])!;
-      const label = SLIDE_ROLES[missing[0]].label.toLowerCase();
-      add(
-        "template-beats",
-        "warn",
-        `A ${template.name.toLowerCase()} needs ${/^[aeiou]/.test(label) ? "an" : "a"} ${label} slide (${beat.purpose.charAt(0).toLowerCase()}${beat.purpose.slice(1).replace(/\.$/, "")}), and no slide has role "${missing[0]}".`,
-      );
-    } else if (missing.length > 1) {
-      add(
-        "template-beats",
-        "warn",
-        `A ${template.name.toLowerCase()} needs these beats, and no slide has their role: ${missing.map((r) => `"${r}"`).join(", ")}.`,
-      );
-    }
-  }
-
-  // Length against the budget.
-  const count = presented.length;
-  const budget = options.minutes ?? template?.minutes.max;
-  if (options.minutes !== undefined && count > 0) {
-    if (count > options.minutes) {
-      add(
-        "deck-length",
-        "warn",
-        `${count} slides for ${options.minutes} minutes is under a minute each. Cut, merge, or move detail to the appendix.`,
-      );
-    } else if (options.minutes / count > 2) {
-      add(
-        "deck-length",
-        "tip",
-        `${count} slides for ${options.minutes} minutes is over two minutes each. Fine for discussion; otherwise split a dense slide.`,
-      );
-    }
-  } else if (template && (count < template.slides.min || count > template.slides.max)) {
-    add(
-      "deck-length",
-      "tip",
-      `${count} presented slides; a ${template.name.toLowerCase()} usually runs ${template.slides.min}–${template.slides.max}.`,
-    );
-  }
-
-  if (budget !== undefined) {
-    const seconds = talkSeconds(slides);
-    // The shortest budget this talk should fill: the given minutes, else the template's minimum.
-    const floor = options.minutes ?? template!.minutes.min;
-    if (seconds > budget * 60) {
-      add(
-        "talk-time",
-        "warn",
-        `The talk track runs about ${Math.round(seconds / 60)} minutes at ${WORDS_PER_MINUTE} words a minute, over the ${budget}-minute budget.`,
-      );
-    } else if (seconds < floor * 30 && presented.every((s) => sayOf(s.notes))) {
-      // Only once every slide has a track: a missing one is already its own finding.
-      add(
-        "talk-time",
-        "warn",
-        `The talk track covers about ${formatDuration(seconds)} of the ${floor}-minute budget, under half. Write what you'll say in full sentences; a forwarded deck and the speaker view's clock both read it.`,
-      );
-    }
-  }
-
   return findings;
 }
 

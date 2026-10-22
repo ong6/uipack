@@ -75,10 +75,16 @@ ${head}
 `;
 
 // The notes site: theme follows the OS, as on the site with no saved choice.
-writeFileSync(`${OUT}/article-notes.html`, page("Article parts in the notes site", `<style>${css}</style><style>${notesSite}</style>`));
+writeFileSync(
+  `${OUT}/article-notes.html`,
+  page("Article parts in the notes site", `<style>${css}</style><style>${notesSite}</style>`),
+);
 // No host tokens at all: the parts' own Technical fallbacks, light and dark.
 writeFileSync(
   `${OUT}/article-defaults.html`,
-  page("Article parts, Technical defaults", `<style>${css}</style><style>body{margin:0;font:19px/1.7 Georgia,serif;background:#f6f5f1;color:#1a1c1a}@media (prefers-color-scheme:dark){body{background:#0a100d;color:#e8ece9}}.wrap{max-width:44rem;margin:0 auto;padding:0 1.25rem}</style>`),
+  page(
+    "Article parts, Technical defaults",
+    `<style>${css}</style><style>body{margin:0;font:19px/1.7 Georgia,serif;background:#f6f5f1;color:#1a1c1a}@media (prefers-color-scheme:dark){body{background:#0a100d;color:#e8ece9}}.wrap{max-width:44rem;margin:0 auto;padding:0 1.25rem}</style>`,
+  ),
 );
 console.log("article fixtures written to", OUT);

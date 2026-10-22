@@ -1,8 +1,8 @@
 'use strict';
 
-var chunkNUONYN7S_cjs = require('./chunk-NUONYN7S.cjs');
+var chunk6RV2I5R3_cjs = require('./chunk-6RV2I5R3.cjs');
 require('./chunk-XEK5V7KF.cjs');
-require('./chunk-NFU4EWVX.cjs');
+require('./chunk-5QNGHC2A.cjs');
 require('./chunk-YMPVJRTJ.cjs');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
@@ -18,7 +18,7 @@ function presetFigure(spec, parts, id) {
 }
 function toFigure(meta, parts, id) {
   return /* @__PURE__ */ jsxRuntime.jsx(
-    chunkNUONYN7S_cjs.Figure,
+    chunk6RV2I5R3_cjs.Figure,
     {
       id,
       number: meta.number,
@@ -81,7 +81,7 @@ function stackHeightFor(steps, y0 = 24) {
 function Stack({ steps, id, y0 = 24 }) {
   const { ys } = stackLayout(steps, y0);
   return /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Defs, { id }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Defs, { id }),
     steps.map((s, i) => {
       const y = ys[i];
       const into = [
@@ -91,10 +91,35 @@ function Stack({ steps, id, y0 = 24 }) {
       const kind = s.kind ?? "request";
       return /* @__PURE__ */ jsxRuntime.jsxs("g", { children: [
         i > 0 && s.link !== false ? /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: into, defs: id, kind: kind === "neutral" ? void 0 : kind, flow: s.flow }),
-          /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: into, kind, dur: 1.4, delay: -i * 0.35, reverse: s.back, flow: s.flow, r: 4 })
+          /* @__PURE__ */ jsxRuntime.jsx(
+            chunk6RV2I5R3_cjs.Connector,
+            {
+              points: into,
+              defs: id,
+              kind: kind === "neutral" ? void 0 : kind,
+              flow: s.flow
+            }
+          ),
+          /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: into, kind, dur: 1.4, delay: -i * 0.35, reverse: s.back, flow: s.flow, r: 4 })
         ] }) : null,
-        /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x: SX, y, w: SW, h: SH, label: s.label, sub: s.sub, icon: s.icon, hint: s.hint, size: 13, subSize: 10, flow: s.flow, accent: s.accent, dashed: s.dashed })
+        /* @__PURE__ */ jsxRuntime.jsx(
+          chunk6RV2I5R3_cjs.Node,
+          {
+            x: SX,
+            y,
+            w: SW,
+            h: SH,
+            label: s.label,
+            sub: s.sub,
+            icon: s.icon,
+            hint: s.hint,
+            size: 13,
+            subSize: 10,
+            flow: s.flow,
+            accent: s.accent,
+            dashed: s.dashed
+          }
+        )
       ] }, i);
     })
   ] });
@@ -150,19 +175,29 @@ function serviceMapParts(spec = defaultServiceMap, id) {
   const clientY = (i) => client.y0 + i * client.step + client.h / 2;
   const storeY = (i) => store.y0 + i * store.step + store.h / 2;
   const trunkY = 200;
-  const lanesBottom = Math.max(platform.y + platform.h, client.y0 + spec.clients.length * client.step, store.y0 + spec.resources.length * store.step);
+  const lanesBottom = Math.max(
+    platform.y + platform.h,
+    client.y0 + spec.clients.length * client.step,
+    store.y0 + spec.resources.length * store.step
+  );
   const clientBus = {
     axis: "v",
     at: busX,
-    stubs: [...spec.clients.map((_, i) => ({ at: clientY(i), to: client.x + client.w, flow: READ })), { at: trunkY, to: platform.x, arrow: true, flow: READ }]
+    stubs: [
+      ...spec.clients.map((_, i) => ({ at: clientY(i), to: client.x + client.w, flow: READ })),
+      { at: trunkY, to: platform.x, arrow: true, flow: READ }
+    ]
   };
   const storeBus = {
     axis: "v",
     at: storeBusX,
-    stubs: [...spec.resources.map((_, i) => ({ at: storeY(i), to: store.x, arrow: true, flow: READ })), { at: trunkY, to: platform.x + platform.w, flow: READ }]
+    stubs: [
+      ...spec.resources.map((_, i) => ({ at: storeY(i), to: store.x, arrow: true, flow: READ })),
+      { at: trunkY, to: platform.x + platform.w, flow: READ }
+    ]
   };
-  const toPlatform = chunkNUONYN7S_cjs.busStub(clientBus, clientBus.stubs[spec.clients.length]);
-  const fromPlatform = chunkNUONYN7S_cjs.busStub(storeBus, storeBus.stubs[spec.resources.length]);
+  const toPlatform = chunk6RV2I5R3_cjs.busStub(clientBus, clientBus.stubs[spec.clients.length]);
+  const fromPlatform = chunk6RV2I5R3_cjs.busStub(storeBus, storeBus.stubs[spec.resources.length]);
   let height = lanesBottom + 24;
   let sinks = null;
   if (spec.sinks) {
@@ -179,44 +214,154 @@ function serviceMapParts(spec = defaultServiceMap, id) {
     ];
     const elbow = via.y + via.h + 24;
     sinks = /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: viaPath, defs: id, kind: "change", flow: CDC }),
-      /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: viaPath, kind: "change", dur: 2, flow: CDC }),
-      /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { ...via, label: spec.sinks.via.label, hint: spec.sinks.via.hint, sub: spec.sinks.via.sub, icon: spec.sinks.via.icon ?? "queue", flow: CDC }),
+      /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Connector, { points: viaPath, defs: id, kind: "change", flow: CDC }),
+      /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: viaPath, kind: "change", dur: 2, flow: CDC }),
+      /* @__PURE__ */ jsxRuntime.jsx(
+        chunk6RV2I5R3_cjs.Node,
+        {
+          ...via,
+          label: spec.sinks.via.label,
+          hint: spec.sinks.via.hint,
+          sub: spec.sinks.via.sub,
+          icon: spec.sinks.via.icon ?? "queue",
+          flow: CDC
+        }
+      ),
       spec.sinks.items.map((s, i) => {
-        const p = chunkNUONYN7S_cjs.route([via.x + via.w / 2, via.y + via.h], [x0 + i * (sw + gap) + sw / 2, sinkY], elbow, "v");
+        const p = chunk6RV2I5R3_cjs.route([via.x + via.w / 2, via.y + via.h], [x0 + i * (sw + gap) + sw / 2, sinkY], elbow, "v");
         return /* @__PURE__ */ jsxRuntime.jsxs("g", { children: [
-          /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: p, defs: id, kind: "change", flow: CDC }),
-          /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: p, kind: "change", dur: 2.2, delay: -i * 0.55, flow: CDC }),
-          /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x: x0 + i * (sw + gap), y: sinkY, w: sw, h: 40, label: s.label, hint: s.hint, icon: s.icon, flow: CDC, size: 13 })
+          /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Connector, { points: p, defs: id, kind: "change", flow: CDC }),
+          /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: p, kind: "change", dur: 2.2, delay: -i * 0.55, flow: CDC }),
+          /* @__PURE__ */ jsxRuntime.jsx(
+            chunk6RV2I5R3_cjs.Node,
+            {
+              x: x0 + i * (sw + gap),
+              y: sinkY,
+              w: sw,
+              h: 40,
+              label: s.label,
+              hint: s.hint,
+              icon: s.icon,
+              flow: CDC,
+              size: 13
+            }
+          )
         ] }, s.label);
       })
     ] });
     height = sinkY + 40 + 24;
   }
   const wide = /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Defs, { id }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Lane, { x: client.x, w: client.w, y: 40, title: lc }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Lane, { x: platform.x, w: platform.w, y: 40, title: lp }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Lane, { x: store.x, w: store.w, y: 40, title: lr }),
-    spec.clients.map((c, i) => /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x: client.x, y: client.y0 + i * client.step, w: client.w, h: client.h, label: c.label, hint: c.hint, sub: c.sub, icon: c.icon, flow: READ }, c.label)),
-    /* @__PURE__ */ jsxRuntime.jsxs(chunkNUONYN7S_cjs.Group, { ...platform, title: spec.platform.title, flow: spec.sinks ? [READ, CDC] : READ, children: [
-      spec.platform.cells.map((c, i) => /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x: platform.x + 24 + i % 3 * 192, y: platform.y + 44 + Math.floor(i / 3) * 72, w: 168, h: 56, label: c.label, hint: c.hint, sub: c.sub, align: "left", flow: READ }, c.label)),
-      spec.platform.footer ? /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x: platform.x + 24, y: platform.y + 44 + rows2 * 72, w: 552, h: 56, label: spec.platform.footer.label, hint: spec.platform.footer.hint, sub: spec.platform.footer.sub, align: "left", flow: READ }) : null
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Defs, { id }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Lane, { x: client.x, w: client.w, y: 40, title: lc }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Lane, { x: platform.x, w: platform.w, y: 40, title: lp }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Lane, { x: store.x, w: store.w, y: 40, title: lr }),
+    spec.clients.map((c, i) => /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Node,
+      {
+        x: client.x,
+        y: client.y0 + i * client.step,
+        w: client.w,
+        h: client.h,
+        label: c.label,
+        hint: c.hint,
+        sub: c.sub,
+        icon: c.icon,
+        flow: READ
+      },
+      c.label
+    )),
+    /* @__PURE__ */ jsxRuntime.jsxs(chunk6RV2I5R3_cjs.Group, { ...platform, title: spec.platform.title, flow: spec.sinks ? [READ, CDC] : READ, children: [
+      spec.platform.cells.map((c, i) => /* @__PURE__ */ jsxRuntime.jsx(
+        chunk6RV2I5R3_cjs.Node,
+        {
+          x: platform.x + 24 + i % 3 * 192,
+          y: platform.y + 44 + Math.floor(i / 3) * 72,
+          w: 168,
+          h: 56,
+          label: c.label,
+          hint: c.hint,
+          sub: c.sub,
+          align: "left",
+          flow: READ
+        },
+        c.label
+      )),
+      spec.platform.footer ? /* @__PURE__ */ jsxRuntime.jsx(
+        chunk6RV2I5R3_cjs.Node,
+        {
+          x: platform.x + 24,
+          y: platform.y + 44 + rows2 * 72,
+          w: 552,
+          h: 56,
+          label: spec.platform.footer.label,
+          hint: spec.platform.footer.hint,
+          sub: spec.platform.footer.sub,
+          align: "left",
+          flow: READ
+        }
+      ) : null
     ] }),
-    spec.resources.map((r, i) => /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x: store.x, y: store.y0 + i * store.step, w: store.w, h: store.h, label: r.label, hint: r.hint, sub: r.sub, icon: r.icon, flow: READ }, r.label)),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Bus, { ...clientBus, from: Math.min(clientY(0), trunkY), to: Math.max(clientY(spec.clients.length - 1), trunkY), defs: id }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Bus, { ...storeBus, from: Math.min(storeY(0), trunkY), to: Math.max(storeY(spec.resources.length - 1), trunkY), defs: id }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: toPlatform, kind: "request", dur: 2.4, flow: READ }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: toPlatform, kind: "response", dur: 2.4, delay: -1.2, reverse: true, flow: READ }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: fromPlatform, kind: "request", dur: 2.4, delay: -0.3, reverse: true, flow: READ }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: fromPlatform, kind: "response", dur: 2.4, delay: -1.5, flow: READ }),
-    spec.clients.map((_, i) => /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: chunkNUONYN7S_cjs.busStub(clientBus, clientBus.stubs[i]), kind: i % 2 ? "response" : "request", dur: 1.6, delay: -i * 0.4, reverse: i % 2 === 0, r: 4, flow: READ }, i)),
-    spec.resources.map((_, i) => /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: chunkNUONYN7S_cjs.busStub(storeBus, storeBus.stubs[i]), kind: i % 2 ? "response" : "request", dur: 1.6, delay: -i * 0.5, reverse: i % 2 === 1, r: 4, flow: READ }, i)),
+    spec.resources.map((r, i) => /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Node,
+      {
+        x: store.x,
+        y: store.y0 + i * store.step,
+        w: store.w,
+        h: store.h,
+        label: r.label,
+        hint: r.hint,
+        sub: r.sub,
+        icon: r.icon,
+        flow: READ
+      },
+      r.label
+    )),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Bus, { ...clientBus, from: Math.min(clientY(0), trunkY), to: Math.max(clientY(spec.clients.length - 1), trunkY), defs: id }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Bus, { ...storeBus, from: Math.min(storeY(0), trunkY), to: Math.max(storeY(spec.resources.length - 1), trunkY), defs: id }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: toPlatform, kind: "request", dur: 2.4, flow: READ }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: toPlatform, kind: "response", dur: 2.4, delay: -1.2, reverse: true, flow: READ }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: fromPlatform, kind: "request", dur: 2.4, delay: -0.3, reverse: true, flow: READ }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: fromPlatform, kind: "response", dur: 2.4, delay: -1.5, flow: READ }),
+    spec.clients.map((_, i) => /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Packet,
+      {
+        points: chunk6RV2I5R3_cjs.busStub(clientBus, clientBus.stubs[i]),
+        kind: i % 2 ? "response" : "request",
+        dur: 1.6,
+        delay: -i * 0.4,
+        reverse: i % 2 === 0,
+        r: 4,
+        flow: READ
+      },
+      i
+    )),
+    spec.resources.map((_, i) => /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Packet,
+      {
+        points: chunk6RV2I5R3_cjs.busStub(storeBus, storeBus.stubs[i]),
+        kind: i % 2 ? "response" : "request",
+        dur: 1.6,
+        delay: -i * 0.5,
+        reverse: i % 2 === 1,
+        r: 4,
+        flow: READ
+      },
+      i
+    )),
     sinks
   ] });
   const row = (items, sub, icon, flow, kind) => rows(items, 3).map((r, i) => {
     const l = fit(r.map((c) => c.label).join(" \xB7 "), STACK_TEXT_W, 13);
-    return { label: l.text, hint: l.hint, sub: i === 0 ? sub : void 0, icon: i === 0 ? icon : void 0, flow, kind, link: i === 0 ? void 0 : false };
+    return {
+      label: l.text,
+      hint: l.hint,
+      sub: i === 0 ? sub : void 0,
+      icon: i === 0 ? icon : void 0,
+      flow,
+      kind,
+      link: i === 0 ? void 0 : false
+    };
   });
   const platformTitle = fit(spec.platform.title, STACK_TEXT_W, 13);
   const steps = [
@@ -224,7 +369,15 @@ function serviceMapParts(spec = defaultServiceMap, id) {
     { label: platformTitle.text, hint: platformTitle.hint, icon: "service", flow: READ },
     ...row(spec.platform.cells, "", void 0, READ).map((s) => ({ ...s, link: false, icon: void 0, sub: void 0 })),
     ...row(spec.resources, lr, "db", READ),
-    ...spec.sinks ? [{ label: fit(spec.sinks.via.label, STACK_TEXT_W, 13).text, icon: "queue", kind: "change", flow: CDC }, ...row(spec.sinks.items, "", void 0, CDC, "change").map((s) => ({ ...s, link: false, icon: void 0, sub: void 0 }))] : []
+    ...spec.sinks ? [
+      { label: fit(spec.sinks.via.label, STACK_TEXT_W, 13).text, icon: "queue", kind: "change", flow: CDC },
+      ...row(spec.sinks.items, "", void 0, CDC, "change").map((s) => ({
+        ...s,
+        link: false,
+        icon: void 0,
+        sub: void 0
+      }))
+    ] : []
   ];
   return {
     wide,
@@ -272,9 +425,12 @@ function agentLoopParts(spec = defaultAgentLoop, id) {
   const bus = {
     axis: "v",
     at: busX,
-    stubs: [...spec.tools.map((_, i) => ({ at: toolY(i), to: tool.x, arrow: true, flow: TOOLS })), { at: trunkY, to: agentBox.x + agentBox.w, flow: TOOLS }]
+    stubs: [
+      ...spec.tools.map((_, i) => ({ at: toolY(i), to: tool.x, arrow: true, flow: TOOLS })),
+      { at: trunkY, to: agentBox.x + agentBox.w, flow: TOOLS }
+    ]
   };
-  const fromAgent = chunkNUONYN7S_cjs.busStub(bus, bus.stubs[n]);
+  const fromAgent = chunk6RV2I5R3_cjs.busStub(bus, bus.stubs[n]);
   const ask = [
     [user.x + user.w, 120],
     [agentBox.x, 120]
@@ -292,36 +448,126 @@ function agentLoopParts(spec = defaultAgentLoop, id) {
   ];
   const height = output.y + output.h + 24;
   const wide = /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Defs, { id }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Lane, { x: user.x, w: user.w, y: 40, title: lu }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Lane, { x: agentBox.x, w: agentBox.w, y: 40, title: la }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Lane, { x: tool.x, w: tool.w, y: 40, title: lt }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { ...user, label: spec.user.label, sub: spec.user.sub, icon: spec.user.icon ?? "user", flow: ASK, hint: spec.user.hint ?? "Sends the request, reads the output" }),
-    /* @__PURE__ */ jsxRuntime.jsxs(chunkNUONYN7S_cjs.Group, { ...agentBox, title: spec.agent.label, flow: [ASK, TOOLS, CHECK], children: [
-      /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x: agentBox.x + 24, y: agentBox.y + 40, w: agentBox.w - 48, h: 56, label: spec.agent.sub ?? "plan \xB7 call \xB7 draft", sub: "model", icon: spec.agent.icon ?? "agent", flow: [ASK, TOOLS] }),
-      /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x: agentBox.x + 24, y: agentBox.y + 112, w: agentBox.w - 48, h: 40, label: "Draft", sub: "structured output", icon: "doc", flow: CHECK, size: 13, subSize: 10 })
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Defs, { id }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Lane, { x: user.x, w: user.w, y: 40, title: lu }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Lane, { x: agentBox.x, w: agentBox.w, y: 40, title: la }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Lane, { x: tool.x, w: tool.w, y: 40, title: lt }),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Node,
+      {
+        ...user,
+        label: spec.user.label,
+        sub: spec.user.sub,
+        icon: spec.user.icon ?? "user",
+        flow: ASK,
+        hint: spec.user.hint ?? "Sends the request, reads the output"
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsxs(chunk6RV2I5R3_cjs.Group, { ...agentBox, title: spec.agent.label, flow: [ASK, TOOLS, CHECK], children: [
+      /* @__PURE__ */ jsxRuntime.jsx(
+        chunk6RV2I5R3_cjs.Node,
+        {
+          x: agentBox.x + 24,
+          y: agentBox.y + 40,
+          w: agentBox.w - 48,
+          h: 56,
+          label: spec.agent.sub ?? "plan \xB7 call \xB7 draft",
+          sub: "model",
+          icon: spec.agent.icon ?? "agent",
+          flow: [ASK, TOOLS]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntime.jsx(
+        chunk6RV2I5R3_cjs.Node,
+        {
+          x: agentBox.x + 24,
+          y: agentBox.y + 112,
+          w: agentBox.w - 48,
+          h: 40,
+          label: "Draft",
+          sub: "structured output",
+          icon: "doc",
+          flow: CHECK,
+          size: 13,
+          subSize: 10
+        }
+      )
     ] }),
-    spec.tools.map((t, i) => /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x: tool.x, y: tool.y0 + i * tool.step, w: tool.w, h: tool.h, label: t.label, hint: t.hint, sub: t.sub, icon: t.icon ?? "tool", flow: TOOLS }, t.label)),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: ask, defs: id, kind: "request", flow: ASK }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: ask, kind: "request", dur: 2, flow: ASK }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: ask, kind: "response", dur: 2, delay: -1, reverse: true, flow: ASK }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Bus, { ...bus, from: Math.min(toolY(0), trunkY), to: Math.max(toolY(n - 1), trunkY), defs: id, kind: "change" }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: fromAgent, kind: "change", dur: 1.8, flow: TOOLS }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: fromAgent, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: TOOLS }),
-    spec.tools.map((_, i) => /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: chunkNUONYN7S_cjs.busStub(bus, bus.stubs[i]), kind: i % 2 ? "response" : "change", dur: 1.4, delay: -i * 0.45, reverse: i % 2 === 1, r: 4, flow: TOOLS }, i)),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Label, { x: (agentBox.x + agentBox.w + busX) / 2, y: trunkY - 10, text: "tool calls", anchor: "middle" }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: toBoundary, defs: id, kind: "request", flow: CHECK }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: toBoundary, kind: "request", dur: 1.6, flow: CHECK }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { ...boundary, label: spec.boundary.label, sub: spec.boundary.sub, icon: spec.boundary.icon ?? "lock", accent: true, dashed: true, flow: CHECK, hint: spec.boundary.hint ?? "Code, not a model, decides what passes" }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: toOutput, defs: id, kind: "accent", flow: CHECK }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: toOutput, kind: "accent", dur: 1.6, delay: -0.8, flow: CHECK }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Label, { x: cx + 12, y: toOutput[0][1] + 28, text: "verdict", accent: true }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { ...output, label: spec.output.label, hint: spec.output.hint, sub: spec.output.sub, icon: spec.output.icon ?? "doc", flow: CHECK })
+    spec.tools.map((t, i) => /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Node,
+      {
+        x: tool.x,
+        y: tool.y0 + i * tool.step,
+        w: tool.w,
+        h: tool.h,
+        label: t.label,
+        hint: t.hint,
+        sub: t.sub,
+        icon: t.icon ?? "tool",
+        flow: TOOLS
+      },
+      t.label
+    )),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Connector, { points: ask, defs: id, kind: "request", flow: ASK }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: ask, kind: "request", dur: 2, flow: ASK }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: ask, kind: "response", dur: 2, delay: -1, reverse: true, flow: ASK }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Bus, { ...bus, from: Math.min(toolY(0), trunkY), to: Math.max(toolY(n - 1), trunkY), defs: id, kind: "change" }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: fromAgent, kind: "change", dur: 1.8, flow: TOOLS }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: fromAgent, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: TOOLS }),
+    spec.tools.map((_, i) => /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Packet,
+      {
+        points: chunk6RV2I5R3_cjs.busStub(bus, bus.stubs[i]),
+        kind: i % 2 ? "response" : "change",
+        dur: 1.4,
+        delay: -i * 0.45,
+        reverse: i % 2 === 1,
+        r: 4,
+        flow: TOOLS
+      },
+      i
+    )),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Label, { x: (agentBox.x + agentBox.w + busX) / 2, y: trunkY - 10, text: "tool calls", anchor: "middle" }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Connector, { points: toBoundary, defs: id, kind: "request", flow: CHECK }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: toBoundary, kind: "request", dur: 1.6, flow: CHECK }),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Node,
+      {
+        ...boundary,
+        label: spec.boundary.label,
+        sub: spec.boundary.sub,
+        icon: spec.boundary.icon ?? "lock",
+        accent: true,
+        dashed: true,
+        flow: CHECK,
+        hint: spec.boundary.hint ?? "Code, not a model, decides what passes"
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Connector, { points: toOutput, defs: id, kind: "accent", flow: CHECK }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: toOutput, kind: "accent", dur: 1.6, delay: -0.8, flow: CHECK }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Label, { x: cx + 12, y: toOutput[0][1] + 28, text: "verdict", accent: true }),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Node,
+      {
+        ...output,
+        label: spec.output.label,
+        hint: spec.output.hint,
+        sub: spec.output.sub,
+        icon: spec.output.icon ?? "doc",
+        flow: CHECK
+      }
+    )
   ] });
   const steps = [
     { ...spec.user, icon: spec.user.icon ?? "user", flow: ASK },
     { ...spec.agent, icon: spec.agent.icon ?? "agent", flow: ASK },
-    { label: spec.tools.map((t) => t.label).join(" \xB7 "), sub: lt.toLowerCase(), icon: "tool", kind: "change", flow: TOOLS },
+    {
+      label: spec.tools.map((t) => t.label).join(" \xB7 "),
+      sub: lt.toLowerCase(),
+      icon: "tool",
+      kind: "change",
+      flow: TOOLS
+    },
     { label: "Tool results", sub: "back to the agent", icon: "doc", kind: "response", flow: TOOLS },
     { ...spec.boundary, icon: spec.boundary.icon ?? "lock", accent: true, dashed: true, flow: CHECK },
     { ...spec.output, icon: spec.output.icon ?? "doc", kind: "accent", flow: CHECK }
@@ -383,7 +629,10 @@ function ragPipelineParts(spec = defaultRagPipeline, id) {
   const bus = {
     axis: "v",
     at: busX,
-    stubs: [...spec.sources.map((_, i) => ({ at: srcY(i), to: src.x + src.w, flow: INGEST })), { at: iy, to: stage.x0, arrow: true, flow: INGEST }]
+    stubs: [
+      ...spec.sources.map((_, i) => ({ at: srcY(i), to: src.x + src.w, flow: INGEST })),
+      { at: iy, to: stage.x0, arrow: true, flow: INGEST }
+    ]
   };
   const sx = (i) => stage.x0 + i * stage.step;
   const ingestLast = sx(spec.ingest.length - 1) + stage.w;
@@ -413,37 +662,130 @@ function ragPipelineParts(spec = defaultRagPipeline, id) {
       [sx(i + 1), y]
     ];
     return /* @__PURE__ */ jsxRuntime.jsxs("g", { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: p, defs: id, kind, flow }),
-      /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: p, kind, dur: 1.2, delay: -i * 0.4, r: 4, flow })
+      /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Connector, { points: p, defs: id, kind, flow }),
+      /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: p, kind, dur: 1.2, delay: -i * 0.4, r: 4, flow })
     ] }, i);
   });
   const wide = /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Defs, { id }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Lane, { x: src.x, w: src.w, y: 40, title: "Sources" }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Lane, { x: stage.x0, w: ingestLast - stage.x0, y: 40, title: "Ingest" }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Lane, { x: index.x, w: index.w, y: 40, title: "Index" }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Lane, { x: stage.x0, w: sx(spec.stages.length - 1) + stage.w - stage.x0, y: 248, title: "Query" }),
-    spec.sources.map((s, i) => /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x: src.x, y: src.y0 + i * src.step, w: src.w, h: src.h, label: s.label, hint: s.hint, icon: s.icon ?? "doc", flow: INGEST, size: 13 }, s.label)),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Bus, { ...bus, from: Math.min(srcY(0), iy), to: Math.max(srcY(spec.sources.length - 1), iy), defs: id, kind: "change" }),
-    spec.sources.map((_, i) => /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: chunkNUONYN7S_cjs.busStub(bus, bus.stubs[i]), kind: "change", dur: 1.4, delay: -i * 0.5, reverse: true, r: 4, flow: INGEST }, i)),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: chunkNUONYN7S_cjs.busStub(bus, bus.stubs[spec.sources.length]), kind: "change", dur: 1.2, flow: INGEST, r: 4 }),
-    spec.ingest.map((s, i) => /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x: sx(i), y: ingestY, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: INGEST, size: 13, subSize: 10 }, s.label)),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Defs, { id }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Lane, { x: src.x, w: src.w, y: 40, title: "Sources" }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Lane, { x: stage.x0, w: ingestLast - stage.x0, y: 40, title: "Ingest" }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Lane, { x: index.x, w: index.w, y: 40, title: "Index" }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Lane, { x: stage.x0, w: sx(spec.stages.length - 1) + stage.w - stage.x0, y: 248, title: "Query" }),
+    spec.sources.map((s, i) => /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Node,
+      {
+        x: src.x,
+        y: src.y0 + i * src.step,
+        w: src.w,
+        h: src.h,
+        label: s.label,
+        hint: s.hint,
+        icon: s.icon ?? "doc",
+        flow: INGEST,
+        size: 13
+      },
+      s.label
+    )),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Bus, { ...bus, from: Math.min(srcY(0), iy), to: Math.max(srcY(spec.sources.length - 1), iy), defs: id, kind: "change" }),
+    spec.sources.map((_, i) => /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Packet,
+      {
+        points: chunk6RV2I5R3_cjs.busStub(bus, bus.stubs[i]),
+        kind: "change",
+        dur: 1.4,
+        delay: -i * 0.5,
+        reverse: true,
+        r: 4,
+        flow: INGEST
+      },
+      i
+    )),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: chunk6RV2I5R3_cjs.busStub(bus, bus.stubs[spec.sources.length]), kind: "change", dur: 1.2, flow: INGEST, r: 4 }),
+    spec.ingest.map((s, i) => /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Node,
+      {
+        x: sx(i),
+        y: ingestY,
+        w: stage.w,
+        h: stage.h,
+        label: s.label,
+        hint: s.hint,
+        sub: s.sub,
+        icon: s.icon,
+        flow: INGEST,
+        size: 13,
+        subSize: 10
+      },
+      s.label
+    )),
     chain(spec.ingest, iy, "change", INGEST),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: toIndex, defs: id, kind: "change", flow: INGEST }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: toIndex, kind: "change", dur: 2, flow: INGEST }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { ...index, label: spec.index.label, sub: spec.index.sub, icon: spec.index.icon ?? "db", flow: [INGEST, QUERY], hint: spec.index.hint ?? "Shared by both lanes" }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x: src.x, y: queryY, w: src.w, h: stage.h, label: spec.query.label, hint: spec.query.hint, icon: spec.query.icon ?? "user", flow: QUERY, size: 13 }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: queryIn, defs: id, kind: "request", flow: QUERY }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: queryIn, kind: "request", dur: 1.2, flow: QUERY, r: 4 }),
-    spec.stages.map((s, i) => /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x: sx(i), y: queryY, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: QUERY, size: 13, subSize: 10 }, s.label)),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Connector, { points: toIndex, defs: id, kind: "change", flow: INGEST }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: toIndex, kind: "change", dur: 2, flow: INGEST }),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Node,
+      {
+        ...index,
+        label: spec.index.label,
+        sub: spec.index.sub,
+        icon: spec.index.icon ?? "db",
+        flow: [INGEST, QUERY],
+        hint: spec.index.hint ?? "Shared by both lanes"
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Node,
+      {
+        x: src.x,
+        y: queryY,
+        w: src.w,
+        h: stage.h,
+        label: spec.query.label,
+        hint: spec.query.hint,
+        icon: spec.query.icon ?? "user",
+        flow: QUERY,
+        size: 13
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Connector, { points: queryIn, defs: id, kind: "request", flow: QUERY }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: queryIn, kind: "request", dur: 1.2, flow: QUERY, r: 4 }),
+    spec.stages.map((s, i) => /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Node,
+      {
+        x: sx(i),
+        y: queryY,
+        w: stage.w,
+        h: stage.h,
+        label: s.label,
+        hint: s.hint,
+        sub: s.sub,
+        icon: s.icon,
+        flow: QUERY,
+        size: 13,
+        subSize: 10
+      },
+      s.label
+    )),
     chain(spec.stages, qy, "request", QUERY),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: read, defs: id, kind: "request", flow: QUERY }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: read, kind: "request", dur: 1.8, flow: QUERY, r: 4 }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: read, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: QUERY, r: 4 }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Label, { x: (retrieveX + index.x) / 2, y: index.y + index.h / 2 + 6, text: "top-k", anchor: "middle" }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: toAnswer, defs: id, kind: "response", flow: QUERY }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: toAnswer, kind: "response", dur: 1.4, flow: QUERY, r: 4 }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { ...answer, label: spec.answer.label, hint: spec.answer.hint, sub: spec.answer.sub, icon: spec.answer.icon ?? "doc", flow: QUERY, size: 13, subSize: 10 })
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Connector, { points: read, defs: id, kind: "request", flow: QUERY }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: read, kind: "request", dur: 1.8, flow: QUERY, r: 4 }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: read, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: QUERY, r: 4 }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Label, { x: (retrieveX + index.x) / 2, y: index.y + index.h / 2 + 6, text: "top-k", anchor: "middle" }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Connector, { points: toAnswer, defs: id, kind: "response", flow: QUERY }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: toAnswer, kind: "response", dur: 1.4, flow: QUERY, r: 4 }),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Node,
+      {
+        ...answer,
+        label: spec.answer.label,
+        hint: spec.answer.hint,
+        sub: spec.answer.sub,
+        icon: spec.answer.icon ?? "doc",
+        flow: QUERY,
+        size: 13,
+        subSize: 10
+      }
+    )
   ] });
   const steps = [
     { label: spec.sources.map((s) => s.label).join(" \xB7 "), sub: "sources", icon: "doc", flow: INGEST },
@@ -499,7 +841,10 @@ function skillLifecycleParts(spec = defaultSkillLifecycle, id) {
   const bus = {
     axis: "v",
     at: busX,
-    stubs: [...spec.consumers.map((_, i) => ({ at: conY(i), to: con.x, arrow: true, flow: FWD })), { at: cy, to: version.x + version.w, flow: FWD }]
+    stubs: [
+      ...spec.consumers.map((_, i) => ({ at: conY(i), to: con.x, arrow: true, flow: FWD })),
+      { at: cy, to: version.x + version.w, flow: FWD }
+    ]
   };
   const a2e = [
     [author.x + author.w, cy],
@@ -519,35 +864,101 @@ function skillLifecycleParts(spec = defaultSkillLifecycle, id) {
   ];
   const height = loopY + 40;
   const wide = /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Defs, { id }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Lane, { x: author.x, w: author.w, y: 40, title: "Author" }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Lane, { x: evaluate.x, w: evaluate.w, y: 40, title: "Evaluate" }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Lane, { x: version.x, w: version.w, y: 40, title: "Version" }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { ...author, label: spec.author.label, hint: spec.author.hint, sub: spec.author.sub, icon: spec.author.icon ?? "user", flow: [FWD, BACK] }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: a2e, defs: id, kind: "request", flow: FWD }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: a2e, kind: "request", dur: 1.4, flow: FWD, r: 4 }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { ...evaluate, label: spec.evaluate.label, sub: spec.evaluate.sub, icon: spec.evaluate.icon ?? "chart", flow: FWD, hint: spec.evaluate.hint ?? `Scored against: ${spec.evaluate.baseline}` }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Chip, { x: evaluate.x, y: evaluate.y + evaluate.h + 12, w: evaluate.w, h: 20, label: `baseline \xB7 ${spec.evaluate.baseline}`, dashed: true }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: e2v, defs: id, kind: "accent", flow: FWD }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: e2v, kind: "accent", dur: 1.4, delay: -0.7, flow: FWD, r: 4 }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Label, { x: (e2v[0][0] + e2v[1][0]) / 2, y: cy - 10, text: "passes", anchor: "middle", accent: true }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { ...version, label: spec.version.label, hint: spec.version.hint, sub: spec.version.sub, icon: spec.version.icon ?? "git", flow: FWD }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Bus, { ...bus, from: Math.min(conY(0), cy), to: trunkEnd, defs: id }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: chunkNUONYN7S_cjs.busStub(bus, bus.stubs[n]), kind: "request", dur: 1.2, flow: FWD, r: 4 }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Defs, { id }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Lane, { x: author.x, w: author.w, y: 40, title: "Author" }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Lane, { x: evaluate.x, w: evaluate.w, y: 40, title: "Evaluate" }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Lane, { x: version.x, w: version.w, y: 40, title: "Version" }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Node,
+      {
+        ...author,
+        label: spec.author.label,
+        hint: spec.author.hint,
+        sub: spec.author.sub,
+        icon: spec.author.icon ?? "user",
+        flow: [FWD, BACK]
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Connector, { points: a2e, defs: id, kind: "request", flow: FWD }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: a2e, kind: "request", dur: 1.4, flow: FWD, r: 4 }),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Node,
+      {
+        ...evaluate,
+        label: spec.evaluate.label,
+        sub: spec.evaluate.sub,
+        icon: spec.evaluate.icon ?? "chart",
+        flow: FWD,
+        hint: spec.evaluate.hint ?? `Scored against: ${spec.evaluate.baseline}`
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Chip,
+      {
+        x: evaluate.x,
+        y: evaluate.y + evaluate.h + 12,
+        w: evaluate.w,
+        h: 20,
+        label: `baseline \xB7 ${spec.evaluate.baseline}`,
+        dashed: true
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Connector, { points: e2v, defs: id, kind: "accent", flow: FWD }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: e2v, kind: "accent", dur: 1.4, delay: -0.7, flow: FWD, r: 4 }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Label, { x: (e2v[0][0] + e2v[1][0]) / 2, y: cy - 10, text: "passes", anchor: "middle", accent: true }),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Node,
+      {
+        ...version,
+        label: spec.version.label,
+        hint: spec.version.hint,
+        sub: spec.version.sub,
+        icon: spec.version.icon ?? "git",
+        flow: FWD
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Bus, { ...bus, from: Math.min(conY(0), cy), to: trunkEnd, defs: id }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: chunk6RV2I5R3_cjs.busStub(bus, bus.stubs[n]), kind: "request", dur: 1.2, flow: FWD, r: 4 }),
     spec.consumers.map((c, i) => /* @__PURE__ */ jsxRuntime.jsxs("g", { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: chunkNUONYN7S_cjs.busStub(bus, bus.stubs[i]), kind: "request", dur: 1.2, delay: -i * 0.4, flow: FWD, r: 4 }),
-      /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, hint: c.hint, sub: c.sub, icon: c.icon, flow: [FWD, BACK] })
+      /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: chunk6RV2I5R3_cjs.busStub(bus, bus.stubs[i]), kind: "request", dur: 1.2, delay: -i * 0.4, flow: FWD, r: 4 }),
+      /* @__PURE__ */ jsxRuntime.jsx(
+        chunk6RV2I5R3_cjs.Node,
+        {
+          x: con.x,
+          y: con.y0 + i * con.step,
+          w: con.w,
+          h: con.h,
+          label: c.label,
+          hint: c.hint,
+          sub: c.sub,
+          icon: c.icon,
+          flow: [FWD, BACK]
+        }
+      )
     ] }, c.label)),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Label, { x: (version.x + version.w + busX) / 2, y: cy - 10, text: "install", anchor: "middle" }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: back, defs: id, kind: "change", flow: BACK, dashed: true }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: back, kind: "change", dur: 3.2, flow: BACK }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: back, kind: "change", dur: 3.2, delay: -1.6, flow: BACK }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Label, { x: (busX + author.x) / 2, y: loopY - 10, text: `${spec.feedback.label} \xB7 ${spec.feedback.sub ?? ""}`.trim(), anchor: "middle" })
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Label, { x: (version.x + version.w + busX) / 2, y: cy - 10, text: "install", anchor: "middle" }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Connector, { points: back, defs: id, kind: "change", flow: BACK, dashed: true }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: back, kind: "change", dur: 3.2, flow: BACK }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: back, kind: "change", dur: 3.2, delay: -1.6, flow: BACK }),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Label,
+      {
+        x: (busX + author.x) / 2,
+        y: loopY - 10,
+        text: `${spec.feedback.label} \xB7 ${spec.feedback.sub ?? ""}`.trim(),
+        anchor: "middle"
+      }
+    )
   ] });
   const steps = [
     { ...spec.author, icon: spec.author.icon ?? "user", flow: FWD },
-    { ...spec.evaluate, sub: `${spec.evaluate.sub ?? ""} \xB7 vs ${spec.evaluate.baseline}`.replace(/^ · /, ""), icon: spec.evaluate.icon ?? "chart", flow: FWD },
+    {
+      ...spec.evaluate,
+      sub: `${spec.evaluate.sub ?? ""} \xB7 vs ${spec.evaluate.baseline}`.replace(/^ · /, ""),
+      icon: spec.evaluate.icon ?? "chart",
+      flow: FWD
+    },
     { ...spec.version, icon: spec.version.icon ?? "git", kind: "accent", flow: FWD },
     { label: spec.consumers.map((c) => c.label).join(" \xB7 "), sub: "consumers", icon: "git", flow: FWD },
     { ...spec.feedback, icon: spec.feedback.icon ?? "warning", kind: "change", flow: BACK, dashed: true }
@@ -600,10 +1011,27 @@ function syncLoopParts(spec = defaultSyncLoop, id) {
   const conY = (i) => con.y0 + i * con.step + con.h / 2;
   const height = Math.max(up.y + up.h, con.y0 + n * con.step - 24) + 32;
   const wide = /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Defs, { id }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Lane, { x: up.x, w: up.w, y: 40, title: "Upstream" }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Group, { ...up, title: spec.upstream.label, flow: [PULL, PUSH], children: items.map((it, i) => /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x: up.x + 16, y: up.y + 40 + i * 64, w: up.w - 32, h: 48, label: it.label, hint: it.hint, sub: it.sub, icon: it.icon, align: "left", flow: [PULL, PUSH], size: 13, subSize: 10 }, it.label)) }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Defs, { id }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Lane, { x: up.x, w: up.w, y: 40, title: "Upstream" }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Group, { ...up, title: spec.upstream.label, flow: [PULL, PUSH], children: items.map((it, i) => /* @__PURE__ */ jsxRuntime.jsx(
+      chunk6RV2I5R3_cjs.Node,
+      {
+        x: up.x + 16,
+        y: up.y + 40 + i * 64,
+        w: up.w - 32,
+        h: 48,
+        label: it.label,
+        hint: it.hint,
+        sub: it.sub,
+        icon: it.icon,
+        align: "left",
+        flow: [PULL, PUSH],
+        size: 13,
+        subSize: 10
+      },
+      it.label
+    )) }),
     spec.consumers.map((c, i) => {
       const cy = conY(i);
       const pull = [
@@ -620,23 +1048,49 @@ function syncLoopParts(spec = defaultSyncLoop, id) {
       ];
       return /* @__PURE__ */ jsxRuntime.jsxs("g", { children: [
         c.plugin ? /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: single, defs: id, kind: "request", dashed: true, flow: PULL }),
-          /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: single, kind: "request", dur: 2.6, delay: -i * 0.5, flow: PULL, r: 4 })
+          /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Connector, { points: single, defs: id, kind: "request", dashed: true, flow: PULL }),
+          /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: single, kind: "request", dur: 2.6, delay: -i * 0.5, flow: PULL, r: 4 })
         ] }) : /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: pull, defs: id, kind: "request", flow: PULL }),
-          /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: pull, kind: "request", dur: 2.4, delay: -i * 0.6, flow: PULL, r: 4 }),
-          /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: push, defs: id, kind: "change", flow: PUSH }),
-          /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: push, kind: "change", dur: 2.4, delay: -i * 0.6 - 1.2, flow: PUSH, r: 4 })
+          /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Connector, { points: pull, defs: id, kind: "request", flow: PULL }),
+          /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: pull, kind: "request", dur: 2.4, delay: -i * 0.6, flow: PULL, r: 4 }),
+          /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Connector, { points: push, defs: id, kind: "change", flow: PUSH }),
+          /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Packet, { points: push, kind: "change", dur: 2.4, delay: -i * 0.6 - 1.2, flow: PUSH, r: 4 })
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, hint: c.hint, sub: c.hooks ? `${c.sub ?? ""} \xB7 ${c.hooks[0]} \u2192 ${c.hooks[1]}`.replace(/^ · /, "") : c.sub, icon: c.icon, align: "left", flow: c.plugin ? PULL : [PULL, PUSH] })
+        /* @__PURE__ */ jsxRuntime.jsx(
+          chunk6RV2I5R3_cjs.Node,
+          {
+            x: con.x,
+            y: con.y0 + i * con.step,
+            w: con.w,
+            h: con.h,
+            label: c.label,
+            hint: c.hint,
+            sub: c.hooks ? `${c.sub ?? ""} \xB7 ${c.hooks[0]} \u2192 ${c.hooks[1]}`.replace(/^ · /, "") : c.sub,
+            icon: c.icon,
+            align: "left",
+            flow: c.plugin ? PULL : [PULL, PUSH]
+          }
+        )
       ] }, c.label);
     }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) - 16, text: spec.pull ?? "pull", anchor: "middle" }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) + 28, text: spec.push ?? "push", anchor: "middle" })
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) - 16, text: spec.pull ?? "pull", anchor: "middle" }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) + 28, text: spec.push ?? "push", anchor: "middle" })
   ] });
   const steps = [
-    { label: spec.upstream.label, sub: spec.upstream.sub ?? items.map((i) => i.label).join(" \xB7 "), icon: "git", flow: [PULL, PUSH].join(" ") },
-    ...spec.consumers.map((c) => ({ label: c.label, sub: c.plugin ? "reads one way" : (spec.pull ?? "pull") + " \xB7 " + (spec.push ?? "push"), icon: c.icon ?? "git", flow: c.plugin ? PULL : [PULL, PUSH].join(" "), kind: c.plugin ? "request" : "change", dashed: c.plugin }))
+    {
+      label: spec.upstream.label,
+      sub: spec.upstream.sub ?? items.map((i) => i.label).join(" \xB7 "),
+      icon: "git",
+      flow: [PULL, PUSH].join(" ")
+    },
+    ...spec.consumers.map((c) => ({
+      label: c.label,
+      sub: c.plugin ? "reads one way" : (spec.pull ?? "pull") + " \xB7 " + (spec.push ?? "push"),
+      icon: c.icon ?? "git",
+      flow: c.plugin ? PULL : [PULL, PUSH].join(" "),
+      kind: c.plugin ? "request" : "change",
+      dashed: c.plugin
+    }))
   ];
   return {
     wide,
@@ -689,7 +1143,7 @@ function beforeAfterParts(spec = defaultBeforeAfter, id) {
     const sy = y + 48;
     const cy = sy + stage.h / 2;
     const changed2 = new Set(p.changed ?? []);
-    return /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Group, { x: x0, y, w, h: panelH, title: p.title, variant: "dashed", flow, accent: changed2.size > 0, children: p.stages.map((s, i) => {
+    return /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Group, { x: x0, y, w, h: panelH, title: p.title, variant: "dashed", flow, accent: changed2.size > 0, children: p.stages.map((s, i) => {
       const x = x0 + 24 + i * stage.step;
       const into = [
         [x - stage.step + stage.w, cy],
@@ -698,10 +1152,37 @@ function beforeAfterParts(spec = defaultBeforeAfter, id) {
       const hot = changed2.has(i);
       return /* @__PURE__ */ jsxRuntime.jsxs("g", { children: [
         i > 0 ? /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: into, defs: id, kind: hot ? "accent" : "request", flow }),
-          /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: into, kind: hot ? "accent" : "request", dur: 1.2, delay: -i * 0.4, flow, r: 4, id: `${pid}-p${i}` })
+          /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Connector, { points: into, defs: id, kind: hot ? "accent" : "request", flow }),
+          /* @__PURE__ */ jsxRuntime.jsx(
+            chunk6RV2I5R3_cjs.Packet,
+            {
+              points: into,
+              kind: hot ? "accent" : "request",
+              dur: 1.2,
+              delay: -i * 0.4,
+              flow,
+              r: 4,
+              id: `${pid}-p${i}`
+            }
+          )
         ] }) : null,
-        /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x, y: sy, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, accent: hot, flow, size: 13, subSize: 10 })
+        /* @__PURE__ */ jsxRuntime.jsx(
+          chunk6RV2I5R3_cjs.Node,
+          {
+            x,
+            y: sy,
+            w: stage.w,
+            h: stage.h,
+            label: s.label,
+            hint: s.hint,
+            sub: s.sub,
+            icon: s.icon,
+            accent: hot,
+            flow,
+            size: 13,
+            subSize: 10
+          }
+        )
       ] }, s.label + i);
     }) });
   };
@@ -710,14 +1191,20 @@ function beforeAfterParts(spec = defaultBeforeAfter, id) {
   const panelW = (p) => 48 + p.stages.length * stage.step - (stage.step - stage.w) + 48;
   const width = Math.max(panelW(spec.before), panelW(spec.after)) + 48;
   const wide = /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Defs, { id }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Defs, { id }),
     panel(spec.before, 24, "before", `${id}-b`),
     panel(spec.after, afterY, "after", `${id}-a`)
   ] });
   const changed = new Set(spec.after.changed ?? []);
   const steps = [
     ...spec.before.stages.map((s, i) => ({ ...s, sub: i === 0 ? spec.before.title.toLowerCase() : s.sub, flow: "before" })),
-    ...spec.after.stages.map((s, i) => ({ ...s, sub: i === 0 ? spec.after.title.toLowerCase() : s.sub, flow: "after", accent: changed.has(i), kind: changed.has(i) ? "accent" : i === 0 ? "neutral" : "request" }))
+    ...spec.after.stages.map((s, i) => ({
+      ...s,
+      sub: i === 0 ? spec.after.title.toLowerCase() : s.sub,
+      flow: "after",
+      accent: changed.has(i),
+      kind: changed.has(i) ? "accent" : i === 0 ? "neutral" : "request"
+    }))
   ];
   return {
     wide,
@@ -766,8 +1253,26 @@ function pipelineParts(spec = defaultPipeline, id) {
       [x(slot), cy]
     ];
     const edge = slot > 0 ? /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Connector, { points: into, defs: id, kind: kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request", flow: FLOW }),
-      /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Packet, { points: into, kind: kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request", dur: 1.2, delay: -slot * 0.35, flow: FLOW, r: 4 })
+      /* @__PURE__ */ jsxRuntime.jsx(
+        chunk6RV2I5R3_cjs.Connector,
+        {
+          points: into,
+          defs: id,
+          kind: kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request",
+          flow: FLOW
+        }
+      ),
+      /* @__PURE__ */ jsxRuntime.jsx(
+        chunk6RV2I5R3_cjs.Packet,
+        {
+          points: into,
+          kind: kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request",
+          dur: 1.2,
+          delay: -slot * 0.35,
+          flow: FLOW,
+          r: 4
+        }
+      )
     ] }) : null;
     if (kind === "queue") {
       const q = spec.queue;
@@ -775,23 +1280,60 @@ function pipelineParts(spec = defaultPipeline, id) {
       const cw = (stage.w - 16 - (depth - 1) * 6) / depth;
       return /* @__PURE__ */ jsxRuntime.jsxs("g", { children: [
         edge,
-        /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Group, { x: x(slot), y: stage.y - 16, w: stage.w, h: stage.h + 32, title: q.label, flow: FLOW, accent: true, children: Array.from({ length: depth }).map((_, k) => /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Chip, { x: x(slot) + 8 + k * (cw + 6), y: stage.y + 24, w: cw, h: 18, label: k < depth - 1 ? String(k + 1) : "", kind: k < depth - 1 ? "change" : void 0, dashed: k === depth - 1, flow: FLOW }, k)) })
+        /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Group, { x: x(slot), y: stage.y - 16, w: stage.w, h: stage.h + 32, title: q.label, flow: FLOW, accent: true, children: Array.from({ length: depth }).map((_, k) => /* @__PURE__ */ jsxRuntime.jsx(
+          chunk6RV2I5R3_cjs.Chip,
+          {
+            x: x(slot) + 8 + k * (cw + 6),
+            y: stage.y + 24,
+            w: cw,
+            h: 18,
+            label: k < depth - 1 ? String(k + 1) : "",
+            kind: k < depth - 1 ? "change" : void 0,
+            dashed: k === depth - 1,
+            flow: FLOW
+          },
+          k
+        )) })
       ] }, "queue");
     }
     const s = spec.stages[si++];
     return /* @__PURE__ */ jsxRuntime.jsxs("g", { children: [
       edge,
-      /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { x: x(slot), y: stage.y, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: FLOW, size: 13, subSize: 10 })
+      /* @__PURE__ */ jsxRuntime.jsx(
+        chunk6RV2I5R3_cjs.Node,
+        {
+          x: x(slot),
+          y: stage.y,
+          w: stage.w,
+          h: stage.h,
+          label: s.label,
+          hint: s.hint,
+          sub: s.sub,
+          icon: s.icon,
+          flow: FLOW,
+          size: 13,
+          subSize: 10
+        }
+      )
     ] }, s.label);
   });
   const wide = /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Defs, { id }),
-    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Lane, { x: 24, w: width - 48, y: 40, title: spec.laneTitle ?? "Stages, left to right" }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Defs, { id }),
+    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Lane, { x: 24, w: width - 48, y: 40, title: spec.laneTitle ?? "Stages, left to right" }),
     nodes
   ] });
   const steps = [
     ...spec.stages.slice(0, (spec.queue?.after ?? spec.stages.length - 1) + 1).map((s) => ({ ...s, flow: FLOW })),
-    ...spec.queue ? [{ label: spec.queue.label, sub: spec.queue.sub, icon: spec.queue.icon ?? "queue", kind: "change", accent: true, flow: FLOW }] : [],
+    ...spec.queue ? [
+      {
+        label: spec.queue.label,
+        sub: spec.queue.sub,
+        icon: spec.queue.icon ?? "queue",
+        kind: "change",
+        accent: true,
+        flow: FLOW
+      }
+    ] : [],
     ...spec.stages.slice((spec.queue?.after ?? spec.stages.length - 1) + 1).map((s) => ({ ...s, kind: "change", flow: FLOW }))
   ];
   return {

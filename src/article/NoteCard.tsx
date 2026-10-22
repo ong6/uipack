@@ -48,9 +48,10 @@ export function NoteCard({
   const name = typeof title === "string" ? title : "a note";
   if (title == null || title === "") fail("NoteCard", "every note needs a `title`");
   if (status !== "published" && status !== "planned") fail(`NoteCard "${name}"`, `unknown status "${status}"`);
-  if (minutes != null && !(Number.isFinite(minutes) && minutes > 0)) fail(`NoteCard "${name}"`, "`minutes` must be a positive number");
+  if (minutes != null && !(Number.isFinite(minutes) && minutes > 0))
+    fail(`NoteCard "${name}"`, "`minutes` must be a positive number");
   const planned = status === "planned";
-  if (!planned && !href) fail(`NoteCard "${name}"`, "a published note needs an `href` (or set status=\"planned\")");
+  if (!planned && !href) fail(`NoteCard "${name}"`, 'a published note needs an `href` (or set status="planned")');
 
   const body = (
     <>
@@ -114,9 +115,7 @@ export interface NoteClusterProps {
 
 export function NoteCluster({ label, note, notes, children, count, wide, id, className }: NoteClusterProps) {
   if (label == null || label === "") fail("NoteCluster", "every cluster needs a `label`");
-  const cards = notes
-    ? notes.map((n, i) => <NoteCard key={n.href ?? n.id ?? i} {...n} />)
-    : Children.toArray(children);
+  const cards = notes ? notes.map((n, i) => <NoteCard key={n.href ?? n.id ?? i} {...n} />) : Children.toArray(children);
   if (!cards.length) fail(`NoteCluster "${typeof label === "string" ? label : "cluster"}"`, "give it at least one note");
   const shown = count === false ? null : (count ?? cards.length);
 

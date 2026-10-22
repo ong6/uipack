@@ -58,14 +58,19 @@ describe("type scale", () => {
     expect([3, 2, 1, 0].map(typeRole)).toEqual(["text", "text", "text", "text"]);
     expect(TYPE_FACES).toEqual({ display: "Instrument Serif", text: "IBM Plex Sans", mono: "IBM Plex Mono" });
     const css = readFileSync("src/web/web.css", "utf8");
-    expect(css).toMatch(/\.uipack-web-heading:is\(\[data-step="4"\], \[data-step="5"\], \[data-step="6"\]\) \{\n  font-family: var\(--web-font-display\);/);
+    expect(css).toMatch(
+      /\.uipack-web-heading:is\(\[data-step="4"\], \[data-step="5"\], \[data-step="6"\]\) \{\n  font-family: var\(--web-font-display\);/,
+    );
     for (const step of [0, 1, 2, 3, 4, 5, 6]) {
       const rule = css.match(new RegExp(`\\.uipack-web-heading\\[data-step="${step}"\\] \\{([^}]*)\\}`))![1];
       expect(Number(rule.match(/line-height: ([\d.]+)/)![1])).toBe(typeMetrics(step).lineHeight);
       const tracking = rule.match(/letter-spacing: ([^;]+);/)?.[1] ?? "0em";
-      expect(tracking).toBe(typeMetrics(step).role === "display" ? "var(--web-display-tracking)" : typeMetrics(step).letterSpacing);
+      expect(tracking).toBe(
+        typeMetrics(step).role === "display" ? "var(--web-display-tracking)" : typeMetrics(step).letterSpacing,
+      );
       // Text headings default to 600 on .uipack-web-heading; display weight comes from its token.
-      if (typeMetrics(step).role === "text") expect(Number(rule.match(/font-weight: (\d+)/)?.[1] ?? 600)).toBe(typeMetrics(step).weight);
+      if (typeMetrics(step).role === "text")
+        expect(Number(rule.match(/font-weight: (\d+)/)?.[1] ?? 600)).toBe(typeMetrics(step).weight);
     }
     expect(css).toContain(`--web-display-tracking: ${typeMetrics(6).letterSpacing};`);
     expect(css).toMatch(/--web-font-display: "Instrument Serif", "Instrument Serif Fallback"/);
@@ -106,7 +111,7 @@ describe("Landing fonts", () => {
     expect(hosted).toHaveLength(7);
     for (const f of hosted) {
       expect(f).toContain("font-display: swap;");
-      expect(f).toMatch(/unicode-range: U\+0000-00FF/);
+      expect(f).toMatch(/unicode-range:\s+U\+0000-00FF/);
     }
     for (const u of urls(css)) {
       expect(u).toMatch(/^\.\/fonts\/[a-z0-9-]+\.woff2$/);
@@ -116,7 +121,11 @@ describe("Landing fonts", () => {
     expect(css).not.toMatch(/url\("?(https?:)?\/\//);
     const files = readdirSync("src/web/fonts");
     for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono"]) expect(files).toContain(`OFL-${name}.txt`);
-    expect(files.filter((f) => f.endsWith(".woff2")).sort()).toEqual(urls(css).map((u) => u.slice(8)).sort());
+    expect(files.filter((f) => f.endsWith(".woff2")).sort()).toEqual(
+      urls(css)
+        .map((u) => u.slice(8))
+        .sort(),
+    );
     // Fallback faces are metric-matched so the swap barely moves text.
     for (const f of faces.filter((f) => f.includes("Fallback"))) expect(f).toMatch(/size-adjust: [\d.]+%;[\s\S]*ascent-override/);
   });
@@ -127,7 +136,8 @@ describe("Landing fonts", () => {
     const built = readFileSync("dist/web.css", "utf8");
     expect(urls(built).length).toBe(7);
     for (const u of urls(built)) expect(existsSync(`dist/${u}`)).toBe(true);
-    for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono"]) expect(existsSync(`dist/fonts/OFL-${name}.txt`)).toBe(true);
+    for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono"])
+      expect(existsSync(`dist/fonts/OFL-${name}.txt`)).toBe(true);
   });
 });
 
@@ -140,7 +150,9 @@ describe("Landing colour tokens", () => {
   it.each(Object.entries(blocks))("passes 4.5:1 for small text in %s", (_name, block) => {
     const get = (k: string) => block.match(new RegExp(`--web-${k}: ([^;]+);`))![1].trim();
     const ink = get("ink-rgb").split(/\s+/).map(Number) as RGB;
-    const [bg, surface, secondary, accent, onAccent] = ["bg", "surface", "secondary", "accent", "on-accent"].map((k) => hex(get(k)));
+    const [bg, surface, secondary, accent, onAccent] = ["bg", "surface", "secondary", "accent", "on-accent"].map((k) =>
+      hex(get(k)),
+    );
     for (const base of [bg, surface, secondary]) {
       expect(contrast(blend(ink, base, 0.66), base)).toBeGreaterThanOrEqual(4.5);
       expect(contrast(blend(ink, base, 0.87), base)).toBeGreaterThanOrEqual(4.5);
@@ -159,7 +171,16 @@ describe("Landing colour tokens", () => {
       .match(/[^{}@;]+(?=\{)/g)!
       .flatMap((s) => s.split(/,(?![^(]*\))/))
       .map((s) => s.trim())
-      .filter((s) => s && s !== "font-face" && !s.startsWith("@") && !/^(from|to|\d+%)$/.test(s) && !s.startsWith("(") && !s.includes("prefers-") && !/^(media|supports|container)\b/.test(s));
+      .filter(
+        (s) =>
+          s &&
+          s !== "font-face" &&
+          !s.startsWith("@") &&
+          !/^(from|to|\d+%)$/.test(s) &&
+          !s.startsWith("(") &&
+          !s.includes("prefers-") &&
+          !/^(media|supports|container)\b/.test(s),
+      );
     expect(selectors.length).toBeGreaterThan(50);
     for (const s of selectors) expect(s).toMatch(/uipack-web/);
   });

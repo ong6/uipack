@@ -1,6 +1,17 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
-import { Defs, DrillFigure, DrillNode, Node, drillBox, drillFocusTarget, drillMove, drillReducer, normalizeDrillPath, type DrillLevel } from "../src";
+import {
+  Defs,
+  DrillFigure,
+  DrillNode,
+  Node,
+  drillBox,
+  drillFocusTarget,
+  drillMove,
+  drillReducer,
+  normalizeDrillPath,
+  type DrillLevel,
+} from "../src";
 import { easeInOutCubic, innerClipStart, scaleAbout, zoomFrame, zoomSamples } from "../src/zoom-math";
 import { renderStatic } from "../src/static";
 

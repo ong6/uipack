@@ -9,9 +9,19 @@ import { expect, test, type Browser, type Page } from "./fixtures";
 const WIDTHS = [390, 896, 1440] as const;
 const THEMES = ["light", "dark"] as const;
 
-async function open(browser: Browser, width: number, url: string, options: { javaScriptEnabled?: boolean; colorScheme?: "light" | "dark" } = {}) {
+async function open(
+  browser: Browser,
+  width: number,
+  url: string,
+  options: { javaScriptEnabled?: boolean; colorScheme?: "light" | "dark" } = {},
+) {
   const phone = width < 600;
-  const context = await browser.newContext({ viewport: { width, height: phone ? 844 : 1000 }, isMobile: phone, hasTouch: phone, ...options });
+  const context = await browser.newContext({
+    viewport: { width, height: phone ? 844 : 1000 },
+    isMobile: phone,
+    hasTouch: phone,
+    ...options,
+  });
   const page = await context.newPage();
   await page.goto(url);
   return { page, close: () => context.close() };
@@ -26,17 +36,24 @@ function audit() {
   const parse = (value: string): RGBA => {
     const rgb = /^rgba?\(([^)]+)\)$/.exec(value);
     if (rgb) {
-      const p = rgb[1].split(/[\s,/]+/).filter(Boolean).map(Number);
+      const p = rgb[1]
+        .split(/[\s,/]+/)
+        .filter(Boolean)
+        .map(Number);
       return [p[0], p[1], p[2], p[3] ?? 1];
     }
     const srgb = /^color\(srgb ([^)]+)\)$/.exec(value);
     if (srgb) {
-      const p = srgb[1].split(/[\s/]+/).filter(Boolean).map(Number);
+      const p = srgb[1]
+        .split(/[\s/]+/)
+        .filter(Boolean)
+        .map(Number);
       return [p[0] * 255, p[1] * 255, p[2] * 255, p[3] ?? 1];
     }
     throw new Error(`unparsed colour ${value}`);
   };
-  const over = (top: RGBA, under: RGBA): RGBA => [0, 1, 2].map((i) => top[i] * top[3] + under[i] * (1 - top[3])).concat(1) as RGBA;
+  const over = (top: RGBA, under: RGBA): RGBA =>
+    [0, 1, 2].map((i) => top[i] * top[3] + under[i] * (1 - top[3])).concat(1) as RGBA;
   // The opaque colour behind an element: its own and its ancestors' backgrounds, composited.
   const backdrop = (el: Element | null): RGBA => {
     const layers: RGBA[] = [];
@@ -67,7 +84,8 @@ function audit() {
     return ratio(over(parse(getComputedStyle(el)[`border${side}Color`]), outside), outside);
   };
 
-  const parts = ".uipack-notecard, .uipack-cluster, .uipack-layerhead, .uipack-terms, .uipack-callout, .uipack-change, .uipack-links";
+  const parts =
+    ".uipack-notecard, .uipack-cluster, .uipack-layerhead, .uipack-terms, .uipack-callout, .uipack-change, .uipack-links";
   const roots = [...document.querySelectorAll(parts)];
 
   const clusters = [...document.querySelectorAll<HTMLElement>(".uipack-cluster")].map((cluster) => {
@@ -234,7 +252,10 @@ test.describe("Article parts in the playground (notes palette)", () => {
       await page.locator(".uipack-cluster").first().waitFor();
       expectSoundLayout(await page.evaluate(audit), 1440);
       // The Technical fallbacks switch with data-theme.
-      const fill = await page.locator("a.uipack-notecard").first().evaluate((el) => getComputedStyle(el).backgroundColor);
+      const fill = await page
+        .locator("a.uipack-notecard")
+        .first()
+        .evaluate((el) => getComputedStyle(el).backgroundColor);
       expect(fill).toBe(theme === "light" ? "rgb(244, 246, 244)" : "rgb(27, 42, 36)");
       await close();
     }
@@ -261,7 +282,10 @@ test.describe("Article parts: links, focus and hover", () => {
     expect(await quant.evaluate((el) => el.clientHeight <= 3 * parseFloat(getComputedStyle(el).lineHeight) + 1)).toBe(true);
     await expect(section.getByRole("link", { name: /need separate budgets\./ })).toHaveCount(1);
 
-    await expect(section.getByRole("link", { name: "The PagedAttention paper arxiv.org" })).toHaveAttribute("href", "https://arxiv.org/abs/2309.06180");
+    await expect(section.getByRole("link", { name: "The PagedAttention paper arxiv.org" })).toHaveAttribute(
+      "href",
+      "https://arxiv.org/abs/2309.06180",
+    );
     const terms = section.locator(".uipack-terms").first();
     await expect(terms.getByRole("listitem")).toHaveCount(8);
     await expect(terms.getByRole("link")).toHaveCount(0);
@@ -278,14 +302,18 @@ test.describe("Article parts: links, focus and hover", () => {
     // Activating links navigates: the map link to the diagram anchor, a card to its article.
     await section.getByRole("link", { name: "Map" }).first().click();
     await expect(page).toHaveURL(/#layer-section$/);
-    await page.route("https://notes.junxiong.dev/**", (route) => route.fulfill({ contentType: "text/html", body: "<title>note</title>" }));
+    await page.route("https://notes.junxiong.dev/**", (route) =>
+      route.fulfill({ contentType: "text/html", body: "<title>note</title>" }),
+    );
     await card.click();
     await expect(page).toHaveURL("https://notes.junxiong.dev/prefill-vs-decode");
   });
 
   test("keyboard focus shows an accent ring and accent title on cards, rows and the map link", async ({ page, browserName }) => {
     const tab = browserName === "webkit" ? "Alt+Tab" : "Tab";
-    const accent = await page.locator(".article-host").evaluate((el) => getComputedStyle(el).getPropertyValue("--fig-accent").trim());
+    const accent = await page
+      .locator(".article-host")
+      .evaluate((el) => getComputedStyle(el).getPropertyValue("--fig-accent").trim());
     expect(accent).toBe("#0f7a55");
     const rgb = "rgb(15, 122, 85)";
     const focused = () =>
@@ -308,12 +336,17 @@ test.describe("Article parts: links, focus and hover", () => {
     // Colours ease in over 160ms, so read the settled state.
     const settled = async () => {
       let last = "";
-      await expect.poll(async () => {
-        const now = JSON.stringify(await focused());
-        const same = now === last;
-        last = now;
-        return same;
-      }, { intervals: [100, 100, 100, 250] }).toBe(true);
+      await expect
+        .poll(
+          async () => {
+            const now = JSON.stringify(await focused());
+            const same = now === last;
+            last = now;
+            return same;
+          },
+          { intervals: [100, 100, 100, 250] },
+        )
+        .toBe(true);
       return JSON.parse(last) as Awaited<ReturnType<typeof focused>>;
     };
     const tabFrom = async (locator: ReturnType<Page["locator"]>) => {
@@ -345,7 +378,9 @@ test.describe("Article parts: links, focus and hover", () => {
     expect(state.title).toBe(rgb);
     // Tab moves card to card in reading order.
     await page.keyboard.press(tab);
-    expect((await page.evaluate(() => (document.activeElement as HTMLAnchorElement).href)).endsWith("quantization-what-it-costs")).toBe(true);
+    expect(
+      (await page.evaluate(() => (document.activeElement as HTMLAnchorElement).href)).endsWith("quantization-what-it-costs"),
+    ).toBe(true);
   });
 
   test("hover gives a card an accent edge and title; reduced motion drops the transitions", async ({ page }) => {
@@ -353,7 +388,9 @@ test.describe("Article parts: links, focus and hover", () => {
     const before = await card.evaluate((el) => getComputedStyle(el).borderTopColor);
     await card.hover();
     await expect.poll(() => card.evaluate((el) => getComputedStyle(el).borderTopColor)).toBe("rgb(15, 122, 85)");
-    await expect.poll(() => card.locator(".uipack-notecard__title").evaluate((el) => getComputedStyle(el).color)).toBe("rgb(15, 122, 85)");
+    await expect
+      .poll(() => card.locator(".uipack-notecard__title").evaluate((el) => getComputedStyle(el).color))
+      .toBe("rgb(15, 122, 85)");
     expect(before).not.toBe("rgb(15, 122, 85)");
     expect(await card.evaluate((el) => getComputedStyle(el).transitionDuration)).not.toBe("0s");
 
@@ -371,7 +408,10 @@ test.describe("Article parts as static HTML in the notes site, JavaScript off", 
   for (const width of WIDTHS) {
     for (const theme of THEMES) {
       test(`${width}px ${theme}: layout, palette and host CSS`, async ({ browser }) => {
-        const { page, close } = await open(browser, width, "/e2e-static/article-notes.html", { javaScriptEnabled: false, colorScheme: theme });
+        const { page, close } = await open(browser, width, "/e2e-static/article-notes.html", {
+          javaScriptEnabled: false,
+          colorScheme: theme,
+        });
         const report = await page.evaluate(audit);
         expectSoundLayout(report, width);
         // The site's text column is 44rem less 2.5rem of padding.
@@ -381,23 +421,59 @@ test.describe("Article parts as static HTML in the notes site, JavaScript off", 
 
         // The site's palette reaches the parts through --uipack-*.
         const card = page.locator("a.uipack-notecard").first();
-        expect(await card.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(theme === "light" ? "rgb(246, 242, 234)" : "rgb(27, 25, 23)");
+        expect(await card.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(
+          theme === "light" ? "rgb(246, 242, 234)" : "rgb(27, 25, 23)",
+        );
         // Labels follow --uipack-label-font (sans here); numbers stay mono.
-        const family = (sel: string) => page.locator(sel).first().evaluate((el) => getComputedStyle(el).fontFamily);
+        const family = (sel: string) =>
+          page
+            .locator(sel)
+            .first()
+            .evaluate((el) => getComputedStyle(el).fontFamily);
         expect(await family(".uipack-cluster__label")).toMatch(/^ui-sans-serif/);
         expect(await family(".uipack-notecard__date")).toMatch(/^ui-monospace/);
         expect(await family(".uipack-layerhead__index")).toMatch(/^ui-monospace/);
 
         // Host prose rules load after article.css and still do not reach in.
-        expect(await page.locator(".uipack-cluster__grid").first().evaluate((el) => getComputedStyle(el).paddingLeft)).toBe("0px");
-        expect(await page.locator(".uipack-cluster__item").first().evaluate((el) => getComputedStyle(el).marginTop)).toBe("0px");
-        expect(await page.locator(".uipack-terms__label").first().evaluate((el) => getComputedStyle(el).marginTop)).toBe("0px");
-        expect(await page.locator(".uipack-links__link").first().evaluate((el) => getComputedStyle(el).textDecorationLine)).toBe("none");
+        expect(
+          await page
+            .locator(".uipack-cluster__grid")
+            .first()
+            .evaluate((el) => getComputedStyle(el).paddingLeft),
+        ).toBe("0px");
+        expect(
+          await page
+            .locator(".uipack-cluster__item")
+            .first()
+            .evaluate((el) => getComputedStyle(el).marginTop),
+        ).toBe("0px");
+        expect(
+          await page
+            .locator(".uipack-terms__label")
+            .first()
+            .evaluate((el) => getComputedStyle(el).marginTop),
+        ).toBe("0px");
+        expect(
+          await page
+            .locator(".uipack-links__link")
+            .first()
+            .evaluate((el) => getComputedStyle(el).textDecorationLine),
+        ).toBe("none");
         const text = theme === "light" ? "rgb(20, 17, 13)" : "rgb(236, 231, 222)";
-        expect(await page.locator(".uipack-notecard__title").first().evaluate((el) => getComputedStyle(el).color)).toBe(text);
+        expect(
+          await page
+            .locator(".uipack-notecard__title")
+            .first()
+            .evaluate((el) => getComputedStyle(el).color),
+        ).toBe(text);
         // Links inside the owner's content keep the site's link colour.
         const link = theme === "light" ? "rgb(154, 52, 18)" : "rgb(240, 133, 79)";
-        expect(await page.locator(".uipack-change__body a").first().evaluate((el) => getComputedStyle(el).color)).toBe(link);
+        expect(
+          await page
+            .locator(".uipack-change__body a")
+            .first()
+            .evaluate((el) => getComputedStyle(el).color),
+        ).toBe(link);
         await close();
       });
     }
@@ -406,27 +482,33 @@ test.describe("Article parts as static HTML in the notes site, JavaScript off", 
   for (const width of [1440, 390]) {
     test(`${width}px: only links are boxes, and the labelled parts read as one block`, async ({ browser }) => {
       for (const theme of THEMES) {
-        const { page, close } = await open(browser, width, "/e2e-static/article-notes.html", { javaScriptEnabled: false, colorScheme: theme });
+        const { page, close } = await open(browser, width, "/e2e-static/article-notes.html", {
+          javaScriptEnabled: false,
+          colorScheme: theme,
+        });
         const accent = theme === "light" ? "rgb(15, 122, 85)" : "rgb(25, 158, 112)";
         const style = (sel: string, pseudo?: string) =>
-          page.locator(sel).first().evaluate((el, p) => {
-            const s = getComputedStyle(el, p);
-            return {
-              bg: s.backgroundColor,
-              top: s.borderTopWidth,
-              right: s.borderRightWidth,
-              bottom: s.borderBottomWidth,
-              left: s.borderLeftWidth,
-              leftColor: s.borderLeftColor,
-              display: s.display,
-              font: `${s.fontWeight} ${s.fontSize}`,
-              family: s.fontFamily,
-              transform: s.textTransform,
-              tracking: s.letterSpacing,
-              content: s.content,
-              color: s.color,
-            };
-          }, pseudo);
+          page
+            .locator(sel)
+            .first()
+            .evaluate((el, p) => {
+              const s = getComputedStyle(el, p);
+              return {
+                bg: s.backgroundColor,
+                top: s.borderTopWidth,
+                right: s.borderRightWidth,
+                bottom: s.borderBottomWidth,
+                left: s.borderLeftWidth,
+                leftColor: s.borderLeftColor,
+                display: s.display,
+                font: `${s.fontWeight} ${s.fontSize}`,
+                family: s.fontFamily,
+                transform: s.textTransform,
+                tracking: s.letterSpacing,
+                content: s.content,
+                color: s.color,
+              };
+            }, pseudo);
 
         // Learn: plain text at 15px, each term whole on one line, a centred dot after each but the last, no chips.
         const term = await style(".uipack-terms__term");
@@ -453,7 +535,12 @@ test.describe("Article parts as static HTML in the notes site, JavaScript off", 
         expect(parseFloat(change.left)).toBeLessThan(2);
         expect(change.leftColor).not.toBe(accent);
         expect(change.bg).toBe("rgba(0, 0, 0, 0)");
-        const host = parseFloat(await page.locator(".prose > p").first().evaluate((el) => getComputedStyle(el).fontSize));
+        const host = parseFloat(
+          await page
+            .locator(".prose > p")
+            .first()
+            .evaluate((el) => getComputedStyle(el).fontSize),
+        );
         const body = await style(".uipack-change__body");
         expect(parseFloat(body.font.split(" ")[1])).toBeCloseTo(host * 0.94, 1);
         expect(body.color).toMatch(/ \/ 0\.85\)$|, 0\.85\)$/);
@@ -467,17 +554,25 @@ test.describe("Article parts as static HTML in the notes site, JavaScript off", 
         expect(["normal", "0px"]).toContain(label.tracking);
 
         // Only cards (links) keep the filled node box.
-        const filled = await page.evaluate(() =>
-          [...document.querySelectorAll(".uipack-terms, .uipack-terms *, .uipack-callout, .uipack-callout *, .uipack-change, .uipack-links, .uipack-layerhead")].filter(
-            (el) => getComputedStyle(el).backgroundColor !== "rgba(0, 0, 0, 0)",
-          ).length,
+        const filled = await page.evaluate(
+          () =>
+            [
+              ...document.querySelectorAll(
+                ".uipack-terms, .uipack-terms *, .uipack-callout, .uipack-callout *, .uipack-change, .uipack-links, .uipack-layerhead",
+              ),
+            ].filter((el) => getComputedStyle(el).backgroundColor !== "rgba(0, 0, 0, 0)").length,
         );
         expect(filled).toBe(0);
 
         // Rhythm: 0.9rem between consecutive parts, 1.5rem above the first and below the last.
         const gaps = await page.evaluate(() => {
           const terms = document.querySelector(".uipack-terms")!;
-          const run = [terms, terms.nextElementSibling!, terms.nextElementSibling!.nextElementSibling!, terms.nextElementSibling!.nextElementSibling!.nextElementSibling!];
+          const run = [
+            terms,
+            terms.nextElementSibling!,
+            terms.nextElementSibling!.nextElementSibling!,
+            terms.nextElementSibling!.nextElementSibling!.nextElementSibling!,
+          ];
           const box = (el: Element) => el.getBoundingClientRect();
           return {
             names: run.map((el) => el.classList[0]),
@@ -502,20 +597,32 @@ test.describe("Article parts as static HTML in the notes site, JavaScript off", 
     expect(readFileSync("playground/e2e-static/article-notes.html", "utf8")).not.toMatch(/<script|<style[^>]*>[^<]*@import/);
     const cards = page.locator("a.uipack-notecard");
     expect(await cards.count()).toBe(11);
-    for (const href of await cards.evaluateAll((els) => els.map((el) => el.getAttribute("href")))) expect(href).toMatch(/^https:\/\/notes\.junxiong\.dev\//);
+    for (const href of await cards.evaluateAll((els) => els.map((el) => el.getAttribute("href"))))
+      expect(href).toMatch(/^https:\/\/notes\.junxiong\.dev\//);
     await expect(page.getByRole("link", { name: /Prefill and decode want different machines/ })).toHaveCount(2);
     await expect(page.locator(".uipack-notecard--planned").getByRole("link")).toHaveCount(0);
     // The map link works without script.
     await page.getByRole("link", { name: "Map" }).first().click();
     await expect(page).toHaveURL(/#ai-stack-layers$/);
-    await expect(page.getByRole("link", { name: "long-tasks paper" })).toHaveAttribute("href", "https://arxiv.org/abs/2503.14499");
+    await expect(page.getByRole("link", { name: "long-tasks paper" })).toHaveAttribute(
+      "href",
+      "https://arxiv.org/abs/2503.14499",
+    );
   });
 
   test("with no host tokens, the Technical fallbacks follow the OS theme", async ({ browser }) => {
     for (const theme of THEMES) {
-      const { page, close } = await open(browser, 896, "/e2e-static/article-defaults.html", { javaScriptEnabled: false, colorScheme: theme });
+      const { page, close } = await open(browser, 896, "/e2e-static/article-defaults.html", {
+        javaScriptEnabled: false,
+        colorScheme: theme,
+      });
       expectSoundLayout(await page.evaluate(audit), 896);
-      expect(await page.locator("a.uipack-notecard").first().evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(theme === "light" ? "rgb(244, 246, 244)" : "rgb(27, 42, 36)");
+      expect(
+        await page
+          .locator("a.uipack-notecard")
+          .first()
+          .evaluate((el) => getComputedStyle(el).backgroundColor),
+      ).toBe(theme === "light" ? "rgb(244, 246, 244)" : "rgb(27, 42, 36)");
       await close();
     }
   });

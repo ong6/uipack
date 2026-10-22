@@ -11,14 +11,24 @@ const REST_MS = 3200;
 
 /** Satin paint, or polished brass when `metal`. */
 function addMesh(parent: THREE.Object3D, geometry: THREE.BufferGeometry, color: number, x = 0, y = 0, z = 0, metal = false) {
-  const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color, roughness: metal ? 0.28 : 0.65, metalness: metal ? 0.65 : 0.02 }));
+  const mesh = new THREE.Mesh(
+    geometry,
+    new THREE.MeshStandardMaterial({ color, roughness: metal ? 0.28 : 0.65, metalness: metal ? 0.65 : 0.02 }),
+  );
   mesh.position.set(x, y, z);
   parent.add(mesh);
   return mesh;
 }
 /** A soft toy box: edges rounded up to 0.09, never more than a quarter of a side. */
 function box(parent: THREE.Object3D, width: number, height: number, depth: number, color: number, x = 0, y = 0, z = 0) {
-  return addMesh(parent, new RoundedBoxGeometry(width, height, depth, 2, Math.min(0.09, width / 4, height / 4, depth / 4)), color, x, y, z);
+  return addMesh(
+    parent,
+    new RoundedBoxGeometry(width, height, depth, 2, Math.min(0.09, width / 4, height / 4, depth / 4)),
+    color,
+    x,
+    y,
+    z,
+  );
 }
 /** A brass rod from `from` to `to`. */
 function rod(parent: THREE.Object3D, from: THREE.Vector3, to: THREE.Vector3, color = colors.gold, radius = 0.018) {

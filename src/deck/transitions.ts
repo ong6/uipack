@@ -5,6 +5,9 @@ import { innerClipStart, smoothstep, zoomFrame, type Rect, type ZoomSample } fro
 export const CANVAS_WIDTH = 1920;
 export const CANVAS_HEIGHT = 1080;
 
+/** The zoom camera's cubic-bezier control points: one curve for the CSS (`deckMotion.camera`) and the sampled keyframes. */
+const CAMERA_CURVE = [0.3, 0.05, 0.25, 1] as const;
+
 /** The deck's one clock. Every transition and build reads these, so a deck moves consistently. */
 export const deckMotion = {
   quick: 160,
@@ -17,7 +20,7 @@ export const deckMotion = {
   exit: "cubic-bezier(0.4, 0, 1, 1)",
   travel: "cubic-bezier(0.55, 0, 0.15, 1)",
   /** The zoom camera's progress (in log scale): moving by 10% of the clock, landing softly. */
-  camera: "cubic-bezier(0.3, 0.05, 0.25, 1)",
+  camera: `cubic-bezier(${CAMERA_CURVE.join(", ")})`,
 } as const;
 
 /** A CSS cubic-bezier as a function of time, for sampled keyframes that need the eased value. */
@@ -40,7 +43,7 @@ export function cubicBezier(x1: number, y1: number, x2: number, y2: number) {
     return ((ay * t + by) * t + cy) * t;
   };
 }
-const cameraEase = cubicBezier(0.3, 0.05, 0.25, 1);
+const cameraEase = cubicBezier(...CAMERA_CURVE);
 
 export type { Rect } from "../zoom-math";
 
@@ -142,7 +145,7 @@ export function flipFrom(
   }
   let sx = from.w / Math.max(to.w, 0.01);
   let sy = from.h / Math.max(to.h, 0.01);
-  const aspectGap = Math.abs(Math.log((from.w / from.h) / (to.w / to.h)));
+  const aspectGap = Math.abs(Math.log(from.w / from.h / (to.w / to.h)));
   if (fit === "uniform" || (fit === "auto" && aspectGap < 0.25)) {
     // Match line height, so a heading that changes size keeps its letterforms.
     sx = sy;
@@ -277,12 +280,30 @@ export function runTransition(opts: RunOptions): Animation[] {
       const origin = `${frame.fx.toFixed(2)}px ${frame.fy.toFixed(2)}px`;
       inner.style.zIndex = "2";
       const timing = { duration: deckMotion.zoom, easing: "linear" };
-      play(outer, samples.map((s) => ({ offset: s.offset, transform: s.outer, transformOrigin: origin })), timing);
-      play(inner, samples.map((s) => ({ offset: s.offset, transform: s.inner, transformOrigin: origin, clipPath: s.clip, opacity: s.innerOpacity })), timing);
+      play(
+        outer,
+        samples.map((s) => ({ offset: s.offset, transform: s.outer, transformOrigin: origin })),
+        timing,
+      );
+      play(
+        inner,
+        samples.map((s) => ({
+          offset: s.offset,
+          transform: s.inner,
+          transformOrigin: origin,
+          clipPath: s.clip,
+          opacity: s.innerOpacity,
+        })),
+        timing,
+      );
       // The target's own words leave before the slide inside it appears (they would read as doubled
       // text otherwise); its box stays as the frame.
       for (const child of Array.from(target!.children)) {
-        play(child, samples.map((s) => ({ offset: s.offset, opacity: 1 - smoothstep(0.01, 0.09, s.p) })), timing);
+        play(
+          child,
+          samples.map((s) => ({ offset: s.offset, opacity: 1 - smoothstep(0.01, 0.09, s.p) })),
+          timing,
+        );
       }
       // Its box (fill, border, ring) fades as the camera starts, so no scaled-up border sweeps across
       // the screen as thick bars: the incoming slide's clip is the only edge in flight.
@@ -290,7 +311,9 @@ export function runTransition(opts: RunOptions): Animation[] {
         const frames = paintFrames(target!, "from");
         play(
           target!,
-          zoomInto ? [frames[0], { ...frames[1], offset: 0.22 }, frames[1]] : [frames[1], { ...frames[1], offset: 0.78 }, frames[0]],
+          zoomInto
+            ? [frames[0], { ...frames[1], offset: 0.22 }, frames[1]]
+            : [frames[1], { ...frames[1], offset: 0.78 }, frames[0]],
           timing,
         );
       }
@@ -340,17 +363,36 @@ export function runTransition(opts: RunOptions): Animation[] {
         // Movement eases; the swap runs on clock time, so "8%" means the first 61 ms, not 8% of an
         // eased path that has barely started.
         const swap = { duration: deckMotion.morph, easing: "linear" };
-        play(b, [{ transformOrigin: "0 0", transform: fromB }, { transformOrigin: "0 0", transform: "none" }], travel);
+        play(
+          b,
+          [
+            { transformOrigin: "0 0", transform: fromB },
+            { transformOrigin: "0 0", transform: "none" },
+          ],
+          travel,
+        );
         play(b, [{ opacity: 0 }, { opacity: 1, offset: bIn }, { opacity: 1 }], swap);
-        play(a, [{ transformOrigin: "0 0", transform: "none" }, { transformOrigin: "0 0", transform: fromA }], travel);
-        play(a, [{ opacity: 1 }, { opacity: 1, offset: text ? 0 : bIn * 0.6 }, { opacity: 0, offset: aOut }, { opacity: 0 }], swap);
+        play(
+          a,
+          [
+            { transformOrigin: "0 0", transform: "none" },
+            { transformOrigin: "0 0", transform: fromA },
+          ],
+          travel,
+        );
+        play(
+          a,
+          [{ opacity: 1 }, { opacity: 1, offset: text ? 0 : bIn * 0.6 }, { opacity: 0, offset: aOut }, { opacity: 0 }],
+          swap,
+        );
       }
       // The outgoing slide clears early, so nothing else shares the screen with the travellers:
       // its blocks fade, and the boxes around a traveller (a tile, a panel) lose their paint.
       // Words on a traveller's line leave with its outgoing copy, so they never sit beside the larger
       // incoming copy that takes its place.
       const leave = { duration: deckMotion.quick, easing: deckMotion.exit };
-      const besideOut = (el: HTMLElement) => Boolean(el.parentElement && out.containers.includes(el.parentElement) && isText(el.parentElement));
+      const besideOut = (el: HTMLElement) =>
+        Boolean(el.parentElement && out.containers.includes(el.parentElement) && isText(el.parentElement));
       const crossed = (el: HTMLElement) => {
         const r = rectOf(el);
         return early.some((p) => overlaps(p, r));
@@ -375,14 +417,22 @@ export function runTransition(opts: RunOptions): Animation[] {
         else if (crossed(el)) play(el, [{ opacity: 1 }, { opacity: 0 }], leave);
         else if (isText(el) && incomingText.some((r) => overlaps(r, rectOf(el)))) {
           handedOver.push(rectOf(el));
-          play(el, [{ opacity: 1 }, { opacity: 1, offset: 0.66, easing: "ease-in" }, { opacity: 0 }], { duration: deckMotion.morph * 0.5, easing: "linear" });
-        } else play(el, [{ opacity: 1 }, { opacity: 1, offset: 0.55, easing: "ease-in-out" }, { opacity: 0 }], { duration: deckMotion.morph * 0.6, easing: "linear" });
+          play(el, [{ opacity: 1 }, { opacity: 1, offset: 0.66, easing: "ease-in" }, { opacity: 0 }], {
+            duration: deckMotion.morph * 0.5,
+            easing: "linear",
+          });
+        } else
+          play(el, [{ opacity: 1 }, { opacity: 1, offset: 0.55, easing: "ease-in-out" }, { opacity: 0 }], {
+            duration: deckMotion.morph * 0.6,
+            easing: "linear",
+          });
       }
       for (const el of out.containers) if (paintsBox(el)) play(el, paintFrames(el, "from"), leave);
       // Incoming blocks settle in once the outgoing slide has cleared. Blocks a traveller still has
       // to cross, and words on its line (a title around a number), wait until it has nearly landed
       // in the gap left for it, so nothing fades in underneath it.
-      const beside = (el: HTMLElement) => Boolean(el.parentElement && inn.containers.includes(el.parentElement) && isText(el.parentElement));
+      const beside = (el: HTMLElement) =>
+        Boolean(el.parentElement && inn.containers.includes(el.parentElement) && isText(el.parentElement));
       const underPath = (el: HTMLElement) => {
         const r = rectOf(el);
         return path.some((p) => overlaps(p, r));
@@ -390,32 +440,54 @@ export function runTransition(opts: RunOptions): Animation[] {
       // A large block (a grid of panels) is judged panel by panel, so one corner on the path
       // doesn't hold back the whole slide.
       const layerArea = rectOf(to).w * rectOf(to).h;
-      const incoming = inn.rest.flatMap((el) => {
-        const r = rectOf(el);
-        const kids = Array.from(el.children).filter((c): c is HTMLElement => c instanceof HTMLElement);
-        return r.w * r.h > layerArea / 6 && kids.length > 1 && underPath(el) ? kids : [el];
-      }).filter((el) => !unbuilt(el));
+      const incoming = inn.rest
+        .flatMap((el) => {
+          const r = rectOf(el);
+          const kids = Array.from(el.children).filter((c): c is HTMLElement => c instanceof HTMLElement);
+          return r.w * r.h > layerArea / 6 && kids.length > 1 && underPath(el) ? kids : [el];
+        })
+        .filter((el) => !unbuilt(el));
       let i = 0;
       for (const el of incoming) {
         if (beside(el) || underPath(el)) {
-          play(el, [{ opacity: 0 }, { opacity: 1 }], { duration: deckMotion.base, delay: deckMotion.morph * 0.72, easing: deckMotion.settle });
-        } else {
-          const after = isText(el) && handedOver.some((r) => overlaps(r, rectOf(el))) ? deckMotion.morph * 0.5 : 0;
-          play(el, [{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }], {
-            duration: deckMotion.slow,
-            delay: Math.max(after, deckMotion.morph * 0.4 + Math.min(i++, 6) * deckMotion.stagger),
+          play(el, [{ opacity: 0 }, { opacity: 1 }], {
+            duration: deckMotion.base,
+            delay: deckMotion.morph * 0.72,
             easing: deckMotion.settle,
           });
+        } else {
+          const after = isText(el) && handedOver.some((r) => overlaps(r, rectOf(el))) ? deckMotion.morph * 0.5 : 0;
+          play(
+            el,
+            [
+              { opacity: 0, transform: "translateY(14px)" },
+              { opacity: 1, transform: "none" },
+            ],
+            {
+              duration: deckMotion.slow,
+              delay: Math.max(after, deckMotion.morph * 0.4 + Math.min(i++, 6) * deckMotion.stagger),
+              easing: deckMotion.settle,
+            },
+          );
         }
       }
       for (const el of inn.containers) {
-        if (paintsBox(el)) play(el, paintFrames(el, "to"), { duration: deckMotion.slow, delay: deckMotion.morph * 0.4, easing: deckMotion.settle });
+        if (paintsBox(el))
+          play(el, paintFrames(el, "to"), {
+            duration: deckMotion.slow,
+            delay: deckMotion.morph * 0.4,
+            easing: deckMotion.settle,
+          });
       }
       // The incoming background (it paints over the outgoing layer) crosses over as the outgoing
       // slide finishes leaving, at 45–62% of the clock, so it never veils the outgoing panels
       // early; invisible when tones match.
       const bg = bgOf(to);
-      if (bg) play(bg, [{ opacity: 0 }, { opacity: 0, offset: 0.45 }, { opacity: 1, offset: 0.62 }, { opacity: 1 }], { duration: deckMotion.morph, easing: "linear" });
+      if (bg)
+        play(bg, [{ opacity: 0 }, { opacity: 0, offset: 0.45 }, { opacity: 1, offset: 0.62 }, { opacity: 1 }], {
+          duration: deckMotion.morph,
+          easing: "linear",
+        });
       return anims;
     }
   }
@@ -425,15 +497,25 @@ export function runTransition(opts: RunOptions): Animation[] {
     const shift = 40 * direction;
     // The old slide steps aside on the base clock but is gone from view within 160 ms, and the new
     // slide's blocks start as it goes, so two slides' words never overlap.
-    play(from, [{ transform: "none" }, { transform: `translateX(${-shift}px)` }], { duration: deckMotion.base, easing: deckMotion.exit });
+    play(from, [{ transform: "none" }, { transform: `translateX(${-shift}px)` }], {
+      duration: deckMotion.base,
+      easing: deckMotion.exit,
+    });
     play(from, [{ opacity: 1 }, { opacity: 0 }], { duration: deckMotion.quick, easing: "ease-in" });
     const blocks = blocksOf(to).filter((el) => !unbuilt(el));
     (blocks.length ? blocks : [to]).forEach((el, i) =>
-      play(el, [{ opacity: 0, transform: `translateX(${shift * 1.4}px)` }, { opacity: 1, transform: "none" }], {
-        duration: deckMotion.slow,
-        delay: deckMotion.quick + Math.min(i, 7) * deckMotion.stagger,
-        easing: deckMotion.settle,
-      }),
+      play(
+        el,
+        [
+          { opacity: 0, transform: `translateX(${shift * 1.4}px)` },
+          { opacity: 1, transform: "none" },
+        ],
+        {
+          duration: deckMotion.slow,
+          delay: deckMotion.quick + Math.min(i, 7) * deckMotion.stagger,
+          easing: deckMotion.settle,
+        },
+      ),
     );
     return anims;
   }

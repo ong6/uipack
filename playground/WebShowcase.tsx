@@ -109,9 +109,21 @@ const demoSteps: DemoStep[] = [
 ];
 
 const features = [
-  { title: "Ask in a sentence", body: "No rules to write. Describe the outcome and the agent plans the steps.", icon: <RhymeIcon at={0.1} /> },
-  { title: "Watch every action", body: "Each change is listed as it happens, so you can stop it or undo it.", icon: <RhymeIcon at={0.55} /> },
-  { title: "Decide what is left", body: "You see the few messages that need a person, with drafts ready.", icon: <RhymeIcon at={1} /> },
+  {
+    title: "Ask in a sentence",
+    body: "No rules to write. Describe the outcome and the agent plans the steps.",
+    icon: <RhymeIcon at={0.1} />,
+  },
+  {
+    title: "Watch every action",
+    body: "Each change is listed as it happens, so you can stop it or undo it.",
+    icon: <RhymeIcon at={0.55} />,
+  },
+  {
+    title: "Decide what is left",
+    body: "You see the few messages that need a person, with drafts ready.",
+    icon: <RhymeIcon at={1} />,
+  },
 ];
 
 const principles = [
@@ -155,7 +167,10 @@ type DisplayFaceId = "instrument-serif" | "ibm-plex-serif" | "space-grotesk";
 // their two font files) loads when the toggle nears the viewport or is used, not with /web's first view.
 let alternateFaces: Promise<unknown> | undefined;
 const loadAlternateFaces = () =>
-  (alternateFaces ??= Promise.all([import("@fontsource/ibm-plex-serif/latin-400.css"), import("@fontsource/space-grotesk/latin-500.css")]));
+  (alternateFaces ??= Promise.all([
+    import("@fontsource/ibm-plex-serif/latin-400.css"),
+    import("@fontsource/space-grotesk/latin-500.css"),
+  ]));
 
 // Each alternate brings its own weight and tracking: a grotesk needs more weight and tighter
 // tracking than a hairline serif to hold the same headline.
@@ -211,7 +226,15 @@ function PageIndex() {
   );
 }
 
-function TypeSpecimen({ theme, face, setFace }: { theme: "light" | "dark"; face: DisplayFaceId; setFace: (id: DisplayFaceId) => void }) {
+function TypeSpecimen({
+  theme,
+  face,
+  setFace,
+}: {
+  theme: "light" | "dark";
+  face: DisplayFaceId;
+  setFace: (id: DisplayFaceId) => void;
+}) {
   const current = displayFaces.find((f) => f.id === face)!;
   const toggle = useRef<HTMLFieldSetElement>(null);
   useEffect(() => {
@@ -232,21 +255,23 @@ function TypeSpecimen({ theme, face, setFace }: { theme: "light" | "dark"; face:
     <section id="web-type" data-section="type" className="web-anchor">
       <h2>Type · 3 roles</h2>
       <p className="collection-intro">
-        Three faces, each with one job. The display face carries the brand in headlines and big numbers, the text face is quiet enough to
-        read and press, and the mono face marks labels and data. All three are self-hosted woff2 files in the package (latin only) and swap in
-        over metric-matched fallbacks.
+        Three faces, each with one job. The display face carries the brand in headlines and big numbers, the text face is quiet
+        enough to read and press, and the mono face marks labels and data. All three are self-hosted woff2 files in the package
+        (latin only) and swap in over metric-matched fallbacks.
       </p>
       <WebSurface theme={theme} className="web-panel" style={faceStyle(face)}>
         <Grid>
           <GridItem span={[12, 8, 4]}>
             <div className="web-role" data-role="display">
-              <Eyebrow>Display · {face === "instrument-serif" ? `${TYPE_FACES.display} 400 + italic` : `${current.name} (preview)`}</Eyebrow>
+              <Eyebrow>
+                Display · {face === "instrument-serif" ? `${TYPE_FACES.display} 400 + italic` : `${current.name} (preview)`}
+              </Eyebrow>
               <p className="web-role__display">
                 Forty in. <em>Three</em> left.
               </p>
               <Body>
-                Headings at steps 4–6 (39–61px, or 31px and up in narrow containers), the hero, big numbers and pull quotes. One weight;
-                the italic marks the phrase that matters.
+                Headings at steps 4–6 (39–61px, or 31px and up in narrow containers), the hero, big numbers and pull quotes. One
+                weight; the italic marks the phrase that matters.
               </Body>
             </div>
           </GridItem>
@@ -257,8 +282,8 @@ function TypeSpecimen({ theme, face, setFace }: { theme: "light" | "dark"; face:
                 Watch every action
               </Heading>
               <Body emphasis="medium">
-                Body, subheads, buttons, nav and headings at steps 0–3. At those sizes a hairline serif loses its contrast, so small
-                headings stay in the sans at 600.
+                Body, subheads, buttons, nav and headings at steps 0–3. At those sizes a hairline serif loses its contrast, so
+                small headings stay in the sans at 600.
               </Body>
               <div className="web-buttons">
                 <CtaButton>Start free</CtaButton>
@@ -400,7 +425,12 @@ export default function WebShowcase() {
                   />
                 </StarHero>
               </div>
-              <Section id="web-how" eyebrow="How it works" title="Three steps, all of them visible." intro="The same curve from the hero marks each step, so the page reads as one idea.">
+              <Section
+                id="web-how"
+                eyebrow="How it works"
+                title="Three steps, all of them visible."
+                intro="The same curve from the hero marks each step, so the page reads as one idea."
+              >
                 <FeatureGrid features={features} spotlight />
               </Section>
               <Section id="web-proof" tone="secondary" align="center" eyebrow="Social proof slot">
@@ -480,7 +510,13 @@ export default function WebShowcase() {
                   <GridItem as="li" key={entry.id} span={[3, 4, 4]}>
                     <SpotlightCard>
                       <Heading level={3} size={1}>
-                        <a href={entry.id === "reveal-text" ? "#web-proof" : entry.id === "spotlight-card" ? "#web-how" : "#web-top"}>{entry.title}</a>
+                        <a
+                          href={
+                            entry.id === "reveal-text" ? "#web-proof" : entry.id === "spotlight-card" ? "#web-how" : "#web-top"
+                          }
+                        >
+                          {entry.title}
+                        </a>
                       </Heading>
                       <Body>{flashyNotes[entry.id]}</Body>
                     </SpotlightCard>
@@ -492,7 +528,9 @@ export default function WebShowcase() {
 
           <section id="web-lowkey" className="web-anchor">
             <h2>Low-key · {lowKey.length}</h2>
-            <p className="collection-intro">The defaults that make a page read as designed: scale, hierarchy, one accent, and a grid.</p>
+            <p className="collection-intro">
+              The defaults that make a page read as designed: scale, hierarchy, one accent, and a grid.
+            </p>
             <WebSurface theme={theme} className="web-panel web-lowkey" style={surfaceStyle}>
               <Grid>
                 <GridItem span={[7, 8, 4]}>
@@ -513,7 +551,11 @@ export default function WebShowcase() {
                       <Body>Body at 66%. One ink colour, three emphasis levels, no extra greys to maintain.</Body>
                     </div>
                     <Eyebrow>Colour roles · 60 / 30 / 10</Eyebrow>
-                    <div className="web-roles" role="img" aria-label="Neutral 60 percent, secondary 30 percent, accent 10 percent">
+                    <div
+                      className="web-roles"
+                      role="img"
+                      aria-label="Neutral 60 percent, secondary 30 percent, accent 10 percent"
+                    >
                       <span data-role="neutral">60 neutral</span>
                       <span data-role="secondary">30</span>
                       <span data-role="accent">10</span>
@@ -628,7 +670,11 @@ function ViewTransitionDemo() {
         <span>{yearly ? "per year, two months free" : "per month"}</span>
       </div>
       <div className="web-buttons">
-        <CtaButton variant="secondary" aria-pressed={yearly} onClick={() => withViewTransition(() => flushSync(() => setYearly((y) => !y)))}>
+        <CtaButton
+          variant="secondary"
+          aria-pressed={yearly}
+          onClick={() => void withViewTransition(() => flushSync(() => setYearly((y) => !y)))}
+        >
           {yearly ? "Show monthly" : "Show yearly"}
         </CtaButton>
       </div>
@@ -647,16 +693,27 @@ function PaintTransitionDemo({ theme, flip }: { theme: "light" | "dark"; flip: (
         <span />
       </div>
       <div className="web-buttons">
-        <CtaButton variant="secondary" onClick={() => withPaintTransition(() => flushSync(flip))}>
+        <CtaButton variant="secondary" onClick={() => void withPaintTransition(() => flushSync(flip))}>
           {theme === "dark" ? "Pour light theme" : "Pour dark theme"}
         </CtaButton>
       </div>
-      <Body>The new theme runs down the whole page with drips that start, fall and thin out on their own, new every time. Instant without View Transitions and under reduced motion.</Body>
+      <Body>
+        The new theme runs down the whole page with drips that start, fall and thin out on their own, new every time. Instant
+        without View Transitions and under reduced motion.
+      </Body>
     </div>
   );
 }
 
-function MotionSection({ theme, flip, surfaceStyle }: { theme: "light" | "dark"; flip: () => void; surfaceStyle?: CSSProperties }) {
+function MotionSection({
+  theme,
+  flip,
+  surfaceStyle,
+}: {
+  theme: "light" | "dark";
+  flip: () => void;
+  surfaceStyle?: CSSProperties;
+}) {
   const [revealKey, setRevealKey] = useState(0);
   const [scrambleKey, setScrambleKey] = useState(0);
   const [tickerKey, setTickerKey] = useState(0);
@@ -664,8 +721,9 @@ function MotionSection({ theme, flip, surfaceStyle }: { theme: "light" | "dark";
     <section data-section="motion" id="web-motion" className="web-anchor">
       <h2>Motion · {webEntries.filter((e) => e.tags.includes("Motion")).length}</h2>
       <p className="collection-intro">
-        Motion explains change: something arrives, resolves, counts up or follows the reader. Everything here pauses off screen, uses only transform,
-        opacity and filter so nothing shifts, and settles to its final state under reduced motion. Hover effects are mouse-only.
+        Motion explains change: something arrives, resolves, counts up or follows the reader. Everything here pauses off screen,
+        uses only transform, opacity and filter so nothing shifts, and settles to its final state under reduced motion. Hover
+        effects are mouse-only.
       </p>
       <WebSurface theme={theme} className="web-panel" style={surfaceStyle}>
         <Grid>
@@ -715,7 +773,12 @@ function MotionSection({ theme, flip, surfaceStyle }: { theme: "light" | "dark";
           <GridItem span={[12, 8, 4]}>
             <div className="web-block">
               <Eyebrow>Marquee · pauses on hover, focus and its button</Eyebrow>
-              <Marquee label="Tools" items={skills.map((s) => <span className="web-chip">{s}</span>)} />
+              <Marquee
+                label="Tools"
+                items={skills.map((s) => (
+                  <span className="web-chip">{s}</span>
+                ))}
+              />
             </div>
           </GridItem>
           <GridItem span={[4, 8, 4]}>
@@ -759,12 +822,22 @@ function MotionSection({ theme, flip, surfaceStyle }: { theme: "light" | "dark";
 }
 
 const backgroundTiles = [
-  { id: "grain", name: "Grain overlay", note: "feTurbulence noise at 7%. Quiet depth, no file, no motion.", bg: <GrainOverlay opacity={0.12} /> },
+  {
+    id: "grain",
+    name: "Grain overlay",
+    note: "feTurbulence noise at 7%. Quiet depth, no file, no motion.",
+    bg: <GrainOverlay opacity={0.12} />,
+  },
   { id: "dots", name: "Dot grid", note: "Radial fade. Lights under a mouse; still on touch.", bg: <DotGrid spotlight /> },
   { id: "lines", name: "Line grid", note: "Hairlines at 8% ink, faded toward the edges.", bg: <LineGrid spotlight size={32} /> },
   { id: "aurora", name: "Aurora", note: "Three blurred token colours drift slowly, capped at 28% opacity.", bg: <Aurora /> },
   { id: "star", name: "Masked star", note: "The hero's star, masked clear of the copy.", bg: <MaskedStar clear="top" /> },
-  { id: "beams", name: "Beam lines", note: "Light rides the grid lines, like packets on a connector.", bg: <BeamLines clear="top" /> },
+  {
+    id: "beams",
+    name: "Beam lines",
+    note: "Light rides the grid lines, like packets on a connector.",
+    bg: <BeamLines clear="top" />,
+  },
 ];
 
 function BackgroundsSection({ theme, surfaceStyle }: { theme: "light" | "dark"; surfaceStyle?: CSSProperties }) {
@@ -782,8 +855,8 @@ function BackgroundsSection({ theme, surfaceStyle }: { theme: "light" | "dark"; 
       <h2>Backgrounds · {backgroundTiles.length + 1}</h2>
       <div className="web-section-intro">
         <p className="collection-intro">
-          One ambient effect per viewport on a real page; this gallery breaks that rule to compare them. Backgrounds sit at low contrast so the
-          text above keeps 4.5:1. Moving ones pause off screen and hold still under reduced motion.
+          One ambient effect per viewport on a real page; this gallery breaks that rule to compare them. Backgrounds sit at low
+          contrast so the text above keeps 4.5:1. Moving ones pause off screen and hold still under reduced motion.
         </p>
         {!reduced && (
           <button type="button" className="web-motion-toggle" onClick={() => setPaused((p) => !p)}>
@@ -813,7 +886,10 @@ function BackgroundsSection({ theme, surfaceStyle }: { theme: "light" | "dark"; 
                 <Heading level={3} size={2}>
                   Drifting gutters
                 </Heading>
-                <Body>A dotted grid drifts up the empty margins beside a centred column. Fixed, faded toward the content; hidden below 1280px by default.</Body>
+                <Body>
+                  A dotted grid drifts up the empty margins beside a centred column. Fixed, faded toward the content; hidden below
+                  1280px by default.
+                </Body>
               </div>
             </div>
           </GridItem>

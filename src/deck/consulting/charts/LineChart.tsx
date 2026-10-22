@@ -74,8 +74,16 @@ export function LineChart({
     const li = lastOf(s);
     return li >= 0 ? { x: xs(li), y: ys(s.values[li] as number) } : null;
   });
-  const placed = spreadLabels(ends.map((e) => e?.y ?? 0), CX_TYPE.label * 1.3, top, bottom);
-  const everyN = Math.max(1, Math.ceil(Math.max(...periods.map((p) => textWidth(p, CX_TYPE.tick))) / Math.max(1, (right - left) / periods.length - 12)));
+  const placed = spreadLabels(
+    ends.map((e) => e?.y ?? 0),
+    CX_TYPE.label * 1.3,
+    top,
+    bottom,
+  );
+  const everyN = Math.max(
+    1,
+    Math.ceil(Math.max(...periods.map((p) => textWidth(p, CX_TYPE.tick))) / Math.max(1, (right - left) / periods.length - 12)),
+  );
   return (
     <Frame size={size} label={label}>
       {ticks.map((t) => (
@@ -102,7 +110,7 @@ export function LineChart({
         ) : null,
       )}
       {series.map((s, si) => {
-        const pts = s.values.map((v, i) => (v === null ? null : [xs(i), ys(v)] as const));
+        const pts = s.values.map((v, i) => (v === null ? null : ([xs(i), ys(v)] as const)));
         let d = "";
         let pen = false;
         for (const p of pts) {
@@ -146,7 +154,17 @@ export function LineChart({
           if (v === null || v === undefined) return null;
           const px = xs(annotate.index);
           const py = ys(v);
-          return <Annotation x={px} y={py} tx={px + annotate.dx} ty={py + annotate.dy} text={annotate.text} width={annotate.width} align={annotate.align} />;
+          return (
+            <Annotation
+              x={px}
+              y={py}
+              tx={px + annotate.dx}
+              ty={py + annotate.dy}
+              text={annotate.text}
+              width={annotate.width}
+              align={annotate.align}
+            />
+          );
         })()}
     </Frame>
   );

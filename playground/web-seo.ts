@@ -44,11 +44,23 @@ const description =
 export function tidySeo(origin: string) {
   const url = `${origin.replace(/\/$/, "")}/web`;
   const org = organization({ name: "Tidy", url, description: "Illustrative company behind the UIPACK Landing demo." });
-  const plan = offer({ name: "Tidy", price: "8.00", priceCurrency: "USD", billing: "MON", trialDays: 30, url: `${url}#web-pricing` });
+  const plan = offer({
+    name: "Tidy",
+    price: "8.00",
+    priceCurrency: "USD",
+    billing: "MON",
+    trialDays: 30,
+    url: `${url}#web-pricing`,
+  });
   const crawl: BuildCrawlFilesOptions = {
     site: origin,
     pages: [
-      { path: "/web", title: "Tidy: forty emails in, three that need you", description: "The demo landing page: product demo, how it works, FAQ and pricing.", lastmod: TIDY_UPDATED },
+      {
+        path: "/web",
+        title: "Tidy: forty emails in, three that need you",
+        description: "The demo landing page: product demo, how it works, FAQ and pricing.",
+        lastmod: TIDY_UPDATED,
+      },
       {
         path: "https://github.com/ong6/uipack/blob/main/docs/web-discoverability.md",
         title: "How this page is made discoverable",
@@ -64,13 +76,21 @@ export function tidySeo(origin: string) {
     ],
     llms: {
       title: "Tidy (UIPACK Landing demo)",
-      summary: "Tidy is an illustrative inbox agent: it reads, files and drafts replies while you watch, and leaves only the messages that need a person.",
-      details: "Tidy is not a real product. The page demonstrates the Landing style of uipack/web, and its prices and answers are example copy.",
+      summary:
+        "Tidy is an illustrative inbox agent: it reads, files and drafts replies while you watch, and leaves only the messages that need a person.",
+      details:
+        "Tidy is not a real product. The page demonstrates the Landing style of uipack/web, and its prices and answers are example copy.",
     },
   };
   return {
     url,
-    meta: pageMeta({ title: "Tidy: forty emails in, three that need you", description, url, siteName: "Tidy (UIPACK demo)", type: "website" }),
+    meta: pageMeta({
+      title: "Tidy: forty emails in, three that need you",
+      description,
+      url,
+      siteName: "Tidy (UIPACK demo)",
+      type: "website",
+    }),
     jsonLd: jsonLd(
       org,
       webSite({ name: "Tidy", url, publisher: org }),

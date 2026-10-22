@@ -5,7 +5,15 @@ import type { ObjectKind } from "./scenes";
 
 // Original authored studies: directions 3 (cartoon), 4 (realistic) and 5 (abstract).
 // Y is up, Z faces the camera. Every tick is periodic in 2π.
-const colors = { cream: 0xf3e3bb, coral: 0xec795b, blue: 0x609abe, mint: 0x80b9a0, ink: 0x26374b, gold: 0xc49b58, white: 0xfaf5e9 };
+const colors = {
+  cream: 0xf3e3bb,
+  coral: 0xec795b,
+  blue: 0x609abe,
+  mint: 0x80b9a0,
+  ink: 0x26374b,
+  gold: 0xc49b58,
+  white: 0xfaf5e9,
+};
 /** Reduced motion shows the pose 1.8 s into the loop. */
 const REST_MS = 1800;
 
@@ -14,7 +22,8 @@ type Surface = THREE.Material | number;
 
 /* ---------------------------------------------------------------- Mesh helpers */
 
-const standard = (color: number, roughness = 0.68, metalness = 0.04) => new THREE.MeshStandardMaterial({ color, roughness, metalness });
+const standard = (color: number, roughness = 0.68, metalness = 0.04) =>
+  new THREE.MeshStandardMaterial({ color, roughness, metalness });
 /** A mesh with `surface`: a material, or a colour for the default satin finish. */
 function mesh(parent: THREE.Object3D, geometry: THREE.BufferGeometry, surface: Surface, x = 0, y = 0, z = 0) {
   const object = new THREE.Mesh(geometry, typeof surface === "number" ? standard(surface) : surface);
@@ -23,8 +32,25 @@ function mesh(parent: THREE.Object3D, geometry: THREE.BufferGeometry, surface: S
   return object;
 }
 /** A rounded box: edge `radius`, never more than a third of a side. */
-function block(parent: THREE.Object3D, width: number, height: number, depth: number, surface: Surface, x = 0, y = 0, z = 0, radius = 0.055) {
-  return mesh(parent, new RoundedBoxGeometry(width, height, depth, 2, Math.min(radius, width / 3, height / 3, depth / 3)), surface, x, y, z);
+function block(
+  parent: THREE.Object3D,
+  width: number,
+  height: number,
+  depth: number,
+  surface: Surface,
+  x = 0,
+  y = 0,
+  z = 0,
+  radius = 0.055,
+) {
+  return mesh(
+    parent,
+    new RoundedBoxGeometry(width, height, depth, 2, Math.min(radius, width / 3, height / 3, depth / 3)),
+    surface,
+    x,
+    y,
+    z,
+  );
 }
 function sphere(parent: THREE.Object3D, radius: number, surface: Surface, x = 0, y = 0, z = 0) {
   return mesh(parent, new THREE.SphereGeometry(radius, 24, 16), surface, x, y, z);
@@ -84,7 +110,14 @@ function roof(parent: THREE.Object3D, width: number, height: number, depth: numb
   shape.lineTo(0, height);
   shape.lineTo(width / 2, 0);
   shape.closePath();
-  const geometry = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelSize: 0.035, bevelThickness: 0.025, bevelSegments: 2, steps: 1 });
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    depth,
+    bevelEnabled: true,
+    bevelSize: 0.035,
+    bevelThickness: 0.025,
+    bevelSegments: 2,
+    steps: 1,
+  });
   geometry.translate(0, 0, -depth / 2);
   return mesh(parent, geometry, colors.coral, x, y, z);
 }
@@ -114,7 +147,8 @@ const cartoonModels: Record<ArtKind, CartoonModel> = {
     const train = group(world, 0, 0.22, 0.54);
     block(train, 0.72, 0.3, 0.31, colors.coral);
     block(train, 0.43, 0.19, 0.29, colors.cream, -0.08, 0.23);
-    for (const x of [-0.23, 0.23]) for (const z of [-0.17, 0.17]) cylinder(train, 0.095, 0.04, colors.ink, x, -0.14, z).rotation.x = Math.PI / 2;
+    for (const x of [-0.23, 0.23])
+      for (const z of [-0.17, 0.17]) cylinder(train, 0.095, 0.04, colors.ink, x, -0.14, z).rotation.x = Math.PI / 2;
     for (const x of [-0.2, 0]) block(train, 0.13, 0.11, 0.015, colors.blue, x, 0.25, 0.16);
     ticks.push((angle) => {
       train.position.x = 0.68 * Math.sin(angle);
@@ -217,7 +251,8 @@ const cartoonModels: Record<ArtKind, CartoonModel> = {
       const height = TOWER_HEIGHTS[i],
         x = -0.91 + i * 0.46;
       block(world, 0.35, height, 0.62, i === 3 ? colors.coral : colors.blue, x, height / 2, -0.23);
-      for (let j = 0; j < Math.floor(height / 0.22); j++) for (const dx of [-0.09, 0.09]) block(world, 0.075, 0.1, 0.018, colors.cream, x + dx, 0.17 + j * 0.21, 0.09);
+      for (let j = 0; j < Math.floor(height / 0.22); j++)
+        for (const dx of [-0.09, 0.09]) block(world, 0.075, 0.1, 0.018, colors.cream, x + dx, 0.17 + j * 0.21, 0.09);
     }
     const tram = group(world, 0, 0.2, 0.59);
     block(tram, 0.6, 0.23, 0.29, colors.coral);
@@ -284,13 +319,28 @@ const realisticModels: Record<ArtKind, RealisticModel> = {
     block(keyboard, 2.5, 0.25, 1.2, graphite);
     for (let row = 0; row < 3; row++)
       for (let col = 0; col < 8; col++) {
-        const key = block(keyboard, 0.25, 0.16, 0.27, col === 7 ? leather : paper, -1.04 + col * 0.296, 0.17, -0.4 + row * 0.34, 0.035);
+        const key = block(
+          keyboard,
+          0.25,
+          0.16,
+          0.27,
+          col === 7 ? leather : paper,
+          -1.04 + col * 0.296,
+          0.17,
+          -0.4 + row * 0.34,
+          0.035,
+        );
         block(key, 0.07, 0.006, 0.025, col === 7 ? paper : graphite, -0.055, 0.083, -0.04, 0.002);
         const phase = ((row * 8 + col) / 24) * TAU;
         // A short, sharp press as the wave passes this key.
         ticks.push((angle) => (key.position.y = 0.17 - 0.055 * Math.max(0, Math.cos(angle - phase)) ** 18));
       }
-    const cable = path(stage, [vec(1, -0.42, -0.49), vec(1.3, -0.27, -0.9), vec(0.5, -0.13, -1), vec(-0.5, -0.1, -0.78)], graphite, 0.037);
+    const cable = path(
+      stage,
+      [vec(1, -0.42, -0.49), vec(1.3, -0.27, -0.9), vec(0.5, -0.13, -1), vec(-0.5, -0.1, -0.78)],
+      graphite,
+      0.037,
+    );
     cable.rotation.y = 0.02;
     const cap = group(stage, 0.36, 0.67, 0.05);
     block(cap, 0.64, 0.32, 0.64, paper, 0, 0.09, 0.0, 0.09);
@@ -312,7 +362,11 @@ const realisticModels: Record<ArtKind, RealisticModel> = {
     // The seam: a closed curve just inside the felt that swings ±0.5 rad about the equator twice a turn.
     const seamPoints = Array.from({ length: 97 }, (_, i) => {
       const a = (i / 96) * TAU;
-      return vec(0.567 * Math.cos(a), 0.567 * Math.sin(a) * Math.cos(0.5 * Math.cos(a * 2)), 0.567 * Math.sin(a) * Math.sin(0.5 * Math.cos(a * 2)));
+      return vec(
+        0.567 * Math.cos(a),
+        0.567 * Math.sin(a) * Math.cos(0.5 * Math.cos(a * 2)),
+        0.567 * Math.sin(a) * Math.sin(0.5 * Math.cos(a * 2)),
+      );
     });
     path(ball, seamPoints, paper, 0.015, true);
     const racket = group(stage, 0.57, 0.22, -0.1);
@@ -345,7 +399,17 @@ const realisticModels: Record<ArtKind, RealisticModel> = {
     // 48 ticks round the dial, every fourth a long one.
     for (let i = 0; i < 48; i++) {
       const a = (i * TAU) / 48;
-      const mark = block(compass, 0.014, i % 4 === 0 ? 0.12 : 0.05, 0.012, graphite, 0.67 * Math.sin(a), 0.67 * Math.cos(a), 0.12, 0.002);
+      const mark = block(
+        compass,
+        0.014,
+        i % 4 === 0 ? 0.12 : 0.05,
+        0.012,
+        graphite,
+        0.67 * Math.sin(a),
+        0.67 * Math.cos(a),
+        0.12,
+        0.002,
+      );
       mark.rotation.z = -a;
     }
     const needle = group(compass, 0, 0, 0.15);
@@ -545,7 +609,8 @@ const abstractModels: Record<ArtKind, AbstractModel> = {
         core.rotation.y = -0.35 * Math.sin(angle + i * 0.55);
       });
     }
-    for (const x of [-0.98, 0.98]) path(root, [vec(x, -1.2), vec(x * 1.22, -0.5, 0.2), vec(x * 1.22, 0.5, -0.2), vec(x, 1.2)], cobalt, 0.03);
+    for (const x of [-0.98, 0.98])
+      path(root, [vec(x, -1.2), vec(x * 1.22, -0.5, 0.2), vec(x * 1.22, 0.5, -0.2), vec(x, 1.2)], cobalt, 0.03);
   },
   /** A cobalt traveller loops through four receding portals. */
   travel(root, ticks, { glass, amber, chrome, cobalt }) {
@@ -581,7 +646,14 @@ const abstractModels: Record<ArtKind, AbstractModel> = {
       for (let j = 1; j < 33; j++) ribbon.lineTo(points[j].x, points[j].y);
       for (let j = 32; j >= 0; j--) ribbon.lineTo(points[j].x, points[j].y - 0.05);
       ribbon.closePath();
-      const geometry = new THREE.ExtrudeGeometry(ribbon, { depth: 0.55, bevelEnabled: true, bevelThickness: 0.015, bevelSize: 0.012, bevelSegments: 2, steps: 1 });
+      const geometry = new THREE.ExtrudeGeometry(ribbon, {
+        depth: 0.55,
+        bevelEnabled: true,
+        bevelThickness: 0.015,
+        bevelSize: 0.012,
+        bevelSegments: 2,
+        steps: 1,
+      });
       geometry.translate(0, 0, -0.275);
       const leaf = mesh(root, geometry, i % 3 === 0 ? glass : i % 2 ? chrome : amber, 0, -1.12 + i * 0.27, (i - 3) * 0.11);
       leaf.rotation.y = 0.4;
@@ -597,8 +669,25 @@ function abstract(kind: ArtKind, ticks: Tick[]) {
   const root = new THREE.Group();
   root.rotation.set(0.12, -0.25, 0);
   const glazes: Glazes = {
-    glass: new THREE.MeshPhysicalMaterial({ color: 0xa5d8e1, roughness: 0.12, metalness: 0.05, transmission: 0.72, thickness: 0.6, ior: 1.45, clearcoat: 1, envMapIntensity: 1.2 }),
-    amber: new THREE.MeshPhysicalMaterial({ color: 0xeaa466, roughness: 0.16, metalness: 0.05, transmission: 0.55, thickness: 0.5, ior: 1.4, clearcoat: 1 }),
+    glass: new THREE.MeshPhysicalMaterial({
+      color: 0xa5d8e1,
+      roughness: 0.12,
+      metalness: 0.05,
+      transmission: 0.72,
+      thickness: 0.6,
+      ior: 1.45,
+      clearcoat: 1,
+      envMapIntensity: 1.2,
+    }),
+    amber: new THREE.MeshPhysicalMaterial({
+      color: 0xeaa466,
+      roughness: 0.16,
+      metalness: 0.05,
+      transmission: 0.55,
+      thickness: 0.5,
+      ior: 1.4,
+      clearcoat: 1,
+    }),
     chrome: standard(0xa8b8c9, 0.18, 0.86),
     cobalt: standard(0x435aca, 0.32, 0.25),
   };

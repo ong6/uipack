@@ -1,6 +1,7 @@
 import * as react from 'react';
 import { ReactNode, ElementType, CSSProperties, ReactElement } from 'react';
-import { S as SpeechGuide } from './types-CMN3hTzQ.cjs';
+import { S as SpeechGuide } from './speech-BOroEnEA.cjs';
+export { W as WORDS_PER_MINUTE } from './speech-BOroEnEA.cjs';
 import { R as Rect, Z as ZoomFrame, a as ZoomSample } from './zoom-math-DNtJhg8j.cjs';
 
 type DeckTheme = "light" | "dark";
@@ -66,7 +67,7 @@ declare const deckMotion: {
     readonly exit: "cubic-bezier(0.4, 0, 1, 1)";
     readonly travel: "cubic-bezier(0.55, 0, 0.15, 1)";
     /** The zoom camera's progress (in log scale): moving by 10% of the clock, landing softly. */
-    readonly camera: "cubic-bezier(0.3, 0.05, 0.25, 1)";
+    readonly camera: `cubic-bezier(${string})`;
 };
 type TransitionKind = "advance" | "morph" | "fade" | "none" | "zoom";
 interface ResolvedTransition {
@@ -118,7 +119,8 @@ declare function runTransition(opts: RunOptions): Animation[];
  * The content layer for decks: what each slide is for, proven storylines for the decks an engineer
  * gives inside a company, and a linter for the argument (not the pixels).
  *
- * Plain data and pure functions: no React, no DOM, no runtime imports. Everything here serialises
+ * Plain data and pure functions: no React, no DOM, no runtime imports but the shared speaking pace
+ * (src/speech.ts). Everything here serialises
  * to JSON, so a CLI, an editor panel or the player's speaker view can all read it.
  *
  * Practice it encodes: answer first (Minto's pyramid), SCQA for decisions, action titles that
@@ -228,11 +230,11 @@ declare const LINT_RULES: Readonly<Record<LintRule, {
     check: string;
 }>>;
 declare const MAX_TITLE_WORDS = 14;
-/** Matches `estimateSpeechSeconds` in the presentations module. */
-declare const WORDS_PER_MINUTE = 135;
+
 /**
  * Check a deck's argument: action titles, answer first, a concrete closing ask, role rhythm,
- * talk tracks, sources for numbers, and length against the time budget. Pure; no DOM.
+ * talk tracks, sources for numbers, and length against the time budget. Runs `LINT_CHECKS` in
+ * order. Pure; no DOM.
  */
 declare function lintDeck(slides: readonly StorySlide[], options?: LintOptions): LintFinding[];
 /** Estimated speaking time of the presented slides' `say` text, in seconds. */
@@ -613,9 +615,9 @@ interface KpiItem {
     highlight?: boolean;
 }
 /** A row of stat tiles: label, value, a signed delta with an arrow, and a sparkline. */
-declare function KpiTiles({ items, columns }: {
-    items: readonly KpiItem[]; /** Tiles per row. Default: all in one row. */
-    columns?: number;
+declare function KpiTiles({ items, columns, }: {
+    items: readonly KpiItem[];
+    /** Tiles per row. Default: all in one row. */ columns?: number;
 }): react.JSX.Element;
 
 interface LineSeries {
@@ -681,7 +683,7 @@ interface Matrix2x2Props extends ChartSize {
     alt?: string;
 }
 /** A 2×2: labelled axes, quadrant names, sized bubbles and direct labels. */
-declare function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius, callout, alt, width, height }: Matrix2x2Props): react.JSX.Element;
+declare function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius, callout, alt, width, height, }: Matrix2x2Props): react.JSX.Element;
 
 interface StackedBarProps extends ChartSize {
     /** One entry per bar; `values` follow `series` order. */
@@ -832,7 +834,7 @@ interface WaterfallProps extends ChartSize {
     alt?: string;
 }
 /** A bridge from a start total through signed deltas to an end total. */
-declare function Waterfall({ steps, format, goodDirection, domain, callout, alt, width, height }: WaterfallProps): react.JSX.Element;
+declare function Waterfall({ steps, format, goodDirection, domain, callout, alt, width, height, }: WaterfallProps): react.JSX.Element;
 
 /** A Harvey ball: 0 (empty) to 4 (full) quarters. Its level is also in the accessible name. */
 declare function HarveyBall({ level, size, label }: {
@@ -869,6 +871,6 @@ interface HarveyTableProps {
     keyNote?: ReactNode;
 }
 /** Options × criteria: Harvey balls (0–4) and text cells, with one row marked as the recommendation. */
-declare function HarveyTable({ columns, rows, corner, showKey, keyNote }: HarveyTableProps): react.JSX.Element;
+declare function HarveyTable({ columns, rows, corner, showKey, keyNote, }: HarveyTableProps): react.JSX.Element;
 
-export { Annotation, type AnnotationGeometry, type AnnotationProps, type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, REPEATABLE_ROLES, Rect, Ref, type ResolvedTransition, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, Tracker, type TrackerProps, type TransitionKind, WORDS_PER_MINUTE, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, flipFrom, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, resolveTransition, runTransition, slideZoomFrame, slideZoomSamples, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };
+export { Annotation, type AnnotationGeometry, type AnnotationProps, type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, REPEATABLE_ROLES, Rect, Ref, type ResolvedTransition, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, Tracker, type TrackerProps, type TransitionKind, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, flipFrom, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, resolveTransition, runTransition, slideZoomFrame, slideZoomSamples, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };

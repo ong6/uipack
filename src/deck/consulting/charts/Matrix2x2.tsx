@@ -37,7 +37,18 @@ export interface Matrix2x2Props extends ChartSize {
 }
 
 /** A 2×2: labelled axes, quadrant names, sized bubbles and direct labels. */
-export function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, callout, alt, width, height }: Matrix2x2Props) {
+export function Matrix2x2({
+  x: xa,
+  y: ya,
+  points,
+  quadrants,
+  focus,
+  maxRadius = 46,
+  callout,
+  alt,
+  width,
+  height,
+}: Matrix2x2Props) {
   const size = useChartSize({ width, height });
   const W = size.width;
   const H = size.height;
@@ -69,7 +80,12 @@ export function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 
   const sorted = [...points].sort((a, b) => (b.size ?? 1) - (a.size ?? 1));
   return (
     <Frame size={size} label={label}>
-      {focus && <rect className="uipack-cx-quad-focus" {...{ x: quads[focus].x, y: quads[focus].y, width: quads[focus].w, height: quads[focus].h }} />}
+      {focus && (
+        <rect
+          className="uipack-cx-quad-focus"
+          {...{ x: quads[focus].x, y: quads[focus].y, width: quads[focus].w, height: quads[focus].h }}
+        />
+      )}
       <rect className="uipack-cx-plot-edge" x={left} y={top} width={right - left} height={bottom - top} />
       <line className="uipack-cx-split" x1={midX} x2={midX} y1={top} y2={bottom} />
       <line className="uipack-cx-split" x1={left} x2={right} y1={midY} y2={midY} />
@@ -104,7 +120,15 @@ export function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 
         </Text>
       ))}
       {xTicks.map((t, i) => (
-        <Text key={`x${t}`} x={xs(t)} y={bottom + 24} size={CX_TYPE.tick} anchor={i === 0 ? "start" : i === 2 ? "end" : "middle"} muted className="uipack-cx-tabular">
+        <Text
+          key={`x${t}`}
+          x={xs(t)}
+          y={bottom + 24}
+          size={CX_TYPE.tick}
+          anchor={i === 0 ? "start" : i === 2 ? "end" : "middle"}
+          muted
+          className="uipack-cx-tabular"
+        >
           {fx(t)}
         </Text>
       ))}
@@ -139,7 +163,13 @@ export function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 
             >
               <title>{`${p.label}: ${xa.label} ${fx(p.x)}, ${ya.label} ${fy(p.y)}`}</title>
             </circle>
-            <Text x={lx} y={ly} anchor={at === "right" ? "start" : at === "left" ? "end" : "middle"} weight={p.highlight ? 600 : undefined} halo>
+            <Text
+              x={lx}
+              y={ly}
+              anchor={at === "right" ? "start" : at === "left" ? "end" : "middle"}
+              weight={p.highlight ? 600 : undefined}
+              halo
+            >
               {p.label}
             </Text>
           </g>
@@ -151,7 +181,17 @@ export function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 
           if (!p) return null;
           const px = xs(p.x);
           const py = ys(p.y);
-          return <Annotation x={px} y={py} tx={px + callout.dx} ty={py + callout.dy} text={callout.text} width={callout.width} align={callout.align} />;
+          return (
+            <Annotation
+              x={px}
+              y={py}
+              tx={px + callout.dx}
+              ty={py + callout.dy}
+              text={callout.text}
+              width={callout.width}
+              align={callout.align}
+            />
+          );
         })()}
     </Frame>
   );

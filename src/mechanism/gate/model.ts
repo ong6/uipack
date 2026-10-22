@@ -76,5 +76,7 @@ export const PASS_CHECK = checkAt(0);
 export const RETURN_CHECK = checkAt(2);
 
 export function verdictText(check: Check) {
-  return check.verdict === "pass" ? `reads ${one(check.value)} ≤ ${one(LIMIT)} · passed` : `reads ${one(check.value)} > ${one(LIMIT)} · returned`;
+  return check.verdict === "pass"
+    ? `reads ${one(check.value)} ≤ ${one(LIMIT)} · passed`
+    : `reads ${one(check.value)} > ${one(LIMIT)} · returned`;
 }

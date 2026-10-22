@@ -1,0 +1,12 @@
+# Built, vendored and generated files keep the shape their tools write.
+dist/
+src/mechanism/kit/
+assets/manifest.json
+docs/assets/
+package-lock.json
+playground/dist/
+playground/e2e-static/
+test-results/
+playwright-report/
+# Markdown is prose with compact tables: Prettier pads every table column to its widest cell.
+*.md

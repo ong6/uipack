@@ -178,15 +178,11 @@ export function Panel({ title, unit, callout, morphId, emphasis, className, chil
   };
   return morphId ? (
     <Morph id={morphId} as="section" fit="stretch" {...props}>
-      <div className="uipack-cx-panel__inner">
-        {body}
-      </div>
+      <div className="uipack-cx-panel__inner">{body}</div>
     </Morph>
   ) : (
     <section {...props}>
-      <div className="uipack-cx-panel__inner">
-        {body}
-      </div>
+      <div className="uipack-cx-panel__inner">{body}</div>
     </section>
   );
 }

@@ -1,4 +1,4 @@
-import { expect as baseExpect, test as base, type Browser, type BrowserContext } from "@playwright/test";
+import { expect as baseExpect, test as base, type Browser, type BrowserContext, type Page } from "@playwright/test";
 
 export { expect, type Browser, type Page, type Locator, type BrowserContext } from "@playwright/test";
 
@@ -83,4 +83,16 @@ export async function waitForStable<T>(read: () => Promise<T>, { every = 100, ti
       { intervals: [every], timeout },
     )
     .toBe(true);
+}
+
+/**
+ * Waits until a playground page has rendered: the shell is up, the page's lazy chunk has replaced
+ * its "Loading …" status line (main.tsx), and the fonts are in. Measure layout or walk focus only
+ * after this; the status line is visible after 300ms, so "something under the title is visible"
+ * is not the same condition.
+ */
+export async function waitForPage(page: Page) {
+  await baseExpect(page.locator(".showcase-title")).toBeVisible();
+  await baseExpect(page.locator(".showcase-loading")).toHaveCount(0);
+  await page.evaluate(() => document.fonts.ready);
 }

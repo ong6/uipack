@@ -22,7 +22,8 @@ export const defaultSyncLoop: SyncLoopSpec = {
     number: "Figure 01",
     eyebrow: "Sync loop",
     title: "Edit where you use it, it flows back",
-    caption: "One upstream repo is a subtree inside every consumer. A start hook merges what moved upstream; a stop hook pushes local edits back. A plugin install reads the same repo one way.",
+    caption:
+      "One upstream repo is a subtree inside every consumer. A start hook merges what moved upstream; a stop hook pushes local edits back. A plugin install reads the same repo one way.",
     alt: "An upstream repo on the left holds skills, a catalog and a plugin manifest; three consumer repos on the right each pull at session start and push at session stop, and a plugin marketplace reads the upstream one way.",
   },
   upstream: {
@@ -61,7 +62,21 @@ export function syncLoopParts(spec: SyncLoopSpec = defaultSyncLoop, id: string):
       <Lane x={con.x} w={con.w} y={40} title="Consumers" />
       <Group {...up} title={spec.upstream.label} flow={[PULL, PUSH]}>
         {items.map((it, i) => (
-          <Node key={it.label} x={up.x + 16} y={up.y + 40 + i * 64} w={up.w - 32} h={48} label={it.label} hint={it.hint} sub={it.sub} icon={it.icon} align="left" flow={[PULL, PUSH]} size={13} subSize={10} />
+          <Node
+            key={it.label}
+            x={up.x + 16}
+            y={up.y + 40 + i * 64}
+            w={up.w - 32}
+            h={48}
+            label={it.label}
+            hint={it.hint}
+            sub={it.sub}
+            icon={it.icon}
+            align="left"
+            flow={[PULL, PUSH]}
+            size={13}
+            subSize={10}
+          />
         ))}
       </Group>
       {spec.consumers.map((c, i) => {
@@ -93,7 +108,18 @@ export function syncLoopParts(spec: SyncLoopSpec = defaultSyncLoop, id: string):
                 <Packet points={push} kind="change" dur={2.4} delay={-i * 0.6 - 1.2} flow={PUSH} r={4} />
               </>
             )}
-            <Node x={con.x} y={con.y0 + i * con.step} w={con.w} h={con.h} label={c.label} hint={c.hint} sub={c.hooks ? `${c.sub ?? ""} · ${c.hooks[0]} → ${c.hooks[1]}`.replace(/^ · /, "") : c.sub} icon={c.icon} align="left" flow={c.plugin ? PULL : [PULL, PUSH]} />
+            <Node
+              x={con.x}
+              y={con.y0 + i * con.step}
+              w={con.w}
+              h={con.h}
+              label={c.label}
+              hint={c.hint}
+              sub={c.hooks ? `${c.sub ?? ""} · ${c.hooks[0]} → ${c.hooks[1]}`.replace(/^ · /, "") : c.sub}
+              icon={c.icon}
+              align="left"
+              flow={c.plugin ? PULL : [PULL, PUSH]}
+            />
           </g>
         );
       })}
@@ -103,8 +129,20 @@ export function syncLoopParts(spec: SyncLoopSpec = defaultSyncLoop, id: string):
   );
 
   const steps = [
-    { label: spec.upstream.label, sub: spec.upstream.sub ?? items.map((i) => i.label).join(" · "), icon: "git" as const, flow: [PULL, PUSH].join(" ") },
-    ...spec.consumers.map((c) => ({ label: c.label, sub: c.plugin ? "reads one way" : (spec.pull ?? "pull") + " · " + (spec.push ?? "push"), icon: c.icon ?? ("git" as const), flow: c.plugin ? PULL : [PULL, PUSH].join(" "), kind: c.plugin ? ("request" as const) : ("change" as const), dashed: c.plugin })),
+    {
+      label: spec.upstream.label,
+      sub: spec.upstream.sub ?? items.map((i) => i.label).join(" · "),
+      icon: "git" as const,
+      flow: [PULL, PUSH].join(" "),
+    },
+    ...spec.consumers.map((c) => ({
+      label: c.label,
+      sub: c.plugin ? "reads one way" : (spec.pull ?? "pull") + " · " + (spec.push ?? "push"),
+      icon: c.icon ?? ("git" as const),
+      flow: c.plugin ? PULL : [PULL, PUSH].join(" "),
+      kind: c.plugin ? ("request" as const) : ("change" as const),
+      dashed: c.plugin,
+    })),
   ];
 
   return {

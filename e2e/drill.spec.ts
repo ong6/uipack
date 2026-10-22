@@ -1,7 +1,8 @@
 import { expect, test, type Page } from "./fixtures";
 
 const fig = (page: Page) => page.locator("#drill-main");
-const drillNode = (page: Page, id: string) => fig(page).locator(`.uipack-drill__layer[data-current] [data-drill="${id}"]:visible`).first();
+const drillNode = (page: Page, id: string) =>
+  fig(page).locator(`.uipack-drill__layer[data-current] [data-drill="${id}"]:visible`).first();
 const settled = async (page: Page) => {
   await expect(fig(page).locator(".uipack-drill__stage")).not.toHaveAttribute("data-flight", /.+/);
   await expect(fig(page).locator(".uipack-drill__layer")).toHaveCount(1);
@@ -76,12 +77,18 @@ test.describe("drill-down figure", () => {
     await freezeAt(page, 330);
     const m = await page.evaluate(() => {
       const inner = document.querySelector<HTMLElement>('#drill-main .uipack-drill__layer[data-role="inner"]')!;
-      const outerNode = document.querySelector('#drill-main .uipack-drill__layer:not([data-role]) [data-drill="checks"] > [data-uipack="node"] > rect')!;
+      const outerNode = document.querySelector(
+        '#drill-main .uipack-drill__layer:not([data-role]) [data-drill="checks"] > [data-uipack="node"] > rect',
+      )!;
       const r = inner.getBoundingClientRect();
       const s = r.width / inner.offsetWidth;
       const cs = getComputedStyle(inner);
       // Computed inset() uses the 1–4 value shorthand.
-      const v = cs.clipPath.match(/inset\(([^)]*?)(?: round|\))/)![1].trim().split(/\s+/).map(parseFloat);
+      const v = cs.clipPath
+        .match(/inset\(([^)]*?)(?: round|\))/)![1]
+        .trim()
+        .split(/\s+/)
+        .map(parseFloat);
       const [t, ri, b, l] = [v[0], v[1] ?? v[0], v[2] ?? v[0], v[3] ?? v[1] ?? v[0]];
       const label = document.querySelector('#drill-main [data-drill="checks"] > [data-uipack="node"] > text')!;
       return {
@@ -103,7 +110,11 @@ test.describe("drill-down figure", () => {
     expect(m.labelOpacity).toBeLessThan(1);
     // Later the child has taken over the label entirely.
     await freezeAt(page, 700);
-    const later = await page.evaluate(() => Number(getComputedStyle(document.querySelector('#drill-main [data-drill="checks"] > [data-uipack="node"] > text')!).opacity));
+    const later = await page.evaluate(() =>
+      Number(
+        getComputedStyle(document.querySelector('#drill-main [data-drill="checks"] > [data-uipack="node"] > text')!).opacity,
+      ),
+    );
     expect(later).toBeLessThan(0.05);
     await page.evaluate(() => document.getAnimations().forEach((a) => a.play()));
     await settled(page);
@@ -116,7 +127,10 @@ test.describe("drill-down figure", () => {
     await settled(page);
     await expect(fig(page).locator(".uipack-drill__layer")).toHaveAttribute("data-level", "harness");
     await expect(drillNode(page, "checks")).toBeFocused();
-    const opacity = await drillNode(page, "checks").locator(':scope > [data-uipack="node"] > text').first().evaluate((el) => getComputedStyle(el).opacity);
+    const opacity = await drillNode(page, "checks")
+      .locator(':scope > [data-uipack="node"] > text')
+      .first()
+      .evaluate((el) => getComputedStyle(el).opacity);
     expect(opacity).toBe("1");
     await expect(fig(page).getByRole("heading", { level: 3 })).toHaveText("Checks decide what leaves the harness");
   });
@@ -174,7 +188,10 @@ test.describe("phone", () => {
     expect(await overflow()).toBeLessThanOrEqual(0);
     await expect(fig(page).locator(".uipack-drill__narrow").first()).toBeVisible();
     // Labels in the narrow drawing render at a readable size.
-    const size = await node.locator(':scope > [data-uipack="node"] > text').first().evaluate((el) => el.getBoundingClientRect().height);
+    const size = await node
+      .locator(':scope > [data-uipack="node"] > text')
+      .first()
+      .evaluate((el) => el.getBoundingClientRect().height);
     expect(size).toBeGreaterThan(11);
     await node.tap();
     await settled(page);

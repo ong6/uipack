@@ -23,9 +23,7 @@ const ShowcaseThemeContext = createContext<ShowcaseTheme | null>(null);
 
 /** The page's theme, held once by main.tsx above the shell and the page: `?theme=` and `data-theme` follow it. */
 export function ShowcaseThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<"light" | "dark">(
-    document.documentElement.dataset.theme === "dark" ? "dark" : "light",
-  );
+  const [theme, setTheme] = useState<"light" | "dark">(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
   const flip = () => {
     const next = theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
@@ -142,11 +140,7 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
       </a>
       <header className="showcase-header">
         <div className="showcase-header__bar">
-          <a
-            className="showcase-brand"
-            href={`/?theme=${theme}`}
-            aria-label="UIPACK home"
-          >
+          <a className="showcase-brand" href={`/?theme=${theme}`} aria-label="UIPACK home">
             <Wordmark size={22} />
           </a>
           <div className="showcase-header__actions">
@@ -170,12 +164,7 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
               </span>
               <span aria-hidden="true">▾</span>
             </button>
-            <button
-              className="theme"
-              type="button"
-              aria-label={`${theme === "dark" ? "light" : "dark"} mode`}
-              onClick={flip}
-            >
+            <button className="theme" type="button" aria-label={`${theme === "dark" ? "light" : "dark"} mode`} onClick={flip}>
               <span className="theme__text" aria-hidden="true">
                 {theme === "dark" ? "light" : "dark"} mode
               </span>
@@ -189,11 +178,7 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
           {libraryGroups.map((g) => {
             const target = pageDefs.find((p) => p.id === g.defaultPage)!;
             return (
-              <a
-                key={g.id}
-                href={pageHref(target, theme)}
-                aria-current={g.id === group?.id ? "page" : undefined}
-              >
+              <a key={g.id} href={pageHref(target, theme)} aria-current={g.id === group?.id ? "page" : undefined}>
                 {g.label}
               </a>
             );
@@ -264,9 +249,7 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
                 .map((p, i, all) => (
                   <Fragment key={p.id}>
                     {/* Sub-views of one page sit indented under a label naming it. */}
-                    {p.query && all[i - 1]?.path !== p.path && (
-                      <span className="showcase-menu__sub">{p.title ?? p.label}</span>
-                    )}
+                    {p.query && all[i - 1]?.path !== p.path && <span className="showcase-menu__sub">{p.title ?? p.label}</span>}
                     <a
                       href={pageHref(p, theme)}
                       className={p.query ? "is-sub" : undefined}

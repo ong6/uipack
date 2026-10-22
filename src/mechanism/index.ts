@@ -1,7 +1,15 @@
 /* uipack/mechanism: the Mechanism style. Crafted isometric machines whose
    working is the explanation, after Anatomy (MIT,
    https://github.com/wheresryan22/anatomy), in the Technical palette. */
-export { VerificationGate, GateMachine, GATE_CAPTION, GATE_LIMIT, type VerificationGateProps, type GateMachineProps, type GatePose } from "./gate/VerificationGate";
+export {
+  VerificationGate,
+  GateMachine,
+  GATE_CAPTION,
+  GATE_LIMIT,
+  type VerificationGateProps,
+  type GateMachineProps,
+  type GatePose,
+} from "./gate/VerificationGate";
 export { MechanismFrame, type MechanismFrameProps } from "./MechanismFrame";
 // The gate's model and motion, renamed at this boundary so a second machine's `checkAt` or `PERIOD`
 // cannot clash: every machine-specific export carries its machine's prefix. (GATE_LIMIT is above.)

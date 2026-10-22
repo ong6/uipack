@@ -302,4 +302,7 @@ export function formatValue(value: number, options: FormatOptions = {}): string 
 }
 
 /** A formatter bound to options, for chart props. */
-export const formatter = (options: FormatOptions = {}) => (v: number) => formatValue(v, options);
+export const formatter =
+  (options: FormatOptions = {}) =>
+  (v: number) =>
+    formatValue(v, options);

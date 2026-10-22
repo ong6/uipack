@@ -23,7 +23,8 @@ export const defaultSkillLifecycle: SkillLifecycleSpec = {
     number: "Figure 01",
     eyebrow: "Skill lifecycle",
     title: "A skill earns its place, then flows back",
-    caption: "A candidate skill is scored against a no-skill baseline before it gets a version. Versions install into every consumer; what breaks in use comes back as feedback to the author.",
+    caption:
+      "A candidate skill is scored against a no-skill baseline before it gets a version. Versions install into every consumer; what breaks in use comes back as feedback to the author.",
     alt: "An author writes a skill, an evaluator scores it against a baseline, a version is cut and installed into three consumer repos, and feedback loops from the consumers back to the author.",
   },
   author: { label: "Author", sub: "SKILL.md · examples", icon: "user" },
@@ -53,7 +54,10 @@ export function skillLifecycleParts(spec: SkillLifecycleSpec = defaultSkillLifec
   const bus = {
     axis: "v" as const,
     at: busX,
-    stubs: [...spec.consumers.map((_, i) => ({ at: conY(i), to: con.x, arrow: true, flow: FWD })), { at: cy, to: version.x + version.w, flow: FWD }],
+    stubs: [
+      ...spec.consumers.map((_, i) => ({ at: conY(i), to: con.x, arrow: true, flow: FWD })),
+      { at: cy, to: version.x + version.w, flow: FWD },
+    ],
   };
   const a2e: Point[] = [
     [author.x + author.w, cy],
@@ -80,34 +84,82 @@ export function skillLifecycleParts(spec: SkillLifecycleSpec = defaultSkillLifec
       <Lane x={evaluate.x} w={evaluate.w} y={40} title="Evaluate" />
       <Lane x={version.x} w={version.w} y={40} title="Version" />
       <Lane x={con.x} w={con.w} y={40} title="Consumers" />
-      <Node {...author} label={spec.author.label} hint={spec.author.hint} sub={spec.author.sub} icon={spec.author.icon ?? "user"} flow={[FWD, BACK]} />
+      <Node
+        {...author}
+        label={spec.author.label}
+        hint={spec.author.hint}
+        sub={spec.author.sub}
+        icon={spec.author.icon ?? "user"}
+        flow={[FWD, BACK]}
+      />
       <Connector points={a2e} defs={id} kind="request" flow={FWD} />
       <Packet points={a2e} kind="request" dur={1.4} flow={FWD} r={4} />
-      <Node {...evaluate} label={spec.evaluate.label} sub={spec.evaluate.sub} icon={spec.evaluate.icon ?? "chart"} flow={FWD} hint={spec.evaluate.hint ?? `Scored against: ${spec.evaluate.baseline}`} />
-      <Chip x={evaluate.x} y={evaluate.y + evaluate.h + 12} w={evaluate.w} h={20} label={`baseline · ${spec.evaluate.baseline}`} dashed />
+      <Node
+        {...evaluate}
+        label={spec.evaluate.label}
+        sub={spec.evaluate.sub}
+        icon={spec.evaluate.icon ?? "chart"}
+        flow={FWD}
+        hint={spec.evaluate.hint ?? `Scored against: ${spec.evaluate.baseline}`}
+      />
+      <Chip
+        x={evaluate.x}
+        y={evaluate.y + evaluate.h + 12}
+        w={evaluate.w}
+        h={20}
+        label={`baseline · ${spec.evaluate.baseline}`}
+        dashed
+      />
       <Connector points={e2v} defs={id} kind="accent" flow={FWD} />
       <Packet points={e2v} kind="accent" dur={1.4} delay={-0.7} flow={FWD} r={4} />
       <Label x={(e2v[0][0] + e2v[1][0]) / 2} y={cy - 10} text="passes" anchor="middle" accent />
-      <Node {...version} label={spec.version.label} hint={spec.version.hint} sub={spec.version.sub} icon={spec.version.icon ?? "git"} flow={FWD} />
+      <Node
+        {...version}
+        label={spec.version.label}
+        hint={spec.version.hint}
+        sub={spec.version.sub}
+        icon={spec.version.icon ?? "git"}
+        flow={FWD}
+      />
       <Bus {...bus} from={Math.min(conY(0), cy)} to={trunkEnd} defs={id} />
       <Packet points={busStub(bus, bus.stubs[n])} kind="request" dur={1.2} flow={FWD} r={4} />
       {spec.consumers.map((c, i) => (
         <g key={c.label}>
           <Packet points={busStub(bus, bus.stubs[i])} kind="request" dur={1.2} delay={-i * 0.4} flow={FWD} r={4} />
-          <Node x={con.x} y={con.y0 + i * con.step} w={con.w} h={con.h} label={c.label} hint={c.hint} sub={c.sub} icon={c.icon} flow={[FWD, BACK]} />
+          <Node
+            x={con.x}
+            y={con.y0 + i * con.step}
+            w={con.w}
+            h={con.h}
+            label={c.label}
+            hint={c.hint}
+            sub={c.sub}
+            icon={c.icon}
+            flow={[FWD, BACK]}
+          />
         </g>
       ))}
       <Label x={(version.x + version.w + busX) / 2} y={cy - 10} text="install" anchor="middle" />
       <Connector points={back} defs={id} kind="change" flow={BACK} dashed />
       <Packet points={back} kind="change" dur={3.2} flow={BACK} />
       <Packet points={back} kind="change" dur={3.2} delay={-1.6} flow={BACK} />
-      <Label x={(busX + author.x) / 2} y={loopY - 10} text={`${spec.feedback.label} · ${spec.feedback.sub ?? ""}`.trim()} anchor="middle" />
+      <Label
+        x={(busX + author.x) / 2}
+        y={loopY - 10}
+        text={`${spec.feedback.label} · ${spec.feedback.sub ?? ""}`.trim()}
+        anchor="middle"
+      />
     </>
   );
 
   const steps = [
     { ...spec.author, icon: spec.author.icon ?? ("user" as const), flow: FWD },
-    { ...spec.evaluate, sub: `${spec.evaluate.sub ?? ""} · vs ${spec.evaluate.baseline}`.replace(/^ · /, ""), icon: spec.evaluate.icon ?? ("chart" as const), flow: FWD },
+    {
+      ...spec.evaluate,
+      sub: `${spec.evaluate.sub ?? ""} · vs ${spec.evaluate.baseline}`.replace(/^ · /, ""),
+      icon: spec.evaluate.icon ?? ("chart" as const),
+      flow: FWD,
+    },
     { ...spec.version, icon: spec.version.icon ?? ("git" as const), kind: "accent" as const, flow: FWD },
     { label: spec.consumers.map((c) => c.label).join(" · "), sub: "consumers", icon: "git" as const, flow: FWD },
     { ...spec.feedback, icon: spec.feedback.icon ?? ("warning" as const), kind: "change" as const, flow: BACK, dashed: true },
@@ -126,4 +178,5 @@ export function skillLifecycleParts(spec: SkillLifecycleSpec = defaultSkillLifec
   };
 }
 
-export const skillLifecycle = (spec: SkillLifecycleSpec = defaultSkillLifecycle, id?: string) => presetFigure(spec, skillLifecycleParts, id);
+export const skillLifecycle = (spec: SkillLifecycleSpec = defaultSkillLifecycle, id?: string) =>
+  presetFigure(spec, skillLifecycleParts, id);

@@ -38,10 +38,7 @@ export interface DrillLevel {
 export type DrillPath = readonly string[];
 
 export type DrillAction =
-  | { type: "open"; id: string }
-  | { type: "up" }
-  | { type: "to"; depth: number }
-  | { type: "set"; path: DrillPath };
+  { type: "open"; id: string } | { type: "up" } | { type: "to"; depth: number } | { type: "set"; path: DrillPath };
 
 /**
  * Keep the valid prefix of `path`: it starts at the root, names known levels,

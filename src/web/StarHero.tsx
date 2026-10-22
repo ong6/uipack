@@ -23,7 +23,17 @@ export interface StarHeroProps {
  * One focal visual derived from the product story, masked so it never fights the headline,
  * with a quiet noise layer for depth. Copy uses opacity hierarchy, not extra colours.
  */
-export function StarHero({ eyebrow, title, subtitle, actions, visual, values, children, noise = 0.07, headingId }: StarHeroProps) {
+export function StarHero({
+  eyebrow,
+  title,
+  subtitle,
+  actions,
+  visual,
+  values,
+  children,
+  noise = 0.07,
+  headingId,
+}: StarHeroProps) {
   return (
     <section className="uipack-web-hero" aria-labelledby={headingId}>
       <div className="uipack-web-hero__visual">{visual ?? <StarChart values={values} />}</div>

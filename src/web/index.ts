@@ -6,7 +6,15 @@ export { Section, FeatureGrid, type SectionProps, type Feature, type FeatureGrid
 export { SpotlightCard, type SpotlightCardProps } from "./SpotlightCard";
 export { RevealText, type RevealTextProps } from "./RevealText";
 export { StarHero, type StarHeroProps } from "./StarHero";
-export { StarChart, RhymeIcon, NoiseLayer, curvePath, DEFAULT_STAR_VALUES, type StarChartProps, type RhymeIconProps } from "./motif";
+export {
+  StarChart,
+  RhymeIcon,
+  NoiseLayer,
+  curvePath,
+  DEFAULT_STAR_VALUES,
+  type StarChartProps,
+  type RhymeIconProps,
+} from "./motif";
 export { DemoPlayer, type DemoPlayerProps } from "./DemoPlayer";
 export {
   demoFrame,

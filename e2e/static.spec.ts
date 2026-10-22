@@ -11,7 +11,9 @@ async function mount(page: import("@playwright/test").Page, src: string) {
     document.body.innerHTML = `<img id="static-img" src="${src}" style="width:900px;display:block">`;
   }, src);
   const img = page.locator("#static-img");
-  await expect.poll(() => img.evaluate((el) => (el as HTMLImageElement).complete && (el as HTMLImageElement).naturalWidth > 0)).toBe(true);
+  await expect
+    .poll(() => img.evaluate((el) => (el as HTMLImageElement).complete && (el as HTMLImageElement).naturalWidth > 0))
+    .toBe(true);
   await img.evaluate((el) => (el as HTMLImageElement).decode());
   return img;
 }

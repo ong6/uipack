@@ -1,5 +1,6 @@
 'use strict';
 
+var chunk3OIHMAKF_cjs = require('./chunk-3OIHMAKF.cjs');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
 
@@ -59,7 +60,7 @@ function renderSlideSvg(slide, options = {}) {
 function estimateSpeechSeconds(say) {
   const words = say.trim().match(/\S+/g)?.length ?? 0;
   if (!words) return 0;
-  return Math.max(5, Math.round(words / 135 * 12) * 5);
+  return Math.max(5, Math.round(words / chunk3OIHMAKF_cjs.WORDS_PER_MINUTE * 12) * 5);
 }
 function formatSpeechGuide(speech) {
   return [
@@ -87,17 +88,9 @@ async function copyText(value) {
   field.remove();
   if (!copied) throw new Error("Copy is unavailable.");
 }
-function SpeakerGuide({
-  speech,
-  slideTitle = "Slide",
-  onCopy,
-  className = "",
-  theme = "light"
-}) {
+function SpeakerGuide({ speech, slideTitle = "Slide", onCopy, className = "", theme = "light" }) {
   const headingId = react.useId();
-  const [status, setStatus] = react.useState(
-    "idle"
-  );
+  const [status, setStatus] = react.useState("idle");
   const seconds = estimateSpeechSeconds(speech.say);
   const text = formatSpeechGuide(speech);
   const copy = async () => {
@@ -109,82 +102,52 @@ function SpeakerGuide({
       setStatus("error");
     }
   };
-  return /* @__PURE__ */ jsxRuntime.jsxs(
-    "aside",
-    {
-      className: `uipack-speaker-guide ${className}`.trim(),
-      "aria-labelledby": headingId,
-      "data-theme": theme,
-      children: [
-        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-speaker-guide__heading", children: [
-          /* @__PURE__ */ jsxRuntime.jsx("h3", { id: headingId, children: "Speaker guide" }),
-          /* @__PURE__ */ jsxRuntime.jsxs("span", { "aria-label": `Estimated speaking time ${seconds} seconds`, children: [
-            "~",
-            seconds,
-            " sec"
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-speaker-guide__section", children: [
-          /* @__PURE__ */ jsxRuntime.jsx("h4", { children: "Say this" }),
-          /* @__PURE__ */ jsxRuntime.jsx("p", { children: speech.say })
-        ] }),
-        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-speaker-guide__section", children: [
-          /* @__PURE__ */ jsxRuntime.jsx("h4", { children: "Delivery" }),
-          /* @__PURE__ */ jsxRuntime.jsx("p", { children: speech.delivery })
-        ] }),
-        speech.next && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-speaker-guide__section", children: [
-          /* @__PURE__ */ jsxRuntime.jsx("h4", { children: "Into the next slide" }),
-          /* @__PURE__ */ jsxRuntime.jsx("p", { children: speech.next })
-        ] }),
-        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-speaker-guide__action", children: [
-          /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", onClick: () => void copy(), children: "Copy talk track" }),
-          /* @__PURE__ */ jsxRuntime.jsx("span", { role: "status", "aria-live": "polite", "aria-atomic": "true", children: status === "copied" ? `${slideTitle} talk track copied.` : status === "error" ? "Could not copy the talk track. Select the text instead." : "" })
-        ] })
-      ]
-    }
-  );
+  return /* @__PURE__ */ jsxRuntime.jsxs("aside", { className: `uipack-speaker-guide ${className}`.trim(), "aria-labelledby": headingId, "data-theme": theme, children: [
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-speaker-guide__heading", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("h3", { id: headingId, children: "Speaker guide" }),
+      /* @__PURE__ */ jsxRuntime.jsxs("span", { "aria-label": `Estimated speaking time ${seconds} seconds`, children: [
+        "~",
+        seconds,
+        " sec"
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-speaker-guide__section", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("h4", { children: "Say this" }),
+      /* @__PURE__ */ jsxRuntime.jsx("p", { children: speech.say })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-speaker-guide__section", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("h4", { children: "Delivery" }),
+      /* @__PURE__ */ jsxRuntime.jsx("p", { children: speech.delivery })
+    ] }),
+    speech.next && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-speaker-guide__section", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("h4", { children: "Into the next slide" }),
+      /* @__PURE__ */ jsxRuntime.jsx("p", { children: speech.next })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-speaker-guide__action", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", onClick: () => void copy(), children: "Copy talk track" }),
+      /* @__PURE__ */ jsxRuntime.jsx("span", { role: "status", "aria-live": "polite", "aria-atomic": "true", children: status === "copied" ? `${slideTitle} talk track copied.` : status === "error" ? "Could not copy the talk track. Select the text instead." : "" })
+    ] })
+  ] });
 }
-function SlideStarter({
-  slide,
-  theme = "light",
-  showSpeech = true,
-  className = "",
-  onCopySpeech
-}) {
-  return /* @__PURE__ */ jsxRuntime.jsxs(
-    "section",
-    {
-      className: `uipack-slide-starter ${className}`.trim(),
-      "data-theme": theme,
-      "data-layout": slide.layout,
-      children: [
-        /* @__PURE__ */ jsxRuntime.jsxs("figure", { className: "uipack-slide-starter__figure", children: [
-          /* @__PURE__ */ jsxRuntime.jsx(
-            "div",
-            {
-              className: "uipack-slide-starter__preview",
-              dangerouslySetInnerHTML: {
-                __html: renderSlideSvg(slide, { theme })
-              }
-            }
-          ),
-          /* @__PURE__ */ jsxRuntime.jsxs("figcaption", { children: [
-            /* @__PURE__ */ jsxRuntime.jsx("strong", { children: slide.title }),
-            /* @__PURE__ */ jsxRuntime.jsx("span", { children: slide.description })
-          ] })
-        ] }),
-        showSpeech && /* @__PURE__ */ jsxRuntime.jsx(
-          SpeakerGuide,
-          {
-            speech: slide.speech,
-            slideTitle: slide.title,
-            theme,
-            onCopy: onCopySpeech
+function SlideStarter({ slide, theme = "light", showSpeech = true, className = "", onCopySpeech }) {
+  return /* @__PURE__ */ jsxRuntime.jsxs("section", { className: `uipack-slide-starter ${className}`.trim(), "data-theme": theme, "data-layout": slide.layout, children: [
+    /* @__PURE__ */ jsxRuntime.jsxs("figure", { className: "uipack-slide-starter__figure", children: [
+      /* @__PURE__ */ jsxRuntime.jsx(
+        "div",
+        {
+          className: "uipack-slide-starter__preview",
+          dangerouslySetInnerHTML: {
+            __html: renderSlideSvg(slide, { theme })
           }
-        )
-      ]
-    }
-  );
+        }
+      ),
+      /* @__PURE__ */ jsxRuntime.jsxs("figcaption", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx("strong", { children: slide.title }),
+        /* @__PURE__ */ jsxRuntime.jsx("span", { children: slide.description })
+      ] })
+    ] }),
+    showSpeech && /* @__PURE__ */ jsxRuntime.jsx(SpeakerGuide, { speech: slide.speech, slideTitle: slide.title, theme, onCopy: onCopySpeech })
+  ] });
 }
 
 exports.SlideStarter = SlideStarter;

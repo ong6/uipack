@@ -8,7 +8,15 @@ import { agentLoop } from "../src/presets";
 import { renderStatic } from "../src/static";
 import { LayerStack, SpanChart } from "../src/charts";
 import { resolve } from "node:path";
-import { aiStack, aiStackDiagram, aiStackItems, aiStackLayers, aiStackTiers, aiStackZones, syntheticStack } from "../examples/aiStack";
+import {
+  aiStack,
+  aiStackDiagram,
+  aiStackItems,
+  aiStackLayers,
+  aiStackTiers,
+  aiStackZones,
+  syntheticStack,
+} from "../examples/aiStack";
 
 const OUT = "playground/e2e-static";
 mkdirSync(OUT, { recursive: true });
@@ -35,7 +43,14 @@ writeFileSync(
   page(
     "SpanChart, 160 rows",
     renderToStaticMarkup(
-      <SpanChart id="stress" title="160 synthetic rows" layers={aiStackLayers} zones={aiStackZones} tiers={aiStackTiers} items={syntheticStack(160)} />,
+      <SpanChart
+        id="stress"
+        title="160 synthetic rows"
+        layers={aiStackLayers}
+        zones={aiStackZones}
+        tiers={aiStackTiers}
+        items={syntheticStack(160)}
+      />,
     ),
   ),
 );
@@ -44,12 +59,43 @@ writeFileSync(`${OUT}/layer-stack.html`, page("LayerStack static", renderToStati
 // Stress rows at a host's 896px slot: long names, long value labels, long
 // buyer names and several tags, which must never crush a name or cut a badge.
 const stressItems = [
-  { id: "bds", name: "ByteDance Seed", primary: "pretraining", also: ["apps"], valueLabel: "part of ByteDance", tags: ["video", "image"], featured: true },
+  {
+    id: "bds",
+    name: "ByteDance Seed",
+    primary: "pretraining",
+    also: ["apps"],
+    valueLabel: "part of ByteDance",
+    tags: ["video", "image"],
+    featured: true,
+  },
   { id: "gh", name: "GitHub", primary: "harness", also: ["apps"], valueLabel: "part of Microsoft", featured: true },
   { id: "hpe", name: "Hewlett Packard Enterprise", primary: "systems", valueLabel: "$30B", featured: true },
-  { id: "hume", name: "Hume AI", primary: "apps", tags: ["voice"], status: { kind: "licensed" as const, label: "Google DeepMind, 2026" }, valueLabel: "—", featured: true },
-  { id: "pk", name: "Portkey", primary: "control", status: { kind: "acquired" as const, label: "Palo Alto Networks, 2026" }, valueLabel: "$117M", featured: true },
-  { id: "arize", name: "Arize AI", primary: "evals", also: ["control"], status: { kind: "pending" as const, label: "Dynatrace, 2026" }, valueLabel: "$915M", featured: true },
+  {
+    id: "hume",
+    name: "Hume AI",
+    primary: "apps",
+    tags: ["voice"],
+    status: { kind: "licensed" as const, label: "Google DeepMind, 2026" },
+    valueLabel: "—",
+    featured: true,
+  },
+  {
+    id: "pk",
+    name: "Portkey",
+    primary: "control",
+    status: { kind: "acquired" as const, label: "Palo Alto Networks, 2026" },
+    valueLabel: "$117M",
+    featured: true,
+  },
+  {
+    id: "arize",
+    name: "Arize AI",
+    primary: "evals",
+    also: ["control"],
+    status: { kind: "pending" as const, label: "Dynatrace, 2026" },
+    valueLabel: "$915M",
+    featured: true,
+  },
   { id: "short", name: "Oklo", primary: "power", valueLabel: "$15B", featured: true },
   { id: "plain", name: "Plain Co", primary: "data", status: { kind: "shutdown" as const, label: "2025" } },
   { id: "nv", name: "Nvidia", primary: "chips", also: ["systems", "cloud"], valueLabel: "$5.5T", value: 5500, featured: true },

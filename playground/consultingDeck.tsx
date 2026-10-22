@@ -105,7 +105,12 @@ export const consultingDeck: DeckSlide[] = [
         </Panel>
         <Panel
           title="Freight and labour took 2.8 of the 3.1 points"
-          unit={<>Operating margin<Ref n={1} />, % of revenue, FY22 → FY25</>}
+          unit={
+            <>
+              Operating margin
+              <Ref n={1} />, % of revenue, FY22 → FY25
+            </>
+          }
           cols={5}
         >
           <Waterfall
@@ -162,13 +167,28 @@ export const consultingDeck: DeckSlide[] = [
         tracker={tracker("Situation")}
         sticker={sticker}
         label={label}
-        title={["Cost per order rose to ", <Morph key="n" id="cost-per-order" as="span">$8.40</Morph>, " as orders spread across five sites"]}
+        title={[
+          "Cost per order rose to ",
+          <Morph key="n" id="cost-per-order" as="span">
+            $8.40
+          </Morph>,
+          " as orders spread across five sites",
+        ]}
         subtitle="Fulfilment network, FY22–FY25"
         takeaway="The network grew in sites, not in scale: each new site added split shipments and part-empty shifts."
         notes={["Index of annual totals; FY22 = 100.", "Dashed line: network average, weighted by orders shipped."]}
         source={source}
       >
-        <Panel title="Fulfilment cost outgrew orders from FY23" unit={<>Index, FY22 = 100<Ref n={1} /></>} cols={4}>
+        <Panel
+          title="Fulfilment cost outgrew orders from FY23"
+          unit={
+            <>
+              Index, FY22 = 100
+              <Ref n={1} />
+            </>
+          }
+          cols={4}
+        >
           <LineChart
             x={["FY22", "FY23", "FY24", "FY25"]}
             format={formatter()}
@@ -195,7 +215,12 @@ export const consultingDeck: DeckSlide[] = [
         </Panel>
         <Panel
           title="Two older sites cost most"
-          unit={<>$ per order, FY25<Ref n={2} /></>}
+          unit={
+            <>
+              $ per order, FY25
+              <Ref n={2} />
+            </>
+          }
           cols={4}
           morphId="site-costs"
           callout="33% of orders"
@@ -230,7 +255,12 @@ export const consultingDeck: DeckSlide[] = [
       >
         <Panel
           title="The two oldest sites sit in the consolidate corner"
-          unit={<>Utilisation<Ref n={1} /> against cost per order; bubble area = orders shipped, FY25</>}
+          unit={
+            <>
+              Utilisation
+              <Ref n={1} /> against cost per order; bubble area = orders shipped, FY25
+            </>
+          }
           cols={7}
         >
           <Matrix2x2
@@ -245,7 +275,12 @@ export const consultingDeck: DeckSlide[] = [
         </Panel>
         <Panel
           title="Their orders split into two parcels twice as often"
-          unit={<>Share of orders by shipment type<Ref n={2} />, %, FY25</>}
+          unit={
+            <>
+              Share of orders by shipment type
+              <Ref n={2} />, %, FY25
+            </>
+          }
           cols={5}
         >
           <StackedBar
@@ -282,14 +317,36 @@ export const consultingDeck: DeckSlide[] = [
         title="Two hubs cost $6M more than outsourcing and repay it in two years"
         subtitle="Fulfilment network options, FY27 run-rate; $M"
         takeaway="Against outsourcing, two hubs cost $6M more up front ($9M vs $3M) and save $3M a year more ($14M vs $11M), so the gap is repaid in two years; peak capacity stays in-house."
-        notes={["Run-rate from FY27; $M.", "Full ball = most favourable: highest margin, lowest service risk, fastest, easiest to undo."]}
+        notes={[
+          "Run-rate from FY27; $M.",
+          "Full ball = most favourable: highest margin, lowest service risk, fastest, easiest to undo.",
+        ]}
         source={source}
       >
-        <Panel title="Four options on six criteria" unit={<>Harvey balls scored by the working team<Ref n={2} /></>} cols={12}>
+        <Panel
+          title="Four options on six criteria"
+          unit={
+            <>
+              Harvey balls scored by the working team
+              <Ref n={2} />
+            </>
+          }
+          cols={12}
+        >
           <HarveyTable
             corner="Option"
             columns={[
-              { key: "saving", label: <>Saving a year<Ref n={1} /></>, kind: "text", width: "15%" },
+              {
+                key: "saving",
+                label: (
+                  <>
+                    Saving a year
+                    <Ref n={1} />
+                  </>
+                ),
+                kind: "text",
+                width: "15%",
+              },
               { key: "cost", label: "One-off cost", kind: "text", width: "13%" },
               { key: "margin", label: "Margin", width: "10%" },
               { key: "service", label: "Service", width: "10%" },
@@ -342,10 +399,22 @@ export const consultingDeck: DeckSlide[] = [
         title="Two hubs save most; the price is nine months of transition and weaker service"
         subtitle="Fulfilment cost, FY25 actual to FY27 run-rate"
         takeaway="Accept a two-point dip in on-time delivery for two quarters to take $14M a year out of the cost base."
-        notes={["Axis starts at $80M, so the totals are truncated.", "Dual running in months 6–9: both closing sites and both hubs are staffed while orders move."]}
+        notes={[
+          "Axis starts at $80M, so the totals are truncated.",
+          "Dual running in months 6–9: both closing sites and both hubs are staffed while orders move.",
+        ]}
         source={source}
       >
-        <Panel title="$14M comes out of the cost base by FY27" unit={<>Fulfilment cost, $M a year<Ref n={1} /></>} cols={7}>
+        <Panel
+          title="$14M comes out of the cost base by FY27"
+          unit={
+            <>
+              Fulfilment cost, $M a year
+              <Ref n={1} />
+            </>
+          }
+          cols={7}
+        >
           <Waterfall
             format={oneDp}
             goodDirection="down"
@@ -360,7 +429,16 @@ export const consultingDeck: DeckSlide[] = [
             ]}
           />
         </Panel>
-        <Panel title="What it costs and what it returns" unit={<>Two-hub option; nine-month transition, dual running in months 6–9<Ref n={2} /></>} cols={5}>
+        <Panel
+          title="What it costs and what it returns"
+          unit={
+            <>
+              Two-hub option; nine-month transition, dual running in months 6–9
+              <Ref n={2} />
+            </>
+          }
+          cols={5}
+        >
           <KpiTiles
             columns={2}
             items={[
@@ -401,12 +479,21 @@ export const consultingDeck: DeckSlide[] = [
         title="Nine months and $9M; done when cost per order falls below $7.30"
         subtitle="Two-hub option; months from approval"
         rows="minmax(0, 1fr) auto"
-notes={["Savings less the $9M one-off: $1M as Northgate closes in M6–M9, then $3.5M a quarter from M9.", "Margin erosion continues at the FY23–FY25 rate."]}
+        notes={[
+          "Savings less the $9M one-off: $1M as Northgate closes in M6–M9, then $3.5M a quarter from M9.",
+          "Margin erosion continues at the FY23–FY25 rate.",
+        ]}
         source={source}
       >
         <Panel
           title="Cash turns positive in month 16"
-          unit={<>Cumulative net cash<Ref n={1} />, $M; do nothing<Ref n={2} /> for comparison</>}
+          unit={
+            <>
+              Cumulative net cash
+              <Ref n={1} />, $M; do nothing
+              <Ref n={2} /> for comparison
+            </>
+          }
           cols={7}
           rows={2}
         >
@@ -420,7 +507,14 @@ notes={["Savings less the $9M one-off: $1M as Northgate closes in M6–M9, then 
               { name: "Two hubs", values: [0, -3.0, -6.5, -8.0, -4.5, -1.0, 2.5, 6.0, 9.5], highlight: true },
               { name: "Do nothing", values: [0, -0.8, -1.6, -2.5, -3.4, -4.3, -5.3, -6.3, -7.3] },
             ]}
-            annotate={{ series: "Two hubs", index: 3, text: "Peak outlay $8M while both networks run", dx: 90, dy: 12, width: 250 }}
+            annotate={{
+              series: "Two hubs",
+              index: 3,
+              text: "Peak outlay $8M while both networks run",
+              dx: 90,
+              dy: 12,
+              width: 250,
+            }}
           />
         </Panel>
         <Panel title="Three phases, one owner each" unit="A phase ends when its exit test passes" cols={5}>
@@ -435,7 +529,12 @@ notes={["Savings less the $9M one-off: $1M as Northgate closes in M6–M9, then 
               { label: "M0–M3", cells: { what: "Start expanding Eastfield and Harbour", owner: "Operations" } },
               { label: "M3–M6", cells: { what: "Hire and train hub teams", owner: "People" } },
               { label: "M6–M9", cells: { what: "Dual running: move Northgate, then Riverside", owner: "Operations" } },
-              { label: "M9", highlight: true, tag: "Done", cells: { what: "Both sites closed; cost per order below $7.30", owner: "Finance" } },
+              {
+                label: "M9",
+                highlight: true,
+                tag: "Done",
+                cells: { what: "Both sites closed; cost per order below $7.30", owner: "Finance" },
+              },
             ]}
           />
         </Panel>
@@ -478,7 +577,12 @@ notes={["Savings less the $9M one-off: $1M as Northgate closes in M6–M9, then 
               { key: "by", label: "By", kind: "text", width: "16%" },
             ]}
             rows={[
-              { label: "Approve the $9M one-off budget", highlight: true, tag: "First", cells: { owner: "Executive committee", by: "14 March" } },
+              {
+                label: "Approve the $9M one-off budget",
+                highlight: true,
+                tag: "First",
+                cells: { owner: "Executive committee", by: "14 March" },
+              },
               { label: "Confirm both sites close in FY26", cells: { owner: "Chief operating officer", by: "14 March" } },
               { label: "Name a full-time transition lead", cells: { owner: "Operations", by: "31 March" } },
             ]}
@@ -490,11 +594,24 @@ notes={["Savings less the $9M one-off: $1M as Northgate closes in M6–M9, then 
             items={[
               { label: "Saving a year", value: "$14M", highlight: true },
               { label: "Payback", value: "16", unit: "months" },
-              { label: "Cost per order", value: "$7.30", delta: { text: "−13%", direction: "down", sentiment: "good", period: "vs FY25" } },
+              {
+                label: "Cost per order",
+                value: "$7.30",
+                delta: { text: "−13%", direction: "down", sentiment: "good", period: "vs FY25" },
+              },
             ]}
           />
         </Panel>
-        <Panel title="Every quarter of delay forgoes $3.5M" unit={<>Saving forgone<Ref n={1} /> by start quarter, $M</>} cols={8}>
+        <Panel
+          title="Every quarter of delay forgoes $3.5M"
+          unit={
+            <>
+              Saving forgone
+              <Ref n={1} /> by start quarter, $M
+            </>
+          }
+          cols={8}
+        >
           <BarChart
             orientation="vertical"
             format={(v) => formatValue(v, { prefix: "$", suffix: "M", decimals: Number.isInteger(v) ? 0 : 1 })}
@@ -524,14 +641,23 @@ notes={["Savings less the $9M one-off: $1M as Northgate closes in M6–M9, then 
         sticker={sticker}
         label={label}
         title="Cost model: two hubs stay ahead unless hub cost passes $7.80 an order"
-        subtitle={<>Appendix · inputs behind every number in this deck, including the $9M one-off cost<Ref n={2} />; FY25 unless stated</>}
+        subtitle={
+          <>
+            Appendix · inputs behind every number in this deck, including the $9M one-off cost
+            <Ref n={2} />; FY25 unless stated
+          </>
+        }
         notes={[
           "Run-rate saving = (Northgate and Riverside cost per order − hub cost per order) × their 4.1M orders, less $0.7M a year of hub overhead.",
           "One-off $9M: hub expansion $5.5M, site exits $2.4M, dual running $1.1M.",
         ]}
         source={source}
       >
-        <Panel title="Five sites, weighted by orders" unit="FY25 actuals; the network average is the order-weighted mean" cols={7}>
+        <Panel
+          title="Five sites, weighted by orders"
+          unit="FY25 actuals; the network average is the order-weighted mean"
+          cols={7}
+        >
           <HarveyTable
             corner="Site"
             showKey={false}
@@ -551,7 +677,16 @@ notes={["Savings less the $9M one-off: $1M as Northgate closes in M6–M9, then 
             ]}
           />
         </Panel>
-        <Panel title="The saving falls $1.2M for every 30¢ of hub cost" unit={<>Run-rate saving<Ref n={1} />, $M a year, by hub cost per order</>} cols={5}>
+        <Panel
+          title="The saving falls $1.2M for every 30¢ of hub cost"
+          unit={
+            <>
+              Run-rate saving
+              <Ref n={1} />, $M a year, by hub cost per order
+            </>
+          }
+          cols={5}
+        >
           <BarChart
             format={formatter({ prefix: "$", suffix: "M", decimals: 1 })}
             domain={[0, 16]}

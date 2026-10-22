@@ -233,12 +233,19 @@
    Only pointer devices get any of this. */
 @media (hover: hover) {
   .uipack__canvas [data-uipack] {
-    transition: opacity 160ms ease, stroke 160ms ease, fill 160ms ease;
+    transition:
+      opacity 160ms ease,
+      stroke 160ms ease,
+      fill 160ms ease;
   }
   .uipack__canvas [data-uipack="node"] > rect,
   .uipack__canvas [data-uipack="connector"],
   .uipack__canvas [data-uipack="group"] > .uipack__group-frame > rect {
-    transition: opacity 160ms ease, stroke 160ms ease, fill 160ms ease, stroke-opacity 160ms ease;
+    transition:
+      opacity 160ms ease,
+      stroke 160ms ease,
+      fill 160ms ease,
+      stroke-opacity 160ms ease;
   }
   .uipack__canvas [data-uipack="node"][data-flow] {
     cursor: default;
@@ -298,14 +305,35 @@
   }
 }
 
-.uipack__controls { flex-wrap: wrap; }
-.uipack__ctl { min-height: 44px; }
-.uipack__canvas { overflow-x: auto; overscroll-behavior-x: contain; }
-.uipack:not(.uipack--has-narrow) .uipack__canvas > svg { min-width: min(800px, var(--figure-width, 800px)); }
-.uipack__canvas [role="button"] { cursor: pointer; outline: none; }
-.uipack__canvas [role="button"]:focus-visible > rect { stroke: var(--uipack-accent); stroke-width: 3; }
-.uipack__canvas [data-selected="true"] { opacity: 1 !important; }
-.uipack__canvas [data-selected="true"] > rect { stroke: var(--uipack-accent); stroke-width: 2.5; filter: drop-shadow(0 0 5px var(--uipack-accent)); }
+.uipack__controls {
+  flex-wrap: wrap;
+}
+.uipack__ctl {
+  min-height: 44px;
+}
+.uipack__canvas {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+.uipack:not(.uipack--has-narrow) .uipack__canvas > svg {
+  min-width: min(800px, var(--figure-width, 800px));
+}
+.uipack__canvas [role="button"] {
+  cursor: pointer;
+  outline: none;
+}
+.uipack__canvas [role="button"]:focus-visible > rect {
+  stroke: var(--uipack-accent);
+  stroke-width: 3;
+}
+.uipack__canvas [data-selected="true"] {
+  opacity: 1 !important;
+}
+.uipack__canvas [data-selected="true"] > rect {
+  stroke: var(--uipack-accent);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 5px var(--uipack-accent));
+}
 /* Selection note: a short card beside the selected item, placed by Figure. */
 .uipack__note {
   position: absolute;
@@ -323,39 +351,124 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
   pointer-events: auto;
 }
-.uipack__note:not([data-placed]) { visibility: hidden; }
-.uipack__note[data-placed] { animation: uipack-note-in 140ms cubic-bezier(0.23, 1, 0.32, 1); }
-.uipack__note strong { font-weight: 700; }
-@keyframes uipack-note-in { from { opacity: 0; transform: translateY(4px); } }
-@media (prefers-reduced-motion: reduce) { .uipack__note[data-placed] { animation: none; } }
-.uipack__sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-.uipack--expanded { overflow: visible; }
-.uipack--expanded .uipack__canvas > svg.uipack--wide { display: block !important; min-width: 0; }
-.uipack--expanded .uipack__canvas > svg.uipack--narrow { display: none !important; }
-@media (hover: none) { .uipack__canvas [data-state="hit"] > rect { stroke: var(--uipack-accent); } }
-.uipack__touch-target { display: none; }
-@media (pointer: coarse) { .uipack__touch-target { display: block; pointer-events: all; } }
-.uipack--expanded .uipack__head { display: flex; padding: 8px 16px; }
+.uipack__note:not([data-placed]) {
+  visibility: hidden;
+}
+.uipack__note[data-placed] {
+  animation: uipack-note-in 140ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.uipack__note strong {
+  font-weight: 700;
+}
+@keyframes uipack-note-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .uipack__note[data-placed] {
+    animation: none;
+  }
+}
+.uipack__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.uipack--expanded {
+  overflow: visible;
+}
+.uipack--expanded .uipack__canvas > svg.uipack--wide {
+  display: block !important;
+  min-width: 0;
+}
+.uipack--expanded .uipack__canvas > svg.uipack--narrow {
+  display: none !important;
+}
+@media (hover: none) {
+  .uipack__canvas [data-state="hit"] > rect {
+    stroke: var(--uipack-accent);
+  }
+}
+.uipack__touch-target {
+  display: none;
+}
+@media (pointer: coarse) {
+  .uipack__touch-target {
+    display: block;
+    pointer-events: all;
+  }
+}
+.uipack--expanded .uipack__head {
+  display: flex;
+  padding: 8px 16px;
+}
 .uipack--expanded .uipack__eyebrow,
 .uipack--expanded .uipack__title,
 .uipack--expanded .uipack__caption,
-.uipack--expanded .uipack__legend { display: none; }
+.uipack--expanded .uipack__legend {
+  display: none;
+}
 
 /* Keep one fixed scroll viewport so pinch zoom preserves the pointer's position. */
-.uipack--expanded .uipack__canvas { max-height: calc(100dvh - 240px); overflow: auto; touch-action: pan-x pan-y; }
+.uipack--expanded .uipack__canvas {
+  max-height: calc(100dvh - 240px);
+  overflow: auto;
+  touch-action: pan-x pan-y;
+}
 
 /* Drill-down figures (DrillFigure, DrillNode). A stage of stacked levels; the
    one in front is current, two are mounted only while a move flies. */
-.uipack-drill .uipack__eyebrow { grid-column: 1; }
-.uipack-drill .uipack__controls { grid-column: 2; grid-row: 1 / span 4; }
-.uipack-drill .uipack__title { margin-top: 4px; }
-.uipack-drill .uipack__title:focus { outline: none; }
-.uipack-drill .uipack__title:focus-visible { outline: 2px solid var(--uipack-accent); outline-offset: 4px; border-radius: 2px; }
-.uipack-drill .uipack__caption { min-height: calc(1.55em * 2); }
-.uipack-drill__crumbs { grid-column: 1; margin: 4px 0 0; }
-.uipack-drill__crumbs ol { display: flex; flex-wrap: wrap; align-items: center; margin: 0; padding: 0; list-style: none; font: 600 12px/1.2 var(--uipack-mono); letter-spacing: 0.04em; }
-.uipack-drill__crumbs li { display: inline-flex; align-items: center; }
-.uipack-drill__sep { margin: 0 6px; color: var(--uipack-muted); }
+.uipack-drill .uipack__eyebrow {
+  grid-column: 1;
+}
+.uipack-drill .uipack__controls {
+  grid-column: 2;
+  grid-row: 1 / span 4;
+}
+.uipack-drill .uipack__title {
+  margin-top: 4px;
+}
+.uipack-drill .uipack__title:focus {
+  outline: none;
+}
+.uipack-drill .uipack__title:focus-visible {
+  outline: 2px solid var(--uipack-accent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+.uipack-drill .uipack__caption {
+  min-height: calc(1.55em * 2);
+}
+.uipack-drill__crumbs {
+  grid-column: 1;
+  margin: 4px 0 0;
+}
+.uipack-drill__crumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: 600 12px/1.2 var(--uipack-mono);
+  letter-spacing: 0.04em;
+}
+.uipack-drill__crumbs li {
+  display: inline-flex;
+  align-items: center;
+}
+.uipack-drill__sep {
+  margin: 0 6px;
+  color: var(--uipack-muted);
+}
 .uipack-drill__crumb {
   min-height: 32px;
   padding: 0 4px;
@@ -371,58 +484,144 @@
   text-decoration-thickness: 1px;
   cursor: pointer;
 }
-.uipack-drill__crumb:hover { text-decoration-thickness: 2px; }
-.uipack-drill__crumb:focus-visible { outline: 2px solid var(--uipack-accent); outline-offset: 1px; }
-.uipack-drill__here { display: inline-flex; align-items: center; min-height: 32px; color: var(--uipack-fg); }
-.uipack-drill__here:focus { outline: none; }
-.uipack-drill__here:focus-visible { outline: 2px solid var(--uipack-accent); outline-offset: 2px; }
+.uipack-drill__crumb:hover {
+  text-decoration-thickness: 2px;
+}
+.uipack-drill__crumb:focus-visible {
+  outline: 2px solid var(--uipack-accent);
+  outline-offset: 1px;
+}
+.uipack-drill__here {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  color: var(--uipack-fg);
+}
+.uipack-drill__here:focus {
+  outline: none;
+}
+.uipack-drill__here:focus-visible {
+  outline: 2px solid var(--uipack-accent);
+  outline-offset: 2px;
+}
 
-.uipack-drill__stage { position: relative; width: 100%; aspect-ratio: var(--drill-aspect); overflow: hidden; }
-.uipack-drill:not(.uipack--has-narrow) .uipack-drill__stage { min-width: min(800px, var(--figure-width, 800px)); }
-.uipack-drill__layer { position: absolute; inset: 0; }
-.uipack-drill__layer > svg { display: block; width: 100%; height: 100%; color: var(--uipack-fg); font-family: var(--uipack-sans); }
-.uipack-drill__layer > svg text { user-select: none; }
-.uipack-drill__layer > svg.uipack-drill__narrow { display: none; }
-.uipack-drill__stage[data-flight] .uipack-drill__layer { pointer-events: none; }
-.uipack-drill__stage[data-flight] .uipack-drill__layer[data-role="inner"] { will-change: transform, clip-path, opacity; }
+.uipack-drill__stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--drill-aspect);
+  overflow: hidden;
+}
+.uipack-drill:not(.uipack--has-narrow) .uipack-drill__stage {
+  min-width: min(800px, var(--figure-width, 800px));
+}
+.uipack-drill__layer {
+  position: absolute;
+  inset: 0;
+}
+.uipack-drill__layer > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: var(--uipack-fg);
+  font-family: var(--uipack-sans);
+}
+.uipack-drill__layer > svg text {
+  user-select: none;
+}
+.uipack-drill__layer > svg.uipack-drill__narrow {
+  display: none;
+}
+.uipack-drill__stage[data-flight] .uipack-drill__layer {
+  pointer-events: none;
+}
+.uipack-drill__stage[data-flight] .uipack-drill__layer[data-role="inner"] {
+  will-change: transform, clip-path, opacity;
+}
 @media (max-width: 720px) {
-  .uipack-drill.uipack--has-narrow:not(.uipack--expanded) .uipack-drill__stage { aspect-ratio: var(--drill-aspect-narrow, var(--drill-aspect)); }
-  .uipack-drill.uipack--has-narrow:not(.uipack--expanded) .uipack-drill__layer > svg.uipack-drill__wide { display: none; }
-  .uipack-drill.uipack--has-narrow:not(.uipack--expanded) .uipack-drill__layer > svg.uipack-drill__narrow { display: block; }
-  .uipack-drill .uipack__controls { grid-row: auto; grid-column: 1; }
+  .uipack-drill.uipack--has-narrow:not(.uipack--expanded) .uipack-drill__stage {
+    aspect-ratio: var(--drill-aspect-narrow, var(--drill-aspect));
+  }
+  .uipack-drill.uipack--has-narrow:not(.uipack--expanded) .uipack-drill__layer > svg.uipack-drill__wide {
+    display: none;
+  }
+  .uipack-drill.uipack--has-narrow:not(.uipack--expanded) .uipack-drill__layer > svg.uipack-drill__narrow {
+    display: block;
+  }
+  .uipack-drill .uipack__controls {
+    grid-row: auto;
+    grid-column: 1;
+  }
 }
 
 /* The drill affordance: a size step up, a soft accent glow and a faint
    miniature of the level inside. Glow here means "there is more inside", not
    selection; selection keeps its crisp ring. */
-.uipack-drill-node { cursor: pointer; outline: none; }
+.uipack-drill-node {
+  cursor: pointer;
+  outline: none;
+}
 .uipack-drill-node__halo,
 .uipack-drill-node__inner,
 .uipack-drill-node__ghost,
-.uipack-drill-node__wash { transition: opacity 180ms ease, stroke-opacity 180ms ease, fill-opacity 180ms ease; }
+.uipack-drill-node__wash {
+  transition:
+    opacity 180ms ease,
+    stroke-opacity 180ms ease,
+    fill-opacity 180ms ease;
+}
 /* The preview is a schematic: boxes and lines at one screen pixel, no words. */
-.uipack-drill-node__ghost { opacity: 0.3; }
+.uipack-drill-node__ghost {
+  opacity: 0.3;
+}
 .uipack-drill-node__ghost text,
 .uipack-drill-node__ghost [data-uipack="label"],
 .uipack-drill-node__ghost [data-uipack="lane"],
 .uipack-drill-node__ghost [data-uipack="packet"],
 .uipack-drill-node__ghost [data-uipack="node"] > g,
-.uipack-drill-node__ghost .uipack-drill-node__mark { display: none; }
-.uipack-drill-node__ghost * { vector-effect: non-scaling-stroke; }
-.uipack__canvas .uipack-drill-node__ghost [data-uipack="node"] > rect { fill: var(--uipack-accent); fill-opacity: 0.22; stroke: var(--uipack-accent); stroke-opacity: 0.9; }
+.uipack-drill-node__ghost .uipack-drill-node__mark {
+  display: none;
+}
+.uipack-drill-node__ghost * {
+  vector-effect: non-scaling-stroke;
+}
+.uipack__canvas .uipack-drill-node__ghost [data-uipack="node"] > rect {
+  fill: var(--uipack-accent);
+  fill-opacity: 0.22;
+  stroke: var(--uipack-accent);
+  stroke-opacity: 0.9;
+}
 .uipack-drill-node:hover .uipack-drill-node__ghost,
-.uipack-drill-node:focus-visible .uipack-drill-node__ghost { opacity: 0.48; }
+.uipack-drill-node:focus-visible .uipack-drill-node__ghost {
+  opacity: 0.48;
+}
 /* A surface-coloured outline keeps the label clear of the preview behind it. */
-.uipack__canvas .uipack-drill-node [data-uipack="node"] > text { paint-order: stroke; stroke: var(--uipack-surface); stroke-width: 4px; stroke-linejoin: round; }
+.uipack__canvas .uipack-drill-node [data-uipack="node"] > text {
+  paint-order: stroke;
+  stroke: var(--uipack-surface);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
 .uipack-drill-node:hover .uipack-drill-node__halo,
-.uipack-drill-node:focus-visible .uipack-drill-node__halo { stroke-opacity: 0.45; }
+.uipack-drill-node:focus-visible .uipack-drill-node__halo {
+  stroke-opacity: 0.45;
+}
 .uipack-drill-node:hover .uipack-drill-node__inner,
-.uipack-drill-node:focus-visible .uipack-drill-node__inner { stroke-opacity: 0.3; }
-.uipack__canvas .uipack-drill-node [data-uipack="node"] > rect { stroke: var(--uipack-accent); stroke-opacity: 0.75; }
-.uipack__canvas .uipack-drill-node:focus-visible [data-uipack="node"] > rect { stroke-opacity: 1; stroke-width: 3; }
+.uipack-drill-node:focus-visible .uipack-drill-node__inner {
+  stroke-opacity: 0.3;
+}
+.uipack__canvas .uipack-drill-node [data-uipack="node"] > rect {
+  stroke: var(--uipack-accent);
+  stroke-opacity: 0.75;
+}
+.uipack__canvas .uipack-drill-node:focus-visible [data-uipack="node"] > rect {
+  stroke-opacity: 1;
+  stroke-width: 3;
+}
 @media (prefers-reduced-motion: reduce) {
   .uipack-drill-node__halo,
   .uipack-drill-node__inner,
   .uipack-drill-node__ghost,
-  .uipack-drill-node__wash { transition: none; }
+  .uipack-drill-node__wash {
+    transition: none;
+  }
 }

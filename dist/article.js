@@ -43,7 +43,8 @@ function NoteCard({
   const name = typeof title === "string" ? title : "a note";
   if (title == null || title === "") fail("NoteCard", "every note needs a `title`");
   if (status !== "published" && status !== "planned") fail(`NoteCard "${name}"`, `unknown status "${status}"`);
-  if (minutes != null && !(Number.isFinite(minutes) && minutes > 0)) fail(`NoteCard "${name}"`, "`minutes` must be a positive number");
+  if (minutes != null && !(Number.isFinite(minutes) && minutes > 0))
+    fail(`NoteCard "${name}"`, "`minutes` must be a positive number");
   const planned = status === "planned";
   if (!planned && !href) fail(`NoteCard "${name}"`, 'a published note needs an `href` (or set status="planned")');
   const body = /* @__PURE__ */ jsxs(Fragment, { children: [
@@ -81,9 +82,19 @@ function NoteCluster({ label, note, notes, children, count, wide, id, className 
   ] });
 }
 var present = (node) => node != null && node !== false && node !== "";
-function LayerHead({ index, zone, metric, mapHref, mapLabel = "Map", indexLabel = "Layer", id, className }) {
+function LayerHead({
+  index,
+  zone,
+  metric,
+  mapHref,
+  mapLabel = "Map",
+  indexLabel = "Layer",
+  id,
+  className
+}) {
   if (index == null || index === "") fail("LayerHead", "`index` is required");
-  if (metric && !present(metric.value)) fail(`LayerHead ${layerIndex(index)}`, "`metric.value` is required when `metric` is given");
+  if (metric && !present(metric.value))
+    fail(`LayerHead ${layerIndex(index)}`, "`metric.value` is required when `metric` is given");
   return /* @__PURE__ */ jsx("div", { id, className: cx("uipack-layerhead", className), children: /* @__PURE__ */ jsxs("div", { className: "uipack-layerhead__row", children: [
     /* @__PURE__ */ jsxs("p", { className: "uipack-layerhead__where", children: [
       /* @__PURE__ */ jsxs("span", { className: "uipack-layerhead__index", children: [

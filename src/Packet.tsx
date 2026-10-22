@@ -41,7 +41,20 @@ export interface PacketProps {
  * Replay come from the enclosing Figure, which drives the SVG timeline
  * (pauseAnimations, setCurrentTime), so offsets survive a replay.
  */
-export function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at, r = 5, reverse, radius = 6, flow, trim: t, id }: PacketProps) {
+export function Packet({
+  points,
+  kind = "request",
+  shape,
+  dur = 3,
+  delay = 0,
+  at,
+  r = 5,
+  reverse,
+  radius = 6,
+  flow,
+  trim: t,
+  id,
+}: PacketProps) {
   const { reduced, prerender } = useFigureMotion();
   const hover = useFigureHover();
   const [ts, te] = t ?? [r + 2, 12];

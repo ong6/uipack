@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useId,
-  type KeyboardEvent,
-  type MouseEvent,
-} from "react";
+import { createContext, useContext, useId, type KeyboardEvent, type MouseEvent } from "react";
 export interface SelectedItem {
   id: string;
   label: string;
@@ -32,8 +26,7 @@ export function useItemSelection(
   // Selecting must show something: a detail note, or a pinned flow highlight.
   if (!context.enabled || !enabled || !(detail || flow)) return {};
   const selected = context.selected?.id === id;
-  const toggle = (anchor: Element) =>
-    context.select(selected ? null : { id, label, detail, flow, anchor });
+  const toggle = (anchor: Element) => context.select(selected ? null : { id, label, detail, flow, anchor });
   return {
     role: "button",
     tabIndex: 0,

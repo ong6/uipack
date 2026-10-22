@@ -1,13 +1,8 @@
 export type PresentationTheme = "light" | "dark";
 
-export interface SpeechGuide {
-  /** The words to say. Keep this conversational and short enough for one slide. */
-  say: string;
-  /** One practical cue for pace, emphasis, or where to direct attention. */
-  delivery: string;
-  /** Optional bridge into the following slide. */
-  next?: string;
-}
+import type { SpeechGuide } from "../speech";
+
+export type { SpeechGuide };
 
 export interface SlideFooter {
   label: string;
@@ -37,10 +32,7 @@ export interface ExplanationSlideStarter extends SlideStarterBase {
     eyebrow: string;
     headline: string;
     foundation: { title: string; detail: string };
-    applications: [
-      { title: string; detail: string },
-      { title: string; detail: string },
-    ];
+    applications: [{ title: string; detail: string }, { title: string; detail: string }];
   };
 }
 
@@ -49,16 +41,9 @@ export interface SystemSlideStarter extends SlideStarterBase {
   content: {
     eyebrow: string;
     headline: string;
-    steps: [
-      { title: string; detail: string },
-      { title: string; detail: string },
-      { title: string; detail: string },
-    ];
+    steps: [{ title: string; detail: string }, { title: string; detail: string }, { title: string; detail: string }];
     caption: string;
   };
 }
 
-export type SlideStarterData =
-  | OpeningSlideStarter
-  | ExplanationSlideStarter
-  | SystemSlideStarter;
+export type SlideStarterData = OpeningSlideStarter | ExplanationSlideStarter | SystemSlideStarter;

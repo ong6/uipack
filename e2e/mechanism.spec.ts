@@ -131,12 +131,19 @@ test("the machine is reachable and operable from the keyboard", async ({ page })
 });
 
 test("every drawn line ends on something, in every pose (Anatomy's line-end check)", async ({ browser }) => {
-  const context = await browser.newContext({ reducedMotion: "reduce", viewport: { width: 1440, height: 1500 }, deviceScaleFactor: 2 });
+  const context = await browser.newContext({
+    reducedMotion: "reduce",
+    viewport: { width: 1440, height: 1500 },
+    deviceScaleFactor: 2,
+  });
   const page = await context.newPage();
   for (const pose of ["idle", "pass", "return", "apart"]) {
     await page.goto(`/mechanism?pose=${pose}`);
     await expect(page.locator(`${machine} svg`)).toBeVisible();
-    const result = (await page.evaluate(`(${LINE_ENDS})({ select: ${JSON.stringify(machine)} })`)) as { ends: number; problems: unknown[] };
+    const result = (await page.evaluate(`(${LINE_ENDS})({ select: ${JSON.stringify(machine)} })`)) as {
+      ends: number;
+      problems: unknown[];
+    };
     expect(result.ends, pose).toBeGreaterThan(300);
     expect(result.problems, pose).toEqual([]);
   }
@@ -150,11 +157,15 @@ test("fits a 390px phone with readable labels and thumbnails that never move", a
   await page.goto("/mechanism?theme=dark&pose=pass");
   await expect(page.locator(machine)).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
-  for (const size of await page.locator(".mechanism-stage .um-corner").evaluateAll((nodes) => nodes.map((node) => parseFloat(getComputedStyle(node).fontSize)))) {
+  for (const size of await page
+    .locator(".mechanism-stage .um-corner")
+    .evaluateAll((nodes) => nodes.map((node) => parseFloat(getComputedStyle(node).fontSize)))) {
     expect(size).toBeGreaterThanOrEqual(11);
   }
   // Corners do not overlap each other.
-  const boxes = await page.locator(".mechanism-stage .um-corner").evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().toJSON()));
+  const boxes = await page
+    .locator(".mechanism-stage .um-corner")
+    .evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().toJSON()));
   for (let a = 0; a < boxes.length; a++)
     for (let b = a + 1; b < boxes.length; b++) {
       const [p, q] = [boxes[a], boxes[b]];

@@ -17,7 +17,14 @@ export interface CrossProps {
  */
 export function Cross({ x, y, r = 5, kind }: CrossProps) {
   return (
-    <g data-uipack="cross" stroke={connectorStroke(kind)} strokeOpacity={kind ? 1 : 0.8} strokeWidth={1.75} strokeLinecap="round" aria-hidden="true">
+    <g
+      data-uipack="cross"
+      stroke={connectorStroke(kind)}
+      strokeOpacity={kind ? 1 : 0.8}
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
       <line x1={x - r} y1={y - r} x2={x + r} y2={y + r} />
       <line x1={x - r} y1={y + r} x2={x + r} y2={y - r} />
     </g>

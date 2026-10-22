@@ -1,11 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
-import {
-  DocsLayout,
-  DocsMarkdown,
-  extractDocsHeadings,
-  type DocsSection,
-} from "../src/docs";
+import { DocsLayout, DocsMarkdown, extractDocsHeadings, type DocsSection } from "../src/docs";
 
 const source = `# Overview
 
@@ -36,9 +31,7 @@ const sections: DocsSection[] = [
 
 describe("product documentation", () => {
   it("extracts stable unique heading anchors outside code fences", () => {
-    expect(
-      extractDocsHeadings("## Same\n\n```md\n## Ignored\n```\n\n## Same"),
-    ).toEqual([
+    expect(extractDocsHeadings("## Same\n\n```md\n## Ignored\n```\n\n## Same")).toEqual([
       { id: "same", level: 2, line: 1, title: "Same" },
       { id: "same-1", level: 2, line: 7, title: "Same" },
     ]);
@@ -59,13 +52,8 @@ describe("product documentation", () => {
     );
 
     expect(screen.getAllByRole("navigation", { name: "Documentation" })).toHaveLength(2);
-    expect(screen.getAllByRole("link", { name: "Overview" })[0]).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
-    expect(screen.getByRole("complementary", { name: "On this page" })).toHaveTextContent(
-      "First step",
-    );
+    expect(screen.getAllByRole("link", { name: "Overview" })[0]).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("complementary", { name: "On this page" })).toHaveTextContent("First step");
     expect(
       screen.getByRole("navigation", {
         name: "Previous and next documentation pages",
@@ -90,9 +78,7 @@ describe("product documentation", () => {
   });
 
   it("shifts heading levels by headingOffset so a host page keeps the only h1", () => {
-    const html = renderToString(
-      <DocsMarkdown source={`${source}\n#### Four\n\n###### Six\n`} headingOffset={1} />,
-    );
+    const html = renderToString(<DocsMarkdown source={`${source}\n#### Four\n\n###### Six\n`} headingOffset={1} />);
     expect(html).not.toMatch(/<h1[\s>]/);
     expect(html).toMatch(/<h2 id="overview"/);
     expect(html).toMatch(/<h3 id="first-step"/);
@@ -104,11 +90,7 @@ describe("product documentation", () => {
   });
 
   it("reports rendered levels from extractDocsHeadings with the same offset", () => {
-    expect(
-      extractDocsHeadings("# Title\n\n## Part\n\n###### Deep", { headingOffset: 1 }).map(
-        (h) => [h.id, h.level],
-      ),
-    ).toEqual([
+    expect(extractDocsHeadings("# Title\n\n## Part\n\n###### Deep", { headingOffset: 1 }).map((h) => [h.id, h.level])).toEqual([
       ["title", 2],
       ["part", 3],
       ["deep", 6],
@@ -117,9 +99,7 @@ describe("product documentation", () => {
   });
 
   it("gives tables their column count so narrow layouts can scroll them", () => {
-    const html = renderToString(
-      <DocsMarkdown source={"| A | B | C |\n|---|---|---|\n| 1 | 2 | 3 |"} />,
-    );
+    const html = renderToString(<DocsMarkdown source={"| A | B | C |\n|---|---|---|\n| 1 | 2 | 3 |"} />);
     expect(html).toContain("--docs-table-columns:3");
   });
 

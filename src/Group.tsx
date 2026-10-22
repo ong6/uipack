@@ -20,19 +20,7 @@ export interface GroupProps {
   children?: ReactNode;
 }
 
-export function Group({
-  x,
-  y,
-  w,
-  h,
-  title,
-  variant = "solid",
-  accent,
-  flow,
-  titleSize,
-  hint,
-  children,
-}: GroupProps) {
+export function Group({ x, y, w, h, title, variant = "solid", accent, flow, titleSize, hint, children }: GroupProps) {
   const hover = useFigureHover();
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const dashed = variant === "dashed";
@@ -74,14 +62,7 @@ export function Group({
               {title.toUpperCase()}
             </text>
           ) : (
-            <text
-              x={x + w / 2}
-              y={y + 24}
-              textAnchor="middle"
-              fontSize={ts}
-              fontWeight={600}
-              fill={stroke}
-            >
+            <text x={x + w / 2} y={y + 24} textAnchor="middle" fontSize={ts} fontWeight={600} fill={stroke}>
               {title}
             </text>
           )

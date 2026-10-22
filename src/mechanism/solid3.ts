@@ -47,7 +47,10 @@ export function prismOf(face: Point3[], along: Point3, projection: Projection): 
   const count = face.length;
   const far = face.map((point) => add(point, along));
   const vertices = [...face, ...far];
-  const centre = vertices.reduce<Point3>((sum, point) => add(sum, [point[0] / vertices.length, point[1] / vertices.length, point[2] / vertices.length]), [0, 0, 0]);
+  const centre = vertices.reduce<Point3>(
+    (sum, point) => add(sum, [point[0] / vertices.length, point[1] / vertices.length, point[2] / vertices.length]),
+    [0, 0, 0],
+  );
   const faces: number[][] = [
     face.map((_, index) => index),
     face.map((_, index) => count + index),
@@ -67,7 +70,11 @@ export function prismOf(face: Point3[], along: Point3, projection: Projection): 
   });
   const visible = normals.map((normal) => dot(normal, view) > 1e-6);
   const flat = vertices.map((point) => iso(point, projection));
-  const polygon = (ids: number[]) => pathOf(ids.map((id) => flat[id]!), true);
+  const polygon = (ids: number[]) =>
+    pathOf(
+      ids.map((id) => flat[id]!),
+      true,
+    );
   const buckets: string[][] = Array.from({ length: SHADES }, () => []);
   const tops: string[] = [];
   faces.forEach((ids, index) => {
@@ -118,11 +125,15 @@ export function circleIn(centre: Point3, radius: number, axis: "x" | "y", steps 
     const angle = (step / steps) * Math.PI * 2;
     const u = radius * Math.cos(angle);
     const v = radius * Math.sin(angle);
-    return axis === "y" ? ([centre[0] + u, centre[1], centre[2] + v] as Point3) : ([centre[0], centre[1] + u, centre[2] + v] as Point3);
+    return axis === "y"
+      ? ([centre[0] + u, centre[1], centre[2] + v] as Point3)
+      : ([centre[0], centre[1] + u, centre[2] + v] as Point3);
   });
 }
 
 /** A closed circle drawn on a vertical face (a bearing ring, a bore, a motor cap). */
 export function faceCircle(centre: Point3, radius: number, axis: "x" | "y", projection: Projection, steps = 24) {
-  return pathOf([...circleIn(centre, radius, axis, steps), circleIn(centre, radius, axis, steps)[0]!].map((point) => iso(point, projection)));
+  return pathOf(
+    [...circleIn(centre, radius, axis, steps), circleIn(centre, radius, axis, steps)[0]!].map((point) => iso(point, projection)),
+  );
 }

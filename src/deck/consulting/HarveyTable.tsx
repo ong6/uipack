@@ -56,7 +56,13 @@ export interface HarveyTableProps {
 }
 
 /** Options × criteria: Harvey balls (0–4) and text cells, with one row marked as the recommendation. */
-export function HarveyTable({ columns, rows, corner = "Option", showKey = true, keyNote = "Full ball = most favourable" }: HarveyTableProps) {
+export function HarveyTable({
+  columns,
+  rows,
+  corner = "Option",
+  showKey = true,
+  keyNote = "Full ball = most favourable",
+}: HarveyTableProps) {
   return (
     <div className="uipack-cx-harvey-table">
       <table>

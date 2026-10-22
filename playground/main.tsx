@@ -123,6 +123,8 @@ const page = (
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ShowcaseThemeProvider>{standalone ? page : <ShowcaseShell active={active ?? "not-found"}>{page}</ShowcaseShell>}</ShowcaseThemeProvider>
+    <ShowcaseThemeProvider>
+      {standalone ? page : <ShowcaseShell active={active ?? "not-found"}>{page}</ShowcaseShell>}
+    </ShowcaseThemeProvider>
   </StrictMode>,
 );

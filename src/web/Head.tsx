@@ -2,7 +2,12 @@ import { createElement, useEffect, type ReactElement } from "react";
 import { headTagKey, serializeJsonLd, type HeadTag } from "./seo";
 
 // HTML attribute names that React spells differently.
-const REACT_ATTR: Record<string, string> = { crossorigin: "crossOrigin", "http-equiv": "httpEquiv", charset: "charSet", hreflang: "hrefLang" };
+const REACT_ATTR: Record<string, string> = {
+  crossorigin: "crossOrigin",
+  "http-equiv": "httpEquiv",
+  charset: "charSet",
+  hreflang: "hrefLang",
+};
 
 function toProps(attrs: Record<string, string>): Record<string, string> {
   const out: Record<string, string> = {};

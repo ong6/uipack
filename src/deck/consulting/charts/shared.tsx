@@ -84,7 +84,15 @@ export function Text({
       fontSize={Math.max(size, CX_TYPE.min)}
       textAnchor={anchor}
       dominantBaseline={baseline}
-      className={["uipack-cx-t", muted && "uipack-cx-t--muted", weight && "uipack-cx-t--strong", halo && "uipack-cx-halo", className].filter(Boolean).join(" ")}
+      className={[
+        "uipack-cx-t",
+        muted && "uipack-cx-t--muted",
+        weight && "uipack-cx-t--strong",
+        halo && "uipack-cx-halo",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       {children}
     </text>
@@ -92,7 +100,16 @@ export function Text({
 }
 
 /** Multi-line text, centred on (x, y) vertically; lines are tspans. */
-export function Lines({ x, y, lines, size = CX_TYPE.label, anchor = "middle", weight, muted, top }: {
+export function Lines({
+  x,
+  y,
+  lines,
+  size = CX_TYPE.label,
+  anchor = "middle",
+  weight,
+  muted,
+  top,
+}: {
   x: number;
   y: number;
   lines: string[];

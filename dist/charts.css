@@ -115,7 +115,8 @@
 /* Host prose rules (.prose ul, .prose p, .prose h3) must not reach inside,
    whichever stylesheet loads last: the doubled root class outranks them, and
    :where keeps this reset below the component's own rules. */
-.uipack-span.uipack-span :where(h2, h3, h4, h5, h6, p, ul, ol, li, dl, dt, dd, details, summary, label, button, form, b, em, i, strong),
+.uipack-span.uipack-span
+  :where(h2, h3, h4, h5, h6, p, ul, ol, li, dl, dt, dd, details, summary, label, button, form, b, em, i, strong),
 .uipack-stack.uipack-stack :where(h2, h3, h4, h5, h6, p, ul, ol, li, details, summary, button, b, em, i, strong) {
   margin: 0;
   padding: 0;
@@ -584,7 +585,8 @@
   gap: 4px 8px;
   padding: 8px 0 2px;
 }
-.uipack-span:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked) .uipack-span__now-row {
+.uipack-span:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked)
+  .uipack-span__now-row {
   display: flex;
 }
 /* Active filters: square tags with ×. */
@@ -889,13 +891,29 @@
    live count from enhanceSpanChart under a filter. */
 .uipack-span .uipack-span__count--featured,
 .uipack-span .uipack-span__count--live,
-.uipack-span:not([data-span-searching]):has(.uipack-span__expand:not(:checked)):not(:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked)) .uipack-span__count--total,
-.uipack-span[data-span-counting]:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked) .uipack-span__count--total,
+.uipack-span:not([data-span-searching]):has(.uipack-span__expand:not(:checked)):not(
+    :has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked)
+  )
+  .uipack-span__count--total,
+.uipack-span[data-span-counting]:has(
+    .uipack-span__layer-input:checked,
+    .uipack-span__tier-input:checked,
+    .uipack-span__deals-input:checked
+  )
+  .uipack-span__count--total,
 .uipack-span[data-span-searching] .uipack-span__count--total {
   display: none;
 }
-.uipack-span:not([data-span-searching]):has(.uipack-span__expand:not(:checked)):not(:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked)) .uipack-span__count--featured,
-.uipack-span[data-span-counting]:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked) .uipack-span__count--live,
+.uipack-span:not([data-span-searching]):has(.uipack-span__expand:not(:checked)):not(
+    :has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked)
+  )
+  .uipack-span__count--featured,
+.uipack-span[data-span-counting]:has(
+    .uipack-span__layer-input:checked,
+    .uipack-span__tier-input:checked,
+    .uipack-span__deals-input:checked
+  )
+  .uipack-span__count--live,
 .uipack-span[data-span-searching] .uipack-span__count--live {
   display: inline;
 }
@@ -1209,16 +1227,24 @@
 /* Collapsed and unfiltered: only featured rows. Any active filter, or a
    search, shows every matching row, featured or not. With find-in-page support
    the enhancement hides them with hidden="until-found" instead. */
-.uipack-span:not([data-span-find], [data-span-searching]):has(.uipack-span__expand:not(:checked)):not(:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked)) .uipack-span__item:not([data-featured]),
-.uipack-span:not([data-span-find], [data-span-searching]):has(.uipack-span__expand:not(:checked)):not(:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked)) .uipack-span__group:not([data-featured]),
+.uipack-span:not([data-span-find], [data-span-searching]):has(.uipack-span__expand:not(:checked)):not(
+    :has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked)
+  )
+  .uipack-span__item:not([data-featured]),
+.uipack-span:not([data-span-find], [data-span-searching]):has(.uipack-span__expand:not(:checked)):not(
+    :has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked)
+  )
+  .uipack-span__group:not([data-featured]),
 .uipack-span .uipack-span__item[data-span-miss],
 .uipack-span .uipack-span__group[data-span-miss],
 .uipack-span[data-span-searching] .uipack-span__top,
 .uipack-span[data-span-searching] .uipack-span__toggle--foot,
 .uipack-span:has(.uipack-span__deals-input:checked) .uipack-span__item:not([data-deal]),
 .uipack-span:has(.uipack-span__deals-input:checked) .uipack-span__group:not([data-deals]),
-.uipack-span:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked) .uipack-span__top,
-.uipack-span:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked) .uipack-span__toggle--foot {
+.uipack-span:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked)
+  .uipack-span__top,
+.uipack-span:has(.uipack-span__layer-input:checked, .uipack-span__tier-input:checked, .uipack-span__deals-input:checked)
+  .uipack-span__toggle--foot {
   display: none;
 }
 

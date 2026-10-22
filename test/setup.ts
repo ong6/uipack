@@ -7,19 +7,20 @@ declare global {
 globalThis.__reduced = false;
 // Tests marked `@vitest-environment node` (the server path) have no window to patch.
 const browser = typeof window !== "undefined";
-if (browser) Object.defineProperty(window, "matchMedia", {
-  writable: true,
-  value: (q: string) => ({
-    matches: q.includes("reduced-motion") && globalThis.__reduced,
-    media: q,
-    onchange: null,
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    addListener: () => {},
-    removeListener: () => {},
-    dispatchEvent: () => false,
-  }),
-});
+if (browser)
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: (q: string) => ({
+      matches: q.includes("reduced-motion") && globalThis.__reduced,
+      media: q,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    }),
+  });
 
 // jsdom has no PointerEvent, so `pointerType` never reached the handlers and
 // the touch guard was untestable. A minimal constructor carries it through.

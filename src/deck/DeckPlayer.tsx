@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
@@ -127,6 +128,13 @@ function Player({
   const fromRef = useRef<HTMLDivElement>(null);
   const toRef = useRef<HTMLDivElement>(null);
   const overviewButtonRef = useRef<HTMLButtonElement>(null);
+  // The storyline findings, run while the overview is open and only again when the slides or the
+  // options change. Options are keyed by value, so an inline `lint={{ template }}` doesn't rerun them.
+  const lintKey = lint ? JSON.stringify(lint === true ? {} : lint) : "";
+  const findings = useMemo(
+    () => (overview && lintKey ? lintDeck(slides, JSON.parse(lintKey) as LintOptions) : undefined),
+    [overview, slides, lintKey],
+  );
   // The current slide's last build step, counted from its DOM after each slide change.
   const [maxStep, setMaxStep] = useState(0);
   // The latest position, updated as soon as it changes, so quick repeated presses (a clicker's
@@ -484,7 +492,8 @@ function Player({
               root.focus({ preventScroll: true });
               // The reader was scrolled (a phone reads far down the page): bring the stage up with it.
               const { top, bottom } = root.getBoundingClientRect();
-              if (top < 0 || bottom > window.innerHeight) root.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
+              if (top < 0 || bottom > window.innerHeight)
+                root.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
             });
           }}
         />
@@ -525,7 +534,7 @@ function Player({
           slides={slides}
           index={view.index}
           theme={theme}
-          findings={lint ? lintDeck(slides, lint === true ? {} : lint) : undefined}
+          findings={findings}
           onPick={(i) => {
             go(i, 0);
             // Focus the deck, not the All slides button, so Space and the arrows move through the
@@ -542,7 +551,9 @@ function Player({
 
 type PrefixedFullscreen = HTMLDivElement & { webkitRequestFullscreen?: () => void };
 const fullscreenElement = () =>
-  document.fullscreenElement ?? (document as Document & { webkitFullscreenElement?: Element | null }).webkitFullscreenElement ?? null;
+  document.fullscreenElement ??
+  (document as Document & { webkitFullscreenElement?: Element | null }).webkitFullscreenElement ??
+  null;
 
 /**
  * What the next press does, for the speaker: the next build (its first words), the next tour stop
@@ -560,7 +571,10 @@ function nextCue(layer: HTMLElement | null, step: number, maxStep: number, upcom
       const ids = (tour.dataset.tour ?? "").split(" ");
       if (next > ids.length) return `Build ${next} of ${maxStep}: camera pulls back to the whole grid`;
       const cell = tour.querySelector(`[data-bento-cell="${CSS.escape(ids[next - 1])}"]`);
-      const label = words(cell?.querySelector(".uipack-deck-bento__detail > *")) || words(cell?.querySelector(".uipack-deck-bento-label")) || ids[next - 1];
+      const label =
+        words(cell?.querySelector(".uipack-deck-bento__detail > *")) ||
+        words(cell?.querySelector(".uipack-deck-bento-label")) ||
+        ids[next - 1];
       return `Build ${next} of ${maxStep}: camera to ${label}`;
     }
     const build = layer.querySelector(`[data-build="${next}"]`);

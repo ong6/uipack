@@ -24,7 +24,17 @@ const sharded = leaf(560);
 const eventLog = leaf(848);
 
 const elbow = (x0: number, y0: number, mid: number, x1: number, y1: number): Point[] =>
-  x0 === x1 ? [[x0, y0], [x1, y1]] : [[x0, y0], [x0, mid], [x1, mid], [x1, y1]];
+  x0 === x1
+    ? [
+        [x0, y0],
+        [x1, y1],
+      ]
+    : [
+        [x0, y0],
+        [x0, mid],
+        [x1, mid],
+        [x1, y1],
+      ];
 
 function Wide() {
   const id = "tree";
@@ -35,7 +45,13 @@ function Wide() {
   return (
     <>
       <Defs id={id} />
-      <Node {...root} label="How is it read?" icon="service" flow={[KEY, QUERY, FILES]} hint="Start from the access pattern, not the product" />
+      <Node
+        {...root}
+        label="How is it read?"
+        icon="service"
+        flow={[KEY, QUERY, FILES]}
+        hint="Start from the access pattern, not the product"
+      />
 
       <Connector points={toCache} defs={id} kind="accent" flow={KEY} />
       <Packet points={toCache} kind="accent" dur={2} r={4} flow={KEY} />
@@ -47,9 +63,32 @@ function Wide() {
       <Packet points={toObjects} kind="accent" dur={2} delay={-1} r={4} flow={FILES} />
       <Label x={740} y={112} text="as whole files" anchor="middle" />
 
-      <Node {...cache} label="Key-value cache" sub="in memory · expires" icon="cache" accent flow={KEY} hint="Fast reads of the same keys; losing it is fine" />
-      <Node {...size} label="How much data?" sub="now and in a year" icon="chart" flow={[QUERY, ONE, MANY, LOG]} hint="A second question only on this branch" />
-      <Node {...objects} label="Object store" sub="blobs · by path" icon="blob" accent flow={FILES} hint="Large files read whole, never queried" />
+      <Node
+        {...cache}
+        label="Key-value cache"
+        sub="in memory · expires"
+        icon="cache"
+        accent
+        flow={KEY}
+        hint="Fast reads of the same keys; losing it is fine"
+      />
+      <Node
+        {...size}
+        label="How much data?"
+        sub="now and in a year"
+        icon="chart"
+        flow={[QUERY, ONE, MANY, LOG]}
+        hint="A second question only on this branch"
+      />
+      <Node
+        {...objects}
+        label="Object store"
+        sub="blobs · by path"
+        icon="blob"
+        accent
+        flow={FILES}
+        hint="Large files read whole, never queried"
+      />
 
       {[
         [relational, ONE, "fits one machine", 0],
@@ -63,13 +102,42 @@ function Wide() {
           <g key={flow as string}>
             <Connector points={pts} defs={id} kind="accent" flow={[QUERY, flow as string]} />
             <Packet points={pts} kind="accent" dur={1.8} delay={-(i as number) * 0.6} r={4} flow={[QUERY, flow as string]} />
-            <Label x={x === 560 ? x + 16 : x} y={x === 560 ? 320 : 280} text={text as string} anchor={x === 560 ? "start" : "middle"} />
+            <Label
+              x={x === 560 ? x + 16 : x}
+              y={x === 560 ? 320 : 280}
+              text={text as string}
+              anchor={x === 560 ? "start" : "middle"}
+            />
           </g>
         );
       })}
-      <Node {...relational} label="Relational database" sub="one primary · joins" icon="db" accent flow={ONE} hint="One machine, transactions and joins" />
-      <Node {...sharded} label="Sharded store" sub="partitioned by key" icon="region" accent flow={MANY} hint="Spread across machines once one is not enough" />
-      <Node {...eventLog} label="Event log" sub="ordered · replayable" icon="queue" accent flow={LOG} hint="Writes only append; readers replay from an offset" />
+      <Node
+        {...relational}
+        label="Relational database"
+        sub="one primary · joins"
+        icon="db"
+        accent
+        flow={ONE}
+        hint="One machine, transactions and joins"
+      />
+      <Node
+        {...sharded}
+        label="Sharded store"
+        sub="partitioned by key"
+        icon="region"
+        accent
+        flow={MANY}
+        hint="Spread across machines once one is not enough"
+      />
+      <Node
+        {...eventLog}
+        label="Event log"
+        sub="ordered · replayable"
+        icon="queue"
+        accent
+        flow={LOG}
+        hint="Writes only append; readers replay from an offset"
+      />
     </>
   );
 }
@@ -89,8 +157,16 @@ function Narrow() {
   const id = "tree-n";
   const outer = rows.filter((r) => r.x === 72);
   const inner = rows.filter((r) => r.x === 136);
-  const trunk = { axis: "v" as const, at: 40, stubs: outer.map((r) => ({ at: r.y + NH / 2, to: r.x, arrow: true, flow: r.flow })) };
-  const trunk2 = { axis: "v" as const, at: 104, stubs: inner.map((r) => ({ at: r.y + NH / 2, to: r.x, arrow: true, flow: r.flow })) };
+  const trunk = {
+    axis: "v" as const,
+    at: 40,
+    stubs: outer.map((r) => ({ at: r.y + NH / 2, to: r.x, arrow: true, flow: r.flow })),
+  };
+  const trunk2 = {
+    axis: "v" as const,
+    at: 104,
+    stubs: inner.map((r) => ({ at: r.y + NH / 2, to: r.x, arrow: true, flow: r.flow })),
+  };
   return (
     <>
       <Defs id={id} />
@@ -125,7 +201,8 @@ export function DecisionTreeFigure({ number }: { number: string }) {
       viewBox="0 0 1120 440"
       narrow={<Narrow />}
       narrowViewBox="0 0 360 608"
-      alt="A decision tree. How is the data read? By key, very often: a key-value cache. As whole files: an object store. By query: a second question, how much data? If it fits one machine, a relational database; if it outgrows one, a sharded store; if it is append-only, an event log.">
+      alt="A decision tree. How is the data read? By key, very often: a key-value cache. As whole files: an object store. By query: a second question, how much data? If it fits one machine, a relational database; if it outgrows one, a sharded store; if it is append-only, an event log."
+    >
       <Wide />
     </Figure>
   );

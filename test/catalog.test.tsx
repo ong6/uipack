@@ -9,7 +9,11 @@ describe("playground catalog", () => {
   it("page ids are unique, each page's group exists, and each group opens on one of its own pages", () => {
     const ids = libraryPages.map((p) => p.id);
     expect(new Set(ids).size).toBe(ids.length);
-    for (const p of libraryPages) expect(libraryGroups.map((g) => g.id), p.id).toContain(p.group);
+    for (const p of libraryPages)
+      expect(
+        libraryGroups.map((g) => g.id),
+        p.id,
+      ).toContain(p.group);
     for (const g of libraryGroups) expect(libraryPages.find((p) => p.id === g.defaultPage)?.group, g.id).toBe(g.id);
   });
 
@@ -17,8 +21,14 @@ describe("playground catalog", () => {
     for (const path of new Set(pageDefs.map((p) => p.path))) {
       const pages = pageDefs.filter((p) => p.path === path);
       if (pages.length === 1) continue;
-      expect(pages.every((p) => p.query), path).toBe(true);
-      expect(pages.filter((p) => p.isDefault), path).toHaveLength(1);
+      expect(
+        pages.every((p) => p.query),
+        path,
+      ).toBe(true);
+      expect(
+        pages.filter((p) => p.isDefault),
+        path,
+      ).toHaveLength(1);
       const keys = pages.map((p) => JSON.stringify(p.query));
       expect(new Set(keys).size, path).toBe(keys.length);
     }

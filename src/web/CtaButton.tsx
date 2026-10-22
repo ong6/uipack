@@ -9,7 +9,15 @@ export interface CtaButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElem
   size?: "md" | "lg";
 }
 
-export function CtaButton({ children, variant = "primary", href, size = "md", className = "", type = "button", ...rest }: CtaButtonProps) {
+export function CtaButton({
+  children,
+  variant = "primary",
+  href,
+  size = "md",
+  className = "",
+  type = "button",
+  ...rest
+}: CtaButtonProps) {
   const cls = `uipack-web-cta ${className}`.trim();
   if (href)
     return (

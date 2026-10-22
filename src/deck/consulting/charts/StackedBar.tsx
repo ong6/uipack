@@ -38,7 +38,8 @@ export function StackedBar({
   const stacks = categories.map((c) => stackSegments([...c.values], percent));
   const sums = categories.map((c) => c.values.reduce((a, b) => a + Math.max(0, b), 0));
   const max = percent ? 100 : Math.max(...sums, 1);
-  const fmtSeg = (s: { value: number; share: number }) => (percent ? `${Math.round(s.share * 100)}%` : (segmentFormat ?? format)(s.value));
+  const fmtSeg = (s: { value: number; share: number }) =>
+    percent ? `${Math.round(s.share * 100)}%` : (segmentFormat ?? format)(s.value);
   const label =
     alt ??
     `Stacked bar chart, ${series.join(", ")}. ${categories
@@ -95,27 +96,27 @@ export function StackedBar({
           const b = bands[i];
           return (
             <g key={c.label}>
-              <Lines x={labelW - 16} y={b.centre} lines={wrapToWidth(c.label, CX_TYPE.label, labelW - 20, 2)} anchor="end" weight={c.highlight ? 600 : undefined} />
+              <Lines
+                x={labelW - 16}
+                y={b.centre}
+                lines={wrapToWidth(c.label, CX_TYPE.label, labelW - 20, 2)}
+                anchor="end"
+                weight={c.highlight ? 600 : undefined}
+              />
               <g className="uipack-cx-grow" data-axis="x" style={growStyle("0% 50%", i * 40)}>
-              {stacks[i].map((s, k) => {
-                const x0 = x(s.from) + (k > 0 ? 1 : 0);
-                const x1 = x(s.to) - (k < stacks[i].length - 1 ? 1 : 0);
-                if (x1 - x0 <= 0.5) return null;
-                return (
-                  <g key={k}>
-                    <rect
-                      style={{ fill: fill.series(k) }}
-                      x={x0}
-                      y={b.markStart}
-                      width={x1 - x0}
-                      height={b.mark}
-                    >
-                      <title>{`${c.label}, ${series[k]}: ${fmtSeg(s)}`}</title>
-                    </rect>
-                    {segLabel(s, k, (x0 + x1) / 2, b.centre, x1 - x0, b.mark)}
-                  </g>
-                );
-              })}
+                {stacks[i].map((s, k) => {
+                  const x0 = x(s.from) + (k > 0 ? 1 : 0);
+                  const x1 = x(s.to) - (k < stacks[i].length - 1 ? 1 : 0);
+                  if (x1 - x0 <= 0.5) return null;
+                  return (
+                    <g key={k}>
+                      <rect style={{ fill: fill.series(k) }} x={x0} y={b.markStart} width={x1 - x0} height={b.mark}>
+                        <title>{`${c.label}, ${series[k]}: ${fmtSeg(s)}`}</title>
+                      </rect>
+                      {segLabel(s, k, (x0 + x1) / 2, b.centre, x1 - x0, b.mark)}
+                    </g>
+                  );
+                })}
               </g>
               {totals && !percent && (
                 <Text x={x(sums[i]) + 10} y={b.centre} weight={600}>
@@ -143,35 +144,26 @@ export function StackedBar({
         return (
           <g key={c.label}>
             <g className="uipack-cx-grow" data-axis="y" style={growStyle("50% 100%", i * 40)}>
-            {stacks[i].map((s, k) => {
-              const last = k === stacks[i].length - 1;
-              const y0 = y(s.from) - (k > 0 ? 1 : 0);
-              const y1 = y(s.to) + (last ? 0 : 1);
-              if (y0 - y1 <= 0.5) return null;
-              return (
-                <g key={k}>
-                  {last ? (
-                    <path
-                      style={{ fill: fill.series(k) }}
-                      d={barPath("vertical", y0, y1, b.markStart, b.mark)}
-                    >
-                      <title>{`${c.label}, ${series[k]}: ${fmtSeg(s)}`}</title>
-                    </path>
-                  ) : (
-                    <rect
-                      style={{ fill: fill.series(k) }}
-                      x={b.markStart}
-                      y={y1}
-                      width={b.mark}
-                      height={y0 - y1}
-                    >
-                      <title>{`${c.label}, ${series[k]}: ${fmtSeg(s)}`}</title>
-                    </rect>
-                  )}
-                  {segLabel(s, k, b.centre, (y0 + y1) / 2, b.mark, y0 - y1)}
-                </g>
-              );
-            })}
+              {stacks[i].map((s, k) => {
+                const last = k === stacks[i].length - 1;
+                const y0 = y(s.from) - (k > 0 ? 1 : 0);
+                const y1 = y(s.to) + (last ? 0 : 1);
+                if (y0 - y1 <= 0.5) return null;
+                return (
+                  <g key={k}>
+                    {last ? (
+                      <path style={{ fill: fill.series(k) }} d={barPath("vertical", y0, y1, b.markStart, b.mark)}>
+                        <title>{`${c.label}, ${series[k]}: ${fmtSeg(s)}`}</title>
+                      </path>
+                    ) : (
+                      <rect style={{ fill: fill.series(k) }} x={b.markStart} y={y1} width={b.mark} height={y0 - y1}>
+                        <title>{`${c.label}, ${series[k]}: ${fmtSeg(s)}`}</title>
+                      </rect>
+                    )}
+                    {segLabel(s, k, b.centre, (y0 + y1) / 2, b.mark, y0 - y1)}
+                  </g>
+                );
+              })}
             </g>
             {totals && !percent && (
               <Text x={b.centre} y={y(sums[i]) - 18} anchor="middle" weight={600} halo>

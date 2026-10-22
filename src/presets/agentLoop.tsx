@@ -25,7 +25,8 @@ export const defaultAgentLoop: AgentLoopSpec = {
     number: "Figure 01",
     eyebrow: "Agent loop",
     title: "Tools answer, the boundary decides",
-    caption: "The agent plans, calls tools, and drafts. Nothing reaches the user until a deterministic check passes the draft against what the tools recorded.",
+    caption:
+      "The agent plans, calls tools, and drafts. Nothing reaches the user until a deterministic check passes the draft against what the tools recorded.",
     alt: "A user sends a request to an agent, the agent calls three tools and gets results back, then its draft passes through a deterministic boundary before becoming the output.",
   },
   user: { label: "User", icon: "user" },
@@ -57,7 +58,10 @@ export function agentLoopParts(spec: AgentLoopSpec = defaultAgentLoop, id: strin
   const bus = {
     axis: "v" as const,
     at: busX,
-    stubs: [...spec.tools.map((_, i) => ({ at: toolY(i), to: tool.x, arrow: true, flow: TOOLS })), { at: trunkY, to: agentBox.x + agentBox.w, flow: TOOLS }],
+    stubs: [
+      ...spec.tools.map((_, i) => ({ at: toolY(i), to: tool.x, arrow: true, flow: TOOLS })),
+      { at: trunkY, to: agentBox.x + agentBox.w, flow: TOOLS },
+    ],
   };
   const fromAgent = busStub(bus, bus.stubs[n]);
   const ask: Point[] = [
@@ -83,13 +87,51 @@ export function agentLoopParts(spec: AgentLoopSpec = defaultAgentLoop, id: strin
       <Lane x={user.x} w={user.w} y={40} title={lu} />
       <Lane x={agentBox.x} w={agentBox.w} y={40} title={la} />
       <Lane x={tool.x} w={tool.w} y={40} title={lt} />
-      <Node {...user} label={spec.user.label} sub={spec.user.sub} icon={spec.user.icon ?? "user"} flow={ASK} hint={spec.user.hint ?? "Sends the request, reads the output"} />
+      <Node
+        {...user}
+        label={spec.user.label}
+        sub={spec.user.sub}
+        icon={spec.user.icon ?? "user"}
+        flow={ASK}
+        hint={spec.user.hint ?? "Sends the request, reads the output"}
+      />
       <Group {...agentBox} title={spec.agent.label} flow={[ASK, TOOLS, CHECK]}>
-        <Node x={agentBox.x + 24} y={agentBox.y + 40} w={agentBox.w - 48} h={56} label={spec.agent.sub ?? "plan · call · draft"} sub="model" icon={spec.agent.icon ?? "agent"} flow={[ASK, TOOLS]} />
-        <Node x={agentBox.x + 24} y={agentBox.y + 112} w={agentBox.w - 48} h={40} label="Draft" sub="structured output" icon="doc" flow={CHECK} size={13} subSize={10} />
+        <Node
+          x={agentBox.x + 24}
+          y={agentBox.y + 40}
+          w={agentBox.w - 48}
+          h={56}
+          label={spec.agent.sub ?? "plan · call · draft"}
+          sub="model"
+          icon={spec.agent.icon ?? "agent"}
+          flow={[ASK, TOOLS]}
+        />
+        <Node
+          x={agentBox.x + 24}
+          y={agentBox.y + 112}
+          w={agentBox.w - 48}
+          h={40}
+          label="Draft"
+          sub="structured output"
+          icon="doc"
+          flow={CHECK}
+          size={13}
+          subSize={10}
+        />
       </Group>
       {spec.tools.map((t, i) => (
-        <Node key={t.label} x={tool.x} y={tool.y0 + i * tool.step} w={tool.w} h={tool.h} label={t.label} hint={t.hint} sub={t.sub} icon={t.icon ?? "tool"} flow={TOOLS} />
+        <Node
+          key={t.label}
+          x={tool.x}
+          y={tool.y0 + i * tool.step}
+          w={tool.w}
+          h={tool.h}
+          label={t.label}
+          hint={t.hint}
+          sub={t.sub}
+          icon={t.icon ?? "tool"}
+          flow={TOOLS}
+        />
       ))}
       <Connector points={ask} defs={id} kind="request" flow={ASK} />
       <Packet points={ask} kind="request" dur={2} flow={ASK} />
@@ -98,23 +140,54 @@ export function agentLoopParts(spec: AgentLoopSpec = defaultAgentLoop, id: strin
       <Packet points={fromAgent} kind="change" dur={1.8} flow={TOOLS} />
       <Packet points={fromAgent} kind="response" dur={1.8} delay={-0.9} reverse flow={TOOLS} />
       {spec.tools.map((_, i) => (
-        <Packet key={i} points={busStub(bus, bus.stubs[i])} kind={i % 2 ? "response" : "change"} dur={1.4} delay={-i * 0.45} reverse={i % 2 === 1} r={4} flow={TOOLS} />
+        <Packet
+          key={i}
+          points={busStub(bus, bus.stubs[i])}
+          kind={i % 2 ? "response" : "change"}
+          dur={1.4}
+          delay={-i * 0.45}
+          reverse={i % 2 === 1}
+          r={4}
+          flow={TOOLS}
+        />
       ))}
       <Label x={(agentBox.x + agentBox.w + busX) / 2} y={trunkY - 10} text="tool calls" anchor="middle" />
       <Connector points={toBoundary} defs={id} kind="request" flow={CHECK} />
       <Packet points={toBoundary} kind="request" dur={1.6} flow={CHECK} />
-      <Node {...boundary} label={spec.boundary.label} sub={spec.boundary.sub} icon={spec.boundary.icon ?? "lock"} accent dashed flow={CHECK} hint={spec.boundary.hint ?? "Code, not a model, decides what passes"} />
+      <Node
+        {...boundary}
+        label={spec.boundary.label}
+        sub={spec.boundary.sub}
+        icon={spec.boundary.icon ?? "lock"}
+        accent
+        dashed
+        flow={CHECK}
+        hint={spec.boundary.hint ?? "Code, not a model, decides what passes"}
+      />
       <Connector points={toOutput} defs={id} kind="accent" flow={CHECK} />
       <Packet points={toOutput} kind="accent" dur={1.6} delay={-0.8} flow={CHECK} />
       <Label x={cx + 12} y={toOutput[0][1] + 28} text="verdict" accent />
-      <Node {...output} label={spec.output.label} hint={spec.output.hint} sub={spec.output.sub} icon={spec.output.icon ?? "doc"} flow={CHECK} />
+      <Node
+        {...output}
+        label={spec.output.label}
+        hint={spec.output.hint}
+        sub={spec.output.sub}
+        icon={spec.output.icon ?? "doc"}
+        flow={CHECK}
+      />
     </>
   );
 
   const steps = [
     { ...spec.user, icon: spec.user.icon ?? ("user" as const), flow: ASK },
     { ...spec.agent, icon: spec.agent.icon ?? ("agent" as const), flow: ASK },
-    { label: spec.tools.map((t) => t.label).join(" · "), sub: lt.toLowerCase(), icon: "tool" as const, kind: "change" as const, flow: TOOLS },
+    {
+      label: spec.tools.map((t) => t.label).join(" · "),
+      sub: lt.toLowerCase(),
+      icon: "tool" as const,
+      kind: "change" as const,
+      flow: TOOLS,
+    },
     { label: "Tool results", sub: "back to the agent", icon: "doc" as const, kind: "response" as const, flow: TOOLS },
     { ...spec.boundary, icon: spec.boundary.icon ?? ("lock" as const), accent: true, dashed: true, flow: CHECK },
     { ...spec.output, icon: spec.output.icon ?? ("doc" as const), kind: "accent" as const, flow: CHECK },

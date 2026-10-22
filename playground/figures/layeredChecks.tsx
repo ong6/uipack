@@ -8,10 +8,37 @@ import { Badge, Connector, Defs, Figure, Group, Label, Node, Packet, Wall, useFo
 // frame. The caught marks are drawn here from the theme's variables.
 
 /** Text that follows the figure's font floor, for the layer headings. */
-function Txt({ x, y, size, children, mono, bold, anchor = "middle", muted }: { x: number; y: number; size: number; children: ReactNode; mono?: boolean; bold?: boolean; anchor?: "start" | "middle" | "end"; muted?: boolean }) {
+function Txt({
+  x,
+  y,
+  size,
+  children,
+  mono,
+  bold,
+  anchor = "middle",
+  muted,
+}: {
+  x: number;
+  y: number;
+  size: number;
+  children: ReactNode;
+  mono?: boolean;
+  bold?: boolean;
+  anchor?: "start" | "middle" | "end";
+  muted?: boolean;
+}) {
   const fs = useFontFloor(size);
   return (
-    <text x={x} y={y} fontSize={fs} fontFamily={mono ? "var(--uipack-mono)" : "var(--uipack-sans)"} fontWeight={bold ? 600 : 400} textAnchor={anchor} fill="currentColor" fillOpacity={muted ? 0.72 : 1}>
+    <text
+      x={x}
+      y={y}
+      fontSize={fs}
+      fontFamily={mono ? "var(--uipack-mono)" : "var(--uipack-sans)"}
+      fontWeight={bold ? 600 : 400}
+      textAnchor={anchor}
+      fill="currentColor"
+      fillOpacity={muted ? 0.72 : 1}
+    >
       {children}
     </text>
   );
@@ -46,21 +73,50 @@ const SPEED = 150; // units per second, so every item moves at one pace
 function Wide() {
   const id = "sieve";
   const end = (stop: number) => (stop === 0 ? RB.x : WX[stop - 1] - 6);
-  const loop: Point[] = [[448, 512], [400, 512], [400, BOT + 2]];
+  const loop: Point[] = [
+    [448, 512],
+    [400, 512],
+    [400, BOT + 2],
+  ];
   return (
     <>
       <Defs id={id} />
-      <Group x={16} y={16} w={1088} h={560} title="Every release ships behind a flag" variant="dashed" hint="The last layer: whatever slips through can be switched off" />
+      <Group
+        x={16}
+        y={16}
+        w={1088}
+        h={560}
+        title="Every release ships behind a flag"
+        variant="dashed"
+        hint="The last layer: whatever slips through can be switched off"
+      />
       {LAYERS.map(([name, sub], i) => (
         <g key={name}>
           <Badge cx={WX[i]} cy={72} text={String(i + 1)} r={12} size={13} />
-          <Txt x={WX[i]} y={112} size={15} bold>{name}</Txt>
-          <Txt x={WX[i]} y={136} size={13} mono muted>{sub}</Txt>
+          <Txt x={WX[i]} y={112} size={15} bold>
+            {name}
+          </Txt>
+          <Txt x={WX[i]} y={136} size={13} mono muted>
+            {sub}
+          </Txt>
         </g>
       ))}
-      <Node x={48} y={TOP} w={152} h={BOT - TOP} label="Defects" sub="in one release" align="center" dashed hint="Six defects enter; each line is one of them" />
+      <Node
+        x={48}
+        y={TOP}
+        w={152}
+        h={BOT - TOP}
+        label="Defects"
+        sub="in one release"
+        align="center"
+        dashed
+        hint="Six defects enter; each line is one of them"
+      />
       {STOPS.map((stop, i) => {
-        const pts: Point[] = [[IN_X, LANES[i]], [end(stop), LANES[i]]];
+        const pts: Point[] = [
+          [IN_X, LANES[i]],
+          [end(stop), LANES[i]],
+        ];
         const slip = stop === 0;
         const dur = (end(stop) - IN_X) / SPEED;
         return (
@@ -83,12 +139,34 @@ function Wide() {
       {WX.map((x, k) => (
         <Wall key={x} at={x} from={TOP} to={BOT} axis="v" holes={holesAt(k, LANES)} />
       ))}
-      <Node {...RB} label="Roll back" sub="flag off, no deploy" icon="key" accent flow={SLIP} hint="The one defect no layer caught is switched off, not hot-fixed" />
-      <Txt x={RB.x} y={RB.y + 104} size={14} anchor="start" mono muted>no layer is complete;</Txt>
-      <Txt x={RB.x} y={RB.y + 124} size={14} anchor="start" mono muted>together they are</Txt>
+      <Node
+        {...RB}
+        label="Roll back"
+        sub="flag off, no deploy"
+        icon="key"
+        accent
+        flow={SLIP}
+        hint="The one defect no layer caught is switched off, not hot-fixed"
+      />
+      <Txt x={RB.x} y={RB.y + 104} size={14} anchor="start" mono muted>
+        no layer is complete;
+      </Txt>
+      <Txt x={RB.x} y={RB.y + 124} size={14} anchor="start" mono muted>
+        together they are
+      </Txt>
 
       <Connector points={loop} defs={id} dashed />
-      <Node x={448} y={480} w={272} h={64} label="Tests for the tests" sub="mutants each test must kill" icon="chart" dashed hint="Checks one of the checks: a test that never fails is found here" />
+      <Node
+        x={448}
+        y={480}
+        w={272}
+        h={64}
+        label="Tests for the tests"
+        sub="mutants each test must kill"
+        icon="chart"
+        dashed
+        hint="Checks one of the checks: a test that never fails is found here"
+      />
       <Badge cx={448} cy={480} text="6" r={12} size={13} />
       <Label x={392} y={472} text="checks layer 2" anchor="end" />
     </>
@@ -111,13 +189,20 @@ function Narrow() {
       <Group x={8} y={8} w={344} h={672} title="Ships behind a flag" variant="dashed" />
       <Node x={24} y={48} w={168} h={M_IN - 48} label="Defects" sub="one release" align="center" dashed />
       {STOPS.map((stop, i) => {
-        const pts: Point[] = [[MX[i], M_IN], [MX[i], end(stop)]];
+        const pts: Point[] = [
+          [MX[i], M_IN],
+          [MX[i], end(stop)],
+        ];
         const slip = stop === 0;
         const dur = (end(stop) - M_IN) / 120;
         return (
           <g key={i}>
             <Connector points={pts} defs={id} kind={slip ? "accent" : undefined} arrow={slip} flow={slip ? SLIP : undefined} />
-            {slip ? <Packet points={pts} kind="change" dur={dur} flow={SLIP} r={4} /> : <Caught x={MX[i]} y={end(stop) - 5} r={4} />}
+            {slip ? (
+              <Packet points={pts} kind="change" dur={dur} flow={SLIP} r={4} />
+            ) : (
+              <Caught x={MX[i]} y={end(stop) - 5} r={4} />
+            )}
           </g>
         );
       })}
@@ -127,13 +212,25 @@ function Narrow() {
       {LAYERS.map(([name, sub], i) => (
         <g key={name}>
           <Badge cx={TX + 11} cy={MY[i] - 12} text={String(i + 1)} r={11} size={13} />
-          <Txt x={TX + 28} y={MY[i] - 7} size={14} anchor="start" bold>{name}</Txt>
-          <Txt x={TX + 28} y={MY[i] + 13} size={12} anchor="start" mono muted>{sub}</Txt>
+          <Txt x={TX + 28} y={MY[i] - 7} size={14} anchor="start" bold>
+            {name}
+          </Txt>
+          <Txt x={TX + 28} y={MY[i] + 13} size={12} anchor="start" mono muted>
+            {sub}
+          </Txt>
         </g>
       ))}
       <Node x={208} y={344} w={136} h={56} label="Tests for" sub="the tests" align="center" dashed />
       <Badge cx={208} cy={344} text="6" r={11} size={13} />
-      <Connector points={[[208, 372], [184, 372], [184, MY[1] + 6]]} defs={id} dashed />
+      <Connector
+        points={[
+          [208, 372],
+          [184, 372],
+          [184, MY[1] + 6],
+        ]}
+        defs={id}
+        dashed
+      />
       <Node {...M_RB} label="Roll back" sub="flag off" icon="key" accent flow={SLIP} />
     </>
   );
@@ -153,7 +250,8 @@ export function LayeredChecksFigure({ number }: { number: string }) {
       viewBox="0 0 1120 592"
       narrow={<Narrow />}
       narrowViewBox="0 0 360 688"
-      alt="Six defects enter on the left and meet five walls in order: lint and types, unit tests, code review, staging and canary. Each wall has gaps and stops one defect. One defect finds a gap in every wall and reaches roll back, inside a frame that says every release ships behind a flag. A sixth layer, tests for the tests, checks the unit-test wall.">
+      alt="Six defects enter on the left and meet five walls in order: lint and types, unit tests, code review, staging and canary. Each wall has gaps and stops one defect. One defect finds a gap in every wall and reaches roll back, inside a frame that says every release ships behind a flag. A sixth layer, tests for the tests, checks the unit-test wall."
+    >
       <Wide />
     </Figure>
   );

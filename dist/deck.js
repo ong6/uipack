@@ -1,7 +1,9 @@
 import { useLayerFlight } from './chunk-5GCY6KJP.js';
 import { zoomFrame, innerClipStart, smoothstep } from './chunk-VZ4PJUMF.js';
+import { WORDS_PER_MINUTE } from './chunk-K7T4NUBP.js';
+export { WORDS_PER_MINUTE } from './chunk-K7T4NUBP.js';
 import { usePrefersReducedMotion, useIsoLayoutEffect } from './chunk-KYO6UXHN.js';
-import { createContext, useContext, useState, useRef, useCallback, useEffect, Children, isValidElement, forwardRef } from 'react';
+import { createContext, useContext, useState, useRef, useMemo, useCallback, useEffect, Children, isValidElement, forwardRef } from 'react';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { flushSync, createPortal } from 'react-dom';
 
@@ -112,6 +114,7 @@ function Slide({
 // src/deck/transitions.ts
 var CANVAS_WIDTH = 1920;
 var CANVAS_HEIGHT = 1080;
+var CAMERA_CURVE = [0.3, 0.05, 0.25, 1];
 var deckMotion = {
   quick: 160,
   base: 320,
@@ -123,7 +126,7 @@ var deckMotion = {
   exit: "cubic-bezier(0.4, 0, 1, 1)",
   travel: "cubic-bezier(0.55, 0, 0.15, 1)",
   /** The zoom camera's progress (in log scale): moving by 10% of the clock, landing softly. */
-  camera: "cubic-bezier(0.3, 0.05, 0.25, 1)"
+  camera: `cubic-bezier(${CAMERA_CURVE.join(", ")})`
 };
 function cubicBezier(x1, y1, x2, y2) {
   const cx2 = 3 * x1;
@@ -144,7 +147,7 @@ function cubicBezier(x1, y1, x2, y2) {
     return ((ay * t + by) * t + cy) * t;
   };
 }
-var cameraEase = cubicBezier(0.3, 0.05, 0.25, 1);
+var cameraEase = cubicBezier(...CAMERA_CURVE);
 function resolveTransition(from, to, transitionOf, fallback = "advance") {
   if (from === to) return { kind: "none" };
   if (Math.abs(from - to) !== 1) return { kind: "fade" };
@@ -284,10 +287,28 @@ function runTransition(opts) {
       const origin = `${frame.fx.toFixed(2)}px ${frame.fy.toFixed(2)}px`;
       inner.style.zIndex = "2";
       const timing = { duration: deckMotion.zoom, easing: "linear" };
-      play(outer, samples.map((s) => ({ offset: s.offset, transform: s.outer, transformOrigin: origin })), timing);
-      play(inner, samples.map((s) => ({ offset: s.offset, transform: s.inner, transformOrigin: origin, clipPath: s.clip, opacity: s.innerOpacity })), timing);
+      play(
+        outer,
+        samples.map((s) => ({ offset: s.offset, transform: s.outer, transformOrigin: origin })),
+        timing
+      );
+      play(
+        inner,
+        samples.map((s) => ({
+          offset: s.offset,
+          transform: s.inner,
+          transformOrigin: origin,
+          clipPath: s.clip,
+          opacity: s.innerOpacity
+        })),
+        timing
+      );
       for (const child of Array.from(target.children)) {
-        play(child, samples.map((s) => ({ offset: s.offset, opacity: 1 - smoothstep(0.01, 0.09, s.p) })), timing);
+        play(
+          child,
+          samples.map((s) => ({ offset: s.offset, opacity: 1 - smoothstep(0.01, 0.09, s.p) })),
+          timing
+        );
       }
       if (paintsBox(target)) {
         const frames = paintFrames(target, "from");
@@ -328,10 +349,28 @@ function runTransition(opts) {
         const fromB = flipFrom(ra, rb, scale, fit, text).transform;
         const fromA = flipFrom(rb, ra, scale, fit, text && 1 / text).transform;
         const swap = { duration: deckMotion.morph, easing: "linear" };
-        play(b, [{ transformOrigin: "0 0", transform: fromB }, { transformOrigin: "0 0", transform: "none" }], travel);
+        play(
+          b,
+          [
+            { transformOrigin: "0 0", transform: fromB },
+            { transformOrigin: "0 0", transform: "none" }
+          ],
+          travel
+        );
         play(b, [{ opacity: 0 }, { opacity: 1, offset: bIn }, { opacity: 1 }], swap);
-        play(a, [{ transformOrigin: "0 0", transform: "none" }, { transformOrigin: "0 0", transform: fromA }], travel);
-        play(a, [{ opacity: 1 }, { opacity: 1, offset: text ? 0 : bIn * 0.6 }, { opacity: 0, offset: aOut }, { opacity: 0 }], swap);
+        play(
+          a,
+          [
+            { transformOrigin: "0 0", transform: "none" },
+            { transformOrigin: "0 0", transform: fromA }
+          ],
+          travel
+        );
+        play(
+          a,
+          [{ opacity: 1 }, { opacity: 1, offset: text ? 0 : bIn * 0.6 }, { opacity: 0, offset: aOut }, { opacity: 0 }],
+          swap
+        );
       }
       const leave = { duration: deckMotion.quick, easing: deckMotion.exit };
       const besideOut = (el) => Boolean(el.parentElement && out.containers.includes(el.parentElement) && isText(el.parentElement));
@@ -352,8 +391,15 @@ function runTransition(opts) {
         else if (crossed(el)) play(el, [{ opacity: 1 }, { opacity: 0 }], leave);
         else if (isText(el) && incomingText.some((r) => overlaps(r, rectOf(el)))) {
           handedOver.push(rectOf(el));
-          play(el, [{ opacity: 1 }, { opacity: 1, offset: 0.66, easing: "ease-in" }, { opacity: 0 }], { duration: deckMotion.morph * 0.5, easing: "linear" });
-        } else play(el, [{ opacity: 1 }, { opacity: 1, offset: 0.55, easing: "ease-in-out" }, { opacity: 0 }], { duration: deckMotion.morph * 0.6, easing: "linear" });
+          play(el, [{ opacity: 1 }, { opacity: 1, offset: 0.66, easing: "ease-in" }, { opacity: 0 }], {
+            duration: deckMotion.morph * 0.5,
+            easing: "linear"
+          });
+        } else
+          play(el, [{ opacity: 1 }, { opacity: 1, offset: 0.55, easing: "ease-in-out" }, { opacity: 0 }], {
+            duration: deckMotion.morph * 0.6,
+            easing: "linear"
+          });
       }
       for (const el of out.containers) if (paintsBox(el)) play(el, paintFrames(el, "from"), leave);
       const beside = (el) => Boolean(el.parentElement && inn.containers.includes(el.parentElement) && isText(el.parentElement));
@@ -370,36 +416,66 @@ function runTransition(opts) {
       let i = 0;
       for (const el of incoming) {
         if (beside(el) || underPath(el)) {
-          play(el, [{ opacity: 0 }, { opacity: 1 }], { duration: deckMotion.base, delay: deckMotion.morph * 0.72, easing: deckMotion.settle });
-        } else {
-          const after = isText(el) && handedOver.some((r) => overlaps(r, rectOf(el))) ? deckMotion.morph * 0.5 : 0;
-          play(el, [{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }], {
-            duration: deckMotion.slow,
-            delay: Math.max(after, deckMotion.morph * 0.4 + Math.min(i++, 6) * deckMotion.stagger),
+          play(el, [{ opacity: 0 }, { opacity: 1 }], {
+            duration: deckMotion.base,
+            delay: deckMotion.morph * 0.72,
             easing: deckMotion.settle
           });
+        } else {
+          const after = isText(el) && handedOver.some((r) => overlaps(r, rectOf(el))) ? deckMotion.morph * 0.5 : 0;
+          play(
+            el,
+            [
+              { opacity: 0, transform: "translateY(14px)" },
+              { opacity: 1, transform: "none" }
+            ],
+            {
+              duration: deckMotion.slow,
+              delay: Math.max(after, deckMotion.morph * 0.4 + Math.min(i++, 6) * deckMotion.stagger),
+              easing: deckMotion.settle
+            }
+          );
         }
       }
       for (const el of inn.containers) {
-        if (paintsBox(el)) play(el, paintFrames(el, "to"), { duration: deckMotion.slow, delay: deckMotion.morph * 0.4, easing: deckMotion.settle });
+        if (paintsBox(el))
+          play(el, paintFrames(el, "to"), {
+            duration: deckMotion.slow,
+            delay: deckMotion.morph * 0.4,
+            easing: deckMotion.settle
+          });
       }
       const bg = bgOf(to);
-      if (bg) play(bg, [{ opacity: 0 }, { opacity: 0, offset: 0.45 }, { opacity: 1, offset: 0.62 }, { opacity: 1 }], { duration: deckMotion.morph, easing: "linear" });
+      if (bg)
+        play(bg, [{ opacity: 0 }, { opacity: 0, offset: 0.45 }, { opacity: 1, offset: 0.62 }, { opacity: 1 }], {
+          duration: deckMotion.morph,
+          easing: "linear"
+        });
       return anims;
     }
   }
   if (kind === "advance") {
     from.style.zIndex = "2";
     const shift = 40 * direction;
-    play(from, [{ transform: "none" }, { transform: `translateX(${-shift}px)` }], { duration: deckMotion.base, easing: deckMotion.exit });
+    play(from, [{ transform: "none" }, { transform: `translateX(${-shift}px)` }], {
+      duration: deckMotion.base,
+      easing: deckMotion.exit
+    });
     play(from, [{ opacity: 1 }, { opacity: 0 }], { duration: deckMotion.quick, easing: "ease-in" });
     const blocks = blocksOf(to).filter((el) => !unbuilt(el));
     (blocks.length ? blocks : [to]).forEach(
-      (el, i) => play(el, [{ opacity: 0, transform: `translateX(${shift * 1.4}px)` }, { opacity: 1, transform: "none" }], {
-        duration: deckMotion.slow,
-        delay: deckMotion.quick + Math.min(i, 7) * deckMotion.stagger,
-        easing: deckMotion.settle
-      })
+      (el, i) => play(
+        el,
+        [
+          { opacity: 0, transform: `translateX(${shift * 1.4}px)` },
+          { opacity: 1, transform: "none" }
+        ],
+        {
+          duration: deckMotion.slow,
+          delay: deckMotion.quick + Math.min(i, 7) * deckMotion.stagger,
+          easing: deckMotion.settle
+        }
+      )
     );
     return anims;
   }
@@ -975,87 +1051,84 @@ var LINT_RULES = {
   }
 };
 var MAX_TITLE_WORDS = 14;
-var WORDS_PER_MINUTE = 135;
-var TOPIC_LABELS = /* @__PURE__ */ new Set(
-  [
-    "about me",
-    "action items",
-    "agenda",
-    "alternatives",
-    "appendix",
-    "approach",
-    "architecture",
-    "background",
-    "budget",
-    "challenges",
-    "conclusion",
-    "conclusions",
-    "context",
-    "cost",
-    "costs",
-    "data",
-    "deep dive",
-    "demo",
-    "design",
-    "executive summary",
-    "faq",
-    "findings",
-    "goals",
-    "highlights",
-    "how it works",
-    "impact",
-    "intro",
-    "introduction",
-    "issues",
-    "key takeaways",
-    "kpis",
-    "learnings",
-    "lessons learned",
-    "live demo",
-    "metrics",
-    "motivation",
-    "next",
-    "next steps",
-    "objectives",
-    "options",
-    "overview",
-    "plan",
-    "problem",
-    "problem statement",
-    "progress",
-    "q&a",
-    "q and a",
-    "questions",
-    "recap",
-    "recommendation",
-    "recommendations",
-    "requirements",
-    "results",
-    "risks",
-    "risks and mitigations",
-    "roadmap",
-    "root cause",
-    "scope",
-    "solution",
-    "status",
-    "status update",
-    "success metrics",
-    "summary",
-    "system architecture",
-    "takeaways",
-    "team",
-    "thank you",
-    "thanks",
-    "timeline",
-    "trade-offs",
-    "tradeoffs",
-    "update",
-    "what's next",
-    "whats next",
-    "why",
-    "why now"
-  ]
-);
+var TOPIC_LABELS = /* @__PURE__ */ new Set([
+  "about me",
+  "action items",
+  "agenda",
+  "alternatives",
+  "appendix",
+  "approach",
+  "architecture",
+  "background",
+  "budget",
+  "challenges",
+  "conclusion",
+  "conclusions",
+  "context",
+  "cost",
+  "costs",
+  "data",
+  "deep dive",
+  "demo",
+  "design",
+  "executive summary",
+  "faq",
+  "findings",
+  "goals",
+  "highlights",
+  "how it works",
+  "impact",
+  "intro",
+  "introduction",
+  "issues",
+  "key takeaways",
+  "kpis",
+  "learnings",
+  "lessons learned",
+  "live demo",
+  "metrics",
+  "motivation",
+  "next",
+  "next steps",
+  "objectives",
+  "options",
+  "overview",
+  "plan",
+  "problem",
+  "problem statement",
+  "progress",
+  "q&a",
+  "q and a",
+  "questions",
+  "recap",
+  "recommendation",
+  "recommendations",
+  "requirements",
+  "results",
+  "risks",
+  "risks and mitigations",
+  "roadmap",
+  "root cause",
+  "scope",
+  "solution",
+  "status",
+  "status update",
+  "success metrics",
+  "summary",
+  "system architecture",
+  "takeaways",
+  "team",
+  "thank you",
+  "thanks",
+  "timeline",
+  "trade-offs",
+  "tradeoffs",
+  "update",
+  "what's next",
+  "whats next",
+  "why",
+  "why now"
+]);
 var MONTH = "jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?";
 var WEEKDAY = "mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:rs(?:day)?)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?";
 var capitalised = (alternatives) => alternatives.replace(/(^|\|)([a-z])/g, (_, bar, c) => bar + c.toUpperCase());
@@ -1112,7 +1185,9 @@ function namedSource(text) {
       const after = words[i + 1];
       if (after && SOURCE_MODIFIED_RE.test(after)) return false;
       const namedBefore = Boolean(before && /^[\p{L}\p{N}]/u.test(before) && !SOURCE_STOP.has(before.toLowerCase()));
-      const namedAfter = Boolean(after && (/\d/.test(after) || /^\p{Lu}/u.test(after) && after !== "I" || SOURCE_NAME_AFTER_RE.test(after)));
+      const namedAfter = Boolean(
+        after && (/\d/.test(after) || /^\p{Lu}/u.test(after) && after !== "I" || SOURCE_NAME_AFTER_RE.test(after))
+      );
       return namedBefore || namedAfter;
     });
   });
@@ -1179,231 +1254,314 @@ function inferRoles(slides) {
     return void 0;
   });
 }
-function lintDeck(slides, options = {}) {
-  const findings = [];
-  const add = (rule, severity, message, slideId) => findings.push(slideId === void 0 ? { rule, severity, message } : { slideId, rule, severity, message });
-  if (slides.length === 0) {
-    add("deck-empty", "error", "The deck has no slides.");
-    return findings;
+function titledSlides(deck) {
+  return deck.slides.filter((slide) => slide.role !== "appendix").map((slide) => ({ slide, headline: headlineOf(slide) })).filter(({ headline }) => headline);
+}
+var LINT_CHECKS = [
+  {
+    rule: "deck-empty",
+    check: ({ slides }, report) => {
+      if (slides.length === 0) report("error", "The deck has no slides.");
+    }
+  },
+  {
+    rule: "duplicate-id",
+    check: ({ slides }, report) => {
+      const seen = /* @__PURE__ */ new Set();
+      for (const slide of slides) {
+        if (seen.has(slide.id)) report("error", `Slide ID "${slide.id}" is used more than once.`, slide.id);
+        seen.add(slide.id);
+      }
+    }
+  },
+  {
+    rule: "title-present",
+    check: ({ slides }, report) => {
+      for (const slide of slides)
+        if (!headlineOf(slide)) report("error", "No title. Write the slide's point as a sentence.", slide.id);
+    }
+  },
+  {
+    rule: "title-claim",
+    check: (deck, report) => {
+      for (const { slide, headline } of titledSlides(deck)) {
+        const words = wordsOf(headline);
+        const label = normaliseLabel(headline);
+        const prefix = headline.includes(":") ? normaliseLabel(headline.slice(0, headline.indexOf(":"))) : "";
+        const soften = (s) => slide.role === "cover" ? "tip" : s;
+        if (TOPIC_LABELS.has(label)) {
+          report(
+            soften("error"),
+            `"${headline}" is a topic label. Say what the audience should conclude from this slide.`,
+            slide.id
+          );
+        } else if (words.length < 3) {
+          report(soften("warn"), `"${headline}" is under three words; it reads as a label, not a claim.`, slide.id);
+        } else if (words.length <= 4 && edgeLabel(label)) {
+          report(soften("warn"), `"${headline}" reads like a section label. State the finding instead.`, slide.id);
+        } else if (prefix && TOPIC_LABELS.has(prefix) && prefix !== "next") {
+          report(
+            soften("tip"),
+            `"${headline}" opens with a section label. Lead with the claim; put the section in the eyebrow.`,
+            slide.id
+          );
+        } else if (TOPIC_OPENING_RE.test(headline)) {
+          report(
+            soften("warn"),
+            `"${headline}" opens like a topic ("${topicOpening(headline)}"), however long it runs. Say what the audience should conclude.`,
+            slide.id
+          );
+        }
+      }
+    }
+  },
+  {
+    rule: "title-length",
+    check: (deck, report) => {
+      for (const { slide, headline } of titledSlides(deck)) {
+        const words = wordsOf(headline).length;
+        if (words > MAX_TITLE_WORDS)
+          report("warn", `Title is ${words} words; keep it to ${MAX_TITLE_WORDS} or move detail to the body.`, slide.id);
+      }
+    }
+  },
+  {
+    rule: "title-specific",
+    check: (deck, report) => {
+      for (const { slide, headline } of titledSlides(deck)) {
+        if (slide.role && QUANTIFIED_ROLES.includes(slide.role) && !isSpecific(headline)) {
+          report(
+            "warn",
+            `"${headline}" could describe any quarter. Put the quantity in the title: the number with its unit, or the from\u2192to it moved; a bare count ("two teams") doesn't say how much.`,
+            slide.id
+          );
+        } else if (slide.role === "plan" && !isSpecific(headline) && !hasFirmDate(headline)) {
+          report("warn", `"${headline}" has no date and no number. Say when each milestone lands, or what it costs.`, slide.id);
+        }
+      }
+    }
+  },
+  {
+    rule: "one-idea",
+    check: (deck, report) => {
+      for (const { slide, headline } of titledSlides(deck))
+        if (/[.!?]["”’)]?\s+\S/.test(headline))
+          report("tip", "Title has more than one sentence. One idea per slide: split it or pick one.", slide.id);
+    }
+  },
+  {
+    rule: "notes-present",
+    check: ({ presented }, report) => {
+      for (const slide of presented)
+        if (!sayOf(slide.notes))
+          report("warn", "No talk track. Notes carry what you say; the title carries the claim.", slide.id);
+    }
+  },
+  {
+    rule: "number-source",
+    check: (deck, report) => {
+      for (const { slide, headline } of titledSlides(deck)) {
+        if (slide.role === "plan" || slide.role === "ask" || !hasClaimNumber(headline)) continue;
+        if (namedSource(notesText(slide.notes)) || slide.source && slide.source.trim()) continue;
+        report(
+          "warn",
+          'The title has a number but no source. Name the artifact it came from ("the search latency dashboard", "load test 12", "the Q3 user survey", a URL) and its window in the notes, or set the slide\'s `source`. Hearsay ("someone mentioned", "trust me") doesn\'t count.',
+          slide.id
+        );
+      }
+    }
+  },
+  {
+    // Storyline checks need roles. An untagged deck gets roles read from its titles (slide one is
+    // the cover or the answer, "Next steps" is the plan, a last slide asking for something is the
+    // ask), so a deck of topic labels still hears that it has no answer and no ask.
+    rule: "roles-missing",
+    check: ({ inferred }, report) => {
+      if (inferred)
+        report(
+          "warn",
+          "No slide has a role. Roles were guessed from the titles for the answer-first and closing-ask checks; tag each slide's role for the rest."
+        );
+    }
+  },
+  {
+    rule: "answer-first",
+    check: ({ answerFirst, presented, roleAt, inferred, slides }, report) => {
+      if (!answerFirst) return;
+      const content = presented.filter((s) => roleAt(s) !== "cover");
+      const at = content.findIndex((s) => roleAt(s) === "answer" || roleAt(s) === "recommendation");
+      if (at === -1) {
+        report(
+          "error",
+          inferred ? `No slide states the answer: "${headlineOf(slides[0])}" opens the deck without a conclusion. Put the result or recommendation first, with its number.` : "No slide states the answer or recommendation. Put the conclusion up front (role 'answer')."
+        );
+      } else if (at > 2) {
+        report(
+          "warn",
+          `The answer arrives on content slide ${at + 1}. Move it into the first three; busy readers stop early.`,
+          content[at].id
+        );
+      }
+    }
+  },
+  {
+    rule: "outcome-first",
+    check: ({ answerFirst, presented }, report) => {
+      const first = presented[0];
+      const text = first ? headlineOf(first) : "";
+      if (answerFirst && first && text && !isSpecific(text) && !OUTCOME_RE.test(text)) {
+        report(
+          "tip",
+          "Slide one names the work, not the outcome. Say what got faster, cheaper or safer for the business, and by how much.",
+          first.id
+        );
+      }
+    }
+  },
+  {
+    rule: "closing-ask",
+    check: ({ presented, asks, roleAt }, report) => {
+      const last = presented[presented.length - 1];
+      const closesOnQuestions = last && QUESTIONS_SLIDE_RE.test(headlineOf(last));
+      if (asks.length === 0) {
+        report(
+          "error",
+          closesOnQuestions ? `The deck closes on "${headlineOf(last)}", so the ask is missing. End on the decision or action you need, from whom, by when, and take questions with it on screen.` : "No ask. End with the decision or action you need, from whom, by when.",
+          closesOnQuestions ? last.id : void 0
+        );
+      } else if (last && roleAt(last) !== "ask") {
+        report("warn", "The deck doesn't end on the ask. Close on it so it's the last thing on screen.", last.id);
+      }
+    }
+  },
+  {
+    rule: "ask-concrete",
+    check: ({ asks }, report) => {
+      for (const ask of asks) {
+        const text = `${headlineOf(ask)}. ${notesText(ask.notes)}`;
+        const missing = [];
+        if (!DECISION_RE.test(text)) missing.push("a decision or action verb");
+        if (!hasOwner(text)) missing.push("an owner");
+        if (!hasFirmDate(text)) missing.push("a date");
+        if (!missing.length) continue;
+        const relative = text.match(RELATIVE_DATE_RE)?.[0];
+        const hedged = DATE_RE.test(text) && !relative;
+        const hints = [
+          missing.includes("an owner") && `Name the team or role who acts ("platform leads", "the payments team", "VP Eng", an @handle); 'we', 'the team', a bare name and 'owner TBD' don't say whose it is.`,
+          missing.includes("a date") && relative && `"${relative}" moves with the calendar; give a date such as 14 March.`,
+          missing.includes("a date") && hedged && 'The date is hedged ("-ish", "maybe", "TBC"); commit to one.'
+        ].filter(Boolean);
+        report("warn", [`The ask is missing ${missing.join(", ")}.`, ...hints].join(" "), ask.id);
+      }
+    }
+  },
+  {
+    // Rhythm needs the author's roles; guesses would only echo the titles.
+    rule: "role-repeat",
+    check: ({ slides, inferred }, report) => {
+      if (inferred) return;
+      for (let i = 1; i < slides.length; i++) {
+        const prev = slides[i - 1].role;
+        const role = slides[i].role;
+        if (!role || role !== prev || REPEATABLE_ROLES.includes(role)) continue;
+        const message = role === "option" ? "Two option slides in a row. Compare the options side by side on one slide, on the same criteria." : `Two ${SLIDE_ROLES[role].label.toLowerCase()} slides in a row. Merge them, or give the second its own role.`;
+        report("warn", message, slides[i].id);
+      }
+    }
+  },
+  {
+    // A template's required beats: a decision request without its options slide has skipped a step.
+    rule: "template-beats",
+    check: ({ template, inferred, presented }, report) => {
+      if (!template || inferred) return;
+      const have = new Set(presented.map((s) => s.role));
+      const required = [...new Set(template.beats.filter((b) => !b.optional).map((b) => b.role))];
+      const missing = required.filter((r) => !have.has(r));
+      if (missing.length === 1) {
+        const beat = template.beats.find((b) => b.role === missing[0]);
+        const label = SLIDE_ROLES[missing[0]].label.toLowerCase();
+        report(
+          "warn",
+          `A ${template.name.toLowerCase()} needs ${/^[aeiou]/.test(label) ? "an" : "a"} ${label} slide (${beat.purpose.charAt(0).toLowerCase()}${beat.purpose.slice(1).replace(/\.$/, "")}), and no slide has role "${missing[0]}".`
+        );
+      } else if (missing.length > 1) {
+        report(
+          "warn",
+          `A ${template.name.toLowerCase()} needs these beats, and no slide has their role: ${missing.map((r) => `"${r}"`).join(", ")}.`
+        );
+      }
+    }
+  },
+  {
+    rule: "deck-length",
+    check: ({ presented, options, template }, report) => {
+      const count = presented.length;
+      if (options.minutes !== void 0 && count > 0) {
+        if (count > options.minutes) {
+          report(
+            "warn",
+            `${count} slides for ${options.minutes} minutes is under a minute each. Cut, merge, or move detail to the appendix.`
+          );
+        } else if (options.minutes / count > 2) {
+          report(
+            "tip",
+            `${count} slides for ${options.minutes} minutes is over two minutes each. Fine for discussion; otherwise split a dense slide.`
+          );
+        }
+      } else if (template && (count < template.slides.min || count > template.slides.max)) {
+        report(
+          "tip",
+          `${count} presented slides; a ${template.name.toLowerCase()} usually runs ${template.slides.min}\u2013${template.slides.max}.`
+        );
+      }
+    }
+  },
+  {
+    rule: "talk-time",
+    check: ({ slides, presented, options, template }, report) => {
+      const budget = options.minutes ?? template?.minutes.max;
+      if (budget === void 0) return;
+      const seconds = talkSeconds(slides);
+      const floor = options.minutes ?? template.minutes.min;
+      if (seconds > budget * 60) {
+        report(
+          "warn",
+          `The talk track runs about ${Math.round(seconds / 60)} minutes at ${WORDS_PER_MINUTE} words a minute, over the ${budget}-minute budget.`
+        );
+      } else if (seconds < floor * 30 && presented.every((s) => sayOf(s.notes))) {
+        report(
+          "warn",
+          `The talk track covers about ${formatDuration(seconds)} of the ${floor}-minute budget, under half. Write what you'll say in full sentences; a forwarded deck and the speaker view's clock both read it.`
+        );
+      }
+    }
   }
+];
+function lintContext(slides, options) {
   const template = options.template ? getStorylineTemplate(options.template) : void 0;
-  const answerFirst = options.answerFirst ?? template?.answerFirst ?? true;
-  const seen = /* @__PURE__ */ new Set();
-  for (const slide of slides) {
-    if (seen.has(slide.id)) add("duplicate-id", "error", `Slide ID "${slide.id}" is used more than once.`, slide.id);
-    seen.add(slide.id);
-  }
-  for (const slide of slides) {
-    const headline = headlineOf(slide);
-    const isAppendix = slide.role === "appendix";
-    const isCover = slide.role === "cover";
-    if (!headline) {
-      add("title-present", "error", "No title. Write the slide's point as a sentence.", slide.id);
-    } else if (!isAppendix) {
-      const words = wordsOf(headline);
-      const label = normaliseLabel(headline);
-      const prefix = headline.includes(":") ? normaliseLabel(headline.slice(0, headline.indexOf(":"))) : "";
-      const soften = (s) => isCover ? "tip" : s;
-      if (TOPIC_LABELS.has(label)) {
-        add(
-          "title-claim",
-          soften("error"),
-          `"${headline}" is a topic label. Say what the audience should conclude from this slide.`,
-          slide.id
-        );
-      } else if (words.length < 3) {
-        add("title-claim", soften("warn"), `"${headline}" is under three words; it reads as a label, not a claim.`, slide.id);
-      } else if (words.length <= 4 && edgeLabel(label)) {
-        add("title-claim", soften("warn"), `"${headline}" reads like a section label. State the finding instead.`, slide.id);
-      } else if (prefix && TOPIC_LABELS.has(prefix) && prefix !== "next") {
-        add(
-          "title-claim",
-          soften("tip"),
-          `"${headline}" opens with a section label. Lead with the claim; put the section in the eyebrow.`,
-          slide.id
-        );
-      } else if (TOPIC_OPENING_RE.test(headline)) {
-        add(
-          "title-claim",
-          soften("warn"),
-          `"${headline}" opens like a topic ("${topicOpening(headline)}"), however long it runs. Say what the audience should conclude.`,
-          slide.id
-        );
-      }
-      if (words.length > MAX_TITLE_WORDS) {
-        add(
-          "title-length",
-          "warn",
-          `Title is ${words.length} words; keep it to ${MAX_TITLE_WORDS} or move detail to the body.`,
-          slide.id
-        );
-      }
-      if (slide.role && QUANTIFIED_ROLES.includes(slide.role) && !isSpecific(headline)) {
-        add(
-          "title-specific",
-          "warn",
-          `"${headline}" could describe any quarter. Put the quantity in the title: the number with its unit, or the from\u2192to it moved; a bare count ("two teams") doesn't say how much.`,
-          slide.id
-        );
-      } else if (slide.role === "plan" && !isSpecific(headline) && !hasFirmDate(headline)) {
-        add(
-          "title-specific",
-          "warn",
-          `"${headline}" has no date and no number. Say when each milestone lands, or what it costs.`,
-          slide.id
-        );
-      }
-      if (/[.!?]["”’)]?\s+\S/.test(headline)) {
-        add("one-idea", "tip", "Title has more than one sentence. One idea per slide: split it or pick one.", slide.id);
-      }
-    }
-    if (!isAppendix && !sayOf(slide.notes)) {
-      add("notes-present", "warn", "No talk track. Notes carry what you say; the title carries the claim.", slide.id);
-    }
-    if (headline && slide.role !== "plan" && slide.role !== "ask" && !isAppendix && hasClaimNumber(headline) && !namedSource(notesText(slide.notes)) && !(slide.source && slide.source.trim())) {
-      add(
-        "number-source",
-        "warn",
-        'The title has a number but no source. Name the artifact it came from ("the search latency dashboard", "load test 12", "the Q3 user survey", a URL) and its window in the notes, or set the slide\'s `source`. Hearsay ("someone mentioned", "trust me") doesn\'t count.',
-        slide.id
-      );
-    }
-  }
-  const tagged = slides.some((s) => s.role);
-  const inferred = tagged ? void 0 : inferRoles(slides);
+  const inferred = slides.some((s) => s.role) ? void 0 : inferRoles(slides);
   const roleAt = (s) => inferred ? inferred[slides.indexOf(s)] : s.role;
   const presented = slides.filter((s) => s.role !== "appendix");
-  if (inferred) {
-    add(
-      "roles-missing",
-      "warn",
-      "No slide has a role. Roles were guessed from the titles for the answer-first and closing-ask checks; tag each slide's role for the rest."
+  return {
+    slides,
+    options,
+    template,
+    answerFirst: options.answerFirst ?? template?.answerFirst ?? true,
+    inferred,
+    roleAt,
+    presented,
+    asks: presented.filter((s) => roleAt(s) === "ask")
+  };
+}
+function lintDeck(slides, options = {}) {
+  const findings = [];
+  const deck = lintContext(slides, options);
+  for (const { rule, check } of LINT_CHECKS) {
+    check(
+      deck,
+      (severity, message, slideId) => findings.push(slideId === void 0 ? { rule, severity, message } : { slideId, rule, severity, message })
     );
-  }
-  if (answerFirst) {
-    const content = presented.filter((s) => roleAt(s) !== "cover");
-    const at = content.findIndex((s) => roleAt(s) === "answer" || roleAt(s) === "recommendation");
-    if (at === -1) {
-      add(
-        "answer-first",
-        "error",
-        inferred ? `No slide states the answer: "${headlineOf(slides[0])}" opens the deck without a conclusion. Put the result or recommendation first, with its number.` : "No slide states the answer or recommendation. Put the conclusion up front (role 'answer')."
-      );
-    } else if (at > 2) {
-      add(
-        "answer-first",
-        "warn",
-        `The answer arrives on content slide ${at + 1}. Move it into the first three; busy readers stop early.`,
-        content[at].id
-      );
-    }
-    const first = presented[0];
-    const text = first ? headlineOf(first) : "";
-    if (first && text && !isSpecific(text) && !OUTCOME_RE.test(text)) {
-      add(
-        "outcome-first",
-        "tip",
-        "Slide one names the work, not the outcome. Say what got faster, cheaper or safer for the business, and by how much.",
-        first.id
-      );
-    }
-  }
-  const asks = presented.filter((s) => roleAt(s) === "ask");
-  const last = presented[presented.length - 1];
-  const closesOnQuestions = last && QUESTIONS_SLIDE_RE.test(headlineOf(last));
-  if (asks.length === 0) {
-    add(
-      "closing-ask",
-      "error",
-      closesOnQuestions ? `The deck closes on "${headlineOf(last)}", so the ask is missing. End on the decision or action you need, from whom, by when, and take questions with it on screen.` : "No ask. End with the decision or action you need, from whom, by when.",
-      closesOnQuestions ? last.id : void 0
-    );
-  } else if (last && roleAt(last) !== "ask") {
-    add("closing-ask", "warn", "The deck doesn't end on the ask. Close on it so it's the last thing on screen.", last.id);
-  }
-  for (const ask of asks) {
-    const text = `${headlineOf(ask)}. ${notesText(ask.notes)}`;
-    const missing = [];
-    if (!DECISION_RE.test(text)) missing.push("a decision or action verb");
-    if (!hasOwner(text)) missing.push("an owner");
-    if (!hasFirmDate(text)) missing.push("a date");
-    if (missing.length) {
-      const relative = text.match(RELATIVE_DATE_RE)?.[0];
-      const hedged = DATE_RE.test(text) && !relative;
-      const hints = [
-        missing.includes("an owner") && `Name the team or role who acts ("platform leads", "the payments team", "VP Eng", an @handle); 'we', 'the team', a bare name and 'owner TBD' don't say whose it is.`,
-        missing.includes("a date") && relative && `"${relative}" moves with the calendar; give a date such as 14 March.`,
-        missing.includes("a date") && hedged && 'The date is hedged ("-ish", "maybe", "TBC"); commit to one.'
-      ].filter(Boolean);
-      add("ask-concrete", "warn", [`The ask is missing ${missing.join(", ")}.`, ...hints].join(" "), ask.id);
-    }
-  }
-  for (let i = 1; i < slides.length && !inferred; i++) {
-    const prev = slides[i - 1].role;
-    const role = slides[i].role;
-    if (!role || role !== prev || REPEATABLE_ROLES.includes(role)) continue;
-    const message = role === "option" ? "Two option slides in a row. Compare the options side by side on one slide, on the same criteria." : `Two ${SLIDE_ROLES[role].label.toLowerCase()} slides in a row. Merge them, or give the second its own role.`;
-    add("role-repeat", "warn", message, slides[i].id);
-  }
-  if (template && !inferred) {
-    const have = new Set(presented.map((s) => s.role));
-    const required = [...new Set(template.beats.filter((b) => !b.optional).map((b) => b.role))];
-    const missing = required.filter((r) => !have.has(r));
-    if (missing.length === 1) {
-      const beat = template.beats.find((b) => b.role === missing[0]);
-      const label = SLIDE_ROLES[missing[0]].label.toLowerCase();
-      add(
-        "template-beats",
-        "warn",
-        `A ${template.name.toLowerCase()} needs ${/^[aeiou]/.test(label) ? "an" : "a"} ${label} slide (${beat.purpose.charAt(0).toLowerCase()}${beat.purpose.slice(1).replace(/\.$/, "")}), and no slide has role "${missing[0]}".`
-      );
-    } else if (missing.length > 1) {
-      add(
-        "template-beats",
-        "warn",
-        `A ${template.name.toLowerCase()} needs these beats, and no slide has their role: ${missing.map((r) => `"${r}"`).join(", ")}.`
-      );
-    }
-  }
-  const count = presented.length;
-  const budget = options.minutes ?? template?.minutes.max;
-  if (options.minutes !== void 0 && count > 0) {
-    if (count > options.minutes) {
-      add(
-        "deck-length",
-        "warn",
-        `${count} slides for ${options.minutes} minutes is under a minute each. Cut, merge, or move detail to the appendix.`
-      );
-    } else if (options.minutes / count > 2) {
-      add(
-        "deck-length",
-        "tip",
-        `${count} slides for ${options.minutes} minutes is over two minutes each. Fine for discussion; otherwise split a dense slide.`
-      );
-    }
-  } else if (template && (count < template.slides.min || count > template.slides.max)) {
-    add(
-      "deck-length",
-      "tip",
-      `${count} presented slides; a ${template.name.toLowerCase()} usually runs ${template.slides.min}\u2013${template.slides.max}.`
-    );
-  }
-  if (budget !== void 0) {
-    const seconds = talkSeconds(slides);
-    const floor = options.minutes ?? template.minutes.min;
-    if (seconds > budget * 60) {
-      add(
-        "talk-time",
-        "warn",
-        `The talk track runs about ${Math.round(seconds / 60)} minutes at ${WORDS_PER_MINUTE} words a minute, over the ${budget}-minute budget.`
-      );
-    } else if (seconds < floor * 30 && presented.every((s) => sayOf(s.notes))) {
-      add(
-        "talk-time",
-        "warn",
-        `The talk track covers about ${formatDuration(seconds)} of the ${floor}-minute budget, under half. Write what you'll say in full sentences; a forwarded deck and the speaker view's clock both read it.`
-      );
-    }
+    if (rule === "deck-empty" && findings.length) break;
   }
   return findings;
 }
@@ -1580,7 +1738,9 @@ function Overview({
 }
 var clock = (seconds) => `${pad(Math.floor(seconds / 60))}:${pad(Math.round(seconds) % 60)}`;
 function slidePlan(slides, budget) {
-  const own = slides.map((s) => s.role === "appendix" ? 0 : (notesOf(s)?.say.match(/\S+/g)?.length ?? 0) / WORDS_PER_MINUTE * 60);
+  const own = slides.map(
+    (s) => s.role === "appendix" ? 0 : (notesOf(s)?.say.match(/\S+/g)?.length ?? 0) / WORDS_PER_MINUTE * 60
+  );
   const total = own.reduce((a, b) => a + b, 0);
   const k = budget && total ? budget / total : 1;
   let at = 0;
@@ -1633,13 +1793,20 @@ function Presenter({
             "/ ",
             clock(budget)
           ] }),
-          /* @__PURE__ */ jsxs("span", { className: "uipack-deck-presenter__pace", "data-pace": Math.abs(drift) < 15 ? "on" : drift > 0 ? "behind" : "ahead", children: [
-            pace,
-            " \xB7 this slide ",
-            clock(start),
-            "\u2013",
-            clock(end)
-          ] }),
+          /* @__PURE__ */ jsxs(
+            "span",
+            {
+              className: "uipack-deck-presenter__pace",
+              "data-pace": Math.abs(drift) < 15 ? "on" : drift > 0 ? "behind" : "ahead",
+              children: [
+                pace,
+                " \xB7 this slide ",
+                clock(start),
+                "\u2013",
+                clock(end)
+              ]
+            }
+          ),
           /* @__PURE__ */ jsxs("span", { className: "uipack-deck-presenter__bar", "aria-hidden": "true", children: [
             /* @__PURE__ */ jsx("i", { style: { left: `${start / budget * 100}%`, width: `${(end - start) / budget * 100}%` } }),
             /* @__PURE__ */ jsx("b", { style: { left: `${Math.min(1, elapsed / budget) * 100}%` } })
@@ -1700,7 +1867,13 @@ function useDetailStops(ref, key) {
 function Printout({ slides, theme, notes = false }) {
   return /* @__PURE__ */ jsx("div", { className: "uipack-deck-print", "data-notes": notes ? "" : void 0, children: slides.map((s, i) => /* @__PURE__ */ jsx(PrintSlide, { slide: s, index: i, count: slides.length, theme, notes }, s.id)) });
 }
-function PrintSlide({ slide: s, index: i, count, theme, notes }) {
+function PrintSlide({
+  slide: s,
+  index: i,
+  count,
+  theme,
+  notes
+}) {
   const ref = useRef(null);
   const stops = useDetailStops(ref, s);
   const talk = notesOf(s);
@@ -1914,6 +2087,11 @@ function Player({
   const fromRef = useRef(null);
   const toRef = useRef(null);
   const overviewButtonRef = useRef(null);
+  const lintKey = lint ? JSON.stringify(lint === true ? {} : lint) : "";
+  const findings = useMemo(
+    () => overview && lintKey ? lintDeck(slides, JSON.parse(lintKey)) : void 0,
+    [overview, slides, lintKey]
+  );
   const [maxStep, setMaxStep] = useState(0);
   const viewRef = useRef(view);
   const commit = (next2) => {
@@ -2233,7 +2411,8 @@ function Player({
                 if (!root) return;
                 root.focus({ preventScroll: true });
                 const { top, bottom } = root.getBoundingClientRect();
-                if (top < 0 || bottom > window.innerHeight) root.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
+                if (top < 0 || bottom > window.innerHeight)
+                  root.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
               });
             }
           }
@@ -2278,7 +2457,7 @@ function Player({
             slides,
             index: view.index,
             theme,
-            findings: lint ? lintDeck(slides, lint === true ? {} : lint) : void 0,
+            findings,
             onPick: (i) => {
               go(i, 0);
               setOverview(false);
@@ -2736,7 +2915,8 @@ function useChartSize(fixed, fallback = { width: 640, height: 360 }) {
     const measure = () => {
       const w = fixedW ?? el.clientWidth;
       const h = fixedH ?? el.clientHeight;
-      if (w > 0 && h > 0) setSize((s) => Math.abs(s.width - w) < 0.5 && Math.abs(s.height - h) < 0.5 ? s : { width: w, height: h });
+      if (w > 0 && h > 0)
+        setSize((s) => Math.abs(s.width - w) < 0.5 && Math.abs(s.height - h) < 0.5 ? s : { width: w, height: h });
     };
     measure();
     if (typeof ResizeObserver === "undefined") return;
@@ -2813,12 +2993,27 @@ function Text({
       fontSize: Math.max(size, CX_TYPE.min),
       textAnchor: anchor,
       dominantBaseline: baseline,
-      className: ["uipack-cx-t", muted && "uipack-cx-t--muted", weight && "uipack-cx-t--strong", halo && "uipack-cx-halo", className].filter(Boolean).join(" "),
+      className: [
+        "uipack-cx-t",
+        muted && "uipack-cx-t--muted",
+        weight && "uipack-cx-t--strong",
+        halo && "uipack-cx-halo",
+        className
+      ].filter(Boolean).join(" "),
       children
     }
   );
 }
-function Lines({ x, y, lines, size = CX_TYPE.label, anchor = "middle", weight, muted, top }) {
+function Lines({
+  x,
+  y,
+  lines,
+  size = CX_TYPE.label,
+  anchor = "middle",
+  weight,
+  muted,
+  top
+}) {
   const lh = size * 1.2;
   const y0 = top ? y + size * 0.8 : y - (lines.length - 1) * lh / 2;
   return /* @__PURE__ */ jsx(
@@ -2894,7 +3089,18 @@ function BarChart({
         if (i < 0) return null;
         const px = x(rows[i].value);
         const py = bands[i].centre;
-        return /* @__PURE__ */ jsx(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+        return /* @__PURE__ */ jsx(
+          Annotation,
+          {
+            x: px,
+            y: py,
+            tx: px + callout.dx,
+            ty: py + callout.dy,
+            text: callout.text,
+            width: callout.width,
+            align: callout.align
+          }
+        );
       })()
     ] });
   }
@@ -2934,7 +3140,18 @@ function BarChart({
       if (i < 0) return null;
       const px = bandsProbe[i].centre;
       const py = y(rows[i].value);
-      return /* @__PURE__ */ jsx(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+      return /* @__PURE__ */ jsx(
+        Annotation,
+        {
+          x: px,
+          y: py,
+          tx: px + callout.dx,
+          ty: py + callout.dy,
+          text: callout.text,
+          width: callout.width,
+          align: callout.align
+        }
+      );
     })()
   ] });
 }
@@ -2955,7 +3172,10 @@ var Arrow = ({ direction }) => /* @__PURE__ */ jsxs("svg", { className: "uipack-
   direction === "down" && /* @__PURE__ */ jsx("path", { d: "M9 16 L16 4 H2 Z" }),
   direction === "flat" && /* @__PURE__ */ jsx("path", { d: "M2 7 H16 V11 H2 Z" })
 ] });
-function KpiTiles({ items, columns }) {
+function KpiTiles({
+  items,
+  columns
+}) {
   const per = Math.max(1, columns ?? items.length);
   return /* @__PURE__ */ jsx("ul", { className: "uipack-cx-kpis", style: { gridTemplateColumns: `repeat(${per}, minmax(0, 1fr))` }, children: items.map((k, i) => /* @__PURE__ */ jsxs(
     "li",
@@ -3028,8 +3248,16 @@ function LineChart({
     const li = lastOf(s);
     return li >= 0 ? { x: xs(li), y: ys(s.values[li]) } : null;
   });
-  const placed = spreadLabels(ends.map((e) => e?.y ?? 0), CX_TYPE.label * 1.3, top, bottom);
-  const everyN = Math.max(1, Math.ceil(Math.max(...periods.map((p) => textWidth(p, CX_TYPE.tick))) / Math.max(1, (right - left) / periods.length - 12)));
+  const placed = spreadLabels(
+    ends.map((e) => e?.y ?? 0),
+    CX_TYPE.label * 1.3,
+    top,
+    bottom
+  );
+  const everyN = Math.max(
+    1,
+    Math.ceil(Math.max(...periods.map((p) => textWidth(p, CX_TYPE.tick))) / Math.max(1, (right - left) / periods.length - 12))
+  );
   return /* @__PURE__ */ jsxs(Frame, { size, label, children: [
     ticks.map((t) => /* @__PURE__ */ jsxs("g", { children: [
       /* @__PURE__ */ jsx("line", { className: "uipack-cx-grid", x1: left, x2: right, y1: ys(t), y2: ys(t) }),
@@ -3086,11 +3314,33 @@ function LineChart({
       if (v === null || v === void 0) return null;
       const px = xs(annotate.index);
       const py = ys(v);
-      return /* @__PURE__ */ jsx(Annotation, { x: px, y: py, tx: px + annotate.dx, ty: py + annotate.dy, text: annotate.text, width: annotate.width, align: annotate.align });
+      return /* @__PURE__ */ jsx(
+        Annotation,
+        {
+          x: px,
+          y: py,
+          tx: px + annotate.dx,
+          ty: py + annotate.dy,
+          text: annotate.text,
+          width: annotate.width,
+          align: annotate.align
+        }
+      );
     })()
   ] });
 }
-function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, callout, alt, width, height }) {
+function Matrix2x2({
+  x: xa,
+  y: ya,
+  points,
+  quadrants,
+  focus,
+  maxRadius = 46,
+  callout,
+  alt,
+  width,
+  height
+}) {
   const size = useChartSize({ width, height });
   const W = size.width;
   const H = size.height;
@@ -3119,7 +3369,13 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
   const label = alt ?? `2 by 2 matrix: ${xa.label} against ${ya.label}. ${points.map((p) => `${p.label}: ${fx(p.x)}, ${fy(p.y)}${p.size !== void 0 ? `, size ${p.size}` : ""}`).join("; ")}.`;
   const sorted = [...points].sort((a, b) => (b.size ?? 1) - (a.size ?? 1));
   return /* @__PURE__ */ jsxs(Frame, { size, label, children: [
-    focus && /* @__PURE__ */ jsx("rect", { className: "uipack-cx-quad-focus", ...{ x: quads[focus].x, y: quads[focus].y, width: quads[focus].w, height: quads[focus].h } }),
+    focus && /* @__PURE__ */ jsx(
+      "rect",
+      {
+        className: "uipack-cx-quad-focus",
+        ...{ x: quads[focus].x, y: quads[focus].y, width: quads[focus].w, height: quads[focus].h }
+      }
+    ),
     /* @__PURE__ */ jsx("rect", { className: "uipack-cx-plot-edge", x: left, y: top, width: right - left, height: bottom - top }),
     /* @__PURE__ */ jsx("line", { className: "uipack-cx-split", x1: midX, x2: midX, y1: top, y2: bottom }),
     /* @__PURE__ */ jsx("line", { className: "uipack-cx-split", x1: left, x2: right, y1: midY, y2: midY }),
@@ -3144,7 +3400,19 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
       );
     }),
     yTicks.map((t) => /* @__PURE__ */ jsx(Text, { x: left - 10, y: ys(t), size: CX_TYPE.tick, anchor: "end", muted: true, className: "uipack-cx-tabular", children: fy(t) }, `y${t}`)),
-    xTicks.map((t, i) => /* @__PURE__ */ jsx(Text, { x: xs(t), y: bottom + 24, size: CX_TYPE.tick, anchor: i === 0 ? "start" : i === 2 ? "end" : "middle", muted: true, className: "uipack-cx-tabular", children: fx(t) }, `x${t}`)),
+    xTicks.map((t, i) => /* @__PURE__ */ jsx(
+      Text,
+      {
+        x: xs(t),
+        y: bottom + 24,
+        size: CX_TYPE.tick,
+        anchor: i === 0 ? "start" : i === 2 ? "end" : "middle",
+        muted: true,
+        className: "uipack-cx-tabular",
+        children: fx(t)
+      },
+      `x${t}`
+    )),
     /* @__PURE__ */ jsx(Text, { x: (left + right) / 2, y: H - 12, size: CX_TYPE.tick, anchor: "middle", weight: 600, baseline: "auto", children: `${xa.label} \u2192` }),
     /* @__PURE__ */ jsx(
       "text",
@@ -3177,7 +3445,17 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
             children: /* @__PURE__ */ jsx("title", { children: `${p.label}: ${xa.label} ${fx(p.x)}, ${ya.label} ${fy(p.y)}` })
           }
         ),
-        /* @__PURE__ */ jsx(Text, { x: lx, y: ly, anchor: at === "right" ? "start" : at === "left" ? "end" : "middle", weight: p.highlight ? 600 : void 0, halo: true, children: p.label })
+        /* @__PURE__ */ jsx(
+          Text,
+          {
+            x: lx,
+            y: ly,
+            anchor: at === "right" ? "start" : at === "left" ? "end" : "middle",
+            weight: p.highlight ? 600 : void 0,
+            halo: true,
+            children: p.label
+          }
+        )
       ] }, p.label);
     }),
     callout && (() => {
@@ -3185,7 +3463,18 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
       if (!p) return null;
       const px = xs(p.x);
       const py = ys(p.y);
-      return /* @__PURE__ */ jsx(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+      return /* @__PURE__ */ jsx(
+        Annotation,
+        {
+          x: px,
+          y: py,
+          tx: px + callout.dx,
+          ty: py + callout.dy,
+          text: callout.text,
+          width: callout.width,
+          align: callout.align
+        }
+      );
     })()
   ] });
 }
@@ -3248,23 +3537,22 @@ function StackedBar({
       categories.map((c, i) => {
         const b = bands[i];
         return /* @__PURE__ */ jsxs("g", { children: [
-          /* @__PURE__ */ jsx(Lines, { x: labelW - 16, y: b.centre, lines: wrapToWidth(c.label, CX_TYPE.label, labelW - 20, 2), anchor: "end", weight: c.highlight ? 600 : void 0 }),
+          /* @__PURE__ */ jsx(
+            Lines,
+            {
+              x: labelW - 16,
+              y: b.centre,
+              lines: wrapToWidth(c.label, CX_TYPE.label, labelW - 20, 2),
+              anchor: "end",
+              weight: c.highlight ? 600 : void 0
+            }
+          ),
           /* @__PURE__ */ jsx("g", { className: "uipack-cx-grow", "data-axis": "x", style: growStyle("0% 50%", i * 40), children: stacks[i].map((s, k) => {
             const x0 = x(s.from) + (k > 0 ? 1 : 0);
             const x1 = x(s.to) - (k < stacks[i].length - 1 ? 1 : 0);
             if (x1 - x0 <= 0.5) return null;
             return /* @__PURE__ */ jsxs("g", { children: [
-              /* @__PURE__ */ jsx(
-                "rect",
-                {
-                  style: { fill: fill.series(k) },
-                  x: x0,
-                  y: b.markStart,
-                  width: x1 - x0,
-                  height: b.mark,
-                  children: /* @__PURE__ */ jsx("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
-                }
-              ),
+              /* @__PURE__ */ jsx("rect", { style: { fill: fill.series(k) }, x: x0, y: b.markStart, width: x1 - x0, height: b.mark, children: /* @__PURE__ */ jsx("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` }) }),
               segLabel(s, k, (x0 + x1) / 2, b.centre, x1 - x0, b.mark)
             ] }, k);
           }) }),
@@ -3290,24 +3578,7 @@ function StackedBar({
           const y1 = y(s.to) + (last ? 0 : 1);
           if (y0 - y1 <= 0.5) return null;
           return /* @__PURE__ */ jsxs("g", { children: [
-            last ? /* @__PURE__ */ jsx(
-              "path",
-              {
-                style: { fill: fill.series(k) },
-                d: barPath("vertical", y0, y1, b.markStart, b.mark),
-                children: /* @__PURE__ */ jsx("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
-              }
-            ) : /* @__PURE__ */ jsx(
-              "rect",
-              {
-                style: { fill: fill.series(k) },
-                x: b.markStart,
-                y: y1,
-                width: b.mark,
-                height: y0 - y1,
-                children: /* @__PURE__ */ jsx("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
-              }
-            ),
+            last ? /* @__PURE__ */ jsx("path", { style: { fill: fill.series(k) }, d: barPath("vertical", y0, y1, b.markStart, b.mark), children: /* @__PURE__ */ jsx("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` }) }) : /* @__PURE__ */ jsx("rect", { style: { fill: fill.series(k) }, x: b.markStart, y: y1, width: b.mark, height: y0 - y1, children: /* @__PURE__ */ jsx("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` }) }),
             segLabel(s, k, b.centre, (y0 + y1) / 2, b.mark, y0 - y1)
           ] }, k);
         }) }),
@@ -3318,7 +3589,16 @@ function StackedBar({
     /* @__PURE__ */ jsx("line", { className: "uipack-cx-axis", x1: 0, x2: W, y1: H - bottom, y2: H - bottom })
   ] });
 }
-function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain, callout, alt, width, height }) {
+function Waterfall({
+  steps,
+  format = defaultFormat,
+  goodDirection = "up",
+  domain,
+  callout,
+  alt,
+  width,
+  height
+}) {
   const size = useChartSize({ width, height });
   const W = size.width;
   const H = size.height;
@@ -3375,7 +3655,16 @@ function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain
             d: `M${band.markStart - 4} ${base - 18}l${band.mark + 8} -10M${band.markStart - 4} ${base - 8}l${band.mark + 8} -10`
           }
         ),
-        next && /* @__PURE__ */ jsx("line", { className: "uipack-cx-connector", x1: band.markStart + band.mark, x2: next.markStart, y1: y(b.to), y2: y(b.to) }),
+        next && /* @__PURE__ */ jsx(
+          "line",
+          {
+            className: "uipack-cx-connector",
+            x1: band.markStart + band.mark,
+            x2: next.markStart,
+            y1: y(b.to),
+            y2: y(b.to)
+          }
+        ),
         /* @__PURE__ */ jsxs(
           "text",
           {
@@ -3401,7 +3690,18 @@ function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain
       const b = bars[i];
       const px = bandsProbe[i].centre;
       const py = (y(b.from) + y(b.to)) / 2;
-      return /* @__PURE__ */ jsx(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+      return /* @__PURE__ */ jsx(
+        Annotation,
+        {
+          x: px,
+          y: py,
+          tx: px + callout.dx,
+          ty: py + callout.dy,
+          text: callout.text,
+          width: callout.width,
+          align: callout.align
+        }
+      );
     })()
   ] });
 }
@@ -3427,7 +3727,13 @@ function HarveyBall({ level, size = 36, label }) {
     }
   );
 }
-function HarveyTable({ columns, rows, corner = "Option", showKey = true, keyNote = "Full ball = most favourable" }) {
+function HarveyTable({
+  columns,
+  rows,
+  corner = "Option",
+  showKey = true,
+  keyNote = "Full ball = most favourable"
+}) {
   return /* @__PURE__ */ jsxs("div", { className: "uipack-cx-harvey-table", children: [
     /* @__PURE__ */ jsxs("table", { children: [
       /* @__PURE__ */ jsxs("colgroup", { children: [
@@ -3462,4 +3768,4 @@ function HarveyTable({ columns, rows, corner = "Option", showKey = true, keyNote
   ] });
 }
 
-export { Annotation, BarChart, Bento, BentoCell, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, ConsultingSlide, DeckPlayer, DeckSlideContext, HarveyBall, HarveyTable, KpiTiles, LINT_RULES, LineChart, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, Morph, Panel, REPEATABLE_ROLES, Ref, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, SlideThumbnail, SoWhat, Sparkline, StackedBar, Tracker, WORDS_PER_MINUTE, Waterfall, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, flipFrom, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, resolveTransition, runTransition, slideZoomFrame, slideZoomSamples, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };
+export { Annotation, BarChart, Bento, BentoCell, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, ConsultingSlide, DeckPlayer, DeckSlideContext, HarveyBall, HarveyTable, KpiTiles, LINT_RULES, LineChart, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, Morph, Panel, REPEATABLE_ROLES, Ref, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, SlideThumbnail, SoWhat, Sparkline, StackedBar, Tracker, Waterfall, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, flipFrom, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, resolveTransition, runTransition, slideZoomFrame, slideZoomSamples, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };

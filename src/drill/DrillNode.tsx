@@ -25,7 +25,17 @@ const MINI_ABOVE = 0.4;
 const MINI_SCALE = 0.3;
 
 /** The child level drawn as the stage would show it at the first frame of the zoom: `slice`-fitted, centred. */
-function Ghost({ child, ctx, box, uid }: { child: DrillLevel; ctx: DrillContextValue; box: { x: number; y: number; w: number; h: number }; uid: string }) {
+function Ghost({
+  child,
+  ctx,
+  box,
+  uid,
+}: {
+  child: DrillLevel;
+  ctx: DrillContextValue;
+  box: { x: number; y: number; w: number; h: number };
+  uid: string;
+}) {
   const narrow = ctx.variant === "narrow" && !!ctx.frame.narrow;
   const frame = narrow ? ctx.frame.narrow! : ctx.frame.wide;
   const render = narrow && child.narrow ? child.narrow : child.render;
@@ -39,7 +49,13 @@ function Ghost({ child, ctx, box, uid }: { child: DrillLevel; ctx: DrillContextV
   const mini = slice > MINI_ABOVE;
   const k = MINI_SCALE;
   const port = mini
-    ? { x: box.x + box.w - f.w * k - 30, y: box.y, width: f.w * k, height: box.h, viewBox: `0 ${(f.h - box.h / k) / 2} ${f.w} ${box.h / k}` }
+    ? {
+        x: box.x + box.w - f.w * k - 30,
+        y: box.y,
+        width: f.w * k,
+        height: box.h,
+        viewBox: `0 ${(f.h - box.h / k) / 2} ${f.w} ${box.h / k}`,
+      }
     : { x: box.x, y: box.y, width: box.w, height: box.h, viewBox: `0 0 ${f.w} ${f.h}` };
   return (
     <svg {...port} preserveAspectRatio="xMidYMid slice" overflow="hidden">
@@ -143,7 +159,15 @@ export function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...
           label={text}
           inlay={
             <g className="uipack-drill-node__inlay" clipPath={`url(#${uid}-clip)`} aria-hidden="true" pointerEvents="none">
-              <rect className="uipack-drill-node__wash" x={box.x} y={box.y} width={box.w} height={box.h} fill="var(--uipack-accent)" fillOpacity={0.035} />
+              <rect
+                className="uipack-drill-node__wash"
+                x={box.x}
+                y={box.y}
+                width={box.w}
+                height={box.h}
+                fill="var(--uipack-accent)"
+                fillOpacity={0.035}
+              />
               <rect
                 className="uipack-drill-node__inner"
                 x={box.x}

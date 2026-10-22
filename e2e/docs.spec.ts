@@ -5,16 +5,9 @@ test("docs gallery renders desktop navigation and table of contents", async ({ p
   await page.goto("/docs?theme=light");
 
   await expect(page.locator('[data-catalog-entry="product-docs-layout"]')).toBeVisible();
-  await expect(
-    page.getByRole("navigation", { name: "Documentation", exact: true }),
-  ).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Documentation", exact: true })).toBeVisible();
   await expect(page.getByRole("complementary", { name: "On this page" })).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: "Overview", exact: true }).last(),
-  ).toHaveAttribute(
-    "aria-current",
-    "page",
-  );
+  await expect(page.getByRole("link", { name: "Overview", exact: true }).last()).toHaveAttribute("aria-current", "page");
 });
 
 test("docs gallery uses its navigation disclosure at 390px", async ({ page }) => {
@@ -26,10 +19,8 @@ test("docs gallery uses its navigation disclosure at 390px", async ({ page }) =>
   await expect(disclosure).not.toHaveAttribute("open", "");
   await disclosure.locator("summary").click();
   await expect(disclosure).toHaveAttribute("open", "");
-  await expect(
-    disclosure.getByRole("link", { name: "Getting started" }),
-  ).toBeVisible();
-  await expect(page.locator('.uipack-docs__toc')).toBeHidden();
+  await expect(disclosure.getByRole("link", { name: "Getting started" })).toBeVisible();
+  await expect(page.locator(".uipack-docs__toc")).toBeHidden();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 

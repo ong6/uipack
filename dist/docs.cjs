@@ -11,20 +11,10 @@ var ReactMarkdown__default = /*#__PURE__*/_interopDefault(ReactMarkdown);
 var remarkGfm__default = /*#__PURE__*/_interopDefault(remarkGfm);
 
 // src/docs/DocsLayout.tsx
-function SectionNavigation({
-  sections,
-  activeHref
-}) {
+function SectionNavigation({ sections, activeHref }) {
   return /* @__PURE__ */ jsxRuntime.jsx("nav", { className: "uipack-docs__navigation", "aria-label": "Documentation", children: sections.map((section) => /* @__PURE__ */ jsxRuntime.jsxs("section", { className: "uipack-docs__nav-section", children: [
     /* @__PURE__ */ jsxRuntime.jsx("h2", { children: section.title }),
-    /* @__PURE__ */ jsxRuntime.jsx("ul", { children: section.items.map((item) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsx(
-      "a",
-      {
-        href: item.href,
-        "aria-current": item.href === activeHref ? "page" : void 0,
-        children: item.title
-      }
-    ) }, item.href)) })
+    /* @__PURE__ */ jsxRuntime.jsx("ul", { children: section.items.map((item) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsx("a", { href: item.href, "aria-current": item.href === activeHref ? "page" : void 0, children: item.title }) }, item.href)) })
   ] }, section.title)) });
 }
 function useCurrentSection(ids) {
@@ -97,16 +87,7 @@ function DocsLayout({
           /* @__PURE__ */ jsxRuntime.jsxs("summary", { "aria-controls": mobileNavigationId, children: [
             /* @__PURE__ */ jsxRuntime.jsx("span", { children: "Documentation" }),
             current && /* @__PURE__ */ jsxRuntime.jsx("small", { children: current.title }),
-            /* @__PURE__ */ jsxRuntime.jsx(
-              "svg",
-              {
-                className: "uipack-docs__chevron",
-                viewBox: "0 0 16 16",
-                "aria-hidden": "true",
-                focusable: "false",
-                children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M4 6l4 4 4-4" })
-              }
-            )
+            /* @__PURE__ */ jsxRuntime.jsx("svg", { className: "uipack-docs__chevron", viewBox: "0 0 16 16", "aria-hidden": "true", focusable: "false", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M4 6l4 4 4-4" }) })
           ] }),
           /* @__PURE__ */ jsxRuntime.jsx("div", { id: mobileNavigationId, children: /* @__PURE__ */ jsxRuntime.jsx(SectionNavigation, { sections, activeHref }) })
         ]
@@ -114,51 +95,28 @@ function DocsLayout({
     ),
     /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-docs__grid", children: [
       /* @__PURE__ */ jsxRuntime.jsx("aside", { className: "uipack-docs__sidebar", children: /* @__PURE__ */ jsxRuntime.jsx(SectionNavigation, { sections, activeHref }) }),
-      /* @__PURE__ */ jsxRuntime.jsxs(
-        "section",
-        {
-          className: "uipack-docs__article",
-          id: "docs-content",
-          "aria-label": "Documentation content",
-          tabIndex: -1,
-          children: [
-            children,
-            (previous || next) && /* @__PURE__ */ jsxRuntime.jsxs(
-              "nav",
-              {
-                className: "uipack-docs__pagination",
-                "aria-label": "Previous and next documentation pages",
-                children: [
-                  previous && /* @__PURE__ */ jsxRuntime.jsxs("a", { href: previous.href, rel: "prev", children: [
-                    /* @__PURE__ */ jsxRuntime.jsx("small", { children: "Previous" }),
-                    /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
-                      "\u2190 ",
-                      previous.title
-                    ] })
-                  ] }),
-                  next && /* @__PURE__ */ jsxRuntime.jsxs("a", { href: next.href, rel: "next", children: [
-                    /* @__PURE__ */ jsxRuntime.jsx("small", { children: "Next" }),
-                    /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
-                      next.title,
-                      " \u2192"
-                    ] })
-                  ] })
-                ]
-              }
-            )
-          ]
-        }
-      ),
+      /* @__PURE__ */ jsxRuntime.jsxs("section", { className: "uipack-docs__article", id: "docs-content", "aria-label": "Documentation content", tabIndex: -1, children: [
+        children,
+        (previous || next) && /* @__PURE__ */ jsxRuntime.jsxs("nav", { className: "uipack-docs__pagination", "aria-label": "Previous and next documentation pages", children: [
+          previous && /* @__PURE__ */ jsxRuntime.jsxs("a", { href: previous.href, rel: "prev", children: [
+            /* @__PURE__ */ jsxRuntime.jsx("small", { children: "Previous" }),
+            /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
+              "\u2190 ",
+              previous.title
+            ] })
+          ] }),
+          next && /* @__PURE__ */ jsxRuntime.jsxs("a", { href: next.href, rel: "next", children: [
+            /* @__PURE__ */ jsxRuntime.jsx("small", { children: "Next" }),
+            /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
+              next.title,
+              " \u2192"
+            ] })
+          ] })
+        ] })
+      ] }),
       onThisPage.length > 0 && /* @__PURE__ */ jsxRuntime.jsxs("aside", { className: "uipack-docs__toc", "aria-label": "On this page", children: [
         /* @__PURE__ */ jsxRuntime.jsx("p", { children: "On this page" }),
-        /* @__PURE__ */ jsxRuntime.jsx("ol", { children: onThisPage.map((item) => /* @__PURE__ */ jsxRuntime.jsx("li", { "data-level": item.level, children: /* @__PURE__ */ jsxRuntime.jsx(
-          "a",
-          {
-            href: `#${item.id}`,
-            "aria-current": item.id === currentSection ? "location" : void 0,
-            children: item.title
-          }
-        ) }, item.id)) })
+        /* @__PURE__ */ jsxRuntime.jsx("ol", { children: onThisPage.map((item) => /* @__PURE__ */ jsxRuntime.jsx("li", { "data-level": item.level, children: /* @__PURE__ */ jsxRuntime.jsx("a", { href: `#${item.id}`, "aria-current": item.id === currentSection ? "location" : void 0, children: item.title }) }, item.id)) })
       ] })
     ] })
   ] });
@@ -213,9 +171,7 @@ function extractDocsHeadings(source, { headingOffset = 0 } = {}) {
 }
 function tableColumns(node) {
   const row = (node?.children ?? []).flatMap((part) => part.tagName === "tr" ? [part] : part.children ?? []).find((part) => part.tagName === "tr");
-  const cells = (row?.children ?? []).filter(
-    (cell) => cell.tagName === "th" || cell.tagName === "td"
-  ).length;
+  const cells = (row?.children ?? []).filter((cell) => cell.tagName === "th" || cell.tagName === "td").length;
   return Math.max(1, cells || 2);
 }
 function headingComponent(level, headingIds) {
@@ -227,22 +183,12 @@ function headingComponent(level, headingIds) {
       { ...props, id, "aria-label": title },
       children,
       " ",
-      /* @__PURE__ */ jsxRuntime.jsx(
-        "a",
-        {
-          className: "uipack-docs__heading-anchor",
-          href: `#${id}`,
-          "aria-label": `Link to ${title}`,
-          children: /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", children: "#" })
-        }
-      )
+      /* @__PURE__ */ jsxRuntime.jsx("a", { className: "uipack-docs__heading-anchor", href: `#${id}`, "aria-label": `Link to ${title}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", children: "#" }) })
     );
   };
 }
 function DocsMarkdown({ source, headingOffset = 0 }) {
-  const headingIds = new Map(
-    extractDocsHeadings(source).map((heading2) => [heading2.line, heading2.id])
-  );
+  const headingIds = new Map(extractDocsHeadings(source).map((heading2) => [heading2.line, heading2.id]));
   const heading = (level) => headingComponent(shiftLevel(level, headingOffset), headingIds);
   const components = {
     h1: heading(1),
@@ -251,15 +197,7 @@ function DocsMarkdown({ source, headingOffset = 0 }) {
     h4: heading(4),
     h5: heading(5),
     h6: heading(6),
-    table: ({ node, ...props }) => /* @__PURE__ */ jsxRuntime.jsx(
-      "div",
-      {
-        className: "uipack-docs__table",
-        tabIndex: 0,
-        style: { "--docs-table-columns": tableColumns(node) },
-        children: /* @__PURE__ */ jsxRuntime.jsx("table", { ...props })
-      }
-    )
+    table: ({ node, ...props }) => /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-docs__table", tabIndex: 0, style: { "--docs-table-columns": tableColumns(node) }, children: /* @__PURE__ */ jsxRuntime.jsx("table", { ...props }) })
   };
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-docs__prose", children: /* @__PURE__ */ jsxRuntime.jsx(ReactMarkdown__default.default, { components, remarkPlugins: [remarkGfm__default.default], skipHtml: true, children: source }) });
 }

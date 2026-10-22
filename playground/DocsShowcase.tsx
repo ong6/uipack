@@ -1,9 +1,4 @@
-import {
-  DocsLayout,
-  DocsMarkdown,
-  extractDocsHeadings,
-  type DocsSection,
-} from "../src/docs";
+import { DocsLayout, DocsMarkdown, extractDocsHeadings, type DocsSection } from "../src/docs";
 import "../src/docs/docs.css";
 import "./docs-showcase.css";
 import { docsEntries } from "./catalog";
@@ -64,18 +59,18 @@ export default function DocsShowcase() {
       <section data-route="docs" data-catalog-entry={docsEntries[0].id}>
         <h2>{docsEntries[0].title}</h2>
         <div className="docs-frame">
-        <DocsLayout
-          productTitle="Example product"
-          productHref="/docs"
-          sections={sections}
-          activeHref="/docs"
-          onThisPage={onThisPage}
-          next={{ title: "Getting started", href: "/docs/getting-started" }}
-          theme={theme}
-          palette="technical"
-        >
-          <DocsMarkdown source={source} />
-        </DocsLayout>
+          <DocsLayout
+            productTitle="Example product"
+            productHref="/docs"
+            sections={sections}
+            activeHref="/docs"
+            onThisPage={onThisPage}
+            next={{ title: "Getting started", href: "/docs/getting-started" }}
+            theme={theme}
+            palette="technical"
+          >
+            <DocsMarkdown source={source} />
+          </DocsLayout>
         </div>
       </section>
     </>

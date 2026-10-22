@@ -32,7 +32,14 @@ export function drillStatic(props: DrillFigureProps, path?: DrillPath): DrillSta
   return {
     children: (
       <DrillContext.Provider
-        value={{ levels, frame: { wide: props.viewBox, narrow: props.narrowViewBox }, idPrefix: lid, variant: "wide", interactive: false, ghost: false }}
+        value={{
+          levels,
+          frame: { wide: props.viewBox, narrow: props.narrowViewBox },
+          idPrefix: lid,
+          variant: "wide",
+          interactive: false,
+          ghost: false,
+        }}
       >
         {level.render({ id: lid, variant: "wide", ghost: false, level })}
       </DrillContext.Provider>

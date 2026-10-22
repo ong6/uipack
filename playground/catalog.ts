@@ -6,8 +6,7 @@ export const visualStyles = [
   {
     id: "technical",
     name: "Technical",
-    description:
-      "Precise system diagrams, restrained colour, directional motion, and clear labels.",
+    description: "Precise system diagrams, restrained colour, directional motion, and clear labels.",
     tokens: "src/theme.css",
     guidance: "docs/design-direction.md",
   },
@@ -28,9 +27,17 @@ export const visualStyles = [
     guidance: "docs/mechanism.md",
   },
   ...objectDirections.map((direction, variant) => ({
-    id: direction.id, name: direction.name, description: direction.description,
-    tokens: variant === 0 ? 'src/objects/objects.css' : variant < 3 ? 'src/objects/art-directions.ts' : 'src/objects/expanded-directions.ts',
-    guidance: 'docs/objects.md', variant,
+    id: direction.id,
+    name: direction.name,
+    description: direction.description,
+    tokens:
+      variant === 0
+        ? "src/objects/objects.css"
+        : variant < 3
+          ? "src/objects/art-directions.ts"
+          : "src/objects/expanded-directions.ts",
+    guidance: "docs/objects.md",
+    variant,
   })),
 ] as const;
 /** Navigation groups, in display order. A group opens on its default page. Add a group here; add pages below. */
@@ -70,19 +77,111 @@ export interface PageDef {
  * `pageModules` (routes.ts); docs/contributing.md has the recipe.
  */
 export const libraryPages = [
-  { id: "figures", group: "diagrams", label: "Architecture diagrams", path: "/", intro: "The figure design system: each diagram pattern once, from the bare canvas to a figure you drill into, with the parts it is built from." },
-  { id: "charts", group: "diagrams", label: "Charts", path: "/charts", intro: "Layered and comparative charts for articles, previewed at a host's real figure width." },
-  { id: "article", group: "diagrams", label: "Article parts", path: "/article", intro: "Prose-friendly parts for long reads, shown inside a host article's text column." },
-  { id: "deck", group: "presentations", label: "Tech talk", title: "Deck player", path: "/deck", query: { deck: "moves" }, isDefault: true, intro: "Tech talk deck: a team lead argues that reviews should open with their answer, with evidence, a pilot and a dated ask. Every slide advances except one morph (the same number becoming a table row) and one zoom (into the slide the ghost deck flags). Swipe on a touch screen, or click the deck and use the arrow keys." },
-  { id: "deck-bento", group: "presentations", label: "Bento", title: "Deck player", path: "/deck", query: { deck: "bento" }, intro: "Bento review deck: a quarterly review on one bento slide. Next moves a camera between the containers, and each one shows denser detail when it is in focus." },
-  { id: "deck-consulting", group: "presentations", label: "Consulting", title: "Deck player", path: "/deck", query: { deck: "consulting" }, intro: "Consulting deck: a decision request in consulting style, with dense charts, callouts, a so-what panel and sources, read headline by headline." },
-  { id: "presentations", group: "presentations", label: "Slide starters", path: "/presentations", intro: "Slide layouts with their speech notes, then a complete five-chapter narrative built from them." },
-  { id: "animations", group: "motion", label: "3D animations", path: "/animations", intro: "Live 3D scenes with camera moves, animated flows and presentation controls." },
-  { id: "mechanism", group: "motion", label: "Mechanism", path: "/mechanism", styleName: "Mechanism", intro: "Mechanical drawings that explain how a system moves, one part at a time." },
-  { id: "web", group: "web-group", label: "Web UI", path: "/web", hostsPage: true, styleName: "Landing", intro: "Landing-page building blocks: a demo-first hero, spotlight features, motion and backgrounds." },
-  { id: "docs", group: "web-group", label: "Docs layout", path: "/docs", intro: "A three-column product documentation shell with responsive navigation and Markdown prose." },
-  { id: "styles", group: "foundations", label: "Styles", path: "/styles", intro: "The visual languages in the library and where each one is used." },
-  { id: "assets", group: "foundations", label: "Icons & marks", path: "/assets", intro: "Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button." },
+  {
+    id: "figures",
+    group: "diagrams",
+    label: "Architecture diagrams",
+    path: "/",
+    intro:
+      "The figure design system: each diagram pattern once, from the bare canvas to a figure you drill into, with the parts it is built from.",
+  },
+  {
+    id: "charts",
+    group: "diagrams",
+    label: "Charts",
+    path: "/charts",
+    intro: "Layered and comparative charts for articles, previewed at a host's real figure width.",
+  },
+  {
+    id: "article",
+    group: "diagrams",
+    label: "Article parts",
+    path: "/article",
+    intro: "Prose-friendly parts for long reads, shown inside a host article's text column.",
+  },
+  {
+    id: "deck",
+    group: "presentations",
+    label: "Tech talk",
+    title: "Deck player",
+    path: "/deck",
+    query: { deck: "moves" },
+    isDefault: true,
+    intro:
+      "Tech talk deck: a team lead argues that reviews should open with their answer, with evidence, a pilot and a dated ask. Every slide advances except one morph (the same number becoming a table row) and one zoom (into the slide the ghost deck flags). Swipe on a touch screen, or click the deck and use the arrow keys.",
+  },
+  {
+    id: "deck-bento",
+    group: "presentations",
+    label: "Bento",
+    title: "Deck player",
+    path: "/deck",
+    query: { deck: "bento" },
+    intro:
+      "Bento review deck: a quarterly review on one bento slide. Next moves a camera between the containers, and each one shows denser detail when it is in focus.",
+  },
+  {
+    id: "deck-consulting",
+    group: "presentations",
+    label: "Consulting",
+    title: "Deck player",
+    path: "/deck",
+    query: { deck: "consulting" },
+    intro:
+      "Consulting deck: a decision request in consulting style, with dense charts, callouts, a so-what panel and sources, read headline by headline.",
+  },
+  {
+    id: "presentations",
+    group: "presentations",
+    label: "Slide starters",
+    path: "/presentations",
+    intro: "Slide layouts with their speech notes, then a complete five-chapter narrative built from them.",
+  },
+  {
+    id: "animations",
+    group: "motion",
+    label: "3D animations",
+    path: "/animations",
+    intro: "Live 3D scenes with camera moves, animated flows and presentation controls.",
+  },
+  {
+    id: "mechanism",
+    group: "motion",
+    label: "Mechanism",
+    path: "/mechanism",
+    styleName: "Mechanism",
+    intro: "Mechanical drawings that explain how a system moves, one part at a time.",
+  },
+  {
+    id: "web",
+    group: "web-group",
+    label: "Web UI",
+    path: "/web",
+    hostsPage: true,
+    styleName: "Landing",
+    intro: "Landing-page building blocks: a demo-first hero, spotlight features, motion and backgrounds.",
+  },
+  {
+    id: "docs",
+    group: "web-group",
+    label: "Docs layout",
+    path: "/docs",
+    intro: "A three-column product documentation shell with responsive navigation and Markdown prose.",
+  },
+  {
+    id: "styles",
+    group: "foundations",
+    label: "Styles",
+    path: "/styles",
+    intro: "The visual languages in the library and where each one is used.",
+  },
+  {
+    id: "assets",
+    group: "foundations",
+    label: "Icons & marks",
+    path: "/assets",
+    intro: "Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button.",
+  },
 ] as const;
 export type LibraryPage = (typeof libraryPages)[number]["id"];
 
@@ -195,16 +294,33 @@ export const animationEntries: CatalogEntry[] = [
 
 /** Each style has six real rendered examples, reachable through the gallery's selector. */
 export const objectStyleEntries = objectDirections.flatMap((direction, variant) =>
-  objectScenes.filter(scene => scene.id !== 'contact').map(scene => ({
-    id: `${scene.id}-${direction.id}`, title: `${scene.title} / ${direction.name}`,
-    type: 'animations' as const, styleId: direction.id,
-    tags: ['Objects', direction.id], href: `/animations?story=${scene.id}&variant=${variant}`,
-  })));
+  objectScenes
+    .filter((scene) => scene.id !== "contact")
+    .map((scene) => ({
+      id: `${scene.id}-${direction.id}`,
+      title: `${scene.title} / ${direction.name}`,
+      type: "animations" as const,
+      styleId: direction.id,
+      tags: ["Objects", direction.id],
+      href: `/animations?story=${scene.id}&variant=${variant}`,
+    })),
+);
 
-objectStyleEntries.push(...([{variant:3, styleId:'cartoon', title:'Little post office'}, {variant:4, styleId:'kinetic', title:'Correspondence mobile'}] as const).map(item=>({
-  id:`contact-${item.styleId}`,title:`Contact inbox / ${item.title}`,type:'animations' as const,styleId:item.styleId,
-  tags:['Objects',item.styleId],href:`/animations?story=contact&variant=${item.variant}`,
-})));
+objectStyleEntries.push(
+  ...(
+    [
+      { variant: 3, styleId: "cartoon", title: "Little post office" },
+      { variant: 4, styleId: "kinetic", title: "Correspondence mobile" },
+    ] as const
+  ).map((item) => ({
+    id: `contact-${item.styleId}`,
+    title: `Contact inbox / ${item.title}`,
+    type: "animations" as const,
+    styleId: item.styleId,
+    tags: ["Objects", item.styleId],
+    href: `/animations?story=contact&variant=${item.variant}`,
+  })),
+);
 
 /** Landing-style web building blocks, shown on /web. Flashy pieces earn their motion; low-key pieces are the defaults. */
 export const webEntries: CatalogEntry[] = [
@@ -249,7 +365,11 @@ export const webEntries: CatalogEntry[] = [
  */
 const figureRows = [
   ["bare-figure", "Bare figure: just the canvas", ["Frame", "Canvas"]],
-  ["parts", "Parts: every primitive once", ["Node", "Group", "Chip", "Connector", "Packet", "Bus", "Wall", "Cross", "Icon", "Mark"]],
+  [
+    "parts",
+    "Parts: every primitive once",
+    ["Node", "Group", "Chip", "Connector", "Packet", "Bus", "Wall", "Cross", "Icon", "Mark"],
+  ],
   ["pipeline", "Pipeline: stages in a line", ["Preset", "Pipeline", "Queue"]],
   ["loops", "Loops: repeat a step, return to the start", ["Loop", "Feedback", "Return path"]],
   ["decision-tree", "Decision tree: one question per level", ["Decision", "Branch", "Tree"]],
@@ -269,7 +389,13 @@ const figureRows = [
 ] as const;
 /** A diagram pattern's id. `figureDetails` in playground/figures/index.tsx needs one entry per id. */
 export type FigureId = (typeof figureRows)[number][0];
-export const figureEntries: (CatalogEntry & { id: FigureId })[] = figureRows.map(([id, title, tags]) => ({ id, title, type: "figures" as const, styleId: "technical", tags: [...tags] }));
+export const figureEntries: (CatalogEntry & { id: FigureId })[] = figureRows.map(([id, title, tags]) => ({
+  id,
+  title,
+  type: "figures" as const,
+  styleId: "technical",
+  tags: [...tags],
+}));
 
 /** Charts (uipack/charts), rendered on /charts. */
 export const chartEntries: CatalogEntry[] = [
@@ -304,7 +430,13 @@ export const docsEntries: CatalogEntry[] = [
 export const articleEntries: CatalogEntry[] = [
   { id: "layer-section", title: "Layer section", type: "article", styleId: "technical", tags: ["Article", "Composition"] },
   { id: "note-card", title: "Note card", type: "article", styleId: "technical", tags: ["Article", "Link", "Card"] },
-  { id: "note-cluster", title: "Note cluster", type: "article", styleId: "technical", tags: ["Article", "Link", "Group", "Grid"] },
+  {
+    id: "note-cluster",
+    title: "Note cluster",
+    type: "article",
+    styleId: "technical",
+    tags: ["Article", "Link", "Group", "Grid"],
+  },
   { id: "layer-head", title: "Layer head", type: "article", styleId: "technical", tags: ["Article", "Heading", "Metric"] },
   { id: "term-list", title: "Term list", type: "article", styleId: "technical", tags: ["Article", "Tags"] },
   { id: "callout", title: "Callout", type: "article", styleId: "technical", tags: ["Article", "Self-test"] },
@@ -314,14 +446,38 @@ export const articleEntries: CatalogEntry[] = [
 
 /** The deck player (uipack/deck), rendered on /deck with an example tech talk that uses each move where its story needs it. */
 export const deckEntries: CatalogEntry[] = [
-  { id: "deck-player", title: "Deck player", type: "deck", styleId: "technical", tags: ["Presentation", "Keyboard", "Speaker view", "Overview"] },
-  { id: "deck-advance", title: "Advance transition", type: "deck", styleId: "technical", tags: ["Transition", "Motion", "Default"] },
-  { id: "deck-morph", title: "Morph transition", type: "deck", styleId: "technical", tags: ["Transition", "Motion", "Shared element"] },
+  {
+    id: "deck-player",
+    title: "Deck player",
+    type: "deck",
+    styleId: "technical",
+    tags: ["Presentation", "Keyboard", "Speaker view", "Overview"],
+  },
+  {
+    id: "deck-advance",
+    title: "Advance transition",
+    type: "deck",
+    styleId: "technical",
+    tags: ["Transition", "Motion", "Default"],
+  },
+  {
+    id: "deck-morph",
+    title: "Morph transition",
+    type: "deck",
+    styleId: "technical",
+    tags: ["Transition", "Motion", "Shared element"],
+  },
   { id: "deck-zoom", title: "Zoom transition", type: "deck", styleId: "technical", tags: ["Transition", "Motion", "Camera"] },
   { id: "deck-read", title: "Read view", type: "deck", styleId: "technical", tags: ["Presentation", "Mobile", "Async"] },
 ];
 
 /** Mechanism-style machines (uipack/mechanism), rendered on /mechanism. */
 export const mechanismEntries: CatalogEntry[] = [
-  { id: "verification-gate", title: "Verification gate", type: "mechanism", styleId: "mechanism", tags: ["Mechanism", "Agents", "Isometric", "Pose"] },
+  {
+    id: "verification-gate",
+    title: "Verification gate",
+    type: "mechanism",
+    styleId: "mechanism",
+    tags: ["Mechanism", "Agents", "Isometric", "Pose"],
+  },
 ];

@@ -74,8 +74,10 @@ export function pageMeta(o: PageMetaOptions): HeadTag[] {
     { tag: "link", attrs: { rel: "canonical", href: o.url } },
   ];
   if (o.robots) tags.push({ tag: "meta", attrs: { name: "robots", content: o.robots } });
-  if (o.markdown) tags.push({ tag: "link", attrs: { rel: "alternate", type: "text/markdown", href: absoluteUrl(o.markdown, o.url) } });
-  if (o.llmsTxt) tags.push({ tag: "link", attrs: { rel: "describedby", type: "text/markdown", href: absoluteUrl(o.llmsTxt, o.url) } });
+  if (o.markdown)
+    tags.push({ tag: "link", attrs: { rel: "alternate", type: "text/markdown", href: absoluteUrl(o.markdown, o.url) } });
+  if (o.llmsTxt)
+    tags.push({ tag: "link", attrs: { rel: "describedby", type: "text/markdown", href: absoluteUrl(o.llmsTxt, o.url) } });
   const rss = typeof o.rss === "string" ? { url: o.rss } : o.rss;
   if (rss) {
     const title = rss.title ?? o.siteName;
@@ -130,7 +132,8 @@ export function headTagsToHtml(tags: HeadTag[]): string {
 export function headTagKey(t: HeadTag): string {
   if (t.tag === "title") return "title";
   const a = t.attrs;
-  if (t.tag === "meta") return a.name ? `meta:name:${a.name}` : a.property ? `meta:property:${a.property}` : `meta:${JSON.stringify(a)}`;
+  if (t.tag === "meta")
+    return a.name ? `meta:name:${a.name}` : a.property ? `meta:property:${a.property}` : `meta:${JSON.stringify(a)}`;
   if (t.tag === "link") return a.rel === "canonical" ? "link:canonical" : `link:${a.rel}:${a.href}`;
   return `script:${a.id ?? a.type}:${t.text.length}`;
 }
@@ -177,7 +180,13 @@ export function fontPreloads({ faces = ["display"], base = "/fonts/", href, medi
   const dir = base.endsWith("/") ? base : `${base}/`;
   return faces.map((face) => {
     const file = WEB_FONT_FILES[face];
-    const attrs: Record<string, string> = { rel: "preload", href: href ? href(file, face) : `${dir}${file}`, as: "font", type: "font/woff2", crossorigin: "anonymous" };
+    const attrs: Record<string, string> = {
+      rel: "preload",
+      href: href ? href(file, face) : `${dir}${file}`,
+      as: "font",
+      type: "font/woff2",
+      crossorigin: "anonymous",
+    };
     if (media) attrs.media = media;
     return { tag: "link", attrs };
   });
@@ -214,7 +223,15 @@ export interface OrganizationOptions {
 }
 
 export function organization(o: OrganizationOptions): JsonLdNode {
-  return clean({ "@type": "Organization", "@id": o.id ?? nodeId(o.url, "organization"), name: o.name, url: o.url, logo: o.logo, description: o.description, sameAs: o.sameAs });
+  return clean({
+    "@type": "Organization",
+    "@id": o.id ?? nodeId(o.url, "organization"),
+    name: o.name,
+    url: o.url,
+    logo: o.logo,
+    description: o.description,
+    sameAs: o.sameAs,
+  });
 }
 
 export interface PersonOptions {
@@ -427,7 +444,8 @@ function schemaDate(d: SchemaDate | undefined, field: string): string | undefine
     if (Number.isNaN(d.getTime())) throw new Error(`${field}: invalid Date`);
     return d.toISOString();
   }
-  if (!/^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/.test(d)) throw new Error(`${field} must be ISO 8601, e.g. 2026-10-22 (got "${d}")`);
+  if (!/^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/.test(d))
+    throw new Error(`${field} must be ISO 8601, e.g. 2026-10-22 (got "${d}")`);
   return d;
 }
 
@@ -570,7 +588,13 @@ export function profilePage(o: ProfilePageOptions): JsonLdNode {
   const entity = "@type" in o.person ? (o.person as JsonLdNode) : person(o.person as PersonOptions);
   const name = typeof entity.name === "string" ? entity.name : undefined;
   if (!name) throw new Error("profilePage: the person needs a name");
-  const page = webPage({ ...o, type: "ProfilePage", name: o.name ?? name, mainEntity: entity, id: o.id ?? nodeId(o.url, "profilepage") });
+  const page = webPage({
+    ...o,
+    type: "ProfilePage",
+    name: o.name ?? name,
+    mainEntity: entity,
+    id: o.id ?? nodeId(o.url, "profilepage"),
+  });
   return clean({ ...page, dateCreated: schemaDate(o.dateCreated, "profilePage: dateCreated") });
 }
 
@@ -628,7 +652,11 @@ export interface ItemListOptions {
 
 /** An ItemList of ListItems with 1-based positions, in the order the page shows them. */
 export function itemList(items: ItemListEntry[], o: ItemListOptions = {}): JsonLdNode {
-  const order = { ascending: "ItemListOrderAscending", descending: "ItemListOrderDescending", unordered: "ItemListUnordered" } as const;
+  const order = {
+    ascending: "ItemListOrderAscending",
+    descending: "ItemListOrderDescending",
+    unordered: "ItemListUnordered",
+  } as const;
   return clean({
     "@type": "ItemList",
     "@id": o.id,
@@ -652,7 +680,12 @@ export interface CollectionPageOptions extends Omit<WebPageOptions, "type" | "ma
 /** A CollectionPage (an index of posts or projects) whose mainEntity is the ItemList it shows. */
 export function collectionPage(o: CollectionPageOptions): JsonLdNode {
   const { items, order, ...page } = o;
-  return webPage({ ...page, type: "CollectionPage", id: o.id ?? nodeId(o.url, "collection"), mainEntity: itemList(items, { order, id: nodeId(o.url, "items") }) });
+  return webPage({
+    ...page,
+    type: "CollectionPage",
+    id: o.id ?? nodeId(o.url, "collection"),
+    mainEntity: itemList(items, { order, id: nodeId(o.url, "items") }),
+  });
 }
 
 /** Wrap one node, or several as an "@graph", in a JSON-LD document with its "@context". */
@@ -681,7 +714,11 @@ export function serializeJsonLd(data: unknown): string {
 
 /** A JSON-LD document as a head tag, for `headTagsToHtml` or `useHead`. */
 export function jsonLdTag(data: JsonLdDocument, id?: string): HeadTag {
-  return { tag: "script", attrs: id ? { type: "application/ld+json", id } : { type: "application/ld+json" }, text: serializeJsonLd(data) };
+  return {
+    tag: "script",
+    attrs: id ? { type: "application/ld+json", id } : { type: "application/ld+json" },
+    text: serializeJsonLd(data),
+  };
 }
 
 /** URL-safe anchor id from a question or heading. */

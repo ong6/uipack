@@ -1,12 +1,6 @@
 import { useItemSelection } from "./selection";
 import type { ReactNode } from "react";
-import {
-  useFigureHover,
-  hoverAttrs,
-  isPointer,
-  flowList,
-  type Flow,
-} from "./hover";
+import { useFigureHover, hoverAttrs, isPointer, flowList, type Flow } from "./hover";
 import { icons, type IconName } from "./icons";
 import { useFontFloor } from "./scale";
 
@@ -72,10 +66,8 @@ export function Node({
   const flows = flowList(flow);
   const handlers = flows.length
     ? {
-        onPointerEnter: (e: React.PointerEvent) =>
-          isPointer(e) && hover.setFlow(flows[0]),
-        onPointerLeave: (e: React.PointerEvent) =>
-          isPointer(e) && hover.setFlow(null),
+        onPointerEnter: (e: React.PointerEvent) => isPointer(e) && hover.setFlow(flows[0]),
+        onPointerLeave: (e: React.PointerEvent) => isPointer(e) && hover.setFlow(null),
       }
     : {};
   // The accessible name starts with the visible label and carries the subtitle (WCAG 2.5.3).
@@ -83,13 +75,7 @@ export function Node({
   const name = nodeName(label, sub);
   const selection = useItemSelection(label, hint, flows[0], !href && !!label, name);
   const body = (
-    <g
-      id={id}
-      data-uipack="node"
-      {...hoverAttrs(flow, undefined, hover)}
-      {...handlers}
-      {...selection}
-    >
+    <g id={id} data-uipack="node" {...hoverAttrs(flow, undefined, hover)} {...handlers} {...selection}>
       {hint && !selection.role ? <title>{hint}</title> : null}
       <rect
         x={x}
@@ -104,7 +90,13 @@ export function Node({
         strokeDasharray={dashed ? "4 4" : undefined}
       />
       {inlay}
-      <path className="uipack__touch-target" d={`M ${x} ${y - Math.max(0, 54 - h) / 2} h ${w} v ${Math.max(h, 54)} h ${-w} Z`} fill="transparent" stroke="none" aria-hidden="true" />
+      <path
+        className="uipack__touch-target"
+        d={`M ${x} ${y - Math.max(0, 54 - h) / 2} h ${w} v ${Math.max(h, 54)} h ${-w} Z`}
+        fill="transparent"
+        stroke="none"
+        aria-hidden="true"
+      />
       {glyph ? (
         <g
           transform={`translate(${x + pad}, ${y + h / 2 - 8})`}

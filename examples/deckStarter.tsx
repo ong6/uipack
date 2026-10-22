@@ -110,5 +110,7 @@ export const slides: DeckSlide[] = draft.map((s) => ({ ...s, ...rewritten[s.id] 
 export const findings = lintDeck(slides, { template: TEMPLATE });
 
 export default function Talk() {
-  return <DeckPlayer id="index-migration" title="Index migration update" slides={slides} lint={{ template: TEMPLATE }} minutes={6} />;
+  return (
+    <DeckPlayer id="index-migration" title="Index migration update" slides={slides} lint={{ template: TEMPLATE }} minutes={6} />
+  );
 }

@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkNFU4EWVX_cjs = require('./chunk-NFU4EWVX.cjs');
+var chunk5QNGHC2A_cjs = require('./chunk-5QNGHC2A.cjs');
 var chunkYMPVJRTJ_cjs = require('./chunk-YMPVJRTJ.cjs');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
@@ -11,17 +11,69 @@ var objectDirections = [
   { id: "paper-theatre", name: "Paper worlds", description: "Cut-paper stages, layered landscapes and pop-up architecture." },
   { id: "kinetic", name: "Kinetic sculptures", description: "Brass mechanisms, ceramic forms and suspended motion." },
   { id: "cartoon", name: "Cartoon worlds", description: "Rounded little places, toy-like details and playful motion." },
-  { id: "realistic", name: "Realistic close-ups", description: "Tactile materials, precision details and intimate camera angles." },
+  {
+    id: "realistic",
+    name: "Realistic close-ups",
+    description: "Tactile materials, precision details and intimate camera angles."
+  },
   { id: "abstract", name: "Abstract forms", description: "Optical glass, sculptural rhythms and unexpected silhouettes." }
 ];
 var objectVariants = {
-  ai: ["Studio \xB7 Agent laptop", "Paper \xB7 Thinking machine", "Kinetic \xB7 Neural orrery", "Cartoon \xB7 Night workshop", "Realistic \xB7 Key travel", "Abstract \xB7 Thought lattice"],
-  contact: ["Signature inbox", "Blue inbox", "Terracotta inbox", "Cartoon \xB7 Little post office", "Kinetic \xB7 Correspondence mobile"],
-  tennis: ["Studio \xB7 Club rally", "Paper \xB7 Centre court", "Kinetic \xB7 Racket study", "Cartoon \xB7 Courtside club", "Realistic \xB7 Match point", "Abstract \xB7 Elastic exchange"],
-  trading: ["Studio \xB7 Market terminal", "Paper \xB7 Market accordion", "Kinetic \xB7 Market balance", "Cartoon \xB7 Exchange avenue", "Realistic \xB7 Ticker study", "Abstract \xB7 Risk rhythm"],
-  server: ["Studio \xB7 Inference hardware", "Paper \xB7 Server architecture", "Kinetic \xB7 Floating compute", "Cartoon \xB7 Cloud factory", "Realistic \xB7 Silicon detail", "Abstract \xB7 Signal stack"],
-  travel: ["Studio \xB7 Folded atlas", "Paper \xB7 Alpine passage", "Kinetic \xB7 Armillary globe", "Cartoon \xB7 Island express", "Realistic \xB7 Field compass", "Abstract \xB7 Passage"],
-  reading: ["Studio \xB7 Turning pages", "Paper \xB7 A world inside", "Kinetic \xB7 Suspended folio", "Cartoon \xB7 Reading nook", "Realistic \xB7 Quiet chapter", "Abstract \xB7 Unwritten"]
+  ai: [
+    "Studio \xB7 Agent laptop",
+    "Paper \xB7 Thinking machine",
+    "Kinetic \xB7 Neural orrery",
+    "Cartoon \xB7 Night workshop",
+    "Realistic \xB7 Key travel",
+    "Abstract \xB7 Thought lattice"
+  ],
+  contact: [
+    "Signature inbox",
+    "Blue inbox",
+    "Terracotta inbox",
+    "Cartoon \xB7 Little post office",
+    "Kinetic \xB7 Correspondence mobile"
+  ],
+  tennis: [
+    "Studio \xB7 Club rally",
+    "Paper \xB7 Centre court",
+    "Kinetic \xB7 Racket study",
+    "Cartoon \xB7 Courtside club",
+    "Realistic \xB7 Match point",
+    "Abstract \xB7 Elastic exchange"
+  ],
+  trading: [
+    "Studio \xB7 Market terminal",
+    "Paper \xB7 Market accordion",
+    "Kinetic \xB7 Market balance",
+    "Cartoon \xB7 Exchange avenue",
+    "Realistic \xB7 Ticker study",
+    "Abstract \xB7 Risk rhythm"
+  ],
+  server: [
+    "Studio \xB7 Inference hardware",
+    "Paper \xB7 Server architecture",
+    "Kinetic \xB7 Floating compute",
+    "Cartoon \xB7 Cloud factory",
+    "Realistic \xB7 Silicon detail",
+    "Abstract \xB7 Signal stack"
+  ],
+  travel: [
+    "Studio \xB7 Folded atlas",
+    "Paper \xB7 Alpine passage",
+    "Kinetic \xB7 Armillary globe",
+    "Cartoon \xB7 Island express",
+    "Realistic \xB7 Field compass",
+    "Abstract \xB7 Passage"
+  ],
+  reading: [
+    "Studio \xB7 Turning pages",
+    "Paper \xB7 A world inside",
+    "Kinetic \xB7 Suspended folio",
+    "Cartoon \xB7 Reading nook",
+    "Realistic \xB7 Quiet chapter",
+    "Abstract \xB7 Unwritten"
+  ]
 };
 function chooseObjectVariant(random = Math.random, count = objectDirections.length) {
   return Math.min(count - 1, Math.max(0, Math.floor(random() * count)));
@@ -70,13 +122,7 @@ var Fallback = ({ kind, label }) => {
     ai: /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
       /* @__PURE__ */ jsxRuntime.jsx("rect", { x: "83", y: "36", width: "194", height: "126", rx: "8" }),
       /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M83 162l-25 25h244l-25-25" }),
-      /* @__PURE__ */ jsxRuntime.jsx(
-        "path",
-        {
-          className: "soft",
-          d: "M104 62h88m-88 22h143m-126 22h92m-109 22h120"
-        }
-      ),
+      /* @__PURE__ */ jsxRuntime.jsx("path", { className: "soft", d: "M104 62h88m-88 22h143m-126 22h92m-109 22h120" }),
       /* @__PURE__ */ jsxRuntime.jsx("rect", { x: "20", y: "56", width: "42", height: "48", rx: "5" }),
       /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M32 72l-6 8 6 8m16-16l6 8-6 8M62 102l32 43" }),
       /* @__PURE__ */ jsxRuntime.jsx("rect", { x: "298", y: "56", width: "42", height: "48", rx: "5" }),
@@ -86,13 +132,7 @@ var Fallback = ({ kind, label }) => {
       /* @__PURE__ */ jsxRuntime.jsx("rect", { x: "28", y: "28", width: "76", height: "42", rx: "6" }),
       /* @__PURE__ */ jsxRuntime.jsx("rect", { x: "28", y: "86", width: "76", height: "42", rx: "6" }),
       /* @__PURE__ */ jsxRuntime.jsx("rect", { x: "28", y: "144", width: "76", height: "42", rx: "6" }),
-      /* @__PURE__ */ jsxRuntime.jsx(
-        "path",
-        {
-          className: "soft",
-          d: "M104 49c62 0 76 50 126 58M104 107h126M104 165c62 0 76-50 126-58"
-        }
-      ),
+      /* @__PURE__ */ jsxRuntime.jsx("path", { className: "soft", d: "M104 49c62 0 76 50 126 58M104 107h126M104 165c62 0 76-50 126-58" }),
       /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "142", cy: "58", r: "6", fill: "currentColor" }),
       /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M48 42l18 13 18-13M48 42v17h36V42M49 101h34v17H61l-8 7 2-7h-6z" }),
       /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "66", cy: "165", r: "12" }),
@@ -116,8 +156,20 @@ var Fallback = ({ kind, label }) => {
       /* @__PURE__ */ jsxRuntime.jsx("rect", { x: "26", y: "24", width: "308", height: "152", rx: "8" }),
       /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M161 176v18h38v-18m-60 22h82" }),
       /* @__PURE__ */ jsxRuntime.jsx("path", { className: "soft", d: "M43 70h268M43 100h268M43 130h268M43 151h268" }),
-      /* @__PURE__ */ jsxRuntime.jsx("path", { stroke: "#269764", d: "M62 98V131M55 108h14v16h-14zM109 89V130M102 102h14v20h-14zM170 86V108M163 95h14v22h-14zM218 80V102M211 86h14v11h-14zM55 163v-8h14v8m33 0v-11h14v11m54 0v-14h14v14m41 0v-18h14v18" }),
-      /* @__PURE__ */ jsxRuntime.jsx("path", { stroke: "#d85b65", d: "M85 109V140M78 116h14v16h-14zM135 93V125M128 102h14v15h-14zM193 70V100M186 79h14v13h-14zM243 44V78M236 54h14v16h-14zM78 163v-6h14v6m36 0v-9h14v9m51 0v-11h14v11m43 0v-8h14v8" })
+      /* @__PURE__ */ jsxRuntime.jsx(
+        "path",
+        {
+          stroke: "#269764",
+          d: "M62 98V131M55 108h14v16h-14zM109 89V130M102 102h14v20h-14zM170 86V108M163 95h14v22h-14zM218 80V102M211 86h14v11h-14zM55 163v-8h14v8m33 0v-11h14v11m54 0v-14h14v14m41 0v-18h14v18"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntime.jsx(
+        "path",
+        {
+          stroke: "#d85b65",
+          d: "M85 109V140M78 116h14v16h-14zM135 93V125M128 102h14v15h-14zM193 70V100M186 79h14v13h-14zM243 44V78M236 54h14v16h-14zM78 163v-6h14v6m36 0v-9h14v9m51 0v-11h14v11m43 0v-8h14v8"
+        }
+      )
     ] }),
     server: /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
       /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M78 38h204v142H78zM96 58h168v26H96zM96 96h168v26H96zM96 134h168v26H96z" }),
@@ -135,44 +187,30 @@ var Fallback = ({ kind, label }) => {
     ] }),
     reading: /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
       /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M34 52c54-20 102-16 146 8v132c-44-24-92-28-146-8zM326 52c-54-20-102-16-146 8v132c44-24 92-28 146-8z" }),
-      /* @__PURE__ */ jsxRuntime.jsx(
-        "path",
-        {
-          className: "soft",
-          d: "M58 84h88m-88 24h96m-96 24h78m166-48h-88m88 24h-96m96 24h-78"
-        }
-      ),
+      /* @__PURE__ */ jsxRuntime.jsx("path", { className: "soft", d: "M58 84h88m-88 24h96m-96 24h78m166-48h-88m88 24h-96m96 24h-78" }),
       /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M180 60v132" })
     ] })
   };
   const captions = {
     trading: "DEMO / USD \xB7 SIMULATED"
   };
-  return /* @__PURE__ */ jsxRuntime.jsxs(
-    "div",
-    {
-      className: styles.fallback,
-      role: "img",
-      "aria-label": `${label} illustration`,
-      children: [
-        /* @__PURE__ */ jsxRuntime.jsx(
-          "svg",
-          {
-            className: styles.fallbackSvg,
-            viewBox: "0 0 360 214",
-            "aria-hidden": "true",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "3",
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: scenes[kind]
-          }
-        ),
-        captions[kind] && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-object__fallback-caption", "aria-hidden": "true", children: captions[kind] })
-      ]
-    }
-  );
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: styles.fallback, role: "img", "aria-label": `${label} illustration`, children: [
+    /* @__PURE__ */ jsxRuntime.jsx(
+      "svg",
+      {
+        className: styles.fallbackSvg,
+        viewBox: "0 0 360 214",
+        "aria-hidden": "true",
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: "3",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        children: scenes[kind]
+      }
+    ),
+    captions[kind] && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-object__fallback-caption", "aria-hidden": "true", children: captions[kind] })
+  ] });
 };
 function ObjectStage({
   kind,
@@ -221,8 +259,7 @@ function ObjectStage({
   }, [reduced]);
   react.useEffect(() => {
     activeRef.current = active;
-    if (active && !pausedRef.current && !reducedRef.current)
-      drawRef.current?.();
+    if (active && !pausedRef.current && !reducedRef.current) drawRef.current?.();
   }, [active]);
   react.useEffect(() => {
     if (!active || !canvasRef.current) {
@@ -252,7 +289,7 @@ function ObjectStage({
       setReady(false);
     };
     canvas.addEventListener("webglcontextlost", handleContextLost);
-    Promise.all([import('three'), import('./scenes-FOPA6CBL.cjs'), import('three/addons/environments/RoomEnvironment.js')]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
+    Promise.all([import('three'), import('./scenes-RKLMAJWZ.cjs'), import('three/addons/environments/RoomEnvironment.js')]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
       if (disposed) return;
       try {
         renderer = new THREE.WebGLRenderer({
@@ -282,12 +319,13 @@ function ObjectStage({
         canvas.dataset.source = object.userData.source ?? "procedural";
         canvas.dataset.artDirection = object.userData.style;
         const shadows = kind === "tennis" || variant !== 0 && variant !== 5;
-        if (variant !== 0 && variant !== 5) object.traverse((item) => {
-          if (item instanceof THREE.Mesh) {
-            item.castShadow = true;
-            item.receiveShadow = true;
-          }
-        });
+        if (variant !== 0 && variant !== 5)
+          object.traverse((item) => {
+            if (item instanceof THREE.Mesh) {
+              item.castShadow = true;
+              item.receiveShadow = true;
+            }
+          });
         if (shadows) {
           renderer.shadowMap.enabled = true;
           renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -324,8 +362,7 @@ function ObjectStage({
           canvas.dataset.frames = String(frames);
           canvas.dataset.phase = reducedRef.current ? "rest" : object.userData.phase;
           canvas.dataset.pose = object.userData.pose.toFixed(3);
-          if (hostRef.current)
-            hostRef.current.dataset.phase = reducedRef.current ? "rest" : object.userData.phase;
+          if (hostRef.current) hostRef.current.dataset.phase = reducedRef.current ? "rest" : object.userData.phase;
         };
         settleRef.current = () => {
           paint(restTime, performance.now());
@@ -337,16 +374,12 @@ function ObjectStage({
             lastTickAt = void 0;
             return;
           }
-          if (lastTickAt !== void 0)
-            elapsed += Math.min(time - lastTickAt, 50);
+          if (lastTickAt !== void 0) elapsed += Math.min(time - lastTickAt, 50);
           lastTickAt = time;
           const completing = !loopDuration && !reducedRef.current && elapsed >= REST_START_MS && !completedRef.current;
           const shouldPaint = completing || time - lastPaintAt >= frameInterval;
           if (shouldPaint) {
-            paint(
-              reducedRef.current ? restTime : completing ? REST_START_MS : elapsed,
-              time
-            );
+            paint(reducedRef.current ? restTime : completing ? REST_START_MS : elapsed, time);
           }
           if (completing) {
             completedRef.current = true;
@@ -357,8 +390,7 @@ function ObjectStage({
           }
         };
         drawRef.current = () => {
-          if (!frameRef.current && !disposed)
-            frameRef.current = requestAnimationFrame(render);
+          if (!frameRef.current && !disposed) frameRef.current = requestAnimationFrame(render);
         };
         resumeRef.current = () => {
           lastTickAt = void 0;
@@ -381,7 +413,10 @@ function ObjectStage({
           const aspect = width / height;
           const narrow = width < NARROW_STAGE_PX ? object.userData.narrowFrame : void 0;
           const halfWidth = narrow?.halfWidth ?? (variant === 4 && kind !== "contact" ? 2.15 : kind === "server" && variant === 0 ? 3.25 : 2.65);
-          const halfHeight = Math.max(narrow?.halfHeight ?? (variant === 4 && kind !== "contact" ? 1.75 : 2.2), halfWidth / aspect);
+          const halfHeight = Math.max(
+            narrow?.halfHeight ?? (variant === 4 && kind !== "contact" ? 1.75 : 2.2),
+            halfWidth / aspect
+          );
           camera.position.y = narrow?.y ?? (variant === 4 && kind !== "contact" ? -0.15 : 0);
           camera.left = -halfHeight * aspect;
           camera.right = halfHeight * aspect;
@@ -420,8 +455,7 @@ function ObjectStage({
       }
     });
     const visibility = () => {
-      if (!document.hidden && !pausedRef.current && !completedRef.current && !reducedRef.current)
-        resumeRef.current?.();
+      if (!document.hidden && !pausedRef.current && !completedRef.current && !reducedRef.current) resumeRef.current?.();
     };
     document.addEventListener("visibilitychange", visibility);
     return () => {
@@ -481,15 +515,7 @@ function ObjectStage({
       "data-variant-label": objectVariants[kind][variant === "random" ? 0 : variant],
       children: [
         /* @__PURE__ */ jsxRuntime.jsx(Fallback, { kind, label }),
-        active && /* @__PURE__ */ jsxRuntime.jsx(
-          "canvas",
-          {
-            ref: canvasRef,
-            className: styles.canvas,
-            "data-ready": ready ? "true" : "false",
-            "aria-hidden": "true"
-          }
-        ),
+        active && /* @__PURE__ */ jsxRuntime.jsx("canvas", { ref: canvasRef, className: styles.canvas, "data-ready": ready ? "true" : "false", "aria-hidden": "true" }),
         ready && !reduced && /* @__PURE__ */ jsxRuntime.jsx(
           "button",
           {
@@ -516,24 +542,17 @@ function ObjectScene(props) {
   const controls = props.controls ?? "full";
   const chosenVariant = canVary ? randomVariant : props.variant;
   const variant = chosenVariant === null ? null : normalizeObjectVariant(props.kind, chosenVariant);
-  const anotherLook = () => setRandomVariant((current) => ((current ?? 0) + 1) % (props.kind === "contact" ? 5 : objectDirections.length));
+  const anotherLook = () => setRandomVariant(
+    (current) => ((current ?? 0) + 1) % (props.kind === "contact" ? 5 : objectDirections.length)
+  );
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-object-frame", "data-theme": props.theme ?? "light", "data-controls": controls, children: [
     controls === "full" && variant !== null && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-object-edition", children: [
       /* @__PURE__ */ jsxRuntime.jsx("span", { children: variant === 0 && props.kind !== "contact" ? `Studio \xB7 ${objectEditions[props.kind][props.edition ?? 0]}` : objectVariants[props.kind][variant] }),
       canVary && /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", onClick: anotherLook, "aria-label": "Another look", children: "\u21BB" })
     ] }),
-    controls === "full" && /* @__PURE__ */ jsxRuntime.jsx(
-      "button",
-      {
-        ref: opener,
-        type: "button",
-        className: "uipack-object-open",
-        onClick: () => setOpen(true),
-        children: "Open canvas"
-      }
-    ),
+    controls === "full" && /* @__PURE__ */ jsxRuntime.jsx("button", { ref: opener, type: "button", className: "uipack-object-open", onClick: () => setOpen(true), children: "Open canvas" }),
     /* @__PURE__ */ jsxRuntime.jsx(
-      chunkNFU4EWVX_cjs.CanvasView,
+      chunk5QNGHC2A_cjs.CanvasView,
       {
         open,
         onClose: () => setOpen(false),
@@ -555,20 +574,14 @@ function ObjectScene(props) {
     )
   ] });
 }
-function ObjectDirectionPicker({ value, onChange }) {
-  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-object-directions", role: "group", "aria-label": "3D art direction", children: objectDirections.map((direction, index) => /* @__PURE__ */ jsxRuntime.jsxs(
-    "button",
-    {
-      type: "button",
-      "aria-pressed": value === index,
-      onClick: () => onChange(index),
-      children: [
-        /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", children: directionSymbols[index] }),
-        direction.name
-      ]
-    },
-    direction.id
-  )) });
+function ObjectDirectionPicker({
+  value,
+  onChange
+}) {
+  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-object-directions", role: "group", "aria-label": "3D art direction", children: objectDirections.map((direction, index) => /* @__PURE__ */ jsxRuntime.jsxs("button", { type: "button", "aria-pressed": value === index, onClick: () => onChange(index), children: [
+    /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", children: directionSymbols[index] }),
+    direction.name
+  ] }, direction.id)) });
 }
 
 // src/objects/scene-list.ts

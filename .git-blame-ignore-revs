@@ -1,0 +1,3 @@
+# Formatting-only commits: git blame --ignore-revs-file .git-blame-ignore-revs (GitHub reads it too).
+# Prettier, repo-wide
+8cf486d57c1eda410beb8857b823ea46c987de5b

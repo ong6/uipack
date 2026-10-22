@@ -39,51 +39,48 @@ describe("presentation starters", () => {
     expect(svg).toMatch(/<text x="1136" y="635" text-anchor="end"[^>]*>01 \/ 03<\/text>/);
   });
 
-  it.each(["opening", "explanation", "system"] as const)(
-    "renders the %s layout without putting speech in the SVG",
-    (layout) => {
-      const common = {
-        id: layout,
-        title: layout,
-        description: `${layout} description`,
-        speech: opening.speech,
-      };
-      const slide: SlideStarterData =
-        layout === "opening"
-          ? { ...opening, id: layout }
-          : layout === "explanation"
-            ? {
-                ...common,
-                layout,
-                content: {
-                  eyebrow: "Rule",
-                  headline: "One point",
-                  foundation: { title: "Base", detail: "Shared" },
-                  applications: [
-                    { title: "Screen", detail: "Visible" },
-                    { title: "Speech", detail: "Spoken" },
-                  ],
-                },
-              }
-            : {
-                ...common,
-                layout,
-                content: {
-                  eyebrow: "Flow",
-                  headline: "Three steps",
-                  steps: [
-                    { title: "One", detail: "First" },
-                    { title: "Two", detail: "Second" },
-                    { title: "Three", detail: "Third" },
-                  ],
-                  caption: "A useful outcome.",
-                },
-              };
-      const svg = renderSlideSvg(slide);
-      expect(svg).toContain("<svg");
-      expect(svg).not.toContain(slide.speech.say);
-    },
-  );
+  it.each(["opening", "explanation", "system"] as const)("renders the %s layout without putting speech in the SVG", (layout) => {
+    const common = {
+      id: layout,
+      title: layout,
+      description: `${layout} description`,
+      speech: opening.speech,
+    };
+    const slide: SlideStarterData =
+      layout === "opening"
+        ? { ...opening, id: layout }
+        : layout === "explanation"
+          ? {
+              ...common,
+              layout,
+              content: {
+                eyebrow: "Rule",
+                headline: "One point",
+                foundation: { title: "Base", detail: "Shared" },
+                applications: [
+                  { title: "Screen", detail: "Visible" },
+                  { title: "Speech", detail: "Spoken" },
+                ],
+              },
+            }
+          : {
+              ...common,
+              layout,
+              content: {
+                eyebrow: "Flow",
+                headline: "Three steps",
+                steps: [
+                  { title: "One", detail: "First" },
+                  { title: "Two", detail: "Second" },
+                  { title: "Three", detail: "Third" },
+                ],
+                caption: "A useful outcome.",
+              },
+            };
+    const svg = renderSlideSvg(slide);
+    expect(svg).toContain("<svg");
+    expect(svg).not.toContain(slide.speech.say);
+  });
 
   it("renders the visual and a semantic speaker guide during SSR", () => {
     const html = renderToString(<SlideStarter slide={opening} />);
@@ -104,9 +101,7 @@ describe("presentation starters", () => {
       fireEvent.click(screen.getByRole("button", { name: "Copy talk track" }));
     });
     expect(writeText).toHaveBeenCalledWith(formatSpeechGuide(opening.speech));
-    expect(screen.getByRole("status")).toHaveTextContent(
-      "Opening talk track copied.",
-    );
+    expect(screen.getByRole("status")).toHaveTextContent("Opening talk track copied.");
   });
 
   it("derives a bounded estimate and can hide author-only speech", () => {

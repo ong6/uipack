@@ -1,9 +1,4 @@
-export {
-  SlidePlayer,
-  SlideScene,
-  type SlidePlayerProps,
-  type SlideSceneProps,
-} from "./SlidePlayer";
+export { SlidePlayer, SlideScene, type SlidePlayerProps, type SlideSceneProps } from "./SlidePlayer";
 export {
   harnessDive,
   retrievalLayers,
@@ -13,12 +8,7 @@ export {
   stagedAssembly,
   architectureShift,
 } from "./stories";
-export {
-  clampStop,
-  resolveNodePose,
-  validateSlideStory,
-  slidePalettes,
-} from "./model";
+export { clampStop, resolveNodePose, validateSlideStory, slidePalettes } from "./model";
 export type {
   SlideStory,
   SlideTransition,

@@ -69,7 +69,8 @@ const MemoryForecast = () => {
   const n = memory.length + forecast.length - 1;
   const x = (i: number) => (i / (n - 1)) * w;
   const y = (v: number) => h - ((v - 40) / 60) * h;
-  const line = (vals: number[], from: number) => vals.map((v, i) => `${i ? "L" : "M"}${x(from + i).toFixed(1)} ${y(v).toFixed(1)}`).join(" ");
+  const line = (vals: number[], from: number) =>
+    vals.map((v, i) => `${i ? "L" : "M"}${x(from + i).toFixed(1)} ${y(v).toFixed(1)}`).join(" ");
   const now = memory.length - 1;
   return (
     <svg
@@ -79,17 +80,29 @@ const MemoryForecast = () => {
       aria-label="Cache memory rose about three points a week, from 44% on 11 August to 71% on 13 October. On that trend it reaches 83% by 10 November and 86% by 17 November; peak traffic from 23 November takes it to about 93%, past the 90% limit. The tripwire is 85% before 10 November."
     >
       <line className="deck-bento-forecast__limit" x1={0} x2={w} y1={y(90)} y2={y(90)} />
-      <text x={0} y={y(90) - 6}>90% limit</text>
+      <text x={0} y={y(90) - 6}>
+        90% limit
+      </text>
       <line className="deck-bento-forecast__tripwire" x1={0} x2={x(TRIPWIRE_WEEK)} y1={y(85)} y2={y(85)} />
-      <text x={0} y={y(85) + 15}>85% tripwire, until 10 Nov</text>
+      <text x={0} y={y(85) + 15}>
+        85% tripwire, until 10 Nov
+      </text>
       <path className="deck-bento-forecast__measured" d={line(memory, 0)} />
       <path className="deck-bento-forecast__projected" d={line(forecast, now)} />
       <circle cx={x(now)} cy={y(71)} r={4} />
-      <text x={x(now) + 8} y={y(71) + 16}>71% on 13 Oct</text>
+      <text x={x(now) + 8} y={y(71) + 16}>
+        71% on 13 Oct
+      </text>
       <circle className="deck-bento-forecast__peak" cx={x(n - 1)} cy={y(93)} r={4} />
-      <text x={x(n - 1) + 8} y={y(93) + 4}>93%</text>
-      <text x={0} y={h + 16}>11 Aug</text>
-      <text x={w} y={h + 16} textAnchor="end">Peak, 24 Nov</text>
+      <text x={x(n - 1) + 8} y={y(93) + 4}>
+        93%
+      </text>
+      <text x={0} y={h + 16}>
+        11 Aug
+      </text>
+      <text x={w} y={h + 16} textAnchor="end">
+        Peak, 24 Nov
+      </text>
     </svg>
   );
 };
@@ -281,8 +294,12 @@ export const bentoDeck: DeckSlide[] = [
     tone: "accent",
     render: () => (
       <Slide eyebrow="Decision needed" footer={footer} layout="center">
-        <h2 className="uipack-deck-title deck-bento-ask-title">Platform leads: approve two engineers for the cache shard by 30 October.</h2>
-        <p className="uipack-deck-lede">Three weeks of work lands the shard by 20{"\u00a0"}November, three days before the peak.</p>
+        <h2 className="uipack-deck-title deck-bento-ask-title">
+          Platform leads: approve two engineers for the cache shard by 30 October.
+        </h2>
+        <p className="uipack-deck-lede">
+          Three weeks of work lands the shard by 20{"\u00a0"}November, three days before the peak.
+        </p>
       </Slide>
     ),
     notes: {

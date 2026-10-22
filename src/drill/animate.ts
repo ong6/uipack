@@ -35,9 +35,7 @@ const boxOf = (node: Element) => node.querySelector('[data-uipack="node"] > rect
 /** Parts of the node that give way as the level inside appears; the box stays as the frame. */
 const faceOf = (node: Element) =>
   Array.from(
-    node.querySelectorAll<SVGElement>(
-      '[data-uipack="node"] > :not(rect):not(.uipack__touch-target), .uipack-drill-node__mark',
-    ),
+    node.querySelectorAll<SVGElement>('[data-uipack="node"] > :not(rect):not(.uipack__touch-target), .uipack-drill-node__mark'),
   );
 
 /** Give the inner layer the canvas background, aligned with the canvas so the swap at the end is seamless. */
@@ -118,20 +116,40 @@ export function runDrill(opts: DrillRunOptions): Animation[] {
   // magnified node border never shows as a sliver at the edges.
   play(
     outer,
-    samples!.map((s) => ({ offset: s.offset, transform: s.outer, transformOrigin: origin, opacity: 1 - smoothstep(0.88, 0.99, s.p) })),
+    samples!.map((s) => ({
+      offset: s.offset,
+      transform: s.outer,
+      transformOrigin: origin,
+      opacity: 1 - smoothstep(0.88, 0.99, s.p),
+    })),
     timing,
   );
   play(
     inner,
-    samples!.map((s) => ({ offset: s.offset, transform: s.inner, transformOrigin: origin, clipPath: s.clip, opacity: s.innerOpacity })),
+    samples!.map((s) => ({
+      offset: s.offset,
+      transform: s.inner,
+      transformOrigin: origin,
+      clipPath: s.clip,
+      opacity: s.innerOpacity,
+    })),
     timing,
   );
   // The node's words, preview and marker give way as the level inside appears.
   for (const part of faceOf(opts.target!)) {
-    play(part, samples!.map((s) => ({ offset: s.offset, opacity: 1 - s.innerOpacity })), timing);
+    play(
+      part,
+      samples!.map((s) => ({ offset: s.offset, opacity: 1 - s.innerOpacity })),
+      timing,
+    );
   }
   // The glow would balloon with the zoom: it leaves first.
   const halo = opts.target!.querySelector(".uipack-drill-node__halo");
-  if (halo) play(halo, samples!.map((s) => ({ offset: s.offset, opacity: 1 - smoothstep(0, 0.25, s.p) })), timing);
+  if (halo)
+    play(
+      halo,
+      samples!.map((s) => ({ offset: s.offset, opacity: 1 - smoothstep(0, 0.25, s.p) })),
+      timing,
+    );
   return anims;
 }

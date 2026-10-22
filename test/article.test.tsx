@@ -70,7 +70,12 @@ describe("NoteCard", () => {
     expect(root.tagName).toBe("A");
     expect(root.className).toBe("uipack-notecard");
     expect(root.getAttribute("href")).toBe("/prefill-vs-decode");
-    expect(classesOf(root)).toEqual(["uipack-notecard__kicker", "uipack-notecard__title", "uipack-notecard__desc", "uipack-notecard__meta"]);
+    expect(classesOf(root)).toEqual([
+      "uipack-notecard__kicker",
+      "uipack-notecard__title",
+      "uipack-notecard__desc",
+      "uipack-notecard__meta",
+    ]);
     // No headings inside: the cards must not enter the page outline.
     expect(root.querySelector("h1, h2, h3, h4, h5, h6")).toBeNull();
     expect(host.querySelectorAll("a")).toHaveLength(1);
@@ -113,7 +118,9 @@ describe("NoteCard", () => {
     expect(within(host).queryByRole("link")).toBeNull();
     expect(host.querySelector(".uipack-notecard__status")!.textContent).toBe("Coming next");
     expect(host.querySelector(".uipack-notecard__go, time, .uipack-notecard__time")).toBeNull();
-    expect(mount(<NoteCard {...plannedNote} plannedLabel="Drafting" />).querySelector(".uipack-notecard__status")!.textContent).toBe("Drafting");
+    expect(
+      mount(<NoteCard {...plannedNote} plannedLabel="Drafting" />).querySelector(".uipack-notecard__status")!.textContent,
+    ).toBe("Drafting");
   });
 
   it("passes id and className through", () => {
@@ -126,12 +133,20 @@ describe("NoteCard", () => {
     expect(() => renderToStaticMarkup(<NoteCard title="No link" description="d" />)).toThrow(/needs an `href`/);
     expect(() => renderToStaticMarkup(<NoteCard href="/x" title="" description="d" />)).toThrow(/needs a `title`/);
     expect(() => renderToStaticMarkup(<NoteCard href="/x" title="t" description="d" minutes={0} />)).toThrow(/minutes/);
-    expect(() => renderToStaticMarkup(<NoteCard href="/x" title="t" description="d" status={"draft" as never} />)).toThrow(/unknown status/);
+    expect(() => renderToStaticMarkup(<NoteCard href="/x" title="t" description="d" status={"draft" as never} />)).toThrow(
+      /unknown status/,
+    );
   });
 });
 
 describe("NoteCluster", () => {
-  const cluster = <NoteCluster label="My notes on serving and product" note="One line." notes={[card, { ...card, href: "/q", title: "Q" }, plannedNote]} />;
+  const cluster = (
+    <NoteCluster
+      label="My notes on serving and product"
+      note="One line."
+      notes={[card, { ...card, href: "/q", title: "Q" }, plannedNote]}
+    />
+  );
 
   it("is a labelled dashed group around a list of cards", () => {
     const host = mount(cluster);
@@ -156,7 +171,9 @@ describe("NoteCluster", () => {
     const count = mount(cluster).querySelector(".uipack-cluster__count")!;
     expect(count.textContent).toBe("3");
     expect(count.getAttribute("aria-hidden")).toBe("true");
-    expect(mount(<NoteCluster label="L" notes={[card]} count={12} />).querySelector(".uipack-cluster__count")!.textContent).toBe("12");
+    expect(mount(<NoteCluster label="L" notes={[card]} count={12} />).querySelector(".uipack-cluster__count")!.textContent).toBe(
+      "12",
+    );
     expect(mount(<NoteCluster label="L" notes={[card]} count={false} />).querySelector(".uipack-cluster__count")).toBeNull();
   });
 
@@ -182,7 +199,14 @@ describe("NoteCluster", () => {
 
 describe("LayerHead", () => {
   it("shows the padded index, zone, metric and a Map link, with no heading of its own", () => {
-    const host = mount(<LayerHead index={8} zone="Serving and product" metric={{ value: "~10 GB", label: "KV cache, one 32k chat" }} mapHref="#map" />);
+    const host = mount(
+      <LayerHead
+        index={8}
+        zone="Serving and product"
+        metric={{ value: "~10 GB", label: "KV cache, one 32k chat" }}
+        mapHref="#map"
+      />,
+    );
     const root = host.firstElementChild!;
     expect(root.className).toBe("uipack-layerhead");
     const row = root.querySelector(":scope > .uipack-layerhead__row")!;
@@ -204,7 +228,9 @@ describe("LayerHead", () => {
     const host = mount(<LayerHead index="10" />);
     expect(host.querySelector(".uipack-layerhead__index")!.textContent).toBe("Layer 10");
     expect(host.querySelector(".uipack-layerhead__zone, .uipack-layerhead__metric, a")).toBeNull();
-    expect(mount(<LayerHead index={3} metric={{ value: "72" }} indexLabel="Step" mapLabel="Diagram" mapHref="#d" />).textContent).toBe("Step 03 72Diagram");
+    expect(
+      mount(<LayerHead index={3} metric={{ value: "72" }} indexLabel="Step" mapLabel="Diagram" mapHref="#d" />).textContent,
+    ).toBe("Step 03 72Diagram");
     expect(() => renderToStaticMarkup(<LayerHead index={3} metric={{ value: "" }} />)).toThrow(/metric.value/);
   });
 });
@@ -217,7 +243,11 @@ describe("TermList", () => {
     expect(classesOf(root)).toEqual(["uipack-terms__label", "uipack-terms__list"]);
     expect(host.querySelector(".uipack-terms__label")!.textContent).toBe("Learn");
     const list = within(host).getByRole("list");
-    expect(within(list).getAllByRole("listitem").map((li) => li.textContent)).toEqual(inference.terms);
+    expect(
+      within(list)
+        .getAllByRole("listitem")
+        .map((li) => li.textContent),
+    ).toEqual(inference.terms);
     expect(list.querySelectorAll(".uipack-terms__term")).toHaveLength(inference.terms.length);
     expect(within(host).queryByRole("link")).toBeNull();
   });
@@ -239,7 +269,9 @@ describe("Callout", () => {
     expect(root.className).toBe("uipack-callout uipack-callout--selftest");
     expect(classesOf(root)).toEqual(["uipack-callout__label", "uipack-callout__body"]);
     expect(root.querySelector(".uipack-callout__label")!.textContent).toBe("Self-test");
-    expect(root.querySelector(".uipack-callout__body")!.innerHTML).toBe('Why does <a href="#kv">one 32k conversation</a> matter?');
+    expect(root.querySelector(".uipack-callout__body")!.innerHTML).toBe(
+      'Why does <a href="#kv">one 32k conversation</a> matter?',
+    );
   });
 
   it("defaults to a self-test, has a generic note kind and a label override", () => {
@@ -247,7 +279,9 @@ describe("Callout", () => {
     const note = mount(<Callout kind="note">Aside.</Callout>).firstElementChild!;
     expect(note.className).toBe("uipack-callout uipack-callout--note");
     expect(note.querySelector(".uipack-callout__label")!.textContent).toBe("Note");
-    expect(mount(<Callout label="Check yourself">Q?</Callout>).querySelector(".uipack-callout__label")!.textContent).toBe("Check yourself");
+    expect(mount(<Callout label="Check yourself">Q?</Callout>).querySelector(".uipack-callout__label")!.textContent).toBe(
+      "Check yourself",
+    );
     expect(() => renderToStaticMarkup(<Callout kind={"warn" as never}>x</Callout>)).toThrow(/unknown kind/);
     expect(() => renderToStaticMarkup(<Callout>{""}</Callout>)).toThrow(/content/);
   });
@@ -331,7 +365,9 @@ describe("class contract", () => {
   );
   const emitted = () => {
     const host = mount(everything);
-    return [...new Set([...host.querySelectorAll("[class]")].flatMap((el) => [...el.classList]))].filter((c) => c.startsWith("uipack-")).sort();
+    return [...new Set([...host.querySelectorAll("[class]")].flatMap((el) => [...el.classList]))]
+      .filter((c) => c.startsWith("uipack-"))
+      .sort();
   };
 
   it("documents and styles every class the components emit", () => {

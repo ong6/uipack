@@ -27,4 +27,3 @@ export const FigureMotionContext = /*#__PURE__*/ createContext<FigureMotion>({
 export function useFigureMotion(): FigureMotion {
   return useContext(FigureMotionContext);
 }
-

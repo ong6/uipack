@@ -1,13 +1,5 @@
 import { useChartSize } from "../hooks";
-import {
-  CX_TYPE,
-  bandLayout,
-  barPath,
-  linearScale,
-  textWidth,
-  wrapToWidth,
-  zeroBasedDomain,
-} from "../scale";
+import { CX_TYPE, bandLayout, barPath, linearScale, textWidth, wrapToWidth, zeroBasedDomain } from "../scale";
 import { type Format, defaultFormat, type ChartSize, fill, Frame, growStyle, Text, Lines } from "./shared";
 import { Annotation, type ChartCallout } from "./Annotation";
 
@@ -105,7 +97,17 @@ export function BarChart({
             if (i < 0) return null;
             const px = x(rows[i].value);
             const py = bands[i].centre;
-            return <Annotation x={px} y={py} tx={px + callout.dx} ty={py + callout.dy} text={callout.text} width={callout.width} align={callout.align} />;
+            return (
+              <Annotation
+                x={px}
+                y={py}
+                tx={px + callout.dx}
+                ty={py + callout.dy}
+                text={callout.text}
+                width={callout.width}
+                align={callout.align}
+              />
+            );
           })()}
       </Frame>
     );
@@ -155,7 +157,17 @@ export function BarChart({
           if (i < 0) return null;
           const px = bandsProbe[i].centre;
           const py = y(rows[i].value);
-          return <Annotation x={px} y={py} tx={px + callout.dx} ty={py + callout.dy} text={callout.text} width={callout.width} align={callout.align} />;
+          return (
+            <Annotation
+              x={px}
+              y={py}
+              tx={px + callout.dx}
+              ty={py + callout.dy}
+              text={callout.text}
+              width={callout.width}
+              align={callout.align}
+            />
+          );
         })()}
     </Frame>
   );

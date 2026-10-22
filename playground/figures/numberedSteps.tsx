@@ -22,8 +22,14 @@ const receipt: Box = { x: 800, y: 392, w: 256, h: 56 };
 
 const cy = (b: Box) => b.y + b.h / 2;
 const cx = (b: Box) => b.x + b.w / 2;
-const right = (a: Box, b: Box): Point[] => [[a.x + a.w, cy(a)], [b.x, cy(b)]];
-const below = (a: Box, b: Box, x = cx(a)): Point[] => [[x, a.y + a.h], [x, b.y]];
+const right = (a: Box, b: Box): Point[] => [
+  [a.x + a.w, cy(a)],
+  [b.x, cy(b)],
+];
+const below = (a: Box, b: Box, x = cx(a)): Point[] => [
+  [x, a.y + a.h],
+  [x, b.y],
+];
 
 function Wide() {
   const id = "steps";
@@ -34,7 +40,11 @@ function Wide() {
   const paid = right(charge, orders);
   const p5 = below(orders, receipt);
   const no = below(charge, declined);
-  const back: Point[] = [[receipt.x, cy(receipt)], [cx(checkout), cy(receipt)], [cx(checkout), checkout.y + checkout.h]];
+  const back: Point[] = [
+    [receipt.x, cy(receipt)],
+    [cx(checkout), cy(receipt)],
+    [cx(checkout), checkout.y + checkout.h],
+  ];
   return (
     <>
       <Defs id={id} />
@@ -47,14 +57,70 @@ function Wide() {
       <Group x={504} y={56} w={224} h={224} title="Workers" flow={ORDER} hint="Do the slow work off the request path" />
       <Group x={776} y={56} w={304} h={224} title="Database · one writer" flow={ORDER} hint="Only the workers write here" />
 
-      <Node {...checkout} label="Checkout" sub="cart · address" icon="user" flow={[ORDER, RECEIPT]} hint="Where the order starts and where the receipt lands" />
-      <Node {...validate} label="Validate" sub="schema · limits" icon="lock" size={13} flow={ORDER} hint="Rejects a bad order before anything is held" />
-      <Node {...reserve} label="Reserve stock" sub="hold for 10 min" icon="queue" size={13} flow={ORDER} hint="Holds the items so two orders cannot take the last one" />
-      <Node {...charge} label="Charge card" sub="payment provider" icon="key" size={13} flow={[ORDER, DECLINED]} hint="The only step that can say no after the order is accepted" />
+      <Node
+        {...checkout}
+        label="Checkout"
+        sub="cart · address"
+        icon="user"
+        flow={[ORDER, RECEIPT]}
+        hint="Where the order starts and where the receipt lands"
+      />
+      <Node
+        {...validate}
+        label="Validate"
+        sub="schema · limits"
+        icon="lock"
+        size={13}
+        flow={ORDER}
+        hint="Rejects a bad order before anything is held"
+      />
+      <Node
+        {...reserve}
+        label="Reserve stock"
+        sub="hold for 10 min"
+        icon="queue"
+        size={13}
+        flow={ORDER}
+        hint="Holds the items so two orders cannot take the last one"
+      />
+      <Node
+        {...charge}
+        label="Charge card"
+        sub="payment provider"
+        icon="key"
+        size={13}
+        flow={[ORDER, DECLINED]}
+        hint="The only step that can say no after the order is accepted"
+      />
       <Node {...stock} label="stock" sub="held items" icon="db" size={13} flow={ORDER} />
-      <Node {...orders} label="orders" sub="paid, with the receipt id" icon="db" size={13} flow={ORDER} hint="Written once the payment succeeds" />
-      <Node {...declined} label="Declined" sub="hold released" icon="warning" size={13} dashed flow={DECLINED} hint="The hold is released and the client is told" />
-      <Node {...receipt} label="Send receipt" sub="email · push" icon="doc" size={13} flow={[ORDER, RECEIPT]} hint="Goes back to the client who placed the order" />
+      <Node
+        {...orders}
+        label="orders"
+        sub="paid, with the receipt id"
+        icon="db"
+        size={13}
+        flow={ORDER}
+        hint="Written once the payment succeeds"
+      />
+      <Node
+        {...declined}
+        label="Declined"
+        sub="hold released"
+        icon="warning"
+        size={13}
+        dashed
+        flow={DECLINED}
+        hint="The hold is released and the client is told"
+      />
+      <Node
+        {...receipt}
+        label="Send receipt"
+        sub="email · push"
+        icon="doc"
+        size={13}
+        flow={[ORDER, RECEIPT]}
+        hint="Goes back to the client who placed the order"
+      />
 
       <Badge cx={checkout.x} cy={checkout.y} text="1" accent />
       <Badge cx={validate.x} cy={validate.y} text="2" accent />
@@ -102,18 +168,35 @@ function Narrow() {
     ["Send receipt", "email · push", "doc"],
   ];
   const X = NX + 112;
-  const back: Point[] = [[NX, cy(s[5])], [24, cy(s[5])], [24, cy(s[0])], [NX, cy(s[0])]];
+  const back: Point[] = [
+    [NX, cy(s[5])],
+    [24, cy(s[5])],
+    [24, cy(s[0])],
+    [NX, cy(s[0])],
+  ];
   return (
     <>
       <Defs id={id} />
       {s.map((b, i) => {
         const [label, sub, icon] = labels[i];
-        const into: Point[] | null = i ? [[X, s[i - 1].y + 48], [X, b.y]] : null;
+        const into: Point[] | null = i
+          ? [
+              [X, s[i - 1].y + 48],
+              [X, b.y],
+            ]
+          : null;
         return (
           <g key={label}>
             {into ? <Connector points={into} defs={id} kind="request" flow={ORDER} /> : null}
             {into && i % 2 ? <Packet points={into} kind="request" dur={1.2} delay={-i * 0.3} flow={ORDER} r={4} /> : null}
-            <Node {...b} label={label} sub={sub} icon={icon as "user"} size={14} flow={i === 0 || i === 5 ? [ORDER, RECEIPT] : ORDER} />
+            <Node
+              {...b}
+              label={label}
+              sub={sub}
+              icon={icon as "user"}
+              size={14}
+              flow={i === 0 || i === 5 ? [ORDER, RECEIPT] : ORDER}
+            />
             <Badge cx={b.x} cy={b.y} text={String(i + 1)} accent />
           </g>
         );
@@ -141,7 +224,8 @@ export function NumberedStepsFigure({ number }: { number: string }) {
       viewBox="0 0 1120 480"
       narrow={<Narrow />}
       narrowViewBox="0 0 360 496"
-      alt="An order goes from checkout (1) to the API's validate step (2), through a queue to a worker that reserves stock (3) and charges the card (4). A paid order is written to the orders table (5) and a receipt is sent (6) back to checkout; a declined charge releases the hold.">
+      alt="An order goes from checkout (1) to the API's validate step (2), through a queue to a worker that reserves stock (3) and charges the card (4). A paid order is written to the orders table (5) and a receipt is sent (6) back to checkout; a declined charge releases the hold."
+    >
       <Wide />
     </Figure>
   );

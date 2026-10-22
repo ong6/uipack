@@ -55,8 +55,8 @@ export default function ArticleShowcase() {
           <h2>{entry("layer-section").title}</h2>
           <article className="article-host__prose">
             <p>
-              Two layer sections of an article, composed from the parts: a strip above each heading, the prose, then the labelled blocks. The
-              first cluster stays in the 40rem text column; the second breaks out to the 56rem figure slot.
+              Two layer sections of an article, composed from the parts: a strip above each heading, the prose, then the labelled
+              blocks. The first cluster stays in the 40rem text column; the second breaks out to the 56rem figure slot.
             </p>
             <LayerSection section={inference} id="inference" mapHref="#layer-section" />
             <LayerSection section={harness} id="harness" mapHref="#layer-section" wide />
@@ -71,13 +71,26 @@ export default function ArticleShowcase() {
 
         <Entry id="note-cluster">
           <p>At the text column: two columns from 560px.</p>
-          <NoteCluster label="My notes on agents and harnesses" note="Each one works through a number from the harness section." notes={[notes.contextEngineering, notes.agentIntegrations, notes.opusOrchestrating, plannedNote]} />
+          <NoteCluster
+            label="My notes on agents and harnesses"
+            note="Each one works through a number from the harness section."
+            notes={[notes.contextEngineering, notes.agentIntegrations, notes.opusOrchestrating, plannedNote]}
+          />
           <p>With wide, in the 56rem figure slot: three columns from 860px.</p>
-          <NoteCluster label="My notes on serving and product" notes={[notes.prefillVsDecode, notes.quantization, notes.promptCaching]} wide />
+          <NoteCluster
+            label="My notes on serving and product"
+            notes={[notes.prefillVsDecode, notes.quantization, notes.promptCaching]}
+            wide
+          />
         </Entry>
 
         <Entry id="layer-head">
-          <LayerHead index={8} zone="Serving and product" metric={{ value: "~10 GB", label: "KV cache, one 32k chat" }} mapHref="#layer-section" />
+          <LayerHead
+            index={8}
+            zone="Serving and product"
+            metric={{ value: "~10 GB", label: "KV cache, one 32k chat" }}
+            mapHref="#layer-section"
+          />
           <h3>Inference</h3>
           <p>Index, zone, metric and the map link.</p>
           <LayerHead index={7} zone="Models" mapHref="#layer-section" />

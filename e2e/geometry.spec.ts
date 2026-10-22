@@ -27,8 +27,12 @@ test.describe("geometry", () => {
           const n = Math.hypot(dx, dy) || 1;
           const tip = { x: end.x + (dx / n) * 1, y: end.y + (dy / n) * 1 }; // marker refX 7 of 8: tip is 1 past the end
           for (const r of rects) {
-            const inside = (q: { x: number; y: number }) => q.x > r.x + 0.5 && q.x < r.x + r.w - 0.5 && q.y > r.y + 0.5 && q.y < r.y + r.h - 0.5;
-            if (inside(end) || inside(tip)) bad.push(`${svg.getAttribute("aria-label")?.slice(0, 30)}: ${p.id || p.getAttribute("d")?.slice(0, 24)} ends inside a node`);
+            const inside = (q: { x: number; y: number }) =>
+              q.x > r.x + 0.5 && q.x < r.x + r.w - 0.5 && q.y > r.y + 0.5 && q.y < r.y + r.h - 0.5;
+            if (inside(end) || inside(tip))
+              bad.push(
+                `${svg.getAttribute("aria-label")?.slice(0, 30)}: ${p.id || p.getAttribute("d")?.slice(0, 24)} ends inside a node`,
+              );
           }
         }
       }
@@ -44,12 +48,16 @@ test.describe("geometry", () => {
     const bad = await page.evaluate(() => {
       const out: string[] = [];
       for (const svg of document.querySelectorAll<SVGSVGElement>("svg.uipack--wide")) {
-        const ends = [...svg.querySelectorAll<SVGPathElement>('[data-uipack="connector"][marker-end]')].map((p) => p.getPointAtLength(p.getTotalLength()));
+        const ends = [...svg.querySelectorAll<SVGPathElement>('[data-uipack="connector"][marker-end]')].map((p) =>
+          p.getPointAtLength(p.getTotalLength()),
+        );
         for (const am of svg.querySelectorAll("animateMotion")) {
           const d = am.getAttribute("path") ?? "";
           const nums = d.match(/-?\d+(\.\d+)?/g)?.map(Number) ?? [];
           const last = { x: nums[nums.length - 2], y: nums[nums.length - 1] };
-          for (const e of ends) if (Math.hypot(e.x - last.x, e.y - last.y) < 8) out.push(`${d.slice(0, 30)} ends ${Math.hypot(e.x - last.x, e.y - last.y).toFixed(1)} from a head`);
+          for (const e of ends)
+            if (Math.hypot(e.x - last.x, e.y - last.y) < 8)
+              out.push(`${d.slice(0, 30)} ends ${Math.hypot(e.x - last.x, e.y - last.y).toFixed(1)} from a head`);
         }
       }
       return out;
@@ -86,18 +94,20 @@ test.describe("geometry", () => {
     await page.goto("/");
     await page.locator("[data-section] figure.uipack").first().waitFor();
     // The floor applies once each figure's ResizeObserver has measured it: poll for that state.
-    const smallText = () => page.evaluate(() => {
-      const out: string[] = [];
-      for (const svg of document.querySelectorAll<SVGSVGElement>("[data-section] svg.uipack--wide")) {
-        if (!svg.getClientRects().length) continue; // a drill level that is not showing
-        const k = svg.getBoundingClientRect().width / svg.viewBox.baseVal.width;
-        for (const t of svg.querySelectorAll("text")) {
-          const px = parseFloat(getComputedStyle(t).fontSize) * k;
-          if (px < 11 - 0.05) out.push(`${svg.closest("[data-section]")?.getAttribute("data-section")}: "${t.textContent}" ${px.toFixed(1)}px`);
+    const smallText = () =>
+      page.evaluate(() => {
+        const out: string[] = [];
+        for (const svg of document.querySelectorAll<SVGSVGElement>("[data-section] svg.uipack--wide")) {
+          if (!svg.getClientRects().length) continue; // a drill level that is not showing
+          const k = svg.getBoundingClientRect().width / svg.viewBox.baseVal.width;
+          for (const t of svg.querySelectorAll("text")) {
+            const px = parseFloat(getComputedStyle(t).fontSize) * k;
+            if (px < 11 - 0.05)
+              out.push(`${svg.closest("[data-section]")?.getAttribute("data-section")}: "${t.textContent}" ${px.toFixed(1)}px`);
+          }
         }
-      }
-      return out;
-    });
+        return out;
+      });
     await expect.poll(smallText).toEqual([]);
   });
 
@@ -118,7 +128,9 @@ test.describe("geometry", () => {
             // Text fits with room to spare: at least 4 units between it and either side of the box,
             // so no label or subtitle reads as touching the border.
             if (b.x < box.x + 4 || b.x + b.width > box.x + box.width - 4)
-              out.push(`${node.closest("[data-section]")?.getAttribute("data-section")}: "${t.textContent}" ${b.x.toFixed(0)}..${(b.x + b.width).toFixed(0)} in ${box.x}..${box.x + box.width}`);
+              out.push(
+                `${node.closest("[data-section]")?.getAttribute("data-section")}: "${t.textContent}" ${b.x.toFixed(0)}..${(b.x + b.width).toFixed(0)} in ${box.x}..${box.x + box.width}`,
+              );
           }
         }
         return out;
@@ -138,4 +150,3 @@ test.describe("geometry", () => {
     expect(wrong).toEqual([]);
   });
 });
-

@@ -1,12 +1,17 @@
 import { Token, fontFloor, FigureMotionContext, FigureScaleContext, useFontFloor, useFigureMotion, DEFAULT_RENDER_WIDTH } from './chunk-3R6VZY52.js';
-import { CanvasView } from './chunk-WTI575DG.js';
+import { CanvasView } from './chunk-NSE7TINL.js';
 import { usePrefersReducedMotion, useIsoLayoutEffect } from './chunk-KYO6UXHN.js';
 import { createContext, useContext, useEffect, useRef, useId, useState, useMemo, useCallback, createElement } from 'react';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 
 var noop = () => {
 };
-var FigureHoverContext = /* @__PURE__ */ createContext({ flow: null, kind: null, setFlow: noop, setKind: noop });
+var FigureHoverContext = /* @__PURE__ */ createContext({
+  flow: null,
+  kind: null,
+  setFlow: noop,
+  setKind: noop
+});
 function useFigureHover() {
   return useContext(FigureHoverContext);
 }
@@ -192,16 +197,7 @@ var PauseGlyph = () => /* @__PURE__ */ jsxs("svg", { viewBox: "0 0 12 12", "aria
 ] });
 var PlayGlyph = () => /* @__PURE__ */ jsx("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ jsx("path", { d: "M3 1.5 L10.5 6 L3 10.5 Z" }) });
 var ReplayGlyph = () => /* @__PURE__ */ jsxs("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: [
-  /* @__PURE__ */ jsx(
-    "path",
-    {
-      d: "M6 1.5a4.5 4.5 0 1 1-4.2 2.9",
-      fill: "none",
-      stroke: "currentColor",
-      strokeWidth: "1.6",
-      strokeLinecap: "round"
-    }
-  ),
+  /* @__PURE__ */ jsx("path", { d: "M6 1.5a4.5 4.5 0 1 1-4.2 2.9", fill: "none", stroke: "currentColor", strokeWidth: "1.6", strokeLinecap: "round" }),
   /* @__PURE__ */ jsx("path", { d: "M1.5 1.5v3h3z" })
 ] });
 function Figure({
@@ -247,17 +243,12 @@ function Figure({
   );
   const canvasRef = useRef(null);
   const noteRef = useRef(null);
-  const [notePos, setNotePos] = useState(
-    null
-  );
+  const [notePos, setNotePos] = useState(null);
   const wideRef = useRef(null);
   const narrowRef = useRef(null);
   const wideW = useRenderedWidth(wideRef, measuredWidth, expanded);
   const narrowW = useRenderedWidth(narrowRef, measuredWidth, expanded);
-  const wideScale = useMemo(
-    () => ({ floor: fontFloor(vbWidth(viewBox), wideW, minFont) }),
-    [viewBox, wideW, minFont]
-  );
+  const wideScale = useMemo(() => ({ floor: fontFloor(vbWidth(viewBox), wideW, minFont) }), [viewBox, wideW, minFont]);
   const narrowScale = useMemo(
     () => ({
       floor: fontFloor(vbWidth(narrowViewBox ?? viewBox), narrowW, minFont)
@@ -322,12 +313,7 @@ function Figure({
         "figure",
         {
           id: figId,
-          className: [
-            "uipack",
-            narrow ? "uipack--has-narrow" : "",
-            expanded ? "uipack--expanded" : "",
-            className ?? ""
-          ].join(" ").trim(),
+          className: ["uipack", narrow ? "uipack--has-narrow" : "", expanded ? "uipack--expanded" : "", className ?? ""].join(" ").trim(),
           "data-theme": theme,
           "data-hover-flow": hoverFlow ?? void 0,
           "data-hover-kind": hoverKind ?? void 0,
@@ -346,11 +332,7 @@ function Figure({
                 number && eyebrow ? " \xB7 " : "",
                 eyebrow
               ] }) : null,
-              title ? createElement(
-                `h${headingLevel}`,
-                { className: "uipack__title" },
-                title
-              ) : null,
+              title ? createElement(`h${headingLevel}`, { className: "uipack__title" }, title) : null,
               caption ? /* @__PURE__ */ jsx("p", { className: "uipack__caption", children: caption }) : null,
               showControls || expandable ? /* @__PURE__ */ jsxs("div", { className: "uipack__controls", children: [
                 expandable && !expanded && /* @__PURE__ */ jsx(
@@ -367,18 +349,10 @@ function Figure({
                   }
                 ),
                 showControls && /* @__PURE__ */ jsxs(Fragment, { children: [
-                  /* @__PURE__ */ jsxs(
-                    "button",
-                    {
-                      type: "button",
-                      className: "uipack__ctl uipack__ctl--motion",
-                      onClick: replay,
-                      children: [
-                        /* @__PURE__ */ jsx(ReplayGlyph, {}),
-                        " Replay"
-                      ]
-                    }
-                  ),
+                  /* @__PURE__ */ jsxs("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: replay, children: [
+                    /* @__PURE__ */ jsx(ReplayGlyph, {}),
+                    " Replay"
+                  ] }),
                   /* @__PURE__ */ jsxs(
                     "button",
                     {
@@ -398,54 +372,46 @@ function Figure({
               /* @__PURE__ */ jsx(Legend, { items: legend })
             ] }) : null,
             /* @__PURE__ */ jsx("p", { className: "uipack__sr", role: "status", children: note ? `${note.label}: ${note.detail}` : "" }),
-            /* @__PURE__ */ jsxs(
-              "div",
-              {
-                ref: canvasRef,
-                className: `uipack__canvas uipack__canvas--${background}`,
-                onClick: () => select(null),
-                children: [
-                  note ? /* @__PURE__ */ jsxs(
-                    "div",
-                    {
-                      ref: noteRef,
-                      className: "uipack__note",
-                      "aria-hidden": "true",
-                      "data-placed": notePos ? "true" : void 0,
-                      style: notePos ?? void 0,
-                      onClick: (e) => e.stopPropagation(),
-                      children: [
-                        /* @__PURE__ */ jsx("strong", { children: note.label }),
-                        /* @__PURE__ */ jsx("span", { children: note.detail })
-                      ]
-                    }
-                  ) : null,
-                  /* @__PURE__ */ jsx(
-                    "svg",
-                    {
-                      ref: wideRef,
-                      className: "uipack--wide",
-                      style: expanded ? { width: `max(${zoom * 100}%, ${800 * zoom}px)` } : void 0,
-                      viewBox,
-                      role: "group",
-                      "aria-label": alt,
-                      children: /* @__PURE__ */ jsx(FigureScaleContext.Provider, { value: wideScale, children })
-                    }
-                  ),
-                  narrow ? /* @__PURE__ */ jsx(
-                    "svg",
-                    {
-                      ref: narrowRef,
-                      className: "uipack--narrow",
-                      viewBox: narrowViewBox ?? viewBox,
-                      role: "group",
-                      "aria-label": alt,
-                      children: /* @__PURE__ */ jsx(FigureScaleContext.Provider, { value: narrowScale, children: narrow })
-                    }
-                  ) : null
-                ]
-              }
-            )
+            /* @__PURE__ */ jsxs("div", { ref: canvasRef, className: `uipack__canvas uipack__canvas--${background}`, onClick: () => select(null), children: [
+              note ? /* @__PURE__ */ jsxs(
+                "div",
+                {
+                  ref: noteRef,
+                  className: "uipack__note",
+                  "aria-hidden": "true",
+                  "data-placed": notePos ? "true" : void 0,
+                  style: notePos ?? void 0,
+                  onClick: (e) => e.stopPropagation(),
+                  children: [
+                    /* @__PURE__ */ jsx("strong", { children: note.label }),
+                    /* @__PURE__ */ jsx("span", { children: note.detail })
+                  ]
+                }
+              ) : null,
+              /* @__PURE__ */ jsx(
+                "svg",
+                {
+                  ref: wideRef,
+                  className: "uipack--wide",
+                  style: expanded ? { width: `max(${zoom * 100}%, ${800 * zoom}px)` } : void 0,
+                  viewBox,
+                  role: "group",
+                  "aria-label": alt,
+                  children: /* @__PURE__ */ jsx(FigureScaleContext.Provider, { value: wideScale, children })
+                }
+              ),
+              narrow ? /* @__PURE__ */ jsx(
+                "svg",
+                {
+                  ref: narrowRef,
+                  className: "uipack--narrow",
+                  viewBox: narrowViewBox ?? viewBox,
+                  role: "group",
+                  "aria-label": alt,
+                  children: /* @__PURE__ */ jsx(FigureScaleContext.Provider, { value: narrowScale, children: narrow })
+                }
+              ) : null
+            ] })
           ]
         }
       ) }) }) })
@@ -455,23 +421,24 @@ function Figure({
 function Lane({ x, w, y, title, h, size: size0 = 11 }) {
   const size = useFontFloor(size0);
   return /* @__PURE__ */ jsxs("g", { "data-uipack": "lane", children: [
-    /* @__PURE__ */ jsx("text", { x: x + w / 2, y, textAnchor: "middle", fontSize: size, fontWeight: 700, fontFamily: "var(--uipack-mono)", letterSpacing: ".08em", fill: "currentColor", children: title.toUpperCase() }),
+    /* @__PURE__ */ jsx(
+      "text",
+      {
+        x: x + w / 2,
+        y,
+        textAnchor: "middle",
+        fontSize: size,
+        fontWeight: 700,
+        fontFamily: "var(--uipack-mono)",
+        letterSpacing: ".08em",
+        fill: "currentColor",
+        children: title.toUpperCase()
+      }
+    ),
     h ? /* @__PURE__ */ jsx("line", { x1: x + w, y1: y + 12, x2: x + w, y2: y + h, stroke: "currentColor", strokeOpacity: 0.15, strokeDasharray: "2 6" }) : null
   ] });
 }
-function Group({
-  x,
-  y,
-  w,
-  h,
-  title,
-  variant = "solid",
-  accent,
-  flow,
-  titleSize,
-  hint,
-  children
-}) {
+function Group({ x, y, w, h, title, variant = "solid", accent, flow, titleSize, hint, children }) {
   const hover = useFigureHover();
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const dashed = variant === "dashed";
@@ -513,18 +480,7 @@ function Group({
               fillOpacity: accent ? 1 : 0.75,
               children: title.toUpperCase()
             }
-          ) : /* @__PURE__ */ jsx(
-            "text",
-            {
-              x: x + w / 2,
-              y: y + 24,
-              textAnchor: "middle",
-              fontSize: ts,
-              fontWeight: 600,
-              fill: stroke,
-              children: title
-            }
-          ) : null
+          ) : /* @__PURE__ */ jsx("text", { x: x + w / 2, y: y + 24, textAnchor: "middle", fontSize: ts, fontWeight: 600, fill: stroke, children: title }) : null
         ] }),
         children
       ]
@@ -668,131 +624,111 @@ function Node({
   } : {};
   const name = nodeName(label, sub);
   const selection = useItemSelection(label, hint, flows[0], !href && !!label, name);
-  const body = /* @__PURE__ */ jsxs(
-    "g",
-    {
-      id,
-      "data-uipack": "node",
-      ...hoverAttrs(flow, void 0, hover),
-      ...handlers,
-      ...selection,
-      children: [
-        hint && !selection.role ? /* @__PURE__ */ jsx("title", { children: hint }) : null,
-        /* @__PURE__ */ jsx(
-          "rect",
-          {
-            x,
-            y,
-            width: w,
-            height: h,
-            rx: 6,
-            fill: "var(--uipack-surface)",
-            stroke,
-            strokeOpacity: accent ? 1 : 0.7,
-            strokeWidth: 1.25,
-            strokeDasharray: dashed ? "4 4" : void 0
-          }
-        ),
-        inlay,
-        /* @__PURE__ */ jsx("path", { className: "uipack__touch-target", d: `M ${x} ${y - Math.max(0, 54 - h) / 2} h ${w} v ${Math.max(h, 54)} h ${-w} Z`, fill: "transparent", stroke: "none", "aria-hidden": "true" }),
-        glyph ? /* @__PURE__ */ jsx(
-          "g",
-          {
-            transform: `translate(${x + pad}, ${y + h / 2 - 8})`,
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: 1.5,
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: glyph
-          }
-        ) : null,
-        /* @__PURE__ */ jsx(
-          "text",
-          {
-            x: tx,
-            y: ty,
-            textAnchor: anchor2,
-            fontSize: size,
-            fontWeight: 600,
-            fill: accent ? "var(--uipack-accent)" : "currentColor",
-            children: label
-          }
-        ),
-        sub ? " " : null,
-        sub ? /* @__PURE__ */ jsx(
-          "text",
-          {
-            x: tx,
-            y: y + h / 2 + subSize + 2,
-            textAnchor: anchor2,
-            fontSize: subSize,
-            fontFamily: "var(--uipack-mono)",
-            fill: "currentColor",
-            fillOpacity: 0.75,
-            children: sub
-          }
-        ) : null
-      ]
-    }
-  );
+  const body = /* @__PURE__ */ jsxs("g", { id, "data-uipack": "node", ...hoverAttrs(flow, void 0, hover), ...handlers, ...selection, children: [
+    hint && !selection.role ? /* @__PURE__ */ jsx("title", { children: hint }) : null,
+    /* @__PURE__ */ jsx(
+      "rect",
+      {
+        x,
+        y,
+        width: w,
+        height: h,
+        rx: 6,
+        fill: "var(--uipack-surface)",
+        stroke,
+        strokeOpacity: accent ? 1 : 0.7,
+        strokeWidth: 1.25,
+        strokeDasharray: dashed ? "4 4" : void 0
+      }
+    ),
+    inlay,
+    /* @__PURE__ */ jsx(
+      "path",
+      {
+        className: "uipack__touch-target",
+        d: `M ${x} ${y - Math.max(0, 54 - h) / 2} h ${w} v ${Math.max(h, 54)} h ${-w} Z`,
+        fill: "transparent",
+        stroke: "none",
+        "aria-hidden": "true"
+      }
+    ),
+    glyph ? /* @__PURE__ */ jsx(
+      "g",
+      {
+        transform: `translate(${x + pad}, ${y + h / 2 - 8})`,
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: 1.5,
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        children: glyph
+      }
+    ) : null,
+    /* @__PURE__ */ jsx(
+      "text",
+      {
+        x: tx,
+        y: ty,
+        textAnchor: anchor2,
+        fontSize: size,
+        fontWeight: 600,
+        fill: accent ? "var(--uipack-accent)" : "currentColor",
+        children: label
+      }
+    ),
+    sub ? " " : null,
+    sub ? /* @__PURE__ */ jsx(
+      "text",
+      {
+        x: tx,
+        y: y + h / 2 + subSize + 2,
+        textAnchor: anchor2,
+        fontSize: subSize,
+        fontFamily: "var(--uipack-mono)",
+        fill: "currentColor",
+        fillOpacity: 0.75,
+        children: sub
+      }
+    ) : null
+  ] });
   return href ? /* @__PURE__ */ jsx("a", { href, className: "uipack__link", "aria-label": name, children: body }) : body;
 }
-function Chip({
-  x,
-  y,
-  w,
-  h = 24,
-  label,
-  dashed,
-  kind,
-  flow,
-  size: size0 = 10,
-  hint
-}) {
+function Chip({ x, y, w, h = 24, label, dashed, kind, flow, size: size0 = 10, hint }) {
   const hover = useFigureHover();
   const size = useFontFloor(size0);
   const fill = !kind ? "var(--uipack-surface)" : kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
   const selection = useItemSelection(label || "Empty slot", hint);
-  return /* @__PURE__ */ jsxs(
-    "g",
-    {
-      "data-uipack": "chip",
-      ...hoverAttrs(flow, kind === "accent" ? void 0 : kind, hover),
-      ...selection,
-      children: [
-        /* @__PURE__ */ jsx(
-          "rect",
-          {
-            x,
-            y,
-            width: w,
-            height: h,
-            rx: h / 2,
-            fill,
-            style: kind ? { fillOpacity: "var(--uipack-chip-tint, 0.55)" } : void 0,
-            stroke: "currentColor",
-            strokeOpacity: dashed ? 0.5 : 0.8,
-            strokeWidth: 1.25,
-            strokeDasharray: dashed ? "3 3" : void 0
-          }
-        ),
-        label ? /* @__PURE__ */ jsx(
-          "text",
-          {
-            x: x + w / 2,
-            y: y + h / 2 + size * 0.36,
-            textAnchor: "middle",
-            fontSize: size,
-            fontWeight: 700,
-            fontFamily: "var(--uipack-mono)",
-            fill: "currentColor",
-            children: label.toUpperCase()
-          }
-        ) : null
-      ]
-    }
-  );
+  return /* @__PURE__ */ jsxs("g", { "data-uipack": "chip", ...hoverAttrs(flow, kind === "accent" ? void 0 : kind, hover), ...selection, children: [
+    /* @__PURE__ */ jsx(
+      "rect",
+      {
+        x,
+        y,
+        width: w,
+        height: h,
+        rx: h / 2,
+        fill,
+        style: kind ? { fillOpacity: "var(--uipack-chip-tint, 0.55)" } : void 0,
+        stroke: "currentColor",
+        strokeOpacity: dashed ? 0.5 : 0.8,
+        strokeWidth: 1.25,
+        strokeDasharray: dashed ? "3 3" : void 0
+      }
+    ),
+    label ? /* @__PURE__ */ jsx(
+      "text",
+      {
+        x: x + w / 2,
+        y: y + h / 2 + size * 0.36,
+        textAnchor: "middle",
+        fontSize: size,
+        fontWeight: 700,
+        fontFamily: "var(--uipack-mono)",
+        fill: "currentColor",
+        children: label.toUpperCase()
+      }
+    ) : null
+  ] });
 }
 
 // src/geometry.ts
@@ -908,7 +844,18 @@ function connectorStroke(kind) {
   if (!kind) return "currentColor";
   return kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
 }
-function Connector({ points, defs, arrow = true, dashed, kind, flow, id, radius = 6, strokeWidth = 1.25, inset = 2 }) {
+function Connector({
+  points,
+  defs,
+  arrow = true,
+  dashed,
+  kind,
+  flow,
+  id,
+  radius = 6,
+  strokeWidth = 1.25,
+  inset = 2
+}) {
   const hover = useFigureHover();
   const [s, e] = Array.isArray(inset) ? inset : [inset, inset];
   const d = pathFromPoints(trim(points, s, arrow ? e + 2 : e), radius);
@@ -930,24 +877,71 @@ function Connector({ points, defs, arrow = true, dashed, kind, flow, id, radius 
   );
 }
 function busStub(props, stub) {
-  return props.axis === "h" ? [[stub.at, props.at], [stub.at, stub.to]] : [[props.at, stub.at], [stub.to, stub.at]];
+  return props.axis === "h" ? [
+    [stub.at, props.at],
+    [stub.at, stub.to]
+  ] : [
+    [props.at, stub.at],
+    [stub.to, stub.at]
+  ];
 }
 function busStubs(props) {
   return props.stubs.map((s) => busStub(props, s));
 }
 function Bus({ axis = "v", at, from, to, stubs, kind, flow, defs, dots = true, id }) {
   const hover = useFigureHover();
-  const trunk = axis === "h" ? [[from, at], [to, at]] : [[at, from], [at, to]];
+  const trunk = axis === "h" ? [
+    [from, at],
+    [to, at]
+  ] : [
+    [at, from],
+    [at, to]
+  ];
   return /* @__PURE__ */ jsxs("g", { id, "data-uipack": "bus", ...hoverAttrs(flow, kind, hover), children: [
     /* @__PURE__ */ jsx(Connector, { points: trunk, arrow: false, kind, flow, inset: 0 }),
-    stubs.map((s, i) => /* @__PURE__ */ jsx(Connector, { points: busStub({ axis, at }, s), defs, arrow: !!s.arrow, kind, flow: s.flow ?? flow, inset: [0, 2] }, i)),
+    stubs.map((s, i) => /* @__PURE__ */ jsx(
+      Connector,
+      {
+        points: busStub({ axis, at }, s),
+        defs,
+        arrow: !!s.arrow,
+        kind,
+        flow: s.flow ?? flow,
+        inset: [0, 2]
+      },
+      i
+    )),
     dots ? stubs.map((s, i) => {
       const [cx, cy] = axis === "h" ? [s.at, at] : [at, s.at];
-      return /* @__PURE__ */ jsx("circle", { "data-uipack": "junction", cx, cy, r: 2.5, fill: connectorStroke(kind), fillOpacity: kind ? 1 : 0.7 }, i);
+      return /* @__PURE__ */ jsx(
+        "circle",
+        {
+          "data-uipack": "junction",
+          cx,
+          cy,
+          r: 2.5,
+          fill: connectorStroke(kind),
+          fillOpacity: kind ? 1 : 0.7
+        },
+        i
+      );
     }) : null
   ] });
 }
-function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at, r = 5, reverse, radius = 6, flow, trim: t, id }) {
+function Packet({
+  points,
+  kind = "request",
+  shape,
+  dur = 3,
+  delay = 0,
+  at,
+  r = 5,
+  reverse,
+  radius = 6,
+  flow,
+  trim: t,
+  id
+}) {
   const { reduced, prerender } = useFigureMotion();
   const hover = useFigureHover();
   const [ts, te] = t ?? [r + 2, 12];

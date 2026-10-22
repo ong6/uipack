@@ -62,7 +62,11 @@ body {
   border-radius: var(--show-control-radius);
   background: var(--show-surface);
   color: var(--show-ink);
-  font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif;
+  font:
+    600 14px system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
   text-decoration: none;
   transform: translateY(calc(-100% - 16px));
 }
@@ -174,7 +178,9 @@ body {
 .showcase-pages__label {
   flex: none;
   padding-right: 4px;
-  font: 600 12px ui-monospace, monospace;
+  font:
+    600 12px ui-monospace,
+    monospace;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -203,7 +209,9 @@ body {
   display: flex;
   gap: 8px;
   margin: -16px 0 0;
-  font: 12px ui-monospace, monospace;
+  font:
+    12px ui-monospace,
+    monospace;
   color: var(--show-muted);
 }
 .showcase-context a {
@@ -237,12 +245,19 @@ body {
    if the load takes more than a moment, so a fast load does not flash it. */
 .showcase-loading {
   margin: 32px 0 0;
-  font: 12px/1.5 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font:
+    12px/1.5 ui-monospace,
+    "SFMono-Regular",
+    Menlo,
+    Consolas,
+    monospace;
   color: var(--show-muted);
   animation: showcase-loading-in 0s 300ms both;
 }
 @keyframes showcase-loading-in {
-  from { visibility: hidden; }
+  from {
+    visibility: hidden;
+  }
 }
 /* "Deck “bogus” not found, showing Tech talk." under the intro. */
 .showcase-title p.showcase-title__note {
@@ -259,18 +274,65 @@ body {
     padding: 0 10px;
   }
 }
-.catalog-filters { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin: 20px 0; font-size: 13px; color: var(--show-muted); }
-.catalog-filters label { display: grid; gap: 8px; }
-.catalog-filters input,.catalog-filters select { min-height: 44px; max-width: 100%; box-sizing: border-box; border: 1px solid var(--show-rule); border-radius: var(--show-control-radius); padding: 8px 12px; background: var(--show-surface); color: var(--show-ink); font: inherit; }
-.catalog-filters input { width: 280px; }
-.slides-showcase__tabs button small { display: block; margin-top: 6px; color: var(--show-muted); font-size: 12px; }
+.catalog-filters {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 20px 0;
+  font-size: 13px;
+  color: var(--show-muted);
+}
+.catalog-filters label {
+  display: grid;
+  gap: 8px;
+}
+.catalog-filters input,
+.catalog-filters select {
+  min-height: 44px;
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--show-rule);
+  border-radius: var(--show-control-radius);
+  padding: 8px 12px;
+  background: var(--show-surface);
+  color: var(--show-ink);
+  font: inherit;
+}
+.catalog-filters input {
+  width: 280px;
+}
+.slides-showcase__tabs button small {
+  display: block;
+  margin-top: 6px;
+  color: var(--show-muted);
+  font-size: 12px;
+}
 
 /* Chart preview frame (Figures page): a host's figure width. */
 /* The charts have no frame of their own: their sticky header paints the host page colour. */
-.chart-frame { margin: 0 auto; width: 100%; --uipack-bg: var(--show-bg); }
-.chart-frame__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 12px; font: 12px ui-monospace, monospace; color: var(--show-muted); }
+.chart-frame {
+  margin: 0 auto;
+  width: 100%;
+  --uipack-bg: var(--show-bg);
+}
+.chart-frame__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  font:
+    12px ui-monospace,
+    monospace;
+  color: var(--show-muted);
+}
 /* Only the widths that fit are offered, so on a phone the label and its buttons share one row. */
-.chart-frame__bar button { min-height: 36px; padding: 0 10px; font: var(--show-control-font-sm); }
+.chart-frame__bar button {
+  min-height: 36px;
+  padding: 0 10px;
+  font: var(--show-control-font-sm);
+}
 
 /* Section intros and sub-headings, shared by every page. `.collection-intro` is the older name
    of the same thing; both read alike on every page. */
@@ -288,7 +350,9 @@ body {
 }
 .showcase-subhead {
   margin: 0 0 12px;
-  font: 600 13px ui-monospace, monospace;
+  font:
+    600 13px ui-monospace,
+    monospace;
   letter-spacing: 0.04em;
   color: var(--show-muted);
 }
@@ -318,7 +382,9 @@ body {
 /* Their type is set outside the phone query, so no control ever falls back to the UA's Arial. */
 .showcase-menu-button,
 .showcase-menu__bar {
-  font: 600 13px ui-monospace, monospace;
+  font:
+    600 13px ui-monospace,
+    monospace;
 }
 .showcase-menu__bar button {
   font: inherit;
@@ -355,7 +421,9 @@ body {
     border-radius: var(--show-control-radius);
     background: var(--show-surface);
     color: var(--show-ink);
-    font: 600 13px ui-monospace, monospace;
+    font:
+      600 13px ui-monospace,
+      monospace;
     cursor: pointer;
   }
   /* Two lines: the group small above, the page name as the button's text. Only the group may
@@ -372,12 +440,18 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font: 500 12px/14px ui-monospace, monospace;
+    font:
+      500 12px/14px ui-monospace,
+      monospace;
     color: var(--show-muted);
   }
   .showcase-menu-button__page {
     white-space: nowrap;
-    font: 600 14px/18px system-ui, -apple-system, "Segoe UI", sans-serif;
+    font:
+      600 14px/18px system-ui,
+      -apple-system,
+      "Segoe UI",
+      sans-serif;
   }
   .showcase-header button.theme {
     display: grid;
@@ -419,7 +493,9 @@ body {
     align-items: center;
     justify-content: space-between;
     min-height: 56px;
-    font: 600 13px ui-monospace, monospace;
+    font:
+      600 13px ui-monospace,
+      monospace;
     color: var(--show-muted);
   }
   .showcase-menu__bar button {
@@ -439,7 +515,9 @@ body {
   }
   .showcase-menu__group p {
     margin: 0 0 4px;
-    font: 600 12px ui-monospace, monospace;
+    font:
+      600 12px ui-monospace,
+      monospace;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--show-muted);
@@ -463,7 +541,9 @@ body {
   }
   .showcase-menu__group a[aria-current="page"]::after {
     content: "✓ Current";
-    font: 600 12px ui-monospace, monospace;
+    font:
+      600 12px ui-monospace,
+      monospace;
     color: var(--show-accent);
   }
   .chart-frame__bar button {
@@ -472,15 +552,22 @@ body {
 }
 
 /* Touch targets in page chrome. */
-.showcase-context a { padding: 14px 0; margin: -14px 0; }
-.chart-frame__bar button { min-height: 44px; }
+.showcase-context a {
+  padding: 14px 0;
+  margin: -14px 0;
+}
+.chart-frame__bar button {
+  min-height: 44px;
+}
 
 /* Sub-views of one page (decks) sit indented under a label in the menu sheet. */
 @media (max-width: 719px) {
   .showcase-menu__sub {
     display: block;
     padding: 12px 12px 4px;
-    font: 600 12px ui-monospace, monospace;
+    font:
+      600 12px ui-monospace,
+      monospace;
     color: var(--show-muted);
   }
   .showcase-menu__group a.is-sub {
@@ -544,7 +631,8 @@ body {
 :is(.deck-chapters, .deck-navigation, .chart-frame__bar, .slides-showcase__tabs, .mechanism-poses) button:hover:not(:disabled) {
   border-color: var(--show-ink);
 }
-:is(.deck-chapters, .deck-navigation, .chart-frame__bar, .slides-showcase__tabs, .mechanism-poses) button:is([aria-pressed="true"], [aria-current="step"]) {
+:is(.deck-chapters, .deck-navigation, .chart-frame__bar, .slides-showcase__tabs, .mechanism-poses)
+  button:is([aria-pressed="true"], [aria-current="step"]) {
   border-color: var(--show-accent);
   color: var(--show-accent);
   background: var(--show-surface);

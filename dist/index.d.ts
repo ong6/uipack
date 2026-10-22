@@ -55,7 +55,7 @@ interface GroupProps {
     hint?: string;
     children?: ReactNode;
 }
-declare function Group({ x, y, w, h, title, variant, accent, flow, titleSize, hint, children, }: GroupProps): react.JSX.Element;
+declare function Group({ x, y, w, h, title, variant, accent, flow, titleSize, hint, children }: GroupProps): react.JSX.Element;
 
 interface NodeProps {
     x: number;
@@ -103,7 +103,7 @@ interface ChipProps {
     hint?: string;
 }
 /** Pill: a connection slot, a request in a queue, a status flag. */
-declare function Chip({ x, y, w, h, label, dashed, kind, flow, size: size0, hint, }: ChipProps): react.JSX.Element;
+declare function Chip({ x, y, w, h, label, dashed, kind, flow, size: size0, hint }: ChipProps): react.JSX.Element;
 
 type Point = [number, number];
 type Side = "top" | "right" | "bottom" | "left";
@@ -165,7 +165,7 @@ interface ConnectorProps {
     inset?: number | [number, number];
 }
 declare function connectorStroke(kind?: ConnectorKind): string;
-declare function Connector({ points, defs, arrow, dashed, kind, flow, id, radius, strokeWidth, inset }: ConnectorProps): react.JSX.Element;
+declare function Connector({ points, defs, arrow, dashed, kind, flow, id, radius, strokeWidth, inset, }: ConnectorProps): react.JSX.Element;
 
 interface BusStub {
     /** Position along the trunk (y for a vertical bus, x for a horizontal one). */
@@ -238,7 +238,7 @@ interface PacketProps {
  * Replay come from the enclosing Figure, which drives the SVG timeline
  * (pauseAnimations, setCurrentTime), so offsets survive a replay.
  */
-declare function Packet({ points, kind, shape, dur, delay, at, r, reverse, radius, flow, trim: t, id }: PacketProps): react.JSX.Element;
+declare function Packet({ points, kind, shape, dur, delay, at, r, reverse, radius, flow, trim: t, id, }: PacketProps): react.JSX.Element;
 
 interface BadgeProps {
     cx: number;

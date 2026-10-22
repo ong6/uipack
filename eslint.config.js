@@ -24,10 +24,17 @@ export default [
       "react-hooks/exhaustive-deps": ["warn", { additionalHooks: "^useIsoLayoutEffect$" }],
       // From recommended-type-checked: a promise is awaited, returned, or explicitly `void`ed.
       "@typescript-eslint/no-floating-promises": "error",
+      // An async function is never passed where a void callback is expected (handlers, effects).
+      "@typescript-eslint/no-misused-promises": "error",
       // Unused code goes; a leading underscore marks a parameter or binding kept for its position.
       "@typescript-eslint/no-unused-vars": [
         "error",
-        { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_", destructuredArrayIgnorePattern: "^_" },
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+          destructuredArrayIgnorePattern: "^_",
+        },
       ],
     },
   },

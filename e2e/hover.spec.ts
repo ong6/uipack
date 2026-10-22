@@ -18,8 +18,18 @@ test.describe("hover", () => {
     // 160ms transition; poll rather than sleep, CI WebKit is slow to settle
     await expect.poll(() => beta.evaluate((el) => Number(getComputedStyle(el).opacity)), { timeout: 2000 }).toBeCloseTo(0.35, 1);
     await expect.poll(() => conn.evaluate((el) => Number(getComputedStyle(el).opacity)), { timeout: 2000 }).toBe(1);
-    const accent = await page.locator("figure.uipack").first().evaluate((el) => getComputedStyle(el).getPropertyValue("--uipack-accent").trim());
-    const expectedStroke = await page.evaluate((c) => { const d = document.createElement("div"); d.style.color = c; document.body.append(d); const v = getComputedStyle(d).color; d.remove(); return v; }, accent);
+    const accent = await page
+      .locator("figure.uipack")
+      .first()
+      .evaluate((el) => getComputedStyle(el).getPropertyValue("--uipack-accent").trim());
+    const expectedStroke = await page.evaluate((c) => {
+      const d = document.createElement("div");
+      d.style.color = c;
+      document.body.append(d);
+      const v = getComputedStyle(d).color;
+      d.remove();
+      return v;
+    }, accent);
     // Stroke has its own transition; opacity settling does not mean colour has settled.
     await expect.poll(() => conn.evaluate((el) => getComputedStyle(el).stroke), { timeout: 2000 }).toBe(expectedStroke);
     await page.mouse.move(0, 0);
@@ -35,7 +45,9 @@ test.describe("hover", () => {
     await expect(page.locator("#e2e-conn")).toHaveAttribute("data-state", "dim");
     await expect(page.locator("#e2e-packet-change")).toHaveAttribute("data-state", "hit");
     // The dim eases in; wait for it to land.
-    await expect.poll(async () => Number(await page.locator("#e2e-conn").evaluate((el) => getComputedStyle(el).opacity))).toBeCloseTo(0.35, 1);
+    await expect
+      .poll(async () => Number(await page.locator("#e2e-conn").evaluate((el) => getComputedStyle(el).opacity)))
+      .toBeCloseTo(0.35, 1);
     expect(Number(await page.locator("#e2e-node-alpha").evaluate((el) => getComputedStyle(el).opacity))).toBe(1); // nodes have no kind
   });
 
@@ -44,7 +56,10 @@ test.describe("hover", () => {
     await expect(link).toHaveAttribute("href", "#link");
     await link.focus();
     await expect(link).toBeFocused();
-    const width = await link.locator("rect").first().evaluate((el) => getComputedStyle(el).strokeWidth);
+    const width = await link
+      .locator("rect")
+      .first()
+      .evaluate((el) => getComputedStyle(el).strokeWidth);
     expect(parseFloat(width)).toBeGreaterThanOrEqual(2);
   });
 });

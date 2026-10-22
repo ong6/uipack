@@ -21,10 +21,38 @@ function TechnicalPreview({ theme }: { theme: Theme }) {
       <Node x={20} y={64} w={88} h={52} label="Client" />
       <Node x={136} y={64} w={88} h={52} label="Gateway" accent />
       <Node x={252} y={64} w={88} h={52} label="Store" />
-      <Connector points={[[108, 82], [136, 82]]} defs="style-technical" kind="request" />
-      <Connector points={[[224, 82], [252, 82]]} defs="style-technical" kind="request" />
-      <Connector points={[[252, 100], [224, 100]]} defs="style-technical" kind="response" />
-      <Connector points={[[136, 100], [108, 100]]} defs="style-technical" kind="response" />
+      <Connector
+        points={[
+          [108, 82],
+          [136, 82],
+        ]}
+        defs="style-technical"
+        kind="request"
+      />
+      <Connector
+        points={[
+          [224, 82],
+          [252, 82],
+        ]}
+        defs="style-technical"
+        kind="request"
+      />
+      <Connector
+        points={[
+          [252, 100],
+          [224, 100],
+        ]}
+        defs="style-technical"
+        kind="response"
+      />
+      <Connector
+        points={[
+          [136, 100],
+          [108, 100],
+        ]}
+        defs="style-technical"
+        kind="response"
+      />
       <Label x={20} y={148} text="Shape and colour name each flow" />
     </Figure>
   );

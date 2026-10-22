@@ -57,7 +57,9 @@ async function labelGaps(chart: Locator, which: "short" | "full" | "abbr") {
 /** Where the chart top and its first visible row sit in the viewport after an action. */
 async function landing(chart: Locator) {
   return chart.evaluate((el) => {
-    const row = [...el.querySelectorAll(".uipack-span__item")].find((r) => r.getClientRects().length && !(r as HTMLElement).hidden)!;
+    const row = [...el.querySelectorAll(".uipack-span__item")].find(
+      (r) => r.getClientRects().length && !(r as HTMLElement).hidden,
+    )!;
     return { top: el.getBoundingClientRect().top, row: row.getBoundingClientRect().top, height: innerHeight };
   });
 }
@@ -83,10 +85,14 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
     await expect(col(chart, "control").locator(".uipack-span__ccount")).toBeVisible();
     // Headers carry the names, so there is no row of layer chips: the corner cell says what they do.
     await expect(chart.locator(".uipack-span__panel .uipack-span__chip[data-l]")).toHaveCount(0);
-    await expect(chart.locator(".uipack-span__corner .uipack-span__hint")).toHaveText("Click a column to filter", { useInnerText: true });
+    await expect(chart.locator(".uipack-span__corner .uipack-span__hint")).toHaveText("Click a column to filter", {
+      useInnerText: true,
+    });
     await expect(chart.locator(".uipack-span__hint--toolbar")).toBeHidden();
     // The name column holds about 11 to 12 characters of a name beside its value.
-    const nameRoom = await chart.locator('[data-item="nvidia"] .uipack-span__nv > b').evaluate((el) => el.parentElement!.getBoundingClientRect().width - el.nextElementSibling!.getBoundingClientRect().width);
+    const nameRoom = await chart
+      .locator('[data-item="nvidia"] .uipack-span__nv > b')
+      .evaluate((el) => el.parentElement!.getBoundingClientRect().width - el.nextElementSibling!.getBoundingClientRect().width);
     expect(nameRoom).toBeGreaterThanOrEqual(tunedFont ? 90 : 80);
     // The main bar sits under its column.
     const main = (await chart.locator('[data-item="nvidia"] .uipack-span__track > span > span').boundingBox())!;
@@ -105,7 +111,9 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
     await chart.locator(".uipack-span__toggle--top").click();
     await expect(visibleRows(chart)).toHaveCount(total);
     await expect(group.locator(".uipack-span__count--total")).toBeVisible();
-    for (const row of await chart.locator('.uipack-span__group[data-layers~="chips"]:has(#ai-stack-g-chips) .uipack-span__item').all()) {
+    for (const row of await chart
+      .locator('.uipack-span__group[data-layers~="chips"]:has(#ai-stack-g-chips) .uipack-span__item')
+      .all()) {
       await expect(row).toBeVisible();
     }
 
@@ -128,10 +136,12 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
     await col(chart, "inference").click();
     const expected = await chart.locator('.uipack-span__item[data-layers~="inference"]').count();
     await expect(visibleRows(chart)).toHaveCount(expected);
-    await expect(chart.locator('.uipack-span__group:has(#ai-stack-g-power)')).toBeHidden();
+    await expect(chart.locator(".uipack-span__group:has(#ai-stack-g-power)")).toBeHidden();
     for (const group of await chart.locator(".uipack-span__group:visible").all()) {
       expect(await group.locator(".uipack-span__item:visible").count()).toBeGreaterThan(0);
-      await expect(group.locator(".uipack-span__count--live")).toHaveText(String(await group.locator(".uipack-span__item:visible").count()));
+      await expect(group.locator(".uipack-span__count--live")).toHaveText(
+        String(await group.locator(".uipack-span__item:visible").count()),
+      );
     }
     // The chosen header shows a bar, not only colour.
     expect(await col(chart, "inference").evaluate((el) => getComputedStyle(el, "::after").height)).toBe("3px");
@@ -192,7 +202,9 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
     await expect(row).not.toHaveAttribute("open", "");
     await page.keyboard.press("Space");
     await expect(row).toHaveAttribute("open", "");
-    await expect(row.locator("summary")).toHaveAccessibleName("Fireworks AI. Main layer: Inference. Also in: Post-training. Size: $4B, Small.");
+    await expect(row.locator("summary")).toHaveAccessibleName(
+      "Fireworks AI. Main layer: Inference. Also in: Post-training. Size: $4B, Small.",
+    );
   });
 
   test("rows hidden in the featured view stay findable, and a match expands the list", async ({ page, browserName }) => {
@@ -260,8 +272,12 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
       const head = el.querySelector("#ai-stack-g-pretraining")!;
       const bars = [...el.querySelectorAll<HTMLElement>(".uipack-span__track > span")];
       bars.forEach((s) => (s.style.pointerEvents = "auto"));
-      const under = bars.map((s) => s.getBoundingClientRect()).filter((r) => r.top < box.y + box.height - 1 && r.bottom > box.y + 1);
-      const hits = under.map((r) => document.elementFromPoint((r.left + r.right) / 2, (Math.max(r.top, box.y) + Math.min(r.bottom, box.y + box.height)) / 2));
+      const under = bars
+        .map((s) => s.getBoundingClientRect())
+        .filter((r) => r.top < box.y + box.height - 1 && r.bottom > box.y + 1);
+      const hits = under.map((r) =>
+        document.elementFromPoint((r.left + r.right) / 2, (Math.max(r.top, box.y) + Math.min(r.bottom, box.y + box.height)) / 2),
+      );
       return under.length > 0 && hits.every((hit) => !!hit && head.contains(hit));
     }, stuck);
     expect(onTop).toBe(true);
@@ -287,7 +303,9 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
     await expect(visibleRows(chart)).toHaveCount(await chart.locator('.uipack-span__item[data-layers~="control"]').count());
   });
 
-  test("Find a company: name, tag or deal, any case or accent, combined with filters; Escape and Clear reset", async ({ page }) => {
+  test("Find a company: name, tag or deal, any case or accent, combined with filters; Escape and Clear reset", async ({
+    page,
+  }) => {
     const chart = page.locator("#ai-stack");
     const field = chart.getByRole("searchbox", { name: "Find a company" });
     await expect(field).toBeVisible();
@@ -300,7 +318,11 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
           return [...el.querySelectorAll<HTMLElement>(".uipack-span__item")].filter(
             (row) =>
               (!layer || row.dataset.layers!.split(" ").includes(layer)) &&
-              fold([row.querySelector(".uipack-span__nv > b")!, ...row.querySelectorAll(".uipack-span__sub > *")].map((n) => n.textContent).join(" ")).includes(fold(q!)),
+              fold(
+                [row.querySelector(".uipack-span__nv > b")!, ...row.querySelectorAll(".uipack-span__sub > *")]
+                  .map((n) => n.textContent)
+                  .join(" "),
+              ).includes(fold(q!)),
           ).length;
         },
         [q, layer] as const,
@@ -376,7 +398,12 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
   test("Tab meets size, Deals, search and the columns in the order they are drawn", async ({ page, browserName }) => {
     const chart = page.locator("#ai-stack");
     const tops = await chart.evaluate((el) =>
-      [".uipack-span__toolbar .uipack-span__seg", ".uipack-span__toolbar [data-d]", 'input[type="search"]', ".uipack-span__cols"].map((sel) => {
+      [
+        ".uipack-span__toolbar .uipack-span__seg",
+        ".uipack-span__toolbar [data-d]",
+        'input[type="search"]',
+        ".uipack-span__cols",
+      ].map((sel) => {
         const r = el.querySelector(sel)!.getBoundingClientRect();
         return { y: Math.round(r.top), x: Math.round(r.left) };
       }),
@@ -452,7 +479,9 @@ test.describe("SpanChart key strip", () => {
     });
 
   for (const width of [896, 1088]) {
-    test(`two sections a line at ${width}px with the notes site's longest key words, in columns, sections never split`, async ({ page }) => {
+    test(`two sections a line at ${width}px with the notes site's longest key words, in columns, sections never split`, async ({
+      page,
+    }) => {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto("/e2e-static/span-chart-stress.html");
       await page.evaluate((w) => (document.querySelector("main")!.style.maxWidth = `${w}px`), width);
@@ -460,7 +489,10 @@ test.describe("SpanChart key strip", () => {
       expect((await chart.boundingBox())!.width).toBe(width);
       const key = chart.locator(".uipack-span__panel .uipack-span__key");
       // Unframed, like a chart legend: no box, no fill.
-      expect(await key.evaluate((el) => [getComputedStyle(el).borderTopWidth, getComputedStyle(el).backgroundColor])).toEqual(["0px", "rgba(0, 0, 0, 0)"]);
+      expect(await key.evaluate((el) => [getComputedStyle(el).borderTopWidth, getComputedStyle(el).backgroundColor])).toEqual([
+        "0px",
+        "rgba(0, 0, 0, 0)",
+      ]);
       await expect(key).toContainText("market cap or valuation");
       await expect(key).toContainText("shut down");
       const r = await layout(key);
@@ -520,7 +552,9 @@ test.describe("SpanChart at other widths", () => {
         await drawer.locator("summary").tap();
         // Layer and size chips wrap inside the drawer by whole boxes: none is cut off.
         const right = (await drawer.boundingBox())!;
-        for (const b of await drawer.locator(".uipack-span__chip").evaluateAll((els) => els.map((e) => e.getBoundingClientRect().right))) {
+        for (const b of await drawer
+          .locator(".uipack-span__chip")
+          .evaluateAll((els) => els.map((e) => e.getBoundingClientRect().right))) {
           expect(b).toBeLessThanOrEqual(right.x + right.width);
         }
         // The drawer holds the whole key, so the key line outside it steps aside.
@@ -540,7 +574,9 @@ test.describe("SpanChart at other widths", () => {
         // Words, not marks, are 12px on a phone: the key's section labels and the deal badges.
         const wordSizes = await chart
           .locator(".uipack-span__key-label, .uipack-span__badge")
-          .evaluateAll((els) => els.filter((e) => e.getClientRects().length).map((e) => parseFloat(getComputedStyle(e).fontSize)));
+          .evaluateAll((els) =>
+            els.filter((e) => e.getClientRects().length).map((e) => parseFloat(getComputedStyle(e).fontSize)),
+          );
         expect(wordSizes.length).toBeGreaterThan(0);
         expect(Math.min(...wordSizes)).toBeGreaterThanOrEqual(12);
         // Codes keep 8px apart, alternating lines where columns are narrow.
@@ -571,7 +607,9 @@ test.describe("SpanChart stress rows at 896px", () => {
       }
       await expect(chart.locator('[data-item="pk"] .uipack-span__badge')).toHaveText("→ Palo Alto Networks");
       // Rows with and without a badge line share one height when names fit one line.
-      const heights = await chart.locator('[data-item="short"], [data-item="pk"], [data-item="arize"]').evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)));
+      const heights = await chart
+        .locator('[data-item="short"], [data-item="pk"], [data-item="arize"]')
+        .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)));
       expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(4);
       // The full value is still read out and shown in the opened row.
       await expect(chart.locator('[data-item="bds"] summary')).toHaveAccessibleName(/Size: part of ByteDance\./);
@@ -592,10 +630,20 @@ test.describe("Charts in a host article (prose CSS after charts.css)", () => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto("/e2e-static/host.html");
     const chart = page.locator("#ai-stack");
-    expect(await chart.locator(".uipack-span__rows").first().evaluate((el) => getComputedStyle(el).paddingLeft)).toBe("0px");
+    expect(
+      await chart
+        .locator(".uipack-span__rows")
+        .first()
+        .evaluate((el) => getComputedStyle(el).paddingLeft),
+    ).toBe("0px");
     const main = (await chart.locator('[data-item="nvidia"] .uipack-span__track > span > span').boundingBox())!;
     expect(Math.abs(centre(main) - centre((await col(chart, "chips").boundingBox())!))).toBeLessThan(1);
-    expect(await page.locator("#ai-stack-layers .uipack-stack__summary").first().evaluate((el) => getComputedStyle(el).marginTop)).toBe("0px");
+    expect(
+      await page
+        .locator("#ai-stack-layers .uipack-stack__summary")
+        .first()
+        .evaluate((el) => getComputedStyle(el).marginTop),
+    ).toBe("0px");
     // The hero fits a screen at the host width.
     expect((await page.locator("#ai-stack-layers").boundingBox())!.height).toBeLessThanOrEqual(760);
     await expect(page.locator("#ai-stack h3, #ai-stack h4, #ai-stack-layers h3, #ai-stack-layers h4")).toHaveCount(0);
@@ -627,9 +675,13 @@ test.describe("SpanChart as static HTML with JavaScript off", () => {
     await col(chart, "chips").click();
     await expect(visibleRows(chart)).toHaveCount(await chart.locator('.uipack-span__item[data-layers~="chips"]').count());
     await chip(chart, 'data-t="large"').click();
-    await expect(visibleRows(chart)).toHaveCount(await chart.locator('.uipack-span__item[data-tier="large"][data-layers~="chips"]').count());
+    await expect(visibleRows(chart)).toHaveCount(
+      await chart.locator('.uipack-span__item[data-tier="large"][data-layers~="chips"]').count(),
+    );
     await chip(chart, "data-d").click();
-    await expect(visibleRows(chart)).toHaveCount(await chart.locator('.uipack-span__item[data-deal][data-tier="large"][data-layers~="chips"]').count());
+    await expect(visibleRows(chart)).toHaveCount(
+      await chart.locator('.uipack-span__item[data-deal][data-tier="large"][data-layers~="chips"]').count(),
+    );
     // The sticky header's reset button needs no script.
     await chart.locator(".uipack-span__now-row button").click();
     await expect(visibleRows(chart)).toHaveCount(featured);
@@ -663,7 +715,10 @@ test.describe("LayerStack", () => {
     const stack = page.locator("#ai-stack-layers");
     expect((await stack.boundingBox())!.width).toBe(896);
     // No outer frame: the figure sits on the page like the site's diagrams.
-    expect(await stack.evaluate((el) => [getComputedStyle(el).borderTopWidth, getComputedStyle(el).backgroundColor])).toEqual(["0px", "rgba(0, 0, 0, 0)"]);
+    expect(await stack.evaluate((el) => [getComputedStyle(el).borderTopWidth, getComputedStyle(el).backgroundColor])).toEqual([
+      "0px",
+      "rgba(0, 0, 0, 0)",
+    ]);
     const box = async (sel: string) => (await stack.locator(sel).first().boundingBox())!;
     const apps = await box("#ai-stack-layers-apps");
     const power = await box("#ai-stack-layers-power");
@@ -677,11 +732,17 @@ test.describe("LayerStack", () => {
     const heights = await bands.evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)));
     if (tunedFont) {
       expect(new Set(heights).size).toBe(1);
-      for (const text of await stack.locator(".uipack-stack__text").all()) expect((await text.boundingBox())!.height).toBeLessThanOrEqual(22);
+      for (const text of await stack.locator(".uipack-stack__text").all())
+        expect((await text.boundingBox())!.height).toBeLessThanOrEqual(22);
     } else expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(24);
     // "↓" alone at rest; its words show on hover, in space kept for them.
     // The arrow is CSS content, so it is not text a label-in-name check compares with the link's name.
-    expect(await stack.locator(".uipack-stack__go").first().evaluate((el) => getComputedStyle(el, "::before").content)).toBe('"↓"');
+    expect(
+      await stack
+        .locator(".uipack-stack__go")
+        .first()
+        .evaluate((el) => getComputedStyle(el, "::before").content),
+    ).toBe('"↓"');
     const words = stack.locator("#ai-stack-layers-apps .uipack-stack__go-text");
     expect(await words.evaluate((el) => getComputedStyle(el).opacity)).toBe("0");
     const before = await bands.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height));
@@ -690,12 +751,16 @@ test.describe("LayerStack", () => {
     expect(await bands.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height))).toEqual(before);
     await page.mouse.move(0, 0);
     for (const text of await stack.locator(".uipack-stack__text").all()) {
-      expect(await text.evaluate((el) => el.scrollWidth <= el.clientWidth + 1 && getComputedStyle(el).textOverflow !== "ellipsis")).toBe(true);
+      expect(
+        await text.evaluate((el) => el.scrollWidth <= el.clientWidth + 1 && getComputedStyle(el).textOverflow !== "ellipsis"),
+      ).toBe(true);
     }
     // Zones are dashed boxes around their own bands.
-    const zones = await stack.locator(".uipack-stack__box").evaluateAll((els) =>
-      els.map((e) => ({ style: getComputedStyle(e).borderTopStyle, r: e.getBoundingClientRect().toJSON() as DOMRect })),
-    );
+    const zones = await stack
+      .locator(".uipack-stack__box")
+      .evaluateAll((els) =>
+        els.map((e) => ({ style: getComputedStyle(e).borderTopStyle, r: e.getBoundingClientRect().toJSON() as DOMRect })),
+      );
     expect(zones.map((z) => z.style)).toEqual(["dashed", "dashed", "dashed"]);
     const post = await box("#ai-stack-layers-post-training");
     expect(post.y).toBeGreaterThan(zones[1].r.top);
@@ -716,18 +781,26 @@ test.describe("LayerStack", () => {
     }
     // Rail labels read horizontally at the top of the line, uncut; nothing is rotated.
     for (const label of await stack.locator(".uipack-stack__rail-label").all()) {
-      expect(await label.evaluate((el) => [getComputedStyle(el).writingMode, getComputedStyle(el).transform])).toEqual(["horizontal-tb", "none"]);
+      expect(await label.evaluate((el) => [getComputedStyle(el).writingMode, getComputedStyle(el).transform])).toEqual([
+        "horizontal-tb",
+        "none",
+      ]);
       // One line of words, the link's arrow under it.
       const [words, arrow] = await label.evaluate((el) => {
         const range = document.createRange();
         range.selectNodeContents(el.firstChild!);
-        return [range.getBoundingClientRect().toJSON(), el.querySelector(".uipack-stack__arrow")!.getBoundingClientRect().toJSON()] as DOMRect[];
+        return [
+          range.getBoundingClientRect().toJSON(),
+          el.querySelector(".uipack-stack__arrow")!.getBoundingClientRect().toJSON(),
+        ] as DOMRect[];
       });
       expect(words.height).toBeLessThanOrEqual(17);
       expect(arrow.top).toBeGreaterThanOrEqual(words.bottom - 1);
       expect(await label.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
     }
-    await expect(stack.locator('a.uipack-stack__rail[href="#gateways"]')).toHaveAccessibleName("Gateways and observability, layers 8–10");
+    await expect(stack.locator('a.uipack-stack__rail[href="#gateways"]')).toHaveAccessibleName(
+      "Gateways and observability, layers 8–10",
+    );
     await expect(stack.locator('a.uipack-stack__rail[href="#gateways"] .uipack-stack__rail-label')).toHaveText("Gateways");
     await expect(stack.locator(".uipack-stack__across")).toBeHidden();
   });
@@ -736,7 +809,8 @@ test.describe("LayerStack", () => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(at("896", "layer-stack", "dark"));
     const band = page.locator("#ai-stack-layers-inference");
-    const look = () => band.evaluate((el) => [getComputedStyle(el).borderTopColor, getComputedStyle(el.querySelector("b")!).color]);
+    const look = () =>
+      band.evaluate((el) => [getComputedStyle(el).borderTopColor, getComputedStyle(el.querySelector("b")!).color]);
     const rest = await look();
     await band.hover();
     const hovered = await look();
@@ -747,7 +821,9 @@ test.describe("LayerStack", () => {
     await band.focus();
     expect(await band.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe("solid");
     expect(await look()).toEqual(hovered);
-    await expect(band).toHaveAccessibleName("Layer 08 Inference. Every request costs compute; price per token sets the margin. Go to section");
+    await expect(band).toHaveAccessibleName(
+      "Layer 08 Inference. Every request costs compute; price per token sets the margin. Go to section",
+    );
     await expect.poll(() => band.locator(".uipack-stack__go-text").evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
     await band.click();
     await expect(page).toHaveURL(/#inference$/);
@@ -760,15 +836,24 @@ test.describe("LayerStack", () => {
       await page.goto(at("full", "layer-stack"));
       const stack = page.locator("#ai-stack-layers");
       // Index, name and arrow on one 44px line; the constraint is still read out.
-      for (const h of await stack.locator(".uipack-stack__band").evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height))) {
+      for (const h of await stack
+        .locator(".uipack-stack__band")
+        .evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height))) {
         expect(h).toBeGreaterThanOrEqual(44);
         expect(h).toBeLessThanOrEqual(46);
       }
       await expect(stack.locator(".uipack-stack__summary").first()).toHaveCSS("position", "absolute");
-      await expect(stack.locator("#ai-stack-layers-apps")).toHaveAccessibleName(/Distribution and workflow fit matter more than the model/);
+      await expect(stack.locator("#ai-stack-layers-apps")).toHaveAccessibleName(
+        /Distribution and workflow fit matter more than the model/,
+      );
       await expect(stack.locator(".uipack-stack__go-text").first()).toBeHidden();
       await expect(stack.locator(".uipack-stack__go").first()).toBeVisible();
-      expect(await stack.locator(".uipack-stack__go").first().evaluate((el) => getComputedStyle(el, "::before").content)).toBe('"↓"');
+      expect(
+        await stack
+          .locator(".uipack-stack__go")
+          .first()
+          .evaluate((el) => getComputedStyle(el, "::before").content),
+      ).toBe('"↓"');
       // Zone notes on their own line, so no dot is stranded.
       const head = stack.locator(".uipack-stack__zone-head").first();
       const note = (await head.locator(".uipack-stack__note").boundingBox())!;
@@ -778,8 +863,14 @@ test.describe("LayerStack", () => {
       const nodes = stack.locator(".uipack-stack__across a.uipack-stack__node");
       await expect(nodes).toHaveCount(3);
       await expect(nodes.filter({ hasText: "Evals" })).toBeVisible();
-      expect(await nodes.first().locator(".uipack-stack__arrow").evaluate((el) => getComputedStyle(el, "::before").content)).toBe('"↓"');
-      for (const h of await nodes.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height))) expect(h).toBeGreaterThanOrEqual(44);
+      expect(
+        await nodes
+          .first()
+          .locator(".uipack-stack__arrow")
+          .evaluate((el) => getComputedStyle(el, "::before").content),
+      ).toBe('"↓"');
+      for (const h of await nodes.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height)))
+        expect(h).toBeGreaterThanOrEqual(44);
       await noPageOverflow(page, width);
       expect(await smallestText(stack)).toBeGreaterThanOrEqual(12);
       await context.close();

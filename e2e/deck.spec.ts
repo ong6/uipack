@@ -13,7 +13,12 @@ test.describe("/deck player", () => {
     await page.goto("/deck?view=present");
     await deck(page).focus();
     // Advance, morph (the 19 days into its row), advance, zoom (into the flagged slide).
-    for (const [index, id] of [["1", "problem"], ["2", "evidence"], ["3", "ghost"], ["4", "fix"]] as const) {
+    for (const [index, id] of [
+      ["1", "problem"],
+      ["2", "evidence"],
+      ["3", "ghost"],
+      ["4", "fix"],
+    ] as const) {
       await page.keyboard.press("ArrowRight");
       await expect(deck(page)).toHaveAttribute("data-index", index);
       await settled(page);
@@ -165,7 +170,9 @@ test.describe("/deck player", () => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("/deck?view=present");
     // The page fits the deck to the window once its controls have mounted.
-    await expect.poll(() => page.locator(".uipack-deck-controls").evaluate((el) => el.getBoundingClientRect().bottom)).toBeLessThanOrEqual(900);
+    await expect
+      .poll(() => page.locator(".uipack-deck-controls").evaluate((el) => el.getBoundingClientRect().bottom))
+      .toBeLessThanOrEqual(900);
   });
 
   for (const [width, height] of [
@@ -180,8 +187,13 @@ test.describe("/deck player", () => {
       const read = () =>
         page.evaluate(() => {
           const stage = document.querySelector(".uipack-deck-stage")!.getBoundingClientRect();
-          const tools = Array.from(document.querySelectorAll(".uipack-deck-controls button")).map((b) => b.getBoundingClientRect());
-          return { gap: Math.round(Math.abs(Math.max(...tools.map((t) => t.right)) - stage.right)), bottom: Math.max(...tools.map((t) => t.bottom)) };
+          const tools = Array.from(document.querySelectorAll(".uipack-deck-controls button")).map((b) =>
+            b.getBoundingClientRect(),
+          );
+          return {
+            gap: Math.round(Math.abs(Math.max(...tools.map((t) => t.right)) - stage.right)),
+            bottom: Math.max(...tools.map((t) => t.bottom)),
+          };
         });
       await expect.poll(async () => (await read()).gap).toBeLessThanOrEqual(1);
       expect((await read()).bottom).toBeLessThanOrEqual(height);
@@ -190,7 +202,9 @@ test.describe("/deck player", () => {
 
   // WebKit's default Tab skips buttons, so a dialog of buttons that leaves Tab to the browser
   // loses focus to the page: Escape then does nothing and the deck keys stay off. Runs in both engines.
-  test("the overview keeps Tab inside, Escape still closes it, the page behind is inert, a backdrop click closes it", async ({ page }) => {
+  test("the overview keeps Tab inside, Escape still closes it, the page behind is inert, a backdrop click closes it", async ({
+    page,
+  }) => {
     await page.goto("/deck?view=present");
     await deck(page).focus();
     await page.keyboard.press("g");
@@ -262,7 +276,12 @@ test.describe("/deck player", () => {
     await deck(page).focus();
     await page.keyboard.press("ArrowRight");
     const transforms = await page.evaluate(() =>
-      document.getAnimations().flatMap((a) => (a.effect as KeyframeEffect).getKeyframes().map((k) => k.transform).filter(Boolean)),
+      document.getAnimations().flatMap((a) =>
+        (a.effect as KeyframeEffect)
+          .getKeyframes()
+          .map((k) => k.transform)
+          .filter(Boolean),
+      ),
     );
     expect(transforms).toEqual([]);
     await settled(page);
@@ -303,10 +322,13 @@ test.describe("/deck bento", () => {
       await expect(bento(page)).toHaveAttribute("data-focus", id);
       // The camera settles with the cell larger than at rest and centred in the bento's own box.
       await expect
-        .poll(async () => {
-          const cell = await page.locator(`[data-bento-cell="${id}"]`).boundingBox();
-          return cell!.width > box!.width * 0.4 && Math.abs(cell!.x + cell!.width / 2 - (box!.x + box!.width / 2)) < 4;
-        }, { timeout: 5_000 })
+        .poll(
+          async () => {
+            const cell = await page.locator(`[data-bento-cell="${id}"]`).boundingBox();
+            return cell!.width > box!.width * 0.4 && Math.abs(cell!.x + cell!.width / 2 - (box!.x + box!.width / 2)) < 4;
+          },
+          { timeout: 5_000 },
+        )
         .toBe(true);
     }
     await page.keyboard.press("ArrowRight");
@@ -320,7 +342,7 @@ test.describe("/deck bento", () => {
 });
 
 /** Pause every animation at `ms` of clock time and read something from the page. */
-const at = <T,>(page: Page, ms: number, read: () => T) =>
+const at = <T>(page: Page, ms: number, read: () => T) =>
   page.evaluate(
     async ([t, fn]) => {
       await new Promise(requestAnimationFrame);
@@ -386,12 +408,16 @@ test.describe("/deck motion: no mid-flight glitches", () => {
     });
     expect(first).toBe("rgb(246, 245, 241)");
     const later = await at(page, 0.35 * 1150, () =>
-      Number(getComputedStyle(document.querySelector('.uipack-deck-layer[data-slide="quarter"] [data-bento-cell="cost"]')!).opacity),
+      Number(
+        getComputedStyle(document.querySelector('.uipack-deck-layer[data-slide="quarter"] [data-bento-cell="cost"]')!).opacity,
+      ),
     );
     expect(later).toBe(0);
   });
 
-  test("a zoom moves the camera from the first 10%, and the target's box fades instead of scaling into bars", async ({ page }) => {
+  test("a zoom moves the camera from the first 10%, and the target's box fades instead of scaling into bars", async ({
+    page,
+  }) => {
     await page.goto("/deck?slide=ghost&view=present");
     await deck(page).focus();
     await settled(page);
@@ -428,17 +454,24 @@ test.describe("/deck motion: no mid-flight glitches", () => {
     await page.keyboard.press("ArrowRight");
     for (const f of [0.3, 0.4, 0.45, 0.5, 0.6]) {
       const o = await at(page, f * 760, () => {
-        const eyebrow = (id: string) => Number(getComputedStyle(document.querySelector(`.uipack-deck-layer[data-slide="${id}"] .uipack-deck-eyebrow`)!).opacity);
+        const eyebrow = (id: string) =>
+          Number(
+            getComputedStyle(document.querySelector(`.uipack-deck-layer[data-slide="${id}"] .uipack-deck-eyebrow`)!).opacity,
+          );
         return { out: eyebrow("problem"), in: eyebrow("evidence") };
       });
       expect(Math.min(o.out, o.in), `both eyebrows showing at ${f}`).toBeLessThan(0.15);
     }
   });
 
-  test("bento camera: the cell being left keeps its detail, the next one waits, and no face rides the pull-back", async ({ page }) => {
+  test("bento camera: the cell being left keeps its detail, the next one waits, and no face rides the pull-back", async ({
+    page,
+  }) => {
     // `at` serialises its reader, so each one names its cell inline.
-    const latency = () => Number(getComputedStyle(document.querySelector('[data-bento-cell="latency"] .uipack-deck-bento__detail')!).opacity);
-    const shipped = () => Number(getComputedStyle(document.querySelector('[data-bento-cell="shipped"] .uipack-deck-bento__detail')!).opacity);
+    const latency = () =>
+      Number(getComputedStyle(document.querySelector('[data-bento-cell="latency"] .uipack-deck-bento__detail')!).opacity);
+    const shipped = () =>
+      Number(getComputedStyle(document.querySelector('[data-bento-cell="shipped"] .uipack-deck-bento__detail')!).opacity);
     // Cell to cell: latency → shipped.
     await page.goto("/deck?deck=bento&slide=quarter&step=1&view=present");
     await deck(page).focus();
@@ -452,7 +485,9 @@ test.describe("/deck motion: no mid-flight glitches", () => {
     await page.keyboard.press("ArrowRight");
     const faces = await at(page, 0.5 * 860, () =>
       Math.max(
-        ...Array.from(document.querySelectorAll(".uipack-deck-layer:not([aria-hidden]) .uipack-deck-bento__face"), (f) => Number(getComputedStyle(f).opacity)),
+        ...Array.from(document.querySelectorAll(".uipack-deck-layer:not([aria-hidden]) .uipack-deck-bento__face"), (f) =>
+          Number(getComputedStyle(f).opacity),
+        ),
       ),
     );
     expect(faces).toBe(0);
@@ -506,12 +541,19 @@ test.describe("/deck print and PDF", () => {
   test("?view=print saves a PDF with one 16:9 page per slide", async ({ page, browserName }) => {
     test.skip(browserName !== "chromium", "page.pdf() is Chromium-only");
     // The bento deck's two tour details print as pages of their own after the quarter slide.
-    for (const [id, count] of [["moves", 7], ["bento", 7], ["consulting", 8]] as const) {
+    for (const [id, count] of [
+      ["moves", 7],
+      ["bento", 7],
+      ["consulting", 8],
+    ] as const) {
       await page.goto(`/deck?deck=${id}&view=print`);
       await expect(page.locator(".uipack-deck-print__page")).toHaveCount(count);
       if (id === "bento") {
         await expect(page.locator(".uipack-deck-print__page[data-detail]")).toHaveCount(2);
-        await expect(page.locator(".uipack-deck-print__page[data-detail]").first()).toHaveAttribute("aria-label", /detail: Where the 214 ms went/);
+        await expect(page.locator(".uipack-deck-print__page[data-detail]").first()).toHaveAttribute(
+          "aria-label",
+          /detail: Where the 214 ms went/,
+        );
       }
       await page.evaluate(() => document.fonts.ready);
       const pdf = (await page.pdf({ preferCSSPageSize: true, printBackground: true })).toString("latin1");

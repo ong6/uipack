@@ -36,8 +36,8 @@ export default function MechanismShowcase() {
       <section data-catalog-entry={entry.id} id={entry.id} className="mechanism-page">
         <h2>{entry.title}</h2>
         <p className="collection-intro">
-          The object is the explanation: an agent proposes, a check stands between proposal and result. Choose a pose the way a slide would; the
-          machine moves there from wherever it is.
+          The object is the explanation: an agent proposes, a check stands between proposal and result. Choose a pose the way a
+          slide would; the machine moves there from wherever it is.
         </p>
         <div className="mechanism-poses" role="group" aria-label="Pose">
           {POSES.map((item) => (
@@ -54,13 +54,18 @@ export default function MechanismShowcase() {
       <section className="mechanism-page" id="thumbnails">
         <h2>Thumbnails</h2>
         <p className="collection-intro">
-          <code>interactive={"{false}"}</code> and <code>frame={"{false}"}</code>: one still frame per pose, no loops and no card, as a deck renders
-          its slide strip.
+          <code>interactive={"{false}"}</code> and <code>frame={"{false}"}</code>: one still frame per pose, no loops and no card,
+          as a deck renders its slide strip.
         </p>
         <ul className="mechanism-thumbs">
           {POSES.map((item) => (
             <li key={item.id}>
-              <button type="button" aria-pressed={item.id === pose} onClick={() => choose(item.id)} aria-label={`Verification gate, ${item.label} pose`}>
+              <button
+                type="button"
+                aria-pressed={item.id === pose}
+                onClick={() => choose(item.id)}
+                aria-label={`Verification gate, ${item.label} pose`}
+              >
                 <span className="mechanism-thumb">
                   <VerificationGate pose={item.id} theme={theme} frame={false} interactive={false} />
                 </span>{" "}

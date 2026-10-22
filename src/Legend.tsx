@@ -26,7 +26,8 @@ export function Legend({ items }: LegendProps) {
             data-kind={kind}
             data-state={hover.kind ? (hover.kind === kind ? "hit" : "dim") : undefined}
             onPointerEnter={hoverable ? (e) => isPointer(e) && hover.setKind(kind) : undefined}
-            onPointerLeave={hoverable ? (e) => isPointer(e) && hover.setKind(null) : undefined}>
+            onPointerLeave={hoverable ? (e) => isPointer(e) && hover.setKind(null) : undefined}
+          >
             <svg viewBox="-8 -8 16 16" aria-hidden="true">
               <Token kind={kind} shape={it.shape} r={5.5} />
             </svg>

@@ -85,7 +85,14 @@ const last = (p: DrillPath) => p[p.length - 1];
 
 const BackGlyph = () => (
   <svg viewBox="0 0 12 12" aria-hidden="true">
-    <path d="M7.5 2.5 4 6l3.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M7.5 2.5 4 6l3.5 3.5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 
@@ -101,7 +108,16 @@ interface LayerProps {
 }
 
 /** One level's drawings. Memoised: a move re-renders the head, not the drawings. */
-const DrillLayer = /*#__PURE__*/ memo(function DrillLayer({ level, figId, frame, floorWide, floorNarrow, levels, open, current }: LayerProps) {
+const DrillLayer = /*#__PURE__*/ memo(function DrillLayer({
+  level,
+  figId,
+  frame,
+  floorWide,
+  floorNarrow,
+  levels,
+  open,
+  current,
+}: LayerProps) {
   const lid = `${figId}-${cleanId(level.id)}`;
   const ctx = (variant: "wide" | "narrow"): DrillContextValue => ({
     levels,
@@ -242,7 +258,9 @@ function DrillFigureRoot({
   );
 
   const layerEl = (lid: string) =>
-    stageRef.current?.querySelector<HTMLElement>(`:scope > [data-level="${typeof CSS !== "undefined" && CSS.escape ? CSS.escape(lid) : lid}"]`) ?? null;
+    stageRef.current?.querySelector<HTMLElement>(
+      `:scope > [data-level="${typeof CSS !== "undefined" && CSS.escape ? CSS.escape(lid) : lid}"]`,
+    ) ?? null;
 
   const { anims, settle, fly } = useLayerFlight(() =>
     stageRef.current?.querySelectorAll<HTMLElement>(":scope > .uipack-drill__layer").forEach(clearLayer),
@@ -283,7 +301,10 @@ function DrillFigureRoot({
     }
     const move = drillMove(from, requested);
     seq.current += 1;
-    setView({ path: requested, flight: { from, kind: move === "in" ? "in" : move === "out" ? "out" : "fade", seq: seq.current } });
+    setView({
+      path: requested,
+      flight: { from, kind: move === "in" ? "in" : move === "out" ? "out" : "fade", seq: seq.current },
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requested]);
 
@@ -489,7 +510,12 @@ function DrillFigureRoot({
                 {current.caption ? <p className="uipack__caption">{current.caption}</p> : null}
                 <div className="uipack__controls">
                   {depth > 0 ? (
-                    <button type="button" className="uipack__ctl uipack-drill__back" aria-label={`Back to ${parentLabel}`} onClick={up}>
+                    <button
+                      type="button"
+                      className="uipack__ctl uipack-drill__back"
+                      aria-label={`Back to ${parentLabel}`}
+                      onClick={up}
+                    >
                       <BackGlyph /> Back
                     </button>
                   ) : null}
@@ -554,7 +580,9 @@ function DrillFigureRoot({
                         figId={figId}
                         frame={frame}
                         floorWide={levelFloor(lvl.viewBox ?? viewBox, viewBox, stageW, minFont)}
-                        floorNarrow={narrowViewBox ? levelFloor(lvl.narrowViewBox ?? narrowViewBox, narrowViewBox, stageW, minFont) : 0}
+                        floorNarrow={
+                          narrowViewBox ? levelFloor(lvl.narrowViewBox ?? narrowViewBox, narrowViewBox, stageW, minFont) : 0
+                        }
                         levels={levelMap}
                         open={openFrom}
                         current={lid === current.id}

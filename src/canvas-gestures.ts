@@ -11,11 +11,7 @@ type Point = { x: number; y: number };
 type GestureEvent = Event & { scale: number; clientX: number; clientY: number };
 
 /** Native input adapter shared by SVG sizing and real 3D camera zoom. */
-export function useCanvasGestures(
-  ref: RefObject<HTMLDivElement>,
-  open: boolean,
-  zoom: CanvasZoom,
-) {
+export function useCanvasGestures(ref: RefObject<HTMLDivElement>, open: boolean, zoom: CanvasZoom) {
   const latest = useRef(zoom);
   latest.current = zoom;
   const pending = useRef<{
@@ -35,10 +31,8 @@ export function useCanvasGestures(
     if (!anchor) return;
     const rect = anchor.surface.getBoundingClientRect();
     const ratio = zoom.value / anchor.scale;
-    anchor.surface.scrollLeft =
-      anchor.x * ratio + anchor.inset.x - (anchor.point.x - rect.left);
-    anchor.surface.scrollTop =
-      anchor.y * ratio + anchor.inset.y - (anchor.point.y - rect.top);
+    anchor.surface.scrollLeft = anchor.x * ratio + anchor.inset.x - (anchor.point.x - rect.left);
+    anchor.surface.scrollTop = anchor.y * ratio + anchor.inset.y - (anchor.point.y - rect.top);
     pending.current = undefined;
   }, [zoom.value]);
 
@@ -70,9 +64,7 @@ export function useCanvasGestures(
     }
     queued.current = next;
     cancelAnimationFrame(frame.current);
-    frame.current = requestAnimationFrame(() =>
-      config.onChange(queued.current),
-    );
+    frame.current = requestAnimationFrame(() => config.onChange(queued.current));
   };
   const changeRef = useRef(change);
   changeRef.current = change;
@@ -88,32 +80,17 @@ export function useCanvasGestures(
     } | null = null;
     let suppressClickUntil = 0;
     const surfaceAt = (target: EventTarget | null) => {
-      if (
-        !(target instanceof Element) ||
-        target.closest("select, input, textarea")
-      )
-        return null;
-      return target.closest<HTMLElement>(
-        ".uipack__canvas, .uipack-slide-scene",
-      );
+      if (!(target instanceof Element) || target.closest("select, input, textarea")) return null;
+      return target.closest<HTMLElement>(".uipack__canvas, .uipack-slide-scene");
     };
     const wheel = (event: WheelEvent) => {
       const surface = surfaceAt(event.target);
       if (!event.ctrlKey || !surface) return; // Two-finger scroll remains native.
       event.preventDefault();
       if (safariScale !== null || pinch) return;
-      const units =
-        event.deltaMode === 1
-          ? 16
-          : event.deltaMode === 2
-            ? host.clientHeight
-            : 1;
+      const units = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? host.clientHeight : 1;
       const delta = Math.max(-100, Math.min(100, event.deltaY * units));
-      changeRef.current(
-        queued.current * Math.exp(-delta * 0.008),
-        { x: event.clientX, y: event.clientY },
-        surface,
-      );
+      changeRef.current(queued.current * Math.exp(-delta * 0.008), { x: event.clientX, y: event.clientY }, surface);
     };
     const gestureStart = (raw: Event) => {
       if (!surfaceAt(raw.target)) return;
@@ -127,20 +104,13 @@ export function useCanvasGestures(
       if (safariScale === null || pinch) return;
       const event = raw as GestureEvent;
       if (Number.isFinite(event.scale) && event.scale > 0)
-        changeRef.current(
-          safariScale * event.scale,
-          { x: event.clientX, y: event.clientY },
-          surface,
-        );
+        changeRef.current(safariScale * event.scale, { x: event.clientX, y: event.clientY }, surface);
     };
     const gestureEnd = () => {
       safariScale = null;
     };
     const distance = (touches: TouchList) =>
-      Math.hypot(
-        touches[0].clientX - touches[1].clientX,
-        touches[0].clientY - touches[1].clientY,
-      );
+      Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
     const touchStart = (event: TouchEvent) => {
       const surface = surfaceAt(event.target);
       if (event.touches.length !== 2 || !surface) return;
@@ -204,19 +174,13 @@ export function useCanvasGestures(
 
   return {
     step: (factor: number) =>
-      change(
-        zoom.value * factor,
-        undefined,
-        ref.current?.querySelector<HTMLElement>(".uipack__canvas") ?? undefined,
-      ),
+      change(zoom.value * factor, undefined, ref.current?.querySelector<HTMLElement>(".uipack__canvas") ?? undefined),
     reset: () => {
       cancelAnimationFrame(frame.current);
       pending.current = undefined;
       queued.current = 1;
       zoom.onChange(1);
-      ref.current
-        ?.querySelectorAll(".uipack__canvas")
-        .forEach((el) => el.scrollTo(0, 0));
+      ref.current?.querySelectorAll(".uipack__canvas").forEach((el) => el.scrollTo(0, 0));
     },
   };
 }

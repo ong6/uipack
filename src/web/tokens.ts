@@ -31,7 +31,12 @@ export function typeRole(step: number): Exclude<TypeRole, "mono"> {
  * gradually toward body copy at 1.5. Step 3 drops to 500 so a 31px sans heading does not
  * outweigh a 39px display one.
  */
-export function typeMetrics(step: number): { role: Exclude<TypeRole, "mono">; lineHeight: number; letterSpacing: string; weight: number } {
+export function typeMetrics(step: number): {
+  role: Exclude<TypeRole, "mono">;
+  lineHeight: number;
+  letterSpacing: string;
+  weight: number;
+} {
   if (step >= 6) return { role: "display", lineHeight: 1.02, letterSpacing: "-0.01em", weight: 400 };
   if (step >= 5) return { role: "display", lineHeight: 1.05, letterSpacing: "-0.01em", weight: 400 };
   if (step >= 4) return { role: "display", lineHeight: 1.1, letterSpacing: "-0.01em", weight: 400 };

@@ -33,7 +33,14 @@ function addMesh(parent: THREE.Object3D, geometry: THREE.BufferGeometry, color: 
 }
 /** A box with slightly rounded edges (at most 0.018, and never more than a quarter of a side). */
 function box(parent: THREE.Object3D, width: number, height: number, depth: number, color: number, x = 0, y = 0, z = 0) {
-  return addMesh(parent, new RoundedBoxGeometry(width, height, depth, 1, Math.min(0.018, width / 4, height / 4, depth / 4)), color, x, y, z);
+  return addMesh(
+    parent,
+    new RoundedBoxGeometry(width, height, depth, 1, Math.min(0.018, width / 4, height / 4, depth / 4)),
+    color,
+    x,
+    y,
+    z,
+  );
 }
 function ball(parent: THREE.Object3D, radius: number, color: number, x = 0, y = 0, z = 0, metal = false) {
   return addMesh(parent, new THREE.SphereGeometry(radius, 24, 16), color, x, y, z, metal);
@@ -52,7 +59,14 @@ function cutout(parent: THREE.Object3D, points: number[][], color: number, z = 0
   const shape = new THREE.Shape();
   points.forEach(([x, y], i) => (i ? shape.lineTo(x, y) : shape.moveTo(x, y)));
   shape.closePath();
-  const geometry = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelThickness: 0.006, bevelSize: 0.008, bevelSegments: 1, steps: 1 });
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    depth,
+    bevelEnabled: true,
+    bevelThickness: 0.006,
+    bevelSize: 0.008,
+    bevelSegments: 1,
+    steps: 1,
+  });
   return addMesh(parent, geometry, color, 0, 0, z);
 }
 /** A tube through `points`. */
@@ -77,15 +91,54 @@ function paperTree(parent: THREE.Group, x: number, y: number, z: number, scale =
   tree.scale.setScalar(scale);
   parent.add(tree);
   box(tree, 0.045, 0.6, 0.08, 0x7c5945, 0, 0.18);
-  cutout(tree, [[-0.28, 0.24], [0, 0.91], [0.28, 0.24]], paper.teal, 0.02);
-  cutout(tree, [[-0.22, 0.5], [0, 1.08], [0.22, 0.5]], 0x659585, 0.07);
+  cutout(
+    tree,
+    [
+      [-0.28, 0.24],
+      [0, 0.91],
+      [0.28, 0.24],
+    ],
+    paper.teal,
+    0.02,
+  );
+  cutout(
+    tree,
+    [
+      [-0.22, 0.5],
+      [0, 1.08],
+      [0.22, 0.5],
+    ],
+    0x659585,
+    0.07,
+  );
   return tree;
 }
 /** A paper plane seen from above, nose up. */
 function plane(parent: THREE.Group, color: number) {
   const craft = new THREE.Group();
-  cutout(craft, [[0, 0.32], [-0.28, -0.18], [0, -0.06], [0.28, -0.18]], color, 0, 0.04);
-  cutout(craft, [[0, 0.32], [-0.045, -0.23], [0.045, -0.23]], 0xfff7e5, 0.045, 0.03);
+  cutout(
+    craft,
+    [
+      [0, 0.32],
+      [-0.28, -0.18],
+      [0, -0.06],
+      [0.28, -0.18],
+    ],
+    color,
+    0,
+    0.04,
+  );
+  cutout(
+    craft,
+    [
+      [0, 0.32],
+      [-0.045, -0.23],
+      [0.045, -0.23],
+    ],
+    0xfff7e5,
+    0.045,
+    0.03,
+  );
   parent.add(craft);
   return craft;
 }
@@ -129,10 +182,54 @@ const paperModels: Record<ArtKind, Model> = {
   /** Layered hills, a road and trees, with a paper plane looping overhead. */
   travel(root, ticks) {
     disc(root, 0.34, 0.045, paper.coral, 0.78, 0.88, -0.2);
-    cutout(root, [[-1.53, -0.54], [-0.93, 0.9], [-0.27, -0.05], [0.28, 0.77], [1.51, -0.55], [1.25, -1.05], [-1.25, -1.05]], paper.blue, -0.11);
-    cutout(root, [[-1.45, -0.65], [-0.62, 0.38], [0.13, -0.21], [0.9, 0.48], [1.46, -0.62], [1.16, -1.15], [-1.16, -1.15]], paper.teal, 0.17);
-    cutout(root, [[-1.25, -1.02], [-0.91, -0.48], [-0.18, -0.77], [0.57, -0.44], [1.24, -0.97], [0.74, -1.42], [-0.64, -1.42]], 0x91ad8d, 0.43);
-    curve(root, [vec(-0.83, -1.04, 0.52), vec(-0.17, -0.75, 0.53), vec(0.12, -0.46, 0.28), vec(0.54, -0.35, 0.25)], paper.cream, 0.055);
+    cutout(
+      root,
+      [
+        [-1.53, -0.54],
+        [-0.93, 0.9],
+        [-0.27, -0.05],
+        [0.28, 0.77],
+        [1.51, -0.55],
+        [1.25, -1.05],
+        [-1.25, -1.05],
+      ],
+      paper.blue,
+      -0.11,
+    );
+    cutout(
+      root,
+      [
+        [-1.45, -0.65],
+        [-0.62, 0.38],
+        [0.13, -0.21],
+        [0.9, 0.48],
+        [1.46, -0.62],
+        [1.16, -1.15],
+        [-1.16, -1.15],
+      ],
+      paper.teal,
+      0.17,
+    );
+    cutout(
+      root,
+      [
+        [-1.25, -1.02],
+        [-0.91, -0.48],
+        [-0.18, -0.77],
+        [0.57, -0.44],
+        [1.24, -0.97],
+        [0.74, -1.42],
+        [-0.64, -1.42],
+      ],
+      0x91ad8d,
+      0.43,
+    );
+    curve(
+      root,
+      [vec(-0.83, -1.04, 0.52), vec(-0.17, -0.75, 0.53), vec(0.12, -0.46, 0.28), vec(0.54, -0.35, 0.25)],
+      paper.cream,
+      0.055,
+    );
     paperTree(root, -0.89, -0.82, 0.5, 0.55);
     paperTree(root, 0.9, -0.87, 0.49, 0.4);
     const flyer = plane(root, paper.cream);
@@ -162,7 +259,16 @@ const paperModels: Record<ArtKind, Model> = {
     root.add(portal);
     box(portal, 0.3, 1.25, 0.14, paper.blue, -0.58, 0.53);
     box(portal, 0.3, 1.25, 0.14, paper.blue, 0.58, 0.53);
-    cutout(portal, [[-0.84, 1.05], [0, 1.69], [0.84, 1.05]], paper.coral, 0.02);
+    cutout(
+      portal,
+      [
+        [-0.84, 1.05],
+        [0, 1.69],
+        [0.84, 1.05],
+      ],
+      paper.coral,
+      0.02,
+    );
     for (let i = 0; i < 5; i++) box(root, 0.78, 0.1, 0.22, paper.peach, 0, -0.91 + i * 0.1, 1.13 - i * 0.14);
     paperTree(root, -1.04, -0.64, 0.71, 0.53);
     paperTree(root, 1.06, -0.64, 0.64, 0.4);
@@ -218,13 +324,27 @@ const paperModels: Record<ArtKind, Model> = {
       card.position.set(0.64 + i * 0.15, 0.23 - i * 0.4, 0.05 + i * 0.28);
       card.rotation.z = -0.12;
       box(card, 0.85, 0.52, 0.07, [paper.peach, paper.cream, paper.teal][i]);
-      for (let j = 0; j < 3; j++) box(card, 0.55 - j * 0.08, 0.025, 0.01, i === 2 ? paper.cream : paper.ink, -j * 0.04, 0.13 - j * 0.11, 0.045);
+      for (let j = 0; j < 3; j++)
+        box(card, 0.55 - j * 0.08, 0.025, 0.01, i === 2 ? paper.cream : paper.ink, -j * 0.04, 0.13 - j * 0.11, 0.045);
       ticks.push((angle) => {
         card.position.x = 0.64 + i * 0.15 + 0.06 * Math.sin(angle + i * 0.9);
         card.rotation.y = 0.14 * Math.sin(angle + i * 0.9);
       });
     }
-    cutout(root, [[-1.07, -0.58], [-0.1, -0.58], [-0.1, -0.87], [0.1, -0.7], [-0.1, -0.48], [-0.1, -0.65], [-1.07, -0.65]], paper.coral, 0.58);
+    cutout(
+      root,
+      [
+        [-1.07, -0.58],
+        [-0.1, -0.58],
+        [-0.1, -0.87],
+        [0.1, -0.7],
+        [-0.1, -0.48],
+        [-0.1, -0.65],
+        [-1.07, -0.65],
+      ],
+      paper.coral,
+      0.58,
+    );
     ticks.push((angle) => {
       head.rotation.z = 0.06 * Math.sin(angle);
       head.position.y = 0.14 + 0.06 * Math.cos(angle);
@@ -243,7 +363,17 @@ const paperModels: Record<ArtKind, Model> = {
       box(layer, 1.38, 0.25, 0.025, paper.cream, 0, 0, 0.29);
       for (let j = 0; j < 6; j++) box(layer, 0.075, 0.12, 0.024, paper.ink, -0.5 + j * 0.145, 0, 0.32);
       disc(layer, 0.042, 0.03, paper.coral, 0.54, 0, 0.33);
-      const tab = cutout(layer, [[0.8, -0.12], [1.02, -0.12], [1.02, 0.12], [0.8, 0.12]], paper.peach, -0.05);
+      const tab = cutout(
+        layer,
+        [
+          [0.8, -0.12],
+          [1.02, -0.12],
+          [1.02, 0.12],
+          [0.8, 0.12],
+        ],
+        paper.peach,
+        -0.05,
+      );
       ticks.push((angle) => {
         layer.position.x = 0.12 * Math.sin(angle + i * 0.7);
         tab.rotation.y = 0.15 * Math.sin(angle);
@@ -269,7 +399,12 @@ const paperModels: Record<ArtKind, Model> = {
       box(panel, 0.19, 0.12 + (i % 3) * 0.045, 0.025, paper.blue, 0, -0.74, 0.08);
       ticks.push((angle) => (panel.rotation.y = (i % 2 ? 1 : -1) * (0.18 + 0.11 * Math.sin(angle))));
     }
-    curve(root, [vec(-1.3, -1.14, 0.66), vec(-0.6, -1.02, 0.66), vec(0.3, -1.1, 0.66), vec(1.27, -0.9, 0.66)], paper.coral, 0.025);
+    curve(
+      root,
+      [vec(-1.3, -1.14, 0.66), vec(-0.6, -1.02, 0.66), vec(0.3, -1.1, 0.66), vec(1.27, -0.9, 0.66)],
+      paper.coral,
+      0.025,
+    );
   },
 };
 
@@ -414,11 +549,17 @@ const kineticModels: Record<ArtKind, Model> = {
       const cover = i === 0 || i === LEAVES - 1;
       box(hinge, 1.16, 1.59, 0.025, cover ? kinetic.dark : kinetic.ivory, 0.59, 0, 0);
       // Every third inner leaf carries lines of text.
-      if (i % 3 === 0 && i > 0 && i < LEAVES - 1) for (let j = 0; j < 7; j++) box(hinge, 0.72, 0.012, 0.007, kinetic.gold, 0.62, 0.49 - j * 0.15, 0.017);
+      if (i % 3 === 0 && i > 0 && i < LEAVES - 1)
+        for (let j = 0; j < 7; j++) box(hinge, 0.72, 0.012, 0.007, kinetic.gold, 0.62, 0.49 - j * 0.15, 0.017);
       ticks.push((angle) => (hinge.rotation.y = -1.3 + i * 0.21 + 0.045 * Math.sin(angle + i * 0.22)));
     }
     rod(book, vec(0, -0.91), vec(0, 0.91), kinetic.gold, 0.06);
-    const ribbon = curve(root, [vec(-0.85, -1.03, 0.3), vec(-1.2, -0.4, 0.5), vec(-1.05, 0.5, 0.2), vec(-0.48, 1.3, -0.2), vec(0.58, 1.15, -0.4)], kinetic.gold, 0.022);
+    const ribbon = curve(
+      root,
+      [vec(-0.85, -1.03, 0.3), vec(-1.2, -0.4, 0.5), vec(-1.05, 0.5, 0.2), vec(-0.48, 1.3, -0.2), vec(0.58, 1.15, -0.4)],
+      kinetic.gold,
+      0.022,
+    );
     ticks.push((angle) => {
       book.rotation.y = -0.4 + angle;
       book.rotation.z = -0.15 + 0.075 * Math.sin(angle);

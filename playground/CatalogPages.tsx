@@ -82,34 +82,9 @@ function VerificationFigure() {
         flow="before"
       />
       <Label x={24} y={168} text="After · verify the evidence" />
-      <Node
-        x={24}
-        y={190}
-        w={96}
-        h={56}
-        label="Proposal"
-        size={12}
-        flow="after"
-      />
-      <Node
-        x={152}
-        y={190}
-        w={96}
-        h={56}
-        label="Check"
-        size={12}
-        accent
-        flow="after"
-      />
-      <Node
-        x={280}
-        y={190}
-        w={96}
-        h={56}
-        label="Result"
-        size={12}
-        flow="after"
-      />
+      <Node x={24} y={190} w={96} h={56} label="Proposal" size={12} flow="after" />
+      <Node x={152} y={190} w={96} h={56} label="Check" size={12} accent flow="after" />
+      <Node x={280} y={190} w={96} h={56} label="Result" size={12} flow="after" />
       <Connector
         points={[
           [120, 218],
@@ -155,8 +130,8 @@ export default function CatalogPages() {
         <section>
           <h2>Visual styles</h2>
           <p className="collection-intro">
-            Choose a visual language first, then explore its diagrams, icons,
-            and animations. Light and dark are themes within a style.
+            Choose a visual language first, then explore its diagrams, icons, and animations. Light and dark are themes within a
+            style.
           </p>
           <div className="style-grid">
             {visualStyles.map((style) => (
@@ -165,34 +140,40 @@ export default function CatalogPages() {
                 <h3>{style.name}</h3>
                 <p>{style.description}</p>
                 <div>
-                  {style.id === 'technical' ? <>
-                    <a href={`/?theme=${theme}`}>Diagrams</a>
-                    <a href={`/animations?theme=${theme}`}>3D animations</a>
-                    <a href={`/presentations?theme=${theme}`}>Presentations</a>
-                  </> : style.id === 'landing' ? <a href={`/web?theme=${theme}`}>Web UI building blocks</a> : style.id === 'mechanism' ? <a href={`/mechanism?theme=${theme}`}>Verification gate machine</a> : <a href={`/animations?story=travel&variant=${'variant' in style ? style.variant : 0}&theme=${theme}`}>{objectLinks[style.id as keyof typeof objectLinks]}</a>}
+                  {style.id === "technical" ? (
+                    <>
+                      <a href={`/?theme=${theme}`}>Diagrams</a>
+                      <a href={`/animations?theme=${theme}`}>3D animations</a>
+                      <a href={`/presentations?theme=${theme}`}>Presentations</a>
+                    </>
+                  ) : style.id === "landing" ? (
+                    <a href={`/web?theme=${theme}`}>Web UI building blocks</a>
+                  ) : style.id === "mechanism" ? (
+                    <a href={`/mechanism?theme=${theme}`}>Verification gate machine</a>
+                  ) : (
+                    <a href={`/animations?story=travel&variant=${"variant" in style ? style.variant : 0}&theme=${theme}`}>
+                      {objectLinks[style.id as keyof typeof objectLinks]}
+                    </a>
+                  )}
                 </div>
               </article>
             ))}
           </div>
           <p className="collection-intro style-grid__note">
-            Technical diagrams, the Landing web style, Mechanism machines, and six object art directions. Each object direction has its own models, materials, perspective and motion.
+            Technical diagrams, the Landing web style, Mechanism machines, and six object art directions. Each object direction
+            has its own models, materials, perspective and motion.
           </p>
         </section>
       ) : (
         <section>
           <h2>Slide and speech starters</h2>
           <p className="collection-intro">
-            Choose a layout to see the designed slide and the talk track that goes
-            with it. The reusable component accepts content; these words belong to
-            the playground example.
+            Choose a layout to see the designed slide and the talk track that goes with it. The reusable component accepts
+            content; these words belong to the playground example.
           </p>
           <nav className="deck-chapters" aria-label="Slide starter layouts">
             {presentationStarters.map((slide, i) => (
-              <button
-                key={slide.id}
-                aria-pressed={i === starterIndex}
-                onClick={() => setStarterIndex(i)}
-              >
+              <button key={slide.id} aria-pressed={i === starterIndex} onClick={() => setStarterIndex(i)}>
                 {slide.title}
               </button>
             ))}
@@ -200,16 +181,11 @@ export default function CatalogPages() {
           <SlideStarter slide={starter} theme={theme} />
           <h2 className="deck-example-heading">Complete narrative example</h2>
           <p className="collection-intro">
-            Opening, argument, visual explanation, comparison and closing.
-            Animation supports the story.
+            Opening, argument, visual explanation, comparison and closing. Animation supports the story.
           </p>
           <nav className="deck-chapters" aria-label="Presentation chapters">
             {chapters.map((c, i) => (
-              <button
-                key={c.name}
-                aria-current={i === index ? "step" : undefined}
-                onClick={() => setIndex(i)}
-              >
+              <button key={c.name} aria-current={i === index ? "step" : undefined} onClick={() => setIndex(i)}>
                 {String(i + 1).padStart(2, "0")} {c.name}
               </button>
             ))}
@@ -222,15 +198,7 @@ export default function CatalogPages() {
             onKeyDown={(e) => {
               if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
                 e.preventDefault();
-                setIndex((i) =>
-                  Math.max(
-                    0,
-                    Math.min(
-                      chapters.length - 1,
-                      i + (e.key === "ArrowRight" ? 1 : -1),
-                    ),
-                  ),
-                );
+                setIndex((i) => Math.max(0, Math.min(chapters.length - 1, i + (e.key === "ArrowRight" ? 1 : -1))));
               }
             }}
           >
@@ -258,22 +226,11 @@ export default function CatalogPages() {
                 </div>
               )}
               {chapter.kind === "closing" && (
-                <p className="deck-takeaway">
-                  Next decision: which workflow should we prove first?
-                </p>
+                <p className="deck-takeaway">Next decision: which workflow should we prove first?</p>
               )}
             </div>
-            <div
-              className="composed-deck__visual"
-              hidden={
-                chapter.kind === "comparison" || chapter.kind === "closing"
-              }
-            >
-              <SlideScene
-                story={harnessDive}
-                stopId={chapter.stop}
-                theme={theme}
-              />
+            <div className="composed-deck__visual" hidden={chapter.kind === "comparison" || chapter.kind === "closing"}>
+              <SlideScene story={harnessDive} stopId={chapter.stop} theme={theme} />
             </div>
             {chapter.kind === "comparison" && (
               <div className="composed-deck__figure">
@@ -288,23 +245,16 @@ export default function CatalogPages() {
             </footer>
           </section>
           <div className="deck-navigation">
-            <button
-              disabled={index === 0}
-              onClick={() => setIndex((i) => i - 1)}
-            >
+            <button disabled={index === 0} onClick={() => setIndex((i) => i - 1)}>
               Previous chapter
             </button>
-            <button
-              disabled={index === chapters.length - 1}
-              onClick={() => setIndex((i) => i + 1)}
-            >
+            <button disabled={index === chapters.length - 1} onClick={() => setIndex((i) => i + 1)}>
               Next chapter
             </button>
           </div>
           <p className="collection-intro">
-            This is a composition example, not a slide editor. Use Figure for 2D
-            diagrams and SlideScene for 3D within these layouts. Both support
-            separate canvas inspection.
+            This is a composition example, not a slide editor. Use Figure for 2D diagrams and SlideScene for 3D within these
+            layouts. Both support separate canvas inspection.
           </p>
         </section>
       )}

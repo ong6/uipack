@@ -5,7 +5,10 @@ import { entries } from "../scripts/entries";
 // The package's entry points are declared in three places: scripts/entries.ts (tsup's entries),
 // package.json exports and scripts/css-bundles.ts. A new entry must touch all three; these checks say which
 // one was missed (docs/contributing.md, "A new package entry").
-const pkg = JSON.parse(readFileSync("package.json", "utf8")) as { exports: Record<string, string | Record<string, string>>; files: string[] };
+const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
+  exports: Record<string, string | Record<string, string>>;
+  files: string[];
+};
 const subpath = (name: string) => (name === "index" ? "." : `./${name}`);
 
 describe("package entries", () => {
@@ -18,7 +21,9 @@ describe("package entries", () => {
         require: `./dist/${name}.cjs`,
       });
     }
-    const jsExports = Object.entries(pkg.exports).filter(([, v]) => typeof v === "object").map(([k]) => k);
+    const jsExports = Object.entries(pkg.exports)
+      .filter(([, v]) => typeof v === "object")
+      .map(([k]) => k);
     expect(jsExports.sort()).toEqual(Object.keys(entries).map(subpath).sort());
   });
 
@@ -46,7 +51,9 @@ describe("built entries share one copy of each React context", () => {
         // esbuild may rename the import (createContext2) when one chunk imports it twice; the call
         // may carry a pure annotation, and in CJS goes through the required module (react., _react.,
         // (0, import_react.)).
-        for (const m of readFileSync(`dist/${f}`, "utf8").matchAll(/\b(\w+Context) = (?:\/\* @__PURE__ \*\/ )?(?:\w+\.|\(0, \w+\.)?createContext\d*\b/g))
+        for (const m of readFileSync(`dist/${f}`, "utf8").matchAll(
+          /\b(\w+Context) = (?:\/\* @__PURE__ \*\/ )?(?:\w+\.|\(0, \w+\.)?createContext\d*\b/g,
+        ))
           created.set(m[1], (created.get(m[1]) ?? 0) + 1);
       }
       expect(created.get("FigureMotionContext")).toBe(1);
@@ -58,5 +65,6 @@ describe("built entries share one copy of each React context", () => {
 
 // CommonJS cannot parse import.meta: one left in a .cjs chunk makes require() of it throw.
 it("no CommonJS file mentions import.meta", () => {
-  for (const f of readdirSync("dist").filter((f) => f.endsWith(".cjs"))) expect(readFileSync(`dist/${f}`, "utf8"), f).not.toMatch(/\bimport\.meta\b/);
+  for (const f of readdirSync("dist").filter((f) => f.endsWith(".cjs")))
+    expect(readFileSync(`dist/${f}`, "utf8"), f).not.toMatch(/\bimport\.meta\b/);
 });
