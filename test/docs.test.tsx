@@ -83,6 +83,39 @@ describe("product documentation", () => {
     expect(html).not.toContain("private-review-path");
   });
 
+  it("keeps Markdown heading levels by default", () => {
+    const html = renderToString(<DocsMarkdown source={source} />);
+    expect(html).toMatch(/<h1 id="overview"/);
+    expect(html).toMatch(/<h2 id="first-step"/);
+  });
+
+  it("shifts heading levels by headingOffset so a host page keeps the only h1", () => {
+    const html = renderToString(
+      <DocsMarkdown source={`${source}\n#### Four\n\n###### Six\n`} headingOffset={1} />,
+    );
+    expect(html).not.toMatch(/<h1[\s>]/);
+    expect(html).toMatch(/<h2 id="overview"/);
+    expect(html).toMatch(/<h3 id="first-step"/);
+    expect(html).toMatch(/<h4 id="details"/);
+    expect(html).toMatch(/<h5 id="four"/);
+    // Clamped at h6, and anchors are unchanged by the offset.
+    expect(html).toMatch(/<h6 id="six"/);
+    expect(html).toContain('href="#first-step"');
+  });
+
+  it("reports rendered levels from extractDocsHeadings with the same offset", () => {
+    expect(
+      extractDocsHeadings("# Title\n\n## Part\n\n###### Deep", { headingOffset: 1 }).map(
+        (h) => [h.id, h.level],
+      ),
+    ).toEqual([
+      ["title", 2],
+      ["part", 3],
+      ["deep", 6],
+    ]);
+    expect(extractDocsHeadings("# Title").map((h) => h.level)).toEqual([1]);
+  });
+
   it("gives tables their column count so narrow layouts can scroll them", () => {
     const html = renderToString(
       <DocsMarkdown source={"| A | B | C |\n|---|---|---|\n| 1 | 2 | 3 |"} />,
