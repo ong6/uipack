@@ -53,7 +53,7 @@ The gate's model and motion are exported with a gate prefix (`GATE_LIMIT`, `GATE
 
 **Motion budget.** One requestAnimationFrame loop per instance, writing attributes through the DOM, never re-rendering React per frame. It runs only while the machine is within 120px of the viewport, stops once a single-run pose or the explode has settled, and holds a still, readable frame under reduced motion (the token under the gauge, the token on its way to the tray, the token being swung off the belt, the machine apart).
 
-**Input.** The machine is one focusable button. Tap, click, Space or Enter: in `idle`, pause or resume; in `pass` and `return`, run again; in `apart`, reassemble or take apart again. The hint corner says which. A polite live region announces phase changes only (paused, running, the verdict), never per-frame numbers.
+**Input.** The machine is one focusable button. Tap, click, Space or Enter: in `idle`, pause or resume; in `pass` and `return`, run again; in `apart`, reassemble or take apart again. The hint corner says which. Because the idle tour loops for as long as it is on screen, it also carries a visible **Pause motion / Resume motion** button (WCAG 2.2.2) beside the machine, under the title corner; other poses, `motion="none"` and reduced motion have none. A polite live region announces phase changes only (paused, running, the verdict), never per-frame numbers.
 
 ## Craft rules kept from Anatomy
 

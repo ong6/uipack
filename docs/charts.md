@@ -34,7 +34,7 @@ The playground renders both on `/` inside a frame at a host's real figure width:
 Rows are items, and columns are ordered layers, with the bottom of the stack on the left. Each item has one primary layer and zero or more other layers.
 
 - **Bars.** A row draws one flat bar per contiguous run of covered layers, with a 1px end radius. The primary cell is solid accent, the other cells are a tint with a 1px accent edge and 1px dividers, and gaps stay empty.
-- **Groups.** Rows are grouped by primary layer in column order, so the chart reads as a staircase. Each group heading is a tracked uppercase label ("CHIPS AND MEMORY 2 OF 6"). Beside a name column it carries a small accent square on its line, in the group's own column, so the staircase reads even when a group shows one row; the stacked layouts leave the square out rather than give it a line of its own. Uppercase labels keep units and names as written: a word with a digit beside a letter, or a capital after its first letter ("32k", "TB/s", "GPUs"), is not uppercased.
+- **Groups.** Rows are grouped by primary layer in column order, so the chart reads as a staircase. Each group heading is a tracked uppercase label ("CHIPS AND MEMORY 2 OF 6"). Beside a name column it carries a 3px accent underline on its line across the group's own column (inset 6px a side), so the staircase reads even when a group shows one row; the stacked layouts leave the mark out rather than give it a line of its own. Uppercase labels keep units and names as written: a word with a digit beside a letter, or a capital after its first letter ("32k", "TB/s", "GPUs"), is not uppercased.
 - **Order.** Within a group, rows sort by `value` (largest first, rows without a value last), then by name.
 - **Scale.** Add rows by adding data. The chart is tested with 160 rows, and each row costs about 0.9–1.2 KB of HTML.
 
@@ -102,7 +102,7 @@ The notes site's 56rem (896px) figure slot gets the name column, the short words
 
 ### Key
 
-The key is an unframed row, like a chart legend (no box, no fill, so it does not read as one more control), of labelled sections divided by thin vertical rules: **BARS** (square swatches for "Main" and "Also in"), **DEALS** (a sample of each kind present: "→ acquired", a dashed "→ pending", "↝ licensed", "shut down"), **SIZE** (the largest value and `valueLegend`, e.g. "$5.5T market cap or valuation") and **TYPE** (a sample tag and `tagLegend`). Sections never split: if a host is too narrow for one row, whole sections wrap. With the notes site's longest words the row needs about 890px, so it is one row in a 56rem (896px) slot; its section labels are 10px there (11px elsewhere) to make that fit. On phones the same sections sit in the "Filters and key" drawer as a ruled two-column grid.
+The key is an unframed row, like a chart legend (no box, no fill, so it does not read as one more control), of labelled sections divided by thin vertical rules: **BARS** (square swatches for "Main" and "Also in"), **DEALS** (a sample of each kind present: "→ acquired", a dashed "→ pending", "↝ licensed", "shut down"), **SIZE** (the largest value and `valueLegend`, e.g. "$5.5T market cap or valuation") and **TYPE** (a sample tag and `tagLegend`). The sections sit two a line in columns (BARS | DEALS, then SIZE | TYPE), so four groups never crowd one line, and a section never splits. On phones the same sections sit in the "Filters and key" drawer as a ruled two-column grid.
 
 A chart with no size tiers and no deals has no toolbar of its own, so where the key shows, its search field sits on the key's row, at the right (260px), instead of on a row by itself.
 
@@ -173,6 +173,7 @@ Each message names the chart and the item, for example `SpanChart "ai-stack": it
 A hero diagram for an article that walks a stack from the bottom up. Every band is a link to its section.
 
 - **Order.** Layers are given bottom to top and numbered that way, with 01 at the bottom. They are drawn, tabbed and read top-down, so the eye, the keyboard and a screen reader meet them in the same order.
+- **Type.** The stack's smallest text (the band index, zone heads and their notes, rail and bracket labels, metric notes) is 12px.
 - **Bands.** Each band is one diagram node and one `<a href>`: a muted mono index ("08"), the bold title, the constraint as a muted sub-label on the same line where it fits (under the title otherwise), and a right-aligned "↓", muted at rest. Hover and focus give it an accent edge and an accent title, and (from 640px) show the words "Go to section" (`labels.go`) in space kept for them, where a metric would be. A screen reader hears one sentence: "Layer 08 Inference. Every token re-reads the weights…. Go to section".
 - **Phones.** Below a 480px container each band is one 44px line: index, name and arrow. The constraint and any metric leave the screen but stay in the link's name.
 - **Zones.** Each zone is a dashed box around its bands, labelled inside at the top left in the tracked uppercase style: "SERVING AND PRODUCT · RUN ON EVERY REQUEST" (the note takes its own line on phones).
