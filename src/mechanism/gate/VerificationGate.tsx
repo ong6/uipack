@@ -307,15 +307,20 @@ export function GateMachine({
   const poseRef = React.useRef(pose);
   const readoutRef = React.useRef(onReadout);
   readoutRef.current = onReadout;
+  // The loop below outlives renders: a running tick must see today's motion setting, not the one
+  // it started under, so everything it calls reads motion through this ref and stays stable.
+  const motionRef = React.useRef(motion);
+  motionRef.current = motion;
+  const isCalm = React.useCallback(() => stillness.current || motionRef.current === "none", []);
 
   const sceneNow = React.useCallback((): Scene => {
     const s = state.current;
-    const calm = stillness.current || motion === "none";
+    const calm = isCalm();
     const scene = calm ? stillScene(poseRef.current) : sceneAt(poseRef.current, s.t, s.round);
     if (s.paused && poseRef.current === "idle")
       return { ...scene, belt: 0, readout: `${scene.readout} · paused`, phase: "paused" };
     return scene;
-  }, [motion]);
+  }, [isCalm]);
 
   const draw = React.useCallback((scene: Scene) => {
     const node = root.current;
@@ -374,7 +379,7 @@ export function GateMachine({
     const tick = (now: number) => {
       const dt = s.last ? Math.min((now - s.last) / 1000, 1 / 30) : 1 / 60;
       s.last = now;
-      const calm = stillness.current || motion === "none";
+      const calm = isCalm();
       const current = poseRef.current;
       if (!s.paused && !calm) s.t += dt;
       const scene = sceneNow();
@@ -388,7 +393,7 @@ export function GateMachine({
       s.frame = s.visible && (moving || scripted || pending) ? requestAnimationFrame(tick) : 0;
     };
     s.frame = requestAnimationFrame(tick);
-  }, [draw, motion, sceneNow]);
+  }, [draw, isCalm, sceneNow]);
 
   const stop = React.useCallback(() => {
     const s = state.current;
@@ -422,7 +427,7 @@ export function GateMachine({
     const s = state.current;
     const changed = poseRef.current !== pose;
     poseRef.current = pose;
-    const calm = stillness.current || motion === "none";
+    const calm = isCalm();
     if (changed) {
       s.t = calm ? STILL_AT[pose] : 0;
       s.round++;
@@ -437,7 +442,8 @@ export function GateMachine({
       return;
     }
     run();
-  }, [pose, interactive, motion, aim, draw, run, sceneNow]);
+    // `motion` is read through motionRef; it is listed so that changing it re-aims and redraws.
+  }, [pose, interactive, motion, aim, draw, isCalm, run, sceneNow]);
 
   // Run only while on screen.
   React.useEffect(() => {
@@ -487,7 +493,7 @@ export function GateMachine({
   const act = () => {
     const s = state.current;
     const current = poseRef.current;
-    const calm = stillness.current || motion === "none";
+    const calm = isCalm();
     if (current === "idle") {
       s.paused = !s.paused;
       setPaused(s.paused);

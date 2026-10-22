@@ -2,7 +2,8 @@ import { readFileSync, readdirSync } from "node:fs";
 import { render } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import * as mechanism from "../src/mechanism";
-import { MechanismFrame, VerificationGate, type GatePose } from "../src/mechanism";
+import { act } from "react";
+import { GateMachine, MechanismFrame, VerificationGate, type GatePose } from "../src/mechanism";
 import {
   CYCLE_LENGTH,
   LIMIT,
@@ -211,6 +212,26 @@ describe("VerificationGate", () => {
     expect(machine.getAttribute("aria-label")).toMatch(/Space/);
     unmount();
     vi.unstubAllGlobals();
+  });
+});
+
+// The animation loop outlives the render that started it, so it must read the motion setting live:
+// switched to "none" mid-run, the running loop settles on the still frame instead of playing on.
+describe("GateMachine loop", () => {
+  afterEach(() => vi.useRealTimers());
+
+  it('a running loop follows a later motion="none" rather than the setting it started under', () => {
+    vi.useFakeTimers({ toFake: ["requestAnimationFrame", "cancelAnimationFrame", "performance"] });
+    const readouts: string[] = [];
+    const onReadout = (text: string) => readouts.push(text);
+    const { rerender, unmount } = render(<GateMachine pose="idle" onReadout={onReadout} />);
+    act(() => vi.advanceTimersByTime(PERIOD * 1000));
+    expect(new Set(readouts).size).toBeGreaterThan(1);
+    rerender(<GateMachine pose="idle" motion="none" onReadout={onReadout} />);
+    const settled = readouts.length;
+    act(() => vi.advanceTimersByTime(2 * PERIOD * 1000));
+    expect(readouts.slice(settled).filter((text) => text !== stillScene("idle").readout)).toEqual([]);
+    unmount();
   });
 });
 
