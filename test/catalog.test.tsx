@@ -39,9 +39,9 @@ describe("playground catalog", () => {
     expect(deckPages.sort()).toEqual(deckExamples.map((d) => d.id).sort());
   });
 
-  it("every page module exists and is named so main.tsx can lazy-load it (App, CatalogPages or *Showcase)", () => {
-    // The patterns of import.meta.glob in playground/main.tsx, which takes literals only.
-    const loadable = /^(App|CatalogPages|[A-Z][A-Za-z]*Showcase)$/;
+  it("every page module exists and is named so main.tsx can lazy-load it (*Showcase)", () => {
+    // The pattern of import.meta.glob in playground/main.tsx, which takes literals only.
+    const loadable = /^[A-Z][A-Za-z]*Showcase$/;
     for (const [id, name] of Object.entries(pageModules)) {
       expect(name, id).toMatch(loadable);
       expect(existsSync(`playground/${name}.tsx`), name).toBe(true);

@@ -157,7 +157,7 @@ function Diagrams() {
 }
 
 /** Serves "/", "/charts" and "/assets"; the shell around it comes from main.tsx. */
-export default function App() {
+export default function FiguresShowcase() {
   const path = location.pathname.replace(/\/$/, "");
   return path === "/assets" ? <Assets /> : path === "/charts" ? <Charts /> : <Diagrams />;
 }

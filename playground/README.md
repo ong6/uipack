@@ -33,7 +33,7 @@ Every page has the same headings: the context line (`<Group> · <Style> style`),
 
 To add an animation, export a validated story from `src/slides`, register metadata in `catalog.ts`, and add it to the story list. To add a visual style, follow [the design contract](../docs/design-direction.md); metadata alone does not implement a style.
 
-Presentation layouts belong in `CatalogPages.tsx` and `presentations.css` until there are enough reusable examples to extract a separate library API. Keep 3D assets independent from those layouts.
+Presentation layouts belong in `CatalogShowcase.tsx` and `presentations.css` until there are enough reusable examples to extract a separate library API. Keep 3D assets independent from those layouts.
 
 Object scenes also appear in `/animations` under the Objects filter. Add source metadata to `objectScenes` in `src/objects/scene-list.ts` (plain data, so the catalog in the playground's entry does not pull in the 3D player); `catalog.ts` registers those entries.
 

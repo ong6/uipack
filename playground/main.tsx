@@ -10,7 +10,7 @@ import { ShowcaseShell, ShowcaseThemeProvider, useShowcaseTheme } from "./Showca
 // Every page module is its own chunk, with its own CSS. The shell (header, h1, intro) is in this
 // entry and renders at once; the page fills in below it when its chunk arrives. In a build,
 // index.html preloads the current page's chunk alongside this one.
-const pageLoaders = import.meta.glob<{ default: ComponentType }>(["./App.tsx", "./CatalogPages.tsx", "./*Showcase.tsx"]);
+const pageLoaders = import.meta.glob<{ default: ComponentType }>("./*Showcase.tsx");
 
 const params = new URLSearchParams(location.search);
 const theme = params.get("theme");

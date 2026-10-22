@@ -117,7 +117,7 @@ function VerificationFigure() {
   );
 }
 
-export default function CatalogPages() {
+export default function CatalogShowcase() {
   const { theme } = useShowcaseTheme();
   const styles = location.pathname.replace(/\/$/, "") === "/styles";
   const [index, setIndex] = useState(0);
