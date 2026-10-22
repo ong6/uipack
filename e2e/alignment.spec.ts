@@ -4,6 +4,7 @@ import { expect, test } from "@playwright/test";
 test("style cards in a row align their links", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/styles");
+  await expect(page.locator(".style-card").first()).toBeVisible();
   const rows = await page.evaluate(() => {
     const byRow: Record<number, number[]> = {};
     document.querySelectorAll(".style-card").forEach((card) => {
