@@ -10,3 +10,4 @@ test-results/
 playwright-report/
 # Markdown is prose with compact tables: Prettier pads every table column to its widest cell.
 *.md
+coverage/
