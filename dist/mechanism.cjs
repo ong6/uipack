@@ -1337,6 +1337,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
   const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
   const stillness = React2.useRef(reduced);
   stillness.current = reduced;
+  const [paused, setPaused] = React2.useState(false);
   const start = React2.useRef(null);
   if (!start.current || !interactive) {
     const calm = !animated || reduced;
@@ -1473,6 +1474,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
       s.t = calm ? STILL_AT[pose] : 0;
       s.round++;
       s.paused = false;
+      setPaused(false);
     }
     aim(pose === "apart", calm);
     if (calm) {
@@ -1528,8 +1530,10 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
     const s = state.current;
     const current = poseRef.current;
     const calm = stillness.current || motion === "none";
-    if (current === "idle") s.paused = !s.paused;
-    else if (current === "apart") {
+    if (current === "idle") {
+      s.paused = !s.paused;
+      setPaused(s.paused);
+    } else if (current === "apart") {
       const open = ASSEMBLIES.every((name) => s.targets[name] === 1);
       aim(!open, calm);
     } else {
@@ -1725,7 +1729,15 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
       ]
     }
   );
-  return machine;
+  if (!animated || reduced || pose !== "idle") return machine;
+  const control = /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", className: "um-motion", onClick: act, children: paused ? "Resume motion" : "Pause motion" });
+  return bare ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-mechanism um-live", "data-theme": theme, children: [
+    machine,
+    control
+  ] }) : /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
+    machine,
+    control
+  ] });
 }
 function Tokens({ layer, slots }) {
   return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _jsxruntime.Fragment, { children: slots.map((slot, index) => {

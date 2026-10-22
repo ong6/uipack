@@ -72,7 +72,7 @@ function SceneViewport({
       return;
     }
     setStatus("loading");
-    void Promise.resolve().then(() => _interopRequireWildcard(require("./renderer-I3OQMLUB.cjs"))).then(({ createSlideScene }) => {
+    void Promise.resolve().then(() => _interopRequireWildcard(require("./renderer-TT76FMHG.cjs"))).then(({ createSlideScene }) => {
       if (cancelled || !host.current || !labels.current) return;
       try {
         runtime.current = createSlideScene(

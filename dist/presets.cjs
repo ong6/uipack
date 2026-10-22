@@ -11,7 +11,7 @@
 
 
 
-var _chunkZEVTITYCcjs = require('./chunk-ZEVTITYC.cjs');
+var _chunkQSMDATWJcjs = require('./chunk-QSMDATWJ.cjs');
 require('./chunk-XEK5V7KF.cjs');
 require('./chunk-NFU4EWVX.cjs');
 require('./chunk-YMPVJRTJ.cjs');
@@ -30,7 +30,7 @@ function presetFigure(spec, parts, id) {
 }
 function toFigure(meta, parts, id) {
   return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
-    _chunkZEVTITYCcjs.Figure,
+    _chunkQSMDATWJcjs.Figure,
     {
       id,
       number: meta.number,
@@ -93,7 +93,7 @@ function stackHeightFor(steps, y0 = 24) {
 function Stack({ steps, id, y0 = 24 }) {
   const { ys } = stackLayout(steps, y0);
   return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Defs, { id }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Defs, { id }),
     steps.map((s, i) => {
       const y = ys[i];
       const into = [
@@ -103,10 +103,10 @@ function Stack({ steps, id, y0 = 24 }) {
       const kind = _nullishCoalesce(s.kind, () => ( "request"));
       return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
         i > 0 && s.link !== false ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: into, defs: id, kind: kind === "neutral" ? void 0 : kind, flow: s.flow }),
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: into, kind, dur: 1.4, delay: -i * 0.35, reverse: s.back, flow: s.flow, r: 4 })
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: into, defs: id, kind: kind === "neutral" ? void 0 : kind, flow: s.flow }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: into, kind, dur: 1.4, delay: -i * 0.35, reverse: s.back, flow: s.flow, r: 4 })
         ] }) : null,
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x: SX, y, w: SW, h: SH, label: s.label, sub: s.sub, icon: s.icon, hint: s.hint, size: 13, subSize: 10, flow: s.flow, accent: s.accent, dashed: s.dashed })
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x: SX, y, w: SW, h: SH, label: s.label, sub: s.sub, icon: s.icon, hint: s.hint, size: 13, subSize: 10, flow: s.flow, accent: s.accent, dashed: s.dashed })
       ] }, i);
     })
   ] });
@@ -176,8 +176,8 @@ function serviceMapParts(spec = defaultServiceMap, id) {
     at: storeBusX,
     stubs: [...spec.resources.map((_, i) => ({ at: storeY(i), to: store.x, arrow: true, flow: READ })), { at: trunkY, to: platform.x + platform.w, flow: READ }]
   };
-  const toPlatform = _chunkZEVTITYCcjs.busStub.call(void 0, clientBus, clientBus.stubs[spec.clients.length]);
-  const fromPlatform = _chunkZEVTITYCcjs.busStub.call(void 0, storeBus, storeBus.stubs[spec.resources.length]);
+  const toPlatform = _chunkQSMDATWJcjs.busStub.call(void 0, clientBus, clientBus.stubs[spec.clients.length]);
+  const fromPlatform = _chunkQSMDATWJcjs.busStub.call(void 0, storeBus, storeBus.stubs[spec.resources.length]);
   let height = lanesBottom + 24;
   let sinks = null;
   if (spec.sinks) {
@@ -194,39 +194,39 @@ function serviceMapParts(spec = defaultServiceMap, id) {
     ];
     const elbow = via.y + via.h + 24;
     sinks = /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: viaPath, defs: id, kind: "change", flow: CDC }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: viaPath, kind: "change", dur: 2, flow: CDC }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { ...via, label: spec.sinks.via.label, hint: spec.sinks.via.hint, sub: spec.sinks.via.sub, icon: _nullishCoalesce(spec.sinks.via.icon, () => ( "queue")), flow: CDC }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: viaPath, defs: id, kind: "change", flow: CDC }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: viaPath, kind: "change", dur: 2, flow: CDC }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { ...via, label: spec.sinks.via.label, hint: spec.sinks.via.hint, sub: spec.sinks.via.sub, icon: _nullishCoalesce(spec.sinks.via.icon, () => ( "queue")), flow: CDC }),
       spec.sinks.items.map((s, i) => {
-        const p = _chunkZEVTITYCcjs.route.call(void 0, [via.x + via.w / 2, via.y + via.h], [x0 + i * (sw + gap) + sw / 2, sinkY], elbow, "v");
+        const p = _chunkQSMDATWJcjs.route.call(void 0, [via.x + via.w / 2, via.y + via.h], [x0 + i * (sw + gap) + sw / 2, sinkY], elbow, "v");
         return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: p, defs: id, kind: "change", flow: CDC }),
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: p, kind: "change", dur: 2.2, delay: -i * 0.55, flow: CDC }),
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x: x0 + i * (sw + gap), y: sinkY, w: sw, h: 40, label: s.label, hint: s.hint, icon: s.icon, flow: CDC, size: 13 })
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: p, defs: id, kind: "change", flow: CDC }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: p, kind: "change", dur: 2.2, delay: -i * 0.55, flow: CDC }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x: x0 + i * (sw + gap), y: sinkY, w: sw, h: 40, label: s.label, hint: s.hint, icon: s.icon, flow: CDC, size: 13 })
         ] }, s.label);
       })
     ] });
     height = sinkY + 40 + 24;
   }
   const wide = /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Defs, { id }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Lane, { x: client.x, w: client.w, y: 40, title: lc }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Lane, { x: platform.x, w: platform.w, y: 40, title: lp }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Lane, { x: store.x, w: store.w, y: 40, title: lr }),
-    spec.clients.map((c, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x: client.x, y: client.y0 + i * client.step, w: client.w, h: client.h, label: c.label, hint: c.hint, sub: c.sub, icon: c.icon, flow: READ }, c.label)),
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _chunkZEVTITYCcjs.Group, { ...platform, title: spec.platform.title, flow: spec.sinks ? [READ, CDC] : READ, children: [
-      spec.platform.cells.map((c, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x: platform.x + 24 + i % 3 * 192, y: platform.y + 44 + Math.floor(i / 3) * 72, w: 168, h: 56, label: c.label, hint: c.hint, sub: c.sub, align: "left", flow: READ }, c.label)),
-      spec.platform.footer ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x: platform.x + 24, y: platform.y + 44 + rows2 * 72, w: 552, h: 56, label: spec.platform.footer.label, hint: spec.platform.footer.hint, sub: spec.platform.footer.sub, align: "left", flow: READ }) : null
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Defs, { id }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Lane, { x: client.x, w: client.w, y: 40, title: lc }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Lane, { x: platform.x, w: platform.w, y: 40, title: lp }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Lane, { x: store.x, w: store.w, y: 40, title: lr }),
+    spec.clients.map((c, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x: client.x, y: client.y0 + i * client.step, w: client.w, h: client.h, label: c.label, hint: c.hint, sub: c.sub, icon: c.icon, flow: READ }, c.label)),
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _chunkQSMDATWJcjs.Group, { ...platform, title: spec.platform.title, flow: spec.sinks ? [READ, CDC] : READ, children: [
+      spec.platform.cells.map((c, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x: platform.x + 24 + i % 3 * 192, y: platform.y + 44 + Math.floor(i / 3) * 72, w: 168, h: 56, label: c.label, hint: c.hint, sub: c.sub, align: "left", flow: READ }, c.label)),
+      spec.platform.footer ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x: platform.x + 24, y: platform.y + 44 + rows2 * 72, w: 552, h: 56, label: spec.platform.footer.label, hint: spec.platform.footer.hint, sub: spec.platform.footer.sub, align: "left", flow: READ }) : null
     ] }),
-    spec.resources.map((r, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x: store.x, y: store.y0 + i * store.step, w: store.w, h: store.h, label: r.label, hint: r.hint, sub: r.sub, icon: r.icon, flow: READ }, r.label)),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Bus, { ...clientBus, from: Math.min(clientY(0), trunkY), to: Math.max(clientY(spec.clients.length - 1), trunkY), defs: id }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Bus, { ...storeBus, from: Math.min(storeY(0), trunkY), to: Math.max(storeY(spec.resources.length - 1), trunkY), defs: id }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: toPlatform, kind: "request", dur: 2.4, flow: READ }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: toPlatform, kind: "response", dur: 2.4, delay: -1.2, reverse: true, flow: READ }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: fromPlatform, kind: "request", dur: 2.4, delay: -0.3, reverse: true, flow: READ }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: fromPlatform, kind: "response", dur: 2.4, delay: -1.5, flow: READ }),
-    spec.clients.map((_, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: _chunkZEVTITYCcjs.busStub.call(void 0, clientBus, clientBus.stubs[i]), kind: i % 2 ? "response" : "request", dur: 1.6, delay: -i * 0.4, reverse: i % 2 === 0, r: 4, flow: READ }, i)),
-    spec.resources.map((_, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: _chunkZEVTITYCcjs.busStub.call(void 0, storeBus, storeBus.stubs[i]), kind: i % 2 ? "response" : "request", dur: 1.6, delay: -i * 0.5, reverse: i % 2 === 1, r: 4, flow: READ }, i)),
+    spec.resources.map((r, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x: store.x, y: store.y0 + i * store.step, w: store.w, h: store.h, label: r.label, hint: r.hint, sub: r.sub, icon: r.icon, flow: READ }, r.label)),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Bus, { ...clientBus, from: Math.min(clientY(0), trunkY), to: Math.max(clientY(spec.clients.length - 1), trunkY), defs: id }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Bus, { ...storeBus, from: Math.min(storeY(0), trunkY), to: Math.max(storeY(spec.resources.length - 1), trunkY), defs: id }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: toPlatform, kind: "request", dur: 2.4, flow: READ }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: toPlatform, kind: "response", dur: 2.4, delay: -1.2, reverse: true, flow: READ }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: fromPlatform, kind: "request", dur: 2.4, delay: -0.3, reverse: true, flow: READ }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: fromPlatform, kind: "response", dur: 2.4, delay: -1.5, flow: READ }),
+    spec.clients.map((_, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: _chunkQSMDATWJcjs.busStub.call(void 0, clientBus, clientBus.stubs[i]), kind: i % 2 ? "response" : "request", dur: 1.6, delay: -i * 0.4, reverse: i % 2 === 0, r: 4, flow: READ }, i)),
+    spec.resources.map((_, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: _chunkQSMDATWJcjs.busStub.call(void 0, storeBus, storeBus.stubs[i]), kind: i % 2 ? "response" : "request", dur: 1.6, delay: -i * 0.5, reverse: i % 2 === 1, r: 4, flow: READ }, i)),
     sinks
   ] });
   const row = (items, sub, icon, flow, kind) => rows(items, 3).map((r, i) => {
@@ -292,7 +292,7 @@ function agentLoopParts(spec = defaultAgentLoop, id) {
     at: busX,
     stubs: [...spec.tools.map((_, i) => ({ at: toolY(i), to: tool.x, arrow: true, flow: TOOLS })), { at: trunkY, to: agentBox.x + agentBox.w, flow: TOOLS }]
   };
-  const fromAgent = _chunkZEVTITYCcjs.busStub.call(void 0, bus, bus.stubs[n]);
+  const fromAgent = _chunkQSMDATWJcjs.busStub.call(void 0, bus, bus.stubs[n]);
   const ask = [
     [user.x + user.w, 120],
     [agentBox.x, 120]
@@ -310,31 +310,31 @@ function agentLoopParts(spec = defaultAgentLoop, id) {
   ];
   const height = output.y + output.h + 24;
   const wide = /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Defs, { id }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Lane, { x: user.x, w: user.w, y: 40, title: lu }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Lane, { x: agentBox.x, w: agentBox.w, y: 40, title: la }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Lane, { x: tool.x, w: tool.w, y: 40, title: lt }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { ...user, label: spec.user.label, sub: spec.user.sub, icon: _nullishCoalesce(spec.user.icon, () => ( "user")), flow: ASK, hint: _nullishCoalesce(spec.user.hint, () => ( "Sends the request, reads the output")) }),
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _chunkZEVTITYCcjs.Group, { ...agentBox, title: spec.agent.label, flow: [ASK, TOOLS, CHECK], children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x: agentBox.x + 24, y: agentBox.y + 40, w: agentBox.w - 48, h: 56, label: _nullishCoalesce(spec.agent.sub, () => ( "plan \xB7 call \xB7 draft")), sub: "model", icon: _nullishCoalesce(spec.agent.icon, () => ( "agent")), flow: [ASK, TOOLS] }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x: agentBox.x + 24, y: agentBox.y + 112, w: agentBox.w - 48, h: 40, label: "Draft", sub: "structured output", icon: "doc", flow: CHECK, size: 13, subSize: 10 })
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Defs, { id }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Lane, { x: user.x, w: user.w, y: 40, title: lu }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Lane, { x: agentBox.x, w: agentBox.w, y: 40, title: la }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Lane, { x: tool.x, w: tool.w, y: 40, title: lt }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { ...user, label: spec.user.label, sub: spec.user.sub, icon: _nullishCoalesce(spec.user.icon, () => ( "user")), flow: ASK, hint: _nullishCoalesce(spec.user.hint, () => ( "Sends the request, reads the output")) }),
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _chunkQSMDATWJcjs.Group, { ...agentBox, title: spec.agent.label, flow: [ASK, TOOLS, CHECK], children: [
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x: agentBox.x + 24, y: agentBox.y + 40, w: agentBox.w - 48, h: 56, label: _nullishCoalesce(spec.agent.sub, () => ( "plan \xB7 call \xB7 draft")), sub: "model", icon: _nullishCoalesce(spec.agent.icon, () => ( "agent")), flow: [ASK, TOOLS] }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x: agentBox.x + 24, y: agentBox.y + 112, w: agentBox.w - 48, h: 40, label: "Draft", sub: "structured output", icon: "doc", flow: CHECK, size: 13, subSize: 10 })
     ] }),
-    spec.tools.map((t, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x: tool.x, y: tool.y0 + i * tool.step, w: tool.w, h: tool.h, label: t.label, hint: t.hint, sub: t.sub, icon: _nullishCoalesce(t.icon, () => ( "tool")), flow: TOOLS }, t.label)),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: ask, defs: id, kind: "request", flow: ASK }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: ask, kind: "request", dur: 2, flow: ASK }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: ask, kind: "response", dur: 2, delay: -1, reverse: true, flow: ASK }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Bus, { ...bus, from: Math.min(toolY(0), trunkY), to: Math.max(toolY(n - 1), trunkY), defs: id, kind: "change" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: fromAgent, kind: "change", dur: 1.8, flow: TOOLS }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: fromAgent, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: TOOLS }),
-    spec.tools.map((_, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: _chunkZEVTITYCcjs.busStub.call(void 0, bus, bus.stubs[i]), kind: i % 2 ? "response" : "change", dur: 1.4, delay: -i * 0.45, reverse: i % 2 === 1, r: 4, flow: TOOLS }, i)),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Label, { x: (agentBox.x + agentBox.w + busX) / 2, y: trunkY - 10, text: "tool calls", anchor: "middle" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: toBoundary, defs: id, kind: "request", flow: CHECK }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: toBoundary, kind: "request", dur: 1.6, flow: CHECK }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { ...boundary, label: spec.boundary.label, sub: spec.boundary.sub, icon: _nullishCoalesce(spec.boundary.icon, () => ( "lock")), accent: true, dashed: true, flow: CHECK, hint: _nullishCoalesce(spec.boundary.hint, () => ( "Code, not a model, decides what passes")) }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: toOutput, defs: id, kind: "accent", flow: CHECK }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: toOutput, kind: "accent", dur: 1.6, delay: -0.8, flow: CHECK }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Label, { x: cx + 12, y: toOutput[0][1] + 28, text: "verdict", accent: true }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { ...output, label: spec.output.label, hint: spec.output.hint, sub: spec.output.sub, icon: _nullishCoalesce(spec.output.icon, () => ( "doc")), flow: CHECK })
+    spec.tools.map((t, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x: tool.x, y: tool.y0 + i * tool.step, w: tool.w, h: tool.h, label: t.label, hint: t.hint, sub: t.sub, icon: _nullishCoalesce(t.icon, () => ( "tool")), flow: TOOLS }, t.label)),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: ask, defs: id, kind: "request", flow: ASK }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: ask, kind: "request", dur: 2, flow: ASK }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: ask, kind: "response", dur: 2, delay: -1, reverse: true, flow: ASK }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Bus, { ...bus, from: Math.min(toolY(0), trunkY), to: Math.max(toolY(n - 1), trunkY), defs: id, kind: "change" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: fromAgent, kind: "change", dur: 1.8, flow: TOOLS }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: fromAgent, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: TOOLS }),
+    spec.tools.map((_, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: _chunkQSMDATWJcjs.busStub.call(void 0, bus, bus.stubs[i]), kind: i % 2 ? "response" : "change", dur: 1.4, delay: -i * 0.45, reverse: i % 2 === 1, r: 4, flow: TOOLS }, i)),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Label, { x: (agentBox.x + agentBox.w + busX) / 2, y: trunkY - 10, text: "tool calls", anchor: "middle" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: toBoundary, defs: id, kind: "request", flow: CHECK }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: toBoundary, kind: "request", dur: 1.6, flow: CHECK }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { ...boundary, label: spec.boundary.label, sub: spec.boundary.sub, icon: _nullishCoalesce(spec.boundary.icon, () => ( "lock")), accent: true, dashed: true, flow: CHECK, hint: _nullishCoalesce(spec.boundary.hint, () => ( "Code, not a model, decides what passes")) }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: toOutput, defs: id, kind: "accent", flow: CHECK }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: toOutput, kind: "accent", dur: 1.6, delay: -0.8, flow: CHECK }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Label, { x: cx + 12, y: toOutput[0][1] + 28, text: "verdict", accent: true }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { ...output, label: spec.output.label, hint: spec.output.hint, sub: spec.output.sub, icon: _nullishCoalesce(spec.output.icon, () => ( "doc")), flow: CHECK })
   ] });
   const steps = [
     { ...spec.user, icon: _nullishCoalesce(spec.user.icon, () => ( "user")), flow: ASK },
@@ -434,37 +434,37 @@ function ragPipelineParts(spec = defaultRagPipeline, id) {
       [sx(i + 1), y]
     ];
     return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: p, defs: id, kind, flow }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: p, kind, dur: 1.2, delay: -i * 0.4, r: 4, flow })
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: p, defs: id, kind, flow }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: p, kind, dur: 1.2, delay: -i * 0.4, r: 4, flow })
     ] }, i);
   });
   const wide = /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Defs, { id }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Lane, { x: src.x, w: src.w, y: 40, title: "Sources" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Lane, { x: stage.x0, w: ingestLast - stage.x0, y: 40, title: "Ingest" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Lane, { x: index.x, w: index.w, y: 40, title: "Index" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Lane, { x: stage.x0, w: sx(spec.stages.length - 1) + stage.w - stage.x0, y: 248, title: "Query" }),
-    spec.sources.map((s, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x: src.x, y: src.y0 + i * src.step, w: src.w, h: src.h, label: s.label, hint: s.hint, icon: _nullishCoalesce(s.icon, () => ( "doc")), flow: INGEST, size: 13 }, s.label)),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Bus, { ...bus, from: Math.min(srcY(0), iy), to: Math.max(srcY(spec.sources.length - 1), iy), defs: id, kind: "change" }),
-    spec.sources.map((_, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: _chunkZEVTITYCcjs.busStub.call(void 0, bus, bus.stubs[i]), kind: "change", dur: 1.4, delay: -i * 0.5, reverse: true, r: 4, flow: INGEST }, i)),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: _chunkZEVTITYCcjs.busStub.call(void 0, bus, bus.stubs[spec.sources.length]), kind: "change", dur: 1.2, flow: INGEST, r: 4 }),
-    spec.ingest.map((s, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x: sx(i), y: ingestY, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: INGEST, size: 13, subSize: 10 }, s.label)),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Defs, { id }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Lane, { x: src.x, w: src.w, y: 40, title: "Sources" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Lane, { x: stage.x0, w: ingestLast - stage.x0, y: 40, title: "Ingest" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Lane, { x: index.x, w: index.w, y: 40, title: "Index" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Lane, { x: stage.x0, w: sx(spec.stages.length - 1) + stage.w - stage.x0, y: 248, title: "Query" }),
+    spec.sources.map((s, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x: src.x, y: src.y0 + i * src.step, w: src.w, h: src.h, label: s.label, hint: s.hint, icon: _nullishCoalesce(s.icon, () => ( "doc")), flow: INGEST, size: 13 }, s.label)),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Bus, { ...bus, from: Math.min(srcY(0), iy), to: Math.max(srcY(spec.sources.length - 1), iy), defs: id, kind: "change" }),
+    spec.sources.map((_, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: _chunkQSMDATWJcjs.busStub.call(void 0, bus, bus.stubs[i]), kind: "change", dur: 1.4, delay: -i * 0.5, reverse: true, r: 4, flow: INGEST }, i)),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: _chunkQSMDATWJcjs.busStub.call(void 0, bus, bus.stubs[spec.sources.length]), kind: "change", dur: 1.2, flow: INGEST, r: 4 }),
+    spec.ingest.map((s, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x: sx(i), y: ingestY, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: INGEST, size: 13, subSize: 10 }, s.label)),
     chain(spec.ingest, iy, "change", INGEST),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: toIndex, defs: id, kind: "change", flow: INGEST }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: toIndex, kind: "change", dur: 2, flow: INGEST }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { ...index, label: spec.index.label, sub: spec.index.sub, icon: _nullishCoalesce(spec.index.icon, () => ( "db")), flow: [INGEST, QUERY], hint: _nullishCoalesce(spec.index.hint, () => ( "Shared by both lanes")) }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x: src.x, y: queryY, w: src.w, h: stage.h, label: spec.query.label, hint: spec.query.hint, icon: _nullishCoalesce(spec.query.icon, () => ( "user")), flow: QUERY, size: 13 }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: queryIn, defs: id, kind: "request", flow: QUERY }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: queryIn, kind: "request", dur: 1.2, flow: QUERY, r: 4 }),
-    spec.stages.map((s, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x: sx(i), y: queryY, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: QUERY, size: 13, subSize: 10 }, s.label)),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: toIndex, defs: id, kind: "change", flow: INGEST }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: toIndex, kind: "change", dur: 2, flow: INGEST }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { ...index, label: spec.index.label, sub: spec.index.sub, icon: _nullishCoalesce(spec.index.icon, () => ( "db")), flow: [INGEST, QUERY], hint: _nullishCoalesce(spec.index.hint, () => ( "Shared by both lanes")) }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x: src.x, y: queryY, w: src.w, h: stage.h, label: spec.query.label, hint: spec.query.hint, icon: _nullishCoalesce(spec.query.icon, () => ( "user")), flow: QUERY, size: 13 }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: queryIn, defs: id, kind: "request", flow: QUERY }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: queryIn, kind: "request", dur: 1.2, flow: QUERY, r: 4 }),
+    spec.stages.map((s, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x: sx(i), y: queryY, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: QUERY, size: 13, subSize: 10 }, s.label)),
     chain(spec.stages, qy, "request", QUERY),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: read, defs: id, kind: "request", flow: QUERY }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: read, kind: "request", dur: 1.8, flow: QUERY, r: 4 }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: read, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: QUERY, r: 4 }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Label, { x: (retrieveX + index.x) / 2, y: index.y + index.h / 2 + 6, text: "top-k", anchor: "middle" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: toAnswer, defs: id, kind: "response", flow: QUERY }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: toAnswer, kind: "response", dur: 1.4, flow: QUERY, r: 4 }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { ...answer, label: spec.answer.label, hint: spec.answer.hint, sub: spec.answer.sub, icon: _nullishCoalesce(spec.answer.icon, () => ( "doc")), flow: QUERY, size: 13, subSize: 10 })
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: read, defs: id, kind: "request", flow: QUERY }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: read, kind: "request", dur: 1.8, flow: QUERY, r: 4 }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: read, kind: "response", dur: 1.8, delay: -0.9, reverse: true, flow: QUERY, r: 4 }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Label, { x: (retrieveX + index.x) / 2, y: index.y + index.h / 2 + 6, text: "top-k", anchor: "middle" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: toAnswer, defs: id, kind: "response", flow: QUERY }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: toAnswer, kind: "response", dur: 1.4, flow: QUERY, r: 4 }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { ...answer, label: spec.answer.label, hint: spec.answer.hint, sub: spec.answer.sub, icon: _nullishCoalesce(spec.answer.icon, () => ( "doc")), flow: QUERY, size: 13, subSize: 10 })
   ] });
   const steps = [
     { label: spec.sources.map((s) => s.label).join(" \xB7 "), sub: "sources", icon: "doc", flow: INGEST },
@@ -543,31 +543,31 @@ function skillLifecycleParts(spec = defaultSkillLifecycle, id) {
   ];
   const height = loopY + 40;
   const wide = /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Defs, { id }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Lane, { x: author.x, w: author.w, y: 40, title: "Author" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Lane, { x: evaluate.x, w: evaluate.w, y: 40, title: "Evaluate" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Lane, { x: version.x, w: version.w, y: 40, title: "Version" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { ...author, label: spec.author.label, hint: spec.author.hint, sub: spec.author.sub, icon: _nullishCoalesce(spec.author.icon, () => ( "user")), flow: [FWD, BACK] }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: a2e, defs: id, kind: "request", flow: FWD }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: a2e, kind: "request", dur: 1.4, flow: FWD, r: 4 }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { ...evaluate, label: spec.evaluate.label, sub: spec.evaluate.sub, icon: _nullishCoalesce(spec.evaluate.icon, () => ( "chart")), flow: FWD, hint: _nullishCoalesce(spec.evaluate.hint, () => ( `Scored against: ${spec.evaluate.baseline}`)) }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Chip, { x: evaluate.x, y: evaluate.y + evaluate.h + 12, w: evaluate.w, h: 20, label: `baseline \xB7 ${spec.evaluate.baseline}`, dashed: true }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: e2v, defs: id, kind: "accent", flow: FWD }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: e2v, kind: "accent", dur: 1.4, delay: -0.7, flow: FWD, r: 4 }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Label, { x: (e2v[0][0] + e2v[1][0]) / 2, y: cy - 10, text: "passes", anchor: "middle", accent: true }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { ...version, label: spec.version.label, hint: spec.version.hint, sub: spec.version.sub, icon: _nullishCoalesce(spec.version.icon, () => ( "git")), flow: FWD }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Bus, { ...bus, from: Math.min(conY(0), cy), to: trunkEnd, defs: id }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: _chunkZEVTITYCcjs.busStub.call(void 0, bus, bus.stubs[n]), kind: "request", dur: 1.2, flow: FWD, r: 4 }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Defs, { id }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Lane, { x: author.x, w: author.w, y: 40, title: "Author" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Lane, { x: evaluate.x, w: evaluate.w, y: 40, title: "Evaluate" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Lane, { x: version.x, w: version.w, y: 40, title: "Version" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { ...author, label: spec.author.label, hint: spec.author.hint, sub: spec.author.sub, icon: _nullishCoalesce(spec.author.icon, () => ( "user")), flow: [FWD, BACK] }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: a2e, defs: id, kind: "request", flow: FWD }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: a2e, kind: "request", dur: 1.4, flow: FWD, r: 4 }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { ...evaluate, label: spec.evaluate.label, sub: spec.evaluate.sub, icon: _nullishCoalesce(spec.evaluate.icon, () => ( "chart")), flow: FWD, hint: _nullishCoalesce(spec.evaluate.hint, () => ( `Scored against: ${spec.evaluate.baseline}`)) }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Chip, { x: evaluate.x, y: evaluate.y + evaluate.h + 12, w: evaluate.w, h: 20, label: `baseline \xB7 ${spec.evaluate.baseline}`, dashed: true }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: e2v, defs: id, kind: "accent", flow: FWD }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: e2v, kind: "accent", dur: 1.4, delay: -0.7, flow: FWD, r: 4 }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Label, { x: (e2v[0][0] + e2v[1][0]) / 2, y: cy - 10, text: "passes", anchor: "middle", accent: true }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { ...version, label: spec.version.label, hint: spec.version.hint, sub: spec.version.sub, icon: _nullishCoalesce(spec.version.icon, () => ( "git")), flow: FWD }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Bus, { ...bus, from: Math.min(conY(0), cy), to: trunkEnd, defs: id }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: _chunkQSMDATWJcjs.busStub.call(void 0, bus, bus.stubs[n]), kind: "request", dur: 1.2, flow: FWD, r: 4 }),
     spec.consumers.map((c, i) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: _chunkZEVTITYCcjs.busStub.call(void 0, bus, bus.stubs[i]), kind: "request", dur: 1.2, delay: -i * 0.4, flow: FWD, r: 4 }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, hint: c.hint, sub: c.sub, icon: c.icon, flow: [FWD, BACK] })
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: _chunkQSMDATWJcjs.busStub.call(void 0, bus, bus.stubs[i]), kind: "request", dur: 1.2, delay: -i * 0.4, flow: FWD, r: 4 }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, hint: c.hint, sub: c.sub, icon: c.icon, flow: [FWD, BACK] })
     ] }, c.label)),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Label, { x: (version.x + version.w + busX) / 2, y: cy - 10, text: "install", anchor: "middle" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: back, defs: id, kind: "change", flow: BACK, dashed: true }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: back, kind: "change", dur: 3.2, flow: BACK }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: back, kind: "change", dur: 3.2, delay: -1.6, flow: BACK }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Label, { x: (busX + author.x) / 2, y: loopY - 10, text: `${spec.feedback.label} \xB7 ${_nullishCoalesce(spec.feedback.sub, () => ( ""))}`.trim(), anchor: "middle" })
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Label, { x: (version.x + version.w + busX) / 2, y: cy - 10, text: "install", anchor: "middle" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: back, defs: id, kind: "change", flow: BACK, dashed: true }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: back, kind: "change", dur: 3.2, flow: BACK }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: back, kind: "change", dur: 3.2, delay: -1.6, flow: BACK }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Label, { x: (busX + author.x) / 2, y: loopY - 10, text: `${spec.feedback.label} \xB7 ${_nullishCoalesce(spec.feedback.sub, () => ( ""))}`.trim(), anchor: "middle" })
   ] });
   const steps = [
     { ...spec.author, icon: _nullishCoalesce(spec.author.icon, () => ( "user")), flow: FWD },
@@ -627,10 +627,10 @@ function syncLoopParts(spec = defaultSyncLoop, id) {
   const conY = (i) => con.y0 + i * con.step + con.h / 2;
   const height = Math.max(up.y + up.h, con.y0 + n * con.step - 24) + 32;
   const wide = /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Defs, { id }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Lane, { x: up.x, w: up.w, y: 40, title: "Upstream" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Group, { ...up, title: spec.upstream.label, flow: [PULL, PUSH], children: items.map((it, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x: up.x + 16, y: up.y + 40 + i * 64, w: up.w - 32, h: 48, label: it.label, hint: it.hint, sub: it.sub, icon: it.icon, align: "left", flow: [PULL, PUSH], size: 13, subSize: 10 }, it.label)) }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Defs, { id }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Lane, { x: up.x, w: up.w, y: 40, title: "Upstream" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Lane, { x: con.x, w: con.w, y: 40, title: "Consumers" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Group, { ...up, title: spec.upstream.label, flow: [PULL, PUSH], children: items.map((it, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x: up.x + 16, y: up.y + 40 + i * 64, w: up.w - 32, h: 48, label: it.label, hint: it.hint, sub: it.sub, icon: it.icon, align: "left", flow: [PULL, PUSH], size: 13, subSize: 10 }, it.label)) }),
     spec.consumers.map((c, i) => {
       const cy = conY(i);
       const pull = [
@@ -647,19 +647,19 @@ function syncLoopParts(spec = defaultSyncLoop, id) {
       ];
       return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
         c.plugin ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: single, defs: id, kind: "request", dashed: true, flow: PULL }),
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: single, kind: "request", dur: 2.6, delay: -i * 0.5, flow: PULL, r: 4 })
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: single, defs: id, kind: "request", dashed: true, flow: PULL }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: single, kind: "request", dur: 2.6, delay: -i * 0.5, flow: PULL, r: 4 })
         ] }) : /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: pull, defs: id, kind: "request", flow: PULL }),
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: pull, kind: "request", dur: 2.4, delay: -i * 0.6, flow: PULL, r: 4 }),
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: push, defs: id, kind: "change", flow: PUSH }),
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: push, kind: "change", dur: 2.4, delay: -i * 0.6 - 1.2, flow: PUSH, r: 4 })
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: pull, defs: id, kind: "request", flow: PULL }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: pull, kind: "request", dur: 2.4, delay: -i * 0.6, flow: PULL, r: 4 }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: push, defs: id, kind: "change", flow: PUSH }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: push, kind: "change", dur: 2.4, delay: -i * 0.6 - 1.2, flow: PUSH, r: 4 })
         ] }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, hint: c.hint, sub: c.hooks ? `${_nullishCoalesce(c.sub, () => ( ""))} \xB7 ${c.hooks[0]} \u2192 ${c.hooks[1]}`.replace(/^ · /, "") : c.sub, icon: c.icon, align: "left", flow: c.plugin ? PULL : [PULL, PUSH] })
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x: con.x, y: con.y0 + i * con.step, w: con.w, h: con.h, label: c.label, hint: c.hint, sub: c.hooks ? `${_nullishCoalesce(c.sub, () => ( ""))} \xB7 ${c.hooks[0]} \u2192 ${c.hooks[1]}`.replace(/^ · /, "") : c.sub, icon: c.icon, align: "left", flow: c.plugin ? PULL : [PULL, PUSH] })
       ] }, c.label);
     }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) - 16, text: _nullishCoalesce(spec.pull, () => ( "pull")), anchor: "middle" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) + 28, text: _nullishCoalesce(spec.push, () => ( "push")), anchor: "middle" })
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) - 16, text: _nullishCoalesce(spec.pull, () => ( "pull")), anchor: "middle" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Label, { x: (up.x + up.w + con.x) / 2, y: conY(0) + 28, text: _nullishCoalesce(spec.push, () => ( "push")), anchor: "middle" })
   ] });
   const steps = [
     { label: spec.upstream.label, sub: _nullishCoalesce(spec.upstream.sub, () => ( items.map((i) => i.label).join(" \xB7 "))), icon: "git", flow: [PULL, PUSH].join(" ") },
@@ -719,7 +719,7 @@ function beforeAfterParts(spec = defaultBeforeAfter, id) {
     const sy = y + 48;
     const cy = sy + stage.h / 2;
     const changed2 = new Set(_nullishCoalesce(p.changed, () => ( [])));
-    return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Group, { x: x0, y, w, h: panelH, title: p.title, variant: "dashed", flow, accent: changed2.size > 0, children: p.stages.map((s, i) => {
+    return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Group, { x: x0, y, w, h: panelH, title: p.title, variant: "dashed", flow, accent: changed2.size > 0, children: p.stages.map((s, i) => {
       const x = x0 + 24 + i * stage.step;
       const into = [
         [x - stage.step + stage.w, cy],
@@ -728,10 +728,10 @@ function beforeAfterParts(spec = defaultBeforeAfter, id) {
       const hot = changed2.has(i);
       return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
         i > 0 ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: into, defs: id, kind: hot ? "accent" : "request", flow }),
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: into, kind: hot ? "accent" : "request", dur: 1.2, delay: -i * 0.4, flow, r: 4, id: `${pid}-p${i}` })
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: into, defs: id, kind: hot ? "accent" : "request", flow }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: into, kind: hot ? "accent" : "request", dur: 1.2, delay: -i * 0.4, flow, r: 4, id: `${pid}-p${i}` })
         ] }) : null,
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x, y: sy, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, accent: hot, flow, size: 13, subSize: 10 })
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x, y: sy, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, accent: hot, flow, size: 13, subSize: 10 })
       ] }, s.label + i);
     }) });
   };
@@ -740,7 +740,7 @@ function beforeAfterParts(spec = defaultBeforeAfter, id) {
   const panelW = (p) => 48 + p.stages.length * stage.step - (stage.step - stage.w) + 48;
   const width = Math.max(panelW(spec.before), panelW(spec.after)) + 48;
   const wide = /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Defs, { id }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Defs, { id }),
     panel(spec.before, 24, "before", `${id}-b`),
     panel(spec.after, afterY, "after", `${id}-a`)
   ] });
@@ -799,8 +799,8 @@ function pipelineParts(spec = defaultPipeline, id) {
       [x(slot), cy]
     ];
     const edge = slot > 0 ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Connector, { points: into, defs: id, kind: kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request", flow: FLOW }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Packet, { points: into, kind: kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request", dur: 1.2, delay: -slot * 0.35, flow: FLOW, r: 4 })
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Connector, { points: into, defs: id, kind: kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request", flow: FLOW }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Packet, { points: into, kind: kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request", dur: 1.2, delay: -slot * 0.35, flow: FLOW, r: 4 })
     ] }) : null;
     if (kind === "queue") {
       const q = spec.queue;
@@ -808,18 +808,18 @@ function pipelineParts(spec = defaultPipeline, id) {
       const cw = (stage.w - 16 - (depth - 1) * 6) / depth;
       return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
         edge,
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Group, { x: x(slot), y: stage.y - 16, w: stage.w, h: stage.h + 32, title: q.label, flow: FLOW, accent: true, children: Array.from({ length: depth }).map((_, k) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Chip, { x: x(slot) + 8 + k * (cw + 6), y: stage.y + 24, w: cw, h: 18, label: k < depth - 1 ? String(k + 1) : "", kind: k < depth - 1 ? "change" : void 0, dashed: k === depth - 1, flow: FLOW }, k)) })
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Group, { x: x(slot), y: stage.y - 16, w: stage.w, h: stage.h + 32, title: q.label, flow: FLOW, accent: true, children: Array.from({ length: depth }).map((_, k) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Chip, { x: x(slot) + 8 + k * (cw + 6), y: stage.y + 24, w: cw, h: 18, label: k < depth - 1 ? String(k + 1) : "", kind: k < depth - 1 ? "change" : void 0, dashed: k === depth - 1, flow: FLOW }, k)) })
       ] }, "queue");
     }
     const s = spec.stages[si++];
     return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
       edge,
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { x: x(slot), y: stage.y, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: FLOW, size: 13, subSize: 10 })
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Node, { x: x(slot), y: stage.y, w: stage.w, h: stage.h, label: s.label, hint: s.hint, sub: s.sub, icon: s.icon, flow: FLOW, size: 13, subSize: 10 })
     ] }, s.label);
   });
   const wide = /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Defs, { id }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Lane, { x: 24, w: width - 48, y: 40, title: _nullishCoalesce(spec.laneTitle, () => ( "Stages, left to right")) }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Defs, { id }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkQSMDATWJcjs.Lane, { x: 24, w: width - 48, y: 40, title: _nullishCoalesce(spec.laneTitle, () => ( "Stages, left to right")) }),
     nodes
   ] });
   const steps = [

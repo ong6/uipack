@@ -54,13 +54,16 @@
   --anatomy-lit-top: #1f3a2f;
   --anatomy-lit-shade: #182e25;
   --anatomy-hi: #e8ece9;
-  --anatomy-mid: #6f7a74;
-  --anatomy-lo: #44504a;
+  /* Edges hold 3:1 or better against the card, face and top fills (lo 3.1–3.7:1, mid 4.9–6:1), and
+     draw a little heavier than on paper: a hairline of light on dark reads fainter than its colour. */
+  --anatomy-mid: #8a958f;
+  --anatomy-lo: #66726c;
   --anatomy-faint: #28332e;
   --anatomy-lit: #71dcb2;
   --anatomy-halo: #020403;
   --anatomy-halo-opacity: 0.85;
   --anatomy-dot: #e8ece9;
+  --anatomy-weight: 0.8px;
   --um-edge: rgba(232, 236, 233, 0.22);
 }
 
@@ -121,6 +124,8 @@
   text-transform: none;
 }
 .uipack-mechanism .um-caption {
+  /* A reading measure, like the page intros: a full-width card would otherwise run it 1280px wide. */
+  max-width: 72ch;
   margin-top: 12px;
   color: var(--anatomy-muted);
   font: 400 13px/1.55 var(--um-sans);
@@ -159,12 +164,54 @@
   white-space: nowrap;
 }
 
+/* The idle tour's Pause control: under the title corner, in the corners' mono. */
+.uipack-mechanism.um-live {
+  position: relative;
+}
+.uipack-mechanism .um-motion {
+  position: absolute;
+  z-index: 1;
+  top: 40px;
+  right: 18px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--um-edge);
+  border-radius: 6px;
+  background: var(--anatomy-card);
+  color: var(--anatomy-strong);
+  font: 500 12px/1 var(--um-mono);
+  cursor: pointer;
+}
+.uipack-mechanism .um-motion:hover {
+  border-color: var(--anatomy-strong);
+}
+.uipack-mechanism .um-motion:focus-visible {
+  outline: 2px solid var(--anatomy-lit);
+  outline-offset: 2px;
+}
+.uipack-mechanism.um-live .um-motion {
+  top: 12px;
+  right: 12px;
+}
+
 /* ---- Drawing (Anatomy's ISO_CSS, scoped) ---- */
 .uipack-mechanism .iso-svg {
   display: block;
   width: 100%;
   height: auto;
   overflow: visible;
+}
+/* The drawing's frame is fitted to the exploded pose, whose lifted parts need headroom the resting
+   machine does not use. In the card, 39 of its 360 units of top margin (6.5% of its width) tuck
+   into the plate's padding, so the machine does not sit under a band of empty card; lifted parts
+   still clear the corner labels. Phones set their own crop below. */
+.uipack-mechanism .um-plate .iso-svg {
+  margin-top: -6.5%;
+}
+/* The crop moves the drawing, not the machine: its box (and its inset focus ring) stays inside the
+   plate, and the drawing's empty headroom overhangs into the padding. */
+.uipack-mechanism .um-plate .um-machine {
+  display: flow-root;
 }
 .uipack-mechanism .iso-svg path,
 .uipack-mechanism .iso-svg circle {
@@ -296,5 +343,9 @@
   }
   .uipack-mechanism .um-corners {
     inset: 14px 12px;
+  }
+  .uipack-mechanism .um-plate > .um-motion {
+    top: 36px;
+    right: 12px;
   }
 }

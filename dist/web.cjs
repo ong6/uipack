@@ -428,11 +428,14 @@ function DemoPlayer({
   const promptText = promptStep === void 0 ? "" : steps[promptStep].prompt;
   const visiblePrompt = promptStep === frame.step ? promptText.slice(0, frame.typed) : promptText;
   const typing = !reduced && promptStep === frame.step && frame.typed < promptText.length;
-  const actionStep = _optionalChain([step, 'optionalAccess', _29 => _29.actions, 'optionalAccess', _30 => _30.length]) ? frame.step : lastWith(steps, frame.step, (s) => _optionalChain([s, 'access', _31 => _31.actions, 'optionalAccess', _32 => _32.length]) ? steps.indexOf(s) : void 0);
+  const pastActionStep = _optionalChain([step, 'optionalAccess', _29 => _29.actions, 'optionalAccess', _30 => _30.length]) ? frame.step : lastWith(steps, frame.step, (s) => _optionalChain([s, 'access', _31 => _31.actions, 'optionalAccess', _32 => _32.length]) ? steps.indexOf(s) : void 0);
+  const nextActionStep = steps.findIndex((s, i) => i > frame.step && !!_optionalChain([s, 'access', _33 => _33.actions, 'optionalAccess', _34 => _34.length]));
+  const queuedOnly = pastActionStep === void 0 && nextActionStep >= 0;
+  const actionStep = queuedOnly ? nextActionStep : pastActionStep;
   const actions = actionStep === void 0 ? [] : (_nullishCoalesce(steps[actionStep].actions, () => ( []))).map(toAction);
   const isCurrent = actionStep === frame.step;
-  const doneCount = isCurrent ? frame.actionsDone : actions.length;
-  const promptDone = !_optionalChain([step, 'optionalAccess', _33 => _33.prompt]) || frame.typed >= (_nullishCoalesce(_optionalChain([step, 'access', _34 => _34.prompt, 'optionalAccess', _35 => _35.length]), () => ( 0)));
+  const doneCount = queuedOnly ? 0 : isCurrent ? frame.actionsDone : actions.length;
+  const promptDone = !_optionalChain([step, 'optionalAccess', _35 => _35.prompt]) || frame.typed >= (_nullishCoalesce(_optionalChain([step, 'access', _36 => _36.prompt, 'optionalAccess', _37 => _37.length]), () => ( 0)));
   const runningIdx = isCurrent && promptDone && !frame.settled && frame.actionsDone < actions.length ? frame.actionsDone : -1;
   const screen = lastWith(steps, frame.settled ? frame.step : frame.step - 1, (s) => _nullishCoalesce(s.screen, () => ( void 0)));
   return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
@@ -462,12 +465,12 @@ function DemoPlayer({
               ] }),
               /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ol", { className: "uipack-web-demo__log", "aria-label": "Agent actions", children: actions.map((a, i) => {
                 const state = i < doneCount ? "done" : i === runningIdx ? "running" : "pending";
-                if (state === "pending") return null;
                 return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { "data-state": state, children: [
                   /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__tick", "aria-hidden": "true", children: state === "done" ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "svg", { viewBox: "0 0 16 16", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { d: "M3.5 8.5l3 3 6-7" }) }) : null }),
                   /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: a.label }),
                   a.detail && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "small", { children: a.detail }),
-                  state === "running" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__sr", children: " (in progress)" })
+                  state === "running" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__sr", children: " (in progress)" }),
+                  state === "pending" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__sr", children: " (queued)" })
                 ] }, `${actionStep}-${i}`);
               }) })
             ] }),
@@ -494,7 +497,7 @@ function DemoPlayer({
                 s.prompt,
                 "\u201D"
               ] }),
-              !!_optionalChain([s, 'access', _36 => _36.actions, 'optionalAccess', _37 => _37.length]) && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { children: s.actions.map(toAction).map((a) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { children: [
+              !!_optionalChain([s, 'access', _38 => _38.actions, 'optionalAccess', _39 => _39.length]) && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { children: s.actions.map(toAction).map((a) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { children: [
                 a.label,
                 a.detail ? ` (${a.detail})` : ""
               ] }, a.label)) })
@@ -532,7 +535,7 @@ function DemoPlayer({
             String(steps.length).padStart(2, "0")
           ] }),
           " ",
-          _optionalChain([step, 'optionalAccess', _38 => _38.title])
+          _optionalChain([step, 'optionalAccess', _40 => _40.title])
         ] })
       ]
     }
@@ -632,11 +635,11 @@ function useFinePointer() {
 function transitionDocument() {
   const doc = typeof document === "undefined" ? void 0 : document;
   const reduced = _chunkYMPVJRTJcjs.prefersReducedMotion.call(void 0, );
-  return _optionalChain([doc, 'optionalAccess', _39 => _39.startViewTransition]) && !reduced ? doc : void 0;
+  return _optionalChain([doc, 'optionalAccess', _41 => _41.startViewTransition]) && !reduced ? doc : void 0;
 }
 function withViewTransition(update) {
   const doc = transitionDocument();
-  if (!_optionalChain([doc, 'optionalAccess', _40 => _40.startViewTransition])) {
+  if (!_optionalChain([doc, 'optionalAccess', _42 => _42.startViewTransition])) {
     update();
     return Promise.resolve();
   }
@@ -713,7 +716,7 @@ ${keyframes}
 }
 function withPaintTransition(update, { duration = 750 } = {}) {
   const doc = transitionDocument();
-  if (!_optionalChain([doc, 'optionalAccess', _41 => _41.startViewTransition])) {
+  if (!_optionalChain([doc, 'optionalAccess', _43 => _43.startViewTransition])) {
     update();
     return Promise.resolve();
   }
@@ -749,7 +752,7 @@ function BackgroundFrame({ background, children, as: Tag = "div", className = ""
 function useParentSpotlight(ref2, enabled) {
   _react.useEffect.call(void 0, () => {
     const el = ref2.current;
-    const host = _optionalChain([el, 'optionalAccess', _42 => _42.parentElement]);
+    const host = _optionalChain([el, 'optionalAccess', _44 => _44.parentElement]);
     if (!el || !host || !enabled) return;
     const move = (e) => {
       if (e.pointerType === "touch") return;
@@ -1016,7 +1019,7 @@ function Marquee({ items, label, duration = 30, reverse = false }) {
   const [mounted, setMounted] = _react.useState.call(void 0, false);
   _react.useEffect.call(void 0, () => setMounted(true), []);
   _react.useEffect.call(void 0, () => {
-    _optionalChain([copyRef, 'access', _43 => _43.current, 'optionalAccess', _44 => _44.setAttribute, 'call', _45 => _45("inert", "")]);
+    _optionalChain([copyRef, 'access', _45 => _45.current, 'optionalAccess', _46 => _46.setAttribute, 'call', _47 => _47("inert", "")]);
   }, [reduced, mounted]);
   const list = (copy) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { className: "uipack-web-marquee__list", ref: copy ? copyRef : void 0, "aria-hidden": copy || void 0, children: items.map((item, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "li", { children: item }, i)) });
   return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
@@ -1206,7 +1209,7 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
     frame = 0;
     const dt = last ? Math.min(0.25, (now - last) / 1e3) : 1 / 60;
     last = now;
-    if (_optionalChain([aim, 'optionalAccess', _46 => _46.el, 'access', _47 => _47.isConnected])) {
+    if (_optionalChain([aim, 'optionalAccess', _48 => _48.el, 'access', _49 => _49.isConnected])) {
       const y = resolveTop(aim.el, aim.offset);
       if (y !== null) target = y;
     }
@@ -1392,9 +1395,9 @@ function useSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = tru
   return _react.useMemo.call(void 0, 
     () => ({
       scrollTo: (t, o) => instance.current ? instance.current.scrollTo(t, o) : nativeScrollTo(t, o),
-      stop: () => _optionalChain([instance, 'access', _48 => _48.current, 'optionalAccess', _49 => _49.stop, 'call', _50 => _50()]),
+      stop: () => _optionalChain([instance, 'access', _50 => _50.current, 'optionalAccess', _51 => _51.stop, 'call', _52 => _52()]),
       get enabled() {
-        return _nullishCoalesce(_optionalChain([instance, 'access', _51 => _51.current, 'optionalAccess', _52 => _52.enabled]), () => ( false));
+        return _nullishCoalesce(_optionalChain([instance, 'access', _53 => _53.current, 'optionalAccess', _54 => _54.enabled]), () => ( false));
       }
     }),
     []
@@ -1451,7 +1454,7 @@ function pageMeta(o) {
   tw("twitter:title", o.title);
   tw("twitter:description", o.description);
   tw("twitter:image", imageUrl);
-  tw("twitter:image:alt", _optionalChain([image, 'optionalAccess', _53 => _53.alt]));
+  tw("twitter:image:alt", _optionalChain([image, 'optionalAccess', _55 => _55.alt]));
   tw("twitter:site", o.twitterSite);
   return tags;
 }
@@ -1760,7 +1763,7 @@ function robotsTxt({ site, aiCrawlers, disallow = [], sitemapPath = "/sitemap.xm
   const root = siteRoot(site);
   const paths = disallow.map(checkPath);
   const rules = resolveAiCrawlers(aiCrawlers);
-  const preset = typeof aiCrawlers === "string" ? aiCrawlers : _nullishCoalesce(_optionalChain([aiCrawlers, 'optionalAccess', _54 => _54.preset]), () => ( "allow-all"));
+  const preset = typeof aiCrawlers === "string" ? aiCrawlers : _nullishCoalesce(_optionalChain([aiCrawlers, 'optionalAccess', _56 => _56.preset]), () => ( "allow-all"));
   const allowLines = ["Allow: /", ...paths.map((p) => `Disallow: ${p}`)];
   const lines = [
     `# robots.txt for ${root}`,

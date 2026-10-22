@@ -72,7 +72,7 @@ function SceneViewport({
       return;
     }
     setStatus("loading");
-    void import("./renderer-FCSSD6LH.js").then(({ createSlideScene }) => {
+    void import("./renderer-QRIFDQEB.js").then(({ createSlideScene }) => {
       if (cancelled || !host.current || !labels.current) return;
       try {
         runtime.current = createSlideScene(

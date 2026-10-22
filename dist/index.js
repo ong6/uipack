@@ -41,7 +41,7 @@ import {
   route,
   trim,
   useFigureHover
-} from "./chunk-NJF7MMJY.js";
+} from "./chunk-L6SV5FWH.js";
 import {
   DEFAULT_RENDER_WIDTH,
   FigureMotionContext,
