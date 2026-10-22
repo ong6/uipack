@@ -61,7 +61,17 @@ export default function Slides() {
   const notFound: string[] = [];
   if (badStory !== null && !knownStory(badStory))
     notFound.push(`Story “${badStory}” not found, showing ${object?.title ?? story.title}.`);
-  if (object && badVariant !== null && String(parseObjectVariant(badVariant)) !== badVariant)
+  // A variant names an art direction only if it parses and the object has it (contact keeps five).
+  // A slide story has one look; it keeps a valid variant in the address (carried between stories)
+  // without comment, but says so for one that names nothing.
+  const parsedVariant = parseObjectVariant(badVariant);
+  if (badVariant !== null && !object && String(parsedVariant) !== badVariant)
+    notFound.push(`Variant “${badVariant}” not found, showing ${story.title} in its one look.`);
+  else if (
+    object &&
+    badVariant !== null &&
+    (String(parsedVariant) !== badVariant || normalizeObjectVariant(object.id, parsedVariant) !== parsedVariant)
+  )
     notFound.push(
       `Variant “${badVariant}” not found, showing ${objectDirections[objectDirectionIndex(object.id, variant)].name}.`,
     );
