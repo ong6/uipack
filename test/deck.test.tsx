@@ -166,17 +166,28 @@ describe("DeckPlayer", () => {
     document.body.append(host);
     const recoverable: unknown[] = [];
     const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+    // jsdom has no Fullscreen API; this browser says it has one.
+    Object.defineProperty(document, "fullscreenEnabled", { value: true, configurable: true });
     try {
       const root = await act(async () => hydrateRoot(host, <DeckPlayer id="h" title="Test deck" slides={slides} />, { onRecoverableError: (e) => recoverable.push(e) }));
       expect(recoverable).toEqual([]);
       expect(errors).not.toHaveBeenCalled();
-      // After mount the browser's support is known: jsdom does not say full screen is unavailable.
+      // After mount the browser's support is known.
       expect(screen.getByRole("button", { name: "Full screen" })).toBeInTheDocument();
       act(() => root.unmount());
     } finally {
+      delete (document as { fullscreenEnabled?: boolean }).fullscreenEnabled;
       errors.mockRestore();
       host.remove();
     }
+  });
+
+  it("offers no Full screen where the API is missing (iPhone Safari: fullscreenEnabled undefined)", () => {
+    expect(document.fullscreenEnabled).toBeUndefined();
+    const { unmount } = render(<DeckPlayer id="nf" title="Test deck" slides={slides} />);
+    expect(screen.getByRole("button", { name: "All slides" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Full screen" })).toBeNull();
+    unmount();
   });
 
   it("reveals builds before changing slide, and going back lands fully built", () => {
@@ -325,7 +336,7 @@ describe("DeckPlayer", () => {
     expect(screen.getByText("Say the first thing.")).toBeInTheDocument();
     expect(screen.getByText("Slowly.")).toBeInTheDocument();
     expect(screen.getByText("Then the list.")).toBeInTheDocument();
-    expect(screen.getByLabelText("Elapsed time")).toHaveTextContent("00:00");
+    expect(screen.getByRole("timer")).toHaveTextContent("Elapsed time 00:00");
     expect(screen.queryByText(/answers “/)).toBeNull();
     expect(screen.queryByRole("button", { name: "Speaker view" })).toBeNull();
   });
@@ -431,7 +442,7 @@ describe("Bento", () => {
     expect(cue()).toBe("Build 3 of 3: camera pulls back to the whole grid");
     press("ArrowRight");
     expect(cue()).toBe("Next slide: After");
-    expect(screen.getByLabelText("Time budget")).toHaveTextContent("/ 02:00");
+    expect(screen.getByText("Time budget").parentElement).toHaveTextContent("Time budget / 02:00");
     expect(deck().querySelector(".uipack-deck-presenter__pace")).toHaveTextContent(/on pace · this slide 00:00–01:/);
   });
 

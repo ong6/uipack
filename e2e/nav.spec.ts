@@ -1,5 +1,5 @@
 import { figureEntries, libraryGroups, pageDefs, pagePath } from "../playground/catalog";
-import { expect, test, type Page } from "./fixtures";
+import { expect, test, waitForStable, type Page } from "./fixtures";
 
 // The information architecture the shell must render, read from the catalog: the groups in
 // order, each with the page it opens on and its pages as [label, path].
@@ -124,6 +124,8 @@ test.describe("headings", () => {
         expect(h.level, `"${h.text}" follows an h${previous}`).toBeLessThanOrEqual(previous + 1);
         previous = h.level;
       }
+      // Every main is named by the page: by its h1, or on /web (whose h1 is the sample's hero) by its label.
+      if (path === "/web") await expect(page.getByRole("main", { name: "Web UI" })).toBeVisible();
       if (path !== "/web") {
         for (const h of headings.filter((h) => h.level === 2)) {
           expect(h.text, "h2 reads as a title, not a path or a counter").not.toMatch(/[/·]|^[a-z]/);
@@ -228,6 +230,49 @@ test.describe("390px header and menu", () => {
     await sheet.getByRole("button", { name: "Close" }).click();
     await expect(sheet).toBeHidden();
     await expect(button).toBeFocused();
+  });
+
+  test("Tab and Shift+Tab cycle the menu's own controls, never the dialog box or the page", async ({ page, browserName }) => {
+    const tab = browserName === "webkit" ? "Alt+Tab" : "Tab";
+    await page.goto("/charts");
+    const sheet = page.getByRole("dialog", { name: "Library menu" });
+    await page.locator(".showcase-menu-button").click();
+    await expect(sheet).toBeVisible();
+    const close = sheet.getByRole("button", { name: "Close" });
+    await expect(close).toBeFocused();
+    const stops = await sheet.locator("a[href], button").count();
+    // One full lap and a step more: every stop is a link or Close inside the menu, and the lap ends on Close.
+    for (let i = 0; i < stops; i++) {
+      await page.keyboard.press(tab);
+      expect(await page.evaluate(() => document.activeElement?.closest("dialog") !== null && /^(A|BUTTON)$/.test(document.activeElement!.tagName))).toBe(true);
+    }
+    await expect(close).toBeFocused();
+    await page.keyboard.press(`Shift+${tab}`);
+    await expect(sheet.getByRole("link").last()).toBeFocused();
+  });
+
+  test("the open menu locks the page's scroll and gives it back on close", async ({ page }) => {
+    await page.goto("/charts");
+    await expect(page.locator(".showcase-loading")).toHaveCount(0);
+    await page.evaluate(() => scrollTo(0, 400));
+    const overflow = () => page.evaluate(() => getComputedStyle(document.documentElement).overflow);
+    const before = await overflow();
+    // Opened where the page is (a pointer click would scroll the button into view first).
+    await page.locator(".showcase-menu-button").evaluate((b: HTMLButtonElement) => b.click());
+    await expect(page.getByRole("dialog", { name: "Library menu" })).toBeVisible();
+    expect(await overflow()).toBe("hidden");
+    const at = await page.evaluate(() => scrollY);
+    expect(at).toBeGreaterThan(0);
+    await page.mouse.move(195, 600);
+    await page.mouse.wheel(0, 600);
+    // A wheel or swipe over the sheet does not move the page behind it.
+    await page.waitForTimeout(200); // watching that nothing moves needs time to pass
+    expect(await page.evaluate(() => scrollY)).toBe(at);
+    await page.keyboard.press("Escape");
+    await expect.poll(overflow).toBe(before);
+    await page.mouse.move(195, 600);
+    await page.mouse.wheel(0, 300);
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
   });
 
   test("the theme icon button has a name and flips the theme", async ({ page }) => {
@@ -375,6 +420,72 @@ test("an unknown deck shows a visible note and the default deck", async ({ page 
   await expect(page.locator(".showcase-title__note")).toHaveCount(0);
   await page.goto("/deck");
   await expect(page.locator(".showcase-title__note")).toHaveCount(0);
+});
+
+test.describe("a #fragment link opens its target once the lazy page has rendered", () => {
+  for (const [width, height] of [
+    [1280, 800],
+    [390, 844],
+  ] as const) {
+    test(`${width}px: /web#web-pricing lands on the pricing section, focused, as the sample's own Pricing link does`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto("/web#web-pricing");
+      const pricing = page.locator("#web-pricing");
+      await expect(pricing).toBeFocused();
+      const heading = pricing.getByRole("heading", { level: 2 });
+      await expect(heading).toBeInViewport();
+      // It stays put while the faces and images above it settle.
+      await waitForStable(() => heading.evaluate((h) => Math.round(h.getBoundingClientRect().top)));
+      const landed = await heading.evaluate((h) => Math.round(h.getBoundingClientRect().top));
+      expect(landed).toBeGreaterThan(0);
+      expect(landed).toBeLessThan(height / 2);
+    });
+  }
+
+  test("every page benefits: /#decision-tree and /article#callout", async ({ page }) => {
+    for (const [path, id] of [
+      ["/#decision-tree", "decision-tree"],
+      ["/article#callout", "callout"],
+    ]) {
+      await page.goto(path);
+      const target = page.locator(`#${id}`);
+      await expect(target).toBeFocused();
+      await waitForStable(() => target.evaluate((el) => Math.round(el.getBoundingClientRect().top)));
+      expect(await target.evaluate((el) => el.getBoundingClientRect().top)).toBeLessThan(200);
+      expect(await target.evaluate((el) => el.getBoundingClientRect().top)).toBeGreaterThan(-1);
+      // The tabindex that let it take focus goes when focus moves on.
+      await page.keyboard.press("Tab");
+      await expect(target).not.toHaveAttribute("tabindex");
+    }
+  });
+});
+
+test("a bad deck view or slide is said in a note, not ignored", async ({ page }) => {
+  await page.goto("/deck?view=bogus");
+  await expect(page.locator(".showcase-title__note")).toHaveText("View “bogus” not found, showing the present view.");
+  await expect(page.getByRole("region", { name: "Deck player example" })).toBeVisible();
+  await page.goto("/deck?slide=nope");
+  await expect(page.locator(".showcase-title__note")).toHaveText("Slide “nope” not found, showing slide 1.");
+  for (const ok of ["/deck?view=read", "/deck?view=present&slide=fix"]) {
+    await page.goto(ok);
+    await expect(page.getByRole("region", { name: "Deck player example" })).toBeVisible();
+    await expect(page.locator(".showcase-title__note")).toHaveCount(0);
+  }
+});
+
+test("the deck's print page and speaker window name themselves: tab title and one h1", async ({ page }) => {
+  for (const [path, name] of [
+    ["/deck?view=print", "Print view"],
+    ["/deck?presenter=1", "Speaker view"],
+    ["/deck?deck=bento&presenter=1", "Speaker view"],
+  ] as const) {
+    await page.goto(path);
+    const deckName = path.includes("bento") ? "Bento" : "Tech talk";
+    await expect(page).toHaveTitle(`${name} · ${deckName} · Deck player · uipack`);
+    const h1 = page.getByRole("heading", { level: 1 });
+    await expect(h1).toHaveCount(1);
+    await expect(h1).toHaveText(`${deckName} deck, ${name.toLowerCase()}`);
+  }
 });
 
 test("while a page's chunk loads, the shell stays and a status line says what is loading", async ({ page }) => {

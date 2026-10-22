@@ -324,9 +324,32 @@
   color: var(--uipack-accent);
 }
 .uipack-browser__empty {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
   margin: 24px 0;
   font: 400 14px/1.4 var(--uipack-sans);
   color: var(--uipack-muted);
+}
+.uipack-browser__empty p {
+  margin: 0;
+}
+.uipack-browser__empty button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--uipack-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--uipack-fg);
+  font: 500 13px/1.2 var(--uipack-mono);
+  cursor: pointer;
+}
+.uipack-browser__empty button:hover {
+  border-color: var(--uipack-fg);
+}
+.uipack-browser__empty button:focus-visible {
+  outline: 2px solid var(--uipack-accent);
+  outline-offset: 2px;
 }
 @media (max-width: 720px) {
   .uipack-browser {

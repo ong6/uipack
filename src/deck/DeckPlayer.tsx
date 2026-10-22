@@ -115,6 +115,9 @@ function Player({
   const [overview, setOverview] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [reading, setReading] = useState(initialView === "read");
+  // How the reader opens: at the current slide when a link named one, focused when the viewer
+  // switched from presenting (so Read keeps their place); at the top otherwise.
+  const [readOpen, setReadOpen] = useState<{ focus: boolean } | null>(startIndex > 0 ? { focus: false } : null);
   const [printing, setPrinting] = useState(false);
   // The viewer's setting (shared with every entry) or the deck's own motion="none".
   const prefersReduced = usePrefersReducedMotion();
@@ -261,15 +264,33 @@ function Player({
   // Known only in the browser, so set after mount: the server and the first client render agree.
   const [canFullscreen, setCanFullscreen] = useState(false);
   useEffect(() => {
-    setCanFullscreen(document.fullscreenEnabled !== false);
-    const onChange = () => setFullscreen(document.fullscreenElement === rootRef.current);
+    // iPhone Safari has no element full screen: fullscreenEnabled is undefined there, so the button
+    // shows only where the standard API is on, or the WebKit-prefixed one exists (older iPad Safari).
+    // (Where the standard API says false, a frame's policy forbids it: the prefixed method is no use then.)
+    const doc = document as Document & { webkitFullscreenEnabled?: boolean };
+    const prefixed =
+      doc.fullscreenEnabled === undefined &&
+      doc.webkitFullscreenEnabled !== false &&
+      typeof (rootRef.current as PrefixedFullscreen | null)?.webkitRequestFullscreen === "function";
+    setCanFullscreen(doc.fullscreenEnabled === true || prefixed);
+    const onChange = () => setFullscreen(fullscreenElement() === rootRef.current);
     document.addEventListener("fullscreenchange", onChange);
-    return () => document.removeEventListener("fullscreenchange", onChange);
+    document.addEventListener("webkitfullscreenchange", onChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onChange);
+      document.removeEventListener("webkitfullscreenchange", onChange);
+    };
   }, []);
 
   const toggleFullscreen = () => {
-    if (document.fullscreenElement) void document.exitFullscreen?.();
-    else void rootRef.current?.requestFullscreen?.();
+    if (!canFullscreen) return;
+    const doc = document as Document & { webkitExitFullscreen?: () => void };
+    const root = rootRef.current as PrefixedFullscreen | null;
+    if (fullscreenElement()) {
+      if (doc.exitFullscreen) void doc.exitFullscreen();
+      else doc.webkitExitFullscreen?.();
+    } else if (root?.requestFullscreen) void root.requestFullscreen();
+    else root?.webkitRequestFullscreen?.();
     rootRef.current?.focus();
   };
 
@@ -418,7 +439,10 @@ function Player({
       overviewButtonRef={overviewButtonRef}
       onPrev={prev}
       onNext={next}
-      onRead={() => setReading(true)}
+      onRead={() => {
+        setReadOpen({ focus: true });
+        setReading(true);
+      }}
       onPrint={() => setPrinting(true)}
       onOverview={() => setOverview(true)}
       onPresenter={openPresenter}
@@ -449,10 +473,19 @@ function Player({
         <Reader
           slides={slides}
           theme={theme}
+          index={view.index}
+          open={readOpen}
           onPresent={(i) => {
             setReading(false);
             go(i, 0);
-            requestAnimationFrame(() => rootRef.current?.focus({ preventScroll: true }));
+            requestAnimationFrame(() => {
+              const root = rootRef.current;
+              if (!root) return;
+              root.focus({ preventScroll: true });
+              // The reader was scrolled (a phone reads far down the page): bring the stage up with it.
+              const { top, bottom } = root.getBoundingClientRect();
+              if (top < 0 || bottom > window.innerHeight) root.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
+            });
           }}
         />
       ) : (
@@ -506,6 +539,10 @@ function Player({
     </div>
   );
 }
+
+type PrefixedFullscreen = HTMLDivElement & { webkitRequestFullscreen?: () => void };
+const fullscreenElement = () =>
+  document.fullscreenElement ?? (document as Document & { webkitFullscreenElement?: Element | null }).webkitFullscreenElement ?? null;
 
 /**
  * What the next press does, for the speaker: the next build (its first words), the next tour stop

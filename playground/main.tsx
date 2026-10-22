@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import { lazy, Suspense, StrictMode, type ComponentType } from "react";
+import { lazy, Suspense, StrictMode, useEffect, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 // Only the shell's CSS is eager; each page imports its own (theme.css with the figures), which loads with its chunk.
 import "./showcase.css";
@@ -43,6 +43,62 @@ function NotFound() {
   );
 }
 
+/**
+ * A link to a #fragment on a lazy page: the browser looked for the target before the page's chunk
+ * had rendered it, so it stayed at the top. Once the page has mounted (or as soon as the target
+ * appears, for a page that renders in stages) this jumps to it, without smooth scrolling, and moves
+ * focus there, so Tab carries on from the target. Content above it that is still loading (faces,
+ * images) would push it down, so it stays aligned for two seconds or until the reader scrolls,
+ * taps or types. Form controls are left to their page, which may own them (the charts select the
+ * filter a hash names).
+ */
+let hashOpened = false;
+const READER_INPUT = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
+function OpenHashTarget() {
+  useEffect(() => {
+    let id = location.hash.slice(1);
+    try {
+      id = decodeURIComponent(id);
+    } catch {
+      /* keep the raw id */
+    }
+    if (!id || hashOpened) return;
+    // Once per load, and outliving StrictMode's remount: the alignment ends on its own.
+    const open = () => {
+      const el = document.getElementById(id);
+      if (!el) return false;
+      hashOpened = true;
+      if (el instanceof HTMLInputElement || el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement) return true;
+      const align = () => el.scrollIntoView({ block: "start", behavior: "instant" as ScrollBehavior });
+      align();
+      if (!el.matches("a[href], button, summary, [tabindex], [contenteditable]")) {
+        el.setAttribute("tabindex", "-1");
+        el.addEventListener("blur", () => el.removeAttribute("tabindex"), { once: true });
+      }
+      el.focus({ preventScroll: true });
+      const resized = typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(align);
+      resized?.observe(document.body);
+      const release = () => {
+        resized?.disconnect();
+        clearTimeout(timer);
+        for (const type of READER_INPUT) removeEventListener(type, release, true);
+      };
+      const timer = setTimeout(release, 2000);
+      for (const type of READER_INPUT) addEventListener(type, release, { capture: true, passive: true });
+      return true;
+    };
+    if (open()) return;
+    const watch = new MutationObserver(() => open() && watch.disconnect());
+    watch.observe(document.body, { childList: true, subtree: true });
+    const stop = setTimeout(() => watch.disconnect(), 5000);
+    return () => {
+      watch.disconnect();
+      clearTimeout(stop);
+    };
+  }, []);
+  return null;
+}
+
 const path = routePath(location.pathname);
 const active = routes.get(path);
 const load = active && pageLoaders[`./${pageModules[active]}.tsx`];
@@ -61,6 +117,7 @@ const page = (
     }
   >
     <Page />
+    <OpenHashTarget />
   </Suspense>
 );
 

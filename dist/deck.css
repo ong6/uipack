@@ -638,6 +638,8 @@
   grid-template-columns: minmax(0, 3fr) minmax(220px, 2fr);
   gap: 24px;
   align-items: start;
+  /* Opened at a slide (a shared link, or back from presenting), the item sits a little below the top. */
+  scroll-margin-top: 16px;
 }
 @media (max-width: 720px) {
   .uipack-deck-read > ol > li {
@@ -740,8 +742,12 @@
 .uipack-deck-storyline > ol > li {
   border-bottom: 1px solid var(--deck-rule);
 }
-.uipack-deck-storyline > ol > li[data-appendix] {
-  opacity: 0.6;
+/* Appendix rows step back in colour, not opacity: the muted token keeps 4.5:1 in both themes. */
+.uipack-deck-storyline > ol > li[data-appendix] > button {
+  color: var(--deck-muted);
+}
+.uipack-deck-storyline > ol > li[data-appendix] .uipack-deck-storyline__title {
+  font-weight: 500;
 }
 .uipack-deck-storyline > ol > li > button {
   display: grid;

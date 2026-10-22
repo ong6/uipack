@@ -89,6 +89,7 @@ export function AssetBrowser({ manifest, initialCategory = ALL, onAction, action
   const [query, setQuery] = useState("");
   const [flash, setFlash] = useState<string | null>(null);
   const timer = useRef<number | undefined>(undefined);
+  const searchRef = useRef<HTMLInputElement>(null);
   const cats = useMemo(() => categories(manifest.assets), [manifest.assets]);
   const shown = useMemo(() => filterAssets(manifest.assets, category, query), [manifest.assets, category, query]);
   const prefix = base ?? manifest.base ?? "";
@@ -123,7 +124,7 @@ export function AssetBrowser({ manifest, initialCategory = ALL, onAction, action
         <div className="uipack-browser__bar">
           <label className="uipack-browser__search">
             <span className="uipack-browser__sr">Search assets</span>
-            <input type="search" placeholder="Search" value={query} onChange={(e) => setQuery(e.target.value)} />
+            <input ref={searchRef} type="search" placeholder="Search" value={query} onChange={(e) => setQuery(e.target.value)} />
           </label>
           <p className="uipack-browser__status" role="status">
             {shown.length} {shown.length === 1 ? "asset" : "assets"}
@@ -146,7 +147,27 @@ export function AssetBrowser({ manifest, initialCategory = ALL, onAction, action
             </li>
           ))}
         </ul>
-        {shown.length === 0 ? <p className="uipack-browser__empty">Nothing matches.</p> : null}
+        {shown.length === 0 ? (
+          <div className="uipack-browser__empty">
+            <p>
+              Nothing matches{query.trim() ? ` “${query.trim()}”` : ""}
+              {category !== ALL ? ` in ${category}` : ""}.
+            </p>
+            {query || category !== ALL ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery("");
+                  setCategory(ALL);
+                  // Back to the search, ready for the next try.
+                  searchRef.current?.focus();
+                }}
+              >
+                {category !== ALL && query ? "Clear filters" : category !== ALL ? "Show all assets" : "Clear search"}
+              </button>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </div>
   );

@@ -15,6 +15,7 @@ import { FigureMotionContext, type FigureMotion } from "./context";
 import { Legend, type LegendItem } from "./Legend";
 import { FigureHoverContext, type FigureHover } from "./hover";
 import { FigureScaleContext, DEFAULT_RENDER_WIDTH, fontFloor } from "./scale";
+import { useRovingFocus } from "./roving";
 
 export interface FigureProps {
   /** Allow opening a zoomable canvas. */
@@ -234,6 +235,9 @@ export function Figure({
     ro.observe(canvas);
     return () => ro.disconnect();
   }, [note, zoom, expanded]);
+
+  // Each drawing is one Tab stop; the arrow keys move between its parts.
+  useRovingFocus(canvasRef, expanded);
 
   const showControls = controls && !reduced;
   const hasHead =

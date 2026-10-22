@@ -82,23 +82,36 @@ function DocsLayout({
       /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", children: "/" }),
       /* @__PURE__ */ jsxRuntime.jsx("a", { href: sections[0]?.items[0]?.href || activeHref, children: docsTitle })
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsxs("details", { className: "uipack-docs__mobile-navigation", children: [
-      /* @__PURE__ */ jsxRuntime.jsxs("summary", { "aria-controls": mobileNavigationId, children: [
-        /* @__PURE__ */ jsxRuntime.jsx("span", { children: "Documentation" }),
-        current && /* @__PURE__ */ jsxRuntime.jsx("small", { children: current.title }),
-        /* @__PURE__ */ jsxRuntime.jsx(
-          "svg",
-          {
-            className: "uipack-docs__chevron",
-            viewBox: "0 0 16 16",
-            "aria-hidden": "true",
-            focusable: "false",
-            children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M4 6l4 4 4-4" })
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntime.jsx("div", { id: mobileNavigationId, children: /* @__PURE__ */ jsxRuntime.jsx(SectionNavigation, { sections, activeHref }) })
-    ] }),
+    /* @__PURE__ */ jsxRuntime.jsxs(
+      "details",
+      {
+        className: "uipack-docs__mobile-navigation",
+        onKeyDown: (e) => {
+          const details = e.currentTarget;
+          if (e.key !== "Escape" || !details.open || e.defaultPrevented) return;
+          e.preventDefault();
+          details.open = false;
+          details.querySelector("summary")?.focus();
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntime.jsxs("summary", { "aria-controls": mobileNavigationId, children: [
+            /* @__PURE__ */ jsxRuntime.jsx("span", { children: "Documentation" }),
+            current && /* @__PURE__ */ jsxRuntime.jsx("small", { children: current.title }),
+            /* @__PURE__ */ jsxRuntime.jsx(
+              "svg",
+              {
+                className: "uipack-docs__chevron",
+                viewBox: "0 0 16 16",
+                "aria-hidden": "true",
+                focusable: "false",
+                children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M4 6l4 4 4-4" })
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntime.jsx("div", { id: mobileNavigationId, children: /* @__PURE__ */ jsxRuntime.jsx(SectionNavigation, { sections, activeHref }) })
+        ]
+      }
+    ),
     /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-docs__grid", children: [
       /* @__PURE__ */ jsxRuntime.jsx("aside", { className: "uipack-docs__sidebar", children: /* @__PURE__ */ jsxRuntime.jsx(SectionNavigation, { sections, activeHref }) }),
       /* @__PURE__ */ jsxRuntime.jsxs(

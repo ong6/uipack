@@ -118,6 +118,16 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
   useEffect(() => {
     document.title = documentTitle(page);
   }, [page]);
+  // The open menu covers the page on a phone: the page behind it holds still until it closes.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const root = document.documentElement;
+    const was = root.style.overflow;
+    root.style.overflow = "hidden";
+    return () => {
+      root.style.overflow = was;
+    };
+  }, [menuOpen]);
   return (
     <div className="showcase-frame" data-theme={theme} data-style="technical">
       <a
@@ -216,6 +226,20 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
         className="showcase-menu"
         ref={menuRef}
         aria-label="Library menu"
+        // Not a Tab stop itself: Tab cycles the menu's links and Close (onKeyDown), never the dialog box.
+        tabIndex={-1}
+        onKeyDown={(e) => {
+          if (e.key !== "Tab") return;
+          const items = Array.from(menuRef.current?.querySelectorAll<HTMLElement>("a[href], button") ?? []);
+          const first = items[0];
+          const last = items[items.length - 1];
+          if (!first || !last) return;
+          const at = document.activeElement;
+          if (e.shiftKey ? at === first || at === menuRef.current : at === last) {
+            e.preventDefault();
+            (e.shiftKey ? last : first).focus();
+          }
+        }}
         onClose={() => {
           setMenuOpen(false);
           menuButtonRef.current?.focus();
@@ -256,7 +280,16 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
           ))}
         </nav>
       </dialog>
-      <main className="showcase-shell" id="showcase-main" tabIndex={-1} ref={mainRef}>
+      {/* A page hosting a whole sample page (/web) keeps the sample's hero as its one h1, so the
+          sample's outline stays what it ships. Main takes the visible page name as its label
+          instead: landmark navigation says "Web UI, main" without a second h1. */}
+      <main
+        className="showcase-shell"
+        id="showcase-main"
+        tabIndex={-1}
+        ref={mainRef}
+        aria-labelledby={hostsPage ? "showcase-page-name" : undefined}
+      >
         {group && (
           <p className="showcase-context">
             <span>{group.label}</span>
@@ -270,7 +303,9 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
         )}
         <div className="showcase-title">
           {hostsPage ? (
-            <p className="showcase-title__name">{pageHeading(page)}</p>
+            <p className="showcase-title__name" id="showcase-page-name">
+              {pageHeading(page)}
+            </p>
           ) : (
             <h1>
               {page.query && page.title ? (

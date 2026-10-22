@@ -144,3 +144,40 @@ test("reduced motion and thumbnails show charts fully drawn, with no growth", as
   expect(thumbs.length).toBeGreaterThan(5);
   expect(thumbs.every(Boolean)).toBe(true);
 });
+
+for (const theme of ["light", "dark"] as const) {
+  test(`Storyline (${theme}): appendix rows step back by colour at 4.5:1 or more, not by opacity`, async ({ page }) => {
+    await page.goto(`/deck?deck=consulting&view=present&theme=${theme}`);
+    await deck(page).focus();
+    await page.keyboard.press("g");
+    const dialog = page.getByRole("dialog", { name: "All slides" });
+    await dialog.getByRole("button", { name: "Storyline" }).click();
+    const appendix = dialog.locator(".uipack-deck-storyline > ol > li[data-appendix]");
+    await expect(appendix).toHaveCount(1);
+    const result = await appendix.evaluate((li) => {
+      const rgb = (c: string) => c.match(/[\d.]+/g)!.slice(0, 4).map(Number);
+      const lum = ([r, g, b]: number[]) => {
+        const f = (v: number) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+        return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+      };
+      // The first opaque background behind the row.
+      let bg = [255, 255, 255];
+      for (let el: Element | null = li; el; el = el.parentElement) {
+        const c = rgb(getComputedStyle(el).backgroundColor);
+        if (c.length === 3 || c[3] === 1) {
+          bg = c.slice(0, 3);
+          break;
+        }
+      }
+      const ratios = [...li.querySelectorAll<HTMLElement>("button span")].map((s) => {
+        const [a, b] = [lum(rgb(getComputedStyle(s).color)), lum(bg)].sort((x, y) => y - x);
+        return (a + 0.05) / (b + 0.05);
+      });
+      let opacity = 1;
+      for (let el: Element | null = li; el; el = el.parentElement) opacity *= Number(getComputedStyle(el).opacity);
+      return { min: Math.min(...ratios), opacity };
+    });
+    expect(result.opacity).toBe(1);
+    expect(result.min).toBeGreaterThanOrEqual(4.5);
+  });
+}

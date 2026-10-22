@@ -72,10 +72,16 @@ export function Presenter({
           )}
         </section>
         <section className="uipack-deck-presenter__clock">
-          <span aria-label="Elapsed time">{clock(elapsed)}</span>
+          {/* Visually hidden words name each number; the elapsed clock is a timer (never announced on its own). */}
+          <span role="timer">
+            <span className="uipack-deck-sr">Elapsed time </span>
+            {clock(elapsed)}
+          </span>
           {budget > 0 && (
             <span className="uipack-deck-presenter__budget">
-              <span aria-label={minutes ? "Time budget" : "Talk track length"}>/ {clock(budget)}</span>
+              <span>
+                <span className="uipack-deck-sr">{minutes ? "Time budget " : "Talk track length "}</span>/ {clock(budget)}
+              </span>
               <span className="uipack-deck-presenter__pace" data-pace={Math.abs(drift) < 15 ? "on" : drift > 0 ? "behind" : "ahead"}>
                 {pace} · this slide {clock(start)}–{clock(end)}
               </span>

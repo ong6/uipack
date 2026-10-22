@@ -1,11 +1,11 @@
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { DeckPlayer } from "../src/deck";
 import "../src/deck/deck.css";
 import "../src/deck/bento.css";
 import "../src/deck/consulting/consulting.css";
 import "../src/mechanism/mechanism.css";
-import { useShowcaseTheme } from "./ShowcaseShell";
-import { deckEntries } from "./catalog";
+import { useShowcaseNote, useShowcaseTheme } from "./ShowcaseShell";
+import { deckEntries, documentTitle, resolvePage } from "./catalog";
 import { deckExamples } from "./deckExamples";
 import "./deck-showcase.css";
 
@@ -22,6 +22,37 @@ const view =
     : params.get("view") === "read" || (params.get("view") !== "present" && matchMedia("(max-width: 600px)").matches)
       ? "read"
       : "present";
+
+// A view or slide the address names but the deck lacks is said under the intro, like a bad ?deck=.
+const askedView = params.get("view");
+const askedSlide = params.get("slide");
+const missingNote =
+  [
+    askedView && !["print", "read", "present"].includes(askedView)
+      ? `View “${askedView}” not found, showing the ${view === "read" ? "read" : "present"} view.`
+      : null,
+    askedSlide && !example.slides.some((s) => s.id === askedSlide)
+      ? `Slide “${askedSlide}” not found, showing slide 1.`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(" ") || null;
+
+/**
+ * The printable page and the speaker window stand alone, without the shell: they name themselves
+ * in the tab and carry a visually hidden h1, so a screen reader's heading list starts with them.
+ */
+function StandaloneHeading({ name }: { name: string }) {
+  const page = resolvePage("deck", location.search);
+  useEffect(() => {
+    document.title = `${name} · ${documentTitle(page)}`;
+  }, [name, page]);
+  return (
+    <h1 className="uipack-deck-sr">
+      {page.label} deck, {name.toLowerCase()}
+    </h1>
+  );
+}
 
 function syncUrl({ id, step }: { id: string; step: number }) {
   const url = new URL(location.href);
@@ -87,10 +118,12 @@ export default function DeckShowcase() {
   const { theme } = useShowcaseTheme();
   const fitRef = useFitBelowHeader();
   const initial = { slide: params.get("slide") ?? undefined, step: Number(params.get("step") ?? 0) || 0 };
+  useShowcaseNote(view === "print" || presenter ? null : missingNote);
 
   if (view === "print") {
     return (
       <main className="deck-print-page" data-theme={theme}>
+        <StandaloneHeading name="Print view" />
         <DeckPlayer
           id={deckId}
           title={`${example.name} deck`}
@@ -106,6 +139,7 @@ export default function DeckShowcase() {
   if (presenter) {
     return (
       <main className="deck-speaker-page" data-theme={theme}>
+        <StandaloneHeading name="Speaker view" />
         <DeckPlayer
           id={deckId}
           title="Deck player example, speaker view"

@@ -2,7 +2,7 @@
 
 var chunkAASFR6RT_cjs = require('./chunk-AASFR6RT.cjs');
 var chunkKQ7UFCOU_cjs = require('./chunk-KQ7UFCOU.cjs');
-var chunkQSMDATWJ_cjs = require('./chunk-QSMDATWJ.cjs');
+var chunkNUONYN7S_cjs = require('./chunk-NUONYN7S.cjs');
 var chunkXEK5V7KF_cjs = require('./chunk-XEK5V7KF.cjs');
 var chunkNFU4EWVX_cjs = require('./chunk-NFU4EWVX.cjs');
 var chunkYMPVJRTJ_cjs = require('./chunk-YMPVJRTJ.cjs');
@@ -28,14 +28,14 @@ function wallSegments(from, to, holes = [], gap = 9) {
   return segs;
 }
 function Wall({ at, from, to, holes = [], axis = "v", thickness: t = 16, gap = 9, flow }) {
-  const hover = chunkQSMDATWJ_cjs.useFigureHover();
-  return /* @__PURE__ */ jsxRuntime.jsx("g", { "data-uipack": "wall", ...chunkQSMDATWJ_cjs.hoverAttrs(flow, void 0, hover), children: wallSegments(from, to, holes, gap).map(([a, b]) => {
+  const hover = chunkNUONYN7S_cjs.useFigureHover();
+  return /* @__PURE__ */ jsxRuntime.jsx("g", { "data-uipack": "wall", ...chunkNUONYN7S_cjs.hoverAttrs(flow, void 0, hover), children: wallSegments(from, to, holes, gap).map(([a, b]) => {
     const r = axis === "v" ? { x: at - t / 2, y: a, width: t, height: b - a } : { x: a, y: at - t / 2, width: b - a, height: t };
     return /* @__PURE__ */ jsxRuntime.jsx("rect", { ...r, rx: 2, fill: "var(--uipack-surface-raised)", stroke: "currentColor", strokeOpacity: 0.55, strokeWidth: 1.25 }, a);
   }) });
 }
 function Cross({ x, y, r = 5, kind }) {
-  return /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-uipack": "cross", stroke: chunkQSMDATWJ_cjs.connectorStroke(kind), strokeOpacity: kind ? 1 : 0.8, strokeWidth: 1.75, strokeLinecap: "round", "aria-hidden": "true", children: [
+  return /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-uipack": "cross", stroke: chunkNUONYN7S_cjs.connectorStroke(kind), strokeOpacity: kind ? 1 : 0.8, strokeWidth: 1.75, strokeLinecap: "round", "aria-hidden": "true", children: [
     /* @__PURE__ */ jsxRuntime.jsx("line", { x1: x - r, y1: y - r, x2: x + r, y2: y + r }),
     /* @__PURE__ */ jsxRuntime.jsx("line", { x1: x - r, y1: y + r, x2: x + r, y2: y - r })
   ] });
@@ -487,7 +487,7 @@ function DrillFigureRoot({
     const anchor2 = note?.anchor;
     if (!canvas || !el || !anchor2) return;
     const place = () => {
-      if (anchor2.isConnected) setNotePos(chunkQSMDATWJ_cjs.placeNote(canvas, el, anchor2));
+      if (anchor2.isConnected) setNotePos(chunkNUONYN7S_cjs.placeNote(canvas, el, anchor2));
     };
     place();
     if (typeof ResizeObserver === "undefined") return;
@@ -495,6 +495,7 @@ function DrillFigureRoot({
     ro.observe(canvas);
     return () => ro.disconnect();
   }, [note, zoom, expanded]);
+  chunkNUONYN7S_cjs.useRovingFocus(canvasRef, expanded);
   const current = levelMap.get(last(view.path));
   if (!current) return null;
   const crumbs = view.path;
@@ -523,7 +524,7 @@ function DrillFigureRoot({
       theme,
       layout: "figure",
       zoom: { value: zoom, min: 1, max: 3, onChange: setZoom },
-      children: /* @__PURE__ */ jsxRuntime.jsx(chunkQSMDATWJ_cjs.SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsxRuntime.jsx(chunkQSMDATWJ_cjs.FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxRuntime.jsxs(
+      children: /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxRuntime.jsxs(
         "figure",
         {
           id: figId,
@@ -599,17 +600,17 @@ function DrillFigureRoot({
                 ) : null,
                 showControls ? /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
                   /* @__PURE__ */ jsxRuntime.jsxs("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: replay, children: [
-                    /* @__PURE__ */ jsxRuntime.jsx(chunkQSMDATWJ_cjs.ReplayGlyph, {}),
+                    /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.ReplayGlyph, {}),
                     " Replay"
                   ] }),
                   /* @__PURE__ */ jsxRuntime.jsxs("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: toggle, "aria-pressed": !playing, children: [
-                    playing ? /* @__PURE__ */ jsxRuntime.jsx(chunkQSMDATWJ_cjs.PauseGlyph, {}) : /* @__PURE__ */ jsxRuntime.jsx(chunkQSMDATWJ_cjs.PlayGlyph, {}),
+                    playing ? /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.PauseGlyph, {}) : /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.PlayGlyph, {}),
                     " ",
                     playing ? "Pause" : "Play"
                   ] })
                 ] }) : null
               ] }),
-              /* @__PURE__ */ jsxRuntime.jsx(chunkQSMDATWJ_cjs.Legend, { items: current.legend ?? [] })
+              /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Legend, { items: current.legend ?? [] })
             ] }),
             /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack__sr", role: "status", children: note ? `${note.label}: ${note.detail}` : "" }),
             /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack__sr", "aria-live": "polite", "data-drill-announce": "", children: announcement }),
@@ -685,7 +686,7 @@ function Ghost({ child, ctx, box, uid }) {
   const mini = slice > MINI_ABOVE;
   const k = MINI_SCALE;
   const port = mini ? { x: box.x + box.w - f.w * k - 30, y: box.y, width: f.w * k, height: box.h, viewBox: `0 ${(f.h - box.h / k) / 2} ${f.w} ${box.h / k}` } : { x: box.x, y: box.y, width: box.w, height: box.h, viewBox: `0 0 ${f.w} ${f.h}` };
-  return /* @__PURE__ */ jsxRuntime.jsx("svg", { ...port, preserveAspectRatio: "xMidYMid slice", overflow: "hidden", children: /* @__PURE__ */ jsxRuntime.jsx("svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ jsxRuntime.jsx(chunkQSMDATWJ_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ jsxRuntime.jsx(DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) });
+  return /* @__PURE__ */ jsxRuntime.jsx("svg", { ...port, preserveAspectRatio: "xMidYMid slice", overflow: "hidden", children: /* @__PURE__ */ jsxRuntime.jsx("svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ jsxRuntime.jsx(DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) });
 }
 function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node }) {
   const ctx = useDrill();
@@ -698,11 +699,11 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
     const g = ghostRef.current;
     if (g) setCount(g.querySelectorAll('[data-uipack="node"]').length);
   }, [drill, ctx?.variant]);
-  if (!ctx || !child) return /* @__PURE__ */ jsxRuntime.jsx(chunkQSMDATWJ_cjs.Node, { ...node, label: text });
+  if (!ctx || !child) return /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { ...node, label: text });
   const box = drillBox({ x: node.x, y: node.y, w: node.w, h: node.h }, grow);
-  if (ctx.ghost) return /* @__PURE__ */ jsxRuntime.jsx(chunkQSMDATWJ_cjs.Node, { ...node, ...box, label: text });
+  if (ctx.ghost) return /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.Node, { ...node, ...box, label: text });
   const summary = child.summary ?? (count ? `${count} part${count === 1 ? "" : "s"} inside` : "");
-  const name = `${chunkQSMDATWJ_cjs.nodeName(text, node.sub)}, open${summary ? `: ${summary}` : ""}`;
+  const name = `${chunkNUONYN7S_cjs.nodeName(text, node.sub)}, open${summary ? `: ${summary}` : ""}`;
   const interactive = ctx.interactive && !!ctx.open;
   const activate = (e) => {
     e.preventDefault();
@@ -751,8 +752,8 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
             "aria-hidden": "true"
           }
         ),
-        /* @__PURE__ */ jsxRuntime.jsx(chunkQSMDATWJ_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(
-          chunkQSMDATWJ_cjs.Node,
+        /* @__PURE__ */ jsxRuntime.jsx(chunkNUONYN7S_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(
+          chunkNUONYN7S_cjs.Node,
           {
             ...node,
             ...box,
@@ -821,107 +822,107 @@ Object.defineProperty(exports, "zoomSamples", {
 });
 Object.defineProperty(exports, "Bus", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.Bus; }
+  get: function () { return chunkNUONYN7S_cjs.Bus; }
 });
 Object.defineProperty(exports, "Chip", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.Chip; }
+  get: function () { return chunkNUONYN7S_cjs.Chip; }
 });
 Object.defineProperty(exports, "Connector", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.Connector; }
+  get: function () { return chunkNUONYN7S_cjs.Connector; }
 });
 Object.defineProperty(exports, "Defs", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.Defs; }
+  get: function () { return chunkNUONYN7S_cjs.Defs; }
 });
 Object.defineProperty(exports, "Figure", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.Figure; }
+  get: function () { return chunkNUONYN7S_cjs.Figure; }
 });
 Object.defineProperty(exports, "FigureHoverContext", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.FigureHoverContext; }
+  get: function () { return chunkNUONYN7S_cjs.FigureHoverContext; }
 });
 Object.defineProperty(exports, "Group", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.Group; }
+  get: function () { return chunkNUONYN7S_cjs.Group; }
 });
 Object.defineProperty(exports, "Label", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.Label; }
+  get: function () { return chunkNUONYN7S_cjs.Label; }
 });
 Object.defineProperty(exports, "Lane", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.Lane; }
+  get: function () { return chunkNUONYN7S_cjs.Lane; }
 });
 Object.defineProperty(exports, "Legend", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.Legend; }
+  get: function () { return chunkNUONYN7S_cjs.Legend; }
 });
 Object.defineProperty(exports, "Node", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.Node; }
+  get: function () { return chunkNUONYN7S_cjs.Node; }
 });
 Object.defineProperty(exports, "Packet", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.Packet; }
+  get: function () { return chunkNUONYN7S_cjs.Packet; }
 });
 Object.defineProperty(exports, "anchor", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.anchor; }
+  get: function () { return chunkNUONYN7S_cjs.anchor; }
 });
 Object.defineProperty(exports, "busStub", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.busStub; }
+  get: function () { return chunkNUONYN7S_cjs.busStub; }
 });
 Object.defineProperty(exports, "busStubs", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.busStubs; }
+  get: function () { return chunkNUONYN7S_cjs.busStubs; }
 });
 Object.defineProperty(exports, "connectorStroke", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.connectorStroke; }
+  get: function () { return chunkNUONYN7S_cjs.connectorStroke; }
 });
 Object.defineProperty(exports, "flowList", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.flowList; }
+  get: function () { return chunkNUONYN7S_cjs.flowList; }
 });
 Object.defineProperty(exports, "grid", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.grid; }
+  get: function () { return chunkNUONYN7S_cjs.grid; }
 });
 Object.defineProperty(exports, "hoverAttrs", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.hoverAttrs; }
+  get: function () { return chunkNUONYN7S_cjs.hoverAttrs; }
 });
 Object.defineProperty(exports, "icons", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.icons; }
+  get: function () { return chunkNUONYN7S_cjs.icons; }
 });
 Object.defineProperty(exports, "pathFromPoints", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.pathFromPoints; }
+  get: function () { return chunkNUONYN7S_cjs.pathFromPoints; }
 });
 Object.defineProperty(exports, "pointAlong", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.pointAlong; }
+  get: function () { return chunkNUONYN7S_cjs.pointAlong; }
 });
 Object.defineProperty(exports, "polylineLength", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.polylineLength; }
+  get: function () { return chunkNUONYN7S_cjs.polylineLength; }
 });
 Object.defineProperty(exports, "route", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.route; }
+  get: function () { return chunkNUONYN7S_cjs.route; }
 });
 Object.defineProperty(exports, "trim", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.trim; }
+  get: function () { return chunkNUONYN7S_cjs.trim; }
 });
 Object.defineProperty(exports, "useFigureHover", {
   enumerable: true,
-  get: function () { return chunkQSMDATWJ_cjs.useFigureHover; }
+  get: function () { return chunkNUONYN7S_cjs.useFigureHover; }
 });
 Object.defineProperty(exports, "DEFAULT_RENDER_WIDTH", {
   enumerable: true,

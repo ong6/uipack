@@ -1623,9 +1623,13 @@ function Presenter({
         upcoming ? /* @__PURE__ */ jsx(SlideThumbnail, { slide: upcoming, index: index + 1, count: slides.length, theme }) : /* @__PURE__ */ jsx("p", { className: "uipack-deck-presenter__end", children: "End of deck" })
       ] }),
       /* @__PURE__ */ jsxs("section", { className: "uipack-deck-presenter__clock", children: [
-        /* @__PURE__ */ jsx("span", { "aria-label": "Elapsed time", children: clock(elapsed) }),
+        /* @__PURE__ */ jsxs("span", { role: "timer", children: [
+          /* @__PURE__ */ jsx("span", { className: "uipack-deck-sr", children: "Elapsed time " }),
+          clock(elapsed)
+        ] }),
         budget > 0 && /* @__PURE__ */ jsxs("span", { className: "uipack-deck-presenter__budget", children: [
-          /* @__PURE__ */ jsxs("span", { "aria-label": minutes ? "Time budget" : "Talk track length", children: [
+          /* @__PURE__ */ jsxs("span", { children: [
+            /* @__PURE__ */ jsx("span", { className: "uipack-deck-sr", children: minutes ? "Time budget " : "Talk track length " }),
             "/ ",
             clock(budget)
           ] }),
@@ -1787,8 +1791,21 @@ function PrintJob({
 function Reader({
   slides,
   theme,
+  index = 0,
+  open,
   onPresent
 }) {
+  const listRef = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const raf = requestAnimationFrame(() => {
+      const item = listRef.current?.children[index];
+      if (!item) return;
+      item.scrollIntoView({ block: "start" });
+      if (open.focus) item.querySelector(".uipack-deck-read__present")?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, []);
   return /* @__PURE__ */ jsxs("div", { className: "uipack-deck-read", children: [
     /* @__PURE__ */ jsxs("div", { className: "uipack-deck-read__head", children: [
       /* @__PURE__ */ jsxs("p", { children: [
@@ -1796,9 +1813,9 @@ function Reader({
         slides.length,
         " slides"
       ] }),
-      /* @__PURE__ */ jsx("button", { type: "button", onClick: () => onPresent(0), children: "Present" })
+      /* @__PURE__ */ jsx("button", { type: "button", onClick: () => onPresent(index), children: index > 0 ? `Present from ${pad(index + 1)}` : "Present" })
     ] }),
-    /* @__PURE__ */ jsx("ol", { children: slides.map((s, i) => /* @__PURE__ */ jsx(ReadItem, { slide: s, index: i, count: slides.length, theme, onPresent }, s.id)) })
+    /* @__PURE__ */ jsx("ol", { ref: listRef, children: slides.map((s, i) => /* @__PURE__ */ jsx(ReadItem, { slide: s, index: i, count: slides.length, theme, onPresent }, s.id)) })
   ] });
 }
 function ReadItem({
@@ -1830,7 +1847,16 @@ function ReadItem({
       ] }),
       /* @__PURE__ */ jsx("h2", { children: s.headline ?? s.title }),
       notes?.say && /* @__PURE__ */ jsx("p", { children: notes.say }),
-      /* @__PURE__ */ jsx("button", { type: "button", onClick: () => onPresent(i), "aria-label": `Present from slide ${i + 1}: ${s.title}`, children: "Present from here" })
+      /* @__PURE__ */ jsx(
+        "button",
+        {
+          type: "button",
+          className: "uipack-deck-read__present",
+          onClick: () => onPresent(i),
+          "aria-label": `Present from slide ${i + 1}: ${s.title}`,
+          children: "Present from here"
+        }
+      )
     ] })
   ] });
 }
@@ -1879,6 +1905,7 @@ function Player({
   const [overview, setOverview] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [reading, setReading] = useState(initialView === "read");
+  const [readOpen, setReadOpen] = useState(startIndex > 0 ? { focus: false } : null);
   const [printing, setPrinting] = useState(false);
   const prefersReduced = usePrefersReducedMotion();
   const reducedMotion = motion === "none" || prefersReduced;
@@ -1998,14 +2025,26 @@ function Player({
   }, [view.index, view.step]);
   const [canFullscreen, setCanFullscreen] = useState(false);
   useEffect(() => {
-    setCanFullscreen(document.fullscreenEnabled !== false);
-    const onChange = () => setFullscreen(document.fullscreenElement === rootRef.current);
+    const doc = document;
+    const prefixed = doc.fullscreenEnabled === void 0 && doc.webkitFullscreenEnabled !== false && typeof rootRef.current?.webkitRequestFullscreen === "function";
+    setCanFullscreen(doc.fullscreenEnabled === true || prefixed);
+    const onChange = () => setFullscreen(fullscreenElement() === rootRef.current);
     document.addEventListener("fullscreenchange", onChange);
-    return () => document.removeEventListener("fullscreenchange", onChange);
+    document.addEventListener("webkitfullscreenchange", onChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onChange);
+      document.removeEventListener("webkitfullscreenchange", onChange);
+    };
   }, []);
   const toggleFullscreen = () => {
-    if (document.fullscreenElement) void document.exitFullscreen?.();
-    else void rootRef.current?.requestFullscreen?.();
+    if (!canFullscreen) return;
+    const doc = document;
+    const root = rootRef.current;
+    if (fullscreenElement()) {
+      if (doc.exitFullscreen) void doc.exitFullscreen();
+      else doc.webkitExitFullscreen?.();
+    } else if (root?.requestFullscreen) void root.requestFullscreen();
+    else root?.webkitRequestFullscreen?.();
     rootRef.current?.focus();
   };
   const openPresenter = () => {
@@ -2151,7 +2190,10 @@ function Player({
       overviewButtonRef,
       onPrev: prev,
       onNext: next,
-      onRead: () => setReading(true),
+      onRead: () => {
+        setReadOpen({ focus: true });
+        setReading(true);
+      },
       onPrint: () => setPrinting(true),
       onOverview: () => setOverview(true),
       onPresenter: openPresenter,
@@ -2181,10 +2223,18 @@ function Player({
           {
             slides,
             theme,
+            index: view.index,
+            open: readOpen,
             onPresent: (i) => {
               setReading(false);
               go(i, 0);
-              requestAnimationFrame(() => rootRef.current?.focus({ preventScroll: true }));
+              requestAnimationFrame(() => {
+                const root = rootRef.current;
+                if (!root) return;
+                root.focus({ preventScroll: true });
+                const { top, bottom } = root.getBoundingClientRect();
+                if (top < 0 || bottom > window.innerHeight) root.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
+              });
             }
           }
         ) : /* @__PURE__ */ jsxs(Fragment, { children: [
@@ -2241,6 +2291,7 @@ function Player({
     }
   );
 }
+var fullscreenElement = () => document.fullscreenElement ?? document.webkitFullscreenElement ?? null;
 function nextCue(layer, step, maxStep, upcoming) {
   const words = (el, max = 64) => {
     const t = (el?.textContent ?? "").replace(/\s+/g, " ").trim();

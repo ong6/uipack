@@ -18,6 +18,7 @@ import { Legend } from "../Legend";
 import { FigureMotionContext, type FigureMotion } from "../context";
 import { FigureHoverContext, type FigureHover } from "../hover";
 import { FigureScaleContext } from "../scale";
+import { useRovingFocus } from "../roving";
 import { SelectionContext, type SelectedItem } from "../selection";
 import { clearLayer, findDrillNode, runDrill } from "./animate";
 import { drillStatic } from "./static";
@@ -368,6 +369,9 @@ function DrillFigureRoot({
     ro.observe(canvas);
     return () => ro.disconnect();
   }, [note, zoom, expanded]);
+
+  // Each level's drawing is one Tab stop; the arrow keys move between its parts.
+  useRovingFocus(canvasRef, expanded);
 
   const current = levelMap.get(last(view.path));
   if (!current) return null;
