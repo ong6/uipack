@@ -171,6 +171,11 @@ interface StorylineTemplate {
     };
     /** Whether the answer or recommendation must land in the first three content slides. */
     answerFirst: boolean;
+    /**
+     * What leadership remembers a week later, if the deck works. Write slide one and the ask so
+     * these are the things a reader can repeat; everything else is support.
+     */
+    remember: string;
     beats: readonly StoryBeat[];
 }
 declare const STORYLINE_TEMPLATES: readonly StorylineTemplate[];
@@ -194,7 +199,7 @@ interface StorySlide {
     source?: string;
 }
 type LintSeverity = "error" | "warn" | "tip";
-type LintRule = "deck-empty" | "duplicate-id" | "title-present" | "title-claim" | "title-length" | "one-idea" | "notes-present" | "number-source" | "roles-missing" | "answer-first" | "closing-ask" | "ask-concrete" | "role-repeat" | "deck-length" | "talk-time";
+type LintRule = "deck-empty" | "duplicate-id" | "title-present" | "title-claim" | "title-length" | "title-specific" | "one-idea" | "notes-present" | "number-source" | "roles-missing" | "answer-first" | "outcome-first" | "closing-ask" | "ask-concrete" | "role-repeat" | "deck-length" | "talk-time";
 interface LintFinding {
     slideId?: string;
     rule: LintRule;
@@ -263,8 +268,13 @@ interface DeckPlayerProps {
     presenterHref?: string;
     /** `focus`: keys work while the deck has focus. `global`: anywhere on the page. */
     keyboard?: "focus" | "global";
-    /** `read` stacks every slide, fully built, with its talk track: for phones and for decks read alone. */
-    view?: "present" | "read";
+    /**
+     * `read` stacks every slide, fully built, with its talk track: for phones and for decks read alone.
+     * `print` lays every slide out as a 16:9 page for printing or saving as PDF.
+     */
+    view?: "present" | "read" | "print";
+    /** Print each slide's headline and talk track beside it (the PDF / Print button and `view="print"`). */
+    printNotes?: boolean;
     /** Run the storyline checks and show findings in the overview's Storyline tab. For authoring, not for the audience. */
     lint?: boolean | LintOptions;
     className?: string;
@@ -273,7 +283,7 @@ interface DeckPlayerProps {
  * Plays a deck: one transition grammar, build steps, keyboard, touch and buttons, an overview,
  * full screen and a synced speaker view. Slides are authored on a 1920×1080 canvas.
  */
-declare function DeckPlayer({ slides, id, title, theme, transition, motion, mode, initial, onPositionChange, presenterHref, keyboard, view: initialView, lint, className, }: DeckPlayerProps): react.JSX.Element;
+declare function DeckPlayer({ slides, id, title, theme, transition, motion, mode, initial, onPositionChange, presenterHref, keyboard, view: initialView, printNotes, lint, className, }: DeckPlayerProps): react.JSX.Element;
 
 /** A still, scaled copy of one slide, fully built. Used by the overview and the speaker view. */
 declare function SlideThumbnail({ slide, index, count, theme, }: {
@@ -384,6 +394,16 @@ declare const bentoFocusAt: (step: number, tour: readonly string[]) => string | 
  * Steps count as builds, so the deck's Next and Back drive the tour.
  */
 declare function Bento({ columns, rows, tour, maxScale, className, style, children }: BentoProps): react.JSX.Element;
+
+/**
+ * A playable first draft of a storyline template: one slide per beat, titled with the template's
+ * example claim, showing the title pattern and how to write it. Every slide is a stub to replace:
+ * keep the `id` and `role`, rewrite `headline` with your facts, then swap `render` for real content
+ * and add `notes`. `lintDeck` flags every slide still missing a talk track.
+ */
+declare function starterDeck(template: StorylineTemplateId, { footer }?: {
+    footer?: ReactNode;
+}): DeckSlide[];
 
 interface TrackerProps {
     /** Section names, in deck order. */
@@ -836,4 +856,4 @@ interface HarveyTableProps {
 /** Options × criteria: Harvey balls (0–4) and text cells, with one row marked as the recommendation. */
 declare function HarveyTable({ columns, rows, corner, showKey, keyNote }: HarveyTableProps): react.JSX.Element;
 
-export { Annotation, type AnnotationGeometry, type AnnotationProps, type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, REPEATABLE_ROLES, Rect, Ref, type ResolvedTransition, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, Tracker, type TrackerProps, type TransitionKind, WORDS_PER_MINUTE, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, flipFrom, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, resolveTransition, runTransition, slideZoomFrame, slideZoomSamples, spreadLabels, stackSegments, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };
+export { Annotation, type AnnotationGeometry, type AnnotationProps, type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, REPEATABLE_ROLES, Rect, Ref, type ResolvedTransition, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, Tracker, type TrackerProps, type TransitionKind, WORDS_PER_MINUTE, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, flipFrom, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, resolveTransition, runTransition, slideZoomFrame, slideZoomSamples, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };
