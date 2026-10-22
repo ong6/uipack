@@ -119,6 +119,10 @@
 .uipack-deck-lede.deck-demo-lede {
   max-width: 44ch;
 }
+/* The claim's caveat, said before the ask: the evidence is a correlation. */
+.deck-demo-caveat {
+  color: var(--deck-muted);
+}
 .deck-demo-keys {
   margin-top: 48px;
 }

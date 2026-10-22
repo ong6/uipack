@@ -31,7 +31,7 @@ const ghost = [
   { role: "Evidence", title: "Cost update", flag: "A label, not a claim", zoom: true },
   { role: "Evidence", title: "Caching saved 140 of the 214 ms we cut" },
   { role: "Risk", title: "The cache passes 90% memory at the November peak" },
-  { role: "Plan", title: "Next steps", flag: "No date" },
+  { role: "Plan", title: "Next steps", flag: "A topic label, no date" },
   { role: "Ask", title: "Thoughts and questions welcome", flag: "No owner, no date" },
 ] as const;
 
@@ -61,8 +61,8 @@ export const deckExample: DeckSlide[] = [
           Reviews that open with the answer were decided in one meeting, not three.
         </h2>
         <p className="uipack-deck-lede deck-demo-lede">
-          So, team leads: send me your next review's titles, answer first, by 6{"\u00a0"}November, and present it in the deck
-          player.
+          <span className="deck-demo-caveat">(Same teams, same quarter; not proof of cause.)</span> So, team leads: send me your
+          next review's titles, answer first, by 6{"\u00a0"}November, and present it in the deck player.
         </p>
       </Slide>
     ),
@@ -194,7 +194,7 @@ export const deckExample: DeckSlide[] = [
       </Slide>
     ),
     notes: {
-      say: "This is the check, live. Press G in the player and the Storyline tab shows the review as its titles alone, the ghost deck, with the player's checks beside it. This is the first draft of the search team's quarterly review. Read the titles in order: the answer is there, but slide two is a label, the plan has no date and the ask names nobody. Those three flags are exactly the gaps that cost a second meeting. Fixing them takes minutes, before anyone is in a room.",
+      say: "This is the check, live. Press G in the player and the Storyline tab shows the review as its titles alone, the ghost deck, with the player's checks beside it. This is the first draft of the search team's quarterly review. Read the titles in order: the answer is there, but slide two is a label, the plan is a topic label with no date, and the ask names nobody. Those three flags are exactly the gaps that cost a second meeting. Fixing them takes minutes, before anyone is in a room.",
       delivery: "Read the six titles aloud in order, then point at slide two.",
       next: "Let's go inside slide two and fix it.",
     },
