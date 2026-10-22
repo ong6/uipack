@@ -1306,8 +1306,11 @@ function contact(c) {
   return g;
 }
 async function tennis(_c, variant = 0, modelUrl) {
-  const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
-  const model = await new GLTFLoader().loadAsync(modelUrl ?? tennisModelUrl());
+  const [{ GLTFLoader }, { MeshoptDecoder }] = await Promise.all([
+    import('three/addons/loaders/GLTFLoader.js'),
+    import('three/addons/libs/meshopt_decoder.module.js')
+  ]);
+  const model = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(modelUrl ?? tennisModelUrl());
   const g = new THREE__namespace.Group();
   g.rotation.set(0.64, -0.25, 0);
   g.position.y = 0.1;
