@@ -293,3 +293,197 @@
   height: auto;
   margin: -6% -9% -6% -9%;
 }
+
+/* Bento example: Q2 against Q3 on one scale, inside the latency box (canvas pixels at overview scale). */
+.deck-bento-ba {
+  display: grid;
+  gap: 10px;
+  margin: 26px 0 0;
+}
+.deck-bento-ba > div {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  align-items: center;
+  gap: 12px;
+}
+.deck-bento-ba dt {
+  color: var(--deck-muted);
+  font: 600 18px/1 var(--deck-mono);
+  letter-spacing: 0.08em;
+}
+.deck-bento-ba dd {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+.deck-bento-ba dd span {
+  height: 18px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--deck-fg) 34%, transparent);
+}
+.deck-bento-ba [data-now] dd span {
+  background: var(--deck-fg);
+}
+.deck-bento-ba dd b {
+  font: 600 18px/1 var(--deck-mono);
+  white-space: nowrap;
+}
+/* In the detail card the same bars are read under the camera, so they set small. */
+.uipack-deck-bento__detail .deck-bento-ba {
+  gap: 6px;
+  margin: 14px 0 0;
+}
+.uipack-deck-bento__detail .deck-bento-ba > div {
+  grid-template-columns: 28px 1fr;
+  gap: 8px;
+}
+.uipack-deck-bento__detail .deck-bento-ba dt,
+.uipack-deck-bento__detail .deck-bento-ba dd b {
+  font-size: 12px;
+}
+.uipack-deck-bento__detail .deck-bento-ba dd span {
+  height: 10px;
+}
+
+/* Bento example: savings as bars on one scale. */
+.deck-bento-bars {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.3;
+}
+.deck-bento-bars li {
+  display: grid;
+  grid-template-columns: 1fr 64px;
+  column-gap: 12px;
+  row-gap: 4px;
+  padding-top: 7px;
+  border-top: 1px solid var(--deck-rule);
+}
+.deck-bento-bars li > span:first-child {
+  grid-column: 1 / -1;
+}
+.deck-bento-bars b {
+  font-weight: 650;
+}
+.deck-bento-bars__track {
+  height: 10px;
+  align-self: center;
+}
+.deck-bento-bars__track i {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  border-radius: 2px;
+  background: var(--deck-fg);
+}
+.deck-bento-bars__value {
+  font: 500 12px/1 var(--deck-mono);
+  text-align: right;
+  white-space: nowrap;
+}
+.deck-bento-source {
+  margin-top: auto;
+  padding-top: 10px;
+  color: var(--deck-muted);
+}
+
+/* Bento example: memory forecast (an SVG that scales with its box). */
+.deck-bento-forecast {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 4px 0 10px;
+  overflow: visible;
+}
+.deck-bento-forecast path {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.deck-bento-forecast__measured {
+  stroke: var(--deck-fg);
+}
+.deck-bento-forecast__projected {
+  stroke: var(--deck-accent);
+  stroke-dasharray: 6 6;
+}
+.deck-bento-forecast__limit {
+  stroke: var(--deck-muted);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 4;
+}
+.deck-bento-forecast circle {
+  fill: var(--deck-fg);
+}
+.deck-bento-forecast text {
+  fill: var(--deck-muted);
+  font: 500 11px var(--deck-mono);
+}
+
+/* Bento example: the plan, one row per item with its date. */
+.deck-bento-plan {
+  display: grid;
+  margin: 72px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.deck-bento-plan li {
+  display: grid;
+  grid-template-columns: 88px 500px 1fr 140px;
+  align-items: baseline;
+  padding: 34px 0;
+  border-top: 1.5px solid var(--deck-rule);
+}
+.deck-bento-plan b {
+  font-size: 46px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.deck-bento-plan li > span:nth-child(3) {
+  color: var(--deck-muted);
+  font-size: 32px;
+}
+.deck-bento-plan li > span:last-child {
+  text-align: right;
+}
+
+/* Bento example: the risk slide, terms on the left and the forecast on the right. */
+.deck-bento-risk > .uipack-deck-heading {
+  max-width: 30ch;
+}
+.deck-bento-risk__body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 96px;
+  align-items: center;
+  margin-top: 56px;
+}
+.deck-bento-risk__terms {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+.deck-bento-risk__terms > div {
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  padding: 22px 0;
+  border-top: 1.5px solid var(--deck-rule);
+}
+.deck-bento-risk__terms dt {
+  color: var(--deck-muted);
+  font: 600 22px/1.5 var(--deck-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.deck-bento-risk__terms dd {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.4;
+}
