@@ -17,6 +17,12 @@ export interface ObjectSceneProps {
   variant?: ObjectVariant | "random";
   /** Original edition within Studio; ignored by Paper and Kinetic. */
   edition?: ObjectEdition;
+  /**
+   * Where Studio tennis fetches its model. Default: the package's
+   * `assets/objects/tennis-return.glb`, which the bundler copies and rewrites. Set it when
+   * you serve the file yourself (a CDN, a bundler without `new URL(…, import.meta.url)`, CommonJS).
+   */
+  modelUrl?: string;
 }
 export const objectPalettes = {
   light: { paper: 0xf3efe7, ink: 0x292e32, muted: 0x9aaba5, accent: 0x205f49 },
@@ -214,6 +220,7 @@ function ObjectStage({
   edition = 0,
   controls = "full",
   surface = "styled",
+  modelUrl,
 }: ObjectSceneProps & { zoom?: number }) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -318,7 +325,7 @@ function ObjectStage({
           const camera = new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 100);
           camera.position.set(0, variant === 4 && kind !== "contact" ? -.15 : 0, 10);
           const colors = palette ?? objectPalettes[colorMode];
-          const object = await createObject(kind, colors, variant === "random" ? 0 : variant, edition);
+          const object = await createObject(kind, colors, variant === "random" ? 0 : variant, edition, modelUrl);
           if (disposed || contextLost) { disposeObject(object); return; }
           canvas.dataset.source = object.userData.source ?? "procedural";
           canvas.dataset.artDirection = object.userData.style;
@@ -521,7 +528,7 @@ function ObjectStage({
       replayRef.current = null;
       resumeRef.current = null;
     };
-  }, [active, kind, colorMode, palette, variant, edition]);
+  }, [active, kind, colorMode, palette, variant, edition, modelUrl]);
 
   const togglePaused = () => {
     const next = !pausedRef.current;

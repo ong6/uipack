@@ -1,12 +1,25 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { readFileSync } from "node:fs";
+import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { Box3, Vector3 } from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import {
   createObject,
   disposeObject,
   type ObjectKind,
 } from "../src/objects/scenes";
 import { ObjectScene, objectPalettes, objectScenes, chooseObjectVariant } from "../src/objects";
+// Studio tennis loads its model by URL (src/package-assets.ts). jsdom cannot fetch it, so parse the
+// packaged file from disk; the test still checks the URL it was asked for.
+const modelFile = readFileSync("assets/objects/tennis-return.glb");
+const loadedUrls: string[] = [];
+beforeEach(() => {
+  loadedUrls.length = 0;
+  vi.spyOn(GLTFLoader.prototype, "loadAsync").mockImplementation(function (this: GLTFLoader, url: string) {
+    loadedUrls.push(url);
+    return this.parseAsync(Uint8Array.from(modelFile).buffer, ""); // an ArrayBuffer from this realm, as GLTFLoader checks
+  });
+});
 afterEach(() => vi.restoreAllMocks());
 const drawingContext = () => ({ fillText() {}, fillRect() {}, beginPath() {}, moveTo() {}, lineTo() {}, stroke() {}, save() {}, restore() {}, rect() {}, clip() {} }) as unknown as CanvasRenderingContext2D;
 describe("authored object animation envelopes", () => {
@@ -110,6 +123,8 @@ describe("authored object animation envelopes", () => {
   it("tennis ball meets the racket face at the strike", async () => {
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({ fillText() {}, fillRect() {} } as unknown as CanvasRenderingContext2D);
     const object = await createObject("tennis", objectPalettes.light);
+    expect(loadedUrls).toHaveLength(1);
+    expect(loadedUrls[0]).toMatch(/\/assets\/objects\/tennis-return\.glb$/);
     for (let i = 0; i < 2; i++) {
       object.userData.animate(object.userData.contactTimes[i]);
       object.updateMatrixWorld(true);
@@ -123,6 +138,14 @@ describe("authored object animation envelopes", () => {
     const after = object.userData.ball.getWorldPosition(new Vector3());
     expect(before.distanceTo(after)).toBeLessThan(0.01);
     disposeObject(object);
+  });
+
+  it("tennis loads the packaged model by default and a modelUrl override instead", async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({ fillText() {}, fillRect() {} } as unknown as CanvasRenderingContext2D);
+    disposeObject(await createObject("tennis", objectPalettes.light, 0, 1, "https://cdn.example/tennis.glb"));
+    // Paper and Kinetic tennis are procedural and fetch nothing.
+    disposeObject(await createObject("tennis", objectPalettes.light, 1, 0, "https://cdn.example/tennis.glb"));
+    expect(loadedUrls).toEqual(["https://cdn.example/tennis.glb"]);
   });
 
   it("contact converges three distinct routes into one settled inbox", async () => {

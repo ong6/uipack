@@ -30,6 +30,7 @@
     "./browser.css": "./dist/browser.css",
     "./theme.css": "./dist/theme.css",
     "./assets/manifest.json": "./assets/manifest.json",
+    "./assets/objects/*": "./assets/objects/*",
     "./package.json": "./package.json",
     "./slides": {
       "types": "./dist/slides.d.ts",

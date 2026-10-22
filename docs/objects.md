@@ -66,16 +66,42 @@ Physical mobile performance must be measured separately from desktop browser vie
 
 Run `blender --background --factory-startup --python-exit-code 1 --python scripts/objects/tennis.py`
 from the repository. The original model uses no external assets or textures. The script produces
-`assets/objects/tennis-return.glb` and `src/objects/tennis-asset.ts`; the latter embeds the same bytes
-in a separately loaded JavaScript chunk so consumers need no asset-copy configuration. Generated
+`assets/objects/tennis-return.glb`, the file the runtime fetches. Generated
 editable `.blend`, four pose previews and verification data go to `/tmp/uipack-tennis`. The script
 is the durable, reproducible source; copy the editable file elsewhere before clearing temporary files.
 
-The two-player GLB is 716,300 bytes. JavaScript encoding adds transfer
-and decode overhead; measure the built chunk too. Only selecting Studio tennis loads the model. Its baked
+The two-player GLB is 716,300 bytes. Only selecting Studio tennis loads the model. Its baked
 object animation is sampled deterministically; a contact test checks the exported ball against the
 two rackets at 1.9 and 4.9 seconds in a seamless six-second rally. Each instance owns its mixer and materials and disposes them on removal.
 The existing SVG remains visible until model loading succeeds, including on an asset-load failure.
+
+### Loading the tennis model
+
+Studio tennis fetches the GLB as a file, not as JavaScript: it was a 955 KB base64 chunk (and
+1.08 MB inlined into `objects.cjs`), now 716 KB of binary that the browser caches like an image.
+The URL comes from `new URL("../assets/objects/tennis-return.glb", import.meta.url)` in
+`src/package-assets.ts`, which Vite, Rollup (with an import-meta-assets plugin), webpack 5 and
+Next recognise: they copy the file into the build and rewrite the URL. Checked from the packed
+tarball: Next 16 with Turbopack and with webpack, in dev and build, and a Vite 6 build, each serve
+the hashed `.glb` and play the model with no consumer configuration. Nothing is fetched until a
+Studio tennis scene becomes active.
+
+Serve the file yourself and pass `modelUrl` when the default cannot resolve:
+
+```tsx
+<ObjectScene kind="tennis" label="Tennis practice" modelUrl="/models/tennis-return.glb" />
+<ObjectGallery kind="tennis" modelUrl="/models/tennis-return.glb" onChange={choose} />
+```
+
+- **CommonJS** (`require("uipack/objects")`) has no `import.meta`, so it always needs `modelUrl`.
+- **esbuild** leaves `new URL(…)` untouched and copies nothing: copy the file and pass `modelUrl`.
+- **Vite dev** pre-bundles dependencies into `node_modules/.vite`, which breaks the relative URL
+  for an installed package; add `optimizeDeps: { exclude: ["uipack"] }` or pass `modelUrl`.
+  Builds are unaffected.
+
+Copy the file from `uipack/assets/objects/tennis-return.glb` (exported) into your public folder,
+e.g. in a prebuild script with `require.resolve("uipack/package.json")`. A failed fetch keeps the
+labelled SVG fallback.
 
 Trading uses a beveled monitor with a flat chart display. Each candle has consistent open, high, low and close prices, and its matching volume below. The view advances toward later bars, bringing new candles in from the right. A 64-bar synthetic history repeats while time labels continue forward; it is explicitly labeled simulated.
 

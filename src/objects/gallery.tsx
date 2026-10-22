@@ -99,6 +99,7 @@ export function ObjectGallery({
   edition = 0,
   theme = "light",
   palette,
+  modelUrl,
   onChange,
 }: {
   kind: ObjectKind;
@@ -106,6 +107,8 @@ export function ObjectGallery({
   edition?: ObjectEdition;
   theme?: "light" | "dark";
   palette?: ObjectPalette;
+  /** Passed to `ObjectScene`: where Studio tennis fetches its model. */
+  modelUrl?: string;
   onChange: (kind: ObjectKind, variant: ObjectVariant, edition: ObjectEdition) => void;
 }) {
   variant = normalizeObjectVariant(kind, variant);
@@ -146,6 +149,7 @@ export function ObjectGallery({
             edition={edition}
             theme={theme}
             palette={palette}
+            modelUrl={modelUrl}
           />
         </div>
         <ObjectInspector
