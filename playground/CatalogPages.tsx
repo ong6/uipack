@@ -153,7 +153,7 @@ export default function CatalogPages() {
             {visualStyles.map((style) => (
               <article className="style-card" key={style.id}>
                 <div className="style-swatch" data-style={style.id} aria-hidden="true">
-                  {(style.id === "technical" ? ["Request", "System", "Evidence"] : style.id === "landing" ? ["Proof", "Star", "Action"] : [style.name, "3D", "Motion"]).map((word, i) => (
+                  {(style.id === "technical" ? ["Request", "System", "Evidence"] : style.id === "landing" ? ["Proof", "Star", "Action"] : style.id === "mechanism" ? ["Propose", "Check", "Result"] : [style.name, "3D", "Motion"]).map((word, i) => (
                     <Fragment key={word}>
                       {i > 0 && <i>→</i>}
                       <span>{word}</span>
@@ -167,13 +167,13 @@ export default function CatalogPages() {
                     <a href={`/?theme=${theme}`}>Figures</a>
                     <a href={`/animations?theme=${theme}`}>3D animations</a>
                     <a href={`/presentations?theme=${theme}`}>Presentations</a>
-                  </> : style.id === 'landing' ? <a href={`/web?theme=${theme}`}>Web UI building blocks</a> : <a href={`/animations?story=travel&variant=${'variant' in style ? style.variant : 0}&theme=${theme}`}>Explore six animated studies</a>}
+                  </> : style.id === 'landing' ? <a href={`/web?theme=${theme}`}>Web UI building blocks</a> : style.id === 'mechanism' ? <a href={`/mechanism?theme=${theme}`}>Verification gate machine</a> : <a href={`/animations?story=travel&variant=${'variant' in style ? style.variant : 0}&theme=${theme}`}>Explore six animated studies</a>}
                 </div>
               </article>
             ))}
           </div>
           <p className="collection-intro">
-            Technical diagrams, the Landing web style, and six object art directions. Each object direction has its own models, materials, perspective and motion.
+            Technical diagrams, the Landing web style, Mechanism machines, and six object art directions. Each object direction has its own models, materials, perspective and motion.
           </p>
         </section>
       ) : (

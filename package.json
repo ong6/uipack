@@ -71,6 +71,12 @@
       "require": "./dist/article.cjs"
     },
     "./article.css": "./dist/article.css",
+    "./mechanism": {
+      "types": "./dist/mechanism.d.ts",
+      "import": "./dist/mechanism.js",
+      "require": "./dist/mechanism.cjs"
+    },
+    "./mechanism.css": "./dist/mechanism.css",
     "./web.css": "./dist/web.css",
     "./web-gutters.css": "./dist/web-gutters.css",
     "./docs.css": "./dist/docs.css"
@@ -95,13 +101,15 @@
     "docs/component-first.md",
     "docs/web-principles.md",
     "docs/charts.md",
-    "docs/article.md"
+    "docs/article.md",
+    "docs/mechanism.md",
+    "src/mechanism/kit/LICENSE"
   ],
   "sideEffects": [
     "*.css"
   ],
   "scripts": {
-    "build": "tsup && cat src/theme.css src/canvas.css > dist/theme.css && cp src/browser/browser.css dist/browser.css && cp src/presentations/presentations.css dist/presentations.css && cat src/slides/slides.css src/canvas.css > dist/slides.css && cat src/objects/objects.css src/canvas.css > dist/objects.css && cat src/web/web.css src/web/gutters.css > dist/web.css && cp src/web/gutters.css dist/web-gutters.css && cp src/docs/docs.css dist/docs.css && cp src/charts/charts.css dist/charts.css && cp src/article/article.css dist/article.css",
+    "build": "tsup && cat src/theme.css src/canvas.css > dist/theme.css && cp src/browser/browser.css dist/browser.css && cp src/presentations/presentations.css dist/presentations.css && cat src/slides/slides.css src/canvas.css > dist/slides.css && cat src/objects/objects.css src/canvas.css > dist/objects.css && cat src/web/web.css src/web/gutters.css > dist/web.css && cp src/web/gutters.css dist/web-gutters.css && cp src/docs/docs.css dist/docs.css && cp src/charts/charts.css dist/charts.css && cp src/article/article.css dist/article.css && cp src/mechanism/mechanism.css dist/mechanism.css",
     "dev": "vite",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",

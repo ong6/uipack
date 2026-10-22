@@ -13,6 +13,7 @@ export default defineConfig({
     docs: "src/docs/index.ts",
     charts: "src/charts/index.ts",
     article: "src/article/index.ts",
+    mechanism: "src/mechanism/index.ts",
   },
   format: ["esm", "cjs"],
   dts: true,
