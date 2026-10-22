@@ -742,8 +742,12 @@
 .uipack-deck-storyline > ol > li {
   border-bottom: 1px solid var(--deck-rule);
 }
-.uipack-deck-storyline > ol > li[data-appendix] {
-  opacity: 0.6;
+/* Appendix rows step back in colour, not opacity: the muted token keeps 4.5:1 in both themes. */
+.uipack-deck-storyline > ol > li[data-appendix] > button {
+  color: var(--deck-muted);
+}
+.uipack-deck-storyline > ol > li[data-appendix] .uipack-deck-storyline__title {
+  font-weight: 500;
 }
 .uipack-deck-storyline > ol > li > button {
   display: grid;
