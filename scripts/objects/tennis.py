@@ -1,5 +1,6 @@
 """Original UI Pack tennis study. Run with Blender --background --python-exit-code 1 --python this.py.
 Writes the portable GLB the runtime fetches (assets/objects/tennis-return.glb); editable .blend and previews go to /tmp/uipack-tennis.
+Then compress it with glTF Transform (dedup, resample, meshopt) before committing: docs/objects.md, "Model compression".
 No external models, textures or fonts are used. Coordinates: Z up, athlete faces +Y.
 """
 import bpy, math, json
