@@ -6,7 +6,7 @@
 - `zoom-math.ts`: the fixed-point zoom into a box, shared by `drill/` and the deck's zoom transition.
 - `speech.ts`: `SpeechGuide` (a slide's talk track) and `WORDS_PER_MINUTE`, shared by `presentations/` and `deck/` so neither imports the other.
 - `flight.ts`: `useLayerFlight`, the two-layer flight lifetime both share (cancel on settle and unmount, land only when the latest flight finishes).
-- `drill/`: `DrillFigure` and `DrillNode`, a figure whose nodes zoom open into their own figures (exported from the root entry). See [drill-down figures](../docs/drill.md).
+- `drill/`: `DrillFigure` and `DrillNode`, a figure whose nodes zoom open into their own figures (exported from the root entry). `DrillFigure.tsx` composes `useDrillPath` and the stage hooks (`hooks.ts`), the move between levels (`useDrillFlight.ts`), the layers (`DrillLayer.tsx`) and the header (`DrillHead.tsx`). See [drill-down figures](../docs/drill.md).
 - `canvas-gestures.ts`: scoped trackpad/touch inputs, anchored SVG zoom, bounded camera zoom, and reset.
 - `CanvasView.tsx` and `canvas.css`: shared modal canvas workspace. Build appends its CSS to both distributed theme files.
 - `presets/`: typed SVG scene builders with wide and narrow drawings.
