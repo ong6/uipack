@@ -99,7 +99,8 @@ for (const [path, width] of [["/animations", 390], ["/assets", 390], ["/mechanis
     await page.setViewportSize({ width, height: 900 });
     await open(page, path);
     await page.keyboard.press("Tab"); // keyboard modality, so :focus-visible applies to .focus()
-    const handles = await page.locator(".showcase-shell :is(a[href], button, [tabindex='0'], summary, [role=button]):visible").elementHandles();
+    // The whole frame: the header's scrolling nav rows as well as the page in <main>.
+    const handles = await page.locator(".showcase-frame :is(a[href], button, [tabindex='0'], summary, [role=button]):visible").elementHandles();
     const clipped: string[] = [];
     for (const handle of handles.slice(0, 80)) {
       const issue = await handle.evaluate((el: HTMLElement) => {

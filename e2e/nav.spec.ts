@@ -297,3 +297,37 @@ test.describe("deck sub-views in the 390px menu", () => {
     await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Presentations: Bento");
   });
 });
+
+test.describe("landmarks and skip link", () => {
+  for (const width of [1280, 390]) {
+    test(`${width}px: banner outside main, a skip link first that lands in main`, async ({ page, browserName }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/charts");
+      // One banner (the shell header) and one main; the navs sit in the banner, not in main.
+      await expect(page.getByRole("banner")).toHaveCount(1);
+      await expect(page.getByRole("main")).toHaveCount(1);
+      await expect(page.locator("main header, main nav.showcase-groups, main nav.showcase-pages")).toHaveCount(0);
+      await expect(page.locator("main h1")).toHaveText("Charts");
+      // The skip link is hidden until it takes focus, as the first Tab stop.
+      const skip = page.getByRole("link", { name: "Skip to content" });
+      expect((await skip.boundingBox())!.y + (await skip.boundingBox())!.height).toBeLessThanOrEqual(0);
+      const firstFocusable = await page.evaluate(
+        () => document.querySelector<HTMLElement>("a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex='-1'])")?.textContent,
+      );
+      expect(firstFocusable).toBe("Skip to content");
+      // WebKit's default Tab reaches text fields only, so there the link takes focus directly.
+      if (browserName === "webkit") await skip.focus();
+      else await page.keyboard.press("Tab");
+      await expect(skip).toBeFocused();
+      const box = (await skip.boundingBox())!;
+      expect(box.y).toBeGreaterThanOrEqual(0);
+      expect(box.height).toBeGreaterThanOrEqual(44);
+      await page.keyboard.press("Enter");
+      await expect(page.getByRole("main")).toBeFocused();
+      // The next Tab continues from inside main, past the header.
+      if (browserName === "webkit") return;
+      await page.keyboard.press("Tab");
+      expect(await page.evaluate(() => !!document.activeElement?.closest("main"))).toBe(true);
+    });
+  }
+});

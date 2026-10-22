@@ -24,12 +24,47 @@ body {
   background: var(--show-bg);
   color: var(--show-ink);
 }
-.showcase-shell {
+/* The frame holds the banner (header and menu sheet) and <main>; main holds the context line,
+   the title and the page. Both stack with the same 32px gap. */
+.showcase-frame {
   max-width: 1280px;
   margin: 0 auto;
   padding: 24px 16px 64px;
   display: grid;
   gap: 32px;
+}
+.showcase-shell {
+  display: grid;
+  gap: 32px;
+  min-width: 0;
+}
+/* The skip link's target: focus lands here without a ring around the whole page. */
+.showcase-shell:focus {
+  outline: none;
+}
+/* The first Tab stop on every page: hidden until it has focus, then a button-sized link at the top. */
+.showcase-skip {
+  position: absolute;
+  top: 8px;
+  left: 16px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border: 2px solid var(--show-accent);
+  border-radius: 6px;
+  background: var(--show-surface);
+  color: var(--show-ink);
+  font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif;
+  text-decoration: none;
+  transform: translateY(calc(-100% - 16px));
+}
+.showcase-skip:focus {
+  transform: none;
+  outline: 2px solid var(--show-accent);
+  outline-offset: 2px;
 }
 .showcase-shell > section {
   min-width: 0;
@@ -122,13 +157,13 @@ body {
 .showcase-pages a:hover {
   color: var(--show-ink);
 }
-.showcase-shell .showcase-groups a:focus-visible,
-.showcase-shell .showcase-pages a:focus-visible {
+.showcase-frame .showcase-groups a:focus-visible,
+.showcase-frame .showcase-pages a:focus-visible {
   outline-offset: -3px;
 }
-.showcase-shell a:focus-visible,
-.showcase-shell button:focus-visible,
-.showcase-shell summary:focus-visible {
+.showcase-frame a:focus-visible,
+.showcase-frame button:focus-visible,
+.showcase-frame summary:focus-visible {
   outline: 2px solid var(--show-accent);
   outline-offset: 3px;
 }

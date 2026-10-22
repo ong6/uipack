@@ -35,7 +35,7 @@ function useCurrentInView(key: string) {
  * The one header for every page. From 720px: brand and theme, a row of groups,
  * a row of the active group's pages. Below 720px: one compact row, with a
  * button showing where you are that opens a sheet listing every page.
- * Then the context line, the page's h1 and its intro. Titles and intros come
+ * Then, in <main>, the context line, the page's h1 and its intro. Titles and intros come
  * from `libraryPages` in catalog.ts.
  */
 export function ShowcaseShell({
@@ -60,9 +60,20 @@ export function ShowcaseShell({
   const pagesRef = useCurrentInView(page.id);
   const menuRef = useRef<HTMLDialogElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   return (
-    <main className="showcase-shell" data-theme={theme} data-style="technical">
+    <div className="showcase-frame" data-theme={theme} data-style="technical">
+      <a
+        className="showcase-skip"
+        href="#showcase-main"
+        onClick={(e) => {
+          e.preventDefault();
+          mainRef.current?.focus();
+        }}
+      >
+        Skip to content
+      </a>
       <header className="showcase-header">
         <div className="showcase-header__bar">
           <a
@@ -175,24 +186,26 @@ export function ShowcaseShell({
           </div>
         ))}
       </dialog>
-      <p className="showcase-context">
-        <span>{group.label}</span>
-        {active !== "styles" && (
-          <>
-            <span aria-hidden="true">·</span>
-            <a href={`/styles?theme=${theme}`}>{styleName} style</a>
-          </>
-        )}
-      </p>
-      <div className="showcase-title">
-        {"hostsPage" in page && page.hostsPage ? (
-          <p className="showcase-title__name">{page.title ?? page.label}</p>
-        ) : (
-          <h1>{page.title ?? page.label}</h1>
-        )}
-        <p>{page.intro}</p>
-      </div>
-      {children}
-    </main>
+      <main className="showcase-shell" id="showcase-main" tabIndex={-1} ref={mainRef}>
+        <p className="showcase-context">
+          <span>{group.label}</span>
+          {active !== "styles" && (
+            <>
+              <span aria-hidden="true">·</span>
+              <a href={`/styles?theme=${theme}`}>{styleName} style</a>
+            </>
+          )}
+        </p>
+        <div className="showcase-title">
+          {"hostsPage" in page && page.hostsPage ? (
+            <p className="showcase-title__name">{page.title ?? page.label}</p>
+          ) : (
+            <h1>{page.title ?? page.label}</h1>
+          )}
+          <p>{page.intro}</p>
+        </div>
+        {children}
+      </main>
+    </div>
   );
 }
