@@ -4,7 +4,11 @@ import type { DeckSlide, DeckTheme } from "../types";
 import { notesOf, pad } from "./format";
 import { SlideThumbnail } from "./Layer";
 
-const clock = (seconds: number) => `${pad(Math.floor(seconds / 60))}:${pad(Math.round(seconds) % 60)}`;
+// Rounded once, so a budget that sums to 479.9999 s reads 08:00, not 07:00 (minutes floored, seconds rounded).
+const clock = (seconds: number) => {
+  const s = Math.round(seconds);
+  return `${pad(Math.floor(s / 60))}:${pad(s % 60)}`;
+};
 
 /**
  * Where each slide should start and end, in seconds, against a budget: each slide's share is its
