@@ -280,7 +280,16 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
           ))}
         </nav>
       </dialog>
-      <main className="showcase-shell" id="showcase-main" tabIndex={-1} ref={mainRef}>
+      {/* A page hosting a whole sample page (/web) keeps the sample's hero as its one h1, so the
+          sample's outline stays what it ships. Main takes the visible page name as its label
+          instead: landmark navigation says "Web UI, main" without a second h1. */}
+      <main
+        className="showcase-shell"
+        id="showcase-main"
+        tabIndex={-1}
+        ref={mainRef}
+        aria-labelledby={hostsPage ? "showcase-page-name" : undefined}
+      >
         {group && (
           <p className="showcase-context">
             <span>{group.label}</span>
@@ -294,7 +303,9 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
         )}
         <div className="showcase-title">
           {hostsPage ? (
-            <p className="showcase-title__name">{pageHeading(page)}</p>
+            <p className="showcase-title__name" id="showcase-page-name">
+              {pageHeading(page)}
+            </p>
           ) : (
             <h1>
               {page.query && page.title ? (

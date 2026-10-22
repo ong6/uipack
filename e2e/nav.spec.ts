@@ -124,6 +124,8 @@ test.describe("headings", () => {
         expect(h.level, `"${h.text}" follows an h${previous}`).toBeLessThanOrEqual(previous + 1);
         previous = h.level;
       }
+      // Every main is named by the page: by its h1, or on /web (whose h1 is the sample's hero) by its label.
+      if (path === "/web") await expect(page.getByRole("main", { name: "Web UI" })).toBeVisible();
       if (path !== "/web") {
         for (const h of headings.filter((h) => h.level === 2)) {
           expect(h.text, "h2 reads as a title, not a path or a counter").not.toMatch(/[/·]|^[a-z]/);
