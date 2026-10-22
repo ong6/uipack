@@ -25,6 +25,7 @@ export function useDeckSync({ id, view, viewRef, commit, go, slides, onPositionC
   // The last position this window reported. Mounting (and StrictMode's second mount) reports nothing,
   // so opening a speaker window never moves the audience window.
   const reported = useRef({ index: view.index, step: view.step });
+  const countRef = useLatest(slides.length);
 
   useEffect(() => {
     if (typeof BroadcastChannel === "undefined") return;
@@ -36,10 +37,15 @@ export function useDeckSync({ id, view, viewRef, commit, go, slides, onPositionC
       if (msg.type === "hello") {
         ch.postMessage({ type: "go", index: v.index, step: v.step } satisfies SyncMessage);
       } else if (msg.type === "go" && typeof msg.index === "number") {
-        if (v.index === msg.index && v.step === msg.step) return;
+        // Where the move lands here: another window may hold more slides, so it is clamped first.
+        // Only a move that changes the position is marked as remote; a mark left by a no-op would
+        // stay set and swallow this window's next move.
+        const index = Math.min(Math.max(msg.index, 0), countRef.current - 1);
+        const step = msg.step ?? 0;
+        if (v.index === index && v.step === step) return;
         remote.current = true;
-        if (v.index === msg.index) commit({ ...v, step: msg.step ?? 0 });
-        else go(msg.index, msg.step ?? 0);
+        if (v.index === index) commit({ ...v, step });
+        else go(index, step);
       }
     };
     ch.postMessage({ type: "hello" } satisfies SyncMessage);
@@ -47,7 +53,7 @@ export function useDeckSync({ id, view, viewRef, commit, go, slides, onPositionC
       ch.close();
       channel.current = null;
     };
-  }, [id, go, commit, viewRef]);
+  }, [id, go, commit, viewRef, countRef]);
 
   // Report a real position change: to the host, and to the other windows unless it came from them.
   const reportRef = useLatest({ slides, onPositionChange });
