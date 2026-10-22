@@ -336,14 +336,15 @@
   /* A transform makes this box the containing block for the fixed gutters. */
   transform: translateZ(0);
 }
+/* Top-anchored like the other tiles, and as tall as they are (240px), so it carries no empty band. */
 .web-gutters-column {
   position: relative;
   z-index: 1;
   display: grid;
-  align-content: end;
+  align-content: start;
   gap: var(--web-s1);
   width: 56%;
-  min-height: 280px;
+  min-height: 240px;
   margin-inline: auto;
   padding: var(--web-s3);
   border-inline: 1px solid var(--web-hairline);
