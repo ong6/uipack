@@ -7,7 +7,7 @@ export const entries: Record<string, string> = {
   static: "src/static/index.tsx",
   slides: "src/slides/index.ts",
   presentations: "src/presentations/index.ts",
-  objects: "src/objects/index.tsx",
+  objects: "src/objects/index.ts",
   web: "src/web/index.ts",
   docs: "src/docs/index.ts",
   charts: "src/charts/index.ts",

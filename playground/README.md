@@ -35,7 +35,7 @@ To add an animation, export a validated story from `src/slides`, register metada
 
 Presentation layouts belong in `CatalogPages.tsx` and `presentations.css` until there are enough reusable examples to extract a separate library API. Keep 3D assets independent from those layouts.
 
-Object scenes also appear in `/animations` under the Objects filter. Add source metadata to `src/objects/index.tsx`; `catalog.ts` registers those entries.
+Object scenes also appear in `/animations` under the Objects filter. Add source metadata to `objectScenes` in `src/objects/ObjectScene.tsx`; `catalog.ts` registers those entries.
 
 For reproducible object reviews, use /animations?story=travel&variant=0 (variants 0–5). The hobby variants select Studio, Paper, Kinetic, Cartoon, Realistic and Abstract. Use the named selector to compare all six hobbies.
 

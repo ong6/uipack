@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { ObjectScene, objectScenes, type ObjectKind, type ObjectPalette } from "./index";
+import { ObjectScene, objectScenes } from "./ObjectScene";
+import type { ObjectKind, ObjectPalette } from "./scenes";
 import { objectDirectionIndex, normalizeObjectVariant, transferObjectVariant, objectDirections, objectEditions, directionSymbols, type ObjectEdition, type ObjectVariant } from "./variants";
 import { keepFocusedInView } from "../env";
 
