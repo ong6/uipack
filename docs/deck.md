@@ -95,7 +95,7 @@ Authoring notes:
 - Wrap blocks in `Slide` so `advance` can stagger them. Keep each slide's blocks to a handful.
 - `Morph` ids are per pair of slides. Put one on the zoom target. A morph with no shared ids falls back to a fade.
 - Morph a number or a short phrase, not its container: wrap the value (`<Morph as="span">`), and the tile or panel around it fades its box.
-- For a shape that grows (the example deck's strip of ten slides), size everything inside it in `em` and change only its `font-size`, so both copies have the same proportions and the morph is a pure scale. For text, give both copies the same weight, tracking and `max-width` in `ch`, so they break at the same words.
+- For a shape that grows (a strip of slide thumbnails that comes forward), size everything inside it in `em` and change only its `font-size`, so both copies have the same proportions and the morph is a pure scale. For text, give both copies the same weight, tracking and `max-width` in `ch`, so they break at the same words.
 - Tables inside morph slides need `border-collapse: separate`, or their collapsed borders ignore row fades.
 - `render` receives `{ step, active, thumbnail, theme, reducedMotion }`. Render something still and cheap when `thumbnail` is true: the overview, read view and speaker view render every slide. Never start a WebGL scene in a thumbnail.
 
