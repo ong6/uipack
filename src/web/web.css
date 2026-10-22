@@ -679,6 +679,14 @@
 .uipack-web-section[data-tone="secondary"] {
   background: var(--web-secondary);
 }
+/* Two sections on the same ground in a row (FAQ, then pricing) would stack both paddings, 192px of
+   blank page with no band to explain it; the second one's top padding halves. */
+.uipack-web-section:not([data-tone="secondary"]) + .uipack-web-section:not([data-tone="secondary"]) {
+  padding-top: calc(var(--web-section-pad) / 2);
+}
+.uipack-web-section:not([data-tone="secondary"]) + .uipack-web-section[id]:not([data-tone="secondary"]) {
+  scroll-margin-top: calc(var(--web-scroll-offset) - var(--web-section-pad) / 2 + var(--web-s3));
+}
 .uipack-web-section__inner {
   max-width: 1120px;
   margin: 0 auto;
