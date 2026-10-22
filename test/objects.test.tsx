@@ -213,6 +213,22 @@ describe("authored object animation envelopes", () => {
   });
 });
 
+// Each WebGL mount listens for context loss once, so the listener count is the number of renderers built.
+it("keys the WebGL scene on palette values, so an inline palette does not rebuild it on every render", () => {
+  const listen = vi.spyOn(HTMLCanvasElement.prototype, "addEventListener");
+  const mounts = () => listen.mock.calls.filter(([type]) => type === "webglcontextlost").length;
+  const scene = (accent: number) => (
+    <ObjectScene kind="server" label="Server" variant={1} palette={{ ...objectPalettes.dark, accent }} />
+  );
+  const { rerender } = render(scene(0x71bda3));
+  expect(mounts()).toBe(1);
+  rerender(scene(0x71bda3));
+  rerender(scene(0x71bda3));
+  expect(mounts()).toBe(1);
+  rerender(scene(0x205f49));
+  expect(mounts()).toBe(2);
+});
+
 it("kinetic folio completes a full turn without reversing or jumping at the seam", async () => {
   const object = await createObject("reading", objectPalettes.light, 2);
   const book = object.getObjectByName("kinetic-folio")!;

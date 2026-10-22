@@ -196,6 +196,9 @@ function ObjectStage({
   const [completed, setCompleted] = useState(false);
   const reduced = usePrefersReducedMotion();
   const colorMode = theme;
+  // The effect below keys on the palette's values, not its identity: an inline `palette={{…}}` is a
+  // new object on every parent render and must not tear down and rebuild the WebGL renderer.
+  const paletteKey = palette ? JSON.stringify(palette) : "";
   const zoomRef = useRef(zoom);
   zoomRef.current = zoom;
   const resizeRef = useRef<(() => void) | null>(null);
@@ -270,7 +273,7 @@ function ObjectStage({
           pmrem.dispose();
           const camera = new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 100);
           camera.position.set(0, variant === 4 && kind !== "contact" ? -0.15 : 0, 10);
-          const colors = palette ?? objectPalettes[colorMode];
+          const colors = paletteKey ? (JSON.parse(paletteKey) as ObjectPalette) : objectPalettes[colorMode];
           const object = await createObject(kind, colors, variant === "random" ? 0 : variant, edition, modelUrl);
           if (disposed || contextLost) {
             disposeObject(object);
@@ -453,7 +456,7 @@ function ObjectStage({
       replayRef.current = null;
       resumeRef.current = null;
     };
-  }, [active, kind, colorMode, palette, variant, edition, modelUrl]);
+  }, [active, kind, colorMode, paletteKey, variant, edition, modelUrl]);
 
   const togglePaused = () => {
     const next = !pausedRef.current;
