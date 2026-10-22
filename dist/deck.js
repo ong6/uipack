@@ -294,7 +294,10 @@ function runTransition(opts) {
         play(a, [{ opacity: 1 }, { opacity: 1, offset: text ? 0 : bIn * 0.6 }, { opacity: 0, offset: aOut }, { opacity: 0 }], swap);
       }
       const leave = { duration: deckMotion.quick, easing: deckMotion.exit };
-      for (const el of out.rest) play(el, [{ opacity: 1 }, { opacity: 0 }], leave);
+      const besideOut = (el) => Boolean(el.parentElement && out.containers.includes(el.parentElement) && isText(el.parentElement));
+      for (const el of out.rest) {
+        play(el, [{ opacity: 1 }, { opacity: 0 }], besideOut(el) ? { duration: deckMotion.morph * 0.08, easing: "linear" } : leave);
+      }
       for (const el of out.containers) if (paintsBox(el)) play(el, paintFrames(el, "from"), leave);
       const beside = (el) => Boolean(el.parentElement && inn.containers.includes(el.parentElement) && isText(el.parentElement));
       const underPath = (el) => {
@@ -330,15 +333,13 @@ function runTransition(opts) {
   if (kind === "advance") {
     from.style.zIndex = "2";
     const shift = 40 * direction;
-    play(from, [{ opacity: 1, transform: "none" }, { opacity: 0, transform: `translateX(${-shift}px)` }], {
-      duration: deckMotion.base,
-      easing: deckMotion.exit
-    });
+    play(from, [{ transform: "none" }, { transform: `translateX(${-shift}px)` }], { duration: deckMotion.base, easing: deckMotion.exit });
+    play(from, [{ opacity: 1 }, { opacity: 0 }], { duration: deckMotion.quick, easing: "ease-in" });
     const blocks = blocksOf(to);
     (blocks.length ? blocks : [to]).forEach(
       (el, i) => play(el, [{ opacity: 0, transform: `translateX(${shift * 1.4}px)` }, { opacity: 1, transform: "none" }], {
         duration: deckMotion.slow,
-        delay: deckMotion.quick * 0.6 + Math.min(i, 7) * deckMotion.stagger,
+        delay: deckMotion.quick + Math.min(i, 7) * deckMotion.stagger,
         easing: deckMotion.settle
       })
     );
