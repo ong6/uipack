@@ -82,10 +82,13 @@
  *   320–460 ms), and its detail arrives straight after, as the camera slows (from 470 ms). Face and
  *   detail never overlap.
  * - Cell to cell, a crossfade: the cell being left keeps its detail until 420 ms and dims as it
- *   fades (420–620 ms); the next cell brightens from 200 ms, its face clears by 300 ms and its
- *   detail arrives from 300 ms, so the two details share the middle of the pan.
- * - Pull-back: the focused cell's detail holds until 420 ms (gone by 620 ms) while the faces
- *   return one by one as the grid comes back inside the box; its own face returns after its detail.
+ *   fades (420–620 ms), sooner if the edge would cut its words (Bento animates it); the next cell
+ *   brightens from 200 ms, its face clears by 300 ms and its detail arrives from 300 ms, so the
+ *   two details share the middle of the pan.
+ * - Pull-back: the focused cell's detail leaves by 250 ms and its face returns straight after;
+ *   the neighbours come in dimmed and each steps forward, face and tone together, once its words
+ *   are inside the box (Bento animates both).
+ * - At a stop, a cell the edge cuts off is hidden whole; it fades as the camera carries it out.
  */
 .uipack-deck-bento__detail {
   transition: opacity 200ms ease 420ms;
@@ -117,10 +120,20 @@
     opacity 240ms ease 200ms,
     background-color 240ms ease 200ms;
 }
-.uipack-deck-bento[data-move="out"] .uipack-deck-bento__cell:not([data-dimmed]) {
-  transition:
-    opacity 280ms ease 300ms,
-    background-color 280ms ease 300ms;
+/* While the camera moves, Bento animates every cell but the focused one (its opacity, and pulling
+   back its tone too), so their own opacity transitions stand aside. */
+.uipack-deck-bento[data-move] .uipack-deck-bento__cell:not([data-focused]) {
+  transition: background-color 300ms ease;
+}
+.uipack-deck-bento[data-move="cell"] .uipack-deck-bento__cell[data-leaving] {
+  transition: none;
+}
+.uipack-deck-bento[data-move="out"] .uipack-deck-bento__cell:not([data-leaving]) {
+  transition: none;
+}
+/* A cell the edge cuts off at a stop is hidden whole (data-cut, set by Bento). */
+.uipack-deck-bento .uipack-deck-bento__grid > .uipack-deck-bento__cell[data-cut] {
+  opacity: 0;
 }
 .uipack-deck-bento[data-still] .uipack-deck-bento__grid,
 .uipack-deck-bento[data-still] .uipack-deck-bento__cell,
