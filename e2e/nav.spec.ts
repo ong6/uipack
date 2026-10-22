@@ -157,7 +157,9 @@ for (const width of [390, 768]) {
         test(`${route} (${theme}): no page overflow`, async ({ page }) => {
           await page.goto(`${route}?theme=${theme}`);
           await expect(title(page)).toBeVisible();
-          await page.waitForTimeout(300);
+          // The lazily loaded page body and the fonts decide the width, not a fixed delay.
+          await expect(page.locator(".showcase-shell > section, .showcase-shell > div:not(.showcase-title)").first()).toBeVisible();
+          await page.evaluate(() => document.fonts.ready);
           expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
         });
       }

@@ -85,8 +85,8 @@ test.describe("geometry", () => {
     await page.setViewportSize({ width: 1440, height: 1100 });
     await page.goto("/");
     await page.locator("[data-section] figure.uipack").first().waitFor();
-    await page.waitForTimeout(200); // ResizeObserver has measured
-    const small = await page.evaluate(() => {
+    // The floor applies once each figure's ResizeObserver has measured it: poll for that state.
+    const smallText = () => page.evaluate(() => {
       const out: string[] = [];
       for (const svg of document.querySelectorAll<SVGSVGElement>("[data-section] svg.uipack--wide")) {
         if (!svg.getClientRects().length) continue; // a drill level that is not showing
@@ -98,7 +98,7 @@ test.describe("geometry", () => {
       }
       return out;
     });
-    expect(small).toEqual([]);
+    await expect.poll(smallText).toEqual([]);
   });
 
   for (const width of [1440, 390]) {
