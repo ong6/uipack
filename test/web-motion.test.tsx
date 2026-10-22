@@ -23,6 +23,12 @@ import {
 } from "../src/web";
 import { paintTransitionCss } from "../src/web/hooks";
 
+// Runs fake timers inside act. A block body: act on a non-void callback returns a promise.
+const advance = (ms: number) =>
+  act(() => {
+    vi.advanceTimersByTime(ms);
+  });
+
 // A controllable IntersectionObserver: tests decide when things are on screen.
 let observers: { cb: IntersectionObserverCallback; el?: Element }[] = [];
 class FakeIO {
@@ -68,9 +74,20 @@ describe("TextScramble", () => {
     const live = container.querySelector(".uipack-web-scramble__live")!;
     expect(live).toHaveAttribute("aria-hidden", "true");
     expect(container.querySelector(".uipack-web-scramble__ghost")!.textContent).toBe("Three left");
-    act(() => vi.advanceTimersByTime(120));
+    advance(120);
     expect(live.textContent).not.toBe("Three left");
-    act(() => vi.advanceTimersByTime(400));
+    advance(400);
+    expect(live.textContent).toBe("Three left");
+  });
+
+  it("finishes when a prop changes mid-scramble", () => {
+    vi.useFakeTimers();
+    const { container, rerender } = render(<TextScramble text="Three left" duration={400} />);
+    const live = container.querySelector(".uipack-web-scramble__live")!;
+    advance(120);
+    expect(live.textContent).not.toBe("Three left");
+    rerender(<TextScramble text="Three left" duration={500} />);
+    advance(600);
     expect(live.textContent).toBe("Three left");
   });
 
@@ -78,7 +95,7 @@ describe("TextScramble", () => {
     globalThis.__reduced = true;
     vi.useFakeTimers();
     const { container } = render(<TextScramble text="Three left" mode="type" />);
-    act(() => vi.advanceTimersByTime(10));
+    advance(10);
     expect(container.querySelector(".uipack-web-scramble__live")!.textContent).toBe("Three left");
   });
 });
@@ -90,13 +107,45 @@ describe("NumberTicker", () => {
     render(<NumberTicker value={92} suffix="%" duration={500} />);
     const live = screen.getByTestId("ticker-live");
     setVisible(true);
-    act(() => vi.advanceTimersByTime(100));
+    advance(100);
     const early = Number(live.textContent!.replace("%", ""));
     expect(early).toBeGreaterThan(0);
     expect(early).toBeLessThan(92);
-    act(() => vi.advanceTimersByTime(600));
+    advance(600);
     expect(live.textContent).toBe("92%");
     expect(document.querySelector(".uipack-web-ticker .uipack-web-scramble__ghost")!.textContent).toBe("92%");
+  });
+
+  it("shows a new value after the first count", () => {
+    window.IntersectionObserver = FakeIO as unknown as typeof IntersectionObserver;
+    vi.useFakeTimers();
+    const { rerender } = render(<NumberTicker value={92} duration={500} />);
+    const live = screen.getByTestId("ticker-live");
+    setVisible(true);
+    advance(600);
+    expect(live.textContent).toBe("92");
+    rerender(<NumberTicker value={120} duration={500} />);
+    advance(100);
+    const mid = Number(live.textContent);
+    expect(mid).toBeGreaterThan(92);
+    expect(mid).toBeLessThan(120);
+    advance(600);
+    expect(live.textContent).toBe("120");
+  });
+
+  it("finishes the count when it re-renders mid-count", () => {
+    window.IntersectionObserver = FakeIO as unknown as typeof IntersectionObserver;
+    vi.useFakeTimers();
+    const { rerender } = render(<NumberTicker value={92} duration={500} />);
+    const live = screen.getByTestId("ticker-live");
+    setVisible(true);
+    advance(100);
+    const early = Number(live.textContent);
+    expect(early).toBeGreaterThan(0);
+    expect(early).toBeLessThan(92);
+    rerender(<NumberTicker value={92} duration={800} />);
+    advance(900);
+    expect(live.textContent).toBe("92");
   });
 
   it("does not count before it is seen, and shows the value under reduced motion", () => {
@@ -204,6 +253,24 @@ describe("scroll and reveal", () => {
       </Reveal>,
     );
     expect(plain.container.firstElementChild).toHaveAttribute("data-state", "static");
+  });
+  it("clears the timer fallback on unmount when requestAnimationFrame is missing", () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("requestAnimationFrame", undefined);
+    vi.stubGlobal("cancelAnimationFrame", undefined);
+    try {
+      const { unmount } = render(
+        <ScrollTransform rotate={[-10, 10]}>
+          <i />
+        </ScrollTransform>,
+      );
+      window.dispatchEvent(new Event("scroll"));
+      expect(vi.getTimerCount()).toBe(1);
+      unmount();
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });
 

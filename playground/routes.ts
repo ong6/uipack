@@ -5,6 +5,8 @@ import { libraryPages, type LibraryPage } from "./catalog";
  * `libraryPages` entry, loaded lazily as its own chunk. Keyed by page id, so a page added to
  * catalog.ts fails the typecheck until it is mapped here. Pages that share a module read the path
  * (App serves "/", "/charts" and "/assets"); the deck sub-views share a path and a module.
+ * A new module is named `<Name>Showcase`: main.tsx's import.meta.glob loads only `App`,
+ * `CatalogPages` and `*Showcase` (test/catalog.test.tsx checks every name here).
  * The build reads this table too, to preload the current page's chunk from index.html (vite.config.ts).
  */
 export const pageModules = {

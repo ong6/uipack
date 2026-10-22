@@ -2,8 +2,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { figureEntries } from "../playground/catalog";
 import { figureSections } from "../playground/figures";
 
-// The diagrams page renders figureEntries in order and looks up each section's
-// copy and figure by id; the two lists must name the same patterns.
+// The diagrams page renders figureSections, which are figureEntries (ids, order, titles)
+// joined with each pattern's copy and figure by id; the typecheck fails on a missing id.
 describe("diagrams page", () => {
   it("has one section per catalog entry, in the same order", () => {
     expect(figureSections.map((s) => s.id)).toEqual(figureEntries.map((e) => e.id));

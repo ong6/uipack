@@ -44,7 +44,9 @@ The six hobby scenes have six distinct art directions. Contact retains its three
 | 4 | Realistic close-ups | Material-focused studies of keys, felt, steel, paper and circuitry | Key travel, ball study, ticker spool, cooling fans, compass needle and quiet book stack |
 | 5 | Abstract forms | Transmissive glass, polished metal, arcs and ribbons | Thought lattice, elastic exchange, risk rhythm, signal stack, portals and curved leaves |
 
-`src/objects/art-directions.ts` and `src/objects/expanded-directions.ts` are the editable sources for all thirty non-Studio scenes.
+`src/objects/art-directions.ts` and `src/objects/expanded-directions.ts` are the editable sources for all thirty non-Studio scenes:
+one builder per kind in each direction's table (`paperModels`, `kineticModels`, `cartoonModels`, `realisticModels`, `abstractModels`),
+on a shared stage per direction. `src/objects/procedural.ts` holds the 12 s loop clock (`playLoop`) they and `contact-directions.ts` share.
 `directionTokens` and the expanded direction material factories own their materials, and the scoped direction rules in `objects.css` own their
 light/dark stage backgrounds. Custom palettes continue to control Studio; the other directions
 retain their authored material palette. All geometry is original, MIT licensed, with no downloaded

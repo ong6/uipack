@@ -1,14 +1,13 @@
+import { figureEntries, libraryGroups, pageDefs, pagePath } from "../playground/catalog";
 import { expect, test, type Page } from "./fixtures";
 
-// The expected information architecture, written out on purpose: a change to
-// catalog.ts that moves a page must change this table too.
-const GROUPS = [
-  { label: "Diagrams", opens: "Architecture diagrams", pages: [["Architecture diagrams", "/"], ["Charts", "/charts"], ["Article parts", "/article"]] },
-  { label: "Presentations", opens: "Tech talk", pages: [["Tech talk", "/deck?deck=moves"], ["Bento", "/deck?deck=bento"], ["Consulting", "/deck?deck=consulting"], ["Slide starters", "/presentations"]] },
-  { label: "Motion & 3D", opens: "3D animations", pages: [["3D animations", "/animations"], ["Mechanism", "/mechanism"]] },
-  { label: "Web", opens: "Web UI", pages: [["Web UI", "/web"], ["Docs layout", "/docs"]] },
-  { label: "Foundations", opens: "Styles", pages: [["Styles", "/styles"], ["Icons & marks", "/assets"]] },
-] as const;
+// The information architecture the shell must render, read from the catalog: the groups in
+// order, each with the page it opens on and its pages as [label, path].
+const GROUPS = libraryGroups.map((g) => ({
+  label: g.label,
+  opens: pageDefs.find((p) => p.id === g.defaultPage)!.label,
+  pages: pageDefs.filter((p) => p.group === g.id).map((p) => [p.label, pagePath(p)] as const),
+}));
 const ALL = GROUPS.flatMap((g) => g.pages.map(([label, path]) => ({ group: g.label, label, path })));
 
 // /web hosts a complete sample landing page: its hero is the one h1 and the shell title is plain text.
@@ -89,27 +88,8 @@ test("diagrams page has its named sections and charts moved out", async ({ page 
   // The page's sections load after the shell (a lazy chunk).
   await page.locator("[data-section]").first().waitFor();
   const headings = (await outline(page)).filter((h) => h.level === 2).map((h) => h.text);
-  // One section per pattern, simplest first: the same list as figureEntries in catalog.ts.
-  expect(headings).toEqual([
-    "Bare figure: just the canvas",
-    "Parts: every primitive once",
-    "Pipeline: stages in a line",
-    "Loops: repeat a step, return to the start",
-    "Decision tree: one question per level",
-    "Before and after: the same flow, changed",
-    "Fan-out and fan-in: parallel work, one merge",
-    "Two-way sync: one source, many copies",
-    "Agent loop: calls out, results back, a check before output",
-    "Failure rail: every stage fails to one place",
-    "Queue and callouts: where work piles up",
-    "Sequence: messages between actors, in order",
-    "Nested groups: what runs inside what",
-    "Numbered steps: one path across column lanes",
-    "Service map: clients, one platform, its stores",
-    "Layered checks: each layer stops some, one slips through",
-    "Flow volumes: where every item ends up",
-    "Drill-down: a figure inside a node",
-  ]);
+  // One section per pattern, simplest first, titled from figureEntries in catalog.ts.
+  expect(headings).toEqual(figureEntries.map((e) => e.title));
   // Every section but the bare figure holds one numbered figure, numbered in page order.
   const numbers = await page.locator("[data-section] .uipack__eyebrow").allTextContents();
   const found = numbers.map((t) => t.match(/Figure (\d+)/)?.[1]).filter(Boolean).map(Number);

@@ -565,14 +565,15 @@ function useScrollProgress(ref2) {
   react.useEffect(() => {
     const el = ref2.current;
     if (!el || !inView || typeof window === "undefined") return;
-    let frame = 0;
+    const hasFrames = typeof requestAnimationFrame === "function" && typeof cancelAnimationFrame === "function";
+    let pending;
     const measure = () => {
-      frame = 0;
+      pending = void 0;
       setProgress(scrollProgressOf(el.getBoundingClientRect(), window.innerHeight));
     };
     const schedule = () => {
-      if (frame) return;
-      frame = typeof requestAnimationFrame === "function" ? requestAnimationFrame(measure) : setTimeout(measure, 16);
+      if (pending !== void 0) return;
+      pending = hasFrames ? requestAnimationFrame(measure) : setTimeout(measure, 16);
     };
     measure();
     window.addEventListener("scroll", schedule, { passive: true });
@@ -580,7 +581,9 @@ function useScrollProgress(ref2) {
     return () => {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
-      if (frame && typeof cancelAnimationFrame === "function") cancelAnimationFrame(frame);
+      if (pending === void 0) return;
+      if (hasFrames) cancelAnimationFrame(pending);
+      else clearTimeout(pending);
     };
   }, [ref2, inView]);
   return progress;
@@ -890,19 +893,19 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
   const [t, setT] = react.useState(1);
   const [tick, setTick] = react.useState(0);
   const [armed, setArmed] = react.useState(false);
-  const started = react.useRef(false);
+  const progress = react.useRef(0);
   react.useEffect(() => {
     setArmed(true);
-    if (typeof IntersectionObserver !== "undefined" && !started.current) setT(0);
+    if (typeof IntersectionObserver !== "undefined" && progress.current === 0) setT(0);
   }, []);
   react.useEffect(() => {
-    if (reduced || !inView || started.current) return;
-    started.current = true;
-    const start = Date.now();
-    setT(0);
+    if (reduced || !inView || progress.current >= 1) return;
+    const start = Date.now() - progress.current * duration;
+    setT(progress.current);
     const timer = setInterval(() => {
-      const p = (Date.now() - start) / duration;
-      setT(Math.min(1, p));
+      const p = Math.min(1, (Date.now() - start) / duration);
+      progress.current = p;
+      setT(p);
       setTick((k) => k + 1);
       if (p >= 1) clearInterval(timer);
     }, 40);
@@ -934,19 +937,28 @@ function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix
   const inView = useInView(ref2, { once: true, threshold: 0.6 });
   const [current, setCurrent] = react.useState(value);
   const [armed, setArmed] = react.useState(false);
-  const started = react.useRef(false);
+  const shown = react.useRef(null);
   react.useEffect(() => {
     setArmed(true);
-    if (typeof IntersectionObserver !== "undefined" && !started.current) setCurrent(from);
+    if (typeof IntersectionObserver !== "undefined" && shown.current === null) setCurrent(from);
   }, [from]);
   react.useEffect(() => {
-    if (reduced || !inView || started.current) return;
-    started.current = true;
+    if (reduced || !inView) return;
+    const origin = shown.current ?? from;
+    if (origin === value) {
+      shown.current = value;
+      setCurrent(value);
+      return;
+    }
+    const show = (n) => {
+      shown.current = n;
+      setCurrent(n);
+    };
     const start = Date.now();
-    setCurrent(from);
+    show(origin);
     const timer = setInterval(() => {
       const p = Math.min(1, (Date.now() - start) / duration);
-      setCurrent(from + (value - from) * easeOut(p));
+      show(origin + (value - origin) * easeOut(p));
       if (p >= 1) clearInterval(timer);
     }, 32);
     return () => clearInterval(timer);

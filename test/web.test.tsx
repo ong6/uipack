@@ -21,6 +21,12 @@ import {
 } from "../src/web";
 import { fontFiles } from "../scripts/css-bundles";
 
+// Runs fake timers inside act. A block body: act on a non-void callback returns a promise.
+const advance = (ms: number) =>
+  act(() => {
+    vi.advanceTimersByTime(ms);
+  });
+
 const steps: DemoStep[] = [
   { id: "ask", label: "Ask", title: "Say it", prompt: "Clear it" },
   {
@@ -186,18 +192,18 @@ describe("DemoPlayer", () => {
 
   it("plays through the steps, holds on Pause, and restarts on Replay", () => {
     const { container } = render(<DemoPlayer steps={steps} label="Demo" timing={timing} initialMetric={40} />);
-    act(() => vi.advanceTimersByTime(stepStart(steps, 1, timing) + 700));
+    advance(stepStart(steps, 1, timing) + 700);
     expect(step(container)).toBe("1");
     expect(metric()).toBe("5");
     fireEvent.click(screen.getByRole("button", { name: "Pause" }));
     const held = step(container);
-    act(() => vi.advanceTimersByTime(5000));
+    advance(5000);
     expect(step(container)).toBe(held);
     expect(container.querySelector(".uipack-web-demo")).toHaveAttribute("data-state", "paused");
     fireEvent.click(screen.getByRole("button", { name: "Replay" }));
     expect(step(container)).toBe("0");
     expect(metric()).toBe("40");
-    act(() => vi.advanceTimersByTime(demoEnd(steps, timing) + 200));
+    advance(demoEnd(steps, timing) + 200);
     expect(step(container)).toBe("2");
     expect(screen.getByText("Final screen")).toBeInTheDocument();
     expect(container.querySelector(".uipack-web-demo")).toHaveAttribute("data-state", "finished");
@@ -220,10 +226,10 @@ describe("DemoPlayer", () => {
 
   it("does not advance without autoplay until Play", () => {
     const { container } = render(<DemoPlayer steps={steps} label="Demo" timing={timing} autoplay={false} />);
-    act(() => vi.advanceTimersByTime(3000));
+    advance(3000);
     expect(step(container)).toBe("0");
     fireEvent.click(screen.getByRole("button", { name: "Play" }));
-    act(() => vi.advanceTimersByTime(stepStart(steps, 1, timing) + 10));
+    advance(stepStart(steps, 1, timing) + 10);
     expect(step(container)).toBe("1");
   });
 

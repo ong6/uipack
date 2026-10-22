@@ -1,5 +1,6 @@
 import { test, expect } from './fixtures';
 import { objectDirections } from '../src/objects/variants';
+import { playAnimationTime } from './helpers';
 test.describe.configure({ mode: 'parallel' });
 // Canvas snapshots and video recording perturb the timings being measured.
 // These tests still retain failure screenshots and their measured JSON samples.
@@ -30,13 +31,13 @@ for (const theme of ['light', 'dark']) for (const width of [390, 1440]) {
   }
 }
 for(const variant of [1,2]) timingTest(`direction ${variant} loops, pauses, changes via keyboard, and survives context loss`,async({page})=>{
-  timingTest.setTimeout(60000);
+  await page.clock.install();
   await page.goto(`/animations?story=travel&variant=${variant}`);
   const canvas=page.locator('.uipack-object canvas');
   await expect(canvas).toHaveAttribute('data-playback','loop');
   await canvas.scrollIntoViewIfNeeded();
-  // Wall clock on purpose: the loop keeps playing well past its first cycle.
-  await page.waitForTimeout(36500);
+  // The loop keeps playing past the end of its first 12s cycle.
+  await playAnimationTime(page, 12500);
   await page.getByRole('button',{name:'Pause motion',exact:true}).click();
   await expect(page.getByRole('button',{name:'Resume motion',exact:true})).toBeVisible();
   const paused=await canvas.getAttribute('data-pose');

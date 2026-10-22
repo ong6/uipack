@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkRMV7QAIQ_cjs = require('./chunk-RMV7QAIQ.cjs');
+var chunkAASFR6RT_cjs = require('./chunk-AASFR6RT.cjs');
 var chunkKQ7UFCOU_cjs = require('./chunk-KQ7UFCOU.cjs');
 var chunkQSMDATWJ_cjs = require('./chunk-QSMDATWJ.cjs');
 var chunkXEK5V7KF_cjs = require('./chunk-XEK5V7KF.cjs');
@@ -390,7 +390,7 @@ function DrillFigureRoot({
     [navigate, ids]
   );
   const layerEl = (lid) => stageRef.current?.querySelector(`:scope > [data-level="${typeof CSS !== "undefined" && CSS.escape ? CSS.escape(lid) : lid}"]`) ?? null;
-  const { anims, settle, fly } = chunkRMV7QAIQ_cjs.useLayerFlight(
+  const { anims, settle, fly } = chunkAASFR6RT_cjs.useLayerFlight(
     () => stageRef.current?.querySelectorAll(":scope > .uipack-drill__layer").forEach(clearLayer)
   );
   const finish = (n) => {

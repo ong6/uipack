@@ -59,7 +59,7 @@ function SceneViewport({
       return;
     }
     setStatus("loading");
-    void import('./renderer-TT76FMHG.cjs').then(({ createSlideScene }) => {
+    void import('./renderer-GMF7MEFK.cjs').then(({ createSlideScene }) => {
       if (cancelled || !host.current || !labels.current) return;
       try {
         runtime.current = createSlideScene(
