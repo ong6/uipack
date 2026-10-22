@@ -65,6 +65,7 @@ export interface PageDef {
 export const libraryPages = [
   { id: "figures", group: "diagrams", label: "Architecture diagrams", path: "/", intro: "Request flows, agent loops and service maps drawn as SVG figures, from ready-made presets down to the bare canvas." },
   { id: "charts", group: "diagrams", label: "Charts", path: "/charts", intro: "Layered and comparative charts for articles, previewed at a host's real figure width." },
+  { id: "drill", group: "diagrams", label: "Drill-down", path: "/drill", intro: "A figure you open one level at a time, from the whole system down to a single component." },
   { id: "article", group: "diagrams", label: "Article parts", path: "/article", intro: "Prose-friendly parts for long reads, shown inside a host article's text column." },
   { id: "deck", group: "presentations", label: "Tech talk", title: "Deck player", path: "/deck", query: { deck: "moves" }, isDefault: true, intro: "A full-window player that steps a deck of slides with keyboard and touch." },
   { id: "deck-bento", group: "presentations", label: "Bento", title: "Deck player", path: "/deck", query: { deck: "bento" }, intro: "A full-window player that steps a deck of slides with keyboard and touch." },

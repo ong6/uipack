@@ -1,3 +1,8 @@
+import {
+  zoomFrame,
+  zoomSamples
+} from "./chunk-QVG5ZQTT.js";
+
 // src/deck/DeckPlayer.tsx
 import {
   forwardRef,
@@ -889,51 +894,8 @@ function resolveTransition(from, to, transitionOf, fallback = "advance") {
   const t = transitionOf(Math.max(from, to)) ?? fallback;
   return typeof t === "string" ? { kind: t } : { kind: "zoom", zoom: t.zoom };
 }
-var easeInOutCubic = (p) => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
-var smoothstep = (a, b, x) => {
-  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
-  return t * t * (3 - 2 * t);
-};
-function zoomFrame(target, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) {
-  const Z = Math.min(width / target.w, height / target.h);
-  if (!Number.isFinite(Z) || Z < 1.05) return null;
-  const cx2 = target.x + target.w / 2;
-  const cy = target.y + target.h / 2;
-  return {
-    Z,
-    fx: (cx2 * Z - width / 2) / (Z - 1),
-    fy: (cy * Z - height / 2) / (Z - 1)
-  };
-}
-function innerClipStart(target, frame, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) {
-  const map = (v, f) => (v - f) * frame.Z + f;
-  const left = map(target.x, frame.fx);
-  const top = map(target.y, frame.fy);
-  const right = width - map(target.x + target.w, frame.fx);
-  const bottom = height - map(target.y + target.h, frame.fy);
-  return { top, right, bottom, left };
-}
-function zoomSamples(target, forward, samples = 24, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) {
-  const frame = zoomFrame(target, width, height);
-  if (!frame) return null;
-  const start = innerClipStart(target, frame, width, height);
-  const radiusStart = 6 * frame.Z;
-  const out = [];
-  for (let i = 0; i <= samples; i++) {
-    const t = i / samples;
-    const p = easeInOutCubic(forward ? t : 1 - t);
-    const clipT = smoothstep(0.15, 0.85, p);
-    const inset = (v) => (v * (1 - clipT)).toFixed(2);
-    out.push({
-      offset: t,
-      outer: `scale(${Math.pow(frame.Z, p).toFixed(5)})`,
-      inner: `scale(${Math.pow(frame.Z, p - 1).toFixed(5)})`,
-      clip: `inset(${inset(start.top)}px ${inset(start.right)}px ${inset(start.bottom)}px ${inset(start.left)}px round ${(radiusStart * (1 - clipT)).toFixed(2)}px)`,
-      innerOpacity: smoothstep(0.08, 0.4, p)
-    });
-  }
-  return out;
-}
+var zoomFrame2 = (target, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomFrame(target, width, height);
+var zoomSamples2 = (target, forward, samples = 24, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomSamples(target, forward, width, height, { samples, radius: 6 });
 function flipFrom(from, to, scale, fit = "auto", textScale) {
   if (textScale && fit !== "stretch") {
     return {
@@ -1006,10 +968,10 @@ function runTransition(opts) {
       w: box.w / scale,
       h: box.h / scale
     };
-    const samples = local ? zoomSamples(local, zoomInto) : null;
+    const samples = local ? zoomSamples2(local, zoomInto) : null;
     if (!samples) kind = "fade";
     else {
-      const frame = zoomFrame(local);
+      const frame = zoomFrame2(local);
       const origin = `${frame.fx.toFixed(2)}px ${frame.fy.toFixed(2)}px`;
       inner.style.zIndex = "2";
       const timing = { duration: deckMotion.zoom, easing: "linear" };
@@ -2909,7 +2871,7 @@ export {
   waterfallBars,
   wrapText,
   zeroBasedDomain,
-  zoomFrame,
-  zoomSamples
+  zoomFrame2 as zoomFrame,
+  zoomSamples2 as zoomSamples
 };
 //# sourceMappingURL=deck.js.map

@@ -17,3 +17,5 @@ export { anchor, route, pathFromPoints, pointAlong, trim, polylineLength, grid, 
 export { useFigureHover, FigureHoverContext, hoverAttrs, flowList, type FigureHover, type Flow } from "./hover";
 export { useFontFloor, fontFloor, FigureScaleProvider, FigureScaleContext, DEFAULT_RENDER_WIDTH, type FigureScale } from "./scale";
 export { useFigureMotion, usePrefersReducedMotion, FigureMotionContext, type FigureMotion } from "./context";
+export { DrillFigure, DrillNode, drillStatic, drillMotion, drillReducer, normalizeDrillPath, drillMove, drillFocusTarget, drillAnnouncement, drillBox, DRILL_GROW, type DrillFigureProps, type DrillNodeProps, type DrillStaticFigure, type DrillLevel, type DrillRenderContext, type DrillPath, type DrillAction, type DrillMove, type DrillFocus } from "./drill";
+export { zoomFrame, zoomSamples, innerClipStart, easeInOutCubic, smoothstep, type Rect as ZoomRect, type ZoomFrame, type ZoomSample, type ZoomSampleOptions } from "./zoom-math";

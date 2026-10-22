@@ -3,7 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 // The expected information architecture, written out on purpose: a change to
 // catalog.ts that moves a page must change this table too.
 const GROUPS = [
-  { label: "Diagrams", opens: "Architecture diagrams", pages: [["Architecture diagrams", "/"], ["Charts", "/charts"], ["Article parts", "/article"]] },
+  { label: "Diagrams", opens: "Architecture diagrams", pages: [["Architecture diagrams", "/"], ["Charts", "/charts"], ["Drill-down", "/drill"], ["Article parts", "/article"]] },
   { label: "Presentations", opens: "Tech talk", pages: [["Tech talk", "/deck?deck=moves"], ["Bento", "/deck?deck=bento"], ["Consulting", "/deck?deck=consulting"], ["Slide starters", "/presentations"]] },
   { label: "Motion & 3D", opens: "3D animations", pages: [["3D animations", "/animations"], ["Mechanism", "/mechanism"]] },
   { label: "Web", opens: "Web UI", pages: [["Web UI", "/web"], ["Docs layout", "/docs"]] },

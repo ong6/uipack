@@ -29,7 +29,7 @@ Mechanism is `uipack/mechanism`, shown at `/mechanism`: one isometric machine wh
 - System sans for titles and explanation; system monospace for metadata, IDs, and controls where appropriate. No font network requests.
 - One shared page width, header, navigation, theme control, and active-page indicator. Theme survives navigation and reload through URL parameters.
 - Cards that share a row share a height, and their action row (links, buttons) sits on the card's bottom edge, so actions line up across the row however long each description is. Build cards as a flex column with the action row at `margin-top: auto`.
-- Restrained borders and small radii. Glow is a selection signal, never ambient decoration. Text and selected state explain the same thing without relying on glow.
+- Restrained borders and small radii. Glow is a selection signal, never ambient decoration, with one exception: a drillable node (`DrillNode`) carries a soft, translucent accent glow and a faint preview of the figure inside it, the affordance for "there is more in here". It is softer than the selection ring, never applied to anything else, and backed by a visible marker and an accessible name, so it never carries meaning alone. Text and selected state explain the same thing without relying on glow.
 
 ## Interaction and mobile
 
