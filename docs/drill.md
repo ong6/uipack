@@ -50,7 +50,7 @@ Pure helpers are exported for hosts and tests: `drillReducer` (open, up, to dept
 
 ## Affordance
 
-A drillable node is one size step taller, has a soft accent halo and a faint inner glow, a `⤢` marker at its top-right, and a faint schematic of the child level inside: its boxes and lines at one screen pixel, no words, clipped to the node, `aria-hidden` and not interactive. When the node is small against the stage, the schematic is exactly the first frame of the zoom (the child at 1/Z, centred), so the preview hands over to the opening child without a jump. When the node is nearly as wide as the stage (a narrow column), it is a 30% miniature at the right instead. Labels keep a surface-coloured outline so the preview never lowers their contrast. Hover and focus brighten the halo and preview. Non-drillable nodes are unchanged.
+A drillable node is one size step taller, has a soft accent halo and a faint inner glow, a `⤢` marker at its top-right, and a faint schematic of the child level inside: its boxes and lines at one screen pixel, no words, clipped to the node, `aria-hidden` and not interactive. The schematic is the whole child level fitted into the node's right third, under the marker, so it never runs under the icon or the label; where the label's last words reach into that third, it fades in after them. Labels keep a surface-coloured outline so the preview never lowers their contrast. Hover and focus brighten the halo and preview. Non-drillable nodes are unchanged.
 
 Glow here means "there is more inside". Selection keeps its own crisp accent ring.
 
@@ -86,6 +86,6 @@ Reduced motion replaces every move with a 160ms crossfade, no scaling. Without W
 
 ## Limits
 
-- Levels with different aspect ratios letterbox inside the stage, and the preview hand-over is exact only for the frame aspect.
+- Levels with different aspect ratios letterbox inside the stage.
 - A jump of several levels crossfades rather than chaining zooms.
 - The leaving level stays in the accessibility tree for the length of a move (about a second) so focus is never dropped mid-flight.
