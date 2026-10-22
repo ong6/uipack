@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ObjectScene, objectScenes, type ObjectKind, type ObjectPalette } from "./index";
 import { objectDirectionIndex, normalizeObjectVariant, transferObjectVariant, objectDirections, objectEditions, directionSymbols, type ObjectEdition, type ObjectVariant } from "./variants";
+import { keepFocusedInView } from "../env";
 
 /** One scene library, one mounted preview, one context panel. Consumers own routing. */
 export function AnimationWorkspace({ library, children, theme = 'light' }: { library: ReactNode; children: ReactNode; theme?: 'light' | 'dark' }) {
@@ -35,7 +36,7 @@ export function ObjectGallery({ kind, variant = 0, edition = 0, theme = 'light',
 }) {
   variant = normalizeObjectVariant(kind, variant);
   const scene = objectScenes.find(item => item.id === kind)!;
-  return <AnimationWorkspace theme={theme} library={<><h3>Object library</h3><nav aria-label="Choose an object" className="uipack-scene-list">{objectScenes.map(item => <button type="button" key={item.id} aria-pressed={kind === item.id} onClick={() => onChange(item.id, transferObjectVariant(kind, item.id, variant), edition)}>{item.title}<span aria-hidden="true">↗</span></button>)}</nav></>}>
+  return <AnimationWorkspace theme={theme} library={<><h3>Object library</h3><nav aria-label="Choose an object" className="uipack-scene-list" onFocus={keepFocusedInView}>{objectScenes.map(item => <button type="button" key={item.id} aria-pressed={kind === item.id} onClick={() => onChange(item.id, transferObjectVariant(kind, item.id, variant), edition)}>{item.title}<span aria-hidden="true">↗</span></button>)}</nav></>}>
     <header className="uipack-animation-heading"><h3>{scene.title}</h3><span>Live 3D preview</span></header>
     <div className="uipack-object-review"><div className="uipack-gallery-stage"><ObjectScene key={kind} kind={kind} label={scene.title} variant={variant} edition={edition} theme={theme} palette={palette} /></div>
       <ObjectInspector kind={kind} variant={variant} edition={edition} onVariantChange={value => onChange(kind, value, edition)} onEditionChange={value => onChange(kind, variant, value)} />

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { keepFocusedInView } from "../env";
 
 export type AssetKind = "figure" | "part" | "icon" | "motion" | "background" | "mark";
 
@@ -89,7 +90,7 @@ export function AssetBrowser({ manifest, initialCategory = ALL, onAction, action
   return (
     <div className={["uipack-browser", className ?? ""].join(" ").trim()} data-category={category}>
       <nav className="uipack-browser__side" aria-label="Asset categories">
-        <ul role="list">
+        <ul role="list" onFocus={keepFocusedInView}>
           {cats.map((c) => (
             <li key={c.name}>
               <button type="button" className="uipack-browser__cat" aria-pressed={category === c.name} onClick={() => setCategory(c.name)}>

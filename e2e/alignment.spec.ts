@@ -140,3 +140,19 @@ test("sections on the diagrams page are one shell gap apart", async ({ page }) =
   });
   expect(new Set(gaps)).toEqual(new Set([32]));
 });
+
+test("a half-visible item in a scrolling row comes fully into view when it takes keyboard focus", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await open(page, "/assets");
+  const cats = page.locator(".uipack-browser__cat");
+  for (let i = 0; i < (await cats.count()); i++) {
+    await cats.nth(i).focus(); // WebKit's Tab skips buttons unless the OS setting is on
+    const fits = await page.evaluate(() => {
+      const el = document.activeElement!;
+      const r = el.getBoundingClientRect();
+      const c = el.closest("ul")!.getBoundingClientRect();
+      return r.left >= c.left - 0.5 && r.right <= c.right + 0.5;
+    });
+    expect(fits, `category ${i}`).toBe(true);
+  }
+});

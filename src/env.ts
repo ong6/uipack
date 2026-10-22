@@ -11,3 +11,11 @@ export const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 export function prefersReducedMotion(win: Window | undefined = typeof window === "undefined" ? undefined : window): boolean {
   return typeof win?.matchMedia === "function" && win.matchMedia(REDUCED_MOTION_QUERY).matches;
 }
+
+/**
+ * onFocus for a horizontally scrolling row: browsers leave a half-visible item where it is when
+ * it takes keyboard focus, so its ring is cut off. This brings the focused item fully into view.
+ */
+export function keepFocusedInView(event: { target: EventTarget | null }) {
+  (event.target as Element | null)?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+}

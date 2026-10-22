@@ -56,6 +56,7 @@ import "@fontsource/space-grotesk/latin-500.css";
 import "../src/web/gutters.css";
 import "./presentations.css";
 import "./web-showcase.css";
+import { keepFocusedInView } from "../src/env";
 
 // Example content. The player owns timing and playback; these words belong to the playground.
 const inboxRows = [
@@ -197,7 +198,7 @@ const pageIndex = [
 function PageIndex() {
   return (
     <nav className="web-index" aria-label="On this page">
-      <ol>
+      <ol onFocus={keepFocusedInView}>
         {pageIndex.map((l) => (
           <li key={l.href}>
             <a href={l.href}>{l.label}</a>

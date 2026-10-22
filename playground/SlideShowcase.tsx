@@ -6,6 +6,7 @@ import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
 import { SlidePlayer, slideStories } from "../src/slides";
 import "../src/slides/slides.css";
 import "./slides-showcase.css";
+import { keepFocusedInView } from "../src/env";
 
 export default function Slides() {
   const params = new URLSearchParams(location.search);
@@ -81,7 +82,7 @@ export default function Slides() {
           </label>
           <span role="status">{entries.length} examples</span>
         </div>
-        <nav className="uipack-scene-list" aria-label="Example stories">
+        <nav className="uipack-scene-list" aria-label="Example stories" onFocus={keepFocusedInView}>
           {entries.map((entry) => (
             <button
               key={entry.id}
