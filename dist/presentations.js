@@ -135,7 +135,7 @@ function SpeakerGuide({
           /* @__PURE__ */ jsx("p", { children: speech.next })
         ] }),
         /* @__PURE__ */ jsxs("div", { className: "uipack-speaker-guide__action", children: [
-          /* @__PURE__ */ jsx("button", { type: "button", onClick: copy, children: "Copy talk track" }),
+          /* @__PURE__ */ jsx("button", { type: "button", onClick: () => void copy(), children: "Copy talk track" }),
           /* @__PURE__ */ jsx("span", { role: "status", "aria-live": "polite", "aria-atomic": "true", children: status === "copied" ? `${slideTitle} talk track copied.` : status === "error" ? "Could not copy the talk track. Select the text instead." : "" })
         ] })
       ]

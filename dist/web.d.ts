@@ -489,7 +489,8 @@ interface NumberTickerProps {
     face?: "display" | "inherit";
 }
 /**
- * Counts up to a proof stat the first time it is on screen. Tabular figures and a hidden copy
+ * Counts up to a proof stat the first time it is on screen; a later `value` counts on from the
+ * number shown. Tabular figures and a hidden copy
  * of the final value reserve the width; assistive tech reads the final value only.
  */
 declare function NumberTicker({ value, from, duration, format, locale, prefix, suffix, className, face }: NumberTickerProps): react.JSX.Element;

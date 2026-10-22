@@ -59,7 +59,7 @@ function SceneViewport({
       return;
     }
     setStatus("loading");
-    void import('./renderer-I3OQMLUB.cjs').then(({ createSlideScene }) => {
+    void import('./renderer-E5ZZUPDI.cjs').then(({ createSlideScene }) => {
       if (cancelled || !host.current || !labels.current) return;
       try {
         runtime.current = createSlideScene(

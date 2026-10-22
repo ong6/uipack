@@ -13,9 +13,9 @@ function useLayerFlight(clearLayers) {
     clear.current();
   }, []);
   const fly = useCallback((run, land) => {
+    const at = ++generation.current;
     anims.current = run;
     if (!run.length) return land();
-    const at = generation.current;
     Promise.all(run.map((a) => a.finished)).then(
       () => {
         if (generation.current === at) land();
