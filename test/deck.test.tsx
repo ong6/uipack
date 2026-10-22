@@ -191,6 +191,33 @@ describe("DeckPlayer", () => {
     }
   });
 
+  it("hydrates the speaker view without a mismatch, its clock starting at 00:00 after hydration", async () => {
+    const html = await onServer(async ({ renderToString }) => {
+      const server = await import("../src/deck");
+      return renderToString(<server.DeckPlayer id="hp" title="Test deck" mode="presenter" slides={slidesFrom(server)} />);
+    });
+    expect(html).toContain("00:00");
+    const host = document.createElement("div");
+    host.innerHTML = html;
+    document.body.append(host);
+    const recoverable: unknown[] = [];
+    const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const root = await act(async () =>
+        hydrateRoot(host, <DeckPlayer id="hp" title="Test deck" mode="presenter" slides={slides} />, {
+          onRecoverableError: (e) => recoverable.push(e),
+        }),
+      );
+      expect(recoverable).toEqual([]);
+      expect(errors).not.toHaveBeenCalled();
+      expect(screen.getByRole("timer")).toHaveTextContent("00:00");
+      act(() => root.unmount());
+    } finally {
+      errors.mockRestore();
+      host.remove();
+    }
+  });
+
   it("offers no Full screen where the API is missing (iPhone Safari: fullscreenEnabled undefined)", () => {
     expect(document.fullscreenEnabled).toBeUndefined();
     const { unmount } = render(<DeckPlayer id="nf" title="Test deck" slides={slides} />);
@@ -256,6 +283,49 @@ describe("DeckPlayer", () => {
       return renderToString(<server.DeckPlayer id="t10" title="Test deck" slides={[]} />);
     });
     expect(html).toContain("No slides");
+  });
+
+  it("lands on the last slide left when the list shrinks under the current slide, then moves on", () => {
+    const many = (n: number): DeckSlide[] =>
+      Array.from({ length: n }, (_, i) => ({ id: `s${i}`, title: `S${i}`, render: () => <Slide>{`Slide ${i}`}</Slide> }));
+    const { rerender } = render(<DeckPlayer id="t-shrink" title="Test deck" slides={many(5)} initial={{ slide: 4 }} />);
+    expect(current()).toBe("4");
+    rerender(<DeckPlayer id="t-shrink" title="Test deck" slides={many(2)} initial={{ slide: 4 }} />);
+    expect(current()).toBe("1");
+    expect(screen.getByText("Slide 2 of 2: S1")).toBeInTheDocument();
+    // The corrected position is the one presses start from.
+    press("ArrowLeft");
+    expect(current()).toBe("0");
+  });
+
+  it("speaker sync: a remote move clamped to where this window already is doesn't swallow the next local move", () => {
+    const channels: { onmessage: ((e: MessageEvent) => void) | null; sent: unknown[] }[] = [];
+    class FakeChannel {
+      onmessage: ((e: MessageEvent) => void) | null = null;
+      sent: unknown[] = [];
+      constructor() {
+        channels.push(this);
+      }
+      postMessage(m: unknown) {
+        this.sent.push(m);
+      }
+      close() {}
+    }
+    vi.stubGlobal("BroadcastChannel", FakeChannel);
+    try {
+      render(<DeckPlayer id="t-sync" title="Test deck" slides={slides} initial={{ slide: 2 }} />);
+      const ch = channels[channels.length - 1];
+      // Another window, with a longer deck, went to its slide 9: here that is the last slide, where we are.
+      act(() => ch.onmessage?.({ data: { type: "go", index: 9, step: 0 } } as MessageEvent));
+      expect(current()).toBe("2");
+      ch.sent.length = 0;
+      // The next local move is still broadcast.
+      press("ArrowLeft");
+      expect(current()).toBe("1");
+      expect(ch.sent).toContainEqual(expect.objectContaining({ type: "go", index: 1 }));
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it("announces the slide and reports positions after mount, not on mount", () => {
