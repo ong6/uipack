@@ -48,7 +48,7 @@ export const SLIDE_ROLES: Readonly<Record<SlideRole, SlideRoleInfo>> = {
   cover: {
     label: "Cover",
     question: "What is this and why am I here?",
-    job: "Name the talk. Best when its title already states the answer.",
+    job: "State the outcome the talk is about, in business terms, not the name of the system.",
   },
   answer: {
     label: "Answer",
@@ -159,6 +159,11 @@ export interface StorylineTemplate {
   minutes: { min: number; max: number };
   /** Whether the answer or recommendation must land in the first three content slides. */
   answerFirst: boolean;
+  /**
+   * What leadership remembers a week later, if the deck works. Write slide one and the ask so
+   * these are the things a reader can repeat; everything else is support.
+   */
+  remember: string;
   beats: readonly StoryBeat[];
 }
 
@@ -170,6 +175,7 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
     slides: { min: 5, max: 8 },
     minutes: { min: 5, max: 10 },
     answerFirst: true,
+    remember: "Whether it's on track, the one number that proves it, and what you need from them.",
     beats: [
       {
         role: "answer",
@@ -224,6 +230,7 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
     slides: { min: 6, max: 9 },
     minutes: { min: 8, max: 15 },
     answerFirst: true,
+    remember: "The choice, what it costs, what it returns, and the date they have to decide by.",
     beats: [
       {
         role: "answer",
@@ -291,12 +298,13 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
     slides: { min: 7, max: 12 },
     minutes: { min: 12, max: 25 },
     answerFirst: false,
+    remember: "One idea about how the system works, the number that shows it works, and the trade-off it makes.",
     beats: [
       {
         role: "answer",
         purpose: "The one idea the audience should leave with.",
         titlePattern: "<System> achieves <property> by <key idea>",
-        example: "The rate limiter stays fast by deciding locally and syncing counts later",
+        example: "The rate limiter adds 0.2 ms by deciding locally and syncing counts later",
         guidance: "A thesis, not a title. Everything after it explains or tests this sentence.",
       },
       {
@@ -357,7 +365,7 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
         role: "ask",
         purpose: "What you want from the experts in the room.",
         titlePattern: "<Review/adopt/try> <what> by <date>",
-        example: "Review the sync design doc by Friday; I'll fold in every comment",
+        example: "Storage team: review the sync design doc by Friday; I'll fold in every comment",
         guidance: "Engineers respond to a specific review request, not 'any questions?'.",
       },
     ],
@@ -369,6 +377,7 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
     slides: { min: 5, max: 8 },
     minutes: { min: 5, max: 12 },
     answerFirst: true,
+    remember: "What users can do now that they couldn't before, the early result, and who switches it on next.",
     beats: [
       {
         role: "answer",
@@ -431,6 +440,7 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
     slides: { min: 6, max: 9 },
     minutes: { min: 8, max: 15 },
     answerFirst: true,
+    remember: "The impact in one number, the cause in one sentence, and the fix that stops it happening again.",
     beats: [
       {
         role: "answer",
@@ -491,6 +501,7 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
     slides: { min: 5, max: 8 },
     minutes: { min: 5, max: 10 },
     answerFirst: true,
+    remember: "Two or three outcomes with numbers, what other teams can now do, and the one ask.",
     beats: [
       {
         role: "answer",
@@ -533,7 +544,7 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
         role: "ask",
         purpose: "The support you need: scope, headcount, sponsorship.",
         titlePattern: "We need <owner> to <support> by <date>",
-        example: "We need you to approve one more engineer by July for the payouts work",
+        example: "We need the payments director to approve one more engineer by July",
         guidance: "A review without an ask leaves your growth to someone else's memory.",
       },
     ],
@@ -581,11 +592,13 @@ export type LintRule =
   | "title-present"
   | "title-claim"
   | "title-length"
+  | "title-specific"
   | "one-idea"
   | "notes-present"
   | "number-source"
   | "roles-missing"
   | "answer-first"
+  | "outcome-first"
   | "closing-ask"
   | "ask-concrete"
   | "role-repeat"
@@ -618,6 +631,10 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
     check: "The title states a claim of three or more words, not a topic label like 'Background' or 'Architecture'.",
   },
   "title-length": { severity: "warn", check: "The title is at most 14 words." },
+  "title-specific": {
+    severity: "warn",
+    check: "An answer or evidence title carries a number, a comparison or a named result, not an adjective like 'great' or 'good'.",
+  },
   "one-idea": { severity: "tip", check: "The title is one sentence: one idea per slide." },
   "notes-present": { severity: "warn", check: "Every presented slide has a talk track." },
   "number-source": { severity: "warn", check: "A number in a title has a source in the notes or on the slide." },
@@ -626,8 +643,15 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
     severity: "error",
     check: "The answer or recommendation appears within the first three content slides.",
   },
+  "outcome-first": {
+    severity: "tip",
+    check: "Slide one names the business outcome (faster, cheaper, safer, by how much), not the system that produced it.",
+  },
   "closing-ask": { severity: "error", check: "The last presented slide is an ask." },
-  "ask-concrete": { severity: "warn", check: "The ask names a decision or action, an owner and a date." },
+  "ask-concrete": {
+    severity: "warn",
+    check: "The ask names a decision or action, an owner (a team, role or person, not 'we' or 'the team') and a calendar date ('next quarter' is not one).",
+  },
   "role-repeat": {
     severity: "warn",
     check: "No two adjacent slides share a role, except evidence, mechanism, demo and appendix.",
@@ -659,31 +683,52 @@ const TOPIC_LABELS = new Set(
 const MONTH = "jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?";
 const WEEKDAY = "mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:rs(?:day)?)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?";
 
+/** A calendar date someone can put in a diary: a month, a weekday, a numeric date, a named quarter or half, or today. */
+const capitalised = (alternatives: string) => alternatives.replace(/(^|\|)([a-z])/g, (_, bar: string, c: string) => bar + c.toUpperCase());
 const DATE_RE = new RegExp(
   [
-    `\\b(?:${MONTH})\\b`,
-    `\\b(?:${WEEKDAY})\\b`,
+    // Capitalised, so "may", "sat" and "wed" as ordinary words don't count as dates.
+    `\\b(?:${capitalised(MONTH)})\\b`,
+    `\\b(?:${capitalised(WEEKDAY)})\\b`,
     String.raw`\b\d{4}-\d{2}-\d{2}\b`,
     String.raw`\b\d{1,2}/\d{1,2}\b`,
-    String.raw`\b[QH][1-4]\b`,
-    String.raw`\b(?:today|tomorrow|tonight|eod|eow|eom|eoq)\b`,
-    String.raw`\b(?:this|next) (?:week|month|quarter|sprint|sync|review)\b`,
-    String.raw`\bend of (?:the )?(?:day|week|month|quarter|sprint|half|year)\b`,
-    String.raw`\bwithin \w+ (?:days?|weeks?|months?)\b`,
+    String.raw`\b(?:FY\s?'?\d{2,4}\s?)?[QH][1-4]\b`,
+    String.raw`\b(?:[Tt]oday|[Tt]omorrow|[Tt]onight|EOD|eod)\b`,
   ].join("|"),
-  "i",
 );
+
+/** Relative time that slides as the calendar moves: "next quarter", "soon", "going forward". */
+const RELATIVE_DATE_RE =
+  /\b(?:(?:this|next|coming|following) (?:week|month|quarter|half|sprint|year|cycle)|end of (?:the )?(?:week|month|quarter|half|year)|soon|asap|going forward|in the future|over time|eventually|later this year)\b/i;
 
 const DECISION_RE =
   /\b(?:approve|approves|decide|decision|agree|choose|pick|sign(?:s)? off|fund|staff|prioriti[sz]e|review|commit|allocate|assign|adopt|join|try|confirm|accept|enable|switch|turn on|send|share|sponsor|support|unblock|escalate|ship|green-?light|vote|nominate|give|grant|lend|provide|attend|book|hire|move|freeze|pause|stop|start|own)\b/i;
 
-const OWNER_WORD_RE =
-  /\b(?:owner|owners|owns|lead|leads|manager|managers|director|vp|pm|em|tl|team|teams|sponsor|i|i'll|we|we'll|you|me|us)\b|@\w/i;
+/** A role that can own an ask. Pronouns ("we", "you") and a bare "the team" name nobody. */
+const OWNER_ROLE_RE =
+  /\b(?:owner|owners|owns|lead|leads|manager|managers|director|directors|vp|vps|head of|pm|pms|em|ems|tl|tls|sponsor|sponsors|committee|board|council|ceo|cto|cfo|coo|cpo|on-call|chair)\b|@\w/i;
+/** "<name> team", "<name> org": a named group. "the team", "our team" don't count. */
+const NAMED_GROUP_RE = /\b(?!the\b|our\b|my\b|your\b|this\b|that\b|a\b|whole\b|entire\b)[\p{L}-]+ (?:team|teams|org|group|squad|guild)\b/iu;
+
+/** Pronouns and openers that are capitalised but name no one. */
+const NOT_AN_OWNER = /^(?:I|I'll|I'm|I've|I'd|OK|Please|Thanks|Thank)$/;
+
+/** Number words that make a claim specific: "twice as fast", "a third", "one engineer". */
+const NUMBER_WORD_RE =
+  /\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty|thirty|forty|fifty|hundred|thousand|million|billion|dozen|half|halve[ds]?|twice|double[ds]?|triple[ds]?|third|thirds|quarter of|zero|no (?:rollbacks?|regressions?|incidents?|outages?|errors?|downtime))\b/i;
+
+/** A comparison against something named: a baseline, a target, an alternative. */
+const COMPARISON_RE =
+  /\b(?:than|versus|vs\.?|compared (?:to|with)|instead of|rather than|ahead of|behind|beat|beats|missed|against (?:a|an|the|our|its|their) \w+)\b|\bfrom\b[^.;:]{1,40}?\bto\b/i;
+
+/** Outcome words for slide one: what changed for the business. */
+const OUTCOME_RE =
+  /\b(?:faster|slower|cheaper|safer|fewer|more|less|cut|cuts|saved?|saves|saving|grew|grow|fell|fall|rose|raised?|reduced?|reduces|improved?|improves|doubled?|halved?|ended|ends|stops?|stopped|prevents?|unblock(?:s|ed)?|launch(?:es|ed)?|ship(?:s|ped)?|on track|at risk|done|delivered|won|lost|missed|recovered|restored)\b/i;
 
 const SOURCE_RE =
   /\b(?:source|sources|sourced|per|from|measured|dashboard|according|data|logs?|survey|benchmark|experiment|query|report|ticket|estimate|estimated|study|trace|traces|a\/b)\b|https?:\/\//i;
 
-const NOT_A_NAME = new RegExp(`^(?:${MONTH}|${WEEKDAY}|[QH][1-4])$`, "i");
+const NOT_A_NAME = new RegExp(`^(?:${MONTH}|${WEEKDAY}|[QH][1-4]|FY\\d*)$`, "i");
 
 function wordsOf(text: string): string[] {
   return text.match(/[\p{L}\p{N}][\p{L}\p{N}'’.%,&/-]*/gu) ?? [];
@@ -739,15 +784,24 @@ function hasClaimNumber(text: string): boolean {
   return /\d/.test(stripped);
 }
 
-function hasOwner(text: string): boolean {
-  if (OWNER_WORD_RE.test(text)) return true;
-  // A capitalised word mid-sentence, other than a month, weekday or quarter, is likely a name or team.
+/** A capitalised word mid-sentence, other than a month, weekday, quarter or "I": likely a name, team or product. */
+function hasProperNoun(text: string): boolean {
   const words = text.split(/\s+/).filter(Boolean);
   return words.some((w, i) => {
     if (i === 0 || /[.!?:;]["”’)]?$/.test(words[i - 1])) return false;
-    const bare = w.replace(/[^\p{L}\p{N}]/gu, "");
-    return /^\p{Lu}/u.test(bare) && !NOT_A_NAME.test(bare);
+    const bare = w.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}']+$/gu, "");
+    return /^\p{Lu}/u.test(bare) && !NOT_A_NAME.test(bare) && !NOT_AN_OWNER.test(bare);
   });
+}
+
+/** A named owner: a role, a named team, an @handle or a proper noun. "We", "you" and "the team" are not owners. */
+function hasOwner(text: string): boolean {
+  return OWNER_ROLE_RE.test(text) || NAMED_GROUP_RE.test(text) || hasProperNoun(text);
+}
+
+/** A claim is specific when it carries a number, a comparison or a named result. */
+function isSpecific(text: string): boolean {
+  return /\d/.test(text) || NUMBER_WORD_RE.test(text) || COMPARISON_RE.test(text) || hasProperNoun(text);
 }
 
 /**
@@ -813,6 +867,14 @@ export function lintDeck(slides: readonly StorySlide[], options: LintOptions = {
           slide.id,
         );
       }
+      if ((slide.role === "answer" || slide.role === "evidence") && !isSpecific(headline)) {
+        add(
+          "title-specific",
+          "warn",
+          `"${headline}" could describe any quarter. Put the number, the comparison or the named result in the title.`,
+          slide.id,
+        );
+      }
       if (/[.!?]["”’)]?\s+\S/.test(headline)) {
         add("one-idea", "tip", "Title has more than one sentence. One idea per slide: split it or pick one.", slide.id);
       }
@@ -866,6 +928,19 @@ export function lintDeck(slides: readonly StorySlide[], options: LintOptions = {
       }
     }
 
+    if (answerFirst) {
+      const first = presented[0];
+      const text = first ? headlineOf(first) : "";
+      if (first && text && !isSpecific(text) && !OUTCOME_RE.test(text)) {
+        add(
+          "outcome-first",
+          "tip",
+          "Slide one names the work, not the outcome. Say what got faster, cheaper or safer for the business, and by how much.",
+          first.id,
+        );
+      }
+    }
+
     const asks = presented.filter((s) => s.role === "ask");
     const last = presented[presented.length - 1];
     if (asks.length === 0) {
@@ -881,7 +956,12 @@ export function lintDeck(slides: readonly StorySlide[], options: LintOptions = {
       if (!hasOwner(text)) missing.push("an owner");
       if (!DATE_RE.test(text)) missing.push("a date");
       if (missing.length) {
-        add("ask-concrete", "warn", `The ask is missing ${missing.join(", ")}.`, ask.id);
+        const relative = text.match(RELATIVE_DATE_RE)?.[0];
+        const hints = [
+          missing.includes("an owner") && "Name the team or person who acts; 'we' and 'the team' name nobody.",
+          missing.includes("a date") && relative && `"${relative}" moves with the calendar; give a date such as 14 March.`,
+        ].filter(Boolean);
+        add("ask-concrete", "warn", [`The ask is missing ${missing.join(", ")}.`, ...hints].join(" "), ask.id);
       }
     }
 
