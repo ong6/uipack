@@ -77,7 +77,9 @@ export const bentoFocusAt = (step: number, tour: readonly string[]) =>
  */
 export function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, style, children }: BentoProps) {
   const { step, thumbnail } = useDeckSlide();
-  const focus = thumbnail ? null : bentoFocusAt(step, tour);
+  // Thumbnails are fully built (step Infinity), so they show the overview; a still copy at a tour
+  // stop (a printed or read detail page) shows that stop, without the camera's transition.
+  const focus = bentoFocusAt(step, tour);
   const gridRef = useRef<HTMLDivElement>(null);
   const [camera, setCamera] = useState<{ s: number; tx: number; ty: number } | null>(null);
 
@@ -98,11 +100,19 @@ export function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, classNam
   const cells = Children.toArray(children).filter(
     (c): c is ReactElement<BentoCellProps> => isValidElement(c) && c.type === BentoCell,
   );
+  // Tour stops whose cell has a detail: the read and print views add a page for each, so a
+  // forwarded deck keeps what the camera showed.
+  const detailStops = tour
+    .map((id, i) => (cells.some((c) => c.props.id === id && c.props.detail) ? i + 1 : 0))
+    .filter(Boolean);
 
   return (
     <div
       className={["uipack-deck-bento", className].filter(Boolean).join(" ")}
       data-steps={tour.length ? tour.length + 1 : undefined}
+      data-tour={tour.length ? tour.join(" ") : undefined}
+      data-detail-stops={detailStops.length ? detailStops.join(" ") : undefined}
+      data-still={thumbnail ? "" : undefined}
       data-focus={focus ?? undefined}
       style={style}
     >

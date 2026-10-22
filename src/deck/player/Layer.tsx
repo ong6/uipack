@@ -1,24 +1,32 @@
-import { forwardRef, useRef, useState } from "react";
+import { forwardRef, useCallback, useRef, useState } from "react";
 import { useIsoLayoutEffect } from "../../env";
 import { DeckSlideContext } from "../parts";
 import { CANVAS_WIDTH } from "../transitions";
 import type { DeckSlide, DeckTheme } from "../types";
 
-/** Screen pixels per canvas pixel for a 16:9 box. */
+/**
+ * Screen pixels per canvas pixel for a 16:9 box. `ref` is a callback ref, so a box that unmounts
+ * and mounts again (the stage after the read view) is measured and observed afresh; `el` holds
+ * the current element for code that needs it.
+ */
 export function useCanvasScale() {
-  const ref = useRef<HTMLDivElement>(null);
+  const el = useRef<HTMLDivElement | null>(null);
+  const [node, setNode] = useState<HTMLDivElement | null>(null);
+  const ref = useCallback((next: HTMLDivElement | null) => {
+    el.current = next;
+    setNode(next);
+  }, []);
   const [scale, setScale] = useState(0);
   useIsoLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const measure = () => setScale(el.clientWidth / CANVAS_WIDTH);
+    if (!node) return;
+    const measure = () => setScale(node.clientWidth / CANVAS_WIDTH);
     measure();
     if (typeof ResizeObserver === "undefined") return;
     const ro = new ResizeObserver(measure);
-    ro.observe(el);
+    ro.observe(node);
     return () => ro.disconnect();
-  }, []);
-  return { ref, scale };
+  }, [node]);
+  return { ref, el, scale };
 }
 
 interface LayerProps {
@@ -32,7 +40,7 @@ interface LayerProps {
   reducedMotion: boolean;
 }
 
-export const Layer = forwardRef<HTMLDivElement, LayerProps>(function Layer(
+export const Layer = /*#__PURE__*/ forwardRef<HTMLDivElement, LayerProps>(function Layer(
   { slide, index, count, step, active, thumbnail = false, theme, reducedMotion },
   ref,
 ) {
@@ -62,17 +70,20 @@ export function SlideThumbnail({
   index,
   count,
   theme = "light",
+  step = Infinity,
 }: {
   slide: DeckSlide;
   index: number;
   count: number;
   theme?: DeckTheme;
+  /** The build step to show. Fully built by default; a detail stop for the read view's extra stills. */
+  step?: number;
 }) {
   const { ref, scale } = useCanvasScale();
   return (
     <div ref={ref} className="uipack-deck-thumb" data-tone={slide.tone ?? "paper"}>
       <div className="uipack-deck-canvas" style={{ transform: `scale(${scale})`, visibility: scale ? undefined : "hidden" }}>
-        <Layer slide={slide} index={index} count={count} step={Infinity} active={false} thumbnail theme={theme} reducedMotion />
+        <Layer slide={slide} index={index} count={count} step={step} active={false} thumbnail theme={theme} reducedMotion />
       </div>
     </div>
   );

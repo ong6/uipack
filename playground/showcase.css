@@ -230,6 +230,17 @@ body {
   line-height: 1.6;
   color: var(--show-muted);
 }
+/* The page's chunk is loading: one quiet status line under the intro (main.tsx), shown only
+   if the load takes more than a moment, so a fast load does not flash it. */
+.showcase-loading {
+  margin: 32px 0 0;
+  font: 12px/1.5 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  color: var(--show-muted);
+  animation: showcase-loading-in 0s 300ms both;
+}
+@keyframes showcase-loading-in {
+  from { visibility: hidden; }
+}
 /* "Deck “bogus” not found, showing Tech talk." under the intro. */
 .showcase-title p.showcase-title__note {
   width: fit-content;

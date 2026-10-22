@@ -1,4 +1,6 @@
-import { objectDirections, objectScenes } from "../src/objects";
+// Data-only modules, not the uipack/objects barrel: this file is in the playground's entry chunk.
+import { objectDirections } from "../src/objects/variants";
+import { objectScenes } from "../src/objects/scene-list";
 /** Content type and visual style are independent axes. Register styles here, never fork the shell. */
 export const visualStyles = [
   {
@@ -58,24 +60,26 @@ export interface PageDef {
   intro: string;
   /** The page hosts a complete sample page with its own h1 (the Landing demo), so the shell's title is not a heading. */
   hostsPage?: boolean;
+  /** The `visualStyles` name the page's content uses, shown in the shell's context line; default "Technical". */
+  styleName?: string;
 }
 
 /**
  * Every page, in display order within its group. `label` is the nav text and the page's h1;
- * `intro` is the one-sentence line under it. A new page adds an entry here and its component in
- * `pageComponents` (main.tsx); docs/contributing.md has the recipe.
+ * `intro` is the one-sentence line under it. A new page adds an entry here and its module in
+ * `pageModules` (routes.ts); docs/contributing.md has the recipe.
  */
 export const libraryPages = [
   { id: "figures", group: "diagrams", label: "Architecture diagrams", path: "/", intro: "The figure design system: each diagram pattern once, from the bare canvas to a figure you drill into, with the parts it is built from." },
   { id: "charts", group: "diagrams", label: "Charts", path: "/charts", intro: "Layered and comparative charts for articles, previewed at a host's real figure width." },
   { id: "article", group: "diagrams", label: "Article parts", path: "/article", intro: "Prose-friendly parts for long reads, shown inside a host article's text column." },
-  { id: "deck", group: "presentations", label: "Tech talk", title: "Deck player", path: "/deck", query: { deck: "moves" }, isDefault: true, intro: "Tech talk deck: a talk that explains its own moves (advance, morph and zoom, builds, and a machine slide). Click the deck, then use the arrow keys." },
+  { id: "deck", group: "presentations", label: "Tech talk", title: "Deck player", path: "/deck", query: { deck: "moves" }, isDefault: true, intro: "Tech talk deck: a talk that explains its own moves (advance, morph and zoom, builds, and a machine slide). Swipe on a touch screen, or click the deck and use the arrow keys." },
   { id: "deck-bento", group: "presentations", label: "Bento", title: "Deck player", path: "/deck", query: { deck: "bento" }, intro: "Bento review deck: a quarterly review on one bento slide. Next moves a camera between the containers, and each one shows denser detail when it is in focus." },
   { id: "deck-consulting", group: "presentations", label: "Consulting", title: "Deck player", path: "/deck", query: { deck: "consulting" }, intro: "Consulting deck: a decision request in consulting style, with dense charts, callouts, a so-what panel and sources, read headline by headline." },
   { id: "presentations", group: "presentations", label: "Slide starters", path: "/presentations", intro: "Slide layouts with their speech notes, then a complete five-chapter narrative built from them." },
   { id: "animations", group: "motion", label: "3D animations", path: "/animations", intro: "Live 3D scenes with camera moves, animated flows and presentation controls." },
-  { id: "mechanism", group: "motion", label: "Mechanism", path: "/mechanism", intro: "Mechanical drawings that explain how a system moves, one part at a time." },
-  { id: "web", group: "web-group", label: "Web UI", path: "/web", hostsPage: true, intro: "Landing-page building blocks: a demo-first hero, spotlight features, motion and backgrounds." },
+  { id: "mechanism", group: "motion", label: "Mechanism", path: "/mechanism", styleName: "Mechanism", intro: "Mechanical drawings that explain how a system moves, one part at a time." },
+  { id: "web", group: "web-group", label: "Web UI", path: "/web", hostsPage: true, styleName: "Landing", intro: "Landing-page building blocks: a demo-first hero, spotlight features, motion and backgrounds." },
   { id: "docs", group: "web-group", label: "Docs layout", path: "/docs", intro: "A three-column product documentation shell with responsive navigation and Markdown prose." },
   { id: "styles", group: "foundations", label: "Styles", path: "/styles", intro: "The visual languages in the library and where each one is used." },
   { id: "assets", group: "foundations", label: "Icons & marks", path: "/assets", intro: "Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button." },

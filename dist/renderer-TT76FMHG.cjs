@@ -1,53 +1,71 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { newObj[key] = obj[key]; } } } newObj.default = obj; return newObj; } } function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
+'use strict';
 
+var chunkGUY7V4IQ_cjs = require('./chunk-GUY7V4IQ.cjs');
+var THREE = require('three');
+var gsap = require('gsap');
 
-var _chunkGUY7V4IQcjs = require('./chunk-GUY7V4IQ.cjs');
+function _interopNamespace(e) {
+  if (e && e.__esModule) return e;
+  var n = Object.create(null);
+  if (e) {
+    Object.keys(e).forEach(function (k) {
+      if (k !== 'default') {
+        var d = Object.getOwnPropertyDescriptor(e, k);
+        Object.defineProperty(n, k, d.get ? d : {
+          enumerable: true,
+          get: function () { return e[k]; }
+        });
+      }
+    });
+  }
+  n.default = e;
+  return Object.freeze(n);
+}
 
-// src/slides/renderer.ts
-var _three = require('three'); var THREE = _interopRequireWildcard(_three);
-var _gsap = require('gsap');
+var THREE__namespace = /*#__PURE__*/_interopNamespace(THREE);
+
 var LABEL_INSET = 16;
 function createSlideScene(host, labels, story, initial, theme, reduced, onLost, onSettled, onSelect) {
   let selected = null;
   let zoom = 1;
-  const colors = _chunkGUY7V4IQcjs.slidePalettes[theme];
+  const colors = chunkGUY7V4IQ_cjs.slidePalettes[theme];
   const tone = (value) => colors[value === "neutral" || !value ? "rule" : value];
-  const renderer = new THREE.WebGLRenderer({
+  const renderer = new THREE__namespace.WebGLRenderer({
     antialias: true,
     alpha: true,
     powerPreference: "low-power"
   });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
   renderer.setClearColor(colors.background, 0);
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.outputColorSpace = THREE__namespace.SRGBColorSpace;
   renderer.domElement.setAttribute("aria-hidden", "true");
   renderer.domElement.dataset.slideCanvas = "true";
   host.prepend(renderer.domElement);
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 160);
-  const ambient = new THREE.HemisphereLight(
+  const scene = new THREE__namespace.Scene();
+  const camera = new THREE__namespace.PerspectiveCamera(32, 1, 0.1, 160);
+  const ambient = new THREE__namespace.HemisphereLight(
     theme === "dark" ? 14286830 : 16777215,
     2111019,
     2.2
   );
   scene.add(ambient);
-  const key = new THREE.DirectionalLight(16777215, 3.1);
+  const key = new THREE__namespace.DirectionalLight(16777215, 3.1);
   key.position.set(4, 12, 8);
   scene.add(key);
-  const fill = new THREE.DirectionalLight(7462066, 1.2);
+  const fill = new THREE__namespace.DirectionalLight(7462066, 1.2);
   fill.position.set(-8, 2, -6);
   scene.add(fill);
   const gridData = [];
   for (let x = -20; x <= 20; x++)
     for (let z = -20; z <= 20; z++) gridData.push(x, -3.8, z);
-  const gridGeometry = new THREE.BufferGeometry();
+  const gridGeometry = new THREE__namespace.BufferGeometry();
   gridGeometry.setAttribute(
     "position",
-    new THREE.Float32BufferAttribute(gridData, 3)
+    new THREE__namespace.Float32BufferAttribute(gridData, 3)
   );
-  const grid = new THREE.Points(
+  const grid = new THREE__namespace.Points(
     gridGeometry,
-    new THREE.PointsMaterial({
+    new THREE__namespace.PointsMaterial({
       color: colors.rule,
       size: 0.036,
       transparent: true,
@@ -69,16 +87,16 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
   }
   track(grid);
   for (const n of story.nodes) {
-    const group = new THREE.Group();
+    const group = new THREE__namespace.Group();
     group.name = n.id;
     scene.add(group);
-    const size = _nullishCoalesce(n.size, () => ( [1.65, 0.6, 1.05]));
-    const geometry = n.kind === "sphere" ? new THREE.IcosahedronGeometry(size[0] / 2, 2) : new THREE.BoxGeometry(...size);
+    const size = n.size ?? [1.65, 0.6, 1.05];
+    const geometry = n.kind === "sphere" ? new THREE__namespace.IcosahedronGeometry(size[0] / 2, 2) : new THREE__namespace.BoxGeometry(...size);
     const materials = [];
     const boundary = n.kind === "boundary";
-    const material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(colors.surface).lerp(
-        new THREE.Color(tone(n.tone)),
+    const material = new THREE__namespace.MeshStandardMaterial({
+      color: new THREE__namespace.Color(colors.surface).lerp(
+        new THREE__namespace.Color(tone(n.tone)),
         boundary ? 0 : 0.09
       ),
       roughness: 0.52,
@@ -88,10 +106,10 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       depthWrite: !boundary
     });
     material.userData.baseOpacity = boundary ? 0.025 : 1;
-    const mesh = track(new THREE.Mesh(geometry, material));
+    const mesh = track(new THREE__namespace.Mesh(geometry, material));
     group.add(mesh);
     materials.push(material);
-    const edgeMaterial = new THREE.LineBasicMaterial({
+    const edgeMaterial = new THREE__namespace.LineBasicMaterial({
       color: boundary ? colors.accent : tone(n.tone),
       transparent: true,
       opacity: boundary ? 0.5 : 0.9
@@ -99,21 +117,21 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
     edgeMaterial.userData.baseOpacity = boundary ? 0.72 : 0.85;
     group.add(
       track(
-        new THREE.LineSegments(new THREE.EdgesGeometry(geometry), edgeMaterial)
+        new THREE__namespace.LineSegments(new THREE__namespace.EdgesGeometry(geometry), edgeMaterial)
       )
     );
     materials.push(edgeMaterial);
     if (n.kind === "sphere") {
       for (const angle of [0, Math.PI / 2]) {
-        const ringMaterial = new THREE.MeshBasicMaterial({
+        const ringMaterial = new THREE__namespace.MeshBasicMaterial({
           color: tone(n.tone),
           transparent: true,
           opacity: 0.35
         });
         ringMaterial.userData.baseOpacity = 0.35;
         const ring = track(
-          new THREE.Mesh(
-            new THREE.TorusGeometry(size[0] * 0.66, 0.012, 6, 64),
+          new THREE__namespace.Mesh(
+            new THREE__namespace.TorusGeometry(size[0] * 0.66, 0.012, 6, 64),
             ringMaterial
           )
         );
@@ -124,7 +142,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       }
     }
     if (n.kind === "layer" && size[0] > 4) {
-      const recordMaterial = new THREE.MeshStandardMaterial({
+      const recordMaterial = new THREE__namespace.MeshStandardMaterial({
         color: tone(n.tone),
         roughness: 0.8,
         transparent: true,
@@ -132,13 +150,13 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       });
       recordMaterial.userData.baseOpacity = 0.28;
       const records = track(
-        new THREE.InstancedMesh(
-          new THREE.BoxGeometry(0.48, 0.035, 0.6),
+        new THREE__namespace.InstancedMesh(
+          new THREE__namespace.BoxGeometry(0.48, 0.035, 0.6),
           recordMaterial,
           28
         )
       );
-      const matrix = new THREE.Matrix4();
+      const matrix = new THREE__namespace.Matrix4();
       for (let i = 0; i < 28; i++) {
         matrix.makeTranslation(
           (i % 7 - 3) * 0.76,
@@ -151,14 +169,14 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       materials.push(recordMaterial);
     }
     if (!boundary && n.kind !== "sphere") {
-      const stripeMaterial = new THREE.MeshBasicMaterial({
+      const stripeMaterial = new THREE__namespace.MeshBasicMaterial({
         color: tone(n.tone),
         transparent: true
       });
       stripeMaterial.userData.baseOpacity = 0.85;
       const stripe = track(
-        new THREE.Mesh(
-          new THREE.BoxGeometry(size[0] * 0.72, 0.025, 0.025),
+        new THREE__namespace.Mesh(
+          new THREE__namespace.BoxGeometry(size[0] * 0.72, 0.025, 0.025),
           stripeMaterial
         )
       );
@@ -167,14 +185,14 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       materials.push(stripeMaterial);
       if (n.kind === "layer") {
         for (let i = 1; i <= 2; i++) {
-          const layerMat = new THREE.LineBasicMaterial({
+          const layerMat = new THREE__namespace.LineBasicMaterial({
             color: tone(n.tone),
             transparent: true,
             opacity: 0.35
           });
           layerMat.userData.baseOpacity = 0.35;
           const edge = track(
-            new THREE.LineSegments(new THREE.EdgesGeometry(geometry), layerMat)
+            new THREE__namespace.LineSegments(new THREE__namespace.EdgesGeometry(geometry), layerMat)
           );
           edge.position.y = -i * 0.16;
           group.add(edge);
@@ -182,7 +200,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
         }
       }
     }
-    const pose = _chunkGUY7V4IQcjs.resolveNodePose.call(void 0, n, initial);
+    const pose = chunkGUY7V4IQ_cjs.resolveNodePose(n, initial);
     const label = [...labels.children].find(
       (el) => el.dataset.node === n.id
     );
@@ -201,32 +219,32 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
     });
   }
   const links = story.connections.map((c) => {
-    const material = new THREE.LineBasicMaterial({
+    const material = new THREE__namespace.LineBasicMaterial({
       color: tone(c.tone),
       transparent: true,
       opacity: 0.35
     });
-    const geometry = new THREE.BufferGeometry();
+    const geometry = new THREE__namespace.BufferGeometry();
     geometry.setAttribute(
       "position",
-      new THREE.BufferAttribute(new Float32Array(75), 3)
+      new THREE__namespace.BufferAttribute(new Float32Array(75), 3)
     );
-    const line = track(new THREE.Line(geometry, material));
+    const line = track(new THREE__namespace.Line(geometry, material));
     line.frustumCulled = false;
     scene.add(line);
-    const packetGeometry = c.tone === "response" ? new THREE.SphereGeometry(0.07, 10, 6) : new THREE.BoxGeometry(0.12, 0.12, 0.12);
+    const packetGeometry = c.tone === "response" ? new THREE__namespace.SphereGeometry(0.07, 10, 6) : new THREE__namespace.BoxGeometry(0.12, 0.12, 0.12);
     const packet = track(
-      new THREE.Mesh(
+      new THREE__namespace.Mesh(
         packetGeometry,
-        new THREE.MeshBasicMaterial({ color: tone(c.tone), transparent: true })
+        new THREE__namespace.MeshBasicMaterial({ color: tone(c.tone), transparent: true })
       )
     );
     if (c.tone === "change") packet.rotation.z = Math.PI / 4;
     scene.add(packet);
     const arrow = track(
-      new THREE.Mesh(
-        new THREE.ConeGeometry(0.055, 0.15, 8),
-        new THREE.MeshBasicMaterial({
+      new THREE__namespace.Mesh(
+        new THREE__namespace.ConeGeometry(0.055, 0.15, 8),
+        new THREE__namespace.MeshBasicMaterial({
           color: tone(c.tone),
           transparent: true,
           opacity: 0.6
@@ -253,11 +271,11 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
     ty: initial.camera.target[1],
     tz: initial.camera.target[2]
   };
-  const projected = new THREE.Vector3();
-  const target = new THREE.Vector3();
-  const up = new THREE.Vector3(0, 1, 0);
+  const projected = new THREE__namespace.Vector3();
+  const target = new THREE__namespace.Vector3();
+  const up = new THREE__namespace.Vector3(0, 1, 0);
   const presentation = { labels: 1, flow: 1 };
-  const active = () => new Set(_nullishCoalesce(stop.activeConnections, () => ( [])));
+  const active = () => new Set(stop.activeConnections ?? []);
   function pointAt(points, progress) {
     const lengths = points.slice(1).map((p, i) => p.distanceTo(points[i]));
     const total = lengths.reduce((a, b) => a + b, 0);
@@ -271,7 +289,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
   }
   function anchor(node, toward) {
     const center = node.group.position.clone(), d = toward.clone().sub(center);
-    const size = _nullishCoalesce(node.spec.size, () => ( [1.65, 0.6, 1.05]));
+    const size = node.spec.size ?? [1.65, 0.6, 1.05];
     const distances = [d.x, d.y, d.z].map(
       (v, i) => Math.abs(v) > 1e-4 ? size[i] * node.pose.scale / 2 / Math.abs(v) : Infinity
     );
@@ -290,8 +308,8 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       n.group.scale.setScalar(n.pose.scale);
       n.group.visible = n.pose.opacity > 5e-3;
       n.materials.forEach((m) => {
-        m.opacity = n.pose.opacity * (_nullishCoalesce(m.userData.baseOpacity, () => ( 1)));
-        if (m instanceof THREE.MeshStandardMaterial) {
+        m.opacity = n.pose.opacity * (m.userData.baseOpacity ?? 1);
+        if (m instanceof THREE__namespace.MeshStandardMaterial) {
           m.emissive.set(selected === n.spec.id ? colors.accent : 0);
           m.emissiveIntensity = selected === n.spec.id ? 0.3 : 0;
         }
@@ -299,7 +317,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       if (!n.label) continue;
       const eligible = (ids ? ids.has(n.spec.id) : n.spec.kind !== "boundary") && n.pose.opacity >= 0.3 && presentation.labels > 0.01;
       projected.copy(n.group.position);
-      projected.y += (_nullishCoalesce(_optionalChain([n, 'access', _ => _.spec, 'access', _2 => _2.size, 'optionalAccess', _3 => _3[1]]), () => ( 0.6))) / 2 * n.pose.scale;
+      projected.y += (n.spec.size?.[1] ?? 0.6) / 2 * n.pose.scale;
       projected.project(camera);
       const x = (projected.x * 0.5 + 0.5) * width, y = (-projected.y * 0.5 + 0.5) * height;
       const w = n.label.offsetWidth || 130, h = n.label.offsetHeight || 44;
@@ -342,7 +360,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       const bend1 = start.clone().lerp(end, 0.42), bend2 = start.clone().lerp(end, 0.58);
       bend1.y += 0.2;
       bend2.y += 0.2;
-      l.points = new THREE.CubicBezierCurve3(
+      l.points = new THREE__namespace.CubicBezierCurve3(
         start,
         bend1,
         bend2,
@@ -379,7 +397,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       clock += Math.min((time - (lastTime || time)) / 1e3, 0.05);
     lastTime = time;
     draw();
-    if (!paused && !isReduced && (_nullishCoalesce(_optionalChain([stop, 'access', _4 => _4.activeConnections, 'optionalAccess', _5 => _5.length]), () => ( 0))) > 0 || _optionalChain([transition, 'optionalAccess', _6 => _6.isActive, 'call', _7 => _7()]))
+    if (!paused && !isReduced && (stop.activeConnections?.length ?? 0) > 0 || transition?.isActive())
       raf = requestAnimationFrame(tick);
   }
   function wake() {
@@ -408,7 +426,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       raf = 0;
     }
   }) : void 0;
-  _optionalChain([intersection, 'optionalAccess', _8 => _8.observe, 'call', _9 => _9(host)]);
+  intersection?.observe(host);
   function visibilityChanged() {
     if (document.hidden) {
       cancelAnimationFrame(raf);
@@ -425,9 +443,9 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
   };
   renderer.domElement.addEventListener("webglcontextlost", lost);
   function goTo(next, immediate = false) {
-    _optionalChain([transition, 'optionalAccess', _10 => _10.kill, 'call', _11 => _11()]);
+    transition?.kill();
     stop = next;
-    const duration = immediate || isReduced ? 0 : _nullishCoalesce(_optionalChain([next, 'access', _12 => _12.transition, 'optionalAccess', _13 => _13.duration]), () => ( 1.6));
+    const duration = immediate || isReduced ? 0 : next.transition?.duration ?? 1.6;
     const destination = {
       x: next.camera.position[0],
       y: next.camera.position[1],
@@ -440,7 +458,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       presentation.labels = presentation.flow = 1;
       Object.assign(cam, destination);
       nodes.forEach((n) => {
-        const p = _chunkGUY7V4IQcjs.resolveNodePose.call(void 0, n.spec, next);
+        const p = chunkGUY7V4IQ_cjs.resolveNodePose(n.spec, next);
         Object.assign(n.pose, {
           x: p.position[0],
           y: p.position[1],
@@ -454,7 +472,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       wake();
       return;
     }
-    transition = _gsap.gsap.timeline({
+    transition = gsap.gsap.timeline({
       onUpdate: wake,
       onComplete: () => {
         draw();
@@ -462,18 +480,18 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       }
     });
     transition.to(presentation, { labels: 0, flow: 0, duration: 0.12 }, 0);
-    if (_optionalChain([next, 'access', _14 => _14.transition, 'optionalAccess', _15 => _15.camera]) === "dolly") {
+    if (next.transition?.camera === "dolly") {
       transition.to(
         cam,
         { ...destination, duration, ease: "sine.inOut" },
         0.12
       );
     } else {
-      const from = new THREE.Spherical().setFromVector3(
-        new THREE.Vector3(cam.x - cam.tx, cam.y - cam.ty, cam.z - cam.tz)
+      const from = new THREE__namespace.Spherical().setFromVector3(
+        new THREE__namespace.Vector3(cam.x - cam.tx, cam.y - cam.ty, cam.z - cam.tz)
       );
-      const to = new THREE.Spherical().setFromVector3(
-        new THREE.Vector3(
+      const to = new THREE__namespace.Spherical().setFromVector3(
+        new THREE__namespace.Vector3(
           destination.x - destination.tx,
           destination.y - destination.ty,
           destination.z - destination.tz
@@ -491,7 +509,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
         Math.sin(to.theta - from.theta),
         Math.cos(to.theta - from.theta)
       );
-      const offset = new THREE.Vector3();
+      const offset = new THREE__namespace.Vector3();
       transition.to(
         orbit,
         {
@@ -520,7 +538,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
     }
     let arrival = 0;
     nodes.forEach((n) => {
-      const p = _chunkGUY7V4IQcjs.resolveNodePose.call(void 0, n.spec, next);
+      const p = chunkGUY7V4IQ_cjs.resolveNodePose(n.spec, next);
       transition.to(
         n.pose,
         {
@@ -532,7 +550,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
           duration,
           ease: "sine.inOut"
         },
-        0.12 + arrival++ * (_nullishCoalesce(_optionalChain([next, 'access', _16 => _16.transition, 'optionalAccess', _17 => _17.stagger]), () => ( 0)))
+        0.12 + arrival++ * (next.transition?.stagger ?? 0)
       );
     });
     transition.to(presentation, {
@@ -543,7 +561,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
     });
     wake();
   }
-  const raycaster = new THREE.Raycaster();
+  const raycaster = new THREE__namespace.Raycaster();
   let down = null;
   const pointerDown = (event) => {
     down = { x: event.clientX, y: event.clientY };
@@ -556,7 +574,7 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
     down = null;
     const rect = renderer.domElement.getBoundingClientRect();
     raycaster.setFromCamera(
-      new THREE.Vector2(
+      new THREE__namespace.Vector2(
         (event.clientX - rect.left) / rect.width * 2 - 1,
         -(event.clientY - rect.top) / rect.height * 2 + 1
       ),
@@ -569,9 +587,9 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
       candidates.map((n) => n.group),
       true
     )[0];
-    let object = _optionalChain([hit, 'optionalAccess', _18 => _18.object]);
+    let object = hit?.object;
     while (object && !nodes.has(object.name))
-      object = _nullishCoalesce(object.parent, () => ( void 0));
+      object = object.parent ?? void 0;
     onSelect(object ? object.name === selected ? null : object.name : null);
   };
   renderer.domElement.addEventListener("pointerdown", pointerDown);
@@ -603,10 +621,10 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
     dispose() {
       if (disposed) return;
       disposed = true;
-      _optionalChain([transition, 'optionalAccess', _19 => _19.kill, 'call', _20 => _20()]);
+      transition?.kill();
       cancelAnimationFrame(raf);
       observer.disconnect();
-      _optionalChain([intersection, 'optionalAccess', _21 => _21.disconnect, 'call', _22 => _22()]);
+      intersection?.disconnect();
       document.removeEventListener("visibilitychange", visibilityChanged);
       renderer.domElement.removeEventListener("webglcontextlost", lost);
       renderer.domElement.removeEventListener("pointerdown", pointerDown);
@@ -619,6 +637,5 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
     }
   };
 }
-
 
 exports.createSlideScene = createSlideScene;

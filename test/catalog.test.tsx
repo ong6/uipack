@@ -28,6 +28,11 @@ describe("playground catalog", () => {
     expect(deckPages.sort()).toEqual(deckExamples.map((d) => d.id).sort());
   });
 
+  it("a page's style names a registered visual style", () => {
+    const names: string[] = visualStyles.map((s) => s.name);
+    for (const p of pageDefs) if (p.styleName) expect(names, p.id).toContain(p.styleName);
+  });
+
   it("every visual style points at token and guidance files that exist", () => {
     const ids = visualStyles.map((s) => s.id);
     expect(new Set(ids).size).toBe(ids.length);

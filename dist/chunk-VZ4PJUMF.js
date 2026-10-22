@@ -46,10 +46,4 @@ function zoomSamples(target, forward, width, height, { samples = 24, radius = 6 
   return out;
 }
 
-export {
-  easeInOutCubic,
-  smoothstep,
-  zoomFrame,
-  innerClipStart,
-  zoomSamples
-};
+export { easeInOutCubic, innerClipStart, smoothstep, zoomFrame, zoomSamples };

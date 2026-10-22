@@ -34,9 +34,14 @@ describe("starterDeck", () => {
     for (const rule of left) expect(["notes-present", "number-source"]).toContain(rule);
   });
 
-  it("the copyable starter file plays, and lint lists the stubs still to write", () => {
-    expect(starterSlides[0].headline).toMatch(/twice as fast/);
-    const unwritten = starterFindings.filter((f) => f.rule === "notes-present").map((f) => f.slideId);
-    expect(unwritten).toEqual(starterSlides.slice(1).filter((s) => s.role !== "appendix").map((s) => s.id));
+  it("the copyable starter file is one project, fully written over the template's stubs, and lint-clean", () => {
+    expect(starterFindings).toEqual([]);
+    expect(starterSlides.map((s) => s.role)).toEqual(starterDeck("project-update").map((s) => s.role));
+    // One example project throughout: the index migration, not a mix of stub topics.
+    expect(starterSlides[0].headline).toMatch(/index migration/i);
+    for (const s of starterSlides) {
+      expect(s.notes, s.id).toBeTruthy();
+      expect(s.headline, s.id).not.toMatch(/twice as fast/i);
+    }
   });
 });

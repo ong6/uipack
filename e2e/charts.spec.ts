@@ -66,6 +66,8 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(at("896", "span-chart"));
+    // The page renders from a lazy chunk after load; count rows only once it has.
+    await page.locator("#ai-stack .uipack-span__item").first().waitFor({ state: "attached" });
   });
 
   test("shows the name column and short layer names, not codes", async ({ page }) => {

@@ -1,71 +1,59 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
+'use strict';
 
+var chunkYMPVJRTJ_cjs = require('./chunk-YMPVJRTJ.cjs');
+var jsxRuntime = require('react/jsx-runtime');
+var react = require('react');
 
-
-var _chunkYMPVJRTJcjs = require('./chunk-YMPVJRTJ.cjs');
-
-// src/web/Surface.tsx
-var _jsxruntime = require('react/jsx-runtime');
 function WebSurface({ children, theme, as: Tag = "div", className = "", style }) {
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tag, { className: `uipack-web ${className}`.trim(), "data-theme": theme, "data-style": "landing", style, children });
+  return /* @__PURE__ */ jsxRuntime.jsx(Tag, { className: `uipack-web ${className}`.trim(), "data-theme": theme, "data-style": "landing", style, children });
 }
 function Grid({ children, className = "", as: Tag = "div" }) {
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tag, { className: `uipack-web-grid ${className}`.trim(), children });
+  return /* @__PURE__ */ jsxRuntime.jsx(Tag, { className: `uipack-web-grid ${className}`.trim(), children });
 }
 function GridItem({ children, span = [4, 4, 4], className = "", as: Tag = "div" }) {
   const style = { "--span-w": span[0], "--span-m": span[1], "--span-n": span[2] };
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tag, { className: `uipack-web-grid__item ${className}`.trim(), style, children });
+  return /* @__PURE__ */ jsxRuntime.jsx(Tag, { className: `uipack-web-grid__item ${className}`.trim(), style, children });
 }
-
-// src/web/Text.tsx
-
 function Eyebrow({ children, className = "", as: Tag = "p", id }) {
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tag, { id, className: `uipack-web-eyebrow ${className}`.trim(), children });
+  return /* @__PURE__ */ jsxRuntime.jsx(Tag, { id, className: `uipack-web-eyebrow ${className}`.trim(), children });
 }
 var DEFAULT_STEP = { 1: 6, 2: 4, 3: 2, 4: 1, 5: 0, 6: 0 };
 function Heading({ children, level = 2, size, className = "", id }) {
   const Tag = `h${level}`;
-  const step = _nullishCoalesce(size, () => ( DEFAULT_STEP[level]));
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tag, { id, className: `uipack-web-heading ${className}`.trim(), "data-step": step, children });
+  const step = size ?? DEFAULT_STEP[level];
+  return /* @__PURE__ */ jsxRuntime.jsx(Tag, { id, className: `uipack-web-heading ${className}`.trim(), "data-step": step, children });
 }
 function Subhead({ children, className = "", as: Tag = "p", id }) {
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tag, { id, className: `uipack-web-subhead ${className}`.trim(), children });
+  return /* @__PURE__ */ jsxRuntime.jsx(Tag, { id, className: `uipack-web-subhead ${className}`.trim(), children });
 }
 function Body({ children, emphasis = "low", className = "", as: Tag = "p", id }) {
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tag, { id, className: `uipack-web-body ${className}`.trim(), "data-emphasis": emphasis, children });
+  return /* @__PURE__ */ jsxRuntime.jsx(Tag, { id, className: `uipack-web-body ${className}`.trim(), "data-emphasis": emphasis, children });
 }
-
-// src/web/CtaButton.tsx
-
 function CtaButton({ children, variant = "primary", href, size = "md", className = "", type = "button", ...rest }) {
   const cls = `uipack-web-cta ${className}`.trim();
   if (href)
-    return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { className: cls, href, "data-variant": variant, "data-size": size, children });
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { className: cls, type, "data-variant": variant, "data-size": size, ...rest, children });
+    return /* @__PURE__ */ jsxRuntime.jsx("a", { className: cls, href, "data-variant": variant, "data-size": size, children });
+  return /* @__PURE__ */ jsxRuntime.jsx("button", { className: cls, type, "data-variant": variant, "data-size": size, ...rest, children });
 }
-
-// src/web/GlassNav.tsx
-var _react = require('react');
-
 function GlassNav({ brand, links, cta, sticky = true, label = "Primary" }) {
-  const [open, setOpen] = _react.useState.call(void 0, false);
-  const toggleRef = _react.useRef.call(void 0, null);
-  const listId = _react.useId.call(void 0, );
-  _react.useEffect.call(void 0, () => {
+  const [open, setOpen] = react.useState(false);
+  const toggleRef = react.useRef(null);
+  const listId = react.useId();
+  react.useEffect(() => {
     if (!open) return;
     const onKey = (e) => {
       if (e.key !== "Escape") return;
       setOpen(false);
-      _optionalChain([toggleRef, 'access', _2 => _2.current, 'optionalAccess', _3 => _3.focus, 'call', _4 => _4()]);
+      toggleRef.current?.focus();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "header", { className: "uipack-web-nav", "data-sticky": sticky || void 0, "data-open": open || void 0, children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-nav__bar", children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-nav__brand", children: brand }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "nav", { "aria-label": label, className: "uipack-web-nav__nav", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { id: listId, className: "uipack-web-nav__links", children: links.map((l) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "li", { children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { href: l.href, onClick: () => setOpen(false), children: l.label }) }, l.href + l.label)) }) }),
-    cta && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-nav__cta", children: cta }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+  return /* @__PURE__ */ jsxRuntime.jsx("header", { className: "uipack-web-nav", "data-sticky": sticky || void 0, "data-open": open || void 0, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-nav__bar", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-nav__brand", children: brand }),
+    /* @__PURE__ */ jsxRuntime.jsx("nav", { "aria-label": label, className: "uipack-web-nav__nav", children: /* @__PURE__ */ jsxRuntime.jsx("ul", { id: listId, className: "uipack-web-nav__links", children: links.map((l) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsx("a", { href: l.href, onClick: () => setOpen(false), children: l.label }) }, l.href + l.label)) }) }),
+    cta && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-nav__cta", children: cta }),
+    /* @__PURE__ */ jsxRuntime.jsx(
       "button",
       {
         ref: toggleRef,
@@ -79,12 +67,8 @@ function GlassNav({ brand, links, cta, sticky = true, label = "Primary" }) {
     )
   ] }) });
 }
-
-// src/web/SpotlightCard.tsx
-
-
 function SpotlightCard({ children, href, className = "" }) {
-  const ref2 = _react.useRef.call(void 0, null);
+  const ref2 = react.useRef(null);
   const onMove = (e) => {
     if (e.pointerType === "touch") return;
     const el = ref2.current;
@@ -94,20 +78,17 @@ function SpotlightCard({ children, href, className = "" }) {
     el.style.setProperty("--spot-y", `${e.clientY - r.top}px`);
   };
   const onLeave = () => {
-    _optionalChain([ref2, 'access', _5 => _5.current, 'optionalAccess', _6 => _6.style, 'access', _7 => _7.removeProperty, 'call', _8 => _8("--spot-x")]);
-    _optionalChain([ref2, 'access', _9 => _9.current, 'optionalAccess', _10 => _10.style, 'access', _11 => _11.removeProperty, 'call', _12 => _12("--spot-y")]);
+    ref2.current?.style.removeProperty("--spot-x");
+    ref2.current?.style.removeProperty("--spot-y");
   };
   const cls = `uipack-web-spotlight ${className}`.trim();
   if (href)
-    return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { ref: (n) => ref2.current = n, className: cls, href, onPointerMove: onMove, onPointerLeave: onLeave, children });
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { ref: (n) => ref2.current = n, className: cls, onPointerMove: onMove, onPointerLeave: onLeave, children });
+    return /* @__PURE__ */ jsxRuntime.jsx("a", { ref: (n) => ref2.current = n, className: cls, href, onPointerMove: onMove, onPointerLeave: onLeave, children });
+  return /* @__PURE__ */ jsxRuntime.jsx("div", { ref: (n) => ref2.current = n, className: cls, onPointerMove: onMove, onPointerLeave: onLeave, children });
 }
-
-// src/web/Section.tsx
-
 function Section({ eyebrow, title, intro, children, tone = "default", align = "start", id, className = "", lazyRender = false }) {
   const headingId = id ? `${id}-title` : void 0;
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+  return /* @__PURE__ */ jsxRuntime.jsx(
     "section",
     {
       id,
@@ -116,11 +97,11 @@ function Section({ eyebrow, title, intro, children, tone = "default", align = "s
       "data-align": align,
       "data-lazy": lazyRender || void 0,
       "aria-labelledby": title ? headingId : void 0,
-      children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-section__inner", children: [
-        (eyebrow || title || intro) && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-section__head", children: [
-          eyebrow && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Eyebrow, { children: eyebrow }),
-          title && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Heading, { level: 2, id: headingId, children: title }),
-          intro && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Body, { children: intro })
+      children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-section__inner", children: [
+        (eyebrow || title || intro) && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-section__head", children: [
+          eyebrow && /* @__PURE__ */ jsxRuntime.jsx(Eyebrow, { children: eyebrow }),
+          title && /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 2, id: headingId, children: title }),
+          intro && /* @__PURE__ */ jsxRuntime.jsx(Body, { children: intro })
         ] }),
         children
       ] })
@@ -128,24 +109,20 @@ function Section({ eyebrow, title, intro, children, tone = "default", align = "s
   );
 }
 function FeatureGrid({ features, spotlight = false }) {
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Grid, { as: "ul", className: "uipack-web-features", children: features.map((f) => {
-    const inner = /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-      f.icon && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-feature__icon", children: f.icon }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Heading, { level: 3, size: 1, children: f.href ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { href: f.href, children: f.title }) : f.title }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Body, { children: f.body })
+  return /* @__PURE__ */ jsxRuntime.jsx(Grid, { as: "ul", className: "uipack-web-features", children: features.map((f) => {
+    const inner = /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+      f.icon && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-feature__icon", children: f.icon }),
+      /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 3, size: 1, children: f.href ? /* @__PURE__ */ jsxRuntime.jsx("a", { href: f.href, children: f.title }) : f.title }),
+      /* @__PURE__ */ jsxRuntime.jsx(Body, { children: f.body })
     ] });
-    return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, GridItem, { as: "li", span: [4, 4, 4], children: spotlight ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, SpotlightCard, { children: inner }) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-feature", children: inner }) }, f.title);
+    return /* @__PURE__ */ jsxRuntime.jsx(GridItem, { as: "li", span: [4, 4, 4], children: spotlight ? /* @__PURE__ */ jsxRuntime.jsx(SpotlightCard, { children: inner }) : /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-feature", children: inner }) }, f.title);
   }) });
 }
-
-// src/web/RevealText.tsx
-
-
 function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger = 45 }) {
-  const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
-  const [state, setState] = _react.useState.call(void 0, "static");
-  _react.useEffect.call(void 0, () => {
+  const ref2 = react.useRef(null);
+  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
+  const [state, setState] = react.useState("static");
+  react.useEffect(() => {
     const el = ref2.current;
     if (!el || reduced || typeof IntersectionObserver === "undefined") {
       setState("static");
@@ -163,17 +140,13 @@ function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger =
     io.observe(el);
     return () => io.disconnect();
   }, [reduced]);
-  const units = _nullishCoalesce(lines, () => ( text.split(/\s+/).filter(Boolean)));
+  const units = lines ?? text.split(/\s+/).filter(Boolean);
   const byLine = !!lines;
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tag, { ref: ref2, className: `uipack-web-reveal ${className}`.trim(), "data-state": state, "data-by": byLine ? "line" : "word", children: units.map((u, i) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _react.Fragment, { children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-reveal__unit", style: { "--i": i, "--stagger": `${stagger}ms` }, children: u }),
+  return /* @__PURE__ */ jsxRuntime.jsx(Tag, { ref: ref2, className: `uipack-web-reveal ${className}`.trim(), "data-state": state, "data-by": byLine ? "line" : "word", children: units.map((u, i) => /* @__PURE__ */ jsxRuntime.jsxs(react.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-reveal__unit", style: { "--i": i, "--stagger": `${stagger}ms` }, children: u }),
     i < units.length - 1 ? " " : null
   ] }, i)) });
 }
-
-// src/web/motif.tsx
-
-
 var DEFAULT_STAR_VALUES = [0, 1, 2, 5, 9, 16, 22, 31, 33, 35, 37, 37];
 function curvePath(values, w, h, pad = 0) {
   if (values.length < 2) return `M0 ${h}L${w} ${h}`;
@@ -194,11 +167,11 @@ function curvePath(values, w, h, pad = 0) {
   return d;
 }
 function StarChart({ values = DEFAULT_STAR_VALUES, className = "" }) {
-  const id = _react.useId.call(void 0, ).replace(/:/g, "");
+  const id = react.useId().replace(/:/g, "");
   const W = 1200;
   const H = 560;
   const line = curvePath(values, W, H, 72);
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+  return /* @__PURE__ */ jsxRuntime.jsxs(
     "svg",
     {
       className: `uipack-web-star ${className}`.trim(),
@@ -207,22 +180,22 @@ function StarChart({ values = DEFAULT_STAR_VALUES, className = "" }) {
       "aria-hidden": "true",
       focusable: "false",
       children: [
-        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "defs", { children: [
-          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "linearGradient", { id: `${id}-fill`, x1: "0", y1: "0", x2: "0", y2: "1", children: [
-            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "stop", { offset: "0", stopColor: "var(--web-accent)", stopOpacity: "0.42" }),
-            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "stop", { offset: "0.55", stopColor: "var(--web-accent)", stopOpacity: "0.14" }),
-            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "stop", { offset: "1", stopColor: "var(--web-accent)", stopOpacity: "0" })
+        /* @__PURE__ */ jsxRuntime.jsxs("defs", { children: [
+          /* @__PURE__ */ jsxRuntime.jsxs("linearGradient", { id: `${id}-fill`, x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "0", stopColor: "var(--web-accent)", stopOpacity: "0.42" }),
+            /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "0.55", stopColor: "var(--web-accent)", stopOpacity: "0.14" }),
+            /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "1", stopColor: "var(--web-accent)", stopOpacity: "0" })
           ] }),
-          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "linearGradient", { id: `${id}-line`, x1: "0", y1: "0", x2: "1", y2: "0", children: [
-            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "stop", { offset: "0", stopColor: "var(--web-accent)", stopOpacity: "0" }),
-            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "stop", { offset: "0.35", stopColor: "var(--web-accent)", stopOpacity: "0.9" }),
-            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "stop", { offset: "1", stopColor: "var(--web-accent)" })
+          /* @__PURE__ */ jsxRuntime.jsxs("linearGradient", { id: `${id}-line`, x1: "0", y1: "0", x2: "1", y2: "0", children: [
+            /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "0", stopColor: "var(--web-accent)", stopOpacity: "0" }),
+            /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "0.35", stopColor: "var(--web-accent)", stopOpacity: "0.9" }),
+            /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "1", stopColor: "var(--web-accent)" })
           ] })
         ] }),
-        [0.25, 0.5, 0.75].map((f) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { x1: "0", x2: W, y1: H * f, y2: H * f, className: "uipack-web-star__rule" }, f)),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { d: `${line}L${W} ${H}L0 ${H}Z`, fill: `url(#${id}-fill)`, className: "uipack-web-star__area" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { d: line, fill: "none", stroke: `url(#${id}-line)`, className: "uipack-web-star__glow", pathLength: 1 }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { d: line, fill: "none", stroke: `url(#${id}-line)`, className: "uipack-web-star__line", pathLength: 1 })
+        [0.25, 0.5, 0.75].map((f) => /* @__PURE__ */ jsxRuntime.jsx("line", { x1: "0", x2: W, y1: H * f, y2: H * f, className: "uipack-web-star__rule" }, f)),
+        /* @__PURE__ */ jsxRuntime.jsx("path", { d: `${line}L${W} ${H}L0 ${H}Z`, fill: `url(#${id}-fill)`, className: "uipack-web-star__area" }),
+        /* @__PURE__ */ jsxRuntime.jsx("path", { d: line, fill: "none", stroke: `url(#${id}-line)`, className: "uipack-web-star__glow", pathLength: 1 }),
+        /* @__PURE__ */ jsxRuntime.jsx("path", { d: line, fill: "none", stroke: `url(#${id}-line)`, className: "uipack-web-star__line", pathLength: 1 })
       ]
     }
   );
@@ -234,52 +207,46 @@ function RhymeIcon({ at = 0.5, values = DEFAULT_STAR_VALUES, size = 40 }) {
   const idx = Math.round(Math.max(0, Math.min(1, at)) * (values.length - 1));
   const cx = 6 + idx / (values.length - 1) * 28;
   const cy = 10 + 2 + (1 - (values[idx] - min) / span) * 16;
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "svg", { className: "uipack-web-rhyme", viewBox: "0 0 40 40", width: size, height: size, "aria-hidden": "true", focusable: "false", children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "rect", { x: "0.5", y: "0.5", width: "39", height: "39", rx: "10" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { d, transform: "translate(6 10)" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { x1: cx, x2: cx, y1: cy, y2: "32" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "circle", { cx, cy, r: "3" })
+  return /* @__PURE__ */ jsxRuntime.jsxs("svg", { className: "uipack-web-rhyme", viewBox: "0 0 40 40", width: size, height: size, "aria-hidden": "true", focusable: "false", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("rect", { x: "0.5", y: "0.5", width: "39", height: "39", rx: "10" }),
+    /* @__PURE__ */ jsxRuntime.jsx("path", { d, transform: "translate(6 10)" }),
+    /* @__PURE__ */ jsxRuntime.jsx("line", { x1: cx, x2: cx, y1: cy, y2: "32" }),
+    /* @__PURE__ */ jsxRuntime.jsx("circle", { cx, cy, r: "3" })
   ] });
 }
 function GrainOverlay({ opacity = 0.07, frequency = 0.8 }) {
-  const id = _react.useId.call(void 0, ).replace(/:/g, "");
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "svg", { className: "uipack-web-noise", "aria-hidden": "true", focusable: "false", style: { opacity }, "data-bg": "grain", children: [
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "filter", { id: `${id}-n`, children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "feTurbulence", { type: "fractalNoise", baseFrequency: frequency, numOctaves: "3", stitchTiles: "stitch" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "feColorMatrix", { type: "saturate", values: "0" })
+  const id = react.useId().replace(/:/g, "");
+  return /* @__PURE__ */ jsxRuntime.jsxs("svg", { className: "uipack-web-noise", "aria-hidden": "true", focusable: "false", style: { opacity }, "data-bg": "grain", children: [
+    /* @__PURE__ */ jsxRuntime.jsxs("filter", { id: `${id}-n`, children: [
+      /* @__PURE__ */ jsxRuntime.jsx("feTurbulence", { type: "fractalNoise", baseFrequency: frequency, numOctaves: "3", stitchTiles: "stitch" }),
+      /* @__PURE__ */ jsxRuntime.jsx("feColorMatrix", { type: "saturate", values: "0" })
     ] }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "rect", { width: "100%", height: "100%", filter: `url(#${id}-n)` })
+    /* @__PURE__ */ jsxRuntime.jsx("rect", { width: "100%", height: "100%", filter: `url(#${id}-n)` })
   ] });
 }
 var NoiseLayer = GrainOverlay;
-
-// src/web/StarHero.tsx
-
 function StarHero({ eyebrow, title, subtitle, actions, visual, values, children, noise = 0.07, headingId }) {
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "section", { className: "uipack-web-hero", "aria-labelledby": headingId, children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-hero__visual", children: _nullishCoalesce(visual, () => ( /* @__PURE__ */ _jsxruntime.jsx.call(void 0, StarChart, { values }))) }),
-    noise > 0 && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, NoiseLayer, { opacity: noise }),
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-hero__copy", children: [
-      eyebrow && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Eyebrow, { children: eyebrow }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Heading, { level: 1, id: headingId, children: title }),
-      subtitle && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Subhead, { children: subtitle }),
-      actions && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-hero__actions", children: actions })
+  return /* @__PURE__ */ jsxRuntime.jsxs("section", { className: "uipack-web-hero", "aria-labelledby": headingId, children: [
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__visual", children: visual ?? /* @__PURE__ */ jsxRuntime.jsx(StarChart, { values }) }),
+    noise > 0 && /* @__PURE__ */ jsxRuntime.jsx(NoiseLayer, { opacity: noise }),
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-hero__copy", children: [
+      eyebrow && /* @__PURE__ */ jsxRuntime.jsx(Eyebrow, { children: eyebrow }),
+      /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 1, id: headingId, children: title }),
+      subtitle && /* @__PURE__ */ jsxRuntime.jsx(Subhead, { children: subtitle }),
+      actions && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__actions", children: actions })
     ] }),
-    children && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-hero__proof", children })
+    children && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__proof", children })
   ] });
 }
-
-// src/web/DemoPlayer.tsx
-
 
 // src/web/timeline.ts
 var DEFAULT_TIMING = { leadMs: 450, typeMs: 34, actionMs: 720, holdMs: 1800 };
 var toAction = (a) => typeof a === "string" ? { label: a } : a;
 function parts(step, t) {
-  const typing = (_nullishCoalesce(_optionalChain([step, 'access', _13 => _13.prompt, 'optionalAccess', _14 => _14.length]), () => ( 0))) * t.typeMs;
-  const acting = (_nullishCoalesce(_optionalChain([step, 'access', _15 => _15.actions, 'optionalAccess', _16 => _16.length]), () => ( 0))) * t.actionMs;
+  const typing = (step.prompt?.length ?? 0) * t.typeMs;
+  const acting = (step.actions?.length ?? 0) * t.actionMs;
   const settle = t.leadMs + typing + acting;
-  return { typing, acting, settle, total: settle + (_nullishCoalesce(step.hold, () => ( t.holdMs))) };
+  return { typing, acting, settle, total: settle + (step.hold ?? t.holdMs) };
 }
 function stepStart(steps, i, timing = DEFAULT_TIMING) {
   let at = 0;
@@ -296,7 +263,7 @@ function demoCycle(steps, timing = DEFAULT_TIMING) {
 function metricThrough(steps, step, actionsDone, settled, initial) {
   let metric = initial;
   for (let k = 0; k <= step && k < steps.length; k++) {
-    const actions = (_nullishCoalesce(steps[k].actions, () => ( []))).map(toAction);
+    const actions = (steps[k].actions ?? []).map(toAction);
     const n = k < step ? actions.length : actionsDone;
     for (let a = 0; a < n; a++) if (actions[a].metric !== void 0) metric = actions[a].metric;
     if ((k < step || settled) && steps[k].metric !== void 0) metric = steps[k].metric;
@@ -315,8 +282,8 @@ function demoFrame(steps, elapsed, timing = DEFAULT_TIMING, initialMetric) {
   }
   const s = steps[step];
   const p = parts(s, timing);
-  const promptLen = _nullishCoalesce(_optionalChain([s, 'access', _17 => _17.prompt, 'optionalAccess', _18 => _18.length]), () => ( 0));
-  const nActions = _nullishCoalesce(_optionalChain([s, 'access', _19 => _19.actions, 'optionalAccess', _20 => _20.length]), () => ( 0));
+  const promptLen = s.prompt?.length ?? 0;
+  const nActions = s.actions?.length ?? 0;
   const typed = Math.max(0, Math.min(promptLen, Math.floor((local - timing.leadMs) / timing.typeMs) + 1));
   const typedEnd = timing.leadMs + p.typing;
   const actionsDone = local < typedEnd ? 0 : Math.min(nActions, Math.floor((local - typedEnd) / timing.actionMs));
@@ -330,9 +297,6 @@ function demoFrame(steps, elapsed, timing = DEFAULT_TIMING, initialMetric) {
     metric: metricThrough(steps, step, settled ? nActions : actionsDone, settled, initialMetric)
   };
 }
-
-// src/web/DemoPlayer.tsx
-
 var TICK_MS = 40;
 function lastWith(steps, upTo, pick) {
   for (let k = upTo; k >= 0; k--) {
@@ -355,17 +319,17 @@ function DemoPlayer({
   className = "",
   onStepChange
 }) {
-  const timing = _react.useMemo.call(void 0, () => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
-  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
-  const rootRef = _react.useRef.call(void 0, null);
-  const tabsRef = _react.useRef.call(void 0, null);
-  const [elapsed, setElapsed] = _react.useState.call(void 0, 0);
-  const [playing, setPlaying] = _react.useState.call(void 0, autoplay);
-  const [inView, setInView] = _react.useState.call(void 0, false);
-  const id = _react.useId.call(void 0, );
+  const timing = react.useMemo(() => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
+  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
+  const rootRef = react.useRef(null);
+  const tabsRef = react.useRef(null);
+  const [elapsed, setElapsed] = react.useState(0);
+  const [playing, setPlaying] = react.useState(autoplay);
+  const [inView, setInView] = react.useState(false);
+  const id = react.useId();
   const end = demoEnd(steps, timing);
   const cycle = demoCycle(steps, timing);
-  _react.useEffect.call(void 0, () => {
+  react.useEffect(() => {
     const el = rootRef.current;
     if (!el || typeof IntersectionObserver === "undefined") {
       setInView(true);
@@ -376,7 +340,7 @@ function DemoPlayer({
     return () => io.disconnect();
   }, []);
   const running = playing && inView && !reduced;
-  _react.useEffect.call(void 0, () => {
+  react.useEffect(() => {
     if (!running) return;
     let last = Date.now();
     const timer = setInterval(() => {
@@ -394,14 +358,14 @@ function DemoPlayer({
   const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
   const frame = reduced ? finalFrame : demoFrame(steps, elapsed, timing, initialMetric);
   const finished = !loop && frame.done;
-  _react.useEffect.call(void 0, () => {
+  react.useEffect(() => {
     if (finished) setPlaying(false);
   }, [finished]);
   const step = steps[frame.step];
-  _react.useEffect.call(void 0, () => {
-    _optionalChain([onStepChange, 'optionalCall', _21 => _21(frame.step)]);
+  react.useEffect(() => {
+    onStepChange?.(frame.step);
   }, [frame.step]);
-  const seek = _react.useCallback.call(void 0, 
+  const seek = react.useCallback(
     (i) => {
       setElapsed(stepStart(steps, i, timing));
       setPlaying(true);
@@ -422,23 +386,23 @@ function DemoPlayer({
     if (next === void 0) return;
     e.preventDefault();
     seek(next);
-    _optionalChain([tabsRef, 'access', _22 => _22.current, 'optionalAccess', _23 => _23.querySelectorAll, 'call', _24 => _24("button"), 'access', _25 => _25[next], 'optionalAccess', _26 => _26.focus, 'call', _27 => _27()]);
+    tabsRef.current?.querySelectorAll("button")[next]?.focus();
   };
-  const promptStep = _optionalChain([step, 'optionalAccess', _28 => _28.prompt]) ? frame.step : lastWith(steps, frame.step, (s) => s.prompt ? steps.indexOf(s) : void 0);
+  const promptStep = step?.prompt ? frame.step : lastWith(steps, frame.step, (s) => s.prompt ? steps.indexOf(s) : void 0);
   const promptText = promptStep === void 0 ? "" : steps[promptStep].prompt;
   const visiblePrompt = promptStep === frame.step ? promptText.slice(0, frame.typed) : promptText;
   const typing = !reduced && promptStep === frame.step && frame.typed < promptText.length;
-  const pastActionStep = _optionalChain([step, 'optionalAccess', _29 => _29.actions, 'optionalAccess', _30 => _30.length]) ? frame.step : lastWith(steps, frame.step, (s) => _optionalChain([s, 'access', _31 => _31.actions, 'optionalAccess', _32 => _32.length]) ? steps.indexOf(s) : void 0);
-  const nextActionStep = steps.findIndex((s, i) => i > frame.step && !!_optionalChain([s, 'access', _33 => _33.actions, 'optionalAccess', _34 => _34.length]));
+  const pastActionStep = step?.actions?.length ? frame.step : lastWith(steps, frame.step, (s) => s.actions?.length ? steps.indexOf(s) : void 0);
+  const nextActionStep = steps.findIndex((s, i) => i > frame.step && !!s.actions?.length);
   const queuedOnly = pastActionStep === void 0 && nextActionStep >= 0;
   const actionStep = queuedOnly ? nextActionStep : pastActionStep;
-  const actions = actionStep === void 0 ? [] : (_nullishCoalesce(steps[actionStep].actions, () => ( []))).map(toAction);
+  const actions = actionStep === void 0 ? [] : (steps[actionStep].actions ?? []).map(toAction);
   const isCurrent = actionStep === frame.step;
   const doneCount = queuedOnly ? 0 : isCurrent ? frame.actionsDone : actions.length;
-  const promptDone = !_optionalChain([step, 'optionalAccess', _35 => _35.prompt]) || frame.typed >= (_nullishCoalesce(_optionalChain([step, 'access', _36 => _36.prompt, 'optionalAccess', _37 => _37.length]), () => ( 0)));
+  const promptDone = !step?.prompt || frame.typed >= (step.prompt?.length ?? 0);
   const runningIdx = isCurrent && promptDone && !frame.settled && frame.actionsDone < actions.length ? frame.actionsDone : -1;
-  const screen = lastWith(steps, frame.settled ? frame.step : frame.step - 1, (s) => _nullishCoalesce(s.screen, () => ( void 0)));
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+  const screen = lastWith(steps, frame.settled ? frame.step : frame.step - 1, (s) => s.screen ?? void 0);
+  return /* @__PURE__ */ jsxRuntime.jsxs(
     "section",
     {
       ref: rootRef,
@@ -447,66 +411,66 @@ function DemoPlayer({
       "data-state": reduced ? "static" : finished ? "finished" : running ? "playing" : "paused",
       "data-step": frame.step,
       children: [
-        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-demo__window", children: [
-          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-demo__chrome", "aria-hidden": "true", children: [
-            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-web-demo__dots", children: [
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "i", {}),
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "i", {}),
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "i", {})
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__window", children: [
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__chrome", "aria-hidden": "true", children: [
+            /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-demo__dots", children: [
+              /* @__PURE__ */ jsxRuntime.jsx("i", {}),
+              /* @__PURE__ */ jsxRuntime.jsx("i", {}),
+              /* @__PURE__ */ jsxRuntime.jsx("i", {})
             ] }),
-            address && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__address", children: address })
+            address && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__address", children: address })
           ] }),
-          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-demo__body", children: [
-            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-demo__work", children: [
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-demo__composer", "data-typing": typing || void 0, children: [
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__sr", children: promptText }),
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "aria-hidden": "true", className: visiblePrompt ? "" : "uipack-web-demo__placeholder", children: visiblePrompt || placeholder }),
-                typing && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__caret", "aria-hidden": "true" })
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__body", children: [
+            /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__work", children: [
+              /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__composer", "data-typing": typing || void 0, children: [
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__sr", children: promptText }),
+                /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", className: visiblePrompt ? "" : "uipack-web-demo__placeholder", children: visiblePrompt || placeholder }),
+                typing && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__caret", "aria-hidden": "true" })
               ] }),
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ol", { className: "uipack-web-demo__log", "aria-label": "Agent actions", children: actions.map((a, i) => {
+              /* @__PURE__ */ jsxRuntime.jsx("ol", { className: "uipack-web-demo__log", "aria-label": "Agent actions", children: actions.map((a, i) => {
                 const state = i < doneCount ? "done" : i === runningIdx ? "running" : "pending";
-                return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { "data-state": state, children: [
-                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__tick", "aria-hidden": "true", children: state === "done" ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "svg", { viewBox: "0 0 16 16", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { d: "M3.5 8.5l3 3 6-7" }) }) : null }),
-                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: a.label }),
-                  a.detail && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "small", { children: a.detail }),
-                  state === "running" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__sr", children: " (in progress)" }),
-                  state === "pending" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__sr", children: " (queued)" })
+                return /* @__PURE__ */ jsxRuntime.jsxs("li", { "data-state": state, children: [
+                  /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__tick", "aria-hidden": "true", children: state === "done" ? /* @__PURE__ */ jsxRuntime.jsx("svg", { viewBox: "0 0 16 16", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M3.5 8.5l3 3 6-7" }) }) : null }),
+                  /* @__PURE__ */ jsxRuntime.jsx("span", { children: a.label }),
+                  a.detail && /* @__PURE__ */ jsxRuntime.jsx("small", { children: a.detail }),
+                  state === "running" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__sr", children: " (in progress)" }),
+                  state === "pending" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__sr", children: " (queued)" })
                 ] }, `${actionStep}-${i}`);
               }) })
             ] }),
-            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-demo__result", children: [
-              frame.metric !== void 0 && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-web-demo__metric", children: [
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "strong", { "data-testid": "demo-metric", children: frame.metric }, frame.metric),
-                metricLabel && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: metricLabel })
+            /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__result", children: [
+              frame.metric !== void 0 && /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-web-demo__metric", children: [
+                /* @__PURE__ */ jsxRuntime.jsx("strong", { "data-testid": "demo-metric", children: frame.metric }, frame.metric),
+                metricLabel && /* @__PURE__ */ jsxRuntime.jsx("span", { children: metricLabel })
               ] }),
-              screen !== void 0 && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-demo__screen", children: screen }, frame.settled ? frame.step : frame.step - 1)
+              screen !== void 0 && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-demo__screen", children: screen }, frame.settled ? frame.step : frame.step - 1)
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: reduced ? void 0 : "uipack-web-demo__sr", children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ol", { className: "uipack-web-demo__static", "aria-label": reduced ? "Demo steps" : "Demo transcript", children: steps.map((s, i) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { children: [
-            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
-            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { children: [
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "strong", { children: [
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: reduced ? void 0 : "uipack-web-demo__sr", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("ol", { className: "uipack-web-demo__static", "aria-label": reduced ? "Demo steps" : "Demo transcript", children: steps.map((s, i) => /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
+            /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntime.jsxs("strong", { children: [
                 s.label,
                 " \xB7 ",
                 s.title
               ] }),
-              s.prompt && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { children: [
+              s.prompt && /* @__PURE__ */ jsxRuntime.jsxs("p", { children: [
                 "\u201C",
                 s.prompt,
                 "\u201D"
               ] }),
-              !!_optionalChain([s, 'access', _38 => _38.actions, 'optionalAccess', _39 => _39.length]) && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { children: s.actions.map(toAction).map((a) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { children: [
+              !!s.actions?.length && /* @__PURE__ */ jsxRuntime.jsx("ul", { children: s.actions.map(toAction).map((a) => /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
                 a.label,
                 a.detail ? ` (${a.detail})` : ""
               ] }, a.label)) })
             ] })
           ] }, s.id)) }),
-          !reduced && finalFrame.metric !== void 0 && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: `Result: ${finalFrame.metric}${metricLabel ? ` ${metricLabel}` : ""}.` })
+          !reduced && finalFrame.metric !== void 0 && /* @__PURE__ */ jsxRuntime.jsx("p", { children: `Result: ${finalFrame.metric}${metricLabel ? ` ${metricLabel}` : ""}.` })
         ] }),
-        !reduced && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-demo__controls", children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-demo__tabs", role: "group", "aria-label": "Demo steps", ref: tabsRef, onKeyDown: onTabKey, children: steps.map((s, i) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+        !reduced && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__controls", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-demo__tabs", role: "group", "aria-label": "Demo steps", ref: tabsRef, onKeyDown: onTabKey, children: steps.map((s, i) => /* @__PURE__ */ jsxRuntime.jsxs(
             "button",
             {
               type: "button",
@@ -514,28 +478,28 @@ function DemoPlayer({
               "aria-controls": `${id}-caption`,
               onClick: () => seek(i),
               children: [
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
                 " ",
                 s.label
               ]
             },
             s.id
           )) }),
-          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-demo__buttons", children: [
-            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: toggle, children: playing && !finished ? "Pause" : "Play" }),
-            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: replay, children: "Replay" }),
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__buttons", children: [
+            /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", onClick: toggle, children: playing && !finished ? "Pause" : "Play" }),
+            /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", onClick: replay, children: "Replay" }),
             cta
           ] })
         ] }),
-        reduced && cta && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-demo__buttons", children: cta }),
-        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-web-demo__caption", id: `${id}-caption`, "aria-live": "polite", children: [
-          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-web-demo__num", children: [
+        reduced && cta && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-demo__buttons", children: cta }),
+        /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-web-demo__caption", id: `${id}-caption`, "aria-live": "polite", children: [
+          /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-demo__num", children: [
             String(frame.step + 1).padStart(2, "0"),
             " / ",
             String(steps.length).padStart(2, "0")
           ] }),
           " ",
-          _optionalChain([step, 'optionalAccess', _40 => _40.title])
+          step?.title
         ] })
       ]
     }
@@ -570,12 +534,9 @@ var TYPE_STEPS = [-1, 0, 1, 2, 3, 4, 5, 6];
 var EMPHASIS = { high: 1, medium: 0.87, low: 0.66 };
 var SPACE = [0, 8, 16, 24, 32, 48, 64, 96, 128];
 var GRID_COLUMNS = { wide: 12, medium: 8, narrow: 4 };
-
-// src/web/hooks.ts
-
 function useInView(ref2, { threshold = 0, once = false, rootMargin } = {}) {
-  const [inView, setInView] = _react.useState.call(void 0, false);
-  _react.useEffect.call(void 0, () => {
+  const [inView, setInView] = react.useState(false);
+  react.useEffect(() => {
     const el = ref2.current;
     if (!el || typeof IntersectionObserver === "undefined") {
       setInView(true);
@@ -600,8 +561,8 @@ function scrollProgressOf(rect, viewport) {
 }
 function useScrollProgress(ref2) {
   const inView = useInView(ref2);
-  const [progress, setProgress] = _react.useState.call(void 0, 0);
-  _react.useEffect.call(void 0, () => {
+  const [progress, setProgress] = react.useState(0);
+  react.useEffect(() => {
     const el = ref2.current;
     if (!el || !inView || typeof window === "undefined") return;
     let frame = 0;
@@ -625,8 +586,8 @@ function useScrollProgress(ref2) {
   return progress;
 }
 function useFinePointer() {
-  const [fine, setFine] = _react.useState.call(void 0, false);
-  _react.useEffect.call(void 0, () => {
+  const [fine, setFine] = react.useState(false);
+  react.useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
     setFine(window.matchMedia("(hover: hover) and (pointer: fine)").matches);
   }, []);
@@ -634,12 +595,12 @@ function useFinePointer() {
 }
 function transitionDocument() {
   const doc = typeof document === "undefined" ? void 0 : document;
-  const reduced = _chunkYMPVJRTJcjs.prefersReducedMotion.call(void 0, );
-  return _optionalChain([doc, 'optionalAccess', _41 => _41.startViewTransition]) && !reduced ? doc : void 0;
+  const reduced = chunkYMPVJRTJ_cjs.prefersReducedMotion();
+  return doc?.startViewTransition && !reduced ? doc : void 0;
 }
 function withViewTransition(update) {
   const doc = transitionDocument();
-  if (!_optionalChain([doc, 'optionalAccess', _42 => _42.startViewTransition])) {
+  if (!doc?.startViewTransition) {
     update();
     return Promise.resolve();
   }
@@ -716,7 +677,7 @@ ${keyframes}
 }
 function withPaintTransition(update, { duration = 750 } = {}) {
   const doc = transitionDocument();
-  if (!_optionalChain([doc, 'optionalAccess', _43 => _43.startViewTransition])) {
+  if (!doc?.startViewTransition) {
     update();
     return Promise.resolve();
   }
@@ -739,20 +700,16 @@ function withPaintTransition(update, { duration = 750 } = {}) {
   }
   return transition.finished.catch(() => void 0).finally(cleanup);
 }
-
-// src/web/backgrounds.tsx
-
-
 function BackgroundFrame({ background, children, as: Tag = "div", className = "", style }) {
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, Tag, { className: `uipack-web-bgframe ${className}`.trim(), style, children: [
+  return /* @__PURE__ */ jsxRuntime.jsxs(Tag, { className: `uipack-web-bgframe ${className}`.trim(), style, children: [
     background,
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-bgframe__content", children })
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-bgframe__content", children })
   ] });
 }
 function useParentSpotlight(ref2, enabled) {
-  _react.useEffect.call(void 0, () => {
+  react.useEffect(() => {
     const el = ref2.current;
-    const host = _optionalChain([el, 'optionalAccess', _44 => _44.parentElement]);
+    const host = el?.parentElement;
     if (!el || !host || !enabled) return;
     const move = (e) => {
       if (e.pointerType === "touch") return;
@@ -771,11 +728,11 @@ function useParentSpotlight(ref2, enabled) {
   }, [ref2, enabled]);
 }
 function GridBackground({ variant, size = 24, fade = true, spotlight = false }) {
-  const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
+  const ref2 = react.useRef(null);
+  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
   const fine = useFinePointer();
   useParentSpotlight(ref2, spotlight && fine && !reduced);
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+  return /* @__PURE__ */ jsxRuntime.jsx(
     "div",
     {
       ref: ref2,
@@ -784,20 +741,20 @@ function GridBackground({ variant, size = 24, fade = true, spotlight = false }) 
       "data-fade": fade || void 0,
       "aria-hidden": "true",
       style: { "--cell": `${size}px` },
-      children: spotlight && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-gridbg__lit" })
+      children: spotlight && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-gridbg__lit" })
     }
   );
 }
 function DotGrid(props) {
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, GridBackground, { variant: "dots", ...props });
+  return /* @__PURE__ */ jsxRuntime.jsx(GridBackground, { variant: "dots", ...props });
 }
 function LineGrid(props) {
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, GridBackground, { variant: "lines", ...props });
+  return /* @__PURE__ */ jsxRuntime.jsx(GridBackground, { variant: "lines", ...props });
 }
 function Aurora({ duration = 24 }) {
-  const ref2 = _react.useRef.call(void 0, null);
+  const ref2 = react.useRef(null);
   const inView = useInView(ref2);
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+  return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
       ref: ref2,
@@ -807,18 +764,18 @@ function Aurora({ duration = 24 }) {
       "aria-hidden": "true",
       style: { "--aurora-duration": `${duration}s` },
       children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "i", {}),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "i", {}),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "i", {})
+        /* @__PURE__ */ jsxRuntime.jsx("i", {}),
+        /* @__PURE__ */ jsxRuntime.jsx("i", {}),
+        /* @__PURE__ */ jsxRuntime.jsx("i", {})
       ]
     }
   );
 }
 function MaskedStar({ values, flip = "none", clear = "center" }) {
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-maskedstar", "data-bg": "star", "data-flip": flip, "data-clear": clear, "aria-hidden": "true", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, StarChart, { values }) });
+  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-maskedstar", "data-bg": "star", "data-flip": flip, "data-clear": clear, "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsx(StarChart, { values }) });
 }
 function BeamLines({ size = 48, count = 5, duration = 6 }) {
-  const ref2 = _react.useRef.call(void 0, null);
+  const ref2 = react.useRef(null);
   const inView = useInView(ref2);
   const beams = Array.from({ length: count }, (_, i) => ({
     axis: i % 2 === 0 ? "h" : "v",
@@ -826,7 +783,7 @@ function BeamLines({ size = 48, count = 5, duration = 6 }) {
     delay: -(i * duration / count) * 1.7,
     dur: duration * (0.8 + i * 7 % 5 / 10)
   }));
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+  return /* @__PURE__ */ jsxRuntime.jsx(
     "div",
     {
       ref: ref2,
@@ -835,7 +792,7 @@ function BeamLines({ size = 48, count = 5, duration = 6 }) {
       "data-paused": !inView || void 0,
       "aria-hidden": "true",
       style: { "--cell": `${size}px` },
-      children: beams.map((b, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+      children: beams.map((b, i) => /* @__PURE__ */ jsxRuntime.jsx(
         "i",
         {
           "data-axis": b.axis,
@@ -851,14 +808,14 @@ function BeamLines({ size = 48, count = 5, duration = 6 }) {
   );
 }
 function GutterSide({ side }) {
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-gutters__side", "data-side": side, children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-gutters__drift" }),
-    [0, 1, 2].map((i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-gutters__signal", style: { "--i": i } }, i))
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-gutters__side", "data-side": side, children: [
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-gutters__drift" }),
+    [0, 1, 2].map((i) => /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-gutters__signal", style: { "--i": i } }, i))
   ] });
 }
 function DriftingGutters({ contentWidth = 1120, top = 72, minViewport = 1280, drift = 48 }) {
   const custom = minViewport !== 1280;
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+  return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
       className: "uipack-web-gutters",
@@ -871,26 +828,18 @@ function DriftingGutters({ contentWidth = 1120, top = 72, minViewport = 1280, dr
         "--gutters-drift": `${drift}s`
       },
       children: [
-        custom && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "style", { children: `@media (min-width: ${minViewport}px) { .uipack-web-gutters[data-min="${minViewport}"] { display: block; } }` }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, GutterSide, { side: "left" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, GutterSide, { side: "right" })
+        custom && /* @__PURE__ */ jsxRuntime.jsx("style", { children: `@media (min-width: ${minViewport}px) { .uipack-web-gutters[data-min="${minViewport}"] { display: block; } }` }),
+        /* @__PURE__ */ jsxRuntime.jsx(GutterSide, { side: "left" }),
+        /* @__PURE__ */ jsxRuntime.jsx(GutterSide, { side: "right" })
       ]
     }
   );
 }
-
-// src/web/motion.tsx
-
-
-
-
-
-
 function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div", className = "" }) {
-  const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
-  const [state, setState] = _react.useState.call(void 0, "static");
-  _react.useEffect.call(void 0, () => {
+  const ref2 = react.useRef(null);
+  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
+  const [state, setState] = react.useState("static");
+  react.useEffect(() => {
     const el = ref2.current;
     if (!el) return;
     Array.from(el.children).forEach((c, i) => c.style.setProperty("--i", String(i)));
@@ -910,7 +859,7 @@ function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div", class
     io.observe(el);
     return () => io.disconnect();
   }, [reduced]);
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+  return /* @__PURE__ */ jsxRuntime.jsx(
     Tag,
     {
       ref: ref2,
@@ -935,18 +884,18 @@ function scrambleFrame(text, t, mode, seed = 0) {
   return out;
 }
 function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "span", className = "" }) {
-  const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
+  const ref2 = react.useRef(null);
+  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
   const inView = useInView(ref2, { once: true, threshold: 0.5 });
-  const [t, setT] = _react.useState.call(void 0, 1);
-  const [tick, setTick] = _react.useState.call(void 0, 0);
-  const [armed, setArmed] = _react.useState.call(void 0, false);
-  const started = _react.useRef.call(void 0, false);
-  _react.useEffect.call(void 0, () => {
+  const [t, setT] = react.useState(1);
+  const [tick, setTick] = react.useState(0);
+  const [armed, setArmed] = react.useState(false);
+  const started = react.useRef(false);
+  react.useEffect(() => {
     setArmed(true);
     if (typeof IntersectionObserver !== "undefined" && !started.current) setT(0);
   }, []);
-  _react.useEffect.call(void 0, () => {
+  react.useEffect(() => {
     if (reduced || !inView || started.current) return;
     started.current = true;
     const start = Date.now();
@@ -960,7 +909,7 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
     return () => clearInterval(timer);
   }, [reduced, inView, duration]);
   const shown = reduced || t >= 1 ? text : scrambleFrame(text, t, mode, tick);
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+  return /* @__PURE__ */ jsxRuntime.jsxs(
     Tag,
     {
       ref: ref2,
@@ -969,10 +918,10 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
       "data-done": shown === text || void 0,
       "data-armed": armed || void 0,
       children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-scramble__ghost", children: text }),
-        armed && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-web-scramble__live", "aria-hidden": "true", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-scramble__ghost", children: text }),
+        armed && /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-scramble__live", "aria-hidden": "true", children: [
           shown,
-          mode === "type" && shown !== text && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__caret" })
+          mode === "type" && shown !== text && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__caret" })
         ] })
       ]
     }
@@ -980,17 +929,17 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
 }
 var easeOut = (t) => 1 - Math.pow(1 - t, 3);
 function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix = "", suffix = "", className = "", face = "display" }) {
-  const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
+  const ref2 = react.useRef(null);
+  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
   const inView = useInView(ref2, { once: true, threshold: 0.6 });
-  const [current, setCurrent] = _react.useState.call(void 0, value);
-  const [armed, setArmed] = _react.useState.call(void 0, false);
-  const started = _react.useRef.call(void 0, false);
-  _react.useEffect.call(void 0, () => {
+  const [current, setCurrent] = react.useState(value);
+  const [armed, setArmed] = react.useState(false);
+  const started = react.useRef(false);
+  react.useEffect(() => {
     setArmed(true);
     if (typeof IntersectionObserver !== "undefined" && !started.current) setCurrent(from);
   }, [from]);
-  _react.useEffect.call(void 0, () => {
+  react.useEffect(() => {
     if (reduced || !inView || started.current) return;
     started.current = true;
     const start = Date.now();
@@ -1002,27 +951,27 @@ function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix
     }, 32);
     return () => clearInterval(timer);
   }, [reduced, inView, from, value, duration]);
-  const fmt = new Intl.NumberFormat(locale, _nullishCoalesce(format, () => ( { maximumFractionDigits: 0 })));
+  const fmt = new Intl.NumberFormat(locale, format ?? { maximumFractionDigits: 0 });
   const final = `${prefix}${fmt.format(value)}${suffix}`;
   const live = `${prefix}${fmt.format(reduced ? value : current)}${suffix}`;
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { ref: ref2, className: `uipack-web-ticker ${className}`.trim(), "data-face": face, "data-armed": armed || void 0, children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-scramble__ghost", children: final }),
-    armed && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-scramble__live", "aria-hidden": "true", "data-testid": "ticker-live", children: live })
+  return /* @__PURE__ */ jsxRuntime.jsxs("span", { ref: ref2, className: `uipack-web-ticker ${className}`.trim(), "data-face": face, "data-armed": armed || void 0, children: [
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-scramble__ghost", children: final }),
+    armed && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-scramble__live", "aria-hidden": "true", "data-testid": "ticker-live", children: live })
   ] });
 }
 function Marquee({ items, label, duration = 30, reverse = false }) {
-  const ref2 = _react.useRef.call(void 0, null);
-  const copyRef = _react.useRef.call(void 0, null);
+  const ref2 = react.useRef(null);
+  const copyRef = react.useRef(null);
   const inView = useInView(ref2);
-  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
-  const [paused, setPaused] = _react.useState.call(void 0, false);
-  const [mounted, setMounted] = _react.useState.call(void 0, false);
-  _react.useEffect.call(void 0, () => setMounted(true), []);
-  _react.useEffect.call(void 0, () => {
-    _optionalChain([copyRef, 'access', _45 => _45.current, 'optionalAccess', _46 => _46.setAttribute, 'call', _47 => _47("inert", "")]);
+  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
+  const [paused, setPaused] = react.useState(false);
+  const [mounted, setMounted] = react.useState(false);
+  react.useEffect(() => setMounted(true), []);
+  react.useEffect(() => {
+    copyRef.current?.setAttribute("inert", "");
   }, [reduced, mounted]);
-  const list = (copy) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { className: "uipack-web-marquee__list", ref: copy ? copyRef : void 0, "aria-hidden": copy || void 0, children: items.map((item, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "li", { children: item }, i)) });
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+  const list = (copy) => /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "uipack-web-marquee__list", ref: copy ? copyRef : void 0, "aria-hidden": copy || void 0, children: items.map((item, i) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: item }, i)) });
+  return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
       ref: ref2,
@@ -1034,18 +983,18 @@ function Marquee({ items, label, duration = 30, reverse = false }) {
       "data-reverse": reverse || void 0,
       style: { "--marquee-duration": `${duration}s` },
       children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-marquee__viewport", children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-marquee__track", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-marquee__viewport", children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-marquee__track", children: [
           list(false),
           mounted && !reduced && list(true)
         ] }) }),
-        !reduced && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", className: "uipack-web-marquee__toggle", "aria-pressed": paused, onClick: () => setPaused((p) => !p), children: paused ? "Play" : "Pause" })
+        !reduced && /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", className: "uipack-web-marquee__toggle", "aria-pressed": paused, onClick: () => setPaused((p) => !p), children: paused ? "Play" : "Pause" })
       ]
     }
   );
 }
 function useHoverMotion(apply, reset) {
-  const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
+  const ref2 = react.useRef(null);
+  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
   const onPointerMove = (e) => {
     if (reduced || e.pointerType !== "mouse" && e.pointerType !== "pen") return;
     const el = ref2.current;
@@ -1069,7 +1018,7 @@ function TiltCard({ children, max = 5, href, className = "" }) {
   );
   const cls = `uipack-web-tilt ${className}`.trim();
   const props = { className: cls, onPointerMove, onPointerLeave };
-  return href ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { ref: (n) => ref2.current = n, href, ...props, children }) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { ref: (n) => ref2.current = n, ...props, children });
+  return href ? /* @__PURE__ */ jsxRuntime.jsx("a", { ref: (n) => ref2.current = n, href, ...props, children }) : /* @__PURE__ */ jsxRuntime.jsx("div", { ref: (n) => ref2.current = n, ...props, children });
 }
 function MagneticButton({ strength = 6, ...button }) {
   const { ref: ref2, onPointerMove, onPointerLeave } = useHoverMotion(
@@ -1082,12 +1031,12 @@ function MagneticButton({ strength = 6, ...button }) {
       el.style.removeProperty("--pull-y");
     }
   );
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { ref: (n) => ref2.current = n, className: "uipack-web-magnetic", onPointerMove, onPointerLeave, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, CtaButton, { ...button }) });
+  return /* @__PURE__ */ jsxRuntime.jsx("span", { ref: (n) => ref2.current = n, className: "uipack-web-magnetic", onPointerMove, onPointerLeave, children: /* @__PURE__ */ jsxRuntime.jsx(CtaButton, { ...button }) });
 }
 var lerp = ([a, b], t) => a + (b - a) * t;
 function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY = [0, 0], opacity = [1, 1], className = "" }) {
-  const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
+  const ref2 = react.useRef(null);
+  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
   const raw = useScrollProgress(ref2);
   const t = reduced ? 0.5 : raw;
   const style = {
@@ -1096,11 +1045,8 @@ function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY
     "--st-y": `${lerp(translateY, t).toFixed(1)}px`,
     "--st-opacity": lerp(opacity, t).toFixed(3)
   };
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { ref: ref2, className: `uipack-web-scrollx ${className}`.trim(), "data-progress": t.toFixed(2), children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-scrollx__inner", style, children }) });
+  return /* @__PURE__ */ jsxRuntime.jsx("div", { ref: ref2, className: `uipack-web-scrollx ${className}`.trim(), "data-progress": t.toFixed(2), children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-scrollx__inner", style, children }) });
 }
-
-// src/web/SmoothScroll.tsx
-
 function followRate(lerp2) {
   const l = Math.min(0.999, Math.max(1e-3, lerp2));
   return -Math.log(1 - l) * 60;
@@ -1131,26 +1077,26 @@ var maxScroll = () => Math.max(0, document.documentElement.scrollHeight - window
 function safeQuery(selector) {
   try {
     return document.querySelector(selector);
-  } catch (e2) {
+  } catch {
     return null;
   }
 }
 function resolveTop(target, offset) {
-  if (typeof target === "number") return target - (_nullishCoalesce(offset, () => ( 0)));
+  if (typeof target === "number") return target - (offset ?? 0);
   let el = null;
   if (typeof target === "string") {
     el = target === "#" || target === "#top" ? document.getElementById("top") : safeQuery(target);
     if (!el && (target === "#" || target === "#top")) return 0;
   } else el = target;
   if (!el) return null;
-  const clear = _nullishCoalesce(offset, () => ( (parseFloat(getComputedStyle(el).scrollMarginTop) || 0) + (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0)));
+  const clear = offset ?? (parseFloat(getComputedStyle(el).scrollMarginTop) || 0) + (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0);
   return el.getBoundingClientRect().top + window.scrollY - clear;
 }
 function nativeScrollTo(target, { offset, immediate } = {}) {
   if (!canUseDom()) return;
   const y = resolveTop(target, offset);
   if (y === null) return;
-  window.scrollTo({ top: clamp(y, 0, maxScroll()), behavior: immediate || _chunkYMPVJRTJcjs.prefersReducedMotion.call(void 0, ) ? "auto" : "smooth" });
+  window.scrollTo({ top: clamp(y, 0, maxScroll()), behavior: immediate || chunkYMPVJRTJ_cjs.prefersReducedMotion() ? "auto" : "smooth" });
 }
 function pageOwnsWheel(e) {
   const root = document.documentElement;
@@ -1209,7 +1155,7 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
     frame = 0;
     const dt = last ? Math.min(0.25, (now - last) / 1e3) : 1 / 60;
     last = now;
-    if (_optionalChain([aim, 'optionalAccess', _48 => _48.el, 'access', _49 => _49.isConnected])) {
+    if (aim?.el.isConnected) {
       const y = resolveTop(aim.el, aim.offset);
       if (y !== null) target = y;
     }
@@ -1290,12 +1236,12 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
     let id = url.hash.slice(1);
     try {
       id = decodeURIComponent(id);
-    } catch (e3) {
+    } catch {
     }
     const el = id ? document.getElementById(id) : null;
     if (!el && id && id.toLowerCase() !== "top") return;
     e.preventDefault();
-    controller.scrollTo(_nullishCoalesce(el, () => ( 0)));
+    controller.scrollTo(el ?? 0);
     if (location.hash !== url.hash) history.pushState(history.state, "", url.hash);
     if (el) focusTarget(el);
   };
@@ -1324,7 +1270,7 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
   };
   const fine = typeof window.matchMedia === "function" ? window.matchMedia(FINE) : null;
   const evaluate = () => {
-    const next = !destroyed && fine !== null && fine.matches && !_chunkYMPVJRTJcjs.prefersReducedMotion.call(void 0, );
+    const next = !destroyed && fine !== null && fine.matches && !chunkYMPVJRTJ_cjs.prefersReducedMotion();
     if (next === enabled) return;
     enabled = next;
     if (enabled) attach();
@@ -1341,7 +1287,7 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
     scrollTo(t, options = {}) {
       if (!enabled) return nativeScrollTo(t, options);
       const el = typeof t === "string" ? safeQuery(t) : typeof t === "number" ? null : t;
-      const y = resolveTop(_nullishCoalesce(el, () => ( t)), options.offset);
+      const y = resolveTop(el ?? t, options.offset);
       if (y === null) return;
       const to = clamp(y, 0, maxScroll());
       if (options.immediate) {
@@ -1373,7 +1319,7 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
   };
   active = controller;
   if (fine) listen(fine, true);
-  const stopReduced = _chunkYMPVJRTJcjs.onReducedMotionChange.call(void 0, evaluate);
+  const stopReduced = chunkYMPVJRTJ_cjs.onReducedMotionChange(evaluate);
   document.addEventListener("click", onClick);
   evaluate();
   return controller;
@@ -1383,8 +1329,8 @@ function smoothScrollTo(target, options) {
   else nativeScrollTo(target, options);
 }
 function useSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = true } = {}) {
-  const instance = _react.useRef.call(void 0, null);
-  _react.useEffect.call(void 0, () => {
+  const instance = react.useRef(null);
+  react.useEffect(() => {
     const c = createSmoothScroll({ lerp: lerp2, wheelMultiplier, anchors });
     instance.current = c;
     return () => {
@@ -1392,12 +1338,12 @@ function useSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = tru
       if (instance.current === c) instance.current = null;
     };
   }, [lerp2, wheelMultiplier, anchors]);
-  return _react.useMemo.call(void 0, 
+  return react.useMemo(
     () => ({
       scrollTo: (t, o) => instance.current ? instance.current.scrollTo(t, o) : nativeScrollTo(t, o),
-      stop: () => _optionalChain([instance, 'access', _50 => _50.current, 'optionalAccess', _51 => _51.stop, 'call', _52 => _52()]),
+      stop: () => instance.current?.stop(),
       get enabled() {
-        return _nullishCoalesce(_optionalChain([instance, 'access', _53 => _53.current, 'optionalAccess', _54 => _54.enabled]), () => ( false));
+        return instance.current?.enabled ?? false;
       }
     }),
     []
@@ -1418,7 +1364,7 @@ function pageMeta(o) {
   if (!isAbsolute(o.url)) throw new Error(`pageMeta: url must be absolute (got "${o.url}")`);
   const image = typeof o.image === "string" ? { url: o.image } : o.image;
   const imageUrl = image ? absoluteUrl(image.url, o.url) : void 0;
-  const locale = (_nullishCoalesce(o.locale, () => ( "en_US"))).replace("-", "_");
+  const locale = (o.locale ?? "en_US").replace("-", "_");
   const tags = [
     { tag: "title", text: o.title },
     { tag: "meta", attrs: { name: "description", content: o.description } },
@@ -1429,13 +1375,13 @@ function pageMeta(o) {
   if (o.llmsTxt) tags.push({ tag: "link", attrs: { rel: "describedby", type: "text/markdown", href: absoluteUrl(o.llmsTxt, o.url) } });
   const rss = typeof o.rss === "string" ? { url: o.rss } : o.rss;
   if (rss) {
-    const title = _nullishCoalesce(rss.title, () => ( o.siteName));
+    const title = rss.title ?? o.siteName;
     const attrs = { rel: "alternate", type: "application/rss+xml", href: absoluteUrl(rss.url, o.url) };
     if (title) attrs.title = title;
     tags.push({ tag: "link", attrs });
   }
   const og = (property, content) => content !== void 0 && content !== "" && tags.push({ tag: "meta", attrs: { property, content: String(content) } });
-  og("og:type", _nullishCoalesce(o.type, () => ( "website")));
+  og("og:type", o.type ?? "website");
   og("og:title", o.title);
   og("og:description", o.description);
   og("og:url", o.url);
@@ -1448,13 +1394,13 @@ function pageMeta(o) {
     og("og:image:height", image.height);
   }
   og("article:published_time", o.publishedTime);
-  og("article:modified_time", _nullishCoalesce(o.modifiedTime, () => ( o.publishedTime)));
+  og("article:modified_time", o.modifiedTime ?? o.publishedTime);
   const tw = (name, content) => content && tags.push({ tag: "meta", attrs: { name, content } });
   tw("twitter:card", imageUrl ? "summary_large_image" : "summary");
   tw("twitter:title", o.title);
   tw("twitter:description", o.description);
   tw("twitter:image", imageUrl);
-  tw("twitter:image:alt", _optionalChain([image, 'optionalAccess', _55 => _55.alt]));
+  tw("twitter:image:alt", image?.alt);
   tw("twitter:site", o.twitterSite);
   return tags;
 }
@@ -1472,7 +1418,7 @@ function headTagKey(t) {
   const a = t.attrs;
   if (t.tag === "meta") return a.name ? `meta:name:${a.name}` : a.property ? `meta:property:${a.property}` : `meta:${JSON.stringify(a)}`;
   if (t.tag === "link") return a.rel === "canonical" ? "link:canonical" : `link:${a.rel}:${a.href}`;
-  return `script:${_nullishCoalesce(a.id, () => ( a.type))}:${t.text.length}`;
+  return `script:${a.id ?? a.type}:${t.text.length}`;
 }
 var WEB_FONT_FILES = {
   display: "instrument-serif-latin-400-normal.woff2",
@@ -1503,12 +1449,12 @@ function clean(o) {
   return out;
 }
 function organization(o) {
-  return clean({ "@type": "Organization", "@id": _nullishCoalesce(o.id, () => ( nodeId(o.url, "organization"))), name: o.name, url: o.url, logo: o.logo, description: o.description, sameAs: o.sameAs });
+  return clean({ "@type": "Organization", "@id": o.id ?? nodeId(o.url, "organization"), name: o.name, url: o.url, logo: o.logo, description: o.description, sameAs: o.sameAs });
 }
 function person(o) {
   return clean({
     "@type": "Person",
-    "@id": _nullishCoalesce(o.id, () => ( nodeId(o.url, "person"))),
+    "@id": o.id ?? nodeId(o.url, "person"),
     name: o.name,
     url: o.url,
     image: o.image,
@@ -1520,7 +1466,7 @@ function person(o) {
 function webSite(o) {
   return clean({
     "@type": "WebSite",
-    "@id": _nullishCoalesce(o.id, () => ( nodeId(o.url, "website"))),
+    "@id": o.id ?? nodeId(o.url, "website"),
     name: o.name,
     url: o.url,
     description: o.description,
@@ -1548,8 +1494,8 @@ function offer(o) {
 }
 function softwareApplication(o) {
   return clean({
-    "@type": _nullishCoalesce(o.type, () => ( "SoftwareApplication")),
-    "@id": _nullishCoalesce(o.id, () => ( nodeId(o.url, "app"))),
+    "@type": o.type ?? "SoftwareApplication",
+    "@id": o.id ?? nodeId(o.url, "app"),
     name: o.name,
     description: o.description,
     url: o.url,
@@ -1564,7 +1510,7 @@ function softwareApplication(o) {
 function product(o) {
   return clean({
     "@type": "Product",
-    "@id": _nullishCoalesce(o.id, () => ( nodeId(o.url, "product"))),
+    "@id": o.id ?? nodeId(o.url, "product"),
     name: o.name,
     description: o.description,
     url: o.url,
@@ -1578,7 +1524,7 @@ function product(o) {
 function faqPage(items, { url, id } = {}) {
   return clean({
     "@type": "FAQPage",
-    "@id": _nullishCoalesce(id, () => ( (url ? `${url.split("#")[0]}#faq` : void 0))),
+    "@id": id ?? (url ? `${url.split("#")[0]}#faq` : void 0),
     mainEntity: items.map((i) => ({
       "@type": "Question",
       name: i.question,
@@ -1601,14 +1547,14 @@ function authorNode(a) {
 function article(o) {
   const authors = (Array.isArray(o.author) ? o.author : [o.author]).map(authorNode);
   return clean({
-    "@type": _nullishCoalesce(o.type, () => ( "Article")),
+    "@type": o.type ?? "Article",
     headline: o.headline,
     description: o.description,
     url: o.url,
     mainEntityOfPage: o.url,
     image: o.image,
     datePublished: o.datePublished,
-    dateModified: _nullishCoalesce(o.dateModified, () => ( o.datePublished)),
+    dateModified: o.dateModified ?? o.datePublished,
     author: authors.length === 1 ? authors[0] : authors,
     publisher: o.publisher ? ref(o.publisher) : void 0
   });
@@ -1617,8 +1563,8 @@ function jsonLd(...nodes) {
   if (nodes.length === 1) return { "@context": "https://schema.org", ...nodes[0] };
   return { "@context": "https://schema.org", "@graph": nodes };
 }
-var LS = String.fromCharCode(8232);
-var PS = String.fromCharCode(8233);
+var LS = /* @__PURE__ */ String.fromCharCode(8232);
+var PS = /* @__PURE__ */ String.fromCharCode(8233);
 function serializeJsonLd(data) {
   return JSON.stringify(data).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026").split(LS).join("\\u2028").split(PS).join("\\u2029");
 }
@@ -1628,22 +1574,18 @@ function jsonLdTag(data, id) {
 function slugify(s) {
   return s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 64);
 }
-
-// src/web/Head.tsx
-
-
 var REACT_ATTR = { crossorigin: "crossOrigin", "http-equiv": "httpEquiv", charset: "charSet", hreflang: "hrefLang" };
 function toProps(attrs) {
   const out = {};
-  for (const [k, v] of Object.entries(attrs)) out[_nullishCoalesce(REACT_ATTR[k], () => ( k))] = v;
+  for (const [k, v] of Object.entries(attrs)) out[REACT_ATTR[k] ?? k] = v;
   return out;
 }
 function HeadTags({ tags }) {
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _jsxruntime.Fragment, { children: tags.map((t) => {
+  return /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, { children: tags.map((t) => {
     const key = headTagKey(t);
-    if (t.tag === "title") return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "title", { children: t.text }, key);
-    if (t.tag === "script") return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "script", { ...toProps(t.attrs), dangerouslySetInnerHTML: { __html: t.text } }, key);
-    return _react.createElement.call(void 0, t.tag, { key, ...toProps(t.attrs) });
+    if (t.tag === "title") return /* @__PURE__ */ jsxRuntime.jsx("title", { children: t.text }, key);
+    if (t.tag === "script") return /* @__PURE__ */ jsxRuntime.jsx("script", { ...toProps(t.attrs), dangerouslySetInnerHTML: { __html: t.text } }, key);
+    return react.createElement(t.tag, { key, ...toProps(t.attrs) });
   }) });
 }
 var MARK = "data-uipack-head";
@@ -1658,7 +1600,7 @@ function findExisting(t) {
 }
 function useHead(tags) {
   const signature = JSON.stringify(tags);
-  _react.useEffect.call(void 0, () => {
+  react.useEffect(() => {
     if (typeof document === "undefined") return;
     const undo = [];
     for (const t of JSON.parse(signature)) {
@@ -1689,11 +1631,8 @@ function useHead(tags) {
   }, [signature]);
 }
 function JsonLd({ data, id }) {
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "script", { type: "application/ld+json", id, dangerouslySetInnerHTML: { __html: serializeJsonLd(data) } });
+  return /* @__PURE__ */ jsxRuntime.jsx("script", { type: "application/ld+json", id, dangerouslySetInnerHTML: { __html: serializeJsonLd(data) } });
 }
-
-// src/web/FAQ.tsx
-
 var paragraphs = (answer) => answer.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
 function FAQ({
   items,
@@ -1707,22 +1646,22 @@ function FAQ({
   tone,
   lazyRender = false
 }) {
-  const answer = (item) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-faq__answer", children: paragraphs(item.answer).map((p, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack-web-body", "data-emphasis": "medium", children: p }, i)) });
-  const itemId = (item) => _nullishCoalesce(item.id, () => ( `${id}-${slugify(item.question)}`));
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, Section, { id, eyebrow, title, intro, tone, lazyRender, className: "uipack-web-faq", children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-faq__list", "data-variant": variant, children: items.map(
-      (item) => variant === "accordion" ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "details", { className: "uipack-web-faq__item", id: itemId(item), children: [
-        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "summary", { children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-faq__q", children: item.question }),
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-faq__icon", "aria-hidden": "true" })
+  const answer = (item) => /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-faq__answer", children: paragraphs(item.answer).map((p, i) => /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-body", "data-emphasis": "medium", children: p }, i)) });
+  const itemId = (item) => item.id ?? `${id}-${slugify(item.question)}`;
+  return /* @__PURE__ */ jsxRuntime.jsxs(Section, { id, eyebrow, title, intro, tone, lazyRender, className: "uipack-web-faq", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-faq__list", "data-variant": variant, children: items.map(
+      (item) => variant === "accordion" ? /* @__PURE__ */ jsxRuntime.jsxs("details", { className: "uipack-web-faq__item", id: itemId(item), children: [
+        /* @__PURE__ */ jsxRuntime.jsxs("summary", { children: [
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-faq__q", children: item.question }),
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-faq__icon", "aria-hidden": "true" })
         ] }),
         answer(item)
-      ] }, item.question) : /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-faq__item", id: itemId(item), children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Heading, { level: 3, size: 1, className: "uipack-web-faq__q", children: item.question }),
+      ] }, item.question) : /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-faq__item", id: itemId(item), children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 3, size: 1, className: "uipack-web-faq__q", children: item.question }),
         answer(item)
       ] }, item.question)
     ) }),
-    jsonLd2 && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, JsonLd, { data: jsonLd(faqPage(items, { url })) })
+    jsonLd2 && /* @__PURE__ */ jsxRuntime.jsx(JsonLd, { data: jsonLd(faqPage(items, { url })) })
   ] });
 }
 
@@ -1741,12 +1680,12 @@ var AI_CRAWLERS = [
   { agent: "CCBot", operator: "Common Crawl", purpose: "training", note: "Common Crawl's open web archive, which many model training sets are built from.", docs: "https://commoncrawl.org/ccbot" }
 ];
 function resolveAiCrawlers(policy = "allow-all") {
-  const preset = typeof policy === "string" ? policy : _nullishCoalesce(policy.preset, () => ( "allow-all"));
+  const preset = typeof policy === "string" ? policy : policy.preset ?? "allow-all";
   const overrides = typeof policy === "string" ? {} : policy;
   const out = {};
   for (const c of AI_CRAWLERS) {
     const base = preset === "block-all" ? "disallow" : preset === "search-only" && c.purpose === "training" ? "disallow" : "allow";
-    out[c.agent] = _nullishCoalesce(overrides[c.agent], () => ( base));
+    out[c.agent] = overrides[c.agent] ?? base;
   }
   return out;
 }
@@ -1763,7 +1702,7 @@ function robotsTxt({ site, aiCrawlers, disallow = [], sitemapPath = "/sitemap.xm
   const root = siteRoot(site);
   const paths = disallow.map(checkPath);
   const rules = resolveAiCrawlers(aiCrawlers);
-  const preset = typeof aiCrawlers === "string" ? aiCrawlers : _nullishCoalesce(_optionalChain([aiCrawlers, 'optionalAccess', _56 => _56.preset]), () => ( "allow-all"));
+  const preset = typeof aiCrawlers === "string" ? aiCrawlers : aiCrawlers?.preset ?? "allow-all";
   const allowLines = ["Allow: /", ...paths.map((p) => `Disallow: ${p}`)];
   const lines = [
     `# robots.txt for ${root}`,
@@ -1817,9 +1756,9 @@ function llmsTxt({ site, pages, llms }) {
   const optional = [];
   for (const p of pages.filter((x) => !x.noindex)) {
     if (p.optional) optional.push(p);
-    else sections.set(_nullishCoalesce(p.section, () => ( "Pages")), [..._nullishCoalesce(sections.get(_nullishCoalesce(p.section, () => ( "Pages"))), () => ( [])), p]);
+    else sections.set(p.section ?? "Pages", [...sections.get(p.section ?? "Pages") ?? [], p]);
   }
-  const item = (p) => `- [${oneLine(p.title).replace(/[[\]]/g, "")}](${pageUrl(site, _nullishCoalesce(p.markdown, () => ( p.path)))})${p.description ? `: ${oneLine(p.description)}` : ""}`;
+  const item = (p) => `- [${oneLine(p.title).replace(/[[\]]/g, "")}](${pageUrl(site, p.markdown ?? p.path)})${p.description ? `: ${oneLine(p.description)}` : ""}`;
   for (const [name, list] of sections) out.push("", `## ${name}`, "", ...list.map(item));
   if (optional.length) out.push("", "## Optional", "", ...optional.map(item));
   return `${out.join("\n")}
@@ -1833,104 +1772,103 @@ function buildCrawlFiles(o) {
   };
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-exports.AI_CRAWLERS = AI_CRAWLERS; exports.Aurora = Aurora; exports.BackgroundFrame = BackgroundFrame; exports.BeamLines = BeamLines; exports.Body = Body; exports.CtaButton = CtaButton; exports.DEFAULT_STAR_VALUES = DEFAULT_STAR_VALUES; exports.DEFAULT_TIMING = DEFAULT_TIMING; exports.DISPLAY_FROM_STEP = DISPLAY_FROM_STEP; exports.DemoPlayer = DemoPlayer; exports.DotGrid = DotGrid; exports.DriftingGutters = DriftingGutters; exports.EMPHASIS = EMPHASIS; exports.Eyebrow = Eyebrow; exports.FAQ = FAQ; exports.FeatureGrid = FeatureGrid; exports.GRID_COLUMNS = GRID_COLUMNS; exports.GlassNav = GlassNav; exports.GrainOverlay = GrainOverlay; exports.Grid = Grid; exports.GridItem = GridItem; exports.HeadTags = HeadTags; exports.Heading = Heading; exports.JsonLd = JsonLd; exports.LineGrid = LineGrid; exports.MagneticButton = MagneticButton; exports.Marquee = Marquee; exports.MaskedStar = MaskedStar; exports.NoiseLayer = NoiseLayer; exports.NumberTicker = NumberTicker; exports.Reveal = Reveal; exports.RevealText = RevealText; exports.RhymeIcon = RhymeIcon; exports.SMOOTH_SCROLL_ATTR = SMOOTH_SCROLL_ATTR; exports.SMOOTH_SCROLL_PREVENT_ATTR = SMOOTH_SCROLL_PREVENT_ATTR; exports.SPACE = SPACE; exports.ScrollTransform = ScrollTransform; exports.Section = Section; exports.SmoothScroll = SmoothScroll; exports.SpotlightCard = SpotlightCard; exports.StarChart = StarChart; exports.StarHero = StarHero; exports.Subhead = Subhead; exports.TYPE_BASE_PX = TYPE_BASE_PX; exports.TYPE_FACES = TYPE_FACES; exports.TYPE_RATIO = TYPE_RATIO; exports.TYPE_STEPS = TYPE_STEPS; exports.TextScramble = TextScramble; exports.TiltCard = TiltCard; exports.WEB_FONT_FILES = WEB_FONT_FILES; exports.WHEEL_LINE_PX = WHEEL_LINE_PX; exports.WHEEL_PAGE_FRACTION = WHEEL_PAGE_FRACTION; exports.WebSurface = WebSurface; exports.article = article; exports.breadcrumbList = breadcrumbList; exports.buildCrawlFiles = buildCrawlFiles; exports.createSmoothScroll = createSmoothScroll; exports.curvePath = curvePath; exports.demoCycle = demoCycle; exports.demoEnd = demoEnd; exports.demoFrame = demoFrame; exports.easeOutExpo = easeOutExpo; exports.faqPage = faqPage; exports.followRate = followRate; exports.followStep = followStep; exports.fontPreloads = fontPreloads; exports.formatLastmod = formatLastmod; exports.headTagKey = headTagKey; exports.headTagsToHtml = headTagsToHtml; exports.jsonLd = jsonLd; exports.jsonLdTag = jsonLdTag; exports.llmsTxt = llmsTxt; exports.normalizeWheel = normalizeWheel; exports.offer = offer; exports.organization = organization; exports.pageMeta = pageMeta; exports.person = person; exports.product = product; exports.ref = ref; exports.resolveAiCrawlers = resolveAiCrawlers; exports.robotsTxt = robotsTxt; exports.scrambleFrame = scrambleFrame; exports.scrollProgressOf = scrollProgressOf; exports.serializeJsonLd = serializeJsonLd; exports.sitemapXml = sitemapXml; exports.slugify = slugify; exports.smoothScrollTo = smoothScrollTo; exports.softwareApplication = softwareApplication; exports.stepStart = stepStart; exports.typeMetrics = typeMetrics; exports.typeRole = typeRole; exports.typeScale = typeScale; exports.useFinePointer = useFinePointer; exports.useHead = useHead; exports.useInView = useInView; exports.useScrollProgress = useScrollProgress; exports.useSmoothScroll = useSmoothScroll; exports.webSite = webSite; exports.withPaintTransition = withPaintTransition; exports.withViewTransition = withViewTransition;
+exports.AI_CRAWLERS = AI_CRAWLERS;
+exports.Aurora = Aurora;
+exports.BackgroundFrame = BackgroundFrame;
+exports.BeamLines = BeamLines;
+exports.Body = Body;
+exports.CtaButton = CtaButton;
+exports.DEFAULT_STAR_VALUES = DEFAULT_STAR_VALUES;
+exports.DEFAULT_TIMING = DEFAULT_TIMING;
+exports.DISPLAY_FROM_STEP = DISPLAY_FROM_STEP;
+exports.DemoPlayer = DemoPlayer;
+exports.DotGrid = DotGrid;
+exports.DriftingGutters = DriftingGutters;
+exports.EMPHASIS = EMPHASIS;
+exports.Eyebrow = Eyebrow;
+exports.FAQ = FAQ;
+exports.FeatureGrid = FeatureGrid;
+exports.GRID_COLUMNS = GRID_COLUMNS;
+exports.GlassNav = GlassNav;
+exports.GrainOverlay = GrainOverlay;
+exports.Grid = Grid;
+exports.GridItem = GridItem;
+exports.HeadTags = HeadTags;
+exports.Heading = Heading;
+exports.JsonLd = JsonLd;
+exports.LineGrid = LineGrid;
+exports.MagneticButton = MagneticButton;
+exports.Marquee = Marquee;
+exports.MaskedStar = MaskedStar;
+exports.NoiseLayer = NoiseLayer;
+exports.NumberTicker = NumberTicker;
+exports.Reveal = Reveal;
+exports.RevealText = RevealText;
+exports.RhymeIcon = RhymeIcon;
+exports.SMOOTH_SCROLL_ATTR = SMOOTH_SCROLL_ATTR;
+exports.SMOOTH_SCROLL_PREVENT_ATTR = SMOOTH_SCROLL_PREVENT_ATTR;
+exports.SPACE = SPACE;
+exports.ScrollTransform = ScrollTransform;
+exports.Section = Section;
+exports.SmoothScroll = SmoothScroll;
+exports.SpotlightCard = SpotlightCard;
+exports.StarChart = StarChart;
+exports.StarHero = StarHero;
+exports.Subhead = Subhead;
+exports.TYPE_BASE_PX = TYPE_BASE_PX;
+exports.TYPE_FACES = TYPE_FACES;
+exports.TYPE_RATIO = TYPE_RATIO;
+exports.TYPE_STEPS = TYPE_STEPS;
+exports.TextScramble = TextScramble;
+exports.TiltCard = TiltCard;
+exports.WEB_FONT_FILES = WEB_FONT_FILES;
+exports.WHEEL_LINE_PX = WHEEL_LINE_PX;
+exports.WHEEL_PAGE_FRACTION = WHEEL_PAGE_FRACTION;
+exports.WebSurface = WebSurface;
+exports.article = article;
+exports.breadcrumbList = breadcrumbList;
+exports.buildCrawlFiles = buildCrawlFiles;
+exports.createSmoothScroll = createSmoothScroll;
+exports.curvePath = curvePath;
+exports.demoCycle = demoCycle;
+exports.demoEnd = demoEnd;
+exports.demoFrame = demoFrame;
+exports.easeOutExpo = easeOutExpo;
+exports.faqPage = faqPage;
+exports.followRate = followRate;
+exports.followStep = followStep;
+exports.fontPreloads = fontPreloads;
+exports.formatLastmod = formatLastmod;
+exports.headTagKey = headTagKey;
+exports.headTagsToHtml = headTagsToHtml;
+exports.jsonLd = jsonLd;
+exports.jsonLdTag = jsonLdTag;
+exports.llmsTxt = llmsTxt;
+exports.normalizeWheel = normalizeWheel;
+exports.offer = offer;
+exports.organization = organization;
+exports.pageMeta = pageMeta;
+exports.person = person;
+exports.product = product;
+exports.ref = ref;
+exports.resolveAiCrawlers = resolveAiCrawlers;
+exports.robotsTxt = robotsTxt;
+exports.scrambleFrame = scrambleFrame;
+exports.scrollProgressOf = scrollProgressOf;
+exports.serializeJsonLd = serializeJsonLd;
+exports.sitemapXml = sitemapXml;
+exports.slugify = slugify;
+exports.smoothScrollTo = smoothScrollTo;
+exports.softwareApplication = softwareApplication;
+exports.stepStart = stepStart;
+exports.typeMetrics = typeMetrics;
+exports.typeRole = typeRole;
+exports.typeScale = typeScale;
+exports.useFinePointer = useFinePointer;
+exports.useHead = useHead;
+exports.useInView = useInView;
+exports.useScrollProgress = useScrollProgress;
+exports.useSmoothScroll = useSmoothScroll;
+exports.webSite = webSite;
+exports.withPaintTransition = withPaintTransition;
+exports.withViewTransition = withViewTransition;

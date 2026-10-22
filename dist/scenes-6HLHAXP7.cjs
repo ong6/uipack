@@ -1,29 +1,52 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { newObj[key] = obj[key]; } } } newObj.default = obj; return newObj; } } function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }// src/objects/contact-directions.ts
-var _three = require('three'); var T = _interopRequireWildcard(_three); var THREE = _interopRequireWildcard(_three); var T3 = _interopRequireWildcard(_three); var T2 = _interopRequireWildcard(_three);
-var _RoundedBoxGeometryjs = require('three/addons/geometries/RoundedBoxGeometry.js');
+'use strict';
+
+var THREE = require('three');
+var RoundedBoxGeometry_js = require('three/addons/geometries/RoundedBoxGeometry.js');
+
+function _interopNamespace(e) {
+  if (e && e.__esModule) return e;
+  var n = Object.create(null);
+  if (e) {
+    Object.keys(e).forEach(function (k) {
+      if (k !== 'default') {
+        var d = Object.getOwnPropertyDescriptor(e, k);
+        Object.defineProperty(n, k, d.get ? d : {
+          enumerable: true,
+          get: function () { return e[k]; }
+        });
+      }
+    });
+  }
+  n.default = e;
+  return Object.freeze(n);
+}
+
+var THREE__namespace = /*#__PURE__*/_interopNamespace(THREE);
+
+// src/objects/contact-directions.ts
 var C = { cream: 16181706, coral: 15301725, blue: 6920109, green: 9155483, dark: 2703177, gold: 12490332 };
 var tau = Math.PI * 2;
-var v = (x, y, z = 0) => new T.Vector3(x, y, z);
+var v = (x, y, z = 0) => new THREE__namespace.Vector3(x, y, z);
 function mesh(g, geo, color, x = 0, y = 0, z = 0, metal = false) {
-  const m = new T.Mesh(geo, new T.MeshStandardMaterial({ color, roughness: metal ? 0.28 : 0.65, metalness: metal ? 0.65 : 0.02 }));
+  const m = new THREE__namespace.Mesh(geo, new THREE__namespace.MeshStandardMaterial({ color, roughness: metal ? 0.28 : 0.65, metalness: metal ? 0.65 : 0.02 }));
   m.position.set(x, y, z);
   g.add(m);
   return m;
 }
 function box(g, w, h, d, color, x = 0, y = 0, z = 0) {
-  return mesh(g, new (0, _RoundedBoxGeometryjs.RoundedBoxGeometry)(w, h, d, 2, Math.min(0.09, w / 4, h / 4, d / 4)), color, x, y, z);
+  return mesh(g, new RoundedBoxGeometry_js.RoundedBoxGeometry(w, h, d, 2, Math.min(0.09, w / 4, h / 4, d / 4)), color, x, y, z);
 }
 function rod(g, a, b, color = C.gold, r = 0.018) {
-  const delta = b.clone().sub(a), m = mesh(g, new T.CylinderGeometry(r, r, delta.length(), 12), color, 0, 0, 0, true);
+  const delta = b.clone().sub(a), m = mesh(g, new THREE__namespace.CylinderGeometry(r, r, delta.length(), 12), color, 0, 0, 0, true);
   m.position.copy(a).add(b).multiplyScalar(0.5);
   m.quaternion.setFromUnitVectors(v(0, 1), delta.normalize());
   return m;
 }
 function sphere(g, r, color, x = 0, y = 0, z = 0) {
-  return mesh(g, new T.SphereGeometry(r, 24, 16), color, x, y, z);
+  return mesh(g, new THREE__namespace.SphereGeometry(r, 24, 16), color, x, y, z);
 }
 function envelope(parent, color = C.cream) {
-  const g = new T.Group();
+  const g = new THREE__namespace.Group();
   parent.add(g);
   box(g, 0.64, 0.43, 0.07, color);
   for (const z of [-0.041, 0.041]) {
@@ -33,9 +56,9 @@ function envelope(parent, color = C.cream) {
   return g;
 }
 function createContactDirection(variant) {
-  const g = new T.Group(), ticks = [];
+  const g = new THREE__namespace.Group(), ticks = [];
   if (variant === 3) {
-    const world = new T.Group();
+    const world = new THREE__namespace.Group();
     g.add(world);
     world.rotation.set(0.35, -0.38, 0);
     world.position.y = -0.57;
@@ -44,16 +67,16 @@ function createContactDirection(variant) {
     for (let i = 0; i < 4; i++) box(world, 0.48, 0.045, 0.24, 15324594, 0.22, -0.1, 0.48 + i * 0.25);
     box(world, 0.17, 0.62, 0.17, C.cream, 0, 0.15, -0.18);
     box(world, 0.55, 0.08, 0.43, C.coral, 0, -0.12, -0.18);
-    const mailbox = new T.Group();
+    const mailbox = new THREE__namespace.Group();
     world.add(mailbox);
     mailbox.position.set(0, 0.85, -0.18);
     box(mailbox, 1.16, 0.88, 0.87, C.coral);
     box(mailbox, 0.99, 0.72, 0.045, C.cream, 0, 0, 0.455);
     box(mailbox, 0.72, 0.11, 0.02, C.dark, 0, 0.17, 0.486);
     for (const x of [-0.24, 0.24]) sphere(mailbox, 0.043, C.dark, x, -0.1, 0.49);
-    const smile = mesh(mailbox, new T.TorusGeometry(0.12, 0.015, 8, 24, Math.PI), C.coral, 0, -0.14, 0.49);
+    const smile = mesh(mailbox, new THREE__namespace.TorusGeometry(0.12, 0.015, 8, 24, Math.PI), C.coral, 0, -0.14, 0.49);
     smile.rotation.z = Math.PI;
-    const flag = new T.Group();
+    const flag = new THREE__namespace.Group();
     mailbox.add(flag);
     flag.position.set(0.62, -0.12, 0);
     rod(flag, v(0, 0), v(0, 0.78), C.gold, 0.025);
@@ -78,17 +101,17 @@ function createContactDirection(variant) {
     });
   } else {
     g.rotation.set(0.12, -0.2, 0);
-    mesh(g, new T.CylinderGeometry(0.98, 1.04, 0.16, 64), C.dark, 0, -1.45);
-    const rim = mesh(g, new T.TorusGeometry(0.98, 0.022, 8, 80), C.gold, 0, -1.36, 0, true);
+    mesh(g, new THREE__namespace.CylinderGeometry(0.98, 1.04, 0.16, 64), C.dark, 0, -1.45);
+    const rim = mesh(g, new THREE__namespace.TorusGeometry(0.98, 0.022, 8, 80), C.gold, 0, -1.36, 0, true);
     rim.rotation.x = Math.PI / 2;
     rod(g, v(0, -1.37, -0.3), v(0, 1.45, -0.3), C.gold, 0.04);
-    const mobile = new T.Group();
+    const mobile = new THREE__namespace.Group();
     g.add(mobile);
     mobile.position.set(0, 0.95, -0.3);
     rod(mobile, v(-1.18, 0), v(1.18, 0), C.gold, 0.028);
     sphere(mobile, 0.09, C.gold);
     for (let i = 0; i < 3; i++) {
-      const hanger = new T.Group();
+      const hanger = new THREE__namespace.Group();
       mobile.add(hanger);
       hanger.position.x = (i - 1) * 0.98;
       const length = [0.65, 1.05, 0.48][i];
@@ -103,11 +126,11 @@ function createContactDirection(variant) {
     box(g, 1.25, 0.1, 0.78, C.cream, 0, -1.23, 0.16);
     for (const x of [-0.59, 0.59]) box(g, 0.08, 0.18, 0.78, C.cream, x, -1.11, 0.16);
     box(g, 1.25, 0.18, 0.08, C.cream, 0, -1.11, -0.2);
-    const orbit = new T.Group();
+    const orbit = new THREE__namespace.Group();
     g.add(orbit);
     orbit.rotation.set(0.85, 0.3, 0);
     orbit.position.y = -0.05;
-    mesh(orbit, new T.TorusGeometry(1.39, 0.012, 8, 80), C.gold, 0, 0, 0, true);
+    mesh(orbit, new THREE__namespace.TorusGeometry(1.39, 0.012, 8, 80), C.gold, 0, 0, 0, true);
     const signal = sphere(orbit, 0.075, C.gold);
     ticks.push((a) => {
       mobile.rotation.y = 0.3 + 0.38 * Math.sin(a);
@@ -128,41 +151,30 @@ function createContactDirection(variant) {
   };
   return g;
 }
-
-// src/objects/scenes.ts
-
-
-// src/objects/art-directions.ts
-
-
-
-// src/objects/expanded-directions.ts
-
-
 var tau2 = Math.PI * 2;
-var V = (x, y, z = 0) => new T2.Vector3(x, y, z);
+var V = (x, y, z = 0) => new THREE__namespace.Vector3(x, y, z);
 var C2 = { cream: 15983547, coral: 15497563, blue: 6331070, mint: 8436128, ink: 2504523, gold: 12884824, white: 16446953 };
-var standard = (color, roughness = 0.68, metalness = 0.04) => new T2.MeshStandardMaterial({ color, roughness, metalness });
+var standard = (color, roughness = 0.68, metalness = 0.04) => new THREE__namespace.MeshStandardMaterial({ color, roughness, metalness });
 function mesh2(parent, geo, material2, x = 0, y = 0, z = 0) {
-  const m = new T2.Mesh(geo, typeof material2 === "number" ? standard(material2) : material2);
+  const m = new THREE__namespace.Mesh(geo, typeof material2 === "number" ? standard(material2) : material2);
   m.position.set(x, y, z);
   parent.add(m);
   return m;
 }
 function block(parent, w, h, d, material2, x = 0, y = 0, z = 0, radius = 0.055) {
-  return mesh2(parent, new (0, _RoundedBoxGeometryjs.RoundedBoxGeometry)(w, h, d, 2, Math.min(radius, w / 3, h / 3, d / 3)), material2, x, y, z);
+  return mesh2(parent, new RoundedBoxGeometry_js.RoundedBoxGeometry(w, h, d, 2, Math.min(radius, w / 3, h / 3, d / 3)), material2, x, y, z);
 }
 function sphere2(parent, r, material2, x = 0, y = 0, z = 0) {
-  return mesh2(parent, new T2.SphereGeometry(r, 24, 16), material2, x, y, z);
+  return mesh2(parent, new THREE__namespace.SphereGeometry(r, 24, 16), material2, x, y, z);
 }
 function ring(parent, r, tube2, material2, x = 0, y = 0, z = 0) {
-  return mesh2(parent, new T2.TorusGeometry(r, tube2, 8, 64), material2, x, y, z);
+  return mesh2(parent, new THREE__namespace.TorusGeometry(r, tube2, 8, 64), material2, x, y, z);
 }
 function cylinder(parent, r, h, material2, x = 0, y = 0, z = 0) {
-  return mesh2(parent, new T2.CylinderGeometry(r, r, h, 40), material2, x, y, z);
+  return mesh2(parent, new THREE__namespace.CylinderGeometry(r, r, h, 40), material2, x, y, z);
 }
 function path(parent, points, color, radius = 0.018, closed = false) {
-  return mesh2(parent, new T2.TubeGeometry(new T2.CatmullRomCurve3(points, closed), 80, radius, 6, closed), color);
+  return mesh2(parent, new THREE__namespace.TubeGeometry(new THREE__namespace.CatmullRomCurve3(points, closed), 80, radius, 6, closed), color);
 }
 function rod2(parent, a, b, color, radius = 0.02) {
   const delta = b.clone().sub(a), m = cylinder(parent, radius, delta.length(), color);
@@ -171,7 +183,7 @@ function rod2(parent, a, b, color, radius = 0.02) {
   return m;
 }
 function group(parent, x = 0, y = 0, z = 0) {
-  const g = new T2.Group();
+  const g = new THREE__namespace.Group();
   g.position.set(x, y, z);
   parent.add(g);
   return g;
@@ -190,12 +202,12 @@ function cloud(parent, x, y, z) {
   return g;
 }
 function roof(parent, w, h, d, x = 0, y = 0, z = 0) {
-  const shape = new T2.Shape();
+  const shape = new THREE__namespace.Shape();
   shape.moveTo(-w / 2, 0);
   shape.lineTo(0, h);
   shape.lineTo(w / 2, 0);
   shape.closePath();
-  const geo = new T2.ExtrudeGeometry(shape, { depth: d, bevelEnabled: true, bevelSize: 0.035, bevelThickness: 0.025, bevelSegments: 2, steps: 1 });
+  const geo = new THREE__namespace.ExtrudeGeometry(shape, { depth: d, bevelEnabled: true, bevelSize: 0.035, bevelThickness: 0.025, bevelSegments: 2, steps: 1 });
   geo.translate(0, 0, -d / 2);
   return mesh2(parent, geo, C2.coral, x, y, z);
 }
@@ -208,7 +220,7 @@ function toyHouse(parent, x, z) {
   return h;
 }
 function cartoon(kind, ticks) {
-  const g = new T2.Group(), world = group(g, 0, -0.48, 0);
+  const g = new THREE__namespace.Group(), world = group(g, 0, -0.48, 0);
   world.rotation.set(0.48, -0.55, 0);
   block(world, 2.65, 0.32, 2.16, C2.cream, 0, -0.2, 0, 0.16);
   block(world, 2.56, 0.08, 2.07, 12177325, 0, 0, 0, 0.13);
@@ -241,7 +253,7 @@ function cartoon(kind, ticks) {
     book.rotation.x = -0.2;
     const lamp = group(world, -0.86, 0.06, -0.36);
     rod2(lamp, V(0, 0), V(0, 1.32), C2.gold, 0.045);
-    mesh2(lamp, new T2.ConeGeometry(0.28, 0.34, 32), C2.coral, 0, 1.35);
+    mesh2(lamp, new THREE__namespace.ConeGeometry(0.28, 0.34, 32), C2.coral, 0, 1.35);
     sphere2(lamp, 0.1, 16767363, 0, 1.2);
     tree(world, 0.93, 0.5, 0.68);
     ticks.push((a) => {
@@ -333,14 +345,14 @@ function grain() {
     const value = 160 + seed % 80;
     data.set([value, value, value, 255], i * 4);
   }
-  const texture = new T2.DataTexture(data, size, size);
-  texture.wrapS = texture.wrapT = T2.RepeatWrapping;
+  const texture = new THREE__namespace.DataTexture(data, size, size);
+  texture.wrapS = texture.wrapT = THREE__namespace.RepeatWrapping;
   texture.repeat.set(6, 6);
   texture.needsUpdate = true;
   return texture;
 }
 function realistic(kind, ticks) {
-  const g = new T2.Group(), texture = grain();
+  const g = new THREE__namespace.Group(), texture = grain();
   const steel = standard(10200490, 0.28, 0.82), graphite = standard(2370866, 0.52, 0.3), paper = standard(15787213, 0.95), leather = standard(8603956, 0.84);
   for (const m of [steel, graphite, paper, leather]) m.roughnessMap = texture;
   g.userData.dispose = () => texture.dispose();
@@ -403,13 +415,13 @@ function realistic(kind, ticks) {
       mark.rotation.z = -a;
     }
     const needle = group(compass, 0, 0, 0.15);
-    const shape = new T2.Shape();
+    const shape = new THREE__namespace.Shape();
     shape.moveTo(-0.1, 0);
     shape.lineTo(0, 0.57);
     shape.lineTo(0.1, 0);
     shape.lineTo(0, -0.45);
     shape.closePath();
-    mesh2(needle, new T2.ExtrudeGeometry(shape, { depth: 0.035, bevelEnabled: false }), leather);
+    mesh2(needle, new THREE__namespace.ExtrudeGeometry(shape, { depth: 0.035, bevelEnabled: false }), leather);
     sphere2(compass, 0.055, steel, 0, 0, 0.21);
     ring(compass, 0.17, 0.033, steel, 0, 1.01, 0.03);
     for (let i = 0; i < 8; i++) path(stage, Array.from({ length: 20 }, (_, j) => {
@@ -485,10 +497,10 @@ function realistic(kind, ticks) {
   return g;
 }
 function abstract(kind, ticks) {
-  const g = new T2.Group();
+  const g = new THREE__namespace.Group();
   g.rotation.set(0.12, -0.25, 0);
-  const glass = new T2.MeshPhysicalMaterial({ color: 10868961, roughness: 0.12, metalness: 0.05, transmission: 0.72, thickness: 0.6, ior: 1.45, clearcoat: 1, envMapIntensity: 1.2 });
-  const amber = new T2.MeshPhysicalMaterial({ color: 15377510, roughness: 0.16, metalness: 0.05, transmission: 0.55, thickness: 0.5, ior: 1.4, clearcoat: 1 });
+  const glass = new THREE__namespace.MeshPhysicalMaterial({ color: 10868961, roughness: 0.12, metalness: 0.05, transmission: 0.72, thickness: 0.6, ior: 1.45, clearcoat: 1, envMapIntensity: 1.2 });
+  const amber = new THREE__namespace.MeshPhysicalMaterial({ color: 15377510, roughness: 0.16, metalness: 0.05, transmission: 0.55, thickness: 0.5, ior: 1.4, clearcoat: 1 });
   const chrome = standard(11057353, 0.18, 0.86), cobalt = standard(4414154, 0.32, 0.25);
   if (kind === "ai") {
     const lattice = group(g);
@@ -498,7 +510,7 @@ function abstract(kind, ticks) {
       hoop.rotation.set(i * 0.8, i * 0.6, 0.2);
       ticks.push((a) => hoop.rotation.z = a * (i % 2 ? 1 : -1));
     }
-    mesh2(lattice, new T2.OctahedronGeometry(0.49), amber);
+    mesh2(lattice, new THREE__namespace.OctahedronGeometry(0.49), amber);
     for (let i = 0; i < 6; i++) {
       const dot = sphere2(g, 0.105, cobalt);
       ticks.push((a) => {
@@ -563,12 +575,12 @@ function abstract(kind, ticks) {
         const t = j / 32;
         return V((t - 0.5) * 2.2, Math.sin(t * Math.PI) * 0.8, 0);
       });
-      const ribbon = new T2.Shape();
+      const ribbon = new THREE__namespace.Shape();
       ribbon.moveTo(-1.1, 0);
       for (let j = 1; j < 33; j++) ribbon.lineTo(points[j].x, points[j].y);
       for (let j = 32; j >= 0; j--) ribbon.lineTo(points[j].x, points[j].y - 0.05);
       ribbon.closePath();
-      const geo = new T2.ExtrudeGeometry(ribbon, { depth: 0.55, bevelEnabled: true, bevelThickness: 0.015, bevelSize: 0.012, bevelSegments: 2, steps: 1 });
+      const geo = new THREE__namespace.ExtrudeGeometry(ribbon, { depth: 0.55, bevelEnabled: true, bevelThickness: 0.015, bevelSize: 0.012, bevelSegments: 2, steps: 1 });
       geo.translate(0, 0, -0.275);
       const leaf = mesh2(g, geo, i % 3 === 0 ? glass : i % 2 ? chrome : amber, 0, -1.12 + i * 0.27, (i - 3) * 0.11);
       leaf.rotation.y = 0.4;
@@ -603,46 +615,46 @@ var directionTokens = {
   kinetic: { ivory: 15984588, gold: 12357970, dark: 2504777, blue: 6654873, orange: 12676166 }
 };
 var tau3 = Math.PI * 2;
-var material = (color, metal = false) => new T3.MeshStandardMaterial({ color, roughness: metal ? 0.3 : 0.87, metalness: metal ? 0.55 : 0.02 });
+var material = (color, metal = false) => new THREE__namespace.MeshStandardMaterial({ color, roughness: metal ? 0.3 : 0.87, metalness: metal ? 0.55 : 0.02 });
 function add(g, geometry, color, x = 0, y = 0, z = 0, metal = false) {
-  const m = new T3.Mesh(geometry, material(color, metal));
+  const m = new THREE__namespace.Mesh(geometry, material(color, metal));
   m.position.set(x, y, z);
   g.add(m);
   return m;
 }
 function box2(g, w, h, d, color, x = 0, y = 0, z = 0) {
-  return add(g, new (0, _RoundedBoxGeometryjs.RoundedBoxGeometry)(w, h, d, 1, Math.min(0.018, w / 4, h / 4, d / 4)), color, x, y, z);
+  return add(g, new RoundedBoxGeometry_js.RoundedBoxGeometry(w, h, d, 1, Math.min(0.018, w / 4, h / 4, d / 4)), color, x, y, z);
 }
 function ball(g, r, color, x = 0, y = 0, z = 0, metal = false) {
-  return add(g, new T3.SphereGeometry(r, 24, 16), color, x, y, z, metal);
+  return add(g, new THREE__namespace.SphereGeometry(r, 24, 16), color, x, y, z, metal);
 }
 function disc(g, r, depth, color, x = 0, y = 0, z = 0) {
-  const m = add(g, new T3.CylinderGeometry(r, r, depth, 64), color, x, y, z);
+  const m = add(g, new THREE__namespace.CylinderGeometry(r, r, depth, 64), color, x, y, z);
   m.rotation.x = Math.PI / 2;
   return m;
 }
 function ring2(g, r, width, color, x = 0, y = 0, z = 0, metal = false) {
-  return add(g, new T3.TorusGeometry(r, width, 10, 80), color, x, y, z, metal);
+  return add(g, new THREE__namespace.TorusGeometry(r, width, 10, 80), color, x, y, z, metal);
 }
 function cut(g, points, color, z = 0, depth = 0.065) {
-  const s = new T3.Shape();
+  const s = new THREE__namespace.Shape();
   points.forEach(([x, y], i) => i ? s.lineTo(x, y) : s.moveTo(x, y));
   s.closePath();
-  return add(g, new T3.ExtrudeGeometry(s, { depth, bevelEnabled: true, bevelThickness: 6e-3, bevelSize: 8e-3, bevelSegments: 1, steps: 1 }), color, 0, 0, z);
+  return add(g, new THREE__namespace.ExtrudeGeometry(s, { depth, bevelEnabled: true, bevelThickness: 6e-3, bevelSize: 8e-3, bevelSegments: 1, steps: 1 }), color, 0, 0, z);
 }
 function curve(g, points, color, radius = 0.018) {
-  return add(g, new T3.TubeGeometry(new T3.CatmullRomCurve3(points), 64, radius, 6, false), color);
+  return add(g, new THREE__namespace.TubeGeometry(new THREE__namespace.CatmullRomCurve3(points), 64, radius, 6, false), color);
 }
 function rod3(g, a, b, color, radius = 0.015) {
   const d = b.clone().sub(a);
-  const m = add(g, new T3.CylinderGeometry(radius, radius, d.length(), 8), color);
+  const m = add(g, new THREE__namespace.CylinderGeometry(radius, radius, d.length(), 8), color);
   m.position.copy(a).add(b).multiplyScalar(0.5);
-  m.quaternion.setFromUnitVectors(new T3.Vector3(0, 1, 0), d.normalize());
+  m.quaternion.setFromUnitVectors(new THREE__namespace.Vector3(0, 1, 0), d.normalize());
   return m;
 }
-var v2 = (x, y, z = 0) => new T3.Vector3(x, y, z);
+var v2 = (x, y, z = 0) => new THREE__namespace.Vector3(x, y, z);
 function paperTree(g, x, y, z, s = 1) {
-  const t = new T3.Group();
+  const t = new THREE__namespace.Group();
   t.position.set(x, y, z);
   t.scale.setScalar(s);
   g.add(t);
@@ -652,14 +664,14 @@ function paperTree(g, x, y, z, s = 1) {
   return t;
 }
 function plane(g, color) {
-  const a = new T3.Group();
+  const a = new THREE__namespace.Group();
   cut(a, [[0, 0.32], [-0.28, -0.18], [0, -0.06], [0.28, -0.18]], color, 0, 0.04);
   cut(a, [[0, 0.32], [-0.045, -0.23], [0.045, -0.23]], 16775141, 0.045, 0.03);
   g.add(a);
   return a;
 }
 function racket(g, color, metal = false) {
-  const a = new T3.Group();
+  const a = new THREE__namespace.Group();
   g.add(a);
   const hoop = ring2(a, 0.47, 0.038, color, 0, 0.2, 0, metal);
   hoop.scale.y = 1.25;
@@ -677,7 +689,7 @@ function racket(g, color, metal = false) {
   return a;
 }
 function paperWorld(kind, c, ticks) {
-  const g = new T3.Group(), C3 = directionTokens.paper;
+  const g = new THREE__namespace.Group(), C3 = directionTokens.paper;
   disc(g, 1.74, 0.14, C3.peach, 0, 0, -0.45);
   disc(g, 1.6, 0.08, C3.cream, 0, 0, -0.34);
   const halo = ring2(g, 1.68, 0.035, C3.coral, 0, 0, -0.28);
@@ -697,18 +709,18 @@ function paperWorld(kind, c, ticks) {
       flyer.rotation.z = Math.atan2(0.21 * Math.cos(a), -1.25 * Math.sin(a)) - Math.PI / 2;
     });
   } else if (kind === "reading") {
-    const book = new T3.Group();
+    const book = new THREE__namespace.Group();
     g.add(book);
     book.position.set(0, -0.85, 0.63);
     book.rotation.x = 0.65;
     for (const side of [-1, 1]) {
-      const leaf = new T3.Group();
+      const leaf = new THREE__namespace.Group();
       book.add(leaf);
       leaf.rotation.y = side * 0.14;
       box2(leaf, 1.25, 0.14, 1.48, C3.coral, side * 0.64, 0, 0);
       for (let i = 0; i < 5; i++) box2(leaf, 1.2, 0.024, 1.4, C3.cream, side * 0.62, 0.1 + i * 0.032, 0);
     }
-    const portal = new T3.Group();
+    const portal = new THREE__namespace.Group();
     portal.position.set(0, -0.49, 0.5);
     g.add(portal);
     box2(portal, 0.3, 1.25, 0.14, C3.blue, -0.58, 0.53);
@@ -727,7 +739,7 @@ function paperWorld(kind, c, ticks) {
     }
     ticks.push((a) => portal.rotation.y = 0.1 * Math.sin(a));
   } else if (kind === "tennis") {
-    const court = new T3.Group();
+    const court = new THREE__namespace.Group();
     g.add(court);
     court.rotation.z = -0.25;
     box2(court, 1.83, 2.62, 0.08, C3.teal, 0, 0, 0.12);
@@ -749,7 +761,7 @@ function paperWorld(kind, c, ticks) {
       r2.rotation.z = Math.PI + 0.25 * Math.cos(a);
     });
   } else if (kind === "ai") {
-    const head = new T3.Group();
+    const head = new THREE__namespace.Group();
     g.add(head);
     head.position.set(-0.54, 0.14, 0.47);
     box2(head, 1.14, 0.94, 0.3, C3.blue);
@@ -759,7 +771,7 @@ function paperWorld(kind, c, ticks) {
     rod3(head, v2(0, 0.47), v2(0, 0.73), C3.coral, 0.028);
     ball(head, 0.085, C3.coral, 0, 0.78);
     for (let i = 0; i < 3; i++) {
-      const card = new T3.Group();
+      const card = new THREE__namespace.Group();
       g.add(card);
       card.position.set(0.64 + i * 0.15, 0.23 - i * 0.4, 0.05 + i * 0.28);
       card.rotation.z = -0.12;
@@ -776,11 +788,11 @@ function paperWorld(kind, c, ticks) {
       head.position.y = 0.14 + 0.06 * Math.cos(a);
     });
   } else if (kind === "server") {
-    const tower = new T3.Group();
+    const tower = new THREE__namespace.Group();
     g.add(tower);
     tower.rotation.y = -0.35;
     for (let i = 0; i < 4; i++) {
-      const layer = new T3.Group();
+      const layer = new THREE__namespace.Group();
       tower.add(layer);
       layer.position.y = -0.94 + i * 0.61;
       box2(layer, 1.6, 0.42, 0.55, [C3.blue, C3.teal, C3.coral, C3.blue][i]);
@@ -799,7 +811,7 @@ function paperWorld(kind, c, ticks) {
     }
   } else {
     for (let i = 0; i < 7; i++) {
-      const panel = new T3.Group();
+      const panel = new THREE__namespace.Group();
       g.add(panel);
       panel.position.set(-1.2 + i * 0.39, 0, 0.12 + i * 0.055);
       panel.rotation.y = (i % 2 ? 1 : -1) * 0.2;
@@ -818,16 +830,16 @@ function paperWorld(kind, c, ticks) {
   return g;
 }
 function kineticWorld(kind, c, ticks) {
-  const g = new T3.Group(), C3 = directionTokens.kinetic;
-  const base = add(g, new T3.CylinderGeometry(0.93, 1.05, 0.16, 64), C3.dark, 0, -1.49, 0);
+  const g = new THREE__namespace.Group(), C3 = directionTokens.kinetic;
+  const base = add(g, new THREE__namespace.CylinderGeometry(0.93, 1.05, 0.16, 64), C3.dark, 0, -1.49, 0);
   base.rotation.x = 0;
   ring2(g, 0.96, 0.012, C3.gold, 0, -1.48, 0, true).rotation.x = Math.PI / 2;
-  const foot = add(g, new T3.CylinderGeometry(0.85, 0.91, 0.06, 64), C3.dark, 0, -1.59, 0);
+  add(g, new THREE__namespace.CylinderGeometry(0.85, 0.91, 0.06, 64), C3.dark, 0, -1.59, 0);
   ring2(g, 0.94, 0.018, C3.gold, 0, -1.4, 0, true).rotation.x = Math.PI / 2;
   if (kind === "ai") {
-    const core = add(g, new T3.IcosahedronGeometry(0.52, 0), C3.gold, 0, 0.1, 0, true);
+    const core = add(g, new THREE__namespace.IcosahedronGeometry(0.52, 0), C3.gold, 0, 0.1, 0, true);
     for (let i = 0; i < 3; i++) {
-      const orbit = new T3.Group();
+      const orbit = new THREE__namespace.Group();
       g.add(orbit);
       orbit.position.y = 0.1;
       orbit.rotation.set(0.7 + i * 0.6, i * 0.8, 0.3 + i * 0.7);
@@ -847,7 +859,7 @@ function kineticWorld(kind, c, ticks) {
       core.rotation.set(a / 1, 0.5 * Math.sin(a), a);
     });
   } else if (kind === "travel") {
-    const globe = new T3.Group();
+    const globe = new THREE__namespace.Group();
     g.add(globe);
     globe.position.y = 0.08;
     globe.rotation.z = -0.28;
@@ -864,7 +876,7 @@ function kineticWorld(kind, c, ticks) {
     meridian.rotation.y = 0.3;
     meridian.rotation.z = -0.28;
     rod3(g, v2(0, -1.41), v2(0, -1), C3.gold, 0.055);
-    const orbit = new T3.Group();
+    const orbit = new THREE__namespace.Group();
     g.add(orbit);
     orbit.position.y = 0.08;
     orbit.rotation.set(0.6, -0.3, -0.35);
@@ -881,7 +893,7 @@ function kineticWorld(kind, c, ticks) {
     r.scale.setScalar(1.17);
     r.position.set(-0.34, 0.12, 0.12);
     r.rotation.set(0.15, -0.4, -0.4);
-    const path2 = new T3.Group();
+    const path2 = new THREE__namespace.Group();
     g.add(path2);
     path2.rotation.set(0.65, -0.4, -0.35);
     path2.position.set(0.22, 0.35, 0.1);
@@ -895,11 +907,11 @@ function kineticWorld(kind, c, ticks) {
     });
     rod3(g, v2(-0.3, -1.4), v2(-0.3, -0.8), C3.gold, 0.035);
   } else if (kind === "server") {
-    const tower = new T3.Group();
+    const tower = new THREE__namespace.Group();
     g.add(tower);
     tower.rotation.set(0.4, -0.48, 0);
     for (let i = 0; i < 4; i++) {
-      const layer = new T3.Group();
+      const layer = new THREE__namespace.Group();
       tower.add(layer);
       box2(layer, 1.4, 0.1, 0.95, i % 2 ? C3.ivory : C3.dark);
       const fan = ring2(layer, 0.28, 0.024, C3.gold, 0, 0.09, 0, true);
@@ -917,13 +929,13 @@ function kineticWorld(kind, c, ticks) {
     for (const x of [-0.61, 0.61]) rod3(tower, v2(x, -1.3, -0.4), v2(x, 1.21, -0.4), C3.gold, 0.018);
     ticks.push((a) => tower.rotation.y = -0.48 + 0.12 * Math.sin(a));
   } else if (kind === "reading") {
-    const book = new T3.Group();
+    const book = new THREE__namespace.Group();
     g.add(book);
     book.name = "kinetic-folio";
     book.rotation.set(0.32, -0.4, -0.15);
     book.position.y = 0.12;
     for (let i = 0; i < 13; i++) {
-      const hinge = new T3.Group();
+      const hinge = new THREE__namespace.Group();
       book.add(hinge);
       hinge.rotation.y = -1.3 + i * 0.21;
       box2(hinge, 1.16, 1.59, 0.025, i === 0 || i === 12 ? C3.dark : C3.ivory, 0.59, 0, 0);
@@ -940,16 +952,16 @@ function kineticWorld(kind, c, ticks) {
   } else {
     rod3(g, v2(0, -1.4), v2(0, 0.94), C3.gold, 0.045);
     ball(g, 0.09, C3.gold, 0, 0.94, 0, true);
-    const beam = new T3.Group();
+    const beam = new THREE__namespace.Group();
     g.add(beam);
     beam.position.y = 0.94;
     rod3(beam, v2(-1.2, 0), v2(1.2, 0), C3.gold, 0.037);
     for (const side of [-1, 1]) {
-      const tray = new T3.Group();
+      const tray = new THREE__namespace.Group();
       beam.add(tray);
       tray.position.x = side * 0.91;
       for (const x of [-0.37, 0.37]) rod3(tray, v2(0, 0), v2(x, -0.95), C3.gold, 0.012);
-      const platter = add(tray, new T3.CylinderGeometry(0.48, 0.4, 0.08, 40), C3.ivory, 0, -1, 0);
+      const platter = add(tray, new THREE__namespace.CylinderGeometry(0.48, 0.4, 0.08, 40), C3.ivory, 0, -1, 0);
       for (let i = 0; i < 3; i++) {
         const h = [0.32, 0.57, 0.43][i];
         box2(tray, 0.12, h, 0.12, side < 0 ? C3.blue : C3.orange, -0.22 + i * 0.22, -0.92 + h / 2, 0);
@@ -1001,23 +1013,23 @@ function marketBar(index, variant = 0) {
 
 // src/package-assets.ts
 function tennisModelUrl() {
-  return new URL("../assets/objects/tennis-return.glb", import.meta.url).href;
+  throw new Error("uipack: the CommonJS build cannot locate assets/objects/tennis-return.glb; pass modelUrl");
 }
 
 // src/objects/scenes.ts
 var DURATION = 5400;
 var p = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
 var ease = (x) => x * x * x * (x * (x * 6 - 15) + 10);
-var mix = THREE.MathUtils.lerp;
-var mat = (color) => new THREE.MeshStandardMaterial({ color, roughness: 0.72, metalness: 0.04 });
+var mix = THREE__namespace.MathUtils.lerp;
+var mat = (color) => new THREE__namespace.MeshStandardMaterial({ color, roughness: 0.72, metalness: 0.04 });
 var mesh3 = (g, color, x = 0, y = 0, z = 0) => {
-  const m = new THREE.Mesh(g, mat(color));
+  const m = new THREE__namespace.Mesh(g, mat(color));
   m.position.set(x, y, z);
   return m;
 };
 function slab(w, h, d, color, x = 0, y = 0, z = 0, r = 0.06) {
   r = Math.min(r, w / 2, h / 2);
-  const s = new THREE.Shape();
+  const s = new THREE__namespace.Shape();
   const a = -w / 2, b = -h / 2;
   s.moveTo(a + r, b);
   s.lineTo(a + w - r, b);
@@ -1028,7 +1040,7 @@ function slab(w, h, d, color, x = 0, y = 0, z = 0, r = 0.06) {
   s.quadraticCurveTo(a, b + h, a, b + h - r);
   s.lineTo(a, b + r);
   s.quadraticCurveTo(a, b, a + r, b);
-  const g = new THREE.ExtrudeGeometry(s, {
+  const g = new THREE__namespace.ExtrudeGeometry(s, {
     depth: d,
     bevelEnabled: true,
     bevelSegments: 3,
@@ -1041,29 +1053,29 @@ function slab(w, h, d, color, x = 0, y = 0, z = 0, r = 0.06) {
   return mesh3(g, color, x, y, z);
 }
 function line(points, color, opacity = 1) {
-  return new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints(points.map((v3) => new THREE.Vector3(v3[0], v3[1], _nullishCoalesce(v3[2], () => ( 0))))),
-    new THREE.LineBasicMaterial({ color, transparent: opacity < 1, opacity })
+  return new THREE__namespace.Line(
+    new THREE__namespace.BufferGeometry().setFromPoints(points.map((v3) => new THREE__namespace.Vector3(v3[0], v3[1], v3[2] ?? 0))),
+    new THREE__namespace.LineBasicMaterial({ color, transparent: opacity < 1, opacity })
   );
 }
 function tube(points, radius, color) {
-  return mesh3(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 64, radius, 8, false), color);
+  return mesh3(new THREE__namespace.TubeGeometry(new THREE__namespace.CatmullRomCurve3(points), 64, radius, 8, false), color);
 }
 function label(text, color, x, y, z, size = 0.16) {
   const canvas = document.createElement("canvas");
   canvas.width = 512;
   canvas.height = 64;
   const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#" + new THREE.Color(color).getHexString();
+  ctx.fillStyle = "#" + new THREE__namespace.Color(color).getHexString();
   ctx.font = "500 32px monospace";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText(text, 256, 32);
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  const m = new THREE.Mesh(
-    new THREE.PlaneGeometry(size * 8, size),
-    new THREE.MeshBasicMaterial({
+  const texture = new THREE__namespace.CanvasTexture(canvas);
+  texture.colorSpace = THREE__namespace.SRGBColorSpace;
+  const m = new THREE__namespace.Mesh(
+    new THREE__namespace.PlaneGeometry(size * 8, size),
+    new THREE__namespace.MeshBasicMaterial({
       map: texture,
       transparent: true,
       depthWrite: false
@@ -1077,7 +1089,7 @@ function phase(g, t, name, pose) {
   g.userData.pose = pose;
 }
 function ai(c) {
-  const g = new THREE.Group();
+  const g = new THREE__namespace.Group();
   g.rotation.set(0.22, -0.18, 0);
   const keyboard = slab(2.7, 1.2, 0.1, c.muted, 0, -0.95, 0.55);
   keyboard.material.metalness = 0.32;
@@ -1097,7 +1109,7 @@ function ai(c) {
   g.add(slab(2.72, 1.85, 0.13, c.ink, 0, 0.04, -0.1));
   g.add(slab(2.5, 1.61, 0.022, 1581869, 0, 0.04, -0.015));
   for (let i = 0; i < 3; i++)
-    g.add(mesh3(new THREE.SphereGeometry(0.032, 12, 8), [15559268, 14989149, 7322248][i], -1.1 + i * 0.11, 0.71, 0.016));
+    g.add(mesh3(new THREE__namespace.SphereGeometry(0.032, 12, 8), [15559268, 14989149, 7322248][i], -1.1 + i * 0.11, 0.71, 0.016));
   g.add(label("AGENT / LOCAL", 10860989, 0.32, 0.71, 0.034, 0.11));
   const code = [];
   for (let row = 0; row < 7; row++) {
@@ -1111,7 +1123,7 @@ function ai(c) {
   const cursor = slab(0.055, 0.12, 0.012, 12774107, 0, 0, 0.04, 0.01);
   g.add(cursor);
   const satellites = [-1, 1].map((side) => {
-    const chip = new THREE.Group();
+    const chip = new THREE__namespace.Group();
     chip.position.set(side * 1.65, 0.6, 0.2);
     chip.add(slab(0.72, 0.72, 0.12, c.paper), slab(0.58, 0.05, 0.018, c.accent, 0, -0.21, 0.08, 8e-3));
     chip.add(label(side < 0 ? "</>" : "AI", c.ink, 0, 0.05, 0.09, 0.2));
@@ -1119,19 +1131,19 @@ function ai(c) {
     return chip;
   });
   const paths = [-1, 1].map(
-    (side) => new THREE.CatmullRomCurve3([
-      new THREE.Vector3(side * 1.6, 0.27, 0.24),
-      new THREE.Vector3(side * 1.65, -0.3, 0.3),
-      new THREE.Vector3(side * 1.4, -0.5, 0.2),
-      new THREE.Vector3(side * 1.06, -0.52, 0.1)
+    (side) => new THREE__namespace.CatmullRomCurve3([
+      new THREE__namespace.Vector3(side * 1.6, 0.27, 0.24),
+      new THREE__namespace.Vector3(side * 1.65, -0.3, 0.3),
+      new THREE__namespace.Vector3(side * 1.4, -0.5, 0.2),
+      new THREE__namespace.Vector3(side * 1.06, -0.52, 0.1)
     ])
   );
   const packets = paths.map(() => {
-    const m = mesh3(new THREE.SphereGeometry(0.075, 16, 12), c.accent);
+    const m = mesh3(new THREE__namespace.SphereGeometry(0.075, 16, 12), c.accent);
     g.add(m);
     return m;
   });
-  const result = new THREE.Group();
+  const result = new THREE__namespace.Group();
   result.add(slab(1.45, 0.37, 0.05, 2317127), label("TASK COMPLETE", 14808294, 0, 0, 0.06, 0.15));
   result.position.set(0, -0.49, 0.16);
   g.add(result);
@@ -1172,11 +1184,11 @@ function ai(c) {
   return g;
 }
 function contact(c) {
-  const g = new THREE.Group();
+  const g = new THREE__namespace.Group();
   g.rotation.set(0.1, -0.2, -0.025);
   const sourceY = [0.9, 0, -0.9];
   const sources = sourceY.map((y, index) => {
-    const source = new THREE.Group();
+    const source = new THREE__namespace.Group();
     source.position.set(-1.62, y, 0.05);
     source.add(slab(0.75, 0.58, 0.11, c.paper));
     if (index === 0) {
@@ -1202,11 +1214,11 @@ function contact(c) {
     } else if (index === 1) {
       source.add(
         slab(0.48, 0.3, 0.018, c.accent, 0, 0.03, 0.13, 0.07),
-        mesh3(new THREE.ConeGeometry(0.075, 0.15, 3), c.accent, -0.14, -0.18, 0.13)
+        mesh3(new THREE__namespace.ConeGeometry(0.075, 0.15, 3), c.accent, -0.14, -0.18, 0.13)
       );
     } else {
       source.add(
-        mesh3(new THREE.TorusGeometry(0.2, 0.018, 8, 36), c.accent, 0, 0, 0.13),
+        mesh3(new THREE__namespace.TorusGeometry(0.2, 0.018, 8, 36), c.accent, 0, 0, 0.13),
         line(
           [
             [-0.2, 0, 0.135],
@@ -1226,26 +1238,26 @@ function contact(c) {
     g.add(source);
     return source;
   });
-  const inboxPoint = new THREE.Vector3(0.72, 0, 0.2);
+  const inboxPoint = new THREE__namespace.Vector3(0.72, 0, 0.2);
   const routes = sourceY.map(
-    (y) => new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-1.22, y, 0.08),
-      new THREE.Vector3(-0.52, y * 0.82, 0.25),
-      new THREE.Vector3(0.08, y * 0.35, 0.3),
+    (y) => new THREE__namespace.CatmullRomCurve3([
+      new THREE__namespace.Vector3(-1.22, y, 0.08),
+      new THREE__namespace.Vector3(-0.52, y * 0.82, 0.25),
+      new THREE__namespace.Vector3(0.08, y * 0.35, 0.3),
       inboxPoint.clone()
     ])
   );
   routes.forEach((route) => g.add(tube(route.getPoints(32), 0.014, c.muted)));
   const packets = routes.map((route, index) => {
     const packet = mesh3(
-      index === 1 ? new THREE.OctahedronGeometry(0.09) : index === 2 ? new THREE.BoxGeometry(0.14, 0.14, 0.14) : new THREE.SphereGeometry(0.085, 16, 12),
+      index === 1 ? new THREE__namespace.OctahedronGeometry(0.09) : index === 2 ? new THREE__namespace.BoxGeometry(0.14, 0.14, 0.14) : new THREE__namespace.SphereGeometry(0.085, 16, 12),
       c.accent
     );
     packet.position.copy(route.getPoint(0));
     g.add(packet);
     return packet;
   });
-  const inbox = new THREE.Group();
+  const inbox = new THREE__namespace.Group();
   inbox.position.set(1.12, 0, 0);
   inbox.add(
     slab(1.42, 1.55, 0.16, c.ink),
@@ -1260,7 +1272,7 @@ function contact(c) {
     inbox.add(receipt);
     return receipt;
   });
-  const status = mesh3(new THREE.TorusGeometry(0.12, 0.027, 10, 40), c.accent, 0.43, 0.53, 0.14);
+  const status = mesh3(new THREE__namespace.TorusGeometry(0.12, 0.027, 10, 40), c.accent, 0.43, 0.53, 0.14);
   inbox.add(status);
   g.add(inbox);
   g.userData.contact = { inboxPoint, routes, packets, receipts };
@@ -1294,9 +1306,9 @@ function contact(c) {
   return g;
 }
 async function tennis(_c, variant = 0, modelUrl) {
-  const { GLTFLoader } = await Promise.resolve().then(() => _interopRequireWildcard(require("three/addons/loaders/GLTFLoader.js")));
-  const model = await new GLTFLoader().loadAsync(_nullishCoalesce(modelUrl, () => ( tennisModelUrl())));
-  const g = new THREE.Group();
+  const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
+  const model = await new GLTFLoader().loadAsync(modelUrl ?? tennisModelUrl());
+  const g = new THREE__namespace.Group();
   g.rotation.set(0.64, -0.25, 0);
   g.position.y = 0.1;
   model.scene.scale.setScalar(0.69);
@@ -1338,8 +1350,8 @@ async function tennis(_c, variant = 0, modelUrl) {
       if (color !== void 0) material2.color.setHex(color);
     }
   });
-  const mixer = new THREE.AnimationMixer(model.scene);
-  model.animations.forEach((clip) => mixer.clipAction(clip).setLoop(THREE.LoopRepeat, Infinity).play());
+  const mixer = new THREE__namespace.AnimationMixer(model.scene);
+  model.animations.forEach((clip) => mixer.clipAction(clip).setLoop(THREE__namespace.LoopRepeat, Infinity).play());
   const ball2 = model.scene.getObjectByName("Tennis_ball");
   const racket2 = model.scene.getObjectByName("Racket");
   g.userData.source = "blender";
@@ -1350,7 +1362,7 @@ async function tennis(_c, variant = 0, modelUrl) {
   g.userData.restTime = 1900;
   g.userData.ball = ball2;
   g.userData.racket = racket2;
-  g.userData.racketContact = new THREE.Vector3(0, 0.63, 0);
+  g.userData.racketContact = new THREE__namespace.Vector3(0, 0.63, 0);
   g.userData.dispose = () => {
     mixer.stopAllAction();
     mixer.uncacheRoot(model.scene);
@@ -1364,7 +1376,7 @@ async function tennis(_c, variant = 0, modelUrl) {
   return g;
 }
 function trading(c, variant = 0) {
-  const g = new THREE.Group();
+  const g = new THREE__namespace.Group();
   g.rotation.set(0.06, -0.19, 0);
   const casing = slab(4.08, 2.62, 0.16, 2502712, 0, 0.26, 0, 0.055);
   casing.material.metalness = 0.45;
@@ -1374,16 +1386,16 @@ function trading(c, variant = 0) {
   foot.rotation.x = -Math.PI / 2;
   g.add(foot);
   g.add(label("MARKET STUDY", 9018271, 0, -0.94, 0.1, 0.075));
-  g.add(mesh3(new THREE.SphereGeometry(0.019, 12, 8), 5357478, 1.8, -0.94, 0.105));
+  g.add(mesh3(new THREE__namespace.SphereGeometry(0.019, 12, 8), 5357478, 1.8, -0.94, 0.105));
   const canvas = document.createElement("canvas");
   canvas.width = 1056;
   canvas.height = 620;
   const ctx = canvas.getContext("2d");
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  const display = new THREE.Mesh(
-    new THREE.PlaneGeometry(3.82, 2.24),
-    new THREE.MeshBasicMaterial({ map: texture, toneMapped: false })
+  const texture = new THREE__namespace.CanvasTexture(canvas);
+  texture.colorSpace = THREE__namespace.SRGBColorSpace;
+  const display = new THREE__namespace.Mesh(
+    new THREE__namespace.PlaneGeometry(3.82, 2.24),
+    new THREE__namespace.MeshBasicMaterial({ map: texture, toneMapped: false })
   );
   display.position.set(0, 0.34, 0.12);
   g.add(display);
@@ -1472,7 +1484,7 @@ function trading(c, variant = 0) {
   return g;
 }
 function server(c) {
-  const g = new THREE.Group();
+  const g = new THREE__namespace.Group();
   g.rotation.set(0.24, -0.46, -0.035);
   const alloy = 7636363, graphite = 2568505;
   const metal = (w, h, d, color, x = 0, y = 0, z = 0) => {
@@ -1487,17 +1499,17 @@ function server(c) {
       g.add(metal(0.09, 2.55, 0.09, alloy, x, 0, z));
       if (z > 0)
         for (let n = 0; n < 13; n++)
-          g.add(mesh3(new THREE.BoxGeometry(0.034, 0.047, 8e-3), graphite, x, -1.1 + n * 0.18, z + 0.051));
+          g.add(mesh3(new THREE__namespace.BoxGeometry(0.034, 0.047, 8e-3), graphite, x, -1.1 + n * 0.18, z + 0.051));
     }
   const trays = [], fans = [], lamps = [];
   for (let i = 0; i < 3; i++) {
-    const tray = new THREE.Group();
+    const tray = new THREE__namespace.Group();
     tray.position.y = 0.82 - i * 0.82;
     tray.add(metal(2.7, 0.61, 1.18, graphite), metal(2.69, 0.58, 0.035, i === 1 ? c.accent : alloy, 0, 0, 0.607));
     for (const x of [-1.2, 1.2]) {
       tray.add(metal(0.04, 0.35, 0.1, 12766410, x, 0, 0.7));
       for (const y of [-0.22, 0.22]) {
-        const screw = mesh3(new THREE.CylinderGeometry(0.027, 0.027, 0.013, 10), 13554379, x, y, 0.647);
+        const screw = mesh3(new THREE__namespace.CylinderGeometry(0.027, 0.027, 0.013, 10), 13554379, x, y, 0.647);
         screw.rotation.x = Math.PI / 2;
         tray.add(screw);
       }
@@ -1506,23 +1518,23 @@ function server(c) {
       for (let n = 0; n < 6; n++) {
         const x = -0.88 + n * 0.3;
         tray.add(metal(0.25, 0.37, 0.05, graphite, x, 0, 0.665), metal(0.17, 0.024, 0.01, 11056565, x, -0.1, 0.7));
-        const lamp = mesh3(new THREE.SphereGeometry(0.018, 8, 6), c.accent, x + 0.06, 0.11, 0.704);
+        const lamp = mesh3(new THREE__namespace.SphereGeometry(0.018, 8, 6), c.accent, x + 0.06, 0.11, 0.704);
         lamps.push(lamp);
         tray.add(lamp);
       }
     } else if (i === 1) {
       for (const x of [-0.7, 0, 0.7]) {
-        tray.add(mesh3(new THREE.TorusGeometry(0.2, 0.025, 8, 32), graphite, x, 0, 0.662));
-        const fan = new THREE.Group();
+        tray.add(mesh3(new THREE__namespace.TorusGeometry(0.2, 0.025, 8, 32), graphite, x, 0, 0.662));
+        const fan = new THREE__namespace.Group();
         fan.position.set(x, 0, 0.674);
         for (let blade = 0; blade < 7; blade++) {
           const vane = slab(0.073, 0.135, 0.014, 2504767, 0, 0.105, 0, 0.026);
-          const pivot = new THREE.Group();
+          const pivot = new THREE__namespace.Group();
           pivot.rotation.z = blade * Math.PI * 2 / 7;
           pivot.add(vane);
           fan.add(pivot);
         }
-        const hub = mesh3(new THREE.CylinderGeometry(0.054, 0.054, 0.022, 16), alloy);
+        const hub = mesh3(new THREE__namespace.CylinderGeometry(0.054, 0.054, 0.022, 16), alloy);
         hub.rotation.x = Math.PI / 2;
         fan.add(hub);
         fans.push(fan);
@@ -1544,15 +1556,15 @@ function server(c) {
         const x = -0.91 + n * 0.26;
         tray.add(metal(0.18, 0.15, 0.025, graphite, x, 0.04, 0.654));
         for (let k = 0; k < 3; k++)
-          tray.add(mesh3(new THREE.BoxGeometry(0.016, 0.042, 8e-3), 12823664, x - 0.045 + k * 0.045, 0.075, 0.676));
+          tray.add(mesh3(new THREE__namespace.BoxGeometry(0.016, 0.042, 8e-3), 12823664, x - 0.045 + k * 0.045, 0.075, 0.676));
       }
       for (let n = 0; n < 2; n++) {
         const wire = tube(
           [
-            new THREE.Vector3(-0.78 + n * 0.75, 0.02, 0.7),
-            new THREE.Vector3(-0.78 + n * 0.75, -0.23, 0.95),
-            new THREE.Vector3(-0.34 + n * 0.75, -0.23, 0.95),
-            new THREE.Vector3(-0.39 + n * 0.75, 0.02, 0.7)
+            new THREE__namespace.Vector3(-0.78 + n * 0.75, 0.02, 0.7),
+            new THREE__namespace.Vector3(-0.78 + n * 0.75, -0.23, 0.95),
+            new THREE__namespace.Vector3(-0.34 + n * 0.75, -0.23, 0.95),
+            new THREE__namespace.Vector3(-0.39 + n * 0.75, 0.02, 0.7)
           ],
           0.024,
           n ? 12423526 : c.accent
@@ -1588,7 +1600,7 @@ function server(c) {
   return g;
 }
 function travel(c, variant = 0) {
-  const g = new THREE.Group();
+  const g = new THREE__namespace.Group();
   g.rotation.set(0.38, -0.24, -0.1);
   const atlas = document.createElement("canvas");
   atlas.width = 1536;
@@ -1639,18 +1651,18 @@ function travel(c, variant = 0) {
     }
     ctx.stroke();
   }
-  const texture = new THREE.CanvasTexture(atlas);
-  texture.colorSpace = THREE.SRGBColorSpace;
+  const texture = new THREE__namespace.CanvasTexture(atlas);
+  texture.colorSpace = THREE__namespace.SRGBColorSpace;
   const folds = [];
   for (let i = 0; i < 3; i++) {
-    const fold = new THREE.Group();
+    const fold = new THREE__namespace.Group();
     fold.position.x = i === 0 ? -0.615 : i === 2 ? 0.615 : 0;
     const center = i === 0 ? -0.615 : i === 2 ? 0.615 : 0;
     fold.add(slab(1.23, 2.45, 0.013, c.paper, center, 0, 0, 8e-3));
-    const geometry = new THREE.PlaneGeometry(1.23, 2.45);
+    const geometry = new THREE__namespace.PlaneGeometry(1.23, 2.45);
     const uv = geometry.attributes.uv;
     for (let n = 0; n < uv.count; n++) uv.setX(n, (uv.getX(n) + i) / 3);
-    const surface = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ map: texture, roughness: 0.96 }));
+    const surface = new THREE__namespace.Mesh(geometry, new THREE__namespace.MeshStandardMaterial({ map: texture, roughness: 0.96 }));
     surface.position.set(center, 0, 0.029);
     fold.add(surface);
     folds.push(fold);
@@ -1682,22 +1694,22 @@ function travel(c, variant = 0) {
       [1.45, 0.81]
     ]
   ];
-  const curve2 = new THREE.CatmullRomCurve3(paths[variant].map(([x, y]) => new THREE.Vector3(x, y, 0.075)));
-  const route = mesh3(new THREE.TubeGeometry(curve2, 128, 0.019, 8, false), c.accent);
+  const curve2 = new THREE__namespace.CatmullRomCurve3(paths[variant].map(([x, y]) => new THREE__namespace.Vector3(x, y, 0.075)));
+  const route = mesh3(new THREE__namespace.TubeGeometry(curve2, 128, 0.019, 8, false), c.accent);
   g.add(route);
-  const pin = new THREE.Group();
-  pin.add(mesh3(new THREE.SphereGeometry(0.085, 20, 12), c.accent, 0, 0, 0.23));
-  const needle = mesh3(new THREE.CylinderGeometry(0.014, 0.014, 0.21, 8), 6380880, 0, 0, 0.105);
+  const pin = new THREE__namespace.Group();
+  pin.add(mesh3(new THREE__namespace.SphereGeometry(0.085, 20, 12), c.accent, 0, 0, 0.23));
+  const needle = mesh3(new THREE__namespace.CylinderGeometry(0.014, 0.014, 0.21, 8), 6380880, 0, 0, 0.105);
   needle.rotation.x = Math.PI / 2;
   pin.add(needle);
   g.add(pin);
-  const ring3 = mesh3(new THREE.TorusGeometry(0.095, 0.012, 8, 32), c.accent);
+  const ring3 = mesh3(new THREE__namespace.TorusGeometry(0.095, 0.012, 8, 32), c.accent);
   ring3.position.copy(curve2.getPointAt(0));
   g.add(ring3);
-  const compass = new THREE.Group();
+  const compass = new THREE__namespace.Group();
   compass.position.set(-1.49, 0.88, 0.05);
-  compass.add(mesh3(new THREE.TorusGeometry(0.14, 7e-3, 6, 32), 6845542));
-  const north = mesh3(new THREE.ConeGeometry(0.042, 0.21, 3), c.accent, 0, 0.015, 0.015);
+  compass.add(mesh3(new THREE__namespace.TorusGeometry(0.14, 7e-3, 6, 32), 6845542));
+  const north = mesh3(new THREE__namespace.ConeGeometry(0.042, 0.21, 3), c.accent, 0, 0.015, 0.015);
   compass.add(north);
   g.add(compass);
   const count = route.geometry.index.count;
@@ -1715,16 +1727,16 @@ function travel(c, variant = 0) {
   return g;
 }
 function reading(c) {
-  const g = new THREE.Group();
+  const g = new THREE__namespace.Group();
   g.rotation.set(0.56, -0.3, -0.13);
   const width = 1.46, height = 2.12;
   const halves = [-1, 1].map((side) => {
-    const half = new THREE.Group();
+    const half = new THREE__namespace.Group();
     half.position.x = side * 0.045;
     half.rotation.y = side * 0.12;
     half.add(slab(width + 0.11, height + 0.13, 0.065, c.accent, side * width / 2, 0, -0.13, 0.035));
     for (let leaf = 8; leaf >= 0; leaf--) {
-      const sheet = new THREE.PlaneGeometry(width, height, 32, 1);
+      const sheet = new THREE__namespace.PlaneGeometry(width, height, 32, 1);
       const vertices = sheet.attributes.position;
       for (let i = 0; i < vertices.count; i++) {
         const u = vertices.getX(i) + width / 2;
@@ -1732,7 +1744,7 @@ function reading(c) {
       }
       sheet.computeVertexNormals();
       half.add(
-        new THREE.Mesh(sheet, new THREE.MeshStandardMaterial({ color: c.paper, roughness: 0.96, side: THREE.DoubleSide }))
+        new THREE__namespace.Mesh(sheet, new THREE__namespace.MeshStandardMaterial({ color: c.paper, roughness: 0.96, side: THREE__namespace.DoubleSide }))
       );
     }
     for (let i = 0; i < 5; i++)
@@ -1774,30 +1786,30 @@ function reading(c) {
     g.add(half);
     return half;
   });
-  const spine = mesh3(new THREE.CylinderGeometry(0.072, 0.072, height + 0.14, 20), c.accent, 0, 0, -0.08);
+  const spine = mesh3(new THREE__namespace.CylinderGeometry(0.072, 0.072, height + 0.14, 20), c.accent, 0, 0, -0.08);
   g.add(spine);
   const textureCanvas = document.createElement("canvas");
   textureCanvas.width = 256;
   textureCanvas.height = 512;
   const ctx = textureCanvas.getContext("2d");
-  ctx.fillStyle = "#" + new THREE.Color(c.paper).getHexString();
+  ctx.fillStyle = "#" + new THREE__namespace.Color(c.paper).getHexString();
   ctx.fillRect(0, 0, 256, 512);
   ctx.fillStyle = "#6b7064";
   ctx.font = "500 16px serif";
   ctx.fillText("On attention", 30, 52);
   for (let row = 0; row < 14; row++) ctx.fillRect(30, 86 + row * 25, 186 - row % 5 * 13, 2);
-  const texture = new THREE.CanvasTexture(textureCanvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  const geometry = new THREE.PlaneGeometry(width, height, 40, 8);
+  const texture = new THREE__namespace.CanvasTexture(textureCanvas);
+  texture.colorSpace = THREE__namespace.SRGBColorSpace;
+  const geometry = new THREE__namespace.PlaneGeometry(width, height, 40, 8);
   geometry.translate(width / 2, 0, 0);
-  const page = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ map: texture, side: THREE.FrontSide, roughness: 0.96 }));
+  const page = new THREE__namespace.Mesh(geometry, new THREE__namespace.MeshStandardMaterial({ map: texture, side: THREE__namespace.FrontSide, roughness: 0.96 }));
   const reverseTexture = texture.clone();
   reverseTexture.repeat.x = -1;
   reverseTexture.offset.x = 1;
   reverseTexture.needsUpdate = true;
-  const reverse = new THREE.Mesh(
+  const reverse = new THREE__namespace.Mesh(
     geometry,
-    new THREE.MeshStandardMaterial({ map: reverseTexture, side: THREE.BackSide, roughness: 0.96 })
+    new THREE__namespace.MeshStandardMaterial({ map: reverseTexture, side: THREE__namespace.BackSide, roughness: 0.96 })
   );
   g.add(page, reverse);
   g.userData.pageGeometry = geometry;
@@ -1839,14 +1851,14 @@ async function createObject(kind, palette, variant = 0, edition = 0, modelUrl) {
   var _a;
   const finish = kind === "contact" ? variant % 3 : edition;
   const accent = kind === "reading" ? [palette.accent, 7945795, 3164775][finish] : [palette.accent, 4619160, 10512718][finish];
-  const object = kind === "contact" && (variant === 3 || variant === 4) ? createContactDirection(variant) : kind !== "contact" && variant !== 0 ? createArtDirection(kind, palette, variant) : kind === "tennis" ? await tennis({ ...palette, accent }, finish, modelUrl) : await builders[kind]({ ...palette, accent }, finish);
-  _nullishCoalesce((_a = object.userData).style, () => ( (_a.style = "studio")));
+  const object = kind === "contact" && (variant === 3 || variant === 4) ? createContactDirection(variant) : kind !== "contact" && variant !== 0 ? createArtDirection(kind, palette, variant) : kind === "tennis" ? await tennis({ ...palette}, finish, modelUrl) : await builders[kind]({ ...palette, accent }, finish);
+  (_a = object.userData).style ?? (_a.style = "studio");
   object.userData.variant = variant;
   object.userData.animate(0);
   return object;
 }
 function disposeObject(scene) {
-  scene.traverse((item) => _optionalChain([item, 'access', _2 => _2.userData, 'access', _3 => _3.dispose, 'optionalCall', _4 => _4()]));
+  scene.traverse((item) => item.userData.dispose?.());
   const geometries = /* @__PURE__ */ new Set(), materials = /* @__PURE__ */ new Set(), textures = /* @__PURE__ */ new Set();
   scene.traverse((item) => {
     const m = item;
@@ -1863,8 +1875,7 @@ function disposeObject(scene) {
   geometries.forEach((g) => g.dispose());
 }
 
-
-
-
-
-exports.DURATION = DURATION; exports.builders = builders; exports.createObject = createObject; exports.disposeObject = disposeObject;
+exports.DURATION = DURATION;
+exports.builders = builders;
+exports.createObject = createObject;
+exports.disposeObject = disposeObject;

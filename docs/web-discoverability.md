@@ -268,18 +268,32 @@ Two methods, which disagree on mobile LCP by more than a factor of two. Use Ligh
 absolute number and the trace for comparing changes.
 
 **Lighthouse** 13.5 (CLI, headless Chrome, default mobile and `--preset=desktop`, simulated
-throttling), median of 3 runs, built playground (`vite build`, `vite preview`), 2026-10-22:
+throttling), median of 3 runs, built playground (`vite build`, `vite preview`), 2026-10-23, after
+the playground's lazy-route change (below):
 
-| Route | Profile | Performance | FCP | LCP | CLS | TBT |
-| --- | --- | --- | --- | --- | --- | --- |
-| `/web` | Mobile | 92 | 1.73 s | **3.16 s** | 0.019 | 0 ms |
-| `/web` | Desktop | 100 | 0.43 s | 0.69 s | 0.012 | 0 ms |
-| `/` | Mobile | 100 | 1.51 s | 1.51 s | 0 | 55 ms |
+| Route | Profile | Performance | FCP | LCP | CLS | TBT | JS transferred |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `/web` | Mobile | 99 | 1.44 s | **1.67 s** | 0 | 0 ms | 81 KB |
+| `/web` | Desktop | 100 | 0.35 s | 0.45 s | 0 | 0 ms | 81 KB |
+| `/` | Mobile | 99 | 1.59 s | 1.96 s | 0 | 6 ms | 128 KB |
+| `/` | Desktop | 100 | 0.39 s | 0.45 s | 0 | 0 ms | 128 KB |
 
-Mobile LCP on `/web` misses the 2.5 s "good" threshold. Lighthouse's simulation charges the whole
-dependency chain to the throttled link: the HTML, the 128 KB playground entry chunk (57 % of it
-unused on `/web`), then the `/web` route chunk, before the intro paragraph (the LCP element, below)
-can render. The fix belongs to the playground shell (lazy routes), not to `uipack/web`.
+Before it, `/web` on mobile scored 92 with LCP **3.16 s** (FCP 1.81 s, CLS 0.019, 151 KB of JS),
+over the 2.5 s "good" threshold. Lighthouse's simulation charges the whole dependency chain to the
+throttled link, and every request that finished before the observed LCP: the HTML, then the
+128 KB playground entry chunk (57 % of it unused on `/web`), then the `/web` route chunk, plus
+the nine Landing font files the example's layout requested in the same frame as the intro
+paragraph (the LCP element, below). The fix was in the playground shell, not in `uipack/web`:
+
+- The entry holds React, the shell and the catalog only (56 KB compressed); every page is a lazy
+  chunk with its own CSS, and the entry's render-blocking CSS is the shell's alone (3 KB, was 12 KB).
+- `index.html` preloads the current page's chunk and CSS, so they load beside the entry, not after it.
+- `/web` paints its intro and page index first and renders the example in the next task, so its
+  font requests start after the LCP paint. Without that step mobile LCP was 2.59 s.
+- `/web` no longer loads `presentations.css` (8 KB compressed), which styles only `/styles`.
+
+`/` trades some mobile LCP (1.56 s before, when its sections were in the entry chunk) for an
+entry chunk less than half the size; its score is unchanged.
 
 **Playwright trace**, the table below: Chromium via Playwright with `PerformanceObserver` (LCP,
 layout shift, long tasks), DevTools throttling applied to the real load, cache disabled, median of
@@ -311,9 +325,10 @@ TBT, so the mobile differences are noise; the desktop CLS drop is not. In this t
 inside the "good" thresholds (LCP ≤ 2.5 s, CLS ≤ 0.1); Lighthouse's mobile LCP, above, is not.
 
 LCP on this page is the playground's own intro paragraph (`p.collection-intro`, system font), not
-the Landing hero, because the shell renders above the example. The remaining 0.011 CLS on desktop
-(0.019 on mobile) is the playground's `Loading web UI…` Suspense fallback being replaced by the
-page, which lives in the shell, not in `uipack/web`.
+the Landing hero, because the shell renders above the example. The trace table predates the
+lazy-route change; the CLS it shows (0.011 on desktop, 0.019 on mobile) was the playground's
+Suspense fallback being replaced by the whole page. The shell now stays and the page fills in
+below it, and Lighthouse measures CLS 0 on both profiles.
 
 **What changed it.** Before, the hero headline was laid out in the metric-matched fallback and then
 re-wrapped when Instrument Serif (normal and italic) arrived: the first text run widened by 19 px at

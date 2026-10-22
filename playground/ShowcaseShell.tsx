@@ -9,10 +9,20 @@ import {
   type LibraryPage,
   type PageDef,
 } from "./catalog";
-import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, Fragment, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { Wordmark } from "../src";
 
-export function useShowcaseTheme() {
+type ShowcaseTheme = {
+  theme: "light" | "dark";
+  flip: () => void;
+  /** A page's own "not found, showing X" line for a bad query (a story, a variant); the shell shows it under the intro. */
+  note: string | null;
+  setNote: (note: string | null) => void;
+};
+const ShowcaseThemeContext = createContext<ShowcaseTheme | null>(null);
+
+/** The page's theme, held once by main.tsx above the shell and the page: `?theme=` and `data-theme` follow it. */
+export function ShowcaseThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<"light" | "dark">(
     document.documentElement.dataset.theme === "dark" ? "dark" : "light",
   );
@@ -24,7 +34,24 @@ export function useShowcaseTheme() {
     history.replaceState(null, "", url);
     setTheme(next);
   };
-  return { theme, flip };
+  const [note, setNote] = useState<string | null>(null);
+  return <ShowcaseThemeContext.Provider value={{ theme, flip, note, setNote }}>{children}</ShowcaseThemeContext.Provider>;
+}
+
+/** The current theme and the toggle, for the shell and for pages that theme their content. */
+export function useShowcaseTheme(): ShowcaseTheme {
+  const value = useContext(ShowcaseThemeContext);
+  if (!value) throw new Error("useShowcaseTheme needs a ShowcaseThemeProvider (main.tsx renders it)");
+  return value;
+}
+
+/** A page names what a bad query fell back to; the shell shows it under the intro until it changes or the page goes. */
+export function useShowcaseNote(note: string | null) {
+  const { setNote } = useShowcaseTheme();
+  useEffect(() => {
+    setNote(note);
+    return () => setNote(null);
+  }, [note, setNote]);
 }
 
 /** Keep the current item visible in a horizontally scrolling row without moving the page. */
@@ -62,32 +89,20 @@ function pageRuns(pages: readonly PageDef[]) {
 }
 
 /**
- * The one header for every page. From 720px: brand and theme, a row of groups,
- * a row of the active group's pages. Below 720px: one compact row, with a
- * button showing where you are that opens a sheet listing every page.
- * Then, in <main>, the context line, the page's h1 and its intro. Titles and intros come
- * from `libraryPages` in catalog.ts. `active="not-found"` is the page for an unknown address.
+ * The one header for every page, rendered once by main.tsx around the page (which loads after
+ * it). From 720px: brand and theme, a row of groups, a row of the active group's pages. Below
+ * 720px: one compact row, with a button showing where you are that opens a sheet listing every
+ * page. Then, in <main>, the context line, the page's h1 and its intro, then the page. Titles,
+ * intros and the style named in the context line come from `libraryPages` in catalog.ts.
+ * `active="not-found"` is the page for an unknown address.
  */
-export function ShowcaseShell({
-  active,
-  theme,
-  flip,
-  children,
-  styleName = "Technical",
-  note,
-}: {
-  active: LibraryPage | "not-found";
-  /** The visual style the page's content uses; the shell itself stays Technical. */
-  styleName?: string;
-  theme: "light" | "dark";
-  flip: () => void;
-  children: ReactNode;
-  /** A page's own "not found, showing X" line for a bad query (a story, a variant), under the intro. */
-  note?: ReactNode;
-}) {
+export function ShowcaseShell({ active, children }: { active: LibraryPage | "not-found"; children: ReactNode }) {
+  const { theme, flip, note } = useShowcaseTheme();
   // A page with sub-views (a deck, say) resolves to the entry its query names.
   const notFound = active === "not-found";
   const page = notFound ? notFoundPage : resolvePage(active, location.search);
+  // The visual style the page's content uses; the shell itself stays Technical.
+  const styleName = page.styleName ?? "Technical";
   const group = notFound ? undefined : libraryGroups.find((g) => g.id === page.group)!;
   const siblings = group ? pageDefs.filter((p) => p.group === group.id) : [];
   const missing = notFound ? null : unknownSubView(page, location.search);

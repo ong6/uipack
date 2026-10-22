@@ -1,16 +1,8 @@
-import {
-  DEFAULT_RENDER_WIDTH,
-  FigureMotionContext,
-  FigureScaleProvider,
-  TOKEN_SHAPE,
-  Token,
-  fontFloor
-} from "./chunk-3R6VZY52.js";
+import { fontFloor, DEFAULT_RENDER_WIDTH, FigureMotionContext, FigureScaleProvider, Token, TOKEN_SHAPE } from './chunk-3R6VZY52.js';
+import { isValidElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { jsx } from 'react/jsx-runtime';
 
-// src/static/index.tsx
-import { isValidElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { jsx } from "react/jsx-runtime";
 var LIGHT = {
   fg: "#1a1c1a",
   muted: "#5c625e",
@@ -151,11 +143,5 @@ function renderStatic(input, opts = {}) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${vw} ${H}" width="${width}" height="${height}" color="${p.fg}" font-family="${esc(p.sans)}"${label}><style>text{user-select:none}</style>` + border + canvas + head.join("") + `<g transform="translate(${-vx},${hy - vy})">${drawing}</g></svg>
 `;
 }
-export {
-  DARK,
-  LIGHT,
-  inlineVars,
-  renderStatic,
-  resolvePalette,
-  wrapText
-};
+
+export { DARK, LIGHT, inlineVars, renderStatic, resolvePalette, wrapText };

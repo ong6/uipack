@@ -1,69 +1,16 @@
-import {
-  useLayerFlight
-} from "./chunk-6YWE3SYB.js";
-import {
-  easeInOutCubic,
-  innerClipStart,
-  smoothstep,
-  zoomFrame,
-  zoomSamples
-} from "./chunk-VZ4PJUMF.js";
-import {
-  Bus,
-  Chip,
-  Connector,
-  Defs,
-  Figure,
-  FigureHoverContext,
-  Group,
-  Label,
-  Lane,
-  Legend,
-  Node,
-  Packet,
-  PauseGlyph,
-  PlayGlyph,
-  ReplayGlyph,
-  SelectionContext,
-  anchor,
-  busStub,
-  busStubs,
-  connectorStroke,
-  flowList,
-  grid,
-  hoverAttrs,
-  icons,
-  nodeName,
-  pathFromPoints,
-  placeNote,
-  pointAlong,
-  polylineLength,
-  route,
-  trim,
-  useFigureHover
-} from "./chunk-L6SV5FWH.js";
-import {
-  DEFAULT_RENDER_WIDTH,
-  FigureMotionContext,
-  FigureScaleContext,
-  FigureScaleProvider,
-  TOKEN_SHAPE,
-  Token,
-  fontFloor,
-  tokenColor,
-  useFigureMotion,
-  useFontFloor
-} from "./chunk-3R6VZY52.js";
-import {
-  CanvasView
-} from "./chunk-WTI575DG.js";
-import {
-  useIsoLayoutEffect,
-  usePrefersReducedMotion
-} from "./chunk-KYO6UXHN.js";
+import { useLayerFlight } from './chunk-6YWE3SYB.js';
+import { zoomSamples, zoomFrame, smoothstep } from './chunk-VZ4PJUMF.js';
+export { easeInOutCubic, innerClipStart, smoothstep, zoomFrame, zoomSamples } from './chunk-VZ4PJUMF.js';
+import { useFigureHover, hoverAttrs, connectorStroke, Node, nodeName, SelectionContext, FigureHoverContext, ReplayGlyph, PauseGlyph, PlayGlyph, Legend, placeNote } from './chunk-L6SV5FWH.js';
+export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-L6SV5FWH.js';
+import { useFontFloor, FigureMotionContext, FigureScaleContext } from './chunk-3R6VZY52.js';
+export { DEFAULT_RENDER_WIDTH, FigureMotionContext, FigureScaleContext, FigureScaleProvider, TOKEN_SHAPE, Token, fontFloor, tokenColor, useFigureMotion, useFontFloor } from './chunk-3R6VZY52.js';
+import { CanvasView } from './chunk-WTI575DG.js';
+import { usePrefersReducedMotion, useIsoLayoutEffect } from './chunk-KYO6UXHN.js';
+export { usePrefersReducedMotion } from './chunk-KYO6UXHN.js';
+import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
+import { useId, useRef, useState, useEffect, createContext, useMemo, useCallback, createElement, useContext, memo } from 'react';
 
-// src/Badge.tsx
-import { jsx, jsxs } from "react/jsx-runtime";
 function Badge({ cx, cy, text, accent, r = 9, size: size0 = 10 }) {
   const size = useFontFloor(size0);
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
@@ -72,9 +19,6 @@ function Badge({ cx, cy, text, accent, r = 9, size: size0 = 10 }) {
     /* @__PURE__ */ jsx("text", { x: cx, y: cy + size * 0.35, textAnchor: "middle", fontSize: size, fontFamily: "var(--uipack-mono)", fontWeight: 700, fill: stroke, children: text })
   ] });
 }
-
-// src/Wall.tsx
-import { jsx as jsx2 } from "react/jsx-runtime";
 function wallSegments(from, to, holes = [], gap = 9) {
   const segs = [];
   let s = from;
@@ -87,77 +31,59 @@ function wallSegments(from, to, holes = [], gap = 9) {
 }
 function Wall({ at, from, to, holes = [], axis = "v", thickness: t = 16, gap = 9, flow }) {
   const hover = useFigureHover();
-  return /* @__PURE__ */ jsx2("g", { "data-uipack": "wall", ...hoverAttrs(flow, void 0, hover), children: wallSegments(from, to, holes, gap).map(([a, b]) => {
+  return /* @__PURE__ */ jsx("g", { "data-uipack": "wall", ...hoverAttrs(flow, void 0, hover), children: wallSegments(from, to, holes, gap).map(([a, b]) => {
     const r = axis === "v" ? { x: at - t / 2, y: a, width: t, height: b - a } : { x: a, y: at - t / 2, width: b - a, height: t };
-    return /* @__PURE__ */ jsx2("rect", { ...r, rx: 2, fill: "var(--uipack-surface-raised)", stroke: "currentColor", strokeOpacity: 0.55, strokeWidth: 1.25 }, a);
+    return /* @__PURE__ */ jsx("rect", { ...r, rx: 2, fill: "var(--uipack-surface-raised)", stroke: "currentColor", strokeOpacity: 0.55, strokeWidth: 1.25 }, a);
   }) });
 }
-
-// src/Cross.tsx
-import { jsx as jsx3, jsxs as jsxs2 } from "react/jsx-runtime";
 function Cross({ x, y, r = 5, kind }) {
-  return /* @__PURE__ */ jsxs2("g", { "data-uipack": "cross", stroke: connectorStroke(kind), strokeOpacity: kind ? 1 : 0.8, strokeWidth: 1.75, strokeLinecap: "round", "aria-hidden": "true", children: [
-    /* @__PURE__ */ jsx3("line", { x1: x - r, y1: y - r, x2: x + r, y2: y + r }),
-    /* @__PURE__ */ jsx3("line", { x1: x - r, y1: y + r, x2: x + r, y2: y - r })
+  return /* @__PURE__ */ jsxs("g", { "data-uipack": "cross", stroke: connectorStroke(kind), strokeOpacity: kind ? 1 : 0.8, strokeWidth: 1.75, strokeLinecap: "round", "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsx("line", { x1: x - r, y1: y - r, x2: x + r, y2: y + r }),
+    /* @__PURE__ */ jsx("line", { x1: x - r, y1: y + r, x2: x + r, y2: y - r })
   ] });
 }
-
-// src/marks/index.tsx
-import { Fragment, jsx as jsx4, jsxs as jsxs3 } from "react/jsx-runtime";
 var marks = {
-  uipack: /* @__PURE__ */ jsxs3(Fragment, { children: [
-    /* @__PURE__ */ jsx4("rect", { x: "4", y: "4", width: "10", height: "10", rx: "2" }),
-    /* @__PURE__ */ jsx4("rect", { x: "18", y: "4", width: "10", height: "10", rx: "2" }),
-    /* @__PURE__ */ jsx4("rect", { x: "4", y: "18", width: "10", height: "10", rx: "2" }),
-    /* @__PURE__ */ jsx4("rect", { x: "18", y: "18", width: "10", height: "10", rx: "5", fill: "currentColor" })
+  uipack: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("rect", { x: "4", y: "4", width: "10", height: "10", rx: "2" }),
+    /* @__PURE__ */ jsx("rect", { x: "18", y: "4", width: "10", height: "10", rx: "2" }),
+    /* @__PURE__ */ jsx("rect", { x: "4", y: "18", width: "10", height: "10", rx: "2" }),
+    /* @__PURE__ */ jsx("rect", { x: "18", y: "18", width: "10", height: "10", rx: "5", fill: "currentColor" })
   ] }),
-  groundplane: /* @__PURE__ */ jsxs3(Fragment, { children: [
-    /* @__PURE__ */ jsx4("path", { d: "M4 22h24" }),
-    /* @__PURE__ */ jsx4("path", { d: "M8 22V10l8-4 8 4v12" }),
-    /* @__PURE__ */ jsx4("path", { d: "M8 16h16", strokeDasharray: "2 2" })
+  groundplane: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("path", { d: "M4 22h24" }),
+    /* @__PURE__ */ jsx("path", { d: "M8 22V10l8-4 8 4v12" }),
+    /* @__PURE__ */ jsx("path", { d: "M8 16h16", strokeDasharray: "2 2" })
   ] }),
-  jobforge: /* @__PURE__ */ jsxs3(Fragment, { children: [
-    /* @__PURE__ */ jsx4("path", { d: "M6 24h20" }),
-    /* @__PURE__ */ jsx4("path", { d: "M10 24V14h12v10" }),
-    /* @__PURE__ */ jsx4("path", { d: "M13 14V9h6v5M16 4v5" })
+  jobforge: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("path", { d: "M6 24h20" }),
+    /* @__PURE__ */ jsx("path", { d: "M10 24V14h12v10" }),
+    /* @__PURE__ */ jsx("path", { d: "M13 14V9h6v5M16 4v5" })
   ] }),
-  skillsmith: /* @__PURE__ */ jsx4(Fragment, { children: /* @__PURE__ */ jsx4("path", { d: "M16 4l3.5 7 7.5 1-5.5 5.3 1.3 7.7L16 21.4 9.2 25l1.3-7.7L5 12l7.5-1z" }) }),
-  deckforge: /* @__PURE__ */ jsxs3(Fragment, { children: [
-    /* @__PURE__ */ jsx4("rect", { x: "4", y: "7", width: "24", height: "15", rx: "2" }),
-    /* @__PURE__ */ jsx4("path", { d: "M12 26h8M16 22v4M9 13h8M9 17h5" })
+  skillsmith: /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("path", { d: "M16 4l3.5 7 7.5 1-5.5 5.3 1.3 7.7L16 21.4 9.2 25l1.3-7.7L5 12l7.5-1z" }) }),
+  deckforge: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("rect", { x: "4", y: "7", width: "24", height: "15", rx: "2" }),
+    /* @__PURE__ */ jsx("path", { d: "M12 26h8M16 22v4M9 13h8M9 17h5" })
   ] }),
-  proofpack: /* @__PURE__ */ jsxs3(Fragment, { children: [
-    /* @__PURE__ */ jsx4("path", { d: "M8 4h11l5 5v19H8z" }),
-    /* @__PURE__ */ jsx4("path", { d: "M19 4v5h5" }),
-    /* @__PURE__ */ jsx4("path", { d: "M12 18l3 3 5-6" })
+  proofpack: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("path", { d: "M8 4h11l5 5v19H8z" }),
+    /* @__PURE__ */ jsx("path", { d: "M19 4v5h5" }),
+    /* @__PURE__ */ jsx("path", { d: "M12 18l3 3 5-6" })
   ] }),
-  fieldpack: /* @__PURE__ */ jsxs3(Fragment, { children: [
-    /* @__PURE__ */ jsx4("rect", { x: "5", y: "10", width: "22", height: "16", rx: "3" }),
-    /* @__PURE__ */ jsx4("path", { d: "M11 10V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v3M5 16h22" })
+  fieldpack: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("rect", { x: "5", y: "10", width: "22", height: "16", rx: "3" }),
+    /* @__PURE__ */ jsx("path", { d: "M11 10V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v3M5 16h22" })
   ] }),
-  skillpack: /* @__PURE__ */ jsxs3(Fragment, { children: [
-    /* @__PURE__ */ jsx4("rect", { x: "5", y: "6", width: "22", height: "20", rx: "3" }),
-    /* @__PURE__ */ jsx4("path", { d: "M10 12h12M10 16h12M10 20h7" })
+  skillpack: /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("rect", { x: "5", y: "6", width: "22", height: "20", rx: "3" }),
+    /* @__PURE__ */ jsx("path", { d: "M10 12h12M10 16h12M10 20h7" })
   ] })
 };
 function Wordmark({ size = 24 }) {
-  return /* @__PURE__ */ jsxs3("svg", { viewBox: "0 0 140 32", width: size * 140 / 32, height: size, role: "img", "aria-label": "uipack", style: { display: "block" }, children: [
-    /* @__PURE__ */ jsx4("g", { fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", children: marks.uipack }),
-    /* @__PURE__ */ jsx4("text", { x: "40", y: "22", fontSize: "18", fontWeight: 700, fontFamily: "var(--uipack-mono, ui-monospace, monospace)", letterSpacing: ".02em", fill: "currentColor", children: "uipack" })
+  return /* @__PURE__ */ jsxs("svg", { viewBox: "0 0 140 32", width: size * 140 / 32, height: size, role: "img", "aria-label": "uipack", style: { display: "block" }, children: [
+    /* @__PURE__ */ jsx("g", { fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", children: marks.uipack }),
+    /* @__PURE__ */ jsx("text", { x: "40", y: "22", fontSize: "18", fontWeight: 700, fontFamily: "var(--uipack-mono, ui-monospace, monospace)", letterSpacing: ".02em", fill: "currentColor", children: "uipack" })
   ] });
 }
-
-// src/drill/DrillFigure.tsx
-import {
-  createElement,
-  memo,
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState
-} from "react";
 
 // src/drill/animate.ts
 var drillMotion = {
@@ -252,9 +178,6 @@ function runDrill(opts) {
   if (halo) play(halo, samples.map((s) => ({ offset: s.offset, opacity: 1 - smoothstep(0, 0.25, s.p) })), timing);
   return anims;
 }
-
-// src/drill/context.tsx
-import { createContext, useContext } from "react";
 var DrillContext = /* @__PURE__ */ createContext(null);
 var useDrill = () => useContext(DrillContext);
 
@@ -324,9 +247,6 @@ function drillBox(box, grow = DRILL_GROW) {
   return { ...box, y: box.y - grow / 2, h: box.h + grow };
 }
 var DRILL_GROW = 8;
-
-// src/drill/static.tsx
-import { jsx as jsx5 } from "react/jsx-runtime";
 function drillStatic(props, path) {
   const levels = new Map(props.levels.map((l) => [l.id, l]));
   const root = props.root ?? props.levels[0]?.id ?? "";
@@ -335,7 +255,7 @@ function drillStatic(props, path) {
   const trail = p.length > 1 ? p.map((id) => levels.get(id)?.label ?? id).join(" \u203A ") : "";
   const lid = `static-${cleanId(level.id)}`;
   return {
-    children: /* @__PURE__ */ jsx5(
+    children: /* @__PURE__ */ jsx(
       DrillContext.Provider,
       {
         value: { levels, frame: { wide: props.viewBox, narrow: props.narrowViewBox }, idPrefix: lid, variant: "wide", interactive: false, ghost: false },
@@ -352,11 +272,8 @@ function drillStatic(props, path) {
     background: props.background
   };
 }
-
-// src/drill/DrillFigure.tsx
-import { Fragment as Fragment2, jsx as jsx6, jsxs as jsxs4 } from "react/jsx-runtime";
 var last = (p) => p[p.length - 1];
-var BackGlyph = () => /* @__PURE__ */ jsx6("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ jsx6("path", { d: "M7.5 2.5 4 6l3.5 3.5", fill: "none", stroke: "currentColor", strokeWidth: "1.6", strokeLinecap: "round", strokeLinejoin: "round" }) });
+var BackGlyph = () => /* @__PURE__ */ jsx("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ jsx("path", { d: "M7.5 2.5 4 6l3.5 3.5", fill: "none", stroke: "currentColor", strokeWidth: "1.6", strokeLinecap: "round", strokeLinejoin: "round" }) });
 var DrillLayer = /* @__PURE__ */ memo(function DrillLayer2({ level, figId, frame, floorWide, floorNarrow, levels, open, current }) {
   const lid = `${figId}-${cleanId(level.id)}`;
   const ctx = (variant) => ({
@@ -368,7 +285,7 @@ var DrillLayer = /* @__PURE__ */ memo(function DrillLayer2({ level, figId, frame
     ghost: false,
     open: (id) => open(level.id, id)
   });
-  const draw = (variant, render, vb, floor) => /* @__PURE__ */ jsx6(
+  const draw = (variant, render, vb, floor) => /* @__PURE__ */ jsx(
     "svg",
     {
       className: `uipack-drill__${variant}`,
@@ -376,10 +293,10 @@ var DrillLayer = /* @__PURE__ */ memo(function DrillLayer2({ level, figId, frame
       preserveAspectRatio: "xMidYMid meet",
       role: "group",
       "aria-label": level.alt,
-      children: /* @__PURE__ */ jsx6(DrillContext.Provider, { value: ctx(variant), children: /* @__PURE__ */ jsx6(FigureScaleContext.Provider, { value: { floor }, children: render({ id: variant === "wide" ? lid : `${lid}-n`, variant, ghost: false, level }) }) })
+      children: /* @__PURE__ */ jsx(DrillContext.Provider, { value: ctx(variant), children: /* @__PURE__ */ jsx(FigureScaleContext.Provider, { value: { floor }, children: render({ id: variant === "wide" ? lid : `${lid}-n`, variant, ghost: false, level }) }) })
     }
   );
-  return /* @__PURE__ */ jsxs4("div", { className: "uipack-drill__layer", "data-level": level.id, "data-current": current ? "true" : void 0, children: [
+  return /* @__PURE__ */ jsxs("div", { className: "uipack-drill__layer", "data-level": level.id, "data-current": current ? "true" : void 0, children: [
     draw("wide", level.render, level.viewBox ?? frame.wide, floorWide),
     frame.narrow ? draw("narrow", level.narrow ?? level.render, level.narrowViewBox ?? frame.narrow, floorNarrow) : null
   ] });
@@ -594,7 +511,7 @@ function DrillFigureRoot({
     return order.indexOf(a) - order.indexOf(b);
   });
   const showControls = controls && !reduced;
-  return /* @__PURE__ */ jsx6(
+  return /* @__PURE__ */ jsx(
     CanvasView,
     {
       restoreFocus: () => opener.current?.focus(),
@@ -608,7 +525,7 @@ function DrillFigureRoot({
       theme,
       layout: "figure",
       zoom: { value: zoom, min: 1, max: 3, onChange: setZoom },
-      children: /* @__PURE__ */ jsx6(SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ jsx6(FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsx6(FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxs4(
+      children: /* @__PURE__ */ jsx(SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ jsx(FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsx(FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxs(
         "figure",
         {
           id: figId,
@@ -648,28 +565,28 @@ function DrillFigureRoot({
             "--drill-aspect-narrow": fn ? `${fn.w} / ${fn.h}` : void 0
           },
           children: [
-            /* @__PURE__ */ jsxs4("div", { className: "uipack__head", children: [
-              number || eyebrow ? /* @__PURE__ */ jsxs4("p", { className: "uipack__eyebrow", children: [
+            /* @__PURE__ */ jsxs("div", { className: "uipack__head", children: [
+              number || eyebrow ? /* @__PURE__ */ jsxs("p", { className: "uipack__eyebrow", children: [
                 number,
                 number && eyebrow ? " \xB7 " : "",
                 eyebrow
               ] }) : null,
-              /* @__PURE__ */ jsx6("nav", { className: "uipack-drill__crumbs", "aria-label": "Figure levels", children: /* @__PURE__ */ jsx6("ol", { children: crumbs.map((lid, i) => /* @__PURE__ */ jsxs4("li", { children: [
-                i > 0 ? /* @__PURE__ */ jsx6("span", { className: "uipack-drill__sep", "aria-hidden": "true", children: "\u203A" }) : null,
-                i < depth ? /* @__PURE__ */ jsx6("button", { type: "button", className: "uipack-drill__crumb", onClick: () => navigate(crumbs.slice(0, i + 1)), children: labelOf(lid) }) : /* @__PURE__ */ jsx6("span", { className: "uipack-drill__here", "aria-current": "location", tabIndex: -1, ref: currentCrumbRef, children: labelOf(lid) })
+              /* @__PURE__ */ jsx("nav", { className: "uipack-drill__crumbs", "aria-label": "Figure levels", children: /* @__PURE__ */ jsx("ol", { children: crumbs.map((lid, i) => /* @__PURE__ */ jsxs("li", { children: [
+                i > 0 ? /* @__PURE__ */ jsx("span", { className: "uipack-drill__sep", "aria-hidden": "true", children: "\u203A" }) : null,
+                i < depth ? /* @__PURE__ */ jsx("button", { type: "button", className: "uipack-drill__crumb", onClick: () => navigate(crumbs.slice(0, i + 1)), children: labelOf(lid) }) : /* @__PURE__ */ jsx("span", { className: "uipack-drill__here", "aria-current": "location", tabIndex: -1, ref: currentCrumbRef, children: labelOf(lid) })
               ] }, lid)) }) }),
               createElement(
                 `h${headingLevel}`,
                 { className: "uipack__title", tabIndex: -1, ref: headingRef },
                 current.title ?? current.label
               ),
-              current.caption ? /* @__PURE__ */ jsx6("p", { className: "uipack__caption", children: current.caption }) : null,
-              /* @__PURE__ */ jsxs4("div", { className: "uipack__controls", children: [
-                depth > 0 ? /* @__PURE__ */ jsxs4("button", { type: "button", className: "uipack__ctl uipack-drill__back", "aria-label": `Back to ${parentLabel}`, onClick: up, children: [
-                  /* @__PURE__ */ jsx6(BackGlyph, {}),
+              current.caption ? /* @__PURE__ */ jsx("p", { className: "uipack__caption", children: current.caption }) : null,
+              /* @__PURE__ */ jsxs("div", { className: "uipack__controls", children: [
+                depth > 0 ? /* @__PURE__ */ jsxs("button", { type: "button", className: "uipack__ctl uipack-drill__back", "aria-label": `Back to ${parentLabel}`, onClick: up, children: [
+                  /* @__PURE__ */ jsx(BackGlyph, {}),
                   " Back"
                 ] }) : null,
-                expandable && !expanded ? /* @__PURE__ */ jsx6(
+                expandable && !expanded ? /* @__PURE__ */ jsx(
                   "button",
                   {
                     type: "button",
@@ -682,24 +599,24 @@ function DrillFigureRoot({
                     children: "Open canvas"
                   }
                 ) : null,
-                showControls ? /* @__PURE__ */ jsxs4(Fragment2, { children: [
-                  /* @__PURE__ */ jsxs4("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: replay, children: [
-                    /* @__PURE__ */ jsx6(ReplayGlyph, {}),
+                showControls ? /* @__PURE__ */ jsxs(Fragment, { children: [
+                  /* @__PURE__ */ jsxs("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: replay, children: [
+                    /* @__PURE__ */ jsx(ReplayGlyph, {}),
                     " Replay"
                   ] }),
-                  /* @__PURE__ */ jsxs4("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: toggle, "aria-pressed": !playing, children: [
-                    playing ? /* @__PURE__ */ jsx6(PauseGlyph, {}) : /* @__PURE__ */ jsx6(PlayGlyph, {}),
+                  /* @__PURE__ */ jsxs("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: toggle, "aria-pressed": !playing, children: [
+                    playing ? /* @__PURE__ */ jsx(PauseGlyph, {}) : /* @__PURE__ */ jsx(PlayGlyph, {}),
                     " ",
                     playing ? "Pause" : "Play"
                   ] })
                 ] }) : null
               ] }),
-              /* @__PURE__ */ jsx6(Legend, { items: current.legend ?? [] })
+              /* @__PURE__ */ jsx(Legend, { items: current.legend ?? [] })
             ] }),
-            /* @__PURE__ */ jsx6("p", { className: "uipack__sr", role: "status", children: note ? `${note.label}: ${note.detail}` : "" }),
-            /* @__PURE__ */ jsx6("p", { className: "uipack__sr", "aria-live": "polite", "data-drill-announce": "", children: announcement }),
-            /* @__PURE__ */ jsxs4("div", { ref: canvasRef, className: `uipack__canvas uipack__canvas--${background}`, onClick: () => select(null), children: [
-              note ? /* @__PURE__ */ jsxs4(
+            /* @__PURE__ */ jsx("p", { className: "uipack__sr", role: "status", children: note ? `${note.label}: ${note.detail}` : "" }),
+            /* @__PURE__ */ jsx("p", { className: "uipack__sr", "aria-live": "polite", "data-drill-announce": "", children: announcement }),
+            /* @__PURE__ */ jsxs("div", { ref: canvasRef, className: `uipack__canvas uipack__canvas--${background}`, onClick: () => select(null), children: [
+              note ? /* @__PURE__ */ jsxs(
                 "div",
                 {
                   ref: noteRef,
@@ -709,12 +626,12 @@ function DrillFigureRoot({
                   style: notePos ?? void 0,
                   onClick: (e) => e.stopPropagation(),
                   children: [
-                    /* @__PURE__ */ jsx6("strong", { children: note.label }),
-                    /* @__PURE__ */ jsx6("span", { children: note.detail })
+                    /* @__PURE__ */ jsx("strong", { children: note.label }),
+                    /* @__PURE__ */ jsx("span", { children: note.detail })
                   ]
                 }
               ) : null,
-              /* @__PURE__ */ jsx6(
+              /* @__PURE__ */ jsx(
                 "div",
                 {
                   ref: stageRef,
@@ -723,7 +640,7 @@ function DrillFigureRoot({
                   style: expanded ? { width: `max(${zoom * 100}%, ${800 * zoom}px)` } : void 0,
                   children: mounted.map((lid) => {
                     const lvl = levelMap.get(lid);
-                    return /* @__PURE__ */ jsx6(
+                    return /* @__PURE__ */ jsx(
                       DrillLayer,
                       {
                         level: lvl,
@@ -751,10 +668,6 @@ var DrillFigure = /* @__PURE__ */ Object.assign(DrillFigureRoot, {
   displayName: "DrillFigure",
   toStatic: (props) => drillStatic(props)
 });
-
-// src/drill/DrillNode.tsx
-import { useEffect as useEffect2, useId as useId2, useRef as useRef2, useState as useState2 } from "react";
-import { jsx as jsx7, jsxs as jsxs5 } from "react/jsx-runtime";
 var noSelection = { enabled: false, selected: null, select: () => {
 } };
 var stillMotion = { playing: false, reduced: true, cycle: 0, toggle: () => {
@@ -774,22 +687,22 @@ function Ghost({ child, ctx, box, uid }) {
   const mini = slice > MINI_ABOVE;
   const k = MINI_SCALE;
   const port = mini ? { x: box.x + box.w - f.w * k - 30, y: box.y, width: f.w * k, height: box.h, viewBox: `0 ${(f.h - box.h / k) / 2} ${f.w} ${box.h / k}` } : { x: box.x, y: box.y, width: box.w, height: box.h, viewBox: `0 0 ${f.w} ${f.h}` };
-  return /* @__PURE__ */ jsx7("svg", { ...port, preserveAspectRatio: "xMidYMid slice", overflow: "hidden", children: /* @__PURE__ */ jsx7("svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ jsx7(SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsx7(FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ jsx7(FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ jsx7(DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) });
+  return /* @__PURE__ */ jsx("svg", { ...port, preserveAspectRatio: "xMidYMid slice", overflow: "hidden", children: /* @__PURE__ */ jsx("svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ jsx(SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsx(FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ jsx(FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ jsx(DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) });
 }
 function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node }) {
   const ctx = useDrill();
-  const uid = cleanId(useId2());
+  const uid = cleanId(useId());
   const child = ctx?.levels.get(drill);
   const text = label ?? child?.label ?? drill;
-  const ghostRef = useRef2(null);
-  const [count, setCount] = useState2(0);
-  useEffect2(() => {
+  const ghostRef = useRef(null);
+  const [count, setCount] = useState(0);
+  useEffect(() => {
     const g = ghostRef.current;
     if (g) setCount(g.querySelectorAll('[data-uipack="node"]').length);
   }, [drill, ctx?.variant]);
-  if (!ctx || !child) return /* @__PURE__ */ jsx7(Node, { ...node, label: text });
+  if (!ctx || !child) return /* @__PURE__ */ jsx(Node, { ...node, label: text });
   const box = drillBox({ x: node.x, y: node.y, w: node.w, h: node.h }, grow);
-  if (ctx.ghost) return /* @__PURE__ */ jsx7(Node, { ...node, ...box, label: text });
+  if (ctx.ghost) return /* @__PURE__ */ jsx(Node, { ...node, ...box, label: text });
   const summary = child.summary ?? (count ? `${count} part${count === 1 ? "" : "s"} inside` : "");
   const name = `${nodeName(text, node.sub)}, open${summary ? `: ${summary}` : ""}`;
   const interactive = ctx.interactive && !!ctx.open;
@@ -802,7 +715,7 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
   const region = { x: box.x - pad, y: box.y - pad, width: box.w + pad * 2, height: box.h + pad * 2 };
   const mx = box.x + box.w - 22;
   const my = box.y + 10;
-  return /* @__PURE__ */ jsxs5(
+  return /* @__PURE__ */ jsxs(
     "g",
     {
       className: "uipack-drill-node",
@@ -818,12 +731,12 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
         }
       } : {},
       children: [
-        /* @__PURE__ */ jsxs5("defs", { children: [
-          /* @__PURE__ */ jsx7("filter", { id: `${uid}-halo`, filterUnits: "userSpaceOnUse", ...region, children: /* @__PURE__ */ jsx7("feGaussianBlur", { stdDeviation: 7 }) }),
-          /* @__PURE__ */ jsx7("filter", { id: `${uid}-soft`, filterUnits: "userSpaceOnUse", ...region, children: /* @__PURE__ */ jsx7("feGaussianBlur", { stdDeviation: 5 }) }),
-          /* @__PURE__ */ jsx7("clipPath", { id: `${uid}-clip`, children: /* @__PURE__ */ jsx7("rect", { x: box.x, y: box.y, width: box.w, height: box.h, rx: RADIUS }) })
+        /* @__PURE__ */ jsxs("defs", { children: [
+          /* @__PURE__ */ jsx("filter", { id: `${uid}-halo`, filterUnits: "userSpaceOnUse", ...region, children: /* @__PURE__ */ jsx("feGaussianBlur", { stdDeviation: 7 }) }),
+          /* @__PURE__ */ jsx("filter", { id: `${uid}-soft`, filterUnits: "userSpaceOnUse", ...region, children: /* @__PURE__ */ jsx("feGaussianBlur", { stdDeviation: 5 }) }),
+          /* @__PURE__ */ jsx("clipPath", { id: `${uid}-clip`, children: /* @__PURE__ */ jsx("rect", { x: box.x, y: box.y, width: box.w, height: box.h, rx: RADIUS }) })
         ] }),
-        /* @__PURE__ */ jsx7(
+        /* @__PURE__ */ jsx(
           "rect",
           {
             className: "uipack-drill-node__halo",
@@ -840,15 +753,15 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
             "aria-hidden": "true"
           }
         ),
-        /* @__PURE__ */ jsx7(SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsx7(
+        /* @__PURE__ */ jsx(SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsx(
           Node,
           {
             ...node,
             ...box,
             label: text,
-            inlay: /* @__PURE__ */ jsxs5("g", { className: "uipack-drill-node__inlay", clipPath: `url(#${uid}-clip)`, "aria-hidden": "true", pointerEvents: "none", children: [
-              /* @__PURE__ */ jsx7("rect", { className: "uipack-drill-node__wash", x: box.x, y: box.y, width: box.w, height: box.h, fill: "var(--uipack-accent)", fillOpacity: 0.035 }),
-              /* @__PURE__ */ jsx7(
+            inlay: /* @__PURE__ */ jsxs("g", { className: "uipack-drill-node__inlay", clipPath: `url(#${uid}-clip)`, "aria-hidden": "true", pointerEvents: "none", children: [
+              /* @__PURE__ */ jsx("rect", { className: "uipack-drill-node__wash", x: box.x, y: box.y, width: box.w, height: box.h, fill: "var(--uipack-accent)", fillOpacity: 0.035 }),
+              /* @__PURE__ */ jsx(
                 "rect",
                 {
                   className: "uipack-drill-node__inner",
@@ -864,11 +777,11 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
                   filter: `url(#${uid}-soft)`
                 }
               ),
-              preview ? /* @__PURE__ */ jsx7("g", { ref: ghostRef, className: "uipack-drill-node__ghost", opacity: 0.16, children: /* @__PURE__ */ jsx7(Ghost, { child, ctx, box, uid }) }) : null
+              preview ? /* @__PURE__ */ jsx("g", { ref: ghostRef, className: "uipack-drill-node__ghost", opacity: 0.16, children: /* @__PURE__ */ jsx(Ghost, { child, ctx, box, uid }) }) : null
             ] })
           }
         ) }),
-        /* @__PURE__ */ jsx7(
+        /* @__PURE__ */ jsx(
           "g",
           {
             className: "uipack-drill-node__mark",
@@ -880,71 +793,12 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
             strokeLinejoin: "round",
             "aria-hidden": "true",
             pointerEvents: "none",
-            children: /* @__PURE__ */ jsx7("path", { d: "M2.5 9.5 9.5 2.5M5.5 2.5h4v4M2.5 5.5v4h4" })
+            children: /* @__PURE__ */ jsx("path", { d: "M2.5 9.5 9.5 2.5M5.5 2.5h4v4M2.5 5.5v4h4" })
           }
         )
       ]
     }
   );
 }
-export {
-  Badge,
-  Bus,
-  Chip,
-  Connector,
-  Cross,
-  DEFAULT_RENDER_WIDTH,
-  DRILL_GROW,
-  Defs,
-  DrillFigure,
-  DrillNode,
-  Figure,
-  FigureHoverContext,
-  FigureMotionContext,
-  FigureScaleContext,
-  FigureScaleProvider,
-  Group,
-  Label,
-  Lane,
-  Legend,
-  Node,
-  Packet,
-  TOKEN_SHAPE,
-  Token,
-  Wall,
-  Wordmark,
-  anchor,
-  busStub,
-  busStubs,
-  connectorStroke,
-  drillAnnouncement,
-  drillBox,
-  drillFocusTarget,
-  drillMotion,
-  drillMove,
-  drillReducer,
-  drillStatic,
-  easeInOutCubic,
-  flowList,
-  fontFloor,
-  grid,
-  hoverAttrs,
-  icons,
-  innerClipStart,
-  marks,
-  normalizePath as normalizeDrillPath,
-  pathFromPoints,
-  pointAlong,
-  polylineLength,
-  route,
-  smoothstep,
-  tokenColor,
-  trim,
-  useFigureHover,
-  useFigureMotion,
-  useFontFloor,
-  usePrefersReducedMotion,
-  wallSegments,
-  zoomFrame,
-  zoomSamples
-};
+
+export { Badge, Cross, DRILL_GROW, DrillFigure, DrillNode, Wall, Wordmark, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, marks, normalizePath as normalizeDrillPath, wallSegments };

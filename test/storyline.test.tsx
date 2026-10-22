@@ -53,12 +53,20 @@ const good: StorySlide[] = [
   },
   {
     id: "ask",
-    title: "Decide by 14 March so Platform can staff it in Q2",
+    title: "Decide by 14 March so Platform leads can staff it in Q2",
     role: "ask",
     notes: "I need a decision from you by 14 March.",
   },
   { id: "backup", title: "Load test details", role: "appendix" },
 ];
+
+/** The same deck with every presented slide's talk track padded by `words` words, to fill a time budget. */
+const spoken = (deck: StorySlide[], words: number): StorySlide[] =>
+  deck.map((s) => {
+    if (s.role === "appendix") return s;
+    const text = typeof s.notes === "string" ? s.notes : (s.notes?.say ?? "");
+    return { ...s, notes: say(`${text} ${Array.from({ length: words }, () => "word").join(" ")}`) };
+  });
 
 const rulesOf = (findings: LintFinding[]) => findings.map((f) => f.rule);
 const find = (findings: LintFinding[], rule: LintRule) => findings.filter((f) => f.rule === rule);
@@ -135,7 +143,8 @@ describe("storyline templates", () => {
 
 describe("lintDeck", () => {
   it("passes a clean answer-first deck", () => {
-    expect(lintDeck(good, { template: "decision-request", minutes: 8 })).toEqual([]);
+    // Six presented slides at about 90 words each fill half of eight minutes.
+    expect(lintDeck(spoken(good, 80), { template: "decision-request", minutes: 8 })).toEqual([]);
   });
 
   it("accepts DeckSlide objects as they are", () => {
@@ -145,7 +154,8 @@ describe("lintDeck", () => {
       notes: "Here's the point.",
       render: () => null,
     };
-    expect(rulesOf(lintDeck([slide]))).toEqual(["roles-missing"]);
+    // One untagged slide: its role is inferred (an answer), so the missing ask is still reported.
+    expect(rulesOf(lintDeck([slide]))).toEqual(["roles-missing", "closing-ask"]);
   });
 
   it("deck-empty", () => {
@@ -237,12 +247,15 @@ describe("lintDeck", () => {
     });
   });
 
-  it("roles-missing skips the storyline checks", () => {
-    const bare = good.map(({ role: _role, ...rest }) => rest);
-    const rules = rulesOf(lintDeck(bare));
-    expect(rules).toContain("roles-missing");
-    expect(rules).not.toContain("answer-first");
-    expect(rules).not.toContain("closing-ask");
+  it("roles-missing is a warning, and roles inferred from titles still run answer-first and closing-ask", () => {
+    const bare = good.filter((s) => s.role !== "appendix").map(({ role: _role, ...rest }) => rest);
+    const findings = lintDeck(bare);
+    expect(find(findings, "roles-missing")).toEqual([expect.objectContaining({ severity: "warn" })]);
+    // Slide one states the answer and the last slide asks for a decision with an owner and a date.
+    expect(find(findings, "answer-first")).toEqual([]);
+    expect(find(findings, "closing-ask")).toEqual([]);
+    // Rhythm needs real roles.
+    expect(find(findings, "role-repeat")).toEqual([]);
   });
 
   describe("answer-first", () => {
@@ -301,7 +314,7 @@ describe("lintDeck", () => {
     });
 
     it("flags a missing date only", () => {
-      const [hit] = ask("We need Platform to approve one more engineer");
+      const [hit] = ask("We need Platform leads to approve one more engineer");
       expect(hit.message).toBe("The ask is missing a date.");
     });
 
@@ -341,10 +354,10 @@ describe("lintDeck", () => {
       expect(specific(title, "answer")).toHaveLength(1);
     });
 
-    it("accepts a number, a comparison or a named result", () => {
+    it("accepts a number, a number word or a comparison with a quantity", () => {
       expect(specific("Caching did most of it: 140 of 214 ms saved, six launches, no rollbacks")).toEqual([]);
       expect(specific("Search got twice as fast this quarter, and cheaper to run")).toEqual([]);
-      expect(specific("The new ranker beats the old one on every query class")).toEqual([]);
+      expect(specific("The new ranker beats the old one on 9 of 10 query classes")).toEqual([]);
       expect(specific("Two product teams launched on the new API without our help")).toEqual([]);
     });
 
@@ -403,7 +416,177 @@ describe("lintDeck", () => {
     expect(talkSeconds(deck)).toBeGreaterThan(120);
     const hits = find(lintDeck(deck, { minutes: 2 }), "talk-time");
     expect(hits).toEqual([expect.objectContaining({ severity: "warn" })]);
-    expect(find(lintDeck(deck, { minutes: 10 }), "talk-time")).toEqual([]);
+    expect(find(lintDeck(deck, { minutes: 4 }), "talk-time")).toEqual([]);
+  });
+
+  describe("talk-time: a track too short for the budget", () => {
+    it("warns when every slide has a track but together they cover under half the minutes", () => {
+      const [hit] = find(lintDeck(good, { minutes: 8 }), "talk-time");
+      expect(hit).toMatchObject({ severity: "warn" });
+      expect(hit.message).toMatch(/under half/);
+      expect(find(lintDeck(spoken(good, 80), { minutes: 8 }), "talk-time")).toEqual([]);
+    });
+
+    it("uses the template's shortest length when no minutes are given", () => {
+      // decision-request runs 8–15 minutes: half of 8 is 4 minutes, about 540 words.
+      expect(find(lintDeck(spoken(good, 60), { template: "decision-request" }), "talk-time")).toHaveLength(1);
+      expect(find(lintDeck(spoken(good, 80), { template: "decision-request" }), "talk-time")).toEqual([]);
+    });
+
+    it("stays quiet without a budget, and while slides still lack a track (notes-present reports those)", () => {
+      expect(find(lintDeck(good), "talk-time")).toEqual([]);
+      const missing = withSlide(good, "context", { notes: undefined });
+      expect(find(lintDeck(missing, { minutes: 8 }), "talk-time")).toEqual([]);
+      expect(find(lintDeck(missing, { minutes: 8 }), "notes-present")).toHaveLength(1);
+    });
+  });
+});
+
+/** The phrases a reviewer used to show the checks were easy to pass; each must fail, and its fix pass. */
+describe("lintDeck: claims that are easy to fake", () => {
+  const n = (text: string) => ({ say: text, delivery: "" });
+
+  describe("an untagged deck still gets the story checks", () => {
+    const labels: StorySlide[] = [
+      { id: "a", title: "Background", notes: n("x") },
+      { id: "b", title: "Architecture", notes: n("x") },
+      { id: "c", title: "Results", notes: n("x") },
+      { id: "d", title: "Next steps", notes: n("x") },
+      { id: "e", title: "Questions?", notes: n("x") },
+    ];
+
+    it("warns that roles are missing, then reports no answer and no ask", () => {
+      const findings = lintDeck(labels);
+      expect(find(findings, "roles-missing")).toEqual([expect.objectContaining({ severity: "warn" })]);
+      expect(find(findings, "answer-first")).toEqual([expect.objectContaining({ severity: "error" })]);
+      const [ask] = find(findings, "closing-ask");
+      expect(ask).toMatchObject({ severity: "error", slideId: "e" });
+      expect(ask.message).toMatch(/closes on "Questions\?", so the ask is missing/);
+    });
+
+    it.each(["Thank you", "Q&A", "Any questions?", "Thanks!"])("a last slide reading %s means the ask is missing", (title) => {
+      const deck = [...labels.slice(0, 4), { id: "e", title, notes: n("x") }];
+      expect(find(lintDeck(deck), "closing-ask")[0].message).toMatch(/so the ask is missing/);
+    });
+
+    it("reads a first-slide claim as the answer, \"Next steps\" as the plan and a dated request as the ask", () => {
+      const deck: StorySlide[] = [
+        { id: "a", title: "Search got twice as fast this quarter", notes: n("Source: latency dashboard.") },
+        { id: "b", title: "Caching saved 140 of the 214 ms", notes: n("Source: latency dashboard.") },
+        { id: "c", title: "Next steps", notes: n("x") },
+        { id: "d", title: "Platform leads: approve two engineers by 20 October", notes: n("x") },
+      ];
+      const findings = lintDeck(deck);
+      expect(find(findings, "answer-first")).toEqual([]);
+      expect(find(findings, "closing-ask")).toEqual([]);
+      expect(find(findings, "ask-concrete")).toEqual([]);
+    });
+
+    it("runs ask-concrete on an inferred ask", () => {
+      const deck: StorySlide[] = [
+        { id: "a", title: "Search got twice as fast this quarter", notes: n("Source: latency dashboard.") },
+        { id: "d", title: "Approve two engineers by 20 October", notes: n("Thanks.") },
+      ];
+      expect(find(lintDeck(deck), "ask-concrete")[0].message).toMatch(/missing an owner/);
+    });
+  });
+
+  describe("title-specific ignores proper nouns and comparisons without a quantity", () => {
+    const check = (title: string) =>
+      find(lintDeck(withSlide(good, "context", { title, role: "evidence", notes: "Source: dashboard." })), "title-specific");
+
+    it.each([
+      "The new Kafka pipeline is much better than before",
+      "The team worked really hard on Redis",
+      "Kafka beats RabbitMQ on throughput",
+      "Latency moved from bad to good after the Envoy rollout",
+      "The Q3 launch went well",
+    ])("flags %s", (title) => {
+      expect(check(title)).toHaveLength(1);
+    });
+
+    it.each([
+      "The new Kafka pipeline moves twice the events of the old one",
+      "Redis cut p95 from 40 ms to 12 ms",
+      "Kafka beats RabbitMQ 3 to 1 on throughput",
+      "A third of queries now skip the index",
+    ])("accepts %s", (title) => {
+      expect(check(title)).toEqual([]);
+    });
+  });
+
+  describe("ask owners are teams or roles, not a capitalised word", () => {
+    const ask = (title: string, notes = "Thanks.") => find(lintDeck(withSlide(good, "ask", { title, notes })), "ask-concrete");
+
+    it.each([
+      ["Please continue to Support this effort by 14 March", "Thanks Bob"],
+      ["Approve the migration by 14 March", "Thanks, Priya and Sam."],
+      ["Decide by 3 pm on Friday", "Thanks."],
+      ["We need the team to approve this by 14 March", "Thanks."],
+    ])("flags %s as having no owner", (title, notes) => {
+      expect(ask(title, notes)[0].message).toMatch(/missing an owner/);
+    });
+
+    it.each([
+      "Platform leads: approve two engineers by 14 March",
+      "We need the payments team to approve this by 14 March",
+      "VP Eng to approve the headcount by 14 March",
+      "@dana to approve the design doc by Friday",
+      "Dana, our platform lead, to approve the design doc by Friday",
+      "Approve the rollout by 14 March; Release Engineering owns it",
+    ])("accepts %s", (title) => {
+      expect(ask(title)).toEqual([]);
+    });
+  });
+
+  describe("number-source needs a source a reader could open", () => {
+    const check = (notes: string, source?: string) =>
+      find(lintDeck(withSlide(good, "context", { title: "Latency improved by 50% across the board", notes, source })), "number-source");
+
+    it.each(["I measured this from my laptop once.", "Per my notes, from last week.", "According to the team."])("flags %s", (notes) => {
+      expect(check(notes)).toHaveLength(1);
+    });
+
+    it.each([
+      "Source: search latency dashboard, p95 over 7 days.",
+      "From the BigQuery query in the doc.",
+      "Load test on 12 May, 3 runs.",
+      "Per the Q3 user survey.",
+      "Weekly reliability report.",
+      "Benchmark suite, 10 runs.",
+      "Gateway logs, 1–30 Sept.",
+      "A/B experiment 214.",
+      "See https://example.com/latency.",
+    ])("accepts %s", (notes) => {
+      expect(check(notes)).toEqual([]);
+    });
+
+    it("accepts the slide's source field", () => {
+      expect(check("I measured this from my laptop once.", "Latency dashboard, Sept")).toEqual([]);
+    });
+  });
+
+  describe("titles that open like a topic", () => {
+    const claim = (title: string) => find(lintDeck(withSlide(good, "context", { title })), "title-claim");
+
+    it.each([
+      "Overview of the caching project and its many results so far",
+      "How the new pipeline architecture works end to end",
+      "Status of the migration across every region this quarter",
+      "Some of the results we observed during the rollout",
+      "Introduction to the new search ranking model for the review",
+      "Update on the indexing migration and what comes next",
+    ])("flags %s", (title) => {
+      expect(claim(title)).toEqual([expect.objectContaining({ severity: "warn" })]);
+    });
+
+    it.each([
+      "The new pipeline works because each stage retries alone",
+      "Migration is on track: 70% of traffic moved",
+      "Caching cut p95 latency by half",
+    ])("accepts %s", (title) => {
+      expect(claim(title)).toEqual([]);
+    });
   });
 
   it("is pure: input untouched, same output twice", () => {

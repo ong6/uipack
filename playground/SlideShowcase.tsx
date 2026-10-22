@@ -2,9 +2,10 @@ import { transferObjectVariant, objectDirectionIndex, normalizeObjectVariant, Ob
 import "../src/objects/objects.css";
 import { animationEntries } from "./catalog";
 import { useState } from "react";
-import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
+import { useShowcaseNote, useShowcaseTheme } from "./ShowcaseShell";
 import { SlidePlayer, slideStories } from "../src/slides";
 import "../src/slides/slides.css";
+import "../src/canvas.css";
 import "./slides-showcase.css";
 import { keepFocusedInView } from "../src/env";
 
@@ -14,7 +15,7 @@ export default function Slides() {
   const defaultStory = location.pathname === "/slides" ? slideStories[0].id : objectScenes[0].id;
   const knownStory = (id: string | null) => !!id && [...objectScenes, ...slideStories].some((s) => s.id === id);
   const [storyId, setStoryId] = useState(() => (knownStory(params.get("story")) ? params.get("story")! : defaultStory));
-  const { theme, flip } = useShowcaseTheme();
+  const { theme } = useShowcaseTheme();
   const [variant, setVariant] = useState<ObjectVariant>(
     parseObjectVariant(params.get("variant")));
   const [edition, setEdition] = useState<ObjectEdition>(["0", "1", "2"].includes(params.get("edition") ?? "") ? Number(params.get("edition")) as ObjectEdition : 0);
@@ -46,6 +47,7 @@ export default function Slides() {
   if (badStory !== null && !knownStory(badStory)) notFound.push(`Story “${badStory}” not found, showing ${object?.title ?? story.title}.`);
   if (object && badVariant !== null && String(parseObjectVariant(badVariant)) !== badVariant)
     notFound.push(`Variant “${badVariant}” not found, showing ${objectDirections[objectDirectionIndex(object.id, variant)].name}.`);
+  useShowcaseNote(notFound.length ? notFound.join(" ") : null);
   const clearFilters = () => {
     setQuery("");
     setCategory("All");
@@ -67,7 +69,7 @@ export default function Slides() {
     history.replaceState(null, "", url);
   };
   return (
-    <ShowcaseShell active="animations" theme={theme} flip={flip} note={notFound.length ? notFound.join(" ") : undefined}>
+    <>
       <section className="slides-showcase">
         <h2>Scene library and preview</h2>
         <AnimationWorkspace theme={theme} library={<>
@@ -161,6 +163,6 @@ export default function Slides() {
         </details>
         </AnimationWorkspace>
       </section>
-    </ShowcaseShell>
+    </>
   );
 }

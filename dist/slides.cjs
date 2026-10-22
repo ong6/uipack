@@ -1,41 +1,28 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { newObj[key] = obj[key]; } } } newObj.default = obj; return newObj; } } function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
+'use strict';
 
+var chunkGUY7V4IQ_cjs = require('./chunk-GUY7V4IQ.cjs');
+var chunkNFU4EWVX_cjs = require('./chunk-NFU4EWVX.cjs');
+var chunkYMPVJRTJ_cjs = require('./chunk-YMPVJRTJ.cjs');
+var react = require('react');
+var jsxRuntime = require('react/jsx-runtime');
 
-
-
-var _chunkGUY7V4IQcjs = require('./chunk-GUY7V4IQ.cjs');
-
-
-var _chunkNFU4EWVXcjs = require('./chunk-NFU4EWVX.cjs');
-
-
-var _chunkYMPVJRTJcjs = require('./chunk-YMPVJRTJ.cjs');
-
-// src/slides/SlidePlayer.tsx
-
-
-
-
-
-var _react = require('react');
-var _jsxruntime = require('react/jsx-runtime');
 function Diagram({ story, stop }) {
   const visible = story.nodes.filter(
-    (n) => n.kind !== "boundary" && _chunkGUY7V4IQcjs.resolveNodePose.call(void 0, n, stop).opacity > 0.25
+    (n) => n.kind !== "boundary" && chunkGUY7V4IQ_cjs.resolveNodePose(n, stop).opacity > 0.25
   );
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-slide-diagram", "data-testid": "slide-diagram", children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack-slide-diagram__heading", children: "Diagram view" }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-slide-diagram__nodes", children: visible.map((n) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { "data-tone": n.tone, children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "strong", { children: n.label }),
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-slide-diagram", "data-testid": "slide-diagram", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-slide-diagram__heading", children: "Diagram view" }),
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-slide-diagram__nodes", children: visible.map((n) => /* @__PURE__ */ jsxRuntime.jsxs("div", { "data-tone": n.tone, children: [
+      /* @__PURE__ */ jsxRuntime.jsx("strong", { children: n.label }),
       " ",
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: n.detail })
+      /* @__PURE__ */ jsxRuntime.jsx("span", { children: n.detail })
     ] }, n.id)) }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { "aria-label": "Highlighted connections", children: story.connections.filter((c) => _optionalChain([stop, 'access', _ => _.activeConnections, 'optionalAccess', _2 => _2.includes, 'call', _3 => _3(c.id)])).map((c) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { children: [
-      _optionalChain([story, 'access', _4 => _4.nodes, 'access', _5 => _5.find, 'call', _6 => _6((n) => n.id === c.from), 'optionalAccess', _7 => _7.label]),
+    /* @__PURE__ */ jsxRuntime.jsx("ul", { "aria-label": "Highlighted connections", children: story.connections.filter((c) => stop.activeConnections?.includes(c.id)).map((c) => /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
+      story.nodes.find((n) => n.id === c.from)?.label,
       " ",
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "aria-label": "to", children: "\u2192" }),
+      /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-label": "to", children: "\u2192" }),
       " ",
-      _optionalChain([story, 'access', _8 => _8.nodes, 'access', _9 => _9.find, 'call', _10 => _10((n) => n.id === c.to), 'optionalAccess', _11 => _11.label])
+      story.nodes.find((n) => n.id === c.to)?.label
     ] }, c.id)) })
   ] });
 }
@@ -50,20 +37,20 @@ function SceneViewport({
   className = "",
   onSettled
 }) {
-  const host = _react.useRef.call(void 0, null), labels = _react.useRef.call(void 0, null), runtime = _react.useRef.call(void 0, );
-  const prefersReduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
+  const host = react.useRef(null), labels = react.useRef(null), runtime = react.useRef();
+  const prefersReduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
   const reduced = motion === "none" || prefersReduced;
-  const stop = _nullishCoalesce(story.stops.find((s) => s.id === stopId), () => ( story.stops[0]));
-  const latest = _react.useRef.call(void 0, { stop, reduced, paused, onSettled });
+  const stop = story.stops.find((s) => s.id === stopId) ?? story.stops[0];
+  const latest = react.useRef({ stop, reduced, paused, onSettled });
   latest.current = { stop, reduced, paused, onSettled };
-  const [status, setStatus] = _react.useState.call(void 0, 
+  const [status, setStatus] = react.useState(
     "loading"
   );
-  const [selected, setSelected] = _react.useState.call(void 0, null);
-  const [failed, setFailed] = _react.useState.call(void 0, false);
-  const [settled, setSettled] = _react.useState.call(void 0, "");
-  const [transitioning, setTransitioning] = _react.useState.call(void 0, false);
-  _react.useEffect.call(void 0, () => {
+  const [selected, setSelected] = react.useState(null);
+  const [failed, setFailed] = react.useState(false);
+  const [settled, setSettled] = react.useState("");
+  const [transitioning, setTransitioning] = react.useState(false);
+  react.useEffect(() => {
     let cancelled = false;
     if (renderMode === "diagram" || failed) {
       setStatus("fallback");
@@ -72,7 +59,7 @@ function SceneViewport({
       return;
     }
     setStatus("loading");
-    void Promise.resolve().then(() => _interopRequireWildcard(require("./renderer-TT76FMHG.cjs"))).then(({ createSlideScene }) => {
+    void import('./renderer-TT76FMHG.cjs').then(({ createSlideScene }) => {
       if (cancelled || !host.current || !labels.current) return;
       try {
         runtime.current = createSlideScene(
@@ -87,14 +74,14 @@ function SceneViewport({
             if (!cancelled) {
               setSettled(id);
               setTransitioning(false);
-              _optionalChain([latest, 'access', _12 => _12.current, 'access', _13 => _13.onSettled, 'optionalCall', _14 => _14(id)]);
+              latest.current.onSettled?.(id);
             }
           },
           setSelected
         );
         runtime.current.setPaused(latest.current.paused);
         setStatus("ready");
-      } catch (e2) {
+      } catch {
         if (!cancelled) setFailed(true);
       }
     }).catch(() => {
@@ -102,15 +89,15 @@ function SceneViewport({
     });
     return () => {
       cancelled = true;
-      _optionalChain([runtime, 'access', _15 => _15.current, 'optionalAccess', _16 => _16.dispose, 'call', _17 => _17()]);
+      runtime.current?.dispose();
       runtime.current = void 0;
     };
   }, [story, theme, renderMode, failed]);
-  _react.useEffect.call(void 0, () => {
+  react.useEffect(() => {
     if (renderMode === "diagram" || failed) {
       setSettled(stop.id);
       setTransitioning(false);
-      _optionalChain([onSettled, 'optionalCall', _18 => _18(stop.id)]);
+      onSettled?.(stop.id);
       return;
     }
     if (runtime.current) {
@@ -118,23 +105,23 @@ function SceneViewport({
       runtime.current.goTo(stop, reduced);
     }
   }, [stop, renderMode, failed]);
-  _react.useEffect.call(void 0, () => {
-    _optionalChain([runtime, 'access', _19 => _19.current, 'optionalAccess', _20 => _20.setReducedMotion, 'call', _21 => _21(reduced)]);
+  react.useEffect(() => {
+    runtime.current?.setReducedMotion(reduced);
   }, [reduced]);
-  _react.useEffect.call(void 0, () => {
-    _optionalChain([runtime, 'access', _22 => _22.current, 'optionalAccess', _23 => _23.setPaused, 'call', _24 => _24(paused)]);
+  react.useEffect(() => {
+    runtime.current?.setPaused(paused);
   }, [paused]);
-  _react.useEffect.call(void 0, () => {
-    _optionalChain([runtime, 'access', _25 => _25.current, 'optionalAccess', _26 => _26.setSelected, 'call', _27 => _27(selected)]);
+  react.useEffect(() => {
+    runtime.current?.setSelected(selected);
   }, [selected, status]);
-  _react.useEffect.call(void 0, () => {
-    _optionalChain([runtime, 'access', _28 => _28.current, 'optionalAccess', _29 => _29.setZoom, 'call', _30 => _30(zoom)]);
+  react.useEffect(() => {
+    runtime.current?.setZoom(zoom);
   }, [zoom, status]);
-  _react.useEffect.call(void 0, () => {
+  react.useEffect(() => {
     setSelected(null);
   }, [stop.id]);
   const chosen = story.nodes.find((n) => n.id === selected);
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+  return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
       className: `uipack-slide-scene ${className}`,
@@ -146,7 +133,7 @@ function SceneViewport({
       "data-motion": reduced ? "reduced" : "full",
       "aria-label": `${story.title}: ${stop.title}`,
       children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+        /* @__PURE__ */ jsxRuntime.jsx(
           "div",
           {
             className: "uipack-slide-scene__webgl",
@@ -154,7 +141,7 @@ function SceneViewport({
             "aria-hidden": "true"
           }
         ),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { ref: labels, className: "uipack-slide-labels", children: story.nodes.map((n) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+        /* @__PURE__ */ jsxRuntime.jsx("div", { ref: labels, className: "uipack-slide-labels", children: story.nodes.map((n) => /* @__PURE__ */ jsxRuntime.jsxs(
           "button",
           {
             type: "button",
@@ -165,49 +152,49 @@ function SceneViewport({
             className: "uipack-slide-label",
             style: { visibility: "hidden" },
             children: [
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "strong", { children: n.label }),
+              /* @__PURE__ */ jsxRuntime.jsx("strong", { children: n.label }),
               " ",
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: n.detail })
+              /* @__PURE__ */ jsxRuntime.jsx("span", { children: n.detail })
             ]
           },
           n.id
         )) }),
-        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-slide-inspect", children: [
-          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "label", { children: [
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-slide-inspect", children: [
+          /* @__PURE__ */ jsxRuntime.jsxs("label", { children: [
             "Inspect component",
             " ",
-            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+            /* @__PURE__ */ jsxRuntime.jsxs(
               "select",
               {
                 "aria-label": "Inspect component",
-                value: _nullishCoalesce(selected, () => ( "")),
+                value: selected ?? "",
                 onChange: (e) => setSelected(e.target.value || null),
                 children: [
-                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "option", { value: "", children: "Choose a component" }),
+                  /* @__PURE__ */ jsxRuntime.jsx("option", { value: "", children: "Choose a component" }),
                   story.nodes.filter(
-                    (n) => n.kind !== "boundary" && _chunkGUY7V4IQcjs.resolveNodePose.call(void 0, n, stop).opacity > 0.25
-                  ).map((n) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "option", { value: n.id, children: n.label }, n.id))
+                    (n) => n.kind !== "boundary" && chunkGUY7V4IQ_cjs.resolveNodePose(n, stop).opacity > 0.25
+                  ).map((n) => /* @__PURE__ */ jsxRuntime.jsx("option", { value: n.id, children: n.label }, n.id))
                 ]
               }
             )
           ] }),
-          chosen && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { role: "status", children: [
-            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "strong", { children: chosen.label }),
+          chosen && /* @__PURE__ */ jsxRuntime.jsxs("p", { role: "status", children: [
+            /* @__PURE__ */ jsxRuntime.jsx("strong", { children: chosen.label }),
             chosen.detail && ` \xB7 ${chosen.detail}`,
             " ",
-            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: () => setSelected(null), children: "Clear selection" })
+            /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", onClick: () => setSelected(null), children: "Clear selection" })
           ] })
         ] }),
-        status !== "ready" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Diagram, { story, stop }),
-        status === "ready" && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-slide-scene__badge", children: [
+        status !== "ready" && /* @__PURE__ */ jsxRuntime.jsx(Diagram, { story, stop }),
+        status === "ready" && /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-slide-scene__badge", children: [
           "Live 3D ",
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "aria-hidden": "true", children: "\xB7" }),
+          /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", children: "\xB7" }),
           " ",
           reduced ? "Reduced motion" : "Authored camera"
         ] }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-slide-sr", children: story.nodes.filter(
-          (n) => n.kind !== "boundary" && _chunkGUY7V4IQcjs.resolveNodePose.call(void 0, n, stop).opacity > 0.25
-        ).map((n) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-slide-sr", children: story.nodes.filter(
+          (n) => n.kind !== "boundary" && chunkGUY7V4IQ_cjs.resolveNodePose(n, stop).opacity > 0.25
+        ).map((n) => /* @__PURE__ */ jsxRuntime.jsxs("p", { children: [
           n.label,
           ": ",
           n.detail
@@ -217,29 +204,29 @@ function SceneViewport({
   );
 }
 function SlideScene(props) {
-  const [canvas, setCanvas] = _react.useState.call(void 0, false);
-  const [zoom, setZoom] = _react.useState.call(void 0, 1);
-  const opener = _react.useRef.call(void 0, null);
-  const errors = _chunkGUY7V4IQcjs.validateSlideStory.call(void 0, props.story);
+  const [canvas, setCanvas] = react.useState(false);
+  const [zoom, setZoom] = react.useState(1);
+  const opener = react.useRef(null);
+  const errors = chunkGUY7V4IQ_cjs.validateSlideStory(props.story);
   if (errors.length)
-    return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { role: "alert", className: "uipack-slide-error", children: [
+    return /* @__PURE__ */ jsxRuntime.jsxs("div", { role: "alert", className: "uipack-slide-error", children: [
       "Invalid slide story: ",
       errors.join(" ")
     ] });
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
-    _chunkNFU4EWVXcjs.CanvasView,
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    chunkNFU4EWVX_cjs.CanvasView,
     {
-      restoreFocus: () => _optionalChain([opener, 'access', _31 => _31.current, 'optionalAccess', _32 => _32.focus, 'call', _33 => _33()]),
+      restoreFocus: () => opener.current?.focus(),
       open: canvas,
       onClose: () => {
         setCanvas(false);
         setZoom(1);
       },
       title: props.story.title,
-      theme: _nullishCoalesce(props.theme, () => ( "dark")),
+      theme: props.theme ?? "dark",
       zoom: { value: zoom, min: 0.75, max: 2, onChange: setZoom },
-      children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-scene-card", "data-theme": _nullishCoalesce(props.theme, () => ( "dark")), children: [
-        !canvas && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+      children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-scene-card", "data-theme": props.theme ?? "dark", children: [
+        !canvas && /* @__PURE__ */ jsxRuntime.jsx(
           "button",
           {
             className: "uipack-scene-card__open",
@@ -249,7 +236,7 @@ function SlideScene(props) {
             children: "Open canvas"
           }
         ),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+        /* @__PURE__ */ jsxRuntime.jsx(
           SceneViewport,
           {
             ...props,
@@ -279,20 +266,20 @@ function Player({
     0,
     story.stops.findIndex((s) => s.id === defaultStopId)
   );
-  const [internal, setInternal] = _react.useState.call(void 0, initial), [paused, setPaused] = _react.useState.call(void 0, false), [present, setPresent] = _react.useState.call(void 0, false), [diagram, setDiagram] = _react.useState.call(void 0, false), [canvas, setCanvas] = _react.useState.call(void 0, false), [zoom, setZoom] = _react.useState.call(void 0, 1);
-  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, ) || motion === "none";
-  const opener = _react.useRef.call(void 0, null);
-  const root = _react.useRef.call(void 0, null);
-  const titleId = _react.useId.call(void 0, );
-  const index = stopId === void 0 ? _chunkGUY7V4IQcjs.clampStop.call(void 0, internal, story.stops.length) : Math.max(
+  const [internal, setInternal] = react.useState(initial), [paused, setPaused] = react.useState(false), [present, setPresent] = react.useState(false), [diagram, setDiagram] = react.useState(false), [canvas, setCanvas] = react.useState(false), [zoom, setZoom] = react.useState(1);
+  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion() || motion === "none";
+  const opener = react.useRef(null);
+  const root = react.useRef(null);
+  const titleId = react.useId();
+  const index = stopId === void 0 ? chunkGUY7V4IQ_cjs.clampStop(internal, story.stops.length) : Math.max(
     0,
     story.stops.findIndex((s) => s.id === stopId)
   );
   const stop = story.stops[index];
   const navigate = (value) => {
-    const next = _chunkGUY7V4IQcjs.clampStop.call(void 0, value, story.stops.length);
+    const next = chunkGUY7V4IQ_cjs.clampStop(value, story.stops.length);
     if (stopId === void 0) setInternal(next);
-    if (next !== index) _optionalChain([onStopChange, 'optionalCall', _34 => _34(story.stops[next].id)]);
+    if (next !== index) onStopChange?.(story.stops[next].id);
   };
   function keyboard(event) {
     const target = event.target;
@@ -305,19 +292,19 @@ function Player({
     }
     if (event.key === "Escape") setPresent(false);
   }
-  _react.useEffect.call(void 0, () => {
+  react.useEffect(() => {
     if (!present) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    _optionalChain([root, 'access', _35 => _35.current, 'optionalAccess', _36 => _36.focus, 'call', _37 => _37()]);
+    root.current?.focus();
     return () => {
       document.body.style.overflow = previous;
     };
   }, [present]);
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
-    _chunkNFU4EWVXcjs.CanvasView,
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    chunkNFU4EWVX_cjs.CanvasView,
     {
-      restoreFocus: () => _optionalChain([opener, 'access', _38 => _38.current, 'optionalAccess', _39 => _39.focus, 'call', _40 => _40()]),
+      restoreFocus: () => opener.current?.focus(),
       open: canvas,
       onClose: () => {
         setCanvas(false);
@@ -326,7 +313,7 @@ function Player({
       title: story.title,
       theme,
       zoom: { value: zoom, min: 0.75, max: 2, onChange: setZoom },
-      children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+      children: /* @__PURE__ */ jsxRuntime.jsxs(
         "section",
         {
           ref: root,
@@ -339,10 +326,10 @@ function Player({
           "data-story": story.id,
           "data-stop": stop.id,
           children: [
-            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-slide-player__top", children: [
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: story.title }),
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { children: [
-                !canvas && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+            /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-slide-player__top", children: [
+              /* @__PURE__ */ jsxRuntime.jsx("span", { children: story.title }),
+              /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
+                !canvas && /* @__PURE__ */ jsxRuntime.jsx(
                   "button",
                   {
                     ref: opener,
@@ -354,7 +341,7 @@ function Player({
                     children: "Open canvas"
                   }
                 ),
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+                /* @__PURE__ */ jsxRuntime.jsx(
                   "button",
                   {
                     type: "button",
@@ -363,7 +350,7 @@ function Player({
                     children: diagram ? "3D view" : "Diagram view"
                   }
                 ),
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+                /* @__PURE__ */ jsxRuntime.jsx(
                   "button",
                   {
                     type: "button",
@@ -373,7 +360,7 @@ function Player({
                     children: paused ? "Resume flow" : "Pause flow"
                   }
                 ),
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+                /* @__PURE__ */ jsxRuntime.jsx(
                   "button",
                   {
                     type: "button",
@@ -385,31 +372,31 @@ function Player({
                 )
               ] })
             ] }),
-            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-slide-player__body", children: [
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+            /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-slide-player__body", children: [
+              /* @__PURE__ */ jsxRuntime.jsxs(
                 "header",
                 {
                   className: "uipack-slide-player__copy",
                   "aria-live": "polite",
                   "aria-atomic": "true",
                   children: [
-                    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-slide-player__count", children: [
+                    /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-slide-player__count", children: [
                       String(index + 1).padStart(2, "0"),
                       " /",
                       " ",
                       String(story.stops.length).padStart(2, "0")
                     ] }),
-                    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h2", { id: titleId, children: stop.title }),
-                    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: stop.caption }),
-                    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-slide-legend", "aria-label": "Flow colors", children: [
-                      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "data-tone": "request", children: "Request" }),
-                      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "data-tone": "response", children: "Response" }),
-                      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "data-tone": "change", children: "Change" })
+                    /* @__PURE__ */ jsxRuntime.jsx("h2", { id: titleId, children: stop.title }),
+                    /* @__PURE__ */ jsxRuntime.jsx("p", { children: stop.caption }),
+                    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-slide-legend", "aria-label": "Flow colors", children: [
+                      /* @__PURE__ */ jsxRuntime.jsx("span", { "data-tone": "request", children: "Request" }),
+                      /* @__PURE__ */ jsxRuntime.jsx("span", { "data-tone": "response", children: "Response" }),
+                      /* @__PURE__ */ jsxRuntime.jsx("span", { "data-tone": "change", children: "Change" })
                     ] })
                   ]
                 }
               ),
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+              /* @__PURE__ */ jsxRuntime.jsx(
                 SceneViewport,
                 {
                   story,
@@ -417,19 +404,19 @@ function Player({
                   stopId: stop.id,
                   theme,
                   motion,
-                  paused: _nullishCoalesce(externalPaused, () => ( paused)),
+                  paused: externalPaused ?? paused,
                   renderMode: diagram ? "diagram" : renderMode,
                   onSettled
                 }
               )
             ] }),
-            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+            /* @__PURE__ */ jsxRuntime.jsxs(
               "nav",
               {
                 className: "uipack-slide-player__navigation",
                 "aria-label": "Presentation stops",
                 children: [
-                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+                  /* @__PURE__ */ jsxRuntime.jsx(
                     "button",
                     {
                       type: "button",
@@ -439,7 +426,7 @@ function Player({
                       children: "\u2190 Previous"
                     }
                   ),
-                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-slide-player__stops", children: story.stops.map((s, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+                  /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-slide-player__stops", children: story.stops.map((s, i) => /* @__PURE__ */ jsxRuntime.jsx(
                     "button",
                     {
                       type: "button",
@@ -451,7 +438,7 @@ function Player({
                     },
                     s.id
                   )) }),
-                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+                  /* @__PURE__ */ jsxRuntime.jsx(
                     "button",
                     {
                       type: "button",
@@ -464,18 +451,18 @@ function Player({
                 ]
               }
             ),
-            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "footer", { className: "uipack-slide-player__footer", children: [
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: _nullishCoalesce(footer, () => ( "UIPACK / Spatial stories")) }),
-              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { children: [
+            /* @__PURE__ */ jsxRuntime.jsxs("footer", { className: "uipack-slide-player__footer", children: [
+              /* @__PURE__ */ jsxRuntime.jsx("span", { children: footer ?? "UIPACK / Spatial stories" }),
+              /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
                 "\u2190 \u2192 to navigate ",
-                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "aria-hidden": "true", children: "\xB7" }),
+                /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", children: "\xB7" }),
                 " ",
                 reduced ? "Reduced motion" : "Click any stop to jump"
               ] })
             ] }),
-            stop.notes && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "details", { className: "uipack-slide-player__notes", children: [
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "summary", { children: "Presenter notes" }),
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: stop.notes })
+            stop.notes && /* @__PURE__ */ jsxRuntime.jsxs("details", { className: "uipack-slide-player__notes", children: [
+              /* @__PURE__ */ jsxRuntime.jsx("summary", { children: "Presenter notes" }),
+              /* @__PURE__ */ jsxRuntime.jsx("p", { children: stop.notes })
             ] })
           ]
         }
@@ -484,13 +471,13 @@ function Player({
   );
 }
 function SlidePlayer(props) {
-  const errors = _chunkGUY7V4IQcjs.validateSlideStory.call(void 0, props.story);
+  const errors = chunkGUY7V4IQ_cjs.validateSlideStory(props.story);
   if (errors.length)
-    return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { role: "alert", className: "uipack-slide-error", children: [
+    return /* @__PURE__ */ jsxRuntime.jsxs("div", { role: "alert", className: "uipack-slide-error", children: [
       "Invalid slide story: ",
       errors.join(" ")
     ] });
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Player, { ...props }, props.story.id);
+  return /* @__PURE__ */ jsxRuntime.jsx(Player, { ...props }, props.story.id);
 }
 
 // src/slides/stories.ts
@@ -1139,17 +1126,28 @@ var slideStories = [
   architectureShift
 ];
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-exports.SlidePlayer = SlidePlayer; exports.SlideScene = SlideScene; exports.architectureShift = architectureShift; exports.clampStop = _chunkGUY7V4IQcjs.clampStop; exports.harnessDive = harnessDive; exports.parallelAgents = parallelAgents; exports.quarterTurn = quarterTurn; exports.resolveNodePose = _chunkGUY7V4IQcjs.resolveNodePose; exports.retrievalLayers = retrievalLayers; exports.slidePalettes = _chunkGUY7V4IQcjs.slidePalettes; exports.slideStories = slideStories; exports.stagedAssembly = stagedAssembly; exports.validateSlideStory = _chunkGUY7V4IQcjs.validateSlideStory;
+Object.defineProperty(exports, "clampStop", {
+  enumerable: true,
+  get: function () { return chunkGUY7V4IQ_cjs.clampStop; }
+});
+Object.defineProperty(exports, "resolveNodePose", {
+  enumerable: true,
+  get: function () { return chunkGUY7V4IQ_cjs.resolveNodePose; }
+});
+Object.defineProperty(exports, "slidePalettes", {
+  enumerable: true,
+  get: function () { return chunkGUY7V4IQ_cjs.slidePalettes; }
+});
+Object.defineProperty(exports, "validateSlideStory", {
+  enumerable: true,
+  get: function () { return chunkGUY7V4IQ_cjs.validateSlideStory; }
+});
+exports.SlidePlayer = SlidePlayer;
+exports.SlideScene = SlideScene;
+exports.architectureShift = architectureShift;
+exports.harnessDive = harnessDive;
+exports.parallelAgents = parallelAgents;
+exports.quarterTurn = quarterTurn;
+exports.retrievalLayers = retrievalLayers;
+exports.slideStories = slideStories;
+exports.stagedAssembly = stagedAssembly;

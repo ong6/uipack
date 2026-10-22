@@ -1,4 +1,6 @@
-import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
+// Figure styles and the canvas workspace; the shell's own CSS is in main.tsx.
+import "../src/theme.css";
+import "../src/canvas.css";
 import { AssetBrowser } from "../src/browser";
 import manifest from "../assets/manifest.json";
 import "../src/browser/browser.css";
@@ -154,13 +156,8 @@ function Diagrams() {
   );
 }
 
-export function App() {
-  const { theme, flip } = useShowcaseTheme();
+/** Serves "/", "/charts" and "/assets"; the shell around it comes from main.tsx. */
+export default function App() {
   const path = location.pathname.replace(/\/$/, "");
-  const active = path === "/assets" ? "assets" : path === "/charts" ? "charts" : "figures";
-  return (
-    <ShowcaseShell active={active} theme={theme} flip={flip}>
-      {active === "assets" ? <Assets /> : active === "charts" ? <Charts /> : <Diagrams />}
-    </ShowcaseShell>
-  );
+  return path === "/assets" ? <Assets /> : path === "/charts" ? <Charts /> : <Diagrams />;
 }

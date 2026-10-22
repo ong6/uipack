@@ -2,7 +2,7 @@ import { useState } from "react";
 import { VerificationGate, type GatePose } from "../src/mechanism";
 import "../src/mechanism/mechanism.css";
 import { mechanismEntries } from "./catalog";
-import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
+import { useShowcaseTheme } from "./ShowcaseShell";
 import "./mechanism-showcase.css";
 
 /* The Mechanism style: one crafted machine, driven by a controlled pose the
@@ -22,7 +22,7 @@ function initialPose(): GatePose {
 }
 
 export default function MechanismShowcase() {
-  const { theme, flip } = useShowcaseTheme();
+  const { theme } = useShowcaseTheme();
   const [pose, setPose] = useState<GatePose>(initialPose);
   const choose = (next: GatePose) => {
     setPose(next);
@@ -32,7 +32,7 @@ export default function MechanismShowcase() {
   };
   const entry = mechanismEntries[0]!;
   return (
-    <ShowcaseShell active="mechanism" theme={theme} flip={flip} styleName="Mechanism">
+    <>
       <section data-catalog-entry={entry.id} id={entry.id} className="mechanism-page">
         <h2>{entry.title}</h2>
         <p className="collection-intro">
@@ -70,6 +70,6 @@ export default function MechanismShowcase() {
           ))}
         </ul>
       </section>
-    </ShowcaseShell>
+    </>
   );
 }

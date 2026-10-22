@@ -1,11 +1,7 @@
-import {
-  resolveNodePose,
-  slidePalettes
-} from "./chunk-BBBJN4JA.js";
+import { slidePalettes, resolveNodePose } from './chunk-BBBJN4JA.js';
+import * as THREE from 'three';
+import { gsap } from 'gsap';
 
-// src/slides/renderer.ts
-import * as THREE from "three";
-import { gsap } from "gsap";
 var LABEL_INSET = 16;
 function createSlideScene(host, labels, story, initial, theme, reduced, onLost, onSettled, onSelect) {
   let selected = null;
@@ -619,6 +615,5 @@ function createSlideScene(host, labels, story, initial, theme, reduced, onLost, 
     }
   };
 }
-export {
-  createSlideScene
-};
+
+export { createSlideScene };

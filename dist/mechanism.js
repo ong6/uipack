@@ -1,12 +1,7 @@
-import {
-  smoothstep
-} from "./chunk-VZ4PJUMF.js";
-import {
-  usePrefersReducedMotion
-} from "./chunk-KYO6UXHN.js";
-
-// src/mechanism/gate/VerificationGate.tsx
-import * as React2 from "react";
+import { smoothstep } from './chunk-VZ4PJUMF.js';
+import { usePrefersReducedMotion } from './chunk-KYO6UXHN.js';
+import * as React2 from 'react';
+import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 
 // src/mechanism/kit/iso-kit.ts
 var AZIMUTH = 45;
@@ -398,11 +393,6 @@ function fitProjection(points, width, height, { pad = 24, headroom = 0, azimuth 
     elevation
   };
 }
-
-// src/mechanism/kit/live.tsx
-import * as React from "react";
-import { jsx } from "react/jsx-runtime";
-var LONGEST_FRAME = 1 / 30;
 function follow(current, target, dt, seconds, calm = false) {
   if (calm) return target;
   const next = current + (target - current) * (1 - Math.exp(-dt / seconds));
@@ -422,25 +412,22 @@ function spring(state, target, dt, stiffness, damping, calm = false) {
   }
   return state.at === target && state.rate === 0;
 }
-
-// src/mechanism/kit/draw.tsx
-import { jsx as jsx2, jsxs } from "react/jsx-runtime";
 function Solid({ paths, tone = "hi", crease = "faint", halo = false, lit = false, flat = false, className, inner, children }) {
   return /* @__PURE__ */ jsxs("g", { className: className ? `iso-solid ${className}` : "iso-solid", "data-lit": lit ? "" : void 0, "data-seamless": paths.seamless ? "" : void 0, children: [
-    halo ? /* @__PURE__ */ jsx2("path", { className: "iso-halo", d: paths.fill }) : null,
-    /* @__PURE__ */ jsx2("path", { className: "iso-fill", d: paths.fill }),
-    flat ? null : paths.shades.map((d, shade) => d ? /* @__PURE__ */ jsx2("path", { className: "iso-shade", "data-shade": shade, d }, shade) : null),
-    flat ? null : /* @__PURE__ */ jsx2("path", { className: "iso-top", d: paths.top }),
-    crease === "none" || !paths.crease ? null : /* @__PURE__ */ jsx2("path", { className: "iso-line iso-crease", "data-tone": crease, d: paths.crease }),
-    crease === "none" || !paths.bevel ? null : /* @__PURE__ */ jsx2("path", { className: "iso-line iso-bevel", "data-tone": crease, d: paths.bevel }),
+    halo ? /* @__PURE__ */ jsx("path", { className: "iso-halo", d: paths.fill }) : null,
+    /* @__PURE__ */ jsx("path", { className: "iso-fill", d: paths.fill }),
+    flat ? null : paths.shades.map((d, shade) => d ? /* @__PURE__ */ jsx("path", { className: "iso-shade", "data-shade": shade, d }, shade) : null),
+    flat ? null : /* @__PURE__ */ jsx("path", { className: "iso-top", d: paths.top }),
+    crease === "none" || !paths.crease ? null : /* @__PURE__ */ jsx("path", { className: "iso-line iso-crease", "data-tone": crease, d: paths.crease }),
+    crease === "none" || !paths.bevel ? null : /* @__PURE__ */ jsx("path", { className: "iso-line iso-bevel", "data-tone": crease, d: paths.bevel }),
     inner,
-    /* @__PURE__ */ jsx2("path", { className: "iso-line iso-edge", "data-tone": tone, d: paths.outline }),
+    /* @__PURE__ */ jsx("path", { className: "iso-line iso-edge", "data-tone": tone, d: paths.outline }),
     children
   ] });
 }
 function Line({ d, tone = "lo", dotted = false, dashed = false, flow = false, className, free }) {
   if (!d) return null;
-  return /* @__PURE__ */ jsx2(
+  return /* @__PURE__ */ jsx(
     "path",
     {
       className: className ? `iso-line ${className}` : "iso-line",
@@ -456,13 +443,13 @@ function Line({ d, tone = "lo", dotted = false, dashed = false, flow = false, cl
 var tenth2 = (value) => Math.round(value * 10) / 10;
 function Wire({ from, to, via = [], tone = "lo", dotted = false, dashed = false, flow = false, ends = "both", size = 1.2 }) {
   return /* @__PURE__ */ jsxs("g", { className: "iso-wire", "data-tone": tone, children: [
-    /* @__PURE__ */ jsx2(Line, { d: pathOf([from, ...via, to]), tone, dotted, dashed, flow }),
-    ends === "both" || ends === "from" ? /* @__PURE__ */ jsx2("circle", { className: "iso-wire-end", cx: tenth2(from[0]), cy: tenth2(from[1]), r: size }) : null,
-    ends === "both" || ends === "to" ? /* @__PURE__ */ jsx2("circle", { className: "iso-wire-end", cx: tenth2(to[0]), cy: tenth2(to[1]), r: size }) : null
+    /* @__PURE__ */ jsx(Line, { d: pathOf([from, ...via, to]), tone, dotted, dashed, flow }),
+    ends === "both" || ends === "from" ? /* @__PURE__ */ jsx("circle", { className: "iso-wire-end", cx: tenth2(from[0]), cy: tenth2(from[1]), r: size }) : null,
+    ends === "both" || ends === "to" ? /* @__PURE__ */ jsx("circle", { className: "iso-wire-end", cx: tenth2(to[0]), cy: tenth2(to[1]), r: size }) : null
   ] });
 }
 function Dots({ points, size = 0.5, tone = "mid", pulse = false }) {
-  return /* @__PURE__ */ jsx2("g", { className: "iso-dots", "data-tone": tone, children: points.map(([x, y, alpha], index) => /* @__PURE__ */ jsx2(
+  return /* @__PURE__ */ jsx("g", { className: "iso-dots", "data-tone": tone, children: points.map(([x, y, alpha], index) => /* @__PURE__ */ jsx(
     "circle",
     {
       cx: tenth2(x),
@@ -482,7 +469,7 @@ function FaceText({
   tone = "mid",
   anchor = "start"
 }) {
-  return /* @__PURE__ */ jsx2("text", { className: "iso-face-text", "data-tone": tone, transform, fontSize: size, textAnchor: anchor, children });
+  return /* @__PURE__ */ jsx("text", { className: "iso-face-text", "data-tone": tone, transform, fontSize: size, textAnchor: anchor, children });
 }
 
 // src/mechanism/solid3.ts
@@ -1024,7 +1011,7 @@ var RAISED = ARRIVE + 1.3;
 var SWING_AT = ARRIVE + 0.7;
 var SWUNG = ARRIVE + 1.2;
 var ARM_DIR = [Math.cos(ARM_SWING * Math.PI / 180), Math.sin(ARM_SWING * Math.PI / 180)];
-var CONTACT_X = PIVOT[0] + ARM_DIR[0] * (-PIVOT[1] / ARM_DIR[1]) - (TOKEN_R + 2) / ARM_DIR[1];
+var CONTACT_X = PIVOT[0] + ARM_DIR[0] * (21 / ARM_DIR[1]) - (TOKEN_R + 2) / ARM_DIR[1];
 var TO_CONTACT = (CONTACT_X - GX) / SPEED;
 var SLIDE_SPEED = 40;
 var SLIDE_LONG = CHUTE_MID / ARM_DIR[1];
@@ -1184,26 +1171,20 @@ var stillScene = (pose) => sceneAt(pose, STILL_AT[pose]);
 function contactOver(distance, height) {
   return height * smooth((TOKEN_R + 1 - distance) / 4);
 }
-
-// src/mechanism/MechanismFrame.tsx
-import { jsx as jsx3, jsxs as jsxs2 } from "react/jsx-runtime";
 function MechanismFrame({ number, title, hint, readout, caption, theme, className, children }) {
-  return /* @__PURE__ */ jsxs2("figure", { className: `uipack-mechanism um-frame${className ? ` ${className}` : ""}`, "data-theme": theme, children: [
-    /* @__PURE__ */ jsxs2("div", { className: "um-plate", children: [
-      /* @__PURE__ */ jsxs2("div", { className: "um-corners", "aria-hidden": "true", children: [
-        /* @__PURE__ */ jsx3("span", { className: "um-corner", "data-corner": "fig", children: number }),
-        title ? /* @__PURE__ */ jsx3("span", { className: "um-corner", "data-corner": "title", children: title }) : null,
-        hint ? /* @__PURE__ */ jsx3("span", { className: "um-corner", "data-corner": "hint", children: hint }) : null,
-        /* @__PURE__ */ jsx3("span", { className: "um-corner", "data-corner": "readout", "data-readout": "", children: readout })
+  return /* @__PURE__ */ jsxs("figure", { className: `uipack-mechanism um-frame${className ? ` ${className}` : ""}`, "data-theme": theme, children: [
+    /* @__PURE__ */ jsxs("div", { className: "um-plate", children: [
+      /* @__PURE__ */ jsxs("div", { className: "um-corners", "aria-hidden": "true", children: [
+        /* @__PURE__ */ jsx("span", { className: "um-corner", "data-corner": "fig", children: number }),
+        title ? /* @__PURE__ */ jsx("span", { className: "um-corner", "data-corner": "title", children: title }) : null,
+        hint ? /* @__PURE__ */ jsx("span", { className: "um-corner", "data-corner": "hint", children: hint }) : null,
+        /* @__PURE__ */ jsx("span", { className: "um-corner", "data-corner": "readout", "data-readout": "", children: readout })
       ] }),
       children
     ] }),
-    caption ? /* @__PURE__ */ jsx3("figcaption", { className: "um-caption", children: caption }) : null
+    caption ? /* @__PURE__ */ jsx("figcaption", { className: "um-caption", children: caption }) : null
   ] });
 }
-
-// src/mechanism/gate/VerificationGate.tsx
-import { Fragment, jsx as jsx4, jsxs as jsxs3 } from "react/jsx-runtime";
 var LAYERS = ["belt", "chute", "tray"];
 var SLOTS = 8;
 var LABEL2 = "A verification gate on a bench. Proposal tokens, machined pucks of different heights, leave a hopper on a short conveyor belt and stop under a dial indicator on a bridge. Its plunger rides up onto each token and the needle reads the token's height against a limit mark at 6. A token at or under the limit rides on and drops into the result tray. A taller one is pushed off the belt by a swinging arm into a chute that slides it back to a return tray beside the hopper, to be revised and fed again.";
@@ -1285,15 +1266,15 @@ var shareMove = (name, share) => {
 var readingOf = (display) => clamp(display.tip.at, 0, SCALE);
 function TokenArt({ paths }) {
   const { solid } = paths;
-  return /* @__PURE__ */ jsxs3(Fragment, { children: [
-    /* @__PURE__ */ jsx4("path", { className: "iso-fill", d: solid.fill }),
-    solid.shades.map((d, shade) => /* @__PURE__ */ jsx4("path", { className: "iso-shade", "data-shade": shade, d }, shade)),
-    /* @__PURE__ */ jsx4("path", { className: "iso-top", d: solid.top }),
-    /* @__PURE__ */ jsx4("path", { className: "iso-line iso-crease", "data-tone": "lo", d: solid.crease }),
-    /* @__PURE__ */ jsx4("path", { className: "iso-line iso-bevel", "data-tone": "faint", d: solid.bevel ?? "" }),
-    /* @__PURE__ */ jsx4("path", { className: "iso-line um-token-face", "data-tone": "lo", d: paths.face }),
-    /* @__PURE__ */ jsx4("path", { className: "iso-line iso-edge", "data-tone": "hi", d: solid.outline }),
-    /* @__PURE__ */ jsx4("circle", { className: "um-token-mark", cx: fine2(paths.mark[0]), cy: fine2(paths.mark[1]), r: 0.7 })
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("path", { className: "iso-fill", d: solid.fill }),
+    solid.shades.map((d, shade) => /* @__PURE__ */ jsx("path", { className: "iso-shade", "data-shade": shade, d }, shade)),
+    /* @__PURE__ */ jsx("path", { className: "iso-top", d: solid.top }),
+    /* @__PURE__ */ jsx("path", { className: "iso-line iso-crease", "data-tone": "lo", d: solid.crease }),
+    /* @__PURE__ */ jsx("path", { className: "iso-line iso-bevel", "data-tone": "faint", d: solid.bevel ?? "" }),
+    /* @__PURE__ */ jsx("path", { className: "iso-line um-token-face", "data-tone": "lo", d: paths.face }),
+    /* @__PURE__ */ jsx("path", { className: "iso-line iso-edge", "data-tone": "hi", d: solid.outline }),
+    /* @__PURE__ */ jsx("circle", { className: "um-token-mark", cx: fine2(paths.mark[0]), cy: fine2(paths.mark[1]), r: 0.7 })
   ] });
 }
 function writeSolid(group, solid) {
@@ -1551,160 +1532,160 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
   const reading = readingOf(shown);
   const arm = armOf(shown.arm.at);
   const hint = HINTS[pose];
-  const art = /* @__PURE__ */ jsxs3("svg", { className: "iso-svg", viewBox: `0 0 ${WIDTH} ${HEIGHT}`, role: "img", "aria-label": alt, focusable: "false", children: [
-    /* @__PURE__ */ jsx4("title", { id: `${uid}-title`, children: "Verification gate" }),
-    /* @__PURE__ */ jsxs3("g", { "data-part": "base", children: [
-      /* @__PURE__ */ jsx4("path", { className: "iso-halo", d: BASE_ART.halo }),
-      BASE_ART.feet.map((parts, index) => /* @__PURE__ */ jsx4("g", { children: parts.map((paths, part) => /* @__PURE__ */ jsx4(Solid, { paths, tone: part ? "mid" : "lo" }, part)) }, index)),
-      /* @__PURE__ */ jsx4(Solid, { paths: BASE_ART.slab, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Line, { d: BASE_ART.groove, tone: "lo" }),
-      /* @__PURE__ */ jsx4(Line, { d: BASE_ART.screwRings, tone: "lo" }),
-      /* @__PURE__ */ jsx4(Dots, { points: BASE_ART.screws, size: 0.5, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: BASE_ART.strip, tone: "lo", crease: "none" }),
-      /* @__PURE__ */ jsx4(Line, { d: BASE_ART.stripMinor, tone: "lo" }),
-      /* @__PURE__ */ jsx4(Line, { d: BASE_ART.stripMajor, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Dots, { points: BASE_ART.stripScrews, size: 0.45, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: BASE_ART.label, tone: "lo", crease: "none" }),
-      /* @__PURE__ */ jsx4(Line, { d: BASE_ART.labelLine, tone: "faint" }),
-      /* @__PURE__ */ jsx4(Line, { d: BASE_ART.labelRule, tone: "lo", free: true }),
-      /* @__PURE__ */ jsx4(Dots, { points: BASE_ART.labelScrews, size: 0.45, tone: "mid" })
+  const art = /* @__PURE__ */ jsxs("svg", { className: "iso-svg", viewBox: `0 0 ${WIDTH} ${HEIGHT}`, role: "img", "aria-label": alt, focusable: "false", children: [
+    /* @__PURE__ */ jsx("title", { id: `${uid}-title`, children: "Verification gate" }),
+    /* @__PURE__ */ jsxs("g", { "data-part": "base", children: [
+      /* @__PURE__ */ jsx("path", { className: "iso-halo", d: BASE_ART.halo }),
+      BASE_ART.feet.map((parts, index) => /* @__PURE__ */ jsx("g", { children: parts.map((paths, part) => /* @__PURE__ */ jsx(Solid, { paths, tone: part ? "mid" : "lo" }, part)) }, index)),
+      /* @__PURE__ */ jsx(Solid, { paths: BASE_ART.slab, tone: "mid" }),
+      /* @__PURE__ */ jsx(Line, { d: BASE_ART.groove, tone: "lo" }),
+      /* @__PURE__ */ jsx(Line, { d: BASE_ART.screwRings, tone: "lo" }),
+      /* @__PURE__ */ jsx(Dots, { points: BASE_ART.screws, size: 0.5, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: BASE_ART.strip, tone: "lo", crease: "none" }),
+      /* @__PURE__ */ jsx(Line, { d: BASE_ART.stripMinor, tone: "lo" }),
+      /* @__PURE__ */ jsx(Line, { d: BASE_ART.stripMajor, tone: "mid" }),
+      /* @__PURE__ */ jsx(Dots, { points: BASE_ART.stripScrews, size: 0.45, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: BASE_ART.label, tone: "lo", crease: "none" }),
+      /* @__PURE__ */ jsx(Line, { d: BASE_ART.labelLine, tone: "faint" }),
+      /* @__PURE__ */ jsx(Line, { d: BASE_ART.labelRule, tone: "lo", free: true }),
+      /* @__PURE__ */ jsx(Dots, { points: BASE_ART.labelScrews, size: 0.45, tone: "mid" })
     ] }),
-    /* @__PURE__ */ jsxs3("g", { "data-assembly": "conveyor", transform: shareMove("conveyor", shown.shares.conveyor.at) || void 0, children: [
-      CONVEYOR_BACK.legs.map((leg, index) => /* @__PURE__ */ jsxs3("g", { children: [
-        /* @__PURE__ */ jsx4(Solid, { paths: leg.foot, tone: "lo" }),
-        /* @__PURE__ */ jsx4(Dots, { points: leg.screws, size: 0.45, tone: "mid" }),
-        /* @__PURE__ */ jsx4(Solid, { paths: leg.post, tone: "mid" })
+    /* @__PURE__ */ jsxs("g", { "data-assembly": "conveyor", transform: shareMove("conveyor", shown.shares.conveyor.at) || void 0, children: [
+      CONVEYOR_BACK.legs.map((leg, index) => /* @__PURE__ */ jsxs("g", { children: [
+        /* @__PURE__ */ jsx(Solid, { paths: leg.foot, tone: "lo" }),
+        /* @__PURE__ */ jsx(Dots, { points: leg.screws, size: 0.45, tone: "mid" }),
+        /* @__PURE__ */ jsx(Solid, { paths: leg.post, tone: "mid" })
       ] }, index)),
-      CONVEYOR_BACK.stretchers.map((paths, index) => /* @__PURE__ */ jsx4(Solid, { paths, tone: "mid" }, index)),
-      /* @__PURE__ */ jsx4(Solid, { paths: CONVEYOR_BACK.backRail, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: CONVEYOR_BACK.backLip, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Dots, { points: CONVEYOR_BACK.backScrews, size: 0.45, tone: "mid" })
+      CONVEYOR_BACK.stretchers.map((paths, index) => /* @__PURE__ */ jsx(Solid, { paths, tone: "mid" }, index)),
+      /* @__PURE__ */ jsx(Solid, { paths: CONVEYOR_BACK.backRail, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: CONVEYOR_BACK.backLip, tone: "mid" }),
+      /* @__PURE__ */ jsx(Dots, { points: CONVEYOR_BACK.backScrews, size: 0.45, tone: "mid" })
     ] }),
-    /* @__PURE__ */ jsxs3("g", { "data-assembly": "gauge", transform: shareMove("gauge", shown.shares.gauge.at) || void 0, children: [
-      /* @__PURE__ */ jsx4(Solid, { paths: GAUGE_BACK.foot, tone: "lo" }),
-      /* @__PURE__ */ jsx4(Dots, { points: GAUGE_BACK.screws, size: 0.45, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: GAUGE_BACK.post, tone: "mid" })
+    /* @__PURE__ */ jsxs("g", { "data-assembly": "gauge", transform: shareMove("gauge", shown.shares.gauge.at) || void 0, children: [
+      /* @__PURE__ */ jsx(Solid, { paths: GAUGE_BACK.foot, tone: "lo" }),
+      /* @__PURE__ */ jsx(Dots, { points: GAUGE_BACK.screws, size: 0.45, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: GAUGE_BACK.post, tone: "mid" })
     ] }),
-    /* @__PURE__ */ jsxs3("g", { "data-assembly": "diverter", transform: shareMove("diverter", shown.shares.diverter.at) || void 0, children: [
-      /* @__PURE__ */ jsx4(Solid, { paths: DIVERTER.bracket, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Dots, { points: DIVERTER.bracketScrews, size: 0.45, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: DIVERTER.post, tone: "mid", crease: "none" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: DIVERTER.hub, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: DIVERTER.head, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Line, { d: DIVERTER.headKnurl, tone: "lo" }),
-      /* @__PURE__ */ jsx4(Dots, { points: DIVERTER.stops, size: 0.45, tone: "hi" }),
-      /* @__PURE__ */ jsx4("path", { "data-part": "pointer", className: "iso-line", "data-tone": "hi", d: armPointerOf(shown.arm.at) })
+    /* @__PURE__ */ jsxs("g", { "data-assembly": "diverter", transform: shareMove("diverter", shown.shares.diverter.at) || void 0, children: [
+      /* @__PURE__ */ jsx(Solid, { paths: DIVERTER.bracket, tone: "mid" }),
+      /* @__PURE__ */ jsx(Dots, { points: DIVERTER.bracketScrews, size: 0.45, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: DIVERTER.post, tone: "mid", crease: "none" }),
+      /* @__PURE__ */ jsx(Solid, { paths: DIVERTER.hub, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: DIVERTER.head, tone: "mid" }),
+      /* @__PURE__ */ jsx(Line, { d: DIVERTER.headKnurl, tone: "lo" }),
+      /* @__PURE__ */ jsx(Dots, { points: DIVERTER.stops, size: 0.45, tone: "hi" }),
+      /* @__PURE__ */ jsx("path", { "data-part": "pointer", className: "iso-line", "data-tone": "hi", d: armPointerOf(shown.arm.at) })
     ] }),
-    /* @__PURE__ */ jsxs3("g", { "data-assembly": "conveyor", transform: shareMove("conveyor", shown.shares.conveyor.at) || void 0, children: [
-      CONVEYOR_MID.drums.map((paths, index) => /* @__PURE__ */ jsx4(Solid, { paths, tone: "mid" }, index)),
-      /* @__PURE__ */ jsx4(Solid, { paths: CONVEYOR_MID.belt, tone: "mid", crease: "faint" }),
-      /* @__PURE__ */ jsx4("path", { "data-part": "slats", className: "iso-line", "data-tone": "faint", d: slatsOf(shown.phase) })
+    /* @__PURE__ */ jsxs("g", { "data-assembly": "conveyor", transform: shareMove("conveyor", shown.shares.conveyor.at) || void 0, children: [
+      CONVEYOR_MID.drums.map((paths, index) => /* @__PURE__ */ jsx(Solid, { paths, tone: "mid" }, index)),
+      /* @__PURE__ */ jsx(Solid, { paths: CONVEYOR_MID.belt, tone: "mid", crease: "faint" }),
+      /* @__PURE__ */ jsx("path", { "data-part": "slats", className: "iso-line", "data-tone": "faint", d: slatsOf(shown.phase) })
     ] }),
-    /* @__PURE__ */ jsxs3("g", { "data-assembly": "hopper", transform: shareMove("hopper", shown.shares.hopper.at) || void 0, children: [
-      /* @__PURE__ */ jsx4(Solid, { paths: HOPPER_BACK.backCheek, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: HOPPER_BACK.tube, tone: "mid", inner: /* @__PURE__ */ jsx4(Line, { d: HOPPER_BACK.seams, tone: "faint" }) }),
-      /* @__PURE__ */ jsx4("path", { className: "um-cavity", d: HOPPER_BACK.windowFill }),
-      /* @__PURE__ */ jsx4(Line, { d: HOPPER_BACK.stack, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Line, { d: HOPPER_BACK.window, tone: "lo" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: HOPPER_BACK.collar, tone: "mid" }),
-      /* @__PURE__ */ jsx4("path", { className: "um-cavity", d: HOPPER_BACK.mouthFill }),
-      /* @__PURE__ */ jsx4(Line, { d: HOPPER_BACK.mouth, tone: "lo" }),
-      /* @__PURE__ */ jsx4(Dots, { points: HOPPER_BACK.collarScrews, size: 0.45, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: HOPPER_BACK.gate, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Dots, { points: HOPPER_BACK.gateScrews, size: 0.45, tone: "mid" })
+    /* @__PURE__ */ jsxs("g", { "data-assembly": "hopper", transform: shareMove("hopper", shown.shares.hopper.at) || void 0, children: [
+      /* @__PURE__ */ jsx(Solid, { paths: HOPPER_BACK.backCheek, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: HOPPER_BACK.tube, tone: "mid", inner: /* @__PURE__ */ jsx(Line, { d: HOPPER_BACK.seams, tone: "faint" }) }),
+      /* @__PURE__ */ jsx("path", { className: "um-cavity", d: HOPPER_BACK.windowFill }),
+      /* @__PURE__ */ jsx(Line, { d: HOPPER_BACK.stack, tone: "mid" }),
+      /* @__PURE__ */ jsx(Line, { d: HOPPER_BACK.window, tone: "lo" }),
+      /* @__PURE__ */ jsx(Solid, { paths: HOPPER_BACK.collar, tone: "mid" }),
+      /* @__PURE__ */ jsx("path", { className: "um-cavity", d: HOPPER_BACK.mouthFill }),
+      /* @__PURE__ */ jsx(Line, { d: HOPPER_BACK.mouth, tone: "lo" }),
+      /* @__PURE__ */ jsx(Dots, { points: HOPPER_BACK.collarScrews, size: 0.45, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: HOPPER_BACK.gate, tone: "mid" }),
+      /* @__PURE__ */ jsx(Dots, { points: HOPPER_BACK.gateScrews, size: 0.45, tone: "mid" })
     ] }),
-    /* @__PURE__ */ jsxs3("g", { "data-assembly": "diverter", transform: shareMove("diverter", shown.shares.diverter.at) || void 0, children: [
-      /* @__PURE__ */ jsxs3("g", { "data-part": "arm", className: "iso-solid", children: [
-        /* @__PURE__ */ jsx4("path", { className: "iso-fill", d: arm.fill }),
-        arm.shades.map((d, shade) => /* @__PURE__ */ jsx4("path", { className: "iso-shade", "data-shade": shade, d }, shade)),
-        /* @__PURE__ */ jsx4("path", { className: "iso-top", d: arm.top }),
-        /* @__PURE__ */ jsx4("path", { className: "iso-line iso-crease", "data-tone": "faint", d: arm.crease }),
-        /* @__PURE__ */ jsx4("path", { className: "iso-line iso-bevel", "data-tone": "faint", d: arm.bevel ?? "" }),
-        /* @__PURE__ */ jsx4("path", { className: "iso-line iso-edge", "data-tone": "mid", d: arm.outline })
+    /* @__PURE__ */ jsxs("g", { "data-assembly": "diverter", transform: shareMove("diverter", shown.shares.diverter.at) || void 0, children: [
+      /* @__PURE__ */ jsxs("g", { "data-part": "arm", className: "iso-solid", children: [
+        /* @__PURE__ */ jsx("path", { className: "iso-fill", d: arm.fill }),
+        arm.shades.map((d, shade) => /* @__PURE__ */ jsx("path", { className: "iso-shade", "data-shade": shade, d }, shade)),
+        /* @__PURE__ */ jsx("path", { className: "iso-top", d: arm.top }),
+        /* @__PURE__ */ jsx("path", { className: "iso-line iso-crease", "data-tone": "faint", d: arm.crease }),
+        /* @__PURE__ */ jsx("path", { className: "iso-line iso-bevel", "data-tone": "faint", d: arm.bevel ?? "" }),
+        /* @__PURE__ */ jsx("path", { className: "iso-line iso-edge", "data-tone": "mid", d: arm.outline })
       ] }),
-      /* @__PURE__ */ jsx4("g", { "data-assembly": "conveyor", transform: shareMove("conveyor", shown.shares.conveyor.at) || void 0, children: /* @__PURE__ */ jsx4(Tokens, { layer: "belt", slots: shown.slots }) }),
-      /* @__PURE__ */ jsxs3("g", { "data-assembly": "conveyor", transform: shareMove("conveyor", shown.shares.conveyor.at) || void 0, children: [
-        /* @__PURE__ */ jsx4(Solid, { paths: CONVEYOR_FRONT.rail, tone: "mid", inner: /* @__PURE__ */ jsx4(Line, { d: CONVEYOR_FRONT.railSeam, tone: "faint" }) }),
-        /* @__PURE__ */ jsx4(Dots, { points: CONVEYOR_FRONT.railScrews, size: 0.45, tone: "mid" }),
-        CONVEYOR_FRONT.lips.map((paths, index) => /* @__PURE__ */ jsx4(Solid, { paths, tone: "mid" }, index)),
-        /* @__PURE__ */ jsx4(Line, { d: CONVEYOR_FRONT.lipMinor, tone: "lo" }),
-        /* @__PURE__ */ jsx4(Line, { d: CONVEYOR_FRONT.lipMajor, tone: "mid" }),
-        /* @__PURE__ */ jsx4(Line, { d: CONVEYOR_FRONT.zero, tone: "hi" }),
-        /* @__PURE__ */ jsx4(Solid, { paths: CONVEYOR_FRONT.bearing, tone: "mid" }),
-        /* @__PURE__ */ jsx4(Line, { d: CONVEYOR_FRONT.bearingBore, tone: "lo" }),
-        /* @__PURE__ */ jsx4(Dots, { points: CONVEYOR_FRONT.bearingScrews, size: 0.45, tone: "mid" }),
-        /* @__PURE__ */ jsx4(Solid, { paths: CONVEYOR_FRONT.motor, tone: "mid", inner: /* @__PURE__ */ jsx4(Line, { d: CONVEYOR_FRONT.motorBands, tone: "faint" }) }),
-        /* @__PURE__ */ jsx4(Line, { d: CONVEYOR_FRONT.motorCap, tone: "lo" }),
-        /* @__PURE__ */ jsx4(Dots, { points: CONVEYOR_FRONT.motorBolts, size: 0.45, tone: "mid" }),
-        /* @__PURE__ */ jsx4(Dots, { points: [CONVEYOR_FRONT.motorShaft], size: 0.8, tone: "hi" }),
-        /* @__PURE__ */ jsx4(Solid, { paths: CONVEYOR_FRONT.box, tone: "mid" }),
-        /* @__PURE__ */ jsx4(Line, { d: CONVEYOR_FRONT.boxLine, tone: "faint" }),
-        /* @__PURE__ */ jsx4(Dots, { points: CONVEYOR_FRONT.boxScrews, size: 0.4, tone: "mid" })
+      /* @__PURE__ */ jsx("g", { "data-assembly": "conveyor", transform: shareMove("conveyor", shown.shares.conveyor.at) || void 0, children: /* @__PURE__ */ jsx(Tokens, { layer: "belt", slots: shown.slots }) }),
+      /* @__PURE__ */ jsxs("g", { "data-assembly": "conveyor", transform: shareMove("conveyor", shown.shares.conveyor.at) || void 0, children: [
+        /* @__PURE__ */ jsx(Solid, { paths: CONVEYOR_FRONT.rail, tone: "mid", inner: /* @__PURE__ */ jsx(Line, { d: CONVEYOR_FRONT.railSeam, tone: "faint" }) }),
+        /* @__PURE__ */ jsx(Dots, { points: CONVEYOR_FRONT.railScrews, size: 0.45, tone: "mid" }),
+        CONVEYOR_FRONT.lips.map((paths, index) => /* @__PURE__ */ jsx(Solid, { paths, tone: "mid" }, index)),
+        /* @__PURE__ */ jsx(Line, { d: CONVEYOR_FRONT.lipMinor, tone: "lo" }),
+        /* @__PURE__ */ jsx(Line, { d: CONVEYOR_FRONT.lipMajor, tone: "mid" }),
+        /* @__PURE__ */ jsx(Line, { d: CONVEYOR_FRONT.zero, tone: "hi" }),
+        /* @__PURE__ */ jsx(Solid, { paths: CONVEYOR_FRONT.bearing, tone: "mid" }),
+        /* @__PURE__ */ jsx(Line, { d: CONVEYOR_FRONT.bearingBore, tone: "lo" }),
+        /* @__PURE__ */ jsx(Dots, { points: CONVEYOR_FRONT.bearingScrews, size: 0.45, tone: "mid" }),
+        /* @__PURE__ */ jsx(Solid, { paths: CONVEYOR_FRONT.motor, tone: "mid", inner: /* @__PURE__ */ jsx(Line, { d: CONVEYOR_FRONT.motorBands, tone: "faint" }) }),
+        /* @__PURE__ */ jsx(Line, { d: CONVEYOR_FRONT.motorCap, tone: "lo" }),
+        /* @__PURE__ */ jsx(Dots, { points: CONVEYOR_FRONT.motorBolts, size: 0.45, tone: "mid" }),
+        /* @__PURE__ */ jsx(Dots, { points: [CONVEYOR_FRONT.motorShaft], size: 0.8, tone: "hi" }),
+        /* @__PURE__ */ jsx(Solid, { paths: CONVEYOR_FRONT.box, tone: "mid" }),
+        /* @__PURE__ */ jsx(Line, { d: CONVEYOR_FRONT.boxLine, tone: "faint" }),
+        /* @__PURE__ */ jsx(Dots, { points: CONVEYOR_FRONT.boxScrews, size: 0.4, tone: "mid" })
       ] }),
-      /* @__PURE__ */ jsxs3("g", { "data-assembly": "hopper", transform: shareMove("hopper", shown.shares.hopper.at) || void 0, children: [
-        /* @__PURE__ */ jsx4(Solid, { paths: HOPPER_FRONT.cheek, tone: "mid" }),
-        /* @__PURE__ */ jsx4(Dots, { points: HOPPER_FRONT.cheekScrews, size: 0.45, tone: "mid" })
+      /* @__PURE__ */ jsxs("g", { "data-assembly": "hopper", transform: shareMove("hopper", shown.shares.hopper.at) || void 0, children: [
+        /* @__PURE__ */ jsx(Solid, { paths: HOPPER_FRONT.cheek, tone: "mid" }),
+        /* @__PURE__ */ jsx(Dots, { points: HOPPER_FRONT.cheekScrews, size: 0.45, tone: "mid" })
       ] })
     ] }),
-    /* @__PURE__ */ jsxs3("g", { "data-assembly": "gauge", transform: shareMove("gauge", shown.shares.gauge.at) || void 0, children: [
-      /* @__PURE__ */ jsxs3("g", { "data-part": "plunger", transform: move([0, 0, shown.tip.at]), children: [
-        /* @__PURE__ */ jsx4(Solid, { paths: PLUNGER.tip, tone: "hi" }),
-        /* @__PURE__ */ jsx4(Solid, { paths: PLUNGER.rod, tone: "hi", crease: "none", inner: /* @__PURE__ */ jsx4(Line, { d: PLUNGER.rodMarks, tone: "lo" }) })
+    /* @__PURE__ */ jsxs("g", { "data-assembly": "gauge", transform: shareMove("gauge", shown.shares.gauge.at) || void 0, children: [
+      /* @__PURE__ */ jsxs("g", { "data-part": "plunger", transform: move([0, 0, shown.tip.at]), children: [
+        /* @__PURE__ */ jsx(Solid, { paths: PLUNGER.tip, tone: "hi" }),
+        /* @__PURE__ */ jsx(Solid, { paths: PLUNGER.rod, tone: "hi", crease: "none", inner: /* @__PURE__ */ jsx(Line, { d: PLUNGER.rodMarks, tone: "lo" }) })
       ] }),
-      /* @__PURE__ */ jsx4(Solid, { paths: GAUGE_FRONT.guide, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: GAUGE_FRONT.front.foot, tone: "lo" }),
-      /* @__PURE__ */ jsx4(Dots, { points: GAUGE_FRONT.front.screws, size: 0.45, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: GAUGE_FRONT.front.post, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: GAUGE_FRONT.beam, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Line, { d: GAUGE_FRONT.beamLine, tone: "faint" }),
-      /* @__PURE__ */ jsx4(Dots, { points: GAUGE_FRONT.beamScrews, size: 0.5, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: GAUGE_FRONT.neck, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: GAUGE_FRONT.crown, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: GAUGE_FRONT.crownCap, tone: "mid", inner: /* @__PURE__ */ jsx4(Line, { d: GAUGE_FRONT.crownKnurl, tone: "lo" }) }),
-      /* @__PURE__ */ jsx4(Solid, { paths: GAUGE_FRONT.puck, tone: "hi", crease: "lo", inner: /* @__PURE__ */ jsx4(Line, { d: GAUGE_FRONT.band, tone: "faint" }) }),
-      /* @__PURE__ */ jsx4(Line, { d: GAUGE_FRONT.knurl, tone: "lo" }),
-      /* @__PURE__ */ jsx4(Line, { d: GAUGE_FRONT.bezel, tone: "lo" }),
-      /* @__PURE__ */ jsx4(Line, { d: GAUGE_FRONT.minor, tone: "lo" }),
-      /* @__PURE__ */ jsx4(Line, { d: GAUGE_FRONT.major, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Line, { d: GAUGE_FRONT.band0, tone: "mid" }),
-      /* @__PURE__ */ jsx4("path", { className: "iso-line um-limit", d: GAUGE_FRONT.limit }),
-      /* @__PURE__ */ jsx4("path", { "data-part": "drag", className: "iso-line um-drag", d: dragOf(clamp(shown.drag, 0, SCALE)) }),
-      /* @__PURE__ */ jsx4("path", { "data-part": "needle", className: "iso-line um-needle", d: needleOf(reading) }),
-      /* @__PURE__ */ jsx4(Line, { d: GAUGE_FRONT.hub, tone: "mid" })
+      /* @__PURE__ */ jsx(Solid, { paths: GAUGE_FRONT.guide, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: GAUGE_FRONT.front.foot, tone: "lo" }),
+      /* @__PURE__ */ jsx(Dots, { points: GAUGE_FRONT.front.screws, size: 0.45, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: GAUGE_FRONT.front.post, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: GAUGE_FRONT.beam, tone: "mid" }),
+      /* @__PURE__ */ jsx(Line, { d: GAUGE_FRONT.beamLine, tone: "faint" }),
+      /* @__PURE__ */ jsx(Dots, { points: GAUGE_FRONT.beamScrews, size: 0.5, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: GAUGE_FRONT.neck, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: GAUGE_FRONT.crown, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: GAUGE_FRONT.crownCap, tone: "mid", inner: /* @__PURE__ */ jsx(Line, { d: GAUGE_FRONT.crownKnurl, tone: "lo" }) }),
+      /* @__PURE__ */ jsx(Solid, { paths: GAUGE_FRONT.puck, tone: "hi", crease: "lo", inner: /* @__PURE__ */ jsx(Line, { d: GAUGE_FRONT.band, tone: "faint" }) }),
+      /* @__PURE__ */ jsx(Line, { d: GAUGE_FRONT.knurl, tone: "lo" }),
+      /* @__PURE__ */ jsx(Line, { d: GAUGE_FRONT.bezel, tone: "lo" }),
+      /* @__PURE__ */ jsx(Line, { d: GAUGE_FRONT.minor, tone: "lo" }),
+      /* @__PURE__ */ jsx(Line, { d: GAUGE_FRONT.major, tone: "mid" }),
+      /* @__PURE__ */ jsx(Line, { d: GAUGE_FRONT.band0, tone: "mid" }),
+      /* @__PURE__ */ jsx("path", { className: "iso-line um-limit", d: GAUGE_FRONT.limit }),
+      /* @__PURE__ */ jsx("path", { "data-part": "drag", className: "iso-line um-drag", d: dragOf(clamp(shown.drag, 0, SCALE)) }),
+      /* @__PURE__ */ jsx("path", { "data-part": "needle", className: "iso-line um-needle", d: needleOf(reading) }),
+      /* @__PURE__ */ jsx(Line, { d: GAUGE_FRONT.hub, tone: "mid" })
     ] }),
-    /* @__PURE__ */ jsxs3("g", { "data-assembly": "chute", transform: shareMove("chute", shown.shares.chute.at) || void 0, children: [
-      CHUTE_BACK.supports.map((support, index) => /* @__PURE__ */ jsxs3("g", { children: [
-        /* @__PURE__ */ jsx4(Solid, { paths: support.foot, tone: "lo" }),
-        /* @__PURE__ */ jsx4(Solid, { paths: support.post, tone: "mid" })
+    /* @__PURE__ */ jsxs("g", { "data-assembly": "chute", transform: shareMove("chute", shown.shares.chute.at) || void 0, children: [
+      CHUTE_BACK.supports.map((support, index) => /* @__PURE__ */ jsxs("g", { children: [
+        /* @__PURE__ */ jsx(Solid, { paths: support.foot, tone: "lo" }),
+        /* @__PURE__ */ jsx(Solid, { paths: support.post, tone: "mid" })
       ] }, index)),
-      /* @__PURE__ */ jsx4(Solid, { paths: CHUTE_BACK.apronFoot, tone: "lo" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: CHUTE_BACK.apronPost, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: CHUTE_BACK.trayFloor, tone: "lo" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: CHUTE_BACK.trayBack, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: CHUTE_BACK.trayLeft, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: CHUTE_BACK.backWall, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: CHUTE_BACK.floor, tone: "mid", inner: /* @__PURE__ */ jsx4(Line, { d: CHUTE_BACK.floorLines, tone: "lo" }) }),
-      /* @__PURE__ */ jsx4(Solid, { paths: CHUTE_BACK.apron, tone: "mid", inner: /* @__PURE__ */ jsx4(Line, { d: CHUTE_BACK.apronLines, tone: "lo" }) }),
-      /* @__PURE__ */ jsx4(Tokens, { layer: "chute", slots: shown.slots }),
-      /* @__PURE__ */ jsx4(Solid, { paths: CHUTE_FRONT.frontWall, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Dots, { points: CHUTE_FRONT.wallScrews, size: 0.45, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: CHUTE_FRONT.apronWall, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: CHUTE_FRONT.endWall, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: CHUTE_FRONT.trayRight, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: CHUTE_FRONT.trayFront, tone: "mid" })
+      /* @__PURE__ */ jsx(Solid, { paths: CHUTE_BACK.apronFoot, tone: "lo" }),
+      /* @__PURE__ */ jsx(Solid, { paths: CHUTE_BACK.apronPost, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: CHUTE_BACK.trayFloor, tone: "lo" }),
+      /* @__PURE__ */ jsx(Solid, { paths: CHUTE_BACK.trayBack, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: CHUTE_BACK.trayLeft, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: CHUTE_BACK.backWall, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: CHUTE_BACK.floor, tone: "mid", inner: /* @__PURE__ */ jsx(Line, { d: CHUTE_BACK.floorLines, tone: "lo" }) }),
+      /* @__PURE__ */ jsx(Solid, { paths: CHUTE_BACK.apron, tone: "mid", inner: /* @__PURE__ */ jsx(Line, { d: CHUTE_BACK.apronLines, tone: "lo" }) }),
+      /* @__PURE__ */ jsx(Tokens, { layer: "chute", slots: shown.slots }),
+      /* @__PURE__ */ jsx(Solid, { paths: CHUTE_FRONT.frontWall, tone: "mid" }),
+      /* @__PURE__ */ jsx(Dots, { points: CHUTE_FRONT.wallScrews, size: 0.45, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: CHUTE_FRONT.apronWall, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: CHUTE_FRONT.endWall, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: CHUTE_FRONT.trayRight, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: CHUTE_FRONT.trayFront, tone: "mid" })
     ] }),
-    /* @__PURE__ */ jsxs3("g", { "data-assembly": "tray", transform: shareMove("tray", shown.shares.tray.at) || void 0, children: [
-      /* @__PURE__ */ jsx4(Solid, { paths: TRAY_BACK.floor, tone: "lo" }),
-      /* @__PURE__ */ jsx4(Line, { d: TRAY_BACK.floorGrid, tone: "faint" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: TRAY_BACK.back, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: TRAY_BACK.left, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Tokens, { layer: "tray", slots: shown.slots }),
-      /* @__PURE__ */ jsx4(Solid, { paths: TRAY_FRONT.right, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Solid, { paths: TRAY_FRONT.front, tone: "mid" }),
-      /* @__PURE__ */ jsx4(Dots, { points: TRAY_FRONT.screws, size: 0.45, tone: "mid" })
+    /* @__PURE__ */ jsxs("g", { "data-assembly": "tray", transform: shareMove("tray", shown.shares.tray.at) || void 0, children: [
+      /* @__PURE__ */ jsx(Solid, { paths: TRAY_BACK.floor, tone: "lo" }),
+      /* @__PURE__ */ jsx(Line, { d: TRAY_BACK.floorGrid, tone: "faint" }),
+      /* @__PURE__ */ jsx(Solid, { paths: TRAY_BACK.back, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: TRAY_BACK.left, tone: "mid" }),
+      /* @__PURE__ */ jsx(Tokens, { layer: "tray", slots: shown.slots }),
+      /* @__PURE__ */ jsx(Solid, { paths: TRAY_FRONT.right, tone: "mid" }),
+      /* @__PURE__ */ jsx(Solid, { paths: TRAY_FRONT.front, tone: "mid" }),
+      /* @__PURE__ */ jsx(Dots, { points: TRAY_FRONT.screws, size: 0.45, tone: "mid" })
     ] })
   ] });
-  const machine = /* @__PURE__ */ jsxs3(
+  const machine = /* @__PURE__ */ jsxs(
     "div",
     {
       ref: root,
@@ -1725,24 +1706,24 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
       } : void 0,
       children: [
         art,
-        interactive ? /* @__PURE__ */ jsx4("span", { ref: live, className: "um-hidden", "aria-live": "polite" }) : null
+        interactive ? /* @__PURE__ */ jsx("span", { ref: live, className: "um-hidden", "aria-live": "polite" }) : null
       ]
     }
   );
   if (!animated || reduced || pose !== "idle") return machine;
-  const control = /* @__PURE__ */ jsx4("button", { type: "button", className: "um-motion", onClick: act, children: paused ? "Resume motion" : "Pause motion" });
-  return bare ? /* @__PURE__ */ jsxs3("div", { className: "uipack-mechanism um-live", "data-theme": theme, children: [
+  const control = /* @__PURE__ */ jsx("button", { type: "button", className: "um-motion", onClick: act, children: paused ? "Resume motion" : "Pause motion" });
+  return bare ? /* @__PURE__ */ jsxs("div", { className: "uipack-mechanism um-live", "data-theme": theme, children: [
     machine,
     control
-  ] }) : /* @__PURE__ */ jsxs3(Fragment, { children: [
+  ] }) : /* @__PURE__ */ jsxs(Fragment, { children: [
     machine,
     control
   ] });
 }
 function Tokens({ layer, slots }) {
-  return /* @__PURE__ */ jsx4(Fragment, { children: slots.map((slot, index) => {
+  return /* @__PURE__ */ jsx(Fragment, { children: slots.map((slot, index) => {
     const on = slot.key !== null && slot.layer === layer && slot.alpha > 5e-3;
-    return /* @__PURE__ */ jsx4(
+    return /* @__PURE__ */ jsx(
       "g",
       {
         className: "iso-solid um-token",
@@ -1752,7 +1733,7 @@ function Tokens({ layer, slots }) {
         display: on ? void 0 : "none",
         transform: tokenMove(slot.pos),
         opacity: on && slot.alpha < 0.995 ? slot.alpha.toFixed(2) : void 0,
-        children: /* @__PURE__ */ jsx4(TokenArt, { paths: tokenPaths(slot.value) })
+        children: /* @__PURE__ */ jsx(TokenArt, { paths: tokenPaths(slot.value) })
       },
       index
     );
@@ -1760,84 +1741,11 @@ function Tokens({ layer, slots }) {
 }
 function VerificationGate({ frame = true, number = "Fig 1", title = "Verification gate", hint, caption = GATE_CAPTION, theme, ...machine }) {
   const pose = machine.pose ?? "idle";
-  if (!frame) return /* @__PURE__ */ jsx4(GateMachine, { ...machine, theme });
+  if (!frame) return /* @__PURE__ */ jsx(GateMachine, { ...machine, theme });
   const interactive = machine.interactive ?? true;
   const shownHint = hint ?? (interactive ? HINTS[pose] : void 0);
-  return /* @__PURE__ */ jsx4(MechanismFrame, { number, title, hint: shownHint, readout: stillScene(pose).readout, caption, theme, children: /* @__PURE__ */ jsx4(GateMachine, { ...machine, bare: false }) });
+  return /* @__PURE__ */ jsx(MechanismFrame, { number, title, hint: shownHint, readout: stillScene(pose).readout, caption, theme, children: /* @__PURE__ */ jsx(GateMachine, { ...machine, bare: false }) });
 }
 var GATE_LIMIT = LIMIT;
-export {
-  AZIMUTH,
-  Dots,
-  ELEVATION,
-  FaceText,
-  GATE_CAPTION,
-  CYCLE_LENGTH as GATE_CYCLE_LENGTH,
-  GATE_LIMIT,
-  PASS_CHECK as GATE_PASS_CHECK,
-  PERIOD as GATE_PERIOD,
-  RETURN_CHECK as GATE_RETURN_CHECK,
-  RUN_LONG as GATE_RUN_LONG,
-  SCALE as GATE_SCALE,
-  GateMachine,
-  Line,
-  MechanismFrame,
-  SHADES,
-  Solid,
-  VerificationGate,
-  Wire,
-  axisVector,
-  boxCorners,
-  cameraOf,
-  circleIn,
-  circleRing,
-  coil,
-  corners,
-  cylinder,
-  depthOf,
-  dotGrid,
-  extrude,
-  faceCircle,
-  fitProjection,
-  follow,
-  checkAt as gateCheckAt,
-  sceneAt as gateSceneAt,
-  stillScene as gateStillScene,
-  tallyOf as gateTallyOf,
-  tallyText as gateTallyText,
-  tokenAt as gateTokenAt,
-  verdictOf as gateVerdictOf,
-  verdictText as gateVerdictText,
-  haloOf,
-  holdStill,
-  insetPlan,
-  iso,
-  joinPaths,
-  knurl,
-  lineOnTop,
-  onTop,
-  pathOf,
-  planOutline,
-  pointsAt,
-  prismOf,
-  radialTicks,
-  ring,
-  ringOf,
-  ringSeam,
-  rise,
-  roundedPlan,
-  screenRise,
-  segment,
-  sideArc,
-  sideMatrix,
-  sideRing,
-  sideSeam,
-  sideTicks,
-  slabOf,
-  spring,
-  topMatrix,
-  topTicks,
-  towardViewer,
-  translateAlong,
-  viewOf
-};
+
+export { AZIMUTH, Dots, ELEVATION, FaceText, GATE_CAPTION, CYCLE_LENGTH as GATE_CYCLE_LENGTH, GATE_LIMIT, PASS_CHECK as GATE_PASS_CHECK, PERIOD as GATE_PERIOD, RETURN_CHECK as GATE_RETURN_CHECK, RUN_LONG as GATE_RUN_LONG, SCALE as GATE_SCALE, GateMachine, Line, MechanismFrame, SHADES, Solid, VerificationGate, Wire, axisVector, boxCorners, cameraOf, circleIn, circleRing, coil, corners, cylinder, depthOf, dotGrid, extrude, faceCircle, fitProjection, follow, checkAt as gateCheckAt, sceneAt as gateSceneAt, stillScene as gateStillScene, tallyOf as gateTallyOf, tallyText as gateTallyText, tokenAt as gateTokenAt, verdictOf as gateVerdictOf, verdictText as gateVerdictText, haloOf, holdStill, insetPlan, iso, joinPaths, knurl, lineOnTop, onTop, pathOf, planOutline, pointsAt, prismOf, radialTicks, ring, ringOf, ringSeam, rise, roundedPlan, screenRise, segment, sideArc, sideMatrix, sideRing, sideSeam, sideTicks, slabOf, spring, topMatrix, topTicks, towardViewer, translateAlong, viewOf };

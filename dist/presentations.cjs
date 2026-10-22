@@ -1,4 +1,9 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }// src/presentations/renderSlideSvg.ts
+'use strict';
+
+var react = require('react');
+var jsxRuntime = require('react/jsx-runtime');
+
+// src/presentations/renderSlideSvg.ts
 var palettes = {
   light: {
     paper: "#f6f5f1",
@@ -24,9 +29,9 @@ function accessibleTitle(slide) {
   return slide.layout === "opening" ? slide.content.headline.join(" ") : slide.content.headline;
 }
 function renderSlideSvg(slide, options = {}) {
-  const theme = _nullishCoalesce(options.theme, () => ( "light"));
+  const theme = options.theme ?? "light";
   const colors = palettes[theme];
-  const width = _nullishCoalesce(options.width, () => ( 1200));
+  const width = options.width ?? 1200;
   const height = Math.round(width * 9 / 16);
   const text = (x, y, value, size = 26, color = colors.ink, weight = 400, mono = false, anchor = "start", role) => `<text x="${x}" y="${y}"${anchor === "end" ? ' text-anchor="end"' : ""}${role ? ` class="uipack-slide-starter__${role}"` : ""} font-family="${mono ? "IBM Plex Mono, ui-monospace, monospace" : "IBM Plex Sans, system-ui, sans-serif"}" font-size="${size}" fill="${color}" font-weight="${weight}">${escapeSvgText(value)}</text>`;
   const rule = (x1, y, x2) => `<path d="M${x1} ${y}H${x2}" stroke="${colors.rule}" stroke-width="2"/>`;
@@ -51,12 +56,8 @@ function renderSlideSvg(slide, options = {}) {
   }
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 1200 675" role="img"><title>${escapeSvgText(`${slide.title}: ${accessibleTitle(slide)}`)}</title><desc>${escapeSvgText(slide.description)}</desc><rect width="1200" height="675" fill="${colors.paper}"/>${body}${footer}</svg>`;
 }
-
-// src/presentations/SpeakerGuide.tsx
-var _react = require('react');
-var _jsxruntime = require('react/jsx-runtime');
 function estimateSpeechSeconds(say) {
-  const words = _nullishCoalesce(_optionalChain([say, 'access', _ => _.trim, 'call', _2 => _2(), 'access', _3 => _3.match, 'call', _4 => _4(/\S+/g), 'optionalAccess', _5 => _5.length]), () => ( 0));
+  const words = say.trim().match(/\S+/g)?.length ?? 0;
   if (!words) return 0;
   return Math.max(5, Math.round(words / 135 * 12) * 5);
 }
@@ -71,7 +72,7 @@ ${speech.next}` : void 0
   ].filter(Boolean).join("\n\n");
 }
 async function copyText(value) {
-  if (_optionalChain([navigator, 'access', _6 => _6.clipboard, 'optionalAccess', _7 => _7.writeText])) {
+  if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(value);
     return;
   }
@@ -82,7 +83,7 @@ async function copyText(value) {
   field.style.opacity = "0";
   document.body.append(field);
   field.select();
-  const copied = _nullishCoalesce(_optionalChain([document, 'access', _8 => _8.execCommand, 'optionalCall', _9 => _9("copy")]), () => ( false));
+  const copied = document.execCommand?.("copy") ?? false;
   field.remove();
   if (!copied) throw new Error("Copy is unavailable.");
 }
@@ -93,8 +94,8 @@ function SpeakerGuide({
   className = "",
   theme = "light"
 }) {
-  const headingId = _react.useId.call(void 0, );
-  const [status, setStatus] = _react.useState.call(void 0, 
+  const headingId = react.useId();
+  const [status, setStatus] = react.useState(
     "idle"
   );
   const seconds = estimateSpeechSeconds(speech.say);
@@ -103,49 +104,46 @@ function SpeakerGuide({
     try {
       await copyText(text);
       setStatus("copied");
-      _optionalChain([onCopy, 'optionalCall', _10 => _10(text)]);
-    } catch (e) {
+      onCopy?.(text);
+    } catch {
       setStatus("error");
     }
   };
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+  return /* @__PURE__ */ jsxRuntime.jsxs(
     "aside",
     {
       className: `uipack-speaker-guide ${className}`.trim(),
       "aria-labelledby": headingId,
       "data-theme": theme,
       children: [
-        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-speaker-guide__heading", children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h3", { id: headingId, children: "Speaker guide" }),
-          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { "aria-label": `Estimated speaking time ${seconds} seconds`, children: [
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-speaker-guide__heading", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("h3", { id: headingId, children: "Speaker guide" }),
+          /* @__PURE__ */ jsxRuntime.jsxs("span", { "aria-label": `Estimated speaking time ${seconds} seconds`, children: [
             "~",
             seconds,
             " sec"
           ] })
         ] }),
-        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-speaker-guide__section", children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h4", { children: "Say this" }),
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: speech.say })
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-speaker-guide__section", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("h4", { children: "Say this" }),
+          /* @__PURE__ */ jsxRuntime.jsx("p", { children: speech.say })
         ] }),
-        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-speaker-guide__section", children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h4", { children: "Delivery" }),
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: speech.delivery })
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-speaker-guide__section", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("h4", { children: "Delivery" }),
+          /* @__PURE__ */ jsxRuntime.jsx("p", { children: speech.delivery })
         ] }),
-        speech.next && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-speaker-guide__section", children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h4", { children: "Into the next slide" }),
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: speech.next })
+        speech.next && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-speaker-guide__section", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("h4", { children: "Into the next slide" }),
+          /* @__PURE__ */ jsxRuntime.jsx("p", { children: speech.next })
         ] }),
-        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-speaker-guide__action", children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: copy, children: "Copy talk track" }),
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { role: "status", "aria-live": "polite", "aria-atomic": "true", children: status === "copied" ? `${slideTitle} talk track copied.` : status === "error" ? "Could not copy the talk track. Select the text instead." : "" })
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-speaker-guide__action", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", onClick: copy, children: "Copy talk track" }),
+          /* @__PURE__ */ jsxRuntime.jsx("span", { role: "status", "aria-live": "polite", "aria-atomic": "true", children: status === "copied" ? `${slideTitle} talk track copied.` : status === "error" ? "Could not copy the talk track. Select the text instead." : "" })
         ] })
       ]
     }
   );
 }
-
-// src/presentations/SlideStarter.tsx
-
 function SlideStarter({
   slide,
   theme = "light",
@@ -153,15 +151,15 @@ function SlideStarter({
   className = "",
   onCopySpeech
 }) {
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+  return /* @__PURE__ */ jsxRuntime.jsxs(
     "section",
     {
       className: `uipack-slide-starter ${className}`.trim(),
       "data-theme": theme,
       "data-layout": slide.layout,
       children: [
-        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "figure", { className: "uipack-slide-starter__figure", children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+        /* @__PURE__ */ jsxRuntime.jsxs("figure", { className: "uipack-slide-starter__figure", children: [
+          /* @__PURE__ */ jsxRuntime.jsx(
             "div",
             {
               className: "uipack-slide-starter__preview",
@@ -170,12 +168,12 @@ function SlideStarter({
               }
             }
           ),
-          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "figcaption", { children: [
-            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "strong", { children: slide.title }),
-            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: slide.description })
+          /* @__PURE__ */ jsxRuntime.jsxs("figcaption", { children: [
+            /* @__PURE__ */ jsxRuntime.jsx("strong", { children: slide.title }),
+            /* @__PURE__ */ jsxRuntime.jsx("span", { children: slide.description })
           ] })
         ] }),
-        showSpeech && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+        showSpeech && /* @__PURE__ */ jsxRuntime.jsx(
           SpeakerGuide,
           {
             speech: slide.speech,
@@ -189,10 +187,9 @@ function SlideStarter({
   );
 }
 
-
-
-
-
-
-
-exports.SlideStarter = SlideStarter; exports.SpeakerGuide = SpeakerGuide; exports.escapeSvgText = escapeSvgText; exports.estimateSpeechSeconds = estimateSpeechSeconds; exports.formatSpeechGuide = formatSpeechGuide; exports.renderSlideSvg = renderSlideSvg;
+exports.SlideStarter = SlideStarter;
+exports.SpeakerGuide = SpeakerGuide;
+exports.escapeSvgText = escapeSvgText;
+exports.estimateSpeechSeconds = estimateSpeechSeconds;
+exports.formatSpeechGuide = formatSpeechGuide;
+exports.renderSlideSvg = renderSlideSvg;

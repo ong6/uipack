@@ -1,16 +1,10 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
+'use strict';
 
+var chunkXEK5V7KF_cjs = require('./chunk-XEK5V7KF.cjs');
+var react = require('react');
+var server = require('react-dom/server');
+var jsxRuntime = require('react/jsx-runtime');
 
-
-
-
-
-var _chunkXEK5V7KFcjs = require('./chunk-XEK5V7KF.cjs');
-
-// src/static/index.tsx
-var _react = require('react');
-var _server = require('react-dom/server');
-var _jsxruntime = require('react/jsx-runtime');
 var LIGHT = {
   fg: "#1a1c1a",
   muted: "#5c625e",
@@ -49,7 +43,7 @@ function stripBase(t) {
   return rest;
 }
 function inlineVars(markup, p) {
-  return markup.replace(/var\(--uipack-([a-z-]+)(?:,\s*[^)]*)?\)/g, (_, k) => _nullishCoalesce(p[k], () => ( "currentColor")));
+  return markup.replace(/var\(--uipack-([a-z-]+)(?:,\s*[^)]*)?\)/g, (_, k) => p[k] ?? "currentColor");
 }
 var esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 function wrapText(text, chars) {
@@ -66,12 +60,12 @@ function wrapText(text, chars) {
   return lines;
 }
 function figureOf(input) {
-  if (_react.isValidElement.call(void 0, input)) {
+  if (react.isValidElement(input)) {
     const toStatic = input.type.toStatic;
     if (typeof toStatic === "function") return toStatic(input.props);
     const pp = input.props;
     if (typeof pp.parts === "function" && pp.spec) {
-      const parts = pp.parts(pp.spec, _nullishCoalesce(pp.id, () => ( "static")));
+      const parts = pp.parts(pp.spec, pp.id ?? "static");
       const m = pp.spec.figure;
       return { children: parts.wide, viewBox: parts.viewBox, legend: parts.legend, number: m.number, eyebrow: m.eyebrow, title: m.title, caption: m.caption, alt: m.alt };
     }
@@ -83,9 +77,9 @@ function figureOf(input) {
 function renderStatic(input, opts = {}) {
   const fig = figureOf(input);
   const p = resolvePalette(opts.theme);
-  const motion = _nullishCoalesce(opts.motion, () => ( true));
-  const frame = _nullishCoalesce(opts.frame, () => ( true));
-  const paint = _nullishCoalesce(opts.background, () => ( true));
+  const motion = opts.motion ?? true;
+  const frame = opts.frame ?? true;
+  const paint = opts.background ?? true;
   const [vx, vy, vw, vh] = fig.viewBox.split(/\s+/).map(Number);
   const ctx = { playing: motion, reduced: !motion, cycle: 0, toggle: () => {
   }, replay: () => {
@@ -95,10 +89,10 @@ function renderStatic(input, opts = {}) {
   g.__UIPACK_PRERENDER__ = motion;
   let drawing;
   try {
-    const floor = _chunkXEK5V7KFcjs.fontFloor.call(void 0, vw, _nullishCoalesce(opts.width, () => ( _chunkXEK5V7KFcjs.DEFAULT_RENDER_WIDTH)), _nullishCoalesce(opts.minFont, () => ( 11)));
+    const floor = chunkXEK5V7KF_cjs.fontFloor(vw, opts.width ?? chunkXEK5V7KF_cjs.DEFAULT_RENDER_WIDTH, opts.minFont ?? 11);
     drawing = inlineVars(
-      _server.renderToStaticMarkup.call(void 0, 
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkXEK5V7KFcjs.FigureMotionContext.Provider, { value: ctx, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkXEK5V7KFcjs.FigureScaleProvider, { floor, children: fig.children }) })
+      server.renderToStaticMarkup(
+        /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: ctx, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureScaleProvider, { floor, children: fig.children }) })
       ),
       p
     );
@@ -129,12 +123,12 @@ function renderStatic(input, opts = {}) {
       }
       hy += 4;
     }
-    if (_optionalChain([fig, 'access', _2 => _2.legend, 'optionalAccess', _3 => _3.length])) {
+    if (fig.legend?.length) {
       hy += 24;
       let lx = pad;
       for (const it of fig.legend) {
-        const kind = _nullishCoalesce(it.kind, () => ( "neutral"));
-        const tok = inlineVars(_server.renderToStaticMarkup.call(void 0, /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkXEK5V7KFcjs.Token, { kind, shape: _nullishCoalesce(it.shape, () => ( _chunkXEK5V7KFcjs.TOKEN_SHAPE[kind])), r: 5.5, cx: lx + 6, cy: hy - 4 })), p);
+        const kind = it.kind ?? "neutral";
+        const tok = inlineVars(server.renderToStaticMarkup(/* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.Token, { kind, shape: it.shape ?? chunkXEK5V7KF_cjs.TOKEN_SHAPE[kind], r: 5.5, cx: lx + 6, cy: hy - 4 })), p);
         head.push(tok, `<text x="${lx + 20}" y="${hy}" font-family="${p.sans}" font-size="13" fill="${p.fg}">${esc(it.label)}</text>`);
         lx += 20 + it.label.length * 7.4 + 24;
       }
@@ -145,17 +139,16 @@ function renderStatic(input, opts = {}) {
   const bgId = "uipack-static-dots";
   const canvas = paint ? fig.background === "plain" ? `<rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="${p.bg}"/>` : fig.background === "ruled" ? `<defs><pattern id="${bgId}" width="${vw}" height="24" patternUnits="userSpaceOnUse"><rect width="${vw}" height="1" fill="${p.grid}"/></pattern></defs><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="${p.bg}"/><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="url(#${bgId})"/>` : `<defs><pattern id="${bgId}" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="${p.grid}"/></pattern></defs><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="${p.bg}"/><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="url(#${bgId})"/>` : "";
   const border = frame ? `<rect x="0.5" y="0.5" width="${vw - 1}" height="${H - 1}" rx="4" fill="${paint ? p.bg : "none"}" stroke="${p.border}"/>` + (hy ? `<line x1="0" y1="${hy}" x2="${vw}" y2="${hy}" stroke="${p.border}"/>` : "") : "";
-  const width = _nullishCoalesce(opts.width, () => ( vw));
+  const width = opts.width ?? vw;
   const height = Math.round(width / vw * H);
   const label = fig.alt ? ` role="img" aria-label="${esc(fig.alt)}"` : "";
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${vw} ${H}" width="${width}" height="${height}" color="${p.fg}" font-family="${esc(p.sans)}"${label}><style>text{user-select:none}</style>` + border + canvas + head.join("") + `<g transform="translate(${-vx},${hy - vy})">${drawing}</g></svg>
 `;
 }
 
-
-
-
-
-
-
-exports.DARK = DARK; exports.LIGHT = LIGHT; exports.inlineVars = inlineVars; exports.renderStatic = renderStatic; exports.resolvePalette = resolvePalette; exports.wrapText = wrapText;
+exports.DARK = DARK;
+exports.LIGHT = LIGHT;
+exports.inlineVars = inlineVars;
+exports.renderStatic = renderStatic;
+exports.resolvePalette = resolvePalette;
+exports.wrapText = wrapText;

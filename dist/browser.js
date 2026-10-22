@@ -1,10 +1,7 @@
-import {
-  keepFocusedInView
-} from "./chunk-KYO6UXHN.js";
+import { keepFocusedInView } from './chunk-KYO6UXHN.js';
+import { useState, useRef, useMemo, useEffect } from 'react';
+import { jsxs, jsx } from 'react/jsx-runtime';
 
-// src/browser/index.tsx
-import { useEffect, useMemo, useRef, useState } from "react";
-import { jsx, jsxs } from "react/jsx-runtime";
 var ALL = "All";
 async function copy(text) {
   try {
@@ -81,9 +78,5 @@ function AssetBrowser({ manifest, initialCategory = ALL, onAction, actionLabel =
     ] })
   ] });
 }
-export {
-  ALL,
-  AssetBrowser,
-  categories,
-  filterAssets
-};
+
+export { ALL, AssetBrowser, categories, filterAssets };

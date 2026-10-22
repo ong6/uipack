@@ -13,7 +13,8 @@ const List = ({ rows }: { rows: [string, string][] }) => (
   </ul>
 );
 
-/** Q2 against Q3 as two bars on one scale, so the latency box shows the change, not just the number. */
+/** Q2 against Q3 as two bars on one scale, so the latency box shows the change. The numbers are
+ * said once, in the value and the note under it, so the bars carry only their quarter. */
 const BeforeAfter = () => (
   <dl className="deck-bento-ba" aria-label="p95 latency: Q2 412 ms, Q3 198 ms">
     {[
@@ -24,7 +25,6 @@ const BeforeAfter = () => (
         <dt>{label}</dt>
         <dd>
           <span style={{ width: `${(Number(ms) / 412) * 100}%` }} />
-          <b>{ms} ms</b>
         </dd>
       </div>
     ))}
@@ -54,32 +54,47 @@ const SavingBars = () => (
   </ul>
 );
 
-/** Cache memory by week: measured through early October, forecast to the November peak. */
-const memory = [52, 55, 58, 61, 64, 67, 69, 71];
-const forecast = [71, 76, 82, 88, 93];
-const MemoryForecast = ({ compact = false }: { compact?: boolean }) => {
+/**
+ * Cache memory, % of the tier, weekly. Measured from 11 Aug to 13 Oct (about three points a week),
+ * then the same trend to 17 Nov, plus about four points when peak traffic starts on 23 Nov. The
+ * notes, the risk slide and the tripwire all read these numbers.
+ */
+const memory = [44, 47, 49, 53, 56, 58, 62, 65, 68, 71];
+const forecast = [71, 74, 77, 80, 83, 86, 93];
+/** Forecast index of 10 Nov: the tripwire's deadline. Memory is forecast at 83% then. */
+const TRIPWIRE_WEEK = memory.length - 1 + 4;
+const MemoryForecast = () => {
   const w = 300;
-  const h = compact ? 70 : 120;
+  const h = 190;
   const n = memory.length + forecast.length - 1;
   const x = (i: number) => (i / (n - 1)) * w;
   const y = (v: number) => h - ((v - 40) / 60) * h;
   const line = (vals: number[], from: number) => vals.map((v, i) => `${i ? "L" : "M"}${x(from + i).toFixed(1)} ${y(v).toFixed(1)}`).join(" ");
+  const now = memory.length - 1;
   return (
-    <svg className="deck-bento-forecast" viewBox={`-4 -8 ${w + 70} ${h + 26}`} role="img" aria-label="Cache memory rises from 52% in July to 71% now, and is forecast to pass 90% at the late-November peak">
+    <svg
+      className="deck-bento-forecast"
+      viewBox={`-4 -14 ${w + 64} ${h + 32}`}
+      role="img"
+      aria-label="Cache memory rose about three points a week, from 44% on 11 August to 71% on 13 October. On that trend it reaches 83% by 10 November and 86% by 17 November; peak traffic from 23 November takes it to about 93%, past the 90% limit. The tripwire is 85% before 10 November."
+    >
       <line className="deck-bento-forecast__limit" x1={0} x2={w} y1={y(90)} y2={y(90)} />
-      <text x={w + 6} y={y(90) + 4}>90% limit</text>
+      <text x={0} y={y(90) - 6}>90% limit</text>
+      <line className="deck-bento-forecast__tripwire" x1={0} x2={x(TRIPWIRE_WEEK)} y1={y(85)} y2={y(85)} />
+      <text x={0} y={y(85) + 15}>85% tripwire, until 10 Nov</text>
       <path className="deck-bento-forecast__measured" d={line(memory, 0)} />
-      <path className="deck-bento-forecast__projected" d={line(forecast, memory.length - 1)} />
-      <circle cx={x(memory.length - 1)} cy={y(71)} r={4} />
-      <text x={x(memory.length - 1) - 4} y={y(71) + 20} textAnchor="end">71% now</text>
-      <text x={0} y={h + 16}>Jul</text>
-      <text x={x(memory.length - 1)} y={h + 16} textAnchor="middle">Oct</text>
-      <text x={w} y={h + 16} textAnchor="end">Peak</text>
+      <path className="deck-bento-forecast__projected" d={line(forecast, now)} />
+      <circle cx={x(now)} cy={y(71)} r={4} />
+      <text x={x(now) + 8} y={y(71) + 16}>71% on 13 Oct</text>
+      <circle className="deck-bento-forecast__peak" cx={x(n - 1)} cy={y(93)} r={4} />
+      <text x={x(n - 1) + 8} y={y(93) + 4}>93%</text>
+      <text x={0} y={h + 16}>11 Aug</text>
+      <text x={w} y={h + 16} textAnchor="end">Peak, 24 Nov</text>
     </svg>
   );
 };
 
-/** A quarterly review: the answer, the quarter on one bento slide, the plan, the risk and the ask. */
+/** A quarterly review: the answer, the quarter on one bento slide, the risk inside it, the plan and the ask. */
 export const bentoDeck: DeckSlide[] = [
   {
     id: "answer",
@@ -93,7 +108,7 @@ export const bentoDeck: DeckSlide[] = [
       </Slide>
     ),
     notes: {
-      say: "The headline first: search is twice as fast as it was in Q2, and it costs less to serve. Everything after this slide is the evidence and what we need next. Source: the search latency and cost dashboards, Q2 against Q3.",
+      say: "The headline first: search is twice as fast as it was in Q2, and it costs less to serve. p95 latency went from four hundred and twelve milliseconds to one hundred and ninety-eight, and cost per thousand queries fell eighteen percent, while traffic grew. Everything after this slide is the evidence, the one risk that could undo it, and the one decision we need from the Platform leads by the twentieth of October. Source: the search latency and cost dashboards, Q2 against Q3.",
       delivery: "State both numbers slowly. Don't explain yet.",
       next: "Here's where the speed came from.",
     },
@@ -106,7 +121,7 @@ export const bentoDeck: DeckSlide[] = [
     render: () => (
       <Slide footer={footer}>
         <h2 className="uipack-deck-heading">Caching did most of it: 140 of 214{"\u00a0"}ms saved, six launches, no rollbacks.</h2>
-        <Bento columns={6} rows={4} tour={["latency", "shipped", "risk"]}>
+        <Bento columns={6} rows={4} tour={["latency", "shipped"]}>
           <BentoCell
             id="latency"
             col={3}
@@ -166,26 +181,10 @@ export const bentoDeck: DeckSlide[] = [
             <p className="uipack-deck-bento-title">6 changes reached all traffic</p>
             <p className="uipack-deck-bento-note">No rollbacks</p>
           </BentoCell>
-          <BentoCell
-            id="risk"
-            col={2}
-            row={2}
-            detail={
-              <>
-                <p className="uipack-deck-bento-detail-title">Cache memory, % of the tier</p>
-                <MemoryForecast compact />
-                <List
-                  rows={[
-                    ["Impact", "Evictions above 90%"],
-                    ["Fix", "Shard by 17 Nov"],
-                    ["Tripwire", "80% before then"],
-                  ]}
-                />
-              </>
-            }
-          >
+          <BentoCell id="risk" col={2} row={2}>
             <p className="uipack-deck-bento-label">Risk</p>
             <p className="uipack-deck-bento-title">The cache fills up at the November peak</p>
+            <p className="uipack-deck-bento-note">71% now, +3 points a week</p>
           </BentoCell>
           <BentoCell id="next" col={2} row={2} tone="ink">
             <p className="uipack-deck-bento-label">Next quarter</p>
@@ -195,9 +194,44 @@ export const bentoDeck: DeckSlide[] = [
       </Slide>
     ),
     notes: {
-      say: "This is the whole quarter on one page. The cache in front of the index saved 140 of the 214 milliseconds; ranking and streaming did the rest. Six changes reached all traffic and none rolled back. Underneath: the one risk and the plan. Source: search latency dashboard, p95 over seven days, all regions.",
-      delivery: "Press Next to move the camera: latency, then what shipped, then the risk. The last press pulls back.",
-      next: "The plan for next quarter is the box in the corner.",
+      say: "This is the whole quarter on one page. The cache in front of the index saved 140 of the 214 milliseconds; a smaller ranking model on the long tail saved another 58, and streaming the first results the last 16. Six changes reached all traffic, each behind a flag, and none rolled back. Cost per thousand queries is down to forty-one cents and errors stayed under the SLO. Underneath sit the one risk and next quarter's plan. Source: search latency dashboard, p95 over seven days, all regions.",
+      delivery: "Press Next to move the camera: latency, then what shipped. The third press pulls back to the whole quarter.",
+      next: "One box can undo the rest: the cache is filling up.",
+    },
+  },
+  {
+    id: "risk",
+    title: "The cache fills before the peak",
+    headline: "Without a shard, the cache passes 90% memory at the November peak.",
+    role: "risk",
+    // The risk box on the quarter slide opens into this one: same thing, closer.
+    transition: { zoom: "risk" },
+    render: () => (
+      <Slide eyebrow="Risk" footer={footer} className="deck-bento-risk">
+        <h2 className="uipack-deck-heading">Without a shard, the cache passes 90% memory at the November peak.</h2>
+        <div className="deck-bento-risk__body">
+          <dl className="deck-bento-risk__terms">
+            <div>
+              <dt>Impact</dt>
+              <dd>Above 90%, evictions undo most of the 140 ms retrieval gain.</dd>
+            </div>
+            <div>
+              <dt>Mitigation</dt>
+              <dd>Two engineers shard the tier in four weeks, done by 17 November.</dd>
+            </div>
+            <div>
+              <dt>Tripwire</dt>
+              <dd>If memory passes 85% before 10 Nov, cap long-tail caching.</dd>
+            </div>
+          </dl>
+          <MemoryForecast />
+        </div>
+      </Slide>
+    ),
+    notes: {
+      say: "Here's the risk box up close. The cache tier is at seventy-one percent memory and climbing about three points a week. On that trend it reaches eighty-six percent by the seventeenth of November, and peak traffic from the twenty-third adds about four more, which takes it past ninety, where evictions undo most of the retrieval gain. A shard takes two engineers four weeks. And we'll know early if we're wrong: if memory passes eighty-five percent before the tenth of November, the trend is faster than forecast, and we cap long-tail caching while the shard finishes. Source: the cache capacity forecast from the search dashboard.",
+      delivery: "Point at the dashed line crossing the limit, then at the tripwire line.",
+      next: "So the shard leads next quarter's plan.",
     },
   },
   {
@@ -205,7 +239,6 @@ export const bentoDeck: DeckSlide[] = [
     title: "Next quarter",
     headline: "Next quarter we hold latency and cut cost another 10%.",
     role: "plan",
-    transition: { zoom: "next" },
     tone: "ink",
     render: () => (
       <Slide eyebrow="Next quarter" footer={footer}>
@@ -227,42 +260,9 @@ export const bentoDeck: DeckSlide[] = [
       </Slide>
     ),
     notes: {
-      say: "Three things next quarter. The cache shard is the urgent one, because of the November peak. Batching the ranker and retiring the old index take cost down another ten percent.",
+      say: "Three things next quarter. The cache shard is the urgent one, done by the seventeenth of November, a week before the peak. Then we batch the ranker onto GPUs we already pay for, in December, and retire the old index cluster in January, which alone is about six percent of cost. Together those take cost down another ten percent while latency holds where it is.",
       delivery: "Spend most of the time on the first item.",
-      next: "Here's why the shard can't wait.",
-    },
-  },
-  {
-    id: "risk",
-    title: "The cache fills before the peak",
-    headline: "Without a shard, the cache passes 90% memory at the November peak.",
-    role: "risk",
-    render: () => (
-      <Slide eyebrow="Risk" footer={footer} className="deck-bento-risk">
-        <h2 className="uipack-deck-heading">Without a shard, the cache passes 90% memory at the November peak.</h2>
-        <div className="deck-bento-risk__body">
-          <dl className="deck-bento-risk__terms">
-            <div>
-              <dt>Impact</dt>
-              <dd>Above 90%, evictions undo most of the 140 ms retrieval gain.</dd>
-            </div>
-            <div>
-              <dt>Mitigation</dt>
-              <dd>Two engineers shard the tier in four weeks, done by 17 November.</dd>
-            </div>
-            <div>
-              <dt>Tripwire</dt>
-              <dd>If memory passes 80% first, we cap long-tail caching.</dd>
-            </div>
-          </dl>
-          <MemoryForecast />
-        </div>
-      </Slide>
-    ),
-    notes: {
-      say: "The cache tier is at seventy-one percent memory and climbing about three points a week. Peak traffic starts on the twenty-third of November, which takes it past ninety percent, where evictions undo most of the gain. A shard takes two engineers four weeks. Source: the cache capacity forecast from the search dashboard.",
-      delivery: "Point at the dashed line crossing the limit.",
-      next: "Which is why there's one ask, and it's dated.",
+      next: "The shard needs one decision, and it's dated.",
     },
   },
   {
