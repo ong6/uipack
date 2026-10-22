@@ -19,10 +19,12 @@
   column-gap: 20px;
   margin-top: auto;
 }
+/* A card title, like .uipack__title: 20 / 600 with the same -0.2px tracking. */
 .style-card h3 {
   font-size: 20px;
   font-weight: 600;
   line-height: 1.25;
+  letter-spacing: -0.2px;
   margin: 24px 0 8px;
 }
 /* The note under the grid keeps clear of the last row of cards. */
