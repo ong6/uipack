@@ -1,4 +1,13 @@
-import { libraryGroups, pageDefs, pageHref, resolvePage, type LibraryPage } from "./catalog";
+import {
+  documentTitle,
+  libraryGroups,
+  pageDefs,
+  pageHeading,
+  pageHref,
+  resolvePage,
+  type LibraryPage,
+  type PageDef,
+} from "./catalog";
 import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 import { Wordmark } from "../src";
 
@@ -29,6 +38,17 @@ function useCurrentInView(key: string) {
     if (right > row.clientWidth) row.scrollLeft = right - row.clientWidth + 16;
   }, [key]);
   return ref;
+}
+
+/** The second nav row: a page's sub-views (the decks) sit together under the page's name. */
+function pageRuns(pages: readonly PageDef[]) {
+  const runs: { title?: string; pages: PageDef[] }[] = [];
+  for (const p of pages) {
+    const last = runs[runs.length - 1];
+    if (p.query && last?.title && last.pages[0].path === p.path) last.pages.push(p);
+    else runs.push({ title: p.query ? (p.title ?? p.label) : undefined, pages: [p] });
+  }
+  return runs;
 }
 
 /**
@@ -62,6 +82,11 @@ export function ShowcaseShell({
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const mainRef = useRef<HTMLElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  // Every page names itself in the tab. A page that hosts a complete sample page (/web) sets its own head.
+  const hostsPage = "hostsPage" in page && page.hostsPage;
+  useEffect(() => {
+    if (!hostsPage) document.title = documentTitle(page);
+  }, [page, hostsPage]);
   return (
     <div className="showcase-frame" data-theme={theme} data-style="technical">
       <a
@@ -134,15 +159,24 @@ export function ShowcaseShell({
           })}
         </nav>
         <nav className="showcase-pages" aria-label="Library pages" ref={pagesRef}>
-          {siblings.map((p) => (
-            <a
-              key={p.id}
-              href={pageHref(p, theme)}
-              aria-current={page.id === p.id ? "page" : undefined}
-            >
-              {p.label}
-            </a>
-          ))}
+          {pageRuns(siblings).map((run) => {
+            const links = run.pages.map((p) => (
+              <a key={p.id} href={pageHref(p, theme)} aria-current={page.id === p.id ? "page" : undefined}>
+                {p.label}
+              </a>
+            ));
+            if (!run.title) return links;
+            // Sub-views of one page (the decks) sit together after its name, like the menu sheet's sub-label.
+            const labelId = `pages-${run.pages[0].id}`;
+            return (
+              <div key={labelId} className="showcase-pages__run" role="group" aria-labelledby={labelId}>
+                <span id={labelId} className="showcase-pages__label">
+                  {run.title}
+                </span>
+                {links}
+              </div>
+            );
+          })}
         </nav>
       </header>
       <dialog
@@ -197,10 +231,19 @@ export function ShowcaseShell({
           )}
         </p>
         <div className="showcase-title">
-          {"hostsPage" in page && page.hostsPage ? (
-            <p className="showcase-title__name">{page.title ?? page.label}</p>
+          {hostsPage ? (
+            <p className="showcase-title__name">{pageHeading(page)}</p>
           ) : (
-            <h1>{page.title ?? page.label}</h1>
+            <h1>
+              {page.query && page.title ? (
+                <>
+                  {page.title}
+                  <span className="showcase-title__view"> · {page.label}</span>
+                </>
+              ) : (
+                pageHeading(page)
+              )}
+            </h1>
           )}
           <p>{page.intro}</p>
         </div>

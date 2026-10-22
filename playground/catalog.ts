@@ -100,6 +100,16 @@ export function resolvePage(id: string, search: string): PageDef {
   const exact = same.find((p) => p.query && Object.entries(p.query).every(([k, v]) => params.get(k) === v));
   return exact ?? same.find((p) => p.isDefault) ?? base;
 }
+
+/** The h1: the page, then the sub-view it shows ("Deck player · Bento"). */
+export function pageHeading(page: PageDef) {
+  return page.query && page.title ? `${page.title} · ${page.label}` : (page.title ?? page.label);
+}
+
+/** The browser tab title: the sub-view first, so tabs tell apart ("Bento · Deck player · uipack"). */
+export function documentTitle(page: PageDef) {
+  return [page.query && page.title ? page.label : null, page.title ?? page.label, "uipack"].filter(Boolean).join(" · ");
+}
 export interface CatalogEntry {
   id: string;
   title: string;

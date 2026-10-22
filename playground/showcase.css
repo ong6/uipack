@@ -148,6 +148,31 @@ body {
 .showcase-pages {
   border-top: 1px solid var(--show-rule);
 }
+/* A page's sub-views (the decks) follow its name and end at a divider, so they read as one
+   page's views rather than sibling pages. The menu sheet does the same with an indent. */
+.showcase-pages__run {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+}
+.showcase-pages__run::after {
+  content: "";
+  flex: none;
+  width: 1px;
+  height: 20px;
+  margin: 0 8px 0 4px;
+  background: var(--show-rule);
+}
+.showcase-pages__label {
+  flex: none;
+  padding-right: 4px;
+  font: 600 12px ui-monospace, monospace;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--show-muted);
+}
 .showcase-groups a[aria-current="page"],
 .showcase-pages a[aria-current="page"] {
   color: var(--show-accent);
@@ -189,6 +214,10 @@ body {
   font-size: clamp(28px, 4.5vw, 40px);
   line-height: 1.1;
   letter-spacing: -0.02em;
+}
+.showcase-title__view {
+  font-weight: 400;
+  color: var(--show-muted);
 }
 .showcase-title p {
   margin: 12px 0 0;

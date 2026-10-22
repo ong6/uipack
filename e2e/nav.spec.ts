@@ -14,8 +14,11 @@ const ALL = GROUPS.flatMap((g) => g.pages.map(([label, path]) => ({ group: g.lab
 // /web hosts a complete sample landing page: its hero is the one h1 and the shell title is plain text.
 const title = (page: Page) => page.locator(".showcase-title h1, .showcase-title .showcase-title__name");
 
-// Deck sub-views share one page title.
-const h1Of = (label: string) => (["Tech talk", "Bento", "Consulting"].includes(label) ? "Deck player" : label);
+// Deck sub-views share one page, named before the sub-view.
+const isDeck = (label: string) => ["Tech talk", "Bento", "Consulting"].includes(label);
+const h1Of = (label: string) => (isDeck(label) ? `Deck player · ${label}` : label);
+// The browser tab: the sub-view first. /web hosts a sample page that sets its own head.
+const tabOf = (label: string) => (isDeck(label) ? `${label} · Deck player · uipack` : `${label} · uipack`);
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const groupsNav = (page: Page) => page.getByRole("navigation", { name: "Library groups" });
@@ -44,6 +47,7 @@ test("every page is reachable through both nav rows with the right current marke
       await pagesNav(page).getByRole("link", { name: label, exact: true }).click();
       await expect(page).toHaveURL(new RegExp(`${escape(path)}${path.includes("?") ? "&" : "\\?"}theme=dark$`));
       await expect(title(page)).toHaveText(h1Of(label));
+      if (path !== "/web") await expect(page).toHaveTitle(tabOf(label));
       await expect(pagesNav(page).locator('[aria-current="page"]')).toHaveText(label);
       await expect(groupsNav(page).locator('[aria-current="page"]')).toHaveText(group.label);
       // The theme survives navigation, in the document and in every nav link.
@@ -295,6 +299,36 @@ test.describe("deck sub-views in the 390px menu", () => {
     await sheet.getByRole("link", { name: "Bento", exact: true }).click();
     await expect(page).toHaveURL(/\/deck\?deck=bento&theme=light$/);
     await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Presentations: Bento");
+  });
+});
+
+test("each page names itself in the browser tab, deck sub-views included", async ({ page }) => {
+  for (const { label, path } of ALL.filter((p) => p.path !== "/web")) {
+    await page.goto(path);
+    await expect(page).toHaveTitle(tabOf(label));
+  }
+  // The deck sub-views tell their tabs apart.
+  await page.goto("/deck?deck=bento");
+  await expect(page).toHaveTitle("Bento · Deck player · uipack");
+});
+
+test.describe("desktop deck sub-views", () => {
+  test.use({ viewport: { width: 1280, height: 900 } });
+  test("sit together under a Deck player label, ended by a divider, and the h1 names the sub-view", async ({ page }) => {
+    await page.goto("/deck?deck=bento");
+    const run = pagesNav(page).getByRole("group", { name: "Deck player" });
+    await expect(run).toBeVisible();
+    await expect(run.getByRole("link")).toHaveText(["Tech talk", "Bento", "Consulting"]);
+    await expect(run.getByRole("link", { name: "Bento" })).toHaveAttribute("aria-current", "page");
+    // Slide starters is a page of its own, outside the run.
+    await expect(pagesNav(page).getByRole("link", { name: "Slide starters" })).toBeVisible();
+    await expect(run.getByRole("link", { name: "Slide starters" })).toHaveCount(0);
+    // The label sits before the first sub-view on the same row.
+    const label = (await run.locator(".showcase-pages__label").boundingBox())!;
+    const first = (await run.getByRole("link").first().boundingBox())!;
+    expect(label.x + label.width).toBeLessThanOrEqual(first.x + 1);
+    expect(Math.abs(label.y + label.height / 2 - (first.y + first.height / 2))).toBeLessThan(2);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Deck player · Bento");
   });
 });
 
