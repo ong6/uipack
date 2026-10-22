@@ -77,8 +77,9 @@ export const slideZoomFrame = (target: Rect, width = CANVAS_WIDTH, height = CANV
  * Sampled keyframes for a zoom on the slide canvas. `forward` flies in; backwards plays the same
  * path out. Scale is even in log space (Z^p) and p follows `deckMotion.camera`, so the camera is
  * visibly moving by 10% of the clock while the slide around the target clears, rather than
- * holding still and then jumping. The clip opens to the full 16:9 frame by 55% of the way in, so
- * the incoming slide's title is never cropped for long.
+ * holding still and then jumping. The clip opens to the full 16:9 frame by 40% of the way in
+ * (about 27% of the clock), so the incoming slide is never cropped for long, and both layers pan
+ * as needed so the opening slide never runs off the canvas edge.
  */
 export function slideZoomSamples(
   target: Rect,
@@ -95,13 +96,25 @@ export function slideZoomSamples(
   for (let i = 0; i <= samples; i++) {
     const t = i / samples;
     const p = forward ? cameraEase(t) : 1 - cameraEase(t);
-    const clipT = smoothstep(0.08, 0.55, p);
+    const clipT = smoothstep(0.06, 0.4, p);
     const inset = (v: number) => (v * (1 - clipT)).toFixed(2);
+    // A target near the canvas edge puts the fixed point outside the canvas, so mid-flight the
+    // opening slide would run off the edge and be cropped by it. Pan both layers just enough to
+    // keep the visible part of the incoming slide on the canvas; nothing pans at either end.
+    const k = Math.pow(frame.Z, p - 1);
+    const shift = (lo: number, hi: number, f: number, size: number) => {
+      const a = f + k * (lo - f);
+      const b = f + k * (hi - f);
+      return b > size ? size - b : a < 0 ? -a : 0;
+    };
+    const dx = shift(start.left * (1 - clipT), width - start.right * (1 - clipT), frame.fx, width);
+    const dy = shift(start.top * (1 - clipT), height - start.bottom * (1 - clipT), frame.fy, height);
+    const pan = Math.abs(dx) > 0.005 || Math.abs(dy) > 0.005 ? `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) ` : "";
     out.push({
       offset: t,
       p,
-      outer: `scale(${Math.pow(frame.Z, p).toFixed(5)})`,
-      inner: `scale(${Math.pow(frame.Z, p - 1).toFixed(5)})`,
+      outer: `${pan}scale(${Math.pow(frame.Z, p).toFixed(5)})`,
+      inner: `${pan}scale(${k.toFixed(5)})`,
       clip: `inset(${inset(start.top)}px ${inset(start.right)}px ${inset(start.bottom)}px ${inset(start.left)}px round ${(radiusStart * (1 - clipT)).toFixed(2)}px)`,
       innerOpacity: smoothstep(0.08, 0.36, p),
     });

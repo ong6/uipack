@@ -80,6 +80,11 @@ export function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, classNam
   // Thumbnails are fully built (step Infinity), so they show the overview; a still copy at a tour
   // stop (a printed or read detail page) shows that stop, without the camera's transition.
   const focus = bentoFocusAt(step, tour);
+  // The cell the camera is leaving, so its detail can stay up while it is still mostly in view
+  // (stored state, updated during render: the attribute must be there on the same commit as the move).
+  const [trail, setTrail] = useState<{ focus: string | null; leaving: string | null }>({ focus, leaving: null });
+  if (trail.focus !== focus) setTrail({ focus, leaving: trail.focus });
+  const leaving = trail.focus === focus ? trail.leaving : trail.focus;
   const gridRef = useRef<HTMLDivElement>(null);
   const [camera, setCamera] = useState<{ s: number; tx: number; ty: number } | null>(null);
 
@@ -114,6 +119,7 @@ export function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, classNam
       data-detail-stops={detailStops.length ? detailStops.join(" ") : undefined}
       data-still={thumbnail ? "" : undefined}
       data-focus={focus ?? undefined}
+      data-move={focus && leaving ? "cell" : focus ? "in" : leaving ? "out" : undefined}
       style={style}
     >
       <div
@@ -136,6 +142,7 @@ export function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, classNam
               data-tone={p.tone && p.tone !== "surface" ? p.tone : undefined}
               data-focused={focused ? "" : undefined}
               data-dimmed={focus && !focused ? "" : undefined}
+              data-leaving={leaving === p.id && !focused ? "" : undefined}
               style={{ gridColumn: `span ${p.col ?? 2}`, gridRow: `span ${p.row ?? 1}` }}
             >
               <div className="uipack-deck-bento__face" aria-hidden={focused && p.detail ? true : undefined}>
