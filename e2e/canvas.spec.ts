@@ -10,7 +10,8 @@ test("mobile presets remain readable and selection works without hover", async (
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(390);
-  for (const figure of await page.locator("figure.uipack--has-narrow").all()) {
+  // The drill-down stacks its narrow drawings per level; drill.spec checks those.
+  for (const figure of await page.locator("figure.uipack--has-narrow:not(.uipack-drill)").all()) {
     await expect(figure.locator("svg.uipack--narrow")).toBeVisible();
     await expect(figure.locator("svg.uipack--wide")).toBeHidden();
     const sizes = await figure
@@ -27,7 +28,7 @@ test("mobile presets remain readable and selection works without hover", async (
       );
     expect(Math.min(...sizes)).toBeGreaterThanOrEqual(10.9);
   }
-  const figure = page.locator('section[data-section="reference-figure"] figure');
+  const figure = page.locator('section[data-section="service-map"] figure');
   const node = figure.getByRole("button", { name: "ChatGPT", exact: true });
   await node.tap();
   await expect(node).toHaveAttribute("aria-pressed", "true");

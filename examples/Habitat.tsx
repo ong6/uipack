@@ -170,7 +170,7 @@ export function HabitatFigure({ number = "Figure 01" }: { number?: string } = {}
       number={number}
       eyebrow="What is Habitat?"
       title="Online storage platform"
-      caption="Habitat is the online storage platform OpenAI built so its products can quickly and reliably access needed information. Redrawn from the engineering post with uipack."
+      caption="OpenAI's online storage platform, redrawn from its engineering post. Notice the buses: each client joins one line at a dot and a single arrow enters the platform, so the platform is the only thing that touches storage; changes leave from its bottom edge."
       legend={[
         { label: "Request", kind: "request" },
         { label: "Response", kind: "response" },

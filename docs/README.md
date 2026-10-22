@@ -1,6 +1,7 @@
 # UIPACK documentation
 
 - [Design direction](design-direction.md): visual style, catalog taxonomy, mobile interaction, and presentation composition.
+- The diagrams page (`/` in the playground) is the figure design system: one section per diagram pattern, simplest first, each with when to use it and the parts it is built from. Its sections are `figureEntries` in `playground/catalog.ts`; add a pattern there and in `playground/figures/` the first time a published figure uses it.
 - [3D animation API](slides.md): scenes, camera stops, animation settings, and integration. The `slides` filename and API remain compatible.
 - [Presentation starters](presentations.md): typed layouts, speaker guides, and editable SVG output.
 - [Deck player](deck.md): one transition grammar (advance, morph, zoom), builds, overview, speaker and read views.

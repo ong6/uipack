@@ -36,10 +36,10 @@ function preset(name: keyof typeof PRESETS, number: string, figure: object, spec
 export const figureSections: FigureSection[] = [
   {
     id: "bare-figure",
-    intro: "Use when the host page frames the drawing itself and needs only the canvas. Built from Figure with controls={false} and no header, legend or caption, on a ruled background.",
+    intro: "Use when the host page frames the drawing itself and needs only the canvas. Built from Figure with controls={false}, expandable={false} and no header, legend or caption, here on a ruled background.",
     render: () => (
-      <Figure viewBox="0 0 400 80" alt="A single node." controls={false} background="ruled">
-        <Node x={100} y={20} w={200} h={40} label="Just a canvas" />
+      <Figure viewBox="0 0 1120 120" alt="A single node on a ruled canvas." controls={false} expandable={false} background="ruled">
+        <Node x={440} y={40} w={240} h={40} label="Just a canvas" />
       </Figure>
     ),
   },
@@ -59,12 +59,12 @@ export const figureSections: FigureSection[] = [
   },
   {
     id: "loops",
-    intro: "Use when a step repeats, or the end of a flow feeds back to its start. Built from Node, Connector and Packet: a self-loop is a four-point Connector over its node, a return path a dashed Connector under the row.",
+    intro: "Use when a step repeats, or the end of a flow feeds back to its start. Built from Node, Connector and Packet: a self-loop is a four-point Connector over its node, a return path a Connector under the row (dashed for the slow one).",
     render: (n) => <LoopsFigure number={n} />,
   },
   {
     id: "decision-tree",
-    intro: "Use when the answer depends on a few questions asked in order. Built from Nodes joined by elbow Connectors, a Label on every branch and accent leaves for the outcomes.",
+    intro: "Use when the answer depends on a few questions asked in order. Built from Nodes joined by elbow Connectors, a Label on every branch and accent leaves for the outcomes; the narrow drawing turns the tree into an indented outline on two Buses.",
     render: (n) => <DecisionTreeFigure number={n} />,
   },
   {
@@ -131,7 +131,7 @@ export const figureSections: FigureSection[] = [
   },
   {
     id: "failure-rail",
-    intro: "Use when any stage of a pipeline can fail and every failure goes to one place. Built from a vertical stack of Nodes in an accent Group, a dashed stub from each stage to one rail, and a dead-letter Node at its end.",
+    intro: "Use when any stage of a pipeline can fail and every failure goes to one place. Built from a row of Nodes inside a dashed accent Group, a dashed stub from each stage down to one failure rail, and a dashed dead-letter Node at its end.",
     render: (n) => <FailureRailFigure number={n} />,
   },
   {
@@ -141,17 +141,17 @@ export const figureSections: FigureSection[] = [
   },
   {
     id: "sequence",
-    intro: "Use when the order of messages between actors matters more than the topology. Built from a Lane and a header Node per actor, dashed lifelines (Connector with arrow={false}), numbered Badges and a Packet on each message.",
+    intro: "Use when the order of messages between actors matters more than the topology. Built from a Lane and header Node per actor, dashed lifelines (Connector with arrow={false}), a numbered Badge and Packet per message, a dashed self-loop for a retry and a line ending in ✕ for a lost message.",
     render: (n) => <SequenceFigure number={n} />,
   },
   {
     id: "nested-groups",
-    intro: "Use when what runs inside what is the point. Built from Groups inside Groups (dashed for a boundary, solid for a unit) and stacked dashed Nodes for many identical instances.",
+    intro: "Use when what runs inside what is the point. Built from Groups inside Groups (dashed for a boundary, solid for a unit you deploy or own) and dashed outlines stacked behind a Node for many identical copies.",
     render: (n) => <NestedGroupsFigure number={n} />,
   },
   {
     id: "numbered-steps",
-    intro: "Use when one path crosses several areas and the reader should follow it in order. Built from column Lanes, Groups, numbered Badges along the path, and a flow name so hovering lights the whole path.",
+    intro: "Use when one path crosses several areas and the reader should follow it in order. Built from column Lanes, a Group per area, numbered Badges along the path, a flow name so hovering lights the whole path, and a long elbow back to the start.",
     render: (n) => <NumberedStepsFigure number={n} />,
   },
   {
@@ -161,12 +161,12 @@ export const figureSections: FigureSection[] = [
   },
   {
     id: "layered-checks",
-    intro: "Use when several imperfect checks together stop most problems. Built from a numbered Badge over each layer, one Connector per item through walls with gaps, and the accent on the one item that slips through.",
+    intro: "Use when several imperfect checks together stop most problems. Built from a numbered Badge over each layer, one Connector per item through walls with gaps (drawn locally; there is no Wall part yet), and the accent on the one item that slips through.",
     render: (n) => <LayeredChecksFigure number={n} />,
   },
   {
     id: "flow-volumes",
-    intro: "Use when how many go each way is the point, not just where they go. Built inside a Figure from bars and bands drawn on the theme's token colours; there is no Sankey primitive yet.",
+    intro: "Use when how many go each way is the point, not just where they go. Built inside a Figure from bars and bands drawn on the theme's token colours, with legend hover by channel; there is no Sankey primitive yet.",
     render: (n) => <FlowVolumesFigure number={n} />,
   },
   {

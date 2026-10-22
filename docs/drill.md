@@ -28,7 +28,7 @@ const levels: DrillLevel[] = [
   { id: "checks", label: "Checks", alt: "…", render: (ctx) => <>…</> },
 ];
 
-<DrillFigure levels={levels} viewBox="0 0 1120 480" narrowViewBox="0 0 360 600" number="Figure 05" eyebrow="Drill-down" />;
+<DrillFigure levels={levels} viewBox="0 0 1120 480" narrowViewBox="0 0 360 600" number="Figure 01" eyebrow="Drill-down" />;
 ```
 
 Levels are a flat list; the first is the root unless `root` names another. Parent and child are linked by `DrillNode drill="<level id>"`, so one level can open several children.
@@ -76,7 +76,7 @@ Reduced motion replaces every move with a 160ms crossfade, no scaling. Without W
 
 ## Example
 
-`playground/DrillSection.tsx`: an illustrative three-level agent harness (Harness → Checks → Policy), wide and narrow, with its path in `?drill=harness/checks`, and a second copy in the other theme opened at Checks. Temporary route: `/drill`.
+`playground/DrillSection.tsx`: an illustrative three-level agent harness (Harness → Checks → Policy), wide and narrow, with its path in `?drill=harness/checks`. It is the drill-down section of the diagrams page (`/#drill-figure`); `/drill` opens that page scrolled to it.
 
 ![Mid-zoom at 30%: the parent closes in, the node's label and preview give way](drill-zoom-30-light.png)
 ![Mid-zoom at 45%: the child appears inside the node box](drill-zoom-45-light.png)
