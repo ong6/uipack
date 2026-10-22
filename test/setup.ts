@@ -5,7 +5,9 @@ declare global {
   var __reduced: boolean;
 }
 globalThis.__reduced = false;
-Object.defineProperty(window, "matchMedia", {
+// Tests marked `@vitest-environment node` (the server path) have no window to patch.
+const browser = typeof window !== "undefined";
+if (browser) Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: (q: string) => ({
     matches: q.includes("reduced-motion") && globalThis.__reduced,
@@ -21,7 +23,7 @@ Object.defineProperty(window, "matchMedia", {
 
 // jsdom has no PointerEvent, so `pointerType` never reached the handlers and
 // the touch guard was untestable. A minimal constructor carries it through.
-if (typeof window.PointerEvent === "undefined") {
+if (browser && typeof window.PointerEvent === "undefined") {
   class PointerEvent extends MouseEvent {
     pointerType: string;
     pointerId: number;

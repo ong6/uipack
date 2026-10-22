@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
+import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { readFileSync } from "node:fs";
 import {
@@ -119,6 +120,35 @@ describe("DeckPlayer", () => {
     const html = renderToString(<DeckPlayer id="t" title="Test deck" slides={slides} />);
     expect(html).toContain('aria-roledescription="slide deck"');
     expect(html).toContain("1 of 3: First claim");
+  });
+
+  it("hydrates server HTML without a mismatch, then offers full screen", async () => {
+    // The server half runs with no window or document, as on a real server.
+    vi.stubGlobal("window", undefined);
+    vi.stubGlobal("document", undefined);
+    let html: string;
+    try {
+      html = renderToString(<DeckPlayer id="h" title="Test deck" slides={slides} />);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    expect(html).not.toContain("Full screen");
+    const host = document.createElement("div");
+    host.innerHTML = html;
+    document.body.append(host);
+    const recoverable: unknown[] = [];
+    const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const root = await act(async () => hydrateRoot(host, <DeckPlayer id="h" title="Test deck" slides={slides} />, { onRecoverableError: (e) => recoverable.push(e) }));
+      expect(recoverable).toEqual([]);
+      expect(errors).not.toHaveBeenCalled();
+      // After mount the browser's support is known: jsdom does not say full screen is unavailable.
+      expect(screen.getByRole("button", { name: "Full screen" })).toBeInTheDocument();
+      act(() => root.unmount());
+    } finally {
+      errors.mockRestore();
+      host.remove();
+    }
   });
 
   it("reveals builds before changing slide, and going back lands fully built", () => {
