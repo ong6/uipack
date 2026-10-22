@@ -62,7 +62,12 @@ function controlRows() {
     ...document.querySelectorAll<HTMLElement>(
       ".showcase-shell :is(button, select, input:not([type=radio], [type=checkbox], [type=hidden]))",
     ),
-  ].filter((c) => c.getClientRects().length && !c.closest("svg, .uipack-deck__canvas, .uipack-deck-stage, .uipack-web"));
+    // Scene labels float over a 3D scene at their parts' projected places, sized to their own words:
+    // two that land at one height are not a row of controls.
+  ].filter(
+    (c) =>
+      c.getClientRects().length && !c.closest("svg, .uipack-deck__canvas, .uipack-deck-stage, .uipack-web, .uipack-slide-labels"),
+  );
   const byParent = new Map<Element, HTMLElement[]>();
   for (const c of controls) byParent.set(c.parentElement!, [...(byParent.get(c.parentElement!) ?? []), c]);
   for (const [parent, list] of byParent) {
