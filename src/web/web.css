@@ -157,6 +157,8 @@
   --web-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 
   container: web / inline-size;
+  /* Native controls (radios, checkboxes, scrollbars) follow the surface's theme, not the page's. */
+  color-scheme: light;
   background: var(--web-bg);
   color: var(--web-ink);
   font-family: var(--web-font-text);
@@ -183,10 +185,12 @@
     --web-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 24px 48px -24px rgb(0 0 0 / 0.7);
     --web-noise-blend: screen;
     --web-aurora-opacity: 0.34;
+    color-scheme: dark;
   }
 }
 [data-theme="dark"] .uipack-web:not([data-theme="light"]),
 .uipack-web[data-theme="dark"] {
+  color-scheme: dark;
   --web-bg: #0d0d13;
   --web-surface: #16161f;
   --web-secondary: #1e1c2e;
