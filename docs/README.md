@@ -6,6 +6,7 @@
 - [Deck player](deck.md): one transition grammar (advance, morph, zoom), builds, overview, speaker and read views.
 - [Deck storytelling](deck-storytelling.md): storyline templates, slide roles and the checks `lintDeck` runs.
 - [Canvas and selection](interaction.md): mobile reading, item selection, expanded inspection, and limits.
+- [Drill-down figures](drill.md): `DrillFigure` and `DrillNode`, a stack of figures where a node zooms open into its own figure, with the glow affordance, breadcrumb, keyboard, reduced motion and static export.
 
 Agent instructions live in [AGENTS.md](../AGENTS.md). Setup and verification live in the [root README](../README.md).
 - [Component-first workflow](component-first.md): build, register, verify, then consume significant UI.

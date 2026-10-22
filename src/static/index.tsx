@@ -125,6 +125,9 @@ export function wrapText(text: string, chars: number): string[] {
 
 function figureOf(input: ReactElement<FigureProps> | StaticFigure): StaticFigure {
   if (isValidElement(input)) {
+    // A component that knows its own static form (DrillFigure) supplies it.
+    const toStatic = (input.type as { toStatic?: (props: unknown) => StaticFigure }).toStatic;
+    if (typeof toStatic === "function") return toStatic(input.props);
     const pp = input.props as Partial<PresetFigureProps<{ figure: FigureMeta }>>;
     if (typeof pp.parts === "function" && pp.spec) {
       const parts = pp.parts(pp.spec, pp.id ?? "static");

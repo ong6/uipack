@@ -24,7 +24,7 @@ Landing is the web style of `uipack/web`, shown at `/web`. Its tokens live in `s
 - Blue squares mean requests, green circles mean responses, violet diamonds mean changes, and accent rings mark the figure's one highlighted path. Preserve shape as well as colour: a host may set its accent close to the request blue.
 - System sans for titles and explanation; system monospace for metadata, IDs, and controls where appropriate. No font network requests.
 - One shared page width, header, navigation, theme control, and active-page indicator. Theme survives navigation and reload through URL parameters.
-- Restrained borders and small radii. Glow is a selection signal, never ambient decoration. Text and selected state explain the same thing without relying on glow.
+- Restrained borders and small radii. Glow is a selection signal, never ambient decoration, with one exception: a drillable node (`DrillNode`) carries a soft, translucent accent glow and a faint preview of the figure inside it, the affordance for "there is more in here". It is softer than the selection ring, never applied to anything else, and backed by a visible marker and an accessible name, so it never carries meaning alone. Text and selected state explain the same thing without relying on glow.
 
 ## Interaction and mobile
 

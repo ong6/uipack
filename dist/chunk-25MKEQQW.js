@@ -613,7 +613,8 @@ function Node({
   href,
   size: size0 = 14,
   subSize: subSize0 = 11,
-  id
+  id,
+  inlay
 }) {
   const hover = useFigureHover();
   const size = useFontFloor(size0);
@@ -655,6 +656,7 @@ function Node({
             strokeDasharray: dashed ? "4 4" : void 0
           }
         ),
+        inlay,
         /* @__PURE__ */ jsx6("path", { className: "uipack__touch-target", d: `M ${x} ${y - Math.max(0, 54 - h) / 2} h ${w} v ${Math.max(h, 54)} h ${-w} Z`, fill: "transparent", stroke: "none", "aria-hidden": "true" }),
         glyph ? /* @__PURE__ */ jsx6(
           "g",
@@ -993,11 +995,16 @@ function Defs({ id }) {
 }
 
 export {
+  SelectionContext,
   FigureHoverContext,
   useFigureHover,
   flowList,
   hoverAttrs,
   Legend,
+  placeNote,
+  PauseGlyph,
+  PlayGlyph,
+  ReplayGlyph,
   Figure,
   Lane,
   Group,
@@ -1020,4 +1027,4 @@ export {
   Label,
   Defs
 };
-//# sourceMappingURL=chunk-SUSISIFP.js.map
+//# sourceMappingURL=chunk-25MKEQQW.js.map
