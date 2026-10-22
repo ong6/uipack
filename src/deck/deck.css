@@ -182,14 +182,14 @@
 .uipack-deck-title {
   max-width: 15ch;
   font-size: 120px;
-  line-height: 1.02;
-  letter-spacing: -0.038em;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
 }
 .uipack-deck-heading {
   max-width: 22ch;
   font-size: 76px;
   line-height: 1.08;
-  letter-spacing: -0.028em;
+  letter-spacing: -0.016em;
 }
 .uipack-deck-lede {
   max-width: 34ch;
