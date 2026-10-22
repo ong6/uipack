@@ -9,7 +9,7 @@ import {
 } from "./chunk-BK4QH7YO.js";
 import {
   usePrefersReducedMotion
-} from "./chunk-PH4YUQN4.js";
+} from "./chunk-MOPC6KJ6.js";
 import "./chunk-YUGHDI4S.js";
 
 // src/slides/SlidePlayer.tsx

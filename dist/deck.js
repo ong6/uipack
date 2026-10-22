@@ -4,7 +4,7 @@ import {
 } from "./chunk-QQDTNXY7.js";
 import {
   usePrefersReducedMotion
-} from "./chunk-PH4YUQN4.js";
+} from "./chunk-MOPC6KJ6.js";
 import {
   useIsoLayoutEffect
 } from "./chunk-YUGHDI4S.js";

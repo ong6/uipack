@@ -34,7 +34,7 @@ var import_server = require("react-dom/server");
 // src/scale.tsx
 var import_react = require("react");
 var import_jsx_runtime = require("react/jsx-runtime");
-var FigureScaleContext = (0, import_react.createContext)({ floor: 0 });
+var FigureScaleContext = /* @__PURE__ */ (0, import_react.createContext)({ floor: 0 });
 var DEFAULT_RENDER_WIDTH = 1088;
 function fontFloor(vbWidth, renderWidth, minFont) {
   if (!vbWidth || !renderWidth || !minFont) return 0;
@@ -48,7 +48,7 @@ function FigureScaleProvider({ floor, children }) {
 var import_react2 = require("react");
 var noop = () => {
 };
-var FigureMotionContext = (0, import_react2.createContext)({
+var FigureMotionContext = /* @__PURE__ */ (0, import_react2.createContext)({
   playing: true,
   reduced: false,
   cycle: 0,

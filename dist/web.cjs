@@ -96,6 +96,7 @@ __export(web_exports, {
   offer: () => offer,
   organization: () => organization,
   pageMeta: () => pageMeta,
+  person: () => person,
   product: () => product,
   ref: () => ref,
   resolveAiCrawlers: () => resolveAiCrawlers,
@@ -270,15 +271,6 @@ function prefersReducedMotion(win = typeof window === "undefined" ? void 0 : win
 }
 
 // src/context.tsx
-var noop = () => {
-};
-var FigureMotionContext = (0, import_react4.createContext)({
-  playing: true,
-  reduced: false,
-  cycle: 0,
-  toggle: noop,
-  replay: noop
-});
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = (0, import_react4.useState)(false);
   (0, import_react4.useEffect)(() => {
@@ -1575,6 +1567,15 @@ function pageMeta(o) {
     { tag: "link", attrs: { rel: "canonical", href: o.url } }
   ];
   if (o.robots) tags.push({ tag: "meta", attrs: { name: "robots", content: o.robots } });
+  if (o.markdown) tags.push({ tag: "link", attrs: { rel: "alternate", type: "text/markdown", href: absoluteUrl(o.markdown, o.url) } });
+  if (o.llmsTxt) tags.push({ tag: "link", attrs: { rel: "describedby", type: "text/markdown", href: absoluteUrl(o.llmsTxt, o.url) } });
+  const rss = typeof o.rss === "string" ? { url: o.rss } : o.rss;
+  if (rss) {
+    const title = rss.title ?? o.siteName;
+    const attrs = { rel: "alternate", type: "application/rss+xml", href: absoluteUrl(rss.url, o.url) };
+    if (title) attrs.title = title;
+    tags.push({ tag: "link", attrs });
+  }
   const og = (property, content) => content !== void 0 && content !== "" && tags.push({ tag: "meta", attrs: { property, content: String(content) } });
   og("og:type", o.type ?? "website");
   og("og:title", o.title);
@@ -1588,6 +1589,8 @@ function pageMeta(o) {
     og("og:image:width", image.width);
     og("og:image:height", image.height);
   }
+  og("article:published_time", o.publishedTime);
+  og("article:modified_time", o.modifiedTime ?? o.publishedTime);
   const tw = (name, content) => content && tags.push({ tag: "meta", attrs: { name, content } });
   tw("twitter:card", imageUrl ? "summary_large_image" : "summary");
   tw("twitter:title", o.title);
@@ -1643,6 +1646,18 @@ function clean(o) {
 }
 function organization(o) {
   return clean({ "@type": "Organization", "@id": o.id ?? nodeId(o.url, "organization"), name: o.name, url: o.url, logo: o.logo, description: o.description, sameAs: o.sameAs });
+}
+function person(o) {
+  return clean({
+    "@type": "Person",
+    "@id": o.id ?? nodeId(o.url, "person"),
+    name: o.name,
+    url: o.url,
+    image: o.image,
+    jobTitle: o.jobTitle,
+    description: o.description,
+    sameAs: o.sameAs
+  });
 }
 function webSite(o) {
   return clean({
@@ -1719,8 +1734,14 @@ function breadcrumbList(items) {
     itemListElement: items.map((b, i) => clean({ "@type": "ListItem", position: i + 1, name: b.name, item: b.url }))
   };
 }
+function authorNode(a) {
+  const name = typeof a.name === "string" ? a.name : void 0;
+  if (!name) throw new Error("article: every author needs a name");
+  const url = typeof a.url === "string" ? a.url : void 0;
+  return clean({ "@type": "Person", "@id": typeof a["@id"] === "string" ? a["@id"] : void 0, name, url });
+}
 function article(o) {
-  const authors = (Array.isArray(o.author) ? o.author : [o.author]).map((a) => clean({ "@type": "Person", name: a.name, url: a.url }));
+  const authors = (Array.isArray(o.author) ? o.author : [o.author]).map(authorNode);
   return clean({
     "@type": o.type ?? "Article",
     headline: o.headline,
@@ -2031,6 +2052,7 @@ function buildCrawlFiles(o) {
   offer,
   organization,
   pageMeta,
+  person,
   product,
   ref,
   resolveAiCrawlers,

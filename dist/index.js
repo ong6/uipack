@@ -38,7 +38,7 @@ import {
   route,
   trim,
   useFigureHover
-} from "./chunk-E2JDT6JP.js";
+} from "./chunk-VFVQWD4O.js";
 import {
   DEFAULT_RENDER_WIDTH,
   FigureScaleContext,
@@ -48,7 +48,7 @@ import {
   fontFloor,
   tokenColor,
   useFontFloor
-} from "./chunk-BEGV5DNB.js";
+} from "./chunk-GNLNRCEN.js";
 import {
   CanvasView
 } from "./chunk-BK4QH7YO.js";
@@ -56,7 +56,7 @@ import {
   FigureMotionContext,
   useFigureMotion,
   usePrefersReducedMotion
-} from "./chunk-PH4YUQN4.js";
+} from "./chunk-MOPC6KJ6.js";
 import {
   useIsoLayoutEffect
 } from "./chunk-YUGHDI4S.js";
@@ -254,7 +254,7 @@ function runDrill(opts) {
 
 // src/drill/context.tsx
 import { createContext, useContext } from "react";
-var DrillContext = createContext(null);
+var DrillContext = /* @__PURE__ */ createContext(null);
 var useDrill = () => useContext(DrillContext);
 
 // src/drill/model.ts
@@ -356,7 +356,7 @@ function drillStatic(props, path) {
 import { Fragment as Fragment2, jsx as jsx6, jsxs as jsxs4 } from "react/jsx-runtime";
 var last = (p) => p[p.length - 1];
 var BackGlyph = () => /* @__PURE__ */ jsx6("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ jsx6("path", { d: "M7.5 2.5 4 6l3.5 3.5", fill: "none", stroke: "currentColor", strokeWidth: "1.6", strokeLinecap: "round", strokeLinejoin: "round" }) });
-var DrillLayer = memo(function DrillLayer2({ level, figId, frame, floorWide, floorNarrow, levels, open, current }) {
+var DrillLayer = /* @__PURE__ */ memo(function DrillLayer2({ level, figId, frame, floorWide, floorNarrow, levels, open, current }) {
   const lid = `${figId}-${cleanId(level.id)}`;
   const ctx = (variant) => ({
     levels,
@@ -383,7 +383,7 @@ var DrillLayer = memo(function DrillLayer2({ level, figId, frame, floorWide, flo
     frame.narrow ? draw("narrow", level.narrow ?? level.render, level.narrowViewBox ?? frame.narrow, floorNarrow) : null
   ] });
 });
-function DrillFigure({
+function DrillFigureRoot({
   levels,
   root,
   viewBox,
@@ -760,7 +760,10 @@ function DrillFigure({
     }
   );
 }
-DrillFigure.toStatic = (props) => drillStatic(props);
+var DrillFigure = /* @__PURE__ */ Object.assign(DrillFigureRoot, {
+  displayName: "DrillFigure",
+  toStatic: (props) => drillStatic(props)
+});
 
 // src/drill/DrillNode.tsx
 import { useEffect as useEffect2, useId as useId2, useRef as useRef2, useState as useState2 } from "react";

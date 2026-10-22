@@ -1119,15 +1119,6 @@ var import_react5 = require("react");
 
 // src/context.tsx
 var import_react4 = require("react");
-var noop = () => {
-};
-var FigureMotionContext = (0, import_react4.createContext)({
-  playing: true,
-  reduced: false,
-  cycle: 0,
-  toggle: noop,
-  replay: noop
-});
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = (0, import_react4.useState)(false);
   (0, import_react4.useEffect)(() => {

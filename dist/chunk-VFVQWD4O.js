@@ -4,7 +4,7 @@ import {
   Token,
   fontFloor,
   useFontFloor
-} from "./chunk-BEGV5DNB.js";
+} from "./chunk-GNLNRCEN.js";
 import {
   CanvasView
 } from "./chunk-BK4QH7YO.js";
@@ -12,7 +12,7 @@ import {
   FigureMotionContext,
   useFigureMotion,
   usePrefersReducedMotion
-} from "./chunk-PH4YUQN4.js";
+} from "./chunk-MOPC6KJ6.js";
 import {
   useIsoLayoutEffect
 } from "./chunk-YUGHDI4S.js";
@@ -21,7 +21,7 @@ import {
 import { createContext, useContext } from "react";
 var noop = () => {
 };
-var FigureHoverContext = createContext({ flow: null, kind: null, setFlow: noop, setKind: noop });
+var FigureHoverContext = /* @__PURE__ */ createContext({ flow: null, kind: null, setFlow: noop, setKind: noop });
 function useFigureHover() {
   return useContext(FigureHoverContext);
 }
@@ -70,7 +70,7 @@ import {
   useContext as useContext2,
   useId
 } from "react";
-var SelectionContext = createContext2({ enabled: false, selected: null, select: () => {
+var SelectionContext = /* @__PURE__ */ createContext2({ enabled: false, selected: null, select: () => {
 } });
 function useItemSelection(label, detail, flow, enabled = true, name = label) {
   const id = useId();
@@ -1034,4 +1034,4 @@ export {
   Label,
   Defs
 };
-//# sourceMappingURL=chunk-E2JDT6JP.js.map
+//# sourceMappingURL=chunk-VFVQWD4O.js.map

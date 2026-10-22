@@ -999,6 +999,11 @@ function marketBar(index, variant = 0) {
   return { open, high, low, close, volume };
 }
 
+// src/package-assets.ts
+function tennisModelUrl() {
+  return new URL("../assets/objects/tennis-return.glb", import.meta.url).href;
+}
+
 // src/objects/scenes.ts
 var DURATION = 5400;
 var p = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
@@ -1288,13 +1293,9 @@ function contact(c) {
   };
   return g;
 }
-async function tennis(_c, variant = 0) {
-  const [{ GLTFLoader }, { default: encoded }] = await Promise.all([
-    import("three/addons/loaders/GLTFLoader.js"),
-    import("./tennis-asset-WGSCT2NA.js")
-  ]);
-  const bytes = Uint8Array.from(atob(encoded), (char) => char.charCodeAt(0));
-  const model = await new GLTFLoader().parseAsync(bytes.buffer, "");
+async function tennis(_c, variant = 0, modelUrl) {
+  const { GLTFLoader } = await import("three/addons/loaders/GLTFLoader.js");
+  const model = await new GLTFLoader().loadAsync(modelUrl ?? tennisModelUrl());
   const g = new THREE.Group();
   g.rotation.set(0.64, -0.25, 0);
   g.position.y = 0.1;
@@ -1834,11 +1835,11 @@ var builders = {
   travel,
   reading
 };
-async function createObject(kind, palette, variant = 0, edition = 0) {
+async function createObject(kind, palette, variant = 0, edition = 0, modelUrl) {
   var _a;
   const finish = kind === "contact" ? variant % 3 : edition;
   const accent = kind === "reading" ? [palette.accent, 7945795, 3164775][finish] : [palette.accent, 4619160, 10512718][finish];
-  const object = kind === "contact" && (variant === 3 || variant === 4) ? createContactDirection(variant) : kind !== "contact" && variant !== 0 ? createArtDirection(kind, palette, variant) : await builders[kind]({ ...palette, accent }, finish);
+  const object = kind === "contact" && (variant === 3 || variant === 4) ? createContactDirection(variant) : kind !== "contact" && variant !== 0 ? createArtDirection(kind, palette, variant) : kind === "tennis" ? await tennis({ ...palette, accent }, finish, modelUrl) : await builders[kind]({ ...palette, accent }, finish);
   (_a = object.userData).style ?? (_a.style = "studio");
   object.userData.variant = variant;
   object.userData.animate(0);
@@ -1867,4 +1868,4 @@ export {
   createObject,
   disposeObject
 };
-//# sourceMappingURL=scenes-MXS7J3SG.js.map
+//# sourceMappingURL=scenes-RZK6MERR.js.map

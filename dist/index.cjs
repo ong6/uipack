@@ -421,7 +421,7 @@ function CanvasView({
 
 // src/selection.tsx
 var import_react4 = require("react");
-var SelectionContext = (0, import_react4.createContext)({ enabled: false, selected: null, select: () => {
+var SelectionContext = /* @__PURE__ */ (0, import_react4.createContext)({ enabled: false, selected: null, select: () => {
 } });
 function useItemSelection(label, detail, flow, enabled = true, name = label) {
   const id = (0, import_react4.useId)();
@@ -456,7 +456,7 @@ var import_react8 = require("react");
 var import_react5 = require("react");
 var noop = () => {
 };
-var FigureMotionContext = (0, import_react5.createContext)({
+var FigureMotionContext = /* @__PURE__ */ (0, import_react5.createContext)({
   playing: true,
   reduced: false,
   cycle: 0,
@@ -487,7 +487,7 @@ function usePrefersReducedMotion() {
 var import_react6 = require("react");
 var noop2 = () => {
 };
-var FigureHoverContext = (0, import_react6.createContext)({ flow: null, kind: null, setFlow: noop2, setKind: noop2 });
+var FigureHoverContext = /* @__PURE__ */ (0, import_react6.createContext)({ flow: null, kind: null, setFlow: noop2, setKind: noop2 });
 function useFigureHover() {
   return (0, import_react6.useContext)(FigureHoverContext);
 }
@@ -570,7 +570,7 @@ function Legend({ items }) {
 // src/scale.tsx
 var import_react7 = require("react");
 var import_jsx_runtime4 = require("react/jsx-runtime");
-var FigureScaleContext = (0, import_react7.createContext)({ floor: 0 });
+var FigureScaleContext = /* @__PURE__ */ (0, import_react7.createContext)({ floor: 0 });
 var DEFAULT_RENDER_WIDTH = 1088;
 function fontFloor(vbWidth2, renderWidth, minFont) {
   if (!vbWidth2 || !renderWidth || !minFont) return 0;
@@ -1709,7 +1709,7 @@ function runDrill(opts) {
 
 // src/drill/context.tsx
 var import_react10 = require("react");
-var DrillContext = (0, import_react10.createContext)(null);
+var DrillContext = /* @__PURE__ */ (0, import_react10.createContext)(null);
 var useDrill = () => (0, import_react10.useContext)(DrillContext);
 
 // src/drill/model.ts
@@ -1811,7 +1811,7 @@ function drillStatic(props, path) {
 var import_jsx_runtime21 = require("react/jsx-runtime");
 var last = (p) => p[p.length - 1];
 var BackGlyph = () => /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("path", { d: "M7.5 2.5 4 6l3.5 3.5", fill: "none", stroke: "currentColor", strokeWidth: "1.6", strokeLinecap: "round", strokeLinejoin: "round" }) });
-var DrillLayer = (0, import_react11.memo)(function DrillLayer2({ level, figId, frame, floorWide, floorNarrow, levels, open, current }) {
+var DrillLayer = /* @__PURE__ */ (0, import_react11.memo)(function DrillLayer2({ level, figId, frame, floorWide, floorNarrow, levels, open, current }) {
   const lid = `${figId}-${cleanId(level.id)}`;
   const ctx = (variant) => ({
     levels,
@@ -1838,7 +1838,7 @@ var DrillLayer = (0, import_react11.memo)(function DrillLayer2({ level, figId, f
     frame.narrow ? draw("narrow", level.narrow ?? level.render, level.narrowViewBox ?? frame.narrow, floorNarrow) : null
   ] });
 });
-function DrillFigure({
+function DrillFigureRoot({
   levels,
   root,
   viewBox,
@@ -2215,7 +2215,10 @@ function DrillFigure({
     }
   );
 }
-DrillFigure.toStatic = (props) => drillStatic(props);
+var DrillFigure = /* @__PURE__ */ Object.assign(DrillFigureRoot, {
+  displayName: "DrillFigure",
+  toStatic: (props) => drillStatic(props)
+});
 
 // src/drill/DrillNode.tsx
 var import_react12 = require("react");

@@ -228,7 +228,8 @@ function ObjectStage({
   variant = 0,
   edition = 0,
   controls = "full",
-  surface = "styled"
+  surface = "styled",
+  modelUrl
 }) {
   const hostRef = useRef(null);
   const canvasRef = useRef(null);
@@ -302,7 +303,7 @@ function ObjectStage({
       setReady(false);
     };
     canvas.addEventListener("webglcontextlost", handleContextLost);
-    Promise.all([import("three"), import("./scenes-MXS7J3SG.js"), import("three/addons/environments/RoomEnvironment.js")]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
+    Promise.all([import("three"), import("./scenes-RZK6MERR.js"), import("three/addons/environments/RoomEnvironment.js")]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
       if (disposed) return;
       try {
         renderer = new THREE.WebGLRenderer({
@@ -324,7 +325,7 @@ function ObjectStage({
         const camera = new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 100);
         camera.position.set(0, variant === 4 && kind !== "contact" ? -0.15 : 0, 10);
         const colors = palette ?? objectPalettes[colorMode];
-        const object = await createObject(kind, colors, variant === "random" ? 0 : variant, edition);
+        const object = await createObject(kind, colors, variant === "random" ? 0 : variant, edition, modelUrl);
         if (disposed || contextLost) {
           disposeObject(object);
           return;
@@ -503,7 +504,7 @@ function ObjectStage({
       replayRef.current = null;
       resumeRef.current = null;
     };
-  }, [active, kind, colorMode, palette, variant, edition]);
+  }, [active, kind, colorMode, palette, variant, edition, modelUrl]);
   const togglePaused = () => {
     const next = !pausedRef.current;
     pausedRef.current = next;
@@ -683,6 +684,7 @@ function ObjectGallery({
   edition = 0,
   theme = "light",
   palette,
+  modelUrl,
   onChange
 }) {
   variant = normalizeObjectVariant(kind, variant);
@@ -721,7 +723,8 @@ function ObjectGallery({
               variant,
               edition,
               theme,
-              palette
+              palette,
+              modelUrl
             },
             kind
           ) }),

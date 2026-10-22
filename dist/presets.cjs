@@ -58,7 +58,7 @@ var import_react10 = require("react");
 var import_react = require("react");
 var noop = () => {
 };
-var FigureHoverContext = (0, import_react.createContext)({ flow: null, kind: null, setFlow: noop, setKind: noop });
+var FigureHoverContext = /* @__PURE__ */ (0, import_react.createContext)({ flow: null, kind: null, setFlow: noop, setKind: noop });
 function useFigureHover() {
   return (0, import_react.useContext)(FigureHoverContext);
 }
@@ -564,7 +564,7 @@ function CanvasView({
 
 // src/selection.tsx
 var import_react5 = require("react");
-var SelectionContext = (0, import_react5.createContext)({ enabled: false, selected: null, select: () => {
+var SelectionContext = /* @__PURE__ */ (0, import_react5.createContext)({ enabled: false, selected: null, select: () => {
 } });
 function useItemSelection(label, detail, flow, enabled = true, name = label) {
   const id = (0, import_react5.useId)();
@@ -599,7 +599,7 @@ var import_react8 = require("react");
 var import_react6 = require("react");
 var noop2 = () => {
 };
-var FigureMotionContext = (0, import_react6.createContext)({
+var FigureMotionContext = /* @__PURE__ */ (0, import_react6.createContext)({
   playing: true,
   reduced: false,
   cycle: 0,
@@ -691,7 +691,7 @@ function Legend({ items }) {
 // src/scale.tsx
 var import_react7 = require("react");
 var import_jsx_runtime6 = require("react/jsx-runtime");
-var FigureScaleContext = (0, import_react7.createContext)({ floor: 0 });
+var FigureScaleContext = /* @__PURE__ */ (0, import_react7.createContext)({ floor: 0 });
 var DEFAULT_RENDER_WIDTH = 1088;
 function fontFloor(vbWidth2, renderWidth, minFont) {
   if (!vbWidth2 || !renderWidth || !minFont) return 0;

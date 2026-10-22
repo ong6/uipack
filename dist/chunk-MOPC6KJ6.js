@@ -6,7 +6,7 @@ import {
 import { createContext, useContext, useEffect, useState } from "react";
 var noop = () => {
 };
-var FigureMotionContext = createContext({
+var FigureMotionContext = /* @__PURE__ */ createContext({
   playing: true,
   reduced: false,
   cycle: 0,
@@ -38,4 +38,4 @@ export {
   useFigureMotion,
   usePrefersReducedMotion
 };
-//# sourceMappingURL=chunk-PH4YUQN4.js.map
+//# sourceMappingURL=chunk-MOPC6KJ6.js.map

@@ -100,15 +100,6 @@ var useIsoLayoutEffect = typeof window === "undefined" ? import_react.useEffect 
 var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
 // src/context.tsx
-var noop = () => {
-};
-var FigureMotionContext = (0, import_react2.createContext)({
-  playing: true,
-  reduced: false,
-  cycle: 0,
-  toggle: noop,
-  replay: noop
-});
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = (0, import_react2.useState)(false);
   (0, import_react2.useEffect)(() => {

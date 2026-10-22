@@ -62,6 +62,12 @@ interface ObjectSceneProps {
     variant?: ObjectVariant | "random";
     /** Original edition within Studio; ignored by Paper and Kinetic. */
     edition?: ObjectEdition;
+    /**
+     * Where Studio tennis fetches its model. Default: the package's
+     * `assets/objects/tennis-return.glb`, which the bundler copies and rewrites. Set it when
+     * you serve the file yourself (a CDN, a bundler without `new URL(…, import.meta.url)`, CommonJS).
+     */
+    modelUrl?: string;
 }
 declare const objectPalettes: {
     light: {
@@ -103,12 +109,14 @@ declare function ObjectInspector({ kind, variant, edition, onVariantChange, onEd
     onVariantChange: (value: ObjectVariant) => void;
     onEditionChange: (value: ObjectEdition) => void;
 }): react.JSX.Element;
-declare function ObjectGallery({ kind, variant, edition, theme, palette, onChange, }: {
+declare function ObjectGallery({ kind, variant, edition, theme, palette, modelUrl, onChange, }: {
     kind: ObjectKind;
     variant?: ObjectVariant;
     edition?: ObjectEdition;
     theme?: "light" | "dark";
     palette?: ObjectPalette;
+    /** Passed to `ObjectScene`: where Studio tennis fetches its model. */
+    modelUrl?: string;
     onChange: (kind: ObjectKind, variant: ObjectVariant, edition: ObjectEdition) => void;
 }): react.JSX.Element;
 

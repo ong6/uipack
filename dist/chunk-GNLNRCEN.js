@@ -38,7 +38,7 @@ function Token({ shape, kind = "neutral", r = 5, cx = 0, cy = 0, style }) {
 // src/scale.tsx
 import { createContext, useContext } from "react";
 import { jsx as jsx2 } from "react/jsx-runtime";
-var FigureScaleContext = createContext({ floor: 0 });
+var FigureScaleContext = /* @__PURE__ */ createContext({ floor: 0 });
 var DEFAULT_RENDER_WIDTH = 1088;
 function fontFloor(vbWidth, renderWidth, minFont) {
   if (!vbWidth || !renderWidth || !minFont) return 0;
@@ -62,4 +62,4 @@ export {
   FigureScaleProvider,
   useFontFloor
 };
-//# sourceMappingURL=chunk-BEGV5DNB.js.map
+//# sourceMappingURL=chunk-GNLNRCEN.js.map
