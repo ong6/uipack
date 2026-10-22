@@ -8,8 +8,8 @@ import { bentoDeck } from "./bentoDeck";
  * `libraryPages` entry in catalog.ts with `query: { deck: id }` (its nav label and intro);
  * test/catalog.test.ts checks the two lists match.
  */
-export const deckExamples: { id: string; slides: DeckSlide[]; lint?: LintOptions }[] = [
-  { id: "moves", slides: deckExample, lint: { template: "deep-dive" } },
-  { id: "bento", slides: bentoDeck, lint: { template: "project-update" } },
-  { id: "consulting", slides: consultingDeck, lint: consultingDeckLint },
+export const deckExamples: { id: string; name: string; slides: DeckSlide[]; lint?: LintOptions }[] = [
+  { id: "moves", name: "Tech talk", slides: deckExample, lint: { template: "deep-dive" } },
+  { id: "bento", name: "Bento review", slides: bentoDeck, lint: { template: "project-update" } },
+  { id: "consulting", name: "Consulting", slides: consultingDeck, lint: consultingDeckLint },
 ];
