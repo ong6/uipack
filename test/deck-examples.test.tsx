@@ -1,6 +1,7 @@
 import { render } from "@testing-library/react";
 import { DeckSlideContext, STORYLINE_TEMPLATES, lintDeck, starterDeck } from "../src/deck";
 import { deckExamples } from "../playground/deckExamples";
+import { headlineDrift } from "../src/deck/player/headline";
 import { findings as starterFindings, slides as starterSlides } from "../examples/deckStarter";
 
 // The example decks teach by example, so each must pass the checks it asks authors to pass.
@@ -17,6 +18,20 @@ describe("example decks", () => {
       for (const s of d.slides) expect(s.notes, s.id).toBeTruthy();
     },
   );
+});
+
+describe("example decks: headlines", () => {
+  it.each(deckExamples.map((d) => [d.id, d] as const))("%s: every on-slide heading says its headline", (_, d) => {
+    d.slides.forEach((slide, i) => {
+      const { container, unmount } = render(
+        <DeckSlideContext.Provider value={{ step: Infinity, active: true, thumbnail: false, index: i, count: d.slides.length }}>
+          {slide.render({ step: Infinity, active: true, thumbnail: false, theme: "light", reducedMotion: true })}
+        </DeckSlideContext.Provider>,
+      );
+      expect(headlineDrift(slide, container), slide.id).toBeNull();
+      unmount();
+    });
+  });
 });
 
 describe("starterDeck", () => {

@@ -302,6 +302,29 @@ test.describe("/deck player", () => {
     await speaker.close();
   });
 
+  test("at 1440×900 the speaker view sets the next slide and clock under the slide and gives the notes a screen-tall column", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/deck?deck=bento&presenter=1&slide=quarter&step=1");
+    await expect(page.getByRole("heading", { name: "Say at this stop" })).toBeVisible();
+    const box = await page.evaluate(() => {
+      const r = (s: string) => document.querySelector(s)!.getBoundingClientRect();
+      return {
+        stage: r(".uipack-deck-stage"),
+        under: r(".uipack-deck-presenter__under"),
+        notes: r(".uipack-deck-presenter__notes"),
+        controls: r(".uipack-deck-controls"),
+      };
+    });
+    expect(box.under.top).toBeGreaterThan(box.stage.bottom);
+    expect(box.under.bottom).toBeLessThanOrEqual(box.controls.top);
+    expect(box.controls.bottom).toBeLessThanOrEqual(900);
+    expect(box.notes.left).toBeGreaterThan(box.stage.right);
+    // The notes column reaches down past the slide, into the height the band uses.
+    expect(box.notes.top).toBeLessThan(box.stage.top + 1);
+  });
+
   test("the speaker view's clocks are named in words: a timer for elapsed time, a labelled budget", async ({ page }) => {
     await page.goto("/deck?presenter=1");
     const clock = page.locator(".uipack-deck-presenter__clock");

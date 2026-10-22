@@ -333,6 +333,25 @@ describe("DeckPlayer", () => {
     }
   });
 
+  it("warns once, in development, when a slide's heading has drifted from its headline", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const drifted: DeckSlide[] = [
+        { id: "a", title: "A", headline: "Latency fell 52%.", render: () => <Slide>{<h2>Latency fell 52%</h2>}</Slide> },
+        { id: "b", title: "B", headline: "Cost fell 18%.", render: () => <Slide>{<h2>Cost fell 20%.</h2>}</Slide> },
+      ];
+      render(<DeckPlayer id="t-drift" title="Test deck" slides={drifted} />);
+      expect(warn).not.toHaveBeenCalled();
+      press("ArrowRight");
+      press("ArrowLeft");
+      press("ArrowRight");
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(String(warn.mock.calls[0][0])).toMatch(/slide "b".*\n  headline: Cost fell 18%\.\n  on slide: Cost fell 20%/s);
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
   it("announces the slide and reports positions after mount, not on mount", () => {
     const seen: string[] = [];
     render(<DeckPlayer id="t2" title="Test deck" slides={slides} onPositionChange={(p) => seen.push(`${p.id}:${p.step}`)} />);
@@ -547,6 +566,27 @@ describe("Bento", () => {
     expect(cue()).toBe("Next slide: After");
     expect(screen.getByText("Time budget").parentElement).toHaveTextContent("Time budget / 02:00");
     expect(deck().querySelector(".uipack-deck-presenter__pace")).toHaveTextContent(/on pace · this slide 00:00–01:/);
+  });
+
+  it("speaker view: at a camera stop the stop's notes lead, with the slide's whole track one click away", () => {
+    const stops: DeckSlide[] = [
+      { ...toured[0], notes: { say: "Walk the grid.", delivery: "Slowly.", stops: { a: "Latency first." } } },
+      toured[1],
+    ];
+    render(<DeckPlayer id="t12b" title="Test deck" slides={stops} mode="presenter" />);
+    const track = () => screen.getByRole("region", { name: "Talk track" });
+    expect(track()).toHaveTextContent(/^SayWalk the grid\./);
+    press("ArrowRight");
+    expect(screen.getByRole("heading", { name: "Say at this stop" })).toBeInTheDocument();
+    expect(track()).toHaveTextContent("Latency first.");
+    const whole = track().querySelector("details")!;
+    expect(whole).not.toHaveAttribute("open");
+    expect(whole).toHaveTextContent("Walk the grid.");
+    expect(track()).toHaveTextContent("DeliverySlowly.");
+    // A stop without its own notes falls back to the slide's track.
+    press("ArrowRight");
+    expect(screen.queryByRole("heading", { name: "Say at this stop" })).toBeNull();
+    expect(track()).toHaveTextContent(/^SayWalk the grid\./);
   });
 
   it("paces each slide by its share of the talk track, scaled to the budget", () => {
