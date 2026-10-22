@@ -61,13 +61,13 @@ export const deckExample: DeckSlide[] = [
           Reviews that open with the answer were decided in one meeting, not three.
         </h2>
         <p className="uipack-deck-lede deck-demo-lede">
-          So present your next review in the deck player: the answer on slide one, one claim per slide, and motion only where the
-          story needs it.
+          So, team leads: send me your next review's titles, answer first, by 6{"\u00a0"}November, and present it in the deck
+          player.
         </p>
       </Slide>
     ),
     notes: {
-      say: "Here is the whole talk in one sentence. Of the twenty-four platform reviews we held between April and September, the eleven that opened with their answer were decided in one meeting. The other thirteen took three meetings each, and nineteen days. So I'm asking every team lead to present their next review in the deck player, which puts the answer on slide one, keeps one claim per slide, and only moves a slide when the story needs it. The numbers in this deck are illustrative. Source: the platform review log, April to September 2026.",
+      say: "Here is the whole talk in one sentence. Of the twenty-four platform reviews we held between April and September, the eleven that opened with their answer were decided in one meeting. The other thirteen took three meetings each, and nineteen days. So I'm asking every team lead to send me the titles of their next review, answer first, by the sixth of November, and to present it in the deck player, which puts the answer on slide one, keeps one claim per slide, and only moves a slide when the story needs it. The numbers in this deck are illustrative. Source: the platform review log, April to September 2026.",
       delivery: "Say the two numbers slowly: one meeting, three meetings. Then stop.",
       next: "First, what a buried answer costs.",
     },
