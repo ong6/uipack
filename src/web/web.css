@@ -1465,18 +1465,20 @@
   inset: 0;
 }
 
+/* Pause sits outside the moving row, with room before it: the row has faded out entirely
+   (outlines too) a step before the button, so no chip runs into it. */
 .uipack-web-marquee {
   display: flex;
   align-items: center;
-  gap: var(--web-s2);
+  gap: var(--web-s4);
   min-width: 0;
 }
 .uipack-web-marquee__viewport {
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 82%, transparent 97%);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 82%, transparent 97%);
 }
 .uipack-web-marquee__track {
   display: flex;
