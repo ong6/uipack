@@ -1,7 +1,7 @@
 import * as T from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { createExpandedDirection } from './expanded-directions';
-import type { ObjectKind, ObjectPalette } from './scenes';
+import type { ObjectKind } from './scenes';
 
 /** Original procedural models. Coordinates are authored for the existing orthographic player. */
 export const directionTokens = {
@@ -66,7 +66,7 @@ function racket(g: T.Group, color: number, metal = false) {
   for(let i=0;i<6;i++)box(a,.127,.013,.126,0x7b8985,0,-.68-i*.062);
   return a;
 }
-function paperWorld(kind: ObjectKind, c: ObjectPalette, ticks: Tick[]) {
+function paperWorld(kind: ObjectKind, ticks: Tick[]) {
   const g = new T.Group(), C = directionTokens.paper;
   // A real layered stage: each silhouette has thickness and a separate depth plane.
   disc(g,1.74,.14,C.peach,0,0,-.45);
@@ -159,12 +159,12 @@ function paperWorld(kind: ObjectKind, c: ObjectPalette, ticks: Tick[]) {
   ticks.push(a=>{g.rotation.set(-.18+.035*Math.cos(a),-.34+.10*Math.sin(a),-.035);});
   return g;
 }
-function kineticWorld(kind: ObjectKind, c: ObjectPalette, ticks: Tick[]) {
+function kineticWorld(kind: ObjectKind, ticks: Tick[]) {
   const g=new T.Group(), C=directionTokens.kinetic;
   const base=add(g,new T.CylinderGeometry(.93,1.05,.16,64),C.dark,0,-1.49,0);
   base.rotation.x=0;
   ring(g,.96,.012,C.gold,0,-1.48,0,true).rotation.x=Math.PI/2;
-  const foot=add(g,new T.CylinderGeometry(.85,.91,.06,64),C.dark,0,-1.59,0);
+  add(g,new T.CylinderGeometry(.85,.91,.06,64),C.dark,0,-1.59,0);
   ring(g,.94,.018,C.gold,0,-1.4,0,true).rotation.x=Math.PI/2;
   if(kind==='ai') {
     const core=add(g,new T.IcosahedronGeometry(.52,0),C.gold,0,.1,0,true);
@@ -238,10 +238,10 @@ function kineticWorld(kind: ObjectKind, c: ObjectPalette, ticks: Tick[]) {
   ticks.push(a=>g.rotation.y=.18+.12*Math.sin(a));
   return g;
 }
-export function createArtDirection(kind: ObjectKind, palette: ObjectPalette, variant: 1|2|3|4|5) {
+export function createArtDirection(kind: ObjectKind, variant: 1|2|3|4|5) {
   if(variant>=3)return createExpandedDirection(kind,variant as 3|4|5);
   const ticks: Tick[]=[];
-  const g=variant===1?paperWorld(kind,palette,ticks):kineticWorld(kind,palette,ticks);
+  const g=variant===1?paperWorld(kind,ticks):kineticWorld(kind,ticks);
   g.userData.style=variant===1?'paper-theatre':'kinetic';
   g.userData.source='procedural';g.userData.loopDuration=12000;g.userData.restTime=1800;
   g.userData.animate=(time: number)=>{

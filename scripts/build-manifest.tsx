@@ -8,7 +8,6 @@
 import { mkdirSync, writeFileSync, readdirSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import type { ReactNode } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 import { Connector, Defs, Token, icons, marks, route, type IconName, type TokenKind } from "../src";
 import type { Asset } from "../src/browser";
 

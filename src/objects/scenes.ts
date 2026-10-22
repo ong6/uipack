@@ -387,7 +387,7 @@ async function tennis(_c: ObjectPalette, variant: ObjectEdition = 0, modelUrl?: 
   };
   return g;
 }
-function trading(c: ObjectPalette, variant: ObjectEdition = 0) {
+function trading(_palette: ObjectPalette, variant: ObjectEdition = 0) {
   const g = new THREE.Group();
   g.rotation.set(0.06, -0.19, 0);
   const casing = slab(4.08, 2.62, 0.16, 0x263038, 0, 0.26, 0, 0.055);
@@ -904,7 +904,7 @@ export async function createObject(
     kind === "contact" && (variant === 3 || variant === 4)
       ? createContactDirection(variant)
       : kind !== "contact" && variant !== 0
-        ? createArtDirection(kind, palette, variant)
+        ? createArtDirection(kind, variant)
         : kind === "tennis"
           ? await tennis({ ...palette, accent }, finish, modelUrl)
           : await builders[kind]({ ...palette, accent }, finish);

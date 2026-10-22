@@ -3,7 +3,6 @@ import { Callout, ChangeNote, LayerHead, LinkList, NoteCard, NoteCluster, TermLi
 import "../src/article/article.css";
 import { LayerSection, harness, inference, notes, plannedNote } from "../examples/articleParts";
 import { articleEntries } from "./catalog";
-import { useShowcaseTheme } from "./ShowcaseShell";
 import "./article-showcase.css";
 
 /* uipack/article in a host article: a 40rem prose column with blog-like
@@ -40,7 +39,6 @@ function Entry({ id, children }: { id: string; children: ReactNode }) {
 }
 
 export default function ArticleShowcase() {
-  const { theme } = useShowcaseTheme();
   const host = useHost();
   return (
     <>

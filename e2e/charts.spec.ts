@@ -55,7 +55,7 @@ async function labelGaps(chart: Locator, which: "short" | "full" | "abbr") {
 }
 
 /** Where the chart top and its first visible row sit in the viewport after an action. */
-async function landing(page: Page, chart: Locator) {
+async function landing(chart: Locator) {
   return chart.evaluate((el) => {
     const row = [...el.querySelectorAll(".uipack-span__item")].find((r) => r.getClientRects().length && !(r as HTMLElement).hidden)!;
     return { top: el.getBoundingClientRect().top, row: row.getBoundingClientRect().top, height: innerHeight };
@@ -221,7 +221,7 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
     // A filter chosen from the stuck header, 60% down the list.
     await deep();
     await col(chart, "evals").click();
-    let at = await landing(page, chart);
+    let at = await landing(chart);
     expect(at.top).toBeGreaterThanOrEqual(-1);
     expect(at.row).toBeLessThan(at.height);
     // Clearing from the stuck header's Clear button.
@@ -230,7 +230,7 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
     // Collapsing from the foot of the expanded list.
     await chart.locator(".uipack-span__toggle--foot").scrollIntoViewIfNeeded();
     await chart.locator(".uipack-span__toggle--foot").click();
-    at = await landing(page, chart);
+    at = await landing(chart);
     expect(at.top).toBeGreaterThanOrEqual(-1);
     expect(at.top).toBeLessThan(at.height);
     expect(at.row).toBeLessThan(at.height);
@@ -508,7 +508,7 @@ test.describe("SpanChart at other widths", () => {
         await chart.locator(".uipack-span__keyline [data-d]").tap();
         await expect(chart.locator("#ai-stack-deals")).toBeChecked();
         expect((await chart.locator(".uipack-span__now[data-d]").boundingBox())!.height).toBeGreaterThanOrEqual(44);
-        let land = await landing(page, chart);
+        let land = await landing(chart);
         expect(land.top).toBeGreaterThanOrEqual(-1);
         expect(land.top).toBeLessThan(land.height);
         await chart.locator(".uipack-span__keyline [data-d]").tap();
@@ -527,7 +527,7 @@ test.describe("SpanChart at other widths", () => {
         await expect(chart.locator(".uipack-span__now-row")).toBeVisible();
         // The drawer chip and the column header label the same radio.
         expect(await col(chart, "evals").evaluate((el) => getComputedStyle(el, "::after").height)).toBe("3px");
-        land = await landing(page, chart);
+        land = await landing(chart);
         expect(land.top).toBeLessThan(land.height);
         await chart.locator('[data-item="hugging-face"] summary').tap();
         await noPageOverflow(page, width);

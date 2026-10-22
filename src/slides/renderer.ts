@@ -6,7 +6,6 @@ import type {
   SlideStop,
   SlideStory,
   SlideTheme,
-  Vec3,
 } from "./types";
 
 export interface SceneRuntime {
