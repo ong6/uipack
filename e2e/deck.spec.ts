@@ -12,27 +12,27 @@ test.describe("/deck player", () => {
     page.on("pageerror", (e) => errors.push(e.message));
     await page.goto("/deck?view=present");
     await deck(page).focus();
-    await page.keyboard.press("ArrowRight");
-    await expect(deck(page)).toHaveAttribute("data-index", "1");
-    await settled(page);
-    await expect(page.locator(".uipack-deck-layer")).toHaveCount(1);
-    // Three builds on the moves slide before the next slide.
-    for (const s of ["1", "2", "3"]) {
+    // Advance, morph (the 19 days into its row), advance, zoom (into the flagged slide).
+    for (const [index, id] of [["1", "problem"], ["2", "evidence"], ["3", "ghost"], ["4", "fix"]] as const) {
+      await page.keyboard.press("ArrowRight");
+      await expect(deck(page)).toHaveAttribute("data-index", index);
+      await settled(page);
+      await expect(page.locator(".uipack-deck-layer")).toHaveCount(1);
+      await expect(page).toHaveURL(new RegExp(`slide=${id}`));
+    }
+    // Two builds on the zoomed-into slide before the next slide.
+    for (const s of ["1", "2"]) {
       await page.keyboard.press("ArrowRight");
       await expect(deck(page)).toHaveAttribute("data-step", s);
     }
     await page.keyboard.press("ArrowRight");
-    await expect(deck(page)).toHaveAttribute("data-index", "2");
+    await expect(deck(page)).toHaveAttribute("data-index", "5");
     await settled(page);
-    await page.keyboard.press("ArrowRight");
-    await expect(deck(page)).toHaveAttribute("data-index", "3");
-    await settled(page);
-    await expect(page).toHaveURL(/slide=checks/);
     expect(errors).toEqual([]);
   });
 
   test("zoom flies into the target: mid-flight the new slide is small and clipped inside it", async ({ page }) => {
-    await page.goto("/deck?slide=system&view=present");
+    await page.goto("/deck?slide=ghost&view=present");
     await deck(page).focus();
     await page.keyboard.press("ArrowRight");
     const mid = await page.evaluate(async () => {
@@ -43,8 +43,8 @@ test.describe("/deck player", () => {
         a.currentTime = 200;
       });
       const layers = Array.from(document.querySelectorAll<HTMLElement>(".uipack-deck-layer"));
-      const inner = layers.find((l) => l.dataset.slide === "checks")!;
-      const target = layers.find((l) => l.dataset.slide === "system")!.querySelector('[data-morph="checks"]')!;
+      const inner = layers.find((l) => l.dataset.slide === "fix")!;
+      const target = layers.find((l) => l.dataset.slide === "ghost")!.querySelector('[data-morph="flagged"]')!;
       const a = inner.getBoundingClientRect();
       const t = target.getBoundingClientRect();
       return { layers: layers.length, innerW: a.width, targetW: t.width, clip: getComputedStyle(inner).clipPath };
@@ -55,9 +55,14 @@ test.describe("/deck player", () => {
     await page.evaluate(() => document.getAnimations().forEach((a) => a.finish()));
     await settled(page);
     await expect(page.locator(".uipack-deck-layer")).toHaveCount(1);
+    // The camera lands on a finding, not an empty table: the first row is there before any build.
+    await expect(deck(page)).toHaveAttribute("data-step", "0");
+    const rows = page.locator(".uipack-deck-layer .deck-demo-fix__table li");
+    await expect(rows.first()).toBeVisible();
+    await expect(rows.first()).toHaveCSS("opacity", "1");
     // Back reverses the zoom.
     await page.keyboard.press("ArrowLeft");
-    await expect(deck(page)).toHaveAttribute("data-index", "2");
+    await expect(deck(page)).toHaveAttribute("data-index", "3");
     await settled(page);
   });
 
@@ -72,7 +77,7 @@ test.describe("/deck player", () => {
     await expect(dialog).toBeHidden();
     await expect(page.getByRole("button", { name: "All slides" })).toBeFocused();
     await page.getByRole("button", { name: "All slides" }).click();
-    await dialog.getByRole("button", { name: /06 One clock/ }).click();
+    await dialog.getByRole("button", { name: /06 Three pilots/ }).click();
     await expect(deck(page)).toHaveAttribute("data-index", "5");
     // Picking a slide hands focus to the deck, so Space moves on rather than reopening the overview.
     await expect(deck(page)).toBeFocused();
@@ -154,20 +159,20 @@ test.describe("/deck player", () => {
     const speaker = await context.newPage();
     await speaker.goto("/deck?presenter=1");
     const speakerDeck = speaker.getByRole("region", { name: "Deck player example, speaker view" });
-    await expect(speaker.getByText("Say")).toBeVisible();
+    await expect(speaker.getByRole("heading", { name: "Say", exact: true })).toBeVisible();
     await deck(page).focus();
     await page.keyboard.press("ArrowRight");
     await expect(speakerDeck).toHaveAttribute("data-index", "1");
     // Opening the speaker window did not move the audience.
     await expect(deck(page)).toHaveAttribute("data-index", "1");
     await speaker.keyboard.press("ArrowRight");
-    await expect(deck(page)).toHaveAttribute("data-step", "1");
+    await expect(deck(page)).toHaveAttribute("data-index", "2");
     await speaker.close();
   });
 
   test("reduced motion swaps slides with a short fade and no movement", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/deck?slide=system&view=present");
+    await page.goto("/deck?slide=ghost&view=present");
     await expect(deck(page)).toHaveAttribute("data-motion", "none");
     await deck(page).focus();
     await page.keyboard.press("ArrowRight");
@@ -176,7 +181,7 @@ test.describe("/deck player", () => {
     );
     expect(transforms).toEqual([]);
     await settled(page);
-    await expect(deck(page)).toHaveAttribute("data-index", "3");
+    await expect(deck(page)).toHaveAttribute("data-index", "4");
   });
 
   test("phones open the deck as a readable document without page overflow", async ({ page }) => {
@@ -192,7 +197,7 @@ test.describe("/deck player", () => {
   });
 
   test("dark theme renders tones and the inverse slide", async ({ page }) => {
-    await page.goto("/deck?slide=clock&theme=dark&view=present");
+    await page.goto("/deck?slide=plan&theme=dark&view=present");
     await expect(deck(page)).toHaveAttribute("data-theme", "dark");
     const bg = await page.locator(".uipack-deck-layer__bg").evaluate((el) => getComputedStyle(el).backgroundColor);
     expect(bg).toBe("rgb(232, 236, 233)");
@@ -244,18 +249,30 @@ const at = <T,>(page: Page, ms: number, read: () => T) =>
   ) as Promise<T>;
 
 test.describe("/deck motion: no mid-flight glitches", () => {
-  test("a morphing shape shows one copy once the crossfade ends, and travels as it grows", async ({ page }) => {
-    await page.goto("/deck?view=present");
+  test("a morphing number shows one copy, travels as it shrinks, and the slide around it holds", async ({ page }) => {
+    await page.goto("/deck?slide=problem&view=present");
     await deck(page).focus();
+    await settled(page);
     await page.keyboard.press("ArrowRight");
     const mid = await at(page, 0.4 * 760, () => {
       const layers = Array.from(document.querySelectorAll<HTMLElement>(".uipack-deck-layer"));
-      const strip = (id: string) => layers.find((l) => l.dataset.slide === id)!.querySelector<HTMLElement>('[data-morph="strip"]')!;
-      const r = strip("moves").getBoundingClientRect();
-      const end = strip("moves").offsetWidth * (layers[0].getBoundingClientRect().width / 1920);
-      return { out: getComputedStyle(strip("cover")).opacity, in: getComputedStyle(strip("moves")).opacity, growing: r.width > end * 0.34 && r.width < end * 0.99 };
+      const days = (id: string) => layers.find((l) => l.dataset.slide === id)!.querySelector<HTMLElement>('[data-morph="days"]')!;
+      const r = days("evidence").getBoundingClientRect();
+      const scale = layers[0].getBoundingClientRect().width / 1920;
+      const end = days("evidence").offsetWidth * scale;
+      const start = days("problem").offsetWidth * scale;
+      return {
+        out: getComputedStyle(days("problem")).opacity,
+        in: getComputedStyle(days("evidence")).opacity,
+        shrinking: r.width > end * 1.05 && r.width < start * 0.99,
+      };
     });
-    expect(mid).toEqual({ out: "0", in: "1", growing: true });
+    expect(mid).toEqual({ out: "0", in: "1", shrinking: true });
+    // At 25% the outgoing heading is still on screen: the frame never empties to a lone number.
+    const heading = await at(page, 0.25 * 760, () =>
+      Number(getComputedStyle(document.querySelector('.uipack-deck-layer[data-slide="problem"] .uipack-deck-heading')!).opacity),
+    );
+    expect(heading).toBeGreaterThan(0.9);
   });
 
   test("a number morphs alone: its tile loses its box and the words beside it wait", async ({ page }) => {
@@ -290,17 +307,17 @@ test.describe("/deck motion: no mid-flight glitches", () => {
   });
 
   test("a zoom moves the camera from the first 10%, and the target's box fades instead of scaling into bars", async ({ page }) => {
-    await page.goto("/deck?slide=system&view=present");
+    await page.goto("/deck?slide=ghost&view=present");
     await deck(page).focus();
     await settled(page);
     await page.keyboard.press("ArrowRight");
     const early = await at(page, 0.1 * 1150, () => {
-      const outer = document.querySelector<HTMLElement>('.uipack-deck-layer[data-slide="system"]')!;
+      const outer = document.querySelector<HTMLElement>('.uipack-deck-layer[data-slide="ghost"]')!;
       return new DOMMatrix(getComputedStyle(outer).transform).a;
     });
     expect(early).toBeGreaterThan(1.04);
     const mid = await at(page, 0.5 * 1150, () => {
-      const box = document.querySelector<HTMLElement>('.uipack-deck-layer[data-slide="system"] [data-morph="checks"]')!;
+      const box = document.querySelector<HTMLElement>('.uipack-deck-layer[data-slide="ghost"] [data-morph="flagged"]')!;
       const cs = getComputedStyle(box);
       return { border: cs.borderTopColor, bg: cs.backgroundColor, shadow: cs.boxShadow };
     });
@@ -317,19 +334,6 @@ test.describe("/deck motion: no mid-flight glitches", () => {
       Number(getComputedStyle(document.querySelector('.uipack-deck-layer[data-slide="summary"] .uipack-cx-sowhat')!).opacity);
     expect(await at(page, 0.3 * 760, opacityOf)).toBeGreaterThan(0.9);
     expect(await at(page, 0.62 * 760, opacityOf)).toBe(0);
-  });
-
-  test("each build on the machine slide changes what the machine shows", async ({ page }) => {
-    await page.goto("/deck?slide=gate&view=present");
-    await deck(page).focus();
-    const machine = page.locator(".uipack-deck-layer:not([aria-hidden]) .deck-demo-gate__machine");
-    const seen: string[] = [];
-    for (let i = 0; i < 3; i++) {
-      if (i) await page.keyboard.press("ArrowRight");
-      seen.push(`${await machine.getAttribute("data-pose")}/${await machine.getAttribute("data-view")}/${await machine.locator(".deck-demo-gate__status").textContent()}`);
-    }
-    expect(new Set(seen).size).toBe(3);
-    expect(seen[1]).toMatch(/^return\/arm\//);
   });
 
   test("a bento cell never shows its face and its detail at once", async ({ page }) => {

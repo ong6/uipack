@@ -1,6 +1,6 @@
 # Deck player
 
-`uipack/deck` plays a deck in one consistent way: slides on a 1920×1080 canvas scaled to fit, one transition grammar, build steps, an overview with a storyline view, full screen, a synced speaker view, a read view and a print view that saves a PDF. No dependencies beyond React. Run `npm run dev` and open `/deck` for the example, a deck that explains its own transitions.
+`uipack/deck` plays a deck in one consistent way: slides on a 1920×1080 canvas scaled to fit, one transition grammar, build steps, an overview with a storyline view, full screen, a synced speaker view, a read view and a print view that saves a PDF. No dependencies beyond React. Run `npm run dev` and open `/deck` for the example: a seven-slide tech talk arguing that reviews should open with their answer. Every slide advances except one morph (the 19 days on the problem slide become a row of the comparison) and one zoom (from the ghost deck into the slide it flags), so each special move marks something the story needs.
 
 For what to put on the slides and in what order, read [deck storytelling](deck-storytelling.md) first. The player is the second half of the job.
 

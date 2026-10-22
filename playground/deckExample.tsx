@@ -1,296 +1,295 @@
-import { Build, Morph, Slide, deckMotion, type DeckSlide } from "../src/deck";
-import { GateMachine, type GatePose } from "../src/mechanism";
+import { Build, Morph, Slide, type DeckSlide } from "../src/deck";
 
-const Arrow = () => (
-  <svg className="deck-demo-arrow" viewBox="0 0 72 16" aria-hidden="true">
-    <line x1="0" y1="8" x2="62" y2="8" />
-    <path d="M60 2 L72 8 L60 14 Z" />
-  </svg>
-);
+/*
+ * The tech talk: a team lead arguing that reviews should open with their answer, presented in the
+ * player it recommends. Every number is illustrative: 24 invented platform reviews.
+ *
+ * It uses one morph and one zoom, each where the story needs it: the morph carries the 19 days from
+ * the problem into the comparison that explains it (the same number, now one row of a table), and
+ * the zoom goes from the ghost deck into the one slide it flags. Everything else advances.
+ */
 
-const parts = [
-  { id: "context", name: "Context", sub: "What the model may see", eg: "Ticket, repo, user scope" },
-  { id: "model", name: "Model", sub: "Proposes the next action", eg: "One step at a time" },
-  { id: "tools", name: "Tools", sub: "The actions it may take", eg: "Shell, search, deploy" },
-  { id: "checks", name: "Checks", sub: "Proof before it lands", eg: "Schema · policy · evidence" },
+const footer = "Platform reviews · how we decide · Illustrative";
+const source = "Illustrative: 24 platform reviews, April–September 2026, median per group. Source: the platform review log.";
+
+/** What the buried-answer reviews spent their meetings on. */
+const meetings = [
+  ["Meeting 1", "Context and six charts.", "“So what do you need from us?”"],
+  ["Meeting 2", "The options, walked through again.", "“Which one do you recommend?”"],
+  ["Meeting 3", "The recommendation, finally on a slide.", "Decided, 19 days after the first."],
 ] as const;
 
-const checks = [
-  ["Schema", "The call matches the tool's contract.", "deploy(env: \"prod2\"): no such environment"],
-  ["Policy", "The action is allowed for this user and scope.", "A viewer asks to delete 4,000 rows"],
-  ["Evidence", "The result is observed, not assumed.", "\"Tests pass\" with no test log attached"],
+/** The two groups the review log splits into, on one scale of days to a decision. */
+const groups = [
+  { label: "Answer first", reviews: 11, meetings: 1, days: 6 },
+  { label: "Answer buried", reviews: 13, meetings: 3, days: 19 },
 ] as const;
 
-/** Ten slides of a talk as a strip: nine advance, one moves. The same strip morphs from the cover onto the answer slide. */
-const DeckStrip = () => (
-  <Morph id="strip" className="deck-demo-strip">
-    <span className="uipack-deck-sr">Ten slides: nine advance, one zooms.</span>
-    {Array.from({ length: 10 }, (_, i) => (
-      <span key={i} className="deck-demo-strip__slide" data-move={i === 6 ? "" : undefined} aria-hidden="true">
-        {i === 6 ? "⤢" : "→"}
-      </span>
-    ))}
-  </Morph>
-);
-
-/** What the machine shows at each build: its pose, where the camera looks and what the status line says. */
-const gateSteps: { pose: GatePose; view: string; status: string }[] = [
-  { pose: "pass", view: "whole", status: "4.2 under the 6.0 limit · rides on to the result tray" },
-  { pose: "return", view: "arm", status: "7.8 over the limit · the arm swings it into the return chute" },
-  { pose: "apart", view: "whole", status: "Taken apart · hopper, gauge, arm, chute, tray, belt" },
-];
-
-const durations = [
-  ["quick", deckMotion.quick, "Builds and small state"],
-  ["base", deckMotion.base, "The old slide leaving"],
-  ["slow", deckMotion.slow, "The new slide settling"],
-  ["morph", deckMotion.morph, "Shared things travelling"],
-  ["zoom", deckMotion.zoom, "Flying into one part"],
+/** A first draft of a review, as the ghost deck shows it: titles alone, with the check's flags. */
+const ghost = [
+  { role: "Answer", title: "Search got twice as fast this quarter, and cheaper to run" },
+  { role: "Evidence", title: "Cost update", flag: "A label, not a claim", zoom: true },
+  { role: "Evidence", title: "Caching saved 140 of the 214 ms we cut" },
+  { role: "Risk", title: "The cache passes 90% memory at the November peak" },
+  { role: "Plan", title: "Next steps", flag: "No date" },
+  { role: "Ask", title: "Thoughts and questions welcome", flag: "No owner, no date" },
 ] as const;
 
-const curves = [
-  ["settle", deckMotion.settle, "Arrivals"],
-  ["exit", deckMotion.exit, "Departures"],
-  ["travel", deckMotion.travel, "Morph and camera"],
+/** The flagged slide, fixed: what changes in each of its three parts. */
+const fixes = [
+  ["Title", "Cost update", "Cost per 1k queries fell 18%, to $0.41"],
+  ["Proof", "Four charts, one per cost line", "One pair of bars: Q2 $0.50, Q3 $0.41"],
+  ["Source", "None", "Search cost dashboard, Q2 against Q3"],
 ] as const;
 
-/** The easing curve itself, drawn: x is time, y is progress. */
-function CurveGlyph({ easing }: { easing: string }) {
-  const [x1, y1, x2, y2] = (easing.match(/[\d.]+/g) ?? []).map(Number);
-  const s = 120;
-  const p = (x: number, y: number) => `${(x * s).toFixed(1)} ${((1 - y) * s).toFixed(1)}`;
-  return (
-    <svg className="deck-demo-curve" viewBox={`-6 -6 ${s + 12} ${s + 12}`} aria-hidden="true">
-      <path className="deck-demo-curve__frame" d={`M${p(0, 0)} L${p(1, 0)} M${p(0, 0)} L${p(0, 1)}`} />
-      <path d={`M${p(0, 0)} C${p(x1, y1)} ${p(x2, y2)} ${p(1, 1)}`} />
-    </svg>
-  );
-}
+/** The pilot: dated steps, each with an owner. */
+const pilot = [
+  ["6 Nov", "Send the titles of your next review, answer first", "Team leads"],
+  ["13 Nov", "Search, Payments and Storage present in the player", "Their leads"],
+  ["30 Nov", "Count days to a decision against the 19-day baseline", "Developer Experience"],
+] as const;
 
-const footer = "UIPACK · Deck player";
-
-/** The playground deck: the player explaining its own transition grammar. */
 export const deckExample: DeckSlide[] = [
   {
-    id: "cover",
-    title: "Motion that means something",
-    headline: "When every slide moves, nobody notices the move that matters.",
-    role: "cover",
-    render: () => (
-      <Slide eyebrow="Deck player" footer={footer} layout="center">
-        <h2 className="uipack-deck-title deck-demo-cover-title">When every slide moves, nobody notices the move that matters.</h2>
-        <p className="uipack-deck-lede">
-          A review gets one pass from a busy reader. This deck is the player explaining its own moves, so each one earns its place.
-        </p>
-        <DeckStrip />
-      </Slide>
-    ),
-    notes: {
-      say: "Most internal decks animate everything: every bullet flies in, every slide spins. The room learns quickly that motion means nothing, and then the one change you needed them to see goes past unnoticed. A review gets one pass from a busy reader, so motion has to spend that attention on purpose. This deck is the player explaining its own moves, using only those moves.",
-      delivery: "Let the title sit for a beat before advancing.",
-      next: "Watch the strip of ten slides at the bottom: it comes forward.",
-    },
-  },
-  {
-    id: "moves",
-    title: "Nine in ten advance",
-    headline: "Nine slides in ten should advance; morph and zoom mark the tenth.",
+    id: "answer",
+    title: "One meeting, not three",
+    headline: "Reviews that open with the answer were decided in one meeting, not three.",
     role: "answer",
-    transition: "morph",
     render: () => (
-      <Slide footer={footer} className="deck-demo-moves-slide">
-        <h2 className="uipack-deck-heading">Nine slides in ten should advance; morph and zoom mark the tenth.</h2>
-        <DeckStrip />
-        <ol className="deck-demo-moves">
-          {[
-            ["Advance", "9 in 10", "The default. The old slide steps aside and the new one settles in, block by block."],
-            ["Morph", "1 in 20", "The same thing on both slides travels to its new place, like this strip. Everything else fades."],
-            ["Zoom", "1 in 20", "The camera flies into one part, and that part opens into the next slide."],
-          ].map(([name, share, text], i) => (
-            <Build key={name} as="li" step={i + 1}>
-              <b>{share}</b>
-              <h3>{name}</h3>
-              <p>{text}</p>
-            </Build>
-          ))}
-        </ol>
+      <Slide eyebrow="Team leads · how we run reviews · Illustrative" footer={footer} layout="center">
+        <h2 className="uipack-deck-title deck-demo-cover-title">
+          Reviews that open with the answer were decided in one meeting, not three.
+        </h2>
+        <p className="uipack-deck-lede deck-demo-lede">
+          So present your next review in the deck player: the answer on slide one, one claim per slide, and motion only where the
+          story needs it.
+        </p>
       </Slide>
     ),
     notes: {
-      say: "Here's the whole idea. In a ten-slide talk, nine slides should simply advance; the tenth gets a morph or a zoom, and that rarity is what makes it mean something. Advance is the default: the argument moves on. Morph says this is the same thing, look where it went; the strip you just watched is a morph. Zoom says look inside this part. If you can't say what the audience should watch, the slide should advance.",
-      delivery: "Each card is a build: press Next to reveal them one by one.",
-      next: "Here is a system with four parts. We'll fly into one of them.",
+      say: "Here is the whole talk in one sentence. Of the twenty-four platform reviews we held between April and September, the eleven that opened with their answer were decided in one meeting. The other thirteen took three meetings each, and nineteen days. So I'm asking every team lead to present their next review in the deck player, which puts the answer on slide one, keeps one claim per slide, and only moves a slide when the story needs it. The numbers in this deck are illustrative. Source: the platform review log, April to September 2026.",
+      delivery: "Say the two numbers slowly: one meeting, three meetings. Then stop.",
+      next: "First, what a buried answer costs.",
     },
   },
   {
-    id: "system",
-    title: "An agent harness",
-    headline: "Zoom in when one part deserves a closer look.",
-    role: "mechanism",
+    id: "problem",
+    title: "Nineteen days to decide",
+    headline: "A review that buries its answer takes three meetings and 19 days to decide.",
+    role: "problem",
     render: () => (
-      <Slide eyebrow="Agent harness" footer={footer}>
-        <h2 className="uipack-deck-heading">Zoom in when one part deserves a closer look.</h2>
-        <div className="deck-demo-system">
-          {parts.map((p, i) => (
-            <div key={p.id} className="deck-demo-system__cell">
-              <Morph id={p.id} className="uipack-deck-node">
-                <b>{p.name}</b>
-                <span>{p.sub}</span>
-                <small>{p.eg}</small>
-              </Morph>
-              {i < parts.length - 1 && <Arrow />}
-            </div>
-          ))}
-        </div>
-        <p className="uipack-deck-label deck-demo-hint">Next · inside Checks, the part teams skip</p>
-      </Slide>
-    ),
-    notes: {
-      say: "An agent harness has four parts. Context is what the model may see: the ticket, the repository, the user's scope. The model proposes the next action, one step at a time. Tools are the actions it may take, from a shell to a deploy. And checks decide whether an action lands. The first three get the attention; the last one is where incidents come from, so that's the part we'll look inside.",
-      delivery: "Point at Checks before you advance.",
-      next: "Let's go inside it.",
-    },
-  },
-  {
-    id: "checks",
-    title: "Inside Checks",
-    headline: "Every action proves itself before it lands.",
-    role: "mechanism",
-    transition: { zoom: "checks" },
-    render: () => (
-      <Slide eyebrow="Inside · Checks" footer={footer}>
-        <h2 className="uipack-deck-heading">Every action proves itself before it lands.</h2>
-        <div className="deck-demo-checks">
-          <p className="uipack-deck-label" aria-hidden="true">
-            <span />
-            <span>Gate</span>
-            <span>Passes when</span>
-            <span>Stops</span>
-          </p>
-          <ol>
-            {checks.map(([name, text, stops], i) => (
-              <Build key={name} as="li" step={i + 1}>
-                <span className="uipack-deck-label">{String(i + 1).padStart(2, "0")}</span>
-                <b>{name}</b>
-                <span>{text}</span>
-                <code>{stops}</code>
-              </Build>
+      <Slide eyebrow="The cost of a buried answer" footer={footer} layout="split" className="deck-demo-problem">
+        <div className="deck-demo-problem__copy">
+          <h2 className="uipack-deck-heading">A review that buries its answer takes three meetings and 19 days to decide.</h2>
+          <ol className="deck-demo-meetings">
+            {meetings.map(([when, what, said]) => (
+              <li key={when}>
+                <span className="uipack-deck-label">{when}</span>
+                <b>{what}</b>
+                <span>{said}</span>
+              </li>
             ))}
           </ol>
         </div>
+        <div className="deck-demo-problem__figure">
+          <p className="uipack-deck-number">
+            <Morph id="days" as="span">
+              19
+            </Morph>
+          </p>
+          <p className="deck-demo-problem__unit">days to a decision</p>
+          <p className="uipack-deck-label">Median of 13 reviews · Next: where this number sits</p>
+        </div>
       </Slide>
     ),
     notes: {
-      say: "Inside the checks there are three gates, and every action passes all three. Schema: the call matches the tool's contract, so a deploy to an environment that doesn't exist never leaves the harness. Policy: the action is allowed for this user and scope, so a viewer can't delete four thousand rows. Evidence: the result is observed, not assumed; 'tests pass' with no test log is a claim, not a result. Evidence is the one teams skip.",
-      delivery: "Read each gate's example aloud. Go back one slide to show the zoom reversing.",
-      next: "Here is the same check, drawn as a machine.",
+      say: "Here is what a buried answer costs. A typical review opens with context and six charts, and the first meeting ends with someone asking what we need from them. The second meeting walks through the options again and ends with: which one do you recommend? The recommendation finally lands in the third meeting. Across the thirteen reviews that buried their answer, the median was three meetings and nineteen days from the first meeting to a decision. That is nineteen days of a team waiting on a call it could have had in the first hour. Source: the platform review log.",
+      delivery: "Point at the 19 and hold it there; the next slide moves it.",
+      next: "Watch the nineteen: it becomes one row of a comparison.",
     },
   },
   {
-    id: "gate",
-    title: "The check as a machine",
-    headline: "A check is a gauge every proposal passes under before it lands.",
-    role: "mechanism",
-    render: ({ step, thumbnail, theme, reducedMotion }) => {
-      const at = gateSteps[Math.min(Number.isFinite(step) ? step : 2, 2)];
-      return (
-        <Slide eyebrow="Mechanism style" footer={footer} layout="split" className="deck-demo-gate">
-          <div className="deck-demo-gate__copy">
-            <h2 className="uipack-deck-heading">A check is a gauge every proposal passes under.</h2>
-            <ol className="deck-demo-gate__beats">
-              {["Under the limit: it rides on to the result tray.", "Over the limit: an arm pushes it back for another try.", "Taken apart: every assembly that does the checking."].map(
-                (text, i) => {
-                  const now = gateSteps[i] === at ? "deck-demo-gate__now" : undefined;
-                  return i === 0 ? (
-                    <li key={text} className={now}>
-                      {text}
-                    </li>
-                  ) : (
-                    <Build key={text} as="li" step={i} className={now}>
-                      {text}
-                    </Build>
-                  );
-                },
-              )}
-            </ol>
-          </div>
-          <div className="deck-demo-gate__machine" data-view={at.view} data-pose={at.pose}>
-            <div className="deck-demo-gate__camera">
-              <GateMachine pose={at.pose} theme={theme} motion={reducedMotion ? "none" : "auto"} interactive={!thumbnail} />
-            </div>
-            <p className="deck-demo-gate__status" aria-live={thumbnail ? undefined : "polite"}>
-              {at.status}
-            </p>
-          </div>
-        </Slide>
-      );
-    },
-    notes: {
-      say: "Same idea as the last slide, drawn as a machine. A proposal rides under a dial gauge. Under the limit it lands in the result tray. Press once more and we look closer: a taller proposal, over the limit, and an arm swings it into the chute, back to the start, to be revised. One more press takes the machine apart, so you can see the six assemblies that do the checking. Each press changes what the machine shows, which is the only reason to build a slide in steps.",
-      delivery: "Press Next twice: first the camera moves in on the return, then the exploded view.",
-      next: "Every move in this deck shares one clock.",
-    },
-  },
-  {
-    id: "clock",
-    title: "One clock",
-    headline: "One clock: five durations and three curves time every move.",
-    role: "mechanism",
-    tone: "ink",
+    id: "evidence",
+    title: "Six days against nineteen",
+    headline: "Answer-first reviews were decided in 6 days; buried ones took 19.",
+    role: "evidence",
+    // The same 19 days travels into its row: the morph says "this number, compared".
+    transition: "morph",
     render: () => (
-      <Slide eyebrow="Timing" footer={footer} layout="split" className="deck-demo-timing">
-        <div className="deck-demo-timing__copy">
-          <h2 className="uipack-deck-heading">One clock: five durations and three curves time every move.</h2>
-          <ul className="deck-demo-curves">
-            {curves.map(([name, easing, use]) => (
-              <li key={name}>
-                <CurveGlyph easing={easing} />
-                <b>{name}</b>
-                <span>{use}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <table className="deck-demo-durations">
-          <caption className="uipack-deck-label">Durations, ms</caption>
+      <Slide eyebrow="Answer first against answer buried" footer={footer} className="deck-demo-evidence">
+        <h2 className="uipack-deck-heading">Answer-first reviews were decided in 6 days; buried ones took 19.</h2>
+        <table className="deck-demo-compare">
+          <thead>
+            <tr>
+              <th scope="col">Reviews</th>
+              <th scope="col">Count</th>
+              <th scope="col">Meetings</th>
+              <th scope="col">Days to a decision</th>
+            </tr>
+          </thead>
           <tbody>
-            {durations.map(([name, ms, use]) => (
-              <tr key={name} data-current={name === "slow" ? "" : undefined}>
-                <th scope="row">{name}</th>
+            {groups.map((g) => (
+              <tr key={g.label} data-now={g.days === 6 ? "" : undefined}>
+                <th scope="row">{g.label}</th>
+                <td>{g.reviews}</td>
+                <td>{g.meetings}</td>
                 <td>
-                  <span className="deck-demo-durations__bar" style={{ width: `${(ms / deckMotion.zoom) * 100}%` }} />
-                  <span className="deck-demo-durations__ms">{ms}</span>
-                  <span className="deck-demo-durations__use">{use}</span>
+                  <span className="deck-demo-compare__bar" style={{ width: `${(g.days / 19) * 62}%` }} />
+                  <span className="deck-demo-compare__days">
+                    {g.days === 19 ? (
+                      <Morph id="days" as="span">
+                        19
+                      </Morph>
+                    ) : (
+                      g.days
+                    )}
+                  </span>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        <p className="uipack-deck-label deck-demo-source">{source}</p>
       </Slide>
     ),
     notes: {
-      say: "Every move reads the same five durations and three curves. Quick for builds, base for the slide leaving, slow for the one arriving, and the two long ones for morph and zoom. Arrivals settle, departures accelerate away, and anything that travels eases at both ends. That shared clock is what makes a deck feel designed rather than assembled. It also means nobody on your team picks durations by eye: a new slide part reads the same five numbers, so a deck built by three people still moves like one.",
-      delivery: "Point at the highlighted row: 560 ms is the move the audience sees most.",
-      next: "Last slide: what to do with this.",
+      say: "Here is the nineteen again, as one row of a comparison. The review log splits our twenty-four reviews into two groups. Eleven opened with their answer: a median of one meeting and six days to a decision. Thirteen buried it: three meetings and nineteen days. Same teams, same kinds of decision, same quarter. The difference is the order of the slides. We can't prove the order caused all of it, but in every pair of reviews from the same team, the answer-first one was decided sooner. Source: the platform review log, April to September 2026, median per group.",
+      delivery: "Trace the two bars left to right, then read the meetings column.",
+      next: "So how do you check a review before you give it?",
     },
   },
   {
-    id: "close",
-    title: "Rebuild your next review",
-    headline: "Rebuild your next review here and send me its ghost deck by 31 October.",
-    role: "ask",
-    tone: "accent",
+    id: "ghost",
+    title: "The ghost deck flags it",
+    headline: "Press G: the ghost deck reads a review's titles and flags the weak ones.",
+    role: "demo",
     render: () => (
-      <Slide eyebrow="The ask · team leads" footer={footer} layout="center">
-        <h2 className="uipack-deck-title deck-demo-cover-title">
-          Rebuild your next review here and send me its ghost deck by 31 October.
-        </h2>
-        <p className="uipack-deck-lede">← → or swipe to move · G for all slides · S for the speaker view · F for full screen</p>
+      <Slide eyebrow="Demo · the Storyline view" footer={footer} className="deck-demo-ghost">
+        <h2 className="uipack-deck-heading">Press G: the ghost deck reads a review's titles and flags the weak ones.</h2>
+        <ol className="deck-demo-ghost__grid">
+          {ghost.map((g, i) => {
+            const card = (
+              <>
+                <span className="deck-demo-ghost__meta">
+                  <span>{String(i + 1).padStart(2, "0")}</span>
+                  <span>{g.role}</span>
+                </span>
+                <span className="deck-demo-ghost__title">{g.title}</span>
+              </>
+            );
+            return (
+              <li key={g.title} data-flag={"flag" in g ? "" : undefined}>
+                {"zoom" in g ? (
+                  <Morph id="flagged" className="deck-demo-ghost__card">
+                    {card}
+                  </Morph>
+                ) : (
+                  <div className="deck-demo-ghost__card">{card}</div>
+                )}
+                <span className="deck-demo-ghost__flag">{"flag" in g ? `⚑ ${g.flag}` : "✓"}</span>
+              </li>
+            );
+          })}
+        </ol>
       </Slide>
     ),
     notes: {
-      say: "One ask, for the team leads here. Take the next review your team gives, rebuild it in this player, and send me its ghost deck, the titles alone, by the thirty-first of October. Write the point of each slide first, and only then decide how it arrives. Nine slides in ten should just advance; save morph for the thing that changes and zoom for the part worth a closer look. I'll read every ghost deck and send back the three titles I'd rewrite.",
-      delivery: "End on the date; leave the keys on screen while you take questions.",
+      say: "This is the check, live. Press G in the player and the Storyline tab shows the review as its titles alone, the ghost deck, with the player's checks beside it. This is the first draft of the search team's quarterly review. Read the titles in order: the answer is there, but slide two is a label, the plan has no date and the ask names nobody. Those three flags are exactly the gaps that cost a second meeting. Fixing them takes minutes, before anyone is in a room.",
+      delivery: "Read the six titles aloud in order, then point at slide two.",
+      next: "Let's go inside slide two and fix it.",
+    },
+  },
+  {
+    id: "fix",
+    title: "Three edits fix it",
+    headline: "A flagged slide takes three edits: a claim, one chart and a source.",
+    role: "mechanism",
+    // The ghost deck's flagged card opens into the slide it stands for: the same slide, closer.
+    transition: { zoom: "flagged" },
+    render: () => (
+      <Slide eyebrow="Inside slide 02 · Cost update" footer={footer} className="deck-demo-fix">
+        <h2 className="uipack-deck-heading">A flagged slide takes three edits: a claim, one chart and a source.</h2>
+        <div className="deck-demo-fix__table">
+          <p className="uipack-deck-label" aria-hidden="true">
+            <span />
+            <span>Draft</span>
+            <span>Fixed</span>
+          </p>
+          <ol>
+            {fixes.map(([part, before, after], i) => {
+              const row = (
+                <>
+                  <b>{part}</b>
+                  <s>{before}</s>
+                  <span>{after}</span>
+                </>
+              );
+              // The first edit is on screen as the camera lands, so the zoom opens onto a finding.
+              return i === 0 ? (
+                <li key={part}>{row}</li>
+              ) : (
+                <Build key={part} as="li" step={i}>
+                  {row}
+                </Build>
+              );
+            })}
+          </ol>
+        </div>
+      </Slide>
+    ),
+    notes: {
+      say: "Inside slide two there are three edits. The title says what to conclude, with its number: cost per thousand queries fell eighteen percent, to forty-one cents. The proof is the one chart that shows it, a pair of bars for the two quarters, instead of four charts of every cost line. And the number gets its source, the search cost dashboard, so nobody has to ask where it came from. Each edit takes a minute. Each one removes a question that would otherwise wait for the next meeting.",
+      delivery: "Press Next for the proof, then the source. Go back one slide to show the zoom reversing.",
+      next: "Here's how we'll try it.",
+    },
+  },
+  {
+    id: "plan",
+    title: "Three pilots by 30 November",
+    headline: "Three pilot reviews by 30 November, then we count days to a decision again.",
+    role: "plan",
+    tone: "ink",
+    render: () => (
+      <Slide eyebrow="The pilot" footer={footer} className="deck-demo-plan">
+        <h2 className="uipack-deck-heading">Three pilot reviews by 30 November, then we count days to a decision again.</h2>
+        <ol className="deck-demo-pilot">
+          {pilot.map(([when, what, who]) => (
+            <li key={when}>
+              <span className="deck-demo-pilot__when">{when}</span>
+              <b>{what}</b>
+              <span className="uipack-deck-label">{who}</span>
+            </li>
+          ))}
+        </ol>
+        <p className="deck-demo-pilot__done">
+          <span className="uipack-deck-label">Done when</span> the pilots' median is under 10 days to a decision, against 19 today.
+        </p>
+      </Slide>
+    ),
+    notes: {
+      say: "The pilot is small and dated. By the sixth of November, each team lead sends me the titles of their next review, answer first. In the week of the thirteenth, Search, Payments and Storage present theirs in the player. And on the thirtieth, Developer Experience counts days to a decision for those reviews against the nineteen-day baseline. We call it a success if the median comes in under ten days. If it doesn't, we stop, and I'll say so in the next leads' meeting.",
+      delivery: "Read the three dates; let the done-when line land.",
+      next: "Which leaves one thing I need from you.",
+    },
+  },
+  {
+    id: "ask",
+    title: "Send your titles by 6 November",
+    headline: "Team leads: send me your next review's titles, answer first, by 6 November.",
+    role: "ask",
+    tone: "accent",
+    render: () => (
+      <Slide eyebrow="The ask" footer={footer} layout="center">
+        <h2 className="uipack-deck-title deck-demo-cover-title">
+          Team leads: send me your next review's titles, answer first, by 6{" "}November.
+        </h2>
+        <p className="uipack-deck-lede deck-demo-lede">I'll send back the three titles I'd rewrite within two working days.</p>
+        <p className="uipack-deck-label deck-demo-keys">← → or swipe · G for all slides and the Storyline · S for the speaker view · F for full screen</p>
+      </Slide>
+    ),
+    notes: {
+      say: "One ask, for the team leads in the room. By Friday the sixth of November, send me the titles of your next review, in order, answer first. Just the titles: that's the ghost deck, and it's where the argument lives. I'll send back the three I'd rewrite within two working days, and the three pilot teams present in the player the week after. If your review is already answer first, send it anyway; it becomes the example for everyone else.",
+      delivery: "End on the date. Leave the slide up while you take questions.",
     },
   },
 ];
