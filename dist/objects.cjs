@@ -13,7 +13,7 @@ var objectDirections = [
   { id: "cartoon", name: "Cartoon worlds", description: "Rounded little places, toy-like details and playful motion." },
   {
     id: "realistic",
-    name: "Realistic close-ups",
+    name: "Realistic close\u2011ups",
     description: "Tactile materials, precision details and intimate camera angles."
   },
   { id: "abstract", name: "Abstract forms", description: "Optical glass, sculptural rhythms and unexpected silhouettes." }

@@ -151,6 +151,13 @@
   letter-spacing: var(--show-eyebrow-tracking, 0.08em);
   text-transform: uppercase;
 }
+/* Leave room for Open canvas at the top right; a long edition name wraps instead of running under it. */
+.uipack-object-frame:has(.uipack-object-open) .uipack-object-edition {
+  max-width: calc(100% - 156px);
+}
+.uipack-object-edition span {
+  min-width: 0;
+}
 .uipack-object-edition button {
   width: 44px;
   height: 44px;

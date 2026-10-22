@@ -30,7 +30,7 @@ declare const objectDirections: readonly [{
     readonly description: "Rounded little places, toy-like details and playful motion.";
 }, {
     readonly id: "realistic";
-    readonly name: "Realistic close-ups";
+    readonly name: "Realistic close‑ups";
     readonly description: "Tactile materials, precision details and intimate camera angles.";
 }, {
     readonly id: "abstract";
