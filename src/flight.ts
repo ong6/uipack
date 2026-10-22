@@ -22,10 +22,12 @@ export function useLayerFlight(clearLayers: () => void) {
 
   /**
    * Track `run`, and call `land` once all of it has finished: straight away if nothing runs.
-   * A newer fly or settle replaces this flight, so it never lands after one.
+   * A newer fly or settle replaces this flight, so it never lands after one, and its animations
+   * still running are cancelled so they cannot fight the new ones over the same layers.
    */
   const fly = useCallback((run: Animation[], land: () => void) => {
     const at = ++generation.current;
+    for (const a of anims.current) if (!run.includes(a)) a.cancel();
     anims.current = run;
     if (!run.length) return land();
     Promise.all(run.map((a) => a.finished)).then(

@@ -66,6 +66,26 @@ describe("useLayerFlight", () => {
     expect(result.current.anims.current).toEqual([third.animation]);
   });
 
+  it("cancels the previous flight's animations when a new flight replaces it without a settle", async () => {
+    const clear = vi.fn();
+    const { result } = renderHook(() => useLayerFlight(clear));
+    const first = fakeAnimation();
+    const shared = fakeAnimation();
+    const second = fakeAnimation();
+    const landFirst = vi.fn();
+    result.current.fly([first.animation, shared.animation], landFirst);
+    result.current.fly([second.animation, shared.animation], () => {});
+    expect(first.animation.cancel).toHaveBeenCalledTimes(1);
+    // An animation the new flight carries on is not cancelled under it.
+    expect(shared.animation.cancel).not.toHaveBeenCalled();
+    expect(second.animation.cancel).not.toHaveBeenCalled();
+    // Replacing a flight is not a settle: the owner's layers are left as the new flight set them.
+    expect(clear).not.toHaveBeenCalled();
+    first.finish();
+    await flushPromises();
+    expect(landFirst).not.toHaveBeenCalled();
+  });
+
   it("cancels the running animations on unmount and never lands into the unmounted owner", async () => {
     const { result, unmount } = renderHook(() => useLayerFlight(() => {}));
     const a = fakeAnimation();
