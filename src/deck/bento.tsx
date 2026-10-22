@@ -1,5 +1,5 @@
 import { Children, isValidElement, useRef, useState, type CSSProperties, type ReactElement, type ReactNode } from "react";
-import { useIsoLayoutEffect, usePrefersReducedMotion } from "../env";
+import { useIsoLayoutEffect, useLatest, usePrefersReducedMotion } from "../env";
 import { useDeckSlide } from "./parts";
 import { cubicBezier, deckMotion } from "./transitions";
 
@@ -183,7 +183,10 @@ export function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, classNam
   // While the camera moves, each face follows its own words: it stays up through the pan while they
   // are inside the box and leaves just before they reach the edge, so the camera never glides over
   // blank cards, and never carries a cut-off line.
+  // The faces run once per camera move, so they read the rest of this render through a ref.
+  const latestRef = useLatest({ focus, leaving, thumbnail, prefersReduced });
   useIsoLayoutEffect(() => {
+    const { focus, leaving, thumbnail, prefersReduced } = latestRef.current;
     const grid = gridRef.current;
     if (!grid) return;
     facesRef.current.forEach((a) => a.cancel());
@@ -213,8 +216,7 @@ export function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, classNam
       const face = cell.querySelector<HTMLElement>(":scope > .uipack-deck-bento__face");
       if (frames && face) facesRef.current.push(face.animate(frames, { duration: deckMotion.pan, easing: "linear" }));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [camera]);
+  }, [camera, latestRef]);
   useIsoLayoutEffect(() => () => facesRef.current.forEach((a) => a.cancel()), []);
 
   const cells = Children.toArray(children).filter(

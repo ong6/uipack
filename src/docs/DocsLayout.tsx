@@ -64,9 +64,12 @@ function SectionNavigation({ sections, activeHref }: Pick<DocsLayoutProps, "sect
  */
 function useCurrentSection(ids: string[]) {
   const [current, setCurrent] = useState<string | null>(null);
+  // Keyed by the ids' values, so a fresh array with the same ids does not re-measure.
   const key = ids.join(" ");
   useEffect(() => {
-    const headings = ids.map((id) => document.getElementById(id)).filter((element): element is HTMLElement => element !== null);
+    const headings = (key ? key.split(" ") : [])
+      .map((id) => document.getElementById(id))
+      .filter((element): element is HTMLElement => element !== null);
     if (headings.length === 0) return;
     let frame = 0;
     const update = () => {
@@ -91,7 +94,6 @@ function useCurrentSection(ids: string[]) {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
   return current;
 }

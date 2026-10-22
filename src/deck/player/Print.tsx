@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useLatest } from "../../env";
 import type { DeckSlide, DeckTheme } from "../types";
 import { useDetailStops, type DetailStop } from "./details";
 import { notesOf, pad } from "./format";
@@ -132,8 +133,7 @@ export function PrintJob({
   notes?: boolean;
   onDone: () => void;
 }) {
-  const done = useRef(onDone);
-  done.current = onDone;
+  const doneRef = useLatest(onDone);
   useEffect(() => {
     let cancelled = false;
     const previous = document.title;
@@ -141,7 +141,7 @@ export function PrintJob({
       window.removeEventListener("afterprint", finish);
       window.removeEventListener("focus", finish);
       document.title = previous;
-      if (!cancelled) done.current();
+      if (!cancelled) doneRef.current();
       cancelled = true;
     };
     const frame = () => new Promise((r) => requestAnimationFrame(() => r(null)));
@@ -163,7 +163,7 @@ export function PrintJob({
       window.removeEventListener("focus", finish);
       document.title = previous;
     };
-  }, [title]);
+  }, [title, doneRef]);
   return createPortal(
     <div className="uipack-deck-print-root">
       <div className="uipack-deck" data-theme={theme}>

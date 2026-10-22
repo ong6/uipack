@@ -28,7 +28,9 @@ export function Reader({
 }) {
   const listRef = useRef<HTMLOListElement>(null);
   // Once, on mount: the reader opens where the deck is (a shared ?slide= link, or the slide just presented).
+  const openAt = useRef({ open, index });
   useEffect(() => {
+    const { open, index } = openAt.current;
     if (!open) return;
     // After a frame, so each item's stills (and any detail stills) have their final height.
     const raf = requestAnimationFrame(() => {
@@ -38,7 +40,6 @@ export function Reader({
       if (open.focus) item.querySelector<HTMLButtonElement>(".uipack-deck-read__present")?.focus({ preventScroll: true });
     });
     return () => cancelAnimationFrame(raf);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <div className="uipack-deck-read">

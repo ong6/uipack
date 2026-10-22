@@ -339,17 +339,17 @@ function TypeSpecimen({
  * layout) load after the intro is up. Nothing above moves; the rest appears below it.
  */
 function usePainted() {
-  const [painted, setPainted] = useState(false);
+  // A hidden tab never paints (and pauses animation frames), so it renders everything at once.
+  const [painted, setPainted] = useState(() => document.visibilityState === "hidden");
   useEffect(() => {
-    // A hidden tab never paints (and pauses animation frames), so render at once there.
-    if (document.visibilityState === "hidden") return void setPainted(true);
+    if (painted) return;
     let timer = 0;
     const frame = requestAnimationFrame(() => void (timer = window.setTimeout(() => setPainted(true))));
     return () => {
       cancelAnimationFrame(frame);
       clearTimeout(timer);
     };
-  }, []);
+  }, [painted]);
   return painted;
 }
 

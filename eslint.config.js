@@ -40,18 +40,4 @@ export default [
       ],
     },
   },
-  {
-    // Files another change owns at the moment; their findings are queued for a follow-up rather than
-    // switched off for good. Each line names the rule and the file it is off for, nothing wider.
-    files: ["src/deck/DeckPlayer.tsx", "src/deck/player/Overview.tsx", "src/deck/player/Print.tsx"],
-    rules: { "react-hooks/refs": "off" },
-  },
-  {
-    files: ["src/slides/SlidePlayer.tsx"],
-    rules: { "react-hooks/refs": "off", "react-hooks/set-state-in-effect": "off" },
-  },
-  {
-    files: ["playground/WebShowcase.tsx"],
-    rules: { "react-hooks/set-state-in-effect": "off" },
-  },
 ];

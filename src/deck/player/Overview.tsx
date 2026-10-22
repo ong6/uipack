@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { useLatest } from "../../env";
 import type { LintFinding } from "../storyline";
 import type { DeckSlide, DeckTheme } from "../types";
 import { pad } from "./format";
@@ -33,8 +34,7 @@ export function Overview({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState<"slides" | "storyline">("slides");
-  const close = useRef(onClose);
-  close.current = onClose;
+  const closeRef = useLatest(onClose);
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
@@ -55,7 +55,7 @@ export function Overview({
       if (e.defaultPrevented || root.contains(e.target as Node)) return;
       if (e.key === "Escape") {
         e.preventDefault();
-        close.current();
+        closeRef.current();
       } else if (e.key === "Tab") {
         e.preventDefault();
         const items = focusables(root);
@@ -67,7 +67,7 @@ export function Overview({
       document.removeEventListener("keydown", onDocumentKeyDown);
       for (const el of made) el.removeAttribute("inert");
     };
-  }, []);
+  }, [closeRef]);
   const onKeyDown = (e: ReactKeyboardEvent) => {
     e.stopPropagation();
     if (e.key === "Escape") {

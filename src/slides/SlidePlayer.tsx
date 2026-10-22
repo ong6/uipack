@@ -1,6 +1,6 @@
 import { CanvasView } from "../CanvasView";
-import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
-import { usePrefersReducedMotion } from "../env";
+import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
+import { useLatest, usePrefersReducedMotion } from "../env";
 import { clampStop, resolveNodePose, validateSlideStory } from "./model";
 import type { SceneRuntime } from "./renderer";
 import type { SlideStop, SlideStory, SlideTheme } from "./types";
@@ -61,22 +61,25 @@ function SceneViewport({
   const prefersReduced = usePrefersReducedMotion();
   const reduced = motion === "none" || prefersReduced;
   const stop = story.stops.find((s) => s.id === stopId) ?? story.stops[0];
-  const latest = useRef({ stop, reduced, paused, onSettled });
-  latest.current = { stop, reduced, paused, onSettled };
-  const [status, setStatus] = useState<"loading" | "ready" | "fallback">("loading");
-  const [selected, setSelected] = useState<string | null>(null);
+  // The live scene outlives renders: it reads the latest stop and preferences through this ref.
+  const latestRef = useLatest({ stop, reduced, paused, onSettled });
   const [failed, setFailed] = useState(false);
-  const [settled, setSettled] = useState("");
-  const [transitioning, setTransitioning] = useState(false);
+  // The diagram stands in when asked for, or when WebGL or the renderer failed.
+  const fallback = renderMode === "diagram" || failed;
+  const [ready, setReady] = useState(false);
+  const status = fallback ? "fallback" : ready ? "ready" : "loading";
+  // A selection belongs to the stop it was made on: moving on clears it.
+  const [selection, setSelection] = useState<{ stopId: string; id: string | null }>({ stopId: stop.id, id: null });
+  const selected = selection.stopId === stop.id ? selection.id : null;
+  const setSelected = useCallback((id: string | null) => setSelection({ stopId: latestRef.current.stop.id, id }), [latestRef]);
+  const [liveSettled, setSettled] = useState("");
+  const [liveTransitioning, setTransitioning] = useState(false);
+  // The diagram has no camera: it is always settled on the current stop.
+  const settled = fallback ? stop.id : liveSettled;
+  const transitioning = !fallback && liveTransitioning;
   useEffect(() => {
     let cancelled = false;
-    if (renderMode === "diagram" || failed) {
-      setStatus("fallback");
-      setTransitioning(false);
-      setSettled(latest.current.stop.id);
-      return;
-    }
-    setStatus("loading");
+    if (fallback) return;
     void import("./renderer")
       .then(({ createSlideScene }) => {
         if (cancelled || !host.current || !labels.current) return;
@@ -85,21 +88,21 @@ function SceneViewport({
             host.current,
             labels.current,
             story,
-            latest.current.stop,
+            latestRef.current.stop,
             theme,
-            latest.current.reduced,
+            latestRef.current.reduced,
             () => setFailed(true),
             (id) => {
               if (!cancelled) {
                 setSettled(id);
                 setTransitioning(false);
-                latest.current.onSettled?.(id);
+                latestRef.current.onSettled?.(id);
               }
             },
             setSelected,
           );
-          runtime.current.setPaused(latest.current.paused);
-          setStatus("ready");
+          runtime.current.setPaused(latestRef.current.paused);
+          setReady(true);
         } catch {
           if (!cancelled) setFailed(true);
         }
@@ -111,12 +114,15 @@ function SceneViewport({
       cancelled = true;
       runtime.current?.dispose();
       runtime.current = undefined;
-    };
-  }, [story, theme, renderMode, failed]);
-  useEffect(() => {
-    if (renderMode === "diagram" || failed) {
-      setSettled(stop.id);
+      setReady(false);
       setTransitioning(false);
+    };
+  }, [story, theme, fallback, latestRef, setSelected]);
+  // A new stop: the scene moves there. Preference updates (reduced, onSettled) arrive through
+  // latestRef and are applied without restarting the current stop.
+  useEffect(() => {
+    const { reduced, onSettled } = latestRef.current;
+    if (fallback) {
       onSettled?.(stop.id);
       return;
     }
@@ -124,9 +130,7 @@ function SceneViewport({
       setTransitioning(!reduced);
       runtime.current.goTo(stop, reduced);
     }
-    // Preference updates (reduced, onSettled) are applied without restarting the current stop.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stop, renderMode, failed]);
+  }, [stop, fallback, latestRef]);
   useEffect(() => {
     runtime.current?.setReducedMotion(reduced);
   }, [reduced]);
@@ -139,9 +143,6 @@ function SceneViewport({
   useEffect(() => {
     runtime.current?.setZoom(zoom);
   }, [zoom, status]);
-  useEffect(() => {
-    setSelected(null);
-  }, [stop.id]);
   const chosen = story.nodes.find((n) => n.id === selected);
   return (
     <div
