@@ -48,7 +48,8 @@ function lastWith<T>(steps: DemoStep[], upTo: number, pick: (s: DemoStep) => T |
 /**
  * A baked-in product demo: a window frame that types a prompt, ticks through the
  * agent's actions and settles on the result. Plays when on screen, pauses when off,
- * and shows every step statically under reduced motion.
+ * and holds still on its final state under reduced motion (the steps stay in the DOM as text,
+ * so the window and a second, visible list never repeat the same actions).
  */
 export function DemoPlayer({
   steps,
@@ -224,10 +225,10 @@ export function DemoPlayer({
         </div>
       </div>
 
-      {/* Every step as text. Visible under reduced motion; otherwise visually hidden, so server
-          HTML (what crawlers and answer engines read), no-JS readers and screen readers get the
-          whole demo, not just its first frame. */}
-      <div className={reduced ? undefined : "uipack-web-demo__sr"}>
+      {/* Every step as text, visually hidden: server HTML (what crawlers and answer engines read),
+          no-JS readers and screen readers get the whole demo, not just one frame. Under reduced
+          motion the window already shows the final state, so a visible list would repeat it. */}
+      <div className="uipack-web-demo__sr">
         <ol className="uipack-web-demo__static" aria-label={reduced ? "Demo steps" : "Demo transcript"}>
           {steps.map((s, i) => (
             <li key={s.id}>

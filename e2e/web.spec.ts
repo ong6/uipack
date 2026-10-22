@@ -44,12 +44,15 @@ test.describe("/web Landing collection", () => {
     expect(await stepOf(page)).toBe(1);
   });
 
-  test("reduced motion shows the final state with every step listed", async ({ page }) => {
+  test("reduced motion shows the final state once, with every step kept as text", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/web");
     await expect(demo(page)).toHaveAttribute("data-state", "static");
     await expect(page.getByTestId("demo-metric")).toHaveText("3");
-    await expect(demo(page).getByRole("list", { name: "Demo steps" }).locator(":scope > li")).toHaveCount(3);
+    // The steps stay in the DOM for screen readers, but only the window is drawn: no second copy.
+    const steps = demo(page).getByRole("list", { name: "Demo steps" });
+    await expect(steps.locator(":scope > li")).toHaveCount(3);
+    expect(await steps.evaluate((el) => el.parentElement!.getBoundingClientRect().height)).toBeLessThanOrEqual(1);
     await expect(demo(page).getByRole("button", { name: /Pause|Replay/ })).toHaveCount(0);
     await expect(demo(page).getByRole("link", { name: "Try it yourself" })).toBeVisible();
     // Reveal text is readable without scrolling it into view.

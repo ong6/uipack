@@ -450,6 +450,8 @@
   pointer-events: none;
   mix-blend-mode: var(--web-noise-blend);
 }
+/* In the hero the star sits behind the demo; its guide rules would read as stray lines across it. */
+.uipack-web-hero .uipack-web-star__rule { display: none; }
 .uipack-web-star__rule {
   stroke: var(--web-hairline);
   stroke-width: 1;
