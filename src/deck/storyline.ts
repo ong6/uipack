@@ -1080,7 +1080,7 @@ export function lintDeck(slides: readonly StorySlide[], options: LintOptions = {
       add(
         "talk-time",
         "warn",
-        `The talk track covers about ${formatDuration(seconds)} of a ${floor}-minute budget, under half. Write what you'll say in full sentences; a forwarded deck and the speaker view's clock both read it.`,
+        `The talk track covers about ${formatDuration(seconds)} of the ${floor}-minute budget, under half. Write what you'll say in full sentences; a forwarded deck and the speaker view's clock both read it.`,
       );
     }
   }

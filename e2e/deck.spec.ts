@@ -244,16 +244,18 @@ const at = <T,>(page: Page, ms: number, read: () => T) =>
   ) as Promise<T>;
 
 test.describe("/deck motion: no mid-flight glitches", () => {
-  test("a text morph shows one copy after the first 10%, never both", async ({ page }) => {
+  test("a morphing shape shows one copy once the crossfade ends, and travels as it grows", async ({ page }) => {
     await page.goto("/deck?view=present");
     await deck(page).focus();
     await page.keyboard.press("ArrowRight");
-    const mid = await at(page, 0.1 * 760, () => {
+    const mid = await at(page, 0.4 * 760, () => {
       const layers = Array.from(document.querySelectorAll<HTMLElement>(".uipack-deck-layer"));
-      const copy = (id: string) => getComputedStyle(layers.find((l) => l.dataset.slide === id)!.querySelector('[data-morph="title"]')!).opacity;
-      return { out: copy("cover"), in: copy("moves") };
+      const strip = (id: string) => layers.find((l) => l.dataset.slide === id)!.querySelector<HTMLElement>('[data-morph="strip"]')!;
+      const r = strip("moves").getBoundingClientRect();
+      const end = strip("moves").offsetWidth * (layers[0].getBoundingClientRect().width / 1920);
+      return { out: getComputedStyle(strip("cover")).opacity, in: getComputedStyle(strip("moves")).opacity, growing: r.width > end * 0.34 && r.width < end * 0.99 };
     });
-    expect(mid).toEqual({ out: "0", in: "1" });
+    expect(mid).toEqual({ out: "0", in: "1", growing: true });
   });
 
   test("a number morphs alone: its tile loses its box and the words beside it wait", async ({ page }) => {

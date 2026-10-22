@@ -48,41 +48,59 @@
   background: #0a100d;
 }
 
-/* Example deck: three moves */
-/* The cover title shrinks into this running header. Same weight, tracking, balance and measure in
-   ch as .deck-demo-cover-title, so both copies break their lines at the same words and the morph
-   is a pure scale with no rewrap. */
-.deck-demo-running {
-  /* A hair wider than the title's 21ch: small sizes round glyph advances up, and balanced lines
-     break at the same words whenever the line count matches. */
-  max-width: 21.6ch;
-  margin: 0 0 36px;
+/* Example deck: a talk as a strip of ten slides, nine that advance and one that moves. Every size is
+   in em, so the cover's small strip and the answer slide's large one have the same shape and the
+   morph between them is a pure scale. */
+.deck-demo-strip {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 0.5em;
+  width: 45.33em;
+  margin: 1.6em 0 0;
+  font-size: 36px;
+}
+.deck-demo-strip__slide {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  border: 0.06em solid color-mix(in srgb, var(--deck-fg) 30%, transparent);
+  border-radius: 0.14em;
+  background: var(--deck-surface);
   color: var(--deck-muted);
-  font-size: 30px;
-  font-weight: 650;
-  line-height: 1.04;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
+  font-size: 1em;
+  line-height: 1;
+}
+.deck-demo-strip__slide[data-move] {
+  border-color: var(--deck-accent);
+  background: var(--deck-accent);
+  color: var(--deck-bg);
+}
+.uipack-deck-slide[data-layout="center"] > .deck-demo-strip {
+  margin-top: 4.6em;
+  font-size: 12px;
+}
+.deck-demo-moves-slide > .uipack-deck-heading {
+  max-width: 32ch;
 }
 .deck-demo-moves {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 40px;
-  margin: 88px 0 0;
+  margin: 56px 0 0;
   padding: 0;
   list-style: none;
 }
 .deck-demo-moves li {
-  padding: 40px 40px 44px;
+  padding: 36px 40px 40px 0;
   border-top: 3px solid var(--deck-fg);
 }
 .deck-demo-moves b {
   color: var(--deck-accent);
-  font: 600 24px/1 var(--deck-mono);
-  letter-spacing: 0.1em;
+  font: 600 26px/1 var(--deck-mono);
+  letter-spacing: 0.08em;
 }
 .deck-demo-moves h3 {
-  margin: 28px 0 16px;
+  margin: 22px 0 14px;
   font-size: 52px;
   font-weight: 650;
   letter-spacing: -0.02em;
@@ -94,26 +112,48 @@
   line-height: 1.45;
 }
 
-/* Example deck: system row */
+/* Example deck: system row. Four parts, each with what it is and an example, filling the slide. */
 .deck-demo-system {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0;
-  margin-top: 128px;
+  margin-top: 88px;
 }
 .deck-demo-system__cell {
   display: flex;
-  align-items: center;
+  align-items: stretch;
 }
 .deck-demo-system__cell > .uipack-deck-node {
   flex: 1;
-  min-height: 200px;
+  min-width: 0;
+  min-height: 400px;
+  grid-template-rows: auto 1fr auto;
+  align-content: stretch;
+  gap: 20px;
+  padding: 40px 34px 34px;
+}
+.deck-demo-system .uipack-deck-node > b {
+  font-size: 30px;
+}
+.deck-demo-system .uipack-deck-node > span {
+  color: var(--deck-fg);
+  font-size: 38px;
+  font-weight: 550;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.deck-demo-system .uipack-deck-node > small {
+  padding-top: 18px;
+  border-top: 1.5px solid var(--deck-rule);
+  color: var(--deck-muted);
+  font: 500 23px/1.35 var(--deck-mono);
 }
 .deck-demo-arrow {
-  flex: 0 0 72px;
-  width: 72px;
+  flex: 0 0 56px;
+  align-self: center;
+  width: 56px;
   height: 16px;
-  margin: 0 12px;
+  margin: 0 10px;
   color: color-mix(in srgb, var(--deck-fg) 70%, transparent);
 }
 .deck-demo-arrow line {
@@ -128,33 +168,46 @@
   box-shadow: 0 0 0 6px color-mix(in srgb, var(--deck-accent) 18%, transparent);
 }
 .deck-demo-hint {
-  margin-top: 56px;
+  margin-top: 48px;
   text-align: right;
 }
 
-/* Example deck: inside checks */
+/* Example deck: inside checks. Each gate: what passes, and one thing it stops. */
 .deck-demo-checks {
+  margin: 56px 0 0;
+}
+.deck-demo-checks > p,
+.deck-demo-checks li {
   display: grid;
-  gap: 0;
-  margin: 88px 0 0;
+  grid-template-columns: 84px 270px 1fr 1fr;
+  column-gap: 32px;
+  align-items: baseline;
+}
+.deck-demo-checks > p {
+  padding-bottom: 16px;
+}
+.deck-demo-checks ol {
+  display: grid;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 .deck-demo-checks li {
-  display: grid;
-  grid-template-columns: 96px 320px 1fr;
-  align-items: baseline;
-  padding: 36px 0;
+  padding: 28px 0;
   border-top: 1.5px solid var(--deck-rule);
 }
 .deck-demo-checks b {
-  font-size: 48px;
+  font-size: 56px;
   font-weight: 650;
   letter-spacing: -0.02em;
 }
-.deck-demo-checks li > span:last-child {
-  color: var(--deck-muted);
+.deck-demo-checks li > span:nth-child(3) {
   font-size: 36px;
+  line-height: 1.3;
+}
+.deck-demo-checks code {
+  color: var(--deck-muted);
+  font: 500 27px/1.4 var(--deck-mono);
 }
 
 /* Example deck: cover and close carry a full-sentence claim, so they set smaller than a label title. */
@@ -265,13 +318,18 @@
   background: var(--deck-accent);
 }
 
-/* Example deck: the verification gate machine gets the larger column */
+/* Example deck: the verification gate machine gets the larger column. Each build moves the camera
+   (whole machine, then in on the arm and chute, then whole again, taken apart) and says what it
+   shows in the status line, so every press visibly changes the machine. */
 .uipack-deck-slide.deck-demo-gate {
-  grid-template-columns: 0.78fr 1.22fr;
-  column-gap: 48px;
+  grid-template-columns: 0.72fr 1.28fr;
+  column-gap: 56px;
 }
 .deck-demo-gate__copy {
   align-self: center;
+}
+.deck-demo-gate__copy > .uipack-deck-heading {
+  font-size: 64px;
 }
 .deck-demo-gate__beats {
   display: grid;
@@ -286,20 +344,42 @@
 .deck-demo-gate__beats li {
   padding-left: 28px;
   border-left: 4px solid var(--deck-rule);
+  transition:
+    color 320ms ease,
+    border-color 320ms ease;
 }
-.deck-demo-gate__beats li[data-current],
-.deck-demo-gate__beats li[data-built] {
+.deck-demo-gate__beats li.deck-demo-gate__now {
   border-color: var(--deck-accent);
   color: var(--deck-fg);
 }
 .deck-demo-gate__machine {
+  display: grid;
   align-self: center;
+  gap: 20px;
 }
-.deck-demo-gate__machine svg {
+.deck-demo-gate__camera {
+  overflow: hidden;
+  border-radius: 18px;
+}
+.deck-demo-gate__camera svg {
   display: block;
-  width: 118%;
+  width: 100%;
   height: auto;
-  margin: -6% -9% -6% -9%;
+  transform-origin: 60% 50%;
+  transition: transform 900ms var(--deck-travel);
+}
+.deck-demo-gate__machine[data-view="arm"] svg {
+  transform: scale(1.7);
+}
+.uipack-deck[data-motion="none"] .deck-demo-gate__camera svg,
+.uipack-deck[data-motion="none"] .deck-demo-gate__beats li {
+  transition: none;
+}
+.deck-demo-gate__status {
+  margin: 0;
+  padding: 16px 0 0 24px;
+  border-left: 4px solid var(--deck-accent);
+  font: 500 26px/1.35 var(--deck-mono);
 }
 
 /* Bento example: Q2 against Q3 on one scale, inside the latency box (canvas pixels at overview scale). */
