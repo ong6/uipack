@@ -445,7 +445,7 @@ function DemoPlayer({
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsxs("div", { className: reduced ? void 0 : "uipack-web-demo__sr", children: [
+        /* @__PURE__ */ jsxs("div", { className: "uipack-web-demo__sr", children: [
           /* @__PURE__ */ jsx("ol", { className: "uipack-web-demo__static", "aria-label": reduced ? "Demo steps" : "Demo transcript", children: steps.map((s, i) => /* @__PURE__ */ jsxs("li", { children: [
             /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
             /* @__PURE__ */ jsxs("div", { children: [
@@ -772,7 +772,7 @@ function Aurora({ duration = 24 }) {
 function MaskedStar({ values, flip = "none", clear = "center" }) {
   return /* @__PURE__ */ jsx("div", { className: "uipack-web-maskedstar", "data-bg": "star", "data-flip": flip, "data-clear": clear, "aria-hidden": "true", children: /* @__PURE__ */ jsx(StarChart, { values }) });
 }
-function BeamLines({ size = 48, count = 5, duration = 6 }) {
+function BeamLines({ size = 48, count = 5, duration = 6, clear = "none" }) {
   const ref2 = useRef(null);
   const inView = useInView(ref2);
   const beams = Array.from({ length: count }, (_, i) => ({
@@ -787,6 +787,7 @@ function BeamLines({ size = 48, count = 5, duration = 6 }) {
       ref: ref2,
       className: "uipack-web-beams",
       "data-bg": "beams",
+      "data-clear": clear === "none" ? void 0 : clear,
       "data-paused": !inView || void 0,
       "aria-hidden": "true",
       style: { "--cell": `${size}px` },
