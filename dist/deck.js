@@ -1200,6 +1200,12 @@ function Storyline({
 
 // src/deck/player/Overview.tsx
 import { jsx as jsx5, jsxs as jsxs5 } from "react/jsx-runtime";
+var FOCUSABLE = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+function focusables(root) {
+  return Array.from(root?.querySelectorAll(FOCUSABLE) ?? []).filter(
+    (el) => !el.closest("[inert]") && el.getClientRects().length > 0
+  );
+}
 function Overview({
   slides,
   index,
@@ -1210,8 +1216,36 @@ function Overview({
 }) {
   const ref = useRef2(null);
   const [tab, setTab] = useState2("slides");
+  const close = useRef2(onClose);
+  close.current = onClose;
   useEffect(() => {
-    ref.current?.querySelector('[aria-current="true"]')?.focus();
+    const root = ref.current;
+    if (!root) return;
+    root.querySelector('[aria-current="true"]')?.focus();
+    const made = [];
+    for (let el = root; el.parentElement && el !== document.body; el = el.parentElement) {
+      for (const sibling of Array.from(el.parentElement.children)) {
+        if (sibling === el || sibling.hasAttribute("inert")) continue;
+        sibling.setAttribute("inert", "");
+        made.push(sibling);
+      }
+    }
+    const onDocumentKeyDown = (e) => {
+      if (e.defaultPrevented || root.contains(e.target)) return;
+      if (e.key === "Escape") {
+        e.preventDefault();
+        close.current();
+      } else if (e.key === "Tab") {
+        e.preventDefault();
+        const items = focusables(root);
+        items[e.shiftKey ? items.length - 1 : 0]?.focus();
+      }
+    };
+    document.addEventListener("keydown", onDocumentKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onDocumentKeyDown);
+      for (const el of made) el.removeAttribute("inert");
+    };
   }, []);
   const onKeyDown = (e) => {
     e.stopPropagation();
@@ -1220,45 +1254,57 @@ function Overview({
       onClose();
       return;
     }
-    const buttons = Array.from(ref.current?.querySelectorAll("button") ?? []);
-    const at = buttons.indexOf(document.activeElement);
-    if (e.key === "Tab" && buttons.length) {
-      if (e.shiftKey && at <= 0) {
-        e.preventDefault();
-        buttons[buttons.length - 1].focus();
-      } else if (!e.shiftKey && at === buttons.length - 1) {
-        e.preventDefault();
-        buttons[0].focus();
-      }
+    const items = focusables(ref.current);
+    const at = items.indexOf(document.activeElement);
+    if (e.key === "Tab") {
+      e.preventDefault();
+      if (!items.length) return;
+      const step = e.shiftKey ? -1 : 1;
+      items[at < 0 ? e.shiftKey ? items.length - 1 : 0 : (at + step + items.length) % items.length].focus();
+      return;
     }
-    const tiles = buttons.filter((b) => b.dataset.tile !== void 0);
+    const tiles = items.filter((b) => b.dataset.tile !== void 0);
     const ti = tiles.indexOf(document.activeElement);
     if (ti >= 0 && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
       e.preventDefault();
       tiles[Math.min(Math.max(ti + (e.key === "ArrowRight" ? 1 : -1), 0), tiles.length - 1)].focus();
     }
   };
-  return /* @__PURE__ */ jsxs5("div", { ref, className: "uipack-deck-overview", role: "dialog", "aria-modal": "true", "aria-label": "All slides", onKeyDown, children: [
-    /* @__PURE__ */ jsxs5("div", { className: "uipack-deck-overview__head", children: [
-      /* @__PURE__ */ jsxs5("p", { children: [
-        "All slides \xB7 ",
-        slides.length
-      ] }),
-      /* @__PURE__ */ jsxs5("span", { className: "uipack-deck-overview__tabs", children: [
-        /* @__PURE__ */ jsx5("button", { type: "button", "aria-pressed": tab === "slides", onClick: () => setTab("slides"), children: "Slides" }),
-        /* @__PURE__ */ jsx5("button", { type: "button", "aria-pressed": tab === "storyline", onClick: () => setTab("storyline"), children: "Storyline" }),
-        /* @__PURE__ */ jsx5("button", { type: "button", onClick: onClose, children: "Close" })
-      ] })
-    ] }),
-    tab === "storyline" ? /* @__PURE__ */ jsx5(Storyline, { slides, index, findings, onPick }) : /* @__PURE__ */ jsx5("ol", { className: "uipack-deck-overview__grid", children: slides.map((s, i) => /* @__PURE__ */ jsx5("li", { children: /* @__PURE__ */ jsxs5("button", { type: "button", "data-tile": "", "aria-current": i === index ? "true" : void 0, onClick: () => onPick(i), children: [
-      /* @__PURE__ */ jsx5(SlideThumbnail, { slide: s, index: i, count: slides.length, theme }),
-      /* @__PURE__ */ jsxs5("span", { children: [
-        /* @__PURE__ */ jsx5("b", { children: pad(i + 1) }),
-        " ",
-        s.title
-      ] })
-    ] }) }, s.id)) })
-  ] });
+  return /* @__PURE__ */ jsxs5(
+    "div",
+    {
+      ref,
+      className: "uipack-deck-overview",
+      role: "dialog",
+      "aria-modal": "true",
+      "aria-label": "All slides",
+      onKeyDown,
+      onClick: (e) => {
+        if (e.target === e.currentTarget) onClose();
+      },
+      children: [
+        /* @__PURE__ */ jsxs5("div", { className: "uipack-deck-overview__head", children: [
+          /* @__PURE__ */ jsxs5("p", { children: [
+            "All slides \xB7 ",
+            slides.length
+          ] }),
+          /* @__PURE__ */ jsxs5("span", { className: "uipack-deck-overview__tabs", children: [
+            /* @__PURE__ */ jsx5("button", { type: "button", "aria-pressed": tab === "slides", onClick: () => setTab("slides"), children: "Slides" }),
+            /* @__PURE__ */ jsx5("button", { type: "button", "aria-pressed": tab === "storyline", onClick: () => setTab("storyline"), children: "Storyline" }),
+            /* @__PURE__ */ jsx5("button", { type: "button", onClick: onClose, children: "Close" })
+          ] })
+        ] }),
+        tab === "storyline" ? /* @__PURE__ */ jsx5(Storyline, { slides, index, findings, onPick }) : /* @__PURE__ */ jsx5("ol", { className: "uipack-deck-overview__grid", children: slides.map((s, i) => /* @__PURE__ */ jsx5("li", { children: /* @__PURE__ */ jsxs5("button", { type: "button", "data-tile": "", "aria-current": i === index ? "true" : void 0, onClick: () => onPick(i), children: [
+          /* @__PURE__ */ jsx5(SlideThumbnail, { slide: s, index: i, count: slides.length, theme }),
+          /* @__PURE__ */ jsxs5("span", { children: [
+            /* @__PURE__ */ jsx5("b", { children: pad(i + 1) }),
+            " ",
+            s.title
+          ] })
+        ] }) }, s.id)) })
+      ]
+    }
+  );
 }
 
 // src/deck/player/Presenter.tsx
