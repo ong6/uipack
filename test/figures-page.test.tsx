@@ -6,7 +6,7 @@ import { figureSections } from "../playground/figures";
 // copy and figure by id; the two lists must name the same patterns.
 describe("diagrams page", () => {
   it("has one section per catalog entry, in the same order", () => {
-    expect(figureSections.map((s) => s.id).sort()).toEqual(figureEntries.map((e) => e.id).sort());
+    expect(figureSections.map((s) => s.id)).toEqual(figureEntries.map((e) => e.id));
     expect(new Set(figureEntries.map((e) => e.id)).size).toBe(figureEntries.length);
   });
 
