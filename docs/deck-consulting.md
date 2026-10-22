@@ -12,14 +12,14 @@ import "uipack/deck.css";
 
 const slide: DeckSlide = {
   id: "summary",
-  title: "Two hubs save $14M a year",
-  headline: "Folding the two oldest sites into two hubs saves $14M a year for $9M",
+  title: "Folding two sites saves $14M a year",
+  headline: "Folding Northgate and Riverside into Eastfield and Harbour saves $14M a year for $9M",
   role: "answer",
   render: () => (
     <ConsultingSlide
       tracker={{ sections: ["Summary", "Situation", "Options", "Decision"], current: "Summary" }}
       sticker="Illustrative"
-      title="Folding the two oldest sites into two hubs saves $14M a year for $9M"
+      title="Folding Northgate and Riverside into Eastfield and Harbour saves $14M a year for $9M"
       subtitle="Fulfilment network, FY22–FY25; $M unless stated"
       rows="auto minmax(0, 1fr)"
       notes={["Operating margin before central costs."]}
@@ -34,7 +34,10 @@ const slide: DeckSlide = {
       <Panel title="Two hubs save the most" unit="$M a year" cols={4}>
         <BarChart format={formatter({ prefix: "$", suffix: "M" })} data={[{ label: "Two hubs", value: 14, highlight: true }, { label: "Do nothing", value: 0 }]} />
       </Panel>
-      <SoWhat cols={3}>Closing the two oldest sites removes both costs.</SoWhat>
+      <SoWhat cols={3}>
+        <p>Closing the two oldest sites removes both costs.</p>
+        <p>Price: on-time delivery dips to 89% for two quarters.</p>
+      </SoWhat>
     </ConsultingSlide>
   ),
   notes: { say: "…", delivery: "…", next: "…" },
