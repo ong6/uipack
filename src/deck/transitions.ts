@@ -261,8 +261,13 @@ export function runTransition(opts: RunOptions): Animation[] {
       }
       // The outgoing slide clears early, so nothing else shares the screen with the travellers:
       // its blocks fade, and the boxes around a traveller (a tile, a panel) lose their paint.
+      // Words on a traveller's line leave with its outgoing copy, so they never sit beside the larger
+      // incoming copy that takes its place.
       const leave = { duration: deckMotion.quick, easing: deckMotion.exit };
-      for (const el of out.rest) play(el, [{ opacity: 1 }, { opacity: 0 }], leave);
+      const besideOut = (el: HTMLElement) => Boolean(el.parentElement && out.containers.includes(el.parentElement) && isText(el.parentElement));
+      for (const el of out.rest) {
+        play(el, [{ opacity: 1 }, { opacity: 0 }], besideOut(el) ? { duration: deckMotion.morph * 0.08, easing: "linear" } : leave);
+      }
       for (const el of out.containers) if (paintsBox(el)) play(el, paintFrames(el, "from"), leave);
       // Incoming blocks settle in once the outgoing slide has cleared. Blocks a traveller still has
       // to cross, and words on its line (a title around a number), wait until it has nearly landed
@@ -305,15 +310,15 @@ export function runTransition(opts: RunOptions): Animation[] {
   if (kind === "advance") {
     from.style.zIndex = "2";
     const shift = 40 * direction;
-    play(from, [{ opacity: 1, transform: "none" }, { opacity: 0, transform: `translateX(${-shift}px)` }], {
-      duration: deckMotion.base,
-      easing: deckMotion.exit,
-    });
+    // The old slide steps aside on the base clock but is gone from view within 160 ms, and the new
+    // slide's blocks start as it goes, so two slides' words never overlap.
+    play(from, [{ transform: "none" }, { transform: `translateX(${-shift}px)` }], { duration: deckMotion.base, easing: deckMotion.exit });
+    play(from, [{ opacity: 1 }, { opacity: 0 }], { duration: deckMotion.quick, easing: "ease-in" });
     const blocks = blocksOf(to);
     (blocks.length ? blocks : [to]).forEach((el, i) =>
       play(el, [{ opacity: 0, transform: `translateX(${shift * 1.4}px)` }, { opacity: 1, transform: "none" }], {
         duration: deckMotion.slow,
-        delay: deckMotion.quick * 0.6 + Math.min(i, 7) * deckMotion.stagger,
+        delay: deckMotion.quick + Math.min(i, 7) * deckMotion.stagger,
         easing: deckMotion.settle,
       }),
     );
