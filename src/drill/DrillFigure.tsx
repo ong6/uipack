@@ -12,6 +12,7 @@ import {
 } from "react";
 import { CanvasView } from "../CanvasView";
 import { useIsoLayoutEffect, usePrefersReducedMotion } from "../env";
+import { useLayerFlight } from "../flight";
 import { PauseGlyph, PlayGlyph, ReplayGlyph, placeNote } from "../Figure";
 import { Legend } from "../Legend";
 import { FigureMotionContext, type FigureMotion } from "../context";
@@ -178,7 +179,6 @@ export function DrillFigure({
   const [view, setView] = useState<View>(() => ({ path: requested, flight: null }));
   const viewRef = useRef(view);
   viewRef.current = view;
-  const anims = useRef<Animation[]>([]);
   const seq = useRef(0);
   const focusIntent = useRef(false);
   const pendingFocus = useRef<{ from: DrillPath; to: DrillPath } | null>(null);
@@ -243,12 +243,9 @@ export function DrillFigure({
   const layerEl = (lid: string) =>
     stageRef.current?.querySelector<HTMLElement>(`:scope > [data-level="${typeof CSS !== "undefined" && CSS.escape ? CSS.escape(lid) : lid}"]`) ?? null;
 
-  /** Stop every running animation and leave both layers at rest. */
-  const settle = () => {
-    for (const a of anims.current) a.cancel();
-    anims.current = [];
-    stageRef.current?.querySelectorAll<HTMLElement>(":scope > .uipack-drill__layer").forEach(clearLayer);
-  };
+  const { anims, settle, fly } = useLayerFlight(() =>
+    stageRef.current?.querySelectorAll<HTMLElement>(":scope > .uipack-drill__layer").forEach(clearLayer),
+  );
 
   const finish = (n: number) => {
     const v = viewRef.current;
@@ -308,20 +305,9 @@ export function DrillFigure({
           ? findDrillNode(toEl, last(f.from))
           : null;
     const run = runDrill({ kind: f.kind, from: fromEl, to: toEl, target, stage, canvas: canvasRef.current, reduced, duration });
-    anims.current = run;
-    if (!run.length) {
-      finish(f.seq);
-      return;
-    }
-    const n = f.seq;
-    Promise.all(run.map((a) => a.finished)).then(
-      () => finish(n),
-      () => {},
-    );
+    fly(run, () => finish(f.seq));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flightSeq]);
-
-  useEffect(() => () => anims.current.forEach((a) => a.cancel()), []);
 
   // Settled: move focus where the person's attention should be.
   useIsoLayoutEffect(() => {

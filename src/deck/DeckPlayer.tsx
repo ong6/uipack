@@ -7,6 +7,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { useIsoLayoutEffect, usePrefersReducedMotion } from "../env";
+import { useLayerFlight } from "../flight";
 import { Controls } from "./player/Controls";
 import { Layer, useCanvasScale } from "./player/Layer";
 import { Overview } from "./player/Overview";
@@ -109,7 +110,6 @@ function Player({
   const fromRef = useRef<HTMLDivElement>(null);
   const toRef = useRef<HTMLDivElement>(null);
   const overviewButtonRef = useRef<HTMLButtonElement>(null);
-  const anims = useRef<Animation[]>([]);
   // The current slide's last build step, counted from its DOM after each slide change.
   const [maxStep, setMaxStep] = useState(0);
   // The latest position, updated as soon as it changes, so quick repeated presses (a clicker's
@@ -120,14 +120,12 @@ function Player({
     setView(next);
   };
 
-  const settle = () => {
-    for (const a of anims.current) a.cancel();
-    anims.current = [];
+  const { settle, fly } = useLayerFlight(() =>
     stageRef.current?.querySelectorAll<HTMLElement>(".uipack-deck-layer").forEach((el) => {
       el.style.zIndex = "";
       el.style.visibility = "";
-    });
-  };
+    }),
+  );
 
   const go = useCallback(
     (index: number, step = 0) => {
@@ -192,19 +190,9 @@ function Player({
       scale,
       reducedMotion,
     });
-    anims.current = started;
-    if (!started.length) return done();
-    Promise.all(started.map((a) => a.finished)).then(
-      () => {
-        if (viewRef.current.seq === seq) done();
-      },
-      () => {},
-    );
+    fly(started, done);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view.seq]);
-
-  // Unmounting mid-transition: stop the animations, so none outlives the deck or resolves into it.
-  useEffect(() => () => anims.current.forEach((a) => a.cancel()), []);
 
   // Speaker view sync: every window showing this deck ID follows the last one moved.
   const channel = useRef<BroadcastChannel | null>(null);
