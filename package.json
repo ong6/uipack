@@ -105,7 +105,7 @@
     "*.css"
   ],
   "scripts": {
-    "build": "tsup && tsx scripts/build-css.ts",
+    "build": "tsup && tsx scripts/relative-maps.ts && tsx scripts/build-css.ts",
     "dev": "vite",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
