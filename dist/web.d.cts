@@ -32,10 +32,29 @@ declare const TYPE_BASE_PX = 16;
 declare const TYPE_RATIO = 1.25;
 /** Font size for a scale step, in rem, rounded to 4 places. Step 0 is the body size. */
 declare function typeScale(step: number): number;
-/** Tighter tracking and leading as the size grows; body copy stays at 1.5. */
+/** The three type roles. Display: headlines and big numbers. Text: everything read or pressed. Mono: labels and data. */
+type TypeRole = "display" | "text" | "mono";
+/** Default faces per role (web.css: --web-font-display, --web-font-text, --web-font-mono). */
+declare const TYPE_FACES: {
+    readonly display: "Instrument Serif";
+    readonly text: "IBM Plex Sans";
+    readonly mono: "IBM Plex Mono";
+};
+/** The first heading step set in the display face (39px; 31px in narrow containers). */
+declare const DISPLAY_FROM_STEP = 4;
+/** Which face a heading at this step uses: display from step 4 up, text below it. */
+declare function typeRole(step: number): Exclude<TypeRole, "mono">;
+/**
+ * Leading and tracking per heading step, matching web.css. Display steps carry the single
+ * display weight with light tracking (the serif is already narrow); text steps tighten
+ * gradually toward body copy at 1.5. Step 3 drops to 500 so a 31px sans heading does not
+ * outweigh a 39px display one.
+ */
 declare function typeMetrics(step: number): {
+    role: Exclude<TypeRole, "mono">;
     lineHeight: number;
     letterSpacing: string;
+    weight: number;
 };
 declare const TYPE_STEPS: readonly [-1, 0, 1, 2, 3, 4, 5, 6];
 type TypeStep = (typeof TYPE_STEPS)[number];
@@ -458,12 +477,14 @@ interface NumberTickerProps {
     prefix?: string;
     suffix?: string;
     className?: string;
+    /** "display" (default) sets the number in the display face, as a proof stat; "inherit" keeps the surrounding face, for a number inside a sentence. */
+    face?: "display" | "inherit";
 }
 /**
  * Counts up to a proof stat the first time it is on screen. Tabular figures and a hidden copy
  * of the final value reserve the width; assistive tech reads the final value only.
  */
-declare function NumberTicker({ value, from, duration, format, locale, prefix, suffix, className }: NumberTickerProps): react.JSX.Element;
+declare function NumberTicker({ value, from, duration, format, locale, prefix, suffix, className, face }: NumberTickerProps): react.JSX.Element;
 interface MarqueeProps {
     items: ReactNode[];
     /** Accessible name, e.g. "Tools I use". */
@@ -511,4 +532,103 @@ interface ScrollTransformProps {
  */
 declare function ScrollTransform({ children, rotate, scale, translateY, opacity, className }: ScrollTransformProps): react.JSX.Element;
 
-export { Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, Body, type BodyProps, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, type Feature, FeatureGrid, type FeatureGridProps, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, Heading, type HeadingProps, type InViewOptions, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type PaintTransitionOptions, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, SPACE, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeStep, WebSurface, type WebSurfaceProps, curvePath, demoCycle, demoEnd, demoFrame, scrambleFrame, scrollProgressOf, stepStart, typeMetrics, typeScale, useFinePointer, useInView, useScrollProgress, withPaintTransition, withViewTransition };
+/**
+ * Rate, per second, of an exponential follow that closes `lerp` of the remaining gap every
+ * 1/60 s. Time-based, so a 120 Hz screen takes two smaller steps and lands at the same moment.
+ */
+declare function followRate(lerp: number): number;
+/** One frame of the follow: the gap to the target shrinks by e^(−rate·dt), whatever dt is. */
+declare function followStep(current: number, target: number, rate: number, dt: number): number;
+/** Ease for a fixed-duration scrollTo: fast start, long soft landing (exponential out). */
+declare function easeOutExpo(t: number): number;
+/** Pixels per wheel "line" (deltaMode 1, e.g. Firefox with a mouse wheel). */
+declare const WHEEL_LINE_PX = 40;
+/** A wheel "page" (deltaMode 2) is the viewport less the overlap browsers keep on Page Down. */
+declare const WHEEL_PAGE_FRACTION = 0.875;
+interface WheelLike {
+    deltaX: number;
+    deltaY: number;
+    deltaMode: number;
+}
+/** A wheel event's deltas in pixels, whichever unit the browser reported them in. */
+declare function normalizeWheel(e: WheelLike, viewport: {
+    width: number;
+    height: number;
+}): {
+    x: number;
+    y: number;
+};
+interface SmoothScrollOptions {
+    /** Share of the remaining distance closed per 1/60 s (time-based). Lower is softer. Default 0.1. */
+    lerp?: number;
+    /** Scales wheel distances. Default 1. */
+    wheelMultiplier?: number;
+    /** Ease same-page anchor links, landing below a sticky nav. Default true. */
+    anchors?: boolean;
+}
+interface SmoothScrollToOptions {
+    /**
+     * Pixels to keep clear above the target. For an element or selector the default is its
+     * scroll-margin-top plus the page's scroll-padding-top (web.css sets 5rem on Landing ids,
+     * which clears GlassNav); for a number it is 0.
+     */
+    offset?: number;
+    /** Milliseconds for a fixed-length, exponential-out scroll. Omit to use the follow. */
+    duration?: number;
+    /** Jump with no animation. */
+    immediate?: boolean;
+}
+type SmoothScrollTarget = number | string | Element;
+interface SmoothScrollController {
+    /** Scroll the page to a y position, an element, or a selector ("#pricing"). */
+    scrollTo(target: SmoothScrollTarget, options?: SmoothScrollToOptions): void;
+    /** Stop an eased scroll where it is. */
+    stop(): void;
+    /** True while wheel easing is on: a fine pointer and no reduced-motion preference. */
+    readonly enabled: boolean;
+    /** Remove every listener and give scrolling back to the browser. */
+    destroy(): void;
+}
+/** Marks <html> while easing is on; web.css turns its CSS smooth scrolling off under it. */
+declare const SMOOTH_SCROLL_ATTR = "data-uipack-smooth-scroll";
+/** Put on an element whose wheel events must stay native, like Lenis's data-lenis-prevent. */
+declare const SMOOTH_SCROLL_PREVENT_ATTR = "data-smooth-scroll-prevent";
+/**
+ * Eases the page's own scroll position toward a wheel target, Lenis style, with no
+ * dependencies. The real window scroll moves every frame, so sticky positioning, scroll
+ * events, IntersectionObserver, Reveal and ScrollTransform all keep working.
+ *
+ * - On only for a fine pointer without a reduced-motion preference; it follows changes to
+ *   either. Touch, pens on tablets and reduced motion keep native scrolling.
+ * - Ctrl/⌘ + wheel (zoom, pinch) and mostly-horizontal or Shift + wheel stay native.
+ * - Wheel over anything that can scroll on its own (overflow auto/scroll, an open dialog,
+ *   [data-smooth-scroll-prevent]) stays native, and so does a page locked by a modal.
+ * - Keyboard scrolling stays native: browsers already animate it and own its focus rules.
+ *   A scroll it did not make right after a scroll key, or for three frames running (scrollbar
+ *   drag, find in page), stops the easing; a one-off shift (scroll anchoring) is carried along.
+ * - Same-page anchor links scroll to their target below a sticky nav (see offset), update the
+ *   hash with pushState and move focus there. Handled even while wheel easing is off: natively
+ *   smooth on touch, an instant jump under reduced motion.
+ * - Stops when the tab is hidden or the scrollbar is grabbed.
+ */
+declare function createSmoothScroll({ lerp, wheelMultiplier, anchors }?: SmoothScrollOptions): SmoothScrollController;
+/**
+ * Scroll the page through the mounted SmoothScroll, or natively (smooth unless reduced
+ * motion) when none is mounted or it is off. Safe to call on the server.
+ */
+declare function smoothScrollTo(target: SmoothScrollTarget, options?: SmoothScrollToOptions): void;
+type SmoothScrollHandle = Omit<SmoothScrollController, "destroy">;
+/**
+ * Turns on SmoothScroll for the page while the calling component is mounted and returns a
+ * stable handle. Mount it once per page. Its scrollTo works before mount and when easing is
+ * off, falling back to the browser's own scroll.
+ */
+declare function useSmoothScroll({ lerp, wheelMultiplier, anchors }?: SmoothScrollOptions): SmoothScrollHandle;
+type SmoothScrollProps = SmoothScrollOptions;
+/**
+ * Opt-in smooth wheel scrolling for a landing page: render it once, anywhere on the page.
+ * Renders nothing. Use smoothScrollTo() (or useSmoothScroll's handle) to scroll from code.
+ */
+declare function SmoothScroll(props: SmoothScrollProps): null;
+
+export { Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, Body, type BodyProps, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, type Feature, FeatureGrid, type FeatureGridProps, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, Heading, type HeadingProps, type InViewOptions, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type PaintTransitionOptions, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SmoothScroll, type SmoothScrollController, type SmoothScrollHandle, type SmoothScrollOptions, type SmoothScrollProps, type SmoothScrollTarget, type SmoothScrollToOptions, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeRole, type TypeStep, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, WebSurface, type WebSurfaceProps, type WheelLike, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, easeOutExpo, followRate, followStep, normalizeWheel, scrambleFrame, scrollProgressOf, smoothScrollTo, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useInView, useScrollProgress, useSmoothScroll, withPaintTransition, withViewTransition };
