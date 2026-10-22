@@ -102,10 +102,37 @@ describe("deck transitions: pure geometry", () => {
     expect(last.inner).toBe("scale(1.00000)");
     expect(last.clip).toMatch(/^inset\(0\.00px 0\.00px 0\.00px 0\.00px round 0\.00px\)$/);
     expect(last.innerOpacity).toBe(1);
+    // The clip reaches the full 16:9 frame by 30% of the clock, so the incoming slide isn't cropped mid-flight.
+    const wide = slideZoomSamples({ x: 200, y: 300, w: 900, h: 260 }, true)!;
+    const open = /^inset\(0\.00px 0\.00px 0\.00px 0\.00px /;
+    for (const sample of wide.filter((x) => x.offset >= 0.3)) expect(sample.clip).toMatch(open);
+    expect(wide.find((x) => x.offset > 0.1 && x.offset < 0.2)!.clip).not.toMatch(open);
     // Scale grows evenly in log space: equal steps multiply by the same factor around the middle.
     const back = slideZoomSamples({ x: 1400, y: 500, w: 384, h: 216 }, false)!;
     expect(back[0].outer).toBe(last.outer);
     expect(back[back.length - 1].inner).toBe(first.inner);
+  });
+
+  it("keeps the opening slide on the canvas when the target sits near an edge", () => {
+    // A panel in the right third: its fixed point lies right of the canvas.
+    const target = { x: 1300, y: 260, w: 560, h: 520 };
+    const frame = slideZoomFrame(target)!;
+    expect(frame.fx).toBeGreaterThan(1920);
+    const samples = slideZoomSamples(target, true)!;
+    for (const s of samples) {
+      const [, tx = "0", ty = "0"] = /translate\((-?[\d.]+)px, (-?[\d.]+)px\)/.exec(s.inner) ?? [];
+      const k = Number(/scale\(([\d.]+)\)/.exec(s.inner)![1]);
+      const [top, right, bottom, left] = /inset\(([\d.]+)px ([\d.]+)px ([\d.]+)px ([\d.]+)px/.exec(s.clip)!.slice(1).map(Number);
+      const x = (v: number) => frame.fx + k * (v - frame.fx) + Number(tx);
+      const y = (v: number) => frame.fy + k * (v - frame.fy) + Number(ty);
+      expect(x(left), `left at ${s.offset}`).toBeGreaterThanOrEqual(-0.5);
+      expect(x(1920 - right), `right at ${s.offset}`).toBeLessThanOrEqual(1920.5);
+      expect(y(top)).toBeGreaterThanOrEqual(-0.5);
+      expect(y(1080 - bottom)).toBeLessThanOrEqual(1080.5);
+    }
+    // No pan at either end: the zoom still starts on the target and lands on the full slide.
+    expect(samples[0].inner).toMatch(/^scale/);
+    expect(samples[samples.length - 1].outer).toMatch(/^scale/);
   });
 
   it("flips text uniformly and boxes by their own shape", () => {

@@ -106,7 +106,7 @@
    controls, and any page header above the deck). */
 .uipack-deck-stage {
   position: relative;
-  max-width: max(min(100%, 560px), calc((100svh - var(--deck-chrome, 76px)) * 16 / 9));
+  max-width: var(--uipack-deck-stage-max);
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border: 1px solid var(--deck-rule);
@@ -280,7 +280,14 @@
 }
 
 /* Controls: arrows, the progress rail with square stops, the counter and tools */
+/* The stage's width cap, shared with the controls so their right edge (Full screen) lines up with
+   the slide's instead of running past it on a wide, short window. */
+.uipack-deck {
+  --uipack-deck-stage-max: max(min(100%, 560px), calc((100svh - var(--deck-chrome, 76px)) * 16 / 9));
+}
 .uipack-deck-controls {
+  max-width: var(--uipack-deck-stage-max);
+  container-type: inline-size;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -366,9 +373,21 @@
   letter-spacing: 0.06em;
   text-align: center;
 }
+/* The tools keep to the right edge, under the slide's: on the counter's row when it has room, else
+   on a row of their own. */
 .uipack-deck-tools {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
+  margin-left: auto;
+}
+/* Under a narrow slide the tools tighten, so they keep to one row of their own. */
+@container (max-width: 760px) {
+  .uipack-deck-tools button {
+    padding: 0 9px;
+    font-size: 12px;
+  }
 }
 @media (max-width: 640px) {
   .uipack-deck-tools {
@@ -407,6 +426,7 @@
   border-radius: 0;
 }
 .uipack-deck:fullscreen .uipack-deck-controls {
+  max-width: none;
   position: fixed;
   right: 16px;
   bottom: 12px;
@@ -856,13 +876,48 @@
 .uipack-deck-print__slide > .uipack-deck-canvas {
   zoom: 0.666667;
 }
-/* With notes: the slide at half size, its headline and talk track beside it, on the same page. */
+/* With notes: the slide at three-quarter size, its claim and cues beside it, and the talk track
+   across the band under it, so the page is filled on both axes. */
 .uipack-deck-print[data-notes] .uipack-deck-print__page {
   display: grid;
   grid-template-columns: 960px 1fr;
-  align-content: start;
+  grid-template-rows: 540px 1fr;
   background: #ffffff;
   color: #1a1c1a;
+}
+.uipack-deck-print[data-notes] .uipack-deck-print__notes {
+  grid-row: 1 / -1;
+  grid-column: 2;
+  border-left: 1px solid #dfe3e0;
+}
+.uipack-deck-print__say {
+  grid-row: 2;
+  grid-column: 1;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  align-content: start;
+  min-height: 0;
+  overflow: hidden;
+  padding: 18px 28px 16px 32px;
+  border-top: 1px solid #dfe3e0;
+  font: 400 13.5px/1.5 var(--deck-sans);
+}
+.uipack-deck-print__say > b,
+.uipack-deck-print__cue > b {
+  color: #5c625e;
+  font: 600 11px/1.9 var(--deck-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.uipack-deck-print__say > p {
+  margin: 0;
+  color: #3d433f;
+}
+.uipack-deck-print__notes .uipack-deck-print__cue {
+  margin: 0 0 10px;
+}
+.uipack-deck-print__cue > b {
+  display: block;
 }
 .uipack-deck-print[data-notes] .uipack-deck-print__slide {
   width: 960px;

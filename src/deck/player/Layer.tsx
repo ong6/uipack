@@ -1,4 +1,5 @@
 import { forwardRef, useCallback, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { useIsoLayoutEffect } from "../../env";
 import { DeckSlideContext } from "../parts";
 import { CANVAS_WIDTH } from "../transitions";
@@ -22,7 +23,9 @@ export function useCanvasScale() {
     const measure = () => setScale(node.clientWidth / CANVAS_WIDTH);
     measure();
     if (typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(measure);
+    // Applied before the next paint: a scale left a frame behind shows a slide at the old size,
+    // its labels cut off at the box's edge, until React catches up.
+    const ro = new ResizeObserver(() => flushSync(measure));
     ro.observe(node);
     return () => ro.disconnect();
   }, [node]);

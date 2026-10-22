@@ -48,338 +48,271 @@
   background: #0a100d;
 }
 
-/* Example deck: a talk as a strip of ten slides, nine that advance and one that moves. Every size is
-   in em, so the cover's small strip and the answer slide's large one have the same shape and the
-   morph between them is a pure scale. */
-.deck-demo-strip {
-  display: grid;
-  grid-template-columns: repeat(10, minmax(0, 1fr));
-  gap: 0.5em;
-  width: 45.33em;
-  margin: 1.6em 0 0;
-  font-size: 36px;
-}
-.deck-demo-strip__slide {
-  display: grid;
-  place-items: center;
-  aspect-ratio: 16 / 9;
-  border: 0.06em solid color-mix(in srgb, var(--deck-fg) 30%, transparent);
-  border-radius: 0.14em;
-  background: var(--deck-surface);
-  color: var(--deck-muted);
-  font-size: 1em;
-  line-height: 1;
-}
-.deck-demo-strip__slide[data-move] {
-  border-color: var(--deck-accent);
-  background: var(--deck-accent);
-  color: var(--deck-bg);
-}
-.uipack-deck-slide[data-layout="center"] > .deck-demo-strip {
-  margin-top: 4.6em;
-  font-size: 12px;
-}
-.deck-demo-moves-slide > .uipack-deck-heading {
-  max-width: 32ch;
-}
-.deck-demo-moves {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 40px;
-  margin: 56px 0 0;
-  padding: 0;
-  list-style: none;
-}
-.deck-demo-moves li {
-  padding: 36px 40px 40px 0;
-  border-top: 3px solid var(--deck-fg);
-}
-.deck-demo-moves b {
-  color: var(--deck-accent);
-  font: 600 26px/1 var(--deck-mono);
-  letter-spacing: 0.08em;
-}
-.deck-demo-moves h3 {
-  margin: 22px 0 14px;
-  font-size: 52px;
-  font-weight: 650;
-  letter-spacing: -0.02em;
-}
-.deck-demo-moves p {
-  margin: 0;
-  color: var(--deck-muted);
-  font-size: 30px;
-  line-height: 1.45;
-}
-
-/* Example deck: system row. Four parts, each with what it is and an example, filling the slide. */
-.deck-demo-system {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  margin-top: 88px;
-}
-.deck-demo-system__cell {
-  display: flex;
-  align-items: stretch;
-}
-.deck-demo-system__cell > .uipack-deck-node {
-  flex: 1;
-  min-width: 0;
-  min-height: 400px;
-  grid-template-rows: auto 1fr auto;
-  align-content: stretch;
-  gap: 20px;
-  padding: 40px 34px 34px;
-}
-.deck-demo-system .uipack-deck-node > b {
-  font-size: 30px;
-}
-.deck-demo-system .uipack-deck-node > span {
-  color: var(--deck-fg);
-  font-size: 38px;
-  font-weight: 550;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-}
-.deck-demo-system .uipack-deck-node > small {
-  padding-top: 18px;
-  border-top: 1.5px solid var(--deck-rule);
-  color: var(--deck-muted);
-  font: 500 23px/1.35 var(--deck-mono);
-}
-.deck-demo-arrow {
-  flex: 0 0 56px;
-  align-self: center;
-  width: 56px;
-  height: 16px;
-  margin: 0 10px;
-  color: color-mix(in srgb, var(--deck-fg) 70%, transparent);
-}
-.deck-demo-arrow line {
-  stroke: currentColor;
-  stroke-width: 2.5;
-}
-.deck-demo-arrow path {
-  fill: currentColor;
-}
-.deck-demo-system__cell:last-child > .uipack-deck-node {
-  border-color: var(--deck-accent);
-  box-shadow: 0 0 0 6px color-mix(in srgb, var(--deck-accent) 18%, transparent);
-}
-.deck-demo-hint {
-  margin-top: 48px;
-  text-align: right;
-}
-
-/* Example deck: inside checks. Each gate: what passes, and one thing it stops. */
-.deck-demo-checks {
-  margin: 56px 0 0;
-}
-.deck-demo-checks > p,
-.deck-demo-checks li {
-  display: grid;
-  grid-template-columns: 84px 270px 1fr 1fr;
-  column-gap: 32px;
-  align-items: baseline;
-}
-.deck-demo-checks > p {
-  padding-bottom: 16px;
-}
-.deck-demo-checks ol {
-  display: grid;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.deck-demo-checks li {
-  padding: 28px 0;
-  border-top: 1.5px solid var(--deck-rule);
-}
-.deck-demo-checks b {
-  font-size: 56px;
-  font-weight: 650;
-  letter-spacing: -0.02em;
-}
-.deck-demo-checks li > span:nth-child(3) {
-  font-size: 36px;
-  line-height: 1.3;
-}
-.deck-demo-checks code {
-  color: var(--deck-muted);
-  font: 500 27px/1.4 var(--deck-mono);
-}
-
-/* Example deck: cover and close carry a full-sentence claim, so they set smaller than a label title. */
+/* Tech talk: the claim on the first and last slides is a full sentence, so it sets smaller than a label title. */
 .deck-demo-cover-title.uipack-deck-title {
-  max-width: 21ch;
+  max-width: 24ch;
   font-size: 92px;
   line-height: 1.04;
 }
+.uipack-deck-lede.deck-demo-lede {
+  max-width: 44ch;
+}
+.deck-demo-keys {
+  margin-top: 48px;
+}
 
-/* Example deck: one clock (durations as bars, curves drawn) */
-.uipack-deck-slide.deck-demo-timing {
-  grid-template-columns: 0.9fr 1.1fr;
+/* Tech talk: the problem. Three meetings on the left, the number they add up to on the right. */
+.uipack-deck-slide.deck-demo-problem {
+  grid-template-columns: 1.15fr 0.85fr;
   column-gap: 96px;
 }
-.deck-demo-timing__copy {
-  align-self: center;
+.deck-demo-problem__copy > .uipack-deck-heading {
+  max-width: 20ch;
+  font-size: 64px;
 }
-.deck-demo-curves {
+.deck-demo-meetings {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
-  margin: 64px 0 0;
+  margin: 48px 0 0;
   padding: 0;
   list-style: none;
 }
-.deck-demo-curves li {
+.deck-demo-meetings li {
   display: grid;
-  gap: 6px;
+  grid-template-columns: 200px 1fr;
+  column-gap: 24px;
+  align-items: baseline;
+  padding: 20px 0;
+  border-top: 1.5px solid var(--deck-rule);
 }
-.deck-demo-curves b {
-  margin-top: 12px;
-  font: 600 24px/1.2 var(--deck-mono);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+.deck-demo-meetings b {
+  font-size: 32px;
+  font-weight: 600;
 }
-.deck-demo-curves span {
+.deck-demo-meetings li > span:last-child {
+  grid-column: 2;
+  margin-top: 4px;
   color: var(--deck-muted);
-  font-size: 24px;
+  font-size: 28px;
 }
-.deck-demo-curve {
-  width: 132px;
-  height: 132px;
-  overflow: visible;
-}
-.deck-demo-curve path {
-  fill: none;
-  stroke: var(--deck-accent);
-  stroke-width: 5;
-  stroke-linecap: round;
-}
-.deck-demo-curve path.deck-demo-curve__frame {
-  stroke: var(--deck-rule);
-  stroke-width: 2;
-}
-.deck-demo-durations {
+.deck-demo-problem__figure {
   align-self: center;
+}
+.deck-demo-problem__figure .uipack-deck-number > span {
+  display: inline-block;
+}
+.deck-demo-problem__unit {
+  margin: 8px 0 28px;
+  font-size: 48px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Tech talk: the evidence. Two groups on one scale of days; the 19 lands in its row. */
+.deck-demo-evidence > .uipack-deck-heading {
+  max-width: 30ch;
+}
+.deck-demo-compare {
   width: 100%;
+  margin: 72px 0 0;
+  /* separate, so row fades during a morph aren't ignored by collapsed borders */
   border-collapse: separate;
   border-spacing: 0;
+  font-variant-numeric: tabular-nums;
 }
-.deck-demo-durations caption {
-  margin-bottom: 20px;
-  text-align: left;
-}
-.deck-demo-durations th,
-.deck-demo-durations td {
-  padding: 18px 0;
+.deck-demo-compare th,
+.deck-demo-compare td {
+  padding: 44px 32px 44px 0;
   border-top: 1.5px solid var(--deck-rule);
   text-align: left;
   vertical-align: middle;
 }
-.deck-demo-durations th {
-  width: 150px;
+.deck-demo-compare thead th {
+  padding-top: 0;
+  padding-bottom: 16px;
+  border-top: 0;
   color: var(--deck-muted);
-  font: 600 24px/1 var(--deck-mono);
-  letter-spacing: 0.12em;
+  font: 600 22px/1.3 var(--deck-mono);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.deck-demo-durations td {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  column-gap: 20px;
-  row-gap: 8px;
+.deck-demo-compare thead th:nth-child(1) {
+  width: 420px;
 }
-.deck-demo-durations__bar {
-  grid-column: 1 / -1;
-  height: 14px;
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--deck-fg) 34%, transparent);
+.deck-demo-compare thead th:nth-child(2),
+.deck-demo-compare thead th:nth-child(3) {
+  width: 200px;
 }
-.deck-demo-durations__ms {
-  font-size: 44px;
-  font-weight: 600;
+.deck-demo-compare tbody th {
+  font-size: 48px;
+  font-weight: 650;
   letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
 }
-.deck-demo-durations__use {
-  color: var(--deck-muted);
-  font-size: 26px;
+.deck-demo-compare tbody td {
+  font-size: 56px;
+  font-weight: 600;
 }
-.deck-demo-durations tr[data-current] th,
-.deck-demo-durations tr[data-current] .deck-demo-durations__ms {
-  color: var(--deck-accent);
+.deck-demo-compare td:last-child {
+  display: flex;
+  align-items: center;
+  gap: 24px;
 }
-.deck-demo-durations tr[data-current] .deck-demo-durations__bar {
+.deck-demo-compare__bar {
+  display: block;
+  height: 40px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--deck-fg) 22%, transparent);
+}
+.deck-demo-compare tr[data-now] .deck-demo-compare__bar {
   background: var(--deck-accent);
 }
+.deck-demo-compare__days {
+  font-size: 72px;
+  line-height: 1;
+}
+.deck-demo-compare__days > span {
+  display: inline-block;
+}
+.deck-demo-source {
+  margin-top: 56px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
 
-/* Example deck: the verification gate machine gets the larger column. Each build moves the camera
-   (whole machine, then in on the arm and chute, then whole again, taken apart) and says what it
-   shows in the status line, so every press visibly changes the machine. */
-.uipack-deck-slide.deck-demo-gate {
-  grid-template-columns: 0.72fr 1.28fr;
-  column-gap: 56px;
-}
-.deck-demo-gate__copy {
-  align-self: center;
-}
-.deck-demo-gate__copy > .uipack-deck-heading {
+/* Tech talk: the ghost deck. Six slides as their titles, three flagged; the flagged one is the zoom target. */
+.deck-demo-ghost > .uipack-deck-heading {
+  max-width: 34ch;
   font-size: 64px;
 }
-.deck-demo-gate__beats {
+.deck-demo-ghost__grid {
   display: grid;
-  gap: 22px;
-  margin: 56px 0 0;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px 40px;
+  margin: 44px 0 0;
   padding: 0;
   list-style: none;
+}
+.deck-demo-ghost__card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  aspect-ratio: 16 / 6.4;
+  padding: 24px 28px;
+  border: 2px solid color-mix(in srgb, var(--deck-fg) 22%, transparent);
+  border-radius: 12px;
+  background: var(--deck-surface);
+}
+.deck-demo-ghost li[data-flag] .deck-demo-ghost__card {
+  border-color: var(--deck-accent);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--deck-accent) 16%, transparent);
+}
+.deck-demo-ghost__meta {
+  display: flex;
+  justify-content: space-between;
   color: var(--deck-muted);
+  font: 600 20px/1.3 var(--deck-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.deck-demo-ghost__title {
   font-size: 32px;
+  font-weight: 600;
+  line-height: 1.22;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.deck-demo-ghost__flag {
+  display: block;
+  margin-top: 12px;
+  color: var(--deck-muted);
+  font: 600 21px/1.3 var(--deck-mono);
+  letter-spacing: 0.04em;
+}
+.deck-demo-ghost li[data-flag] .deck-demo-ghost__flag {
+  color: var(--deck-accent);
+}
+
+/* Tech talk: inside the flagged slide. Each part: the draft, struck through, and the fix. */
+.deck-demo-fix > .uipack-deck-heading {
+  max-width: 30ch;
+}
+.deck-demo-fix__table {
+  margin: 64px 0 0;
+}
+.deck-demo-fix__table > p,
+.deck-demo-fix__table li {
+  display: grid;
+  grid-template-columns: 220px 1fr 1.25fr;
+  column-gap: 40px;
+  align-items: baseline;
+}
+.deck-demo-fix__table > p {
+  padding-bottom: 16px;
+}
+.deck-demo-fix__table ol {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.deck-demo-fix__table li {
+  padding: 32px 0;
+  border-top: 1.5px solid var(--deck-rule);
+}
+.deck-demo-fix__table b {
+  font-size: 48px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+.deck-demo-fix__table s {
+  color: var(--deck-muted);
+  font-size: 34px;
+  text-decoration-thickness: 2px;
+}
+.deck-demo-fix__table li > span {
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+/* Tech talk: the pilot, three dated steps and the test it has to pass. */
+.deck-demo-plan > .uipack-deck-heading {
+  max-width: 30ch;
+}
+.deck-demo-pilot {
+  display: grid;
+  margin: 64px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.deck-demo-pilot li {
+  display: grid;
+  grid-template-columns: 220px 1fr 380px;
+  column-gap: 40px;
+  align-items: baseline;
+  padding: 28px 0;
+  border-top: 1.5px solid var(--deck-rule);
+}
+.deck-demo-pilot__when {
+  color: var(--deck-accent);
+  font: 600 40px/1.2 var(--deck-mono);
+}
+.deck-demo-pilot b {
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.deck-demo-pilot li > .uipack-deck-label {
+  text-align: right;
+}
+.deck-demo-pilot__done {
+  margin: 0;
+  padding-top: 28px;
+  border-top: 3px solid currentColor;
+  font-size: 36px;
   line-height: 1.35;
 }
-.deck-demo-gate__beats li {
-  padding-left: 28px;
-  border-left: 4px solid var(--deck-rule);
-  transition:
-    color 320ms ease,
-    border-color 320ms ease;
-}
-.deck-demo-gate__beats li.deck-demo-gate__now {
-  border-color: var(--deck-accent);
-  color: var(--deck-fg);
-}
-.deck-demo-gate__machine {
-  display: grid;
-  align-self: center;
-  gap: 20px;
-}
-.deck-demo-gate__camera {
-  overflow: hidden;
-  border-radius: 18px;
-}
-.deck-demo-gate__camera svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  transform-origin: 60% 50%;
-  transition: transform 900ms var(--deck-travel);
-}
-.deck-demo-gate__machine[data-view="arm"] svg {
-  transform: scale(1.7);
-}
-.uipack-deck[data-motion="none"] .deck-demo-gate__camera svg,
-.uipack-deck[data-motion="none"] .deck-demo-gate__beats li {
-  transition: none;
-}
-.deck-demo-gate__status {
-  margin: 0;
-  padding: 16px 0 0 24px;
-  border-left: 4px solid var(--deck-accent);
-  font: 500 26px/1.35 var(--deck-mono);
+.deck-demo-pilot__done > .uipack-deck-label {
+  margin-right: 24px;
 }
 
 /* Bento example: Q2 against Q3 on one scale, inside the latency box (canvas pixels at overview scale). */
@@ -441,8 +374,8 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: 14px;
-  line-height: 1.3;
+  font-size: 16px;
+  line-height: 1.25;
 }
 .deck-bento-bars li {
   display: grid;
@@ -470,7 +403,7 @@
   background: var(--deck-fg);
 }
 .deck-bento-bars__value {
-  font: 500 12px/1 var(--deck-mono);
+  font: 500 14px/1 var(--deck-mono);
   text-align: right;
   white-space: nowrap;
 }
@@ -531,9 +464,9 @@
 }
 .deck-bento-plan li {
   display: grid;
-  grid-template-columns: 88px 500px 1fr 140px;
+  grid-template-columns: 88px 480px 1fr 150px 130px;
   align-items: baseline;
-  padding: 34px 0;
+  padding: 28px 0;
   border-top: 1.5px solid var(--deck-rule);
 }
 .deck-bento-plan b {
@@ -548,6 +481,26 @@
 }
 .deck-bento-plan li > span:last-child {
   text-align: right;
+}
+.deck-bento-plan__share {
+  font-size: 46px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+/* The sum, under a heavier rule, so the three shares read as adding up to it. */
+.deck-bento-plan li.deck-bento-plan__total {
+  border-top: 3px solid currentColor;
+}
+.deck-bento-plan__total .deck-bento-plan__share {
+  color: var(--deck-accent);
+}
+
+/* Bento example: the ask names its owner in the title, so it runs wider and a step smaller. */
+.uipack-deck-title.deck-bento-ask-title {
+  max-width: 24ch;
+  font-size: 100px;
 }
 
 /* Bento example: the risk slide, terms on the left and the forecast on the right. */

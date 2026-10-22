@@ -73,7 +73,7 @@ export const libraryPages = [
   { id: "figures", group: "diagrams", label: "Architecture diagrams", path: "/", intro: "The figure design system: each diagram pattern once, from the bare canvas to a figure you drill into, with the parts it is built from." },
   { id: "charts", group: "diagrams", label: "Charts", path: "/charts", intro: "Layered and comparative charts for articles, previewed at a host's real figure width." },
   { id: "article", group: "diagrams", label: "Article parts", path: "/article", intro: "Prose-friendly parts for long reads, shown inside a host article's text column." },
-  { id: "deck", group: "presentations", label: "Tech talk", title: "Deck player", path: "/deck", query: { deck: "moves" }, isDefault: true, intro: "Tech talk deck: a talk that explains its own moves (advance, morph and zoom, builds, and a machine slide). Swipe on a touch screen, or click the deck and use the arrow keys." },
+  { id: "deck", group: "presentations", label: "Tech talk", title: "Deck player", path: "/deck", query: { deck: "moves" }, isDefault: true, intro: "Tech talk deck: a team lead argues that reviews should open with their answer, with evidence, a pilot and a dated ask. Every slide advances except one morph (the same number becoming a table row) and one zoom (into the slide the ghost deck flags). Swipe on a touch screen, or click the deck and use the arrow keys." },
   { id: "deck-bento", group: "presentations", label: "Bento", title: "Deck player", path: "/deck", query: { deck: "bento" }, intro: "Bento review deck: a quarterly review on one bento slide. Next moves a camera between the containers, and each one shows denser detail when it is in focus." },
   { id: "deck-consulting", group: "presentations", label: "Consulting", title: "Deck player", path: "/deck", query: { deck: "consulting" }, intro: "Consulting deck: a decision request in consulting style, with dense charts, callouts, a so-what panel and sources, read headline by headline." },
   { id: "presentations", group: "presentations", label: "Slide starters", path: "/presentations", intro: "Slide layouts with their speech notes, then a complete five-chapter narrative built from them." },
@@ -312,7 +312,7 @@ export const articleEntries: CatalogEntry[] = [
   { id: "link-list", title: "Link list", type: "article", styleId: "technical", tags: ["Article", "Link"] },
 ];
 
-/** The deck player (uipack/deck), rendered on /deck with an example deck that explains its own transitions. */
+/** The deck player (uipack/deck), rendered on /deck with an example tech talk that uses each move where its story needs it. */
 export const deckEntries: CatalogEntry[] = [
   { id: "deck-player", title: "Deck player", type: "deck", styleId: "technical", tags: ["Presentation", "Keyboard", "Speaker view", "Overview"] },
   { id: "deck-advance", title: "Advance transition", type: "deck", styleId: "technical", tags: ["Transition", "Motion", "Default"] },

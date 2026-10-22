@@ -9,7 +9,7 @@ import { bentoDeck } from "./bentoDeck";
  * test/catalog.test.ts checks the two lists match.
  */
 export const deckExamples: { id: string; name: string; slides: DeckSlide[]; lint?: LintOptions }[] = [
-  { id: "moves", name: "Tech talk", slides: deckExample, lint: { template: "deep-dive", minutes: 8 } },
+  { id: "moves", name: "Tech talk", slides: deckExample, lint: { template: "launch-demo", minutes: 8 } },
   { id: "bento", name: "Bento review", slides: bentoDeck, lint: { template: "project-update" } },
   { id: "consulting", name: "Consulting", slides: consultingDeck, lint: consultingDeckLint },
 ];

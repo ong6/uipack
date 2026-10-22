@@ -137,7 +137,7 @@ export const consultingDeck: DeckSlide[] = [
           <p>Freight and labour costs grow with every extra site.</p>
           <p>
             Closing the two oldest sites removes both: <strong>$14M a year</strong>
-            <Ref n={2} /> for a one-off $9M, paid back in 14 months.
+            <Ref n={2} /> for a one-off $9M, paid back in 16 months.
           </p>
           <p>
             <strong>Decision needed by 14 March.</strong>
@@ -146,7 +146,7 @@ export const consultingDeck: DeckSlide[] = [
       </ConsultingSlide>
     ),
     notes: {
-      say: "Here is the whole answer on one page. Cost per order is up twenty-two percent in three years and margin has lost three points, most of it to freight and labour. Of the four options we looked at, folding our two oldest sites, Northgate and Riverside, into expanded hubs at Eastfield and Harbour saves the most: fourteen million a year for a one-off nine million, paid back fourteen months after approval. The price is a nine-month transition and two weaker quarters of service, and we need the executive committee's decision by the fourteenth of March. Source: the illustrative cost model in the appendix.",
+      say: "Here is the whole answer on one page. Cost per order is up twenty-two percent in three years and margin has lost three points, most of it to freight and labour. Of the four options we looked at, folding our two oldest sites, Northgate and Riverside, into expanded hubs at Eastfield and Harbour saves the most: fourteen million a year for a one-off nine million, paid back sixteen months after approval. The price is a nine-month transition and two weaker quarters of service, and we need the executive committee's decision by the fourteenth of March. Source: the illustrative cost model in the appendix.",
       delivery: "Say the ask in the first thirty seconds, then point at the margin bridge.",
       next: "Start with the number on the left: cost per order.",
     },
@@ -214,7 +214,8 @@ export const consultingDeck: DeckSlide[] = [
     id: "sites",
     title: "Two sites cost 46% more",
     headline: "Northgate and Riverside cost 46% more per order than the other three sites",
-    role: "evidence",
+    // The complication: where the cost comes from, sized.
+    role: "problem",
     transition: { zoom: "site-costs" },
     render: () => (
       <ConsultingSlide
@@ -299,7 +300,7 @@ export const consultingDeck: DeckSlide[] = [
               {
                 label: "Do nothing",
                 detail: "Margin keeps falling about a point a year",
-                cells: { saving: "$0", cost: "$0", margin: 0, service: 1, speed: 0, undo: 4 },
+                cells: { saving: "$0", cost: "$0", margin: 0, service: 1, speed: 4, undo: 4 },
               },
               {
                 label: "Renegotiate freight",
@@ -364,7 +365,7 @@ export const consultingDeck: DeckSlide[] = [
             columns={2}
             items={[
               { label: "One-off cost", value: "$9M", note: "Hub expansion, site exits, dual running" },
-              { label: "Payback", value: "14", unit: "months", note: "Counted from approval" },
+              { label: "Payback", value: "16", unit: "months", note: "Counted from approval" },
               {
                 label: "Cost per order, FY27",
                 value: "$7.30",
@@ -400,11 +401,11 @@ export const consultingDeck: DeckSlide[] = [
         title="Nine months and $9M; done when cost per order falls below $7.30"
         subtitle="Two-hub option; months from approval"
         rows="minmax(0, 1fr) auto"
-        notes={["Savings less one-off and dual-running costs, against FY25 cost.", "Margin erosion continues at the FY23–FY25 rate."]}
+notes={["Savings less the $9M one-off: $1M as Northgate closes in M6–M9, then $3.5M a quarter from M9.", "Margin erosion continues at the FY23–FY25 rate."]}
         source={source}
       >
         <Panel
-          title="Cash turns positive in month 14"
+          title="Cash turns positive in month 16"
           unit={<>Cumulative net cash<Ref n={1} />, $M; do nothing<Ref n={2} /> for comparison</>}
           cols={7}
           rows={2}
@@ -416,7 +417,7 @@ export const consultingDeck: DeckSlide[] = [
             domain={[-12, 12]}
             reference={{ value: 0, label: "Break-even" }}
             series={[
-              { name: "Two hubs", values: [0, -3.0, -6.5, -8.0, -2.6, 0.9, 4.4, 7.9, 11.4], highlight: true },
+              { name: "Two hubs", values: [0, -3.0, -6.5, -8.0, -4.5, -1.0, 2.5, 6.0, 9.5], highlight: true },
               { name: "Do nothing", values: [0, -0.8, -1.6, -2.5, -3.4, -4.3, -5.3, -6.3, -7.3] },
             ]}
             annotate={{ series: "Two hubs", index: 3, text: "Peak outlay $8M while both networks run", dx: 90, dy: 12, width: 250 }}
@@ -447,7 +448,7 @@ export const consultingDeck: DeckSlide[] = [
       </ConsultingSlide>
     ),
     notes: {
-      say: "Nine months, three phases, one owner each. Operations expands Eastfield and Harbour in the first quarter, People hires and trains the hub teams in the second, and in the third we run both networks while Northgate moves, then Riverside. Cash goes negative while both networks run, bottoming out around eight million in month nine, and turns positive in month fourteen. We call it done when cost per order is below seven dollars thirty, measured monthly by Finance. And if service drops below eighty-eight percent on time for four weeks, we pause the Riverside move. Source: the cost model's cash plan.",
+      say: "Nine months, three phases, one owner each. Operations expands Eastfield and Harbour in the first quarter, People hires and trains the hub teams in the second, and in the third we run both networks while Northgate moves, then Riverside. Cash goes negative while both networks run, bottoming out around eight million in month nine. From then on both sites are closed and the full saving, three and a half million a quarter, comes in, so cash turns positive in month sixteen. We call it done when cost per order is below seven dollars thirty, measured monthly by Finance. And if service drops below eighty-eight percent on time for four weeks, we pause the Riverside move. Source: the cost model's cash plan.",
       delivery: "Trace the line from the dip to the break-even point, then read the tripwire.",
       next: "So here is what we need from you.",
     },
@@ -488,7 +489,7 @@ export const consultingDeck: DeckSlide[] = [
             columns={1}
             items={[
               { label: "Saving a year", value: "$14M", highlight: true },
-              { label: "Payback", value: "14", unit: "months" },
+              { label: "Payback", value: "16", unit: "months" },
               { label: "Cost per order", value: "$7.30", delta: { text: "−13%", direction: "down", sentiment: "good", period: "vs FY25" } },
             ]}
           />
