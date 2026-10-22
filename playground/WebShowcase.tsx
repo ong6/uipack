@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { useShowcaseTheme } from "./ShowcaseShell";
 import { webEntries } from "./catalog";
@@ -34,6 +34,7 @@ import {
   Reveal,
   ScrollTransform,
   StarChart,
+  curvePath,
   TextScramble,
   TiltCard,
   withViewTransition,
@@ -497,18 +498,13 @@ export default function WebShowcase() {
         <>
           <TypeSpecimen theme={theme} face={face} setFace={setFace} />
 
-          <section id="web-flashy" className="web-anchor">
-            <h2>Flashy · {flashy.length}</h2>
-            <p className="collection-intro">
-              Each one explains something. The demo proves the claim, the star carries the story, the spotlight shows what is
-              interactive, and the reveal paces a single quote. Pointer effects are off on touch; every piece settles to a static,
-              complete state under reduced motion.
-            </p>
+          <FlashySection count={flashy.length}>
             <WebSurface theme={theme} className="web-panel" style={surfaceStyle}>
               <Grid as="ul">
                 {flashy.map((entry) => (
                   <GridItem as="li" key={entry.id} span={[3, 4, 4]}>
                     <SpotlightCard>
+                      <FlashyPreview id={entry.id} />
                       <Heading level={3} size={1}>
                         <a
                           href={
@@ -524,7 +520,7 @@ export default function WebShowcase() {
                 ))}
               </Grid>
             </WebSurface>
-          </section>
+          </FlashySection>
 
           <section id="web-lowkey" className="web-anchor">
             <h2>Low-key · {lowKey.length}</h2>
@@ -639,6 +635,82 @@ function GeneratedFiles({ seo }: { seo: ReturnType<typeof tidySeo> }) {
           </pre>
         </figure>
       </details>
+    </div>
+  );
+}
+
+/**
+ * The Flashy section: its intro and a Pause for the cards' looping previews, the same control as
+ * Backgrounds (WCAG 2.2.2). Under reduced motion the previews are already still.
+ */
+function FlashySection({ count, children }: { count: number; children: ReactNode }) {
+  const reduced = usePrefersReducedMotion();
+  const [paused, setPaused] = useState(false);
+  return (
+    <section id="web-flashy" className="web-anchor" data-web-motion={paused && !reduced ? "paused" : undefined}>
+      <h2>Flashy · {count}</h2>
+      <div className="web-section-intro">
+        <p className="collection-intro">
+          Each one explains something. The demo proves the claim, the star carries the story, the spotlight shows what is
+          interactive, and the reveal paces a single quote. Pointer effects are off on touch; every piece settles to a static,
+          complete state under reduced motion. Each title jumps to the piece in the example above.
+        </p>
+        {!reduced && (
+          <button type="button" className="web-motion-toggle" onClick={() => setPaused((p) => !p)}>
+            {paused ? "Play motion" : "Pause motion"}
+          </button>
+        )}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+const PREVIEW_CURVE = curvePath([0, 1, 2, 5, 9, 16, 22, 31, 33, 35, 37, 37], 200, 72, 8);
+
+/**
+ * A small looping sketch of each Flashy piece, drawn in the Landing tokens: what it does at a
+ * glance, before the title's link jumps to the real one. Decorative (the note says it in words);
+ * still and complete under reduced motion, held by the section's Pause.
+ */
+function FlashyPreview({ id }: { id: string }) {
+  return (
+    <div className="web-flashy-preview" data-piece={id} aria-hidden="true">
+      {id === "demo-player" ? (
+        <div className="web-fp-demo">
+          <span className="web-fp-demo__bar">
+            <i />
+            <i />
+            <i />
+          </span>
+          <span className="web-fp-demo__prompt" />
+          {[0, 1, 2].map((i) => (
+            <span key={i} className="web-fp-demo__row" style={{ "--i": i } as CSSProperties}>
+              <b>✓</b>
+              <i />
+            </span>
+          ))}
+        </div>
+      ) : id === "star-hero" ? (
+        <svg className="web-fp-star" viewBox="0 0 200 72" preserveAspectRatio="none">
+          <path className="web-fp-star__area" d={`${PREVIEW_CURVE}L200 72L0 72Z`} />
+          <path className="web-fp-star__line" d={PREVIEW_CURVE} pathLength={1} />
+        </svg>
+      ) : id === "spotlight-card" ? (
+        <div className="web-fp-spot">
+          <span />
+          <span />
+          <span />
+        </div>
+      ) : (
+        <p className="web-fp-reveal">
+          {["It", "leaves", "me", "three", "things."].map((w, i) => (
+            <span key={w} style={{ "--i": i } as CSSProperties}>
+              {w}
+            </span>
+          ))}
+        </p>
+      )}
     </div>
   );
 }

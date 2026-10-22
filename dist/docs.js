@@ -190,6 +190,9 @@ function DocsMarkdown({ source, headingOffset = 0 }) {
     h4: heading(4),
     h5: heading(5),
     h6: heading(6),
+    // A code block scrolls sideways when a line is longer than the column: a Tab stop, so a
+    // keyboard can scroll it (WCAG 2.1.1).
+    pre: ({ node: _node, ...props }) => /* @__PURE__ */ jsx("pre", { ...props, tabIndex: 0 }),
     table: ({ node, ...props }) => /* @__PURE__ */ jsx("div", { className: "uipack-docs__table", tabIndex: 0, style: { "--docs-table-columns": tableColumns(node) }, children: /* @__PURE__ */ jsx("table", { ...props }) })
   };
   return /* @__PURE__ */ jsx("div", { className: "uipack-docs__prose", children: /* @__PURE__ */ jsx(ReactMarkdown, { components, remarkPlugins: [remarkGfm], skipHtml: true, children: source }) });

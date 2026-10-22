@@ -18,10 +18,9 @@
   gap: 22px;
   height: 100%;
   transform-origin: 0 0;
-  transition: transform 860ms var(--deck-travel);
 }
 .uipack-deck[data-motion="none"] .uipack-deck-bento__grid {
-  transition: none;
+  transition: none !important;
 }
 .uipack-deck-bento__cell {
   position: relative;
@@ -40,8 +39,9 @@
   background: var(--deck-bg);
   color: var(--deck-fg);
 }
-/* Neighbours keep their shape as context but lose their words: text cut off at the bento's edge
-   would read as a bug, and dim text still competes with the focused cell. */
+/* Neighbours step back while a cell is in focus. Their summary faces stay as context wherever
+   their words fit inside the bento's box; a face the edge would cut is hidden (data-clipped, set by
+   Bento), as text cut off at the edge would read as a bug. */
 .uipack-deck-bento__cell[data-dimmed] {
   opacity: 0.4;
 }
@@ -68,38 +68,41 @@
   opacity: 1;
 }
 .uipack-deck-bento__cell[data-focused] .uipack-deck-bento__face:has(+ .uipack-deck-bento__detail),
-.uipack-deck-bento__cell[data-dimmed] .uipack-deck-bento__face {
+.uipack-deck-bento__cell[data-clipped] .uipack-deck-bento__face {
   opacity: 0;
 }
 
 /*
- * Timing, on the camera's 860 ms clock. Text never rides the camera across the bento's edge, and
- * the box is never empty mid-move:
- * - Into a cell: the neighbours' words leave at once (they are about to be cut off), the target's
- *   face holds while it grows (it stays inside the box; it leaves 340–520 ms), and its detail arrives once the camera
- *   has nearly settled (from 560 ms: 65% of the clock, 92% of the way). Face and detail never
- *   overlap.
- * - Cell to cell: the cell being left keeps its detail until the camera has carried it mostly out
- *   (fading 360–540 ms), then dims; the next cell stays a pale shape on the way in, brightens as
- *   the camera slows (440–640 ms), and shows its detail from 560 ms.
- * - Pull-back: the focused cell's detail holds until 540 ms; the neighbours stay pale shapes until
- *   520 ms, and every face returns from 580 ms (92% of the way), once the grid is back inside the
- *   box.
+ * Timing, on the camera's clock (deckMotion.pan, 860 ms; the grid's transition is set inline from
+ * it). The box is never empty mid-move, and no summary rides the camera across the box's edge:
+ * - Every face but the focused cell's follows its own words (Bento animates it): it stays through
+ *   the pan while they are inside the box and leaves just before the edge would cut them, so the
+ *   neighbours stay readable, dimmed, wherever they fit.
+ * - Into a cell: the target's face holds while it grows (it stays inside the box; it leaves
+ *   320–460 ms), and its detail arrives straight after, as the camera slows (from 470 ms). Face and
+ *   detail never overlap.
+ * - Cell to cell, a crossfade: the cell being left keeps its detail until 420 ms and dims as it
+ *   fades (420–620 ms); the next cell brightens from 200 ms, its face clears by 300 ms and its
+ *   detail arrives from 300 ms, so the two details share the middle of the pan.
+ * - Pull-back: the focused cell's detail holds until 420 ms (gone by 620 ms) while the faces
+ *   return one by one as the grid comes back inside the box; its own face returns after its detail.
  */
-.uipack-deck-bento__face {
-  transition: opacity 240ms ease 580ms;
-}
 .uipack-deck-bento__detail {
-  transition: opacity 180ms ease 360ms;
+  transition: opacity 200ms ease 420ms;
 }
 .uipack-deck-bento__cell[data-focused] .uipack-deck-bento__detail {
-  transition: opacity 240ms ease 560ms;
+  transition: opacity 240ms ease 470ms;
 }
 .uipack-deck-bento__cell[data-focused] .uipack-deck-bento__face:has(+ .uipack-deck-bento__detail) {
-  transition: opacity 180ms ease 340ms;
+  transition: opacity 140ms ease 320ms;
 }
-.uipack-deck-bento__cell[data-dimmed] .uipack-deck-bento__face {
-  transition: opacity 180ms ease 0ms;
+.uipack-deck-bento[data-move="cell"]
+  .uipack-deck-bento__cell[data-focused]
+  .uipack-deck-bento__face:has(+ .uipack-deck-bento__detail) {
+  transition: opacity 120ms ease 180ms;
+}
+.uipack-deck-bento[data-move="cell"] .uipack-deck-bento__cell[data-focused] .uipack-deck-bento__detail {
+  transition: opacity 260ms ease 300ms;
 }
 .uipack-deck-bento__cell[data-dimmed] {
   transition:
@@ -107,17 +110,17 @@
     background-color 300ms ease 0ms;
 }
 .uipack-deck-bento__cell[data-dimmed][data-leaving] {
-  transition-delay: 360ms;
+  transition-delay: 420ms;
 }
 .uipack-deck-bento[data-move="cell"] .uipack-deck-bento__cell[data-focused] {
   transition:
-    opacity 200ms ease 440ms,
-    background-color 200ms ease 440ms;
+    opacity 240ms ease 200ms,
+    background-color 240ms ease 200ms;
 }
 .uipack-deck-bento[data-move="out"] .uipack-deck-bento__cell:not([data-dimmed]) {
   transition:
-    opacity 280ms ease 520ms,
-    background-color 280ms ease 520ms;
+    opacity 280ms ease 300ms,
+    background-color 280ms ease 300ms;
 }
 .uipack-deck-bento[data-still] .uipack-deck-bento__grid,
 .uipack-deck-bento[data-still] .uipack-deck-bento__cell,

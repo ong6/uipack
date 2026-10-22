@@ -1,7 +1,7 @@
 import { useLayerFlight, zoomSamples, zoomFrame } from './chunk-DZG73W3D.js';
 export { innerClipStart, zoomFrame, zoomSamples } from './chunk-DZG73W3D.js';
-import { useFigureHover, hoverAttrs, connectorStroke, Node, nodeName, SelectionContext, useRovingFocus, FigureHoverContext, Legend, ReplayGlyph, PauseGlyph, PlayGlyph, placeNote } from './chunk-DJIPQ34M.js';
-export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-DJIPQ34M.js';
+import { useFigureHover, hoverAttrs, connectorStroke, Node, nodeName, SelectionContext, FocusRing, useRovingFocus, FigureHoverContext, Legend, ReplayGlyph, PauseGlyph, PlayGlyph, placeNote } from './chunk-N4IMUF3F.js';
+export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-N4IMUF3F.js';
 import { useFontFloor, FigureMotionContext, FigureScaleContext } from './chunk-3R6VZY52.js';
 export { DEFAULT_RENDER_WIDTH, FigureMotionContext, FigureScaleProvider, TOKEN_SHAPE, Token, fontFloor, tokenColor, useFigureMotion, useFontFloor } from './chunk-3R6VZY52.js';
 import { CanvasView } from './chunk-D3TRNW7E.js';
@@ -855,13 +855,19 @@ var stillMotion = { playing: false, reduced: true, cycle: 0, toggle: () => {
 }, replay: () => {
 } };
 var RADIUS = 6;
-var MINI_ABOVE = 0.4;
-var MINI_SCALE = 0.3;
+var PREVIEW_SHARE = 1 / 3;
+var SANS_ADVANCE = 0.6;
+var MONO_ADVANCE = 0.6;
+function labelRight(box, label, { sub, icon, align, size = 14, subSize = 11 }) {
+  const width = Math.max(label.length * size * SANS_ADVANCE, (sub?.length ?? 0) * subSize * MONO_ADVANCE);
+  return (align ?? (icon ? "left" : "center")) === "center" ? box.x + box.w / 2 + width / 2 : box.x + 14 + (icon ? 26 : 0) + width;
+}
 function Ghost({
   child,
   ctx,
   box,
-  uid
+  uid,
+  clearOf
 }) {
   const narrow = ctx.variant === "narrow" && !!ctx.frame.narrow;
   const frame = narrow ? ctx.frame.narrow : ctx.frame.wide;
@@ -869,17 +875,19 @@ function Ghost({
   const levelVb = (narrow ? child.narrowViewBox : child.viewBox) ?? frame;
   const f = vbSize(frame);
   const inner = { ...ctx, ghost: true, interactive: false, open: void 0 };
-  const slice = Math.max(box.w / f.w, box.h / f.h);
-  const mini = slice > MINI_ABOVE;
-  const k = MINI_SCALE;
-  const port = mini ? {
-    x: box.x + box.w - f.w * k - 30,
-    y: box.y,
-    width: f.w * k,
-    height: box.h,
-    viewBox: `0 ${(f.h - box.h / k) / 2} ${f.w} ${box.h / k}`
-  } : { x: box.x, y: box.y, width: box.w, height: box.h, viewBox: `0 0 ${f.w} ${f.h}` };
-  return /* @__PURE__ */ jsx("svg", { ...port, preserveAspectRatio: "xMidYMid slice", overflow: "hidden", children: /* @__PURE__ */ jsx("svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ jsx(SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsx(FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ jsx(FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ jsx(DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) });
+  const left = box.x + box.w * (1 - PREVIEW_SHARE);
+  const port = { x: left, y: box.y + 26, width: box.x + box.w - 8 - left, height: box.h - 32, viewBox: `0 0 ${f.w} ${f.h}` };
+  const fade = clearOf + 4 > left ? { from: clearOf + 2, to: Math.min(clearOf + 22, port.x + port.width) } : null;
+  return /* @__PURE__ */ jsxs("g", { mask: fade ? `url(#${uid}-fade)` : void 0, children: [
+    fade ? /* @__PURE__ */ jsxs("mask", { id: `${uid}-fade`, maskUnits: "userSpaceOnUse", x: port.x, y: port.y, width: port.width, height: port.height, children: [
+      /* @__PURE__ */ jsxs("linearGradient", { id: `${uid}-fade-g`, gradientUnits: "userSpaceOnUse", x1: fade.from, x2: fade.to, y1: 0, y2: 0, children: [
+        /* @__PURE__ */ jsx("stop", { offset: "0", stopColor: "#fff", stopOpacity: "0" }),
+        /* @__PURE__ */ jsx("stop", { offset: "1", stopColor: "#fff" })
+      ] }),
+      /* @__PURE__ */ jsx("rect", { x: port.x, y: port.y, width: port.width, height: port.height, fill: `url(#${uid}-fade-g)` })
+    ] }) : null,
+    /* @__PURE__ */ jsx("svg", { ...port, preserveAspectRatio: "xMaxYMid meet", overflow: "hidden", children: /* @__PURE__ */ jsx("svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ jsx(SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsx(FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ jsx(FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ jsx(DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) })
+  ] });
 }
 function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node }) {
   const ctx = useDrill();
@@ -980,10 +988,11 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
                   filter: `url(#${uid}-soft)`
                 }
               ),
-              preview ? /* @__PURE__ */ jsx("g", { ref: ghostRef, className: "uipack-drill-node__ghost", opacity: 0.16, children: /* @__PURE__ */ jsx(Ghost, { child, ctx, box, uid }) }) : null
+              preview ? /* @__PURE__ */ jsx("g", { ref: ghostRef, className: "uipack-drill-node__ghost", opacity: 0.16, children: /* @__PURE__ */ jsx(Ghost, { child, ctx, box, uid, clearOf: labelRight(box, text, node) }) }) : null
             ] })
           }
         ) }),
+        interactive ? /* @__PURE__ */ jsx(FocusRing, { x: box.x, y: box.y, w: box.w, h: box.h, rx: RADIUS }) : null,
         /* @__PURE__ */ jsx(
           "g",
           {

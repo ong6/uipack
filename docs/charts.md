@@ -131,7 +131,7 @@ Where headers show codes, the key and every filter fold into a closed "Filters a
   - `shutdown`: "shut", muted.
 
   The key shows each kind present ("→ acquired", "↝ licensed"). Screen readers hear "Acquired by Stripe, 2026", "Sale agreed to Nvidia, 2026", "Technology licensed to Nvidia, 2025" and "Shut down".
-- **Logos.** Logos sit on a hairline tile. In dark mode the tile colour derives from the host's ink and is dimmed slightly, because favicons are often dark glyphs on a transparent ground. A missing logo gives two letters on a transparent tile that tell similar names apart: "Cerebras" → "Ce", "Cursor" → "Cu", "OpenRouter" → "OR".
+- **Logos.** Logos sit on a hairline tile. In dark mode the tile is the host's ink, a near-white app-icon tile, because favicons are often dark glyphs on a transparent ground. A missing logo gives two letters on a transparent tile that tell similar names apart: "Cerebras" → "Ce", "Cursor" → "Cu", "OpenRouter" → "OR".
 
 ### Optional enhancement
 
@@ -233,7 +233,7 @@ Both components read the shared `--uipack-*` properties, with the Technical defa
 | `--uipack-span-name-width` | SpanChart's name column (216px, 240px from 1000px; the breakpoints assume these) |
 | `--uipack-span-sticky-top` | offset of the sticky header and of scroll restoration under a fixed site header (0px) |
 | `--uipack-span-tint`, `--uipack-span-hairline` | the "also" fill and the row separators |
-| `--uipack-span-logo-bg`, `--uipack-span-logo-filter` | the logo tile (surface; in dark, 82% `fg` with `brightness(0.88)`) |
+| `--uipack-span-logo-bg`, `--uipack-span-logo-filter` | the logo tile (surface; in dark, `fg`, unfiltered) |
 
 ```css
 /* A site whose figure palette already switches with its theme. Map the

@@ -418,14 +418,18 @@
   line-height: 1.55;
 }
 
+/* Labels are tags over a live scene: translucent, so the geometry behind them still reads, with a
+   light blur keeping the words legible over a line or a grid dot. */
 .uipack-slide-player .uipack-slide-label,
 .uipack-slide-scene .uipack-slide-label {
   pointer-events: auto;
   font: 12px var(--slide-sans);
   color: var(--slide-ink);
-  background: var(--slide-bg);
-  border: 1px solid var(--slide-rule);
-  padding: 7px 10px;
+  background: color-mix(in srgb, var(--slide-bg) 68%, transparent);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  border: 1px solid color-mix(in srgb, var(--slide-rule) 70%, transparent);
+  padding: 5px 9px;
   white-space: normal;
   cursor: pointer;
 }
@@ -515,17 +519,29 @@
 .uipack-scene-card > .uipack-slide-scene {
   flex: 1;
 }
+/* Open canvas docks in the scene's top row, opposite the inspector and centred on its 54px bar, so
+   the two read as one toolbar and the scene keeps the card's full height. */
+.uipack-scene-card {
+  position: relative;
+}
 .uipack-scene-card__open {
-  align-self: flex-end;
+  position: absolute;
+  z-index: 3;
+  top: 21px;
+  right: 16px;
   min-height: 44px;
-  margin: 8px;
+  margin: 0;
   padding: 8px 12px;
   border: 1px solid currentColor;
   border-radius: 6px;
-  background: transparent;
+  background: inherit;
   color: inherit;
   font: 500 12px/1 var(--slide-mono, ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
   cursor: pointer;
+}
+.uipack-scene-card > .uipack-slide-scene .uipack-slide-inspect {
+  right: 148px;
+  justify-items: end;
 }
 .uipack-scene-card__open:focus-visible {
   outline: 2px solid #3fb27f;

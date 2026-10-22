@@ -12,6 +12,45 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
   gap: 32px;
 }
+/* Side layout, on a wide, short window (useFitBelowHeader in DeckShowcase.tsx): the slide and its
+   controls take the left column, as wide as the window's height allows, starting right under the
+   title; the intro and the reference tables run down a column beside it. The title block and the
+   page's section give their children to main's grid; the reading order stays title, intro, deck,
+   reference. */
+.showcase-shell:has(> .deck-showcase[data-layout="side"]) {
+  grid-template-columns:
+    minmax(0, min(100% - 340px, (100svh - var(--deck-chrome, 76px)) * 16 / 9))
+    minmax(0, 1fr);
+  column-gap: 40px;
+  align-items: start;
+}
+.showcase-shell:has(> .deck-showcase[data-layout="side"]) > * {
+  grid-column: 1 / -1;
+}
+.showcase-shell:has(> .deck-showcase[data-layout="side"]) > :is(.showcase-title, .deck-showcase) {
+  display: contents;
+}
+.showcase-shell:has(> .deck-showcase[data-layout="side"]) > .showcase-title > h1 {
+  grid-column: 1 / -1;
+  margin-top: -8px;
+}
+.showcase-shell:has(> .deck-showcase[data-layout="side"]) > .showcase-title > p {
+  grid-column: 2;
+  margin: 0;
+}
+.showcase-shell:has(> .deck-showcase[data-layout="side"]) > .showcase-title > p:not(.showcase-title__note) {
+  grid-row: 3;
+}
+.deck-showcase[data-layout="side"] > .uipack-deck {
+  grid-column: 1;
+  grid-row: 3 / span 4;
+  margin: 0;
+}
+.deck-showcase[data-layout="side"] > .deck-showcase__reference {
+  grid-column: 2;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+}
 .deck-showcase__reference h2 {
   margin: 0 0 8px;
   font-size: 20px;
@@ -44,13 +83,19 @@
    font, and --deck-radius-sm also rounds slide thumbnails, so these set the controls alone; slide
    content keeps the deck's type. */
 :is(.deck-showcase, .deck-speaker-page)
-  :is(.uipack-deck-controls, .uipack-deck-overview__head, .uipack-deck-presenter__side, .uipack-deck-read)
+  :is(
+    .uipack-deck-controls,
+    .uipack-deck-overview__head,
+    .uipack-deck-presenter__side,
+    .uipack-deck-read,
+    .uipack-deck-phone-hint
+  )
   button {
   border-radius: var(--show-control-radius);
   font: var(--show-control-font);
 }
 /* Under a narrow slide the tools tighten to the small control size, as the library's do. */
-@container (max-width: 760px) {
+@container (max-width: 860px) {
   :is(.deck-showcase, .deck-speaker-page) .uipack-deck-tools button {
     font: var(--show-control-font-sm);
   }
@@ -211,7 +256,7 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  aspect-ratio: 16 / 6.4;
+  aspect-ratio: 16 / 5.6;
   padding: 24px 28px;
   border: 2px solid color-mix(in srgb, var(--deck-fg) 22%, transparent);
   border-radius: 12px;
@@ -238,13 +283,33 @@
 }
 .deck-demo-ghost__flag {
   display: block;
-  margin-top: 12px;
+  margin-top: 14px;
   color: var(--deck-muted);
-  font: 600 21px/1.3 var(--deck-mono);
-  letter-spacing: 0.04em;
+  font: 600 24px/1.3 var(--deck-mono);
+  letter-spacing: 0.02em;
 }
+/* A flag is a warning, so it takes the storyline's warning amber (ink-dark on paper, pale on ink),
+   as a marked label at reading size, not a footnote in the accent. */
 .deck-demo-ghost li[data-flag] .deck-demo-ghost__flag {
-  color: var(--deck-accent);
+  width: fit-content;
+  padding: 6px 14px 7px;
+  border-radius: 6px;
+  background: #fbe9c6;
+  color: #7a4300;
+  font: 600 30px/1.25 var(--deck-sans);
+  letter-spacing: 0;
+}
+.deck-demo-ghost li[data-flag] .deck-demo-ghost__card {
+  border-color: #c77c0e;
+  box-shadow: 0 0 0 5px color-mix(in srgb, #c77c0e 18%, transparent);
+}
+.uipack-deck[data-theme="dark"] .deck-demo-ghost li[data-flag] .deck-demo-ghost__flag {
+  background: #3d2a0a;
+  color: #ffc56b;
+}
+.uipack-deck[data-theme="dark"] .deck-demo-ghost li[data-flag] .deck-demo-ghost__card {
+  border-color: #e0a040;
+  box-shadow: 0 0 0 5px color-mix(in srgb, #e0a040 20%, transparent);
 }
 
 /* Tech talk: inside the flagged slide. Each part: the draft, struck through, and the fix. */
@@ -469,6 +534,71 @@
 .deck-bento-forecast text {
   fill: var(--deck-muted);
   font: 500 11px var(--deck-mono);
+}
+
+/* Bento example: the bottom cards' evidence, set at the foot of each card. Shipped: the six
+   launches on the quarter's calendar. Risk: memory now against the limit. Next: the target. */
+.deck-bento-strip,
+.deck-bento-gauge {
+  margin-top: auto;
+  padding-top: 18px;
+}
+.deck-bento-strip__line {
+  position: relative;
+  display: block;
+  height: 22px;
+  border-bottom: 2px solid var(--deck-rule);
+}
+.deck-bento-strip__line i {
+  position: absolute;
+  bottom: -8px;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  border-radius: 50%;
+  background: var(--deck-fg);
+}
+.deck-bento-strip__months,
+.deck-bento-gauge__scale {
+  position: relative;
+  display: flex;
+  margin-top: 14px;
+  color: var(--deck-muted);
+  font: 600 17px/1 var(--deck-mono);
+  letter-spacing: 0.08em;
+}
+.deck-bento-strip__months > span {
+  flex: 1;
+}
+.deck-bento-gauge__track {
+  position: relative;
+  display: block;
+  height: 22px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--deck-fg) 10%, transparent);
+}
+.deck-bento-gauge__track i {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--deck-fg);
+}
+.deck-bento-gauge__track b {
+  position: absolute;
+  top: -8px;
+  bottom: -8px;
+  width: 3px;
+  margin-left: -1.5px;
+  background: var(--deck-accent);
+}
+.deck-bento-gauge__scale > span + span {
+  position: absolute;
+  white-space: nowrap;
+  transform: translateX(-100%);
+  color: var(--deck-accent);
+}
+.uipack-deck-bento-value.deck-bento-next {
+  font-size: 72px;
 }
 
 /* Bento example: the plan, one row per item with its date. */

@@ -161,7 +161,7 @@ export function AssetBrowser({
                 ) : null}
               </div>
               <div className="uipack-browser__row">
-                <span className="uipack-browser__name">{a.name}</span>
+                <AssetName name={a.name} />
                 <button
                   type="button"
                   className="uipack-browser__action"
@@ -198,5 +198,20 @@ export function AssetBrowser({
         ) : null}
       </div>
     </div>
+  );
+}
+
+/**
+ * A family name ("Token · response") sets its family on a small first line and the member under
+ * it, so a name breaks between its parts, never inside one, and every strip holds two lines at most.
+ */
+function AssetName({ name }: { name: string }) {
+  const at = name.indexOf(" · ");
+  if (at < 0) return <span className="uipack-browser__name">{name}</span>;
+  return (
+    <span className="uipack-browser__name">
+      <span className="uipack-browser__family">{name.slice(0, at)}</span> <span className="uipack-browser__sr">· </span>
+      {name.slice(at + 3)}
+    </span>
   );
 }

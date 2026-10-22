@@ -437,9 +437,6 @@ a.uipack-notecard.uipack-notecard:focus-visible .uipack-notecard__go {
 .uipack-terms .uipack-terms__label {
   margin-bottom: 4px;
 }
-.uipack-terms .uipack-terms__list {
-  display: block;
-}
 /* Each term is an atomic box, so a line breaks between terms and a term moves
    whole to the next line (a split term reads as two). Only a term longer than
    the whole line wraps, inside its own box. */
@@ -449,12 +446,22 @@ a.uipack-notecard.uipack-notecard:focus-visible .uipack-notecard__go {
   font: inherit;
   color: var(--ua-fg);
 }
-/* A centred dot after every term but the last, drawn in CSS and not read
-   aloud: a wrapped line ends on a dot, like a comma. */
-.uipack-terms .uipack-terms__term:not(:last-child)::after {
+/* A centred dot between terms, drawn in CSS and not read aloud. It sits before
+   every term but the first, in a 1.25em gutter the list pulls into its left
+   margin and clips: a term that starts a wrapped line hides its dot there, so no
+   line ends or starts on a dangling dot. */
+.uipack-terms .uipack-terms__list {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -1.25em;
+  clip-path: inset(0 0 0 1.25em);
+}
+.uipack-terms .uipack-terms__term::before {
   content: "·";
   content: "·" / "";
-  margin: 0 0.5em;
+  display: inline-block;
+  width: 1.25em;
+  text-align: center;
   color: var(--ua-sub);
 }
 

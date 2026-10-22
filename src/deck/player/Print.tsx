@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import type { DeckSlide, DeckTheme } from "../types";
-import { useDetailStops } from "./details";
+import { useDetailStops, type DetailStop } from "./details";
 import { notesOf, pad } from "./format";
 import { Layer } from "./Layer";
 
@@ -11,9 +11,29 @@ import { Layer } from "./Layer";
  * detail (a bento) gets a page per detail after it. The canvas scale is fixed in CSS (2/3, or 1/2
  * beside notes) rather than measured, because print layout never runs resize observers.
  */
-export function Printout({ slides, theme, notes = false }: { slides: DeckSlide[]; theme: DeckTheme; notes?: boolean }) {
+export function Printout({
+  slides,
+  theme,
+  notes = false,
+  inPlace = false,
+}: {
+  slides: DeckSlide[];
+  theme: DeckTheme;
+  notes?: boolean;
+  /**
+   * Shown on the page (`view="print"`), not only printed: the pages scroll sideways in a narrow
+   * window, so the box is a named, focusable region that scrolls from the keyboard too.
+   */
+  inPlace?: boolean;
+}) {
   return (
-    <div className="uipack-deck-print" data-notes={notes ? "" : undefined}>
+    <div
+      className="uipack-deck-print"
+      data-notes={notes ? "" : undefined}
+      tabIndex={inPlace ? 0 : undefined}
+      role={inPlace ? "region" : undefined}
+      aria-label={inPlace ? "Printable pages" : undefined}
+    >
       {slides.map((s, i) => (
         <PrintSlide key={s.id} slide={s} index={i} count={slides.length} theme={theme} notes={notes} />
       ))}
@@ -37,52 +57,60 @@ function PrintSlide({
   const ref = useRef<HTMLElement>(null);
   const stops = useDetailStops(ref, s);
   const talk = notesOf(s);
-  const page = (step: number, detail?: string) => (
-    <section
-      key={step}
-      ref={detail ? undefined : ref}
-      className="uipack-deck-print__page"
-      data-tone={s.tone ?? "paper"}
-      data-detail={detail ? "" : undefined}
-      aria-label={`${pad(i + 1)}: ${s.title}${detail ? `, detail: ${detail}` : ""}`}
-    >
-      <div className="uipack-deck-print__slide">
-        <div className="uipack-deck-canvas">
-          <Layer slide={s} index={i} count={count} step={step} active={false} thumbnail theme={theme} reducedMotion />
+  // A detail page's talk track: what the notes say at that stop, else the slide's whole track.
+  const sayAt = (stop?: DetailStop) => (stop ? (talk?.stops?.[stop.id] ?? talk?.say) : talk?.say);
+  const page = (step: number, stop?: DetailStop) => {
+    const detail = stop?.label;
+    const say = sayAt(stop);
+    return (
+      <section
+        key={step}
+        ref={detail ? undefined : ref}
+        className="uipack-deck-print__page"
+        data-tone={s.tone ?? "paper"}
+        data-detail={detail ? "" : undefined}
+        aria-label={`${pad(i + 1)}: ${s.title}${detail ? `, detail: ${detail}` : ""}`}
+      >
+        <div className="uipack-deck-print__slide">
+          <div className="uipack-deck-canvas">
+            <Layer slide={s} index={i} count={count} step={step} active={false} thumbnail theme={theme} reducedMotion />
+          </div>
         </div>
-      </div>
-      {notes && (
-        <div className="uipack-deck-print__notes">
-          <p className="uipack-deck-print__title">
-            <span>{pad(i + 1)}</span> {s.title}
-            {detail && <> · detail</>}
-          </p>
-          <h3>{detail ?? s.headline ?? s.title}</h3>
-          {!detail && talk?.delivery && (
-            <p className="uipack-deck-print__cue">
-              <b>Delivery</b> {talk.delivery}
+        {notes && (
+          <div className="uipack-deck-print__notes">
+            <p className="uipack-deck-print__title">
+              <span>{pad(i + 1)}</span> {s.title}
+              {detail && <> · detail</>}
             </p>
-          )}
-          {!detail && talk?.next && (
-            <p className="uipack-deck-print__cue">
-              <b>Next</b> {talk.next}
-            </p>
-          )}
-        </div>
-      )}
-      {/* The talk track runs the width of the slide, under it, so the page has no empty band. */}
-      {notes && !detail && talk?.say && (
-        <div className="uipack-deck-print__say">
-          <b>Say</b>
-          <p>{talk.say}</p>
-        </div>
-      )}
-    </section>
-  );
+            {/* Each page's claim is a section heading under the page's h1. */}
+            <h2>{detail ?? s.headline ?? s.title}</h2>
+            {!detail && talk?.delivery && (
+              <p className="uipack-deck-print__cue">
+                <b>Delivery</b> {talk.delivery}
+              </p>
+            )}
+            {!detail && talk?.next && (
+              <p className="uipack-deck-print__cue">
+                <b>Next</b> {talk.next}
+              </p>
+            )}
+          </div>
+        )}
+        {/* The talk track runs the width of the slide, under it, so the page has no empty band. A
+          detail page carries the part said at its stop. */}
+        {notes && say && (
+          <div className="uipack-deck-print__say">
+            <b>Say</b>
+            <p>{say}</p>
+          </div>
+        )}
+      </section>
+    );
+  };
   return (
     <>
       {page(Infinity)}
-      {stops.map((stop) => page(stop.step, stop.label))}
+      {stops.map((stop) => page(stop.step, stop))}
     </>
   );
 }

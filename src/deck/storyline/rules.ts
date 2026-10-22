@@ -13,7 +13,7 @@ export interface StorySlide {
   title: string;
   role?: SlideRole;
   /** Talk track. A string is treated as `say`. */
-  notes?: SpeechGuide | string;
+  notes?: (SpeechGuide & { stops?: Record<string, string> }) | string;
   /** The action title shown on the slide. */
   headline?: string;
   /** On-slide source line for the slide's numbers. */

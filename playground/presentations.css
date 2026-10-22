@@ -57,6 +57,20 @@
   height: 100%;
   object-fit: cover;
 }
+/* Each WebGL still keeps its direction's own stage colour (navy, brown, slate). A vignette in the
+   page colour fades every one of them to the same ground at the frame's edge, so the row reads
+   as one set on this page and the object at the centre keeps its true colours. */
+.style-preview:has(> img)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 80% at 50% 52%, transparent 32%, var(--show-bg) 100%);
+}
+/* In dark the stages' blues and browns are strong against the green-black page: calm them. */
+[data-theme="dark"] .style-preview > img {
+  filter: saturate(0.7);
+}
 .style-preview .uipack {
   height: 100%;
   margin: 0;

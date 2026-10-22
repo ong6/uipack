@@ -412,10 +412,14 @@
   min-height: 44px;
   padding: 0 12px;
   border: 1px solid var(--show-rule);
-  /* Shell chrome, not Landing: the shell's control radius and face. */
+  /* Shell chrome with the shell's control radius, but set in the sample's label face (IBM Plex
+     Mono, already loaded on this page): the chips index the Landing sample and sit on its edge,
+     so two different monos never meet. */
   border-radius: var(--show-control-radius);
   color: var(--show-ink);
-  font: var(--show-control-font);
+  font:
+    400 13px/1.2 "IBM Plex Mono",
+    var(--show-font-mono);
   text-decoration: none;
 }
 .web-index a::before {
@@ -640,4 +644,225 @@
 }
 .web-motion-toggle:hover {
   border-color: var(--show-ink);
+}
+
+/* ---------- Flashy previews: a small looping sketch of each piece ---------- */
+/* Drawn in the Landing tokens on the card's own surface. A 4.8s loop, held by the section's Pause
+   (data-web-motion="paused"), and the complete final frame under reduced motion. */
+.web-flashy-preview {
+  position: relative;
+  height: 88px;
+  overflow: hidden;
+  border: 1px solid var(--web-hairline);
+  border-radius: 10px;
+  background: var(--web-bg);
+}
+.web-flashy-preview * {
+  animation-duration: 4.8s;
+  animation-iteration-count: infinite;
+  animation-timing-function: var(--web-ease);
+  animation-fill-mode: both;
+}
+[data-web-motion="paused"] .web-flashy-preview * {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .web-flashy-preview * {
+    animation: none !important;
+  }
+  /* Still, the spotlight rests on the middle card. */
+  .web-fp-spot span {
+    background-position: 100% 0;
+  }
+  .web-fp-spot span:nth-child(2) {
+    background-position: 50% 0;
+    border-color: color-mix(in srgb, var(--web-accent) 55%, transparent);
+  }
+}
+
+/* Demo player: a window, the prompt typing in, then three actions ticking off. */
+.web-fp-demo {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  height: 100%;
+  padding: 0 14px;
+}
+.web-fp-demo__bar {
+  display: flex;
+  gap: 4px;
+  margin: 0 -14px 2px;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--web-hairline);
+}
+.web-fp-demo__bar i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--web-rule);
+}
+.web-fp-demo__prompt {
+  width: 70%;
+  height: 7px;
+  border-radius: 4px;
+  background: var(--web-ink-low);
+  transform-origin: left;
+  animation-name: web-fp-type;
+}
+.web-fp-demo__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 10px;
+  animation-name: web-fp-tick;
+  animation-delay: calc(var(--i) * 0.35s);
+}
+.web-fp-demo__row b {
+  color: var(--web-accent);
+  font: 600 10px/1 var(--web-font-mono);
+}
+.web-fp-demo__row i {
+  flex: 0 0 calc(56% - var(--i) * 12%);
+  height: 5px;
+  border-radius: 3px;
+  background: var(--web-rule);
+}
+@keyframes web-fp-type {
+  0% {
+    transform: scaleX(0);
+  }
+  22%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+@keyframes web-fp-tick {
+  0%,
+  26% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  36%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Star hero: the story's curve draws itself over its gradient. */
+.web-fp-star {
+  position: absolute;
+  inset: 12px 0 0;
+  width: 100%;
+  height: calc(100% - 12px);
+}
+.web-fp-star__area {
+  fill: color-mix(in srgb, var(--web-accent) 16%, transparent);
+  animation-name: web-fp-fade;
+}
+.web-fp-star__line {
+  fill: none;
+  stroke: var(--web-accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  animation-name: web-fp-draw;
+}
+@keyframes web-fp-draw {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  45%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes web-fp-fade {
+  0%,
+  15% {
+    opacity: 0;
+  }
+  50%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Spotlight card: a light passes along three cards and lifts the border it crosses. */
+.web-fp-spot {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  height: 100%;
+  padding: 14px;
+}
+.web-fp-spot span {
+  border: 1px solid var(--web-hairline);
+  border-radius: 8px;
+  background: radial-gradient(
+      circle at var(--x, 50%) 30%,
+      color-mix(in srgb, var(--web-accent) 30%, transparent),
+      transparent 60%
+    )
+    no-repeat;
+  background-size: 300% 100%;
+  animation-name: web-fp-spot;
+  animation-timing-function: ease-in-out;
+}
+.web-fp-spot span:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.web-fp-spot span:nth-child(3) {
+  animation-delay: 1s;
+}
+@keyframes web-fp-spot {
+  0%,
+  100% {
+    background-position: 100% 0;
+    border-color: var(--web-hairline);
+  }
+  30% {
+    background-position: 50% 0;
+    border-color: color-mix(in srgb, var(--web-accent) 55%, transparent);
+  }
+  60% {
+    background-position: 0 0;
+    border-color: var(--web-hairline);
+  }
+}
+
+/* Reveal text: a line of the quote, its words rising in one after another. */
+.web-fp-reveal {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  gap: 0 0.3em;
+  height: 100%;
+  margin: 0;
+  padding: 0 16px;
+  color: var(--web-ink);
+  font: italic 400 var(--web-step-2) / 1.1 var(--web-font-display);
+}
+.web-fp-reveal span {
+  animation-name: web-fp-rise;
+  animation-delay: calc(var(--i) * 0.18s);
+}
+@keyframes web-fp-rise {
+  0%,
+  8% {
+    opacity: 0;
+    transform: translateY(0.5em);
+  }
+  26%,
+  90% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+  }
 }

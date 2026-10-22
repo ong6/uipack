@@ -342,8 +342,8 @@ the playground's lazy-route change (below):
 
 | Route | Profile | Performance | FCP | LCP | CLS | TBT | JS transferred |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `/web` | Mobile | 99 | 1.44 s | **1.67 s** | 0 | 0 ms | 81 KB |
-| `/web` | Desktop | 100 | 0.35 s | 0.45 s | 0 | 0 ms | 81 KB |
+| `/web` | Mobile | 99 | 1.44 s | **1.67 s** ¹ | 0 | 0 ms | 81 KB |
+| `/web` | Desktop | 100 | 0.35 s | 0.45 s ¹ | 0 | 0 ms | 81 KB |
 | `/` | Mobile | 99 | 1.59 s | 1.96 s | 0 | 6 ms | 128 KB |
 | `/` | Desktop | 100 | 0.39 s | 0.45 s | 0 | 0 ms | 128 KB |
 
@@ -398,8 +398,36 @@ changes. Run-to-run spread on this shared machine was about ±50 ms for mobile L
 TBT, so the mobile differences are noise; the desktop CLS drop is not. In this trace all three are
 inside the "good" thresholds (LCP ≤ 2.5 s, CLS ≤ 0.1); Lighthouse's mobile LCP, above, is not.
 
-LCP on this page is the playground's own intro paragraph (`p.collection-intro`, system font), not
-the Landing hero, because the shell renders above the example. The trace table predates the
+¹ **Re-measured at the final review** (same method, 2026-10-23): `/web` mobile scores 98 with FCP
+1.36 s and LCP **2.44 s** (desktop 100, FCP 0.35 s, LCP 0.54 s; CLS 0 and TBT 0 ms on both), 242 KB
+in 16 requests, 143 KB of it the seven Landing font files. The LCP element is now the Landing
+hero's headline (`h1#web-hero-title`, Instrument Serif with an italic `<em>`, 26,000 px² at
+390 px), larger than the playground intro paragraph (15,200 px²) that was the LCP before.
+
+The 2.44 s is a property of Lighthouse's simulation, not of what a phone sees. Lantern charges LCP
+with every request that finished before the LCP in the unthrottled load it observes; served from
+localhost, all seven fonts finish (about 113 ms) before the headline's first paint (about 136 ms),
+so their 143 KB are simulated on the throttled link ahead of it. On a real first visit the faces
+are `font-display: swap`, the headline paints in the metric-matched fallback, and Chrome does not
+report a new LCP when the face swaps in: with every woff2 delayed by 1.5 s, the headline's LCP
+entry stays at the fallback paint (92 ms in a local Chromium load), with no later entry.
+
+Tried for the review, median of 3 each, mobile LCP against 2.44 s:
+
+| Change | Mobile LCP | Why |
+| --- | --- | --- |
+| Preload the two display faces on phones too | 2.57 s (worse) | They start with the scripts and share the throttled link with them; the hero's five Plex faces still load after the render. |
+| Preload all six faces the hero uses | 2.43 s (same) | The bytes before the paint are unchanged; FCP rose to 1.44 s. |
+| `font-display: optional` on the display faces | 2.42 s (same) | The requests and their timing are unchanged, and a slow first visit would keep the fallback for the whole page view. |
+
+So the playground keeps its preload at 720 px and wider only (below), and the faces keep
+`swap`. Six of the seven font files are used inside the hero on a phone (Plex Sans 400 and 500,
+Plex Mono 400 and 600, Instrument Serif and its italic; Plex Sans 600 sets text above it),
+so deferring the others would not shrink the hero's path either. The lever left is bytes: fewer
+or smaller faces on the first screen, which is a design decision, not a loading one.
+
+Before the final review, LCP on this page was the playground's own intro paragraph
+(`p.collection-intro`, system font), not the Landing hero, because the shell renders above the example. The trace table predates the
 lazy-route change; the CLS it shows (0.011 on desktop, 0.019 on mobile) was the playground's
 Suspense fallback being replaced by the whole page. The shell now stays and the page fills in
 below it, and Lighthouse measures CLS 0 on both profiles.

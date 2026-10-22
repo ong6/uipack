@@ -58,13 +58,29 @@
 
 .uipack-docs a:focus-visible,
 .uipack-docs summary:focus-visible,
+.uipack-docs__prose pre:focus-visible,
 .uipack-docs__table:focus-visible {
   border-radius: 2px;
   outline: 2px solid var(--docs-focus);
   outline-offset: 3px;
 }
 
-.uipack-docs a.uipack-docs__skip {
+/* Visually hidden until focused: a 1×1 clipped box that never paints, whatever its ancestors
+   (a transformed or contained tab panel would anchor a fixed, translated link on screen). */
+.uipack-docs a.uipack-docs__skip:not(:focus) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.uipack-docs a.uipack-docs__skip:focus {
   background: var(--docs-ink);
   color: var(--docs-surface);
   font-weight: 700;
@@ -73,13 +89,7 @@
   position: fixed;
   top: 8px;
   text-decoration: none;
-  transform: translateY(-160%);
-  transition: transform 150ms ease;
   z-index: 1000;
-}
-
-.uipack-docs a.uipack-docs__skip:focus {
-  transform: translateY(0);
 }
 
 .uipack-docs__identity {
@@ -235,7 +245,7 @@
 .uipack-docs__prose h6 {
   color: var(--docs-ink);
   font-family: var(--font-sans, system-ui, sans-serif);
-  font-weight: 720;
+  font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.15;
   scroll-margin-top: 96px;
@@ -254,6 +264,12 @@
 .uipack-docs__prose h3 {
   font-size: 20px;
   margin: 36px 0 12px;
+}
+
+/* Subheadings step down in weight and tracking, the scale's card-title role (20 / 600). */
+.uipack-docs__prose :is(h3, h4, h5, h6) {
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .uipack-docs__prose h4,
@@ -549,7 +565,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .uipack-docs a.uipack-docs__skip,
   .uipack-docs__chevron {
     transition: none;
   }

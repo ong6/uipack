@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
 import { Node, nodeName, type NodeProps } from "../Node";
-import { SelectionContext } from "../selection";
+import { FocusRing, SelectionContext } from "../selection";
 import { FigureMotionContext, type FigureMotion } from "../context";
 import { FigureScaleContext } from "../scale";
 import { DrillContext, useDrill, type DrillContextValue } from "./context";
@@ -20,9 +20,27 @@ export interface DrillNodeProps extends Omit<NodeProps, "label" | "href" | "inla
 const noSelection = { enabled: false, selected: null, select: () => {} };
 const stillMotion: FigureMotion = { playing: false, reduced: true, cycle: 0, toggle: () => {}, replay: () => {} };
 const RADIUS = 6;
-/** Above this preview scale the box is too wide for an exact first frame; draw a miniature. */
-const MINI_ABOVE = 0.4;
-const MINI_SCALE = 0.3;
+/** The preview keeps to the node's right third, and clear of the label's words. */
+const PREVIEW_SHARE = 1 / 3;
+/** Rough advance widths, as a share of the font size: the label's sans at 600, the subtitle's mono. */
+const SANS_ADVANCE = 0.6;
+const MONO_ADVANCE = 0.6;
+
+/**
+ * Where a node's label ends, from its text and sizes (Node's own layout: 14px inset, a 26px icon
+ * column, left-aligned after an icon, else centred). An estimate, on the generous side, so the
+ * preview fades in only after the words.
+ */
+function labelRight(
+  box: { x: number; w: number },
+  label: string,
+  { sub, icon, align, size = 14, subSize = 11 }: Pick<NodeProps, "sub" | "icon" | "align" | "size" | "subSize">,
+): number {
+  const width = Math.max(label.length * size * SANS_ADVANCE, (sub?.length ?? 0) * subSize * MONO_ADVANCE);
+  return (align ?? (icon ? "left" : "center")) === "center"
+    ? box.x + box.w / 2 + width / 2
+    : box.x + 14 + (icon ? 26 : 0) + width;
+}
 
 /** The child level drawn as the stage would show it at the first frame of the zoom: `slice`-fitted, centred. */
 function Ghost({
@@ -30,11 +48,14 @@ function Ghost({
   ctx,
   box,
   uid,
+  clearOf,
 }: {
   child: DrillLevel;
   ctx: DrillContextValue;
   box: { x: number; y: number; w: number; h: number };
   uid: string;
+  /** The x where the node's label ends: the preview fades in after it. */
+  clearOf: number;
 }) {
   const narrow = ctx.variant === "narrow" && !!ctx.frame.narrow;
   const frame = narrow ? ctx.frame.narrow! : ctx.frame.wide;
@@ -42,35 +63,38 @@ function Ghost({
   const levelVb = (narrow ? child.narrowViewBox : child.viewBox) ?? frame;
   const f = vbSize(frame);
   const inner: DrillContextValue = { ...ctx, ghost: true, interactive: false, open: undefined };
-  // The preview is the stage as the zoom's first frame shows it: the child at 1/Z, centred, cropped
-  // to the box. When the box is nearly as wide as the stage (a narrow column) that would be the
-  // child at full size behind the label, so it becomes a small miniature at the right instead.
-  const slice = Math.max(box.w / f.w, box.h / f.h);
-  const mini = slice > MINI_ABOVE;
-  const k = MINI_SCALE;
-  const port = mini
-    ? {
-        x: box.x + box.w - f.w * k - 30,
-        y: box.y,
-        width: f.w * k,
-        height: box.h,
-        viewBox: `0 ${(f.h - box.h / k) / 2} ${f.w} ${box.h / k}`,
-      }
-    : { x: box.x, y: box.y, width: box.w, height: box.h, viewBox: `0 0 ${f.w} ${f.h}` };
+  // A miniature of the whole level, fitted into the node's right third, so the label and icon read
+  // on the plain node and the preview says "more in here" beside them. Where the label's last
+  // words reach into that third, the preview fades in after them instead of running under them.
+  const left = box.x + box.w * (1 - PREVIEW_SHARE);
+  // Under the open marker (top right, 10 to 22 down), so the two never overlap.
+  const port = { x: left, y: box.y + 26, width: box.x + box.w - 8 - left, height: box.h - 32, viewBox: `0 0 ${f.w} ${f.h}` };
+  const fade = clearOf + 4 > left ? { from: clearOf + 2, to: Math.min(clearOf + 22, port.x + port.width) } : null;
   return (
-    <svg {...port} preserveAspectRatio="xMidYMid slice" overflow="hidden">
-      <svg width={f.w} height={f.h} viewBox={levelVb} preserveAspectRatio="xMidYMid meet">
-        <SelectionContext.Provider value={noSelection}>
-          <FigureMotionContext.Provider value={stillMotion}>
-            <FigureScaleContext.Provider value={{ floor: 0 }}>
-              <DrillContext.Provider value={inner}>
-                {render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child })}
-              </DrillContext.Provider>
-            </FigureScaleContext.Provider>
-          </FigureMotionContext.Provider>
-        </SelectionContext.Provider>
+    <g mask={fade ? `url(#${uid}-fade)` : undefined}>
+      {fade ? (
+        <mask id={`${uid}-fade`} maskUnits="userSpaceOnUse" x={port.x} y={port.y} width={port.width} height={port.height}>
+          <linearGradient id={`${uid}-fade-g`} gradientUnits="userSpaceOnUse" x1={fade.from} x2={fade.to} y1={0} y2={0}>
+            <stop offset="0" stopColor="#fff" stopOpacity="0" />
+            <stop offset="1" stopColor="#fff" />
+          </linearGradient>
+          <rect x={port.x} y={port.y} width={port.width} height={port.height} fill={`url(#${uid}-fade-g)`} />
+        </mask>
+      ) : null}
+      <svg {...port} preserveAspectRatio="xMaxYMid meet" overflow="hidden">
+        <svg width={f.w} height={f.h} viewBox={levelVb} preserveAspectRatio="xMidYMid meet">
+          <SelectionContext.Provider value={noSelection}>
+            <FigureMotionContext.Provider value={stillMotion}>
+              <FigureScaleContext.Provider value={{ floor: 0 }}>
+                <DrillContext.Provider value={inner}>
+                  {render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child })}
+                </DrillContext.Provider>
+              </FigureScaleContext.Provider>
+            </FigureMotionContext.Provider>
+          </SelectionContext.Provider>
+        </svg>
       </svg>
-    </svg>
+    </g>
   );
 }
 
@@ -183,13 +207,14 @@ export function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...
               />
               {preview ? (
                 <g ref={ghostRef} className="uipack-drill-node__ghost" opacity={0.16}>
-                  <Ghost child={child} ctx={ctx} box={box} uid={uid} />
+                  <Ghost child={child} ctx={ctx} box={box} uid={uid} clearOf={labelRight(box, text, node)} />
                 </g>
               ) : null}
             </g>
           }
         />
       </SelectionContext.Provider>
+      {interactive ? <FocusRing x={box.x} y={box.y} w={box.w} h={box.h} rx={RADIUS} /> : null}
       <g
         className="uipack-drill-node__mark"
         transform={`translate(${mx}, ${my})`}

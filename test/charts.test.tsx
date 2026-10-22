@@ -832,7 +832,8 @@ describe("charts.css", () => {
     expect(css).toContain("--sp-accent: var(--uipack-accent, #205f49)");
     expect(css).toContain("--sp-accent: var(--uipack-accent, #71dcb2)");
     expect(css).toContain("var(--uipack-span-column-highlight,");
-    expect(css).toContain("--sp-logo-bg: var(--uipack-span-logo-bg, color-mix(in srgb, var(--sp-fg) 82%, var(--sp-bg)))");
+    // Dark logo tiles are the ink itself: near-white, like app icons, never a mid-grey.
+    expect(css).toContain("--sp-logo-bg: var(--uipack-span-logo-bg, var(--sp-fg))");
     expect(css).toMatch(/prefers-reduced-motion: reduce/);
   });
 

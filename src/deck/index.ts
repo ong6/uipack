@@ -108,4 +108,4 @@ export {
   type WaterfallBar,
   type WaterfallInput,
 } from "./consulting";
-export type { DeckPosition, DeckRenderContext, DeckSlide, DeckTheme, DeckTransition } from "./types";
+export type { DeckNotes, DeckPosition, DeckRenderContext, DeckSlide, DeckTheme, DeckTransition } from "./types";

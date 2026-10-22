@@ -383,10 +383,33 @@
   margin-left: auto;
 }
 /* Under a narrow slide the tools tighten, so they keep to one row of their own. */
-@container (max-width: 760px) {
+@container (max-width: 860px) {
   .uipack-deck-tools button {
     padding: 0 9px;
     font-size: 12px;
+  }
+}
+/* A tool's short name (PDF, Slides, Speaker) shows only under a laptop-sized slide or narrower,
+   where it keeps the tools on the counter's row; the full name stays the accessible name. */
+.uipack-deck-tool-short {
+  display: none;
+}
+@container (max-width: 790px) {
+  .uipack-deck-rail {
+    flex-basis: 32px;
+    min-width: 32px;
+    margin: 0 4px;
+  }
+  .uipack-deck-tool-short {
+    display: inline;
+  }
+  .uipack-deck-tool-long {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 }
 @media (max-width: 640px) {
@@ -398,6 +421,43 @@
   .uipack-deck-tools button {
     padding: 0 8px;
   }
+}
+/* Present view on a phone: one quiet line over the stage offering the read view. */
+.uipack-deck-phone-hint {
+  display: none;
+}
+@media (max-width: 600px) {
+  .uipack-deck-phone-hint {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 12px;
+    margin: 0 0 12px;
+    padding: 6px 6px 6px 12px;
+    border-left: 3px solid var(--deck-accent);
+    background: color-mix(in srgb, var(--deck-accent) 7%, transparent);
+    color: var(--deck-fg);
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .uipack-deck:fullscreen .uipack-deck-phone-hint {
+    display: none;
+  }
+}
+.uipack-deck-phone-hint button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--deck-rule);
+  border-radius: var(--deck-radius-sm);
+  background: transparent;
+  color: var(--deck-fg);
+  font: 500 13px/1 var(--deck-mono);
+  cursor: pointer;
+}
+.uipack-deck-phone-hint button:focus-visible {
+  outline: 2px solid var(--deck-accent);
+  outline-offset: 2px;
 }
 .uipack-deck-sr {
   position: absolute;
@@ -605,6 +665,48 @@
 .uipack-deck-presenter__end {
   margin: 0;
   color: var(--deck-muted);
+}
+/* A wide screen: the side column fits the screen above the controls, beside the slide, and the talk track scrolls
+   inside it when it is longer; its foot fades and says "More below" while there is more. The next
+   slide's thumbnail is capped, so the track gets the height. */
+@media (min-width: 901px) {
+  .uipack-deck-presenter {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, clamp(380px, 27vw, 520px));
+  }
+  .uipack-deck-presenter__side {
+    position: sticky;
+    top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    /* Room for the page's padding and the controls under it (44px and its margin). */
+    max-height: calc(100svh - 100px);
+  }
+  .uipack-deck-presenter__next .uipack-deck-thumb {
+    max-width: 360px;
+  }
+  .uipack-deck-presenter__notes {
+    flex: 1 1 auto;
+    min-height: 120px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 8px;
+  }
+  .uipack-deck-presenter__notes[data-more] {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
+  }
+}
+.uipack-deck-presenter__notes:focus-visible {
+  outline: 2px solid var(--deck-accent);
+  outline-offset: 4px;
+}
+.uipack-deck-presenter__more {
+  margin: -8px 0 0;
+  color: var(--deck-accent);
+  font: 600 12px/1.4 var(--deck-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 @media (max-width: 900px) {
   .uipack-deck-presenter {
@@ -855,6 +957,10 @@
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
+.uipack-deck-print:focus-visible {
+  outline: 2px solid var(--deck-accent);
+  outline-offset: 4px;
+}
 .uipack-deck-print__page {
   page: uipack-deck;
   position: relative;
@@ -936,7 +1042,7 @@
   padding: 28px 28px 28px 32px;
   font: 400 14px/1.55 var(--deck-sans);
 }
-.uipack-deck-print__notes h3 {
+.uipack-deck-print__notes h2 {
   margin: 0 0 12px;
   font-size: 19px;
   line-height: 1.3;

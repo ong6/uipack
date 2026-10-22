@@ -1,7 +1,7 @@
 'use strict';
 
 var chunkRKJA4DKU_cjs = require('./chunk-RKJA4DKU.cjs');
-var chunk4QGTO7IR_cjs = require('./chunk-4QGTO7IR.cjs');
+var chunkAYW62TOC_cjs = require('./chunk-AYW62TOC.cjs');
 var chunkXEK5V7KF_cjs = require('./chunk-XEK5V7KF.cjs');
 var chunk2JULAQB4_cjs = require('./chunk-2JULAQB4.cjs');
 var chunkGVSVZ2EW_cjs = require('./chunk-GVSVZ2EW.cjs');
@@ -40,8 +40,8 @@ function wallSegments(from, to, holes = [], gap = 9) {
   return segs;
 }
 function Wall({ at, from, to, holes = [], axis = "v", thickness: t = 16, gap = 9, flow }) {
-  const hover = chunk4QGTO7IR_cjs.useFigureHover();
-  return /* @__PURE__ */ jsxRuntime.jsx("g", { "data-uipack": "wall", ...chunk4QGTO7IR_cjs.hoverAttrs(flow, void 0, hover), children: wallSegments(from, to, holes, gap).map(([a, b]) => {
+  const hover = chunkAYW62TOC_cjs.useFigureHover();
+  return /* @__PURE__ */ jsxRuntime.jsx("g", { "data-uipack": "wall", ...chunkAYW62TOC_cjs.hoverAttrs(flow, void 0, hover), children: wallSegments(from, to, holes, gap).map(([a, b]) => {
     const r = axis === "v" ? { x: at - t / 2, y: a, width: t, height: b - a } : { x: a, y: at - t / 2, width: b - a, height: t };
     return /* @__PURE__ */ jsxRuntime.jsx(
       "rect",
@@ -62,7 +62,7 @@ function Cross({ x, y, r = 5, kind }) {
     "g",
     {
       "data-uipack": "cross",
-      stroke: chunk4QGTO7IR_cjs.connectorStroke(kind),
+      stroke: chunkAYW62TOC_cjs.connectorStroke(kind),
       strokeOpacity: kind ? 1 : 0.8,
       strokeWidth: 1.75,
       strokeLinecap: "round",
@@ -160,7 +160,7 @@ function DrillControls({ parentLabel, onBack, onOpen, openerRef, motion }) {
     onOpen ? /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", className: "uipack__ctl", ref: openerRef, onClick: onOpen, children: "Open canvas" }) : null,
     motion ? /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
       /* @__PURE__ */ jsxRuntime.jsxs("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: motion.replay, children: [
-        /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.ReplayGlyph, {}),
+        /* @__PURE__ */ jsxRuntime.jsx(chunkAYW62TOC_cjs.ReplayGlyph, {}),
         " Replay"
       ] }),
       /* @__PURE__ */ jsxRuntime.jsxs(
@@ -171,7 +171,7 @@ function DrillControls({ parentLabel, onBack, onOpen, openerRef, motion }) {
           onClick: motion.toggle,
           "aria-pressed": !motion.playing,
           children: [
-            motion.playing ? /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.PauseGlyph, {}) : /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.PlayGlyph, {}),
+            motion.playing ? /* @__PURE__ */ jsxRuntime.jsx(chunkAYW62TOC_cjs.PauseGlyph, {}) : /* @__PURE__ */ jsxRuntime.jsx(chunkAYW62TOC_cjs.PlayGlyph, {}),
             " ",
             motion.playing ? "Pause" : "Play"
           ]
@@ -370,7 +370,7 @@ function useNotePlacement(canvasRef, noteRef, note, zoom, expanded) {
     const anchor2 = note?.anchor;
     if (!canvas || !el || !anchor2) return;
     const place = () => {
-      if (anchor2.isConnected) setNotePos(chunk4QGTO7IR_cjs.placeNote(canvas, el, anchor2));
+      if (anchor2.isConnected) setNotePos(chunkAYW62TOC_cjs.placeNote(canvas, el, anchor2));
     };
     place();
     if (typeof ResizeObserver === "undefined") return;
@@ -695,7 +695,7 @@ function DrillFigureRoot({
   const note = selected?.detail ? selected : null;
   const notePos = useNotePlacement(canvasRef, noteRef, note, zoom, expanded);
   const frame = react.useMemo(() => ({ wide: viewBox, narrow: narrowViewBox }), [viewBox, narrowViewBox]);
-  chunk4QGTO7IR_cjs.useRovingFocus(canvasRef, expanded);
+  chunkAYW62TOC_cjs.useRovingFocus(canvasRef, expanded);
   const openCanvas = react.useCallback(() => {
     select(null);
     setExpanded(true);
@@ -726,7 +726,7 @@ function DrillFigureRoot({
       theme,
       layout: "figure",
       zoom: { value: zoom, min: 1, max: 3, onChange: setZoom },
-      children: /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxRuntime.jsxs(
+      children: /* @__PURE__ */ jsxRuntime.jsx(chunkAYW62TOC_cjs.SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsxRuntime.jsx(chunkAYW62TOC_cjs.FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxRuntime.jsxs(
         "figure",
         {
           id: figId,
@@ -789,7 +789,7 @@ function DrillFigureRoot({
                   motion: controls && !reduced ? motion : null
                 }
               ),
-              /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.Legend, { items: current.legend ?? [] })
+              /* @__PURE__ */ jsxRuntime.jsx(chunkAYW62TOC_cjs.Legend, { items: current.legend ?? [] })
             ] }),
             /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack__sr", role: "status", children: note ? `${note.label}: ${note.detail}` : "" }),
             /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack__sr", "aria-live": "polite", "data-drill-announce": "", children: announcement }),
@@ -852,13 +852,19 @@ var stillMotion = { playing: false, reduced: true, cycle: 0, toggle: () => {
 }, replay: () => {
 } };
 var RADIUS = 6;
-var MINI_ABOVE = 0.4;
-var MINI_SCALE = 0.3;
+var PREVIEW_SHARE = 1 / 3;
+var SANS_ADVANCE = 0.6;
+var MONO_ADVANCE = 0.6;
+function labelRight(box, label, { sub, icon, align, size = 14, subSize = 11 }) {
+  const width = Math.max(label.length * size * SANS_ADVANCE, (sub?.length ?? 0) * subSize * MONO_ADVANCE);
+  return (align ?? (icon ? "left" : "center")) === "center" ? box.x + box.w / 2 + width / 2 : box.x + 14 + (icon ? 26 : 0) + width;
+}
 function Ghost({
   child,
   ctx,
   box,
-  uid
+  uid,
+  clearOf
 }) {
   const narrow = ctx.variant === "narrow" && !!ctx.frame.narrow;
   const frame = narrow ? ctx.frame.narrow : ctx.frame.wide;
@@ -866,17 +872,19 @@ function Ghost({
   const levelVb = (narrow ? child.narrowViewBox : child.viewBox) ?? frame;
   const f = vbSize(frame);
   const inner = { ...ctx, ghost: true, interactive: false, open: void 0 };
-  const slice = Math.max(box.w / f.w, box.h / f.h);
-  const mini = slice > MINI_ABOVE;
-  const k = MINI_SCALE;
-  const port = mini ? {
-    x: box.x + box.w - f.w * k - 30,
-    y: box.y,
-    width: f.w * k,
-    height: box.h,
-    viewBox: `0 ${(f.h - box.h / k) / 2} ${f.w} ${box.h / k}`
-  } : { x: box.x, y: box.y, width: box.w, height: box.h, viewBox: `0 0 ${f.w} ${f.h}` };
-  return /* @__PURE__ */ jsxRuntime.jsx("svg", { ...port, preserveAspectRatio: "xMidYMid slice", overflow: "hidden", children: /* @__PURE__ */ jsxRuntime.jsx("svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ jsxRuntime.jsx(DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) });
+  const left = box.x + box.w * (1 - PREVIEW_SHARE);
+  const port = { x: left, y: box.y + 26, width: box.x + box.w - 8 - left, height: box.h - 32, viewBox: `0 0 ${f.w} ${f.h}` };
+  const fade = clearOf + 4 > left ? { from: clearOf + 2, to: Math.min(clearOf + 22, port.x + port.width) } : null;
+  return /* @__PURE__ */ jsxRuntime.jsxs("g", { mask: fade ? `url(#${uid}-fade)` : void 0, children: [
+    fade ? /* @__PURE__ */ jsxRuntime.jsxs("mask", { id: `${uid}-fade`, maskUnits: "userSpaceOnUse", x: port.x, y: port.y, width: port.width, height: port.height, children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("linearGradient", { id: `${uid}-fade-g`, gradientUnits: "userSpaceOnUse", x1: fade.from, x2: fade.to, y1: 0, y2: 0, children: [
+        /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "0", stopColor: "#fff", stopOpacity: "0" }),
+        /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "1", stopColor: "#fff" })
+      ] }),
+      /* @__PURE__ */ jsxRuntime.jsx("rect", { x: port.x, y: port.y, width: port.width, height: port.height, fill: `url(#${uid}-fade-g)` })
+    ] }) : null,
+    /* @__PURE__ */ jsxRuntime.jsx("svg", { ...port, preserveAspectRatio: "xMaxYMid meet", overflow: "hidden", children: /* @__PURE__ */ jsxRuntime.jsx("svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ jsxRuntime.jsx(chunkAYW62TOC_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ jsxRuntime.jsx(DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) })
+  ] });
 }
 function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node }) {
   const ctx = useDrill();
@@ -889,11 +897,11 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
     const g = ghostRef.current;
     if (g) setCount(g.querySelectorAll('[data-uipack="node"]').length);
   }, [drill, ctx?.variant]);
-  if (!ctx || !child) return /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.Node, { ...node, label: text });
+  if (!ctx || !child) return /* @__PURE__ */ jsxRuntime.jsx(chunkAYW62TOC_cjs.Node, { ...node, label: text });
   const box = drillBox({ x: node.x, y: node.y, w: node.w, h: node.h }, grow);
-  if (ctx.ghost) return /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.Node, { ...node, ...box, label: text });
+  if (ctx.ghost) return /* @__PURE__ */ jsxRuntime.jsx(chunkAYW62TOC_cjs.Node, { ...node, ...box, label: text });
   const summary = child.summary ?? (count ? `${count} part${count === 1 ? "" : "s"} inside` : "");
-  const name = `${chunk4QGTO7IR_cjs.nodeName(text, node.sub)}, open${summary ? `: ${summary}` : ""}`;
+  const name = `${chunkAYW62TOC_cjs.nodeName(text, node.sub)}, open${summary ? `: ${summary}` : ""}`;
   const interactive = ctx.interactive && !!ctx.open;
   const activate = (e) => {
     e.preventDefault();
@@ -942,8 +950,8 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
             "aria-hidden": "true"
           }
         ),
-        /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(
-          chunk4QGTO7IR_cjs.Node,
+        /* @__PURE__ */ jsxRuntime.jsx(chunkAYW62TOC_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(
+          chunkAYW62TOC_cjs.Node,
           {
             ...node,
             ...box,
@@ -977,10 +985,11 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
                   filter: `url(#${uid}-soft)`
                 }
               ),
-              preview ? /* @__PURE__ */ jsxRuntime.jsx("g", { ref: ghostRef, className: "uipack-drill-node__ghost", opacity: 0.16, children: /* @__PURE__ */ jsxRuntime.jsx(Ghost, { child, ctx, box, uid }) }) : null
+              preview ? /* @__PURE__ */ jsxRuntime.jsx("g", { ref: ghostRef, className: "uipack-drill-node__ghost", opacity: 0.16, children: /* @__PURE__ */ jsxRuntime.jsx(Ghost, { child, ctx, box, uid, clearOf: labelRight(box, text, node) }) }) : null
             ] })
           }
         ) }),
+        interactive ? /* @__PURE__ */ jsxRuntime.jsx(chunkAYW62TOC_cjs.FocusRing, { x: box.x, y: box.y, w: box.w, h: box.h, rx: RADIUS }) : null,
         /* @__PURE__ */ jsxRuntime.jsx(
           "g",
           {
@@ -1015,107 +1024,107 @@ Object.defineProperty(exports, "zoomSamples", {
 });
 Object.defineProperty(exports, "Bus", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.Bus; }
+  get: function () { return chunkAYW62TOC_cjs.Bus; }
 });
 Object.defineProperty(exports, "Chip", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.Chip; }
+  get: function () { return chunkAYW62TOC_cjs.Chip; }
 });
 Object.defineProperty(exports, "Connector", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.Connector; }
+  get: function () { return chunkAYW62TOC_cjs.Connector; }
 });
 Object.defineProperty(exports, "Defs", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.Defs; }
+  get: function () { return chunkAYW62TOC_cjs.Defs; }
 });
 Object.defineProperty(exports, "Figure", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.Figure; }
+  get: function () { return chunkAYW62TOC_cjs.Figure; }
 });
 Object.defineProperty(exports, "FigureHoverContext", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.FigureHoverContext; }
+  get: function () { return chunkAYW62TOC_cjs.FigureHoverContext; }
 });
 Object.defineProperty(exports, "Group", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.Group; }
+  get: function () { return chunkAYW62TOC_cjs.Group; }
 });
 Object.defineProperty(exports, "Label", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.Label; }
+  get: function () { return chunkAYW62TOC_cjs.Label; }
 });
 Object.defineProperty(exports, "Lane", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.Lane; }
+  get: function () { return chunkAYW62TOC_cjs.Lane; }
 });
 Object.defineProperty(exports, "Legend", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.Legend; }
+  get: function () { return chunkAYW62TOC_cjs.Legend; }
 });
 Object.defineProperty(exports, "Node", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.Node; }
+  get: function () { return chunkAYW62TOC_cjs.Node; }
 });
 Object.defineProperty(exports, "Packet", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.Packet; }
+  get: function () { return chunkAYW62TOC_cjs.Packet; }
 });
 Object.defineProperty(exports, "anchor", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.anchor; }
+  get: function () { return chunkAYW62TOC_cjs.anchor; }
 });
 Object.defineProperty(exports, "busStub", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.busStub; }
+  get: function () { return chunkAYW62TOC_cjs.busStub; }
 });
 Object.defineProperty(exports, "busStubs", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.busStubs; }
+  get: function () { return chunkAYW62TOC_cjs.busStubs; }
 });
 Object.defineProperty(exports, "connectorStroke", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.connectorStroke; }
+  get: function () { return chunkAYW62TOC_cjs.connectorStroke; }
 });
 Object.defineProperty(exports, "flowList", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.flowList; }
+  get: function () { return chunkAYW62TOC_cjs.flowList; }
 });
 Object.defineProperty(exports, "grid", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.grid; }
+  get: function () { return chunkAYW62TOC_cjs.grid; }
 });
 Object.defineProperty(exports, "hoverAttrs", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.hoverAttrs; }
+  get: function () { return chunkAYW62TOC_cjs.hoverAttrs; }
 });
 Object.defineProperty(exports, "icons", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.icons; }
+  get: function () { return chunkAYW62TOC_cjs.icons; }
 });
 Object.defineProperty(exports, "pathFromPoints", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.pathFromPoints; }
+  get: function () { return chunkAYW62TOC_cjs.pathFromPoints; }
 });
 Object.defineProperty(exports, "pointAlong", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.pointAlong; }
+  get: function () { return chunkAYW62TOC_cjs.pointAlong; }
 });
 Object.defineProperty(exports, "polylineLength", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.polylineLength; }
+  get: function () { return chunkAYW62TOC_cjs.polylineLength; }
 });
 Object.defineProperty(exports, "route", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.route; }
+  get: function () { return chunkAYW62TOC_cjs.route; }
 });
 Object.defineProperty(exports, "trim", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.trim; }
+  get: function () { return chunkAYW62TOC_cjs.trim; }
 });
 Object.defineProperty(exports, "useFigureHover", {
   enumerable: true,
-  get: function () { return chunk4QGTO7IR_cjs.useFigureHover; }
+  get: function () { return chunkAYW62TOC_cjs.useFigureHover; }
 });
 Object.defineProperty(exports, "DEFAULT_RENDER_WIDTH", {
   enumerable: true,

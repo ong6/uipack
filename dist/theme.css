@@ -322,9 +322,20 @@
   cursor: pointer;
   outline: none;
 }
-.uipack__canvas [role="button"]:focus-visible > rect {
+/* Focus is a ring drawn 4px off the part (FocusRing), not a heavier border: emphasis (an accent
+   node) and selection (accent border and glow) already use the border, so focus reads differently.
+   It is SVG, not an outline, because WebKit draws no outline on SVG elements. */
+.uipack__focus-ring {
+  display: none;
+}
+.uipack__focus-ring > rect {
+  fill: none;
   stroke: var(--uipack-accent);
-  stroke-width: 3;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.uipack__canvas [role="button"]:focus-visible > .uipack__focus-ring {
+  display: inline;
 }
 .uipack__canvas [data-selected="true"] {
   opacity: 1 !important;
@@ -615,7 +626,6 @@
 }
 .uipack__canvas .uipack-drill-node:focus-visible [data-uipack="node"] > rect {
   stroke-opacity: 1;
-  stroke-width: 3;
 }
 @media (prefers-reduced-motion: reduce) {
   .uipack-drill-node__halo,

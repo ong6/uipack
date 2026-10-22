@@ -126,7 +126,12 @@ export function createSlideScene(
     camera.lookAt(target);
     camera.updateMatrixWorld();
     const shownLabels = stop.labels ? new Set(stop.labels) : undefined;
+    // Each visible node's core counts as taken, so no label is set over another node.
     const placed: Box[] = [];
+    for (const n of nodes.values()) {
+      const mark = nodeMark(n, camera, width, height);
+      if (mark) placed.push(mark);
+    }
     for (const n of nodes.values()) {
       applyNodePose(n, selected === n.spec.id, colors);
       if (n.label) drawLabel(n, n.label, camera, width, height, shownLabels, presentation.labels, placed);
@@ -502,15 +507,21 @@ function drawLabel(
   placed: Box[],
 ) {
   const eligible = (shown ? shown.has(n.spec.id) : n.spec.kind !== "boundary") && n.pose.opacity >= 0.3 && labelOpacity > 0.01;
+  const half = ((n.spec.size?.[1] ?? DEFAULT_NODE_SIZE[1]) / 2) * n.pose.scale;
+  // The node's bottom on screen, so a label set below it clears the node instead of covering it.
   projected.copy(n.group.position);
-  projected.y += ((n.spec.size?.[1] ?? DEFAULT_NODE_SIZE[1]) / 2) * n.pose.scale;
+  projected.y -= half;
+  projected.project(camera);
+  const bottom = (-projected.y * 0.5 + 0.5) * height;
+  projected.copy(n.group.position);
+  projected.y += half;
   projected.project(camera);
   const x = (projected.x * 0.5 + 0.5) * width,
     y = (-projected.y * 0.5 + 0.5) * height;
   const w = label.offsetWidth || 130,
     h = label.offsetHeight || 44;
   const onScreen = projected.z > -1 && projected.z < 1 && x >= 0 && x <= width && y >= 0 && y <= height;
-  const placement = eligible && onScreen ? placeLabel(x, y, w, h, width, height, placed) : undefined;
+  const placement = eligible && onScreen ? placeLabel(x, y, Math.max(bottom, y + 24), w, h, width, height, placed) : undefined;
   label.style.visibility = placement ? "visible" : "hidden";
   label.style.opacity = placement ? String(labelOpacity) : "0";
   if (placement) {
@@ -519,14 +530,50 @@ function drawLabel(
   }
 }
 
-/** The first free spot for a w × h label anchored at (x, y), kept inside the scene, or undefined. */
-function placeLabel(x: number, y: number, w: number, h: number, width: number, height: number, placed: Box[]): Box | undefined {
+/** A visible node's core on screen (its centre column, top to bottom), or undefined. */
+function nodeMark(n: NodeView, camera: THREE.Camera, width: number, height: number): Box | undefined {
+  if (n.spec.kind === "boundary" || n.pose.opacity < 0.3) return undefined;
+  const half = ((n.spec.size?.[1] ?? DEFAULT_NODE_SIZE[1]) / 2) * n.pose.scale;
+  projected.copy(n.group.position);
+  projected.y += half;
+  projected.project(camera);
+  if (projected.z <= -1 || projected.z >= 1) return undefined;
+  const x = (projected.x * 0.5 + 0.5) * width,
+    top = (-projected.y * 0.5 + 0.5) * height;
+  projected.copy(n.group.position);
+  projected.y -= half;
+  projected.project(camera);
+  const bottom = Math.max(top + 24, (-projected.y * 0.5 + 0.5) * height);
+  return { x: x - 16, y: top, w: 32, h: bottom - top };
+}
+
+/**
+ * The first free spot for a w × h label over a node whose top centre is (x, y) and whose bottom is
+ * at `bottom`, kept inside the scene, or undefined. Above, below the node, beside it, then diagonally off it: never on it.
+ */
+function placeLabel(
+  x: number,
+  y: number,
+  bottom: number,
+  w: number,
+  h: number,
+  width: number,
+  height: number,
+  placed: Box[],
+): Box | undefined {
+  const mid = (y + bottom) / 2 - y;
   const offsets = [
     [0, -h - 10],
-    [0, 20],
-    [-w * 0.55, -h / 2],
-    [w * 0.55, -h / 2],
+    [0, bottom - y + 12],
+    [-w / 2 - 28, mid - h / 2],
+    [w / 2 + 28, mid - h / 2],
     [0, -h * 2 - 16],
+    // A crowded (narrow) scene: the diagonals, then a second row below.
+    [-w * 0.6, -h - 10],
+    [w * 0.6, -h - 10],
+    [-w * 0.6, bottom - y + 12],
+    [w * 0.6, bottom - y + 12],
+    [0, bottom - y + h + 20],
   ];
   for (const [dx, dy] of offsets) {
     const candidate = {

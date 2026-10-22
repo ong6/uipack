@@ -1,4 +1,4 @@
-import { useItemSelection } from "./selection";
+import { FocusRing, useItemSelection } from "./selection";
 import { useFigureHover, hoverAttrs, type Flow } from "./hover";
 import { useFontFloor } from "./scale";
 
@@ -42,6 +42,7 @@ export function Chip({ x, y, w, h = 24, label, dashed, kind, flow, size: size0 =
         strokeWidth={1.25}
         strokeDasharray={dashed ? "3 3" : undefined}
       />
+      {selection.role ? <FocusRing x={x} y={y} w={w} h={h} rx={h / 2} /> : null}
       {label ? (
         <text
           x={x + w / 2}

@@ -28,6 +28,15 @@ export interface DeckRenderContext {
   reducedMotion: boolean;
 }
 
+/** A slide's talk track: the shared speech guide, plus what to say at each camera stop. */
+export interface DeckNotes extends SpeechGuide {
+  /**
+   * What to say at a camera stop, by the stop's cell ID (a bento `tour` entry): the relevant part
+   * of `say`. The notes PDF prints it under that stop's detail page; without it the page repeats `say`.
+   */
+  stops?: Record<string, string>;
+}
+
 export interface DeckSlide {
   /** Stable ID, used in URLs and by the presenter sync. */
   id: string;
@@ -43,7 +52,7 @@ export interface DeckSlide {
   /** Background tone. The stage cross-fades between tones. */
   tone?: "paper" | "ink" | "accent";
   /** Talk track for the presenter view. A string is treated as `say`. */
-  notes?: SpeechGuide | string;
+  notes?: DeckNotes | string;
   render: (context: DeckRenderContext) => ReactNode;
 }
 

@@ -1,4 +1,4 @@
-import { useItemSelection } from "./selection";
+import { FocusRing, useItemSelection } from "./selection";
 import type { ReactNode } from "react";
 import { useFigureHover, hoverAttrs, type Flow } from "./hover";
 import { useFontFloor } from "./scale";
@@ -48,6 +48,7 @@ export function Group({ x, y, w, h, title, variant = "solid", accent, flow, titl
           strokeWidth={1.25}
           strokeDasharray={dashed ? "4 4" : undefined}
         />
+        {selection.role ? <FocusRing x={x} y={y} w={w} h={h} rx={dashed ? 10 : 6} /> : null}
         {title ? (
           dashed ? (
             <text

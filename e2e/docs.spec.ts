@@ -43,3 +43,31 @@ test("at 390px Escape closes the navigation disclosure and returns focus to its 
   await expect(disclosure).not.toHaveAttribute("open", "");
   await expect(summary).toBeFocused();
 });
+
+test("the skip link never paints until focused, even inside a transformed ancestor", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/docs");
+  const skip = page.getByRole("link", { name: "Skip to documentation content" });
+  await expect(skip).toHaveCount(1);
+  // A host's tab panel can transform or contain the docs (junxiong.dev/uipack does): a fixed,
+  // translated link would then anchor to it and paint at the top of the page.
+  await page.evaluate(() => {
+    const docs = document.querySelector<HTMLElement>(".uipack-docs")!;
+    docs.style.transform = "translateZ(0)";
+    docs.style.contain = "layout paint";
+  });
+  const hidden = await skip.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    const s = getComputedStyle(el);
+    return { w: r.width, h: r.height, overflow: s.overflow, clipPath: s.clipPath };
+  });
+  expect(hidden.w).toBeLessThanOrEqual(1);
+  expect(hidden.h).toBeLessThanOrEqual(1);
+  expect(hidden.overflow).toBe("hidden");
+  expect(hidden.clipPath).toContain("inset(50%)");
+  await skip.focus();
+  const shown = await skip.boundingBox();
+  expect(shown!.width).toBeGreaterThan(100);
+  expect(shown!.height).toBeGreaterThan(30);
+  await expect(skip).toBeInViewport();
+});

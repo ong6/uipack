@@ -4,23 +4,12 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 12px;
+  gap: 8px;
   margin: 0;
   font:
     12px ui-monospace,
     monospace;
   color: var(--show-muted);
-}
-.article-bar a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0 4px;
-  color: var(--show-muted);
-}
-.article-bar a[aria-current="true"] {
-  color: var(--show-accent);
-  font-weight: 700;
 }
 
 .article-host {

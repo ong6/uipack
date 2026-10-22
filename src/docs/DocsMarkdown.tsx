@@ -144,6 +144,9 @@ export function DocsMarkdown({ source, headingOffset = 0 }: DocsMarkdownProps) {
     h4: heading(4),
     h5: heading(5),
     h6: heading(6),
+    // A code block scrolls sideways when a line is longer than the column: a Tab stop, so a
+    // keyboard can scroll it (WCAG 2.1.1).
+    pre: ({ node: _node, ...props }) => <pre {...props} tabIndex={0} />,
     table: ({ node, ...props }) => (
       <div className="uipack-docs__table" tabIndex={0} style={{ "--docs-table-columns": tableColumns(node) } as CSSProperties}>
         <table {...props} />
