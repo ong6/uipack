@@ -90,6 +90,7 @@
   },
   "files": [
     "dist",
+    "!dist/**/*.map",
     "assets",
     "docs/assets",
     "README.md",
