@@ -339,6 +339,11 @@ paragraph (the LCP element, below). The fix was in the playground shell, not in 
   font requests start after the LCP paint. Without that step mobile LCP was 2.59 s.
 - `/web` no longer loads `presentations.css` (8 KB compressed), which styles only `/styles`.
 
+The specimen's two comparison faces (IBM Plex Serif, Space Grotesk; playground only) now load
+when their toggle nears the viewport, not with the page. Same method, 2026-10-23: `/web` mobile
+fetches 7 font files (143 KB) instead of 9 (176 KB), and 240 KB in total instead of 273 KB.
+Score, FCP and LCP are unchanged (99, 1.43 s, 1.67 s): those files were never on the LCP path.
+
 `/` trades some mobile LCP (1.56 s before, when its sections were in the entry chunk) for an
 entry chunk less than half the size; its score is unchanged.
 

@@ -246,6 +246,18 @@ test.describe("/web Landing collection", () => {
     expect(errors).toEqual([]);
   });
 
+  test("type: the specimen's alternate display faces load only when its toggle nears the viewport", async ({ page }) => {
+    const alternates: string[] = [];
+    page.on("request", (r) => /plex-serif|space-grotesk/.test(r.url()) && alternates.push(r.url()));
+    await page.goto("/web");
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(300);
+    expect(alternates).toEqual([]);
+    await page.locator(".web-face-toggle").scrollIntoViewIfNeeded();
+    await expect.poll(() => alternates.some((u) => /space-grotesk.*\.woff2/.test(u))).toBe(true);
+    await expect.poll(() => alternates.some((u) => /plex-serif.*\.woff2/.test(u))).toBe(true);
+  });
+
   test("SmoothScroll eases a wheel over many frames and lands on its target", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/web");
