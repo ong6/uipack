@@ -63,8 +63,8 @@
     --sp-border: var(--uipack-border, rgba(232, 236, 233, 0.22));
     --sp-accent: var(--uipack-accent, #71dcb2);
     --sp-change: var(--uipack-token-change, #c39aff);
-    --sp-logo-bg: var(--uipack-span-logo-bg, color-mix(in srgb, var(--sp-fg) 82%, var(--sp-bg)));
-    --sp-logo-filter: var(--uipack-span-logo-filter, brightness(0.88));
+    --sp-logo-bg: var(--uipack-span-logo-bg, var(--sp-fg));
+    --sp-logo-filter: var(--uipack-span-logo-filter, none);
     --sp-band-mix: 20%;
   }
 }
@@ -80,8 +80,8 @@
   --sp-border: var(--uipack-border, rgba(232, 236, 233, 0.22));
   --sp-accent: var(--uipack-accent, #71dcb2);
   --sp-change: var(--uipack-token-change, #c39aff);
-  --sp-logo-bg: var(--uipack-span-logo-bg, color-mix(in srgb, var(--sp-fg) 82%, var(--sp-bg)));
-  --sp-logo-filter: var(--uipack-span-logo-filter, brightness(0.88));
+  --sp-logo-bg: var(--uipack-span-logo-bg, var(--sp-fg));
+  --sp-logo-filter: var(--uipack-span-logo-filter, none);
   --sp-band-mix: 20%;
 }
 
