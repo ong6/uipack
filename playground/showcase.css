@@ -640,7 +640,14 @@ body {
 /* One playground control (the header's theme toggle is the model): a mono label, a 6px radius,
    a hairline border on a transparent ground; the selected one takes the accent and a surface.
    Pages add only layout. Selects share the same box with a drawn chevron. */
-:is(.deck-chapters, .deck-navigation, .chart-frame__bar, .slides-showcase__tabs, .mechanism-poses) button {
+.article-bar a {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+/* The article page's host switcher is links (each host is an address), drawn as these controls. */
+:is(.deck-chapters, .deck-navigation, .chart-frame__bar, .slides-showcase__tabs, .mechanism-poses) button,
+.article-bar a {
   min-height: 44px;
   padding: 0 14px;
   border: 1px solid var(--show-rule);
@@ -650,11 +657,13 @@ body {
   font: var(--show-control-font);
   cursor: pointer;
 }
-:is(.deck-chapters, .deck-navigation, .chart-frame__bar, .slides-showcase__tabs, .mechanism-poses) button:hover:not(:disabled) {
+:is(.deck-chapters, .deck-navigation, .chart-frame__bar, .slides-showcase__tabs, .mechanism-poses) button:hover:not(:disabled),
+.article-bar a:hover {
   border-color: var(--show-ink);
 }
 :is(.deck-chapters, .deck-navigation, .chart-frame__bar, .slides-showcase__tabs, .mechanism-poses)
-  button:is([aria-pressed="true"], [aria-current="step"]) {
+  button:is([aria-pressed="true"], [aria-current="step"]),
+.article-bar a[aria-current="true"] {
   border-color: var(--show-accent);
   color: var(--show-accent);
   background: var(--show-surface);
