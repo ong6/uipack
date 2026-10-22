@@ -428,6 +428,10 @@ body {
   color: var(--show-accent);
   background: var(--show-surface);
 }
+:is(.deck-chapters, .deck-navigation, .chart-frame__bar, .slides-showcase__tabs, .mechanism-poses) button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
 .showcase-shell :is(.catalog-filters select, .uipack-edition-select select) {
   appearance: none;
   -webkit-appearance: none;
