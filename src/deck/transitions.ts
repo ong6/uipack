@@ -294,13 +294,14 @@ export function runTransition(opts: RunOptions): Animation[] {
           timing,
         );
       }
-      // Everything around the target clears in the first 30% of a zoom in (and returns in the last
-      // 30% of a zoom out), so two dense slides never overlap: only the target and what opens
-      // inside it are on screen mid-flight.
+      // Everything around the target clears in the first 20% of a zoom in (and returns in the last
+      // 20% of a zoom out), before the camera has scaled it far enough to cut its words off at the
+      // canvas edge, and so two dense slides never overlap: only the target and what opens inside
+      // it are on screen mid-flight.
       const around = partitionForMorph(outer, new Set([opts.transition.zoom!])).rest;
       const fade = zoomInto
-        ? [{ opacity: 1, easing: "ease-out" }, { opacity: 0, offset: 0.3 }, { opacity: 0 }]
-        : [{ opacity: 0 }, { opacity: 0, offset: 0.7, easing: "ease-in" }, { opacity: 1 }];
+        ? [{ opacity: 1, easing: "ease-out" }, { opacity: 0, offset: 0.2 }, { opacity: 0 }]
+        : [{ opacity: 0 }, { opacity: 0, offset: 0.8, easing: "ease-in" }, { opacity: 1 }];
       for (const el of around) play(el, fade, timing);
       return anims;
     }
