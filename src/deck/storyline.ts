@@ -10,6 +10,7 @@
  * numbers that carry a source, and a closing ask with a decision, an owner and a date.
  */
 import type { SpeechGuide } from "../presentations/types";
+import type { TransitionKind } from "./transitions";
 
 // ---------------------------------------------------------------------------------------------
 // Roles
@@ -114,8 +115,8 @@ export const SLIDE_ROLES: Readonly<Record<SlideRole, SlideRoleInfo>> = {
 /** Roles that may sit next to themselves: stacked findings, a zoom through parts, demo steps, backup. */
 export const REPEATABLE_ROLES: readonly SlideRole[] = ["evidence", "mechanism", "demo", "appendix"];
 
-/** How a beat should arrive in the deck player. `advance` unless the story needs the other two. */
-export type StoryMove = "advance" | "morph" | "zoom";
+/** How a beat should arrive in the deck player: one of its authored transitions. `advance` unless the story needs the other two. */
+export type StoryMove = Extract<TransitionKind, "advance" | "morph" | "zoom">;
 
 // ---------------------------------------------------------------------------------------------
 // Templates

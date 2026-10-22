@@ -238,7 +238,7 @@ export function textWidth(text: string, size: number, weight: 400 | 600 = 400): 
 }
 
 /** Greedy word wrap to `maxWidth`, at most `maxLines` lines (the last line keeps the overflow). */
-export function wrapText(text: string, size: number, maxWidth: number, maxLines = 3): string[] {
+export function wrapToWidth(text: string, size: number, maxWidth: number, maxLines = 3): string[] {
   const words = text.split(/\s+/).filter(Boolean);
   const lines: string[] = [];
   let line = "";

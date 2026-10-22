@@ -11,8 +11,8 @@ import {
   Slide,
   flipFrom,
   resolveTransition,
-  zoomFrame,
-  zoomSamples,
+  slideZoomFrame,
+  slideZoomSamples,
   type DeckSlide,
 } from "../src/deck";
 
@@ -70,18 +70,18 @@ describe("deck transitions: pure geometry", () => {
 
   it("zooms about one fixed point that lands the target centred and as large as fits", () => {
     const target = { x: 1400, y: 500, w: 384, h: 216 };
-    const f = zoomFrame(target)!;
+    const f = slideZoomFrame(target)!;
     expect(f.Z).toBeCloseTo(5);
     // Scaling by Z about F sends the target's centre to the canvas centre.
     const map = (v: number, c: number) => (v - c) * f.Z + c;
     expect(map(target.x + target.w / 2, f.fx)).toBeCloseTo(960);
     expect(map(target.y + target.h / 2, f.fy)).toBeCloseTo(540);
     // A target that already fills the canvas has nothing to zoom into.
-    expect(zoomFrame({ x: 0, y: 0, w: 1900, h: 1070 })).toBeNull();
+    expect(slideZoomFrame({ x: 0, y: 0, w: 1900, h: 1070 })).toBeNull();
   });
 
   it("starts the inner slide clipped to the target and ends with both slides at rest", () => {
-    const s = zoomSamples({ x: 1400, y: 500, w: 384, h: 216 }, true)!;
+    const s = slideZoomSamples({ x: 1400, y: 500, w: 384, h: 216 }, true)!;
     const first = s[0];
     const last = s[s.length - 1];
     expect(first.outer).toBe("scale(1.00000)");
@@ -91,7 +91,7 @@ describe("deck transitions: pure geometry", () => {
     expect(last.clip).toMatch(/^inset\(0\.00px 0\.00px 0\.00px 0\.00px round 0\.00px\)$/);
     expect(last.innerOpacity).toBe(1);
     // Scale grows evenly in log space: equal steps multiply by the same factor around the middle.
-    const back = zoomSamples({ x: 1400, y: 500, w: 384, h: 216 }, false)!;
+    const back = slideZoomSamples({ x: 1400, y: 500, w: 384, h: 216 }, false)!;
     expect(back[0].outer).toBe(last.outer);
     expect(back[back.length - 1].inner).toBe(first.inner);
   });

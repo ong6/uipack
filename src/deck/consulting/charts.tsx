@@ -13,7 +13,7 @@ import {
   stackSegments,
   textWidth,
   waterfallBars,
-  wrapText,
+  wrapToWidth,
   zeroBasedDomain,
   type WaterfallInput,
 } from "./scale";
@@ -144,10 +144,10 @@ function Lines({ x, y, lines, size = CX_TYPE.label, anchor = "middle", weight, m
 }
 
 /* ------------------------------------------------------------------------------------------- */
-/* Callout                                                                                      */
+/* Annotation                                                                                      */
 /* ------------------------------------------------------------------------------------------- */
 
-export interface CalloutGeometry {
+export interface AnnotationGeometry {
   lines: string[];
   box: { x: number; y: number; w: number; h: number };
   /** Leader from the box edge (x1, y1) to the data point (x2, y2). */
@@ -159,15 +159,15 @@ export interface CalloutGeometry {
  * `align: "end"`) sits at (tx, ty); the leader leaves the nearest edge of the block and ends on
  * the data point (x, y).
  */
-export function calloutGeometry(
+export function annotationGeometry(
   point: { x: number; y: number },
   at: { x: number; y: number },
   text: string,
   maxWidth = 260,
   align: "start" | "end" = "start",
   size: number = CX_TYPE.callout,
-): CalloutGeometry {
-  const lines = wrapText(text, size, maxWidth, 4);
+): AnnotationGeometry {
+  const lines = wrapToWidth(text, size, maxWidth, 4);
   const w = Math.max(...lines.map((l) => textWidth(l, size)));
   const h = lines.length * size * 1.25;
   const bx = align === "end" ? at.x - w : at.x;
@@ -188,7 +188,7 @@ export function calloutGeometry(
   return { lines, box, leader: { x1, y1, x2: point.x, y2: point.y } };
 }
 
-export interface CalloutProps {
+export interface AnnotationProps {
   /** The data point the leader ends on. */
   x: number;
   y: number;
@@ -202,8 +202,8 @@ export interface CalloutProps {
 }
 
 /** An annotation inside a chart's SVG: wrapped text, and a leader line that ends on the data point it explains. */
-export function Callout({ x, y, tx, ty, text, width = 260, align = "start" }: CalloutProps) {
-  const g = calloutGeometry({ x, y }, { x: tx, y: ty }, text, width, align);
+export function Annotation({ x, y, tx, ty, text, width = 260, align = "start" }: AnnotationProps) {
+  const g = annotationGeometry({ x, y }, { x: tx, y: ty }, text, width, align);
   const size = CX_TYPE.callout;
   const textX = align === "end" ? g.box.x + g.box.w : g.box.x;
   return (
@@ -311,7 +311,7 @@ export function BarChart({
         {rows.map((d, i) => {
           const b = bands[i];
           const end = x(d.value);
-          const lines = wrapText(d.label, CX_TYPE.label, labelW - 20, 2);
+          const lines = wrapToWidth(d.label, CX_TYPE.label, labelW - 20, 2);
           return (
             <g key={d.label}>
               <Lines x={labelW - 16} y={b.centre} lines={lines} anchor="end" weight={d.highlight ? 600 : undefined} />
@@ -336,7 +336,7 @@ export function BarChart({
             if (i < 0) return null;
             const px = x(rows[i].value);
             const py = bands[i].centre;
-            return <Callout x={px} y={py} tx={px + callout.dx} ty={py + callout.dy} text={callout.text} width={callout.width} align={callout.align} />;
+            return <Annotation x={px} y={py} tx={px + callout.dx} ty={py + callout.dy} text={callout.text} width={callout.width} align={callout.align} />;
           })()}
       </Frame>
     );
@@ -344,7 +344,7 @@ export function BarChart({
 
   const labelLines = rows.map((d) => d.label);
   const bandsProbe = bandLayout(rows.length, 0, W, 0.56, 64);
-  const wrapped = labelLines.map((l) => wrapText(l, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 8, 2));
+  const wrapped = labelLines.map((l) => wrapToWidth(l, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 8, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = 36;
   const y = linearScale(dom, [H - bottom, top]);
@@ -386,7 +386,7 @@ export function BarChart({
           if (i < 0) return null;
           const px = bandsProbe[i].centre;
           const py = y(rows[i].value);
-          return <Callout x={px} y={py} tx={px + callout.dx} ty={py + callout.dy} text={callout.text} width={callout.width} align={callout.align} />;
+          return <Annotation x={px} y={py} tx={px + callout.dx} ty={py + callout.dy} text={callout.text} width={callout.width} align={callout.align} />;
         })()}
     </Frame>
   );
@@ -418,7 +418,7 @@ export function Waterfall({ steps, format = defaultFormat, goodDirection = "up",
   const dom = domain ?? zeroBasedDomain(levels);
   const broken = dom[0] > 0;
   const bandsProbe = bandLayout(bars.length, 0, W, 0.62, 76);
-  const wrapped = bars.map((b) => wrapText(b.label, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 6, 2));
+  const wrapped = bars.map((b) => wrapToWidth(b.label, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 6, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = 40;
   const y = linearScale(dom, [H - bottom, top]);
@@ -500,7 +500,7 @@ export function Waterfall({ steps, format = defaultFormat, goodDirection = "up",
           const b = bars[i];
           const px = bandsProbe[i].centre;
           const py = (y(b.from) + y(b.to)) / 2;
-          return <Callout x={px} y={py} tx={px + callout.dx} ty={py + callout.dy} text={callout.text} width={callout.width} align={callout.align} />;
+          return <Annotation x={px} y={py} tx={px + callout.dx} ty={py + callout.dy} text={callout.text} width={callout.width} align={callout.align} />;
         })()}
     </Frame>
   );
@@ -603,7 +603,7 @@ export function StackedBar({
           const b = bands[i];
           return (
             <g key={c.label}>
-              <Lines x={labelW - 16} y={b.centre} lines={wrapText(c.label, CX_TYPE.label, labelW - 20, 2)} anchor="end" weight={c.highlight ? 600 : undefined} />
+              <Lines x={labelW - 16} y={b.centre} lines={wrapToWidth(c.label, CX_TYPE.label, labelW - 20, 2)} anchor="end" weight={c.highlight ? 600 : undefined} />
               <g className="uipack-cx-grow" data-axis="x" style={growStyle("0% 50%", i * 40)}>
               {stacks[i].map((s, k) => {
                 const x0 = x(s.from) + (k > 0 ? 1 : 0);
@@ -639,7 +639,7 @@ export function StackedBar({
   }
 
   const bandsProbe = bandLayout(categories.length, 0, W, 0.56, 88);
-  const wrapped = categories.map((c) => wrapText(c.label, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 8, 2));
+  const wrapped = categories.map((c) => wrapToWidth(c.label, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 8, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = legendH + (totals && !percent ? 40 : 12);
   const y = linearScale([0, max], [H - bottom, top]);
@@ -842,7 +842,7 @@ export function LineChart({
           if (v === null || v === undefined) return null;
           const px = xs(annotate.index);
           const py = ys(v);
-          return <Callout x={px} y={py} tx={px + annotate.dx} ty={py + annotate.dy} text={annotate.text} width={annotate.width} align={annotate.align} />;
+          return <Annotation x={px} y={py} tx={px + annotate.dx} ty={py + annotate.dy} text={annotate.text} width={annotate.width} align={annotate.align} />;
         })()}
     </Frame>
   );
@@ -1022,7 +1022,7 @@ export function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 
           const r = quads[q];
           const atRight = q === "tr" || q === "br";
           const atBottom = q === "bl" || q === "br";
-          const lines = wrapText(quadrants[i].toUpperCase(), CX_TYPE.quadrant, r.w * 0.55, 2);
+          const lines = wrapToWidth(quadrants[i].toUpperCase(), CX_TYPE.quadrant, r.w * 0.55, 2);
           const lh = CX_TYPE.quadrant * 1.25;
           return (
             <text
@@ -1095,7 +1095,7 @@ export function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 
           if (!p) return null;
           const px = xs(p.x);
           const py = ys(p.y);
-          return <Callout x={px} y={py} tx={px + callout.dx} ty={py + callout.dy} text={callout.text} width={callout.width} align={callout.align} />;
+          return <Annotation x={px} y={py} tx={px + callout.dx} ty={py + callout.dy} text={callout.text} width={callout.width} align={callout.align} />;
         })()}
     </Frame>
   );

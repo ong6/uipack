@@ -1,5 +1,5 @@
 import type { DeckTransition } from "./types";
-import { zoomFrame as zoomFrameAt, zoomSamples as zoomSamplesAt, type Rect } from "../zoom-math";
+import { zoomFrame, zoomSamples, type Rect } from "../zoom-math";
 
 /** Slides are authored on one fixed canvas and scaled to fit, so sizes in slides are canvas pixels. */
 export const CANVAS_WIDTH = 1920;
@@ -43,12 +43,15 @@ export function resolveTransition(
   return typeof t === "string" ? { kind: t } : { kind: "zoom", zoom: t.zoom };
 }
 
-/** The deck's zoom is the shared fixed-point zoom (`src/zoom-math.ts`) on the 1920×1080 canvas. */
-export const zoomFrame = (target: Rect, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomFrameAt(target, width, height);
+/**
+ * The deck's zoom is the shared fixed-point zoom (`zoomFrame` in the root entry) on the 1920×1080
+ * canvas. Named apart from the root's, whose third argument is a width, not a sample count.
+ */
+export const slideZoomFrame = (target: Rect, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomFrame(target, width, height);
 
 /** Sampled keyframes for a zoom on the slide canvas. `forward` flies in; backwards plays the same path out. */
-export const zoomSamples = (target: Rect, forward: boolean, samples = 24, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) =>
-  zoomSamplesAt(target, forward, width, height, { samples, radius: 6 });
+export const slideZoomSamples = (target: Rect, forward: boolean, samples = 24, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) =>
+  zoomSamples(target, forward, width, height, { samples, radius: 6 });
 
 /**
  * FLIP: the transform that puts an element laid out at `to` where it was at `from`.
@@ -162,10 +165,10 @@ export function runTransition(opts: RunOptions): Animation[] {
       w: box.w / scale,
       h: box.h / scale,
     };
-    const samples = local ? zoomSamples(local, zoomInto) : null;
+    const samples = local ? slideZoomSamples(local, zoomInto) : null;
     if (!samples) kind = "fade";
     else {
-      const frame = zoomFrame(local!)!;
+      const frame = slideZoomFrame(local!)!;
       const origin = `${frame.fx.toFixed(2)}px ${frame.fy.toFixed(2)}px`;
       inner.style.zIndex = "2";
       const timing = { duration: deckMotion.zoom, easing: "linear" };

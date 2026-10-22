@@ -1,6 +1,7 @@
 // Shared zoom maths: one camera move into a box, used by drill-down figures and
-// (later) the deck player. Pure functions, no DOM. Sizes are the pixel size of
-// the surface both layers fill.
+// the deck player's zoom transition (slideZoomFrame/slideZoomSamples in
+// uipack/deck). Pure functions, no DOM. Sizes are the pixel size of the surface
+// both layers fill.
 
 export interface Rect {
   x: number;

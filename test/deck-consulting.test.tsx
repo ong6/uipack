@@ -18,7 +18,7 @@ import {
   bandLayout,
   barPath,
   bubbleRadius,
-  calloutGeometry,
+  annotationGeometry,
   formatValue,
   harveyWedge,
   linearScale,
@@ -29,7 +29,7 @@ import {
   stackSegments,
   storylineOf,
   waterfallBars,
-  wrapText,
+  wrapToWidth,
   textWidth,
 } from "../src/deck";
 import { consultingDeck, consultingDeckLint } from "../playground/consultingDeck";
@@ -148,21 +148,21 @@ describe("consulting chart maths", () => {
   });
 
   test("text wraps to the width and the line budget", () => {
-    const lines = wrapText("Split shipments from five sites", 22, 200, 3);
+    const lines = wrapToWidth("Split shipments from five sites", 22, 200, 3);
     expect(lines.length).toBeGreaterThan(1);
     for (const l of lines.slice(0, -1)) expect(textWidth(l, 22)).toBeLessThanOrEqual(200);
-    expect(wrapText("one two three four five six seven", 22, 40, 2)).toHaveLength(2);
+    expect(wrapToWidth("one two three four five six seven", 22, 40, 2)).toHaveLength(2);
   });
 
   test("a callout's leader leaves the text block's nearest edge and ends on the point", () => {
-    const right = calloutGeometry({ x: 400, y: 100 }, { x: 100, y: 80 }, "Fifth site opens", 200);
+    const right = annotationGeometry({ x: 400, y: 100 }, { x: 100, y: 80 }, "Fifth site opens", 200);
     expect(right.leader.x2).toBe(400);
     expect(right.leader.y2).toBe(100);
     expect(right.leader.x1).toBeCloseTo(right.box.x + right.box.w + 10);
-    const below = calloutGeometry({ x: 150, y: 20 }, { x: 100, y: 80 }, "Split shipments", 200);
+    const below = annotationGeometry({ x: 150, y: 20 }, { x: 100, y: 80 }, "Split shipments", 200);
     expect(below.leader.y1).toBe(below.box.y - 10);
     expect(below.leader).toMatchObject({ x2: 150, y2: 20 });
-    const end = calloutGeometry({ x: 10, y: 100 }, { x: 300, y: 80 }, "Text", 200, "end");
+    const end = annotationGeometry({ x: 10, y: 100 }, { x: 300, y: 80 }, "Text", 200, "end");
     expect(end.box.x + end.box.w).toBeCloseTo(300);
   });
 });

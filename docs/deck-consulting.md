@@ -68,9 +68,9 @@ Every chart takes plain data and draws static SVG sized to its panel; pass `widt
 | `KpiTiles` | Headline numbers | `items` (`label`, `value`, `unit`, `delta` with direction and sentiment, `note`, `trend` sparkline, `morphId`, `highlight`), `columns` |
 | `HarveyTable` | Options against criteria, or any short text table | `columns` (`harvey` 0–4 or `text`), `rows` (`highlight` with a `tag`, `detail`), `showKey`, `keyNote` |
 | `Matrix2x2` | Items placed on two axes, sized by a third | `x`/`y` (`label`, `domain`, `split`, `format`), `points` (`size`, `highlight`, `labelAt`), `quadrants`, `focus`, `callout` |
-| `Callout` | A note with a leader line that ends on a data point | Usually through a chart's `callout`/`annotate` prop: text offset `dx`/`dy` from the point, `width`, `align` |
+| `Annotation` | A note with a leader line that ends on a data point | Usually through a chart's `callout`/`annotate` prop: text offset `dx`/`dy` from the point, `width`, `align` |
 
-The maths is exported and unit-tested: `linearScale`, `niceTicks`, `bandLayout`, `waterfallBars`, `stackSegments`, `harveyWedge`, `bubbleRadius`, `barPath`, `spreadLabels`, `wrapText`, `calloutGeometry` and `formatValue`, which uses a true minus sign.
+The maths is exported and unit-tested: `linearScale`, `niceTicks`, `bandLayout`, `waterfallBars`, `stackSegments`, `harveyWedge`, `bubbleRadius`, `barPath`, `spreadLabels`, `wrapToWidth`, `annotationGeometry` and `formatValue`, which uses a true minus sign.
 
 ## Colour
 
@@ -87,6 +87,6 @@ The tokens are `--uipack-cx-*` on `.uipack-cx-slide`. The dark set applies to th
 ## Limits
 
 - Text widths for chart layout are estimated rather than measured. Very long category labels wrap to two lines and then overflow. Keep labels short or widen the panel.
-- Callout placement is manual (`dx`/`dy`). Check each one in both themes.
+- Annotation placement is manual (`dx`/`dy`). Check each one in both themes.
 - `Matrix2x2` doesn't move labels apart; set `labelAt` per point.
 - There's no hover crosshair or table view. Each SVG's accessible name lists its values, and the native tooltips show each mark's value.
