@@ -11,6 +11,7 @@ import { Reader } from "./player/Reader";
 import { useDeckKeys, useSwipe } from "./player/useDeckKeys";
 import { useDeckSync } from "./player/useDeckSync";
 import { useFullscreen } from "./player/useFullscreen";
+import { useHeadlineCheck } from "./player/headline";
 import { startIndexOf, useDeckPosition } from "./player/usePosition";
 import { useDeckTransition } from "./player/useTransition";
 import { lintDeck, type LintOptions } from "./storyline";
@@ -178,6 +179,7 @@ function Player({
   const swipe = useSwipe(next, prev);
 
   const current = slides[view.index];
+  useHeadlineCheck(toRef, current);
   const from = view.from ? slides[view.from.index] : null;
   const stepNow = Math.min(view.step, maxStep);
   const atStart = view.index === 0 && stepNow === 0;
