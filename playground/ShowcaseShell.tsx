@@ -74,6 +74,7 @@ export function ShowcaseShell({
   flip,
   children,
   styleName = "Technical",
+  note,
 }: {
   active: LibraryPage | "not-found";
   /** The visual style the page's content uses; the shell itself stays Technical. */
@@ -81,6 +82,8 @@ export function ShowcaseShell({
   theme: "light" | "dark";
   flip: () => void;
   children: ReactNode;
+  /** A page's own "not found, showing X" line for a bad query (a story, a variant), under the intro. */
+  note?: ReactNode;
 }) {
   // A page with sub-views (a deck, say) resolves to the entry its query names.
   const notFound = active === "not-found";
@@ -211,28 +214,31 @@ export function ShowcaseShell({
             Close
           </button>
         </div>
-        {libraryGroups.map((g) => (
-          <div key={g.id} role="group" aria-labelledby={`menu-${g.id}`} className="showcase-menu__group">
-            <p id={`menu-${g.id}`}>{g.label}</p>
-            {pageDefs
-              .filter((p) => p.group === g.id)
-              .map((p, i, all) => (
-                <Fragment key={p.id}>
-                  {/* Sub-views of one page sit indented under a label naming it. */}
-                  {p.query && all[i - 1]?.path !== p.path && (
-                    <span className="showcase-menu__sub">{p.title ?? p.label}</span>
-                  )}
-                  <a
-                    href={pageHref(p, theme)}
-                    className={p.query ? "is-sub" : undefined}
-                    aria-current={page.id === p.id ? "page" : undefined}
-                  >
-                    {p.label}
-                  </a>
-                </Fragment>
-              ))}
-          </div>
-        ))}
+        {/* A navigation landmark on phones too, where the header's two navs are hidden. */}
+        <nav aria-label="All library pages">
+          {libraryGroups.map((g) => (
+            <div key={g.id} role="group" aria-labelledby={`menu-${g.id}`} className="showcase-menu__group">
+              <p id={`menu-${g.id}`}>{g.label}</p>
+              {pageDefs
+                .filter((p) => p.group === g.id)
+                .map((p, i, all) => (
+                  <Fragment key={p.id}>
+                    {/* Sub-views of one page sit indented under a label naming it. */}
+                    {p.query && all[i - 1]?.path !== p.path && (
+                      <span className="showcase-menu__sub">{p.title ?? p.label}</span>
+                    )}
+                    <a
+                      href={pageHref(p, theme)}
+                      className={p.query ? "is-sub" : undefined}
+                      aria-current={page.id === p.id ? "page" : undefined}
+                    >
+                      {p.label}
+                    </a>
+                  </Fragment>
+                ))}
+            </div>
+          ))}
+        </nav>
       </dialog>
       <main className="showcase-shell" id="showcase-main" tabIndex={-1} ref={mainRef}>
         {group && (
@@ -265,6 +271,11 @@ export function ShowcaseShell({
           {missing && (
             <p className="showcase-title__note" role="status">
               {missing.key[0].toUpperCase() + missing.key.slice(1)} “{missing.value}” not found, showing {missing.shown.label}.
+            </p>
+          )}
+          {note && (
+            <p className="showcase-title__note" role="status">
+              {note}
             </p>
           )}
         </div>

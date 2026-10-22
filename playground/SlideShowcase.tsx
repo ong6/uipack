@@ -11,9 +11,9 @@ import { keepFocusedInView } from "../src/env";
 export default function Slides() {
   const params = new URLSearchParams(location.search);
   const surface = params.get("surface") === "page" ? "page" : "styled";
-  const [storyId, setStoryId] = useState(
-    params.get("story") ?? (location.pathname === "/slides" ? slideStories[0].id : objectScenes[0].id),
-  );
+  const defaultStory = location.pathname === "/slides" ? slideStories[0].id : objectScenes[0].id;
+  const knownStory = (id: string | null) => !!id && [...objectScenes, ...slideStories].some((s) => s.id === id);
+  const [storyId, setStoryId] = useState(() => (knownStory(params.get("story")) ? params.get("story")! : defaultStory));
   const { theme, flip } = useShowcaseTheme();
   const [variant, setVariant] = useState<ObjectVariant>(
     parseObjectVariant(params.get("variant")));
@@ -37,6 +37,19 @@ export default function Slides() {
   );
   const object = objectScenes.find((s) => s.id === storyId);
   const story = slideStories.find((s) => s.id === storyId) ?? slideStories[0];
+  // A bad ?story= or ?variant= says what it fell back to, like the deck's "not found" line. It reads
+  // the address each render, so it goes once a choice rewrites the address.
+  const current = new URLSearchParams(location.search);
+  const badStory = current.get("story");
+  const badVariant = current.get("variant");
+  const notFound: string[] = [];
+  if (badStory !== null && !knownStory(badStory)) notFound.push(`Story “${badStory}” not found, showing ${object?.title ?? story.title}.`);
+  if (object && badVariant !== null && String(parseObjectVariant(badVariant)) !== badVariant)
+    notFound.push(`Variant “${badVariant}” not found, showing ${objectDirections[objectDirectionIndex(object.id, variant)].name}.`);
+  const clearFilters = () => {
+    setQuery("");
+    setCategory("All");
+  };
   const choose = (id: string) => {
     const nextObject = objectScenes.find(item => item.id === id);
     const nextVariant = object && nextObject ? transferObjectVariant(object.id, nextObject.id, variant) : variant;
@@ -54,7 +67,7 @@ export default function Slides() {
     history.replaceState(null, "", url);
   };
   return (
-    <ShowcaseShell active="animations" theme={theme} flip={flip}>
+    <ShowcaseShell active="animations" theme={theme} flip={flip} note={notFound.length ? notFound.join(" ") : undefined}>
       <section className="slides-showcase">
         <h2>Scene library and preview</h2>
         <AnimationWorkspace theme={theme} library={<>
@@ -95,7 +108,15 @@ export default function Slides() {
           ))}
         </nav>
         {entries.length === 0 && (
-          <p>No matching examples. Try another search or technique.</p>
+          <div className="slides-showcase__empty">
+            <p>
+              Nothing matches{query ? ` “${query}”` : ""}
+              {category !== "All" ? ` in ${category}` : ""}.
+            </p>
+            <button type="button" onClick={clearFilters}>
+              {category !== "All" && query ? "Clear filters" : category !== "All" ? "Show all techniques" : "Clear search"}
+            </button>
+          </div>
         )}
         </>}>
         <header className="uipack-animation-heading"><h3>{object?.title ?? story.title}</h3><span>{object ? 'Live 3D preview' : 'Guided animation'}</span></header>

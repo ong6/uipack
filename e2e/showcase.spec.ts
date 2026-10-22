@@ -40,3 +40,26 @@ test("library pages share navigation and preserve theme across routes and reload
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(390);
 });
+
+test.describe("3D animations library", () => {
+  test("a search with no match names it and offers Clear search", async ({ page }) => {
+    await page.goto("/animations");
+    const library = page.locator(".uipack-animation-library");
+    await library.getByRole("searchbox", { name: "Search animations" }).fill("zebra");
+    await expect(library.getByRole("status")).toHaveText("0 examples");
+    await expect(library.getByText("Nothing matches “zebra”.")).toBeVisible();
+    await library.getByRole("button", { name: "Clear search" }).click();
+    await expect(library.getByRole("searchbox", { name: "Search animations" })).toHaveValue("");
+    await expect(library.getByRole("navigation", { name: "Example stories" }).getByRole("button")).not.toHaveCount(0);
+  });
+
+  test("an unknown story or variant says what it shows instead", async ({ page }) => {
+    await page.goto("/animations?story=bogus&variant=99");
+    const note = page.locator(".showcase-title__note");
+    await expect(note).toHaveText("Story “bogus” not found, showing Agent session. Variant “99” not found, showing Studio objects.");
+    await expect(page.locator(".uipack-animation-heading h3")).toHaveText("Agent session");
+    // Choosing a story rewrites the address, and the note goes.
+    await page.getByRole("navigation", { name: "Example stories" }).getByRole("button", { name: /Contact inbox/ }).click();
+    await expect(note).toHaveCount(0);
+  });
+});
