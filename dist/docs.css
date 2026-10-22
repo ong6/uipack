@@ -22,6 +22,28 @@
   --docs-focus: #9ab6ff;
 }
 
+/* The Technical palette (docs/design-direction.md), opt-in with palette="technical" so hosts on
+   the warm default keep their look. Selectors match the warm ones' weight plus one attribute. */
+.uipack-docs[data-palette="technical"] {
+  --docs-ink: #1a1c1a;
+  --docs-muted: #5c625e;
+  --docs-rule: rgba(26, 28, 26, 0.16);
+  --docs-surface: #edefec;
+  --docs-surface-strong: #e2e6e2;
+  --docs-accent: #205f49;
+  --docs-focus: #205f49;
+}
+
+.uipack-docs[data-palette="technical"][data-theme="dark"] {
+  --docs-ink: #e8ece9;
+  --docs-muted: #9aa39e;
+  --docs-rule: rgba(232, 236, 233, 0.18);
+  --docs-surface: #14201b;
+  --docs-surface-strong: #1d2c26;
+  --docs-accent: #71dcb2;
+  --docs-focus: #71dcb2;
+}
+
 .uipack-docs *,
 .uipack-docs *::before,
 .uipack-docs *::after {
@@ -67,7 +89,10 @@
   font-size: 12px;
   font-weight: 700;
   gap: 9px;
-  margin: 0 184px 32px 224px;
+  /* The grid's width (200 + 680 + 160 + two 24px gaps), centred like the grid, so the
+     breadcrumb starts on the navigation column's edge. */
+  margin: 0 auto 32px;
+  max-width: 1088px;
   min-height: 32px;
 }
 
