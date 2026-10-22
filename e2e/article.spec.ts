@@ -510,14 +510,23 @@ test.describe("Article parts as static HTML in the notes site, JavaScript off", 
               };
             }, pseudo);
 
-        // Learn: plain text at 15px, each term whole on one line, a centred dot after each but the last, no chips.
+        // Learn: plain text at 15px, each term whole on one line (an item of a wrapping row), no chips.
+        // A centred dot leads each term in a gutter the list clips, so the first term of every line
+        // hides its dot and no line ends on one.
         const term = await style(".uipack-terms__term");
-        expect(term.display).toBe("inline-block");
+        expect(term.display).toBe("block");
         expect(term.font).toBe("400 15px");
         expect([term.top, term.left, term.bg]).toEqual(["0px", "0px", "rgba(0, 0, 0, 0)"]);
-        expect((await style(".uipack-terms__term", "::before")).content).toBe("none");
-        expect((await style(".uipack-terms__term:not(:last-child)", "::after")).content).toMatch(/^"·"/);
-        expect((await style(".uipack-terms__term:last-child", "::after")).content).toBe("none");
+        expect((await style(".uipack-terms__term", "::before")).content).toMatch(/^"·"/);
+        expect((await style(".uipack-terms__term", "::after")).content).toBe("none");
+        const list = await page
+          .locator(".uipack-terms__list")
+          .first()
+          .evaluate((el) => {
+            const s = getComputedStyle(el);
+            return { display: s.display, wrap: s.flexWrap, clip: s.clipPath };
+          });
+        expect(list).toEqual({ display: "flex", wrap: "wrap", clip: "inset(0px 0px 0px 18.75px)" });
 
         // Self-test: no fill, no box, a 3px accent rule, the marker label, the question at sans 600 16px.
         const callout = await style(".uipack-callout--selftest");
