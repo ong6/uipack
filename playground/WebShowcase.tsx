@@ -327,7 +327,7 @@ export default function WebShowcase() {
       <SmoothScroll />
       <section data-route="web" id="web-example" className="web-anchor">
         <p className="collection-intro">
-          One page built from <code>uipack/web</code>, with one goal: its call to action sits in the hero, the nav and the end.
+          One page built from <code>uipack/web</code>, with one call to action in the hero, the nav and the end.
         </p>
         <PageIndex />
         {painted && (
