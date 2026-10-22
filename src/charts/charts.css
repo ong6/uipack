@@ -180,7 +180,7 @@
   padding: 0 0 10px;
 }
 .uipack-span .uipack-span__title {
-  font: 700 20px/1.25 var(--sp-sans);
+  font: 600 20px/1.25 var(--sp-sans);
   letter-spacing: -0.01em;
 }
 .uipack-span .uipack-span__caption {
@@ -1311,7 +1311,7 @@
   padding: 0 0 14px;
 }
 .uipack-stack .uipack-stack__title {
-  font: 700 20px/1.25 var(--sp-sans);
+  font: 600 20px/1.25 var(--sp-sans);
   letter-spacing: -0.01em;
 }
 .uipack-stack .uipack-stack__caption {
