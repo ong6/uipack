@@ -11,6 +11,7 @@
 - [Drill-down figures](drill.md): `DrillFigure` and `DrillNode`, a stack of figures where a node zooms open into its own figure, with the glow affordance, breadcrumb, keyboard, reduced motion and static export.
 
 Agent instructions live in [AGENTS.md](../AGENTS.md). Setup and verification live in the [root README](../README.md).
+- [Contributing](contributing.md): step-by-step recipes with the exact files to touch for a new visual style, playground page, example deck, slide part or chart, figure pattern, Mechanism machine and package entry, plus the shared helpers and prop names to reuse.
 - [Component-first workflow](component-first.md): build, register, verify, then consume significant UI.
 - [Web principles](web-principles.md): the Landing style's numbered rules (`uipack/web`), each with its number and source video, including motion and backgrounds.
 - [Web discoverability](web-discoverability.md): how a Landing page gets found and quoted by search and answer engines: the checklist, `pageMeta`, JSON-LD builders, `FAQ`, `buildCrawlFiles` (robots.txt with an AI-crawler stance, sitemap.xml, llms.txt), `fontPreloads`, and measured before/after numbers.

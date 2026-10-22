@@ -62,7 +62,8 @@ export interface PageDef {
 
 /**
  * Every page, in display order within its group. `label` is the nav text and the page's h1;
- * `intro` is the one-sentence line under it. Other branches add an entry here and a route in main.tsx.
+ * `intro` is the one-sentence line under it. A new page adds an entry here and its component in
+ * `pageComponents` (main.tsx); docs/contributing.md has the recipe.
  */
 export const libraryPages = [
   { id: "figures", group: "diagrams", label: "Architecture diagrams", path: "/", intro: "The figure design system: each diagram pattern once, from the bare canvas to a figure you drill into, with the parts it is built from." },

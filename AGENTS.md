@@ -31,4 +31,4 @@ Never assume the preview is running. Check it before handing over a localhost li
 
 ## Component-first workflow
 
-Read [docs/component-first.md](docs/component-first.md) before building a significant visual. Implement and register it here before a consumer integrates it. Geometry and playback have one owner; consumer code supplies content and theme only.
+Read [docs/component-first.md](docs/component-first.md) before building a significant visual. To add a style, page, deck, slide part, figure pattern, machine or package entry, follow its recipe in [docs/contributing.md](docs/contributing.md). Implement and register it here before a consumer integrates it. Geometry and playback have one owner; consumer code supplies content and theme only.

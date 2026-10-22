@@ -397,7 +397,7 @@ MIT.
 
 ## Design and contribution guidance
 
-Read [AGENTS.md](AGENTS.md) before editing. [CLAUDE.md](CLAUDE.md) points to that same canonical guide. Charts: [docs/charts.md](docs/charts.md). [Design direction](docs/design-direction.md) defines the Technical style, catalog taxonomy, mobile behaviour, and presentation composition. Browse the [documentation index](docs/README.md), [source guide](src/README.md), and [playground guide](playground/README.md).
+Read [AGENTS.md](AGENTS.md) before editing. [CLAUDE.md](CLAUDE.md) points to that same canonical guide. Charts: [docs/charts.md](docs/charts.md). [Design direction](docs/design-direction.md) defines the Technical style, catalog taxonomy, mobile behaviour, and presentation composition. Browse the [documentation index](docs/README.md), [source guide](src/README.md), and [playground guide](playground/README.md). To add a style, page, example deck, slide part or chart, figure pattern, Mechanism machine or package entry, follow the recipes in [contributing](docs/contributing.md): each lists every file to touch.
 
 Figures support tap/keyboard selection and Open canvas with bounded pinch zoom, a zoom percentage, and keyboard controls. 3D animations have component inspection and their own canvas workspace. See [interaction details and limits](docs/interaction.md). Content type and visual style are separate. Implemented styles are Technical, Landing (`uipack/web`), Mechanism (`uipack/mechanism`), and the six object art directions.
 

@@ -1,6 +1,6 @@
 # Library playground
 
-Run `npm run dev` from the repo root. The nav has two rows: groups, then the active group's pages. Both come from `libraryGroups` and `libraryPages` in `catalog.ts`; the shell renders the context line, the page's `h1` (its label) and its intro (`intro`) from the same entry. To add a page, add a `libraryPages` entry with a `group` and a route in `main.tsx`.
+Run `npm run dev` from the repo root. The nav has two rows: groups, then the active group's pages. Both come from `libraryGroups` and `libraryPages` in `catalog.ts`; the shell renders the context line, the page's `h1` (its label) and its intro (`intro`) from the same entry. To add a page, add a `libraryPages` entry with a `group`, then map its id to the page component in `pageComponents` (`main.tsx`), which also derives the routes; the typecheck fails until it is mapped. Every recipe is in [contributing](../docs/contributing.md).
 
 | Group | Page | Path |
 |---|---|---|
