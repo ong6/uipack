@@ -7,6 +7,10 @@
   --show-control-font: 500 13px/1.2 var(--show-font-mono);
   --show-control-font-sm: 500 12px/1.2 var(--show-font-mono);
   --show-control-radius: 6px;
+  /* The one shell eyebrow (a figure's "Figure 01 · …", a Mechanism plate's corners, a 3D stage's
+     edition): tracked mono caps. Slides keep the deck's own eyebrow (deck.css .uipack-deck-eyebrow). */
+  --show-eyebrow-font: 600 12px/1.3 var(--show-font-mono);
+  --show-eyebrow-tracking: 0.08em;
   --show-radius: 6px;
   --show-bg: #f6f5f1;
   --show-ink: #1a1c1a;

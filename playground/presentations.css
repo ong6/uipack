@@ -199,11 +199,13 @@
   color: var(--show-muted);
   max-width: 43ch;
 }
+/* The narrative is a slide, so its eyebrow and footer take the deck's treatment (deck.css
+   .uipack-deck-eyebrow, .uipack-deck-footer): tracked mono caps, the eyebrow in the accent. */
 .deck-eyebrow {
   color: var(--show-accent);
-  font:
-    12px ui-monospace,
-    monospace;
+  font: 600 12px/1.3 var(--show-font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 .composed-deck__visual {
   min-width: 0;
@@ -214,9 +216,10 @@
   display: flex;
   justify-content: space-between;
   padding: 16px 24px;
-  font:
-    12px ui-monospace,
-    monospace;
+  color: var(--show-muted);
+  font: 500 12px/1.4 var(--show-font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   border-top: 1px solid var(--show-rule);
   color: var(--show-muted);
 }

@@ -146,8 +146,10 @@
   align-items: center;
   gap: 6px;
   color: var(--object-control-muted);
-  font: 500 12px/1.4 system-ui;
-  letter-spacing: 0.025em;
+  /* The host's shell eyebrow when it has one (the playground's --show-eyebrow-*), else the same. */
+  font: var(--show-eyebrow-font, 600 12px/1.3 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+  letter-spacing: var(--show-eyebrow-tracking, 0.08em);
+  text-transform: uppercase;
 }
 .uipack-object-edition button {
   width: 44px;

@@ -90,13 +90,18 @@
   margin: 0;
   color: var(--presentation-ink);
 }
-.uipack-speaker-guide__heading h3 {
-  font-size: 18px;
-}
+/* The guide's labels take the deck speaker view's: tracked mono caps, the heading in ink and the
+   sections in the accent. */
+.uipack-speaker-guide__heading h3,
 .uipack-speaker-guide__heading span,
 .uipack-speaker-guide__section h4 {
   color: var(--presentation-accent);
-  font: 700 12px/1.5 var(--font-mono, "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+  font: 600 12px/1.5 var(--font-mono, "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.uipack-speaker-guide__heading h3 {
+  color: var(--presentation-ink);
 }
 .uipack-speaker-guide__section {
   margin-top: 20px;
