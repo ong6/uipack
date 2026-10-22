@@ -12,6 +12,7 @@ import {
 } from "./variants";
 import { CanvasView } from "../CanvasView";
 import { usePrefersReducedMotion } from "../env";
+import { mountObjectScene, type ObjectSceneHandle, type ObjectStageFlags } from "./mount";
 import type { ObjectKind, ObjectPalette } from "./scenes";
 export interface ObjectSceneProps {
   kind: ObjectKind;
@@ -38,16 +39,6 @@ export const objectPalettes = {
   light: { paper: 0xf3efe7, ink: 0x292e32, muted: 0x9aaba5, accent: 0x205f49 },
   dark: { paper: 0xd8ded9, ink: 0x394c48, muted: 0x81958a, accent: 0x71bda3 },
 };
-const REST_START_MS = 5400;
-/** Stages narrower than this use an object's `userData.narrowFrame`, if it has one. */
-const NARROW_STAGE_PX = 480;
-/** Camera half-extents in world units, and the view's vertical centre. */
-interface ObjectFrame {
-  halfWidth: number;
-  halfHeight: number;
-  y?: number;
-}
-const MOBILE_FRAME_MS = 1000 / 30;
 const styles = {
   scene: "uipack-object",
   canvas: "uipack-object__canvas",
@@ -182,293 +173,81 @@ function ObjectStage({
 }: ObjectSceneProps & { zoom?: number }) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const frameRef = useRef<number | null>(null);
-  const drawRef = useRef<(() => void) | null>(null);
-  const replayRef = useRef<(() => void) | null>(null);
-  const resumeRef = useRef<(() => void) | null>(null);
-  const activeRef = useRef(active);
-  const pausedRef = useRef(false);
-  const completedRef = useRef(false);
-  const reducedRef = useRef(false);
-  const settleRef = useRef<(() => void) | null>(null);
   const [ready, setReady] = useState(false);
   const [paused, setPaused] = useState(false);
   const [completed, setCompleted] = useState(false);
   const reduced = usePrefersReducedMotion();
-  const colorMode = theme;
-  // The effect below keys on the palette's values, not its identity: an inline `palette={{…}}` is a
-  // new object on every parent render and must not tear down and rebuild the WebGL renderer.
+  // What the running scene reads every frame. React state mirrors paused and completed for the
+  // controls; these are the copies the loop sees without waiting for a render.
+  const flagsRef = useRef<ObjectStageFlags>({ active, paused: false, completed: false, reduced: false, zoom });
+  const sceneRef = useRef<ObjectSceneHandle | null>(null);
+  // The scene keys on the palette's values, not its identity: an inline `palette={{…}}` is a new
+  // object on every parent render and must not tear down and rebuild the WebGL renderer.
   const paletteKey = palette ? JSON.stringify(palette) : "";
-  const zoomRef = useRef(zoom);
-  zoomRef.current = zoom;
-  const resizeRef = useRef<(() => void) | null>(null);
+  const resolvedVariant = variant === "random" ? 0 : variant;
+
   useEffect(() => {
-    resizeRef.current?.();
+    flagsRef.current.zoom = zoom;
+    sceneRef.current?.resize();
   }, [zoom]);
 
   useEffect(() => {
-    reducedRef.current = reduced;
+    const flags = flagsRef.current;
+    flags.reduced = reduced;
     if (reduced) {
-      settleRef.current?.();
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current);
-        frameRef.current = null;
-      }
-    } else if (activeRef.current && !pausedRef.current && !completedRef.current) resumeRef.current?.();
+      sceneRef.current?.settle();
+      sceneRef.current?.stop();
+    } else if (flags.active && !flags.paused && !flags.completed) sceneRef.current?.resume();
   }, [reduced]);
 
   useEffect(() => {
-    activeRef.current = active;
-    if (active && !pausedRef.current && !reducedRef.current) drawRef.current?.();
+    const flags = flagsRef.current;
+    flags.active = active;
+    if (active && !flags.paused && !flags.reduced) sceneRef.current?.draw();
   }, [active]);
 
   useEffect(() => {
-    if (!active || !canvasRef.current) {
+    const canvas = canvasRef.current;
+    if (!active || !canvas) {
       setReady(false);
       return undefined;
     }
     setReady(false);
-    pausedRef.current = false;
-    completedRef.current = false;
+    flagsRef.current.paused = false;
+    flagsRef.current.completed = false;
     setPaused(false);
     setCompleted(false);
-    let disposed = false;
-    let contextLost = false;
-    let renderer: import("three").WebGLRenderer | undefined;
-    let environment: import("three").WebGLRenderTarget | undefined;
-    let scene: import("three").Scene | undefined;
-    let resizeObserver: ResizeObserver | undefined;
-    let viewportObserver: IntersectionObserver | undefined;
-    let inViewport = true;
-    const canvas = canvasRef.current;
-    const handleContextLost = (event: Event) => {
-      event.preventDefault();
-      contextLost = true;
-      if (frameRef.current) cancelAnimationFrame(frameRef.current);
-      frameRef.current = null;
-      canvas.dataset.renderer = "fallback";
-      setReady(false);
-    };
-    canvas.addEventListener("webglcontextlost", handleContextLost);
-
-    Promise.all([import("three"), import("./scenes"), import("three/addons/environments/RoomEnvironment.js")])
-      .then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
-        if (disposed) return;
-        try {
-          renderer = new THREE.WebGLRenderer({
-            canvas,
-            alpha: true,
-            antialias: true,
-            powerPreference: "default",
-          });
-          renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-          renderer.outputColorSpace = THREE.SRGBColorSpace;
-          scene = new THREE.Scene();
-          const room = new RoomEnvironment();
-          const pmrem = new THREE.PMREMGenerator(renderer);
-          environment = pmrem.fromScene(room, 0.04);
-          scene.environment = environment.texture;
-          scene.environmentIntensity = variant === 5 ? 0.85 : 0.35;
-          room.dispose();
-          pmrem.dispose();
-          const camera = new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 100);
-          camera.position.set(0, variant === 4 && kind !== "contact" ? -0.15 : 0, 10);
-          const colors = paletteKey ? (JSON.parse(paletteKey) as ObjectPalette) : objectPalettes[colorMode];
-          const object = await createObject(kind, colors, variant === "random" ? 0 : variant, edition, modelUrl);
-          if (disposed || contextLost) {
-            disposeObject(object);
-            return;
-          }
-          canvas.dataset.source = object.userData.source ?? "procedural";
-          canvas.dataset.artDirection = object.userData.style;
-          const shadows = kind === "tennis" || (variant !== 0 && variant !== 5);
-          if (variant !== 0 && variant !== 5)
-            object.traverse((item) => {
-              if (item instanceof THREE.Mesh) {
-                item.castShadow = true;
-                item.receiveShadow = true;
-              }
-            });
-          if (shadows) {
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-          }
-          scene.add(object, new THREE.HemisphereLight(0xf5f4eb, 0x596778, 2.0));
-          const key = new THREE.DirectionalLight(0xfff2dc, 2.5);
-          key.position.set(-3, 5, 7);
-          key.castShadow = shadows;
-          key.shadow.mapSize.set(1024, 1024);
-          Object.assign(key.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4 });
-          key.shadow.normalBias = 0.025;
-          key.shadow.bias = -0.0003;
-          renderer.toneMapping = THREE.ACESFilmicToneMapping;
-          renderer.toneMappingExposure = 1.05;
-          scene.add(key);
-          const rim = new THREE.DirectionalLight(0xc6ddff, 1.4);
-          rim.position.set(4, 2, -3);
-          scene.add(rim);
-          const loopDuration = object.userData.loopDuration as number | undefined;
-          const restTime = object.userData.restTime ?? REST_START_MS;
-          canvas.dataset.playback = loopDuration ? "loop" : "once";
-          let frames = 0;
-          let elapsed = 0;
-          let lastTickAt: number | undefined;
-          let lastPaintAt = -Infinity;
-          const frameInterval = window.matchMedia("(max-width: 767px)").matches ? MOBILE_FRAME_MS : 0;
-          const paint = (sceneTime: number, time: number) => {
-            object.userData.animate?.(sceneTime);
-            renderer!.render(scene!, camera);
-            canvas.dataset.drawCalls = String(renderer!.info.render.calls);
-            canvas.dataset.triangles = String(renderer!.info.render.triangles);
-            lastPaintAt = frameInterval ? time - (Number.isFinite(lastPaintAt) ? (time - lastPaintAt) % frameInterval : 0) : time;
-            frames += 1;
-            canvas.dataset.frames = String(frames);
-            canvas.dataset.phase = reducedRef.current ? "rest" : object.userData.phase;
-            canvas.dataset.pose = object.userData.pose.toFixed(3);
-            if (hostRef.current) hostRef.current.dataset.phase = reducedRef.current ? "rest" : object.userData.phase;
-          };
-          settleRef.current = () => {
-            paint(restTime, performance.now());
-          };
-          const render = (time = 0) => {
-            frameRef.current = null;
-            if (disposed || contextLost) return;
-            if (document.hidden || !inViewport) {
-              lastTickAt = undefined;
-              return;
-            }
-            if (lastTickAt !== undefined) elapsed += Math.min(time - lastTickAt, 50);
-            lastTickAt = time;
-            const completing = !loopDuration && !reducedRef.current && elapsed >= REST_START_MS && !completedRef.current;
-            const shouldPaint = completing || time - lastPaintAt >= frameInterval;
-            if (shouldPaint) {
-              paint(reducedRef.current ? restTime : completing ? REST_START_MS : elapsed, time);
-            }
-            if (completing) {
-              completedRef.current = true;
-              setCompleted(true);
-            }
-            if (activeRef.current && !pausedRef.current && !reducedRef.current && !completedRef.current) {
-              frameRef.current = requestAnimationFrame(render);
-            }
-          };
-          drawRef.current = () => {
-            if (!frameRef.current && !disposed) frameRef.current = requestAnimationFrame(render);
-          };
-          resumeRef.current = () => {
-            lastTickAt = undefined;
-            drawRef.current?.();
-          };
-          replayRef.current = () => {
-            elapsed = 0;
-            lastTickAt = undefined;
-            lastPaintAt = -Infinity;
-            completedRef.current = false;
-            pausedRef.current = false;
-            setCompleted(false);
-            setPaused(false);
-            drawRef.current?.();
-          };
-          const resize = () => {
-            const width = canvas.clientWidth || 1;
-            const height = canvas.clientHeight || 1;
-            renderer!.setSize(width, height, false);
-            const aspect = width / height;
-            // An object may declare a tighter fit for narrow canvases, where the
-            // shared framing leaves a compact model small in a square stage.
-            const narrow = width < NARROW_STAGE_PX ? (object.userData.narrowFrame as ObjectFrame | undefined) : undefined;
-            const halfWidth =
-              narrow?.halfWidth ??
-              (variant === 4 && kind !== "contact" ? 2.15 : kind === "server" && variant === 0 ? 3.25 : 2.65);
-            const halfHeight = Math.max(
-              narrow?.halfHeight ?? (variant === 4 && kind !== "contact" ? 1.75 : 2.2),
-              halfWidth / aspect,
-            );
-            camera.position.y = narrow?.y ?? (variant === 4 && kind !== "contact" ? -0.15 : 0);
-            camera.left = -halfHeight * aspect;
-            camera.right = halfHeight * aspect;
-            camera.top = halfHeight;
-            camera.bottom = -halfHeight;
-            camera.zoom = zoomRef.current;
-            camera.updateProjectionMatrix();
-            renderer!.render(scene!, camera);
-          };
-          resizeRef.current = resize;
-          resizeObserver = new ResizeObserver(resize);
-          resizeObserver.observe(canvas);
-          viewportObserver = new IntersectionObserver(([entry]) => {
-            inViewport = entry.isIntersecting;
-            if (!inViewport) {
-              if (frameRef.current) cancelAnimationFrame(frameRef.current);
-              frameRef.current = null;
-              lastTickAt = undefined;
-            } else if (activeRef.current && !pausedRef.current && !completedRef.current && !reducedRef.current) {
-              resumeRef.current?.();
-            }
-          });
-          viewportObserver.observe(canvas);
-          resize();
-          canvas.dataset.renderer = "webgl";
-          setReady(true);
-          if (reducedRef.current) render();
-          else if (activeRef.current) drawRef.current?.();
-        } catch {
-          canvas.dataset.renderer = "fallback";
-        }
-      })
-      .catch(() => {
-        if (!disposed) {
-          canvas.dataset.renderer = "fallback";
-          setReady(false);
-        }
-      });
-
-    const visibility = () => {
-      if (!document.hidden && !pausedRef.current && !completedRef.current && !reducedRef.current) resumeRef.current?.();
-    };
-    document.addEventListener("visibilitychange", visibility);
+    const scene = mountObjectScene(canvas, {
+      kind,
+      colors: paletteKey ? (JSON.parse(paletteKey) as ObjectPalette) : objectPalettes[theme],
+      variant: resolvedVariant,
+      edition,
+      modelUrl,
+      flags: flagsRef.current,
+      host: () => hostRef.current,
+      onReady: setReady,
+      onCompleted: () => setCompleted(true),
+      onReplayed: () => {
+        setCompleted(false);
+        setPaused(false);
+      },
+    });
+    sceneRef.current = scene;
     return () => {
-      document.removeEventListener("visibilitychange", visibility);
-      resizeRef.current = null;
-      settleRef.current = null;
-      disposed = true;
-      canvas.removeEventListener("webglcontextlost", handleContextLost);
-      if (frameRef.current) cancelAnimationFrame(frameRef.current);
-      frameRef.current = null;
-      resizeObserver?.disconnect();
-      viewportObserver?.disconnect();
-      if (scene)
-        scene.traverse((item) => {
-          item.userData.dispose?.();
-          (item as import("three").DirectionalLight).shadow?.dispose();
-          const drawable = item as import("three").Mesh;
-          drawable.geometry?.dispose();
-          const materials = Array.isArray(drawable.material) ? drawable.material : drawable.material ? [drawable.material] : [];
-          materials.forEach((entry) => {
-            (entry as import("three").MeshStandardMaterial).map?.dispose();
-            entry.dispose();
-          });
-        });
-      environment?.dispose();
-      renderer?.dispose();
-      renderer?.forceContextLoss();
-      drawRef.current = null;
-      replayRef.current = null;
-      resumeRef.current = null;
+      sceneRef.current = null;
+      scene.dispose();
     };
-  }, [active, kind, colorMode, paletteKey, variant, edition, modelUrl]);
+  }, [active, kind, theme, paletteKey, resolvedVariant, edition, modelUrl]);
 
   const togglePaused = () => {
-    const next = !pausedRef.current;
-    pausedRef.current = next;
+    const flags = flagsRef.current;
+    const next = !flags.paused;
+    flags.paused = next;
     setPaused(next);
-    if (next && frameRef.current) {
-      cancelAnimationFrame(frameRef.current);
-      frameRef.current = null;
-    }
-    if (!next) resumeRef.current?.();
+    if (next) sceneRef.current?.stop();
+    else sceneRef.current?.resume();
   };
-  const replay = () => replayRef.current?.();
+  const replay = () => sceneRef.current?.replay();
 
   return (
     <div
