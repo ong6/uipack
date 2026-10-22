@@ -611,6 +611,7 @@ function PaintTransitionDemo({ theme, flip }: { theme: "light" | "dark"; flip: (
 function MotionSection({ theme, flip, surfaceStyle }: { theme: "light" | "dark"; flip: () => void; surfaceStyle?: CSSProperties }) {
   const [revealKey, setRevealKey] = useState(0);
   const [scrambleKey, setScrambleKey] = useState(0);
+  const [tickerKey, setTickerKey] = useState(0);
   return (
     <section data-section="motion" id="web-motion" className="web-anchor">
       <h2>Motion · {webEntries.filter((e) => e.tags.includes("Motion")).length}</h2>
@@ -646,7 +647,7 @@ function MotionSection({ theme, flip, surfaceStyle }: { theme: "light" | "dark";
           <GridItem span={[4, 8, 4]}>
             <div className="web-block">
               <Eyebrow>Number ticker · proof stats</Eyebrow>
-              <dl className="web-stats" data-align="start">
+              <dl className="web-stats" data-align="start" key={tickerKey}>
                 <div>
                   <dt>handled</dt>
                   <dd>
@@ -660,6 +661,7 @@ function MotionSection({ theme, flip, surfaceStyle }: { theme: "light" | "dark";
                   </dd>
                 </div>
               </dl>
+              <Replay onClick={() => setTickerKey((k) => k + 1)} />
             </div>
           </GridItem>
           <GridItem span={[12, 8, 4]}>
@@ -668,7 +670,7 @@ function MotionSection({ theme, flip, surfaceStyle }: { theme: "light" | "dark";
               <Marquee label="Tools" items={skills.map((s) => <span className="web-chip">{s}</span>)} />
             </div>
           </GridItem>
-          <GridItem span={[6, 4, 4]}>
+          <GridItem span={[4, 8, 4]}>
             <div className="web-block">
               <Eyebrow>Tilt card · magnetic button</Eyebrow>
               <TiltCard href="#web-how">
@@ -683,10 +685,10 @@ function MotionSection({ theme, flip, surfaceStyle }: { theme: "light" | "dark";
               </div>
             </div>
           </GridItem>
-          <GridItem span={[6, 4, 4]}>
+          <GridItem span={[4, 4, 4]}>
             <ViewTransitionDemo />
           </GridItem>
-          <GridItem span={[6, 4, 4]}>
+          <GridItem span={[4, 4, 4]}>
             <PaintTransitionDemo theme={theme} flip={flip} />
           </GridItem>
           <GridItem span={[12, 8, 4]}>

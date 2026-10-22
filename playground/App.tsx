@@ -2,7 +2,7 @@ import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
 import { AssetBrowser } from "../src/browser";
 import manifest from "../assets/manifest.json";
 import "../src/browser/browser.css";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LayerStack, SpanChart, enhanceLayerStack, enhanceSpanChart } from "../src/charts";
 import { aiStack, aiStackDiagram } from "../examples/aiStack";
 import { chartEntries, figureEntries } from "./catalog";
@@ -52,6 +52,21 @@ function useFrame() {
 }
 function ChartFrame({ children }: { children: React.ReactNode }) {
   const frame = useFrame();
+  // The width the page can actually give the frame. A host width wider than that cannot be
+  // shown, so its button is disabled and the frame is reported as "full" at the real width.
+  const bar = useRef<HTMLParagraphElement>(null);
+  const [room, setRoom] = useState<number | null>(null);
+  useEffect(() => {
+    const el = bar.current;
+    if (!el) return;
+    const measure = () => setRoom(Math.floor(el.clientWidth));
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  const fits = (f: string) => f === "full" || room === null || Number(f) <= room;
+  const shown = fits(frame) ? frame : "full";
   const pick = (next: string) => {
     const url = new URL(location.href);
     url.searchParams.set("frame", next);
@@ -59,10 +74,10 @@ function ChartFrame({ children }: { children: React.ReactNode }) {
   };
   return (
     <>
-      <p className="chart-frame__bar">
-        <span>Host width</span>
+      <p className="chart-frame__bar" ref={bar}>
+        <span>Host width{shown === "full" && room !== null ? ` · ${room}px` : ""}</span>
         {FRAMES.map((f) => (
-          <button type="button" key={f} aria-pressed={f === frame} onClick={() => pick(f)}>
+          <button type="button" key={f} aria-pressed={f === shown} disabled={!fits(f)} title={fits(f) ? undefined : "Wider than this screen"} onClick={() => pick(f)}>
             {f === "full" ? "full" : `${f}px`}
           </button>
         ))}

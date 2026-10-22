@@ -11,6 +11,10 @@ interface Asset {
     preview: string;
     /** The same preview in the dark palette, shown when the browser is in a dark theme. */
     previewDark?: string;
+    /** A still of an animated preview, shown instead under `prefers-reduced-motion: reduce`. */
+    previewStatic?: string;
+    /** The still in the dark palette. */
+    previewStaticDark?: string;
     /** What the action copies: an import line, a JSX snippet, or raw SVG. */
     source: string;
     tags?: string[];

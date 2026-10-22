@@ -59,12 +59,13 @@ function DocsLayout({
   previous,
   next,
   theme,
+  palette = "warm",
   children
 }) {
   const mobileNavigationId = _react.useId.call(void 0, );
   const currentSection = useCurrentSection(onThisPage.map((item) => item.id));
   const current = sections.flatMap((section) => section.items).find((item) => item.href === activeHref);
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-docs", "data-theme": theme, children: [
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-docs", "data-theme": theme, "data-palette": palette, children: [
     /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { className: "uipack-docs__skip", href: "#docs-content", children: "Skip to documentation content" }),
     /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-docs__identity", "aria-label": "Documentation home", children: [
       /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { href: productHref, children: productTitle }),

@@ -13,6 +13,10 @@ export interface Asset {
   preview: string;
   /** The same preview in the dark palette, shown when the browser is in a dark theme. */
   previewDark?: string;
+  /** A still of an animated preview, shown instead under `prefers-reduced-motion: reduce`. */
+  previewStatic?: string;
+  /** The still in the dark palette. */
+  previewStaticDark?: string;
   /** What the action copies: an import line, a JSX snippet, or raw SVG. */
   source: string;
   tags?: string[];
@@ -61,6 +65,18 @@ export function categories(assets: Asset[]): { name: string; count: number }[] {
 export function filterAssets(assets: Asset[], category: string, query: string): Asset[] {
   const q = query.trim().toLowerCase();
   return assets.filter((a) => (category === ALL || a.category === category) && (!q || a.name.toLowerCase().includes(q) || a.id.includes(q) || (a.tags ?? []).some((t) => t.includes(q))));
+}
+
+/** One themed preview; an animated one swaps to its still under reduced motion. */
+function Preview({ src, still, scheme }: { src: string; still?: string; scheme: "light" | "dark" }) {
+  const img = <img src={src} alt="" loading="lazy" data-scheme={scheme} />;
+  if (!still) return img;
+  return (
+    <picture data-scheme={scheme}>
+      <source media="(prefers-reduced-motion: reduce)" srcSet={still} />
+      {img}
+    </picture>
+  );
 }
 
 /**
@@ -118,8 +134,8 @@ export function AssetBrowser({ manifest, initialCategory = ALL, onAction, action
           {shown.map((a) => (
             <li key={a.id} className="uipack-browser__card" data-kind={a.kind} data-id={a.id}>
               <div className="uipack-browser__tile">
-                <img src={`${prefix}${a.preview}`} alt="" loading="lazy" data-scheme="light" />
-                {a.previewDark ? <img src={`${prefix}${a.previewDark}`} alt="" loading="lazy" data-scheme="dark" /> : null}
+                <Preview src={`${prefix}${a.preview}`} still={a.previewStatic && `${prefix}${a.previewStatic}`} scheme="light" />
+                {a.previewDark ? <Preview src={`${prefix}${a.previewDark}`} still={a.previewStaticDark && `${prefix}${a.previewStaticDark}`} scheme="dark" /> : null}
               </div>
               <div className="uipack-browser__row">
                 <span className="uipack-browser__name">{a.name}</span>

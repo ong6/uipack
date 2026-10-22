@@ -401,9 +401,14 @@
   position: absolute;
   inset: 22% 0 0;
   z-index: -2;
-  /* The star stays out of the headline's way: it fades in below the copy. */
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 34%, #000 88%, transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0%, #000 34%, #000 88%, transparent 100%);
+  /* The star stays out of the headline's way: it fades in below the copy. It also fades out
+     towards its low start, which runs under the proof's step list and controls, so the line
+     never draws through text (as MaskedStar's data-clear="start"). */
+  --web-hero-clear: linear-gradient(to right, transparent 0%, transparent 30%, #000 62%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 34%, #000 88%, transparent 100%), var(--web-hero-clear);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 34%, #000 88%, transparent 100%), var(--web-hero-clear);
+  mask-composite: intersect;
 }
 .uipack-web-hero__visual > * {
   width: 100%;
@@ -434,7 +439,7 @@
   .uipack-web-hero { padding: var(--web-s8) var(--web-s2) var(--web-s6); }
   .uipack-web-hero__copy { gap: var(--web-s2); }
   .uipack-web-hero__proof { margin-top: var(--web-s6); }
-  .uipack-web-hero__visual { inset: 30% -40% 0; }
+  .uipack-web-hero__visual { inset: 30% -40% 0; --web-hero-clear: linear-gradient(to right, transparent 0%, transparent 42%, #000 70%); }
 }
 .uipack-web-noise {
   position: absolute;
@@ -882,7 +887,8 @@
   padding: 0 16px;
   border: 1px solid var(--web-hairline);
   border-radius: 999px;
-  background: transparent;
+  /* Opaque, so the hero's star never shows through a label. */
+  background: var(--web-surface);
   color: var(--web-ink-medium);
   font: 500 0.9375rem var(--web-font-text);
   cursor: pointer;
@@ -921,6 +927,7 @@
   padding: var(--web-s2);
   border: 1px solid var(--web-hairline);
   border-radius: 12px;
+  background: var(--web-surface);
 }
 .uipack-web-demo__static p { margin: 4px 0 0; color: var(--web-ink-medium); }
 .uipack-web-demo__static ul { margin: 8px 0 0; padding-left: 1.2em; color: var(--web-ink-low); }
@@ -1177,7 +1184,8 @@
   padding: 0 14px;
   border: 1px solid var(--web-hairline);
   border-radius: 999px;
-  background: transparent;
+  /* Opaque, so the hero's star never shows through a label. */
+  background: var(--web-surface);
   color: var(--web-ink-medium);
   font: 500 0.9375rem var(--web-font-text);
   cursor: pointer;

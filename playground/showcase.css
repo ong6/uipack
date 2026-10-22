@@ -69,10 +69,14 @@ body {
 .showcase-shell > section {
   min-width: 0;
 }
-.showcase-shell > section > h2 {
-  font-size: 20px;
-  line-height: 1.3;
+/* The heading scale (docs/design-direction.md): page title 40, section heading 24 (22 on
+   phones), card and figure titles 18–20 at 600. e2e/typography.spec.ts holds every page to it. */
+.showcase-shell > section > h2,
+.showcase-shell .deck-showcase__reference > section > h2 {
+  font-size: 24px;
+  line-height: 1.25;
   font-weight: 650;
+  letter-spacing: -0.01em;
   margin: 0 0 8px;
   color: var(--show-ink);
 }
@@ -253,8 +257,7 @@ body {
 .chart-frame__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 12px; font: 12px ui-monospace, monospace; color: var(--show-muted); }
 /* Below 480px the label takes its own line, so the five widths stay together on one row. */
 @media (max-width: 479px) { .chart-frame__bar > span { flex-basis: 100%; } }
-.chart-frame__bar button { min-height: 36px; padding: 0 10px; border: 1px solid var(--show-rule); border-radius: 6px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
-.chart-frame__bar button[aria-pressed="true"] { border-color: var(--show-accent); color: var(--show-accent); font-weight: 700; }
+.chart-frame__bar button { min-height: 36px; padding: 0 10px; font-size: 12px; }
 
 /* Section intros and sub-headings, shared by every page. `.collection-intro` is the older name
    of the same thing; both read alike on every page. */
@@ -496,4 +499,59 @@ body {
   min-height: 44px;
   color: var(--show-accent);
   font-size: 16px;
+}
+@media (max-width: 540px) {
+  .showcase-shell > section > h2,
+  .showcase-shell .deck-showcase__reference > section > h2 {
+    font-size: 22px;
+  }
+}
+
+/* One playground control (the header's theme toggle is the model): a mono label, a 6px radius,
+   a hairline border on a transparent ground; the selected one takes the accent and a surface.
+   Pages add only layout. Selects share the same box with a drawn chevron. */
+:is(.deck-chapters, .deck-navigation, .chart-frame__bar, .slides-showcase__tabs, .mechanism-poses) button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--show-rule);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--show-ink);
+  font: 500 13px/1.2 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  cursor: pointer;
+}
+:is(.deck-chapters, .deck-navigation, .chart-frame__bar, .slides-showcase__tabs, .mechanism-poses) button:hover:not(:disabled) {
+  border-color: var(--show-ink);
+}
+:is(.deck-chapters, .deck-navigation, .chart-frame__bar, .slides-showcase__tabs, .mechanism-poses) button:is([aria-pressed="true"], [aria-current="step"]) {
+  border-color: var(--show-accent);
+  color: var(--show-accent);
+  background: var(--show-surface);
+}
+:is(.deck-chapters, .deck-navigation, .chart-frame__bar, .slides-showcase__tabs, .mechanism-poses) button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.showcase-shell :is(.catalog-filters select, .uipack-edition-select select) {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 44px;
+  padding: 0 36px 0 12px;
+  border: 1px solid var(--show-rule);
+  border-radius: 6px;
+  background: var(--show-surface) no-repeat right 12px center / 12px 12px
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%235c625e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  color: var(--show-ink);
+  font: 500 13px/1.2 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  cursor: pointer;
+}
+:root[data-theme="dark"] .showcase-shell :is(.catalog-filters select, .uipack-edition-select select) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%239aa39e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.showcase-shell :is(.catalog-filters select, .uipack-edition-select select):hover {
+  border-color: var(--show-ink);
+}
+/* The 3D stage's Open canvas, in the same mono as the figure's (.uipack__ctl). */
+.showcase-shell .uipack-object-open {
+  font: 500 12px/1 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 }

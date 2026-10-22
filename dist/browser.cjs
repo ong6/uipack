@@ -25,6 +25,14 @@ function filterAssets(assets, category, query) {
   const q = query.trim().toLowerCase();
   return assets.filter((a) => (category === ALL || a.category === category) && (!q || a.name.toLowerCase().includes(q) || a.id.includes(q) || (_nullishCoalesce(a.tags, () => ( []))).some((t) => t.includes(q))));
 }
+function Preview({ src, still, scheme }) {
+  const img = /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "img", { src, alt: "", loading: "lazy", "data-scheme": scheme });
+  if (!still) return img;
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "picture", { "data-scheme": scheme, children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "source", { media: "(prefers-reduced-motion: reduce)", srcSet: still }),
+    img
+  ] });
+}
 function AssetBrowser({ manifest, initialCategory = ALL, onAction, actionLabel = "Copy", base, className }) {
   const [category, setCategory] = _react.useState.call(void 0, initialCategory);
   const [query, setQuery] = _react.useState.call(void 0, "");
@@ -61,8 +69,8 @@ function AssetBrowser({ manifest, initialCategory = ALL, onAction, actionLabel =
       ] }),
       /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { className: "uipack-browser__grid", role: "list", children: shown.map((a) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { className: "uipack-browser__card", "data-kind": a.kind, "data-id": a.id, children: [
         /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-browser__tile", children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "img", { src: `${prefix}${a.preview}`, alt: "", loading: "lazy", "data-scheme": "light" }),
-          a.previewDark ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "img", { src: `${prefix}${a.previewDark}`, alt: "", loading: "lazy", "data-scheme": "dark" }) : null
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Preview, { src: `${prefix}${a.preview}`, still: a.previewStatic && `${prefix}${a.previewStatic}`, scheme: "light" }),
+          a.previewDark ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Preview, { src: `${prefix}${a.previewDark}`, still: a.previewStaticDark && `${prefix}${a.previewStaticDark}`, scheme: "dark" }) : null
         ] }),
         /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-browser__row", children: [
           /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-browser__name", children: a.name }),

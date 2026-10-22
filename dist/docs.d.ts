@@ -24,9 +24,14 @@ interface DocsLayoutProps {
     previous?: DocsNavItem | null;
     next?: DocsNavItem | null;
     theme?: "light" | "dark";
+    /**
+     * The colour tokens. "warm" (the default) is the paper-and-blue look hosts already use;
+     * "technical" takes UI Pack's Technical palette (forest/mint accent, green-black dark).
+     */
+    palette?: "warm" | "technical";
     children: ReactNode;
 }
-declare function DocsLayout({ productTitle, productHref, docsTitle, sections, activeHref, onThisPage, previous, next, theme, children, }: DocsLayoutProps): react.JSX.Element;
+declare function DocsLayout({ productTitle, productHref, docsTitle, sections, activeHref, onThisPage, previous, next, theme, palette, children, }: DocsLayoutProps): react.JSX.Element;
 
 interface ExtractedDocsHeading {
     id: string;
