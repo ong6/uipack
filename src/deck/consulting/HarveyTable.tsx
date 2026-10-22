@@ -3,19 +3,24 @@ import { harveyQuarters, harveyWedge } from "./scale";
 
 const LEVEL_WORDS = ["None", "Low", "Medium", "High", "Full"] as const;
 
-/** A Harvey ball: 0 (empty) to 4 (full) quarters. Its level is also in the accessible name. */
+/**
+ * A Harvey ball: 0 (empty) to 4 (full) quarters. Its level is also in the accessible name; an empty
+ * `label` marks it decorative (the key's balls sit beside their word), hidden from assistive tech.
+ */
 export function HarveyBall({ level, size = 36, label }: { level: number; size?: number; label?: string }) {
   const q = harveyQuarters(level);
   const r = size / 2 - 1.5;
   const c = size / 2;
+  const decorative = label === "";
   return (
     <svg
       className="uipack-cx-harvey"
       width={size}
       height={size}
       viewBox={`0 0 ${size} ${size}`}
-      role="img"
-      aria-label={label ?? `${LEVEL_WORDS[q]} (${q} of 4)`}
+      role={decorative ? undefined : "img"}
+      aria-label={decorative ? undefined : (label ?? `${LEVEL_WORDS[q]} (${q} of 4)`)}
+      aria-hidden={decorative ? true : undefined}
       data-level={q}
     >
       <circle className="uipack-cx-harvey__ring" cx={c} cy={c} r={r} />
