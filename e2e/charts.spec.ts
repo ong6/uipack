@@ -433,6 +433,7 @@ test.describe("SpanChart key strip", () => {
     key.evaluate((el) => {
       const sections = [...el.children].map((li) => ({
         top: Math.round(li.getBoundingClientRect().top),
+        left: Math.round(li.getBoundingClientRect().left),
         mids: [...li.children].map((c) => {
           const r = c.getBoundingClientRect();
           return r.top + r.height / 2;
@@ -440,6 +441,8 @@ test.describe("SpanChart key strip", () => {
       }));
       return {
         rows: new Set(sections.map((s) => s.top)).size,
+        // Sections stack in two columns: every other section starts at the same x.
+        columns: [0, 1].map((c) => new Set(sections.filter((_, i) => i % 2 === c).map((s) => s.left)).size),
         inline: sections.every((s) => Math.max(...s.mids) - Math.min(...s.mids) <= 2),
         used: Math.round([...el.children].reduce((w, li) => w + li.getBoundingClientRect().width, 0)),
         room: Math.round(el.getBoundingClientRect().width),
@@ -447,7 +450,7 @@ test.describe("SpanChart key strip", () => {
     });
 
   for (const width of [896, 1088]) {
-    test(`one row at ${width}px with the notes site's longest key words, sections never split`, async ({ page }) => {
+    test(`two sections a line at ${width}px with the notes site's longest key words, in columns, sections never split`, async ({ page }) => {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto("/e2e-static/span-chart-stress.html");
       await page.evaluate((w) => (document.querySelector("main")!.style.maxWidth = `${w}px`), width);
@@ -461,17 +464,19 @@ test.describe("SpanChart key strip", () => {
       const r = await layout(key);
       test.info().annotations.push({ type: "key", description: `${r.used} of ${r.room}px` });
       expect(r.inline).toBe(true);
-      // Elsewhere a wider fallback font may push whole sections to a second row.
-      expect(r.rows).toBeLessThanOrEqual(tunedFont ? 1 : 2);
+      // Four sections, two a line: BARS | DEALS over SIZE | TYPE, never four crammed on one line.
+      expect(r.rows).toBe(2);
+      expect(r.columns).toEqual([1, 1]);
     });
   }
 
-  test("the playground chart's key is one row at 896px", async ({ page }) => {
+  test("the playground chart's key is two lines of two sections at 896px", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(at("896", "span-chart"));
     const r = await layout(page.locator("#ai-stack .uipack-span__panel .uipack-span__key"));
     expect(r.inline).toBe(true);
-    expect(r.rows).toBeLessThanOrEqual(tunedFont ? 1 : 2);
+    expect(r.rows).toBe(2);
+    expect(r.columns).toEqual([1, 1]);
   });
 });
 
@@ -768,7 +773,7 @@ test.describe("LayerStack", () => {
       expect(await nodes.first().locator(".uipack-stack__arrow").evaluate((el) => getComputedStyle(el, "::before").content)).toBe('"↓"');
       for (const h of await nodes.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height))) expect(h).toBeGreaterThanOrEqual(44);
       await noPageOverflow(page, width);
-      expect(await smallestText(stack)).toBeGreaterThanOrEqual(11);
+      expect(await smallestText(stack)).toBeGreaterThanOrEqual(12);
       await context.close();
     });
   }
