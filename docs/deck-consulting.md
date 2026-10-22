@@ -13,13 +13,13 @@ import "uipack/deck.css";
 const slide: DeckSlide = {
   id: "summary",
   title: "Two hubs save $14M a year",
-  headline: "Consolidating five sites into two hubs saves $14M a year for $9M",
+  headline: "Folding the two oldest sites into two hubs saves $14M a year for $9M",
   role: "answer",
   render: () => (
     <ConsultingSlide
       tracker={{ sections: ["Summary", "Situation", "Options", "Decision"], current: "Summary" }}
       sticker="Illustrative"
-      title="Consolidating five sites into two hubs saves $14M a year for $9M"
+      title="Folding the two oldest sites into two hubs saves $14M a year for $9M"
       subtitle="Fulfilment network, FY22–FY25; $M unless stated"
       rows="auto minmax(0, 1fr)"
       notes={["Operating margin before central costs."]}

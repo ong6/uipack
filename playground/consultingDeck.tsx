@@ -57,14 +57,14 @@ export const consultingDeck: DeckSlide[] = [
   {
     id: "summary",
     title: "Two hubs save $14M a year",
-    headline: "Consolidating five fulfilment sites into two hubs saves $14M a year for $9M",
+    headline: "Folding the two oldest sites into two hubs saves $14M a year for $9M",
     role: "answer",
     render: () => (
       <ConsultingSlide
         tracker={tracker("Summary")}
         sticker={sticker}
         label={label}
-        title="Consolidating five fulfilment sites into two hubs saves $14M a year for $9M"
+        title="Folding the two oldest sites into two hubs saves $14M a year for $9M"
         subtitle="Fulfilment network, FY22–FY25 actuals and FY27 run-rate; $M unless stated"
         rows="auto minmax(0, 1fr)"
         notes={["Operating margin before central costs.", "Run-rate saving from FY27, before the one-off cost of $9M."]}
@@ -146,7 +146,7 @@ export const consultingDeck: DeckSlide[] = [
       </ConsultingSlide>
     ),
     notes: {
-      say: "Here is the whole answer on one page. Cost per order is up twenty-two percent in three years and margin has lost three points, mostly to freight and labour. Of the four options we looked at, consolidating five sites into two hubs saves the most: fourteen million a year for a one-off nine million. We need a decision by the fourteenth of March. Source: the illustrative cost model in the appendix.",
+      say: "Here is the whole answer on one page. Cost per order is up twenty-two percent in three years and margin has lost three points, most of it to freight and labour. Of the four options we looked at, folding our two oldest sites, Northgate and Riverside, into expanded hubs at Eastfield and Harbour saves the most: fourteen million a year for a one-off nine million, paid back fourteen months after approval. The price is a nine-month transition and two weaker quarters of service, and we need the executive committee's decision by the fourteenth of March. Source: the illustrative cost model in the appendix.",
       delivery: "Say the ask in the first thirty seconds, then point at the margin bridge.",
       next: "Start with the number on the left: cost per order.",
     },
@@ -223,7 +223,7 @@ export const consultingDeck: DeckSlide[] = [
         label={label}
         title="Northgate and Riverside cost 46% more per order than the other three sites"
         subtitle="Five fulfilment sites, FY25"
-        takeaway="Moving their 4.1M orders to two modern hubs at about $7.10 an order is worth roughly $14M a year."
+        takeaway="Moving their 4.1M orders into expanded hubs at Eastfield and Harbour, at about $7.10 an order, is worth roughly $14M a year."
         notes={["Utilisation: picked hours over staffed hours.", "Split shipment: one order sent in two or more parcels."]}
         source={source}
       >
@@ -239,7 +239,7 @@ export const consultingDeck: DeckSlide[] = [
             focus="tl"
             maxRadius={40}
             points={sitePoints}
-            callout={{ label: "Northgate", text: "Manual picking; 56% of shifts used", dx: 120, dy: -58, width: 240 }}
+            callout={{ label: "Northgate", text: "Manual picking; 56% of shifts used", dx: -190, dy: 66, width: 230 }}
           />
         </Panel>
         <Panel
@@ -263,24 +263,24 @@ export const consultingDeck: DeckSlide[] = [
       </ConsultingSlide>
     ),
     notes: {
-      say: "Inside that panel: Northgate and Riverside cost forty-six percent more per order than the other three, and they run at well under two-thirds utilisation. Their orders also split into two parcels about twice as often, which is where the freight goes. Source: site cost data and the shipment log, FY25.",
+      say: "Inside that panel: Northgate and Riverside cost forty-six percent more per order than the other three, and they run at well under two-thirds utilisation. Their orders also split into two parcels about twice as often, which is where the freight goes. Eastfield, bottom left, has room to fill, and Harbour already runs efficiently: those are the two sites that can take the extra volume. Source: site cost data and the shipment log, FY25.",
       delivery: "Point at the top-left quadrant, then at the two long split-shipment bars.",
       next: "So what could we do about it?",
     },
   },
   {
     id: "options",
-    title: "Two hubs beat outsourcing",
-    headline: "Two hubs save $3M a year more than outsourcing and keep peak capacity in-house",
+    title: "Two hubs repay their extra cost",
+    headline: "Two hubs cost $6M more than outsourcing and repay it in two years",
     role: "option",
     render: () => (
       <ConsultingSlide
         tracker={tracker("Options")}
         sticker={sticker}
         label={label}
-        title="Two hubs save $3M a year more than outsourcing and keep peak capacity in-house"
+        title="Two hubs cost $6M more than outsourcing and repay it in two years"
         subtitle="Fulfilment network options, FY27 run-rate; $M"
-        takeaway="Two hubs is the only option that restores FY22 margin; its cost is a nine-month transition that is hard to reverse."
+        takeaway="Against outsourcing, two hubs cost $6M more up front ($9M vs $3M) and save $3M a year more ($14M vs $11M), so the gap is repaid in two years; peak capacity stays in-house."
         notes={["Run-rate from FY27; $M.", "Full ball = most favourable: highest margin, lowest service risk, fastest, easiest to undo."]}
         source={source}
       >
@@ -308,7 +308,7 @@ export const consultingDeck: DeckSlide[] = [
               },
               {
                 label: "Consolidate to two hubs",
-                detail: "Close Northgate and Riverside; expand two sites",
+                detail: "Close Northgate and Riverside; expand Eastfield and Harbour",
                 highlight: true,
                 cells: { saving: "$14M", cost: "$9M", margin: 4, service: 2, speed: 2, undo: 1 },
               },
@@ -323,25 +323,25 @@ export const consultingDeck: DeckSlide[] = [
       </ConsultingSlide>
     ),
     notes: {
-      say: "We compared four options on the same six criteria, including doing nothing. Renegotiating freight is quick and safe but worth only four million, because our carriers are already near market rates. Outsourcing saves eleven but hands peak capacity to someone else. Two hubs saves fourteen million; what it costs is a nine-month transition that is hard to undo. Source: the working team's estimates.",
-      delivery: "Read the recommended row last, and say its weak scores out loud.",
+      say: "We compared four options on the same six criteria, including doing nothing. Renegotiating freight is quick and safe but worth only four million, because our carriers are already near market rates. The real contest is hubs against outsourcing. Outsourcing is cheaper to start, three million against nine, so the hubs cost six million more up front. But they save fourteen million a year against outsourcing's eleven, and that three-million gap repays the extra six in two years. After that the hubs are ahead every year, and peak capacity stays ours. What they cost is a nine-month transition that is hard to undo. Source: the working team's cost model in the appendix.",
+      delivery: "Read the recommended row last, and say its weak scores out loud. Then do the two-year sum on the takeaway line.",
       next: "Here is why the hubs still win.",
     },
   },
   {
     id: "recommendation",
     title: "Two hubs win",
-    headline: "Two hubs win on savings; the price is nine months of dual running",
+    headline: "Two hubs save most; the price is nine months of transition and weaker service",
     role: "recommendation",
     render: () => (
       <ConsultingSlide
         tracker={tracker("Recommendation")}
         sticker={sticker}
         label={label}
-        title="Two hubs win on savings; the price is nine months of dual running"
+        title="Two hubs save most; the price is nine months of transition and weaker service"
         subtitle="Fulfilment cost, FY25 actual to FY27 run-rate"
         takeaway="Accept a two-point dip in on-time delivery for two quarters to take $14M a year out of the cost base."
-        notes={["Axis starts at $80M, so the totals are truncated.", "During cutover, both closing sites and both hubs are staffed."]}
+        notes={["Axis starts at $80M, so the totals are truncated.", "Dual running in months 6–9: both closing sites and both hubs are staffed while orders move."]}
         source={source}
       >
         <Panel title="$14M comes out of the cost base by FY27" unit={<>Fulfilment cost, $M a year<Ref n={1} /></>} cols={7}>
@@ -359,11 +359,11 @@ export const consultingDeck: DeckSlide[] = [
             ]}
           />
         </Panel>
-        <Panel title="What it costs and what it returns" unit={<>Two-hub option; cutover in months 6–9<Ref n={2} /></>} cols={5}>
+        <Panel title="What it costs and what it returns" unit={<>Two-hub option; nine-month transition, dual running in months 6–9<Ref n={2} /></>} cols={5}>
           <KpiTiles
             columns={2}
             items={[
-              { label: "One-off cost", value: "$9M", note: "Hub fit-out and site exits" },
+              { label: "One-off cost", value: "$9M", note: "Hub expansion, site exits, dual running" },
               { label: "Payback", value: "14", unit: "months", note: "Counted from approval" },
               {
                 label: "Cost per order, FY27",
@@ -372,7 +372,7 @@ export const consultingDeck: DeckSlide[] = [
                 delta: { text: "−13%", direction: "down", sentiment: "good", period: "vs FY25" },
               },
               {
-                label: "On-time during cutover",
+                label: "On-time, cutover and after",
                 value: "89%",
                 delta: { text: "−2 pts", direction: "down", sentiment: "bad", period: "two quarters" },
               },
@@ -382,7 +382,7 @@ export const consultingDeck: DeckSlide[] = [
       </ConsultingSlide>
     ),
     notes: {
-      say: "The recommendation is two hubs. Freight falls most, because orders stop splitting across sites, then labour and rent. The price is real: nine months of running both networks, and on-time delivery dips about two points for two quarters. We think that is worth fourteen million a year.",
+      say: "The recommendation is two hubs. Freight falls most, because orders stop splitting across sites, then labour and rent, and a little inventory. The price is real. The transition takes nine months, and for the last three of them, months six to nine, we run both networks while orders move. On-time delivery dips about two points, to eighty-nine percent, for two quarters: the cutover quarter and the one after it. We think that is worth fourteen million a year, and we would rather name it now than explain it later.",
       delivery: "Name the cost before anyone asks about it.",
       next: "This is how we would do it.",
     },
@@ -431,9 +431,9 @@ export const consultingDeck: DeckSlide[] = [
               { key: "owner", label: "Owner", kind: "text", width: "26%" },
             ]}
             rows={[
-              { label: "M0–M3", cells: { what: "Sign hub lease; start fit-out", owner: "Operations" } },
+              { label: "M0–M3", cells: { what: "Start expanding Eastfield and Harbour", owner: "Operations" } },
               { label: "M3–M6", cells: { what: "Hire and train hub teams", owner: "People" } },
-              { label: "M6–M9", cells: { what: "Move Northgate, then Riverside", owner: "Operations" } },
+              { label: "M6–M9", cells: { what: "Dual running: move Northgate, then Riverside", owner: "Operations" } },
               { label: "M9", highlight: true, tag: "Done", cells: { what: "Both sites closed; cost per order below $7.30", owner: "Finance" } },
             ]}
           />
@@ -447,7 +447,7 @@ export const consultingDeck: DeckSlide[] = [
       </ConsultingSlide>
     ),
     notes: {
-      say: "Nine months, three phases, one owner each. Cash goes negative while both networks run, bottoming out around eight million, and turns positive in month fourteen. We call it done when cost per order is below seven dollars thirty, measured monthly by Finance. And if service drops below eighty-eight percent on time for four weeks, we pause the second move.",
+      say: "Nine months, three phases, one owner each. Operations expands Eastfield and Harbour in the first quarter, People hires and trains the hub teams in the second, and in the third we run both networks while Northgate moves, then Riverside. Cash goes negative while both networks run, bottoming out around eight million in month nine, and turns positive in month fourteen. We call it done when cost per order is below seven dollars thirty, measured monthly by Finance. And if service drops below eighty-eight percent on time for four weeks, we pause the Riverside move. Source: the cost model's cash plan.",
       delivery: "Trace the line from the dip to the break-even point, then read the tripwire.",
       next: "So here is what we need from you.",
     },
@@ -455,14 +455,14 @@ export const consultingDeck: DeckSlide[] = [
   {
     id: "ask",
     title: "Approve $9M by 14 March",
-    headline: "Approve $9M by 14 March so Operations can sign the hub lease in Q2",
+    headline: "Approve $9M by 14 March so Operations can start the hub expansions in Q2",
     role: "ask",
     render: () => (
       <ConsultingSlide
         tracker={tracker("Decision")}
         sticker={sticker}
         label={label}
-        title="Approve $9M by 14 March so Operations can sign the hub lease in Q2"
+        title="Approve $9M by 14 March so Operations can start the hub expansions in Q2"
         subtitle="Three decisions for the executive committee"
         rows="auto minmax(0, 1fr)"
         notes={["Run-rate saving forgone for each quarter the start slips, before one-off costs."]}
@@ -508,7 +508,7 @@ export const consultingDeck: DeckSlide[] = [
       </ConsultingSlide>
     ),
     notes: {
-      say: "We need three decisions. First and most urgent: approve the nine million by the fourteenth of March, so Operations can sign the hub lease in the second quarter. Second, confirm that Northgate and Riverside close next year. Third, name a full-time transition lead by the end of March. Every quarter we wait forgoes about three and a half million. I own the business case and will bring the lease terms to the next review.",
+      say: "We need three decisions from the executive committee. First and most urgent: approve the nine million by the fourteenth of March, so Operations can start expanding the two hubs in the second quarter. Second, confirm that Northgate and Riverside close next year. Third, name a full-time transition lead by the end of March. Every quarter we wait forgoes about three and a half million. I own the business case and will bring the lease terms to the next review.",
       delivery: "Stop talking after the ask and wait for the decision.",
       next: "Take questions; the cost model behind every number is the appendix slide.",
     },
@@ -526,7 +526,7 @@ export const consultingDeck: DeckSlide[] = [
         subtitle={<>Appendix · inputs behind every number in this deck, including the $9M one-off cost<Ref n={2} />; FY25 unless stated</>}
         notes={[
           "Run-rate saving = (Northgate and Riverside cost per order − hub cost per order) × their 4.1M orders, less $0.7M a year of hub overhead.",
-          "One-off $9M: hub fit-out $5.5M, site exits $2.4M, dual running $1.1M.",
+          "One-off $9M: hub expansion $5.5M, site exits $2.4M, dual running $1.1M.",
         ]}
         source={source}
       >
@@ -567,7 +567,7 @@ export const consultingDeck: DeckSlide[] = [
       </ConsultingSlide>
     ),
     notes: {
-      say: "Backup for questions. Every number in the deck comes from these inputs: five sites' orders, cost per order and utilisation, a hub cost of seven dollars ten an order, and a one-off cost of nine million. The saving stays above outsourcing's eleven million unless hub cost passes seven eighty an order.",
+      say: "Backup for questions. Every number in the deck comes from these inputs: five sites' orders, cost per order and utilisation, a hub cost of seven dollars ten an order once Eastfield and Harbour are expanded, and a one-off cost of nine million. The saving stays above outsourcing's eleven million unless hub cost passes seven eighty an order.",
       delivery: "Don't present this slide; open it when someone asks where a number comes from.",
       next: "Back to the decision.",
     },
