@@ -1,13 +1,24 @@
 import { Figure, Node, Connector, Defs, Label } from "../src";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
 import { visualStyles } from "./catalog";
 import { SlideScene, harnessDive } from "../src/slides";
 import { SlideStarter } from "../src/presentations";
 import { presentationStarters } from "./presentationExamples";
+import { StylePreview } from "./StylePreviews";
 import "../src/slides/slides.css";
 import "../src/presentations/presentations.css";
 import "./presentations.css";
+
+// Each object card opens the travel study in its own direction, the scene its still shows.
+const objectLinks = {
+  studio: "Open the woodland atlas",
+  "paper-theatre": "Open the alpine passage",
+  kinetic: "Open the armillary globe",
+  cartoon: "Open the island express",
+  realistic: "Open the field compass",
+  abstract: "Open the glass passage",
+};
 
 const chapters = [
   {
@@ -152,14 +163,7 @@ export default function CatalogPages() {
           <div className="style-grid">
             {visualStyles.map((style) => (
               <article className="style-card" key={style.id}>
-                <div className="style-swatch" data-style={style.id} aria-hidden="true">
-                  {(style.id === "technical" ? ["Request", "System", "Evidence"] : style.id === "landing" ? ["Proof", "Star", "Action"] : style.id === "mechanism" ? ["Propose", "Check", "Result"] : [style.name, "3D", "Motion"]).map((word, i) => (
-                    <Fragment key={word}>
-                      {i > 0 && <i>→</i>}
-                      <span>{word}</span>
-                    </Fragment>
-                  ))}
-                </div>
+                <StylePreview id={style.id} theme={theme} />
                 <h3>{style.name}</h3>
                 <p>{style.description}</p>
                 <div>
@@ -167,12 +171,12 @@ export default function CatalogPages() {
                     <a href={`/?theme=${theme}`}>Diagrams</a>
                     <a href={`/animations?theme=${theme}`}>3D animations</a>
                     <a href={`/presentations?theme=${theme}`}>Presentations</a>
-                  </> : style.id === 'landing' ? <a href={`/web?theme=${theme}`}>Web UI building blocks</a> : style.id === 'mechanism' ? <a href={`/mechanism?theme=${theme}`}>Verification gate machine</a> : <a href={`/animations?story=travel&variant=${'variant' in style ? style.variant : 0}&theme=${theme}`}>Explore six animated studies</a>}
+                  </> : style.id === 'landing' ? <a href={`/web?theme=${theme}`}>Web UI building blocks</a> : style.id === 'mechanism' ? <a href={`/mechanism?theme=${theme}`}>Verification gate machine</a> : <a href={`/animations?story=travel&variant=${'variant' in style ? style.variant : 0}&theme=${theme}`}>{objectLinks[style.id as keyof typeof objectLinks]}</a>}
                 </div>
               </article>
             ))}
           </div>
-          <p className="collection-intro">
+          <p className="collection-intro style-grid__note">
             Technical diagrams, the Landing web style, Mechanism machines, and six object art directions. Each object direction has its own models, materials, perspective and motion.
           </p>
         </section>

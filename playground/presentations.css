@@ -23,6 +23,10 @@
   font-size: 24px;
   margin: 24px 0 12px;
 }
+/* The note under the grid keeps clear of the last row of cards. */
+.style-grid + .style-grid__note {
+  margin-top: 32px;
+}
 .style-card p {
   max-width: 60ch;
   line-height: 1.6;
@@ -34,22 +38,96 @@
   align-items: center;
   min-height: 44px;
 }
-.style-swatch {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 100px;
-  background-image: radial-gradient(var(--show-rule) 1px, transparent 1px);
-  background-size: 12px 12px;
+/* A real preview per style, drawn by the style itself (or a still for the WebGL directions).
+   Every preview shares one 2:1 frame so the titles below line up across a row. */
+.style-preview {
+  position: relative;
+  aspect-ratio: 2 / 1;
+  container-type: inline-size;
+  overflow: hidden;
+  border: 1px solid var(--show-rule);
+  border-radius: 4px;
+  background: var(--show-bg);
 }
-.style-swatch span {
-  border: 1px solid var(--show-accent);
-  padding: 12px;
-  background: var(--show-surface);
-  border-radius: 6px;
-  font:
-    12px ui-monospace,
-    monospace;
+.style-preview > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.style-preview .uipack {
+  height: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+.style-preview .uipack__canvas {
+  box-sizing: border-box;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+}
+.style-preview .uipack:not(.uipack--has-narrow) .uipack__canvas > svg {
+  display: block;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+}
+/* The gate's drawing sits in a 600 × 360 box; crop to the machine (its centre is 55% down). */
+.style-preview .um-machine {
+  position: absolute;
+  inset: 0;
+}
+.style-preview .um-machine.uipack-mechanism > svg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: auto;
+  height: 122%;
+  max-width: none;
+  transform: translate(-50%, -55%);
+}
+.style-preview__landing {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--web-bg);
+}
+.style-preview__star {
+  position: absolute;
+  inset: 62% -4% -2% -4%;
+  width: 108%;
+  height: 40%;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 40%);
+  mask-image: linear-gradient(to right, transparent, #000 40%);
+}
+.style-preview__landing-copy {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin-bottom: 12%;
+  text-align: center;
+}
+.style-preview__landing .uipack-web-eyebrow {
+  margin: 0;
+  font-size: 10px;
+}
+.style-preview__display {
+  margin: 0;
+  font-family: var(--web-font-display);
+  font-size: clamp(26px, 8cqi, 34px);
+  line-height: 1.02;
+  letter-spacing: var(--web-display-tracking);
+  color: var(--web-ink);
+}
+.style-preview__landing .uipack-web-cta {
+  min-height: 0;
+  padding: 6px 14px;
+  font-size: 12px;
+  pointer-events: none;
 }
 .deck-chapters,
 .deck-navigation {
@@ -171,12 +249,6 @@
   .style-card {
     padding: 20px;
   }
-  .style-swatch {
-    gap: 6px;
-  }
-  .style-swatch span {
-    padding: 8px;
-  }
 }
 .composed-deck__visual[hidden] {
   display: none;
@@ -212,11 +284,4 @@
   .composed-deck__figure {
     padding: 12px;
   }
-}
-.style-swatch[data-style="landing"] span {
-  border-color: #4b3fd6;
-  border-radius: 999px;
-}
-:root[data-theme="dark"] .style-swatch[data-style="landing"] span {
-  border-color: #a99dff;
 }
