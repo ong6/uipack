@@ -99,7 +99,7 @@ interface LayerProps {
 }
 
 /** One level's drawings. Memoised: a move re-renders the head, not the drawings. */
-const DrillLayer = memo(function DrillLayer({ level, figId, frame, floorWide, floorNarrow, levels, open, current }: LayerProps) {
+const DrillLayer = /*#__PURE__*/ memo(function DrillLayer({ level, figId, frame, floorWide, floorNarrow, levels, open, current }: LayerProps) {
   const lid = `${figId}-${cleanId(level.id)}`;
   const ctx = (variant: "wide" | "narrow"): DrillContextValue => ({
     levels,
@@ -139,7 +139,7 @@ const DrillLayer = memo(function DrillLayer({ level, figId, frame, floorWide, fl
  * clip shaped like the node box, and Back reverses the same path. The header
  * carries a breadcrumb, a Back control, Open canvas and the motion controls.
  */
-export function DrillFigure({
+function DrillFigureRoot({
   levels,
   root,
   viewBox,
@@ -582,5 +582,12 @@ export function DrillFigure({
   );
 }
 
-/** `renderStatic(<DrillFigure …/>)` draws the level at the figure's path. */
-DrillFigure.toStatic = (props: DrillFigureProps) => drillStatic(props);
+/**
+ * A stack of figures in the Figure style; see `DrillFigureRoot`.
+ * `renderStatic(<DrillFigure …/>)` draws the level at the figure's path. `toStatic` is attached
+ * through a pure `Object.assign`, not a top-level property write, so bundlers can drop an unused figure.
+ */
+export const DrillFigure = /*#__PURE__*/ Object.assign(DrillFigureRoot, {
+  displayName: "DrillFigure",
+  toStatic: (props: DrillFigureProps) => drillStatic(props),
+});

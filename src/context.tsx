@@ -16,7 +16,7 @@ export interface FigureMotion {
 
 const noop = () => {};
 
-export const FigureMotionContext = createContext<FigureMotion>({
+export const FigureMotionContext = /*#__PURE__*/ createContext<FigureMotion>({
   playing: true,
   reduced: false,
   cycle: 0,

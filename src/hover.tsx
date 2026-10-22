@@ -13,7 +13,7 @@ export interface FigureHover {
 
 const noop = () => {};
 
-export const FigureHoverContext = createContext<FigureHover>({ flow: null, kind: null, setFlow: noop, setKind: noop });
+export const FigureHoverContext = /*#__PURE__*/ createContext<FigureHover>({ flow: null, kind: null, setFlow: noop, setKind: noop });
 
 export function useFigureHover(): FigureHover {
   return useContext(FigureHoverContext);
