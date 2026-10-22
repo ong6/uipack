@@ -14,9 +14,10 @@
 }
 /* Side layout, on a wide, short window (useFitBelowHeader in DeckShowcase.tsx): the slide and its
    controls take the left column, as wide as the window's height allows, starting right under the
-   title; the intro and the reference tables run down a column beside it. The title block and the
-   page's section give their children to main's grid; the reading order stays title, intro, deck,
-   reference. */
+   title; the intro (and a not-found note) sit beside it, and the reference tables run under the
+   controls in two columns across the page, so no tall column hangs beside a short slide. The title
+   block and the page's section give their children to main's grid; the reading order stays title,
+   intro, deck, reference. */
 .showcase-shell:has(> .deck-showcase[data-layout="side"]) {
   grid-template-columns:
     minmax(0, min(100% - 340px, (100svh - var(--deck-chrome, 76px)) * 16 / 9))
@@ -43,13 +44,13 @@
 }
 .deck-showcase[data-layout="side"] > .uipack-deck {
   grid-column: 1;
-  grid-row: 3 / span 4;
+  grid-row: 3 / span 2;
   margin: 0;
 }
 .deck-showcase[data-layout="side"] > .deck-showcase__reference {
-  grid-column: 2;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 28px;
+  grid-column: 1 / -1;
+  grid-row: 5;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .deck-showcase__reference h2 {
   margin: 0 0 8px;

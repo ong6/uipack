@@ -168,11 +168,57 @@ test.describe("/deck player", () => {
 
   test("at 1280×900 the slide and its controls fit the first screen", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto("/deck?view=present");
+    await page.goto("/deck");
     // The page fits the deck to the window once its controls have mounted.
     await expect
       .poll(() => page.locator(".uipack-deck-controls").evaluate((el) => el.getBoundingClientRect().bottom))
       .toBeLessThanOrEqual(900);
+  });
+
+  test("beside a laptop-sized slide sits only the intro; the reference tables run under the controls", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/deck");
+    await expect(page.locator(".deck-showcase")).toHaveAttribute("data-layout", "side");
+    const box = await page.evaluate(() => {
+      const r = (s: string) => document.querySelector(s)!.getBoundingClientRect();
+      const tables = Array.from(document.querySelectorAll(".deck-showcase__reference > section"), (el) =>
+        el.getBoundingClientRect(),
+      );
+      return { controls: r(".uipack-deck-controls").bottom, tables: tables.map((t) => ({ top: t.top, left: t.left })) };
+    });
+    // Two columns, side by side, both under the controls.
+    expect(box.tables).toHaveLength(2);
+    for (const t of box.tables) expect(t.top).toBeGreaterThan(box.controls);
+    expect(box.tables[1].left).toBeGreaterThan(box.tables[0].left);
+  });
+
+  // Presenting on a laptop, the slide gets the window: the page scrolls past its header (which stays
+  // in the page) and the stage is as tall as the window less one row of controls.
+  const presented = (page: Page) =>
+    page.evaluate(() => {
+      const stage = document.querySelector(".uipack-deck-stage")!.getBoundingClientRect();
+      const controls = document.querySelector(".uipack-deck-controls")!.getBoundingClientRect();
+      return { top: Math.round(stage.top), height: Math.round(stage.height), bottom: Math.round(controls.bottom) };
+    });
+  test("?view=present at 1280×720 gives the slide the window, below one row of controls", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto("/deck?view=present&deck=consulting");
+    await expect(page.getByRole("button", { name: "Full screen" })).toBeVisible();
+    await expect.poll(async () => (await presented(page)).top).toBe(0);
+    const { height, bottom } = await presented(page);
+    expect(height).toBeGreaterThanOrEqual(720 - 80);
+    expect(bottom).toBeLessThanOrEqual(720);
+    await expect(page.locator(".showcase-header")).toHaveCount(1);
+  });
+
+  test("Present from the read view at 1280×720 gives the slide the window too", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto("/deck?view=read&deck=consulting");
+    await page.locator(".uipack-deck-read__head button").click();
+    await expect.poll(async () => (await presented(page)).top).toBe(0);
+    const { height, bottom } = await presented(page);
+    expect(height).toBeGreaterThanOrEqual(720 - 80);
+    expect(bottom).toBeLessThanOrEqual(720);
   });
 
   for (const [width, height] of [

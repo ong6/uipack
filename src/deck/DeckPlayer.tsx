@@ -40,6 +40,11 @@ export interface DeckPlayerProps {
    * `print` lays every slide out as a 16:9 page for printing or saving as PDF.
    */
   view?: "present" | "read" | "print";
+  /**
+   * Called when the viewer switches between presenting and the read view (Read, Present). A host
+   * page can give a presented deck the whole window, for instance by scrolling past its own header.
+   */
+  onViewChange?: (view: "present" | "read") => void;
   /** Print each slide's headline and talk track beside it (the PDF / Print button and `view="print"`). */
   printNotes?: boolean;
   /** Run the storyline checks and show findings in the overview's Storyline tab. For authoring, not for the audience. */
@@ -91,6 +96,7 @@ function Player({
   presenterHref,
   keyboard = "focus",
   view: initialView = "present",
+  onViewChange,
   printNotes = false,
   lint = false,
   minutes,
@@ -147,6 +153,7 @@ function Player({
   const openReader = () => {
     setReadOpen({ focus: true });
     setReading(true);
+    onViewChange?.("read");
   };
 
   const closeOverview = () => {
@@ -254,6 +261,7 @@ function Player({
           open={readOpen}
           onPresent={(i) => {
             setReading(false);
+            onViewChange?.("present");
             go(i, 0);
             requestAnimationFrame(() => {
               const root = rootRef.current;

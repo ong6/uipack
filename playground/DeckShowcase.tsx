@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { DeckPlayer } from "../src/deck";
 import "../src/deck/deck.css";
 import "../src/deck/bento.css";
@@ -89,6 +89,8 @@ const moves = [
 const SIDE_COLUMN = 340;
 /** The page height around a slide that sits under the intro: header, title, intro and controls. */
 const STACKED_CHROME = 484;
+/** Presenting, the window keeps only the controls' row under the slide (with their gap and a margin). */
+const PRESENT_CHROME = 44 + 14 + 12;
 
 /**
  * Keeps the slide and its controls on the first screen: the stage may be as tall as the viewport
@@ -97,12 +99,18 @@ const STACKED_CHROME = 484;
  * Under the intro on a wide, short window (a laptop), the slide would be height-bound and leave a
  * third of the column empty beside it. There the page takes its side layout (`data-layout="side"`,
  * deck-showcase.css): the slide starts right under the title, as wide as the window's height allows,
- * and the intro and the reference tables sit in a column beside it. The choice reads only the
- * window and the column, never the layout it makes, so it cannot flip back and forth. The controls'
- * measured height is counted too, should they wrap.
+ * with the intro beside it and the reference tables under it. The choice reads only the window and
+ * the column, never the layout it makes, so it cannot flip back and forth. The controls' measured
+ * height is counted too, should they wrap.
+ *
+ * Presenting (`?view=present`, or Present pressed in the read view), the page header no longer
+ * counts: the slide is as large as the window less one row of controls, and the page scrolls past
+ * the header to it when it would not fit on the first screen otherwise. The header stays in the page.
  */
-function useFitBelowHeader() {
+function useFitBelowHeader(presenting: boolean) {
   const ref = useRef<HTMLElement>(null);
+  // Whether the page opened presenting and hasn't been brought to the slide yet.
+  const openedPresenting = useRef(presenting);
   useLayoutEffect(() => {
     const el = ref.current;
     const main = el?.closest("main");
@@ -117,7 +125,7 @@ function useFitBelowHeader() {
         ro.observe((watched = controls));
       }
       const column = main.clientWidth;
-      const stacked = Math.min(column, ((window.innerHeight - STACKED_CHROME) * 16) / 9);
+      const stacked = Math.min(column, ((window.innerHeight - (presenting ? PRESENT_CHROME : STACKED_CHROME)) * 16) / 9);
       const side = window.innerWidth >= 960 && stacked <= column - SIDE_COLUMN;
       if ((el.dataset.layout === "side") !== side) {
         if (side) el.dataset.layout = "side";
@@ -125,16 +133,27 @@ function useFitBelowHeader() {
       }
       // The deck, not the section: in the side layout the section has no box of its own.
       const deck = el.querySelector(".uipack-deck") ?? el;
-      const top = deck.getBoundingClientRect().top + window.scrollY;
+      const top = presenting ? 0 : deck.getBoundingClientRect().top + window.scrollY;
       // On main, whose grid sizes the slide's column from it in the side layout. One row of controls
       // first; if they still wrap at the width that gives, their measured height. (Trying one row
       // each time means a window made taller gets the larger slide back once the row fits again.)
       const chrome = (controlsHeight: number) =>
-        main.style.setProperty("--deck-chrome", `${Math.round(top + controlsHeight + 14 + 22)}px`);
+        main.style.setProperty("--deck-chrome", `${Math.round(top + controlsHeight + 14 + (presenting ? 12 : 22))}px`);
       chrome(44);
       if (controls && controls.offsetHeight > 48) chrome(controls.offsetHeight);
     };
     fit();
+    // Presenting from the first load: bring the stage to the top of the window if the slide and its
+    // controls don't already fit under the header. (Present pressed in the read view scrolls the deck
+    // into view itself.)
+    // (Not on a phone, whose slide is as wide as the page anyway.)
+    if (presenting && openedPresenting.current && window.innerWidth > 600) {
+      openedPresenting.current = false;
+      const stage = el.querySelector(".uipack-deck-stage");
+      const controls = el.querySelector(".uipack-deck-controls");
+      if (stage && controls && controls.getBoundingClientRect().bottom > window.innerHeight)
+        window.scrollTo({ top: stage.getBoundingClientRect().top + window.scrollY, behavior: "instant" });
+    }
     ro?.observe(main);
     window.addEventListener("resize", fit);
     return () => {
@@ -142,13 +161,15 @@ function useFitBelowHeader() {
       ro?.disconnect();
       main.style.removeProperty("--deck-chrome");
     };
-  }, []);
+  }, [presenting]);
   return ref;
 }
 
 export default function DeckShowcase() {
   const { theme } = useShowcaseTheme();
-  const fitRef = useFitBelowHeader();
+  // Presenting: opened with ?view=present, or switched to from the read view.
+  const [presenting, setPresenting] = useState(view === "present" && params.get("view") === "present");
+  const fitRef = useFitBelowHeader(presenting);
   const initial = { slide: params.get("slide") ?? undefined, step: Number(params.get("step") ?? 0) || 0 };
   useShowcaseNote(view === "print" || presenter ? null : missingNote);
 
@@ -198,6 +219,7 @@ export default function DeckShowcase() {
           theme={theme}
           motion={motion}
           view={view}
+          onViewChange={(v) => setPresenting(v === "present")}
           lint={example.lint ?? true}
           initial={initial}
           onPositionChange={syncUrl}

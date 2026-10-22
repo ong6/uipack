@@ -138,7 +138,7 @@ Keys work while the deck has focus (`keyboard="focus"`, the default) or anywhere
 
 All slides is a modal dialog: Tab and Shift+Tab cycle through its own controls (in every browser, WebKit included), Escape or a click on its background closes it and returns focus to the All slides button, picking a slide focuses the deck (so Space moves on), and the rest of the page is inert while it is open.
 
-The stage never grows taller than the viewport leaves for it, so the slide and its controls fit on one screen: its width is capped at `(100svh − --deck-chrome) × 16/9`. `--deck-chrome` defaults to 76px (the controls); set it on the deck or an ancestor to include a page header above the deck, as the playground does. The controls share the stage's width, so their right edge (Full screen) lines up with the slide's. Under a laptop-sized slide (below 860px) the tools tighten, and below 790px they show short names (PDF, Slides, Speaker; the full name stays the accessible name), so one row fits down to a slide about 610px wide. Narrower still, the tools move to a second row, right-aligned, and the host should count that row in `--deck-chrome` (the playground measures the controls' height, trying one row first). On a wide, short window the playground also moves its intro and reference tables into a column beside the slide, so the slide starts right under the title.
+The stage never grows taller than the viewport leaves for it, so the slide and its controls fit on one screen: its width is capped at `(100svh − --deck-chrome) × 16/9`. `--deck-chrome` defaults to 76px (the controls); set it on the deck or an ancestor to include a page header above the deck, as the playground does. The controls share the stage's width, so their right edge (Full screen) lines up with the slide's. Under a laptop-sized slide (below 860px) the tools tighten, and below 790px they show short names (PDF, Slides, Speaker; the full name stays the accessible name), so one row fits down to a slide about 610px wide. Narrower still, the tools move to a second row, right-aligned, and the host should count that row in `--deck-chrome` (the playground measures the controls' height, trying one row first). On a wide, short window the playground also moves its intro into a column beside the slide, so the slide starts right under the title, and sets its reference tables in two columns under the controls. Presenting (opened with `?view=present`, or Present pressed in the read view, which `onViewChange` reports), the playground drops its header from `--deck-chrome` and scrolls past the header to the stage, so a laptop shows the slide as large as the window less one row of controls; the header stays in the page.
 
 ## Speaker view
 
@@ -162,7 +162,7 @@ Give slides a `role` (`cover`, `answer`, `context`, `problem`, `evidence`, `mech
 
 ## URL and position
 
-`initial={{ slide: "id" | index, step }}` opens a position; `onPositionChange({ index, step, id })` reports each change after mount. The playground keeps `?slide=` and `?step=` in the URL, and accepts `?theme=dark`, `?motion=none` and `?view=read|present|print` (`&notes=1` with print).
+`initial={{ slide: "id" | index, step }}` opens a position; `onPositionChange({ index, step, id })` reports each change after mount; `onViewChange("present" | "read")` reports a switch between presenting and the read view. The playground keeps `?slide=` and `?step=` in the URL, and accepts `?theme=dark`, `?motion=none` and `?view=read|present|print` (`&notes=1` with print).
 
 ## Not included
 
