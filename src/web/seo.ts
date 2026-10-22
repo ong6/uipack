@@ -32,6 +32,22 @@ export interface PageMetaOptions {
   twitterSite?: string;
   /** Robots directives, e.g. "noindex" for a preview. Omitted by default (indexable). */
   robots?: string;
+  /**
+   * This page as Markdown, absolute or relative to `url`: `<link rel="alternate" type="text/markdown">`,
+   * so an agent can fetch clean text instead of parsing the HTML.
+   */
+  markdown?: string;
+  /**
+   * The site's llms.txt, absolute or relative to `url` (usually "/llms.txt"):
+   * `<link rel="describedby" type="text/markdown">`, the site map written for language models.
+   */
+  llmsTxt?: string;
+  /** The site's RSS feed: `<link rel="alternate" type="application/rss+xml">`, titled with `siteName` unless given. */
+  rss?: string | { url: string; title?: string };
+  /** ISO 8601 first-publication date: `article:published_time`. For `type: "article"`. */
+  publishedTime?: string;
+  /** ISO 8601 last substantive change: `article:modified_time`. For `type: "article"`. */
+  modifiedTime?: string;
 }
 
 const isAbsolute = (u: string) => /^https?:\/\//i.test(u);
@@ -58,6 +74,15 @@ export function pageMeta(o: PageMetaOptions): HeadTag[] {
     { tag: "link", attrs: { rel: "canonical", href: o.url } },
   ];
   if (o.robots) tags.push({ tag: "meta", attrs: { name: "robots", content: o.robots } });
+  if (o.markdown) tags.push({ tag: "link", attrs: { rel: "alternate", type: "text/markdown", href: absoluteUrl(o.markdown, o.url) } });
+  if (o.llmsTxt) tags.push({ tag: "link", attrs: { rel: "describedby", type: "text/markdown", href: absoluteUrl(o.llmsTxt, o.url) } });
+  const rss = typeof o.rss === "string" ? { url: o.rss } : o.rss;
+  if (rss) {
+    const title = rss.title ?? o.siteName;
+    const attrs: Record<string, string> = { rel: "alternate", type: "application/rss+xml", href: absoluteUrl(rss.url, o.url) };
+    if (title) attrs.title = title;
+    tags.push({ tag: "link", attrs });
+  }
   const og = (property: string, content: string | number | undefined) =>
     content !== undefined && content !== "" && tags.push({ tag: "meta", attrs: { property, content: String(content) } });
   og("og:type", o.type ?? "website");
@@ -72,6 +97,8 @@ export function pageMeta(o: PageMetaOptions): HeadTag[] {
     og("og:image:width", image.width);
     og("og:image:height", image.height);
   }
+  og("article:published_time", o.publishedTime);
+  og("article:modified_time", o.modifiedTime ?? o.publishedTime);
   const tw = (name: string, content: string | undefined) => content && tags.push({ tag: "meta", attrs: { name, content } });
   tw("twitter:card", imageUrl ? "summary_large_image" : "summary");
   tw("twitter:title", o.title);
@@ -188,6 +215,39 @@ export interface OrganizationOptions {
 
 export function organization(o: OrganizationOptions): JsonLdNode {
   return clean({ "@type": "Organization", "@id": o.id ?? nodeId(o.url, "organization"), name: o.name, url: o.url, logo: o.logo, description: o.description, sameAs: o.sameAs });
+}
+
+export interface PersonOptions {
+  name: string;
+  /** The person's canonical page, e.g. their home page or /about. */
+  url: string;
+  /**
+   * Profiles that are this person elsewhere (GitHub, LinkedIn, X, another site), so answer
+   * engines join them into one entity. Only pages the person controls or that are about them.
+   */
+  sameAs?: string[];
+  image?: string;
+  jobTitle?: string;
+  description?: string;
+  /**
+   * Default `${url}#person`. Every site that mentions the person should use the same id, so
+   * their articles and profiles resolve to one node; pass the home site's id from elsewhere.
+   */
+  id?: string;
+}
+
+/** A Person, e.g. a site's author. Publish it once, then reference it by `@id` from articles. */
+export function person(o: PersonOptions): JsonLdNode {
+  return clean({
+    "@type": "Person",
+    "@id": o.id ?? nodeId(o.url, "person"),
+    name: o.name,
+    url: o.url,
+    image: o.image,
+    jobTitle: o.jobTitle,
+    description: o.description,
+    sameAs: o.sameAs,
+  });
 }
 
 export interface WebSiteOptions {
@@ -362,13 +422,27 @@ export interface ArticleOptions {
   /** ISO 8601 dates. */
   datePublished: string;
   dateModified?: string;
-  author: { name: string; url?: string } | { name: string; url?: string }[];
+  /**
+   * A name (and url), a `person()` node, or a Person's `{ "@id", name }`. With an `@id` the author
+   * links to that Person node, wherever it is published; the name stays for readers of this page alone.
+   */
+  author: ArticleAuthor | ArticleAuthor[];
   publisher?: { "@id"?: string } | string;
   type?: "Article" | "BlogPosting" | "NewsArticle" | "TechArticle";
 }
 
+/** An article author: plain name and url, a Person's `@id` and name, or a `person()` node. */
+export type ArticleAuthor = { name: string; url?: string; "@id"?: string } | JsonLdNode;
+
+function authorNode(a: ArticleAuthor): JsonLdNode {
+  const name = typeof a.name === "string" ? a.name : undefined;
+  if (!name) throw new Error("article: every author needs a name");
+  const url = typeof a.url === "string" ? a.url : undefined;
+  return clean({ "@type": "Person", "@id": typeof a["@id"] === "string" ? a["@id"] : undefined, name, url });
+}
+
 export function article(o: ArticleOptions): JsonLdNode {
-  const authors = (Array.isArray(o.author) ? o.author : [o.author]).map((a) => clean({ "@type": "Person", name: a.name, url: a.url }));
+  const authors = (Array.isArray(o.author) ? o.author : [o.author]).map(authorNode);
   return clean({
     "@type": o.type ?? "Article",
     headline: o.headline,

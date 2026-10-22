@@ -21,8 +21,8 @@ A Landing page is ready to be found and quoted when:
 | 1 | Every headline, demo step, stat and answer is **text in the server HTML**, not only in animation frames, canvas or `::before`. | Server-render or pre-render the page. The animated components already put their final text in the HTML (see [the audit](#component-audit)). |
 | 2 | **One `h1`** (the hero title), then `h2` per section and `h3` per card or question, with no skipped levels. | `StarHero` renders the `h1`; `Section` titles are `h2`; `FeatureGrid` and `FAQ` items are `h3`. `Heading level` goes to 6; `size` is separate from level. |
 | 3 | **Links are links.** Navigation and CTAs that go somewhere are `<a href>`. | `CtaButton href`, `GlassNav links`, `FeatureGrid` `href`. |
-| 4 | **A real head**: unique title, description, absolute canonical without view-state parameters, Open Graph and Twitter tags. | `pageMeta()` → `HeadTags` (server) or `useHead` (client) or `headTagsToHtml` (static). |
-| 5 | **JSON-LD for what the page shows**: the organisation, the site, the product with the Pricing section's offer, the FAQ. Nothing invisible, no invented ratings. | `organization`, `webSite`, `softwareApplication` / `product` + `offer`, `faqPage`, `breadcrumbList`, `article`, `jsonLd`, `<JsonLd>`. |
+| 4 | **A real head**: unique title, description, absolute canonical without view-state parameters, Open Graph and Twitter tags; links to the Markdown twin, `llms.txt` and the feed where the site has them. | `pageMeta()` → `HeadTags` (server) or `useHead` (client) or `headTagsToHtml` (static). |
+| 5 | **JSON-LD for what the page shows**: the organisation, the site, the product with the Pricing section's offer, the FAQ. Nothing invisible, no invented ratings. | `organization` (or `person` for a personal site), `webSite`, `softwareApplication` / `product` + `offer`, `faqPage`, `breadcrumbList`, `article`, `jsonLd`, `<JsonLd>`. |
 | 6 | **Answers that stand alone**: each FAQ answer's first sentence answers the question and names the product instead of "it". | `<FAQ items>`; visible text and FAQPage JSON-LD come from the same array. |
 | 7 | **robots.txt with a stance per AI crawler**, `sitemap.xml` with accurate `lastmod`, and (optionally) `llms.txt`. | `buildCrawlFiles()`, or `scripts/build-crawl-files.ts`. |
 | 8 | **Fast first view**: LCP ≤ 2.5 s, CLS ≤ 0.1, INP ≤ 200 ms at the 75th percentile ([web.dev][wd-cwv]). | Preload only the hero's display face (`fontPreloads`), keep motion idle until in view (it is), use `Section lazyRender` low on the page. |
@@ -68,6 +68,17 @@ const head = pageMeta({
   type: "website",
   twitterSite: "@tidy",
   // robots: "noindex",                     // for previews only
+  llmsTxt: "/llms.txt",                     // <link rel="describedby" type="text/markdown">
+  rss: "/feed.xml",                         // <link rel="alternate" type="application/rss+xml">, titled siteName
+});
+
+// An article page adds its Markdown twin and its dates:
+pageMeta({
+  title: "Who builds the AI stack", description: "…", url: "https://notes.example/who-builds",
+  type: "article",
+  markdown: "/raw/who-builds.md",           // <link rel="alternate" type="text/markdown">
+  publishedTime: "2026-10-01",              // article:published_time
+  modifiedTime: "2026-10-20",               // article:modified_time; defaults to publishedTime
 });
 
 // Server-rendered document (React 18 does not hoist head tags):
@@ -80,7 +91,10 @@ useHead(head);
 
 `pageMeta` returns `HeadTag[]` (`title`, `meta`, `link`, `script` as plain data) and throws on a
 relative `url`. `useHead` updates an existing title, description, canonical or `og:*` tag in place,
-adds the rest, and restores the previous head on unmount. Google accepts a canonical set by
+adds the rest, and restores the previous head on unmount. `markdown`, `llmsTxt` and `rss` take
+absolute URLs or paths resolved against `url`; each is emitted only when given. The Markdown
+alternate and the `describedby` link let an agent fetch the page or the site map as clean text
+instead of parsing HTML; serve those files yourself (`buildCrawlFiles` writes `llms.txt`). Google accepts a canonical set by
 JavaScript only if it matches the one in the HTML, so prefer the server head ([JavaScript SEO
 basics][g-js]).
 
@@ -117,18 +131,25 @@ const plan = offer({ name: "Personal", price: "8.00", priceCurrency: "USD", bill
     }),
   )}
 />
+
+// A personal site's author, linked from each article:
+const jun = person({ name: "Jun", url: "https://jun.example/", sameAs: ["https://github.com/jun"] });
+<JsonLd data={jsonLd(jun, article({ headline: "…", url: "https://notes.example/p", datePublished: "2026-10-01", author: jun }))} />
+// Elsewhere, reference the same Person without repeating it:
+article({ …, author: { "@id": "https://jun.example/#person", name: "Jun" } });
 ```
 
 | Builder | schema.org type | Notes |
 | --- | --- | --- |
 | `organization({ name, url, logo?, description?, sameAs?, id? })` | `Organization` | `@id` defaults to `url#organization`. |
+| `person({ name, url, sameAs?, image?, jobTitle?, description?, id? })` | `Person` | `@id` defaults to `url#person`. `sameAs` lists the person's own profiles (GitHub, LinkedIn, their home site) so engines join them into one entity. Publish it once and reuse that `@id` on every site, e.g. a notes site passes the home site's id. |
 | `webSite({ name, url, description?, publisher?, inLanguage? })` | `WebSite` | `publisher` takes a node or `@id`; `ref()` links nodes. |
 | `offer({ price, priceCurrency, name?, url?, billing?, availability?, trialDays? })` | `Offer` | `billing: "MON" \| "ANN"` adds a `UnitPriceSpecification`; `trialDays` adds `eligibleDuration`. Use the Pricing section's numbers. |
 | `softwareApplication({ name, description, url, type?, applicationCategory?, operatingSystem?, offers?, aggregateRating? })` | `SoftwareApplication` / `WebApplication` / `MobileApplication` | Google's app rich result needs a real rating or review ([software app][g-app]); omit `aggregateRating` rather than invent it. |
 | `product({ name, description, url, image?, brand?, sku?, offers?, aggregateRating? })` | `Product` | For physical or generic products. |
 | `faqPage(items, { url? })` | `FAQPage` | `FAQ` calls it for you. |
 | `breadcrumbList([{ name, url? }])` | `BreadcrumbList` | The last item may omit `url`. |
-| `article({ headline, url, datePublished, author, dateModified?, image?, publisher?, type? })` | `Article` / `BlogPosting` / … | `dateModified` defaults to `datePublished`. |
+| `article({ headline, url, datePublished, author, dateModified?, image?, publisher?, type? })` | `Article` / `BlogPosting` / … | `dateModified` defaults to `datePublished`. `author` takes `{ name, url? }`, a `person()` node, or a Person's `{ "@id", name }` (or an array of them); with an `@id` it emits a compact `{ "@type": "Person", "@id", name, url? }` that links to the full Person node. |
 | `jsonLd(...nodes)` | | One node, or an `@graph`, with `@context`. |
 | `serializeJsonLd(data)` / `jsonLdTag(doc)` | | Escapes `<`, `>`, `&`, U+2028 and U+2029 as JSON escapes, so `</script>` in a value cannot close the tag; parses back to the same data. |
 

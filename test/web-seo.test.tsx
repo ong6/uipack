@@ -27,6 +27,7 @@ import {
   offer,
   organization,
   pageMeta,
+  person,
   product,
   resolveAiCrawlers,
   serializeJsonLd,
@@ -172,6 +173,37 @@ describe("pageMeta", () => {
     expect(() => pageMeta({ title: "T", description: "D", url: "/x" })).toThrow(/absolute/);
   });
 
+  it("links the Markdown alternate, llms.txt, the RSS feed and article dates when given", () => {
+    const post = headTagsToHtml(
+      pageMeta({
+        title: "Who builds the AI stack",
+        description: "D",
+        url: "https://notes.example/who-builds",
+        type: "article",
+        siteName: "Notes",
+        markdown: "/raw/who-builds.md",
+        llmsTxt: "/llms.txt",
+        rss: "/feed.xml",
+        publishedTime: "2026-10-01",
+      }),
+    );
+    expect(post).toContain('<link rel="alternate" type="text/markdown" href="https://notes.example/raw/who-builds.md">');
+    expect(post).toContain('<link rel="describedby" type="text/markdown" href="https://notes.example/llms.txt">');
+    expect(post).toContain('<link rel="alternate" type="application/rss+xml" href="https://notes.example/feed.xml" title="Notes">');
+    expect(post).toContain('<meta property="og:type" content="article">');
+    expect(post).toContain('<meta property="article:published_time" content="2026-10-01">');
+    // An unedited post was last modified when it was published.
+    expect(post).toContain('<meta property="article:modified_time" content="2026-10-01">');
+
+    const edited = headTagsToHtml(
+      pageMeta({ title: "T", description: "D", url: "https://a.example/p", rss: { url: "https://feeds.example/a.xml", title: "A feed" }, publishedTime: "2026-10-01", modifiedTime: "2026-10-20T08:00:00Z" }),
+    );
+    expect(edited).toContain('href="https://feeds.example/a.xml" title="A feed"');
+    expect(edited).toContain('<meta property="article:modified_time" content="2026-10-20T08:00:00Z">');
+    // None of them appear unless asked for.
+    expect(html).not.toMatch(/text\/markdown|rss\+xml|describedby|article:/);
+  });
+
   it("HeadTags renders the same tags as React elements for a server-rendered head", () => {
     const out = renderToStaticMarkup(<HeadTags tags={[...tags, ...fontPreloads()]} />);
     expect(out).toContain('<link rel="canonical" href="https://tidy.example/"/>');
@@ -270,6 +302,32 @@ describe("JSON-LD", () => {
       dateModified: "2026-10-01",
       author: { "@type": "Person", name: "Jun" },
     });
+  });
+
+  it("builds a Person with @id, url and sameAs, and articles reference it", () => {
+    const jun = person({ name: "Jun", url: "https://jun.example/", sameAs: ["https://github.com/jun", "https://www.linkedin.com/in/jun"], jobTitle: "Engineer" });
+    expect(jun).toEqual({
+      "@type": "Person",
+      "@id": "https://jun.example/#person",
+      name: "Jun",
+      url: "https://jun.example/",
+      jobTitle: "Engineer",
+      sameAs: ["https://github.com/jun", "https://www.linkedin.com/in/jun"],
+    });
+    expect(person({ name: "Jun", url: "https://notes.example/about", id: "https://jun.example/#person" })["@id"]).toBe("https://jun.example/#person");
+
+    // A person() node becomes a compact reference: @id, name and url, not a second copy of the profile.
+    const post = article({ headline: "H", url: "https://notes.example/p", datePublished: "2026-10-01", author: jun });
+    expect(post.author).toEqual({ "@type": "Person", "@id": "https://jun.example/#person", name: "Jun", url: "https://jun.example/" });
+    // An @id and name, e.g. a Person published on another site; plain names still work alongside.
+    const pair = article({ headline: "H", url: "https://notes.example/p", datePublished: "2026-10-01", author: [{ "@id": "https://jun.example/#person", name: "Jun" }, { name: "Ana" }] });
+    expect(pair.author).toEqual([
+      { "@type": "Person", "@id": "https://jun.example/#person", name: "Jun" },
+      { "@type": "Person", name: "Ana" },
+    ]);
+    const graph = jsonLd(jun, post)["@graph"] as Record<string, unknown>[];
+    expect((graph[1].author as Record<string, unknown>)["@id"]).toBe(graph[0]["@id"]);
+    expect(() => article({ headline: "H", url: "https://a.example/p", datePublished: "2026-10-01", author: { "@type": "Person", "@id": "x" } })).toThrow(/name/);
   });
 
   it("serialises safely: </script> and <!-- cannot close the tag, and the JSON round-trips", () => {
