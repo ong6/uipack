@@ -66,7 +66,7 @@ The gate's model and motion are exported with a gate prefix (`GATE_LIMIT`, `GATE
 
 ## Building a new machine (the Anatomy workflow)
 
-Put each machine in its own folder under `src/mechanism/`, as `gate/` is for the gate (`model.ts`, `view.ts`, `geometry.ts`, `motion.ts`, `VerificationGate.tsx`); `kit/`, `solid3.ts`, `MechanismFrame` and `mechanism.css` are shared. Export it by name from `src/mechanism/index.ts` and register it in `playground/catalog.ts` (`mechanismEntries`). The step-by-step file list is in [contributing](contributing.md#a-new-mechanism-machine).
+Put each machine in its own folder under `src/mechanism/`, as `gate/` is for the gate (`model.ts`, `view.ts`, `geometry.ts`, `motion.ts`, `display.ts`, `GateArt.tsx`, `useGateLoop.ts`, `VerificationGate.tsx`); `kit/`, `solid3.ts`, `MechanismFrame` and `mechanism.css` are shared. Export it by name from `src/mechanism/index.ts` and register it in `playground/catalog.ts` (`mechanismEntries`). The step-by-step file list is in [contributing](contributing.md#a-new-mechanism-machine).
 
 1. **Size it.** A Figure is one mechanism, 40–80 parts. Larger (a Hero, 80–150) needs a reason.
 2. **Truth first.** Write the model as a small pure module with unit tests: the real numbers, thresholds, counts and the readout text.
