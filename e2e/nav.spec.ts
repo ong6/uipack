@@ -458,6 +458,34 @@ test.describe("a #fragment link opens its target once the lazy page has rendered
   });
 });
 
+test("a bad deck view or slide is said in a note, not ignored", async ({ page }) => {
+  await page.goto("/deck?view=bogus");
+  await expect(page.locator(".showcase-title__note")).toHaveText("View “bogus” not found, showing the present view.");
+  await expect(page.getByRole("region", { name: "Deck player example" })).toBeVisible();
+  await page.goto("/deck?slide=nope");
+  await expect(page.locator(".showcase-title__note")).toHaveText("Slide “nope” not found, showing slide 1.");
+  for (const ok of ["/deck?view=read", "/deck?view=present&slide=fix"]) {
+    await page.goto(ok);
+    await expect(page.getByRole("region", { name: "Deck player example" })).toBeVisible();
+    await expect(page.locator(".showcase-title__note")).toHaveCount(0);
+  }
+});
+
+test("the deck's print page and speaker window name themselves: tab title and one h1", async ({ page }) => {
+  for (const [path, name] of [
+    ["/deck?view=print", "Print view"],
+    ["/deck?presenter=1", "Speaker view"],
+    ["/deck?deck=bento&presenter=1", "Speaker view"],
+  ] as const) {
+    await page.goto(path);
+    const deckName = path.includes("bento") ? "Bento" : "Tech talk";
+    await expect(page).toHaveTitle(`${name} · ${deckName} · Deck player · uipack`);
+    const h1 = page.getByRole("heading", { level: 1 });
+    await expect(h1).toHaveCount(1);
+    await expect(h1).toHaveText(`${deckName} deck, ${name.toLowerCase()}`);
+  }
+});
+
 test("while a page's chunk loads, the shell stays and a status line says what is loading", async ({ page }) => {
   // Hold the page module until the shell has been checked. Dev serves it as /DocsShowcase.tsx; a build as a hashed chunk.
   let release!: () => void;
