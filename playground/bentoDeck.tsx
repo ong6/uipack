@@ -255,6 +255,11 @@ export const bentoDeck: DeckSlide[] = [
     notes: {
       say: "This is the whole quarter on one page. The cache in front of the index saved 140 of the 214 milliseconds; a smaller ranking model on the long tail saved another 58, and streaming the first results the last 16. Six changes reached all traffic, each behind a flag, and none rolled back. Cost per thousand queries is down to forty-one cents and errors stayed under the SLO. Underneath sit the one risk and next quarter's plan. Source: search latency dashboard, p95 over seven days, all regions.",
       delivery: "Press Next to move the camera: latency, then what shipped. The third press pulls back to the whole quarter.",
+      stops: {
+        latency:
+          "The cache in front of the index saved 140 of the 214 milliseconds; a smaller ranking model on the long tail saved another 58, and streaming the first results the last 16. Source: search latency dashboard, p95 over seven days, all regions.",
+        shipped: "Six changes reached all traffic, each behind a flag, and none rolled back.",
+      },
       next: "One box can undo the rest: the cache is filling up.",
     },
   },

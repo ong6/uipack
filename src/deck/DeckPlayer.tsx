@@ -476,7 +476,7 @@ function Player({
       onKeyDown={onKeyDown}
     >
       {initialView === "print" ? (
-        <Printout slides={slides} theme={theme} notes={printNotes} />
+        <Printout slides={slides} theme={theme} notes={printNotes} inPlace />
       ) : reading ? (
         <Reader
           slides={slides}

@@ -434,10 +434,24 @@ describe("Bento", () => {
     ]);
     expect(pages[1].querySelector(".uipack-deck-bento")).toHaveAttribute("data-focus", "a");
     expect(pages[1].querySelector(".uipack-deck-bento")).toHaveAttribute("data-still", "");
-    expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual([
+    expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual([
       "The grid proves the claim.",
       "Where the time went",
       "After the grid, the ask.",
+    ]);
+    // A detail page carries a talk track too: the slide's own, as this slide names no stop note.
+    expect(pages[1].querySelector(".uipack-deck-print__say")).toHaveTextContent("Walk the grid.");
+    // The pages scroll sideways in a narrow window, so the box is a named region on the Tab order.
+    expect(screen.getByRole("region", { name: "Printable pages" })).toHaveAttribute("tabindex", "0");
+  });
+
+  it("print view: a detail page says what the notes give for its stop", () => {
+    const stops: DeckSlide[] = [{ ...toured[0], notes: { say: "Walk the grid.", delivery: "", stops: { a: "Latency first." } } }];
+    render(<DeckPlayer id="t11b" title="Test deck" slides={stops} view="print" printNotes />);
+    const pages = Array.from(deck().querySelectorAll(".uipack-deck-print__page"));
+    expect(pages.map((p) => p.querySelector(".uipack-deck-print__say")?.textContent)).toEqual([
+      "SayWalk the grid.",
+      "SayLatency first.",
     ]);
   });
 

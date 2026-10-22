@@ -4,6 +4,8 @@ import { useIsoLayoutEffect } from "../../env";
 /** A build step whose view holds detail that the fully built slide hides (a bento tour stop). */
 export interface DetailStop {
   step: number;
+  /** The stop's cell ID (its `tour` entry). */
+  id: string;
   /** What the step shows, for a caption: the detail's own title, else the cell's ID. */
   label: string;
 }
@@ -24,7 +26,7 @@ export function detailStopsOf(root: Element | null): DetailStop[] {
       .map((step) => {
         const id = tour[step - 1] ?? String(step);
         const detail = part.querySelector(`[data-bento-cell="${CSS.escape(id)}"] .uipack-deck-bento__detail`);
-        return { step, label: detail?.firstElementChild?.textContent?.trim() || id };
+        return { step, id, label: detail?.firstElementChild?.textContent?.trim() || id };
       });
   });
 }

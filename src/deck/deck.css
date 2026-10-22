@@ -920,6 +920,10 @@
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
+.uipack-deck-print:focus-visible {
+  outline: 2px solid var(--deck-accent);
+  outline-offset: 4px;
+}
 .uipack-deck-print__page {
   page: uipack-deck;
   position: relative;
@@ -1001,7 +1005,7 @@
   padding: 28px 28px 28px 32px;
   font: 400 14px/1.55 var(--deck-sans);
 }
-.uipack-deck-print__notes h3 {
+.uipack-deck-print__notes h2 {
   margin: 0 0 12px;
   font-size: 19px;
   line-height: 1.3;
