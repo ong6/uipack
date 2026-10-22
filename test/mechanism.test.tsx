@@ -225,11 +225,17 @@ describe("GateMachine loop", () => {
     const readouts: string[] = [];
     const onReadout = (text: string) => readouts.push(text);
     const { rerender, unmount } = render(<GateMachine pose="idle" onReadout={onReadout} />);
-    act(() => vi.advanceTimersByTime(PERIOD * 1000));
-    expect(new Set(readouts).size).toBeGreaterThan(1);
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+    expect(vi.getTimerCount()).toBe(1); // the idle tour's next frame
     rerender(<GateMachine pose="idle" motion="none" onReadout={onReadout} />);
     const settled = readouts.length;
-    act(() => vi.advanceTimersByTime(2 * PERIOD * 1000));
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+    // The loop settles on the still frame and stops asking for frames.
+    expect(vi.getTimerCount()).toBe(0);
     expect(readouts.slice(settled).filter((text) => text !== stillScene("idle").readout)).toEqual([]);
     unmount();
   });
