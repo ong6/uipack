@@ -9,13 +9,10 @@
   border-radius: 12px;
   padding: var(--web-s4);
 }
-/* In dark, the Landing's blue-black and the shell's green-black meet at the frame. A double rule (the
-   Landing's indigo hairline inside, the shell's rule 4px outside) makes that edge a window onto
-   another style rather than a seam; the Landing keeps its own colours inside. */
+/* In dark, the Landing's blue-black and the shell's green-black meet at the frame. One hairline
+   tinted with the Landing's indigo marks that edge as a window onto another style. */
 :root[data-theme="dark"] :is(.web-example, .web-panel) {
-  border-color: rgb(169 157 255 / 0.24);
-  outline: 1px solid var(--show-rule);
-  outline-offset: 4px;
+  border-color: rgb(169 157 255 / 0.3);
 }
 @media (max-width: 720px) {
   .web-panel { padding: 16px; }
