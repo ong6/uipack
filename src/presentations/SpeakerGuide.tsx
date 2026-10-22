@@ -1,10 +1,11 @@
 import { useId, useState } from "react";
+import { WORDS_PER_MINUTE } from "../speech";
 import type { PresentationTheme, SpeechGuide as SpeechGuideData } from "./types";
 
 export function estimateSpeechSeconds(say: string): number {
   const words = say.trim().match(/\S+/g)?.length ?? 0;
   if (!words) return 0;
-  return Math.max(5, Math.round((words / 135) * 12) * 5);
+  return Math.max(5, Math.round((words / WORDS_PER_MINUTE) * 12) * 5);
 }
 
 export function formatSpeechGuide(speech: SpeechGuideData): string {

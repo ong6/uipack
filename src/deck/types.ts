@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { SpeechGuide } from "../presentations/types";
+import type { SpeechGuide } from "../speech";
 import type { SlideRole } from "./storyline";
 
 export type DeckTheme = "light" | "dark";

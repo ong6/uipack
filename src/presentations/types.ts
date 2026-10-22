@@ -1,13 +1,8 @@
 export type PresentationTheme = "light" | "dark";
 
-export interface SpeechGuide {
-  /** The words to say. Keep this conversational and short enough for one slide. */
-  say: string;
-  /** One practical cue for pace, emphasis, or where to direct attention. */
-  delivery: string;
-  /** Optional bridge into the following slide. */
-  next?: string;
-}
+import type { SpeechGuide } from "../speech";
+
+export type { SpeechGuide };
 
 export interface SlideFooter {
   label: string;

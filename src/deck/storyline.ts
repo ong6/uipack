@@ -2,14 +2,15 @@
  * The content layer for decks: what each slide is for, proven storylines for the decks an engineer
  * gives inside a company, and a linter for the argument (not the pixels).
  *
- * Plain data and pure functions: no React, no DOM, no runtime imports. Everything here serialises
+ * Plain data and pure functions: no React, no DOM, no runtime imports but the shared speaking pace
+ * (src/speech.ts). Everything here serialises
  * to JSON, so a CLI, an editor panel or the player's speaker view can all read it.
  *
  * Practice it encodes: answer first (Minto's pyramid), SCQA for decisions, action titles that
  * read as claims, the ghost-deck test (the titles alone tell the argument), one idea per slide,
  * numbers that carry a source, and a closing ask with a decision, an owner and a date.
  */
-import type { SpeechGuide } from "../presentations/types";
+import { WORDS_PER_MINUTE, type SpeechGuide } from "../speech";
 import type { TransitionKind } from "./transitions";
 
 // ---------------------------------------------------------------------------------------------
@@ -678,8 +679,8 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
 };
 
 export const MAX_TITLE_WORDS = 14;
-/** Matches `estimateSpeechSeconds` in the presentations module. */
-export const WORDS_PER_MINUTE = 135;
+// The speaking pace (135 words a minute) is shared with the presentations entry's estimateSpeechSeconds.
+export { WORDS_PER_MINUTE };
 
 const TOPIC_LABELS = new Set([
   "about me",
