@@ -495,3 +495,16 @@
   font-size: 30px;
   line-height: 1.4;
 }
+
+/* ?view=print: the printable deck alone, no shell. */
+.deck-print-page {
+  margin: 0;
+  padding: 24px;
+  background: #d9dcd9;
+}
+@media print {
+  .deck-print-page {
+    padding: 0;
+    background: none;
+  }
+}

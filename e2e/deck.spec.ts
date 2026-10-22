@@ -254,3 +254,34 @@ test.describe("/deck layout", () => {
     });
   }
 });
+
+test.describe("/deck print and PDF", () => {
+  test("?view=print saves a PDF with one 16:9 page per slide", async ({ page, browserName }) => {
+    test.skip(browserName !== "chromium", "page.pdf() is Chromium-only");
+    for (const [id, count] of [["moves", 7], ["bento", 5], ["consulting", 8]] as const) {
+      await page.goto(`/deck?deck=${id}&view=print`);
+      await expect(page.locator(".uipack-deck-print__page")).toHaveCount(count);
+      await page.evaluate(() => document.fonts.ready);
+      const pdf = (await page.pdf({ preferCSSPageSize: true, printBackground: true })).toString("latin1");
+      expect(pdf.match(/\/Type\s*\/Page[^s]/g), `${id} pages`).toHaveLength(count);
+      // 1280×720 CSS px is 960×540 pt: 16:9.
+      expect(pdf).toMatch(/\/MediaBox\s*\[0 0 960 540\]/);
+    }
+  });
+
+  test("the PDF / Print button prints every slide from a copy, then hands focus back", async ({ page }) => {
+    await page.goto("/deck?view=present");
+    await page.evaluate(() => {
+      const w = window as unknown as { printed: number };
+      w.printed = -1;
+      window.print = () => {
+        w.printed = document.querySelectorAll(".uipack-deck-print-root .uipack-deck-print__page").length;
+        window.dispatchEvent(new Event("afterprint"));
+      };
+    });
+    await page.getByRole("button", { name: "PDF / Print" }).click();
+    await expect.poll(() => page.evaluate(() => (window as unknown as { printed: number }).printed)).toBe(7);
+    await expect(page.locator(".uipack-deck-print-root")).toHaveCount(0);
+    await expect(deck(page)).toBeFocused();
+  });
+});

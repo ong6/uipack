@@ -12,6 +12,7 @@ import { Controls } from "./player/Controls";
 import { Layer, useCanvasScale } from "./player/Layer";
 import { Overview } from "./player/Overview";
 import { Presenter } from "./player/Presenter";
+import { PrintJob, Printout } from "./player/Print";
 import { Reader } from "./player/Reader";
 import { lintDeck, type LintOptions } from "./storyline";
 import { resolveTransition, runTransition } from "./transitions";
@@ -36,8 +37,13 @@ export interface DeckPlayerProps {
   presenterHref?: string;
   /** `focus`: keys work while the deck has focus. `global`: anywhere on the page. */
   keyboard?: "focus" | "global";
-  /** `read` stacks every slide, fully built, with its talk track: for phones and for decks read alone. */
-  view?: "present" | "read";
+  /**
+   * `read` stacks every slide, fully built, with its talk track: for phones and for decks read alone.
+   * `print` lays every slide out as a 16:9 page for printing or saving as PDF.
+   */
+  view?: "present" | "read" | "print";
+  /** Print each slide's headline and talk track beside it (the PDF / Print button and `view="print"`). */
+  printNotes?: boolean;
   /** Run the storyline checks and show findings in the overview's Storyline tab. For authoring, not for the audience. */
   lint?: boolean | LintOptions;
   className?: string;
@@ -67,6 +73,7 @@ export function DeckPlayer({
   presenterHref,
   keyboard = "focus",
   view: initialView = "present",
+  printNotes = false,
   lint = false,
   className,
 }: DeckPlayerProps) {
@@ -80,6 +87,7 @@ export function DeckPlayer({
   const [overview, setOverview] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [reading, setReading] = useState(initialView === "read");
+  const [printing, setPrinting] = useState(false);
   // The viewer's setting (shared with every entry) or the deck's own motion="none".
   const prefersReduced = usePrefersReducedMotion();
   const reducedMotion = motion === "none" || prefersReduced;
@@ -380,6 +388,7 @@ export function DeckPlayer({
       onPrev={prev}
       onNext={next}
       onRead={() => setReading(true)}
+      onPrint={() => setPrinting(true)}
       onOverview={() => setOverview(true)}
       onPresenter={openPresenter}
       onFullscreen={toggleFullscreen}
@@ -403,7 +412,9 @@ export function DeckPlayer({
       tabIndex={0}
       onKeyDown={onKeyDown}
     >
-      {reading ? (
+      {initialView === "print" ? (
+        <Printout slides={slides} theme={theme} notes={printNotes} />
+      ) : reading ? (
         <Reader
           slides={slides}
           theme={theme}
@@ -418,6 +429,18 @@ export function DeckPlayer({
           {mode === "presenter" ? <Presenter slides={slides} index={view.index} theme={theme} stage={stage} /> : stage}
           {controls}
         </>
+      )}
+      {printing && (
+        <PrintJob
+          slides={slides}
+          theme={theme}
+          title={title}
+          notes={printNotes}
+          onDone={() => {
+            setPrinting(false);
+            rootRef.current?.focus({ preventScroll: true });
+          }}
+        />
       )}
       <p className="uipack-deck-sr" aria-live="polite">
         Slide {view.index + 1} of {count}: {current.title}

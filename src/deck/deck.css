@@ -370,6 +370,9 @@
 }
 .uipack-deck-sr {
   position: absolute;
+  /* Pinned to the top: at its static position after a printout it would start a blank last page. */
+  top: 0;
+  left: 0;
   width: 1px;
   height: 1px;
   overflow: hidden;
@@ -708,4 +711,101 @@
 }
 .uipack-deck-presenter__role b {
   color: var(--deck-fg);
+}
+
+/* Print and PDF: one slide per 16:9 page (1280×720 CSS px = 13.33×7.5 in), fully built.
+   A named page, so a host page that imports this stylesheet keeps its own page size. */
+@page uipack-deck {
+  size: 1280px 720px;
+  margin: 0;
+}
+.uipack-deck-print {
+  display: grid;
+  gap: 24px;
+  justify-content: start;
+  overflow-x: auto;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.uipack-deck-print__page {
+  page: uipack-deck;
+  position: relative;
+  width: 1280px;
+  height: 720px;
+  overflow: hidden;
+  background: var(--deck-bg);
+  color: var(--deck-fg);
+  break-after: page;
+  break-inside: avoid;
+}
+.uipack-deck-print__page:last-child {
+  break-after: auto;
+}
+.uipack-deck-print__slide {
+  position: relative;
+  width: 1280px;
+  height: 720px;
+  overflow: hidden;
+  background: var(--deck-bg);
+}
+/* The canvas scale is fixed, not measured: print layout never runs the player's resize observer.
+   It is a zoom, not a transform, so the canvas lays out at page size: pages split by layout
+   height, and a 1080px-tall transformed canvas would spill onto the next page. */
+.uipack-deck-print__slide > .uipack-deck-canvas {
+  zoom: 0.666667;
+}
+/* With notes: the slide at half size, its headline and talk track beside it, on the same page. */
+.uipack-deck-print[data-notes] .uipack-deck-print__page {
+  display: grid;
+  grid-template-columns: 960px 1fr;
+  align-content: start;
+  background: #ffffff;
+  color: #1a1c1a;
+}
+.uipack-deck-print[data-notes] .uipack-deck-print__slide {
+  width: 960px;
+  height: 540px;
+}
+.uipack-deck-print[data-notes] .uipack-deck-print__slide > .uipack-deck-canvas {
+  zoom: 0.5;
+}
+.uipack-deck-print__notes {
+  padding: 28px 28px 28px 32px;
+  font: 400 14px/1.55 var(--deck-sans);
+}
+.uipack-deck-print__notes h3 {
+  margin: 0 0 12px;
+  font-size: 17px;
+  line-height: 1.35;
+}
+.uipack-deck-print__notes h3 span {
+  margin-right: 6px;
+  color: #5c625e;
+  font: 600 12px/1 var(--deck-mono);
+}
+.uipack-deck-print__notes p {
+  margin: 0;
+  color: #3d433f;
+}
+/* The PDF / Print button prints a copy mounted at the end of <body>: off screen until printed. */
+@media screen {
+  .uipack-deck-print-root {
+    position: fixed;
+    top: 0;
+    left: -300vw;
+    pointer-events: none;
+  }
+}
+@media print {
+  body:has(.uipack-deck-print) {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body:has(> .uipack-deck-print-root) > :not(.uipack-deck-print-root) {
+    display: none !important;
+  }
+  .uipack-deck-print {
+    gap: 0;
+    overflow: visible;
+  }
 }
