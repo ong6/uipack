@@ -28,7 +28,7 @@ The components enforce what they can; the rest is on the page author.
 ## Visual
 
 3. **One star of the show,** derived from the product story, not stock decoration. Mask it so it never
-   competes with the headline. `StarHero` fades its visual in below the copy; `StarChart` takes
+   competes with the headline. `StarHero` fades its visual in below the copy and out towards its low start, where the proof's steps and controls sit (those also sit on an opaque surface); `StarChart` takes
    `values` from your story (the example plots messages handled, 0 → 37). (SMWD-6) For a heavyweight
    star, use a `uipack/objects` 3D scene: design image concepts first, reuse the hero asset down the
    page, pause rendering off-screen, and ship a still image on mobile. (CA)
