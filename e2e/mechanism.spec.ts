@@ -88,6 +88,26 @@ test("reduced motion holds one still, readable frame per pose", async ({ browser
   await context.close();
 });
 
+test("the looping idle tour has a visible Pause control; other poses and reduced motion do not", async ({ page, browser }) => {
+  await page.goto("/mechanism?pose=idle");
+  const pause = page.locator(".mechanism-stage").getByRole("button", { name: "Pause motion" });
+  await expect(pause).toBeVisible();
+  expect((await pause.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await pause.click();
+  await expect(page.locator(readout)).toHaveText(/· paused$/);
+  const resume = page.locator(".mechanism-stage").getByRole("button", { name: "Resume motion" });
+  await resume.click();
+  await expect(page.locator(readout)).not.toHaveText(/paused/);
+  await page.getByRole("button", { name: "Pass", exact: true }).click();
+  await expect(page.locator(".mechanism-stage .um-motion")).toHaveCount(0);
+  const context = await browser.newContext({ reducedMotion: "reduce" });
+  const still = await context.newPage();
+  await still.goto("/mechanism?pose=idle");
+  await expect(still.locator(machine)).toBeVisible();
+  await expect(still.locator(".mechanism-stage .um-motion")).toHaveCount(0);
+  await context.close();
+});
+
 test("the machine is reachable and operable from the keyboard", async ({ page }) => {
   await page.goto("/mechanism?pose=idle");
   await expect(page.locator(machine)).toBeVisible();

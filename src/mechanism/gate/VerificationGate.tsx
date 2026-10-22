@@ -237,6 +237,8 @@ export function GateMachine({ pose = "idle", theme, motion = "auto", interactive
   const reduced = usePrefersReducedMotion();
   const stillness = React.useRef(reduced);
   stillness.current = reduced;
+  // Mirrors state.current.paused for the visible Pause control's label.
+  const [paused, setPaused] = React.useState(false);
 
   // First frame: the pose's still for thumbnails and stillness; otherwise the start of the pose.
   const start = React.useRef<{ display: Display; scene: Scene; t: number } | null>(null);
@@ -384,6 +386,7 @@ export function GateMachine({ pose = "idle", theme, motion = "auto", interactive
       s.t = calm ? STILL_AT[pose] : 0;
       s.round++;
       s.paused = false;
+      setPaused(false);
     }
     aim(pose === "apart", calm);
     if (calm) {
@@ -444,8 +447,10 @@ export function GateMachine({ pose = "idle", theme, motion = "auto", interactive
     const s = state.current;
     const current = poseRef.current;
     const calm = stillness.current || motion === "none";
-    if (current === "idle") s.paused = !s.paused;
-    else if (current === "apart") {
+    if (current === "idle") {
+      s.paused = !s.paused;
+      setPaused(s.paused);
+    } else if (current === "apart") {
       const open = ASSEMBLIES.every((name) => s.targets[name] === 1);
       aim(!open, calm);
     } else {
@@ -669,7 +674,25 @@ export function GateMachine({ pose = "idle", theme, motion = "auto", interactive
       {interactive ? <span ref={live} className="um-hidden" aria-live="polite" /> : null}
     </div>
   );
-  return machine;
+  // The idle tour loops for as long as it is on screen, so it carries a visible Pause control
+  // (WCAG 2.2.2), beside the machine rather than inside it: the machine is a button already.
+  if (!animated || reduced || pose !== "idle") return machine;
+  const control = (
+    <button type="button" className="um-motion" onClick={act}>
+      {paused ? "Resume motion" : "Pause motion"}
+    </button>
+  );
+  return bare ? (
+    <div className="uipack-mechanism um-live" data-theme={theme}>
+      {machine}
+      {control}
+    </div>
+  ) : (
+    <>
+      {machine}
+      {control}
+    </>
+  );
 }
 
 function Tokens({ layer, slots }: { layer: Layer; slots: Slot[] }) {
