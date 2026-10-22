@@ -38,9 +38,9 @@ A style is an implementation, not a label: register it only when its renderer ex
 
 1. `libraryPages` in `playground/catalog.ts`: `id`, `group` (one of `libraryGroups`), `label` (nav text and `h1`), `path`, `intro` (one sentence). Optional: `title` when the label names only a sub-view, `query` and `isDefault` for sub-views of one path (the decks), `hostsPage` when the page renders a complete sample page with its own `h1` (`/web`), `styleName` when its content is not Technical.
 2. The page component, `playground/<Name>Showcase.tsx`, default export, rendering only the page's content: `main.tsx` puts it inside `ShowcaseShell` (header, `h1`, intro), and `useShowcaseTheme()` gives it the theme. Sections are `<section data-catalog-entry id>` with a sentence-case `h2`; figures inside keep `headingLevel` 3. Its CSS is `playground/<name>-showcase.css`, imported by the page (with `src/theme.css` and `src/canvas.css` if it shows figures), with classes no library entry uses: it loads with the page's chunk, and only `showcase.css` is in the entry.
-3. `pageModules` in `playground/routes.ts`: map the id to the module name. The typecheck fails until you do. `main.tsx` lazy-loads it (a module named `App`, `CatalogPages` or `*Showcase`), and the build preloads its chunk from `index.html`.
-4. The nav table in `e2e/nav.spec.ts` (`GROUPS`, written out on purpose) and the table in `playground/README.md`.
-5. Run `e2e/nav.spec.ts` and `e2e/alignment.spec.ts`; add the path to `PAGES` in `alignment.spec.ts`.
+3. `pageModules` in `playground/routes.ts`: map the id to the module name. The typecheck fails until you do. Name a new module `<Name>Showcase`: `main.tsx` lazy-loads only modules matching its `import.meta.glob` (`App`, `CatalogPages` and `*Showcase`), and `test/catalog.test.tsx` fails on any other name. The build preloads the page's chunk from `index.html`.
+4. The table in `playground/README.md`. The nav and alignment tests read their page lists from the catalog, so the page is covered once it is registered.
+5. Run `e2e/nav.spec.ts` and `e2e/alignment.spec.ts`.
 
 ## Which slide system
 
@@ -57,7 +57,7 @@ Three entries draw slides. New slide work goes in `uipack/deck`; the other two a
 1. `playground/<name>Deck.tsx` exports `DeckSlide[]` (and `LintOptions` if it follows a storyline template). Build slides from `Slide`, `Morph`, `Build`, `Bento` and the consulting parts; sizes are canvas pixels on 1920×1080.
 2. Add `{ id, slides, lint }` to `deckExamples` in `playground/deckExamples.ts`.
 3. Add its nav entry to `libraryPages`: `group: "presentations"`, `title: "Deck player"`, `path: "/deck"`, `query: { deck: "<id>" }`, a `label` and an `intro`. `test/catalog.test.tsx` fails until the two lists match. `/deck?deck=<id>` now opens it.
-4. Add the row to `GROUPS` in `e2e/nav.spec.ts` and to the deck row in `playground/README.md`.
+4. Add it to the deck row in `playground/README.md` (`e2e/nav.spec.ts` reads its nav table from the catalog).
 5. Run `lintDeck` on it (the overview's Storyline tab shows the findings) and `e2e/deck.spec.ts`.
 
 ## A new slide part or chart
