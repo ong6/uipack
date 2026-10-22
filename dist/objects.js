@@ -1,13 +1,7 @@
-import {
-  CanvasView
-} from "./chunk-WTI575DG.js";
-import {
-  keepFocusedInView,
-  usePrefersReducedMotion
-} from "./chunk-KYO6UXHN.js";
-
-// src/objects/ObjectScene.tsx
-import { useEffect, useRef, useState } from "react";
+import { CanvasView } from './chunk-WTI575DG.js';
+import { keepFocusedInView, usePrefersReducedMotion } from './chunk-KYO6UXHN.js';
+import { useState, useRef, useEffect } from 'react';
+import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 
 // src/objects/variants.ts
 var objectDirections = [
@@ -55,50 +49,10 @@ function transferObjectVariant(from, to, variant) {
   const direction = objectDirectionIndex(from, variant);
   return to === "contact" ? direction === 2 ? 4 : direction === 3 ? 3 : 0 : direction;
 }
-
-// src/objects/ObjectScene.tsx
-import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 var objectPalettes = {
   light: { paper: 15986663, ink: 2698802, muted: 10136485, accent: 2121545 },
   dark: { paper: 14212825, ink: 3755080, muted: 8492426, accent: 7454115 }
 };
-var objectScenes = [
-  {
-    id: "ai",
-    title: "Agent session",
-    description: "Code streams into a laptop while tool calls return a completed result."
-  },
-  {
-    id: "contact",
-    title: "Contact inbox",
-    description: "Email, chat and web signals converge into one inbox."
-  },
-  {
-    id: "tennis",
-    title: "Tennis practice",
-    description: "Two players trade returns across the net in a continuous rally."
-  },
-  {
-    id: "trading",
-    title: "Trading journal",
-    description: "A continuously panning candlestick chart with consistent OHLC prices and volume. Simulation; no live data."
-  },
-  {
-    id: "server",
-    title: "Inference study",
-    description: "An exploded hardware study assembles inside a chassis outline."
-  },
-  {
-    id: "travel",
-    title: "Local map",
-    description: "A paper map opens and a route traces continuously to its destination."
-  },
-  {
-    id: "reading",
-    title: "Open book",
-    description: "Layered paper, a cloth spine and a thin page curling across an open book."
-  }
-];
 var REST_START_MS = 5400;
 var NARROW_STAGE_PX = 480;
 var MOBILE_FRAME_MS = 1e3 / 30;
@@ -296,7 +250,7 @@ function ObjectStage({
       setReady(false);
     };
     canvas.addEventListener("webglcontextlost", handleContextLost);
-    Promise.all([import("three"), import("./scenes-Q72UQICX.js"), import("three/addons/environments/RoomEnvironment.js")]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
+    Promise.all([import('three'), import('./scenes-KPOLSMHM.js'), import('three/addons/environments/RoomEnvironment.js')]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
       if (disposed) return;
       try {
         renderer = new THREE.WebGLRenderer({
@@ -615,16 +569,52 @@ function ObjectDirectionPicker({ value, onChange }) {
   )) });
 }
 
-// src/objects/gallery.tsx
-import { Fragment as Fragment2, jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
+// src/objects/scene-list.ts
+var objectScenes = [
+  {
+    id: "ai",
+    title: "Agent session",
+    description: "Code streams into a laptop while tool calls return a completed result."
+  },
+  {
+    id: "contact",
+    title: "Contact inbox",
+    description: "Email, chat and web signals converge into one inbox."
+  },
+  {
+    id: "tennis",
+    title: "Tennis practice",
+    description: "Two players trade returns across the net in a continuous rally."
+  },
+  {
+    id: "trading",
+    title: "Trading journal",
+    description: "A continuously panning candlestick chart with consistent OHLC prices and volume. Simulation; no live data."
+  },
+  {
+    id: "server",
+    title: "Inference study",
+    description: "An exploded hardware study assembles inside a chassis outline."
+  },
+  {
+    id: "travel",
+    title: "Local map",
+    description: "A paper map opens and a route traces continuously to its destination."
+  },
+  {
+    id: "reading",
+    title: "Open book",
+    description: "Layered paper, a cloth spine and a thin page curling across an open book."
+  }
+];
 function AnimationWorkspace({
   library,
   children,
   theme = "light"
 }) {
-  return /* @__PURE__ */ jsxs2("div", { className: "uipack-animation-workspace", "data-theme": theme, children: [
-    /* @__PURE__ */ jsx2("aside", { className: "uipack-animation-library", children: library }),
-    /* @__PURE__ */ jsx2("div", { className: "uipack-animation-detail", children })
+  return /* @__PURE__ */ jsxs("div", { className: "uipack-animation-workspace", "data-theme": theme, children: [
+    /* @__PURE__ */ jsx("aside", { className: "uipack-animation-library", children: library }),
+    /* @__PURE__ */ jsx("div", { className: "uipack-animation-detail", children })
   ] });
 }
 function ObjectInspector({
@@ -636,10 +626,10 @@ function ObjectInspector({
 }) {
   variant = normalizeObjectVariant(kind, variant);
   const contact = kind === "contact";
-  return /* @__PURE__ */ jsxs2("aside", { className: "uipack-object-inspector", children: [
-    /* @__PURE__ */ jsxs2(Fragment2, { children: [
-      /* @__PURE__ */ jsx2("h3", { children: "Art direction" }),
-      /* @__PURE__ */ jsx2("div", { role: "group", "aria-label": "3D art direction", className: "uipack-direction-list", children: objectDirections.map((direction, index) => ({ direction, index })).filter(({ index }) => !contact || [0, 2, 3].includes(index)).map(({ direction, index }) => /* @__PURE__ */ jsxs2(
+  return /* @__PURE__ */ jsxs("aside", { className: "uipack-object-inspector", children: [
+    /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx("h3", { children: "Art direction" }),
+      /* @__PURE__ */ jsx("div", { role: "group", "aria-label": "3D art direction", className: "uipack-direction-list", children: objectDirections.map((direction, index) => ({ direction, index })).filter(({ index }) => !contact || [0, 2, 3].includes(index)).map(({ direction, index }) => /* @__PURE__ */ jsxs(
         "button",
         {
           type: "button",
@@ -647,27 +637,27 @@ function ObjectInspector({
           "aria-pressed": objectDirectionIndex(kind, variant) === index,
           onClick: () => onVariantChange(contact && index === 2 ? 4 : index),
           children: [
-            /* @__PURE__ */ jsx2("span", { className: "uipack-direction-symbol", "aria-hidden": "true", children: directionSymbols[index] }),
-            /* @__PURE__ */ jsxs2("span", { children: [
-              /* @__PURE__ */ jsx2("strong", { children: direction.name }),
-              /* @__PURE__ */ jsx2("small", { children: direction.description })
+            /* @__PURE__ */ jsx("span", { className: "uipack-direction-symbol", "aria-hidden": "true", children: directionSymbols[index] }),
+            /* @__PURE__ */ jsxs("span", { children: [
+              /* @__PURE__ */ jsx("strong", { children: direction.name }),
+              /* @__PURE__ */ jsx("small", { children: direction.description })
             ] })
           ]
         },
         direction.id
       )) })
     ] }),
-    (contact ? variant < 3 : variant === 0) && /* @__PURE__ */ jsxs2("label", { className: "uipack-edition-select", children: [
+    (contact ? variant < 3 : variant === 0) && /* @__PURE__ */ jsxs("label", { className: "uipack-edition-select", children: [
       contact ? "Inbox edition" : "Studio edition",
-      /* @__PURE__ */ jsx2(
+      /* @__PURE__ */ jsx(
         "select",
         {
           value: contact ? variant % 3 : edition,
           onChange: (e) => (contact ? onVariantChange : onEditionChange)(Number(e.target.value)),
-          children: objectEditions[kind].map((name, index) => /* @__PURE__ */ jsx2("option", { value: index, children: name }, name))
+          children: objectEditions[kind].map((name, index) => /* @__PURE__ */ jsx("option", { value: index, children: name }, name))
         }
       ),
-      /* @__PURE__ */ jsx2("small", { children: contact ? "Three original inbox finishes." : "The original looks, kept together in Studio." })
+      /* @__PURE__ */ jsx("small", { children: contact ? "Three original inbox finishes." : "The original looks, kept together in Studio." })
     ] })
   ] });
 }
@@ -682,13 +672,13 @@ function ObjectGallery({
 }) {
   variant = normalizeObjectVariant(kind, variant);
   const scene = objectScenes.find((item) => item.id === kind);
-  return /* @__PURE__ */ jsxs2(
+  return /* @__PURE__ */ jsxs(
     AnimationWorkspace,
     {
       theme,
-      library: /* @__PURE__ */ jsxs2(Fragment2, { children: [
-        /* @__PURE__ */ jsx2("h3", { children: "Object library" }),
-        /* @__PURE__ */ jsx2("nav", { "aria-label": "Choose an object", className: "uipack-scene-list", onFocus: keepFocusedInView, children: objectScenes.map((item) => /* @__PURE__ */ jsxs2(
+      library: /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsx("h3", { children: "Object library" }),
+        /* @__PURE__ */ jsx("nav", { "aria-label": "Choose an object", className: "uipack-scene-list", onFocus: keepFocusedInView, children: objectScenes.map((item) => /* @__PURE__ */ jsxs(
           "button",
           {
             type: "button",
@@ -696,19 +686,19 @@ function ObjectGallery({
             onClick: () => onChange(item.id, transferObjectVariant(kind, item.id, variant), edition),
             children: [
               item.title,
-              /* @__PURE__ */ jsx2("span", { "aria-hidden": "true", children: "\u2197" })
+              /* @__PURE__ */ jsx("span", { "aria-hidden": "true", children: "\u2197" })
             ]
           },
           item.id
         )) })
       ] }),
       children: [
-        /* @__PURE__ */ jsxs2("header", { className: "uipack-animation-heading", children: [
-          /* @__PURE__ */ jsx2("h3", { children: scene.title }),
-          /* @__PURE__ */ jsx2("span", { children: "Live 3D preview" })
+        /* @__PURE__ */ jsxs("header", { className: "uipack-animation-heading", children: [
+          /* @__PURE__ */ jsx("h3", { children: scene.title }),
+          /* @__PURE__ */ jsx("span", { children: "Live 3D preview" })
         ] }),
-        /* @__PURE__ */ jsxs2("div", { className: "uipack-object-review", children: [
-          /* @__PURE__ */ jsx2("div", { className: "uipack-gallery-stage", children: /* @__PURE__ */ jsx2(
+        /* @__PURE__ */ jsxs("div", { className: "uipack-object-review", children: [
+          /* @__PURE__ */ jsx("div", { className: "uipack-gallery-stage", children: /* @__PURE__ */ jsx(
             ObjectScene,
             {
               kind,
@@ -721,7 +711,7 @@ function ObjectGallery({
             },
             kind
           ) }),
-          /* @__PURE__ */ jsx2(
+          /* @__PURE__ */ jsx(
             ObjectInspector,
             {
               kind,
@@ -732,26 +722,10 @@ function ObjectGallery({
             }
           )
         ] }),
-        /* @__PURE__ */ jsx2("p", { className: "uipack-gallery-description", children: objectDirectionIndex(kind, variant) === 0 ? scene.description : objectDirections[objectDirectionIndex(kind, variant)].description })
+        /* @__PURE__ */ jsx("p", { className: "uipack-gallery-description", children: objectDirectionIndex(kind, variant) === 0 ? scene.description : objectDirections[objectDirectionIndex(kind, variant)].description })
       ]
     }
   );
 }
-export {
-  AnimationWorkspace,
-  ObjectDirectionPicker,
-  ObjectGallery,
-  ObjectInspector,
-  ObjectScene,
-  chooseObjectVariant,
-  directionSymbols,
-  normalizeObjectVariant,
-  objectDirectionIndex,
-  objectDirections,
-  objectEditions,
-  objectPalettes,
-  objectScenes,
-  objectVariants,
-  parseObjectVariant,
-  transferObjectVariant
-};
+
+export { AnimationWorkspace, ObjectDirectionPicker, ObjectGallery, ObjectInspector, ObjectScene, chooseObjectVariant, directionSymbols, normalizeObjectVariant, objectDirectionIndex, objectDirections, objectEditions, objectPalettes, objectScenes, objectVariants, parseObjectVariant, transferObjectVariant };

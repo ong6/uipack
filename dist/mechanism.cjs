@@ -1,12 +1,29 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { newObj[key] = obj[key]; } } } newObj.default = obj; return newObj; } } function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
+'use strict';
 
-var _chunkKQ7UFCOUcjs = require('./chunk-KQ7UFCOU.cjs');
+var chunkKQ7UFCOU_cjs = require('./chunk-KQ7UFCOU.cjs');
+var chunkYMPVJRTJ_cjs = require('./chunk-YMPVJRTJ.cjs');
+var React2 = require('react');
+var jsxRuntime = require('react/jsx-runtime');
 
+function _interopNamespace(e) {
+  if (e && e.__esModule) return e;
+  var n = Object.create(null);
+  if (e) {
+    Object.keys(e).forEach(function (k) {
+      if (k !== 'default') {
+        var d = Object.getOwnPropertyDescriptor(e, k);
+        Object.defineProperty(n, k, d.get ? d : {
+          enumerable: true,
+          get: function () { return e[k]; }
+        });
+      }
+    });
+  }
+  n.default = e;
+  return Object.freeze(n);
+}
 
-var _chunkYMPVJRTJcjs = require('./chunk-YMPVJRTJ.cjs');
-
-// src/mechanism/gate/VerificationGate.tsx
-var _react = require('react'); var React2 = _interopRequireWildcard(_react); var React = _interopRequireWildcard(_react);
+var React2__namespace = /*#__PURE__*/_interopNamespace(React2);
 
 // src/mechanism/kit/iso-kit.ts
 var AZIMUTH = 45;
@@ -106,7 +123,7 @@ function runsOf(flags, want) {
   return runs;
 }
 function extrude(ring2, z, height, projection, options = {}) {
-  const convex = _nullishCoalesce(options.convex, () => ( true));
+  const convex = options.convex ?? true;
   const count = ring2.length;
   const counter = signedArea(ring2) > 0;
   const [vx, vy] = towardViewer(projection);
@@ -398,11 +415,6 @@ function fitProjection(points, width, height, { pad = 24, headroom = 0, azimuth 
     elevation
   };
 }
-
-// src/mechanism/kit/live.tsx
-
-var _jsxruntime = require('react/jsx-runtime');
-var LONGEST_FRAME = 1 / 30;
 function follow(current, target, dt, seconds, calm = false) {
   if (calm) return target;
   const next = current + (target - current) * (1 - Math.exp(-dt / seconds));
@@ -422,25 +434,22 @@ function spring(state, target, dt, stiffness, damping, calm = false) {
   }
   return state.at === target && state.rate === 0;
 }
-
-// src/mechanism/kit/draw.tsx
-
 function Solid({ paths, tone = "hi", crease = "faint", halo = false, lit = false, flat = false, className, inner, children }) {
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { className: className ? `iso-solid ${className}` : "iso-solid", "data-lit": lit ? "" : void 0, "data-seamless": paths.seamless ? "" : void 0, children: [
-    halo ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-halo", d: paths.fill }) : null,
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-fill", d: paths.fill }),
-    flat ? null : paths.shades.map((d, shade) => d ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-shade", "data-shade": shade, d }, shade) : null),
-    flat ? null : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-top", d: paths.top }),
-    crease === "none" || !paths.crease ? null : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-line iso-crease", "data-tone": crease, d: paths.crease }),
-    crease === "none" || !paths.bevel ? null : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-line iso-bevel", "data-tone": crease, d: paths.bevel }),
+  return /* @__PURE__ */ jsxRuntime.jsxs("g", { className: className ? `iso-solid ${className}` : "iso-solid", "data-lit": lit ? "" : void 0, "data-seamless": paths.seamless ? "" : void 0, children: [
+    halo ? /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-halo", d: paths.fill }) : null,
+    /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-fill", d: paths.fill }),
+    flat ? null : paths.shades.map((d, shade) => d ? /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-shade", "data-shade": shade, d }, shade) : null),
+    flat ? null : /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-top", d: paths.top }),
+    crease === "none" || !paths.crease ? null : /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-line iso-crease", "data-tone": crease, d: paths.crease }),
+    crease === "none" || !paths.bevel ? null : /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-line iso-bevel", "data-tone": crease, d: paths.bevel }),
     inner,
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-line iso-edge", "data-tone": tone, d: paths.outline }),
+    /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-line iso-edge", "data-tone": tone, d: paths.outline }),
     children
   ] });
 }
 function Line({ d, tone = "lo", dotted = false, dashed = false, flow = false, className, free }) {
   if (!d) return null;
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+  return /* @__PURE__ */ jsxRuntime.jsx(
     "path",
     {
       className: className ? `iso-line ${className}` : "iso-line",
@@ -455,14 +464,14 @@ function Line({ d, tone = "lo", dotted = false, dashed = false, flow = false, cl
 }
 var tenth2 = (value) => Math.round(value * 10) / 10;
 function Wire({ from, to, via = [], tone = "lo", dotted = false, dashed = false, flow = false, ends = "both", size = 1.2 }) {
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { className: "iso-wire", "data-tone": tone, children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: pathOf([from, ...via, to]), tone, dotted, dashed, flow }),
-    ends === "both" || ends === "from" ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "circle", { className: "iso-wire-end", cx: tenth2(from[0]), cy: tenth2(from[1]), r: size }) : null,
-    ends === "both" || ends === "to" ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "circle", { className: "iso-wire-end", cx: tenth2(to[0]), cy: tenth2(to[1]), r: size }) : null
+  return /* @__PURE__ */ jsxRuntime.jsxs("g", { className: "iso-wire", "data-tone": tone, children: [
+    /* @__PURE__ */ jsxRuntime.jsx(Line, { d: pathOf([from, ...via, to]), tone, dotted, dashed, flow }),
+    ends === "both" || ends === "from" ? /* @__PURE__ */ jsxRuntime.jsx("circle", { className: "iso-wire-end", cx: tenth2(from[0]), cy: tenth2(from[1]), r: size }) : null,
+    ends === "both" || ends === "to" ? /* @__PURE__ */ jsxRuntime.jsx("circle", { className: "iso-wire-end", cx: tenth2(to[0]), cy: tenth2(to[1]), r: size }) : null
   ] });
 }
 function Dots({ points, size = 0.5, tone = "mid", pulse = false }) {
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "g", { className: "iso-dots", "data-tone": tone, children: points.map(([x, y, alpha], index) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+  return /* @__PURE__ */ jsxRuntime.jsx("g", { className: "iso-dots", "data-tone": tone, children: points.map(([x, y, alpha], index) => /* @__PURE__ */ jsxRuntime.jsx(
     "circle",
     {
       cx: tenth2(x),
@@ -482,7 +491,7 @@ function FaceText({
   tone = "mid",
   anchor = "start"
 }) {
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "text", { className: "iso-face-text", "data-tone": tone, transform, fontSize: size, textAnchor: anchor, children });
+  return /* @__PURE__ */ jsxRuntime.jsx("text", { className: "iso-face-text", "data-tone": tone, transform, fontSize: size, textAnchor: anchor, children });
 }
 
 // src/mechanism/solid3.ts
@@ -559,7 +568,7 @@ function prismOf(face, along, projection) {
     ids.forEach((id, at2) => {
       const other = ids[(at2 + 1) % ids.length];
       const key = id < other ? `${id}-${other}` : `${other}-${id}`;
-      const edge = _nullishCoalesce(edges.get(key), () => ( { a: id, b: other, faces: [] }));
+      const edge = edges.get(key) ?? { a: id, b: other, faces: [] };
       edge.faces.push(index);
       edges.set(key, edge);
     });
@@ -1024,7 +1033,7 @@ var RAISED = ARRIVE + 1.3;
 var SWING_AT = ARRIVE + 0.7;
 var SWUNG = ARRIVE + 1.2;
 var ARM_DIR = [Math.cos(ARM_SWING * Math.PI / 180), Math.sin(ARM_SWING * Math.PI / 180)];
-var CONTACT_X = PIVOT[0] + ARM_DIR[0] * (-PIVOT[1] / ARM_DIR[1]) - (TOKEN_R + 2) / ARM_DIR[1];
+var CONTACT_X = PIVOT[0] + ARM_DIR[0] * (21 / ARM_DIR[1]) - (TOKEN_R + 2) / ARM_DIR[1];
 var TO_CONTACT = (CONTACT_X - GX) / SPEED;
 var SLIDE_SPEED = 40;
 var SLIDE_LONG = CHUTE_MID / ARM_DIR[1];
@@ -1043,7 +1052,7 @@ var PERIOD = 5.4;
 var IDLE_START = 4 * PERIOD + 0.4;
 var KEEP_RETURNED = 1.8;
 var clamp = (value, low = 0, high = 1) => Math.min(high, Math.max(low, value));
-var smooth = (value) => _chunkKQ7UFCOUcjs.smoothstep.call(void 0, 0, 1, value);
+var smooth = (value) => chunkKQ7UFCOU_cjs.smoothstep(0, 1, value);
 var lerp = (a, b, t) => a + (b - a) * t;
 var mix3 = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
 function tokenAt(u, check, slot) {
@@ -1106,7 +1115,7 @@ function armAt(u, check) {
 var dwelling = (u) => u >= ARRIVE && u < RAISED;
 function history(count) {
   return Array.from({ length: count }, (_, index) => {
-    const check = checkAt(_nullishCoalesce([1, 3, 4][index], () => ( 1)));
+    const check = checkAt([1, 3, 4][index] ?? 1);
     const [x, y] = TRAY_SLOTS[index];
     return { key: `history-${index}`, check, pos: [x, y, TRAY_FLOOR], layer: "tray", alpha: 1, lit: false };
   });
@@ -1184,26 +1193,20 @@ var stillScene = (pose) => sceneAt(pose, STILL_AT[pose]);
 function contactOver(distance, height) {
   return height * smooth((TOKEN_R + 1 - distance) / 4);
 }
-
-// src/mechanism/MechanismFrame.tsx
-
 function MechanismFrame({ number, title, hint, readout, caption, theme, className, children }) {
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "figure", { className: `uipack-mechanism um-frame${className ? ` ${className}` : ""}`, "data-theme": theme, children: [
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "um-plate", children: [
-      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "um-corners", "aria-hidden": "true", children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "um-corner", "data-corner": "fig", children: number }),
-        title ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "um-corner", "data-corner": "title", children: title }) : null,
-        hint ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "um-corner", "data-corner": "hint", children: hint }) : null,
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "um-corner", "data-corner": "readout", "data-readout": "", children: readout })
+  return /* @__PURE__ */ jsxRuntime.jsxs("figure", { className: `uipack-mechanism um-frame${className ? ` ${className}` : ""}`, "data-theme": theme, children: [
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "um-plate", children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "um-corners", "aria-hidden": "true", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "um-corner", "data-corner": "fig", children: number }),
+        title ? /* @__PURE__ */ jsxRuntime.jsx("span", { className: "um-corner", "data-corner": "title", children: title }) : null,
+        hint ? /* @__PURE__ */ jsxRuntime.jsx("span", { className: "um-corner", "data-corner": "hint", children: hint }) : null,
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "um-corner", "data-corner": "readout", "data-readout": "", children: readout })
       ] }),
       children
     ] }),
-    caption ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "figcaption", { className: "um-caption", children: caption }) : null
+    caption ? /* @__PURE__ */ jsxRuntime.jsx("figcaption", { className: "um-caption", children: caption }) : null
   ] });
 }
-
-// src/mechanism/gate/VerificationGate.tsx
-
 var LAYERS = ["belt", "chute", "tray"];
 var SLOTS = 8;
 var LABEL2 = "A verification gate on a bench. Proposal tokens, machined pucks of different heights, leave a hopper on a short conveyor belt and stop under a dial indicator on a bridge. Its plunger rides up onto each token and the needle reads the token's height against a limit mark at 6. A token at or under the limit rides on and drops into the result tray. A taller one is pushed off the belt by a swinging arm into a chute that slides it back to a return tray beside the hopper, to be revised and fed again.";
@@ -1245,7 +1248,7 @@ function step(display, scene, dt, calm, targets) {
   for (const token of scene.tokens) {
     let slot = display.slots.find((candidate) => candidate.key === token.key);
     if (!slot) {
-      slot = _nullishCoalesce(display.slots.find((candidate) => !candidate.key), () => ( [...display.slots].sort((a, b) => a.alpha - b.alpha)[0]));
+      slot = display.slots.find((candidate) => !candidate.key) ?? [...display.slots].sort((a, b) => a.alpha - b.alpha)[0];
       Object.assign(slot, { key: token.key, value: token.check.value, pos: [...token.pos], layer: token.layer, alpha: calm ? token.alpha : 0, lit: token.lit });
       moving = true;
       continue;
@@ -1285,32 +1288,32 @@ var shareMove = (name, share) => {
 var readingOf = (display) => clamp(display.tip.at, 0, SCALE);
 function TokenArt({ paths }) {
   const { solid } = paths;
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-fill", d: solid.fill }),
-    solid.shades.map((d, shade) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-shade", "data-shade": shade, d }, shade)),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-top", d: solid.top }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-line iso-crease", "data-tone": "lo", d: solid.crease }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-line iso-bevel", "data-tone": "faint", d: _nullishCoalesce(solid.bevel, () => ( "")) }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-line um-token-face", "data-tone": "lo", d: paths.face }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-line iso-edge", "data-tone": "hi", d: solid.outline }),
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "circle", { className: "um-token-mark", cx: fine2(paths.mark[0]), cy: fine2(paths.mark[1]), r: 0.7 })
+  return /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-fill", d: solid.fill }),
+    solid.shades.map((d, shade) => /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-shade", "data-shade": shade, d }, shade)),
+    /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-top", d: solid.top }),
+    /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-line iso-crease", "data-tone": "lo", d: solid.crease }),
+    /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-line iso-bevel", "data-tone": "faint", d: solid.bevel ?? "" }),
+    /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-line um-token-face", "data-tone": "lo", d: paths.face }),
+    /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-line iso-edge", "data-tone": "hi", d: solid.outline }),
+    /* @__PURE__ */ jsxRuntime.jsx("circle", { className: "um-token-mark", cx: fine2(paths.mark[0]), cy: fine2(paths.mark[1]), r: 0.7 })
   ] });
 }
 function writeSolid(group, solid) {
   if (!group) return;
-  _optionalChain([group, 'access', _2 => _2.querySelector, 'call', _3 => _3(":scope > .iso-fill"), 'optionalAccess', _4 => _4.setAttribute, 'call', _5 => _5("d", solid.fill)]);
-  group.querySelectorAll(":scope > .iso-shade").forEach((node, shade) => node.setAttribute("d", _nullishCoalesce(solid.shades[shade], () => ( ""))));
-  _optionalChain([group, 'access', _6 => _6.querySelector, 'call', _7 => _7(":scope > .iso-top"), 'optionalAccess', _8 => _8.setAttribute, 'call', _9 => _9("d", solid.top)]);
-  _optionalChain([group, 'access', _10 => _10.querySelector, 'call', _11 => _11(":scope > .iso-crease"), 'optionalAccess', _12 => _12.setAttribute, 'call', _13 => _13("d", solid.crease)]);
-  _optionalChain([group, 'access', _14 => _14.querySelector, 'call', _15 => _15(":scope > .iso-bevel"), 'optionalAccess', _16 => _16.setAttribute, 'call', _17 => _17("d", _nullishCoalesce(solid.bevel, () => ( "")))]);
-  _optionalChain([group, 'access', _18 => _18.querySelector, 'call', _19 => _19(":scope > .iso-edge"), 'optionalAccess', _20 => _20.setAttribute, 'call', _21 => _21("d", solid.outline)]);
+  group.querySelector(":scope > .iso-fill")?.setAttribute("d", solid.fill);
+  group.querySelectorAll(":scope > .iso-shade").forEach((node, shade) => node.setAttribute("d", solid.shades[shade] ?? ""));
+  group.querySelector(":scope > .iso-top")?.setAttribute("d", solid.top);
+  group.querySelector(":scope > .iso-crease")?.setAttribute("d", solid.crease);
+  group.querySelector(":scope > .iso-bevel")?.setAttribute("d", solid.bevel ?? "");
+  group.querySelector(":scope > .iso-edge")?.setAttribute("d", solid.outline);
 }
 function writeToken(group, paths) {
   writeSolid(group, paths.solid);
-  _optionalChain([group, 'access', _22 => _22.querySelector, 'call', _23 => _23(":scope > .um-token-face"), 'optionalAccess', _24 => _24.setAttribute, 'call', _25 => _25("d", paths.face)]);
+  group.querySelector(":scope > .um-token-face")?.setAttribute("d", paths.face);
   const mark = group.querySelector(":scope > .um-token-mark");
-  _optionalChain([mark, 'optionalAccess', _26 => _26.setAttribute, 'call', _27 => _27("cx", `${fine2(paths.mark[0])}`)]);
-  _optionalChain([mark, 'optionalAccess', _28 => _28.setAttribute, 'call', _29 => _29("cy", `${fine2(paths.mark[1])}`)]);
+  mark?.setAttribute("cx", `${fine2(paths.mark[0])}`);
+  mark?.setAttribute("cy", `${fine2(paths.mark[1])}`);
 }
 var tokenCache = /* @__PURE__ */ new Map();
 var tokenPaths = (value) => {
@@ -1326,18 +1329,18 @@ function setAttr(node, name, value) {
   } else if (node.getAttribute(name) !== value) node.setAttribute(name, value);
 }
 function useId2() {
-  const id = React2.useId();
+  const id = React2__namespace.useId();
   return `um${id.replace(/[^a-zA-Z0-9_-]/g, "")}`;
 }
 function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true, alt = LABEL2, onReadout, className, bare = true }) {
   const uid = useId2();
-  const root = React2.useRef(null);
-  const live = React2.useRef(null);
+  const root = React2__namespace.useRef(null);
+  const live = React2__namespace.useRef(null);
   const animated = interactive && motion === "auto";
-  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
-  const stillness = React2.useRef(reduced);
+  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
+  const stillness = React2__namespace.useRef(reduced);
   stillness.current = reduced;
-  const start = React2.useRef(null);
+  const start = React2__namespace.useRef(null);
   if (!start.current || !interactive) {
     const calm = !animated || reduced;
     const t = calm || pose === "idle" ? STILL_AT[pose] : 0;
@@ -1346,7 +1349,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
   }
   const first = start.current;
   const shown = first.display;
-  const state = React2.useRef({
+  const state = React2__namespace.useRef({
     display: first.display,
     t: first.t,
     round: 0,
@@ -1360,17 +1363,17 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
     phase: "",
     heights: []
   });
-  const poseRef = React2.useRef(pose);
-  const readoutRef = React2.useRef(onReadout);
+  const poseRef = React2__namespace.useRef(pose);
+  const readoutRef = React2__namespace.useRef(onReadout);
   readoutRef.current = onReadout;
-  const sceneNow = React2.useCallback(() => {
+  const sceneNow = React2__namespace.useCallback(() => {
     const s = state.current;
     const calm = stillness.current || motion === "none";
     const scene = calm ? stillScene(poseRef.current) : sceneAt(poseRef.current, s.t, s.round);
     if (s.paused && poseRef.current === "idle") return { ...scene, belt: 0, readout: `${scene.readout} \xB7 paused`, phase: "paused" };
     return scene;
   }, [motion]);
-  const draw = React2.useCallback(
+  const draw = React2__namespace.useCallback(
     (scene) => {
       const node = root.current;
       if (!node) return;
@@ -1410,9 +1413,9 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
       else if (poseRef.current !== "apart" && ASSEMBLIES.some((name) => display.shares[name].at > 0.01)) text = "closing up";
       if (text !== s.readout) {
         s.readout = text;
-        const slot = _optionalChain([node, 'access', _30 => _30.closest, 'call', _31 => _31(".um-frame"), 'optionalAccess', _32 => _32.querySelector, 'call', _33 => _33("[data-readout]")]);
+        const slot = node.closest(".um-frame")?.querySelector("[data-readout]");
         if (slot && slot.textContent !== text) slot.textContent = text;
-        _optionalChain([readoutRef, 'access', _34 => _34.current, 'optionalCall', _35 => _35(text)]);
+        readoutRef.current?.(text);
       }
       if (scene.phase !== s.phase && live.current) {
         s.phase = scene.phase;
@@ -1421,7 +1424,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
     },
     []
   );
-  const run = React2.useCallback(() => {
+  const run = React2__namespace.useCallback(() => {
     const s = state.current;
     if (s.frame || !s.visible) return;
     s.last = 0;
@@ -1440,12 +1443,12 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
     };
     s.frame = requestAnimationFrame(tick);
   }, [draw, motion, sceneNow]);
-  const stop = React2.useCallback(() => {
+  const stop = React2__namespace.useCallback(() => {
     const s = state.current;
     cancelAnimationFrame(s.frame);
     s.frame = 0;
   }, []);
-  const aim = React2.useCallback((apart, calm) => {
+  const aim = React2__namespace.useCallback((apart, calm) => {
     const s = state.current;
     s.timers.forEach((timer) => window.clearTimeout(timer));
     s.timers = [];
@@ -1463,7 +1466,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
       s.timers.push(timer);
     });
   }, []);
-  React2.useEffect(() => {
+  React2__namespace.useEffect(() => {
     if (!interactive) return;
     const s = state.current;
     const changed = poseRef.current !== pose;
@@ -1483,7 +1486,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
     }
     run();
   }, [pose, interactive, motion, aim, draw, run, sceneNow]);
-  React2.useEffect(() => {
+  React2__namespace.useEffect(() => {
     if (!interactive) return;
     const node = root.current;
     if (!node || typeof IntersectionObserver === "undefined") {
@@ -1493,7 +1496,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
     }
     const observer = new IntersectionObserver(
       (entries) => {
-        const visible = Boolean(_optionalChain([entries, 'access', _36 => _36[entries.length - 1], 'optionalAccess', _37 => _37.isIntersecting]));
+        const visible = Boolean(entries[entries.length - 1]?.isIntersecting);
         state.current.visible = visible;
         if (visible) run();
         else stop();
@@ -1509,8 +1512,8 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
       s.timers = [];
     };
   }, [interactive, run, stop]);
-  const wasReduced = React2.useRef(reduced);
-  React2.useEffect(() => {
+  const wasReduced = React2__namespace.useRef(reduced);
+  React2__namespace.useEffect(() => {
     if (wasReduced.current === reduced) return;
     wasReduced.current = reduced;
     if (!interactive) return;
@@ -1547,160 +1550,160 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
   const reading = readingOf(shown);
   const arm = armOf(shown.arm.at);
   const hint = HINTS[pose];
-  const art = /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "svg", { className: "iso-svg", viewBox: `0 0 ${WIDTH} ${HEIGHT}`, role: "img", "aria-label": alt, focusable: "false", children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "title", { id: `${uid}-title`, children: "Verification gate" }),
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-part": "base", children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-halo", d: BASE_ART.halo }),
-      BASE_ART.feet.map((parts, index) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "g", { children: parts.map((paths, part) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths, tone: part ? "mid" : "lo" }, part)) }, index)),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: BASE_ART.slab, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: BASE_ART.groove, tone: "lo" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: BASE_ART.screwRings, tone: "lo" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: BASE_ART.screws, size: 0.5, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: BASE_ART.strip, tone: "lo", crease: "none" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: BASE_ART.stripMinor, tone: "lo" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: BASE_ART.stripMajor, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: BASE_ART.stripScrews, size: 0.45, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: BASE_ART.label, tone: "lo", crease: "none" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: BASE_ART.labelLine, tone: "faint" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: BASE_ART.labelRule, tone: "lo", free: true }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: BASE_ART.labelScrews, size: 0.45, tone: "mid" })
+  const art = /* @__PURE__ */ jsxRuntime.jsxs("svg", { className: "iso-svg", viewBox: `0 0 ${WIDTH} ${HEIGHT}`, role: "img", "aria-label": alt, focusable: "false", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("title", { id: `${uid}-title`, children: "Verification gate" }),
+    /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-part": "base", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-halo", d: BASE_ART.halo }),
+      BASE_ART.feet.map((parts, index) => /* @__PURE__ */ jsxRuntime.jsx("g", { children: parts.map((paths, part) => /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths, tone: part ? "mid" : "lo" }, part)) }, index)),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: BASE_ART.slab, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: BASE_ART.groove, tone: "lo" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: BASE_ART.screwRings, tone: "lo" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: BASE_ART.screws, size: 0.5, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: BASE_ART.strip, tone: "lo", crease: "none" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: BASE_ART.stripMinor, tone: "lo" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: BASE_ART.stripMajor, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: BASE_ART.stripScrews, size: 0.45, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: BASE_ART.label, tone: "lo", crease: "none" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: BASE_ART.labelLine, tone: "faint" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: BASE_ART.labelRule, tone: "lo", free: true }),
+      /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: BASE_ART.labelScrews, size: 0.45, tone: "mid" })
     ] }),
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-assembly": "conveyor", transform: shareMove("conveyor", shown.shares.conveyor.at) || void 0, children: [
-      CONVEYOR_BACK.legs.map((leg, index) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: leg.foot, tone: "lo" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: leg.screws, size: 0.45, tone: "mid" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: leg.post, tone: "mid" })
+    /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-assembly": "conveyor", transform: shareMove("conveyor", shown.shares.conveyor.at) || void 0, children: [
+      CONVEYOR_BACK.legs.map((leg, index) => /* @__PURE__ */ jsxRuntime.jsxs("g", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: leg.foot, tone: "lo" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: leg.screws, size: 0.45, tone: "mid" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: leg.post, tone: "mid" })
       ] }, index)),
-      CONVEYOR_BACK.stretchers.map((paths, index) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths, tone: "mid" }, index)),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CONVEYOR_BACK.backRail, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CONVEYOR_BACK.backLip, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: CONVEYOR_BACK.backScrews, size: 0.45, tone: "mid" })
+      CONVEYOR_BACK.stretchers.map((paths, index) => /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths, tone: "mid" }, index)),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CONVEYOR_BACK.backRail, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CONVEYOR_BACK.backLip, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: CONVEYOR_BACK.backScrews, size: 0.45, tone: "mid" })
     ] }),
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-assembly": "gauge", transform: shareMove("gauge", shown.shares.gauge.at) || void 0, children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: GAUGE_BACK.foot, tone: "lo" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: GAUGE_BACK.screws, size: 0.45, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: GAUGE_BACK.post, tone: "mid" })
+    /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-assembly": "gauge", transform: shareMove("gauge", shown.shares.gauge.at) || void 0, children: [
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: GAUGE_BACK.foot, tone: "lo" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: GAUGE_BACK.screws, size: 0.45, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: GAUGE_BACK.post, tone: "mid" })
     ] }),
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-assembly": "diverter", transform: shareMove("diverter", shown.shares.diverter.at) || void 0, children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: DIVERTER.bracket, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: DIVERTER.bracketScrews, size: 0.45, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: DIVERTER.post, tone: "mid", crease: "none" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: DIVERTER.hub, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: DIVERTER.head, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: DIVERTER.headKnurl, tone: "lo" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: DIVERTER.stops, size: 0.45, tone: "hi" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { "data-part": "pointer", className: "iso-line", "data-tone": "hi", d: armPointerOf(shown.arm.at) })
+    /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-assembly": "diverter", transform: shareMove("diverter", shown.shares.diverter.at) || void 0, children: [
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: DIVERTER.bracket, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: DIVERTER.bracketScrews, size: 0.45, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: DIVERTER.post, tone: "mid", crease: "none" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: DIVERTER.hub, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: DIVERTER.head, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: DIVERTER.headKnurl, tone: "lo" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: DIVERTER.stops, size: 0.45, tone: "hi" }),
+      /* @__PURE__ */ jsxRuntime.jsx("path", { "data-part": "pointer", className: "iso-line", "data-tone": "hi", d: armPointerOf(shown.arm.at) })
     ] }),
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-assembly": "conveyor", transform: shareMove("conveyor", shown.shares.conveyor.at) || void 0, children: [
-      CONVEYOR_MID.drums.map((paths, index) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths, tone: "mid" }, index)),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CONVEYOR_MID.belt, tone: "mid", crease: "faint" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { "data-part": "slats", className: "iso-line", "data-tone": "faint", d: slatsOf(shown.phase) })
+    /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-assembly": "conveyor", transform: shareMove("conveyor", shown.shares.conveyor.at) || void 0, children: [
+      CONVEYOR_MID.drums.map((paths, index) => /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths, tone: "mid" }, index)),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CONVEYOR_MID.belt, tone: "mid", crease: "faint" }),
+      /* @__PURE__ */ jsxRuntime.jsx("path", { "data-part": "slats", className: "iso-line", "data-tone": "faint", d: slatsOf(shown.phase) })
     ] }),
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-assembly": "hopper", transform: shareMove("hopper", shown.shares.hopper.at) || void 0, children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: HOPPER_BACK.backCheek, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: HOPPER_BACK.tube, tone: "mid", inner: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: HOPPER_BACK.seams, tone: "faint" }) }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "um-cavity", d: HOPPER_BACK.windowFill }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: HOPPER_BACK.stack, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: HOPPER_BACK.window, tone: "lo" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: HOPPER_BACK.collar, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "um-cavity", d: HOPPER_BACK.mouthFill }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: HOPPER_BACK.mouth, tone: "lo" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: HOPPER_BACK.collarScrews, size: 0.45, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: HOPPER_BACK.gate, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: HOPPER_BACK.gateScrews, size: 0.45, tone: "mid" })
+    /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-assembly": "hopper", transform: shareMove("hopper", shown.shares.hopper.at) || void 0, children: [
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: HOPPER_BACK.backCheek, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: HOPPER_BACK.tube, tone: "mid", inner: /* @__PURE__ */ jsxRuntime.jsx(Line, { d: HOPPER_BACK.seams, tone: "faint" }) }),
+      /* @__PURE__ */ jsxRuntime.jsx("path", { className: "um-cavity", d: HOPPER_BACK.windowFill }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: HOPPER_BACK.stack, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: HOPPER_BACK.window, tone: "lo" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: HOPPER_BACK.collar, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx("path", { className: "um-cavity", d: HOPPER_BACK.mouthFill }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: HOPPER_BACK.mouth, tone: "lo" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: HOPPER_BACK.collarScrews, size: 0.45, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: HOPPER_BACK.gate, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: HOPPER_BACK.gateScrews, size: 0.45, tone: "mid" })
     ] }),
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-assembly": "diverter", transform: shareMove("diverter", shown.shares.diverter.at) || void 0, children: [
-      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-part": "arm", className: "iso-solid", children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-fill", d: arm.fill }),
-        arm.shades.map((d, shade) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-shade", "data-shade": shade, d }, shade)),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-top", d: arm.top }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-line iso-crease", "data-tone": "faint", d: arm.crease }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-line iso-bevel", "data-tone": "faint", d: _nullishCoalesce(arm.bevel, () => ( "")) }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-line iso-edge", "data-tone": "mid", d: arm.outline })
+    /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-assembly": "diverter", transform: shareMove("diverter", shown.shares.diverter.at) || void 0, children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-part": "arm", className: "iso-solid", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-fill", d: arm.fill }),
+        arm.shades.map((d, shade) => /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-shade", "data-shade": shade, d }, shade)),
+        /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-top", d: arm.top }),
+        /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-line iso-crease", "data-tone": "faint", d: arm.crease }),
+        /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-line iso-bevel", "data-tone": "faint", d: arm.bevel ?? "" }),
+        /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-line iso-edge", "data-tone": "mid", d: arm.outline })
       ] }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "g", { "data-assembly": "conveyor", transform: shareMove("conveyor", shown.shares.conveyor.at) || void 0, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tokens, { layer: "belt", slots: shown.slots }) }),
-      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-assembly": "conveyor", transform: shareMove("conveyor", shown.shares.conveyor.at) || void 0, children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CONVEYOR_FRONT.rail, tone: "mid", inner: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: CONVEYOR_FRONT.railSeam, tone: "faint" }) }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: CONVEYOR_FRONT.railScrews, size: 0.45, tone: "mid" }),
-        CONVEYOR_FRONT.lips.map((paths, index) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths, tone: "mid" }, index)),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: CONVEYOR_FRONT.lipMinor, tone: "lo" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: CONVEYOR_FRONT.lipMajor, tone: "mid" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: CONVEYOR_FRONT.zero, tone: "hi" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CONVEYOR_FRONT.bearing, tone: "mid" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: CONVEYOR_FRONT.bearingBore, tone: "lo" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: CONVEYOR_FRONT.bearingScrews, size: 0.45, tone: "mid" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CONVEYOR_FRONT.motor, tone: "mid", inner: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: CONVEYOR_FRONT.motorBands, tone: "faint" }) }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: CONVEYOR_FRONT.motorCap, tone: "lo" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: CONVEYOR_FRONT.motorBolts, size: 0.45, tone: "mid" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: [CONVEYOR_FRONT.motorShaft], size: 0.8, tone: "hi" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CONVEYOR_FRONT.box, tone: "mid" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: CONVEYOR_FRONT.boxLine, tone: "faint" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: CONVEYOR_FRONT.boxScrews, size: 0.4, tone: "mid" })
+      /* @__PURE__ */ jsxRuntime.jsx("g", { "data-assembly": "conveyor", transform: shareMove("conveyor", shown.shares.conveyor.at) || void 0, children: /* @__PURE__ */ jsxRuntime.jsx(Tokens, { layer: "belt", slots: shown.slots }) }),
+      /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-assembly": "conveyor", transform: shareMove("conveyor", shown.shares.conveyor.at) || void 0, children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CONVEYOR_FRONT.rail, tone: "mid", inner: /* @__PURE__ */ jsxRuntime.jsx(Line, { d: CONVEYOR_FRONT.railSeam, tone: "faint" }) }),
+        /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: CONVEYOR_FRONT.railScrews, size: 0.45, tone: "mid" }),
+        CONVEYOR_FRONT.lips.map((paths, index) => /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths, tone: "mid" }, index)),
+        /* @__PURE__ */ jsxRuntime.jsx(Line, { d: CONVEYOR_FRONT.lipMinor, tone: "lo" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Line, { d: CONVEYOR_FRONT.lipMajor, tone: "mid" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Line, { d: CONVEYOR_FRONT.zero, tone: "hi" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CONVEYOR_FRONT.bearing, tone: "mid" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Line, { d: CONVEYOR_FRONT.bearingBore, tone: "lo" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: CONVEYOR_FRONT.bearingScrews, size: 0.45, tone: "mid" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CONVEYOR_FRONT.motor, tone: "mid", inner: /* @__PURE__ */ jsxRuntime.jsx(Line, { d: CONVEYOR_FRONT.motorBands, tone: "faint" }) }),
+        /* @__PURE__ */ jsxRuntime.jsx(Line, { d: CONVEYOR_FRONT.motorCap, tone: "lo" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: CONVEYOR_FRONT.motorBolts, size: 0.45, tone: "mid" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: [CONVEYOR_FRONT.motorShaft], size: 0.8, tone: "hi" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CONVEYOR_FRONT.box, tone: "mid" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Line, { d: CONVEYOR_FRONT.boxLine, tone: "faint" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: CONVEYOR_FRONT.boxScrews, size: 0.4, tone: "mid" })
       ] }),
-      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-assembly": "hopper", transform: shareMove("hopper", shown.shares.hopper.at) || void 0, children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: HOPPER_FRONT.cheek, tone: "mid" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: HOPPER_FRONT.cheekScrews, size: 0.45, tone: "mid" })
+      /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-assembly": "hopper", transform: shareMove("hopper", shown.shares.hopper.at) || void 0, children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: HOPPER_FRONT.cheek, tone: "mid" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: HOPPER_FRONT.cheekScrews, size: 0.45, tone: "mid" })
       ] })
     ] }),
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-assembly": "gauge", transform: shareMove("gauge", shown.shares.gauge.at) || void 0, children: [
-      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-part": "plunger", transform: move([0, 0, shown.tip.at]), children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: PLUNGER.tip, tone: "hi" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: PLUNGER.rod, tone: "hi", crease: "none", inner: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: PLUNGER.rodMarks, tone: "lo" }) })
+    /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-assembly": "gauge", transform: shareMove("gauge", shown.shares.gauge.at) || void 0, children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-part": "plunger", transform: move([0, 0, shown.tip.at]), children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: PLUNGER.tip, tone: "hi" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: PLUNGER.rod, tone: "hi", crease: "none", inner: /* @__PURE__ */ jsxRuntime.jsx(Line, { d: PLUNGER.rodMarks, tone: "lo" }) })
       ] }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: GAUGE_FRONT.guide, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: GAUGE_FRONT.front.foot, tone: "lo" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: GAUGE_FRONT.front.screws, size: 0.45, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: GAUGE_FRONT.front.post, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: GAUGE_FRONT.beam, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: GAUGE_FRONT.beamLine, tone: "faint" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: GAUGE_FRONT.beamScrews, size: 0.5, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: GAUGE_FRONT.neck, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: GAUGE_FRONT.crown, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: GAUGE_FRONT.crownCap, tone: "mid", inner: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: GAUGE_FRONT.crownKnurl, tone: "lo" }) }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: GAUGE_FRONT.puck, tone: "hi", crease: "lo", inner: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: GAUGE_FRONT.band, tone: "faint" }) }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: GAUGE_FRONT.knurl, tone: "lo" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: GAUGE_FRONT.bezel, tone: "lo" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: GAUGE_FRONT.minor, tone: "lo" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: GAUGE_FRONT.major, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: GAUGE_FRONT.band0, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "iso-line um-limit", d: GAUGE_FRONT.limit }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { "data-part": "drag", className: "iso-line um-drag", d: dragOf(clamp(shown.drag, 0, SCALE)) }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { "data-part": "needle", className: "iso-line um-needle", d: needleOf(reading) }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: GAUGE_FRONT.hub, tone: "mid" })
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: GAUGE_FRONT.guide, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: GAUGE_FRONT.front.foot, tone: "lo" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: GAUGE_FRONT.front.screws, size: 0.45, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: GAUGE_FRONT.front.post, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: GAUGE_FRONT.beam, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: GAUGE_FRONT.beamLine, tone: "faint" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: GAUGE_FRONT.beamScrews, size: 0.5, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: GAUGE_FRONT.neck, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: GAUGE_FRONT.crown, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: GAUGE_FRONT.crownCap, tone: "mid", inner: /* @__PURE__ */ jsxRuntime.jsx(Line, { d: GAUGE_FRONT.crownKnurl, tone: "lo" }) }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: GAUGE_FRONT.puck, tone: "hi", crease: "lo", inner: /* @__PURE__ */ jsxRuntime.jsx(Line, { d: GAUGE_FRONT.band, tone: "faint" }) }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: GAUGE_FRONT.knurl, tone: "lo" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: GAUGE_FRONT.bezel, tone: "lo" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: GAUGE_FRONT.minor, tone: "lo" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: GAUGE_FRONT.major, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: GAUGE_FRONT.band0, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx("path", { className: "iso-line um-limit", d: GAUGE_FRONT.limit }),
+      /* @__PURE__ */ jsxRuntime.jsx("path", { "data-part": "drag", className: "iso-line um-drag", d: dragOf(clamp(shown.drag, 0, SCALE)) }),
+      /* @__PURE__ */ jsxRuntime.jsx("path", { "data-part": "needle", className: "iso-line um-needle", d: needleOf(reading) }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: GAUGE_FRONT.hub, tone: "mid" })
     ] }),
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-assembly": "chute", transform: shareMove("chute", shown.shares.chute.at) || void 0, children: [
-      CHUTE_BACK.supports.map((support, index) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: support.foot, tone: "lo" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: support.post, tone: "mid" })
+    /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-assembly": "chute", transform: shareMove("chute", shown.shares.chute.at) || void 0, children: [
+      CHUTE_BACK.supports.map((support, index) => /* @__PURE__ */ jsxRuntime.jsxs("g", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: support.foot, tone: "lo" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: support.post, tone: "mid" })
       ] }, index)),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CHUTE_BACK.apronFoot, tone: "lo" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CHUTE_BACK.apronPost, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CHUTE_BACK.trayFloor, tone: "lo" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CHUTE_BACK.trayBack, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CHUTE_BACK.trayLeft, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CHUTE_BACK.backWall, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CHUTE_BACK.floor, tone: "mid", inner: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: CHUTE_BACK.floorLines, tone: "lo" }) }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CHUTE_BACK.apron, tone: "mid", inner: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: CHUTE_BACK.apronLines, tone: "lo" }) }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tokens, { layer: "chute", slots: shown.slots }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CHUTE_FRONT.frontWall, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: CHUTE_FRONT.wallScrews, size: 0.45, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CHUTE_FRONT.apronWall, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CHUTE_FRONT.endWall, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CHUTE_FRONT.trayRight, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: CHUTE_FRONT.trayFront, tone: "mid" })
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CHUTE_BACK.apronFoot, tone: "lo" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CHUTE_BACK.apronPost, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CHUTE_BACK.trayFloor, tone: "lo" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CHUTE_BACK.trayBack, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CHUTE_BACK.trayLeft, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CHUTE_BACK.backWall, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CHUTE_BACK.floor, tone: "mid", inner: /* @__PURE__ */ jsxRuntime.jsx(Line, { d: CHUTE_BACK.floorLines, tone: "lo" }) }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CHUTE_BACK.apron, tone: "mid", inner: /* @__PURE__ */ jsxRuntime.jsx(Line, { d: CHUTE_BACK.apronLines, tone: "lo" }) }),
+      /* @__PURE__ */ jsxRuntime.jsx(Tokens, { layer: "chute", slots: shown.slots }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CHUTE_FRONT.frontWall, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: CHUTE_FRONT.wallScrews, size: 0.45, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CHUTE_FRONT.apronWall, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CHUTE_FRONT.endWall, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CHUTE_FRONT.trayRight, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: CHUTE_FRONT.trayFront, tone: "mid" })
     ] }),
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-assembly": "tray", transform: shareMove("tray", shown.shares.tray.at) || void 0, children: [
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: TRAY_BACK.floor, tone: "lo" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Line, { d: TRAY_BACK.floorGrid, tone: "faint" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: TRAY_BACK.back, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: TRAY_BACK.left, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tokens, { layer: "tray", slots: shown.slots }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: TRAY_FRONT.right, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Solid, { paths: TRAY_FRONT.front, tone: "mid" }),
-      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Dots, { points: TRAY_FRONT.screws, size: 0.45, tone: "mid" })
+    /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-assembly": "tray", transform: shareMove("tray", shown.shares.tray.at) || void 0, children: [
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: TRAY_BACK.floor, tone: "lo" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Line, { d: TRAY_BACK.floorGrid, tone: "faint" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: TRAY_BACK.back, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: TRAY_BACK.left, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Tokens, { layer: "tray", slots: shown.slots }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: TRAY_FRONT.right, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Solid, { paths: TRAY_FRONT.front, tone: "mid" }),
+      /* @__PURE__ */ jsxRuntime.jsx(Dots, { points: TRAY_FRONT.screws, size: 0.45, tone: "mid" })
     ] })
   ] });
-  const machine = /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+  const machine = /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
       ref: root,
@@ -1721,16 +1724,16 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
       } : void 0,
       children: [
         art,
-        interactive ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { ref: live, className: "um-hidden", "aria-live": "polite" }) : null
+        interactive ? /* @__PURE__ */ jsxRuntime.jsx("span", { ref: live, className: "um-hidden", "aria-live": "polite" }) : null
       ]
     }
   );
   return machine;
 }
 function Tokens({ layer, slots }) {
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _jsxruntime.Fragment, { children: slots.map((slot, index) => {
+  return /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, { children: slots.map((slot, index) => {
     const on = slot.key !== null && slot.layer === layer && slot.alpha > 5e-3;
-    return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+    return /* @__PURE__ */ jsxRuntime.jsx(
       "g",
       {
         className: "iso-solid um-token",
@@ -1740,92 +1743,91 @@ function Tokens({ layer, slots }) {
         display: on ? void 0 : "none",
         transform: tokenMove(slot.pos),
         opacity: on && slot.alpha < 0.995 ? slot.alpha.toFixed(2) : void 0,
-        children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, TokenArt, { paths: tokenPaths(slot.value) })
+        children: /* @__PURE__ */ jsxRuntime.jsx(TokenArt, { paths: tokenPaths(slot.value) })
       },
       index
     );
   }) });
 }
 function VerificationGate({ frame = true, number = "Fig 1", title = "Verification gate", hint, caption = GATE_CAPTION, theme, ...machine }) {
-  const pose = _nullishCoalesce(machine.pose, () => ( "idle"));
-  if (!frame) return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, GateMachine, { ...machine, theme });
-  const interactive = _nullishCoalesce(machine.interactive, () => ( true));
-  const shownHint = _nullishCoalesce(hint, () => ( (interactive ? HINTS[pose] : void 0)));
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, MechanismFrame, { number, title, hint: shownHint, readout: stillScene(pose).readout, caption, theme, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, GateMachine, { ...machine, bare: false }) });
+  const pose = machine.pose ?? "idle";
+  if (!frame) return /* @__PURE__ */ jsxRuntime.jsx(GateMachine, { ...machine, theme });
+  const interactive = machine.interactive ?? true;
+  const shownHint = hint ?? (interactive ? HINTS[pose] : void 0);
+  return /* @__PURE__ */ jsxRuntime.jsx(MechanismFrame, { number, title, hint: shownHint, readout: stillScene(pose).readout, caption, theme, children: /* @__PURE__ */ jsxRuntime.jsx(GateMachine, { ...machine, bare: false }) });
 }
 var GATE_LIMIT = LIMIT;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-exports.AZIMUTH = AZIMUTH; exports.Dots = Dots; exports.ELEVATION = ELEVATION; exports.FaceText = FaceText; exports.GATE_CAPTION = GATE_CAPTION; exports.GATE_CYCLE_LENGTH = CYCLE_LENGTH; exports.GATE_LIMIT = GATE_LIMIT; exports.GATE_PASS_CHECK = PASS_CHECK; exports.GATE_PERIOD = PERIOD; exports.GATE_RETURN_CHECK = RETURN_CHECK; exports.GATE_RUN_LONG = RUN_LONG; exports.GATE_SCALE = SCALE; exports.GateMachine = GateMachine; exports.Line = Line; exports.MechanismFrame = MechanismFrame; exports.SHADES = SHADES; exports.Solid = Solid; exports.VerificationGate = VerificationGate; exports.Wire = Wire; exports.axisVector = axisVector; exports.boxCorners = boxCorners; exports.cameraOf = cameraOf; exports.circleIn = circleIn; exports.circleRing = circleRing; exports.coil = coil; exports.corners = corners; exports.cylinder = cylinder; exports.depthOf = depthOf; exports.dotGrid = dotGrid; exports.extrude = extrude; exports.faceCircle = faceCircle; exports.fitProjection = fitProjection; exports.follow = follow; exports.gateCheckAt = checkAt; exports.gateSceneAt = sceneAt; exports.gateStillScene = stillScene; exports.gateTallyOf = tallyOf; exports.gateTallyText = tallyText; exports.gateTokenAt = tokenAt; exports.gateVerdictOf = verdictOf; exports.gateVerdictText = verdictText; exports.haloOf = haloOf; exports.holdStill = holdStill; exports.insetPlan = insetPlan; exports.iso = iso; exports.joinPaths = joinPaths; exports.knurl = knurl; exports.lineOnTop = lineOnTop; exports.onTop = onTop; exports.pathOf = pathOf; exports.planOutline = planOutline; exports.pointsAt = pointsAt; exports.prismOf = prismOf; exports.radialTicks = radialTicks; exports.ring = ring; exports.ringOf = ringOf; exports.ringSeam = ringSeam; exports.rise = rise; exports.roundedPlan = roundedPlan; exports.screenRise = screenRise; exports.segment = segment; exports.sideArc = sideArc; exports.sideMatrix = sideMatrix; exports.sideRing = sideRing; exports.sideSeam = sideSeam; exports.sideTicks = sideTicks; exports.slabOf = slabOf; exports.spring = spring; exports.topMatrix = topMatrix; exports.topTicks = topTicks; exports.towardViewer = towardViewer; exports.translateAlong = translateAlong; exports.viewOf = viewOf;
+exports.AZIMUTH = AZIMUTH;
+exports.Dots = Dots;
+exports.ELEVATION = ELEVATION;
+exports.FaceText = FaceText;
+exports.GATE_CAPTION = GATE_CAPTION;
+exports.GATE_CYCLE_LENGTH = CYCLE_LENGTH;
+exports.GATE_LIMIT = GATE_LIMIT;
+exports.GATE_PASS_CHECK = PASS_CHECK;
+exports.GATE_PERIOD = PERIOD;
+exports.GATE_RETURN_CHECK = RETURN_CHECK;
+exports.GATE_RUN_LONG = RUN_LONG;
+exports.GATE_SCALE = SCALE;
+exports.GateMachine = GateMachine;
+exports.Line = Line;
+exports.MechanismFrame = MechanismFrame;
+exports.SHADES = SHADES;
+exports.Solid = Solid;
+exports.VerificationGate = VerificationGate;
+exports.Wire = Wire;
+exports.axisVector = axisVector;
+exports.boxCorners = boxCorners;
+exports.cameraOf = cameraOf;
+exports.circleIn = circleIn;
+exports.circleRing = circleRing;
+exports.coil = coil;
+exports.corners = corners;
+exports.cylinder = cylinder;
+exports.depthOf = depthOf;
+exports.dotGrid = dotGrid;
+exports.extrude = extrude;
+exports.faceCircle = faceCircle;
+exports.fitProjection = fitProjection;
+exports.follow = follow;
+exports.gateCheckAt = checkAt;
+exports.gateSceneAt = sceneAt;
+exports.gateStillScene = stillScene;
+exports.gateTallyOf = tallyOf;
+exports.gateTallyText = tallyText;
+exports.gateTokenAt = tokenAt;
+exports.gateVerdictOf = verdictOf;
+exports.gateVerdictText = verdictText;
+exports.haloOf = haloOf;
+exports.holdStill = holdStill;
+exports.insetPlan = insetPlan;
+exports.iso = iso;
+exports.joinPaths = joinPaths;
+exports.knurl = knurl;
+exports.lineOnTop = lineOnTop;
+exports.onTop = onTop;
+exports.pathOf = pathOf;
+exports.planOutline = planOutline;
+exports.pointsAt = pointsAt;
+exports.prismOf = prismOf;
+exports.radialTicks = radialTicks;
+exports.ring = ring;
+exports.ringOf = ringOf;
+exports.ringSeam = ringSeam;
+exports.rise = rise;
+exports.roundedPlan = roundedPlan;
+exports.screenRise = screenRise;
+exports.segment = segment;
+exports.sideArc = sideArc;
+exports.sideMatrix = sideMatrix;
+exports.sideRing = sideRing;
+exports.sideSeam = sideSeam;
+exports.sideTicks = sideTicks;
+exports.slabOf = slabOf;
+exports.spring = spring;
+exports.topMatrix = topMatrix;
+exports.topTicks = topTicks;
+exports.towardViewer = towardViewer;
+exports.translateAlong = translateAlong;
+exports.viewOf = viewOf;

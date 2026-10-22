@@ -1,31 +1,14 @@
-import {
-  useLayerFlight
-} from "./chunk-6YWE3SYB.js";
-import {
-  smoothstep,
-  zoomFrame,
-  zoomSamples
-} from "./chunk-VZ4PJUMF.js";
-import {
-  useIsoLayoutEffect,
-  usePrefersReducedMotion
-} from "./chunk-KYO6UXHN.js";
-
-// src/deck/DeckPlayer.tsx
-import {
-  useCallback,
-  useEffect as useEffect4,
-  useRef as useRef4,
-  useState as useState4
-} from "react";
+import { useLayerFlight } from './chunk-6YWE3SYB.js';
+import { zoomFrame, zoomSamples, smoothstep } from './chunk-VZ4PJUMF.js';
+import { usePrefersReducedMotion, useIsoLayoutEffect } from './chunk-KYO6UXHN.js';
+import { createContext, useContext, useState, useRef, useCallback, useEffect, Children, isValidElement, forwardRef } from 'react';
+import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
+import { createPortal } from 'react-dom';
 
 // src/deck/player/format.ts
 var railAt = (i, count) => `${count > 1 ? i / (count - 1) * 100 : 0}%`;
 var pad = (n) => String(n).padStart(2, "0");
 var notesOf = (slide) => !slide?.notes ? void 0 : typeof slide.notes === "string" ? { say: slide.notes, delivery: "", next: void 0 } : slide.notes;
-
-// src/deck/player/Controls.tsx
-import { jsx, jsxs } from "react/jsx-runtime";
 function Controls({
   slides,
   index,
@@ -65,14 +48,7 @@ function Controls({
     ] })
   ] });
 }
-
-// src/deck/player/Layer.tsx
-import { forwardRef, useRef, useState } from "react";
-
-// src/deck/parts.tsx
-import { createContext, useContext } from "react";
-import { jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
-var DeckSlideContext = createContext({
+var DeckSlideContext = /* @__PURE__ */ createContext({
   step: Infinity,
   active: true,
   thumbnail: false,
@@ -88,7 +64,7 @@ function Morph({
   style,
   children
 }) {
-  return /* @__PURE__ */ jsx2(Tag, { "data-morph": id, "data-morph-fit": fit, className, style, children });
+  return /* @__PURE__ */ jsx(Tag, { "data-morph": id, "data-morph-fit": fit, className, style, children });
 }
 function Build({
   step,
@@ -99,7 +75,7 @@ function Build({
 }) {
   const { step: reached } = useDeckSlide();
   const built = reached >= step;
-  return /* @__PURE__ */ jsx2(
+  return /* @__PURE__ */ jsx(
     Tag,
     {
       "data-build": step,
@@ -119,12 +95,12 @@ function Slide({
   children
 }) {
   const { index, count } = useDeckSlide();
-  return /* @__PURE__ */ jsxs2("div", { className: ["uipack-deck-slide", className].filter(Boolean).join(" "), "data-layout": layout, children: [
-    eyebrow && /* @__PURE__ */ jsx2("p", { className: "uipack-deck-eyebrow", children: eyebrow }),
+  return /* @__PURE__ */ jsxs("div", { className: ["uipack-deck-slide", className].filter(Boolean).join(" "), "data-layout": layout, children: [
+    eyebrow && /* @__PURE__ */ jsx("p", { className: "uipack-deck-eyebrow", children: eyebrow }),
     children,
-    footer !== null && /* @__PURE__ */ jsxs2("footer", { className: "uipack-deck-footer", "data-morph": "deck-footer", "data-morph-fit": "stretch", children: [
-      /* @__PURE__ */ jsx2("span", { children: footer }),
-      /* @__PURE__ */ jsxs2("span", { children: [
+    footer !== null && /* @__PURE__ */ jsxs("footer", { className: "uipack-deck-footer", "data-morph": "deck-footer", "data-morph-fit": "stretch", children: [
+      /* @__PURE__ */ jsx("span", { children: footer }),
+      /* @__PURE__ */ jsxs("span", { children: [
         String(index + 1).padStart(2, "0"),
         " / ",
         String(count).padStart(2, "0")
@@ -355,9 +331,6 @@ function runTransition(opts) {
   }
   return anims;
 }
-
-// src/deck/player/Layer.tsx
-import { jsx as jsx3, jsxs as jsxs3 } from "react/jsx-runtime";
 function useCanvasScale() {
   const ref = useRef(null);
   const [scale, setScale] = useState(0);
@@ -373,8 +346,8 @@ function useCanvasScale() {
   }, []);
   return { ref, scale };
 }
-var Layer = forwardRef(function Layer2({ slide, index, count, step, active, thumbnail = false, theme, reducedMotion }, ref) {
-  return /* @__PURE__ */ jsxs3(
+var Layer = /* @__PURE__ */ forwardRef(function Layer2({ slide, index, count, step, active, thumbnail = false, theme, reducedMotion }, ref) {
+  return /* @__PURE__ */ jsxs(
     "div",
     {
       ref,
@@ -387,8 +360,8 @@ var Layer = forwardRef(function Layer2({ slide, index, count, step, active, thum
       "aria-hidden": active ? void 0 : true,
       ...active ? {} : { inert: "" },
       children: [
-        /* @__PURE__ */ jsx3("div", { className: "uipack-deck-layer__bg" }),
-        /* @__PURE__ */ jsx3(DeckSlideContext.Provider, { value: { step, active, thumbnail, index, count }, children: slide.render({ step, active, thumbnail, theme, reducedMotion }) })
+        /* @__PURE__ */ jsx("div", { className: "uipack-deck-layer__bg" }),
+        /* @__PURE__ */ jsx(DeckSlideContext.Provider, { value: { step, active, thumbnail, index, count }, children: slide.render({ step, active, thumbnail, theme, reducedMotion }) })
       ]
     }
   );
@@ -400,11 +373,8 @@ function SlideThumbnail({
   theme = "light"
 }) {
   const { ref, scale } = useCanvasScale();
-  return /* @__PURE__ */ jsx3("div", { ref, className: "uipack-deck-thumb", "data-tone": slide.tone ?? "paper", children: /* @__PURE__ */ jsx3("div", { className: "uipack-deck-canvas", style: { transform: `scale(${scale})`, visibility: scale ? void 0 : "hidden" }, children: /* @__PURE__ */ jsx3(Layer, { slide, index, count, step: Infinity, active: false, thumbnail: true, theme, reducedMotion: true }) }) });
+  return /* @__PURE__ */ jsx("div", { ref, className: "uipack-deck-thumb", "data-tone": slide.tone ?? "paper", children: /* @__PURE__ */ jsx("div", { className: "uipack-deck-canvas", style: { transform: `scale(${scale})`, visibility: scale ? void 0 : "hidden" }, children: /* @__PURE__ */ jsx(Layer, { slide, index, count, step: Infinity, active: false, thumbnail: true, theme, reducedMotion: true }) }) });
 }
-
-// src/deck/player/Overview.tsx
-import { useEffect, useRef as useRef2, useState as useState2 } from "react";
 
 // src/deck/storyline.ts
 var SLIDE_ROLES = {
@@ -1253,9 +1223,6 @@ function storylineOf(slides) {
 function formatStoryline(slides) {
   return storylineOf(slides).map((e) => `${e.number}. ${e.roleLabel ? `[${e.roleLabel}] ` : ""}${e.title || "(untitled)"}`).join("\n");
 }
-
-// src/deck/player/Storyline.tsx
-import { jsx as jsx4, jsxs as jsxs4 } from "react/jsx-runtime";
 var severityLabel = { error: "Fix", warn: "Check", tip: "Tip" };
 function Storyline({
   slides,
@@ -1266,27 +1233,27 @@ function Storyline({
   const entries = storylineOf(slides);
   const deckWide = findings?.filter((f) => !f.slideId) ?? [];
   const minutes = Math.round(talkSeconds(slides) / 6) / 10;
-  return /* @__PURE__ */ jsxs4("div", { className: "uipack-deck-storyline", children: [
-    /* @__PURE__ */ jsxs4("p", { className: "uipack-deck-storyline__intro", children: [
+  return /* @__PURE__ */ jsxs("div", { className: "uipack-deck-storyline", children: [
+    /* @__PURE__ */ jsxs("p", { className: "uipack-deck-storyline__intro", children: [
       "Read only the headlines. They should make the whole argument. Talk track \u2248 ",
       minutes,
       " min."
     ] }),
-    deckWide.length > 0 && /* @__PURE__ */ jsx4("ul", { className: "uipack-deck-storyline__findings", "aria-label": "Deck checks", children: deckWide.map((f, i) => /* @__PURE__ */ jsxs4("li", { "data-severity": f.severity, children: [
-      /* @__PURE__ */ jsx4("b", { children: severityLabel[f.severity] }),
+    deckWide.length > 0 && /* @__PURE__ */ jsx("ul", { className: "uipack-deck-storyline__findings", "aria-label": "Deck checks", children: deckWide.map((f, i) => /* @__PURE__ */ jsxs("li", { "data-severity": f.severity, children: [
+      /* @__PURE__ */ jsx("b", { children: severityLabel[f.severity] }),
       " ",
       f.message
     ] }, i)) }),
-    /* @__PURE__ */ jsx4("ol", { children: entries.map((e, i) => {
+    /* @__PURE__ */ jsx("ol", { children: entries.map((e, i) => {
       const own = findings?.filter((f) => f.slideId === e.id) ?? [];
-      return /* @__PURE__ */ jsxs4("li", { "data-appendix": e.appendix ? "" : void 0, children: [
-        /* @__PURE__ */ jsxs4("button", { type: "button", "data-tile": "", "aria-current": i === index ? "true" : void 0, onClick: () => onPick(i), children: [
-          /* @__PURE__ */ jsx4("span", { className: "uipack-deck-storyline__num", children: pad(e.number) }),
-          /* @__PURE__ */ jsx4("span", { className: "uipack-deck-storyline__role", children: e.roleLabel ?? "\u2014" }),
-          /* @__PURE__ */ jsx4("span", { className: "uipack-deck-storyline__title", children: e.title })
+      return /* @__PURE__ */ jsxs("li", { "data-appendix": e.appendix ? "" : void 0, children: [
+        /* @__PURE__ */ jsxs("button", { type: "button", "data-tile": "", "aria-current": i === index ? "true" : void 0, onClick: () => onPick(i), children: [
+          /* @__PURE__ */ jsx("span", { className: "uipack-deck-storyline__num", children: pad(e.number) }),
+          /* @__PURE__ */ jsx("span", { className: "uipack-deck-storyline__role", children: e.roleLabel ?? "\u2014" }),
+          /* @__PURE__ */ jsx("span", { className: "uipack-deck-storyline__title", children: e.title })
         ] }),
-        own.length > 0 && /* @__PURE__ */ jsx4("ul", { className: "uipack-deck-storyline__findings", children: own.map((f, j) => /* @__PURE__ */ jsxs4("li", { "data-severity": f.severity, children: [
-          /* @__PURE__ */ jsx4("b", { children: severityLabel[f.severity] }),
+        own.length > 0 && /* @__PURE__ */ jsx("ul", { className: "uipack-deck-storyline__findings", children: own.map((f, j) => /* @__PURE__ */ jsxs("li", { "data-severity": f.severity, children: [
+          /* @__PURE__ */ jsx("b", { children: severityLabel[f.severity] }),
           " ",
           f.message
         ] }, j)) })
@@ -1294,9 +1261,6 @@ function Storyline({
     }) })
   ] });
 }
-
-// src/deck/player/Overview.tsx
-import { jsx as jsx5, jsxs as jsxs5 } from "react/jsx-runtime";
 var FOCUSABLE = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 function focusables(root) {
   return Array.from(root?.querySelectorAll(FOCUSABLE) ?? []).filter(
@@ -1311,9 +1275,9 @@ function Overview({
   onPick,
   onClose
 }) {
-  const ref = useRef2(null);
-  const [tab, setTab] = useState2("slides");
-  const close = useRef2(onClose);
+  const ref = useRef(null);
+  const [tab, setTab] = useState("slides");
+  const close = useRef(onClose);
   close.current = onClose;
   useEffect(() => {
     const root = ref.current;
@@ -1367,7 +1331,7 @@ function Overview({
       tiles[Math.min(Math.max(ti + (e.key === "ArrowRight" ? 1 : -1), 0), tiles.length - 1)].focus();
     }
   };
-  return /* @__PURE__ */ jsxs5(
+  return /* @__PURE__ */ jsxs(
     "div",
     {
       ref,
@@ -1380,21 +1344,21 @@ function Overview({
         if (e.target === e.currentTarget) onClose();
       },
       children: [
-        /* @__PURE__ */ jsxs5("div", { className: "uipack-deck-overview__head", children: [
-          /* @__PURE__ */ jsxs5("p", { children: [
+        /* @__PURE__ */ jsxs("div", { className: "uipack-deck-overview__head", children: [
+          /* @__PURE__ */ jsxs("p", { children: [
             "All slides \xB7 ",
             slides.length
           ] }),
-          /* @__PURE__ */ jsxs5("span", { className: "uipack-deck-overview__tabs", children: [
-            /* @__PURE__ */ jsx5("button", { type: "button", "aria-pressed": tab === "slides", onClick: () => setTab("slides"), children: "Slides" }),
-            /* @__PURE__ */ jsx5("button", { type: "button", "aria-pressed": tab === "storyline", onClick: () => setTab("storyline"), children: "Storyline" }),
-            /* @__PURE__ */ jsx5("button", { type: "button", onClick: onClose, children: "Close" })
+          /* @__PURE__ */ jsxs("span", { className: "uipack-deck-overview__tabs", children: [
+            /* @__PURE__ */ jsx("button", { type: "button", "aria-pressed": tab === "slides", onClick: () => setTab("slides"), children: "Slides" }),
+            /* @__PURE__ */ jsx("button", { type: "button", "aria-pressed": tab === "storyline", onClick: () => setTab("storyline"), children: "Storyline" }),
+            /* @__PURE__ */ jsx("button", { type: "button", onClick: onClose, children: "Close" })
           ] })
         ] }),
-        tab === "storyline" ? /* @__PURE__ */ jsx5(Storyline, { slides, index, findings, onPick }) : /* @__PURE__ */ jsx5("ol", { className: "uipack-deck-overview__grid", children: slides.map((s, i) => /* @__PURE__ */ jsx5("li", { children: /* @__PURE__ */ jsxs5("button", { type: "button", "data-tile": "", "aria-current": i === index ? "true" : void 0, onClick: () => onPick(i), children: [
-          /* @__PURE__ */ jsx5(SlideThumbnail, { slide: s, index: i, count: slides.length, theme }),
-          /* @__PURE__ */ jsxs5("span", { children: [
-            /* @__PURE__ */ jsx5("b", { children: pad(i + 1) }),
+        tab === "storyline" ? /* @__PURE__ */ jsx(Storyline, { slides, index, findings, onPick }) : /* @__PURE__ */ jsx("ol", { className: "uipack-deck-overview__grid", children: slides.map((s, i) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs("button", { type: "button", "data-tile": "", "aria-current": i === index ? "true" : void 0, onClick: () => onPick(i), children: [
+          /* @__PURE__ */ jsx(SlideThumbnail, { slide: s, index: i, count: slides.length, theme }),
+          /* @__PURE__ */ jsxs("span", { children: [
+            /* @__PURE__ */ jsx("b", { children: pad(i + 1) }),
             " ",
             s.title
           ] })
@@ -1403,19 +1367,15 @@ function Overview({
     }
   );
 }
-
-// src/deck/player/Presenter.tsx
-import { useEffect as useEffect2, useState as useState3 } from "react";
-import { Fragment, jsx as jsx6, jsxs as jsxs6 } from "react/jsx-runtime";
 function Presenter({
   slides,
   index,
   theme,
   stage
 }) {
-  const [started, setStarted] = useState3(() => Date.now());
-  const [now, setNow] = useState3(() => Date.now());
-  useEffect2(() => {
+  const [started, setStarted] = useState(() => Date.now());
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1e3);
     return () => clearInterval(t);
   }, []);
@@ -1423,20 +1383,20 @@ function Presenter({
   const notes = notesOf(slides[index]);
   const upcoming = slides[index + 1];
   const role = slides[index].role;
-  return /* @__PURE__ */ jsxs6("div", { className: "uipack-deck-presenter", children: [
-    /* @__PURE__ */ jsx6("div", { className: "uipack-deck-presenter__current", children: stage }),
-    /* @__PURE__ */ jsxs6("aside", { className: "uipack-deck-presenter__side", children: [
-      /* @__PURE__ */ jsxs6("section", { className: "uipack-deck-presenter__next", children: [
-        /* @__PURE__ */ jsx6("h3", { children: "Next" }),
-        upcoming ? /* @__PURE__ */ jsx6(SlideThumbnail, { slide: upcoming, index: index + 1, count: slides.length, theme }) : /* @__PURE__ */ jsx6("p", { className: "uipack-deck-presenter__end", children: "End of deck" })
+  return /* @__PURE__ */ jsxs("div", { className: "uipack-deck-presenter", children: [
+    /* @__PURE__ */ jsx("div", { className: "uipack-deck-presenter__current", children: stage }),
+    /* @__PURE__ */ jsxs("aside", { className: "uipack-deck-presenter__side", children: [
+      /* @__PURE__ */ jsxs("section", { className: "uipack-deck-presenter__next", children: [
+        /* @__PURE__ */ jsx("h3", { children: "Next" }),
+        upcoming ? /* @__PURE__ */ jsx(SlideThumbnail, { slide: upcoming, index: index + 1, count: slides.length, theme }) : /* @__PURE__ */ jsx("p", { className: "uipack-deck-presenter__end", children: "End of deck" })
       ] }),
-      /* @__PURE__ */ jsxs6("section", { className: "uipack-deck-presenter__clock", children: [
-        /* @__PURE__ */ jsxs6("span", { "aria-label": "Elapsed time", children: [
+      /* @__PURE__ */ jsxs("section", { className: "uipack-deck-presenter__clock", children: [
+        /* @__PURE__ */ jsxs("span", { "aria-label": "Elapsed time", children: [
           pad(Math.floor(elapsed / 60)),
           ":",
           pad(elapsed % 60)
         ] }),
-        /* @__PURE__ */ jsx6(
+        /* @__PURE__ */ jsx(
           "button",
           {
             type: "button",
@@ -1448,44 +1408,39 @@ function Presenter({
           }
         )
       ] }),
-      /* @__PURE__ */ jsxs6("section", { className: "uipack-deck-presenter__notes", children: [
-        role && /* @__PURE__ */ jsxs6("p", { className: "uipack-deck-presenter__role", children: [
-          /* @__PURE__ */ jsx6("b", { children: SLIDE_ROLES[role].label }),
+      /* @__PURE__ */ jsxs("section", { className: "uipack-deck-presenter__notes", children: [
+        role && /* @__PURE__ */ jsxs("p", { className: "uipack-deck-presenter__role", children: [
+          /* @__PURE__ */ jsx("b", { children: SLIDE_ROLES[role].label }),
           " answers \u201C",
           SLIDE_ROLES[role].question,
           "\u201D"
         ] }),
-        /* @__PURE__ */ jsx6("h3", { children: "Say" }),
-        /* @__PURE__ */ jsx6("p", { children: notes?.say ?? "No talk track for this slide." }),
-        notes?.delivery && /* @__PURE__ */ jsxs6(Fragment, { children: [
-          /* @__PURE__ */ jsx6("h3", { children: "Delivery" }),
-          /* @__PURE__ */ jsx6("p", { children: notes.delivery })
+        /* @__PURE__ */ jsx("h3", { children: "Say" }),
+        /* @__PURE__ */ jsx("p", { children: notes?.say ?? "No talk track for this slide." }),
+        notes?.delivery && /* @__PURE__ */ jsxs(Fragment, { children: [
+          /* @__PURE__ */ jsx("h3", { children: "Delivery" }),
+          /* @__PURE__ */ jsx("p", { children: notes.delivery })
         ] }),
-        notes?.next && /* @__PURE__ */ jsxs6(Fragment, { children: [
-          /* @__PURE__ */ jsx6("h3", { children: "Bridge" }),
-          /* @__PURE__ */ jsx6("p", { children: notes.next })
+        notes?.next && /* @__PURE__ */ jsxs(Fragment, { children: [
+          /* @__PURE__ */ jsx("h3", { children: "Bridge" }),
+          /* @__PURE__ */ jsx("p", { children: notes.next })
         ] })
       ] })
     ] })
   ] });
 }
-
-// src/deck/player/Print.tsx
-import { useEffect as useEffect3, useRef as useRef3 } from "react";
-import { createPortal } from "react-dom";
-import { jsx as jsx7, jsxs as jsxs7 } from "react/jsx-runtime";
 function Printout({ slides, theme, notes = false }) {
-  return /* @__PURE__ */ jsx7("div", { className: "uipack-deck-print", "data-notes": notes ? "" : void 0, children: slides.map((s, i) => {
+  return /* @__PURE__ */ jsx("div", { className: "uipack-deck-print", "data-notes": notes ? "" : void 0, children: slides.map((s, i) => {
     const talk = notesOf(s);
-    return /* @__PURE__ */ jsxs7("section", { className: "uipack-deck-print__page", "data-tone": s.tone ?? "paper", "aria-label": `${pad(i + 1)}: ${s.title}`, children: [
-      /* @__PURE__ */ jsx7("div", { className: "uipack-deck-print__slide", children: /* @__PURE__ */ jsx7("div", { className: "uipack-deck-canvas", children: /* @__PURE__ */ jsx7(Layer, { slide: s, index: i, count: slides.length, step: Infinity, active: false, thumbnail: true, theme, reducedMotion: true }) }) }),
-      notes && /* @__PURE__ */ jsxs7("div", { className: "uipack-deck-print__notes", children: [
-        /* @__PURE__ */ jsxs7("h3", { children: [
-          /* @__PURE__ */ jsx7("span", { children: pad(i + 1) }),
+    return /* @__PURE__ */ jsxs("section", { className: "uipack-deck-print__page", "data-tone": s.tone ?? "paper", "aria-label": `${pad(i + 1)}: ${s.title}`, children: [
+      /* @__PURE__ */ jsx("div", { className: "uipack-deck-print__slide", children: /* @__PURE__ */ jsx("div", { className: "uipack-deck-canvas", children: /* @__PURE__ */ jsx(Layer, { slide: s, index: i, count: slides.length, step: Infinity, active: false, thumbnail: true, theme, reducedMotion: true }) }) }),
+      notes && /* @__PURE__ */ jsxs("div", { className: "uipack-deck-print__notes", children: [
+        /* @__PURE__ */ jsxs("h3", { children: [
+          /* @__PURE__ */ jsx("span", { children: pad(i + 1) }),
           " ",
           s.headline ?? s.title
         ] }),
-        talk?.say && /* @__PURE__ */ jsx7("p", { children: talk.say })
+        talk?.say && /* @__PURE__ */ jsx("p", { children: talk.say })
       ] })
     ] }, s.id);
   }) });
@@ -1497,9 +1452,9 @@ function PrintJob({
   notes,
   onDone
 }) {
-  const done = useRef3(onDone);
+  const done = useRef(onDone);
   done.current = onDone;
-  useEffect3(() => {
+  useEffect(() => {
     let cancelled = false;
     const previous = document.title;
     const finish = () => {
@@ -1528,53 +1483,47 @@ function PrintJob({
     };
   }, [title]);
   return createPortal(
-    /* @__PURE__ */ jsx7("div", { className: "uipack-deck-print-root", children: /* @__PURE__ */ jsx7("div", { className: "uipack-deck", "data-theme": theme, children: /* @__PURE__ */ jsx7(Printout, { slides, theme, notes }) }) }),
+    /* @__PURE__ */ jsx("div", { className: "uipack-deck-print-root", children: /* @__PURE__ */ jsx("div", { className: "uipack-deck", "data-theme": theme, children: /* @__PURE__ */ jsx(Printout, { slides, theme, notes }) }) }),
     document.body
   );
 }
-
-// src/deck/player/Reader.tsx
-import { jsx as jsx8, jsxs as jsxs8 } from "react/jsx-runtime";
 function Reader({
   slides,
   theme,
   onPresent
 }) {
-  return /* @__PURE__ */ jsxs8("div", { className: "uipack-deck-read", children: [
-    /* @__PURE__ */ jsxs8("div", { className: "uipack-deck-read__head", children: [
-      /* @__PURE__ */ jsxs8("p", { children: [
+  return /* @__PURE__ */ jsxs("div", { className: "uipack-deck-read", children: [
+    /* @__PURE__ */ jsxs("div", { className: "uipack-deck-read__head", children: [
+      /* @__PURE__ */ jsxs("p", { children: [
         "Reading \xB7 ",
         slides.length,
         " slides"
       ] }),
-      /* @__PURE__ */ jsx8("button", { type: "button", onClick: () => onPresent(0), children: "Present" })
+      /* @__PURE__ */ jsx("button", { type: "button", onClick: () => onPresent(0), children: "Present" })
     ] }),
-    /* @__PURE__ */ jsx8("ol", { children: slides.map((s, i) => {
+    /* @__PURE__ */ jsx("ol", { children: slides.map((s, i) => {
       const notes = notesOf(s);
-      return /* @__PURE__ */ jsxs8("li", { children: [
-        /* @__PURE__ */ jsx8(SlideThumbnail, { slide: s, index: i, count: slides.length, theme }),
-        /* @__PURE__ */ jsxs8("div", { className: "uipack-deck-read__notes", children: [
-          /* @__PURE__ */ jsxs8("h3", { children: [
-            /* @__PURE__ */ jsx8("span", { children: pad(i + 1) }),
+      return /* @__PURE__ */ jsxs("li", { children: [
+        /* @__PURE__ */ jsx(SlideThumbnail, { slide: s, index: i, count: slides.length, theme }),
+        /* @__PURE__ */ jsxs("div", { className: "uipack-deck-read__notes", children: [
+          /* @__PURE__ */ jsxs("h3", { children: [
+            /* @__PURE__ */ jsx("span", { children: pad(i + 1) }),
             " ",
             s.title
           ] }),
-          notes?.say && /* @__PURE__ */ jsx8("p", { children: notes.say }),
-          /* @__PURE__ */ jsx8("button", { type: "button", onClick: () => onPresent(i), "aria-label": `Present from slide ${i + 1}: ${s.title}`, children: "Present from here" })
+          notes?.say && /* @__PURE__ */ jsx("p", { children: notes.say }),
+          /* @__PURE__ */ jsx("button", { type: "button", onClick: () => onPresent(i), "aria-label": `Present from slide ${i + 1}: ${s.title}`, children: "Present from here" })
         ] })
       ] }, s.id);
     }) })
   ] });
 }
-
-// src/deck/DeckPlayer.tsx
-import { Fragment as Fragment2, jsx as jsx9, jsxs as jsxs9 } from "react/jsx-runtime";
 function DeckPlayer(props) {
-  if (props.slides.length === 0) return /* @__PURE__ */ jsx9(EmptyDeck, { ...props });
-  return /* @__PURE__ */ jsx9(Player, { ...props });
+  if (props.slides.length === 0) return /* @__PURE__ */ jsx(EmptyDeck, { ...props });
+  return /* @__PURE__ */ jsx(Player, { ...props });
 }
 function EmptyDeck({ title, theme = "light", className }) {
-  return /* @__PURE__ */ jsx9(
+  return /* @__PURE__ */ jsx(
     "div",
     {
       className: ["uipack-deck", className].filter(Boolean).join(" "),
@@ -1582,7 +1531,7 @@ function EmptyDeck({ title, theme = "light", className }) {
       role: "region",
       "aria-label": title,
       "aria-roledescription": "slide deck",
-      children: /* @__PURE__ */ jsx9("div", { className: "uipack-deck-stage uipack-deck-empty", children: /* @__PURE__ */ jsx9("p", { children: "No slides" }) })
+      children: /* @__PURE__ */ jsx("div", { className: "uipack-deck-stage uipack-deck-empty", children: /* @__PURE__ */ jsx("p", { children: "No slides" }) })
     }
   );
 }
@@ -1609,20 +1558,20 @@ function Player({
     const i = typeof s === "number" ? s : s ? slides.findIndex((x) => x.id === s) : 0;
     return Math.min(Math.max(i, 0), Math.max(count - 1, 0));
   })();
-  const [view, setView] = useState4({ index: startIndex, step: initial?.step ?? 0, from: null, seq: 0 });
-  const [overview, setOverview] = useState4(false);
-  const [fullscreen, setFullscreen] = useState4(false);
-  const [reading, setReading] = useState4(initialView === "read");
-  const [printing, setPrinting] = useState4(false);
+  const [view, setView] = useState({ index: startIndex, step: initial?.step ?? 0, from: null, seq: 0 });
+  const [overview, setOverview] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [reading, setReading] = useState(initialView === "read");
+  const [printing, setPrinting] = useState(false);
   const prefersReduced = usePrefersReducedMotion();
   const reducedMotion = motion === "none" || prefersReduced;
   const { ref: stageRef, scale } = useCanvasScale();
-  const rootRef = useRef4(null);
-  const fromRef = useRef4(null);
-  const toRef = useRef4(null);
-  const overviewButtonRef = useRef4(null);
-  const [maxStep, setMaxStep] = useState4(0);
-  const viewRef = useRef4(view);
+  const rootRef = useRef(null);
+  const fromRef = useRef(null);
+  const toRef = useRef(null);
+  const overviewButtonRef = useRef(null);
+  const [maxStep, setMaxStep] = useState(0);
+  const viewRef = useRef(view);
   const commit = (next2) => {
     viewRef.current = next2;
     setView(next2);
@@ -1688,10 +1637,10 @@ function Player({
     });
     fly(started, done);
   }, [view.seq]);
-  const channel = useRef4(null);
-  const remote = useRef4(false);
-  const reported = useRef4({ index: view.index, step: view.step });
-  useEffect4(() => {
+  const channel = useRef(null);
+  const remote = useRef(false);
+  const reported = useRef({ index: view.index, step: view.step });
+  useEffect(() => {
     if (typeof BroadcastChannel === "undefined") return;
     const ch = new BroadcastChannel(`uipack-deck:${id}`);
     channel.current = ch;
@@ -1714,7 +1663,7 @@ function Player({
       channel.current = null;
     };
   }, [id, go]);
-  useEffect4(() => {
+  useEffect(() => {
     const last = reported.current;
     if (last.index === view.index && last.step === view.step) return;
     reported.current = { index: view.index, step: view.step };
@@ -1725,8 +1674,8 @@ function Player({
     }
     channel.current?.postMessage({ type: "go", index: view.index, step: view.step });
   }, [view.index, view.step]);
-  const [canFullscreen, setCanFullscreen] = useState4(false);
-  useEffect4(() => {
+  const [canFullscreen, setCanFullscreen] = useState(false);
+  useEffect(() => {
     setCanFullscreen(document.fullscreenEnabled !== false);
     const onChange = () => setFullscreen(document.fullscreenElement === rootRef.current);
     document.addEventListener("fullscreenchange", onChange);
@@ -1798,9 +1747,9 @@ function Player({
     }
     e.preventDefault();
   };
-  const keyHandler = useRef4(onKeyDown);
+  const keyHandler = useRef(onKeyDown);
   keyHandler.current = onKeyDown;
-  useEffect4(() => {
+  useEffect(() => {
     if (keyboard !== "global") return;
     const handler = (e) => {
       if (rootRef.current?.contains(e.target)) return;
@@ -1809,7 +1758,7 @@ function Player({
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [keyboard]);
-  const swipe = useRef4(null);
+  const swipe = useRef(null);
   const onPointerDown = (e) => {
     swipe.current = e.pointerType === "mouse" ? null : { x: e.clientX, y: e.clientY };
   };
@@ -1826,7 +1775,7 @@ function Player({
   const stepNow = Math.min(view.step, maxStep);
   const atStart = view.index === 0 && stepNow === 0;
   const atEnd = view.index === count - 1 && view.step >= maxStep;
-  const stage = /* @__PURE__ */ jsx9(
+  const stage = /* @__PURE__ */ jsx(
     "div",
     {
       ref: stageRef,
@@ -1835,8 +1784,8 @@ function Player({
       onPointerDown,
       onPointerUp,
       onPointerCancel: () => swipe.current = null,
-      children: /* @__PURE__ */ jsxs9("div", { className: "uipack-deck-canvas", style: { transform: `scale(${scale})`, visibility: scale ? void 0 : "hidden" }, children: [
-        from && view.from && /* @__PURE__ */ jsx9(
+      children: /* @__PURE__ */ jsxs("div", { className: "uipack-deck-canvas", style: { transform: `scale(${scale})`, visibility: scale ? void 0 : "hidden" }, children: [
+        from && view.from && /* @__PURE__ */ jsx(
           Layer,
           {
             ref: fromRef,
@@ -1850,7 +1799,7 @@ function Player({
           },
           `layer-${view.from.index}`
         ),
-        /* @__PURE__ */ jsx9(
+        /* @__PURE__ */ jsx(
           Layer,
           {
             ref: toRef,
@@ -1867,7 +1816,7 @@ function Player({
       ] })
     }
   );
-  const controls = /* @__PURE__ */ jsx9(
+  const controls = /* @__PURE__ */ jsx(
     Controls,
     {
       slides,
@@ -1887,7 +1836,7 @@ function Player({
       onFullscreen: toggleFullscreen
     }
   );
-  return /* @__PURE__ */ jsxs9(
+  return /* @__PURE__ */ jsxs(
     "div",
     {
       ref: rootRef,
@@ -1905,7 +1854,7 @@ function Player({
       tabIndex: 0,
       onKeyDown,
       children: [
-        initialView === "print" ? /* @__PURE__ */ jsx9(Printout, { slides, theme, notes: printNotes }) : reading ? /* @__PURE__ */ jsx9(
+        initialView === "print" ? /* @__PURE__ */ jsx(Printout, { slides, theme, notes: printNotes }) : reading ? /* @__PURE__ */ jsx(
           Reader,
           {
             slides,
@@ -1916,11 +1865,11 @@ function Player({
               requestAnimationFrame(() => rootRef.current?.focus({ preventScroll: true }));
             }
           }
-        ) : /* @__PURE__ */ jsxs9(Fragment2, { children: [
-          mode === "presenter" ? /* @__PURE__ */ jsx9(Presenter, { slides, index: view.index, theme, stage }) : stage,
+        ) : /* @__PURE__ */ jsxs(Fragment, { children: [
+          mode === "presenter" ? /* @__PURE__ */ jsx(Presenter, { slides, index: view.index, theme, stage }) : stage,
           controls
         ] }),
-        printing && /* @__PURE__ */ jsx9(
+        printing && /* @__PURE__ */ jsx(
           PrintJob,
           {
             slides,
@@ -1933,7 +1882,7 @@ function Player({
             }
           }
         ),
-        /* @__PURE__ */ jsxs9("p", { className: "uipack-deck-sr", "aria-live": "polite", children: [
+        /* @__PURE__ */ jsxs("p", { className: "uipack-deck-sr", "aria-live": "polite", children: [
           "Slide ",
           view.index + 1,
           " of ",
@@ -1941,7 +1890,7 @@ function Player({
           ": ",
           current.title
         ] }),
-        overview && /* @__PURE__ */ jsx9(
+        overview && /* @__PURE__ */ jsx(
           Overview,
           {
             slides,
@@ -1959,15 +1908,6 @@ function Player({
     }
   );
 }
-
-// src/deck/bento.tsx
-import {
-  Children,
-  isValidElement,
-  useRef as useRef5,
-  useState as useState5
-} from "react";
-import { jsx as jsx10, jsxs as jsxs10 } from "react/jsx-runtime";
 function BentoCell(_) {
   return null;
 }
@@ -1983,8 +1923,8 @@ var bentoFocusAt = (step, tour) => step >= 1 && step <= tour.length ? tour[step 
 function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, style, children }) {
   const { step, thumbnail } = useDeckSlide();
   const focus = thumbnail ? null : bentoFocusAt(step, tour);
-  const gridRef = useRef5(null);
-  const [camera, setCamera] = useState5(null);
+  const gridRef = useRef(null);
+  const [camera, setCamera] = useState(null);
   useIsoLayoutEffect(() => {
     const grid = gridRef.current;
     if (!grid || !focus) return setCamera(null);
@@ -2001,14 +1941,14 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
   const cells = Children.toArray(children).filter(
     (c) => isValidElement(c) && c.type === BentoCell
   );
-  return /* @__PURE__ */ jsx10(
+  return /* @__PURE__ */ jsx(
     "div",
     {
       className: ["uipack-deck-bento", className].filter(Boolean).join(" "),
       "data-steps": tour.length ? tour.length + 1 : void 0,
       "data-focus": focus ?? void 0,
       style,
-      children: /* @__PURE__ */ jsx10(
+      children: /* @__PURE__ */ jsx(
         "div",
         {
           ref: gridRef,
@@ -2020,7 +1960,7 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
           },
           children: cells.map(({ props: p }) => {
             const focused = focus === p.id;
-            return /* @__PURE__ */ jsxs10(
+            return /* @__PURE__ */ jsxs(
               "div",
               {
                 className: ["uipack-deck-bento__cell", p.className].filter(Boolean).join(" "),
@@ -2031,8 +1971,8 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
                 "data-dimmed": focus && !focused ? "" : void 0,
                 style: { gridColumn: `span ${p.col ?? 2}`, gridRow: `span ${p.row ?? 1}` },
                 children: [
-                  /* @__PURE__ */ jsx10("div", { className: "uipack-deck-bento__face", "aria-hidden": focused && p.detail ? true : void 0, children: p.children }),
-                  p.detail && /* @__PURE__ */ jsx10("div", { className: "uipack-deck-bento__detail", "aria-hidden": focused ? void 0 : true, children: p.detail })
+                  /* @__PURE__ */ jsx("div", { className: "uipack-deck-bento__face", "aria-hidden": focused && p.detail ? true : void 0, children: p.children }),
+                  p.detail && /* @__PURE__ */ jsx("div", { className: "uipack-deck-bento__detail", "aria-hidden": focused ? void 0 : true, children: p.detail })
                 ]
               },
               p.id
@@ -2043,9 +1983,6 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
     }
   );
 }
-
-// src/deck/starter.tsx
-import { jsx as jsx11, jsxs as jsxs11 } from "react/jsx-runtime";
 function starterDeck(template, { footer } = {}) {
   const t = getStorylineTemplate(template);
   return templateOutline(t).map((s, i) => {
@@ -2055,23 +1992,19 @@ function starterDeck(template, { footer } = {}) {
       title: s.title,
       headline: s.title,
       role: beat.role,
-      render: () => /* @__PURE__ */ jsxs11(Slide, { eyebrow: `${SLIDE_ROLES[beat.role].label} \xB7 draft`, footer: footer ?? t.name, children: [
-        /* @__PURE__ */ jsx11("h2", { className: "uipack-deck-heading", children: s.title }),
-        /* @__PURE__ */ jsx11("p", { className: "uipack-deck-lede", children: beat.titlePattern }),
-        /* @__PURE__ */ jsx11("p", { className: "uipack-deck-body uipack-deck-starter-note", children: beat.guidance })
+      render: () => /* @__PURE__ */ jsxs(Slide, { eyebrow: `${SLIDE_ROLES[beat.role].label} \xB7 draft`, footer: footer ?? t.name, children: [
+        /* @__PURE__ */ jsx("h2", { className: "uipack-deck-heading", children: s.title }),
+        /* @__PURE__ */ jsx("p", { className: "uipack-deck-lede", children: beat.titlePattern }),
+        /* @__PURE__ */ jsx("p", { className: "uipack-deck-body uipack-deck-starter-note", children: beat.guidance })
       ] })
     };
   });
 }
-
-// src/deck/consulting/frame.tsx
-import { Children as Children2 } from "react";
-import { Fragment as Fragment3, jsx as jsx12, jsxs as jsxs12 } from "react/jsx-runtime";
 var cx = (...names) => names.filter(Boolean).join(" ");
 function Tracker({ sections, current }) {
   const at = typeof current === "number" ? current : sections.indexOf(current);
-  return /* @__PURE__ */ jsx12("nav", { className: "uipack-cx-tracker", "aria-label": "Sections", children: /* @__PURE__ */ jsx12("ol", { children: sections.map((s, i) => /* @__PURE__ */ jsxs12("li", { "aria-current": i === at ? "step" : void 0, "data-done": i < at ? "" : void 0, children: [
-    /* @__PURE__ */ jsx12("i", { "aria-hidden": "true" }),
+  return /* @__PURE__ */ jsx("nav", { className: "uipack-cx-tracker", "aria-label": "Sections", children: /* @__PURE__ */ jsx("ol", { children: sections.map((s, i) => /* @__PURE__ */ jsxs("li", { "aria-current": i === at ? "step" : void 0, "data-done": i < at ? "" : void 0, children: [
+    /* @__PURE__ */ jsx("i", { "aria-hidden": "true" }),
     s
   ] }, s)) }) });
 }
@@ -2090,67 +2023,67 @@ function ConsultingSlide({
   children
 }) {
   const { index } = useDeckSlide();
-  return /* @__PURE__ */ jsxs12("div", { className: cx("uipack-deck-slide uipack-cx-slide", className), children: [
-    (tracker || sticker) && /* @__PURE__ */ jsxs12("div", { className: "uipack-cx-top", children: [
-      tracker ? /* @__PURE__ */ jsx12(Tracker, { ...tracker }) : /* @__PURE__ */ jsx12("span", {}),
-      sticker && /* @__PURE__ */ jsx12("p", { className: "uipack-cx-sticker", children: sticker })
+  return /* @__PURE__ */ jsxs("div", { className: cx("uipack-deck-slide uipack-cx-slide", className), children: [
+    (tracker || sticker) && /* @__PURE__ */ jsxs("div", { className: "uipack-cx-top", children: [
+      tracker ? /* @__PURE__ */ jsx(Tracker, { ...tracker }) : /* @__PURE__ */ jsx("span", {}),
+      sticker && /* @__PURE__ */ jsx("p", { className: "uipack-cx-sticker", children: sticker })
     ] }),
-    /* @__PURE__ */ jsxs12("header", { className: "uipack-cx-head", children: [
-      /* @__PURE__ */ jsx12("h2", { className: "uipack-cx-title", children: Children2.map(title, (child) => typeof child === "string" ? /* @__PURE__ */ jsx12("span", { children: child }) : child) }),
-      subtitle && /* @__PURE__ */ jsx12("p", { className: "uipack-cx-subtitle", children: subtitle })
+    /* @__PURE__ */ jsxs("header", { className: "uipack-cx-head", children: [
+      /* @__PURE__ */ jsx("h2", { className: "uipack-cx-title", children: Children.map(title, (child) => typeof child === "string" ? /* @__PURE__ */ jsx("span", { children: child }) : child) }),
+      subtitle && /* @__PURE__ */ jsx("p", { className: "uipack-cx-subtitle", children: subtitle })
     ] }),
-    /* @__PURE__ */ jsx12("div", { className: "uipack-cx-body", style: rows ? { gridTemplateRows: rows } : void 0, children }),
-    takeaway && /* @__PURE__ */ jsxs12("aside", { className: "uipack-cx-takeaway", "aria-label": "So what", children: [
-      /* @__PURE__ */ jsx12("b", { children: takeawayLabel }),
-      /* @__PURE__ */ jsx12("p", { children: takeaway })
+    /* @__PURE__ */ jsx("div", { className: "uipack-cx-body", style: rows ? { gridTemplateRows: rows } : void 0, children }),
+    takeaway && /* @__PURE__ */ jsxs("aside", { className: "uipack-cx-takeaway", "aria-label": "So what", children: [
+      /* @__PURE__ */ jsx("b", { children: takeawayLabel }),
+      /* @__PURE__ */ jsx("p", { children: takeaway })
     ] }),
-    /* @__PURE__ */ jsxs12("footer", { className: "uipack-deck-footer uipack-cx-footer", children: [
-      /* @__PURE__ */ jsxs12("div", { className: "uipack-cx-footer__notes", children: [
-        notes && notes.length > 0 && /* @__PURE__ */ jsx12("ol", { children: notes.map((n, i) => /* @__PURE__ */ jsxs12("li", { children: [
-          /* @__PURE__ */ jsx12("span", { children: i + 1 }),
+    /* @__PURE__ */ jsxs("footer", { className: "uipack-deck-footer uipack-cx-footer", children: [
+      /* @__PURE__ */ jsxs("div", { className: "uipack-cx-footer__notes", children: [
+        notes && notes.length > 0 && /* @__PURE__ */ jsx("ol", { children: notes.map((n, i) => /* @__PURE__ */ jsxs("li", { children: [
+          /* @__PURE__ */ jsx("span", { children: i + 1 }),
           n
         ] }, i)) }),
-        source && /* @__PURE__ */ jsxs12("p", { children: [
-          /* @__PURE__ */ jsx12("b", { children: "Source:" }),
+        source && /* @__PURE__ */ jsxs("p", { children: [
+          /* @__PURE__ */ jsx("b", { children: "Source:" }),
           " ",
           source
         ] })
       ] }),
-      /* @__PURE__ */ jsxs12("p", { className: "uipack-cx-footer__page", children: [
-        label && /* @__PURE__ */ jsx12("span", { children: label }),
-        /* @__PURE__ */ jsx12("b", { children: String(index + 1).padStart(2, "0") })
+      /* @__PURE__ */ jsxs("p", { className: "uipack-cx-footer__page", children: [
+        label && /* @__PURE__ */ jsx("span", { children: label }),
+        /* @__PURE__ */ jsx("b", { children: String(index + 1).padStart(2, "0") })
       ] })
     ] })
   ] });
 }
 function Ref({ n }) {
-  return /* @__PURE__ */ jsx12("sup", { className: "uipack-cx-ref", children: n });
+  return /* @__PURE__ */ jsx("sup", { className: "uipack-cx-ref", children: n });
 }
 var placement = ({ cols = 12, rows = 1, col, row }) => ({
   gridColumn: col ? `${col} / span ${cols}` : `span ${cols}`,
   gridRow: row ? `${row} / span ${rows}` : `span ${rows}`
 });
 function Panel({ title, unit, callout, morphId, emphasis, className, children, ...grid }) {
-  const body = /* @__PURE__ */ jsxs12(Fragment3, { children: [
-    /* @__PURE__ */ jsxs12("header", { className: "uipack-cx-panel__head", children: [
-      /* @__PURE__ */ jsxs12("div", { children: [
-        /* @__PURE__ */ jsx12("h3", { children: title }),
-        unit && /* @__PURE__ */ jsx12("p", { children: unit })
+  const body = /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs("header", { className: "uipack-cx-panel__head", children: [
+      /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsx("h3", { children: title }),
+        unit && /* @__PURE__ */ jsx("p", { children: unit })
       ] }),
-      callout && /* @__PURE__ */ jsx12("p", { className: "uipack-cx-panel__callout", children: callout })
+      callout && /* @__PURE__ */ jsx("p", { className: "uipack-cx-panel__callout", children: callout })
     ] }),
-    /* @__PURE__ */ jsx12("div", { className: "uipack-cx-panel__body", children })
+    /* @__PURE__ */ jsx("div", { className: "uipack-cx-panel__body", children })
   ] });
   const props = {
     className: cx("uipack-cx-panel", emphasis && "uipack-cx-panel--emphasis", className),
     style: placement(grid)
   };
-  return morphId ? /* @__PURE__ */ jsx12(Morph, { id: morphId, as: "section", fit: "stretch", ...props, children: /* @__PURE__ */ jsx12("div", { className: "uipack-cx-panel__inner", children: body }) }) : /* @__PURE__ */ jsx12("section", { ...props, children: /* @__PURE__ */ jsx12("div", { className: "uipack-cx-panel__inner", children: body }) });
+  return morphId ? /* @__PURE__ */ jsx(Morph, { id: morphId, as: "section", fit: "stretch", ...props, children: /* @__PURE__ */ jsx("div", { className: "uipack-cx-panel__inner", children: body }) }) : /* @__PURE__ */ jsx("section", { ...props, children: /* @__PURE__ */ jsx("div", { className: "uipack-cx-panel__inner", children: body }) });
 }
 function SoWhat({ title = "So what", children, ...grid }) {
-  return /* @__PURE__ */ jsxs12("aside", { className: "uipack-cx-sowhat", style: placement(grid), "aria-label": "So what", children: [
-    /* @__PURE__ */ jsx12("b", { children: title }),
-    /* @__PURE__ */ jsx12("div", { children })
+  return /* @__PURE__ */ jsxs("aside", { className: "uipack-cx-sowhat", style: placement(grid), "aria-label": "So what", children: [
+    /* @__PURE__ */ jsx("b", { children: title }),
+    /* @__PURE__ */ jsx("div", { children })
   ] });
 }
 
@@ -2240,7 +2173,7 @@ var harveyQuarters = (level) => Math.max(0, Math.min(4, Math.round(level)));
 function harveyWedge(level, cx2, cy, r) {
   const q = harveyQuarters(level);
   if (q === 0) return "";
-  if (q === 4) return `M${cx2 - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`;
+  if (q === 4) return `M${cx2 - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${ -2 * r} 0Z`;
   const angle = q / 4 * Math.PI * 2;
   const x = cx2 + r * Math.sin(angle);
   const y = cy - r * Math.cos(angle);
@@ -2334,9 +2267,6 @@ function formatValue(value, options = {}) {
   return `${s}${prefix}${body}${unit}${suffix}`;
 }
 var formatter = (options = {}) => (v) => formatValue(v, options);
-
-// src/deck/consulting/charts/Annotation.tsx
-import { jsx as jsx13, jsxs as jsxs13 } from "react/jsx-runtime";
 function annotationGeometry(point, at, text, maxWidth = 260, align = "start", size = CX_TYPE.callout) {
   const lines = wrapToWidth(text, size, maxWidth, 4);
   const w = Math.max(...lines.map((l) => textWidth(l, size)));
@@ -2362,11 +2292,11 @@ function Annotation({ x, y, tx, ty, text, width = 260, align = "start" }) {
   const g = annotationGeometry({ x, y }, { x: tx, y: ty }, text, width, align);
   const size = CX_TYPE.callout;
   const textX = align === "end" ? g.box.x + g.box.w : g.box.x;
-  return /* @__PURE__ */ jsxs13("g", { className: "uipack-cx-callout", children: [
-    /* @__PURE__ */ jsx13("line", { className: "uipack-cx-callout__leader", x1: g.leader.x1, y1: g.leader.y1, x2: x, y2: y }),
-    /* @__PURE__ */ jsx13("circle", { className: "uipack-cx-callout__ring", cx: x, cy: y, r: 9 }),
-    /* @__PURE__ */ jsx13("circle", { className: "uipack-cx-callout__dot", cx: x, cy: y, r: 3.5 }),
-    /* @__PURE__ */ jsx13(
+  return /* @__PURE__ */ jsxs("g", { className: "uipack-cx-callout", children: [
+    /* @__PURE__ */ jsx("line", { className: "uipack-cx-callout__leader", x1: g.leader.x1, y1: g.leader.y1, x2: x, y2: y }),
+    /* @__PURE__ */ jsx("circle", { className: "uipack-cx-callout__ring", cx: x, cy: y, r: 9 }),
+    /* @__PURE__ */ jsx("circle", { className: "uipack-cx-callout__dot", cx: x, cy: y, r: 3.5 }),
+    /* @__PURE__ */ jsx(
       "text",
       {
         x: textX,
@@ -2374,17 +2304,14 @@ function Annotation({ x, y, tx, ty, text, width = 260, align = "start" }) {
         fontSize: size,
         textAnchor: align,
         className: "uipack-cx-t uipack-cx-callout__text uipack-cx-halo",
-        children: g.lines.map((l, i) => /* @__PURE__ */ jsx13("tspan", { x: textX, dy: i === 0 ? 0 : size * 1.25, children: l }, i))
+        children: g.lines.map((l, i) => /* @__PURE__ */ jsx("tspan", { x: textX, dy: i === 0 ? 0 : size * 1.25, children: l }, i))
       }
     )
   ] });
 }
-
-// src/deck/consulting/hooks.ts
-import { useEffect as useEffect5, useRef as useRef6, useState as useState6 } from "react";
 function useChartSize(fixed, fallback = { width: 640, height: 360 }) {
-  const ref = useRef6(null);
-  const [size, setSize] = useState6({
+  const ref = useRef(null);
+  const [size, setSize] = useState({
     width: fixed?.width ?? fallback.width,
     height: fixed?.height ?? fallback.height
   });
@@ -2408,8 +2335,8 @@ function useChartSize(fixed, fallback = { width: 640, height: 360 }) {
 }
 function useGrown() {
   const { active, thumbnail } = useDeckSlide();
-  const [grown, setGrown] = useState6(!active || thumbnail);
-  useEffect5(() => {
+  const [grown, setGrown] = useState(!active || thumbnail);
+  useEffect(() => {
     if (grown) return;
     let second = 0;
     const first = requestAnimationFrame(() => {
@@ -2422,9 +2349,6 @@ function useGrown() {
   }, []);
   return grown;
 }
-
-// src/deck/consulting/charts/shared.tsx
-import { jsx as jsx14 } from "react/jsx-runtime";
 var defaultFormat = (v) => formatValue(v, { decimals: Number.isInteger(v) ? 0 : 1 });
 var fill = {
   accent: "var(--uipack-cx-accent)",
@@ -2442,7 +2366,7 @@ function Frame({
   children
 }) {
   const grown = useGrown();
-  return /* @__PURE__ */ jsx14("div", { ref: size.ref, className: ["uipack-cx-chart", className].filter(Boolean).join(" "), "data-grown": grown ? "" : void 0, children: /* @__PURE__ */ jsx14(
+  return /* @__PURE__ */ jsx("div", { ref: size.ref, className: ["uipack-cx-chart", className].filter(Boolean).join(" "), "data-grown": grown ? "" : void 0, children: /* @__PURE__ */ jsx(
     "svg",
     {
       className: "uipack-cx-svg",
@@ -2468,7 +2392,7 @@ function Text({
   children,
   className
 }) {
-  return /* @__PURE__ */ jsx14(
+  return /* @__PURE__ */ jsx(
     "text",
     {
       x,
@@ -2484,7 +2408,7 @@ function Text({
 function Lines({ x, y, lines, size = CX_TYPE.label, anchor = "middle", weight, muted, top }) {
   const lh = size * 1.2;
   const y0 = top ? y + size * 0.8 : y - (lines.length - 1) * lh / 2;
-  return /* @__PURE__ */ jsx14(
+  return /* @__PURE__ */ jsx(
     "text",
     {
       x,
@@ -2493,13 +2417,10 @@ function Lines({ x, y, lines, size = CX_TYPE.label, anchor = "middle", weight, m
       textAnchor: anchor,
       dominantBaseline: top ? "auto" : "central",
       className: ["uipack-cx-t", muted && "uipack-cx-t--muted", weight && "uipack-cx-t--strong"].filter(Boolean).join(" "),
-      children: lines.map((l, i) => /* @__PURE__ */ jsx14("tspan", { x, dy: i === 0 ? 0 : lh, children: l }, i))
+      children: lines.map((l, i) => /* @__PURE__ */ jsx("tspan", { x, dy: i === 0 ? 0 : lh, children: l }, i))
     }
   );
 }
-
-// src/deck/consulting/charts/BarChart.tsx
-import { jsx as jsx15, jsxs as jsxs14 } from "react/jsx-runtime";
 function BarChart({
   data,
   orientation = "horizontal",
@@ -2530,37 +2451,37 @@ function BarChart({
     const x = linearScale(dom, [labelW, W - valueW]);
     const bands = bandLayout(rows.length, refTop, H - refTop, 0.62, 36);
     const zero2 = x(Math.max(dom[0], Math.min(0, dom[1])));
-    return /* @__PURE__ */ jsxs14(Frame, { size, label, children: [
-      reference && /* @__PURE__ */ jsxs14("g", { className: "uipack-cx-ref-line", children: [
-        /* @__PURE__ */ jsx15("line", { x1: x(reference.value), x2: x(reference.value), y1: refTop - 8, y2: H }),
-        /* @__PURE__ */ jsx15(Text, { x: x(reference.value), y: 14, size: CX_TYPE.tick, anchor: "middle", muted: true, halo: true, children: reference.label })
+    return /* @__PURE__ */ jsxs(Frame, { size, label, children: [
+      reference && /* @__PURE__ */ jsxs("g", { className: "uipack-cx-ref-line", children: [
+        /* @__PURE__ */ jsx("line", { x1: x(reference.value), x2: x(reference.value), y1: refTop - 8, y2: H }),
+        /* @__PURE__ */ jsx(Text, { x: x(reference.value), y: 14, size: CX_TYPE.tick, anchor: "middle", muted: true, halo: true, children: reference.label })
       ] }),
       rows.map((d, i) => {
         const b = bands[i];
         const end = x(d.value);
         const lines = wrapToWidth(d.label, CX_TYPE.label, labelW - 20, 2);
-        return /* @__PURE__ */ jsxs14("g", { children: [
-          /* @__PURE__ */ jsx15(Lines, { x: labelW - 16, y: b.centre, lines, anchor: "end", weight: d.highlight ? 600 : void 0 }),
-          /* @__PURE__ */ jsx15(
+        return /* @__PURE__ */ jsxs("g", { children: [
+          /* @__PURE__ */ jsx(Lines, { x: labelW - 16, y: b.centre, lines, anchor: "end", weight: d.highlight ? 600 : void 0 }),
+          /* @__PURE__ */ jsx(
             "path",
             {
               className: "uipack-cx-grow",
               "data-axis": "x",
               style: { ...growStyle(d.value >= 0 ? "0% 50%" : "100% 50%", i * 40), fill: colour(d) },
               d: barPath("horizontal", zero2, end, b.markStart, b.mark),
-              children: /* @__PURE__ */ jsx15("title", { children: `${d.label}: ${format(d.value)}` })
+              children: /* @__PURE__ */ jsx("title", { children: `${d.label}: ${format(d.value)}` })
             }
           ),
-          /* @__PURE__ */ jsx15(Text, { x: d.value >= 0 ? end + 10 : end - 10, y: b.centre, anchor: d.value >= 0 ? "start" : "end", weight: 600, halo: true, children: format(d.value) })
+          /* @__PURE__ */ jsx(Text, { x: d.value >= 0 ? end + 10 : end - 10, y: b.centre, anchor: d.value >= 0 ? "start" : "end", weight: 600, halo: true, children: format(d.value) })
         ] }, d.label);
       }),
-      /* @__PURE__ */ jsx15("line", { className: "uipack-cx-axis", x1: zero2, x2: zero2, y1: refTop - 4, y2: H }),
+      /* @__PURE__ */ jsx("line", { className: "uipack-cx-axis", x1: zero2, x2: zero2, y1: refTop - 4, y2: H }),
       callout && (() => {
         const i = rows.findIndex((d) => d.label === callout.label);
         if (i < 0) return null;
         const px = x(rows[i].value);
         const py = bands[i].centre;
-        return /* @__PURE__ */ jsx15(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+        return /* @__PURE__ */ jsx(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
       })()
     ] });
   }
@@ -2571,42 +2492,39 @@ function BarChart({
   const top = 36;
   const y = linearScale(dom, [H - bottom, top]);
   const zero = y(Math.max(dom[0], Math.min(0, dom[1])));
-  return /* @__PURE__ */ jsxs14(Frame, { size, label, children: [
-    reference && /* @__PURE__ */ jsxs14("g", { className: "uipack-cx-ref-line", children: [
-      /* @__PURE__ */ jsx15("line", { x1: 0, x2: W, y1: y(reference.value), y2: y(reference.value) }),
-      /* @__PURE__ */ jsx15(Text, { x: W, y: y(reference.value) - 16, size: CX_TYPE.tick, anchor: "end", muted: true, children: reference.label })
+  return /* @__PURE__ */ jsxs(Frame, { size, label, children: [
+    reference && /* @__PURE__ */ jsxs("g", { className: "uipack-cx-ref-line", children: [
+      /* @__PURE__ */ jsx("line", { x1: 0, x2: W, y1: y(reference.value), y2: y(reference.value) }),
+      /* @__PURE__ */ jsx(Text, { x: W, y: y(reference.value) - 16, size: CX_TYPE.tick, anchor: "end", muted: true, children: reference.label })
     ] }),
     rows.map((d, i) => {
       const b = bandsProbe[i];
       const end = y(d.value);
-      return /* @__PURE__ */ jsxs14("g", { children: [
-        /* @__PURE__ */ jsx15(
+      return /* @__PURE__ */ jsxs("g", { children: [
+        /* @__PURE__ */ jsx(
           "path",
           {
             className: "uipack-cx-grow",
             "data-axis": "y",
             style: { ...growStyle(d.value >= 0 ? "50% 100%" : "50% 0%", i * 40), fill: colour(d) },
             d: barPath("vertical", zero, end, b.markStart, b.mark),
-            children: /* @__PURE__ */ jsx15("title", { children: `${d.label}: ${format(d.value)}` })
+            children: /* @__PURE__ */ jsx("title", { children: `${d.label}: ${format(d.value)}` })
           }
         ),
-        /* @__PURE__ */ jsx15(Text, { x: b.centre, y: d.value >= 0 ? end - 16 : end + 16, anchor: "middle", weight: 600, halo: true, children: format(d.value) }),
-        /* @__PURE__ */ jsx15(Lines, { x: b.centre, y: H - bottom + 12, lines: wrapped[i], top: true, weight: d.highlight ? 600 : void 0 })
+        /* @__PURE__ */ jsx(Text, { x: b.centre, y: d.value >= 0 ? end - 16 : end + 16, anchor: "middle", weight: 600, halo: true, children: format(d.value) }),
+        /* @__PURE__ */ jsx(Lines, { x: b.centre, y: H - bottom + 12, lines: wrapped[i], top: true, weight: d.highlight ? 600 : void 0 })
       ] }, d.label);
     }),
-    /* @__PURE__ */ jsx15("line", { className: "uipack-cx-axis", x1: 0, x2: W, y1: zero, y2: zero }),
+    /* @__PURE__ */ jsx("line", { className: "uipack-cx-axis", x1: 0, x2: W, y1: zero, y2: zero }),
     callout && (() => {
       const i = rows.findIndex((d) => d.label === callout.label);
       if (i < 0) return null;
       const px = bandsProbe[i].centre;
       const py = y(rows[i].value);
-      return /* @__PURE__ */ jsx15(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+      return /* @__PURE__ */ jsx(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
     })()
   ] });
 }
-
-// src/deck/consulting/charts/KpiTiles.tsx
-import { jsx as jsx16, jsxs as jsxs15 } from "react/jsx-runtime";
 function Sparkline({ values, width = 132, height = 44 }) {
   if (values.length < 2) return null;
   const lo = Math.min(...values);
@@ -2614,19 +2532,19 @@ function Sparkline({ values, width = 132, height = 44 }) {
   const x = (i) => 6 + i / (values.length - 1) * (width - 12);
   const y = linearScale(lo === hi ? [lo - 1, hi + 1] : [lo, hi], [height - 6, 6]);
   const d = values.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join("");
-  return /* @__PURE__ */ jsxs15("svg", { className: "uipack-cx-spark", width, height, viewBox: `0 0 ${width} ${height}`, "aria-hidden": "true", children: [
-    /* @__PURE__ */ jsx16("path", { className: "uipack-cx-spark__line", d }),
-    /* @__PURE__ */ jsx16("circle", { className: "uipack-cx-spark__dot", cx: x(values.length - 1), cy: y(values[values.length - 1]), r: 5 })
+  return /* @__PURE__ */ jsxs("svg", { className: "uipack-cx-spark", width, height, viewBox: `0 0 ${width} ${height}`, "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsx("path", { className: "uipack-cx-spark__line", d }),
+    /* @__PURE__ */ jsx("circle", { className: "uipack-cx-spark__dot", cx: x(values.length - 1), cy: y(values[values.length - 1]), r: 5 })
   ] });
 }
-var Arrow = ({ direction }) => /* @__PURE__ */ jsxs15("svg", { className: "uipack-cx-delta__arrow", width: "18", height: "18", viewBox: "0 0 18 18", "aria-hidden": "true", children: [
-  direction === "up" && /* @__PURE__ */ jsx16("path", { d: "M9 2 L16 14 H2 Z" }),
-  direction === "down" && /* @__PURE__ */ jsx16("path", { d: "M9 16 L16 4 H2 Z" }),
-  direction === "flat" && /* @__PURE__ */ jsx16("path", { d: "M2 7 H16 V11 H2 Z" })
+var Arrow = ({ direction }) => /* @__PURE__ */ jsxs("svg", { className: "uipack-cx-delta__arrow", width: "18", height: "18", viewBox: "0 0 18 18", "aria-hidden": "true", children: [
+  direction === "up" && /* @__PURE__ */ jsx("path", { d: "M9 2 L16 14 H2 Z" }),
+  direction === "down" && /* @__PURE__ */ jsx("path", { d: "M9 16 L16 4 H2 Z" }),
+  direction === "flat" && /* @__PURE__ */ jsx("path", { d: "M2 7 H16 V11 H2 Z" })
 ] });
 function KpiTiles({ items, columns }) {
   const per = Math.max(1, columns ?? items.length);
-  return /* @__PURE__ */ jsx16("ul", { className: "uipack-cx-kpis", style: { gridTemplateColumns: `repeat(${per}, minmax(0, 1fr))` }, children: items.map((k, i) => /* @__PURE__ */ jsxs15(
+  return /* @__PURE__ */ jsx("ul", { className: "uipack-cx-kpis", style: { gridTemplateColumns: `repeat(${per}, minmax(0, 1fr))` }, children: items.map((k, i) => /* @__PURE__ */ jsxs(
     "li",
     {
       className: "uipack-cx-kpi",
@@ -2635,28 +2553,25 @@ function KpiTiles({ items, columns }) {
       "data-last-col": i % per === per - 1 ? "" : void 0,
       "data-next-row": i >= per ? "" : void 0,
       children: [
-        /* @__PURE__ */ jsx16("p", { className: "uipack-cx-kpi__label", children: k.label }),
-        /* @__PURE__ */ jsxs15("div", { className: "uipack-cx-kpi__row", children: [
-          /* @__PURE__ */ jsxs15("p", { className: "uipack-cx-kpi__value", children: [
-            k.morphId ? /* @__PURE__ */ jsx16(Morph, { id: k.morphId, as: "span", children: k.value }) : /* @__PURE__ */ jsx16("span", { children: k.value }),
-            k.unit && /* @__PURE__ */ jsx16("small", { children: k.unit })
+        /* @__PURE__ */ jsx("p", { className: "uipack-cx-kpi__label", children: k.label }),
+        /* @__PURE__ */ jsxs("div", { className: "uipack-cx-kpi__row", children: [
+          /* @__PURE__ */ jsxs("p", { className: "uipack-cx-kpi__value", children: [
+            k.morphId ? /* @__PURE__ */ jsx(Morph, { id: k.morphId, as: "span", children: k.value }) : /* @__PURE__ */ jsx("span", { children: k.value }),
+            k.unit && /* @__PURE__ */ jsx("small", { children: k.unit })
           ] }),
-          k.trend && /* @__PURE__ */ jsx16(Sparkline, { values: k.trend })
+          k.trend && /* @__PURE__ */ jsx(Sparkline, { values: k.trend })
         ] }),
-        k.delta && /* @__PURE__ */ jsxs15("p", { className: "uipack-cx-delta", "data-sentiment": k.delta.sentiment ?? "neutral", children: [
-          /* @__PURE__ */ jsx16(Arrow, { direction: k.delta.direction }),
-          /* @__PURE__ */ jsx16("b", { children: k.delta.text }),
-          k.delta.period && /* @__PURE__ */ jsx16("span", { children: k.delta.period })
+        k.delta && /* @__PURE__ */ jsxs("p", { className: "uipack-cx-delta", "data-sentiment": k.delta.sentiment ?? "neutral", children: [
+          /* @__PURE__ */ jsx(Arrow, { direction: k.delta.direction }),
+          /* @__PURE__ */ jsx("b", { children: k.delta.text }),
+          k.delta.period && /* @__PURE__ */ jsx("span", { children: k.delta.period })
         ] }),
-        k.note && /* @__PURE__ */ jsx16("p", { className: "uipack-cx-kpi__note", children: k.note })
+        k.note && /* @__PURE__ */ jsx("p", { className: "uipack-cx-kpi__note", children: k.note })
       ]
     },
     k.label
   )) });
 }
-
-// src/deck/consulting/charts/LineChart.tsx
-import { Fragment as Fragment4, jsx as jsx17, jsxs as jsxs16 } from "react/jsx-runtime";
 function LineChart({
   x: periods,
   series,
@@ -2702,17 +2617,17 @@ function LineChart({
   });
   const placed = spreadLabels(ends.map((e) => e?.y ?? 0), CX_TYPE.label * 1.3, top, bottom);
   const everyN = Math.max(1, Math.ceil(Math.max(...periods.map((p) => textWidth(p, CX_TYPE.tick))) / Math.max(1, (right - left) / periods.length - 12)));
-  return /* @__PURE__ */ jsxs16(Frame, { size, label, children: [
-    ticks.map((t) => /* @__PURE__ */ jsxs16("g", { children: [
-      /* @__PURE__ */ jsx17("line", { className: "uipack-cx-grid", x1: left, x2: right, y1: ys(t), y2: ys(t) }),
-      /* @__PURE__ */ jsx17(Text, { x: left - 12, y: ys(t), size: CX_TYPE.tick, anchor: "end", muted: true, className: "uipack-cx-tabular", children: tf(t) })
+  return /* @__PURE__ */ jsxs(Frame, { size, label, children: [
+    ticks.map((t) => /* @__PURE__ */ jsxs("g", { children: [
+      /* @__PURE__ */ jsx("line", { className: "uipack-cx-grid", x1: left, x2: right, y1: ys(t), y2: ys(t) }),
+      /* @__PURE__ */ jsx(Text, { x: left - 12, y: ys(t), size: CX_TYPE.tick, anchor: "end", muted: true, className: "uipack-cx-tabular", children: tf(t) })
     ] }, t)),
-    reference && /* @__PURE__ */ jsxs16("g", { className: "uipack-cx-ref-line", children: [
-      /* @__PURE__ */ jsx17("line", { x1: left, x2: right, y1: ys(reference.value), y2: ys(reference.value) }),
-      /* @__PURE__ */ jsx17(Text, { x: left + 8, y: ys(reference.value) - 16, size: CX_TYPE.tick, muted: true, halo: true, children: reference.label })
+    reference && /* @__PURE__ */ jsxs("g", { className: "uipack-cx-ref-line", children: [
+      /* @__PURE__ */ jsx("line", { x1: left, x2: right, y1: ys(reference.value), y2: ys(reference.value) }),
+      /* @__PURE__ */ jsx(Text, { x: left + 8, y: ys(reference.value) - 16, size: CX_TYPE.tick, muted: true, halo: true, children: reference.label })
     ] }),
     periods.map(
-      (p, i) => i % everyN === 0 || i === periods.length - 1 ? /* @__PURE__ */ jsx17(Text, { x: xs(i), y: H - 10, size: CX_TYPE.tick, anchor: "middle", muted: true, baseline: "auto", children: p }, p) : null
+      (p, i) => i % everyN === 0 || i === periods.length - 1 ? /* @__PURE__ */ jsx(Text, { x: xs(i), y: H - 10, size: CX_TYPE.tick, anchor: "middle", muted: true, baseline: "auto", children: p }, p) : null
     ),
     series.map((s, si) => {
       const pts = s.values.map((v, i) => v === null ? null : [xs(i), ys(v)]);
@@ -2729,12 +2644,12 @@ function LineChart({
       const e = ends[si];
       const ly = placed[si];
       const nudged = e && Math.abs(ly - e.y) > 4;
-      return /* @__PURE__ */ jsxs16("g", { "data-highlight": s.highlight ? "" : void 0, children: [
-        /* @__PURE__ */ jsx17("path", { className: "uipack-cx-line uipack-cx-draw", pathLength: 1, d, style: { stroke: stroke(s, si) }, children: /* @__PURE__ */ jsx17("title", { children: `${s.name}: ${s.values.map((v, i) => `${periods[i]} ${v === null ? "n/a" : format(v)}`).join(", ")}` }) }),
-        e && /* @__PURE__ */ jsxs16(Fragment4, { children: [
-          /* @__PURE__ */ jsx17("circle", { className: "uipack-cx-dot", cx: e.x, cy: e.y, r: 6, style: { fill: stroke(s, si) } }),
-          nudged && /* @__PURE__ */ jsx17("line", { className: "uipack-cx-leader", x1: e.x + 9, y1: e.y, x2: e.x + 20, y2: ly }),
-          /* @__PURE__ */ jsxs16(
+      return /* @__PURE__ */ jsxs("g", { "data-highlight": s.highlight ? "" : void 0, children: [
+        /* @__PURE__ */ jsx("path", { className: "uipack-cx-line uipack-cx-draw", pathLength: 1, d, style: { stroke: stroke(s, si) }, children: /* @__PURE__ */ jsx("title", { children: `${s.name}: ${s.values.map((v, i) => `${periods[i]} ${v === null ? "n/a" : format(v)}`).join(", ")}` }) }),
+        e && /* @__PURE__ */ jsxs(Fragment, { children: [
+          /* @__PURE__ */ jsx("circle", { className: "uipack-cx-dot", cx: e.x, cy: e.y, r: 6, style: { fill: stroke(s, si) } }),
+          nudged && /* @__PURE__ */ jsx("line", { className: "uipack-cx-leader", x1: e.x + 9, y1: e.y, x2: e.x + 20, y2: ly }),
+          /* @__PURE__ */ jsxs(
             "text",
             {
               x: e.x + 22,
@@ -2745,7 +2660,7 @@ function LineChart({
               children: [
                 s.name,
                 " ",
-                /* @__PURE__ */ jsx17("tspan", { className: "uipack-cx-t--strong", children: endText[si].value })
+                /* @__PURE__ */ jsx("tspan", { className: "uipack-cx-t--strong", children: endText[si].value })
               ]
             }
           )
@@ -2758,13 +2673,10 @@ function LineChart({
       if (v === null || v === void 0) return null;
       const px = xs(annotate.index);
       const py = ys(v);
-      return /* @__PURE__ */ jsx17(Annotation, { x: px, y: py, tx: px + annotate.dx, ty: py + annotate.dy, text: annotate.text, width: annotate.width, align: annotate.align });
+      return /* @__PURE__ */ jsx(Annotation, { x: px, y: py, tx: px + annotate.dx, ty: py + annotate.dy, text: annotate.text, width: annotate.width, align: annotate.align });
     })()
   ] });
 }
-
-// src/deck/consulting/charts/Matrix2x2.tsx
-import { jsx as jsx18, jsxs as jsxs17 } from "react/jsx-runtime";
 function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, callout, alt, width, height }) {
   const size = useChartSize({ width, height });
   const W = size.width;
@@ -2793,18 +2705,18 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
   };
   const label = alt ?? `2 by 2 matrix: ${xa.label} against ${ya.label}. ${points.map((p) => `${p.label}: ${fx(p.x)}, ${fy(p.y)}${p.size !== void 0 ? `, size ${p.size}` : ""}`).join("; ")}.`;
   const sorted = [...points].sort((a, b) => (b.size ?? 1) - (a.size ?? 1));
-  return /* @__PURE__ */ jsxs17(Frame, { size, label, children: [
-    focus && /* @__PURE__ */ jsx18("rect", { className: "uipack-cx-quad-focus", ...{ x: quads[focus].x, y: quads[focus].y, width: quads[focus].w, height: quads[focus].h } }),
-    /* @__PURE__ */ jsx18("rect", { className: "uipack-cx-plot-edge", x: left, y: top, width: right - left, height: bottom - top }),
-    /* @__PURE__ */ jsx18("line", { className: "uipack-cx-split", x1: midX, x2: midX, y1: top, y2: bottom }),
-    /* @__PURE__ */ jsx18("line", { className: "uipack-cx-split", x1: left, x2: right, y1: midY, y2: midY }),
+  return /* @__PURE__ */ jsxs(Frame, { size, label, children: [
+    focus && /* @__PURE__ */ jsx("rect", { className: "uipack-cx-quad-focus", ...{ x: quads[focus].x, y: quads[focus].y, width: quads[focus].w, height: quads[focus].h } }),
+    /* @__PURE__ */ jsx("rect", { className: "uipack-cx-plot-edge", x: left, y: top, width: right - left, height: bottom - top }),
+    /* @__PURE__ */ jsx("line", { className: "uipack-cx-split", x1: midX, x2: midX, y1: top, y2: bottom }),
+    /* @__PURE__ */ jsx("line", { className: "uipack-cx-split", x1: left, x2: right, y1: midY, y2: midY }),
     quadrants && ["tl", "tr", "bl", "br"].map((q, i) => {
       const r = quads[q];
       const atRight = q === "tr" || q === "br";
       const atBottom = q === "bl" || q === "br";
       const lines = wrapToWidth(quadrants[i].toUpperCase(), CX_TYPE.quadrant, r.w * 0.55, 2);
       const lh = CX_TYPE.quadrant * 1.25;
-      return /* @__PURE__ */ jsx18(
+      return /* @__PURE__ */ jsx(
         "text",
         {
           x: atRight ? r.x + r.w - 16 : r.x + 16,
@@ -2813,15 +2725,15 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
           textAnchor: atRight ? "end" : "start",
           className: "uipack-cx-quad-label",
           "data-focus": focus === q ? "" : void 0,
-          children: lines.map((l, k) => /* @__PURE__ */ jsx18("tspan", { x: atRight ? r.x + r.w - 16 : r.x + 16, dy: k === 0 ? 0 : lh, children: l }, k))
+          children: lines.map((l, k) => /* @__PURE__ */ jsx("tspan", { x: atRight ? r.x + r.w - 16 : r.x + 16, dy: k === 0 ? 0 : lh, children: l }, k))
         },
         q
       );
     }),
-    yTicks.map((t) => /* @__PURE__ */ jsx18(Text, { x: left - 10, y: ys(t), size: CX_TYPE.tick, anchor: "end", muted: true, className: "uipack-cx-tabular", children: fy(t) }, `y${t}`)),
-    xTicks.map((t, i) => /* @__PURE__ */ jsx18(Text, { x: xs(t), y: bottom + 24, size: CX_TYPE.tick, anchor: i === 0 ? "start" : i === 2 ? "end" : "middle", muted: true, className: "uipack-cx-tabular", children: fx(t) }, `x${t}`)),
-    /* @__PURE__ */ jsx18(Text, { x: (left + right) / 2, y: H - 12, size: CX_TYPE.tick, anchor: "middle", weight: 600, baseline: "auto", children: `${xa.label} \u2192` }),
-    /* @__PURE__ */ jsx18(
+    yTicks.map((t) => /* @__PURE__ */ jsx(Text, { x: left - 10, y: ys(t), size: CX_TYPE.tick, anchor: "end", muted: true, className: "uipack-cx-tabular", children: fy(t) }, `y${t}`)),
+    xTicks.map((t, i) => /* @__PURE__ */ jsx(Text, { x: xs(t), y: bottom + 24, size: CX_TYPE.tick, anchor: i === 0 ? "start" : i === 2 ? "end" : "middle", muted: true, className: "uipack-cx-tabular", children: fx(t) }, `x${t}`)),
+    /* @__PURE__ */ jsx(Text, { x: (left + right) / 2, y: H - 12, size: CX_TYPE.tick, anchor: "middle", weight: 600, baseline: "auto", children: `${xa.label} \u2192` }),
+    /* @__PURE__ */ jsx(
       "text",
       {
         transform: `translate(14 ${(top + bottom) / 2}) rotate(-90)`,
@@ -2839,8 +2751,8 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
       const at = p.labelAt ?? "right";
       const lx = at === "right" ? cx2 + r + 10 : at === "left" ? cx2 - r - 10 : cx2;
       const ly = at === "top" ? cy - r - 18 : at === "bottom" ? cy + r + 20 : cy;
-      return /* @__PURE__ */ jsxs17("g", { "data-highlight": p.highlight ? "" : void 0, children: [
-        /* @__PURE__ */ jsx18(
+      return /* @__PURE__ */ jsxs("g", { "data-highlight": p.highlight ? "" : void 0, children: [
+        /* @__PURE__ */ jsx(
           "circle",
           {
             className: "uipack-cx-bubble uipack-cx-grow",
@@ -2849,10 +2761,10 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
             cy,
             r,
             style: { ...growStyle("50% 50%", i * 50), fill: p.highlight ? fill.accent : fill.context },
-            children: /* @__PURE__ */ jsx18("title", { children: `${p.label}: ${xa.label} ${fx(p.x)}, ${ya.label} ${fy(p.y)}` })
+            children: /* @__PURE__ */ jsx("title", { children: `${p.label}: ${xa.label} ${fx(p.x)}, ${ya.label} ${fy(p.y)}` })
           }
         ),
-        /* @__PURE__ */ jsx18(Text, { x: lx, y: ly, anchor: at === "right" ? "start" : at === "left" ? "end" : "middle", weight: p.highlight ? 600 : void 0, halo: true, children: p.label })
+        /* @__PURE__ */ jsx(Text, { x: lx, y: ly, anchor: at === "right" ? "start" : at === "left" ? "end" : "middle", weight: p.highlight ? 600 : void 0, halo: true, children: p.label })
       ] }, p.label);
     }),
     callout && (() => {
@@ -2860,13 +2772,10 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
       if (!p) return null;
       const px = xs(p.x);
       const py = ys(p.y);
-      return /* @__PURE__ */ jsx18(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+      return /* @__PURE__ */ jsx(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
     })()
   ] });
 }
-
-// src/deck/consulting/charts/StackedBar.tsx
-import { jsx as jsx19, jsxs as jsxs18 } from "react/jsx-runtime";
 function StackedBar({
   categories,
   series,
@@ -2895,14 +2804,14 @@ function StackedBar({
     lx += 18 + 10 + textWidth(name, CX_TYPE.tick) + 28;
     return item;
   });
-  const legendEl = /* @__PURE__ */ jsx19("g", { className: "uipack-cx-legend", children: legend.map((l) => /* @__PURE__ */ jsxs18("g", { children: [
-    /* @__PURE__ */ jsx19("rect", { x: l.x, y: 6, width: 18, height: 18, rx: 2, style: { fill: fill.series(l.i) } }),
-    /* @__PURE__ */ jsx19(Text, { x: l.x + 28, y: 15, size: CX_TYPE.tick, children: l.name })
+  const legendEl = /* @__PURE__ */ jsx("g", { className: "uipack-cx-legend", children: legend.map((l) => /* @__PURE__ */ jsxs("g", { children: [
+    /* @__PURE__ */ jsx("rect", { x: l.x, y: 6, width: 18, height: 18, rx: 2, style: { fill: fill.series(l.i) } }),
+    /* @__PURE__ */ jsx(Text, { x: l.x + 28, y: 15, size: CX_TYPE.tick, children: l.name })
   ] }, l.name)) });
   const segLabel = (s, k, cx2, cy, room, thick) => {
     const t = fmtSeg(s);
     if (thick < CX_TYPE.value + 8 || textWidth(t, CX_TYPE.value, 600) + 12 > room) return null;
-    return /* @__PURE__ */ jsx19(
+    return /* @__PURE__ */ jsx(
       "text",
       {
         x: cx2,
@@ -2921,18 +2830,18 @@ function StackedBar({
     const totalW = totals && !percent ? Math.max(...sums.map((s) => textWidth(format(s), CX_TYPE.value, 600))) + 14 : 4;
     const x = linearScale([0, max], [labelW, W - totalW]);
     const bands = bandLayout(categories.length, legendH + 8, H - legendH - 8, 0.62, 44);
-    return /* @__PURE__ */ jsxs18(Frame, { size, label, children: [
+    return /* @__PURE__ */ jsxs(Frame, { size, label, children: [
       legendEl,
       categories.map((c, i) => {
         const b = bands[i];
-        return /* @__PURE__ */ jsxs18("g", { children: [
-          /* @__PURE__ */ jsx19(Lines, { x: labelW - 16, y: b.centre, lines: wrapToWidth(c.label, CX_TYPE.label, labelW - 20, 2), anchor: "end", weight: c.highlight ? 600 : void 0 }),
-          /* @__PURE__ */ jsx19("g", { className: "uipack-cx-grow", "data-axis": "x", style: growStyle("0% 50%", i * 40), children: stacks[i].map((s, k) => {
+        return /* @__PURE__ */ jsxs("g", { children: [
+          /* @__PURE__ */ jsx(Lines, { x: labelW - 16, y: b.centre, lines: wrapToWidth(c.label, CX_TYPE.label, labelW - 20, 2), anchor: "end", weight: c.highlight ? 600 : void 0 }),
+          /* @__PURE__ */ jsx("g", { className: "uipack-cx-grow", "data-axis": "x", style: growStyle("0% 50%", i * 40), children: stacks[i].map((s, k) => {
             const x0 = x(s.from) + (k > 0 ? 1 : 0);
             const x1 = x(s.to) - (k < stacks[i].length - 1 ? 1 : 0);
             if (x1 - x0 <= 0.5) return null;
-            return /* @__PURE__ */ jsxs18("g", { children: [
-              /* @__PURE__ */ jsx19(
+            return /* @__PURE__ */ jsxs("g", { children: [
+              /* @__PURE__ */ jsx(
                 "rect",
                 {
                   style: { fill: fill.series(k) },
@@ -2940,16 +2849,16 @@ function StackedBar({
                   y: b.markStart,
                   width: x1 - x0,
                   height: b.mark,
-                  children: /* @__PURE__ */ jsx19("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
+                  children: /* @__PURE__ */ jsx("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
                 }
               ),
               segLabel(s, k, (x0 + x1) / 2, b.centre, x1 - x0, b.mark)
             ] }, k);
           }) }),
-          totals && !percent && /* @__PURE__ */ jsx19(Text, { x: x(sums[i]) + 10, y: b.centre, weight: 600, children: format(sums[i]) })
+          totals && !percent && /* @__PURE__ */ jsx(Text, { x: x(sums[i]) + 10, y: b.centre, weight: 600, children: format(sums[i]) })
         ] }, c.label);
       }),
-      /* @__PURE__ */ jsx19("line", { className: "uipack-cx-axis", x1: labelW, x2: labelW, y1: legendH + 4, y2: H })
+      /* @__PURE__ */ jsx("line", { className: "uipack-cx-axis", x1: labelW, x2: labelW, y1: legendH + 4, y2: H })
     ] });
   }
   const bandsProbe = bandLayout(categories.length, 0, W, 0.56, 88);
@@ -2957,25 +2866,25 @@ function StackedBar({
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = legendH + (totals && !percent ? 40 : 12);
   const y = linearScale([0, max], [H - bottom, top]);
-  return /* @__PURE__ */ jsxs18(Frame, { size, label, children: [
+  return /* @__PURE__ */ jsxs(Frame, { size, label, children: [
     legendEl,
     categories.map((c, i) => {
       const b = bandsProbe[i];
-      return /* @__PURE__ */ jsxs18("g", { children: [
-        /* @__PURE__ */ jsx19("g", { className: "uipack-cx-grow", "data-axis": "y", style: growStyle("50% 100%", i * 40), children: stacks[i].map((s, k) => {
+      return /* @__PURE__ */ jsxs("g", { children: [
+        /* @__PURE__ */ jsx("g", { className: "uipack-cx-grow", "data-axis": "y", style: growStyle("50% 100%", i * 40), children: stacks[i].map((s, k) => {
           const last = k === stacks[i].length - 1;
           const y0 = y(s.from) - (k > 0 ? 1 : 0);
           const y1 = y(s.to) + (last ? 0 : 1);
           if (y0 - y1 <= 0.5) return null;
-          return /* @__PURE__ */ jsxs18("g", { children: [
-            last ? /* @__PURE__ */ jsx19(
+          return /* @__PURE__ */ jsxs("g", { children: [
+            last ? /* @__PURE__ */ jsx(
               "path",
               {
                 style: { fill: fill.series(k) },
                 d: barPath("vertical", y0, y1, b.markStart, b.mark),
-                children: /* @__PURE__ */ jsx19("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
+                children: /* @__PURE__ */ jsx("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
               }
-            ) : /* @__PURE__ */ jsx19(
+            ) : /* @__PURE__ */ jsx(
               "rect",
               {
                 style: { fill: fill.series(k) },
@@ -2983,22 +2892,19 @@ function StackedBar({
                 y: y1,
                 width: b.mark,
                 height: y0 - y1,
-                children: /* @__PURE__ */ jsx19("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
+                children: /* @__PURE__ */ jsx("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
               }
             ),
             segLabel(s, k, b.centre, (y0 + y1) / 2, b.mark, y0 - y1)
           ] }, k);
         }) }),
-        totals && !percent && /* @__PURE__ */ jsx19(Text, { x: b.centre, y: y(sums[i]) - 18, anchor: "middle", weight: 600, halo: true, children: format(sums[i]) }),
-        /* @__PURE__ */ jsx19(Lines, { x: b.centre, y: H - bottom + 12, lines: wrapped[i], top: true, weight: c.highlight ? 600 : void 0 })
+        totals && !percent && /* @__PURE__ */ jsx(Text, { x: b.centre, y: y(sums[i]) - 18, anchor: "middle", weight: 600, halo: true, children: format(sums[i]) }),
+        /* @__PURE__ */ jsx(Lines, { x: b.centre, y: H - bottom + 12, lines: wrapped[i], top: true, weight: c.highlight ? 600 : void 0 })
       ] }, c.label);
     }),
-    /* @__PURE__ */ jsx19("line", { className: "uipack-cx-axis", x1: 0, x2: W, y1: H - bottom, y2: H - bottom })
+    /* @__PURE__ */ jsx("line", { className: "uipack-cx-axis", x1: 0, x2: W, y1: H - bottom, y2: H - bottom })
   ] });
 }
-
-// src/deck/consulting/charts/Waterfall.tsx
-import { jsx as jsx20, jsxs as jsxs19 } from "react/jsx-runtime";
 function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain, callout, alt, width, height }) {
   const size = useChartSize({ width, height });
   const W = size.width;
@@ -3015,7 +2921,7 @@ function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain
   const base = y(dom[0]);
   const label = alt ?? `Waterfall. ${bars.map((b) => `${b.label}: ${b.kind === "total" ? format(b.value) : (b.value >= 0 ? "+" : "") + format(b.value)}`).join("; ")}.`;
   const show = (b) => b.kind === "total" ? format(b.value) : `${b.value > 0 ? "+" : ""}${format(b.value)}`;
-  return /* @__PURE__ */ jsxs19(Frame, { size, label, children: [
+  return /* @__PURE__ */ jsxs(Frame, { size, label, children: [
     bars.map((b, i) => {
       const band = bandsProbe[i];
       const next = bandsProbe[i + 1];
@@ -3025,17 +2931,17 @@ function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain
       const yBot = b.kind === "total" ? base : y(Math.min(b.from, b.to));
       const h = Math.max(2, yBot - yTop);
       const labelY = yTop - 18;
-      return /* @__PURE__ */ jsxs19("g", { "data-kind": b.kind, children: [
-        b.kind === "total" ? /* @__PURE__ */ jsx20(
+      return /* @__PURE__ */ jsxs("g", { "data-kind": b.kind, children: [
+        b.kind === "total" ? /* @__PURE__ */ jsx(
           "path",
           {
             className: "uipack-cx-grow",
             "data-axis": "y",
             style: { ...growStyle("50% 100%", i * 60), fill: colour },
             d: barPath("vertical", base, yTop, band.markStart, band.mark),
-            children: /* @__PURE__ */ jsx20("title", { children: `${b.label}: ${show(b)}` })
+            children: /* @__PURE__ */ jsx("title", { children: `${b.label}: ${show(b)}` })
           }
-        ) : /* @__PURE__ */ jsx20(
+        ) : /* @__PURE__ */ jsx(
           "rect",
           {
             className: "uipack-cx-grow",
@@ -3046,18 +2952,18 @@ function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain
             width: band.mark,
             height: h,
             rx: 2,
-            children: /* @__PURE__ */ jsx20("title", { children: `${b.label}: ${show(b)}` })
+            children: /* @__PURE__ */ jsx("title", { children: `${b.label}: ${show(b)}` })
           }
         ),
-        broken && b.kind === "total" && /* @__PURE__ */ jsx20(
+        broken && b.kind === "total" && /* @__PURE__ */ jsx(
           "path",
           {
             className: "uipack-cx-break",
             d: `M${band.markStart - 4} ${base - 18}l${band.mark + 8} -10M${band.markStart - 4} ${base - 8}l${band.mark + 8} -10`
           }
         ),
-        next && /* @__PURE__ */ jsx20("line", { className: "uipack-cx-connector", x1: band.markStart + band.mark, x2: next.markStart, y1: y(b.to), y2: y(b.to) }),
-        /* @__PURE__ */ jsxs19(
+        next && /* @__PURE__ */ jsx("line", { className: "uipack-cx-connector", x1: band.markStart + band.mark, x2: next.markStart, y1: y(b.to), y2: y(b.to) }),
+        /* @__PURE__ */ jsxs(
           "text",
           {
             x: band.centre,
@@ -3067,34 +2973,31 @@ function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain
             dominantBaseline: "central",
             className: "uipack-cx-t uipack-cx-t--strong uipack-cx-halo",
             children: [
-              b.kind !== "total" && /* @__PURE__ */ jsx20("tspan", { className: "uipack-cx-arrow", "aria-hidden": "true", children: b.value >= 0 ? "\u25B2 " : "\u25BC " }),
+              b.kind !== "total" && /* @__PURE__ */ jsx("tspan", { className: "uipack-cx-arrow", "aria-hidden": "true", children: b.value >= 0 ? "\u25B2 " : "\u25BC " }),
               show(b)
             ]
           }
         ),
-        /* @__PURE__ */ jsx20(Lines, { x: band.centre, y: H - bottom + 12, lines: wrapped[i], top: true, weight: b.kind === "total" ? 600 : void 0 })
+        /* @__PURE__ */ jsx(Lines, { x: band.centre, y: H - bottom + 12, lines: wrapped[i], top: true, weight: b.kind === "total" ? 600 : void 0 })
       ] }, `${b.label}-${i}`);
     }),
-    /* @__PURE__ */ jsx20("line", { className: "uipack-cx-axis", x1: 0, x2: W, y1: base, y2: base }),
+    /* @__PURE__ */ jsx("line", { className: "uipack-cx-axis", x1: 0, x2: W, y1: base, y2: base }),
     callout && (() => {
       const i = bars.findIndex((b2) => b2.label === callout.label);
       if (i < 0) return null;
       const b = bars[i];
       const px = bandsProbe[i].centre;
       const py = (y(b.from) + y(b.to)) / 2;
-      return /* @__PURE__ */ jsx20(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+      return /* @__PURE__ */ jsx(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
     })()
   ] });
 }
-
-// src/deck/consulting/HarveyTable.tsx
-import { jsx as jsx21, jsxs as jsxs20 } from "react/jsx-runtime";
 var LEVEL_WORDS = ["None", "Low", "Medium", "High", "Full"];
 function HarveyBall({ level, size = 36, label }) {
   const q = harveyQuarters(level);
   const r = size / 2 - 1.5;
   const c = size / 2;
-  return /* @__PURE__ */ jsxs20(
+  return /* @__PURE__ */ jsxs(
     "svg",
     {
       className: "uipack-cx-harvey",
@@ -3105,111 +3008,45 @@ function HarveyBall({ level, size = 36, label }) {
       "aria-label": label ?? `${LEVEL_WORDS[q]} (${q} of 4)`,
       "data-level": q,
       children: [
-        /* @__PURE__ */ jsx21("circle", { className: "uipack-cx-harvey__ring", cx: c, cy: c, r }),
-        q > 0 && /* @__PURE__ */ jsx21("path", { className: "uipack-cx-harvey__fill", d: harveyWedge(q, c, c, r) })
+        /* @__PURE__ */ jsx("circle", { className: "uipack-cx-harvey__ring", cx: c, cy: c, r }),
+        q > 0 && /* @__PURE__ */ jsx("path", { className: "uipack-cx-harvey__fill", d: harveyWedge(q, c, c, r) })
       ]
     }
   );
 }
 function HarveyTable({ columns, rows, corner = "Option", showKey = true, keyNote = "Full ball = most favourable" }) {
-  return /* @__PURE__ */ jsxs20("div", { className: "uipack-cx-harvey-table", children: [
-    /* @__PURE__ */ jsxs20("table", { children: [
-      /* @__PURE__ */ jsxs20("colgroup", { children: [
-        /* @__PURE__ */ jsx21("col", {}),
-        columns.map((c) => /* @__PURE__ */ jsx21("col", { style: c.width ? { width: c.width } : void 0 }, c.key))
+  return /* @__PURE__ */ jsxs("div", { className: "uipack-cx-harvey-table", children: [
+    /* @__PURE__ */ jsxs("table", { children: [
+      /* @__PURE__ */ jsxs("colgroup", { children: [
+        /* @__PURE__ */ jsx("col", {}),
+        columns.map((c) => /* @__PURE__ */ jsx("col", { style: c.width ? { width: c.width } : void 0 }, c.key))
       ] }),
-      /* @__PURE__ */ jsx21("thead", { children: /* @__PURE__ */ jsxs20("tr", { children: [
-        /* @__PURE__ */ jsx21("th", { scope: "col", children: corner }),
-        columns.map((c) => /* @__PURE__ */ jsx21("th", { scope: "col", "data-kind": c.kind ?? "harvey", children: c.label }, c.key))
+      /* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsxs("tr", { children: [
+        /* @__PURE__ */ jsx("th", { scope: "col", children: corner }),
+        columns.map((c) => /* @__PURE__ */ jsx("th", { scope: "col", "data-kind": c.kind ?? "harvey", children: c.label }, c.key))
       ] }) }),
-      /* @__PURE__ */ jsx21("tbody", { children: rows.map((r, i) => /* @__PURE__ */ jsxs20("tr", { "data-highlight": r.highlight ? "" : void 0, children: [
-        /* @__PURE__ */ jsxs20("th", { scope: "row", children: [
-          /* @__PURE__ */ jsxs20("span", { className: "uipack-cx-harvey-table__name", children: [
+      /* @__PURE__ */ jsx("tbody", { children: rows.map((r, i) => /* @__PURE__ */ jsxs("tr", { "data-highlight": r.highlight ? "" : void 0, children: [
+        /* @__PURE__ */ jsxs("th", { scope: "row", children: [
+          /* @__PURE__ */ jsxs("span", { className: "uipack-cx-harvey-table__name", children: [
             r.label,
-            r.highlight && /* @__PURE__ */ jsx21("em", { children: r.tag ?? "Recommended" })
+            r.highlight && /* @__PURE__ */ jsx("em", { children: r.tag ?? "Recommended" })
           ] }),
-          r.detail && /* @__PURE__ */ jsx21("span", { className: "uipack-cx-harvey-table__detail", children: r.detail })
+          r.detail && /* @__PURE__ */ jsx("span", { className: "uipack-cx-harvey-table__detail", children: r.detail })
         ] }),
         columns.map((c) => {
           const v = r.cells[c.key];
-          return /* @__PURE__ */ jsx21("td", { "data-kind": c.kind ?? "harvey", children: (c.kind ?? "harvey") === "harvey" && typeof v === "number" ? /* @__PURE__ */ jsx21(HarveyBall, { level: v }) : v }, c.key);
+          return /* @__PURE__ */ jsx("td", { "data-kind": c.kind ?? "harvey", children: (c.kind ?? "harvey") === "harvey" && typeof v === "number" ? /* @__PURE__ */ jsx(HarveyBall, { level: v }) : v }, c.key);
         })
       ] }, i)) })
     ] }),
-    showKey && /* @__PURE__ */ jsxs20("p", { className: "uipack-cx-harvey-key", children: [
-      LEVEL_WORDS.map((w, q) => /* @__PURE__ */ jsxs20("span", { children: [
-        /* @__PURE__ */ jsx21(HarveyBall, { level: q, size: 24, label: "" }),
+    showKey && /* @__PURE__ */ jsxs("p", { className: "uipack-cx-harvey-key", children: [
+      LEVEL_WORDS.map((w, q) => /* @__PURE__ */ jsxs("span", { children: [
+        /* @__PURE__ */ jsx(HarveyBall, { level: q, size: 24, label: "" }),
         w
       ] }, w)),
-      keyNote && /* @__PURE__ */ jsx21("span", { className: "uipack-cx-harvey-key__note", children: keyNote })
+      keyNote && /* @__PURE__ */ jsx("span", { className: "uipack-cx-harvey-key__note", children: keyNote })
     ] })
   ] });
 }
-export {
-  Annotation,
-  BarChart,
-  Bento,
-  BentoCell,
-  Build,
-  CANVAS_HEIGHT,
-  CANVAS_WIDTH,
-  CX_TYPE,
-  ConsultingSlide,
-  DeckPlayer,
-  DeckSlideContext,
-  HarveyBall,
-  HarveyTable,
-  KpiTiles,
-  LINT_RULES,
-  LineChart,
-  MAX_TITLE_WORDS,
-  MIN_TEXT_PX,
-  Matrix2x2,
-  Morph,
-  Panel,
-  REPEATABLE_ROLES,
-  Ref,
-  SLIDE_ROLES,
-  STORYLINE_TEMPLATES,
-  Slide,
-  SlideThumbnail,
-  SoWhat,
-  Sparkline,
-  StackedBar,
-  Tracker,
-  WORDS_PER_MINUTE,
-  Waterfall,
-  annotationGeometry,
-  bandLayout,
-  barPath,
-  bentoCamera,
-  bentoFocusAt,
-  bubbleRadius,
-  deckMotion,
-  flipFrom,
-  formatStoryline,
-  formatValue,
-  formatter,
-  getStorylineTemplate,
-  harveyQuarters,
-  harveyWedge,
-  linearScale,
-  lintDeck,
-  niceStep,
-  niceTicks,
-  resolveTransition,
-  runTransition,
-  slideZoomFrame,
-  slideZoomSamples,
-  spreadLabels,
-  stackSegments,
-  starterDeck,
-  storylineOf,
-  talkSeconds,
-  templateOutline,
-  textWidth,
-  useDeckSlide,
-  waterfallBars,
-  wrapToWidth,
-  zeroBasedDomain
-};
+
+export { Annotation, BarChart, Bento, BentoCell, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, ConsultingSlide, DeckPlayer, DeckSlideContext, HarveyBall, HarveyTable, KpiTiles, LINT_RULES, LineChart, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, Morph, Panel, REPEATABLE_ROLES, Ref, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, SlideThumbnail, SoWhat, Sparkline, StackedBar, Tracker, WORDS_PER_MINUTE, Waterfall, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, flipFrom, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, resolveTransition, runTransition, slideZoomFrame, slideZoomSamples, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };

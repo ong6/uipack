@@ -1,24 +1,10 @@
-import {
-  clampStop,
-  resolveNodePose,
-  slidePalettes,
-  validateSlideStory
-} from "./chunk-BBBJN4JA.js";
-import {
-  CanvasView
-} from "./chunk-WTI575DG.js";
-import {
-  usePrefersReducedMotion
-} from "./chunk-KYO6UXHN.js";
+import { validateSlideStory, resolveNodePose, clampStop } from './chunk-BBBJN4JA.js';
+export { clampStop, resolveNodePose, slidePalettes, validateSlideStory } from './chunk-BBBJN4JA.js';
+import { CanvasView } from './chunk-WTI575DG.js';
+import { usePrefersReducedMotion } from './chunk-KYO6UXHN.js';
+import { useState, useRef, useEffect, useId } from 'react';
+import { jsxs, jsx } from 'react/jsx-runtime';
 
-// src/slides/SlidePlayer.tsx
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState
-} from "react";
-import { jsx, jsxs } from "react/jsx-runtime";
 function Diagram({ story, stop }) {
   const visible = story.nodes.filter(
     (n) => n.kind !== "boundary" && resolveNodePose(n, stop).opacity > 0.25
@@ -72,7 +58,7 @@ function SceneViewport({
       return;
     }
     setStatus("loading");
-    void import("./renderer-FCSSD6LH.js").then(({ createSlideScene }) => {
+    void import('./renderer-FCSSD6LH.js').then(({ createSlideScene }) => {
       if (cancelled || !host.current || !labels.current) return;
       try {
         runtime.current = createSlideScene(
@@ -1138,18 +1124,5 @@ var slideStories = [
   stagedAssembly,
   architectureShift
 ];
-export {
-  SlidePlayer,
-  SlideScene,
-  architectureShift,
-  clampStop,
-  harnessDive,
-  parallelAgents,
-  quarterTurn,
-  resolveNodePose,
-  retrievalLayers,
-  slidePalettes,
-  slideStories,
-  stagedAssembly,
-  validateSlideStory
-};
+
+export { SlidePlayer, SlideScene, architectureShift, harnessDive, parallelAgents, quarterTurn, retrievalLayers, slideStories, stagedAssembly };

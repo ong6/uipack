@@ -1,12 +1,8 @@
-import {
-  useIsoLayoutEffect
-} from "./chunk-KYO6UXHN.js";
+import { useIsoLayoutEffect } from './chunk-KYO6UXHN.js';
+import { useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { jsx, Fragment, jsxs } from 'react/jsx-runtime';
 
-// src/CanvasView.tsx
-import { useEffect as useEffect2, useRef as useRef2 } from "react";
-
-// src/canvas-gestures.ts
-import { useEffect, useRef } from "react";
 function useCanvasGestures(ref, open, zoom) {
   const latest = useRef(zoom);
   latest.current = zoom;
@@ -181,10 +177,6 @@ function useCanvasGestures(ref, open, zoom) {
     }
   };
 }
-
-// src/CanvasView.tsx
-import { createPortal } from "react-dom";
-import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 var CANVAS_TOKENS = [
   "--uipack-bg",
   "--uipack-surface",
@@ -203,12 +195,12 @@ function CanvasView({
   restoreFocus,
   layout
 }) {
-  const content = useRef2(null);
+  const content = useRef(null);
   const gestures = useCanvasGestures(content, open, zoom);
-  const dialog = useRef2(null);
-  const actions = useRef2(gestures);
+  const dialog = useRef(null);
+  const actions = useRef(gestures);
   actions.current = gestures;
-  useEffect2(() => {
+  useEffect(() => {
     if (!open) return;
     const keyboard = (event) => {
       const target = event.target;
@@ -231,11 +223,11 @@ function CanvasView({
     document.addEventListener("keydown", keyboard);
     return () => document.removeEventListener("keydown", keyboard);
   }, [open]);
-  const close = useRef2(onClose);
+  const close = useRef(onClose);
   close.current = onClose;
-  const restore = useRef2(restoreFocus);
+  const restore = useRef(restoreFocus);
   restore.current = restoreFocus;
-  useEffect2(() => {
+  useEffect(() => {
     if (!open) return;
     const opener = document.activeElement;
     const previous = document.body.style.overflow;
@@ -246,7 +238,7 @@ function CanvasView({
       requestAnimationFrame(() => restore.current ? restore.current() : opener?.focus());
     };
   }, [open]);
-  useEffect2(() => {
+  useEffect(() => {
     const node = dialog.current;
     if (!open || !node) return;
     const source = node.querySelector(".uipack");
@@ -332,6 +324,4 @@ function CanvasView({
   );
 }
 
-export {
-  CanvasView
-};
+export { CanvasView };

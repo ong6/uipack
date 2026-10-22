@@ -1,4 +1,6 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true});// src/zoom-math.ts
+'use strict';
+
+// src/zoom-math.ts
 var easeInOutCubic = (p) => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
 var smoothstep = (a, b, x) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
@@ -46,10 +48,8 @@ function zoomSamples(target, forward, width, height, { samples = 24, radius = 6 
   return out;
 }
 
-
-
-
-
-
-
-exports.easeInOutCubic = easeInOutCubic; exports.smoothstep = smoothstep; exports.zoomFrame = zoomFrame; exports.innerClipStart = innerClipStart; exports.zoomSamples = zoomSamples;
+exports.easeInOutCubic = easeInOutCubic;
+exports.innerClipStart = innerClipStart;
+exports.smoothstep = smoothstep;
+exports.zoomFrame = zoomFrame;
+exports.zoomSamples = zoomSamples;

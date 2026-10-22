@@ -1,11 +1,7 @@
-import {
-  onReducedMotionChange,
-  prefersReducedMotion,
-  usePrefersReducedMotion
-} from "./chunk-KYO6UXHN.js";
+import { usePrefersReducedMotion, onReducedMotionChange, prefersReducedMotion } from './chunk-KYO6UXHN.js';
+import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
+import { useState, useRef, useId, useEffect, Fragment as Fragment$1, useMemo, useCallback, createElement } from 'react';
 
-// src/web/Surface.tsx
-import { jsx } from "react/jsx-runtime";
 function WebSurface({ children, theme, as: Tag = "div", className = "", style }) {
   return /* @__PURE__ */ jsx(Tag, { className: `uipack-web ${className}`.trim(), "data-theme": theme, "data-style": "landing", style, children });
 }
@@ -16,37 +12,27 @@ function GridItem({ children, span = [4, 4, 4], className = "", as: Tag = "div" 
   const style = { "--span-w": span[0], "--span-m": span[1], "--span-n": span[2] };
   return /* @__PURE__ */ jsx(Tag, { className: `uipack-web-grid__item ${className}`.trim(), style, children });
 }
-
-// src/web/Text.tsx
-import { jsx as jsx2 } from "react/jsx-runtime";
 function Eyebrow({ children, className = "", as: Tag = "p", id }) {
-  return /* @__PURE__ */ jsx2(Tag, { id, className: `uipack-web-eyebrow ${className}`.trim(), children });
+  return /* @__PURE__ */ jsx(Tag, { id, className: `uipack-web-eyebrow ${className}`.trim(), children });
 }
 var DEFAULT_STEP = { 1: 6, 2: 4, 3: 2, 4: 1, 5: 0, 6: 0 };
 function Heading({ children, level = 2, size, className = "", id }) {
   const Tag = `h${level}`;
   const step = size ?? DEFAULT_STEP[level];
-  return /* @__PURE__ */ jsx2(Tag, { id, className: `uipack-web-heading ${className}`.trim(), "data-step": step, children });
+  return /* @__PURE__ */ jsx(Tag, { id, className: `uipack-web-heading ${className}`.trim(), "data-step": step, children });
 }
 function Subhead({ children, className = "", as: Tag = "p", id }) {
-  return /* @__PURE__ */ jsx2(Tag, { id, className: `uipack-web-subhead ${className}`.trim(), children });
+  return /* @__PURE__ */ jsx(Tag, { id, className: `uipack-web-subhead ${className}`.trim(), children });
 }
 function Body({ children, emphasis = "low", className = "", as: Tag = "p", id }) {
-  return /* @__PURE__ */ jsx2(Tag, { id, className: `uipack-web-body ${className}`.trim(), "data-emphasis": emphasis, children });
+  return /* @__PURE__ */ jsx(Tag, { id, className: `uipack-web-body ${className}`.trim(), "data-emphasis": emphasis, children });
 }
-
-// src/web/CtaButton.tsx
-import { jsx as jsx3 } from "react/jsx-runtime";
 function CtaButton({ children, variant = "primary", href, size = "md", className = "", type = "button", ...rest }) {
   const cls = `uipack-web-cta ${className}`.trim();
   if (href)
-    return /* @__PURE__ */ jsx3("a", { className: cls, href, "data-variant": variant, "data-size": size, children });
-  return /* @__PURE__ */ jsx3("button", { className: cls, type, "data-variant": variant, "data-size": size, ...rest, children });
+    return /* @__PURE__ */ jsx("a", { className: cls, href, "data-variant": variant, "data-size": size, children });
+  return /* @__PURE__ */ jsx("button", { className: cls, type, "data-variant": variant, "data-size": size, ...rest, children });
 }
-
-// src/web/GlassNav.tsx
-import { useEffect, useId, useRef, useState } from "react";
-import { jsx as jsx4, jsxs } from "react/jsx-runtime";
 function GlassNav({ brand, links, cta, sticky = true, label = "Primary" }) {
   const [open, setOpen] = useState(false);
   const toggleRef = useRef(null);
@@ -61,11 +47,11 @@ function GlassNav({ brand, links, cta, sticky = true, label = "Primary" }) {
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
-  return /* @__PURE__ */ jsx4("header", { className: "uipack-web-nav", "data-sticky": sticky || void 0, "data-open": open || void 0, children: /* @__PURE__ */ jsxs("div", { className: "uipack-web-nav__bar", children: [
-    /* @__PURE__ */ jsx4("div", { className: "uipack-web-nav__brand", children: brand }),
-    /* @__PURE__ */ jsx4("nav", { "aria-label": label, className: "uipack-web-nav__nav", children: /* @__PURE__ */ jsx4("ul", { id: listId, className: "uipack-web-nav__links", children: links.map((l) => /* @__PURE__ */ jsx4("li", { children: /* @__PURE__ */ jsx4("a", { href: l.href, onClick: () => setOpen(false), children: l.label }) }, l.href + l.label)) }) }),
-    cta && /* @__PURE__ */ jsx4("div", { className: "uipack-web-nav__cta", children: cta }),
-    /* @__PURE__ */ jsx4(
+  return /* @__PURE__ */ jsx("header", { className: "uipack-web-nav", "data-sticky": sticky || void 0, "data-open": open || void 0, children: /* @__PURE__ */ jsxs("div", { className: "uipack-web-nav__bar", children: [
+    /* @__PURE__ */ jsx("div", { className: "uipack-web-nav__brand", children: brand }),
+    /* @__PURE__ */ jsx("nav", { "aria-label": label, className: "uipack-web-nav__nav", children: /* @__PURE__ */ jsx("ul", { id: listId, className: "uipack-web-nav__links", children: links.map((l) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx("a", { href: l.href, onClick: () => setOpen(false), children: l.label }) }, l.href + l.label)) }) }),
+    cta && /* @__PURE__ */ jsx("div", { className: "uipack-web-nav__cta", children: cta }),
+    /* @__PURE__ */ jsx(
       "button",
       {
         ref: toggleRef,
@@ -79,12 +65,8 @@ function GlassNav({ brand, links, cta, sticky = true, label = "Primary" }) {
     )
   ] }) });
 }
-
-// src/web/SpotlightCard.tsx
-import { useRef as useRef2 } from "react";
-import { jsx as jsx5 } from "react/jsx-runtime";
 function SpotlightCard({ children, href, className = "" }) {
-  const ref2 = useRef2(null);
+  const ref2 = useRef(null);
   const onMove = (e) => {
     if (e.pointerType === "touch") return;
     const el = ref2.current;
@@ -99,15 +81,12 @@ function SpotlightCard({ children, href, className = "" }) {
   };
   const cls = `uipack-web-spotlight ${className}`.trim();
   if (href)
-    return /* @__PURE__ */ jsx5("a", { ref: (n) => ref2.current = n, className: cls, href, onPointerMove: onMove, onPointerLeave: onLeave, children });
-  return /* @__PURE__ */ jsx5("div", { ref: (n) => ref2.current = n, className: cls, onPointerMove: onMove, onPointerLeave: onLeave, children });
+    return /* @__PURE__ */ jsx("a", { ref: (n) => ref2.current = n, className: cls, href, onPointerMove: onMove, onPointerLeave: onLeave, children });
+  return /* @__PURE__ */ jsx("div", { ref: (n) => ref2.current = n, className: cls, onPointerMove: onMove, onPointerLeave: onLeave, children });
 }
-
-// src/web/Section.tsx
-import { Fragment, jsx as jsx6, jsxs as jsxs2 } from "react/jsx-runtime";
 function Section({ eyebrow, title, intro, children, tone = "default", align = "start", id, className = "", lazyRender = false }) {
   const headingId = id ? `${id}-title` : void 0;
-  return /* @__PURE__ */ jsx6(
+  return /* @__PURE__ */ jsx(
     "section",
     {
       id,
@@ -116,11 +95,11 @@ function Section({ eyebrow, title, intro, children, tone = "default", align = "s
       "data-align": align,
       "data-lazy": lazyRender || void 0,
       "aria-labelledby": title ? headingId : void 0,
-      children: /* @__PURE__ */ jsxs2("div", { className: "uipack-web-section__inner", children: [
-        (eyebrow || title || intro) && /* @__PURE__ */ jsxs2("div", { className: "uipack-web-section__head", children: [
-          eyebrow && /* @__PURE__ */ jsx6(Eyebrow, { children: eyebrow }),
-          title && /* @__PURE__ */ jsx6(Heading, { level: 2, id: headingId, children: title }),
-          intro && /* @__PURE__ */ jsx6(Body, { children: intro })
+      children: /* @__PURE__ */ jsxs("div", { className: "uipack-web-section__inner", children: [
+        (eyebrow || title || intro) && /* @__PURE__ */ jsxs("div", { className: "uipack-web-section__head", children: [
+          eyebrow && /* @__PURE__ */ jsx(Eyebrow, { children: eyebrow }),
+          title && /* @__PURE__ */ jsx(Heading, { level: 2, id: headingId, children: title }),
+          intro && /* @__PURE__ */ jsx(Body, { children: intro })
         ] }),
         children
       ] })
@@ -128,24 +107,20 @@ function Section({ eyebrow, title, intro, children, tone = "default", align = "s
   );
 }
 function FeatureGrid({ features, spotlight = false }) {
-  return /* @__PURE__ */ jsx6(Grid, { as: "ul", className: "uipack-web-features", children: features.map((f) => {
-    const inner = /* @__PURE__ */ jsxs2(Fragment, { children: [
-      f.icon && /* @__PURE__ */ jsx6("div", { className: "uipack-web-feature__icon", children: f.icon }),
-      /* @__PURE__ */ jsx6(Heading, { level: 3, size: 1, children: f.href ? /* @__PURE__ */ jsx6("a", { href: f.href, children: f.title }) : f.title }),
-      /* @__PURE__ */ jsx6(Body, { children: f.body })
+  return /* @__PURE__ */ jsx(Grid, { as: "ul", className: "uipack-web-features", children: features.map((f) => {
+    const inner = /* @__PURE__ */ jsxs(Fragment, { children: [
+      f.icon && /* @__PURE__ */ jsx("div", { className: "uipack-web-feature__icon", children: f.icon }),
+      /* @__PURE__ */ jsx(Heading, { level: 3, size: 1, children: f.href ? /* @__PURE__ */ jsx("a", { href: f.href, children: f.title }) : f.title }),
+      /* @__PURE__ */ jsx(Body, { children: f.body })
     ] });
-    return /* @__PURE__ */ jsx6(GridItem, { as: "li", span: [4, 4, 4], children: spotlight ? /* @__PURE__ */ jsx6(SpotlightCard, { children: inner }) : /* @__PURE__ */ jsx6("div", { className: "uipack-web-feature", children: inner }) }, f.title);
+    return /* @__PURE__ */ jsx(GridItem, { as: "li", span: [4, 4, 4], children: spotlight ? /* @__PURE__ */ jsx(SpotlightCard, { children: inner }) : /* @__PURE__ */ jsx("div", { className: "uipack-web-feature", children: inner }) }, f.title);
   }) });
 }
-
-// src/web/RevealText.tsx
-import { Fragment as Fragment2, useEffect as useEffect2, useRef as useRef3, useState as useState2 } from "react";
-import { jsx as jsx7, jsxs as jsxs3 } from "react/jsx-runtime";
 function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger = 45 }) {
-  const ref2 = useRef3(null);
+  const ref2 = useRef(null);
   const reduced = usePrefersReducedMotion();
-  const [state, setState] = useState2("static");
-  useEffect2(() => {
+  const [state, setState] = useState("static");
+  useEffect(() => {
     const el = ref2.current;
     if (!el || reduced || typeof IntersectionObserver === "undefined") {
       setState("static");
@@ -165,15 +140,11 @@ function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger =
   }, [reduced]);
   const units = lines ?? text.split(/\s+/).filter(Boolean);
   const byLine = !!lines;
-  return /* @__PURE__ */ jsx7(Tag, { ref: ref2, className: `uipack-web-reveal ${className}`.trim(), "data-state": state, "data-by": byLine ? "line" : "word", children: units.map((u, i) => /* @__PURE__ */ jsxs3(Fragment2, { children: [
-    /* @__PURE__ */ jsx7("span", { className: "uipack-web-reveal__unit", style: { "--i": i, "--stagger": `${stagger}ms` }, children: u }),
+  return /* @__PURE__ */ jsx(Tag, { ref: ref2, className: `uipack-web-reveal ${className}`.trim(), "data-state": state, "data-by": byLine ? "line" : "word", children: units.map((u, i) => /* @__PURE__ */ jsxs(Fragment$1, { children: [
+    /* @__PURE__ */ jsx("span", { className: "uipack-web-reveal__unit", style: { "--i": i, "--stagger": `${stagger}ms` }, children: u }),
     i < units.length - 1 ? " " : null
   ] }, i)) });
 }
-
-// src/web/motif.tsx
-import { useId as useId2 } from "react";
-import { jsx as jsx8, jsxs as jsxs4 } from "react/jsx-runtime";
 var DEFAULT_STAR_VALUES = [0, 1, 2, 5, 9, 16, 22, 31, 33, 35, 37, 37];
 function curvePath(values, w, h, pad = 0) {
   if (values.length < 2) return `M0 ${h}L${w} ${h}`;
@@ -194,11 +165,11 @@ function curvePath(values, w, h, pad = 0) {
   return d;
 }
 function StarChart({ values = DEFAULT_STAR_VALUES, className = "" }) {
-  const id = useId2().replace(/:/g, "");
+  const id = useId().replace(/:/g, "");
   const W = 1200;
   const H = 560;
   const line = curvePath(values, W, H, 72);
-  return /* @__PURE__ */ jsxs4(
+  return /* @__PURE__ */ jsxs(
     "svg",
     {
       className: `uipack-web-star ${className}`.trim(),
@@ -207,22 +178,22 @@ function StarChart({ values = DEFAULT_STAR_VALUES, className = "" }) {
       "aria-hidden": "true",
       focusable: "false",
       children: [
-        /* @__PURE__ */ jsxs4("defs", { children: [
-          /* @__PURE__ */ jsxs4("linearGradient", { id: `${id}-fill`, x1: "0", y1: "0", x2: "0", y2: "1", children: [
-            /* @__PURE__ */ jsx8("stop", { offset: "0", stopColor: "var(--web-accent)", stopOpacity: "0.42" }),
-            /* @__PURE__ */ jsx8("stop", { offset: "0.55", stopColor: "var(--web-accent)", stopOpacity: "0.14" }),
-            /* @__PURE__ */ jsx8("stop", { offset: "1", stopColor: "var(--web-accent)", stopOpacity: "0" })
+        /* @__PURE__ */ jsxs("defs", { children: [
+          /* @__PURE__ */ jsxs("linearGradient", { id: `${id}-fill`, x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ jsx("stop", { offset: "0", stopColor: "var(--web-accent)", stopOpacity: "0.42" }),
+            /* @__PURE__ */ jsx("stop", { offset: "0.55", stopColor: "var(--web-accent)", stopOpacity: "0.14" }),
+            /* @__PURE__ */ jsx("stop", { offset: "1", stopColor: "var(--web-accent)", stopOpacity: "0" })
           ] }),
-          /* @__PURE__ */ jsxs4("linearGradient", { id: `${id}-line`, x1: "0", y1: "0", x2: "1", y2: "0", children: [
-            /* @__PURE__ */ jsx8("stop", { offset: "0", stopColor: "var(--web-accent)", stopOpacity: "0" }),
-            /* @__PURE__ */ jsx8("stop", { offset: "0.35", stopColor: "var(--web-accent)", stopOpacity: "0.9" }),
-            /* @__PURE__ */ jsx8("stop", { offset: "1", stopColor: "var(--web-accent)" })
+          /* @__PURE__ */ jsxs("linearGradient", { id: `${id}-line`, x1: "0", y1: "0", x2: "1", y2: "0", children: [
+            /* @__PURE__ */ jsx("stop", { offset: "0", stopColor: "var(--web-accent)", stopOpacity: "0" }),
+            /* @__PURE__ */ jsx("stop", { offset: "0.35", stopColor: "var(--web-accent)", stopOpacity: "0.9" }),
+            /* @__PURE__ */ jsx("stop", { offset: "1", stopColor: "var(--web-accent)" })
           ] })
         ] }),
-        [0.25, 0.5, 0.75].map((f) => /* @__PURE__ */ jsx8("line", { x1: "0", x2: W, y1: H * f, y2: H * f, className: "uipack-web-star__rule" }, f)),
-        /* @__PURE__ */ jsx8("path", { d: `${line}L${W} ${H}L0 ${H}Z`, fill: `url(#${id}-fill)`, className: "uipack-web-star__area" }),
-        /* @__PURE__ */ jsx8("path", { d: line, fill: "none", stroke: `url(#${id}-line)`, className: "uipack-web-star__glow", pathLength: 1 }),
-        /* @__PURE__ */ jsx8("path", { d: line, fill: "none", stroke: `url(#${id}-line)`, className: "uipack-web-star__line", pathLength: 1 })
+        [0.25, 0.5, 0.75].map((f) => /* @__PURE__ */ jsx("line", { x1: "0", x2: W, y1: H * f, y2: H * f, className: "uipack-web-star__rule" }, f)),
+        /* @__PURE__ */ jsx("path", { d: `${line}L${W} ${H}L0 ${H}Z`, fill: `url(#${id}-fill)`, className: "uipack-web-star__area" }),
+        /* @__PURE__ */ jsx("path", { d: line, fill: "none", stroke: `url(#${id}-line)`, className: "uipack-web-star__glow", pathLength: 1 }),
+        /* @__PURE__ */ jsx("path", { d: line, fill: "none", stroke: `url(#${id}-line)`, className: "uipack-web-star__line", pathLength: 1 })
       ]
     }
   );
@@ -234,43 +205,37 @@ function RhymeIcon({ at = 0.5, values = DEFAULT_STAR_VALUES, size = 40 }) {
   const idx = Math.round(Math.max(0, Math.min(1, at)) * (values.length - 1));
   const cx = 6 + idx / (values.length - 1) * 28;
   const cy = 10 + 2 + (1 - (values[idx] - min) / span) * 16;
-  return /* @__PURE__ */ jsxs4("svg", { className: "uipack-web-rhyme", viewBox: "0 0 40 40", width: size, height: size, "aria-hidden": "true", focusable: "false", children: [
-    /* @__PURE__ */ jsx8("rect", { x: "0.5", y: "0.5", width: "39", height: "39", rx: "10" }),
-    /* @__PURE__ */ jsx8("path", { d, transform: "translate(6 10)" }),
-    /* @__PURE__ */ jsx8("line", { x1: cx, x2: cx, y1: cy, y2: "32" }),
-    /* @__PURE__ */ jsx8("circle", { cx, cy, r: "3" })
+  return /* @__PURE__ */ jsxs("svg", { className: "uipack-web-rhyme", viewBox: "0 0 40 40", width: size, height: size, "aria-hidden": "true", focusable: "false", children: [
+    /* @__PURE__ */ jsx("rect", { x: "0.5", y: "0.5", width: "39", height: "39", rx: "10" }),
+    /* @__PURE__ */ jsx("path", { d, transform: "translate(6 10)" }),
+    /* @__PURE__ */ jsx("line", { x1: cx, x2: cx, y1: cy, y2: "32" }),
+    /* @__PURE__ */ jsx("circle", { cx, cy, r: "3" })
   ] });
 }
 function GrainOverlay({ opacity = 0.07, frequency = 0.8 }) {
-  const id = useId2().replace(/:/g, "");
-  return /* @__PURE__ */ jsxs4("svg", { className: "uipack-web-noise", "aria-hidden": "true", focusable: "false", style: { opacity }, "data-bg": "grain", children: [
-    /* @__PURE__ */ jsxs4("filter", { id: `${id}-n`, children: [
-      /* @__PURE__ */ jsx8("feTurbulence", { type: "fractalNoise", baseFrequency: frequency, numOctaves: "3", stitchTiles: "stitch" }),
-      /* @__PURE__ */ jsx8("feColorMatrix", { type: "saturate", values: "0" })
+  const id = useId().replace(/:/g, "");
+  return /* @__PURE__ */ jsxs("svg", { className: "uipack-web-noise", "aria-hidden": "true", focusable: "false", style: { opacity }, "data-bg": "grain", children: [
+    /* @__PURE__ */ jsxs("filter", { id: `${id}-n`, children: [
+      /* @__PURE__ */ jsx("feTurbulence", { type: "fractalNoise", baseFrequency: frequency, numOctaves: "3", stitchTiles: "stitch" }),
+      /* @__PURE__ */ jsx("feColorMatrix", { type: "saturate", values: "0" })
     ] }),
-    /* @__PURE__ */ jsx8("rect", { width: "100%", height: "100%", filter: `url(#${id}-n)` })
+    /* @__PURE__ */ jsx("rect", { width: "100%", height: "100%", filter: `url(#${id}-n)` })
   ] });
 }
 var NoiseLayer = GrainOverlay;
-
-// src/web/StarHero.tsx
-import { jsx as jsx9, jsxs as jsxs5 } from "react/jsx-runtime";
 function StarHero({ eyebrow, title, subtitle, actions, visual, values, children, noise = 0.07, headingId }) {
-  return /* @__PURE__ */ jsxs5("section", { className: "uipack-web-hero", "aria-labelledby": headingId, children: [
-    /* @__PURE__ */ jsx9("div", { className: "uipack-web-hero__visual", children: visual ?? /* @__PURE__ */ jsx9(StarChart, { values }) }),
-    noise > 0 && /* @__PURE__ */ jsx9(NoiseLayer, { opacity: noise }),
-    /* @__PURE__ */ jsxs5("div", { className: "uipack-web-hero__copy", children: [
-      eyebrow && /* @__PURE__ */ jsx9(Eyebrow, { children: eyebrow }),
-      /* @__PURE__ */ jsx9(Heading, { level: 1, id: headingId, children: title }),
-      subtitle && /* @__PURE__ */ jsx9(Subhead, { children: subtitle }),
-      actions && /* @__PURE__ */ jsx9("div", { className: "uipack-web-hero__actions", children: actions })
+  return /* @__PURE__ */ jsxs("section", { className: "uipack-web-hero", "aria-labelledby": headingId, children: [
+    /* @__PURE__ */ jsx("div", { className: "uipack-web-hero__visual", children: visual ?? /* @__PURE__ */ jsx(StarChart, { values }) }),
+    noise > 0 && /* @__PURE__ */ jsx(NoiseLayer, { opacity: noise }),
+    /* @__PURE__ */ jsxs("div", { className: "uipack-web-hero__copy", children: [
+      eyebrow && /* @__PURE__ */ jsx(Eyebrow, { children: eyebrow }),
+      /* @__PURE__ */ jsx(Heading, { level: 1, id: headingId, children: title }),
+      subtitle && /* @__PURE__ */ jsx(Subhead, { children: subtitle }),
+      actions && /* @__PURE__ */ jsx("div", { className: "uipack-web-hero__actions", children: actions })
     ] }),
-    children && /* @__PURE__ */ jsx9("div", { className: "uipack-web-hero__proof", children })
+    children && /* @__PURE__ */ jsx("div", { className: "uipack-web-hero__proof", children })
   ] });
 }
-
-// src/web/DemoPlayer.tsx
-import { useCallback, useEffect as useEffect3, useId as useId3, useMemo, useRef as useRef4, useState as useState3 } from "react";
 
 // src/web/timeline.ts
 var DEFAULT_TIMING = { leadMs: 450, typeMs: 34, actionMs: 720, holdMs: 1800 };
@@ -330,9 +295,6 @@ function demoFrame(steps, elapsed, timing = DEFAULT_TIMING, initialMetric) {
     metric: metricThrough(steps, step, settled ? nActions : actionsDone, settled, initialMetric)
   };
 }
-
-// src/web/DemoPlayer.tsx
-import { jsx as jsx10, jsxs as jsxs6 } from "react/jsx-runtime";
 var TICK_MS = 40;
 function lastWith(steps, upTo, pick) {
   for (let k = upTo; k >= 0; k--) {
@@ -357,15 +319,15 @@ function DemoPlayer({
 }) {
   const timing = useMemo(() => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
   const reduced = usePrefersReducedMotion();
-  const rootRef = useRef4(null);
-  const tabsRef = useRef4(null);
-  const [elapsed, setElapsed] = useState3(0);
-  const [playing, setPlaying] = useState3(autoplay);
-  const [inView, setInView] = useState3(false);
-  const id = useId3();
+  const rootRef = useRef(null);
+  const tabsRef = useRef(null);
+  const [elapsed, setElapsed] = useState(0);
+  const [playing, setPlaying] = useState(autoplay);
+  const [inView, setInView] = useState(false);
+  const id = useId();
   const end = demoEnd(steps, timing);
   const cycle = demoCycle(steps, timing);
-  useEffect3(() => {
+  useEffect(() => {
     const el = rootRef.current;
     if (!el || typeof IntersectionObserver === "undefined") {
       setInView(true);
@@ -376,7 +338,7 @@ function DemoPlayer({
     return () => io.disconnect();
   }, []);
   const running = playing && inView && !reduced;
-  useEffect3(() => {
+  useEffect(() => {
     if (!running) return;
     let last = Date.now();
     const timer = setInterval(() => {
@@ -394,11 +356,11 @@ function DemoPlayer({
   const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
   const frame = reduced ? finalFrame : demoFrame(steps, elapsed, timing, initialMetric);
   const finished = !loop && frame.done;
-  useEffect3(() => {
+  useEffect(() => {
     if (finished) setPlaying(false);
   }, [finished]);
   const step = steps[frame.step];
-  useEffect3(() => {
+  useEffect(() => {
     onStepChange?.(frame.step);
   }, [frame.step]);
   const seek = useCallback(
@@ -435,7 +397,7 @@ function DemoPlayer({
   const promptDone = !step?.prompt || frame.typed >= (step.prompt?.length ?? 0);
   const runningIdx = isCurrent && promptDone && !frame.settled && frame.actionsDone < actions.length ? frame.actionsDone : -1;
   const screen = lastWith(steps, frame.settled ? frame.step : frame.step - 1, (s) => s.screen ?? void 0);
-  return /* @__PURE__ */ jsxs6(
+  return /* @__PURE__ */ jsxs(
     "section",
     {
       ref: rootRef,
@@ -444,66 +406,66 @@ function DemoPlayer({
       "data-state": reduced ? "static" : finished ? "finished" : running ? "playing" : "paused",
       "data-step": frame.step,
       children: [
-        /* @__PURE__ */ jsxs6("div", { className: "uipack-web-demo__window", children: [
-          /* @__PURE__ */ jsxs6("div", { className: "uipack-web-demo__chrome", "aria-hidden": "true", children: [
-            /* @__PURE__ */ jsxs6("span", { className: "uipack-web-demo__dots", children: [
-              /* @__PURE__ */ jsx10("i", {}),
-              /* @__PURE__ */ jsx10("i", {}),
-              /* @__PURE__ */ jsx10("i", {})
+        /* @__PURE__ */ jsxs("div", { className: "uipack-web-demo__window", children: [
+          /* @__PURE__ */ jsxs("div", { className: "uipack-web-demo__chrome", "aria-hidden": "true", children: [
+            /* @__PURE__ */ jsxs("span", { className: "uipack-web-demo__dots", children: [
+              /* @__PURE__ */ jsx("i", {}),
+              /* @__PURE__ */ jsx("i", {}),
+              /* @__PURE__ */ jsx("i", {})
             ] }),
-            address && /* @__PURE__ */ jsx10("span", { className: "uipack-web-demo__address", children: address })
+            address && /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__address", children: address })
           ] }),
-          /* @__PURE__ */ jsxs6("div", { className: "uipack-web-demo__body", children: [
-            /* @__PURE__ */ jsxs6("div", { className: "uipack-web-demo__work", children: [
-              /* @__PURE__ */ jsxs6("div", { className: "uipack-web-demo__composer", "data-typing": typing || void 0, children: [
-                /* @__PURE__ */ jsx10("span", { className: "uipack-web-demo__sr", children: promptText }),
-                /* @__PURE__ */ jsx10("span", { "aria-hidden": "true", className: visiblePrompt ? "" : "uipack-web-demo__placeholder", children: visiblePrompt || placeholder }),
-                typing && /* @__PURE__ */ jsx10("span", { className: "uipack-web-demo__caret", "aria-hidden": "true" })
+          /* @__PURE__ */ jsxs("div", { className: "uipack-web-demo__body", children: [
+            /* @__PURE__ */ jsxs("div", { className: "uipack-web-demo__work", children: [
+              /* @__PURE__ */ jsxs("div", { className: "uipack-web-demo__composer", "data-typing": typing || void 0, children: [
+                /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__sr", children: promptText }),
+                /* @__PURE__ */ jsx("span", { "aria-hidden": "true", className: visiblePrompt ? "" : "uipack-web-demo__placeholder", children: visiblePrompt || placeholder }),
+                typing && /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__caret", "aria-hidden": "true" })
               ] }),
-              /* @__PURE__ */ jsx10("ol", { className: "uipack-web-demo__log", "aria-label": "Agent actions", children: actions.map((a, i) => {
+              /* @__PURE__ */ jsx("ol", { className: "uipack-web-demo__log", "aria-label": "Agent actions", children: actions.map((a, i) => {
                 const state = i < doneCount ? "done" : i === runningIdx ? "running" : "pending";
                 if (state === "pending") return null;
-                return /* @__PURE__ */ jsxs6("li", { "data-state": state, children: [
-                  /* @__PURE__ */ jsx10("span", { className: "uipack-web-demo__tick", "aria-hidden": "true", children: state === "done" ? /* @__PURE__ */ jsx10("svg", { viewBox: "0 0 16 16", children: /* @__PURE__ */ jsx10("path", { d: "M3.5 8.5l3 3 6-7" }) }) : null }),
-                  /* @__PURE__ */ jsx10("span", { children: a.label }),
-                  a.detail && /* @__PURE__ */ jsx10("small", { children: a.detail }),
-                  state === "running" && /* @__PURE__ */ jsx10("span", { className: "uipack-web-demo__sr", children: " (in progress)" })
+                return /* @__PURE__ */ jsxs("li", { "data-state": state, children: [
+                  /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__tick", "aria-hidden": "true", children: state === "done" ? /* @__PURE__ */ jsx("svg", { viewBox: "0 0 16 16", children: /* @__PURE__ */ jsx("path", { d: "M3.5 8.5l3 3 6-7" }) }) : null }),
+                  /* @__PURE__ */ jsx("span", { children: a.label }),
+                  a.detail && /* @__PURE__ */ jsx("small", { children: a.detail }),
+                  state === "running" && /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__sr", children: " (in progress)" })
                 ] }, `${actionStep}-${i}`);
               }) })
             ] }),
-            /* @__PURE__ */ jsxs6("div", { className: "uipack-web-demo__result", children: [
-              frame.metric !== void 0 && /* @__PURE__ */ jsxs6("p", { className: "uipack-web-demo__metric", children: [
-                /* @__PURE__ */ jsx10("strong", { "data-testid": "demo-metric", children: frame.metric }, frame.metric),
-                metricLabel && /* @__PURE__ */ jsx10("span", { children: metricLabel })
+            /* @__PURE__ */ jsxs("div", { className: "uipack-web-demo__result", children: [
+              frame.metric !== void 0 && /* @__PURE__ */ jsxs("p", { className: "uipack-web-demo__metric", children: [
+                /* @__PURE__ */ jsx("strong", { "data-testid": "demo-metric", children: frame.metric }, frame.metric),
+                metricLabel && /* @__PURE__ */ jsx("span", { children: metricLabel })
               ] }),
-              screen !== void 0 && /* @__PURE__ */ jsx10("div", { className: "uipack-web-demo__screen", children: screen }, frame.settled ? frame.step : frame.step - 1)
+              screen !== void 0 && /* @__PURE__ */ jsx("div", { className: "uipack-web-demo__screen", children: screen }, frame.settled ? frame.step : frame.step - 1)
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsxs6("div", { className: reduced ? void 0 : "uipack-web-demo__sr", children: [
-          /* @__PURE__ */ jsx10("ol", { className: "uipack-web-demo__static", "aria-label": reduced ? "Demo steps" : "Demo transcript", children: steps.map((s, i) => /* @__PURE__ */ jsxs6("li", { children: [
-            /* @__PURE__ */ jsx10("span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
-            /* @__PURE__ */ jsxs6("div", { children: [
-              /* @__PURE__ */ jsxs6("strong", { children: [
+        /* @__PURE__ */ jsxs("div", { className: reduced ? void 0 : "uipack-web-demo__sr", children: [
+          /* @__PURE__ */ jsx("ol", { className: "uipack-web-demo__static", "aria-label": reduced ? "Demo steps" : "Demo transcript", children: steps.map((s, i) => /* @__PURE__ */ jsxs("li", { children: [
+            /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
+            /* @__PURE__ */ jsxs("div", { children: [
+              /* @__PURE__ */ jsxs("strong", { children: [
                 s.label,
                 " \xB7 ",
                 s.title
               ] }),
-              s.prompt && /* @__PURE__ */ jsxs6("p", { children: [
+              s.prompt && /* @__PURE__ */ jsxs("p", { children: [
                 "\u201C",
                 s.prompt,
                 "\u201D"
               ] }),
-              !!s.actions?.length && /* @__PURE__ */ jsx10("ul", { children: s.actions.map(toAction).map((a) => /* @__PURE__ */ jsxs6("li", { children: [
+              !!s.actions?.length && /* @__PURE__ */ jsx("ul", { children: s.actions.map(toAction).map((a) => /* @__PURE__ */ jsxs("li", { children: [
                 a.label,
                 a.detail ? ` (${a.detail})` : ""
               ] }, a.label)) })
             ] })
           ] }, s.id)) }),
-          !reduced && finalFrame.metric !== void 0 && /* @__PURE__ */ jsx10("p", { children: `Result: ${finalFrame.metric}${metricLabel ? ` ${metricLabel}` : ""}.` })
+          !reduced && finalFrame.metric !== void 0 && /* @__PURE__ */ jsx("p", { children: `Result: ${finalFrame.metric}${metricLabel ? ` ${metricLabel}` : ""}.` })
         ] }),
-        !reduced && /* @__PURE__ */ jsxs6("div", { className: "uipack-web-demo__controls", children: [
-          /* @__PURE__ */ jsx10("div", { className: "uipack-web-demo__tabs", role: "group", "aria-label": "Demo steps", ref: tabsRef, onKeyDown: onTabKey, children: steps.map((s, i) => /* @__PURE__ */ jsxs6(
+        !reduced && /* @__PURE__ */ jsxs("div", { className: "uipack-web-demo__controls", children: [
+          /* @__PURE__ */ jsx("div", { className: "uipack-web-demo__tabs", role: "group", "aria-label": "Demo steps", ref: tabsRef, onKeyDown: onTabKey, children: steps.map((s, i) => /* @__PURE__ */ jsxs(
             "button",
             {
               type: "button",
@@ -511,22 +473,22 @@ function DemoPlayer({
               "aria-controls": `${id}-caption`,
               onClick: () => seek(i),
               children: [
-                /* @__PURE__ */ jsx10("span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
+                /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
                 " ",
                 s.label
               ]
             },
             s.id
           )) }),
-          /* @__PURE__ */ jsxs6("div", { className: "uipack-web-demo__buttons", children: [
-            /* @__PURE__ */ jsx10("button", { type: "button", onClick: toggle, children: playing && !finished ? "Pause" : "Play" }),
-            /* @__PURE__ */ jsx10("button", { type: "button", onClick: replay, children: "Replay" }),
+          /* @__PURE__ */ jsxs("div", { className: "uipack-web-demo__buttons", children: [
+            /* @__PURE__ */ jsx("button", { type: "button", onClick: toggle, children: playing && !finished ? "Pause" : "Play" }),
+            /* @__PURE__ */ jsx("button", { type: "button", onClick: replay, children: "Replay" }),
             cta
           ] })
         ] }),
-        reduced && cta && /* @__PURE__ */ jsx10("div", { className: "uipack-web-demo__buttons", children: cta }),
-        /* @__PURE__ */ jsxs6("p", { className: "uipack-web-demo__caption", id: `${id}-caption`, "aria-live": "polite", children: [
-          /* @__PURE__ */ jsxs6("span", { className: "uipack-web-demo__num", children: [
+        reduced && cta && /* @__PURE__ */ jsx("div", { className: "uipack-web-demo__buttons", children: cta }),
+        /* @__PURE__ */ jsxs("p", { className: "uipack-web-demo__caption", id: `${id}-caption`, "aria-live": "polite", children: [
+          /* @__PURE__ */ jsxs("span", { className: "uipack-web-demo__num", children: [
             String(frame.step + 1).padStart(2, "0"),
             " / ",
             String(steps.length).padStart(2, "0")
@@ -567,12 +529,9 @@ var TYPE_STEPS = [-1, 0, 1, 2, 3, 4, 5, 6];
 var EMPHASIS = { high: 1, medium: 0.87, low: 0.66 };
 var SPACE = [0, 8, 16, 24, 32, 48, 64, 96, 128];
 var GRID_COLUMNS = { wide: 12, medium: 8, narrow: 4 };
-
-// src/web/hooks.ts
-import { useEffect as useEffect4, useState as useState4 } from "react";
 function useInView(ref2, { threshold = 0, once = false, rootMargin } = {}) {
-  const [inView, setInView] = useState4(false);
-  useEffect4(() => {
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
     const el = ref2.current;
     if (!el || typeof IntersectionObserver === "undefined") {
       setInView(true);
@@ -597,8 +556,8 @@ function scrollProgressOf(rect, viewport) {
 }
 function useScrollProgress(ref2) {
   const inView = useInView(ref2);
-  const [progress, setProgress] = useState4(0);
-  useEffect4(() => {
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
     const el = ref2.current;
     if (!el || !inView || typeof window === "undefined") return;
     let frame = 0;
@@ -622,8 +581,8 @@ function useScrollProgress(ref2) {
   return progress;
 }
 function useFinePointer() {
-  const [fine, setFine] = useState4(false);
-  useEffect4(() => {
+  const [fine, setFine] = useState(false);
+  useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
     setFine(window.matchMedia("(hover: hover) and (pointer: fine)").matches);
   }, []);
@@ -736,18 +695,14 @@ function withPaintTransition(update, { duration = 750 } = {}) {
   }
   return transition.finished.catch(() => void 0).finally(cleanup);
 }
-
-// src/web/backgrounds.tsx
-import { useEffect as useEffect5, useRef as useRef5 } from "react";
-import { jsx as jsx11, jsxs as jsxs7 } from "react/jsx-runtime";
 function BackgroundFrame({ background, children, as: Tag = "div", className = "", style }) {
-  return /* @__PURE__ */ jsxs7(Tag, { className: `uipack-web-bgframe ${className}`.trim(), style, children: [
+  return /* @__PURE__ */ jsxs(Tag, { className: `uipack-web-bgframe ${className}`.trim(), style, children: [
     background,
-    /* @__PURE__ */ jsx11("div", { className: "uipack-web-bgframe__content", children })
+    /* @__PURE__ */ jsx("div", { className: "uipack-web-bgframe__content", children })
   ] });
 }
 function useParentSpotlight(ref2, enabled) {
-  useEffect5(() => {
+  useEffect(() => {
     const el = ref2.current;
     const host = el?.parentElement;
     if (!el || !host || !enabled) return;
@@ -768,11 +723,11 @@ function useParentSpotlight(ref2, enabled) {
   }, [ref2, enabled]);
 }
 function GridBackground({ variant, size = 24, fade = true, spotlight = false }) {
-  const ref2 = useRef5(null);
+  const ref2 = useRef(null);
   const reduced = usePrefersReducedMotion();
   const fine = useFinePointer();
   useParentSpotlight(ref2, spotlight && fine && !reduced);
-  return /* @__PURE__ */ jsx11(
+  return /* @__PURE__ */ jsx(
     "div",
     {
       ref: ref2,
@@ -781,20 +736,20 @@ function GridBackground({ variant, size = 24, fade = true, spotlight = false }) 
       "data-fade": fade || void 0,
       "aria-hidden": "true",
       style: { "--cell": `${size}px` },
-      children: spotlight && /* @__PURE__ */ jsx11("div", { className: "uipack-web-gridbg__lit" })
+      children: spotlight && /* @__PURE__ */ jsx("div", { className: "uipack-web-gridbg__lit" })
     }
   );
 }
 function DotGrid(props) {
-  return /* @__PURE__ */ jsx11(GridBackground, { variant: "dots", ...props });
+  return /* @__PURE__ */ jsx(GridBackground, { variant: "dots", ...props });
 }
 function LineGrid(props) {
-  return /* @__PURE__ */ jsx11(GridBackground, { variant: "lines", ...props });
+  return /* @__PURE__ */ jsx(GridBackground, { variant: "lines", ...props });
 }
 function Aurora({ duration = 24 }) {
-  const ref2 = useRef5(null);
+  const ref2 = useRef(null);
   const inView = useInView(ref2);
-  return /* @__PURE__ */ jsxs7(
+  return /* @__PURE__ */ jsxs(
     "div",
     {
       ref: ref2,
@@ -804,18 +759,18 @@ function Aurora({ duration = 24 }) {
       "aria-hidden": "true",
       style: { "--aurora-duration": `${duration}s` },
       children: [
-        /* @__PURE__ */ jsx11("i", {}),
-        /* @__PURE__ */ jsx11("i", {}),
-        /* @__PURE__ */ jsx11("i", {})
+        /* @__PURE__ */ jsx("i", {}),
+        /* @__PURE__ */ jsx("i", {}),
+        /* @__PURE__ */ jsx("i", {})
       ]
     }
   );
 }
 function MaskedStar({ values, flip = "none", clear = "center" }) {
-  return /* @__PURE__ */ jsx11("div", { className: "uipack-web-maskedstar", "data-bg": "star", "data-flip": flip, "data-clear": clear, "aria-hidden": "true", children: /* @__PURE__ */ jsx11(StarChart, { values }) });
+  return /* @__PURE__ */ jsx("div", { className: "uipack-web-maskedstar", "data-bg": "star", "data-flip": flip, "data-clear": clear, "aria-hidden": "true", children: /* @__PURE__ */ jsx(StarChart, { values }) });
 }
 function BeamLines({ size = 48, count = 5, duration = 6 }) {
-  const ref2 = useRef5(null);
+  const ref2 = useRef(null);
   const inView = useInView(ref2);
   const beams = Array.from({ length: count }, (_, i) => ({
     axis: i % 2 === 0 ? "h" : "v",
@@ -823,7 +778,7 @@ function BeamLines({ size = 48, count = 5, duration = 6 }) {
     delay: -(i * duration / count) * 1.7,
     dur: duration * (0.8 + i * 7 % 5 / 10)
   }));
-  return /* @__PURE__ */ jsx11(
+  return /* @__PURE__ */ jsx(
     "div",
     {
       ref: ref2,
@@ -832,7 +787,7 @@ function BeamLines({ size = 48, count = 5, duration = 6 }) {
       "data-paused": !inView || void 0,
       "aria-hidden": "true",
       style: { "--cell": `${size}px` },
-      children: beams.map((b, i) => /* @__PURE__ */ jsx11(
+      children: beams.map((b, i) => /* @__PURE__ */ jsx(
         "i",
         {
           "data-axis": b.axis,
@@ -848,14 +803,14 @@ function BeamLines({ size = 48, count = 5, duration = 6 }) {
   );
 }
 function GutterSide({ side }) {
-  return /* @__PURE__ */ jsxs7("div", { className: "uipack-web-gutters__side", "data-side": side, children: [
-    /* @__PURE__ */ jsx11("div", { className: "uipack-web-gutters__drift" }),
-    [0, 1, 2].map((i) => /* @__PURE__ */ jsx11("span", { className: "uipack-web-gutters__signal", style: { "--i": i } }, i))
+  return /* @__PURE__ */ jsxs("div", { className: "uipack-web-gutters__side", "data-side": side, children: [
+    /* @__PURE__ */ jsx("div", { className: "uipack-web-gutters__drift" }),
+    [0, 1, 2].map((i) => /* @__PURE__ */ jsx("span", { className: "uipack-web-gutters__signal", style: { "--i": i } }, i))
   ] });
 }
 function DriftingGutters({ contentWidth = 1120, top = 72, minViewport = 1280, drift = 48 }) {
   const custom = minViewport !== 1280;
-  return /* @__PURE__ */ jsxs7(
+  return /* @__PURE__ */ jsxs(
     "div",
     {
       className: "uipack-web-gutters",
@@ -868,26 +823,18 @@ function DriftingGutters({ contentWidth = 1120, top = 72, minViewport = 1280, dr
         "--gutters-drift": `${drift}s`
       },
       children: [
-        custom && /* @__PURE__ */ jsx11("style", { children: `@media (min-width: ${minViewport}px) { .uipack-web-gutters[data-min="${minViewport}"] { display: block; } }` }),
-        /* @__PURE__ */ jsx11(GutterSide, { side: "left" }),
-        /* @__PURE__ */ jsx11(GutterSide, { side: "right" })
+        custom && /* @__PURE__ */ jsx("style", { children: `@media (min-width: ${minViewport}px) { .uipack-web-gutters[data-min="${minViewport}"] { display: block; } }` }),
+        /* @__PURE__ */ jsx(GutterSide, { side: "left" }),
+        /* @__PURE__ */ jsx(GutterSide, { side: "right" })
       ]
     }
   );
 }
-
-// src/web/motion.tsx
-import {
-  useEffect as useEffect6,
-  useRef as useRef6,
-  useState as useState5
-} from "react";
-import { jsx as jsx12, jsxs as jsxs8 } from "react/jsx-runtime";
 function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div", className = "" }) {
-  const ref2 = useRef6(null);
+  const ref2 = useRef(null);
   const reduced = usePrefersReducedMotion();
-  const [state, setState] = useState5("static");
-  useEffect6(() => {
+  const [state, setState] = useState("static");
+  useEffect(() => {
     const el = ref2.current;
     if (!el) return;
     Array.from(el.children).forEach((c, i) => c.style.setProperty("--i", String(i)));
@@ -907,7 +854,7 @@ function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div", class
     io.observe(el);
     return () => io.disconnect();
   }, [reduced]);
-  return /* @__PURE__ */ jsx12(
+  return /* @__PURE__ */ jsx(
     Tag,
     {
       ref: ref2,
@@ -932,18 +879,18 @@ function scrambleFrame(text, t, mode, seed = 0) {
   return out;
 }
 function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "span", className = "" }) {
-  const ref2 = useRef6(null);
+  const ref2 = useRef(null);
   const reduced = usePrefersReducedMotion();
   const inView = useInView(ref2, { once: true, threshold: 0.5 });
-  const [t, setT] = useState5(1);
-  const [tick, setTick] = useState5(0);
-  const [armed, setArmed] = useState5(false);
-  const started = useRef6(false);
-  useEffect6(() => {
+  const [t, setT] = useState(1);
+  const [tick, setTick] = useState(0);
+  const [armed, setArmed] = useState(false);
+  const started = useRef(false);
+  useEffect(() => {
     setArmed(true);
     if (typeof IntersectionObserver !== "undefined" && !started.current) setT(0);
   }, []);
-  useEffect6(() => {
+  useEffect(() => {
     if (reduced || !inView || started.current) return;
     started.current = true;
     const start = Date.now();
@@ -957,7 +904,7 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
     return () => clearInterval(timer);
   }, [reduced, inView, duration]);
   const shown = reduced || t >= 1 ? text : scrambleFrame(text, t, mode, tick);
-  return /* @__PURE__ */ jsxs8(
+  return /* @__PURE__ */ jsxs(
     Tag,
     {
       ref: ref2,
@@ -966,10 +913,10 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
       "data-done": shown === text || void 0,
       "data-armed": armed || void 0,
       children: [
-        /* @__PURE__ */ jsx12("span", { className: "uipack-web-scramble__ghost", children: text }),
-        armed && /* @__PURE__ */ jsxs8("span", { className: "uipack-web-scramble__live", "aria-hidden": "true", children: [
+        /* @__PURE__ */ jsx("span", { className: "uipack-web-scramble__ghost", children: text }),
+        armed && /* @__PURE__ */ jsxs("span", { className: "uipack-web-scramble__live", "aria-hidden": "true", children: [
           shown,
-          mode === "type" && shown !== text && /* @__PURE__ */ jsx12("span", { className: "uipack-web-demo__caret" })
+          mode === "type" && shown !== text && /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__caret" })
         ] })
       ]
     }
@@ -977,17 +924,17 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
 }
 var easeOut = (t) => 1 - Math.pow(1 - t, 3);
 function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix = "", suffix = "", className = "", face = "display" }) {
-  const ref2 = useRef6(null);
+  const ref2 = useRef(null);
   const reduced = usePrefersReducedMotion();
   const inView = useInView(ref2, { once: true, threshold: 0.6 });
-  const [current, setCurrent] = useState5(value);
-  const [armed, setArmed] = useState5(false);
-  const started = useRef6(false);
-  useEffect6(() => {
+  const [current, setCurrent] = useState(value);
+  const [armed, setArmed] = useState(false);
+  const started = useRef(false);
+  useEffect(() => {
     setArmed(true);
     if (typeof IntersectionObserver !== "undefined" && !started.current) setCurrent(from);
   }, [from]);
-  useEffect6(() => {
+  useEffect(() => {
     if (reduced || !inView || started.current) return;
     started.current = true;
     const start = Date.now();
@@ -1002,24 +949,24 @@ function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix
   const fmt = new Intl.NumberFormat(locale, format ?? { maximumFractionDigits: 0 });
   const final = `${prefix}${fmt.format(value)}${suffix}`;
   const live = `${prefix}${fmt.format(reduced ? value : current)}${suffix}`;
-  return /* @__PURE__ */ jsxs8("span", { ref: ref2, className: `uipack-web-ticker ${className}`.trim(), "data-face": face, "data-armed": armed || void 0, children: [
-    /* @__PURE__ */ jsx12("span", { className: "uipack-web-scramble__ghost", children: final }),
-    armed && /* @__PURE__ */ jsx12("span", { className: "uipack-web-scramble__live", "aria-hidden": "true", "data-testid": "ticker-live", children: live })
+  return /* @__PURE__ */ jsxs("span", { ref: ref2, className: `uipack-web-ticker ${className}`.trim(), "data-face": face, "data-armed": armed || void 0, children: [
+    /* @__PURE__ */ jsx("span", { className: "uipack-web-scramble__ghost", children: final }),
+    armed && /* @__PURE__ */ jsx("span", { className: "uipack-web-scramble__live", "aria-hidden": "true", "data-testid": "ticker-live", children: live })
   ] });
 }
 function Marquee({ items, label, duration = 30, reverse = false }) {
-  const ref2 = useRef6(null);
-  const copyRef = useRef6(null);
+  const ref2 = useRef(null);
+  const copyRef = useRef(null);
   const inView = useInView(ref2);
   const reduced = usePrefersReducedMotion();
-  const [paused, setPaused] = useState5(false);
-  const [mounted, setMounted] = useState5(false);
-  useEffect6(() => setMounted(true), []);
-  useEffect6(() => {
+  const [paused, setPaused] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  useEffect(() => {
     copyRef.current?.setAttribute("inert", "");
   }, [reduced, mounted]);
-  const list = (copy) => /* @__PURE__ */ jsx12("ul", { className: "uipack-web-marquee__list", ref: copy ? copyRef : void 0, "aria-hidden": copy || void 0, children: items.map((item, i) => /* @__PURE__ */ jsx12("li", { children: item }, i)) });
-  return /* @__PURE__ */ jsxs8(
+  const list = (copy) => /* @__PURE__ */ jsx("ul", { className: "uipack-web-marquee__list", ref: copy ? copyRef : void 0, "aria-hidden": copy || void 0, children: items.map((item, i) => /* @__PURE__ */ jsx("li", { children: item }, i)) });
+  return /* @__PURE__ */ jsxs(
     "div",
     {
       ref: ref2,
@@ -1031,17 +978,17 @@ function Marquee({ items, label, duration = 30, reverse = false }) {
       "data-reverse": reverse || void 0,
       style: { "--marquee-duration": `${duration}s` },
       children: [
-        /* @__PURE__ */ jsx12("div", { className: "uipack-web-marquee__viewport", children: /* @__PURE__ */ jsxs8("div", { className: "uipack-web-marquee__track", children: [
+        /* @__PURE__ */ jsx("div", { className: "uipack-web-marquee__viewport", children: /* @__PURE__ */ jsxs("div", { className: "uipack-web-marquee__track", children: [
           list(false),
           mounted && !reduced && list(true)
         ] }) }),
-        !reduced && /* @__PURE__ */ jsx12("button", { type: "button", className: "uipack-web-marquee__toggle", "aria-pressed": paused, onClick: () => setPaused((p) => !p), children: paused ? "Play" : "Pause" })
+        !reduced && /* @__PURE__ */ jsx("button", { type: "button", className: "uipack-web-marquee__toggle", "aria-pressed": paused, onClick: () => setPaused((p) => !p), children: paused ? "Play" : "Pause" })
       ]
     }
   );
 }
 function useHoverMotion(apply, reset) {
-  const ref2 = useRef6(null);
+  const ref2 = useRef(null);
   const reduced = usePrefersReducedMotion();
   const onPointerMove = (e) => {
     if (reduced || e.pointerType !== "mouse" && e.pointerType !== "pen") return;
@@ -1066,7 +1013,7 @@ function TiltCard({ children, max = 5, href, className = "" }) {
   );
   const cls = `uipack-web-tilt ${className}`.trim();
   const props = { className: cls, onPointerMove, onPointerLeave };
-  return href ? /* @__PURE__ */ jsx12("a", { ref: (n) => ref2.current = n, href, ...props, children }) : /* @__PURE__ */ jsx12("div", { ref: (n) => ref2.current = n, ...props, children });
+  return href ? /* @__PURE__ */ jsx("a", { ref: (n) => ref2.current = n, href, ...props, children }) : /* @__PURE__ */ jsx("div", { ref: (n) => ref2.current = n, ...props, children });
 }
 function MagneticButton({ strength = 6, ...button }) {
   const { ref: ref2, onPointerMove, onPointerLeave } = useHoverMotion(
@@ -1079,11 +1026,11 @@ function MagneticButton({ strength = 6, ...button }) {
       el.style.removeProperty("--pull-y");
     }
   );
-  return /* @__PURE__ */ jsx12("span", { ref: (n) => ref2.current = n, className: "uipack-web-magnetic", onPointerMove, onPointerLeave, children: /* @__PURE__ */ jsx12(CtaButton, { ...button }) });
+  return /* @__PURE__ */ jsx("span", { ref: (n) => ref2.current = n, className: "uipack-web-magnetic", onPointerMove, onPointerLeave, children: /* @__PURE__ */ jsx(CtaButton, { ...button }) });
 }
 var lerp = ([a, b], t) => a + (b - a) * t;
 function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY = [0, 0], opacity = [1, 1], className = "" }) {
-  const ref2 = useRef6(null);
+  const ref2 = useRef(null);
   const reduced = usePrefersReducedMotion();
   const raw = useScrollProgress(ref2);
   const t = reduced ? 0.5 : raw;
@@ -1093,11 +1040,8 @@ function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY
     "--st-y": `${lerp(translateY, t).toFixed(1)}px`,
     "--st-opacity": lerp(opacity, t).toFixed(3)
   };
-  return /* @__PURE__ */ jsx12("div", { ref: ref2, className: `uipack-web-scrollx ${className}`.trim(), "data-progress": t.toFixed(2), children: /* @__PURE__ */ jsx12("div", { className: "uipack-web-scrollx__inner", style, children }) });
+  return /* @__PURE__ */ jsx("div", { ref: ref2, className: `uipack-web-scrollx ${className}`.trim(), "data-progress": t.toFixed(2), children: /* @__PURE__ */ jsx("div", { className: "uipack-web-scrollx__inner", style, children }) });
 }
-
-// src/web/SmoothScroll.tsx
-import { useEffect as useEffect7, useMemo as useMemo2, useRef as useRef7 } from "react";
 function followRate(lerp2) {
   const l = Math.min(0.999, Math.max(1e-3, lerp2));
   return -Math.log(1 - l) * 60;
@@ -1380,8 +1324,8 @@ function smoothScrollTo(target, options) {
   else nativeScrollTo(target, options);
 }
 function useSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = true } = {}) {
-  const instance = useRef7(null);
-  useEffect7(() => {
+  const instance = useRef(null);
+  useEffect(() => {
     const c = createSmoothScroll({ lerp: lerp2, wheelMultiplier, anchors });
     instance.current = c;
     return () => {
@@ -1389,7 +1333,7 @@ function useSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = tru
       if (instance.current === c) instance.current = null;
     };
   }, [lerp2, wheelMultiplier, anchors]);
-  return useMemo2(
+  return useMemo(
     () => ({
       scrollTo: (t, o) => instance.current ? instance.current.scrollTo(t, o) : nativeScrollTo(t, o),
       stop: () => instance.current?.stop(),
@@ -1614,8 +1558,8 @@ function jsonLd(...nodes) {
   if (nodes.length === 1) return { "@context": "https://schema.org", ...nodes[0] };
   return { "@context": "https://schema.org", "@graph": nodes };
 }
-var LS = String.fromCharCode(8232);
-var PS = String.fromCharCode(8233);
+var LS = /* @__PURE__ */ String.fromCharCode(8232);
+var PS = /* @__PURE__ */ String.fromCharCode(8233);
 function serializeJsonLd(data) {
   return JSON.stringify(data).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026").split(LS).join("\\u2028").split(PS).join("\\u2029");
 }
@@ -1625,10 +1569,6 @@ function jsonLdTag(data, id) {
 function slugify(s) {
   return s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 64);
 }
-
-// src/web/Head.tsx
-import { createElement, useEffect as useEffect8 } from "react";
-import { Fragment as Fragment3, jsx as jsx13 } from "react/jsx-runtime";
 var REACT_ATTR = { crossorigin: "crossOrigin", "http-equiv": "httpEquiv", charset: "charSet", hreflang: "hrefLang" };
 function toProps(attrs) {
   const out = {};
@@ -1636,10 +1576,10 @@ function toProps(attrs) {
   return out;
 }
 function HeadTags({ tags }) {
-  return /* @__PURE__ */ jsx13(Fragment3, { children: tags.map((t) => {
+  return /* @__PURE__ */ jsx(Fragment, { children: tags.map((t) => {
     const key = headTagKey(t);
-    if (t.tag === "title") return /* @__PURE__ */ jsx13("title", { children: t.text }, key);
-    if (t.tag === "script") return /* @__PURE__ */ jsx13("script", { ...toProps(t.attrs), dangerouslySetInnerHTML: { __html: t.text } }, key);
+    if (t.tag === "title") return /* @__PURE__ */ jsx("title", { children: t.text }, key);
+    if (t.tag === "script") return /* @__PURE__ */ jsx("script", { ...toProps(t.attrs), dangerouslySetInnerHTML: { __html: t.text } }, key);
     return createElement(t.tag, { key, ...toProps(t.attrs) });
   }) });
 }
@@ -1655,7 +1595,7 @@ function findExisting(t) {
 }
 function useHead(tags) {
   const signature = JSON.stringify(tags);
-  useEffect8(() => {
+  useEffect(() => {
     if (typeof document === "undefined") return;
     const undo = [];
     for (const t of JSON.parse(signature)) {
@@ -1686,11 +1626,8 @@ function useHead(tags) {
   }, [signature]);
 }
 function JsonLd({ data, id }) {
-  return /* @__PURE__ */ jsx13("script", { type: "application/ld+json", id, dangerouslySetInnerHTML: { __html: serializeJsonLd(data) } });
+  return /* @__PURE__ */ jsx("script", { type: "application/ld+json", id, dangerouslySetInnerHTML: { __html: serializeJsonLd(data) } });
 }
-
-// src/web/FAQ.tsx
-import { jsx as jsx14, jsxs as jsxs9 } from "react/jsx-runtime";
 var paragraphs = (answer) => answer.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
 function FAQ({
   items,
@@ -1704,22 +1641,22 @@ function FAQ({
   tone,
   lazyRender = false
 }) {
-  const answer = (item) => /* @__PURE__ */ jsx14("div", { className: "uipack-web-faq__answer", children: paragraphs(item.answer).map((p, i) => /* @__PURE__ */ jsx14("p", { className: "uipack-web-body", "data-emphasis": "medium", children: p }, i)) });
+  const answer = (item) => /* @__PURE__ */ jsx("div", { className: "uipack-web-faq__answer", children: paragraphs(item.answer).map((p, i) => /* @__PURE__ */ jsx("p", { className: "uipack-web-body", "data-emphasis": "medium", children: p }, i)) });
   const itemId = (item) => item.id ?? `${id}-${slugify(item.question)}`;
-  return /* @__PURE__ */ jsxs9(Section, { id, eyebrow, title, intro, tone, lazyRender, className: "uipack-web-faq", children: [
-    /* @__PURE__ */ jsx14("div", { className: "uipack-web-faq__list", "data-variant": variant, children: items.map(
-      (item) => variant === "accordion" ? /* @__PURE__ */ jsxs9("details", { className: "uipack-web-faq__item", id: itemId(item), children: [
-        /* @__PURE__ */ jsxs9("summary", { children: [
-          /* @__PURE__ */ jsx14("span", { className: "uipack-web-faq__q", children: item.question }),
-          /* @__PURE__ */ jsx14("span", { className: "uipack-web-faq__icon", "aria-hidden": "true" })
+  return /* @__PURE__ */ jsxs(Section, { id, eyebrow, title, intro, tone, lazyRender, className: "uipack-web-faq", children: [
+    /* @__PURE__ */ jsx("div", { className: "uipack-web-faq__list", "data-variant": variant, children: items.map(
+      (item) => variant === "accordion" ? /* @__PURE__ */ jsxs("details", { className: "uipack-web-faq__item", id: itemId(item), children: [
+        /* @__PURE__ */ jsxs("summary", { children: [
+          /* @__PURE__ */ jsx("span", { className: "uipack-web-faq__q", children: item.question }),
+          /* @__PURE__ */ jsx("span", { className: "uipack-web-faq__icon", "aria-hidden": "true" })
         ] }),
         answer(item)
-      ] }, item.question) : /* @__PURE__ */ jsxs9("div", { className: "uipack-web-faq__item", id: itemId(item), children: [
-        /* @__PURE__ */ jsx14(Heading, { level: 3, size: 1, className: "uipack-web-faq__q", children: item.question }),
+      ] }, item.question) : /* @__PURE__ */ jsxs("div", { className: "uipack-web-faq__item", id: itemId(item), children: [
+        /* @__PURE__ */ jsx(Heading, { level: 3, size: 1, className: "uipack-web-faq__q", children: item.question }),
         answer(item)
       ] }, item.question)
     ) }),
-    jsonLd2 && /* @__PURE__ */ jsx14(JsonLd, { data: jsonLd(faqPage(items, { url })) })
+    jsonLd2 && /* @__PURE__ */ jsx(JsonLd, { data: jsonLd(faqPage(items, { url })) })
   ] });
 }
 
@@ -1829,105 +1766,5 @@ function buildCrawlFiles(o) {
     "llms.txt": llmsTxt(o)
   };
 }
-export {
-  AI_CRAWLERS,
-  Aurora,
-  BackgroundFrame,
-  BeamLines,
-  Body,
-  CtaButton,
-  DEFAULT_STAR_VALUES,
-  DEFAULT_TIMING,
-  DISPLAY_FROM_STEP,
-  DemoPlayer,
-  DotGrid,
-  DriftingGutters,
-  EMPHASIS,
-  Eyebrow,
-  FAQ,
-  FeatureGrid,
-  GRID_COLUMNS,
-  GlassNav,
-  GrainOverlay,
-  Grid,
-  GridItem,
-  HeadTags,
-  Heading,
-  JsonLd,
-  LineGrid,
-  MagneticButton,
-  Marquee,
-  MaskedStar,
-  NoiseLayer,
-  NumberTicker,
-  Reveal,
-  RevealText,
-  RhymeIcon,
-  SMOOTH_SCROLL_ATTR,
-  SMOOTH_SCROLL_PREVENT_ATTR,
-  SPACE,
-  ScrollTransform,
-  Section,
-  SmoothScroll,
-  SpotlightCard,
-  StarChart,
-  StarHero,
-  Subhead,
-  TYPE_BASE_PX,
-  TYPE_FACES,
-  TYPE_RATIO,
-  TYPE_STEPS,
-  TextScramble,
-  TiltCard,
-  WEB_FONT_FILES,
-  WHEEL_LINE_PX,
-  WHEEL_PAGE_FRACTION,
-  WebSurface,
-  article,
-  breadcrumbList,
-  buildCrawlFiles,
-  createSmoothScroll,
-  curvePath,
-  demoCycle,
-  demoEnd,
-  demoFrame,
-  easeOutExpo,
-  faqPage,
-  followRate,
-  followStep,
-  fontPreloads,
-  formatLastmod,
-  headTagKey,
-  headTagsToHtml,
-  jsonLd,
-  jsonLdTag,
-  llmsTxt,
-  normalizeWheel,
-  offer,
-  organization,
-  pageMeta,
-  person,
-  product,
-  ref,
-  resolveAiCrawlers,
-  robotsTxt,
-  scrambleFrame,
-  scrollProgressOf,
-  serializeJsonLd,
-  sitemapXml,
-  slugify,
-  smoothScrollTo,
-  softwareApplication,
-  stepStart,
-  typeMetrics,
-  typeRole,
-  typeScale,
-  useFinePointer,
-  useHead,
-  useInView,
-  useScrollProgress,
-  useSmoothScroll,
-  webSite,
-  withPaintTransition,
-  withViewTransition
-};
+
+export { AI_CRAWLERS, Aurora, BackgroundFrame, BeamLines, Body, CtaButton, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, DemoPlayer, DotGrid, DriftingGutters, EMPHASIS, Eyebrow, FAQ, FeatureGrid, GRID_COLUMNS, GlassNav, GrainOverlay, Grid, GridItem, HeadTags, Heading, JsonLd, LineGrid, MagneticButton, Marquee, MaskedStar, NoiseLayer, NumberTicker, Reveal, RevealText, RhymeIcon, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, ScrollTransform, Section, SmoothScroll, SpotlightCard, StarChart, StarHero, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, TiltCard, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, WebSurface, article, breadcrumbList, buildCrawlFiles, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, easeOutExpo, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, jsonLd, jsonLdTag, llmsTxt, normalizeWheel, offer, organization, pageMeta, person, product, ref, resolveAiCrawlers, robotsTxt, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webSite, withPaintTransition, withViewTransition };

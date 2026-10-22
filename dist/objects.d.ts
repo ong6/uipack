@@ -83,11 +83,6 @@ declare const objectPalettes: {
         accent: number;
     };
 };
-declare const objectScenes: {
-    id: ObjectKind;
-    title: string;
-    description: string;
-}[];
 /** Framework-independent player. The scene is mounted once, including in Open canvas. */
 declare function ObjectScene(props: ObjectSceneProps): react.JSX.Element;
 /** Shared style selector; consumers own the selected value and URL persistence. */
@@ -95,6 +90,13 @@ declare function ObjectDirectionPicker({ value, onChange }: {
     value: ObjectVariant | "random";
     onChange: (value: ObjectVariant) => void;
 }): react.JSX.Element;
+
+/** The object scenes, in gallery order: plain data, so a catalog can list them without loading the 3D code. */
+declare const objectScenes: {
+    id: ObjectKind;
+    title: string;
+    description: string;
+}[];
 
 /** One scene library, one mounted preview, one context panel. Consumers own routing. */
 declare function AnimationWorkspace({ library, children, theme, }: {
