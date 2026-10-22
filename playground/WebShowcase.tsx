@@ -510,7 +510,7 @@ export default function WebShowcase() {
                 </GridItem>
                 <GridItem span={[12, 8, 4]}>
                   <div className="web-block">
-                    <Eyebrow>Grid · 12 / 8 / 4 columns, 8-pt gutters</Eyebrow>
+                    <Eyebrow>Grid · 12 / 8 / 4 columns, 32 / 24px gutters</Eyebrow>
                     <Grid className="web-columns">
                       {Array.from({ length: 12 }, (_, i) => (
                         <GridItem key={i} span={[1, 1, 1]}>
