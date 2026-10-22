@@ -42,7 +42,27 @@
   box-sizing: border-box;
 }
 
-/* Tones: an inverse "ink" slide and an "accent" slide, in both themes. */
+/* Tones: an inverse "ink" slide and an "accent" slide, in both themes. "paper" restates the theme,
+   so a paper slide inside a stage already showing the next slide's tone (mid-transition) keeps its
+   own colours: the incoming tone only shows inside the incoming layer. */
+.uipack-deck [data-tone="paper"] {
+  --deck-bg: #f6f5f1;
+  --deck-surface: #ffffff;
+  --deck-fg: #1a1c1a;
+  --deck-muted: #5c625e;
+  --deck-rule: #c4ccc6;
+  --deck-accent: #205f49;
+  --deck-node: #fbfaf6;
+}
+.uipack-deck[data-theme="dark"] [data-tone="paper"] {
+  --deck-bg: #0a100d;
+  --deck-surface: #14201b;
+  --deck-fg: #e8ece9;
+  --deck-muted: #aeb8b2;
+  --deck-rule: #34443b;
+  --deck-accent: #71dcb2;
+  --deck-node: #0e1512;
+}
 .uipack-deck [data-tone="ink"] {
   --deck-bg: #111814;
   --deck-surface: #18221d;
