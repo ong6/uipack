@@ -2,7 +2,7 @@
 
 The deck player makes slides move well. This guide covers what they say and in what order. Inside a company a deck is how work gets seen: it's presented once and then forwarded, skimmed and quoted. It has to make one point clearly, both in the room and in an inbox.
 
-The code lives in [`src/deck/storyline.ts`](../src/deck/storyline.ts): slide roles, six storyline templates, `lintDeck` and `storylineOf`. Everything there is plain data and pure functions.
+The code lives behind [`src/deck/storyline.ts`](../src/deck/storyline.ts), with its parts in [`src/deck/storyline/`](../src/deck/storyline/): slide roles (`roles.ts`), six storyline templates (`templates.ts`), the rules (`rules.ts`), how titles, numbers, owners, dates and sources are read (`heuristics.ts`), the checks and `lintDeck` (`checks.ts`), and `storylineOf` (`ghost.ts`). Everything there is plain data and pure functions. A new rule is a line in `LINT_RULES` and a check in `LINT_CHECKS`.
 
 ## What makes an internal deck land
 
