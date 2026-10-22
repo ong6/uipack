@@ -5,6 +5,7 @@
 - [Presentation starters](presentations.md): typed layouts, speaker guides, and editable SVG output.
 - [Deck player](deck.md): one transition grammar (advance, morph, zoom), builds, overview, speaker and read views.
 - [Deck storytelling](deck-storytelling.md): storyline templates, slide roles and the checks `lintDeck` runs.
+- [Consulting slides](deck-consulting.md): dense deck slides (tracker, action title, panels, so what, footnotes) and their charts: bars, waterfall, stacked bars, lines, KPI tiles, Harvey tables and a 2×2.
 - [Canvas and selection](interaction.md): mobile reading, item selection, expanded inspection, and limits.
 
 Agent instructions live in [AGENTS.md](../AGENTS.md). Setup and verification live in the [root README](../README.md).
