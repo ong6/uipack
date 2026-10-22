@@ -461,7 +461,7 @@ test.describe("/deck motion: no mid-flight glitches", () => {
     expect(later).toBe(0);
   });
 
-  test("a zoom moves the camera from the first 10%, and the target's box fades instead of scaling into bars", async ({
+  test("a zoom flies into the target: its box stays, with the incoming slide whole inside it, and its edge clears mid-flight", async ({
     page,
   }) => {
     await page.goto("/deck?slide=ghost&view=present");
@@ -473,14 +473,35 @@ test.describe("/deck motion: no mid-flight glitches", () => {
       return new DOMMatrix(getComputedStyle(outer).transform).a;
     });
     expect(early).toBeGreaterThan(1.04);
-    const mid = await at(page, 0.5 * 1150, () => {
+    // At 20% the card is still a card, and the slide it opens into sits whole inside it.
+    const at20 = await at(page, 0.2 * 1150, () => {
       const box = document.querySelector<HTMLElement>('.uipack-deck-layer[data-slide="ghost"] [data-morph="flagged"]')!;
+      const inner = document.querySelector<HTMLElement>('.uipack-deck-layer[data-slide="fix"]')!;
+      const b = box.getBoundingClientRect();
+      const i = inner.getBoundingClientRect();
       const cs = getComputedStyle(box);
-      return { border: cs.borderTopColor, bg: cs.backgroundColor, shadow: cs.boxShadow };
+      return {
+        bg: cs.backgroundColor,
+        border: cs.borderTopColor,
+        inside: i.left >= b.left && i.right <= b.right && i.top >= b.top && i.bottom <= b.bottom,
+        aspect: i.width / i.height,
+        opacity: Number(getComputedStyle(inner).opacity),
+      };
     });
-    expect(mid.border).toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
-    expect(mid.bg).toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
-    expect(mid.shadow).toBe("none");
+    expect(at20.bg).not.toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
+    expect(at20.border).not.toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
+    expect(at20.inside).toBe(true);
+    expect(at20.aspect).toBeCloseTo(16 / 9, 1);
+    expect(at20.opacity).toBeGreaterThan(0.9);
+    // Its edge (border, ring) is gone by three quarters, so no thick scaled-up bars sweep the screen.
+    const late = await at(page, 0.75 * 1150, () => {
+      const cs = getComputedStyle(
+        document.querySelector<HTMLElement>('.uipack-deck-layer[data-slide="ghost"] [data-morph="flagged"]')!,
+      );
+      return { border: cs.borderTopColor, shadow: cs.boxShadow };
+    });
+    expect(late.border).toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
+    expect(late.shadow).toBe("none");
   });
 
   test("a morph keeps the outgoing panels until the incoming ones arrive", async ({ page }) => {
@@ -510,47 +531,84 @@ test.describe("/deck motion: no mid-flight glitches", () => {
     }
   });
 
-  test("bento camera: the details crossfade mid-pan, and faces show only while their words fit in the box", async ({ page }) => {
-    // `at` serialises its reader, so each one names its cell inline.
-    const latency = () =>
-      Number(getComputedStyle(document.querySelector('[data-bento-cell="latency"] .uipack-deck-bento__detail')!).opacity);
+  test("bento camera: no words cut by the edge mid-move, details hand over line by line, faces back early on the pull-back", async ({
+    page,
+  }) => {
     const shipped = () =>
       Number(getComputedStyle(document.querySelector('[data-bento-cell="shipped"] .uipack-deck-bento__detail')!).opacity);
-    // The visible faces, and whether any of them has words outside the bento's box (cut off by its edge).
-    const faces = () => {
+    const shippedFace = () =>
+      Number(getComputedStyle(document.querySelector('[data-bento-cell="shipped"] .uipack-deck-bento__face')!).opacity);
+    // Every visible line of words (a face's children, a detail's lines and list rows): how many show,
+    // and how many of those the bento's edge cuts. Opacity multiplies down the tree.
+    const words = () => {
       const bento = document.querySelector(".uipack-deck-layer:not([aria-hidden]) .uipack-deck-bento")!;
       const box = bento.getBoundingClientRect();
-      let shown = 0;
-      let cut = 0;
-      for (const face of Array.from(bento.querySelectorAll<HTMLElement>(".uipack-deck-bento__face"))) {
-        if (Number(getComputedStyle(face).opacity) < 0.05) continue;
-        shown++;
-        for (const word of Array.from(face.children)) {
-          const r = word.getBoundingClientRect();
-          if (r.left < box.left - 1 || r.top < box.top - 1 || r.right > box.right + 1 || r.bottom > box.bottom + 1) cut++;
-        }
-      }
-      return { shown, cut };
+      const seen = (el: Element) => {
+        let o = 1;
+        for (let n: Element | null = el; n && n !== bento; n = n.parentElement) o *= Number(getComputedStyle(n).opacity);
+        return o;
+      };
+      const lines = Array.from(
+        bento.querySelectorAll(
+          ".uipack-deck-bento__face > *, .uipack-deck-bento__detail > :not(ul), .uipack-deck-bento__detail > ul > li",
+        ),
+      ).filter((el) => seen(el) > 0.05);
+      const cut = lines.filter((el) => {
+        const r = el.getBoundingClientRect();
+        return r.left < box.left - 1 || r.top < box.top - 1 || r.right > box.right + 1 || r.bottom > box.bottom + 1;
+      });
+      return { shown: lines.length, cut: cut.length };
     };
-    // Cell to cell, latency → shipped: the cell being left keeps its detail past the middle of the
-    // pan, and the next one's detail is already arriving, so the camera never crosses blank cards.
+    // Cell to cell, latency → shipped.
     await page.goto("/deck?deck=bento&slide=quarter&step=1&view=present");
     await deck(page).focus();
     await settled(page);
     await page.keyboard.press("ArrowRight");
-    expect(await at(page, 0.45 * 860, latency)).toBeGreaterThan(0.9);
-    expect(await at(page, 0.5 * 860, shipped)).toBeGreaterThan(0.2);
+    for (const f of [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]) {
+      const { cut, shown } = await at(page, f * 860, words);
+      expect(cut, `words cut off by the bento's edge at ${f}`).toBe(0);
+      expect(shown, `words on screen at ${f}`).toBeGreaterThan(0);
+    }
     expect(await at(page, 0.95 * 860, shipped)).toBeGreaterThan(0.9);
-    // The pull-back: faces come back as the grid comes inside the box, never cut off by its edge.
+    // The pull-back: the cell being left has its face back by 45%, and nothing is cut at any point.
     await page.evaluate(() => document.getAnimations().forEach((a) => a.finish()));
     await page.keyboard.press("ArrowRight");
-    // (Read in clock order: a finished transition can't be wound back.)
-    for (const f of [0.2, 0.35, 0.4, 0.5, 0.65, 0.8]) {
-      const { cut, shown } = await at(page, f * 860, faces);
-      expect(cut, `faces cut off by the bento's edge at ${f}`).toBe(0);
-      if (f === 0.4) expect(await at(page, f * 860, shipped), "the detail holds into the pull-back").toBeGreaterThan(0.5);
-      if (f === 0.5) expect(shown, "faces showing mid pull-back").toBeGreaterThan(0);
+    for (const f of [0.1, 0.2, 0.3, 0.45, 0.6, 0.8]) {
+      const { cut } = await at(page, f * 860, words);
+      expect(cut, `words cut off by the bento's edge at ${f}`).toBe(0);
+      if (f === 0.45) expect(await at(page, f * 860, shippedFace), "the face back mid pull-back").toBeGreaterThan(0.5);
     }
+  });
+
+  test("bento tour stops show no cell cut off by the bento's edge, live or in a printed still", async ({ page }) => {
+    const slivers = () => {
+      const bento = document.querySelector(".uipack-deck-layer:not([aria-hidden]) .uipack-deck-bento")!;
+      const box = bento.getBoundingClientRect();
+      return Array.from(bento.querySelectorAll<HTMLElement>("[data-bento-cell]")).filter((cell) => {
+        const r = cell.getBoundingClientRect();
+        const out = r.left < box.left - 1 || r.top < box.top - 1 || r.right > box.right + 1 || r.bottom > box.bottom + 1;
+        return out && Number(getComputedStyle(cell).opacity) > 0.01 && r.right > box.left && r.left < box.right;
+      }).length;
+    };
+    for (const step of [1, 2]) {
+      await page.goto(`/deck?deck=bento&slide=quarter&step=${step}&view=present`);
+      await settled(page);
+      await page.evaluate(() => document.getAnimations().forEach((a) => a.finish()));
+      expect(await page.evaluate(slivers), `cells cut off at stop ${step}`).toBe(0);
+    }
+    // The printed detail page for the first stop.
+    await page.goto("/deck?deck=bento&view=print");
+    const still = page.locator('.uipack-deck-print [data-focus="latency"]').first();
+    await expect(still).toBeAttached();
+    const cut = await still.evaluate((bento) => {
+      const box = bento.getBoundingClientRect();
+      return Array.from(bento.querySelectorAll<HTMLElement>("[data-bento-cell]")).filter((cell) => {
+        const r = cell.getBoundingClientRect();
+        const out = r.left < box.left - 1 || r.top < box.top - 1 || r.right > box.right + 1 || r.bottom > box.bottom + 1;
+        return out && Number(getComputedStyle(cell).opacity) > 0.01 && r.right > box.left && r.left < box.right;
+      }).length;
+    });
+    expect(cut).toBe(0);
   });
 
   test("a bento cell never shows its face and its detail at once", async ({ page }) => {
