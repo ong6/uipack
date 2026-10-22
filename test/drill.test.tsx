@@ -139,8 +139,8 @@ describe("DrillFigure", () => {
   it("renders the root with a drillable button named by what is inside", () => {
     render(fig());
     expect(screen.getByRole("heading", { name: "Overview title" })).toBeInTheDocument();
-    // Counted from the child drawing: One, Two and the Leaf node.
-    const node = screen.getByRole("button", { name: "Open Middle: 3 parts inside" });
+    // Visible label and sub first (label in name), then the count from the child drawing: One, Two and the Leaf node.
+    const node = screen.getByRole("button", { name: "Middle, inside, open: 3 parts inside" });
     expect(node).toHaveAttribute("data-drill", "mid");
     expect(node.querySelector(".uipack-drill-node__ghost")).not.toBeNull();
     expect(node.querySelector(".uipack-drill-node__ghost")!.closest('[aria-hidden="true"]')).not.toBeNull();
@@ -151,18 +151,18 @@ describe("DrillFigure", () => {
   it("drills down and back with click and keyboard, moving focus and announcing the level", () => {
     const changes: string[][] = [];
     render(fig({ onPathChange: (p) => changes.push(p) }));
-    fireEvent.click(screen.getByRole("button", { name: /Open Middle/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^Middle, inside, open/ }));
     const heading = screen.getByRole("heading", { name: "Middle" });
     expect(heading).toHaveFocus();
     expect(screen.getByRole("navigation", { name: "Figure levels" })).toHaveTextContent("Overview›Middle");
     expect(document.querySelector("[data-drill-announce]")).toHaveTextContent("Opened Middle. Overview › Middle");
-    fireEvent.keyDown(screen.getByRole("button", { name: /Open Leaf/ }), { key: "Enter" });
+    fireEvent.keyDown(screen.getByRole("button", { name: /^Leaf, open/ }), { key: "Enter" });
     expect(screen.getByRole("heading", { name: "Leaf" })).toHaveFocus();
     fireEvent.keyDown(screen.getByRole("heading", { name: "Leaf" }), { key: "Escape" });
     expect(screen.getByRole("heading", { name: "Middle" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Open Leaf/ })).toHaveFocus();
+    expect(screen.getByRole("button", { name: /^Leaf, open/ })).toHaveFocus();
     fireEvent.click(screen.getByRole("button", { name: "Back to Overview" }));
-    expect(screen.getByRole("button", { name: /Open Middle/ })).toHaveFocus();
+    expect(screen.getByRole("button", { name: /^Middle, inside, open/ })).toHaveFocus();
     expect(document.querySelector("[data-drill-announce]")).toHaveTextContent("Back to Overview");
     expect(changes).toEqual([["top", "mid"], ["top", "mid", "leaf"], ["top", "mid"], ["top"]]);
   });
@@ -184,7 +184,7 @@ describe("DrillFigure", () => {
     expect(screen.getByRole("heading", { name: "Leaf" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Overview" }));
     expect(screen.getByRole("heading", { name: "Overview title" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Open Middle/ })).toHaveFocus();
+    expect(screen.getByRole("button", { name: /^Middle, inside, open/ })).toHaveFocus();
   });
 
   it("keeps every SVG id unique while both levels are mounted mid-flight", () => {
@@ -200,7 +200,7 @@ describe("DrillFigure", () => {
         </>,
       );
       act(() => {
-        fireEvent.click(screen.getAllByRole("button", { name: /Open Middle/ })[0]);
+        fireEvent.click(screen.getAllByRole("button", { name: /^Middle, inside, open/ })[0]);
       });
       const fig1 = document.getElementById("one")!;
       expect(fig1.querySelectorAll(".uipack-drill__layer")).toHaveLength(2);

@@ -38,6 +38,9 @@ export interface NodeProps {
   inlay?: ReactNode;
 }
 
+/** A node's accessible name: its visible label, then its subtitle. Shared by Node and DrillNode. */
+export const nodeName = (label: string, sub?: string) => (sub ? `${label}, ${sub}` : label);
+
 export function Node({
   x,
   y,
@@ -75,8 +78,10 @@ export function Node({
           isPointer(e) && hover.setFlow(null),
       }
     : {};
-  // The accessible name carries the visible subtitle too (WCAG 2.5.3).
-  const selection = useItemSelection(label, hint, flows[0], !href, sub ? `${label}, ${sub}` : label);
+  // The accessible name starts with the visible label and carries the subtitle (WCAG 2.5.3).
+  // An unlabelled node is decorative (a replica's shadow, say), never a button.
+  const name = nodeName(label, sub);
+  const selection = useItemSelection(label, hint, flows[0], !href && !!label, name);
   const body = (
     <g
       id={id}
@@ -122,6 +127,8 @@ export function Node({
       >
         {label}
       </text>
+      {/* Keeps the words apart for checkers that join text nodes without spaces (axe label-in-name). */}
+      {sub ? " " : null}
       {sub ? (
         <text
           x={tx}
@@ -138,7 +145,7 @@ export function Node({
     </g>
   );
   return href ? (
-    <a href={href} className="uipack__link" aria-label={label}>
+    <a href={href} className="uipack__link" aria-label={name}>
       {body}
     </a>
   ) : (

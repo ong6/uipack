@@ -251,15 +251,12 @@ export function LayerStack(props: LayerStackProps) {
       <span className="uipack-stack__go-text" aria-hidden="true">
         {labels.go}
       </span>
-      <span className="uipack-stack__go" aria-hidden="true">
-        ↓
-      </span>
+      {/* The arrow is CSS content, so checkers comparing visible text with the name ignore it. */}
+      <span className="uipack-stack__go" aria-hidden="true" />
     </>
   );
   const arrow = (
-    <span className="uipack-stack__arrow" aria-hidden="true">
-      ↓
-    </span>
+    <span className="uipack-stack__arrow" aria-hidden="true" />
   );
   const keep = (text: string) => <CaseSafe text={text} keep="uipack-stack__keep" />;
 
@@ -312,9 +309,9 @@ export function LayerStack(props: LayerStackProps) {
                       <b>
                         {layer.label}
                         <span className="uipack-stack__sr">. </span>
-                      </b>
+                      </b>{" "}
                       <span className="uipack-stack__summary">{layer.summary}</span>
-                    </span>
+                    </span>{" "}
                     {layer.metric ? (
                       <span className="uipack-stack__metric">
                         <span className="uipack-stack__sr">. </span>

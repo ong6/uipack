@@ -60,10 +60,10 @@ export default function MechanismShowcase() {
         <ul className="mechanism-thumbs">
           {POSES.map((item) => (
             <li key={item.id}>
-              <button type="button" aria-pressed={item.id === pose} onClick={() => choose(item.id)} aria-label={`Show the ${item.label} pose`}>
+              <button type="button" aria-pressed={item.id === pose} onClick={() => choose(item.id)} aria-label={`Verification gate, ${item.label} pose`}>
                 <span className="mechanism-thumb">
                   <VerificationGate pose={item.id} theme={theme} frame={false} interactive={false} />
-                </span>
+                </span>{" "}
                 <span className="mechanism-thumb-label">{item.label}</span>
               </button>
             </li>

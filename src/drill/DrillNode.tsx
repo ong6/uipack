@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
-import { Node, type NodeProps } from "../Node";
+import { Node, nodeName, type NodeProps } from "../Node";
 import { SelectionContext } from "../selection";
 import { FigureMotionContext, type FigureMotion } from "../context";
 import { FigureScaleContext } from "../scale";
@@ -81,7 +81,8 @@ export function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...
   if (ctx.ghost) return <Node {...node} {...box} label={text} />;
 
   const summary = child.summary ?? (count ? `${count} part${count === 1 ? "" : "s"} inside` : "");
-  const name = `Open ${child.label}${summary ? `: ${summary}` : ""}`;
+  // Starts with the visible text (WCAG 2.5.3 label in name), then says what activating it does.
+  const name = `${nodeName(text, node.sub)}, open${summary ? `: ${summary}` : ""}`;
   const interactive = ctx.interactive && !!ctx.open;
   const activate = (e: MouseEvent | KeyboardEvent) => {
     e.preventDefault();

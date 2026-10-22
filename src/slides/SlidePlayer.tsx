@@ -36,7 +36,8 @@ function Diagram({ story, stop }: { story: SlideStory; stop: SlideStop }) {
       <div className="uipack-slide-diagram__nodes">
         {visible.map((n) => (
           <div key={n.id} data-tone={n.tone}>
-            <strong>{n.label}</strong>
+            {/* Named by its visible text, label first (WCAG 2.5.3); the space keeps the words apart. */}
+            <strong>{n.label}</strong>{" "}
             <span>{n.detail}</span>
           </div>
         ))}
@@ -175,7 +176,6 @@ function SceneViewport({
           <button
             type="button"
             key={n.id}
-            aria-label={`Inspect ${n.label}`}
             aria-pressed={selected === n.id}
             onClick={() => setSelected(selected === n.id ? null : n.id)}
             data-node={n.id}
@@ -183,7 +183,8 @@ function SceneViewport({
             className="uipack-slide-label"
             style={{ visibility: "hidden" }}
           >
-            <strong>{n.label}</strong>
+            {/* Named by its visible text, label first (WCAG 2.5.3); the space keeps the words apart. */}
+            <strong>{n.label}</strong>{" "}
             <span>{n.detail}</span>
           </button>
         ))}

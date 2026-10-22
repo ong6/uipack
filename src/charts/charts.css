@@ -1412,6 +1412,11 @@
   grid-area: go;
   align-self: center;
 }
+/* Arrows are CSS content: visible, but not text that a label-in-name check compares. */
+.uipack-stack .uipack-stack__go::before,
+.uipack-stack .uipack-stack__arrow::before {
+  content: "↓";
+}
 .uipack-stack .uipack-stack__go {
   font: 500 14px/16px var(--sp-sans);
   color: var(--sp-muted);

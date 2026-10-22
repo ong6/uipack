@@ -38,51 +38,55 @@ export function Group({
   const dashed = variant === "dashed";
   const ts = useFontFloor(titleSize ?? (dashed ? 11 : 14));
   const selection = useItemSelection(title ?? "Group", hint);
+  // The frame (box and title) is the selectable part; children sit beside it, so a selectable
+  // group never nests other buttons and its name matches its visible text.
   return (
     <g
       data-uipack="group"
+      data-selected={"data-selected" in selection ? selection["data-selected"] : undefined}
       {...hoverAttrs(flow, undefined, hover)}
-      {...selection}
     >
-      <rect
-        x={x}
-        y={y}
-        width={w}
-        height={h}
-        rx={dashed ? 10 : 6}
-        fill={dashed ? "none" : "var(--uipack-surface)"}
-        fillOpacity={dashed ? undefined : 0.6}
-        stroke={stroke}
-        strokeOpacity={accent ? 1 : dashed ? 0.4 : 0.8}
-        strokeWidth={1.25}
-        strokeDasharray={dashed ? "4 4" : undefined}
-      />
-      {title ? (
-        dashed ? (
-          <text
-            x={x + 16}
-            y={y + 22}
-            fontSize={ts}
-            fontFamily="var(--uipack-mono)"
-            letterSpacing=".08em"
-            fill={stroke}
-            fillOpacity={accent ? 1 : 0.75}
-          >
-            {title.toUpperCase()}
-          </text>
-        ) : (
-          <text
-            x={x + w / 2}
-            y={y + 24}
-            textAnchor="middle"
-            fontSize={ts}
-            fontWeight={600}
-            fill={stroke}
-          >
-            {title}
-          </text>
-        )
-      ) : null}
+      <g className="uipack__group-frame" {...selection}>
+        <rect
+          x={x}
+          y={y}
+          width={w}
+          height={h}
+          rx={dashed ? 10 : 6}
+          fill={dashed ? "none" : "var(--uipack-surface)"}
+          fillOpacity={dashed ? undefined : 0.6}
+          stroke={stroke}
+          strokeOpacity={accent ? 1 : dashed ? 0.4 : 0.8}
+          strokeWidth={1.25}
+          strokeDasharray={dashed ? "4 4" : undefined}
+        />
+        {title ? (
+          dashed ? (
+            <text
+              x={x + 16}
+              y={y + 22}
+              fontSize={ts}
+              fontFamily="var(--uipack-mono)"
+              letterSpacing=".08em"
+              fill={stroke}
+              fillOpacity={accent ? 1 : 0.75}
+            >
+              {title.toUpperCase()}
+            </text>
+          ) : (
+            <text
+              x={x + w / 2}
+              y={y + 24}
+              textAnchor="middle"
+              fontSize={ts}
+              fontWeight={600}
+              fill={stroke}
+            >
+              {title}
+            </text>
+          )
+        ) : null}
+      </g>
       {children}
     </g>
   );

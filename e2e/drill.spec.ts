@@ -32,7 +32,7 @@ test.describe("drill-down figure", () => {
   });
 
   test("click drills two levels down and Back returns, with focus on the originating node", async ({ page }) => {
-    await expect(drillNode(page, "checks")).toHaveAttribute("aria-label", "Open Checks: 7 parts inside");
+    await expect(drillNode(page, "checks")).toHaveAttribute("aria-label", "Checks, before it ships, open: 7 parts inside");
     await drillNode(page, "checks").click();
     await expect(fig(page).getByRole("heading", { name: /^Checks:/ })).toBeFocused();
     await settled(page);

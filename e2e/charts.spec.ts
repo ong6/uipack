@@ -667,7 +667,8 @@ test.describe("LayerStack", () => {
       for (const text of await stack.locator(".uipack-stack__text").all()) expect((await text.boundingBox())!.height).toBeLessThanOrEqual(22);
     } else expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(24);
     // "↓" alone at rest; its words show on hover, in space kept for them.
-    await expect(stack.locator(".uipack-stack__go").first()).toHaveText("↓");
+    // The arrow is CSS content, so it is not text a label-in-name check compares with the link's name.
+    expect(await stack.locator(".uipack-stack__go").first().evaluate((el) => getComputedStyle(el, "::before").content)).toBe('"↓"');
     const words = stack.locator("#ai-stack-layers-apps .uipack-stack__go-text");
     expect(await words.evaluate((el) => getComputedStyle(el).opacity)).toBe("0");
     const before = await bands.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height));
@@ -714,7 +715,7 @@ test.describe("LayerStack", () => {
       expect(await label.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
     }
     await expect(stack.locator('a.uipack-stack__rail[href="#gateways"]')).toHaveAccessibleName("Gateways and observability, layers 8–10");
-    await expect(stack.locator('a.uipack-stack__rail[href="#gateways"] .uipack-stack__rail-label')).toHaveText("Gateways ↓");
+    await expect(stack.locator('a.uipack-stack__rail[href="#gateways"] .uipack-stack__rail-label')).toHaveText("Gateways");
     await expect(stack.locator(".uipack-stack__across")).toBeHidden();
   });
 
@@ -753,7 +754,8 @@ test.describe("LayerStack", () => {
       await expect(stack.locator(".uipack-stack__summary").first()).toHaveCSS("position", "absolute");
       await expect(stack.locator("#ai-stack-layers-apps")).toHaveAccessibleName(/Distribution and workflow fit matter more than the model/);
       await expect(stack.locator(".uipack-stack__go-text").first()).toBeHidden();
-      await expect(stack.locator(".uipack-stack__go").first()).toHaveText("↓", { useInnerText: true });
+      await expect(stack.locator(".uipack-stack__go").first()).toBeVisible();
+      expect(await stack.locator(".uipack-stack__go").first().evaluate((el) => getComputedStyle(el, "::before").content)).toBe('"↓"');
       // Zone notes on their own line, so no dot is stranded.
       const head = stack.locator(".uipack-stack__zone-head").first();
       const note = (await head.locator(".uipack-stack__note").boundingBox())!;
@@ -763,7 +765,7 @@ test.describe("LayerStack", () => {
       const nodes = stack.locator(".uipack-stack__across a.uipack-stack__node");
       await expect(nodes).toHaveCount(3);
       await expect(nodes.filter({ hasText: "Evals" })).toBeVisible();
-      await expect(nodes.first().locator(".uipack-stack__arrow")).toHaveText("↓");
+      expect(await nodes.first().locator(".uipack-stack__arrow").evaluate((el) => getComputedStyle(el, "::before").content)).toBe('"↓"');
       for (const h of await nodes.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height))) expect(h).toBeGreaterThanOrEqual(44);
       await noPageOverflow(page, width);
       expect(await smallestText(stack)).toBeGreaterThanOrEqual(11);
