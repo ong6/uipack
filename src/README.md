@@ -2,6 +2,9 @@
 
 - Root components and `theme.css`: SVG figures and primitives.
 - `selection.tsx`: persistent semantic selection within Figure.
+- `env.ts`: helpers every entry shares: `useIsoLayoutEffect`, `REDUCED_MOTION_QUERY` and `prefersReducedMotion()`. The hook `usePrefersReducedMotion` is in `context.tsx`.
+- `zoom-math.ts`: the fixed-point zoom into a box, shared by `drill/` and the deck's zoom transition.
+- `drill/`: `DrillFigure` and `DrillNode`, a figure whose nodes zoom open into their own figures (exported from the root entry). See [drill-down figures](../docs/drill.md).
 - `canvas-gestures.ts`: scoped trackpad/touch inputs, anchored SVG zoom, bounded camera zoom, and reset.
 - `CanvasView.tsx` and `canvas.css`: shared modal canvas workspace. Build appends its CSS to both distributed theme files.
 - `presets/`: typed SVG scene builders with wide and narrow drawings.
@@ -16,3 +19,7 @@
 Follow [agent guidance](../AGENTS.md) and [design direction](../docs/design-direction.md). Never pull Three.js into the default SVG entry. Preserve SSR and static export behaviour. Rebuild `dist/` before committing library changes.
 
 - `objects/`: lazy procedural and Blender-authored objects, curated variations, accessible playback, and fallback illustrations (`uipack/objects`).
+- `deck/`: the deck player (`uipack/deck`, `uipack/deck.css`): `DeckPlayer`, slide parts (`parts.tsx`, `bento.tsx`), transitions (`transitions.ts`), the storyline checks (`storyline.ts`) and the consulting slides and charts (`consulting/`). See [deck](../docs/deck.md) and [consulting slides](../docs/deck-consulting.md).
+- `mechanism/`: the Mechanism style (`uipack/mechanism`, `uipack/mechanism.css`): one folder per machine (`gate/`), the shared card (`MechanismFrame.tsx`), `solid3.ts`, and the vendored Anatomy kit in `kit/` (MIT, not edited). See [Mechanism](../docs/mechanism.md).
+
+Adding a part, entry, page or machine: the file lists are in [contributing](../docs/contributing.md).
