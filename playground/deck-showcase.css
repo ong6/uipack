@@ -49,12 +49,20 @@
 }
 
 /* Example deck: three moves */
+/* The cover title shrinks into this running header. Same weight, tracking, balance and measure in
+   ch as .deck-demo-cover-title, so both copies break their lines at the same words and the morph
+   is a pure scale with no rewrap. */
 .deck-demo-running {
-  margin: 0 0 40px;
+  /* A hair wider than the title's 21ch: small sizes round glyph advances up, and balanced lines
+     break at the same words whenever the line count matches. */
+  max-width: 21.6ch;
+  margin: 0 0 36px;
   color: var(--deck-muted);
-  font-size: 34px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: 30px;
+  font-weight: 650;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 .deck-demo-moves {
   display: grid;
