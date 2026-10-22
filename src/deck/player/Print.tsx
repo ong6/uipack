@@ -21,7 +21,19 @@ export function Printout({ slides, theme, notes = false }: { slides: DeckSlide[]
   );
 }
 
-function PrintSlide({ slide: s, index: i, count, theme, notes }: { slide: DeckSlide; index: number; count: number; theme: DeckTheme; notes: boolean }) {
+function PrintSlide({
+  slide: s,
+  index: i,
+  count,
+  theme,
+  notes,
+}: {
+  slide: DeckSlide;
+  index: number;
+  count: number;
+  theme: DeckTheme;
+  notes: boolean;
+}) {
   const ref = useRef<HTMLElement>(null);
   const stops = useDetailStops(ref, s);
   const talk = notesOf(s);

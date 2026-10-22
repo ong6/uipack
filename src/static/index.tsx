@@ -91,7 +91,12 @@ export interface StaticOptions {
 }
 
 export function resolvePalette(theme: StaticOptions["theme"]): Palette {
-  const p = !theme || theme === "light" ? LIGHT : theme === "dark" ? DARK : { ...(theme.base === "dark" ? DARK : LIGHT), ...stripBase(theme) };
+  const p =
+    !theme || theme === "light"
+      ? LIGHT
+      : theme === "dark"
+        ? DARK
+        : { ...(theme.base === "dark" ? DARK : LIGHT), ...stripBase(theme) };
   // Font stacks land inside attribute values; a double quote there breaks the XML.
   return { ...p, mono: p.mono.replace(/"/g, "'"), sans: p.sans.replace(/"/g, "'") };
 }
@@ -103,7 +108,10 @@ function stripBase(t: Partial<Palette> & { base?: StaticTheme }): Partial<Palett
 
 /** Replace every `var(--uipack-x)` with the palette literal. Unknown names fall back to currentColor. */
 export function inlineVars(markup: string, p: Palette): string {
-  return markup.replace(/var\(--uipack-([a-z-]+)(?:,\s*[^)]*)?\)/g, (_, k: string) => (p as unknown as Record<string, string>)[k] ?? "currentColor");
+  return markup.replace(
+    /var\(--uipack-([a-z-]+)(?:,\s*[^)]*)?\)/g,
+    (_, k: string) => (p as unknown as Record<string, string>)[k] ?? "currentColor",
+  );
 }
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -132,10 +140,29 @@ function figureOf(input: ReactElement<FigureProps> | StaticFigure): StaticFigure
     if (typeof pp.parts === "function" && pp.spec) {
       const parts = pp.parts(pp.spec, pp.id ?? "static");
       const m = pp.spec.figure;
-      return { children: parts.wide, viewBox: parts.viewBox, legend: parts.legend, number: m.number, eyebrow: m.eyebrow, title: m.title, caption: m.caption, alt: m.alt };
+      return {
+        children: parts.wide,
+        viewBox: parts.viewBox,
+        legend: parts.legend,
+        number: m.number,
+        eyebrow: m.eyebrow,
+        title: m.title,
+        caption: m.caption,
+        alt: m.alt,
+      };
     }
     const p = input.props as FigureProps;
-    return { children: p.children, viewBox: p.viewBox, legend: p.legend, number: p.number, eyebrow: p.eyebrow, title: p.title, caption: p.caption, alt: p.alt, background: p.background };
+    return {
+      children: p.children,
+      viewBox: p.viewBox,
+      legend: p.legend,
+      number: p.number,
+      eyebrow: p.eyebrow,
+      title: p.title,
+      caption: p.caption,
+      alt: p.alt,
+      background: p.background,
+    };
   }
   return input;
 }
@@ -153,7 +180,14 @@ export function renderStatic(input: ReactElement<FigureProps> | StaticFigure, op
   const paint = opts.background ?? true;
   const [vx, vy, vw, vh] = fig.viewBox.split(/\s+/).map(Number);
 
-  const ctx: FigureMotion = { playing: motion, reduced: !motion, cycle: 0, toggle: () => {}, replay: () => {}, prerender: motion };
+  const ctx: FigureMotion = {
+    playing: motion,
+    reduced: !motion,
+    cycle: 0,
+    toggle: () => {},
+    replay: () => {},
+    prerender: motion,
+  };
   const g = globalThis as { __UIPACK_PRERENDER__?: boolean };
   const prev = g.__UIPACK_PRERENDER__;
   g.__UIPACK_PRERENDER__ = motion;
@@ -182,12 +216,16 @@ export function renderStatic(input: ReactElement<FigureProps> | StaticFigure, op
     const eyebrow = [fig.number, fig.eyebrow].filter(Boolean).join(" · ");
     if (eyebrow) {
       hy += 11;
-      head.push(`<text x="${pad}" y="${hy}" font-family="${p.mono}" font-size="11" font-weight="700" letter-spacing=".08em" fill="${p.fg}">${esc(eyebrow.toUpperCase())}</text>`);
+      head.push(
+        `<text x="${pad}" y="${hy}" font-family="${p.mono}" font-size="11" font-weight="700" letter-spacing=".08em" fill="${p.fg}">${esc(eyebrow.toUpperCase())}</text>`,
+      );
       hy += 8;
     }
     if (fig.title) {
       hy += 20;
-      head.push(`<text x="${pad}" y="${hy}" font-family="${p.sans}" font-size="20" font-weight="700" letter-spacing="-0.01em" fill="${p.fg}">${esc(fig.title)}</text>`);
+      head.push(
+        `<text x="${pad}" y="${hy}" font-family="${p.sans}" font-size="20" font-weight="700" letter-spacing="-0.01em" fill="${p.fg}">${esc(fig.title)}</text>`,
+      );
       hy += 6;
     }
     if (fig.caption) {
@@ -203,8 +241,14 @@ export function renderStatic(input: ReactElement<FigureProps> | StaticFigure, op
       let lx = pad;
       for (const it of fig.legend) {
         const kind = it.kind ?? "neutral";
-        const tok = inlineVars(renderToStaticMarkup(<Token kind={kind} shape={it.shape ?? TOKEN_SHAPE[kind]} r={5.5} cx={lx + 6} cy={hy - 4} />), p);
-        head.push(tok, `<text x="${lx + 20}" y="${hy}" font-family="${p.sans}" font-size="13" fill="${p.fg}">${esc(it.label)}</text>`);
+        const tok = inlineVars(
+          renderToStaticMarkup(<Token kind={kind} shape={it.shape ?? TOKEN_SHAPE[kind]} r={5.5} cx={lx + 6} cy={hy - 4} />),
+          p,
+        );
+        head.push(
+          tok,
+          `<text x="${lx + 20}" y="${hy}" font-family="${p.sans}" font-size="13" fill="${p.fg}">${esc(it.label)}</text>`,
+        );
         lx += 20 + it.label.length * 7.4 + 24;
       }
     }
@@ -220,7 +264,10 @@ export function renderStatic(input: ReactElement<FigureProps> | StaticFigure, op
         ? `<defs><pattern id="${bgId}" width="${vw}" height="24" patternUnits="userSpaceOnUse"><rect width="${vw}" height="1" fill="${p.grid}"/></pattern></defs><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="${p.bg}"/><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="url(#${bgId})"/>`
         : `<defs><pattern id="${bgId}" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="${p.grid}"/></pattern></defs><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="${p.bg}"/><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="url(#${bgId})"/>`
     : "";
-  const border = frame ? `<rect x="0.5" y="0.5" width="${vw - 1}" height="${H - 1}" rx="4" fill="${paint ? p.bg : "none"}" stroke="${p.border}"/>` + (hy ? `<line x1="0" y1="${hy}" x2="${vw}" y2="${hy}" stroke="${p.border}"/>` : "") : "";
+  const border = frame
+    ? `<rect x="0.5" y="0.5" width="${vw - 1}" height="${H - 1}" rx="4" fill="${paint ? p.bg : "none"}" stroke="${p.border}"/>` +
+      (hy ? `<line x1="0" y1="${hy}" x2="${vw}" y2="${hy}" stroke="${p.border}"/>` : "")
+    : "";
   const width = opts.width ?? vw;
   const height = Math.round((width / vw) * H);
   const label = fig.alt ? ` role="img" aria-label="${esc(fig.alt)}"` : "";

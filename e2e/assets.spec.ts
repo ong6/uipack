@@ -15,12 +15,19 @@ test.describe("asset browser", () => {
     await page.getByRole("searchbox").fill("");
     await expect(status).toHaveText(/^44 assets$/);
     // every preview loaded
-    const broken = await page.evaluate(() => [...document.querySelectorAll<HTMLImageElement>(".uipack-browser__tile img")].filter((i) => i.complete && i.naturalWidth === 0).map((i) => i.src));
+    const broken = await page.evaluate(() =>
+      [...document.querySelectorAll<HTMLImageElement>(".uipack-browser__tile img")]
+        .filter((i) => i.complete && i.naturalWidth === 0)
+        .map((i) => i.src),
+    );
     expect(broken).toEqual([]);
   });
 
   test("copy writes the source to the clipboard and flashes", async ({ page, context, browserName }) => {
-    test.skip(browserName === "webkit", "WebKit has no clipboard permission grant in Playwright; the flash is checked in the unit tests too");
+    test.skip(
+      browserName === "webkit",
+      "WebKit has no clipboard permission grant in Playwright; the flash is checked in the unit tests too",
+    );
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await page.goto("/assets");
     const btn = page.getByRole("button", { name: "Copy lock" });
@@ -39,10 +46,16 @@ test.describe("asset browser", () => {
     const dir = await page.locator(".uipack-browser__side ul").evaluate((el) => getComputedStyle(el).flexDirection);
     expect(dir).toBe("row");
     for (const sel of [".uipack-browser__cat", ".uipack-browser__search input"]) {
-      const h = await page.locator(sel).first().evaluate((el) => el.getBoundingClientRect().height);
+      const h = await page
+        .locator(sel)
+        .first()
+        .evaluate((el) => el.getBoundingClientRect().height);
       expect(h).toBeGreaterThanOrEqual(44);
     }
-    const row = await page.locator(".uipack-browser__row").first().evaluate((el) => el.getBoundingClientRect().height);
+    const row = await page
+      .locator(".uipack-browser__row")
+      .first()
+      .evaluate((el) => el.getBoundingClientRect().height);
     expect(row).toBeGreaterThanOrEqual(44);
   });
 
@@ -86,7 +99,9 @@ test.describe("asset browser", () => {
     await expect(packet).toHaveCount(1);
     await expect.poll(() => packet.evaluate((i: HTMLImageElement) => i.currentSrc)).toMatch(/dark\/motion-packet-still\.svg$/);
     await page.locator('[data-id="background-plain"]').scrollIntoViewIfNeeded();
-    const edge = await page.locator('[data-id="background-plain"] .uipack-browser__tile img:visible').evaluate((i) => getComputedStyle(i).borderTopWidth);
+    const edge = await page
+      .locator('[data-id="background-plain"] .uipack-browser__tile img:visible')
+      .evaluate((i) => getComputedStyle(i).borderTopWidth);
     expect(edge).toBe("1px");
   });
 

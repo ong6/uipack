@@ -3,15 +3,45 @@ import { render } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import * as mechanism from "../src/mechanism";
 import { MechanismFrame, VerificationGate, type GatePose } from "../src/mechanism";
-import { CYCLE_LENGTH, LIMIT, PASS_CHECK, RETURN_CHECK, checkAt, tallyOf, tallyText, verdictOf, verdictText } from "../src/mechanism/gate/model";
-import { idleScene, liftAt, armAt, IDLE_START, sceneAt, stillScene, tokenAt, RUN_LONG, PERIOD } from "../src/mechanism/gate/motion";
+import {
+  CYCLE_LENGTH,
+  LIMIT,
+  PASS_CHECK,
+  RETURN_CHECK,
+  checkAt,
+  tallyOf,
+  tallyText,
+  verdictOf,
+  verdictText,
+} from "../src/mechanism/gate/model";
+import {
+  idleScene,
+  liftAt,
+  armAt,
+  IDLE_START,
+  sceneAt,
+  stillScene,
+  tokenAt,
+  RUN_LONG,
+  PERIOD,
+} from "../src/mechanism/gate/motion";
 import { BT, GX, LIFTED } from "../src/mechanism/gate/view";
 
 const POSES: GatePose[] = ["idle", "pass", "return", "apart"];
 
 describe("uipack/mechanism exports", () => {
   it("prefixes the gate's model and motion with its machine, so a second machine cannot clash", () => {
-    for (const generic of ["LIMIT", "SCALE", "PERIOD", "RUN_LONG", "CYCLE_LENGTH", "checkAt", "sceneAt", "tokenAt", "asksForStillness"])
+    for (const generic of [
+      "LIMIT",
+      "SCALE",
+      "PERIOD",
+      "RUN_LONG",
+      "CYCLE_LENGTH",
+      "checkAt",
+      "sceneAt",
+      "tokenAt",
+      "asksForStillness",
+    ])
       expect(mechanism).not.toHaveProperty(generic);
     expect(mechanism.GATE_LIMIT).toBe(LIMIT);
     expect(mechanism.GATE_PERIOD).toBe(PERIOD);
@@ -36,10 +66,14 @@ describe("gate model", () => {
   });
 
   it("returns a proposal and later passes its revision under the same id", () => {
-    const returned = Array.from({ length: CYCLE_LENGTH }, (_, index) => checkAt(index)).filter((check) => check.verdict === "return");
+    const returned = Array.from({ length: CYCLE_LENGTH }, (_, index) => checkAt(index)).filter(
+      (check) => check.verdict === "return",
+    );
     expect(returned).toHaveLength(3);
     for (const check of returned) {
-      const revision = Array.from({ length: CYCLE_LENGTH }, (_, index) => checkAt(index)).find((other) => other.proposal === check.proposal && other.attempt === 2);
+      const revision = Array.from({ length: CYCLE_LENGTH }, (_, index) => checkAt(index)).find(
+        (other) => other.proposal === check.proposal && other.attempt === 2,
+      );
       expect(revision?.verdict).toBe("pass");
       expect(revision!.index).toBeGreaterThan(check.index);
     }

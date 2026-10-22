@@ -4,7 +4,21 @@ import { expect, test, type Page } from "./fixtures";
 // section headings across pages, and card, figure and scene titles at 18–20px / 600 below them.
 // Sample content keeps its own scale (slides, the Landing page, the docs prose), so headings
 // inside those roots are not the page's.
-const PAGES = ["/", "/charts", "/article", "/deck?deck=moves", "/deck?deck=bento", "/deck?deck=consulting", "/presentations", "/animations", "/mechanism", "/web", "/docs", "/styles", "/assets"];
+const PAGES = [
+  "/",
+  "/charts",
+  "/article",
+  "/deck?deck=moves",
+  "/deck?deck=bento",
+  "/deck?deck=consulting",
+  "/presentations",
+  "/animations",
+  "/mechanism",
+  "/web",
+  "/docs",
+  "/styles",
+  "/assets",
+];
 const SAMPLE = ".uipack-web, .uipack-docs, .uipack-deck, .uipack-deck-stage, .composed-deck, .uipack-slide-starter";
 const TITLES = ".uipack__title, .style-card h3, .uipack-animation-heading h3";
 
@@ -20,11 +34,17 @@ function measure({ sample, titles }: { sample: string; titles: string }) {
   const visible = (el: Element) => el.getClientRects().length > 0;
   const page = document.querySelector(".showcase-title h1, .showcase-title .showcase-title__name");
   const sections = [...document.querySelectorAll(".showcase-shell h2")].filter((h) => visible(h) && !h.closest(sample));
-  const cards = [...document.querySelectorAll(titles)].filter((h) => visible(h) && !h.closest(sample.replace(".uipack-docs, ", "")));
+  const cards = [...document.querySelectorAll(titles)].filter(
+    (h) => visible(h) && !h.closest(sample.replace(".uipack-docs, ", "")),
+  );
   return {
     page: page ? size(page) : null,
     sections: [...new Set(sections.map(size))],
-    titles: cards.map((t) => ({ text: (t.textContent ?? "").trim().slice(0, 30), size: size(t), weight: getComputedStyle(t).fontWeight })),
+    titles: cards.map((t) => ({
+      text: (t.textContent ?? "").trim().slice(0, 30),
+      size: size(t),
+      weight: getComputedStyle(t).fontWeight,
+    })),
   };
 }
 
@@ -66,10 +86,15 @@ for (const width of [1440, 390]) {
         await page.evaluate(() => window.scrollTo(0, 0));
         const fallback = await page.evaluate(() =>
           [...document.querySelectorAll<HTMLElement>("button, select, textarea, input")]
-            .filter((el) => !(el instanceof HTMLInputElement && ["checkbox", "radio", "hidden", "range", "color"].includes(el.type)))
+            .filter(
+              (el) => !(el instanceof HTMLInputElement && ["checkbox", "radio", "hidden", "range", "color"].includes(el.type)),
+            )
             .map((el) => ({ el, face: getComputedStyle(el).fontFamily }))
             .filter(({ face }) => /^\s*"?(arial|helvetica|times|serif|sans-serif|-webkit-)/i.test(face))
-            .map(({ el, face }) => `${el.tagName.toLowerCase()} "${(el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 30)}": ${face}`),
+            .map(
+              ({ el, face }) =>
+                `${el.tagName.toLowerCase()} "${(el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 30)}": ${face}`,
+            ),
         );
         expect(fallback).toEqual([]);
       });

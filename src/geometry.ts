@@ -33,9 +33,7 @@ export function route(from: Point, to: Point, via: "h" | "v" | number = "h", axi
   const [x2, y2] = to;
   if (x1 === x2 || y1 === y2) return [from, to];
   if (typeof via === "number") {
-    return axis === "h"
-      ? [from, [via, y1], [via, y2], to]
-      : [from, [x1, via], [x2, via], to];
+    return axis === "h" ? [from, [via, y1], [via, y2], to] : [from, [x1, via], [x2, via], to];
   }
   if (via === "h") {
     const mx = (x1 + x2) / 2;

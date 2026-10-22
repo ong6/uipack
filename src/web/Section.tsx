@@ -23,7 +23,17 @@ export interface SectionProps {
 }
 
 /** A page section on the 8-pt rhythm, with an optional eyebrow, heading and intro. */
-export function Section({ eyebrow, title, intro, children, tone = "default", align = "start", id, className = "", lazyRender = false }: SectionProps) {
+export function Section({
+  eyebrow,
+  title,
+  intro,
+  children,
+  tone = "default",
+  align = "start",
+  id,
+  className = "",
+  lazyRender = false,
+}: SectionProps) {
   const headingId = id ? `${id}-title` : undefined;
   return (
     <section

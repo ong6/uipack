@@ -1,12 +1,4 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type ElementType,
-  type PointerEvent,
-  type ReactNode,
-} from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ElementType, type PointerEvent, type ReactNode } from "react";
 import { usePrefersReducedMotion } from "../env";
 import { CtaButton, type CtaButtonProps } from "./CtaButton";
 import { useInView, useScrollProgress } from "./hooks";
@@ -170,7 +162,17 @@ const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
  * number shown. Tabular figures and a hidden copy
  * of the final value reserve the width; assistive tech reads the final value only.
  */
-export function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix = "", suffix = "", className = "", face = "display" }: NumberTickerProps) {
+export function NumberTicker({
+  value,
+  from = 0,
+  duration = 1400,
+  format,
+  locale,
+  prefix = "",
+  suffix = "",
+  className = "",
+  face = "display",
+}: NumberTickerProps) {
   const ref = useRef<HTMLSpanElement>(null);
   const reduced = usePrefersReducedMotion();
   const inView = useInView(ref, { once: true, threshold: 0.6 });
@@ -290,7 +292,7 @@ function useHoverMotion(apply: (el: HTMLElement, x: number, y: number) => void, 
   const ref = useRef<HTMLElement | null>(null);
   const reduced = usePrefersReducedMotion();
   const onPointerMove = (e: PointerEvent<HTMLElement>) => {
-    if (reduced || e.pointerType !== "mouse" && e.pointerType !== "pen") return;
+    if (reduced || (e.pointerType !== "mouse" && e.pointerType !== "pen")) return;
     const el = ref.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
@@ -351,7 +353,12 @@ export function MagneticButton({ strength = 6, ...button }: MagneticButtonProps)
     },
   );
   return (
-    <span ref={(n) => (ref.current = n)} className="uipack-web-magnetic" onPointerMove={onPointerMove} onPointerLeave={onPointerLeave}>
+    <span
+      ref={(n) => (ref.current = n)}
+      className="uipack-web-magnetic"
+      onPointerMove={onPointerMove}
+      onPointerLeave={onPointerLeave}
+    >
       <CtaButton {...button} />
     </span>
   );
@@ -379,7 +386,14 @@ const lerp = ([a, b]: Range, t: number) => a + (b - a) * t;
  * the page and let it turn or grow as the reader moves. Listens only while on screen; under
  * reduced motion it holds the midpoint.
  */
-export function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY = [0, 0], opacity = [1, 1], className = "" }: ScrollTransformProps) {
+export function ScrollTransform({
+  children,
+  rotate = [0, 0],
+  scale = [1, 1],
+  translateY = [0, 0],
+  opacity = [1, 1],
+  className = "",
+}: ScrollTransformProps) {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = usePrefersReducedMotion();
   const raw = useScrollProgress(ref);

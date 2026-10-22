@@ -1,8 +1,5 @@
 import { useId, useState } from "react";
-import type {
-  PresentationTheme,
-  SpeechGuide as SpeechGuideData,
-} from "./types";
+import type { PresentationTheme, SpeechGuide as SpeechGuideData } from "./types";
 
 export function estimateSpeechSeconds(say: string): number {
   const words = say.trim().match(/\S+/g)?.length ?? 0;
@@ -45,17 +42,9 @@ export interface SpeakerGuideProps {
   theme?: PresentationTheme;
 }
 
-export function SpeakerGuide({
-  speech,
-  slideTitle = "Slide",
-  onCopy,
-  className = "",
-  theme = "light",
-}: SpeakerGuideProps) {
+export function SpeakerGuide({ speech, slideTitle = "Slide", onCopy, className = "", theme = "light" }: SpeakerGuideProps) {
   const headingId = useId();
-  const [status, setStatus] = useState<"idle" | "copied" | "error">(
-    "idle",
-  );
+  const [status, setStatus] = useState<"idle" | "copied" | "error">("idle");
   const seconds = estimateSpeechSeconds(speech.say);
   const text = formatSpeechGuide(speech);
   const copy = async () => {
@@ -69,16 +58,10 @@ export function SpeakerGuide({
   };
 
   return (
-    <aside
-      className={`uipack-speaker-guide ${className}`.trim()}
-      aria-labelledby={headingId}
-      data-theme={theme}
-    >
+    <aside className={`uipack-speaker-guide ${className}`.trim()} aria-labelledby={headingId} data-theme={theme}>
       <div className="uipack-speaker-guide__heading">
         <h3 id={headingId}>Speaker guide</h3>
-        <span aria-label={`Estimated speaking time ${seconds} seconds`}>
-          ~{seconds} sec
-        </span>
+        <span aria-label={`Estimated speaking time ${seconds} seconds`}>~{seconds} sec</span>
       </div>
       <div className="uipack-speaker-guide__section">
         <h4>Say this</h4>

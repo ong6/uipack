@@ -14,12 +14,7 @@ export type DeckTheme = "light" | "dark";
  *   element opens into this slide. Use it for "here is a part; now look inside it".
  * - `fade`: a plain crossfade. `none`: cut.
  */
-export type DeckTransition =
-  | "advance"
-  | "morph"
-  | "fade"
-  | "none"
-  | { zoom: string };
+export type DeckTransition = "advance" | "morph" | "fade" | "none" | { zoom: string };
 
 export interface DeckRenderContext {
   /** Build step reached on this slide. `Infinity` means fully built. */

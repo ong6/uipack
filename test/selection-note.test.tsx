@@ -11,7 +11,9 @@ const fig = (children: React.ReactNode) =>
 
 describe("selection note", () => {
   it("selecting a node with a hint shows the hint beside it, and selecting again hides it", () => {
-    const { container } = fig(<Node x={0} y={0} w={120} h={48} label="paper book" sub="paper only" hint="A simulated portfolio. No real money." />);
+    const { container } = fig(
+      <Node x={0} y={0} w={120} h={48} label="paper book" sub="paper only" hint="A simulated portfolio. No real money." />,
+    );
     const node = screen.getByRole("button", { name: "paper book, paper only" });
     fireEvent.click(node);
     expect(node).toHaveAttribute("aria-pressed", "true");

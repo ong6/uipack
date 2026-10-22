@@ -144,12 +144,7 @@ export interface StoryBeat {
 }
 
 export type StorylineTemplateId =
-  | "project-update"
-  | "decision-request"
-  | "deep-dive"
-  | "launch-demo"
-  | "postmortem"
-  | "review-highlights";
+  "project-update" | "decision-request" | "deep-dive" | "launch-demo" | "postmortem" | "review-highlights";
 
 export interface StorylineTemplate {
   id: StorylineTemplateId;
@@ -637,17 +632,20 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   "title-length": { severity: "warn", check: "The title is at most 14 words." },
   "title-specific": {
     severity: "warn",
-    check: "An answer, evidence, problem or recommendation title quantifies its claim: a number that isn't a date or a version, a multiple or fraction ('twice', 'a third'), a number word with a unit ('three weeks', 'one engineer'), or a comparison of two quantities ('one meeting, not three'). A plan title carries a date or a number. A bare count ('two teams', 'one big improvement'), 'no regressions', adjectives and names don't count.",
+    check:
+      "An answer, evidence, problem or recommendation title quantifies its claim: a number that isn't a date or a version, a multiple or fraction ('twice', 'a third'), a number word with a unit ('three weeks', 'one engineer'), or a comparison of two quantities ('one meeting, not three'). A plan title carries a date or a number. A bare count ('two teams', 'one big improvement'), 'no regressions', adjectives and names don't count.",
   },
   "one-idea": { severity: "tip", check: "The title is one sentence: one idea per slide." },
   "notes-present": { severity: "warn", check: "Every presented slide has a talk track." },
   "number-source": {
     severity: "warn",
-    check: "A number in a title names its source in the notes: a named artifact ('the search latency dashboard', 'load test 12', 'the Q3 user survey') or a URL, with no hedge ('trust me', 'someone mentioned', 'said so'); or in the slide's `source`.",
+    check:
+      "A number in a title names its source in the notes: a named artifact ('the search latency dashboard', 'load test 12', 'the Q3 user survey') or a URL, with no hedge ('trust me', 'someone mentioned', 'said so'); or in the slide's `source`.",
   },
   "roles-missing": {
     severity: "warn",
-    check: "Slides are tagged with roles. Without them, roles are inferred from the titles and only the answer-first and closing-ask checks run.",
+    check:
+      "Slides are tagged with roles. Without them, roles are inferred from the titles and only the answer-first and closing-ask checks run.",
   },
   "answer-first": {
     severity: "error",
@@ -660,7 +658,8 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   "closing-ask": { severity: "error", check: "The last presented slide is an ask." },
   "ask-concrete": {
     severity: "warn",
-    check: "The ask names a decision or action, an owner (a team or role such as 'platform leads', 'the payments team', 'VP Eng' or an @handle; not 'we', 'the team', a bare name, 'owner TBD' or 'lead' as a verb) and a firm calendar date ('next quarter', 'Monday-ish' and 'next Monday maybe' are not).",
+    check:
+      "The ask names a decision or action, an owner (a team or role such as 'platform leads', 'the payments team', 'VP Eng' or an @handle; not 'we', 'the team', a bare name, 'owner TBD' or 'lead' as a verb) and a firm calendar date ('next quarter', 'Monday-ish' and 'next Monday maybe' are not).",
   },
   "role-repeat": {
     severity: "warn",
@@ -673,7 +672,8 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   },
   "template-beats": {
     severity: "warn",
-    check: "With a template, every beat it requires has a slide in that role: a decision request has its options, a postmortem its plan.",
+    check:
+      "With a template, every beat it requires has a slide in that role: a decision request has its options, a postmortem its plan.",
   },
 };
 
@@ -681,27 +681,92 @@ export const MAX_TITLE_WORDS = 14;
 /** Matches `estimateSpeechSeconds` in the presentations module. */
 export const WORDS_PER_MINUTE = 135;
 
-const TOPIC_LABELS = new Set(
-  [
-    "about me", "action items", "agenda", "alternatives", "appendix", "approach", "architecture",
-    "background", "budget", "challenges", "conclusion", "conclusions", "context", "cost", "costs",
-    "data", "deep dive", "demo", "design", "executive summary", "faq", "findings", "goals",
-    "highlights", "how it works", "impact", "intro", "introduction", "issues", "key takeaways",
-    "kpis", "learnings", "lessons learned", "live demo", "metrics", "motivation", "next",
-    "next steps", "objectives", "options", "overview", "plan", "problem", "problem statement",
-    "progress", "q&a", "q and a", "questions", "recap", "recommendation", "recommendations",
-    "requirements", "results", "risks", "risks and mitigations", "roadmap", "root cause", "scope",
-    "solution", "status", "status update", "success metrics", "summary", "system architecture",
-    "takeaways", "team", "thank you", "thanks", "timeline", "trade-offs", "tradeoffs", "update",
-    "what's next", "whats next", "why", "why now",
-  ],
-);
+const TOPIC_LABELS = new Set([
+  "about me",
+  "action items",
+  "agenda",
+  "alternatives",
+  "appendix",
+  "approach",
+  "architecture",
+  "background",
+  "budget",
+  "challenges",
+  "conclusion",
+  "conclusions",
+  "context",
+  "cost",
+  "costs",
+  "data",
+  "deep dive",
+  "demo",
+  "design",
+  "executive summary",
+  "faq",
+  "findings",
+  "goals",
+  "highlights",
+  "how it works",
+  "impact",
+  "intro",
+  "introduction",
+  "issues",
+  "key takeaways",
+  "kpis",
+  "learnings",
+  "lessons learned",
+  "live demo",
+  "metrics",
+  "motivation",
+  "next",
+  "next steps",
+  "objectives",
+  "options",
+  "overview",
+  "plan",
+  "problem",
+  "problem statement",
+  "progress",
+  "q&a",
+  "q and a",
+  "questions",
+  "recap",
+  "recommendation",
+  "recommendations",
+  "requirements",
+  "results",
+  "risks",
+  "risks and mitigations",
+  "roadmap",
+  "root cause",
+  "scope",
+  "solution",
+  "status",
+  "status update",
+  "success metrics",
+  "summary",
+  "system architecture",
+  "takeaways",
+  "team",
+  "thank you",
+  "thanks",
+  "timeline",
+  "trade-offs",
+  "tradeoffs",
+  "update",
+  "what's next",
+  "whats next",
+  "why",
+  "why now",
+]);
 
-const MONTH = "jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?";
+const MONTH =
+  "jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?";
 const WEEKDAY = "mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:rs(?:day)?)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?";
 
 /** A calendar date someone can put in a diary: a month, a weekday, a numeric date, a named quarter or half, or today. */
-const capitalised = (alternatives: string) => alternatives.replace(/(^|\|)([a-z])/g, (_, bar: string, c: string) => bar + c.toUpperCase());
+const capitalised = (alternatives: string) =>
+  alternatives.replace(/(^|\|)([a-z])/g, (_, bar: string, c: string) => bar + c.toUpperCase());
 const DATE_RE = new RegExp(
   [
     // Capitalised, so "may", "sat" and "wed" as ordinary words don't count as dates.
@@ -788,12 +853,14 @@ const OUTCOME_RE =
 const SOURCE_KIND_RE =
   /^(?:dashboards?|quer(?:y|ies)|tests?|surveys?|reports?|benchmarks?|logs?|experiments?|traces?|telemetry|studies|study|forecasts?|trackers?|ledgers?|notebooks?|spreadsheets?)$/i;
 /** Named sources in a fixed phrase. */
-const SOURCE_PHRASE_RE = /\b(?:management|finance|financial) accounts\b|\b(?:cost|capacity|pricing|financial|forecast) model\b|https?:\/\/|\bwww\.\w/i;
+const SOURCE_PHRASE_RE =
+  /\b(?:management|finance|financial) accounts\b|\b(?:cost|capacity|pricing|financial|forecast) model\b|https?:\/\/|\bwww\.\w/i;
 /** Words that make a sentence's source hearsay. */
 const HEDGED_SOURCE_RE =
   /\b(?:trust me|someone|somebody|said so|i think|i believe|i heard|i guess|heard|mentioned|rumou?rs?|anecdotal(?:ly)?|ballpark|eyeball(?:ed)?|gut feel(?:ing)?|from memory|my laptop|off the top of my head|guess(?:ed|timate)?|ran (?:it )?once|once on staging)\b/i;
 /** What follows a kind of evidence that makes it a modifier, not the source: "the dashboard chat". */
-const SOURCE_MODIFIED_RE = /^(?:chat|channel|thread|meeting|call|conversation|discussion|rumou?r|gossip|screenshot|people|team|owner)$/i;
+const SOURCE_MODIFIED_RE =
+  /^(?:chat|channel|thread|meeting|call|conversation|discussion|rumou?r|gossip|screenshot|people|team|owner)$/i;
 /** Words after a kind of evidence that name it: "benchmark suite", "test run 4". */
 const SOURCE_NAME_AFTER_RE = /^(?:suite|suites|run|runs|notebook|sheet|page|tab|panel|export|entry|row|link|doc|id)$/i;
 const SOURCE_STOP = new Set(
@@ -809,14 +876,19 @@ function namedSource(text: string): boolean {
   // Sentences; a decimal point ("0.41") or an abbreviation doesn't end one.
   return text.split(/(?<!\d)[.;!?](?!\d)|\n/).some((sentence) => {
     if (HEDGED_SOURCE_RE.test(sentence)) return false;
-    const words = sentence.split(/[\s,:()“”"]+/).filter(Boolean).map((w) => w.replace(/['’]s$/, ""));
+    const words = sentence
+      .split(/[\s,:()“”"]+/)
+      .filter(Boolean)
+      .map((w) => w.replace(/['’]s$/, ""));
     return words.some((word, i) => {
       if (!SOURCE_KIND_RE.test(word)) return false;
       const before = words[i - 1];
       const after = words[i + 1];
       if (after && SOURCE_MODIFIED_RE.test(after)) return false;
       const namedBefore = Boolean(before && /^[\p{L}\p{N}]/u.test(before) && !SOURCE_STOP.has(before.toLowerCase()));
-      const namedAfter = Boolean(after && (/\d/.test(after) || (/^\p{Lu}/u.test(after) && after !== "I") || SOURCE_NAME_AFTER_RE.test(after)));
+      const namedAfter = Boolean(
+        after && (/\d/.test(after) || (/^\p{Lu}/u.test(after) && after !== "I") || SOURCE_NAME_AFTER_RE.test(after)),
+      );
       return namedBefore || namedAfter;
     });
   });
@@ -903,7 +975,9 @@ function hasClaimNumber(text: string): boolean {
  */
 function hasOwner(text: string): boolean {
   const qualified = Array.from(text.matchAll(QUALIFIED_OWNER_RE)).some((m) => !NOT_A_QUALIFIER.has(m[1].toLowerCase()));
-  return qualified || OWNER_ROLE_RE.test(text) || OWNER_ACRONYM_RE.test(text) || NAMED_GROUP_RE.test(text) || NAMED_OWNS_RE.test(text);
+  return (
+    qualified || OWNER_ROLE_RE.test(text) || OWNER_ACRONYM_RE.test(text) || NAMED_GROUP_RE.test(text) || NAMED_OWNS_RE.test(text)
+  );
 }
 
 /** A date someone can put in a diary, said firmly: a clause with a date and no hedge ("Monday-ish", "maybe"). */
@@ -928,7 +1002,12 @@ function inferRoles(slides: readonly StorySlide[]): (SlideRole | undefined)[] {
     const text = headlineOf(slide);
     if (i === 0) return isSpecific(text) || OUTCOME_RE.test(text) ? "answer" : "cover";
     if (PLAN_TITLE_RE.test(text)) return "plan";
-    if (i === slides.length - 1 && !QUESTIONS_SLIDE_RE.test(text) && DECISION_RE.test(text) && (hasOwner(text) || hasFirmDate(text))) {
+    if (
+      i === slides.length - 1 &&
+      !QUESTIONS_SLIDE_RE.test(text) &&
+      DECISION_RE.test(text) &&
+      (hasOwner(text) || hasFirmDate(text))
+    ) {
       return "ask";
     }
     return undefined;
@@ -1041,7 +1120,7 @@ export function lintDeck(slides: readonly StorySlide[], options: LintOptions = {
       add(
         "number-source",
         "warn",
-        "The title has a number but no source. Name the artifact it came from (\"the search latency dashboard\", \"load test 12\", \"the Q3 user survey\", a URL) and its window in the notes, or set the slide's `source`. Hearsay (\"someone mentioned\", \"trust me\") doesn't count.",
+        'The title has a number but no source. Name the artifact it came from ("the search latency dashboard", "load test 12", "the Q3 user survey", a URL) and its window in the notes, or set the slide\'s `source`. Hearsay ("someone mentioned", "trust me") doesn\'t count.',
         slide.id,
       );
     }
@@ -1123,7 +1202,7 @@ export function lintDeck(slides: readonly StorySlide[], options: LintOptions = {
         missing.includes("an owner") &&
           "Name the team or role who acts (\"platform leads\", \"the payments team\", \"VP Eng\", an @handle); 'we', 'the team', a bare name and 'owner TBD' don't say whose it is.",
         missing.includes("a date") && relative && `"${relative}" moves with the calendar; give a date such as 14 March.`,
-        missing.includes("a date") && hedged && "The date is hedged (\"-ish\", \"maybe\", \"TBC\"); commit to one.",
+        missing.includes("a date") && hedged && 'The date is hedged ("-ish", "maybe", "TBC"); commit to one.',
       ].filter(Boolean);
       add("ask-concrete", "warn", [`The ask is missing ${missing.join(", ")}.`, ...hints].join(" "), ask.id);
     }

@@ -33,8 +33,7 @@ export function linkDomain(href: string): string | undefined {
 }
 
 /** 8 → "08"; strings pass through ("8a" stays "8a"). */
-export const layerIndex = (index: number | string) =>
-  typeof index === "number" ? String(index).padStart(2, "0") : index;
+export const layerIndex = (index: number | string) => (typeof index === "number" ? String(index).padStart(2, "0") : index);
 
 /** Joins class names, skipping empty ones. */
 export const cx = (...names: (string | false | null | undefined)[]) => names.filter(Boolean).join(" ");

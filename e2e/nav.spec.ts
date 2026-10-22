@@ -92,7 +92,10 @@ test("diagrams page has its named sections and charts moved out", async ({ page 
   expect(headings).toEqual(figureEntries.map((e) => e.title));
   // Every section but the bare figure holds one numbered figure, numbered in page order.
   const numbers = await page.locator("[data-section] .uipack__eyebrow").allTextContents();
-  const found = numbers.map((t) => t.match(/Figure (\d+)/)?.[1]).filter(Boolean).map(Number);
+  const found = numbers
+    .map((t) => t.match(/Figure (\d+)/)?.[1])
+    .filter(Boolean)
+    .map(Number);
   expect(found).toEqual(found.map((_, i) => i + 1));
   expect(found).toHaveLength(headings.length - 1);
   await expect(page.locator("#layer-stack, #span-chart")).toHaveCount(0);
@@ -147,7 +150,9 @@ for (const width of [390, 768]) {
           await page.goto(`${route}?theme=${theme}`);
           await expect(title(page)).toBeVisible();
           // The lazily loaded page body and the fonts decide the width, not a fixed delay.
-          await expect(page.locator(".showcase-shell > section, .showcase-shell > div:not(.showcase-title)").first()).toBeVisible();
+          await expect(
+            page.locator(".showcase-shell > section, .showcase-shell > div:not(.showcase-title)").first(),
+          ).toBeVisible();
           await page.evaluate(() => document.fonts.ready);
           expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
         });
@@ -177,10 +182,12 @@ test.describe("390px header and menu", () => {
       const button = page.locator(".showcase-menu-button");
       await expect(button.locator(".showcase-menu-button__page")).toHaveText(label);
       await expect(button.locator(".showcase-menu-button__group")).toHaveText(ALL.find((p) => p.label === label)!.group);
-      expect(await button.locator(".showcase-menu-button__page").evaluate((el) => {
-        const b = el.closest("button")!.getBoundingClientRect();
-        return el.scrollWidth <= el.clientWidth && el.getBoundingClientRect().right <= b.right;
-      })).toBe(true);
+      expect(
+        await button.locator(".showcase-menu-button__page").evaluate((el) => {
+          const b = el.closest("button")!.getBoundingClientRect();
+          return el.scrollWidth <= el.clientWidth && el.getBoundingClientRect().right <= b.right;
+        }),
+      ).toBe(true);
     });
   }
 
@@ -244,7 +251,11 @@ test.describe("390px header and menu", () => {
     // One full lap and a step more: every stop is a link or Close inside the menu, and the lap ends on Close.
     for (let i = 0; i < stops; i++) {
       await page.keyboard.press(tab);
-      expect(await page.evaluate(() => document.activeElement?.closest("dialog") !== null && /^(A|BUTTON)$/.test(document.activeElement!.tagName))).toBe(true);
+      expect(
+        await page.evaluate(
+          () => document.activeElement?.closest("dialog") !== null && /^(A|BUTTON)$/.test(document.activeElement!.tagName),
+        ),
+      ).toBe(true);
     }
     await expect(close).toBeFocused();
     await page.keyboard.press(`Shift+${tab}`);
@@ -290,7 +301,9 @@ test.describe("tablet and desktop keep the two rows", () => {
     await expect(groupsNav(page)).toBeVisible();
     await expect(pagesNav(page)).toBeVisible();
     await expect(page.locator(".showcase-menu-button")).toBeHidden();
-    const heights = await page.locator(".showcase-groups a, .showcase-pages a").evaluateAll((els) => els.map((a) => a.getBoundingClientRect().height));
+    const heights = await page
+      .locator(".showcase-groups a, .showcase-pages a")
+      .evaluateAll((els) => els.map((a) => a.getBoundingClientRect().height));
     expect(Math.min(...heights)).toBeGreaterThanOrEqual(44);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(768);
   });
@@ -311,7 +324,10 @@ test("deck sub-views: aria-current follows the deck query, defaulting to the fir
     await expect(groupsNav(page).locator('[aria-current="page"]')).toHaveText("Presentations");
   }
   await page.goto("/deck?deck=bento");
-  await expect(pagesNav(page).getByRole("link", { name: "Consulting" })).toHaveAttribute("href", "/deck?deck=consulting&theme=light");
+  await expect(pagesNav(page).getByRole("link", { name: "Consulting" })).toHaveAttribute(
+    "href",
+    "/deck?deck=consulting&theme=light",
+  );
 });
 
 test.describe("deck sub-views in the 390px menu", () => {
@@ -376,7 +392,10 @@ test.describe("landmarks and skip link", () => {
       const skip = page.getByRole("link", { name: "Skip to content" });
       expect((await skip.boundingBox())!.y + (await skip.boundingBox())!.height).toBeLessThanOrEqual(0);
       const firstFocusable = await page.evaluate(
-        () => document.querySelector<HTMLElement>("a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex='-1'])")?.textContent,
+        () =>
+          document.querySelector<HTMLElement>(
+            "a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex='-1'])",
+          )?.textContent,
       );
       expect(firstFocusable).toBe("Skip to content");
       // WebKit's default Tab reaches text fields only, so there the link takes focus directly.
@@ -414,7 +433,9 @@ test("an unknown address says so and links to every page", async ({ page }) => {
 
 test("an unknown deck shows a visible note and the default deck", async ({ page }) => {
   await page.goto("/deck?deck=bogus");
-  await expect(page.getByRole("status").filter({ hasText: "not found" })).toHaveText("Deck “bogus” not found, showing Tech talk.");
+  await expect(page.getByRole("status").filter({ hasText: "not found" })).toHaveText(
+    "Deck “bogus” not found, showing Tech talk.",
+  );
   await expect(title(page)).toHaveText("Deck player · Tech talk");
   await page.goto("/deck?deck=bento");
   await expect(page.locator(".showcase-title__note")).toHaveCount(0);
@@ -427,7 +448,9 @@ test.describe("a #fragment link opens its target once the lazy page has rendered
     [1280, 800],
     [390, 844],
   ] as const) {
-    test(`${width}px: /web#web-pricing lands on the pricing section, focused, as the sample's own Pricing link does`, async ({ page }) => {
+    test(`${width}px: /web#web-pricing lands on the pricing section, focused, as the sample's own Pricing link does`, async ({
+      page,
+    }) => {
       await page.setViewportSize({ width, height });
       await page.goto("/web#web-pricing");
       const pricing = page.locator("#web-pricing");

@@ -9,8 +9,7 @@ export const objectScenes: {
   {
     id: "ai",
     title: "Agent session",
-    description:
-      "Code streams into a laptop while tool calls return a completed result.",
+    description: "Code streams into a laptop while tool calls return a completed result.",
   },
   {
     id: "contact",
@@ -20,31 +19,26 @@ export const objectScenes: {
   {
     id: "tennis",
     title: "Tennis practice",
-    description:
-      "Two players trade returns across the net in a continuous rally.",
+    description: "Two players trade returns across the net in a continuous rally.",
   },
   {
     id: "trading",
     title: "Trading journal",
-    description:
-      "A continuously panning candlestick chart with consistent OHLC prices and volume. Simulation; no live data.",
+    description: "A continuously panning candlestick chart with consistent OHLC prices and volume. Simulation; no live data.",
   },
   {
     id: "server",
     title: "Inference study",
-    description:
-      "An exploded hardware study assembles inside a chassis outline.",
+    description: "An exploded hardware study assembles inside a chassis outline.",
   },
   {
     id: "travel",
     title: "Local map",
-    description:
-      "A paper map opens and a route traces continuously to its destination.",
+    description: "A paper map opens and a route traces continuously to its destination.",
   },
   {
     id: "reading",
     title: "Open book",
-    description:
-      "Layered paper, a cloth spine and a thin page curling across an open book.",
+    description: "Layered paper, a cloth spine and a thin page curling across an open book.",
   },
 ];

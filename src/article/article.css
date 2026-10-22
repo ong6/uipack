@@ -37,14 +37,24 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) :is(.uipack-notecard, .uipack-cluster, .uipack-layerhead, .uipack-terms, .uipack-callout, .uipack-change, .uipack-links) {
+  :root:not([data-theme="light"])
+    :is(.uipack-notecard, .uipack-cluster, .uipack-layerhead, .uipack-terms, .uipack-callout, .uipack-change, .uipack-links) {
     --ua-fg: var(--uipack-fg, #e8ece9);
     --ua-raised: var(--uipack-surface-raised, #1b2a24);
     --ua-accent: var(--uipack-accent, #71dcb2);
   }
 }
-[data-theme="dark"] :is(.uipack-notecard, .uipack-cluster, .uipack-layerhead, .uipack-terms, .uipack-callout, .uipack-change, .uipack-links),
-:is(.uipack-notecard, .uipack-cluster, .uipack-layerhead, .uipack-terms, .uipack-callout, .uipack-change, .uipack-links)[data-theme="dark"] {
+[data-theme="dark"]
+  :is(.uipack-notecard, .uipack-cluster, .uipack-layerhead, .uipack-terms, .uipack-callout, .uipack-change, .uipack-links),
+:is(
+  .uipack-notecard,
+  .uipack-cluster,
+  .uipack-layerhead,
+  .uipack-terms,
+  .uipack-callout,
+  .uipack-change,
+  .uipack-links
+)[data-theme="dark"] {
   --ua-fg: var(--uipack-fg, #e8ece9);
   --ua-raised: var(--uipack-surface-raised, #1b2a24);
   --ua-accent: var(--uipack-accent, #71dcb2);
@@ -228,7 +238,9 @@ a.uipack-notecard.uipack-notecard:focus-visible .uipack-notecard__go {
   }
   a.uipack-notecard .uipack-notecard__title,
   a.uipack-notecard .uipack-notecard__go {
-    transition: color 160ms ease, transform 160ms ease;
+    transition:
+      color 160ms ease,
+      transform 160ms ease;
   }
   @media (hover: hover) {
     a.uipack-notecard.uipack-notecard:hover .uipack-notecard__go {
@@ -601,17 +613,22 @@ a.uipack-notecard.uipack-notecard:focus-visible .uipack-notecard__go {
 
 /* Rhythm: parts that follow each other read as one block, --ua-step apart,
    with the full --ua-gap above the first and below the last. */
-:is(.uipack-terms, .uipack-change, .uipack-callout, .uipack-links):has(+ :is(.uipack-terms, .uipack-change, .uipack-callout, .uipack-links)) {
+:is(.uipack-terms, .uipack-change, .uipack-callout, .uipack-links):has(
+  + :is(.uipack-terms, .uipack-change, .uipack-callout, .uipack-links)
+) {
   margin-bottom: 0;
 }
-:is(.uipack-terms, .uipack-change, .uipack-callout, .uipack-links) + :is(.uipack-terms, .uipack-change, .uipack-callout, .uipack-links) {
+:is(.uipack-terms, .uipack-change, .uipack-callout, .uipack-links)
+  + :is(.uipack-terms, .uipack-change, .uipack-callout, .uipack-links) {
   margin-top: var(--ua-step);
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .uipack-links .uipack-links__title,
   .uipack-layerhead .uipack-layerhead__map {
-    transition: color 160ms ease, text-decoration-color 160ms ease;
+    transition:
+      color 160ms ease,
+      text-decoration-color 160ms ease;
   }
 }
 

@@ -1,13 +1,5 @@
 import { CanvasView } from "../CanvasView";
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type CSSProperties,
-  type KeyboardEvent,
-  type ReactNode,
-} from "react";
+import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
 import { usePrefersReducedMotion } from "../env";
 import { clampStop, resolveNodePose, validateSlideStory } from "./model";
 import type { SceneRuntime } from "./renderer";
@@ -27,9 +19,7 @@ export interface SlideSceneProps {
   onSettled?: (stopId: string) => void;
 }
 function Diagram({ story, stop }: { story: SlideStory; stop: SlideStop }) {
-  const visible = story.nodes.filter(
-    (n) => n.kind !== "boundary" && resolveNodePose(n, stop).opacity > 0.25,
-  );
+  const visible = story.nodes.filter((n) => n.kind !== "boundary" && resolveNodePose(n, stop).opacity > 0.25);
   return (
     <div className="uipack-slide-diagram" data-testid="slide-diagram">
       <p className="uipack-slide-diagram__heading">Diagram view</p>
@@ -37,8 +27,7 @@ function Diagram({ story, stop }: { story: SlideStory; stop: SlideStop }) {
         {visible.map((n) => (
           <div key={n.id} data-tone={n.tone}>
             {/* Named by its visible text, label first (WCAG 2.5.3); the space keeps the words apart. */}
-            <strong>{n.label}</strong>{" "}
-            <span>{n.detail}</span>
+            <strong>{n.label}</strong> <span>{n.detail}</span>
           </div>
         ))}
       </div>
@@ -47,8 +36,7 @@ function Diagram({ story, stop }: { story: SlideStory; stop: SlideStop }) {
           .filter((c) => stop.activeConnections?.includes(c.id))
           .map((c) => (
             <li key={c.id}>
-              {story.nodes.find((n) => n.id === c.from)?.label}{" "}
-              <span aria-label="to">→</span>{" "}
+              {story.nodes.find((n) => n.id === c.from)?.label} <span aria-label="to">→</span>{" "}
               {story.nodes.find((n) => n.id === c.to)?.label}
             </li>
           ))}
@@ -75,9 +63,7 @@ function SceneViewport({
   const stop = story.stops.find((s) => s.id === stopId) ?? story.stops[0];
   const latest = useRef({ stop, reduced, paused, onSettled });
   latest.current = { stop, reduced, paused, onSettled };
-  const [status, setStatus] = useState<"loading" | "ready" | "fallback">(
-    "loading",
-  );
+  const [status, setStatus] = useState<"loading" | "ready" | "fallback">("loading");
   const [selected, setSelected] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
   const [settled, setSettled] = useState("");
@@ -168,11 +154,7 @@ function SceneViewport({
       data-motion={reduced ? "reduced" : "full"}
       aria-label={`${story.title}: ${stop.title}`}
     >
-      <div
-        className="uipack-slide-scene__webgl"
-        ref={host}
-        aria-hidden="true"
-      />
+      <div className="uipack-slide-scene__webgl" ref={host} aria-hidden="true" />
       <div ref={labels} className="uipack-slide-labels">
         {story.nodes.map((n) => (
           <button
@@ -186,26 +168,17 @@ function SceneViewport({
             style={{ visibility: "hidden" }}
           >
             {/* Named by its visible text, label first (WCAG 2.5.3); the space keeps the words apart. */}
-            <strong>{n.label}</strong>{" "}
-            <span>{n.detail}</span>
+            <strong>{n.label}</strong> <span>{n.detail}</span>
           </button>
         ))}
       </div>
       <div className="uipack-slide-inspect">
         <label>
           Inspect component{" "}
-          <select
-            aria-label="Inspect component"
-            value={selected ?? ""}
-            onChange={(e) => setSelected(e.target.value || null)}
-          >
+          <select aria-label="Inspect component" value={selected ?? ""} onChange={(e) => setSelected(e.target.value || null)}>
             <option value="">Choose a component</option>
             {story.nodes
-              .filter(
-                (n) =>
-                  n.kind !== "boundary" &&
-                  resolveNodePose(n, stop).opacity > 0.25,
-              )
+              .filter((n) => n.kind !== "boundary" && resolveNodePose(n, stop).opacity > 0.25)
               .map((n) => (
                 <option key={n.id} value={n.id}>
                   {n.label}
@@ -226,16 +199,12 @@ function SceneViewport({
       {status !== "ready" && <Diagram story={story} stop={stop} />}
       {status === "ready" && (
         <span className="uipack-slide-scene__badge">
-          Live 3D <span aria-hidden="true">·</span>{" "}
-          {reduced ? "Reduced motion" : "Authored camera"}
+          Live 3D <span aria-hidden="true">·</span> {reduced ? "Reduced motion" : "Authored camera"}
         </span>
       )}
       <div className="uipack-slide-sr">
         {story.nodes
-          .filter(
-            (n) =>
-              n.kind !== "boundary" && resolveNodePose(n, stop).opacity > 0.25,
-          )
+          .filter((n) => n.kind !== "boundary" && resolveNodePose(n, stop).opacity > 0.25)
           .map((n) => (
             <p key={n.id}>
               {n.label}: {n.detail}
@@ -271,20 +240,11 @@ export function SlideScene(props: SlideSceneProps) {
     >
       <div className="uipack-scene-card" data-theme={props.theme ?? "dark"}>
         {!canvas && (
-          <button
-            className="uipack-scene-card__open"
-            ref={opener}
-            type="button"
-            onClick={() => setCanvas(true)}
-          >
+          <button className="uipack-scene-card__open" ref={opener} type="button" onClick={() => setCanvas(true)}>
             Open canvas
           </button>
         )}
-        <SceneViewport
-          key={props.story.id}
-          {...props}
-          zoom={canvas ? zoom : props.zoom}
-        />
+        <SceneViewport key={props.story.id} {...props} zoom={canvas ? zoom : props.zoom} />
       </div>
     </CanvasView>
   );
@@ -339,13 +299,7 @@ function Player({
   };
   function keyboard(event: KeyboardEvent) {
     const target = event.target as HTMLElement;
-    if (
-      target.matches("input, textarea, select") ||
-      target.isContentEditable ||
-      event.altKey ||
-      event.ctrlKey ||
-      event.metaKey
-    )
+    if (target.matches("input, textarea, select") || target.isContentEditable || event.altKey || event.ctrlKey || event.metaKey)
       return;
     const to =
       event.key === "ArrowRight" || event.key === "PageDown"
@@ -410,11 +364,7 @@ function Player({
                 Open canvas
               </button>
             )}
-            <button
-              type="button"
-              onClick={() => setDiagram((v) => !v)}
-              aria-pressed={diagram}
-            >
+            <button type="button" onClick={() => setDiagram((v) => !v)} aria-pressed={diagram}>
               {diagram ? "3D view" : "Diagram view"}
             </button>
             <button
@@ -425,25 +375,15 @@ function Player({
             >
               {paused ? "Resume flow" : "Pause flow"}
             </button>
-            <button
-              type="button"
-              disabled={canvas}
-              onClick={() => setPresent((v) => !v)}
-              aria-pressed={present}
-            >
+            <button type="button" disabled={canvas} onClick={() => setPresent((v) => !v)} aria-pressed={present}>
               {present ? "Exit presentation" : "Present"}
             </button>
           </div>
         </div>
         <div className="uipack-slide-player__body">
-          <header
-            className="uipack-slide-player__copy"
-            aria-live="polite"
-            aria-atomic="true"
-          >
+          <header className="uipack-slide-player__copy" aria-live="polite" aria-atomic="true">
             <span className="uipack-slide-player__count">
-              {String(index + 1).padStart(2, "0")} /{" "}
-              {String(story.stops.length).padStart(2, "0")}
+              {String(index + 1).padStart(2, "0")} / {String(story.stops.length).padStart(2, "0")}
             </span>
             <h2 id={titleId}>{stop.title}</h2>
             <p>{stop.caption}</p>
@@ -464,16 +404,8 @@ function Player({
             onSettled={onSettled}
           />
         </div>
-        <nav
-          className="uipack-slide-player__navigation"
-          aria-label="Presentation stops"
-        >
-          <button
-            type="button"
-            aria-label="Previous stop"
-            disabled={index === 0}
-            onClick={() => navigate(index - 1)}
-          >
+        <nav className="uipack-slide-player__navigation" aria-label="Presentation stops">
+          <button type="button" aria-label="Previous stop" disabled={index === 0} onClick={() => navigate(index - 1)}>
             ← Previous
           </button>
           <div className="uipack-slide-player__stops">
@@ -502,8 +434,7 @@ function Player({
         <footer className="uipack-slide-player__footer">
           <span>{footer ?? "UIPACK / Spatial stories"}</span>
           <span>
-            ← → to navigate <span aria-hidden="true">·</span>{" "}
-            {reduced ? "Reduced motion" : "Click any stop to jump"}
+            ← → to navigate <span aria-hidden="true">·</span> {reduced ? "Reduced motion" : "Click any stop to jump"}
           </span>
         </footer>
         {stop.notes && (

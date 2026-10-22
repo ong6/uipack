@@ -32,10 +32,19 @@ const ITEMS: Item[] = [
 
 // [from, to, count]; the channel colours every band it feeds.
 const LINKS: [string, string, number][] = [
-  ["all", "chat", 55], ["all", "email", 30], ["all", "phone", 15],
-  ["chat", "bot", 20], ["chat", "first", 25], ["chat", "esc", 6], ["chat", "none", 4],
-  ["email", "first", 15], ["email", "esc", 8], ["email", "none", 7],
-  ["phone", "first", 10], ["phone", "esc", 4], ["phone", "none", 1],
+  ["all", "chat", 55],
+  ["all", "email", 30],
+  ["all", "phone", 15],
+  ["chat", "bot", 20],
+  ["chat", "first", 25],
+  ["chat", "esc", 6],
+  ["chat", "none", 4],
+  ["email", "first", 15],
+  ["email", "esc", 8],
+  ["email", "none", 7],
+  ["phone", "first", 10],
+  ["phone", "esc", 4],
+  ["phone", "none", 1],
 ];
 
 const KIND: Record<Channel, "request" | "change" | "response"> = { chat: "request", email: "change", phone: "response" };
@@ -114,7 +123,8 @@ function Bands({ s }: { s: Spec }) {
           d={b.d}
           fill={FILL[b.channel]}
           fillOpacity={0.3}
-          {...hoverAttrs([b.channel, b.to], KIND[b.channel], hover)}>
+          {...hoverAttrs([b.channel, b.to], KIND[b.channel], hover)}
+        >
           <title>{`${BY_ID[b.from].label} → ${BY_ID[b.to].label}: ${b.n}`}</title>
         </path>
       ))}
@@ -129,7 +139,12 @@ function Bands({ s }: { s: Spec }) {
             height={p.y1 - p.y0}
             rx={2}
             fill={FILL[n.tone]}
-            {...hoverAttrs(n.col === 1 ? n.id : n.col === 2 ? n.id : undefined, n.col === 1 ? KIND[n.id as Channel] : undefined, hover)}>
+            {...hoverAttrs(
+              n.col === 1 ? n.id : n.col === 2 ? n.id : undefined,
+              n.col === 1 ? KIND[n.id as Channel] : undefined,
+              hover,
+            )}
+          >
             <title>{`${n.label}: ${n.n}`}</title>
           </rect>
         );
@@ -139,12 +154,35 @@ function Bands({ s }: { s: Spec }) {
 }
 
 /** A name with its count after it (or under it with `stack`), never on a band. */
-function Tag({ x, y, name, n, anchor = "start", stack, size = 14 }: { x: number; y: number; name: string; n: number; anchor?: "start" | "end"; stack?: boolean; size?: number }) {
+function Tag({
+  x,
+  y,
+  name,
+  n,
+  anchor = "start",
+  stack,
+  size = 14,
+}: {
+  x: number;
+  y: number;
+  name: string;
+  n: number;
+  anchor?: "start" | "end";
+  stack?: boolean;
+  size?: number;
+}) {
   return (
     <text x={x} y={y} textAnchor={anchor} fontSize={size} fontWeight={600} fill="var(--uipack-fg)">
       {name}
       {stack ? (
-        <tspan x={x} dy={size + 4} fontFamily="var(--uipack-mono)" fontWeight={400} fontSize={size - 1} fill="var(--uipack-muted)">
+        <tspan
+          x={x}
+          dy={size + 4}
+          fontFamily="var(--uipack-mono)"
+          fontWeight={400}
+          fontSize={size - 1}
+          fill="var(--uipack-muted)"
+        >
           {n}
         </tspan>
       ) : (
@@ -226,7 +264,8 @@ export function FlowVolumesFigure({ number }: { number: string }) {
       viewBox="0 0 1120 464"
       narrow={<Narrow />}
       narrowViewBox="0 0 360 520"
-      alt="A Sankey diagram of 100 support tickets. 55 arrive by chat, 30 by email and 15 by phone. 20 are solved by the bot, all from chat; 50 are solved on the first reply (25 chat, 15 email, 10 phone); 18 are escalated (6 chat, 8 email, 4 phone); 12 have no reply yet (4 chat, 7 email, 1 phone).">
+      alt="A Sankey diagram of 100 support tickets. 55 arrive by chat, 30 by email and 15 by phone. 20 are solved by the bot, all from chat; 50 are solved on the first reply (25 chat, 15 email, 10 phone); 18 are escalated (6 chat, 8 email, 4 phone); 12 have no reply yet (4 chat, 7 email, 1 phone)."
+    >
       <Wide />
     </Figure>
   );

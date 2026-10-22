@@ -64,7 +64,11 @@ export function categories(assets: Asset[]): { name: string; count: number }[] {
 
 export function filterAssets(assets: Asset[], category: string, query: string): Asset[] {
   const q = query.trim().toLowerCase();
-  return assets.filter((a) => (category === ALL || a.category === category) && (!q || a.name.toLowerCase().includes(q) || a.id.includes(q) || (a.tags ?? []).some((t) => t.includes(q))));
+  return assets.filter(
+    (a) =>
+      (category === ALL || a.category === category) &&
+      (!q || a.name.toLowerCase().includes(q) || a.id.includes(q) || (a.tags ?? []).some((t) => t.includes(q))),
+  );
 }
 
 /** One themed preview; an animated one swaps to its still under reduced motion. */
@@ -84,7 +88,14 @@ function Preview({ src, still, scheme }: { src: string; still?: string; scheme: 
  * a search box, and a grid of cards with a themed preview tile, the name and
  * one action. At narrow widths the sidebar becomes a row of chips.
  */
-export function AssetBrowser({ manifest, initialCategory = ALL, onAction, actionLabel = "Copy", base, className }: AssetBrowserProps) {
+export function AssetBrowser({
+  manifest,
+  initialCategory = ALL,
+  onAction,
+  actionLabel = "Copy",
+  base,
+  className,
+}: AssetBrowserProps) {
   const [category, setCategory] = useState(initialCategory);
   const [query, setQuery] = useState("");
   const [flash, setFlash] = useState<string | null>(null);
@@ -110,7 +121,12 @@ export function AssetBrowser({ manifest, initialCategory = ALL, onAction, action
         <ul role="list" onFocus={keepFocusedInView}>
           {cats.map((c) => (
             <li key={c.name}>
-              <button type="button" className="uipack-browser__cat" aria-pressed={category === c.name} onClick={() => setCategory(c.name)}>
+              <button
+                type="button"
+                className="uipack-browser__cat"
+                aria-pressed={category === c.name}
+                onClick={() => setCategory(c.name)}
+              >
                 <span>{c.name}</span>
                 <span className="uipack-browser__count" aria-label={`${c.count} assets`}>
                   {c.count}
@@ -136,11 +152,23 @@ export function AssetBrowser({ manifest, initialCategory = ALL, onAction, action
             <li key={a.id} className="uipack-browser__card" data-kind={a.kind} data-id={a.id}>
               <div className="uipack-browser__tile">
                 <Preview src={`${prefix}${a.preview}`} still={a.previewStatic && `${prefix}${a.previewStatic}`} scheme="light" />
-                {a.previewDark ? <Preview src={`${prefix}${a.previewDark}`} still={a.previewStaticDark && `${prefix}${a.previewStaticDark}`} scheme="dark" /> : null}
+                {a.previewDark ? (
+                  <Preview
+                    src={`${prefix}${a.previewDark}`}
+                    still={a.previewStaticDark && `${prefix}${a.previewStaticDark}`}
+                    scheme="dark"
+                  />
+                ) : null}
               </div>
               <div className="uipack-browser__row">
                 <span className="uipack-browser__name">{a.name}</span>
-                <button type="button" className="uipack-browser__action" onClick={() => act(a)} aria-label={`${actionLabel} ${a.name}`} data-flash={flash === a.id ? "true" : undefined}>
+                <button
+                  type="button"
+                  className="uipack-browser__action"
+                  onClick={() => act(a)}
+                  aria-label={`${actionLabel} ${a.name}`}
+                  data-flash={flash === a.id ? "true" : undefined}
+                >
                   {flash === a.id ? "Copied" : actionLabel}
                 </button>
               </div>

@@ -78,9 +78,14 @@ describe("storyline templates", () => {
   const titleRules: LintRule[] = ["title-present", "title-claim", "title-length", "one-idea"];
 
   it("covers the six internal deck types with unique IDs", () => {
-    expect(STORYLINE_TEMPLATES.map((t) => t.id).sort()).toEqual(
-      ["decision-request", "deep-dive", "launch-demo", "postmortem", "project-update", "review-highlights"],
-    );
+    expect(STORYLINE_TEMPLATES.map((t) => t.id).sort()).toEqual([
+      "decision-request",
+      "deep-dive",
+      "launch-demo",
+      "postmortem",
+      "project-update",
+      "review-highlights",
+    ]);
     expect(getStorylineTemplate("postmortem").name).toMatch(/postmortem/i);
     expect(() => getStorylineTemplate("nope" as never)).toThrow();
   });
@@ -226,10 +231,7 @@ describe("lintDeck", () => {
   });
 
   it("one-idea", () => {
-    const hits = find(
-      lintDeck(withSlide(good, "context", { title: "Uploads resize inline. The queue fixes it." })),
-      "one-idea",
-    );
+    const hits = find(lintDeck(withSlide(good, "context", { title: "Uploads resize inline. The queue fixes it." })), "one-idea");
     expect(hits).toEqual([expect.objectContaining({ slideId: "context", severity: "tip" })]);
   });
 
@@ -312,8 +314,7 @@ describe("lintDeck", () => {
   });
 
   describe("ask-concrete", () => {
-    const ask = (title: string, notes = "Thanks.") =>
-      find(lintDeck(withSlide(good, "ask", { title, notes })), "ask-concrete");
+    const ask = (title: string, notes = "Thanks.") => find(lintDeck(withSlide(good, "ask", { title, notes })), "ask-concrete");
 
     it("lists what a vague ask is missing", () => {
       const [hit] = ask("Thoughts and questions welcome");
@@ -489,7 +490,7 @@ describe("lintDeck: claims that are easy to fake", () => {
       expect(find(lintDeck(deck), "closing-ask")[0].message).toMatch(/so the ask is missing/);
     });
 
-    it("reads a first-slide claim as the answer, \"Next steps\" as the plan and a dated request as the ask", () => {
+    it('reads a first-slide claim as the answer, "Next steps" as the plan and a dated request as the ask', () => {
       const deck: StorySlide[] = [
         { id: "a", title: "Search got twice as fast this quarter", notes: n("Source: latency dashboard.") },
         { id: "b", title: "Caching saved 140 of the 214 ms", notes: n("Source: latency dashboard.") },
@@ -561,11 +562,17 @@ describe("lintDeck: claims that are easy to fake", () => {
 
   describe("number-source needs a source a reader could open", () => {
     const check = (notes: string, source?: string) =>
-      find(lintDeck(withSlide(good, "context", { title: "Latency improved by 50% across the board", notes, source })), "number-source");
+      find(
+        lintDeck(withSlide(good, "context", { title: "Latency improved by 50% across the board", notes, source })),
+        "number-source",
+      );
 
-    it.each(["I measured this from my laptop once.", "Per my notes, from last week.", "According to the team."])("flags %s", (notes) => {
-      expect(check(notes)).toHaveLength(1);
-    });
+    it.each(["I measured this from my laptop once.", "Per my notes, from last week.", "According to the team."])(
+      "flags %s",
+      (notes) => {
+        expect(check(notes)).toHaveLength(1);
+      },
+    );
 
     it.each([
       "Source: search latency dashboard, p95 over 7 days.",
@@ -588,7 +595,10 @@ describe("lintDeck: claims that are easy to fake", () => {
 
   describe("a number word must quantify something, and a version isn't a quantity", () => {
     const check = (title: string, role: SlideRole = "evidence") =>
-      find(lintDeck(withSlide(good, "context", { title, role, notes: "Source: search latency dashboard, Q3." })), "title-specific");
+      find(
+        lintDeck(withSlide(good, "context", { title, role, notes: "Source: search latency dashboard, Q3." })),
+        "title-specific",
+      );
 
     it.each([
       "Two teams worked hard and things are better",
@@ -615,7 +625,10 @@ describe("lintDeck: claims that are easy to fake", () => {
 
   describe("a source is a named artifact, not hearsay", () => {
     const check = (notes: string, source?: string) =>
-      find(lintDeck(withSlide(good, "context", { title: "Errors dropped from 3% to 1% after the retry change", notes, source })), "number-source");
+      find(
+        lintDeck(withSlide(good, "context", { title: "Errors dropped from 3% to 1% after the retry change", notes, source })),
+        "number-source",
+      );
 
     it.each([
       "Per the test I ran once on staging, trust me.",
@@ -676,7 +689,15 @@ describe("lintDeck: claims that are easy to fake", () => {
     });
 
     it("skips optional beats, decks without a template, and untagged decks", () => {
-      expect(find(lintDeck(templateOutline("decision-request").filter((s) => s.role !== "risk"), { template: "decision-request" }), "template-beats")).toEqual([]);
+      expect(
+        find(
+          lintDeck(
+            templateOutline("decision-request").filter((s) => s.role !== "risk"),
+            { template: "decision-request" },
+          ),
+          "template-beats",
+        ),
+      ).toEqual([]);
       expect(find(lintDeck(good.filter((s) => s.id !== "options")), "template-beats")).toEqual([]);
       const bare = good.map(({ role: _role, ...rest }) => rest);
       expect(find(lintDeck(bare, { template: "decision-request" }), "template-beats")).toEqual([]);

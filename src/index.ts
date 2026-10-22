@@ -15,10 +15,59 @@ export { Defs, type DefsProps } from "./Defs";
 export { Token, tokenColor, TOKEN_SHAPE, type TokenKind, type TokenShape, type TokenProps } from "./tokens";
 export { icons, type IconName } from "./icons";
 export { marks, Wordmark, type MarkName } from "./marks";
-export { anchor, route, pathFromPoints, pointAlong, trim, polylineLength, grid, type Point, type Side, type Box } from "./geometry";
+export {
+  anchor,
+  route,
+  pathFromPoints,
+  pointAlong,
+  trim,
+  polylineLength,
+  grid,
+  type Point,
+  type Side,
+  type Box,
+} from "./geometry";
 export { useFigureHover, FigureHoverContext, hoverAttrs, flowList, type FigureHover, type Flow } from "./hover";
-export { useFontFloor, fontFloor, FigureScaleProvider, FigureScaleContext, DEFAULT_RENDER_WIDTH, type FigureScale } from "./scale";
+export {
+  useFontFloor,
+  fontFloor,
+  FigureScaleProvider,
+  FigureScaleContext,
+  DEFAULT_RENDER_WIDTH,
+  type FigureScale,
+} from "./scale";
 export { useFigureMotion, FigureMotionContext, type FigureMotion } from "./context";
 export { usePrefersReducedMotion } from "./env";
-export { DrillFigure, DrillNode, drillStatic, drillMotion, drillReducer, normalizeDrillPath, drillMove, drillFocusTarget, drillAnnouncement, drillBox, DRILL_GROW, type DrillFigureProps, type DrillNodeProps, type DrillStaticFigure, type DrillLevel, type DrillRenderContext, type DrillPath, type DrillAction, type DrillMove, type DrillFocus } from "./drill";
-export { zoomFrame, zoomSamples, innerClipStart, easeInOutCubic, smoothstep, type Rect as ZoomRect, type ZoomFrame, type ZoomSample, type ZoomSampleOptions } from "./zoom-math";
+export {
+  DrillFigure,
+  DrillNode,
+  drillStatic,
+  drillMotion,
+  drillReducer,
+  normalizeDrillPath,
+  drillMove,
+  drillFocusTarget,
+  drillAnnouncement,
+  drillBox,
+  DRILL_GROW,
+  type DrillFigureProps,
+  type DrillNodeProps,
+  type DrillStaticFigure,
+  type DrillLevel,
+  type DrillRenderContext,
+  type DrillPath,
+  type DrillAction,
+  type DrillMove,
+  type DrillFocus,
+} from "./drill";
+export {
+  zoomFrame,
+  zoomSamples,
+  innerClipStart,
+  easeInOutCubic,
+  smoothstep,
+  type Rect as ZoomRect,
+  type ZoomFrame,
+  type ZoomSample,
+  type ZoomSampleOptions,
+} from "./zoom-math";

@@ -42,7 +42,14 @@ const drawing = (
     <Defs id="ssr" />
     <Node x={16} y={16} w={120} h={40} label="A" />
     <Node x={200} y={16} w={120} h={40} label="B" />
-    <Connector points={[[136, 36], [200, 36]]} defs="ssr" kind="request" />
+    <Connector
+      points={[
+        [136, 36],
+        [200, 36],
+      ]}
+      defs="ssr"
+      kind="request"
+    />
   </>
 );
 
@@ -102,7 +109,12 @@ const entries: Record<string, () => ReactElement> = {
     </>
   ),
   "uipack/docs": () => (
-    <DocsLayout productTitle="Product" productHref="/" sections={[{ title: "Start", items: [{ title: "Docs", href: "/docs" }] }]} activeHref="/docs">
+    <DocsLayout
+      productTitle="Product"
+      productHref="/"
+      sections={[{ title: "Start", items: [{ title: "Docs", href: "/docs" }] }]}
+      activeHref="/docs"
+    >
       <DocsMarkdown source={"# Overview\n\nA paragraph.\n\n## First step\n\n- one\n- two\n"} />
     </DocsLayout>
   ),

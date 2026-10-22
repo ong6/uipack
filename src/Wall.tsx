@@ -40,8 +40,19 @@ export function Wall({ at, from, to, holes = [], axis = "v", thickness: t = 16, 
   return (
     <g data-uipack="wall" {...hoverAttrs(flow, undefined, hover)}>
       {wallSegments(from, to, holes, gap).map(([a, b]) => {
-        const r = axis === "v" ? { x: at - t / 2, y: a, width: t, height: b - a } : { x: a, y: at - t / 2, width: b - a, height: t };
-        return <rect key={a} {...r} rx={2} fill="var(--uipack-surface-raised)" stroke="currentColor" strokeOpacity={0.55} strokeWidth={1.25} />;
+        const r =
+          axis === "v" ? { x: at - t / 2, y: a, width: t, height: b - a } : { x: a, y: at - t / 2, width: b - a, height: t };
+        return (
+          <rect
+            key={a}
+            {...r}
+            rx={2}
+            fill="var(--uipack-surface-raised)"
+            stroke="currentColor"
+            strokeOpacity={0.55}
+            strokeWidth={1.25}
+          />
+        );
       })}
     </g>
   );

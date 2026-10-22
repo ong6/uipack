@@ -36,7 +36,9 @@ const inspect = (page: Page) =>
   });
 
 for (const theme of ["light", "dark"] as const) {
-  test(`consulting deck (${theme}): every slide fits, reads at 20px+, and steps through with no console errors`, async ({ page }) => {
+  test(`consulting deck (${theme}): every slide fits, reads at 20px+, and steps through with no console errors`, async ({
+    page,
+  }) => {
     const errors: string[] = [];
     page.on("console", (m) => m.type() === "error" && !m.text().includes("favicon") && errors.push(m.text()));
     page.on("pageerror", (e) => errors.push(e.message));
@@ -83,9 +85,18 @@ test("the KPI value morphs into the next slide's title", async ({ page }) => {
       a.currentTime = 380;
     });
     const layers = Array.from(document.querySelectorAll<HTMLElement>(".uipack-deck-layer"));
-    const value = layers.find((l) => l.dataset.slide === "situation")!.querySelector<HTMLElement>('.uipack-cx-title [data-morph="cost-per-order"]')!;
-    const tile = layers.find((l) => l.dataset.slide === "summary")!.querySelector<HTMLElement>('.uipack-cx-kpi [data-morph="cost-per-order"]')!;
-    return { layers: layers.length, value: value.textContent, tile: tile.textContent, moving: getComputedStyle(value).transform !== "none" };
+    const value = layers
+      .find((l) => l.dataset.slide === "situation")!
+      .querySelector<HTMLElement>('.uipack-cx-title [data-morph="cost-per-order"]')!;
+    const tile = layers
+      .find((l) => l.dataset.slide === "summary")!
+      .querySelector<HTMLElement>('.uipack-cx-kpi [data-morph="cost-per-order"]')!;
+    return {
+      layers: layers.length,
+      value: value.textContent,
+      tile: tile.textContent,
+      moving: getComputedStyle(value).transform !== "none",
+    };
   });
   expect(mid).toEqual({ layers: 2, value: "$8.40", tile: "$8.40", moving: true });
   await page.evaluate(() => document.getAnimations().forEach((a) => a.finish()));
@@ -130,7 +141,10 @@ test("reduced motion and thumbnails show charts fully drawn, with no growth", as
   await page.goto("/deck?deck=consulting&view=present&motion=none&slide=situation");
   await settled(page);
   const transforms = await page.evaluate(() =>
-    Array.from(document.querySelectorAll<SVGElement>(".uipack-deck-stage .uipack-cx-grow"), (el) => getComputedStyle(el).transform),
+    Array.from(
+      document.querySelectorAll<SVGElement>(".uipack-deck-stage .uipack-cx-grow"),
+      (el) => getComputedStyle(el).transform,
+    ),
   );
   expect(transforms.length).toBeGreaterThan(5);
   expect(transforms.every((t) => t === "none")).toBe(true);
@@ -155,7 +169,11 @@ for (const theme of ["light", "dark"] as const) {
     const appendix = dialog.locator(".uipack-deck-storyline > ol > li[data-appendix]");
     await expect(appendix).toHaveCount(1);
     const result = await appendix.evaluate((li) => {
-      const rgb = (c: string) => c.match(/[\d.]+/g)!.slice(0, 4).map(Number);
+      const rgb = (c: string) =>
+        c
+          .match(/[\d.]+/g)!
+          .slice(0, 4)
+          .map(Number);
       const lum = ([r, g, b]: number[]) => {
         const f = (v: number) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
         return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);

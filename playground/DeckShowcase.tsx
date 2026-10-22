@@ -31,9 +31,7 @@ const missingNote =
     askedView && !["print", "read", "present"].includes(askedView)
       ? `View “${askedView}” not found, showing the ${view === "read" ? "read" : "present"} view.`
       : null,
-    askedSlide && !example.slides.some((s) => s.id === askedSlide)
-      ? `Slide “${askedSlide}” not found, showing slide 1.`
-      : null,
+    askedSlide && !example.slides.some((s) => s.id === askedSlide) ? `Slide “${askedSlide}” not found, showing slide 1.` : null,
   ]
     .filter(Boolean)
     .join(" ") || null;
@@ -74,8 +72,16 @@ const keys = [
 
 const moves = [
   ["advance", "Default", "The outgoing slide steps aside; the incoming slide's blocks settle in, in reading order."],
-  ["morph", "Same thing, new place", "Elements wrapped in Morph with the same id on both slides travel and resize; the rest fades."],
-  ["{ zoom: id }", "Look inside", "The camera flies into the Morph element on the previous slide, which opens into this one. Back reverses it."],
+  [
+    "morph",
+    "Same thing, new place",
+    "Elements wrapped in Morph with the same id on both slides travel and resize; the rest fades.",
+  ],
+  [
+    "{ zoom: id }",
+    "Look inside",
+    "The camera flies into the Morph element on the previous slide, which opens into this one. Back reverses it.",
+  ],
   ["fade / none", "Jumps", "Overview jumps and Home/End crossfade. none cuts."],
 ];
 

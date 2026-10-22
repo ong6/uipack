@@ -10,7 +10,9 @@ async function open(page: Page, path: string) {
   await page.goto(path);
   await expect(page.locator(".showcase-title")).toBeVisible();
   // Lazy page chunks and fonts settle the layout being measured.
-  await expect(page.locator(".showcase-shell > :not(header):not(dialog):not(.showcase-context):not(.showcase-title)").first()).toBeVisible();
+  await expect(
+    page.locator(".showcase-shell > :not(header):not(dialog):not(.showcase-context):not(.showcase-title)").first(),
+  ).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
 }
 
@@ -23,14 +25,20 @@ function cardRows() {
   };
   const cardish = (el: Element) => {
     const s = getComputedStyle(el);
-    return (parseFloat(s.borderTopWidth) > 0 || s.backgroundColor !== "rgba(0, 0, 0, 0)") && el.getBoundingClientRect().height > 80;
+    return (
+      (parseFloat(s.borderTopWidth) > 0 || s.backgroundColor !== "rgba(0, 0, 0, 0)") && el.getBoundingClientRect().height > 80
+    );
   };
   const label = (el: Element) => `${el.tagName.toLowerCase()}.${[...el.classList].join(".")}`;
   const rows: { where: string; heights: number[]; actions: (number | null)[] }[] = [];
   for (const parent of document.querySelectorAll(".showcase-shell *")) {
     if (parent.closest("svg, .uipack-deck__canvas, .uipack-deck-stage")) continue;
     const s = getComputedStyle(parent);
-    if (!(s.display.includes("grid") || (s.display.includes("flex") && s.flexDirection.startsWith("row") && s.flexWrap === "wrap"))) continue;
+    if (!(
+      s.display.includes("grid") ||
+      (s.display.includes("flex") && s.flexDirection.startsWith("row") && s.flexWrap === "wrap")
+    ))
+      continue;
     const byTop = new Map<number, Element[]>();
     for (const kid of [...parent.children].filter(visible)) {
       const top = Math.round(kid.getBoundingClientRect().top);
@@ -54,9 +62,11 @@ function cardRows() {
 // Buttons, selects and inputs that sit side by side in one parent.
 function controlRows() {
   const out: { where: string; heights: number[] }[] = [];
-  const controls = [...document.querySelectorAll<HTMLElement>(".showcase-shell :is(button, select, input:not([type=radio], [type=checkbox], [type=hidden]))")].filter(
-    (c) => c.getClientRects().length && !c.closest("svg, .uipack-deck__canvas, .uipack-deck-stage, .uipack-web"),
-  );
+  const controls = [
+    ...document.querySelectorAll<HTMLElement>(
+      ".showcase-shell :is(button, select, input:not([type=radio], [type=checkbox], [type=hidden]))",
+    ),
+  ].filter((c) => c.getClientRects().length && !c.closest("svg, .uipack-deck__canvas, .uipack-deck-stage, .uipack-web"));
   const byParent = new Map<Element, HTMLElement[]>();
   for (const c of controls) byParent.set(c.parentElement!, [...(byParent.get(c.parentElement!) ?? []), c]);
   for (const [parent, list] of byParent) {
@@ -69,7 +79,10 @@ function controlRows() {
     }
     for (const row of rows.values()) {
       if (row.length < 2) continue;
-      out.push({ where: `${parent.tagName.toLowerCase()}.${[...parent.classList].join(".")}: ${row.map((c) => (c.textContent || c.getAttribute("aria-label") || "").trim().slice(0, 16)).join(" | ")}`, heights: row.map((c) => Math.round(c.getBoundingClientRect().height)) });
+      out.push({
+        where: `${parent.tagName.toLowerCase()}.${[...parent.classList].join(".")}: ${row.map((c) => (c.textContent || c.getAttribute("aria-label") || "").trim().slice(0, 16)).join(" | ")}`,
+        heights: row.map((c) => Math.round(c.getBoundingClientRect().height)),
+      });
     }
   }
   return out;
@@ -82,11 +95,18 @@ for (const width of [1440, 390]) {
       test(`${path}: card rows share a height and an action row; side-by-side controls share a height`, async ({ page }) => {
         await open(page, path);
         for (const row of await page.evaluate(cardRows)) {
-          expect(Math.max(...row.heights) - Math.min(...row.heights), `card heights in ${row.where}: ${row.heights}`).toBeLessThanOrEqual(1);
-          if (row.actions.every((a) => a !== null)) expect(new Set(row.actions).size, `action rows in ${row.where}: ${row.actions}`).toBe(1);
+          expect(
+            Math.max(...row.heights) - Math.min(...row.heights),
+            `card heights in ${row.where}: ${row.heights}`,
+          ).toBeLessThanOrEqual(1);
+          if (row.actions.every((a) => a !== null))
+            expect(new Set(row.actions).size, `action rows in ${row.where}: ${row.actions}`).toBe(1);
         }
         for (const row of await page.evaluate(controlRows)) {
-          expect(Math.max(...row.heights) - Math.min(...row.heights), `control heights in ${row.where}: ${row.heights}`).toBeLessThanOrEqual(1);
+          expect(
+            Math.max(...row.heights) - Math.min(...row.heights),
+            `control heights in ${row.where}: ${row.heights}`,
+          ).toBeLessThanOrEqual(1);
         }
       });
     }
@@ -95,13 +115,24 @@ for (const width of [1440, 390]) {
 
 // A focused control's ring (outline width + offset) must fit inside the nearest box that
 // scrolls or clips; scroll rows give their items room with padding, or the ring is inset.
-for (const [path, width] of [["/animations", 390], ["/assets", 390], ["/mechanism", 390], ["/mechanism", 1440], ["/web", 390], ["/", 390], ["/docs", 1440], ["/presentations", 1440]] as const) {
+for (const [path, width] of [
+  ["/animations", 390],
+  ["/assets", 390],
+  ["/mechanism", 390],
+  ["/mechanism", 1440],
+  ["/web", 390],
+  ["/", 390],
+  ["/docs", 1440],
+  ["/presentations", 1440],
+] as const) {
   test(`${path} at ${width}: focus rings are not clipped`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await open(page, path);
     await page.keyboard.press("Tab"); // keyboard modality, so :focus-visible applies to .focus()
     // The whole frame: the header's scrolling nav rows as well as the page in <main>.
-    const handles = await page.locator(".showcase-frame :is(a[href], button, [tabindex='0'], summary, [role=button]):visible").elementHandles();
+    const handles = await page
+      .locator(".showcase-frame :is(a[href], button, [tabindex='0'], summary, [role=button]):visible")
+      .elementHandles();
     const clipped: string[] = [];
     for (const handle of handles.slice(0, 80)) {
       const issue = await handle.evaluate((el: HTMLElement) => {
@@ -138,7 +169,9 @@ test("sections on the diagrams page are one shell gap apart", async ({ page }) =
   await open(page, "/");
   const gaps = await page.evaluate(() => {
     const sections = [...document.querySelectorAll("[data-section]")];
-    return sections.slice(1).map((s, i) => Math.round(s.getBoundingClientRect().top - sections[i].getBoundingClientRect().bottom));
+    return sections
+      .slice(1)
+      .map((s, i) => Math.round(s.getBoundingClientRect().top - sections[i].getBoundingClientRect().bottom));
   });
   expect(new Set(gaps)).toEqual(new Set([32]));
 });

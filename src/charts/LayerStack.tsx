@@ -145,7 +145,8 @@ export function buildLayerStack(props: LayerStackProps) {
   layers.forEach((layer, i) => {
     const last = runs[runs.length - 1];
     if (last?.zone.id === layer.zone) last.end = i;
-    else if (runs.some((g) => g.zone.id === layer.zone)) fail(id, `zone "${layer.zone}" must cover consecutive layers; "${layer.id}" is separated from the rest`);
+    else if (runs.some((g) => g.zone.id === layer.zone))
+      fail(id, `zone "${layer.zone}" must cover consecutive layers; "${layer.id}" is separated from the rest`);
     else runs.push({ zone: zoneById.get(layer.zone)!, start: i, end: i });
   });
 
@@ -213,7 +214,10 @@ export function buildLayerStack(props: LayerStackProps) {
         .filter(({ i }) => i >= g.start && i <= g.end)
         .reverse(),
       brackets: brackets
-        .map((b, k2) => ({ ...b, place: { wide: span(b.lo, b.hi, wide), compact: [compact.get(`bracket:${k2}`)!, 1] } as Placed }))
+        .map((b, k2) => ({
+          ...b,
+          place: { wide: span(b.lo, b.hi, wide), compact: [compact.get(`bracket:${k2}`)!, 1] } as Placed,
+        }))
         .filter((b) => b.hi >= g.start && b.hi <= g.end),
     };
   });
@@ -255,9 +259,7 @@ export function LayerStack(props: LayerStackProps) {
       <span className="uipack-stack__go" aria-hidden="true" />
     </>
   );
-  const arrow = (
-    <span className="uipack-stack__arrow" aria-hidden="true" />
-  );
+  const arrow = <span className="uipack-stack__arrow" aria-hidden="true" />;
   const keep = (text: string) => <CaseSafe text={text} keep="uipack-stack__keep" />;
 
   return (
@@ -283,10 +285,20 @@ export function LayerStack(props: LayerStackProps) {
         {model.zones.map((g) => {
           const headId = `${id}-z-${g.zone.id}`;
           return (
-            <div className="uipack-stack__zone" key={g.zone.id} role={plain ? "group" : undefined} aria-labelledby={plain ? headId : undefined}>
+            <div
+              className="uipack-stack__zone"
+              key={g.zone.id}
+              role={plain ? "group" : undefined}
+              aria-labelledby={plain ? headId : undefined}
+            >
               <span className="uipack-stack__box" aria-hidden="true" style={place(g.box)} />
               {g.brackets.map(({ bracket, lo, hi, place: p }) => (
-                <p className="uipack-stack__bracket" key={`${bracket.label}-${lo}`} data-inside={hi !== g.end ? "" : undefined} style={place(p)}>
+                <p
+                  className="uipack-stack__bracket"
+                  key={`${bracket.label}-${lo}`}
+                  data-inside={hi !== g.end ? "" : undefined}
+                  style={place(p)}
+                >
                   <span>{bracket.label}</span>
                   <span className="uipack-stack__sr">
                     {", "}
@@ -315,15 +327,19 @@ export function LayerStack(props: LayerStackProps) {
                     {layer.metric ? (
                       <span className="uipack-stack__metric">
                         {/* Spaces sit outside the visually hidden spans, so the visible words stay apart for label-in-name checks. */}
-                        <span className="uipack-stack__sr">.</span>{" "}
-                        <strong>{layer.metric.value}</strong> <span>{layer.metric.label}</span>
+                        <span className="uipack-stack__sr">.</span> <strong>{layer.metric.value}</strong>{" "}
+                        <span>{layer.metric.label}</span>
                       </span>
                     ) : null}
                   </>
                 );
                 const common = { id: `${id}-${layer.id}`, style: place(p) };
                 // One sentence for screen readers: flex items would otherwise be read with stray spaces.
-                const said = sentences(`${labels.layer} ${number} ${layer.label}`, layer.summary, layer.metric && `${layer.metric.value} ${layer.metric.label}`);
+                const said = sentences(
+                  `${labels.layer} ${number} ${layer.label}`,
+                  layer.summary,
+                  layer.metric && `${layer.metric.value} ${layer.metric.label}`,
+                );
                 if (layer.detail) {
                   return (
                     <details className="uipack-stack__band" key={layer.id} {...common}>
@@ -345,7 +361,13 @@ export function LayerStack(props: LayerStackProps) {
                   );
                 }
                 return layer.href ? (
-                  <a className="uipack-stack__band uipack-stack__face" href={layer.href} key={layer.id} aria-label={sentences(said, labels.go)} {...common}>
+                  <a
+                    className="uipack-stack__band uipack-stack__face"
+                    href={layer.href}
+                    key={layer.id}
+                    aria-label={sentences(said, labels.go)}
+                    {...common}
+                  >
                     {face}
                     {go}
                   </a>

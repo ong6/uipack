@@ -262,7 +262,8 @@ export const deckExample: DeckSlide[] = [
           ))}
         </ol>
         <p className="deck-demo-pilot__done">
-          <span className="uipack-deck-label">Done when</span> the pilots' median is under 10 days to a decision, against 19 today.
+          <span className="uipack-deck-label">Done when</span> the pilots' median is under 10 days to a decision, against 19
+          today.
         </p>
       </Slide>
     ),
@@ -284,7 +285,9 @@ export const deckExample: DeckSlide[] = [
           Team leads: send me your next review's titles, answer first, by 6{" "}November.
         </h2>
         <p className="uipack-deck-lede deck-demo-lede">I'll send back the three titles I'd rewrite within two working days.</p>
-        <p className="uipack-deck-label deck-demo-keys">← → or swipe · G for all slides and the Storyline · S for the speaker view · F for full screen</p>
+        <p className="uipack-deck-label deck-demo-keys">
+          ← → or swipe · G for all slides and the Storyline · S for the speaker view · F for full screen
+        </p>
       </Slide>
     ),
     notes: {

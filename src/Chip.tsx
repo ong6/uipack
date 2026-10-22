@@ -20,32 +20,13 @@ export interface ChipProps {
 }
 
 /** Pill: a connection slot, a request in a queue, a status flag. */
-export function Chip({
-  x,
-  y,
-  w,
-  h = 24,
-  label,
-  dashed,
-  kind,
-  flow,
-  size: size0 = 10,
-  hint,
-}: ChipProps) {
+export function Chip({ x, y, w, h = 24, label, dashed, kind, flow, size: size0 = 10, hint }: ChipProps) {
   const hover = useFigureHover();
   const size = useFontFloor(size0);
-  const fill = !kind
-    ? "var(--uipack-surface)"
-    : kind === "accent"
-      ? "var(--uipack-accent)"
-      : `var(--uipack-token-${kind})`;
+  const fill = !kind ? "var(--uipack-surface)" : kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
   const selection = useItemSelection(label || "Empty slot", hint);
   return (
-    <g
-      data-uipack="chip"
-      {...hoverAttrs(flow, kind === "accent" ? undefined : kind, hover)}
-      {...selection}
-    >
+    <g data-uipack="chip" {...hoverAttrs(flow, kind === "accent" ? undefined : kind, hover)} {...selection}>
       <rect
         x={x}
         y={y}

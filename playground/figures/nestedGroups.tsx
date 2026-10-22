@@ -30,31 +30,89 @@ const tables = { x: 872, y: 272, w: 168, h: 48 };
 
 function Wide() {
   const id = "nested";
-  const hop = (a: Box, b: Box): Point[] => [[a.x + a.w, CY], [b.x, CY]];
+  const hop = (a: Box, b: Box): Point[] => [
+    [a.x + a.w, CY],
+    [b.x, CY],
+  ];
   const inLb = hop(clients, lb);
   const inApi = hop(lb, api);
   const job = hop(api, worker);
   const query = hop(worker, policy);
-  const read: Point[] = [[policy.x + policy.w / 2, policy.y + policy.h], [policy.x + policy.w / 2, tables.y]];
+  const read: Point[] = [
+    [policy.x + policy.w / 2, policy.y + policy.h],
+    [policy.x + policy.w / 2, tables.y],
+  ];
   return (
     <>
       <Defs id={id} />
-      <Node {...clients} label="Clients" icon="client" flow="request" hint="Outside every boundary: they only see the load balancer" />
+      <Node
+        {...clients}
+        label="Clients"
+        icon="client"
+        flow="request"
+        hint="Outside every boundary: they only see the load balancer"
+      />
 
-      <Group x={200} y={24} w={896} h={376} title="Region" variant="dashed" hint="A boundary: everything inside fails over together">
+      <Group
+        x={200}
+        y={24}
+        w={896}
+        h={376}
+        title="Region"
+        variant="dashed"
+        hint="A boundary: everything inside fails over together"
+      >
         <Node {...lb} label="Load balancer" size={13} icon="gateway" flow="request" hint="The only way into the region" />
 
         <Group x={392} y={80} w={408} h={288} title="Cluster" hint="A unit you deploy and upgrade as one">
-          <Group x={408} y={128} w={376} h={208} title="Namespace · app" variant="dashed" hint="A boundary inside the cluster: its own quotas and access">
-            <Replicas box={api} label="API" sub="3 replicas" icon="service" flow={["request", "job"]} hint="Three identical copies behind the load balancer" />
-            <Replicas box={worker} label="Worker" sub="3 replicas" icon="tool" flow={["job", "query"]} hint="Picks up jobs; any copy can take any job" />
+          <Group
+            x={408}
+            y={128}
+            w={376}
+            h={208}
+            title="Namespace · app"
+            variant="dashed"
+            hint="A boundary inside the cluster: its own quotas and access"
+          >
+            <Replicas
+              box={api}
+              label="API"
+              sub="3 replicas"
+              icon="service"
+              flow={["request", "job"]}
+              hint="Three identical copies behind the load balancer"
+            />
+            <Replicas
+              box={worker}
+              label="Worker"
+              sub="3 replicas"
+              icon="tool"
+              flow={["job", "query"]}
+              hint="Picks up jobs; any copy can take any job"
+            />
             <Label x={424} y={312} text="dashed outlines behind a node: more copies of it" size={11} />
           </Group>
         </Group>
 
         <Group x={840} y={80} w={232} h={288} title="Database" hint="A unit you own: backups, upgrades and access are its own">
-          <Group x={856} y={128} w={200} h={216} title="Tenant schema" titleSize={13} hint="One schema per tenant, inside the database">
-            <Node {...policy} label="Row policy" sub="tenant = caller" icon="lock" accent flow="query" hint="Every query passes it; a tenant only ever sees its own rows" />
+          <Group
+            x={856}
+            y={128}
+            w={200}
+            h={216}
+            title="Tenant schema"
+            titleSize={13}
+            hint="One schema per tenant, inside the database"
+          >
+            <Node
+              {...policy}
+              label="Row policy"
+              sub="tenant = caller"
+              icon="lock"
+              accent
+              flow="query"
+              hint="Every query passes it; a tenant only ever sees its own rows"
+            />
             <Node {...tables} label="Tables" sub="orders · users" icon="db" size={13} flow="query" />
           </Group>
         </Group>
@@ -89,7 +147,10 @@ function Narrow() {
   const workerN = { ...n(376), w: NW - 16 };
   const policyN = n(584);
   const tablesN = n(656, 44);
-  const down = (a: Box, b: Box, x = SPINE): Point[] => [[x, a.y + a.h], [x, b.y]];
+  const down = (a: Box, b: Box, x = SPINE): Point[] => [
+    [x, a.y + a.h],
+    [x, b.y],
+  ];
   return (
     <>
       <Defs id={id} />
@@ -134,7 +195,8 @@ export function NestedGroupsFigure({ number }: { number: string }) {
       viewBox="0 0 1120 424"
       narrow={<Narrow />}
       narrowViewBox="0 0 360 752"
-      alt="Clients reach a load balancer inside a region. The region holds a cluster, which holds an app namespace with three API replicas and three worker replicas, and a database, which holds a tenant schema with a row policy in front of its tables. Every worker query passes the row policy.">
+      alt="Clients reach a load balancer inside a region. The region holds a cluster, which holds an app namespace with three API replicas and three worker replicas, and a database, which holds a tenant schema with a row policy in front of its tables. Every worker query passes the row policy."
+    >
       <Wide />
     </Figure>
   );

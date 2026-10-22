@@ -34,10 +34,7 @@ export interface DocsLayoutProps {
   children: ReactNode;
 }
 
-function SectionNavigation({
-  sections,
-  activeHref,
-}: Pick<DocsLayoutProps, "sections" | "activeHref">) {
+function SectionNavigation({ sections, activeHref }: Pick<DocsLayoutProps, "sections" | "activeHref">) {
   return (
     <nav className="uipack-docs__navigation" aria-label="Documentation">
       {sections.map((section) => (
@@ -46,10 +43,7 @@ function SectionNavigation({
           <ul>
             {section.items.map((item) => (
               <li key={item.href}>
-                <a
-                  href={item.href}
-                  aria-current={item.href === activeHref ? "page" : undefined}
-                >
+                <a href={item.href} aria-current={item.href === activeHref ? "page" : undefined}>
                   {item.title}
                 </a>
               </li>
@@ -72,17 +66,13 @@ function useCurrentSection(ids: string[]) {
   const [current, setCurrent] = useState<string | null>(null);
   const key = ids.join(" ");
   useEffect(() => {
-    const headings = ids
-      .map((id) => document.getElementById(id))
-      .filter((element): element is HTMLElement => element !== null);
+    const headings = ids.map((id) => document.getElementById(id)).filter((element): element is HTMLElement => element !== null);
     if (headings.length === 0) return;
     let frame = 0;
     const update = () => {
       frame = 0;
       const line = window.innerHeight * 0.3;
-      const atEnd =
-        window.innerHeight + window.scrollY >=
-        document.documentElement.scrollHeight - 2;
+      const atEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
       let next: string | null = null;
       for (const heading of headings) {
         const top = heading.getBoundingClientRect().top;
@@ -121,9 +111,7 @@ export function DocsLayout({
 }: DocsLayoutProps) {
   const mobileNavigationId = useId();
   const currentSection = useCurrentSection(onThisPage.map((item) => item.id));
-  const current = sections
-    .flatMap((section) => section.items)
-    .find((item) => item.href === activeHref);
+  const current = sections.flatMap((section) => section.items).find((item) => item.href === activeHref);
 
   return (
     <div className="uipack-docs" data-theme={theme} data-palette={palette}>
@@ -151,12 +139,7 @@ export function DocsLayout({
         <summary aria-controls={mobileNavigationId}>
           <span>Documentation</span>
           {current && <small>{current.title}</small>}
-          <svg
-            className="uipack-docs__chevron"
-            viewBox="0 0 16 16"
-            aria-hidden="true"
-            focusable="false"
-          >
+          <svg className="uipack-docs__chevron" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
             <path d="M4 6l4 4 4-4" />
           </svg>
         </summary>
@@ -170,19 +153,11 @@ export function DocsLayout({
           <SectionNavigation sections={sections} activeHref={activeHref} />
         </aside>
 
-        <section
-          className="uipack-docs__article"
-          id="docs-content"
-          aria-label="Documentation content"
-          tabIndex={-1}
-        >
+        <section className="uipack-docs__article" id="docs-content" aria-label="Documentation content" tabIndex={-1}>
           {children}
 
           {(previous || next) && (
-            <nav
-              className="uipack-docs__pagination"
-              aria-label="Previous and next documentation pages"
-            >
+            <nav className="uipack-docs__pagination" aria-label="Previous and next documentation pages">
               {previous && (
                 <a href={previous.href} rel="prev">
                   <small>Previous</small>
@@ -205,10 +180,7 @@ export function DocsLayout({
             <ol>
               {onThisPage.map((item) => (
                 <li key={item.id} data-level={item.level}>
-                  <a
-                    href={`#${item.id}`}
-                    aria-current={item.id === currentSection ? "location" : undefined}
-                  >
+                  <a href={`#${item.id}`} aria-current={item.id === currentSection ? "location" : undefined}>
                     {item.title}
                   </a>
                 </li>

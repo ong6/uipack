@@ -1,5 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { objectDirectionIndex, normalizeObjectVariant, chooseObjectVariant, objectDirections, objectEditions, objectVariants, directionSymbols, type ObjectEdition, type ObjectVariant } from "./variants";
+import {
+  objectDirectionIndex,
+  normalizeObjectVariant,
+  chooseObjectVariant,
+  objectDirections,
+  objectEditions,
+  objectVariants,
+  directionSymbols,
+  type ObjectEdition,
+  type ObjectVariant,
+} from "./variants";
 import { CanvasView } from "../CanvasView";
 import { usePrefersReducedMotion } from "../env";
 import type { ObjectKind, ObjectPalette } from "./scenes";
@@ -51,10 +61,7 @@ const Fallback = ({ kind, label }: { kind: ObjectKind; label: string }) => {
       <>
         <rect x="83" y="36" width="194" height="126" rx="8" />
         <path d="M83 162l-25 25h244l-25-25" />
-        <path
-          className="soft"
-          d="M104 62h88m-88 22h143m-126 22h92m-109 22h120"
-        />
+        <path className="soft" d="M104 62h88m-88 22h143m-126 22h92m-109 22h120" />
         <rect x="20" y="56" width="42" height="48" rx="5" />
         <path d="M32 72l-6 8 6 8m16-16l6 8-6 8M62 102l32 43" />
         <rect x="298" y="56" width="42" height="48" rx="5" />
@@ -66,10 +73,7 @@ const Fallback = ({ kind, label }: { kind: ObjectKind; label: string }) => {
         <rect x="28" y="28" width="76" height="42" rx="6" />
         <rect x="28" y="86" width="76" height="42" rx="6" />
         <rect x="28" y="144" width="76" height="42" rx="6" />
-        <path
-          className="soft"
-          d="M104 49c62 0 76 50 126 58M104 107h126M104 165c62 0 76-50 126-58"
-        />
+        <path className="soft" d="M104 49c62 0 76 50 126 58M104 107h126M104 165c62 0 76-50 126-58" />
         <circle cx="142" cy="58" r="6" fill="currentColor" />
         <path d="M48 42l18 13 18-13M48 42v17h36V42M49 101h34v17H61l-8 7 2-7h-6z" />
         <circle cx="66" cy="165" r="12" />
@@ -85,9 +89,11 @@ const Fallback = ({ kind, label }: { kind: ObjectKind; label: string }) => {
       <>
         <path className="soft" d="M45 187l55-162h160l55 162zM69 113h222M86 64h187M180 64v94M62 158h238" />
         <path d="M70 106h220m-220 0v23m220-23v23" />
-        <circle cx="151" cy="125" r="8" /><path d="M140 137h22l5 25h-30zM142 163l-8 19m23-19l10 19M160 141l17 9 12-9" />
+        <circle cx="151" cy="125" r="8" />
+        <path d="M140 137h22l5 25h-30zM142 163l-8 19m23-19l10 19M160 141l17 9 12-9" />
         <ellipse cx="199" cy="133" rx="10" ry="14" transform="rotate(40 199 133)" />
-        <circle cx="213" cy="42" r="7" /><path d="M202 53h21l4 23h-29zM202 77l-9 17m27-17l8 17M202 57l-18 9-10-8" />
+        <circle cx="213" cy="42" r="7" />
+        <path d="M202 53h21l4 23h-29zM202 77l-9 17m27-17l8 17M202 57l-18 9-10-8" />
         <ellipse cx="165" cy="50" rx="8" ry="12" transform="rotate(-40 165 50)" />
         <circle cx="190" cy="90" r="5" />
       </>
@@ -98,8 +104,14 @@ const Fallback = ({ kind, label }: { kind: ObjectKind; label: string }) => {
         <path d="M161 176v18h38v-18m-60 22h82" />
         <path className="soft" d="M43 70h268M43 100h268M43 130h268M43 151h268" />
         {/* Candles stay inside the plot (y 44–140); the caption is HTML below. */}
-        <path stroke="#269764" d="M62 98V131M55 108h14v16h-14zM109 89V130M102 102h14v20h-14zM170 86V108M163 95h14v22h-14zM218 80V102M211 86h14v11h-14zM55 163v-8h14v8m33 0v-11h14v11m54 0v-14h14v14m41 0v-18h14v18" />
-        <path stroke="#d85b65" d="M85 109V140M78 116h14v16h-14zM135 93V125M128 102h14v15h-14zM193 70V100M186 79h14v13h-14zM243 44V78M236 54h14v16h-14zM78 163v-6h14v6m36 0v-9h14v9m51 0v-11h14v11m43 0v-8h14v8" />
+        <path
+          stroke="#269764"
+          d="M62 98V131M55 108h14v16h-14zM109 89V130M102 102h14v20h-14zM170 86V108M163 95h14v22h-14zM218 80V102M211 86h14v11h-14zM55 163v-8h14v8m33 0v-11h14v11m54 0v-14h14v14m41 0v-18h14v18"
+        />
+        <path
+          stroke="#d85b65"
+          d="M85 109V140M78 116h14v16h-14zM135 93V125M128 102h14v15h-14zM193 70V100M186 79h14v13h-14zM243 44V78M236 54h14v16h-14zM78 163v-6h14v6m36 0v-9h14v9m51 0v-11h14v11m43 0v-8h14v8"
+        />
       </>
     ),
     server: (
@@ -123,10 +135,7 @@ const Fallback = ({ kind, label }: { kind: ObjectKind; label: string }) => {
     reading: (
       <>
         <path d="M34 52c54-20 102-16 146 8v132c-44-24-92-28-146-8zM326 52c-54-20-102-16-146 8v132c44-24 92-28 146-8z" />
-        <path
-          className="soft"
-          d="M58 84h88m-88 24h96m-96 24h78m166-48h-88m88 24h-96m96 24h-78"
-        />
+        <path className="soft" d="M58 84h88m-88 24h96m-96 24h78m166-48h-88m88 24h-96m96 24h-78" />
         <path d="M180 60v132" />
       </>
     ),
@@ -136,11 +145,7 @@ const Fallback = ({ kind, label }: { kind: ObjectKind; label: string }) => {
     trading: "DEMO / USD · SIMULATED",
   };
   return (
-    <div
-      className={styles.fallback}
-      role="img"
-      aria-label={`${label} illustration`}
-    >
+    <div className={styles.fallback} role="img" aria-label={`${label} illustration`}>
       <svg
         className={styles.fallbackSvg}
         viewBox="0 0 360 214"
@@ -211,8 +216,7 @@ function ObjectStage({
 
   useEffect(() => {
     activeRef.current = active;
-    if (active && !pausedRef.current && !reducedRef.current)
-      drawRef.current?.();
+    if (active && !pausedRef.current && !reducedRef.current) drawRef.current?.();
   }, [active]);
 
   useEffect(() => {
@@ -259,21 +263,29 @@ function ObjectStage({
           scene = new THREE.Scene();
           const room = new RoomEnvironment();
           const pmrem = new THREE.PMREMGenerator(renderer);
-          environment = pmrem.fromScene(room, .04);
+          environment = pmrem.fromScene(room, 0.04);
           scene.environment = environment.texture;
-          scene.environmentIntensity = variant === 5 ? .85 : .35;
-          room.dispose(); pmrem.dispose();
+          scene.environmentIntensity = variant === 5 ? 0.85 : 0.35;
+          room.dispose();
+          pmrem.dispose();
           const camera = new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 100);
-          camera.position.set(0, variant === 4 && kind !== "contact" ? -.15 : 0, 10);
+          camera.position.set(0, variant === 4 && kind !== "contact" ? -0.15 : 0, 10);
           const colors = palette ?? objectPalettes[colorMode];
           const object = await createObject(kind, colors, variant === "random" ? 0 : variant, edition, modelUrl);
-          if (disposed || contextLost) { disposeObject(object); return; }
+          if (disposed || contextLost) {
+            disposeObject(object);
+            return;
+          }
           canvas.dataset.source = object.userData.source ?? "procedural";
           canvas.dataset.artDirection = object.userData.style;
           const shadows = kind === "tennis" || (variant !== 0 && variant !== 5);
-          if (variant !== 0 && variant !== 5) object.traverse(item => {
-            if (item instanceof THREE.Mesh) { item.castShadow = true; item.receiveShadow = true; }
-          });
+          if (variant !== 0 && variant !== 5)
+            object.traverse((item) => {
+              if (item instanceof THREE.Mesh) {
+                item.castShadow = true;
+                item.receiveShadow = true;
+              }
+            });
           if (shadows) {
             renderer.shadowMap.enabled = true;
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -299,26 +311,18 @@ function ObjectStage({
           let elapsed = 0;
           let lastTickAt: number | undefined;
           let lastPaintAt = -Infinity;
-          const frameInterval = window.matchMedia("(max-width: 767px)").matches
-            ? MOBILE_FRAME_MS
-            : 0;
+          const frameInterval = window.matchMedia("(max-width: 767px)").matches ? MOBILE_FRAME_MS : 0;
           const paint = (sceneTime: number, time: number) => {
             object.userData.animate?.(sceneTime);
             renderer!.render(scene!, camera);
             canvas.dataset.drawCalls = String(renderer!.info.render.calls);
             canvas.dataset.triangles = String(renderer!.info.render.triangles);
-            lastPaintAt = frameInterval
-              ? time -
-                (Number.isFinite(lastPaintAt)
-                  ? (time - lastPaintAt) % frameInterval
-                  : 0)
-              : time;
+            lastPaintAt = frameInterval ? time - (Number.isFinite(lastPaintAt) ? (time - lastPaintAt) % frameInterval : 0) : time;
             frames += 1;
             canvas.dataset.frames = String(frames);
             canvas.dataset.phase = reducedRef.current ? "rest" : object.userData.phase;
             canvas.dataset.pose = object.userData.pose.toFixed(3);
-            if (hostRef.current)
-              hostRef.current.dataset.phase = reducedRef.current ? "rest" : object.userData.phase;
+            if (hostRef.current) hostRef.current.dataset.phase = reducedRef.current ? "rest" : object.userData.phase;
           };
           settleRef.current = () => {
             paint(restTime, performance.now());
@@ -330,38 +334,23 @@ function ObjectStage({
               lastTickAt = undefined;
               return;
             }
-            if (lastTickAt !== undefined)
-              elapsed += Math.min(time - lastTickAt, 50);
+            if (lastTickAt !== undefined) elapsed += Math.min(time - lastTickAt, 50);
             lastTickAt = time;
-            const completing =
-              !loopDuration &&
-              !reducedRef.current &&
-              elapsed >= REST_START_MS &&
-              !completedRef.current;
-            const shouldPaint =
-              completing || time - lastPaintAt >= frameInterval;
+            const completing = !loopDuration && !reducedRef.current && elapsed >= REST_START_MS && !completedRef.current;
+            const shouldPaint = completing || time - lastPaintAt >= frameInterval;
             if (shouldPaint) {
-              paint(
-                reducedRef.current ? restTime : completing ? REST_START_MS : elapsed,
-                time,
-              );
+              paint(reducedRef.current ? restTime : completing ? REST_START_MS : elapsed, time);
             }
             if (completing) {
               completedRef.current = true;
               setCompleted(true);
             }
-            if (
-              activeRef.current &&
-              !pausedRef.current &&
-              !reducedRef.current &&
-              !completedRef.current
-            ) {
+            if (activeRef.current && !pausedRef.current && !reducedRef.current && !completedRef.current) {
               frameRef.current = requestAnimationFrame(render);
             }
           };
           drawRef.current = () => {
-            if (!frameRef.current && !disposed)
-              frameRef.current = requestAnimationFrame(render);
+            if (!frameRef.current && !disposed) frameRef.current = requestAnimationFrame(render);
           };
           resumeRef.current = () => {
             lastTickAt = undefined;
@@ -385,9 +374,14 @@ function ObjectStage({
             // An object may declare a tighter fit for narrow canvases, where the
             // shared framing leaves a compact model small in a square stage.
             const narrow = width < NARROW_STAGE_PX ? (object.userData.narrowFrame as ObjectFrame | undefined) : undefined;
-            const halfWidth = narrow?.halfWidth ?? (variant === 4 && kind !== "contact" ? 2.15 : kind === "server" && variant === 0 ? 3.25 : 2.65);
-            const halfHeight = Math.max(narrow?.halfHeight ?? (variant === 4 && kind !== "contact" ? 1.75 : 2.2), halfWidth / aspect);
-            camera.position.y = narrow?.y ?? (variant === 4 && kind !== "contact" ? -.15 : 0);
+            const halfWidth =
+              narrow?.halfWidth ??
+              (variant === 4 && kind !== "contact" ? 2.15 : kind === "server" && variant === 0 ? 3.25 : 2.65);
+            const halfHeight = Math.max(
+              narrow?.halfHeight ?? (variant === 4 && kind !== "contact" ? 1.75 : 2.2),
+              halfWidth / aspect,
+            );
+            camera.position.y = narrow?.y ?? (variant === 4 && kind !== "contact" ? -0.15 : 0);
             camera.left = -halfHeight * aspect;
             camera.right = halfHeight * aspect;
             camera.top = halfHeight;
@@ -427,13 +421,7 @@ function ObjectStage({
       });
 
     const visibility = () => {
-      if (
-        !document.hidden &&
-        !pausedRef.current &&
-        !completedRef.current &&
-        !reducedRef.current
-      )
-        resumeRef.current?.();
+      if (!document.hidden && !pausedRef.current && !completedRef.current && !reducedRef.current) resumeRef.current?.();
     };
     document.addEventListener("visibilitychange", visibility);
     return () => {
@@ -452,11 +440,7 @@ function ObjectStage({
           (item as import("three").DirectionalLight).shadow?.dispose();
           const drawable = item as import("three").Mesh;
           drawable.geometry?.dispose();
-          const materials = Array.isArray(drawable.material)
-            ? drawable.material
-            : drawable.material
-              ? [drawable.material]
-              : [];
+          const materials = Array.isArray(drawable.material) ? drawable.material : drawable.material ? [drawable.material] : [];
           materials.forEach((entry) => {
             (entry as import("three").MeshStandardMaterial).map?.dispose();
             entry.dispose();
@@ -498,14 +482,7 @@ function ObjectStage({
       data-variant-label={objectVariants[kind][variant === "random" ? 0 : variant]}
     >
       <Fallback kind={kind} label={label} />
-      {active && (
-        <canvas
-          ref={canvasRef}
-          className={styles.canvas}
-          data-ready={ready ? "true" : "false"}
-          aria-hidden="true"
-        />
-      )}
+      {active && <canvas ref={canvasRef} className={styles.canvas} data-ready={ready ? "true" : "false"} aria-hidden="true" />}
 
       {ready && !reduced && (
         <button
@@ -513,13 +490,7 @@ function ObjectStage({
           className={styles.pause}
           onClick={completed ? replay : togglePaused}
           aria-pressed={completed ? undefined : paused}
-          aria-label={
-            completed
-              ? "Replay motion"
-              : paused
-                ? "Resume motion"
-                : "Pause motion"
-          }
+          aria-label={completed ? "Replay motion" : paused ? "Resume motion" : "Pause motion"}
         >
           {controls === "playback"
             ? completed
@@ -551,24 +522,30 @@ export function ObjectScene(props: ObjectSceneProps) {
   }, []);
   const canVary = props.variant === undefined || props.variant === "random";
   const controls = props.controls ?? "full";
-  const chosenVariant = canVary ? randomVariant : props.variant as ObjectVariant;
+  const chosenVariant = canVary ? randomVariant : (props.variant as ObjectVariant);
   const variant = chosenVariant === null ? null : normalizeObjectVariant(props.kind, chosenVariant);
-  const anotherLook = () => setRandomVariant((current) => ((current ?? 0) + 1) % (props.kind === "contact" ? 5 : objectDirections.length) as ObjectVariant);
+  const anotherLook = () =>
+    setRandomVariant(
+      (current) => (((current ?? 0) + 1) % (props.kind === "contact" ? 5 : objectDirections.length)) as ObjectVariant,
+    );
   return (
     <div className="uipack-object-frame" data-theme={props.theme ?? "light"} data-controls={controls}>
       {controls === "full" && variant !== null && (
         <div className="uipack-object-edition">
-          <span>{variant === 0 && props.kind !== "contact" ? `Studio · ${objectEditions[props.kind][props.edition ?? 0]}` : objectVariants[props.kind][variant]}</span>
-          {canVary && <button type="button" onClick={anotherLook} aria-label="Another look">↻</button>}
+          <span>
+            {variant === 0 && props.kind !== "contact"
+              ? `Studio · ${objectEditions[props.kind][props.edition ?? 0]}`
+              : objectVariants[props.kind][variant]}
+          </span>
+          {canVary && (
+            <button type="button" onClick={anotherLook} aria-label="Another look">
+              ↻
+            </button>
+          )}
         </div>
       )}
       {controls === "full" && (
-        <button
-          ref={opener}
-          type="button"
-          className="uipack-object-open"
-          onClick={() => setOpen(true)}
-        >
+        <button ref={opener} type="button" className="uipack-object-open" onClick={() => setOpen(true)}>
           Open canvas
         </button>
       )}
@@ -593,13 +570,21 @@ export function ObjectScene(props: ObjectSceneProps) {
 }
 
 /** Shared style selector; consumers own the selected value and URL persistence. */
-export function ObjectDirectionPicker({ value, onChange }: {
-  value: ObjectVariant | "random"; onChange: (value: ObjectVariant) => void;
+export function ObjectDirectionPicker({
+  value,
+  onChange,
+}: {
+  value: ObjectVariant | "random";
+  onChange: (value: ObjectVariant) => void;
 }) {
-  return <div className="uipack-object-directions" role="group" aria-label="3D art direction">
-    {objectDirections.map((direction, index) => <button key={direction.id} type="button"
-      aria-pressed={value === index} onClick={() => onChange(index as ObjectVariant)}>
-      <span aria-hidden="true">{directionSymbols[index]}</span>{direction.name}
-    </button>)}
-  </div>;
+  return (
+    <div className="uipack-object-directions" role="group" aria-label="3D art direction">
+      {objectDirections.map((direction, index) => (
+        <button key={direction.id} type="button" aria-pressed={value === index} onClick={() => onChange(index as ObjectVariant)}>
+          <span aria-hidden="true">{directionSymbols[index]}</span>
+          {direction.name}
+        </button>
+      ))}
+    </div>
+  );
 }

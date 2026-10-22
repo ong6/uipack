@@ -484,7 +484,8 @@ function Player({
               root.focus({ preventScroll: true });
               // The reader was scrolled (a phone reads far down the page): bring the stage up with it.
               const { top, bottom } = root.getBoundingClientRect();
-              if (top < 0 || bottom > window.innerHeight) root.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
+              if (top < 0 || bottom > window.innerHeight)
+                root.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
             });
           }}
         />
@@ -542,7 +543,9 @@ function Player({
 
 type PrefixedFullscreen = HTMLDivElement & { webkitRequestFullscreen?: () => void };
 const fullscreenElement = () =>
-  document.fullscreenElement ?? (document as Document & { webkitFullscreenElement?: Element | null }).webkitFullscreenElement ?? null;
+  document.fullscreenElement ??
+  (document as Document & { webkitFullscreenElement?: Element | null }).webkitFullscreenElement ??
+  null;
 
 /**
  * What the next press does, for the speaker: the next build (its first words), the next tour stop
@@ -560,7 +563,10 @@ function nextCue(layer: HTMLElement | null, step: number, maxStep: number, upcom
       const ids = (tour.dataset.tour ?? "").split(" ");
       if (next > ids.length) return `Build ${next} of ${maxStep}: camera pulls back to the whole grid`;
       const cell = tour.querySelector(`[data-bento-cell="${CSS.escape(ids[next - 1])}"]`);
-      const label = words(cell?.querySelector(".uipack-deck-bento__detail > *")) || words(cell?.querySelector(".uipack-deck-bento-label")) || ids[next - 1];
+      const label =
+        words(cell?.querySelector(".uipack-deck-bento__detail > *")) ||
+        words(cell?.querySelector(".uipack-deck-bento-label")) ||
+        ids[next - 1];
       return `Build ${next} of ${maxStep}: camera to ${label}`;
     }
     const build = layer.querySelector(`[data-build="${next}"]`);

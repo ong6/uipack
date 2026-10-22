@@ -25,7 +25,16 @@ export interface WaterfallProps extends ChartSize {
 }
 
 /** A bridge from a start total through signed deltas to an end total. */
-export function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain, callout, alt, width, height }: WaterfallProps) {
+export function Waterfall({
+  steps,
+  format = defaultFormat,
+  goodDirection = "up",
+  domain,
+  callout,
+  alt,
+  width,
+  height,
+}: WaterfallProps) {
   const size = useChartSize({ width, height });
   const W = size.width;
   const H = size.height;
@@ -49,7 +58,7 @@ export function Waterfall({ steps, format = defaultFormat, goodDirection = "up",
       {bars.map((b, i) => {
         const band = bandsProbe[i];
         const next = bandsProbe[i + 1];
-        const good = b.kind !== "total" && (b.value >= 0) === (goodDirection === "up");
+        const good = b.kind !== "total" && b.value >= 0 === (goodDirection === "up");
         const colour = b.kind === "total" ? fill.total : good ? fill.good : fill.bad;
         const yTop = y(Math.max(b.from, b.to));
         const yBot = b.kind === "total" ? base : y(Math.min(b.from, b.to));
@@ -87,7 +96,13 @@ export function Waterfall({ steps, format = defaultFormat, goodDirection = "up",
               />
             )}
             {next && (
-              <line className="uipack-cx-connector" x1={band.markStart + band.mark} x2={next.markStart} y1={y(b.to)} y2={y(b.to)} />
+              <line
+                className="uipack-cx-connector"
+                x1={band.markStart + band.mark}
+                x2={next.markStart}
+                y1={y(b.to)}
+                y2={y(b.to)}
+              />
             )}
             <text
               x={band.centre}
@@ -116,7 +131,17 @@ export function Waterfall({ steps, format = defaultFormat, goodDirection = "up",
           const b = bars[i];
           const px = bandsProbe[i].centre;
           const py = (y(b.from) + y(b.to)) / 2;
-          return <Annotation x={px} y={py} tx={px + callout.dx} ty={py + callout.dy} text={callout.text} width={callout.width} align={callout.align} />;
+          return (
+            <Annotation
+              x={px}
+              y={py}
+              tx={px + callout.dx}
+              ty={py + callout.dy}
+              text={callout.text}
+              width={callout.width}
+              align={callout.align}
+            />
+          );
         })()}
     </Frame>
   );

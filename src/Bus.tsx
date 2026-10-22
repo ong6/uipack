@@ -31,7 +31,15 @@ export interface BusProps {
 
 /** Points of one stub, trunk junction first, node edge last. */
 export function busStub(props: Pick<BusProps, "axis" | "at">, stub: BusStub): Point[] {
-  return props.axis === "h" ? [[stub.at, props.at], [stub.at, stub.to]] : [[props.at, stub.at], [stub.to, stub.at]];
+  return props.axis === "h"
+    ? [
+        [stub.at, props.at],
+        [stub.at, stub.to],
+      ]
+    : [
+        [props.at, stub.at],
+        [stub.to, stub.at],
+      ];
 }
 
 /** Points of every stub, in order, for packets to ride. */
@@ -45,17 +53,44 @@ export function busStubs(props: Pick<BusProps, "axis" | "at" | "stubs">): Point[
  */
 export function Bus({ axis = "v", at, from, to, stubs, kind, flow, defs, dots = true, id }: BusProps) {
   const hover = useFigureHover();
-  const trunk: Point[] = axis === "h" ? [[from, at], [to, at]] : [[at, from], [at, to]];
+  const trunk: Point[] =
+    axis === "h"
+      ? [
+          [from, at],
+          [to, at],
+        ]
+      : [
+          [at, from],
+          [at, to],
+        ];
   return (
     <g id={id} data-uipack="bus" {...hoverAttrs(flow, kind, hover)}>
       <Connector points={trunk} arrow={false} kind={kind} flow={flow} inset={0} />
       {stubs.map((s, i) => (
-        <Connector key={i} points={busStub({ axis, at }, s)} defs={defs} arrow={!!s.arrow} kind={kind} flow={s.flow ?? flow} inset={[0, 2]} />
+        <Connector
+          key={i}
+          points={busStub({ axis, at }, s)}
+          defs={defs}
+          arrow={!!s.arrow}
+          kind={kind}
+          flow={s.flow ?? flow}
+          inset={[0, 2]}
+        />
       ))}
       {dots
         ? stubs.map((s, i) => {
             const [cx, cy] = axis === "h" ? [s.at, at] : [at, s.at];
-            return <circle key={i} data-uipack="junction" cx={cx} cy={cy} r={2.5} fill={connectorStroke(kind)} fillOpacity={kind ? 1 : 0.7} />;
+            return (
+              <circle
+                key={i}
+                data-uipack="junction"
+                cx={cx}
+                cy={cy}
+                r={2.5}
+                fill={connectorStroke(kind)}
+                fillOpacity={kind ? 1 : 0.7}
+              />
+            );
           })
         : null}
     </g>

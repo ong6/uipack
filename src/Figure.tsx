@@ -1,16 +1,7 @@
 import { CanvasView } from "./CanvasView";
 import { useIsoLayoutEffect, usePrefersReducedMotion } from "./env";
 import { SelectionContext, type SelectedItem } from "./selection";
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-  createElement,
-} from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode, createElement } from "react";
 import { FigureMotionContext, type FigureMotion } from "./context";
 import { Legend, type LegendItem } from "./Legend";
 import { FigureHoverContext, type FigureHover } from "./hover";
@@ -86,11 +77,7 @@ export function placeNote(canvas: HTMLElement, note: HTMLElement, anchor: Elemen
 }
 
 /** Rendered width of each drawing, measured by ResizeObserver; 0 while hidden. */
-function useRenderedWidth(
-  ref: React.RefObject<SVGSVGElement>,
-  fixed?: number,
-  layoutKey?: boolean,
-): number {
+function useRenderedWidth(ref: React.RefObject<SVGSVGElement>, fixed?: number, layoutKey?: boolean): number {
   const [w, setW] = useState(fixed ?? DEFAULT_RENDER_WIDTH);
   useEffect(() => {
     if (fixed != null) return;
@@ -121,13 +108,7 @@ export const PlayGlyph = () => (
 );
 export const ReplayGlyph = () => (
   <svg viewBox="0 0 12 12" aria-hidden="true">
-    <path
-      d="M6 1.5a4.5 4.5 0 1 1-4.2 2.9"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-    />
+    <path d="M6 1.5a4.5 4.5 0 1 1-4.2 2.9" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
     <path d="M1.5 1.5v3h3z" />
   </svg>
 );
@@ -175,17 +156,12 @@ export function Figure({
   );
   const canvasRef = useRef<HTMLDivElement>(null);
   const noteRef = useRef<HTMLDivElement>(null);
-  const [notePos, setNotePos] = useState<{ left: number; top: number } | null>(
-    null,
-  );
+  const [notePos, setNotePos] = useState<{ left: number; top: number } | null>(null);
   const wideRef = useRef<SVGSVGElement>(null);
   const narrowRef = useRef<SVGSVGElement>(null);
   const wideW = useRenderedWidth(wideRef, measuredWidth, expanded);
   const narrowW = useRenderedWidth(narrowRef, measuredWidth, expanded);
-  const wideScale = useMemo(
-    () => ({ floor: fontFloor(vbWidth(viewBox), wideW, minFont) }),
-    [viewBox, wideW, minFont],
-  );
+  const wideScale = useMemo(() => ({ floor: fontFloor(vbWidth(viewBox), wideW, minFont) }), [viewBox, wideW, minFont]);
   const narrowScale = useMemo(
     () => ({
       floor: fontFloor(vbWidth(narrowViewBox ?? viewBox), narrowW, minFont),
@@ -193,8 +169,7 @@ export function Figure({
     [narrowViewBox, viewBox, narrowW, minFont],
   );
 
-  const svgs = () =>
-    [wideRef.current, narrowRef.current].filter(Boolean) as SVGSVGElement[];
+  const svgs = () => [wideRef.current, narrowRef.current].filter(Boolean) as SVGSVGElement[];
 
   useEffect(() => {
     for (const s of svgs()) {
@@ -240,14 +215,7 @@ export function Figure({
   useRovingFocus(canvasRef, expanded);
 
   const showControls = controls && !reduced;
-  const hasHead =
-    expandable ||
-    number ||
-    eyebrow ||
-    title ||
-    caption ||
-    legend.length ||
-    showControls;
+  const hasHead = expandable || number || eyebrow || title || caption || legend.length || showControls;
 
   return (
     <CanvasView
@@ -268,12 +236,7 @@ export function Figure({
           <FigureHoverContext.Provider value={hover}>
             <figure
               id={figId}
-              className={[
-                "uipack",
-                narrow ? "uipack--has-narrow" : "",
-                expanded ? "uipack--expanded" : "",
-                className ?? "",
-              ]
+              className={["uipack", narrow ? "uipack--has-narrow" : "", expanded ? "uipack--expanded" : "", className ?? ""]
                 .join(" ")
                 .trim()}
               data-theme={theme}
@@ -299,16 +262,8 @@ export function Figure({
                       {eyebrow}
                     </p>
                   ) : null}
-                  {title
-                    ? createElement(
-                        `h${headingLevel}`,
-                        { className: "uipack__title" },
-                        title,
-                      )
-                    : null}
-                  {caption ? (
-                    <p className="uipack__caption">{caption}</p>
-                  ) : null}
+                  {title ? createElement(`h${headingLevel}`, { className: "uipack__title" }, title) : null}
+                  {caption ? <p className="uipack__caption">{caption}</p> : null}
                   {showControls || expandable ? (
                     <div className="uipack__controls">
                       {expandable && !expanded && (
@@ -326,11 +281,7 @@ export function Figure({
                       )}
                       {showControls && (
                         <>
-                          <button
-                            type="button"
-                            className="uipack__ctl uipack__ctl--motion"
-                            onClick={replay}
-                          >
+                          <button type="button" className="uipack__ctl uipack__ctl--motion" onClick={replay}>
                             <ReplayGlyph /> Replay
                           </button>
                           <button
@@ -339,8 +290,7 @@ export function Figure({
                             onClick={toggle}
                             aria-pressed={!playing}
                           >
-                            {playing ? <PauseGlyph /> : <PlayGlyph />}{" "}
-                            {playing ? "Pause" : "Play"}
+                            {playing ? <PauseGlyph /> : <PlayGlyph />} {playing ? "Pause" : "Play"}
                           </button>
                         </>
                       )}
@@ -352,11 +302,7 @@ export function Figure({
               <p className="uipack__sr" role="status">
                 {note ? `${note.label}: ${note.detail}` : ""}
               </p>
-              <div
-                ref={canvasRef}
-                className={`uipack__canvas uipack__canvas--${background}`}
-                onClick={() => select(null)}
-              >
+              <div ref={canvasRef} className={`uipack__canvas uipack__canvas--${background}`} onClick={() => select(null)}>
                 {note ? (
                   <div
                     ref={noteRef}
@@ -375,18 +321,12 @@ export function Figure({
                   className="uipack--wide"
                   // Opened, the drawing is never narrower than 800px, so
                   // labels stay readable on a phone; pan to see the rest.
-                  style={
-                    expanded
-                      ? { width: `max(${zoom * 100}%, ${800 * zoom}px)` }
-                      : undefined
-                  }
+                  style={expanded ? { width: `max(${zoom * 100}%, ${800 * zoom}px)` } : undefined}
                   viewBox={viewBox}
                   role="group"
                   aria-label={alt}
                 >
-                  <FigureScaleContext.Provider value={wideScale}>
-                    {children}
-                  </FigureScaleContext.Provider>
+                  <FigureScaleContext.Provider value={wideScale}>{children}</FigureScaleContext.Provider>
                 </svg>
                 {narrow ? (
                   <svg
@@ -396,9 +336,7 @@ export function Figure({
                     role="group"
                     aria-label={alt}
                   >
-                    <FigureScaleContext.Provider value={narrowScale}>
-                      {narrow}
-                    </FigureScaleContext.Provider>
+                    <FigureScaleContext.Provider value={narrowScale}>{narrow}</FigureScaleContext.Provider>
                   </svg>
                 ) : null}
               </div>

@@ -10,19 +10,9 @@ export interface SlideStarterProps {
   onCopySpeech?: (text: string) => void;
 }
 
-export function SlideStarter({
-  slide,
-  theme = "light",
-  showSpeech = true,
-  className = "",
-  onCopySpeech,
-}: SlideStarterProps) {
+export function SlideStarter({ slide, theme = "light", showSpeech = true, className = "", onCopySpeech }: SlideStarterProps) {
   return (
-    <section
-      className={`uipack-slide-starter ${className}`.trim()}
-      data-theme={theme}
-      data-layout={slide.layout}
-    >
+    <section className={`uipack-slide-starter ${className}`.trim()} data-theme={theme} data-layout={slide.layout}>
       <figure className="uipack-slide-starter__figure">
         <div
           className="uipack-slide-starter__preview"
@@ -35,14 +25,7 @@ export function SlideStarter({
           <span>{slide.description}</span>
         </figcaption>
       </figure>
-      {showSpeech && (
-        <SpeakerGuide
-          speech={slide.speech}
-          slideTitle={slide.title}
-          theme={theme}
-          onCopy={onCopySpeech}
-        />
-      )}
+      {showSpeech && <SpeakerGuide speech={slide.speech} slideTitle={slide.title} theme={theme} onCopy={onCopySpeech} />}
     </section>
   );
 }

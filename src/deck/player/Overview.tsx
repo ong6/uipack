@@ -5,7 +5,8 @@ import { pad } from "./format";
 import { SlideThumbnail } from "./Layer";
 import { Storyline } from "./Storyline";
 
-const FOCUSABLE = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+const FOCUSABLE =
+  'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /** The dialog's own focusable controls, in order: not the inert slide thumbnails, not hidden ones. */
 function focusables(root: HTMLElement | null) {

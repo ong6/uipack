@@ -38,7 +38,8 @@ export interface WheelLike {
 /** A wheel event's deltas in pixels, whichever unit the browser reported them in. */
 export function normalizeWheel(e: WheelLike, viewport: { width: number; height: number }): { x: number; y: number } {
   if (e.deltaMode === 1) return { x: e.deltaX * WHEEL_LINE_PX, y: e.deltaY * WHEEL_LINE_PX };
-  if (e.deltaMode === 2) return { x: e.deltaX * viewport.width * WHEEL_PAGE_FRACTION, y: e.deltaY * viewport.height * WHEEL_PAGE_FRACTION };
+  if (e.deltaMode === 2)
+    return { x: e.deltaX * viewport.width * WHEEL_PAGE_FRACTION, y: e.deltaY * viewport.height * WHEEL_PAGE_FRACTION };
   return { x: e.deltaX, y: e.deltaY };
 }
 
@@ -112,7 +113,8 @@ function resolveTop(target: SmoothScrollTarget, offset: number | undefined): num
   if (!el) return null;
   const clear =
     offset ??
-    (parseFloat(getComputedStyle(el).scrollMarginTop) || 0) + (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0);
+    (parseFloat(getComputedStyle(el).scrollMarginTop) || 0) +
+      (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0);
   return el.getBoundingClientRect().top + window.scrollY - clear;
 }
 
@@ -127,7 +129,8 @@ function nativeScrollTo(target: SmoothScrollTarget, { offset, immediate }: Smoot
 /** True when nothing between the wheel's target and the page can scroll it first. */
 function pageOwnsWheel(e: WheelEvent): boolean {
   const root = document.documentElement;
-  if (getComputedStyle(root).overflowY === "hidden" || (document.body && getComputedStyle(document.body).overflowY === "hidden")) return false;
+  if (getComputedStyle(root).overflowY === "hidden" || (document.body && getComputedStyle(document.body).overflowY === "hidden"))
+    return false;
   const path = typeof e.composedPath === "function" ? e.composedPath() : [];
   const chain = path.length ? path : [];
   if (!chain.length) for (let n = e.target as Element | null; n; n = n.parentElement) chain.push(n);
@@ -170,7 +173,11 @@ function focusTarget(el: Element) {
  *   smooth on touch, an instant jump under reduced motion.
  * - Stops when the tab is hidden or the scrollbar is grabbed.
  */
-export function createSmoothScroll({ lerp = 0.1, wheelMultiplier = 1, anchors = true }: SmoothScrollOptions = {}): SmoothScrollController {
+export function createSmoothScroll({
+  lerp = 0.1,
+  wheelMultiplier = 1,
+  anchors = true,
+}: SmoothScrollOptions = {}): SmoothScrollController {
   if (!canUseDom()) {
     return { scrollTo: () => undefined, stop: () => undefined, enabled: false, destroy: () => undefined };
   }
@@ -293,11 +300,22 @@ export function createSmoothScroll({ lerp = 0.1, wheelMultiplier = 1, anchors = 
   };
 
   const onClick = (e: MouseEvent) => {
-    if (!anchors || active !== controller || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (
+      !anchors ||
+      active !== controller ||
+      e.defaultPrevented ||
+      e.button !== 0 ||
+      e.metaKey ||
+      e.ctrlKey ||
+      e.shiftKey ||
+      e.altKey
+    )
+      return;
     const a = e.target instanceof Element ? e.target.closest("a[href]") : null;
     if (!(a instanceof HTMLAnchorElement) || (a.target && a.target !== "_self") || a.hasAttribute("download")) return;
     const url = new URL(a.href, location.href);
-    if (!url.hash || url.origin !== location.origin || url.pathname !== location.pathname || url.search !== location.search) return;
+    if (!url.hash || url.origin !== location.origin || url.pathname !== location.pathname || url.search !== location.search)
+      return;
     let id = url.hash.slice(1);
     try {
       id = decodeURIComponent(id);
@@ -371,7 +389,10 @@ export function createSmoothScroll({ lerp = 0.1, wheelMultiplier = 1, anchors = 
       if (!animating()) current = lastSet = window.scrollY;
       target = to;
       aim = el ? { el, offset: options.offset } : null;
-      tween = options.duration !== undefined && options.duration > 0 ? { from: current, to, start: performance.now(), duration: options.duration } : null;
+      tween =
+        options.duration !== undefined && options.duration > 0
+          ? { from: current, to, start: performance.now(), duration: options.duration }
+          : null;
       run();
     },
     stop,
@@ -418,7 +439,11 @@ export type SmoothScrollHandle = Omit<SmoothScrollController, "destroy">;
  * stable handle. Mount it once per page. Its scrollTo works before mount and when easing is
  * off, falling back to the browser's own scroll.
  */
-export function useSmoothScroll({ lerp = 0.1, wheelMultiplier = 1, anchors = true }: SmoothScrollOptions = {}): SmoothScrollHandle {
+export function useSmoothScroll({
+  lerp = 0.1,
+  wheelMultiplier = 1,
+  anchors = true,
+}: SmoothScrollOptions = {}): SmoothScrollHandle {
   const instance = useRef<SmoothScrollController | null>(null);
   useEffect(() => {
     const c = createSmoothScroll({ lerp, wheelMultiplier, anchors });

@@ -3,9 +3,13 @@
    Fixed to the viewport (or the nearest transformed ancestor), so it may live outside
    .uipack-web: colour falls back from --web-gutters-color to --web-accent to the light accent.
    Hidden below 1280px by default (DriftingGutters minViewport adds its own rule otherwise). */
-.uipack-web-gutters { display: none; }
+.uipack-web-gutters {
+  display: none;
+}
 @media (min-width: 1280px) {
-  .uipack-web-gutters:not([data-min]) { display: block; }
+  .uipack-web-gutters:not([data-min]) {
+    display: block;
+  }
 }
 .uipack-web-gutters__side {
   position: fixed;
@@ -40,7 +44,11 @@
   background-size: 16px 16px;
   animation: uipack-web-gutters-drift var(--gutters-drift, 48s) linear infinite;
 }
-@keyframes uipack-web-gutters-drift { to { transform: translateY(-50%); } }
+@keyframes uipack-web-gutters-drift {
+  to {
+    transform: translateY(-50%);
+  }
+}
 .uipack-web-gutters__signal {
   position: absolute;
   left: calc(32px + var(--i) * 48px);
@@ -60,18 +68,32 @@
   animation-delay: calc(var(--i) * 2s + 1s);
 }
 @keyframes uipack-web-gutters-signal {
-  0%, 100% { opacity: 0; transform: scale(0.6); }
-  12% { opacity: 0.9; transform: scale(1.6); }
-  40% { opacity: 0.35; transform: scale(1); }
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  12% {
+    opacity: 0.9;
+    transform: scale(1.6);
+  }
+  40% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
 }
 /* A page's own Pause for ambient motion: data-web-motion="paused" on any ancestor. */
 [data-web-motion="paused"] :is(.uipack-web-gutters__drift, .uipack-web-gutters__signal) {
   animation-play-state: paused;
 }
 @media print {
-  .uipack-web-gutters { display: none !important; }
+  .uipack-web-gutters {
+    display: none !important;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .uipack-web-gutters__drift,
-  .uipack-web-gutters__signal { animation: none; }
+  .uipack-web-gutters__signal {
+    animation: none;
+  }
 }

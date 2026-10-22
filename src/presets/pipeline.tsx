@@ -21,7 +21,8 @@ export const defaultPipeline: PipelineSpec = {
     number: "Figure 01",
     eyebrow: "Pipeline",
     title: "Fast in front, slow behind a queue",
-    caption: "Validation and enrichment run inline. Embedding is slow and bursty, so it sits behind a queue; the writer drains at its own pace.",
+    caption:
+      "Validation and enrichment run inline. Embedding is slow and bursty, so it sits behind a queue; the writer drains at its own pace.",
     alt: "Five stages in a line: receive, validate, enrich, then a queue with three slots, then embed and write.",
   },
   stages: [
@@ -55,8 +56,20 @@ export function pipelineParts(spec: PipelineSpec = defaultPipeline, id: string):
     const edge =
       slot > 0 ? (
         <>
-          <Connector points={into} defs={id} kind={kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request"} flow={FLOW} />
-          <Packet points={into} kind={kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request"} dur={1.2} delay={-slot * 0.35} flow={FLOW} r={4} />
+          <Connector
+            points={into}
+            defs={id}
+            kind={kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request"}
+            flow={FLOW}
+          />
+          <Packet
+            points={into}
+            kind={kind === "queue" || slots[slot - 1] === "queue" ? "change" : "request"}
+            dur={1.2}
+            delay={-slot * 0.35}
+            flow={FLOW}
+            r={4}
+          />
         </>
       ) : null;
     if (kind === "queue") {
@@ -68,7 +81,17 @@ export function pipelineParts(spec: PipelineSpec = defaultPipeline, id: string):
           {edge}
           <Group x={x(slot)} y={stage.y - 16} w={stage.w} h={stage.h + 32} title={q.label} flow={FLOW} accent>
             {Array.from({ length: depth }).map((_, k) => (
-              <Chip key={k} x={x(slot) + 8 + k * (cw + 6)} y={stage.y + 24} w={cw} h={18} label={k < depth - 1 ? String(k + 1) : ""} kind={k < depth - 1 ? "change" : undefined} dashed={k === depth - 1} flow={FLOW} />
+              <Chip
+                key={k}
+                x={x(slot) + 8 + k * (cw + 6)}
+                y={stage.y + 24}
+                w={cw}
+                h={18}
+                label={k < depth - 1 ? String(k + 1) : ""}
+                kind={k < depth - 1 ? "change" : undefined}
+                dashed={k === depth - 1}
+                flow={FLOW}
+              />
             ))}
           </Group>
         </g>
@@ -78,7 +101,19 @@ export function pipelineParts(spec: PipelineSpec = defaultPipeline, id: string):
     return (
       <g key={s.label}>
         {edge}
-        <Node x={x(slot)} y={stage.y} w={stage.w} h={stage.h} label={s.label} hint={s.hint} sub={s.sub} icon={s.icon} flow={FLOW} size={13} subSize={10} />
+        <Node
+          x={x(slot)}
+          y={stage.y}
+          w={stage.w}
+          h={stage.h}
+          label={s.label}
+          hint={s.hint}
+          sub={s.sub}
+          icon={s.icon}
+          flow={FLOW}
+          size={13}
+          subSize={10}
+        />
       </g>
     );
   });
@@ -92,8 +127,21 @@ export function pipelineParts(spec: PipelineSpec = defaultPipeline, id: string):
   );
   const steps = [
     ...spec.stages.slice(0, (spec.queue?.after ?? spec.stages.length - 1) + 1).map((s) => ({ ...s, flow: FLOW })),
-    ...(spec.queue ? [{ label: spec.queue.label, sub: spec.queue.sub, icon: spec.queue.icon ?? ("queue" as const), kind: "change" as const, accent: true, flow: FLOW }] : []),
-    ...spec.stages.slice((spec.queue?.after ?? spec.stages.length - 1) + 1).map((s) => ({ ...s, kind: "change" as const, flow: FLOW })),
+    ...(spec.queue
+      ? [
+          {
+            label: spec.queue.label,
+            sub: spec.queue.sub,
+            icon: spec.queue.icon ?? ("queue" as const),
+            kind: "change" as const,
+            accent: true,
+            flow: FLOW,
+          },
+        ]
+      : []),
+    ...spec.stages
+      .slice((spec.queue?.after ?? spec.stages.length - 1) + 1)
+      .map((s) => ({ ...s, kind: "change" as const, flow: FLOW })),
   ];
   return {
     wide,

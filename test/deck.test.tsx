@@ -26,7 +26,9 @@ const slides: DeckSlide[] = [
     title: "First claim",
     render: () => (
       <Slide footer="Deck">
-        <Morph id="title" as="h1">First</Morph>
+        <Morph id="title" as="h1">
+          First
+        </Morph>
       </Slide>
     ),
     notes: { say: "Say the first thing.", delivery: "Slowly.", next: "Then the list." },
@@ -37,7 +39,9 @@ const slides: DeckSlide[] = [
     transition: "morph",
     render: () => (
       <Slide footer="Deck">
-        <Morph id="title" as="p">First</Morph>
+        <Morph id="title" as="p">
+          First
+        </Morph>
         <Build step={1}>Point A</Build>
         <Build step={2}>Point B</Build>
       </Slide>
@@ -169,7 +173,11 @@ describe("DeckPlayer", () => {
     // jsdom has no Fullscreen API; this browser says it has one.
     Object.defineProperty(document, "fullscreenEnabled", { value: true, configurable: true });
     try {
-      const root = await act(async () => hydrateRoot(host, <DeckPlayer id="h" title="Test deck" slides={slides} />, { onRecoverableError: (e) => recoverable.push(e) }));
+      const root = await act(async () =>
+        hydrateRoot(host, <DeckPlayer id="h" title="Test deck" slides={slides} />, {
+          onRecoverableError: (e) => recoverable.push(e),
+        }),
+      );
       expect(recoverable).toEqual([]);
       expect(errors).not.toHaveBeenCalled();
       // After mount the browser's support is known.
@@ -255,10 +263,7 @@ describe("DeckPlayer", () => {
   });
 
   it("opens on a given slide and ignores keys typed into fields inside slides", () => {
-    const withField: DeckSlide[] = [
-      ...slides,
-      { id: "form", title: "Form", render: () => <input aria-label="Answer" /> },
-    ];
+    const withField: DeckSlide[] = [...slides, { id: "form", title: "Form", render: () => <input aria-label="Answer" /> }];
     render(<DeckPlayer id="t3" title="Test deck" slides={withField} initial={{ slide: "form" }} />);
     expect(current()).toBe("3");
     act(() => {
@@ -412,7 +417,7 @@ describe("Bento", () => {
   it("read view: the claim is the heading, the short title sits small above it, and a tour's details get stills", () => {
     render(<DeckPlayer id="t10" title="Test deck" slides={toured} view="read" />);
     expect(screen.getByRole("heading", { level: 2, name: "The grid proves the claim." })).toBeInTheDocument();
-    expect(screen.getByText("Grid", { selector: ".uipack-deck-read__title" , exact: false })).toBeInTheDocument();
+    expect(screen.getByText("Grid", { selector: ".uipack-deck-read__title", exact: false })).toBeInTheDocument();
     // Only the stop whose cell has a detail gets a still, captioned with the detail's title.
     expect(screen.getAllByText(/^Detail · /).map((el) => el.textContent)).toEqual(["Detail · Where the time went"]);
     const still = screen.getByText("Detail · Where the time went").closest("figure")!;
@@ -422,7 +427,11 @@ describe("Bento", () => {
   it("print view: a page per slide plus a page per tour detail, headed by the claim beside notes", () => {
     render(<DeckPlayer id="t11" title="Test deck" slides={toured} view="print" printNotes />);
     const pages = Array.from(deck().querySelectorAll(".uipack-deck-print__page"));
-    expect(pages.map((p) => p.getAttribute("aria-label"))).toEqual(["01: Grid", "01: Grid, detail: Where the time went", "02: After"]);
+    expect(pages.map((p) => p.getAttribute("aria-label"))).toEqual([
+      "01: Grid",
+      "01: Grid, detail: Where the time went",
+      "02: After",
+    ]);
     expect(pages[1].querySelector(".uipack-deck-bento")).toHaveAttribute("data-focus", "a");
     expect(pages[1].querySelector(".uipack-deck-bento")).toHaveAttribute("data-still", "");
     expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual([

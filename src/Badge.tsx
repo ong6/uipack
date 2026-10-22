@@ -16,7 +16,15 @@ export function Badge({ cx, cy, text, accent, r = 9, size: size0 = 10 }: BadgePr
   return (
     <g data-uipack="badge">
       <circle cx={cx} cy={cy} r={r} fill="var(--uipack-bg)" stroke={stroke} strokeOpacity={accent ? 1 : 0.6} strokeWidth={1.25} />
-      <text x={cx} y={cy + size * 0.35} textAnchor="middle" fontSize={size} fontFamily="var(--uipack-mono)" fontWeight={700} fill={stroke}>
+      <text
+        x={cx}
+        y={cy + size * 0.35}
+        textAnchor="middle"
+        fontSize={size}
+        fontFamily="var(--uipack-mono)"
+        fontWeight={700}
+        fill={stroke}
+      >
         {text}
       </text>
     </g>

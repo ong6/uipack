@@ -16,10 +16,21 @@ export function Lane({ x, w, y, title, h, size: size0 = 11 }: LaneProps) {
   const size = useFontFloor(size0);
   return (
     <g data-uipack="lane">
-      <text x={x + w / 2} y={y} textAnchor="middle" fontSize={size} fontWeight={700} fontFamily="var(--uipack-mono)" letterSpacing=".08em" fill="currentColor">
+      <text
+        x={x + w / 2}
+        y={y}
+        textAnchor="middle"
+        fontSize={size}
+        fontWeight={700}
+        fontFamily="var(--uipack-mono)"
+        letterSpacing=".08em"
+        fill="currentColor"
+      >
         {title.toUpperCase()}
       </text>
-      {h ? <line x1={x + w} y1={y + 12} x2={x + w} y2={y + h} stroke="currentColor" strokeOpacity={0.15} strokeDasharray="2 6" /> : null}
+      {h ? (
+        <line x1={x + w} y1={y + 12} x2={x + w} y2={y + h} stroke="currentColor" strokeOpacity={0.15} strokeDasharray="2 6" />
+      ) : null}
     </g>
   );
 }

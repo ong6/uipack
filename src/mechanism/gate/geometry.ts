@@ -89,14 +89,21 @@ import {
 } from "./view";
 
 const slab = (plan: Plan, z: number, h: number, steps = 4, bevel = 0) => slabOf(plan, z, h, P, steps, bevel);
-const cyl = (x: number, y: number, r: number, z: number, h: number, steps = 32, bevel = 0) => cylinder(x, y, r, z, h, P, steps, bevel);
+const cyl = (x: number, y: number, r: number, z: number, h: number, steps = 32, bevel = 0) =>
+  cylinder(x, y, r, z, h, P, steps, bevel);
 const join = (paths: string[]) => paths.filter(Boolean).join("");
 const seg = (a: Point3, b: Point3) => segment(a, b, P);
 const byDepth = (points: Plane[]) => [...points].sort((a, b) => depthOf([a[0], a[1], 0], P) - depthOf([b[0], b[1], 0], P));
 /** A closed outline in the vertical plane y = `y` (a slot or a window on a face that looks toward +y). */
-const faceRect = (x0: number, x1: number, y: number, z0: number, z1: number) => pathOf([at([x0, y, z0]), at([x1, y, z0]), at([x1, y, z1]), at([x0, y, z1])], true);
+const faceRect = (x0: number, x1: number, y: number, z0: number, z1: number) =>
+  pathOf([at([x0, y, z0]), at([x1, y, z0]), at([x1, y, z1]), at([x0, y, z1])], true);
 /** A box with one sloped top, as a prism of its x–z profile swept along y. */
-const profile = (points: [number, number][], y0: number, y1: number) => prismOf(points.map(([x, z]) => [x, y0, z] as Point3), [0, y1 - y0, 0], P);
+const profile = (points: [number, number][], y0: number, y1: number) =>
+  prismOf(
+    points.map(([x, z]) => [x, y0, z] as Point3),
+    [0, y1 - y0, 0],
+    P,
+  );
 
 /* ---------------- Base ---------------- */
 const FEET = byDepth(corners(BASE, 20));
@@ -118,7 +125,18 @@ export const BASE_ART = {
   stripScrews: [at([STRIP.x + 2, STRIP.y + 3, 0.6]), at([STRIP.x + STRIP.w - 2, STRIP.y + 3, 0.6])],
   label: slab(LABEL, 0, 0.8, 4),
   labelLine: planOutline(insetPlan(LABEL, 1.6), 0.8, P),
-  labelRule: join([0, 1, 2].map((row) => onTop([[LABEL.x + 7, LABEL.y + 3.4 + row * 2.1], [LABEL.x + (row === 1 ? 26 : 36), LABEL.y + 3.4 + row * 2.1]], 0.8, P))),
+  labelRule: join(
+    [0, 1, 2].map((row) =>
+      onTop(
+        [
+          [LABEL.x + 7, LABEL.y + 3.4 + row * 2.1],
+          [LABEL.x + (row === 1 ? 26 : 36), LABEL.y + 3.4 + row * 2.1],
+        ],
+        0.8,
+        P,
+      ),
+    ),
+  ),
   labelScrews: [at([LABEL.x + 3.2, LABEL.y + LABEL.d / 2, 0.8]), at([LABEL.x + LABEL.w - 3.2, LABEL.y + LABEL.d / 2, 0.8])],
 };
 
@@ -149,7 +167,11 @@ function motorBand(y: number) {
 const BOX: Plan = { x: BELT_X1 - 4, y: RAIL_OUT + 2.5, w: 8, d: 6, r: 1 };
 
 export const CONVEYOR_BACK = {
-  legs: LEGS.map(([x, y]) => ({ foot: slab(insetPlan(legPlan(x, y), -2.4), 0, 1.2, 3), post: slab(legPlan(x, y), 1.2, RAIL_Z - 1.2, 3), screws: [at([x - 3.6, y, 1.2]), at([x + 3.6, y, 1.2])] })),
+  legs: LEGS.map(([x, y]) => ({
+    foot: slab(insetPlan(legPlan(x, y), -2.4), 0, 1.2, 3),
+    post: slab(legPlan(x, y), 1.2, RAIL_Z - 1.2, 3),
+    screws: [at([x - 3.6, y, 1.2]), at([x + 3.6, y, 1.2])],
+  })),
   stretchers: [-15, 15].map((y) => slab(stretcher(y), 6, 3, 2)),
   backRail: slab(BACK_RAIL, RAIL_Z, BT - RAIL_Z, 3, 0.4),
   backLip: slab(BACK_RAIL, BT, LIP, 3, 0.3),
@@ -187,12 +209,19 @@ export const CONVEYOR_FRONT = {
   motorCap: faceCircle([MOTOR_C[0], MOTOR_C[1] + MOTOR_LONG, MOTOR_C[2]], MOTOR_R - 1.4, "y", P, 28),
   motorBolts: [0, 1, 2, 3].map((index) => {
     const angle = Math.PI / 4 + (index * Math.PI) / 2;
-    return at([MOTOR_C[0] + (MOTOR_R - 2.6) * Math.cos(angle), MOTOR_C[1] + MOTOR_LONG, MOTOR_C[2] + (MOTOR_R - 2.6) * Math.sin(angle)]);
+    return at([
+      MOTOR_C[0] + (MOTOR_R - 2.6) * Math.cos(angle),
+      MOTOR_C[1] + MOTOR_LONG,
+      MOTOR_C[2] + (MOTOR_R - 2.6) * Math.sin(angle),
+    ]);
   }),
   motorShaft: at([MOTOR_C[0], MOTOR_C[1] + MOTOR_LONG, MOTOR_C[2]]),
   box: slab(BOX, MOTOR_C[2] + MOTOR_R - 0.6, 4.6, 3, 0.4),
   boxLine: planOutline(insetPlan(BOX, 1.4), MOTOR_C[2] + MOTOR_R + 4, P, 3),
-  boxScrews: [at([BOX.x + 1.6, BOX.y + 1.6, MOTOR_C[2] + MOTOR_R + 4]), at([BOX.x + BOX.w - 1.6, BOX.y + BOX.d - 1.6, MOTOR_C[2] + MOTOR_R + 4])],
+  boxScrews: [
+    at([BOX.x + 1.6, BOX.y + 1.6, MOTOR_C[2] + MOTOR_R + 4]),
+    at([BOX.x + BOX.w - 1.6, BOX.y + BOX.d - 1.6, MOTOR_C[2] + MOTOR_R + 4]),
+  ],
 };
 
 /* ---------------- Hopper ---------------- */
@@ -231,7 +260,6 @@ export const HOPPER_FRONT = {
   cheekScrews: [at([MAG.x + 6, RAIL_OUT, MAG_Z + 2.4]), at([MAG.x + MAG.w - 6, RAIL_OUT, MAG_Z + 2.4])],
 };
 
-
 /* ---------------- Gauge ---------------- */
 const postPlan = (y: number): Plan => ({ x: GX - POST / 2, y: y - POST / 2, w: POST, d: POST, r: 0.8 });
 const postArt = (y: number) => ({
@@ -244,7 +272,10 @@ const BEAM: Plan = { x: GX - 5, y: -POST_Y - 5, w: 10, d: POST_Y * 2 + 10, r: 1.
 const DIAL_FROM = -DIAL_SWEEP / 2;
 const angleOf = (reading: number) => ((DIAL_FROM + (reading / SCALE) * DIAL_SWEEP) * Math.PI) / 180;
 const DIAL_TICKS = radialTicks(GX, 0, DIAL_R - 3, 20, 2, DIAL_TOP, [1.3, 2.8], P, angleOf(0), (DIAL_SWEEP * Math.PI) / 180);
-const onDial = (reading: number, radius: number): Plane => [GX + Math.sin(angleOf(reading)) * radius, -Math.cos(angleOf(reading)) * radius];
+const onDial = (reading: number, radius: number): Plane => [
+  GX + Math.sin(angleOf(reading)) * radius,
+  -Math.cos(angleOf(reading)) * radius,
+];
 
 function arcOnDial(from: number, to: number, radius: number) {
   const points: Plane[] = [];
@@ -274,7 +305,9 @@ export const GAUGE_FRONT = {
   hub: ring(GX, 0, 1.6, DIAL_TOP, P, 16),
   crown: slab({ x: GX + DIAL_R - 1, y: -2.4, w: 5, d: 4.8, r: 1.2 }, DIAL_Z + 2, 4.4, 3),
   crownCap: slab({ x: GX + DIAL_R + 3.6, y: -3.2, w: 2.6, d: 6.4, r: 1.2 }, DIAL_Z + 1.4, 6, 3),
-  crownKnurl: join([-2.2, -1.1, 0, 1.1, 2.2].map((y) => seg([GX + DIAL_R + 6.2, y, DIAL_Z + 1.9], [GX + DIAL_R + 6.2, y, DIAL_Z + 6.9]))),
+  crownKnurl: join(
+    [-2.2, -1.1, 0, 1.1, 2.2].map((y) => seg([GX + DIAL_R + 6.2, y, DIAL_Z + 1.9], [GX + DIAL_R + 6.2, y, DIAL_Z + 6.9])),
+  ),
 };
 
 /** The plunger, built resting on the belt; it moves straight up by the reading. */
@@ -303,12 +336,17 @@ const BRACKET: Plan = { x: PIVOT[0] - 6, y: PIVOT[1] - 6, w: 12, d: -RAIL_OUT - 
 const HEAD_Z = ARM_Z + ARM_H + 1;
 export const DIVERTER = {
   bracket: slab(BRACKET, RAIL_Z + 3, 4, 3, 0.4),
-  bracketScrews: [at([BRACKET.x + 2.4, -RAIL_OUT - 1.6, RAIL_Z + 7]), at([BRACKET.x + BRACKET.w - 2.4, -RAIL_OUT - 1.6, RAIL_Z + 7])],
+  bracketScrews: [
+    at([BRACKET.x + 2.4, -RAIL_OUT - 1.6, RAIL_Z + 7]),
+    at([BRACKET.x + BRACKET.w - 2.4, -RAIL_OUT - 1.6, RAIL_Z + 7]),
+  ],
   post: cyl(PIVOT[0], PIVOT[1], 2.2, RAIL_Z + 7, ARM_Z - RAIL_Z - 7, 20),
   hub: cyl(PIVOT[0], PIVOT[1], 3.4, ARM_Z, ARM_H + 1, 24, 0.3),
   head: cyl(PIVOT[0], PIVOT[1], 4.6, HEAD_Z, 5, 32, 0.5),
   headKnurl: knurl(PIVOT[0], PIVOT[1], 4.6, HEAD_Z, HEAD_Z + 5, 36, P),
-  stops: [0, ARM_SWING].map((deg) => at([PIVOT[0] + Math.cos((deg * Math.PI) / 180) * 3.6, PIVOT[1] + Math.sin((deg * Math.PI) / 180) * 3.6, HEAD_Z + 5])),
+  stops: [0, ARM_SWING].map((deg) =>
+    at([PIVOT[0] + Math.cos((deg * Math.PI) / 180) * 3.6, PIVOT[1] + Math.sin((deg * Math.PI) / 180) * 3.6, HEAD_Z + 5]),
+  ),
 };
 
 /** The arm at a swing share 0–1, as a prism rebuilt per frame. */
@@ -332,7 +370,12 @@ export function armOf(share: number): SolidPaths {
 
 export function armPointerOf(share: number) {
   const angle = (share * ARM_SWING * Math.PI) / 180;
-  return lineOnTop([PIVOT[0] - Math.cos(angle) * 1.4, PIVOT[1] - Math.sin(angle) * 1.4], [PIVOT[0] + Math.cos(angle) * 3.6, PIVOT[1] + Math.sin(angle) * 3.6], HEAD_Z + 5, P);
+  return lineOnTop(
+    [PIVOT[0] - Math.cos(angle) * 1.4, PIVOT[1] - Math.sin(angle) * 1.4],
+    [PIVOT[0] + Math.cos(angle) * 3.6, PIVOT[1] + Math.sin(angle) * 3.6],
+    HEAD_Z + 5,
+    P,
+  );
 }
 
 /* ---------------- Return chute ---------------- */
@@ -383,8 +426,12 @@ export const CHUTE_BACK = {
   trayBack: slab(RETURN_WALLS.back, TRAY_FLOOR, TRAY_WALL - TRAY_FLOOR, 2),
   trayLeft: slab(RETURN_WALLS.left, TRAY_FLOOR, TRAY_WALL - TRAY_FLOOR, 2),
   floor: chuteFloor,
-  floorLines: join([CHUTE_Y[0] + 5.3, CHUTE_Y[1] - 5.3].map((y) => seg([CHUTE_X0, y, CHUTE_LOW], [CHUTE_X1, y, chuteTop(CHUTE_X1)]))),
-  apronLines: join([CHUTE_Y[0] + 5.3, CHUTE_Y[1] - 5.3].map((y) => lineOnTop([APRON.x, y], [APRON.x + APRON.w, y], APRON_TOP, P))),
+  floorLines: join(
+    [CHUTE_Y[0] + 5.3, CHUTE_Y[1] - 5.3].map((y) => seg([CHUTE_X0, y, CHUTE_LOW], [CHUTE_X1, y, chuteTop(CHUTE_X1)])),
+  ),
+  apronLines: join(
+    [CHUTE_Y[0] + 5.3, CHUTE_Y[1] - 5.3].map((y) => lineOnTop([APRON.x, y], [APRON.x + APRON.w, y], APRON_TOP, P)),
+  ),
   apron: slab(APRON, APRON_TOP - floorBottom, floorBottom, 3, 0.3),
   backWall: wallOf(CHUTE_Y[0] - CHUTE_WALL),
 };
@@ -406,7 +453,16 @@ const RESULT_WALLS = trayWalls(RESULT_TRAY, 8);
 export const TRAY_BACK = {
   floor: slab(RESULT_TRAY, 0, TRAY_FLOOR, 4, 0.3),
   floorGrid: join(
-    [RESULT_TRAY.x + 19].map((x) => onTop([[x, RESULT_TRAY.y + 2], [x, RESULT_TRAY.y + RESULT_TRAY.d - 2]], TRAY_FLOOR, P)),
+    [RESULT_TRAY.x + 19].map((x) =>
+      onTop(
+        [
+          [x, RESULT_TRAY.y + 2],
+          [x, RESULT_TRAY.y + RESULT_TRAY.d - 2],
+        ],
+        TRAY_FLOOR,
+        P,
+      ),
+    ),
   ),
   back: slab(RESULT_WALLS.back, TRAY_FLOOR, 8 - TRAY_FLOOR, 2),
   left: slab(RESULT_WALLS.left, TRAY_FLOOR, 8 - TRAY_FLOOR, 2),

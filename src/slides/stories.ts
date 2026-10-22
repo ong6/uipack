@@ -3,8 +3,7 @@ import type { SlideStory } from "./types";
 export const harnessDive: SlideStory = {
   id: "harness-dive",
   title: "Inside the agent harness",
-  description:
-    "Enter the boundary. Follow the context, tools, and checks around a model.",
+  description: "Enter the boundary. Follow the context, tools, and checks around a model.",
   nodes: [
     {
       id: "harness",
@@ -81,8 +80,7 @@ export const harnessDive: SlideStory = {
     {
       id: "outside",
       title: "The model lives inside a system.",
-      caption:
-        "A harness surrounds the model with context, capabilities, and a boundary for what may leave.",
+      caption: "A harness surrounds the model with context, capabilities, and a boundary for what may leave.",
       camera: { position: [14, 10, 20], target: [0, 0, 0] },
       labels: ["input", "model", "output"],
       nodes: {
@@ -91,15 +89,13 @@ export const harnessDive: SlideStory = {
         tools: { opacity: 0.2 },
         checks: { opacity: 0.2 },
       },
-      notes:
-        "Start with the contract. The model is one component, not the entire agent.",
+      notes: "Start with the contract. The model is one component, not the entire agent.",
     },
     {
       id: "inside",
       transition: { camera: "dolly", duration: 1.8 },
       title: "Open the harness.",
-      caption:
-        "The surrounding machinery becomes visible: context and memory on one side, tools and checks on the other.",
+      caption: "The surrounding machinery becomes visible: context and memory on one side, tools and checks on the other.",
       camera: { position: [8, 9, 13], target: [0, 0, -0.4] },
       labels: ["context", "model", "memory", "tools", "checks"],
       nodes: {
@@ -111,8 +107,7 @@ export const harnessDive: SlideStory = {
     {
       id: "context",
       title: "Give the model the right context.",
-      caption:
-        "Instructions and retrieved memory shape the next decision. More context is useful only when it is relevant.",
+      caption: "Instructions and retrieved memory shape the next decision. More context is useful only when it is relevant.",
       camera: { position: [-5, 7, 10], target: [-1.4, 0, -0.6] },
       labels: ["context", "model", "memory"],
       activeConnections: ["memory-context", "context-model"],
@@ -127,8 +122,7 @@ export const harnessDive: SlideStory = {
     {
       id: "action",
       title: "A proposal becomes a tool call.",
-      caption:
-        "The model chooses an action; the harness supplies the capability and records what actually happened.",
+      caption: "The model chooses an action; the harness supplies the capability and records what actually happened.",
       camera: { position: [8, 6, 9], target: [1.2, 0, -0.5] },
       labels: ["model", "tools", "checks"],
       activeConnections: ["model-tools", "tools-checks", "model-checks"],
@@ -143,8 +137,7 @@ export const harnessDive: SlideStory = {
     {
       id: "result",
       title: "Evidence decides what leaves.",
-      caption:
-        "A completed action is checked before it becomes a result. The boundary belongs to the harness.",
+      caption: "A completed action is checked before it becomes a result. The boundary belongs to the harness.",
       camera: { position: [8, 6, 15], target: [3, 0, 0.3] },
       labels: ["model", "checks", "output"],
       activeConnections: ["model-checks", "verified"],
@@ -162,8 +155,7 @@ export const harnessDive: SlideStory = {
 export const retrievalLayers: SlideStory = {
   id: "retrieval-layers",
   title: "A dive through retrieval",
-  description:
-    "Explode the knowledge stack, then follow a question into evidence and an answer.",
+  description: "Explode the knowledge stack, then follow a question into evidence and an answer.",
   nodes: [
     {
       id: "sources",
@@ -223,8 +215,7 @@ export const retrievalLayers: SlideStory = {
     {
       id: "stack",
       title: "Knowledge has layers.",
-      caption:
-        "Sources, an index, and a retrieval path sit beneath every grounded answer.",
+      caption: "Sources, an index, and a retrieval path sit beneath every grounded answer.",
       camera: { position: [12, 9, 17], target: [0, 0, 0] },
       labels: ["sources", "index", "question", "answer"],
     },
@@ -232,8 +223,7 @@ export const retrievalLayers: SlideStory = {
       id: "explode",
       transition: { stagger: 0.08, duration: 1.5 },
       title: "Separate storage from selection.",
-      caption:
-        "The index makes evidence findable. Retrieval and ranking decide what the model will actually see.",
+      caption: "The index makes evidence findable. Retrieval and ranking decide what the model will actually see.",
       camera: { position: [11, 7, 15], target: [0, 0.1, 0] },
       nodes: {
         sources: { position: [0, -3.3, 0] },
@@ -249,8 +239,7 @@ export const retrievalLayers: SlideStory = {
     {
       id: "query",
       title: "Trace one question.",
-      caption:
-        "A query finds candidates; ranking narrows them to the evidence worth carrying forward.",
+      caption: "A query finds candidates; ranking narrows them to the evidence worth carrying forward.",
       camera: { position: [-8, 7, 13], target: [-0.4, 0.8, 0] },
       labels: ["question", "retrieve", "rank"],
       activeConnections: ["ask", "lookup", "rank"],
@@ -263,8 +252,7 @@ export const retrievalLayers: SlideStory = {
     {
       id: "grounded",
       title: "Bring the evidence back up.",
-      caption:
-        "The answer depends on selected evidence, not merely on having a large collection of documents.",
+      caption: "The answer depends on selected evidence, not merely on having a large collection of documents.",
       camera: { position: [8, 6, 12], target: [1, 1.2, 0] },
       labels: ["rank", "answer", "index"],
       activeConnections: ["answer"],
@@ -280,8 +268,7 @@ export const retrievalLayers: SlideStory = {
 export const parallelAgents: SlideStory = {
   id: "parallel-agents",
   title: "Fan out. Bring evidence back.",
-  description:
-    "Turn a single task into parallel investigations, then converge on a reviewed result.",
+  description: "Turn a single task into parallel investigations, then converge on a reviewed result.",
   nodes: [
     {
       id: "goal",
@@ -340,15 +327,13 @@ export const parallelAgents: SlideStory = {
         id: `out-${id}`,
         from: "planner",
         to: id,
-        tone: ["request", "change", "response"][i] as
-          "request" | "change" | "response",
+        tone: ["request", "change", "response"][i] as "request" | "change" | "response",
       },
       {
         id: `in-${id}`,
         from: id,
         to: "merge",
-        tone: ["request", "change", "response"][i] as
-          "request" | "change" | "response",
+        tone: ["request", "change", "response"][i] as "request" | "change" | "response",
       },
     ]),
     { id: "result", from: "merge", to: "result", tone: "response" },
@@ -357,8 +342,7 @@ export const parallelAgents: SlideStory = {
     {
       id: "goal",
       title: "Start with a bounded goal.",
-      caption:
-        "A coordinator owns the outcome and splits only the work that can proceed independently.",
+      caption: "A coordinator owns the outcome and splits only the work that can proceed independently.",
       camera: { position: [10, 9, 19], target: [0, 0, 0] },
       labels: ["goal", "planner", "result"],
       activeConnections: ["goal"],
@@ -373,8 +357,7 @@ export const parallelAgents: SlideStory = {
       id: "fanout",
       transition: { stagger: 0.07, duration: 1.5 },
       title: "Give independent work its own lane.",
-      caption:
-        "Research, implementation, and review spread into separate lanes with explicit responsibilities.",
+      caption: "Research, implementation, and review spread into separate lanes with explicit responsibilities.",
       camera: { position: [10, 11, 18], target: [0, 0, 0] },
       labels: ["planner", "research", "build", "review", "merge"],
       activeConnections: ["out-research", "out-build", "out-review"],
@@ -406,8 +389,7 @@ export const parallelAgents: SlideStory = {
     {
       id: "converge",
       title: "Converge on one reviewed result.",
-      caption:
-        "The coordinator reconciles the evidence. More agents do not remove the need for one accountable decision.",
+      caption: "The coordinator reconciles the evidence. More agents do not remove the need for one accountable decision.",
       camera: { position: [11, 8, 16], target: [2, 0, 0] },
       labels: ["research", "build", "review", "merge", "result"],
       activeConnections: ["in-research", "in-build", "in-review", "result"],
@@ -425,8 +407,7 @@ export const parallelAgents: SlideStory = {
 export const quarterTurn: SlideStory = {
   id: "quarter-turn",
   title: "One system, four perspectives",
-  description:
-    "A constant-radius quarter turn reveals a different architectural slice without rearranging the system.",
+  description: "A constant-radius quarter turn reveals a different architectural slice without rearranging the system.",
   nodes: [
     {
       id: "core",
@@ -475,16 +456,14 @@ export const quarterTurn: SlideStory = {
     {
       id: "front",
       title: "Start with the interface.",
-      caption:
-        "One architecture stays in place. Each turn changes what you explain.",
+      caption: "One architecture stays in place. Each turn changes what you explain.",
       camera: { position: [0, 10, 19], target: [0, 0, 0] },
       labels: ["api", "core"],
     },
     {
       id: "right",
       title: "Turn 90° to execution.",
-      caption:
-        "Keep the runtime as the anchor while capabilities come to the foreground.",
+      caption: "Keep the runtime as the anchor while capabilities come to the foreground.",
       camera: { position: [19, 10, 0], target: [0, 0, 0] },
       labels: ["tools", "core"],
       activeConnections: ["tools"],
@@ -492,8 +471,7 @@ export const quarterTurn: SlideStory = {
     {
       id: "back",
       title: "Another turn reveals state.",
-      caption:
-        "The same system, viewed through its memory and persistence boundary.",
+      caption: "The same system, viewed through its memory and persistence boundary.",
       camera: { position: [0, 10, -19], target: [0, 0, 0] },
       labels: ["data", "core"],
       activeConnections: ["data"],
@@ -512,8 +490,7 @@ export const quarterTurn: SlideStory = {
 export const stagedAssembly: SlideStory = {
   id: "staged-assembly",
   title: "Build the explanation in layers",
-  description:
-    "A fixed camera lets components arrive in sequence, then separates them for inspection.",
+  description: "A fixed camera lets components arrive in sequence, then separates them for inspection.",
   nodes: [
     {
       id: "data",
@@ -569,8 +546,7 @@ export const stagedAssembly: SlideStory = {
     {
       id: "assemble",
       title: "Build up the capabilities.",
-      caption:
-        "Each layer arrives in order. The camera stays still so the assembly is the only movement.",
+      caption: "Each layer arrives in order. The camera stays still so the assembly is the only movement.",
       camera: { position: [11, 8, 17], target: [0, 0, 0] },
       transition: { stagger: 0.14, duration: 1.7 },
       labels: ["tools", "runtime", "experience"],
@@ -578,8 +554,7 @@ export const stagedAssembly: SlideStory = {
     {
       id: "separate",
       title: "Pull apart the responsibilities.",
-      caption:
-        "Lift the layers to explain what each owns and where the boundaries sit.",
+      caption: "Lift the layers to explain what each owns and where the boundaries sit.",
       camera: { position: [11, 8, 17], target: [0, 0, 0] },
       transition: { stagger: 0.1 },
       nodes: {
@@ -595,8 +570,7 @@ export const stagedAssembly: SlideStory = {
 export const architectureShift: SlideStory = {
   id: "architecture-shift",
   title: "From handoffs to a shared workflow",
-  description:
-    "Use a spatial before-and-after: preserve component identities while reorganizing their relationships.",
+  description: "Use a spatial before-and-after: preserve component identities while reorganizing their relationships.",
   nodes: [
     {
       id: "request",
@@ -631,8 +605,7 @@ export const architectureShift: SlideStory = {
     {
       id: "before",
       title: "A chain of handoffs.",
-      caption:
-        "Each stage passes its output onward. Context has to travel with the handoff.",
+      caption: "Each stage passes its output onward. Context has to travel with the handoff.",
       camera: { position: [5, 10, 20], target: [0, 0, 0] },
       nodes: { state: { opacity: 0 } },
       labels: ["request", "plan", "execute", "verify"],
@@ -641,8 +614,7 @@ export const architectureShift: SlideStory = {
     {
       id: "after",
       title: "Organize around shared state.",
-      caption:
-        "The same components gather around a common record of progress and evidence.",
+      caption: "The same components gather around a common record of progress and evidence.",
       camera: { position: [5, 10, 20], target: [0, 0, 0] },
       transition: { duration: 2, stagger: 0.06 },
       nodes: {
@@ -657,8 +629,7 @@ export const architectureShift: SlideStory = {
     {
       id: "focus",
       title: "Keep the evidence in view.",
-      caption:
-        "Move closer to the shared record while preserving the surrounding responsibilities.",
+      caption: "Move closer to the shared record while preserving the surrounding responsibilities.",
       camera: { position: [3, 8, 13], target: [0, -0.5, 0] },
       transition: { camera: "dolly", duration: 1.8 },
       nodes: {

@@ -644,7 +644,9 @@
   box-shadow: 1px 0 0 var(--uipack-cx-tint);
 }
 .uipack-cx-harvey-table tr[data-highlight] > th {
-  box-shadow: inset 6px 0 0 var(--deck-accent), 1px 0 0 var(--uipack-cx-tint);
+  box-shadow:
+    inset 6px 0 0 var(--deck-accent),
+    1px 0 0 var(--uipack-cx-tint);
 }
 .uipack-cx-harvey-table tr[data-highlight] td {
   font-weight: 600;

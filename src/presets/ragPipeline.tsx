@@ -25,7 +25,8 @@ export const defaultRagPipeline: RagPipelineSpec = {
     number: "Figure 01",
     eyebrow: "RAG pipeline",
     title: "Two lanes, one index",
-    caption: "Ingest chunks and embeds documents into the index on its own schedule. A query retrieves from the same index, reranks, and generates. The lanes never block each other.",
+    caption:
+      "Ingest chunks and embeds documents into the index on its own schedule. A query retrieves from the same index, reranks, and generates. The lanes never block each other.",
     alt: "Three document sources feed an ingest lane of chunk, embed and upsert stages into a vector index; below, a user query passes through retrieve, rerank and generate stages, with retrieve reading the index, and ends in an answer.",
   },
   sources: [
@@ -65,7 +66,10 @@ export function ragPipelineParts(spec: RagPipelineSpec = defaultRagPipeline, id:
   const bus = {
     axis: "v" as const,
     at: busX,
-    stubs: [...spec.sources.map((_, i) => ({ at: srcY(i), to: src.x + src.w, flow: INGEST })), { at: iy, to: stage.x0, arrow: true, flow: INGEST }],
+    stubs: [
+      ...spec.sources.map((_, i) => ({ at: srcY(i), to: src.x + src.w, flow: INGEST })),
+      { at: iy, to: stage.x0, arrow: true, flow: INGEST },
+    ],
   };
   const sx = (i: number) => stage.x0 + i * stage.step;
   const ingestLast = sx(spec.ingest.length - 1) + stage.w;
@@ -111,25 +115,88 @@ export function ragPipelineParts(spec: RagPipelineSpec = defaultRagPipeline, id:
       <Lane x={index.x} w={index.w} y={40} title="Index" />
       <Lane x={stage.x0} w={sx(spec.stages.length - 1) + stage.w - stage.x0} y={248} title="Query" />
       {spec.sources.map((s, i) => (
-        <Node key={s.label} x={src.x} y={src.y0 + i * src.step} w={src.w} h={src.h} label={s.label} hint={s.hint} icon={s.icon ?? "doc"} flow={INGEST} size={13} />
+        <Node
+          key={s.label}
+          x={src.x}
+          y={src.y0 + i * src.step}
+          w={src.w}
+          h={src.h}
+          label={s.label}
+          hint={s.hint}
+          icon={s.icon ?? "doc"}
+          flow={INGEST}
+          size={13}
+        />
       ))}
       <Bus {...bus} from={Math.min(srcY(0), iy)} to={Math.max(srcY(spec.sources.length - 1), iy)} defs={id} kind="change" />
       {spec.sources.map((_, i) => (
-        <Packet key={i} points={busStub(bus, bus.stubs[i])} kind="change" dur={1.4} delay={-i * 0.5} reverse r={4} flow={INGEST} />
+        <Packet
+          key={i}
+          points={busStub(bus, bus.stubs[i])}
+          kind="change"
+          dur={1.4}
+          delay={-i * 0.5}
+          reverse
+          r={4}
+          flow={INGEST}
+        />
       ))}
       <Packet points={busStub(bus, bus.stubs[spec.sources.length])} kind="change" dur={1.2} flow={INGEST} r={4} />
       {spec.ingest.map((s, i) => (
-        <Node key={s.label} x={sx(i)} y={ingestY} w={stage.w} h={stage.h} label={s.label} hint={s.hint} sub={s.sub} icon={s.icon} flow={INGEST} size={13} subSize={10} />
+        <Node
+          key={s.label}
+          x={sx(i)}
+          y={ingestY}
+          w={stage.w}
+          h={stage.h}
+          label={s.label}
+          hint={s.hint}
+          sub={s.sub}
+          icon={s.icon}
+          flow={INGEST}
+          size={13}
+          subSize={10}
+        />
       ))}
       {chain(spec.ingest, iy, "change", INGEST)}
       <Connector points={toIndex} defs={id} kind="change" flow={INGEST} />
       <Packet points={toIndex} kind="change" dur={2} flow={INGEST} />
-      <Node {...index} label={spec.index.label} sub={spec.index.sub} icon={spec.index.icon ?? "db"} flow={[INGEST, QUERY]} hint={spec.index.hint ?? "Shared by both lanes"} />
-      <Node x={src.x} y={queryY} w={src.w} h={stage.h} label={spec.query.label} hint={spec.query.hint} icon={spec.query.icon ?? "user"} flow={QUERY} size={13} />
+      <Node
+        {...index}
+        label={spec.index.label}
+        sub={spec.index.sub}
+        icon={spec.index.icon ?? "db"}
+        flow={[INGEST, QUERY]}
+        hint={spec.index.hint ?? "Shared by both lanes"}
+      />
+      <Node
+        x={src.x}
+        y={queryY}
+        w={src.w}
+        h={stage.h}
+        label={spec.query.label}
+        hint={spec.query.hint}
+        icon={spec.query.icon ?? "user"}
+        flow={QUERY}
+        size={13}
+      />
       <Connector points={queryIn} defs={id} kind="request" flow={QUERY} />
       <Packet points={queryIn} kind="request" dur={1.2} flow={QUERY} r={4} />
       {spec.stages.map((s, i) => (
-        <Node key={s.label} x={sx(i)} y={queryY} w={stage.w} h={stage.h} label={s.label} hint={s.hint} sub={s.sub} icon={s.icon} flow={QUERY} size={13} subSize={10} />
+        <Node
+          key={s.label}
+          x={sx(i)}
+          y={queryY}
+          w={stage.w}
+          h={stage.h}
+          label={s.label}
+          hint={s.hint}
+          sub={s.sub}
+          icon={s.icon}
+          flow={QUERY}
+          size={13}
+          subSize={10}
+        />
       ))}
       {chain(spec.stages, qy, "request", QUERY)}
       <Connector points={read} defs={id} kind="request" flow={QUERY} />
@@ -138,7 +205,16 @@ export function ragPipelineParts(spec: RagPipelineSpec = defaultRagPipeline, id:
       <Label x={(retrieveX + index.x) / 2} y={index.y + index.h / 2 + 6} text="top-k" anchor="middle" />
       <Connector points={toAnswer} defs={id} kind="response" flow={QUERY} />
       <Packet points={toAnswer} kind="response" dur={1.4} flow={QUERY} r={4} />
-      <Node {...answer} label={spec.answer.label} hint={spec.answer.hint} sub={spec.answer.sub} icon={spec.answer.icon ?? "doc"} flow={QUERY} size={13} subSize={10} />
+      <Node
+        {...answer}
+        label={spec.answer.label}
+        hint={spec.answer.hint}
+        sub={spec.answer.sub}
+        icon={spec.answer.icon ?? "doc"}
+        flow={QUERY}
+        size={13}
+        subSize={10}
+      />
     </>
   );
 

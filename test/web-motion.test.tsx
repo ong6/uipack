@@ -44,7 +44,13 @@ class FakeIO {
   unobserve() {}
 }
 const setVisible = (visible: boolean) =>
-  act(() => observers.forEach((o) => o.el && o.cb([{ isIntersecting: visible, target: o.el } as unknown as IntersectionObserverEntry], {} as IntersectionObserver)));
+  act(() =>
+    observers.forEach(
+      (o) =>
+        o.el &&
+        o.cb([{ isIntersecting: visible, target: o.el } as unknown as IntersectionObserverEntry], {} as IntersectionObserver),
+    ),
+  );
 
 beforeEach(() => {
   observers = [];
@@ -455,13 +461,19 @@ describe("backgrounds", () => {
     type RGB = [number, number, number];
     const hex = (h: string): RGB => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)) as RGB;
     const lum = (c: RGB) =>
-      c.map((v) => v / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)).reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
+      c
+        .map((v) => v / 255)
+        .map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+        .reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
     const ratio = (a: RGB, b: RGB) => {
       const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
       return (x + 0.05) / (y + 0.05);
     };
     const blend = (fg: RGB, bg: RGB, a: number): RGB => fg.map((v, i) => v * a + bg[i] * (1 - a)) as RGB;
-    for (const block of [css.slice(css.indexOf(".uipack-web {"), css.indexOf("@media (prefers-color-scheme: dark)")), css.slice(css.indexOf('[data-theme="dark"] .uipack-web:not'))]) {
+    for (const block of [
+      css.slice(css.indexOf(".uipack-web {"), css.indexOf("@media (prefers-color-scheme: dark)")),
+      css.slice(css.indexOf('[data-theme="dark"] .uipack-web:not')),
+    ]) {
       const get = (k: string) => block.match(new RegExp(`--web-${k}: ([^;]+);`))![1].trim();
       const ink = get("ink-rgb").split(/\s+/).map(Number) as RGB;
       const bg = hex(get("bg"));

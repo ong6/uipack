@@ -52,7 +52,10 @@ test.describe("themes", () => {
       await page.goto(`/?theme=${theme}`);
       await expect(page.locator("figure.uipack")).toHaveCount(18); // one per pattern section, the drill-down included
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
-      const bg = await page.locator("figure.uipack").first().evaluate((el) => getComputedStyle(el).backgroundColor);
+      const bg = await page
+        .locator("figure.uipack")
+        .first()
+        .evaluate((el) => getComputedStyle(el).backgroundColor);
       expect(bg).toBe(theme === "dark" ? "rgb(14, 21, 18)" : "rgb(255, 255, 255)");
       expect(errors).toEqual([]);
     });

@@ -48,9 +48,31 @@ function Wide() {
     <>
       <Defs id={id} />
       <Node {...change} label="Change" sub="one small edit" icon="doc" flow={[FWD, ROUND]} hint="Where every round starts" />
-      <Node {...build} label="Build" sub="compile · bundle" icon="tool" flow={[FWD, REPEAT, RETRY]} hint="Repeats on its own while you edit" />
-      <Node {...test} label="Test" sub="unit · end to end" icon="lock" flow={[FWD, RETRY]} hint="A failure goes straight back to Build" />
-      <Node {...release} label="Release" sub="ship · watch" icon="cloud" accent flow={[FWD, ROUND]} hint="What you learn here starts the next round" />
+      <Node
+        {...build}
+        label="Build"
+        sub="compile · bundle"
+        icon="tool"
+        flow={[FWD, REPEAT, RETRY]}
+        hint="Repeats on its own while you edit"
+      />
+      <Node
+        {...test}
+        label="Test"
+        sub="unit · end to end"
+        icon="lock"
+        flow={[FWD, RETRY]}
+        hint="A failure goes straight back to Build"
+      />
+      <Node
+        {...release}
+        label="Release"
+        sub="ship · watch"
+        icon="cloud"
+        accent
+        flow={[FWD, ROUND]}
+        hint="What you learn here starts the next round"
+      />
 
       {[hop(change, build), hop(build, test), hop(test, release)].map((p, i) => (
         <g key={i}>
@@ -124,7 +146,19 @@ function Narrow() {
                 <Packet points={into} kind="request" dur={1.4} delay={-i * 0.35} r={4} flow={FWD} />
               </>
             ) : null}
-            <Node x={NX} y={ny(i)} w={NW} h={NH} label={s.label} sub={s.sub} icon={s.icon} accent={"accent" in s} flow={[...s.flow]} size={15} subSize={12} />
+            <Node
+              x={NX}
+              y={ny(i)}
+              w={NW}
+              h={NH}
+              label={s.label}
+              sub={s.sub}
+              icon={s.icon}
+              accent={"accent" in s}
+              flow={[...s.flow]}
+              size={15}
+              subSize={12}
+            />
           </g>
         );
       })}
@@ -154,7 +188,8 @@ export function LoopsFigure({ number }: { number: string }) {
       viewBox="0 0 1120 320"
       narrow={<Narrow />}
       narrowViewBox="0 0 360 504"
-      alt="Four steps in a row: change, build, test and release. A self-loop over Build repeats it on every save; a failing test returns to Build; a dashed path from Release back to Change starts the next round.">
+      alt="Four steps in a row: change, build, test and release. A self-loop over Build repeats it on every save; a failing test returns to Build; a dashed path from Release back to Change starts the next round."
+    >
       <Wide />
     </Figure>
   );

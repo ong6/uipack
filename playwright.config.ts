@@ -37,9 +37,11 @@ export default defineConfig({
         ...devices["Desktop Chrome"],
         // Linux headless-shell defaults to SwiftShader Subzero. Mesa llvmpipe
         // under Xvfb meets the same paint budgets without changing scene quality.
-        launchOptions: linuxCI ? {
-          args: ["--use-gl=angle", "--use-angle=gl", "--ignore-gpu-blocklist", "--enable-webgl", "--disable-gpu-sandbox"],
-        } : undefined,
+        launchOptions: linuxCI
+          ? {
+              args: ["--use-gl=angle", "--use-angle=gl", "--ignore-gpu-blocklist", "--enable-webgl", "--disable-gpu-sandbox"],
+            }
+          : undefined,
       },
     },
     { name: "webkit", use: { ...devices["Desktop Safari"] } },

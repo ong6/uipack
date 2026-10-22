@@ -51,7 +51,13 @@ const Arrow = ({ direction }: { direction: KpiDelta["direction"] }) => (
 );
 
 /** A row of stat tiles: label, value, a signed delta with an arrow, and a sparkline. */
-export function KpiTiles({ items, columns }: { items: readonly KpiItem[]; /** Tiles per row. Default: all in one row. */ columns?: number }) {
+export function KpiTiles({
+  items,
+  columns,
+}: {
+  items: readonly KpiItem[];
+  /** Tiles per row. Default: all in one row. */ columns?: number;
+}) {
   const per = Math.max(1, columns ?? items.length);
   return (
     <ul className="uipack-cx-kpis" style={{ gridTemplateColumns: `repeat(${per}, minmax(0, 1fr))` }}>

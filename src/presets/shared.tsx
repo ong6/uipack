@@ -58,7 +58,11 @@ export function PresetFigure<S extends { figure: FigureMeta }>({ spec, parts, id
 }
 
 /** Build the element a preset wrapper returns. */
-export function presetFigure<S extends { figure: FigureMeta }>(spec: S, parts: (spec: S, id: string) => PresetParts, id?: string) {
+export function presetFigure<S extends { figure: FigureMeta }>(
+  spec: S,
+  parts: (spec: S, id: string) => PresetParts,
+  id?: string,
+) {
   return <PresetFigure spec={spec} parts={parts} id={id} />;
 }
 
@@ -75,7 +79,8 @@ export function toFigure(meta: FigureMeta, parts: PresetParts, id?: string) {
       viewBox={parts.viewBox}
       narrow={parts.narrow}
       narrowViewBox={parts.narrowViewBox}
-      alt={meta.alt}>
+      alt={meta.alt}
+    >
       {parts.wide}
     </Figure>
   );
@@ -93,7 +98,10 @@ export const textPx = (text: string, size: number, mono = false) => text.length 
  * The narrowest Node width (snapped to the 8px grid, at least `min`) that holds every item's label
  * and mono sub at the given sizes, with Node's 14px padding and 26px icon column.
  */
-export function nodeWidthFor(items: readonly Item[], { min, size = 14, subSize = 11 }: { min: number; size?: number; subSize?: number }): number {
+export function nodeWidthFor(
+  items: readonly Item[],
+  { min, size = 14, subSize = 11 }: { min: number; size?: number; subSize?: number },
+): number {
   const need = Math.max(
     0,
     ...items.map((s) => (s.icon ? 26 : 0) + Math.max(textPx(s.label, size), s.sub ? textPx(s.sub, subSize, true) : 0) + 28),
@@ -178,11 +186,30 @@ export function Stack({ steps, id, y0 = 24 }: { steps: StackStep[]; id: string; 
           <g key={i}>
             {i > 0 && s.link !== false ? (
               <>
-                <Connector points={into} defs={id} kind={kind === "neutral" ? undefined : (kind as Exclude<TokenKind, "neutral">)} flow={s.flow} />
+                <Connector
+                  points={into}
+                  defs={id}
+                  kind={kind === "neutral" ? undefined : (kind as Exclude<TokenKind, "neutral">)}
+                  flow={s.flow}
+                />
                 <Packet points={into} kind={kind} dur={1.4} delay={-i * 0.35} reverse={s.back} flow={s.flow} r={4} />
               </>
             ) : null}
-            <Node x={SX} y={y} w={SW} h={SH} label={s.label} sub={s.sub} icon={s.icon} hint={s.hint} size={13} subSize={10} flow={s.flow} accent={s.accent} dashed={s.dashed} />
+            <Node
+              x={SX}
+              y={y}
+              w={SW}
+              h={SH}
+              label={s.label}
+              sub={s.sub}
+              icon={s.icon}
+              hint={s.hint}
+              size={13}
+              subSize={10}
+              flow={s.flow}
+              accent={s.accent}
+              dashed={s.dashed}
+            />
           </g>
         );
       })}

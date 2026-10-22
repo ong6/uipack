@@ -67,7 +67,15 @@ export function Wordmark({ size = 24 }: { size?: number }) {
       <g fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
         {marks.uipack}
       </g>
-      <text x="40" y="22" fontSize="18" fontWeight={700} fontFamily="var(--uipack-mono, ui-monospace, monospace)" letterSpacing=".02em" fill="currentColor">
+      <text
+        x="40"
+        y="22"
+        fontSize="18"
+        fontWeight={700}
+        fontFamily="var(--uipack-mono, ui-monospace, monospace)"
+        letterSpacing=".02em"
+        fill="currentColor"
+      >
         uipack
       </text>
     </svg>

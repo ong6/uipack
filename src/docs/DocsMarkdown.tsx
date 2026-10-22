@@ -1,10 +1,4 @@
-import {
-  Children,
-  createElement,
-  isValidElement,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
+import { Children, createElement, isValidElement, type CSSProperties, type ReactNode } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -115,36 +109,25 @@ interface TableNode {
 /** Cells in the first row, so a wide table scrolls instead of squeezing. */
 function tableColumns(node: TableNode | undefined): number {
   const row = (node?.children ?? [])
-    .flatMap((part) => (part.tagName === "tr" ? [part] : part.children ?? []))
+    .flatMap((part) => (part.tagName === "tr" ? [part] : (part.children ?? [])))
     .find((part) => part.tagName === "tr");
-  const cells = (row?.children ?? []).filter(
-    (cell) => cell.tagName === "th" || cell.tagName === "td",
-  ).length;
+  const cells = (row?.children ?? []).filter((cell) => cell.tagName === "th" || cell.tagName === "td").length;
   return Math.max(1, cells || 2);
 }
 
 type HeadingComponent = NonNullable<Components["h1"]>;
 
-function headingComponent(
-  level: HeadingLevel,
-  headingIds: Map<number, string>,
-): HeadingComponent {
+function headingComponent(level: HeadingLevel, headingIds: Map<number, string>): HeadingComponent {
   return function DocsHeading({ node, children, ...props }) {
     const title = textFromChildren(children);
-    const id =
-      headingIds.get(node?.position?.start.line || 0) ||
-      slugifyDocsHeading(title);
+    const id = headingIds.get(node?.position?.start.line || 0) || slugifyDocsHeading(title);
 
     return createElement(
       `h${level}`,
       { ...props, id, "aria-label": title },
       children,
       " ",
-      <a
-        className="uipack-docs__heading-anchor"
-        href={`#${id}`}
-        aria-label={`Link to ${title}`}
-      >
+      <a className="uipack-docs__heading-anchor" href={`#${id}`} aria-label={`Link to ${title}`}>
         <span aria-hidden="true">#</span>
       </a>,
     );
@@ -152,11 +135,8 @@ function headingComponent(
 }
 
 export function DocsMarkdown({ source, headingOffset = 0 }: DocsMarkdownProps) {
-  const headingIds = new Map(
-    extractDocsHeadings(source).map((heading) => [heading.line, heading.id]),
-  );
-  const heading = (level: HeadingLevel) =>
-    headingComponent(shiftLevel(level, headingOffset), headingIds);
+  const headingIds = new Map(extractDocsHeadings(source).map((heading) => [heading.line, heading.id]));
+  const heading = (level: HeadingLevel) => headingComponent(shiftLevel(level, headingOffset), headingIds);
   const components: Components = {
     h1: heading(1),
     h2: heading(2),
@@ -165,11 +145,7 @@ export function DocsMarkdown({ source, headingOffset = 0 }: DocsMarkdownProps) {
     h5: heading(5),
     h6: heading(6),
     table: ({ node, ...props }) => (
-      <div
-        className="uipack-docs__table"
-        tabIndex={0}
-        style={{ "--docs-table-columns": tableColumns(node) } as CSSProperties}
-      >
+      <div className="uipack-docs__table" tabIndex={0} style={{ "--docs-table-columns": tableColumns(node) } as CSSProperties}>
         <table {...props} />
       </div>
     ),

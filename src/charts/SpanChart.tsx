@@ -73,11 +73,17 @@ function Row({ row, labels }: { row: SpanRowModel; labels: SpanChartLabels }) {
               )}
               <span className="uipack-span__nv">
                 <b title={item.name.length > 18 ? item.name : undefined}>{item.name}</b>
-                {item.valueLabel ? <em title={item.valueLabel.length > 8 ? item.valueLabel : undefined}>{item.valueLabel}</em> : null}
+                {item.valueLabel ? (
+                  <em title={item.valueLabel.length > 8 ? item.valueLabel : undefined}>{item.valueLabel}</em>
+                ) : null}
               </span>
               {row.badge || item.tags?.length ? (
                 <span className="uipack-span__sub">
-                  {row.badge && item.status ? <span className="uipack-span__badge" data-kind={item.status.kind}>{row.badge}</span> : null}
+                  {row.badge && item.status ? (
+                    <span className="uipack-span__badge" data-kind={item.status.kind}>
+                      {row.badge}
+                    </span>
+                  ) : null}
                   {item.tags?.map((tag) => (
                     <span className="uipack-span__tag" key={tag}>
                       {tag}
@@ -202,7 +208,13 @@ function SizeControl({ model }: { model: SpanChartModel }) {
         <span className="uipack-span__num">{model.total}</span>
       </label>
       {tiers.map((tier, k) => (
-        <label htmlFor={inputId.tier(id, tier.id)} className="uipack-span__chip" data-t={tier.id} key={tier.id} title={tier.range}>
+        <label
+          htmlFor={inputId.tier(id, tier.id)}
+          className="uipack-span__chip"
+          data-t={tier.id}
+          key={tier.id}
+          title={tier.range}
+        >
           {tier.label}
           <span className="uipack-span__num">{model.tierCounts[k]}</span>
         </label>
@@ -345,7 +357,15 @@ export function SpanChart(props: SpanChartProps) {
               <div className="uipack-span__inputs">
                 {tiers.length ? (
                   <div role="radiogroup" aria-label={labels.size}>
-                    <input type="radio" className="uipack-span__tier-all" name={`${id}-tier`} id={inputId.tierAll(id)} value="*" defaultChecked aria-label={labels.allSizes} />
+                    <input
+                      type="radio"
+                      className="uipack-span__tier-all"
+                      name={`${id}-tier`}
+                      id={inputId.tierAll(id)}
+                      value="*"
+                      defaultChecked
+                      aria-label={labels.allSizes}
+                    />
                     {tiers.map((tier) => (
                       <input
                         type="radio"
@@ -360,7 +380,12 @@ export function SpanChart(props: SpanChartProps) {
                   </div>
                 ) : null}
                 {model.deals ? (
-                  <input type="checkbox" className="uipack-span__deals-input" id={inputId.deals(id)} aria-label={`${labels.deals}, ${model.deals}`} />
+                  <input
+                    type="checkbox"
+                    className="uipack-span__deals-input"
+                    id={inputId.deals(id)}
+                    aria-label={`${labels.deals}, ${model.deals}`}
+                  />
                 ) : null}
               </div>
             ) : null}
@@ -407,29 +432,50 @@ export function SpanChart(props: SpanChartProps) {
             {/* The layer state (and the expand toggle). Every visible control is a
                 label for one of these. They live in the sticky header, with the column
                 headers that label them, so focusing one never scrolls the page. */}
-              <div className="uipack-span__inputs">
-                <div role="radiogroup" aria-label={labels.layer}>
-                  <input type="radio" className="uipack-span__all-input" name={`${id}-layer`} id={inputId.layerAll(id)} value="*" defaultChecked aria-label={labels.allLayers} />
-                  {layers.map((layer) => (
-                    <input type="radio" className="uipack-span__layer-input" name={`${id}-layer`} id={inputId.layer(id, layer.id)} value={layer.id} aria-label={layer.label} key={layer.id} />
-                  ))}
-                </div>
-                {model.hasToggle ? (
-                  // Outside the form, so "Clear filters" does not collapse the list.
+            <div className="uipack-span__inputs">
+              <div role="radiogroup" aria-label={labels.layer}>
+                <input
+                  type="radio"
+                  className="uipack-span__all-input"
+                  name={`${id}-layer`}
+                  id={inputId.layerAll(id)}
+                  value="*"
+                  defaultChecked
+                  aria-label={labels.allLayers}
+                />
+                {layers.map((layer) => (
                   <input
-                    type="checkbox"
-                    className="uipack-span__expand"
-                    id={inputId.expand(id)}
-                    form={`${id}-keep`}
-                    defaultChecked={model.initialAll}
-                    aria-label={fill(labels.showAll, { n: model.total })}
+                    type="radio"
+                    className="uipack-span__layer-input"
+                    name={`${id}-layer`}
+                    id={inputId.layer(id, layer.id)}
+                    value={layer.id}
+                    aria-label={layer.label}
+                    key={layer.id}
                   />
-                ) : null}
+                ))}
               </div>
+              {model.hasToggle ? (
+                // Outside the form, so "Clear filters" does not collapse the list.
+                <input
+                  type="checkbox"
+                  className="uipack-span__expand"
+                  id={inputId.expand(id)}
+                  form={`${id}-keep`}
+                  defaultChecked={model.initialAll}
+                  aria-label={fill(labels.showAll, { n: model.total })}
+                />
+              ) : null}
+            </div>
             {model.zones.length ? (
               <div className="uipack-span__zones" aria-hidden="true">
                 {model.zones.map(({ zone, start, end }) => (
-                  <span key={zone.id} data-zone-start={zoneStarts.has(start) ? "" : undefined} style={{ gridColumn: `${start + 2} / ${end + 3}` }} title={zone.label}>
+                  <span
+                    key={zone.id}
+                    data-zone-start={zoneStarts.has(start) ? "" : undefined}
+                    style={{ gridColumn: `${start + 2} / ${end + 3}` }}
+                    title={zone.label}
+                  >
                     <span>
                       <CaseSafe text={zone.label} keep="uipack-span__keep" />
                     </span>

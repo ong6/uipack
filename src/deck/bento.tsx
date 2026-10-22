@@ -1,12 +1,4 @@
-import {
-  Children,
-  isValidElement,
-  useRef,
-  useState,
-  type CSSProperties,
-  type ReactElement,
-  type ReactNode,
-} from "react";
+import { Children, isValidElement, useRef, useState, type CSSProperties, type ReactElement, type ReactNode } from "react";
 import { useIsoLayoutEffect } from "../env";
 import { useDeckSlide } from "./parts";
 
@@ -67,8 +59,7 @@ export function bentoCamera(
 }
 
 /** The tour stop for a build step: 0 is the overview, 1…n focus cells, n + 1 pulls back. */
-export const bentoFocusAt = (step: number, tour: readonly string[]) =>
-  step >= 1 && step <= tour.length ? tour[step - 1] : null;
+export const bentoFocusAt = (step: number, tour: readonly string[]) => (step >= 1 && step <= tour.length ? tour[step - 1] : null);
 
 /**
  * Apple-style bento: a grid of containers, and a camera that moves between them on Next. Each
@@ -107,9 +98,7 @@ export function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, classNam
   );
   // Tour stops whose cell has a detail: the read and print views add a page for each, so a
   // forwarded deck keeps what the camera showed.
-  const detailStops = tour
-    .map((id, i) => (cells.some((c) => c.props.id === id && c.props.detail) ? i + 1 : 0))
-    .filter(Boolean);
+  const detailStops = tour.map((id, i) => (cells.some((c) => c.props.id === id && c.props.detail) ? i + 1 : 0)).filter(Boolean);
 
   return (
     <div

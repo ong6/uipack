@@ -12,8 +12,25 @@ import {
   type SpanItem,
   type SpanLayer,
 } from "../src/charts";
-import { cssIdent, LABEL_GAP, columnWidth, monogram, spanRuns, spanThresholds, textWidth, twoLineWidth } from "../src/charts/model";
-import { aiStack, aiStackDiagram, aiStackItems, aiStackLayers, aiStackTiers, aiStackZones, syntheticStack } from "../examples/aiStack";
+import {
+  cssIdent,
+  LABEL_GAP,
+  columnWidth,
+  monogram,
+  spanRuns,
+  spanThresholds,
+  textWidth,
+  twoLineWidth,
+} from "../src/charts/model";
+import {
+  aiStack,
+  aiStackDiagram,
+  aiStackItems,
+  aiStackLayers,
+  aiStackTiers,
+  aiStackZones,
+  syntheticStack,
+} from "../examples/aiStack";
 
 const mount = (el: ReactElement) => {
   const host = document.createElement("div");
@@ -46,7 +63,13 @@ describe("SpanChart model", () => {
     const model = buildSpanModel({
       id: "s",
       layers,
-      items: [item("b-mid", { value: 5 }), item("none", { featured: true }), item("z-big", { value: 10 }), item("a-big", { value: 10 }), item("aaa-none")],
+      items: [
+        item("b-mid", { value: 5 }),
+        item("none", { featured: true }),
+        item("z-big", { value: 10 }),
+        item("a-big", { value: 10 }),
+        item("aaa-none"),
+      ],
     });
     expect(model.groups[0].rows.map((r) => r.item.id)).toEqual(["a-big", "z-big", "b-mid", "aaa-none", "none"]);
   });
@@ -92,7 +115,8 @@ describe("SpanChart model", () => {
 
   it("keeps at least 8px between neighbouring short labels wherever they show", () => {
     const t = spanThresholds(aiStackLayers);
-    const width = (l: (typeof aiStackLayers)[number]) => textWidth(l.short!.split("-")[0] + (l.short!.includes("-") ? "-" : ""), 11, -0.01);
+    const width = (l: (typeof aiStackLayers)[number]) =>
+      textWidth(l.short!.split("-")[0] + (l.short!.includes("-") ? "-" : ""), 11, -0.01);
     for (const c of [t.short, t.wide, 894, t.full - 1]) {
       const col = columnWidth(c, aiStackLayers.length, c >= t.wide);
       for (let i = 1; i < aiStackLayers.length; i++) {
@@ -120,9 +144,15 @@ describe("SpanChart markup", () => {
   });
 
   it("starts expanded with initial all, and drops the control when nothing or everything is featured", () => {
-    expect(mount(<SpanChart {...aiStack} initial="all" />).querySelector<HTMLInputElement>(".uipack-span__expand")!.checked).toBe(true);
-    expect(mount(<SpanChart id="n" layers={layers} items={[item("x"), item("y")]} />).querySelector(".uipack-span__expand")).toBeNull();
-    expect(mount(<SpanChart id="f" layers={layers} items={[item("x", { featured: true })]} />).querySelector(".uipack-span__expand")).toBeNull();
+    expect(mount(<SpanChart {...aiStack} initial="all" />).querySelector<HTMLInputElement>(".uipack-span__expand")!.checked).toBe(
+      true,
+    );
+    expect(
+      mount(<SpanChart id="n" layers={layers} items={[item("x"), item("y")]} />).querySelector(".uipack-span__expand"),
+    ).toBeNull();
+    expect(
+      mount(<SpanChart id="f" layers={layers} items={[item("x", { featured: true })]} />).querySelector(".uipack-span__expand"),
+    ).toBeNull();
   });
 
   it("keeps all filter state in one set of inputs that every visible control labels", () => {
@@ -148,7 +178,9 @@ describe("SpanChart markup", () => {
     expect(toggle).toHaveAttribute("aria-label", `Deals, ${deals.length}`);
     expect(h.querySelectorAll(".uipack-span__item[data-deal]")).toHaveLength(deals.length);
     expect(h.querySelector('[data-item="builder"]')).not.toHaveAttribute("data-deal");
-    expect(mount(<SpanChart {...aiStack} id="d2" labels={{ deals: "Sold" }} />).querySelector(".uipack-span__deals-input")).toHaveAttribute("aria-label", `Sold, ${deals.length}`);
+    expect(
+      mount(<SpanChart {...aiStack} id="d2" labels={{ deals: "Sold" }} />).querySelector(".uipack-span__deals-input"),
+    ).toHaveAttribute("aria-label", `Sold, ${deals.length}`);
   });
 
   it("emits rules keyed by the chart's id for each layer, size and combination", () => {
@@ -156,7 +188,9 @@ describe("SpanChart markup", () => {
     const css = spanChartCss(model);
     const on = (id: string) => `:has(#ai-stack-${id}:checked)`;
     expect(css).toContain(`#ai-stack${on("layer-inference")}{--sp-active:7}`);
-    expect(css).toContain(`#ai-stack${on("layer-inference")} [data-l="inference"]{--sp-sel:1;--sp-now:inline-flex;--sp-now-text:inline}`);
+    expect(css).toContain(
+      `#ai-stack${on("layer-inference")} [data-l="inference"]{--sp-sel:1;--sp-now:inline-flex;--sp-now-text:inline}`,
+    );
     expect(css).toContain(`#ai-stack${on("layer-inference")} .uipack-span__item:not([data-layers~="inference"])`);
     expect(css).toContain(`#ai-stack${on("tier-small")} .uipack-span__item:not([data-tier="small"])`);
     expect(css).toContain(`#ai-stack:has(#ai-stack-layer-inference:focus-visible) [data-l="inference"]{--sp-focus:1}`);
@@ -177,7 +211,10 @@ describe("SpanChart markup", () => {
     for (const { filter, key } of model.groupRules) {
       for (const g of model.groups) {
         const passes = g.rows.some(
-          (r) => (!filter.layer || r.layerIds.includes(filter.layer)) && (!filter.tier || r.tier?.id === filter.tier) && (!filter.deals || r.deal),
+          (r) =>
+            (!filter.layer || r.layerIds.includes(filter.layer)) &&
+            (!filter.tier || r.tier?.id === filter.tier) &&
+            (!filter.deals || r.deal),
         );
         expect(g.keys.includes(key)).toBe(passes);
       }
@@ -235,7 +272,13 @@ describe("SpanChart markup", () => {
     // The phone drawer holds the same sections.
     expect(h.querySelector(".uipack-span__drawer .uipack-span__key")!.textContent).toBe(key.textContent);
     // Older hosts pass only tagLegend; the other words have defaults.
-    const relabelled = mount(<SpanChart {...aiStack} id="k2" labels={{ tagLegend: "model type", valueLegend: "market cap or valuation", keyDeals: "Exits" }} />);
+    const relabelled = mount(
+      <SpanChart
+        {...aiStack}
+        id="k2"
+        labels={{ tagLegend: "model type", valueLegend: "market cap or valuation", keyDeals: "Exits" }}
+      />,
+    );
     expect(relabelled.querySelector(".uipack-span__key")!.textContent).toContain("Exits");
     expect(relabelled.querySelector(".uipack-span__key")!.textContent).toContain("$4.5Tmarket cap or valuation");
     expect(relabelled.querySelector(".uipack-span__key")!.textContent).toContain("nuclearmodel type");
@@ -260,7 +303,9 @@ describe("SpanChart markup", () => {
     });
     expect(h.querySelector(".uipack-span__toolbar .uipack-span__chip--toggle")!.textContent).toBe(`Deals${deals.length}`);
     const featured = aiStackItems.filter((i) => i.featured).length;
-    expect(h.querySelector(".uipack-span__toggle--foot")!.textContent).toBe(`Show all ${aiStackItems.length} companiesShow the ${featured} featured`);
+    expect(h.querySelector(".uipack-span__toggle--foot")!.textContent).toBe(
+      `Show all ${aiStackItems.length} companiesShow the ${featured} featured`,
+    );
   });
 
   it("ships a hidden search field and a hidden no-match state for the enhancement", () => {
@@ -330,7 +375,9 @@ describe("SpanChart markup", () => {
     expect(h.querySelectorAll(".uipack-span__drawer .uipack-span__chip[data-l]")).toHaveLength(aiStackLayers.length + 1);
     // Nothing focusable or scrollable sits inside the hidden chip rows.
     expect(h.querySelector(".uipack-span__scroll")).toBeNull();
-    expect(h.querySelectorAll('[aria-hidden="true"] :is(a[href], button, input, summary, [tabindex]:not([tabindex="-1"]))')).toHaveLength(0);
+    expect(
+      h.querySelectorAll('[aria-hidden="true"] :is(a[href], button, input, summary, [tabindex]:not([tabindex="-1"]))'),
+    ).toHaveLength(0);
   });
 
   it("shows the two swatches and the deals toggle outside the phone drawer", () => {
@@ -384,7 +431,9 @@ describe("SpanChart markup", () => {
   });
 
   it("keeps 158 rows under 1.1 KB each", () => {
-    const html = renderToStaticMarkup(<SpanChart id="big" layers={aiStackLayers} zones={aiStackZones} tiers={aiStackTiers} items={syntheticStack(158)} />);
+    const html = renderToStaticMarkup(
+      <SpanChart id="big" layers={aiStackLayers} zones={aiStackZones} tiers={aiStackTiers} items={syntheticStack(158)} />,
+    );
     const rows = html.match(/<li class="uipack-span__item"[\s\S]*?<\/li>/g)!;
     expect(rows).toHaveLength(158);
     expect(rows.join("").length / rows.length).toBeLessThan(1100);
@@ -392,7 +441,10 @@ describe("SpanChart markup", () => {
 });
 
 describe("SpanChart validation", () => {
-  const build = (items: SpanItem[], extra = {}) => () => buildSpanModel({ id: "v", layers, items, ...extra });
+  const build =
+    (items: SpanItem[], extra = {}) =>
+    () =>
+      buildSpanModel({ id: "v", layers, items, ...extra });
   it("fails loudly on bad data", () => {
     expect(build([item("x", { primary: "zz" })])).toThrow(/item "x" has unknown primary layer "zz". Known layers: a, b, c/);
     expect(build([item("x", { also: ["b", "nope"] })])).toThrow(/item "x" lists unknown layer "nope" in `also`/);
@@ -400,7 +452,9 @@ describe("SpanChart validation", () => {
     expect(build([item("x", { tier: "huge" })], { tiers: [{ id: "big", label: "Big" }] })).toThrow(/unknown tier "huge"/);
     expect(build([item("x", { tier: "huge" })])).toThrow(/has a tier but the chart has no `tiers`/);
     expect(build([item("x", { status: { kind: "acquired" } })])).toThrow(/needs a status `label`/);
-    expect(() => buildSpanModel({ id: "has space", layers, items: [] })).toThrow(/`id` must be a non-empty string without spaces/);
+    expect(() => buildSpanModel({ id: "has space", layers, items: [] })).toThrow(
+      /`id` must be a non-empty string without spaces/,
+    );
     expect(() =>
       buildSpanModel({
         id: "z",
@@ -492,7 +546,8 @@ describe("enhanceSpanChart", () => {
     );
     const root = host.querySelector<HTMLElement>(".uipack-span")!;
     const field = root.querySelector<HTMLInputElement>("input[type=search]")!;
-    const missing = () => [...root.querySelectorAll(".uipack-span__item[data-span-miss]")].map((el) => el.getAttribute("data-item")).sort();
+    const missing = () =>
+      [...root.querySelectorAll(".uipack-span__item[data-span-miss]")].map((el) => el.getAttribute("data-item")).sort();
     const type = (text: string) => {
       field.value = text;
       field.dispatchEvent(new Event("input", { bubbles: true }));
@@ -556,7 +611,13 @@ describe("LayerStack", () => {
     const order = [...host.querySelectorAll(".uipack-stack__zone-head, .uipack-stack__band")].map((el) =>
       el.classList.contains("uipack-stack__zone-head") ? `zone:${el.textContent}` : el.id.replace("ai-stack-layers-", ""),
     );
-    expect(order.slice(0, 5)).toEqual(["zone:Serving and productrun on every request", "apps", "harness", "inference", "zone:Modelsbuilt once per model"]);
+    expect(order.slice(0, 5)).toEqual([
+      "zone:Serving and productrun on every request",
+      "apps",
+      "harness",
+      "inference",
+      "zone:Modelsbuilt once per model",
+    ]);
   });
 
   it("spans each rail over exactly its layers' rows, and each zone box from its label to its end row", () => {
@@ -587,8 +648,13 @@ describe("LayerStack", () => {
     expect(inference.querySelector(".uipack-stack__go")!.textContent).toBe("");
     expect(inference.querySelector(".uipack-stack__go-text")).toHaveAttribute("aria-hidden", "true");
     expect(inference.querySelector(".uipack-stack__go-text")!.textContent).toBe("Go to section");
-    expect(inference).toHaveAttribute("aria-label", "Layer 08 Inference. Every request costs compute; price per token sets the margin. Go to section");
-    expect(inference.textContent!.replace("Go to section", "")).toBe("Layer 08 Inference. Every request costs compute; price per token sets the margin.");
+    expect(inference).toHaveAttribute(
+      "aria-label",
+      "Layer 08 Inference. Every request costs compute; price per token sets the margin. Go to section",
+    );
+    expect(inference.textContent!.replace("Go to section", "")).toBe(
+      "Layer 08 Inference. Every request costs compute; price per token sets the margin.",
+    );
     const relabelled = mount(<LayerStack {...aiStackDiagram} id="g2" labels={{ go: "Read" }} />);
     expect(relabelled.querySelector(".uipack-stack__go-text")!.textContent).toBe("Read");
     expect(relabelled.querySelector(".uipack-stack__band")!.getAttribute("aria-label")).toMatch(/\. Read$/);
@@ -600,7 +666,15 @@ describe("LayerStack", () => {
         id="opt"
         zones={[{ id: "z", label: "Z" }]}
         layers={[
-          { id: "a", label: "A", zone: "z", summary: "s", detail: "Why?", metric: { value: "280×", label: "cheaper" }, href: "#a" },
+          {
+            id: "a",
+            label: "A",
+            zone: "z",
+            summary: "s",
+            detail: "Why?",
+            metric: { value: "280×", label: "cheaper" },
+            href: "#a",
+          },
           { id: "b", label: "B", zone: "z", summary: "Only a summary." },
         ]}
       />,
@@ -677,11 +751,20 @@ describe("LayerStack", () => {
   });
 
   it("fails loudly on bad data", () => {
-    const zones = [{ id: "z", label: "Z" }, { id: "y", label: "Y" }];
+    const zones = [
+      { id: "z", label: "Z" },
+      { id: "y", label: "Y" },
+    ];
     const base = { id: "bad", zones, layers: [{ id: "a", label: "A", zone: "z", summary: "s" }] };
-    expect(() => buildLayerStack({ ...base, layers: [{ id: "a", label: "A", zone: "q", summary: "s" }] })).toThrow(/unknown zone "q"/);
-    expect(() => buildLayerStack({ ...base, rails: [{ id: "r", label: "R", from: "a", to: "nope" }] })).toThrow(/rail "r" ends at unknown layer "nope"/);
-    expect(() => buildLayerStack({ ...base, brackets: [{ label: "B", from: "x", to: "a" }] })).toThrow(/bracket "B" starts at unknown layer "x"/);
+    expect(() => buildLayerStack({ ...base, layers: [{ id: "a", label: "A", zone: "q", summary: "s" }] })).toThrow(
+      /unknown zone "q"/,
+    );
+    expect(() => buildLayerStack({ ...base, rails: [{ id: "r", label: "R", from: "a", to: "nope" }] })).toThrow(
+      /rail "r" ends at unknown layer "nope"/,
+    );
+    expect(() => buildLayerStack({ ...base, brackets: [{ label: "B", from: "x", to: "a" }] })).toThrow(
+      /bracket "B" starts at unknown layer "x"/,
+    );
     expect(() =>
       buildLayerStack({
         ...base,
@@ -717,7 +800,10 @@ describe("charts.css", () => {
       .match(/[^{}@;]+(?=\{)/g)!
       .flatMap((s) => s.split(/,(?![^(]*\))/))
       .map((s) => s.trim())
-      .filter((s) => s && !s.startsWith("@") && !s.startsWith("(") && !/^(media|supports|container)\b/.test(s) && !s.includes("prefers-"));
+      .filter(
+        (s) =>
+          s && !s.startsWith("@") && !s.startsWith("(") && !/^(media|supports|container)\b/.test(s) && !s.includes("prefers-"),
+      );
     expect(selectors.length).toBeGreaterThan(100);
     for (const s of selectors) expect(s).toMatch(/uipack-(span|stack)/);
   });

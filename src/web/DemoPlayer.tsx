@@ -1,15 +1,6 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { usePrefersReducedMotion } from "../env";
-import {
-  DEFAULT_TIMING,
-  demoCycle,
-  demoEnd,
-  demoFrame,
-  stepStart,
-  toAction,
-  type DemoStep,
-  type DemoTiming,
-} from "./timeline";
+import { DEFAULT_TIMING, demoCycle, demoEnd, demoFrame, stepStart, toAction, type DemoStep, type DemoTiming } from "./timeline";
 
 export interface DemoPlayerProps {
   /** The scripted sequence. Content is yours; timing and playback belong to the player. */
@@ -151,7 +142,9 @@ export function DemoPlayer({
   // The activity log shows this step's actions, or the most recent step that had any. Before any
   // step has acted, it lists the next step's actions as queued, so the first frame shows the plan
   // rather than an empty pane.
-  const pastActionStep = step?.actions?.length ? frame.step : lastWith(steps, frame.step, (s) => (s.actions?.length ? steps.indexOf(s) : undefined));
+  const pastActionStep = step?.actions?.length
+    ? frame.step
+    : lastWith(steps, frame.step, (s) => (s.actions?.length ? steps.indexOf(s) : undefined));
   const nextActionStep = steps.findIndex((s, i) => i > frame.step && !!s.actions?.length);
   const queuedOnly = pastActionStep === undefined && nextActionStep >= 0;
   const actionStep = queuedOnly ? nextActionStep : pastActionStep;
@@ -212,7 +205,9 @@ export function DemoPlayer({
           <div className="uipack-web-demo__result">
             {frame.metric !== undefined && (
               <p className="uipack-web-demo__metric">
-                <strong data-testid="demo-metric" key={frame.metric}>{frame.metric}</strong>
+                <strong data-testid="demo-metric" key={frame.metric}>
+                  {frame.metric}
+                </strong>
                 {metricLabel && <span>{metricLabel}</span>}
               </p>
             )}

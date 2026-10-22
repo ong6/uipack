@@ -3,7 +3,8 @@ import { expect, test, type Locator, type Page } from "./fixtures";
 // Each figure drawing is one Tab stop (roving tabindex): Tab enters at one part and the next Tab
 // leaves the figure; the arrow keys, Home and End move between its parts.
 const parts = (drawing: Locator) => drawing.locator('[role="button"], a[href]');
-const focusedName = (page: Page) => page.evaluate(() => document.activeElement?.getAttribute("aria-label") ?? document.activeElement?.textContent?.trim());
+const focusedName = (page: Page) =>
+  page.evaluate(() => document.activeElement?.getAttribute("aria-label") ?? document.activeElement?.textContent?.trim());
 
 test.describe("figure keyboard: one Tab stop per drawing", () => {
   test.beforeEach(async ({ page }) => {
@@ -25,7 +26,9 @@ test.describe("figure keyboard: one Tab stop per drawing", () => {
     await expect(parts(drawing).first()).toBeFocused();
     // ...and the next Tab leaves the figure altogether.
     await page.keyboard.press(tab);
-    expect(await page.evaluate(() => document.activeElement?.closest("figure")?.textContent?.includes("Every part"))).not.toBe(true);
+    expect(await page.evaluate(() => document.activeElement?.closest("figure")?.textContent?.includes("Every part"))).not.toBe(
+      true,
+    );
     await page.keyboard.press(`Shift+${tab}`);
     await expect(parts(drawing).first()).toBeFocused();
   });
@@ -70,7 +73,9 @@ test.describe("figure keyboard: one Tab stop per drawing", () => {
     const counts = await page.locator('svg[role="group"]').evaluateAll((svgs) =>
       svgs
         .map((svg) => {
-          const items = [...svg.querySelectorAll('[role="button"], a[href]')].filter((el) => el.closest('svg[role="group"]') === svg);
+          const items = [...svg.querySelectorAll('[role="button"], a[href]')].filter(
+            (el) => el.closest('svg[role="group"]') === svg,
+          );
           return { items: items.length, stops: items.filter((el) => el.getAttribute("tabindex") !== "-1").length };
         })
         .filter((c) => c.items > 0),
@@ -91,7 +96,8 @@ test.describe("figure keyboard: one Tab stop per drawing", () => {
     await parts(wide).first().focus();
     // Walk to the Checks drill node with the arrow keys alone.
     const n = await parts(wide).count();
-    for (let i = 0; i < n && !(await checks.evaluate((el) => el === document.activeElement)); i++) await page.keyboard.press("ArrowRight");
+    for (let i = 0; i < n && !(await checks.evaluate((el) => el === document.activeElement)); i++)
+      await page.keyboard.press("ArrowRight");
     await expect(checks).toBeFocused();
     await page.keyboard.press("Enter");
     await expect(fig.getByRole("heading", { name: /^Checks:/ })).toBeFocused();

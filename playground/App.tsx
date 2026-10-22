@@ -97,8 +97,8 @@ function Assets() {
     <section data-route="assets">
       <h2>Browse and copy</h2>
       <p className="showcase-section-intro">
-        Filter by category, search by name or tag, then copy the import line or the SVG.
-        Diagrams are coded figures, so they live on the Architecture diagrams page instead.
+        Filter by category, search by name or tag, then copy the import line or the SVG. Diagrams are coded figures, so they live
+        on the Architecture diagrams page instead.
       </p>
       <AssetBrowser manifest={manifest as never} base={`/@fs${__UIPACK_ROOT__}/`} />
     </section>

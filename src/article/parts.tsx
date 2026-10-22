@@ -29,9 +29,19 @@ export interface LayerHeadProps {
  * heading, which stays in the page outline. One line from 560px; narrower, the
  * metric moves under the index and zone.
  */
-export function LayerHead({ index, zone, metric, mapHref, mapLabel = "Map", indexLabel = "Layer", id, className }: LayerHeadProps) {
+export function LayerHead({
+  index,
+  zone,
+  metric,
+  mapHref,
+  mapLabel = "Map",
+  indexLabel = "Layer",
+  id,
+  className,
+}: LayerHeadProps) {
   if (index == null || index === "") fail("LayerHead", "`index` is required");
-  if (metric && !present(metric.value)) fail(`LayerHead ${layerIndex(index)}`, "`metric.value` is required when `metric` is given");
+  if (metric && !present(metric.value))
+    fail(`LayerHead ${layerIndex(index)}`, "`metric.value` is required when `metric` is given");
   return (
     <div id={id} className={cx("uipack-layerhead", className)}>
       <div className="uipack-layerhead__row">
@@ -45,7 +55,12 @@ export function LayerHead({ index, zone, metric, mapHref, mapLabel = "Map", inde
         {metric ? (
           <p className="uipack-layerhead__metric">
             <span className="uipack-layerhead__value">{metric.value}</span>
-            {present(metric.label) ? <> <span className="uipack-layerhead__label">{metric.label}</span></> : null}
+            {present(metric.label) ? (
+              <>
+                {" "}
+                <span className="uipack-layerhead__label">{metric.label}</span>
+              </>
+            ) : null}
           </p>
         ) : null}
         {mapHref ? (
@@ -128,7 +143,12 @@ export function ChangeNote({ label = "What changed", kicker, children, id, class
     <div id={id} className={cx("uipack-change", className)}>
       <p className="uipack-change__label">
         {label}
-        {present(kicker) ? <> <span className="uipack-change__kicker">{kicker}</span></> : null}
+        {present(kicker) ? (
+          <>
+            {" "}
+            <span className="uipack-change__kicker">{kicker}</span>
+          </>
+        ) : null}
       </p>
       <div className="uipack-change__body">{children}</div>
     </div>
@@ -171,7 +191,12 @@ export function LinkList({ label = "Go deeper", links, children, id, className }
               <li className="uipack-links__item" key={`${link.href}-${i}`}>
                 <a className="uipack-links__link" href={link.href}>
                   <span className="uipack-links__title">{link.title}</span>
-                  {domain ? <> <span className="uipack-links__domain">{domain}</span></> : null}
+                  {domain ? (
+                    <>
+                      {" "}
+                      <span className="uipack-links__domain">{domain}</span>
+                    </>
+                  ) : null}
                 </a>
               </li>
             );

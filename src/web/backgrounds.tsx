@@ -55,7 +55,12 @@ function useParentSpotlight(ref: RefObject<HTMLDivElement>, enabled: boolean) {
   }, [ref, enabled]);
 }
 
-function GridBackground({ variant, size = 24, fade = true, spotlight = false }: GridBackgroundProps & { variant: "dots" | "lines" }) {
+function GridBackground({
+  variant,
+  size = 24,
+  fade = true,
+  spotlight = false,
+}: GridBackgroundProps & { variant: "dots" | "lines" }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = usePrefersReducedMotion();
   const fine = useFinePointer();
@@ -235,7 +240,9 @@ export function DriftingGutters({ contentWidth = 1120, top = 72, minViewport = 1
       }
     >
       {/* A prop cannot drive a stylesheet media query; a non-default breakpoint brings its own rule. */}
-      {custom && <style>{`@media (min-width: ${minViewport}px) { .uipack-web-gutters[data-min="${minViewport}"] { display: block; } }`}</style>}
+      {custom && (
+        <style>{`@media (min-width: ${minViewport}px) { .uipack-web-gutters[data-min="${minViewport}"] { display: block; } }`}</style>
+      )}
       <GutterSide side="left" />
       <GutterSide side="right" />
     </div>

@@ -5,9 +5,33 @@ const manifest: AssetManifest = {
   version: 1,
   generated: "2026-09-16",
   assets: [
-    { id: "figure-a", name: "Service map", category: "Figures", kind: "figure", preview: "docs/assets/a.svg", source: "serviceMap()", tags: ["preset"] },
-    { id: "icon-lock", name: "lock", category: "Icons", kind: "icon", preview: "docs/assets/b.svg", source: 'icon="lock"', tags: ["icon", "lock"] },
-    { id: "icon-db", name: "db", category: "Icons", kind: "icon", preview: "docs/assets/c.svg", source: 'icon="db"', tags: ["icon", "db"] },
+    {
+      id: "figure-a",
+      name: "Service map",
+      category: "Figures",
+      kind: "figure",
+      preview: "docs/assets/a.svg",
+      source: "serviceMap()",
+      tags: ["preset"],
+    },
+    {
+      id: "icon-lock",
+      name: "lock",
+      category: "Icons",
+      kind: "icon",
+      preview: "docs/assets/b.svg",
+      source: 'icon="lock"',
+      tags: ["icon", "lock"],
+    },
+    {
+      id: "icon-db",
+      name: "db",
+      category: "Icons",
+      kind: "icon",
+      preview: "docs/assets/c.svg",
+      source: 'icon="db"',
+      tags: ["icon", "db"],
+    },
   ],
 };
 
@@ -69,7 +93,10 @@ describe("asset browser", () => {
     ]);
   });
   it("offers an animated preview's still to reduced-motion readers", () => {
-    const animated = { ...manifest, assets: [{ ...manifest.assets[0], previewDark: "d.svg", previewStatic: "s.svg", previewStaticDark: "sd.svg" }] };
+    const animated = {
+      ...manifest,
+      assets: [{ ...manifest.assets[0], previewDark: "d.svg", previewStatic: "s.svg", previewStaticDark: "sd.svg" }],
+    };
     const { container } = render(<AssetBrowser manifest={animated} base="/" />);
     const sources = container.querySelectorAll(".uipack-browser__tile picture source");
     expect([...sources].map((s) => [s.getAttribute("media"), s.getAttribute("srcset")])).toEqual([

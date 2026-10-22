@@ -25,7 +25,6 @@ export async function pathPoint(page: Page, t: number) {
 
 export const dist = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.hypot(a.x - b.x, a.y - b.y);
 
-
 /**
  * Plays `ms` of animation time on Playwright's fake clock, then lets time flow again. Call
  * `page.clock.install()` before `page.goto`. The clock is paused and stepped one 50ms frame at a

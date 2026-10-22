@@ -58,7 +58,12 @@ test.describe("/web Landing collection", () => {
     // Reveal text is readable without scrolling it into view.
     const quote = page.locator(".web-quote__text");
     await expect(quote).toHaveAttribute("data-state", "static");
-    expect(await quote.locator(".uipack-web-reveal__unit").first().evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
+    expect(
+      await quote
+        .locator(".uipack-web-reveal__unit")
+        .first()
+        .evaluate((el) => getComputedStyle(el).opacity),
+    ).toBe("1");
   });
 
   test("spotlight follows the mouse and keyboard focus shows it too", async ({ page, browserName }) => {
@@ -131,7 +136,14 @@ test.describe("/web Landing collection", () => {
     const reveal = page.locator(".web-reveal-list");
     await reveal.scrollIntoViewIfNeeded();
     await expect(reveal).toHaveAttribute("data-state", "shown");
-    await expect.poll(() => reveal.locator("> *").last().evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
+    await expect
+      .poll(() =>
+        reveal
+          .locator("> *")
+          .last()
+          .evaluate((el) => getComputedStyle(el).opacity),
+      )
+      .toBe("1");
     const marquee = page.locator(".uipack-web-marquee");
     await marquee.scrollIntoViewIfNeeded();
     const track = marquee.locator(".uipack-web-marquee__track");
@@ -183,9 +195,11 @@ test.describe("/web Landing collection", () => {
     await section.scrollIntoViewIfNeeded();
     const states = () =>
       section.evaluate((el) =>
-        [...el.querySelectorAll(".uipack-web-aurora i, .uipack-web-beams i, .uipack-web-gutters__drift, .uipack-web-gutters__signal")].map(
-          (n) => getComputedStyle(n).animationPlayState,
-        ),
+        [
+          ...el.querySelectorAll(
+            ".uipack-web-aurora i, .uipack-web-beams i, .uipack-web-gutters__drift, .uipack-web-gutters__signal",
+          ),
+        ].map((n) => getComputedStyle(n).animationPlayState),
       );
     // Layers off screen already wait (IntersectionObserver); the ones in view run.
     expect(await states()).toContain("running");
@@ -211,10 +225,25 @@ test.describe("/web Landing collection", () => {
     await expect(page.locator(".uipack-web-marquee").getByRole("button")).toHaveCount(0);
     await expect(page.locator("#web-proof").getByTestId("ticker-live").first()).toHaveText("37");
     await expect(page.locator(".uipack-web-scramble .uipack-web-scramble__live").first()).toHaveText("Forty in. Three left.");
-    expect(await page.locator(".uipack-web-beams i").first().evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
-    expect(await page.locator(".uipack-web-aurora i").first().evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
+    expect(
+      await page
+        .locator(".uipack-web-beams i")
+        .first()
+        .evaluate((el) => getComputedStyle(el).animationName),
+    ).toBe("none");
+    expect(
+      await page
+        .locator(".uipack-web-aurora i")
+        .first()
+        .evaluate((el) => getComputedStyle(el).animationName),
+    ).toBe("none");
     await expect(page.locator(".web-reveal-list")).toHaveAttribute("data-state", "static");
-    expect(await page.locator(".uipack-web-gutters__drift").first().evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
+    expect(
+      await page
+        .locator(".uipack-web-gutters__drift")
+        .first()
+        .evaluate((el) => getComputedStyle(el).animationName),
+    ).toBe("none");
     // Nothing loops, so the Backgrounds section offers no Pause.
     await expect(page.locator("#web-backgrounds").getByRole("button", { name: /motion/ })).toHaveCount(0);
     // The paint transition swaps the theme instantly and leaves no stylesheet behind.
@@ -247,15 +276,29 @@ test.describe("/web Landing collection", () => {
     await expect
       .poll(loaded)
       .toEqual(
-        expect.arrayContaining(["Instrument Serif 400 normal", "Instrument Serif 400 italic", "IBM Plex Sans 400 normal", "IBM Plex Sans 600 normal", "IBM Plex Mono 600 normal"]),
+        expect.arrayContaining([
+          "Instrument Serif 400 normal",
+          "Instrument Serif 400 italic",
+          "IBM Plex Sans 400 normal",
+          "IBM Plex Sans 600 normal",
+          "IBM Plex Mono 600 normal",
+        ]),
       );
     // Every font comes from the package's own fonts folder, as woff2.
     expect(fonts.length).toBeGreaterThanOrEqual(5);
     // (The specimen toggle's alternates come from @fontsource in the playground only.)
     for (const url of fonts.filter((u) => !u.includes("/@fontsource/"))) expect(url).toMatch(/\/web\/fonts\/[a-z0-9-]+\.woff2$/);
     expect(external).toEqual([]);
-    const family = (sel: string) => page.locator(sel).first().evaluate((el) => getComputedStyle(el).fontFamily.split(",")[0].replace(/"/g, "").trim());
-    const weight = (sel: string) => page.locator(sel).first().evaluate((el) => getComputedStyle(el).fontWeight);
+    const family = (sel: string) =>
+      page
+        .locator(sel)
+        .first()
+        .evaluate((el) => getComputedStyle(el).fontFamily.split(",")[0].replace(/"/g, "").trim());
+    const weight = (sel: string) =>
+      page
+        .locator(sel)
+        .first()
+        .evaluate((el) => getComputedStyle(el).fontWeight);
     expect(await family(".uipack-web-hero h1")).toBe("Instrument Serif");
     expect(await weight(".uipack-web-hero h1")).toBe("400");
     expect(await family("#web-how h2")).toBe("Instrument Serif");
@@ -463,7 +506,9 @@ test.describe("/web Landing collection", () => {
     expect(Math.abs(left.x - stageBox.x)).toBeLessThan(2);
     expect(Math.abs(right.x + right.width - (stageBox.x + stageBox.width))).toBeLessThan(2);
     expect(left.width).toBeGreaterThan(stageBox.width * 0.2);
-    expect(await gutters.evaluate((el) => getComputedStyle(el.firstElementChild!.nextElementSibling!).pointerEvents)).toBe("none");
+    expect(await gutters.evaluate((el) => getComputedStyle(el.firstElementChild!.nextElementSibling!).pointerEvents)).toBe(
+      "none",
+    );
     const drift = stage.locator(".uipack-web-gutters__drift").first();
     const y = () => drift.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m42);
     const a = await y();
@@ -485,7 +530,10 @@ test.describe("/web Landing collection", () => {
 });
 
 test.describe("/web discoverability", () => {
-  test("one h1, canonical and Open Graph tags, valid JSON-LD for the product and FAQ, visible FAQ text, no console errors", async ({ page, baseURL }) => {
+  test("one h1, canonical and Open Graph tags, valid JSON-LD for the product and FAQ, visible FAQ text, no console errors", async ({
+    page,
+    baseURL,
+  }) => {
     const errors: string[] = [];
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     page.on("pageerror", (e) => errors.push(String(e)));
@@ -506,10 +554,14 @@ test.describe("/web discoverability", () => {
     expect(await meta('property="og:type"')).toBe("website");
     expect(await meta('name="twitter:card"')).toBe("summary");
 
-    const blocks = await page.locator('script[type="application/ld+json"]').evaluateAll((els) => els.map((el) => el.textContent ?? ""));
+    const blocks = await page
+      .locator('script[type="application/ld+json"]')
+      .evaluateAll((els) => els.map((el) => el.textContent ?? ""));
     const docs = blocks.map((b) => JSON.parse(b));
     const nodes = docs.flatMap((d) => (d["@graph"] ? d["@graph"] : [d]));
-    expect(nodes.map((n) => n["@type"])).toEqual(expect.arrayContaining(["Organization", "WebSite", "WebApplication", "FAQPage"]));
+    expect(nodes.map((n) => n["@type"])).toEqual(
+      expect.arrayContaining(["Organization", "WebSite", "WebApplication", "FAQPage"]),
+    );
     const app = nodes.find((n) => n["@type"] === "WebApplication");
     expect(app.offers).toMatchObject({ "@type": "Offer", price: "8.00", priceCurrency: "USD" });
     expect(app.url).toBe(`${origin}/web`);
@@ -545,7 +597,9 @@ test.describe("/web discoverability", () => {
     await expect(page.locator(".uipack-web-demo")).toContainText("Result: 3 in your inbox.");
     // Off-screen tickers wait at 0, but the final value is the accessible text.
     await expect(page.locator("#web-proof .uipack-web-ticker .uipack-web-scramble__ghost").first()).toHaveText("37");
-    await expect(page.locator(".web-quote__text")).toHaveText("I stopped opening my inbox before coffee. It leaves me three things, and they are the right three.");
+    await expect(page.locator(".web-quote__text")).toHaveText(
+      "I stopped opening my inbox before coffee. It leaves me three things, and they are the right three.",
+    );
   });
 
   test("390px: FAQ and the generated-file disclosures fit without page overflow", async ({ page }) => {

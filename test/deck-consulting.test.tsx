@@ -285,7 +285,13 @@ describe("consulting parts render", () => {
     const { container } = render(
       <KpiTiles
         items={[
-          { label: "Cost per order", value: "$8.40", morphId: "cpo", delta: { text: "+22%", direction: "up", sentiment: "bad", period: "vs FY22" }, trend: [1, 2, 3] },
+          {
+            label: "Cost per order",
+            value: "$8.40",
+            morphId: "cpo",
+            delta: { text: "+22%", direction: "up", sentiment: "bad", period: "vs FY22" },
+            trend: [1, 2, 3],
+          },
           { label: "Margin", value: "4.2%", delta: { text: "−3.1 pts", direction: "down", sentiment: "bad" } },
         ]}
       />,
@@ -362,14 +368,17 @@ describe("minimum text size", () => {
     for (const [i, slide] of consultingDeck.entries()) {
       const { container, unmount } = render(
         <div className="uipack-deck">
-          <DeckSlideContext.Provider value={{ step: Infinity, active: false, thumbnail: true, index: i, count: consultingDeck.length }}>
+          <DeckSlideContext.Provider
+            value={{ step: Infinity, active: false, thumbnail: true, index: i, count: consultingDeck.length }}
+          >
             {slide.render({ step: Infinity, active: false, thumbnail: true, theme: "light", reducedMotion: true })}
           </DeckSlideContext.Provider>
         </div>,
       );
       const texts = container.querySelectorAll("text");
       checked += texts.length;
-      for (const t of texts) expect(Number(t.getAttribute("font-size")), `${slide.id}: ${t.textContent}`).toBeGreaterThanOrEqual(MIN_TEXT_PX);
+      for (const t of texts)
+        expect(Number(t.getAttribute("font-size")), `${slide.id}: ${t.textContent}`).toBeGreaterThanOrEqual(MIN_TEXT_PX);
       for (const el of container.querySelectorAll<HTMLElement>("[style*='font-size']")) {
         expect(parseFloat(el.style.fontSize)).toBeGreaterThanOrEqual(MIN_TEXT_PX);
       }
@@ -404,7 +413,9 @@ describe("example consulting deck", () => {
       const notes = slide.notes as { say: string; delivery: string; next?: string };
       expect(notes.say && notes.delivery && notes.next, slide.id).toBeTruthy();
       const { container, unmount } = render(
-        <DeckSlideContext.Provider value={{ step: Infinity, active: false, thumbnail: true, index: i, count: consultingDeck.length }}>
+        <DeckSlideContext.Provider
+          value={{ step: Infinity, active: false, thumbnail: true, index: i, count: consultingDeck.length }}
+        >
           {slide.render({ step: Infinity, active: false, thumbnail: true, theme: "light", reducedMotion: true })}
         </DeckSlideContext.Provider>,
       );
@@ -418,7 +429,9 @@ describe("example consulting deck", () => {
   test("slides that show the same site show the same numbers", () => {
     const text = (i: number) => {
       const { container, unmount } = render(
-        <DeckSlideContext.Provider value={{ step: Infinity, active: false, thumbnail: true, index: i, count: consultingDeck.length }}>
+        <DeckSlideContext.Provider
+          value={{ step: Infinity, active: false, thumbnail: true, index: i, count: consultingDeck.length }}
+        >
           {consultingDeck[i].render({ step: Infinity, active: false, thumbnail: true, theme: "light", reducedMotion: true })}
         </DeckSlideContext.Provider>,
       );
@@ -446,7 +459,9 @@ describe("example consulting deck", () => {
   test("zooms into a panel that exists on the previous slide, and morphs a KPI value into the next title", () => {
     const html = (i: number) => {
       const { container, unmount } = render(
-        <DeckSlideContext.Provider value={{ step: Infinity, active: false, thumbnail: true, index: i, count: consultingDeck.length }}>
+        <DeckSlideContext.Provider
+          value={{ step: Infinity, active: false, thumbnail: true, index: i, count: consultingDeck.length }}
+        >
           {consultingDeck[i].render({ step: Infinity, active: false, thumbnail: true, theme: "light", reducedMotion: true })}
         </DeckSlideContext.Provider>,
       );

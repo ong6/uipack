@@ -10,8 +10,12 @@ for (const [subpath, target] of Object.entries(pkg.exports)) {
   if (typeof target !== "object") continue;
   const id = subpath === "." ? pkg.name : `${pkg.name}${subpath.slice(1)}`;
   try {
-    const esm = Object.keys(await import(id)).filter((k) => k !== "default").sort();
-    const cjs = Object.keys(require(id)).filter((k) => k !== "default" && k !== "__esModule").sort();
+    const esm = Object.keys(await import(id))
+      .filter((k) => k !== "default")
+      .sort();
+    const cjs = Object.keys(require(id))
+      .filter((k) => k !== "default" && k !== "__esModule")
+      .sort();
     if (esm.join() !== cjs.join()) throw new Error(`ESM and CJS differ: ${esm.length} vs ${cjs.length} names`);
     console.log(`ok ${id} (${esm.length} names)`);
   } catch (error) {

@@ -24,7 +24,8 @@ export const defaultBeforeAfter: BeforeAfterSpec = {
     number: "Figure 01",
     eyebrow: "Before and after",
     title: "One check between the model and the reader",
-    caption: "Before, the model's draft went straight to the customer. After, a deterministic check reads the recorded facts and raises on the first unsupported claim.",
+    caption:
+      "Before, the model's draft went straight to the customer. After, a deterministic check reads the recorded facts and raises on the first unsupported claim.",
     alt: "Two stacked panels. Before: tools, model, draft, customer in a line. After: the same line with a deterministic check inserted between the draft and the customer, highlighted.",
   },
   before: {
@@ -74,10 +75,31 @@ export function beforeAfterParts(spec: BeforeAfterSpec = defaultBeforeAfter, id:
               {i > 0 ? (
                 <>
                   <Connector points={into} defs={id} kind={hot ? "accent" : "request"} flow={flow} />
-                  <Packet points={into} kind={hot ? "accent" : "request"} dur={1.2} delay={-i * 0.4} flow={flow} r={4} id={`${pid}-p${i}`} />
+                  <Packet
+                    points={into}
+                    kind={hot ? "accent" : "request"}
+                    dur={1.2}
+                    delay={-i * 0.4}
+                    flow={flow}
+                    r={4}
+                    id={`${pid}-p${i}`}
+                  />
                 </>
               ) : null}
-              <Node x={x} y={sy} w={stage.w} h={stage.h} label={s.label} hint={s.hint} sub={s.sub} icon={s.icon} accent={hot} flow={flow} size={13} subSize={10} />
+              <Node
+                x={x}
+                y={sy}
+                w={stage.w}
+                h={stage.h}
+                label={s.label}
+                hint={s.hint}
+                sub={s.sub}
+                icon={s.icon}
+                accent={hot}
+                flow={flow}
+                size={13}
+                subSize={10}
+              />
             </g>
           );
         })}
@@ -98,7 +120,13 @@ export function beforeAfterParts(spec: BeforeAfterSpec = defaultBeforeAfter, id:
   const changed = new Set(spec.after.changed ?? []);
   const steps = [
     ...spec.before.stages.map((s, i) => ({ ...s, sub: i === 0 ? spec.before.title.toLowerCase() : s.sub, flow: "before" })),
-    ...spec.after.stages.map((s, i) => ({ ...s, sub: i === 0 ? spec.after.title.toLowerCase() : s.sub, flow: "after", accent: changed.has(i), kind: changed.has(i) ? ("accent" as const) : i === 0 ? ("neutral" as const) : ("request" as const) })),
+    ...spec.after.stages.map((s, i) => ({
+      ...s,
+      sub: i === 0 ? spec.after.title.toLowerCase() : s.sub,
+      flow: "after",
+      accent: changed.has(i),
+      kind: changed.has(i) ? ("accent" as const) : i === 0 ? ("neutral" as const) : ("request" as const),
+    })),
   ];
   return {
     wide,

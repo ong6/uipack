@@ -412,17 +412,43 @@ function from(ok: (c: number) => boolean, floor = 0) {
 export function spanThresholds(layers: SpanLayer[]): SpanThresholds {
   const n = layers.length;
   // Short labels sit one word per line (a hyphenated label breaks after its hyphen).
-  const shortCol = Math.max(SHORT_MIN, fullLabelColumn(layers.map((l) => (l.short ?? l.abbr).replace(/-/g, "- ")), 11, LABEL_GAP, SHORT_TRACKING));
+  const shortCol = Math.max(
+    SHORT_MIN,
+    fullLabelColumn(
+      layers.map((l) => (l.short ?? l.abbr).replace(/-/g, "- ")),
+      11,
+      LABEL_GAP,
+      SHORT_TRACKING,
+    ),
+  );
   const wide = from((c) => columnWidth(c, n, true) >= shortCol, NARROW_BELOW);
   const col = (c: number) => columnWidth(c, n, c >= wide);
-  const full = fullLabelColumn(layers.map((l) => l.label), 11);
-  const large = fullLabelColumn(layers.map((l) => l.label), 12);
+  const full = fullLabelColumn(
+    layers.map((l) => l.label),
+    11,
+  );
+  const large = fullLabelColumn(
+    layers.map((l) => l.label),
+    12,
+  );
   const short = from((c) => col(c) >= shortCol, 200);
   // A code needs its own width plus a gap; below that, alternate lines.
   const codeCol = Math.max(...layers.map((l) => l.abbr.length)) * 6.6 + LABEL_GAP;
   const stagger = from((c) => col(c) >= codeCol, 200);
-  const fullAt = Math.max(short, from((c) => col(c) >= full, 200));
-  return { stagger, wide, short, full: fullAt, large: Math.max(fullAt, from((c) => col(c) >= large, 200)) };
+  const fullAt = Math.max(
+    short,
+    from((c) => col(c) >= full, 200),
+  );
+  return {
+    stagger,
+    wide,
+    short,
+    full: fullAt,
+    large: Math.max(
+      fullAt,
+      from((c) => col(c) >= large, 200),
+    ),
+  };
 }
 
 const matches = (row: SpanRowModel, f: SpanFilter) =>
@@ -468,7 +494,8 @@ export function buildSpanModel(input: SpanChartInput): SpanChartModel {
     if (!zone) fail(id, `layer "${layer.id}" names unknown zone "${layer.zone}"`);
     const last = zones[zones.length - 1];
     if (last && last.zone.id === layer.zone && last.end === i - 1) last.end = i;
-    else if (zones.some((z) => z.zone.id === layer.zone)) fail(id, `zone "${layer.zone}" must cover consecutive layers; "${layer.id}" is separated from the rest`);
+    else if (zones.some((z) => z.zone.id === layer.zone))
+      fail(id, `zone "${layer.zone}" must cover consecutive layers; "${layer.id}" is separated from the rest`);
     else zones.push({ zone: zone!, start: i, end: i });
   });
 
@@ -480,16 +507,24 @@ export function buildSpanModel(input: SpanChartInput): SpanChartModel {
     seen.add(item.id);
     if (!item.name) fail(id, `item "${item.id}" needs a \`name\``);
     const primaryIndex = layerIndex.get(item.primary);
-    if (primaryIndex === undefined) fail(id, `item "${item.id}" has unknown primary layer "${item.primary}". Known layers: ${known()}`);
+    if (primaryIndex === undefined)
+      fail(id, `item "${item.id}" has unknown primary layer "${item.primary}". Known layers: ${known()}`);
     for (const extra of item.also ?? []) {
-      if (!layerIndex.has(extra)) fail(id, `item "${item.id}" lists unknown layer "${extra}" in \`also\`. Known layers: ${known()}`);
+      if (!layerIndex.has(extra))
+        fail(id, `item "${item.id}" lists unknown layer "${extra}" in \`also\`. Known layers: ${known()}`);
     }
     if (item.status) {
       if (!STATUS_KINDS.includes(item.status.kind)) fail(id, `item "${item.id}" has unknown status kind "${item.status.kind}"`);
-      if (item.status.kind !== "shutdown" && !item.status.label) fail(id, `item "${item.id}" needs a status \`label\` naming the counterparty`);
+      if (item.status.kind !== "shutdown" && !item.status.label)
+        fail(id, `item "${item.id}" needs a status \`label\` naming the counterparty`);
     }
     if (item.tier !== undefined && !tierById.has(item.tier)) {
-      fail(id, tiers.length ? `item "${item.id}" has unknown tier "${item.tier}". Known tiers: ${[...tierById.keys()].join(", ")}` : `item "${item.id}" has a tier but the chart has no \`tiers\``);
+      fail(
+        id,
+        tiers.length
+          ? `item "${item.id}" has unknown tier "${item.tier}". Known tiers: ${[...tierById.keys()].join(", ")}`
+          : `item "${item.id}" has a tier but the chart has no \`tiers\``,
+      );
     }
     if (item.value !== undefined && !Number.isFinite(item.value)) fail(id, `item "${item.id}" has a non-numeric \`value\``);
     const tier = item.tier !== undefined ? tierById.get(item.tier)! : null;
@@ -535,7 +570,9 @@ export function buildSpanModel(input: SpanChartInput): SpanChartModel {
       ? rows.length
         ? [{ layer: null, index: -1, members: rows }]
         : []
-      : layers.map((layer, i) => ({ layer, index: i, members: rows.filter((r) => r.primaryIndex === i) })).filter((g) => g.members.length)
+      : layers
+          .map((layer, i) => ({ layer, index: i, members: rows.filter((r) => r.primaryIndex === i) }))
+          .filter((g) => g.members.length)
   ).map(({ layer, index, members }) => ({
     layer,
     index,
@@ -557,7 +594,9 @@ export function buildSpanModel(input: SpanChartInput): SpanChartModel {
       for (const deals of dealOptions) if (layer !== null || tier !== null || deals) states.push({ layer, tier, deals });
   const active = (f: SpanFilter) => Number(f.layer !== null) + Number(f.tier !== null) + Number(f.deals);
   const passesEach = (g: SpanGroupModel, f: SpanFilter) =>
-    (f.layer === null || g.layerIds.includes(f.layer)) && (f.tier === null || g.tierIds.includes(f.tier)) && (!f.deals || g.hasDeal);
+    (f.layer === null || g.layerIds.includes(f.layer)) &&
+    (f.tier === null || g.tierIds.includes(f.tier)) &&
+    (!f.deals || g.hasDeal);
   const groupRules: { filter: SpanFilter; key: string }[] = [];
   for (const f of states) {
     if (active(f) < 2) continue;
@@ -570,7 +609,10 @@ export function buildSpanModel(input: SpanChartInput): SpanChartModel {
   // Smallest empty states only: a superset of an empty state is empty too.
   const empty = states.filter((f) => !rows.some((r) => matches(r, f)));
   const within = (a: SpanFilter, b: SpanFilter) =>
-    (a.layer === null || a.layer === b.layer) && (a.tier === null || a.tier === b.tier) && (!a.deals || b.deals) && filterKey(a) !== filterKey(b);
+    (a.layer === null || a.layer === b.layer) &&
+    (a.tier === null || a.tier === b.tier) &&
+    (!a.deals || b.deals) &&
+    filterKey(a) !== filterKey(b);
   const emptyStates = empty.filter((f) => !empty.some((g) => within(g, f)));
 
   const featured = rows.filter((r) => r.item.featured).length;
@@ -595,9 +637,8 @@ export function buildSpanModel(input: SpanChartInput): SpanChartModel {
     emptyStates,
     samples: {
       value:
-        rows
-          .filter((r) => r.item.valueLabel && r.item.value !== undefined)
-          .sort((a, b) => b.item.value! - a.item.value!)[0]?.item.valueLabel ?? null,
+        rows.filter((r) => r.item.valueLabel && r.item.value !== undefined).sort((a, b) => b.item.value! - a.item.value!)[0]?.item
+          .valueLabel ?? null,
       tag: rows.find((r) => r.item.tags?.length)?.item.tags![0] ?? null,
       badges: STATUS_KINDS.filter((kind) => rows.some((r) => r.item.status?.kind === kind)),
     },
@@ -648,23 +689,30 @@ export function spanChartCss(model: SpanChartModel) {
     rules.push(`${root}${on(input)}{--sp-active:${k}}`);
     rules.push(`${root}${on(input)} [data-l=${value}]{--sp-sel:1;--sp-now:inline-flex;--sp-now-text:inline}`);
     rules.push(`${root}${on(input, "focus-visible")} [data-l=${value}]{--sp-focus:1}`);
-    rules.push(`${root}${on(input)} .uipack-span__item:not([data-layers~=${value}]),${root}${on(input)} .uipack-span__group:not([data-layers~=${value}]){display:none}`);
+    rules.push(
+      `${root}${on(input)} .uipack-span__item:not([data-layers~=${value}]),${root}${on(input)} .uipack-span__group:not([data-layers~=${value}]){display:none}`,
+    );
   });
   for (const tier of model.tiers) {
     const input = inputId.tier(id, tier.id);
     const value = cssString(tier.id);
     rules.push(`${root}${on(input)} [data-t=${value}]{--sp-sel:1;--sp-now:inline-flex;--sp-now-text:inline}`);
     rules.push(`${root}${on(input, "focus-visible")} [data-t=${value}]{--sp-focus:1}`);
-    rules.push(`${root}${on(input)} .uipack-span__item:not([data-tier=${value}]),${root}${on(input)} .uipack-span__group:not([data-tiers~=${value}]){display:none}`);
+    rules.push(
+      `${root}${on(input)} .uipack-span__item:not([data-tier=${value}]),${root}${on(input)} .uipack-span__group:not([data-tiers~=${value}]){display:none}`,
+    );
   }
   // Fine pointers: hovering a column header shows that column's band, fainter
   // than the chosen layer's.
   rules.push(
     `@media (hover: hover) and (pointer: fine){${model.layers
-      .map((layer, k) => `${root}:has(.uipack-span__col[data-l=${cssString(layer.id)}]:hover){--sp-hover:${k};--sp-hover-on:block}`)
+      .map(
+        (layer, k) => `${root}:has(.uipack-span__col[data-l=${cssString(layer.id)}]:hover){--sp-hover:${k};--sp-hover-on:block}`,
+      )
       .join("")}}`,
   );
-  for (const { filter, key } of model.groupRules) rules.push(`${state(filter)} .uipack-span__group:not([data-k~=${cssString(key)}]){display:none}`);
+  for (const { filter, key } of model.groupRules)
+    rules.push(`${state(filter)} .uipack-span__group:not([data-k~=${cssString(key)}]){display:none}`);
   for (const f of model.emptyStates) rules.push(`${state(f)} .uipack-span__empty{display:grid}`);
 
   // Layout: the name column, then label tiers, each from its computed width.
@@ -678,7 +726,10 @@ export function spanChartCss(model: SpanChartModel) {
     ),
     // Where headers carry words the key and toolbar sit open; with codes the
     // drawer holds them, its layer chips doubling as the code key.
-    container(t.short, `${root} .uipack-span__form{--sp-label-abbr:none;--sp-label-short:block;--sp-open:flex;--sp-closed:none;--sp-all-ring:2px;--sp-hint-toolbar:block;--sp-find-max:280px}`),
+    container(
+      t.short,
+      `${root} .uipack-span__form{--sp-label-abbr:none;--sp-label-short:block;--sp-open:flex;--sp-closed:none;--sp-all-ring:2px;--sp-hint-toolbar:block;--sp-find-max:280px}`,
+    ),
     // No size or deals control: the search field sits on the key's row.
     container(
       t.short,

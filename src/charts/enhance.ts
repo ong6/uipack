@@ -52,7 +52,11 @@ export function enhanceSpanChart(root: HTMLElement): () => void {
   // What a query can match: what the row shows, the name, its tags and its
   // deal. Notes stay out: a match hidden in a closed note reads as noise.
   const haystacks = items.map((el) =>
-    fold([el.querySelector(".uipack-span__nv > b"), ...el.querySelectorAll(".uipack-span__sub > *")].map((n) => n?.textContent ?? "").join(" ")),
+    fold(
+      [el.querySelector(".uipack-span__nv > b"), ...el.querySelectorAll(".uipack-span__sub > *")]
+        .map((n) => n?.textContent ?? "")
+        .join(" "),
+    ),
   );
   let query = "";
 
@@ -79,7 +83,8 @@ export function enhanceSpanChart(root: HTMLElement): () => void {
     for (const el of all<HTMLElement>(".uipack-span__group")) mark(el, collapsed && !el.hasAttribute("data-featured"));
   };
 
-  const shownText = (n: number) => (form.getAttribute("data-shown") ?? "{n} of {total} shown").replace("{n}", String(n)).replace("{total}", String(total));
+  const shownText = (n: number) =>
+    (form.getAttribute("data-shown") ?? "{n} of {total} shown").replace("{n}", String(n)).replace("{total}", String(total));
 
   /** Apply the search: rows that miss are hidden; matches show whether featured or not. */
   const applySearch = () => {
@@ -101,7 +106,8 @@ export function enhanceSpanChart(root: HTMLElement): () => void {
     }
     for (const group of all<HTMLElement>(".uipack-span__group")) {
       const count = group.querySelector<HTMLElement>("[data-span-count]");
-      if (count) count.textContent = String([...group.querySelectorAll<HTMLElement>(".uipack-span__item")].filter(visible).length);
+      if (count)
+        count.textContent = String([...group.querySelectorAll<HTMLElement>(".uipack-span__item")].filter(visible).length);
     }
     const shown = items.filter(visible).length;
     const text = shownText(shown);
@@ -144,7 +150,8 @@ export function enhanceSpanChart(root: HTMLElement): () => void {
     if (input === search) return;
     if (input === expand) {
       update(false);
-      if (live) live.textContent = shownText(expand.checked ? total : items.filter((el) => el.hasAttribute("data-featured")).length);
+      if (live)
+        live.textContent = shownText(expand.checked ? total : items.filter((el) => el.hasAttribute("data-featured")).length);
       if (!expand.checked) restore();
       return;
     }
@@ -335,7 +342,8 @@ export function enhanceLayerStack(root: HTMLElement): () => void {
   const doc = root.ownerDocument;
   const win = doc.defaultView;
   const onClick = (event: MouseEvent) => {
-    if (!win || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (!win || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+      return;
     const link = (event.target as Element).closest?.<HTMLAnchorElement>('a[href^="#"]');
     if (!link || !root.contains(link) || prefersReducedMotion(win)) return;
     const hash = link.getAttribute("href")!;

@@ -21,7 +21,8 @@ export function useChartSize(fixed?: { width?: number; height?: number }, fallba
     const measure = () => {
       const w = fixedW ?? el.clientWidth;
       const h = fixedH ?? el.clientHeight;
-      if (w > 0 && h > 0) setSize((s) => (Math.abs(s.width - w) < 0.5 && Math.abs(s.height - h) < 0.5 ? s : { width: w, height: h }));
+      if (w > 0 && h > 0)
+        setSize((s) => (Math.abs(s.width - w) < 0.5 && Math.abs(s.height - h) < 0.5 ? s : { width: w, height: h }));
     };
     measure();
     if (typeof ResizeObserver === "undefined") return;

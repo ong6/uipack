@@ -6,7 +6,10 @@ import { test } from "./fixtures";
 const PRESETS = ["pipeline", "beforeAfter", "syncLoop", "agentLoop"];
 
 for (const theme of ["light", "dark"] as const) {
-  for (const [w, h] of [[1440, 1100], [390, 1400]] as const) {
+  for (const [w, h] of [
+    [1440, 1100],
+    [390, 1400],
+  ] as const) {
     test(`shot ${theme} ${w}`, async ({ page }) => {
       test.setTimeout(60_000);
       await page.setViewportSize({ width: w, height: h });
@@ -71,7 +74,10 @@ async function shootElement(page: import("@playwright/test").Page, selector: str
 }
 
 for (const theme of ["light", "dark"] as const) {
-  for (const [w, viewport, frame] of [[896, 1440, "896"], [390, 390, "full"]] as const) {
+  for (const [w, viewport, frame] of [
+    [896, 1440, "896"],
+    [390, 390, "full"],
+  ] as const) {
     test(`shot charts ${theme} ${w}`, async ({ page }) => {
       test.setTimeout(60_000);
       await page.setViewportSize({ width: viewport, height: 1000 });
@@ -110,19 +116,30 @@ for (const theme of ["light", "dark"] as const) {
 for (const theme of ["light", "dark"] as const) {
   test(`shot article ${theme}`, async ({ page }) => {
     const clipBetween = async (from: string, to: string, path: string) => {
-      const clip = await page.evaluate(([f, t]) => {
-        const a = document.querySelector(f)!.getBoundingClientRect();
-        const b = document.querySelector(t)!.getBoundingClientRect();
-        const left = Math.min(a.left, b.left) - 24;
-        const right = Math.max(a.right, b.right) + 24;
-        return { x: Math.max(0, left + scrollX), y: a.top + scrollY - 24, width: Math.min(innerWidth, right) - Math.max(0, left), height: b.bottom - a.top + 48 };
-      }, [from, to]);
+      const clip = await page.evaluate(
+        ([f, t]) => {
+          const a = document.querySelector(f)!.getBoundingClientRect();
+          const b = document.querySelector(t)!.getBoundingClientRect();
+          const left = Math.min(a.left, b.left) - 24;
+          const right = Math.max(a.right, b.right) + 24;
+          return {
+            x: Math.max(0, left + scrollX),
+            y: a.top + scrollY - 24,
+            width: Math.min(innerWidth, right) - Math.max(0, left),
+            height: b.bottom - a.top + 48,
+          };
+        },
+        [from, to],
+      );
       await page.screenshot({ path, fullPage: true, clip });
     };
     const first = "#layer-section .uipack-layerhead";
     const cluster = "#layer-section .uipack-cluster";
     const wide = "#layer-section .uipack-cluster--wide";
-    for (const [w, name] of [[1440, "640"], [390, "390"]] as const) {
+    for (const [w, name] of [
+      [1440, "640"],
+      [390, "390"],
+    ] as const) {
       await page.setViewportSize({ width: w, height: 1000 });
       await page.goto(`/article?theme=${theme}&host=notes`);
       await page.locator(cluster).first().waitFor();

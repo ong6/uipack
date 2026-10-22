@@ -26,7 +26,12 @@ export const pageModules = {
 } as const satisfies Record<LibraryPage, string>;
 
 /** Older or shorthand paths that open a page: /slides (3D animations), /diagrams, /drill (the drill-down section), /index.html. */
-const aliases: Record<string, LibraryPage> = { "/slides": "animations", "/diagrams": "figures", "/drill": "figures", "/index.html": "figures" };
+const aliases: Record<string, LibraryPage> = {
+  "/slides": "animations",
+  "/diagrams": "figures",
+  "/drill": "figures",
+  "/index.html": "figures",
+};
 
 /** Path to page id. Pages that share a path (the decks) map to the first; the shell resolves the query. */
 export const routes = new Map<string, LibraryPage>();

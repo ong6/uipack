@@ -14,7 +14,10 @@ describe("presets", () => {
     });
   }
   it("a spec change reaches the drawing", () => {
-    const parts = serviceMapParts({ ...defaultServiceMap, clients: [{ label: "Only client", icon: "client" }], sinks: undefined }, "t");
+    const parts = serviceMapParts(
+      { ...defaultServiceMap, clients: [{ label: "Only client", icon: "client" }], sinks: undefined },
+      "t",
+    );
     const { container } = render(<svg>{parts.wide}</svg>);
     expect(container.textContent).toContain("Only client");
     expect(container.textContent).not.toContain("Warehouse");
@@ -74,7 +77,8 @@ describe("preset layout", () => {
     for (const name of Object.keys(PRESETS) as PresetName[]) {
       const { render: r, spec } = PRESETS[name] as { render: (s: unknown) => JSX.Element; spec: unknown };
       const { container } = render(r(spec));
-      for (const t of container.querySelectorAll('svg.uipack--wide [data-uipack="lane"] > text')) expect(Number(t.getAttribute("y")) % 8).toBe(0);
+      for (const t of container.querySelectorAll('svg.uipack--wide [data-uipack="lane"] > text'))
+        expect(Number(t.getAttribute("y")) % 8).toBe(0);
     }
   });
   it("serviceMap narrow wraps six cells into rows of three and truncates a long label with a hint", () => {

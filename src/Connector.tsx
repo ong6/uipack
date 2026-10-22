@@ -35,7 +35,18 @@ export function connectorStroke(kind?: ConnectorKind): string {
   return kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
 }
 
-export function Connector({ points, defs, arrow = true, dashed, kind, flow, id, radius = 6, strokeWidth = 1.25, inset = 2 }: ConnectorProps) {
+export function Connector({
+  points,
+  defs,
+  arrow = true,
+  dashed,
+  kind,
+  flow,
+  id,
+  radius = 6,
+  strokeWidth = 1.25,
+  inset = 2,
+}: ConnectorProps) {
   const hover = useFigureHover();
   const [s, e] = Array.isArray(inset) ? inset : [inset, inset];
   const d = pathFromPoints(trim(points, s, arrow ? e + 2 : e), radius);

@@ -1,8 +1,27 @@
 /* Article parts page: a stand-in host article. The prose rules copy a blog's
    (the notes site's .prose) so host CSS is exercised against article.css. */
-.article-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 0; font: 12px ui-monospace, monospace; color: var(--show-muted); }
-.article-bar a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; color: var(--show-muted); }
-.article-bar a[aria-current="true"] { color: var(--show-accent); font-weight: 700; }
+.article-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin: 0;
+  font:
+    12px ui-monospace,
+    monospace;
+  color: var(--show-muted);
+}
+.article-bar a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
+  color: var(--show-muted);
+}
+.article-bar a[aria-current="true"] {
+  color: var(--show-accent);
+  font-weight: 700;
+}
 
 .article-host {
   --host-bg: var(--show-bg);
@@ -17,7 +36,9 @@
   border: 1px solid var(--show-rule);
   border-radius: 6px;
 }
-.article-host > section { min-width: 0; }
+.article-host > section {
+  min-width: 0;
+}
 .article-host > section > h2 {
   max-width: 40rem;
   margin: 0 auto 8px;
@@ -31,7 +52,13 @@
 
 /* The notes site's palette and token map (app/globals.css, .fig-html). */
 .article-host[data-host="notes"] {
-  --bg: #fffdf9; --surface: #f6f2ea; --text: #14110d; --muted: #6b6459; --faint: #d9d2c5; --link: #9a3412; --fig-accent: #0f7a55;
+  --bg: #fffdf9;
+  --surface: #f6f2ea;
+  --text: #14110d;
+  --muted: #6b6459;
+  --faint: #d9d2c5;
+  --link: #9a3412;
+  --fig-accent: #0f7a55;
   --host-bg: var(--bg);
   --host-text: var(--text);
   --host-link: var(--link);
@@ -47,7 +74,13 @@
   --uipack-label-font: var(--uipack-sans);
 }
 [data-theme="dark"] .article-host[data-host="notes"] {
-  --bg: #12110f; --surface: #1b1917; --text: #ece7de; --muted: #aaa195; --faint: #423d35; --link: #f0854f; --fig-accent: #199e70;
+  --bg: #12110f;
+  --surface: #1b1917;
+  --text: #ece7de;
+  --muted: #aaa195;
+  --faint: #423d35;
+  --link: #f0854f;
+  --fig-accent: #199e70;
 }
 
 .article-host__prose {
@@ -60,10 +93,32 @@
 }
 /* A section heading clearly above the 19px body (the notes site sets 1.3rem; this frame steps it
    up to 22px so the heading never reads as body text). */
-.article-host__prose h3 { font-size: 1.375rem; margin: 1.9rem 0 0.6rem; line-height: 1.3; }
-.article-host__prose p { margin: 1.15rem 0; }
-.article-host__prose ul { padding-left: 1.4rem; }
-.article-host__prose li { margin: 0.45rem 0; }
-.article-host__prose a { color: var(--host-link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
-@media (max-width: 600px) { .article-host__prose { font-size: 18px; } }
-@media (max-width: 540px) { .article-host > section > h2 { font-size: 22px; } }
+.article-host__prose h3 {
+  font-size: 1.375rem;
+  margin: 1.9rem 0 0.6rem;
+  line-height: 1.3;
+}
+.article-host__prose p {
+  margin: 1.15rem 0;
+}
+.article-host__prose ul {
+  padding-left: 1.4rem;
+}
+.article-host__prose li {
+  margin: 0.45rem 0;
+}
+.article-host__prose a {
+  color: var(--host-link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+@media (max-width: 600px) {
+  .article-host__prose {
+    font-size: 18px;
+  }
+}
+@media (max-width: 540px) {
+  .article-host > section > h2 {
+    font-size: 22px;
+  }
+}

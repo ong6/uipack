@@ -2,14 +2,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { useCanvasGestures, type CanvasZoom } from "./canvas-gestures";
 import { createPortal } from "react-dom";
 
-const CANVAS_TOKENS = [
-  "--uipack-bg",
-  "--uipack-surface",
-  "--uipack-fg",
-  "--uipack-muted",
-  "--uipack-border",
-  "--uipack-accent",
-];
+const CANVAS_TOKENS = ["--uipack-bg", "--uipack-surface", "--uipack-fg", "--uipack-muted", "--uipack-border", "--uipack-accent"];
 
 /** Native modal semantics: focus containment, Escape, and a deliberate return to the opener. */
 export function CanvasView({
@@ -150,13 +143,8 @@ export function CanvasView({
           </button>
         </div>
       </div>
-      <p className="uipack-canvas-hint">
-        Pinch to zoom · Two-finger scroll · + / − to zoom · 0 to reset
-      </p>
-      <div
-        ref={content}
-        className={`uipack-canvas-content${layout ? ` uipack-canvas-content--${layout}` : ""}`}
-      >
+      <p className="uipack-canvas-hint">Pinch to zoom · Two-finger scroll · + / − to zoom · 0 to reset</p>
+      <div ref={content} className={`uipack-canvas-content${layout ? ` uipack-canvas-content--${layout}` : ""}`}>
         {children}
       </div>
     </dialog>,

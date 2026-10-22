@@ -25,18 +25,11 @@ const palettes = {
 } as const;
 
 export function escapeSvgText(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 }
 
 function accessibleTitle(slide: SlideStarterData): string {
-  return slide.layout === "opening"
-    ? slide.content.headline.join(" ")
-    : slide.content.headline;
+  return slide.layout === "opening" ? slide.content.headline.join(" ") : slide.content.headline;
 }
 
 /**
@@ -46,10 +39,7 @@ function accessibleTitle(slide: SlideStarterData): string {
  */
 type FineRole = "label" | "boxed" | "fine";
 
-export function renderSlideSvg(
-  slide: SlideStarterData,
-  options: RenderSlideSvgOptions = {},
-): string {
+export function renderSlideSvg(slide: SlideStarterData, options: RenderSlideSvgOptions = {}): string {
   const theme = options.theme ?? "light";
   const colors = palettes[theme];
   const width = options.width ?? 1200;
@@ -66,14 +56,11 @@ export function renderSlideSvg(
     role?: FineRole,
   ) =>
     `<text x="${x}" y="${y}"${anchor === "end" ? ' text-anchor="end"' : ""}${role ? ` class="uipack-slide-starter__${role}"` : ""} font-family="${mono ? "IBM Plex Mono, ui-monospace, monospace" : "IBM Plex Sans, system-ui, sans-serif"}" font-size="${size}" fill="${color}" font-weight="${weight}">${escapeSvgText(value)}</text>`;
-  const rule = (x1: number, y: number, x2: number) =>
-    `<path d="M${x1} ${y}H${x2}" stroke="${colors.rule}" stroke-width="2"/>`;
+  const rule = (x1: number, y: number, x2: number) => `<path d="M${x1} ${y}H${x2}" stroke="${colors.rule}" stroke-width="2"/>`;
   const footer = slide.footer
     ? rule(64, 592, 1136) +
       text(64, 635, slide.footer.label, 18, colors.muted, 400, true, "start", "label") +
-      (slide.footer.page
-        ? text(1136, 635, slide.footer.page, 18, colors.muted, 400, true, "end", "label")
-        : "")
+      (slide.footer.page ? text(1136, 635, slide.footer.page, 18, colors.muted, 400, true, "end", "label") : "")
     : "";
 
   let body = "";

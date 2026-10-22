@@ -37,10 +37,7 @@ export interface ExplanationSlideStarter extends SlideStarterBase {
     eyebrow: string;
     headline: string;
     foundation: { title: string; detail: string };
-    applications: [
-      { title: string; detail: string },
-      { title: string; detail: string },
-    ];
+    applications: [{ title: string; detail: string }, { title: string; detail: string }];
   };
 }
 
@@ -49,16 +46,9 @@ export interface SystemSlideStarter extends SlideStarterBase {
   content: {
     eyebrow: string;
     headline: string;
-    steps: [
-      { title: string; detail: string },
-      { title: string; detail: string },
-      { title: string; detail: string },
-    ];
+    steps: [{ title: string; detail: string }, { title: string; detail: string }, { title: string; detail: string }];
     caption: string;
   };
 }
 
-export type SlideStarterData =
-  | OpeningSlideStarter
-  | ExplanationSlideStarter
-  | SystemSlideStarter;
+export type SlideStarterData = OpeningSlideStarter | ExplanationSlideStarter | SystemSlideStarter;
