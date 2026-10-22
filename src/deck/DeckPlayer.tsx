@@ -1,20 +1,21 @@
 import {
-  forwardRef,
   useCallback,
   useEffect,
   useRef,
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
-  type ReactNode,
 } from "react";
 import { usePrefersReducedMotion } from "../context";
 import { useIsoLayoutEffect } from "../env";
-import { DeckSlideContext } from "./parts";
-import { SLIDE_ROLES, lintDeck, storylineOf, talkSeconds, type LintFinding, type LintOptions } from "./storyline";
-import { CANVAS_WIDTH, resolveTransition, runTransition } from "./transitions";
+import { Controls } from "./player/Controls";
+import { Layer, useCanvasScale } from "./player/Layer";
+import { Overview } from "./player/Overview";
+import { Presenter } from "./player/Presenter";
+import { Reader } from "./player/Reader";
+import { lintDeck, type LintOptions } from "./storyline";
+import { resolveTransition, runTransition } from "./transitions";
 import type { DeckPosition, DeckSlide, DeckTheme, DeckTransition } from "./types";
-
 
 export interface DeckPlayerProps {
   slides: DeckSlide[];
@@ -47,85 +48,6 @@ interface View {
   step: number;
   from: { index: number; step: number } | null;
   seq: number;
-}
-
-/** Screen pixels per canvas pixel for a 16:9 box. */
-function useCanvasScale() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(0);
-  useIsoLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const measure = () => setScale(el.clientWidth / CANVAS_WIDTH);
-    measure();
-    if (typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  return { ref, scale };
-}
-
-const railAt = (i: number, count: number) => `${count > 1 ? (i / (count - 1)) * 100 : 0}%`;
-const pad = (n: number) => String(n).padStart(2, "0");
-const notesOf = (slide?: DeckSlide) =>
-  !slide?.notes ? undefined : typeof slide.notes === "string" ? { say: slide.notes, delivery: "", next: undefined } : slide.notes;
-
-interface LayerProps {
-  slide: DeckSlide;
-  index: number;
-  count: number;
-  step: number;
-  active: boolean;
-  thumbnail?: boolean;
-  theme: DeckTheme;
-  reducedMotion: boolean;
-}
-
-const Layer = forwardRef<HTMLDivElement, LayerProps>(function Layer(
-  { slide, index, count, step, active, thumbnail = false, theme, reducedMotion },
-  ref,
-) {
-  return (
-    <div
-      ref={ref}
-      className="uipack-deck-layer"
-      data-tone={slide.tone ?? "paper"}
-      data-slide={slide.id}
-      role={thumbnail ? undefined : "group"}
-      aria-roledescription={thumbnail ? undefined : "slide"}
-      aria-label={thumbnail ? undefined : `${index + 1} of ${count}: ${slide.title}`}
-      aria-hidden={active ? undefined : true}
-      {...(active ? {} : { inert: "" })}
-    >
-      <div className="uipack-deck-layer__bg" />
-      <DeckSlideContext.Provider value={{ step, active, thumbnail, index, count }}>
-        {slide.render({ step, active, thumbnail, theme, reducedMotion })}
-      </DeckSlideContext.Provider>
-    </div>
-  );
-});
-
-/** A still, scaled copy of one slide, fully built. Used by the overview and the speaker view. */
-export function SlideThumbnail({
-  slide,
-  index,
-  count,
-  theme = "light",
-}: {
-  slide: DeckSlide;
-  index: number;
-  count: number;
-  theme?: DeckTheme;
-}) {
-  const { ref, scale } = useCanvasScale();
-  return (
-    <div ref={ref} className="uipack-deck-thumb" data-tone={slide.tone ?? "paper"}>
-      <div className="uipack-deck-canvas" style={{ transform: `scale(${scale})`, visibility: scale ? undefined : "hidden" }}>
-        <Layer slide={slide} index={index} count={count} step={Infinity} active={false} thumbnail theme={theme} reducedMotion />
-      </div>
-    </div>
-  );
 }
 
 /**
@@ -248,9 +170,12 @@ export function DeckPlayer({
     });
     anims.current = started;
     if (!started.length) return done();
-    Promise.all(started.map((a) => a.finished)).then(() => {
-      if (viewRef.current.seq === seq) done();
-    }, () => {});
+    Promise.all(started.map((a) => a.finished)).then(
+      () => {
+        if (viewRef.current.seq === seq) done();
+      },
+      () => {},
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view.seq]);
 
@@ -443,43 +368,22 @@ export function DeckPlayer({
   );
 
   const controls = (
-    <div className="uipack-deck-controls">
-      <button type="button" className="uipack-deck-step" onClick={prev} disabled={atStart} aria-label="Previous">
-        <span aria-hidden="true">←</span>
-      </button>
-      <div className="uipack-deck-rail" aria-hidden="true">
-        {slides.map((s, i) => (
-          <span key={s.id} style={{ left: railAt(i, count) }} data-passed={i <= view.index ? "" : undefined} />
-        ))}
-        <i style={{ left: railAt(view.index, count) }} />
-      </div>
-      <span className="uipack-deck-counter">
-        {pad(view.index + 1)} / {pad(count)}
-      </span>
-      <button type="button" className="uipack-deck-step" onClick={next} disabled={atEnd} aria-label="Next">
-        <span aria-hidden="true">→</span>
-      </button>
-      <span className="uipack-deck-tools">
-        {mode === "audience" && (
-          <button type="button" onClick={() => setReading(true)}>
-            Read
-          </button>
-        )}
-        <button type="button" ref={overviewButtonRef} onClick={() => setOverview(true)} aria-keyshortcuts="G">
-          All slides
-        </button>
-        {mode === "audience" && (
-          <button type="button" onClick={openPresenter} aria-keyshortcuts="S">
-            Speaker view
-          </button>
-        )}
-        {typeof document !== "undefined" && document.fullscreenEnabled !== false && (
-          <button type="button" onClick={toggleFullscreen} aria-keyshortcuts="F" aria-pressed={fullscreen}>
-            {fullscreen ? "Exit full screen" : "Full screen"}
-          </button>
-        )}
-      </span>
-    </div>
+    <Controls
+      slides={slides}
+      index={view.index}
+      atStart={atStart}
+      atEnd={atEnd}
+      mode={mode}
+      canFullscreen={typeof document !== "undefined" && document.fullscreenEnabled !== false}
+      fullscreen={fullscreen}
+      overviewButtonRef={overviewButtonRef}
+      onPrev={prev}
+      onNext={next}
+      onRead={() => setReading(true)}
+      onOverview={() => setOverview(true)}
+      onPresenter={openPresenter}
+      onFullscreen={toggleFullscreen}
+    />
   );
 
   return (
@@ -511,11 +415,7 @@ export function DeckPlayer({
         />
       ) : (
         <>
-          {mode === "presenter" ? (
-            <Presenter slides={slides} index={view.index} theme={theme} stage={stage} />
-          ) : (
-            stage
-          )}
+          {mode === "presenter" ? <Presenter slides={slides} index={view.index} theme={theme} stage={stage} /> : stage}
           {controls}
         </>
       )}
@@ -535,253 +435,6 @@ export function DeckPlayer({
           onClose={closeOverview}
         />
       )}
-    </div>
-  );
-}
-
-/** Every slide, fully built, with its talk track underneath. Reads like a document. */
-function Reader({
-  slides,
-  theme,
-  onPresent,
-}: {
-  slides: DeckSlide[];
-  theme: DeckTheme;
-  onPresent: (index: number) => void;
-}) {
-  return (
-    <div className="uipack-deck-read">
-      <div className="uipack-deck-read__head">
-        <p>Reading · {slides.length} slides</p>
-        <button type="button" onClick={() => onPresent(0)}>
-          Present
-        </button>
-      </div>
-      <ol>
-        {slides.map((s, i) => {
-          const notes = notesOf(s);
-          return (
-            <li key={s.id}>
-              <SlideThumbnail slide={s} index={i} count={slides.length} theme={theme} />
-              <div className="uipack-deck-read__notes">
-                <h3>
-                  <span>{pad(i + 1)}</span> {s.title}
-                </h3>
-                {notes?.say && <p>{notes.say}</p>}
-                <button type="button" onClick={() => onPresent(i)} aria-label={`Present from slide ${i + 1}: ${s.title}`}>
-                  Present from here
-                </button>
-              </div>
-            </li>
-          );
-        })}
-      </ol>
-    </div>
-  );
-}
-
-function Overview({
-  slides,
-  index,
-  theme,
-  findings,
-  onPick,
-  onClose,
-}: {
-  slides: DeckSlide[];
-  index: number;
-  theme: DeckTheme;
-  findings?: LintFinding[];
-  onPick: (index: number) => void;
-  onClose: () => void;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [tab, setTab] = useState<"slides" | "storyline">("slides");
-  useEffect(() => {
-    ref.current?.querySelector<HTMLButtonElement>('[aria-current="true"]')?.focus();
-  }, []);
-  const onKeyDown = (e: ReactKeyboardEvent) => {
-    e.stopPropagation();
-    if (e.key === "Escape") {
-      e.preventDefault();
-      onClose();
-      return;
-    }
-    const buttons = Array.from(ref.current?.querySelectorAll<HTMLButtonElement>("button") ?? []);
-    const at = buttons.indexOf(document.activeElement as HTMLButtonElement);
-    if (e.key === "Tab" && buttons.length) {
-      if (e.shiftKey && at <= 0) {
-        e.preventDefault();
-        buttons[buttons.length - 1].focus();
-      } else if (!e.shiftKey && at === buttons.length - 1) {
-        e.preventDefault();
-        buttons[0].focus();
-      }
-    }
-    const tiles = buttons.filter((b) => b.dataset.tile !== undefined);
-    const ti = tiles.indexOf(document.activeElement as HTMLButtonElement);
-    if (ti >= 0 && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
-      e.preventDefault();
-      tiles[Math.min(Math.max(ti + (e.key === "ArrowRight" ? 1 : -1), 0), tiles.length - 1)].focus();
-    }
-  };
-  return (
-    <div ref={ref} className="uipack-deck-overview" role="dialog" aria-modal="true" aria-label="All slides" onKeyDown={onKeyDown}>
-      <div className="uipack-deck-overview__head">
-        <p>All slides · {slides.length}</p>
-        <span className="uipack-deck-overview__tabs">
-          <button type="button" aria-pressed={tab === "slides"} onClick={() => setTab("slides")}>
-            Slides
-          </button>
-          <button type="button" aria-pressed={tab === "storyline"} onClick={() => setTab("storyline")}>
-            Storyline
-          </button>
-          <button type="button" onClick={onClose}>
-            Close
-          </button>
-        </span>
-      </div>
-      {tab === "storyline" ? (
-        <Storyline slides={slides} index={index} findings={findings} onPick={onPick} />
-      ) : (
-      <ol className="uipack-deck-overview__grid">
-        {slides.map((s, i) => (
-          <li key={s.id}>
-            <button type="button" data-tile="" aria-current={i === index ? "true" : undefined} onClick={() => onPick(i)}>
-              <SlideThumbnail slide={s} index={i} count={slides.length} theme={theme} />
-              <span>
-                <b>{pad(i + 1)}</b> {s.title}
-              </span>
-            </button>
-          </li>
-        ))}
-      </ol>
-      )}
-    </div>
-  );
-}
-
-const severityLabel = { error: "Fix", warn: "Check", tip: "Tip" } as const;
-
-/** The ghost deck: headlines in order with their roles. Read alone, it should carry the argument. */
-function Storyline({
-  slides,
-  index,
-  findings,
-  onPick,
-}: {
-  slides: DeckSlide[];
-  index: number;
-  findings?: LintFinding[];
-  onPick: (index: number) => void;
-}) {
-  const entries = storylineOf(slides);
-  const deckWide = findings?.filter((f) => !f.slideId) ?? [];
-  const minutes = Math.round(talkSeconds(slides) / 6) / 10;
-  return (
-    <div className="uipack-deck-storyline">
-      <p className="uipack-deck-storyline__intro">
-        Read only the headlines. They should make the whole argument. Talk track ≈ {minutes} min.
-      </p>
-      {deckWide.length > 0 && (
-        <ul className="uipack-deck-storyline__findings" aria-label="Deck checks">
-          {deckWide.map((f, i) => (
-            <li key={i} data-severity={f.severity}>
-              <b>{severityLabel[f.severity]}</b> {f.message}
-            </li>
-          ))}
-        </ul>
-      )}
-      <ol>
-        {entries.map((e, i) => {
-          const own = findings?.filter((f) => f.slideId === e.id) ?? [];
-          return (
-            <li key={e.id} data-appendix={e.appendix ? "" : undefined}>
-              <button type="button" data-tile="" aria-current={i === index ? "true" : undefined} onClick={() => onPick(i)}>
-                <span className="uipack-deck-storyline__num">{pad(e.number)}</span>
-                <span className="uipack-deck-storyline__role">{e.roleLabel ?? "—"}</span>
-                <span className="uipack-deck-storyline__title">{e.title}</span>
-              </button>
-              {own.length > 0 && (
-                <ul className="uipack-deck-storyline__findings">
-                  {own.map((f, j) => (
-                    <li key={j} data-severity={f.severity}>
-                      <b>{severityLabel[f.severity]}</b> {f.message}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          );
-        })}
-      </ol>
-    </div>
-  );
-}
-
-function Presenter({
-  slides,
-  index,
-  theme,
-  stage,
-}: {
-  slides: DeckSlide[];
-  index: number;
-  theme: DeckTheme;
-  stage: ReactNode;
-}) {
-  const [started, setStarted] = useState(() => Date.now());
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, []);
-  const elapsed = Math.max(0, Math.floor((now - started) / 1000));
-  const notes = notesOf(slides[index]);
-  const upcoming = slides[index + 1];
-  const role = slides[index].role;
-  return (
-    <div className="uipack-deck-presenter">
-      <div className="uipack-deck-presenter__current">{stage}</div>
-      <aside className="uipack-deck-presenter__side">
-        <section className="uipack-deck-presenter__next">
-          <h3>Next</h3>
-          {upcoming ? (
-            <SlideThumbnail slide={upcoming} index={index + 1} count={slides.length} theme={theme} />
-          ) : (
-            <p className="uipack-deck-presenter__end">End of deck</p>
-          )}
-        </section>
-        <section className="uipack-deck-presenter__clock">
-          <span aria-label="Elapsed time">
-            {pad(Math.floor(elapsed / 60))}:{pad(elapsed % 60)}
-          </span>
-          <button type="button" onClick={() => { setStarted(Date.now()); setNow(Date.now()); }}>
-            Reset clock
-          </button>
-        </section>
-        <section className="uipack-deck-presenter__notes">
-          {role && (
-            <p className="uipack-deck-presenter__role">
-              <b>{SLIDE_ROLES[role].label}</b> answers “{SLIDE_ROLES[role].question}”
-            </p>
-          )}
-          <h3>Say</h3>
-          <p>{notes?.say ?? "No talk track for this slide."}</p>
-          {notes?.delivery && (
-            <>
-              <h3>Delivery</h3>
-              <p>{notes.delivery}</p>
-            </>
-          )}
-          {notes?.next && (
-            <>
-              <h3>Bridge</h3>
-              <p>{notes.next}</p>
-            </>
-          )}
-        </section>
-      </aside>
     </div>
   );
 }

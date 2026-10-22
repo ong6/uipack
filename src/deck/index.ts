@@ -1,6 +1,7 @@
 // uipack/deck: the deck player, its slide parts, the storyline checks and the consulting slides.
 // Every export is listed by name, so a new module cannot shadow or collide with an existing name.
-export { DeckPlayer, SlideThumbnail, type DeckPlayerProps } from "./DeckPlayer";
+export { DeckPlayer, type DeckPlayerProps } from "./DeckPlayer";
+export { SlideThumbnail } from "./player/Layer";
 export { Build, Morph, Slide, DeckSlideContext, useDeckSlide, type DeckSlideState } from "./parts";
 export {
   CANVAS_HEIGHT,
