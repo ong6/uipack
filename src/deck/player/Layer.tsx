@@ -32,7 +32,7 @@ interface LayerProps {
   reducedMotion: boolean;
 }
 
-export const Layer = forwardRef<HTMLDivElement, LayerProps>(function Layer(
+export const Layer = /*#__PURE__*/ forwardRef<HTMLDivElement, LayerProps>(function Layer(
   { slide, index, count, step, active, thumbnail = false, theme, reducedMotion },
   ref,
 ) {

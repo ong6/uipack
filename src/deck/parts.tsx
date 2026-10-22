@@ -8,7 +8,7 @@ export interface DeckSlideState {
   count: number;
 }
 
-export const DeckSlideContext = createContext<DeckSlideState>({
+export const DeckSlideContext = /*#__PURE__*/ createContext<DeckSlideState>({
   step: Infinity,
   active: true,
   thumbnail: false,
