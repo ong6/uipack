@@ -74,6 +74,17 @@ describe("TextScramble", () => {
     expect(live.textContent).toBe("Three left");
   });
 
+  it("finishes when a prop changes mid-scramble", () => {
+    vi.useFakeTimers();
+    const { container, rerender } = render(<TextScramble text="Three left" duration={400} />);
+    const live = container.querySelector(".uipack-web-scramble__live")!;
+    act(() => vi.advanceTimersByTime(120));
+    expect(live.textContent).not.toBe("Three left");
+    rerender(<TextScramble text="Three left" duration={500} />);
+    act(() => vi.advanceTimersByTime(600));
+    expect(live.textContent).toBe("Three left");
+  });
+
   it("shows the final text under reduced motion", () => {
     globalThis.__reduced = true;
     vi.useFakeTimers();
@@ -97,6 +108,38 @@ describe("NumberTicker", () => {
     act(() => vi.advanceTimersByTime(600));
     expect(live.textContent).toBe("92%");
     expect(document.querySelector(".uipack-web-ticker .uipack-web-scramble__ghost")!.textContent).toBe("92%");
+  });
+
+  it("shows a new value after the first count", () => {
+    window.IntersectionObserver = FakeIO as unknown as typeof IntersectionObserver;
+    vi.useFakeTimers();
+    const { rerender } = render(<NumberTicker value={92} duration={500} />);
+    const live = screen.getByTestId("ticker-live");
+    setVisible(true);
+    act(() => vi.advanceTimersByTime(600));
+    expect(live.textContent).toBe("92");
+    rerender(<NumberTicker value={120} duration={500} />);
+    act(() => vi.advanceTimersByTime(100));
+    const mid = Number(live.textContent);
+    expect(mid).toBeGreaterThan(92);
+    expect(mid).toBeLessThan(120);
+    act(() => vi.advanceTimersByTime(600));
+    expect(live.textContent).toBe("120");
+  });
+
+  it("finishes the count when it re-renders mid-count", () => {
+    window.IntersectionObserver = FakeIO as unknown as typeof IntersectionObserver;
+    vi.useFakeTimers();
+    const { rerender } = render(<NumberTicker value={92} duration={500} />);
+    const live = screen.getByTestId("ticker-live");
+    setVisible(true);
+    act(() => vi.advanceTimersByTime(100));
+    const early = Number(live.textContent);
+    expect(early).toBeGreaterThan(0);
+    expect(early).toBeLessThan(92);
+    rerender(<NumberTicker value={92} duration={800} />);
+    act(() => vi.advanceTimersByTime(900));
+    expect(live.textContent).toBe("92");
   });
 
   it("does not count before it is seen, and shows the value under reduced motion", () => {

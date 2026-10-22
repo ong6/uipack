@@ -105,20 +105,22 @@ export function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag
   // Server HTML and the first client render carry the final text once, as plain visible text, so
   // crawlers and no-JS readers get one clean copy. The animated layer exists only after mount.
   const [armed, setArmed] = useState(false);
-  const started = useRef(false);
+  // How far the line has resolved (0..1). A ref, so a re-run of the effect (a new duration,
+  // reduced motion toggled mid-run) resumes from here instead of freezing or restarting.
+  const progress = useRef(0);
   // Once an observer can start the effect, wait unresolved.
   useEffect(() => {
     setArmed(true);
-    if (typeof IntersectionObserver !== "undefined" && !started.current) setT(0);
+    if (typeof IntersectionObserver !== "undefined" && progress.current === 0) setT(0);
   }, []);
   useEffect(() => {
-    if (reduced || !inView || started.current) return;
-    started.current = true;
-    const start = Date.now();
-    setT(0);
+    if (reduced || !inView || progress.current >= 1) return;
+    const start = Date.now() - progress.current * duration;
+    setT(progress.current);
     const timer = setInterval(() => {
-      const p = (Date.now() - start) / duration;
-      setT(Math.min(1, p));
+      const p = Math.min(1, (Date.now() - start) / duration);
+      progress.current = p;
+      setT(p);
       setTick((k) => k + 1);
       if (p >= 1) clearInterval(timer);
     }, 40);
@@ -164,7 +166,8 @@ export interface NumberTickerProps {
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
 /**
- * Counts up to a proof stat the first time it is on screen. Tabular figures and a hidden copy
+ * Counts up to a proof stat the first time it is on screen; a later `value` counts on from the
+ * number shown. Tabular figures and a hidden copy
  * of the final value reserve the width; assistive tech reads the final value only.
  */
 export function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix = "", suffix = "", className = "", face = "display" }: NumberTickerProps) {
@@ -174,20 +177,32 @@ export function NumberTicker({ value, from = 0, duration = 1400, format, locale,
   const [current, setCurrent] = useState(value);
   // Server HTML and the first client render carry the final value once, as plain visible text.
   const [armed, setArmed] = useState(false);
-  const started = useRef(false);
+  // The number on screen, kept in a ref too: once the first count has started, every later
+  // count (a new `value`, or any prop change mid-count) runs from here to `value`, so a new
+  // value is always shown and an interrupted count always finishes.
+  const shown = useRef<number | null>(null);
   // Once an observer can start the count, wait at `from`.
   useEffect(() => {
     setArmed(true);
-    if (typeof IntersectionObserver !== "undefined" && !started.current) setCurrent(from);
+    if (typeof IntersectionObserver !== "undefined" && shown.current === null) setCurrent(from);
   }, [from]);
   useEffect(() => {
-    if (reduced || !inView || started.current) return;
-    started.current = true;
+    if (reduced || !inView) return;
+    const origin = shown.current ?? from;
+    if (origin === value) {
+      shown.current = value;
+      setCurrent(value);
+      return;
+    }
+    const show = (n: number) => {
+      shown.current = n;
+      setCurrent(n);
+    };
     const start = Date.now();
-    setCurrent(from);
+    show(origin);
     const timer = setInterval(() => {
       const p = Math.min(1, (Date.now() - start) / duration);
-      setCurrent(from + (value - from) * easeOut(p));
+      show(origin + (value - origin) * easeOut(p));
       if (p >= 1) clearInterval(timer);
     }, 32);
     return () => clearInterval(timer);
