@@ -56,15 +56,15 @@ export const consultingDeckLint: LintOptions = { template: "decision-request" };
 export const consultingDeck: DeckSlide[] = [
   {
     id: "summary",
-    title: "Two hubs save $14M a year",
-    headline: "Folding the two oldest sites into two hubs saves $14M a year for $9M",
+    title: "Folding two sites saves $14M a year",
+    headline: "Folding Northgate and Riverside into Eastfield and Harbour saves $14M a year for $9M",
     role: "answer",
     render: () => (
       <ConsultingSlide
         tracker={tracker("Summary")}
         sticker={sticker}
         label={label}
-        title="Folding the two oldest sites into two hubs saves $14M a year for $9M"
+        title="Folding Northgate and Riverside into Eastfield and Harbour saves $14M a year for $9M"
         subtitle="Fulfilment network, FY22–FY25 actuals and FY27 run-rate; $M unless stated"
         rows="auto minmax(0, 1fr)"
         notes={["Operating margin before central costs.", "Run-rate saving from FY27, before the one-off cost of $9M."]}
@@ -139,11 +139,12 @@ export const consultingDeck: DeckSlide[] = [
           />
         </Panel>
         <SoWhat cols={3}>
-          <p>Freight and labour costs grow with every extra site.</p>
+          <p>Each extra site adds freight and labour; closing the two oldest removes both.</p>
           <p>
-            Closing the two oldest sites removes both: <strong>$14M a year</strong>
+            <strong>$14M a year</strong>
             <Ref n={2} /> for a one-off $9M, paid back in 16 months.
           </p>
+          <p>Price: on-time delivery dips to 89% for two quarters.</p>
           <p>
             <strong>Decision needed by 14 March.</strong>
           </p>
@@ -315,20 +316,26 @@ export const consultingDeck: DeckSlide[] = [
   },
   {
     id: "options",
-    title: "Two hubs repay their extra cost",
-    headline: "Two hubs cost $6M more than outsourcing and repay it in two years",
+    title: "Two hubs pull ahead within three years",
+    headline: "Two hubs cost $6M more than a 3PL and pull ahead within three years",
     role: "option",
     render: () => (
       <ConsultingSlide
         tracker={tracker("Options")}
         sticker={sticker}
         label={label}
-        title="Two hubs cost $6M more than outsourcing and repay it in two years"
+        title="Two hubs cost $6M more than a 3PL and pull ahead within three years"
         subtitle="Fulfilment network options, FY27 run-rate; $M"
-        takeaway="Against outsourcing, two hubs cost $6M more up front ($9M vs $3M) and save $3M a year more ($14M vs $11M), so the gap is repaid in two years; peak capacity stays in-house."
+        takeaway={
+          <>
+            Hubs cost $6M more up front than a 3PL and save $3M a year more from month 9
+            <Ref n={3} />, so they pull ahead by month 33.
+          </>
+        }
         notes={[
           "Run-rate from FY27; $M.",
           "Full ball = most favourable: highest margin, lowest service risk, fastest, easiest to undo.",
+          "Assumes a 3PL also needs nine months to take over.",
         ]}
         source={source}
       >
@@ -390,8 +397,9 @@ export const consultingDeck: DeckSlide[] = [
       </ConsultingSlide>
     ),
     notes: {
-      say: "We compared four options on the same six criteria, including doing nothing. Renegotiating freight is quick and safe but worth only four million, because our carriers are already near market rates. The real contest is hubs against outsourcing. Outsourcing is cheaper to start, three million against nine, so the hubs cost six million more up front. But they save fourteen million a year against outsourcing's eleven, and that three-million gap repays the extra six in two years. After that the hubs are ahead every year, and peak capacity stays ours. What they cost is a nine-month transition that is hard to undo. Source: the working team's cost model in the appendix.",
-      delivery: "Read the recommended row last, and say its weak scores out loud. Then do the two-year sum on the takeaway line.",
+      say: "We compared four options on the same six criteria, including doing nothing. Renegotiating freight is quick and safe but worth only four million, because our carriers are already near market rates. The real contest is hubs against outsourcing. Outsourcing is cheaper to start, three million against nine, so the hubs cost six million more up front. But they save fourteen million a year against outsourcing's eleven. Once both run at full rate, from month nine, that three-million gap repays the extra six in two more years, so the hubs pull ahead by about month thirty-three, within three years, and stay ahead, and peak capacity stays ours. That assumes a 3PL also needs nine months to take over; a faster handover would push the crossover later. What they cost is a nine-month transition that is hard to undo. Source: the working team's cost model in the appendix.",
+      delivery:
+        "Read the recommended row last, and say its weak scores out loud. Then do the sum on the takeaway line: six million, at three a year, from month nine.",
       next: "Here is why the hubs still win.",
     },
   },
@@ -478,14 +486,14 @@ export const consultingDeck: DeckSlide[] = [
   {
     id: "plan",
     title: "Nine months and $9M",
-    headline: "Nine months and $9M; done when cost per order falls below $7.30",
+    headline: "Nine months and $9M; done when cost per order is below $7.50 by M12",
     role: "plan",
     render: () => (
       <ConsultingSlide
         tracker={tracker("Plan")}
         sticker={sticker}
         label={label}
-        title="Nine months and $9M; done when cost per order falls below $7.30"
+        title="Nine months and $9M; done when cost per order is below $7.50 by M12"
         subtitle="Two-hub option; months from approval"
         rows="minmax(0, 1fr) auto"
         notes={[
@@ -537,12 +545,15 @@ export const consultingDeck: DeckSlide[] = [
             rows={[
               { label: "M0–M3", cells: { what: "Start expanding Eastfield and Harbour", owner: "Operations" } },
               { label: "M3–M6", cells: { what: "Hire and train hub teams", owner: "People" } },
-              { label: "M6–M9", cells: { what: "Dual running: move Northgate, then Riverside", owner: "Operations" } },
               {
-                label: "M9",
+                label: "M6–M9",
+                cells: { what: "Dual running: move Northgate, then Riverside; both closed by M9", owner: "Operations" },
+              },
+              {
+                label: "M12",
                 highlight: true,
                 tag: "Done",
-                cells: { what: "Both sites closed; cost per order below $7.30", owner: "Finance" },
+                cells: { what: "Cost per order below $7.50, against $7.30 forecast", owner: "Finance" },
               },
             ]}
           />
@@ -556,7 +567,7 @@ export const consultingDeck: DeckSlide[] = [
       </ConsultingSlide>
     ),
     notes: {
-      say: "Nine months, three phases, one owner each. Operations expands Eastfield and Harbour in the first quarter, People hires and trains the hub teams in the second, and in the third we run both networks while Northgate moves, then Riverside. Cash goes negative while both networks run, bottoming out around eight million in month nine. From then on both sites are closed and the full saving, three and a half million a quarter, comes in, so cash turns positive in month sixteen. We call it done when cost per order is below seven dollars thirty, measured monthly by Finance. And if service drops below eighty-eight percent on time for four weeks, we pause the Riverside move. Source: the cost model's cash plan.",
+      say: "Nine months, three phases, one owner each. Operations expands Eastfield and Harbour in the first quarter, People hires and trains the hub teams in the second, and in the third we run both networks while Northgate moves, then Riverside. Cash goes negative while both networks run, bottoming out around eight million in month nine. From then on both sites are closed and the full saving, three and a half million a quarter, comes in, so cash turns positive in month sixteen. We call it done when cost per order is below seven fifty by month twelve, measured monthly by Finance. The forecast is seven thirty, so the test leaves room for a slow first quarter at full rate, and still fails if the hubs don't deliver. And if service drops below eighty-eight percent on time for four weeks, we pause the Riverside move. Source: the cost model's cash plan.",
       delivery: "Trace the line from the dip to the break-even point, then read the tripwire.",
       next: "So here is what we need from you.",
     },
