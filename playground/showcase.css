@@ -146,8 +146,10 @@ body {
   margin-top: -8px;
   min-width: 0;
 }
-.showcase-title h1 {
+.showcase-title h1,
+.showcase-title .showcase-title__name {
   margin: 0;
+  font-weight: 700;
   font-size: clamp(28px, 4.5vw, 40px);
   line-height: 1.1;
   letter-spacing: -0.02em;
