@@ -217,9 +217,11 @@
   border-radius: 4px;
 }
 
+/* The strip takes the rest of the card, so every strip in a row is the same height. */
 .uipack-browser__row {
   position: relative;
   display: flex;
+  flex: 1;
   align-items: center;
   justify-content: space-between;
   gap: 4px;
@@ -227,10 +229,12 @@
   padding-left: 10px;
 }
 /* Names are identifiers, in mono; they wrap between words rather than truncate (a word breaks
-   only if it is wider than the strip) and the row keeps its 44px. */
+   only if it is wider than the strip) and the row keeps its 44px. A name hangs from the strip's top
+   (a one-line name still sits centred in 44px), so first lines line up across a row when one wraps. */
 .uipack-browser__name {
+  align-self: flex-start;
   min-width: 0;
-  padding: 6px 0;
+  padding: 14px 0 8px;
   font: 500 12px/1.3 var(--uipack-mono);
   overflow-wrap: break-word;
   text-wrap: balance;
