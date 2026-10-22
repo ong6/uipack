@@ -250,7 +250,9 @@ test.describe("/deck layout", () => {
         await page.keyboard.press("ArrowRight");
       }
       expect(tops.size).toBeGreaterThanOrEqual(5);
-      expect(new Set(tops.values()).size, JSON.stringify(Object.fromEntries(tops))).toBe(1);
+      // Within a pixel: WebKit rounds a centred slide's layout differently.
+      const ys = [...tops.values()];
+      expect(Math.max(...ys) - Math.min(...ys), JSON.stringify(Object.fromEntries(tops))).toBeLessThanOrEqual(1);
     });
   }
 });
