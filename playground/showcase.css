@@ -598,3 +598,41 @@ body {
 :where(.showcase-shell) :not(pre) > code {
   font-size: max(0.9em, 12px);
 }
+
+/* Shell disclosures (3D usage, /web's generated files) look like disclosures: a chevron in the
+   control face that turns when open. */
+:is(.slides-showcase__usage, .web-generated details) > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  list-style: none;
+  font: var(--show-control-font);
+  color: var(--show-ink);
+  cursor: pointer;
+}
+:is(.slides-showcase__usage, .web-generated details) > summary::-webkit-details-marker {
+  display: none;
+}
+:is(.slides-showcase__usage, .web-generated details) > summary::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin-left: 2px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 120ms ease;
+}
+:is(.slides-showcase__usage, .web-generated details)[open] > summary::before {
+  transform: rotate(45deg);
+}
+:is(.slides-showcase__usage, .web-generated details) > summary:hover {
+  color: var(--show-accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(.slides-showcase__usage, .web-generated details) > summary::before {
+    transition: none;
+  }
+}

@@ -33,42 +33,6 @@
   color: var(--show-muted);
   font-size: 13px;
 }
-/* A disclosure, and it looks like one: a chevron that turns when open, in the control face. */
-.slides-showcase__usage summary {
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 44px;
-  list-style: none;
-  font: var(--show-control-font);
-  color: var(--show-ink);
-}
-.slides-showcase__usage summary::-webkit-details-marker {
-  display: none;
-}
-.slides-showcase__usage summary::before {
-  content: "";
-  flex: none;
-  width: 6px;
-  height: 6px;
-  margin-left: 2px;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
-  transform: rotate(-45deg);
-  transition: transform 120ms ease;
-}
-.slides-showcase__usage[open] summary::before {
-  transform: rotate(45deg);
-}
-.slides-showcase__usage summary:hover {
-  color: var(--show-accent);
-}
-@media (prefers-reduced-motion: reduce) {
-  .slides-showcase__usage summary::before {
-    transition: none;
-  }
-}
 .slides-showcase__usage pre {
   line-height: 1.7;
   overflow: auto;
