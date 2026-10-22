@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from "./fixtures";
+import { expect, test, waitForStable, type Locator, type Page } from "./fixtures";
 
 // SpanChart and LayerStack: the playground (client-rendered, with the optional
 // enhancement) in a frame at a host's real figure width, a host article whose
@@ -214,7 +214,7 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
     const deep = async () => {
       const box = (await chart.boundingBox())!;
       await page.mouse.wheel(0, box.y + box.height * 0.6);
-      await page.waitForTimeout(150);
+      await waitForStable(() => page.evaluate(() => window.scrollY));
     };
     // A filter chosen from the stuck header, 60% down the list.
     await deep();
@@ -247,7 +247,7 @@ test.describe("SpanChart at a 56rem host (896px)", () => {
     const group = chart.locator(".uipack-span__group:has(#ai-stack-g-pretraining)");
     const g = (await group.boundingBox())!;
     await page.evaluate((y) => scrollBy(0, y), g.y + 80);
-    await page.waitForTimeout(150);
+    await waitForStable(() => head.boundingBox());
     const header = (await chart.locator(".uipack-span__header").boundingBox())!;
     const stuck = (await head.boundingBox())!;
     expect(Math.abs(stuck.y - (header.y + header.height))).toBeLessThanOrEqual(2);

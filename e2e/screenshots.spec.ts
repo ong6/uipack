@@ -1,6 +1,7 @@
 import { test } from "./fixtures";
 
-// Not a test: writes the README and docs screenshots. Run with `npm run screenshots`.
+// Not a test: writes the README and docs screenshots. Run with `npm run screenshots`. Its fixed waits
+// are deliberate: they let reveals, tickers and the demo reach the frame worth capturing.
 // The presets the diagrams page shows; the other presets keep their committed shots.
 const PRESETS = ["pipeline", "beforeAfter", "syncLoop", "agentLoop"];
 

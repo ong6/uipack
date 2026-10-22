@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "./fixtures";
+import { expect, test, waitForStable, type Page } from "./fixtures";
 
 const demo = (page: Page) => page.locator(".uipack-web-demo");
 /** Pixels between the sticky nav's bottom edge and the first line (eyebrow) of a section. */
@@ -21,6 +21,7 @@ test.describe("/web Landing collection", () => {
     await expect(demo(page)).toHaveAttribute("data-state", "paused");
     const held = await page.getByTestId("demo-metric").textContent();
     const heldStep = await stepOf(page);
+    // Wall clock on purpose: a paused demo must not advance while time passes.
     await page.waitForTimeout(1500);
     expect(await page.getByTestId("demo-metric").textContent()).toBe(held);
     expect(await stepOf(page)).toBe(heldStep);
@@ -89,7 +90,7 @@ test.describe("/web Landing collection", () => {
       await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Web: Web UI");
       await expect(page.locator(".showcase-context a")).toHaveText("Landing style");
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-      await page.waitForTimeout(300);
+      await waitForStable(() => page.evaluate(() => window.scrollY));
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
       // Menu folds on narrow widths and opens from the keyboard.
       const menu = page.getByRole("button", { name: "Menu" });
@@ -133,11 +134,12 @@ test.describe("/web Landing collection", () => {
     const track = marquee.locator(".uipack-web-marquee__track");
     const x = () => track.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41);
     const a = await x();
-    await page.waitForTimeout(400);
-    expect(await x()).not.toBe(a);
+    await expect.poll(x).not.toBe(a);
     await marquee.getByRole("button", { name: "Pause" }).click();
-    await page.waitForTimeout(100);
+    await expect(marquee).toHaveAttribute("data-paused", "true");
+    await waitForStable(x, { every: 50 });
     const held = await x();
+    // Wall clock on purpose: paused means no movement while time passes.
     await page.waitForTimeout(400);
     expect(await x()).toBe(held);
     await marquee.getByRole("button", { name: "Play" }).click();
@@ -145,12 +147,12 @@ test.describe("/web Landing collection", () => {
     // at (1, 1) scrolled the page to the top, so the marquee paused off screen by a race.
     await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
     await page.mouse.move(1, 1);
-    await page.waitForTimeout(300);
-    expect(await x()).not.toBe(held);
+    await expect.poll(x).not.toBe(held);
     // Hover the still viewport: the moving track itself never counts as "stable" for hover().
     await marquee.locator(".uipack-web-marquee__viewport").hover();
-    await page.waitForTimeout(100);
+    await waitForStable(x, { every: 50 });
     const hovered = await x();
+    // Wall clock on purpose: hovering holds the track while time passes.
     await page.waitForTimeout(400);
     expect(await x()).toBe(hovered);
   });
@@ -164,8 +166,7 @@ test.describe("/web Landing collection", () => {
     const beam = page.locator(".uipack-web-beams i").first();
     const pos = () => beam.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41);
     const a = await pos();
-    await page.waitForTimeout(300);
-    expect(await pos()).not.toBe(a);
+    await expect.poll(pos).not.toBe(a);
     // The dot grid lights under the mouse.
     const tile = page.locator(".web-bg-tile").nth(1);
     const box = (await tile.boundingBox())!;
@@ -299,7 +300,7 @@ test.describe("/web Landing collection", () => {
     await nav.getByRole("link", { name: "Proof" }).click();
     await expect(page).toHaveURL(/#web-proof$/);
     await expect.poll(() => gapBelowNav(page, "#web-proof"), { timeout: 4_000 }).toBeLessThan(80);
-    await page.waitForTimeout(400);
+    await waitForStable(() => page.evaluate(() => window.scrollY));
     const final = await page.evaluate(() => window.scrollY);
     // Gradual: many distinct positions on the way, never past the target.
     const ys = await page.evaluate(() => (window as unknown as { __ys: number[] }).__ys);
@@ -364,7 +365,7 @@ test.describe("/web Landing collection", () => {
     await expect(page).toHaveURL(/#web-pricing$/);
     const heading = page.locator("#web-pricing-title");
     await expect.poll(() => gapBelowNav(page, "#web-pricing"), { timeout: 4_000 }).toBeLessThan(80);
-    await page.waitForTimeout(1500);
+    await waitForStable(() => page.evaluate(() => window.scrollY));
     const final = await page.evaluate(() => window.scrollY);
     const ys = await page.evaluate(() => (window as unknown as { __ys: number[] }).__ys);
     // Not one jump: the position rises through many frames and never overshoots.
@@ -420,8 +421,7 @@ test.describe("/web Landing collection", () => {
     const drift = stage.locator(".uipack-web-gutters__drift").first();
     const y = () => drift.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m42);
     const a = await y();
-    await page.waitForTimeout(400);
-    expect(await y()).toBeLessThan(a);
+    await expect.poll(y).toBeLessThan(a);
 
     const html = page.locator("html");
     const before = await html.getAttribute("data-theme");

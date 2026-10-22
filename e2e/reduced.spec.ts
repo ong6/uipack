@@ -18,6 +18,7 @@ test.describe("reduced motion", () => {
     const figure = page.locator("figure", { hasText: "Every part" });
     await expect(figure.getByRole("button", { name: /Pause|Replay/ })).toHaveCount(0);
     const a = await packetCentre(page);
+    // Wall clock on purpose: under reduced motion the packet stays put as time passes.
     await page.waitForTimeout(500);
     const b = await packetCentre(page);
     expect(dist(a, b)).toBeLessThan(0.5);

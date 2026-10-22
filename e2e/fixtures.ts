@@ -1,4 +1,4 @@
-import { test as base, type Browser, type BrowserContext } from "@playwright/test";
+import { expect as baseExpect, test as base, type Browser, type BrowserContext } from "@playwright/test";
 
 export { expect, type Browser, type Page, type Locator, type BrowserContext } from "@playwright/test";
 
@@ -64,3 +64,23 @@ export const test = base.extend<object, { browser: Browser }>({
     { scope: "worker", timeout: 0 },
   ],
 });
+
+/**
+ * Waits until `read` gives the same value on two polls in a row, `every` ms apart: a scroll, a
+ * render loop or a transition has come to rest. Use it instead of a fixed sleep before reading a
+ * settled state. (A test that must watch time pass, to show nothing moves, still sleeps, and says so.)
+ */
+export async function waitForStable<T>(read: () => Promise<T>, { every = 100, timeout = 5_000 } = {}) {
+  let last: string | undefined;
+  await baseExpect
+    .poll(
+      async () => {
+        const now = JSON.stringify(await read());
+        const same = now === last;
+        last = now;
+        return same;
+      },
+      { intervals: [every], timeout },
+    )
+    .toBe(true);
+}

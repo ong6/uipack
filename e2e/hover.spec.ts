@@ -34,8 +34,8 @@ test.describe("hover", () => {
     await expect(page.locator("#e2e-conn-change")).toHaveAttribute("data-state", "hit");
     await expect(page.locator("#e2e-conn")).toHaveAttribute("data-state", "dim");
     await expect(page.locator("#e2e-packet-change")).toHaveAttribute("data-state", "hit");
-    await page.waitForTimeout(250);
-    expect(Number(await page.locator("#e2e-conn").evaluate((el) => getComputedStyle(el).opacity))).toBeCloseTo(0.35, 1);
+    // The dim eases in; wait for it to land.
+    await expect.poll(async () => Number(await page.locator("#e2e-conn").evaluate((el) => getComputedStyle(el).opacity))).toBeCloseTo(0.35, 1);
     expect(Number(await page.locator("#e2e-node-alpha").evaluate((el) => getComputedStyle(el).opacity))).toBe(1); // nodes have no kind
   });
 

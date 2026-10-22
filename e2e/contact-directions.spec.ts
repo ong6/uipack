@@ -8,7 +8,9 @@ for(const width of [390,1440])for(const theme of ['light','dark'])for(const [var
     await expect(canvas).toHaveAttribute('data-art-direction',style);
     await expect(canvas).toHaveCSS('opacity','1');
     await page.getByRole('button',{name:'Pause motion',exact:true}).click();
+    await expect(page.getByRole('button',{name:'Resume motion',exact:true})).toBeVisible();
     const frames=await canvas.getAttribute('data-frames');
+    // Wall clock on purpose: paused paints nothing as time passes.
     await page.waitForTimeout(180);
     expect(await canvas.getAttribute('data-frames')).toBe(frames);
     await page.screenshot({path:info.outputPath('contact.png')});
@@ -26,6 +28,7 @@ for(const variant of [3,4])test(`contact ${variant} respects reduced motion and 
   await expect(canvas).toHaveAttribute('data-renderer','webgl');
   await expect(page.getByRole('button',{name:'Pause motion',exact:true})).toHaveCount(0);
   const frames=await canvas.getAttribute('data-frames');
+  // Wall clock on purpose: a still scene paints nothing as time passes.
   await page.waitForTimeout(200);
   expect(await canvas.getAttribute('data-frames')).toBe(frames);
   await canvas.dispatchEvent('webglcontextlost');

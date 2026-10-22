@@ -319,7 +319,6 @@ test.describe("Article parts: links, focus and hover", () => {
     const tabFrom = async (locator: ReturnType<Page["locator"]>) => {
       await locator.focus();
       await page.keyboard.press(tab);
-      await page.waitForTimeout(200);
       return settled();
     };
 

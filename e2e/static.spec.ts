@@ -12,7 +12,7 @@ async function mount(page: import("@playwright/test").Page, src: string) {
   }, src);
   const img = page.locator("#static-img");
   await expect.poll(() => img.evaluate((el) => (el as HTMLImageElement).complete && (el as HTMLImageElement).naturalWidth > 0)).toBe(true);
-  await page.waitForTimeout(200);
+  await img.evaluate((el) => (el as HTMLImageElement).decode());
   return img;
 }
 
@@ -29,14 +29,13 @@ test.describe("static export in <img>", () => {
   test("packets move inside the image when motion is on", async ({ page }) => {
     const img = await mount(page, "/e2e-static/motion.svg");
     const a = await img.screenshot();
-    await page.waitForTimeout(600);
-    const b = await img.screenshot();
-    expect(a.equals(b)).toBe(false);
+    await expect.poll(async () => a.equals(await img.screenshot())).toBe(false);
   });
 
   test("nothing moves when motion is off", async ({ page }) => {
     const img = await mount(page, "/e2e-static/still.svg");
     const a = await img.screenshot();
+    // Wall clock on purpose: a still image does not change as time passes.
     await page.waitForTimeout(600);
     const b = await img.screenshot();
     expect(a.equals(b)).toBe(true);

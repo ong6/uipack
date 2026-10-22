@@ -35,9 +35,12 @@ for(const variant of [1,2]) timingTest(`direction ${variant} loops, pauses, chan
   const canvas=page.locator('.uipack-object canvas');
   await expect(canvas).toHaveAttribute('data-playback','loop');
   await canvas.scrollIntoViewIfNeeded();
+  // Wall clock on purpose: the loop keeps playing well past its first cycle.
   await page.waitForTimeout(36500);
   await page.getByRole('button',{name:'Pause motion',exact:true}).click();
+  await expect(page.getByRole('button',{name:'Resume motion',exact:true})).toBeVisible();
   const paused=await canvas.getAttribute('data-pose');
+  // Wall clock on purpose: paused holds the pose as time passes (and reduced motion below paints nothing).
   await page.waitForTimeout(200);
   expect(await canvas.getAttribute('data-pose')).toBe(paused);
   await page.getByRole('button',{name:'Resume motion',exact:true}).click();
@@ -95,7 +98,9 @@ for (const variant of [3,4,5]) test(`expanded direction ${variant} playback and 
   const canvas=page.locator('.uipack-object canvas');
   await expect(canvas).toHaveAttribute('data-renderer','webgl');
   await page.getByRole('button',{name:'Pause motion',exact:true}).click();
+  await expect(page.getByRole('button',{name:'Resume motion',exact:true})).toBeVisible();
   const pose=await canvas.getAttribute('data-pose');
+  // Wall clock on purpose: paused holds the pose as time passes.
   await page.waitForTimeout(250);
   expect(await canvas.getAttribute('data-pose')).toBe(pose);
   await page.getByRole('button',{name:'Resume motion',exact:true}).click();

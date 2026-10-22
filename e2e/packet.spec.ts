@@ -14,29 +14,27 @@ test.describe("packet motion", () => {
 
   test("moves while playing", async ({ page }) => {
     const a = await packetCentre(page);
-    await page.waitForTimeout(500);
-    const b = await packetCentre(page);
-    expect(dist(a, b)).toBeGreaterThan(4);
+    await expect.poll(async () => dist(a, await packetCentre(page))).toBeGreaterThan(4);
   });
 
   test("holds still after Pause, resumes on Play", async ({ page }) => {
     const figure = page.locator("figure", { hasText: "Every part" });
     await figure.getByRole("button", { name: "Pause" }).click();
     const a = await packetCentre(page);
+    // Wall clock on purpose: paused, the packet stays put as time passes.
     await page.waitForTimeout(500);
     const b = await packetCentre(page);
     expect(dist(a, b)).toBeLessThan(0.5);
     await figure.getByRole("button", { name: "Play", exact: true }).click();
-    await page.waitForTimeout(500);
-    const c = await packetCentre(page);
-    expect(dist(b, c)).toBeGreaterThan(4);
+    await expect.poll(async () => dist(b, await packetCentre(page))).toBeGreaterThan(4);
   });
 
   test("Replay restarts from the path start", async ({ page }) => {
     const figure = page.locator("figure", { hasText: "Every part" });
-    await page.waitForTimeout(900); // well into the 2s trip
-    const before = await packetCentre(page);
     const start = await pathPoint(page, 0);
+    // Well into the 2s trip.
+    await expect.poll(async () => dist(await packetCentre(page), start)).toBeGreaterThan(20);
+    const before = await packetCentre(page);
     expect(dist(before, start)).toBeGreaterThan(20);
     await figure.getByRole("button", { name: "Replay" }).click();
     const after = await packetCentre(page);

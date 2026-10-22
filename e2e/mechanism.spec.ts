@@ -38,6 +38,7 @@ for (const theme of ["light", "dark"] as const) {
     // The card's paper follows the theme.
     const paper = await page.locator(".mechanism-stage .um-plate").evaluate((node) => getComputedStyle(node).backgroundColor);
     expect(paper).toBe(theme === "light" ? "rgb(255, 255, 255)" : "rgb(14, 21, 18)");
+    // Wall clock on purpose: let the machine run a while, then check it logged nothing.
     await page.waitForTimeout(1200);
     expect(errors).toEqual([]);
   });
@@ -50,9 +51,12 @@ test("changing the pose moves the token and reaches the verdict", async ({ page 
   await expect(page.locator(readout)).toHaveText("checking proposal 3");
   await expect.poll(() => litToken(page)).not.toBeNull();
   const first = (await litToken(page))!;
-  await page.waitForTimeout(900);
-  const later = (await litToken(page))!;
-  expect(Math.hypot(later.x - first.x, later.y - first.y)).toBeGreaterThan(20);
+  await expect
+    .poll(async () => {
+      const later = await litToken(page);
+      return later ? Math.hypot(later.x - first.x, later.y - first.y) : 0;
+    })
+    .toBeGreaterThan(20);
   await expect(page.locator(readout)).toHaveText("reads 6.6 > 6.0 · returned", { timeout: 6000 });
   // The arm swings across the belt for a return.
   await page.getByRole("button", { name: "Pass", exact: true }).click();
@@ -74,6 +78,7 @@ test("reduced motion holds one still, readable frame per pose", async ({ browser
     await page.goto(`/mechanism?pose=${pose}`);
     await expect(page.locator(readout)).toHaveText(text);
     const before = await page.locator(`${machine} svg`).innerHTML();
+    // Wall clock on purpose: a still pose does not change as time passes.
     await page.waitForTimeout(800);
     expect(await page.locator(`${machine} svg`).innerHTML()).toBe(before);
   }
@@ -144,6 +149,7 @@ test("fits a 390px phone with readable labels and thumbnails that never move", a
   await expect(thumbs).toHaveCount(4);
   expect(await page.locator(".mechanism-thumbs .um-machine[tabindex]").count()).toBe(0);
   const before = await thumbs.first().innerHTML();
+  // Wall clock on purpose: a thumbnail does not change as time passes.
   await page.waitForTimeout(700);
   expect(await thumbs.first().innerHTML()).toBe(before);
   expect(errors).toEqual([]);

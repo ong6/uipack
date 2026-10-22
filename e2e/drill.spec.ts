@@ -111,7 +111,7 @@ test.describe("drill-down figure", () => {
 
   test("Back mid-flight reverses the same path and settles cleanly", async ({ page }) => {
     await drillNode(page, "checks").click();
-    await page.waitForTimeout(350);
+    await expect(fig(page).locator(".uipack-drill__stage")).toHaveAttribute("data-flight", /.+/);
     await fig(page).getByRole("button", { name: "Back to Agent harness" }).click();
     await settled(page);
     await expect(fig(page).locator(".uipack-drill__layer")).toHaveAttribute("data-level", "harness");

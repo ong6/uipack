@@ -1,4 +1,4 @@
-import { test, expect } from "./fixtures";
+import { test, expect, waitForStable } from "./fixtures";
 const kinds = [
   "ai",
   "contact",
@@ -38,7 +38,9 @@ test("object playback pauses, finishes, replays and opens one accessible canvas"
   const canvas = page.locator(".uipack-object canvas");
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
   await page.getByRole("button", { name: "Pause motion" }).click();
+  await expect(page.getByRole("button", { name: "Resume motion" })).toBeVisible();
   const frames = await canvas.getAttribute("data-frames");
+  // Wall clock on purpose (here and below): a paused or finished scene paints nothing as time passes.
   await page.waitForTimeout(150);
   expect(await canvas.getAttribute("data-frames")).toBe(frames);
   await page.getByRole("button", { name: "Resume motion" }).click();
@@ -90,6 +92,8 @@ test("renderer failure retains the labelled object fallback", async ({
 test("switching objects and themes creates a usable renderer every time", async ({
   page,
 }) => {
+  // Seven WebGL scenes in turn: 20-27s alone, so the default 30s fails under a second worker.
+  test.setTimeout(60_000);
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/animations?story=ai");
@@ -141,6 +145,7 @@ test("curated look persists through loop, theme and expanded canvas", async ({ p
   await page.getByRole("button", { name: "dark mode", exact: true }).click();
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
   await expect(object).toHaveAttribute("data-variant", next!);
+  // Wall clock on purpose: past the 5.4s a once-only scene takes to come to rest, a loop still plays.
   await page.waitForTimeout(6500);
   await expect(page.getByRole("button", { name: "Pause motion" })).toBeVisible();
   await expect(canvas).toHaveAttribute("data-playback", "loop");
@@ -169,6 +174,7 @@ test("modeled tennis keeps painting within the mobile frame budget", async ({ pa
   await canvas.scrollIntoViewIfNeeded();
   const start = Number(await canvas.getAttribute("data-frames"));
   const started = Date.now();
+  // Wall clock on purpose: this measures paints per second.
   await page.waitForTimeout(1200);
   const frames = Number(await canvas.getAttribute("data-frames")) - start;
   const elapsed = Date.now() - started;
@@ -183,13 +189,15 @@ for (const kind of ['tennis', 'trading']) test(`${kind} keeps looping, pauses an
   const canvas = page.locator('.uipack-object canvas');
   await expect(canvas).toHaveAttribute('data-playback', 'loop');
   await canvas.scrollIntoViewIfNeeded();
+  // Wall clock on purpose: past the end of one loop (tennis) or the rest point (trading), it still plays.
   await page.waitForTimeout(kind === 'tennis' ? 18500 : 6500);
   await expect(page.getByRole('button', { name: 'Pause motion' })).toBeVisible();
   const frames = Number(await canvas.getAttribute('data-frames'));
-  await page.waitForTimeout(200);
-  expect(Number(await canvas.getAttribute('data-frames'))).toBeGreaterThan(frames);
+  await expect.poll(async () => Number(await canvas.getAttribute('data-frames'))).toBeGreaterThan(frames);
   await page.getByRole('button', { name: 'Pause motion' }).click();
+  await expect(page.getByRole('button', { name: 'Resume motion' })).toBeVisible();
   const paused = await canvas.getAttribute('data-frames');
+  // Wall clock on purpose (here and below): paused, or reduced, paints nothing as time passes.
   await page.waitForTimeout(200);
   expect(await canvas.getAttribute('data-frames')).toBe(paused);
   await page.getByRole('button', { name: 'Resume motion' }).click();
@@ -206,11 +214,13 @@ test("offscreen object playback suspends and resumes without racing forward", as
   const canvas=page.locator(".uipack-object canvas");
   await canvas.scrollIntoViewIfNeeded();
   await expect(canvas).toHaveAttribute("data-renderer","webgl");
-  await page.waitForTimeout(300);
+  await expect.poll(async()=>Number(await canvas.getAttribute("data-frames"))).toBeGreaterThan(0);
   await page.evaluate(() => { const spacer=document.createElement("div");spacer.style.height="2000px";document.body.prepend(spacer);window.scrollTo(0,0); });
-  await page.waitForTimeout(150);
+  // Off screen, painting stops.
+  await waitForStable(() => canvas.getAttribute("data-frames"));
   const frames=await canvas.getAttribute("data-frames");
   const pose=Number(await canvas.getAttribute("data-pose"));
+  // Wall clock on purpose: while off screen, nothing paints however long it waits.
   await page.waitForTimeout(650);
   expect(await canvas.getAttribute("data-frames")).toBe(frames);
   await canvas.scrollIntoViewIfNeeded();
