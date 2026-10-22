@@ -3,7 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 // The expected information architecture, written out on purpose: a change to
 // catalog.ts that moves a page must change this table too.
 const GROUPS = [
-  { label: "Diagrams", opens: "Architecture diagrams", pages: [["Architecture diagrams", "/"], ["Charts", "/charts"], ["Drill-down", "/drill"], ["Article parts", "/article"]] },
+  { label: "Diagrams", opens: "Architecture diagrams", pages: [["Architecture diagrams", "/"], ["Charts", "/charts"], ["Article parts", "/article"]] },
   { label: "Presentations", opens: "Tech talk", pages: [["Tech talk", "/deck?deck=moves"], ["Bento", "/deck?deck=bento"], ["Consulting", "/deck?deck=consulting"], ["Slide starters", "/presentations"]] },
   { label: "Motion & 3D", opens: "3D animations", pages: [["3D animations", "/animations"], ["Mechanism", "/mechanism"]] },
   { label: "Web", opens: "Web UI", pages: [["Web UI", "/web"], ["Docs layout", "/docs"]] },
@@ -68,11 +68,16 @@ test("the theme toggle updates the nav links and keeps the page", async ({ page 
   await expect(pagesNav(page).locator('[aria-current="page"]')).toHaveText("Charts");
 });
 
-test("aliases /diagrams and /slides open their pages", async ({ page }) => {
+test("aliases /diagrams, /drill and /slides open their pages", async ({ page }) => {
   await page.goto("/diagrams?theme=dark");
   await expect(title(page)).toHaveText("Architecture diagrams");
   await expect(pagesNav(page).locator('[aria-current="page"]')).toHaveText("Architecture diagrams");
-  await expect(page.locator('section[data-section="presets"]')).toBeVisible();
+  await expect(page.locator('section[data-section="pipeline"]')).toBeVisible();
+  // /drill is the diagrams page opened at its drill-down section.
+  await page.goto("/drill?theme=dark");
+  await expect(title(page)).toHaveText("Architecture diagrams");
+  await expect(pagesNav(page).locator('[aria-current="page"]')).toHaveText("Architecture diagrams");
+  await expect(page.locator('section[data-section="drill-figure"]')).toBeInViewport();
   await page.goto("/slides");
   await expect(title(page)).toHaveText("3D animations");
   await expect(groupsNav(page).locator('[aria-current="page"]')).toHaveText("Motion & 3D");
@@ -82,7 +87,32 @@ test("aliases /diagrams and /slides open their pages", async ({ page }) => {
 test("diagrams page has its named sections and charts moved out", async ({ page }) => {
   await page.goto("/");
   const headings = (await outline(page)).filter((h) => h.level === 2).map((h) => h.text);
-  expect(headings).toEqual(["Presets", "Reference figure", "Parts", "Bare figure"]);
+  // One section per pattern, simplest first: the same list as figureEntries in catalog.ts.
+  expect(headings).toEqual([
+    "Bare figure: just the canvas",
+    "Parts: every primitive once",
+    "Pipeline: stages in a line",
+    "Loops: repeat a step, return to the start",
+    "Decision tree: one question per level",
+    "Before and after: the same flow, changed",
+    "Fan-out and fan-in: parallel work, one merge",
+    "Two-way sync: one source, many copies",
+    "Agent loop: calls out, results back, a check before output",
+    "Failure rail: every stage fails to one place",
+    "Queue and callouts: where work piles up",
+    "Sequence: messages between actors, in order",
+    "Nested groups: what runs inside what",
+    "Numbered steps: one path across column lanes",
+    "Service map: clients, one platform, its stores",
+    "Layered checks: each layer stops some, one slips through",
+    "Flow volumes: where every item ends up",
+    "Drill-down: a figure inside a node",
+  ]);
+  // Every section but the bare figure holds one numbered figure, numbered in page order.
+  const numbers = await page.locator("[data-section] .uipack__eyebrow").allTextContents();
+  const found = numbers.map((t) => t.match(/Figure (\d+)/)?.[1]).filter(Boolean).map(Number);
+  expect(found).toEqual(found.map((_, i) => i + 1));
+  expect(found).toHaveLength(headings.length - 1);
   await expect(page.locator("#layer-stack, #span-chart")).toHaveCount(0);
   await page.goto("/charts");
   expect((await outline(page)).filter((h) => h.level === 2).map((h) => h.text)).toEqual(["Layer stack", "Span chart"]);

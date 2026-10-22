@@ -65,9 +65,8 @@ export interface PageDef {
  * `intro` is the one-sentence line under it. Other branches add an entry here and a route in main.tsx.
  */
 export const libraryPages = [
-  { id: "figures", group: "diagrams", label: "Architecture diagrams", path: "/", intro: "Request flows, agent loops and service maps drawn as SVG figures, from ready-made presets down to the bare canvas." },
+  { id: "figures", group: "diagrams", label: "Architecture diagrams", path: "/", intro: "The figure design system: each diagram pattern once, from the bare canvas to a figure you drill into, with the parts it is built from." },
   { id: "charts", group: "diagrams", label: "Charts", path: "/charts", intro: "Layered and comparative charts for articles, previewed at a host's real figure width." },
-  { id: "drill", group: "diagrams", label: "Drill-down", path: "/drill", intro: "A figure you open one level at a time, from the whole system down to a single component." },
   { id: "article", group: "diagrams", label: "Article parts", path: "/article", intro: "Prose-friendly parts for long reads, shown inside a host article's text column." },
   { id: "deck", group: "presentations", label: "Tech talk", title: "Deck player", path: "/deck", query: { deck: "moves" }, isDefault: true, intro: "A tech talk that explains its own moves: advance, morph and zoom, builds, and a machine slide. Click the deck, then use the arrow keys." },
   { id: "deck-bento", group: "presentations", label: "Bento", title: "Deck player", path: "/deck", query: { deck: "bento" }, intro: "A quarterly review on one bento slide: Next moves a camera between the containers, and each one shows denser detail when it is in focus." },
@@ -207,6 +206,34 @@ export const webEntries: CatalogEntry[] = [
     ] as const
   ).map(([id, title]) => ({ id, title, type: "web" as const, styleId: "landing", tags: ["Backgrounds"] })),
 ];
+
+/**
+ * Architecture-diagram patterns, rendered on / in this order, one section each (h2 = title).
+ * The page is the design-system reference for figures: each distinct pattern once, simplest
+ * first. Add an entry here and its section in playground/figures/index.tsx together.
+ */
+export const figureEntries: CatalogEntry[] = (
+  [
+    ["bare-figure", "Bare figure: just the canvas", ["Frame", "Canvas"]],
+    ["parts", "Parts: every primitive once", ["Node", "Group", "Chip", "Connector", "Packet", "Bus", "Icon", "Mark"]],
+    ["pipeline", "Pipeline: stages in a line", ["Preset", "Pipeline", "Queue"]],
+    ["loops", "Loops: repeat a step, return to the start", ["Loop", "Feedback", "Return path"]],
+    ["decision-tree", "Decision tree: one question per level", ["Decision", "Branch", "Tree"]],
+    ["before-after", "Before and after: the same flow, changed", ["Preset", "Comparison"]],
+    ["fan-out-fan-in", "Fan-out and fan-in: parallel work, one merge", ["Bus", "Parallel", "Merge"]],
+    ["two-way-sync", "Two-way sync: one source, many copies", ["Preset", "Sync", "Bidirectional"]],
+    ["agent-loop", "Agent loop: calls out, results back, a check before output", ["Preset", "Agents", "Tools", "Gate"]],
+    ["failure-rail", "Failure rail: every stage fails to one place", ["Vertical", "Errors", "Dead letter"]],
+    ["queue-callouts", "Queue and callouts: where work piles up", ["Queue", "Callout", "Bottleneck"]],
+    ["sequence", "Sequence: messages between actors, in order", ["Sequence", "Lifeline", "Protocol"]],
+    ["nested-groups", "Nested groups: what runs inside what", ["Group", "Containment", "Replicas"]],
+    ["numbered-steps", "Numbered steps: one path across column lanes", ["Badge", "Walkthrough", "Lanes"]],
+    ["service-map", "Service map: clients, one platform, its stores", ["Reference", "Bus", "Hub", "Lanes"]],
+    ["layered-checks", "Layered checks: each layer stops some, one slips through", ["Filter", "Defence in depth"]],
+    ["flow-volumes", "Flow volumes: where every item ends up", ["Sankey", "Volumes"]],
+    ["drill-figure", "Drill-down: a figure inside a node", ["Drill-down", "Zoom", "Levels"]],
+  ] as const
+).map(([id, title, tags]) => ({ id, title, type: "figures" as const, styleId: "technical", tags: [...tags] }));
 
 /** Charts (uipack/charts), rendered on /charts. */
 export const chartEntries: CatalogEntry[] = [

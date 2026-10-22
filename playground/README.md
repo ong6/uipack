@@ -4,7 +4,7 @@ Run `npm run dev` from the repo root. The nav has two rows: groups, then the act
 
 | Group | Page | Path |
 |---|---|---|
-| Diagrams | Architecture diagrams | `/` (alias `/diagrams`) |
+| Diagrams | Architecture diagrams | `/` (aliases `/diagrams`, and `/drill`, which scrolls to the drill-down) |
 | Diagrams | Charts | `/charts` |
 | Diagrams | Article parts | `/article` |
 | Presentations | Tech talk, Bento, Consulting | `/deck?deck=moves`, `?deck=bento`, `?deck=consulting` |
@@ -18,7 +18,7 @@ Run `npm run dev` from the repo root. The nav has two rows: groups, then the act
 
 Every page has the same headings: the context line (`<Group> · <Style> style`), one `h1`, a one-sentence intro, then sentence-case `h2` sections. Figures inside an `h2` keep `headingLevel` 3; inside an `h3` they use 4.
 
-- `/`: Presets (`data-preset` sections), Reference figure (Habitat), Parts (every part once) and Bare figure.
+- `/`: the figure design system. One section per diagram pattern, simplest first (bare figure, parts, pipeline … drill-down), from `figureEntries` in `catalog.ts`; the section copy and renderers are in `figures/index.tsx`, the ported examples in `figures/*.tsx`. Each h2 names the pattern and what it teaches, the intro says when to use it and which parts build it, and figures are numbered in page order. Show a pattern once: add a section the first time a published figure (notes, homepage) uses a new one, with neutral content, and skip figures that repeat an existing pattern. Preset sections carry `data-preset`.
 - `/charts`: the `uipack/charts` examples: the layer stack (`#layer-stack`) and the span chart (`#span-chart`, with `enhanceSpanChart`). They render in a frame at a host's real figure width, 896px by default; `?frame=720|390|320|full` changes it. Their data is `examples/aiStack.ts`; `scripts/build-static-fixtures.tsx` renders the same data to static HTML for the no-JavaScript tests, including a host article whose prose CSS loads after `charts.css`.
 - `/assets`: searchable icons, marks, backgrounds and motion tokens. Diagrams are coded figures and live on `/`, not in `assets/manifest.json`.
 - `/animations`: 3D animation collection, search, and technique filters. `/slides` is a compatibility alias.

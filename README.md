@@ -45,7 +45,7 @@ Separate entries, so a page loads only what it draws: `uipack` for parts, `uipac
 
 `uipack/docs` with `uipack/docs.css` provides a product-documentation shell and Markdown renderer: grouped navigation, a 680px prose column, an h2/h3 table of contents, mobile disclosure, heading anchors, and previous/next links. See the [docs layout guide](docs/docs-layout.md) and the rendered `/docs` gallery entry.
 
-`npm run dev` opens a playground with a two-row nav (groups, then the group's pages). Diagrams: `/` (also `/diagrams`) renders the presets, the Habitat reference figure, every part and a bare figure; `/charts` the layer stack and span chart; `/article` the article parts in a host article. Presentations: `/deck` (the deck player, with `?deck=moves|bento|consulting`) and `/presentations` (slide starters and a complete narrative example). Motion & 3D: `/animations` (`/slides` remains an alias) and `/mechanism` (the Mechanism style's verification gate, its poses and thumbnails). Web: `/web` for the Landing building blocks and `/docs` for the documentation layout. Foundations: `/styles` indexes visual styles and `/assets` browses icons, marks, backgrounds and motion tokens.
+`npm run dev` opens a playground with a two-row nav (groups, then the group's pages). Diagrams: `/` (also `/diagrams`) is the figure design system, each diagram pattern once from the bare canvas and the parts sampler to the drill-down (`/drill` opens it there), with when to use it and what it is built from; `/charts` the layer stack and span chart; `/article` the article parts in a host article. Presentations: `/deck` (the deck player, with `?deck=moves|bento|consulting`) and `/presentations` (slide starters and a complete narrative example). Motion & 3D: `/animations` (`/slides` remains an alias) and `/mechanism` (the Mechanism style's verification gate, its poses and thumbnails). Web: `/web` for the Landing building blocks and `/docs` for the documentation layout. Foundations: `/styles` indexes visual styles and `/assets` browses icons, marks, backgrounds and motion tokens.
 
 ## Charts
 
@@ -247,7 +247,7 @@ Seven figures from a small typed spec, each with wide and narrow drawings, packe
 ![Before and after](docs/presets/beforeAfter-light.png)
 ![Pipeline](docs/presets/pipeline-light.png)
 
-`examples/Habitat.tsx` stays as the reference drawing, built from the parts by hand.
+`examples/Habitat.tsx` stays as the reference drawing, built from the parts by hand; the diagrams page shows it as the service-map pattern. The page shows the pipeline, before-and-after, sync-loop and agent-loop presets as their patterns; the service-map, RAG-pipeline and skill-lifecycle presets draw shapes the page already covers (the Habitat drawing; a pipeline with a bus fan-in; a loop with a return path), so they are documented here only.
 
 ## Assets
 

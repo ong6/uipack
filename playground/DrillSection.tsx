@@ -328,37 +328,19 @@ function useUrlPath(): [string[] | undefined, (p: string[]) => void] {
   return [path, set];
 }
 
-/** Drill-down figures: the section the diagrams page mounts. */
-export function DrillSection({ theme }: { theme?: "light" | "dark" }) {
+/** The drill-down reference figure, mounted in its section on the diagrams page (`#drill-figure`; `/drill` scrolls there). */
+export function DrillExample({ number }: { number: string }) {
   const [path, setPath] = useUrlPath();
-  const other = theme === "dark" ? "light" : "dark";
   return (
-    <section data-catalog-entry="drill-figure" id="drill" className="drill-section">
-      <h2>Drill-down figure</h2>
-      <DrillFigure
-        id="drill-main"
-        number="Figure 05"
-        eyebrow="Drill-down"
-        levels={drillLevels}
-        viewBox={`0 0 ${W} ${H}`}
-        narrowViewBox={`0 0 ${NW} ${NH}`}
-        path={path ?? ["harness"]}
-        onPathChange={setPath}
-      />
-      <h2 style={{ marginTop: 32 }}>Drill-down figure in the {other} theme, opened at Checks</h2>
-      <DrillFigure
-        id="drill-alt"
-        number="Figure 05b"
-        eyebrow="Drill-down"
-        levels={drillLevels}
-        viewBox={`0 0 ${W} ${H}`}
-        narrowViewBox={`0 0 ${NW} ${NH}`}
-        defaultPath={["harness", "checks"]}
-        theme={other}
-        controls={false}
-      />
-    </section>
+    <DrillFigure
+      id="drill-main"
+      number={number}
+      eyebrow="Drill-down"
+      levels={drillLevels}
+      viewBox={`0 0 ${W} ${H}`}
+      narrowViewBox={`0 0 ${NW} ${NH}`}
+      path={path ?? ["harness"]}
+      onPathChange={setPath}
+    />
   );
 }
-
-export default DrillSection;

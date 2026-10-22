@@ -75,9 +75,9 @@ export function HabitatWide() {
   return (
     <>
       <Defs id={ID} />
-      <Lane x={client.x} w={client.w} y={44} title="Clients" />
-      <Lane x={platform.x} w={platform.w} y={44} title="Online storage platform" />
-      <Lane x={store.x} w={store.w} y={44} title="Storage resources" />
+      <Lane x={client.x} w={client.w} y={40} title="Clients" />
+      <Lane x={platform.x} w={platform.w} y={40} title="Online storage platform" />
+      <Lane x={store.x} w={store.w} y={40} title="Storage resources" />
 
       {CLIENTS.map(([label, icon], i) => (
         <Node key={label} x={client.x} y={client.y0 + i * client.step} w={client.w} h={client.h} label={label} icon={icon} flow={READ} hint={`${label} reads and writes through Habitat`} />
@@ -85,9 +85,9 @@ export function HabitatWide() {
 
       <Group {...platform} title="Habitat" flow={[READ, CDC]}>
         {PLATFORM.map(([label, sub], i) => (
-          <Node key={label} x={platform.x + 24 + (i % 3) * 192} y={platform.y + 44 + Math.floor(i / 3) * 72} w={168} h={56} label={label} sub={sub} align="left" flow={READ} />
+          <Node key={label} x={platform.x + 16 + (i % 3) * 192} y={platform.y + 44 + Math.floor(i / 3) * 72} w={184} h={56} label={label} sub={sub} align="left" flow={READ} />
         ))}
-        <Node x={platform.x + 24} y={platform.y + 188} w={552} h={56} label="Routing" sub="Schema lookup · Data residency" align="left" flow={READ} />
+        <Node x={platform.x + 16} y={platform.y + 188} w={568} h={56} label="Routing" sub="Schema lookup · Data residency" align="left" flow={READ} />
       </Group>
 
       {STORES.map(([label, sub, icon], i) => (
@@ -164,13 +164,13 @@ export function HabitatNarrow() {
   );
 }
 
-export function HabitatFigure() {
+export function HabitatFigure({ number = "Figure 01" }: { number?: string } = {}) {
   return (
     <Figure
-      number="Figure 01"
+      number={number}
       eyebrow="What is Habitat?"
       title="Online storage platform"
-      caption="Habitat is the online storage platform OpenAI built so its products can quickly and reliably access needed information. Redrawn from the engineering post with uipack."
+      caption="OpenAI's online storage platform, redrawn from its engineering post. Notice the buses: each client joins one line at a dot and a single arrow enters the platform, so the platform is the only thing that touches storage; changes leave from its bottom edge."
       legend={[
         { label: "Request", kind: "request" },
         { label: "Response", kind: "response" },
