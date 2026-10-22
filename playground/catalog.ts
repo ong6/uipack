@@ -89,6 +89,12 @@ export type LibraryPage = (typeof libraryPages)[number]["id"];
 /** The same list, typed for code that reads the optional fields. */
 export const pageDefs: readonly PageDef[] = libraryPages;
 
+/** A page's path with its sub-view query, without the theme ("/deck?deck=bento"). */
+export function pagePath(page: PageDef) {
+  const query = new URLSearchParams(page.query).toString();
+  return query ? `${page.path}?${query}` : page.path;
+}
+
 /** Link target for a page, with its query and the theme. */
 export function pageHref(page: PageDef, theme: string) {
   const params = new URLSearchParams(page.query);

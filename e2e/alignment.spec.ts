@@ -1,9 +1,10 @@
+import { pageDefs, pagePath } from "../playground/catalog";
 import { expect, test, type Page } from "./fixtures";
 
 // Component-level layout rules, checked on every playground page rather than per component:
 // cards that share a row share a height and an action row, controls side by side share a
 // height, and a focus ring is never cut off by a scrolling or clipping box.
-const PAGES = ["/", "/charts", "/article", "/deck?deck=moves", "/deck?deck=bento", "/deck?deck=consulting", "/presentations", "/animations", "/mechanism", "/web", "/docs", "/styles", "/assets"];
+const PAGES = pageDefs.map(pagePath);
 
 async function open(page: Page, path: string) {
   await page.goto(path);
