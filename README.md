@@ -45,7 +45,7 @@ Separate entries, so a page loads only what it draws: `uipack` for parts, `uipac
 
 `uipack/docs` with `uipack/docs.css` provides a product-documentation shell and Markdown renderer: grouped navigation, a 680px prose column, an h2/h3 table of contents, mobile disclosure, heading anchors, and previous/next links. See the [docs layout guide](docs/docs-layout.md) and the rendered `/docs` gallery entry.
 
-`npm run dev` opens a playground: `/` renders the Habitat example, every part, the layer stack and span chart, and every preset; `/assets` renders the asset browser; `/animations` renders the 3D animation collection (`/slides` remains an alias), `/presentations` shows a complete narrative example, `/web` shows the Landing web building blocks, `/article` shows the article parts in a host article, and `/styles` indexes visual styles.
+`npm run dev` opens a playground with a two-row nav (groups, then the group's pages). Diagrams: `/` (also `/diagrams`) renders the presets, the Habitat reference figure, every part and a bare figure; `/charts` the layer stack and span chart; `/article` the article parts in a host article. Presentations: `/deck` (deck player) and `/presentations` (slide starters and a complete narrative example). Motion & 3D: `/animations` (`/slides` remains an alias) and `/mechanism`. Web: `/web` for the Landing building blocks and `/docs` for the documentation layout. Foundations: `/styles` indexes visual styles and `/assets` browses icons, marks, backgrounds and motion tokens.
 
 ## Charts
 
@@ -254,14 +254,14 @@ Seven figures from a small typed spec, each with wide and narrow drawings, packe
 }
 ```
 
-`kind` is one of `figure`, `part`, `icon`, `motion`, `background`, `mark`. Today: 7 figures, 9 parts, 25 icons, 7 motion, 3 backgrounds, 9 marks. Marks are my own only; no third-party logos. `npm run manifest` re-renders the previews and rewrites the file.
+`kind` is one of `icon`, `motion`, `background`, `mark` (the type still accepts `figure` and `part` for older manifests). Today: 25 icons, 7 motion, 3 backgrounds, 9 marks. The diagram presets and parts are coded figures, not assets; see them on the playground's Architecture diagrams page. Marks are my own only; no third-party logos. `npm run manifest` re-renders the previews and rewrites the file.
 
 ```tsx
 import "uipack/browser.css";
 import { AssetBrowser } from "uipack/browser";
 import manifest from "uipack/assets/manifest.json";
 
-<AssetBrowser manifest={manifest} initialCategory="Figures" base="/uipack/" />
+<AssetBrowser manifest={manifest} initialCategory="Icons" base="/uipack/" />
 ```
 
 `onAction` replaces the copy, `actionLabel` renames the button. The sidebar collapses to a row of chips below 720px; every target is 44px. On wider screens the category list is sticky at `top: 16px`; a host with a fixed header sets `--uipack-browser-sticky-top` (for example `88px`) on `.uipack-browser` or an ancestor. The tile shows `previewDark` when the browser's colour tokens are dark (`data-theme="dark"` on it or an ancestor, or the OS preference without `data-theme="light"`).

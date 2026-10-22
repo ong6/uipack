@@ -146,7 +146,7 @@ export default function CatalogPages() {
         <section>
           <h2>Visual styles</h2>
           <p className="collection-intro">
-            Choose a visual language first, then explore its figures, assets,
+            Choose a visual language first, then explore its diagrams, icons,
             and animations. Light and dark are themes within a style.
           </p>
           <div className="style-grid">
@@ -164,7 +164,7 @@ export default function CatalogPages() {
                 <p>{style.description}</p>
                 <div>
                   {style.id === 'technical' ? <>
-                    <a href={`/?theme=${theme}`}>Figures</a>
+                    <a href={`/?theme=${theme}`}>Architecture diagrams</a>
                     <a href={`/animations?theme=${theme}`}>3D animations</a>
                     <a href={`/presentations?theme=${theme}`}>Presentations</a>
                   </> : style.id === 'landing' ? <a href={`/web?theme=${theme}`}>Web UI building blocks</a> : <a href={`/animations?story=travel&variant=${'variant' in style ? style.variant : 0}&theme=${theme}`}>Explore six animated studies</a>}
@@ -178,12 +178,7 @@ export default function CatalogPages() {
         </section>
       ) : (
         <section>
-          <h2>Presentations · Technical style</h2>
-          <p className="collection-intro">
-            A complete narrative example: opening, argument, visual explanation,
-            comparison, and closing. Animation supports the story.
-          </p>
-          <h3>Slide and speech starters</h3>
+          <h2>Slide and speech starters</h2>
           <p className="collection-intro">
             Choose a layout to see the designed slide and the talk track that goes
             with it. The reusable component accepts content; these words belong to
@@ -201,7 +196,11 @@ export default function CatalogPages() {
             ))}
           </nav>
           <SlideStarter slide={starter} theme={theme} />
-          <h3 className="deck-example-heading">Complete narrative example</h3>
+          <h2 className="deck-example-heading">Complete narrative example</h2>
+          <p className="collection-intro">
+            Opening, argument, visual explanation, comparison and closing.
+            Animation supports the story.
+          </p>
           <nav className="deck-chapters" aria-label="Presentation chapters">
             {chapters.map((c, i) => (
               <button
@@ -235,7 +234,7 @@ export default function CatalogPages() {
           >
             <div className="composed-deck__copy" aria-live="polite">
               <p className="deck-eyebrow">{chapter.eyebrow}</p>
-              <h1>{chapter.title}</h1>
+              <h3 className="composed-deck__title">{chapter.title}</h3>
               <p>{chapter.text}</p>
               {chapter.kind === "argument" && (
                 <ol>
@@ -247,11 +246,11 @@ export default function CatalogPages() {
               {chapter.kind === "comparison" && (
                 <div className="deck-comparison">
                   <div>
-                    <h3>Direct output</h3>
+                    <h4>Direct output</h4>
                     <p>Proposal → response</p>
                   </div>
                   <div>
-                    <h3>Verified output</h3>
+                    <h4>Verified output</h4>
                     <p>Proposal → action → evidence → response</p>
                   </div>
                 </div>

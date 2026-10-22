@@ -27,7 +27,7 @@ test("mobile presets remain readable and selection works without hover", async (
       );
     expect(Math.min(...sizes)).toBeGreaterThanOrEqual(10.9);
   }
-  const figure = page.locator("figure").first();
+  const figure = page.locator('section[data-section="reference-figure"] figure');
   const node = figure.getByRole("button", { name: "ChatGPT", exact: true });
   await node.tap();
   await expect(node).toHaveAttribute("aria-pressed", "true");
@@ -71,10 +71,7 @@ test("mobile presets remain readable and selection works without hover", async (
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
   await expect(
-    page
-      .locator("figure")
-      .first()
-      .getByRole("button", { name: "Open canvas", exact: true }),
+    figure.getByRole("button", { name: "Open canvas", exact: true }),
   ).toBeFocused();
   expect(await page.evaluate(() => document.body.style.overflow)).not.toBe(
     "hidden",
@@ -132,13 +129,18 @@ test("catalog filters, style grouping, and presentation composition work on mobi
       .getByRole("navigation", { name: "Example stories" })
       .getByRole("button"),
   ).toHaveCount(1);
-  await page.getByRole("link", { name: "Styles", exact: true }).click();
+  await page.locator(".showcase-menu-button").click();
+  await page
+    .getByRole("dialog", { name: "Library menu" })
+    .getByRole("link", { name: "Styles", exact: true })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Technical", exact: true }),
   ).toBeVisible();
+  await page.locator(".showcase-menu-button").click();
   await page
-    .getByRole("navigation", { name: "Library pages" })
-    .getByRole("link", { name: "Presentations", exact: true })
+    .getByRole("dialog", { name: "Library menu" })
+    .getByRole("link", { name: "Slide starters", exact: true })
     .click();
   await expect(
     page.getByRole("heading", { name: "A model is only the beginning." }),

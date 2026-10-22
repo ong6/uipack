@@ -4,8 +4,8 @@ test.describe("asset browser", () => {
   test("category filter, search and counts", async ({ page }) => {
     await page.goto("/assets");
     const status = page.getByRole("status");
-    await expect(status).toHaveText(/^60 assets$/);
-    await expect(page.locator(".uipack-browser__card")).toHaveCount(60);
+    await expect(status).toHaveText(/^44 assets$/);
+    await expect(page.locator(".uipack-browser__card")).toHaveCount(44);
     await page.getByRole("button", { name: /^Icons/ }).click();
     await expect(status).toHaveText("25 assets in Icons");
     await expect(page.locator(".uipack-browser__card")).toHaveCount(25);
@@ -13,7 +13,7 @@ test.describe("asset browser", () => {
     await expect(status).toHaveText("1 asset in Icons");
     await page.getByRole("button", { name: /^All/ }).click();
     await page.getByRole("searchbox").fill("");
-    await expect(status).toHaveText(/^60 assets$/);
+    await expect(status).toHaveText(/^44 assets$/);
     // every preview loaded
     const broken = await page.evaluate(() => [...document.querySelectorAll<HTMLImageElement>(".uipack-browser__tile img")].filter((i) => i.complete && i.naturalWidth === 0).map((i) => i.src));
     expect(broken).toEqual([]);
@@ -53,7 +53,7 @@ test.describe("asset browser", () => {
     const tab = browserName === "webkit" ? "Alt+Tab" : "Tab";
     await page.getByRole("button", { name: /^All/ }).focus();
     await page.keyboard.press(tab);
-    await expect(page.getByRole("button", { name: /^Figures/ })).toBeFocused();
+    await expect(page.getByRole("button", { name: /^Icons/ })).toBeFocused();
     await page.getByRole("searchbox").focus();
     await page.keyboard.press(tab);
     await expect(page.locator(".uipack-browser__action").first()).toBeFocused();

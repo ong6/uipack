@@ -55,11 +55,7 @@ export default function Slides() {
   return (
     <ShowcaseShell active="animations" theme={theme} flip={flip}>
       <section className="slides-showcase">
-        <h2>3D animations · {animationEntries.length} examples</h2>
-        <p className="slides-showcase__intro">
-          Live 3D scenes with camera moves, animated flows, and presentation
-          controls.
-        </p>
+        <h2>Scene library and preview</h2>
         <AnimationWorkspace theme={theme} library={<>
         <h3>Animation library</h3>
         <div className="catalog-filters">

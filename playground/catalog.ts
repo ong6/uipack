@@ -23,17 +23,72 @@ export const visualStyles = [
     guidance: 'docs/objects.md', variant,
   })),
 ] as const;
+/** Navigation groups, in display order. A group opens on its default page. Add a group here; add pages below. */
+export const libraryGroups = [
+  { id: "diagrams", label: "Diagrams", defaultPage: "figures" },
+  { id: "presentations", label: "Presentations", defaultPage: "deck" },
+  { id: "motion", label: "Motion & 3D", defaultPage: "animations" },
+  { id: "web-group", label: "Web", defaultPage: "web" },
+  { id: "foundations", label: "Foundations", defaultPage: "styles" },
+] as const;
+export type LibraryGroup = (typeof libraryGroups)[number]["id"];
+
+/**
+ * One entry of the second nav row. Several entries may share a `path` and differ by `query`
+ * (a sub-view, such as a deck): the entry is current when every listed query param matches
+ * the URL, and `isDefault` marks the one that is current otherwise. `title` overrides the h1
+ * when the label names only the sub-view.
+ */
+export interface PageDef {
+  id: string;
+  group: LibraryGroup;
+  label: string;
+  title?: string;
+  path: string;
+  query?: Readonly<Record<string, string>>;
+  isDefault?: boolean;
+  intro: string;
+}
+
+/**
+ * Every page, in display order within its group. `label` is the nav text and the page's h1;
+ * `intro` is the one-sentence line under it. Other branches add an entry here and a route in main.tsx.
+ */
 export const libraryPages = [
-  { id: "figures", label: "Figures", path: "/" },
-  { id: "assets", label: "Assets", path: "/assets" },
-  { id: "animations", label: "3D animations", path: "/animations" },
-  { id: "presentations", label: "Presentations", path: "/presentations" },
-  { id: "web", label: "Web UI", path: "/web" },
-  { id: "docs", label: "Docs layout", path: "/docs" },
-  { id: "article", label: "Article parts", path: "/article" },
-  { id: "styles", label: "Styles", path: "/styles" },
+  { id: "figures", group: "diagrams", label: "Architecture diagrams", path: "/", intro: "Request flows, agent loops and service maps drawn as SVG figures, from ready-made presets down to the bare canvas." },
+  { id: "charts", group: "diagrams", label: "Charts", path: "/charts", intro: "Layered and comparative charts for articles, previewed at a host's real figure width." },
+  { id: "article", group: "diagrams", label: "Article parts", path: "/article", intro: "Prose-friendly parts for long reads, shown inside a host article's text column." },
+  { id: "deck", group: "presentations", label: "Tech talk", title: "Deck player", path: "/deck", query: { deck: "moves" }, isDefault: true, intro: "A full-window player that steps a deck of slides with keyboard and touch." },
+  { id: "deck-bento", group: "presentations", label: "Bento", title: "Deck player", path: "/deck", query: { deck: "bento" }, intro: "A full-window player that steps a deck of slides with keyboard and touch." },
+  { id: "deck-consulting", group: "presentations", label: "Consulting", title: "Deck player", path: "/deck", query: { deck: "consulting" }, intro: "A full-window player that steps a deck of slides with keyboard and touch." },
+  { id: "presentations", group: "presentations", label: "Slide starters", path: "/presentations", intro: "Slide layouts with their speech notes, then a complete five-chapter narrative built from them." },
+  { id: "animations", group: "motion", label: "3D animations", path: "/animations", intro: "Live 3D scenes with camera moves, animated flows and presentation controls." },
+  { id: "mechanism", group: "motion", label: "Mechanism", path: "/mechanism", intro: "Mechanical drawings that explain how a system moves, one part at a time." },
+  { id: "web", group: "web-group", label: "Web UI", path: "/web", intro: "Landing-page building blocks: a demo-first hero, spotlight features, motion and backgrounds." },
+  { id: "docs", group: "web-group", label: "Docs layout", path: "/docs", intro: "A three-column product documentation shell with responsive navigation and Markdown prose." },
+  { id: "styles", group: "foundations", label: "Styles", path: "/styles", intro: "The visual languages in the library and where each one is used." },
+  { id: "assets", group: "foundations", label: "Icons & marks", path: "/assets", intro: "Searchable icons, marks, canvas backgrounds and motion tokens, each with a preview and a copy button." },
 ] as const;
 export type LibraryPage = (typeof libraryPages)[number]["id"];
+
+/** The same list, typed for code that reads the optional fields. */
+export const pageDefs: readonly PageDef[] = libraryPages;
+
+/** Link target for a page, with its query and the theme. */
+export function pageHref(page: PageDef, theme: string) {
+  const params = new URLSearchParams(page.query);
+  params.set("theme", theme);
+  return `${page.path}?${params}`;
+}
+
+/** The entry for `id`, or its sibling on the same path whose query matches `search`. */
+export function resolvePage(id: string, search: string): PageDef {
+  const base = pageDefs.find((p) => p.id === id)!;
+  const params = new URLSearchParams(search);
+  const same = pageDefs.filter((p) => p.path === base.path);
+  const exact = same.find((p) => p.query && Object.entries(p.query).every(([k, v]) => params.get(k) === v));
+  return exact ?? same.find((p) => p.isDefault) ?? base;
+}
 export interface CatalogEntry {
   id: string;
   title: string;
@@ -142,19 +197,19 @@ export const webEntries: CatalogEntry[] = [
   ).map(([id, title]) => ({ id, title, type: "web" as const, styleId: "landing", tags: ["Backgrounds"] })),
 ];
 
-/** Figures beyond the SVG parts and presets, rendered on / (uipack/charts). */
-export const figureEntries: CatalogEntry[] = [
+/** Charts (uipack/charts), rendered on /charts. */
+export const chartEntries: CatalogEntry[] = [
   {
     id: "layer-stack",
     title: "Layer stack",
-    type: "figures",
+    type: "charts",
     styleId: "technical",
     tags: ["Diagram", "Layers", "Disclosure", "Hero"],
   },
   {
     id: "span-chart",
     title: "Span chart",
-    type: "figures",
+    type: "charts",
     styleId: "technical",
     tags: ["Chart", "Comparison", "Filter", "Layers"],
   },

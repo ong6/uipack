@@ -7,7 +7,7 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 const visibleRows = (chart: Locator) => chart.locator(".uipack-span__item:visible");
 const col = (chart: Locator, layer: string) => chart.locator(`.uipack-span__col[data-l="${layer}"]`);
 const chip = (chart: Locator, attr: string) => chart.locator(`.uipack-span__toolbar .uipack-span__chip[${attr}]`);
-const at = (frame: string, hash: string, theme = "light") => `/?theme=${theme}&frame=${frame}#${hash}`;
+const at = (frame: string, hash: string, theme = "light") => `/charts?theme=${theme}&frame=${frame}#${hash}`;
 // Label widths are estimated from the macOS system font, the one the hosts are
 // tuned on. Other platforms fall back to wider fonts (CI's Linux runners use
 // DejaVu), so there the checks below hold the floor (no touching labels, bands

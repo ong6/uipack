@@ -33,7 +33,7 @@ const entry = (id: string) => articleEntries.find((e) => e.id === id)!;
 function Entry({ id, children }: { id: string; children: ReactNode }) {
   return (
     <section data-catalog-entry={id} id={id}>
-      <h2>article/{entry(id).title}</h2>
+      <h2>{entry(id).title}</h2>
       <div className="article-host__prose">{children}</div>
     </section>
   );
@@ -54,7 +54,7 @@ export default function ArticleShowcase() {
       </p>
       <div className="article-host" data-host={host}>
         <section data-catalog-entry="layer-section" id="layer-section">
-          <h2>article/{entry("layer-section").title}</h2>
+          <h2>{entry("layer-section").title}</h2>
           <article className="article-host__prose">
             <p>
               Two layer sections of an article, composed from the parts: a strip above each heading, the prose, then the labelled blocks. The

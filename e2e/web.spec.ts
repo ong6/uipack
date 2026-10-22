@@ -79,7 +79,7 @@ test.describe("/web Landing collection", () => {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto(`/web?theme=${theme}`);
       await expect(page.locator(".uipack-web").first()).toHaveAttribute("data-theme", theme);
-      await expect(page.getByRole("link", { name: "Web UI", exact: true })).toHaveAttribute("aria-current", "page");
+      await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Web · Web UI");
       await expect(page.locator(".showcase-context a")).toHaveText("Landing style");
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
       await page.waitForTimeout(300);
