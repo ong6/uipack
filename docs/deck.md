@@ -142,11 +142,13 @@ The stage never grows taller than the viewport leaves for it, so the slide and i
 
 ## Speaker view
 
-The Speaker view button opens the same page with `presenter=1` (override with `presenterHref`) and the host renders `mode="presenter"`. Windows showing the same deck `id` stay in step over `BroadcastChannel`, both ways; opening a speaker window never moves the audience. It shows the current slide; what the next press does (`Build 2 of 3: Policy…`, `camera to Where the 214 ms went`, the pull-back, or the next slide's name) above the next slide; the talk track (`notes`: say, delivery, bridge); the slide's role and the question it answers; and a paced clock: elapsed time against the budget (the `minutes` prop, else `lint.minutes`, else the talk tracks' own length at 135 words a minute), this slide's planned window, and how far ahead or behind you are.
+The Speaker view button opens the same page with `presenter=1` (override with `presenterHref`) and the host renders `mode="presenter"`. Windows showing the same deck `id` stay in step over `BroadcastChannel`, both ways; opening a speaker window never moves the audience. It shows the current slide; what the next press does (`Build 2 of 3: Policy…`, `camera to Where the 214 ms went`, the pull-back, or the next slide's name) above the next slide; the talk track (`notes`: say, delivery, bridge); the slide's role and the question it answers; and a paced clock: elapsed time against the budget (the `minutes` prop, else `lint.minutes`, else the talk tracks' own length at 135 words a minute), this slide's planned window, and how far ahead or behind you are. The elapsed clock is a `role="timer"` and each number carries visually hidden words (Elapsed time, Time budget), so a screen reader names them; the host page supplies the window's title and h1 (the playground's is a visually hidden "Tech talk deck, speaker view").
 
 ## Read view
 
 `view="read"` (or the Read button) stacks every slide, fully built, with its claim (`headline`) as the heading, the short `title` small above it, and its talk track. Tour details appear as captioned stills under their slide. Use it on phones and for decks people read on their own after you have presented. The playground opens it by default below 600px.
+
+The read view keeps your place. Opened at a slide (`initial.slide`, so a shared `?slide=` link), it scrolls to that slide, and the head's button reads **Present from 05** and starts there. **Present from here** switches to the stage at that slide and, if the reader had scrolled the deck out of view, scrolls the deck back to the top of the viewport (smoothly, or at once under reduced motion). **Read** from the stage opens the reader at the current slide with focus on its Present from here button.
 
 ## PDF and print
 
@@ -164,4 +166,4 @@ Give slides a `role` (`cover`, `answer`, `context`, `problem`, `evidence`, `mech
 
 ## Not included
 
-No slide editor, no PowerPoint export, no autoplay. PDF comes from the browser's print dialog (above), so slides print as rendered: text stays selectable, but charts are not editable. Full screen uses the standard Fullscreen API.
+No slide editor, no PowerPoint export, no autoplay. PDF comes from the browser's print dialog (above), so slides print as rendered: text stays selectable, but charts are not editable. Full screen uses the standard Fullscreen API (or WebKit's prefixed one); the button shows only where `document.fullscreenEnabled` is true or the prefixed method exists, so iPhone Safari, which has neither for a page element, gets no button that does nothing.
