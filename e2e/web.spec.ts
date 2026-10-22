@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 const demo = (page: Page) => page.locator(".uipack-web-demo");
 /** Pixels between the sticky nav's bottom edge and the first line (eyebrow) of a section. */
@@ -86,7 +86,7 @@ test.describe("/web Landing collection", () => {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto(`/web?theme=${theme}`);
       await expect(page.locator(".uipack-web").first()).toHaveAttribute("data-theme", theme);
-      await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Web · Web UI");
+      await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Web: Web UI");
       await expect(page.locator(".showcase-context a")).toHaveText("Landing style");
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
       await page.waitForTimeout(300);

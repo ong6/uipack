@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 // Cards in one row must line their action rows up, whatever the length of each description.
 test("style cards in a row align their links", async ({ page }) => {

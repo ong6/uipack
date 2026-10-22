@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 const deck = (page: Page) => page.getByRole("region", { name: "Deck player example" });
 const settled = async (page: Page) => {

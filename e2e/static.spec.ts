@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 // The exported file is loaded the way a README or a Markdown site loads it:
 // through <img>, where no page CSS, JavaScript or fonts can reach it. Motion

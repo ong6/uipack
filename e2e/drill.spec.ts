@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 const fig = (page: Page) => page.locator("#drill-main");
 const drillNode = (page: Page, id: string) => fig(page).locator(`.uipack-drill__layer[data-current] [data-drill="${id}"]:visible`).first();

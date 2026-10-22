@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import { expect, test, type Browser, type Page } from "./fixtures";
 
 // uipack/article: the playground's host article (client-rendered, with the
 // notes site's palette via ?host=notes) and static pages rendered with

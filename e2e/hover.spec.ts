@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 // Hover highlighting is CSS on data-state; check the computed opacity, not the attribute alone.
 test.describe("hover", () => {

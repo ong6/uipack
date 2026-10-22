@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { dist, packetCentre, pathPoint } from "./helpers";
 
 // `test.use({ reducedMotion })` did not reach matchMedia in Playwright 1.61 on

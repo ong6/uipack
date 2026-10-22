@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test("trackpad pinch zooms around the pointer, clamps, resets, and stays inside the canvas", async ({
   page,

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test("docs gallery renders desktop navigation and table of contents", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });

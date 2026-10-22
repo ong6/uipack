@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 // Arrowheads must end short of node borders, packets short of arrowheads,
 // and bus junctions on the 8px grid. Checked in user units on every figure of

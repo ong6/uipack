@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 for(const width of [390,1440])for(const theme of ['light','dark'])for(const [variant,style] of [[3,'cartoon'],[4,'kinetic']] as const) {
   test(`contact ${style} at ${width} ${theme}`,async({page},info)=>{
     await page.setViewportSize({width,height:900});

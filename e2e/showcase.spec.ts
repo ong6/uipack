@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test("library pages share navigation and preserve theme across routes and reloads", async ({
   page,
@@ -34,7 +34,7 @@ test("library pages share navigation and preserve theme across routes and reload
   );
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName(
-    "Motion & 3D · 3D animations",
+    "Motion & 3D: 3D animations",
   );
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),

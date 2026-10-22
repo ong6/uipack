@@ -79,13 +79,17 @@ export function ShowcaseShell({
               type="button"
               aria-haspopup="dialog"
               aria-expanded={menuOpen}
+              // Starts with the visible words in order (label in name); the colon is read as a pause.
+              aria-label={`${group.label}: ${page.label}`}
               onClick={() => {
                 setMenuOpen(true);
                 menuRef.current?.showModal();
               }}
             >
-              <span>
-                {group.label} · {page.label}
+              {/* The page name is the button's text and never truncates; the group sits small above it. */}
+              <span className="showcase-menu-button__where">
+                <span className="showcase-menu-button__group">{group.label}</span>{" "}
+                <span className="showcase-menu-button__page">{page.label}</span>
               </span>
               <span aria-hidden="true">▾</span>
             </button>

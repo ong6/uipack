@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 for (const theme of ['light', 'dark']) for (const width of [390, 1440]) {
   test(`gallery editions and responsive layout ${theme} ${width}`, async ({ page }, info) => {
     await page.setViewportSize({ width, height: 1000 });

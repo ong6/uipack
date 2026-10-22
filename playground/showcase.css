@@ -255,11 +255,26 @@ body {
     font: 600 13px ui-monospace, monospace;
     cursor: pointer;
   }
-  .showcase-menu-button > span:first-child {
+  /* Two lines: the group small above, the page name as the button's text. Only the group may
+     shorten; the page name keeps its full width. */
+  .showcase-menu-button__where {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     min-width: 0;
+    text-align: left;
+  }
+  .showcase-menu-button__group {
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font: 500 12px/14px ui-monospace, monospace;
+    color: var(--show-muted);
+  }
+  .showcase-menu-button__page {
+    white-space: nowrap;
+    font: 600 14px/18px system-ui, -apple-system, "Segoe UI", sans-serif;
   }
   .showcase-header button.theme {
     display: grid;
@@ -367,5 +382,12 @@ body {
   }
   .showcase-menu__group a.is-sub {
     padding-left: 32px;
+  }
+}
+/* On the narrowest phones the brand keeps only its mark, so the page name still fits whole. */
+@media (max-width: 359px) {
+  .showcase-brand {
+    width: 24px;
+    overflow: hidden;
   }
 }

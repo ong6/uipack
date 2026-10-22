@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 // The expected information architecture, written out on purpose: a change to
 // catalog.ts that moves a page must change this table too.
@@ -11,11 +11,7 @@ const GROUPS = [
 ] as const;
 const ALL = GROUPS.flatMap((g) => g.pages.map(([label, path]) => ({ group: g.label, label, path })));
 
-// /web renders a whole landing page, including its own hero h1, inside the shell, and
-// DeckShowcase still renders its own "Deck player" h1 and each slide an h1 beside the shell's. Both belong to
-// other branches; drop the deck entries once DeckShowcase stops rendering an h1.
 // /web hosts a complete sample landing page: its hero is the one h1 and the shell title is plain text.
-const EMBEDDED_H1 = new Set<string>();
 const title = (page: Page) => page.locator(".showcase-title h1, .showcase-title .showcase-title__name");
 
 // Deck sub-views share one page title.
@@ -129,15 +125,13 @@ test.describe("headings", () => {
   for (const { label, path } of ALL) {
     test(`${label}: one h1 (the shell's), sentence-case h2s, no skipped levels`, async ({ page }) => {
       await page.goto(path);
-      if (EMBEDDED_H1.has(path)) await expect.poll(() => page.locator("h1").count()).toBeGreaterThanOrEqual(2);
-      else await expect(page.locator("h1")).toHaveCount(1);
+      await expect(page.locator("h1")).toHaveCount(1);
       await expect(title(page)).toHaveText(h1Of(label));
       await expect(page.locator(".showcase-title > p:not(.showcase-title__name)")).not.toBeEmpty();
       // Wait for the page body to render (lazy chunks) before reading the outline.
       await expect(page.locator(".showcase-shell > section, .showcase-shell > div:not(.showcase-title)").first()).toBeVisible();
       const headings = await outline(page);
-      if (EMBEDDED_H1.has(path)) expect(headings.filter((h) => h.level === 1).length).toBeGreaterThanOrEqual(2);
-      else expect(headings.filter((h) => h.level === 1)).toHaveLength(1);
+      expect(headings.filter((h) => h.level === 1)).toHaveLength(1);
       let previous = 0;
       for (const h of headings) {
         expect(h.level, `"${h.text}" follows an h${previous}`).toBeLessThanOrEqual(previous + 1);
@@ -188,13 +182,21 @@ test.describe("390px header and menu", () => {
         expect(box.height).toBeGreaterThanOrEqual(44);
         expect(box.width).toBeGreaterThanOrEqual(44);
       }
+      // The menu button shows the page name whole, with its group small above it.
+      const button = page.locator(".showcase-menu-button");
+      await expect(button.locator(".showcase-menu-button__page")).toHaveText(label);
+      await expect(button.locator(".showcase-menu-button__group")).toHaveText(ALL.find((p) => p.label === label)!.group);
+      expect(await button.locator(".showcase-menu-button__page").evaluate((el) => {
+        const b = el.closest("button")!.getBoundingClientRect();
+        return el.scrollWidth <= el.clientWidth && el.getBoundingClientRect().right <= b.right;
+      })).toBe(true);
     });
   }
 
   test("the menu button names where you are, lists every page, navigates and keeps the theme", async ({ page }) => {
     await page.goto("/charts?theme=dark");
     const button = page.locator(".showcase-menu-button");
-    await expect(button).toHaveAccessibleName("Diagrams · Charts");
+    await expect(button).toHaveAccessibleName("Diagrams: Charts");
     await expect(button).toHaveAttribute("aria-expanded", "false");
     await button.click();
     const sheet = page.getByRole("dialog", { name: "Library menu" });
@@ -217,7 +219,7 @@ test.describe("390px header and menu", () => {
     await sheet.getByRole("link", { name: "Icons & marks" }).click();
     await expect(page).toHaveURL(/\/assets\?theme=dark$/);
     await expect(title(page)).toHaveText("Icons & marks");
-    await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Foundations · Icons & marks");
+    await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Foundations: Icons & marks");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   });
 
@@ -280,7 +282,7 @@ test.describe("deck sub-views in the 390px menu", () => {
   test.use({ viewport: { width: 390, height: 844 } });
   test("they sit indented under a Deck player label and the current one is marked", async ({ page }) => {
     await page.goto("/deck?deck=consulting");
-    await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Presentations · Consulting");
+    await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Presentations: Consulting");
     await page.locator(".showcase-menu-button").click();
     const sheet = page.getByRole("dialog", { name: "Library menu" });
     await expect(sheet.locator(".showcase-menu__sub")).toHaveText("Deck player");
@@ -290,6 +292,6 @@ test.describe("deck sub-views in the 390px menu", () => {
     expect(await pad("Bento")).toBeGreaterThan(await pad("Slide starters"));
     await sheet.getByRole("link", { name: "Bento", exact: true }).click();
     await expect(page).toHaveURL(/\/deck\?deck=bento&theme=light$/);
-    await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Presentations · Bento");
+    await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Presentations: Bento");
   });
 });

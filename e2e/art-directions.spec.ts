@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 import { objectDirections } from '../src/objects/variants';
 test.describe.configure({ mode: 'parallel' });
 // Canvas snapshots and video recording perturb the timings being measured.

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 // @ts-expect-error a plain ESM module vendored from Anatomy, with no type declarations
 import { LINE_ENDS } from "./anatomy-line-ends.mjs";
 

@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { test } from "./fixtures";
 
 // Not a test: writes the README and docs screenshots. Run with `npm run screenshots`.
 // The presets the diagrams page shows; the other presets keep their committed shots.
