@@ -1,5 +1,5 @@
 import { CanvasView } from "./CanvasView";
-import { useIsoLayoutEffect } from "./env";
+import { useIsoLayoutEffect, usePrefersReducedMotion } from "./env";
 import { SelectionContext, type SelectedItem } from "./selection";
 import {
   useCallback,
@@ -11,11 +11,7 @@ import {
   type ReactNode,
   createElement,
 } from "react";
-import {
-  FigureMotionContext,
-  usePrefersReducedMotion,
-  type FigureMotion,
-} from "./context";
+import { FigureMotionContext, type FigureMotion } from "./context";
 import { Legend, type LegendItem } from "./Legend";
 import { FigureHoverContext, type FigureHover } from "./hover";
 import { FigureScaleContext, DEFAULT_RENDER_WIDTH, fontFloor } from "./scale";

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import { REDUCED_MOTION_QUERY } from "../env";
+import { onReducedMotionChange, prefersReducedMotion } from "../env";
 
 /* ------------------------------------------------------------------ Pure math (tested) */
 
@@ -86,14 +86,12 @@ export const SMOOTH_SCROLL_ATTR = "data-uipack-smooth-scroll";
 /** Put on an element whose wheel events must stay native, like Lenis's data-lenis-prevent. */
 export const SMOOTH_SCROLL_PREVENT_ATTR = "data-smooth-scroll-prevent";
 
-const REDUCED = REDUCED_MOTION_QUERY;
 const SCROLL_KEYS = new Set([" ", "PageUp", "PageDown", "ArrowUp", "ArrowDown", "Home", "End"]);
 const FINE = "(hover: hover) and (pointer: fine)";
 
 let active: SmoothScrollController | null = null;
 
 const canUseDom = () => typeof window !== "undefined" && typeof document !== "undefined";
-const matches = (q: string) => canUseDom() && typeof window.matchMedia === "function" && window.matchMedia(q).matches;
 const maxScroll = () => Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
 
 function safeQuery(selector: string): Element | null {
@@ -123,7 +121,7 @@ function nativeScrollTo(target: SmoothScrollTarget, { offset, immediate }: Smoot
   if (!canUseDom()) return;
   const y = resolveTop(target, offset);
   if (y === null) return;
-  window.scrollTo({ top: clamp(y, 0, maxScroll()), behavior: immediate || matches(REDUCED) ? "auto" : "smooth" });
+  window.scrollTo({ top: clamp(y, 0, maxScroll()), behavior: immediate || prefersReducedMotion() ? "auto" : "smooth" });
 }
 
 /** True when nothing between the wheel's target and the page can scroll it first. */
@@ -340,9 +338,10 @@ export function createSmoothScroll({ lerp = 0.1, wheelMultiplier = 1, anchors = 
     document.removeEventListener("visibilitychange", onVisibility);
   };
 
-  const queries = typeof window.matchMedia === "function" ? [window.matchMedia(REDUCED), window.matchMedia(FINE)] : [];
+  // On only with a fine pointer and without reduced motion; the reduced-motion half is the shared subscription.
+  const fine = typeof window.matchMedia === "function" ? window.matchMedia(FINE) : null;
   const evaluate = () => {
-    const next = !destroyed && queries.length === 2 && !queries[0].matches && queries[1].matches;
+    const next = !destroyed && fine !== null && fine.matches && !prefersReducedMotion();
     if (next === enabled) return;
     enabled = next;
     if (enabled) attach();
@@ -382,7 +381,8 @@ export function createSmoothScroll({ lerp = 0.1, wheelMultiplier = 1, anchors = 
     destroy() {
       if (destroyed) return;
       destroyed = true;
-      queries.forEach((mq) => listen(mq, false));
+      if (fine) listen(fine, false);
+      stopReduced();
       document.removeEventListener("click", onClick);
       if (enabled) detach();
       enabled = false;
@@ -391,7 +391,8 @@ export function createSmoothScroll({ lerp = 0.1, wheelMultiplier = 1, anchors = 
   };
 
   active = controller;
-  queries.forEach((mq) => listen(mq, true));
+  if (fine) listen(fine, true);
+  const stopReduced = onReducedMotionChange(evaluate);
   // Anchors are handled even while wheel easing is off, so every in-page link lands below the
   // nav and moves focus the same way: eased, natively smooth on touch, instant under reduced motion.
   document.addEventListener("click", onClick);

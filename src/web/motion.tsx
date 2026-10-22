@@ -7,7 +7,7 @@ import {
   type PointerEvent,
   type ReactNode,
 } from "react";
-import { usePrefersReducedMotion } from "../context";
+import { usePrefersReducedMotion } from "../env";
 import { CtaButton, type CtaButtonProps } from "./CtaButton";
 import { useInView, useScrollProgress } from "./hooks";
 

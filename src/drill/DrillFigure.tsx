@@ -11,10 +11,10 @@ import {
   type ReactNode,
 } from "react";
 import { CanvasView } from "../CanvasView";
-import { useIsoLayoutEffect } from "../env";
+import { useIsoLayoutEffect, usePrefersReducedMotion } from "../env";
 import { PauseGlyph, PlayGlyph, ReplayGlyph, placeNote } from "../Figure";
 import { Legend } from "../Legend";
-import { FigureMotionContext, usePrefersReducedMotion, type FigureMotion } from "../context";
+import { FigureMotionContext, type FigureMotion } from "../context";
 import { FigureHoverContext, type FigureHover } from "../hover";
 import { FigureScaleContext } from "../scale";
 import { SelectionContext, type SelectedItem } from "../selection";

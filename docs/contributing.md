@@ -16,7 +16,7 @@ Every package entry (`uipack`, `uipack/deck`, `uipack/mechanism`…) has the sam
 
 Shared building blocks, so a new part does not grow its own copy:
 
-- `src/env.ts`: `useIsoLayoutEffect` (SSR-safe layout effect), `REDUCED_MOTION_QUERY`, `prefersReducedMotion()`, and `keepFocusedInView` (onFocus for a horizontally scrolling row, so a focused item and its ring are never half hidden). The hook is `usePrefersReducedMotion()` from `src/context.tsx`.
+- `src/env.ts`: `useIsoLayoutEffect` (SSR-safe layout effect), `usePrefersReducedMotion()` (the one reduced-motion subscription; a new part uses it rather than its own `matchMedia`), `prefersReducedMotion()` and `onReducedMotionChange()` for code outside React, `REDUCED_MOTION_QUERY`, and `keepFocusedInView` (onFocus for a horizontally scrolling row, so a focused item and its ring are never half hidden).
 - `src/zoom-math.ts`: the fixed-point zoom (`zoomFrame`, `zoomSamples`, `easeInOutCubic`, `smoothstep`).
 - `src/presets/shared.tsx`: `textPx`, `fits`, `fit` and `nodeWidthFor`, the text-width estimates presets size boxes with.
 - Prop names: `theme` (`"light" | "dark"`; omitted, follow an ancestor's `data-theme`), `motion` (`"auto" | "none"`), `interactive` (`false` renders one still frame: thumbnails), `alt` (the accessible description), `number` (the figure number), `className`. Use these names for the same ideas.
@@ -69,7 +69,7 @@ The diagrams page shows each pattern once, simplest first. Add one the first tim
 ## A new Mechanism machine
 
 1. A folder `src/mechanism/<machine>/`, as `gate/` is: `model.ts` (the truth: a small pure module with the numbers, thresholds and readout text), `view.ts` (world units, plans, the camera), `geometry.ts` (solids built once with the kit), `motion.ts` (`sceneAt(pose, t)`, a pure function of time) and the component (`<Machine>.tsx`, the machine wrapped in `MechanismFrame`).
-2. Reuse the shared pieces: `kit/` (vendored, do not edit), `solid3.ts`, `MechanismFrame`, `mechanism.css` (add rules under `.uipack-mechanism`), `REDUCED_MOTION_QUERY` from `src/env.ts`. Props follow the gate: `pose`, `theme`, `motion`, `interactive`, `alt`, `frame`, `number`, `title`, `hint`, `caption`.
+2. Reuse the shared pieces: `kit/` (vendored, do not edit), `solid3.ts`, `MechanismFrame`, `mechanism.css` (add rules under `.uipack-mechanism`), `usePrefersReducedMotion` from `src/env.ts` (not the kit's own stillness helpers). Props follow the gate: `pose`, `theme`, `motion`, `interactive`, `alt`, `frame`, `number`, `title`, `hint`, `caption`.
 3. Export it by name from `src/mechanism/index.ts`.
 4. Register it in `mechanismEntries` in `playground/catalog.ts` and give it a section on `playground/MechanismShowcase.tsx`.
 5. Tests: the model and the scripts' continuity in `test/mechanism.test.tsx` (the no-Three.js check covers the new folder), interaction and both themes in `e2e/mechanism.spec.ts`.

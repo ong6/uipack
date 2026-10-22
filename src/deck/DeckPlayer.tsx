@@ -6,8 +6,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { usePrefersReducedMotion } from "../context";
-import { useIsoLayoutEffect } from "../env";
+import { useIsoLayoutEffect, usePrefersReducedMotion } from "../env";
 import { Controls } from "./player/Controls";
 import { Layer, useCanvasScale } from "./player/Layer";
 import { Overview } from "./player/Overview";

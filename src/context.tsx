@@ -1,5 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { REDUCED_MOTION_QUERY } from "./env";
+import { createContext, useContext } from "react";
 
 export interface FigureMotion {
   /** False after Pause, or always false under prefers-reduced-motion. */
@@ -29,22 +28,3 @@ export function useFigureMotion(): FigureMotion {
   return useContext(FigureMotionContext);
 }
 
-/** True when the OS asks for reduced motion. Server render says false. */
-export function usePrefersReducedMotion(): boolean {
-  // Starts false on both server and client so hydration matches; the real
-  // value lands in the effect, the same way Packet waits for mount.
-  const [reduced, setReduced] = useState<boolean>(false);
-  useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const mq = window.matchMedia(REDUCED_MOTION_QUERY);
-    const onChange = (e: MediaQueryListEvent) => setReduced(e.matches);
-    setReduced(mq.matches);
-    if (typeof mq.addEventListener === "function") {
-      mq.addEventListener("change", onChange);
-      return () => mq.removeEventListener("change", onChange);
-    }
-    mq.addListener(onChange);
-    return () => mq.removeListener(onChange);
-  }, []);
-  return reduced;
-}

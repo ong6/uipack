@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { usePrefersReducedMotion } from "../context";
+import { usePrefersReducedMotion } from "../env";
 import {
   DEFAULT_TIMING,
   demoCycle,

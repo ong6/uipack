@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type ElementType } from "react";
-import { usePrefersReducedMotion } from "../context";
+import { usePrefersReducedMotion } from "../env";
 
 export interface RevealTextProps {
   /** Words reveal one by one. */

@@ -8,7 +8,7 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from "react";
-import { usePrefersReducedMotion } from "../context";
+import { usePrefersReducedMotion } from "../env";
 import { clampStop, resolveNodePose, validateSlideStory } from "./model";
 import type { SceneRuntime } from "./renderer";
 import type { SlideStop, SlideStory, SlideTheme } from "./types";

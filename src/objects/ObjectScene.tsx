@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { objectDirectionIndex, normalizeObjectVariant, chooseObjectVariant, objectDirections, objectEditions, objectVariants, directionSymbols, type ObjectEdition, type ObjectVariant } from "./variants";
 import { CanvasView } from "../CanvasView";
-import { REDUCED_MOTION_QUERY } from "../env";
+import { usePrefersReducedMotion } from "../env";
 import type { ObjectKind, ObjectPalette } from "./scenes";
 export interface ObjectSceneProps {
   kind: ObjectKind;
@@ -229,7 +229,7 @@ function ObjectStage({
   const [ready, setReady] = useState(false);
   const [paused, setPaused] = useState(false);
   const [completed, setCompleted] = useState(false);
-  const [reduced, setReduced] = useState(false);
+  const reduced = usePrefersReducedMotion();
   const colorMode = theme;
   const zoomRef = useRef(zoom);
   zoomRef.current = zoom;
@@ -239,27 +239,15 @@ function ObjectStage({
   }, [zoom]);
 
   useEffect(() => {
-    const media = window.matchMedia(REDUCED_MOTION_QUERY);
-    const update = () => {
-      reducedRef.current = media.matches;
-      setReduced(media.matches);
-      if (media.matches) settleRef.current?.();
-      if (media.matches && frameRef.current) {
+    reducedRef.current = reduced;
+    if (reduced) {
+      settleRef.current?.();
+      if (frameRef.current) {
         cancelAnimationFrame(frameRef.current);
         frameRef.current = null;
       }
-      if (
-        !media.matches &&
-        activeRef.current &&
-        !pausedRef.current &&
-        !completedRef.current
-      )
-        resumeRef.current?.();
-    };
-    update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
+    } else if (activeRef.current && !pausedRef.current && !completedRef.current) resumeRef.current?.();
+  }, [reduced]);
 
   useEffect(() => {
     activeRef.current = active;

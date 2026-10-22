@@ -1,5 +1,5 @@
 import { useEffect, useRef, type CSSProperties, type ElementType, type ReactNode, type RefObject } from "react";
-import { usePrefersReducedMotion } from "../context";
+import { usePrefersReducedMotion } from "../env";
 import { useFinePointer, useInView } from "./hooks";
 import { StarChart } from "./motif";
 
