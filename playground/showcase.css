@@ -590,3 +590,11 @@ body {
 .showcase-shell .uipack-direction-list :is(strong, small) {
   font-family: var(--show-font-sans);
 }
+/* Inline code in shell copy (intros, notes, usage) is the shell mono, never the UA's generic
+   monospace. Zero specificity: a style's own code rule (docs prose, Landing) still wins. */
+:where(.showcase-shell) :is(code, kbd, samp, pre) {
+  font-family: var(--show-font-mono);
+}
+:where(.showcase-shell) :not(pre) > code {
+  font-size: max(0.9em, 12px);
+}

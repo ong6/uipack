@@ -3,9 +3,6 @@
 .mechanism-page {
   --font-mono: var(--show-font-mono);
 }
-.mechanism-page .collection-intro code {
-  font-size: 13px;
-}
 .mechanism-poses {
   display: flex;
   flex-wrap: wrap;
