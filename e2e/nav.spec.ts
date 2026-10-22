@@ -13,11 +13,18 @@ const ALL = GROUPS.flatMap((g) => g.pages.map(([label, path]) => ({ group: g.lab
 // /web hosts a complete sample landing page: its hero is the one h1 and the shell title is plain text.
 const title = (page: Page) => page.locator(".showcase-title h1, .showcase-title .showcase-title__name");
 
-// Deck sub-views share one page, named before the sub-view.
-const isDeck = (label: string) => ["Tech talk", "Bento", "Consulting"].includes(label);
-const h1Of = (label: string) => (isDeck(label) ? `Deck player · ${label}` : label);
+// Sub-views (the decks) are catalog entries with a query and a title: they share one page, and the
+// h1 names the page before the sub-view.
+const subViewOf = (label: string) => pageDefs.find((p) => p.label === label && p.query && p.title)?.title;
+const h1Of = (label: string) => {
+  const pageTitle = subViewOf(label);
+  return pageTitle ? `${pageTitle} · ${label}` : label;
+};
 // The browser tab: the sub-view first. /web too: its sample page keeps the rest of its own head.
-const tabOf = (label: string) => (isDeck(label) ? `${label} · Deck player · uipack` : `${label} · uipack`);
+const tabOf = (label: string) => {
+  const pageTitle = subViewOf(label);
+  return pageTitle ? `${label} · ${pageTitle} · uipack` : `${label} · uipack`;
+};
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const groupsNav = (page: Page) => page.getByRole("navigation", { name: "Library groups" });
