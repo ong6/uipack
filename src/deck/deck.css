@@ -569,6 +569,12 @@
     grid-template-columns: 1fr;
     gap: 12px;
   }
+  /* A phone draws each 1920px slide at under a fifth of its size, so the running footer (deck name,
+     page) would be 4px type. It repeats what the notes beside it already say, so the read view's
+     slides leave it out; the rule stays. A consulting footer carries sources and stays whole. */
+  .uipack-deck-read .uipack-deck-footer:not(.uipack-cx-footer) > * {
+    visibility: hidden;
+  }
 }
 .uipack-deck-read__notes h3 {
   margin: 0 0 8px;

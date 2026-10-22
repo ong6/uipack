@@ -36,6 +36,21 @@
   width: 100%;
   height: auto;
 }
+/* A narrow preview draws the 1200-unit slide at a third of its size or less. Its fine print keeps
+   about 10px on screen (34 units at a 358px preview); text inside a fixed box stops at 32 so it
+   still fits the box. Headlines are large enough already. */
+.uipack-slide-starter__preview {
+  container-type: inline-size;
+}
+@container (max-width: 640px) {
+  .uipack-slide-starter__preview .uipack-slide-starter__label,
+  .uipack-slide-starter__preview .uipack-slide-starter__fine {
+    font-size: 34px;
+  }
+  .uipack-slide-starter__preview .uipack-slide-starter__boxed {
+    font-size: 32px;
+  }
+}
 .uipack-slide-starter__figure figcaption {
   display: grid;
   gap: 4px;
