@@ -216,6 +216,20 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
         className="showcase-menu"
         ref={menuRef}
         aria-label="Library menu"
+        // Not a Tab stop itself: Tab cycles the menu's links and Close (onKeyDown), never the dialog box.
+        tabIndex={-1}
+        onKeyDown={(e) => {
+          if (e.key !== "Tab") return;
+          const items = Array.from(menuRef.current?.querySelectorAll<HTMLElement>("a[href], button") ?? []);
+          const first = items[0];
+          const last = items[items.length - 1];
+          if (!first || !last) return;
+          const at = document.activeElement;
+          if (e.shiftKey ? at === first || at === menuRef.current : at === last) {
+            e.preventDefault();
+            (e.shiftKey ? last : first).focus();
+          }
+        }}
         onClose={() => {
           setMenuOpen(false);
           menuButtonRef.current?.focus();

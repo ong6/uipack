@@ -230,6 +230,25 @@ test.describe("390px header and menu", () => {
     await expect(button).toBeFocused();
   });
 
+  test("Tab and Shift+Tab cycle the menu's own controls, never the dialog box or the page", async ({ page, browserName }) => {
+    const tab = browserName === "webkit" ? "Alt+Tab" : "Tab";
+    await page.goto("/charts");
+    const sheet = page.getByRole("dialog", { name: "Library menu" });
+    await page.locator(".showcase-menu-button").click();
+    await expect(sheet).toBeVisible();
+    const close = sheet.getByRole("button", { name: "Close" });
+    await expect(close).toBeFocused();
+    const stops = await sheet.locator("a[href], button").count();
+    // One full lap and a step more: every stop is a link or Close inside the menu, and the lap ends on Close.
+    for (let i = 0; i < stops; i++) {
+      await page.keyboard.press(tab);
+      expect(await page.evaluate(() => document.activeElement?.closest("dialog") !== null && /^(A|BUTTON)$/.test(document.activeElement!.tagName))).toBe(true);
+    }
+    await expect(close).toBeFocused();
+    await page.keyboard.press(`Shift+${tab}`);
+    await expect(sheet.getByRole("link").last()).toBeFocused();
+  });
+
   test("the theme icon button has a name and flips the theme", async ({ page }) => {
     await page.goto("/?theme=light");
     await page.getByRole("button", { name: "dark mode", exact: true }).click();
