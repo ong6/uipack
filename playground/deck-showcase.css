@@ -565,7 +565,7 @@
   display: flex;
   margin-top: 14px;
   color: var(--deck-muted);
-  font: 600 17px/1 var(--deck-mono);
+  font: 600 20px/1 var(--deck-mono);
   letter-spacing: 0.08em;
 }
 .deck-bento-strip__months > span {
