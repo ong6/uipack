@@ -17,6 +17,14 @@ export const visualStyles = [
     tokens: "src/web/web.css",
     guidance: "docs/web-principles.md",
   },
+  {
+    id: "mechanism",
+    name: "Mechanism",
+    description:
+      "Crafted isometric machines whose working is the explanation: many small precise parts, calm sprung motion, one lit part and a live readout wired to a small model. After Anatomy (MIT).",
+    tokens: "src/mechanism/mechanism.css",
+    guidance: "docs/mechanism.md",
+  },
   ...objectDirections.map((direction, variant) => ({
     id: direction.id, name: direction.name, description: direction.description,
     tokens: variant === 0 ? 'src/objects/objects.css' : variant < 3 ? 'src/objects/art-directions.ts' : 'src/objects/expanded-directions.ts',
@@ -236,4 +244,18 @@ export const articleEntries: CatalogEntry[] = [
   { id: "callout", title: "Callout", type: "article", styleId: "technical", tags: ["Article", "Self-test"] },
   { id: "change-note", title: "Change note", type: "article", styleId: "technical", tags: ["Article", "Aside"] },
   { id: "link-list", title: "Link list", type: "article", styleId: "technical", tags: ["Article", "Link"] },
+];
+
+/** The deck player (uipack/deck), rendered on /deck with an example deck that explains its own transitions. */
+export const deckEntries: CatalogEntry[] = [
+  { id: "deck-player", title: "Deck player", type: "deck", styleId: "technical", tags: ["Presentation", "Keyboard", "Speaker view", "Overview"] },
+  { id: "deck-advance", title: "Advance transition", type: "deck", styleId: "technical", tags: ["Transition", "Motion", "Default"] },
+  { id: "deck-morph", title: "Morph transition", type: "deck", styleId: "technical", tags: ["Transition", "Motion", "Shared element"] },
+  { id: "deck-zoom", title: "Zoom transition", type: "deck", styleId: "technical", tags: ["Transition", "Motion", "Camera"] },
+  { id: "deck-read", title: "Read view", type: "deck", styleId: "technical", tags: ["Presentation", "Mobile", "Async"] },
+];
+
+/** Mechanism-style machines (uipack/mechanism), rendered on /mechanism. */
+export const mechanismEntries: CatalogEntry[] = [
+  { id: "verification-gate", title: "Verification gate", type: "mechanism", styleId: "mechanism", tags: ["Mechanism", "Agents", "Isometric", "Pose"] },
 ];

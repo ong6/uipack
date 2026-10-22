@@ -1,0 +1,302 @@
+/* uipack/mechanism.css — the Mechanism style: crafted isometric machines in
+   the Anatomy manner (https://github.com/wheresryan22/anatomy, MIT), drawn in
+   the Technical palette. Every rule is scoped under .uipack-mechanism. The
+   tone hierarchy is Anatomy's: lo for the base and feet, mid for structure,
+   hi for the subject, and one lit part (the forest or mint accent) the reader
+   watches. The drawing rules are adapted from Anatomy's ISO_CSS. */
+.uipack-mechanism {
+  --anatomy-page: #f6f5f1;
+  --anatomy-card: #ffffff;
+  --anatomy-text: #3d423f;
+  --anatomy-strong: #1a1c1a;
+  --anatomy-muted: #5c625e;
+  --anatomy-paper: var(--anatomy-card);
+  --anatomy-face: #ffffff;
+  --anatomy-top: #ffffff;
+  --anatomy-shade-0: #dcdfdb;
+  --anatomy-shade-1: #e5e8e4;
+  --anatomy-shade-2: #edefec;
+  --anatomy-shade-3: #f4f5f3;
+  --anatomy-cavity: #d3d7d3;
+  --anatomy-lit-top: #eef6f2;
+  --anatomy-lit-shade: #dcebe4;
+  --anatomy-hi: #1a1c1a;
+  --anatomy-mid: #858b87;
+  --anatomy-lo: #b3b8b4;
+  --anatomy-faint: #d5d9d5;
+  --anatomy-lit: #205f49;
+  --anatomy-halo: #848a84;
+  --anatomy-halo-opacity: 0.3;
+  --anatomy-dot: #2f3431;
+  --anatomy-weight: 0.6px;
+  --anatomy-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --um-sans: var(--font-sans, "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+  --um-mono: var(--font-mono, "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+  --um-edge: rgba(26, 28, 26, 0.22);
+  color: var(--anatomy-text);
+  font-family: var(--um-sans);
+}
+
+[data-theme="dark"] .uipack-mechanism:not([data-theme="light"]),
+.uipack-mechanism[data-theme="dark"] {
+  --anatomy-page: #0a100d;
+  --anatomy-card: #0e1512;
+  --anatomy-text: #b9c2bd;
+  --anatomy-strong: #e8ece9;
+  --anatomy-muted: #8f9a94;
+  --anatomy-face: #14201b;
+  --anatomy-top: #1a2822;
+  --anatomy-shade-0: #0b110e;
+  --anatomy-shade-1: #0f1714;
+  --anatomy-shade-2: #131d18;
+  --anatomy-shade-3: #17231e;
+  --anatomy-cavity: #070b09;
+  --anatomy-lit-top: #1f3a2f;
+  --anatomy-lit-shade: #182e25;
+  --anatomy-hi: #e8ece9;
+  --anatomy-mid: #6f7a74;
+  --anatomy-lo: #44504a;
+  --anatomy-faint: #28332e;
+  --anatomy-lit: #71dcb2;
+  --anatomy-halo: #020403;
+  --anatomy-halo-opacity: 0.85;
+  --anatomy-dot: #e8ece9;
+  --um-edge: rgba(232, 236, 233, 0.22);
+}
+
+.uipack-mechanism *,
+.uipack-mechanism *::before,
+.uipack-mechanism *::after {
+  box-sizing: border-box;
+}
+
+/* ---- The card (MechanismFrame) ---- */
+.uipack-mechanism.um-frame {
+  margin: 0;
+}
+.uipack-mechanism .um-plate {
+  position: relative;
+  padding: 48px 24px;
+  background: var(--anatomy-card);
+  border: 1px solid var(--um-edge);
+  border-radius: 4px;
+  overflow: hidden;
+  --anatomy-paper: var(--anatomy-card);
+}
+.uipack-mechanism .um-corners {
+  position: absolute;
+  inset: 16px 18px;
+  pointer-events: none;
+}
+.uipack-mechanism .um-corner {
+  position: absolute;
+  max-width: calc(50% - 8px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--anatomy-muted);
+  font: 500 11px/1.2 var(--um-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.uipack-mechanism .um-corner[data-corner="fig"] {
+  top: 0;
+  left: 0;
+  color: var(--anatomy-strong);
+}
+.uipack-mechanism .um-corner[data-corner="title"] {
+  top: 0;
+  right: 0;
+}
+.uipack-mechanism .um-corner[data-corner="hint"] {
+  bottom: 0;
+  left: 0;
+}
+.uipack-mechanism .um-corner[data-corner="readout"] {
+  right: 0;
+  bottom: 0;
+  color: var(--anatomy-strong);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+.uipack-mechanism .um-caption {
+  margin-top: 12px;
+  color: var(--anatomy-muted);
+  font: 400 13px/1.55 var(--um-sans);
+}
+.uipack-mechanism .um-caption > :first-child {
+  margin-top: 0;
+}
+.uipack-mechanism .um-caption > :last-child {
+  margin-bottom: 0;
+}
+
+/* ---- The machine ---- */
+.uipack-mechanism .um-machine {
+  position: relative;
+  border-radius: 6px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.uipack-mechanism .um-machine[data-interactive] {
+  cursor: pointer;
+}
+.uipack-mechanism .um-machine:focus-visible {
+  outline: 2px solid var(--anatomy-lit);
+  outline-offset: 4px;
+}
+.uipack-mechanism .um-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- Drawing (Anatomy's ISO_CSS, scoped) ---- */
+.uipack-mechanism .iso-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.uipack-mechanism .iso-svg path,
+.uipack-mechanism .iso-svg circle {
+  vector-effect: non-scaling-stroke;
+}
+.uipack-mechanism .iso-fill {
+  fill: var(--anatomy-paper);
+  stroke: none;
+}
+.uipack-mechanism .iso-solid[data-lit] > .iso-fill {
+  fill: var(--anatomy-face);
+}
+.uipack-mechanism .iso-shade,
+.uipack-mechanism .iso-top {
+  stroke: none;
+}
+.uipack-mechanism .iso-shade[data-shade="0"] {
+  fill: var(--anatomy-shade-0);
+}
+.uipack-mechanism .iso-shade[data-shade="1"] {
+  fill: var(--anatomy-shade-1);
+}
+.uipack-mechanism .iso-shade[data-shade="2"] {
+  fill: var(--anatomy-shade-2);
+}
+.uipack-mechanism .iso-shade[data-shade="3"] {
+  fill: var(--anatomy-shade-3);
+}
+.uipack-mechanism .iso-top {
+  fill: var(--anatomy-top);
+}
+.uipack-mechanism .iso-solid[data-lit] > .iso-top {
+  fill: var(--anatomy-lit-top);
+}
+.uipack-mechanism .iso-solid[data-lit] > .iso-shade {
+  fill: var(--anatomy-lit-shade);
+}
+.uipack-mechanism .iso-solid[data-lit] > .iso-edge {
+  stroke: var(--anatomy-lit);
+  stroke-width: 1px;
+}
+.uipack-mechanism .iso-halo {
+  fill: var(--anatomy-halo);
+  stroke: none;
+  filter: blur(9px);
+  opacity: var(--anatomy-halo-opacity);
+  transform: translateY(3px);
+}
+.uipack-mechanism .iso-line {
+  fill: none;
+  stroke: var(--anatomy-lo);
+  stroke-width: var(--anatomy-weight);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.uipack-mechanism .iso-line[data-tone="hi"] {
+  stroke: var(--anatomy-hi);
+}
+.uipack-mechanism .iso-line[data-tone="mid"] {
+  stroke: var(--anatomy-mid);
+}
+.uipack-mechanism .iso-line[data-tone="lo"] {
+  stroke: var(--anatomy-lo);
+}
+.uipack-mechanism .iso-line[data-tone="faint"] {
+  stroke: var(--anatomy-faint);
+}
+.uipack-mechanism .iso-line[data-tone="lit"] {
+  stroke: var(--anatomy-lit);
+}
+.uipack-mechanism .iso-dots circle {
+  fill: var(--anatomy-dot);
+  stroke: none;
+  opacity: 0.32;
+}
+.uipack-mechanism .iso-dots[data-tone="hi"] circle {
+  opacity: 0.85;
+}
+.uipack-mechanism .iso-dots[data-tone="mid"] circle {
+  opacity: 0.45;
+}
+.uipack-mechanism .iso-dots[data-tone="lo"] circle {
+  opacity: 0.22;
+}
+
+/* ---- Parts of this machine ---- */
+.uipack-mechanism .um-cavity {
+  fill: var(--anatomy-cavity);
+  stroke: none;
+}
+.uipack-mechanism .um-needle {
+  fill: var(--anatomy-hi);
+  stroke: var(--anatomy-hi);
+}
+.uipack-mechanism .um-drag {
+  stroke: var(--anatomy-mid);
+  stroke-width: 1px;
+}
+.uipack-mechanism .um-limit {
+  stroke: var(--anatomy-lit);
+  stroke-width: 1.4px;
+}
+.uipack-mechanism .um-limit-dot {
+  fill: var(--anatomy-lit);
+}
+.uipack-mechanism .um-token-mark {
+  fill: var(--anatomy-mid);
+}
+.uipack-mechanism .um-token[data-lit] .um-token-mark {
+  fill: var(--anatomy-lit);
+}
+.uipack-mechanism .um-token[data-lit] .um-token-face {
+  stroke: var(--anatomy-lit);
+}
+
+@media (max-width: 640px) {
+  .uipack-mechanism .um-plate {
+    padding: 44px 0 64px;
+  }
+  .uipack-mechanism .um-corner {
+    max-width: 100%;
+  }
+  .uipack-mechanism .um-corner[data-corner="title"] {
+    max-width: calc(100% - 64px);
+  }
+  .uipack-mechanism .um-corner[data-corner="hint"] {
+    bottom: 20px;
+  }
+  .uipack-mechanism .um-plate .iso-svg {
+    width: 122%;
+    margin: -6% -11% -3%;
+  }
+  .uipack-mechanism .um-corners {
+    inset: 14px 12px;
+  }
+}

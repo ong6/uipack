@@ -145,6 +145,8 @@ export interface NumberTickerProps {
   prefix?: string;
   suffix?: string;
   className?: string;
+  /** "display" (default) sets the number in the display face, as a proof stat; "inherit" keeps the surrounding face, for a number inside a sentence. */
+  face?: "display" | "inherit";
 }
 
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
@@ -153,7 +155,7 @@ const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
  * Counts up to a proof stat the first time it is on screen. Tabular figures and a hidden copy
  * of the final value reserve the width; assistive tech reads the final value only.
  */
-export function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix = "", suffix = "", className = "" }: NumberTickerProps) {
+export function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix = "", suffix = "", className = "", face = "display" }: NumberTickerProps) {
   const ref = useRef<HTMLSpanElement>(null);
   const reduced = usePrefersReducedMotion();
   const inView = useInView(ref, { once: true, threshold: 0.6 });
@@ -179,7 +181,7 @@ export function NumberTicker({ value, from = 0, duration = 1400, format, locale,
   const final = `${prefix}${fmt.format(value)}${suffix}`;
   const live = `${prefix}${fmt.format(reduced ? value : current)}${suffix}`;
   return (
-    <span ref={ref} className={`uipack-web-ticker ${className}`.trim()}>
+    <span ref={ref} className={`uipack-web-ticker ${className}`.trim()} data-face={face}>
       <span className="uipack-web-scramble__ghost">{final}</span>
       <span className="uipack-web-scramble__live" aria-hidden="true" data-testid="ticker-live">
         {live}

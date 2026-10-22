@@ -19,7 +19,21 @@ export {
   type DemoTiming,
   type DemoFrame,
 } from "./timeline";
-export { typeScale, typeMetrics, TYPE_BASE_PX, TYPE_RATIO, TYPE_STEPS, EMPHASIS, SPACE, GRID_COLUMNS, type TypeStep } from "./tokens";
+export {
+  typeScale,
+  typeMetrics,
+  typeRole,
+  TYPE_FACES,
+  DISPLAY_FROM_STEP,
+  TYPE_BASE_PX,
+  TYPE_RATIO,
+  TYPE_STEPS,
+  EMPHASIS,
+  SPACE,
+  GRID_COLUMNS,
+  type TypeStep,
+  type TypeRole,
+} from "./tokens";
 export {
   useInView,
   useScrollProgress,
@@ -64,3 +78,24 @@ export {
   type MagneticButtonProps,
   type ScrollTransformProps,
 } from "./motion";
+export {
+  SmoothScroll,
+  useSmoothScroll,
+  createSmoothScroll,
+  smoothScrollTo,
+  followRate,
+  followStep,
+  easeOutExpo,
+  normalizeWheel,
+  WHEEL_LINE_PX,
+  WHEEL_PAGE_FRACTION,
+  SMOOTH_SCROLL_ATTR,
+  SMOOTH_SCROLL_PREVENT_ATTR,
+  type SmoothScrollProps,
+  type SmoothScrollOptions,
+  type SmoothScrollToOptions,
+  type SmoothScrollTarget,
+  type SmoothScrollController,
+  type SmoothScrollHandle,
+  type WheelLike,
+} from "./SmoothScroll";

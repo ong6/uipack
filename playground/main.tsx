@@ -4,15 +4,14 @@ import "../src/theme.css";
 import "./showcase.css";
 import "../src/canvas.css";
 import { App } from "./App";
-import type { LibraryPage } from "./catalog";
 
 const CatalogPages = lazy(() => import("./CatalogPages"));
 const Slides = lazy(() => import("./SlideShowcase"));
 const Web = lazy(() => import("./WebShowcase"));
 const Docs = lazy(() => import("./DocsShowcase"));
 const Article = lazy(() => import("./ArticleShowcase"));
-const Placeholder = lazy(() => import("./Placeholder"));
-const placeholder = (active: LibraryPage) => () => <Placeholder active={active} />;
+const Deck = lazy(() => import("./DeckShowcase"));
+const Mechanism = lazy(() => import("./MechanismShowcase"));
 
 /** One line per path; a branch adding a page adds a line here and an entry in catalog.ts. Unlisted paths render App. */
 const routes: Record<string, ComponentType> = {
@@ -23,8 +22,8 @@ const routes: Record<string, ComponentType> = {
   "/article": Article,
   "/styles": CatalogPages,
   "/presentations": CatalogPages,
-  "/deck": placeholder("deck"),
-  "/mechanism": placeholder("mechanism"),
+  "/deck": Deck,
+  "/mechanism": Mechanism,
 };
 
 const params = new URLSearchParams(location.search);

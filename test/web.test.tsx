@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import {
@@ -14,7 +14,9 @@ import {
   demoFrame,
   stepStart,
   typeMetrics,
+  typeRole,
   typeScale,
+  TYPE_FACES,
   type DemoStep,
 } from "../src/web";
 
@@ -41,7 +43,28 @@ describe("type scale", () => {
     expect(typeScale(-1)).toBe(0.8);
     expect(typeMetrics(0).lineHeight).toBe(1.5);
     expect(typeMetrics(6).lineHeight).toBeLessThan(typeMetrics(2).lineHeight);
-    expect(typeMetrics(6).letterSpacing).toBe("-0.03em");
+    expect(typeMetrics(6).letterSpacing).toBe("-0.01em");
+  });
+
+  it("gives headings from step 4 the display face and smaller ones the text face", () => {
+    expect([6, 5, 4].map(typeRole)).toEqual(["display", "display", "display"]);
+    expect([3, 2, 1, 0].map(typeRole)).toEqual(["text", "text", "text", "text"]);
+    expect(TYPE_FACES).toEqual({ display: "Instrument Serif", text: "IBM Plex Sans", mono: "IBM Plex Mono" });
+    const css = readFileSync("src/web/web.css", "utf8");
+    expect(css).toMatch(/\.uipack-web-heading:is\(\[data-step="4"\], \[data-step="5"\], \[data-step="6"\]\) \{\n  font-family: var\(--web-font-display\);/);
+    for (const step of [0, 1, 2, 3, 4, 5, 6]) {
+      const rule = css.match(new RegExp(`\\.uipack-web-heading\\[data-step="${step}"\\] \\{([^}]*)\\}`))![1];
+      expect(Number(rule.match(/line-height: ([\d.]+)/)![1])).toBe(typeMetrics(step).lineHeight);
+      const tracking = rule.match(/letter-spacing: ([^;]+);/)?.[1] ?? "0em";
+      expect(tracking).toBe(typeMetrics(step).role === "display" ? "var(--web-display-tracking)" : typeMetrics(step).letterSpacing);
+      // Text headings default to 600 on .uipack-web-heading; display weight comes from its token.
+      if (typeMetrics(step).role === "text") expect(Number(rule.match(/font-weight: (\d+)/)?.[1] ?? 600)).toBe(typeMetrics(step).weight);
+    }
+    expect(css).toContain(`--web-display-tracking: ${typeMetrics(6).letterSpacing};`);
+    expect(css).toMatch(/--web-font-display: "Instrument Serif", "Instrument Serif Fallback"/);
+    expect(css).toMatch(/--web-font-sans: "IBM Plex Sans", "IBM Plex Sans Fallback"/);
+    expect(css).toContain("--web-font-text: var(--web-font-sans);");
+    expect(css).toMatch(/--web-font-mono: "IBM Plex Mono", "IBM Plex Mono Fallback"/);
   });
 
   it("keeps the CSS tokens on the same scale", () => {
@@ -66,6 +89,40 @@ const contrast = (a: RGB, b: RGB) => {
   return (x + 0.05) / (y + 0.05);
 };
 const blend = (fg: RGB, bg: RGB, a: number): RGB => fg.map((v, i) => v * a + bg[i] * (1 - a)) as RGB;
+
+describe("Landing fonts", () => {
+  const urls = (css: string) => [...css.matchAll(/url\("?([^")]+)"?\)/g)].map((m) => m[1]);
+  it("self-hosts every face as woff2 with swap, latin only, beside its licence", () => {
+    const css = readFileSync("src/web/web.css", "utf8");
+    const faces = css.match(/@font-face \{[^}]*\}/g)!;
+    const hosted = faces.filter((f) => f.includes("url("));
+    expect(hosted).toHaveLength(7);
+    for (const f of hosted) {
+      expect(f).toContain("font-display: swap;");
+      expect(f).toMatch(/unicode-range: U\+0000-00FF/);
+    }
+    for (const u of urls(css)) {
+      expect(u).toMatch(/^\.\/fonts\/[a-z0-9-]+\.woff2$/);
+      expect(existsSync(`src/web/${u}`)).toBe(true);
+    }
+    // Nothing leaves the package: no absolute or protocol-relative font URLs.
+    expect(css).not.toMatch(/url\("?(https?:)?\/\//);
+    const files = readdirSync("src/web/fonts");
+    for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono"]) expect(files).toContain(`OFL-${name}.txt`);
+    expect(files.filter((f) => f.endsWith(".woff2")).sort()).toEqual(urls(css).map((u) => u.slice(8)).sort());
+    // Fallback faces are metric-matched so the swap barely moves text.
+    for (const f of faces.filter((f) => f.includes("Fallback"))) expect(f).toMatch(/size-adjust: [\d.]+%;[\s\S]*ascent-override/);
+  });
+  it("ships the fonts in dist where the built web.css points", () => {
+    const pkg = JSON.parse(readFileSync("package.json", "utf8"));
+    expect(pkg.exports["./fonts/*"]).toBe("./dist/fonts/*");
+    expect(pkg.scripts.build).toContain("dist/fonts");
+    const built = readFileSync("dist/web.css", "utf8");
+    expect(urls(built).length).toBe(7);
+    for (const u of urls(built)) expect(existsSync(`dist/${u}`)).toBe(true);
+    for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono"]) expect(existsSync(`dist/fonts/OFL-${name}.txt`)).toBe(true);
+  });
+});
 
 describe("Landing colour tokens", () => {
   const css = readFileSync("src/web/web.css", "utf8");
@@ -95,7 +152,7 @@ describe("Landing colour tokens", () => {
       .match(/[^{}@;]+(?=\{)/g)!
       .flatMap((s) => s.split(/,(?![^(]*\))/))
       .map((s) => s.trim())
-      .filter((s) => s && !s.startsWith("@") && !/^(from|to|\d+%)$/.test(s) && !s.startsWith("(") && !s.includes("prefers-") && !/^(media|supports|container)\b/.test(s));
+      .filter((s) => s && s !== "font-face" && !s.startsWith("@") && !/^(from|to|\d+%)$/.test(s) && !s.startsWith("(") && !s.includes("prefers-") && !/^(media|supports|container)\b/.test(s));
     expect(selectors.length).toBeGreaterThan(50);
     for (const s of selectors) expect(s).toMatch(/uipack-web/);
   });

@@ -27,6 +27,7 @@ __export(web_exports, {
   CtaButton: () => CtaButton,
   DEFAULT_STAR_VALUES: () => DEFAULT_STAR_VALUES,
   DEFAULT_TIMING: () => DEFAULT_TIMING,
+  DISPLAY_FROM_STEP: () => DISPLAY_FROM_STEP,
   DemoPlayer: () => DemoPlayer,
   DotGrid: () => DotGrid,
   DriftingGutters: () => DriftingGutters,
@@ -48,31 +49,45 @@ __export(web_exports, {
   Reveal: () => Reveal,
   RevealText: () => RevealText,
   RhymeIcon: () => RhymeIcon,
+  SMOOTH_SCROLL_ATTR: () => SMOOTH_SCROLL_ATTR,
+  SMOOTH_SCROLL_PREVENT_ATTR: () => SMOOTH_SCROLL_PREVENT_ATTR,
   SPACE: () => SPACE,
   ScrollTransform: () => ScrollTransform,
   Section: () => Section,
+  SmoothScroll: () => SmoothScroll,
   SpotlightCard: () => SpotlightCard,
   StarChart: () => StarChart,
   StarHero: () => StarHero,
   Subhead: () => Subhead,
   TYPE_BASE_PX: () => TYPE_BASE_PX,
+  TYPE_FACES: () => TYPE_FACES,
   TYPE_RATIO: () => TYPE_RATIO,
   TYPE_STEPS: () => TYPE_STEPS,
   TextScramble: () => TextScramble,
   TiltCard: () => TiltCard,
+  WHEEL_LINE_PX: () => WHEEL_LINE_PX,
+  WHEEL_PAGE_FRACTION: () => WHEEL_PAGE_FRACTION,
   WebSurface: () => WebSurface,
+  createSmoothScroll: () => createSmoothScroll,
   curvePath: () => curvePath,
   demoCycle: () => demoCycle,
   demoEnd: () => demoEnd,
   demoFrame: () => demoFrame,
+  easeOutExpo: () => easeOutExpo,
+  followRate: () => followRate,
+  followStep: () => followStep,
+  normalizeWheel: () => normalizeWheel,
   scrambleFrame: () => scrambleFrame,
   scrollProgressOf: () => scrollProgressOf,
+  smoothScrollTo: () => smoothScrollTo,
   stepStart: () => stepStart,
   typeMetrics: () => typeMetrics,
+  typeRole: () => typeRole,
   typeScale: () => typeScale,
   useFinePointer: () => useFinePointer,
   useInView: () => useInView,
   useScrollProgress: () => useScrollProgress,
+  useSmoothScroll: () => useSmoothScroll,
   withPaintTransition: () => withPaintTransition,
   withViewTransition: () => withViewTransition
 });
@@ -641,11 +656,23 @@ var TYPE_RATIO = 1.25;
 function typeScale(step) {
   return Math.round(Math.pow(TYPE_RATIO, step) * 1e4) / 1e4;
 }
+var TYPE_FACES = {
+  display: "Instrument Serif",
+  text: "IBM Plex Sans",
+  mono: "IBM Plex Mono"
+};
+var DISPLAY_FROM_STEP = 4;
+function typeRole(step) {
+  return step >= DISPLAY_FROM_STEP ? "display" : "text";
+}
 function typeMetrics(step) {
-  if (step >= 5) return { lineHeight: 1.05, letterSpacing: "-0.03em" };
-  if (step >= 3) return { lineHeight: 1.15, letterSpacing: "-0.02em" };
-  if (step >= 1) return { lineHeight: 1.3, letterSpacing: "-0.01em" };
-  return { lineHeight: 1.5, letterSpacing: "0em" };
+  if (step >= 6) return { role: "display", lineHeight: 1.02, letterSpacing: "-0.01em", weight: 400 };
+  if (step >= 5) return { role: "display", lineHeight: 1.05, letterSpacing: "-0.01em", weight: 400 };
+  if (step >= 4) return { role: "display", lineHeight: 1.1, letterSpacing: "-0.01em", weight: 400 };
+  if (step >= 3) return { role: "text", lineHeight: 1.2, letterSpacing: "-0.015em", weight: 500 };
+  if (step >= 2) return { role: "text", lineHeight: 1.3, letterSpacing: "-0.01em", weight: 600 };
+  if (step >= 1) return { role: "text", lineHeight: 1.35, letterSpacing: "-0.005em", weight: 600 };
+  return { role: "text", lineHeight: 1.5, letterSpacing: "0em", weight: 600 };
 }
 var TYPE_STEPS = [-1, 0, 1, 2, 3, 4, 5, 6];
 var EMPHASIS = { high: 1, medium: 0.87, low: 0.66 };
@@ -1044,7 +1071,7 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
   ] });
 }
 var easeOut = (t) => 1 - Math.pow(1 - t, 3);
-function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix = "", suffix = "", className = "" }) {
+function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix = "", suffix = "", className = "", face = "display" }) {
   const ref = (0, import_react9.useRef)(null);
   const reduced = usePrefersReducedMotion();
   const inView = useInView(ref, { once: true, threshold: 0.6 });
@@ -1068,7 +1095,7 @@ function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix
   const fmt = new Intl.NumberFormat(locale, format ?? { maximumFractionDigits: 0 });
   const final = `${prefix}${fmt.format(value)}${suffix}`;
   const live = `${prefix}${fmt.format(reduced ? value : current)}${suffix}`;
-  return /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("span", { ref, className: `uipack-web-ticker ${className}`.trim(), children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("span", { ref, className: `uipack-web-ticker ${className}`.trim(), "data-face": face, children: [
     /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: "uipack-web-scramble__ghost", children: final }),
     /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: "uipack-web-scramble__live", "aria-hidden": "true", "data-testid": "ticker-live", children: live })
   ] });
@@ -1159,6 +1186,315 @@ function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY
   };
   return /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { ref, className: `uipack-web-scrollx ${className}`.trim(), "data-progress": t.toFixed(2), children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "uipack-web-scrollx__inner", style, children }) });
 }
+
+// src/web/SmoothScroll.tsx
+var import_react10 = require("react");
+function followRate(lerp2) {
+  const l = Math.min(0.999, Math.max(1e-3, lerp2));
+  return -Math.log(1 - l) * 60;
+}
+function followStep(current, target, rate, dt) {
+  return target + (current - target) * Math.exp(-rate * Math.max(0, dt));
+}
+function easeOutExpo(t) {
+  if (t <= 0) return 0;
+  if (t >= 1) return 1;
+  return 1 - Math.pow(2, -10 * t);
+}
+var WHEEL_LINE_PX = 40;
+var WHEEL_PAGE_FRACTION = 0.875;
+function normalizeWheel(e, viewport) {
+  if (e.deltaMode === 1) return { x: e.deltaX * WHEEL_LINE_PX, y: e.deltaY * WHEEL_LINE_PX };
+  if (e.deltaMode === 2) return { x: e.deltaX * viewport.width * WHEEL_PAGE_FRACTION, y: e.deltaY * viewport.height * WHEEL_PAGE_FRACTION };
+  return { x: e.deltaX, y: e.deltaY };
+}
+var clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+var SMOOTH_SCROLL_ATTR = "data-uipack-smooth-scroll";
+var SMOOTH_SCROLL_PREVENT_ATTR = "data-smooth-scroll-prevent";
+var REDUCED = "(prefers-reduced-motion: reduce)";
+var SCROLL_KEYS = /* @__PURE__ */ new Set([" ", "PageUp", "PageDown", "ArrowUp", "ArrowDown", "Home", "End"]);
+var FINE = "(hover: hover) and (pointer: fine)";
+var active = null;
+var canUseDom = () => typeof window !== "undefined" && typeof document !== "undefined";
+var matches = (q) => canUseDom() && typeof window.matchMedia === "function" && window.matchMedia(q).matches;
+var maxScroll = () => Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+function safeQuery(selector) {
+  try {
+    return document.querySelector(selector);
+  } catch {
+    return null;
+  }
+}
+function resolveTop(target, offset) {
+  if (typeof target === "number") return target - (offset ?? 0);
+  let el = null;
+  if (typeof target === "string") {
+    el = target === "#" || target === "#top" ? document.getElementById("top") : safeQuery(target);
+    if (!el && (target === "#" || target === "#top")) return 0;
+  } else el = target;
+  if (!el) return null;
+  const clear = offset ?? (parseFloat(getComputedStyle(el).scrollMarginTop) || 0) + (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0);
+  return el.getBoundingClientRect().top + window.scrollY - clear;
+}
+function nativeScrollTo(target, { offset, immediate } = {}) {
+  if (!canUseDom()) return;
+  const y = resolveTop(target, offset);
+  if (y === null) return;
+  window.scrollTo({ top: clamp(y, 0, maxScroll()), behavior: immediate || matches(REDUCED) ? "auto" : "smooth" });
+}
+function pageOwnsWheel(e) {
+  const root = document.documentElement;
+  if (getComputedStyle(root).overflowY === "hidden" || document.body && getComputedStyle(document.body).overflowY === "hidden") return false;
+  const path = typeof e.composedPath === "function" ? e.composedPath() : [];
+  const chain = path.length ? path : [];
+  if (!chain.length) for (let n = e.target; n; n = n.parentElement) chain.push(n);
+  for (const node of chain) {
+    if (!(node instanceof Element) || node === root || node === document.body) continue;
+    if (node.hasAttribute(SMOOTH_SCROLL_PREVENT_ATTR)) return false;
+    if (node instanceof HTMLDialogElement && node.open) return false;
+    if (node.scrollHeight > node.clientHeight + 1) {
+      const oy = getComputedStyle(node).overflowY;
+      if (oy === "auto" || oy === "scroll" || oy === "overlay") return false;
+    }
+  }
+  return true;
+}
+function focusTarget(el) {
+  if (!(el instanceof HTMLElement)) return;
+  if (!el.matches("a[href], button, input, select, textarea, summary, [tabindex], [contenteditable]")) {
+    el.setAttribute("tabindex", "-1");
+    el.addEventListener("blur", () => el.removeAttribute("tabindex"), { once: true });
+  }
+  el.focus({ preventScroll: true });
+}
+function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = true } = {}) {
+  if (!canUseDom()) {
+    return { scrollTo: () => void 0, stop: () => void 0, enabled: false, destroy: () => void 0 };
+  }
+  const root = document.documentElement;
+  const rate = followRate(lerp2);
+  let enabled = false;
+  let destroyed = false;
+  let frame = 0;
+  let last = 0;
+  let current = window.scrollY;
+  let target = current;
+  let lastSet = current;
+  let tween = null;
+  let savedBehavior = "";
+  let streak = 0;
+  let aim = null;
+  let keyAt = -Infinity;
+  const animating = () => frame !== 0;
+  const stop = () => {
+    if (frame) cancelAnimationFrame(frame);
+    frame = 0;
+    last = 0;
+    streak = 0;
+    tween = null;
+    aim = null;
+    current = target = window.scrollY;
+  };
+  const tick = (now) => {
+    frame = 0;
+    const dt = last ? Math.min(0.25, (now - last) / 1e3) : 1 / 60;
+    last = now;
+    if (aim?.el.isConnected) {
+      const y = resolveTop(aim.el, aim.offset);
+      if (y !== null) target = y;
+    }
+    target = clamp(target, 0, maxScroll());
+    if (tween) {
+      tween.to = target;
+      const t = clamp((now - tween.start) / tween.duration, 0, 1);
+      current = tween.from + (tween.to - tween.from) * easeOutExpo(t);
+      if (t >= 1) current = tween.to;
+    } else {
+      current = followStep(current, target, rate, dt);
+    }
+    if (Math.abs(target - current) < 0.5) current = target;
+    window.scrollTo(window.scrollX, current);
+    lastSet = window.scrollY;
+    if (current === target) {
+      last = 0;
+      tween = null;
+      return;
+    }
+    frame = requestAnimationFrame(tick);
+  };
+  const run = () => {
+    if (!frame) frame = requestAnimationFrame(tick);
+  };
+  const onWheel = (e) => {
+    if (active !== controller || e.defaultPrevented || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    const { x, y } = normalizeWheel(e, { width: window.innerWidth, height: window.innerHeight });
+    if (y === 0 || Math.abs(x) > Math.abs(y)) return;
+    if (maxScroll() <= 0 || !pageOwnsWheel(e)) return;
+    e.preventDefault();
+    if (!animating() || tween || aim) {
+      current = window.scrollY;
+      target = current;
+      tween = null;
+      aim = null;
+    }
+    target = clamp(target + y * wheelMultiplier, 0, maxScroll());
+    run();
+  };
+  const onScroll = () => {
+    const y = window.scrollY;
+    if (!animating()) {
+      current = target = y;
+      return;
+    }
+    const moved = y - lastSet;
+    if (Math.abs(moved) <= 2) {
+      streak = 0;
+      return;
+    }
+    if (performance.now() - keyAt < 500 || ++streak >= 3) {
+      stop();
+      return;
+    }
+    current += moved;
+    target = clamp(target + moved, 0, maxScroll());
+    lastSet = y;
+  };
+  const onKeyDown = (e) => {
+    if (SCROLL_KEYS.has(e.key)) keyAt = performance.now();
+  };
+  const onPointerDown = (e) => {
+    if (animating() && (e.clientX >= root.clientWidth || e.clientY >= root.clientHeight)) stop();
+  };
+  const onVisibility = () => {
+    if (document.visibilityState === "hidden") stop();
+  };
+  const onResize = () => {
+    target = clamp(target, 0, maxScroll());
+  };
+  const onClick = (e) => {
+    if (!anchors || active !== controller || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const a = e.target instanceof Element ? e.target.closest("a[href]") : null;
+    if (!(a instanceof HTMLAnchorElement) || a.target && a.target !== "_self" || a.hasAttribute("download")) return;
+    const url = new URL(a.href, location.href);
+    if (!url.hash || url.origin !== location.origin || url.pathname !== location.pathname || url.search !== location.search) return;
+    let id = url.hash.slice(1);
+    try {
+      id = decodeURIComponent(id);
+    } catch {
+    }
+    const el = id ? document.getElementById(id) : null;
+    if (!el && id && id.toLowerCase() !== "top") return;
+    e.preventDefault();
+    controller.scrollTo(el ?? 0);
+    if (location.hash !== url.hash) history.pushState(history.state, "", url.hash);
+    if (el) focusTarget(el);
+  };
+  const attach = () => {
+    root.setAttribute(SMOOTH_SCROLL_ATTR, "");
+    savedBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    current = target = lastSet = window.scrollY;
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("pointerdown", onPointerDown, { passive: true });
+    window.addEventListener("keydown", onKeyDown, { passive: true, capture: true });
+    window.addEventListener("resize", onResize);
+    document.addEventListener("visibilitychange", onVisibility);
+  };
+  const detach = () => {
+    stop();
+    root.removeAttribute(SMOOTH_SCROLL_ATTR);
+    root.style.scrollBehavior = savedBehavior;
+    window.removeEventListener("wheel", onWheel);
+    window.removeEventListener("scroll", onScroll);
+    window.removeEventListener("pointerdown", onPointerDown);
+    window.removeEventListener("keydown", onKeyDown, { capture: true });
+    window.removeEventListener("resize", onResize);
+    document.removeEventListener("visibilitychange", onVisibility);
+  };
+  const queries = typeof window.matchMedia === "function" ? [window.matchMedia(REDUCED), window.matchMedia(FINE)] : [];
+  const evaluate = () => {
+    const next = !destroyed && queries.length === 2 && !queries[0].matches && queries[1].matches;
+    if (next === enabled) return;
+    enabled = next;
+    if (enabled) attach();
+    else detach();
+  };
+  const listen = (mq, on) => {
+    if (typeof mq.addEventListener === "function") {
+      if (on) mq.addEventListener("change", evaluate);
+      else mq.removeEventListener("change", evaluate);
+    } else if (on) mq.addListener(evaluate);
+    else mq.removeListener(evaluate);
+  };
+  const controller = {
+    scrollTo(t, options = {}) {
+      if (!enabled) return nativeScrollTo(t, options);
+      const el = typeof t === "string" ? safeQuery(t) : typeof t === "number" ? null : t;
+      const y = resolveTop(el ?? t, options.offset);
+      if (y === null) return;
+      const to = clamp(y, 0, maxScroll());
+      if (options.immediate) {
+        stop();
+        window.scrollTo(window.scrollX, to);
+        current = target = lastSet = window.scrollY;
+        return;
+      }
+      if (!animating()) current = lastSet = window.scrollY;
+      target = to;
+      aim = el ? { el, offset: options.offset } : null;
+      tween = options.duration !== void 0 && options.duration > 0 ? { from: current, to, start: performance.now(), duration: options.duration } : null;
+      run();
+    },
+    stop,
+    get enabled() {
+      return enabled;
+    },
+    destroy() {
+      if (destroyed) return;
+      destroyed = true;
+      queries.forEach((mq) => listen(mq, false));
+      document.removeEventListener("click", onClick);
+      if (enabled) detach();
+      enabled = false;
+      if (active === controller) active = null;
+    }
+  };
+  active = controller;
+  queries.forEach((mq) => listen(mq, true));
+  document.addEventListener("click", onClick);
+  evaluate();
+  return controller;
+}
+function smoothScrollTo(target, options) {
+  if (active) active.scrollTo(target, options);
+  else nativeScrollTo(target, options);
+}
+function useSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = true } = {}) {
+  const instance = (0, import_react10.useRef)(null);
+  (0, import_react10.useEffect)(() => {
+    const c = createSmoothScroll({ lerp: lerp2, wheelMultiplier, anchors });
+    instance.current = c;
+    return () => {
+      c.destroy();
+      if (instance.current === c) instance.current = null;
+    };
+  }, [lerp2, wheelMultiplier, anchors]);
+  return (0, import_react10.useMemo)(
+    () => ({
+      scrollTo: (t, o) => instance.current ? instance.current.scrollTo(t, o) : nativeScrollTo(t, o),
+      stop: () => instance.current?.stop(),
+      get enabled() {
+        return instance.current?.enabled ?? false;
+      }
+    }),
+    []
+  );
+}
+function SmoothScroll(props) {
+  useSmoothScroll(props);
+  return null;
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   Aurora,
@@ -1168,6 +1504,7 @@ function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY
   CtaButton,
   DEFAULT_STAR_VALUES,
   DEFAULT_TIMING,
+  DISPLAY_FROM_STEP,
   DemoPlayer,
   DotGrid,
   DriftingGutters,
@@ -1189,31 +1526,45 @@ function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY
   Reveal,
   RevealText,
   RhymeIcon,
+  SMOOTH_SCROLL_ATTR,
+  SMOOTH_SCROLL_PREVENT_ATTR,
   SPACE,
   ScrollTransform,
   Section,
+  SmoothScroll,
   SpotlightCard,
   StarChart,
   StarHero,
   Subhead,
   TYPE_BASE_PX,
+  TYPE_FACES,
   TYPE_RATIO,
   TYPE_STEPS,
   TextScramble,
   TiltCard,
+  WHEEL_LINE_PX,
+  WHEEL_PAGE_FRACTION,
   WebSurface,
+  createSmoothScroll,
   curvePath,
   demoCycle,
   demoEnd,
   demoFrame,
+  easeOutExpo,
+  followRate,
+  followStep,
+  normalizeWheel,
   scrambleFrame,
   scrollProgressOf,
+  smoothScrollTo,
   stepStart,
   typeMetrics,
+  typeRole,
   typeScale,
   useFinePointer,
   useInView,
   useScrollProgress,
+  useSmoothScroll,
   withPaintTransition,
   withViewTransition
 });

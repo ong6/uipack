@@ -41,11 +41,11 @@ export function RequestFlow() {
 }
 ```
 
-Separate entries, so a page loads only what it draws: `uipack` for parts, `uipack/presets` for ready figures, `uipack/charts` with `uipack/charts.css` for the span chart and layer stack, `uipack/article` with `uipack/article.css` for the labelled blocks of a long article, `uipack/presentations` for slide starters and speaker guides, `uipack/web` with `uipack/web.css` for landing-page blocks, and `uipack/browser` with `uipack/browser.css` for the asset browser.
+Separate entries, so a page loads only what it draws: `uipack` for parts, `uipack/presets` for ready figures, `uipack/charts` with `uipack/charts.css` for the span chart and layer stack, `uipack/article` with `uipack/article.css` for the labelled blocks of a long article, `uipack/presentations` for slide starters and speaker guides, `uipack/deck` with `uipack/deck.css` for the deck player, `uipack/web` with `uipack/web.css` for landing-page blocks, `uipack/mechanism` with `uipack/mechanism.css` for crafted isometric machines, and `uipack/browser` with `uipack/browser.css` for the asset browser.
 
 `uipack/docs` with `uipack/docs.css` provides a product-documentation shell and Markdown renderer: grouped navigation, a 680px prose column, an h2/h3 table of contents, mobile disclosure, heading anchors, and previous/next links. See the [docs layout guide](docs/docs-layout.md) and the rendered `/docs` gallery entry.
 
-`npm run dev` opens a playground with a two-row nav (groups, then the group's pages). Diagrams: `/` (also `/diagrams`) renders the presets, the Habitat reference figure, every part and a bare figure; `/charts` the layer stack and span chart; `/article` the article parts in a host article. Presentations: `/deck` (deck player) and `/presentations` (slide starters and a complete narrative example). Motion & 3D: `/animations` (`/slides` remains an alias) and `/mechanism`. Web: `/web` for the Landing building blocks and `/docs` for the documentation layout. Foundations: `/styles` indexes visual styles and `/assets` browses icons, marks, backgrounds and motion tokens.
+`npm run dev` opens a playground with a two-row nav (groups, then the group's pages). Diagrams: `/` (also `/diagrams`) renders the presets, the Habitat reference figure, every part and a bare figure; `/charts` the layer stack and span chart; `/article` the article parts in a host article. Presentations: `/deck` (the deck player, with `?deck=moves|bento|consulting`) and `/presentations` (slide starters and a complete narrative example). Motion & 3D: `/animations` (`/slides` remains an alias) and `/mechanism` (the Mechanism style's verification gate, its poses and thumbnails). Web: `/web` for the Landing building blocks and `/docs` for the documentation layout. Foundations: `/styles` indexes visual styles and `/assets` browses icons, marks, backgrounds and motion tokens.
 
 ## Charts
 
@@ -170,17 +170,37 @@ const steps: DemoStep[] = [
 </BackgroundFrame>
 ```
 
-Every class and token is scoped under `.uipack-web`; there are no global element rules and no font requests. Set `--web-font-display` to your headline font. Under reduced motion, DemoPlayer lists all steps next to its final state, and the other pieces render still. `/web` in the playground composes a full example page.
+Every class and token is scoped under `.uipack-web`; there are no global element rules. Type comes in three self-hosted roles: Instrument Serif for display (headings at steps 4–6, the hero, big numbers), IBM Plex Sans for text and IBM Plex Mono for labels and data. They are latin woff2 files in `uipack/fonts/*` (141 KB in all, fetched only when used, no third-party requests); override `--web-font-display`, `--web-font-text` or `--web-font-mono` to change one. `<SmoothScroll />` is an opt-in, dependency-free Lenis-style wheel easing that moves the real page scroll (off on touch and under reduced motion) and eases in-page anchors below a sticky `GlassNav`; `smoothScrollTo(target, { offset, duration })` scrolls from code. See [type roles and smooth scrolling](docs/web-principles.md#type-roles). Under reduced motion, DemoPlayer lists all steps next to its final state, and the other pieces render still. `/web` in the playground composes a full example page.
 
 ![Web UI, light](docs/web-1440-light.png)
 ![Web UI motion, dark](docs/web-motion-1440-dark.png)
 ![Web UI backgrounds, light](docs/web-backgrounds-1440-light.png)
+
+## Mechanism
+
+`uipack/mechanism` is the Mechanism style: one real, well-made isometric machine whose working is the explanation, after [Anatomy](https://github.com/wheresryan22/anatomy) (MIT), drawn in the Technical palette. Its first machine, `VerificationGate`, is for an agent-harness talk: proposal tokens leave a hopper on a belt, a dial indicator measures each against a limit, passing ones drop into the result tray and failing ones are swung into a chute back to the hopper. A small pure model (`gate.ts`) drives the dial, the routes and the live readout (`checked 12 · passed 9 · returned 3`); the numbers are illustrative.
+
+```tsx
+import { VerificationGate } from "uipack/mechanism";
+import "uipack/mechanism.css";
+
+<VerificationGate pose="return" theme="dark" />            // idle | pass | return | apart, controlled per slide
+<VerificationGate pose="pass" interactive={false} frame={false} /> // a still thumbnail, no loops
+```
+
+Pose changes move smoothly from wherever the machine is; it stops offscreen, holds a still frame under reduced motion, and works with tap, Space and Enter. SVG only, no Three.js. [Pose API, craft rules, how to build a new machine, and the licence](docs/mechanism.md).
+
+![The verification gate, light](docs/mechanism-1440-light.png)
 
 ## Presentation starters
 
 `uipack/presentations` exports typed Opening, Explanation, and System layouts. Each slide carries its visible content and a separate speaker guide with the words to say, a delivery cue, and an optional bridge. `SlideStarter` renders both; `renderSlideSvg` creates a self-contained editable 16:9 SVG without speaker notes.
 
 [Presentation starter API and example](docs/presentations.md).
+
+## Deck player
+
+`uipack/deck` presents a deck consistently: a 1920×1080 canvas, one transition grammar (advance by default, morph for the same thing changing, zoom into a part), builds, an overview with a storyline view, full screen, a synced speaker window and a read view for phones and async readers. Slides carry a role and an action headline, and `lintDeck` checks the argument. [Deck player](docs/deck.md) · [Deck storytelling](docs/deck-storytelling.md).
 
 ## Parts
 
@@ -348,6 +368,7 @@ Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never m
 - Article parts, in the playground's host article and as static HTML (JavaScript off) in a copy of the notes site's article layout and palette, at 390, 896 and 1440 in both themes: no page overflow; one, two or three cluster columns by the cluster's own width; equal card heights in every row; a wide cluster centred on the column; text at 12px or more; 4.5:1 text and 3:1 edges computed from the rendered colours; 44px link targets; the strip's one-line and phone layouts; only cards are filled boxes, the self-test's 3px accent rule against ChangeNote's thinner ink rule, the sentence-case metric label, and 0.9rem between consecutive parts. Cards, rows and the map link are real links that navigate (a planned card is not), keyboard focus draws an accent ring and accent title, hover an accent edge, reduced motion drops the transitions, and host prose CSS loaded after `article.css` does not reach in. Unit tests pin the markup, the accessibility attributes, validation, and that every emitted class is documented in `docs/article.md` and styled, with nothing else styled.
 - Live 3D stories retain one canvas across stops, support direct navigation and reduced motion, and provide a diagram fallback.
 - `/web`: DemoPlayer advances when in view, holds after Pause, restarts on Replay, seeks from keyboard step tabs, and renders statically under reduced motion; the spotlight follows the mouse and lights on keyboard focus; both themes fit 390px with 44px targets and no console errors. Motion and backgrounds: the ticker counts only once seen, reveals play, the marquee moves and holds on Pause and hover, aurora and beams pause off screen, the dot grid lights under the mouse, and all of it holds still under reduced motion. Unit tests pin the type scale and compute the 4.5:1 contrast of the Landing tokens, including text over the aurora at its opacity cap.
+- `/mechanism`: the verification gate renders in both themes with no console errors; changing the pose moves the token; reduced motion holds a still frame; the machine is reachable and operable from the keyboard; every drawn line ends on a stroke or a dot (Anatomy's line-end check); thumbnails start no loops. Unit tests pin the gate model, the continuity of every scripted route, unique SVG ids per instance and the vendored licence.
 - Object art directions cover every combination of six objects, six directions, two themes, and two viewport widths. Each combination has its own test, screenshot, and render-cost attachment. All 30 non-Studio object/direction pairs also retain their geometry and paint-rate budgets, sampled inside the browser after playback starts.
 
 CI runs both suites with job timeouts. Browser jobs split each engine into four shards with one worker per runner, so software WebGL renderers do not compete for CPU and a retry repeats only the failed case. Linux Chromium runs ANGLE with Mesa llvmpipe under Xvfb: its default SwiftShader Subzero backend missed the existing frame-rate budget on the CI CPU. Renderer names are included in the performance samples. The 15-minute job limit and default 30-second test limit stay bounded. Reports, screenshots, budget measurements, and functional-test retry traces are uploaded for seven days. Timing tests disable trace/video recording to keep measurements independent of capture overhead. Reproduce an art-direction failure with `npx playwright test e2e/art-directions.spec.ts --project=chromium --workers=1 --retries=0`; add `--grep` with its object/direction name to isolate it. Playwright is locked at 1.61.1 because the 1.63 browser build would not download on my network. Bump it when that clears.
@@ -376,7 +397,7 @@ MIT.
 
 Read [AGENTS.md](AGENTS.md) before editing. [CLAUDE.md](CLAUDE.md) points to that same canonical guide. Charts: [docs/charts.md](docs/charts.md). [Design direction](docs/design-direction.md) defines the Technical style, catalog taxonomy, mobile behaviour, and presentation composition. Browse the [documentation index](docs/README.md), [source guide](src/README.md), and [playground guide](playground/README.md).
 
-Figures support tap/keyboard selection and Open canvas with bounded pinch zoom, a zoom percentage, and keyboard controls. 3D animations have component inspection and their own canvas workspace. See [interaction details and limits](docs/interaction.md). Content type and visual style are separate. Implemented styles are Technical, Landing (`uipack/web`), and the six object art directions.
+Figures support tap/keyboard selection and Open canvas with bounded pinch zoom, a zoom percentage, and keyboard controls. 3D animations have component inspection and their own canvas workspace. See [interaction details and limits](docs/interaction.md). Content type and visual style are separate. Implemented styles are Technical, Landing (`uipack/web`), Mechanism (`uipack/mechanism`), and the six object art directions.
 
 ## Significant UI and object scenes
 
