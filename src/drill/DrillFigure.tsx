@@ -327,7 +327,6 @@ export function DrillFigure({
     // The canvas header hides the title; the current breadcrumb stands in.
     if (heading && getComputedStyle(heading).display !== "none") heading.focus({ preventScroll: true });
     else currentCrumbRef.current?.focus({ preventScroll: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view]);
 
   // Motion controls drive every mounted drawing's SMIL timeline.

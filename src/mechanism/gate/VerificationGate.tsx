@@ -414,11 +414,12 @@ export function GateMachine({ pose = "idle", theme, motion = "auto", interactive
       { rootMargin: "120px 0px" },
     );
     observer.observe(node);
+    const s = state.current;
     return () => {
       observer.disconnect();
       stop();
-      state.current.timers.forEach((timer) => window.clearTimeout(timer));
-      state.current.timers = [];
+      s.timers.forEach((timer) => window.clearTimeout(timer));
+      s.timers = [];
     };
   }, [interactive, run, stop]);
 

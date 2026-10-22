@@ -2,7 +2,6 @@ import "@testing-library/jest-dom/vitest";
 
 // jsdom has no matchMedia; tests set `globalThis.__reduced` to flip it.
 declare global {
-  // eslint-disable-next-line no-var
   var __reduced: boolean;
 }
 globalThis.__reduced = false;

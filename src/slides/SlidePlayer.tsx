@@ -138,7 +138,9 @@ function SceneViewport({
       setTransitioning(!reduced);
       runtime.current.goTo(stop, reduced);
     }
-  }, [stop, renderMode, failed]); // Preference updates are applied without restarting the current stop.
+    // Preference updates (reduced, onSettled) are applied without restarting the current stop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stop, renderMode, failed]);
   useEffect(() => {
     runtime.current?.setReducedMotion(reduced);
   }, [reduced]);

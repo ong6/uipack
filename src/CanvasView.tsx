@@ -71,6 +71,8 @@ export function CanvasView({
   }, [open]);
   const close = useRef(onClose);
   close.current = onClose;
+  const restore = useRef(restoreFocus);
+  restore.current = restoreFocus;
   useEffect(() => {
     if (!open) return;
     const opener = document.activeElement as HTMLElement | null;
@@ -79,9 +81,8 @@ export function CanvasView({
     dialog.current?.showModal();
     return () => {
       document.body.style.overflow = previous;
-      requestAnimationFrame(() =>
-        restoreFocus ? restoreFocus() : opener?.focus(),
-      );
+      // The latest restoreFocus, not the one from when the canvas opened.
+      requestAnimationFrame(() => (restore.current ? restore.current() : opener?.focus()));
     };
   }, [open]);
   // The dialog sits in <body>, outside the host's token scope. Take the

@@ -28,8 +28,7 @@ export interface FigureSection {
 // The presets render from their default spec; `figure` overrides only the header,
 // and `spec` replaces content that names a real system with neutral content.
 function preset(name: keyof typeof PRESETS, number: string, figure: object, spec: object = {}) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { render, spec: base } = PRESETS[name] as { render: (s: any) => ReactNode; spec: { figure: object } };
+  const { render, spec: base } = PRESETS[name] as { render: (s: unknown) => ReactNode; spec: { figure: object } };
   return render({ ...base, ...spec, figure: { ...base.figure, ...figure, number } });
 }
 
