@@ -31,6 +31,44 @@ const BeforeAfter = () => (
   </dl>
 );
 
+/** The quarter's six launches on its calendar (1 July to 30 September), one mark each on the day it reached all traffic. */
+const launches: [string, number][] = [
+  ["18 July", 18],
+  ["2 August", 33],
+  ["21 August", 52],
+  ["4 September", 66],
+  ["16 September", 78],
+  ["29 September", 91],
+];
+const ShippedStrip = () => (
+  <div className="deck-bento-strip" role="img" aria-label={`Reached all traffic on ${launches.map(([d]) => d).join(", ")}.`}>
+    <span className="deck-bento-strip__line">
+      {launches.map(([d, day]) => (
+        <i key={d} style={{ left: `${(day / 92) * 100}%` }} />
+      ))}
+    </span>
+    <span className="deck-bento-strip__months" aria-hidden="true">
+      <span>Jul</span>
+      <span>Aug</span>
+      <span>Sep</span>
+    </span>
+  </div>
+);
+
+/** Cache memory now against the limit, on one bar: the risk box's evidence at overview scale. */
+const MemoryGauge = () => (
+  <div className="deck-bento-gauge" role="img" aria-label="Cache memory is at 71% of the tier; the limit is 90%.">
+    <span className="deck-bento-gauge__track">
+      <i style={{ width: "71%" }} />
+      <b style={{ left: "90%" }} />
+    </span>
+    <span className="deck-bento-gauge__scale" aria-hidden="true">
+      <span>71% now</span>
+      <span style={{ left: "90%" }}>90% limit</span>
+    </span>
+  </div>
+);
+
 /** Where the saving came from, as bars on one scale: the detail behind the latency box. */
 const savings: [string, string, number][] = [
   ["Retrieval", "Cache in front of the index", 140],
@@ -117,12 +155,15 @@ export const bentoDeck: DeckSlide[] = [
     render: () => (
       <Slide eyebrow="Q3 review · Illustrative" footer={footer} layout="center">
         <h2 className="uipack-deck-title">Search got twice as fast this quarter, and cheaper to run.</h2>
-        <p className="uipack-deck-lede">p95 latency fell from 412 ms to 198 ms while cost per query dropped 18%.</p>
+        <p className="uipack-deck-lede">
+          p95 latency fell from 412 ms to 198 ms and cost per query dropped 18%; searches that end in a click rose from 61% to
+          64%.
+        </p>
       </Slide>
     ),
     notes: {
-      say: "The headline first: search is twice as fast as it was in Q2, and it costs less to serve. p95 latency went from four hundred and twelve milliseconds to one hundred and ninety-eight, and cost per thousand queries fell eighteen percent, while traffic grew. Everything after this slide is the evidence, the one risk that could undo it, and the one decision we need from the Platform leads by the thirtieth of October. Source: the search latency and cost dashboards, Q2 against Q3.",
-      delivery: "State both numbers slowly. Don't explain yet.",
+      say: "The headline first: search is twice as fast as it was in Q2, and it costs less to serve. p95 latency went from four hundred and twelve milliseconds to one hundred and ninety-eight, and cost per thousand queries fell eighteen percent. What users noticed: the share of searches that end in a click rose from sixty-one percent to sixty-four, so more people found what they came for. Everything after this slide is the evidence, the one risk that could undo it, and the one decision we need from the Platform leads by the thirtieth of October. Source: the search latency, cost and click-through dashboards, Q2 against Q3.",
+      delivery: "State the speed and cost numbers slowly, then the click-through. Don't explain yet.",
       next: "Here's where the speed came from.",
     },
   },
@@ -160,13 +201,13 @@ export const bentoDeck: DeckSlide[] = [
           <BentoCell id="cost" col={3}>
             <p className="uipack-deck-bento-label">Cost per 1k queries</p>
             <p className="uipack-deck-bento-value" style={{ fontSize: 72 }}>
-              $0.41<small>−18%</small>
+              $0.41<small>Q2 $0.50 · −18%</small>
             </p>
           </BentoCell>
           <BentoCell id="errors" col={3}>
             <p className="uipack-deck-bento-label">Error rate</p>
             <p className="uipack-deck-bento-value" style={{ fontSize: 72 }}>
-              0.08%<small>SLO 0.10%</small>
+              0.08%<small>Q2 0.09% · SLO 0.10%</small>
             </p>
           </BentoCell>
           <BentoCell
@@ -193,15 +234,20 @@ export const bentoDeck: DeckSlide[] = [
             <p className="uipack-deck-bento-label">Shipped</p>
             <p className="uipack-deck-bento-title">6 changes reached all traffic</p>
             <p className="uipack-deck-bento-note">No rollbacks</p>
+            <ShippedStrip />
           </BentoCell>
           <BentoCell id="risk" col={2} row={2}>
             <p className="uipack-deck-bento-label">Risk</p>
             <p className="uipack-deck-bento-title">The cache fills up at the November peak</p>
-            <p className="uipack-deck-bento-note">71% now, +3 points a week</p>
+            <p className="uipack-deck-bento-note">+3 points a week</p>
+            <MemoryGauge />
           </BentoCell>
           <BentoCell id="next" col={2} row={2} tone="ink">
             <p className="uipack-deck-bento-label">Next quarter</p>
             <p className="uipack-deck-bento-title">Hold latency. Cut cost another 10%.</p>
+            <p className="uipack-deck-bento-value deck-bento-next">
+              $0.37<small>per 1k queries by Jan</small>
+            </p>
           </BentoCell>
         </Bento>
       </Slide>
