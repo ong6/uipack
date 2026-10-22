@@ -497,8 +497,9 @@ export const consultingDeck: DeckSlide[] = [
         subtitle="Two-hub option; months from approval"
         rows="minmax(0, 1fr) auto"
         notes={[
-          "Savings less the $9M one-off: $1M as Northgate closes in M6–M9, then $3.5M a quarter from M9.",
-          "Margin erosion continues at the FY23–FY25 rate.",
+          "Savings less the $9M one-off: $1M in M6–M9, then $3.5M a quarter.",
+          "Do nothing includes margin erosion at the FY23–FY25 rate.",
+          "The FY27 forecast of $7.30 assumes flat orders.",
         ]}
         source={source}
       >
@@ -543,7 +544,7 @@ export const consultingDeck: DeckSlide[] = [
               { key: "owner", label: "Owner", kind: "text", width: "26%" },
             ]}
             rows={[
-              { label: "M0–M3", cells: { what: "Start expanding Eastfield and Harbour", owner: "Operations" } },
+              { label: "M0–M3", cells: { what: "Expand Eastfield and Harbour", owner: "Operations" } },
               { label: "M3–M6", cells: { what: "Hire and train hub teams", owner: "People" } },
               {
                 label: "M6–M9",
@@ -553,7 +554,15 @@ export const consultingDeck: DeckSlide[] = [
                 label: "M12",
                 highlight: true,
                 tag: "Done",
-                cells: { what: "Cost per order below $7.50, against $7.30 forecast", owner: "Finance" },
+                cells: {
+                  what: (
+                    <>
+                      Cost per order below $7.50 (forecast $7.30
+                      <Ref n={3} />)
+                    </>
+                  ),
+                  owner: "Finance",
+                },
               },
             ]}
           />
