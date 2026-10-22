@@ -401,10 +401,7 @@ export const consultingDeck: DeckSlide[] = [
         title="Nine months and $9M; done when cost per order falls below $7.30"
         subtitle="Two-hub option; months from approval"
         rows="minmax(0, 1fr) auto"
-        notes={[
-          "Savings less the $9M one-off cost, against FY25 cost: $1M of savings while Northgate closes in M6–M9, then the full $3.5M a quarter ($14M a year) from M9.",
-          "Margin erosion continues at the FY23–FY25 rate.",
-        ]}
+notes={["Savings less the $9M one-off: $1M as Northgate closes in M6–M9, then $3.5M a quarter from M9.", "Margin erosion continues at the FY23–FY25 rate."]}
         source={source}
       >
         <Panel
