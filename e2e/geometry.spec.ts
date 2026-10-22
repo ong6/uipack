@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 // Arrowheads must end short of node borders, packets short of arrowheads,
-// and bus junctions on the 8px grid. Checked in user units on the Habitat
-// figure and every preset, so it holds for whatever the site draws with them.
+// and bus junctions on the 8px grid. Checked in user units on every figure of
+// the diagrams page, so it holds for whatever the site draws with them.
 test.describe("geometry", () => {
   test("no arrowhead tip or path end lies inside a node on any wide drawing", async ({ page }) => {
     await page.goto("/");
@@ -69,30 +69,31 @@ test.describe("geometry", () => {
     expect(await page.locator('svg.uipack--wide [data-uipack="junction"]').count()).toBeGreaterThan(10);
   });
 
-  test("lane headers sit on the 8px grid on every preset", async ({ page }) => {
+  test("lane headers sit on the 8px grid on every figure", async ({ page }) => {
     await page.goto("/");
-    await page.locator("[data-preset]").first().waitFor();
+    await page.locator("[data-section] figure.uipack").first().waitFor();
     const off = await page.evaluate(() =>
-      [...document.querySelectorAll<SVGTextElement>('[data-preset] svg.uipack--wide [data-uipack="lane"] > text')]
-        .map((t) => Number(t.getAttribute("y")))
-        .filter((y) => y % 8 !== 0),
+      [...document.querySelectorAll<SVGTextElement>('[data-section] svg.uipack--wide [data-uipack="lane"] > text')]
+        .map((t) => `${t.closest("[data-section]")?.getAttribute("data-section")} ${t.getAttribute("y")}`)
+        .filter((s) => Number(s.split(" ")[1]) % 8 !== 0),
     );
     expect(off).toEqual([]);
-    expect(await page.locator('[data-preset] svg.uipack--wide [data-uipack="lane"] > text').count()).toBeGreaterThan(10);
+    expect(await page.locator('[data-section] svg.uipack--wide [data-uipack="lane"] > text').count()).toBeGreaterThan(10);
   });
 
-  test("no preset text renders under 11px at 1440", async ({ page }) => {
+  test("no figure text renders under 11px at 1440", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1100 });
     await page.goto("/");
-    await page.locator("[data-preset]").first().waitFor();
+    await page.locator("[data-section] figure.uipack").first().waitFor();
     await page.waitForTimeout(200); // ResizeObserver has measured
     const small = await page.evaluate(() => {
       const out: string[] = [];
-      for (const svg of document.querySelectorAll<SVGSVGElement>("[data-preset] svg.uipack--wide")) {
+      for (const svg of document.querySelectorAll<SVGSVGElement>("[data-section] svg.uipack--wide")) {
+        if (!svg.getClientRects().length) continue; // a drill level that is not showing
         const k = svg.getBoundingClientRect().width / svg.viewBox.baseVal.width;
         for (const t of svg.querySelectorAll("text")) {
-          const px = Number(t.getAttribute("font-size")) * k;
-          if (px < 11 - 0.05) out.push(`${svg.closest("[data-preset]")?.getAttribute("data-preset")}: "${t.textContent}" ${px.toFixed(1)}px`);
+          const px = parseFloat(getComputedStyle(t).fontSize) * k;
+          if (px < 11 - 0.05) out.push(`${svg.closest("[data-section]")?.getAttribute("data-section")}: "${t.textContent}" ${px.toFixed(1)}px`);
         }
       }
       return out;
