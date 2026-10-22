@@ -45,6 +45,8 @@ import "uipack/mechanism.css";
 | `onReadout` | | Called with the readout text whenever it changes (useful with `frame={false}`). |
 | `alt` | a description | The SVG's accessible description, as on `Figure`. |
 
+The gate's model and motion are exported with a gate prefix (`GATE_LIMIT`, `GATE_PERIOD`, `gateCheckAt`, `gateSceneAt`, `GateCheck`…), so a second machine's names cannot clash; a new machine exports its own the same way.
+
 `GateMachine` is the same machine without the frame; `MechanismFrame` is the card on its own (`number`, `title`, `hint`, `readout`, `caption`, `theme`, children), and a machine inside it writes its live readout into the bottom-right corner.
 
 **Pose changes never jump.** Every frame, the machine computes the pose's scripted scene (`sceneAt(pose, t)` in `gate/motion.ts`, a pure function of time) and follows it: tokens ease to their targets (exponential follow, τ 0.05 s) and cross-fade when they leave or join the scene, the plunger, arm and explode shares ride springs, the belt's speed eases. A deck can switch pose mid-run, and the machine moves there from wherever it is. Two instances can be mounted at once (slide transitions): SVG ids come from `useId`, and all state is per instance.

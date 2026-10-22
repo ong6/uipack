@@ -70,7 +70,7 @@ The diagrams page shows each pattern once, simplest first. Add one the first tim
 
 1. A folder `src/mechanism/<machine>/`, as `gate/` is: `model.ts` (the truth: a small pure module with the numbers, thresholds and readout text), `view.ts` (world units, plans, the camera), `geometry.ts` (solids built once with the kit), `motion.ts` (`sceneAt(pose, t)`, a pure function of time) and the component (`<Machine>.tsx`, the machine wrapped in `MechanismFrame`).
 2. Reuse the shared pieces: `kit/` (vendored, do not edit), `solid3.ts`, `MechanismFrame`, `mechanism.css` (add rules under `.uipack-mechanism`), `usePrefersReducedMotion` from `src/env.ts` (not the kit's own stillness helpers). Props follow the gate: `pose`, `theme`, `motion`, `interactive`, `alt`, `frame`, `number`, `title`, `hint`, `caption`.
-3. Export it by name from `src/mechanism/index.ts`.
+3. Export it by name from `src/mechanism/index.ts`, with its model and motion renamed to carry the machine's prefix (`GATE_PERIOD`, `gateSceneAt`), as the gate's are.
 4. Register it in `mechanismEntries` in `playground/catalog.ts` and give it a section on `playground/MechanismShowcase.tsx`.
 5. Tests: the model and the scripts' continuity in `test/mechanism.test.tsx` (the no-Three.js check covers the new folder), interaction and both themes in `e2e/mechanism.spec.ts`.
 6. Document it in `docs/mechanism.md` (what moves and what it means, its parts, its API), following the craft rules there.

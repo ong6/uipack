@@ -1,11 +1,23 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { render } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CYCLE_LENGTH, LIMIT, MechanismFrame, PASS_CHECK, RETURN_CHECK, VerificationGate, checkAt, sceneAt, stillScene, tallyOf, tallyText, tokenAt, verdictOf, verdictText, RUN_LONG, PERIOD, type GatePose } from "../src/mechanism";
-import { idleScene, liftAt, armAt, IDLE_START } from "../src/mechanism/gate/motion";
+import * as mechanism from "../src/mechanism";
+import { MechanismFrame, VerificationGate, type GatePose } from "../src/mechanism";
+import { CYCLE_LENGTH, LIMIT, PASS_CHECK, RETURN_CHECK, checkAt, tallyOf, tallyText, verdictOf, verdictText } from "../src/mechanism/gate/model";
+import { idleScene, liftAt, armAt, IDLE_START, sceneAt, stillScene, tokenAt, RUN_LONG, PERIOD } from "../src/mechanism/gate/motion";
 import { BT, GX, LIFTED } from "../src/mechanism/gate/view";
 
 const POSES: GatePose[] = ["idle", "pass", "return", "apart"];
+
+describe("uipack/mechanism exports", () => {
+  it("prefixes the gate's model and motion with its machine, so a second machine cannot clash", () => {
+    for (const generic of ["LIMIT", "SCALE", "PERIOD", "RUN_LONG", "CYCLE_LENGTH", "checkAt", "sceneAt", "tokenAt", "asksForStillness"])
+      expect(mechanism).not.toHaveProperty(generic);
+    expect(mechanism.GATE_LIMIT).toBe(LIMIT);
+    expect(mechanism.GATE_PERIOD).toBe(PERIOD);
+    expect(mechanism.gateTallyText(mechanism.gateTallyOf(12))).toBe(tallyText(tallyOf(12)));
+  });
+});
 
 describe("gate model", () => {
   it("checks a value against the limit, inclusive", () => {
