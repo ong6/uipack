@@ -4,6 +4,7 @@ import { entries } from "./scripts/entries";
 export default defineConfig({
   entry: entries,
   format: ["esm", "cjs"],
+  splitting: true,
   dts: true,
   sourcemap: true,
   clean: true,

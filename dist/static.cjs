@@ -1,100 +1,19 @@
-"use strict";
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
+
+
+
+
+
+var _chunkHTRLVYU7cjs = require('./chunk-HTRLVYU7.cjs');
+
+
+var _chunkTKLHLAXGcjs = require('./chunk-TKLHLAXG.cjs');
+require('./chunk-J7BYXE6Q.cjs');
 
 // src/static/index.tsx
-var static_exports = {};
-__export(static_exports, {
-  DARK: () => DARK,
-  LIGHT: () => LIGHT,
-  inlineVars: () => inlineVars,
-  renderStatic: () => renderStatic,
-  resolvePalette: () => resolvePalette,
-  wrapText: () => wrapText
-});
-module.exports = __toCommonJS(static_exports);
-var import_react3 = require("react");
-var import_server = require("react-dom/server");
-
-// src/scale.tsx
-var import_react = require("react");
-var import_jsx_runtime = require("react/jsx-runtime");
-var FigureScaleContext = (0, import_react.createContext)({ floor: 0 });
-var DEFAULT_RENDER_WIDTH = 1088;
-function fontFloor(vbWidth, renderWidth, minFont) {
-  if (!vbWidth || !renderWidth || !minFont) return 0;
-  return minFont * vbWidth / renderWidth;
-}
-function FigureScaleProvider({ floor, children }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FigureScaleContext.Provider, { value: { floor }, children });
-}
-
-// src/context.tsx
-var import_react2 = require("react");
-var noop = () => {
-};
-var FigureMotionContext = (0, import_react2.createContext)({
-  playing: true,
-  reduced: false,
-  cycle: 0,
-  toggle: noop,
-  replay: noop
-});
-
-// src/tokens.tsx
-var import_jsx_runtime2 = require("react/jsx-runtime");
-var TOKEN_SHAPE = {
-  request: "square",
-  response: "circle",
-  change: "diamond",
-  accent: "ring",
-  neutral: "circle"
-};
-function tokenColor(kind) {
-  switch (kind) {
-    case "request":
-      return "var(--uipack-token-request)";
-    case "response":
-      return "var(--uipack-token-response)";
-    case "change":
-      return "var(--uipack-token-change)";
-    case "accent":
-      return "var(--uipack-accent)";
-    default:
-      return "currentColor";
-  }
-}
-function Token({ shape, kind = "neutral", r = 5, cx = 0, cy = 0, style }) {
-  const s = shape ?? TOKEN_SHAPE[kind];
-  const fill = tokenColor(kind);
-  const common = { fill, stroke: "var(--uipack-bg)", strokeWidth: 1.5, style };
-  if (s === "circle") return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx, cy, r, ...common });
-  if (s === "ring")
-    return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx, cy, r: r * 0.78, fill: "var(--uipack-bg)", stroke: fill, strokeWidth: r * 0.5, style });
-  if (s === "diamond") {
-    const d = r * 1.2;
-    return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: `M${cx},${cy - d} L${cx + d},${cy} L${cx},${cy + d} L${cx - d},${cy} Z`, ...common });
-  }
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("rect", { x: cx - r, y: cy - r, width: r * 2, height: r * 2, rx: 1.5, ...common });
-}
-
-// src/static/index.tsx
-var import_jsx_runtime3 = require("react/jsx-runtime");
+var _react = require('react');
+var _server = require('react-dom/server');
+var _jsxruntime = require('react/jsx-runtime');
 var LIGHT = {
   fg: "#1a1c1a",
   muted: "#5c625e",
@@ -133,7 +52,7 @@ function stripBase(t) {
   return rest;
 }
 function inlineVars(markup, p) {
-  return markup.replace(/var\(--uipack-([a-z-]+)(?:,\s*[^)]*)?\)/g, (_, k) => p[k] ?? "currentColor");
+  return markup.replace(/var\(--uipack-([a-z-]+)(?:,\s*[^)]*)?\)/g, (_, k) => _nullishCoalesce(p[k], () => ( "currentColor")));
 }
 var esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 function wrapText(text, chars) {
@@ -150,12 +69,12 @@ function wrapText(text, chars) {
   return lines;
 }
 function figureOf(input) {
-  if ((0, import_react3.isValidElement)(input)) {
+  if (_react.isValidElement.call(void 0, input)) {
     const toStatic = input.type.toStatic;
     if (typeof toStatic === "function") return toStatic(input.props);
     const pp = input.props;
     if (typeof pp.parts === "function" && pp.spec) {
-      const parts = pp.parts(pp.spec, pp.id ?? "static");
+      const parts = pp.parts(pp.spec, _nullishCoalesce(pp.id, () => ( "static")));
       const m = pp.spec.figure;
       return { children: parts.wide, viewBox: parts.viewBox, legend: parts.legend, number: m.number, eyebrow: m.eyebrow, title: m.title, caption: m.caption, alt: m.alt };
     }
@@ -167,9 +86,9 @@ function figureOf(input) {
 function renderStatic(input, opts = {}) {
   const fig = figureOf(input);
   const p = resolvePalette(opts.theme);
-  const motion = opts.motion ?? true;
-  const frame = opts.frame ?? true;
-  const paint = opts.background ?? true;
+  const motion = _nullishCoalesce(opts.motion, () => ( true));
+  const frame = _nullishCoalesce(opts.frame, () => ( true));
+  const paint = _nullishCoalesce(opts.background, () => ( true));
   const [vx, vy, vw, vh] = fig.viewBox.split(/\s+/).map(Number);
   const ctx = { playing: motion, reduced: !motion, cycle: 0, toggle: () => {
   }, replay: () => {
@@ -179,10 +98,10 @@ function renderStatic(input, opts = {}) {
   g.__UIPACK_PRERENDER__ = motion;
   let drawing;
   try {
-    const floor = fontFloor(vw, opts.width ?? DEFAULT_RENDER_WIDTH, opts.minFont ?? 11);
+    const floor = _chunkHTRLVYU7cjs.fontFloor.call(void 0, vw, _nullishCoalesce(opts.width, () => ( _chunkHTRLVYU7cjs.DEFAULT_RENDER_WIDTH)), _nullishCoalesce(opts.minFont, () => ( 11)));
     drawing = inlineVars(
-      (0, import_server.renderToStaticMarkup)(
-        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(FigureMotionContext.Provider, { value: ctx, children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(FigureScaleProvider, { floor, children: fig.children }) })
+      _server.renderToStaticMarkup.call(void 0, 
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkTKLHLAXGcjs.FigureMotionContext.Provider, { value: ctx, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkHTRLVYU7cjs.FigureScaleProvider, { floor, children: fig.children }) })
       ),
       p
     );
@@ -213,12 +132,12 @@ function renderStatic(input, opts = {}) {
       }
       hy += 4;
     }
-    if (fig.legend?.length) {
+    if (_optionalChain([fig, 'access', _2 => _2.legend, 'optionalAccess', _3 => _3.length])) {
       hy += 24;
       let lx = pad;
       for (const it of fig.legend) {
-        const kind = it.kind ?? "neutral";
-        const tok = inlineVars((0, import_server.renderToStaticMarkup)(/* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Token, { kind, shape: it.shape ?? TOKEN_SHAPE[kind], r: 5.5, cx: lx + 6, cy: hy - 4 })), p);
+        const kind = _nullishCoalesce(it.kind, () => ( "neutral"));
+        const tok = inlineVars(_server.renderToStaticMarkup.call(void 0, /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkHTRLVYU7cjs.Token, { kind, shape: _nullishCoalesce(it.shape, () => ( _chunkHTRLVYU7cjs.TOKEN_SHAPE[kind])), r: 5.5, cx: lx + 6, cy: hy - 4 })), p);
         head.push(tok, `<text x="${lx + 20}" y="${hy}" font-family="${p.sans}" font-size="13" fill="${p.fg}">${esc(it.label)}</text>`);
         lx += 20 + it.label.length * 7.4 + 24;
       }
@@ -229,19 +148,18 @@ function renderStatic(input, opts = {}) {
   const bgId = "uipack-static-dots";
   const canvas = paint ? fig.background === "plain" ? `<rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="${p.bg}"/>` : fig.background === "ruled" ? `<defs><pattern id="${bgId}" width="${vw}" height="24" patternUnits="userSpaceOnUse"><rect width="${vw}" height="1" fill="${p.grid}"/></pattern></defs><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="${p.bg}"/><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="url(#${bgId})"/>` : `<defs><pattern id="${bgId}" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="${p.grid}"/></pattern></defs><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="${p.bg}"/><rect x="0" y="${hy}" width="${vw}" height="${vh}" fill="url(#${bgId})"/>` : "";
   const border = frame ? `<rect x="0.5" y="0.5" width="${vw - 1}" height="${H - 1}" rx="4" fill="${paint ? p.bg : "none"}" stroke="${p.border}"/>` + (hy ? `<line x1="0" y1="${hy}" x2="${vw}" y2="${hy}" stroke="${p.border}"/>` : "") : "";
-  const width = opts.width ?? vw;
+  const width = _nullishCoalesce(opts.width, () => ( vw));
   const height = Math.round(width / vw * H);
   const label = fig.alt ? ` role="img" aria-label="${esc(fig.alt)}"` : "";
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${vw} ${H}" width="${width}" height="${height}" color="${p.fg}" font-family="${esc(p.sans)}"${label}><style>text{user-select:none}</style>` + border + canvas + head.join("") + `<g transform="translate(${-vx},${hy - vy})">${drawing}</g></svg>
 `;
 }
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  DARK,
-  LIGHT,
-  inlineVars,
-  renderStatic,
-  resolvePalette,
-  wrapText
-});
+
+
+
+
+
+
+
+exports.DARK = DARK; exports.LIGHT = LIGHT; exports.inlineVars = inlineVars; exports.renderStatic = renderStatic; exports.resolvePalette = resolvePalette; exports.wrapText = wrapText;
 //# sourceMappingURL=static.cjs.map

@@ -1,189 +1,73 @@
-"use strict";
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 
-// src/web/index.ts
-var web_exports = {};
-__export(web_exports, {
-  AI_CRAWLERS: () => AI_CRAWLERS,
-  Aurora: () => Aurora,
-  BackgroundFrame: () => BackgroundFrame,
-  BeamLines: () => BeamLines,
-  Body: () => Body,
-  CtaButton: () => CtaButton,
-  DEFAULT_STAR_VALUES: () => DEFAULT_STAR_VALUES,
-  DEFAULT_TIMING: () => DEFAULT_TIMING,
-  DISPLAY_FROM_STEP: () => DISPLAY_FROM_STEP,
-  DemoPlayer: () => DemoPlayer,
-  DotGrid: () => DotGrid,
-  DriftingGutters: () => DriftingGutters,
-  EMPHASIS: () => EMPHASIS,
-  Eyebrow: () => Eyebrow,
-  FAQ: () => FAQ,
-  FeatureGrid: () => FeatureGrid,
-  GRID_COLUMNS: () => GRID_COLUMNS,
-  GlassNav: () => GlassNav,
-  GrainOverlay: () => GrainOverlay,
-  Grid: () => Grid,
-  GridItem: () => GridItem,
-  HeadTags: () => HeadTags,
-  Heading: () => Heading,
-  JsonLd: () => JsonLd,
-  LineGrid: () => LineGrid,
-  MagneticButton: () => MagneticButton,
-  Marquee: () => Marquee,
-  MaskedStar: () => MaskedStar,
-  NoiseLayer: () => NoiseLayer,
-  NumberTicker: () => NumberTicker,
-  Reveal: () => Reveal,
-  RevealText: () => RevealText,
-  RhymeIcon: () => RhymeIcon,
-  SMOOTH_SCROLL_ATTR: () => SMOOTH_SCROLL_ATTR,
-  SMOOTH_SCROLL_PREVENT_ATTR: () => SMOOTH_SCROLL_PREVENT_ATTR,
-  SPACE: () => SPACE,
-  ScrollTransform: () => ScrollTransform,
-  Section: () => Section,
-  SmoothScroll: () => SmoothScroll,
-  SpotlightCard: () => SpotlightCard,
-  StarChart: () => StarChart,
-  StarHero: () => StarHero,
-  Subhead: () => Subhead,
-  TYPE_BASE_PX: () => TYPE_BASE_PX,
-  TYPE_FACES: () => TYPE_FACES,
-  TYPE_RATIO: () => TYPE_RATIO,
-  TYPE_STEPS: () => TYPE_STEPS,
-  TextScramble: () => TextScramble,
-  TiltCard: () => TiltCard,
-  WEB_FONT_FILES: () => WEB_FONT_FILES,
-  WHEEL_LINE_PX: () => WHEEL_LINE_PX,
-  WHEEL_PAGE_FRACTION: () => WHEEL_PAGE_FRACTION,
-  WebSurface: () => WebSurface,
-  article: () => article,
-  breadcrumbList: () => breadcrumbList,
-  buildCrawlFiles: () => buildCrawlFiles,
-  createSmoothScroll: () => createSmoothScroll,
-  curvePath: () => curvePath,
-  demoCycle: () => demoCycle,
-  demoEnd: () => demoEnd,
-  demoFrame: () => demoFrame,
-  easeOutExpo: () => easeOutExpo,
-  faqPage: () => faqPage,
-  followRate: () => followRate,
-  followStep: () => followStep,
-  fontPreloads: () => fontPreloads,
-  formatLastmod: () => formatLastmod,
-  headTagKey: () => headTagKey,
-  headTagsToHtml: () => headTagsToHtml,
-  jsonLd: () => jsonLd,
-  jsonLdTag: () => jsonLdTag,
-  llmsTxt: () => llmsTxt,
-  normalizeWheel: () => normalizeWheel,
-  offer: () => offer,
-  organization: () => organization,
-  pageMeta: () => pageMeta,
-  product: () => product,
-  ref: () => ref,
-  resolveAiCrawlers: () => resolveAiCrawlers,
-  robotsTxt: () => robotsTxt,
-  scrambleFrame: () => scrambleFrame,
-  scrollProgressOf: () => scrollProgressOf,
-  serializeJsonLd: () => serializeJsonLd,
-  sitemapXml: () => sitemapXml,
-  slugify: () => slugify,
-  smoothScrollTo: () => smoothScrollTo,
-  softwareApplication: () => softwareApplication,
-  stepStart: () => stepStart,
-  typeMetrics: () => typeMetrics,
-  typeRole: () => typeRole,
-  typeScale: () => typeScale,
-  useFinePointer: () => useFinePointer,
-  useHead: () => useHead,
-  useInView: () => useInView,
-  useScrollProgress: () => useScrollProgress,
-  useSmoothScroll: () => useSmoothScroll,
-  webSite: () => webSite,
-  withPaintTransition: () => withPaintTransition,
-  withViewTransition: () => withViewTransition
-});
-module.exports = __toCommonJS(web_exports);
+var _chunkTKLHLAXGcjs = require('./chunk-TKLHLAXG.cjs');
+
+
+
+var _chunkJ7BYXE6Qcjs = require('./chunk-J7BYXE6Q.cjs');
 
 // src/web/Surface.tsx
-var import_jsx_runtime = require("react/jsx-runtime");
+var _jsxruntime = require('react/jsx-runtime');
 function WebSurface({ children, theme, as: Tag = "div", className = "", style }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Tag, { className: `uipack-web ${className}`.trim(), "data-theme": theme, "data-style": "landing", style, children });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tag, { className: `uipack-web ${className}`.trim(), "data-theme": theme, "data-style": "landing", style, children });
 }
 function Grid({ children, className = "", as: Tag = "div" }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Tag, { className: `uipack-web-grid ${className}`.trim(), children });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tag, { className: `uipack-web-grid ${className}`.trim(), children });
 }
 function GridItem({ children, span = [4, 4, 4], className = "", as: Tag = "div" }) {
   const style = { "--span-w": span[0], "--span-m": span[1], "--span-n": span[2] };
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Tag, { className: `uipack-web-grid__item ${className}`.trim(), style, children });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tag, { className: `uipack-web-grid__item ${className}`.trim(), style, children });
 }
 
 // src/web/Text.tsx
-var import_jsx_runtime2 = require("react/jsx-runtime");
+
 function Eyebrow({ children, className = "", as: Tag = "p", id }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Tag, { id, className: `uipack-web-eyebrow ${className}`.trim(), children });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tag, { id, className: `uipack-web-eyebrow ${className}`.trim(), children });
 }
 var DEFAULT_STEP = { 1: 6, 2: 4, 3: 2, 4: 1, 5: 0, 6: 0 };
 function Heading({ children, level = 2, size, className = "", id }) {
   const Tag = `h${level}`;
-  const step = size ?? DEFAULT_STEP[level];
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Tag, { id, className: `uipack-web-heading ${className}`.trim(), "data-step": step, children });
+  const step = _nullishCoalesce(size, () => ( DEFAULT_STEP[level]));
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tag, { id, className: `uipack-web-heading ${className}`.trim(), "data-step": step, children });
 }
 function Subhead({ children, className = "", as: Tag = "p", id }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Tag, { id, className: `uipack-web-subhead ${className}`.trim(), children });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tag, { id, className: `uipack-web-subhead ${className}`.trim(), children });
 }
 function Body({ children, emphasis = "low", className = "", as: Tag = "p", id }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Tag, { id, className: `uipack-web-body ${className}`.trim(), "data-emphasis": emphasis, children });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tag, { id, className: `uipack-web-body ${className}`.trim(), "data-emphasis": emphasis, children });
 }
 
 // src/web/CtaButton.tsx
-var import_jsx_runtime3 = require("react/jsx-runtime");
+
 function CtaButton({ children, variant = "primary", href, size = "md", className = "", type = "button", ...rest }) {
   const cls = `uipack-web-cta ${className}`.trim();
   if (href)
-    return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("a", { className: cls, href, "data-variant": variant, "data-size": size, children });
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("button", { className: cls, type, "data-variant": variant, "data-size": size, ...rest, children });
+    return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { className: cls, href, "data-variant": variant, "data-size": size, children });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { className: cls, type, "data-variant": variant, "data-size": size, ...rest, children });
 }
 
 // src/web/GlassNav.tsx
-var import_react = require("react");
-var import_jsx_runtime4 = require("react/jsx-runtime");
+var _react = require('react');
+
 function GlassNav({ brand, links, cta, sticky = true, label = "Primary" }) {
-  const [open, setOpen] = (0, import_react.useState)(false);
-  const toggleRef = (0, import_react.useRef)(null);
-  const listId = (0, import_react.useId)();
-  (0, import_react.useEffect)(() => {
+  const [open, setOpen] = _react.useState.call(void 0, false);
+  const toggleRef = _react.useRef.call(void 0, null);
+  const listId = _react.useId.call(void 0, );
+  _react.useEffect.call(void 0, () => {
     if (!open) return;
     const onKey = (e) => {
       if (e.key !== "Escape") return;
       setOpen(false);
-      toggleRef.current?.focus();
+      _optionalChain([toggleRef, 'access', _2 => _2.current, 'optionalAccess', _3 => _3.focus, 'call', _4 => _4()]);
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
-  return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("header", { className: "uipack-web-nav", "data-sticky": sticky || void 0, "data-open": open || void 0, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "uipack-web-nav__bar", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: "uipack-web-nav__brand", children: brand }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("nav", { "aria-label": label, className: "uipack-web-nav__nav", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("ul", { id: listId, className: "uipack-web-nav__links", children: links.map((l) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("a", { href: l.href, onClick: () => setOpen(false), children: l.label }) }, l.href + l.label)) }) }),
-    cta && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: "uipack-web-nav__cta", children: cta }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "header", { className: "uipack-web-nav", "data-sticky": sticky || void 0, "data-open": open || void 0, children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-nav__bar", children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-nav__brand", children: brand }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "nav", { "aria-label": label, className: "uipack-web-nav__nav", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { id: listId, className: "uipack-web-nav__links", children: links.map((l) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "li", { children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { href: l.href, onClick: () => setOpen(false), children: l.label }) }, l.href + l.label)) }) }),
+    cta && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-nav__cta", children: cta }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
       "button",
       {
         ref: toggleRef,
@@ -199,10 +83,10 @@ function GlassNav({ brand, links, cta, sticky = true, label = "Primary" }) {
 }
 
 // src/web/SpotlightCard.tsx
-var import_react2 = require("react");
-var import_jsx_runtime5 = require("react/jsx-runtime");
+
+
 function SpotlightCard({ children, href, className = "" }) {
-  const ref2 = (0, import_react2.useRef)(null);
+  const ref2 = _react.useRef.call(void 0, null);
   const onMove = (e) => {
     if (e.pointerType === "touch") return;
     const el = ref2.current;
@@ -212,20 +96,20 @@ function SpotlightCard({ children, href, className = "" }) {
     el.style.setProperty("--spot-y", `${e.clientY - r.top}px`);
   };
   const onLeave = () => {
-    ref2.current?.style.removeProperty("--spot-x");
-    ref2.current?.style.removeProperty("--spot-y");
+    _optionalChain([ref2, 'access', _5 => _5.current, 'optionalAccess', _6 => _6.style, 'access', _7 => _7.removeProperty, 'call', _8 => _8("--spot-x")]);
+    _optionalChain([ref2, 'access', _9 => _9.current, 'optionalAccess', _10 => _10.style, 'access', _11 => _11.removeProperty, 'call', _12 => _12("--spot-y")]);
   };
   const cls = `uipack-web-spotlight ${className}`.trim();
   if (href)
-    return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("a", { ref: (n) => ref2.current = n, className: cls, href, onPointerMove: onMove, onPointerLeave: onLeave, children });
-  return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { ref: (n) => ref2.current = n, className: cls, onPointerMove: onMove, onPointerLeave: onLeave, children });
+    return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { ref: (n) => ref2.current = n, className: cls, href, onPointerMove: onMove, onPointerLeave: onLeave, children });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { ref: (n) => ref2.current = n, className: cls, onPointerMove: onMove, onPointerLeave: onLeave, children });
 }
 
 // src/web/Section.tsx
-var import_jsx_runtime6 = require("react/jsx-runtime");
+
 function Section({ eyebrow, title, intro, children, tone = "default", align = "start", id, className = "", lazyRender = false }) {
   const headingId = id ? `${id}-title` : void 0;
-  return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
     "section",
     {
       id,
@@ -234,11 +118,11 @@ function Section({ eyebrow, title, intro, children, tone = "default", align = "s
       "data-align": align,
       "data-lazy": lazyRender || void 0,
       "aria-labelledby": title ? headingId : void 0,
-      children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "uipack-web-section__inner", children: [
-        (eyebrow || title || intro) && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "uipack-web-section__head", children: [
-          eyebrow && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Eyebrow, { children: eyebrow }),
-          title && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Heading, { level: 2, id: headingId, children: title }),
-          intro && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Body, { children: intro })
+      children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-section__inner", children: [
+        (eyebrow || title || intro) && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-section__head", children: [
+          eyebrow && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Eyebrow, { children: eyebrow }),
+          title && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Heading, { level: 2, id: headingId, children: title }),
+          intro && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Body, { children: intro })
         ] }),
         children
       ] })
@@ -246,63 +130,24 @@ function Section({ eyebrow, title, intro, children, tone = "default", align = "s
   );
 }
 function FeatureGrid({ features, spotlight = false }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Grid, { as: "ul", className: "uipack-web-features", children: features.map((f) => {
-    const inner = /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-      f.icon && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "uipack-web-feature__icon", children: f.icon }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Heading, { level: 3, size: 1, children: f.href ? /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("a", { href: f.href, children: f.title }) : f.title }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Body, { children: f.body })
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Grid, { as: "ul", className: "uipack-web-features", children: features.map((f) => {
+    const inner = /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
+      f.icon && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-feature__icon", children: f.icon }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Heading, { level: 3, size: 1, children: f.href ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { href: f.href, children: f.title }) : f.title }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Body, { children: f.body })
     ] });
-    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(GridItem, { as: "li", span: [4, 4, 4], children: spotlight ? /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SpotlightCard, { children: inner }) : /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "uipack-web-feature", children: inner }) }, f.title);
+    return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, GridItem, { as: "li", span: [4, 4, 4], children: spotlight ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, SpotlightCard, { children: inner }) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-feature", children: inner }) }, f.title);
   }) });
 }
 
 // src/web/RevealText.tsx
-var import_react5 = require("react");
 
-// src/context.tsx
-var import_react4 = require("react");
 
-// src/env.ts
-var import_react3 = require("react");
-var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-function prefersReducedMotion(win = typeof window === "undefined" ? void 0 : window) {
-  return typeof win?.matchMedia === "function" && win.matchMedia(REDUCED_MOTION_QUERY).matches;
-}
-
-// src/context.tsx
-var noop = () => {
-};
-var FigureMotionContext = (0, import_react4.createContext)({
-  playing: true,
-  reduced: false,
-  cycle: 0,
-  toggle: noop,
-  replay: noop
-});
-function usePrefersReducedMotion() {
-  const [reduced, setReduced] = (0, import_react4.useState)(false);
-  (0, import_react4.useEffect)(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const mq = window.matchMedia(REDUCED_MOTION_QUERY);
-    const onChange = (e) => setReduced(e.matches);
-    setReduced(mq.matches);
-    if (typeof mq.addEventListener === "function") {
-      mq.addEventListener("change", onChange);
-      return () => mq.removeEventListener("change", onChange);
-    }
-    mq.addListener(onChange);
-    return () => mq.removeListener(onChange);
-  }, []);
-  return reduced;
-}
-
-// src/web/RevealText.tsx
-var import_jsx_runtime7 = require("react/jsx-runtime");
 function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger = 45 }) {
-  const ref2 = (0, import_react5.useRef)(null);
-  const reduced = usePrefersReducedMotion();
-  const [state, setState] = (0, import_react5.useState)("static");
-  (0, import_react5.useEffect)(() => {
+  const ref2 = _react.useRef.call(void 0, null);
+  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
+  const [state, setState] = _react.useState.call(void 0, "static");
+  _react.useEffect.call(void 0, () => {
     const el = ref2.current;
     if (!el || reduced || typeof IntersectionObserver === "undefined") {
       setState("static");
@@ -320,17 +165,17 @@ function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger =
     io.observe(el);
     return () => io.disconnect();
   }, [reduced]);
-  const units = lines ?? text.split(/\s+/).filter(Boolean);
+  const units = _nullishCoalesce(lines, () => ( text.split(/\s+/).filter(Boolean)));
   const byLine = !!lines;
-  return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Tag, { ref: ref2, className: `uipack-web-reveal ${className}`.trim(), "data-state": state, "data-by": byLine ? "line" : "word", children: units.map((u, i) => /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_react5.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "uipack-web-reveal__unit", style: { "--i": i, "--stagger": `${stagger}ms` }, children: u }),
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tag, { ref: ref2, className: `uipack-web-reveal ${className}`.trim(), "data-state": state, "data-by": byLine ? "line" : "word", children: units.map((u, i) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _react.Fragment, { children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-reveal__unit", style: { "--i": i, "--stagger": `${stagger}ms` }, children: u }),
     i < units.length - 1 ? " " : null
   ] }, i)) });
 }
 
 // src/web/motif.tsx
-var import_react6 = require("react");
-var import_jsx_runtime8 = require("react/jsx-runtime");
+
+
 var DEFAULT_STAR_VALUES = [0, 1, 2, 5, 9, 16, 22, 31, 33, 35, 37, 37];
 function curvePath(values, w, h, pad = 0) {
   if (values.length < 2) return `M0 ${h}L${w} ${h}`;
@@ -351,11 +196,11 @@ function curvePath(values, w, h, pad = 0) {
   return d;
 }
 function StarChart({ values = DEFAULT_STAR_VALUES, className = "" }) {
-  const id = (0, import_react6.useId)().replace(/:/g, "");
+  const id = _react.useId.call(void 0, ).replace(/:/g, "");
   const W = 1200;
   const H = 560;
   const line = curvePath(values, W, H, 72);
-  return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
     "svg",
     {
       className: `uipack-web-star ${className}`.trim(),
@@ -364,22 +209,22 @@ function StarChart({ values = DEFAULT_STAR_VALUES, className = "" }) {
       "aria-hidden": "true",
       focusable: "false",
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("defs", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("linearGradient", { id: `${id}-fill`, x1: "0", y1: "0", x2: "0", y2: "1", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("stop", { offset: "0", stopColor: "var(--web-accent)", stopOpacity: "0.42" }),
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("stop", { offset: "0.55", stopColor: "var(--web-accent)", stopOpacity: "0.14" }),
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("stop", { offset: "1", stopColor: "var(--web-accent)", stopOpacity: "0" })
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "defs", { children: [
+          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "linearGradient", { id: `${id}-fill`, x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "stop", { offset: "0", stopColor: "var(--web-accent)", stopOpacity: "0.42" }),
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "stop", { offset: "0.55", stopColor: "var(--web-accent)", stopOpacity: "0.14" }),
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "stop", { offset: "1", stopColor: "var(--web-accent)", stopOpacity: "0" })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("linearGradient", { id: `${id}-line`, x1: "0", y1: "0", x2: "1", y2: "0", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("stop", { offset: "0", stopColor: "var(--web-accent)", stopOpacity: "0" }),
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("stop", { offset: "0.35", stopColor: "var(--web-accent)", stopOpacity: "0.9" }),
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("stop", { offset: "1", stopColor: "var(--web-accent)" })
+          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "linearGradient", { id: `${id}-line`, x1: "0", y1: "0", x2: "1", y2: "0", children: [
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "stop", { offset: "0", stopColor: "var(--web-accent)", stopOpacity: "0" }),
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "stop", { offset: "0.35", stopColor: "var(--web-accent)", stopOpacity: "0.9" }),
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "stop", { offset: "1", stopColor: "var(--web-accent)" })
           ] })
         ] }),
-        [0.25, 0.5, 0.75].map((f) => /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("line", { x1: "0", x2: W, y1: H * f, y2: H * f, className: "uipack-web-star__rule" }, f)),
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: `${line}L${W} ${H}L0 ${H}Z`, fill: `url(#${id}-fill)`, className: "uipack-web-star__area" }),
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: line, fill: "none", stroke: `url(#${id}-line)`, className: "uipack-web-star__glow", pathLength: 1 }),
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: line, fill: "none", stroke: `url(#${id}-line)`, className: "uipack-web-star__line", pathLength: 1 })
+        [0.25, 0.5, 0.75].map((f) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { x1: "0", x2: W, y1: H * f, y2: H * f, className: "uipack-web-star__rule" }, f)),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { d: `${line}L${W} ${H}L0 ${H}Z`, fill: `url(#${id}-fill)`, className: "uipack-web-star__area" }),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { d: line, fill: "none", stroke: `url(#${id}-line)`, className: "uipack-web-star__glow", pathLength: 1 }),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { d: line, fill: "none", stroke: `url(#${id}-line)`, className: "uipack-web-star__line", pathLength: 1 })
       ]
     }
   );
@@ -391,52 +236,52 @@ function RhymeIcon({ at = 0.5, values = DEFAULT_STAR_VALUES, size = 40 }) {
   const idx = Math.round(Math.max(0, Math.min(1, at)) * (values.length - 1));
   const cx = 6 + idx / (values.length - 1) * 28;
   const cy = 10 + 2 + (1 - (values[idx] - min) / span) * 16;
-  return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("svg", { className: "uipack-web-rhyme", viewBox: "0 0 40 40", width: size, height: size, "aria-hidden": "true", focusable: "false", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("rect", { x: "0.5", y: "0.5", width: "39", height: "39", rx: "10" }),
-    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d, transform: "translate(6 10)" }),
-    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("line", { x1: cx, x2: cx, y1: cy, y2: "32" }),
-    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("circle", { cx, cy, r: "3" })
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "svg", { className: "uipack-web-rhyme", viewBox: "0 0 40 40", width: size, height: size, "aria-hidden": "true", focusable: "false", children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "rect", { x: "0.5", y: "0.5", width: "39", height: "39", rx: "10" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { d, transform: "translate(6 10)" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { x1: cx, x2: cx, y1: cy, y2: "32" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "circle", { cx, cy, r: "3" })
   ] });
 }
 function GrainOverlay({ opacity = 0.07, frequency = 0.8 }) {
-  const id = (0, import_react6.useId)().replace(/:/g, "");
-  return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("svg", { className: "uipack-web-noise", "aria-hidden": "true", focusable: "false", style: { opacity }, "data-bg": "grain", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("filter", { id: `${id}-n`, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("feTurbulence", { type: "fractalNoise", baseFrequency: frequency, numOctaves: "3", stitchTiles: "stitch" }),
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("feColorMatrix", { type: "saturate", values: "0" })
+  const id = _react.useId.call(void 0, ).replace(/:/g, "");
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "svg", { className: "uipack-web-noise", "aria-hidden": "true", focusable: "false", style: { opacity }, "data-bg": "grain", children: [
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "filter", { id: `${id}-n`, children: [
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "feTurbulence", { type: "fractalNoise", baseFrequency: frequency, numOctaves: "3", stitchTiles: "stitch" }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "feColorMatrix", { type: "saturate", values: "0" })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("rect", { width: "100%", height: "100%", filter: `url(#${id}-n)` })
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "rect", { width: "100%", height: "100%", filter: `url(#${id}-n)` })
   ] });
 }
 var NoiseLayer = GrainOverlay;
 
 // src/web/StarHero.tsx
-var import_jsx_runtime9 = require("react/jsx-runtime");
+
 function StarHero({ eyebrow, title, subtitle, actions, visual, values, children, noise = 0.07, headingId }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("section", { className: "uipack-web-hero", "aria-labelledby": headingId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "uipack-web-hero__visual", children: visual ?? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(StarChart, { values }) }),
-    noise > 0 && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(NoiseLayer, { opacity: noise }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "uipack-web-hero__copy", children: [
-      eyebrow && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Eyebrow, { children: eyebrow }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Heading, { level: 1, id: headingId, children: title }),
-      subtitle && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Subhead, { children: subtitle }),
-      actions && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "uipack-web-hero__actions", children: actions })
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "section", { className: "uipack-web-hero", "aria-labelledby": headingId, children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-hero__visual", children: _nullishCoalesce(visual, () => ( /* @__PURE__ */ _jsxruntime.jsx.call(void 0, StarChart, { values }))) }),
+    noise > 0 && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, NoiseLayer, { opacity: noise }),
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-hero__copy", children: [
+      eyebrow && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Eyebrow, { children: eyebrow }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Heading, { level: 1, id: headingId, children: title }),
+      subtitle && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Subhead, { children: subtitle }),
+      actions && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-hero__actions", children: actions })
     ] }),
-    children && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "uipack-web-hero__proof", children })
+    children && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-hero__proof", children })
   ] });
 }
 
 // src/web/DemoPlayer.tsx
-var import_react7 = require("react");
+
 
 // src/web/timeline.ts
 var DEFAULT_TIMING = { leadMs: 450, typeMs: 34, actionMs: 720, holdMs: 1800 };
 var toAction = (a) => typeof a === "string" ? { label: a } : a;
 function parts(step, t) {
-  const typing = (step.prompt?.length ?? 0) * t.typeMs;
-  const acting = (step.actions?.length ?? 0) * t.actionMs;
+  const typing = (_nullishCoalesce(_optionalChain([step, 'access', _13 => _13.prompt, 'optionalAccess', _14 => _14.length]), () => ( 0))) * t.typeMs;
+  const acting = (_nullishCoalesce(_optionalChain([step, 'access', _15 => _15.actions, 'optionalAccess', _16 => _16.length]), () => ( 0))) * t.actionMs;
   const settle = t.leadMs + typing + acting;
-  return { typing, acting, settle, total: settle + (step.hold ?? t.holdMs) };
+  return { typing, acting, settle, total: settle + (_nullishCoalesce(step.hold, () => ( t.holdMs))) };
 }
 function stepStart(steps, i, timing = DEFAULT_TIMING) {
   let at = 0;
@@ -453,7 +298,7 @@ function demoCycle(steps, timing = DEFAULT_TIMING) {
 function metricThrough(steps, step, actionsDone, settled, initial) {
   let metric = initial;
   for (let k = 0; k <= step && k < steps.length; k++) {
-    const actions = (steps[k].actions ?? []).map(toAction);
+    const actions = (_nullishCoalesce(steps[k].actions, () => ( []))).map(toAction);
     const n = k < step ? actions.length : actionsDone;
     for (let a = 0; a < n; a++) if (actions[a].metric !== void 0) metric = actions[a].metric;
     if ((k < step || settled) && steps[k].metric !== void 0) metric = steps[k].metric;
@@ -472,8 +317,8 @@ function demoFrame(steps, elapsed, timing = DEFAULT_TIMING, initialMetric) {
   }
   const s = steps[step];
   const p = parts(s, timing);
-  const promptLen = s.prompt?.length ?? 0;
-  const nActions = s.actions?.length ?? 0;
+  const promptLen = _nullishCoalesce(_optionalChain([s, 'access', _17 => _17.prompt, 'optionalAccess', _18 => _18.length]), () => ( 0));
+  const nActions = _nullishCoalesce(_optionalChain([s, 'access', _19 => _19.actions, 'optionalAccess', _20 => _20.length]), () => ( 0));
   const typed = Math.max(0, Math.min(promptLen, Math.floor((local - timing.leadMs) / timing.typeMs) + 1));
   const typedEnd = timing.leadMs + p.typing;
   const actionsDone = local < typedEnd ? 0 : Math.min(nActions, Math.floor((local - typedEnd) / timing.actionMs));
@@ -489,7 +334,7 @@ function demoFrame(steps, elapsed, timing = DEFAULT_TIMING, initialMetric) {
 }
 
 // src/web/DemoPlayer.tsx
-var import_jsx_runtime10 = require("react/jsx-runtime");
+
 var TICK_MS = 40;
 function lastWith(steps, upTo, pick) {
   for (let k = upTo; k >= 0; k--) {
@@ -512,17 +357,17 @@ function DemoPlayer({
   className = "",
   onStepChange
 }) {
-  const timing = (0, import_react7.useMemo)(() => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
-  const reduced = usePrefersReducedMotion();
-  const rootRef = (0, import_react7.useRef)(null);
-  const tabsRef = (0, import_react7.useRef)(null);
-  const [elapsed, setElapsed] = (0, import_react7.useState)(0);
-  const [playing, setPlaying] = (0, import_react7.useState)(autoplay);
-  const [inView, setInView] = (0, import_react7.useState)(false);
-  const id = (0, import_react7.useId)();
+  const timing = _react.useMemo.call(void 0, () => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
+  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
+  const rootRef = _react.useRef.call(void 0, null);
+  const tabsRef = _react.useRef.call(void 0, null);
+  const [elapsed, setElapsed] = _react.useState.call(void 0, 0);
+  const [playing, setPlaying] = _react.useState.call(void 0, autoplay);
+  const [inView, setInView] = _react.useState.call(void 0, false);
+  const id = _react.useId.call(void 0, );
   const end = demoEnd(steps, timing);
   const cycle = demoCycle(steps, timing);
-  (0, import_react7.useEffect)(() => {
+  _react.useEffect.call(void 0, () => {
     const el = rootRef.current;
     if (!el || typeof IntersectionObserver === "undefined") {
       setInView(true);
@@ -533,7 +378,7 @@ function DemoPlayer({
     return () => io.disconnect();
   }, []);
   const running = playing && inView && !reduced;
-  (0, import_react7.useEffect)(() => {
+  _react.useEffect.call(void 0, () => {
     if (!running) return;
     let last = Date.now();
     const timer = setInterval(() => {
@@ -551,14 +396,14 @@ function DemoPlayer({
   const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
   const frame = reduced ? finalFrame : demoFrame(steps, elapsed, timing, initialMetric);
   const finished = !loop && frame.done;
-  (0, import_react7.useEffect)(() => {
+  _react.useEffect.call(void 0, () => {
     if (finished) setPlaying(false);
   }, [finished]);
   const step = steps[frame.step];
-  (0, import_react7.useEffect)(() => {
-    onStepChange?.(frame.step);
+  _react.useEffect.call(void 0, () => {
+    _optionalChain([onStepChange, 'optionalCall', _21 => _21(frame.step)]);
   }, [frame.step]);
-  const seek = (0, import_react7.useCallback)(
+  const seek = _react.useCallback.call(void 0, 
     (i) => {
       setElapsed(stepStart(steps, i, timing));
       setPlaying(true);
@@ -579,20 +424,20 @@ function DemoPlayer({
     if (next === void 0) return;
     e.preventDefault();
     seek(next);
-    tabsRef.current?.querySelectorAll("button")[next]?.focus();
+    _optionalChain([tabsRef, 'access', _22 => _22.current, 'optionalAccess', _23 => _23.querySelectorAll, 'call', _24 => _24("button"), 'access', _25 => _25[next], 'optionalAccess', _26 => _26.focus, 'call', _27 => _27()]);
   };
-  const promptStep = step?.prompt ? frame.step : lastWith(steps, frame.step, (s) => s.prompt ? steps.indexOf(s) : void 0);
+  const promptStep = _optionalChain([step, 'optionalAccess', _28 => _28.prompt]) ? frame.step : lastWith(steps, frame.step, (s) => s.prompt ? steps.indexOf(s) : void 0);
   const promptText = promptStep === void 0 ? "" : steps[promptStep].prompt;
   const visiblePrompt = promptStep === frame.step ? promptText.slice(0, frame.typed) : promptText;
   const typing = !reduced && promptStep === frame.step && frame.typed < promptText.length;
-  const actionStep = step?.actions?.length ? frame.step : lastWith(steps, frame.step, (s) => s.actions?.length ? steps.indexOf(s) : void 0);
-  const actions = actionStep === void 0 ? [] : (steps[actionStep].actions ?? []).map(toAction);
+  const actionStep = _optionalChain([step, 'optionalAccess', _29 => _29.actions, 'optionalAccess', _30 => _30.length]) ? frame.step : lastWith(steps, frame.step, (s) => _optionalChain([s, 'access', _31 => _31.actions, 'optionalAccess', _32 => _32.length]) ? steps.indexOf(s) : void 0);
+  const actions = actionStep === void 0 ? [] : (_nullishCoalesce(steps[actionStep].actions, () => ( []))).map(toAction);
   const isCurrent = actionStep === frame.step;
   const doneCount = isCurrent ? frame.actionsDone : actions.length;
-  const promptDone = !step?.prompt || frame.typed >= (step.prompt?.length ?? 0);
+  const promptDone = !_optionalChain([step, 'optionalAccess', _33 => _33.prompt]) || frame.typed >= (_nullishCoalesce(_optionalChain([step, 'access', _34 => _34.prompt, 'optionalAccess', _35 => _35.length]), () => ( 0)));
   const runningIdx = isCurrent && promptDone && !frame.settled && frame.actionsDone < actions.length ? frame.actionsDone : -1;
-  const screen = lastWith(steps, frame.settled ? frame.step : frame.step - 1, (s) => s.screen ?? void 0);
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(
+  const screen = lastWith(steps, frame.settled ? frame.step : frame.step - 1, (s) => _nullishCoalesce(s.screen, () => ( void 0)));
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
     "section",
     {
       ref: rootRef,
@@ -601,66 +446,66 @@ function DemoPlayer({
       "data-state": reduced ? "static" : finished ? "finished" : running ? "playing" : "paused",
       "data-step": frame.step,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "uipack-web-demo__window", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "uipack-web-demo__chrome", "aria-hidden": "true", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("span", { className: "uipack-web-demo__dots", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("i", {}),
-              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("i", {}),
-              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("i", {})
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-demo__window", children: [
+          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-demo__chrome", "aria-hidden": "true", children: [
+            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-web-demo__dots", children: [
+              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "i", {}),
+              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "i", {}),
+              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "i", {})
             ] }),
-            address && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "uipack-web-demo__address", children: address })
+            address && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__address", children: address })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "uipack-web-demo__body", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "uipack-web-demo__work", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "uipack-web-demo__composer", "data-typing": typing || void 0, children: [
-                /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "uipack-web-demo__sr", children: promptText }),
-                /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { "aria-hidden": "true", className: visiblePrompt ? "" : "uipack-web-demo__placeholder", children: visiblePrompt || placeholder }),
-                typing && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "uipack-web-demo__caret", "aria-hidden": "true" })
+          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-demo__body", children: [
+            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-demo__work", children: [
+              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-demo__composer", "data-typing": typing || void 0, children: [
+                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__sr", children: promptText }),
+                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "aria-hidden": "true", className: visiblePrompt ? "" : "uipack-web-demo__placeholder", children: visiblePrompt || placeholder }),
+                typing && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__caret", "aria-hidden": "true" })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("ol", { className: "uipack-web-demo__log", "aria-label": "Agent actions", children: actions.map((a, i) => {
+              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ol", { className: "uipack-web-demo__log", "aria-label": "Agent actions", children: actions.map((a, i) => {
                 const state = i < doneCount ? "done" : i === runningIdx ? "running" : "pending";
                 if (state === "pending") return null;
-                return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("li", { "data-state": state, children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "uipack-web-demo__tick", "aria-hidden": "true", children: state === "done" ? /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("svg", { viewBox: "0 0 16 16", children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("path", { d: "M3.5 8.5l3 3 6-7" }) }) : null }),
-                  /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: a.label }),
-                  a.detail && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("small", { children: a.detail }),
-                  state === "running" && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "uipack-web-demo__sr", children: " (in progress)" })
+                return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { "data-state": state, children: [
+                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__tick", "aria-hidden": "true", children: state === "done" ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "svg", { viewBox: "0 0 16 16", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { d: "M3.5 8.5l3 3 6-7" }) }) : null }),
+                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: a.label }),
+                  a.detail && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "small", { children: a.detail }),
+                  state === "running" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__sr", children: " (in progress)" })
                 ] }, `${actionStep}-${i}`);
               }) })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "uipack-web-demo__result", children: [
-              frame.metric !== void 0 && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { className: "uipack-web-demo__metric", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("strong", { "data-testid": "demo-metric", children: frame.metric }, frame.metric),
-                metricLabel && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: metricLabel })
+            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-demo__result", children: [
+              frame.metric !== void 0 && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-web-demo__metric", children: [
+                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "strong", { "data-testid": "demo-metric", children: frame.metric }, frame.metric),
+                metricLabel && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: metricLabel })
               ] }),
-              screen !== void 0 && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "uipack-web-demo__screen", children: screen }, frame.settled ? frame.step : frame.step - 1)
+              screen !== void 0 && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-demo__screen", children: screen }, frame.settled ? frame.step : frame.step - 1)
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: reduced ? void 0 : "uipack-web-demo__sr", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("ol", { className: "uipack-web-demo__static", "aria-label": reduced ? "Demo steps" : "Demo transcript", children: steps.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("li", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
-            /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("strong", { children: [
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: reduced ? void 0 : "uipack-web-demo__sr", children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ol", { className: "uipack-web-demo__static", "aria-label": reduced ? "Demo steps" : "Demo transcript", children: steps.map((s, i) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { children: [
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
+            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { children: [
+              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "strong", { children: [
                 s.label,
                 " \xB7 ",
                 s.title
               ] }),
-              s.prompt && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { children: [
+              s.prompt && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { children: [
                 "\u201C",
                 s.prompt,
                 "\u201D"
               ] }),
-              !!s.actions?.length && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("ul", { children: s.actions.map(toAction).map((a) => /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("li", { children: [
+              !!_optionalChain([s, 'access', _36 => _36.actions, 'optionalAccess', _37 => _37.length]) && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { children: s.actions.map(toAction).map((a) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { children: [
                 a.label,
                 a.detail ? ` (${a.detail})` : ""
               ] }, a.label)) })
             ] })
           ] }, s.id)) }),
-          !reduced && finalFrame.metric !== void 0 && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { children: `Result: ${finalFrame.metric}${metricLabel ? ` ${metricLabel}` : ""}.` })
+          !reduced && finalFrame.metric !== void 0 && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: `Result: ${finalFrame.metric}${metricLabel ? ` ${metricLabel}` : ""}.` })
         ] }),
-        !reduced && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "uipack-web-demo__controls", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "uipack-web-demo__tabs", role: "group", "aria-label": "Demo steps", ref: tabsRef, onKeyDown: onTabKey, children: steps.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(
+        !reduced && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-demo__controls", children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-demo__tabs", role: "group", "aria-label": "Demo steps", ref: tabsRef, onKeyDown: onTabKey, children: steps.map((s, i) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
             "button",
             {
               type: "button",
@@ -668,28 +513,28 @@ function DemoPlayer({
               "aria-controls": `${id}-caption`,
               onClick: () => seek(i),
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
+                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
                 " ",
                 s.label
               ]
             },
             s.id
           )) }),
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "uipack-web-demo__buttons", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { type: "button", onClick: toggle, children: playing && !finished ? "Pause" : "Play" }),
-            /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { type: "button", onClick: replay, children: "Replay" }),
+          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-demo__buttons", children: [
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: toggle, children: playing && !finished ? "Pause" : "Play" }),
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: replay, children: "Replay" }),
             cta
           ] })
         ] }),
-        reduced && cta && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "uipack-web-demo__buttons", children: cta }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { className: "uipack-web-demo__caption", id: `${id}-caption`, "aria-live": "polite", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("span", { className: "uipack-web-demo__num", children: [
+        reduced && cta && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-demo__buttons", children: cta }),
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-web-demo__caption", id: `${id}-caption`, "aria-live": "polite", children: [
+          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-web-demo__num", children: [
             String(frame.step + 1).padStart(2, "0"),
             " / ",
             String(steps.length).padStart(2, "0")
           ] }),
           " ",
-          step?.title
+          _optionalChain([step, 'optionalAccess', _38 => _38.title])
         ] })
       ]
     }
@@ -726,10 +571,10 @@ var SPACE = [0, 8, 16, 24, 32, 48, 64, 96, 128];
 var GRID_COLUMNS = { wide: 12, medium: 8, narrow: 4 };
 
 // src/web/hooks.ts
-var import_react8 = require("react");
+
 function useInView(ref2, { threshold = 0, once = false, rootMargin } = {}) {
-  const [inView, setInView] = (0, import_react8.useState)(false);
-  (0, import_react8.useEffect)(() => {
+  const [inView, setInView] = _react.useState.call(void 0, false);
+  _react.useEffect.call(void 0, () => {
     const el = ref2.current;
     if (!el || typeof IntersectionObserver === "undefined") {
       setInView(true);
@@ -754,8 +599,8 @@ function scrollProgressOf(rect, viewport) {
 }
 function useScrollProgress(ref2) {
   const inView = useInView(ref2);
-  const [progress, setProgress] = (0, import_react8.useState)(0);
-  (0, import_react8.useEffect)(() => {
+  const [progress, setProgress] = _react.useState.call(void 0, 0);
+  _react.useEffect.call(void 0, () => {
     const el = ref2.current;
     if (!el || !inView || typeof window === "undefined") return;
     let frame = 0;
@@ -779,8 +624,8 @@ function useScrollProgress(ref2) {
   return progress;
 }
 function useFinePointer() {
-  const [fine, setFine] = (0, import_react8.useState)(false);
-  (0, import_react8.useEffect)(() => {
+  const [fine, setFine] = _react.useState.call(void 0, false);
+  _react.useEffect.call(void 0, () => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
     setFine(window.matchMedia("(hover: hover) and (pointer: fine)").matches);
   }, []);
@@ -788,12 +633,12 @@ function useFinePointer() {
 }
 function transitionDocument() {
   const doc = typeof document === "undefined" ? void 0 : document;
-  const reduced = prefersReducedMotion();
-  return doc?.startViewTransition && !reduced ? doc : void 0;
+  const reduced = _chunkJ7BYXE6Qcjs.prefersReducedMotion.call(void 0, );
+  return _optionalChain([doc, 'optionalAccess', _39 => _39.startViewTransition]) && !reduced ? doc : void 0;
 }
 function withViewTransition(update) {
   const doc = transitionDocument();
-  if (!doc?.startViewTransition) {
+  if (!_optionalChain([doc, 'optionalAccess', _40 => _40.startViewTransition])) {
     update();
     return Promise.resolve();
   }
@@ -870,7 +715,7 @@ ${keyframes}
 }
 function withPaintTransition(update, { duration = 750 } = {}) {
   const doc = transitionDocument();
-  if (!doc?.startViewTransition) {
+  if (!_optionalChain([doc, 'optionalAccess', _41 => _41.startViewTransition])) {
     update();
     return Promise.resolve();
   }
@@ -895,18 +740,18 @@ function withPaintTransition(update, { duration = 750 } = {}) {
 }
 
 // src/web/backgrounds.tsx
-var import_react9 = require("react");
-var import_jsx_runtime11 = require("react/jsx-runtime");
+
+
 function BackgroundFrame({ background, children, as: Tag = "div", className = "", style }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(Tag, { className: `uipack-web-bgframe ${className}`.trim(), style, children: [
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, Tag, { className: `uipack-web-bgframe ${className}`.trim(), style, children: [
     background,
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "uipack-web-bgframe__content", children })
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-bgframe__content", children })
   ] });
 }
 function useParentSpotlight(ref2, enabled) {
-  (0, import_react9.useEffect)(() => {
+  _react.useEffect.call(void 0, () => {
     const el = ref2.current;
-    const host = el?.parentElement;
+    const host = _optionalChain([el, 'optionalAccess', _42 => _42.parentElement]);
     if (!el || !host || !enabled) return;
     const move = (e) => {
       if (e.pointerType === "touch") return;
@@ -925,11 +770,11 @@ function useParentSpotlight(ref2, enabled) {
   }, [ref2, enabled]);
 }
 function GridBackground({ variant, size = 24, fade = true, spotlight = false }) {
-  const ref2 = (0, import_react9.useRef)(null);
-  const reduced = usePrefersReducedMotion();
+  const ref2 = _react.useRef.call(void 0, null);
+  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
   const fine = useFinePointer();
   useParentSpotlight(ref2, spotlight && fine && !reduced);
-  return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
     "div",
     {
       ref: ref2,
@@ -938,20 +783,20 @@ function GridBackground({ variant, size = 24, fade = true, spotlight = false }) 
       "data-fade": fade || void 0,
       "aria-hidden": "true",
       style: { "--cell": `${size}px` },
-      children: spotlight && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "uipack-web-gridbg__lit" })
+      children: spotlight && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-gridbg__lit" })
     }
   );
 }
 function DotGrid(props) {
-  return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(GridBackground, { variant: "dots", ...props });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, GridBackground, { variant: "dots", ...props });
 }
 function LineGrid(props) {
-  return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(GridBackground, { variant: "lines", ...props });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, GridBackground, { variant: "lines", ...props });
 }
 function Aurora({ duration = 24 }) {
-  const ref2 = (0, import_react9.useRef)(null);
+  const ref2 = _react.useRef.call(void 0, null);
   const inView = useInView(ref2);
-  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
     "div",
     {
       ref: ref2,
@@ -961,18 +806,18 @@ function Aurora({ duration = 24 }) {
       "aria-hidden": "true",
       style: { "--aurora-duration": `${duration}s` },
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("i", {}),
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("i", {}),
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("i", {})
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "i", {}),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "i", {}),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "i", {})
       ]
     }
   );
 }
 function MaskedStar({ values, flip = "none", clear = "center" }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "uipack-web-maskedstar", "data-bg": "star", "data-flip": flip, "data-clear": clear, "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(StarChart, { values }) });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-maskedstar", "data-bg": "star", "data-flip": flip, "data-clear": clear, "aria-hidden": "true", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, StarChart, { values }) });
 }
 function BeamLines({ size = 48, count = 5, duration = 6 }) {
-  const ref2 = (0, import_react9.useRef)(null);
+  const ref2 = _react.useRef.call(void 0, null);
   const inView = useInView(ref2);
   const beams = Array.from({ length: count }, (_, i) => ({
     axis: i % 2 === 0 ? "h" : "v",
@@ -980,7 +825,7 @@ function BeamLines({ size = 48, count = 5, duration = 6 }) {
     delay: -(i * duration / count) * 1.7,
     dur: duration * (0.8 + i * 7 % 5 / 10)
   }));
-  return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
     "div",
     {
       ref: ref2,
@@ -989,7 +834,7 @@ function BeamLines({ size = 48, count = 5, duration = 6 }) {
       "data-paused": !inView || void 0,
       "aria-hidden": "true",
       style: { "--cell": `${size}px` },
-      children: beams.map((b, i) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+      children: beams.map((b, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
         "i",
         {
           "data-axis": b.axis,
@@ -1005,14 +850,14 @@ function BeamLines({ size = 48, count = 5, duration = 6 }) {
   );
 }
 function GutterSide({ side }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "uipack-web-gutters__side", "data-side": side, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "uipack-web-gutters__drift" }),
-    [0, 1, 2].map((i) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "uipack-web-gutters__signal", style: { "--i": i } }, i))
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-gutters__side", "data-side": side, children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-gutters__drift" }),
+    [0, 1, 2].map((i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-gutters__signal", style: { "--i": i } }, i))
   ] });
 }
 function DriftingGutters({ contentWidth = 1120, top = 72, minViewport = 1280, drift = 48 }) {
   const custom = minViewport !== 1280;
-  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
     "div",
     {
       className: "uipack-web-gutters",
@@ -1025,22 +870,26 @@ function DriftingGutters({ contentWidth = 1120, top = 72, minViewport = 1280, dr
         "--gutters-drift": `${drift}s`
       },
       children: [
-        custom && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("style", { children: `@media (min-width: ${minViewport}px) { .uipack-web-gutters[data-min="${minViewport}"] { display: block; } }` }),
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(GutterSide, { side: "left" }),
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(GutterSide, { side: "right" })
+        custom && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "style", { children: `@media (min-width: ${minViewport}px) { .uipack-web-gutters[data-min="${minViewport}"] { display: block; } }` }),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, GutterSide, { side: "left" }),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, GutterSide, { side: "right" })
       ]
     }
   );
 }
 
 // src/web/motion.tsx
-var import_react10 = require("react");
-var import_jsx_runtime12 = require("react/jsx-runtime");
+
+
+
+
+
+
 function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div", className = "" }) {
-  const ref2 = (0, import_react10.useRef)(null);
-  const reduced = usePrefersReducedMotion();
-  const [state, setState] = (0, import_react10.useState)("static");
-  (0, import_react10.useEffect)(() => {
+  const ref2 = _react.useRef.call(void 0, null);
+  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
+  const [state, setState] = _react.useState.call(void 0, "static");
+  _react.useEffect.call(void 0, () => {
     const el = ref2.current;
     if (!el) return;
     Array.from(el.children).forEach((c, i) => c.style.setProperty("--i", String(i)));
@@ -1060,7 +909,7 @@ function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div", class
     io.observe(el);
     return () => io.disconnect();
   }, [reduced]);
-  return /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
     Tag,
     {
       ref: ref2,
@@ -1085,18 +934,18 @@ function scrambleFrame(text, t, mode, seed = 0) {
   return out;
 }
 function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "span", className = "" }) {
-  const ref2 = (0, import_react10.useRef)(null);
-  const reduced = usePrefersReducedMotion();
+  const ref2 = _react.useRef.call(void 0, null);
+  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
   const inView = useInView(ref2, { once: true, threshold: 0.5 });
-  const [t, setT] = (0, import_react10.useState)(1);
-  const [tick, setTick] = (0, import_react10.useState)(0);
-  const [armed, setArmed] = (0, import_react10.useState)(false);
-  const started = (0, import_react10.useRef)(false);
-  (0, import_react10.useEffect)(() => {
+  const [t, setT] = _react.useState.call(void 0, 1);
+  const [tick, setTick] = _react.useState.call(void 0, 0);
+  const [armed, setArmed] = _react.useState.call(void 0, false);
+  const started = _react.useRef.call(void 0, false);
+  _react.useEffect.call(void 0, () => {
     setArmed(true);
     if (typeof IntersectionObserver !== "undefined" && !started.current) setT(0);
   }, []);
-  (0, import_react10.useEffect)(() => {
+  _react.useEffect.call(void 0, () => {
     if (reduced || !inView || started.current) return;
     started.current = true;
     const start = Date.now();
@@ -1110,7 +959,7 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
     return () => clearInterval(timer);
   }, [reduced, inView, duration]);
   const shown = reduced || t >= 1 ? text : scrambleFrame(text, t, mode, tick);
-  return /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
     Tag,
     {
       ref: ref2,
@@ -1119,10 +968,10 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
       "data-done": shown === text || void 0,
       "data-armed": armed || void 0,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: "uipack-web-scramble__ghost", children: text }),
-        armed && /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("span", { className: "uipack-web-scramble__live", "aria-hidden": "true", children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-scramble__ghost", children: text }),
+        armed && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-web-scramble__live", "aria-hidden": "true", children: [
           shown,
-          mode === "type" && shown !== text && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: "uipack-web-demo__caret" })
+          mode === "type" && shown !== text && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-demo__caret" })
         ] })
       ]
     }
@@ -1130,17 +979,17 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
 }
 var easeOut = (t) => 1 - Math.pow(1 - t, 3);
 function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix = "", suffix = "", className = "", face = "display" }) {
-  const ref2 = (0, import_react10.useRef)(null);
-  const reduced = usePrefersReducedMotion();
+  const ref2 = _react.useRef.call(void 0, null);
+  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
   const inView = useInView(ref2, { once: true, threshold: 0.6 });
-  const [current, setCurrent] = (0, import_react10.useState)(value);
-  const [armed, setArmed] = (0, import_react10.useState)(false);
-  const started = (0, import_react10.useRef)(false);
-  (0, import_react10.useEffect)(() => {
+  const [current, setCurrent] = _react.useState.call(void 0, value);
+  const [armed, setArmed] = _react.useState.call(void 0, false);
+  const started = _react.useRef.call(void 0, false);
+  _react.useEffect.call(void 0, () => {
     setArmed(true);
     if (typeof IntersectionObserver !== "undefined" && !started.current) setCurrent(from);
   }, [from]);
-  (0, import_react10.useEffect)(() => {
+  _react.useEffect.call(void 0, () => {
     if (reduced || !inView || started.current) return;
     started.current = true;
     const start = Date.now();
@@ -1152,27 +1001,27 @@ function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix
     }, 32);
     return () => clearInterval(timer);
   }, [reduced, inView, from, value, duration]);
-  const fmt = new Intl.NumberFormat(locale, format ?? { maximumFractionDigits: 0 });
+  const fmt = new Intl.NumberFormat(locale, _nullishCoalesce(format, () => ( { maximumFractionDigits: 0 })));
   const final = `${prefix}${fmt.format(value)}${suffix}`;
   const live = `${prefix}${fmt.format(reduced ? value : current)}${suffix}`;
-  return /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("span", { ref: ref2, className: `uipack-web-ticker ${className}`.trim(), "data-face": face, "data-armed": armed || void 0, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: "uipack-web-scramble__ghost", children: final }),
-    armed && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: "uipack-web-scramble__live", "aria-hidden": "true", "data-testid": "ticker-live", children: live })
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { ref: ref2, className: `uipack-web-ticker ${className}`.trim(), "data-face": face, "data-armed": armed || void 0, children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-scramble__ghost", children: final }),
+    armed && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-scramble__live", "aria-hidden": "true", "data-testid": "ticker-live", children: live })
   ] });
 }
 function Marquee({ items, label, duration = 30, reverse = false }) {
-  const ref2 = (0, import_react10.useRef)(null);
-  const copyRef = (0, import_react10.useRef)(null);
+  const ref2 = _react.useRef.call(void 0, null);
+  const copyRef = _react.useRef.call(void 0, null);
   const inView = useInView(ref2);
-  const reduced = usePrefersReducedMotion();
-  const [paused, setPaused] = (0, import_react10.useState)(false);
-  const [mounted, setMounted] = (0, import_react10.useState)(false);
-  (0, import_react10.useEffect)(() => setMounted(true), []);
-  (0, import_react10.useEffect)(() => {
-    copyRef.current?.setAttribute("inert", "");
+  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
+  const [paused, setPaused] = _react.useState.call(void 0, false);
+  const [mounted, setMounted] = _react.useState.call(void 0, false);
+  _react.useEffect.call(void 0, () => setMounted(true), []);
+  _react.useEffect.call(void 0, () => {
+    _optionalChain([copyRef, 'access', _43 => _43.current, 'optionalAccess', _44 => _44.setAttribute, 'call', _45 => _45("inert", "")]);
   }, [reduced, mounted]);
-  const list = (copy) => /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("ul", { className: "uipack-web-marquee__list", ref: copy ? copyRef : void 0, "aria-hidden": copy || void 0, children: items.map((item, i) => /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("li", { children: item }, i)) });
-  return /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(
+  const list = (copy) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { className: "uipack-web-marquee__list", ref: copy ? copyRef : void 0, "aria-hidden": copy || void 0, children: items.map((item, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "li", { children: item }, i)) });
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
     "div",
     {
       ref: ref2,
@@ -1184,18 +1033,18 @@ function Marquee({ items, label, duration = 30, reverse = false }) {
       "data-reverse": reverse || void 0,
       style: { "--marquee-duration": `${duration}s` },
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "uipack-web-marquee__viewport", children: /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "uipack-web-marquee__track", children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-marquee__viewport", children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-marquee__track", children: [
           list(false),
           mounted && !reduced && list(true)
         ] }) }),
-        !reduced && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("button", { type: "button", className: "uipack-web-marquee__toggle", "aria-pressed": paused, onClick: () => setPaused((p) => !p), children: paused ? "Play" : "Pause" })
+        !reduced && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", className: "uipack-web-marquee__toggle", "aria-pressed": paused, onClick: () => setPaused((p) => !p), children: paused ? "Play" : "Pause" })
       ]
     }
   );
 }
 function useHoverMotion(apply, reset) {
-  const ref2 = (0, import_react10.useRef)(null);
-  const reduced = usePrefersReducedMotion();
+  const ref2 = _react.useRef.call(void 0, null);
+  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
   const onPointerMove = (e) => {
     if (reduced || e.pointerType !== "mouse" && e.pointerType !== "pen") return;
     const el = ref2.current;
@@ -1219,7 +1068,7 @@ function TiltCard({ children, max = 5, href, className = "" }) {
   );
   const cls = `uipack-web-tilt ${className}`.trim();
   const props = { className: cls, onPointerMove, onPointerLeave };
-  return href ? /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("a", { ref: (n) => ref2.current = n, href, ...props, children }) : /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { ref: (n) => ref2.current = n, ...props, children });
+  return href ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { ref: (n) => ref2.current = n, href, ...props, children }) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { ref: (n) => ref2.current = n, ...props, children });
 }
 function MagneticButton({ strength = 6, ...button }) {
   const { ref: ref2, onPointerMove, onPointerLeave } = useHoverMotion(
@@ -1232,12 +1081,12 @@ function MagneticButton({ strength = 6, ...button }) {
       el.style.removeProperty("--pull-y");
     }
   );
-  return /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { ref: (n) => ref2.current = n, className: "uipack-web-magnetic", onPointerMove, onPointerLeave, children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(CtaButton, { ...button }) });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { ref: (n) => ref2.current = n, className: "uipack-web-magnetic", onPointerMove, onPointerLeave, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, CtaButton, { ...button }) });
 }
 var lerp = ([a, b], t) => a + (b - a) * t;
 function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY = [0, 0], opacity = [1, 1], className = "" }) {
-  const ref2 = (0, import_react10.useRef)(null);
-  const reduced = usePrefersReducedMotion();
+  const ref2 = _react.useRef.call(void 0, null);
+  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
   const raw = useScrollProgress(ref2);
   const t = reduced ? 0.5 : raw;
   const style = {
@@ -1246,11 +1095,11 @@ function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY
     "--st-y": `${lerp(translateY, t).toFixed(1)}px`,
     "--st-opacity": lerp(opacity, t).toFixed(3)
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { ref: ref2, className: `uipack-web-scrollx ${className}`.trim(), "data-progress": t.toFixed(2), children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "uipack-web-scrollx__inner", style, children }) });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { ref: ref2, className: `uipack-web-scrollx ${className}`.trim(), "data-progress": t.toFixed(2), children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-scrollx__inner", style, children }) });
 }
 
 // src/web/SmoothScroll.tsx
-var import_react11 = require("react");
+
 function followRate(lerp2) {
   const l = Math.min(0.999, Math.max(1e-3, lerp2));
   return -Math.log(1 - l) * 60;
@@ -1273,7 +1122,7 @@ function normalizeWheel(e, viewport) {
 var clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 var SMOOTH_SCROLL_ATTR = "data-uipack-smooth-scroll";
 var SMOOTH_SCROLL_PREVENT_ATTR = "data-smooth-scroll-prevent";
-var REDUCED = REDUCED_MOTION_QUERY;
+var REDUCED = _chunkJ7BYXE6Qcjs.REDUCED_MOTION_QUERY;
 var SCROLL_KEYS = /* @__PURE__ */ new Set([" ", "PageUp", "PageDown", "ArrowUp", "ArrowDown", "Home", "End"]);
 var FINE = "(hover: hover) and (pointer: fine)";
 var active = null;
@@ -1283,19 +1132,19 @@ var maxScroll = () => Math.max(0, document.documentElement.scrollHeight - window
 function safeQuery(selector) {
   try {
     return document.querySelector(selector);
-  } catch {
+  } catch (e2) {
     return null;
   }
 }
 function resolveTop(target, offset) {
-  if (typeof target === "number") return target - (offset ?? 0);
+  if (typeof target === "number") return target - (_nullishCoalesce(offset, () => ( 0)));
   let el = null;
   if (typeof target === "string") {
     el = target === "#" || target === "#top" ? document.getElementById("top") : safeQuery(target);
     if (!el && (target === "#" || target === "#top")) return 0;
   } else el = target;
   if (!el) return null;
-  const clear = offset ?? (parseFloat(getComputedStyle(el).scrollMarginTop) || 0) + (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0);
+  const clear = _nullishCoalesce(offset, () => ( (parseFloat(getComputedStyle(el).scrollMarginTop) || 0) + (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0)));
   return el.getBoundingClientRect().top + window.scrollY - clear;
 }
 function nativeScrollTo(target, { offset, immediate } = {}) {
@@ -1361,7 +1210,7 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
     frame = 0;
     const dt = last ? Math.min(0.25, (now - last) / 1e3) : 1 / 60;
     last = now;
-    if (aim?.el.isConnected) {
+    if (_optionalChain([aim, 'optionalAccess', _46 => _46.el, 'access', _47 => _47.isConnected])) {
       const y = resolveTop(aim.el, aim.offset);
       if (y !== null) target = y;
     }
@@ -1442,12 +1291,12 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
     let id = url.hash.slice(1);
     try {
       id = decodeURIComponent(id);
-    } catch {
+    } catch (e3) {
     }
     const el = id ? document.getElementById(id) : null;
     if (!el && id && id.toLowerCase() !== "top") return;
     e.preventDefault();
-    controller.scrollTo(el ?? 0);
+    controller.scrollTo(_nullishCoalesce(el, () => ( 0)));
     if (location.hash !== url.hash) history.pushState(history.state, "", url.hash);
     if (el) focusTarget(el);
   };
@@ -1493,7 +1342,7 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
     scrollTo(t, options = {}) {
       if (!enabled) return nativeScrollTo(t, options);
       const el = typeof t === "string" ? safeQuery(t) : typeof t === "number" ? null : t;
-      const y = resolveTop(el ?? t, options.offset);
+      const y = resolveTop(_nullishCoalesce(el, () => ( t)), options.offset);
       if (y === null) return;
       const to = clamp(y, 0, maxScroll());
       if (options.immediate) {
@@ -1533,8 +1382,8 @@ function smoothScrollTo(target, options) {
   else nativeScrollTo(target, options);
 }
 function useSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = true } = {}) {
-  const instance = (0, import_react11.useRef)(null);
-  (0, import_react11.useEffect)(() => {
+  const instance = _react.useRef.call(void 0, null);
+  _react.useEffect.call(void 0, () => {
     const c = createSmoothScroll({ lerp: lerp2, wheelMultiplier, anchors });
     instance.current = c;
     return () => {
@@ -1542,12 +1391,12 @@ function useSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = tru
       if (instance.current === c) instance.current = null;
     };
   }, [lerp2, wheelMultiplier, anchors]);
-  return (0, import_react11.useMemo)(
+  return _react.useMemo.call(void 0, 
     () => ({
       scrollTo: (t, o) => instance.current ? instance.current.scrollTo(t, o) : nativeScrollTo(t, o),
-      stop: () => instance.current?.stop(),
+      stop: () => _optionalChain([instance, 'access', _48 => _48.current, 'optionalAccess', _49 => _49.stop, 'call', _50 => _50()]),
       get enabled() {
-        return instance.current?.enabled ?? false;
+        return _nullishCoalesce(_optionalChain([instance, 'access', _51 => _51.current, 'optionalAccess', _52 => _52.enabled]), () => ( false));
       }
     }),
     []
@@ -1568,7 +1417,7 @@ function pageMeta(o) {
   if (!isAbsolute(o.url)) throw new Error(`pageMeta: url must be absolute (got "${o.url}")`);
   const image = typeof o.image === "string" ? { url: o.image } : o.image;
   const imageUrl = image ? absoluteUrl(image.url, o.url) : void 0;
-  const locale = (o.locale ?? "en_US").replace("-", "_");
+  const locale = (_nullishCoalesce(o.locale, () => ( "en_US"))).replace("-", "_");
   const tags = [
     { tag: "title", text: o.title },
     { tag: "meta", attrs: { name: "description", content: o.description } },
@@ -1576,7 +1425,7 @@ function pageMeta(o) {
   ];
   if (o.robots) tags.push({ tag: "meta", attrs: { name: "robots", content: o.robots } });
   const og = (property, content) => content !== void 0 && content !== "" && tags.push({ tag: "meta", attrs: { property, content: String(content) } });
-  og("og:type", o.type ?? "website");
+  og("og:type", _nullishCoalesce(o.type, () => ( "website")));
   og("og:title", o.title);
   og("og:description", o.description);
   og("og:url", o.url);
@@ -1593,7 +1442,7 @@ function pageMeta(o) {
   tw("twitter:title", o.title);
   tw("twitter:description", o.description);
   tw("twitter:image", imageUrl);
-  tw("twitter:image:alt", image?.alt);
+  tw("twitter:image:alt", _optionalChain([image, 'optionalAccess', _53 => _53.alt]));
   tw("twitter:site", o.twitterSite);
   return tags;
 }
@@ -1611,7 +1460,7 @@ function headTagKey(t) {
   const a = t.attrs;
   if (t.tag === "meta") return a.name ? `meta:name:${a.name}` : a.property ? `meta:property:${a.property}` : `meta:${JSON.stringify(a)}`;
   if (t.tag === "link") return a.rel === "canonical" ? "link:canonical" : `link:${a.rel}:${a.href}`;
-  return `script:${a.id ?? a.type}:${t.text.length}`;
+  return `script:${_nullishCoalesce(a.id, () => ( a.type))}:${t.text.length}`;
 }
 var WEB_FONT_FILES = {
   display: "instrument-serif-latin-400-normal.woff2",
@@ -1642,12 +1491,12 @@ function clean(o) {
   return out;
 }
 function organization(o) {
-  return clean({ "@type": "Organization", "@id": o.id ?? nodeId(o.url, "organization"), name: o.name, url: o.url, logo: o.logo, description: o.description, sameAs: o.sameAs });
+  return clean({ "@type": "Organization", "@id": _nullishCoalesce(o.id, () => ( nodeId(o.url, "organization"))), name: o.name, url: o.url, logo: o.logo, description: o.description, sameAs: o.sameAs });
 }
 function webSite(o) {
   return clean({
     "@type": "WebSite",
-    "@id": o.id ?? nodeId(o.url, "website"),
+    "@id": _nullishCoalesce(o.id, () => ( nodeId(o.url, "website"))),
     name: o.name,
     url: o.url,
     description: o.description,
@@ -1675,8 +1524,8 @@ function offer(o) {
 }
 function softwareApplication(o) {
   return clean({
-    "@type": o.type ?? "SoftwareApplication",
-    "@id": o.id ?? nodeId(o.url, "app"),
+    "@type": _nullishCoalesce(o.type, () => ( "SoftwareApplication")),
+    "@id": _nullishCoalesce(o.id, () => ( nodeId(o.url, "app"))),
     name: o.name,
     description: o.description,
     url: o.url,
@@ -1691,7 +1540,7 @@ function softwareApplication(o) {
 function product(o) {
   return clean({
     "@type": "Product",
-    "@id": o.id ?? nodeId(o.url, "product"),
+    "@id": _nullishCoalesce(o.id, () => ( nodeId(o.url, "product"))),
     name: o.name,
     description: o.description,
     url: o.url,
@@ -1705,7 +1554,7 @@ function product(o) {
 function faqPage(items, { url, id } = {}) {
   return clean({
     "@type": "FAQPage",
-    "@id": id ?? (url ? `${url.split("#")[0]}#faq` : void 0),
+    "@id": _nullishCoalesce(id, () => ( (url ? `${url.split("#")[0]}#faq` : void 0))),
     mainEntity: items.map((i) => ({
       "@type": "Question",
       name: i.question,
@@ -1722,14 +1571,14 @@ function breadcrumbList(items) {
 function article(o) {
   const authors = (Array.isArray(o.author) ? o.author : [o.author]).map((a) => clean({ "@type": "Person", name: a.name, url: a.url }));
   return clean({
-    "@type": o.type ?? "Article",
+    "@type": _nullishCoalesce(o.type, () => ( "Article")),
     headline: o.headline,
     description: o.description,
     url: o.url,
     mainEntityOfPage: o.url,
     image: o.image,
     datePublished: o.datePublished,
-    dateModified: o.dateModified ?? o.datePublished,
+    dateModified: _nullishCoalesce(o.dateModified, () => ( o.datePublished)),
     author: authors.length === 1 ? authors[0] : authors,
     publisher: o.publisher ? ref(o.publisher) : void 0
   });
@@ -1751,20 +1600,20 @@ function slugify(s) {
 }
 
 // src/web/Head.tsx
-var import_react12 = require("react");
-var import_jsx_runtime13 = require("react/jsx-runtime");
+
+
 var REACT_ATTR = { crossorigin: "crossOrigin", "http-equiv": "httpEquiv", charset: "charSet", hreflang: "hrefLang" };
 function toProps(attrs) {
   const out = {};
-  for (const [k, v] of Object.entries(attrs)) out[REACT_ATTR[k] ?? k] = v;
+  for (const [k, v] of Object.entries(attrs)) out[_nullishCoalesce(REACT_ATTR[k], () => ( k))] = v;
   return out;
 }
 function HeadTags({ tags }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(import_jsx_runtime13.Fragment, { children: tags.map((t) => {
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _jsxruntime.Fragment, { children: tags.map((t) => {
     const key = headTagKey(t);
-    if (t.tag === "title") return /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("title", { children: t.text }, key);
-    if (t.tag === "script") return /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("script", { ...toProps(t.attrs), dangerouslySetInnerHTML: { __html: t.text } }, key);
-    return (0, import_react12.createElement)(t.tag, { key, ...toProps(t.attrs) });
+    if (t.tag === "title") return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "title", { children: t.text }, key);
+    if (t.tag === "script") return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "script", { ...toProps(t.attrs), dangerouslySetInnerHTML: { __html: t.text } }, key);
+    return _react.createElement.call(void 0, t.tag, { key, ...toProps(t.attrs) });
   }) });
 }
 var MARK = "data-uipack-head";
@@ -1779,7 +1628,7 @@ function findExisting(t) {
 }
 function useHead(tags) {
   const signature = JSON.stringify(tags);
-  (0, import_react12.useEffect)(() => {
+  _react.useEffect.call(void 0, () => {
     if (typeof document === "undefined") return;
     const undo = [];
     for (const t of JSON.parse(signature)) {
@@ -1810,11 +1659,11 @@ function useHead(tags) {
   }, [signature]);
 }
 function JsonLd({ data, id }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("script", { type: "application/ld+json", id, dangerouslySetInnerHTML: { __html: serializeJsonLd(data) } });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "script", { type: "application/ld+json", id, dangerouslySetInnerHTML: { __html: serializeJsonLd(data) } });
 }
 
 // src/web/FAQ.tsx
-var import_jsx_runtime14 = require("react/jsx-runtime");
+
 var paragraphs = (answer) => answer.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
 function FAQ({
   items,
@@ -1828,22 +1677,22 @@ function FAQ({
   tone,
   lazyRender = false
 }) {
-  const answer = (item) => /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("div", { className: "uipack-web-faq__answer", children: paragraphs(item.answer).map((p, i) => /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("p", { className: "uipack-web-body", "data-emphasis": "medium", children: p }, i)) });
-  const itemId = (item) => item.id ?? `${id}-${slugify(item.question)}`;
-  return /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)(Section, { id, eyebrow, title, intro, tone, lazyRender, className: "uipack-web-faq", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("div", { className: "uipack-web-faq__list", "data-variant": variant, children: items.map(
-      (item) => variant === "accordion" ? /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("details", { className: "uipack-web-faq__item", id: itemId(item), children: [
-        /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("summary", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("span", { className: "uipack-web-faq__q", children: item.question }),
-          /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("span", { className: "uipack-web-faq__icon", "aria-hidden": "true" })
+  const answer = (item) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-faq__answer", children: paragraphs(item.answer).map((p, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack-web-body", "data-emphasis": "medium", children: p }, i)) });
+  const itemId = (item) => _nullishCoalesce(item.id, () => ( `${id}-${slugify(item.question)}`));
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, Section, { id, eyebrow, title, intro, tone, lazyRender, className: "uipack-web-faq", children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-web-faq__list", "data-variant": variant, children: items.map(
+      (item) => variant === "accordion" ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "details", { className: "uipack-web-faq__item", id: itemId(item), children: [
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "summary", { children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-faq__q", children: item.question }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-web-faq__icon", "aria-hidden": "true" })
         ] }),
         answer(item)
-      ] }, item.question) : /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("div", { className: "uipack-web-faq__item", id: itemId(item), children: [
-        /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Heading, { level: 3, size: 1, className: "uipack-web-faq__q", children: item.question }),
+      ] }, item.question) : /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-web-faq__item", id: itemId(item), children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Heading, { level: 3, size: 1, className: "uipack-web-faq__q", children: item.question }),
         answer(item)
       ] }, item.question)
     ) }),
-    jsonLd2 && /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(JsonLd, { data: jsonLd(faqPage(items, { url })) })
+    jsonLd2 && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, JsonLd, { data: jsonLd(faqPage(items, { url })) })
   ] });
 }
 
@@ -1862,12 +1711,12 @@ var AI_CRAWLERS = [
   { agent: "CCBot", operator: "Common Crawl", purpose: "training", note: "Common Crawl's open web archive, which many model training sets are built from.", docs: "https://commoncrawl.org/ccbot" }
 ];
 function resolveAiCrawlers(policy = "allow-all") {
-  const preset = typeof policy === "string" ? policy : policy.preset ?? "allow-all";
+  const preset = typeof policy === "string" ? policy : _nullishCoalesce(policy.preset, () => ( "allow-all"));
   const overrides = typeof policy === "string" ? {} : policy;
   const out = {};
   for (const c of AI_CRAWLERS) {
     const base = preset === "block-all" ? "disallow" : preset === "search-only" && c.purpose === "training" ? "disallow" : "allow";
-    out[c.agent] = overrides[c.agent] ?? base;
+    out[c.agent] = _nullishCoalesce(overrides[c.agent], () => ( base));
   }
   return out;
 }
@@ -1884,7 +1733,7 @@ function robotsTxt({ site, aiCrawlers, disallow = [], sitemapPath = "/sitemap.xm
   const root = siteRoot(site);
   const paths = disallow.map(checkPath);
   const rules = resolveAiCrawlers(aiCrawlers);
-  const preset = typeof aiCrawlers === "string" ? aiCrawlers : aiCrawlers?.preset ?? "allow-all";
+  const preset = typeof aiCrawlers === "string" ? aiCrawlers : _nullishCoalesce(_optionalChain([aiCrawlers, 'optionalAccess', _54 => _54.preset]), () => ( "allow-all"));
   const allowLines = ["Allow: /", ...paths.map((p) => `Disallow: ${p}`)];
   const lines = [
     `# robots.txt for ${root}`,
@@ -1938,9 +1787,9 @@ function llmsTxt({ site, pages, llms }) {
   const optional = [];
   for (const p of pages.filter((x) => !x.noindex)) {
     if (p.optional) optional.push(p);
-    else sections.set(p.section ?? "Pages", [...sections.get(p.section ?? "Pages") ?? [], p]);
+    else sections.set(_nullishCoalesce(p.section, () => ( "Pages")), [..._nullishCoalesce(sections.get(_nullishCoalesce(p.section, () => ( "Pages"))), () => ( [])), p]);
   }
-  const item = (p) => `- [${oneLine(p.title).replace(/[[\]]/g, "")}](${pageUrl(site, p.markdown ?? p.path)})${p.description ? `: ${oneLine(p.description)}` : ""}`;
+  const item = (p) => `- [${oneLine(p.title).replace(/[[\]]/g, "")}](${pageUrl(site, _nullishCoalesce(p.markdown, () => ( p.path)))})${p.description ? `: ${oneLine(p.description)}` : ""}`;
   for (const [name, list] of sections) out.push("", `## ${name}`, "", ...list.map(item));
   if (optional.length) out.push("", "## Optional", "", ...optional.map(item));
   return `${out.join("\n")}
@@ -1953,106 +1802,105 @@ function buildCrawlFiles(o) {
     "llms.txt": llmsTxt(o)
   };
 }
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  AI_CRAWLERS,
-  Aurora,
-  BackgroundFrame,
-  BeamLines,
-  Body,
-  CtaButton,
-  DEFAULT_STAR_VALUES,
-  DEFAULT_TIMING,
-  DISPLAY_FROM_STEP,
-  DemoPlayer,
-  DotGrid,
-  DriftingGutters,
-  EMPHASIS,
-  Eyebrow,
-  FAQ,
-  FeatureGrid,
-  GRID_COLUMNS,
-  GlassNav,
-  GrainOverlay,
-  Grid,
-  GridItem,
-  HeadTags,
-  Heading,
-  JsonLd,
-  LineGrid,
-  MagneticButton,
-  Marquee,
-  MaskedStar,
-  NoiseLayer,
-  NumberTicker,
-  Reveal,
-  RevealText,
-  RhymeIcon,
-  SMOOTH_SCROLL_ATTR,
-  SMOOTH_SCROLL_PREVENT_ATTR,
-  SPACE,
-  ScrollTransform,
-  Section,
-  SmoothScroll,
-  SpotlightCard,
-  StarChart,
-  StarHero,
-  Subhead,
-  TYPE_BASE_PX,
-  TYPE_FACES,
-  TYPE_RATIO,
-  TYPE_STEPS,
-  TextScramble,
-  TiltCard,
-  WEB_FONT_FILES,
-  WHEEL_LINE_PX,
-  WHEEL_PAGE_FRACTION,
-  WebSurface,
-  article,
-  breadcrumbList,
-  buildCrawlFiles,
-  createSmoothScroll,
-  curvePath,
-  demoCycle,
-  demoEnd,
-  demoFrame,
-  easeOutExpo,
-  faqPage,
-  followRate,
-  followStep,
-  fontPreloads,
-  formatLastmod,
-  headTagKey,
-  headTagsToHtml,
-  jsonLd,
-  jsonLdTag,
-  llmsTxt,
-  normalizeWheel,
-  offer,
-  organization,
-  pageMeta,
-  product,
-  ref,
-  resolveAiCrawlers,
-  robotsTxt,
-  scrambleFrame,
-  scrollProgressOf,
-  serializeJsonLd,
-  sitemapXml,
-  slugify,
-  smoothScrollTo,
-  softwareApplication,
-  stepStart,
-  typeMetrics,
-  typeRole,
-  typeScale,
-  useFinePointer,
-  useHead,
-  useInView,
-  useScrollProgress,
-  useSmoothScroll,
-  webSite,
-  withPaintTransition,
-  withViewTransition
-});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.AI_CRAWLERS = AI_CRAWLERS; exports.Aurora = Aurora; exports.BackgroundFrame = BackgroundFrame; exports.BeamLines = BeamLines; exports.Body = Body; exports.CtaButton = CtaButton; exports.DEFAULT_STAR_VALUES = DEFAULT_STAR_VALUES; exports.DEFAULT_TIMING = DEFAULT_TIMING; exports.DISPLAY_FROM_STEP = DISPLAY_FROM_STEP; exports.DemoPlayer = DemoPlayer; exports.DotGrid = DotGrid; exports.DriftingGutters = DriftingGutters; exports.EMPHASIS = EMPHASIS; exports.Eyebrow = Eyebrow; exports.FAQ = FAQ; exports.FeatureGrid = FeatureGrid; exports.GRID_COLUMNS = GRID_COLUMNS; exports.GlassNav = GlassNav; exports.GrainOverlay = GrainOverlay; exports.Grid = Grid; exports.GridItem = GridItem; exports.HeadTags = HeadTags; exports.Heading = Heading; exports.JsonLd = JsonLd; exports.LineGrid = LineGrid; exports.MagneticButton = MagneticButton; exports.Marquee = Marquee; exports.MaskedStar = MaskedStar; exports.NoiseLayer = NoiseLayer; exports.NumberTicker = NumberTicker; exports.Reveal = Reveal; exports.RevealText = RevealText; exports.RhymeIcon = RhymeIcon; exports.SMOOTH_SCROLL_ATTR = SMOOTH_SCROLL_ATTR; exports.SMOOTH_SCROLL_PREVENT_ATTR = SMOOTH_SCROLL_PREVENT_ATTR; exports.SPACE = SPACE; exports.ScrollTransform = ScrollTransform; exports.Section = Section; exports.SmoothScroll = SmoothScroll; exports.SpotlightCard = SpotlightCard; exports.StarChart = StarChart; exports.StarHero = StarHero; exports.Subhead = Subhead; exports.TYPE_BASE_PX = TYPE_BASE_PX; exports.TYPE_FACES = TYPE_FACES; exports.TYPE_RATIO = TYPE_RATIO; exports.TYPE_STEPS = TYPE_STEPS; exports.TextScramble = TextScramble; exports.TiltCard = TiltCard; exports.WEB_FONT_FILES = WEB_FONT_FILES; exports.WHEEL_LINE_PX = WHEEL_LINE_PX; exports.WHEEL_PAGE_FRACTION = WHEEL_PAGE_FRACTION; exports.WebSurface = WebSurface; exports.article = article; exports.breadcrumbList = breadcrumbList; exports.buildCrawlFiles = buildCrawlFiles; exports.createSmoothScroll = createSmoothScroll; exports.curvePath = curvePath; exports.demoCycle = demoCycle; exports.demoEnd = demoEnd; exports.demoFrame = demoFrame; exports.easeOutExpo = easeOutExpo; exports.faqPage = faqPage; exports.followRate = followRate; exports.followStep = followStep; exports.fontPreloads = fontPreloads; exports.formatLastmod = formatLastmod; exports.headTagKey = headTagKey; exports.headTagsToHtml = headTagsToHtml; exports.jsonLd = jsonLd; exports.jsonLdTag = jsonLdTag; exports.llmsTxt = llmsTxt; exports.normalizeWheel = normalizeWheel; exports.offer = offer; exports.organization = organization; exports.pageMeta = pageMeta; exports.product = product; exports.ref = ref; exports.resolveAiCrawlers = resolveAiCrawlers; exports.robotsTxt = robotsTxt; exports.scrambleFrame = scrambleFrame; exports.scrollProgressOf = scrollProgressOf; exports.serializeJsonLd = serializeJsonLd; exports.sitemapXml = sitemapXml; exports.slugify = slugify; exports.smoothScrollTo = smoothScrollTo; exports.softwareApplication = softwareApplication; exports.stepStart = stepStart; exports.typeMetrics = typeMetrics; exports.typeRole = typeRole; exports.typeScale = typeScale; exports.useFinePointer = useFinePointer; exports.useHead = useHead; exports.useInView = useInView; exports.useScrollProgress = useScrollProgress; exports.useSmoothScroll = useSmoothScroll; exports.webSite = webSite; exports.withPaintTransition = withPaintTransition; exports.withViewTransition = withViewTransition;
 //# sourceMappingURL=web.cjs.map

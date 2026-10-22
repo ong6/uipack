@@ -1,35 +1,4 @@
-"use strict";
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-// src/presentations/index.ts
-var presentations_exports = {};
-__export(presentations_exports, {
-  SlideStarter: () => SlideStarter,
-  SpeakerGuide: () => SpeakerGuide,
-  escapeSvgText: () => escapeSvgText,
-  estimateSpeechSeconds: () => estimateSpeechSeconds,
-  formatSpeechGuide: () => formatSpeechGuide,
-  renderSlideSvg: () => renderSlideSvg
-});
-module.exports = __toCommonJS(presentations_exports);
-
-// src/presentations/renderSlideSvg.ts
+"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }// src/presentations/renderSlideSvg.ts
 var palettes = {
   light: {
     paper: "#f6f5f1",
@@ -55,9 +24,9 @@ function accessibleTitle(slide) {
   return slide.layout === "opening" ? slide.content.headline.join(" ") : slide.content.headline;
 }
 function renderSlideSvg(slide, options = {}) {
-  const theme = options.theme ?? "light";
+  const theme = _nullishCoalesce(options.theme, () => ( "light"));
   const colors = palettes[theme];
-  const width = options.width ?? 1200;
+  const width = _nullishCoalesce(options.width, () => ( 1200));
   const height = Math.round(width * 9 / 16);
   const text = (x, y, value, size = 26, color = colors.ink, weight = 400, mono = false, anchor = "start") => `<text x="${x}" y="${y}"${anchor === "end" ? ' text-anchor="end"' : ""} font-family="${mono ? "IBM Plex Mono, ui-monospace, monospace" : "IBM Plex Sans, system-ui, sans-serif"}" font-size="${size}" fill="${color}" font-weight="${weight}">${escapeSvgText(value)}</text>`;
   const rule = (x1, y, x2) => `<path d="M${x1} ${y}H${x2}" stroke="${colors.rule}" stroke-width="2"/>`;
@@ -84,10 +53,10 @@ function renderSlideSvg(slide, options = {}) {
 }
 
 // src/presentations/SpeakerGuide.tsx
-var import_react = require("react");
-var import_jsx_runtime = require("react/jsx-runtime");
+var _react = require('react');
+var _jsxruntime = require('react/jsx-runtime');
 function estimateSpeechSeconds(say) {
-  const words = say.trim().match(/\S+/g)?.length ?? 0;
+  const words = _nullishCoalesce(_optionalChain([say, 'access', _ => _.trim, 'call', _2 => _2(), 'access', _3 => _3.match, 'call', _4 => _4(/\S+/g), 'optionalAccess', _5 => _5.length]), () => ( 0));
   if (!words) return 0;
   return Math.max(5, Math.round(words / 135 * 12) * 5);
 }
@@ -102,7 +71,7 @@ ${speech.next}` : void 0
   ].filter(Boolean).join("\n\n");
 }
 async function copyText(value) {
-  if (navigator.clipboard?.writeText) {
+  if (_optionalChain([navigator, 'access', _6 => _6.clipboard, 'optionalAccess', _7 => _7.writeText])) {
     await navigator.clipboard.writeText(value);
     return;
   }
@@ -113,7 +82,7 @@ async function copyText(value) {
   field.style.opacity = "0";
   document.body.append(field);
   field.select();
-  const copied = document.execCommand?.("copy") ?? false;
+  const copied = _nullishCoalesce(_optionalChain([document, 'access', _8 => _8.execCommand, 'optionalCall', _9 => _9("copy")]), () => ( false));
   field.remove();
   if (!copied) throw new Error("Copy is unavailable.");
 }
@@ -124,8 +93,8 @@ function SpeakerGuide({
   className = "",
   theme = "light"
 }) {
-  const headingId = (0, import_react.useId)();
-  const [status, setStatus] = (0, import_react.useState)(
+  const headingId = _react.useId.call(void 0, );
+  const [status, setStatus] = _react.useState.call(void 0, 
     "idle"
   );
   const seconds = estimateSpeechSeconds(speech.say);
@@ -134,41 +103,41 @@ function SpeakerGuide({
     try {
       await copyText(text);
       setStatus("copied");
-      onCopy?.(text);
-    } catch {
+      _optionalChain([onCopy, 'optionalCall', _10 => _10(text)]);
+    } catch (e) {
       setStatus("error");
     }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
     "aside",
     {
       className: `uipack-speaker-guide ${className}`.trim(),
       "aria-labelledby": headingId,
       "data-theme": theme,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-speaker-guide__heading", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { id: headingId, children: "Speaker guide" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { "aria-label": `Estimated speaking time ${seconds} seconds`, children: [
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-speaker-guide__heading", children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h3", { id: headingId, children: "Speaker guide" }),
+          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { "aria-label": `Estimated speaking time ${seconds} seconds`, children: [
             "~",
             seconds,
             " sec"
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-speaker-guide__section", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", { children: "Say this" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: speech.say })
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-speaker-guide__section", children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h4", { children: "Say this" }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: speech.say })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-speaker-guide__section", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", { children: "Delivery" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: speech.delivery })
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-speaker-guide__section", children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h4", { children: "Delivery" }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: speech.delivery })
         ] }),
-        speech.next && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-speaker-guide__section", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", { children: "Into the next slide" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: speech.next })
+        speech.next && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-speaker-guide__section", children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h4", { children: "Into the next slide" }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: speech.next })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-speaker-guide__action", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: copy, children: "Copy talk track" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { role: "status", "aria-live": "polite", "aria-atomic": "true", children: status === "copied" ? `${slideTitle} talk track copied.` : status === "error" ? "Could not copy the talk track. Select the text instead." : "" })
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-speaker-guide__action", children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: copy, children: "Copy talk track" }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { role: "status", "aria-live": "polite", "aria-atomic": "true", children: status === "copied" ? `${slideTitle} talk track copied.` : status === "error" ? "Could not copy the talk track. Select the text instead." : "" })
         ] })
       ]
     }
@@ -176,7 +145,7 @@ function SpeakerGuide({
 }
 
 // src/presentations/SlideStarter.tsx
-var import_jsx_runtime2 = require("react/jsx-runtime");
+
 function SlideStarter({
   slide,
   theme = "light",
@@ -184,15 +153,15 @@ function SlideStarter({
   className = "",
   onCopySpeech
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
     "section",
     {
       className: `uipack-slide-starter ${className}`.trim(),
       "data-theme": theme,
       "data-layout": slide.layout,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("figure", { className: "uipack-slide-starter__figure", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "figure", { className: "uipack-slide-starter__figure", children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
             "div",
             {
               className: "uipack-slide-starter__preview",
@@ -201,12 +170,12 @@ function SlideStarter({
               }
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("figcaption", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("strong", { children: slide.title }),
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: slide.description })
+          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "figcaption", { children: [
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "strong", { children: slide.title }),
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: slide.description })
           ] })
         ] }),
-        showSpeech && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+        showSpeech && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
           SpeakerGuide,
           {
             speech: slide.speech,
@@ -219,13 +188,12 @@ function SlideStarter({
     }
   );
 }
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  SlideStarter,
-  SpeakerGuide,
-  escapeSvgText,
-  estimateSpeechSeconds,
-  formatSpeechGuide,
-  renderSlideSvg
-});
+
+
+
+
+
+
+
+exports.SlideStarter = SlideStarter; exports.SpeakerGuide = SpeakerGuide; exports.escapeSvgText = escapeSvgText; exports.estimateSpeechSeconds = estimateSpeechSeconds; exports.formatSpeechGuide = formatSpeechGuide; exports.renderSlideSvg = renderSlideSvg;
 //# sourceMappingURL=presentations.cjs.map

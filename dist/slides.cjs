@@ -1,1170 +1,42 @@
-"use strict";
-var __create = Object.create;
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __esm = (fn, res) => function __init() {
-  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
-};
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { newObj[key] = obj[key]; } } } newObj.default = obj; return newObj; } } function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 
-// src/slides/model.ts
-function clampStop(index, count) {
-  return Math.max(
-    0,
-    Math.min(
-      Math.max(0, count - 1),
-      Number.isFinite(index) ? Math.trunc(index) : 0
-    )
-  );
-}
-function resolveNodePose(node, stop) {
-  const pose = stop.nodes?.[node.id];
-  return {
-    position: [...pose?.position ?? node.position],
-    opacity: pose?.opacity ?? 1,
-    scale: pose?.scale ?? 1
-  };
-}
-function validateSlideStory(story) {
-  const issues = [];
-  const ids = /* @__PURE__ */ new Set();
-  const finite3 = (value) => Array.isArray(value) && value.length === 3 && value.every(Number.isFinite);
-  if (!story.stops.length) issues.push("A story needs at least one stop.");
-  for (const n of story.nodes) {
-    if (!n.id || ids.has(n.id))
-      issues.push(`Duplicate or empty node id: ${n.id}`);
-    ids.add(n.id);
-    if (!finite3(n.position)) issues.push(`Invalid position: ${n.id}`);
-    if (n.size && (!finite3(n.size) || n.size.some((v) => v <= 0)))
-      issues.push(`Invalid size: ${n.id}`);
-  }
-  const edges = /* @__PURE__ */ new Set();
-  for (const c of story.connections) {
-    if (edges.has(c.id)) issues.push(`Duplicate connection id: ${c.id}`);
-    edges.add(c.id);
-    if (!ids.has(c.from) || !ids.has(c.to))
-      issues.push(`Unknown connection endpoint: ${c.id}`);
-    if (c.from === c.to)
-      issues.push(`Self-connections are unsupported: ${c.id}`);
-  }
-  const stops = /* @__PURE__ */ new Set();
-  for (const s of story.stops) {
-    if (stops.has(s.id)) issues.push(`Duplicate stop id: ${s.id}`);
-    stops.add(s.id);
-    if (s.transition) {
-      const t = s.transition;
-      if (t.camera && !["orbit", "dolly"].includes(t.camera))
-        issues.push(`Invalid camera motion: ${s.id}`);
-      if (t.duration !== void 0 && (!Number.isFinite(t.duration) || t.duration < 0.2 || t.duration > 5))
-        issues.push(`Invalid duration: ${s.id}`);
-      if (t.stagger !== void 0 && (!Number.isFinite(t.stagger) || t.stagger < 0 || t.stagger > 0.15))
-        issues.push(`Invalid stagger: ${s.id}`);
-    }
-    if (!finite3(s.camera.position) || !finite3(s.camera.target) || s.camera.position.every((v, i) => v === s.camera.target[i]))
-      issues.push(`Invalid camera: ${s.id}`);
-    for (const [id, pose] of Object.entries(s.nodes ?? {})) {
-      if (!ids.has(id)) issues.push(`Unknown node: ${id}`);
-      if (pose.position && !finite3(pose.position))
-        issues.push(`Invalid pose position: ${id}`);
-      if (pose.opacity !== void 0 && (!Number.isFinite(pose.opacity) || pose.opacity < 0 || pose.opacity > 1))
-        issues.push(`Invalid opacity: ${id}`);
-      if (pose.scale !== void 0 && (!Number.isFinite(pose.scale) || pose.scale <= 0))
-        issues.push(`Invalid scale: ${id}`);
-    }
-    for (const id of s.labels ?? [])
-      if (!ids.has(id)) issues.push(`Unknown label: ${id}`);
-    for (const id of s.activeConnections ?? [])
-      if (!edges.has(id)) issues.push(`Unknown active connection: ${id}`);
-  }
-  return issues;
-}
-var slidePalettes;
-var init_model = __esm({
-  "src/slides/model.ts"() {
-    "use strict";
-    slidePalettes = {
-      dark: {
-        background: "#0e1512",
-        surface: "#14201b",
-        ink: "#e8ece9",
-        muted: "#9aa39e",
-        rule: "#43544b",
-        accent: "#71dcb2",
-        request: "#8ea4ff",
-        response: "#5fd39b",
-        change: "#c39aff"
-      },
-      light: {
-        background: "#ffffff",
-        surface: "#ffffff",
-        ink: "#1a1c1a",
-        muted: "#5c625e",
-        rule: "#bac3bc",
-        accent: "#205f49",
-        request: "#4f6fe6",
-        response: "#3fb27f",
-        change: "#9a63e0"
-      }
-    };
-  }
-});
 
-// src/slides/renderer.ts
-var renderer_exports = {};
-__export(renderer_exports, {
-  createSlideScene: () => createSlideScene
-});
-function createSlideScene(host, labels, story, initial, theme, reduced, onLost, onSettled, onSelect) {
-  let selected = null;
-  let zoom = 1;
-  const colors = slidePalettes[theme];
-  const tone = (value) => colors[value === "neutral" || !value ? "rule" : value];
-  const renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    alpha: true,
-    powerPreference: "low-power"
-  });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
-  renderer.setClearColor(colors.background, 0);
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.domElement.setAttribute("aria-hidden", "true");
-  renderer.domElement.dataset.slideCanvas = "true";
-  host.prepend(renderer.domElement);
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 160);
-  const ambient = new THREE.HemisphereLight(
-    theme === "dark" ? 14286830 : 16777215,
-    2111019,
-    2.2
-  );
-  scene.add(ambient);
-  const key = new THREE.DirectionalLight(16777215, 3.1);
-  key.position.set(4, 12, 8);
-  scene.add(key);
-  const fill = new THREE.DirectionalLight(7462066, 1.2);
-  fill.position.set(-8, 2, -6);
-  scene.add(fill);
-  const gridData = [];
-  for (let x = -20; x <= 20; x++)
-    for (let z = -20; z <= 20; z++) gridData.push(x, -3.8, z);
-  const gridGeometry = new THREE.BufferGeometry();
-  gridGeometry.setAttribute(
-    "position",
-    new THREE.Float32BufferAttribute(gridData, 3)
-  );
-  const grid = new THREE.Points(
-    gridGeometry,
-    new THREE.PointsMaterial({
-      color: colors.rule,
-      size: 0.036,
-      transparent: true,
-      opacity: 0.6
-    })
-  );
-  scene.add(grid);
-  const nodes = /* @__PURE__ */ new Map();
-  const trackedMaterials = /* @__PURE__ */ new Set();
-  const trackedGeometries = /* @__PURE__ */ new Set();
-  function track(object) {
-    const mesh = object;
-    if (mesh.geometry) trackedGeometries.add(mesh.geometry);
-    if (mesh.material)
-      (Array.isArray(mesh.material) ? mesh.material : [mesh.material]).forEach(
-        (m) => trackedMaterials.add(m)
-      );
-    return object;
-  }
-  track(grid);
-  for (const n of story.nodes) {
-    const group = new THREE.Group();
-    group.name = n.id;
-    scene.add(group);
-    const size = n.size ?? [1.65, 0.6, 1.05];
-    const geometry = n.kind === "sphere" ? new THREE.IcosahedronGeometry(size[0] / 2, 2) : new THREE.BoxGeometry(...size);
-    const materials = [];
-    const boundary = n.kind === "boundary";
-    const material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(colors.surface).lerp(
-        new THREE.Color(tone(n.tone)),
-        boundary ? 0 : 0.09
-      ),
-      roughness: 0.52,
-      metalness: 0.15,
-      transparent: true,
-      opacity: boundary ? 0.04 : 1,
-      depthWrite: !boundary
-    });
-    material.userData.baseOpacity = boundary ? 0.025 : 1;
-    const mesh = track(new THREE.Mesh(geometry, material));
-    group.add(mesh);
-    materials.push(material);
-    const edgeMaterial = new THREE.LineBasicMaterial({
-      color: boundary ? colors.accent : tone(n.tone),
-      transparent: true,
-      opacity: boundary ? 0.5 : 0.9
-    });
-    edgeMaterial.userData.baseOpacity = boundary ? 0.72 : 0.85;
-    group.add(
-      track(
-        new THREE.LineSegments(new THREE.EdgesGeometry(geometry), edgeMaterial)
-      )
-    );
-    materials.push(edgeMaterial);
-    if (n.kind === "sphere") {
-      for (const angle of [0, Math.PI / 2]) {
-        const ringMaterial = new THREE.MeshBasicMaterial({
-          color: tone(n.tone),
-          transparent: true,
-          opacity: 0.35
-        });
-        ringMaterial.userData.baseOpacity = 0.35;
-        const ring = track(
-          new THREE.Mesh(
-            new THREE.TorusGeometry(size[0] * 0.66, 0.012, 6, 64),
-            ringMaterial
-          )
-        );
-        ring.rotation.x = Math.PI / 2;
-        ring.rotation.y = angle;
-        group.add(ring);
-        materials.push(ringMaterial);
-      }
-    }
-    if (n.kind === "layer" && size[0] > 4) {
-      const recordMaterial = new THREE.MeshStandardMaterial({
-        color: tone(n.tone),
-        roughness: 0.8,
-        transparent: true,
-        opacity: 0.28
-      });
-      recordMaterial.userData.baseOpacity = 0.28;
-      const records = track(
-        new THREE.InstancedMesh(
-          new THREE.BoxGeometry(0.48, 0.035, 0.6),
-          recordMaterial,
-          28
-        )
-      );
-      const matrix = new THREE.Matrix4();
-      for (let i = 0; i < 28; i++) {
-        matrix.makeTranslation(
-          (i % 7 - 3) * 0.76,
-          size[1] / 2 + 0.04,
-          (Math.floor(i / 7) - 1.5) * 0.86
-        );
-        records.setMatrixAt(i, matrix);
-      }
-      group.add(records);
-      materials.push(recordMaterial);
-    }
-    if (!boundary && n.kind !== "sphere") {
-      const stripeMaterial = new THREE.MeshBasicMaterial({
-        color: tone(n.tone),
-        transparent: true
-      });
-      stripeMaterial.userData.baseOpacity = 0.85;
-      const stripe = track(
-        new THREE.Mesh(
-          new THREE.BoxGeometry(size[0] * 0.72, 0.025, 0.025),
-          stripeMaterial
-        )
-      );
-      stripe.position.set(0, size[1] / 2 + 0.012, size[2] * 0.32);
-      group.add(stripe);
-      materials.push(stripeMaterial);
-      if (n.kind === "layer") {
-        for (let i = 1; i <= 2; i++) {
-          const layerMat = new THREE.LineBasicMaterial({
-            color: tone(n.tone),
-            transparent: true,
-            opacity: 0.35
-          });
-          layerMat.userData.baseOpacity = 0.35;
-          const edge = track(
-            new THREE.LineSegments(new THREE.EdgesGeometry(geometry), layerMat)
-          );
-          edge.position.y = -i * 0.16;
-          group.add(edge);
-          materials.push(layerMat);
-        }
-      }
-    }
-    const pose = resolveNodePose(n, initial);
-    const label = [...labels.children].find(
-      (el) => el.dataset.node === n.id
-    );
-    nodes.set(n.id, {
-      spec: n,
-      group,
-      materials,
-      label,
-      pose: {
-        x: pose.position[0],
-        y: pose.position[1],
-        z: pose.position[2],
-        opacity: pose.opacity,
-        scale: pose.scale
-      }
-    });
-  }
-  const links = story.connections.map((c) => {
-    const material = new THREE.LineBasicMaterial({
-      color: tone(c.tone),
-      transparent: true,
-      opacity: 0.35
-    });
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute(
-      "position",
-      new THREE.BufferAttribute(new Float32Array(75), 3)
-    );
-    const line = track(new THREE.Line(geometry, material));
-    line.frustumCulled = false;
-    scene.add(line);
-    const packetGeometry = c.tone === "response" ? new THREE.SphereGeometry(0.07, 10, 6) : new THREE.BoxGeometry(0.12, 0.12, 0.12);
-    const packet = track(
-      new THREE.Mesh(
-        packetGeometry,
-        new THREE.MeshBasicMaterial({ color: tone(c.tone), transparent: true })
-      )
-    );
-    if (c.tone === "change") packet.rotation.z = Math.PI / 4;
-    scene.add(packet);
-    const arrow = track(
-      new THREE.Mesh(
-        new THREE.ConeGeometry(0.055, 0.15, 8),
-        new THREE.MeshBasicMaterial({
-          color: tone(c.tone),
-          transparent: true,
-          opacity: 0.6
-        })
-      )
-    );
-    scene.add(arrow);
-    return {
-      spec: c,
-      line,
-      material,
-      packet,
-      arrow,
-      points: []
-    };
-  });
-  let stop = initial, paused = false, isReduced = reduced, disposed = false, raf = 0, transition;
-  let clock = 0, lastTime = 0, visible = true, width = 1, height = 1;
-  const cam = {
-    x: initial.camera.position[0],
-    y: initial.camera.position[1],
-    z: initial.camera.position[2],
-    tx: initial.camera.target[0],
-    ty: initial.camera.target[1],
-    tz: initial.camera.target[2]
-  };
-  const projected = new THREE.Vector3();
-  const target = new THREE.Vector3();
-  const up = new THREE.Vector3(0, 1, 0);
-  const presentation = { labels: 1, flow: 1 };
-  const active = () => new Set(stop.activeConnections ?? []);
-  function pointAt(points, progress) {
-    const lengths = points.slice(1).map((p, i) => p.distanceTo(points[i]));
-    const total = lengths.reduce((a, b) => a + b, 0);
-    let distance = total * progress;
-    for (let i = 0; i < lengths.length; i++) {
-      if (distance <= lengths[i] || i === lengths.length - 1)
-        return points[i].clone().lerp(points[i + 1], lengths[i] ? distance / lengths[i] : 0);
-      distance -= lengths[i];
-    }
-    return points[0].clone();
-  }
-  function anchor(node, toward) {
-    const center = node.group.position.clone(), d = toward.clone().sub(center);
-    const size = node.spec.size ?? [1.65, 0.6, 1.05];
-    const distances = [d.x, d.y, d.z].map(
-      (v, i) => Math.abs(v) > 1e-4 ? size[i] * node.pose.scale / 2 / Math.abs(v) : Infinity
-    );
-    return center.addScaledVector(d, Math.min(...distances, 0.45)).addScaledVector(d.clone().normalize(), 0.11);
-  }
-  function draw() {
-    if (disposed) return;
-    target.set(cam.tx, cam.ty, cam.tz);
-    camera.position.set(cam.x, cam.y, cam.z).sub(target).multiplyScalar(Math.max(1, 1.45 / camera.aspect) / zoom).add(target);
-    camera.lookAt(target);
-    camera.updateMatrixWorld();
-    const ids = stop.labels ? new Set(stop.labels) : void 0;
-    const boxes = [];
-    for (const n of nodes.values()) {
-      n.group.position.set(n.pose.x, n.pose.y, n.pose.z);
-      n.group.scale.setScalar(n.pose.scale);
-      n.group.visible = n.pose.opacity > 5e-3;
-      n.materials.forEach((m) => {
-        m.opacity = n.pose.opacity * (m.userData.baseOpacity ?? 1);
-        if (m instanceof THREE.MeshStandardMaterial) {
-          m.emissive.set(selected === n.spec.id ? colors.accent : 0);
-          m.emissiveIntensity = selected === n.spec.id ? 0.3 : 0;
-        }
-      });
-      if (!n.label) continue;
-      const eligible = (ids ? ids.has(n.spec.id) : n.spec.kind !== "boundary") && n.pose.opacity >= 0.3 && presentation.labels > 0.01;
-      projected.copy(n.group.position);
-      projected.y += (n.spec.size?.[1] ?? 0.6) / 2 * n.pose.scale;
-      projected.project(camera);
-      const x = (projected.x * 0.5 + 0.5) * width, y = (-projected.y * 0.5 + 0.5) * height;
-      const w = n.label.offsetWidth || 130, h = n.label.offsetHeight || 44;
-      let placement;
-      if (eligible && projected.z > -1 && projected.z < 1 && x >= 0 && x <= width && y >= 0 && y <= height) {
-        for (const [dx, dy] of [
-          [0, -h - 10],
-          [0, 20],
-          [-w * 0.55, -h / 2],
-          [w * 0.55, -h / 2],
-          [0, -h * 2 - 16]
-        ]) {
-          const candidate = {
-            x: Math.max(4, Math.min(width - w - 4, x - w / 2 + dx)),
-            y: Math.max(84, Math.min(height - h - 4, y + dy)),
-            w,
-            h
-          };
-          if (!boxes.some(
-            (b) => candidate.x < b.x + b.w + 6 && candidate.x + w + 6 > b.x && candidate.y < b.y + b.h + 6 && candidate.y + h + 6 > b.y
-          )) {
-            placement = candidate;
-            break;
-          }
-        }
-      }
-      n.label.style.visibility = placement ? "visible" : "hidden";
-      n.label.style.opacity = placement ? String(presentation.labels) : "0";
-      if (placement) {
-        boxes.push(placement);
-        n.label.style.transform = `translate(${placement.x}px, ${placement.y}px)`;
-      }
-    }
-    const currentActive = active();
-    for (const l of links) {
-      const source = nodes.get(l.spec.from), dest = nodes.get(l.spec.to);
-      const visibility = Math.min(source.pose.opacity, dest.pose.opacity);
-      const start = anchor(source, dest.group.position), end = anchor(dest, source.group.position);
-      const bend1 = start.clone().lerp(end, 0.42), bend2 = start.clone().lerp(end, 0.58);
-      bend1.y += 0.2;
-      bend2.y += 0.2;
-      l.points = new THREE.CubicBezierCurve3(
-        start,
-        bend1,
-        bend2,
-        end
-      ).getPoints(24);
-      const attr = l.line.geometry.getAttribute(
-        "position"
-      );
-      l.points.forEach((p, i) => attr.setXYZ(i, p.x, p.y, p.z));
-      attr.needsUpdate = true;
-      l.material.opacity = visibility * (currentActive.has(l.spec.id) ? 0.12 + 0.83 * presentation.flow : 0.12);
-      l.line.visible = visibility > 0.05;
-      l.arrow.visible = visibility > 0.25 && currentActive.has(l.spec.id);
-      l.arrow.position.copy(
-        end.clone().sub(end.clone().sub(bend2).normalize().multiplyScalar(0.07))
-      );
-      l.arrow.quaternion.setFromUnitVectors(
-        up,
-        end.clone().sub(bend2).normalize()
-      );
-      l.packet.visible = visibility > 0.25 && currentActive.has(l.spec.id);
-      if (l.packet.visible) {
-        const progress = isReduced ? 0.5 : (clock * 0.27 + links.indexOf(l) * 0.19) % 1;
-        l.packet.position.copy(pointAt(l.points, progress));
-        l.packet.material.opacity = visibility * presentation.flow * Math.min(1, progress * 10, (1 - progress) * 10);
-      }
-    }
-    renderer.render(scene, camera);
-  }
-  function tick(time) {
-    raf = 0;
-    if (disposed || !visible || document.hidden) return;
-    if (!paused && !isReduced)
-      clock += Math.min((time - (lastTime || time)) / 1e3, 0.05);
-    lastTime = time;
-    draw();
-    if (!paused && !isReduced && (stop.activeConnections?.length ?? 0) > 0 || transition?.isActive())
-      raf = requestAnimationFrame(tick);
-  }
-  function wake() {
-    if (!disposed && !raf && visible && !document.hidden) {
-      lastTime = 0;
-      raf = requestAnimationFrame(tick);
-    }
-  }
-  function resize() {
-    const rect = host.getBoundingClientRect();
-    width = Math.max(rect.width, 1);
-    height = Math.max(rect.height, 1);
-    renderer.setSize(width, height);
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-    draw();
-    wake();
-  }
-  const observer = new ResizeObserver(resize);
-  observer.observe(host);
-  const intersection = typeof IntersectionObserver !== "undefined" ? new IntersectionObserver((entries) => {
-    visible = entries[0].isIntersecting;
-    if (visible) wake();
-    else {
-      cancelAnimationFrame(raf);
-      raf = 0;
-    }
-  }) : void 0;
-  intersection?.observe(host);
-  function visibilityChanged() {
-    if (document.hidden) {
-      cancelAnimationFrame(raf);
-      raf = 0;
-    } else {
-      draw();
-      wake();
-    }
-  }
-  document.addEventListener("visibilitychange", visibilityChanged);
-  const lost = (event) => {
-    event.preventDefault();
-    onLost();
-  };
-  renderer.domElement.addEventListener("webglcontextlost", lost);
-  function goTo(next, immediate = false) {
-    transition?.kill();
-    stop = next;
-    const duration = immediate || isReduced ? 0 : next.transition?.duration ?? 1.6;
-    const destination = {
-      x: next.camera.position[0],
-      y: next.camera.position[1],
-      z: next.camera.position[2],
-      tx: next.camera.target[0],
-      ty: next.camera.target[1],
-      tz: next.camera.target[2]
-    };
-    if (!duration) {
-      presentation.labels = presentation.flow = 1;
-      Object.assign(cam, destination);
-      nodes.forEach((n) => {
-        const p = resolveNodePose(n.spec, next);
-        Object.assign(n.pose, {
-          x: p.position[0],
-          y: p.position[1],
-          z: p.position[2],
-          scale: p.scale,
-          opacity: p.opacity
-        });
-      });
-      draw();
-      onSettled(next.id);
-      wake();
-      return;
-    }
-    transition = import_gsap.gsap.timeline({
-      onUpdate: wake,
-      onComplete: () => {
-        draw();
-        onSettled(next.id);
-      }
-    });
-    transition.to(presentation, { labels: 0, flow: 0, duration: 0.12 }, 0);
-    if (next.transition?.camera === "dolly") {
-      transition.to(
-        cam,
-        { ...destination, duration, ease: "sine.inOut" },
-        0.12
-      );
-    } else {
-      const from = new THREE.Spherical().setFromVector3(
-        new THREE.Vector3(cam.x - cam.tx, cam.y - cam.ty, cam.z - cam.tz)
-      );
-      const to = new THREE.Spherical().setFromVector3(
-        new THREE.Vector3(
-          destination.x - destination.tx,
-          destination.y - destination.ty,
-          destination.z - destination.tz
-        )
-      );
-      const orbit = {
-        radius: from.radius,
-        phi: from.phi,
-        theta: from.theta,
-        tx: cam.tx,
-        ty: cam.ty,
-        tz: cam.tz
-      };
-      const delta = Math.atan2(
-        Math.sin(to.theta - from.theta),
-        Math.cos(to.theta - from.theta)
-      );
-      const offset = new THREE.Vector3();
-      transition.to(
-        orbit,
-        {
-          radius: to.radius,
-          phi: to.phi,
-          theta: from.theta + delta,
-          tx: destination.tx,
-          ty: destination.ty,
-          tz: destination.tz,
-          duration,
-          ease: "sine.inOut",
-          onUpdate: () => {
-            offset.setFromSphericalCoords(orbit.radius, orbit.phi, orbit.theta);
-            Object.assign(cam, {
-              x: orbit.tx + offset.x,
-              y: orbit.ty + offset.y,
-              z: orbit.tz + offset.z,
-              tx: orbit.tx,
-              ty: orbit.ty,
-              tz: orbit.tz
-            });
-          }
-        },
-        0.12
-      );
-    }
-    let arrival = 0;
-    nodes.forEach((n) => {
-      const p = resolveNodePose(n.spec, next);
-      transition.to(
-        n.pose,
-        {
-          x: p.position[0],
-          y: p.position[1],
-          z: p.position[2],
-          scale: p.scale,
-          opacity: p.opacity,
-          duration,
-          ease: "sine.inOut"
-        },
-        0.12 + arrival++ * (next.transition?.stagger ?? 0)
-      );
-    });
-    transition.to(presentation, {
-      labels: 1,
-      flow: 1,
-      duration: 0.22,
-      ease: "sine.out"
-    });
-    wake();
-  }
-  const raycaster = new THREE.Raycaster();
-  let down = null;
-  const pointerDown = (event) => {
-    down = { x: event.clientX, y: event.clientY };
-  };
-  const pointerUp = (event) => {
-    if (!down || Math.hypot(event.clientX - down.x, event.clientY - down.y) > 6) {
-      down = null;
-      return;
-    }
-    down = null;
-    const rect = renderer.domElement.getBoundingClientRect();
-    raycaster.setFromCamera(
-      new THREE.Vector2(
-        (event.clientX - rect.left) / rect.width * 2 - 1,
-        -(event.clientY - rect.top) / rect.height * 2 + 1
-      ),
-      camera
-    );
-    const candidates = [...nodes.values()].filter(
-      (n) => n.spec.kind !== "boundary" && n.pose.opacity > 0.25
-    );
-    const hit = raycaster.intersectObjects(
-      candidates.map((n) => n.group),
-      true
-    )[0];
-    let object = hit?.object;
-    while (object && !nodes.has(object.name))
-      object = object.parent ?? void 0;
-    onSelect(object ? object.name === selected ? null : object.name : null);
-  };
-  renderer.domElement.addEventListener("pointerdown", pointerDown);
-  renderer.domElement.addEventListener("pointerup", pointerUp);
-  resize();
-  onSettled(initial.id);
-  wake();
-  return {
-    goTo,
-    setSelected(id) {
-      selected = id;
-      draw();
-      wake();
-    },
-    setZoom(value) {
-      zoom = Math.max(0.75, Math.min(2, value));
-      draw();
-      wake();
-    },
-    setPaused(value) {
-      paused = value;
-      wake();
-    },
-    setReducedMotion(value) {
-      isReduced = value;
-      if (value) goTo(stop, true);
-      else wake();
-    },
-    dispose() {
-      if (disposed) return;
-      disposed = true;
-      transition?.kill();
-      cancelAnimationFrame(raf);
-      observer.disconnect();
-      intersection?.disconnect();
-      document.removeEventListener("visibilitychange", visibilityChanged);
-      renderer.domElement.removeEventListener("webglcontextlost", lost);
-      renderer.domElement.removeEventListener("pointerdown", pointerDown);
-      renderer.domElement.removeEventListener("pointerup", pointerUp);
-      trackedGeometries.forEach((g) => g.dispose());
-      trackedMaterials.forEach((m) => m.dispose());
-      renderer.dispose();
-      renderer.forceContextLoss();
-      renderer.domElement.remove();
-    }
-  };
-}
-var THREE, import_gsap;
-var init_renderer = __esm({
-  "src/slides/renderer.ts"() {
-    "use strict";
-    THREE = __toESM(require("three"), 1);
-    import_gsap = require("gsap");
-    init_model();
-  }
-});
 
-// src/slides/index.ts
-var slides_exports = {};
-__export(slides_exports, {
-  SlidePlayer: () => SlidePlayer,
-  SlideScene: () => SlideScene,
-  architectureShift: () => architectureShift,
-  clampStop: () => clampStop,
-  harnessDive: () => harnessDive,
-  parallelAgents: () => parallelAgents,
-  quarterTurn: () => quarterTurn,
-  resolveNodePose: () => resolveNodePose,
-  retrievalLayers: () => retrievalLayers,
-  slidePalettes: () => slidePalettes,
-  slideStories: () => slideStories,
-  stagedAssembly: () => stagedAssembly,
-  validateSlideStory: () => validateSlideStory
-});
-module.exports = __toCommonJS(slides_exports);
 
-// src/CanvasView.tsx
-var import_react3 = require("react");
+var _chunkOQHYF6Z2cjs = require('./chunk-OQHYF6Z2.cjs');
 
-// src/canvas-gestures.ts
-var import_react2 = require("react");
 
-// src/env.ts
-var import_react = require("react");
-var useIsoLayoutEffect = typeof window === "undefined" ? import_react.useEffect : import_react.useLayoutEffect;
-var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+var _chunkSN4T6OE6cjs = require('./chunk-SN4T6OE6.cjs');
 
-// src/canvas-gestures.ts
-function useCanvasGestures(ref, open, zoom) {
-  const latest = (0, import_react2.useRef)(zoom);
-  latest.current = zoom;
-  const pending = (0, import_react2.useRef)();
-  const queued = (0, import_react2.useRef)(zoom.value);
-  const frame = (0, import_react2.useRef)(0);
-  useIsoLayoutEffect(() => {
-    queued.current = zoom.value;
-    const anchor = pending.current;
-    if (!anchor) return;
-    const rect = anchor.surface.getBoundingClientRect();
-    const ratio = zoom.value / anchor.scale;
-    anchor.surface.scrollLeft = anchor.x * ratio + anchor.inset.x - (anchor.point.x - rect.left);
-    anchor.surface.scrollTop = anchor.y * ratio + anchor.inset.y - (anchor.point.y - rect.top);
-    pending.current = void 0;
-  }, [zoom.value]);
-  const change = (value, point, surface) => {
-    const config = latest.current;
-    const next = Math.max(config.min, Math.min(config.max, value));
-    if (next === queued.current) return;
-    const viewport = surface?.matches(".uipack__canvas") ? surface : void 0;
-    if (viewport) {
-      const rect = viewport.getBoundingClientRect();
-      const focal = point ?? {
-        x: rect.left + viewport.clientWidth / 2,
-        y: rect.top + viewport.clientHeight / 2
-      };
-      const drawing = viewport.querySelector("svg").getBoundingClientRect();
-      pending.current = {
-        surface: viewport,
-        x: focal.x - drawing.left,
-        y: focal.y - drawing.top,
-        point: focal,
-        scale: config.value,
-        inset: {
-          x: drawing.left - rect.left + viewport.scrollLeft,
-          y: drawing.top - rect.top + viewport.scrollTop
-        }
-      };
-    }
-    queued.current = next;
-    cancelAnimationFrame(frame.current);
-    frame.current = requestAnimationFrame(
-      () => config.onChange(queued.current)
-    );
-  };
-  const changeRef = (0, import_react2.useRef)(change);
-  changeRef.current = change;
-  (0, import_react2.useEffect)(() => {
-    const host = ref.current;
-    if (!open || !host) return;
-    let safariScale = null;
-    let pinch = null;
-    let suppressClickUntil = 0;
-    const surfaceAt = (target) => {
-      if (!(target instanceof Element) || target.closest("select, input, textarea"))
-        return null;
-      return target.closest(
-        ".uipack__canvas, .uipack-slide-scene"
-      );
-    };
-    const wheel = (event) => {
-      const surface = surfaceAt(event.target);
-      if (!event.ctrlKey || !surface) return;
-      event.preventDefault();
-      if (safariScale !== null || pinch) return;
-      const units = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? host.clientHeight : 1;
-      const delta = Math.max(-100, Math.min(100, event.deltaY * units));
-      changeRef.current(
-        queued.current * Math.exp(-delta * 8e-3),
-        { x: event.clientX, y: event.clientY },
-        surface
-      );
-    };
-    const gestureStart = (raw) => {
-      if (!surfaceAt(raw.target)) return;
-      raw.preventDefault();
-      if (!pinch) safariScale = queued.current;
-    };
-    const gestureChange = (raw) => {
-      const surface = surfaceAt(raw.target);
-      if (!surface) return;
-      raw.preventDefault();
-      if (safariScale === null || pinch) return;
-      const event = raw;
-      if (Number.isFinite(event.scale) && event.scale > 0)
-        changeRef.current(
-          safariScale * event.scale,
-          { x: event.clientX, y: event.clientY },
-          surface
-        );
-    };
-    const gestureEnd = () => {
-      safariScale = null;
-    };
-    const distance = (touches) => Math.hypot(
-      touches[0].clientX - touches[1].clientX,
-      touches[0].clientY - touches[1].clientY
-    );
-    const touchStart = (event) => {
-      const surface = surfaceAt(event.target);
-      if (event.touches.length !== 2 || !surface) return;
-      event.preventDefault();
-      safariScale = null;
-      suppressClickUntil = performance.now() + 400;
-      pinch = {
-        distance: Math.max(1, distance(event.touches)),
-        scale: queued.current,
-        surface
-      };
-    };
-    const touchMove = (event) => {
-      if (!pinch || event.touches.length !== 2) return;
-      event.preventDefault();
-      suppressClickUntil = performance.now() + 400;
-      changeRef.current(
-        pinch.scale * distance(event.touches) / pinch.distance,
-        {
-          x: (event.touches[0].clientX + event.touches[1].clientX) / 2,
-          y: (event.touches[0].clientY + event.touches[1].clientY) / 2
-        },
-        pinch.surface
-      );
-    };
-    const touchEnd = () => {
-      if (pinch) suppressClickUntil = performance.now() + 400;
-      pinch = null;
-    };
-    const click = (event) => {
-      if (performance.now() < suppressClickUntil) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    };
-    host.addEventListener("wheel", wheel, { passive: false });
-    host.addEventListener("gesturestart", gestureStart, { passive: false });
-    host.addEventListener("gesturechange", gestureChange, { passive: false });
-    host.addEventListener("gestureend", gestureEnd);
-    host.addEventListener("touchstart", touchStart, { passive: false });
-    host.addEventListener("touchmove", touchMove, { passive: false });
-    host.addEventListener("touchend", touchEnd);
-    host.addEventListener("touchcancel", touchEnd);
-    host.addEventListener("click", click, true);
-    host.addEventListener("pointerup", click, true);
-    return () => {
-      cancelAnimationFrame(frame.current);
-      pending.current = void 0;
-      host.removeEventListener("wheel", wheel);
-      host.removeEventListener("gesturestart", gestureStart);
-      host.removeEventListener("gesturechange", gestureChange);
-      host.removeEventListener("gestureend", gestureEnd);
-      host.removeEventListener("touchstart", touchStart);
-      host.removeEventListener("touchmove", touchMove);
-      host.removeEventListener("touchend", touchEnd);
-      host.removeEventListener("touchcancel", touchEnd);
-      host.removeEventListener("click", click, true);
-      host.removeEventListener("pointerup", click, true);
-    };
-  }, [open, ref]);
-  return {
-    step: (factor) => change(
-      zoom.value * factor,
-      void 0,
-      ref.current?.querySelector(".uipack__canvas") ?? void 0
-    ),
-    reset: () => {
-      cancelAnimationFrame(frame.current);
-      pending.current = void 0;
-      queued.current = 1;
-      zoom.onChange(1);
-      ref.current?.querySelectorAll(".uipack__canvas").forEach((el) => el.scrollTo(0, 0));
-    }
-  };
-}
 
-// src/CanvasView.tsx
-var import_react_dom = require("react-dom");
-var import_jsx_runtime = require("react/jsx-runtime");
-var CANVAS_TOKENS = [
-  "--uipack-bg",
-  "--uipack-surface",
-  "--uipack-fg",
-  "--uipack-muted",
-  "--uipack-border",
-  "--uipack-accent"
-];
-function CanvasView({
-  open,
-  onClose,
-  title,
-  children,
-  zoom,
-  theme,
-  restoreFocus,
-  layout
-}) {
-  const content = (0, import_react3.useRef)(null);
-  const gestures = useCanvasGestures(content, open, zoom);
-  const dialog = (0, import_react3.useRef)(null);
-  const actions = (0, import_react3.useRef)(gestures);
-  actions.current = gestures;
-  (0, import_react3.useEffect)(() => {
-    if (!open) return;
-    const keyboard = (event) => {
-      const target = event.target;
-      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey || target.isContentEditable || target.closest("input, select, textarea"))
-        return;
-      if (!dialog.current?.contains(target) && target !== document.body) return;
-      if (event.key === "+" || event.key === "=") {
-        event.preventDefault();
-        actions.current.step(1.25);
-      }
-      if (event.key === "-") {
-        event.preventDefault();
-        actions.current.step(0.8);
-      }
-      if (event.key === "0") {
-        event.preventDefault();
-        actions.current.reset();
-      }
-    };
-    document.addEventListener("keydown", keyboard);
-    return () => document.removeEventListener("keydown", keyboard);
-  }, [open]);
-  const close = (0, import_react3.useRef)(onClose);
-  close.current = onClose;
-  (0, import_react3.useEffect)(() => {
-    if (!open) return;
-    const opener = document.activeElement;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    dialog.current?.showModal();
-    return () => {
-      document.body.style.overflow = previous;
-      requestAnimationFrame(
-        () => restoreFocus ? restoreFocus() : opener?.focus()
-      );
-    };
-  }, [open]);
-  (0, import_react3.useEffect)(() => {
-    const node = dialog.current;
-    if (!open || !node) return;
-    const source = node.querySelector(".uipack");
-    if (!source) return;
-    const style = getComputedStyle(source);
-    for (const name of CANVAS_TOKENS) {
-      const value = style.getPropertyValue(name).trim();
-      if (value) node.style.setProperty(name, value);
-      else node.style.removeProperty(name);
-    }
-  }, [open, theme]);
-  if (!open || typeof document === "undefined") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children });
-  return (0, import_react_dom.createPortal)(
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-      "dialog",
-      {
-        ref: dialog,
-        className: "uipack-canvas-dialog",
-        "data-theme": theme ?? document.documentElement.dataset.theme,
-        "aria-label": title,
-        onCancel: (e) => {
-          e.preventDefault();
-          close.current();
-        },
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-canvas-toolbar", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: title }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-                "button",
-                {
-                  type: "button",
-                  "aria-label": "Zoom out",
-                  title: "Zoom out (\u2212)",
-                  disabled: zoom.value <= zoom.min,
-                  onClick: () => gestures.step(0.8),
-                  children: "\u2212"
-                }
-              ),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-                "span",
-                {
-                  role: "meter",
-                  "aria-label": "Zoom level",
-                  "aria-valuemin": zoom.min * 100,
-                  "aria-valuemax": zoom.max * 100,
-                  "aria-valuenow": Math.round(zoom.value * 100),
-                  "aria-valuetext": `${Math.round(zoom.value * 100)}%`,
-                  children: [
-                    Math.round(zoom.value * 100),
-                    "%"
-                  ]
-                }
-              ),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-                "button",
-                {
-                  type: "button",
-                  "aria-label": "Zoom in",
-                  title: "Zoom in (+)",
-                  disabled: zoom.value >= zoom.max,
-                  onClick: () => gestures.step(1.25),
-                  children: "+"
-                }
-              ),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", title: "Reset view (0)", onClick: gestures.reset, children: "Fit" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: onClose, autoFocus: true, children: "Close canvas" })
-            ] })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "uipack-canvas-hint", children: "Pinch to zoom \xB7 Two-finger scroll \xB7 + / \u2212 to zoom \xB7 0 to reset" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-            "div",
-            {
-              ref: content,
-              className: `uipack-canvas-content${layout ? ` uipack-canvas-content--${layout}` : ""}`,
-              children
-            }
-          )
-        ]
-      }
-    ),
-    document.body
-  );
-}
+var _chunkTKLHLAXGcjs = require('./chunk-TKLHLAXG.cjs');
+require('./chunk-J7BYXE6Q.cjs');
 
 // src/slides/SlidePlayer.tsx
-var import_react5 = require("react");
 
-// src/context.tsx
-var import_react4 = require("react");
-var noop = () => {
-};
-var FigureMotionContext = (0, import_react4.createContext)({
-  playing: true,
-  reduced: false,
-  cycle: 0,
-  toggle: noop,
-  replay: noop
-});
-function usePrefersReducedMotion() {
-  const [reduced, setReduced] = (0, import_react4.useState)(false);
-  (0, import_react4.useEffect)(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const mq = window.matchMedia(REDUCED_MOTION_QUERY);
-    const onChange = (e) => setReduced(e.matches);
-    setReduced(mq.matches);
-    if (typeof mq.addEventListener === "function") {
-      mq.addEventListener("change", onChange);
-      return () => mq.removeEventListener("change", onChange);
-    }
-    mq.addListener(onChange);
-    return () => mq.removeListener(onChange);
-  }, []);
-  return reduced;
-}
 
-// src/slides/SlidePlayer.tsx
-init_model();
-var import_jsx_runtime2 = require("react/jsx-runtime");
+
+
+
+var _react = require('react');
+var _jsxruntime = require('react/jsx-runtime');
 function Diagram({ story, stop }) {
   const visible = story.nodes.filter(
-    (n) => n.kind !== "boundary" && resolveNodePose(n, stop).opacity > 0.25
+    (n) => n.kind !== "boundary" && _chunkOQHYF6Z2cjs.resolveNodePose.call(void 0, n, stop).opacity > 0.25
   );
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-slide-diagram", "data-testid": "slide-diagram", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { className: "uipack-slide-diagram__heading", children: "Diagram view" }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "uipack-slide-diagram__nodes", children: visible.map((n) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { "data-tone": n.tone, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("strong", { children: n.label }),
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-slide-diagram", "data-testid": "slide-diagram", children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack-slide-diagram__heading", children: "Diagram view" }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-slide-diagram__nodes", children: visible.map((n) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { "data-tone": n.tone, children: [
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "strong", { children: n.label }),
       " ",
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: n.detail })
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: n.detail })
     ] }, n.id)) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("ul", { "aria-label": "Highlighted connections", children: story.connections.filter((c) => stop.activeConnections?.includes(c.id)).map((c) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("li", { children: [
-      story.nodes.find((n) => n.id === c.from)?.label,
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { "aria-label": "Highlighted connections", children: story.connections.filter((c) => _optionalChain([stop, 'access', _ => _.activeConnections, 'optionalAccess', _2 => _2.includes, 'call', _3 => _3(c.id)])).map((c) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { children: [
+      _optionalChain([story, 'access', _4 => _4.nodes, 'access', _5 => _5.find, 'call', _6 => _6((n) => n.id === c.from), 'optionalAccess', _7 => _7.label]),
       " ",
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "aria-label": "to", children: "\u2192" }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "aria-label": "to", children: "\u2192" }),
       " ",
-      story.nodes.find((n) => n.id === c.to)?.label
+      _optionalChain([story, 'access', _8 => _8.nodes, 'access', _9 => _9.find, 'call', _10 => _10((n) => n.id === c.to), 'optionalAccess', _11 => _11.label])
     ] }, c.id)) })
   ] });
 }
@@ -1179,20 +51,20 @@ function SceneViewport({
   className = "",
   onSettled
 }) {
-  const host = (0, import_react5.useRef)(null), labels = (0, import_react5.useRef)(null), runtime = (0, import_react5.useRef)();
-  const prefersReduced = usePrefersReducedMotion();
+  const host = _react.useRef.call(void 0, null), labels = _react.useRef.call(void 0, null), runtime = _react.useRef.call(void 0, );
+  const prefersReduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
   const reduced = motion === "none" || prefersReduced;
-  const stop = story.stops.find((s) => s.id === stopId) ?? story.stops[0];
-  const latest = (0, import_react5.useRef)({ stop, reduced, paused, onSettled });
+  const stop = _nullishCoalesce(story.stops.find((s) => s.id === stopId), () => ( story.stops[0]));
+  const latest = _react.useRef.call(void 0, { stop, reduced, paused, onSettled });
   latest.current = { stop, reduced, paused, onSettled };
-  const [status, setStatus] = (0, import_react5.useState)(
+  const [status, setStatus] = _react.useState.call(void 0, 
     "loading"
   );
-  const [selected, setSelected] = (0, import_react5.useState)(null);
-  const [failed, setFailed] = (0, import_react5.useState)(false);
-  const [settled, setSettled] = (0, import_react5.useState)("");
-  const [transitioning, setTransitioning] = (0, import_react5.useState)(false);
-  (0, import_react5.useEffect)(() => {
+  const [selected, setSelected] = _react.useState.call(void 0, null);
+  const [failed, setFailed] = _react.useState.call(void 0, false);
+  const [settled, setSettled] = _react.useState.call(void 0, "");
+  const [transitioning, setTransitioning] = _react.useState.call(void 0, false);
+  _react.useEffect.call(void 0, () => {
     let cancelled = false;
     if (renderMode === "diagram" || failed) {
       setStatus("fallback");
@@ -1201,10 +73,10 @@ function SceneViewport({
       return;
     }
     setStatus("loading");
-    void Promise.resolve().then(() => (init_renderer(), renderer_exports)).then(({ createSlideScene: createSlideScene2 }) => {
+    void Promise.resolve().then(() => _interopRequireWildcard(require("./renderer-2NG6XOL5.cjs"))).then(({ createSlideScene }) => {
       if (cancelled || !host.current || !labels.current) return;
       try {
-        runtime.current = createSlideScene2(
+        runtime.current = createSlideScene(
           host.current,
           labels.current,
           story,
@@ -1216,14 +88,14 @@ function SceneViewport({
             if (!cancelled) {
               setSettled(id);
               setTransitioning(false);
-              latest.current.onSettled?.(id);
+              _optionalChain([latest, 'access', _12 => _12.current, 'access', _13 => _13.onSettled, 'optionalCall', _14 => _14(id)]);
             }
           },
           setSelected
         );
         runtime.current.setPaused(latest.current.paused);
         setStatus("ready");
-      } catch {
+      } catch (e2) {
         if (!cancelled) setFailed(true);
       }
     }).catch(() => {
@@ -1231,15 +103,15 @@ function SceneViewport({
     });
     return () => {
       cancelled = true;
-      runtime.current?.dispose();
+      _optionalChain([runtime, 'access', _15 => _15.current, 'optionalAccess', _16 => _16.dispose, 'call', _17 => _17()]);
       runtime.current = void 0;
     };
   }, [story, theme, renderMode, failed]);
-  (0, import_react5.useEffect)(() => {
+  _react.useEffect.call(void 0, () => {
     if (renderMode === "diagram" || failed) {
       setSettled(stop.id);
       setTransitioning(false);
-      onSettled?.(stop.id);
+      _optionalChain([onSettled, 'optionalCall', _18 => _18(stop.id)]);
       return;
     }
     if (runtime.current) {
@@ -1247,23 +119,23 @@ function SceneViewport({
       runtime.current.goTo(stop, reduced);
     }
   }, [stop, renderMode, failed]);
-  (0, import_react5.useEffect)(() => {
-    runtime.current?.setReducedMotion(reduced);
+  _react.useEffect.call(void 0, () => {
+    _optionalChain([runtime, 'access', _19 => _19.current, 'optionalAccess', _20 => _20.setReducedMotion, 'call', _21 => _21(reduced)]);
   }, [reduced]);
-  (0, import_react5.useEffect)(() => {
-    runtime.current?.setPaused(paused);
+  _react.useEffect.call(void 0, () => {
+    _optionalChain([runtime, 'access', _22 => _22.current, 'optionalAccess', _23 => _23.setPaused, 'call', _24 => _24(paused)]);
   }, [paused]);
-  (0, import_react5.useEffect)(() => {
-    runtime.current?.setSelected(selected);
+  _react.useEffect.call(void 0, () => {
+    _optionalChain([runtime, 'access', _25 => _25.current, 'optionalAccess', _26 => _26.setSelected, 'call', _27 => _27(selected)]);
   }, [selected, status]);
-  (0, import_react5.useEffect)(() => {
-    runtime.current?.setZoom(zoom);
+  _react.useEffect.call(void 0, () => {
+    _optionalChain([runtime, 'access', _28 => _28.current, 'optionalAccess', _29 => _29.setZoom, 'call', _30 => _30(zoom)]);
   }, [zoom, status]);
-  (0, import_react5.useEffect)(() => {
+  _react.useEffect.call(void 0, () => {
     setSelected(null);
   }, [stop.id]);
   const chosen = story.nodes.find((n) => n.id === selected);
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
     "div",
     {
       className: `uipack-slide-scene ${className}`,
@@ -1275,7 +147,7 @@ function SceneViewport({
       "data-motion": reduced ? "reduced" : "full",
       "aria-label": `${story.title}: ${stop.title}`,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
           "div",
           {
             className: "uipack-slide-scene__webgl",
@@ -1283,7 +155,7 @@ function SceneViewport({
             "aria-hidden": "true"
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { ref: labels, className: "uipack-slide-labels", children: story.nodes.map((n) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { ref: labels, className: "uipack-slide-labels", children: story.nodes.map((n) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
           "button",
           {
             type: "button",
@@ -1294,49 +166,49 @@ function SceneViewport({
             className: "uipack-slide-label",
             style: { visibility: "hidden" },
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("strong", { children: n.label }),
+              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "strong", { children: n.label }),
               " ",
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: n.detail })
+              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: n.detail })
             ]
           },
           n.id
         )) }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-slide-inspect", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("label", { children: [
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-slide-inspect", children: [
+          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "label", { children: [
             "Inspect component",
             " ",
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
               "select",
               {
                 "aria-label": "Inspect component",
-                value: selected ?? "",
+                value: _nullishCoalesce(selected, () => ( "")),
                 onChange: (e) => setSelected(e.target.value || null),
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("option", { value: "", children: "Choose a component" }),
+                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "option", { value: "", children: "Choose a component" }),
                   story.nodes.filter(
-                    (n) => n.kind !== "boundary" && resolveNodePose(n, stop).opacity > 0.25
-                  ).map((n) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("option", { value: n.id, children: n.label }, n.id))
+                    (n) => n.kind !== "boundary" && _chunkOQHYF6Z2cjs.resolveNodePose.call(void 0, n, stop).opacity > 0.25
+                  ).map((n) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "option", { value: n.id, children: n.label }, n.id))
                 ]
               }
             )
           ] }),
-          chosen && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("p", { role: "status", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("strong", { children: chosen.label }),
+          chosen && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { role: "status", children: [
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "strong", { children: chosen.label }),
             chosen.detail && ` \xB7 ${chosen.detail}`,
             " ",
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { type: "button", onClick: () => setSelected(null), children: "Clear selection" })
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: () => setSelected(null), children: "Clear selection" })
           ] })
         ] }),
-        status !== "ready" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Diagram, { story, stop }),
-        status === "ready" && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-slide-scene__badge", children: [
+        status !== "ready" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Diagram, { story, stop }),
+        status === "ready" && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-slide-scene__badge", children: [
           "Live 3D ",
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "aria-hidden": "true", children: "\xB7" }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "aria-hidden": "true", children: "\xB7" }),
           " ",
           reduced ? "Reduced motion" : "Authored camera"
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "uipack-slide-sr", children: story.nodes.filter(
-          (n) => n.kind !== "boundary" && resolveNodePose(n, stop).opacity > 0.25
-        ).map((n) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("p", { children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-slide-sr", children: story.nodes.filter(
+          (n) => n.kind !== "boundary" && _chunkOQHYF6Z2cjs.resolveNodePose.call(void 0, n, stop).opacity > 0.25
+        ).map((n) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { children: [
           n.label,
           ": ",
           n.detail
@@ -1346,29 +218,29 @@ function SceneViewport({
   );
 }
 function SlideScene(props) {
-  const [canvas, setCanvas] = (0, import_react5.useState)(false);
-  const [zoom, setZoom] = (0, import_react5.useState)(1);
-  const opener = (0, import_react5.useRef)(null);
-  const errors = validateSlideStory(props.story);
+  const [canvas, setCanvas] = _react.useState.call(void 0, false);
+  const [zoom, setZoom] = _react.useState.call(void 0, 1);
+  const opener = _react.useRef.call(void 0, null);
+  const errors = _chunkOQHYF6Z2cjs.validateSlideStory.call(void 0, props.story);
   if (errors.length)
-    return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { role: "alert", className: "uipack-slide-error", children: [
+    return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { role: "alert", className: "uipack-slide-error", children: [
       "Invalid slide story: ",
       errors.join(" ")
     ] });
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-    CanvasView,
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+    _chunkSN4T6OE6cjs.CanvasView,
     {
-      restoreFocus: () => opener.current?.focus(),
+      restoreFocus: () => _optionalChain([opener, 'access', _31 => _31.current, 'optionalAccess', _32 => _32.focus, 'call', _33 => _33()]),
       open: canvas,
       onClose: () => {
         setCanvas(false);
         setZoom(1);
       },
       title: props.story.title,
-      theme: props.theme ?? "dark",
+      theme: _nullishCoalesce(props.theme, () => ( "dark")),
       zoom: { value: zoom, min: 0.75, max: 2, onChange: setZoom },
-      children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-scene-card", "data-theme": props.theme ?? "dark", children: [
-        !canvas && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+      children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-scene-card", "data-theme": _nullishCoalesce(props.theme, () => ( "dark")), children: [
+        !canvas && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
           "button",
           {
             className: "uipack-scene-card__open",
@@ -1378,7 +250,7 @@ function SlideScene(props) {
             children: "Open canvas"
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
           SceneViewport,
           {
             ...props,
@@ -1408,20 +280,20 @@ function Player({
     0,
     story.stops.findIndex((s) => s.id === defaultStopId)
   );
-  const [internal, setInternal] = (0, import_react5.useState)(initial), [paused, setPaused] = (0, import_react5.useState)(false), [present, setPresent] = (0, import_react5.useState)(false), [diagram, setDiagram] = (0, import_react5.useState)(false), [canvas, setCanvas] = (0, import_react5.useState)(false), [zoom, setZoom] = (0, import_react5.useState)(1);
-  const reduced = usePrefersReducedMotion() || motion === "none";
-  const opener = (0, import_react5.useRef)(null);
-  const root = (0, import_react5.useRef)(null);
-  const titleId = (0, import_react5.useId)();
-  const index = stopId === void 0 ? clampStop(internal, story.stops.length) : Math.max(
+  const [internal, setInternal] = _react.useState.call(void 0, initial), [paused, setPaused] = _react.useState.call(void 0, false), [present, setPresent] = _react.useState.call(void 0, false), [diagram, setDiagram] = _react.useState.call(void 0, false), [canvas, setCanvas] = _react.useState.call(void 0, false), [zoom, setZoom] = _react.useState.call(void 0, 1);
+  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, ) || motion === "none";
+  const opener = _react.useRef.call(void 0, null);
+  const root = _react.useRef.call(void 0, null);
+  const titleId = _react.useId.call(void 0, );
+  const index = stopId === void 0 ? _chunkOQHYF6Z2cjs.clampStop.call(void 0, internal, story.stops.length) : Math.max(
     0,
     story.stops.findIndex((s) => s.id === stopId)
   );
   const stop = story.stops[index];
   const navigate = (value) => {
-    const next = clampStop(value, story.stops.length);
+    const next = _chunkOQHYF6Z2cjs.clampStop.call(void 0, value, story.stops.length);
     if (stopId === void 0) setInternal(next);
-    if (next !== index) onStopChange?.(story.stops[next].id);
+    if (next !== index) _optionalChain([onStopChange, 'optionalCall', _34 => _34(story.stops[next].id)]);
   };
   function keyboard(event) {
     const target = event.target;
@@ -1434,19 +306,19 @@ function Player({
     }
     if (event.key === "Escape") setPresent(false);
   }
-  (0, import_react5.useEffect)(() => {
+  _react.useEffect.call(void 0, () => {
     if (!present) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    root.current?.focus();
+    _optionalChain([root, 'access', _35 => _35.current, 'optionalAccess', _36 => _36.focus, 'call', _37 => _37()]);
     return () => {
       document.body.style.overflow = previous;
     };
   }, [present]);
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-    CanvasView,
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+    _chunkSN4T6OE6cjs.CanvasView,
     {
-      restoreFocus: () => opener.current?.focus(),
+      restoreFocus: () => _optionalChain([opener, 'access', _38 => _38.current, 'optionalAccess', _39 => _39.focus, 'call', _40 => _40()]),
       open: canvas,
       onClose: () => {
         setCanvas(false);
@@ -1455,7 +327,7 @@ function Player({
       title: story.title,
       theme,
       zoom: { value: zoom, min: 0.75, max: 2, onChange: setZoom },
-      children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+      children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
         "section",
         {
           ref: root,
@@ -1468,10 +340,10 @@ function Player({
           "data-story": story.id,
           "data-stop": stop.id,
           children: [
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-slide-player__top", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: story.title }),
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { children: [
-                !canvas && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-slide-player__top", children: [
+              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: story.title }),
+              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { children: [
+                !canvas && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
                   "button",
                   {
                     ref: opener,
@@ -1483,7 +355,7 @@ function Player({
                     children: "Open canvas"
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
                   "button",
                   {
                     type: "button",
@@ -1492,7 +364,7 @@ function Player({
                     children: diagram ? "3D view" : "Diagram view"
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
                   "button",
                   {
                     type: "button",
@@ -1502,7 +374,7 @@ function Player({
                     children: paused ? "Resume flow" : "Pause flow"
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
                   "button",
                   {
                     type: "button",
@@ -1514,31 +386,31 @@ function Player({
                 )
               ] })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-slide-player__body", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-slide-player__body", children: [
+              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
                 "header",
                 {
                   className: "uipack-slide-player__copy",
                   "aria-live": "polite",
                   "aria-atomic": "true",
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { className: "uipack-slide-player__count", children: [
+                    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-slide-player__count", children: [
                       String(index + 1).padStart(2, "0"),
                       " /",
                       " ",
                       String(story.stops.length).padStart(2, "0")
                     ] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h2", { id: titleId, children: stop.title }),
-                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { children: stop.caption }),
-                    /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-slide-legend", "aria-label": "Flow colors", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "data-tone": "request", children: "Request" }),
-                      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "data-tone": "response", children: "Response" }),
-                      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "data-tone": "change", children: "Change" })
+                    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h2", { id: titleId, children: stop.title }),
+                    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: stop.caption }),
+                    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-slide-legend", "aria-label": "Flow colors", children: [
+                      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "data-tone": "request", children: "Request" }),
+                      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "data-tone": "response", children: "Response" }),
+                      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "data-tone": "change", children: "Change" })
                     ] })
                   ]
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
                 SceneViewport,
                 {
                   story,
@@ -1546,19 +418,19 @@ function Player({
                   stopId: stop.id,
                   theme,
                   motion,
-                  paused: externalPaused ?? paused,
+                  paused: _nullishCoalesce(externalPaused, () => ( paused)),
                   renderMode: diagram ? "diagram" : renderMode,
                   onSettled
                 }
               )
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
               "nav",
               {
                 className: "uipack-slide-player__navigation",
                 "aria-label": "Presentation stops",
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
                     "button",
                     {
                       type: "button",
@@ -1568,7 +440,7 @@ function Player({
                       children: "\u2190 Previous"
                     }
                   ),
-                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "uipack-slide-player__stops", children: story.stops.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-slide-player__stops", children: story.stops.map((s, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
                     "button",
                     {
                       type: "button",
@@ -1580,7 +452,7 @@ function Player({
                     },
                     s.id
                   )) }),
-                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
                     "button",
                     {
                       type: "button",
@@ -1593,18 +465,18 @@ function Player({
                 ]
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("footer", { className: "uipack-slide-player__footer", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: footer ?? "UIPACK / Spatial stories" }),
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { children: [
+            /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "footer", { className: "uipack-slide-player__footer", children: [
+              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: _nullishCoalesce(footer, () => ( "UIPACK / Spatial stories")) }),
+              /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { children: [
                 "\u2190 \u2192 to navigate ",
-                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "aria-hidden": "true", children: "\xB7" }),
+                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "aria-hidden": "true", children: "\xB7" }),
                 " ",
                 reduced ? "Reduced motion" : "Click any stop to jump"
               ] })
             ] }),
-            stop.notes && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("details", { className: "uipack-slide-player__notes", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("summary", { children: "Presenter notes" }),
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { children: stop.notes })
+            stop.notes && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "details", { className: "uipack-slide-player__notes", children: [
+              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "summary", { children: "Presenter notes" }),
+              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: stop.notes })
             ] })
           ]
         }
@@ -1613,13 +485,13 @@ function Player({
   );
 }
 function SlidePlayer(props) {
-  const errors = validateSlideStory(props.story);
+  const errors = _chunkOQHYF6Z2cjs.validateSlideStory.call(void 0, props.story);
   if (errors.length)
-    return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { role: "alert", className: "uipack-slide-error", children: [
+    return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { role: "alert", className: "uipack-slide-error", children: [
       "Invalid slide story: ",
       errors.join(" ")
     ] });
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Player, { ...props }, props.story.id);
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Player, { ...props }, props.story.id);
 }
 
 // src/slides/stories.ts
@@ -2268,22 +1140,18 @@ var slideStories = [
   architectureShift
 ];
 
-// src/slides/index.ts
-init_model();
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  SlidePlayer,
-  SlideScene,
-  architectureShift,
-  clampStop,
-  harnessDive,
-  parallelAgents,
-  quarterTurn,
-  resolveNodePose,
-  retrievalLayers,
-  slidePalettes,
-  slideStories,
-  stagedAssembly,
-  validateSlideStory
-});
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.SlidePlayer = SlidePlayer; exports.SlideScene = SlideScene; exports.architectureShift = architectureShift; exports.clampStop = _chunkOQHYF6Z2cjs.clampStop; exports.harnessDive = harnessDive; exports.parallelAgents = parallelAgents; exports.quarterTurn = quarterTurn; exports.resolveNodePose = _chunkOQHYF6Z2cjs.resolveNodePose; exports.retrievalLayers = retrievalLayers; exports.slidePalettes = _chunkOQHYF6Z2cjs.slidePalettes; exports.slideStories = slideStories; exports.stagedAssembly = stagedAssembly; exports.validateSlideStory = _chunkOQHYF6Z2cjs.validateSlideStory;
 //# sourceMappingURL=slides.cjs.map

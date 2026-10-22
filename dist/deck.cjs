@@ -1,138 +1,29 @@
-"use strict";
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 
-// src/deck/index.ts
-var deck_exports = {};
-__export(deck_exports, {
-  Annotation: () => Annotation,
-  BarChart: () => BarChart,
-  Bento: () => Bento,
-  BentoCell: () => BentoCell,
-  Build: () => Build,
-  CANVAS_HEIGHT: () => CANVAS_HEIGHT,
-  CANVAS_WIDTH: () => CANVAS_WIDTH,
-  CX_TYPE: () => CX_TYPE,
-  ConsultingSlide: () => ConsultingSlide,
-  DeckPlayer: () => DeckPlayer,
-  DeckSlideContext: () => DeckSlideContext,
-  HarveyBall: () => HarveyBall,
-  HarveyTable: () => HarveyTable,
-  KpiTiles: () => KpiTiles,
-  LINT_RULES: () => LINT_RULES,
-  LineChart: () => LineChart,
-  MAX_TITLE_WORDS: () => MAX_TITLE_WORDS,
-  MIN_TEXT_PX: () => MIN_TEXT_PX,
-  Matrix2x2: () => Matrix2x2,
-  Morph: () => Morph,
-  Panel: () => Panel,
-  REPEATABLE_ROLES: () => REPEATABLE_ROLES,
-  Ref: () => Ref,
-  SLIDE_ROLES: () => SLIDE_ROLES,
-  STORYLINE_TEMPLATES: () => STORYLINE_TEMPLATES,
-  Slide: () => Slide,
-  SlideThumbnail: () => SlideThumbnail,
-  SoWhat: () => SoWhat,
-  Sparkline: () => Sparkline,
-  StackedBar: () => StackedBar,
-  Tracker: () => Tracker,
-  WORDS_PER_MINUTE: () => WORDS_PER_MINUTE,
-  Waterfall: () => Waterfall,
-  annotationGeometry: () => annotationGeometry,
-  bandLayout: () => bandLayout,
-  barPath: () => barPath,
-  bentoCamera: () => bentoCamera,
-  bentoFocusAt: () => bentoFocusAt,
-  bubbleRadius: () => bubbleRadius,
-  deckMotion: () => deckMotion,
-  flipFrom: () => flipFrom,
-  formatStoryline: () => formatStoryline,
-  formatValue: () => formatValue,
-  formatter: () => formatter,
-  getStorylineTemplate: () => getStorylineTemplate,
-  harveyQuarters: () => harveyQuarters,
-  harveyWedge: () => harveyWedge,
-  linearScale: () => linearScale,
-  lintDeck: () => lintDeck,
-  niceStep: () => niceStep,
-  niceTicks: () => niceTicks,
-  resolveTransition: () => resolveTransition,
-  runTransition: () => runTransition,
-  slideZoomFrame: () => slideZoomFrame,
-  slideZoomSamples: () => slideZoomSamples,
-  spreadLabels: () => spreadLabels,
-  stackSegments: () => stackSegments,
-  storylineOf: () => storylineOf,
-  talkSeconds: () => talkSeconds,
-  templateOutline: () => templateOutline,
-  textWidth: () => textWidth,
-  useDeckSlide: () => useDeckSlide,
-  waterfallBars: () => waterfallBars,
-  wrapToWidth: () => wrapToWidth,
-  zeroBasedDomain: () => zeroBasedDomain
-});
-module.exports = __toCommonJS(deck_exports);
+
+var _chunkVGPFDDCPcjs = require('./chunk-VGPFDDCP.cjs');
+
+
+var _chunkTKLHLAXGcjs = require('./chunk-TKLHLAXG.cjs');
+
+
+var _chunkJ7BYXE6Qcjs = require('./chunk-J7BYXE6Q.cjs');
 
 // src/deck/DeckPlayer.tsx
-var import_react7 = require("react");
 
-// src/context.tsx
-var import_react2 = require("react");
 
-// src/env.ts
-var import_react = require("react");
-var useIsoLayoutEffect = typeof window === "undefined" ? import_react.useEffect : import_react.useLayoutEffect;
-var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
-// src/context.tsx
-var noop = () => {
-};
-var FigureMotionContext = (0, import_react2.createContext)({
-  playing: true,
-  reduced: false,
-  cycle: 0,
-  toggle: noop,
-  replay: noop
-});
-function usePrefersReducedMotion() {
-  const [reduced, setReduced] = (0, import_react2.useState)(false);
-  (0, import_react2.useEffect)(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const mq = window.matchMedia(REDUCED_MOTION_QUERY);
-    const onChange = (e) => setReduced(e.matches);
-    setReduced(mq.matches);
-    if (typeof mq.addEventListener === "function") {
-      mq.addEventListener("change", onChange);
-      return () => mq.removeEventListener("change", onChange);
-    }
-    mq.addListener(onChange);
-    return () => mq.removeListener(onChange);
-  }, []);
-  return reduced;
-}
+
+
+var _react = require('react');
 
 // src/deck/player/format.ts
 var railAt = (i, count) => `${count > 1 ? i / (count - 1) * 100 : 0}%`;
 var pad = (n) => String(n).padStart(2, "0");
-var notesOf = (slide) => !slide?.notes ? void 0 : typeof slide.notes === "string" ? { say: slide.notes, delivery: "", next: void 0 } : slide.notes;
+var notesOf = (slide) => !_optionalChain([slide, 'optionalAccess', _2 => _2.notes]) ? void 0 : typeof slide.notes === "string" ? { say: slide.notes, delivery: "", next: void 0 } : slide.notes;
 
 // src/deck/player/Controls.tsx
-var import_jsx_runtime = require("react/jsx-runtime");
+var _jsxruntime = require('react/jsx-runtime');
 function Controls({
   slides,
   index,
@@ -150,41 +41,41 @@ function Controls({
   onFullscreen
 }) {
   const count = slides.length;
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-deck-controls", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", className: "uipack-deck-step", onClick: onPrev, disabled: atStart, "aria-label": "Previous", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "aria-hidden": "true", children: "\u2190" }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-deck-rail", "aria-hidden": "true", children: [
-      slides.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { left: railAt(i, count) }, "data-passed": i <= index ? "" : void 0 }, s.id)),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", { style: { left: railAt(index, count) } })
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-deck-controls", children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", className: "uipack-deck-step", onClick: onPrev, disabled: atStart, "aria-label": "Previous", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "aria-hidden": "true", children: "\u2190" }) }),
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-deck-rail", "aria-hidden": "true", children: [
+      slides.map((s, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { style: { left: railAt(i, count) }, "data-passed": i <= index ? "" : void 0 }, s.id)),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "i", { style: { left: railAt(index, count) } })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-deck-counter", children: [
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-deck-counter", children: [
       pad(index + 1),
       " / ",
       pad(count)
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", className: "uipack-deck-step", onClick: onNext, disabled: atEnd, "aria-label": "Next", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "aria-hidden": "true", children: "\u2192" }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "uipack-deck-tools", children: [
-      mode === "audience" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: onRead, children: "Read" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", ref: overviewButtonRef, onClick: onOverview, "aria-keyshortcuts": "G", children: "All slides" }),
-      mode === "audience" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: onPresenter, "aria-keyshortcuts": "S", children: "Speaker view" }),
-      canFullscreen && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: onFullscreen, "aria-keyshortcuts": "F", "aria-pressed": fullscreen, children: fullscreen ? "Exit full screen" : "Full screen" })
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", className: "uipack-deck-step", onClick: onNext, disabled: atEnd, "aria-label": "Next", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "aria-hidden": "true", children: "\u2192" }) }),
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-deck-tools", children: [
+      mode === "audience" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: onRead, children: "Read" }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", ref: overviewButtonRef, onClick: onOverview, "aria-keyshortcuts": "G", children: "All slides" }),
+      mode === "audience" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: onPresenter, "aria-keyshortcuts": "S", children: "Speaker view" }),
+      canFullscreen && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: onFullscreen, "aria-keyshortcuts": "F", "aria-pressed": fullscreen, children: fullscreen ? "Exit full screen" : "Full screen" })
     ] })
   ] });
 }
 
 // src/deck/player/Layer.tsx
-var import_react4 = require("react");
+
 
 // src/deck/parts.tsx
-var import_react3 = require("react");
-var import_jsx_runtime2 = require("react/jsx-runtime");
-var DeckSlideContext = (0, import_react3.createContext)({
+
+
+var DeckSlideContext = _react.createContext.call(void 0, {
   step: Infinity,
   active: true,
   thumbnail: false,
   index: 0,
   count: 1
 });
-var useDeckSlide = () => (0, import_react3.useContext)(DeckSlideContext);
+var useDeckSlide = () => _react.useContext.call(void 0, DeckSlideContext);
 function Morph({
   id,
   as: Tag = "div",
@@ -193,7 +84,7 @@ function Morph({
   style,
   children
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Tag, { "data-morph": id, "data-morph-fit": fit, className, style, children });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tag, { "data-morph": id, "data-morph-fit": fit, className, style, children });
 }
 function Build({
   step,
@@ -204,7 +95,7 @@ function Build({
 }) {
   const { step: reached } = useDeckSlide();
   const built = reached >= step;
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
     Tag,
     {
       "data-build": step,
@@ -224,66 +115,18 @@ function Slide({
   children
 }) {
   const { index, count } = useDeckSlide();
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: ["uipack-deck-slide", className].filter(Boolean).join(" "), "data-layout": layout, children: [
-    eyebrow && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { className: "uipack-deck-eyebrow", children: eyebrow }),
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: ["uipack-deck-slide", className].filter(Boolean).join(" "), "data-layout": layout, children: [
+    eyebrow && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack-deck-eyebrow", children: eyebrow }),
     children,
-    footer !== null && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("footer", { className: "uipack-deck-footer", "data-morph": "deck-footer", "data-morph-fit": "stretch", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: footer }),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { children: [
+    footer !== null && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "footer", { className: "uipack-deck-footer", "data-morph": "deck-footer", "data-morph-fit": "stretch", children: [
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: footer }),
+      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { children: [
         String(index + 1).padStart(2, "0"),
         " / ",
         String(count).padStart(2, "0")
       ] })
     ] })
   ] });
-}
-
-// src/zoom-math.ts
-var easeInOutCubic = (p) => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
-var smoothstep = (a, b, x) => {
-  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
-  return t * t * (3 - 2 * t);
-};
-function zoomFrame(target, width, height) {
-  const Z = Math.min(width / target.w, height / target.h);
-  if (!Number.isFinite(Z) || Z < 1.05) return null;
-  const cx2 = target.x + target.w / 2;
-  const cy = target.y + target.h / 2;
-  return {
-    Z,
-    fx: (cx2 * Z - width / 2) / (Z - 1),
-    fy: (cy * Z - height / 2) / (Z - 1)
-  };
-}
-function innerClipStart(target, frame, width, height) {
-  const map = (v, f) => (v - f) * frame.Z + f;
-  const left = map(target.x, frame.fx);
-  const top = map(target.y, frame.fy);
-  const right = width - map(target.x + target.w, frame.fx);
-  const bottom = height - map(target.y + target.h, frame.fy);
-  return { top, right, bottom, left };
-}
-function zoomSamples(target, forward, width, height, { samples = 24, radius = 6 } = {}) {
-  const frame = zoomFrame(target, width, height);
-  if (!frame) return null;
-  const start = innerClipStart(target, frame, width, height);
-  const radiusStart = radius * frame.Z;
-  const out = [];
-  for (let i = 0; i <= samples; i++) {
-    const t = i / samples;
-    const p = easeInOutCubic(forward ? t : 1 - t);
-    const clipT = smoothstep(0.15, 0.85, p);
-    const inset = (v) => (v * (1 - clipT)).toFixed(2);
-    out.push({
-      offset: t,
-      p,
-      outer: `scale(${Math.pow(frame.Z, p).toFixed(5)})`,
-      inner: `scale(${Math.pow(frame.Z, p - 1).toFixed(5)})`,
-      clip: `inset(${inset(start.top)}px ${inset(start.right)}px ${inset(start.bottom)}px ${inset(start.left)}px round ${(radiusStart * (1 - clipT)).toFixed(2)}px)`,
-      innerOpacity: smoothstep(0.08, 0.4, p)
-    });
-  }
-  return out;
 }
 
 // src/deck/transitions.ts
@@ -303,11 +146,11 @@ var deckMotion = {
 function resolveTransition(from, to, transitionOf, fallback = "advance") {
   if (from === to) return { kind: "none" };
   if (Math.abs(from - to) !== 1) return { kind: "fade" };
-  const t = transitionOf(Math.max(from, to)) ?? fallback;
+  const t = _nullishCoalesce(transitionOf(Math.max(from, to)), () => ( fallback));
   return typeof t === "string" ? { kind: t } : { kind: "zoom", zoom: t.zoom };
 }
-var slideZoomFrame = (target, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomFrame(target, width, height);
-var slideZoomSamples = (target, forward, samples = 24, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomSamples(target, forward, width, height, { samples, radius: 6 });
+var slideZoomFrame = (target, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => _chunkVGPFDDCPcjs.zoomFrame.call(void 0, target, width, height);
+var slideZoomSamples = (target, forward, samples = 24, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => _chunkVGPFDDCPcjs.zoomSamples.call(void 0, target, forward, width, height, { samples, radius: 6 });
 function flipFrom(from, to, scale, fit = "auto", textScale) {
   if (textScale && fit !== "stretch") {
     return {
@@ -329,7 +172,7 @@ var rectOf = (el) => {
   return { x: r.left, y: r.top, w: r.width, h: r.height };
 };
 function blocksOf(layer) {
-  let node = layer.querySelector(".uipack-deck-slide") ?? layer;
+  let node = _nullishCoalesce(layer.querySelector(".uipack-deck-slide"), () => ( layer));
   if (node === layer) {
     while (node.children.length === 1 && node.firstElementChild) node = node.firstElementChild;
   }
@@ -371,7 +214,7 @@ function runTransition(opts) {
     const zoomInto = direction === 1;
     const outer = zoomInto ? from : to;
     const inner = zoomInto ? to : from;
-    const target = outer.querySelector(`[data-morph="${CSS.escape(opts.transition.zoom ?? "")}"]`);
+    const target = outer.querySelector(`[data-morph="${CSS.escape(_nullishCoalesce(opts.transition.zoom, () => ( "")))}"]`);
     const layerRect = rectOf(outer);
     const box = target && rectOf(target);
     const local = box && {
@@ -409,7 +252,7 @@ function runTransition(opts) {
         if (!a || !b) continue;
         const ra = rectOf(a);
         const rb = rectOf(b);
-        const fit = b.getAttribute("data-morph-fit") ?? "auto";
+        const fit = _nullishCoalesce(b.getAttribute("data-morph-fit"), () => ( "auto"));
         const text = isText(a) && isText(b) ? fontSizeOf(a) / fontSizeOf(b) : void 0;
         const [x0, x1] = text ? [0.06, 0.32] : [0, 0.45];
         const fromB = flipFrom(ra, rb, scale, fit, text).transform;
@@ -468,11 +311,11 @@ function runTransition(opts) {
 }
 
 // src/deck/player/Layer.tsx
-var import_jsx_runtime3 = require("react/jsx-runtime");
+
 function useCanvasScale() {
-  const ref = (0, import_react4.useRef)(null);
-  const [scale, setScale] = (0, import_react4.useState)(0);
-  useIsoLayoutEffect(() => {
+  const ref = _react.useRef.call(void 0, null);
+  const [scale, setScale] = _react.useState.call(void 0, 0);
+  _chunkJ7BYXE6Qcjs.useIsoLayoutEffect.call(void 0, () => {
     const el = ref.current;
     if (!el) return;
     const measure = () => setScale(el.clientWidth / CANVAS_WIDTH);
@@ -484,13 +327,13 @@ function useCanvasScale() {
   }, []);
   return { ref, scale };
 }
-var Layer = (0, import_react4.forwardRef)(function Layer2({ slide, index, count, step, active, thumbnail = false, theme, reducedMotion }, ref) {
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
+var Layer = _react.forwardRef.call(void 0, function Layer2({ slide, index, count, step, active, thumbnail = false, theme, reducedMotion }, ref) {
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
     "div",
     {
       ref,
       className: "uipack-deck-layer",
-      "data-tone": slide.tone ?? "paper",
+      "data-tone": _nullishCoalesce(slide.tone, () => ( "paper")),
       "data-slide": slide.id,
       role: thumbnail ? void 0 : "group",
       "aria-roledescription": thumbnail ? void 0 : "slide",
@@ -498,8 +341,8 @@ var Layer = (0, import_react4.forwardRef)(function Layer2({ slide, index, count,
       "aria-hidden": active ? void 0 : true,
       ...active ? {} : { inert: "" },
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "uipack-deck-layer__bg" }),
-        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(DeckSlideContext.Provider, { value: { step, active, thumbnail, index, count }, children: slide.render({ step, active, thumbnail, theme, reducedMotion }) })
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-deck-layer__bg" }),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, DeckSlideContext.Provider, { value: { step, active, thumbnail, index, count }, children: slide.render({ step, active, thumbnail, theme, reducedMotion }) })
       ]
     }
   );
@@ -511,11 +354,11 @@ function SlideThumbnail({
   theme = "light"
 }) {
   const { ref, scale } = useCanvasScale();
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { ref, className: "uipack-deck-thumb", "data-tone": slide.tone ?? "paper", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "uipack-deck-canvas", style: { transform: `scale(${scale})`, visibility: scale ? void 0 : "hidden" }, children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layer, { slide, index, count, step: Infinity, active: false, thumbnail: true, theme, reducedMotion: true }) }) });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { ref, className: "uipack-deck-thumb", "data-tone": _nullishCoalesce(slide.tone, () => ( "paper")), children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-deck-canvas", style: { transform: `scale(${scale})`, visibility: scale ? void 0 : "hidden" }, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Layer, { slide, index, count, step: Infinity, active: false, thumbnail: true, theme, reducedMotion: true }) }) });
 }
 
 // src/deck/player/Overview.tsx
-var import_react5 = require("react");
+
 
 // src/deck/storyline.ts
 var SLIDE_ROLES = {
@@ -1101,10 +944,10 @@ var OWNER_WORD_RE = /\b(?:owner|owners|owns|lead|leads|manager|managers|director
 var SOURCE_RE = /\b(?:source|sources|sourced|per|from|measured|dashboard|according|data|logs?|survey|benchmark|experiment|query|report|ticket|estimate|estimated|study|trace|traces|a\/b)\b|https?:\/\//i;
 var NOT_A_NAME = new RegExp(`^(?:${MONTH}|${WEEKDAY}|[QH][1-4])$`, "i");
 function wordsOf(text) {
-  return text.match(/[\p{L}\p{N}][\p{L}\p{N}'’.%,&/-]*/gu) ?? [];
+  return _nullishCoalesce(text.match(/[\p{L}\p{N}][\p{L}\p{N}'’.%,&/-]*/gu), () => ( []));
 }
 function headlineOf(slide) {
-  return (slide.headline ?? slide.title ?? "").trim();
+  return (_nullishCoalesce(_nullishCoalesce(slide.headline, () => ( slide.title)), () => ( ""))).trim();
 }
 function sayOf(notes) {
   if (!notes) return "";
@@ -1112,7 +955,7 @@ function sayOf(notes) {
 }
 function notesText(notes) {
   if (!notes) return "";
-  return typeof notes === "string" ? notes : [notes.say, notes.delivery, notes.next ?? ""].join(" ");
+  return typeof notes === "string" ? notes : [notes.say, notes.delivery, _nullishCoalesce(notes.next, () => ( ""))].join(" ");
 }
 function normaliseLabel(text) {
   return text.toLowerCase().replace(/[’]/g, "'").replace(/[^\p{L}\p{N}&' -]+/gu, " ").replace(/\s+/g, " ").trim();
@@ -1148,7 +991,7 @@ function lintDeck(slides, options = {}) {
     return findings;
   }
   const template = options.template ? getStorylineTemplate(options.template) : void 0;
-  const answerFirst = options.answerFirst ?? template?.answerFirst ?? true;
+  const answerFirst = _nullishCoalesce(_nullishCoalesce(options.answerFirst, () => ( _optionalChain([template, 'optionalAccess', _3 => _3.answerFirst]))), () => ( true));
   const seen = /* @__PURE__ */ new Set();
   for (const slide of slides) {
     if (seen.has(slide.id)) add("duplicate-id", "error", `Slide ID "${slide.id}" is used more than once.`, slide.id);
@@ -1257,7 +1100,7 @@ function lintDeck(slides, options = {}) {
     }
   }
   const count = presented.length;
-  const budget = options.minutes ?? template?.minutes.max;
+  const budget = _nullishCoalesce(options.minutes, () => ( _optionalChain([template, 'optionalAccess', _4 => _4.minutes, 'access', _5 => _5.max])));
   if (options.minutes !== void 0 && count > 0) {
     if (count > options.minutes) {
       add(
@@ -1292,7 +1135,7 @@ function lintDeck(slides, options = {}) {
   return findings;
 }
 function talkSeconds(slides) {
-  const words = slides.filter((s) => s.role !== "appendix").reduce((sum, s) => sum + (sayOf(s.notes).match(/\S+/g)?.length ?? 0), 0);
+  const words = slides.filter((s) => s.role !== "appendix").reduce((sum, s) => sum + (_nullishCoalesce(_optionalChain([sayOf, 'call', _6 => _6(s.notes), 'access', _7 => _7.match, 'call', _8 => _8(/\S+/g), 'optionalAccess', _9 => _9.length]), () => ( 0))), 0);
   return Math.round(words / WORDS_PER_MINUTE * 60);
 }
 function storylineOf(slides) {
@@ -1315,7 +1158,7 @@ function formatStoryline(slides) {
 }
 
 // src/deck/player/Storyline.tsx
-var import_jsx_runtime4 = require("react/jsx-runtime");
+
 var severityLabel = { error: "Fix", warn: "Check", tip: "Tip" };
 function Storyline({
   slides,
@@ -1324,29 +1167,29 @@ function Storyline({
   onPick
 }) {
   const entries = storylineOf(slides);
-  const deckWide = findings?.filter((f) => !f.slideId) ?? [];
+  const deckWide = _nullishCoalesce(_optionalChain([findings, 'optionalAccess', _10 => _10.filter, 'call', _11 => _11((f) => !f.slideId)]), () => ( []));
   const minutes = Math.round(talkSeconds(slides) / 6) / 10;
-  return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "uipack-deck-storyline", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("p", { className: "uipack-deck-storyline__intro", children: [
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-deck-storyline", children: [
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-deck-storyline__intro", children: [
       "Read only the headlines. They should make the whole argument. Talk track \u2248 ",
       minutes,
       " min."
     ] }),
-    deckWide.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("ul", { className: "uipack-deck-storyline__findings", "aria-label": "Deck checks", children: deckWide.map((f, i) => /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("li", { "data-severity": f.severity, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("b", { children: severityLabel[f.severity] }),
+    deckWide.length > 0 && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { className: "uipack-deck-storyline__findings", "aria-label": "Deck checks", children: deckWide.map((f, i) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { "data-severity": f.severity, children: [
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "b", { children: severityLabel[f.severity] }),
       " ",
       f.message
     ] }, i)) }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("ol", { children: entries.map((e, i) => {
-      const own = findings?.filter((f) => f.slideId === e.id) ?? [];
-      return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("li", { "data-appendix": e.appendix ? "" : void 0, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("button", { type: "button", "data-tile": "", "aria-current": i === index ? "true" : void 0, onClick: () => onPick(i), children: [
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("span", { className: "uipack-deck-storyline__num", children: pad(e.number) }),
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("span", { className: "uipack-deck-storyline__role", children: e.roleLabel ?? "\u2014" }),
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("span", { className: "uipack-deck-storyline__title", children: e.title })
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ol", { children: entries.map((e, i) => {
+      const own = _nullishCoalesce(_optionalChain([findings, 'optionalAccess', _12 => _12.filter, 'call', _13 => _13((f) => f.slideId === e.id)]), () => ( []));
+      return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { "data-appendix": e.appendix ? "" : void 0, children: [
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "button", { type: "button", "data-tile": "", "aria-current": i === index ? "true" : void 0, onClick: () => onPick(i), children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-deck-storyline__num", children: pad(e.number) }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-deck-storyline__role", children: _nullishCoalesce(e.roleLabel, () => ( "\u2014")) }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-deck-storyline__title", children: e.title })
         ] }),
-        own.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("ul", { className: "uipack-deck-storyline__findings", children: own.map((f, j) => /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("li", { "data-severity": f.severity, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("b", { children: severityLabel[f.severity] }),
+        own.length > 0 && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { className: "uipack-deck-storyline__findings", children: own.map((f, j) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { "data-severity": f.severity, children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "b", { children: severityLabel[f.severity] }),
           " ",
           f.message
         ] }, j)) })
@@ -1356,7 +1199,7 @@ function Storyline({
 }
 
 // src/deck/player/Overview.tsx
-var import_jsx_runtime5 = require("react/jsx-runtime");
+
 function Overview({
   slides,
   index,
@@ -1365,10 +1208,10 @@ function Overview({
   onPick,
   onClose
 }) {
-  const ref = (0, import_react5.useRef)(null);
-  const [tab, setTab] = (0, import_react5.useState)("slides");
-  (0, import_react5.useEffect)(() => {
-    ref.current?.querySelector('[aria-current="true"]')?.focus();
+  const ref = _react.useRef.call(void 0, null);
+  const [tab, setTab] = _react.useState.call(void 0, "slides");
+  _react.useEffect.call(void 0, () => {
+    _optionalChain([ref, 'access', _14 => _14.current, 'optionalAccess', _15 => _15.querySelector, 'call', _16 => _16('[aria-current="true"]'), 'optionalAccess', _17 => _17.focus, 'call', _18 => _18()]);
   }, []);
   const onKeyDown = (e) => {
     e.stopPropagation();
@@ -1377,7 +1220,7 @@ function Overview({
       onClose();
       return;
     }
-    const buttons = Array.from(ref.current?.querySelectorAll("button") ?? []);
+    const buttons = Array.from(_nullishCoalesce(_optionalChain([ref, 'access', _19 => _19.current, 'optionalAccess', _20 => _20.querySelectorAll, 'call', _21 => _21("button")]), () => ( [])));
     const at = buttons.indexOf(document.activeElement);
     if (e.key === "Tab" && buttons.length) {
       if (e.shiftKey && at <= 0) {
@@ -1395,22 +1238,22 @@ function Overview({
       tiles[Math.min(Math.max(ti + (e.key === "ArrowRight" ? 1 : -1), 0), tiles.length - 1)].focus();
     }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { ref, className: "uipack-deck-overview", role: "dialog", "aria-modal": "true", "aria-label": "All slides", onKeyDown, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "uipack-deck-overview__head", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("p", { children: [
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { ref, className: "uipack-deck-overview", role: "dialog", "aria-modal": "true", "aria-label": "All slides", onKeyDown, children: [
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-deck-overview__head", children: [
+      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { children: [
         "All slides \xB7 ",
         slides.length
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("span", { className: "uipack-deck-overview__tabs", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("button", { type: "button", "aria-pressed": tab === "slides", onClick: () => setTab("slides"), children: "Slides" }),
-        /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("button", { type: "button", "aria-pressed": tab === "storyline", onClick: () => setTab("storyline"), children: "Storyline" }),
-        /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("button", { type: "button", onClick: onClose, children: "Close" })
+      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-deck-overview__tabs", children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", "aria-pressed": tab === "slides", onClick: () => setTab("slides"), children: "Slides" }),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", "aria-pressed": tab === "storyline", onClick: () => setTab("storyline"), children: "Storyline" }),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: onClose, children: "Close" })
       ] })
     ] }),
-    tab === "storyline" ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Storyline, { slides, index, findings, onPick }) : /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("ol", { className: "uipack-deck-overview__grid", children: slides.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("button", { type: "button", "data-tile": "", "aria-current": i === index ? "true" : void 0, onClick: () => onPick(i), children: [
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(SlideThumbnail, { slide: s, index: i, count: slides.length, theme }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("span", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("b", { children: pad(i + 1) }),
+    tab === "storyline" ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Storyline, { slides, index, findings, onPick }) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ol", { className: "uipack-deck-overview__grid", children: slides.map((s, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "li", { children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "button", { type: "button", "data-tile": "", "aria-current": i === index ? "true" : void 0, onClick: () => onPick(i), children: [
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, SlideThumbnail, { slide: s, index: i, count: slides.length, theme }),
+      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "b", { children: pad(i + 1) }),
         " ",
         s.title
       ] })
@@ -1419,17 +1262,17 @@ function Overview({
 }
 
 // src/deck/player/Presenter.tsx
-var import_react6 = require("react");
-var import_jsx_runtime6 = require("react/jsx-runtime");
+
+
 function Presenter({
   slides,
   index,
   theme,
   stage
 }) {
-  const [started, setStarted] = (0, import_react6.useState)(() => Date.now());
-  const [now, setNow] = (0, import_react6.useState)(() => Date.now());
-  (0, import_react6.useEffect)(() => {
+  const [started, setStarted] = _react.useState.call(void 0, () => Date.now());
+  const [now, setNow] = _react.useState.call(void 0, () => Date.now());
+  _react.useEffect.call(void 0, () => {
     const t = setInterval(() => setNow(Date.now()), 1e3);
     return () => clearInterval(t);
   }, []);
@@ -1437,20 +1280,20 @@ function Presenter({
   const notes = notesOf(slides[index]);
   const upcoming = slides[index + 1];
   const role = slides[index].role;
-  return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "uipack-deck-presenter", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "uipack-deck-presenter__current", children: stage }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("aside", { className: "uipack-deck-presenter__side", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "uipack-deck-presenter__next", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h3", { children: "Next" }),
-        upcoming ? /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SlideThumbnail, { slide: upcoming, index: index + 1, count: slides.length, theme }) : /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "uipack-deck-presenter__end", children: "End of deck" })
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-deck-presenter", children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-deck-presenter__current", children: stage }),
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "aside", { className: "uipack-deck-presenter__side", children: [
+      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "section", { className: "uipack-deck-presenter__next", children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h3", { children: "Next" }),
+        upcoming ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, SlideThumbnail, { slide: upcoming, index: index + 1, count: slides.length, theme }) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack-deck-presenter__end", children: "End of deck" })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "uipack-deck-presenter__clock", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("span", { "aria-label": "Elapsed time", children: [
+      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "section", { className: "uipack-deck-presenter__clock", children: [
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { "aria-label": "Elapsed time", children: [
           pad(Math.floor(elapsed / 60)),
           ":",
           pad(elapsed % 60)
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
           "button",
           {
             type: "button",
@@ -1462,22 +1305,22 @@ function Presenter({
           }
         )
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "uipack-deck-presenter__notes", children: [
-        role && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("p", { className: "uipack-deck-presenter__role", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("b", { children: SLIDE_ROLES[role].label }),
+      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "section", { className: "uipack-deck-presenter__notes", children: [
+        role && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-deck-presenter__role", children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "b", { children: SLIDE_ROLES[role].label }),
           " answers \u201C",
           SLIDE_ROLES[role].question,
           "\u201D"
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h3", { children: "Say" }),
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { children: notes?.say ?? "No talk track for this slide." }),
-        notes?.delivery && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h3", { children: "Delivery" }),
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { children: notes.delivery })
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h3", { children: "Say" }),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: _nullishCoalesce(_optionalChain([notes, 'optionalAccess', _22 => _22.say]), () => ( "No talk track for this slide.")) }),
+        _optionalChain([notes, 'optionalAccess', _23 => _23.delivery]) && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h3", { children: "Delivery" }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: notes.delivery })
         ] }),
-        notes?.next && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h3", { children: "Bridge" }),
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { children: notes.next })
+        _optionalChain([notes, 'optionalAccess', _24 => _24.next]) && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h3", { children: "Bridge" }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: notes.next })
         ] })
       ] })
     ] })
@@ -1485,33 +1328,33 @@ function Presenter({
 }
 
 // src/deck/player/Reader.tsx
-var import_jsx_runtime7 = require("react/jsx-runtime");
+
 function Reader({
   slides,
   theme,
   onPresent
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "uipack-deck-read", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "uipack-deck-read__head", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { children: [
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-deck-read", children: [
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-deck-read__head", children: [
+      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { children: [
         "Reading \xB7 ",
         slides.length,
         " slides"
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("button", { type: "button", onClick: () => onPresent(0), children: "Present" })
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: () => onPresent(0), children: "Present" })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("ol", { children: slides.map((s, i) => {
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ol", { children: slides.map((s, i) => {
       const notes = notesOf(s);
-      return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("li", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SlideThumbnail, { slide: s, index: i, count: slides.length, theme }),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "uipack-deck-read__notes", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("h3", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: pad(i + 1) }),
+      return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, SlideThumbnail, { slide: s, index: i, count: slides.length, theme }),
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-deck-read__notes", children: [
+          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "h3", { children: [
+            /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: pad(i + 1) }),
             " ",
             s.title
           ] }),
-          notes?.say && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: notes.say }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("button", { type: "button", onClick: () => onPresent(i), "aria-label": `Present from slide ${i + 1}: ${s.title}`, children: "Present from here" })
+          _optionalChain([notes, 'optionalAccess', _25 => _25.say]) && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: notes.say }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "button", { type: "button", onClick: () => onPresent(i), "aria-label": `Present from slide ${i + 1}: ${s.title}`, children: "Present from here" })
         ] })
       ] }, s.id);
     }) })
@@ -1519,7 +1362,7 @@ function Reader({
 }
 
 // src/deck/DeckPlayer.tsx
-var import_jsx_runtime8 = require("react/jsx-runtime");
+
 function DeckPlayer({
   slides,
   id,
@@ -1538,24 +1381,24 @@ function DeckPlayer({
 }) {
   const count = slides.length;
   const startIndex = (() => {
-    const s = initial?.slide;
+    const s = _optionalChain([initial, 'optionalAccess', _26 => _26.slide]);
     const i = typeof s === "number" ? s : s ? slides.findIndex((x) => x.id === s) : 0;
     return Math.min(Math.max(i, 0), Math.max(count - 1, 0));
   })();
-  const [view, setView] = (0, import_react7.useState)({ index: startIndex, step: initial?.step ?? 0, from: null, seq: 0 });
-  const [overview, setOverview] = (0, import_react7.useState)(false);
-  const [fullscreen, setFullscreen] = (0, import_react7.useState)(false);
-  const [reading, setReading] = (0, import_react7.useState)(initialView === "read");
-  const prefersReduced = usePrefersReducedMotion();
+  const [view, setView] = _react.useState.call(void 0, { index: startIndex, step: _nullishCoalesce(_optionalChain([initial, 'optionalAccess', _27 => _27.step]), () => ( 0)), from: null, seq: 0 });
+  const [overview, setOverview] = _react.useState.call(void 0, false);
+  const [fullscreen, setFullscreen] = _react.useState.call(void 0, false);
+  const [reading, setReading] = _react.useState.call(void 0, initialView === "read");
+  const prefersReduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
   const reducedMotion = motion === "none" || prefersReduced;
   const { ref: stageRef, scale } = useCanvasScale();
-  const rootRef = (0, import_react7.useRef)(null);
-  const fromRef = (0, import_react7.useRef)(null);
-  const toRef = (0, import_react7.useRef)(null);
-  const overviewButtonRef = (0, import_react7.useRef)(null);
-  const anims = (0, import_react7.useRef)([]);
-  const maxStep = (0, import_react7.useRef)(0);
-  const viewRef = (0, import_react7.useRef)(view);
+  const rootRef = _react.useRef.call(void 0, null);
+  const fromRef = _react.useRef.call(void 0, null);
+  const toRef = _react.useRef.call(void 0, null);
+  const overviewButtonRef = _react.useRef.call(void 0, null);
+  const anims = _react.useRef.call(void 0, []);
+  const maxStep = _react.useRef.call(void 0, 0);
+  const viewRef = _react.useRef.call(void 0, view);
   const commit = (next2) => {
     viewRef.current = next2;
     setView(next2);
@@ -1563,12 +1406,12 @@ function DeckPlayer({
   const settle = () => {
     for (const a of anims.current) a.cancel();
     anims.current = [];
-    stageRef.current?.querySelectorAll(".uipack-deck-layer").forEach((el) => {
+    _optionalChain([stageRef, 'access', _28 => _28.current, 'optionalAccess', _29 => _29.querySelectorAll, 'call', _30 => _30(".uipack-deck-layer"), 'access', _31 => _31.forEach, 'call', _32 => _32((el) => {
       el.style.zIndex = "";
       el.style.visibility = "";
-    });
+    })]);
   };
-  const go = (0, import_react7.useCallback)(
+  const go = _react.useCallback.call(void 0, 
     (index, step = 0) => {
       const target = Math.min(Math.max(index, 0), count - 1);
       settle();
@@ -1580,26 +1423,26 @@ function DeckPlayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [count]
   );
-  const next = (0, import_react7.useCallback)(() => {
+  const next = _react.useCallback.call(void 0, () => {
     const v = viewRef.current;
     if (v.step < maxStep.current) commit({ ...v, step: v.step + 1 });
     else if (v.index < count - 1) go(v.index + 1, 0);
   }, [count, go]);
-  const prev = (0, import_react7.useCallback)(() => {
+  const prev = _react.useCallback.call(void 0, () => {
     const v = viewRef.current;
     const step = Math.min(v.step, maxStep.current);
     if (step > 0) commit({ ...v, step: step - 1 });
     else if (v.index > 0) go(v.index - 1, Infinity);
   }, [go]);
-  useIsoLayoutEffect(() => {
+  _chunkJ7BYXE6Qcjs.useIsoLayoutEffect.call(void 0, () => {
     const layer = toRef.current;
     if (!layer) return;
     maxStep.current = Array.from(layer.querySelectorAll("[data-build], [data-steps]")).reduce(
-      (m, el) => Math.max(m, Number(el.getAttribute("data-build") ?? el.getAttribute("data-steps")) || 0),
+      (m, el) => Math.max(m, Number(_nullishCoalesce(el.getAttribute("data-build"), () => ( el.getAttribute("data-steps")))) || 0),
       0
     );
   }, [view.index, slides]);
-  useIsoLayoutEffect(() => {
+  _chunkJ7BYXE6Qcjs.useIsoLayoutEffect.call(void 0, () => {
     if (!view.from) return;
     const from2 = fromRef.current;
     const to = toRef.current;
@@ -1610,7 +1453,7 @@ function DeckPlayer({
       if (viewRef.current.seq === seq) commit({ ...viewRef.current, from: null });
     };
     if (!from2 || !to || !scale) return done();
-    const resolved = resolveTransition(view.from.index, view.index, (i) => slides[i]?.transition, transition);
+    const resolved = resolveTransition(view.from.index, view.index, (i) => _optionalChain([slides, 'access', _33 => _33[i], 'optionalAccess', _34 => _34.transition]), transition);
     const started = runTransition({
       transition: resolved,
       from: from2,
@@ -1629,10 +1472,10 @@ function DeckPlayer({
       }
     );
   }, [view.seq]);
-  const channel = (0, import_react7.useRef)(null);
-  const remote = (0, import_react7.useRef)(false);
-  const reported = (0, import_react7.useRef)({ index: view.index, step: view.step });
-  (0, import_react7.useEffect)(() => {
+  const channel = _react.useRef.call(void 0, null);
+  const remote = _react.useRef.call(void 0, false);
+  const reported = _react.useRef.call(void 0, { index: view.index, step: view.step });
+  _react.useEffect.call(void 0, () => {
     if (typeof BroadcastChannel === "undefined") return;
     const ch = new BroadcastChannel(`uipack-deck:${id}`);
     channel.current = ch;
@@ -1645,8 +1488,8 @@ function DeckPlayer({
         const v = viewRef.current;
         if (v.index === msg.index && v.step === msg.step) return;
         remote.current = true;
-        if (v.index === msg.index) commit({ ...v, step: msg.step ?? 0 });
-        else go(msg.index, msg.step ?? 0);
+        if (v.index === msg.index) commit({ ...v, step: _nullishCoalesce(msg.step, () => ( 0)) });
+        else go(msg.index, _nullishCoalesce(msg.step, () => ( 0)));
       }
     };
     ch.postMessage({ type: "hello" });
@@ -1655,26 +1498,26 @@ function DeckPlayer({
       channel.current = null;
     };
   }, [id, go]);
-  (0, import_react7.useEffect)(() => {
+  _react.useEffect.call(void 0, () => {
     const last = reported.current;
     if (last.index === view.index && last.step === view.step) return;
     reported.current = { index: view.index, step: view.step };
-    onPositionChange?.({ index: view.index, step: view.step, id: slides[view.index].id });
+    _optionalChain([onPositionChange, 'optionalCall', _35 => _35({ index: view.index, step: view.step, id: slides[view.index].id })]);
     if (remote.current) {
       remote.current = false;
       return;
     }
-    channel.current?.postMessage({ type: "go", index: view.index, step: view.step });
+    _optionalChain([channel, 'access', _36 => _36.current, 'optionalAccess', _37 => _37.postMessage, 'call', _38 => _38({ type: "go", index: view.index, step: view.step })]);
   }, [view.index, view.step]);
-  (0, import_react7.useEffect)(() => {
+  _react.useEffect.call(void 0, () => {
     const onChange = () => setFullscreen(document.fullscreenElement === rootRef.current);
     document.addEventListener("fullscreenchange", onChange);
     return () => document.removeEventListener("fullscreenchange", onChange);
   }, []);
   const toggleFullscreen = () => {
-    if (document.fullscreenElement) void document.exitFullscreen?.();
-    else void rootRef.current?.requestFullscreen?.();
-    rootRef.current?.focus();
+    if (document.fullscreenElement) void _optionalChain([document, 'access', _39 => _39.exitFullscreen, 'optionalCall', _40 => _40()]);
+    else void _optionalChain([rootRef, 'access', _41 => _41.current, 'optionalAccess', _42 => _42.requestFullscreen, 'optionalCall', _43 => _43()]);
+    _optionalChain([rootRef, 'access', _44 => _44.current, 'optionalAccess', _45 => _45.focus, 'call', _46 => _46()]);
   };
   const openPresenter = () => {
     let href = presenterHref;
@@ -1688,13 +1531,13 @@ function DeckPlayer({
   };
   const closeOverview = () => {
     setOverview(false);
-    requestAnimationFrame(() => overviewButtonRef.current?.focus());
+    requestAnimationFrame(() => _optionalChain([overviewButtonRef, 'access', _47 => _47.current, 'optionalAccess', _48 => _48.focus, 'call', _49 => _49()]));
   };
   const onKeyDown = (e) => {
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || overview || reading) return;
     const t = e.target;
-    if (t?.closest?.('input, textarea, select, [contenteditable="true"], [contenteditable=""], [data-deck-keys="own"]')) return;
-    const onControl = Boolean(t?.closest?.("button, a, summary")) && t !== rootRef.current;
+    if (_optionalChain([t, 'optionalAccess', _50 => _50.closest, 'optionalCall', _51 => _51('input, textarea, select, [contenteditable="true"], [contenteditable=""], [data-deck-keys="own"]')])) return;
+    const onControl = Boolean(_optionalChain([t, 'optionalAccess', _52 => _52.closest, 'optionalCall', _53 => _53("button, a, summary")])) && t !== rootRef.current;
     switch (e.key) {
       case "ArrowRight":
       case "ArrowDown":
@@ -1737,18 +1580,18 @@ function DeckPlayer({
     }
     e.preventDefault();
   };
-  const keyHandler = (0, import_react7.useRef)(onKeyDown);
+  const keyHandler = _react.useRef.call(void 0, onKeyDown);
   keyHandler.current = onKeyDown;
-  (0, import_react7.useEffect)(() => {
+  _react.useEffect.call(void 0, () => {
     if (keyboard !== "global") return;
     const handler = (e) => {
-      if (rootRef.current?.contains(e.target)) return;
+      if (_optionalChain([rootRef, 'access', _54 => _54.current, 'optionalAccess', _55 => _55.contains, 'call', _56 => _56(e.target)])) return;
       keyHandler.current(e);
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [keyboard]);
-  const swipe = (0, import_react7.useRef)(null);
+  const swipe = _react.useRef.call(void 0, null);
   const onPointerDown = (e) => {
     swipe.current = e.pointerType === "mouse" ? null : { x: e.clientX, y: e.clientY };
   };
@@ -1765,17 +1608,17 @@ function DeckPlayer({
   const stepNow = Math.min(view.step, maxStep.current);
   const atStart = view.index === 0 && stepNow === 0;
   const atEnd = view.index === count - 1 && view.step >= maxStep.current;
-  const stage = /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
+  const stage = /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
     "div",
     {
       ref: stageRef,
       className: "uipack-deck-stage",
-      "data-tone": current.tone ?? "paper",
+      "data-tone": _nullishCoalesce(current.tone, () => ( "paper")),
       onPointerDown,
       onPointerUp,
       onPointerCancel: () => swipe.current = null,
-      children: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "uipack-deck-canvas", style: { transform: `scale(${scale})`, visibility: scale ? void 0 : "hidden" }, children: [
-        from && view.from && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
+      children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-deck-canvas", style: { transform: `scale(${scale})`, visibility: scale ? void 0 : "hidden" }, children: [
+        from && view.from && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
           Layer,
           {
             ref: fromRef,
@@ -1789,7 +1632,7 @@ function DeckPlayer({
           },
           `layer-${view.from.index}`
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
           Layer,
           {
             ref: toRef,
@@ -1806,7 +1649,7 @@ function DeckPlayer({
       ] })
     }
   );
-  const controls = /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
+  const controls = /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
     Controls,
     {
       slides,
@@ -1825,7 +1668,7 @@ function DeckPlayer({
       onFullscreen: toggleFullscreen
     }
   );
-  return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
     "div",
     {
       ref: rootRef,
@@ -1843,7 +1686,7 @@ function DeckPlayer({
       tabIndex: 0,
       onKeyDown,
       children: [
-        reading ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
+        reading ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
           Reader,
           {
             slides,
@@ -1851,14 +1694,14 @@ function DeckPlayer({
             onPresent: (i) => {
               setReading(false);
               go(i, 0);
-              requestAnimationFrame(() => rootRef.current?.focus({ preventScroll: true }));
+              requestAnimationFrame(() => _optionalChain([rootRef, 'access', _57 => _57.current, 'optionalAccess', _58 => _58.focus, 'call', _59 => _59({ preventScroll: true })]));
             }
           }
-        ) : /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
-          mode === "presenter" ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(Presenter, { slides, index: view.index, theme, stage }) : stage,
+        ) : /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
+          mode === "presenter" ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Presenter, { slides, index: view.index, theme, stage }) : stage,
           controls
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("p", { className: "uipack-deck-sr", "aria-live": "polite", children: [
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-deck-sr", "aria-live": "polite", children: [
           "Slide ",
           view.index + 1,
           " of ",
@@ -1866,7 +1709,7 @@ function DeckPlayer({
           ": ",
           current.title
         ] }),
-        overview && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
+        overview && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
           Overview,
           {
             slides,
@@ -1886,8 +1729,14 @@ function DeckPlayer({
 }
 
 // src/deck/bento.tsx
-var import_react8 = require("react");
-var import_jsx_runtime9 = require("react/jsx-runtime");
+
+
+
+
+
+
+
+
 function BentoCell(_) {
   return null;
 }
@@ -1903,9 +1752,9 @@ var bentoFocusAt = (step, tour) => step >= 1 && step <= tour.length ? tour[step 
 function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, style, children }) {
   const { step, thumbnail } = useDeckSlide();
   const focus = thumbnail ? null : bentoFocusAt(step, tour);
-  const gridRef = (0, import_react8.useRef)(null);
-  const [camera, setCamera] = (0, import_react8.useState)(null);
-  (0, import_react8.useLayoutEffect)(() => {
+  const gridRef = _react.useRef.call(void 0, null);
+  const [camera, setCamera] = _react.useState.call(void 0, null);
+  _react.useLayoutEffect.call(void 0, () => {
     const grid = gridRef.current;
     if (!grid || !focus) return setCamera(null);
     const cell = grid.querySelector(`[data-bento-cell="${CSS.escape(focus)}"]`);
@@ -1918,17 +1767,17 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
       )
     );
   }, [focus, maxScale]);
-  const cells = import_react8.Children.toArray(children).filter(
-    (c) => (0, import_react8.isValidElement)(c) && c.type === BentoCell
+  const cells = _react.Children.toArray(children).filter(
+    (c) => _react.isValidElement.call(void 0, c) && c.type === BentoCell
   );
-  return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
     "div",
     {
       className: ["uipack-deck-bento", className].filter(Boolean).join(" "),
       "data-steps": tour.length ? tour.length + 1 : void 0,
-      "data-focus": focus ?? void 0,
+      "data-focus": _nullishCoalesce(focus, () => ( void 0)),
       style,
-      children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
+      children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
         "div",
         {
           ref: gridRef,
@@ -1940,7 +1789,7 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
           },
           children: cells.map(({ props: p }) => {
             const focused = focus === p.id;
-            return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(
+            return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
               "div",
               {
                 className: ["uipack-deck-bento__cell", p.className].filter(Boolean).join(" "),
@@ -1949,10 +1798,10 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
                 "data-tone": p.tone && p.tone !== "surface" ? p.tone : void 0,
                 "data-focused": focused ? "" : void 0,
                 "data-dimmed": focus && !focused ? "" : void 0,
-                style: { gridColumn: `span ${p.col ?? 2}`, gridRow: `span ${p.row ?? 1}` },
+                style: { gridColumn: `span ${_nullishCoalesce(p.col, () => ( 2))}`, gridRow: `span ${_nullishCoalesce(p.row, () => ( 1))}` },
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "uipack-deck-bento__face", "aria-hidden": focused && p.detail ? true : void 0, children: p.children }),
-                  p.detail && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "uipack-deck-bento__detail", "aria-hidden": focused ? void 0 : true, children: p.detail })
+                  /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-deck-bento__face", "aria-hidden": focused && p.detail ? true : void 0, children: p.children }),
+                  p.detail && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-deck-bento__detail", "aria-hidden": focused ? void 0 : true, children: p.detail })
                 ]
               },
               p.id
@@ -1965,13 +1814,13 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
 }
 
 // src/deck/consulting/frame.tsx
-var import_react9 = require("react");
-var import_jsx_runtime10 = require("react/jsx-runtime");
+
+
 var cx = (...names) => names.filter(Boolean).join(" ");
 function Tracker({ sections, current }) {
   const at = typeof current === "number" ? current : sections.indexOf(current);
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("nav", { className: "uipack-cx-tracker", "aria-label": "Sections", children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("ol", { children: sections.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("li", { "aria-current": i === at ? "step" : void 0, "data-done": i < at ? "" : void 0, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("i", { "aria-hidden": "true" }),
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "nav", { className: "uipack-cx-tracker", "aria-label": "Sections", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ol", { children: sections.map((s, i) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { "aria-current": i === at ? "step" : void 0, "data-done": i < at ? "" : void 0, children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "i", { "aria-hidden": "true" }),
     s
   ] }, s)) }) });
 }
@@ -1990,67 +1839,67 @@ function ConsultingSlide({
   children
 }) {
   const { index } = useDeckSlide();
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: cx("uipack-deck-slide uipack-cx-slide", className), children: [
-    (tracker || sticker) && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "uipack-cx-top", children: [
-      tracker ? /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Tracker, { ...tracker }) : /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", {}),
-      sticker && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "uipack-cx-sticker", children: sticker })
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: cx("uipack-deck-slide uipack-cx-slide", className), children: [
+    (tracker || sticker) && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-cx-top", children: [
+      tracker ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Tracker, { ...tracker }) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", {}),
+      sticker && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack-cx-sticker", children: sticker })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("header", { className: "uipack-cx-head", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h2", { className: "uipack-cx-title", children: import_react9.Children.map(title, (child) => typeof child === "string" ? /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: child }) : child) }),
-      subtitle && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "uipack-cx-subtitle", children: subtitle })
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "header", { className: "uipack-cx-head", children: [
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h2", { className: "uipack-cx-title", children: _react.Children.map(title, (child) => typeof child === "string" ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: child }) : child) }),
+      subtitle && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack-cx-subtitle", children: subtitle })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "uipack-cx-body", style: rows ? { gridTemplateRows: rows } : void 0, children }),
-    takeaway && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("aside", { className: "uipack-cx-takeaway", "aria-label": "So what", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: takeawayLabel }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { children: takeaway })
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-cx-body", style: rows ? { gridTemplateRows: rows } : void 0, children }),
+    takeaway && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "aside", { className: "uipack-cx-takeaway", "aria-label": "So what", children: [
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "b", { children: takeawayLabel }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: takeaway })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("footer", { className: "uipack-deck-footer uipack-cx-footer", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "uipack-cx-footer__notes", children: [
-        notes && notes.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("ol", { children: notes.map((n, i) => /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("li", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: i + 1 }),
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "footer", { className: "uipack-deck-footer uipack-cx-footer", children: [
+      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-cx-footer__notes", children: [
+        notes && notes.length > 0 && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ol", { children: notes.map((n, i) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "li", { children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: i + 1 }),
           n
         ] }, i)) }),
-        source && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: "Source:" }),
+        source && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "b", { children: "Source:" }),
           " ",
           source
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { className: "uipack-cx-footer__page", children: [
-        label && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: label }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: String(index + 1).padStart(2, "0") })
+      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-cx-footer__page", children: [
+        label && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: label }),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "b", { children: String(index + 1).padStart(2, "0") })
       ] })
     ] })
   ] });
 }
 function Ref({ n }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("sup", { className: "uipack-cx-ref", children: n });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "sup", { className: "uipack-cx-ref", children: n });
 }
 var placement = ({ cols = 12, rows = 1, col, row }) => ({
   gridColumn: col ? `${col} / span ${cols}` : `span ${cols}`,
   gridRow: row ? `${row} / span ${rows}` : `span ${rows}`
 });
 function Panel({ title, unit, callout, morphId, emphasis, className, children, ...grid }) {
-  const body = /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("header", { className: "uipack-cx-panel__head", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: title }),
-        unit && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { children: unit })
+  const body = /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "header", { className: "uipack-cx-panel__head", children: [
+      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h3", { children: title }),
+        unit && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: unit })
       ] }),
-      callout && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "uipack-cx-panel__callout", children: callout })
+      callout && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack-cx-panel__callout", children: callout })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "uipack-cx-panel__body", children })
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-cx-panel__body", children })
   ] });
   const props = {
     className: cx("uipack-cx-panel", emphasis && "uipack-cx-panel--emphasis", className),
     style: placement(grid)
   };
-  return morphId ? /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Morph, { id: morphId, as: "section", fit: "stretch", ...props, children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "uipack-cx-panel__inner", children: body }) }) : /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("section", { ...props, children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "uipack-cx-panel__inner", children: body }) });
+  return morphId ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Morph, { id: morphId, as: "section", fit: "stretch", ...props, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-cx-panel__inner", children: body }) }) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "section", { ...props, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-cx-panel__inner", children: body }) });
 }
 function SoWhat({ title = "So what", children, ...grid }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("aside", { className: "uipack-cx-sowhat", style: placement(grid), "aria-label": "So what", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: title }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { children })
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "aside", { className: "uipack-cx-sowhat", style: placement(grid), "aria-label": "So what", children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "b", { children: title }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { children })
   ] });
 }
 
@@ -2114,11 +1963,11 @@ function waterfallBars(steps) {
   let level = 0;
   return steps.map((s) => {
     if (s.total) {
-      const v = s.value ?? level;
+      const v = _nullishCoalesce(s.value, () => ( level));
       level = v;
       return { label: s.label, kind: "total", value: v, from: 0, to: v };
     }
-    const d = s.value ?? 0;
+    const d = _nullishCoalesce(s.value, () => ( 0));
     const from = level;
     level += d;
     return { label: s.label, kind: d >= 0 ? "up" : "down", value: d, from, to: level };
@@ -2236,7 +2085,7 @@ function formatValue(value, options = {}) {
 var formatter = (options = {}) => (v) => formatValue(v, options);
 
 // src/deck/consulting/charts/Annotation.tsx
-var import_jsx_runtime11 = require("react/jsx-runtime");
+
 function annotationGeometry(point, at, text, maxWidth = 260, align = "start", size = CX_TYPE.callout) {
   const lines = wrapToWidth(text, size, maxWidth, 4);
   const w = Math.max(...lines.map((l) => textWidth(l, size)));
@@ -2262,11 +2111,11 @@ function Annotation({ x, y, tx, ty, text, width = 260, align = "start" }) {
   const g = annotationGeometry({ x, y }, { x: tx, y: ty }, text, width, align);
   const size = CX_TYPE.callout;
   const textX = align === "end" ? g.box.x + g.box.w : g.box.x;
-  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("g", { className: "uipack-cx-callout", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("line", { className: "uipack-cx-callout__leader", x1: g.leader.x1, y1: g.leader.y1, x2: x, y2: y }),
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("circle", { className: "uipack-cx-callout__ring", cx: x, cy: y, r: 9 }),
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("circle", { className: "uipack-cx-callout__dot", cx: x, cy: y, r: 3.5 }),
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { className: "uipack-cx-callout", children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { className: "uipack-cx-callout__leader", x1: g.leader.x1, y1: g.leader.y1, x2: x, y2: y }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "circle", { className: "uipack-cx-callout__ring", cx: x, cy: y, r: 9 }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "circle", { className: "uipack-cx-callout__dot", cx: x, cy: y, r: 3.5 }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
       "text",
       {
         x: textX,
@@ -2274,28 +2123,28 @@ function Annotation({ x, y, tx, ty, text, width = 260, align = "start" }) {
         fontSize: size,
         textAnchor: align,
         className: "uipack-cx-t uipack-cx-callout__text uipack-cx-halo",
-        children: g.lines.map((l, i) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("tspan", { x: textX, dy: i === 0 ? 0 : size * 1.25, children: l }, i))
+        children: g.lines.map((l, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "tspan", { x: textX, dy: i === 0 ? 0 : size * 1.25, children: l }, i))
       }
     )
   ] });
 }
 
 // src/deck/consulting/hooks.ts
-var import_react10 = require("react");
+
 function useChartSize(fixed, fallback = { width: 640, height: 360 }) {
-  const ref = (0, import_react10.useRef)(null);
-  const [size, setSize] = (0, import_react10.useState)({
-    width: fixed?.width ?? fallback.width,
-    height: fixed?.height ?? fallback.height
+  const ref = _react.useRef.call(void 0, null);
+  const [size, setSize] = _react.useState.call(void 0, {
+    width: _nullishCoalesce(_optionalChain([fixed, 'optionalAccess', _60 => _60.width]), () => ( fallback.width)),
+    height: _nullishCoalesce(_optionalChain([fixed, 'optionalAccess', _61 => _61.height]), () => ( fallback.height))
   });
-  const fixedW = fixed?.width;
-  const fixedH = fixed?.height;
-  useIsoLayoutEffect(() => {
+  const fixedW = _optionalChain([fixed, 'optionalAccess', _62 => _62.width]);
+  const fixedH = _optionalChain([fixed, 'optionalAccess', _63 => _63.height]);
+  _chunkJ7BYXE6Qcjs.useIsoLayoutEffect.call(void 0, () => {
     const el = ref.current;
     if (!el || fixedW !== void 0 && fixedH !== void 0) return;
     const measure = () => {
-      const w = fixedW ?? el.clientWidth;
-      const h = fixedH ?? el.clientHeight;
+      const w = _nullishCoalesce(fixedW, () => ( el.clientWidth));
+      const h = _nullishCoalesce(fixedH, () => ( el.clientHeight));
       if (w > 0 && h > 0) setSize((s) => Math.abs(s.width - w) < 0.5 && Math.abs(s.height - h) < 0.5 ? s : { width: w, height: h });
     };
     measure();
@@ -2308,8 +2157,8 @@ function useChartSize(fixed, fallback = { width: 640, height: 360 }) {
 }
 function useGrown() {
   const { active, thumbnail } = useDeckSlide();
-  const [grown, setGrown] = (0, import_react10.useState)(!active || thumbnail);
-  (0, import_react10.useEffect)(() => {
+  const [grown, setGrown] = _react.useState.call(void 0, !active || thumbnail);
+  _react.useEffect.call(void 0, () => {
     if (grown) return;
     let second = 0;
     const first = requestAnimationFrame(() => {
@@ -2324,7 +2173,7 @@ function useGrown() {
 }
 
 // src/deck/consulting/charts/shared.tsx
-var import_jsx_runtime12 = require("react/jsx-runtime");
+
 var defaultFormat = (v) => formatValue(v, { decimals: Number.isInteger(v) ? 0 : 1 });
 var fill = {
   accent: "var(--uipack-cx-accent)",
@@ -2342,7 +2191,7 @@ function Frame({
   children
 }) {
   const grown = useGrown();
-  return /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { ref: size.ref, className: ["uipack-cx-chart", className].filter(Boolean).join(" "), "data-grown": grown ? "" : void 0, children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { ref: size.ref, className: ["uipack-cx-chart", className].filter(Boolean).join(" "), "data-grown": grown ? "" : void 0, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
     "svg",
     {
       className: "uipack-cx-svg",
@@ -2368,7 +2217,7 @@ function Text({
   children,
   className
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
     "text",
     {
       x,
@@ -2384,7 +2233,7 @@ function Text({
 function Lines({ x, y, lines, size = CX_TYPE.label, anchor = "middle", weight, muted, top }) {
   const lh = size * 1.2;
   const y0 = top ? y + size * 0.8 : y - (lines.length - 1) * lh / 2;
-  return /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
     "text",
     {
       x,
@@ -2393,13 +2242,13 @@ function Lines({ x, y, lines, size = CX_TYPE.label, anchor = "middle", weight, m
       textAnchor: anchor,
       dominantBaseline: top ? "auto" : "central",
       className: ["uipack-cx-t", muted && "uipack-cx-t--muted", weight && "uipack-cx-t--strong"].filter(Boolean).join(" "),
-      children: lines.map((l, i) => /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("tspan", { x, dy: i === 0 ? 0 : lh, children: l }, i))
+      children: lines.map((l, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "tspan", { x, dy: i === 0 ? 0 : lh, children: l }, i))
     }
   );
 }
 
 // src/deck/consulting/charts/BarChart.tsx
-var import_jsx_runtime13 = require("react/jsx-runtime");
+
 function BarChart({
   data,
   orientation = "horizontal",
@@ -2415,14 +2264,14 @@ function BarChart({
   const size = useChartSize({ width, height });
   const W = size.width;
   const H = size.height;
-  const order = sort ?? (orientation === "horizontal" ? "desc" : "none");
+  const order = _nullishCoalesce(sort, () => ( (orientation === "horizontal" ? "desc" : "none")));
   const rows = [...data];
   if (order !== "none") rows.sort((a, b) => order === "desc" ? b.value - a.value : a.value - b.value);
   const emphasis = rows.some((d) => d.highlight);
   const colour = (d) => !emphasis || d.highlight ? fill.accent : fill.context;
   const values = rows.map((d) => d.value);
-  const dom = domain ?? zeroBasedDomain(reference ? [...values, reference.value] : values);
-  const label = alt ?? `Bar chart. ${rows.map((d) => `${d.label}: ${format(d.value)}`).join("; ")}.`;
+  const dom = _nullishCoalesce(domain, () => ( zeroBasedDomain(reference ? [...values, reference.value] : values)));
+  const label = _nullishCoalesce(alt, () => ( `Bar chart. ${rows.map((d) => `${d.label}: ${format(d.value)}`).join("; ")}.`));
   const valueW = Math.max(...rows.map((d) => textWidth(format(d.value), CX_TYPE.value, 600))) + 14;
   const refTop = reference ? 40 : 4;
   if (orientation === "horizontal") {
@@ -2430,83 +2279,83 @@ function BarChart({
     const x = linearScale(dom, [labelW, W - valueW]);
     const bands = bandLayout(rows.length, refTop, H - refTop, 0.62, 36);
     const zero2 = x(Math.max(dom[0], Math.min(0, dom[1])));
-    return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(Frame, { size, label, children: [
-      reference && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("g", { className: "uipack-cx-ref-line", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("line", { x1: x(reference.value), x2: x(reference.value), y1: refTop - 8, y2: H }),
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Text, { x: x(reference.value), y: 14, size: CX_TYPE.tick, anchor: "middle", muted: true, halo: true, children: reference.label })
+    return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, Frame, { size, label, children: [
+      reference && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { className: "uipack-cx-ref-line", children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { x1: x(reference.value), x2: x(reference.value), y1: refTop - 8, y2: H }),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Text, { x: x(reference.value), y: 14, size: CX_TYPE.tick, anchor: "middle", muted: true, halo: true, children: reference.label })
       ] }),
       rows.map((d, i) => {
         const b = bands[i];
         const end = x(d.value);
         const lines = wrapToWidth(d.label, CX_TYPE.label, labelW - 20, 2);
-        return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("g", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Lines, { x: labelW - 16, y: b.centre, lines, anchor: "end", weight: d.highlight ? 600 : void 0 }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
+        return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Lines, { x: labelW - 16, y: b.centre, lines, anchor: "end", weight: d.highlight ? 600 : void 0 }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
             "path",
             {
               className: "uipack-cx-grow",
               "data-axis": "x",
               style: { ...growStyle(d.value >= 0 ? "0% 50%" : "100% 50%", i * 40), fill: colour(d) },
               d: barPath("horizontal", zero2, end, b.markStart, b.mark),
-              children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("title", { children: `${d.label}: ${format(d.value)}` })
+              children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "title", { children: `${d.label}: ${format(d.value)}` })
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Text, { x: d.value >= 0 ? end + 10 : end - 10, y: b.centre, anchor: d.value >= 0 ? "start" : "end", weight: 600, halo: true, children: format(d.value) })
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Text, { x: d.value >= 0 ? end + 10 : end - 10, y: b.centre, anchor: d.value >= 0 ? "start" : "end", weight: 600, halo: true, children: format(d.value) })
         ] }, d.label);
       }),
-      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("line", { className: "uipack-cx-axis", x1: zero2, x2: zero2, y1: refTop - 4, y2: H }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { className: "uipack-cx-axis", x1: zero2, x2: zero2, y1: refTop - 4, y2: H }),
       callout && (() => {
         const i = rows.findIndex((d) => d.label === callout.label);
         if (i < 0) return null;
         const px = x(rows[i].value);
         const py = bands[i].centre;
-        return /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+        return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
       })()
     ] });
   }
   const labelLines = rows.map((d) => d.label);
   const bandsProbe = bandLayout(rows.length, 0, W, 0.56, 64);
-  const wrapped = labelLines.map((l) => wrapToWidth(l, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 8, 2));
+  const wrapped = labelLines.map((l) => wrapToWidth(l, CX_TYPE.label, (_nullishCoalesce(_optionalChain([bandsProbe, 'access', _64 => _64[0], 'optionalAccess', _65 => _65.size]), () => ( W))) - 8, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = 36;
   const y = linearScale(dom, [H - bottom, top]);
   const zero = y(Math.max(dom[0], Math.min(0, dom[1])));
-  return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(Frame, { size, label, children: [
-    reference && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("g", { className: "uipack-cx-ref-line", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("line", { x1: 0, x2: W, y1: y(reference.value), y2: y(reference.value) }),
-      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Text, { x: W, y: y(reference.value) - 16, size: CX_TYPE.tick, anchor: "end", muted: true, children: reference.label })
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, Frame, { size, label, children: [
+    reference && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { className: "uipack-cx-ref-line", children: [
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { x1: 0, x2: W, y1: y(reference.value), y2: y(reference.value) }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Text, { x: W, y: y(reference.value) - 16, size: CX_TYPE.tick, anchor: "end", muted: true, children: reference.label })
     ] }),
     rows.map((d, i) => {
       const b = bandsProbe[i];
       const end = y(d.value);
-      return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("g", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
+      return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
           "path",
           {
             className: "uipack-cx-grow",
             "data-axis": "y",
             style: { ...growStyle(d.value >= 0 ? "50% 100%" : "50% 0%", i * 40), fill: colour(d) },
             d: barPath("vertical", zero, end, b.markStart, b.mark),
-            children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("title", { children: `${d.label}: ${format(d.value)}` })
+            children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "title", { children: `${d.label}: ${format(d.value)}` })
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Text, { x: b.centre, y: d.value >= 0 ? end - 16 : end + 16, anchor: "middle", weight: 600, halo: true, children: format(d.value) }),
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Lines, { x: b.centre, y: H - bottom + 12, lines: wrapped[i], top: true, weight: d.highlight ? 600 : void 0 })
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Text, { x: b.centre, y: d.value >= 0 ? end - 16 : end + 16, anchor: "middle", weight: 600, halo: true, children: format(d.value) }),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Lines, { x: b.centre, y: H - bottom + 12, lines: wrapped[i], top: true, weight: d.highlight ? 600 : void 0 })
       ] }, d.label);
     }),
-    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("line", { className: "uipack-cx-axis", x1: 0, x2: W, y1: zero, y2: zero }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { className: "uipack-cx-axis", x1: 0, x2: W, y1: zero, y2: zero }),
     callout && (() => {
       const i = rows.findIndex((d) => d.label === callout.label);
       if (i < 0) return null;
       const px = bandsProbe[i].centre;
       const py = y(rows[i].value);
-      return /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+      return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
     })()
   ] });
 }
 
 // src/deck/consulting/charts/KpiTiles.tsx
-var import_jsx_runtime14 = require("react/jsx-runtime");
+
 function Sparkline({ values, width = 132, height = 44 }) {
   if (values.length < 2) return null;
   const lo = Math.min(...values);
@@ -2514,19 +2363,19 @@ function Sparkline({ values, width = 132, height = 44 }) {
   const x = (i) => 6 + i / (values.length - 1) * (width - 12);
   const y = linearScale(lo === hi ? [lo - 1, hi + 1] : [lo, hi], [height - 6, 6]);
   const d = values.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join("");
-  return /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("svg", { className: "uipack-cx-spark", width, height, viewBox: `0 0 ${width} ${height}`, "aria-hidden": "true", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("path", { className: "uipack-cx-spark__line", d }),
-    /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("circle", { className: "uipack-cx-spark__dot", cx: x(values.length - 1), cy: y(values[values.length - 1]), r: 5 })
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "svg", { className: "uipack-cx-spark", width, height, viewBox: `0 0 ${width} ${height}`, "aria-hidden": "true", children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "uipack-cx-spark__line", d }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "circle", { className: "uipack-cx-spark__dot", cx: x(values.length - 1), cy: y(values[values.length - 1]), r: 5 })
   ] });
 }
-var Arrow = ({ direction }) => /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("svg", { className: "uipack-cx-delta__arrow", width: "18", height: "18", viewBox: "0 0 18 18", "aria-hidden": "true", children: [
-  direction === "up" && /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("path", { d: "M9 2 L16 14 H2 Z" }),
-  direction === "down" && /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("path", { d: "M9 16 L16 4 H2 Z" }),
-  direction === "flat" && /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("path", { d: "M2 7 H16 V11 H2 Z" })
+var Arrow = ({ direction }) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "svg", { className: "uipack-cx-delta__arrow", width: "18", height: "18", viewBox: "0 0 18 18", "aria-hidden": "true", children: [
+  direction === "up" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { d: "M9 2 L16 14 H2 Z" }),
+  direction === "down" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { d: "M9 16 L16 4 H2 Z" }),
+  direction === "flat" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { d: "M2 7 H16 V11 H2 Z" })
 ] });
 function KpiTiles({ items, columns }) {
-  const per = Math.max(1, columns ?? items.length);
-  return /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("ul", { className: "uipack-cx-kpis", style: { gridTemplateColumns: `repeat(${per}, minmax(0, 1fr))` }, children: items.map((k, i) => /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)(
+  const per = Math.max(1, _nullishCoalesce(columns, () => ( items.length)));
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { className: "uipack-cx-kpis", style: { gridTemplateColumns: `repeat(${per}, minmax(0, 1fr))` }, children: items.map((k, i) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
     "li",
     {
       className: "uipack-cx-kpi",
@@ -2535,20 +2384,20 @@ function KpiTiles({ items, columns }) {
       "data-last-col": i % per === per - 1 ? "" : void 0,
       "data-next-row": i >= per ? "" : void 0,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("p", { className: "uipack-cx-kpi__label", children: k.label }),
-        /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("div", { className: "uipack-cx-kpi__row", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("p", { className: "uipack-cx-kpi__value", children: [
-            k.morphId ? /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Morph, { id: k.morphId, as: "span", children: k.value }) : /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("span", { children: k.value }),
-            k.unit && /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("small", { children: k.unit })
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack-cx-kpi__label", children: k.label }),
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-cx-kpi__row", children: [
+          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-cx-kpi__value", children: [
+            k.morphId ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Morph, { id: k.morphId, as: "span", children: k.value }) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: k.value }),
+            k.unit && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "small", { children: k.unit })
           ] }),
-          k.trend && /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Sparkline, { values: k.trend })
+          k.trend && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Sparkline, { values: k.trend })
         ] }),
-        k.delta && /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("p", { className: "uipack-cx-delta", "data-sentiment": k.delta.sentiment ?? "neutral", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Arrow, { direction: k.delta.direction }),
-          /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("b", { children: k.delta.text }),
-          k.delta.period && /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("span", { children: k.delta.period })
+        k.delta && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-cx-delta", "data-sentiment": _nullishCoalesce(k.delta.sentiment, () => ( "neutral")), children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Arrow, { direction: k.delta.direction }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "b", { children: k.delta.text }),
+          k.delta.period && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: k.delta.period })
         ] }),
-        k.note && /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("p", { className: "uipack-cx-kpi__note", children: k.note })
+        k.note && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack-cx-kpi__note", children: k.note })
       ]
     },
     k.label
@@ -2556,7 +2405,7 @@ function KpiTiles({ items, columns }) {
 }
 
 // src/deck/consulting/charts/LineChart.tsx
-var import_jsx_runtime15 = require("react/jsx-runtime");
+
 function LineChart({
   x: periods,
   series,
@@ -2573,10 +2422,10 @@ function LineChart({
   const W = size.width;
   const H = size.height;
   const all = series.flatMap((s) => s.values.filter((v) => v !== null));
-  const nice = niceTicks(Math.min(...all, reference?.value ?? Infinity), Math.max(...all, reference?.value ?? -Infinity), 4);
-  const dom = domain ?? nice.domain;
+  const nice = niceTicks(Math.min(...all, _nullishCoalesce(_optionalChain([reference, 'optionalAccess', _66 => _66.value]), () => ( Infinity))), Math.max(...all, _nullishCoalesce(_optionalChain([reference, 'optionalAccess', _67 => _67.value]), () => ( -Infinity))), 4);
+  const dom = _nullishCoalesce(domain, () => ( nice.domain));
   const ticks = domain ? niceTicks(domain[0], domain[1], 4).ticks.filter((t) => t >= domain[0] && t <= domain[1]) : nice.ticks;
-  const tf = tickFormat ?? format;
+  const tf = _nullishCoalesce(tickFormat, () => ( format));
   const emphasis = series.some((s) => s.highlight);
   const stroke = (s, i) => emphasis ? s.highlight ? fill.accent : fill.context : fill.series(i);
   const lastOf = (s) => {
@@ -2595,24 +2444,24 @@ function LineChart({
   const bottom = H - CX_TYPE.tick - 22;
   const xs = (i) => periods.length <= 1 ? left : left + i / (periods.length - 1) * (right - left - 16) + 8;
   const ys = linearScale(dom, [bottom, top]);
-  const label = alt ?? `Line chart, ${periods[0]} to ${periods[periods.length - 1]}. ${series.map((s) => `${s.name}: ${s.values.map((v) => v === null ? "n/a" : format(v)).join(", ")}`).join("; ")}.`;
+  const label = _nullishCoalesce(alt, () => ( `Line chart, ${periods[0]} to ${periods[periods.length - 1]}. ${series.map((s) => `${s.name}: ${s.values.map((v) => v === null ? "n/a" : format(v)).join(", ")}`).join("; ")}.`));
   const ends = series.map((s) => {
     const li = lastOf(s);
     return li >= 0 ? { x: xs(li), y: ys(s.values[li]) } : null;
   });
-  const placed = spreadLabels(ends.map((e) => e?.y ?? 0), CX_TYPE.label * 1.3, top, bottom);
+  const placed = spreadLabels(ends.map((e) => _nullishCoalesce(_optionalChain([e, 'optionalAccess', _68 => _68.y]), () => ( 0))), CX_TYPE.label * 1.3, top, bottom);
   const everyN = Math.max(1, Math.ceil(Math.max(...periods.map((p) => textWidth(p, CX_TYPE.tick))) / Math.max(1, (right - left) / periods.length - 12)));
-  return /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)(Frame, { size, label, children: [
-    ticks.map((t) => /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)("g", { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("line", { className: "uipack-cx-grid", x1: left, x2: right, y1: ys(t), y2: ys(t) }),
-      /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Text, { x: left - 12, y: ys(t), size: CX_TYPE.tick, anchor: "end", muted: true, className: "uipack-cx-tabular", children: tf(t) })
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, Frame, { size, label, children: [
+    ticks.map((t) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { className: "uipack-cx-grid", x1: left, x2: right, y1: ys(t), y2: ys(t) }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Text, { x: left - 12, y: ys(t), size: CX_TYPE.tick, anchor: "end", muted: true, className: "uipack-cx-tabular", children: tf(t) })
     ] }, t)),
-    reference && /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)("g", { className: "uipack-cx-ref-line", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("line", { x1: left, x2: right, y1: ys(reference.value), y2: ys(reference.value) }),
-      /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Text, { x: left + 8, y: ys(reference.value) - 16, size: CX_TYPE.tick, muted: true, halo: true, children: reference.label })
+    reference && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { className: "uipack-cx-ref-line", children: [
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { x1: left, x2: right, y1: ys(reference.value), y2: ys(reference.value) }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Text, { x: left + 8, y: ys(reference.value) - 16, size: CX_TYPE.tick, muted: true, halo: true, children: reference.label })
     ] }),
     periods.map(
-      (p, i) => i % everyN === 0 || i === periods.length - 1 ? /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Text, { x: xs(i), y: H - 10, size: CX_TYPE.tick, anchor: "middle", muted: true, baseline: "auto", children: p }, p) : null
+      (p, i) => i % everyN === 0 || i === periods.length - 1 ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Text, { x: xs(i), y: H - 10, size: CX_TYPE.tick, anchor: "middle", muted: true, baseline: "auto", children: p }, p) : null
     ),
     series.map((s, si) => {
       const pts = s.values.map((v, i) => v === null ? null : [xs(i), ys(v)]);
@@ -2629,12 +2478,12 @@ function LineChart({
       const e = ends[si];
       const ly = placed[si];
       const nudged = e && Math.abs(ly - e.y) > 4;
-      return /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)("g", { "data-highlight": s.highlight ? "" : void 0, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("path", { className: "uipack-cx-line uipack-cx-draw", pathLength: 1, d, style: { stroke: stroke(s, si) }, children: /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("title", { children: `${s.name}: ${s.values.map((v, i) => `${periods[i]} ${v === null ? "n/a" : format(v)}`).join(", ")}` }) }),
-        e && /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)(import_jsx_runtime15.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("circle", { className: "uipack-cx-dot", cx: e.x, cy: e.y, r: 6, style: { fill: stroke(s, si) } }),
-          nudged && /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("line", { className: "uipack-cx-leader", x1: e.x + 9, y1: e.y, x2: e.x + 20, y2: ly }),
-          /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)(
+      return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-highlight": s.highlight ? "" : void 0, children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "uipack-cx-line uipack-cx-draw", pathLength: 1, d, style: { stroke: stroke(s, si) }, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "title", { children: `${s.name}: ${s.values.map((v, i) => `${periods[i]} ${v === null ? "n/a" : format(v)}`).join(", ")}` }) }),
+        e && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "circle", { className: "uipack-cx-dot", cx: e.x, cy: e.y, r: 6, style: { fill: stroke(s, si) } }),
+          nudged && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { className: "uipack-cx-leader", x1: e.x + 9, y1: e.y, x2: e.x + 20, y2: ly }),
+          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
             "text",
             {
               x: e.x + 22,
@@ -2645,7 +2494,7 @@ function LineChart({
               children: [
                 s.name,
                 " ",
-                /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("tspan", { className: "uipack-cx-t--strong", children: endText[si].value })
+                /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "tspan", { className: "uipack-cx-t--strong", children: endText[si].value })
               ]
             }
           )
@@ -2654,25 +2503,25 @@ function LineChart({
     }),
     annotate && (() => {
       const si = typeof annotate.series === "number" ? annotate.series : series.findIndex((s) => s.name === annotate.series);
-      const v = series[si]?.values[annotate.index];
+      const v = _optionalChain([series, 'access', _69 => _69[si], 'optionalAccess', _70 => _70.values, 'access', _71 => _71[annotate.index]]);
       if (v === null || v === void 0) return null;
       const px = xs(annotate.index);
       const py = ys(v);
-      return /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(Annotation, { x: px, y: py, tx: px + annotate.dx, ty: py + annotate.dy, text: annotate.text, width: annotate.width, align: annotate.align });
+      return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Annotation, { x: px, y: py, tx: px + annotate.dx, ty: py + annotate.dy, text: annotate.text, width: annotate.width, align: annotate.align });
     })()
   ] });
 }
 
 // src/deck/consulting/charts/Matrix2x2.tsx
-var import_jsx_runtime16 = require("react/jsx-runtime");
+
 function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, callout, alt, width, height }) {
   const size = useChartSize({ width, height });
   const W = size.width;
   const H = size.height;
-  const fx = xa.format ?? defaultFormat;
-  const fy = ya.format ?? defaultFormat;
-  const xSplit = xa.split ?? (xa.domain[0] + xa.domain[1]) / 2;
-  const ySplit = ya.split ?? (ya.domain[0] + ya.domain[1]) / 2;
+  const fx = _nullishCoalesce(xa.format, () => ( defaultFormat));
+  const fy = _nullishCoalesce(ya.format, () => ( defaultFormat));
+  const xSplit = _nullishCoalesce(xa.split, () => ( (xa.domain[0] + xa.domain[1]) / 2));
+  const ySplit = _nullishCoalesce(ya.split, () => ( (ya.domain[0] + ya.domain[1]) / 2));
   const yTicks = [ya.domain[0], ySplit, ya.domain[1]];
   const xTicks = [xa.domain[0], xSplit, xa.domain[1]];
   const tickW = Math.max(...yTicks.map((t) => textWidth(fy(t), CX_TYPE.tick))) + 12;
@@ -2682,7 +2531,7 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
   const bottom = H - 30 - 34;
   const xs = linearScale(xa.domain, [left, right]);
   const ys = linearScale(ya.domain, [bottom, top]);
-  const maxSize = Math.max(...points.map((p) => p.size ?? 1));
+  const maxSize = Math.max(...points.map((p) => _nullishCoalesce(p.size, () => ( 1))));
   const midX = xs(xSplit);
   const midY = ys(ySplit);
   const quads = {
@@ -2691,20 +2540,20 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
     bl: { x: left, y: midY, w: midX - left, h: bottom - midY },
     br: { x: midX, y: midY, w: right - midX, h: bottom - midY }
   };
-  const label = alt ?? `2 by 2 matrix: ${xa.label} against ${ya.label}. ${points.map((p) => `${p.label}: ${fx(p.x)}, ${fy(p.y)}${p.size !== void 0 ? `, size ${p.size}` : ""}`).join("; ")}.`;
-  const sorted = [...points].sort((a, b) => (b.size ?? 1) - (a.size ?? 1));
-  return /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)(Frame, { size, label, children: [
-    focus && /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("rect", { className: "uipack-cx-quad-focus", ...{ x: quads[focus].x, y: quads[focus].y, width: quads[focus].w, height: quads[focus].h } }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("rect", { className: "uipack-cx-plot-edge", x: left, y: top, width: right - left, height: bottom - top }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("line", { className: "uipack-cx-split", x1: midX, x2: midX, y1: top, y2: bottom }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("line", { className: "uipack-cx-split", x1: left, x2: right, y1: midY, y2: midY }),
+  const label = _nullishCoalesce(alt, () => ( `2 by 2 matrix: ${xa.label} against ${ya.label}. ${points.map((p) => `${p.label}: ${fx(p.x)}, ${fy(p.y)}${p.size !== void 0 ? `, size ${p.size}` : ""}`).join("; ")}.`));
+  const sorted = [...points].sort((a, b) => (_nullishCoalesce(b.size, () => ( 1))) - (_nullishCoalesce(a.size, () => ( 1))));
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, Frame, { size, label, children: [
+    focus && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "rect", { className: "uipack-cx-quad-focus", ...{ x: quads[focus].x, y: quads[focus].y, width: quads[focus].w, height: quads[focus].h } }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "rect", { className: "uipack-cx-plot-edge", x: left, y: top, width: right - left, height: bottom - top }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { className: "uipack-cx-split", x1: midX, x2: midX, y1: top, y2: bottom }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { className: "uipack-cx-split", x1: left, x2: right, y1: midY, y2: midY }),
     quadrants && ["tl", "tr", "bl", "br"].map((q, i) => {
       const r = quads[q];
       const atRight = q === "tr" || q === "br";
       const atBottom = q === "bl" || q === "br";
       const lines = wrapToWidth(quadrants[i].toUpperCase(), CX_TYPE.quadrant, r.w * 0.55, 2);
       const lh = CX_TYPE.quadrant * 1.25;
-      return /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(
+      return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
         "text",
         {
           x: atRight ? r.x + r.w - 16 : r.x + 16,
@@ -2713,15 +2562,15 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
           textAnchor: atRight ? "end" : "start",
           className: "uipack-cx-quad-label",
           "data-focus": focus === q ? "" : void 0,
-          children: lines.map((l, k) => /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("tspan", { x: atRight ? r.x + r.w - 16 : r.x + 16, dy: k === 0 ? 0 : lh, children: l }, k))
+          children: lines.map((l, k) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "tspan", { x: atRight ? r.x + r.w - 16 : r.x + 16, dy: k === 0 ? 0 : lh, children: l }, k))
         },
         q
       );
     }),
-    yTicks.map((t) => /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Text, { x: left - 10, y: ys(t), size: CX_TYPE.tick, anchor: "end", muted: true, className: "uipack-cx-tabular", children: fy(t) }, `y${t}`)),
-    xTicks.map((t, i) => /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Text, { x: xs(t), y: bottom + 24, size: CX_TYPE.tick, anchor: i === 0 ? "start" : i === 2 ? "end" : "middle", muted: true, className: "uipack-cx-tabular", children: fx(t) }, `x${t}`)),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Text, { x: (left + right) / 2, y: H - 12, size: CX_TYPE.tick, anchor: "middle", weight: 600, baseline: "auto", children: `${xa.label} \u2192` }),
-    /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(
+    yTicks.map((t) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Text, { x: left - 10, y: ys(t), size: CX_TYPE.tick, anchor: "end", muted: true, className: "uipack-cx-tabular", children: fy(t) }, `y${t}`)),
+    xTicks.map((t, i) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Text, { x: xs(t), y: bottom + 24, size: CX_TYPE.tick, anchor: i === 0 ? "start" : i === 2 ? "end" : "middle", muted: true, className: "uipack-cx-tabular", children: fx(t) }, `x${t}`)),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Text, { x: (left + right) / 2, y: H - 12, size: CX_TYPE.tick, anchor: "middle", weight: 600, baseline: "auto", children: `${xa.label} \u2192` }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
       "text",
       {
         transform: `translate(14 ${(top + bottom) / 2}) rotate(-90)`,
@@ -2735,12 +2584,12 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
     sorted.map((p, i) => {
       const cx2 = xs(p.x);
       const cy = ys(p.y);
-      const r = bubbleRadius(p.size ?? 1, maxSize, maxRadius);
-      const at = p.labelAt ?? "right";
+      const r = bubbleRadius(_nullishCoalesce(p.size, () => ( 1)), maxSize, maxRadius);
+      const at = _nullishCoalesce(p.labelAt, () => ( "right"));
       const lx = at === "right" ? cx2 + r + 10 : at === "left" ? cx2 - r - 10 : cx2;
       const ly = at === "top" ? cy - r - 18 : at === "bottom" ? cy + r + 20 : cy;
-      return /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("g", { "data-highlight": p.highlight ? "" : void 0, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(
+      return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-highlight": p.highlight ? "" : void 0, children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
           "circle",
           {
             className: "uipack-cx-bubble uipack-cx-grow",
@@ -2749,10 +2598,10 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
             cy,
             r,
             style: { ...growStyle("50% 50%", i * 50), fill: p.highlight ? fill.accent : fill.context },
-            children: /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("title", { children: `${p.label}: ${xa.label} ${fx(p.x)}, ${ya.label} ${fy(p.y)}` })
+            children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "title", { children: `${p.label}: ${xa.label} ${fx(p.x)}, ${ya.label} ${fy(p.y)}` })
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Text, { x: lx, y: ly, anchor: at === "right" ? "start" : at === "left" ? "end" : "middle", weight: p.highlight ? 600 : void 0, halo: true, children: p.label })
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Text, { x: lx, y: ly, anchor: at === "right" ? "start" : at === "left" ? "end" : "middle", weight: p.highlight ? 600 : void 0, halo: true, children: p.label })
       ] }, p.label);
     }),
     callout && (() => {
@@ -2760,13 +2609,13 @@ function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, cal
       if (!p) return null;
       const px = xs(p.x);
       const py = ys(p.y);
-      return /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+      return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
     })()
   ] });
 }
 
 // src/deck/consulting/charts/StackedBar.tsx
-var import_jsx_runtime17 = require("react/jsx-runtime");
+
 function StackedBar({
   categories,
   series,
@@ -2786,8 +2635,8 @@ function StackedBar({
   const stacks = categories.map((c) => stackSegments([...c.values], percent));
   const sums = categories.map((c) => c.values.reduce((a, b) => a + Math.max(0, b), 0));
   const max = percent ? 100 : Math.max(...sums, 1);
-  const fmtSeg = (s) => percent ? `${Math.round(s.share * 100)}%` : (segmentFormat ?? format)(s.value);
-  const label = alt ?? `Stacked bar chart, ${series.join(", ")}. ${categories.map((c, i) => `${c.label}: ${stacks[i].map((s, k) => `${series[k]} ${fmtSeg(s)}`).join(", ")}`).join("; ")}.`;
+  const fmtSeg = (s) => percent ? `${Math.round(s.share * 100)}%` : (_nullishCoalesce(segmentFormat, () => ( format)))(s.value);
+  const label = _nullishCoalesce(alt, () => ( `Stacked bar chart, ${series.join(", ")}. ${categories.map((c, i) => `${c.label}: ${stacks[i].map((s, k) => `${series[k]} ${fmtSeg(s)}`).join(", ")}`).join("; ")}.`));
   const legendH = 36;
   let lx = 0;
   const legend = series.map((name, i) => {
@@ -2795,14 +2644,14 @@ function StackedBar({
     lx += 18 + 10 + textWidth(name, CX_TYPE.tick) + 28;
     return item;
   });
-  const legendEl = /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("g", { className: "uipack-cx-legend", children: legend.map((l) => /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("g", { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("rect", { x: l.x, y: 6, width: 18, height: 18, rx: 2, style: { fill: fill.series(l.i) } }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Text, { x: l.x + 28, y: 15, size: CX_TYPE.tick, children: l.name })
+  const legendEl = /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "g", { className: "uipack-cx-legend", children: legend.map((l) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "rect", { x: l.x, y: 6, width: 18, height: 18, rx: 2, style: { fill: fill.series(l.i) } }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Text, { x: l.x + 28, y: 15, size: CX_TYPE.tick, children: l.name })
   ] }, l.name)) });
   const segLabel = (s, k, cx2, cy, room, thick) => {
     const t = fmtSeg(s);
     if (thick < CX_TYPE.value + 8 || textWidth(t, CX_TYPE.value, 600) + 12 > room) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(
+    return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
       "text",
       {
         x: cx2,
@@ -2821,18 +2670,18 @@ function StackedBar({
     const totalW = totals && !percent ? Math.max(...sums.map((s) => textWidth(format(s), CX_TYPE.value, 600))) + 14 : 4;
     const x = linearScale([0, max], [labelW, W - totalW]);
     const bands = bandLayout(categories.length, legendH + 8, H - legendH - 8, 0.62, 44);
-    return /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(Frame, { size, label, children: [
+    return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, Frame, { size, label, children: [
       legendEl,
       categories.map((c, i) => {
         const b = bands[i];
-        return /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("g", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Lines, { x: labelW - 16, y: b.centre, lines: wrapToWidth(c.label, CX_TYPE.label, labelW - 20, 2), anchor: "end", weight: c.highlight ? 600 : void 0 }),
-          /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("g", { className: "uipack-cx-grow", "data-axis": "x", style: growStyle("0% 50%", i * 40), children: stacks[i].map((s, k) => {
+        return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Lines, { x: labelW - 16, y: b.centre, lines: wrapToWidth(c.label, CX_TYPE.label, labelW - 20, 2), anchor: "end", weight: c.highlight ? 600 : void 0 }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "g", { className: "uipack-cx-grow", "data-axis": "x", style: growStyle("0% 50%", i * 40), children: stacks[i].map((s, k) => {
             const x0 = x(s.from) + (k > 0 ? 1 : 0);
             const x1 = x(s.to) - (k < stacks[i].length - 1 ? 1 : 0);
             if (x1 - x0 <= 0.5) return null;
-            return /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("g", { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(
+            return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
+              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
                 "rect",
                 {
                   style: { fill: fill.series(k) },
@@ -2840,42 +2689,42 @@ function StackedBar({
                   y: b.markStart,
                   width: x1 - x0,
                   height: b.mark,
-                  children: /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
+                  children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
                 }
               ),
               segLabel(s, k, (x0 + x1) / 2, b.centre, x1 - x0, b.mark)
             ] }, k);
           }) }),
-          totals && !percent && /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Text, { x: x(sums[i]) + 10, y: b.centre, weight: 600, children: format(sums[i]) })
+          totals && !percent && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Text, { x: x(sums[i]) + 10, y: b.centre, weight: 600, children: format(sums[i]) })
         ] }, c.label);
       }),
-      /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("line", { className: "uipack-cx-axis", x1: labelW, x2: labelW, y1: legendH + 4, y2: H })
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { className: "uipack-cx-axis", x1: labelW, x2: labelW, y1: legendH + 4, y2: H })
     ] });
   }
   const bandsProbe = bandLayout(categories.length, 0, W, 0.56, 88);
-  const wrapped = categories.map((c) => wrapToWidth(c.label, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 8, 2));
+  const wrapped = categories.map((c) => wrapToWidth(c.label, CX_TYPE.label, (_nullishCoalesce(_optionalChain([bandsProbe, 'access', _72 => _72[0], 'optionalAccess', _73 => _73.size]), () => ( W))) - 8, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = legendH + (totals && !percent ? 40 : 12);
   const y = linearScale([0, max], [H - bottom, top]);
-  return /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(Frame, { size, label, children: [
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, Frame, { size, label, children: [
     legendEl,
     categories.map((c, i) => {
       const b = bandsProbe[i];
-      return /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("g", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("g", { className: "uipack-cx-grow", "data-axis": "y", style: growStyle("50% 100%", i * 40), children: stacks[i].map((s, k) => {
+      return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "g", { className: "uipack-cx-grow", "data-axis": "y", style: growStyle("50% 100%", i * 40), children: stacks[i].map((s, k) => {
           const last = k === stacks[i].length - 1;
           const y0 = y(s.from) - (k > 0 ? 1 : 0);
           const y1 = y(s.to) + (last ? 0 : 1);
           if (y0 - y1 <= 0.5) return null;
-          return /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("g", { children: [
-            last ? /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(
+          return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { children: [
+            last ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
               "path",
               {
                 style: { fill: fill.series(k) },
                 d: barPath("vertical", y0, y1, b.markStart, b.mark),
-                children: /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
+                children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
               }
-            ) : /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(
+            ) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
               "rect",
               {
                 style: { fill: fill.series(k) },
@@ -2883,39 +2732,39 @@ function StackedBar({
                 y: y1,
                 width: b.mark,
                 height: y0 - y1,
-                children: /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
+                children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
               }
             ),
             segLabel(s, k, b.centre, (y0 + y1) / 2, b.mark, y0 - y1)
           ] }, k);
         }) }),
-        totals && !percent && /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Text, { x: b.centre, y: y(sums[i]) - 18, anchor: "middle", weight: 600, halo: true, children: format(sums[i]) }),
-        /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(Lines, { x: b.centre, y: H - bottom + 12, lines: wrapped[i], top: true, weight: c.highlight ? 600 : void 0 })
+        totals && !percent && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Text, { x: b.centre, y: y(sums[i]) - 18, anchor: "middle", weight: 600, halo: true, children: format(sums[i]) }),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Lines, { x: b.centre, y: H - bottom + 12, lines: wrapped[i], top: true, weight: c.highlight ? 600 : void 0 })
       ] }, c.label);
     }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("line", { className: "uipack-cx-axis", x1: 0, x2: W, y1: H - bottom, y2: H - bottom })
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { className: "uipack-cx-axis", x1: 0, x2: W, y1: H - bottom, y2: H - bottom })
   ] });
 }
 
 // src/deck/consulting/charts/Waterfall.tsx
-var import_jsx_runtime18 = require("react/jsx-runtime");
+
 function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain, callout, alt, width, height }) {
   const size = useChartSize({ width, height });
   const W = size.width;
   const H = size.height;
   const bars = waterfallBars([...steps]);
   const levels = bars.flatMap((b) => [b.from, b.to]);
-  const dom = domain ?? zeroBasedDomain(levels);
+  const dom = _nullishCoalesce(domain, () => ( zeroBasedDomain(levels)));
   const broken = dom[0] > 0;
   const bandsProbe = bandLayout(bars.length, 0, W, 0.62, 76);
-  const wrapped = bars.map((b) => wrapToWidth(b.label, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 6, 2));
+  const wrapped = bars.map((b) => wrapToWidth(b.label, CX_TYPE.label, (_nullishCoalesce(_optionalChain([bandsProbe, 'access', _74 => _74[0], 'optionalAccess', _75 => _75.size]), () => ( W))) - 6, 2));
   const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
   const top = 40;
   const y = linearScale(dom, [H - bottom, top]);
   const base = y(dom[0]);
-  const label = alt ?? `Waterfall. ${bars.map((b) => `${b.label}: ${b.kind === "total" ? format(b.value) : (b.value >= 0 ? "+" : "") + format(b.value)}`).join("; ")}.`;
+  const label = _nullishCoalesce(alt, () => ( `Waterfall. ${bars.map((b) => `${b.label}: ${b.kind === "total" ? format(b.value) : (b.value >= 0 ? "+" : "") + format(b.value)}`).join("; ")}.`));
   const show = (b) => b.kind === "total" ? format(b.value) : `${b.value > 0 ? "+" : ""}${format(b.value)}`;
-  return /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)(Frame, { size, label, children: [
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, Frame, { size, label, children: [
     bars.map((b, i) => {
       const band = bandsProbe[i];
       const next = bandsProbe[i + 1];
@@ -2925,17 +2774,17 @@ function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain
       const yBot = b.kind === "total" ? base : y(Math.min(b.from, b.to));
       const h = Math.max(2, yBot - yTop);
       const labelY = yTop - 18;
-      return /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("g", { "data-kind": b.kind, children: [
-        b.kind === "total" ? /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
+      return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-kind": b.kind, children: [
+        b.kind === "total" ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
           "path",
           {
             className: "uipack-cx-grow",
             "data-axis": "y",
             style: { ...growStyle("50% 100%", i * 60), fill: colour },
             d: barPath("vertical", base, yTop, band.markStart, band.mark),
-            children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("title", { children: `${b.label}: ${show(b)}` })
+            children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "title", { children: `${b.label}: ${show(b)}` })
           }
-        ) : /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
+        ) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
           "rect",
           {
             className: "uipack-cx-grow",
@@ -2946,18 +2795,18 @@ function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain
             width: band.mark,
             height: h,
             rx: 2,
-            children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("title", { children: `${b.label}: ${show(b)}` })
+            children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "title", { children: `${b.label}: ${show(b)}` })
           }
         ),
-        broken && b.kind === "total" && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
+        broken && b.kind === "total" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
           "path",
           {
             className: "uipack-cx-break",
             d: `M${band.markStart - 4} ${base - 18}l${band.mark + 8} -10M${band.markStart - 4} ${base - 8}l${band.mark + 8} -10`
           }
         ),
-        next && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("line", { className: "uipack-cx-connector", x1: band.markStart + band.mark, x2: next.markStart, y1: y(b.to), y2: y(b.to) }),
-        /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)(
+        next && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { className: "uipack-cx-connector", x1: band.markStart + band.mark, x2: next.markStart, y1: y(b.to), y2: y(b.to) }),
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
           "text",
           {
             x: band.centre,
@@ -2967,34 +2816,34 @@ function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain
             dominantBaseline: "central",
             className: "uipack-cx-t uipack-cx-t--strong uipack-cx-halo",
             children: [
-              b.kind !== "total" && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("tspan", { className: "uipack-cx-arrow", "aria-hidden": "true", children: b.value >= 0 ? "\u25B2 " : "\u25BC " }),
+              b.kind !== "total" && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "tspan", { className: "uipack-cx-arrow", "aria-hidden": "true", children: b.value >= 0 ? "\u25B2 " : "\u25BC " }),
               show(b)
             ]
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Lines, { x: band.centre, y: H - bottom + 12, lines: wrapped[i], top: true, weight: b.kind === "total" ? 600 : void 0 })
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Lines, { x: band.centre, y: H - bottom + 12, lines: wrapped[i], top: true, weight: b.kind === "total" ? 600 : void 0 })
       ] }, `${b.label}-${i}`);
     }),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("line", { className: "uipack-cx-axis", x1: 0, x2: W, y1: base, y2: base }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { className: "uipack-cx-axis", x1: 0, x2: W, y1: base, y2: base }),
     callout && (() => {
       const i = bars.findIndex((b2) => b2.label === callout.label);
       if (i < 0) return null;
       const b = bars[i];
       const px = bandsProbe[i].centre;
       const py = (y(b.from) + y(b.to)) / 2;
-      return /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+      return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Annotation, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
     })()
   ] });
 }
 
 // src/deck/consulting/HarveyTable.tsx
-var import_jsx_runtime19 = require("react/jsx-runtime");
+
 var LEVEL_WORDS = ["None", "Low", "Medium", "High", "Full"];
 function HarveyBall({ level, size = 36, label }) {
   const q = harveyQuarters(level);
   const r = size / 2 - 1.5;
   const c = size / 2;
-  return /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
     "svg",
     {
       className: "uipack-cx-harvey",
@@ -3002,115 +2851,114 @@ function HarveyBall({ level, size = 36, label }) {
       height: size,
       viewBox: `0 0 ${size} ${size}`,
       role: "img",
-      "aria-label": label ?? `${LEVEL_WORDS[q]} (${q} of 4)`,
+      "aria-label": _nullishCoalesce(label, () => ( `${LEVEL_WORDS[q]} (${q} of 4)`)),
       "data-level": q,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("circle", { className: "uipack-cx-harvey__ring", cx: c, cy: c, r }),
-        q > 0 && /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("path", { className: "uipack-cx-harvey__fill", d: harveyWedge(q, c, c, r) })
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "circle", { className: "uipack-cx-harvey__ring", cx: c, cy: c, r }),
+        q > 0 && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { className: "uipack-cx-harvey__fill", d: harveyWedge(q, c, c, r) })
       ]
     }
   );
 }
 function HarveyTable({ columns, rows, corner = "Option", showKey = true, keyNote = "Full ball = most favourable" }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "uipack-cx-harvey-table", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("table", { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("colgroup", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("col", {}),
-        columns.map((c) => /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("col", { style: c.width ? { width: c.width } : void 0 }, c.key))
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-cx-harvey-table", children: [
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "table", { children: [
+      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "colgroup", { children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "col", {}),
+        columns.map((c) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "col", { style: c.width ? { width: c.width } : void 0 }, c.key))
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("thead", { children: /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("tr", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("th", { scope: "col", children: corner }),
-        columns.map((c) => /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("th", { scope: "col", "data-kind": c.kind ?? "harvey", children: c.label }, c.key))
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "thead", { children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "tr", { children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "th", { scope: "col", children: corner }),
+        columns.map((c) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "th", { scope: "col", "data-kind": _nullishCoalesce(c.kind, () => ( "harvey")), children: c.label }, c.key))
       ] }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("tbody", { children: rows.map((r, i) => /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("tr", { "data-highlight": r.highlight ? "" : void 0, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("th", { scope: "row", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("span", { className: "uipack-cx-harvey-table__name", children: [
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "tbody", { children: rows.map((r, i) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "tr", { "data-highlight": r.highlight ? "" : void 0, children: [
+        /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "th", { scope: "row", children: [
+          /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { className: "uipack-cx-harvey-table__name", children: [
             r.label,
-            r.highlight && /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("em", { children: r.tag ?? "Recommended" })
+            r.highlight && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "em", { children: _nullishCoalesce(r.tag, () => ( "Recommended")) })
           ] }),
-          r.detail && /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { className: "uipack-cx-harvey-table__detail", children: r.detail })
+          r.detail && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-cx-harvey-table__detail", children: r.detail })
         ] }),
         columns.map((c) => {
           const v = r.cells[c.key];
-          return /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("td", { "data-kind": c.kind ?? "harvey", children: (c.kind ?? "harvey") === "harvey" && typeof v === "number" ? /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(HarveyBall, { level: v }) : v }, c.key);
+          return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "td", { "data-kind": _nullishCoalesce(c.kind, () => ( "harvey")), children: (_nullishCoalesce(c.kind, () => ( "harvey"))) === "harvey" && typeof v === "number" ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, HarveyBall, { level: v }) : v }, c.key);
         })
       ] }, i)) })
     ] }),
-    showKey && /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("p", { className: "uipack-cx-harvey-key", children: [
-      LEVEL_WORDS.map((w, q) => /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("span", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(HarveyBall, { level: q, size: 24, label: "" }),
+    showKey && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { className: "uipack-cx-harvey-key", children: [
+      LEVEL_WORDS.map((w, q) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, HarveyBall, { level: q, size: 24, label: "" }),
         w
       ] }, w)),
-      keyNote && /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { className: "uipack-cx-harvey-key__note", children: keyNote })
+      keyNote && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-cx-harvey-key__note", children: keyNote })
     ] })
   ] });
 }
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  Annotation,
-  BarChart,
-  Bento,
-  BentoCell,
-  Build,
-  CANVAS_HEIGHT,
-  CANVAS_WIDTH,
-  CX_TYPE,
-  ConsultingSlide,
-  DeckPlayer,
-  DeckSlideContext,
-  HarveyBall,
-  HarveyTable,
-  KpiTiles,
-  LINT_RULES,
-  LineChart,
-  MAX_TITLE_WORDS,
-  MIN_TEXT_PX,
-  Matrix2x2,
-  Morph,
-  Panel,
-  REPEATABLE_ROLES,
-  Ref,
-  SLIDE_ROLES,
-  STORYLINE_TEMPLATES,
-  Slide,
-  SlideThumbnail,
-  SoWhat,
-  Sparkline,
-  StackedBar,
-  Tracker,
-  WORDS_PER_MINUTE,
-  Waterfall,
-  annotationGeometry,
-  bandLayout,
-  barPath,
-  bentoCamera,
-  bentoFocusAt,
-  bubbleRadius,
-  deckMotion,
-  flipFrom,
-  formatStoryline,
-  formatValue,
-  formatter,
-  getStorylineTemplate,
-  harveyQuarters,
-  harveyWedge,
-  linearScale,
-  lintDeck,
-  niceStep,
-  niceTicks,
-  resolveTransition,
-  runTransition,
-  slideZoomFrame,
-  slideZoomSamples,
-  spreadLabels,
-  stackSegments,
-  storylineOf,
-  talkSeconds,
-  templateOutline,
-  textWidth,
-  useDeckSlide,
-  waterfallBars,
-  wrapToWidth,
-  zeroBasedDomain
-});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.Annotation = Annotation; exports.BarChart = BarChart; exports.Bento = Bento; exports.BentoCell = BentoCell; exports.Build = Build; exports.CANVAS_HEIGHT = CANVAS_HEIGHT; exports.CANVAS_WIDTH = CANVAS_WIDTH; exports.CX_TYPE = CX_TYPE; exports.ConsultingSlide = ConsultingSlide; exports.DeckPlayer = DeckPlayer; exports.DeckSlideContext = DeckSlideContext; exports.HarveyBall = HarveyBall; exports.HarveyTable = HarveyTable; exports.KpiTiles = KpiTiles; exports.LINT_RULES = LINT_RULES; exports.LineChart = LineChart; exports.MAX_TITLE_WORDS = MAX_TITLE_WORDS; exports.MIN_TEXT_PX = MIN_TEXT_PX; exports.Matrix2x2 = Matrix2x2; exports.Morph = Morph; exports.Panel = Panel; exports.REPEATABLE_ROLES = REPEATABLE_ROLES; exports.Ref = Ref; exports.SLIDE_ROLES = SLIDE_ROLES; exports.STORYLINE_TEMPLATES = STORYLINE_TEMPLATES; exports.Slide = Slide; exports.SlideThumbnail = SlideThumbnail; exports.SoWhat = SoWhat; exports.Sparkline = Sparkline; exports.StackedBar = StackedBar; exports.Tracker = Tracker; exports.WORDS_PER_MINUTE = WORDS_PER_MINUTE; exports.Waterfall = Waterfall; exports.annotationGeometry = annotationGeometry; exports.bandLayout = bandLayout; exports.barPath = barPath; exports.bentoCamera = bentoCamera; exports.bentoFocusAt = bentoFocusAt; exports.bubbleRadius = bubbleRadius; exports.deckMotion = deckMotion; exports.flipFrom = flipFrom; exports.formatStoryline = formatStoryline; exports.formatValue = formatValue; exports.formatter = formatter; exports.getStorylineTemplate = getStorylineTemplate; exports.harveyQuarters = harveyQuarters; exports.harveyWedge = harveyWedge; exports.linearScale = linearScale; exports.lintDeck = lintDeck; exports.niceStep = niceStep; exports.niceTicks = niceTicks; exports.resolveTransition = resolveTransition; exports.runTransition = runTransition; exports.slideZoomFrame = slideZoomFrame; exports.slideZoomSamples = slideZoomSamples; exports.spreadLabels = spreadLabels; exports.stackSegments = stackSegments; exports.storylineOf = storylineOf; exports.talkSeconds = talkSeconds; exports.templateOutline = templateOutline; exports.textWidth = textWidth; exports.useDeckSlide = useDeckSlide; exports.waterfallBars = waterfallBars; exports.wrapToWidth = wrapToWidth; exports.zeroBasedDomain = zeroBasedDomain;
 //# sourceMappingURL=deck.cjs.map

@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { cssBundles } from "../scripts/css-bundles";
 import { entries } from "../scripts/entries";
 
@@ -32,4 +32,23 @@ describe("package entries", () => {
   it("every doc ships with the package", () => {
     expect(pkg.files).toContain("docs/*.md");
   });
+});
+
+// A provider from one entry must reach a component from another (a FigureMotionContext.Provider from
+// "uipack" around a preset from "uipack/presets"). That holds only if the built entries share one copy of
+// each context: tsup's `splitting` puts shared modules in chunks, for CJS as well as ESM.
+describe("built entries share one copy of each React context", () => {
+  const files = readdirSync("dist").filter((f) => f.endsWith(".js") || f.endsWith(".cjs"));
+  for (const ext of [".js", ".cjs"]) {
+    it(`dist/*${ext}`, () => {
+      const created = new Map<string, number>();
+      for (const f of files.filter((f) => f.endsWith(ext))) {
+        for (const m of readFileSync(`dist/${f}`, "utf8").matchAll(/\b(\w+Context) = (?:_react\.|\(0, \w+\.)?createContext\b/g))
+          created.set(m[1], (created.get(m[1]) ?? 0) + 1);
+      }
+      expect(created.get("FigureMotionContext")).toBe(1);
+      expect(created.get("FigureScaleContext")).toBe(1);
+      for (const [name, n] of created) expect(n, name).toBe(1);
+    });
+  }
 });

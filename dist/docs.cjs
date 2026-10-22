@@ -1,52 +1,13 @@
-"use strict";
-var __create = Object.create;
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-// src/docs/index.ts
-var docs_exports = {};
-__export(docs_exports, {
-  DocsLayout: () => DocsLayout,
-  DocsMarkdown: () => DocsMarkdown,
-  extractDocsHeadings: () => extractDocsHeadings,
-  slugifyDocsHeading: () => slugifyDocsHeading
-});
-module.exports = __toCommonJS(docs_exports);
-
-// src/docs/DocsLayout.tsx
-var import_react = require("react");
-var import_jsx_runtime = require("react/jsx-runtime");
+"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; } function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }// src/docs/DocsLayout.tsx
+var _react = require('react');
+var _jsxruntime = require('react/jsx-runtime');
 function SectionNavigation({
   sections,
   activeHref
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("nav", { className: "uipack-docs__navigation", "aria-label": "Documentation", children: sections.map((section) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { className: "uipack-docs__nav-section", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: section.title }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { children: section.items.map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "nav", { className: "uipack-docs__navigation", "aria-label": "Documentation", children: sections.map((section) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "section", { className: "uipack-docs__nav-section", children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h2", { children: section.title }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { children: section.items.map((item) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "li", { children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
       "a",
       {
         href: item.href,
@@ -57,9 +18,9 @@ function SectionNavigation({
   ] }, section.title)) });
 }
 function useCurrentSection(ids) {
-  const [current, setCurrent] = (0, import_react.useState)(null);
+  const [current, setCurrent] = _react.useState.call(void 0, null);
   const key = ids.join(" ");
-  (0, import_react.useEffect)(() => {
+  _react.useEffect.call(void 0, () => {
     const headings = ids.map((id) => document.getElementById(id)).filter((element) => element !== null);
     if (headings.length === 0) return;
     let frame = 0;
@@ -100,36 +61,36 @@ function DocsLayout({
   theme,
   children
 }) {
-  const mobileNavigationId = (0, import_react.useId)();
+  const mobileNavigationId = _react.useId.call(void 0, );
   const currentSection = useCurrentSection(onThisPage.map((item) => item.id));
   const current = sections.flatMap((section) => section.items).find((item) => item.href === activeHref);
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-docs", "data-theme": theme, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { className: "uipack-docs__skip", href: "#docs-content", children: "Skip to documentation content" }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-docs__identity", "aria-label": "Documentation home", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { href: productHref, children: productTitle }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "aria-hidden": "true", children: "/" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { href: sections[0]?.items[0]?.href || activeHref, children: docsTitle })
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-docs", "data-theme": theme, children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { className: "uipack-docs__skip", href: "#docs-content", children: "Skip to documentation content" }),
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-docs__identity", "aria-label": "Documentation home", children: [
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { href: productHref, children: productTitle }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "aria-hidden": "true", children: "/" }),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "a", { href: _optionalChain([sections, 'access', _ => _[0], 'optionalAccess', _2 => _2.items, 'access', _3 => _3[0], 'optionalAccess', _4 => _4.href]) || activeHref, children: docsTitle })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("details", { className: "uipack-docs__mobile-navigation", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("summary", { "aria-controls": mobileNavigationId, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Documentation" }),
-        current && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: current.title }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "details", { className: "uipack-docs__mobile-navigation", children: [
+      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "summary", { "aria-controls": mobileNavigationId, children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: "Documentation" }),
+        current && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "small", { children: current.title }),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
           "svg",
           {
             className: "uipack-docs__chevron",
             viewBox: "0 0 16 16",
             "aria-hidden": "true",
             focusable: "false",
-            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M4 6l4 4 4-4" })
+            children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { d: "M4 6l4 4 4-4" })
           }
         )
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { id: mobileNavigationId, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SectionNavigation, { sections, activeHref }) })
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { id: mobileNavigationId, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, SectionNavigation, { sections, activeHref }) })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "uipack-docs__grid", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("aside", { className: "uipack-docs__sidebar", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SectionNavigation, { sections, activeHref }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-docs__grid", children: [
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "aside", { className: "uipack-docs__sidebar", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, SectionNavigation, { sections, activeHref }) }),
+      /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
         "section",
         {
           className: "uipack-docs__article",
@@ -138,22 +99,22 @@ function DocsLayout({
           tabIndex: -1,
           children: [
             children,
-            (previous || next) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            (previous || next) && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
               "nav",
               {
                 className: "uipack-docs__pagination",
                 "aria-label": "Previous and next documentation pages",
                 children: [
-                  previous && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", { href: previous.href, rel: "prev", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Previous" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+                  previous && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "a", { href: previous.href, rel: "prev", children: [
+                    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "small", { children: "Previous" }),
+                    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { children: [
                       "\u2190 ",
                       previous.title
                     ] })
                   ] }),
-                  next && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", { href: next.href, rel: "next", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Next" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+                  next && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "a", { href: next.href, rel: "next", children: [
+                    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "small", { children: "Next" }),
+                    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "span", { children: [
                       next.title,
                       " \u2192"
                     ] })
@@ -164,9 +125,9 @@ function DocsLayout({
           ]
         }
       ),
-      onThisPage.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("aside", { className: "uipack-docs__toc", "aria-label": "On this page", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "On this page" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ol", { children: onThisPage.map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { "data-level": item.level, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      onThisPage.length > 0 && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "aside", { className: "uipack-docs__toc", "aria-label": "On this page", children: [
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: "On this page" }),
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ol", { children: onThisPage.map((item) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "li", { "data-level": item.level, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
           "a",
           {
             href: `#${item.id}`,
@@ -180,16 +141,20 @@ function DocsLayout({
 }
 
 // src/docs/DocsMarkdown.tsx
-var import_react2 = require("react");
-var import_react_markdown = __toESM(require("react-markdown"), 1);
-var import_remark_gfm = __toESM(require("remark-gfm"), 1);
-var import_jsx_runtime2 = require("react/jsx-runtime");
+
+
+
+
+
+var _reactmarkdown = require('react-markdown'); var _reactmarkdown2 = _interopRequireDefault(_reactmarkdown);
+var _remarkgfm = require('remark-gfm'); var _remarkgfm2 = _interopRequireDefault(_remarkgfm);
+
 function textFromChildren(children) {
-  return import_react2.Children.toArray(children).map((child) => {
+  return _react.Children.toArray(children).map((child) => {
     if (typeof child === "string" || typeof child === "number") {
       return String(child);
     }
-    if ((0, import_react2.isValidElement)(child)) {
+    if (_react.isValidElement.call(void 0, child)) {
       return textFromChildren(child.props.children);
     }
     return "";
@@ -229,8 +194,8 @@ function extractDocsHeadings(source) {
   return headings;
 }
 function tableColumns(node) {
-  const row = (node?.children ?? []).flatMap((part) => part.tagName === "tr" ? [part] : part.children ?? []).find((part) => part.tagName === "tr");
-  const cells = (row?.children ?? []).filter(
+  const row = (_nullishCoalesce(_optionalChain([node, 'optionalAccess', _5 => _5.children]), () => ( []))).flatMap((part) => part.tagName === "tr" ? [part] : _nullishCoalesce(part.children, () => ( []))).find((part) => part.tagName === "tr");
+  const cells = (_nullishCoalesce(_optionalChain([row, 'optionalAccess', _6 => _6.children]), () => ( []))).filter(
     (cell) => cell.tagName === "th" || cell.tagName === "td"
   ).length;
   return Math.max(1, cells || 2);
@@ -238,19 +203,19 @@ function tableColumns(node) {
 function headingComponent(level, headingIds) {
   return function DocsHeading({ node, children, ...props }) {
     const title = textFromChildren(children);
-    const id = headingIds.get(node?.position?.start.line || 0) || slugifyDocsHeading(title);
-    return (0, import_react2.createElement)(
+    const id = headingIds.get(_optionalChain([node, 'optionalAccess', _7 => _7.position, 'optionalAccess', _8 => _8.start, 'access', _9 => _9.line]) || 0) || slugifyDocsHeading(title);
+    return _react.createElement.call(void 0, 
       `h${level}`,
       { ...props, id, "aria-label": title },
       children,
       " ",
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
         "a",
         {
           className: "uipack-docs__heading-anchor",
           href: `#${id}`,
           "aria-label": `Link to ${title}`,
-          children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "aria-hidden": "true", children: "#" })
+          children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { "aria-hidden": "true", children: "#" })
         }
       )
     );
@@ -267,23 +232,22 @@ function DocsMarkdown({ source }) {
     h4: headingComponent(4, headingIds),
     h5: headingComponent(5, headingIds),
     h6: headingComponent(6, headingIds),
-    table: ({ node, ...props }) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+    table: ({ node, ...props }) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
       "div",
       {
         className: "uipack-docs__table",
         tabIndex: 0,
         style: { "--docs-table-columns": tableColumns(node) },
-        children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("table", { ...props })
+        children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "table", { ...props })
       }
     )
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "uipack-docs__prose", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_markdown.default, { components, remarkPlugins: [import_remark_gfm.default], skipHtml: true, children: source }) });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-docs__prose", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _reactmarkdown2.default, { components, remarkPlugins: [_remarkgfm2.default], skipHtml: true, children: source }) });
 }
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  DocsLayout,
-  DocsMarkdown,
-  extractDocsHeadings,
-  slugifyDocsHeading
-});
+
+
+
+
+
+exports.DocsLayout = DocsLayout; exports.DocsMarkdown = DocsMarkdown; exports.extractDocsHeadings = extractDocsHeadings; exports.slugifyDocsHeading = slugifyDocsHeading;
 //# sourceMappingURL=docs.cjs.map
