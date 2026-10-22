@@ -13,10 +13,17 @@ export interface SectionProps {
   align?: "start" | "center";
   id?: string;
   className?: string;
+  /**
+   * For sections well below the fold: skip their layout and paint until they near the viewport
+   * (content-visibility: auto, with a remembered intrinsic size). The content stays in the DOM, so
+   * crawlers, find-in-page and screen readers still get it. Leave it off for the first screen and
+   * for sections above an in-page link target.
+   */
+  lazyRender?: boolean;
 }
 
 /** A page section on the 8-pt rhythm, with an optional eyebrow, heading and intro. */
-export function Section({ eyebrow, title, intro, children, tone = "default", align = "start", id, className = "" }: SectionProps) {
+export function Section({ eyebrow, title, intro, children, tone = "default", align = "start", id, className = "", lazyRender = false }: SectionProps) {
   const headingId = id ? `${id}-title` : undefined;
   return (
     <section
@@ -24,6 +31,7 @@ export function Section({ eyebrow, title, intro, children, tone = "default", ali
       className={`uipack-web-section ${className}`.trim()}
       data-tone={tone}
       data-align={align}
+      data-lazy={lazyRender || undefined}
       aria-labelledby={title ? headingId : undefined}
     >
       <div className="uipack-web-section__inner">

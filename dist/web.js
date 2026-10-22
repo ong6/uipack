@@ -20,7 +20,7 @@ import { jsx as jsx2 } from "react/jsx-runtime";
 function Eyebrow({ children, className = "", as: Tag = "p", id }) {
   return /* @__PURE__ */ jsx2(Tag, { id, className: `uipack-web-eyebrow ${className}`.trim(), children });
 }
-var DEFAULT_STEP = { 1: 6, 2: 4, 3: 2, 4: 1 };
+var DEFAULT_STEP = { 1: 6, 2: 4, 3: 2, 4: 1, 5: 0, 6: 0 };
 function Heading({ children, level = 2, size, className = "", id }) {
   const Tag = `h${level}`;
   const step = size ?? DEFAULT_STEP[level];
@@ -82,28 +82,28 @@ function GlassNav({ brand, links, cta, sticky = true, label = "Primary" }) {
 import { useRef as useRef2 } from "react";
 import { jsx as jsx5 } from "react/jsx-runtime";
 function SpotlightCard({ children, href, className = "" }) {
-  const ref = useRef2(null);
+  const ref2 = useRef2(null);
   const onMove = (e) => {
     if (e.pointerType === "touch") return;
-    const el = ref.current;
+    const el = ref2.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
     el.style.setProperty("--spot-x", `${e.clientX - r.left}px`);
     el.style.setProperty("--spot-y", `${e.clientY - r.top}px`);
   };
   const onLeave = () => {
-    ref.current?.style.removeProperty("--spot-x");
-    ref.current?.style.removeProperty("--spot-y");
+    ref2.current?.style.removeProperty("--spot-x");
+    ref2.current?.style.removeProperty("--spot-y");
   };
   const cls = `uipack-web-spotlight ${className}`.trim();
   if (href)
-    return /* @__PURE__ */ jsx5("a", { ref: (n) => ref.current = n, className: cls, href, onPointerMove: onMove, onPointerLeave: onLeave, children });
-  return /* @__PURE__ */ jsx5("div", { ref: (n) => ref.current = n, className: cls, onPointerMove: onMove, onPointerLeave: onLeave, children });
+    return /* @__PURE__ */ jsx5("a", { ref: (n) => ref2.current = n, className: cls, href, onPointerMove: onMove, onPointerLeave: onLeave, children });
+  return /* @__PURE__ */ jsx5("div", { ref: (n) => ref2.current = n, className: cls, onPointerMove: onMove, onPointerLeave: onLeave, children });
 }
 
 // src/web/Section.tsx
 import { Fragment, jsx as jsx6, jsxs as jsxs2 } from "react/jsx-runtime";
-function Section({ eyebrow, title, intro, children, tone = "default", align = "start", id, className = "" }) {
+function Section({ eyebrow, title, intro, children, tone = "default", align = "start", id, className = "", lazyRender = false }) {
   const headingId = id ? `${id}-title` : void 0;
   return /* @__PURE__ */ jsx6(
     "section",
@@ -112,6 +112,7 @@ function Section({ eyebrow, title, intro, children, tone = "default", align = "s
       className: `uipack-web-section ${className}`.trim(),
       "data-tone": tone,
       "data-align": align,
+      "data-lazy": lazyRender || void 0,
       "aria-labelledby": title ? headingId : void 0,
       children: /* @__PURE__ */ jsxs2("div", { className: "uipack-web-section__inner", children: [
         (eyebrow || title || intro) && /* @__PURE__ */ jsxs2("div", { className: "uipack-web-section__head", children: [
@@ -139,11 +140,11 @@ function FeatureGrid({ features, spotlight = false }) {
 import { Fragment as Fragment2, useEffect as useEffect2, useRef as useRef3, useState as useState2 } from "react";
 import { jsx as jsx7, jsxs as jsxs3 } from "react/jsx-runtime";
 function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger = 45 }) {
-  const ref = useRef3(null);
+  const ref2 = useRef3(null);
   const reduced = usePrefersReducedMotion();
   const [state, setState] = useState2("static");
   useEffect2(() => {
-    const el = ref.current;
+    const el = ref2.current;
     if (!el || reduced || typeof IntersectionObserver === "undefined") {
       setState("static");
       return;
@@ -162,9 +163,9 @@ function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger =
   }, [reduced]);
   const units = lines ?? text.split(/\s+/).filter(Boolean);
   const byLine = !!lines;
-  return /* @__PURE__ */ jsx7(Tag, { ref, className: `uipack-web-reveal ${className}`.trim(), "data-state": state, "data-by": byLine ? "line" : "word", children: units.map((u, i) => /* @__PURE__ */ jsxs3(Fragment2, { children: [
+  return /* @__PURE__ */ jsx7(Tag, { ref: ref2, className: `uipack-web-reveal ${className}`.trim(), "data-state": state, "data-by": byLine ? "line" : "word", children: units.map((u, i) => /* @__PURE__ */ jsxs3(Fragment2, { children: [
     /* @__PURE__ */ jsx7("span", { className: "uipack-web-reveal__unit", style: { "--i": i, "--stagger": `${stagger}ms` }, children: u }),
-    !byLine && i < units.length - 1 ? " " : null
+    i < units.length - 1 ? " " : null
   ] }, i)) });
 }
 
@@ -388,7 +389,8 @@ function DemoPlayer({
     }, TICK_MS);
     return () => clearInterval(timer);
   }, [running, loop, cycle, end]);
-  const frame = reduced ? demoFrame(steps, Infinity, timing, initialMetric) : demoFrame(steps, elapsed, timing, initialMetric);
+  const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
+  const frame = reduced ? finalFrame : demoFrame(steps, elapsed, timing, initialMetric);
   const finished = !loop && frame.done;
   useEffect3(() => {
     if (finished) setPlaying(false);
@@ -476,22 +478,29 @@ function DemoPlayer({
             ] })
           ] })
         ] }),
-        reduced ? /* @__PURE__ */ jsx10("ol", { className: "uipack-web-demo__static", "aria-label": "Demo steps", children: steps.map((s, i) => /* @__PURE__ */ jsxs6("li", { children: [
-          /* @__PURE__ */ jsx10("span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
-          /* @__PURE__ */ jsxs6("div", { children: [
-            /* @__PURE__ */ jsxs6("strong", { children: [
-              s.label,
-              " \xB7 ",
-              s.title
-            ] }),
-            s.prompt && /* @__PURE__ */ jsxs6("p", { children: [
-              "\u201C",
-              s.prompt,
-              "\u201D"
-            ] }),
-            !!s.actions?.length && /* @__PURE__ */ jsx10("ul", { children: s.actions.map(toAction).map((a) => /* @__PURE__ */ jsx10("li", { children: a.label }, a.label)) })
-          ] })
-        ] }, s.id)) }) : /* @__PURE__ */ jsxs6("div", { className: "uipack-web-demo__controls", children: [
+        /* @__PURE__ */ jsxs6("div", { className: reduced ? void 0 : "uipack-web-demo__sr", children: [
+          /* @__PURE__ */ jsx10("ol", { className: "uipack-web-demo__static", "aria-label": reduced ? "Demo steps" : "Demo transcript", children: steps.map((s, i) => /* @__PURE__ */ jsxs6("li", { children: [
+            /* @__PURE__ */ jsx10("span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
+            /* @__PURE__ */ jsxs6("div", { children: [
+              /* @__PURE__ */ jsxs6("strong", { children: [
+                s.label,
+                " \xB7 ",
+                s.title
+              ] }),
+              s.prompt && /* @__PURE__ */ jsxs6("p", { children: [
+                "\u201C",
+                s.prompt,
+                "\u201D"
+              ] }),
+              !!s.actions?.length && /* @__PURE__ */ jsx10("ul", { children: s.actions.map(toAction).map((a) => /* @__PURE__ */ jsxs6("li", { children: [
+                a.label,
+                a.detail ? ` (${a.detail})` : ""
+              ] }, a.label)) })
+            ] })
+          ] }, s.id)) }),
+          !reduced && finalFrame.metric !== void 0 && /* @__PURE__ */ jsx10("p", { children: `Result: ${finalFrame.metric}${metricLabel ? ` ${metricLabel}` : ""}.` })
+        ] }),
+        !reduced && /* @__PURE__ */ jsxs6("div", { className: "uipack-web-demo__controls", children: [
           /* @__PURE__ */ jsx10("div", { className: "uipack-web-demo__tabs", role: "group", "aria-label": "Demo steps", ref: tabsRef, onKeyDown: onTabKey, children: steps.map((s, i) => /* @__PURE__ */ jsxs6(
             "button",
             {
@@ -559,10 +568,10 @@ var GRID_COLUMNS = { wide: 12, medium: 8, narrow: 4 };
 
 // src/web/hooks.ts
 import { useEffect as useEffect4, useState as useState4 } from "react";
-function useInView(ref, { threshold = 0, once = false, rootMargin } = {}) {
+function useInView(ref2, { threshold = 0, once = false, rootMargin } = {}) {
   const [inView, setInView] = useState4(false);
   useEffect4(() => {
-    const el = ref.current;
+    const el = ref2.current;
     if (!el || typeof IntersectionObserver === "undefined") {
       setInView(true);
       return;
@@ -576,7 +585,7 @@ function useInView(ref, { threshold = 0, once = false, rootMargin } = {}) {
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [ref, threshold, once, rootMargin]);
+  }, [ref2, threshold, once, rootMargin]);
   return inView;
 }
 function scrollProgressOf(rect, viewport) {
@@ -584,11 +593,11 @@ function scrollProgressOf(rect, viewport) {
   if (total <= 0) return 0;
   return Math.max(0, Math.min(1, (viewport - rect.top) / total));
 }
-function useScrollProgress(ref) {
-  const inView = useInView(ref);
+function useScrollProgress(ref2) {
+  const inView = useInView(ref2);
   const [progress, setProgress] = useState4(0);
   useEffect4(() => {
-    const el = ref.current;
+    const el = ref2.current;
     if (!el || !inView || typeof window === "undefined") return;
     let frame = 0;
     const measure = () => {
@@ -607,7 +616,7 @@ function useScrollProgress(ref) {
       window.removeEventListener("resize", schedule);
       if (frame && typeof cancelAnimationFrame === "function") cancelAnimationFrame(frame);
     };
-  }, [ref, inView]);
+  }, [ref2, inView]);
   return progress;
 }
 function useFinePointer() {
@@ -735,9 +744,9 @@ function BackgroundFrame({ background, children, as: Tag = "div", className = ""
     /* @__PURE__ */ jsx11("div", { className: "uipack-web-bgframe__content", children })
   ] });
 }
-function useParentSpotlight(ref, enabled) {
+function useParentSpotlight(ref2, enabled) {
   useEffect5(() => {
-    const el = ref.current;
+    const el = ref2.current;
     const host = el?.parentElement;
     if (!el || !host || !enabled) return;
     const move = (e) => {
@@ -754,17 +763,17 @@ function useParentSpotlight(ref, enabled) {
       host.removeEventListener("pointermove", move);
       host.removeEventListener("pointerleave", leave);
     };
-  }, [ref, enabled]);
+  }, [ref2, enabled]);
 }
 function GridBackground({ variant, size = 24, fade = true, spotlight = false }) {
-  const ref = useRef5(null);
+  const ref2 = useRef5(null);
   const reduced = usePrefersReducedMotion();
   const fine = useFinePointer();
-  useParentSpotlight(ref, spotlight && fine && !reduced);
+  useParentSpotlight(ref2, spotlight && fine && !reduced);
   return /* @__PURE__ */ jsx11(
     "div",
     {
-      ref,
+      ref: ref2,
       className: "uipack-web-gridbg",
       "data-bg": variant,
       "data-fade": fade || void 0,
@@ -781,12 +790,12 @@ function LineGrid(props) {
   return /* @__PURE__ */ jsx11(GridBackground, { variant: "lines", ...props });
 }
 function Aurora({ duration = 24 }) {
-  const ref = useRef5(null);
-  const inView = useInView(ref);
+  const ref2 = useRef5(null);
+  const inView = useInView(ref2);
   return /* @__PURE__ */ jsxs7(
     "div",
     {
-      ref,
+      ref: ref2,
       className: "uipack-web-aurora",
       "data-bg": "aurora",
       "data-paused": !inView || void 0,
@@ -804,8 +813,8 @@ function MaskedStar({ values, flip = "none", clear = "center" }) {
   return /* @__PURE__ */ jsx11("div", { className: "uipack-web-maskedstar", "data-bg": "star", "data-flip": flip, "data-clear": clear, "aria-hidden": "true", children: /* @__PURE__ */ jsx11(StarChart, { values }) });
 }
 function BeamLines({ size = 48, count = 5, duration = 6 }) {
-  const ref = useRef5(null);
-  const inView = useInView(ref);
+  const ref2 = useRef5(null);
+  const inView = useInView(ref2);
   const beams = Array.from({ length: count }, (_, i) => ({
     axis: i % 2 === 0 ? "h" : "v",
     line: 2 + i * 3 % 7,
@@ -815,7 +824,7 @@ function BeamLines({ size = 48, count = 5, duration = 6 }) {
   return /* @__PURE__ */ jsx11(
     "div",
     {
-      ref,
+      ref: ref2,
       className: "uipack-web-beams",
       "data-bg": "beams",
       "data-paused": !inView || void 0,
@@ -873,11 +882,11 @@ import {
 } from "react";
 import { jsx as jsx12, jsxs as jsxs8 } from "react/jsx-runtime";
 function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div", className = "" }) {
-  const ref = useRef6(null);
+  const ref2 = useRef6(null);
   const reduced = usePrefersReducedMotion();
   const [state, setState] = useState5("static");
   useEffect6(() => {
-    const el = ref.current;
+    const el = ref2.current;
     if (!el) return;
     Array.from(el.children).forEach((c, i) => c.style.setProperty("--i", String(i)));
     if (reduced || typeof IntersectionObserver === "undefined") {
@@ -899,7 +908,7 @@ function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div", class
   return /* @__PURE__ */ jsx12(
     Tag,
     {
-      ref,
+      ref: ref2,
       className: `uipack-web-revealgroup ${className}`.trim(),
       "data-state": state,
       "data-variant": variant,
@@ -921,13 +930,15 @@ function scrambleFrame(text, t, mode, seed = 0) {
   return out;
 }
 function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "span", className = "" }) {
-  const ref = useRef6(null);
+  const ref2 = useRef6(null);
   const reduced = usePrefersReducedMotion();
-  const inView = useInView(ref, { once: true, threshold: 0.5 });
+  const inView = useInView(ref2, { once: true, threshold: 0.5 });
   const [t, setT] = useState5(1);
   const [tick, setTick] = useState5(0);
+  const [armed, setArmed] = useState5(false);
   const started = useRef6(false);
   useEffect6(() => {
+    setArmed(true);
     if (typeof IntersectionObserver !== "undefined" && !started.current) setT(0);
   }, []);
   useEffect6(() => {
@@ -944,22 +955,34 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
     return () => clearInterval(timer);
   }, [reduced, inView, duration]);
   const shown = reduced || t >= 1 ? text : scrambleFrame(text, t, mode, tick);
-  return /* @__PURE__ */ jsxs8(Tag, { ref, className: `uipack-web-scramble ${className}`.trim(), "data-mode": mode, "data-done": shown === text || void 0, children: [
-    /* @__PURE__ */ jsx12("span", { className: "uipack-web-scramble__ghost", children: text }),
-    /* @__PURE__ */ jsxs8("span", { className: "uipack-web-scramble__live", "aria-hidden": "true", children: [
-      shown,
-      mode === "type" && shown !== text && /* @__PURE__ */ jsx12("span", { className: "uipack-web-demo__caret" })
-    ] })
-  ] });
+  return /* @__PURE__ */ jsxs8(
+    Tag,
+    {
+      ref: ref2,
+      className: `uipack-web-scramble ${className}`.trim(),
+      "data-mode": mode,
+      "data-done": shown === text || void 0,
+      "data-armed": armed || void 0,
+      children: [
+        /* @__PURE__ */ jsx12("span", { className: "uipack-web-scramble__ghost", children: text }),
+        armed && /* @__PURE__ */ jsxs8("span", { className: "uipack-web-scramble__live", "aria-hidden": "true", children: [
+          shown,
+          mode === "type" && shown !== text && /* @__PURE__ */ jsx12("span", { className: "uipack-web-demo__caret" })
+        ] })
+      ]
+    }
+  );
 }
 var easeOut = (t) => 1 - Math.pow(1 - t, 3);
 function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix = "", suffix = "", className = "", face = "display" }) {
-  const ref = useRef6(null);
+  const ref2 = useRef6(null);
   const reduced = usePrefersReducedMotion();
-  const inView = useInView(ref, { once: true, threshold: 0.6 });
+  const inView = useInView(ref2, { once: true, threshold: 0.6 });
   const [current, setCurrent] = useState5(value);
+  const [armed, setArmed] = useState5(false);
   const started = useRef6(false);
   useEffect6(() => {
+    setArmed(true);
     if (typeof IntersectionObserver !== "undefined" && !started.current) setCurrent(from);
   }, [from]);
   useEffect6(() => {
@@ -977,25 +1000,27 @@ function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix
   const fmt = new Intl.NumberFormat(locale, format ?? { maximumFractionDigits: 0 });
   const final = `${prefix}${fmt.format(value)}${suffix}`;
   const live = `${prefix}${fmt.format(reduced ? value : current)}${suffix}`;
-  return /* @__PURE__ */ jsxs8("span", { ref, className: `uipack-web-ticker ${className}`.trim(), "data-face": face, children: [
+  return /* @__PURE__ */ jsxs8("span", { ref: ref2, className: `uipack-web-ticker ${className}`.trim(), "data-face": face, "data-armed": armed || void 0, children: [
     /* @__PURE__ */ jsx12("span", { className: "uipack-web-scramble__ghost", children: final }),
-    /* @__PURE__ */ jsx12("span", { className: "uipack-web-scramble__live", "aria-hidden": "true", "data-testid": "ticker-live", children: live })
+    armed && /* @__PURE__ */ jsx12("span", { className: "uipack-web-scramble__live", "aria-hidden": "true", "data-testid": "ticker-live", children: live })
   ] });
 }
 function Marquee({ items, label, duration = 30, reverse = false }) {
-  const ref = useRef6(null);
+  const ref2 = useRef6(null);
   const copyRef = useRef6(null);
-  const inView = useInView(ref);
+  const inView = useInView(ref2);
   const reduced = usePrefersReducedMotion();
   const [paused, setPaused] = useState5(false);
+  const [mounted, setMounted] = useState5(false);
+  useEffect6(() => setMounted(true), []);
   useEffect6(() => {
     copyRef.current?.setAttribute("inert", "");
-  }, [reduced]);
+  }, [reduced, mounted]);
   const list = (copy) => /* @__PURE__ */ jsx12("ul", { className: "uipack-web-marquee__list", ref: copy ? copyRef : void 0, "aria-hidden": copy || void 0, children: items.map((item, i) => /* @__PURE__ */ jsx12("li", { children: item }, i)) });
   return /* @__PURE__ */ jsxs8(
     "div",
     {
-      ref,
+      ref: ref2,
       className: "uipack-web-marquee",
       role: "region",
       "aria-label": label,
@@ -1006,7 +1031,7 @@ function Marquee({ items, label, duration = 30, reverse = false }) {
       children: [
         /* @__PURE__ */ jsx12("div", { className: "uipack-web-marquee__viewport", children: /* @__PURE__ */ jsxs8("div", { className: "uipack-web-marquee__track", children: [
           list(false),
-          !reduced && list(true)
+          mounted && !reduced && list(true)
         ] }) }),
         !reduced && /* @__PURE__ */ jsx12("button", { type: "button", className: "uipack-web-marquee__toggle", "aria-pressed": paused, onClick: () => setPaused((p) => !p), children: paused ? "Play" : "Pause" })
       ]
@@ -1014,20 +1039,20 @@ function Marquee({ items, label, duration = 30, reverse = false }) {
   );
 }
 function useHoverMotion(apply, reset) {
-  const ref = useRef6(null);
+  const ref2 = useRef6(null);
   const reduced = usePrefersReducedMotion();
   const onPointerMove = (e) => {
     if (reduced || e.pointerType !== "mouse" && e.pointerType !== "pen") return;
-    const el = ref.current;
+    const el = ref2.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
     apply(el, (e.clientX - r.left) / r.width - 0.5, (e.clientY - r.top) / r.height - 0.5);
   };
-  const onPointerLeave = () => ref.current && reset(ref.current);
-  return { ref, onPointerMove, onPointerLeave };
+  const onPointerLeave = () => ref2.current && reset(ref2.current);
+  return { ref: ref2, onPointerMove, onPointerLeave };
 }
 function TiltCard({ children, max = 5, href, className = "" }) {
-  const { ref, onPointerMove, onPointerLeave } = useHoverMotion(
+  const { ref: ref2, onPointerMove, onPointerLeave } = useHoverMotion(
     (el, x, y) => {
       el.style.setProperty("--tilt-x", `${(-y * max * 2).toFixed(2)}deg`);
       el.style.setProperty("--tilt-y", `${(x * max * 2).toFixed(2)}deg`);
@@ -1039,10 +1064,10 @@ function TiltCard({ children, max = 5, href, className = "" }) {
   );
   const cls = `uipack-web-tilt ${className}`.trim();
   const props = { className: cls, onPointerMove, onPointerLeave };
-  return href ? /* @__PURE__ */ jsx12("a", { ref: (n) => ref.current = n, href, ...props, children }) : /* @__PURE__ */ jsx12("div", { ref: (n) => ref.current = n, ...props, children });
+  return href ? /* @__PURE__ */ jsx12("a", { ref: (n) => ref2.current = n, href, ...props, children }) : /* @__PURE__ */ jsx12("div", { ref: (n) => ref2.current = n, ...props, children });
 }
 function MagneticButton({ strength = 6, ...button }) {
-  const { ref, onPointerMove, onPointerLeave } = useHoverMotion(
+  const { ref: ref2, onPointerMove, onPointerLeave } = useHoverMotion(
     (el, x, y) => {
       el.style.setProperty("--pull-x", `${(x * strength * 2).toFixed(1)}px`);
       el.style.setProperty("--pull-y", `${(y * strength * 2).toFixed(1)}px`);
@@ -1052,13 +1077,13 @@ function MagneticButton({ strength = 6, ...button }) {
       el.style.removeProperty("--pull-y");
     }
   );
-  return /* @__PURE__ */ jsx12("span", { ref: (n) => ref.current = n, className: "uipack-web-magnetic", onPointerMove, onPointerLeave, children: /* @__PURE__ */ jsx12(CtaButton, { ...button }) });
+  return /* @__PURE__ */ jsx12("span", { ref: (n) => ref2.current = n, className: "uipack-web-magnetic", onPointerMove, onPointerLeave, children: /* @__PURE__ */ jsx12(CtaButton, { ...button }) });
 }
 var lerp = ([a, b], t) => a + (b - a) * t;
 function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY = [0, 0], opacity = [1, 1], className = "" }) {
-  const ref = useRef6(null);
+  const ref2 = useRef6(null);
   const reduced = usePrefersReducedMotion();
-  const raw = useScrollProgress(ref);
+  const raw = useScrollProgress(ref2);
   const t = reduced ? 0.5 : raw;
   const style = {
     "--st-rotate": `${lerp(rotate, t).toFixed(2)}deg`,
@@ -1066,7 +1091,7 @@ function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY
     "--st-y": `${lerp(translateY, t).toFixed(1)}px`,
     "--st-opacity": lerp(opacity, t).toFixed(3)
   };
-  return /* @__PURE__ */ jsx12("div", { ref, className: `uipack-web-scrollx ${className}`.trim(), "data-progress": t.toFixed(2), children: /* @__PURE__ */ jsx12("div", { className: "uipack-web-scrollx__inner", style, children }) });
+  return /* @__PURE__ */ jsx12("div", { ref: ref2, className: `uipack-web-scrollx ${className}`.trim(), "data-progress": t.toFixed(2), children: /* @__PURE__ */ jsx12("div", { className: "uipack-web-scrollx__inner", style, children }) });
 }
 
 // src/web/SmoothScroll.tsx
@@ -1377,7 +1402,404 @@ function SmoothScroll(props) {
   useSmoothScroll(props);
   return null;
 }
+
+// src/web/seo.ts
+var isAbsolute = (u) => /^https?:\/\//i.test(u);
+var nodeId = (url, name) => `${url.split("#")[0]}#${name}`;
+function absoluteUrl(u, base) {
+  return new URL(u, base).toString();
+}
+function pageMeta(o) {
+  if (!isAbsolute(o.url)) throw new Error(`pageMeta: url must be absolute (got "${o.url}")`);
+  const image = typeof o.image === "string" ? { url: o.image } : o.image;
+  const imageUrl = image ? absoluteUrl(image.url, o.url) : void 0;
+  const locale = (o.locale ?? "en_US").replace("-", "_");
+  const tags = [
+    { tag: "title", text: o.title },
+    { tag: "meta", attrs: { name: "description", content: o.description } },
+    { tag: "link", attrs: { rel: "canonical", href: o.url } }
+  ];
+  if (o.robots) tags.push({ tag: "meta", attrs: { name: "robots", content: o.robots } });
+  const og = (property, content) => content !== void 0 && content !== "" && tags.push({ tag: "meta", attrs: { property, content: String(content) } });
+  og("og:type", o.type ?? "website");
+  og("og:title", o.title);
+  og("og:description", o.description);
+  og("og:url", o.url);
+  og("og:site_name", o.siteName);
+  og("og:locale", locale);
+  if (image && imageUrl) {
+    og("og:image", imageUrl);
+    og("og:image:alt", image.alt);
+    og("og:image:width", image.width);
+    og("og:image:height", image.height);
+  }
+  const tw = (name, content) => content && tags.push({ tag: "meta", attrs: { name, content } });
+  tw("twitter:card", imageUrl ? "summary_large_image" : "summary");
+  tw("twitter:title", o.title);
+  tw("twitter:description", o.description);
+  tw("twitter:image", imageUrl);
+  tw("twitter:image:alt", image?.alt);
+  tw("twitter:site", o.twitterSite);
+  return tags;
+}
+var escapeHtml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+function headTagsToHtml(tags) {
+  return tags.map((t) => {
+    if (t.tag === "title") return `<title>${escapeHtml(t.text)}</title>`;
+    const attrs = Object.entries(t.attrs).map(([k, v]) => v === "" ? ` ${k}` : ` ${k}="${escapeHtml(v)}"`).join("");
+    if (t.tag === "script") return `<script${attrs}>${t.text}</script>`;
+    return `<${t.tag}${attrs}>`;
+  }).join("\n");
+}
+function headTagKey(t) {
+  if (t.tag === "title") return "title";
+  const a = t.attrs;
+  if (t.tag === "meta") return a.name ? `meta:name:${a.name}` : a.property ? `meta:property:${a.property}` : `meta:${JSON.stringify(a)}`;
+  if (t.tag === "link") return a.rel === "canonical" ? "link:canonical" : `link:${a.rel}:${a.href}`;
+  return `script:${a.id ?? a.type}:${t.text.length}`;
+}
+var WEB_FONT_FILES = {
+  display: "instrument-serif-latin-400-normal.woff2",
+  "display-italic": "instrument-serif-latin-400-italic.woff2",
+  text: "ibm-plex-sans-latin-400-normal.woff2",
+  "text-500": "ibm-plex-sans-latin-500-normal.woff2",
+  "text-600": "ibm-plex-sans-latin-600-normal.woff2",
+  mono: "ibm-plex-mono-latin-400-normal.woff2",
+  "mono-600": "ibm-plex-mono-latin-600-normal.woff2"
+};
+function fontPreloads({ faces = ["display"], base = "/fonts/", href, media } = {}) {
+  const dir = base.endsWith("/") ? base : `${base}/`;
+  return faces.map((face) => {
+    const file = WEB_FONT_FILES[face];
+    const attrs = { rel: "preload", href: href ? href(file, face) : `${dir}${file}`, as: "font", type: "font/woff2", crossorigin: "anonymous" };
+    if (media) attrs.media = media;
+    return { tag: "link", attrs };
+  });
+}
+var ref = (node) => ({ "@id": typeof node === "string" ? node : node["@id"] });
+function clean(o) {
+  const out = {};
+  for (const [k, v] of Object.entries(o)) {
+    if (v === void 0 || v === null || v === "") continue;
+    if (Array.isArray(v) && v.length === 0) continue;
+    out[k] = v;
+  }
+  return out;
+}
+function organization(o) {
+  return clean({ "@type": "Organization", "@id": o.id ?? nodeId(o.url, "organization"), name: o.name, url: o.url, logo: o.logo, description: o.description, sameAs: o.sameAs });
+}
+function webSite(o) {
+  return clean({
+    "@type": "WebSite",
+    "@id": o.id ?? nodeId(o.url, "website"),
+    name: o.name,
+    url: o.url,
+    description: o.description,
+    inLanguage: o.inLanguage,
+    publisher: o.publisher ? ref(o.publisher) : void 0
+  });
+}
+function offer(o) {
+  return clean({
+    "@type": "Offer",
+    name: o.name,
+    description: o.description,
+    url: o.url,
+    price: o.price,
+    priceCurrency: o.priceCurrency,
+    availability: o.availability ? `https://schema.org/${o.availability}` : void 0,
+    priceSpecification: o.billing ? {
+      "@type": "UnitPriceSpecification",
+      price: o.price,
+      priceCurrency: o.priceCurrency,
+      referenceQuantity: { "@type": "QuantitativeValue", value: 1, unitCode: o.billing }
+    } : void 0,
+    eligibleDuration: o.trialDays ? { "@type": "QuantitativeValue", value: o.trialDays, unitCode: "DAY" } : void 0
+  });
+}
+function softwareApplication(o) {
+  return clean({
+    "@type": o.type ?? "SoftwareApplication",
+    "@id": o.id ?? nodeId(o.url, "app"),
+    name: o.name,
+    description: o.description,
+    url: o.url,
+    image: o.image,
+    applicationCategory: o.applicationCategory,
+    operatingSystem: o.operatingSystem,
+    offers: o.offers,
+    publisher: o.publisher ? ref(o.publisher) : void 0,
+    aggregateRating: o.aggregateRating ? { "@type": "AggregateRating", ...o.aggregateRating } : void 0
+  });
+}
+function product(o) {
+  return clean({
+    "@type": "Product",
+    "@id": o.id ?? nodeId(o.url, "product"),
+    name: o.name,
+    description: o.description,
+    url: o.url,
+    image: o.image,
+    sku: o.sku,
+    brand: o.brand ? { "@type": "Brand", name: o.brand } : void 0,
+    offers: o.offers,
+    aggregateRating: o.aggregateRating ? { "@type": "AggregateRating", ...o.aggregateRating } : void 0
+  });
+}
+function faqPage(items, { url, id } = {}) {
+  return clean({
+    "@type": "FAQPage",
+    "@id": id ?? (url ? `${url.split("#")[0]}#faq` : void 0),
+    mainEntity: items.map((i) => ({
+      "@type": "Question",
+      name: i.question,
+      acceptedAnswer: { "@type": "Answer", text: i.answer }
+    }))
+  });
+}
+function breadcrumbList(items) {
+  return {
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((b, i) => clean({ "@type": "ListItem", position: i + 1, name: b.name, item: b.url }))
+  };
+}
+function article(o) {
+  const authors = (Array.isArray(o.author) ? o.author : [o.author]).map((a) => clean({ "@type": "Person", name: a.name, url: a.url }));
+  return clean({
+    "@type": o.type ?? "Article",
+    headline: o.headline,
+    description: o.description,
+    url: o.url,
+    mainEntityOfPage: o.url,
+    image: o.image,
+    datePublished: o.datePublished,
+    dateModified: o.dateModified ?? o.datePublished,
+    author: authors.length === 1 ? authors[0] : authors,
+    publisher: o.publisher ? ref(o.publisher) : void 0
+  });
+}
+function jsonLd(...nodes) {
+  if (nodes.length === 1) return { "@context": "https://schema.org", ...nodes[0] };
+  return { "@context": "https://schema.org", "@graph": nodes };
+}
+var LS = String.fromCharCode(8232);
+var PS = String.fromCharCode(8233);
+function serializeJsonLd(data) {
+  return JSON.stringify(data).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026").split(LS).join("\\u2028").split(PS).join("\\u2029");
+}
+function jsonLdTag(data, id) {
+  return { tag: "script", attrs: id ? { type: "application/ld+json", id } : { type: "application/ld+json" }, text: serializeJsonLd(data) };
+}
+function slugify(s) {
+  return s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 64);
+}
+
+// src/web/Head.tsx
+import { createElement, useEffect as useEffect8 } from "react";
+import { Fragment as Fragment3, jsx as jsx13 } from "react/jsx-runtime";
+var REACT_ATTR = { crossorigin: "crossOrigin", "http-equiv": "httpEquiv", charset: "charSet", hreflang: "hrefLang" };
+function toProps(attrs) {
+  const out = {};
+  for (const [k, v] of Object.entries(attrs)) out[REACT_ATTR[k] ?? k] = v;
+  return out;
+}
+function HeadTags({ tags }) {
+  return /* @__PURE__ */ jsx13(Fragment3, { children: tags.map((t) => {
+    const key = headTagKey(t);
+    if (t.tag === "title") return /* @__PURE__ */ jsx13("title", { children: t.text }, key);
+    if (t.tag === "script") return /* @__PURE__ */ jsx13("script", { ...toProps(t.attrs), dangerouslySetInnerHTML: { __html: t.text } }, key);
+    return createElement(t.tag, { key, ...toProps(t.attrs) });
+  }) });
+}
+var MARK = "data-uipack-head";
+function findExisting(t) {
+  const head = document.head;
+  if (t.tag === "title") return head.querySelector("title");
+  const a = t.attrs;
+  if (t.tag === "meta" && a.name) return head.querySelector(`meta[name="${CSS.escape(a.name)}"]`);
+  if (t.tag === "meta" && a.property) return head.querySelector(`meta[property="${CSS.escape(a.property)}"]`);
+  if (t.tag === "link" && a.rel === "canonical") return head.querySelector('link[rel="canonical"]');
+  return null;
+}
+function useHead(tags) {
+  const signature = JSON.stringify(tags);
+  useEffect8(() => {
+    if (typeof document === "undefined") return;
+    const undo = [];
+    for (const t of JSON.parse(signature)) {
+      const existing = findExisting(t);
+      if (t.tag === "title") {
+        const prev = document.title;
+        document.title = t.text;
+        undo.push(() => document.title = prev);
+        continue;
+      }
+      if (existing) {
+        const prev = Array.from(existing.attributes).map((a) => [a.name, a.value]);
+        for (const [k, v] of Object.entries(t.attrs)) existing.setAttribute(k, v);
+        undo.push(() => {
+          for (const a of Array.from(existing.attributes)) existing.removeAttribute(a.name);
+          for (const [k, v] of prev) existing.setAttribute(k, v);
+        });
+        continue;
+      }
+      const el = document.createElement(t.tag);
+      for (const [k, v] of Object.entries(t.attrs)) el.setAttribute(k, v);
+      if (t.tag === "script") el.textContent = t.text;
+      el.setAttribute(MARK, "");
+      document.head.appendChild(el);
+      undo.push(() => el.remove());
+    }
+    return () => undo.reverse().forEach((f) => f());
+  }, [signature]);
+}
+function JsonLd({ data, id }) {
+  return /* @__PURE__ */ jsx13("script", { type: "application/ld+json", id, dangerouslySetInnerHTML: { __html: serializeJsonLd(data) } });
+}
+
+// src/web/FAQ.tsx
+import { jsx as jsx14, jsxs as jsxs9 } from "react/jsx-runtime";
+var paragraphs = (answer) => answer.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+function FAQ({
+  items,
+  eyebrow = "FAQ",
+  title = "Questions, answered",
+  intro,
+  id = "faq",
+  url,
+  jsonLd: jsonLd2 = true,
+  variant = "list",
+  tone,
+  lazyRender = false
+}) {
+  const answer = (item) => /* @__PURE__ */ jsx14("div", { className: "uipack-web-faq__answer", children: paragraphs(item.answer).map((p, i) => /* @__PURE__ */ jsx14("p", { className: "uipack-web-body", "data-emphasis": "medium", children: p }, i)) });
+  const itemId = (item) => item.id ?? `${id}-${slugify(item.question)}`;
+  return /* @__PURE__ */ jsxs9(Section, { id, eyebrow, title, intro, tone, lazyRender, className: "uipack-web-faq", children: [
+    /* @__PURE__ */ jsx14("div", { className: "uipack-web-faq__list", "data-variant": variant, children: items.map(
+      (item) => variant === "accordion" ? /* @__PURE__ */ jsxs9("details", { className: "uipack-web-faq__item", id: itemId(item), children: [
+        /* @__PURE__ */ jsxs9("summary", { children: [
+          /* @__PURE__ */ jsx14("span", { className: "uipack-web-faq__q", children: item.question }),
+          /* @__PURE__ */ jsx14("span", { className: "uipack-web-faq__icon", "aria-hidden": "true" })
+        ] }),
+        answer(item)
+      ] }, item.question) : /* @__PURE__ */ jsxs9("div", { className: "uipack-web-faq__item", id: itemId(item), children: [
+        /* @__PURE__ */ jsx14(Heading, { level: 3, size: 1, className: "uipack-web-faq__q", children: item.question }),
+        answer(item)
+      ] }, item.question)
+    ) }),
+    jsonLd2 && /* @__PURE__ */ jsx14(JsonLd, { data: jsonLd(faqPage(items, { url })) })
+  ] });
+}
+
+// src/web/crawl.ts
+var AI_CRAWLERS = [
+  { agent: "OAI-SearchBot", operator: "OpenAI", purpose: "search", note: "Shows the site in ChatGPT search answers. Blocked sites appear only as navigational links.", docs: "https://platform.openai.com/docs/bots" },
+  { agent: "ChatGPT-User", operator: "OpenAI", purpose: "user", note: "Fetches a page when a ChatGPT user asks. User-initiated, so OpenAI says robots.txt rules may not apply.", docs: "https://platform.openai.com/docs/bots" },
+  { agent: "GPTBot", operator: "OpenAI", purpose: "training", note: "Collects pages that may train OpenAI's foundation models. Independent of search.", docs: "https://platform.openai.com/docs/bots" },
+  { agent: "Claude-SearchBot", operator: "Anthropic", purpose: "search", note: "Indexes pages for Claude's search results. Blocking it reduces visibility in Claude answers.", docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler" },
+  { agent: "Claude-User", operator: "Anthropic", purpose: "user", note: "Fetches a page when a Claude user asks. Blocking it stops Claude retrieving the page for users.", docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler" },
+  { agent: "ClaudeBot", operator: "Anthropic", purpose: "training", note: "Collects pages that may train Anthropic's models.", docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler" },
+  { agent: "PerplexityBot", operator: "Perplexity", purpose: "search", note: "Indexes and links the site in Perplexity answers. Not used for training foundation models.", docs: "https://docs.perplexity.ai/guides/bots" },
+  { agent: "Perplexity-User", operator: "Perplexity", purpose: "user", note: "Fetches a page when a Perplexity user asks. Perplexity says it generally ignores robots.txt.", docs: "https://docs.perplexity.ai/guides/bots" },
+  { agent: "Google-Extended", operator: "Google", purpose: "training", note: "Gemini model training and grounding in Gemini Apps and Vertex AI. Does not affect Google Search or AI Overviews (Googlebot).", docs: "https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers" },
+  { agent: "Applebot-Extended", operator: "Apple", purpose: "training", note: "Apple foundation-model training. It crawls nothing itself; Applebot search (Siri, Spotlight, Safari) is unaffected.", docs: "https://support.apple.com/en-us/119829" },
+  { agent: "CCBot", operator: "Common Crawl", purpose: "training", note: "Common Crawl's open web archive, which many model training sets are built from.", docs: "https://commoncrawl.org/ccbot" }
+];
+function resolveAiCrawlers(policy = "allow-all") {
+  const preset = typeof policy === "string" ? policy : policy.preset ?? "allow-all";
+  const overrides = typeof policy === "string" ? {} : policy;
+  const out = {};
+  for (const c of AI_CRAWLERS) {
+    const base = preset === "block-all" ? "disallow" : preset === "search-only" && c.purpose === "training" ? "disallow" : "allow";
+    out[c.agent] = overrides[c.agent] ?? base;
+  }
+  return out;
+}
+var siteRoot = (site) => {
+  if (!/^https?:\/\//i.test(site)) throw new Error(`buildCrawlFiles: site must be an absolute URL (got "${site}")`);
+  return site.endsWith("/") ? site : `${site}/`;
+};
+var pageUrl = (site, path) => new URL(path.replace(/^\//, ""), siteRoot(site)).toString();
+function checkPath(p) {
+  if (!p.startsWith("/")) throw new Error(`robots.txt paths start with "/" (got "${p}")`);
+  return p;
+}
+function robotsTxt({ site, aiCrawlers, disallow = [], sitemapPath = "/sitemap.xml" }) {
+  const root = siteRoot(site);
+  const paths = disallow.map(checkPath);
+  const rules = resolveAiCrawlers(aiCrawlers);
+  const preset = typeof aiCrawlers === "string" ? aiCrawlers : aiCrawlers?.preset ?? "allow-all";
+  const allowLines = ["Allow: /", ...paths.map((p) => `Disallow: ${p}`)];
+  const lines = [
+    `# robots.txt for ${root}`,
+    `# AI crawler stance: ${preset}${typeof aiCrawlers === "object" && Object.keys(aiCrawlers).some((k) => k !== "preset") ? " (with overrides)" : ""}.`,
+    "# Search and user-triggered agents decide whether answer engines can find, fetch and cite",
+    "# these pages; training agents decide whether the pages may train models.",
+    "",
+    "User-agent: *",
+    ...allowLines
+  ];
+  for (const purpose of ["search", "user", "training"]) {
+    lines.push("", `# ---- ${purpose === "search" ? "AI search indexes" : purpose === "user" ? "AI fetches a user asked for" : "AI model training"}`);
+    for (const c of AI_CRAWLERS.filter((x) => x.purpose === purpose)) {
+      const rule = rules[c.agent];
+      lines.push("", `# ${c.operator}: ${rule === "allow" ? "allowed" : "blocked"}. ${c.note}`, `User-agent: ${c.agent}`);
+      lines.push(...rule === "allow" ? allowLines : ["Disallow: /"]);
+    }
+  }
+  lines.push("", `Sitemap: ${pageUrl(site, sitemapPath)}`, "");
+  return lines.join("\n");
+}
+var escapeXml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+function formatLastmod(d) {
+  if (d instanceof Date) {
+    if (Number.isNaN(d.getTime())) throw new Error("sitemap lastmod: invalid Date");
+    return d.toISOString().slice(0, 10);
+  }
+  if (!/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2}))?$/.test(d)) throw new Error(`sitemap lastmod must be W3C datetime, e.g. 2026-10-22 (got "${d}")`);
+  return d;
+}
+function sitemapXml({ site, pages }) {
+  const origin = new URL(siteRoot(site)).origin;
+  const urls = pages.filter((p) => !p.noindex && new URL(pageUrl(site, p.path)).origin === origin).map((p) => {
+    const lastmod = p.lastmod ? `
+    <lastmod>${formatLastmod(p.lastmod)}</lastmod>` : "";
+    return `  <url>
+    <loc>${escapeXml(pageUrl(site, p.path))}</loc>${lastmod}
+  </url>`;
+  });
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.join("\n")}
+</urlset>
+`;
+}
+var oneLine = (s) => s.replace(/\s+/g, " ").trim();
+function llmsTxt({ site, pages, llms }) {
+  const out = [`# ${oneLine(llms.title)}`, "", `> ${oneLine(llms.summary)}`];
+  if (llms.details) out.push("", llms.details.trim());
+  const sections = /* @__PURE__ */ new Map();
+  const optional = [];
+  for (const p of pages.filter((x) => !x.noindex)) {
+    if (p.optional) optional.push(p);
+    else sections.set(p.section ?? "Pages", [...sections.get(p.section ?? "Pages") ?? [], p]);
+  }
+  const item = (p) => `- [${oneLine(p.title).replace(/[[\]]/g, "")}](${pageUrl(site, p.markdown ?? p.path)})${p.description ? `: ${oneLine(p.description)}` : ""}`;
+  for (const [name, list] of sections) out.push("", `## ${name}`, "", ...list.map(item));
+  if (optional.length) out.push("", "## Optional", "", ...optional.map(item));
+  return `${out.join("\n")}
+`;
+}
+function buildCrawlFiles(o) {
+  return {
+    "robots.txt": robotsTxt(o),
+    "sitemap.xml": sitemapXml(o),
+    "llms.txt": llmsTxt(o)
+  };
+}
 export {
+  AI_CRAWLERS,
   Aurora,
   BackgroundFrame,
   BeamLines,
@@ -1391,13 +1813,16 @@ export {
   DriftingGutters,
   EMPHASIS,
   Eyebrow,
+  FAQ,
   FeatureGrid,
   GRID_COLUMNS,
   GlassNav,
   GrainOverlay,
   Grid,
   GridItem,
+  HeadTags,
   Heading,
+  JsonLd,
   LineGrid,
   MagneticButton,
   Marquee,
@@ -1423,29 +1848,54 @@ export {
   TYPE_STEPS,
   TextScramble,
   TiltCard,
+  WEB_FONT_FILES,
   WHEEL_LINE_PX,
   WHEEL_PAGE_FRACTION,
   WebSurface,
+  article,
+  breadcrumbList,
+  buildCrawlFiles,
   createSmoothScroll,
   curvePath,
   demoCycle,
   demoEnd,
   demoFrame,
   easeOutExpo,
+  faqPage,
   followRate,
   followStep,
+  fontPreloads,
+  formatLastmod,
+  headTagKey,
+  headTagsToHtml,
+  jsonLd,
+  jsonLdTag,
+  llmsTxt,
   normalizeWheel,
+  offer,
+  organization,
+  pageMeta,
+  product,
+  ref,
+  resolveAiCrawlers,
+  robotsTxt,
   scrambleFrame,
   scrollProgressOf,
+  serializeJsonLd,
+  sitemapXml,
+  slugify,
   smoothScrollTo,
+  softwareApplication,
   stepStart,
   typeMetrics,
   typeRole,
   typeScale,
   useFinePointer,
+  useHead,
   useInView,
   useScrollProgress,
   useSmoothScroll,
+  webSite,
   withPaintTransition,
   withViewTransition
 };

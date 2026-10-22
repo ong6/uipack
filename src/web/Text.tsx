@@ -20,12 +20,13 @@ export function Eyebrow({ children, className = "", as: Tag = "p", id }: TextPro
 }
 
 export interface HeadingProps extends TextProps {
-  level?: 1 | 2 | 3 | 4;
-  /** Type-scale step; defaults to 6 / 4 / 2 / 1 by level. */
+  /** The real heading level, h1–h6: one h1 per page (StarHero's title), then no skipped levels. */
+  level?: 1 | 2 | 3 | 4 | 5 | 6;
+  /** Type-scale step; defaults to 6 / 4 / 2 / 1 / 0 / 0 by level. Size is separate from level. */
   size?: TypeStep;
 }
 
-const DEFAULT_STEP: Record<number, TypeStep> = { 1: 6, 2: 4, 3: 2, 4: 1 };
+const DEFAULT_STEP: Record<number, TypeStep> = { 1: 6, 2: 4, 3: 2, 4: 1, 5: 0, 6: 0 };
 
 export function Heading({ children, level = 2, size, className = "", id }: HeadingProps) {
   const Tag = `h${level}` as ElementType;

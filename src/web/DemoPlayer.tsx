@@ -103,7 +103,8 @@ export function DemoPlayer({
     return () => clearInterval(timer);
   }, [running, loop, cycle, end]);
 
-  const frame = reduced ? demoFrame(steps, Infinity, timing, initialMetric) : demoFrame(steps, elapsed, timing, initialMetric);
+  const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
+  const frame = reduced ? finalFrame : demoFrame(steps, elapsed, timing, initialMetric);
   const finished = !loop && frame.done;
   useEffect(() => {
     if (finished) setPlaying(false);
@@ -218,8 +219,11 @@ export function DemoPlayer({
         </div>
       </div>
 
-      {reduced ? (
-        <ol className="uipack-web-demo__static" aria-label="Demo steps">
+      {/* Every step as text. Visible under reduced motion; otherwise visually hidden, so server
+          HTML (what crawlers and answer engines read), no-JS readers and screen readers get the
+          whole demo, not just its first frame. */}
+      <div className={reduced ? undefined : "uipack-web-demo__sr"}>
+        <ol className="uipack-web-demo__static" aria-label={reduced ? "Demo steps" : "Demo transcript"}>
           {steps.map((s, i) => (
             <li key={s.id}>
               <span className="uipack-web-demo__num">{String(i + 1).padStart(2, "0")}</span>
@@ -231,7 +235,10 @@ export function DemoPlayer({
                 {!!s.actions?.length && (
                   <ul>
                     {s.actions.map(toAction).map((a) => (
-                      <li key={a.label}>{a.label}</li>
+                      <li key={a.label}>
+                        {a.label}
+                        {a.detail ? ` (${a.detail})` : ""}
+                      </li>
                     ))}
                   </ul>
                 )}
@@ -239,7 +246,11 @@ export function DemoPlayer({
             </li>
           ))}
         </ol>
-      ) : (
+        {!reduced && finalFrame.metric !== undefined && (
+          <p>{`Result: ${finalFrame.metric}${metricLabel ? ` ${metricLabel}` : ""}.`}</p>
+        )}
+      </div>
+      {!reduced && (
         <div className="uipack-web-demo__controls">
           <div className="uipack-web-demo__tabs" role="group" aria-label="Demo steps" ref={tabsRef} onKeyDown={onTabKey}>
             {steps.map((s, i) => (

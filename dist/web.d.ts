@@ -1,5 +1,5 @@
 import * as react from 'react';
-import { ReactNode, ElementType, CSSProperties, ButtonHTMLAttributes, RefObject } from 'react';
+import { ReactNode, ElementType, CSSProperties, ButtonHTMLAttributes, RefObject, ReactElement } from 'react';
 
 interface WebSurfaceProps {
     children: ReactNode;
@@ -83,8 +83,9 @@ interface TextProps {
 /** Small uppercase label above a heading. Low emphasis by opacity, not by colour. */
 declare function Eyebrow({ children, className, as: Tag, id }: TextProps): react.JSX.Element;
 interface HeadingProps extends TextProps {
-    level?: 1 | 2 | 3 | 4;
-    /** Type-scale step; defaults to 6 / 4 / 2 / 1 by level. */
+    /** The real heading level, h1–h6: one h1 per page (StarHero's title), then no skipped levels. */
+    level?: 1 | 2 | 3 | 4 | 5 | 6;
+    /** Type-scale step; defaults to 6 / 4 / 2 / 1 / 0 / 0 by level. Size is separate from level. */
     size?: TypeStep;
 }
 declare function Heading({ children, level, size, className, id }: HeadingProps): react.JSX.Element;
@@ -133,9 +134,16 @@ interface SectionProps {
     align?: "start" | "center";
     id?: string;
     className?: string;
+    /**
+     * For sections well below the fold: skip their layout and paint until they near the viewport
+     * (content-visibility: auto, with a remembered intrinsic size). The content stays in the DOM, so
+     * crawlers, find-in-page and screen readers still get it. Leave it off for the first screen and
+     * for sections above an in-page link target.
+     */
+    lazyRender?: boolean;
 }
 /** A page section on the 8-pt rhythm, with an optional eyebrow, heading and intro. */
-declare function Section({ eyebrow, title, intro, children, tone, align, id, className }: SectionProps): react.JSX.Element;
+declare function Section({ eyebrow, title, intro, children, tone, align, id, className, lazyRender }: SectionProps): react.JSX.Element;
 interface Feature {
     title: string;
     body: ReactNode;
@@ -496,7 +504,8 @@ interface MarqueeProps {
 /**
  * A logo or skill strip that scrolls. Pauses on hover, on focus, off screen and with its own
  * Pause button (moving content longer than five seconds needs one). Under reduced motion it is
- * a static, wrapping row. The duplicate copy is inert, so keyboard focus visits each item once.
+ * a static, wrapping row. The duplicate copy is inert, so keyboard focus visits each item once,
+ * and it is added after mount, so server HTML lists each item once.
  */
 declare function Marquee({ items, label, duration, reverse }: MarqueeProps): react.JSX.Element;
 interface TiltCardProps {
@@ -631,4 +640,458 @@ type SmoothScrollProps = SmoothScrollOptions;
  */
 declare function SmoothScroll(props: SmoothScrollProps): null;
 
-export { Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, Body, type BodyProps, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, type Feature, FeatureGrid, type FeatureGridProps, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, Heading, type HeadingProps, type InViewOptions, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type PaintTransitionOptions, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SmoothScroll, type SmoothScrollController, type SmoothScrollHandle, type SmoothScrollOptions, type SmoothScrollProps, type SmoothScrollTarget, type SmoothScrollToOptions, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeRole, type TypeStep, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, WebSurface, type WebSurfaceProps, type WheelLike, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, easeOutExpo, followRate, followStep, normalizeWheel, scrambleFrame, scrollProgressOf, smoothScrollTo, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useInView, useScrollProgress, useSmoothScroll, withPaintTransition, withViewTransition };
+/**
+ * Framework-agnostic SEO and answer-engine helpers for Landing pages. Everything here is pure:
+ * it returns data (head tags, JSON-LD objects, strings) that any server, static generator or
+ * client can render. React wrappers live in Head.tsx; crawl files live in crawl.ts.
+ */
+/** One element for the document head, as plain data. */
+type HeadTag = {
+    tag: "title";
+    text: string;
+} | {
+    tag: "meta";
+    attrs: Record<string, string>;
+} | {
+    tag: "link";
+    attrs: Record<string, string>;
+} | {
+    tag: "script";
+    attrs: Record<string, string>;
+    text: string;
+};
+interface PageMetaOptions {
+    /** The page title, as it should appear in a result: specific first, brand last. Aim for under 60 characters. */
+    title: string;
+    /** One or two sentences that answer "what is this page"; about 150 characters is shown in results. */
+    description: string;
+    /** The canonical, absolute URL of this page (no tracking or theme parameters). */
+    url: string;
+    /** Social preview image: absolute, or relative to `url`. 1200 × 630 is the common size. */
+    image?: string | {
+        url: string;
+        alt?: string;
+        width?: number;
+        height?: number;
+    };
+    /** The site or product name, e.g. "Tidy". */
+    siteName?: string;
+    /** BCP 47 or Open Graph locale, e.g. "en_US" or "en-US". Default "en_US". */
+    locale?: string;
+    /** Open Graph type. Default "website"; use "article" for posts. */
+    type?: "website" | "article" | "product" | "profile";
+    /** Twitter/X handle of the site, e.g. "@tidyhq". */
+    twitterSite?: string;
+    /** Robots directives, e.g. "noindex" for a preview. Omitted by default (indexable). */
+    robots?: string;
+}
+/**
+ * The head tags a Landing page needs to be found and previewed: title, description, canonical,
+ * Open Graph and Twitter cards. Returns plain data; render it with `<HeadTags>`, `useHead` or
+ * `headTagsToHtml`.
+ */
+declare function pageMeta(o: PageMetaOptions): HeadTag[];
+/** Serialise head tags to an HTML string, for a static generator or a server template. */
+declare function headTagsToHtml(tags: HeadTag[]): string;
+/** The identity of a head tag: a later tag with the same key replaces an earlier one. */
+declare function headTagKey(t: HeadTag): string;
+/** The self-hosted Landing faces, by role. Files ship in `uipack/fonts/*` (dist/fonts). */
+declare const WEB_FONT_FILES: {
+    readonly display: "instrument-serif-latin-400-normal.woff2";
+    readonly "display-italic": "instrument-serif-latin-400-italic.woff2";
+    readonly text: "ibm-plex-sans-latin-400-normal.woff2";
+    readonly "text-500": "ibm-plex-sans-latin-500-normal.woff2";
+    readonly "text-600": "ibm-plex-sans-latin-600-normal.woff2";
+    readonly mono: "ibm-plex-mono-latin-400-normal.woff2";
+    readonly "mono-600": "ibm-plex-mono-latin-600-normal.woff2";
+};
+type WebFontFace = keyof typeof WEB_FONT_FILES;
+interface FontPreloadOptions {
+    /**
+     * The faces above the fold. Default `["display"]`: the hero headline, usually the LCP text.
+     * Add "display-italic" when the hero title has an `<em>`. Preload two at most; every
+     * preload competes with the hero's other requests.
+     */
+    faces?: WebFontFace[];
+    /** Where the woff2 files are served, e.g. "/fonts/". Default "/fonts/". */
+    base?: string;
+    /** Or resolve each file yourself, e.g. to a bundler's hashed URL. Must match the URL web.css uses. */
+    href?: (file: string, face: WebFontFace) => string;
+    /**
+     * Preload only where it pays, e.g. "(min-width: 720px)" when the swap moves the hero only in
+     * wide layouts. On a slow phone a preload competes with the page's own scripts.
+     */
+    media?: string;
+}
+/**
+ * `<link rel="preload" as="font">` descriptors for the faces the hero shows first, so they arrive
+ * with the HTML instead of after the stylesheet and layout. The URL must be the same one the
+ * @font-face rule fetches, or the browser downloads the file twice.
+ */
+declare function fontPreloads({ faces, base, href, media }?: FontPreloadOptions): HeadTag[];
+/** A schema.org node. Builders return these without "@context"; `jsonLd()` adds it. */
+type JsonLdNode = {
+    "@type": string | string[];
+    "@id"?: string;
+} & Record<string, unknown>;
+type JsonLdDocument = Record<string, unknown> & {
+    "@context": "https://schema.org";
+};
+/** A reference to a node by its "@id", for linking nodes in one graph. */
+declare const ref: (node: {
+    "@id"?: string;
+} | string) => {
+    "@id": string | undefined;
+};
+interface OrganizationOptions {
+    name: string;
+    url: string;
+    logo?: string;
+    description?: string;
+    /** Profiles that identify the organisation elsewhere (GitHub, LinkedIn, X…). */
+    sameAs?: string[];
+    id?: string;
+}
+declare function organization(o: OrganizationOptions): JsonLdNode;
+interface WebSiteOptions {
+    name: string;
+    url: string;
+    description?: string;
+    /** The Organization node (or its "@id") that publishes the site. */
+    publisher?: {
+        "@id"?: string;
+    } | string;
+    inLanguage?: string;
+    id?: string;
+}
+declare function webSite(o: WebSiteOptions): JsonLdNode;
+interface OfferOptions {
+    /** A number or a decimal string ("8.00"). 0 for free. */
+    price: number | string;
+    /** ISO 4217, e.g. "USD". */
+    priceCurrency: string;
+    /** Plan name as shown on the page, e.g. "Personal". */
+    name?: string;
+    url?: string;
+    /** Recurring billing: the price is per month ("MON") or per year ("ANN"). */
+    billing?: "MON" | "ANN";
+    availability?: "InStock" | "PreOrder" | "OutOfStock" | "Discontinued";
+    /** Free trial length in days, if the page states one. */
+    trialDays?: number;
+    description?: string;
+}
+/** An Offer, e.g. the plan on the Pricing section. Same words and numbers as the page shows. */
+declare function offer(o: OfferOptions): JsonLdNode;
+interface RatingOptions {
+    ratingValue: number;
+    ratingCount: number;
+    bestRating?: number;
+}
+interface SoftwareApplicationOptions {
+    name: string;
+    description: string;
+    url: string;
+    /** One of Google's supported app types, e.g. "BusinessApplication", "CommunicationApplication". */
+    applicationCategory?: string;
+    /** Default "SoftwareApplication"; "WebApplication" for a browser-only SaaS. */
+    type?: "SoftwareApplication" | "WebApplication" | "MobileApplication";
+    /** e.g. "Web", "macOS, Windows", "iOS". */
+    operatingSystem?: string;
+    offers?: JsonLdNode | JsonLdNode[];
+    image?: string;
+    publisher?: {
+        "@id"?: string;
+    } | string;
+    /** Only real, visible ratings. Google's app rich result needs one; never invent it. */
+    aggregateRating?: RatingOptions;
+    id?: string;
+}
+/** A SaaS or app landing page's product, with its offer(s). */
+declare function softwareApplication(o: SoftwareApplicationOptions): JsonLdNode;
+interface ProductOptions {
+    name: string;
+    description: string;
+    url: string;
+    image?: string | string[];
+    brand?: string;
+    sku?: string;
+    offers?: JsonLdNode | JsonLdNode[];
+    aggregateRating?: RatingOptions;
+    id?: string;
+}
+/** A physical or generic product with its offer(s). */
+declare function product(o: ProductOptions): JsonLdNode;
+interface FaqItem {
+    /** The question as a reader would ask it, ending in "?". */
+    question: string;
+    /** Plain text. The first sentence answers the question on its own; blank lines separate paragraphs. */
+    answer: string;
+    /** Anchor id for the item; defaults to a slug of the question. */
+    id?: string;
+}
+/** FAQPage from the same items the FAQ component shows, so markup and visible text cannot drift. */
+declare function faqPage(items: FaqItem[], { url, id }?: {
+    url?: string;
+    id?: string;
+}): JsonLdNode;
+interface BreadcrumbItem {
+    name: string;
+    /** Absolute URL. The last item (the current page) may omit it. */
+    url?: string;
+}
+declare function breadcrumbList(items: BreadcrumbItem[]): JsonLdNode;
+interface ArticleOptions {
+    headline: string;
+    description?: string;
+    url: string;
+    image?: string | string[];
+    /** ISO 8601 dates. */
+    datePublished: string;
+    dateModified?: string;
+    author: {
+        name: string;
+        url?: string;
+    } | {
+        name: string;
+        url?: string;
+    }[];
+    publisher?: {
+        "@id"?: string;
+    } | string;
+    type?: "Article" | "BlogPosting" | "NewsArticle" | "TechArticle";
+}
+declare function article(o: ArticleOptions): JsonLdNode;
+/** Wrap one node, or several as an "@graph", in a JSON-LD document with its "@context". */
+declare function jsonLd(...nodes: JsonLdNode[]): JsonLdDocument;
+declare function serializeJsonLd(data: unknown): string;
+/** A JSON-LD document as a head tag, for `headTagsToHtml` or `useHead`. */
+declare function jsonLdTag(data: JsonLdDocument, id?: string): HeadTag;
+/** URL-safe anchor id from a question or heading. */
+declare function slugify(s: string): string;
+
+interface HeadTagsProps {
+    tags: HeadTag[];
+}
+/**
+ * Renders head tags as React elements, for a server-rendered document that owns its `<head>`
+ * (renderToString / renderToPipeableStream inside `<head>…</head>`). React 18 does not move
+ * tags into the head for you; in a client-only app use `useHead` instead.
+ */
+declare function HeadTags({ tags }: HeadTagsProps): ReactElement;
+/**
+ * Applies head tags to `document.head` in a client-rendered page: updates an existing title,
+ * description, canonical or og:* tag in place, adds what is missing, and restores everything on
+ * unmount. Crawlers that do not run JavaScript never see these; server-render the head
+ * (`HeadTags` or `headTagsToHtml`) when the page must be found by them.
+ */
+declare function useHead(tags: HeadTag[]): void;
+interface JsonLdProps {
+    /** A JSON-LD document, e.g. `jsonLd(organization(...), softwareApplication(...))`. */
+    data: unknown;
+    id?: string;
+}
+/**
+ * `<script type="application/ld+json">` with the data serialised safely: "<", ">" and "&" are
+ * escaped, so text such as "</script>" inside a value cannot break out of the tag. Valid in the
+ * head or the body.
+ */
+declare function JsonLd({ data, id }: JsonLdProps): react.JSX.Element;
+
+interface FAQProps {
+    /**
+     * The questions. Answers are plain text: the first sentence answers the question on its own,
+     * so an answer engine can quote it without the rest; blank lines separate paragraphs.
+     */
+    items: FaqItem[];
+    eyebrow?: ReactNode;
+    title?: ReactNode;
+    intro?: ReactNode;
+    /** Section id, for nav links. Default "faq". */
+    id?: string;
+    /** The page's canonical URL, used for the FAQPage "@id". */
+    url?: string;
+    /** Emit FAQPage JSON-LD built from the same items. Default true. */
+    jsonLd?: boolean;
+    /**
+     * "list" (default): every answer visible under an h3, which reads best for people, screen
+     * reader heading navigation and crawlers. "accordion": native `<details>`, answers collapsed but
+     * still in the HTML.
+     */
+    variant?: "list" | "accordion";
+    tone?: SectionProps["tone"];
+    /**
+     * Skip rendering work while off screen (content-visibility: auto). Default false: turn it on when
+     * no in-page link target (a pricing anchor, a closing CTA) sits below the FAQ.
+     */
+    lazyRender?: boolean;
+}
+/**
+ * Questions and answers whose visible text and FAQPage JSON-LD come from one array, so the
+ * markup can never say something the page does not.
+ */
+declare function FAQ({ items, eyebrow, title, intro, id, url, jsonLd, variant, tone, lazyRender, }: FAQProps): react.JSX.Element;
+
+/**
+ * Crawl files for a Landing site: robots.txt with an explicit stance per AI crawler,
+ * sitemap.xml with lastmod, and llms.txt in the llmstxt.org format. Pure string builders;
+ * write the result wherever your host serves the site root.
+ */
+type CrawlRule = "allow" | "disallow";
+/** What a crawler's visits are for, as its operator documents it. */
+type CrawlerPurpose = "search" | "user" | "training";
+interface AiCrawler {
+    /** The robots.txt user-agent token. */
+    agent: string;
+    operator: string;
+    purpose: CrawlerPurpose;
+    /** One line for the robots.txt comment: what allowing or blocking it changes. */
+    note: string;
+    docs: string;
+}
+/**
+ * The AI crawlers Landing sites should state a stance on, from each operator's own documentation
+ * (checked October 2026). Search and user agents decide whether answer engines can find, fetch and
+ * cite the page; training agents decide whether the page may be used to train models.
+ */
+declare const AI_CRAWLERS: readonly [{
+    readonly agent: "OAI-SearchBot";
+    readonly operator: "OpenAI";
+    readonly purpose: "search";
+    readonly note: "Shows the site in ChatGPT search answers. Blocked sites appear only as navigational links.";
+    readonly docs: "https://platform.openai.com/docs/bots";
+}, {
+    readonly agent: "ChatGPT-User";
+    readonly operator: "OpenAI";
+    readonly purpose: "user";
+    readonly note: "Fetches a page when a ChatGPT user asks. User-initiated, so OpenAI says robots.txt rules may not apply.";
+    readonly docs: "https://platform.openai.com/docs/bots";
+}, {
+    readonly agent: "GPTBot";
+    readonly operator: "OpenAI";
+    readonly purpose: "training";
+    readonly note: "Collects pages that may train OpenAI's foundation models. Independent of search.";
+    readonly docs: "https://platform.openai.com/docs/bots";
+}, {
+    readonly agent: "Claude-SearchBot";
+    readonly operator: "Anthropic";
+    readonly purpose: "search";
+    readonly note: "Indexes pages for Claude's search results. Blocking it reduces visibility in Claude answers.";
+    readonly docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler";
+}, {
+    readonly agent: "Claude-User";
+    readonly operator: "Anthropic";
+    readonly purpose: "user";
+    readonly note: "Fetches a page when a Claude user asks. Blocking it stops Claude retrieving the page for users.";
+    readonly docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler";
+}, {
+    readonly agent: "ClaudeBot";
+    readonly operator: "Anthropic";
+    readonly purpose: "training";
+    readonly note: "Collects pages that may train Anthropic's models.";
+    readonly docs: "https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler";
+}, {
+    readonly agent: "PerplexityBot";
+    readonly operator: "Perplexity";
+    readonly purpose: "search";
+    readonly note: "Indexes and links the site in Perplexity answers. Not used for training foundation models.";
+    readonly docs: "https://docs.perplexity.ai/guides/bots";
+}, {
+    readonly agent: "Perplexity-User";
+    readonly operator: "Perplexity";
+    readonly purpose: "user";
+    readonly note: "Fetches a page when a Perplexity user asks. Perplexity says it generally ignores robots.txt.";
+    readonly docs: "https://docs.perplexity.ai/guides/bots";
+}, {
+    readonly agent: "Google-Extended";
+    readonly operator: "Google";
+    readonly purpose: "training";
+    readonly note: "Gemini model training and grounding in Gemini Apps and Vertex AI. Does not affect Google Search or AI Overviews (Googlebot).";
+    readonly docs: "https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers";
+}, {
+    readonly agent: "Applebot-Extended";
+    readonly operator: "Apple";
+    readonly purpose: "training";
+    readonly note: "Apple foundation-model training. It crawls nothing itself; Applebot search (Siri, Spotlight, Safari) is unaffected.";
+    readonly docs: "https://support.apple.com/en-us/119829";
+}, {
+    readonly agent: "CCBot";
+    readonly operator: "Common Crawl";
+    readonly purpose: "training";
+    readonly note: "Common Crawl's open web archive, which many model training sets are built from.";
+    readonly docs: "https://commoncrawl.org/ccbot";
+}];
+type AiCrawlerAgent = (typeof AI_CRAWLERS)[number]["agent"];
+/**
+ * - "allow-all" (default): search, user and training crawlers may all read the public pages.
+ *   A landing page is marketing copy meant to be repeated, and Google-Extended also gates
+ *   grounding in Gemini Apps.
+ * - "search-only": answer engines may find, fetch and cite the site; training crawlers are refused.
+ * - "block-all": every listed AI crawler is refused. Google Search and AI Overviews still use Googlebot.
+ */
+type AiCrawlerPreset = "allow-all" | "search-only" | "block-all";
+type AiCrawlerPolicy = AiCrawlerPreset | ({
+    preset?: AiCrawlerPreset;
+} & Partial<Record<AiCrawlerAgent, CrawlRule>>);
+/** The rule each listed AI crawler gets under a policy. */
+declare function resolveAiCrawlers(policy?: AiCrawlerPolicy): Record<AiCrawlerAgent, CrawlRule>;
+interface CrawlPage {
+    /** Path from the site root ("/", "/pricing") or an absolute URL on the site. */
+    path: string;
+    title: string;
+    /** One sentence for llms.txt: what a reader or model will find on the page. */
+    description?: string;
+    /** Last real content change: a Date or "YYYY-MM-DD" / ISO 8601. Omit rather than guess. */
+    lastmod?: Date | string;
+    /** llms.txt section heading. Default "Pages". */
+    section?: string;
+    /** List under llms.txt's "## Optional" section, which agents may skip for a short context. */
+    optional?: boolean;
+    /** A clean Markdown copy of the page (llmstxt.org suggests `page.md`); llms.txt links it instead. */
+    markdown?: string;
+    /** Leave out of sitemap.xml and llms.txt (e.g. a thank-you page). */
+    noindex?: boolean;
+}
+interface BuildCrawlFilesOptions {
+    /** The site's origin and base, e.g. "https://tidy.example". */
+    site: string;
+    pages: CrawlPage[];
+    /** Stance per AI crawler. Default "allow-all". */
+    aiCrawlers?: AiCrawlerPolicy;
+    /** Paths no crawler should fetch, e.g. ["/admin/", "/api/"]. Repeated in every group. */
+    disallow?: string[];
+    /** Where sitemap.xml will be served. Default "/sitemap.xml". */
+    sitemapPath?: string;
+    /** llms.txt header: H1 name, blockquote summary, optional details paragraph. */
+    llms: {
+        title: string;
+        summary: string;
+        details?: string;
+    };
+}
+interface CrawlFiles {
+    "robots.txt": string;
+    "sitemap.xml": string;
+    "llms.txt": string;
+}
+/**
+ * robots.txt. Each listed AI crawler gets its own group with a comment saying what it does,
+ * because a crawler obeys only the most specific group that names it and ignores `*`: site-wide
+ * `disallow` paths are therefore repeated in every allowed group.
+ */
+declare function robotsTxt({ site, aiCrawlers, disallow, sitemapPath }: Pick<BuildCrawlFilesOptions, "site" | "aiCrawlers" | "disallow" | "sitemapPath">): string;
+/** W3C datetime for <lastmod>: a Date becomes YYYY-MM-DD (UTC); a string must already be one. */
+declare function formatLastmod(d: Date | string): string;
+/**
+ * sitemap.xml with <loc> and <lastmod> only. Google ignores <priority> and <changefreq>, and uses
+ * <lastmod> only while it stays accurate, so set it from real content changes.
+ */
+declare function sitemapXml({ site, pages }: Pick<BuildCrawlFilesOptions, "site" | "pages">): string;
+/**
+ * llms.txt per llmstxt.org: an H1 name, a blockquote summary, optional details, then H2 sections
+ * of `- [name](url): notes` links, with "Optional" last for links an agent can skip.
+ */
+declare function llmsTxt({ site, pages, llms }: Pick<BuildCrawlFilesOptions, "site" | "pages" | "llms">): string;
+/** robots.txt, sitemap.xml and llms.txt for one site, keyed by file name. */
+declare function buildCrawlFiles(o: BuildCrawlFilesOptions): CrawlFiles;
+
+export { AI_CRAWLERS, type AiCrawler, type AiCrawlerAgent, type AiCrawlerPolicy, type AiCrawlerPreset, type ArticleOptions, Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, Body, type BodyProps, type BreadcrumbItem, type BuildCrawlFilesOptions, type CrawlFiles, type CrawlPage, type CrawlRule, type CrawlerPurpose, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, FAQ, type FAQProps, type FaqItem, type Feature, FeatureGrid, type FeatureGridProps, type FontPreloadOptions, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, type HeadTag, HeadTags, type HeadTagsProps, Heading, type HeadingProps, type InViewOptions, JsonLd, type JsonLdDocument, type JsonLdNode, type JsonLdProps, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type OfferOptions, type OrganizationOptions, type PageMetaOptions, type PaintTransitionOptions, type ProductOptions, type RatingOptions, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SmoothScroll, type SmoothScrollController, type SmoothScrollHandle, type SmoothScrollOptions, type SmoothScrollProps, type SmoothScrollTarget, type SmoothScrollToOptions, type SoftwareApplicationOptions, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeRole, type TypeStep, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, type WebFontFace, type WebSiteOptions, WebSurface, type WebSurfaceProps, type WheelLike, article, breadcrumbList, buildCrawlFiles, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, easeOutExpo, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, jsonLd, jsonLdTag, llmsTxt, normalizeWheel, offer, organization, pageMeta, product, ref, resolveAiCrawlers, robotsTxt, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webSite, withPaintTransition, withViewTransition };
