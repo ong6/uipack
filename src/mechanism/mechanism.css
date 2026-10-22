@@ -54,13 +54,16 @@
   --anatomy-lit-top: #1f3a2f;
   --anatomy-lit-shade: #182e25;
   --anatomy-hi: #e8ece9;
-  --anatomy-mid: #6f7a74;
-  --anatomy-lo: #44504a;
+  /* Edges hold 3:1 or better against the card, face and top fills (lo 3.1–3.7:1, mid 4.9–6:1), and
+     draw a little heavier than on paper: a hairline of light on dark reads fainter than its colour. */
+  --anatomy-mid: #8a958f;
+  --anatomy-lo: #66726c;
   --anatomy-faint: #28332e;
   --anatomy-lit: #71dcb2;
   --anatomy-halo: #020403;
   --anatomy-halo-opacity: 0.85;
   --anatomy-dot: #e8ece9;
+  --anatomy-weight: 0.8px;
   --um-edge: rgba(232, 236, 233, 0.22);
 }
 
