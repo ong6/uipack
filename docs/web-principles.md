@@ -9,6 +9,10 @@ The components enforce what they can; the rest is on the page author.
 | **SMWD-5** | Self-Made Web Designer, [“The Only 5 Web Design Skills That Actually Matter (2026)”](https://www.youtube.com/watch?v=vbFn0C-pvis) |
 | **RN** | RoboNuggets, [“25 Tricks to Level Up Claude Design in 13 Mins”](https://www.youtube.com/watch?v=_SVU3oC4JX8) |
 | **CA** | Chase AI, [“GPT 6 Astra + Blender = INSANE 3D Websites”](https://www.youtube.com/watch?v=RhGiG-yZP-c) |
+| **GS** | Google Search Central: [AI features](https://developers.google.com/search/docs/appearance/ai-features), [AI optimization guide](https://developers.google.com/search/docs/fundamentals/ai-optimization-guide), [JavaScript SEO basics](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics), [structured data guidelines](https://developers.google.com/search/docs/appearance/structured-data/sd-policies), [robots.txt](https://developers.google.com/search/docs/crawling-indexing/robots/robots_txt), [sitemaps](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap), [documentation updates](https://developers.google.com/search/updates) |
+| **AIC** | AI crawler operators: [OpenAI](https://platform.openai.com/docs/bots), [Anthropic](https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler), [Perplexity](https://docs.perplexity.ai/guides/bots), [Google-Extended](https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers), [Apple](https://support.apple.com/en-us/119829), [Common Crawl](https://commoncrawl.org/ccbot) |
+| **LLMS** | [llmstxt.org](https://llmstxt.org/) |
+| **WD** | web.dev: [Web Vitals](https://web.dev/articles/vitals), [fonts](https://web.dev/articles/font-best-practices), [content-visibility](https://web.dev/articles/content-visibility) |
 
 ## Purpose
 
@@ -118,7 +122,9 @@ The components enforce what they can; the rest is on the page author.
     Liberation equivalents) scaled with `size-adjust` to the web font's average character width,
     with its ascent and descent overridden, so lines wrap in the same places before and after the
     swap. `NumberTicker` lays its count over the final value, because Instrument Serif has
-    proportional figures only. Pass `face="inherit"` for a number inside a sentence.
+    proportional figures only. Pass `face="inherit"` for a number inside a sentence. The match is
+    by average width, not per string: on `/web` at 1440px the centred hero headline still re-wrapped
+    on the swap (CLS 0.042), so wide layouts also preload the display face (rule 30).
 
 The `/web` playground's type specimen compares two alternates, IBM Plex Serif 400 and Space
 Grotesk 500 (−0.03em), across every Landing surface on the page. They load from `@fontsource` in the
@@ -170,23 +176,68 @@ playground only and are not in the package.
       `stop()`, `enabled` and `destroy()` complete the controller. Unmounting removes every
       listener and restores the inline style.
 
+## Discoverability
+
+How the page is found, read and quoted by search and answer engines. The helpers and the measured
+numbers are in [web discoverability](web-discoverability.md).
+
+23. **The words are in the HTML.** Every headline, demo step, stat and answer is text in the
+    server-rendered HTML, once; animation decorates it after mount. Google renders JavaScript but
+    recommends server-side or pre-rendering because not all bots run it. `TextScramble` and
+    `NumberTicker` render their final text once until mounted, `DemoPlayer` always carries a
+    transcript of every step and its result, `Marquee` adds its loop copy after mount, and nothing
+    that matters lives in canvas or `::before`. (GS)
+24. **One h1, real headings, real links.** The hero title is the page's only `h1`; sections are
+    `h2`, cards and questions `h3`, with no skipped level (`Heading level` 1–6, `size` separate).
+    Anything that navigates is an `<a href>`. (GS)
+25. **A real head.** A unique title (specific first, brand last, under about 60 characters), a
+    one- or two-sentence description, an absolute canonical without view-state parameters, and
+    Open Graph and Twitter tags: `pageMeta`. Put it in the server HTML; a canonical set by
+    JavaScript must match the HTML one. (GS)
+26. **Markup says only what the page shows.** JSON-LD describes visible content: the offer carries
+    the Pricing section's price, the FAQ markup is built from the visible questions, and ratings
+    appear only if real ones are on the page. Structured data is not required for AI features, and
+    Google stopped showing FAQ rich results on 7 May 2026; keep the markup honest and cheap rather
+    than chase rich results. (GS)
+27. **Answers stand alone.** Each FAQ answer's first sentence answers the question and names the
+    product instead of "it", so it reads correctly when quoted on its own. Write for people: Google
+    says chunking or rewriting pages for AI is unnecessary. (GS)
+28. **State a stance for every AI crawler.** robots.txt names each search, user-triggered and
+    training crawler in its own group with a comment; default allow-all for marketing pages,
+    search-only for original writing. A crawler obeys only the most specific group that names it,
+    so private paths repeat in every group. Google-Extended does not affect Google Search or AI
+    Overviews; user-triggered agents may not follow robots.txt at all. (AIC, GS)
+29. **A sitemap with honest dates; llms.txt as a courtesy.** `sitemap.xml` lists the site's own
+    indexable URLs with `lastmod` from real changes (Google ignores priority and changefreq).
+    `llms.txt` follows llmstxt.org; Google Search does not read it, other tools may. (GS, LLMS)
+30. **Fast by default: LCP ≤ 2.5 s, CLS ≤ 0.1, INP ≤ 200 ms.** Preload only the hero's display
+    face, and only where the swap moves something (`fontPreloads({ media })`): every preload
+    competes with the page's own first requests. Motion waits until it is in view. Mark sections
+    below the last in-page anchor `lazyRender` (content-visibility: auto); the content stays in the
+    DOM. (WD)
+
 ## Components against the rules
 
 | Component | Rules |
 | --- | --- |
-| `DemoPlayer` | 2, 14; Pause/Replay/step tabs at 44px, autoplay only in view |
+| `DemoPlayer` | 2, 14, 23; Pause/Replay/step tabs at 44px, autoplay only in view; transcript of every step in the HTML |
 | `StarHero`, `StarChart`, `NoiseLayer` | 3, 5, 6 |
 | `SpotlightCard` | 14; off for `hover: none` and reduced motion; keyboard focus shows it |
-| `RevealText` | 14; text stays in the DOM, visible without JavaScript |
-| `Eyebrow`, `Heading`, `Subhead`, `Body` | 6, 7, 19, 20 |
+| `RevealText` | 14, 23; text stays in the DOM, visible without JavaScript; units keep their spaces |
+| `Eyebrow`, `Heading`, `Subhead`, `Body` | 6, 7, 19, 20, 24; `Heading` levels 1–6 |
 | `CtaButton`, `GlassNav` | 1, 5, 9 |
-| `Section`, `FeatureGrid`, `Grid`, `RhymeIcon` | 4, 8 |
-| `Reveal`, `TextScramble`, `NumberTicker` | 14, 21; final text reserves the space; screen readers get the final value |
+| `Section`, `FeatureGrid`, `Grid`, `RhymeIcon` | 4, 8, 24, 30 (`Section lazyRender`) |
+| `Reveal`, `TextScramble`, `NumberTicker` | 14, 21, 23; final text reserves the space; screen readers get the final value; server HTML has it once |
 | `SmoothScroll`, `useSmoothScroll`, `createSmoothScroll`, `smoothScrollTo` | 14, 22; off on touch and under reduced motion |
-| `Marquee` | 14, 15; Pause button, pauses on hover, focus and off screen; inert duplicate; static row under reduced motion |
+| `Marquee` | 14, 15, 23; Pause button, pauses on hover, focus and off screen; inert duplicate added after mount; static row under reduced motion |
 | `TiltCard`, `MagneticButton` | 18 |
 | `ScrollTransform`, `useScrollProgress`, `useInView` | 17; midpoint under reduced motion |
 | `withViewTransition` | 14; falls back to an instant update without the API or under reduced motion |
 | `withPaintTransition` | 14; same fallback; its keyframe `<style>` and the `theme-switching` class on `<html>` are removed when the transition finishes |
 | `GrainOverlay`, `DotGrid`, `LineGrid`, `Aurora`, `MaskedStar`, `BeamLines`, `BackgroundFrame` | 5, 15, 16, 17 |
 | `DriftingGutters` | 15, 16; fixed and page-level, hidden below `minViewport` (1280), still under reduced motion, absent in print |
+| `FAQ` | 24, 26, 27; `h3` questions, FAQPage JSON-LD from the same items |
+| `pageMeta`, `HeadTags`, `useHead`, `headTagsToHtml` | 25 |
+| `JsonLd`, `jsonLd`, `organization`, `webSite`, `offer`, `softwareApplication`, `product`, `faqPage`, `breadcrumbList`, `article` | 26; safe serialisation |
+| `buildCrawlFiles`, `robotsTxt`, `sitemapXml`, `llmsTxt`, `AI_CRAWLERS` | 28, 29 |
+| `fontPreloads` | 21, 30 |

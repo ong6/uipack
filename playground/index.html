@@ -4,6 +4,24 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>uipack playground</title>
+    <!-- /web: preload the Landing hero's display faces (uipack/web fontPreloads: display + italic,
+         because the hero title has an <em>). Vite rewrites each href to the built file the CSS uses;
+         media="not all" keeps them inert on every other route, and the script below turns them on
+         for /web in a build, at 720px and wider: there the swap re-wrapped the centred headline
+         (CLS 0.042 at 1440px), while on a phone it moved nothing and the preload only slowed the
+         first paint. The dev server serves fonts from another URL, so it skips them. -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="../src/web/fonts/instrument-serif-latin-400-normal.woff2" media="not all" data-preload-route="/web" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="../src/web/fonts/instrument-serif-latin-400-italic.woff2" media="not all" data-preload-route="/web" />
+    <script>
+      if (location.pathname.replace(/\/$/, "") === "/web")
+        for (const l of document.querySelectorAll('link[data-preload-route="/web"]')) {
+          if (!l.getAttribute("href").startsWith("/assets/")) continue;
+          const on = l.cloneNode();
+          on.setAttribute("media", "(min-width: 720px)");
+          on.removeAttribute("data-preload-route");
+          l.after(on);
+        }
+    </script>
 
   </head>
   <body>

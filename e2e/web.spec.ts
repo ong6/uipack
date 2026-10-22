@@ -437,3 +437,76 @@ test.describe("/web Landing collection", () => {
     await expect(html).not.toHaveClass(/theme-switching/);
   });
 });
+
+test.describe("/web discoverability", () => {
+  test("one h1, canonical and Open Graph tags, valid JSON-LD for the product and FAQ, visible FAQ text, no console errors", async ({ page, baseURL }) => {
+    const errors: string[] = [];
+    page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
+    page.on("pageerror", (e) => errors.push(String(e)));
+    const origin = new URL(baseURL!).origin;
+    await page.goto("/web?theme=dark");
+    await expect(page.locator(".uipack-web-hero h1")).toBeVisible();
+    expect(await page.locator("h1").count()).toBe(1);
+    // The canonical drops the theme parameter: one URL per page, whatever the view state.
+    await expect(page.locator('head link[rel="canonical"]')).toHaveAttribute("href", `${origin}/web`);
+    await expect(page).toHaveTitle("Tidy: forty emails in, three that need you");
+    const meta = (sel: string) => page.locator(`head meta[${sel}]`).getAttribute("content");
+    expect(await meta('name="description"')).toMatch(/^Tidy, an illustrative inbox agent/);
+    expect(await meta('property="og:title"')).toBe("Tidy: forty emails in, three that need you");
+    expect(await meta('property="og:url"')).toBe(`${origin}/web`);
+    expect(await meta('property="og:type"')).toBe("website");
+    expect(await meta('name="twitter:card"')).toBe("summary");
+
+    const blocks = await page.locator('script[type="application/ld+json"]').evaluateAll((els) => els.map((el) => el.textContent ?? ""));
+    const docs = blocks.map((b) => JSON.parse(b));
+    const nodes = docs.flatMap((d) => (d["@graph"] ? d["@graph"] : [d]));
+    expect(nodes.map((n) => n["@type"])).toEqual(expect.arrayContaining(["Organization", "WebSite", "WebApplication", "FAQPage"]));
+    const app = nodes.find((n) => n["@type"] === "WebApplication");
+    expect(app.offers).toMatchObject({ "@type": "Offer", price: "8.00", priceCurrency: "USD" });
+    expect(app.url).toBe(`${origin}/web`);
+    // The offer says what the Pricing section shows.
+    await expect(page.locator("#web-pricing h2")).toContainText("$8 a month");
+
+    // Every FAQ question in the markup is a visible h3 on the page, with its answer as visible text.
+    const faq = nodes.find((n) => n["@type"] === "FAQPage");
+    expect(faq.mainEntity).toHaveLength(4);
+    const section = page.locator("#web-faq");
+    await section.scrollIntoViewIfNeeded();
+    for (const q of faq.mainEntity) {
+      await expect(section.getByRole("heading", { level: 3, name: q.name })).toBeVisible();
+      await expect(section.getByText(q.acceptedAnswer.text)).toBeVisible();
+    }
+
+    // The generated crawl files are on the page.
+    await page.getByText("View generated robots.txt / sitemap.xml / llms.txt").click();
+    const robots = page.locator('pre[aria-label="robots.txt"]');
+    await expect(robots).toContainText("User-agent: GPTBot");
+    await expect(robots).toContainText("User-agent: OAI-SearchBot");
+    await expect(robots).toContainText(`Sitemap: ${origin}/sitemap.xml`);
+    await expect(page.locator('pre[aria-label="sitemap.xml"]')).toContainText(`<loc>${origin}/web</loc>`);
+    await expect(page.locator('pre[aria-label="llms.txt"]')).toContainText("# Tidy (UIPACK Landing demo)");
+    expect(errors).toEqual([]);
+  });
+
+  test("animated text is real text: demo transcript, final ticker values and the quote are in the DOM", async ({ page }) => {
+    await page.goto("/web");
+    const transcript = page.locator(".uipack-web-demo").getByRole("list", { name: "Demo transcript" });
+    await expect(transcript.locator(":scope > li")).toHaveCount(3);
+    await expect(transcript).toContainText("Drafted replies for review");
+    await expect(page.locator(".uipack-web-demo")).toContainText("Result: 3 in your inbox.");
+    // Off-screen tickers wait at 0, but the final value is the accessible text.
+    await expect(page.locator("#web-proof .uipack-web-ticker .uipack-web-scramble__ghost").first()).toHaveText("37");
+    await expect(page.locator(".web-quote__text")).toHaveText("I stopped opening my inbox before coffee. It leaves me three things, and they are the right three.");
+  });
+
+  test("390px: FAQ and the generated-file disclosures fit without page overflow", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/web");
+    await page.getByText("View generated robots.txt / sitemap.xml / llms.txt").click();
+    await page.getByText("View generated head tags and JSON-LD").click();
+    await page.locator("#web-faq").scrollIntoViewIfNeeded();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+    const box = (await page.locator('pre[aria-label="robots.txt"]').boundingBox())!;
+    expect(box.x + box.width).toBeLessThanOrEqual(390);
+  });
+});
