@@ -1,5 +1,6 @@
 import { useEffect, useState, type RefObject } from "react";
 import { prefersReducedMotion } from "../env";
+import { clamp, smoothstep } from "../math";
 
 export interface InViewOptions {
   /** Fraction of the element that must be visible. Default 0. */
@@ -39,7 +40,7 @@ export function useInView(ref: RefObject<Element>, { threshold = 0, once = false
 export function scrollProgressOf(rect: { top: number; height: number }, viewport: number): number {
   const total = viewport + rect.height;
   if (total <= 0) return 0;
-  return Math.max(0, Math.min(1, (viewport - rect.top) / total));
+  return clamp((viewport - rect.top) / total);
 }
 
 /**
@@ -137,7 +138,6 @@ interface Drip {
 }
 
 const rand = (min: number, max: number) => min + Math.random() * (max - min);
-const smooth = (t: number) => t * t * (3 - 2 * t);
 const px = (v: number) => `${Math.round(v * 10) / 10}px`;
 
 function rollDrips(width: number, height: number, duration: number): Drip[] {
@@ -160,7 +160,7 @@ function rollDrips(width: number, height: number, duration: number): Drip[] {
 function paintFrame(t: number, width: number, height: number, drips: Drip[], duration: number): string {
   // The sheet clears the bottom edge (plus the longest drip) by 85% of the run, so the
   // last frames are fully the new theme.
-  const sheet = smooth(Math.min(1, t / (duration * 0.85))) * (height * 1.14);
+  const sheet = smoothstep(0, 1, t / (duration * 0.85)) * (height * 1.14);
   const pos = ["0px 0px"];
   const size = [`${px(width)} ${px(sheet)}`];
   for (const d of drips) {

@@ -5,7 +5,8 @@ import type { Point3, SolidPaths } from "../kit/iso-kit";
 import { follow, spring, type Spring } from "../kit/live";
 import { armOf, armPointerOf, dragOf, needleOf, ORIGIN, slatsOf, tokenOf, type TokenPaths } from "./geometry";
 import { SCALE } from "./model";
-import { clamp, contactOver, type GatePose, type Layer, type Scene } from "./motion";
+import { clamp } from "../../math";
+import { contactOver, type GatePose, type Layer, type Scene } from "./motion";
 import { ASSEMBLIES, GX, MOVES, at, move, type Assembly } from "./view";
 
 const LAYERS: Layer[] = ["belt", "chute", "tray"];

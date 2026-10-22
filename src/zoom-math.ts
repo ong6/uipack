@@ -18,12 +18,10 @@ export interface ZoomFrame {
   fy: number;
 }
 
-export const easeInOutCubic = (p: number) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+import { easeInOutCubic, smoothstep } from "./math";
 
-export const smoothstep = (a: number, b: number, x: number) => {
-  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
-  return t * t * (3 - 2 * t);
-};
+// Exported from the root entry with the zoom maths they shape.
+export { easeInOutCubic, smoothstep };
 
 /**
  * A zoom into `target` is a pure scale about one fixed point F, chosen so the

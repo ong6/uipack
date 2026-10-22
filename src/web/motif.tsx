@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { clamp } from "../math";
 
 /** Default story data: messages handled over a morning (40 in, 3 left). Rising, so it reads as progress. */
 export const DEFAULT_STAR_VALUES = [0, 1, 2, 5, 9, 16, 22, 31, 33, 35, 37, 37];
@@ -74,7 +75,7 @@ export function RhymeIcon({ at = 0.5, values = DEFAULT_STAR_VALUES, size = 40 }:
   const d = curvePath(values, 28, 20, 2);
   const min = Math.min(...values);
   const span = Math.max(...values) - min || 1;
-  const idx = Math.round(Math.max(0, Math.min(1, at)) * (values.length - 1));
+  const idx = Math.round(clamp(at) * (values.length - 1));
   const cx = 6 + (idx / (values.length - 1)) * 28;
   const cy = 10 + 2 + (1 - (values[idx] - min) / span) * 16;
   return (

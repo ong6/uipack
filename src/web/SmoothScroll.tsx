@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { onReducedMotionChange, prefersReducedMotion } from "../env";
+import { clamp, easeOutExpo } from "../math";
 
 /* ------------------------------------------------------------------ Pure math (tested) */
 
@@ -18,11 +19,7 @@ export function followStep(current: number, target: number, rate: number, dt: nu
 }
 
 /** Ease for a fixed-duration scrollTo: fast start, long soft landing (exponential out). */
-export function easeOutExpo(t: number): number {
-  if (t <= 0) return 0;
-  if (t >= 1) return 1;
-  return 1 - Math.pow(2, -10 * t);
-}
+export { easeOutExpo };
 
 /** Pixels per wheel "line" (deltaMode 1, e.g. Firefox with a mouse wheel). */
 export const WHEEL_LINE_PX = 40;
@@ -42,8 +39,6 @@ export function normalizeWheel(e: WheelLike, viewport: { width: number; height: 
     return { x: e.deltaX * viewport.width * WHEEL_PAGE_FRACTION, y: e.deltaY * viewport.height * WHEEL_PAGE_FRACTION };
   return { x: e.deltaX, y: e.deltaY };
 }
-
-const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
 /* ------------------------------------------------------------------ Controller */
 

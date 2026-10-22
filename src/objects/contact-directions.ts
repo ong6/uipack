@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { playLoop, TAU, vec, type Tick } from "./procedural";
+import { clamp, smoothstep } from "../math";
 
 // Original procedural studies. Contact legacy variants 0–2 stay in scenes.ts.
 const colors = { cream: 0xf6e9ca, coral: 0xe97c5d, blue: 0x6997ad, green: 0x8bb39b, dark: 0x293f49, gold: 0xbe965c };
@@ -52,7 +53,6 @@ function envelope(parent: THREE.Object3D, color = colors.cream) {
   }
   return letter;
 }
-const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 
 /* ---------------------------------------------------------------- Cartoon (variant 3) */
 
@@ -96,15 +96,15 @@ function cartoonMailbox(root: THREE.Group, ticks: Tick[]) {
   ticks.push((angle) => {
     const p = angle / TAU;
     // 0 → 1 as the letter flies in (10–72% of the loop), back to 0 over the last 20% while hidden.
-    const fly = p > 0.8 ? (1 - p) / 0.2 : clamp01((p - 0.1) / 0.62);
-    const ease = fly * fly * (3 - 2 * fly);
+    const fly = p > 0.8 ? (1 - p) / 0.2 : clamp((p - 0.1) / 0.62);
+    const ease = smoothstep(0, 1, fly);
     letter.position.set(-1.0 * (1 - ease), 1.02 + 0.86 * Math.sin(Math.PI * fly), 0.31 + 1.15 * (1 - ease));
     letter.rotation.set(0.12 * (1 - ease), -0.24 * (1 - ease), -0.22 * (1 - ease));
     // Grows in at 6–14% of the loop and shrinks into the slot at 70–79%.
-    const scale = clamp01((p - 0.06) / 0.08) * clamp01((0.79 - p) / 0.09);
+    const scale = clamp((p - 0.06) / 0.08) * clamp((0.79 - p) / 0.09);
     letter.scale.setScalar(scale * 0.85);
     letter.visible = scale > 0;
-    flag.rotation.z = -0.65 + 0.65 * Math.sin(Math.PI * clamp01((p - 0.55) / 0.35));
+    flag.rotation.z = -0.65 + 0.65 * Math.sin(Math.PI * clamp((p - 0.55) / 0.35));
   });
 }
 

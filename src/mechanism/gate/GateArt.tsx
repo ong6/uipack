@@ -25,7 +25,8 @@ import {
   type TokenPaths,
 } from "./geometry";
 import { SCALE } from "./model";
-import { clamp, type Layer } from "./motion";
+import { clamp } from "../../math";
+import type { Layer } from "./motion";
 import { HEIGHT, WIDTH, move } from "./view";
 import { fine, readingOf, shareMove, tokenMove, tokenPaths, type Display, type Slot } from "./display";
 

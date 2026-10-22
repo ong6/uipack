@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ElementType, type
 import { usePrefersReducedMotion } from "../env";
 import { CtaButton, type CtaButtonProps } from "./CtaButton";
 import { useInView, useScrollProgress } from "./hooks";
+import { clamp, easeOutCubic, lerp } from "../math";
 
 /* ---------------------------------------------------------------- Reveal */
 
@@ -63,7 +64,7 @@ const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/<>_-";
 
 /** The frame of a scramble or typewriter at progress t (0..1). Pure, for tests and SSR. */
 export function scrambleFrame(text: string, t: number, mode: "scramble" | "type", seed = 0): string {
-  const p = Math.max(0, Math.min(1, t));
+  const p = clamp(t);
   const settled = Math.floor(p * text.length);
   if (mode === "type") return text.slice(0, settled);
   let out = text.slice(0, settled);
@@ -155,8 +156,6 @@ export interface NumberTickerProps {
   face?: "display" | "inherit";
 }
 
-const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-
 /**
  * Counts up to a proof stat the first time it is on screen; a later `value` counts on from the
  * number shown. Tabular figures and a hidden copy
@@ -204,7 +203,7 @@ export function NumberTicker({
     show(origin);
     const timer = setInterval(() => {
       const p = Math.min(1, (Date.now() - start) / duration);
-      show(origin + (value - origin) * easeOut(p));
+      show(origin + (value - origin) * easeOutCubic(p));
       if (p >= 1) clearInterval(timer);
     }, 32);
     return () => clearInterval(timer);
@@ -379,7 +378,7 @@ export interface ScrollTransformProps {
   className?: string;
 }
 
-const lerp = ([a, b]: Range, t: number) => a + (b - a) * t;
+const rangeAt = ([from, to]: Range, t: number) => lerp(from, to, t);
 
 /**
  * Drives a transform from the element's scroll progress: reuse the hero's star further down
@@ -399,10 +398,10 @@ export function ScrollTransform({
   const raw = useScrollProgress(ref);
   const t = reduced ? 0.5 : raw;
   const style = {
-    "--st-rotate": `${lerp(rotate, t).toFixed(2)}deg`,
-    "--st-scale": lerp(scale, t).toFixed(3),
-    "--st-y": `${lerp(translateY, t).toFixed(1)}px`,
-    "--st-opacity": lerp(opacity, t).toFixed(3),
+    "--st-rotate": `${rangeAt(rotate, t).toFixed(2)}deg`,
+    "--st-scale": rangeAt(scale, t).toFixed(3),
+    "--st-y": `${rangeAt(translateY, t).toFixed(1)}px`,
+    "--st-opacity": rangeAt(opacity, t).toFixed(3),
   } as CSSProperties;
   return (
     <div ref={ref} className={`uipack-web-scrollx ${className}`.trim()} data-progress={t.toFixed(2)}>

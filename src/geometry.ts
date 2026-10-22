@@ -1,3 +1,4 @@
+import { clamp } from "./math";
 export type Point = [number, number];
 export type Side = "top" | "right" | "bottom" | "left";
 
@@ -81,7 +82,7 @@ export function pointAlong(points: Point[], t: number): Point {
     segs.push(l);
     total += l;
   }
-  let target = Math.max(0, Math.min(1, t)) * total;
+  let target = clamp(t) * total;
   for (let i = 0; i < segs.length; i++) {
     if (target <= segs[i] || i === segs.length - 1) {
       const k = segs[i] === 0 ? 0 : target / segs[i];
