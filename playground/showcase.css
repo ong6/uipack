@@ -171,7 +171,7 @@ body {
 .catalog-filters label { display: grid; gap: 8px; }
 .catalog-filters input,.catalog-filters select { min-height: 44px; max-width: 100%; box-sizing: border-box; border: 1px solid var(--show-rule); border-radius: 6px; padding: 8px 12px; background: var(--show-surface); color: var(--show-ink); font: inherit; }
 .catalog-filters input { width: 280px; }
-.slides-showcase__tabs button small { display: block; margin-top: 6px; color: var(--show-muted); font-size: 11px; }
+.slides-showcase__tabs button small { display: block; margin-top: 6px; color: var(--show-muted); font-size: 12px; }
 
 /* Chart preview frame (Figures page): a host's figure width. */
 /* The charts have no frame of their own: their sticky header paints the host page colour. */

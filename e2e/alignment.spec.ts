@@ -1,19 +1,133 @@
-import { expect, test } from "./fixtures";
+import { expect, test, type Page } from "./fixtures";
 
-// Cards in one row must line their action rows up, whatever the length of each description.
-test("style cards in a row align their links", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/styles");
-  await expect(page.locator(".style-card").first()).toBeVisible();
-  const rows = await page.evaluate(() => {
-    const byRow: Record<number, number[]> = {};
-    document.querySelectorAll(".style-card").forEach((card) => {
-      const top = Math.round(card.getBoundingClientRect().top);
-      const link = card.querySelector(":scope > :last-child a")!.getBoundingClientRect();
-      (byRow[top] ??= []).push(Math.round(link.top));
-    });
-    return Object.values(byRow);
+// Component-level layout rules, checked on every playground page rather than per component:
+// cards that share a row share a height and an action row, controls side by side share a
+// height, and a focus ring is never cut off by a scrolling or clipping box.
+const PAGES = ["/", "/charts", "/article", "/deck?deck=moves", "/deck?deck=bento", "/deck?deck=consulting", "/presentations", "/animations", "/mechanism", "/web", "/docs", "/styles", "/assets"];
+
+async function open(page: Page, path: string) {
+  await page.goto(path);
+  await expect(page.locator(".showcase-title")).toBeVisible();
+  // Lazy page chunks and fonts settle the layout being measured.
+  await expect(page.locator(".showcase-shell > :not(header):not(dialog):not(.showcase-context):not(.showcase-title)").first()).toBeVisible();
+  await page.evaluate(() => document.fonts.ready);
+}
+
+// Rows of card-like boxes (a border or a fill, taller than 80px) in grids and wrapping flex rows.
+function cardRows() {
+  const visible = (el: Element) => {
+    const r = el.getBoundingClientRect();
+    const s = getComputedStyle(el);
+    return r.width > 0 && r.height > 0 && s.visibility !== "hidden" && s.display !== "none";
+  };
+  const cardish = (el: Element) => {
+    const s = getComputedStyle(el);
+    return (parseFloat(s.borderTopWidth) > 0 || s.backgroundColor !== "rgba(0, 0, 0, 0)") && el.getBoundingClientRect().height > 80;
+  };
+  const label = (el: Element) => `${el.tagName.toLowerCase()}.${[...el.classList].join(".")}`;
+  const rows: { where: string; heights: number[]; actions: (number | null)[] }[] = [];
+  for (const parent of document.querySelectorAll(".showcase-shell *")) {
+    if (parent.closest("svg, .uipack-deck__canvas, .uipack-deck-stage")) continue;
+    const s = getComputedStyle(parent);
+    if (!(s.display.includes("grid") || (s.display.includes("flex") && s.flexDirection.startsWith("row") && s.flexWrap === "wrap"))) continue;
+    const byTop = new Map<number, Element[]>();
+    for (const kid of [...parent.children].filter(visible)) {
+      const top = Math.round(kid.getBoundingClientRect().top);
+      byTop.set(top, [...(byTop.get(top) ?? []), kid]);
+    }
+    for (const row of byTop.values()) {
+      if (row.length < 2 || !row.every(cardish)) continue;
+      rows.push({
+        where: `${label(parent)} > ${label(row[0])}`,
+        heights: row.map((k) => Math.round(k.getBoundingClientRect().height)),
+        actions: row.map((k) => {
+          const last = [...k.querySelectorAll("a, button")].filter(visible).pop();
+          return last ? Math.round(last.getBoundingClientRect().top) : null;
+        }),
+      });
+    }
+  }
+  return rows;
+}
+
+// Buttons, selects and inputs that sit side by side in one parent.
+function controlRows() {
+  const out: { where: string; heights: number[] }[] = [];
+  const controls = [...document.querySelectorAll<HTMLElement>(".showcase-shell :is(button, select, input:not([type=radio], [type=checkbox], [type=hidden]))")].filter(
+    (c) => c.getClientRects().length && !c.closest("svg, .uipack-deck__canvas, .uipack-deck-stage, .uipack-web"),
+  );
+  const byParent = new Map<Element, HTMLElement[]>();
+  for (const c of controls) byParent.set(c.parentElement!, [...(byParent.get(c.parentElement!) ?? []), c]);
+  for (const [parent, list] of byParent) {
+    const rows = new Map<number, HTMLElement[]>();
+    for (const c of list) {
+      const r = c.getBoundingClientRect();
+      const mid = Math.round(r.top + r.height / 2);
+      const key = [...rows.keys()].find((k) => Math.abs(k - mid) < 6) ?? mid;
+      rows.set(key, [...(rows.get(key) ?? []), c]);
+    }
+    for (const row of rows.values()) {
+      if (row.length < 2) continue;
+      out.push({ where: `${parent.tagName.toLowerCase()}.${[...parent.classList].join(".")}: ${row.map((c) => (c.textContent || c.getAttribute("aria-label") || "").trim().slice(0, 16)).join(" | ")}`, heights: row.map((c) => Math.round(c.getBoundingClientRect().height)) });
+    }
+  }
+  return out;
+}
+
+for (const width of [1440, 390]) {
+  test.describe(`alignment at ${width}`, () => {
+    test.use({ viewport: { width, height: 900 } });
+    for (const path of PAGES) {
+      test(`${path}: card rows share a height and an action row; side-by-side controls share a height`, async ({ page }) => {
+        await open(page, path);
+        for (const row of await page.evaluate(cardRows)) {
+          expect(Math.max(...row.heights) - Math.min(...row.heights), `card heights in ${row.where}: ${row.heights}`).toBeLessThanOrEqual(1);
+          if (row.actions.every((a) => a !== null)) expect(new Set(row.actions).size, `action rows in ${row.where}: ${row.actions}`).toBe(1);
+        }
+        for (const row of await page.evaluate(controlRows)) {
+          expect(Math.max(...row.heights) - Math.min(...row.heights), `control heights in ${row.where}: ${row.heights}`).toBeLessThanOrEqual(1);
+        }
+      });
+    }
   });
-  expect(rows.length).toBeGreaterThan(1);
-  for (const tops of rows) expect(new Set(tops).size).toBe(1);
-});
+}
+
+// A focused control's ring (outline width + offset) must fit inside the nearest box that
+// scrolls or clips; scroll rows give their items room with padding, or the ring is inset.
+for (const [path, width] of [["/animations", 390], ["/assets", 390], ["/mechanism", 390], ["/mechanism", 1440], ["/web", 390], ["/", 390]] as const) {
+  test(`${path} at ${width}: focus rings are not clipped`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await open(page, path);
+    await page.keyboard.press("Tab"); // keyboard modality, so :focus-visible applies to .focus()
+    const handles = await page.locator(".showcase-shell :is(a[href], button, [tabindex='0'], summary, [role=button]):visible").elementHandles();
+    const clipped: string[] = [];
+    for (const handle of handles.slice(0, 80)) {
+      const issue = await handle.evaluate((el: HTMLElement) => {
+        if (el.closest("svg")) return null;
+        let clip: Element | null = null;
+        for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+          const s = getComputedStyle(a);
+          if (/(hidden|clip|auto|scroll)/.test(s.overflowX + s.overflowY)) {
+            clip = a;
+            break;
+          }
+        }
+        if (!clip) return null;
+        el.focus({ preventScroll: true });
+        const s = getComputedStyle(el);
+        if (s.outlineStyle === "none" || document.activeElement !== el) return null;
+        const reach = parseFloat(s.outlineWidth) + parseFloat(s.outlineOffset);
+        const r = el.getBoundingClientRect();
+        const c = clip.getBoundingClientRect();
+        // Items scrolled out of a row are not on screen to clip.
+        if (r.right < c.left || r.left > c.right) return null;
+        const room = Math.min(r.left - c.left, c.right - r.right, r.top - c.top, c.bottom - r.bottom);
+        return room < reach - 0.5 && r.left >= c.left - 0.5 && r.right <= c.right + 0.5
+          ? `${el.tagName.toLowerCase()}.${[...el.classList].join(".")} "${(el.textContent ?? "").trim().slice(0, 20)}" needs ${reach}px, has ${room.toFixed(1)}px in ${clip.tagName.toLowerCase()}.${[...clip.classList].join(".")}`
+          : null;
+      });
+      if (issue) clipped.push(issue);
+    }
+    expect(clipped).toEqual([]);
+  });
+}
