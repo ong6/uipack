@@ -426,8 +426,16 @@
   stroke-width: 1.5;
   stroke-dasharray: 2 4;
 }
+.deck-bento-forecast__tripwire {
+  stroke: var(--deck-fg);
+  stroke-width: 1.5;
+  stroke-dasharray: 8 4 2 4;
+}
 .deck-bento-forecast circle {
   fill: var(--deck-fg);
+}
+.deck-bento-forecast circle.deck-bento-forecast__peak {
+  fill: var(--deck-accent);
 }
 .deck-bento-forecast text {
   fill: var(--deck-muted);

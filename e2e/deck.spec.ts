@@ -202,13 +202,13 @@ test.describe("/deck player", () => {
 test.describe("/deck bento", () => {
   const bento = (page: Page) => page.locator(".uipack-deck-bento");
 
-  test("the camera tours three cells inside the bento box, then zooms from a cell into the next slide", async ({ page }) => {
+  test("the camera tours two cells inside the bento box, then zooms from the risk cell into the risk slide", async ({ page }) => {
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(e.message));
     await page.goto("/deck?deck=bento&slide=quarter&view=present");
     await deck(page).focus();
     const box = await bento(page).boundingBox();
-    for (const id of ["latency", "shipped", "risk"]) {
+    for (const id of ["latency", "shipped"]) {
       await page.keyboard.press("ArrowRight");
       await expect(bento(page)).toHaveAttribute("data-focus", id);
       // The camera settles with the cell larger than at rest and centred in the bento's own box.
@@ -223,6 +223,7 @@ test.describe("/deck bento", () => {
     await expect(bento(page)).not.toHaveAttribute("data-focus");
     await page.keyboard.press("ArrowRight");
     await expect(deck(page)).toHaveAttribute("data-index", "2");
+    await expect(page).toHaveURL(/slide=risk/);
     await settled(page);
     expect(errors).toEqual([]);
   });
@@ -271,8 +272,8 @@ test.describe("/deck motion: no mid-flight glitches", () => {
     expect(mid.words).toBe(0);
   });
 
-  test("a zoom into an ink slide keeps the outgoing paper slide paper, and clears its neighbours", async ({ page }) => {
-    await page.goto("/deck?deck=bento&slide=quarter&step=4&view=present");
+  test("a zoom out of a bento cell keeps the outgoing slide's paper, and clears its neighbours", async ({ page }) => {
+    await page.goto("/deck?deck=bento&slide=quarter&step=3&view=present");
     await deck(page).focus();
     await page.keyboard.press("ArrowRight");
     const first = await at(page, 10, () => {
