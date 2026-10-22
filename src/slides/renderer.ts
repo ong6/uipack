@@ -9,6 +9,9 @@ import type {
   Vec3,
 } from "./types";
 
+/** The minimum gap between a projected label and the scene's left, right and bottom edges. */
+const LABEL_INSET = 16;
+
 export interface SceneRuntime {
   goTo(stop: SlideStop, immediate?: boolean): void;
   setPaused(value: boolean): void;
@@ -390,8 +393,9 @@ export function createSlideScene(
           [0, -h * 2 - 16],
         ]) {
           const candidate = {
-            x: Math.max(4, Math.min(width - w - 4, x - w / 2 + dx)),
-            y: Math.max(84, Math.min(height - h - 4, y + dy)),
+            // Labels keep a 16px inset from the scene's sides and bottom; the top clears the inspector.
+            x: Math.max(LABEL_INSET, Math.min(width - w - LABEL_INSET, x - w / 2 + dx)),
+            y: Math.max(84, Math.min(height - h - LABEL_INSET, y + dy)),
             w,
             h,
           };
