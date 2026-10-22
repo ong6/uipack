@@ -179,6 +179,9 @@ export function DeckPlayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view.seq]);
 
+  // Unmounting mid-transition: stop the animations, so none outlives the deck or resolves into it.
+  useEffect(() => () => anims.current.forEach((a) => a.cancel()), []);
+
   // Speaker view sync: every window showing this deck ID follows the last one moved.
   const channel = useRef<BroadcastChannel | null>(null);
   const remote = useRef(false);
