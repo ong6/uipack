@@ -578,6 +578,11 @@ body {
   font: var(--show-control-font-sm);
   border-radius: var(--show-control-radius);
 }
+/* The Speaker guide's Copy button sits under the page's layout tabs: the same control. */
+.showcase-shell .uipack-speaker-guide__action button {
+  font: var(--show-control-font);
+  border-radius: var(--show-control-radius);
+}
 /* The 3D library's scene list and art-direction cards are option tiles, not controls: the shell
    sans, deliberately, with the control radius. */
 .showcase-shell .uipack-scene-list button {
