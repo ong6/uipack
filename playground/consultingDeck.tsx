@@ -213,11 +213,14 @@ export const consultingDeck: DeckSlide[] = [
             ]}
           />
         </Panel>
+        {/* The next slide zooms into this panel and opens it into its 2×2: the columns stand in the
+            order of the 2×2's bubbles (least used site first), against the same $8.40 line, so the
+            two above the line become the two bubbles in the top corner. */}
         <Panel
           title="Two older sites cost most"
           unit={
             <>
-              $ per order, FY25
+              $ per order, FY25, least used site first
               <Ref n={2} />
             </>
           }
@@ -225,7 +228,13 @@ export const consultingDeck: DeckSlide[] = [
           morphId="site-costs"
           callout="33% of orders"
         >
-          <BarChart format={dollars} data={sites} domain={[0, 12]} reference={{ value: 8.4, label: "Network $8.40" }} />
+          <BarChart
+            orientation="vertical"
+            format={dollars}
+            data={sites}
+            domain={[0, 12]}
+            reference={{ value: 8.4, label: "Network $8.40" }}
+          />
         </Panel>
       </ConsultingSlide>
     ),

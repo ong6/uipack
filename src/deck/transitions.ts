@@ -8,6 +8,9 @@ export const CANVAS_HEIGHT = 1080;
 /** The zoom camera's cubic-bezier control points: one curve for the CSS (`deckMotion.camera`) and the sampled keyframes. */
 const CAMERA_CURVE = [0.3, 0.05, 0.25, 1] as const;
 
+/** The travel curve's control points: `deckMotion.travel` in CSS, and sampled where a move needs the eased value. */
+const TRAVEL_CURVE = [0.55, 0, 0.15, 1] as const;
+
 /** The deck's one clock. Every transition and build reads these, so a deck moves consistently. */
 export const deckMotion = {
   quick: 160,
@@ -15,10 +18,15 @@ export const deckMotion = {
   slow: 560,
   morph: 760,
   zoom: 1150,
+  /** A bento camera move, cell to cell or back to the whole grid. */
+  pan: 860,
   stagger: 45,
+  /** When an advance's incoming blocks start: while the outgoing slide is still leaving (it is gone at `quick`), so no frame is blank. */
+  handoff: 90,
   settle: "cubic-bezier(0.2, 0.7, 0.2, 1)",
   exit: "cubic-bezier(0.4, 0, 1, 1)",
-  travel: "cubic-bezier(0.55, 0, 0.15, 1)",
+  travel: `cubic-bezier(${TRAVEL_CURVE.join(", ")})`,
+  travelCurve: TRAVEL_CURVE,
   /** The zoom camera's progress (in log scale): moving by 10% of the clock, landing softly. */
   camera: `cubic-bezier(${CAMERA_CURVE.join(", ")})`,
 } as const;
@@ -495,8 +503,10 @@ export function runTransition(opts: RunOptions): Animation[] {
   if (kind === "advance") {
     from.style.zIndex = "2";
     const shift = 40 * direction;
-    // The old slide steps aside on the base clock but is gone from view within 160 ms, and the new
-    // slide's blocks start as it goes, so two slides' words never overlap.
+    // The old slide steps aside on the base clock but is gone from view within `quick` (160 ms). The
+    // new slide's blocks start at `handoff` (90 ms), while it is still leaving, so the two crossfade
+    // and no frame between them is blank (a blink on a projector); their opposite slides keep the
+    // overlap brief and readable.
     play(from, [{ transform: "none" }, { transform: `translateX(${-shift}px)` }], {
       duration: deckMotion.base,
       easing: deckMotion.exit,
@@ -512,7 +522,7 @@ export function runTransition(opts: RunOptions): Animation[] {
         ],
         {
           duration: deckMotion.slow,
-          delay: deckMotion.quick + Math.min(i, 7) * deckMotion.stagger,
+          delay: deckMotion.handoff + Math.min(i, 7) * deckMotion.stagger,
           easing: deckMotion.settle,
         },
       ),
