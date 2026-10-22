@@ -3,9 +3,13 @@ import { consultingDeck, consultingDeckLint } from "./consultingDeck";
 import { deckExample } from "./deckExample";
 import { bentoDeck } from "./bentoDeck";
 
-/** Example decks on /deck, picked with ?deck=<id>. Each shows one way of presenting. */
-export const deckExamples: { id: string; label: string; slides: DeckSlide[]; lint?: LintOptions }[] = [
-  { id: "moves", label: "Three moves", slides: deckExample, lint: { template: "deep-dive" } },
-  { id: "bento", label: "Bento", slides: bentoDeck, lint: { template: "project-update" } },
-  { id: "consulting", label: "Consulting", slides: consultingDeck, lint: consultingDeckLint },
+/**
+ * Example decks on /deck, picked with ?deck=<id>. Each shows one way of presenting. Each id has a
+ * `libraryPages` entry in catalog.ts with `query: { deck: id }` (its nav label and intro);
+ * test/catalog.test.ts checks the two lists match.
+ */
+export const deckExamples: { id: string; slides: DeckSlide[]; lint?: LintOptions }[] = [
+  { id: "moves", slides: deckExample, lint: { template: "deep-dive" } },
+  { id: "bento", slides: bentoDeck, lint: { template: "project-update" } },
+  { id: "consulting", slides: consultingDeck, lint: consultingDeckLint },
 ];

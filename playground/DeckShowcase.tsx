@@ -4,6 +4,7 @@ import "../src/deck/bento.css";
 import "../src/deck/consulting/consulting.css";
 import "../src/mechanism/mechanism.css";
 import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
+import { deckEntries } from "./catalog";
 import { deckExamples } from "./deckExamples";
 import "./deck-showcase.css";
 
@@ -67,7 +68,7 @@ export default function DeckShowcase() {
 
   return (
     <ShowcaseShell active="deck" theme={theme} flip={flip}>
-      <section className="deck-showcase">
+      <section className="deck-showcase" data-catalog-entry={deckEntries[0].id}>
         <DeckPlayer
           id={deckId}
           title="Deck player example"

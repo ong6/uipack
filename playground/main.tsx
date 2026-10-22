@@ -4,6 +4,7 @@ import "../src/theme.css";
 import "./showcase.css";
 import "../src/canvas.css";
 import { App } from "./App";
+import { libraryPages, type LibraryPage } from "./catalog";
 
 const CatalogPages = lazy(() => import("./CatalogPages"));
 const Slides = lazy(() => import("./SlideShowcase"));
@@ -13,25 +14,38 @@ const Article = lazy(() => import("./ArticleShowcase"));
 const Deck = lazy(() => import("./DeckShowcase"));
 const Mechanism = lazy(() => import("./MechanismShowcase"));
 
-/** One line per path; a branch adding a page adds a line here and an entry in catalog.ts. Unlisted paths render App. */
-const routes: Record<string, ComponentType> = {
-  "/slides": Slides,
-  "/animations": Slides,
-  "/web": Web,
-  "/docs": Docs,
-  "/article": Article,
-  "/styles": CatalogPages,
-  "/presentations": CatalogPages,
-  "/deck": Deck,
-  "/mechanism": Mechanism,
+/**
+ * The component that renders each `libraryPages` entry. Keyed by page id, so a page added to
+ * catalog.ts fails the typecheck until it is given a component here. Pages that share a path
+ * (the deck sub-views) share a component; App serves "/", "/charts" and "/assets".
+ */
+const pageComponents: Record<LibraryPage, ComponentType> = {
+  figures: App,
+  charts: App,
+  article: Article,
+  deck: Deck,
+  "deck-bento": Deck,
+  "deck-consulting": Deck,
+  presentations: CatalogPages,
+  animations: Slides,
+  mechanism: Mechanism,
+  web: Web,
+  docs: Docs,
+  styles: CatalogPages,
+  assets: App,
 };
+
+/** Older or shorthand paths that open a page: /slides (3D animations), /diagrams, /drill (the drill-down section). */
+const aliases: Record<string, LibraryPage> = { "/slides": "animations", "/diagrams": "figures", "/drill": "figures" };
+
+const routes = new Map<string, ComponentType>(libraryPages.map((p) => [p.path, pageComponents[p.id]]));
+for (const [path, id] of Object.entries(aliases)) routes.set(path, pageComponents[id]);
 
 const params = new URLSearchParams(location.search);
 const theme = params.get("theme");
 document.documentElement.dataset.theme = theme === "dark" ? "dark" : "light";
 
-// App serves "/", "/diagrams", "/drill" (the diagrams page at its drill-down section), "/charts" and "/assets".
-const Page = routes[location.pathname.replace(/\/$/, "")] ?? App;
+const Page = routes.get(location.pathname.replace(/(.)\/$/, "$1")) ?? App;
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
