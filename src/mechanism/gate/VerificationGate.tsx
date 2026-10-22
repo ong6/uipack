@@ -1,8 +1,8 @@
 import * as React from "react";
-import { REDUCED_MOTION_QUERY } from "../env";
-import type { Point3, SolidPaths } from "./kit/iso-kit";
-import { Dots, Line, Solid } from "./kit/draw";
-import { asksForStillness, follow, spring, type Spring } from "./kit/live";
+import { REDUCED_MOTION_QUERY } from "../../env";
+import type { Point3, SolidPaths } from "../kit/iso-kit";
+import { Dots, Line, Solid } from "../kit/draw";
+import { asksForStillness, follow, spring, type Spring } from "../kit/live";
 import {
   BASE_ART,
   CHUTE_BACK,
@@ -27,10 +27,10 @@ import {
   tokenOf,
   type TokenPaths,
 } from "./geometry";
-import { LIMIT, SCALE } from "./gate";
+import { LIMIT, SCALE } from "./model";
 import { RUN_LONG, clamp, contactOver, sceneAt, stillScene, STILL_AT, type GatePose, type Layer, type Scene } from "./motion";
 import { ASSEMBLIES, GX, HEIGHT, MOVES, WIDTH, at, move, type Assembly } from "./view";
-import { MechanismFrame } from "./MechanismFrame";
+import { MechanismFrame } from "../MechanismFrame";
 
 export type { GatePose } from "./motion";
 

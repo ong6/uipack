@@ -1,9 +1,9 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { render } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { CYCLE_LENGTH, LIMIT, MechanismFrame, PASS_CHECK, RETURN_CHECK, VerificationGate, checkAt, sceneAt, stillScene, tallyOf, tallyText, tokenAt, verdictOf, verdictText, RUN_LONG, PERIOD, type GatePose } from "../src/mechanism";
-import { idleScene, liftAt, armAt, IDLE_START } from "../src/mechanism/motion";
-import { BT, GX, LIFTED } from "../src/mechanism/view";
+import { idleScene, liftAt, armAt, IDLE_START } from "../src/mechanism/gate/motion";
+import { BT, GX, LIFTED } from "../src/mechanism/gate/view";
 
 const POSES: GatePose[] = ["idle", "pass", "return", "apart"];
 
@@ -181,8 +181,8 @@ describe("vendored Anatomy kit", () => {
   });
 
   it("keeps Three.js out of the mechanism entry", () => {
-    for (const file of ["index.ts", "VerificationGate.tsx", "geometry.ts", "motion.ts", "solid3.ts", "kit/iso-kit.ts", "kit/draw.tsx", "kit/live.tsx"]) {
-      expect(readFileSync(`src/mechanism/${file}`, "utf8")).not.toMatch(/from "three"|from "gsap"/);
-    }
+    const files = readdirSync("src/mechanism", { recursive: true, encoding: "utf8" }).filter((f) => /\.tsx?$/.test(f));
+    expect(files).toContain("gate/VerificationGate.tsx");
+    for (const file of files) expect(readFileSync(`src/mechanism/${file}`, "utf8")).not.toMatch(/from "three"|from "gsap"/);
   });
 });

@@ -266,9 +266,6 @@
   stroke: var(--anatomy-lit);
   stroke-width: 1.4px;
 }
-.uipack-mechanism .um-limit-dot {
-  fill: var(--anatomy-lit);
-}
 .uipack-mechanism .um-token-mark {
   fill: var(--anatomy-mid);
 }

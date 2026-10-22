@@ -26,9 +26,9 @@ import {
   type Plane,
   type Point3,
   type SolidPaths,
-} from "./kit/iso-kit";
-import { circleIn, faceCircle, prismOf, viewOf } from "./solid3";
-import { LIMIT, SCALE } from "./gate";
+} from "../kit/iso-kit";
+import { circleIn, faceCircle, prismOf, viewOf } from "../solid3";
+import { LIMIT, SCALE } from "./model";
 import {
   APRON,
   APRON_TOP,

@@ -2,10 +2,10 @@
    where every token should be, whether the plunger is lifted, whether the arm
    diverts and what the readout says. The live component follows these targets
    with springs and exponential easing, so a pose change never jumps. */
-import type { Point3 } from "./kit/iso-kit";
-import { checkAt, tallyOf, tallyText, verdictText, PASS_CHECK, RETURN_CHECK, type Check } from "./gate";
+import type { Point3 } from "../kit/iso-kit";
+import { checkAt, tallyOf, tallyText, verdictText, PASS_CHECK, RETURN_CHECK, type Check } from "./model";
 import { ARM_SWING, ASSEMBLIES, BELT_X1, BT, CHUTE_MID, CHUTE_X0, CHUTE_X1, GX, LIFTED, PIVOT, RAIL_OUT, RESULT_TRAY, RETURN_TRAY, TOKEN_R, TRAY_FLOOR, APRON_TOP, chuteTop } from "./view";
-import { smoothstep } from "../zoom-math";
+import { smoothstep } from "../../zoom-math";
 
 export type GatePose = "idle" | "pass" | "return" | "apart";
 export type Layer = "belt" | "chute" | "tray";

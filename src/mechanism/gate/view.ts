@@ -1,7 +1,7 @@
 /* World layout of the verification gate, in world units (about 1 px of the
    real thing): x runs along the belt from the hopper to the result tray, y is
    across it (positive toward the viewer), z is up. */
-import { boxCorners, fitProjection, iso, translateAlong, type Flat, type Plan, type Point3 } from "./kit/iso-kit";
+import { boxCorners, fitProjection, iso, translateAlong, type Flat, type Plan, type Point3 } from "../kit/iso-kit";
 
 export const WIDTH = 600;
 export const HEIGHT = 360;
