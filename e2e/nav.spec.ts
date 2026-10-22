@@ -17,7 +17,7 @@ const title = (page: Page) => page.locator(".showcase-title h1, .showcase-title 
 // Deck sub-views share one page, named before the sub-view.
 const isDeck = (label: string) => ["Tech talk", "Bento", "Consulting"].includes(label);
 const h1Of = (label: string) => (isDeck(label) ? `Deck player · ${label}` : label);
-// The browser tab: the sub-view first. /web hosts a sample page that sets its own head.
+// The browser tab: the sub-view first. /web too: its sample page keeps the rest of its own head.
 const tabOf = (label: string) => (isDeck(label) ? `${label} · Deck player · uipack` : `${label} · uipack`);
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -305,7 +305,7 @@ test.describe("deck sub-views in the 390px menu", () => {
 });
 
 test("each page names itself in the browser tab, deck sub-views included", async ({ page }) => {
-  for (const { label, path } of ALL.filter((p) => p.path !== "/web")) {
+  for (const { label, path } of ALL) {
     await page.goto(path);
     await expect(page).toHaveTitle(tabOf(label));
   }

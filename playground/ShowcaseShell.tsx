@@ -97,11 +97,12 @@ export function ShowcaseShell({
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const mainRef = useRef<HTMLElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  // Every page names itself in the tab. A page that hosts a complete sample page (/web) sets its own head.
+  // Every page names itself in the tab, /web too: the sample page it hosts publishes the rest of its
+  // head (description, canonical, Open Graph, JSON-LD), but the tab says which playground page it is.
   const hostsPage = "hostsPage" in page && page.hostsPage;
   useEffect(() => {
-    if (!hostsPage) document.title = documentTitle(page);
-  }, [page, hostsPage]);
+    document.title = documentTitle(page);
+  }, [page]);
   return (
     <div className="showcase-frame" data-theme={theme} data-style="technical">
       <a
