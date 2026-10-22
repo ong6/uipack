@@ -38,7 +38,14 @@ export const figureSections: FigureSection[] = [
     id: "bare-figure",
     intro: "Use when the host page frames the drawing itself and needs only the canvas. Built from Figure with controls={false}, expandable={false} and no header, legend or caption, here on a ruled background.",
     render: () => (
-      <Figure viewBox="0 0 1120 120" alt="A single node on a ruled canvas." controls={false} expandable={false} background="ruled">
+      <Figure
+        viewBox="0 0 1120 120"
+        narrow={<Node x={60} y={20} w={240} h={40} label="Just a canvas" />}
+        narrowViewBox="0 0 360 80"
+        alt="A single node on a ruled canvas."
+        controls={false}
+        expandable={false}
+        background="ruled">
         <Node x={440} y={40} w={240} h={40} label="Just a canvas" />
       </Figure>
     ),
