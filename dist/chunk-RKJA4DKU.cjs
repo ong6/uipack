@@ -1,11 +1,10 @@
 'use strict';
 
+var chunkGVSVZ2EW_cjs = require('./chunk-GVSVZ2EW.cjs');
+var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
+var react = require('react');
+
 // src/zoom-math.ts
-var easeInOutCubic = (p) => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
-var smoothstep = (a, b, x) => {
-  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
-  return t * t * (3 - 2 * t);
-};
 function zoomFrame(target, width, height) {
   const Z = Math.min(width / target.w, height / target.h);
   if (!Number.isFinite(Z) || Z < 1.05) return null;
@@ -33,8 +32,8 @@ function zoomSamples(target, forward, width, height, { samples = 24, radius = 6 
   const out = [];
   for (let i = 0; i <= samples; i++) {
     const t = i / samples;
-    const p = easeInOutCubic(forward ? t : 1 - t);
-    const clipT = smoothstep(0.15, 0.85, p);
+    const p = chunkGVSVZ2EW_cjs.easeInOutCubic(forward ? t : 1 - t);
+    const clipT = chunkGVSVZ2EW_cjs.smoothstep(0.15, 0.85, p);
     const inset = (v) => (v * (1 - clipT)).toFixed(2);
     out.push({
       offset: t,
@@ -42,14 +41,45 @@ function zoomSamples(target, forward, width, height, { samples = 24, radius = 6 
       outer: `scale(${Math.pow(frame.Z, p).toFixed(5)})`,
       inner: `scale(${Math.pow(frame.Z, p - 1).toFixed(5)})`,
       clip: `inset(${inset(start.top)}px ${inset(start.right)}px ${inset(start.bottom)}px ${inset(start.left)}px round ${(radiusStart * (1 - clipT)).toFixed(2)}px)`,
-      innerOpacity: smoothstep(0.08, 0.4, p)
+      innerOpacity: chunkGVSVZ2EW_cjs.smoothstep(0.08, 0.4, p)
     });
   }
   return out;
 }
+function useLayerFlight(clearLayers) {
+  const anims = react.useRef([]);
+  const generation = react.useRef(0);
+  const clearRef = chunkKV6PPCWS_cjs.useLatest(clearLayers);
+  const settle = react.useCallback(() => {
+    generation.current += 1;
+    for (const a of anims.current) a.cancel();
+    anims.current = [];
+    clearRef.current();
+  }, [clearRef]);
+  const fly = react.useCallback((run, land) => {
+    const at = ++generation.current;
+    for (const a of anims.current) if (!run.includes(a)) a.cancel();
+    anims.current = run;
+    if (!run.length) return land();
+    Promise.all(run.map((a) => a.finished)).then(
+      () => {
+        if (generation.current === at) land();
+      },
+      () => {
+      }
+    );
+  }, []);
+  react.useEffect(() => {
+    const running = anims;
+    return () => {
+      generation.current += 1;
+      for (const a of running.current) a.cancel();
+    };
+  }, []);
+  return { anims, settle, fly };
+}
 
-exports.easeInOutCubic = easeInOutCubic;
 exports.innerClipStart = innerClipStart;
-exports.smoothstep = smoothstep;
+exports.useLayerFlight = useLayerFlight;
 exports.zoomFrame = zoomFrame;
 exports.zoomSamples = zoomSamples;

@@ -1,15 +1,16 @@
-import { useIsoLayoutEffect } from './chunk-KYO6UXHN.js';
-import { useRef, useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { jsx, Fragment, jsxs } from 'react/jsx-runtime';
+'use strict';
+
+var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
+var react = require('react');
+var reactDom = require('react-dom');
+var jsxRuntime = require('react/jsx-runtime');
 
 function useCanvasGestures(ref, open, zoom) {
-  const latest = useRef(zoom);
-  latest.current = zoom;
-  const pending = useRef();
-  const queued = useRef(zoom.value);
-  const frame = useRef(0);
-  useIsoLayoutEffect(() => {
+  const latestRef = chunkKV6PPCWS_cjs.useLatest(zoom);
+  const pending = react.useRef();
+  const queued = react.useRef(zoom.value);
+  const frame = react.useRef(0);
+  chunkKV6PPCWS_cjs.useIsoLayoutEffect(() => {
     queued.current = zoom.value;
     const anchor = pending.current;
     if (!anchor) return;
@@ -20,7 +21,7 @@ function useCanvasGestures(ref, open, zoom) {
     pending.current = void 0;
   }, [zoom.value]);
   const change = (value, point, surface) => {
-    const config = latest.current;
+    const config = latestRef.current;
     const next = Math.max(config.min, Math.min(config.max, value));
     if (next === queued.current) return;
     const viewport = surface?.matches(".uipack__canvas") ? surface : void 0;
@@ -47,9 +48,8 @@ function useCanvasGestures(ref, open, zoom) {
     cancelAnimationFrame(frame.current);
     frame.current = requestAnimationFrame(() => config.onChange(queued.current));
   };
-  const changeRef = useRef(change);
-  changeRef.current = change;
-  useEffect(() => {
+  const changeRef = chunkKV6PPCWS_cjs.useLatest(change);
+  react.useEffect(() => {
     const host = ref.current;
     if (!open || !host) return;
     let safariScale = null;
@@ -145,7 +145,7 @@ function useCanvasGestures(ref, open, zoom) {
       host.removeEventListener("click", click, true);
       host.removeEventListener("pointerup", click, true);
     };
-  }, [open, ref]);
+  }, [open, ref, changeRef]);
   return {
     step: (factor) => change(zoom.value * factor, void 0, ref.current?.querySelector(".uipack__canvas") ?? void 0),
     reset: () => {
@@ -168,12 +168,11 @@ function CanvasView({
   restoreFocus,
   layout
 }) {
-  const content = useRef(null);
+  const content = react.useRef(null);
   const gestures = useCanvasGestures(content, open, zoom);
-  const dialog = useRef(null);
-  const actions = useRef(gestures);
-  actions.current = gestures;
-  useEffect(() => {
+  const dialog = react.useRef(null);
+  const actionsRef = chunkKV6PPCWS_cjs.useLatest(gestures);
+  react.useEffect(() => {
     if (!open) return;
     const keyboard = (event) => {
       const target = event.target;
@@ -182,25 +181,27 @@ function CanvasView({
       if (!dialog.current?.contains(target) && target !== document.body) return;
       if (event.key === "+" || event.key === "=") {
         event.preventDefault();
-        actions.current.step(1.25);
+        actionsRef.current.step(1.25);
       }
       if (event.key === "-") {
         event.preventDefault();
-        actions.current.step(0.8);
+        actionsRef.current.step(0.8);
       }
       if (event.key === "0") {
         event.preventDefault();
-        actions.current.reset();
+        actionsRef.current.reset();
       }
     };
     document.addEventListener("keydown", keyboard);
     return () => document.removeEventListener("keydown", keyboard);
-  }, [open]);
-  const close = useRef(onClose);
-  close.current = onClose;
-  const restore = useRef(restoreFocus);
-  restore.current = restoreFocus;
-  useEffect(() => {
+  }, [open, actionsRef]);
+  const closeRef = chunkKV6PPCWS_cjs.useLatest(onClose);
+  const restoreRef = chunkKV6PPCWS_cjs.useLatest(restoreFocus);
+  const returnFocus = react.useCallback(
+    (opener) => restoreRef.current ? restoreRef.current() : opener?.focus(),
+    [restoreRef]
+  );
+  react.useEffect(() => {
     if (!open) return;
     const opener = document.activeElement;
     const previous = document.body.style.overflow;
@@ -208,10 +209,10 @@ function CanvasView({
     dialog.current?.showModal();
     return () => {
       document.body.style.overflow = previous;
-      requestAnimationFrame(() => restore.current ? restore.current() : opener?.focus());
+      requestAnimationFrame(() => returnFocus(opener));
     };
-  }, [open]);
-  useEffect(() => {
+  }, [open, returnFocus]);
+  react.useEffect(() => {
     const node = dialog.current;
     if (!open || !node) return;
     const source = node.querySelector(".uipack");
@@ -223,9 +224,9 @@ function CanvasView({
       else node.style.removeProperty(name);
     }
   }, [open, theme]);
-  if (!open || typeof document === "undefined") return /* @__PURE__ */ jsx(Fragment, { children });
-  return createPortal(
-    /* @__PURE__ */ jsxs(
+  if (!open || typeof document === "undefined") return /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, { children });
+  return reactDom.createPortal(
+    /* @__PURE__ */ jsxRuntime.jsxs(
       "dialog",
       {
         ref: dialog,
@@ -234,13 +235,13 @@ function CanvasView({
         "aria-label": title,
         onCancel: (e) => {
           e.preventDefault();
-          close.current();
+          closeRef.current();
         },
         children: [
-          /* @__PURE__ */ jsxs("div", { className: "uipack-canvas-toolbar", children: [
-            /* @__PURE__ */ jsx("strong", { children: title }),
-            /* @__PURE__ */ jsxs("div", { children: [
-              /* @__PURE__ */ jsx(
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-canvas-toolbar", children: [
+            /* @__PURE__ */ jsxRuntime.jsx("strong", { children: title }),
+            /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntime.jsx(
                 "button",
                 {
                   type: "button",
@@ -251,7 +252,7 @@ function CanvasView({
                   children: "\u2212"
                 }
               ),
-              /* @__PURE__ */ jsxs(
+              /* @__PURE__ */ jsxRuntime.jsxs(
                 "span",
                 {
                   role: "meter",
@@ -266,7 +267,7 @@ function CanvasView({
                   ]
                 }
               ),
-              /* @__PURE__ */ jsx(
+              /* @__PURE__ */ jsxRuntime.jsx(
                 "button",
                 {
                   type: "button",
@@ -277,12 +278,12 @@ function CanvasView({
                   children: "+"
                 }
               ),
-              /* @__PURE__ */ jsx("button", { type: "button", title: "Reset view (0)", onClick: gestures.reset, children: "Fit" }),
-              /* @__PURE__ */ jsx("button", { type: "button", onClick: onClose, autoFocus: true, children: "Close canvas" })
+              /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", title: "Reset view (0)", onClick: gestures.reset, children: "Fit" }),
+              /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", onClick: onClose, autoFocus: true, children: "Close canvas" })
             ] })
           ] }),
-          /* @__PURE__ */ jsx("p", { className: "uipack-canvas-hint", children: "Pinch to zoom \xB7 Two-finger scroll \xB7 + / \u2212 to zoom \xB7 0 to reset" }),
-          /* @__PURE__ */ jsx("div", { ref: content, className: `uipack-canvas-content${layout ? ` uipack-canvas-content--${layout}` : ""}`, children })
+          /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-canvas-hint", children: "Pinch to zoom \xB7 Two-finger scroll \xB7 + / \u2212 to zoom \xB7 0 to reset" }),
+          /* @__PURE__ */ jsxRuntime.jsx("div", { ref: content, className: `uipack-canvas-content${layout ? ` uipack-canvas-content--${layout}` : ""}`, children })
         ]
       }
     ),
@@ -290,4 +291,4 @@ function CanvasView({
   );
 }
 
-export { CanvasView };
+exports.CanvasView = CanvasView;

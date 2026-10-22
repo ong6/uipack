@@ -5,7 +5,8 @@ import * as react from 'react';
 import { ReactNode } from 'react';
 import { I as IconName } from './index-DwRqkLtz.js';
 export { i as icons } from './index-DwRqkLtz.js';
-export { Z as ZoomFrame, R as ZoomRect, a as ZoomSample, b as ZoomSampleOptions, e as easeInOutCubic, i as innerClipStart, s as smoothstep, z as zoomFrame, c as zoomSamples } from './zoom-math-DNtJhg8j.js';
+export { Z as ZoomFrame, R as ZoomRect, a as ZoomSample, b as ZoomSampleOptions, i as innerClipStart, z as zoomFrame, c as zoomSamples } from './zoom-math-DJBPrdGD.js';
+export { e as easeInOutCubic, s as smoothstep } from './math-DL8QKXOl.js';
 
 interface LaneProps {
     /** Left edge and width of the column the header sits over. */
@@ -337,7 +338,6 @@ declare function Wordmark({ size }: {
 interface FigureScale {
     floor: number;
 }
-declare const FigureScaleContext: react.Context<FigureScale>;
 /** Width a figure is assumed to render at before it is measured (the prose breakout on junxiong.dev). */
 declare const DEFAULT_RENDER_WIDTH = 1088;
 /** User-unit floor for a drawing `vbWidth` wide shown at `renderWidth` CSS px. */
@@ -545,4 +545,4 @@ declare const drillMotion: {
     readonly reduced: 160;
 };
 
-export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, Cross, type CrossProps, DEFAULT_RENDER_WIDTH, DRILL_GROW, Defs, type DefsProps, type DrillAction, DrillFigure, type DrillFigureProps, type DrillFocus, type DrillLevel, type DrillMove, DrillNode, type DrillNodeProps, type DrillPath, type DrillRenderContext, type DrillStaticFigure, type FigureHover, FigureHoverContext, type FigureMotion, FigureMotionContext, type FigureScale, FigureScaleContext, FigureScaleProvider, type Flow, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, LegendItem, type MarkName, Node, type NodeProps, Packet, type PacketProps, type Point, type Side, TokenKind, TokenShape, Wall, type WallProps, Wordmark, anchor, busStub, busStubs, connectorStroke, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, flowList, fontFloor, grid, hoverAttrs, marks, normalizePath as normalizeDrillPath, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFigureMotion, useFontFloor, usePrefersReducedMotion, wallSegments };
+export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, Cross, type CrossProps, DEFAULT_RENDER_WIDTH, DRILL_GROW, Defs, type DefsProps, type DrillAction, DrillFigure, type DrillFigureProps, type DrillFocus, type DrillLevel, type DrillMove, DrillNode, type DrillNodeProps, type DrillPath, type DrillRenderContext, type DrillStaticFigure, type FigureHover, FigureHoverContext, type FigureMotion, FigureMotionContext, type FigureScale, FigureScaleProvider, type Flow, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, LegendItem, type MarkName, Node, type NodeProps, Packet, type PacketProps, type Point, type Side, TokenKind, TokenShape, Wall, type WallProps, Wordmark, anchor, busStub, busStubs, connectorStroke, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, flowList, fontFloor, grid, hoverAttrs, marks, normalizePath as normalizeDrillPath, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFigureMotion, useFontFloor, usePrefersReducedMotion, wallSegments };

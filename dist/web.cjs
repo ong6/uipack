@@ -1,6 +1,7 @@
 'use strict';
 
-var chunkYMPVJRTJ_cjs = require('./chunk-YMPVJRTJ.cjs');
+var chunkGVSVZ2EW_cjs = require('./chunk-GVSVZ2EW.cjs');
+var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
 var jsxRuntime = require('react/jsx-runtime');
 var react = require('react');
 
@@ -138,7 +139,7 @@ function FeatureGrid({ features, spotlight = false }) {
 }
 function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger = 45 }) {
   const ref2 = react.useRef(null);
-  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
+  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
   const [state, setState] = react.useState("static");
   react.useEffect(() => {
     const el = ref2.current;
@@ -219,7 +220,7 @@ function RhymeIcon({ at = 0.5, values = DEFAULT_STAR_VALUES, size = 40 }) {
   const d = curvePath(values, 28, 20, 2);
   const min = Math.min(...values);
   const span = Math.max(...values) - min || 1;
-  const idx = Math.round(Math.max(0, Math.min(1, at)) * (values.length - 1));
+  const idx = Math.round(chunkGVSVZ2EW_cjs.clamp(at) * (values.length - 1));
   const cx = 6 + idx / (values.length - 1) * 28;
   const cy = 10 + 2 + (1 - (values[idx] - min) / span) * 16;
   return /* @__PURE__ */ jsxRuntime.jsxs("svg", { className: "uipack-web-rhyme", viewBox: "0 0 40 40", width: size, height: size, "aria-hidden": "true", focusable: "false", children: [
@@ -345,7 +346,7 @@ function DemoPlayer({
   onStepChange
 }) {
   const timing = react.useMemo(() => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
-  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
+  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
   const rootRef = react.useRef(null);
   const tabsRef = react.useRef(null);
   const [elapsed, setElapsed] = react.useState(0);
@@ -364,7 +365,10 @@ function DemoPlayer({
     io.observe(el);
     return () => io.disconnect();
   }, []);
-  const running = playing && inView && !reduced;
+  const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
+  const frame = reduced ? finalFrame : demoFrame(steps, elapsed, timing, initialMetric);
+  const finished = !loop && frame.done;
+  const running = playing && !finished && inView && !reduced;
   react.useEffect(() => {
     if (!running) return;
     let last = Date.now();
@@ -380,16 +384,11 @@ function DemoPlayer({
     }, TICK_MS);
     return () => clearInterval(timer);
   }, [running, loop, cycle, end]);
-  const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
-  const frame = reduced ? finalFrame : demoFrame(steps, elapsed, timing, initialMetric);
-  const finished = !loop && frame.done;
-  react.useEffect(() => {
-    if (finished) setPlaying(false);
-  }, [finished]);
   const step = steps[frame.step];
+  const stepChangeRef = chunkKV6PPCWS_cjs.useLatest(onStepChange);
   react.useEffect(() => {
-    onStepChange?.(frame.step);
-  }, [frame.step]);
+    stepChangeRef.current?.(frame.step);
+  }, [frame.step, stepChangeRef]);
   const seek = react.useCallback(
     (i) => {
       setElapsed(stepStart(steps, i, timing));
@@ -582,7 +581,7 @@ function useInView(ref2, { threshold = 0, once = false, rootMargin } = {}) {
 function scrollProgressOf(rect, viewport) {
   const total = viewport + rect.height;
   if (total <= 0) return 0;
-  return Math.max(0, Math.min(1, (viewport - rect.top) / total));
+  return chunkGVSVZ2EW_cjs.clamp((viewport - rect.top) / total);
 }
 function useScrollProgress(ref2) {
   const inView = useInView(ref2);
@@ -614,16 +613,21 @@ function useScrollProgress(ref2) {
   return progress;
 }
 function useFinePointer() {
-  const [fine, setFine] = react.useState(false);
-  react.useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    setFine(window.matchMedia("(hover: hover) and (pointer: fine)").matches);
-  }, []);
-  return fine;
+  return react.useSyncExternalStore(subscribeFinePointer, finePointerNow, () => false);
+}
+var FINE_POINTER_QUERY = "(hover: hover) and (pointer: fine)";
+var finePointerQuery = () => typeof window === "undefined" || typeof window.matchMedia !== "function" ? null : window.matchMedia(FINE_POINTER_QUERY);
+var finePointerNow = () => finePointerQuery()?.matches ?? false;
+function subscribeFinePointer(changed) {
+  const query = finePointerQuery();
+  if (!query || typeof query.addEventListener !== "function") return () => {
+  };
+  query.addEventListener("change", changed);
+  return () => query.removeEventListener("change", changed);
 }
 function transitionDocument() {
   const doc = typeof document === "undefined" ? void 0 : document;
-  const reduced = chunkYMPVJRTJ_cjs.prefersReducedMotion();
+  const reduced = chunkKV6PPCWS_cjs.prefersReducedMotion();
   return doc?.startViewTransition && !reduced ? doc : void 0;
 }
 function withViewTransition(update) {
@@ -636,7 +640,6 @@ function withViewTransition(update) {
 }
 var PAINT_STEPS = 40;
 var rand = (min, max) => min + Math.random() * (max - min);
-var smooth = (t) => t * t * (3 - 2 * t);
 var px = (v) => `${Math.round(v * 10) / 10}px`;
 function rollDrips(width, height, duration) {
   const count = Math.max(7, Math.min(26, Math.round(width / 56)));
@@ -657,7 +660,7 @@ function rollDrips(width, height, duration) {
   });
 }
 function paintFrame(t, width, height, drips, duration) {
-  const sheet = smooth(Math.min(1, t / (duration * 0.85))) * (height * 1.14);
+  const sheet = chunkGVSVZ2EW_cjs.smoothstep(0, 1, t / (duration * 0.85)) * (height * 1.14);
   const pos = ["0px 0px"];
   const size = [`${px(width)} ${px(sheet)}`];
   for (const d of drips) {
@@ -762,7 +765,7 @@ function GridBackground({
   spotlight = false
 }) {
   const ref2 = react.useRef(null);
-  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
+  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
   const fine = useFinePointer();
   useParentSpotlight(ref2, spotlight && fine && !reduced);
   return /* @__PURE__ */ jsxRuntime.jsx(
@@ -871,7 +874,7 @@ function DriftingGutters({ contentWidth = 1120, top = 72, minViewport = 1280, dr
 }
 function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div", className = "" }) {
   const ref2 = react.useRef(null);
-  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
+  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
   const [state, setState] = react.useState("static");
   react.useEffect(() => {
     const el = ref2.current;
@@ -907,7 +910,7 @@ function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div", class
 }
 var GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/<>_-";
 function scrambleFrame(text, t, mode, seed = 0) {
-  const p = Math.max(0, Math.min(1, t));
+  const p = chunkGVSVZ2EW_cjs.clamp(t);
   const settled = Math.floor(p * text.length);
   if (mode === "type") return text.slice(0, settled);
   let out = text.slice(0, settled);
@@ -919,7 +922,7 @@ function scrambleFrame(text, t, mode, seed = 0) {
 }
 function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "span", className = "" }) {
   const ref2 = react.useRef(null);
-  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
+  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
   const inView = useInView(ref2, { once: true, threshold: 0.5 });
   const [t, setT] = react.useState(1);
   const [tick, setTick] = react.useState(0);
@@ -961,7 +964,6 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
     }
   );
 }
-var easeOut = (t) => 1 - Math.pow(1 - t, 3);
 function NumberTicker({
   value,
   from = 0,
@@ -974,7 +976,7 @@ function NumberTicker({
   face = "display"
 }) {
   const ref2 = react.useRef(null);
-  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
+  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
   const inView = useInView(ref2, { once: true, threshold: 0.6 });
   const [current, setCurrent] = react.useState(value);
   const [armed, setArmed] = react.useState(false);
@@ -999,7 +1001,7 @@ function NumberTicker({
     show(origin);
     const timer = setInterval(() => {
       const p = Math.min(1, (Date.now() - start) / duration);
-      show(origin + (value - origin) * easeOut(p));
+      show(origin + (value - origin) * chunkGVSVZ2EW_cjs.easeOutCubic(p));
       if (p >= 1) clearInterval(timer);
     }, 32);
     return () => clearInterval(timer);
@@ -1016,10 +1018,9 @@ function Marquee({ items, label, duration = 30, reverse = false }) {
   const ref2 = react.useRef(null);
   const copyRef = react.useRef(null);
   const inView = useInView(ref2);
-  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
+  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
   const [paused, setPaused] = react.useState(false);
-  const [mounted, setMounted] = react.useState(false);
-  react.useEffect(() => setMounted(true), []);
+  const mounted = chunkKV6PPCWS_cjs.useHydrated();
   react.useEffect(() => {
     copyRef.current?.setAttribute("inert", "");
   }, [reduced, mounted]);
@@ -1047,7 +1048,7 @@ function Marquee({ items, label, duration = 30, reverse = false }) {
 }
 function useHoverMotion(apply, reset) {
   const ref2 = react.useRef(null);
-  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
+  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
   const onPointerMove = (e) => {
     if (reduced || e.pointerType !== "mouse" && e.pointerType !== "pen") return;
     const el = ref2.current;
@@ -1095,7 +1096,7 @@ function MagneticButton({ strength = 6, ...button }) {
     }
   );
 }
-var lerp = ([a, b], t) => a + (b - a) * t;
+var rangeAt = ([from, to], t) => chunkGVSVZ2EW_cjs.lerp(from, to, t);
 function ScrollTransform({
   children,
   rotate = [0, 0],
@@ -1105,14 +1106,14 @@ function ScrollTransform({
   className = ""
 }) {
   const ref2 = react.useRef(null);
-  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
+  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
   const raw = useScrollProgress(ref2);
   const t = reduced ? 0.5 : raw;
   const style = {
-    "--st-rotate": `${lerp(rotate, t).toFixed(2)}deg`,
-    "--st-scale": lerp(scale, t).toFixed(3),
-    "--st-y": `${lerp(translateY, t).toFixed(1)}px`,
-    "--st-opacity": lerp(opacity, t).toFixed(3)
+    "--st-rotate": `${rangeAt(rotate, t).toFixed(2)}deg`,
+    "--st-scale": rangeAt(scale, t).toFixed(3),
+    "--st-y": `${rangeAt(translateY, t).toFixed(1)}px`,
+    "--st-opacity": rangeAt(opacity, t).toFixed(3)
   };
   return /* @__PURE__ */ jsxRuntime.jsx("div", { ref: ref2, className: `uipack-web-scrollx ${className}`.trim(), "data-progress": t.toFixed(2), children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-scrollx__inner", style, children }) });
 }
@@ -1123,11 +1124,6 @@ function followRate(lerp2) {
 function followStep(current, target, rate, dt) {
   return target + (current - target) * Math.exp(-rate * Math.max(0, dt));
 }
-function easeOutExpo(t) {
-  if (t <= 0) return 0;
-  if (t >= 1) return 1;
-  return 1 - Math.pow(2, -10 * t);
-}
 var WHEEL_LINE_PX = 40;
 var WHEEL_PAGE_FRACTION = 0.875;
 function normalizeWheel(e, viewport) {
@@ -1136,7 +1132,6 @@ function normalizeWheel(e, viewport) {
     return { x: e.deltaX * viewport.width * WHEEL_PAGE_FRACTION, y: e.deltaY * viewport.height * WHEEL_PAGE_FRACTION };
   return { x: e.deltaX, y: e.deltaY };
 }
-var clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 var SMOOTH_SCROLL_ATTR = "data-uipack-smooth-scroll";
 var SMOOTH_SCROLL_PREVENT_ATTR = "data-smooth-scroll-prevent";
 var SCROLL_KEYS = /* @__PURE__ */ new Set([" ", "PageUp", "PageDown", "ArrowUp", "ArrowDown", "Home", "End"]);
@@ -1166,7 +1161,7 @@ function nativeScrollTo(target, { offset, immediate } = {}) {
   if (!canUseDom()) return;
   const y = resolveTop(target, offset);
   if (y === null) return;
-  window.scrollTo({ top: clamp(y, 0, maxScroll()), behavior: immediate || chunkYMPVJRTJ_cjs.prefersReducedMotion() ? "auto" : "smooth" });
+  window.scrollTo({ top: chunkGVSVZ2EW_cjs.clamp(y, 0, maxScroll()), behavior: immediate || chunkKV6PPCWS_cjs.prefersReducedMotion() ? "auto" : "smooth" });
 }
 function pageOwnsWheel(e) {
   const root = document.documentElement;
@@ -1234,11 +1229,11 @@ function createSmoothScroll({
       const y = resolveTop(aim.el, aim.offset);
       if (y !== null) target = y;
     }
-    target = clamp(target, 0, maxScroll());
+    target = chunkGVSVZ2EW_cjs.clamp(target, 0, maxScroll());
     if (tween) {
       tween.to = target;
-      const t = clamp((now - tween.start) / tween.duration, 0, 1);
-      current = tween.from + (tween.to - tween.from) * easeOutExpo(t);
+      const t = chunkGVSVZ2EW_cjs.clamp((now - tween.start) / tween.duration, 0, 1);
+      current = tween.from + (tween.to - tween.from) * chunkGVSVZ2EW_cjs.easeOutExpo(t);
       if (t >= 1) current = tween.to;
     } else {
       current = followStep(current, target, rate, dt);
@@ -1268,7 +1263,7 @@ function createSmoothScroll({
       tween = null;
       aim = null;
     }
-    target = clamp(target + y * wheelMultiplier, 0, maxScroll());
+    target = chunkGVSVZ2EW_cjs.clamp(target + y * wheelMultiplier, 0, maxScroll());
     run();
   };
   const onScroll = () => {
@@ -1287,7 +1282,7 @@ function createSmoothScroll({
       return;
     }
     current += moved;
-    target = clamp(target + moved, 0, maxScroll());
+    target = chunkGVSVZ2EW_cjs.clamp(target + moved, 0, maxScroll());
     lastSet = y;
   };
   const onKeyDown = (e) => {
@@ -1300,7 +1295,7 @@ function createSmoothScroll({
     if (document.visibilityState === "hidden") stop();
   };
   const onResize = () => {
-    target = clamp(target, 0, maxScroll());
+    target = chunkGVSVZ2EW_cjs.clamp(target, 0, maxScroll());
   };
   const onClick = (e) => {
     if (!anchors || active !== controller || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
@@ -1347,7 +1342,7 @@ function createSmoothScroll({
   };
   const fine = typeof window.matchMedia === "function" ? window.matchMedia(FINE) : null;
   const evaluate = () => {
-    const next = !destroyed && fine !== null && fine.matches && !chunkYMPVJRTJ_cjs.prefersReducedMotion();
+    const next = !destroyed && fine !== null && fine.matches && !chunkKV6PPCWS_cjs.prefersReducedMotion();
     if (next === enabled) return;
     enabled = next;
     if (enabled) attach();
@@ -1366,7 +1361,7 @@ function createSmoothScroll({
       const el = typeof t === "string" ? safeQuery(t) : typeof t === "number" ? null : t;
       const y = resolveTop(el ?? t, options.offset);
       if (y === null) return;
-      const to = clamp(y, 0, maxScroll());
+      const to = chunkGVSVZ2EW_cjs.clamp(y, 0, maxScroll());
       if (options.immediate) {
         stop();
         window.scrollTo(window.scrollX, to);
@@ -1396,7 +1391,7 @@ function createSmoothScroll({
   };
   active = controller;
   if (fine) listen(fine, true);
-  const stopReduced = chunkYMPVJRTJ_cjs.onReducedMotionChange(evaluate);
+  const stopReduced = chunkKV6PPCWS_cjs.onReducedMotionChange(evaluate);
   document.addEventListener("click", onClick);
   evaluate();
   return controller;
@@ -1967,8 +1962,8 @@ function resolveAiCrawlers(policy = "allow-all") {
   return out;
 }
 var LLMS_FULL_PATH = "/llms-full.txt";
-var siteRoot = (site) => {
-  if (!/^https?:\/\//i.test(site)) throw new Error(`buildCrawlFiles: site must be an absolute URL (got "${site}")`);
+var siteRoot = (site, field = "buildCrawlFiles: site") => {
+  if (!/^https?:\/\//i.test(site)) throw new Error(`${field} must be an absolute URL (got "${site}")`);
   return site.endsWith("/") ? site : `${site}/`;
 };
 var pageUrl = (site, path) => new URL(path.replace(/^\//, ""), siteRoot(site)).toString();
@@ -2010,7 +2005,8 @@ function robotsTxt({
   lines.push("", `Sitemap: ${pageUrl(site, sitemapPath)}`, "");
   return lines.join("\n");
 }
-var escapeXml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+var XML_INVALID = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g;
+var escapeXml = (s) => s.replace(XML_INVALID, "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 function formatLastmod(d) {
   if (d instanceof Date) {
     if (Number.isNaN(d.getTime())) throw new Error("sitemap lastmod: invalid Date");
@@ -2084,7 +2080,51 @@ function buildCrawlFiles(o) {
   if (o.pages.some((p) => !p.noindex && p.content?.trim())) files["llms-full.txt"] = llmsFullTxt(o);
   return files;
 }
+function rssDate(d, field) {
+  if (typeof d === "string" && !/^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/.test(d))
+    throw new Error(`${field} must be a Date or ISO 8601, e.g. 2026-10-22 (got "${d}")`);
+  const time = d instanceof Date ? d.getTime() : Date.parse(d);
+  if (Number.isNaN(time)) throw new Error(`${field}: invalid date`);
+  return { time, text: new Date(time).toUTCString() };
+}
+function rssFeed({ title, link, description, items, self, language }) {
+  const root = siteRoot(link, "rssFeed: link");
+  const entries = items.map((item, i) => ({ item, url: pageUrl(root, item.link), date: rssDate(item.pubDate, `rssFeed: items[${i}].pubDate`) })).sort((a, b) => b.date.time - a.date.time);
+  const channel = [
+    `    <title>${escapeXml(oneLine(title))}</title>`,
+    `    <link>${escapeXml(root)}</link>`,
+    `    <description>${escapeXml(oneLine(description))}</description>`
+  ];
+  if (self) channel.push(`    <atom:link href="${escapeXml(pageUrl(root, self))}" rel="self" type="application/rss+xml"/>`);
+  if (language) channel.push(`    <language>${escapeXml(language)}</language>`);
+  if (entries.length) channel.push(`    <lastBuildDate>${entries[0].date.text}</lastBuildDate>`);
+  for (const { item, url, date } of entries) {
+    const guid = item.guid ?? url;
+    const lines = [
+      `      <title>${escapeXml(oneLine(item.title))}</title>`,
+      `      <link>${escapeXml(url)}</link>`,
+      `      <guid isPermaLink="${guid === url ? "true" : "false"}">${escapeXml(guid)}</guid>`,
+      `      <pubDate>${date.text}</pubDate>`
+    ];
+    if (item.description) lines.push(`      <description>${escapeXml(item.description.trim())}</description>`);
+    channel.push(`    <item>
+${lines.join("\n")}
+    </item>`);
+  }
+  const atom = self ? ' xmlns:atom="http://www.w3.org/2005/Atom"' : "";
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"${atom}>
+  <channel>
+${channel.join("\n")}
+  </channel>
+</rss>
+`;
+}
 
+Object.defineProperty(exports, "easeOutExpo", {
+  enumerable: true,
+  get: function () { return chunkGVSVZ2EW_cjs.easeOutExpo; }
+});
 exports.AI_CRAWLERS = AI_CRAWLERS;
 exports.Aurora = Aurora;
 exports.BackgroundFrame = BackgroundFrame;
@@ -2148,7 +2188,6 @@ exports.curvePath = curvePath;
 exports.demoCycle = demoCycle;
 exports.demoEnd = demoEnd;
 exports.demoFrame = demoFrame;
-exports.easeOutExpo = easeOutExpo;
 exports.faqPage = faqPage;
 exports.followRate = followRate;
 exports.followStep = followStep;
@@ -2172,6 +2211,7 @@ exports.profilePage = profilePage;
 exports.ref = ref;
 exports.resolveAiCrawlers = resolveAiCrawlers;
 exports.robotsTxt = robotsTxt;
+exports.rssFeed = rssFeed;
 exports.scrambleFrame = scrambleFrame;
 exports.scrollProgressOf = scrollProgressOf;
 exports.serializeJsonLd = serializeJsonLd;

@@ -1,7 +1,7 @@
 'use strict';
 
-var chunk5QNGHC2A_cjs = require('./chunk-5QNGHC2A.cjs');
-var chunkYMPVJRTJ_cjs = require('./chunk-YMPVJRTJ.cjs');
+var chunk2JULAQB4_cjs = require('./chunk-2JULAQB4.cjs');
+var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
 
@@ -103,13 +103,242 @@ function transferObjectVariant(from, to, variant) {
   const direction = objectDirectionIndex(from, variant);
   return to === "contact" ? direction === 2 ? 4 : direction === 3 ? 3 : 0 : direction;
 }
+
+// src/objects/mount.ts
+var REST_START_MS = 5400;
+var NARROW_STAGE_PX = 480;
+var MOBILE_FRAME_MS = 1e3 / 30;
+function disposeScene(scene) {
+  scene.traverse((item) => {
+    item.userData.dispose?.();
+    item.shadow?.dispose();
+    const drawable = item;
+    drawable.geometry?.dispose();
+    const materials = Array.isArray(drawable.material) ? drawable.material : drawable.material ? [drawable.material] : [];
+    materials.forEach((entry) => {
+      entry.map?.dispose();
+      entry.dispose();
+    });
+  });
+}
+function mountObjectScene(canvas, options) {
+  const { kind, colors, variant, edition, modelUrl, flags, host, onReady, onCompleted, onReplayed } = options;
+  let disposed = false;
+  let contextLost = false;
+  let frame = null;
+  let renderer;
+  let environment;
+  let scene;
+  let resizeObserver;
+  let viewportObserver;
+  let inViewport = true;
+  const loaded = {};
+  const stop = () => {
+    if (frame) cancelAnimationFrame(frame);
+    frame = null;
+  };
+  const handleContextLost = (event) => {
+    event.preventDefault();
+    contextLost = true;
+    stop();
+    canvas.dataset.renderer = "fallback";
+    onReady(false);
+  };
+  canvas.addEventListener("webglcontextlost", handleContextLost);
+  Promise.all([import('three'), import('./scenes-XSA64DFZ.cjs'), import('three/addons/environments/RoomEnvironment.js')]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
+    if (disposed) return;
+    try {
+      const gl = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: "default"
+      });
+      renderer = gl;
+      gl.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+      gl.outputColorSpace = THREE.SRGBColorSpace;
+      const world = new THREE.Scene();
+      scene = world;
+      const room = new RoomEnvironment();
+      const pmrem = new THREE.PMREMGenerator(gl);
+      environment = pmrem.fromScene(room, 0.04);
+      world.environment = environment.texture;
+      world.environmentIntensity = variant === 5 ? 0.85 : 0.35;
+      room.dispose();
+      pmrem.dispose();
+      const camera = new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 100);
+      camera.position.set(0, variant === 4 && kind !== "contact" ? -0.15 : 0, 10);
+      const object = await createObject(kind, colors, variant, edition, modelUrl);
+      if (disposed || contextLost) {
+        disposeObject(object);
+        return;
+      }
+      canvas.dataset.source = object.userData.source ?? "procedural";
+      canvas.dataset.artDirection = object.userData.style;
+      const shadows = kind === "tennis" || variant !== 0 && variant !== 5;
+      if (variant !== 0 && variant !== 5)
+        object.traverse((item) => {
+          if (item instanceof THREE.Mesh) {
+            item.castShadow = true;
+            item.receiveShadow = true;
+          }
+        });
+      if (shadows) {
+        gl.shadowMap.enabled = true;
+        gl.shadowMap.type = THREE.PCFSoftShadowMap;
+      }
+      world.add(object, new THREE.HemisphereLight(16119019, 5859192, 2));
+      const key = new THREE.DirectionalLight(16773852, 2.5);
+      key.position.set(-3, 5, 7);
+      key.castShadow = shadows;
+      key.shadow.mapSize.set(1024, 1024);
+      Object.assign(key.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4 });
+      key.shadow.normalBias = 0.025;
+      key.shadow.bias = -3e-4;
+      gl.toneMapping = THREE.ACESFilmicToneMapping;
+      gl.toneMappingExposure = 1.05;
+      world.add(key);
+      const rim = new THREE.DirectionalLight(13032959, 1.4);
+      rim.position.set(4, 2, -3);
+      world.add(rim);
+      const loopDuration = object.userData.loopDuration;
+      const restTime = object.userData.restTime ?? REST_START_MS;
+      canvas.dataset.playback = loopDuration ? "loop" : "once";
+      let frames = 0;
+      let elapsed = 0;
+      let lastTickAt;
+      let lastPaintAt = -Infinity;
+      const frameInterval = window.matchMedia("(max-width: 767px)").matches ? MOBILE_FRAME_MS : 0;
+      const paint = (sceneTime, time) => {
+        object.userData.animate?.(sceneTime);
+        gl.render(world, camera);
+        canvas.dataset.drawCalls = String(gl.info.render.calls);
+        canvas.dataset.triangles = String(gl.info.render.triangles);
+        lastPaintAt = frameInterval ? time - (Number.isFinite(lastPaintAt) ? (time - lastPaintAt) % frameInterval : 0) : time;
+        frames += 1;
+        canvas.dataset.frames = String(frames);
+        const phase = flags.reduced ? "rest" : object.userData.phase;
+        canvas.dataset.phase = phase;
+        canvas.dataset.pose = object.userData.pose.toFixed(3);
+        const root = host();
+        if (root) root.dataset.phase = phase;
+      };
+      const render = (time = 0) => {
+        frame = null;
+        if (disposed || contextLost) return;
+        if (document.hidden || !inViewport) {
+          lastTickAt = void 0;
+          return;
+        }
+        if (lastTickAt !== void 0) elapsed += Math.min(time - lastTickAt, 50);
+        lastTickAt = time;
+        const completing = !loopDuration && !flags.reduced && elapsed >= REST_START_MS && !flags.completed;
+        const shouldPaint = completing || time - lastPaintAt >= frameInterval;
+        if (shouldPaint) {
+          paint(flags.reduced ? restTime : completing ? REST_START_MS : elapsed, time);
+        }
+        if (completing) {
+          flags.completed = true;
+          onCompleted();
+        }
+        if (flags.active && !flags.paused && !flags.reduced && !flags.completed) {
+          frame = requestAnimationFrame(render);
+        }
+      };
+      loaded.settle = () => paint(restTime, performance.now());
+      loaded.draw = () => {
+        if (!frame && !disposed) frame = requestAnimationFrame(render);
+      };
+      loaded.resume = () => {
+        lastTickAt = void 0;
+        loaded.draw?.();
+      };
+      loaded.replay = () => {
+        elapsed = 0;
+        lastTickAt = void 0;
+        lastPaintAt = -Infinity;
+        flags.completed = false;
+        flags.paused = false;
+        onReplayed();
+        loaded.draw?.();
+      };
+      const resize = () => {
+        const width = canvas.clientWidth || 1;
+        const height = canvas.clientHeight || 1;
+        gl.setSize(width, height, false);
+        const aspect = width / height;
+        const narrow = width < NARROW_STAGE_PX ? object.userData.narrowFrame : void 0;
+        const halfWidth = narrow?.halfWidth ?? (variant === 4 && kind !== "contact" ? 2.15 : kind === "server" && variant === 0 ? 3.25 : 2.65);
+        const halfHeight = Math.max(
+          narrow?.halfHeight ?? (variant === 4 && kind !== "contact" ? 1.75 : 2.2),
+          halfWidth / aspect
+        );
+        camera.position.y = narrow?.y ?? (variant === 4 && kind !== "contact" ? -0.15 : 0);
+        camera.left = -halfHeight * aspect;
+        camera.right = halfHeight * aspect;
+        camera.top = halfHeight;
+        camera.bottom = -halfHeight;
+        camera.zoom = flags.zoom;
+        camera.updateProjectionMatrix();
+        gl.render(world, camera);
+      };
+      loaded.resize = resize;
+      resizeObserver = new ResizeObserver(resize);
+      resizeObserver.observe(canvas);
+      viewportObserver = new IntersectionObserver(([entry]) => {
+        inViewport = entry.isIntersecting;
+        if (!inViewport) {
+          stop();
+          lastTickAt = void 0;
+        } else if (flags.active && !flags.paused && !flags.completed && !flags.reduced) {
+          loaded.resume?.();
+        }
+      });
+      viewportObserver.observe(canvas);
+      resize();
+      canvas.dataset.renderer = "webgl";
+      onReady(true);
+      if (flags.reduced) render();
+      else if (flags.active) loaded.draw();
+    } catch {
+      canvas.dataset.renderer = "fallback";
+    }
+  }).catch(() => {
+    if (!disposed) {
+      canvas.dataset.renderer = "fallback";
+      onReady(false);
+    }
+  });
+  const visibility = () => {
+    if (!document.hidden && !flags.paused && !flags.completed && !flags.reduced) loaded.resume?.();
+  };
+  document.addEventListener("visibilitychange", visibility);
+  return {
+    draw: () => loaded.draw?.(),
+    resume: () => loaded.resume?.(),
+    replay: () => loaded.replay?.(),
+    settle: () => loaded.settle?.(),
+    resize: () => loaded.resize?.(),
+    stop,
+    dispose: () => {
+      document.removeEventListener("visibilitychange", visibility);
+      disposed = true;
+      for (const name of Object.keys(loaded)) delete loaded[name];
+      canvas.removeEventListener("webglcontextlost", handleContextLost);
+      stop();
+      resizeObserver?.disconnect();
+      viewportObserver?.disconnect();
+      if (scene) disposeScene(scene);
+      environment?.dispose();
+      renderer?.dispose();
+      renderer?.forceContextLoss();
+    }
+  };
+}
 var objectPalettes = {
   light: { paper: 15986663, ink: 2698802, muted: 10136485, accent: 2121545 },
   dark: { paper: 14212825, ink: 3755080, muted: 8492426, accent: 7454115 }
 };
-var REST_START_MS = 5400;
-var NARROW_STAGE_PX = 480;
-var MOBILE_FRAME_MS = 1e3 / 30;
 var styles = {
   scene: "uipack-object",
   canvas: "uipack-object__canvas",
@@ -227,278 +456,72 @@ function ObjectStage({
 }) {
   const hostRef = react.useRef(null);
   const canvasRef = react.useRef(null);
-  const frameRef = react.useRef(null);
-  const drawRef = react.useRef(null);
-  const replayRef = react.useRef(null);
-  const resumeRef = react.useRef(null);
-  const activeRef = react.useRef(active);
-  const pausedRef = react.useRef(false);
-  const completedRef = react.useRef(false);
-  const reducedRef = react.useRef(false);
-  const settleRef = react.useRef(null);
   const [ready, setReady] = react.useState(false);
   const [paused, setPaused] = react.useState(false);
   const [completed, setCompleted] = react.useState(false);
-  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
-  const colorMode = theme;
-  const zoomRef = react.useRef(zoom);
-  zoomRef.current = zoom;
-  const resizeRef = react.useRef(null);
+  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
+  const flagsRef = react.useRef({ active, paused: false, completed: false, reduced: false, zoom });
+  const sceneRef = react.useRef(null);
+  const paletteKey = palette ? JSON.stringify(palette) : "";
+  const resolvedVariant = variant === "random" ? 0 : variant;
   react.useEffect(() => {
-    resizeRef.current?.();
+    flagsRef.current.zoom = zoom;
+    sceneRef.current?.resize();
   }, [zoom]);
   react.useEffect(() => {
-    reducedRef.current = reduced;
+    const flags = flagsRef.current;
+    flags.reduced = reduced;
     if (reduced) {
-      settleRef.current?.();
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current);
-        frameRef.current = null;
-      }
-    } else if (activeRef.current && !pausedRef.current && !completedRef.current) resumeRef.current?.();
+      sceneRef.current?.settle();
+      sceneRef.current?.stop();
+    } else if (flags.active && !flags.paused && !flags.completed) sceneRef.current?.resume();
   }, [reduced]);
   react.useEffect(() => {
-    activeRef.current = active;
-    if (active && !pausedRef.current && !reducedRef.current) drawRef.current?.();
+    const flags = flagsRef.current;
+    flags.active = active;
+    if (active && !flags.paused && !flags.reduced) sceneRef.current?.draw();
   }, [active]);
   react.useEffect(() => {
-    if (!active || !canvasRef.current) {
+    const canvas = canvasRef.current;
+    if (!active || !canvas) {
       setReady(false);
       return void 0;
     }
     setReady(false);
-    pausedRef.current = false;
-    completedRef.current = false;
+    flagsRef.current.paused = false;
+    flagsRef.current.completed = false;
     setPaused(false);
     setCompleted(false);
-    let disposed = false;
-    let contextLost = false;
-    let renderer;
-    let environment;
-    let scene;
-    let resizeObserver;
-    let viewportObserver;
-    let inViewport = true;
-    const canvas = canvasRef.current;
-    const handleContextLost = (event) => {
-      event.preventDefault();
-      contextLost = true;
-      if (frameRef.current) cancelAnimationFrame(frameRef.current);
-      frameRef.current = null;
-      canvas.dataset.renderer = "fallback";
-      setReady(false);
-    };
-    canvas.addEventListener("webglcontextlost", handleContextLost);
-    Promise.all([import('three'), import('./scenes-RKLMAJWZ.cjs'), import('three/addons/environments/RoomEnvironment.js')]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
-      if (disposed) return;
-      try {
-        renderer = new THREE.WebGLRenderer({
-          canvas,
-          alpha: true,
-          antialias: true,
-          powerPreference: "default"
-        });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-        renderer.outputColorSpace = THREE.SRGBColorSpace;
-        scene = new THREE.Scene();
-        const room = new RoomEnvironment();
-        const pmrem = new THREE.PMREMGenerator(renderer);
-        environment = pmrem.fromScene(room, 0.04);
-        scene.environment = environment.texture;
-        scene.environmentIntensity = variant === 5 ? 0.85 : 0.35;
-        room.dispose();
-        pmrem.dispose();
-        const camera = new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 100);
-        camera.position.set(0, variant === 4 && kind !== "contact" ? -0.15 : 0, 10);
-        const colors = palette ?? objectPalettes[colorMode];
-        const object = await createObject(kind, colors, variant === "random" ? 0 : variant, edition, modelUrl);
-        if (disposed || contextLost) {
-          disposeObject(object);
-          return;
-        }
-        canvas.dataset.source = object.userData.source ?? "procedural";
-        canvas.dataset.artDirection = object.userData.style;
-        const shadows = kind === "tennis" || variant !== 0 && variant !== 5;
-        if (variant !== 0 && variant !== 5)
-          object.traverse((item) => {
-            if (item instanceof THREE.Mesh) {
-              item.castShadow = true;
-              item.receiveShadow = true;
-            }
-          });
-        if (shadows) {
-          renderer.shadowMap.enabled = true;
-          renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        }
-        scene.add(object, new THREE.HemisphereLight(16119019, 5859192, 2));
-        const key = new THREE.DirectionalLight(16773852, 2.5);
-        key.position.set(-3, 5, 7);
-        key.castShadow = shadows;
-        key.shadow.mapSize.set(1024, 1024);
-        Object.assign(key.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4 });
-        key.shadow.normalBias = 0.025;
-        key.shadow.bias = -3e-4;
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.05;
-        scene.add(key);
-        const rim = new THREE.DirectionalLight(13032959, 1.4);
-        rim.position.set(4, 2, -3);
-        scene.add(rim);
-        const loopDuration = object.userData.loopDuration;
-        const restTime = object.userData.restTime ?? REST_START_MS;
-        canvas.dataset.playback = loopDuration ? "loop" : "once";
-        let frames = 0;
-        let elapsed = 0;
-        let lastTickAt;
-        let lastPaintAt = -Infinity;
-        const frameInterval = window.matchMedia("(max-width: 767px)").matches ? MOBILE_FRAME_MS : 0;
-        const paint = (sceneTime, time) => {
-          object.userData.animate?.(sceneTime);
-          renderer.render(scene, camera);
-          canvas.dataset.drawCalls = String(renderer.info.render.calls);
-          canvas.dataset.triangles = String(renderer.info.render.triangles);
-          lastPaintAt = frameInterval ? time - (Number.isFinite(lastPaintAt) ? (time - lastPaintAt) % frameInterval : 0) : time;
-          frames += 1;
-          canvas.dataset.frames = String(frames);
-          canvas.dataset.phase = reducedRef.current ? "rest" : object.userData.phase;
-          canvas.dataset.pose = object.userData.pose.toFixed(3);
-          if (hostRef.current) hostRef.current.dataset.phase = reducedRef.current ? "rest" : object.userData.phase;
-        };
-        settleRef.current = () => {
-          paint(restTime, performance.now());
-        };
-        const render = (time = 0) => {
-          frameRef.current = null;
-          if (disposed || contextLost) return;
-          if (document.hidden || !inViewport) {
-            lastTickAt = void 0;
-            return;
-          }
-          if (lastTickAt !== void 0) elapsed += Math.min(time - lastTickAt, 50);
-          lastTickAt = time;
-          const completing = !loopDuration && !reducedRef.current && elapsed >= REST_START_MS && !completedRef.current;
-          const shouldPaint = completing || time - lastPaintAt >= frameInterval;
-          if (shouldPaint) {
-            paint(reducedRef.current ? restTime : completing ? REST_START_MS : elapsed, time);
-          }
-          if (completing) {
-            completedRef.current = true;
-            setCompleted(true);
-          }
-          if (activeRef.current && !pausedRef.current && !reducedRef.current && !completedRef.current) {
-            frameRef.current = requestAnimationFrame(render);
-          }
-        };
-        drawRef.current = () => {
-          if (!frameRef.current && !disposed) frameRef.current = requestAnimationFrame(render);
-        };
-        resumeRef.current = () => {
-          lastTickAt = void 0;
-          drawRef.current?.();
-        };
-        replayRef.current = () => {
-          elapsed = 0;
-          lastTickAt = void 0;
-          lastPaintAt = -Infinity;
-          completedRef.current = false;
-          pausedRef.current = false;
-          setCompleted(false);
-          setPaused(false);
-          drawRef.current?.();
-        };
-        const resize = () => {
-          const width = canvas.clientWidth || 1;
-          const height = canvas.clientHeight || 1;
-          renderer.setSize(width, height, false);
-          const aspect = width / height;
-          const narrow = width < NARROW_STAGE_PX ? object.userData.narrowFrame : void 0;
-          const halfWidth = narrow?.halfWidth ?? (variant === 4 && kind !== "contact" ? 2.15 : kind === "server" && variant === 0 ? 3.25 : 2.65);
-          const halfHeight = Math.max(
-            narrow?.halfHeight ?? (variant === 4 && kind !== "contact" ? 1.75 : 2.2),
-            halfWidth / aspect
-          );
-          camera.position.y = narrow?.y ?? (variant === 4 && kind !== "contact" ? -0.15 : 0);
-          camera.left = -halfHeight * aspect;
-          camera.right = halfHeight * aspect;
-          camera.top = halfHeight;
-          camera.bottom = -halfHeight;
-          camera.zoom = zoomRef.current;
-          camera.updateProjectionMatrix();
-          renderer.render(scene, camera);
-        };
-        resizeRef.current = resize;
-        resizeObserver = new ResizeObserver(resize);
-        resizeObserver.observe(canvas);
-        viewportObserver = new IntersectionObserver(([entry]) => {
-          inViewport = entry.isIntersecting;
-          if (!inViewport) {
-            if (frameRef.current) cancelAnimationFrame(frameRef.current);
-            frameRef.current = null;
-            lastTickAt = void 0;
-          } else if (activeRef.current && !pausedRef.current && !completedRef.current && !reducedRef.current) {
-            resumeRef.current?.();
-          }
-        });
-        viewportObserver.observe(canvas);
-        resize();
-        canvas.dataset.renderer = "webgl";
-        setReady(true);
-        if (reducedRef.current) render();
-        else if (activeRef.current) drawRef.current?.();
-      } catch {
-        canvas.dataset.renderer = "fallback";
-      }
-    }).catch(() => {
-      if (!disposed) {
-        canvas.dataset.renderer = "fallback";
-        setReady(false);
+    const scene = mountObjectScene(canvas, {
+      kind,
+      colors: paletteKey ? JSON.parse(paletteKey) : objectPalettes[theme],
+      variant: resolvedVariant,
+      edition,
+      modelUrl,
+      flags: flagsRef.current,
+      host: () => hostRef.current,
+      onReady: setReady,
+      onCompleted: () => setCompleted(true),
+      onReplayed: () => {
+        setCompleted(false);
+        setPaused(false);
       }
     });
-    const visibility = () => {
-      if (!document.hidden && !pausedRef.current && !completedRef.current && !reducedRef.current) resumeRef.current?.();
-    };
-    document.addEventListener("visibilitychange", visibility);
+    sceneRef.current = scene;
     return () => {
-      document.removeEventListener("visibilitychange", visibility);
-      resizeRef.current = null;
-      settleRef.current = null;
-      disposed = true;
-      canvas.removeEventListener("webglcontextlost", handleContextLost);
-      if (frameRef.current) cancelAnimationFrame(frameRef.current);
-      frameRef.current = null;
-      resizeObserver?.disconnect();
-      viewportObserver?.disconnect();
-      if (scene)
-        scene.traverse((item) => {
-          item.userData.dispose?.();
-          item.shadow?.dispose();
-          const drawable = item;
-          drawable.geometry?.dispose();
-          const materials = Array.isArray(drawable.material) ? drawable.material : drawable.material ? [drawable.material] : [];
-          materials.forEach((entry) => {
-            entry.map?.dispose();
-            entry.dispose();
-          });
-        });
-      environment?.dispose();
-      renderer?.dispose();
-      renderer?.forceContextLoss();
-      drawRef.current = null;
-      replayRef.current = null;
-      resumeRef.current = null;
+      sceneRef.current = null;
+      scene.dispose();
     };
-  }, [active, kind, colorMode, palette, variant, edition, modelUrl]);
+  }, [active, kind, theme, paletteKey, resolvedVariant, edition, modelUrl]);
   const togglePaused = () => {
-    const next = !pausedRef.current;
-    pausedRef.current = next;
+    const flags = flagsRef.current;
+    const next = !flags.paused;
+    flags.paused = next;
     setPaused(next);
-    if (next && frameRef.current) {
-      cancelAnimationFrame(frameRef.current);
-      frameRef.current = null;
-    }
-    if (!next) resumeRef.current?.();
+    if (next) sceneRef.current?.stop();
+    else sceneRef.current?.resume();
   };
-  const replay = () => replayRef.current?.();
+  const replay = () => sceneRef.current?.replay();
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
@@ -534,17 +557,17 @@ function ObjectStage({
 function ObjectScene(props) {
   const [open, setOpen] = react.useState(false), [zoom, setZoom] = react.useState(1);
   const opener = react.useRef(null);
-  const [randomVariant, setRandomVariant] = react.useState(null);
+  const [pick, setPick] = react.useState(null);
   react.useEffect(() => {
-    setRandomVariant(chooseObjectVariant(Math.random, props.kind === "contact" ? 5 : objectDirections.length));
+    setPick({ roll: Math.random(), turns: 0 });
   }, []);
+  const looks = props.kind === "contact" ? 5 : objectDirections.length;
+  const randomVariant = pick === null ? null : (chooseObjectVariant(() => pick.roll, looks) + pick.turns) % looks;
   const canVary = props.variant === void 0 || props.variant === "random";
   const controls = props.controls ?? "full";
   const chosenVariant = canVary ? randomVariant : props.variant;
   const variant = chosenVariant === null ? null : normalizeObjectVariant(props.kind, chosenVariant);
-  const anotherLook = () => setRandomVariant(
-    (current) => ((current ?? 0) + 1) % (props.kind === "contact" ? 5 : objectDirections.length)
-  );
+  const anotherLook = () => setPick((current) => current && { ...current, turns: current.turns + 1 });
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-object-frame", "data-theme": props.theme ?? "light", "data-controls": controls, children: [
     controls === "full" && variant !== null && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-object-edition", children: [
       /* @__PURE__ */ jsxRuntime.jsx("span", { children: variant === 0 && props.kind !== "contact" ? `Studio \xB7 ${objectEditions[props.kind][props.edition ?? 0]}` : objectVariants[props.kind][variant] }),
@@ -552,7 +575,7 @@ function ObjectScene(props) {
     ] }),
     controls === "full" && /* @__PURE__ */ jsxRuntime.jsx("button", { ref: opener, type: "button", className: "uipack-object-open", onClick: () => setOpen(true), children: "Open canvas" }),
     /* @__PURE__ */ jsxRuntime.jsx(
-      chunk5QNGHC2A_cjs.CanvasView,
+      chunk2JULAQB4_cjs.CanvasView,
       {
         open,
         onClose: () => setOpen(false),
@@ -634,12 +657,12 @@ function AnimationWorkspace({
 }
 function ObjectInspector({
   kind,
-  variant,
+  variant: requested,
   edition = 0,
   onVariantChange,
   onEditionChange
 }) {
-  variant = normalizeObjectVariant(kind, variant);
+  const variant = normalizeObjectVariant(kind, requested);
   const contact = kind === "contact";
   return /* @__PURE__ */ jsxRuntime.jsxs("aside", { className: "uipack-object-inspector", children: [
     /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
@@ -678,14 +701,14 @@ function ObjectInspector({
 }
 function ObjectGallery({
   kind,
-  variant = 0,
+  variant: requested = 0,
   edition = 0,
   theme = "light",
   palette,
   modelUrl,
   onChange
 }) {
-  variant = normalizeObjectVariant(kind, variant);
+  const variant = normalizeObjectVariant(kind, requested);
   const scene = objectScenes.find((item) => item.id === kind);
   return /* @__PURE__ */ jsxRuntime.jsxs(
     AnimationWorkspace,
@@ -693,7 +716,7 @@ function ObjectGallery({
       theme,
       library: /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
         /* @__PURE__ */ jsxRuntime.jsx("h3", { children: "Object library" }),
-        /* @__PURE__ */ jsxRuntime.jsx("nav", { "aria-label": "Choose an object", className: "uipack-scene-list", onFocus: chunkYMPVJRTJ_cjs.keepFocusedInView, children: objectScenes.map((item) => /* @__PURE__ */ jsxRuntime.jsxs(
+        /* @__PURE__ */ jsxRuntime.jsx("nav", { "aria-label": "Choose an object", className: "uipack-scene-list", onFocus: chunkKV6PPCWS_cjs.keepFocusedInView, children: objectScenes.map((item) => /* @__PURE__ */ jsxRuntime.jsxs(
           "button",
           {
             type: "button",

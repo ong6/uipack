@@ -2,7 +2,7 @@ import * as react from 'react';
 import { ReactNode, ElementType, CSSProperties, ReactElement } from 'react';
 import { S as SpeechGuide } from './speech-BOroEnEA.cjs';
 export { W as WORDS_PER_MINUTE } from './speech-BOroEnEA.cjs';
-import { R as Rect, Z as ZoomFrame, a as ZoomSample } from './zoom-math-DNtJhg8j.cjs';
+import { R as Rect, Z as ZoomFrame } from './zoom-math-DJBPrdGD.cjs';
 
 type DeckTheme = "light" | "dark";
 /**
@@ -75,58 +75,10 @@ interface ResolvedTransition {
     zoom?: string;
 }
 /**
- * The transition between two positions. Adjacent moves use the later slide's transition, so going
- * back reverses the way you came in. Jumps (overview, Home/End) crossfade.
- */
-declare function resolveTransition(from: number, to: number, transitionOf: (index: number) => DeckTransition | undefined, fallback?: DeckTransition): ResolvedTransition;
-/**
  * The deck's zoom is the shared fixed-point zoom (`zoomFrame` in the root entry) on the 1920×1080
  * canvas. Named apart from the root's, whose third argument is a width, not a sample count.
  */
 declare const slideZoomFrame: (target: Rect, width?: number, height?: number) => ZoomFrame | null;
-/**
- * Sampled keyframes for a zoom on the slide canvas. `forward` flies in; backwards plays the same
- * path out. Scale is even in log space (Z^p) and p follows `deckMotion.camera`, so the camera is
- * visibly moving by 10% of the clock while the slide around the target clears, rather than
- * holding still and then jumping. The clip opens to the full 16:9 frame by 40% of the way in
- * (about 27% of the clock), so the incoming slide is never cropped for long, and both layers pan
- * as needed so the opening slide never runs off the canvas edge.
- */
-declare function slideZoomSamples(target: Rect, forward: boolean, samples?: number, width?: number, height?: number): ZoomSample[] | null;
-/**
- * FLIP: the transform that puts an element laid out at `to` where it was at `from`.
- * `scale` converts screen pixels back to canvas pixels. Similar shapes scale uniformly so text
- * keeps its proportions; differently shaped boxes stretch.
- */
-declare function flipFrom(from: Rect, to: Rect, scale: number, fit?: "auto" | "uniform" | "stretch", 
-/** For text: the font-size ratio. Text may rewrap between slides, so its box shape is no guide. */
-textScale?: number): {
-    transform: string;
-};
-interface RunOptions {
-    transition: ResolvedTransition;
-    from: HTMLElement;
-    to: HTMLElement;
-    direction: 1 | -1;
-    /** Screen pixels per canvas pixel. */
-    scale: number;
-    reducedMotion: boolean;
-}
-/** Start a transition between two mounted layers. Returns the animations so a caller can cancel them. */
-declare function runTransition(opts: RunOptions): Animation[];
-
-/**
- * The content layer for decks: what each slide is for, proven storylines for the decks an engineer
- * gives inside a company, and a linter for the argument (not the pixels).
- *
- * Plain data and pure functions: no React, no DOM, no runtime imports but the shared speaking pace
- * (src/speech.ts). Everything here serialises
- * to JSON, so a CLI, an editor panel or the player's speaker view can all read it.
- *
- * Practice it encodes: answer first (Minto's pyramid), SCQA for decisions, action titles that
- * read as claims, the ghost-deck test (the titles alone tell the argument), one idea per slide,
- * numbers that carry a source, and a closing ask with a decision, an owner and a date.
- */
 
 /**
  * The job a slide does in the argument. Thirteen roles cover every beat of the six storylines
@@ -146,6 +98,46 @@ declare const SLIDE_ROLES: Readonly<Record<SlideRole, SlideRoleInfo>>;
 declare const REPEATABLE_ROLES: readonly SlideRole[];
 /** How a beat should arrive in the deck player: one of its authored transitions. `advance` unless the story needs the other two. */
 type StoryMove = Extract<TransitionKind, "advance" | "morph" | "zoom">;
+
+/**
+ * The minimal slide shape the linter reads. A `DeckSlide` already fits; add `role`, and
+ * `headline` when the visible action title differs from the short overview `title`.
+ */
+interface StorySlide {
+    id: string;
+    /** Short name. Used as the action title when `headline` is absent. */
+    title: string;
+    role?: SlideRole;
+    /** Talk track. A string is treated as `say`. */
+    notes?: SpeechGuide | string;
+    /** The action title shown on the slide. */
+    headline?: string;
+    /** On-slide source line for the slide's numbers. */
+    source?: string;
+}
+type LintSeverity = "error" | "warn" | "tip";
+type LintRule = "deck-empty" | "duplicate-id" | "title-present" | "title-claim" | "title-length" | "title-specific" | "one-idea" | "notes-present" | "number-source" | "roles-missing" | "answer-first" | "outcome-first" | "closing-ask" | "ask-concrete" | "role-repeat" | "deck-length" | "talk-time" | "template-beats";
+interface LintFinding {
+    slideId?: string;
+    rule: LintRule;
+    severity: LintSeverity;
+    message: string;
+}
+interface LintOptions {
+    /** Applies the template's answer-first setting and its slide and time ranges. */
+    template?: StorylineTemplateId;
+    /** Speaking time budget in minutes. */
+    minutes?: number;
+    /** Override the answer-first check. Defaults to the template's setting, else true. */
+    answerFirst?: boolean;
+}
+/** The checklist, for docs and UI. `severity` is the strongest a rule reports. */
+declare const LINT_RULES: Readonly<Record<LintRule, {
+    severity: LintSeverity;
+    check: string;
+}>>;
+declare const MAX_TITLE_WORDS = 14;
+
 interface StoryBeat {
     role: SlideRole;
     /** What this beat must achieve. */
@@ -192,44 +184,6 @@ declare const STORYLINE_TEMPLATES: readonly StorylineTemplate[];
 declare function getStorylineTemplate(id: StorylineTemplateId): StorylineTemplate;
 /** A template's example titles as a scaffold deck: one slide per beat, ready to rewrite. */
 declare function templateOutline(template: StorylineTemplate | StorylineTemplateId): StorySlide[];
-/**
- * The minimal slide shape the linter reads. A `DeckSlide` already fits; add `role`, and
- * `headline` when the visible action title differs from the short overview `title`.
- */
-interface StorySlide {
-    id: string;
-    /** Short name. Used as the action title when `headline` is absent. */
-    title: string;
-    role?: SlideRole;
-    /** Talk track. A string is treated as `say`. */
-    notes?: SpeechGuide | string;
-    /** The action title shown on the slide. */
-    headline?: string;
-    /** On-slide source line for the slide's numbers. */
-    source?: string;
-}
-type LintSeverity = "error" | "warn" | "tip";
-type LintRule = "deck-empty" | "duplicate-id" | "title-present" | "title-claim" | "title-length" | "title-specific" | "one-idea" | "notes-present" | "number-source" | "roles-missing" | "answer-first" | "outcome-first" | "closing-ask" | "ask-concrete" | "role-repeat" | "deck-length" | "talk-time" | "template-beats";
-interface LintFinding {
-    slideId?: string;
-    rule: LintRule;
-    severity: LintSeverity;
-    message: string;
-}
-interface LintOptions {
-    /** Applies the template's answer-first setting and its slide and time ranges. */
-    template?: StorylineTemplateId;
-    /** Speaking time budget in minutes. */
-    minutes?: number;
-    /** Override the answer-first check. Defaults to the template's setting, else true. */
-    answerFirst?: boolean;
-}
-/** The checklist, for docs and UI. `severity` is the strongest a rule reports. */
-declare const LINT_RULES: Readonly<Record<LintRule, {
-    severity: LintSeverity;
-    check: string;
-}>>;
-declare const MAX_TITLE_WORDS = 14;
 
 /**
  * Check a deck's argument: action titles, answer first, a concrete closing ask, role rhythm,
@@ -239,6 +193,7 @@ declare const MAX_TITLE_WORDS = 14;
 declare function lintDeck(slides: readonly StorySlide[], options?: LintOptions): LintFinding[];
 /** Estimated speaking time of the presented slides' `say` text, in seconds. */
 declare function talkSeconds(slides: readonly StorySlide[]): number;
+
 interface StorylineEntry {
     /** 1-based slide number. */
     number: number;
@@ -707,7 +662,10 @@ interface StackedBarProps extends ChartSize {
 /** Stacked bars (or 100% bars) with a legend, segment values where they fit and totals on top. */
 declare function StackedBar({ categories, series, mode, orientation, format, segmentFormat, totals, alt, width, height, }: StackedBarProps): react.JSX.Element;
 
-/** Canvas-pixel type sizes. Nothing on a consulting slide is smaller than `min` (≈14px at 1366 wide). */
+/** The smallest text allowed on a slide, in canvas pixels (≈14px at 1366 wide). A literal, not
+ * `CX_TYPE.min`: bundlers keep a module-level property read, which would keep this module alive. */
+declare const MIN_TEXT_PX = 20;
+/** Canvas-pixel type sizes. Nothing on a consulting slide is smaller than `min`. */
 declare const CX_TYPE: {
     readonly min: 20;
     readonly tick: 20;
@@ -716,8 +674,6 @@ declare const CX_TYPE: {
     readonly callout: 22;
     readonly quadrant: 20;
 };
-/** The smallest text allowed on a slide, in canvas pixels. */
-declare const MIN_TEXT_PX: 20;
 interface LinearScale {
     (value: number): number;
     domain: [number, number];
@@ -873,4 +829,4 @@ interface HarveyTableProps {
 /** Options × criteria: Harvey balls (0–4) and text cells, with one row marked as the recommendation. */
 declare function HarveyTable({ columns, rows, corner, showKey, keyNote, }: HarveyTableProps): react.JSX.Element;
 
-export { Annotation, type AnnotationGeometry, type AnnotationProps, type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, REPEATABLE_ROLES, Rect, Ref, type ResolvedTransition, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, Tracker, type TrackerProps, type TransitionKind, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, flipFrom, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, resolveTransition, runTransition, slideZoomFrame, slideZoomSamples, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };
+export { Annotation, type AnnotationGeometry, type AnnotationProps, type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, REPEATABLE_ROLES, Rect, Ref, type ResolvedTransition, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, Tracker, type TrackerProps, type TransitionKind, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, slideZoomFrame, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };

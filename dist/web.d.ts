@@ -1,5 +1,6 @@
 import * as react from 'react';
 import { ReactNode, ElementType, CSSProperties, ButtonHTMLAttributes, RefObject, ReactElement } from 'react';
+export { a as easeOutExpo } from './math-DL8QKXOl.js';
 
 interface WebSurfaceProps {
     children: ReactNode;
@@ -560,8 +561,7 @@ declare function ScrollTransform({ children, rotate, scale, translateY, opacity,
 declare function followRate(lerp: number): number;
 /** One frame of the follow: the gap to the target shrinks by e^(−rate·dt), whatever dt is. */
 declare function followStep(current: number, target: number, rate: number, dt: number): number;
-/** Ease for a fixed-duration scrollTo: fast start, long soft landing (exponential out). */
-declare function easeOutExpo(t: number): number;
+
 /** Pixels per wheel "line" (deltaMode 1, e.g. Firefox with a mouse wheel). */
 declare const WHEEL_LINE_PX = 40;
 /** A wheel "page" (deltaMode 2) is the viewport less the overlap browsers keep on Page Down. */
@@ -1098,8 +1098,8 @@ declare function FAQ({ items, eyebrow, title, intro, id, url, jsonLd, variant, t
 
 /**
  * Crawl files for a Landing site: robots.txt with an explicit stance per AI crawler,
- * sitemap.xml with lastmod, and llms.txt in the llmstxt.org format. Pure string builders;
- * write the result wherever your host serves the site root.
+ * sitemap.xml with lastmod, llms.txt in the llmstxt.org format, and an RSS 2.0 feed. Pure string
+ * builders; write the result wherever your host serves the site root.
  */
 type CrawlRule = "allow" | "disallow";
 /** What a crawler's visits are for, as its operator documents it. */
@@ -1274,5 +1274,35 @@ declare function llmsTxt({ site, pages, llms }: Pick<BuildCrawlFilesOptions, "si
 declare function llmsFullTxt({ site, pages, llms }: Pick<BuildCrawlFilesOptions, "site" | "pages" | "llms">): string;
 /** robots.txt, sitemap.xml, llms.txt and (when pages carry `content`) llms-full.txt, keyed by file name. */
 declare function buildCrawlFiles(o: BuildCrawlFilesOptions): CrawlFiles;
+interface RssItem {
+    title: string;
+    /** Path from the feed's `link` ("/notes/first") or an absolute URL. */
+    link: string;
+    /** A stable id for the entry. Default: the item's absolute link, as a permalink. */
+    guid?: string;
+    /** When the entry was published: a Date, or ISO 8601 ("2026-10-22", "2026-10-22T09:30:00Z"). */
+    pubDate: Date | string;
+    /** Summary text or HTML; escaped, so a reader shows it as the author wrote it. */
+    description?: string;
+}
+interface RssFeedOptions {
+    /** The feed's (usually the site's) name. */
+    title: string;
+    /** The site the feed belongs to, as an absolute URL; item paths resolve against it. */
+    link: string;
+    description: string;
+    items: RssItem[];
+    /** Where the feed itself is served, e.g. "/feed.xml": adds the `atom:link rel="self"` validators ask for. */
+    self?: string;
+    /** The feed's language, e.g. "en-gb". */
+    language?: string;
+}
+/**
+ * An RSS 2.0 feed, newest entry first, for the `rss` link `pageMeta` adds to the head. Text is
+ * XML-escaped (an HTML description arrives as the HTML it was). `lastBuildDate` is the newest
+ * entry's date, not the build time, for the same reason a sitemap's lastmod is: a date that moves
+ * on every deploy tells readers nothing. Throws on a relative `link` or an unreadable date.
+ */
+declare function rssFeed({ title, link, description, items, self, language }: RssFeedOptions): string;
 
-export { AI_CRAWLERS, type AiCrawler, type AiCrawlerAgent, type AiCrawlerPolicy, type AiCrawlerPreset, type ArticleAuthor, type ArticleOptions, Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, Body, type BodyProps, type BreadcrumbItem, type BuildCrawlFilesOptions, type CollectionPageOptions, type CrawlFiles, type CrawlPage, type CrawlRule, type CrawlerPurpose, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, FAQ, type FAQProps, type FaqItem, type Feature, FeatureGrid, type FeatureGridProps, type FontPreloadOptions, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, type HeadTag, HeadTags, type HeadTagsProps, Heading, type HeadingProps, type InViewOptions, type ItemListEntry, type ItemListOptions, JsonLd, type JsonLdDocument, type JsonLdNode, type JsonLdProps, LLMS_FULL_PATH, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type OfferOptions, type OrganizationOptions, type PageMetaOptions, type PaintTransitionOptions, type PersonOptions, type ProductOptions, type ProfilePageOptions, type RatingOptions, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, type SchemaDate, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SmoothScroll, type SmoothScrollController, type SmoothScrollHandle, type SmoothScrollOptions, type SmoothScrollProps, type SmoothScrollTarget, type SmoothScrollToOptions, type SoftwareApplicationOptions, type SoftwareSourceCodeOptions, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeRole, type TypeStep, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, type WebFontFace, type WebPageOptions, type WebSiteOptions, WebSurface, type WebSurfaceProps, type WheelLike, article, breadcrumbList, buildCrawlFiles, collectionPage, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, easeOutExpo, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, itemList, jsonLd, jsonLdTag, llmsFullTxt, llmsTxt, normalizeWheel, offer, organization, pageMeta, person, personRef, product, profilePage, ref, resolveAiCrawlers, robotsTxt, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, softwareSourceCode, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webPage, webSite, withPaintTransition, withViewTransition };
+export { AI_CRAWLERS, type AiCrawler, type AiCrawlerAgent, type AiCrawlerPolicy, type AiCrawlerPreset, type ArticleAuthor, type ArticleOptions, Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, Body, type BodyProps, type BreadcrumbItem, type BuildCrawlFilesOptions, type CollectionPageOptions, type CrawlFiles, type CrawlPage, type CrawlRule, type CrawlerPurpose, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, FAQ, type FAQProps, type FaqItem, type Feature, FeatureGrid, type FeatureGridProps, type FontPreloadOptions, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, type HeadTag, HeadTags, type HeadTagsProps, Heading, type HeadingProps, type InViewOptions, type ItemListEntry, type ItemListOptions, JsonLd, type JsonLdDocument, type JsonLdNode, type JsonLdProps, LLMS_FULL_PATH, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type OfferOptions, type OrganizationOptions, type PageMetaOptions, type PaintTransitionOptions, type PersonOptions, type ProductOptions, type ProfilePageOptions, type RatingOptions, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, type RssFeedOptions, type RssItem, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, type SchemaDate, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SmoothScroll, type SmoothScrollController, type SmoothScrollHandle, type SmoothScrollOptions, type SmoothScrollProps, type SmoothScrollTarget, type SmoothScrollToOptions, type SoftwareApplicationOptions, type SoftwareSourceCodeOptions, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeRole, type TypeStep, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, type WebFontFace, type WebPageOptions, type WebSiteOptions, WebSurface, type WebSurfaceProps, type WheelLike, article, breadcrumbList, buildCrawlFiles, collectionPage, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, itemList, jsonLd, jsonLdTag, llmsFullTxt, llmsTxt, normalizeWheel, offer, organization, pageMeta, person, personRef, product, profilePage, ref, resolveAiCrawlers, robotsTxt, rssFeed, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, softwareSourceCode, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webPage, webSite, withPaintTransition, withViewTransition };

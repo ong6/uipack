@@ -1,7 +1,16 @@
-import { useEffect, useLayoutEffect, useSyncExternalStore } from 'react';
+'use strict';
+
+var react = require('react');
 
 // src/env.ts
-var useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
+var useIsoLayoutEffect = typeof window === "undefined" ? react.useEffect : react.useLayoutEffect;
+function useLatest(value) {
+  const ref = react.useRef(value);
+  useIsoLayoutEffect(() => {
+    ref.current = value;
+  });
+  return ref;
+}
 var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 function prefersReducedMotion(win = typeof window === "undefined" ? void 0 : window) {
   return typeof win?.matchMedia === "function" && win.matchMedia(REDUCED_MOTION_QUERY).matches;
@@ -19,11 +28,23 @@ function onReducedMotionChange(listener) {
   return () => query.removeListener(changed);
 }
 function usePrefersReducedMotion() {
-  return useSyncExternalStore(onReducedMotionChange, prefersReducedMotion, serverSnapshot);
+  return react.useSyncExternalStore(onReducedMotionChange, prefersReducedMotion, serverSnapshot);
 }
 var serverSnapshot = () => false;
+function useHydrated() {
+  return react.useSyncExternalStore(subscribeToNothing, clientSnapshot, serverSnapshot);
+}
+var subscribeToNothing = () => () => {
+};
+var clientSnapshot = () => true;
 function keepFocusedInView(event) {
   event.target?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
 }
 
-export { keepFocusedInView, onReducedMotionChange, prefersReducedMotion, useIsoLayoutEffect, usePrefersReducedMotion };
+exports.keepFocusedInView = keepFocusedInView;
+exports.onReducedMotionChange = onReducedMotionChange;
+exports.prefersReducedMotion = prefersReducedMotion;
+exports.useHydrated = useHydrated;
+exports.useIsoLayoutEffect = useIsoLayoutEffect;
+exports.useLatest = useLatest;
+exports.usePrefersReducedMotion = usePrefersReducedMotion;

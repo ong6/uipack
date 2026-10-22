@@ -1,13 +1,14 @@
-import { useLayerFlight } from './chunk-5GCY6KJP.js';
-import { zoomSamples, zoomFrame, smoothstep } from './chunk-VZ4PJUMF.js';
-export { easeInOutCubic, innerClipStart, smoothstep, zoomFrame, zoomSamples } from './chunk-VZ4PJUMF.js';
-import { useFigureHover, hoverAttrs, connectorStroke, Node, nodeName, SelectionContext, useRovingFocus, FigureHoverContext, ReplayGlyph, PauseGlyph, PlayGlyph, Legend, placeNote } from './chunk-7IASEYZU.js';
-export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-7IASEYZU.js';
+import { useLayerFlight, zoomSamples, zoomFrame } from './chunk-DZG73W3D.js';
+export { innerClipStart, zoomFrame, zoomSamples } from './chunk-DZG73W3D.js';
+import { useFigureHover, hoverAttrs, connectorStroke, Node, nodeName, SelectionContext, useRovingFocus, FigureHoverContext, Legend, ReplayGlyph, PauseGlyph, PlayGlyph, placeNote } from './chunk-DJIPQ34M.js';
+export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-DJIPQ34M.js';
 import { useFontFloor, FigureMotionContext, FigureScaleContext } from './chunk-3R6VZY52.js';
-export { DEFAULT_RENDER_WIDTH, FigureMotionContext, FigureScaleContext, FigureScaleProvider, TOKEN_SHAPE, Token, fontFloor, tokenColor, useFigureMotion, useFontFloor } from './chunk-3R6VZY52.js';
-import { CanvasView } from './chunk-NSE7TINL.js';
-import { usePrefersReducedMotion, useIsoLayoutEffect } from './chunk-KYO6UXHN.js';
-export { usePrefersReducedMotion } from './chunk-KYO6UXHN.js';
+export { DEFAULT_RENDER_WIDTH, FigureMotionContext, FigureScaleProvider, TOKEN_SHAPE, Token, fontFloor, tokenColor, useFigureMotion, useFontFloor } from './chunk-3R6VZY52.js';
+import { CanvasView } from './chunk-D3TRNW7E.js';
+import { smoothstep } from './chunk-BN5H6RB6.js';
+export { easeInOutCubic, smoothstep } from './chunk-BN5H6RB6.js';
+import { usePrefersReducedMotion, useLatest, useIsoLayoutEffect } from './chunk-I6LF4PLF.js';
+export { usePrefersReducedMotion } from './chunk-I6LF4PLF.js';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { useId, useRef, useState, useEffect, createContext, useMemo, useCallback, createElement, useContext, memo } from 'react';
 
@@ -130,6 +131,290 @@ function Wordmark({ size = 24 }) {
     )
   ] });
 }
+var BackGlyph = () => /* @__PURE__ */ jsx("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ jsx(
+  "path",
+  {
+    d: "M7.5 2.5 4 6l3.5 3.5",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "1.6",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }
+) });
+function DrillCrumbs({
+  crumbs,
+  labelOf,
+  navigate,
+  currentRef
+}) {
+  const depth = crumbs.length - 1;
+  return /* @__PURE__ */ jsx("nav", { className: "uipack-drill__crumbs", "aria-label": "Figure levels", children: /* @__PURE__ */ jsx("ol", { children: crumbs.map((lid, i) => /* @__PURE__ */ jsxs("li", { children: [
+    i > 0 ? /* @__PURE__ */ jsx("span", { className: "uipack-drill__sep", "aria-hidden": "true", children: "\u203A" }) : null,
+    i < depth ? /* @__PURE__ */ jsx("button", { type: "button", className: "uipack-drill__crumb", onClick: () => navigate(crumbs.slice(0, i + 1)), children: labelOf(lid) }) : /* @__PURE__ */ jsx("span", { className: "uipack-drill__here", "aria-current": "location", tabIndex: -1, ref: currentRef, children: labelOf(lid) })
+  ] }, lid)) }) });
+}
+function DrillControls({ parentLabel, onBack, onOpen, openerRef, motion }) {
+  return /* @__PURE__ */ jsxs("div", { className: "uipack__controls", children: [
+    parentLabel !== null ? /* @__PURE__ */ jsxs("button", { type: "button", className: "uipack__ctl uipack-drill__back", "aria-label": `Back to ${parentLabel}`, onClick: onBack, children: [
+      /* @__PURE__ */ jsx(BackGlyph, {}),
+      " Back"
+    ] }) : null,
+    onOpen ? /* @__PURE__ */ jsx("button", { type: "button", className: "uipack__ctl", ref: openerRef, onClick: onOpen, children: "Open canvas" }) : null,
+    motion ? /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsxs("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: motion.replay, children: [
+        /* @__PURE__ */ jsx(ReplayGlyph, {}),
+        " Replay"
+      ] }),
+      /* @__PURE__ */ jsxs(
+        "button",
+        {
+          type: "button",
+          className: "uipack__ctl uipack__ctl--motion",
+          onClick: motion.toggle,
+          "aria-pressed": !motion.playing,
+          children: [
+            motion.playing ? /* @__PURE__ */ jsx(PauseGlyph, {}) : /* @__PURE__ */ jsx(PlayGlyph, {}),
+            " ",
+            motion.playing ? "Pause" : "Play"
+          ]
+        }
+      )
+    ] }) : null
+  ] });
+}
+var DrillContext = /* @__PURE__ */ createContext(null);
+var useDrill = () => useContext(DrillContext);
+
+// src/drill/model.ts
+function normalizePath(path, ids, root) {
+  const known = ids instanceof Set ? ids : new Set(ids);
+  const out = [root];
+  if (!path?.length) return out;
+  const rest = path[0] === root ? path.slice(1) : path;
+  for (const id of rest) {
+    if (!known.has(id) || out.includes(id)) break;
+    out.push(id);
+  }
+  return out;
+}
+function drillReducer(path, action, ids, root = path[0]) {
+  switch (action.type) {
+    case "open": {
+      const known = ids instanceof Set ? ids.has(action.id) : ids.includes(action.id);
+      if (!known || path.includes(action.id)) return path;
+      return [...path, action.id];
+    }
+    case "up":
+      return path.length > 1 ? path.slice(0, -1) : path;
+    case "to": {
+      const depth = Math.max(0, Math.min(path.length - 1, Math.floor(action.depth)));
+      return depth === path.length - 1 ? path : path.slice(0, depth + 1);
+    }
+    case "set": {
+      const next = normalizePath(action.path, ids, root);
+      return samePath(next, path) ? path : next;
+    }
+  }
+}
+var samePath = (a, b) => a.length === b.length && a.every((id, i) => id === b[i]);
+function drillMove(from, to) {
+  if (samePath(from, to)) return "none";
+  if (to.length === from.length + 1 && samePath(from, to.slice(0, -1))) return "in";
+  if (from.length === to.length + 1 && samePath(to, from.slice(0, -1))) return "out";
+  return "jump";
+}
+function drillFocusTarget(from, to) {
+  const upward = to.length < from.length && samePath(to, from.slice(0, to.length));
+  return upward ? { kind: "node", drill: from[to.length] } : { kind: "heading" };
+}
+function drillAnnouncement(from, to, labelOf) {
+  const trail = to.map(labelOf).join(" \u203A ");
+  const here = labelOf(to[to.length - 1]);
+  if (to.length > from.length) return `Opened ${here}. ${trail}`;
+  if (to.length < from.length) return `Back to ${here}. ${trail}`;
+  return `Showing ${here}. ${trail}`;
+}
+var cleanId = (s) => s.replace(/[^a-zA-Z0-9_-]/g, "");
+var vbSize = (viewBox) => {
+  const [, , w, h] = viewBox.split(/[\s,]+/).map(Number);
+  return { w: w || 0, h: h || 0 };
+};
+function levelFloor(levelViewBox, frame, stageW, minFont) {
+  const l = vbSize(levelViewBox);
+  const f = vbSize(frame);
+  if (!l.w || !l.h || !f.w || !stageW || !minFont) return 0;
+  const stageH = stageW * f.h / f.w;
+  const scale = Math.min(stageW / l.w, stageH / l.h);
+  return minFont / scale;
+}
+function drillBox(box, grow = DRILL_GROW) {
+  return { ...box, y: box.y - grow / 2, h: box.h + grow };
+}
+var DRILL_GROW = 8;
+var DrillLayer = /* @__PURE__ */ memo(function DrillLayer2({
+  level,
+  figId,
+  frame,
+  floorWide,
+  floorNarrow,
+  levels,
+  open,
+  current
+}) {
+  const lid = `${figId}-${cleanId(level.id)}`;
+  const ctx = (variant) => ({
+    levels,
+    frame,
+    idPrefix: `${lid}-${variant[0]}`,
+    variant,
+    interactive: true,
+    ghost: false,
+    open: (id) => open(level.id, id)
+  });
+  const draw = (variant, render, vb, floor) => /* @__PURE__ */ jsx(
+    "svg",
+    {
+      className: `uipack-drill__${variant}`,
+      viewBox: vb,
+      preserveAspectRatio: "xMidYMid meet",
+      role: "group",
+      "aria-label": level.alt,
+      children: /* @__PURE__ */ jsx(DrillContext.Provider, { value: ctx(variant), children: /* @__PURE__ */ jsx(FigureScaleContext.Provider, { value: { floor }, children: render({ id: variant === "wide" ? lid : `${lid}-n`, variant, ghost: false, level }) }) })
+    }
+  );
+  return /* @__PURE__ */ jsxs("div", { className: "uipack-drill__layer", "data-level": level.id, "data-current": current ? "true" : void 0, children: [
+    draw("wide", level.render, level.viewBox ?? frame.wide, floorWide),
+    frame.narrow ? draw("narrow", level.narrow ?? level.render, level.narrowViewBox ?? frame.narrow, floorNarrow) : null
+  ] });
+});
+function useDrillPath({ levels, root, path, defaultPath, onPathChange, onNavigate }) {
+  const levelMap = useMemo(() => new Map(levels.map((l) => [l.id, l])), [levels]);
+  const ids = useMemo(() => new Set(levelMap.keys()), [levelMap]);
+  const rootId = root ?? levels[0]?.id ?? "";
+  const labelOf = useCallback((lid) => levelMap.get(lid)?.label ?? lid, [levelMap]);
+  const [own, setOwn] = useState(() => normalizePath(defaultPath, ids, rootId));
+  const requestedKey = JSON.stringify(normalizePath(path ?? own, ids, rootId));
+  const requested = useMemo(() => JSON.parse(requestedKey), [requestedKey]);
+  const latestRef = useLatest({ requested, path, onPathChange, onNavigate });
+  const navigate = useCallback(
+    (next) => {
+      const { requested: requested2, path: path2, onPathChange: onPathChange2, onNavigate: onNavigate2 } = latestRef.current;
+      if (samePath(next, requested2)) return;
+      onNavigate2();
+      if (path2 === void 0) setOwn(next);
+      onPathChange2?.([...next]);
+    },
+    [latestRef]
+  );
+  const up = useCallback(
+    () => navigate(drillReducer(latestRef.current.requested, { type: "up" }, ids)),
+    [navigate, ids, latestRef]
+  );
+  const openFrom = useCallback(
+    (from, child) => {
+      const cur = latestRef.current.requested;
+      const at = cur.indexOf(from);
+      if (at < 0) return;
+      navigate(drillReducer(cur.slice(0, at + 1), { type: "open", id: child }, ids));
+    },
+    [navigate, ids, latestRef]
+  );
+  const canGoUp = useCallback(() => latestRef.current.requested.length > 1, [latestRef]);
+  return { levelMap, labelOf, requested, navigate, up, openFrom, canGoUp };
+}
+function useStageWidth(stageRef, expanded) {
+  const [stageW, setStageW] = useState(1088);
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const read = () => {
+      const w = el.getBoundingClientRect().width;
+      if (w > 0) setStageW(w);
+    };
+    read();
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [stageRef, expanded]);
+  return stageW;
+}
+var drawings = (stage) => Array.from(stage?.querySelectorAll(":scope > .uipack-drill__layer > svg") ?? []);
+function useDrillMotion(stageRef, reduced, expanded, view) {
+  const [playing, setPlaying] = useState(true);
+  const [cycle, setCycle] = useState(0);
+  useEffect(() => {
+    for (const s of drawings(stageRef.current)) {
+      if (typeof s.pauseAnimations !== "function") continue;
+      if (playing) s.unpauseAnimations();
+      else s.pauseAnimations();
+    }
+  }, [stageRef, playing, expanded, view]);
+  const toggle = useCallback(() => setPlaying((p) => !p), []);
+  const replay = useCallback(() => {
+    for (const s of drawings(stageRef.current)) {
+      if (typeof s.setCurrentTime === "function") s.setCurrentTime(0);
+      if (typeof s.unpauseAnimations === "function") s.unpauseAnimations();
+    }
+    setPlaying(true);
+    setCycle((c) => c + 1);
+  }, [stageRef]);
+  return useMemo(
+    () => ({ playing: playing && !reduced, reduced, cycle, toggle, replay }),
+    [playing, reduced, cycle, toggle, replay]
+  );
+}
+function useNotePlacement(canvasRef, noteRef, note, zoom, expanded) {
+  const [notePos, setNotePos] = useState(null);
+  useIsoLayoutEffect(() => {
+    setNotePos(null);
+    const canvas = canvasRef.current;
+    const el = noteRef.current;
+    const anchor2 = note?.anchor;
+    if (!canvas || !el || !anchor2) return;
+    const place = () => {
+      if (anchor2.isConnected) setNotePos(placeNote(canvas, el, anchor2));
+    };
+    place();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(place);
+    ro.observe(canvas);
+    return () => ro.disconnect();
+  }, [canvasRef, noteRef, note, zoom, expanded]);
+  return notePos;
+}
+function drillStatic(props, path) {
+  const levels = new Map(props.levels.map((l) => [l.id, l]));
+  const root = props.root ?? props.levels[0]?.id ?? "";
+  const p = normalizePath(path ?? props.path ?? props.defaultPath, new Set(levels.keys()), root);
+  const level = levels.get(p[p.length - 1]);
+  const trail = p.length > 1 ? p.map((id) => levels.get(id)?.label ?? id).join(" \u203A ") : "";
+  const lid = `static-${cleanId(level.id)}`;
+  return {
+    children: /* @__PURE__ */ jsx(
+      DrillContext.Provider,
+      {
+        value: {
+          levels,
+          frame: { wide: props.viewBox, narrow: props.narrowViewBox },
+          idPrefix: lid,
+          variant: "wide",
+          interactive: false,
+          ghost: false
+        },
+        children: level.render({ id: lid, variant: "wide", ghost: false, level })
+      }
+    ),
+    viewBox: level.viewBox ?? props.viewBox,
+    legend: level.legend,
+    number: props.number,
+    eyebrow: [props.eyebrow, trail].filter(Boolean).join(" \xB7 ") || void 0,
+    title: level.title ?? level.label,
+    caption: level.caption,
+    alt: level.alt,
+    background: props.background
+  };
+}
 
 // src/drill/animate.ts
 var drillMotion = {
@@ -242,155 +527,107 @@ function runDrill(opts) {
     );
   return anims;
 }
-var DrillContext = /* @__PURE__ */ createContext(null);
-var useDrill = () => useContext(DrillContext);
 
-// src/drill/model.ts
-function normalizePath(path, ids, root) {
-  const known = ids instanceof Set ? ids : new Set(ids);
-  const out = [root];
-  if (!path?.length) return out;
-  const rest = path[0] === root ? path.slice(1) : path;
-  for (const id of rest) {
-    if (!known.has(id) || out.includes(id)) break;
-    out.push(id);
-  }
-  return out;
-}
-function drillReducer(path, action, ids, root = path[0]) {
-  switch (action.type) {
-    case "open": {
-      const known = ids instanceof Set ? ids.has(action.id) : ids.includes(action.id);
-      if (!known || path.includes(action.id)) return path;
-      return [...path, action.id];
-    }
-    case "up":
-      return path.length > 1 ? path.slice(0, -1) : path;
-    case "to": {
-      const depth = Math.max(0, Math.min(path.length - 1, Math.floor(action.depth)));
-      return depth === path.length - 1 ? path : path.slice(0, depth + 1);
-    }
-    case "set": {
-      const next = normalizePath(action.path, ids, root);
-      return samePath(next, path) ? path : next;
-    }
-  }
-}
-var samePath = (a, b) => a.length === b.length && a.every((id, i) => id === b[i]);
-function drillMove(from, to) {
-  if (samePath(from, to)) return "none";
-  if (to.length === from.length + 1 && samePath(from, to.slice(0, -1))) return "in";
-  if (from.length === to.length + 1 && samePath(to, from.slice(0, -1))) return "out";
-  return "jump";
-}
-function drillFocusTarget(from, to) {
-  const upward = to.length < from.length && samePath(to, from.slice(0, to.length));
-  return upward ? { kind: "node", drill: from[to.length] } : { kind: "heading" };
-}
-function drillAnnouncement(from, to, labelOf) {
-  const trail = to.map(labelOf).join(" \u203A ");
-  const here = labelOf(to[to.length - 1]);
-  if (to.length > from.length) return `Opened ${here}. ${trail}`;
-  if (to.length < from.length) return `Back to ${here}. ${trail}`;
-  return `Showing ${here}. ${trail}`;
-}
-var cleanId = (s) => s.replace(/[^a-zA-Z0-9_-]/g, "");
-var vbSize = (viewBox) => {
-  const [, , w, h] = viewBox.split(/[\s,]+/).map(Number);
-  return { w: w || 0, h: h || 0 };
-};
-function levelFloor(levelViewBox, frame, stageW, minFont) {
-  const l = vbSize(levelViewBox);
-  const f = vbSize(frame);
-  if (!l.w || !l.h || !f.w || !stageW || !minFont) return 0;
-  const stageH = stageW * f.h / f.w;
-  const scale = Math.min(stageW / l.w, stageH / l.h);
-  return minFont / scale;
-}
-function drillBox(box, grow = DRILL_GROW) {
-  return { ...box, y: box.y - grow / 2, h: box.h + grow };
-}
-var DRILL_GROW = 8;
-function drillStatic(props, path) {
-  const levels = new Map(props.levels.map((l) => [l.id, l]));
-  const root = props.root ?? props.levels[0]?.id ?? "";
-  const p = normalizePath(path ?? props.path ?? props.defaultPath, new Set(levels.keys()), root);
-  const level = levels.get(p[p.length - 1]);
-  const trail = p.length > 1 ? p.map((id) => levels.get(id)?.label ?? id).join(" \u203A ") : "";
-  const lid = `static-${cleanId(level.id)}`;
-  return {
-    children: /* @__PURE__ */ jsx(
-      DrillContext.Provider,
-      {
-        value: {
-          levels,
-          frame: { wide: props.viewBox, narrow: props.narrowViewBox },
-          idPrefix: lid,
-          variant: "wide",
-          interactive: false,
-          ghost: false
-        },
-        children: level.render({ id: lid, variant: "wide", ghost: false, level })
-      }
-    ),
-    viewBox: level.viewBox ?? props.viewBox,
-    legend: level.legend,
-    number: props.number,
-    eyebrow: [props.eyebrow, trail].filter(Boolean).join(" \xB7 ") || void 0,
-    title: level.title ?? level.label,
-    caption: level.caption,
-    alt: level.alt,
-    background: props.background
-  };
-}
-var last = (p) => p[p.length - 1];
-var BackGlyph = () => /* @__PURE__ */ jsx("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ jsx(
-  "path",
-  {
-    d: "M7.5 2.5 4 6l3.5 3.5",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "1.6",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }
-) });
-var DrillLayer = /* @__PURE__ */ memo(function DrillLayer2({
-  level,
-  figId,
-  frame,
-  floorWide,
-  floorNarrow,
-  levels,
-  open,
-  current
+// src/drill/useDrillFlight.ts
+var lastOf = (p) => p[p.length - 1];
+function useDrillFlight({
+  requested,
+  labelOf,
+  focusIntentRef,
+  stageRef,
+  canvasRef,
+  headingRef,
+  currentCrumbRef,
+  reduced,
+  duration,
+  onLeave
 }) {
-  const lid = `${figId}-${cleanId(level.id)}`;
-  const ctx = (variant) => ({
-    levels,
-    frame,
-    idPrefix: `${lid}-${variant[0]}`,
-    variant,
-    interactive: true,
-    ghost: false,
-    open: (id) => open(level.id, id)
-  });
-  const draw = (variant, render, vb, floor) => /* @__PURE__ */ jsx(
-    "svg",
-    {
-      className: `uipack-drill__${variant}`,
-      viewBox: vb,
-      preserveAspectRatio: "xMidYMid meet",
-      role: "group",
-      "aria-label": level.alt,
-      children: /* @__PURE__ */ jsx(DrillContext.Provider, { value: ctx(variant), children: /* @__PURE__ */ jsx(FigureScaleContext.Provider, { value: { floor }, children: render({ id: variant === "wide" ? lid : `${lid}-n`, variant, ghost: false, level }) }) })
-    }
+  const [view, setView] = useState(() => ({ path: requested, flight: null }));
+  const [announcement, setAnnouncement] = useState("");
+  const seq = useRef(0);
+  const pendingFocus = useRef(null);
+  const latestRef = useLatest({ view, labelOf, reduced, duration, onLeave });
+  const layerEl = useCallback(
+    (lid) => stageRef.current?.querySelector(
+      `:scope > [data-level="${typeof CSS !== "undefined" && CSS.escape ? CSS.escape(lid) : lid}"]`
+    ) ?? null,
+    [stageRef]
   );
-  return /* @__PURE__ */ jsxs("div", { className: "uipack-drill__layer", "data-level": level.id, "data-current": current ? "true" : void 0, children: [
-    draw("wide", level.render, level.viewBox ?? frame.wide, floorWide),
-    frame.narrow ? draw("narrow", level.narrow ?? level.render, level.narrowViewBox ?? frame.narrow, floorNarrow) : null
-  ] });
-});
+  const { anims, settle, fly } = useLayerFlight(
+    () => stageRef.current?.querySelectorAll(":scope > .uipack-drill__layer").forEach(clearLayer)
+  );
+  const finish = useCallback(
+    (n) => {
+      const v = latestRef.current.view;
+      if (!v.flight || v.flight.seq !== n) return;
+      const leaving = layerEl(lastOf(v.flight.from));
+      if (leaving) leaving.style.visibility = "hidden";
+      settle();
+      setView({ path: v.path, flight: null });
+    },
+    [layerEl, settle, latestRef]
+  );
+  useIsoLayoutEffect(() => {
+    const { view: v, labelOf: labelOf2, onLeave: onLeave2 } = latestRef.current;
+    if (samePath(requested, v.path)) return;
+    onLeave2();
+    setAnnouncement(drillAnnouncement(v.path, requested, labelOf2));
+    pendingFocus.current = focusIntentRef.current ? { from: v.path, to: requested } : null;
+    focusIntentRef.current = false;
+    if (v.flight && anims.current.length && samePath(requested, v.flight.from)) {
+      for (const a of anims.current) a.reverse();
+      setView({ path: requested, flight: { ...v.flight, from: v.path } });
+      return;
+    }
+    if (v.flight) settle();
+    const from = v.path;
+    const canAnimate = typeof stageRef.current?.animate === "function" && lastOf(from) !== lastOf(requested);
+    if (!canAnimate) {
+      setView({ path: requested, flight: null });
+      return;
+    }
+    const move = drillMove(from, requested);
+    seq.current += 1;
+    setView({
+      path: requested,
+      flight: { from, kind: move === "in" ? "in" : move === "out" ? "out" : "fade", seq: seq.current }
+    });
+  }, [requested, anims, focusIntentRef, settle, stageRef, latestRef]);
+  const flightSeq = view.flight?.seq;
+  useIsoLayoutEffect(() => {
+    const { view: v, reduced: reduced2, duration: duration2 } = latestRef.current;
+    const f = v.flight;
+    const stage = stageRef.current;
+    if (!f || !stage) return;
+    const fromEl = layerEl(lastOf(f.from));
+    const toEl = layerEl(lastOf(v.path));
+    if (!fromEl || !toEl) {
+      finish(f.seq);
+      return;
+    }
+    const target = f.kind === "in" ? findDrillNode(fromEl, lastOf(v.path)) : f.kind === "out" ? findDrillNode(toEl, lastOf(f.from)) : null;
+    const run = runDrill({ kind: f.kind, from: fromEl, to: toEl, target, stage, canvas: canvasRef.current, reduced: reduced2, duration: duration2 });
+    fly(run, () => finish(f.seq));
+  }, [flightSeq, canvasRef, finish, fly, layerEl, stageRef, latestRef]);
+  useIsoLayoutEffect(() => {
+    if (view.flight || !pendingFocus.current) return;
+    const { from, to } = pendingFocus.current;
+    pendingFocus.current = null;
+    const t = drillFocusTarget(from, to);
+    if (t.kind === "node") {
+      const layer = layerEl(lastOf(to));
+      const node = layer && findDrillNode(layer, t.drill);
+      if (node) {
+        node.focus({ preventScroll: true });
+        return;
+      }
+    }
+    const heading = headingRef.current;
+    if (heading && getComputedStyle(heading).display !== "none") heading.focus({ preventScroll: true });
+    else currentCrumbRef.current?.focus({ preventScroll: true });
+  }, [view, currentCrumbRef, headingRef, layerEl]);
+  return { view, announcement };
+}
 function DrillFigureRoot({
   levels,
   root,
@@ -413,26 +650,7 @@ function DrillFigureRoot({
 }) {
   const auto = useId();
   const figId = id ?? `uipack-drill-${cleanId(auto)}`;
-  const levelMap = useMemo(() => new Map(levels.map((l) => [l.id, l])), [levels]);
-  const ids = useMemo(() => new Set(levelMap.keys()), [levelMap]);
-  const rootId = root ?? levels[0]?.id ?? "";
-  const labelOf = useCallback((lid) => levelMap.get(lid)?.label ?? lid, [levelMap]);
-  const [own, setOwn] = useState(() => normalizePath(defaultPath, ids, rootId));
-  const requestedRaw = normalizePath(path ?? own, ids, rootId);
-  const requestedKey = requestedRaw.join("\0");
-  const requested = useMemo(() => requestedRaw, [requestedKey]);
-  const requestedRef = useRef(requested);
-  requestedRef.current = requested;
-  const [view, setView] = useState(() => ({ path: requested, flight: null }));
-  const viewRef = useRef(view);
-  viewRef.current = view;
-  const seq = useRef(0);
-  const focusIntent = useRef(false);
-  const pendingFocus = useRef(null);
-  const [announcement, setAnnouncement] = useState("");
   const reduced = usePrefersReducedMotion();
-  const [playing, setPlaying] = useState(true);
-  const [cycle, setCycle] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [selected, select] = useState(null);
@@ -448,165 +666,55 @@ function DrillFigureRoot({
   const canvasRef = useRef(null);
   const stageRef = useRef(null);
   const noteRef = useRef(null);
-  const [notePos, setNotePos] = useState(null);
-  const [stageW, setStageW] = useState(1088);
-  useEffect(() => {
-    const el = stageRef.current;
-    if (!el || typeof ResizeObserver === "undefined") return;
-    const read = () => {
-      const w = el.getBoundingClientRect().width;
-      if (w > 0) setStageW(w);
-    };
-    read();
-    const ro = new ResizeObserver(read);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [expanded]);
-  const frame = useMemo(() => ({ wide: viewBox, narrow: narrowViewBox }), [viewBox, narrowViewBox]);
-  const controlled = useRef({ path, onPathChange });
-  controlled.current = { path, onPathChange };
-  const navigate = useCallback((next) => {
-    if (samePath(next, requestedRef.current)) return;
-    focusIntent.current = true;
-    if (controlled.current.path === void 0) setOwn(next);
-    controlled.current.onPathChange?.([...next]);
-  }, []);
-  const up = useCallback(() => navigate(drillReducer(requestedRef.current, { type: "up" }, ids)), [navigate, ids]);
-  const openFrom = useCallback(
-    (from, child) => {
-      const cur = requestedRef.current;
-      const at = cur.indexOf(from);
-      if (at < 0) return;
-      navigate(drillReducer(cur.slice(0, at + 1), { type: "open", id: child }, ids));
-    },
-    [navigate, ids]
-  );
-  const layerEl = (lid) => stageRef.current?.querySelector(
-    `:scope > [data-level="${typeof CSS !== "undefined" && CSS.escape ? CSS.escape(lid) : lid}"]`
-  ) ?? null;
-  const { anims, settle, fly } = useLayerFlight(
-    () => stageRef.current?.querySelectorAll(":scope > .uipack-drill__layer").forEach(clearLayer)
-  );
-  const finish = (n) => {
-    const v = viewRef.current;
-    if (!v.flight || v.flight.seq !== n) return;
-    const leaving = layerEl(last(v.flight.from));
-    if (leaving) leaving.style.visibility = "hidden";
-    settle();
-    setView({ path: v.path, flight: null });
-  };
-  useIsoLayoutEffect(() => {
-    const v = viewRef.current;
-    if (samePath(requested, v.path)) return;
-    select(null);
-    setHoverFlow(null);
-    setHoverKind(null);
-    setAnnouncement(drillAnnouncement(v.path, requested, labelOf));
-    pendingFocus.current = focusIntent.current ? { from: v.path, to: requested } : null;
-    focusIntent.current = false;
-    if (v.flight && anims.current.length && samePath(requested, v.flight.from)) {
-      for (const a of anims.current) a.reverse();
-      setView({ path: requested, flight: { ...v.flight, from: v.path } });
-      return;
+  const focusIntentRef = useRef(false);
+  const { levelMap, labelOf, requested, navigate, up, openFrom, canGoUp } = useDrillPath({
+    levels,
+    root,
+    path,
+    defaultPath,
+    onPathChange,
+    onNavigate: () => {
+      focusIntentRef.current = true;
     }
-    if (v.flight) settle();
-    const from = v.path;
-    const canAnimate = typeof stageRef.current?.animate === "function" && last(from) !== last(requested);
-    if (!canAnimate) {
-      setView({ path: requested, flight: null });
-      return;
+  });
+  const { view, announcement } = useDrillFlight({
+    requested,
+    labelOf,
+    focusIntentRef,
+    stageRef,
+    canvasRef,
+    headingRef,
+    currentCrumbRef,
+    reduced,
+    duration,
+    onLeave: () => {
+      select(null);
+      setHoverFlow(null);
+      setHoverKind(null);
     }
-    const move = drillMove(from, requested);
-    seq.current += 1;
-    setView({
-      path: requested,
-      flight: { from, kind: move === "in" ? "in" : move === "out" ? "out" : "fade", seq: seq.current }
-    });
-  }, [requested]);
-  const flightSeq = view.flight?.seq;
-  useIsoLayoutEffect(() => {
-    const f = viewRef.current.flight;
-    const stage = stageRef.current;
-    if (!f || !stage) return;
-    const fromEl = layerEl(last(f.from));
-    const toEl = layerEl(last(viewRef.current.path));
-    if (!fromEl || !toEl) {
-      finish(f.seq);
-      return;
-    }
-    const target = f.kind === "in" ? findDrillNode(fromEl, last(viewRef.current.path)) : f.kind === "out" ? findDrillNode(toEl, last(f.from)) : null;
-    const run = runDrill({ kind: f.kind, from: fromEl, to: toEl, target, stage, canvas: canvasRef.current, reduced, duration });
-    fly(run, () => finish(f.seq));
-  }, [flightSeq]);
-  useIsoLayoutEffect(() => {
-    if (view.flight || !pendingFocus.current) return;
-    const { from, to } = pendingFocus.current;
-    pendingFocus.current = null;
-    const t = drillFocusTarget(from, to);
-    if (t.kind === "node") {
-      const layer = layerEl(last(to));
-      const node = layer && findDrillNode(layer, t.drill);
-      if (node) {
-        node.focus({ preventScroll: true });
-        return;
-      }
-    }
-    const heading = headingRef.current;
-    if (heading && getComputedStyle(heading).display !== "none") heading.focus({ preventScroll: true });
-    else currentCrumbRef.current?.focus({ preventScroll: true });
-  }, [view]);
-  const svgs = () => Array.from(stageRef.current?.querySelectorAll(":scope > .uipack-drill__layer > svg") ?? []);
-  useEffect(() => {
-    for (const s of svgs()) {
-      if (typeof s.pauseAnimations !== "function") continue;
-      if (playing) s.unpauseAnimations();
-      else s.pauseAnimations();
-    }
-  }, [playing, expanded, view]);
-  const toggle = useCallback(() => setPlaying((p) => !p), []);
-  const replay = useCallback(() => {
-    for (const s of svgs()) {
-      if (typeof s.setCurrentTime === "function") s.setCurrentTime(0);
-      if (typeof s.unpauseAnimations === "function") s.unpauseAnimations();
-    }
-    setPlaying(true);
-    setCycle((c) => c + 1);
-  }, []);
-  const motion = useMemo(
-    () => ({ playing: playing && !reduced, reduced, cycle, toggle, replay }),
-    [playing, reduced, cycle, toggle, replay]
-  );
+  });
+  const stageW = useStageWidth(stageRef, expanded);
+  const motion = useDrillMotion(stageRef, reduced, expanded, view);
   const note = selected?.detail ? selected : null;
-  useIsoLayoutEffect(() => {
-    setNotePos(null);
-    const canvas = canvasRef.current;
-    const el = noteRef.current;
-    const anchor2 = note?.anchor;
-    if (!canvas || !el || !anchor2) return;
-    const place = () => {
-      if (anchor2.isConnected) setNotePos(placeNote(canvas, el, anchor2));
-    };
-    place();
-    if (typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(place);
-    ro.observe(canvas);
-    return () => ro.disconnect();
-  }, [note, zoom, expanded]);
+  const notePos = useNotePlacement(canvasRef, noteRef, note, zoom, expanded);
+  const frame = useMemo(() => ({ wide: viewBox, narrow: narrowViewBox }), [viewBox, narrowViewBox]);
   useRovingFocus(canvasRef, expanded);
-  const current = levelMap.get(last(view.path));
+  const openCanvas = useCallback(() => {
+    select(null);
+    setExpanded(true);
+  }, []);
+  const current = levelMap.get(lastOf(view.path));
   if (!current) return null;
   const crumbs = view.path;
   const depth = crumbs.length - 1;
-  const parentLabel = depth > 0 ? labelOf(crumbs[depth - 1]) : "";
   const trail = crumbs.map(labelOf).join(" \u203A ");
   const fw = vbSize(viewBox);
   const fn = narrowViewBox ? vbSize(narrowViewBox) : null;
-  const mounted = view.flight ? [last(view.flight.from), last(view.path)] : [last(view.path)];
+  const mounted = view.flight ? [lastOf(view.flight.from), lastOf(view.path)] : [lastOf(view.path)];
   mounted.sort((a, b) => {
     const order = view.flight && view.flight.from.length > view.path.length ? view.flight.from : view.path;
     return order.indexOf(a) - order.indexOf(b);
   });
-  const showControls = controls && !reduced;
   return /* @__PURE__ */ jsx(
     CanvasView,
     {
@@ -646,10 +754,10 @@ function DrillFigureRoot({
                 select(null);
                 return;
               }
-              if (expanded || requestedRef.current.length < 2) return;
+              if (expanded || !canGoUp()) return;
               e.preventDefault();
               up();
-            } else if (e.key === "Backspace" && requestedRef.current.length > 1) {
+            } else if (e.key === "Backspace" && canGoUp()) {
               e.preventDefault();
               up();
             }
@@ -667,55 +775,23 @@ function DrillFigureRoot({
                 number && eyebrow ? " \xB7 " : "",
                 eyebrow
               ] }) : null,
-              /* @__PURE__ */ jsx("nav", { className: "uipack-drill__crumbs", "aria-label": "Figure levels", children: /* @__PURE__ */ jsx("ol", { children: crumbs.map((lid, i) => /* @__PURE__ */ jsxs("li", { children: [
-                i > 0 ? /* @__PURE__ */ jsx("span", { className: "uipack-drill__sep", "aria-hidden": "true", children: "\u203A" }) : null,
-                i < depth ? /* @__PURE__ */ jsx("button", { type: "button", className: "uipack-drill__crumb", onClick: () => navigate(crumbs.slice(0, i + 1)), children: labelOf(lid) }) : /* @__PURE__ */ jsx("span", { className: "uipack-drill__here", "aria-current": "location", tabIndex: -1, ref: currentCrumbRef, children: labelOf(lid) })
-              ] }, lid)) }) }),
+              /* @__PURE__ */ jsx(DrillCrumbs, { crumbs, labelOf, navigate, currentRef: currentCrumbRef }),
               createElement(
                 `h${headingLevel}`,
                 { className: "uipack__title", tabIndex: -1, ref: headingRef },
                 current.title ?? current.label
               ),
               current.caption ? /* @__PURE__ */ jsx("p", { className: "uipack__caption", children: current.caption }) : null,
-              /* @__PURE__ */ jsxs("div", { className: "uipack__controls", children: [
-                depth > 0 ? /* @__PURE__ */ jsxs(
-                  "button",
-                  {
-                    type: "button",
-                    className: "uipack__ctl uipack-drill__back",
-                    "aria-label": `Back to ${parentLabel}`,
-                    onClick: up,
-                    children: [
-                      /* @__PURE__ */ jsx(BackGlyph, {}),
-                      " Back"
-                    ]
-                  }
-                ) : null,
-                expandable && !expanded ? /* @__PURE__ */ jsx(
-                  "button",
-                  {
-                    type: "button",
-                    className: "uipack__ctl",
-                    ref: opener,
-                    onClick: () => {
-                      select(null);
-                      setExpanded(true);
-                    },
-                    children: "Open canvas"
-                  }
-                ) : null,
-                showControls ? /* @__PURE__ */ jsxs(Fragment, { children: [
-                  /* @__PURE__ */ jsxs("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: replay, children: [
-                    /* @__PURE__ */ jsx(ReplayGlyph, {}),
-                    " Replay"
-                  ] }),
-                  /* @__PURE__ */ jsxs("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: toggle, "aria-pressed": !playing, children: [
-                    playing ? /* @__PURE__ */ jsx(PauseGlyph, {}) : /* @__PURE__ */ jsx(PlayGlyph, {}),
-                    " ",
-                    playing ? "Pause" : "Play"
-                  ] })
-                ] }) : null
-              ] }),
+              /* @__PURE__ */ jsx(
+                DrillControls,
+                {
+                  parentLabel: depth > 0 ? labelOf(crumbs[depth - 1]) : null,
+                  onBack: up,
+                  onOpen: expandable && !expanded ? openCanvas : null,
+                  openerRef: opener,
+                  motion: controls && !reduced ? motion : null
+                }
+              ),
               /* @__PURE__ */ jsx(Legend, { items: current.legend ?? [] })
             ] }),
             /* @__PURE__ */ jsx("p", { className: "uipack__sr", role: "status", children: note ? `${note.label}: ${note.detail}` : "" }),

@@ -1,9 +1,8 @@
+import { easeInOutCubic, smoothstep } from './chunk-BN5H6RB6.js';
+import { useLatest } from './chunk-I6LF4PLF.js';
+import { useRef, useCallback, useEffect } from 'react';
+
 // src/zoom-math.ts
-var easeInOutCubic = (p) => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
-var smoothstep = (a, b, x) => {
-  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
-  return t * t * (3 - 2 * t);
-};
 function zoomFrame(target, width, height) {
   const Z = Math.min(width / target.w, height / target.h);
   if (!Number.isFinite(Z) || Z < 1.05) return null;
@@ -45,5 +44,37 @@ function zoomSamples(target, forward, width, height, { samples = 24, radius = 6 
   }
   return out;
 }
+function useLayerFlight(clearLayers) {
+  const anims = useRef([]);
+  const generation = useRef(0);
+  const clearRef = useLatest(clearLayers);
+  const settle = useCallback(() => {
+    generation.current += 1;
+    for (const a of anims.current) a.cancel();
+    anims.current = [];
+    clearRef.current();
+  }, [clearRef]);
+  const fly = useCallback((run, land) => {
+    const at = ++generation.current;
+    for (const a of anims.current) if (!run.includes(a)) a.cancel();
+    anims.current = run;
+    if (!run.length) return land();
+    Promise.all(run.map((a) => a.finished)).then(
+      () => {
+        if (generation.current === at) land();
+      },
+      () => {
+      }
+    );
+  }, []);
+  useEffect(() => {
+    const running = anims;
+    return () => {
+      generation.current += 1;
+      for (const a of running.current) a.cancel();
+    };
+  }, []);
+  return { anims, settle, fly };
+}
 
-export { easeInOutCubic, innerClipStart, smoothstep, zoomFrame, zoomSamples };
+export { innerClipStart, useLayerFlight, zoomFrame, zoomSamples };

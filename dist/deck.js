@@ -1,8 +1,8 @@
-import { useLayerFlight } from './chunk-5GCY6KJP.js';
-import { zoomFrame, innerClipStart, smoothstep } from './chunk-VZ4PJUMF.js';
+import { zoomFrame, useLayerFlight, innerClipStart } from './chunk-DZG73W3D.js';
 import { WORDS_PER_MINUTE } from './chunk-K7T4NUBP.js';
 export { WORDS_PER_MINUTE } from './chunk-K7T4NUBP.js';
-import { usePrefersReducedMotion, useIsoLayoutEffect } from './chunk-KYO6UXHN.js';
+import { smoothstep } from './chunk-BN5H6RB6.js';
+import { usePrefersReducedMotion, useIsoLayoutEffect } from './chunk-I6LF4PLF.js';
 import { createContext, useContext, useState, useRef, useMemo, useCallback, useEffect, Children, isValidElement, forwardRef } from 'react';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { flushSync, createPortal } from 'react-dom';
@@ -538,7 +538,7 @@ function SlideThumbnail({
   return /* @__PURE__ */ jsx("div", { ref, className: "uipack-deck-thumb", "data-tone": slide.tone ?? "paper", children: /* @__PURE__ */ jsx("div", { className: "uipack-deck-canvas", style: { transform: `scale(${scale})`, visibility: scale ? void 0 : "hidden" }, children: /* @__PURE__ */ jsx(Layer, { slide, index, count, step, active: false, thumbnail: true, theme, reducedMotion: true }) }) });
 }
 
-// src/deck/storyline.ts
+// src/deck/storyline/roles.ts
 var SLIDE_ROLES = {
   cover: {
     label: "Cover",
@@ -608,6 +608,8 @@ var SLIDE_ROLES = {
 };
 var QUANTIFIED_ROLES = ["answer", "evidence", "problem", "recommendation"];
 var REPEATABLE_ROLES = ["evidence", "mechanism", "demo", "appendix"];
+
+// src/deck/storyline/templates.ts
 var STORYLINE_TEMPLATES = [
   {
     id: "project-update",
@@ -1000,6 +1002,8 @@ function templateOutline(template) {
   const t = typeof template === "string" ? getStorylineTemplate(template) : template;
   return t.beats.map((beat, i) => ({ id: `${t.id}-${i + 1}`, title: beat.example, role: beat.role }));
 }
+
+// src/deck/storyline/rules.ts
 var LINT_RULES = {
   "deck-empty": { severity: "error", check: "The deck has at least one slide." },
   "duplicate-id": { severity: "error", check: "Slide IDs are unique (they appear in URLs and presenter sync)." },
@@ -1051,6 +1055,8 @@ var LINT_RULES = {
   }
 };
 var MAX_TITLE_WORDS = 14;
+
+// src/deck/storyline/heuristics.ts
 var TOPIC_LABELS = /* @__PURE__ */ new Set([
   "about me",
   "action items",
@@ -1132,23 +1138,23 @@ var TOPIC_LABELS = /* @__PURE__ */ new Set([
 var MONTH = "jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?";
 var WEEKDAY = "mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:rs(?:day)?)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?";
 var capitalised = (alternatives) => alternatives.replace(/(^|\|)([a-z])/g, (_, bar, c) => bar + c.toUpperCase());
-var DATE_RE = new RegExp(
-  [
+var DATE_RE = /* @__PURE__ */ new RegExp(
+  /* @__PURE__ */ [
     // Capitalised, so "may", "sat" and "wed" as ordinary words don't count as dates.
-    `\\b(?:${capitalised(MONTH)})\\b`,
-    `\\b(?:${capitalised(WEEKDAY)})\\b`,
-    String.raw`\b\d{4}-\d{2}-\d{2}\b`,
-    String.raw`\b\d{1,2}/\d{1,2}\b`,
-    String.raw`\b(?:FY\s?'?\d{2,4}\s?)?[QH][1-4]\b`,
-    String.raw`\b(?:[Tt]oday|[Tt]omorrow|[Tt]onight|EOD|eod)\b`
+    `\\b(?:${/* @__PURE__ */ capitalised(MONTH)})\\b`,
+    `\\b(?:${/* @__PURE__ */ capitalised(WEEKDAY)})\\b`,
+    `\\b\\d{4}-\\d{2}-\\d{2}\\b`,
+    `\\b\\d{1,2}/\\d{1,2}\\b`,
+    `\\b(?:FY\\s?'?\\d{2,4}\\s?)?[QH][1-4]\\b`,
+    `\\b(?:[Tt]oday|[Tt]omorrow|[Tt]onight|EOD|eod)\\b`
   ].join("|")
 );
 var RELATIVE_DATE_RE = /\b(?:(?:this|next|coming|following) (?:week|month|quarter|half|sprint|year|cycle)|end of (?:the )?(?:week|month|quarter|half|year)|soon|asap|going forward|in the future|over time|eventually|later this year)\b/i;
 var DECISION_RE = /\b(?:approve|approves|decide|decision|agree|choose|pick|sign(?:s)? off|fund|staff|prioriti[sz]e|review|commit|allocate|assign|adopt|join|try|confirm|accept|enable|switch|turn on|send|share|sponsor|support|unblock|escalate|ship|green-?light|vote|nominate|give|grant|lend|provide|attend|book|hire|move|freeze|pause|stop|start|own)\b/i;
 var OWNER_ROLE_RE = /\b(?:manager|managers|director|directors|head of|committee|board|council|on-call|architect|architects|approver|approvers|reviewer|reviewers)\b|(?:^|[\s(])@\w/i;
 var QUALIFIED_OWNER_RE = /([\p{L}][\p{L}'’-]*)\s+(?:lead|leads|owner|owners|sponsor|sponsors|chair)\b(?![\s:,–—-]*(?:TBD|TBC|TBA|tbd|to be (?:decided|confirmed|named|agreed)|unknown|unassigned|\?))/gu;
-var NOT_A_QUALIFIER = new Set(
-  "i we you they he she it me us them this that these those which who whom what the a an our your their my his her its will would can could should shall may might must to and or but then also please not never always just do does did let lets let's help who'll we'll i'll you'll they'll whoever someone somebody anyone nobody no".split(" ")
+var NOT_A_QUALIFIER = /* @__PURE__ */ new Set(
+  /* @__PURE__ */ "i we you they he she it me us them this that these those which who whom what the a an our your their my his her its will would can could should shall may might must to and or but then also please not never always just do does did let lets let's help who'll we'll i'll you'll they'll whoever someone somebody anyone nobody no".split(" ")
 );
 var OWNER_ACRONYM_RE = /\b(?:VPs?|SVPs?|EVPs?|CEO|CTO|CFO|COO|CPO|CIO|CISO|PMs?|EMs?|TLs?|TPMs?|SREs?)\b/;
 var NAMED_GROUP_RE = /\b(?!the\b|our\b|my\b|your\b|this\b|that\b|a\b|whole\b|entire\b|each\b|every\b|any\b|other\b|same\b|new\b)[\p{L}-]+ (?:team|teams|org|group|squad|guild|committee)\b/iu;
@@ -1157,22 +1163,18 @@ var HEDGED_DATE_RE = /-?\bish\b|\b(?:maybe|perhaps|probably|possibly|hopefully|t
 var NUM_WORD = "one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|billion|dozen";
 var UNIT = "ms|milliseconds?|seconds?|secs?|minutes?|mins?|hours?|hrs?|days?|weeks?|months?|quarters?|years?|sprints?|percent|per cent|percentage points?|points?|pts|times|dollars|cents|euros|pounds|[KMGT]B|engineers?|engineer-(?:days|weeks|months)|people|persons?|hires?|headcount|FTEs?";
 var MULTIPLE_RE = /\b(?:twice|half|halve[ds]?|halving|double[ds]?|doubling|triple[ds]?|tripling|quadrupled|tenfold|[a-z]+-fold|a third|thirds|two-thirds|a quarter|a fifth|a tenth)\b/i;
-var NUMBER_UNIT_RE = new RegExp(
-  String.raw`\b(?:${NUM_WORD})(?:[\s-]+(?:more|fewer|extra|full|whole|additional|business|working|calendar))?[\s-]+(?:${UNIT})\b`,
-  "i"
-);
-var NUMBER_COMPARISON_RE = new RegExp(
-  String.raw`\b(?:${NUM_WORD}|\d[\d,.]*)\b[^.;:!?]{0,40}?\b(?:not|instead of|rather than|vs\.?|versus|against|down from|up from|from|to|of|in|out of)\s+(?:about\s+|around\s+|a\s+|the\s+|every\s+)?(?:${NUM_WORD})\b`,
-  "i"
-);
+var numberUnitSource = () => `\\b(?:${NUM_WORD})(?:[\\s-]+(?:more|fewer|extra|full|whole|additional|business|working|calendar))?[\\s-]+(?:${UNIT})\\b`;
+var NUMBER_UNIT_RE = /* @__PURE__ */ new RegExp(/* @__PURE__ */ numberUnitSource(), "i");
+var numberComparisonSource = () => `\\b(?:${NUM_WORD}|\\d[\\d,.]*)\\b[^.;:!?]{0,40}?\\b(?:not|instead of|rather than|vs\\.?|versus|against|down from|up from|from|to|of|in|out of)\\s+(?:about\\s+|around\\s+|a\\s+|the\\s+|every\\s+)?(?:${NUM_WORD})\\b`;
+var NUMBER_COMPARISON_RE = /* @__PURE__ */ new RegExp(/* @__PURE__ */ numberComparisonSource(), "i");
 var OUTCOME_RE = /\b(?:faster|slower|cheaper|safer|fewer|more|less|cut|cuts|saved?|saves|saving|grew|grow|fell|fall|rose|raised?|reduced?|reduces|improved?|improves|doubled?|halved?|ended|ends|stops?|stopped|prevents?|unblock(?:s|ed)?|launch(?:es|ed)?|ship(?:s|ped)?|on track|at risk|done|delivered|won|lost|missed|recovered|restored)\b/i;
 var SOURCE_KIND_RE = /^(?:dashboards?|quer(?:y|ies)|tests?|surveys?|reports?|benchmarks?|logs?|experiments?|traces?|telemetry|studies|study|forecasts?|trackers?|ledgers?|notebooks?|spreadsheets?)$/i;
 var SOURCE_PHRASE_RE = /\b(?:management|finance|financial) accounts\b|\b(?:cost|capacity|pricing|financial|forecast) model\b|https?:\/\/|\bwww\.\w/i;
 var HEDGED_SOURCE_RE = /\b(?:trust me|someone|somebody|said so|i think|i believe|i heard|i guess|heard|mentioned|rumou?rs?|anecdotal(?:ly)?|ballpark|eyeball(?:ed)?|gut feel(?:ing)?|from memory|my laptop|off the top of my head|guess(?:ed|timate)?|ran (?:it )?once|once on staging)\b/i;
 var SOURCE_MODIFIED_RE = /^(?:chat|channel|thread|meeting|call|conversation|discussion|rumou?r|gossip|screenshot|people|team|owner)$/i;
 var SOURCE_NAME_AFTER_RE = /^(?:suite|suites|run|runs|notebook|sheet|page|tab|panel|export|entry|row|link|doc|id)$/i;
-var SOURCE_STOP = new Set(
-  "i we you they he she it me us them this that these those which who what the a an our your their my his her its some any one per from in on at of by for to with and or but see source sources is was were are be been said says ran run did do so just once maybe probably trust according".split(" ")
+var SOURCE_STOP = /* @__PURE__ */ new Set(
+  /* @__PURE__ */ "i we you they he she it me us them this that these those which who what the a an our your their my his her its some any one per from in on at of by for to with and or but see source sources is was were are be been said says ran run did do so just once maybe probably trust according".split(" ")
 );
 function namedSource(text) {
   if (SOURCE_PHRASE_RE.test(text)) return true;
@@ -1254,6 +1256,8 @@ function inferRoles(slides) {
     return void 0;
   });
 }
+
+// src/deck/storyline/checks.ts
 function titledSlides(deck) {
   return deck.slides.filter((slide) => slide.role !== "appendix").map((slide) => ({ slide, headline: headlineOf(slide) })).filter(({ headline }) => headline);
 }
@@ -1574,6 +1578,8 @@ function talkSeconds(slides) {
   const words = slides.filter((s) => s.role !== "appendix").reduce((sum, s) => sum + (sayOf(s.notes).match(/\S+/g)?.length ?? 0), 0);
   return Math.round(words / WORDS_PER_MINUTE * 60);
 }
+
+// src/deck/storyline/ghost.ts
 function storylineOf(slides) {
   return slides.map((slide, i) => {
     const entry = {
@@ -2680,15 +2686,15 @@ function SoWhat({ title = "So what", children, ...grid }) {
 }
 
 // src/deck/consulting/scale.ts
+var MIN_TEXT_PX = 20;
 var CX_TYPE = {
-  min: 20,
+  min: MIN_TEXT_PX,
   tick: 20,
   label: 22,
   value: 22,
   callout: 22,
   quadrant: 20
 };
-var MIN_TEXT_PX = CX_TYPE.min;
 function linearScale(domain, range) {
   const [d0, d1] = domain;
   const [r0, r1] = range;
@@ -2939,7 +2945,7 @@ function useGrown() {
       cancelAnimationFrame(first);
       cancelAnimationFrame(second);
     };
-  }, []);
+  }, [grown]);
   return grown;
 }
 var defaultFormat = (v) => formatValue(v, { decimals: Number.isInteger(v) ? 0 : 1 });
@@ -2959,13 +2965,14 @@ function Frame({
   children
 }) {
   const grown = useGrown();
-  return /* @__PURE__ */ jsx("div", { ref: size.ref, className: ["uipack-cx-chart", className].filter(Boolean).join(" "), "data-grown": grown ? "" : void 0, children: /* @__PURE__ */ jsx(
+  const { ref, width, height } = size;
+  return /* @__PURE__ */ jsx("div", { ref, className: ["uipack-cx-chart", className].filter(Boolean).join(" "), "data-grown": grown ? "" : void 0, children: /* @__PURE__ */ jsx(
     "svg",
     {
       className: "uipack-cx-svg",
-      width: size.width,
-      height: size.height,
-      viewBox: `0 0 ${size.width} ${size.height}`,
+      width,
+      height,
+      viewBox: `0 0 ${width} ${height}`,
       role: "img",
       "aria-label": label,
       children
@@ -3500,12 +3507,12 @@ function StackedBar({
   const fmtSeg = (s) => percent ? `${Math.round(s.share * 100)}%` : (segmentFormat ?? format)(s.value);
   const label = alt ?? `Stacked bar chart, ${series.join(", ")}. ${categories.map((c, i) => `${c.label}: ${stacks[i].map((s, k) => `${series[k]} ${fmtSeg(s)}`).join(", ")}`).join("; ")}.`;
   const legendH = 36;
+  const legend = [];
   let lx = 0;
-  const legend = series.map((name, i) => {
-    const item = { name, i, x: lx };
+  for (const [i, name] of series.entries()) {
+    legend.push({ name, i, x: lx });
     lx += 18 + 10 + textWidth(name, CX_TYPE.tick) + 28;
-    return item;
-  });
+  }
   const legendEl = /* @__PURE__ */ jsx("g", { className: "uipack-cx-legend", children: legend.map((l) => /* @__PURE__ */ jsxs("g", { children: [
     /* @__PURE__ */ jsx("rect", { x: l.x, y: 6, width: 18, height: 18, rx: 2, style: { fill: fill.series(l.i) } }),
     /* @__PURE__ */ jsx(Text, { x: l.x + 28, y: 15, size: CX_TYPE.tick, children: l.name })
@@ -3768,4 +3775,4 @@ function HarveyTable({
   ] });
 }
 
-export { Annotation, BarChart, Bento, BentoCell, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, ConsultingSlide, DeckPlayer, DeckSlideContext, HarveyBall, HarveyTable, KpiTiles, LINT_RULES, LineChart, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, Morph, Panel, REPEATABLE_ROLES, Ref, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, SlideThumbnail, SoWhat, Sparkline, StackedBar, Tracker, Waterfall, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, flipFrom, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, resolveTransition, runTransition, slideZoomFrame, slideZoomSamples, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };
+export { Annotation, BarChart, Bento, BentoCell, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, ConsultingSlide, DeckPlayer, DeckSlideContext, HarveyBall, HarveyTable, KpiTiles, LINT_RULES, LineChart, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, Morph, Panel, REPEATABLE_ROLES, Ref, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, SlideThumbnail, SoWhat, Sparkline, StackedBar, Tracker, Waterfall, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, slideZoomFrame, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };

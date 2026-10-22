@@ -1,7 +1,7 @@
 import { validateSlideStory, resolveNodePose, clampStop } from './chunk-FDQ4SBOZ.js';
 export { clampStop, resolveNodePose, slidePalettes, validateSlideStory } from './chunk-FDQ4SBOZ.js';
-import { CanvasView } from './chunk-NSE7TINL.js';
-import { usePrefersReducedMotion } from './chunk-KYO6UXHN.js';
+import { CanvasView } from './chunk-D3TRNW7E.js';
+import { usePrefersReducedMotion } from './chunk-I6LF4PLF.js';
 import { useState, useRef, useEffect, useId } from 'react';
 import { jsxs, jsx } from 'react/jsx-runtime';
 

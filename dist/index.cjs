@@ -1,11 +1,11 @@
 'use strict';
 
-var chunkAASFR6RT_cjs = require('./chunk-AASFR6RT.cjs');
-var chunkKQ7UFCOU_cjs = require('./chunk-KQ7UFCOU.cjs');
-var chunk6RV2I5R3_cjs = require('./chunk-6RV2I5R3.cjs');
+var chunkRKJA4DKU_cjs = require('./chunk-RKJA4DKU.cjs');
+var chunk4QGTO7IR_cjs = require('./chunk-4QGTO7IR.cjs');
 var chunkXEK5V7KF_cjs = require('./chunk-XEK5V7KF.cjs');
-var chunk5QNGHC2A_cjs = require('./chunk-5QNGHC2A.cjs');
-var chunkYMPVJRTJ_cjs = require('./chunk-YMPVJRTJ.cjs');
+var chunk2JULAQB4_cjs = require('./chunk-2JULAQB4.cjs');
+var chunkGVSVZ2EW_cjs = require('./chunk-GVSVZ2EW.cjs');
+var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
 var jsxRuntime = require('react/jsx-runtime');
 var react = require('react');
 
@@ -40,8 +40,8 @@ function wallSegments(from, to, holes = [], gap = 9) {
   return segs;
 }
 function Wall({ at, from, to, holes = [], axis = "v", thickness: t = 16, gap = 9, flow }) {
-  const hover = chunk6RV2I5R3_cjs.useFigureHover();
-  return /* @__PURE__ */ jsxRuntime.jsx("g", { "data-uipack": "wall", ...chunk6RV2I5R3_cjs.hoverAttrs(flow, void 0, hover), children: wallSegments(from, to, holes, gap).map(([a, b]) => {
+  const hover = chunk4QGTO7IR_cjs.useFigureHover();
+  return /* @__PURE__ */ jsxRuntime.jsx("g", { "data-uipack": "wall", ...chunk4QGTO7IR_cjs.hoverAttrs(flow, void 0, hover), children: wallSegments(from, to, holes, gap).map(([a, b]) => {
     const r = axis === "v" ? { x: at - t / 2, y: a, width: t, height: b - a } : { x: a, y: at - t / 2, width: b - a, height: t };
     return /* @__PURE__ */ jsxRuntime.jsx(
       "rect",
@@ -62,7 +62,7 @@ function Cross({ x, y, r = 5, kind }) {
     "g",
     {
       "data-uipack": "cross",
-      stroke: chunk6RV2I5R3_cjs.connectorStroke(kind),
+      stroke: chunk4QGTO7IR_cjs.connectorStroke(kind),
       strokeOpacity: kind ? 1 : 0.8,
       strokeWidth: 1.75,
       strokeLinecap: "round",
@@ -128,117 +128,57 @@ function Wordmark({ size = 24 }) {
     )
   ] });
 }
-
-// src/drill/animate.ts
-var drillMotion = {
-  zoom: 1e3,
-  fade: 320,
-  reduced: 160
-};
-function findDrillNode(layer, id) {
-  const all = Array.from(layer.querySelectorAll(`[data-drill="${cssEscape(id)}"]`));
-  return all.find((el) => el.getBoundingClientRect().width > 0) ?? all[0] ?? null;
-}
-var cssEscape = (s) => typeof CSS !== "undefined" && CSS.escape ? CSS.escape(s) : s.replace(/["\\]/g, "\\$&");
-var boxOf = (node) => node.querySelector('[data-uipack="node"] > rect') ?? node;
-var faceOf = (node) => Array.from(
-  node.querySelectorAll('[data-uipack="node"] > :not(rect):not(.uipack__touch-target), .uipack-drill-node__mark')
-);
-function paintInner(inner, canvas) {
-  if (!canvas) return;
-  const cs = getComputedStyle(canvas);
-  const c = canvas.getBoundingClientRect();
-  const l = inner.getBoundingClientRect();
-  inner.style.backgroundColor = cs.backgroundColor;
-  inner.style.backgroundImage = cs.backgroundImage;
-  inner.style.backgroundSize = cs.backgroundSize;
-  inner.style.backgroundPosition = `${(c.left + canvas.clientLeft - l.left).toFixed(2)}px ${(c.top + canvas.clientTop - l.top).toFixed(2)}px`;
-}
-function clearLayer(el) {
-  el.style.removeProperty("z-index");
-  el.style.removeProperty("background-color");
-  el.style.removeProperty("background-image");
-  el.style.removeProperty("background-size");
-  el.style.removeProperty("background-position");
-  delete el.dataset.role;
-}
-function runDrill(opts) {
-  const { from, to, stage, canvas, reduced } = opts;
-  if (typeof from.animate !== "function") return [];
-  const anims = [];
-  const play = (el, keyframes, timing2) => {
-    anims.push(el.animate(keyframes, { fill: "both", ...timing2 }));
-  };
-  const W = stage.clientWidth;
-  const H = stage.clientHeight;
-  let kind = reduced ? "fade" : opts.kind;
-  let samples = null;
-  let local = null;
-  let k = 1;
-  if (kind !== "fade" && opts.target) {
-    const s = stage.getBoundingClientRect();
-    const boxEl = boxOf(opts.target);
-    const r = boxEl.getBoundingClientRect();
-    local = { x: r.left - s.left, y: r.top - s.top, w: r.width, h: r.height };
-    const userW = boxEl.width?.baseVal?.value;
-    if (userW) k = r.width / userW;
-    samples = chunkKQ7UFCOU_cjs.zoomSamples(local, kind === "in", W, H, { samples: 32, radius: 6 * k });
+var BackGlyph = () => /* @__PURE__ */ jsxRuntime.jsx("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsx(
+  "path",
+  {
+    d: "M7.5 2.5 4 6l3.5 3.5",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "1.6",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
   }
-  if (!samples || !local) kind = "fade";
-  if (kind === "fade") {
-    to.dataset.role = "inner";
-    to.style.zIndex = "2";
-    paintInner(to, canvas);
-    const timing2 = { duration: reduced ? drillMotion.reduced : drillMotion.fade, easing: "ease" };
-    play(to, [{ opacity: 0 }, { opacity: 1 }], timing2);
-    play(from, [{ opacity: 1 }, { opacity: 0 }], timing2);
-    return anims;
-  }
-  const forward = kind === "in";
-  const outer = forward ? from : to;
-  const inner = forward ? to : from;
-  const frame = chunkKQ7UFCOU_cjs.zoomFrame(local, W, H);
-  const origin = `${frame.fx.toFixed(2)}px ${frame.fy.toFixed(2)}px`;
-  inner.dataset.role = "inner";
-  inner.style.zIndex = "2";
-  paintInner(inner, canvas);
-  const timing = { duration: opts.duration ?? drillMotion.zoom, easing: "linear" };
-  play(
-    outer,
-    samples.map((s) => ({
-      offset: s.offset,
-      transform: s.outer,
-      transformOrigin: origin,
-      opacity: 1 - chunkKQ7UFCOU_cjs.smoothstep(0.88, 0.99, s.p)
-    })),
-    timing
-  );
-  play(
-    inner,
-    samples.map((s) => ({
-      offset: s.offset,
-      transform: s.inner,
-      transformOrigin: origin,
-      clipPath: s.clip,
-      opacity: s.innerOpacity
-    })),
-    timing
-  );
-  for (const part of faceOf(opts.target)) {
-    play(
-      part,
-      samples.map((s) => ({ offset: s.offset, opacity: 1 - s.innerOpacity })),
-      timing
-    );
-  }
-  const halo = opts.target.querySelector(".uipack-drill-node__halo");
-  if (halo)
-    play(
-      halo,
-      samples.map((s) => ({ offset: s.offset, opacity: 1 - chunkKQ7UFCOU_cjs.smoothstep(0, 0.25, s.p) })),
-      timing
-    );
-  return anims;
+) });
+function DrillCrumbs({
+  crumbs,
+  labelOf,
+  navigate,
+  currentRef
+}) {
+  const depth = crumbs.length - 1;
+  return /* @__PURE__ */ jsxRuntime.jsx("nav", { className: "uipack-drill__crumbs", "aria-label": "Figure levels", children: /* @__PURE__ */ jsxRuntime.jsx("ol", { children: crumbs.map((lid, i) => /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
+    i > 0 ? /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-drill__sep", "aria-hidden": "true", children: "\u203A" }) : null,
+    i < depth ? /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", className: "uipack-drill__crumb", onClick: () => navigate(crumbs.slice(0, i + 1)), children: labelOf(lid) }) : /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-drill__here", "aria-current": "location", tabIndex: -1, ref: currentRef, children: labelOf(lid) })
+  ] }, lid)) }) });
+}
+function DrillControls({ parentLabel, onBack, onOpen, openerRef, motion }) {
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack__controls", children: [
+    parentLabel !== null ? /* @__PURE__ */ jsxRuntime.jsxs("button", { type: "button", className: "uipack__ctl uipack-drill__back", "aria-label": `Back to ${parentLabel}`, onClick: onBack, children: [
+      /* @__PURE__ */ jsxRuntime.jsx(BackGlyph, {}),
+      " Back"
+    ] }) : null,
+    onOpen ? /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", className: "uipack__ctl", ref: openerRef, onClick: onOpen, children: "Open canvas" }) : null,
+    motion ? /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: motion.replay, children: [
+        /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.ReplayGlyph, {}),
+        " Replay"
+      ] }),
+      /* @__PURE__ */ jsxRuntime.jsxs(
+        "button",
+        {
+          type: "button",
+          className: "uipack__ctl uipack__ctl--motion",
+          onClick: motion.toggle,
+          "aria-pressed": !motion.playing,
+          children: [
+            motion.playing ? /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.PauseGlyph, {}) : /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.PlayGlyph, {}),
+            " ",
+            motion.playing ? "Pause" : "Play"
+          ]
+        }
+      )
+    ] }) : null
+  ] });
 }
 var DrillContext = /* @__PURE__ */ react.createContext(null);
 var useDrill = () => react.useContext(DrillContext);
@@ -309,50 +249,6 @@ function drillBox(box, grow = DRILL_GROW) {
   return { ...box, y: box.y - grow / 2, h: box.h + grow };
 }
 var DRILL_GROW = 8;
-function drillStatic(props, path) {
-  const levels = new Map(props.levels.map((l) => [l.id, l]));
-  const root = props.root ?? props.levels[0]?.id ?? "";
-  const p = normalizePath(path ?? props.path ?? props.defaultPath, new Set(levels.keys()), root);
-  const level = levels.get(p[p.length - 1]);
-  const trail = p.length > 1 ? p.map((id) => levels.get(id)?.label ?? id).join(" \u203A ") : "";
-  const lid = `static-${cleanId(level.id)}`;
-  return {
-    children: /* @__PURE__ */ jsxRuntime.jsx(
-      DrillContext.Provider,
-      {
-        value: {
-          levels,
-          frame: { wide: props.viewBox, narrow: props.narrowViewBox },
-          idPrefix: lid,
-          variant: "wide",
-          interactive: false,
-          ghost: false
-        },
-        children: level.render({ id: lid, variant: "wide", ghost: false, level })
-      }
-    ),
-    viewBox: level.viewBox ?? props.viewBox,
-    legend: level.legend,
-    number: props.number,
-    eyebrow: [props.eyebrow, trail].filter(Boolean).join(" \xB7 ") || void 0,
-    title: level.title ?? level.label,
-    caption: level.caption,
-    alt: level.alt,
-    background: props.background
-  };
-}
-var last = (p) => p[p.length - 1];
-var BackGlyph = () => /* @__PURE__ */ jsxRuntime.jsx("svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntime.jsx(
-  "path",
-  {
-    d: "M7.5 2.5 4 6l3.5 3.5",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "1.6",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }
-) });
 var DrillLayer = /* @__PURE__ */ react.memo(function DrillLayer2({
   level,
   figId,
@@ -389,6 +285,346 @@ var DrillLayer = /* @__PURE__ */ react.memo(function DrillLayer2({
     frame.narrow ? draw("narrow", level.narrow ?? level.render, level.narrowViewBox ?? frame.narrow, floorNarrow) : null
   ] });
 });
+function useDrillPath({ levels, root, path, defaultPath, onPathChange, onNavigate }) {
+  const levelMap = react.useMemo(() => new Map(levels.map((l) => [l.id, l])), [levels]);
+  const ids = react.useMemo(() => new Set(levelMap.keys()), [levelMap]);
+  const rootId = root ?? levels[0]?.id ?? "";
+  const labelOf = react.useCallback((lid) => levelMap.get(lid)?.label ?? lid, [levelMap]);
+  const [own, setOwn] = react.useState(() => normalizePath(defaultPath, ids, rootId));
+  const requestedKey = JSON.stringify(normalizePath(path ?? own, ids, rootId));
+  const requested = react.useMemo(() => JSON.parse(requestedKey), [requestedKey]);
+  const latestRef = chunkKV6PPCWS_cjs.useLatest({ requested, path, onPathChange, onNavigate });
+  const navigate = react.useCallback(
+    (next) => {
+      const { requested: requested2, path: path2, onPathChange: onPathChange2, onNavigate: onNavigate2 } = latestRef.current;
+      if (samePath(next, requested2)) return;
+      onNavigate2();
+      if (path2 === void 0) setOwn(next);
+      onPathChange2?.([...next]);
+    },
+    [latestRef]
+  );
+  const up = react.useCallback(
+    () => navigate(drillReducer(latestRef.current.requested, { type: "up" }, ids)),
+    [navigate, ids, latestRef]
+  );
+  const openFrom = react.useCallback(
+    (from, child) => {
+      const cur = latestRef.current.requested;
+      const at = cur.indexOf(from);
+      if (at < 0) return;
+      navigate(drillReducer(cur.slice(0, at + 1), { type: "open", id: child }, ids));
+    },
+    [navigate, ids, latestRef]
+  );
+  const canGoUp = react.useCallback(() => latestRef.current.requested.length > 1, [latestRef]);
+  return { levelMap, labelOf, requested, navigate, up, openFrom, canGoUp };
+}
+function useStageWidth(stageRef, expanded) {
+  const [stageW, setStageW] = react.useState(1088);
+  react.useEffect(() => {
+    const el = stageRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const read = () => {
+      const w = el.getBoundingClientRect().width;
+      if (w > 0) setStageW(w);
+    };
+    read();
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [stageRef, expanded]);
+  return stageW;
+}
+var drawings = (stage) => Array.from(stage?.querySelectorAll(":scope > .uipack-drill__layer > svg") ?? []);
+function useDrillMotion(stageRef, reduced, expanded, view) {
+  const [playing, setPlaying] = react.useState(true);
+  const [cycle, setCycle] = react.useState(0);
+  react.useEffect(() => {
+    for (const s of drawings(stageRef.current)) {
+      if (typeof s.pauseAnimations !== "function") continue;
+      if (playing) s.unpauseAnimations();
+      else s.pauseAnimations();
+    }
+  }, [stageRef, playing, expanded, view]);
+  const toggle = react.useCallback(() => setPlaying((p) => !p), []);
+  const replay = react.useCallback(() => {
+    for (const s of drawings(stageRef.current)) {
+      if (typeof s.setCurrentTime === "function") s.setCurrentTime(0);
+      if (typeof s.unpauseAnimations === "function") s.unpauseAnimations();
+    }
+    setPlaying(true);
+    setCycle((c) => c + 1);
+  }, [stageRef]);
+  return react.useMemo(
+    () => ({ playing: playing && !reduced, reduced, cycle, toggle, replay }),
+    [playing, reduced, cycle, toggle, replay]
+  );
+}
+function useNotePlacement(canvasRef, noteRef, note, zoom, expanded) {
+  const [notePos, setNotePos] = react.useState(null);
+  chunkKV6PPCWS_cjs.useIsoLayoutEffect(() => {
+    setNotePos(null);
+    const canvas = canvasRef.current;
+    const el = noteRef.current;
+    const anchor2 = note?.anchor;
+    if (!canvas || !el || !anchor2) return;
+    const place = () => {
+      if (anchor2.isConnected) setNotePos(chunk4QGTO7IR_cjs.placeNote(canvas, el, anchor2));
+    };
+    place();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(place);
+    ro.observe(canvas);
+    return () => ro.disconnect();
+  }, [canvasRef, noteRef, note, zoom, expanded]);
+  return notePos;
+}
+function drillStatic(props, path) {
+  const levels = new Map(props.levels.map((l) => [l.id, l]));
+  const root = props.root ?? props.levels[0]?.id ?? "";
+  const p = normalizePath(path ?? props.path ?? props.defaultPath, new Set(levels.keys()), root);
+  const level = levels.get(p[p.length - 1]);
+  const trail = p.length > 1 ? p.map((id) => levels.get(id)?.label ?? id).join(" \u203A ") : "";
+  const lid = `static-${cleanId(level.id)}`;
+  return {
+    children: /* @__PURE__ */ jsxRuntime.jsx(
+      DrillContext.Provider,
+      {
+        value: {
+          levels,
+          frame: { wide: props.viewBox, narrow: props.narrowViewBox },
+          idPrefix: lid,
+          variant: "wide",
+          interactive: false,
+          ghost: false
+        },
+        children: level.render({ id: lid, variant: "wide", ghost: false, level })
+      }
+    ),
+    viewBox: level.viewBox ?? props.viewBox,
+    legend: level.legend,
+    number: props.number,
+    eyebrow: [props.eyebrow, trail].filter(Boolean).join(" \xB7 ") || void 0,
+    title: level.title ?? level.label,
+    caption: level.caption,
+    alt: level.alt,
+    background: props.background
+  };
+}
+
+// src/drill/animate.ts
+var drillMotion = {
+  zoom: 1e3,
+  fade: 320,
+  reduced: 160
+};
+function findDrillNode(layer, id) {
+  const all = Array.from(layer.querySelectorAll(`[data-drill="${cssEscape(id)}"]`));
+  return all.find((el) => el.getBoundingClientRect().width > 0) ?? all[0] ?? null;
+}
+var cssEscape = (s) => typeof CSS !== "undefined" && CSS.escape ? CSS.escape(s) : s.replace(/["\\]/g, "\\$&");
+var boxOf = (node) => node.querySelector('[data-uipack="node"] > rect') ?? node;
+var faceOf = (node) => Array.from(
+  node.querySelectorAll('[data-uipack="node"] > :not(rect):not(.uipack__touch-target), .uipack-drill-node__mark')
+);
+function paintInner(inner, canvas) {
+  if (!canvas) return;
+  const cs = getComputedStyle(canvas);
+  const c = canvas.getBoundingClientRect();
+  const l = inner.getBoundingClientRect();
+  inner.style.backgroundColor = cs.backgroundColor;
+  inner.style.backgroundImage = cs.backgroundImage;
+  inner.style.backgroundSize = cs.backgroundSize;
+  inner.style.backgroundPosition = `${(c.left + canvas.clientLeft - l.left).toFixed(2)}px ${(c.top + canvas.clientTop - l.top).toFixed(2)}px`;
+}
+function clearLayer(el) {
+  el.style.removeProperty("z-index");
+  el.style.removeProperty("background-color");
+  el.style.removeProperty("background-image");
+  el.style.removeProperty("background-size");
+  el.style.removeProperty("background-position");
+  delete el.dataset.role;
+}
+function runDrill(opts) {
+  const { from, to, stage, canvas, reduced } = opts;
+  if (typeof from.animate !== "function") return [];
+  const anims = [];
+  const play = (el, keyframes, timing2) => {
+    anims.push(el.animate(keyframes, { fill: "both", ...timing2 }));
+  };
+  const W = stage.clientWidth;
+  const H = stage.clientHeight;
+  let kind = reduced ? "fade" : opts.kind;
+  let samples = null;
+  let local = null;
+  let k = 1;
+  if (kind !== "fade" && opts.target) {
+    const s = stage.getBoundingClientRect();
+    const boxEl = boxOf(opts.target);
+    const r = boxEl.getBoundingClientRect();
+    local = { x: r.left - s.left, y: r.top - s.top, w: r.width, h: r.height };
+    const userW = boxEl.width?.baseVal?.value;
+    if (userW) k = r.width / userW;
+    samples = chunkRKJA4DKU_cjs.zoomSamples(local, kind === "in", W, H, { samples: 32, radius: 6 * k });
+  }
+  if (!samples || !local) kind = "fade";
+  if (kind === "fade") {
+    to.dataset.role = "inner";
+    to.style.zIndex = "2";
+    paintInner(to, canvas);
+    const timing2 = { duration: reduced ? drillMotion.reduced : drillMotion.fade, easing: "ease" };
+    play(to, [{ opacity: 0 }, { opacity: 1 }], timing2);
+    play(from, [{ opacity: 1 }, { opacity: 0 }], timing2);
+    return anims;
+  }
+  const forward = kind === "in";
+  const outer = forward ? from : to;
+  const inner = forward ? to : from;
+  const frame = chunkRKJA4DKU_cjs.zoomFrame(local, W, H);
+  const origin = `${frame.fx.toFixed(2)}px ${frame.fy.toFixed(2)}px`;
+  inner.dataset.role = "inner";
+  inner.style.zIndex = "2";
+  paintInner(inner, canvas);
+  const timing = { duration: opts.duration ?? drillMotion.zoom, easing: "linear" };
+  play(
+    outer,
+    samples.map((s) => ({
+      offset: s.offset,
+      transform: s.outer,
+      transformOrigin: origin,
+      opacity: 1 - chunkGVSVZ2EW_cjs.smoothstep(0.88, 0.99, s.p)
+    })),
+    timing
+  );
+  play(
+    inner,
+    samples.map((s) => ({
+      offset: s.offset,
+      transform: s.inner,
+      transformOrigin: origin,
+      clipPath: s.clip,
+      opacity: s.innerOpacity
+    })),
+    timing
+  );
+  for (const part of faceOf(opts.target)) {
+    play(
+      part,
+      samples.map((s) => ({ offset: s.offset, opacity: 1 - s.innerOpacity })),
+      timing
+    );
+  }
+  const halo = opts.target.querySelector(".uipack-drill-node__halo");
+  if (halo)
+    play(
+      halo,
+      samples.map((s) => ({ offset: s.offset, opacity: 1 - chunkGVSVZ2EW_cjs.smoothstep(0, 0.25, s.p) })),
+      timing
+    );
+  return anims;
+}
+
+// src/drill/useDrillFlight.ts
+var lastOf = (p) => p[p.length - 1];
+function useDrillFlight({
+  requested,
+  labelOf,
+  focusIntentRef,
+  stageRef,
+  canvasRef,
+  headingRef,
+  currentCrumbRef,
+  reduced,
+  duration,
+  onLeave
+}) {
+  const [view, setView] = react.useState(() => ({ path: requested, flight: null }));
+  const [announcement, setAnnouncement] = react.useState("");
+  const seq = react.useRef(0);
+  const pendingFocus = react.useRef(null);
+  const latestRef = chunkKV6PPCWS_cjs.useLatest({ view, labelOf, reduced, duration, onLeave });
+  const layerEl = react.useCallback(
+    (lid) => stageRef.current?.querySelector(
+      `:scope > [data-level="${typeof CSS !== "undefined" && CSS.escape ? CSS.escape(lid) : lid}"]`
+    ) ?? null,
+    [stageRef]
+  );
+  const { anims, settle, fly } = chunkRKJA4DKU_cjs.useLayerFlight(
+    () => stageRef.current?.querySelectorAll(":scope > .uipack-drill__layer").forEach(clearLayer)
+  );
+  const finish = react.useCallback(
+    (n) => {
+      const v = latestRef.current.view;
+      if (!v.flight || v.flight.seq !== n) return;
+      const leaving = layerEl(lastOf(v.flight.from));
+      if (leaving) leaving.style.visibility = "hidden";
+      settle();
+      setView({ path: v.path, flight: null });
+    },
+    [layerEl, settle, latestRef]
+  );
+  chunkKV6PPCWS_cjs.useIsoLayoutEffect(() => {
+    const { view: v, labelOf: labelOf2, onLeave: onLeave2 } = latestRef.current;
+    if (samePath(requested, v.path)) return;
+    onLeave2();
+    setAnnouncement(drillAnnouncement(v.path, requested, labelOf2));
+    pendingFocus.current = focusIntentRef.current ? { from: v.path, to: requested } : null;
+    focusIntentRef.current = false;
+    if (v.flight && anims.current.length && samePath(requested, v.flight.from)) {
+      for (const a of anims.current) a.reverse();
+      setView({ path: requested, flight: { ...v.flight, from: v.path } });
+      return;
+    }
+    if (v.flight) settle();
+    const from = v.path;
+    const canAnimate = typeof stageRef.current?.animate === "function" && lastOf(from) !== lastOf(requested);
+    if (!canAnimate) {
+      setView({ path: requested, flight: null });
+      return;
+    }
+    const move = drillMove(from, requested);
+    seq.current += 1;
+    setView({
+      path: requested,
+      flight: { from, kind: move === "in" ? "in" : move === "out" ? "out" : "fade", seq: seq.current }
+    });
+  }, [requested, anims, focusIntentRef, settle, stageRef, latestRef]);
+  const flightSeq = view.flight?.seq;
+  chunkKV6PPCWS_cjs.useIsoLayoutEffect(() => {
+    const { view: v, reduced: reduced2, duration: duration2 } = latestRef.current;
+    const f = v.flight;
+    const stage = stageRef.current;
+    if (!f || !stage) return;
+    const fromEl = layerEl(lastOf(f.from));
+    const toEl = layerEl(lastOf(v.path));
+    if (!fromEl || !toEl) {
+      finish(f.seq);
+      return;
+    }
+    const target = f.kind === "in" ? findDrillNode(fromEl, lastOf(v.path)) : f.kind === "out" ? findDrillNode(toEl, lastOf(f.from)) : null;
+    const run = runDrill({ kind: f.kind, from: fromEl, to: toEl, target, stage, canvas: canvasRef.current, reduced: reduced2, duration: duration2 });
+    fly(run, () => finish(f.seq));
+  }, [flightSeq, canvasRef, finish, fly, layerEl, stageRef, latestRef]);
+  chunkKV6PPCWS_cjs.useIsoLayoutEffect(() => {
+    if (view.flight || !pendingFocus.current) return;
+    const { from, to } = pendingFocus.current;
+    pendingFocus.current = null;
+    const t = drillFocusTarget(from, to);
+    if (t.kind === "node") {
+      const layer = layerEl(lastOf(to));
+      const node = layer && findDrillNode(layer, t.drill);
+      if (node) {
+        node.focus({ preventScroll: true });
+        return;
+      }
+    }
+    const heading = headingRef.current;
+    if (heading && getComputedStyle(heading).display !== "none") heading.focus({ preventScroll: true });
+    else currentCrumbRef.current?.focus({ preventScroll: true });
+  }, [view, currentCrumbRef, headingRef, layerEl]);
+  return { view, announcement };
+}
 function DrillFigureRoot({
   levels,
   root,
@@ -411,26 +647,7 @@ function DrillFigureRoot({
 }) {
   const auto = react.useId();
   const figId = id ?? `uipack-drill-${cleanId(auto)}`;
-  const levelMap = react.useMemo(() => new Map(levels.map((l) => [l.id, l])), [levels]);
-  const ids = react.useMemo(() => new Set(levelMap.keys()), [levelMap]);
-  const rootId = root ?? levels[0]?.id ?? "";
-  const labelOf = react.useCallback((lid) => levelMap.get(lid)?.label ?? lid, [levelMap]);
-  const [own, setOwn] = react.useState(() => normalizePath(defaultPath, ids, rootId));
-  const requestedRaw = normalizePath(path ?? own, ids, rootId);
-  const requestedKey = requestedRaw.join("\0");
-  const requested = react.useMemo(() => requestedRaw, [requestedKey]);
-  const requestedRef = react.useRef(requested);
-  requestedRef.current = requested;
-  const [view, setView] = react.useState(() => ({ path: requested, flight: null }));
-  const viewRef = react.useRef(view);
-  viewRef.current = view;
-  const seq = react.useRef(0);
-  const focusIntent = react.useRef(false);
-  const pendingFocus = react.useRef(null);
-  const [announcement, setAnnouncement] = react.useState("");
-  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
-  const [playing, setPlaying] = react.useState(true);
-  const [cycle, setCycle] = react.useState(0);
+  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
   const [expanded, setExpanded] = react.useState(false);
   const [zoom, setZoom] = react.useState(1);
   const [selected, select] = react.useState(null);
@@ -446,167 +663,57 @@ function DrillFigureRoot({
   const canvasRef = react.useRef(null);
   const stageRef = react.useRef(null);
   const noteRef = react.useRef(null);
-  const [notePos, setNotePos] = react.useState(null);
-  const [stageW, setStageW] = react.useState(1088);
-  react.useEffect(() => {
-    const el = stageRef.current;
-    if (!el || typeof ResizeObserver === "undefined") return;
-    const read = () => {
-      const w = el.getBoundingClientRect().width;
-      if (w > 0) setStageW(w);
-    };
-    read();
-    const ro = new ResizeObserver(read);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [expanded]);
-  const frame = react.useMemo(() => ({ wide: viewBox, narrow: narrowViewBox }), [viewBox, narrowViewBox]);
-  const controlled = react.useRef({ path, onPathChange });
-  controlled.current = { path, onPathChange };
-  const navigate = react.useCallback((next) => {
-    if (samePath(next, requestedRef.current)) return;
-    focusIntent.current = true;
-    if (controlled.current.path === void 0) setOwn(next);
-    controlled.current.onPathChange?.([...next]);
-  }, []);
-  const up = react.useCallback(() => navigate(drillReducer(requestedRef.current, { type: "up" }, ids)), [navigate, ids]);
-  const openFrom = react.useCallback(
-    (from, child) => {
-      const cur = requestedRef.current;
-      const at = cur.indexOf(from);
-      if (at < 0) return;
-      navigate(drillReducer(cur.slice(0, at + 1), { type: "open", id: child }, ids));
-    },
-    [navigate, ids]
-  );
-  const layerEl = (lid) => stageRef.current?.querySelector(
-    `:scope > [data-level="${typeof CSS !== "undefined" && CSS.escape ? CSS.escape(lid) : lid}"]`
-  ) ?? null;
-  const { anims, settle, fly } = chunkAASFR6RT_cjs.useLayerFlight(
-    () => stageRef.current?.querySelectorAll(":scope > .uipack-drill__layer").forEach(clearLayer)
-  );
-  const finish = (n) => {
-    const v = viewRef.current;
-    if (!v.flight || v.flight.seq !== n) return;
-    const leaving = layerEl(last(v.flight.from));
-    if (leaving) leaving.style.visibility = "hidden";
-    settle();
-    setView({ path: v.path, flight: null });
-  };
-  chunkYMPVJRTJ_cjs.useIsoLayoutEffect(() => {
-    const v = viewRef.current;
-    if (samePath(requested, v.path)) return;
-    select(null);
-    setHoverFlow(null);
-    setHoverKind(null);
-    setAnnouncement(drillAnnouncement(v.path, requested, labelOf));
-    pendingFocus.current = focusIntent.current ? { from: v.path, to: requested } : null;
-    focusIntent.current = false;
-    if (v.flight && anims.current.length && samePath(requested, v.flight.from)) {
-      for (const a of anims.current) a.reverse();
-      setView({ path: requested, flight: { ...v.flight, from: v.path } });
-      return;
+  const focusIntentRef = react.useRef(false);
+  const { levelMap, labelOf, requested, navigate, up, openFrom, canGoUp } = useDrillPath({
+    levels,
+    root,
+    path,
+    defaultPath,
+    onPathChange,
+    onNavigate: () => {
+      focusIntentRef.current = true;
     }
-    if (v.flight) settle();
-    const from = v.path;
-    const canAnimate = typeof stageRef.current?.animate === "function" && last(from) !== last(requested);
-    if (!canAnimate) {
-      setView({ path: requested, flight: null });
-      return;
+  });
+  const { view, announcement } = useDrillFlight({
+    requested,
+    labelOf,
+    focusIntentRef,
+    stageRef,
+    canvasRef,
+    headingRef,
+    currentCrumbRef,
+    reduced,
+    duration,
+    onLeave: () => {
+      select(null);
+      setHoverFlow(null);
+      setHoverKind(null);
     }
-    const move = drillMove(from, requested);
-    seq.current += 1;
-    setView({
-      path: requested,
-      flight: { from, kind: move === "in" ? "in" : move === "out" ? "out" : "fade", seq: seq.current }
-    });
-  }, [requested]);
-  const flightSeq = view.flight?.seq;
-  chunkYMPVJRTJ_cjs.useIsoLayoutEffect(() => {
-    const f = viewRef.current.flight;
-    const stage = stageRef.current;
-    if (!f || !stage) return;
-    const fromEl = layerEl(last(f.from));
-    const toEl = layerEl(last(viewRef.current.path));
-    if (!fromEl || !toEl) {
-      finish(f.seq);
-      return;
-    }
-    const target = f.kind === "in" ? findDrillNode(fromEl, last(viewRef.current.path)) : f.kind === "out" ? findDrillNode(toEl, last(f.from)) : null;
-    const run = runDrill({ kind: f.kind, from: fromEl, to: toEl, target, stage, canvas: canvasRef.current, reduced, duration });
-    fly(run, () => finish(f.seq));
-  }, [flightSeq]);
-  chunkYMPVJRTJ_cjs.useIsoLayoutEffect(() => {
-    if (view.flight || !pendingFocus.current) return;
-    const { from, to } = pendingFocus.current;
-    pendingFocus.current = null;
-    const t = drillFocusTarget(from, to);
-    if (t.kind === "node") {
-      const layer = layerEl(last(to));
-      const node = layer && findDrillNode(layer, t.drill);
-      if (node) {
-        node.focus({ preventScroll: true });
-        return;
-      }
-    }
-    const heading = headingRef.current;
-    if (heading && getComputedStyle(heading).display !== "none") heading.focus({ preventScroll: true });
-    else currentCrumbRef.current?.focus({ preventScroll: true });
-  }, [view]);
-  const svgs = () => Array.from(stageRef.current?.querySelectorAll(":scope > .uipack-drill__layer > svg") ?? []);
-  react.useEffect(() => {
-    for (const s of svgs()) {
-      if (typeof s.pauseAnimations !== "function") continue;
-      if (playing) s.unpauseAnimations();
-      else s.pauseAnimations();
-    }
-  }, [playing, expanded, view]);
-  const toggle = react.useCallback(() => setPlaying((p) => !p), []);
-  const replay = react.useCallback(() => {
-    for (const s of svgs()) {
-      if (typeof s.setCurrentTime === "function") s.setCurrentTime(0);
-      if (typeof s.unpauseAnimations === "function") s.unpauseAnimations();
-    }
-    setPlaying(true);
-    setCycle((c) => c + 1);
-  }, []);
-  const motion = react.useMemo(
-    () => ({ playing: playing && !reduced, reduced, cycle, toggle, replay }),
-    [playing, reduced, cycle, toggle, replay]
-  );
+  });
+  const stageW = useStageWidth(stageRef, expanded);
+  const motion = useDrillMotion(stageRef, reduced, expanded, view);
   const note = selected?.detail ? selected : null;
-  chunkYMPVJRTJ_cjs.useIsoLayoutEffect(() => {
-    setNotePos(null);
-    const canvas = canvasRef.current;
-    const el = noteRef.current;
-    const anchor2 = note?.anchor;
-    if (!canvas || !el || !anchor2) return;
-    const place = () => {
-      if (anchor2.isConnected) setNotePos(chunk6RV2I5R3_cjs.placeNote(canvas, el, anchor2));
-    };
-    place();
-    if (typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(place);
-    ro.observe(canvas);
-    return () => ro.disconnect();
-  }, [note, zoom, expanded]);
-  chunk6RV2I5R3_cjs.useRovingFocus(canvasRef, expanded);
-  const current = levelMap.get(last(view.path));
+  const notePos = useNotePlacement(canvasRef, noteRef, note, zoom, expanded);
+  const frame = react.useMemo(() => ({ wide: viewBox, narrow: narrowViewBox }), [viewBox, narrowViewBox]);
+  chunk4QGTO7IR_cjs.useRovingFocus(canvasRef, expanded);
+  const openCanvas = react.useCallback(() => {
+    select(null);
+    setExpanded(true);
+  }, []);
+  const current = levelMap.get(lastOf(view.path));
   if (!current) return null;
   const crumbs = view.path;
   const depth = crumbs.length - 1;
-  const parentLabel = depth > 0 ? labelOf(crumbs[depth - 1]) : "";
   const trail = crumbs.map(labelOf).join(" \u203A ");
   const fw = vbSize(viewBox);
   const fn = narrowViewBox ? vbSize(narrowViewBox) : null;
-  const mounted = view.flight ? [last(view.flight.from), last(view.path)] : [last(view.path)];
+  const mounted = view.flight ? [lastOf(view.flight.from), lastOf(view.path)] : [lastOf(view.path)];
   mounted.sort((a, b) => {
     const order = view.flight && view.flight.from.length > view.path.length ? view.flight.from : view.path;
     return order.indexOf(a) - order.indexOf(b);
   });
-  const showControls = controls && !reduced;
   return /* @__PURE__ */ jsxRuntime.jsx(
-    chunk5QNGHC2A_cjs.CanvasView,
+    chunk2JULAQB4_cjs.CanvasView,
     {
       restoreFocus: () => opener.current?.focus(),
       open: expanded,
@@ -619,7 +726,7 @@ function DrillFigureRoot({
       theme,
       layout: "figure",
       zoom: { value: zoom, min: 1, max: 3, onChange: setZoom },
-      children: /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxRuntime.jsxs(
+      children: /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxRuntime.jsxs(
         "figure",
         {
           id: figId,
@@ -644,10 +751,10 @@ function DrillFigureRoot({
                 select(null);
                 return;
               }
-              if (expanded || requestedRef.current.length < 2) return;
+              if (expanded || !canGoUp()) return;
               e.preventDefault();
               up();
-            } else if (e.key === "Backspace" && requestedRef.current.length > 1) {
+            } else if (e.key === "Backspace" && canGoUp()) {
               e.preventDefault();
               up();
             }
@@ -665,56 +772,24 @@ function DrillFigureRoot({
                 number && eyebrow ? " \xB7 " : "",
                 eyebrow
               ] }) : null,
-              /* @__PURE__ */ jsxRuntime.jsx("nav", { className: "uipack-drill__crumbs", "aria-label": "Figure levels", children: /* @__PURE__ */ jsxRuntime.jsx("ol", { children: crumbs.map((lid, i) => /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
-                i > 0 ? /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-drill__sep", "aria-hidden": "true", children: "\u203A" }) : null,
-                i < depth ? /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", className: "uipack-drill__crumb", onClick: () => navigate(crumbs.slice(0, i + 1)), children: labelOf(lid) }) : /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-drill__here", "aria-current": "location", tabIndex: -1, ref: currentCrumbRef, children: labelOf(lid) })
-              ] }, lid)) }) }),
+              /* @__PURE__ */ jsxRuntime.jsx(DrillCrumbs, { crumbs, labelOf, navigate, currentRef: currentCrumbRef }),
               react.createElement(
                 `h${headingLevel}`,
                 { className: "uipack__title", tabIndex: -1, ref: headingRef },
                 current.title ?? current.label
               ),
               current.caption ? /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack__caption", children: current.caption }) : null,
-              /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack__controls", children: [
-                depth > 0 ? /* @__PURE__ */ jsxRuntime.jsxs(
-                  "button",
-                  {
-                    type: "button",
-                    className: "uipack__ctl uipack-drill__back",
-                    "aria-label": `Back to ${parentLabel}`,
-                    onClick: up,
-                    children: [
-                      /* @__PURE__ */ jsxRuntime.jsx(BackGlyph, {}),
-                      " Back"
-                    ]
-                  }
-                ) : null,
-                expandable && !expanded ? /* @__PURE__ */ jsxRuntime.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    className: "uipack__ctl",
-                    ref: opener,
-                    onClick: () => {
-                      select(null);
-                      setExpanded(true);
-                    },
-                    children: "Open canvas"
-                  }
-                ) : null,
-                showControls ? /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-                  /* @__PURE__ */ jsxRuntime.jsxs("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: replay, children: [
-                    /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.ReplayGlyph, {}),
-                    " Replay"
-                  ] }),
-                  /* @__PURE__ */ jsxRuntime.jsxs("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: toggle, "aria-pressed": !playing, children: [
-                    playing ? /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.PauseGlyph, {}) : /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.PlayGlyph, {}),
-                    " ",
-                    playing ? "Pause" : "Play"
-                  ] })
-                ] }) : null
-              ] }),
-              /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Legend, { items: current.legend ?? [] })
+              /* @__PURE__ */ jsxRuntime.jsx(
+                DrillControls,
+                {
+                  parentLabel: depth > 0 ? labelOf(crumbs[depth - 1]) : null,
+                  onBack: up,
+                  onOpen: expandable && !expanded ? openCanvas : null,
+                  openerRef: opener,
+                  motion: controls && !reduced ? motion : null
+                }
+              ),
+              /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.Legend, { items: current.legend ?? [] })
             ] }),
             /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack__sr", role: "status", children: note ? `${note.label}: ${note.detail}` : "" }),
             /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack__sr", "aria-live": "polite", "data-drill-announce": "", children: announcement }),
@@ -801,7 +876,7 @@ function Ghost({
     height: box.h,
     viewBox: `0 ${(f.h - box.h / k) / 2} ${f.w} ${box.h / k}`
   } : { x: box.x, y: box.y, width: box.w, height: box.h, viewBox: `0 0 ${f.w} ${f.h}` };
-  return /* @__PURE__ */ jsxRuntime.jsx("svg", { ...port, preserveAspectRatio: "xMidYMid slice", overflow: "hidden", children: /* @__PURE__ */ jsxRuntime.jsx("svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ jsxRuntime.jsx(DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) });
+  return /* @__PURE__ */ jsxRuntime.jsx("svg", { ...port, preserveAspectRatio: "xMidYMid slice", overflow: "hidden", children: /* @__PURE__ */ jsxRuntime.jsx("svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ jsxRuntime.jsx(DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) });
 }
 function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node }) {
   const ctx = useDrill();
@@ -814,11 +889,11 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
     const g = ghostRef.current;
     if (g) setCount(g.querySelectorAll('[data-uipack="node"]').length);
   }, [drill, ctx?.variant]);
-  if (!ctx || !child) return /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Node, { ...node, label: text });
+  if (!ctx || !child) return /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.Node, { ...node, label: text });
   const box = drillBox({ x: node.x, y: node.y, w: node.w, h: node.h }, grow);
-  if (ctx.ghost) return /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.Node, { ...node, ...box, label: text });
+  if (ctx.ghost) return /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.Node, { ...node, ...box, label: text });
   const summary = child.summary ?? (count ? `${count} part${count === 1 ? "" : "s"} inside` : "");
-  const name = `${chunk6RV2I5R3_cjs.nodeName(text, node.sub)}, open${summary ? `: ${summary}` : ""}`;
+  const name = `${chunk4QGTO7IR_cjs.nodeName(text, node.sub)}, open${summary ? `: ${summary}` : ""}`;
   const interactive = ctx.interactive && !!ctx.open;
   const activate = (e) => {
     e.preventDefault();
@@ -867,8 +942,8 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
             "aria-hidden": "true"
           }
         ),
-        /* @__PURE__ */ jsxRuntime.jsx(chunk6RV2I5R3_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(
-          chunk6RV2I5R3_cjs.Node,
+        /* @__PURE__ */ jsxRuntime.jsx(chunk4QGTO7IR_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(
+          chunk4QGTO7IR_cjs.Node,
           {
             ...node,
             ...box,
@@ -926,129 +1001,121 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
   );
 }
 
-Object.defineProperty(exports, "easeInOutCubic", {
-  enumerable: true,
-  get: function () { return chunkKQ7UFCOU_cjs.easeInOutCubic; }
-});
 Object.defineProperty(exports, "innerClipStart", {
   enumerable: true,
-  get: function () { return chunkKQ7UFCOU_cjs.innerClipStart; }
-});
-Object.defineProperty(exports, "smoothstep", {
-  enumerable: true,
-  get: function () { return chunkKQ7UFCOU_cjs.smoothstep; }
+  get: function () { return chunkRKJA4DKU_cjs.innerClipStart; }
 });
 Object.defineProperty(exports, "zoomFrame", {
   enumerable: true,
-  get: function () { return chunkKQ7UFCOU_cjs.zoomFrame; }
+  get: function () { return chunkRKJA4DKU_cjs.zoomFrame; }
 });
 Object.defineProperty(exports, "zoomSamples", {
   enumerable: true,
-  get: function () { return chunkKQ7UFCOU_cjs.zoomSamples; }
+  get: function () { return chunkRKJA4DKU_cjs.zoomSamples; }
 });
 Object.defineProperty(exports, "Bus", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.Bus; }
+  get: function () { return chunk4QGTO7IR_cjs.Bus; }
 });
 Object.defineProperty(exports, "Chip", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.Chip; }
+  get: function () { return chunk4QGTO7IR_cjs.Chip; }
 });
 Object.defineProperty(exports, "Connector", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.Connector; }
+  get: function () { return chunk4QGTO7IR_cjs.Connector; }
 });
 Object.defineProperty(exports, "Defs", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.Defs; }
+  get: function () { return chunk4QGTO7IR_cjs.Defs; }
 });
 Object.defineProperty(exports, "Figure", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.Figure; }
+  get: function () { return chunk4QGTO7IR_cjs.Figure; }
 });
 Object.defineProperty(exports, "FigureHoverContext", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.FigureHoverContext; }
+  get: function () { return chunk4QGTO7IR_cjs.FigureHoverContext; }
 });
 Object.defineProperty(exports, "Group", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.Group; }
+  get: function () { return chunk4QGTO7IR_cjs.Group; }
 });
 Object.defineProperty(exports, "Label", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.Label; }
+  get: function () { return chunk4QGTO7IR_cjs.Label; }
 });
 Object.defineProperty(exports, "Lane", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.Lane; }
+  get: function () { return chunk4QGTO7IR_cjs.Lane; }
 });
 Object.defineProperty(exports, "Legend", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.Legend; }
+  get: function () { return chunk4QGTO7IR_cjs.Legend; }
 });
 Object.defineProperty(exports, "Node", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.Node; }
+  get: function () { return chunk4QGTO7IR_cjs.Node; }
 });
 Object.defineProperty(exports, "Packet", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.Packet; }
+  get: function () { return chunk4QGTO7IR_cjs.Packet; }
 });
 Object.defineProperty(exports, "anchor", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.anchor; }
+  get: function () { return chunk4QGTO7IR_cjs.anchor; }
 });
 Object.defineProperty(exports, "busStub", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.busStub; }
+  get: function () { return chunk4QGTO7IR_cjs.busStub; }
 });
 Object.defineProperty(exports, "busStubs", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.busStubs; }
+  get: function () { return chunk4QGTO7IR_cjs.busStubs; }
 });
 Object.defineProperty(exports, "connectorStroke", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.connectorStroke; }
+  get: function () { return chunk4QGTO7IR_cjs.connectorStroke; }
 });
 Object.defineProperty(exports, "flowList", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.flowList; }
+  get: function () { return chunk4QGTO7IR_cjs.flowList; }
 });
 Object.defineProperty(exports, "grid", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.grid; }
+  get: function () { return chunk4QGTO7IR_cjs.grid; }
 });
 Object.defineProperty(exports, "hoverAttrs", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.hoverAttrs; }
+  get: function () { return chunk4QGTO7IR_cjs.hoverAttrs; }
 });
 Object.defineProperty(exports, "icons", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.icons; }
+  get: function () { return chunk4QGTO7IR_cjs.icons; }
 });
 Object.defineProperty(exports, "pathFromPoints", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.pathFromPoints; }
+  get: function () { return chunk4QGTO7IR_cjs.pathFromPoints; }
 });
 Object.defineProperty(exports, "pointAlong", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.pointAlong; }
+  get: function () { return chunk4QGTO7IR_cjs.pointAlong; }
 });
 Object.defineProperty(exports, "polylineLength", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.polylineLength; }
+  get: function () { return chunk4QGTO7IR_cjs.polylineLength; }
 });
 Object.defineProperty(exports, "route", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.route; }
+  get: function () { return chunk4QGTO7IR_cjs.route; }
 });
 Object.defineProperty(exports, "trim", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.trim; }
+  get: function () { return chunk4QGTO7IR_cjs.trim; }
 });
 Object.defineProperty(exports, "useFigureHover", {
   enumerable: true,
-  get: function () { return chunk6RV2I5R3_cjs.useFigureHover; }
+  get: function () { return chunk4QGTO7IR_cjs.useFigureHover; }
 });
 Object.defineProperty(exports, "DEFAULT_RENDER_WIDTH", {
   enumerable: true,
@@ -1057,10 +1124,6 @@ Object.defineProperty(exports, "DEFAULT_RENDER_WIDTH", {
 Object.defineProperty(exports, "FigureMotionContext", {
   enumerable: true,
   get: function () { return chunkXEK5V7KF_cjs.FigureMotionContext; }
-});
-Object.defineProperty(exports, "FigureScaleContext", {
-  enumerable: true,
-  get: function () { return chunkXEK5V7KF_cjs.FigureScaleContext; }
 });
 Object.defineProperty(exports, "FigureScaleProvider", {
   enumerable: true,
@@ -1090,9 +1153,17 @@ Object.defineProperty(exports, "useFontFloor", {
   enumerable: true,
   get: function () { return chunkXEK5V7KF_cjs.useFontFloor; }
 });
+Object.defineProperty(exports, "easeInOutCubic", {
+  enumerable: true,
+  get: function () { return chunkGVSVZ2EW_cjs.easeInOutCubic; }
+});
+Object.defineProperty(exports, "smoothstep", {
+  enumerable: true,
+  get: function () { return chunkGVSVZ2EW_cjs.smoothstep; }
+});
 Object.defineProperty(exports, "usePrefersReducedMotion", {
   enumerable: true,
-  get: function () { return chunkYMPVJRTJ_cjs.usePrefersReducedMotion; }
+  get: function () { return chunkKV6PPCWS_cjs.usePrefersReducedMotion; }
 });
 exports.Badge = Badge;
 exports.Cross = Cross;

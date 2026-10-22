@@ -1,7 +1,48 @@
-import { smoothstep } from './chunk-VZ4PJUMF.js';
-import { usePrefersReducedMotion } from './chunk-KYO6UXHN.js';
+import { clamp, lerp, smoothstep } from './chunk-BN5H6RB6.js';
+import { usePrefersReducedMotion, useLatest } from './chunk-I6LF4PLF.js';
 import * as React2 from 'react';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
+
+// src/mechanism/gate/model.ts
+var LIMIT = 6;
+var SCALE = 10;
+var CYCLE = [
+  [1, 1, 4.2],
+  [2, 1, 5.1],
+  [3, 1, 6.6],
+  [4, 1, 3.8],
+  [5, 1, 5.6],
+  [3, 2, 4.9],
+  [6, 1, 6.9],
+  [7, 1, 4.4],
+  [8, 1, 5.8],
+  [6, 2, 5.3],
+  [9, 1, 6.3],
+  [9, 2, 5.5]
+];
+var CYCLE_LENGTH = CYCLE.length;
+var verdictOf = (value) => value <= LIMIT + 1e-9 ? "pass" : "return";
+function checkAt(index) {
+  const at2 = (index % CYCLE_LENGTH + CYCLE_LENGTH) % CYCLE_LENGTH;
+  const [proposal, attempt, value] = CYCLE[at2];
+  return { index, proposal: proposal + Math.floor(index / CYCLE_LENGTH) * 9, attempt, value, verdict: verdictOf(value) };
+}
+function tallyOf(count) {
+  const tally = { checked: 0, passed: 0, returned: 0 };
+  for (let index = 0; index < Math.max(0, Math.floor(count)); index++) {
+    tally.checked++;
+    if (checkAt(index).verdict === "pass") tally.passed++;
+    else tally.returned++;
+  }
+  return tally;
+}
+var tallyText = ({ checked, passed, returned }) => `checked ${checked} \xB7 passed ${passed} \xB7 returned ${returned}`;
+var one = (value) => (Math.round(value * 10) / 10).toFixed(1);
+var PASS_CHECK = checkAt(0);
+var RETURN_CHECK = checkAt(2);
+function verdictText(check) {
+  return check.verdict === "pass" ? `reads ${one(check.value)} \u2264 ${one(LIMIT)} \xB7 passed` : `reads ${one(check.value)} > ${one(LIMIT)} \xB7 returned`;
+}
 
 // src/mechanism/kit/iso-kit.ts
 var AZIMUTH = 45;
@@ -393,6 +434,269 @@ function fitProjection(points, width, height, { pad = 24, headroom = 0, azimuth 
     elevation
   };
 }
+
+// src/mechanism/gate/view.ts
+var WIDTH = 600;
+var HEIGHT = 360;
+var AZIMUTH2 = 57;
+var BASE = { x: -152, y: -36, w: 304, d: 96, r: 8 };
+var BASE_H = 9;
+var FOOT_H = 5;
+var BT = 30;
+var BELT_X0 = -128;
+var BELT_X1 = 96;
+var DRUM_R = 5;
+var BELT_HALF = 13;
+var RAIL_IN = 13.5;
+var RAIL_OUT = 16.5;
+var RAIL_X0 = BELT_X0 - DRUM_R - 3;
+var RAIL_X1 = BELT_X1 + DRUM_R + 3;
+var RAIL_Z = BT - 13;
+var LIP = 2;
+var LEG_X = [-112, 80];
+var LEG = 6;
+var GAP = [14, 64];
+var MAG = { x: -124, y: -RAIL_IN, w: 24, d: RAIL_IN * 2, r: 1.5 };
+var MAG_Z = BT + 9;
+var MAG_TOP = BT + 58;
+var GX = -20;
+var POST_Y = 20;
+var POST = 6;
+var BEAM_Z = BT + 36;
+var BEAM_H = 6;
+var DIAL_R = 15;
+var DIAL_Z = BEAM_Z + BEAM_H + 2;
+var DIAL_H = 8;
+var DIAL_TOP = DIAL_Z + DIAL_H;
+var DIAL_SWEEP = 300;
+var ROD_R = 1.3;
+var ROD_LONG = 40;
+var TIP_R = 2.4;
+var TIP_H = 2;
+var LIFTED = 0;
+var PIVOT = [-10, -21];
+var ARM_LONG = 72;
+var ARM_Z = BT + 2.5;
+var ARM_H = 6.5;
+var ARM_T = 2;
+var ARM_SWING = 28;
+var CHUTE_Y = [26, 42];
+var CHUTE_WALL = 2;
+var CHUTE_X0 = -86;
+var CHUTE_X1 = 10;
+var APRON = { x: CHUTE_X1, y: RAIL_OUT, w: 74, d: CHUTE_Y[1] - RAIL_OUT, r: 1 };
+var APRON_TOP = BT - 1.5;
+var CHUTE_LOW = 9;
+var RETURN_TRAY = { x: -114, y: 22, w: 30, d: 26, r: 2 };
+var TRAY_WALL = 7;
+var RESULT_TRAY = { x: 106, y: -20, w: 38, d: 40, r: 2 };
+var TRAY_FLOOR = 1.5;
+var TOKEN_R = 7;
+var CHUTE_MID = (CHUTE_Y[0] + CHUTE_Y[1]) / 2;
+var chuteTop = (x) => CHUTE_LOW + (x - CHUTE_X0) / (CHUTE_X1 - CHUTE_X0) * (APRON_TOP - CHUTE_LOW);
+var ASSEMBLIES = ["hopper", "gauge", "diverter", "chute", "tray", "conveyor"];
+var MOVES = {
+  hopper: [-30, 0, 22],
+  gauge: [0, 0, 24],
+  diverter: [0, -22, 16],
+  chute: [0, 26, 0],
+  tray: [30, 0, 0],
+  conveyor: [0, 0, 10]
+};
+var P = fitProjection(
+  [
+    ...boxCorners(BASE, -BASE_H - FOOT_H, 0),
+    [MAG.x + MOVES.hopper[0], MAG.y, MAG_TOP + 3 + MOVES.hopper[2]],
+    [MAG.x + MAG.w, MAG.y, MAG_TOP + 3],
+    [GX, -DIAL_R, DIAL_TOP + MOVES.gauge[2]],
+    [RESULT_TRAY.x + RESULT_TRAY.w + MOVES.tray[0], RESULT_TRAY.y + RESULT_TRAY.d, 0]
+  ],
+  WIDTH,
+  HEIGHT,
+  { pad: 22, azimuth: AZIMUTH2 }
+);
+var at = (point) => iso(point, P);
+var move = (by) => translateAlong(P, by);
+
+// src/mechanism/gate/motion.ts
+var SPEED = 52;
+var X_IN = -104;
+var X_SHOWN = -90;
+var ARRIVE = (GX - X_IN) / SPEED;
+var LOWER = 0.35;
+var MEASURED = ARRIVE + 0.6;
+var RAISE_AT = ARRIVE + 1;
+var RAISED = ARRIVE + 1.3;
+var SWING_AT = ARRIVE + 0.7;
+var SWUNG = ARRIVE + 1.2;
+var ARM_DIR = [Math.cos(ARM_SWING * Math.PI / 180), Math.sin(ARM_SWING * Math.PI / 180)];
+var CONTACT_X = PIVOT[0] + ARM_DIR[0] * (21 / ARM_DIR[1]) - (TOKEN_R + 2) / ARM_DIR[1];
+var TO_CONTACT = (CONTACT_X - GX) / SPEED;
+var SLIDE_SPEED = 40;
+var SLIDE_LONG = CHUTE_MID / ARM_DIR[1];
+var SLIDE = SLIDE_LONG / SLIDE_SPEED;
+var OFF_BELT = RAIL_OUT + TOKEN_R;
+var CHUTE_RUN = 1.7;
+var DROP = 0.4;
+var TRAY_SLOTS = [
+  [RESULT_TRAY.x + 10, RESULT_TRAY.y + 12],
+  [RESULT_TRAY.x + 27, RESULT_TRAY.y + 12],
+  [RESULT_TRAY.x + 10, RESULT_TRAY.y + 29],
+  [RESULT_TRAY.x + 27, RESULT_TRAY.y + 29]
+];
+var RETURN_AT = [RETURN_TRAY.x + 13, RETURN_TRAY.y + RETURN_TRAY.d / 2, TRAY_FLOOR];
+var PERIOD = 5.4;
+var IDLE_START = 4 * PERIOD + 0.4;
+var KEEP_RETURNED = 1.8;
+var smooth = (value) => smoothstep(0, 1, value);
+var mix3 = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
+function tokenAt(u, check, slot) {
+  const onBelt = (x) => [x, 0, BT];
+  if (u < ARRIVE) {
+    const x = X_IN + SPEED * Math.max(0, u);
+    return { pos: onBelt(x), layer: "belt", alpha: smooth((x - X_IN) / (X_SHOWN - X_IN)), done: false };
+  }
+  if (u < RAISED) return { pos: onBelt(GX), layer: "belt", alpha: 1, done: false };
+  const v = u - RAISED;
+  if (check.verdict === "pass") {
+    const leave = (BELT_X1 + 4 - GX) / SPEED;
+    if (v < leave) return { pos: onBelt(GX + SPEED * v), layer: "belt", alpha: 1, done: false };
+    const [tx, ty] = TRAY_SLOTS[slot % TRAY_SLOTS.length];
+    const fall2 = clamp((v - leave) / DROP);
+    const from2 = onBelt(BELT_X1 + 4);
+    const pos2 = [lerp(from2[0], tx, fall2), lerp(0, ty, fall2), BT - (BT - TRAY_FLOOR) * fall2 * fall2];
+    return { pos: pos2, layer: pos2[0] > BELT_X1 + 6 ? "tray" : "belt", alpha: 1, done: fall2 >= 1 };
+  }
+  if (v < TO_CONTACT) return { pos: onBelt(GX + SPEED * v), layer: "belt", alpha: 1, done: false };
+  const w = v - TO_CONTACT;
+  if (w < SLIDE) {
+    const along = SLIDE_SPEED * w;
+    const y = ARM_DIR[1] * along;
+    const drop = smooth((y - OFF_BELT) / 5) * (BT - APRON_TOP);
+    return { pos: [CONTACT_X + ARM_DIR[0] * along, y, BT - drop], layer: y > 10 ? "chute" : "belt", alpha: 1, done: false };
+  }
+  const start = [CONTACT_X + ARM_DIR[0] * SLIDE_LONG, CHUTE_MID, APRON_TOP];
+  const r = w - SLIDE;
+  if (r < CHUTE_RUN) {
+    const t = clamp(r / CHUTE_RUN);
+    const ease = t * t * (1.6 - 0.6 * t);
+    const x = lerp(start[0], CHUTE_X0, ease);
+    return { pos: [x, CHUTE_MID, x > CHUTE_X1 ? APRON_TOP : chuteTop(x)], layer: "chute", alpha: 1, done: false };
+  }
+  const fall = clamp((r - CHUTE_RUN) / DROP);
+  const from = [CHUTE_X0, CHUTE_MID, chuteTop(CHUTE_X0)];
+  const pos = mix3(from, RETURN_AT, fall);
+  pos[2] = from[2] - (from[2] - RETURN_AT[2]) * fall * fall;
+  return { pos, layer: "chute", alpha: 1, done: fall >= 1 };
+}
+var RUN_LONG = {
+  pass: RAISED + (BELT_X1 + 4 - GX) / SPEED + DROP,
+  return: RAISED + TO_CONTACT + SLIDE + CHUTE_RUN + DROP
+};
+function liftAt(u) {
+  if (u < ARRIVE || u > RAISED) return LIFTED;
+  if (u < ARRIVE + LOWER) return LIFTED * (1 - smooth((u - ARRIVE) / LOWER));
+  if (u < RAISE_AT) return 0;
+  return LIFTED * smooth((u - RAISE_AT) / (RAISED - RAISE_AT));
+}
+function armAt(u, check) {
+  if (check.verdict === "pass") return 0;
+  const reopen = RAISED + TO_CONTACT + SLIDE * 0.8;
+  if (u < SWING_AT) return 0;
+  if (u < SWUNG) return smooth((u - SWING_AT) / (SWUNG - SWING_AT));
+  if (u < reopen) return 1;
+  return 1 - smooth((u - reopen) / 0.5);
+}
+var dwelling = (u) => u >= ARRIVE && u < RAISED;
+function history(count) {
+  return Array.from({ length: count }, (_, index) => {
+    const check = checkAt([1, 3, 4][index] ?? 1);
+    const [x, y] = TRAY_SLOTS[index];
+    return { key: `history-${index}`, check, pos: [x, y, TRAY_FLOOR], layer: "tray", alpha: 1, lit: false };
+  });
+}
+function idleScene(t) {
+  const now = Math.floor(t / PERIOD);
+  const tokens = [];
+  let lift = LIFTED;
+  let arm = 0;
+  let belt = SPEED;
+  let measured = 0;
+  let drag = 0;
+  const passesBefore = (index) => tallyOf(index).passed;
+  for (let index = Math.max(0, now - 9); index <= now; index++) {
+    const u = t - index * PERIOD;
+    const check = checkAt(index);
+    if (u >= MEASURED) {
+      measured = index + 1;
+      drag = check.value;
+    }
+    lift = Math.min(lift, liftAt(u));
+    arm = Math.max(arm, armAt(u, check));
+    if (dwelling(u)) belt = 0;
+    const slot = passesBefore(index);
+    const where = tokenAt(u, check, slot);
+    if (check.verdict === "pass") {
+      let replacedAt = Infinity;
+      for (let later = index + 1, seen = 0; seen < 4 && later <= now + 1; later++) {
+        if (checkAt(later).verdict !== "pass") continue;
+        seen++;
+        if (seen === 4) replacedAt = later * PERIOD;
+      }
+      if (t >= replacedAt) continue;
+    } else if (u > RUN_LONG.return + KEEP_RETURNED) continue;
+    tokens.push({ key: `run-${index}`, check, pos: where.pos, layer: where.layer, alpha: where.alpha, lit: !where.done });
+  }
+  const tally = tallyOf(measured);
+  return { tokens, lift, arm, belt, apart: false, drag, readout: tallyText(tally), phase: `running, ${tallyText(tally)}` };
+}
+function singleScene(t, verdict, round = 0) {
+  const check = verdict === "pass" ? PASS_CHECK : RETURN_CHECK;
+  const tokens = history(verdict === "pass" ? 2 : 3);
+  const where = tokenAt(t, check, 2);
+  tokens.push({ key: `${verdict}-${round}`, check, pos: where.pos, layer: where.layer, alpha: where.alpha, lit: true });
+  const done = t >= MEASURED;
+  return {
+    tokens,
+    lift: liftAt(t),
+    arm: armAt(t, check),
+    belt: dwelling(t) || where.done || where.layer !== "belt" ? 0 : SPEED,
+    apart: false,
+    drag: done ? check.value : 0,
+    readout: done ? verdictText(check) : `checking proposal ${check.proposal}`,
+    phase: done ? verdictText(check) : "checking"
+  };
+}
+function apartScene() {
+  const tokens = history(3);
+  const check = checkAt(4);
+  tokens.push({ key: "apart-0", check, pos: [-60, 0, BT], layer: "belt", alpha: 1, lit: true });
+  return {
+    tokens,
+    lift: 0,
+    arm: 0,
+    belt: 0,
+    apart: true,
+    drag: 0,
+    readout: `apart \xB7 ${ASSEMBLIES.length} assemblies`,
+    phase: "apart"
+  };
+}
+function sceneAt(pose, t, round = 0) {
+  if (pose === "apart") return apartScene();
+  if (pose === "pass" || pose === "return") return singleScene(t, pose, round);
+  return idleScene(IDLE_START + t);
+}
+var STILL_AT = {
+  idle: ARRIVE + 0.75 - 0.4,
+  pass: RAISED + 1.15,
+  return: RAISED + TO_CONTACT + SLIDE * 0.62,
+  apart: 0
+};
+var stillScene = (pose) => sceneAt(pose, STILL_AT[pose]);
+function contactOver(distance, height) {
+  return height * smooth((TOKEN_R + 1 - distance) / 4);
+}
 function follow(current, target, dt, seconds, calm = false) {
   if (calm) return target;
   const next = current + (target - current) * (1 - Math.exp(-dt / seconds));
@@ -589,130 +893,6 @@ function faceCircle(centre, radius, axis, projection, steps = 24) {
     [...circleIn(centre, radius, axis, steps), circleIn(centre, radius, axis, steps)[0]].map((point) => iso(point, projection))
   );
 }
-
-// src/mechanism/gate/model.ts
-var LIMIT = 6;
-var SCALE = 10;
-var CYCLE = [
-  [1, 1, 4.2],
-  [2, 1, 5.1],
-  [3, 1, 6.6],
-  [4, 1, 3.8],
-  [5, 1, 5.6],
-  [3, 2, 4.9],
-  [6, 1, 6.9],
-  [7, 1, 4.4],
-  [8, 1, 5.8],
-  [6, 2, 5.3],
-  [9, 1, 6.3],
-  [9, 2, 5.5]
-];
-var CYCLE_LENGTH = CYCLE.length;
-var verdictOf = (value) => value <= LIMIT + 1e-9 ? "pass" : "return";
-function checkAt(index) {
-  const at2 = (index % CYCLE_LENGTH + CYCLE_LENGTH) % CYCLE_LENGTH;
-  const [proposal, attempt, value] = CYCLE[at2];
-  return { index, proposal: proposal + Math.floor(index / CYCLE_LENGTH) * 9, attempt, value, verdict: verdictOf(value) };
-}
-function tallyOf(count) {
-  const tally = { checked: 0, passed: 0, returned: 0 };
-  for (let index = 0; index < Math.max(0, Math.floor(count)); index++) {
-    tally.checked++;
-    if (checkAt(index).verdict === "pass") tally.passed++;
-    else tally.returned++;
-  }
-  return tally;
-}
-var tallyText = ({ checked, passed, returned }) => `checked ${checked} \xB7 passed ${passed} \xB7 returned ${returned}`;
-var one = (value) => (Math.round(value * 10) / 10).toFixed(1);
-var PASS_CHECK = checkAt(0);
-var RETURN_CHECK = checkAt(2);
-function verdictText(check) {
-  return check.verdict === "pass" ? `reads ${one(check.value)} \u2264 ${one(LIMIT)} \xB7 passed` : `reads ${one(check.value)} > ${one(LIMIT)} \xB7 returned`;
-}
-
-// src/mechanism/gate/view.ts
-var WIDTH = 600;
-var HEIGHT = 360;
-var AZIMUTH2 = 57;
-var BASE = { x: -152, y: -36, w: 304, d: 96, r: 8 };
-var BASE_H = 9;
-var FOOT_H = 5;
-var BT = 30;
-var BELT_X0 = -128;
-var BELT_X1 = 96;
-var DRUM_R = 5;
-var BELT_HALF = 13;
-var RAIL_IN = 13.5;
-var RAIL_OUT = 16.5;
-var RAIL_X0 = BELT_X0 - DRUM_R - 3;
-var RAIL_X1 = BELT_X1 + DRUM_R + 3;
-var RAIL_Z = BT - 13;
-var LIP = 2;
-var LEG_X = [-112, 80];
-var LEG = 6;
-var GAP = [14, 64];
-var MAG = { x: -124, y: -RAIL_IN, w: 24, d: RAIL_IN * 2, r: 1.5 };
-var MAG_Z = BT + 9;
-var MAG_TOP = BT + 58;
-var GX = -20;
-var POST_Y = 20;
-var POST = 6;
-var BEAM_Z = BT + 36;
-var BEAM_H = 6;
-var DIAL_R = 15;
-var DIAL_Z = BEAM_Z + BEAM_H + 2;
-var DIAL_H = 8;
-var DIAL_TOP = DIAL_Z + DIAL_H;
-var DIAL_SWEEP = 300;
-var ROD_R = 1.3;
-var ROD_LONG = 40;
-var TIP_R = 2.4;
-var TIP_H = 2;
-var LIFTED = 0;
-var PIVOT = [-10, -21];
-var ARM_LONG = 72;
-var ARM_Z = BT + 2.5;
-var ARM_H = 6.5;
-var ARM_T = 2;
-var ARM_SWING = 28;
-var CHUTE_Y = [26, 42];
-var CHUTE_WALL = 2;
-var CHUTE_X0 = -86;
-var CHUTE_X1 = 10;
-var APRON = { x: CHUTE_X1, y: RAIL_OUT, w: 74, d: CHUTE_Y[1] - RAIL_OUT, r: 1 };
-var APRON_TOP = BT - 1.5;
-var CHUTE_LOW = 9;
-var RETURN_TRAY = { x: -114, y: 22, w: 30, d: 26, r: 2 };
-var TRAY_WALL = 7;
-var RESULT_TRAY = { x: 106, y: -20, w: 38, d: 40, r: 2 };
-var TRAY_FLOOR = 1.5;
-var TOKEN_R = 7;
-var CHUTE_MID = (CHUTE_Y[0] + CHUTE_Y[1]) / 2;
-var chuteTop = (x) => CHUTE_LOW + (x - CHUTE_X0) / (CHUTE_X1 - CHUTE_X0) * (APRON_TOP - CHUTE_LOW);
-var ASSEMBLIES = ["hopper", "gauge", "diverter", "chute", "tray", "conveyor"];
-var MOVES = {
-  hopper: [-30, 0, 22],
-  gauge: [0, 0, 24],
-  diverter: [0, -22, 16],
-  chute: [0, 26, 0],
-  tray: [30, 0, 0],
-  conveyor: [0, 0, 10]
-};
-var P = fitProjection(
-  [
-    ...boxCorners(BASE, -BASE_H - FOOT_H, 0),
-    [MAG.x + MOVES.hopper[0], MAG.y, MAG_TOP + 3 + MOVES.hopper[2]],
-    [MAG.x + MAG.w, MAG.y, MAG_TOP + 3],
-    [GX, -DIAL_R, DIAL_TOP + MOVES.gauge[2]],
-    [RESULT_TRAY.x + RESULT_TRAY.w + MOVES.tray[0], RESULT_TRAY.y + RESULT_TRAY.d, 0]
-  ],
-  WIDTH,
-  HEIGHT,
-  { pad: 22, azimuth: AZIMUTH2 }
-);
-var at = (point) => iso(point, P);
-var move = (by) => translateAlong(P, by);
 
 // src/mechanism/gate/geometry.ts
 var slab = (plan, z, h, steps = 4, bevel = 0) => slabOf(plan, z, h, P, steps, bevel);
@@ -1061,211 +1241,9 @@ function tokenOf(height) {
 }
 var ORIGIN = at([0, 0, 0]);
 
-// src/mechanism/gate/motion.ts
-var SPEED = 52;
-var X_IN = -104;
-var X_SHOWN = -90;
-var ARRIVE = (GX - X_IN) / SPEED;
-var LOWER = 0.35;
-var MEASURED = ARRIVE + 0.6;
-var RAISE_AT = ARRIVE + 1;
-var RAISED = ARRIVE + 1.3;
-var SWING_AT = ARRIVE + 0.7;
-var SWUNG = ARRIVE + 1.2;
-var ARM_DIR = [Math.cos(ARM_SWING * Math.PI / 180), Math.sin(ARM_SWING * Math.PI / 180)];
-var CONTACT_X = PIVOT[0] + ARM_DIR[0] * (21 / ARM_DIR[1]) - (TOKEN_R + 2) / ARM_DIR[1];
-var TO_CONTACT = (CONTACT_X - GX) / SPEED;
-var SLIDE_SPEED = 40;
-var SLIDE_LONG = CHUTE_MID / ARM_DIR[1];
-var SLIDE = SLIDE_LONG / SLIDE_SPEED;
-var OFF_BELT = RAIL_OUT + TOKEN_R;
-var CHUTE_RUN = 1.7;
-var DROP = 0.4;
-var TRAY_SLOTS = [
-  [RESULT_TRAY.x + 10, RESULT_TRAY.y + 12],
-  [RESULT_TRAY.x + 27, RESULT_TRAY.y + 12],
-  [RESULT_TRAY.x + 10, RESULT_TRAY.y + 29],
-  [RESULT_TRAY.x + 27, RESULT_TRAY.y + 29]
-];
-var RETURN_AT = [RETURN_TRAY.x + 13, RETURN_TRAY.y + RETURN_TRAY.d / 2, TRAY_FLOOR];
-var PERIOD = 5.4;
-var IDLE_START = 4 * PERIOD + 0.4;
-var KEEP_RETURNED = 1.8;
-var clamp = (value, low = 0, high = 1) => Math.min(high, Math.max(low, value));
-var smooth = (value) => smoothstep(0, 1, value);
-var lerp = (a, b, t) => a + (b - a) * t;
-var mix3 = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
-function tokenAt(u, check, slot) {
-  const onBelt = (x) => [x, 0, BT];
-  if (u < ARRIVE) {
-    const x = X_IN + SPEED * Math.max(0, u);
-    return { pos: onBelt(x), layer: "belt", alpha: smooth((x - X_IN) / (X_SHOWN - X_IN)), done: false };
-  }
-  if (u < RAISED) return { pos: onBelt(GX), layer: "belt", alpha: 1, done: false };
-  const v = u - RAISED;
-  if (check.verdict === "pass") {
-    const leave = (BELT_X1 + 4 - GX) / SPEED;
-    if (v < leave) return { pos: onBelt(GX + SPEED * v), layer: "belt", alpha: 1, done: false };
-    const [tx, ty] = TRAY_SLOTS[slot % TRAY_SLOTS.length];
-    const fall2 = clamp((v - leave) / DROP);
-    const from2 = onBelt(BELT_X1 + 4);
-    const pos2 = [lerp(from2[0], tx, fall2), lerp(0, ty, fall2), BT - (BT - TRAY_FLOOR) * fall2 * fall2];
-    return { pos: pos2, layer: pos2[0] > BELT_X1 + 6 ? "tray" : "belt", alpha: 1, done: fall2 >= 1 };
-  }
-  if (v < TO_CONTACT) return { pos: onBelt(GX + SPEED * v), layer: "belt", alpha: 1, done: false };
-  const w = v - TO_CONTACT;
-  if (w < SLIDE) {
-    const along = SLIDE_SPEED * w;
-    const y = ARM_DIR[1] * along;
-    const drop = smooth((y - OFF_BELT) / 5) * (BT - APRON_TOP);
-    return { pos: [CONTACT_X + ARM_DIR[0] * along, y, BT - drop], layer: y > 10 ? "chute" : "belt", alpha: 1, done: false };
-  }
-  const start = [CONTACT_X + ARM_DIR[0] * SLIDE_LONG, CHUTE_MID, APRON_TOP];
-  const r = w - SLIDE;
-  if (r < CHUTE_RUN) {
-    const t = clamp(r / CHUTE_RUN);
-    const ease = t * t * (1.6 - 0.6 * t);
-    const x = lerp(start[0], CHUTE_X0, ease);
-    return { pos: [x, CHUTE_MID, x > CHUTE_X1 ? APRON_TOP : chuteTop(x)], layer: "chute", alpha: 1, done: false };
-  }
-  const fall = clamp((r - CHUTE_RUN) / DROP);
-  const from = [CHUTE_X0, CHUTE_MID, chuteTop(CHUTE_X0)];
-  const pos = mix3(from, RETURN_AT, fall);
-  pos[2] = from[2] - (from[2] - RETURN_AT[2]) * fall * fall;
-  return { pos, layer: "chute", alpha: 1, done: fall >= 1 };
-}
-var RUN_LONG = {
-  pass: RAISED + (BELT_X1 + 4 - GX) / SPEED + DROP,
-  return: RAISED + TO_CONTACT + SLIDE + CHUTE_RUN + DROP
-};
-function liftAt(u) {
-  if (u < ARRIVE || u > RAISED) return LIFTED;
-  if (u < ARRIVE + LOWER) return LIFTED * (1 - smooth((u - ARRIVE) / LOWER));
-  if (u < RAISE_AT) return 0;
-  return LIFTED * smooth((u - RAISE_AT) / (RAISED - RAISE_AT));
-}
-function armAt(u, check) {
-  if (check.verdict === "pass") return 0;
-  const reopen = RAISED + TO_CONTACT + SLIDE * 0.8;
-  if (u < SWING_AT) return 0;
-  if (u < SWUNG) return smooth((u - SWING_AT) / (SWUNG - SWING_AT));
-  if (u < reopen) return 1;
-  return 1 - smooth((u - reopen) / 0.5);
-}
-var dwelling = (u) => u >= ARRIVE && u < RAISED;
-function history(count) {
-  return Array.from({ length: count }, (_, index) => {
-    const check = checkAt([1, 3, 4][index] ?? 1);
-    const [x, y] = TRAY_SLOTS[index];
-    return { key: `history-${index}`, check, pos: [x, y, TRAY_FLOOR], layer: "tray", alpha: 1, lit: false };
-  });
-}
-function idleScene(t) {
-  const now = Math.floor(t / PERIOD);
-  const tokens = [];
-  let lift = LIFTED;
-  let arm = 0;
-  let belt = SPEED;
-  let measured = 0;
-  let drag = 0;
-  const passesBefore = (index) => tallyOf(index).passed;
-  for (let index = Math.max(0, now - 9); index <= now; index++) {
-    const u = t - index * PERIOD;
-    const check = checkAt(index);
-    if (u >= MEASURED) {
-      measured = index + 1;
-      drag = check.value;
-    }
-    lift = Math.min(lift, liftAt(u));
-    arm = Math.max(arm, armAt(u, check));
-    if (dwelling(u)) belt = 0;
-    const slot = passesBefore(index);
-    const where = tokenAt(u, check, slot);
-    if (check.verdict === "pass") {
-      let replacedAt = Infinity;
-      for (let later = index + 1, seen = 0; seen < 4 && later <= now + 1; later++) {
-        if (checkAt(later).verdict !== "pass") continue;
-        seen++;
-        if (seen === 4) replacedAt = later * PERIOD;
-      }
-      if (t >= replacedAt) continue;
-    } else if (u > RUN_LONG.return + KEEP_RETURNED) continue;
-    tokens.push({ key: `run-${index}`, check, pos: where.pos, layer: where.layer, alpha: where.alpha, lit: !where.done });
-  }
-  const tally = tallyOf(measured);
-  return { tokens, lift, arm, belt, apart: false, drag, readout: tallyText(tally), phase: `running, ${tallyText(tally)}` };
-}
-function singleScene(t, verdict, round = 0) {
-  const check = verdict === "pass" ? PASS_CHECK : RETURN_CHECK;
-  const tokens = history(verdict === "pass" ? 2 : 3);
-  const where = tokenAt(t, check, 2);
-  tokens.push({ key: `${verdict}-${round}`, check, pos: where.pos, layer: where.layer, alpha: where.alpha, lit: true });
-  const done = t >= MEASURED;
-  return {
-    tokens,
-    lift: liftAt(t),
-    arm: armAt(t, check),
-    belt: dwelling(t) || where.done || where.layer !== "belt" ? 0 : SPEED,
-    apart: false,
-    drag: done ? check.value : 0,
-    readout: done ? verdictText(check) : `checking proposal ${check.proposal}`,
-    phase: done ? verdictText(check) : "checking"
-  };
-}
-function apartScene() {
-  const tokens = history(3);
-  const check = checkAt(4);
-  tokens.push({ key: "apart-0", check, pos: [-60, 0, BT], layer: "belt", alpha: 1, lit: true });
-  return {
-    tokens,
-    lift: 0,
-    arm: 0,
-    belt: 0,
-    apart: true,
-    drag: 0,
-    readout: `apart \xB7 ${ASSEMBLIES.length} assemblies`,
-    phase: "apart"
-  };
-}
-function sceneAt(pose, t, round = 0) {
-  if (pose === "apart") return apartScene();
-  if (pose === "pass" || pose === "return") return singleScene(t, pose, round);
-  return idleScene(IDLE_START + t);
-}
-var STILL_AT = {
-  idle: ARRIVE + 0.75 - 0.4,
-  pass: RAISED + 1.15,
-  return: RAISED + TO_CONTACT + SLIDE * 0.62,
-  apart: 0
-};
-var stillScene = (pose) => sceneAt(pose, STILL_AT[pose]);
-function contactOver(distance, height) {
-  return height * smooth((TOKEN_R + 1 - distance) / 4);
-}
-function MechanismFrame({ number, title, hint, readout, caption, theme, className, children }) {
-  return /* @__PURE__ */ jsxs("figure", { className: `uipack-mechanism um-frame${className ? ` ${className}` : ""}`, "data-theme": theme, children: [
-    /* @__PURE__ */ jsxs("div", { className: "um-plate", children: [
-      /* @__PURE__ */ jsxs("div", { className: "um-corners", "aria-hidden": "true", children: [
-        /* @__PURE__ */ jsx("span", { className: "um-corner", "data-corner": "fig", children: number }),
-        title ? /* @__PURE__ */ jsx("span", { className: "um-corner", "data-corner": "title", children: title }) : null,
-        hint ? /* @__PURE__ */ jsx("span", { className: "um-corner", "data-corner": "hint", children: hint }) : null,
-        /* @__PURE__ */ jsx("span", { className: "um-corner", "data-corner": "readout", "data-readout": "", children: readout })
-      ] }),
-      children
-    ] }),
-    caption ? /* @__PURE__ */ jsx("figcaption", { className: "um-caption", children: caption }) : null
-  ] });
-}
+// src/mechanism/gate/display.ts
 var LAYERS = ["belt", "chute", "tray"];
 var SLOTS = 8;
-var LABEL2 = "A verification gate on a bench. Proposal tokens, machined pucks of different heights, leave a hopper on a short conveyor belt and stop under a dial indicator on a bridge. Its plunger rides up onto each token and the needle reads the token's height against a limit mark at 6. A token at or under the limit rides on and drops into the result tray. A taller one is pushed off the belt by a swinging arm into a chute that slides it back to a return tray beside the hopper, to be revised and fed again.";
-var GATE_CAPTION = "Illustrative, not data from a real system. A dial indicator measures every proposal before it can become a result: tokens at or under the limit (6.0) ride on to the result tray, taller ones are swung into the return chute and slide back to the hopper's tray, to be revised and tried again.";
-var HINTS = {
-  idle: "Tap or Space to pause",
-  pass: "Tap or Space to run again",
-  return: "Tap or Space to run again",
-  apart: "Tap or Space to reassemble"
-};
 var fine2 = (value) => Math.round(value * 100) / 100;
 var sharesAt = (value) => Object.fromEntries(ASSEMBLIES.map((name) => [name, { at: value, rate: 0 }]));
 function contactOf(slots) {
@@ -1364,19 +1342,6 @@ var shareMove = (name, share) => {
   return move([x * share, y * share, z * share]);
 };
 var readingOf = (display) => clamp(display.tip.at, 0, SCALE);
-function TokenArt({ paths }) {
-  const { solid } = paths;
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsx("path", { className: "iso-fill", d: solid.fill }),
-    solid.shades.map((d, shade) => /* @__PURE__ */ jsx("path", { className: "iso-shade", "data-shade": shade, d }, shade)),
-    /* @__PURE__ */ jsx("path", { className: "iso-top", d: solid.top }),
-    /* @__PURE__ */ jsx("path", { className: "iso-line iso-crease", "data-tone": "lo", d: solid.crease }),
-    /* @__PURE__ */ jsx("path", { className: "iso-line iso-bevel", "data-tone": "faint", d: solid.bevel ?? "" }),
-    /* @__PURE__ */ jsx("path", { className: "iso-line um-token-face", "data-tone": "lo", d: paths.face }),
-    /* @__PURE__ */ jsx("path", { className: "iso-line iso-edge", "data-tone": "hi", d: solid.outline }),
-    /* @__PURE__ */ jsx("circle", { className: "um-token-mark", cx: fine2(paths.mark[0]), cy: fine2(paths.mark[1]), r: 0.7 })
-  ] });
-}
 function writeSolid(group, solid) {
   if (!group) return;
   group.querySelector(":scope > .iso-fill")?.setAttribute("d", solid.fill);
@@ -1406,242 +1371,44 @@ function setAttr(node, name, value) {
     if (node.hasAttribute(name)) node.removeAttribute(name);
   } else if (node.getAttribute(name) !== value) node.setAttribute(name, value);
 }
-function useId2() {
-  const id = React2.useId();
-  return `um${id.replace(/[^a-zA-Z0-9_-]/g, "")}`;
-}
-function GateMachine({
-  pose = "idle",
-  theme,
-  motion = "auto",
-  interactive = true,
-  alt = LABEL2,
-  onReadout,
-  className,
-  bare = true
-}) {
-  const uid = useId2();
-  const root = React2.useRef(null);
-  const live = React2.useRef(null);
-  const animated = interactive && motion === "auto";
-  const reduced = usePrefersReducedMotion();
-  const stillness = React2.useRef(reduced);
-  stillness.current = reduced;
-  const [paused, setPaused] = React2.useState(false);
-  const start = React2.useRef(null);
-  if (!start.current || !interactive) {
-    const calm = !animated || reduced;
-    const t = calm || pose === "idle" ? STILL_AT[pose] : 0;
-    const scene = calm ? stillScene(pose) : sceneAt(pose, t);
-    start.current = { display: displayOf(scene, calm && pose === "apart" ? 1 : 0), scene, t: calm ? STILL_AT[pose] : t };
-  }
-  const first = start.current;
-  const shown = first.display;
-  const state = React2.useRef({
-    display: first.display,
-    t: first.t,
-    round: 0,
-    paused: false,
-    visible: false,
-    frame: 0,
-    last: 0,
-    targets: Object.fromEntries(ASSEMBLIES.map((name) => [name, first.display.shares[name].at])),
-    timers: [],
-    readout: "",
-    phase: "",
-    heights: []
+function paintDisplay(svg, display, heights) {
+  display.slots.forEach((slot, index) => {
+    const value = Math.round(slot.value * 10);
+    const rebuild = heights[index] !== value;
+    heights[index] = value;
+    for (const layer of LAYERS) {
+      const group = svg.querySelector(`[data-slot="${index}"][data-layer="${layer}"]`);
+      if (!group) continue;
+      const on = slot.key !== null && slot.layer === layer && slot.alpha > 5e-3;
+      if (rebuild) writeToken(group, tokenPaths(slot.value));
+      setAttr(group, "display", on ? "" : "none");
+      if (!on) continue;
+      setAttr(group, "transform", tokenMove(slot.pos));
+      setAttr(group, "opacity", slot.alpha >= 0.995 ? "" : slot.alpha.toFixed(2));
+      if (slot.lit) group.setAttribute("data-lit", "");
+      else group.removeAttribute("data-lit");
+    }
   });
-  const poseRef = React2.useRef(pose);
-  const readoutRef = React2.useRef(onReadout);
-  readoutRef.current = onReadout;
-  const sceneNow = React2.useCallback(() => {
-    const s = state.current;
-    const calm = stillness.current || motion === "none";
-    const scene = calm ? stillScene(poseRef.current) : sceneAt(poseRef.current, s.t, s.round);
-    if (s.paused && poseRef.current === "idle")
-      return { ...scene, belt: 0, readout: `${scene.readout} \xB7 paused`, phase: "paused" };
-    return scene;
-  }, [motion]);
-  const draw = React2.useCallback((scene) => {
-    const node = root.current;
-    if (!node) return;
-    const s = state.current;
-    const display = s.display;
-    const svg = node.querySelector("svg");
-    if (!svg) return;
-    display.slots.forEach((slot, index) => {
-      const value = Math.round(slot.value * 10);
-      const rebuild = s.heights[index] !== value;
-      s.heights[index] = value;
-      for (const layer of LAYERS) {
-        const group = svg.querySelector(`[data-slot="${index}"][data-layer="${layer}"]`);
-        if (!group) continue;
-        const on = slot.key !== null && slot.layer === layer && slot.alpha > 5e-3;
-        if (rebuild) writeToken(group, tokenPaths(slot.value));
-        setAttr(group, "display", on ? "" : "none");
-        if (!on) continue;
-        setAttr(group, "transform", tokenMove(slot.pos));
-        setAttr(group, "opacity", slot.alpha >= 0.995 ? "" : slot.alpha.toFixed(2));
-        if (slot.lit) group.setAttribute("data-lit", "");
-        else group.removeAttribute("data-lit");
-      }
-    });
-    setAttr(svg.querySelector("[data-part=slats]"), "d", slatsOf(display.phase));
-    setAttr(svg.querySelector("[data-part=plunger]"), "transform", move([0, 0, display.tip.at]));
-    setAttr(svg.querySelector("[data-part=needle]"), "d", needleOf(readingOf(display)));
-    setAttr(svg.querySelector("[data-part=drag]"), "d", dragOf(clamp(display.drag, 0, SCALE)));
-    writeSolid(svg.querySelector("[data-part=arm]"), armOf(clamp(display.arm.at, -0.05, 1.05)));
-    setAttr(svg.querySelector("[data-part=pointer]"), "d", armPointerOf(clamp(display.arm.at, -0.05, 1.05)));
-    for (const name of ASSEMBLIES) {
-      const transform = shareMove(name, Math.abs(display.shares[name].at) < 1e-4 ? 0 : display.shares[name].at);
-      svg.querySelectorAll(`[data-assembly="${name}"]`).forEach((group) => setAttr(group, "transform", transform));
-    }
-    let text = scene.readout;
-    if (poseRef.current === "apart" && ASSEMBLIES.some((name) => Math.abs(display.shares[name].at - 1) > 0.01))
-      text = "taking apart";
-    else if (poseRef.current !== "apart" && ASSEMBLIES.some((name) => display.shares[name].at > 0.01)) text = "closing up";
-    if (text !== s.readout) {
-      s.readout = text;
-      const slot = node.closest(".um-frame")?.querySelector("[data-readout]");
-      if (slot && slot.textContent !== text) slot.textContent = text;
-      readoutRef.current?.(text);
-    }
-    if (scene.phase !== s.phase && live.current) {
-      s.phase = scene.phase;
-      if (document.activeElement === node) live.current.textContent = scene.phase;
-    }
-  }, []);
-  const run = React2.useCallback(() => {
-    const s = state.current;
-    if (s.frame || !s.visible) return;
-    s.last = 0;
-    const tick = (now) => {
-      const dt = s.last ? Math.min((now - s.last) / 1e3, 1 / 30) : 1 / 60;
-      s.last = now;
-      const calm = stillness.current || motion === "none";
-      const current = poseRef.current;
-      if (!s.paused && !calm) s.t += dt;
-      const scene = sceneNow();
-      const moving = step(s.display, scene, dt, calm, s.targets);
-      draw(scene);
-      const scripted = !calm && !s.paused && (current === "idle" || (current === "pass" || current === "return") && s.t < RUN_LONG[current] + 0.2);
-      const pending = s.timers.length > 0;
-      s.frame = s.visible && (moving || scripted || pending) ? requestAnimationFrame(tick) : 0;
-    };
-    s.frame = requestAnimationFrame(tick);
-  }, [draw, motion, sceneNow]);
-  const stop = React2.useCallback(() => {
-    const s = state.current;
-    cancelAnimationFrame(s.frame);
-    s.frame = 0;
-  }, []);
-  const aim = React2.useCallback((apart, calm) => {
-    const s = state.current;
-    s.timers.forEach((timer) => window.clearTimeout(timer));
-    s.timers = [];
-    const order = apart ? [...ASSEMBLIES] : [...ASSEMBLIES].reverse();
-    const changing = order.filter((name) => s.targets[name] !== (apart ? 1 : 0));
-    changing.forEach((name, index) => {
-      if (calm || index === 0) {
-        s.targets[name] = apart ? 1 : 0;
-        return;
-      }
-      const timer = window.setTimeout(() => {
-        s.targets[name] = apart ? 1 : 0;
-        s.timers = s.timers.filter((other) => other !== timer);
-      }, index * 70);
-      s.timers.push(timer);
-    });
-  }, []);
-  React2.useEffect(() => {
-    if (!interactive) return;
-    const s = state.current;
-    const changed = poseRef.current !== pose;
-    poseRef.current = pose;
-    const calm = stillness.current || motion === "none";
-    if (changed) {
-      s.t = calm ? STILL_AT[pose] : 0;
-      s.round++;
-      s.paused = false;
-      setPaused(false);
-    }
-    aim(pose === "apart", calm);
-    if (calm) {
-      const scene = sceneNow();
-      step(s.display, scene, 1, true, s.targets);
-      draw(scene);
-      return;
-    }
-    run();
-  }, [pose, interactive, motion, aim, draw, run, sceneNow]);
-  React2.useEffect(() => {
-    if (!interactive) return;
-    const node = root.current;
-    if (!node || typeof IntersectionObserver === "undefined") {
-      state.current.visible = true;
-      run();
-      return;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = Boolean(entries[entries.length - 1]?.isIntersecting);
-        state.current.visible = visible;
-        if (visible) run();
-        else stop();
-      },
-      { rootMargin: "120px 0px" }
-    );
-    observer.observe(node);
-    const s = state.current;
-    return () => {
-      observer.disconnect();
-      stop();
-      s.timers.forEach((timer) => window.clearTimeout(timer));
-      s.timers = [];
-    };
-  }, [interactive, run, stop]);
-  const wasReduced = React2.useRef(reduced);
-  React2.useEffect(() => {
-    if (wasReduced.current === reduced) return;
-    wasReduced.current = reduced;
-    if (!interactive) return;
-    const s = state.current;
-    if (reduced) {
-      stop();
-      s.t = STILL_AT[poseRef.current];
-      aim(poseRef.current === "apart", true);
-      const scene = sceneNow();
-      step(s.display, scene, 1, true, s.targets);
-      draw(scene);
-    } else run();
-  }, [reduced, interactive, aim, draw, run, sceneNow, stop]);
-  const act = () => {
-    const s = state.current;
-    const current = poseRef.current;
-    const calm = stillness.current || motion === "none";
-    if (current === "idle") {
-      s.paused = !s.paused;
-      setPaused(s.paused);
-    } else if (current === "apart") {
-      const open = ASSEMBLIES.every((name) => s.targets[name] === 1);
-      aim(!open, calm);
-    } else {
-      s.round++;
-      s.t = calm ? STILL_AT[current] : 0;
-    }
-    if (calm) {
-      const scene = sceneNow();
-      step(s.display, scene, 1, true, s.targets);
-      draw(scene);
-    }
-    run();
-    if (live.current)
-      live.current.textContent = current === "idle" ? s.paused ? "paused" : "running" : current === "apart" ? "reassembling or taking apart" : "running again";
-  };
+  setAttr(svg.querySelector("[data-part=slats]"), "d", slatsOf(display.phase));
+  setAttr(svg.querySelector("[data-part=plunger]"), "transform", move([0, 0, display.tip.at]));
+  setAttr(svg.querySelector("[data-part=needle]"), "d", needleOf(readingOf(display)));
+  setAttr(svg.querySelector("[data-part=drag]"), "d", dragOf(clamp(display.drag, 0, SCALE)));
+  writeSolid(svg.querySelector("[data-part=arm]"), armOf(clamp(display.arm.at, -0.05, 1.05)));
+  setAttr(svg.querySelector("[data-part=pointer]"), "d", armPointerOf(clamp(display.arm.at, -0.05, 1.05)));
+  for (const name of ASSEMBLIES) {
+    const transform = shareMove(name, Math.abs(display.shares[name].at) < 1e-4 ? 0 : display.shares[name].at);
+    svg.querySelectorAll(`[data-assembly="${name}"]`).forEach((group) => setAttr(group, "transform", transform));
+  }
+}
+function readoutOf(pose, display, scene) {
+  if (pose === "apart" && ASSEMBLIES.some((name) => Math.abs(display.shares[name].at - 1) > 0.01)) return "taking apart";
+  if (pose !== "apart" && ASSEMBLIES.some((name) => display.shares[name].at > 0.01)) return "closing up";
+  return scene.readout;
+}
+function GateArt({ uid, alt, shown }) {
   const reading = readingOf(shown);
   const arm = armOf(shown.arm.at);
-  const hint = HINTS[pose];
-  const art = /* @__PURE__ */ jsxs("svg", { className: "iso-svg", viewBox: `0 0 ${WIDTH} ${HEIGHT}`, role: "img", "aria-label": alt, focusable: "false", children: [
+  return /* @__PURE__ */ jsxs("svg", { className: "iso-svg", viewBox: `0 0 ${WIDTH} ${HEIGHT}`, role: "img", "aria-label": alt, focusable: "false", children: [
     /* @__PURE__ */ jsx("title", { id: `${uid}-title`, children: "Verification gate" }),
     /* @__PURE__ */ jsxs("g", { "data-part": "base", children: [
       /* @__PURE__ */ jsx("path", { className: "iso-halo", d: BASE_ART.halo }),
@@ -1794,6 +1561,261 @@ function GateMachine({
       /* @__PURE__ */ jsx(Dots, { points: TRAY_FRONT.screws, size: 0.45, tone: "mid" })
     ] })
   ] });
+}
+function Tokens({ layer, slots }) {
+  return /* @__PURE__ */ jsx(Fragment, { children: slots.map((slot, index) => {
+    const on = slot.key !== null && slot.layer === layer && slot.alpha > 5e-3;
+    return /* @__PURE__ */ jsx(
+      "g",
+      {
+        className: "iso-solid um-token",
+        "data-slot": index,
+        "data-layer": layer,
+        "data-lit": on && slot.lit ? "" : void 0,
+        display: on ? void 0 : "none",
+        transform: tokenMove(slot.pos),
+        opacity: on && slot.alpha < 0.995 ? slot.alpha.toFixed(2) : void 0,
+        children: /* @__PURE__ */ jsx(TokenArt, { paths: tokenPaths(slot.value) })
+      },
+      index
+    );
+  }) });
+}
+function TokenArt({ paths }) {
+  const { solid } = paths;
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("path", { className: "iso-fill", d: solid.fill }),
+    solid.shades.map((d, shade) => /* @__PURE__ */ jsx("path", { className: "iso-shade", "data-shade": shade, d }, shade)),
+    /* @__PURE__ */ jsx("path", { className: "iso-top", d: solid.top }),
+    /* @__PURE__ */ jsx("path", { className: "iso-line iso-crease", "data-tone": "lo", d: solid.crease }),
+    /* @__PURE__ */ jsx("path", { className: "iso-line iso-bevel", "data-tone": "faint", d: solid.bevel ?? "" }),
+    /* @__PURE__ */ jsx("path", { className: "iso-line um-token-face", "data-tone": "lo", d: paths.face }),
+    /* @__PURE__ */ jsx("path", { className: "iso-line iso-edge", "data-tone": "hi", d: solid.outline }),
+    /* @__PURE__ */ jsx("circle", { className: "um-token-mark", cx: fine2(paths.mark[0]), cy: fine2(paths.mark[1]), r: 0.7 })
+  ] });
+}
+var STAGGER_MS = 70;
+function firstFrame(pose, calm) {
+  const t = calm || pose === "idle" ? STILL_AT[pose] : 0;
+  const scene = calm ? stillScene(pose) : sceneAt(pose, t);
+  return { display: displayOf(scene, calm && pose === "apart" ? 1 : 0), t };
+}
+var liveText = (pose, paused) => pose === "idle" ? paused ? "paused" : "running" : pose === "apart" ? "reassembling or taking apart" : "running again";
+function useGateLoop({ pose, motion, interactive, reduced, onReadout }) {
+  const root = React2.useRef(null);
+  const live = React2.useRef(null);
+  const animated = interactive && motion === "auto";
+  const [first] = React2.useState(() => firstFrame(pose, !animated || reduced));
+  const still = React2.useMemo(() => interactive ? null : firstFrame(pose, true), [interactive, pose]);
+  const [pauseView, setPauseView] = React2.useState({ pose, paused: false });
+  if (pauseView.pose !== pose) setPauseView({ pose, paused: false });
+  const state = React2.useRef({
+    display: first.display,
+    t: first.t,
+    round: 0,
+    paused: false,
+    visible: false,
+    frame: 0,
+    last: 0,
+    targets: Object.fromEntries(ASSEMBLIES.map((name) => [name, first.display.shares[name].at])),
+    timers: [],
+    readout: "",
+    phase: "",
+    heights: []
+  });
+  const poseRef = React2.useRef(pose);
+  const latestRef = useLatest({ reduced, motion, onReadout });
+  const isCalm = React2.useCallback(() => latestRef.current.reduced || latestRef.current.motion === "none", [latestRef]);
+  const sceneNow = React2.useCallback(() => {
+    const s = state.current;
+    const scene = isCalm() ? stillScene(poseRef.current) : sceneAt(poseRef.current, s.t, s.round);
+    if (s.paused && poseRef.current === "idle")
+      return { ...scene, belt: 0, readout: `${scene.readout} \xB7 paused`, phase: "paused" };
+    return scene;
+  }, [isCalm]);
+  const draw = React2.useCallback(
+    (scene) => {
+      const node = root.current;
+      const svg = node?.querySelector("svg");
+      if (!node || !svg) return;
+      const s = state.current;
+      paintDisplay(svg, s.display, s.heights);
+      const text = readoutOf(poseRef.current, s.display, scene);
+      if (text !== s.readout) {
+        s.readout = text;
+        const slot = node.closest(".um-frame")?.querySelector("[data-readout]");
+        if (slot && slot.textContent !== text) slot.textContent = text;
+        latestRef.current.onReadout?.(text);
+      }
+      if (scene.phase !== s.phase && live.current) {
+        s.phase = scene.phase;
+        if (document.activeElement === node) live.current.textContent = scene.phase;
+      }
+    },
+    [latestRef]
+  );
+  const settle = React2.useCallback(() => {
+    const s = state.current;
+    const scene = sceneNow();
+    step(s.display, scene, 1, true, s.targets);
+    draw(scene);
+  }, [draw, sceneNow]);
+  const run = React2.useCallback(() => {
+    const s = state.current;
+    if (s.frame || !s.visible) return;
+    s.last = 0;
+    const tick = (now) => {
+      const dt = s.last ? Math.min((now - s.last) / 1e3, 1 / 30) : 1 / 60;
+      s.last = now;
+      const calm = isCalm();
+      const current = poseRef.current;
+      if (!s.paused && !calm) s.t += dt;
+      const scene = sceneNow();
+      const moving = step(s.display, scene, dt, calm, s.targets);
+      draw(scene);
+      const scripted = !calm && !s.paused && (current === "idle" || (current === "pass" || current === "return") && s.t < RUN_LONG[current] + 0.2);
+      const pending = s.timers.length > 0;
+      s.frame = s.visible && (moving || scripted || pending) ? requestAnimationFrame(tick) : 0;
+    };
+    s.frame = requestAnimationFrame(tick);
+  }, [draw, isCalm, sceneNow]);
+  const stop = React2.useCallback(() => {
+    const s = state.current;
+    cancelAnimationFrame(s.frame);
+    s.frame = 0;
+  }, []);
+  const aim = React2.useCallback((apart, calm) => {
+    const s = state.current;
+    s.timers.forEach((timer) => window.clearTimeout(timer));
+    s.timers = [];
+    const order = apart ? [...ASSEMBLIES] : [...ASSEMBLIES].reverse();
+    const changing = order.filter((name) => s.targets[name] !== (apart ? 1 : 0));
+    changing.forEach((name, index) => {
+      if (calm || index === 0) {
+        s.targets[name] = apart ? 1 : 0;
+        return;
+      }
+      const timer = window.setTimeout(() => {
+        s.targets[name] = apart ? 1 : 0;
+        s.timers = s.timers.filter((other) => other !== timer);
+      }, index * STAGGER_MS);
+      s.timers.push(timer);
+    });
+  }, []);
+  React2.useEffect(() => {
+    if (!interactive) return;
+    const s = state.current;
+    const changed = poseRef.current !== pose;
+    poseRef.current = pose;
+    const calm = isCalm();
+    if (changed) {
+      s.t = calm ? STILL_AT[pose] : 0;
+      s.round++;
+      s.paused = false;
+    }
+    aim(pose === "apart", calm);
+    if (calm) settle();
+    else run();
+  }, [pose, interactive, motion, aim, isCalm, run, settle]);
+  React2.useEffect(() => {
+    if (!interactive) return;
+    const node = root.current;
+    if (!node || typeof IntersectionObserver === "undefined") {
+      state.current.visible = true;
+      run();
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = Boolean(entries[entries.length - 1]?.isIntersecting);
+        state.current.visible = visible;
+        if (visible) run();
+        else stop();
+      },
+      { rootMargin: "120px 0px" }
+    );
+    observer.observe(node);
+    const s = state.current;
+    return () => {
+      observer.disconnect();
+      stop();
+      s.timers.forEach((timer) => window.clearTimeout(timer));
+      s.timers = [];
+    };
+  }, [interactive, run, stop]);
+  const wasReduced = React2.useRef(reduced);
+  React2.useEffect(() => {
+    if (wasReduced.current === reduced) return;
+    wasReduced.current = reduced;
+    if (!interactive) return;
+    if (reduced) {
+      stop();
+      state.current.t = STILL_AT[poseRef.current];
+      aim(poseRef.current === "apart", true);
+      settle();
+    } else run();
+  }, [reduced, interactive, aim, run, settle, stop]);
+  const act = () => {
+    const s = state.current;
+    const current = poseRef.current;
+    const calm = isCalm();
+    if (current === "idle") {
+      s.paused = !s.paused;
+      setPauseView({ pose: current, paused: s.paused });
+    } else if (current === "apart") {
+      const open = ASSEMBLIES.every((name) => s.targets[name] === 1);
+      aim(!open, calm);
+    } else {
+      s.round++;
+      s.t = calm ? STILL_AT[current] : 0;
+    }
+    if (calm) settle();
+    run();
+    if (live.current) live.current.textContent = liveText(current, s.paused);
+  };
+  return { root, live, shown: still ? still.display : first.display, paused: pauseView.paused, act };
+}
+function MechanismFrame({ number, title, hint, readout, caption, theme, className, children }) {
+  return /* @__PURE__ */ jsxs("figure", { className: `uipack-mechanism um-frame${className ? ` ${className}` : ""}`, "data-theme": theme, children: [
+    /* @__PURE__ */ jsxs("div", { className: "um-plate", children: [
+      /* @__PURE__ */ jsxs("div", { className: "um-corners", "aria-hidden": "true", children: [
+        /* @__PURE__ */ jsx("span", { className: "um-corner", "data-corner": "fig", children: number }),
+        title ? /* @__PURE__ */ jsx("span", { className: "um-corner", "data-corner": "title", children: title }) : null,
+        hint ? /* @__PURE__ */ jsx("span", { className: "um-corner", "data-corner": "hint", children: hint }) : null,
+        /* @__PURE__ */ jsx("span", { className: "um-corner", "data-corner": "readout", "data-readout": "", children: readout })
+      ] }),
+      children
+    ] }),
+    caption ? /* @__PURE__ */ jsx("figcaption", { className: "um-caption", children: caption }) : null
+  ] });
+}
+var LABEL2 = "A verification gate on a bench. Proposal tokens, machined pucks of different heights, leave a hopper on a short conveyor belt and stop under a dial indicator on a bridge. Its plunger rides up onto each token and the needle reads the token's height against a limit mark at 6. A token at or under the limit rides on and drops into the result tray. A taller one is pushed off the belt by a swinging arm into a chute that slides it back to a return tray beside the hopper, to be revised and fed again.";
+var GATE_CAPTION = "Illustrative, not data from a real system. A dial indicator measures every proposal before it can become a result: tokens at or under the limit (6.0) ride on to the result tray, taller ones are swung into the return chute and slide back to the hopper's tray, to be revised and tried again.";
+var HINTS = {
+  idle: "Tap or Space to pause",
+  pass: "Tap or Space to run again",
+  return: "Tap or Space to run again",
+  apart: "Tap or Space to reassemble"
+};
+function useId2() {
+  const id = React2.useId();
+  return `um${id.replace(/[^a-zA-Z0-9_-]/g, "")}`;
+}
+function GateMachine({
+  pose = "idle",
+  theme,
+  motion = "auto",
+  interactive = true,
+  alt = LABEL2,
+  onReadout,
+  className,
+  bare = true
+}) {
+  const uid = useId2();
+  const animated = interactive && motion === "auto";
+  const reduced = usePrefersReducedMotion();
+  const { root, live, shown, paused, act } = useGateLoop({ pose, motion, interactive, reduced, onReadout });
+  const hint = HINTS[pose];
   const machine = /* @__PURE__ */ jsxs(
     "div",
     {
@@ -1814,7 +1836,7 @@ function GateMachine({
         }
       } : void 0,
       children: [
-        art,
+        /* @__PURE__ */ jsx(GateArt, { uid, alt, shown }),
         interactive ? /* @__PURE__ */ jsx("span", { ref: live, className: "um-hidden", "aria-live": "polite" }) : null
       ]
     }
@@ -1828,25 +1850,6 @@ function GateMachine({
     machine,
     control
   ] });
-}
-function Tokens({ layer, slots }) {
-  return /* @__PURE__ */ jsx(Fragment, { children: slots.map((slot, index) => {
-    const on = slot.key !== null && slot.layer === layer && slot.alpha > 5e-3;
-    return /* @__PURE__ */ jsx(
-      "g",
-      {
-        className: "iso-solid um-token",
-        "data-slot": index,
-        "data-layer": layer,
-        "data-lit": on && slot.lit ? "" : void 0,
-        display: on ? void 0 : "none",
-        transform: tokenMove(slot.pos),
-        opacity: on && slot.alpha < 0.995 ? slot.alpha.toFixed(2) : void 0,
-        children: /* @__PURE__ */ jsx(TokenArt, { paths: tokenPaths(slot.value) })
-      },
-      index
-    );
-  }) });
 }
 function VerificationGate({
   frame = true,

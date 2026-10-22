@@ -1,4 +1,4 @@
-import { prefersReducedMotion } from './chunk-KYO6UXHN.js';
+import { prefersReducedMotion } from './chunk-I6LF4PLF.js';
 import { Fragment as Fragment$1 } from 'react';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 
@@ -1187,8 +1187,11 @@ function enhanceSpanChart(root) {
     update(true);
     restore();
   };
+  let resetTimer;
   const onReset = () => {
-    win?.setTimeout(() => {
+    if (win && resetTimer !== void 0) win.clearTimeout(resetTimer);
+    resetTimer = win?.setTimeout(() => {
+      resetTimer = void 0;
       sync();
       applySearch();
       update(true);
@@ -1310,6 +1313,7 @@ function enhanceSpanChart(root) {
   update(false);
   onHash();
   return () => {
+    if (win && resetTimer !== void 0) win.clearTimeout(resetTimer);
     root.removeEventListener("click", onClick);
     root.removeEventListener("click", onClearClick);
     body?.removeEventListener("pointermove", onBodyMove);

@@ -1,6 +1,8 @@
-import { usePrefersReducedMotion, onReducedMotionChange, prefersReducedMotion } from './chunk-KYO6UXHN.js';
+import { clamp, easeOutCubic, lerp, smoothstep, easeOutExpo } from './chunk-BN5H6RB6.js';
+export { easeOutExpo } from './chunk-BN5H6RB6.js';
+import { usePrefersReducedMotion, useLatest, useHydrated, onReducedMotionChange, prefersReducedMotion } from './chunk-I6LF4PLF.js';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { useState, useRef, useId, useEffect, Fragment as Fragment$1, useMemo, useCallback, createElement } from 'react';
+import { useState, useRef, useId, useEffect, Fragment as Fragment$1, useMemo, useCallback, useSyncExternalStore, createElement } from 'react';
 
 function WebSurface({ children, theme, as: Tag = "div", className = "", style }) {
   return /* @__PURE__ */ jsx(Tag, { className: `uipack-web ${className}`.trim(), "data-theme": theme, "data-style": "landing", style, children });
@@ -217,7 +219,7 @@ function RhymeIcon({ at = 0.5, values = DEFAULT_STAR_VALUES, size = 40 }) {
   const d = curvePath(values, 28, 20, 2);
   const min = Math.min(...values);
   const span = Math.max(...values) - min || 1;
-  const idx = Math.round(Math.max(0, Math.min(1, at)) * (values.length - 1));
+  const idx = Math.round(clamp(at) * (values.length - 1));
   const cx = 6 + idx / (values.length - 1) * 28;
   const cy = 10 + 2 + (1 - (values[idx] - min) / span) * 16;
   return /* @__PURE__ */ jsxs("svg", { className: "uipack-web-rhyme", viewBox: "0 0 40 40", width: size, height: size, "aria-hidden": "true", focusable: "false", children: [
@@ -362,7 +364,10 @@ function DemoPlayer({
     io.observe(el);
     return () => io.disconnect();
   }, []);
-  const running = playing && inView && !reduced;
+  const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
+  const frame = reduced ? finalFrame : demoFrame(steps, elapsed, timing, initialMetric);
+  const finished = !loop && frame.done;
+  const running = playing && !finished && inView && !reduced;
   useEffect(() => {
     if (!running) return;
     let last = Date.now();
@@ -378,16 +383,11 @@ function DemoPlayer({
     }, TICK_MS);
     return () => clearInterval(timer);
   }, [running, loop, cycle, end]);
-  const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
-  const frame = reduced ? finalFrame : demoFrame(steps, elapsed, timing, initialMetric);
-  const finished = !loop && frame.done;
-  useEffect(() => {
-    if (finished) setPlaying(false);
-  }, [finished]);
   const step = steps[frame.step];
+  const stepChangeRef = useLatest(onStepChange);
   useEffect(() => {
-    onStepChange?.(frame.step);
-  }, [frame.step]);
+    stepChangeRef.current?.(frame.step);
+  }, [frame.step, stepChangeRef]);
   const seek = useCallback(
     (i) => {
       setElapsed(stepStart(steps, i, timing));
@@ -580,7 +580,7 @@ function useInView(ref2, { threshold = 0, once = false, rootMargin } = {}) {
 function scrollProgressOf(rect, viewport) {
   const total = viewport + rect.height;
   if (total <= 0) return 0;
-  return Math.max(0, Math.min(1, (viewport - rect.top) / total));
+  return clamp((viewport - rect.top) / total);
 }
 function useScrollProgress(ref2) {
   const inView = useInView(ref2);
@@ -612,12 +612,17 @@ function useScrollProgress(ref2) {
   return progress;
 }
 function useFinePointer() {
-  const [fine, setFine] = useState(false);
-  useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    setFine(window.matchMedia("(hover: hover) and (pointer: fine)").matches);
-  }, []);
-  return fine;
+  return useSyncExternalStore(subscribeFinePointer, finePointerNow, () => false);
+}
+var FINE_POINTER_QUERY = "(hover: hover) and (pointer: fine)";
+var finePointerQuery = () => typeof window === "undefined" || typeof window.matchMedia !== "function" ? null : window.matchMedia(FINE_POINTER_QUERY);
+var finePointerNow = () => finePointerQuery()?.matches ?? false;
+function subscribeFinePointer(changed) {
+  const query = finePointerQuery();
+  if (!query || typeof query.addEventListener !== "function") return () => {
+  };
+  query.addEventListener("change", changed);
+  return () => query.removeEventListener("change", changed);
 }
 function transitionDocument() {
   const doc = typeof document === "undefined" ? void 0 : document;
@@ -634,7 +639,6 @@ function withViewTransition(update) {
 }
 var PAINT_STEPS = 40;
 var rand = (min, max) => min + Math.random() * (max - min);
-var smooth = (t) => t * t * (3 - 2 * t);
 var px = (v) => `${Math.round(v * 10) / 10}px`;
 function rollDrips(width, height, duration) {
   const count = Math.max(7, Math.min(26, Math.round(width / 56)));
@@ -655,7 +659,7 @@ function rollDrips(width, height, duration) {
   });
 }
 function paintFrame(t, width, height, drips, duration) {
-  const sheet = smooth(Math.min(1, t / (duration * 0.85))) * (height * 1.14);
+  const sheet = smoothstep(0, 1, t / (duration * 0.85)) * (height * 1.14);
   const pos = ["0px 0px"];
   const size = [`${px(width)} ${px(sheet)}`];
   for (const d of drips) {
@@ -905,7 +909,7 @@ function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div", class
 }
 var GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/<>_-";
 function scrambleFrame(text, t, mode, seed = 0) {
-  const p = Math.max(0, Math.min(1, t));
+  const p = clamp(t);
   const settled = Math.floor(p * text.length);
   if (mode === "type") return text.slice(0, settled);
   let out = text.slice(0, settled);
@@ -959,7 +963,6 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
     }
   );
 }
-var easeOut = (t) => 1 - Math.pow(1 - t, 3);
 function NumberTicker({
   value,
   from = 0,
@@ -997,7 +1000,7 @@ function NumberTicker({
     show(origin);
     const timer = setInterval(() => {
       const p = Math.min(1, (Date.now() - start) / duration);
-      show(origin + (value - origin) * easeOut(p));
+      show(origin + (value - origin) * easeOutCubic(p));
       if (p >= 1) clearInterval(timer);
     }, 32);
     return () => clearInterval(timer);
@@ -1016,8 +1019,7 @@ function Marquee({ items, label, duration = 30, reverse = false }) {
   const inView = useInView(ref2);
   const reduced = usePrefersReducedMotion();
   const [paused, setPaused] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useHydrated();
   useEffect(() => {
     copyRef.current?.setAttribute("inert", "");
   }, [reduced, mounted]);
@@ -1093,7 +1095,7 @@ function MagneticButton({ strength = 6, ...button }) {
     }
   );
 }
-var lerp = ([a, b], t) => a + (b - a) * t;
+var rangeAt = ([from, to], t) => lerp(from, to, t);
 function ScrollTransform({
   children,
   rotate = [0, 0],
@@ -1107,10 +1109,10 @@ function ScrollTransform({
   const raw = useScrollProgress(ref2);
   const t = reduced ? 0.5 : raw;
   const style = {
-    "--st-rotate": `${lerp(rotate, t).toFixed(2)}deg`,
-    "--st-scale": lerp(scale, t).toFixed(3),
-    "--st-y": `${lerp(translateY, t).toFixed(1)}px`,
-    "--st-opacity": lerp(opacity, t).toFixed(3)
+    "--st-rotate": `${rangeAt(rotate, t).toFixed(2)}deg`,
+    "--st-scale": rangeAt(scale, t).toFixed(3),
+    "--st-y": `${rangeAt(translateY, t).toFixed(1)}px`,
+    "--st-opacity": rangeAt(opacity, t).toFixed(3)
   };
   return /* @__PURE__ */ jsx("div", { ref: ref2, className: `uipack-web-scrollx ${className}`.trim(), "data-progress": t.toFixed(2), children: /* @__PURE__ */ jsx("div", { className: "uipack-web-scrollx__inner", style, children }) });
 }
@@ -1121,11 +1123,6 @@ function followRate(lerp2) {
 function followStep(current, target, rate, dt) {
   return target + (current - target) * Math.exp(-rate * Math.max(0, dt));
 }
-function easeOutExpo(t) {
-  if (t <= 0) return 0;
-  if (t >= 1) return 1;
-  return 1 - Math.pow(2, -10 * t);
-}
 var WHEEL_LINE_PX = 40;
 var WHEEL_PAGE_FRACTION = 0.875;
 function normalizeWheel(e, viewport) {
@@ -1134,7 +1131,6 @@ function normalizeWheel(e, viewport) {
     return { x: e.deltaX * viewport.width * WHEEL_PAGE_FRACTION, y: e.deltaY * viewport.height * WHEEL_PAGE_FRACTION };
   return { x: e.deltaX, y: e.deltaY };
 }
-var clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 var SMOOTH_SCROLL_ATTR = "data-uipack-smooth-scroll";
 var SMOOTH_SCROLL_PREVENT_ATTR = "data-smooth-scroll-prevent";
 var SCROLL_KEYS = /* @__PURE__ */ new Set([" ", "PageUp", "PageDown", "ArrowUp", "ArrowDown", "Home", "End"]);
@@ -1965,8 +1961,8 @@ function resolveAiCrawlers(policy = "allow-all") {
   return out;
 }
 var LLMS_FULL_PATH = "/llms-full.txt";
-var siteRoot = (site) => {
-  if (!/^https?:\/\//i.test(site)) throw new Error(`buildCrawlFiles: site must be an absolute URL (got "${site}")`);
+var siteRoot = (site, field = "buildCrawlFiles: site") => {
+  if (!/^https?:\/\//i.test(site)) throw new Error(`${field} must be an absolute URL (got "${site}")`);
   return site.endsWith("/") ? site : `${site}/`;
 };
 var pageUrl = (site, path) => new URL(path.replace(/^\//, ""), siteRoot(site)).toString();
@@ -2008,7 +2004,8 @@ function robotsTxt({
   lines.push("", `Sitemap: ${pageUrl(site, sitemapPath)}`, "");
   return lines.join("\n");
 }
-var escapeXml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+var XML_INVALID = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g;
+var escapeXml = (s) => s.replace(XML_INVALID, "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 function formatLastmod(d) {
   if (d instanceof Date) {
     if (Number.isNaN(d.getTime())) throw new Error("sitemap lastmod: invalid Date");
@@ -2082,5 +2079,45 @@ function buildCrawlFiles(o) {
   if (o.pages.some((p) => !p.noindex && p.content?.trim())) files["llms-full.txt"] = llmsFullTxt(o);
   return files;
 }
+function rssDate(d, field) {
+  if (typeof d === "string" && !/^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/.test(d))
+    throw new Error(`${field} must be a Date or ISO 8601, e.g. 2026-10-22 (got "${d}")`);
+  const time = d instanceof Date ? d.getTime() : Date.parse(d);
+  if (Number.isNaN(time)) throw new Error(`${field}: invalid date`);
+  return { time, text: new Date(time).toUTCString() };
+}
+function rssFeed({ title, link, description, items, self, language }) {
+  const root = siteRoot(link, "rssFeed: link");
+  const entries = items.map((item, i) => ({ item, url: pageUrl(root, item.link), date: rssDate(item.pubDate, `rssFeed: items[${i}].pubDate`) })).sort((a, b) => b.date.time - a.date.time);
+  const channel = [
+    `    <title>${escapeXml(oneLine(title))}</title>`,
+    `    <link>${escapeXml(root)}</link>`,
+    `    <description>${escapeXml(oneLine(description))}</description>`
+  ];
+  if (self) channel.push(`    <atom:link href="${escapeXml(pageUrl(root, self))}" rel="self" type="application/rss+xml"/>`);
+  if (language) channel.push(`    <language>${escapeXml(language)}</language>`);
+  if (entries.length) channel.push(`    <lastBuildDate>${entries[0].date.text}</lastBuildDate>`);
+  for (const { item, url, date } of entries) {
+    const guid = item.guid ?? url;
+    const lines = [
+      `      <title>${escapeXml(oneLine(item.title))}</title>`,
+      `      <link>${escapeXml(url)}</link>`,
+      `      <guid isPermaLink="${guid === url ? "true" : "false"}">${escapeXml(guid)}</guid>`,
+      `      <pubDate>${date.text}</pubDate>`
+    ];
+    if (item.description) lines.push(`      <description>${escapeXml(item.description.trim())}</description>`);
+    channel.push(`    <item>
+${lines.join("\n")}
+    </item>`);
+  }
+  const atom = self ? ' xmlns:atom="http://www.w3.org/2005/Atom"' : "";
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"${atom}>
+  <channel>
+${channel.join("\n")}
+  </channel>
+</rss>
+`;
+}
 
-export { AI_CRAWLERS, Aurora, BackgroundFrame, BeamLines, Body, CtaButton, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, DemoPlayer, DotGrid, DriftingGutters, EMPHASIS, Eyebrow, FAQ, FeatureGrid, GRID_COLUMNS, GlassNav, GrainOverlay, Grid, GridItem, HeadTags, Heading, JsonLd, LLMS_FULL_PATH, LineGrid, MagneticButton, Marquee, MaskedStar, NoiseLayer, NumberTicker, Reveal, RevealText, RhymeIcon, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, ScrollTransform, Section, SmoothScroll, SpotlightCard, StarChart, StarHero, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, TiltCard, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, WebSurface, article, breadcrumbList, buildCrawlFiles, collectionPage, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, easeOutExpo, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, itemList, jsonLd, jsonLdTag, llmsFullTxt, llmsTxt, normalizeWheel, offer, organization, pageMeta, person, personRef, product, profilePage, ref, resolveAiCrawlers, robotsTxt, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, softwareSourceCode, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webPage, webSite, withPaintTransition, withViewTransition };
+export { AI_CRAWLERS, Aurora, BackgroundFrame, BeamLines, Body, CtaButton, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, DemoPlayer, DotGrid, DriftingGutters, EMPHASIS, Eyebrow, FAQ, FeatureGrid, GRID_COLUMNS, GlassNav, GrainOverlay, Grid, GridItem, HeadTags, Heading, JsonLd, LLMS_FULL_PATH, LineGrid, MagneticButton, Marquee, MaskedStar, NoiseLayer, NumberTicker, Reveal, RevealText, RhymeIcon, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, ScrollTransform, Section, SmoothScroll, SpotlightCard, StarChart, StarHero, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, TiltCard, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, WebSurface, article, breadcrumbList, buildCrawlFiles, collectionPage, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, itemList, jsonLd, jsonLdTag, llmsFullTxt, llmsTxt, normalizeWheel, offer, organization, pageMeta, person, personRef, product, profilePage, ref, resolveAiCrawlers, robotsTxt, rssFeed, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, softwareSourceCode, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webPage, webSite, withPaintTransition, withViewTransition };

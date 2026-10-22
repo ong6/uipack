@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkYMPVJRTJ_cjs = require('./chunk-YMPVJRTJ.cjs');
+var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
 
@@ -1189,8 +1189,11 @@ function enhanceSpanChart(root) {
     update(true);
     restore();
   };
+  let resetTimer;
   const onReset = () => {
-    win?.setTimeout(() => {
+    if (win && resetTimer !== void 0) win.clearTimeout(resetTimer);
+    resetTimer = win?.setTimeout(() => {
+      resetTimer = void 0;
       sync();
       applySearch();
       update(true);
@@ -1312,6 +1315,7 @@ function enhanceSpanChart(root) {
   update(false);
   onHash();
   return () => {
+    if (win && resetTimer !== void 0) win.clearTimeout(resetTimer);
     root.removeEventListener("click", onClick);
     root.removeEventListener("click", onClearClick);
     body?.removeEventListener("pointermove", onBodyMove);
@@ -1348,7 +1352,7 @@ function enhanceLayerStack(root) {
     if (!win || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
       return;
     const link = event.target.closest?.('a[href^="#"]');
-    if (!link || !root.contains(link) || chunkYMPVJRTJ_cjs.prefersReducedMotion(win)) return;
+    if (!link || !root.contains(link) || chunkKV6PPCWS_cjs.prefersReducedMotion(win)) return;
     const hash = link.getAttribute("href");
     const target = doc.getElementById(decodeURIComponent(hash.slice(1)));
     if (!target) return;

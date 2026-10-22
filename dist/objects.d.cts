@@ -104,14 +104,14 @@ declare function AnimationWorkspace({ library, children, theme, }: {
     children: ReactNode;
     theme?: "light" | "dark";
 }): react.JSX.Element;
-declare function ObjectInspector({ kind, variant, edition, onVariantChange, onEditionChange, }: {
+declare function ObjectInspector({ kind, variant: requested, edition, onVariantChange, onEditionChange, }: {
     kind: ObjectKind;
     variant: ObjectVariant;
     edition?: ObjectEdition;
     onVariantChange: (value: ObjectVariant) => void;
     onEditionChange: (value: ObjectEdition) => void;
 }): react.JSX.Element;
-declare function ObjectGallery({ kind, variant, edition, theme, palette, modelUrl, onChange, }: {
+declare function ObjectGallery({ kind, variant: requested, edition, theme, palette, modelUrl, onChange, }: {
     kind: ObjectKind;
     variant?: ObjectVariant;
     edition?: ObjectEdition;

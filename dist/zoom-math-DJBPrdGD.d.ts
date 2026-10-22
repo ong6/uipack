@@ -11,8 +11,7 @@ interface ZoomFrame {
     fx: number;
     fy: number;
 }
-declare const easeInOutCubic: (p: number) => number;
-declare const smoothstep: (a: number, b: number, x: number) => number;
+
 /**
  * A zoom into `target` is a pure scale about one fixed point F, chosen so the
  * target ends centred and as large as the surface allows. The outer layer
@@ -45,4 +44,4 @@ interface ZoomSampleOptions {
 /** Sampled keyframes for a zoom. `forward` flies in; backwards plays the same path out. */
 declare function zoomSamples(target: Rect, forward: boolean, width: number, height: number, { samples, radius }?: ZoomSampleOptions): ZoomSample[] | null;
 
-export { type Rect as R, type ZoomFrame as Z, type ZoomSample as a, type ZoomSampleOptions as b, zoomSamples as c, easeInOutCubic as e, innerClipStart as i, smoothstep as s, zoomFrame as z };
+export { type Rect as R, type ZoomFrame as Z, type ZoomSample as a, type ZoomSampleOptions as b, zoomSamples as c, innerClipStart as i, zoomFrame as z };

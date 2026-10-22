@@ -96,6 +96,10 @@ function figureOf(input) {
   }
   return input;
 }
+function svgMarkup(children) {
+  const html = server.renderToStaticMarkup(/* @__PURE__ */ jsxRuntime.jsx("svg", { children }));
+  return html.slice("<svg>".length, -"</svg>".length);
+}
 function renderStatic(input, opts = {}) {
   const fig = figureOf(input);
   const p = resolvePalette(opts.theme);
@@ -120,7 +124,7 @@ function renderStatic(input, opts = {}) {
   try {
     const floor = chunkXEK5V7KF_cjs.fontFloor(vw, opts.width ?? chunkXEK5V7KF_cjs.DEFAULT_RENDER_WIDTH, opts.minFont ?? 11);
     drawing = inlineVars(
-      server.renderToStaticMarkup(
+      svgMarkup(
         /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: ctx, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureScaleProvider, { floor, children: fig.children }) })
       ),
       p
@@ -162,7 +166,7 @@ function renderStatic(input, opts = {}) {
       for (const it of fig.legend) {
         const kind = it.kind ?? "neutral";
         const tok = inlineVars(
-          server.renderToStaticMarkup(/* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.Token, { kind, shape: it.shape ?? chunkXEK5V7KF_cjs.TOKEN_SHAPE[kind], r: 5.5, cx: lx + 6, cy: hy - 4 })),
+          svgMarkup(/* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.Token, { kind, shape: it.shape ?? chunkXEK5V7KF_cjs.TOKEN_SHAPE[kind], r: 5.5, cx: lx + 6, cy: hy - 4 })),
           p
         );
         head.push(

@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkYMPVJRTJ_cjs = require('./chunk-YMPVJRTJ.cjs');
+var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
 
@@ -59,7 +59,7 @@ function AssetBrowser({
     timer.current = window.setTimeout(() => setFlash(null), 1400);
   };
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: ["uipack-browser", className ?? ""].join(" ").trim(), "data-category": category, children: [
-    /* @__PURE__ */ jsxRuntime.jsx("nav", { className: "uipack-browser__side", "aria-label": "Asset categories", children: /* @__PURE__ */ jsxRuntime.jsx("ul", { role: "list", onFocus: chunkYMPVJRTJ_cjs.keepFocusedInView, children: cats.map((c) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsxs(
+    /* @__PURE__ */ jsxRuntime.jsx("nav", { className: "uipack-browser__side", "aria-label": "Asset categories", children: /* @__PURE__ */ jsxRuntime.jsx("ul", { role: "list", onFocus: chunkKV6PPCWS_cjs.keepFocusedInView, children: cats.map((c) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsxs(
       "button",
       {
         type: "button",

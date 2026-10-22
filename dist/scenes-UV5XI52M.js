@@ -1,7 +1,7 @@
+import { progress, smootherstep, clamp, lerp, smoothstep } from './chunk-BN5H6RB6.js';
 import * as THREE5 from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
-// src/objects/contact-directions.ts
 var TAU = Math.PI * 2;
 var LOOP_MS = 12e3;
 var vec = (x, y, z = 0) => new THREE5.Vector3(x, y, z);
@@ -10,10 +10,10 @@ function playLoop(object, ticks, restTime, phase2) {
   object.userData.loopDuration = LOOP_MS;
   object.userData.restTime = restTime;
   object.userData.animate = (time) => {
-    const progress = (time % LOOP_MS + LOOP_MS) % LOOP_MS / LOOP_MS;
-    for (const tick of ticks) tick(progress * TAU);
+    const progress2 = (time % LOOP_MS + LOOP_MS) % LOOP_MS / LOOP_MS;
+    for (const tick of ticks) tick(progress2 * TAU);
     object.userData.phase = phase2;
-    object.userData.pose = progress;
+    object.userData.pose = progress2;
   };
 }
 
@@ -58,7 +58,6 @@ function envelope(parent, color = colors.cream) {
   }
   return letter;
 }
-var clamp01 = (value) => Math.min(1, Math.max(0, value));
 function cartoonMailbox(root, ticks) {
   const world = new THREE5.Group();
   root.add(world);
@@ -95,15 +94,15 @@ function cartoonMailbox(root, ticks) {
   const letter = envelope(world);
   letter.name = "arriving-letter";
   ticks.push((angle) => {
-    const p2 = angle / TAU;
-    const fly = p2 > 0.8 ? (1 - p2) / 0.2 : clamp01((p2 - 0.1) / 0.62);
-    const ease2 = fly * fly * (3 - 2 * fly);
-    letter.position.set(-1 * (1 - ease2), 1.02 + 0.86 * Math.sin(Math.PI * fly), 0.31 + 1.15 * (1 - ease2));
-    letter.rotation.set(0.12 * (1 - ease2), -0.24 * (1 - ease2), -0.22 * (1 - ease2));
-    const scale = clamp01((p2 - 0.06) / 0.08) * clamp01((0.79 - p2) / 0.09);
+    const p = angle / TAU;
+    const fly = p > 0.8 ? (1 - p) / 0.2 : clamp((p - 0.1) / 0.62);
+    const ease = smoothstep(0, 1, fly);
+    letter.position.set(-1 * (1 - ease), 1.02 + 0.86 * Math.sin(Math.PI * fly), 0.31 + 1.15 * (1 - ease));
+    letter.rotation.set(0.12 * (1 - ease), -0.24 * (1 - ease), -0.22 * (1 - ease));
+    const scale = clamp((p - 0.06) / 0.08) * clamp((0.79 - p) / 0.09);
     letter.scale.setScalar(scale * 0.85);
     letter.visible = scale > 0;
-    flag.rotation.z = -0.65 + 0.65 * Math.sin(Math.PI * clamp01((p2 - 0.55) / 0.35));
+    flag.rotation.z = -0.65 + 0.65 * Math.sin(Math.PI * clamp((p - 0.55) / 0.35));
   });
 }
 function kineticMobile(root, ticks) {
@@ -1365,30 +1364,28 @@ function tennisModelUrl() {
 
 // src/objects/scenes.ts
 var DURATION = 5400;
-var p = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
-var ease = (x) => x * x * x * (x * (x * 6 - 15) + 10);
-var mix = THREE5.MathUtils.lerp;
-var mat = (color) => new THREE5.MeshStandardMaterial({ color, roughness: 0.72, metalness: 0.04 });
-var mesh2 = (g, color, x = 0, y = 0, z = 0) => {
-  const m = new THREE5.Mesh(g, mat(color));
-  m.position.set(x, y, z);
-  return m;
+var matteMaterial = (color) => new THREE5.MeshStandardMaterial({ color, roughness: 0.72, metalness: 0.04 });
+var mesh2 = (geometry, color, x = 0, y = 0, z = 0) => {
+  const placed = new THREE5.Mesh(geometry, matteMaterial(color));
+  placed.position.set(x, y, z);
+  return placed;
 };
-function slab(w, h, d, color, x = 0, y = 0, z = 0, r = 0.06) {
-  r = Math.min(r, w / 2, h / 2);
-  const s = new THREE5.Shape();
-  const a = -w / 2, b = -h / 2;
-  s.moveTo(a + r, b);
-  s.lineTo(a + w - r, b);
-  s.quadraticCurveTo(a + w, b, a + w, b + r);
-  s.lineTo(a + w, b + h - r);
-  s.quadraticCurveTo(a + w, b + h, a + w - r, b + h);
-  s.lineTo(a + r, b + h);
-  s.quadraticCurveTo(a, b + h, a, b + h - r);
-  s.lineTo(a, b + r);
-  s.quadraticCurveTo(a, b, a + r, b);
-  const g = new THREE5.ExtrudeGeometry(s, {
-    depth: d,
+function slab(width, height, depth, color, x = 0, y = 0, z = 0, radius = 0.06) {
+  const r = Math.min(radius, width / 2, height / 2);
+  const outline = new THREE5.Shape();
+  const left = -width / 2, bottom = -height / 2;
+  const right = left + width, top = bottom + height;
+  outline.moveTo(left + r, bottom);
+  outline.lineTo(right - r, bottom);
+  outline.quadraticCurveTo(right, bottom, right, bottom + r);
+  outline.lineTo(right, top - r);
+  outline.quadraticCurveTo(right, top, right - r, top);
+  outline.lineTo(left + r, top);
+  outline.quadraticCurveTo(left, top, left, top - r);
+  outline.lineTo(left, bottom + r);
+  outline.quadraticCurveTo(left, bottom, left + r, bottom);
+  const geometry = new THREE5.ExtrudeGeometry(outline, {
+    depth,
     bevelEnabled: true,
     bevelSegments: 3,
     steps: 1,
@@ -1396,8 +1393,8 @@ function slab(w, h, d, color, x = 0, y = 0, z = 0, r = 0.06) {
     bevelThickness: 0.018,
     curveSegments: 8
   });
-  g.translate(0, 0, -d / 2);
-  return mesh2(g, color, x, y, z);
+  geometry.translate(0, 0, -depth / 2);
+  return mesh2(geometry, color, x, y, z);
 }
 function line(points, color, opacity = 1) {
   return new THREE5.Line(
@@ -1431,33 +1428,33 @@ function label(text, color, x, y, z, size = 0.16) {
   m.position.set(x, y, z);
   return m;
 }
-function phase(g, t, name, pose) {
-  g.userData.phase = t >= DURATION ? "rest" : name;
-  g.userData.pose = pose;
+function phase(group2, t, name, pose) {
+  group2.userData.phase = t >= DURATION ? "rest" : name;
+  group2.userData.pose = pose;
 }
-function ai(c) {
-  const g = new THREE5.Group();
-  g.rotation.set(0.22, -0.18, 0);
-  const keyboard = slab(2.7, 1.2, 0.1, c.muted, 0, -0.95, 0.55);
+function ai(palette) {
+  const group2 = new THREE5.Group();
+  group2.rotation.set(0.22, -0.18, 0);
+  const keyboard = slab(2.7, 1.2, 0.1, palette.muted, 0, -0.95, 0.55);
   keyboard.material.metalness = 0.32;
   keyboard.material.roughness = 0.42;
   keyboard.rotation.x = -Math.PI / 2;
-  g.add(keyboard);
+  group2.add(keyboard);
   for (let row = 0; row < 4; row++)
     for (let col = 0; col < 10; col++) {
-      const key = slab(0.18, 0.09, 0.018, c.ink, -0.98 + col * 0.215, -0.88, 0.18 + row * 0.13, 0.015);
+      const key = slab(0.18, 0.09, 0.018, palette.ink, -0.98 + col * 0.215, -0.88, 0.18 + row * 0.13, 0.015);
       key.rotation.x = -Math.PI / 2;
-      g.add(key);
+      group2.add(key);
     }
-  const trackpad = slab(0.65, 0.29, 0.01, c.paper, 0, -0.885, 0.93, 0.025);
-  g.add(slab(2.2, 0.055, 0.06, c.ink, 0, -0.82, 0.035, 0.02));
+  const trackpad = slab(0.65, 0.29, 0.01, palette.paper, 0, -0.885, 0.93, 0.025);
+  group2.add(slab(2.2, 0.055, 0.06, palette.ink, 0, -0.82, 0.035, 0.02));
   trackpad.rotation.x = -Math.PI / 2;
-  g.add(trackpad);
-  g.add(slab(2.72, 1.85, 0.13, c.ink, 0, 0.04, -0.1));
-  g.add(slab(2.5, 1.61, 0.022, 1581869, 0, 0.04, -0.015));
+  group2.add(trackpad);
+  group2.add(slab(2.72, 1.85, 0.13, palette.ink, 0, 0.04, -0.1));
+  group2.add(slab(2.5, 1.61, 0.022, 1581869, 0, 0.04, -0.015));
   for (let i = 0; i < 3; i++)
-    g.add(mesh2(new THREE5.SphereGeometry(0.032, 12, 8), [15559268, 14989149, 7322248][i], -1.1 + i * 0.11, 0.71, 0.016));
-  g.add(label("AGENT / LOCAL", 10860989, 0.32, 0.71, 0.034, 0.11));
+    group2.add(mesh2(new THREE5.SphereGeometry(0.032, 12, 8), [15559268, 14989149, 7322248][i], -1.1 + i * 0.11, 0.71, 0.016));
+  group2.add(label("AGENT / LOCAL", 10860989, 0.32, 0.71, 0.034, 0.11));
   const code = [];
   for (let row = 0; row < 7; row++) {
     const length = [0.92, 1.65, 1.26, 0.72, 1.42, 1.08, 0.58][row];
@@ -1465,16 +1462,16 @@ function ai(c) {
     strip.userData.length = length;
     strip.userData.left = -1.06 + row % 3 * 0.12;
     code.push(strip);
-    g.add(strip);
+    group2.add(strip);
   }
   const cursor = slab(0.055, 0.12, 0.012, 12774107, 0, 0, 0.04, 0.01);
-  g.add(cursor);
+  group2.add(cursor);
   const satellites = [-1, 1].map((side) => {
     const chip = new THREE5.Group();
     chip.position.set(side * 1.65, 0.6, 0.2);
-    chip.add(slab(0.72, 0.72, 0.12, c.paper), slab(0.58, 0.05, 0.018, c.accent, 0, -0.21, 0.08, 8e-3));
-    chip.add(label(side < 0 ? "</>" : "AI", c.ink, 0, 0.05, 0.09, 0.2));
-    g.add(chip);
+    chip.add(slab(0.72, 0.72, 0.12, palette.paper), slab(0.58, 0.05, 0.018, palette.accent, 0, -0.21, 0.08, 8e-3));
+    chip.add(label(side < 0 ? "</>" : "AI", palette.ink, 0, 0.05, 0.09, 0.2));
+    group2.add(chip);
     return chip;
   });
   const paths = [-1, 1].map(
@@ -1486,18 +1483,18 @@ function ai(c) {
     ])
   );
   const packets = paths.map(() => {
-    const m = mesh2(new THREE5.SphereGeometry(0.075, 16, 12), c.accent);
-    g.add(m);
+    const m = mesh2(new THREE5.SphereGeometry(0.075, 16, 12), palette.accent);
+    group2.add(m);
     return m;
   });
   const result = new THREE5.Group();
   result.add(slab(1.45, 0.37, 0.05, 2317127), label("TASK COMPLETE", 14808294, 0, 0, 0.06, 0.15));
   result.position.set(0, -0.49, 0.16);
-  g.add(result);
-  g.userData.animate = (time) => {
-    const t = Math.min(time, DURATION), typing = p(t, 100, 2700) * 7;
+  group2.add(result);
+  group2.userData.animate = (time) => {
+    const t = Math.min(time, DURATION), typing = progress(t, 100, 2700) * 7;
     code.forEach((strip, i) => {
-      const f = ease(Math.max(0, Math.min(1, typing - i)));
+      const f = smootherstep(clamp(typing - i));
       strip.visible = f > 0;
       strip.scale.x = Math.max(1e-3, f);
       strip.position.x = strip.userData.left + strip.userData.length * f / 2;
@@ -1510,34 +1507,34 @@ function ai(c) {
     );
     cursor.visible = t < 2850;
     satellites.forEach((chip, i) => {
-      const f = ease(p(t, 300 + i * 300, 1100 + i * 300));
-      chip.position.y = mix(0.95, 0.6, f);
+      const f = smootherstep(progress(t, 300 + i * 300, 1100 + i * 300));
+      chip.position.y = lerp(0.95, 0.6, f);
       chip.rotation.z = (i ? 1 : -1) * 0.07 * (1 - f);
     });
     packets.forEach((packet, i) => {
-      const q = p(t, 1100 + i * 400, 3450 + i * 400);
-      packet.position.copy(paths[i].getPoint(ease(q)));
+      const q = progress(t, 1100 + i * 400, 3450 + i * 400);
+      packet.position.copy(paths[i].getPoint(smootherstep(q)));
       packet.scale.setScalar(Math.max(1e-3, Math.sin(q * Math.PI)));
     });
-    const done = ease(p(t, 4e3, 4700));
+    const done = smootherstep(progress(t, 4e3, 4700));
     result.scale.setScalar(Math.max(1e-3, done));
     phase(
-      g,
+      group2,
       t,
       t < 700 ? "prompt" : t < 2100 ? "prompt-to-tools" : t < 2850 ? "tools" : t < 4250 ? "tools-to-check" : "check",
-      p(t, 700, 4250)
+      progress(t, 700, 4250)
     );
   };
-  return g;
+  return group2;
 }
-function contact(c) {
-  const g = new THREE5.Group();
-  g.rotation.set(0.1, -0.2, -0.025);
+function contact(palette) {
+  const group2 = new THREE5.Group();
+  group2.rotation.set(0.1, -0.2, -0.025);
   const sourceY = [0.9, 0, -0.9];
   const sources = sourceY.map((y, index) => {
     const source = new THREE5.Group();
     source.position.set(-1.62, y, 0.05);
-    source.add(slab(0.75, 0.58, 0.11, c.paper));
+    source.add(slab(0.75, 0.58, 0.11, palette.paper));
     if (index === 0) {
       source.add(
         line(
@@ -1546,7 +1543,7 @@ function contact(c) {
             [0, -0.03, 0.13],
             [0.24, 0.14, 0.13]
           ],
-          c.accent
+          palette.accent
         ),
         line(
           [
@@ -1555,34 +1552,34 @@ function contact(c) {
             [0.24, -0.15, 0.13],
             [0.24, 0.14, 0.13]
           ],
-          c.accent
+          palette.accent
         )
       );
     } else if (index === 1) {
       source.add(
-        slab(0.48, 0.3, 0.018, c.accent, 0, 0.03, 0.13, 0.07),
-        mesh2(new THREE5.ConeGeometry(0.075, 0.15, 3), c.accent, -0.14, -0.18, 0.13)
+        slab(0.48, 0.3, 0.018, palette.accent, 0, 0.03, 0.13, 0.07),
+        mesh2(new THREE5.ConeGeometry(0.075, 0.15, 3), palette.accent, -0.14, -0.18, 0.13)
       );
     } else {
       source.add(
-        mesh2(new THREE5.TorusGeometry(0.2, 0.018, 8, 36), c.accent, 0, 0, 0.13),
+        mesh2(new THREE5.TorusGeometry(0.2, 0.018, 8, 36), palette.accent, 0, 0, 0.13),
         line(
           [
             [-0.2, 0, 0.135],
             [0.2, 0, 0.135]
           ],
-          c.accent
+          palette.accent
         ),
         line(
           [
             [0, -0.2, 0.135],
             [0, 0.2, 0.135]
           ],
-          c.accent
+          palette.accent
         )
       );
     }
-    g.add(source);
+    group2.add(source);
     return source;
   });
   const inboxPoint = new THREE5.Vector3(0.72, 0, 0.2);
@@ -1594,63 +1591,63 @@ function contact(c) {
       inboxPoint.clone()
     ])
   );
-  routes.forEach((route) => g.add(tube(route.getPoints(32), 0.014, c.muted)));
+  routes.forEach((route) => group2.add(tube(route.getPoints(32), 0.014, palette.muted)));
   const packets = routes.map((route, index) => {
     const packet = mesh2(
       index === 1 ? new THREE5.OctahedronGeometry(0.09) : index === 2 ? new THREE5.BoxGeometry(0.14, 0.14, 0.14) : new THREE5.SphereGeometry(0.085, 16, 12),
-      c.accent
+      palette.accent
     );
     packet.position.copy(route.getPoint(0));
-    g.add(packet);
+    group2.add(packet);
     return packet;
   });
   const inbox = new THREE5.Group();
   inbox.position.set(1.12, 0, 0);
   inbox.add(
-    slab(1.42, 1.55, 0.16, c.ink),
-    slab(1.22, 1.35, 0.025, c.paper, 0, 0, 0.1),
-    label("INBOX", c.ink, 0, 0.53, 0.14, 0.15)
+    slab(1.42, 1.55, 0.16, palette.ink),
+    slab(1.22, 1.35, 0.025, palette.paper, 0, 0, 0.1),
+    label("INBOX", palette.ink, 0, 0.53, 0.14, 0.15)
   );
-  const tray = slab(1.05, 0.53, 0.16, c.accent, 0, -0.37, 0.19, 0.055);
+  const tray = slab(1.05, 0.53, 0.16, palette.accent, 0, -0.37, 0.19, 0.055);
   tray.rotation.x = -0.18;
   inbox.add(tray);
   const receipts = sourceY.map((_, index) => {
-    const receipt = slab(0.72, 0.18, 0.025, c.paper, 0, -0.25 + index * 0.14, 0.34, 0.025);
+    const receipt = slab(0.72, 0.18, 0.025, palette.paper, 0, -0.25 + index * 0.14, 0.34, 0.025);
     inbox.add(receipt);
     return receipt;
   });
-  const status = mesh2(new THREE5.TorusGeometry(0.12, 0.027, 10, 40), c.accent, 0.43, 0.53, 0.14);
+  const status = mesh2(new THREE5.TorusGeometry(0.12, 0.027, 10, 40), palette.accent, 0.43, 0.53, 0.14);
   inbox.add(status);
-  g.add(inbox);
-  g.userData.contact = { inboxPoint, routes, packets, receipts };
-  g.userData.animate = (time) => {
+  group2.add(inbox);
+  group2.userData.contact = { inboxPoint, routes, packets, receipts };
+  group2.userData.animate = (time) => {
     const t = Math.min(time, DURATION);
     sources.forEach((source, index) => {
-      const enter = ease(p(t, 120 + index * 140, 780 + index * 140));
-      source.position.x = mix(-1.9, -1.62, enter);
+      const enter = smootherstep(progress(t, 120 + index * 140, 780 + index * 140));
+      source.position.x = lerp(-1.9, -1.62, enter);
       source.rotation.z = (index - 1) * 0.055 * (1 - enter);
     });
     packets.forEach((packet, index) => {
-      const travel2 = ease(p(t, 700 + index * 430, 2750 + index * 430));
+      const travel2 = smootherstep(progress(t, 700 + index * 430, 2750 + index * 430));
       packet.position.copy(routes[index].getPoint(travel2));
       packet.rotation.z = travel2 * Math.PI * 2;
       packet.scale.setScalar(Math.max(1e-3, Math.sin(travel2 * Math.PI)));
-      const received = ease(p(t, 2600 + index * 430, 3300 + index * 430));
+      const received = smootherstep(progress(t, 2600 + index * 430, 3300 + index * 430));
       receipts[index].scale.x = Math.max(1e-3, received);
-      receipts[index].position.x = mix(-0.18, 0, received);
+      receipts[index].position.x = lerp(-0.18, 0, received);
     });
-    const acknowledge = ease(p(t, 3900, 4750));
+    const acknowledge = smootherstep(progress(t, 3900, 4750));
     status.scale.setScalar(Math.max(1e-3, acknowledge));
-    status.rotation.z = mix(-Math.PI, 0, acknowledge);
-    inbox.position.y = 0.035 * Math.sin(p(t, 3900, 4750) * Math.PI);
+    status.rotation.z = lerp(-Math.PI, 0, acknowledge);
+    inbox.position.y = 0.035 * Math.sin(progress(t, 3900, 4750) * Math.PI);
     phase(
-      g,
+      group2,
       t,
       t < 900 ? "open-channels" : t < 3650 ? "route-signals" : t < 4750 ? "collect-messages" : "contact-ready",
-      p(t, 700, 4750)
+      progress(t, 700, 4750)
     );
   };
-  return g;
+  return group2;
 }
 async function tennis(_c, variant = 0, modelUrl) {
   const [{ GLTFLoader }, { MeshoptDecoder }] = await Promise.all([
@@ -1658,12 +1655,12 @@ async function tennis(_c, variant = 0, modelUrl) {
     import('three/addons/libs/meshopt_decoder.module.js')
   ]);
   const model = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(modelUrl ?? tennisModelUrl());
-  const g = new THREE5.Group();
-  g.rotation.set(0.64, -0.25, 0);
-  g.position.y = 0.1;
+  const group2 = new THREE5.Group();
+  group2.rotation.set(0.64, -0.25, 0);
+  group2.position.y = 0.1;
   model.scene.scale.setScalar(0.69);
   model.scene.position.y = -0.65;
-  g.add(model.scene);
+  group2.add(model.scene);
   const colors3 = [
     {
       Court: 3303e3,
@@ -1704,39 +1701,39 @@ async function tennis(_c, variant = 0, modelUrl) {
   model.animations.forEach((clip) => mixer.clipAction(clip).setLoop(THREE5.LoopRepeat, Infinity).play());
   const ball2 = model.scene.getObjectByName("Tennis_ball");
   const racket2 = model.scene.getObjectByName("Racket");
-  g.userData.source = "blender";
-  g.userData.contactTime = 1900;
-  g.userData.contactTimes = [1900, 4900];
-  g.userData.rackets = [racket2, model.scene.getObjectByName("Far_Racket")];
-  g.userData.loopDuration = 6e3;
-  g.userData.restTime = 1900;
-  g.userData.ball = ball2;
-  g.userData.racket = racket2;
-  g.userData.racketContact = new THREE5.Vector3(0, 0.63, 0);
-  g.userData.dispose = () => {
+  group2.userData.source = "blender";
+  group2.userData.contactTime = 1900;
+  group2.userData.contactTimes = [1900, 4900];
+  group2.userData.rackets = [racket2, model.scene.getObjectByName("Far_Racket")];
+  group2.userData.loopDuration = 6e3;
+  group2.userData.restTime = 1900;
+  group2.userData.ball = ball2;
+  group2.userData.racket = racket2;
+  group2.userData.racketContact = new THREE5.Vector3(0, 0.63, 0);
+  group2.userData.dispose = () => {
     mixer.stopAllAction();
     mixer.uncacheRoot(model.scene);
   };
-  g.userData.animate = (time) => {
+  group2.userData.animate = (time) => {
     const t = (time % 6e3 + 6e3) % 6e3;
     mixer.setTime(t / 1e3);
-    g.userData.phase = t < 1900 || t >= 4900 ? "near-return" : "far-return";
-    g.userData.pose = t / 6e3;
+    group2.userData.phase = t < 1900 || t >= 4900 ? "near-return" : "far-return";
+    group2.userData.pose = t / 6e3;
   };
-  return g;
+  return group2;
 }
 function trading(_palette, variant = 0) {
-  const g = new THREE5.Group();
-  g.rotation.set(0.06, -0.19, 0);
+  const group2 = new THREE5.Group();
+  group2.rotation.set(0.06, -0.19, 0);
   const casing = slab(4.08, 2.62, 0.16, 2502712, 0, 0.26, 0, 0.055);
   casing.material.metalness = 0.45;
   casing.material.roughness = 0.4;
-  g.add(casing, slab(0.32, 0.6, 0.18, 3161413, 0, -1.18, -0.04, 0.035));
+  group2.add(casing, slab(0.32, 0.6, 0.18, 3161413, 0, -1.18, -0.04, 0.035));
   const foot = slab(1.38, 0.5, 0.095, 3950929, 0, -1.51, 0.16, 0.065);
   foot.rotation.x = -Math.PI / 2;
-  g.add(foot);
-  g.add(label("MARKET STUDY", 9018271, 0, -0.94, 0.1, 0.075));
-  g.add(mesh2(new THREE5.SphereGeometry(0.019, 12, 8), 5357478, 1.8, -0.94, 0.105));
+  group2.add(foot);
+  group2.add(label("MARKET STUDY", 9018271, 0, -0.94, 0.1, 0.075));
+  group2.add(mesh2(new THREE5.SphereGeometry(0.019, 12, 8), 5357478, 1.8, -0.94, 0.105));
   const canvas = document.createElement("canvas");
   canvas.width = 1056;
   canvas.height = 620;
@@ -1748,7 +1745,7 @@ function trading(_palette, variant = 0) {
     new THREE5.MeshBasicMaterial({ map: texture, toneMapped: false })
   );
   display.position.set(0, 0.34, 0.12);
-  g.add(display);
+  group2.add(display);
   const green = "#32c99a", red = "#ee6972";
   const left = 38, right = 958, top = 108, bottom = 422, volumeBottom = 543;
   const step = (right - left) / 24;
@@ -1761,10 +1758,10 @@ function trading(_palette, variant = 0) {
     ctx.lineTo(x2, y2);
     ctx.stroke();
   };
-  g.userData.loopDuration = MARKET_LOOP_MS;
-  g.userData.restTime = 3600;
-  g.userData.marketBar = (index) => marketBar(index, variant);
-  g.userData.animate = (time) => {
+  group2.userData.loopDuration = MARKET_LOOP_MS;
+  group2.userData.restTime = 3600;
+  group2.userData.marketBar = (index) => marketBar(index, variant);
+  group2.userData.animate = (time) => {
     const t = (time % MARKET_LOOP_MS + MARKET_LOOP_MS) % MARKET_LOOP_MS;
     const offset = Math.max(0, time) / MARKET_BAR_MS, first = Math.floor(offset), fraction = offset - first;
     ctx.fillStyle = "#111a22";
@@ -1827,15 +1824,15 @@ function trading(_palette, variant = 0) {
     ctx.font = "13px monospace";
     ctx.fillText("Illustrative prices \xB7 fixed USD scale \xB7 no live feed", left, 603);
     texture.needsUpdate = true;
-    g.userData.phase = "market-pan";
-    g.userData.pose = t / MARKET_LOOP_MS;
-    g.userData.scroll = offset;
+    group2.userData.phase = "market-pan";
+    group2.userData.pose = t / MARKET_LOOP_MS;
+    group2.userData.scroll = offset;
   };
-  return g;
+  return group2;
 }
-function server(c) {
-  const g = new THREE5.Group();
-  g.rotation.set(0.24, -0.46, -0.035);
+function server(palette) {
+  const group2 = new THREE5.Group();
+  group2.rotation.set(0.24, -0.46, -0.035);
   const alloy = 7636363, graphite = 2568505;
   const metal = (w, h, d, color, x = 0, y = 0, z = 0) => {
     const part = slab(w, h, d, color, x, y, z, 0.025);
@@ -1843,19 +1840,19 @@ function server(c) {
     part.material.roughness = 0.38;
     return part;
   };
-  g.add(metal(3.08, 0.11, 1.55, graphite, 0, -1.3), metal(3.08, 0.08, 1.55, alloy, 0, 1.3));
+  group2.add(metal(3.08, 0.11, 1.55, graphite, 0, -1.3), metal(3.08, 0.08, 1.55, alloy, 0, 1.3));
   for (const x of [-1.43, 1.43])
     for (const z of [-0.66, 0.66]) {
-      g.add(metal(0.09, 2.55, 0.09, alloy, x, 0, z));
+      group2.add(metal(0.09, 2.55, 0.09, alloy, x, 0, z));
       if (z > 0)
         for (let n = 0; n < 13; n++)
-          g.add(mesh2(new THREE5.BoxGeometry(0.034, 0.047, 8e-3), graphite, x, -1.1 + n * 0.18, z + 0.051));
+          group2.add(mesh2(new THREE5.BoxGeometry(0.034, 0.047, 8e-3), graphite, x, -1.1 + n * 0.18, z + 0.051));
     }
   const trays = [], fans = [], lamps = [];
   for (let i = 0; i < 3; i++) {
     const tray = new THREE5.Group();
     tray.position.y = 0.82 - i * 0.82;
-    tray.add(metal(2.7, 0.61, 1.18, graphite), metal(2.69, 0.58, 0.035, i === 1 ? c.accent : alloy, 0, 0, 0.607));
+    tray.add(metal(2.7, 0.61, 1.18, graphite), metal(2.69, 0.58, 0.035, i === 1 ? palette.accent : alloy, 0, 0, 0.607));
     for (const x of [-1.2, 1.2]) {
       tray.add(metal(0.04, 0.35, 0.1, 12766410, x, 0, 0.7));
       for (const y of [-0.22, 0.22]) {
@@ -1868,7 +1865,7 @@ function server(c) {
       for (let n = 0; n < 6; n++) {
         const x = -0.88 + n * 0.3;
         tray.add(metal(0.25, 0.37, 0.05, graphite, x, 0, 0.665), metal(0.17, 0.024, 0.01, 11056565, x, -0.1, 0.7));
-        const lamp = mesh2(new THREE5.SphereGeometry(0.018, 8, 6), c.accent, x + 0.06, 0.11, 0.704);
+        const lamp = mesh2(new THREE5.SphereGeometry(0.018, 8, 6), palette.accent, x + 0.06, 0.11, 0.704);
         lamps.push(lamp);
         tray.add(lamp);
       }
@@ -1917,41 +1914,41 @@ function server(c) {
             new THREE5.Vector3(-0.39 + n * 0.75, 0.02, 0.7)
           ],
           0.024,
-          n ? 12423526 : c.accent
+          n ? 12423526 : palette.accent
         );
         tray.add(wire);
       }
     }
     trays.push(tray);
-    g.add(tray);
+    group2.add(tray);
   }
-  g.add(label("INFERENCE / STUDY", c.ink, 0, -1.59, 0.3, 0.17));
-  g.userData.animate = (time) => {
+  group2.add(label("INFERENCE / STUDY", palette.ink, 0, -1.59, 0.3, 0.17));
+  group2.userData.animate = (time) => {
     const t = Math.min(time, DURATION);
     trays.forEach((tray, i) => {
-      const q = ease(p(t, 180 + i * 650, 1500 + i * 650));
-      tray.position.z = mix(1, 0, q);
-      tray.position.x = mix(i % 2 ? -0.3 : 0.3, 0, q);
+      const q = smootherstep(progress(t, 180 + i * 650, 1500 + i * 650));
+      tray.position.z = lerp(1, 0, q);
+      tray.position.x = lerp(i % 2 ? -0.3 : 0.3, 0, q);
     });
-    const power = ease(p(t, 2800, 4200));
+    const power = smootherstep(progress(t, 2800, 4200));
     fans.forEach((fan, i) => fan.rotation.z = power * (Math.PI * 3 + i * 0.35));
     lamps.forEach((lamp) => {
       const material2 = lamp.material;
-      material2.emissive.setHex(c.accent);
+      material2.emissive.setHex(palette.accent);
       material2.emissiveIntensity = 0.7 * power;
     });
     phase(
-      g,
+      group2,
       t,
       t < 1500 ? "place-chassis" : t < 2450 ? "place-compute" : t < 3550 ? "place-memory" : "bandwidth-check",
-      p(t, 180, 4200)
+      progress(t, 180, 4200)
     );
   };
-  return g;
+  return group2;
 }
-function travel(c, variant = 0) {
-  const g = new THREE5.Group();
-  g.rotation.set(0.38, -0.24, -0.1);
+function travel(palette, variant = 0) {
+  const group2 = new THREE5.Group();
+  group2.rotation.set(0.38, -0.24, -0.1);
   const atlas = document.createElement("canvas");
   atlas.width = 1536;
   atlas.height = 1024;
@@ -2008,7 +2005,7 @@ function travel(c, variant = 0) {
     const fold = new THREE5.Group();
     fold.position.x = i === 0 ? -0.615 : i === 2 ? 0.615 : 0;
     const center = i === 0 ? -0.615 : i === 2 ? 0.615 : 0;
-    fold.add(slab(1.23, 2.45, 0.013, c.paper, center, 0, 0, 8e-3));
+    fold.add(slab(1.23, 2.45, 0.013, palette.paper, center, 0, 0, 8e-3));
     const geometry = new THREE5.PlaneGeometry(1.23, 2.45);
     const uv = geometry.attributes.uv;
     for (let n = 0; n < uv.count; n++) uv.setX(n, (uv.getX(n) + i) / 3);
@@ -2016,7 +2013,7 @@ function travel(c, variant = 0) {
     surface.position.set(center, 0, 0.029);
     fold.add(surface);
     folds.push(fold);
-    g.add(fold);
+    group2.add(fold);
   }
   const paths = [
     [
@@ -2045,46 +2042,46 @@ function travel(c, variant = 0) {
     ]
   ];
   const curve2 = new THREE5.CatmullRomCurve3(paths[variant].map(([x, y]) => new THREE5.Vector3(x, y, 0.075)));
-  const route = mesh2(new THREE5.TubeGeometry(curve2, 128, 0.019, 8, false), c.accent);
-  g.add(route);
+  const route = mesh2(new THREE5.TubeGeometry(curve2, 128, 0.019, 8, false), palette.accent);
+  group2.add(route);
   const pin = new THREE5.Group();
-  pin.add(mesh2(new THREE5.SphereGeometry(0.085, 20, 12), c.accent, 0, 0, 0.23));
+  pin.add(mesh2(new THREE5.SphereGeometry(0.085, 20, 12), palette.accent, 0, 0, 0.23));
   const needle = mesh2(new THREE5.CylinderGeometry(0.014, 0.014, 0.21, 8), 6380880, 0, 0, 0.105);
   needle.rotation.x = Math.PI / 2;
   pin.add(needle);
-  g.add(pin);
-  const ring3 = mesh2(new THREE5.TorusGeometry(0.095, 0.012, 8, 32), c.accent);
+  group2.add(pin);
+  const ring3 = mesh2(new THREE5.TorusGeometry(0.095, 0.012, 8, 32), palette.accent);
   ring3.position.copy(curve2.getPointAt(0));
-  g.add(ring3);
+  group2.add(ring3);
   const compass = new THREE5.Group();
   compass.position.set(-1.49, 0.88, 0.05);
   compass.add(mesh2(new THREE5.TorusGeometry(0.14, 7e-3, 6, 32), 6845542));
-  const north = mesh2(new THREE5.ConeGeometry(0.042, 0.21, 3), c.accent, 0, 0.015, 0.015);
+  const north = mesh2(new THREE5.ConeGeometry(0.042, 0.21, 3), palette.accent, 0, 0.015, 0.015);
   compass.add(north);
-  g.add(compass);
+  group2.add(compass);
   const count = route.geometry.index.count;
-  g.userData.mapFolds = folds;
-  g.userData.animate = (time) => {
-    const t = Math.min(time, DURATION), open = ease(p(t, 200, 1600)), draw = ease(p(t, 1700, 4650));
-    folds[0].rotation.y = mix(1.05, 0, open);
-    folds[2].rotation.y = mix(-1.05, 0, open);
+  group2.userData.mapFolds = folds;
+  group2.userData.animate = (time) => {
+    const t = Math.min(time, DURATION), open = smootherstep(progress(t, 200, 1600)), draw = smootherstep(progress(t, 1700, 4650));
+    folds[0].rotation.y = lerp(1.05, 0, open);
+    folds[2].rotation.y = lerp(-1.05, 0, open);
     route.geometry.setDrawRange(0, Math.floor(draw * count / 3) * 3);
     route.visible = pin.visible = ring3.visible = t >= 1700;
     compass.visible = t >= 1600;
     pin.position.copy(curve2.getPointAt(draw));
-    phase(g, t, t < 1600 ? "unfold-map" : t < 4650 ? "draw-route" : "arrive", draw);
+    phase(group2, t, t < 1600 ? "unfold-map" : t < 4650 ? "draw-route" : "arrive", draw);
   };
-  return g;
+  return group2;
 }
-function reading(c) {
-  const g = new THREE5.Group();
-  g.rotation.set(0.56, -0.3, -0.13);
+function reading(palette) {
+  const group2 = new THREE5.Group();
+  group2.rotation.set(0.56, -0.3, -0.13);
   const width = 1.46, height = 2.12;
   const halves = [-1, 1].map((side) => {
     const half = new THREE5.Group();
     half.position.x = side * 0.045;
     half.rotation.y = side * 0.12;
-    half.add(slab(width + 0.11, height + 0.13, 0.065, c.accent, side * width / 2, 0, -0.13, 0.035));
+    half.add(slab(width + 0.11, height + 0.13, 0.065, palette.accent, side * width / 2, 0, -0.13, 0.035));
     for (let leaf = 8; leaf >= 0; leaf--) {
       const sheet = new THREE5.PlaneGeometry(width, height, 32, 1);
       const vertices = sheet.attributes.position;
@@ -2094,7 +2091,7 @@ function reading(c) {
       }
       sheet.computeVertexNormals();
       half.add(
-        new THREE5.Mesh(sheet, new THREE5.MeshStandardMaterial({ color: c.paper, roughness: 0.96, side: THREE5.DoubleSide }))
+        new THREE5.Mesh(sheet, new THREE5.MeshStandardMaterial({ color: palette.paper, roughness: 0.96, side: THREE5.DoubleSide }))
       );
     }
     for (let i = 0; i < 5; i++)
@@ -2104,7 +2101,7 @@ function reading(c) {
             [side * 0.04, -height / 2, -0.09 + i * 0.025],
             [side * (width - 0.025), -height / 2, -0.09 + i * 0.025]
           ],
-          c.muted,
+          palette.muted,
           0.46
         )
       );
@@ -2113,15 +2110,15 @@ function reading(c) {
       half.add(
         line(
           Array.from({ length: 17 }, (_, step) => {
-            const u = mix(start, end, step / 16);
+            const u = lerp(start, end, step / 16);
             return [side * u, 0.64 - row * 0.145, 0.07 + 0.025 * Math.sin(u / width * Math.PI) - 0.06 * u];
           }),
-          c.muted,
+          palette.muted,
           0.65
         )
       );
     }
-    half.add(label(side < 0 ? "FIELD NOTES" : "ON ATTENTION", c.ink, side * 0.77, 0.85, 0.045, 0.1));
+    half.add(label(side < 0 ? "FIELD NOTES" : "ON ATTENTION", palette.ink, side * 0.77, 0.85, 0.045, 0.1));
     for (let edge = 0; edge < 4; edge++)
       half.add(
         line(
@@ -2129,20 +2126,20 @@ function reading(c) {
             [side * (width - 4e-3), -height / 2 + 0.04, -0.06 + edge * 0.022],
             [side * (width - 4e-3), height / 2 - 0.04, -0.06 + edge * 0.022]
           ],
-          c.muted,
+          palette.muted,
           0.28
         )
       );
-    g.add(half);
+    group2.add(half);
     return half;
   });
-  const spine = mesh2(new THREE5.CylinderGeometry(0.072, 0.072, height + 0.14, 20), c.accent, 0, 0, -0.08);
-  g.add(spine);
+  const spine = mesh2(new THREE5.CylinderGeometry(0.072, 0.072, height + 0.14, 20), palette.accent, 0, 0, -0.08);
+  group2.add(spine);
   const textureCanvas = document.createElement("canvas");
   textureCanvas.width = 256;
   textureCanvas.height = 512;
   const ctx = textureCanvas.getContext("2d");
-  ctx.fillStyle = "#" + new THREE5.Color(c.paper).getHexString();
+  ctx.fillStyle = "#" + new THREE5.Color(palette.paper).getHexString();
   ctx.fillRect(0, 0, 256, 512);
   ctx.fillStyle = "#6b7064";
   ctx.font = "500 16px serif";
@@ -2161,13 +2158,13 @@ function reading(c) {
     geometry,
     new THREE5.MeshStandardMaterial({ map: reverseTexture, side: THREE5.BackSide, roughness: 0.96 })
   );
-  g.add(page, reverse);
-  g.userData.pageGeometry = geometry;
+  group2.add(page, reverse);
+  group2.userData.pageGeometry = geometry;
   const positions = geometry.attributes.position, original = Float32Array.from(positions.array);
   const ribbon = slab(0.11, 0.48, 0.012, 11949896, 0.67, -1.04, -0.11, 5e-3);
-  g.add(ribbon);
-  g.userData.animate = (time) => {
-    const t = Math.min(time, DURATION), q = ease(p(t, 750, 4050)), theta = Math.PI * q;
+  group2.add(ribbon);
+  group2.userData.animate = (time) => {
+    const t = Math.min(time, DURATION), q = smootherstep(progress(t, 750, 4050)), theta = Math.PI * q;
     for (let i = 0; i < positions.count; i++) {
       const u = original[i * 3], v = original[i * 3 + 1];
       const curl = 0.62 * Math.sin(theta), segments = 12;
@@ -2184,9 +2181,9 @@ function reading(c) {
     geometry.computeVertexNormals();
     halves[0].rotation.y = -0.12;
     halves[1].rotation.y = 0.12;
-    phase(g, t, t < 750 ? "open-book" : t < 1500 ? "lift-page" : t < 4050 ? "turn-page" : "settle-page", q);
+    phase(group2, t, t < 750 ? "open-book" : t < 1500 ? "lift-page" : t < 4050 ? "turn-page" : "settle-page", q);
   };
-  return g;
+  return group2;
 }
 var builders = {
   ai,
@@ -2211,18 +2208,18 @@ function disposeObject(scene) {
   scene.traverse((item) => item.userData.dispose?.());
   const geometries = /* @__PURE__ */ new Set(), materials = /* @__PURE__ */ new Set(), textures = /* @__PURE__ */ new Set();
   scene.traverse((item) => {
-    const m = item;
-    if (m.geometry) geometries.add(m.geometry);
-    if (m.material)
-      for (const a of Array.isArray(m.material) ? m.material : [m.material]) {
-        materials.add(a);
-        const map = a.map;
+    const drawable = item;
+    if (drawable.geometry) geometries.add(drawable.geometry);
+    if (drawable.material)
+      for (const material2 of Array.isArray(drawable.material) ? drawable.material : [drawable.material]) {
+        materials.add(material2);
+        const map = material2.map;
         if (map) textures.add(map);
       }
   });
-  textures.forEach((t) => t.dispose());
-  materials.forEach((m) => m.dispose());
-  geometries.forEach((g) => g.dispose());
+  textures.forEach((texture) => texture.dispose());
+  materials.forEach((material2) => material2.dispose());
+  geometries.forEach((geometry) => geometry.dispose());
 }
 
 export { DURATION, builders, createObject, disposeObject };

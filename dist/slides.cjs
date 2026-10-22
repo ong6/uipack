@@ -1,8 +1,8 @@
 'use strict';
 
 var chunkE5LSWYRN_cjs = require('./chunk-E5LSWYRN.cjs');
-var chunk5QNGHC2A_cjs = require('./chunk-5QNGHC2A.cjs');
-var chunkYMPVJRTJ_cjs = require('./chunk-YMPVJRTJ.cjs');
+var chunk2JULAQB4_cjs = require('./chunk-2JULAQB4.cjs');
+var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
 
@@ -36,7 +36,7 @@ function SceneViewport({
   onSettled
 }) {
   const host = react.useRef(null), labels = react.useRef(null), runtime = react.useRef();
-  const prefersReduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion();
+  const prefersReduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
   const reduced = motion === "none" || prefersReduced;
   const stop = story.stops.find((s) => s.id === stopId) ?? story.stops[0];
   const latest = react.useRef({ stop, reduced, paused, onSettled });
@@ -191,7 +191,7 @@ function SlideScene(props) {
       errors.join(" ")
     ] });
   return /* @__PURE__ */ jsxRuntime.jsx(
-    chunk5QNGHC2A_cjs.CanvasView,
+    chunk2JULAQB4_cjs.CanvasView,
     {
       restoreFocus: () => opener.current?.focus(),
       open: canvas,
@@ -228,7 +228,7 @@ function Player({
     story.stops.findIndex((s) => s.id === defaultStopId)
   );
   const [internal, setInternal] = react.useState(initial), [paused, setPaused] = react.useState(false), [present, setPresent] = react.useState(false), [diagram, setDiagram] = react.useState(false), [canvas, setCanvas] = react.useState(false), [zoom, setZoom] = react.useState(1);
-  const reduced = chunkYMPVJRTJ_cjs.usePrefersReducedMotion() || motion === "none";
+  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion() || motion === "none";
   const opener = react.useRef(null);
   const root = react.useRef(null);
   const titleId = react.useId();
@@ -263,7 +263,7 @@ function Player({
     };
   }, [present]);
   return /* @__PURE__ */ jsxRuntime.jsx(
-    chunk5QNGHC2A_cjs.CanvasView,
+    chunk2JULAQB4_cjs.CanvasView,
     {
       restoreFocus: () => opener.current?.focus(),
       open: canvas,
