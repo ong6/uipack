@@ -34,10 +34,14 @@ body {
 .showcase-shell > section {
   min-width: 0;
 }
-.showcase-shell > section > h2 {
-  font-size: 20px;
-  line-height: 1.3;
+/* The heading scale (docs/design-direction.md): page title 40, section heading 24 (22 on
+   phones), card and figure titles 18–20 at 600. e2e/typography.spec.ts holds every page to it. */
+.showcase-shell > section > h2,
+.showcase-shell .deck-showcase__reference > section > h2 {
+  font-size: 24px;
+  line-height: 1.25;
   font-weight: 650;
+  letter-spacing: -0.01em;
   margin: 0 0 8px;
   color: var(--show-ink);
 }
@@ -395,5 +399,11 @@ body {
   .showcase-brand {
     width: 24px;
     overflow: hidden;
+  }
+}
+@media (max-width: 540px) {
+  .showcase-shell > section > h2,
+  .showcase-shell .deck-showcase__reference > section > h2 {
+    font-size: 22px;
   }
 }

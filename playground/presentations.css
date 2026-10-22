@@ -20,8 +20,10 @@
   margin-top: auto;
 }
 .style-card h3 {
-  font-size: 24px;
-  margin: 24px 0 12px;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 24px 0 8px;
 }
 /* The note under the grid keeps clear of the last row of cards. */
 .style-grid + .style-grid__note {

@@ -21,9 +21,11 @@
 .article-host > section > h2 {
   max-width: 40rem;
   margin: 0 auto 8px;
-  font-size: 18px;
-  line-height: 1.3;
+  /* The shell's section heading (showcase.css), inside the host frame. */
+  font-size: 24px;
+  line-height: 1.25;
   font-weight: 650;
+  letter-spacing: -0.01em;
   color: var(--show-ink);
 }
 
@@ -62,3 +64,4 @@
 .article-host__prose li { margin: 0.45rem 0; }
 .article-host__prose a { color: var(--host-link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
 @media (max-width: 600px) { .article-host__prose { font-size: 18px; } }
+@media (max-width: 540px) { .article-host > section > h2 { font-size: 22px; } }
