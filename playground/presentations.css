@@ -160,6 +160,11 @@
   background: var(--show-surface);
   overflow: hidden;
 }
+/* In dark, the 3D stage paints the Technical figure surface (#0e1512); the slide takes the same
+   surface, so its two halves meet without a seam. */
+:root[data-theme="dark"] .composed-deck {
+  background: #0e1512;
+}
 .composed-deck__copy {
   padding: 52px 20px 40px 40px;
   align-self: center;
