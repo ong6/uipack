@@ -74,6 +74,41 @@ test.describe("/deck player", () => {
     await page.getByRole("button", { name: "All slides" }).click();
     await dialog.getByRole("button", { name: /06 One clock/ }).click();
     await expect(deck(page)).toHaveAttribute("data-index", "5");
+    // Picking a slide hands focus to the deck, so Space moves on rather than reopening the overview.
+    await expect(deck(page)).toBeFocused();
+    await settled(page);
+    await page.keyboard.press("Space");
+    await expect(dialog).toBeHidden();
+    await expect(deck(page)).toHaveAttribute("data-index", "6");
+  });
+
+  for (const [width, height] of [
+    [390, 844],
+    [1280, 900],
+  ] as const) {
+    test(`Read then Present shows a scaled slide at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto("/deck?view=read");
+      await page.getByRole("button", { name: /Present from slide 3/ }).click();
+      await expect(deck(page)).toHaveAttribute("data-index", "2");
+      const canvas = page.locator(".uipack-deck-stage .uipack-deck-canvas");
+      await expect(canvas).toBeVisible();
+      const scale = await canvas.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a);
+      expect(scale).toBeGreaterThan(0);
+      await expect(page.locator(".uipack-deck-stage .uipack-deck-slide").first()).toBeVisible();
+      // And back to reading, then Present from the top.
+      await page.getByRole("button", { name: "Read", exact: true }).click();
+      await page.getByRole("button", { name: "Present", exact: true }).click();
+      await expect(deck(page)).toHaveAttribute("data-index", "0");
+      expect(await canvas.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a)).toBeGreaterThan(0);
+    });
+  }
+
+  test("at 1280×900 the slide and its controls fit the first screen", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/deck?view=present");
+    const bottom = await page.locator(".uipack-deck-controls").evaluate((el) => el.getBoundingClientRect().bottom);
+    expect(bottom).toBeLessThanOrEqual(900);
   });
 
   // WebKit's default Tab skips buttons, so a dialog of buttons that leaves Tab to the browser

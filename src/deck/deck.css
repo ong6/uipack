@@ -101,8 +101,12 @@
 }
 
 /* Stage and canvas */
+/* The stage never grows taller than the viewport leaves room for, so the slide and the controls
+   under it fit on one screen. --deck-chrome is the height the host keeps around the stage (the
+   controls, and any page header above the deck). */
 .uipack-deck-stage {
   position: relative;
+  max-width: max(min(100%, 560px), calc((100svh - var(--deck-chrome, 76px)) * 16 / 9));
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border: 1px solid var(--deck-rule);
@@ -398,6 +402,7 @@
 }
 .uipack-deck:fullscreen .uipack-deck-stage {
   width: min(100vw, calc(100vh * 16 / 9));
+  max-width: none;
   border: 0;
   border-radius: 0;
 }
@@ -570,12 +575,12 @@
     gap: 12px;
   }
 }
-.uipack-deck-read__notes h3 {
+.uipack-deck-read__notes h2 {
   margin: 0 0 8px;
   font-size: 17px;
   line-height: 1.35;
 }
-.uipack-deck-read__notes h3 span {
+.uipack-deck-read__notes h2 span {
   margin-right: 6px;
   color: var(--deck-muted);
   font: 600 12px/1 var(--deck-mono);

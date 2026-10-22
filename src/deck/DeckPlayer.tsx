@@ -113,7 +113,7 @@ function Player({
   // The viewer's setting (shared with every entry) or the deck's own motion="none".
   const prefersReduced = usePrefersReducedMotion();
   const reducedMotion = motion === "none" || prefersReduced;
-  const { ref: stageRef, scale } = useCanvasScale();
+  const { ref: stageRef, el: stageEl, scale } = useCanvasScale();
   const rootRef = useRef<HTMLDivElement>(null);
   const fromRef = useRef<HTMLDivElement>(null);
   const toRef = useRef<HTMLDivElement>(null);
@@ -129,7 +129,7 @@ function Player({
   };
 
   const { settle, fly } = useLayerFlight(() =>
-    stageRef.current?.querySelectorAll<HTMLElement>(".uipack-deck-layer").forEach((el) => {
+    stageEl.current?.querySelectorAll<HTMLElement>(".uipack-deck-layer").forEach((el) => {
       el.style.zIndex = "";
       el.style.visibility = "";
     }),
@@ -471,7 +471,10 @@ function Player({
           findings={lint ? lintDeck(slides, lint === true ? {} : lint) : undefined}
           onPick={(i) => {
             go(i, 0);
-            closeOverview();
+            // Focus the deck, not the All slides button, so Space and the arrows move through the
+            // picked slide instead of reopening the overview.
+            setOverview(false);
+            requestAnimationFrame(() => rootRef.current?.focus({ preventScroll: true }));
           }}
           onClose={closeOverview}
         />

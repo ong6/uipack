@@ -27,9 +27,9 @@ export function Reader({
             <li key={s.id}>
               <SlideThumbnail slide={s} index={i} count={slides.length} theme={theme} />
               <div className="uipack-deck-read__notes">
-                <h3>
+                <h2>
                   <span>{pad(i + 1)}</span> {s.title}
-                </h3>
+                </h2>
                 {notes?.say && <p>{notes.say}</p>}
                 <button type="button" onClick={() => onPresent(i)} aria-label={`Present from slide ${i + 1}: ${s.title}`}>
                   Present from here
