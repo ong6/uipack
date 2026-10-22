@@ -2123,7 +2123,7 @@ function ReadItem({
           type: "button",
           className: "uipack-deck-read__present",
           onClick: () => onPresent(i),
-          "aria-label": `Present from slide ${i + 1}: ${s.title}`,
+          "aria-label": `Present from here, slide ${i + 1}: ${s.title}`,
           children: "Present from here"
         }
       )
