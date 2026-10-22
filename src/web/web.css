@@ -798,6 +798,16 @@
   color: var(--web-ink-medium);
   animation: uipack-web-rise 320ms var(--web-ease) both;
 }
+/* Queued: the plan before it runs, quiet until its turn; its count is the result, so it waits. */
+.uipack-web-demo__log li[data-state="pending"] {
+  color: var(--web-ink-low);
+}
+.uipack-web-demo__log li[data-state="pending"] small {
+  visibility: hidden;
+}
+.uipack-web-demo__log li[data-state="pending"] .uipack-web-demo__tick {
+  border-style: dashed;
+}
 .uipack-web-demo__log li[data-state="running"] {
   background: rgb(var(--web-ink-rgb) / 0.04);
   color: var(--web-ink);
