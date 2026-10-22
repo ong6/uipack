@@ -336,7 +336,7 @@ describe("DeckPlayer", () => {
     expect(screen.getByText("Say the first thing.")).toBeInTheDocument();
     expect(screen.getByText("Slowly.")).toBeInTheDocument();
     expect(screen.getByText("Then the list.")).toBeInTheDocument();
-    expect(screen.getByLabelText("Elapsed time")).toHaveTextContent("00:00");
+    expect(screen.getByRole("timer")).toHaveTextContent("Elapsed time 00:00");
     expect(screen.queryByText(/answers “/)).toBeNull();
     expect(screen.queryByRole("button", { name: "Speaker view" })).toBeNull();
   });
@@ -442,7 +442,7 @@ describe("Bento", () => {
     expect(cue()).toBe("Build 3 of 3: camera pulls back to the whole grid");
     press("ArrowRight");
     expect(cue()).toBe("Next slide: After");
-    expect(screen.getByLabelText("Time budget")).toHaveTextContent("/ 02:00");
+    expect(screen.getByText("Time budget").parentElement).toHaveTextContent("Time budget / 02:00");
     expect(deck().querySelector(".uipack-deck-presenter__pace")).toHaveTextContent(/on pace · this slide 00:00–01:/);
   });
 
