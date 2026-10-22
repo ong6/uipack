@@ -264,9 +264,27 @@ control, and user-triggered agents may not follow it.
 
 ## Performance
 
-Measured on the built playground (`vite build`, `vite preview`), `/web`, in Chromium via Playwright
-with `PerformanceObserver` (LCP, layout shift, long tasks), cache disabled, median of 7 runs per
-profile on the same machine:
+Two methods, which disagree on mobile LCP by more than a factor of two. Use Lighthouse for the
+absolute number and the trace for comparing changes.
+
+**Lighthouse** 13.5 (CLI, headless Chrome, default mobile and `--preset=desktop`, simulated
+throttling), median of 3 runs, built playground (`vite build`, `vite preview`), 2026-10-22:
+
+| Route | Profile | Performance | FCP | LCP | CLS | TBT |
+| --- | --- | --- | --- | --- | --- | --- |
+| `/web` | Mobile | 92 | 1.73 s | **3.16 s** | 0.019 | 0 ms |
+| `/web` | Desktop | 100 | 0.43 s | 0.69 s | 0.012 | 0 ms |
+| `/` | Mobile | 100 | 1.51 s | 1.51 s | 0 | 55 ms |
+
+Mobile LCP on `/web` misses the 2.5 s "good" threshold. Lighthouse's simulation charges the whole
+dependency chain to the throttled link: the HTML, the 128 KB playground entry chunk (57 % of it
+unused on `/web`), then the `/web` route chunk, before the intro paragraph (the LCP element, below)
+can render. The fix belongs to the playground shell (lazy routes), not to `uipack/web`.
+
+**Playwright trace**, the table below: Chromium via Playwright with `PerformanceObserver` (LCP,
+layout shift, long tasks), DevTools throttling applied to the real load, cache disabled, median of
+7 runs per profile on the same machine. It reports what one throttled load observed, so its mobile
+LCP (about 1.4 s) is far below Lighthouse's estimate; it isolates the effect of each change:
 
 - **Mobile**: 390 × 844, 4× CPU throttling, 150 ms RTT, 1.6 Mbps down.
 - **Desktop**: 1440 × 900, no CPU throttling, 40 ms RTT, 10 Mbps down.
@@ -289,8 +307,8 @@ to the bottom in 80 % viewport steps. TBT sums long-task time over 50 ms after F
 
 "Kit only" is the final code with the font preload removed from the HTML, to separate the two
 changes. Run-to-run spread on this shared machine was about ±50 ms for mobile LCP and ±40 ms for
-TBT, so the mobile differences are noise; the desktop CLS drop is not. All three are inside the
-"good" thresholds (LCP ≤ 2.5 s, CLS ≤ 0.1).
+TBT, so the mobile differences are noise; the desktop CLS drop is not. In this trace all three are
+inside the "good" thresholds (LCP ≤ 2.5 s, CLS ≤ 0.1); Lighthouse's mobile LCP, above, is not.
 
 LCP on this page is the playground's own intro paragraph (`p.collection-intro`, system font), not
 the Landing hero, because the shell renders above the example. The remaining 0.011 CLS on desktop
