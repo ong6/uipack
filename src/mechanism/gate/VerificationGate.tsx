@@ -1,8 +1,8 @@
 import * as React from "react";
-import { REDUCED_MOTION_QUERY } from "../../env";
+import { usePrefersReducedMotion } from "../../env";
 import type { Point3, SolidPaths } from "../kit/iso-kit";
 import { Dots, Line, Solid } from "../kit/draw";
-import { asksForStillness, follow, spring, type Spring } from "../kit/live";
+import { follow, spring, type Spring } from "../kit/live";
 import {
   BASE_ART,
   CHUTE_BACK,
@@ -233,11 +233,15 @@ export function GateMachine({ pose = "idle", theme, motion = "auto", interactive
   const root = React.useRef<HTMLDivElement>(null);
   const live = React.useRef<HTMLSpanElement>(null);
   const animated = interactive && motion === "auto";
+  // The viewer's setting, read once per change rather than through matchMedia on every frame.
+  const reduced = usePrefersReducedMotion();
+  const stillness = React.useRef(reduced);
+  stillness.current = reduced;
 
   // First frame: the pose's still for thumbnails and stillness; otherwise the start of the pose.
   const start = React.useRef<{ display: Display; scene: Scene; t: number } | null>(null);
   if (!start.current || !interactive) {
-    const calm = !animated || asksForStillness();
+    const calm = !animated || reduced;
     const t = calm || pose === "idle" ? STILL_AT[pose] : 0;
     const scene = calm ? stillScene(pose) : sceneAt(pose, t);
     start.current = { display: displayOf(scene, calm && pose === "apart" ? 1 : 0), scene, t: calm ? STILL_AT[pose] : t };
@@ -265,7 +269,7 @@ export function GateMachine({ pose = "idle", theme, motion = "auto", interactive
 
   const sceneNow = React.useCallback((): Scene => {
     const s = state.current;
-    const calm = asksForStillness() || motion === "none";
+    const calm = stillness.current || motion === "none";
     const scene = calm ? stillScene(poseRef.current) : sceneAt(poseRef.current, s.t, s.round);
     if (s.paused && poseRef.current === "idle") return { ...scene, belt: 0, readout: `${scene.readout} · paused`, phase: "paused" };
     return scene;
@@ -330,7 +334,7 @@ export function GateMachine({ pose = "idle", theme, motion = "auto", interactive
     const tick = (now: number) => {
       const dt = s.last ? Math.min((now - s.last) / 1000, 1 / 30) : 1 / 60;
       s.last = now;
-      const calm = asksForStillness() || motion === "none";
+      const calm = stillness.current || motion === "none";
       const current = poseRef.current;
       if (!s.paused && !calm) s.t += dt;
       const scene = sceneNow();
@@ -375,7 +379,7 @@ export function GateMachine({ pose = "idle", theme, motion = "auto", interactive
     const s = state.current;
     const changed = poseRef.current !== pose;
     poseRef.current = pose;
-    const calm = asksForStillness() || motion === "none";
+    const calm = stillness.current || motion === "none";
     if (changed) {
       s.t = calm ? STILL_AT[pose] : 0;
       s.round++;
@@ -418,29 +422,27 @@ export function GateMachine({ pose = "idle", theme, motion = "auto", interactive
     };
   }, [interactive, run, stop]);
 
-  // Reduced motion switched on mid-flight: settle on the still frame.
+  // Reduced motion switched on mid-flight: settle on the still frame. Switched off: run again.
+  const wasReduced = React.useRef(reduced);
   React.useEffect(() => {
-    if (!interactive || typeof window === "undefined" || !window.matchMedia) return;
-    const query = window.matchMedia(REDUCED_MOTION_QUERY);
-    const changed = () => {
-      const s = state.current;
-      if (query.matches) {
-        stop();
-        s.t = STILL_AT[poseRef.current];
-        aim(poseRef.current === "apart", true);
-        const scene = sceneNow();
-        step(s.display, scene, 1, true, s.targets);
-        draw(scene);
-      } else run();
-    };
-    query.addEventListener?.("change", changed);
-    return () => query.removeEventListener?.("change", changed);
-  }, [interactive, aim, draw, run, sceneNow, stop]);
+    if (wasReduced.current === reduced) return;
+    wasReduced.current = reduced;
+    if (!interactive) return;
+    const s = state.current;
+    if (reduced) {
+      stop();
+      s.t = STILL_AT[poseRef.current];
+      aim(poseRef.current === "apart", true);
+      const scene = sceneNow();
+      step(s.display, scene, 1, true, s.targets);
+      draw(scene);
+    } else run();
+  }, [reduced, interactive, aim, draw, run, sceneNow, stop]);
 
   const act = () => {
     const s = state.current;
     const current = poseRef.current;
-    const calm = asksForStillness() || motion === "none";
+    const calm = stillness.current || motion === "none";
     if (current === "idle") s.paused = !s.paused;
     else if (current === "apart") {
       const open = ASSEMBLIES.every((name) => s.targets[name] === 1);

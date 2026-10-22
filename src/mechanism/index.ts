@@ -73,5 +73,7 @@ export {
   type WireStyle,
 } from "./kit/iso-kit";
 export { Solid, Line, Dots, Wire, FaceText } from "./kit/draw";
-export { follow, spring, asksForStillness, useStillness, type Spring } from "./kit/live";
+// The kit's own stillness helpers (asksForStillness, useStillness) stay internal: parts read
+// reduced motion through usePrefersReducedMotion from "uipack".
+export { follow, spring, type Spring } from "./kit/live";
 export { prismOf, circleIn, faceCircle, viewOf } from "./solid3";
