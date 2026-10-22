@@ -170,6 +170,12 @@ describe("DeckPlayer", () => {
     }
   });
 
+  it("renders an empty stage for an empty deck instead of throwing", () => {
+    render(<DeckPlayer id="t10" title="Test deck" slides={[]} />);
+    expect(deck()).toHaveTextContent("No slides");
+    expect(renderToString(<DeckPlayer id="t10" title="Test deck" slides={[]} />)).toContain("No slides");
+  });
+
   it("announces the slide and reports positions after mount, not on mount", () => {
     const seen: string[] = [];
     render(<DeckPlayer id="t2" title="Test deck" slides={slides} onPositionChange={(p) => seen.push(`${p.id}:${p.step}`)} />);

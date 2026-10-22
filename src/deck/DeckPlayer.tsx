@@ -54,7 +54,29 @@ interface View {
  * Plays a deck: one transition grammar, build steps, keyboard, touch and buttons, an overview,
  * full screen and a synced speaker view. Slides are authored on a 1920×1080 canvas.
  */
-export function DeckPlayer({
+export function DeckPlayer(props: DeckPlayerProps) {
+  // An empty deck (still loading, or filtered to nothing) gets an empty stage, not a crash.
+  if (props.slides.length === 0) return <EmptyDeck {...props} />;
+  return <Player {...props} />;
+}
+
+function EmptyDeck({ title, theme = "light", className }: DeckPlayerProps) {
+  return (
+    <div
+      className={["uipack-deck", className].filter(Boolean).join(" ")}
+      data-theme={theme}
+      role="region"
+      aria-label={title}
+      aria-roledescription="slide deck"
+    >
+      <div className="uipack-deck-stage uipack-deck-empty">
+        <p>No slides</p>
+      </div>
+    </div>
+  );
+}
+
+function Player({
   slides,
   id,
   title,

@@ -689,3 +689,10 @@
 .uipack-deck-presenter__role b {
   color: var(--deck-fg);
 }
+.uipack-deck-empty {
+  display: grid;
+  place-items: center;
+  color: var(--deck-muted);
+  font-family: var(--deck-mono);
+  font-size: 14px;
+}
