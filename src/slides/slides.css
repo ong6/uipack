@@ -101,11 +101,12 @@
   margin-bottom: 24px;
 }
 .uipack-slide-player .uipack-slide-player__copy h2 {
-  font-family: var(--slide-sans);
+  /* Slide headlines share the deck's treatment: its sans when the host provides one, 650, -0.02em. */
+  font-family: var(--font-sans, var(--slide-sans));
   font-size: clamp(26px, 3.1cqw, 42px);
-  font-weight: 500;
+  font-weight: 650;
   line-height: 1.13;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.02em;
   text-transform: none;
   opacity: 1;
   margin: 0 0 24px;
@@ -410,9 +411,7 @@
 /* Embedded previews follow figure typography; presentation mode keeps its scale. */
 .uipack-slide-player:not(.uipack-slide-player--present) .uipack-slide-player__copy h2 {
   font-size: 24px;
-  font-weight: 700;
   line-height: 1.25;
-  letter-spacing: -0.01em;
 }
 .uipack-slide-player:not(.uipack-slide-player--present) .uipack-slide-player__copy p {
   font-size: 14px;

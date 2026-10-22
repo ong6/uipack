@@ -36,6 +36,13 @@
   width: 100%;
   height: auto;
 }
+/* Slide headlines take the deck's treatment (deck.css .uipack-deck-title): the sans at 650 with
+   -0.02em tracking. They are the only text in the drawing without a role class. */
+.uipack-slide-starter__preview svg text:not([class]) {
+  font-family: var(--font-sans, "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
 /* A narrow preview draws the 1200-unit slide at a third of its size or less. Its fine print keeps
    about 10px on screen (34 units at a 358px preview); text inside a fixed box stops at 32 so it
    still fits the box. Headlines are large enough already. */
