@@ -1,4 +1,6 @@
+// @vitest-environment node
 import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { build } from "esbuild";
 import { cssBundles } from "../scripts/css-bundles";
 import { entries } from "../scripts/entries";
 
@@ -77,4 +79,21 @@ describe("built entries share one copy of each React context", () => {
 it("no CommonJS file mentions import.meta", () => {
   for (const f of readdirSync("dist").filter((f) => f.endsWith(".cjs")))
     expect(readFileSync(`dist/${f}`, "utf8"), f).not.toMatch(/\bimport\.meta\b/);
+});
+
+// A consumer who imports one constant from uipack/deck must not pay for the storyline linter: its
+// module-level regular expressions and sets are marked pure (src/deck/storyline/heuristics.ts), so a
+// bundler drops them with the rest of the unused code.
+it("importing one constant from the built deck entry leaves the storyline heuristics behind", async () => {
+  const result = await build({
+    stdin: { contents: 'import { WORDS_PER_MINUTE } from "./dist/deck.js"; console.log(WORDS_PER_MINUTE);', resolveDir: "." },
+    bundle: true,
+    minify: true,
+    format: "esm",
+    write: false,
+    logLevel: "silent",
+    external: ["react", "react-dom", "react/jsx-runtime", "three", "gsap"],
+  });
+  const out = result.outputFiles[0]!.text;
+  expect(out).not.toMatch(/new RegExp|new Set/);
 });

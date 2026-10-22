@@ -1,18 +1,19 @@
 /* Pure chart maths for the consulting parts: scales, ticks, layout, text fitting and formatting.
    Everything here is canvas pixels and plain numbers, so it is unit-tested without a DOM. */
 
-/** Canvas-pixel type sizes. Nothing on a consulting slide is smaller than `min` (≈14px at 1366 wide). */
+/** The smallest text allowed on a slide, in canvas pixels (≈14px at 1366 wide). A literal, not
+ * `CX_TYPE.min`: bundlers keep a module-level property read, which would keep this module alive. */
+export const MIN_TEXT_PX = 20;
+
+/** Canvas-pixel type sizes. Nothing on a consulting slide is smaller than `min`. */
 export const CX_TYPE = {
-  min: 20,
+  min: MIN_TEXT_PX,
   tick: 20,
   label: 22,
   value: 22,
   callout: 22,
   quadrant: 20,
 } as const;
-
-/** The smallest text allowed on a slide, in canvas pixels. */
-export const MIN_TEXT_PX = CX_TYPE.min;
 
 export interface LinearScale {
   (value: number): number;

@@ -7,7 +7,7 @@
 import type { SlideRole } from "./roles";
 import type { StorySlide } from "./rules";
 
-export const TOPIC_LABELS = new Set([
+export const TOPIC_LABELS = /*#__PURE__*/ new Set([
   "about me",
   "action items",
   "agenda",
@@ -93,15 +93,15 @@ const WEEKDAY = "mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:rs(?:day)?)?
 /** A calendar date someone can put in a diary: a month, a weekday, a numeric date, a named quarter or half, or today. */
 const capitalised = (alternatives: string) =>
   alternatives.replace(/(^|\|)([a-z])/g, (_, bar: string, c: string) => bar + c.toUpperCase());
-export const DATE_RE = new RegExp(
-  [
+export const DATE_RE = /*#__PURE__*/ new RegExp(
+  /*#__PURE__*/ [
     // Capitalised, so "may", "sat" and "wed" as ordinary words don't count as dates.
-    `\\b(?:${capitalised(MONTH)})\\b`,
-    `\\b(?:${capitalised(WEEKDAY)})\\b`,
-    String.raw`\b\d{4}-\d{2}-\d{2}\b`,
-    String.raw`\b\d{1,2}/\d{1,2}\b`,
-    String.raw`\b(?:FY\s?'?\d{2,4}\s?)?[QH][1-4]\b`,
-    String.raw`\b(?:[Tt]oday|[Tt]omorrow|[Tt]onight|EOD|eod)\b`,
+    `\\b(?:${/*#__PURE__*/ capitalised(MONTH)})\\b`,
+    `\\b(?:${/*#__PURE__*/ capitalised(WEEKDAY)})\\b`,
+    `\\b\\d{4}-\\d{2}-\\d{2}\\b`,
+    `\\b\\d{1,2}/\\d{1,2}\\b`,
+    `\\b(?:FY\\s?'?\\d{2,4}\\s?)?[QH][1-4]\\b`,
+    `\\b(?:[Tt]oday|[Tt]omorrow|[Tt]onight|EOD|eod)\\b`,
   ].join("|"),
 );
 
@@ -127,8 +127,8 @@ const OWNER_ROLE_RE =
 const QUALIFIED_OWNER_RE =
   /([\p{L}][\p{L}'’-]*)\s+(?:lead|leads|owner|owners|sponsor|sponsors|chair)\b(?![\s:,–—-]*(?:TBD|TBC|TBA|tbd|to be (?:decided|confirmed|named|agreed)|unknown|unassigned|\?))/gu;
 /** Words that can't qualify an owner: pronouns, articles, modals and links ("we will lead", "the owner"). */
-const NOT_A_QUALIFIER = new Set(
-  (
+const NOT_A_QUALIFIER = /*#__PURE__*/ new Set(
+  /*#__PURE__*/ (
     "i we you they he she it me us them this that these those which who whom what the a an our your their my his her its " +
     "will would can could should shall may might must to and or but then also please not never always just " +
     "do does did let lets let's help who'll we'll i'll you'll they'll whoever someone somebody anyone nobody no"
@@ -155,16 +155,16 @@ const UNIT =
 /** A multiple or a fraction: "twice as fast", "cut by half", "a third of queries". */
 const MULTIPLE_RE =
   /\b(?:twice|half|halve[ds]?|halving|double[ds]?|doubling|triple[ds]?|tripling|quadrupled|tenfold|[a-z]+-fold|a third|thirds|two-thirds|a quarter|a fifth|a tenth)\b/i;
+// The two patterns below interpolate the word lists, so they are built inside a function: a bundler
+// cannot prove a template over a module variable free of side effects, but can drop a pure call.
 /** A number word with its unit: "three weeks", "one engineer", "nine more months", "a two-day ticket". */
-const NUMBER_UNIT_RE = new RegExp(
-  String.raw`\b(?:${NUM_WORD})(?:[\s-]+(?:more|fewer|extra|full|whole|additional|business|working|calendar))?[\s-]+(?:${UNIT})\b`,
-  "i",
-);
+const numberUnitSource = () =>
+  `\\b(?:${NUM_WORD})(?:[\\s-]+(?:more|fewer|extra|full|whole|additional|business|working|calendar))?[\\s-]+(?:${UNIT})\\b`;
+const NUMBER_UNIT_RE = /*#__PURE__*/ new RegExp(/*#__PURE__*/ numberUnitSource(), "i");
 /** Two quantities compared: "one meeting, not three", "from forty to six", "nine in ten". */
-const NUMBER_COMPARISON_RE = new RegExp(
-  String.raw`\b(?:${NUM_WORD}|\d[\d,.]*)\b[^.;:!?]{0,40}?\b(?:not|instead of|rather than|vs\.?|versus|against|down from|up from|from|to|of|in|out of)\s+(?:about\s+|around\s+|a\s+|the\s+|every\s+)?(?:${NUM_WORD})\b`,
-  "i",
-);
+const numberComparisonSource = () =>
+  `\\b(?:${NUM_WORD}|\\d[\\d,.]*)\\b[^.;:!?]{0,40}?\\b(?:not|instead of|rather than|vs\\.?|versus|against|down from|up from|from|to|of|in|out of)\\s+(?:about\\s+|around\\s+|a\\s+|the\\s+|every\\s+)?(?:${NUM_WORD})\\b`;
+const NUMBER_COMPARISON_RE = /*#__PURE__*/ new RegExp(/*#__PURE__*/ numberComparisonSource(), "i");
 
 /** Outcome words for slide one: what changed for the business. */
 export const OUTCOME_RE =
@@ -189,8 +189,8 @@ const SOURCE_MODIFIED_RE =
   /^(?:chat|channel|thread|meeting|call|conversation|discussion|rumou?r|gossip|screenshot|people|team|owner)$/i;
 /** Words after a kind of evidence that name it: "benchmark suite", "test run 4". */
 const SOURCE_NAME_AFTER_RE = /^(?:suite|suites|run|runs|notebook|sheet|page|tab|panel|export|entry|row|link|doc|id)$/i;
-const SOURCE_STOP = new Set(
-  (
+const SOURCE_STOP = /*#__PURE__*/ new Set(
+  /*#__PURE__*/ (
     "i we you they he she it me us them this that these those which who what the a an our your their my his her its " +
     "some any one per from in on at of by for to with and or but see source sources is was were are be been said says " +
     "ran run did do so just once maybe probably trust according"
