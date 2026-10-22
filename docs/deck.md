@@ -4,6 +4,8 @@
 
 For what to put on the slides and in what order, read [deck storytelling](deck-storytelling.md) first. The player is the second half of the job.
 
+For information-dense slides in the strategy-consulting style (panels of charts, a "so what", footnotes and sources), use the parts in [consulting slides](deck-consulting.md).
+
 ```tsx
 import { DeckPlayer, Slide, Morph, Build, type DeckSlide } from "uipack/deck";
 import "uipack/deck.css";

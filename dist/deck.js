@@ -897,11 +897,11 @@ var smoothstep = (a, b, x) => {
 function zoomFrame(target, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) {
   const Z = Math.min(width / target.w, height / target.h);
   if (!Number.isFinite(Z) || Z < 1.05) return null;
-  const cx = target.x + target.w / 2;
+  const cx2 = target.x + target.w / 2;
   const cy = target.y + target.h / 2;
   return {
     Z,
-    fx: (cx * Z - width / 2) / (Z - 1),
+    fx: (cx2 * Z - width / 2) / (Z - 1),
     fy: (cy * Z - height / 2) / (Z - 1)
   };
 }
@@ -1696,32 +1696,1126 @@ function Presenter({
     ] })
   ] });
 }
+
+// src/deck/consulting/frame.tsx
+import { Children } from "react";
+import { Fragment as Fragment2, jsx as jsx3, jsxs as jsxs3 } from "react/jsx-runtime";
+var cx = (...names) => names.filter(Boolean).join(" ");
+function Tracker({ sections, current }) {
+  const at = typeof current === "number" ? current : sections.indexOf(current);
+  return /* @__PURE__ */ jsx3("nav", { className: "uipack-cx-tracker", "aria-label": "Sections", children: /* @__PURE__ */ jsx3("ol", { children: sections.map((s, i) => /* @__PURE__ */ jsxs3("li", { "aria-current": i === at ? "step" : void 0, "data-done": i < at ? "" : void 0, children: [
+    /* @__PURE__ */ jsx3("i", { "aria-hidden": "true" }),
+    s
+  ] }, s)) }) });
+}
+function ConsultingSlide({
+  tracker,
+  title,
+  subtitle,
+  sticker,
+  takeaway,
+  takeawayLabel = "So what",
+  notes,
+  source,
+  label,
+  rows,
+  className,
+  children
+}) {
+  const { index } = useDeckSlide();
+  return /* @__PURE__ */ jsxs3("div", { className: cx("uipack-deck-slide uipack-cx-slide", className), children: [
+    (tracker || sticker) && /* @__PURE__ */ jsxs3("div", { className: "uipack-cx-top", children: [
+      tracker ? /* @__PURE__ */ jsx3(Tracker, { ...tracker }) : /* @__PURE__ */ jsx3("span", {}),
+      sticker && /* @__PURE__ */ jsx3("p", { className: "uipack-cx-sticker", children: sticker })
+    ] }),
+    /* @__PURE__ */ jsxs3("header", { className: "uipack-cx-head", children: [
+      /* @__PURE__ */ jsx3("h2", { className: "uipack-cx-title", children: Children.map(title, (child) => typeof child === "string" ? /* @__PURE__ */ jsx3("span", { children: child }) : child) }),
+      subtitle && /* @__PURE__ */ jsx3("p", { className: "uipack-cx-subtitle", children: subtitle })
+    ] }),
+    /* @__PURE__ */ jsx3("div", { className: "uipack-cx-body", style: rows ? { gridTemplateRows: rows } : void 0, children }),
+    takeaway && /* @__PURE__ */ jsxs3("aside", { className: "uipack-cx-takeaway", "aria-label": "So what", children: [
+      /* @__PURE__ */ jsx3("b", { children: takeawayLabel }),
+      /* @__PURE__ */ jsx3("p", { children: takeaway })
+    ] }),
+    /* @__PURE__ */ jsxs3("footer", { className: "uipack-deck-footer uipack-cx-footer", children: [
+      /* @__PURE__ */ jsxs3("div", { className: "uipack-cx-footer__notes", children: [
+        notes && notes.length > 0 && /* @__PURE__ */ jsx3("ol", { children: notes.map((n, i) => /* @__PURE__ */ jsxs3("li", { children: [
+          /* @__PURE__ */ jsx3("span", { children: i + 1 }),
+          n
+        ] }, i)) }),
+        source && /* @__PURE__ */ jsxs3("p", { children: [
+          /* @__PURE__ */ jsx3("b", { children: "Source:" }),
+          " ",
+          source
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxs3("p", { className: "uipack-cx-footer__page", children: [
+        label && /* @__PURE__ */ jsx3("span", { children: label }),
+        /* @__PURE__ */ jsx3("b", { children: String(index + 1).padStart(2, "0") })
+      ] })
+    ] })
+  ] });
+}
+function Ref({ n }) {
+  return /* @__PURE__ */ jsx3("sup", { className: "uipack-cx-ref", children: n });
+}
+var placement = ({ cols = 12, rows = 1, col, row }) => ({
+  gridColumn: col ? `${col} / span ${cols}` : `span ${cols}`,
+  gridRow: row ? `${row} / span ${rows}` : `span ${rows}`
+});
+function Panel({ title, unit, callout, morphId, emphasis, className, children, ...grid }) {
+  const body = /* @__PURE__ */ jsxs3(Fragment2, { children: [
+    /* @__PURE__ */ jsxs3("header", { className: "uipack-cx-panel__head", children: [
+      /* @__PURE__ */ jsxs3("div", { children: [
+        /* @__PURE__ */ jsx3("h3", { children: title }),
+        unit && /* @__PURE__ */ jsx3("p", { children: unit })
+      ] }),
+      callout && /* @__PURE__ */ jsx3("p", { className: "uipack-cx-panel__callout", children: callout })
+    ] }),
+    /* @__PURE__ */ jsx3("div", { className: "uipack-cx-panel__body", children })
+  ] });
+  const props = {
+    className: cx("uipack-cx-panel", emphasis && "uipack-cx-panel--emphasis", className),
+    style: placement(grid)
+  };
+  return morphId ? /* @__PURE__ */ jsx3(Morph, { id: morphId, as: "section", fit: "stretch", ...props, children: /* @__PURE__ */ jsx3("div", { className: "uipack-cx-panel__inner", children: body }) }) : /* @__PURE__ */ jsx3("section", { ...props, children: /* @__PURE__ */ jsx3("div", { className: "uipack-cx-panel__inner", children: body }) });
+}
+function SoWhat({ title = "So what", children, ...grid }) {
+  return /* @__PURE__ */ jsxs3("aside", { className: "uipack-cx-sowhat", style: placement(grid), "aria-label": "So what", children: [
+    /* @__PURE__ */ jsx3("b", { children: title }),
+    /* @__PURE__ */ jsx3("div", { children })
+  ] });
+}
+
+// src/deck/consulting/hooks.ts
+import { useEffect as useEffect2, useLayoutEffect as useLayoutEffect2, useRef as useRef2, useState as useState2 } from "react";
+var useIsoLayoutEffect2 = typeof window === "undefined" ? useEffect2 : useLayoutEffect2;
+function useChartSize(fixed, fallback = { width: 640, height: 360 }) {
+  const ref = useRef2(null);
+  const [size, setSize] = useState2({
+    width: fixed?.width ?? fallback.width,
+    height: fixed?.height ?? fallback.height
+  });
+  const fixedW = fixed?.width;
+  const fixedH = fixed?.height;
+  useIsoLayoutEffect2(() => {
+    const el = ref.current;
+    if (!el || fixedW !== void 0 && fixedH !== void 0) return;
+    const measure = () => {
+      const w = fixedW ?? el.clientWidth;
+      const h = fixedH ?? el.clientHeight;
+      if (w > 0 && h > 0) setSize((s) => Math.abs(s.width - w) < 0.5 && Math.abs(s.height - h) < 0.5 ? s : { width: w, height: h });
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [fixedW, fixedH]);
+  return { ref, ...size };
+}
+function useGrown() {
+  const { active, thumbnail } = useDeckSlide();
+  const [grown, setGrown] = useState2(!active || thumbnail);
+  useEffect2(() => {
+    if (grown) return;
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => setGrown(true));
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
+  }, []);
+  return grown;
+}
+
+// src/deck/consulting/scale.ts
+var CX_TYPE = {
+  min: 20,
+  tick: 20,
+  label: 22,
+  value: 22,
+  callout: 22,
+  quadrant: 20
+};
+var MIN_TEXT_PX = CX_TYPE.min;
+function linearScale(domain, range) {
+  const [d0, d1] = domain;
+  const [r0, r1] = range;
+  const span = d1 - d0;
+  const f = ((v) => span === 0 ? r0 : r0 + (v - d0) / span * (r1 - r0));
+  f.domain = [d0, d1];
+  f.range = [r0, r1];
+  f.invert = (px) => r1 === r0 ? d0 : d0 + (px - r0) / (r1 - r0) * span;
+  return f;
+}
+function niceStep(span, count = 5) {
+  if (!(span > 0) || !Number.isFinite(span)) return 1;
+  const raw = span / Math.max(1, count);
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const norm = raw / mag;
+  const nice = norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 2.5 ? 2.5 : norm <= 5 ? 5 : 10;
+  return nice * mag;
+}
+function niceTicks(min, max, count = 5) {
+  if (min === max) {
+    const pad2 = Math.abs(min) || 1;
+    min -= pad2;
+    max += pad2;
+  }
+  if (min > max) [min, max] = [max, min];
+  const step = niceStep(max - min, count);
+  const lo = Math.floor(min / step + 1e-9) * step;
+  const hi = Math.ceil(max / step - 1e-9) * step;
+  const ticks = [];
+  for (let v = lo; v <= hi + step * 1e-6; v += step) ticks.push(Number(v.toFixed(10)));
+  return { domain: [lo, hi], ticks };
+}
+function zeroBasedDomain(values) {
+  const lo = Math.min(0, ...values);
+  const hi = Math.max(0, ...values);
+  return lo === hi ? [0, 1] : [lo, hi];
+}
+function bandLayout(count, start, length, fill2 = 0.6, maxMark = 48) {
+  if (count <= 0) return [];
+  const size = length / count;
+  const mark = Math.max(1, Math.min(size * fill2, maxMark));
+  return Array.from({ length: count }, (_, index) => {
+    const s = start + index * size;
+    return { index, start: s, size, markStart: s + (size - mark) / 2, mark, centre: s + size / 2 };
+  });
+}
+function waterfallBars(steps) {
+  let level = 0;
+  return steps.map((s) => {
+    if (s.total) {
+      const v = s.value ?? level;
+      level = v;
+      return { label: s.label, kind: "total", value: v, from: 0, to: v };
+    }
+    const d = s.value ?? 0;
+    const from = level;
+    level += d;
+    return { label: s.label, kind: d >= 0 ? "up" : "down", value: d, from, to: level };
+  });
+}
+function stackSegments(values, percent = false) {
+  const clean = values.map((v) => Number.isFinite(v) && v > 0 ? v : 0);
+  const total = clean.reduce((a, b) => a + b, 0);
+  let acc = 0;
+  return clean.map((v, series) => {
+    const share = total > 0 ? v / total : 0;
+    const len = percent ? share * 100 : v;
+    const seg = { series, value: values[series], from: acc, to: acc + len, share };
+    acc += len;
+    return seg;
+  });
+}
+function harveyWedge(level, cx2, cy, r) {
+  const q = Math.max(0, Math.min(4, Math.round(level)));
+  if (q === 0) return "";
+  if (q === 4) return `M${cx2 - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`;
+  const angle = q / 4 * Math.PI * 2;
+  const x = cx2 + r * Math.sin(angle);
+  const y = cy - r * Math.cos(angle);
+  const large = q > 2 ? 1 : 0;
+  return `M${cx2} ${cy}L${cx2} ${cy - r}A${r} ${r} 0 ${large} 1 ${round(x)} ${round(y)}Z`;
+}
+function bubbleRadius(size, maxSize, maxRadius, minRadius = 8) {
+  if (!(maxSize > 0) || !(size > 0)) return minRadius;
+  return Math.max(minRadius, Math.sqrt(size / maxSize) * maxRadius);
+}
+function barPath(orientation, base, end, crossStart, thickness, radius = 4) {
+  const len = Math.abs(end - base);
+  const r = Math.max(0, Math.min(radius, len, thickness / 2));
+  const dir = end >= base ? 1 : -1;
+  if (orientation === "horizontal") {
+    const y0 = crossStart;
+    const y1 = crossStart + thickness;
+    return [
+      `M${round(base)} ${round(y0)}`,
+      `H${round(end - dir * r)}`,
+      `Q${round(end)} ${round(y0)} ${round(end)} ${round(y0 + r)}`,
+      `V${round(y1 - r)}`,
+      `Q${round(end)} ${round(y1)} ${round(end - dir * r)} ${round(y1)}`,
+      `H${round(base)}Z`
+    ].join("");
+  }
+  const x0 = crossStart;
+  const x1 = crossStart + thickness;
+  return [
+    `M${round(x0)} ${round(base)}`,
+    `V${round(end - dir * r)}`,
+    `Q${round(x0)} ${round(end)} ${round(x0 + r)} ${round(end)}`,
+    `H${round(x1 - r)}`,
+    `Q${round(x1)} ${round(end)} ${round(x1)} ${round(end - dir * r)}`,
+    `V${round(base)}Z`
+  ].join("");
+}
+var round = (v) => Math.round(v * 100) / 100;
+function textWidth(text, size, weight = 400) {
+  let em = 0;
+  for (const ch of text) {
+    if (/[0-9]/.test(ch)) em += 0.58;
+    else if (/[A-Z]/.test(ch)) em += /[MW]/.test(ch) ? 0.86 : 0.66;
+    else if (/[a-z]/.test(ch)) em += /[mw]/.test(ch) ? 0.8 : /[iljtf]/.test(ch) ? 0.3 : 0.54;
+    else if (ch === " ") em += 0.27;
+    else if (/[.,:;'’|!]/.test(ch)) em += 0.28;
+    else if (/[$%€£+−\-–—/()]/.test(ch)) em += 0.6;
+    else em += 0.62;
+  }
+  return em * size * (weight === 600 ? 1.05 : 1);
+}
+function wrapText(text, size, maxWidth, maxLines = 3) {
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = "";
+  for (const w of words) {
+    const next = line ? `${line} ${w}` : w;
+    if (line && textWidth(next, size) > maxWidth && lines.length < maxLines - 1) {
+      lines.push(line);
+      line = w;
+    } else line = next;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+function spreadLabels(ys, gap, min = -Infinity, max = Infinity) {
+  const order = ys.map((y, i) => ({ y, i })).sort((a, b) => a.y - b.y);
+  const placed = order.map((o) => Math.min(Math.max(o.y, min), max));
+  for (let k = 1; k < placed.length; k++) placed[k] = Math.max(placed[k], placed[k - 1] + gap);
+  const overflow = placed.length ? placed[placed.length - 1] - max : 0;
+  if (overflow > 0) {
+    placed[placed.length - 1] -= overflow;
+    for (let k = placed.length - 2; k >= 0; k--) placed[k] = Math.min(placed[k], placed[k + 1] - gap);
+  }
+  const out = new Array(ys.length);
+  order.forEach((o, k) => out[o.i] = placed[k]);
+  return out;
+}
+function formatValue(value, options = {}) {
+  const { decimals = 0, prefix = "", suffix = "", sign = false, compact = false } = options;
+  let v = Math.abs(value);
+  let unit = "";
+  if (compact) {
+    if (v >= 1e9) [v, unit] = [v / 1e9, "B"];
+    else if (v >= 1e6) [v, unit] = [v / 1e6, "M"];
+    else if (v >= 1e3) [v, unit] = [v / 1e3, "K"];
+  }
+  const body = v.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  const isZero = Number(body.replace(/,/g, "")) === 0;
+  const s = value < 0 && !isZero ? "\u2212" : sign && !isZero ? "+" : "";
+  return `${s}${prefix}${body}${unit}${suffix}`;
+}
+var formatter = (options = {}) => (v) => formatValue(v, options);
+
+// src/deck/consulting/charts.tsx
+import { Fragment as Fragment3, jsx as jsx4, jsxs as jsxs4 } from "react/jsx-runtime";
+var defaultFormat = (v) => formatValue(v, { decimals: Number.isInteger(v) ? 0 : 1 });
+var fill = {
+  accent: "var(--uipack-cx-accent)",
+  context: "var(--uipack-cx-context)",
+  total: "var(--uipack-cx-total)",
+  good: "var(--uipack-cx-good)",
+  bad: "var(--uipack-cx-bad)",
+  series: (i) => `var(--uipack-cx-s${i % 4 + 1})`,
+  seriesInk: (i) => `var(--uipack-cx-s${i % 4 + 1}-ink)`
+};
+function Frame({
+  size,
+  label,
+  className,
+  children
+}) {
+  const grown = useGrown();
+  return /* @__PURE__ */ jsx4("div", { ref: size.ref, className: ["uipack-cx-chart", className].filter(Boolean).join(" "), "data-grown": grown ? "" : void 0, children: /* @__PURE__ */ jsx4(
+    "svg",
+    {
+      className: "uipack-cx-svg",
+      width: size.width,
+      height: size.height,
+      viewBox: `0 0 ${size.width} ${size.height}`,
+      role: "img",
+      "aria-label": label,
+      children
+    }
+  ) });
+}
+var growStyle = (origin, delay = 0) => ({ transformOrigin: origin, "--uipack-cx-delay": `${delay}ms` });
+function Text({
+  x,
+  y,
+  size = CX_TYPE.label,
+  anchor = "start",
+  weight,
+  muted,
+  baseline = "central",
+  halo,
+  children,
+  className
+}) {
+  return /* @__PURE__ */ jsx4(
+    "text",
+    {
+      x,
+      y,
+      fontSize: Math.max(size, CX_TYPE.min),
+      textAnchor: anchor,
+      dominantBaseline: baseline,
+      className: ["uipack-cx-t", muted && "uipack-cx-t--muted", weight && "uipack-cx-t--strong", halo && "uipack-cx-halo", className].filter(Boolean).join(" "),
+      children
+    }
+  );
+}
+function Lines({ x, y, lines, size = CX_TYPE.label, anchor = "middle", weight, muted, top }) {
+  const lh = size * 1.2;
+  const y0 = top ? y + size * 0.8 : y - (lines.length - 1) * lh / 2;
+  return /* @__PURE__ */ jsx4(
+    "text",
+    {
+      x,
+      y: y0,
+      fontSize: Math.max(size, CX_TYPE.min),
+      textAnchor: anchor,
+      dominantBaseline: top ? "auto" : "central",
+      className: ["uipack-cx-t", muted && "uipack-cx-t--muted", weight && "uipack-cx-t--strong"].filter(Boolean).join(" "),
+      children: lines.map((l, i) => /* @__PURE__ */ jsx4("tspan", { x, dy: i === 0 ? 0 : lh, children: l }, i))
+    }
+  );
+}
+function calloutGeometry(point, at, text, maxWidth = 260, align = "start", size = CX_TYPE.callout) {
+  const lines = wrapText(text, size, maxWidth, 4);
+  const w = Math.max(...lines.map((l) => textWidth(l, size)));
+  const h = lines.length * size * 1.25;
+  const bx = align === "end" ? at.x - w : at.x;
+  const box = { x: bx, y: at.y, w, h };
+  const gap = 10;
+  let x1;
+  let y1;
+  if (point.x < box.x - gap) {
+    x1 = box.x - gap;
+    y1 = Math.min(Math.max(point.y, box.y + size * 0.6), box.y + h - size * 0.6);
+  } else if (point.x > box.x + w + gap) {
+    x1 = box.x + w + gap;
+    y1 = Math.min(Math.max(point.y, box.y + size * 0.6), box.y + h - size * 0.6);
+  } else {
+    x1 = Math.min(Math.max(point.x, box.x), box.x + w);
+    y1 = point.y < box.y ? box.y - gap : box.y + h + gap;
+  }
+  return { lines, box, leader: { x1, y1, x2: point.x, y2: point.y } };
+}
+function Callout({ x, y, tx, ty, text, width = 260, align = "start" }) {
+  const g = calloutGeometry({ x, y }, { x: tx, y: ty }, text, width, align);
+  const size = CX_TYPE.callout;
+  const textX = align === "end" ? g.box.x + g.box.w : g.box.x;
+  return /* @__PURE__ */ jsxs4("g", { className: "uipack-cx-callout", children: [
+    /* @__PURE__ */ jsx4("line", { className: "uipack-cx-callout__leader", x1: g.leader.x1, y1: g.leader.y1, x2: x, y2: y }),
+    /* @__PURE__ */ jsx4("circle", { className: "uipack-cx-callout__ring", cx: x, cy: y, r: 9 }),
+    /* @__PURE__ */ jsx4("circle", { className: "uipack-cx-callout__dot", cx: x, cy: y, r: 3.5 }),
+    /* @__PURE__ */ jsx4(
+      "text",
+      {
+        x: textX,
+        y: g.box.y + size * 0.85,
+        fontSize: size,
+        textAnchor: align,
+        className: "uipack-cx-t uipack-cx-callout__text uipack-cx-halo",
+        children: g.lines.map((l, i) => /* @__PURE__ */ jsx4("tspan", { x: textX, dy: i === 0 ? 0 : size * 1.25, children: l }, i))
+      }
+    )
+  ] });
+}
+function BarChart({
+  data,
+  orientation = "horizontal",
+  sort,
+  format = defaultFormat,
+  domain,
+  reference,
+  callout,
+  ariaLabel,
+  width,
+  height
+}) {
+  const size = useChartSize({ width, height });
+  const W = size.width;
+  const H = size.height;
+  const order = sort ?? (orientation === "horizontal" ? "desc" : "none");
+  const rows = [...data];
+  if (order !== "none") rows.sort((a, b) => order === "desc" ? b.value - a.value : a.value - b.value);
+  const emphasis = rows.some((d) => d.highlight);
+  const colour = (d) => !emphasis || d.highlight ? fill.accent : fill.context;
+  const values = rows.map((d) => d.value);
+  const dom = domain ?? zeroBasedDomain(reference ? [...values, reference.value] : values);
+  const label = ariaLabel ?? `Bar chart. ${rows.map((d) => `${d.label}: ${format(d.value)}`).join("; ")}.`;
+  const valueW = Math.max(...rows.map((d) => textWidth(format(d.value), CX_TYPE.value, 600))) + 14;
+  const refTop = reference ? 40 : 4;
+  if (orientation === "horizontal") {
+    const labelW = Math.min(Math.max(...rows.map((d) => textWidth(d.label, CX_TYPE.label))) + 20, W * 0.42);
+    const x = linearScale(dom, [labelW, W - valueW]);
+    const bands = bandLayout(rows.length, refTop, H - refTop, 0.62, 36);
+    const zero2 = x(Math.max(dom[0], Math.min(0, dom[1])));
+    return /* @__PURE__ */ jsxs4(Frame, { size, label, children: [
+      reference && /* @__PURE__ */ jsxs4("g", { className: "uipack-cx-ref-line", children: [
+        /* @__PURE__ */ jsx4("line", { x1: x(reference.value), x2: x(reference.value), y1: refTop - 8, y2: H }),
+        /* @__PURE__ */ jsx4(Text, { x: x(reference.value), y: 14, size: CX_TYPE.tick, anchor: "middle", muted: true, halo: true, children: reference.label })
+      ] }),
+      rows.map((d, i) => {
+        const b = bands[i];
+        const end = x(d.value);
+        const lines = wrapText(d.label, CX_TYPE.label, labelW - 20, 2);
+        return /* @__PURE__ */ jsxs4("g", { children: [
+          /* @__PURE__ */ jsx4(Lines, { x: labelW - 16, y: b.centre, lines, anchor: "end", weight: d.highlight ? 600 : void 0 }),
+          /* @__PURE__ */ jsx4(
+            "path",
+            {
+              className: "uipack-cx-grow",
+              "data-axis": "x",
+              style: { ...growStyle(d.value >= 0 ? "0% 50%" : "100% 50%", i * 40), fill: colour(d) },
+              d: barPath("horizontal", zero2, end, b.markStart, b.mark),
+              children: /* @__PURE__ */ jsx4("title", { children: `${d.label}: ${format(d.value)}` })
+            }
+          ),
+          /* @__PURE__ */ jsx4(Text, { x: d.value >= 0 ? end + 10 : end - 10, y: b.centre, anchor: d.value >= 0 ? "start" : "end", weight: 600, halo: true, children: format(d.value) })
+        ] }, d.label);
+      }),
+      /* @__PURE__ */ jsx4("line", { className: "uipack-cx-axis", x1: zero2, x2: zero2, y1: refTop - 4, y2: H }),
+      callout && (() => {
+        const i = rows.findIndex((d) => d.label === callout.label);
+        if (i < 0) return null;
+        const px = x(rows[i].value);
+        const py = bands[i].centre;
+        return /* @__PURE__ */ jsx4(Callout, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+      })()
+    ] });
+  }
+  const labelLines = rows.map((d) => d.label);
+  const bandsProbe = bandLayout(rows.length, 0, W, 0.56, 64);
+  const wrapped = labelLines.map((l) => wrapText(l, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 8, 2));
+  const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
+  const top = 36;
+  const y = linearScale(dom, [H - bottom, top]);
+  const zero = y(Math.max(dom[0], Math.min(0, dom[1])));
+  return /* @__PURE__ */ jsxs4(Frame, { size, label, children: [
+    reference && /* @__PURE__ */ jsxs4("g", { className: "uipack-cx-ref-line", children: [
+      /* @__PURE__ */ jsx4("line", { x1: 0, x2: W, y1: y(reference.value), y2: y(reference.value) }),
+      /* @__PURE__ */ jsx4(Text, { x: W, y: y(reference.value) - 16, size: CX_TYPE.tick, anchor: "end", muted: true, children: reference.label })
+    ] }),
+    rows.map((d, i) => {
+      const b = bandsProbe[i];
+      const end = y(d.value);
+      return /* @__PURE__ */ jsxs4("g", { children: [
+        /* @__PURE__ */ jsx4(
+          "path",
+          {
+            className: "uipack-cx-grow",
+            "data-axis": "y",
+            style: { ...growStyle(d.value >= 0 ? "50% 100%" : "50% 0%", i * 40), fill: colour(d) },
+            d: barPath("vertical", zero, end, b.markStart, b.mark),
+            children: /* @__PURE__ */ jsx4("title", { children: `${d.label}: ${format(d.value)}` })
+          }
+        ),
+        /* @__PURE__ */ jsx4(Text, { x: b.centre, y: d.value >= 0 ? end - 16 : end + 16, anchor: "middle", weight: 600, halo: true, children: format(d.value) }),
+        /* @__PURE__ */ jsx4(Lines, { x: b.centre, y: H - bottom + 12, lines: wrapped[i], top: true, weight: d.highlight ? 600 : void 0 })
+      ] }, d.label);
+    }),
+    /* @__PURE__ */ jsx4("line", { className: "uipack-cx-axis", x1: 0, x2: W, y1: zero, y2: zero }),
+    callout && (() => {
+      const i = rows.findIndex((d) => d.label === callout.label);
+      if (i < 0) return null;
+      const px = bandsProbe[i].centre;
+      const py = y(rows[i].value);
+      return /* @__PURE__ */ jsx4(Callout, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+    })()
+  ] });
+}
+function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain, callout, ariaLabel, width, height }) {
+  const size = useChartSize({ width, height });
+  const W = size.width;
+  const H = size.height;
+  const bars = waterfallBars([...steps]);
+  const levels = bars.flatMap((b) => [b.from, b.to]);
+  const dom = domain ?? zeroBasedDomain(levels);
+  const broken = dom[0] > 0;
+  const bandsProbe = bandLayout(bars.length, 0, W, 0.62, 76);
+  const wrapped = bars.map((b) => wrapText(b.label, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 6, 2));
+  const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
+  const top = 40;
+  const y = linearScale(dom, [H - bottom, top]);
+  const base = y(dom[0]);
+  const label = ariaLabel ?? `Waterfall. ${bars.map((b) => `${b.label}: ${b.kind === "total" ? format(b.value) : (b.value >= 0 ? "+" : "") + format(b.value)}`).join("; ")}.`;
+  const show = (b) => b.kind === "total" ? format(b.value) : `${b.value > 0 ? "+" : ""}${format(b.value)}`;
+  return /* @__PURE__ */ jsxs4(Frame, { size, label, children: [
+    bars.map((b, i) => {
+      const band = bandsProbe[i];
+      const next = bandsProbe[i + 1];
+      const good = b.kind !== "total" && b.value >= 0 === (goodDirection === "up");
+      const colour = b.kind === "total" ? fill.total : good ? fill.good : fill.bad;
+      const yTop = y(Math.max(b.from, b.to));
+      const yBot = b.kind === "total" ? base : y(Math.min(b.from, b.to));
+      const h = Math.max(2, yBot - yTop);
+      const labelY = yTop - 18;
+      return /* @__PURE__ */ jsxs4("g", { "data-kind": b.kind, children: [
+        b.kind === "total" ? /* @__PURE__ */ jsx4(
+          "path",
+          {
+            className: "uipack-cx-grow",
+            "data-axis": "y",
+            style: { ...growStyle("50% 100%", i * 60), fill: colour },
+            d: barPath("vertical", base, yTop, band.markStart, band.mark),
+            children: /* @__PURE__ */ jsx4("title", { children: `${b.label}: ${show(b)}` })
+          }
+        ) : /* @__PURE__ */ jsx4(
+          "rect",
+          {
+            className: "uipack-cx-grow",
+            "data-axis": "y",
+            style: { ...growStyle(b.kind === "up" ? "50% 100%" : "50% 0%", i * 60), fill: colour },
+            x: band.markStart,
+            y: yTop,
+            width: band.mark,
+            height: h,
+            rx: 2,
+            children: /* @__PURE__ */ jsx4("title", { children: `${b.label}: ${show(b)}` })
+          }
+        ),
+        broken && b.kind === "total" && /* @__PURE__ */ jsx4(
+          "path",
+          {
+            className: "uipack-cx-break",
+            d: `M${band.markStart - 4} ${base - 18}l${band.mark + 8} -10M${band.markStart - 4} ${base - 8}l${band.mark + 8} -10`
+          }
+        ),
+        next && /* @__PURE__ */ jsx4("line", { className: "uipack-cx-connector", x1: band.markStart + band.mark, x2: next.markStart, y1: y(b.to), y2: y(b.to) }),
+        /* @__PURE__ */ jsxs4(
+          "text",
+          {
+            x: band.centre,
+            y: labelY,
+            fontSize: CX_TYPE.value,
+            textAnchor: "middle",
+            dominantBaseline: "central",
+            className: "uipack-cx-t uipack-cx-t--strong uipack-cx-halo",
+            children: [
+              b.kind !== "total" && /* @__PURE__ */ jsx4("tspan", { className: "uipack-cx-arrow", "aria-hidden": "true", children: b.value >= 0 ? "\u25B2 " : "\u25BC " }),
+              show(b)
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsx4(Lines, { x: band.centre, y: H - bottom + 12, lines: wrapped[i], top: true, weight: b.kind === "total" ? 600 : void 0 })
+      ] }, `${b.label}-${i}`);
+    }),
+    /* @__PURE__ */ jsx4("line", { className: "uipack-cx-axis", x1: 0, x2: W, y1: base, y2: base }),
+    callout && (() => {
+      const i = bars.findIndex((b2) => b2.label === callout.label);
+      if (i < 0) return null;
+      const b = bars[i];
+      const px = bandsProbe[i].centre;
+      const py = (y(b.from) + y(b.to)) / 2;
+      return /* @__PURE__ */ jsx4(Callout, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+    })()
+  ] });
+}
+function StackedBar({
+  categories,
+  series,
+  mode = "absolute",
+  orientation = "vertical",
+  format = defaultFormat,
+  segmentFormat,
+  totals = true,
+  ariaLabel,
+  width,
+  height
+}) {
+  const size = useChartSize({ width, height });
+  const W = size.width;
+  const H = size.height;
+  const percent = mode === "percent";
+  const stacks = categories.map((c) => stackSegments([...c.values], percent));
+  const sums = categories.map((c) => c.values.reduce((a, b) => a + Math.max(0, b), 0));
+  const max = percent ? 100 : Math.max(...sums, 1);
+  const fmtSeg = (s) => percent ? `${Math.round(s.share * 100)}%` : (segmentFormat ?? format)(s.value);
+  const label = ariaLabel ?? `Stacked bar chart, ${series.join(", ")}. ${categories.map((c, i) => `${c.label}: ${stacks[i].map((s, k) => `${series[k]} ${fmtSeg(s)}`).join(", ")}`).join("; ")}.`;
+  const legendH = 36;
+  let lx = 0;
+  const legend = series.map((name, i) => {
+    const item = { name, i, x: lx };
+    lx += 18 + 10 + textWidth(name, CX_TYPE.tick) + 28;
+    return item;
+  });
+  const legendEl = /* @__PURE__ */ jsx4("g", { className: "uipack-cx-legend", children: legend.map((l) => /* @__PURE__ */ jsxs4("g", { children: [
+    /* @__PURE__ */ jsx4("rect", { x: l.x, y: 6, width: 18, height: 18, rx: 2, style: { fill: fill.series(l.i) } }),
+    /* @__PURE__ */ jsx4(Text, { x: l.x + 28, y: 15, size: CX_TYPE.tick, children: l.name })
+  ] }, l.name)) });
+  const segLabel = (s, k, cx2, cy, room, thick) => {
+    const t = fmtSeg(s);
+    if (thick < CX_TYPE.value + 8 || textWidth(t, CX_TYPE.value, 600) + 12 > room) return null;
+    return /* @__PURE__ */ jsx4(
+      "text",
+      {
+        x: cx2,
+        y: cy,
+        fontSize: CX_TYPE.value,
+        textAnchor: "middle",
+        dominantBaseline: "central",
+        className: "uipack-cx-t--strong uipack-cx-seglabel",
+        style: { fill: fill.seriesInk(k) },
+        children: t
+      }
+    );
+  };
+  if (orientation === "horizontal") {
+    const labelW = Math.min(Math.max(...categories.map((c) => textWidth(c.label, CX_TYPE.label))) + 20, W * 0.4);
+    const totalW = totals && !percent ? Math.max(...sums.map((s) => textWidth(format(s), CX_TYPE.value, 600))) + 14 : 4;
+    const x = linearScale([0, max], [labelW, W - totalW]);
+    const bands = bandLayout(categories.length, legendH + 8, H - legendH - 8, 0.62, 44);
+    return /* @__PURE__ */ jsxs4(Frame, { size, label, children: [
+      legendEl,
+      categories.map((c, i) => {
+        const b = bands[i];
+        return /* @__PURE__ */ jsxs4("g", { children: [
+          /* @__PURE__ */ jsx4(Lines, { x: labelW - 16, y: b.centre, lines: wrapText(c.label, CX_TYPE.label, labelW - 20, 2), anchor: "end", weight: c.highlight ? 600 : void 0 }),
+          /* @__PURE__ */ jsx4("g", { className: "uipack-cx-grow", "data-axis": "x", style: growStyle("0% 50%", i * 40), children: stacks[i].map((s, k) => {
+            const x0 = x(s.from) + (k > 0 ? 1 : 0);
+            const x1 = x(s.to) - (k < stacks[i].length - 1 ? 1 : 0);
+            if (x1 - x0 <= 0.5) return null;
+            return /* @__PURE__ */ jsxs4("g", { children: [
+              /* @__PURE__ */ jsx4(
+                "rect",
+                {
+                  style: { fill: fill.series(k) },
+                  x: x0,
+                  y: b.markStart,
+                  width: x1 - x0,
+                  height: b.mark,
+                  children: /* @__PURE__ */ jsx4("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
+                }
+              ),
+              segLabel(s, k, (x0 + x1) / 2, b.centre, x1 - x0, b.mark)
+            ] }, k);
+          }) }),
+          totals && !percent && /* @__PURE__ */ jsx4(Text, { x: x(sums[i]) + 10, y: b.centre, weight: 600, children: format(sums[i]) })
+        ] }, c.label);
+      }),
+      /* @__PURE__ */ jsx4("line", { className: "uipack-cx-axis", x1: labelW, x2: labelW, y1: legendH + 4, y2: H })
+    ] });
+  }
+  const bandsProbe = bandLayout(categories.length, 0, W, 0.56, 88);
+  const wrapped = categories.map((c) => wrapText(c.label, CX_TYPE.label, (bandsProbe[0]?.size ?? W) - 8, 2));
+  const bottom = Math.max(...wrapped.map((l) => l.length)) * CX_TYPE.label * 1.2 + 14;
+  const top = legendH + (totals && !percent ? 40 : 12);
+  const y = linearScale([0, max], [H - bottom, top]);
+  return /* @__PURE__ */ jsxs4(Frame, { size, label, children: [
+    legendEl,
+    categories.map((c, i) => {
+      const b = bandsProbe[i];
+      return /* @__PURE__ */ jsxs4("g", { children: [
+        /* @__PURE__ */ jsx4("g", { className: "uipack-cx-grow", "data-axis": "y", style: growStyle("50% 100%", i * 40), children: stacks[i].map((s, k) => {
+          const last = k === stacks[i].length - 1;
+          const y0 = y(s.from) - (k > 0 ? 1 : 0);
+          const y1 = y(s.to) + (last ? 0 : 1);
+          if (y0 - y1 <= 0.5) return null;
+          return /* @__PURE__ */ jsxs4("g", { children: [
+            last ? /* @__PURE__ */ jsx4(
+              "path",
+              {
+                style: { fill: fill.series(k) },
+                d: barPath("vertical", y0, y1, b.markStart, b.mark),
+                children: /* @__PURE__ */ jsx4("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
+              }
+            ) : /* @__PURE__ */ jsx4(
+              "rect",
+              {
+                style: { fill: fill.series(k) },
+                x: b.markStart,
+                y: y1,
+                width: b.mark,
+                height: y0 - y1,
+                children: /* @__PURE__ */ jsx4("title", { children: `${c.label}, ${series[k]}: ${fmtSeg(s)}` })
+              }
+            ),
+            segLabel(s, k, b.centre, (y0 + y1) / 2, b.mark, y0 - y1)
+          ] }, k);
+        }) }),
+        totals && !percent && /* @__PURE__ */ jsx4(Text, { x: b.centre, y: y(sums[i]) - 18, anchor: "middle", weight: 600, halo: true, children: format(sums[i]) }),
+        /* @__PURE__ */ jsx4(Lines, { x: b.centre, y: H - bottom + 12, lines: wrapped[i], top: true, weight: c.highlight ? 600 : void 0 })
+      ] }, c.label);
+    }),
+    /* @__PURE__ */ jsx4("line", { className: "uipack-cx-axis", x1: 0, x2: W, y1: H - bottom, y2: H - bottom })
+  ] });
+}
+function LineChart({
+  x: periods,
+  series,
+  format = defaultFormat,
+  tickFormat,
+  domain,
+  reference,
+  annotate,
+  ariaLabel,
+  width,
+  height
+}) {
+  const size = useChartSize({ width, height });
+  const W = size.width;
+  const H = size.height;
+  const all = series.flatMap((s) => s.values.filter((v) => v !== null));
+  const nice = niceTicks(Math.min(...all, reference?.value ?? Infinity), Math.max(...all, reference?.value ?? -Infinity), 4);
+  const dom = domain ?? nice.domain;
+  const ticks = domain ? niceTicks(domain[0], domain[1], 4).ticks.filter((t) => t >= domain[0] && t <= domain[1]) : nice.ticks;
+  const tf = tickFormat ?? format;
+  const emphasis = series.some((s) => s.highlight);
+  const stroke = (s, i) => emphasis ? s.highlight ? fill.accent : fill.context : fill.series(i);
+  const lastOf = (s) => {
+    for (let i = s.values.length - 1; i >= 0; i--) if (s.values[i] !== null) return i;
+    return -1;
+  };
+  const endText = series.map((s) => {
+    const li = lastOf(s);
+    return { name: s.name, value: li >= 0 ? format(s.values[li]) : "" };
+  });
+  const endW = Math.max(...endText.map((e) => textWidth(`${e.name} ${e.value}`, CX_TYPE.label, 600))) + 30;
+  const tickW = Math.max(...ticks.map((t) => textWidth(tf(t), CX_TYPE.tick))) + 14;
+  const left = tickW;
+  const right = W - endW;
+  const top = 18;
+  const bottom = H - CX_TYPE.tick - 22;
+  const xs = (i) => periods.length <= 1 ? left : left + i / (periods.length - 1) * (right - left - 16) + 8;
+  const ys = linearScale(dom, [bottom, top]);
+  const label = ariaLabel ?? `Line chart, ${periods[0]} to ${periods[periods.length - 1]}. ${series.map((s) => `${s.name}: ${s.values.map((v) => v === null ? "n/a" : format(v)).join(", ")}`).join("; ")}.`;
+  const ends = series.map((s) => {
+    const li = lastOf(s);
+    return li >= 0 ? { x: xs(li), y: ys(s.values[li]) } : null;
+  });
+  const placed = spreadLabels(ends.map((e) => e?.y ?? 0), CX_TYPE.label * 1.3, top, bottom);
+  const everyN = Math.max(1, Math.ceil(Math.max(...periods.map((p) => textWidth(p, CX_TYPE.tick))) / Math.max(1, (right - left) / periods.length - 12)));
+  return /* @__PURE__ */ jsxs4(Frame, { size, label, children: [
+    ticks.map((t) => /* @__PURE__ */ jsxs4("g", { children: [
+      /* @__PURE__ */ jsx4("line", { className: "uipack-cx-grid", x1: left, x2: right, y1: ys(t), y2: ys(t) }),
+      /* @__PURE__ */ jsx4(Text, { x: left - 12, y: ys(t), size: CX_TYPE.tick, anchor: "end", muted: true, className: "uipack-cx-tabular", children: tf(t) })
+    ] }, t)),
+    reference && /* @__PURE__ */ jsxs4("g", { className: "uipack-cx-ref-line", children: [
+      /* @__PURE__ */ jsx4("line", { x1: left, x2: right, y1: ys(reference.value), y2: ys(reference.value) }),
+      /* @__PURE__ */ jsx4(Text, { x: left + 8, y: ys(reference.value) - 16, size: CX_TYPE.tick, muted: true, halo: true, children: reference.label })
+    ] }),
+    periods.map(
+      (p, i) => i % everyN === 0 || i === periods.length - 1 ? /* @__PURE__ */ jsx4(Text, { x: xs(i), y: H - 10, size: CX_TYPE.tick, anchor: "middle", muted: true, baseline: "auto", children: p }, p) : null
+    ),
+    series.map((s, si) => {
+      const pts = s.values.map((v, i) => v === null ? null : [xs(i), ys(v)]);
+      let d = "";
+      let pen = false;
+      for (const p of pts) {
+        if (!p) {
+          pen = false;
+          continue;
+        }
+        d += `${pen ? "L" : "M"}${p[0].toFixed(1)} ${p[1].toFixed(1)}`;
+        pen = true;
+      }
+      const e = ends[si];
+      const ly = placed[si];
+      const nudged = e && Math.abs(ly - e.y) > 4;
+      return /* @__PURE__ */ jsxs4("g", { "data-highlight": s.highlight ? "" : void 0, children: [
+        /* @__PURE__ */ jsx4("path", { className: "uipack-cx-line uipack-cx-draw", pathLength: 1, d, style: { stroke: stroke(s, si) }, children: /* @__PURE__ */ jsx4("title", { children: `${s.name}: ${s.values.map((v, i) => `${periods[i]} ${v === null ? "n/a" : format(v)}`).join(", ")}` }) }),
+        e && /* @__PURE__ */ jsxs4(Fragment3, { children: [
+          /* @__PURE__ */ jsx4("circle", { className: "uipack-cx-dot", cx: e.x, cy: e.y, r: 6, style: { fill: stroke(s, si) } }),
+          nudged && /* @__PURE__ */ jsx4("line", { className: "uipack-cx-leader", x1: e.x + 9, y1: e.y, x2: e.x + 20, y2: ly }),
+          /* @__PURE__ */ jsxs4(
+            "text",
+            {
+              x: e.x + 22,
+              y: ly,
+              fontSize: CX_TYPE.label,
+              dominantBaseline: "central",
+              className: ["uipack-cx-t", s.highlight || !emphasis ? "uipack-cx-t--strong" : "uipack-cx-t--muted"].join(" "),
+              children: [
+                s.name,
+                " ",
+                /* @__PURE__ */ jsx4("tspan", { className: "uipack-cx-t--strong", children: endText[si].value })
+              ]
+            }
+          )
+        ] })
+      ] }, s.name);
+    }),
+    annotate && (() => {
+      const si = typeof annotate.series === "number" ? annotate.series : series.findIndex((s) => s.name === annotate.series);
+      const v = series[si]?.values[annotate.index];
+      if (v === null || v === void 0) return null;
+      const px = xs(annotate.index);
+      const py = ys(v);
+      return /* @__PURE__ */ jsx4(Callout, { x: px, y: py, tx: px + annotate.dx, ty: py + annotate.dy, text: annotate.text, width: annotate.width, align: annotate.align });
+    })()
+  ] });
+}
+function Sparkline({ values, width = 132, height = 44 }) {
+  if (values.length < 2) return null;
+  const lo = Math.min(...values);
+  const hi = Math.max(...values);
+  const x = (i) => 6 + i / (values.length - 1) * (width - 12);
+  const y = linearScale(lo === hi ? [lo - 1, hi + 1] : [lo, hi], [height - 6, 6]);
+  const d = values.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join("");
+  return /* @__PURE__ */ jsxs4("svg", { className: "uipack-cx-spark", width, height, viewBox: `0 0 ${width} ${height}`, "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsx4("path", { className: "uipack-cx-spark__line", d }),
+    /* @__PURE__ */ jsx4("circle", { className: "uipack-cx-spark__dot", cx: x(values.length - 1), cy: y(values[values.length - 1]), r: 5 })
+  ] });
+}
+var Arrow = ({ direction }) => /* @__PURE__ */ jsxs4("svg", { className: "uipack-cx-delta__arrow", width: "18", height: "18", viewBox: "0 0 18 18", "aria-hidden": "true", children: [
+  direction === "up" && /* @__PURE__ */ jsx4("path", { d: "M9 2 L16 14 H2 Z" }),
+  direction === "down" && /* @__PURE__ */ jsx4("path", { d: "M9 16 L16 4 H2 Z" }),
+  direction === "flat" && /* @__PURE__ */ jsx4("path", { d: "M2 7 H16 V11 H2 Z" })
+] });
+function KpiTiles({ items, columns }) {
+  const per = Math.max(1, columns ?? items.length);
+  return /* @__PURE__ */ jsx4("ul", { className: "uipack-cx-kpis", style: { gridTemplateColumns: `repeat(${per}, minmax(0, 1fr))` }, children: items.map((k, i) => /* @__PURE__ */ jsxs4(
+    "li",
+    {
+      className: "uipack-cx-kpi",
+      "data-highlight": k.highlight ? "" : void 0,
+      "data-first-col": i % per === 0 ? "" : void 0,
+      "data-last-col": i % per === per - 1 ? "" : void 0,
+      "data-next-row": i >= per ? "" : void 0,
+      children: [
+        /* @__PURE__ */ jsx4("p", { className: "uipack-cx-kpi__label", children: k.label }),
+        /* @__PURE__ */ jsxs4("div", { className: "uipack-cx-kpi__row", children: [
+          /* @__PURE__ */ jsxs4("p", { className: "uipack-cx-kpi__value", children: [
+            k.morphId ? /* @__PURE__ */ jsx4(Morph, { id: k.morphId, as: "span", children: k.value }) : /* @__PURE__ */ jsx4("span", { children: k.value }),
+            k.unit && /* @__PURE__ */ jsx4("small", { children: k.unit })
+          ] }),
+          k.trend && /* @__PURE__ */ jsx4(Sparkline, { values: k.trend })
+        ] }),
+        k.delta && /* @__PURE__ */ jsxs4("p", { className: "uipack-cx-delta", "data-sentiment": k.delta.sentiment ?? "neutral", children: [
+          /* @__PURE__ */ jsx4(Arrow, { direction: k.delta.direction }),
+          /* @__PURE__ */ jsx4("b", { children: k.delta.text }),
+          k.delta.period && /* @__PURE__ */ jsx4("span", { children: k.delta.period })
+        ] }),
+        k.note && /* @__PURE__ */ jsx4("p", { className: "uipack-cx-kpi__note", children: k.note })
+      ]
+    },
+    k.label
+  )) });
+}
+function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, callout, ariaLabel, width, height }) {
+  const size = useChartSize({ width, height });
+  const W = size.width;
+  const H = size.height;
+  const fx = xa.format ?? defaultFormat;
+  const fy = ya.format ?? defaultFormat;
+  const xSplit = xa.split ?? (xa.domain[0] + xa.domain[1]) / 2;
+  const ySplit = ya.split ?? (ya.domain[0] + ya.domain[1]) / 2;
+  const yTicks = [ya.domain[0], ySplit, ya.domain[1]];
+  const xTicks = [xa.domain[0], xSplit, xa.domain[1]];
+  const tickW = Math.max(...yTicks.map((t) => textWidth(fy(t), CX_TYPE.tick))) + 12;
+  const left = 34 + tickW;
+  const right = W - 8;
+  const top = 8;
+  const bottom = H - 30 - 34;
+  const xs = linearScale(xa.domain, [left, right]);
+  const ys = linearScale(ya.domain, [bottom, top]);
+  const maxSize = Math.max(...points.map((p) => p.size ?? 1));
+  const midX = xs(xSplit);
+  const midY = ys(ySplit);
+  const quads = {
+    tl: { x: left, y: top, w: midX - left, h: midY - top },
+    tr: { x: midX, y: top, w: right - midX, h: midY - top },
+    bl: { x: left, y: midY, w: midX - left, h: bottom - midY },
+    br: { x: midX, y: midY, w: right - midX, h: bottom - midY }
+  };
+  const label = ariaLabel ?? `2 by 2 matrix: ${xa.label} against ${ya.label}. ${points.map((p) => `${p.label}: ${fx(p.x)}, ${fy(p.y)}${p.size !== void 0 ? `, size ${p.size}` : ""}`).join("; ")}.`;
+  const sorted = [...points].sort((a, b) => (b.size ?? 1) - (a.size ?? 1));
+  return /* @__PURE__ */ jsxs4(Frame, { size, label, children: [
+    focus && /* @__PURE__ */ jsx4("rect", { className: "uipack-cx-quad-focus", ...{ x: quads[focus].x, y: quads[focus].y, width: quads[focus].w, height: quads[focus].h } }),
+    /* @__PURE__ */ jsx4("rect", { className: "uipack-cx-plot-edge", x: left, y: top, width: right - left, height: bottom - top }),
+    /* @__PURE__ */ jsx4("line", { className: "uipack-cx-split", x1: midX, x2: midX, y1: top, y2: bottom }),
+    /* @__PURE__ */ jsx4("line", { className: "uipack-cx-split", x1: left, x2: right, y1: midY, y2: midY }),
+    quadrants && ["tl", "tr", "bl", "br"].map((q, i) => {
+      const r = quads[q];
+      const atRight = q === "tr" || q === "br";
+      const atBottom = q === "bl" || q === "br";
+      const lines = wrapText(quadrants[i].toUpperCase(), CX_TYPE.quadrant, r.w * 0.55, 2);
+      const lh = CX_TYPE.quadrant * 1.25;
+      return /* @__PURE__ */ jsx4(
+        "text",
+        {
+          x: atRight ? r.x + r.w - 16 : r.x + 16,
+          y: atBottom ? r.y + r.h - 16 - (lines.length - 1) * lh : r.y + 16 + CX_TYPE.quadrant * 0.8,
+          fontSize: CX_TYPE.quadrant,
+          textAnchor: atRight ? "end" : "start",
+          className: "uipack-cx-quad-label",
+          "data-focus": focus === q ? "" : void 0,
+          children: lines.map((l, k) => /* @__PURE__ */ jsx4("tspan", { x: atRight ? r.x + r.w - 16 : r.x + 16, dy: k === 0 ? 0 : lh, children: l }, k))
+        },
+        q
+      );
+    }),
+    yTicks.map((t) => /* @__PURE__ */ jsx4(Text, { x: left - 10, y: ys(t), size: CX_TYPE.tick, anchor: "end", muted: true, className: "uipack-cx-tabular", children: fy(t) }, `y${t}`)),
+    xTicks.map((t, i) => /* @__PURE__ */ jsx4(Text, { x: xs(t), y: bottom + 24, size: CX_TYPE.tick, anchor: i === 0 ? "start" : i === 2 ? "end" : "middle", muted: true, className: "uipack-cx-tabular", children: fx(t) }, `x${t}`)),
+    /* @__PURE__ */ jsx4(Text, { x: (left + right) / 2, y: H - 12, size: CX_TYPE.tick, anchor: "middle", weight: 600, baseline: "auto", children: `${xa.label} \u2192` }),
+    /* @__PURE__ */ jsx4(
+      "text",
+      {
+        transform: `translate(14 ${(top + bottom) / 2}) rotate(-90)`,
+        fontSize: CX_TYPE.tick,
+        textAnchor: "middle",
+        dominantBaseline: "central",
+        className: "uipack-cx-t uipack-cx-t--strong",
+        children: `${ya.label} \u2192`
+      }
+    ),
+    sorted.map((p, i) => {
+      const cx2 = xs(p.x);
+      const cy = ys(p.y);
+      const r = bubbleRadius(p.size ?? 1, maxSize, maxRadius);
+      const at = p.labelAt ?? "right";
+      const lx = at === "right" ? cx2 + r + 10 : at === "left" ? cx2 - r - 10 : cx2;
+      const ly = at === "top" ? cy - r - 18 : at === "bottom" ? cy + r + 20 : cy;
+      return /* @__PURE__ */ jsxs4("g", { "data-highlight": p.highlight ? "" : void 0, children: [
+        /* @__PURE__ */ jsx4(
+          "circle",
+          {
+            className: "uipack-cx-bubble uipack-cx-grow",
+            "data-axis": "both",
+            cx: cx2,
+            cy,
+            r,
+            style: { ...growStyle("50% 50%", i * 50), fill: p.highlight ? fill.accent : fill.context },
+            children: /* @__PURE__ */ jsx4("title", { children: `${p.label}: ${xa.label} ${fx(p.x)}, ${ya.label} ${fy(p.y)}` })
+          }
+        ),
+        /* @__PURE__ */ jsx4(Text, { x: lx, y: ly, anchor: at === "right" ? "start" : at === "left" ? "end" : "middle", weight: p.highlight ? 600 : void 0, halo: true, children: p.label })
+      ] }, p.label);
+    }),
+    callout && (() => {
+      const p = points.find((q) => q.label === callout.label);
+      if (!p) return null;
+      const px = xs(p.x);
+      const py = ys(p.y);
+      return /* @__PURE__ */ jsx4(Callout, { x: px, y: py, tx: px + callout.dx, ty: py + callout.dy, text: callout.text, width: callout.width, align: callout.align });
+    })()
+  ] });
+}
+
+// src/deck/consulting/HarveyTable.tsx
+import { jsx as jsx5, jsxs as jsxs5 } from "react/jsx-runtime";
+var LEVEL_WORDS = ["None", "Low", "Medium", "High", "Full"];
+function HarveyBall({ level, size = 36, label }) {
+  const q = Math.max(0, Math.min(4, Math.round(level)));
+  const r = size / 2 - 1.5;
+  const c = size / 2;
+  return /* @__PURE__ */ jsxs5(
+    "svg",
+    {
+      className: "uipack-cx-harvey",
+      width: size,
+      height: size,
+      viewBox: `0 0 ${size} ${size}`,
+      role: "img",
+      "aria-label": label ?? `${LEVEL_WORDS[q]} (${q} of 4)`,
+      "data-level": q,
+      children: [
+        /* @__PURE__ */ jsx5("circle", { className: "uipack-cx-harvey__ring", cx: c, cy: c, r }),
+        q > 0 && /* @__PURE__ */ jsx5("path", { className: "uipack-cx-harvey__fill", d: harveyWedge(q, c, c, r) })
+      ]
+    }
+  );
+}
+function HarveyTable({ columns, rows, corner = "Option", showKey = true, keyNote = "Full ball = most favourable" }) {
+  return /* @__PURE__ */ jsxs5("div", { className: "uipack-cx-harvey-table", children: [
+    /* @__PURE__ */ jsxs5("table", { children: [
+      /* @__PURE__ */ jsxs5("colgroup", { children: [
+        /* @__PURE__ */ jsx5("col", {}),
+        columns.map((c) => /* @__PURE__ */ jsx5("col", { style: c.width ? { width: c.width } : void 0 }, c.key))
+      ] }),
+      /* @__PURE__ */ jsx5("thead", { children: /* @__PURE__ */ jsxs5("tr", { children: [
+        /* @__PURE__ */ jsx5("th", { scope: "col", children: corner }),
+        columns.map((c) => /* @__PURE__ */ jsx5("th", { scope: "col", "data-kind": c.kind ?? "harvey", children: c.label }, c.key))
+      ] }) }),
+      /* @__PURE__ */ jsx5("tbody", { children: rows.map((r, i) => /* @__PURE__ */ jsxs5("tr", { "data-highlight": r.highlight ? "" : void 0, children: [
+        /* @__PURE__ */ jsxs5("th", { scope: "row", children: [
+          /* @__PURE__ */ jsxs5("span", { className: "uipack-cx-harvey-table__name", children: [
+            r.label,
+            r.highlight && /* @__PURE__ */ jsx5("em", { children: r.tag ?? "Recommended" })
+          ] }),
+          r.detail && /* @__PURE__ */ jsx5("span", { className: "uipack-cx-harvey-table__detail", children: r.detail })
+        ] }),
+        columns.map((c) => {
+          const v = r.cells[c.key];
+          return /* @__PURE__ */ jsx5("td", { "data-kind": c.kind ?? "harvey", children: (c.kind ?? "harvey") === "harvey" && typeof v === "number" ? /* @__PURE__ */ jsx5(HarveyBall, { level: v }) : v }, c.key);
+        })
+      ] }, i)) })
+    ] }),
+    showKey && /* @__PURE__ */ jsxs5("p", { className: "uipack-cx-harvey-key", children: [
+      LEVEL_WORDS.map((w, q) => /* @__PURE__ */ jsxs5("span", { children: [
+        /* @__PURE__ */ jsx5(HarveyBall, { level: q, size: 24, label: "" }),
+        w
+      ] }, w)),
+      keyNote && /* @__PURE__ */ jsx5("span", { className: "uipack-cx-harvey-key__note", children: keyNote })
+    ] })
+  ] });
+}
 export {
+  BarChart,
   Build,
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
+  CX_TYPE,
+  Callout,
+  ConsultingSlide,
   DeckPlayer,
   DeckSlideContext,
+  HarveyBall,
+  HarveyTable,
+  KpiTiles,
   LINT_RULES,
+  LineChart,
   MAX_TITLE_WORDS,
+  MIN_TEXT_PX,
+  Matrix2x2,
   Morph,
+  Panel,
   REPEATABLE_ROLES,
+  Ref,
   SLIDE_ROLES,
   STORYLINE_TEMPLATES,
   Slide,
   SlideThumbnail,
+  SoWhat,
+  Sparkline,
+  StackedBar,
+  Tracker,
   WORDS_PER_MINUTE,
+  Waterfall,
+  bandLayout,
+  barPath,
+  bubbleRadius,
+  calloutGeometry,
   deckMotion,
   flipFrom,
   formatStoryline,
+  formatValue,
+  formatter,
   getStorylineTemplate,
+  harveyWedge,
+  linearScale,
   lintDeck,
+  niceStep,
+  niceTicks,
   resolveTransition,
   runTransition,
+  spreadLabels,
+  stackSegments,
   storylineOf,
   talkSeconds,
   templateOutline,
+  textWidth,
   useDeckSlide,
+  waterfallBars,
+  wrapText,
+  zeroBasedDomain,
   zoomFrame,
   zoomSamples
 };
