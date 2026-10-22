@@ -311,10 +311,32 @@ body {
 
 /* Chart preview frame (Figures page): a host's figure width. */
 /* The charts have no frame of their own: their sticky header paints the host page colour. */
+/* The host's figure slot, left-aligned under the section heading so the chart's title lines up
+   with it. A faint dashed line just past the slot's right edge, labelled with its width, shows
+   how much of the page the host gives the chart. */
 .chart-frame {
-  margin: 0 auto;
+  position: relative;
+  margin: 0;
   width: 100%;
   --uipack-bg: var(--show-bg);
+}
+.chart-frame:not([data-frame="full"])::after {
+  content: attr(data-frame) "px";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(100% + 16px);
+  padding-left: 6px;
+  border-left: 1px dashed var(--show-rule);
+  color: var(--show-muted);
+  font: 11px/1 var(--show-font-mono);
+  pointer-events: none;
+}
+/* Narrower than the page can show beside it: no edge (the frame is the page's own width). */
+@media (max-width: 960px) {
+  .chart-frame::after {
+    display: none;
+  }
 }
 .chart-frame__bar {
   display: flex;
