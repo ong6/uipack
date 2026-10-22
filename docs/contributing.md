@@ -2,6 +2,10 @@
 
 Recipes for the common additions, with every file each one touches. Read [AGENTS.md](../AGENTS.md), [design direction](design-direction.md) and [component-first](component-first.md) first; this page is the file list, not the design rules. Where a list must be kept in step with another, a unit test names the one you missed.
 
+## Built files
+
+`dist/` is committed and CI fails when it differs from a fresh build. `.gitattributes` marks it generated, without text diffs (`-diff`: a drift still fails `git diff --exit-code`, shown as a binary change), and with `merge=ours`, so two branches that both rebuilt it don't conflict over hashed chunks. Git applies `merge=ours` only once the driver is defined in your clone: `git config merge.ours.driver true`. After merging, run `npm run build` and commit the result.
+
 ## The shape of an entry
 
 Every package entry (`uipack`, `uipack/deck`, `uipack/mechanism`…) has the same parts:
