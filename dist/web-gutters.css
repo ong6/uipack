@@ -64,6 +64,10 @@
   12% { opacity: 0.9; transform: scale(1.6); }
   40% { opacity: 0.35; transform: scale(1); }
 }
+/* A page's own Pause for ambient motion: data-web-motion="paused" on any ancestor. */
+[data-web-motion="paused"] :is(.uipack-web-gutters__drift, .uipack-web-gutters__signal) {
+  animation-play-state: paused;
+}
 @media print {
   .uipack-web-gutters { display: none !important; }
 }
