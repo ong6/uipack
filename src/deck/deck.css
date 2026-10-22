@@ -11,7 +11,12 @@
   --deck-node: #fbfaf6;
   --deck-sans: var(--font-sans, "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
   --deck-mono: var(--font-mono, "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+  /* The deck's clock in CSS: the same curves as deckMotion.settle and .travel (transitions.ts). */
   --deck-settle: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --deck-travel: cubic-bezier(0.55, 0, 0.15, 1);
+  /* Chrome radii; slide content (bento cells, panels) sets its own. */
+  --deck-radius: 6px;
+  --deck-radius-sm: 4px;
   position: relative;
   color: var(--deck-fg);
   font-family: var(--deck-sans);
@@ -29,7 +34,7 @@
 .uipack-deck:focus-visible {
   outline: 2px solid var(--deck-accent);
   outline-offset: 6px;
-  border-radius: 6px;
+  border-radius: var(--deck-radius);
 }
 .uipack-deck *,
 .uipack-deck *::before,
@@ -81,7 +86,7 @@
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border: 1px solid var(--deck-rule);
-  border-radius: 6px;
+  border-radius: var(--deck-radius);
   background: var(--deck-bg);
   transition: background-color 560ms var(--deck-settle);
   touch-action: pan-y pinch-zoom;
@@ -255,7 +260,7 @@
   min-height: 44px;
   padding: 0 14px;
   border: 1px solid var(--deck-rule);
-  border-radius: 4px;
+  border-radius: var(--deck-radius-sm);
   background: transparent;
   color: var(--deck-fg);
   font: 500 13px/1 var(--deck-mono);
@@ -372,7 +377,7 @@
   left: 16px;
   margin: 0;
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: var(--deck-radius);
   background: color-mix(in srgb, var(--deck-bg) 92%, transparent);
   opacity: 0;
   transition: opacity 200ms ease;
@@ -411,7 +416,7 @@
   min-height: 44px;
   padding: 0 14px;
   border: 1px solid var(--deck-rule);
-  border-radius: 4px;
+  border-radius: var(--deck-radius-sm);
   background: transparent;
   color: var(--deck-fg);
   font: 500 13px/1 var(--deck-mono);
@@ -431,7 +436,7 @@
   gap: 10px;
   width: 100%;
   padding: 8px 8px 12px;
-  border-radius: 6px;
+  border-radius: var(--deck-radius);
   text-align: left;
 }
 .uipack-deck-overview__grid > li > button[aria-current="true"] {
@@ -451,7 +456,7 @@
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border: 1px solid var(--deck-rule);
-  border-radius: 4px;
+  border-radius: var(--deck-radius-sm);
   background: var(--deck-bg);
   pointer-events: none;
 }
@@ -554,7 +559,7 @@
   min-height: 44px;
   padding: 0 14px;
   border: 1px solid var(--deck-rule);
-  border-radius: 4px;
+  border-radius: var(--deck-radius-sm);
   background: transparent;
   color: var(--deck-fg);
   font: 500 13px/1 var(--deck-mono);

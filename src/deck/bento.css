@@ -15,7 +15,7 @@
   gap: 22px;
   height: 100%;
   transform-origin: 0 0;
-  transition: transform 860ms cubic-bezier(0.55, 0, 0.15, 1);
+  transition: transform 860ms var(--deck-travel);
 }
 .uipack-deck[data-motion="none"] .uipack-deck-bento__grid {
   transition: none;

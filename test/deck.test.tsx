@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
+import { readFileSync } from "node:fs";
 import {
   Bento,
   BentoCell,
@@ -7,6 +8,7 @@ import {
   DeckPlayer,
   bentoCamera,
   bentoFocusAt,
+  deckMotion,
   Morph,
   Slide,
   flipFrom,
@@ -55,6 +57,14 @@ const press = (key: string, init: KeyboardEventInit = {}) =>
   });
 const current = () => deck().getAttribute("data-index");
 const step = () => deck().getAttribute("data-step");
+
+describe("deck clock", () => {
+  it("deck.css carries the same easing curves as deckMotion", () => {
+    const css = readFileSync("src/deck/deck.css", "utf8");
+    expect(css).toContain(`--deck-settle: ${deckMotion.settle};`);
+    expect(css).toContain(`--deck-travel: ${deckMotion.travel};`);
+  });
+});
 
 describe("deck transitions: pure geometry", () => {
   it("uses the later slide's transition both ways, and fades on jumps", () => {
