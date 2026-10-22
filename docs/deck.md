@@ -98,6 +98,8 @@ Every cell is also a `Morph` target with its ID, so the next slide can arrive wi
 
 Keys work while the deck has focus (`keyboard="focus"`, the default) or anywhere on the page (`keyboard="global"`). Keys typed into inputs, and Space/Enter on buttons and links inside slides, are left alone. Mark a region `data-deck-keys="own"` to keep its keys.
 
+All slides is a modal dialog: Tab and Shift+Tab cycle through its own controls (in every browser, WebKit included), Escape or a click on its background closes it and returns focus to the All slides button, and the rest of the page is inert while it is open.
+
 ## Speaker view
 
 The Speaker view button opens the same page with `presenter=1` (override with `presenterHref`) and the host renders `mode="presenter"`. Windows showing the same deck `id` stay in step over `BroadcastChannel`, both ways; opening a speaker window never moves the audience. It shows the current slide, the next slide, the talk track (`notes`: say, delivery, bridge), the slide's role and the question it answers, and a clock.

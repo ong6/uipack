@@ -1,6 +1,6 @@
 # Library playground
 
-Run `npm run dev` from the repo root. The nav has two rows: groups, then the active group's pages. Both come from `libraryGroups` and `libraryPages` in `catalog.ts`; the shell renders the context line, the page's `h1` (its label) and its intro (`intro`) from the same entry. To add a page, add a `libraryPages` entry with a `group`, then map its id to the page component in `pageComponents` (`main.tsx`), which also derives the routes; the typecheck fails until it is mapped. Every recipe is in [contributing](../docs/contributing.md).
+Run `npm run dev` from the repo root. The nav has two rows: groups, then the active group's pages. Both come from `libraryGroups` and `libraryPages` in `catalog.ts`; a page's sub-views (the decks) sit together after the page's name. The shell renders a Skip to content link, the header (the banner landmark), then in `<main>` the context line, the page's `h1` (its label, or "Deck player · Bento" for a sub-view) and its intro (`intro`) from the same entry, and sets the tab title ("Bento · Deck player · uipack"). An unknown path shows a Page not found page listing every page, and an unknown `?deck=` says which deck it shows instead. To add a page, add a `libraryPages` entry with a `group`, then map its id to the page component in `pageComponents` (`main.tsx`), which also derives the routes; the typecheck fails until it is mapped. Every recipe is in [contributing](../docs/contributing.md).
 
 | Group | Page | Path |
 |---|---|---|
