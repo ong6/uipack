@@ -211,10 +211,12 @@
 /* Gallery furniture remains quiet so each authored world owns the stage. */
 .uipack-animation-workspace { --gallery-ink:#1a1c1a; --gallery-muted:#626c65; --gallery-rule:#d6dcd5; --gallery-surface:#fff; --gallery-accent:#205f49; display:grid; grid-template-columns:200px minmax(0,1fr); border:1px solid var(--gallery-rule); border-radius:8px; color:var(--gallery-ink); overflow:hidden; }
 .uipack-animation-workspace[data-theme="dark"] { --gallery-ink:#e8ece9; --gallery-muted:#a6b4aa; --gallery-rule:#36463c; --gallery-surface:#14201b; --gallery-accent:#71dcb2; }
-.uipack-animation-library { padding:20px 12px; border-right:1px solid var(--gallery-rule); background:var(--gallery-surface); min-width:0; }
-.uipack-animation-library h3 { margin:0 8px 14px; font:600 13px system-ui,sans-serif; }
+/* One left edge: the title, field labels and every box start at the 16px padding; text inside a box
+   (search field, scene buttons) starts 12px further in. */
+.uipack-animation-library { padding:20px 16px; border-right:1px solid var(--gallery-rule); background:var(--gallery-surface); min-width:0; }
+.uipack-animation-library h3 { margin:0 0 14px; font:600 13px system-ui,sans-serif; }
 .uipack-scene-list { display:flex; flex-direction:column; gap:4px; }
-.uipack-scene-list button { display:flex; align-items:center; justify-content:space-between; text-align:left; gap:8px; width:100%; min-height:44px; padding:10px; border:1px solid transparent; border-radius:4px; background:transparent; color:inherit; cursor:pointer; font:14px system-ui,sans-serif; }
+.uipack-scene-list button { display:flex; align-items:center; justify-content:space-between; text-align:left; gap:8px; width:100%; min-height:44px; padding:10px 12px; border:1px solid transparent; border-radius:4px; background:transparent; color:inherit; cursor:pointer; font:14px system-ui,sans-serif; }
 .uipack-scene-list button span { opacity:0; }
 .uipack-scene-list button[aria-pressed="true"] { border-color:var(--gallery-rule); color:var(--gallery-accent); background:color-mix(in srgb,var(--gallery-accent) 8%,transparent); font-weight:600; }
 .uipack-scene-list button[aria-pressed="true"] span { opacity:1; }
