@@ -118,6 +118,16 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
   useEffect(() => {
     document.title = documentTitle(page);
   }, [page]);
+  // The open menu covers the page on a phone: the page behind it holds still until it closes.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const root = document.documentElement;
+    const was = root.style.overflow;
+    root.style.overflow = "hidden";
+    return () => {
+      root.style.overflow = was;
+    };
+  }, [menuOpen]);
   return (
     <div className="showcase-frame" data-theme={theme} data-style="technical">
       <a

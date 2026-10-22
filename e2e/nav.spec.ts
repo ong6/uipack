@@ -249,6 +249,30 @@ test.describe("390px header and menu", () => {
     await expect(sheet.getByRole("link").last()).toBeFocused();
   });
 
+  test("the open menu locks the page's scroll and gives it back on close", async ({ page }) => {
+    await page.goto("/charts");
+    await expect(page.locator(".showcase-loading")).toHaveCount(0);
+    await page.evaluate(() => scrollTo(0, 400));
+    const overflow = () => page.evaluate(() => getComputedStyle(document.documentElement).overflow);
+    const before = await overflow();
+    // Opened where the page is (a pointer click would scroll the button into view first).
+    await page.locator(".showcase-menu-button").evaluate((b: HTMLButtonElement) => b.click());
+    await expect(page.getByRole("dialog", { name: "Library menu" })).toBeVisible();
+    expect(await overflow()).toBe("hidden");
+    const at = await page.evaluate(() => scrollY);
+    expect(at).toBeGreaterThan(0);
+    await page.mouse.move(195, 600);
+    await page.mouse.wheel(0, 600);
+    // A wheel or swipe over the sheet does not move the page behind it.
+    await page.waitForTimeout(200); // watching that nothing moves needs time to pass
+    expect(await page.evaluate(() => scrollY)).toBe(at);
+    await page.keyboard.press("Escape");
+    await expect.poll(overflow).toBe(before);
+    await page.mouse.move(195, 600);
+    await page.mouse.wheel(0, 300);
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
+  });
+
   test("the theme icon button has a name and flips the theme", async ({ page }) => {
     await page.goto("/?theme=light");
     await page.getByRole("button", { name: "dark mode", exact: true }).click();
