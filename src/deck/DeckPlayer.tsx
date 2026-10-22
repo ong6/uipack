@@ -135,7 +135,7 @@ function Player({
     }),
   );
   const { view, viewRef, commit, go, next, prev, maxStep } = useDeckPosition({ slides, initial, toRef, settle });
-  const cue = useNextCue(mode === "presenter", toRef, view.index, view.step, maxStep, slides);
+  const { cue, stop } = useNextCue(mode === "presenter", toRef, view.index, view.step, maxStep, slides);
   useDeckTransition({ view, viewRef, commit, fromRef, toRef, scale, slides, transition, reducedMotion, fly, settle });
   useDeckSync({ id, view, viewRef, commit, go, slides, onPositionChange });
   const fullscreen = useFullscreen(rootRef);
@@ -294,6 +294,7 @@ function Player({
               theme={theme}
               stage={stage}
               cue={cue}
+              stop={stop}
               minutes={minutes ?? (typeof lint === "object" ? lint.minutes : undefined)}
             />
           ) : (

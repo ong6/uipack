@@ -32,7 +32,8 @@ export interface DeckRenderContext {
 export interface DeckNotes extends SpeechGuide {
   /**
    * What to say at a camera stop, by the stop's cell ID (a bento `tour` entry): the relevant part
-   * of `say`. The notes PDF prints it under that stop's detail page; without it the page repeats `say`.
+   * of `say`. The speaker view leads with it at that stop and the notes PDF prints it under that
+   * stop's detail page; without it both show `say`.
    */
   stops?: Record<string, string>;
 }

@@ -30,13 +30,17 @@ export function slidePlan(slides: DeckSlide[], budget?: number) {
   });
 }
 
-/** The speaker view: the live stage, the next press and the next slide, a paced clock and the talk track. */
+/**
+ * The speaker view: the live stage with the next press, the next slide and a paced clock under it,
+ * and the talk track in a column of its own beside them (at a camera stop, the stop's part of it).
+ */
 export function Presenter({
   slides,
   index,
   theme,
   stage,
   cue,
+  stop,
   minutes,
 }: {
   slides: DeckSlide[];
@@ -45,6 +49,8 @@ export function Presenter({
   stage: ReactNode;
   /** What the next press does: a build, a tour stop or the next slide. */
   cue?: string;
+  /** The camera stop on screen (a bento tour's cell ID), whose notes (`notes.stops`) lead the track. */
+  stop?: string | null;
   /** The speaking budget; defaults to the talk tracks' own length. */
   minutes?: number;
 }) {
@@ -76,62 +82,72 @@ export function Presenter({
     const check = () => setMore(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
     check();
     el.addEventListener("scroll", check, { passive: true });
+    // Opening the whole slide's track (a disclosure) makes the track longer without resizing its box.
+    el.addEventListener("toggle", check, true);
     const ro = typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(check);
     ro?.observe(el);
     return () => {
       el.removeEventListener("scroll", check);
+      el.removeEventListener("toggle", check, true);
       ro?.disconnect();
     };
-  }, [index]);
+  }, [index, stop]);
   const upcoming = slides[index + 1];
   const role = slides[index].role;
+  const stopSay = stop ? notes?.stops?.[stop] : undefined;
   return (
     <div className="uipack-deck-presenter">
-      <div className="uipack-deck-presenter__current">{stage}</div>
-      <aside className="uipack-deck-presenter__side">
-        <section className="uipack-deck-presenter__next">
-          <h3>Next press</h3>
-          {cue && <p className="uipack-deck-presenter__cue">{cue}</p>}
-          <h3>Next slide</h3>
-          {upcoming ? (
-            <SlideThumbnail slide={upcoming} index={index + 1} count={slides.length} theme={theme} />
-          ) : (
-            <p className="uipack-deck-presenter__end">End of deck</p>
-          )}
-        </section>
-        <section className="uipack-deck-presenter__clock">
-          {/* Visually hidden words name each number; the elapsed clock is a timer (never announced on its own). */}
-          <span role="timer">
-            <span className="uipack-deck-sr">Elapsed time </span>
-            {clock(elapsed)}
-          </span>
-          {budget > 0 && (
-            <span className="uipack-deck-presenter__budget">
-              <span>
-                <span className="uipack-deck-sr">{minutes ? "Time budget " : "Talk track length "}</span>/ {clock(budget)}
-              </span>
-              <span
-                className="uipack-deck-presenter__pace"
-                data-pace={Math.abs(drift) < 15 ? "on" : drift > 0 ? "behind" : "ahead"}
-              >
-                {pace} · this slide {clock(start)}–{clock(end)}
-              </span>
-              <span className="uipack-deck-presenter__bar" aria-hidden="true">
-                <i style={{ left: `${(start / budget) * 100}%`, width: `${((end - start) / budget) * 100}%` }} />
-                <b style={{ left: `${Math.min(1, elapsed / budget) * 100}%` }} />
-              </span>
+      <div className="uipack-deck-presenter__current">
+        {stage}
+        <div className="uipack-deck-presenter__under">
+          <section className="uipack-deck-presenter__press">
+            <h3>Next press</h3>
+            {cue && <p className="uipack-deck-presenter__cue">{cue}</p>}
+          </section>
+          <section className="uipack-deck-presenter__next">
+            <h3>Next slide</h3>
+            {upcoming ? (
+              <SlideThumbnail slide={upcoming} index={index + 1} count={slides.length} theme={theme} />
+            ) : (
+              <p className="uipack-deck-presenter__end">End of deck</p>
+            )}
+          </section>
+          <section className="uipack-deck-presenter__clock">
+            {/* Visually hidden words name each number; the elapsed clock is a timer (never announced on its own). */}
+            <span role="timer">
+              <span className="uipack-deck-sr">Elapsed time </span>
+              {clock(elapsed)}
             </span>
-          )}
-          <button
-            type="button"
-            onClick={() => {
-              setStarted(Date.now());
-              setNow(Date.now());
-            }}
-          >
-            Reset clock
-          </button>
-        </section>
+            {budget > 0 && (
+              <span className="uipack-deck-presenter__budget">
+                <span>
+                  <span className="uipack-deck-sr">{minutes ? "Time budget " : "Talk track length "}</span>/ {clock(budget)}
+                </span>
+                <span
+                  className="uipack-deck-presenter__pace"
+                  data-pace={Math.abs(drift) < 15 ? "on" : drift > 0 ? "behind" : "ahead"}
+                >
+                  {pace} · this slide {clock(start)}–{clock(end)}
+                </span>
+                <span className="uipack-deck-presenter__bar" aria-hidden="true">
+                  <i style={{ left: `${(start / budget) * 100}%`, width: `${((end - start) / budget) * 100}%` }} />
+                  <b style={{ left: `${Math.min(1, elapsed / budget) * 100}%` }} />
+                </span>
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                setStarted(Date.now());
+                setNow(Date.now());
+              }}
+            >
+              Reset clock
+            </button>
+          </section>
+        </div>
+      </div>
+      <aside className="uipack-deck-presenter__side">
         <section
           ref={notesRef}
           className="uipack-deck-presenter__notes"
@@ -145,8 +161,21 @@ export function Presenter({
               <b>{SLIDE_ROLES[role].label}</b> answers “{SLIDE_ROLES[role].question}”
             </p>
           )}
-          <h3>Say</h3>
-          <p>{notes?.say ?? "No talk track for this slide."}</p>
+          {stopSay && notes ? (
+            <>
+              <h3>Say at this stop</h3>
+              <p>{stopSay}</p>
+              <details className="uipack-deck-presenter__track">
+                <summary>The whole slide's track</summary>
+                <p>{notes.say}</p>
+              </details>
+            </>
+          ) : (
+            <>
+              <h3>Say</h3>
+              <p>{notes?.say ?? "No talk track for this slide."}</p>
+            </>
+          )}
           {notes?.delivery && (
             <>
               <h3>Delivery</h3>

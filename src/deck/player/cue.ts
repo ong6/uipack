@@ -31,7 +31,17 @@ export function nextCue(layer: HTMLElement | null, step: number, maxStep: number
   return upcoming ? `Next slide: ${upcoming.title}` : "End of deck";
 }
 
-/** The cue, read from the current slide's layer after each move; only the speaker view needs it. */
+/** The camera stop a build step shows on a slide with a tour (a bento), by its cell ID; null elsewhere. */
+export function stopAt(layer: HTMLElement | null, step: number): string | null {
+  const tour = layer?.querySelector<HTMLElement>("[data-tour]");
+  const ids = (tour?.dataset.tour ?? "").split(" ").filter(Boolean);
+  return step >= 1 && step <= ids.length ? ids[step - 1] : null;
+}
+
+/**
+ * The cue and the camera stop on screen, read from the current slide's layer after each move; only
+ * the speaker view needs them.
+ */
 export function useNextCue(
   enabled: boolean,
   toRef: RefObject<HTMLElement | null>,
@@ -40,10 +50,11 @@ export function useNextCue(
   maxStep: number,
   slides: DeckSlide[],
 ) {
-  const [cue, setCue] = useState("");
+  const [cue, setCue] = useState<{ cue: string; stop: string | null }>({ cue: "", stop: null });
   useIsoLayoutEffect(() => {
     if (!enabled) return;
-    setCue(nextCue(toRef.current, Math.min(step, maxStep), maxStep, slides[index + 1]));
+    const at = Math.min(step, maxStep);
+    setCue({ cue: nextCue(toRef.current, at, maxStep, slides[index + 1]), stop: stopAt(toRef.current, at) });
   }, [enabled, toRef, index, step, maxStep, slides]);
   return cue;
 }
