@@ -1,6 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { renderToString } from "react-dom/server";
 import {
   CtaButton,
   DemoPlayer,
@@ -20,6 +19,7 @@ import {
   type DemoStep,
 } from "../src/web";
 import { fontFiles } from "../scripts/css-bundles";
+import { onServer } from "./on-server";
 
 // Runs fake timers inside act. A block body: act on a non-void callback returns a promise.
 const advance = (ms: number) =>
@@ -277,8 +277,11 @@ describe("DemoPlayer", () => {
     expect(log.textContent).toContain("(queued)");
   });
 
-  it("server-renders the first frame without touching window", () => {
-    const html = renderToString(<DemoPlayer steps={steps} label="Demo" initialMetric={40} />);
+  it("server-renders the first frame without touching window", async () => {
+    const html = await onServer(async ({ renderToString }) => {
+      const server = await import("../src/web");
+      return renderToString(<server.DemoPlayer steps={steps} label="Demo" initialMetric={40} />);
+    });
     expect(html).toContain("Clear it");
     expect(html).toContain('data-step="0"');
   });

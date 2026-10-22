@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useHydrated } from "./env";
 import { useFigureMotion } from "./context";
 import { useFigureHover, hoverAttrs, type Flow } from "./hover";
 import { pathFromPoints, pointAlong, trim, type Point } from "./geometry";
@@ -62,8 +62,7 @@ export function Packet({
   const pts = reverse ? [...trimmed].reverse() : trimmed;
   const staticAt = at ?? (((0.5 + delay / dur) % 1) + 1) % 1;
   const d = pathFromPoints(pts, radius);
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useHydrated();
   const attrs = hoverAttrs(flow, kind === "neutral" ? undefined : kind, hover);
 
   // `prerender` comes through context in one bundle. A consumer that loads

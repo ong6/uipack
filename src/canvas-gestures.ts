@@ -1,5 +1,5 @@
 import { useEffect, useRef, type RefObject } from "react";
-import { useIsoLayoutEffect as useBrowserLayoutEffect } from "./env";
+import { useIsoLayoutEffect as useBrowserLayoutEffect, useLatest } from "./env";
 
 export interface CanvasZoom {
   value: number;
@@ -12,8 +12,7 @@ type GestureEvent = Event & { scale: number; clientX: number; clientY: number };
 
 /** Native input adapter shared by SVG sizing and real 3D camera zoom. */
 export function useCanvasGestures(ref: RefObject<HTMLDivElement>, open: boolean, zoom: CanvasZoom) {
-  const latest = useRef(zoom);
-  latest.current = zoom;
+  const latestRef = useLatest(zoom);
   const pending = useRef<{
     surface: HTMLElement;
     x: number;
@@ -37,7 +36,7 @@ export function useCanvasGestures(ref: RefObject<HTMLDivElement>, open: boolean,
   }, [zoom.value]);
 
   const change = (value: number, point?: Point, surface?: HTMLElement) => {
-    const config = latest.current;
+    const config = latestRef.current;
     const next = Math.max(config.min, Math.min(config.max, value));
     if (next === queued.current) return;
     // The SVG scroll viewport stays fixed while its drawing grows. Capture the
@@ -66,8 +65,7 @@ export function useCanvasGestures(ref: RefObject<HTMLDivElement>, open: boolean,
     cancelAnimationFrame(frame.current);
     frame.current = requestAnimationFrame(() => config.onChange(queued.current));
   };
-  const changeRef = useRef(change);
-  changeRef.current = change;
+  const changeRef = useLatest(change);
 
   useEffect(() => {
     const host = ref.current;
@@ -170,7 +168,7 @@ export function useCanvasGestures(ref: RefObject<HTMLDivElement>, open: boolean,
       host.removeEventListener("click", click, true);
       host.removeEventListener("pointerup", click, true);
     };
-  }, [open, ref]);
+  }, [open, ref, changeRef]);
 
   return {
     step: (factor: number) =>

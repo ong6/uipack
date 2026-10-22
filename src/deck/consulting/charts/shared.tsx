@@ -34,13 +34,14 @@ export function Frame({
   children: ReactNode;
 }) {
   const grown = useGrown();
+  const { ref, width, height } = size;
   return (
-    <div ref={size.ref} className={["uipack-cx-chart", className].filter(Boolean).join(" ")} data-grown={grown ? "" : undefined}>
+    <div ref={ref} className={["uipack-cx-chart", className].filter(Boolean).join(" ")} data-grown={grown ? "" : undefined}>
       <svg
         className="uipack-cx-svg"
-        width={size.width}
-        height={size.height}
-        viewBox={`0 0 ${size.width} ${size.height}`}
+        width={width}
+        height={height}
+        viewBox={`0 0 ${width} ${height}`}
         role="img"
         aria-label={label}
       >

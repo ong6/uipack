@@ -3,7 +3,6 @@ import { renderToStaticMarkup, renderToString } from "react-dom/server";
 import {
   AI_CRAWLERS,
   CtaButton,
-  DemoPlayer,
   FAQ,
   FeatureGrid,
   GlassNav,
@@ -46,6 +45,7 @@ import {
   type DemoStep,
   type FaqItem,
 } from "../src/web";
+import { onServer } from "./on-server";
 
 /** Visible text a crawler extracts from server HTML: tags stripped, whitespace collapsed. */
 const textOf = (html: string) =>
@@ -106,8 +106,11 @@ describe("server HTML carries the final text of animated components", () => {
     expect(lines).toContain("First line.</span> <span");
   });
 
-  it("DemoPlayer's server HTML includes every step, action and the final result, not just frame 0", () => {
-    const html = renderToString(<DemoPlayer steps={steps} label="Demo" initialMetric={40} metricLabel="in your inbox" />);
+  it("DemoPlayer's server HTML includes every step, action and the final result, not just frame 0", async () => {
+    const html = await onServer(async ({ renderToString }) => {
+      const server = await import("../src/web");
+      return renderToString(<server.DemoPlayer steps={steps} label="Demo" initialMetric={40} metricLabel="in your inbox" />);
+    });
     const text = textOf(html);
     for (const s of [
       "Say it once.",

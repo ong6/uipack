@@ -1,4 +1,5 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, type ReactNode } from "react";
+import { useLatest } from "./env";
 import { useCanvasGestures, type CanvasZoom } from "./canvas-gestures";
 import { createPortal } from "react-dom";
 
@@ -28,8 +29,7 @@ export function CanvasView({
   const content = useRef<HTMLDivElement>(null);
   const gestures = useCanvasGestures(content, open, zoom);
   const dialog = useRef<HTMLDialogElement>(null);
-  const actions = useRef(gestures);
-  actions.current = gestures;
+  const actionsRef = useLatest(gestures);
   useEffect(() => {
     if (!open) return;
     const keyboard = (event: KeyboardEvent) => {
@@ -48,24 +48,27 @@ export function CanvasView({
       if (!dialog.current?.contains(target) && target !== document.body) return;
       if (event.key === "+" || event.key === "=") {
         event.preventDefault();
-        actions.current.step(1.25);
+        actionsRef.current.step(1.25);
       }
       if (event.key === "-") {
         event.preventDefault();
-        actions.current.step(0.8);
+        actionsRef.current.step(0.8);
       }
       if (event.key === "0") {
         event.preventDefault();
-        actions.current.reset();
+        actionsRef.current.reset();
       }
     };
     document.addEventListener("keydown", keyboard);
     return () => document.removeEventListener("keydown", keyboard);
-  }, [open]);
-  const close = useRef(onClose);
-  close.current = onClose;
-  const restore = useRef(restoreFocus);
-  restore.current = restoreFocus;
+  }, [open, actionsRef]);
+  const closeRef = useLatest(onClose);
+  const restoreRef = useLatest(restoreFocus);
+  // On close: the latest restoreFocus, not the one from when the canvas opened; else the opener.
+  const returnFocus = useCallback(
+    (opener: HTMLElement | null) => (restoreRef.current ? restoreRef.current() : opener?.focus()),
+    [restoreRef],
+  );
   useEffect(() => {
     if (!open) return;
     const opener = document.activeElement as HTMLElement | null;
@@ -74,10 +77,9 @@ export function CanvasView({
     dialog.current?.showModal();
     return () => {
       document.body.style.overflow = previous;
-      // The latest restoreFocus, not the one from when the canvas opened.
-      requestAnimationFrame(() => (restore.current ? restore.current() : opener?.focus()));
+      requestAnimationFrame(() => returnFocus(opener));
     };
-  }, [open]);
+  }, [open, returnFocus]);
   // The dialog sits in <body>, outside the host's token scope. Take the
   // tokens the figure inside it resolves, so a host palette applies.
   useEffect(() => {
@@ -101,7 +103,7 @@ export function CanvasView({
       aria-label={title}
       onCancel={(e) => {
         e.preventDefault();
-        close.current();
+        closeRef.current();
       }}
     >
       <div className="uipack-canvas-toolbar">

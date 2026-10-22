@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { usePrefersReducedMotion } from "../env";
+import { useLatest, usePrefersReducedMotion } from "../env";
 import { DEFAULT_TIMING, demoCycle, demoEnd, demoFrame, stepStart, toAction, type DemoStep, type DemoTiming } from "./timeline";
 
 export interface DemoPlayerProps {
@@ -78,7 +78,11 @@ export function DemoPlayer({
     return () => io.disconnect();
   }, []);
 
-  const running = playing && inView && !reduced;
+  const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
+  const frame = reduced ? finalFrame : demoFrame(steps, elapsed, timing, initialMetric);
+  // A play-once demo stops at its last frame: Play then replays it from the start.
+  const finished = !loop && frame.done;
+  const running = playing && !finished && inView && !reduced;
   useEffect(() => {
     if (!running) return;
     let last = Date.now();
@@ -95,19 +99,12 @@ export function DemoPlayer({
     return () => clearInterval(timer);
   }, [running, loop, cycle, end]);
 
-  const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
-  const frame = reduced ? finalFrame : demoFrame(steps, elapsed, timing, initialMetric);
-  const finished = !loop && frame.done;
-  useEffect(() => {
-    if (finished) setPlaying(false);
-  }, [finished]);
-
   const step = steps[frame.step];
+  // Only real step changes are reported, so the latest callback is read through a ref.
+  const stepChangeRef = useLatest(onStepChange);
   useEffect(() => {
-    onStepChange?.(frame.step);
-    // Only announce real step changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [frame.step]);
+    stepChangeRef.current?.(frame.step);
+  }, [frame.step, stepChangeRef]);
 
   const seek = useCallback(
     (i: number) => {

@@ -1,7 +1,7 @@
 // DrillFigure's smaller hooks: the requested path (controlled or not), the stage's width, the
 // motion controls over every drawing's SMIL timeline, and placing the selected part's note.
-import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
-import { useIsoLayoutEffect } from "../env";
+import { useCallback, useEffect, useMemo, useState, type RefObject } from "react";
+import { useIsoLayoutEffect, useLatest } from "../env";
 import { placeNote } from "../Figure";
 import type { FigureMotion } from "../context";
 import type { SelectedItem } from "../selection";
@@ -32,31 +32,34 @@ export function useDrillPath({ levels, root, path, defaultPath, onPathChange, on
   const requestedKey = JSON.stringify(normalizePath(path ?? own, ids, rootId));
   const requested = useMemo(() => JSON.parse(requestedKey) as DrillPath, [requestedKey]);
 
-  // Handlers read the latest props and path; synced before any other layout effect reads them.
-  const latest = useRef({ requested, path, onPathChange, onNavigate });
-  useIsoLayoutEffect(() => {
-    latest.current = { requested, path, onPathChange, onNavigate };
-  });
+  // Handlers read the latestRef props and path; synced before any other layout effect reads them.
+  const latestRef = useLatest({ requested, path, onPathChange, onNavigate });
 
-  const navigate = useCallback((next: DrillPath) => {
-    const { requested, path, onPathChange, onNavigate } = latest.current;
-    if (samePath(next, requested)) return;
-    onNavigate();
-    if (path === undefined) setOwn(next);
-    onPathChange?.([...next]);
-  }, []);
-  const up = useCallback(() => navigate(drillReducer(latest.current.requested, { type: "up" }, ids)), [navigate, ids]);
+  const navigate = useCallback(
+    (next: DrillPath) => {
+      const { requested, path, onPathChange, onNavigate } = latestRef.current;
+      if (samePath(next, requested)) return;
+      onNavigate();
+      if (path === undefined) setOwn(next);
+      onPathChange?.([...next]);
+    },
+    [latestRef],
+  );
+  const up = useCallback(
+    () => navigate(drillReducer(latestRef.current.requested, { type: "up" }, ids)),
+    [navigate, ids, latestRef],
+  );
   const openFrom = useCallback(
     (from: string, child: string) => {
-      const cur = latest.current.requested;
+      const cur = latestRef.current.requested;
       const at = cur.indexOf(from);
       if (at < 0) return;
       navigate(drillReducer(cur.slice(0, at + 1), { type: "open", id: child }, ids));
     },
-    [navigate, ids],
+    [navigate, ids, latestRef],
   );
   /** Whether a person can go up from where they are now (Escape and Backspace). */
-  const canGoUp = useCallback(() => latest.current.requested.length > 1, []);
+  const canGoUp = useCallback(() => latestRef.current.requested.length > 1, [latestRef]);
 
   return { levelMap, labelOf, requested, navigate, up, openFrom, canGoUp };
 }

@@ -48,12 +48,13 @@ export function StackedBar({
 
   // Legend: one row of square swatches, the identity channel for every segment.
   const legendH = 36;
+  // Each entry starts where the one before ended: swatch, gap, name, spacing.
+  const legend: { name: string; i: number; x: number }[] = [];
   let lx = 0;
-  const legend = series.map((name, i) => {
-    const item = { name, i, x: lx };
+  for (const [i, name] of series.entries()) {
+    legend.push({ name, i, x: lx });
     lx += 18 + 10 + textWidth(name, CX_TYPE.tick) + 28;
-    return item;
-  });
+  }
   const legendEl = (
     <g className="uipack-cx-legend">
       {legend.map((l) => (

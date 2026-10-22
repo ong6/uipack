@@ -1,5 +1,7 @@
-// Lint for correctness only: the rules of hooks, unhandled promises and unused code. Formatting is
-// Prettier's job, not ESLint's (docs/contributing.md, Formatting).
+// Lint for correctness only: the rules of hooks (react-hooks' recommended set, with the React Compiler
+// checks: no ref read or written during render, no props or globals mutated, no synchronous setState
+// in an effect), unhandled promises and unused code. Formatting is Prettier's job, not ESLint's
+// (docs/contributing.md, Formatting).
 import tseslint from "typescript-eslint";
 import reactHooks from "eslint-plugin-react-hooks";
 
@@ -19,7 +21,7 @@ export default [
     plugins: { "react-hooks": reactHooks, "@typescript-eslint": tseslint.plugin },
     linterOptions: { reportUnusedDisableDirectives: "warn" },
     rules: {
-      "react-hooks/rules-of-hooks": "error",
+      ...reactHooks.configs.flat["recommended-latest"].rules,
       // useIsoLayoutEffect (src/env.ts) is useLayoutEffect in the browser: check its deps the same way.
       "react-hooks/exhaustive-deps": ["warn", { additionalHooks: "^useIsoLayoutEffect$" }],
       // From recommended-type-checked: a promise is awaited, returned, or explicitly `void`ed.
@@ -37,5 +39,19 @@ export default [
         },
       ],
     },
+  },
+  {
+    // Files another change owns at the moment; their findings are queued for a follow-up rather than
+    // switched off for good. Each line names the rule and the file it is off for, nothing wider.
+    files: ["src/deck/DeckPlayer.tsx", "src/deck/player/Overview.tsx", "src/deck/player/Print.tsx"],
+    rules: { "react-hooks/refs": "off" },
+  },
+  {
+    files: ["src/slides/SlidePlayer.tsx"],
+    rules: { "react-hooks/refs": "off", "react-hooks/set-state-in-effect": "off" },
+  },
+  {
+    files: ["playground/WebShowcase.tsx"],
+    rules: { "react-hooks/set-state-in-effect": "off" },
   },
 ];

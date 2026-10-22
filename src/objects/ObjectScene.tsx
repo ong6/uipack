@@ -296,20 +296,21 @@ export function ObjectScene(props: ObjectSceneProps) {
   const [open, setOpen] = useState(false),
     [zoom, setZoom] = useState(1);
   const opener = useRef<HTMLButtonElement>(null);
-  const [randomVariant, setRandomVariant] = useState<ObjectVariant | null>(null);
-  // One pick per mount (after it, so the server and client agree); normalizeObjectVariant fits it to a later kind.
+  // One random roll per mount, taken after it so the server and client agree. The look is derived
+  // from it for the current kind (contact has five), and Another look steps on from there.
+  const [pick, setPick] = useState<{ roll: number; turns: number } | null>(null);
   useEffect(() => {
-    setRandomVariant(chooseObjectVariant(Math.random, props.kind === "contact" ? 5 : objectDirections.length));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- a client-only random value, set once after hydration
+    setPick({ roll: Math.random(), turns: 0 });
   }, []);
+  const looks = props.kind === "contact" ? 5 : objectDirections.length;
+  const randomVariant =
+    pick === null ? null : (((chooseObjectVariant(() => pick.roll, looks) + pick.turns) % looks) as ObjectVariant);
   const canVary = props.variant === undefined || props.variant === "random";
   const controls = props.controls ?? "full";
   const chosenVariant = canVary ? randomVariant : (props.variant as ObjectVariant);
   const variant = chosenVariant === null ? null : normalizeObjectVariant(props.kind, chosenVariant);
-  const anotherLook = () =>
-    setRandomVariant(
-      (current) => (((current ?? 0) + 1) % (props.kind === "contact" ? 5 : objectDirections.length)) as ObjectVariant,
-    );
+  const anotherLook = () => setPick((current) => current && { ...current, turns: current.turns + 1 });
   return (
     <div className="uipack-object-frame" data-theme={props.theme ?? "light"} data-controls={controls}>
       {controls === "full" && variant !== null && (

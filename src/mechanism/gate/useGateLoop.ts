@@ -3,7 +3,7 @@
 // only while the machine is on screen and something still moves, and holds still frames for reduced
 // motion and motion="none". GateMachine renders the first frame; this owns every frame after it.
 import * as React from "react";
-import { useIsoLayoutEffect } from "../../env";
+import { useLatest } from "../../env";
 import { displayOf, paintDisplay, readoutOf, step, type Display } from "./display";
 import { RUN_LONG, sceneAt, stillScene, STILL_AT, type GatePose, type Scene } from "./motion";
 import { ASSEMBLIES, type Assembly } from "./view";
@@ -81,13 +81,10 @@ export function useGateLoop({ pose, motion, interactive, reduced, onReadout }: G
     heights: [],
   });
   const poseRef = React.useRef(pose);
-  // The loop outlives renders, so it reads the latest props through these refs rather than closing
+  // The loop outlives renders, so it reads the latestRef props through these refs rather than closing
   // over them: a running tick must see today's motion setting, not the one it started under.
-  const latest = React.useRef({ reduced, motion, onReadout });
-  useIsoLayoutEffect(() => {
-    latest.current = { reduced, motion, onReadout };
-  });
-  const isCalm = React.useCallback(() => latest.current.reduced || latest.current.motion === "none", []);
+  const latestRef = useLatest({ reduced, motion, onReadout });
+  const isCalm = React.useCallback(() => latestRef.current.reduced || latestRef.current.motion === "none", [latestRef]);
 
   const sceneNow = React.useCallback((): Scene => {
     const s = state.current;
@@ -97,24 +94,27 @@ export function useGateLoop({ pose, motion, interactive, reduced, onReadout }: G
     return scene;
   }, [isCalm]);
 
-  const draw = React.useCallback((scene: Scene) => {
-    const node = root.current;
-    const svg = node?.querySelector("svg");
-    if (!node || !svg) return;
-    const s = state.current;
-    paintDisplay(svg, s.display, s.heights);
-    const text = readoutOf(poseRef.current, s.display, scene);
-    if (text !== s.readout) {
-      s.readout = text;
-      const slot = node.closest(".um-frame")?.querySelector("[data-readout]");
-      if (slot && slot.textContent !== text) slot.textContent = text;
-      latest.current.onReadout?.(text);
-    }
-    if (scene.phase !== s.phase && live.current) {
-      s.phase = scene.phase;
-      if (document.activeElement === node) live.current.textContent = scene.phase;
-    }
-  }, []);
+  const draw = React.useCallback(
+    (scene: Scene) => {
+      const node = root.current;
+      const svg = node?.querySelector("svg");
+      if (!node || !svg) return;
+      const s = state.current;
+      paintDisplay(svg, s.display, s.heights);
+      const text = readoutOf(poseRef.current, s.display, scene);
+      if (text !== s.readout) {
+        s.readout = text;
+        const slot = node.closest(".um-frame")?.querySelector("[data-readout]");
+        if (slot && slot.textContent !== text) slot.textContent = text;
+        latestRef.current.onReadout?.(text);
+      }
+      if (scene.phase !== s.phase && live.current) {
+        s.phase = scene.phase;
+        if (document.activeElement === node) live.current.textContent = scene.phase;
+      }
+    },
+    [latestRef],
+  );
 
   /** Snap straight to the scene's settled frame (calm: reduced motion or motion="none"). */
   const settle = React.useCallback(() => {
@@ -188,7 +188,7 @@ export function useGateLoop({ pose, motion, interactive, reduced, onReadout }: G
     aim(pose === "apart", calm);
     if (calm) settle();
     else run();
-    // `motion` is read through `latest`; it is listed so that changing it re-aims and redraws.
+    // `motion` is read through `latestRef`; it is listed so that changing it re-aims and redraws.
   }, [pose, interactive, motion, aim, isCalm, run, settle]);
 
   // Run only while on screen.

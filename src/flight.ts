@@ -3,22 +3,22 @@
 // unless a newer settle has replaced it. Each owner keeps its own view state and builds its own
 // animations; this owns their lifetime.
 import { useCallback, useEffect, useRef } from "react";
+import { useLatest } from "./env";
 
 /** `clearLayers` returns the owner's layers to rest (no inline z-index or visibility left behind). */
 export function useLayerFlight(clearLayers: () => void) {
   const anims = useRef<Animation[]>([]);
   // Bumped by every fly, every settle and on unmount, so a flight that was replaced never lands.
   const generation = useRef(0);
-  const clear = useRef(clearLayers);
-  clear.current = clearLayers;
+  const clearRef = useLatest(clearLayers);
 
   /** Stop every running animation, drop its pending landing and leave the layers at rest. */
   const settle = useCallback(() => {
     generation.current += 1;
     for (const a of anims.current) a.cancel();
     anims.current = [];
-    clear.current();
-  }, []);
+    clearRef.current();
+  }, [clearRef]);
 
   /**
    * Track `run`, and call `land` once all of it has finished: straight away if nothing runs.

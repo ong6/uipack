@@ -33,7 +33,7 @@ export function AnimationWorkspace({
 }
 export function ObjectInspector({
   kind,
-  variant,
+  variant: requested,
   edition = 0,
   onVariantChange,
   onEditionChange,
@@ -44,7 +44,8 @@ export function ObjectInspector({
   onVariantChange: (value: ObjectVariant) => void;
   onEditionChange: (value: ObjectEdition) => void;
 }) {
-  variant = normalizeObjectVariant(kind, variant);
+  // A look the kind lacks (contact has five) falls back to the first.
+  const variant = normalizeObjectVariant(kind, requested);
   const contact = kind === "contact";
   return (
     <aside className="uipack-object-inspector">
@@ -96,7 +97,7 @@ export function ObjectInspector({
 }
 export function ObjectGallery({
   kind,
-  variant = 0,
+  variant: requested = 0,
   edition = 0,
   theme = "light",
   palette,
@@ -112,7 +113,8 @@ export function ObjectGallery({
   modelUrl?: string;
   onChange: (kind: ObjectKind, variant: ObjectVariant, edition: ObjectEdition) => void;
 }) {
-  variant = normalizeObjectVariant(kind, variant);
+  // A look the kind lacks (contact has five) falls back to the first.
+  const variant = normalizeObjectVariant(kind, requested);
   const scene = objectScenes.find((item) => item.id === kind)!;
   return (
     <AnimationWorkspace

@@ -1,4 +1,4 @@
-import { useEffect, useState, type RefObject } from "react";
+import { useEffect, useState, useSyncExternalStore, type RefObject } from "react";
 import { prefersReducedMotion } from "../env";
 import { clamp, smoothstep } from "../math";
 
@@ -80,12 +80,18 @@ export function useScrollProgress(ref: RefObject<Element>): number {
 
 /** True on devices with a hovering, fine pointer (mouse, trackpad). False on touch and on the server. */
 export function useFinePointer(): boolean {
-  const [fine, setFine] = useState(false);
-  useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    setFine(window.matchMedia("(hover: hover) and (pointer: fine)").matches);
-  }, []);
-  return fine;
+  return useSyncExternalStore(subscribeFinePointer, finePointerNow, () => false);
+}
+const FINE_POINTER_QUERY = "(hover: hover) and (pointer: fine)";
+const finePointerQuery = () =>
+  typeof window === "undefined" || typeof window.matchMedia !== "function" ? null : window.matchMedia(FINE_POINTER_QUERY);
+const finePointerNow = () => finePointerQuery()?.matches ?? false;
+/** Re-renders when the pointer changes (a tablet docked to a keyboard and trackpad, say). */
+function subscribeFinePointer(changed: () => void) {
+  const query = finePointerQuery();
+  if (!query || typeof query.addEventListener !== "function") return () => {};
+  query.addEventListener("change", changed);
+  return () => query.removeEventListener("change", changed);
 }
 
 type TransitionDocument = Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void> } };

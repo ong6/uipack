@@ -51,7 +51,6 @@ export function useGrown(): boolean {
       cancelAnimationFrame(first);
       cancelAnimationFrame(second);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [grown]);
   return grown;
 }

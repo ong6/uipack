@@ -21,6 +21,11 @@ type ShowcaseTheme = {
 };
 const ShowcaseThemeContext = createContext<ShowcaseTheme | null>(null);
 
+/** The tab title is page state outside React; written from an effect, through here. */
+function setDocumentTitle(title: string) {
+  document.title = title;
+}
+
 /** The page's theme, held once by main.tsx above the shell and the page: `?theme=` and `data-theme` follow it. */
 export function ShowcaseThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<"light" | "dark">(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
@@ -113,9 +118,7 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
   // Every page names itself in the tab, /web too: the sample page it hosts publishes the rest of its
   // head (description, canonical, Open Graph, JSON-LD), but the tab says which playground page it is.
   const hostsPage = "hostsPage" in page && page.hostsPage;
-  useEffect(() => {
-    document.title = documentTitle(page);
-  }, [page]);
+  useEffect(() => setDocumentTitle(documentTitle(page)), [page]);
   // The open menu covers the page on a phone: the page behind it holds still until it closes.
   useEffect(() => {
     if (!menuOpen) return;

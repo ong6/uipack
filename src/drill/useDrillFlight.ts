@@ -3,7 +3,7 @@
 // back, and lands by unmounting the layer left behind. Then focus moves where attention should be,
 // and the move is announced.
 import { useCallback, useRef, useState, type MutableRefObject, type RefObject } from "react";
-import { useIsoLayoutEffect } from "../env";
+import { useIsoLayoutEffect, useLatest } from "../env";
 import { useLayerFlight } from "../flight";
 import { clearLayer, findDrillNode, runDrill } from "./animate";
 import { drillAnnouncement, drillFocusTarget, drillMove, samePath, type DrillPath } from "./model";
@@ -56,10 +56,7 @@ export function useDrillFlight({
 
   // The effects below run once per move, not per render, so they read these through a ref. It is
   // declared first, so it is up to date before any of them runs in the same commit.
-  const latest = useRef({ view, labelOf, reduced, duration, onLeave });
-  useIsoLayoutEffect(() => {
-    latest.current = { view, labelOf, reduced, duration, onLeave };
-  });
+  const latestRef = useLatest({ view, labelOf, reduced, duration, onLeave });
 
   const layerEl = useCallback(
     (lid: string) =>
@@ -76,7 +73,7 @@ export function useDrillFlight({
   /** Land flight `n`, unless a newer one has replaced it. */
   const finish = useCallback(
     (n: number) => {
-      const v = latest.current.view;
+      const v = latestRef.current.view;
       if (!v.flight || v.flight.seq !== n) return;
       const leaving = layerEl(lastOf(v.flight.from));
       // Hidden before the animations let go, so the leaving layer never flashes at rest.
@@ -84,12 +81,12 @@ export function useDrillFlight({
       settle();
       setView({ path: v.path, flight: null });
     },
-    [layerEl, settle],
+    [layerEl, settle, latestRef],
   );
 
   // A new requested path: start, reverse or redirect a move.
   useIsoLayoutEffect(() => {
-    const { view: v, labelOf, onLeave } = latest.current;
+    const { view: v, labelOf, onLeave } = latestRef.current;
     if (samePath(requested, v.path)) return;
     onLeave();
     setAnnouncement(drillAnnouncement(v.path, requested, labelOf));
@@ -114,12 +111,12 @@ export function useDrillFlight({
       path: requested,
       flight: { from, kind: move === "in" ? "in" : move === "out" ? "out" : "fade", seq: seq.current },
     });
-  }, [requested, anims, focusIntentRef, settle, stageRef]);
+  }, [requested, anims, focusIntentRef, settle, stageRef, latestRef]);
 
   // Both layers are mounted: measure the node and run the move before paint.
   const flightSeq = view.flight?.seq;
   useIsoLayoutEffect(() => {
-    const { view: v, reduced, duration } = latest.current;
+    const { view: v, reduced, duration } = latestRef.current;
     const f = v.flight;
     const stage = stageRef.current;
     if (!f || !stage) return;
@@ -133,7 +130,7 @@ export function useDrillFlight({
       f.kind === "in" ? findDrillNode(fromEl, lastOf(v.path)) : f.kind === "out" ? findDrillNode(toEl, lastOf(f.from)) : null;
     const run = runDrill({ kind: f.kind, from: fromEl, to: toEl, target, stage, canvas: canvasRef.current, reduced, duration });
     fly(run, () => finish(f.seq));
-  }, [flightSeq, canvasRef, finish, fly, layerEl, stageRef]);
+  }, [flightSeq, canvasRef, finish, fly, layerEl, stageRef, latestRef]);
 
   // Settled: move focus where the person's attention should be.
   useIsoLayoutEffect(() => {

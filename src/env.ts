@@ -1,8 +1,21 @@
 // Browser-environment helpers shared by every entry. SSR-safe; no React context.
-import { useEffect, useLayoutEffect, useSyncExternalStore } from "react";
+import { useEffect, useLayoutEffect, useRef, useSyncExternalStore } from "react";
 
 /** useLayoutEffect in the browser (measure before paint), useEffect on the server (no warning). */
 export const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
+
+/**
+ * A ref holding the latest `value`, for handlers, timers and loops that outlive the render that made
+ * them. Synced in a layout effect, not during render (React may render without committing), so call
+ * it before any layout effect of the same component that reads it.
+ */
+export function useLatest<T>(value: T): { readonly current: T } {
+  const ref = useRef(value);
+  useIsoLayoutEffect(() => {
+    ref.current = value;
+  });
+  return ref;
+}
 
 /** The one media query every part reads for reduced motion. */
 export const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
@@ -37,6 +50,17 @@ export function usePrefersReducedMotion(): boolean {
   return useSyncExternalStore(onReducedMotionChange, prefersReducedMotion, serverSnapshot);
 }
 const serverSnapshot = () => false;
+
+/**
+ * False in server HTML and while hydrating it, true on the client after that (and from the first
+ * render of a client-only mount): for markup that should exist only with JavaScript running, so
+ * server HTML stays the plain, final version. No effect and no extra state.
+ */
+export function useHydrated(): boolean {
+  return useSyncExternalStore(subscribeToNothing, clientSnapshot, serverSnapshot);
+}
+const subscribeToNothing = () => () => {};
+const clientSnapshot = () => true;
 
 /**
  * onFocus for a horizontally scrolling row: browsers leave a half-visible item where it is when

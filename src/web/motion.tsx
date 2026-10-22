@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type ElementType, type PointerEvent, type ReactNode } from "react";
-import { usePrefersReducedMotion } from "../env";
+import { useHydrated, usePrefersReducedMotion } from "../env";
 import { CtaButton, type CtaButtonProps } from "./CtaButton";
 import { useInView, useScrollProgress } from "./hooks";
 import { clamp, easeOutCubic, lerp } from "../math";
@@ -30,6 +30,7 @@ export function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div"
     if (!el) return;
     Array.from(el.children).forEach((c, i) => (c as HTMLElement).style.setProperty("--i", String(i)));
     if (reduced || typeof IntersectionObserver === "undefined") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- server HTML is static; the client arms after hydration
       setState("static");
       return;
     }
@@ -103,6 +104,7 @@ export function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag
   const progress = useRef(0);
   // Once an observer can start the effect, wait unresolved.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- server HTML shows the final text; the client arms after hydration
     setArmed(true);
     if (typeof IntersectionObserver !== "undefined" && progress.current === 0) setT(0);
   }, []);
@@ -184,6 +186,7 @@ export function NumberTicker({
   const shown = useRef<number | null>(null);
   // Once an observer can start the count, wait at `from`.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- server HTML shows the final value; the client arms after hydration
     setArmed(true);
     if (typeof IntersectionObserver !== "undefined" && shown.current === null) setCurrent(from);
   }, [from]);
@@ -247,8 +250,7 @@ export function Marquee({ items, label, duration = 30, reverse = false }: Marque
   const reduced = usePrefersReducedMotion();
   const [paused, setPaused] = useState(false);
   // The looping copy is added after mount: server HTML lists each item once, for crawlers and no-JS.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useHydrated();
   useEffect(() => {
     copyRef.current?.setAttribute("inert", "");
   }, [reduced, mounted]);
