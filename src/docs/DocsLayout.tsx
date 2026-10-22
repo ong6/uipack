@@ -137,7 +137,17 @@ export function DocsLayout({
         <a href={sections[0]?.items[0]?.href || activeHref}>{docsTitle}</a>
       </div>
 
-      <details className="uipack-docs__mobile-navigation">
+      {/* Escape inside the open menu closes it and hands focus back to its summary. */}
+      <details
+        className="uipack-docs__mobile-navigation"
+        onKeyDown={(e) => {
+          const details = e.currentTarget;
+          if (e.key !== "Escape" || !details.open || e.defaultPrevented) return;
+          e.preventDefault();
+          details.open = false;
+          details.querySelector("summary")?.focus();
+        }}
+      >
         <summary aria-controls={mobileNavigationId}>
           <span>Documentation</span>
           {current && <small>{current.title}</small>}
