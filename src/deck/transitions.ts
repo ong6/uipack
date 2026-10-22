@@ -1,6 +1,6 @@
 import type { DeckTransition } from "./types";
 import { cubicBezier, lerpRect } from "../math";
-import { innerClipStart, smoothstep, zoomFrame, type Rect, type ZoomSample } from "../zoom-math";
+import { smoothstep, zoomFrame, type Rect, type ZoomSample } from "../zoom-math";
 
 /** Slides are authored on one fixed canvas and scaled to fit, so sizes in slides are canvas pixels. */
 export const CANVAS_WIDTH = 1920;
@@ -66,12 +66,27 @@ export function resolveTransition(
 export const slideZoomFrame = (target: Rect, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => zoomFrame(target, width, height);
 
 /**
+ * The window a zoom opens the incoming slide in: the largest 16:9 box that fits inside the target
+ * with a small margin, centred in it. The camera flies into this window, so the incoming slide is
+ * drawn whole inside the target from the first frame (never cropped to the target's own shape) and
+ * the target's box stays round it as a frame.
+ */
+export function slideZoomWindow(target: Rect, width = CANVAS_WIDTH, height = CANVAS_HEIGHT, margin = 0.06): Rect {
+  const m = Math.min(target.w, target.h) * margin;
+  const s = Math.max(0, Math.min((target.w - 2 * m) / width, (target.h - 2 * m) / height));
+  const w = width * s;
+  const h = height * s;
+  return { x: target.x + (target.w - w) / 2, y: target.y + (target.h - h) / 2, w, h };
+}
+
+/**
  * Sampled keyframes for a zoom on the slide canvas. `forward` flies in; backwards plays the same
- * path out. Scale is even in log space (Z^p) and p follows `deckMotion.camera`, so the camera is
- * visibly moving by 10% of the clock while the slide around the target clears, rather than
- * holding still and then jumping. The clip opens to the full 16:9 frame by 40% of the way in
- * (about 27% of the clock), so the incoming slide is never cropped for long, and both layers pan
- * as needed so the opening slide never runs off the canvas edge.
+ * path out. The camera flies into the target's 16:9 window (`slideZoomWindow`): the outer slide
+ * scales by Z^p about one fixed point and the inner slide by Z^(p-1) about the same point, so the
+ * inner slide sits in the window, whole, for the whole flight and fills the canvas as it lands.
+ * Scale is even in log space and p follows `deckMotion.camera`, so the camera is visibly moving
+ * by 10% of the clock. The inner slide keeps the target's corner radius until the last stretch,
+ * and appears in the first moments of the flight, as the target's own words leave.
  */
 export function slideZoomSamples(
   target: Rect,
@@ -79,36 +94,25 @@ export function slideZoomSamples(
   samples = 24,
   width = CANVAS_WIDTH,
   height = CANVAS_HEIGHT,
+  /** The target's corner radius, canvas pixels. */
+  radius = 6,
 ): ZoomSample[] | null {
-  const frame = zoomFrame(target, width, height);
+  const frame = zoomFrame(slideZoomWindow(target, width, height), width, height);
   if (!frame) return null;
-  const start = innerClipStart(target, frame, width, height);
-  const radiusStart = 6 * frame.Z;
   const out: ZoomSample[] = [];
   for (let i = 0; i <= samples; i++) {
     const t = i / samples;
     const p = forward ? cameraEase(t) : 1 - cameraEase(t);
-    const clipT = smoothstep(0.06, 0.4, p);
-    const inset = (v: number) => (v * (1 - clipT)).toFixed(2);
-    // A target near the canvas edge puts the fixed point outside the canvas, so mid-flight the
-    // opening slide would run off the edge and be cropped by it. Pan both layers just enough to
-    // keep the visible part of the incoming slide on the canvas; nothing pans at either end.
-    const k = Math.pow(frame.Z, p - 1);
-    const shift = (lo: number, hi: number, f: number, size: number) => {
-      const a = f + k * (lo - f);
-      const b = f + k * (hi - f);
-      return b > size ? size - b : a < 0 ? -a : 0;
-    };
-    const dx = shift(start.left * (1 - clipT), width - start.right * (1 - clipT), frame.fx, width);
-    const dy = shift(start.top * (1 - clipT), height - start.bottom * (1 - clipT), frame.fy, height);
-    const pan = Math.abs(dx) > 0.005 || Math.abs(dy) > 0.005 ? `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) ` : "";
+    // In the inner slide's own (unscaled) coordinates the corner is Z times larger; it squares off
+    // as the slide lands, so the full frame has no rounded corners of its own.
+    const corner = radius * frame.Z * (1 - smoothstep(0.6, 1, p));
     out.push({
       offset: t,
       p,
-      outer: `${pan}scale(${Math.pow(frame.Z, p).toFixed(5)})`,
-      inner: `${pan}scale(${k.toFixed(5)})`,
-      clip: `inset(${inset(start.top)}px ${inset(start.right)}px ${inset(start.bottom)}px ${inset(start.left)}px round ${(radiusStart * (1 - clipT)).toFixed(2)}px)`,
-      innerOpacity: smoothstep(0.08, 0.36, p),
+      outer: `scale(${Math.pow(frame.Z, p).toFixed(5)})`,
+      inner: `scale(${Math.pow(frame.Z, p - 1).toFixed(5)})`,
+      clip: `inset(0px round ${corner.toFixed(2)}px)`,
+      innerOpacity: smoothstep(0.03, 0.12, p),
     });
   }
   return out;
@@ -256,13 +260,16 @@ export function runTransition(opts: RunOptions): Animation[] {
       w: box.w / scale,
       h: box.h / scale,
     };
-    const samples = local ? slideZoomSamples(local, zoomInto) : null;
+    const radius = target ? parseFloat(getComputedStyle(target).borderTopLeftRadius) / scale || 0 : 0;
+    const samples = local ? slideZoomSamples(local, zoomInto, 24, CANVAS_WIDTH, CANVAS_HEIGHT, radius) : null;
     if (!samples) kind = "fade";
     else {
-      const frame = slideZoomFrame(local!)!;
+      const frame = slideZoomFrame(slideZoomWindow(local!))!;
       const origin = `${frame.fx.toFixed(2)}px ${frame.fy.toFixed(2)}px`;
       inner.style.zIndex = "2";
       const timing = { duration: deckMotion.zoom, easing: "linear" };
+      // The camera: the outer slide scales up about the fixed point, carrying the target's box with
+      // it, opaque, from the first frame; the incoming slide rides inside the box's 16:9 window.
       play(
         outer,
         samples.map((s) => ({ offset: s.offset, transform: s.outer, transformOrigin: origin })),
@@ -279,35 +286,39 @@ export function runTransition(opts: RunOptions): Animation[] {
         })),
         timing,
       );
-      // The target's own words leave before the slide inside it appears (they would read as doubled
-      // text otherwise); its box stays as the frame.
+      // The target's own words leave as the slide inside it appears (they would read as doubled
+      // text otherwise); its box stays as the frame the camera flies into.
       for (const child of Array.from(target!.children)) {
         play(
           child,
-          samples.map((s) => ({ offset: s.offset, opacity: 1 - smoothstep(0.01, 0.09, s.p) })),
+          samples.map((s) => ({ offset: s.offset, opacity: 1 - smoothstep(0, 0.05, s.p) })),
           timing,
         );
       }
-      // Its box (fill, border, ring) fades as the camera starts, so no scaled-up border sweeps across
-      // the screen as thick bars: the incoming slide's clip is the only edge in flight.
+      // Its fill stays to the end, but its edge (border, ring) leaves in the middle of the flight,
+      // once the slide inside has the eye, so the camera never drags thick scaled-up bars across the
+      // screen as it lands.
       if (paintsBox(target!)) {
-        const frames = paintFrames(target!, "from");
+        const cs = getComputedStyle(target!);
+        const edge = { borderColor: cs.borderTopColor, boxShadow: cs.boxShadow };
+        const clear = { borderColor: "transparent", boxShadow: "none" };
+        // The clock offsets at which the camera passes p = 0.42 and 0.66 (p runs down on a zoom out).
+        const at = (p: number) => samples.find((s) => (zoomInto ? s.p >= p : s.p <= p))?.offset ?? 1;
         play(
           target!,
           zoomInto
-            ? [frames[0], { ...frames[1], offset: 0.22 }, frames[1]]
-            : [frames[1], { ...frames[1], offset: 0.78 }, frames[0]],
+            ? [edge, { ...edge, offset: at(0.42) }, { ...clear, offset: at(0.66) }, clear]
+            : [clear, { ...clear, offset: at(0.66) }, { ...edge, offset: at(0.42) }, edge],
           timing,
         );
       }
-      // Everything around the target clears in the first 20% of a zoom in (and returns in the last
-      // 20% of a zoom out), before the camera has scaled it far enough to cut its words off at the
-      // canvas edge, and so two dense slides never overlap: only the target and what opens inside
-      // it are on screen mid-flight.
+      // Everything around the target clears over the first quarter of a zoom in (and returns over
+      // the last quarter of a zoom out), before the camera has scaled it far enough to cut its words
+      // off at the canvas edge: mid-flight only the target and the slide inside it are on screen.
       const around = partitionForMorph(outer, new Set([opts.transition.zoom!])).rest;
       const fade = zoomInto
-        ? [{ opacity: 1, easing: "ease-out" }, { opacity: 0, offset: 0.2 }, { opacity: 0 }]
-        : [{ opacity: 0 }, { opacity: 0, offset: 0.8, easing: "ease-in" }, { opacity: 1 }];
+        ? [{ opacity: 1, easing: "ease-in-out" }, { opacity: 0, offset: 0.25 }, { opacity: 0 }]
+        : [{ opacity: 0 }, { opacity: 0, offset: 0.75, easing: "ease-in-out" }, { opacity: 1 }];
       for (const el of around) play(el, fade, timing);
       return anims;
     }

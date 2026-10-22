@@ -15,7 +15,7 @@ import {
   type DeckSlide,
 } from "../src/deck";
 // Internal to the player: tested at their module, not exported from uipack/deck.
-import { flipFrom, resolveTransition, slideZoomFrame, slideZoomSamples } from "../src/deck/transitions";
+import { flipFrom, resolveTransition, slideZoomFrame, slideZoomSamples, slideZoomWindow } from "../src/deck/transitions";
 import { slidePlan } from "../src/deck/player/Presenter";
 
 // A factory over the slide parts, so a server render (onServer) can build the slides from the same
@@ -98,47 +98,52 @@ describe("deck transitions: pure geometry", () => {
     expect(slideZoomFrame({ x: 0, y: 0, w: 1900, h: 1070 })).toBeNull();
   });
 
-  it("starts the inner slide clipped to the target and ends with both slides at rest", () => {
-    const s = slideZoomSamples({ x: 1400, y: 500, w: 384, h: 216 }, true)!;
+  it("opens the incoming slide whole in a 16:9 window inside the target, and ends with both slides at rest", () => {
+    const target = { x: 1400, y: 500, w: 384, h: 216 };
+    const s = slideZoomSamples(target, true)!;
     const first = s[0];
     const last = s[s.length - 1];
+    const win = slideZoomWindow(target);
+    // The window keeps the slide's aspect and sits inside the target, with a margin.
+    expect(win.w / win.h).toBeCloseTo(16 / 9);
+    expect(win.x).toBeGreaterThan(target.x);
+    expect(win.y).toBeGreaterThan(target.y);
+    expect(win.x + win.w).toBeLessThan(target.x + target.w);
+    expect(win.y + win.h).toBeLessThan(target.y + target.h);
     expect(first.outer).toBe("scale(1.00000)");
-    expect(first.inner).toBe("scale(0.20000)");
+    expect(Number(/scale\(([\d.]+)\)/.exec(first.inner)![1])).toBeCloseTo(win.w / 1920, 4);
     expect(first.innerOpacity).toBe(0);
     expect(last.inner).toBe("scale(1.00000)");
-    expect(last.clip).toMatch(/^inset\(0\.00px 0\.00px 0\.00px 0\.00px round 0\.00px\)$/);
     expect(last.innerOpacity).toBe(1);
-    // The clip reaches the full 16:9 frame by 30% of the clock, so the incoming slide isn't cropped mid-flight.
-    const wide = slideZoomSamples({ x: 200, y: 300, w: 900, h: 260 }, true)!;
-    const open = /^inset\(0\.00px 0\.00px 0\.00px 0\.00px /;
-    for (const sample of wide.filter((x) => x.offset >= 0.3)) expect(sample.clip).toMatch(open);
-    expect(wide.find((x) => x.offset > 0.1 && x.offset < 0.2)!.clip).not.toMatch(open);
-    // Scale grows evenly in log space: equal steps multiply by the same factor around the middle.
-    const back = slideZoomSamples({ x: 1400, y: 500, w: 384, h: 216 }, false)!;
+    // Never cropped: the clip is the slide's own frame, its corners squaring off as it lands.
+    for (const sample of s) expect(sample.clip).toMatch(/^inset\(0px round [\d.]+px\)$/);
+    expect(last.clip).toBe("inset(0px round 0.00px)");
+    const back = slideZoomSamples(target, false)!;
     expect(back[0].outer).toBe(last.outer);
     expect(back[back.length - 1].inner).toBe(first.inner);
   });
 
-  it("keeps the opening slide on the canvas when the target sits near an edge", () => {
-    // A panel in the right third: its fixed point lies right of the canvas.
-    const target = { x: 1300, y: 260, w: 560, h: 520 };
-    const frame = slideZoomFrame(target)!;
-    expect(frame.fx).toBeGreaterThan(1920);
-    const samples = slideZoomSamples(target, true)!;
-    for (const s of samples) {
-      const [, tx = "0", ty = "0"] = /translate\((-?[\d.]+)px, (-?[\d.]+)px\)/.exec(s.inner) ?? [];
-      const k = Number(/scale\(([\d.]+)\)/.exec(s.inner)![1]);
-      const [top, right, bottom, left] = /inset\(([\d.]+)px ([\d.]+)px ([\d.]+)px ([\d.]+)px/.exec(s.clip)!.slice(1).map(Number);
-      const x = (v: number) => frame.fx + k * (v - frame.fx) + Number(tx);
-      const y = (v: number) => frame.fy + k * (v - frame.fy) + Number(ty);
-      expect(x(left), `left at ${s.offset}`).toBeGreaterThanOrEqual(-0.5);
-      expect(x(1920 - right), `right at ${s.offset}`).toBeLessThanOrEqual(1920.5);
-      expect(y(top)).toBeGreaterThanOrEqual(-0.5);
-      expect(y(1080 - bottom)).toBeLessThanOrEqual(1080.5);
+  it("keeps the incoming slide inside the target as it opens, and on the canvas all the way", () => {
+    // A tall panel in the right third, and a wide card: neither crops the slide inside it.
+    for (const target of [
+      { x: 1300, y: 260, w: 560, h: 520 },
+      { x: 200, y: 300, w: 900, h: 260 },
+    ]) {
+      const frame = slideZoomFrame(slideZoomWindow(target))!;
+      for (const s of slideZoomSamples(target, true)!) {
+        const k = Number(/scale\(([\d.]+)\)/.exec(s.inner)![1]);
+        const x = (v: number) => frame.fx + k * (v - frame.fx);
+        const y = (v: number) => frame.fy + k * (v - frame.fy);
+        expect(x(0), `left at ${s.offset}`).toBeGreaterThanOrEqual(-0.5);
+        expect(x(1920), `right at ${s.offset}`).toBeLessThanOrEqual(1920.5);
+        expect(y(0)).toBeGreaterThanOrEqual(-0.5);
+        expect(y(1080)).toBeLessThanOrEqual(1080.5);
+        if (s.offset === 0) {
+          expect(x(0)).toBeGreaterThanOrEqual(target.x);
+          expect(x(1920)).toBeLessThanOrEqual(target.x + target.w);
+        }
+      }
     }
-    // No pan at either end: the zoom still starts on the target and lands on the full slide.
-    expect(samples[0].inner).toMatch(/^scale/);
-    expect(samples[samples.length - 1].outer).toMatch(/^scale/);
   });
 
   it("flips text uniformly and boxes by their own shape", () => {
