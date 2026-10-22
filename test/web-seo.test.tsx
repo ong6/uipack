@@ -38,6 +38,7 @@ import {
   product,
   ref,
   resolveAiCrawlers,
+  rssFeed,
   serializeJsonLd,
   softwareApplication,
   useHead,
@@ -792,5 +793,76 @@ describe("crawl files", () => {
         "",
       ].join("\n"),
     );
+  });
+});
+
+describe("rssFeed", () => {
+  const feed = rssFeed({
+    title: "Tidy notes",
+    link: "https://tidy.example",
+    description: "What changed in Tidy & why.",
+    self: "/feed.xml",
+    language: "en-gb",
+    items: [
+      { title: "Older <entry>", link: "/notes/older", pubDate: "2026-09-01" },
+      {
+        title: 'Rules & "filters"',
+        link: "https://tidy.example/notes/rules",
+        guid: "tidy-note-42",
+        pubDate: new Date("2026-10-20T09:30:00Z"),
+        description: "<p>Filters now run <em>before</em> drafts.</p>\u0007",
+      },
+    ],
+  });
+  const doc = new DOMParser().parseFromString(feed, "application/xml");
+  const items = [...doc.querySelectorAll("item")];
+  const text = (el: Element | Document, sel: string) => el.querySelector(sel)?.textContent;
+
+  it("is well-formed RSS 2.0, newest entry first, with the newest date as lastBuildDate", () => {
+    expect(doc.querySelector("parsererror")).toBeNull();
+    expect(doc.documentElement.getAttribute("version")).toBe("2.0");
+    expect(text(doc, "channel > title")).toBe("Tidy notes");
+    expect(text(doc, "channel > link")).toBe("https://tidy.example/");
+    expect(text(doc, "channel > language")).toBe("en-gb");
+    expect(items.map((i) => text(i, "title"))).toEqual(['Rules & "filters"', "Older <entry>"]);
+    expect(text(doc, "channel > lastBuildDate")).toBe("Tue, 20 Oct 2026 09:30:00 GMT");
+    expect(text(items[1], "pubDate")).toBe("Tue, 01 Sep 2026 00:00:00 GMT");
+  });
+
+  it("escapes text, keeps an HTML description as the HTML it was, and drops characters XML cannot carry", () => {
+    expect(feed).toContain("<title>Older &lt;entry&gt;</title>");
+    expect(feed).toContain("What changed in Tidy &amp; why.");
+    expect(text(items[0], "description")).toBe("<p>Filters now run <em>before</em> drafts.</p>");
+  });
+
+  it("resolves item paths against the site, and makes the link the guid unless one is given", () => {
+    expect(text(items[1], "link")).toBe("https://tidy.example/notes/older");
+    expect(items[1].querySelector("guid")?.getAttribute("isPermaLink")).toBe("true");
+    expect(text(items[1], "guid")).toBe("https://tidy.example/notes/older");
+    expect(items[0].querySelector("guid")?.getAttribute("isPermaLink")).toBe("false");
+    expect(text(items[0], "guid")).toBe("tidy-note-42");
+  });
+
+  it("links itself where pageMeta's rss link points", () => {
+    const self = doc.getElementsByTagNameNS("http://www.w3.org/2005/Atom", "link")[0];
+    expect(self?.getAttribute("rel")).toBe("self");
+    const head = pageMeta({ title: "Tidy", description: "d", url: "https://tidy.example/", siteName: "Tidy", rss: "/feed.xml" });
+    const alternate = head.find((t) => t.tag === "link" && t.attrs.type === "application/rss+xml");
+    expect(alternate && "attrs" in alternate ? alternate.attrs.href : undefined).toBe(self?.getAttribute("href"));
+  });
+
+  it("is a bare channel with no entries, and throws on a relative site or an unreadable date", () => {
+    const empty = rssFeed({ title: "T", link: "https://t.example/", description: "D", items: [] });
+    expect(empty).not.toContain("lastBuildDate");
+    expect(empty).not.toContain("xmlns:atom");
+    expect(() => rssFeed({ title: "T", link: "/blog", description: "D", items: [] })).toThrow(/absolute URL/);
+    expect(() =>
+      rssFeed({
+        title: "T",
+        link: "https://t.example",
+        description: "D",
+        items: [{ title: "x", link: "/x", pubDate: "22/10/2026" }],
+      }),
+    ).toThrow(/items\[0\]\.pubDate/);
   });
 });

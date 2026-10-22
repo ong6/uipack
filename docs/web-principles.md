@@ -240,5 +240,5 @@ numbers are in [web discoverability](web-discoverability.md).
 | `FAQ` | 24, 26, 27; `h3` questions, FAQPage JSON-LD from the same items |
 | `pageMeta`, `HeadTags`, `useHead`, `headTagsToHtml` | 25 |
 | `JsonLd`, `jsonLd`, `organization`, `webSite`, `offer`, `softwareApplication`, `product`, `faqPage`, `breadcrumbList`, `article` | 26; safe serialisation |
-| `buildCrawlFiles`, `robotsTxt`, `sitemapXml`, `llmsTxt`, `AI_CRAWLERS` | 28, 29 |
+| `buildCrawlFiles`, `robotsTxt`, `sitemapXml`, `llmsTxt`, `AI_CRAWLERS`, `rssFeed` | 28, 29 |
 | `fontPreloads` | 21, 30 |

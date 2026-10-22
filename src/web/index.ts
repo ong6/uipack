@@ -169,6 +169,7 @@ export {
   LLMS_FULL_PATH,
   resolveAiCrawlers,
   formatLastmod,
+  rssFeed,
   AI_CRAWLERS,
   type AiCrawler,
   type AiCrawlerAgent,
@@ -179,4 +180,6 @@ export {
   type CrawlPage,
   type CrawlFiles,
   type BuildCrawlFilesOptions,
+  type RssItem,
+  type RssFeedOptions,
 } from "./crawl";

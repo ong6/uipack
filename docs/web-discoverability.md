@@ -24,7 +24,7 @@ A Landing page is ready to be found and quoted when:
 | 4 | **A real head**: unique title, description, absolute canonical without view-state parameters, Open Graph and Twitter tags; links to the Markdown twin, `llms.txt` and the feed where the site has them. | `pageMeta()` → `HeadTags` (server) or `useHead` (client) or `headTagsToHtml` (static). |
 | 5 | **JSON-LD for what the page shows**: the organisation, the site, the product with the Pricing section's offer, the FAQ. Nothing invisible, no invented ratings. | `organization` (or `person` for a personal site), `webSite`, `softwareApplication` / `product` + `offer`, `faqPage`, `breadcrumbList`, `article`, `jsonLd`, `<JsonLd>`. |
 | 6 | **Answers that stand alone**: each FAQ answer's first sentence answers the question and names the product instead of "it". | `<FAQ items>`; visible text and FAQPage JSON-LD come from the same array. |
-| 7 | **robots.txt with a stance per AI crawler**, `sitemap.xml` with accurate `lastmod`, and (optionally) `llms.txt`. | `buildCrawlFiles()`, or `scripts/build-crawl-files.ts`. |
+| 7 | **robots.txt with a stance per AI crawler**, `sitemap.xml` with accurate `lastmod`, and (optionally) `llms.txt` and an RSS feed. | `buildCrawlFiles()`, or `scripts/build-crawl-files.ts`; `rssFeed()`. |
 | 8 | **Fast first view**: LCP ≤ 2.5 s, CLS ≤ 0.1, INP ≤ 200 ms at the 75th percentile ([web.dev][wd-cwv]). | Preload only the hero's display face (`fontPreloads`), keep motion idle until in view (it is), use `Section lazyRender` low on the page. |
 
 ## Component audit
@@ -270,6 +270,28 @@ npx tsx scripts/build-crawl-files.ts --config ./crawl.config.ts --out public
 ```
 
 A config module's default export is `BuildCrawlFilesOptions`, or a function of `--site` returning one.
+
+### Feed: `rssFeed`
+
+The feed `pageMeta`'s `rss` option links to. Serve the result at that path.
+
+```ts
+import { rssFeed } from "uipack/web";
+
+const xml = rssFeed({
+  title: "Tidy notes",
+  link: "https://tidy.example",            // absolute; item paths resolve against it
+  description: "What changed in Tidy and why.",
+  self: "/feed.xml",                        // optional: atom:link rel="self", which validators ask for
+  language: "en-gb",                        // optional
+  items: [
+    { title: "Filters run before drafts", link: "/notes/filters", pubDate: "2026-10-20", description: "<p>HTML is fine.</p>" },
+    { title: "Hello", link: "/notes/hello", guid: "tidy-note-1", pubDate: new Date("2026-09-01") },
+  ],
+});
+```
+
+RSS 2.0, newest entry first. Text is XML-escaped, so an HTML `description` reaches the reader as the HTML it was; characters XML cannot carry are dropped. `pubDate` takes a `Date` or ISO 8601 and is written as RFC 822 in GMT. An item's `guid` defaults to its absolute link (`isPermaLink="true"`); give one when the URL may change. `lastBuildDate` is the newest entry's date, not the build time, for the reason `lastmod` is: a date that moves on every deploy says nothing. Like `buildCrawlFiles`, it throws on a relative `link` or an unreadable date.
 
 ### `Section lazyRender`
 

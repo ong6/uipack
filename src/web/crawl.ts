@@ -1,7 +1,7 @@
 /**
  * Crawl files for a Landing site: robots.txt with an explicit stance per AI crawler,
- * sitemap.xml with lastmod, and llms.txt in the llmstxt.org format. Pure string builders;
- * write the result wherever your host serves the site root.
+ * sitemap.xml with lastmod, llms.txt in the llmstxt.org format, and an RSS 2.0 feed. Pure string
+ * builders; write the result wherever your host serves the site root.
  */
 
 export type CrawlRule = "allow" | "disallow";
@@ -178,8 +178,8 @@ export interface CrawlFiles {
 /** Where buildCrawlFiles serves the full-text file, linked from llms.txt's Optional section. */
 export const LLMS_FULL_PATH = "/llms-full.txt";
 
-const siteRoot = (site: string) => {
-  if (!/^https?:\/\//i.test(site)) throw new Error(`buildCrawlFiles: site must be an absolute URL (got "${site}")`);
+const siteRoot = (site: string, field = "buildCrawlFiles: site") => {
+  if (!/^https?:\/\//i.test(site)) throw new Error(`${field} must be an absolute URL (got "${site}")`);
   return site.endsWith("/") ? site : `${site}/`;
 };
 const pageUrl = (site: string, path: string) => new URL(path.replace(/^\//, ""), siteRoot(site)).toString();
@@ -229,8 +229,17 @@ export function robotsTxt({
   return lines.join("\n");
 }
 
+// Characters XML 1.0 forbids outright (C0 controls but tab, newline and return): escaping cannot
+// carry them, so they are dropped.
+const XML_INVALID = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g;
 const escapeXml = (s: string) =>
-  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+  s
+    .replace(XML_INVALID, "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 
 /** W3C datetime for <lastmod>: a Date becomes YYYY-MM-DD (UTC); a string must already be one. */
 export function formatLastmod(d: Date | string): string {
@@ -324,4 +333,72 @@ export function buildCrawlFiles(o: BuildCrawlFilesOptions): CrawlFiles {
   };
   if (o.pages.some((p) => !p.noindex && p.content?.trim())) files["llms-full.txt"] = llmsFullTxt(o);
   return files;
+}
+
+export interface RssItem {
+  title: string;
+  /** Path from the feed's `link` ("/notes/first") or an absolute URL. */
+  link: string;
+  /** A stable id for the entry. Default: the item's absolute link, as a permalink. */
+  guid?: string;
+  /** When the entry was published: a Date, or ISO 8601 ("2026-10-22", "2026-10-22T09:30:00Z"). */
+  pubDate: Date | string;
+  /** Summary text or HTML; escaped, so a reader shows it as the author wrote it. */
+  description?: string;
+}
+
+export interface RssFeedOptions {
+  /** The feed's (usually the site's) name. */
+  title: string;
+  /** The site the feed belongs to, as an absolute URL; item paths resolve against it. */
+  link: string;
+  description: string;
+  items: RssItem[];
+  /** Where the feed itself is served, e.g. "/feed.xml": adds the `atom:link rel="self"` validators ask for. */
+  self?: string;
+  /** The feed's language, e.g. "en-gb". */
+  language?: string;
+}
+
+/** An RSS date (RFC 822, in GMT) from a Date or an ISO 8601 string. */
+function rssDate(d: Date | string, field: string): { time: number; text: string } {
+  if (typeof d === "string" && !/^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/.test(d))
+    throw new Error(`${field} must be a Date or ISO 8601, e.g. 2026-10-22 (got "${d}")`);
+  const time = d instanceof Date ? d.getTime() : Date.parse(d);
+  if (Number.isNaN(time)) throw new Error(`${field}: invalid date`);
+  return { time, text: new Date(time).toUTCString() };
+}
+
+/**
+ * An RSS 2.0 feed, newest entry first, for the `rss` link `pageMeta` adds to the head. Text is
+ * XML-escaped (an HTML description arrives as the HTML it was). `lastBuildDate` is the newest
+ * entry's date, not the build time, for the same reason a sitemap's lastmod is: a date that moves
+ * on every deploy tells readers nothing. Throws on a relative `link` or an unreadable date.
+ */
+export function rssFeed({ title, link, description, items, self, language }: RssFeedOptions): string {
+  const root = siteRoot(link, "rssFeed: link");
+  const entries = items
+    .map((item, i) => ({ item, url: pageUrl(root, item.link), date: rssDate(item.pubDate, `rssFeed: items[${i}].pubDate`) }))
+    .sort((a, b) => b.date.time - a.date.time);
+  const channel = [
+    `    <title>${escapeXml(oneLine(title))}</title>`,
+    `    <link>${escapeXml(root)}</link>`,
+    `    <description>${escapeXml(oneLine(description))}</description>`,
+  ];
+  if (self) channel.push(`    <atom:link href="${escapeXml(pageUrl(root, self))}" rel="self" type="application/rss+xml"/>`);
+  if (language) channel.push(`    <language>${escapeXml(language)}</language>`);
+  if (entries.length) channel.push(`    <lastBuildDate>${entries[0].date.text}</lastBuildDate>`);
+  for (const { item, url, date } of entries) {
+    const guid = item.guid ?? url;
+    const lines = [
+      `      <title>${escapeXml(oneLine(item.title))}</title>`,
+      `      <link>${escapeXml(url)}</link>`,
+      `      <guid isPermaLink="${guid === url ? "true" : "false"}">${escapeXml(guid)}</guid>`,
+      `      <pubDate>${date.text}</pubDate>`,
+    ];
+    if (item.description) lines.push(`      <description>${escapeXml(item.description.trim())}</description>`);
+    channel.push(`    <item>\n${lines.join("\n")}\n    </item>`);
+  }
+  const atom = self ? ' xmlns:atom="http://www.w3.org/2005/Atom"' : "";
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"${atom}>\n  <channel>\n${channel.join("\n")}\n  </channel>\n</rss>\n`;
 }
