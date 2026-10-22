@@ -156,6 +156,10 @@
   background-image: radial-gradient(var(--uipack-grid) 1px, transparent 1.2px);
   background-size: 12px 12px;
 }
+/* A figure with no header: the figure's own border is the canvas's top edge (no double line). */
+.uipack > .uipack__sr:first-child + .uipack__canvas {
+  border-top: 0;
+}
 .uipack__canvas--plain {
   background-image: none;
 }

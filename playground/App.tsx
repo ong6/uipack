@@ -60,7 +60,7 @@ function ChartFrame({ children }: { children: React.ReactNode }) {
   return (
     <>
       <p className="chart-frame__bar">
-        Host width
+        <span>Host width</span>
         {FRAMES.map((f) => (
           <button type="button" key={f} aria-pressed={f === frame} onClick={() => pick(f)}>
             {f === "full" ? "full" : `${f}px`}

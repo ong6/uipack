@@ -61,11 +61,17 @@
   display: flex;
   justify-content: center;
 }
+/* A demo block fills its grid cell; its Replay sits on the bottom edge, so a row's Replays line up. */
 .web-block {
-  display: grid;
-  align-content: start;
+  display: flex;
+  flex-direction: column;
   gap: var(--web-s2);
   min-width: 0;
+  height: 100%;
+}
+.web-block > .web-replay:last-child {
+  margin-top: auto;
+  align-self: flex-start;
 }
 .web-block > .uipack-web-eyebrow:not(:first-child) { margin-top: var(--web-s2); }
 .web-scale {
@@ -233,9 +239,10 @@
   border: 1px solid var(--web-hairline);
   background: var(--web-bg);
 }
+/* Top-anchored, so headings line up across a row whatever each description's length. */
 .web-bg-tile .uipack-web-bgframe__content {
   display: grid;
-  align-content: end;
+  align-content: start;
   gap: var(--web-s1);
   min-height: 240px;
   padding: var(--web-s3);

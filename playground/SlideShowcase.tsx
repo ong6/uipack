@@ -65,7 +65,7 @@ export default function Slides() {
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by topic or technique"
+              placeholder="Topic or technique"
             />
           </label>
           <label>

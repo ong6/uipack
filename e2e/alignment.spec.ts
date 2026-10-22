@@ -94,7 +94,7 @@ for (const width of [1440, 390]) {
 
 // A focused control's ring (outline width + offset) must fit inside the nearest box that
 // scrolls or clips; scroll rows give their items room with padding, or the ring is inset.
-for (const [path, width] of [["/animations", 390], ["/assets", 390], ["/mechanism", 390], ["/mechanism", 1440], ["/web", 390], ["/", 390]] as const) {
+for (const [path, width] of [["/animations", 390], ["/assets", 390], ["/mechanism", 390], ["/mechanism", 1440], ["/web", 390], ["/", 390], ["/docs", 1440], ["/presentations", 1440]] as const) {
   test(`${path} at ${width}: focus rings are not clipped`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await open(page, path);
@@ -131,3 +131,12 @@ for (const [path, width] of [["/animations", 390], ["/assets", 390], ["/mechanis
     expect(clipped).toEqual([]);
   });
 }
+
+test("sections on the diagrams page are one shell gap apart", async ({ page }) => {
+  await open(page, "/");
+  const gaps = await page.evaluate(() => {
+    const sections = [...document.querySelectorAll("[data-section]")];
+    return sections.slice(1).map((s, i) => Math.round(s.getBoundingClientRect().top - sections[i].getBoundingClientRect().bottom));
+  });
+  expect(new Set(gaps)).toEqual(new Set([32]));
+});

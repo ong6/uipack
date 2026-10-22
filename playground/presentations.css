@@ -1,10 +1,3 @@
-.collection-intro {
-  max-width: 78ch;
-  font-size: 14px;
-  line-height: 1.65;
-  color: var(--show-muted);
-  margin: 12px 0 24px;
-}
 .style-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
@@ -84,9 +77,9 @@
   color: var(--show-accent);
   background: var(--show-surface);
 }
+/* A second h2 inside one section: the shell's h2, with the section gap above it. */
 .showcase-shell > section > .deck-example-heading {
-  margin: 56px 0 0;
-  font-size: 22px;
+  margin: 32px 0 8px;
 }
 .deck-navigation {
   justify-content: space-between;
@@ -98,6 +91,8 @@
 .composed-deck {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  /* The slide takes the spare height; the footer stays one line. */
+  grid-template-rows: 1fr auto;
   min-height: 620px;
   border: 1px solid var(--show-rule);
   border-radius: 6px;

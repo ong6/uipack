@@ -231,7 +231,6 @@
    the whole key fits one row in a 56rem host. */
 .uipack-span .uipack-span__key-label {
   margin-right: 2px;
-  font-size: 10px;
 }
 .uipack-span .uipack-span__key-item {
   display: inline-flex;
