@@ -79,6 +79,10 @@
   opacity: 0;
   transition-delay: 0ms;
 }
+.uipack-deck-bento[data-still] .uipack-deck-bento__grid,
+.uipack-deck-bento[data-still] .uipack-deck-bento__cell,
+.uipack-deck-bento[data-still] .uipack-deck-bento__face,
+.uipack-deck-bento[data-still] .uipack-deck-bento__detail,
 .uipack-deck[data-motion="none"] .uipack-deck-bento__cell,
 .uipack-deck[data-motion="none"] .uipack-deck-bento__face,
 .uipack-deck[data-motion="none"] .uipack-deck-bento__detail {

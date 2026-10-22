@@ -1,8 +1,14 @@
+import { useRef } from "react";
 import type { DeckSlide, DeckTheme } from "../types";
+import { useDetailStops } from "./details";
 import { notesOf, pad } from "./format";
 import { SlideThumbnail } from "./Layer";
 
-/** Every slide, fully built, with its talk track underneath. Reads like a document. */
+/**
+ * Every slide, fully built, with its claim as the heading and its talk track underneath. Reads
+ * like a document. A slide whose camera tour shows detail (a bento) adds a still per detail, so a
+ * reader sees what the presenter showed.
+ */
 export function Reader({
   slides,
   theme,
@@ -21,24 +27,51 @@ export function Reader({
         </button>
       </div>
       <ol>
-        {slides.map((s, i) => {
-          const notes = notesOf(s);
-          return (
-            <li key={s.id}>
-              <SlideThumbnail slide={s} index={i} count={slides.length} theme={theme} />
-              <div className="uipack-deck-read__notes">
-                <h2>
-                  <span>{pad(i + 1)}</span> {s.title}
-                </h2>
-                {notes?.say && <p>{notes.say}</p>}
-                <button type="button" onClick={() => onPresent(i)} aria-label={`Present from slide ${i + 1}: ${s.title}`}>
-                  Present from here
-                </button>
-              </div>
-            </li>
-          );
-        })}
+        {slides.map((s, i) => (
+          <ReadItem key={s.id} slide={s} index={i} count={slides.length} theme={theme} onPresent={onPresent} />
+        ))}
       </ol>
     </div>
+  );
+}
+
+function ReadItem({
+  slide: s,
+  index: i,
+  count,
+  theme,
+  onPresent,
+}: {
+  slide: DeckSlide;
+  index: number;
+  count: number;
+  theme: DeckTheme;
+  onPresent: (index: number) => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const stops = useDetailStops(ref, s);
+  const notes = notesOf(s);
+  return (
+    <li>
+      <div ref={ref} className="uipack-deck-read__stills">
+        <SlideThumbnail slide={s} index={i} count={count} theme={theme} />
+        {stops.map((stop) => (
+          <figure key={stop.step} className="uipack-deck-read__detail">
+            <SlideThumbnail slide={s} index={i} count={count} theme={theme} step={stop.step} />
+            <figcaption>Detail · {stop.label}</figcaption>
+          </figure>
+        ))}
+      </div>
+      <div className="uipack-deck-read__notes">
+        <p className="uipack-deck-read__title">
+          <span>{pad(i + 1)}</span> {s.title}
+        </p>
+        <h2>{s.headline ?? s.title}</h2>
+        {notes?.say && <p>{notes.say}</p>}
+        <button type="button" onClick={() => onPresent(i)} aria-label={`Present from slide ${i + 1}: ${s.title}`}>
+          Present from here
+        </button>
+      </div>
+    </li>
   );
 }

@@ -95,6 +95,7 @@ export default function DeckShowcase() {
           theme={theme}
           motion={motion}
           mode="presenter"
+          minutes={example.lint?.minutes}
           keyboard="global"
           initial={initial}
           onPositionChange={syncUrl}

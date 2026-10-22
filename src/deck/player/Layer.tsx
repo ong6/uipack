@@ -70,17 +70,20 @@ export function SlideThumbnail({
   index,
   count,
   theme = "light",
+  step = Infinity,
 }: {
   slide: DeckSlide;
   index: number;
   count: number;
   theme?: DeckTheme;
+  /** The build step to show. Fully built by default; a detail stop for the read view's extra stills. */
+  step?: number;
 }) {
   const { ref, scale } = useCanvasScale();
   return (
     <div ref={ref} className="uipack-deck-thumb" data-tone={slide.tone ?? "paper"}>
       <div className="uipack-deck-canvas" style={{ transform: `scale(${scale})`, visibility: scale ? undefined : "hidden" }}>
-        <Layer slide={slide} index={index} count={count} step={Infinity} active={false} thumbnail theme={theme} reducedMotion />
+        <Layer slide={slide} index={index} count={count} step={step} active={false} thumbnail theme={theme} reducedMotion />
       </div>
     </div>
   );
