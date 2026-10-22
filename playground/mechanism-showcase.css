@@ -18,8 +18,11 @@
   font-size: 14px;
   color: var(--show-muted);
 }
-.mechanism-stage {
+/* The card spans the page like every other figure; the machine inside keeps its 960px reading
+   size, centred, so the drawing is not blown up and the card leaves no gutter beside it. */
+.mechanism-stage .um-machine {
   max-width: 960px;
+  margin-inline: auto;
 }
 .mechanism-thumbs {
   display: grid;
