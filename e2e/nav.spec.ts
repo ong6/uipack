@@ -1,5 +1,5 @@
 import { figureEntries, libraryGroups, pageDefs, pagePath } from "../playground/catalog";
-import { expect, test, type Page } from "./fixtures";
+import { expect, test, waitForStable, type Page } from "./fixtures";
 
 // The information architecture the shell must render, read from the catalog: the groups in
 // order, each with the page it opens on and its pages as [label, path].
@@ -418,6 +418,44 @@ test("an unknown deck shows a visible note and the default deck", async ({ page 
   await expect(page.locator(".showcase-title__note")).toHaveCount(0);
   await page.goto("/deck");
   await expect(page.locator(".showcase-title__note")).toHaveCount(0);
+});
+
+test.describe("a #fragment link opens its target once the lazy page has rendered", () => {
+  for (const [width, height] of [
+    [1280, 800],
+    [390, 844],
+  ] as const) {
+    test(`${width}px: /web#web-pricing lands on the pricing section, focused, as the sample's own Pricing link does`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto("/web#web-pricing");
+      const pricing = page.locator("#web-pricing");
+      await expect(pricing).toBeFocused();
+      const heading = pricing.getByRole("heading", { level: 2 });
+      await expect(heading).toBeInViewport();
+      // It stays put while the faces and images above it settle.
+      await waitForStable(() => heading.evaluate((h) => Math.round(h.getBoundingClientRect().top)));
+      const landed = await heading.evaluate((h) => Math.round(h.getBoundingClientRect().top));
+      expect(landed).toBeGreaterThan(0);
+      expect(landed).toBeLessThan(height / 2);
+    });
+  }
+
+  test("every page benefits: /#decision-tree and /article#callout", async ({ page }) => {
+    for (const [path, id] of [
+      ["/#decision-tree", "decision-tree"],
+      ["/article#callout", "callout"],
+    ]) {
+      await page.goto(path);
+      const target = page.locator(`#${id}`);
+      await expect(target).toBeFocused();
+      await waitForStable(() => target.evaluate((el) => Math.round(el.getBoundingClientRect().top)));
+      expect(await target.evaluate((el) => el.getBoundingClientRect().top)).toBeLessThan(200);
+      expect(await target.evaluate((el) => el.getBoundingClientRect().top)).toBeGreaterThan(-1);
+      // The tabindex that let it take focus goes when focus moves on.
+      await page.keyboard.press("Tab");
+      await expect(target).not.toHaveAttribute("tabindex");
+    }
+  });
 });
 
 test("while a page's chunk loads, the shell stays and a status line says what is loading", async ({ page }) => {
