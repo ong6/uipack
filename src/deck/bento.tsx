@@ -1,13 +1,13 @@
 import {
   Children,
   isValidElement,
-  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
   type ReactElement,
   type ReactNode,
 } from "react";
+import { useIsoLayoutEffect } from "../env";
 import { useDeckSlide } from "./parts";
 
 export interface BentoCellProps {
@@ -81,7 +81,7 @@ export function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, classNam
   const gridRef = useRef<HTMLDivElement>(null);
   const [camera, setCamera] = useState<{ s: number; tx: number; ty: number } | null>(null);
 
-  useLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const grid = gridRef.current;
     if (!grid || !focus) return setCamera(null);
     const cell = grid.querySelector<HTMLElement>(`[data-bento-cell="${CSS.escape(focus)}"]`);
