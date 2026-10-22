@@ -553,9 +553,11 @@
   .uipack-web-hero__proof {
     margin-top: var(--web-s6);
   }
+  /* A phone stacks the demo under the copy: the star spans the column and rises out from behind
+     the demo's top edge to the right, rather than running off the side as a sliver. */
   .uipack-web-hero__visual {
-    inset: 30% -40% 0;
-    --web-hero-clear: linear-gradient(to right, transparent 0%, transparent 42%, #000 70%);
+    inset: 28% 0 0;
+    --web-hero-clear: linear-gradient(to right, transparent 0%, transparent 32%, #000 62%);
   }
 }
 .uipack-web-noise {
