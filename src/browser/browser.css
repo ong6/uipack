@@ -75,7 +75,7 @@
   border-radius: 6px;
   background: transparent;
   color: var(--uipack-muted);
-  font: 500 14px/1 var(--uipack-sans);
+  font: 500 13px/1 var(--uipack-mono);
   text-align: left;
   cursor: pointer;
 }
@@ -162,34 +162,47 @@
   height: auto;
   display: block;
 }
+/* A preview with a reduced-motion still is a <picture>; it lays out as its <img>. */
+.uipack-browser__tile picture {
+  display: contents;
+}
 /* Each preview is rendered in both palettes; the tile shows the one that
    matches the theme the browser's colour tokens follow. */
-.uipack-browser__tile img[data-scheme="dark"] {
+.uipack-browser__tile > [data-scheme="dark"] {
   display: none;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .uipack-browser__tile img[data-scheme="light"]:not(:last-child) {
+  :root:not([data-theme="light"]) .uipack-browser__tile > [data-scheme="light"]:not(:last-child) {
     display: none;
   }
-  :root:not([data-theme="light"]) .uipack-browser__tile img[data-scheme="dark"] {
+  :root:not([data-theme="light"]) .uipack-browser__tile > img[data-scheme="dark"] {
     display: block;
   }
+  :root:not([data-theme="light"]) .uipack-browser__tile > picture[data-scheme="dark"] {
+    display: contents;
+  }
 }
-[data-theme="dark"] .uipack-browser__tile img[data-scheme="light"]:not(:last-child),
-.uipack-browser[data-theme="dark"] .uipack-browser__tile img[data-scheme="light"]:not(:last-child) {
+[data-theme="dark"] .uipack-browser__tile > [data-scheme="light"]:not(:last-child),
+.uipack-browser[data-theme="dark"] .uipack-browser__tile > [data-scheme="light"]:not(:last-child) {
   display: none;
 }
-[data-theme="dark"] .uipack-browser__tile img[data-scheme="dark"],
-.uipack-browser[data-theme="dark"] .uipack-browser__tile img[data-scheme="dark"] {
+[data-theme="dark"] .uipack-browser__tile > img[data-scheme="dark"],
+.uipack-browser[data-theme="dark"] .uipack-browser__tile > img[data-scheme="dark"] {
   display: block;
 }
-.uipack-browser__card[data-kind="icon"] .uipack-browser__tile img,
-.uipack-browser__card[data-kind="mark"] .uipack-browser__tile img,
-.uipack-browser__card[data-kind="motion"] .uipack-browser__tile img {
-  width: 48%;
+[data-theme="dark"] .uipack-browser__tile > picture[data-scheme="dark"],
+.uipack-browser[data-theme="dark"] .uipack-browser__tile > picture[data-scheme="dark"] {
+  display: contents;
 }
-.uipack-browser__card[data-kind="mark"] .uipack-browser__tile img[data-wide] {
-  width: 80%;
+/* Previews show at the size their file is drawn for (icons and tokens at 48px, marks at 64px,
+   wide motion strips across the tile), never blown up past it. A background swatch fills
+   the tile and carries a hairline, so a plain canvas shows on a tile of nearly its colour. */
+.uipack-browser__card[data-kind="background"] .uipack-browser__tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 1px solid var(--uipack-border);
+  border-radius: 4px;
 }
 .uipack-browser__row {
   display: flex;
@@ -213,11 +226,29 @@
   border-radius: 6px;
   background: var(--uipack-surface);
   color: var(--uipack-fg);
-  font: 600 12px/1 var(--uipack-sans);
+  font: 500 12px/1 var(--uipack-mono);
   cursor: pointer;
 }
 .uipack-browser__action:hover {
   border-color: var(--uipack-fg);
+}
+/* With a mouse, a card's action appears on hover or focus, so 44 buttons do not crowd the grid.
+   Touch screens (no hover) always show it; it stays in the tab order either way. */
+@media (hover: hover) {
+  .uipack-browser__action {
+    opacity: 0;
+    transition: opacity 120ms ease;
+  }
+  .uipack-browser__card:hover .uipack-browser__action,
+  .uipack-browser__card:focus-within .uipack-browser__action,
+  .uipack-browser__action[data-flash="true"] {
+    opacity: 1;
+  }
+}
+@media (hover: hover) and (prefers-reduced-motion: reduce) {
+  .uipack-browser__action {
+    transition: none;
+  }
 }
 .uipack-browser__action[data-flash="true"] {
   border-color: var(--uipack-accent);
@@ -251,7 +282,6 @@
   .uipack-browser__cat {
     width: auto;
     border-color: var(--uipack-border);
-    border-radius: 22px;
     white-space: nowrap;
   }
   .uipack-browser__bar {

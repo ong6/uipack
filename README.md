@@ -286,7 +286,7 @@ import manifest from "uipack/assets/manifest.json";
 <AssetBrowser manifest={manifest} initialCategory="Icons" base="/uipack/" />
 ```
 
-`onAction` replaces the copy, `actionLabel` renames the button. The sidebar collapses to a row of chips below 720px; every target is 44px. On wider screens the category list is sticky at `top: 16px`; a host with a fixed header sets `--uipack-browser-sticky-top` (for example `88px`) on `.uipack-browser` or an ancestor. The tile shows `previewDark` when the browser's colour tokens are dark (`data-theme="dark"` on it or an ancestor, or the OS preference without `data-theme="light"`).
+`onAction` replaces the copy, `actionLabel` renames the button. With a mouse (`hover: hover`) a card's button appears on hover or keyboard focus; touch screens always show it. Previews show at the size their file is drawn for (icons and tokens at 48px, marks at 64px, motion strips at 240px capped by the tile); background swatches fill the tile with a hairline edge. An animated preview may list `previewStatic` and `previewStaticDark`, a still the tile shows under `prefers-reduced-motion: reduce` (the packet strip does). The sidebar collapses to a row of chips below 720px; every target is 44px. On wider screens the category list is sticky at `top: 16px`; a host with a fixed header sets `--uipack-browser-sticky-top` (for example `88px`) on `.uipack-browser` or an ancestor. The tile shows `previewDark` when the browser's colour tokens are dark (`data-theme="dark"` on it or an ancestor, or the OS preference without `data-theme="light"`).
 
 ## Static export
 

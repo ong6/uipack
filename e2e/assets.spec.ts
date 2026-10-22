@@ -61,6 +61,30 @@ test.describe("asset browser", () => {
     await expect(page.locator(".uipack-browser__action").first()).toHaveText("Copied");
   });
 
+  test("under reduced motion the packet preview is its still; the plain canvas has an edge", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/assets?theme=dark");
+    const packet = page.locator('[data-id="motion-packet"] .uipack-browser__tile img:visible');
+    await expect(packet).toHaveCount(1);
+    await expect.poll(() => packet.evaluate((i: HTMLImageElement) => i.currentSrc)).toMatch(/dark\/motion-packet-still\.svg$/);
+    const edge = await page.locator('[data-id="background-plain"] .uipack-browser__tile img:visible').evaluate((i) => getComputedStyle(i).borderTopWidth);
+    expect(edge).toBe("1px");
+  });
+
+  test("with a mouse, Copy shows on hover and focus only", async ({ page }) => {
+    await page.goto("/assets");
+    const card = page.locator(".uipack-browser__card").first();
+    const action = card.locator(".uipack-browser__action");
+    const hover = await page.evaluate(() => matchMedia("(hover: hover)").matches);
+    test.skip(!hover, "touch screens always show the action");
+    await expect(action).toHaveCSS("opacity", "0");
+    await card.hover();
+    await expect(action).toHaveCSS("opacity", "1");
+    await page.mouse.move(0, 0);
+    await action.focus();
+    await expect(action).toHaveCSS("opacity", "1");
+  });
+
   test("counts and status are full opacity, action buttons are 44px", async ({ page }) => {
     await page.goto("/assets");
     await page.locator(".uipack-browser__action").first().waitFor();

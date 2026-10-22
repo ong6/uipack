@@ -54,4 +54,13 @@ describe("asset browser", () => {
       ["dark", "/docs/assets/dark/a.svg"],
     ]);
   });
+  it("offers an animated preview's still to reduced-motion readers", () => {
+    const animated = { ...manifest, assets: [{ ...manifest.assets[0], previewDark: "d.svg", previewStatic: "s.svg", previewStaticDark: "sd.svg" }] };
+    const { container } = render(<AssetBrowser manifest={animated} base="/" />);
+    const sources = container.querySelectorAll(".uipack-browser__tile picture source");
+    expect([...sources].map((s) => [s.getAttribute("media"), s.getAttribute("srcset")])).toEqual([
+      ["(prefers-reduced-motion: reduce)", "/s.svg"],
+      ["(prefers-reduced-motion: reduce)", "/sd.svg"],
+    ]);
+  });
 });
