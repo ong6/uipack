@@ -531,9 +531,9 @@
 }
 .deck-bento-plan li {
   display: grid;
-  grid-template-columns: 88px 500px 1fr 140px;
+  grid-template-columns: 88px 480px 1fr 150px 130px;
   align-items: baseline;
-  padding: 34px 0;
+  padding: 28px 0;
   border-top: 1.5px solid var(--deck-rule);
 }
 .deck-bento-plan b {
@@ -548,6 +548,26 @@
 }
 .deck-bento-plan li > span:last-child {
   text-align: right;
+}
+.deck-bento-plan__share {
+  font-size: 46px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+/* The sum, under a heavier rule, so the three shares read as adding up to it. */
+.deck-bento-plan li.deck-bento-plan__total {
+  border-top: 3px solid currentColor;
+}
+.deck-bento-plan__total .deck-bento-plan__share {
+  color: var(--deck-accent);
+}
+
+/* Bento example: the ask names its owner in the title, so it runs wider and a step smaller. */
+.uipack-deck-title.deck-bento-ask-title {
+  max-width: 24ch;
+  font-size: 100px;
 }
 
 /* Bento example: the risk slide, terms on the left and the forecast on the right. */

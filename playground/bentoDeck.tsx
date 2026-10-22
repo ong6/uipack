@@ -108,7 +108,7 @@ export const bentoDeck: DeckSlide[] = [
       </Slide>
     ),
     notes: {
-      say: "The headline first: search is twice as fast as it was in Q2, and it costs less to serve. p95 latency went from four hundred and twelve milliseconds to one hundred and ninety-eight, and cost per thousand queries fell eighteen percent, while traffic grew. Everything after this slide is the evidence, the one risk that could undo it, and the one decision we need from the Platform leads by the twentieth of October. Source: the search latency and cost dashboards, Q2 against Q3.",
+      say: "The headline first: search is twice as fast as it was in Q2, and it costs less to serve. p95 latency went from four hundred and twelve milliseconds to one hundred and ninety-eight, and cost per thousand queries fell eighteen percent, while traffic grew. Everything after this slide is the evidence, the one risk that could undo it, and the one decision we need from the Platform leads by the thirtieth of October. Source: the search latency and cost dashboards, Q2 against Q3.",
       delivery: "State both numbers slowly. Don't explain yet.",
       next: "Here's where the speed came from.",
     },
@@ -116,11 +116,11 @@ export const bentoDeck: DeckSlide[] = [
   {
     id: "quarter",
     title: "Caching did most of it",
-    headline: "Caching did most of it: 140 of 214 ms saved, six launches, no rollbacks.",
+    headline: "Caching saved 140 of the 214 ms we cut this quarter.",
     role: "evidence",
     render: () => (
       <Slide footer={footer}>
-        <h2 className="uipack-deck-heading">Caching did most of it: 140 of 214{"\u00a0"}ms saved, six launches, no rollbacks.</h2>
+        <h2 className="uipack-deck-heading">Caching saved 140 of the 214{"\u00a0"}ms we cut this quarter.</h2>
         <Bento columns={6} rows={4} tour={["latency", "shipped"]}>
           <BentoCell
             id="latency"
@@ -217,7 +217,7 @@ export const bentoDeck: DeckSlide[] = [
             </div>
             <div>
               <dt>Mitigation</dt>
-              <dd>Two engineers shard the tier in four weeks, done by 17 November.</dd>
+              <dd>Two engineers shard the tier in three weeks, done by 20 November.</dd>
             </div>
             <div>
               <dt>Tripwire</dt>
@@ -229,7 +229,7 @@ export const bentoDeck: DeckSlide[] = [
       </Slide>
     ),
     notes: {
-      say: "Here's the risk box up close. The cache tier is at seventy-one percent memory and climbing about three points a week. On that trend it reaches eighty-six percent by the seventeenth of November, and peak traffic from the twenty-third adds about four more, which takes it past ninety, where evictions undo most of the retrieval gain. A shard takes two engineers four weeks. And we'll know early if we're wrong: if memory passes eighty-five percent before the tenth of November, the trend is faster than forecast, and we cap long-tail caching while the shard finishes. Source: the cache capacity forecast from the search dashboard.",
+      say: "Here's the risk box up close. The cache tier is at seventy-one percent memory and climbing about three points a week. On that trend it reaches eighty-six percent by the seventeenth of November, and peak traffic from the twenty-third adds about four more, which takes it past ninety, where evictions undo most of the retrieval gain. A shard takes two engineers three weeks, so approved by the end of October it lands on the twentieth of November, before the peak. And we'll know early if we're wrong: if memory passes eighty-five percent before the tenth of November, the trend is faster than forecast, and we cap long-tail caching while the shard finishes. Source: the cache capacity forecast from the search dashboard.",
       delivery: "Point at the dashed line crossing the limit, then at the tripwire line.",
       next: "So the shard leads next quarter's plan.",
     },
@@ -241,26 +241,34 @@ export const bentoDeck: DeckSlide[] = [
     role: "plan",
     tone: "ink",
     render: () => (
-      <Slide eyebrow="Next quarter" footer={footer}>
-        <h2 className="uipack-deck-heading">Hold latency. Cut cost another 10%.</h2>
+      <Slide eyebrow="Next quarter · cost per 1k queries" footer={footer}>
+        <h2 className="uipack-deck-heading">Next quarter we hold latency and cut cost another 10%.</h2>
         <ol className="deck-bento-plan">
           {[
-            ["Shard the cache", "So the retrieval gain holds through the peak.", "17 Nov"],
-            ["Batch the ranker", "Fewer, larger calls on GPUs we already pay for.", "Dec"],
-            ["Retire the old index", "One fewer cluster to run: about 6% of cost.", "Jan"],
-          ].map(([name, text, when], i) => (
+            ["Shard the cache", "Smaller nodes; the gain holds through the peak.", "−1%", "20 Nov"],
+            ["Batch the ranker", "Fewer, larger calls on GPUs we already pay for.", "−3%", "Dec"],
+            ["Retire the old index", "One fewer cluster to run.", "−6%", "Jan"],
+          ].map(([name, text, share, when], i) => (
             <li key={name}>
               <span className="uipack-deck-label">{String(i + 1).padStart(2, "0")}</span>
               <b>{name}</b>
               <span>{text}</span>
+              <span className="deck-bento-plan__share">{share}</span>
               <span className="uipack-deck-label">{when}</span>
             </li>
           ))}
+          <li className="deck-bento-plan__total">
+            <span />
+            <b>Together</b>
+            <span>Cost per 1k queries, from $0.41 to about $0.37.</span>
+            <span className="deck-bento-plan__share">−10%</span>
+            <span className="uipack-deck-label">Jan</span>
+          </li>
         </ol>
       </Slide>
     ),
     notes: {
-      say: "Three things next quarter. The cache shard is the urgent one, done by the seventeenth of November, a week before the peak. Then we batch the ranker onto GPUs we already pay for, in December, and retire the old index cluster in January, which alone is about six percent of cost. Together those take cost down another ten percent while latency holds where it is.",
+      say: "Three things next quarter, and each carries part of the ten percent. The cache shard is the urgent one, done by the twentieth of November, three days before the peak; it moves the tier onto smaller nodes, about one point of cost. Then we batch the ranker onto GPUs we already pay for, in December, about three points. And we retire the old index cluster in January, about six. One plus three plus six is the ten percent: cost per thousand queries from forty-one cents to about thirty-seven, while latency holds where it is. Source: the search cost model, Q4 plan.",
       delivery: "Spend most of the time on the first item.",
       next: "The shard needs one decision, and it's dated.",
     },
@@ -268,17 +276,17 @@ export const bentoDeck: DeckSlide[] = [
   {
     id: "ask",
     title: "The ask",
-    headline: "Platform leads: approve two engineers for the cache shard by 20 October.",
+    headline: "Platform leads: approve two engineers for the cache shard by 30 October.",
     role: "ask",
     tone: "accent",
     render: () => (
-      <Slide eyebrow="Decision needed · Platform leads" footer={footer} layout="center">
-        <h2 className="uipack-deck-title">Approve two engineers for the cache shard by 20 October.</h2>
-        <p className="uipack-deck-lede">Four weeks of work lands the shard by 17 November, a week before the peak.</p>
+      <Slide eyebrow="Decision needed" footer={footer} layout="center">
+        <h2 className="uipack-deck-title deck-bento-ask-title">Platform leads: approve two engineers for the cache shard by 30 October.</h2>
+        <p className="uipack-deck-lede">Three weeks of work lands the shard by 20{"\u00a0"}November, three days before the peak.</p>
       </Slide>
     ),
     notes: {
-      say: "One decision for the Platform leads: two engineers for four weeks, approved by the twentieth of October, so the shard lands by the seventeenth of November, a week before peak traffic.",
+      say: "One decision for the Platform leads: two engineers for three weeks, approved by the thirtieth of October, so the shard starts on the second of November and lands by the twentieth, three days before peak traffic. If memory passes eighty-five percent first, we cap long-tail caching and the date still holds.",
       delivery: "Stop talking after the ask. Wait for an answer.",
     },
   },
