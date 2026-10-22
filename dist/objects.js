@@ -6,7 +6,7 @@ import {
   keepFocusedInView
 } from "./chunk-YUGHDI4S.js";
 
-// src/objects/index.tsx
+// src/objects/ObjectScene.tsx
 import { useEffect, useRef, useState } from "react";
 
 // src/objects/variants.ts
@@ -56,59 +56,8 @@ function transferObjectVariant(from, to, variant) {
   return to === "contact" ? direction === 2 ? 4 : direction === 3 ? 3 : 0 : direction;
 }
 
-// src/objects/gallery.tsx
+// src/objects/ObjectScene.tsx
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
-function AnimationWorkspace({ library, children, theme = "light" }) {
-  return /* @__PURE__ */ jsxs("div", { className: "uipack-animation-workspace", "data-theme": theme, children: [
-    /* @__PURE__ */ jsx("aside", { className: "uipack-animation-library", children: library }),
-    /* @__PURE__ */ jsx("div", { className: "uipack-animation-detail", children })
-  ] });
-}
-function ObjectInspector({ kind, variant, edition = 0, onVariantChange, onEditionChange }) {
-  variant = normalizeObjectVariant(kind, variant);
-  const contact = kind === "contact";
-  return /* @__PURE__ */ jsxs("aside", { className: "uipack-object-inspector", children: [
-    /* @__PURE__ */ jsxs(Fragment, { children: [
-      /* @__PURE__ */ jsx("h3", { children: "Art direction" }),
-      /* @__PURE__ */ jsx("div", { role: "group", "aria-label": "3D art direction", className: "uipack-direction-list", children: objectDirections.map((direction, index) => ({ direction, index })).filter(({ index }) => !contact || [0, 2, 3].includes(index)).map(({ direction, index }) => /* @__PURE__ */ jsxs("button", { type: "button", "aria-label": direction.name, "aria-pressed": objectDirectionIndex(kind, variant) === index, onClick: () => onVariantChange(contact && index === 2 ? 4 : index), children: [
-        /* @__PURE__ */ jsx("span", { className: "uipack-direction-symbol", "aria-hidden": "true", children: directionSymbols[index] }),
-        /* @__PURE__ */ jsxs("span", { children: [
-          /* @__PURE__ */ jsx("strong", { children: direction.name }),
-          /* @__PURE__ */ jsx("small", { children: direction.description })
-        ] })
-      ] }, direction.id)) })
-    ] }),
-    (contact ? variant < 3 : variant === 0) && /* @__PURE__ */ jsxs("label", { className: "uipack-edition-select", children: [
-      contact ? "Inbox edition" : "Studio edition",
-      /* @__PURE__ */ jsx("select", { value: contact ? variant % 3 : edition, onChange: (e) => (contact ? onVariantChange : onEditionChange)(Number(e.target.value)), children: objectEditions[kind].map((name, index) => /* @__PURE__ */ jsx("option", { value: index, children: name }, name)) }),
-      /* @__PURE__ */ jsx("small", { children: contact ? "Three original inbox finishes." : "The original looks, kept together in Studio." })
-    ] })
-  ] });
-}
-function ObjectGallery({ kind, variant = 0, edition = 0, theme = "light", palette, onChange }) {
-  variant = normalizeObjectVariant(kind, variant);
-  const scene = objectScenes.find((item) => item.id === kind);
-  return /* @__PURE__ */ jsxs(AnimationWorkspace, { theme, library: /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsx("h3", { children: "Object library" }),
-    /* @__PURE__ */ jsx("nav", { "aria-label": "Choose an object", className: "uipack-scene-list", onFocus: keepFocusedInView, children: objectScenes.map((item) => /* @__PURE__ */ jsxs("button", { type: "button", "aria-pressed": kind === item.id, onClick: () => onChange(item.id, transferObjectVariant(kind, item.id, variant), edition), children: [
-      item.title,
-      /* @__PURE__ */ jsx("span", { "aria-hidden": "true", children: "\u2197" })
-    ] }, item.id)) })
-  ] }), children: [
-    /* @__PURE__ */ jsxs("header", { className: "uipack-animation-heading", children: [
-      /* @__PURE__ */ jsx("h3", { children: scene.title }),
-      /* @__PURE__ */ jsx("span", { children: "Live 3D preview" })
-    ] }),
-    /* @__PURE__ */ jsxs("div", { className: "uipack-object-review", children: [
-      /* @__PURE__ */ jsx("div", { className: "uipack-gallery-stage", children: /* @__PURE__ */ jsx(ObjectScene, { kind, label: scene.title, variant, edition, theme, palette }, kind) }),
-      /* @__PURE__ */ jsx(ObjectInspector, { kind, variant, edition, onVariantChange: (value) => onChange(kind, value, edition), onEditionChange: (value) => onChange(kind, variant, value) })
-    ] }),
-    /* @__PURE__ */ jsx("p", { className: "uipack-gallery-description", children: objectDirectionIndex(kind, variant) === 0 ? scene.description : objectDirections[objectDirectionIndex(kind, variant)].description })
-  ] });
-}
-
-// src/objects/index.tsx
-import { Fragment as Fragment2, jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
 var objectPalettes = {
   light: { paper: 15986663, ink: 2698802, muted: 10136485, accent: 2121545 },
   dark: { paper: 14212825, ink: 3755080, muted: 8492426, accent: 7454115 }
@@ -162,95 +111,95 @@ var styles = {
 };
 var Fallback = ({ kind, label }) => {
   const scenes = {
-    ai: /* @__PURE__ */ jsxs2(Fragment2, { children: [
-      /* @__PURE__ */ jsx2("rect", { x: "83", y: "36", width: "194", height: "126", rx: "8" }),
-      /* @__PURE__ */ jsx2("path", { d: "M83 162l-25 25h244l-25-25" }),
-      /* @__PURE__ */ jsx2(
+    ai: /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx("rect", { x: "83", y: "36", width: "194", height: "126", rx: "8" }),
+      /* @__PURE__ */ jsx("path", { d: "M83 162l-25 25h244l-25-25" }),
+      /* @__PURE__ */ jsx(
         "path",
         {
           className: "soft",
           d: "M104 62h88m-88 22h143m-126 22h92m-109 22h120"
         }
       ),
-      /* @__PURE__ */ jsx2("rect", { x: "20", y: "56", width: "42", height: "48", rx: "5" }),
-      /* @__PURE__ */ jsx2("path", { d: "M32 72l-6 8 6 8m16-16l6 8-6 8M62 102l32 43" }),
-      /* @__PURE__ */ jsx2("rect", { x: "298", y: "56", width: "42", height: "48", rx: "5" }),
-      /* @__PURE__ */ jsx2("path", { d: "M306 80l8 8 16-19M298 104l-32 40" })
+      /* @__PURE__ */ jsx("rect", { x: "20", y: "56", width: "42", height: "48", rx: "5" }),
+      /* @__PURE__ */ jsx("path", { d: "M32 72l-6 8 6 8m16-16l6 8-6 8M62 102l32 43" }),
+      /* @__PURE__ */ jsx("rect", { x: "298", y: "56", width: "42", height: "48", rx: "5" }),
+      /* @__PURE__ */ jsx("path", { d: "M306 80l8 8 16-19M298 104l-32 40" })
     ] }),
-    contact: /* @__PURE__ */ jsxs2(Fragment2, { children: [
-      /* @__PURE__ */ jsx2("rect", { x: "28", y: "28", width: "76", height: "42", rx: "6" }),
-      /* @__PURE__ */ jsx2("rect", { x: "28", y: "86", width: "76", height: "42", rx: "6" }),
-      /* @__PURE__ */ jsx2("rect", { x: "28", y: "144", width: "76", height: "42", rx: "6" }),
-      /* @__PURE__ */ jsx2(
+    contact: /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx("rect", { x: "28", y: "28", width: "76", height: "42", rx: "6" }),
+      /* @__PURE__ */ jsx("rect", { x: "28", y: "86", width: "76", height: "42", rx: "6" }),
+      /* @__PURE__ */ jsx("rect", { x: "28", y: "144", width: "76", height: "42", rx: "6" }),
+      /* @__PURE__ */ jsx(
         "path",
         {
           className: "soft",
           d: "M104 49c62 0 76 50 126 58M104 107h126M104 165c62 0 76-50 126-58"
         }
       ),
-      /* @__PURE__ */ jsx2("circle", { cx: "142", cy: "58", r: "6", fill: "currentColor" }),
-      /* @__PURE__ */ jsx2("path", { d: "M48 42l18 13 18-13M48 42v17h36V42M49 101h34v17H61l-8 7 2-7h-6z" }),
-      /* @__PURE__ */ jsx2("circle", { cx: "66", cy: "165", r: "12" }),
-      /* @__PURE__ */ jsx2("path", { d: "M54 165h24m-12-12v24" }),
-      /* @__PURE__ */ jsx2("rect", { x: "230", y: "52", width: "102", height: "110", rx: "8" }),
-      /* @__PURE__ */ jsx2("path", { d: "M246 116h70v29h-70zM254 108h54m-54-12h54m-54-12h54" }),
-      /* @__PURE__ */ jsx2("text", { x: "281", y: "72", children: "INBOX" })
+      /* @__PURE__ */ jsx("circle", { cx: "142", cy: "58", r: "6", fill: "currentColor" }),
+      /* @__PURE__ */ jsx("path", { d: "M48 42l18 13 18-13M48 42v17h36V42M49 101h34v17H61l-8 7 2-7h-6z" }),
+      /* @__PURE__ */ jsx("circle", { cx: "66", cy: "165", r: "12" }),
+      /* @__PURE__ */ jsx("path", { d: "M54 165h24m-12-12v24" }),
+      /* @__PURE__ */ jsx("rect", { x: "230", y: "52", width: "102", height: "110", rx: "8" }),
+      /* @__PURE__ */ jsx("path", { d: "M246 116h70v29h-70zM254 108h54m-54-12h54m-54-12h54" }),
+      /* @__PURE__ */ jsx("text", { x: "281", y: "72", children: "INBOX" })
     ] }),
-    tennis: /* @__PURE__ */ jsxs2(Fragment2, { children: [
-      /* @__PURE__ */ jsx2("path", { className: "soft", d: "M45 187l55-162h160l55 162zM69 113h222M86 64h187M180 64v94M62 158h238" }),
-      /* @__PURE__ */ jsx2("path", { d: "M70 106h220m-220 0v23m220-23v23" }),
-      /* @__PURE__ */ jsx2("circle", { cx: "151", cy: "125", r: "8" }),
-      /* @__PURE__ */ jsx2("path", { d: "M140 137h22l5 25h-30zM142 163l-8 19m23-19l10 19M160 141l17 9 12-9" }),
-      /* @__PURE__ */ jsx2("ellipse", { cx: "199", cy: "133", rx: "10", ry: "14", transform: "rotate(40 199 133)" }),
-      /* @__PURE__ */ jsx2("circle", { cx: "213", cy: "42", r: "7" }),
-      /* @__PURE__ */ jsx2("path", { d: "M202 53h21l4 23h-29zM202 77l-9 17m27-17l8 17M202 57l-18 9-10-8" }),
-      /* @__PURE__ */ jsx2("ellipse", { cx: "165", cy: "50", rx: "8", ry: "12", transform: "rotate(-40 165 50)" }),
-      /* @__PURE__ */ jsx2("circle", { cx: "190", cy: "90", r: "5" })
+    tennis: /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx("path", { className: "soft", d: "M45 187l55-162h160l55 162zM69 113h222M86 64h187M180 64v94M62 158h238" }),
+      /* @__PURE__ */ jsx("path", { d: "M70 106h220m-220 0v23m220-23v23" }),
+      /* @__PURE__ */ jsx("circle", { cx: "151", cy: "125", r: "8" }),
+      /* @__PURE__ */ jsx("path", { d: "M140 137h22l5 25h-30zM142 163l-8 19m23-19l10 19M160 141l17 9 12-9" }),
+      /* @__PURE__ */ jsx("ellipse", { cx: "199", cy: "133", rx: "10", ry: "14", transform: "rotate(40 199 133)" }),
+      /* @__PURE__ */ jsx("circle", { cx: "213", cy: "42", r: "7" }),
+      /* @__PURE__ */ jsx("path", { d: "M202 53h21l4 23h-29zM202 77l-9 17m27-17l8 17M202 57l-18 9-10-8" }),
+      /* @__PURE__ */ jsx("ellipse", { cx: "165", cy: "50", rx: "8", ry: "12", transform: "rotate(-40 165 50)" }),
+      /* @__PURE__ */ jsx("circle", { cx: "190", cy: "90", r: "5" })
     ] }),
-    trading: /* @__PURE__ */ jsxs2(Fragment2, { children: [
-      /* @__PURE__ */ jsx2("rect", { x: "26", y: "24", width: "308", height: "152", rx: "8" }),
-      /* @__PURE__ */ jsx2("path", { d: "M161 176v18h38v-18m-60 22h82" }),
-      /* @__PURE__ */ jsx2("path", { className: "soft", d: "M43 70h268M43 100h268M43 130h268M43 151h268" }),
-      /* @__PURE__ */ jsx2("path", { stroke: "#269764", d: "M62 98V131M55 108h14v16h-14zM109 89V130M102 102h14v20h-14zM170 86V108M163 95h14v22h-14zM218 80V102M211 86h14v11h-14zM55 163v-8h14v8m33 0v-11h14v11m54 0v-14h14v14m41 0v-18h14v18" }),
-      /* @__PURE__ */ jsx2("path", { stroke: "#d85b65", d: "M85 109V140M78 116h14v16h-14zM135 93V125M128 102h14v15h-14zM193 70V100M186 79h14v13h-14zM243 44V78M236 54h14v16h-14zM78 163v-6h14v6m36 0v-9h14v9m51 0v-11h14v11m43 0v-8h14v8" })
+    trading: /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx("rect", { x: "26", y: "24", width: "308", height: "152", rx: "8" }),
+      /* @__PURE__ */ jsx("path", { d: "M161 176v18h38v-18m-60 22h82" }),
+      /* @__PURE__ */ jsx("path", { className: "soft", d: "M43 70h268M43 100h268M43 130h268M43 151h268" }),
+      /* @__PURE__ */ jsx("path", { stroke: "#269764", d: "M62 98V131M55 108h14v16h-14zM109 89V130M102 102h14v20h-14zM170 86V108M163 95h14v22h-14zM218 80V102M211 86h14v11h-14zM55 163v-8h14v8m33 0v-11h14v11m54 0v-14h14v14m41 0v-18h14v18" }),
+      /* @__PURE__ */ jsx("path", { stroke: "#d85b65", d: "M85 109V140M78 116h14v16h-14zM135 93V125M128 102h14v15h-14zM193 70V100M186 79h14v13h-14zM243 44V78M236 54h14v16h-14zM78 163v-6h14v6m36 0v-9h14v9m51 0v-11h14v11m43 0v-8h14v8" })
     ] }),
-    server: /* @__PURE__ */ jsxs2(Fragment2, { children: [
-      /* @__PURE__ */ jsx2("path", { d: "M78 38h204v142H78zM96 58h168v26H96zM96 96h168v26H96zM96 134h168v26H96z" }),
-      /* @__PURE__ */ jsx2("path", { className: "soft", d: "M114 66h112m-112 38h112m-112 38h112" }),
-      /* @__PURE__ */ jsx2("circle", { cx: "246", cy: "71", r: "5", fill: "currentColor" }),
-      /* @__PURE__ */ jsx2("circle", { cx: "246", cy: "109", r: "5", fill: "currentColor" }),
-      /* @__PURE__ */ jsx2("path", { d: "M58 28l20 10m204 0l20-10M58 190l20-10m204 0l20 10" })
+    server: /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx("path", { d: "M78 38h204v142H78zM96 58h168v26H96zM96 96h168v26H96zM96 134h168v26H96z" }),
+      /* @__PURE__ */ jsx("path", { className: "soft", d: "M114 66h112m-112 38h112m-112 38h112" }),
+      /* @__PURE__ */ jsx("circle", { cx: "246", cy: "71", r: "5", fill: "currentColor" }),
+      /* @__PURE__ */ jsx("circle", { cx: "246", cy: "109", r: "5", fill: "currentColor" }),
+      /* @__PURE__ */ jsx("path", { d: "M58 28l20 10m204 0l20-10M58 190l20-10m204 0l20 10" })
     ] }),
-    travel: /* @__PURE__ */ jsxs2(Fragment2, { children: [
-      /* @__PURE__ */ jsx2("path", { d: "M34 46l96-24 100 28 96-24v142l-96 24-100-28-96 24zM130 22v142m100-114v142" }),
-      /* @__PURE__ */ jsx2("path", { className: "soft", d: "M62 78l52 28m36 16l56-34m44 20l48 30" }),
-      /* @__PURE__ */ jsx2("path", { d: "M62 78c36 30 68 18 88 44s70 18 100-14 48 30 48 30" }),
-      /* @__PURE__ */ jsx2("circle", { cx: "62", cy: "78", r: "7", fill: "currentColor" }),
-      /* @__PURE__ */ jsx2("circle", { cx: "298", cy: "138", r: "7", fill: "currentColor" })
+    travel: /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx("path", { d: "M34 46l96-24 100 28 96-24v142l-96 24-100-28-96 24zM130 22v142m100-114v142" }),
+      /* @__PURE__ */ jsx("path", { className: "soft", d: "M62 78l52 28m36 16l56-34m44 20l48 30" }),
+      /* @__PURE__ */ jsx("path", { d: "M62 78c36 30 68 18 88 44s70 18 100-14 48 30 48 30" }),
+      /* @__PURE__ */ jsx("circle", { cx: "62", cy: "78", r: "7", fill: "currentColor" }),
+      /* @__PURE__ */ jsx("circle", { cx: "298", cy: "138", r: "7", fill: "currentColor" })
     ] }),
-    reading: /* @__PURE__ */ jsxs2(Fragment2, { children: [
-      /* @__PURE__ */ jsx2("path", { d: "M34 52c54-20 102-16 146 8v132c-44-24-92-28-146-8zM326 52c-54-20-102-16-146 8v132c44-24 92-28 146-8z" }),
-      /* @__PURE__ */ jsx2(
+    reading: /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx("path", { d: "M34 52c54-20 102-16 146 8v132c-44-24-92-28-146-8zM326 52c-54-20-102-16-146 8v132c44-24 92-28 146-8z" }),
+      /* @__PURE__ */ jsx(
         "path",
         {
           className: "soft",
           d: "M58 84h88m-88 24h96m-96 24h78m166-48h-88m88 24h-96m96 24h-78"
         }
       ),
-      /* @__PURE__ */ jsx2("path", { d: "M180 60v132" })
+      /* @__PURE__ */ jsx("path", { d: "M180 60v132" })
     ] })
   };
   const captions = {
     trading: "DEMO / USD \xB7 SIMULATED"
   };
-  return /* @__PURE__ */ jsxs2(
+  return /* @__PURE__ */ jsxs(
     "div",
     {
       className: styles.fallback,
       role: "img",
       "aria-label": `${label} illustration`,
       children: [
-        /* @__PURE__ */ jsx2(
+        /* @__PURE__ */ jsx(
           "svg",
           {
             className: styles.fallbackSvg,
@@ -264,7 +213,7 @@ var Fallback = ({ kind, label }) => {
             children: scenes[kind]
           }
         ),
-        captions[kind] && /* @__PURE__ */ jsx2("span", { className: "uipack-object__fallback-caption", "aria-hidden": "true", children: captions[kind] })
+        captions[kind] && /* @__PURE__ */ jsx("span", { className: "uipack-object__fallback-caption", "aria-hidden": "true", children: captions[kind] })
       ]
     }
   );
@@ -353,7 +302,7 @@ function ObjectStage({
       setReady(false);
     };
     canvas.addEventListener("webglcontextlost", handleContextLost);
-    Promise.all([import("three"), import("./scenes-NYF2WKQU.js"), import("three/addons/environments/RoomEnvironment.js")]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
+    Promise.all([import("three"), import("./scenes-MXS7J3SG.js"), import("three/addons/environments/RoomEnvironment.js")]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
       if (disposed) return;
       try {
         renderer = new THREE.WebGLRenderer({
@@ -566,7 +515,7 @@ function ObjectStage({
     if (!next) resumeRef.current?.();
   };
   const replay = () => replayRef.current?.();
-  return /* @__PURE__ */ jsxs2(
+  return /* @__PURE__ */ jsxs(
     "div",
     {
       ref: hostRef,
@@ -581,8 +530,8 @@ function ObjectStage({
       "data-controls": controls,
       "data-variant-label": objectVariants[kind][variant === "random" ? 0 : variant],
       children: [
-        /* @__PURE__ */ jsx2(Fallback, { kind, label }),
-        active && /* @__PURE__ */ jsx2(
+        /* @__PURE__ */ jsx(Fallback, { kind, label }),
+        active && /* @__PURE__ */ jsx(
           "canvas",
           {
             ref: canvasRef,
@@ -591,7 +540,7 @@ function ObjectStage({
             "aria-hidden": "true"
           }
         ),
-        ready && !reduced && /* @__PURE__ */ jsx2(
+        ready && !reduced && /* @__PURE__ */ jsx(
           "button",
           {
             type: "button",
@@ -618,12 +567,12 @@ function ObjectScene(props) {
   const chosenVariant = canVary ? randomVariant : props.variant;
   const variant = chosenVariant === null ? null : normalizeObjectVariant(props.kind, chosenVariant);
   const anotherLook = () => setRandomVariant((current) => ((current ?? 0) + 1) % (props.kind === "contact" ? 5 : objectDirections.length));
-  return /* @__PURE__ */ jsxs2("div", { className: "uipack-object-frame", "data-theme": props.theme ?? "light", "data-controls": controls, children: [
-    controls === "full" && variant !== null && /* @__PURE__ */ jsxs2("div", { className: "uipack-object-edition", children: [
-      /* @__PURE__ */ jsx2("span", { children: variant === 0 && props.kind !== "contact" ? `Studio \xB7 ${objectEditions[props.kind][props.edition ?? 0]}` : objectVariants[props.kind][variant] }),
-      canVary && /* @__PURE__ */ jsx2("button", { type: "button", onClick: anotherLook, "aria-label": "Another look", children: "\u21BB" })
+  return /* @__PURE__ */ jsxs("div", { className: "uipack-object-frame", "data-theme": props.theme ?? "light", "data-controls": controls, children: [
+    controls === "full" && variant !== null && /* @__PURE__ */ jsxs("div", { className: "uipack-object-edition", children: [
+      /* @__PURE__ */ jsx("span", { children: variant === 0 && props.kind !== "contact" ? `Studio \xB7 ${objectEditions[props.kind][props.edition ?? 0]}` : objectVariants[props.kind][variant] }),
+      canVary && /* @__PURE__ */ jsx("button", { type: "button", onClick: anotherLook, "aria-label": "Another look", children: "\u21BB" })
     ] }),
-    controls === "full" && /* @__PURE__ */ jsx2(
+    controls === "full" && /* @__PURE__ */ jsx(
       "button",
       {
         ref: opener,
@@ -633,7 +582,7 @@ function ObjectScene(props) {
         children: "Open canvas"
       }
     ),
-    /* @__PURE__ */ jsx2(
+    /* @__PURE__ */ jsx(
       CanvasView,
       {
         open,
@@ -642,7 +591,7 @@ function ObjectScene(props) {
         theme: props.theme,
         restoreFocus: () => opener.current?.focus(),
         zoom: { value: zoom, min: 0.75, max: 2, onChange: setZoom },
-        children: /* @__PURE__ */ jsx2(
+        children: /* @__PURE__ */ jsx(
           ObjectStage,
           {
             ...props,
@@ -657,19 +606,140 @@ function ObjectScene(props) {
   ] });
 }
 function ObjectDirectionPicker({ value, onChange }) {
-  return /* @__PURE__ */ jsx2("div", { className: "uipack-object-directions", role: "group", "aria-label": "3D art direction", children: objectDirections.map((direction, index) => /* @__PURE__ */ jsxs2(
+  return /* @__PURE__ */ jsx("div", { className: "uipack-object-directions", role: "group", "aria-label": "3D art direction", children: objectDirections.map((direction, index) => /* @__PURE__ */ jsxs(
     "button",
     {
       type: "button",
       "aria-pressed": value === index,
       onClick: () => onChange(index),
       children: [
-        /* @__PURE__ */ jsx2("span", { "aria-hidden": "true", children: directionSymbols[index] }),
+        /* @__PURE__ */ jsx("span", { "aria-hidden": "true", children: directionSymbols[index] }),
         direction.name
       ]
     },
     direction.id
   )) });
+}
+
+// src/objects/gallery.tsx
+import { Fragment as Fragment2, jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
+function AnimationWorkspace({
+  library,
+  children,
+  theme = "light"
+}) {
+  return /* @__PURE__ */ jsxs2("div", { className: "uipack-animation-workspace", "data-theme": theme, children: [
+    /* @__PURE__ */ jsx2("aside", { className: "uipack-animation-library", children: library }),
+    /* @__PURE__ */ jsx2("div", { className: "uipack-animation-detail", children })
+  ] });
+}
+function ObjectInspector({
+  kind,
+  variant,
+  edition = 0,
+  onVariantChange,
+  onEditionChange
+}) {
+  variant = normalizeObjectVariant(kind, variant);
+  const contact = kind === "contact";
+  return /* @__PURE__ */ jsxs2("aside", { className: "uipack-object-inspector", children: [
+    /* @__PURE__ */ jsxs2(Fragment2, { children: [
+      /* @__PURE__ */ jsx2("h3", { children: "Art direction" }),
+      /* @__PURE__ */ jsx2("div", { role: "group", "aria-label": "3D art direction", className: "uipack-direction-list", children: objectDirections.map((direction, index) => ({ direction, index })).filter(({ index }) => !contact || [0, 2, 3].includes(index)).map(({ direction, index }) => /* @__PURE__ */ jsxs2(
+        "button",
+        {
+          type: "button",
+          "aria-label": direction.name,
+          "aria-pressed": objectDirectionIndex(kind, variant) === index,
+          onClick: () => onVariantChange(contact && index === 2 ? 4 : index),
+          children: [
+            /* @__PURE__ */ jsx2("span", { className: "uipack-direction-symbol", "aria-hidden": "true", children: directionSymbols[index] }),
+            /* @__PURE__ */ jsxs2("span", { children: [
+              /* @__PURE__ */ jsx2("strong", { children: direction.name }),
+              /* @__PURE__ */ jsx2("small", { children: direction.description })
+            ] })
+          ]
+        },
+        direction.id
+      )) })
+    ] }),
+    (contact ? variant < 3 : variant === 0) && /* @__PURE__ */ jsxs2("label", { className: "uipack-edition-select", children: [
+      contact ? "Inbox edition" : "Studio edition",
+      /* @__PURE__ */ jsx2(
+        "select",
+        {
+          value: contact ? variant % 3 : edition,
+          onChange: (e) => (contact ? onVariantChange : onEditionChange)(Number(e.target.value)),
+          children: objectEditions[kind].map((name, index) => /* @__PURE__ */ jsx2("option", { value: index, children: name }, name))
+        }
+      ),
+      /* @__PURE__ */ jsx2("small", { children: contact ? "Three original inbox finishes." : "The original looks, kept together in Studio." })
+    ] })
+  ] });
+}
+function ObjectGallery({
+  kind,
+  variant = 0,
+  edition = 0,
+  theme = "light",
+  palette,
+  onChange
+}) {
+  variant = normalizeObjectVariant(kind, variant);
+  const scene = objectScenes.find((item) => item.id === kind);
+  return /* @__PURE__ */ jsxs2(
+    AnimationWorkspace,
+    {
+      theme,
+      library: /* @__PURE__ */ jsxs2(Fragment2, { children: [
+        /* @__PURE__ */ jsx2("h3", { children: "Object library" }),
+        /* @__PURE__ */ jsx2("nav", { "aria-label": "Choose an object", className: "uipack-scene-list", onFocus: keepFocusedInView, children: objectScenes.map((item) => /* @__PURE__ */ jsxs2(
+          "button",
+          {
+            type: "button",
+            "aria-pressed": kind === item.id,
+            onClick: () => onChange(item.id, transferObjectVariant(kind, item.id, variant), edition),
+            children: [
+              item.title,
+              /* @__PURE__ */ jsx2("span", { "aria-hidden": "true", children: "\u2197" })
+            ]
+          },
+          item.id
+        )) })
+      ] }),
+      children: [
+        /* @__PURE__ */ jsxs2("header", { className: "uipack-animation-heading", children: [
+          /* @__PURE__ */ jsx2("h3", { children: scene.title }),
+          /* @__PURE__ */ jsx2("span", { children: "Live 3D preview" })
+        ] }),
+        /* @__PURE__ */ jsxs2("div", { className: "uipack-object-review", children: [
+          /* @__PURE__ */ jsx2("div", { className: "uipack-gallery-stage", children: /* @__PURE__ */ jsx2(
+            ObjectScene,
+            {
+              kind,
+              label: scene.title,
+              variant,
+              edition,
+              theme,
+              palette
+            },
+            kind
+          ) }),
+          /* @__PURE__ */ jsx2(
+            ObjectInspector,
+            {
+              kind,
+              variant,
+              edition,
+              onVariantChange: (value) => onChange(kind, value, edition),
+              onEditionChange: (value) => onChange(kind, variant, value)
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsx2("p", { className: "uipack-gallery-description", children: objectDirectionIndex(kind, variant) === 0 ? scene.description : objectDirections[objectDirectionIndex(kind, variant)].description })
+      ]
+    }
+  );
 }
 export {
   AnimationWorkspace,

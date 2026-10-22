@@ -269,6 +269,12 @@ interface DeckPlayerProps {
     lint?: boolean | LintOptions;
     className?: string;
 }
+/**
+ * Plays a deck: one transition grammar, build steps, keyboard, touch and buttons, an overview,
+ * full screen and a synced speaker view. Slides are authored on a 1920×1080 canvas.
+ */
+declare function DeckPlayer({ slides, id, title, theme, transition, motion, mode, initial, onPositionChange, presenterHref, keyboard, view: initialView, lint, className, }: DeckPlayerProps): react.JSX.Element;
+
 /** A still, scaled copy of one slide, fully built. Used by the overview and the speaker view. */
 declare function SlideThumbnail({ slide, index, count, theme, }: {
     slide: DeckSlide;
@@ -276,11 +282,6 @@ declare function SlideThumbnail({ slide, index, count, theme, }: {
     count: number;
     theme?: DeckTheme;
 }): react.JSX.Element;
-/**
- * Plays a deck: one transition grammar, build steps, keyboard, touch and buttons, an overview,
- * full screen and a synced speaker view. Slides are authored on a 1920×1080 canvas.
- */
-declare function DeckPlayer({ slides, id, title, theme, transition, motion, mode, initial, onPositionChange, presenterHref, keyboard, view: initialView, lint, className, }: DeckPlayerProps): react.JSX.Element;
 
 interface DeckSlideState {
     step: number;
@@ -458,6 +459,217 @@ interface SoWhatProps extends GridPlacement {
 /** The "So what" panel: the one conclusion a reader should take from the slide, placed in the grid. */
 declare function SoWhat({ title, children, ...grid }: SoWhatProps): react.JSX.Element;
 
+interface AnnotationGeometry {
+    lines: string[];
+    box: {
+        x: number;
+        y: number;
+        w: number;
+        h: number;
+    };
+    /** Leader from the box edge (x1, y1) to the data point (x2, y2). */
+    leader: {
+        x1: number;
+        y1: number;
+        x2: number;
+        y2: number;
+    };
+}
+/**
+ * Where a callout's text and leader go. The text block's top-left (or top-right with
+ * `align: "end"`) sits at (tx, ty); the leader leaves the nearest edge of the block and ends on
+ * the data point (x, y).
+ */
+declare function annotationGeometry(point: {
+    x: number;
+    y: number;
+}, at: {
+    x: number;
+    y: number;
+}, text: string, maxWidth?: number, align?: "start" | "end", size?: number): AnnotationGeometry;
+interface AnnotationProps {
+    /** The data point the leader ends on. */
+    x: number;
+    y: number;
+    /** Top-left of the text (top-right with `align="end"`). */
+    tx: number;
+    ty: number;
+    text: string;
+    /** Wrap width in canvas pixels. */
+    width?: number;
+    align?: "start" | "end";
+}
+/** An annotation inside a chart's SVG: wrapped text, and a leader line that ends on the data point it explains. */
+declare function Annotation({ x, y, tx, ty, text, width, align }: AnnotationProps): react.JSX.Element;
+/** Where to annotate a chart: offsets of the text block from the data point. */
+interface ChartCallout {
+    text: string;
+    /** Text block offset from the point, in canvas px. */
+    dx: number;
+    dy: number;
+    width?: number;
+    align?: "start" | "end";
+}
+
+type Format = (value: number) => string;
+/** Fixed size for tests or static use; otherwise a chart fills its panel. */
+interface ChartSize {
+    width?: number;
+    height?: number;
+}
+
+interface BarDatum {
+    label: string;
+    value: number;
+    /** Draws this bar in the accent and the rest in context grey. */
+    highlight?: boolean;
+}
+interface BarChartProps extends ChartSize {
+    data: readonly BarDatum[];
+    /** `horizontal` ranks with labels on the left; `vertical` columns with labels below. */
+    orientation?: "horizontal" | "vertical";
+    /** Default: `desc` for horizontal, `none` for vertical. */
+    sort?: "desc" | "asc" | "none";
+    format?: Format;
+    /** Value-axis domain. Default: zero to the largest value. */
+    domain?: [number, number];
+    /** A reference line, such as an average or a target. */
+    reference?: {
+        value: number;
+        label: string;
+    };
+    /** Annotate one bar (by label). */
+    callout?: ChartCallout & {
+        label: string;
+    };
+    /** Accessible summary. Defaults to the labels and values. */
+    alt?: string;
+}
+/** Ranked horizontal bars or vertical columns, value at the tip, one optional highlight. */
+declare function BarChart({ data, orientation, sort, format, domain, reference, callout, alt, width, height, }: BarChartProps): react.JSX.Element;
+
+/** A 2px trend line in the de-emphasis grey, with the latest point in the accent. */
+declare function Sparkline({ values, width, height }: {
+    values: readonly number[];
+    width?: number;
+    height?: number;
+}): react.JSX.Element | null;
+interface KpiDelta {
+    /** Signed text, as shown: "+22%", "−3.1 pts". */
+    text: string;
+    direction: "up" | "down" | "flat";
+    /** Whether the move is good news. Sets the colour; the arrow and sign carry the direction. */
+    sentiment?: "good" | "bad" | "neutral";
+    /** Comparison period: "vs FY22". */
+    period?: string;
+}
+interface KpiItem {
+    label: string;
+    value: string;
+    /** Small unit after the value: "pts", "M". */
+    unit?: string;
+    delta?: KpiDelta;
+    /** A muted line under the value when there is no delta: "Fit-out and site exits". */
+    note?: string;
+    /** About 6–12 points, oldest first. */
+    trend?: readonly number[];
+    /** Wraps the value in `Morph as="span"`, so a morph can carry it into the next slide's title. */
+    morphId?: string;
+    highlight?: boolean;
+}
+/** A row of stat tiles: label, value, a signed delta with an arrow, and a sparkline. */
+declare function KpiTiles({ items, columns }: {
+    items: readonly KpiItem[]; /** Tiles per row. Default: all in one row. */
+    columns?: number;
+}): react.JSX.Element;
+
+interface LineSeries {
+    name: string;
+    values: readonly (number | null)[];
+    /** Draws this series in the accent and the others in grey. */
+    highlight?: boolean;
+}
+interface LineChartProps extends ChartSize {
+    /** Category labels along x (periods). */
+    x: readonly string[];
+    /** One to four series. */
+    series: readonly LineSeries[];
+    format?: Format;
+    /** Tick format; defaults to `format`. */
+    tickFormat?: Format;
+    domain?: [number, number];
+    /** A reference line, such as the index base or a target. */
+    reference?: {
+        value: number;
+        label: string;
+    };
+    /** One annotated point: series (name or index), the x index, and where the text goes. */
+    annotate?: ChartCallout & {
+        series: string | number;
+        index: number;
+    };
+    alt?: string;
+}
+/** One to four lines over periods, with end labels, a reference line and one annotated point. */
+declare function LineChart({ x: periods, series, format, tickFormat, domain, reference, annotate, alt, width, height, }: LineChartProps): react.JSX.Element;
+
+interface MatrixAxis {
+    label: string;
+    domain: [number, number];
+    /** Where the quadrants split. Default: the middle of the domain. */
+    split?: number;
+    format?: Format;
+}
+interface MatrixPoint {
+    label: string;
+    x: number;
+    y: number;
+    /** Bubble area is proportional to size. */
+    size?: number;
+    highlight?: boolean;
+    /** Which side of the bubble the label sits. Default right. */
+    labelAt?: "right" | "left" | "top" | "bottom";
+}
+interface Matrix2x2Props extends ChartSize {
+    x: MatrixAxis;
+    y: MatrixAxis;
+    points: readonly MatrixPoint[];
+    /** Quadrant names: top-left, top-right, bottom-left, bottom-right. */
+    quadrants?: [string, string, string, string];
+    /** The quadrant the slide is about, tinted. */
+    focus?: "tl" | "tr" | "bl" | "br";
+    /** Largest bubble radius in canvas px. */
+    maxRadius?: number;
+    callout?: ChartCallout & {
+        label: string;
+    };
+    alt?: string;
+}
+/** A 2×2: labelled axes, quadrant names, sized bubbles and direct labels. */
+declare function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius, callout, alt, width, height }: Matrix2x2Props): react.JSX.Element;
+
+interface StackedBarProps extends ChartSize {
+    /** One entry per bar; `values` follow `series` order. */
+    categories: readonly {
+        label: string;
+        values: readonly number[];
+        highlight?: boolean;
+    }[];
+    /** Up to four series; fold the rest into "Other". */
+    series: readonly string[];
+    /** `percent` draws each bar as 100%. */
+    mode?: "absolute" | "percent";
+    orientation?: "vertical" | "horizontal";
+    format?: Format;
+    /** Format for values inside segments. Default: `format`. Percent mode shows shares. */
+    segmentFormat?: Format;
+    /** Show the total above each bar (absolute mode). Default true. */
+    totals?: boolean;
+    alt?: string;
+}
+/** Stacked bars (or 100% bars) with a legend, segment values where they fit and totals on top. */
+declare function StackedBar({ categories, series, mode, orientation, format, segmentFormat, totals, alt, width, height, }: StackedBarProps): react.JSX.Element;
+
 /** Canvas-pixel type sizes. Nothing on a consulting slide is smaller than `min` (≈14px at 1366 wide). */
 declare const CX_TYPE: {
     readonly min: 20;
@@ -571,92 +783,6 @@ declare function formatValue(value: number, options?: FormatOptions): string;
 /** A formatter bound to options, for chart props. */
 declare const formatter: (options?: FormatOptions) => (v: number) => string;
 
-type Format = (value: number) => string;
-/** Fixed size for tests or static use; otherwise a chart fills its panel. */
-interface ChartSize {
-    width?: number;
-    height?: number;
-}
-interface AnnotationGeometry {
-    lines: string[];
-    box: {
-        x: number;
-        y: number;
-        w: number;
-        h: number;
-    };
-    /** Leader from the box edge (x1, y1) to the data point (x2, y2). */
-    leader: {
-        x1: number;
-        y1: number;
-        x2: number;
-        y2: number;
-    };
-}
-/**
- * Where a callout's text and leader go. The text block's top-left (or top-right with
- * `align: "end"`) sits at (tx, ty); the leader leaves the nearest edge of the block and ends on
- * the data point (x, y).
- */
-declare function annotationGeometry(point: {
-    x: number;
-    y: number;
-}, at: {
-    x: number;
-    y: number;
-}, text: string, maxWidth?: number, align?: "start" | "end", size?: number): AnnotationGeometry;
-interface AnnotationProps {
-    /** The data point the leader ends on. */
-    x: number;
-    y: number;
-    /** Top-left of the text (top-right with `align="end"`). */
-    tx: number;
-    ty: number;
-    text: string;
-    /** Wrap width in canvas pixels. */
-    width?: number;
-    align?: "start" | "end";
-}
-/** An annotation inside a chart's SVG: wrapped text, and a leader line that ends on the data point it explains. */
-declare function Annotation({ x, y, tx, ty, text, width, align }: AnnotationProps): react.JSX.Element;
-/** Where to annotate a chart: offsets of the text block from the data point. */
-interface ChartCallout {
-    text: string;
-    /** Text block offset from the point, in canvas px. */
-    dx: number;
-    dy: number;
-    width?: number;
-    align?: "start" | "end";
-}
-interface BarDatum {
-    label: string;
-    value: number;
-    /** Draws this bar in the accent and the rest in context grey. */
-    highlight?: boolean;
-}
-interface BarChartProps extends ChartSize {
-    data: readonly BarDatum[];
-    /** `horizontal` ranks with labels on the left; `vertical` columns with labels below. */
-    orientation?: "horizontal" | "vertical";
-    /** Default: `desc` for horizontal, `none` for vertical. */
-    sort?: "desc" | "asc" | "none";
-    format?: Format;
-    /** Value-axis domain. Default: zero to the largest value. */
-    domain?: [number, number];
-    /** A reference line, such as an average or a target. */
-    reference?: {
-        value: number;
-        label: string;
-    };
-    /** Annotate one bar (by label). */
-    callout?: ChartCallout & {
-        label: string;
-    };
-    /** Accessible summary. Defaults to the labels and values. */
-    alt?: string;
-}
-/** Ranked horizontal bars or vertical columns, value at the tip, one optional highlight. */
-declare function BarChart({ data, orientation, sort, format, domain, reference, callout, alt, width, height, }: BarChartProps): react.JSX.Element;
 interface WaterfallProps extends ChartSize {
     /** Start total → deltas → end total. A total without `value` closes at the running level. */
     steps: readonly WaterfallInput[];
@@ -672,124 +798,6 @@ interface WaterfallProps extends ChartSize {
 }
 /** A bridge from a start total through signed deltas to an end total. */
 declare function Waterfall({ steps, format, goodDirection, domain, callout, alt, width, height }: WaterfallProps): react.JSX.Element;
-interface StackedBarProps extends ChartSize {
-    /** One entry per bar; `values` follow `series` order. */
-    categories: readonly {
-        label: string;
-        values: readonly number[];
-        highlight?: boolean;
-    }[];
-    /** Up to four series; fold the rest into "Other". */
-    series: readonly string[];
-    /** `percent` draws each bar as 100%. */
-    mode?: "absolute" | "percent";
-    orientation?: "vertical" | "horizontal";
-    format?: Format;
-    /** Format for values inside segments. Default: `format`. Percent mode shows shares. */
-    segmentFormat?: Format;
-    /** Show the total above each bar (absolute mode). Default true. */
-    totals?: boolean;
-    alt?: string;
-}
-/** Stacked bars (or 100% bars) with a legend, segment values where they fit and totals on top. */
-declare function StackedBar({ categories, series, mode, orientation, format, segmentFormat, totals, alt, width, height, }: StackedBarProps): react.JSX.Element;
-interface LineSeries {
-    name: string;
-    values: readonly (number | null)[];
-    /** Draws this series in the accent and the others in grey. */
-    highlight?: boolean;
-}
-interface LineChartProps extends ChartSize {
-    /** Category labels along x (periods). */
-    x: readonly string[];
-    /** One to four series. */
-    series: readonly LineSeries[];
-    format?: Format;
-    /** Tick format; defaults to `format`. */
-    tickFormat?: Format;
-    domain?: [number, number];
-    /** A reference line, such as the index base or a target. */
-    reference?: {
-        value: number;
-        label: string;
-    };
-    /** One annotated point: series (name or index), the x index, and where the text goes. */
-    annotate?: ChartCallout & {
-        series: string | number;
-        index: number;
-    };
-    alt?: string;
-}
-/** One to four lines over periods, with end labels, a reference line and one annotated point. */
-declare function LineChart({ x: periods, series, format, tickFormat, domain, reference, annotate, alt, width, height, }: LineChartProps): react.JSX.Element;
-/** A 2px trend line in the de-emphasis grey, with the latest point in the accent. */
-declare function Sparkline({ values, width, height }: {
-    values: readonly number[];
-    width?: number;
-    height?: number;
-}): react.JSX.Element | null;
-interface KpiDelta {
-    /** Signed text, as shown: "+22%", "−3.1 pts". */
-    text: string;
-    direction: "up" | "down" | "flat";
-    /** Whether the move is good news. Sets the colour; the arrow and sign carry the direction. */
-    sentiment?: "good" | "bad" | "neutral";
-    /** Comparison period: "vs FY22". */
-    period?: string;
-}
-interface KpiItem {
-    label: string;
-    value: string;
-    /** Small unit after the value: "pts", "M". */
-    unit?: string;
-    delta?: KpiDelta;
-    /** A muted line under the value when there is no delta: "Fit-out and site exits". */
-    note?: string;
-    /** About 6–12 points, oldest first. */
-    trend?: readonly number[];
-    /** Wraps the value in `Morph as="span"`, so a morph can carry it into the next slide's title. */
-    morphId?: string;
-    highlight?: boolean;
-}
-/** A row of stat tiles: label, value, a signed delta with an arrow, and a sparkline. */
-declare function KpiTiles({ items, columns }: {
-    items: readonly KpiItem[]; /** Tiles per row. Default: all in one row. */
-    columns?: number;
-}): react.JSX.Element;
-interface MatrixAxis {
-    label: string;
-    domain: [number, number];
-    /** Where the quadrants split. Default: the middle of the domain. */
-    split?: number;
-    format?: Format;
-}
-interface MatrixPoint {
-    label: string;
-    x: number;
-    y: number;
-    /** Bubble area is proportional to size. */
-    size?: number;
-    highlight?: boolean;
-    /** Which side of the bubble the label sits. Default right. */
-    labelAt?: "right" | "left" | "top" | "bottom";
-}
-interface Matrix2x2Props extends ChartSize {
-    x: MatrixAxis;
-    y: MatrixAxis;
-    points: readonly MatrixPoint[];
-    /** Quadrant names: top-left, top-right, bottom-left, bottom-right. */
-    quadrants?: [string, string, string, string];
-    /** The quadrant the slide is about, tinted. */
-    focus?: "tl" | "tr" | "bl" | "br";
-    /** Largest bubble radius in canvas px. */
-    maxRadius?: number;
-    callout?: ChartCallout & {
-        label: string;
-    };
-    alt?: string;
-}
-/** A 2×2: labelled axes, quadrant names, sized bubbles and direct labels. */
-declare function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius, callout, alt, width, height }: Matrix2x2Props): react.JSX.Element;
 
 /** A Harvey ball: 0 (empty) to 4 (full) quarters. Its level is also in the accessible name. */
 declare function HarveyBall({ level, size, label }: {

@@ -1037,23 +1037,12 @@ function slab(w, h, d, color, x = 0, y = 0, z = 0, r = 0.06) {
 }
 function line(points, color, opacity = 1) {
   return new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints(
-      points.map((v3) => new THREE.Vector3(v3[0], v3[1], v3[2] ?? 0))
-    ),
+    new THREE.BufferGeometry().setFromPoints(points.map((v3) => new THREE.Vector3(v3[0], v3[1], v3[2] ?? 0))),
     new THREE.LineBasicMaterial({ color, transparent: opacity < 1, opacity })
   );
 }
 function tube(points, radius, color) {
-  return mesh3(
-    new THREE.TubeGeometry(
-      new THREE.CatmullRomCurve3(points),
-      64,
-      radius,
-      8,
-      false
-    ),
-    color
-  );
+  return mesh3(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 64, radius, 8, false), color);
 }
 function label(text, color, x, y, z, size = 0.16) {
   const canvas = document.createElement("canvas");
@@ -1092,16 +1081,7 @@ function ai(c) {
   g.add(keyboard);
   for (let row = 0; row < 4; row++)
     for (let col = 0; col < 10; col++) {
-      const key = slab(
-        0.18,
-        0.09,
-        0.018,
-        c.ink,
-        -0.98 + col * 0.215,
-        -0.88,
-        0.18 + row * 0.13,
-        0.015
-      );
+      const key = slab(0.18, 0.09, 0.018, c.ink, -0.98 + col * 0.215, -0.88, 0.18 + row * 0.13, 0.015);
       key.rotation.x = -Math.PI / 2;
       g.add(key);
     }
@@ -1112,29 +1092,12 @@ function ai(c) {
   g.add(slab(2.72, 1.85, 0.13, c.ink, 0, 0.04, -0.1));
   g.add(slab(2.5, 1.61, 0.022, 1581869, 0, 0.04, -0.015));
   for (let i = 0; i < 3; i++)
-    g.add(
-      mesh3(
-        new THREE.SphereGeometry(0.032, 12, 8),
-        [15559268, 14989149, 7322248][i],
-        -1.1 + i * 0.11,
-        0.71,
-        0.016
-      )
-    );
+    g.add(mesh3(new THREE.SphereGeometry(0.032, 12, 8), [15559268, 14989149, 7322248][i], -1.1 + i * 0.11, 0.71, 0.016));
   g.add(label("AGENT / LOCAL", 10860989, 0.32, 0.71, 0.034, 0.11));
   const code = [];
   for (let row = 0; row < 7; row++) {
     const length = [0.92, 1.65, 1.26, 0.72, 1.42, 1.08, 0.58][row];
-    const strip = slab(
-      length,
-      0.047,
-      0.01,
-      [7976685, 10933679, 14538685][row % 3],
-      0,
-      0.47 - row * 0.16,
-      0.03,
-      0.01
-    );
+    const strip = slab(length, 0.047, 0.01, [7976685, 10933679, 14538685][row % 3], 0, 0.47 - row * 0.16, 0.03, 0.01);
     strip.userData.length = length;
     strip.userData.left = -1.06 + row % 3 * 0.12;
     code.push(strip);
@@ -1145,10 +1108,7 @@ function ai(c) {
   const satellites = [-1, 1].map((side) => {
     const chip = new THREE.Group();
     chip.position.set(side * 1.65, 0.6, 0.2);
-    chip.add(
-      slab(0.72, 0.72, 0.12, c.paper),
-      slab(0.58, 0.05, 0.018, c.accent, 0, -0.21, 0.08, 8e-3)
-    );
+    chip.add(slab(0.72, 0.72, 0.12, c.paper), slab(0.58, 0.05, 0.018, c.accent, 0, -0.21, 0.08, 8e-3));
     chip.add(label(side < 0 ? "</>" : "AI", c.ink, 0, 0.05, 0.09, 0.2));
     g.add(chip);
     return chip;
@@ -1167,10 +1127,7 @@ function ai(c) {
     return m;
   });
   const result = new THREE.Group();
-  result.add(
-    slab(1.45, 0.37, 0.05, 2317127),
-    label("TASK COMPLETE", 14808294, 0, 0, 0.06, 0.15)
-  );
+  result.add(slab(1.45, 0.37, 0.05, 2317127), label("TASK COMPLETE", 14808294, 0, 0, 0.06, 0.15));
   result.position.set(0, -0.49, 0.16);
   g.add(result);
   g.userData.animate = (time) => {
@@ -1240,13 +1197,7 @@ function contact(c) {
     } else if (index === 1) {
       source.add(
         slab(0.48, 0.3, 0.018, c.accent, 0, 0.03, 0.13, 0.07),
-        mesh3(
-          new THREE.ConeGeometry(0.075, 0.15, 3),
-          c.accent,
-          -0.14,
-          -0.18,
-          0.13
-        )
+        mesh3(new THREE.ConeGeometry(0.075, 0.15, 3), c.accent, -0.14, -0.18, 0.13)
       );
     } else {
       source.add(
@@ -1300,26 +1251,11 @@ function contact(c) {
   tray.rotation.x = -0.18;
   inbox.add(tray);
   const receipts = sourceY.map((_, index) => {
-    const receipt = slab(
-      0.72,
-      0.18,
-      0.025,
-      c.paper,
-      0,
-      -0.25 + index * 0.14,
-      0.34,
-      0.025
-    );
+    const receipt = slab(0.72, 0.18, 0.025, c.paper, 0, -0.25 + index * 0.14, 0.34, 0.025);
     inbox.add(receipt);
     return receipt;
   });
-  const status = mesh3(
-    new THREE.TorusGeometry(0.12, 0.027, 10, 40),
-    c.accent,
-    0.43,
-    0.53,
-    0.14
-  );
+  const status = mesh3(new THREE.TorusGeometry(0.12, 0.027, 10, 40), c.accent, 0.43, 0.53, 0.14);
   inbox.add(status);
   g.add(inbox);
   g.userData.contact = { inboxPoint, routes, packets, receipts };
@@ -1366,9 +1302,30 @@ async function tennis(_c, variant = 0) {
   model.scene.position.y = -0.65;
   g.add(model.scene);
   const colors = [
-    { Court: 3303e3, "Court stripe": 3698270, "Court surround": 2640963, Jersey: 15657435, "Kit accent": 2577226, Shorts: 2637384 },
-    { Court: 10903107, "Court stripe": 11363657, "Court surround": 7357492, Jersey: 15130060, "Kit accent": 7226680, Shorts: 5718070 },
-    { Court: 4483977, "Court stripe": 4944529, "Court surround": 3164504, Jersey: 14018531, "Kit accent": 2381389, Shorts: 2112842 }
+    {
+      Court: 3303e3,
+      "Court stripe": 3698270,
+      "Court surround": 2640963,
+      Jersey: 15657435,
+      "Kit accent": 2577226,
+      Shorts: 2637384
+    },
+    {
+      Court: 10903107,
+      "Court stripe": 11363657,
+      "Court surround": 7357492,
+      Jersey: 15130060,
+      "Kit accent": 7226680,
+      Shorts: 5718070
+    },
+    {
+      Court: 4483977,
+      "Court stripe": 4944529,
+      "Court surround": 3164504,
+      Jersey: 14018531,
+      "Kit accent": 2381389,
+      Shorts: 2112842
+    }
   ][variant];
   model.scene.traverse((item) => {
     const m = item;
@@ -1423,7 +1380,10 @@ function trading(c, variant = 0) {
   const ctx = canvas.getContext("2d");
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
-  const display = new THREE.Mesh(new THREE.PlaneGeometry(3.82, 2.24), new THREE.MeshBasicMaterial({ map: texture, toneMapped: false }));
+  const display = new THREE.Mesh(
+    new THREE.PlaneGeometry(3.82, 2.24),
+    new THREE.MeshBasicMaterial({ map: texture, toneMapped: false })
+  );
   display.position.set(0, 0.34, 0.12);
   g.add(display);
   const green = "#32c99a", red = "#ee6972";
@@ -1488,13 +1448,18 @@ function trading(c, variant = 0) {
     ctx.restore();
     ctx.textAlign = "left";
     ctx.fillStyle = "#91a4b0";
-    for (let i = first; i <= first + 24; i++) if (i % 4 === 0) {
-      const x = left + (i - first - fraction + 0.5) * step;
-      if (x >= left && x <= right - 40) {
-        const minute = (570 + i) % 1440;
-        ctx.fillText(String(Math.floor(minute / 60)).padStart(2, "0") + ":" + String(minute % 60).padStart(2, "0"), x - 12, 569);
+    for (let i = first; i <= first + 24; i++)
+      if (i % 4 === 0) {
+        const x = left + (i - first - fraction + 0.5) * step;
+        if (x >= left && x <= right - 40) {
+          const minute = (570 + i) % 1440;
+          ctx.fillText(
+            String(Math.floor(minute / 60)).padStart(2, "0") + ":" + String(minute % 60).padStart(2, "0"),
+            x - 12,
+            569
+          );
+        }
       }
-    }
     ctx.fillStyle = "#6f8695";
     ctx.font = "13px monospace";
     ctx.fillText("Illustrative prices \xB7 fixed USD scale \xB7 no live feed", left, 603);
@@ -1516,10 +1481,13 @@ function server(c) {
     return part;
   };
   g.add(metal(3.08, 0.11, 1.55, graphite, 0, -1.3), metal(3.08, 0.08, 1.55, alloy, 0, 1.3));
-  for (const x of [-1.43, 1.43]) for (const z of [-0.66, 0.66]) {
-    g.add(metal(0.09, 2.55, 0.09, alloy, x, 0, z));
-    if (z > 0) for (let n = 0; n < 13; n++) g.add(mesh3(new THREE.BoxGeometry(0.034, 0.047, 8e-3), graphite, x, -1.1 + n * 0.18, z + 0.051));
-  }
+  for (const x of [-1.43, 1.43])
+    for (const z of [-0.66, 0.66]) {
+      g.add(metal(0.09, 2.55, 0.09, alloy, x, 0, z));
+      if (z > 0)
+        for (let n = 0; n < 13; n++)
+          g.add(mesh3(new THREE.BoxGeometry(0.034, 0.047, 8e-3), graphite, x, -1.1 + n * 0.18, z + 0.051));
+    }
   const trays = [], fans = [], lamps = [];
   for (let i = 0; i < 3; i++) {
     const tray = new THREE.Group();
@@ -1558,16 +1526,36 @@ function server(c) {
         fan.add(hub);
         fans.push(fan);
         tray.add(fan);
-        for (let n = -2; n <= 2; n++) tray.add(line([[-0.17 + x, n * 0.064, 0.703], [0.17 + x, n * 0.064, 0.703]], 11057334, 0.65));
+        for (let n = -2; n <= 2; n++)
+          tray.add(
+            line(
+              [
+                [-0.17 + x, n * 0.064, 0.703],
+                [0.17 + x, n * 0.064, 0.703]
+              ],
+              11057334,
+              0.65
+            )
+          );
       }
     } else {
       for (let n = 0; n < 8; n++) {
         const x = -0.91 + n * 0.26;
         tray.add(metal(0.18, 0.15, 0.025, graphite, x, 0.04, 0.654));
-        for (let k = 0; k < 3; k++) tray.add(mesh3(new THREE.BoxGeometry(0.016, 0.042, 8e-3), 12823664, x - 0.045 + k * 0.045, 0.075, 0.676));
+        for (let k = 0; k < 3; k++)
+          tray.add(mesh3(new THREE.BoxGeometry(0.016, 0.042, 8e-3), 12823664, x - 0.045 + k * 0.045, 0.075, 0.676));
       }
       for (let n = 0; n < 2; n++) {
-        const wire = tube([new THREE.Vector3(-0.78 + n * 0.75, 0.02, 0.7), new THREE.Vector3(-0.78 + n * 0.75, -0.23, 0.95), new THREE.Vector3(-0.34 + n * 0.75, -0.23, 0.95), new THREE.Vector3(-0.39 + n * 0.75, 0.02, 0.7)], 0.024, n ? 12423526 : c.accent);
+        const wire = tube(
+          [
+            new THREE.Vector3(-0.78 + n * 0.75, 0.02, 0.7),
+            new THREE.Vector3(-0.78 + n * 0.75, -0.23, 0.95),
+            new THREE.Vector3(-0.34 + n * 0.75, -0.23, 0.95),
+            new THREE.Vector3(-0.39 + n * 0.75, 0.02, 0.7)
+          ],
+          0.024,
+          n ? 12423526 : c.accent
+        );
         tray.add(wire);
       }
     }
@@ -1589,7 +1577,12 @@ function server(c) {
       material2.emissive.setHex(c.accent);
       material2.emissiveIntensity = 0.7 * power;
     });
-    phase(g, t, t < 1500 ? "place-chassis" : t < 2450 ? "place-compute" : t < 3550 ? "place-memory" : "bandwidth-check", p(t, 180, 4200));
+    phase(
+      g,
+      t,
+      t < 1500 ? "place-chassis" : t < 2450 ? "place-compute" : t < 3550 ? "place-memory" : "bandwidth-check",
+      p(t, 180, 4200)
+    );
   };
   return g;
 }
@@ -1600,7 +1593,11 @@ function travel(c, variant = 0) {
   atlas.width = 1536;
   atlas.height = 1024;
   const ctx = atlas.getContext("2d");
-  const looks = [{ land: "#e8e8cd", contour: "#a0b692", water: "#9cbdc1", park: "#c6d1ad" }, { land: "#ede7d2", contour: "#b2b59b", water: "#94bdcf", park: "#c5d2b7" }, { land: "#ecdcc6", contour: "#c6ab89", water: "#adc4c0", park: "#d6c59d" }];
+  const looks = [
+    { land: "#e8e8cd", contour: "#a0b692", water: "#9cbdc1", park: "#c6d1ad" },
+    { land: "#ede7d2", contour: "#b2b59b", water: "#94bdcf", park: "#c5d2b7" },
+    { land: "#ecdcc6", contour: "#c6ab89", water: "#adc4c0", park: "#d6c59d" }
+  ];
   const look = looks[variant];
   ctx.fillStyle = look.land;
   ctx.fillRect(0, 0, 1536, 1024);
@@ -1624,11 +1621,12 @@ function travel(c, variant = 0) {
     else ctx.lineTo(x, y);
   }
   ctx.stroke();
-  for (let row = 0; row < 6; row++) for (let col = 0; col < 9; col++) {
-    const x = 90 + col * 146 + Math.sin(row * 2 + col) * 24, y = 120 + row * 142;
-    ctx.fillStyle = (row + col) % 4 === 0 ? look.park : "#f3efdc";
-    ctx.fillRect(x, y, 58 + col % 3 * 16, 45 + row % 2 * 22);
-  }
+  for (let row = 0; row < 6; row++)
+    for (let col = 0; col < 9; col++) {
+      const x = 90 + col * 146 + Math.sin(row * 2 + col) * 24, y = 120 + row * 142;
+      ctx.fillStyle = (row + col) % 4 === 0 ? look.park : "#f3efdc";
+      ctx.fillRect(x, y, 58 + col % 3 * 16, 45 + row % 2 * 22);
+    }
   for (let road = 0; road < 4; road++) {
     ctx.beginPath();
     ctx.strokeStyle = "#faf5e6";
@@ -1658,9 +1656,30 @@ function travel(c, variant = 0) {
     g.add(fold);
   }
   const paths = [
-    [[-1.51, -0.69], [-0.91, -0.4], [-0.45, 0.27], [0.22, 0.47], [0.78, 0.26], [1.48, 0.76]],
-    [[-1.48, -0.76], [-0.92, -0.1], [-0.32, -0.24], [0.27, 0.34], [0.76, 0.74], [1.45, 0.62]],
-    [[-1.5, -0.58], [-1, 0.13], [-0.48, 0.62], [0.1, 0.27], [0.71, 0.51], [1.45, 0.81]]
+    [
+      [-1.51, -0.69],
+      [-0.91, -0.4],
+      [-0.45, 0.27],
+      [0.22, 0.47],
+      [0.78, 0.26],
+      [1.48, 0.76]
+    ],
+    [
+      [-1.48, -0.76],
+      [-0.92, -0.1],
+      [-0.32, -0.24],
+      [0.27, 0.34],
+      [0.76, 0.74],
+      [1.45, 0.62]
+    ],
+    [
+      [-1.5, -0.58],
+      [-1, 0.13],
+      [-0.48, 0.62],
+      [0.1, 0.27],
+      [0.71, 0.51],
+      [1.45, 0.81]
+    ]
   ];
   const curve2 = new THREE.CatmullRomCurve3(paths[variant].map(([x, y]) => new THREE.Vector3(x, y, 0.075)));
   const route = mesh3(new THREE.TubeGeometry(curve2, 128, 0.019, 8, false), c.accent);
@@ -1702,18 +1721,7 @@ function reading(c) {
     const half = new THREE.Group();
     half.position.x = side * 0.045;
     half.rotation.y = side * 0.12;
-    half.add(
-      slab(
-        width + 0.11,
-        height + 0.13,
-        0.065,
-        c.accent,
-        side * width / 2,
-        0,
-        -0.13,
-        0.035
-      )
-    );
+    half.add(slab(width + 0.11, height + 0.13, 0.065, c.accent, side * width / 2, 0, -0.13, 0.035));
     for (let leaf = 8; leaf >= 0; leaf--) {
       const sheet = new THREE.PlaneGeometry(width, height, 32, 1);
       const vertices = sheet.attributes.position;
@@ -1722,7 +1730,9 @@ function reading(c) {
         vertices.setXYZ(i, side * u, vertices.getY(i), 0.065 + 0.025 * Math.sin(u / width * Math.PI) - 0.06 * u - leaf * 0.011);
       }
       sheet.computeVertexNormals();
-      half.add(new THREE.Mesh(sheet, new THREE.MeshStandardMaterial({ color: c.paper, roughness: 0.96, side: THREE.DoubleSide })));
+      half.add(
+        new THREE.Mesh(sheet, new THREE.MeshStandardMaterial({ color: c.paper, roughness: 0.96, side: THREE.DoubleSide }))
+      );
     }
     for (let i = 0; i < 5; i++)
       half.add(
@@ -1737,24 +1747,33 @@ function reading(c) {
       );
     for (let row = 0; row < 11; row++) {
       const start = 0.2, end = width - 0.16 - row % 4 * 0.055;
-      half.add(line(Array.from({ length: 17 }, (_, step) => {
-        const u = mix(start, end, step / 16);
-        return [side * u, 0.64 - row * 0.145, 0.07 + 0.025 * Math.sin(u / width * Math.PI) - 0.06 * u];
-      }), c.muted, 0.65));
+      half.add(
+        line(
+          Array.from({ length: 17 }, (_, step) => {
+            const u = mix(start, end, step / 16);
+            return [side * u, 0.64 - row * 0.145, 0.07 + 0.025 * Math.sin(u / width * Math.PI) - 0.06 * u];
+          }),
+          c.muted,
+          0.65
+        )
+      );
     }
     half.add(label(side < 0 ? "FIELD NOTES" : "ON ATTENTION", c.ink, side * 0.77, 0.85, 0.045, 0.1));
     for (let edge = 0; edge < 4; edge++)
-      half.add(line([[side * (width - 4e-3), -height / 2 + 0.04, -0.06 + edge * 0.022], [side * (width - 4e-3), height / 2 - 0.04, -0.06 + edge * 0.022]], c.muted, 0.28));
+      half.add(
+        line(
+          [
+            [side * (width - 4e-3), -height / 2 + 0.04, -0.06 + edge * 0.022],
+            [side * (width - 4e-3), height / 2 - 0.04, -0.06 + edge * 0.022]
+          ],
+          c.muted,
+          0.28
+        )
+      );
     g.add(half);
     return half;
   });
-  const spine = mesh3(
-    new THREE.CylinderGeometry(0.072, 0.072, height + 0.14, 20),
-    c.accent,
-    0,
-    0,
-    -0.08
-  );
+  const spine = mesh3(new THREE.CylinderGeometry(0.072, 0.072, height + 0.14, 20), c.accent, 0, 0, -0.08);
   g.add(spine);
   const textureCanvas = document.createElement("canvas");
   textureCanvas.width = 256;
@@ -1765,8 +1784,7 @@ function reading(c) {
   ctx.fillStyle = "#6b7064";
   ctx.font = "500 16px serif";
   ctx.fillText("On attention", 30, 52);
-  for (let row = 0; row < 14; row++)
-    ctx.fillRect(30, 86 + row * 25, 186 - row % 5 * 13, 2);
+  for (let row = 0; row < 14; row++) ctx.fillRect(30, 86 + row * 25, 186 - row % 5 * 13, 2);
   const texture = new THREE.CanvasTexture(textureCanvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   const geometry = new THREE.PlaneGeometry(width, height, 40, 8);
@@ -1776,7 +1794,10 @@ function reading(c) {
   reverseTexture.repeat.x = -1;
   reverseTexture.offset.x = 1;
   reverseTexture.needsUpdate = true;
-  const reverse = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ map: reverseTexture, side: THREE.BackSide, roughness: 0.96 }));
+  const reverse = new THREE.Mesh(
+    geometry,
+    new THREE.MeshStandardMaterial({ map: reverseTexture, side: THREE.BackSide, roughness: 0.96 })
+  );
   g.add(page, reverse);
   g.userData.pageGeometry = geometry;
   const positions = geometry.attributes.position, original = Float32Array.from(positions.array);
@@ -1800,12 +1821,7 @@ function reading(c) {
     geometry.computeVertexNormals();
     halves[0].rotation.y = -0.12;
     halves[1].rotation.y = 0.12;
-    phase(
-      g,
-      t,
-      t < 750 ? "open-book" : t < 1500 ? "lift-page" : t < 4050 ? "turn-page" : "settle-page",
-      q
-    );
+    phase(g, t, t < 750 ? "open-book" : t < 1500 ? "lift-page" : t < 4050 ? "turn-page" : "settle-page", q);
   };
   return g;
 }
@@ -1851,4 +1867,4 @@ export {
   createObject,
   disposeObject
 };
-//# sourceMappingURL=scenes-NYF2WKQU.js.map
+//# sourceMappingURL=scenes-MXS7J3SG.js.map

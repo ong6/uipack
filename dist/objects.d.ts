@@ -48,28 +48,6 @@ declare function objectDirectionIndex(kind: ObjectKind, variant: ObjectVariant):
 declare function normalizeObjectVariant(kind: ObjectKind, variant: ObjectVariant): ObjectVariant;
 declare function transferObjectVariant(from: ObjectKind, to: ObjectKind, variant: ObjectVariant): ObjectVariant;
 
-/** One scene library, one mounted preview, one context panel. Consumers own routing. */
-declare function AnimationWorkspace({ library, children, theme }: {
-    library: ReactNode;
-    children: ReactNode;
-    theme?: 'light' | 'dark';
-}): react.JSX.Element;
-declare function ObjectInspector({ kind, variant, edition, onVariantChange, onEditionChange }: {
-    kind: ObjectKind;
-    variant: ObjectVariant;
-    edition?: ObjectEdition;
-    onVariantChange: (value: ObjectVariant) => void;
-    onEditionChange: (value: ObjectEdition) => void;
-}): react.JSX.Element;
-declare function ObjectGallery({ kind, variant, edition, theme, palette, onChange }: {
-    kind: ObjectKind;
-    variant?: ObjectVariant;
-    edition?: ObjectEdition;
-    theme?: 'light' | 'dark';
-    palette?: ObjectPalette;
-    onChange: (kind: ObjectKind, variant: ObjectVariant, edition: ObjectEdition) => void;
-}): react.JSX.Element;
-
 interface ObjectSceneProps {
     kind: ObjectKind;
     label: string;
@@ -110,6 +88,28 @@ declare function ObjectScene(props: ObjectSceneProps): react.JSX.Element;
 declare function ObjectDirectionPicker({ value, onChange }: {
     value: ObjectVariant | "random";
     onChange: (value: ObjectVariant) => void;
+}): react.JSX.Element;
+
+/** One scene library, one mounted preview, one context panel. Consumers own routing. */
+declare function AnimationWorkspace({ library, children, theme, }: {
+    library: ReactNode;
+    children: ReactNode;
+    theme?: "light" | "dark";
+}): react.JSX.Element;
+declare function ObjectInspector({ kind, variant, edition, onVariantChange, onEditionChange, }: {
+    kind: ObjectKind;
+    variant: ObjectVariant;
+    edition?: ObjectEdition;
+    onVariantChange: (value: ObjectVariant) => void;
+    onEditionChange: (value: ObjectEdition) => void;
+}): react.JSX.Element;
+declare function ObjectGallery({ kind, variant, edition, theme, palette, onChange, }: {
+    kind: ObjectKind;
+    variant?: ObjectVariant;
+    edition?: ObjectEdition;
+    theme?: "light" | "dark";
+    palette?: ObjectPalette;
+    onChange: (kind: ObjectKind, variant: ObjectVariant, edition: ObjectEdition) => void;
 }): react.JSX.Element;
 
 export { AnimationWorkspace, ObjectDirectionPicker, type ObjectEdition, ObjectGallery, ObjectInspector, type ObjectKind, type ObjectPalette, ObjectScene, type ObjectSceneProps, type ObjectVariant, chooseObjectVariant, directionSymbols, normalizeObjectVariant, objectDirectionIndex, objectDirections, objectEditions, objectPalettes, objectScenes, objectVariants, parseObjectVariant, transferObjectVariant };

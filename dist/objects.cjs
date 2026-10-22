@@ -1099,23 +1099,12 @@ function slab(w, h, d, color, x = 0, y = 0, z = 0, r = 0.06) {
 }
 function line(points, color, opacity = 1) {
   return new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints(
-      points.map((v3) => new THREE.Vector3(v3[0], v3[1], v3[2] ?? 0))
-    ),
+    new THREE.BufferGeometry().setFromPoints(points.map((v3) => new THREE.Vector3(v3[0], v3[1], v3[2] ?? 0))),
     new THREE.LineBasicMaterial({ color, transparent: opacity < 1, opacity })
   );
 }
 function tube(points, radius, color) {
-  return mesh3(
-    new THREE.TubeGeometry(
-      new THREE.CatmullRomCurve3(points),
-      64,
-      radius,
-      8,
-      false
-    ),
-    color
-  );
+  return mesh3(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 64, radius, 8, false), color);
 }
 function label(text, color, x, y, z, size = 0.16) {
   const canvas = document.createElement("canvas");
@@ -1154,16 +1143,7 @@ function ai(c) {
   g.add(keyboard);
   for (let row = 0; row < 4; row++)
     for (let col = 0; col < 10; col++) {
-      const key = slab(
-        0.18,
-        0.09,
-        0.018,
-        c.ink,
-        -0.98 + col * 0.215,
-        -0.88,
-        0.18 + row * 0.13,
-        0.015
-      );
+      const key = slab(0.18, 0.09, 0.018, c.ink, -0.98 + col * 0.215, -0.88, 0.18 + row * 0.13, 0.015);
       key.rotation.x = -Math.PI / 2;
       g.add(key);
     }
@@ -1174,29 +1154,12 @@ function ai(c) {
   g.add(slab(2.72, 1.85, 0.13, c.ink, 0, 0.04, -0.1));
   g.add(slab(2.5, 1.61, 0.022, 1581869, 0, 0.04, -0.015));
   for (let i = 0; i < 3; i++)
-    g.add(
-      mesh3(
-        new THREE.SphereGeometry(0.032, 12, 8),
-        [15559268, 14989149, 7322248][i],
-        -1.1 + i * 0.11,
-        0.71,
-        0.016
-      )
-    );
+    g.add(mesh3(new THREE.SphereGeometry(0.032, 12, 8), [15559268, 14989149, 7322248][i], -1.1 + i * 0.11, 0.71, 0.016));
   g.add(label("AGENT / LOCAL", 10860989, 0.32, 0.71, 0.034, 0.11));
   const code = [];
   for (let row = 0; row < 7; row++) {
     const length = [0.92, 1.65, 1.26, 0.72, 1.42, 1.08, 0.58][row];
-    const strip = slab(
-      length,
-      0.047,
-      0.01,
-      [7976685, 10933679, 14538685][row % 3],
-      0,
-      0.47 - row * 0.16,
-      0.03,
-      0.01
-    );
+    const strip = slab(length, 0.047, 0.01, [7976685, 10933679, 14538685][row % 3], 0, 0.47 - row * 0.16, 0.03, 0.01);
     strip.userData.length = length;
     strip.userData.left = -1.06 + row % 3 * 0.12;
     code.push(strip);
@@ -1207,10 +1170,7 @@ function ai(c) {
   const satellites = [-1, 1].map((side) => {
     const chip = new THREE.Group();
     chip.position.set(side * 1.65, 0.6, 0.2);
-    chip.add(
-      slab(0.72, 0.72, 0.12, c.paper),
-      slab(0.58, 0.05, 0.018, c.accent, 0, -0.21, 0.08, 8e-3)
-    );
+    chip.add(slab(0.72, 0.72, 0.12, c.paper), slab(0.58, 0.05, 0.018, c.accent, 0, -0.21, 0.08, 8e-3));
     chip.add(label(side < 0 ? "</>" : "AI", c.ink, 0, 0.05, 0.09, 0.2));
     g.add(chip);
     return chip;
@@ -1229,10 +1189,7 @@ function ai(c) {
     return m;
   });
   const result = new THREE.Group();
-  result.add(
-    slab(1.45, 0.37, 0.05, 2317127),
-    label("TASK COMPLETE", 14808294, 0, 0, 0.06, 0.15)
-  );
+  result.add(slab(1.45, 0.37, 0.05, 2317127), label("TASK COMPLETE", 14808294, 0, 0, 0.06, 0.15));
   result.position.set(0, -0.49, 0.16);
   g.add(result);
   g.userData.animate = (time) => {
@@ -1302,13 +1259,7 @@ function contact(c) {
     } else if (index === 1) {
       source.add(
         slab(0.48, 0.3, 0.018, c.accent, 0, 0.03, 0.13, 0.07),
-        mesh3(
-          new THREE.ConeGeometry(0.075, 0.15, 3),
-          c.accent,
-          -0.14,
-          -0.18,
-          0.13
-        )
+        mesh3(new THREE.ConeGeometry(0.075, 0.15, 3), c.accent, -0.14, -0.18, 0.13)
       );
     } else {
       source.add(
@@ -1362,26 +1313,11 @@ function contact(c) {
   tray.rotation.x = -0.18;
   inbox.add(tray);
   const receipts = sourceY.map((_, index) => {
-    const receipt = slab(
-      0.72,
-      0.18,
-      0.025,
-      c.paper,
-      0,
-      -0.25 + index * 0.14,
-      0.34,
-      0.025
-    );
+    const receipt = slab(0.72, 0.18, 0.025, c.paper, 0, -0.25 + index * 0.14, 0.34, 0.025);
     inbox.add(receipt);
     return receipt;
   });
-  const status = mesh3(
-    new THREE.TorusGeometry(0.12, 0.027, 10, 40),
-    c.accent,
-    0.43,
-    0.53,
-    0.14
-  );
+  const status = mesh3(new THREE.TorusGeometry(0.12, 0.027, 10, 40), c.accent, 0.43, 0.53, 0.14);
   inbox.add(status);
   g.add(inbox);
   g.userData.contact = { inboxPoint, routes, packets, receipts };
@@ -1428,9 +1364,30 @@ async function tennis(_c, variant = 0) {
   model.scene.position.y = -0.65;
   g.add(model.scene);
   const colors = [
-    { Court: 3303e3, "Court stripe": 3698270, "Court surround": 2640963, Jersey: 15657435, "Kit accent": 2577226, Shorts: 2637384 },
-    { Court: 10903107, "Court stripe": 11363657, "Court surround": 7357492, Jersey: 15130060, "Kit accent": 7226680, Shorts: 5718070 },
-    { Court: 4483977, "Court stripe": 4944529, "Court surround": 3164504, Jersey: 14018531, "Kit accent": 2381389, Shorts: 2112842 }
+    {
+      Court: 3303e3,
+      "Court stripe": 3698270,
+      "Court surround": 2640963,
+      Jersey: 15657435,
+      "Kit accent": 2577226,
+      Shorts: 2637384
+    },
+    {
+      Court: 10903107,
+      "Court stripe": 11363657,
+      "Court surround": 7357492,
+      Jersey: 15130060,
+      "Kit accent": 7226680,
+      Shorts: 5718070
+    },
+    {
+      Court: 4483977,
+      "Court stripe": 4944529,
+      "Court surround": 3164504,
+      Jersey: 14018531,
+      "Kit accent": 2381389,
+      Shorts: 2112842
+    }
   ][variant];
   model.scene.traverse((item) => {
     const m = item;
@@ -1485,7 +1442,10 @@ function trading(c, variant = 0) {
   const ctx = canvas.getContext("2d");
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
-  const display = new THREE.Mesh(new THREE.PlaneGeometry(3.82, 2.24), new THREE.MeshBasicMaterial({ map: texture, toneMapped: false }));
+  const display = new THREE.Mesh(
+    new THREE.PlaneGeometry(3.82, 2.24),
+    new THREE.MeshBasicMaterial({ map: texture, toneMapped: false })
+  );
   display.position.set(0, 0.34, 0.12);
   g.add(display);
   const green = "#32c99a", red = "#ee6972";
@@ -1550,13 +1510,18 @@ function trading(c, variant = 0) {
     ctx.restore();
     ctx.textAlign = "left";
     ctx.fillStyle = "#91a4b0";
-    for (let i = first; i <= first + 24; i++) if (i % 4 === 0) {
-      const x = left + (i - first - fraction + 0.5) * step;
-      if (x >= left && x <= right - 40) {
-        const minute = (570 + i) % 1440;
-        ctx.fillText(String(Math.floor(minute / 60)).padStart(2, "0") + ":" + String(minute % 60).padStart(2, "0"), x - 12, 569);
+    for (let i = first; i <= first + 24; i++)
+      if (i % 4 === 0) {
+        const x = left + (i - first - fraction + 0.5) * step;
+        if (x >= left && x <= right - 40) {
+          const minute = (570 + i) % 1440;
+          ctx.fillText(
+            String(Math.floor(minute / 60)).padStart(2, "0") + ":" + String(minute % 60).padStart(2, "0"),
+            x - 12,
+            569
+          );
+        }
       }
-    }
     ctx.fillStyle = "#6f8695";
     ctx.font = "13px monospace";
     ctx.fillText("Illustrative prices \xB7 fixed USD scale \xB7 no live feed", left, 603);
@@ -1578,10 +1543,13 @@ function server(c) {
     return part;
   };
   g.add(metal(3.08, 0.11, 1.55, graphite, 0, -1.3), metal(3.08, 0.08, 1.55, alloy, 0, 1.3));
-  for (const x of [-1.43, 1.43]) for (const z of [-0.66, 0.66]) {
-    g.add(metal(0.09, 2.55, 0.09, alloy, x, 0, z));
-    if (z > 0) for (let n = 0; n < 13; n++) g.add(mesh3(new THREE.BoxGeometry(0.034, 0.047, 8e-3), graphite, x, -1.1 + n * 0.18, z + 0.051));
-  }
+  for (const x of [-1.43, 1.43])
+    for (const z of [-0.66, 0.66]) {
+      g.add(metal(0.09, 2.55, 0.09, alloy, x, 0, z));
+      if (z > 0)
+        for (let n = 0; n < 13; n++)
+          g.add(mesh3(new THREE.BoxGeometry(0.034, 0.047, 8e-3), graphite, x, -1.1 + n * 0.18, z + 0.051));
+    }
   const trays = [], fans = [], lamps = [];
   for (let i = 0; i < 3; i++) {
     const tray = new THREE.Group();
@@ -1620,16 +1588,36 @@ function server(c) {
         fan.add(hub);
         fans.push(fan);
         tray.add(fan);
-        for (let n = -2; n <= 2; n++) tray.add(line([[-0.17 + x, n * 0.064, 0.703], [0.17 + x, n * 0.064, 0.703]], 11057334, 0.65));
+        for (let n = -2; n <= 2; n++)
+          tray.add(
+            line(
+              [
+                [-0.17 + x, n * 0.064, 0.703],
+                [0.17 + x, n * 0.064, 0.703]
+              ],
+              11057334,
+              0.65
+            )
+          );
       }
     } else {
       for (let n = 0; n < 8; n++) {
         const x = -0.91 + n * 0.26;
         tray.add(metal(0.18, 0.15, 0.025, graphite, x, 0.04, 0.654));
-        for (let k = 0; k < 3; k++) tray.add(mesh3(new THREE.BoxGeometry(0.016, 0.042, 8e-3), 12823664, x - 0.045 + k * 0.045, 0.075, 0.676));
+        for (let k = 0; k < 3; k++)
+          tray.add(mesh3(new THREE.BoxGeometry(0.016, 0.042, 8e-3), 12823664, x - 0.045 + k * 0.045, 0.075, 0.676));
       }
       for (let n = 0; n < 2; n++) {
-        const wire = tube([new THREE.Vector3(-0.78 + n * 0.75, 0.02, 0.7), new THREE.Vector3(-0.78 + n * 0.75, -0.23, 0.95), new THREE.Vector3(-0.34 + n * 0.75, -0.23, 0.95), new THREE.Vector3(-0.39 + n * 0.75, 0.02, 0.7)], 0.024, n ? 12423526 : c.accent);
+        const wire = tube(
+          [
+            new THREE.Vector3(-0.78 + n * 0.75, 0.02, 0.7),
+            new THREE.Vector3(-0.78 + n * 0.75, -0.23, 0.95),
+            new THREE.Vector3(-0.34 + n * 0.75, -0.23, 0.95),
+            new THREE.Vector3(-0.39 + n * 0.75, 0.02, 0.7)
+          ],
+          0.024,
+          n ? 12423526 : c.accent
+        );
         tray.add(wire);
       }
     }
@@ -1651,7 +1639,12 @@ function server(c) {
       material2.emissive.setHex(c.accent);
       material2.emissiveIntensity = 0.7 * power;
     });
-    phase(g, t, t < 1500 ? "place-chassis" : t < 2450 ? "place-compute" : t < 3550 ? "place-memory" : "bandwidth-check", p(t, 180, 4200));
+    phase(
+      g,
+      t,
+      t < 1500 ? "place-chassis" : t < 2450 ? "place-compute" : t < 3550 ? "place-memory" : "bandwidth-check",
+      p(t, 180, 4200)
+    );
   };
   return g;
 }
@@ -1662,7 +1655,11 @@ function travel(c, variant = 0) {
   atlas.width = 1536;
   atlas.height = 1024;
   const ctx = atlas.getContext("2d");
-  const looks = [{ land: "#e8e8cd", contour: "#a0b692", water: "#9cbdc1", park: "#c6d1ad" }, { land: "#ede7d2", contour: "#b2b59b", water: "#94bdcf", park: "#c5d2b7" }, { land: "#ecdcc6", contour: "#c6ab89", water: "#adc4c0", park: "#d6c59d" }];
+  const looks = [
+    { land: "#e8e8cd", contour: "#a0b692", water: "#9cbdc1", park: "#c6d1ad" },
+    { land: "#ede7d2", contour: "#b2b59b", water: "#94bdcf", park: "#c5d2b7" },
+    { land: "#ecdcc6", contour: "#c6ab89", water: "#adc4c0", park: "#d6c59d" }
+  ];
   const look = looks[variant];
   ctx.fillStyle = look.land;
   ctx.fillRect(0, 0, 1536, 1024);
@@ -1686,11 +1683,12 @@ function travel(c, variant = 0) {
     else ctx.lineTo(x, y);
   }
   ctx.stroke();
-  for (let row = 0; row < 6; row++) for (let col = 0; col < 9; col++) {
-    const x = 90 + col * 146 + Math.sin(row * 2 + col) * 24, y = 120 + row * 142;
-    ctx.fillStyle = (row + col) % 4 === 0 ? look.park : "#f3efdc";
-    ctx.fillRect(x, y, 58 + col % 3 * 16, 45 + row % 2 * 22);
-  }
+  for (let row = 0; row < 6; row++)
+    for (let col = 0; col < 9; col++) {
+      const x = 90 + col * 146 + Math.sin(row * 2 + col) * 24, y = 120 + row * 142;
+      ctx.fillStyle = (row + col) % 4 === 0 ? look.park : "#f3efdc";
+      ctx.fillRect(x, y, 58 + col % 3 * 16, 45 + row % 2 * 22);
+    }
   for (let road = 0; road < 4; road++) {
     ctx.beginPath();
     ctx.strokeStyle = "#faf5e6";
@@ -1720,9 +1718,30 @@ function travel(c, variant = 0) {
     g.add(fold);
   }
   const paths = [
-    [[-1.51, -0.69], [-0.91, -0.4], [-0.45, 0.27], [0.22, 0.47], [0.78, 0.26], [1.48, 0.76]],
-    [[-1.48, -0.76], [-0.92, -0.1], [-0.32, -0.24], [0.27, 0.34], [0.76, 0.74], [1.45, 0.62]],
-    [[-1.5, -0.58], [-1, 0.13], [-0.48, 0.62], [0.1, 0.27], [0.71, 0.51], [1.45, 0.81]]
+    [
+      [-1.51, -0.69],
+      [-0.91, -0.4],
+      [-0.45, 0.27],
+      [0.22, 0.47],
+      [0.78, 0.26],
+      [1.48, 0.76]
+    ],
+    [
+      [-1.48, -0.76],
+      [-0.92, -0.1],
+      [-0.32, -0.24],
+      [0.27, 0.34],
+      [0.76, 0.74],
+      [1.45, 0.62]
+    ],
+    [
+      [-1.5, -0.58],
+      [-1, 0.13],
+      [-0.48, 0.62],
+      [0.1, 0.27],
+      [0.71, 0.51],
+      [1.45, 0.81]
+    ]
   ];
   const curve2 = new THREE.CatmullRomCurve3(paths[variant].map(([x, y]) => new THREE.Vector3(x, y, 0.075)));
   const route = mesh3(new THREE.TubeGeometry(curve2, 128, 0.019, 8, false), c.accent);
@@ -1764,18 +1783,7 @@ function reading(c) {
     const half = new THREE.Group();
     half.position.x = side * 0.045;
     half.rotation.y = side * 0.12;
-    half.add(
-      slab(
-        width + 0.11,
-        height + 0.13,
-        0.065,
-        c.accent,
-        side * width / 2,
-        0,
-        -0.13,
-        0.035
-      )
-    );
+    half.add(slab(width + 0.11, height + 0.13, 0.065, c.accent, side * width / 2, 0, -0.13, 0.035));
     for (let leaf = 8; leaf >= 0; leaf--) {
       const sheet = new THREE.PlaneGeometry(width, height, 32, 1);
       const vertices = sheet.attributes.position;
@@ -1784,7 +1792,9 @@ function reading(c) {
         vertices.setXYZ(i, side * u, vertices.getY(i), 0.065 + 0.025 * Math.sin(u / width * Math.PI) - 0.06 * u - leaf * 0.011);
       }
       sheet.computeVertexNormals();
-      half.add(new THREE.Mesh(sheet, new THREE.MeshStandardMaterial({ color: c.paper, roughness: 0.96, side: THREE.DoubleSide })));
+      half.add(
+        new THREE.Mesh(sheet, new THREE.MeshStandardMaterial({ color: c.paper, roughness: 0.96, side: THREE.DoubleSide }))
+      );
     }
     for (let i = 0; i < 5; i++)
       half.add(
@@ -1799,24 +1809,33 @@ function reading(c) {
       );
     for (let row = 0; row < 11; row++) {
       const start = 0.2, end = width - 0.16 - row % 4 * 0.055;
-      half.add(line(Array.from({ length: 17 }, (_, step) => {
-        const u = mix(start, end, step / 16);
-        return [side * u, 0.64 - row * 0.145, 0.07 + 0.025 * Math.sin(u / width * Math.PI) - 0.06 * u];
-      }), c.muted, 0.65));
+      half.add(
+        line(
+          Array.from({ length: 17 }, (_, step) => {
+            const u = mix(start, end, step / 16);
+            return [side * u, 0.64 - row * 0.145, 0.07 + 0.025 * Math.sin(u / width * Math.PI) - 0.06 * u];
+          }),
+          c.muted,
+          0.65
+        )
+      );
     }
     half.add(label(side < 0 ? "FIELD NOTES" : "ON ATTENTION", c.ink, side * 0.77, 0.85, 0.045, 0.1));
     for (let edge = 0; edge < 4; edge++)
-      half.add(line([[side * (width - 4e-3), -height / 2 + 0.04, -0.06 + edge * 0.022], [side * (width - 4e-3), height / 2 - 0.04, -0.06 + edge * 0.022]], c.muted, 0.28));
+      half.add(
+        line(
+          [
+            [side * (width - 4e-3), -height / 2 + 0.04, -0.06 + edge * 0.022],
+            [side * (width - 4e-3), height / 2 - 0.04, -0.06 + edge * 0.022]
+          ],
+          c.muted,
+          0.28
+        )
+      );
     g.add(half);
     return half;
   });
-  const spine = mesh3(
-    new THREE.CylinderGeometry(0.072, 0.072, height + 0.14, 20),
-    c.accent,
-    0,
-    0,
-    -0.08
-  );
+  const spine = mesh3(new THREE.CylinderGeometry(0.072, 0.072, height + 0.14, 20), c.accent, 0, 0, -0.08);
   g.add(spine);
   const textureCanvas = document.createElement("canvas");
   textureCanvas.width = 256;
@@ -1827,8 +1846,7 @@ function reading(c) {
   ctx.fillStyle = "#6b7064";
   ctx.font = "500 16px serif";
   ctx.fillText("On attention", 30, 52);
-  for (let row = 0; row < 14; row++)
-    ctx.fillRect(30, 86 + row * 25, 186 - row % 5 * 13, 2);
+  for (let row = 0; row < 14; row++) ctx.fillRect(30, 86 + row * 25, 186 - row % 5 * 13, 2);
   const texture = new THREE.CanvasTexture(textureCanvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   const geometry = new THREE.PlaneGeometry(width, height, 40, 8);
@@ -1838,7 +1856,10 @@ function reading(c) {
   reverseTexture.repeat.x = -1;
   reverseTexture.offset.x = 1;
   reverseTexture.needsUpdate = true;
-  const reverse = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ map: reverseTexture, side: THREE.BackSide, roughness: 0.96 }));
+  const reverse = new THREE.Mesh(
+    geometry,
+    new THREE.MeshStandardMaterial({ map: reverseTexture, side: THREE.BackSide, roughness: 0.96 })
+  );
   g.add(page, reverse);
   g.userData.pageGeometry = geometry;
   const positions = geometry.attributes.position, original = Float32Array.from(positions.array);
@@ -1862,12 +1883,7 @@ function reading(c) {
     geometry.computeVertexNormals();
     halves[0].rotation.y = -0.12;
     halves[1].rotation.y = 0.12;
-    phase(
-      g,
-      t,
-      t < 750 ? "open-book" : t < 1500 ? "lift-page" : t < 4050 ? "turn-page" : "settle-page",
-      q
-    );
+    phase(g, t, t < 750 ? "open-book" : t < 1500 ? "lift-page" : t < 4050 ? "turn-page" : "settle-page", q);
   };
   return g;
 }
@@ -1928,7 +1944,7 @@ var init_scenes = __esm({
   }
 });
 
-// src/objects/index.tsx
+// src/objects/index.ts
 var objects_exports = {};
 __export(objects_exports, {
   AnimationWorkspace: () => AnimationWorkspace,
@@ -1949,6 +1965,8 @@ __export(objects_exports, {
   transferObjectVariant: () => transferObjectVariant
 });
 module.exports = __toCommonJS(objects_exports);
+
+// src/objects/ObjectScene.tsx
 var import_react4 = require("react");
 
 // src/objects/variants.ts
@@ -2338,59 +2356,8 @@ function CanvasView({
   );
 }
 
-// src/objects/gallery.tsx
+// src/objects/ObjectScene.tsx
 var import_jsx_runtime2 = require("react/jsx-runtime");
-function AnimationWorkspace({ library, children, theme = "light" }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-animation-workspace", "data-theme": theme, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("aside", { className: "uipack-animation-library", children: library }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "uipack-animation-detail", children })
-  ] });
-}
-function ObjectInspector({ kind, variant, edition = 0, onVariantChange, onEditionChange }) {
-  variant = normalizeObjectVariant(kind, variant);
-  const contact2 = kind === "contact";
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("aside", { className: "uipack-object-inspector", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h3", { children: "Art direction" }),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { role: "group", "aria-label": "3D art direction", className: "uipack-direction-list", children: objectDirections.map((direction, index) => ({ direction, index })).filter(({ index }) => !contact2 || [0, 2, 3].includes(index)).map(({ direction, index }) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("button", { type: "button", "aria-label": direction.name, "aria-pressed": objectDirectionIndex(kind, variant) === index, onClick: () => onVariantChange(contact2 && index === 2 ? 4 : index), children: [
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-direction-symbol", "aria-hidden": "true", children: directionSymbols[index] }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("strong", { children: direction.name }),
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("small", { children: direction.description })
-        ] })
-      ] }, direction.id)) })
-    ] }),
-    (contact2 ? variant < 3 : variant === 0) && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("label", { className: "uipack-edition-select", children: [
-      contact2 ? "Inbox edition" : "Studio edition",
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("select", { value: contact2 ? variant % 3 : edition, onChange: (e) => (contact2 ? onVariantChange : onEditionChange)(Number(e.target.value)), children: objectEditions[kind].map((name, index) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("option", { value: index, children: name }, name)) }),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("small", { children: contact2 ? "Three original inbox finishes." : "The original looks, kept together in Studio." })
-    ] })
-  ] });
-}
-function ObjectGallery({ kind, variant = 0, edition = 0, theme = "light", palette, onChange }) {
-  variant = normalizeObjectVariant(kind, variant);
-  const scene = objectScenes.find((item) => item.id === kind);
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(AnimationWorkspace, { theme, library: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h3", { children: "Object library" }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("nav", { "aria-label": "Choose an object", className: "uipack-scene-list", onFocus: keepFocusedInView, children: objectScenes.map((item) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("button", { type: "button", "aria-pressed": kind === item.id, onClick: () => onChange(item.id, transferObjectVariant(kind, item.id, variant), edition), children: [
-      item.title,
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "aria-hidden": "true", children: "\u2197" })
-    ] }, item.id)) })
-  ] }), children: [
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("header", { className: "uipack-animation-heading", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h3", { children: scene.title }),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: "Live 3D preview" })
-    ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-object-review", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "uipack-gallery-stage", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(ObjectScene, { kind, label: scene.title, variant, edition, theme, palette }, kind) }),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(ObjectInspector, { kind, variant, edition, onVariantChange: (value) => onChange(kind, value, edition), onEditionChange: (value) => onChange(kind, variant, value) })
-    ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { className: "uipack-gallery-description", children: objectDirectionIndex(kind, variant) === 0 ? scene.description : objectDirections[objectDirectionIndex(kind, variant)].description })
-  ] });
-}
-
-// src/objects/index.tsx
-var import_jsx_runtime3 = require("react/jsx-runtime");
 var objectPalettes = {
   light: { paper: 15986663, ink: 2698802, muted: 10136485, accent: 2121545 },
   dark: { paper: 14212825, ink: 3755080, muted: 8492426, accent: 7454115 }
@@ -2444,95 +2411,95 @@ var styles = {
 };
 var Fallback = ({ kind, label: label2 }) => {
   const scenes = {
-    ai: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("rect", { x: "83", y: "36", width: "194", height: "126", rx: "8" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M83 162l-25 25h244l-25-25" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+    ai: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("rect", { x: "83", y: "36", width: "194", height: "126", rx: "8" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M83 162l-25 25h244l-25-25" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
         "path",
         {
           className: "soft",
           d: "M104 62h88m-88 22h143m-126 22h92m-109 22h120"
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("rect", { x: "20", y: "56", width: "42", height: "48", rx: "5" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M32 72l-6 8 6 8m16-16l6 8-6 8M62 102l32 43" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("rect", { x: "298", y: "56", width: "42", height: "48", rx: "5" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M306 80l8 8 16-19M298 104l-32 40" })
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("rect", { x: "20", y: "56", width: "42", height: "48", rx: "5" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M32 72l-6 8 6 8m16-16l6 8-6 8M62 102l32 43" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("rect", { x: "298", y: "56", width: "42", height: "48", rx: "5" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M306 80l8 8 16-19M298 104l-32 40" })
     ] }),
-    contact: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("rect", { x: "28", y: "28", width: "76", height: "42", rx: "6" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("rect", { x: "28", y: "86", width: "76", height: "42", rx: "6" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("rect", { x: "28", y: "144", width: "76", height: "42", rx: "6" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+    contact: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("rect", { x: "28", y: "28", width: "76", height: "42", rx: "6" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("rect", { x: "28", y: "86", width: "76", height: "42", rx: "6" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("rect", { x: "28", y: "144", width: "76", height: "42", rx: "6" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
         "path",
         {
           className: "soft",
           d: "M104 49c62 0 76 50 126 58M104 107h126M104 165c62 0 76-50 126-58"
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("circle", { cx: "142", cy: "58", r: "6", fill: "currentColor" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M48 42l18 13 18-13M48 42v17h36V42M49 101h34v17H61l-8 7 2-7h-6z" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("circle", { cx: "66", cy: "165", r: "12" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M54 165h24m-12-12v24" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("rect", { x: "230", y: "52", width: "102", height: "110", rx: "8" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M246 116h70v29h-70zM254 108h54m-54-12h54m-54-12h54" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("text", { x: "281", y: "72", children: "INBOX" })
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx: "142", cy: "58", r: "6", fill: "currentColor" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M48 42l18 13 18-13M48 42v17h36V42M49 101h34v17H61l-8 7 2-7h-6z" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx: "66", cy: "165", r: "12" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M54 165h24m-12-12v24" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("rect", { x: "230", y: "52", width: "102", height: "110", rx: "8" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M246 116h70v29h-70zM254 108h54m-54-12h54m-54-12h54" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("text", { x: "281", y: "72", children: "INBOX" })
     ] }),
-    tennis: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { className: "soft", d: "M45 187l55-162h160l55 162zM69 113h222M86 64h187M180 64v94M62 158h238" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M70 106h220m-220 0v23m220-23v23" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("circle", { cx: "151", cy: "125", r: "8" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M140 137h22l5 25h-30zM142 163l-8 19m23-19l10 19M160 141l17 9 12-9" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("ellipse", { cx: "199", cy: "133", rx: "10", ry: "14", transform: "rotate(40 199 133)" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("circle", { cx: "213", cy: "42", r: "7" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M202 53h21l4 23h-29zM202 77l-9 17m27-17l8 17M202 57l-18 9-10-8" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("ellipse", { cx: "165", cy: "50", rx: "8", ry: "12", transform: "rotate(-40 165 50)" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("circle", { cx: "190", cy: "90", r: "5" })
+    tennis: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { className: "soft", d: "M45 187l55-162h160l55 162zM69 113h222M86 64h187M180 64v94M62 158h238" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M70 106h220m-220 0v23m220-23v23" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx: "151", cy: "125", r: "8" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M140 137h22l5 25h-30zM142 163l-8 19m23-19l10 19M160 141l17 9 12-9" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("ellipse", { cx: "199", cy: "133", rx: "10", ry: "14", transform: "rotate(40 199 133)" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx: "213", cy: "42", r: "7" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M202 53h21l4 23h-29zM202 77l-9 17m27-17l8 17M202 57l-18 9-10-8" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("ellipse", { cx: "165", cy: "50", rx: "8", ry: "12", transform: "rotate(-40 165 50)" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx: "190", cy: "90", r: "5" })
     ] }),
-    trading: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("rect", { x: "26", y: "24", width: "308", height: "152", rx: "8" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M161 176v18h38v-18m-60 22h82" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { className: "soft", d: "M43 70h268M43 100h268M43 130h268M43 151h268" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { stroke: "#269764", d: "M62 98V131M55 108h14v16h-14zM109 89V130M102 102h14v20h-14zM170 86V108M163 95h14v22h-14zM218 80V102M211 86h14v11h-14zM55 163v-8h14v8m33 0v-11h14v11m54 0v-14h14v14m41 0v-18h14v18" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { stroke: "#d85b65", d: "M85 109V140M78 116h14v16h-14zM135 93V125M128 102h14v15h-14zM193 70V100M186 79h14v13h-14zM243 44V78M236 54h14v16h-14zM78 163v-6h14v6m36 0v-9h14v9m51 0v-11h14v11m43 0v-8h14v8" })
+    trading: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("rect", { x: "26", y: "24", width: "308", height: "152", rx: "8" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M161 176v18h38v-18m-60 22h82" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { className: "soft", d: "M43 70h268M43 100h268M43 130h268M43 151h268" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { stroke: "#269764", d: "M62 98V131M55 108h14v16h-14zM109 89V130M102 102h14v20h-14zM170 86V108M163 95h14v22h-14zM218 80V102M211 86h14v11h-14zM55 163v-8h14v8m33 0v-11h14v11m54 0v-14h14v14m41 0v-18h14v18" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { stroke: "#d85b65", d: "M85 109V140M78 116h14v16h-14zM135 93V125M128 102h14v15h-14zM193 70V100M186 79h14v13h-14zM243 44V78M236 54h14v16h-14zM78 163v-6h14v6m36 0v-9h14v9m51 0v-11h14v11m43 0v-8h14v8" })
     ] }),
-    server: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M78 38h204v142H78zM96 58h168v26H96zM96 96h168v26H96zM96 134h168v26H96z" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { className: "soft", d: "M114 66h112m-112 38h112m-112 38h112" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("circle", { cx: "246", cy: "71", r: "5", fill: "currentColor" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("circle", { cx: "246", cy: "109", r: "5", fill: "currentColor" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M58 28l20 10m204 0l20-10M58 190l20-10m204 0l20 10" })
+    server: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M78 38h204v142H78zM96 58h168v26H96zM96 96h168v26H96zM96 134h168v26H96z" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { className: "soft", d: "M114 66h112m-112 38h112m-112 38h112" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx: "246", cy: "71", r: "5", fill: "currentColor" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx: "246", cy: "109", r: "5", fill: "currentColor" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M58 28l20 10m204 0l20-10M58 190l20-10m204 0l20 10" })
     ] }),
-    travel: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M34 46l96-24 100 28 96-24v142l-96 24-100-28-96 24zM130 22v142m100-114v142" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { className: "soft", d: "M62 78l52 28m36 16l56-34m44 20l48 30" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M62 78c36 30 68 18 88 44s70 18 100-14 48 30 48 30" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("circle", { cx: "62", cy: "78", r: "7", fill: "currentColor" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("circle", { cx: "298", cy: "138", r: "7", fill: "currentColor" })
+    travel: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M34 46l96-24 100 28 96-24v142l-96 24-100-28-96 24zM130 22v142m100-114v142" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { className: "soft", d: "M62 78l52 28m36 16l56-34m44 20l48 30" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M62 78c36 30 68 18 88 44s70 18 100-14 48 30 48 30" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx: "62", cy: "78", r: "7", fill: "currentColor" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx: "298", cy: "138", r: "7", fill: "currentColor" })
     ] }),
-    reading: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M34 52c54-20 102-16 146 8v132c-44-24-92-28-146-8zM326 52c-54-20-102-16-146 8v132c44-24 92-28 146-8z" }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+    reading: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M34 52c54-20 102-16 146 8v132c-44-24-92-28-146-8zM326 52c-54-20-102-16-146 8v132c44-24 92-28 146-8z" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
         "path",
         {
           className: "soft",
           d: "M58 84h88m-88 24h96m-96 24h78m166-48h-88m88 24h-96m96 24h-78"
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("path", { d: "M180 60v132" })
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M180 60v132" })
     ] })
   };
   const captions = {
     trading: "DEMO / USD \xB7 SIMULATED"
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
     "div",
     {
       className: styles.fallback,
       role: "img",
       "aria-label": `${label2} illustration`,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
           "svg",
           {
             className: styles.fallbackSvg,
@@ -2546,7 +2513,7 @@ var Fallback = ({ kind, label: label2 }) => {
             children: scenes[kind]
           }
         ),
-        captions[kind] && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-object__fallback-caption", "aria-hidden": "true", children: captions[kind] })
+        captions[kind] && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "uipack-object__fallback-caption", "aria-hidden": "true", children: captions[kind] })
       ]
     }
   );
@@ -2848,7 +2815,7 @@ function ObjectStage({
     if (!next) resumeRef.current?.();
   };
   const replay = () => replayRef.current?.();
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
     "div",
     {
       ref: hostRef,
@@ -2863,8 +2830,8 @@ function ObjectStage({
       "data-controls": controls,
       "data-variant-label": objectVariants[kind][variant === "random" ? 0 : variant],
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Fallback, { kind, label: label2 }),
-        active && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Fallback, { kind, label: label2 }),
+        active && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
           "canvas",
           {
             ref: canvasRef,
@@ -2873,7 +2840,7 @@ function ObjectStage({
             "aria-hidden": "true"
           }
         ),
-        ready && !reduced && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+        ready && !reduced && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
           "button",
           {
             type: "button",
@@ -2900,12 +2867,12 @@ function ObjectScene(props) {
   const chosenVariant = canVary ? randomVariant : props.variant;
   const variant = chosenVariant === null ? null : normalizeObjectVariant(props.kind, chosenVariant);
   const anotherLook = () => setRandomVariant((current) => ((current ?? 0) + 1) % (props.kind === "contact" ? 5 : objectDirections.length));
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "uipack-object-frame", "data-theme": props.theme ?? "light", "data-controls": controls, children: [
-    controls === "full" && variant !== null && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "uipack-object-edition", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { children: variant === 0 && props.kind !== "contact" ? `Studio \xB7 ${objectEditions[props.kind][props.edition ?? 0]}` : objectVariants[props.kind][variant] }),
-      canVary && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("button", { type: "button", onClick: anotherLook, "aria-label": "Another look", children: "\u21BB" })
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-object-frame", "data-theme": props.theme ?? "light", "data-controls": controls, children: [
+    controls === "full" && variant !== null && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "uipack-object-edition", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { children: variant === 0 && props.kind !== "contact" ? `Studio \xB7 ${objectEditions[props.kind][props.edition ?? 0]}` : objectVariants[props.kind][variant] }),
+      canVary && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { type: "button", onClick: anotherLook, "aria-label": "Another look", children: "\u21BB" })
     ] }),
-    controls === "full" && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+    controls === "full" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
       "button",
       {
         ref: opener,
@@ -2915,7 +2882,7 @@ function ObjectScene(props) {
         children: "Open canvas"
       }
     ),
-    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
       CanvasView,
       {
         open,
@@ -2924,7 +2891,7 @@ function ObjectScene(props) {
         theme: props.theme,
         restoreFocus: () => opener.current?.focus(),
         zoom: { value: zoom, min: 0.75, max: 2, onChange: setZoom },
-        children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+        children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
           ObjectStage,
           {
             ...props,
@@ -2939,19 +2906,140 @@ function ObjectScene(props) {
   ] });
 }
 function ObjectDirectionPicker({ value, onChange }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "uipack-object-directions", role: "group", "aria-label": "3D art direction", children: objectDirections.map((direction, index) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "uipack-object-directions", role: "group", "aria-label": "3D art direction", children: objectDirections.map((direction, index) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
     "button",
     {
       type: "button",
       "aria-pressed": value === index,
       onClick: () => onChange(index),
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { "aria-hidden": "true", children: directionSymbols[index] }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { "aria-hidden": "true", children: directionSymbols[index] }),
         direction.name
       ]
     },
     direction.id
   )) });
+}
+
+// src/objects/gallery.tsx
+var import_jsx_runtime3 = require("react/jsx-runtime");
+function AnimationWorkspace({
+  library,
+  children,
+  theme = "light"
+}) {
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "uipack-animation-workspace", "data-theme": theme, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("aside", { className: "uipack-animation-library", children: library }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "uipack-animation-detail", children })
+  ] });
+}
+function ObjectInspector({
+  kind,
+  variant,
+  edition = 0,
+  onVariantChange,
+  onEditionChange
+}) {
+  variant = normalizeObjectVariant(kind, variant);
+  const contact2 = kind === "contact";
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("aside", { className: "uipack-object-inspector", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("h3", { children: "Art direction" }),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { role: "group", "aria-label": "3D art direction", className: "uipack-direction-list", children: objectDirections.map((direction, index) => ({ direction, index })).filter(({ index }) => !contact2 || [0, 2, 3].includes(index)).map(({ direction, index }) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
+        "button",
+        {
+          type: "button",
+          "aria-label": direction.name,
+          "aria-pressed": objectDirectionIndex(kind, variant) === index,
+          onClick: () => onVariantChange(contact2 && index === 2 ? 4 : index),
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "uipack-direction-symbol", "aria-hidden": "true", children: directionSymbols[index] }),
+            /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("span", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("strong", { children: direction.name }),
+              /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("small", { children: direction.description })
+            ] })
+          ]
+        },
+        direction.id
+      )) })
+    ] }),
+    (contact2 ? variant < 3 : variant === 0) && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("label", { className: "uipack-edition-select", children: [
+      contact2 ? "Inbox edition" : "Studio edition",
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+        "select",
+        {
+          value: contact2 ? variant % 3 : edition,
+          onChange: (e) => (contact2 ? onVariantChange : onEditionChange)(Number(e.target.value)),
+          children: objectEditions[kind].map((name, index) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("option", { value: index, children: name }, name))
+        }
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("small", { children: contact2 ? "Three original inbox finishes." : "The original looks, kept together in Studio." })
+    ] })
+  ] });
+}
+function ObjectGallery({
+  kind,
+  variant = 0,
+  edition = 0,
+  theme = "light",
+  palette,
+  onChange
+}) {
+  variant = normalizeObjectVariant(kind, variant);
+  const scene = objectScenes.find((item) => item.id === kind);
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
+    AnimationWorkspace,
+    {
+      theme,
+      library: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("h3", { children: "Object library" }),
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("nav", { "aria-label": "Choose an object", className: "uipack-scene-list", onFocus: keepFocusedInView, children: objectScenes.map((item) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
+          "button",
+          {
+            type: "button",
+            "aria-pressed": kind === item.id,
+            onClick: () => onChange(item.id, transferObjectVariant(kind, item.id, variant), edition),
+            children: [
+              item.title,
+              /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { "aria-hidden": "true", children: "\u2197" })
+            ]
+          },
+          item.id
+        )) })
+      ] }),
+      children: [
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("header", { className: "uipack-animation-heading", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("h3", { children: scene.title }),
+          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { children: "Live 3D preview" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "uipack-object-review", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "uipack-gallery-stage", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+            ObjectScene,
+            {
+              kind,
+              label: scene.title,
+              variant,
+              edition,
+              theme,
+              palette
+            },
+            kind
+          ) }),
+          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+            ObjectInspector,
+            {
+              kind,
+              variant,
+              edition,
+              onVariantChange: (value) => onChange(kind, value, edition),
+              onEditionChange: (value) => onChange(kind, variant, value)
+            }
+          )
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("p", { className: "uipack-gallery-description", children: objectDirectionIndex(kind, variant) === 0 ? scene.description : objectDirections[objectDirectionIndex(kind, variant)].description })
+      ]
+    }
+  );
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
