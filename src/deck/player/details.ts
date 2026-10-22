@@ -35,6 +35,6 @@ export function useDetailStops(ref: RefObject<Element | null>, key: unknown): De
   useIsoLayoutEffect(() => {
     const next = detailStopsOf(ref.current);
     setStops((prev) => (JSON.stringify(prev) === JSON.stringify(next) ? prev : next));
-  }, [key]);
+  }, [ref, key]);
   return stops;
 }
