@@ -486,9 +486,10 @@ export const drillLevels: DrillLevel[] = [
 
 const PARAM = "drill";
 
-/** The path in the URL (`?drill=harness/checks`), so a link opens a level. */
+/** The path in the URL (`?drill=harness/checks`), so a link opens a level. None on the server. */
 function useUrlPath(): [string[] | undefined, (p: string[]) => void] {
-  const read = () => new URLSearchParams(location.search).get(PARAM)?.split("/").filter(Boolean);
+  const read = () =>
+    typeof location === "undefined" ? undefined : new URLSearchParams(location.search).get(PARAM)?.split("/").filter(Boolean);
   const [path, setPath] = useState<string[] | undefined>(read);
   useEffect(() => {
     const onPop = () => setPath(read());

@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { hydrateRoot } from "react-dom/client";
-import { renderToString } from "react-dom/server";
+import { onServer } from "./on-server";
 import { readFileSync } from "node:fs";
 import {
   Bento,
@@ -19,7 +19,10 @@ import {
 import { flipFrom, resolveTransition, slideZoomSamples } from "../src/deck/transitions";
 import { slidePlan } from "../src/deck/player/Presenter";
 
-const slides: DeckSlide[] = [
+// A factory over the slide parts, so a server render (onServer) can build the slides from the same
+// fresh modules as its DeckPlayer: parts read the player's context, which is one per module copy.
+type SlideParts = Pick<typeof import("../src/deck"), "Slide" | "Morph" | "Build">;
+const slidesFrom = ({ Slide, Morph, Build }: SlideParts): DeckSlide[] => [
   {
     id: "one",
     title: "First claim",
@@ -54,6 +57,7 @@ const slides: DeckSlide[] = [
     render: () => <Slide footer="Deck">Inside</Slide>,
   },
 ];
+const slides = slidesFrom({ Slide, Morph, Build });
 
 const deck = () => screen.getByRole("region", { name: "Test deck" });
 const press = (key: string, init: KeyboardEventInit = {}) =>
@@ -147,22 +151,21 @@ describe("deck transitions: pure geometry", () => {
 });
 
 describe("DeckPlayer", () => {
-  it("server-renders the first slide with its accessible name", () => {
-    const html = renderToString(<DeckPlayer id="t" title="Test deck" slides={slides} />);
+  it("server-renders the first slide with its accessible name", async () => {
+    const html = await onServer(async ({ renderToString }) => {
+      const server = await import("../src/deck");
+      return renderToString(<server.DeckPlayer id="t" title="Test deck" slides={slidesFrom(server)} />);
+    });
     expect(html).toContain('aria-roledescription="slide deck"');
     expect(html).toContain("1 of 3: First claim");
   });
 
   it("hydrates server HTML without a mismatch, then offers full screen", async () => {
     // The server half runs with no window or document, as on a real server.
-    vi.stubGlobal("window", undefined);
-    vi.stubGlobal("document", undefined);
-    let html: string;
-    try {
-      html = renderToString(<DeckPlayer id="h" title="Test deck" slides={slides} />);
-    } finally {
-      vi.unstubAllGlobals();
-    }
+    const html = await onServer(async ({ renderToString }) => {
+      const server = await import("../src/deck");
+      return renderToString(<server.DeckPlayer id="h" title="Test deck" slides={slidesFrom(server)} />);
+    });
     expect(html).not.toContain("Full screen");
     const host = document.createElement("div");
     host.innerHTML = html;
@@ -246,10 +249,14 @@ describe("DeckPlayer", () => {
     }
   });
 
-  it("renders an empty stage for an empty deck instead of throwing", () => {
+  it("renders an empty stage for an empty deck instead of throwing", async () => {
     render(<DeckPlayer id="t10" title="Test deck" slides={[]} />);
     expect(deck()).toHaveTextContent("No slides");
-    expect(renderToString(<DeckPlayer id="t10" title="Test deck" slides={[]} />)).toContain("No slides");
+    const html = await onServer(async ({ renderToString }) => {
+      const server = await import("../src/deck");
+      return renderToString(<server.DeckPlayer id="t10" title="Test deck" slides={[]} />);
+    });
+    expect(html).toContain("No slides");
   });
 
   it("announces the slide and reports positions after mount, not on mount", () => {

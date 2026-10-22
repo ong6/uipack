@@ -1,3 +1,5 @@
+// @vitest-environment node
+// Server-rendered, as the diagrams page's figures are on a real server: no window, so no layout effects.
 import { renderToStaticMarkup } from "react-dom/server";
 import { figureEntries } from "../playground/catalog";
 import { figureSections } from "../playground/figures";

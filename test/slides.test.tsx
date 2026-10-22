@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { renderToString } from "react-dom/server";
+import { onServer } from "./on-server";
 import {
   SlidePlayer,
   SlideScene,
@@ -44,8 +44,11 @@ describe("slide story contract", () => {
   });
 });
 describe("slide player", () => {
-  it("renders a readable SSR fallback without a browser or WebGL", () => {
-    const html = renderToString(<SlidePlayer story={harnessDive} />);
+  it("renders a readable SSR fallback without a browser or WebGL", async () => {
+    const html = await onServer(async ({ renderToString }) => {
+      const server = await import("../src/slides");
+      return renderToString(<server.SlidePlayer story={server.harnessDive} />);
+    });
     expect(html).toContain("The model lives inside a system.");
     expect(html).toContain("Diagram view");
     expect(html).not.toContain("<canvas");

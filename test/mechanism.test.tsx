@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { render } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { onServer } from "./on-server";
 import * as mechanism from "../src/mechanism";
 import { act } from "react";
 import { GateMachine, MechanismFrame, VerificationGate, type GatePose } from "../src/mechanism";
@@ -171,13 +172,16 @@ describe("VerificationGate", () => {
     vi.unstubAllGlobals();
   });
 
-  it("writes each pose's readout into the frame, and keeps SVG ids unique per instance", () => {
-    const html = renderToStaticMarkup(
-      <>
-        <VerificationGate pose="pass" interactive={false} />
-        <VerificationGate pose="return" interactive={false} />
-      </>,
-    );
+  it("writes each pose's readout into the frame, and keeps SVG ids unique per instance", async () => {
+    const html = await onServer(async ({ renderToStaticMarkup }) => {
+      const { VerificationGate } = await import("../src/mechanism");
+      return renderToStaticMarkup(
+        <>
+          <VerificationGate pose="pass" interactive={false} />
+          <VerificationGate pose="return" interactive={false} />
+        </>,
+      );
+    });
     expect(html).toContain("reads 4.2 ≤ 6.0 · passed");
     expect(html).toContain("reads 6.6 &gt; 6.0 · returned");
     const ids = [...html.matchAll(/ id="([^"]+)"/g)].map((match) => match[1]);
@@ -185,8 +189,11 @@ describe("VerificationGate", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("renders the bare machine without a card, and the frame on its own", () => {
-    const bare = renderToStaticMarkup(<VerificationGate frame={false} interactive={false} theme="dark" />);
+  it("renders the bare machine without a card, and the frame on its own", async () => {
+    const bare = await onServer(async ({ renderToStaticMarkup }) => {
+      const { VerificationGate } = await import("../src/mechanism");
+      return renderToStaticMarkup(<VerificationGate frame={false} interactive={false} theme="dark" />);
+    });
     expect(bare).not.toContain("<figure");
     expect(bare).toContain('class="um-machine uipack-mechanism"');
     expect(bare).toContain('data-theme="dark"');

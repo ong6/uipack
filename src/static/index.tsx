@@ -168,6 +168,16 @@ function figureOf(input: ReactElement<FigureProps> | StaticFigure): StaticFigure
 }
 
 /**
+ * SVG children as markup. Rendered inside an <svg> so React treats them as SVG (camel-cased
+ * elements such as animateMotion and clipPath are valid there, not miscased HTML), then the
+ * wrapper is cut away: the caller writes its own root.
+ */
+function svgMarkup(children: ReactNode): string {
+  const html = renderToStaticMarkup(<svg>{children}</svg>);
+  return html.slice("<svg>".length, -"</svg>".length);
+}
+
+/**
  * Render a Figure element (what a preset returns) or a bare {children, viewBox}
  * to an SVG string. The result needs no CSS, no JavaScript and no fonts from
  * the page; drop it in an <img>, a README or a slide.
@@ -195,7 +205,7 @@ export function renderStatic(input: ReactElement<FigureProps> | StaticFigure, op
   try {
     const floor = fontFloor(vw, opts.width ?? DEFAULT_RENDER_WIDTH, opts.minFont ?? 11);
     drawing = inlineVars(
-      renderToStaticMarkup(
+      svgMarkup(
         <FigureMotionContext.Provider value={ctx}>
           <FigureScaleProvider floor={floor}>{fig.children}</FigureScaleProvider>
         </FigureMotionContext.Provider>,
@@ -242,7 +252,7 @@ export function renderStatic(input: ReactElement<FigureProps> | StaticFigure, op
       for (const it of fig.legend) {
         const kind = it.kind ?? "neutral";
         const tok = inlineVars(
-          renderToStaticMarkup(<Token kind={kind} shape={it.shape ?? TOKEN_SHAPE[kind]} r={5.5} cx={lx + 6} cy={hy - 4} />),
+          svgMarkup(<Token kind={kind} shape={it.shape ?? TOKEN_SHAPE[kind]} r={5.5} cx={lx + 6} cy={hy - 4} />),
           p,
         );
         head.push(

@@ -36,3 +36,24 @@ if (browser && typeof window.PointerEvent === "undefined") {
   }
   Object.defineProperty(window, "PointerEvent", { writable: true, value: PointerEvent });
 }
+
+// A unit run fails on any console.error it did not expect: a React warning (a server-side layout
+// effect, a miscased SVG element, a missing key), an act() warning or jsdom's "Not implemented"
+// each mean a bug or a test that should say it expects one. A test that expects an error spies on
+// console.error itself (vi.spyOn(console, "error").mockImplementation(…)), which this never sees.
+// ALLOWED_ERRORS lists the expected ones that cannot be scoped to one test, each with its reason.
+const ALLOWED_ERRORS: { pattern: RegExp; reason: string }[] = [];
+const unexpected: string[] = [];
+const reportError = console.error.bind(console);
+console.error = (...args: unknown[]) => {
+  const text = args.map((a) => (a instanceof Error ? (a.stack ?? a.message) : String(a))).join(" ");
+  if (!ALLOWED_ERRORS.some(({ pattern }) => pattern.test(text))) unexpected.push(text.split("\n").slice(0, 4).join("\n"));
+  reportError(...args);
+};
+afterEach(() => {
+  if (!unexpected.length) return;
+  const found = unexpected.splice(0);
+  throw new Error(
+    `Unexpected console.error (${found.length}); fix the cause, or expect it in the test:\n\n${found.join("\n\n")}`,
+  );
+});
