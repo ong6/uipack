@@ -5,20 +5,22 @@ import { entries } from "../scripts/entries";
 // The package's entry points are declared in three places: scripts/entries.ts (tsup's entries),
 // package.json exports and scripts/css-bundles.ts. A new entry must touch all three; these checks say which
 // one was missed (docs/contributing.md, "A new package entry").
+type Conditions = { types: string; default: string };
 const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
-  exports: Record<string, string | Record<string, string>>;
+  exports: Record<string, string | { import: Conditions; require: Conditions }>;
   files: string[];
 };
 const subpath = (name: string) => (name === "index" ? "." : `./${name}`);
 
 describe("package entries", () => {
-  it("every tsup entry is exported with types, ESM and CJS, and every JS export has an entry", () => {
+  // Each module system gets its own declarations: in a "type": "module" package a .d.ts types an ES
+  // module, so `require` must point at the .d.cts tsup writes beside the .cjs (attw, `npm run attw`).
+  it("every tsup entry is exported with ESM and CJS, each with its own types, and every JS export has an entry", () => {
     for (const [name, source] of Object.entries(entries)) {
       expect(existsSync(source), source).toBe(true);
       expect(pkg.exports[subpath(name)], `package.json exports "${subpath(name)}"`).toEqual({
-        types: `./dist/${name}.d.ts`,
-        import: `./dist/${name}.js`,
-        require: `./dist/${name}.cjs`,
+        import: { types: `./dist/${name}.d.ts`, default: `./dist/${name}.js` },
+        require: { types: `./dist/${name}.d.cts`, default: `./dist/${name}.cjs` },
       });
     }
     const jsExports = Object.entries(pkg.exports)
@@ -32,6 +34,14 @@ describe("package entries", () => {
     expect(cssExports.map(([k]) => k).sort()).toEqual(cssBundles.map((b) => `./${b.out}`).sort());
     for (const [key, target] of cssExports) expect(target).toBe(`./dist${key.slice(1)}`);
     for (const b of cssBundles) for (const file of b.from) expect(existsSync(file), file).toBe(true);
+  });
+
+  // attw resolves every export to type declarations; a stylesheet has none, so .attw.json skips exactly
+  // the CSS exports (JSON has no comments: the reason lives here and in docs/contributing.md).
+  it("attw skips exactly the CSS exports", () => {
+    const attw = JSON.parse(readFileSync(".attw.json", "utf8")) as { excludeEntrypoints: string[] };
+    const cssExports = Object.keys(pkg.exports).filter((k) => k.endsWith(".css"));
+    expect([...attw.excludeEntrypoints].sort()).toEqual(cssExports.sort());
   });
 
   it("every doc ships with the package", () => {

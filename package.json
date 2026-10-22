@@ -8,24 +8,44 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./presets": {
-      "types": "./dist/presets.d.ts",
-      "import": "./dist/presets.js",
-      "require": "./dist/presets.cjs"
+      "import": {
+        "types": "./dist/presets.d.ts",
+        "default": "./dist/presets.js"
+      },
+      "require": {
+        "types": "./dist/presets.d.cts",
+        "default": "./dist/presets.cjs"
+      }
     },
     "./browser": {
-      "types": "./dist/browser.d.ts",
-      "import": "./dist/browser.js",
-      "require": "./dist/browser.cjs"
+      "import": {
+        "types": "./dist/browser.d.ts",
+        "default": "./dist/browser.js"
+      },
+      "require": {
+        "types": "./dist/browser.d.cts",
+        "default": "./dist/browser.cjs"
+      }
     },
     "./static": {
-      "types": "./dist/static.d.ts",
-      "import": "./dist/static.js",
-      "require": "./dist/static.cjs"
+      "import": {
+        "types": "./dist/static.d.ts",
+        "default": "./dist/static.js"
+      },
+      "require": {
+        "types": "./dist/static.d.cts",
+        "default": "./dist/static.cjs"
+      }
     },
     "./browser.css": "./dist/browser.css",
     "./theme.css": "./dist/theme.css",
@@ -33,55 +53,100 @@
     "./assets/objects/*": "./assets/objects/*",
     "./package.json": "./package.json",
     "./slides": {
-      "types": "./dist/slides.d.ts",
-      "import": "./dist/slides.js",
-      "require": "./dist/slides.cjs"
+      "import": {
+        "types": "./dist/slides.d.ts",
+        "default": "./dist/slides.js"
+      },
+      "require": {
+        "types": "./dist/slides.d.cts",
+        "default": "./dist/slides.cjs"
+      }
     },
     "./slides.css": "./dist/slides.css",
     "./presentations": {
-      "types": "./dist/presentations.d.ts",
-      "import": "./dist/presentations.js",
-      "require": "./dist/presentations.cjs"
+      "import": {
+        "types": "./dist/presentations.d.ts",
+        "default": "./dist/presentations.js"
+      },
+      "require": {
+        "types": "./dist/presentations.d.cts",
+        "default": "./dist/presentations.cjs"
+      }
     },
     "./presentations.css": "./dist/presentations.css",
     "./deck": {
-      "types": "./dist/deck.d.ts",
-      "import": "./dist/deck.js",
-      "require": "./dist/deck.cjs"
+      "import": {
+        "types": "./dist/deck.d.ts",
+        "default": "./dist/deck.js"
+      },
+      "require": {
+        "types": "./dist/deck.d.cts",
+        "default": "./dist/deck.cjs"
+      }
     },
     "./deck.css": "./dist/deck.css",
     "./objects": {
-      "types": "./dist/objects.d.ts",
-      "import": "./dist/objects.js",
-      "require": "./dist/objects.cjs"
+      "import": {
+        "types": "./dist/objects.d.ts",
+        "default": "./dist/objects.js"
+      },
+      "require": {
+        "types": "./dist/objects.d.cts",
+        "default": "./dist/objects.cjs"
+      }
     },
     "./objects.css": "./dist/objects.css",
     "./web": {
-      "types": "./dist/web.d.ts",
-      "import": "./dist/web.js",
-      "require": "./dist/web.cjs"
+      "import": {
+        "types": "./dist/web.d.ts",
+        "default": "./dist/web.js"
+      },
+      "require": {
+        "types": "./dist/web.d.cts",
+        "default": "./dist/web.cjs"
+      }
     },
     "./docs": {
-      "types": "./dist/docs.d.ts",
-      "import": "./dist/docs.js",
-      "require": "./dist/docs.cjs"
+      "import": {
+        "types": "./dist/docs.d.ts",
+        "default": "./dist/docs.js"
+      },
+      "require": {
+        "types": "./dist/docs.d.cts",
+        "default": "./dist/docs.cjs"
+      }
     },
     "./charts": {
-      "types": "./dist/charts.d.ts",
-      "import": "./dist/charts.js",
-      "require": "./dist/charts.cjs"
+      "import": {
+        "types": "./dist/charts.d.ts",
+        "default": "./dist/charts.js"
+      },
+      "require": {
+        "types": "./dist/charts.d.cts",
+        "default": "./dist/charts.cjs"
+      }
     },
     "./charts.css": "./dist/charts.css",
     "./article": {
-      "types": "./dist/article.d.ts",
-      "import": "./dist/article.js",
-      "require": "./dist/article.cjs"
+      "import": {
+        "types": "./dist/article.d.ts",
+        "default": "./dist/article.js"
+      },
+      "require": {
+        "types": "./dist/article.d.cts",
+        "default": "./dist/article.cjs"
+      }
     },
     "./article.css": "./dist/article.css",
     "./mechanism": {
-      "types": "./dist/mechanism.d.ts",
-      "import": "./dist/mechanism.js",
-      "require": "./dist/mechanism.cjs"
+      "import": {
+        "types": "./dist/mechanism.d.ts",
+        "default": "./dist/mechanism.js"
+      },
+      "require": {
+        "types": "./dist/mechanism.d.cts",
+        "default": "./dist/mechanism.cjs"
+      }
     },
     "./mechanism.css": "./dist/mechanism.css",
     "./web.css": "./dist/web.css",
@@ -116,7 +181,8 @@
     "prepare": "npm run build",
     "test:e2e": "playwright test",
     "screenshots": "SHOTS=1 playwright test --project=chromium e2e/screenshots.spec.ts",
-    "manifest": "tsx scripts/build-manifest.tsx"
+    "manifest": "tsx scripts/build-manifest.tsx",
+    "attw": "attw --pack"
   },
   "peerDependencies": {
     "gsap": "^3.15.0",
@@ -127,6 +193,7 @@
     "three": "^0.186.0"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@fontsource/ibm-plex-sans": "^5.3.0",
     "@fontsource/ibm-plex-serif": "^5.3.0",

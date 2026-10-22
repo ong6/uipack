@@ -1,0 +1,17 @@
+{
+  "profile": "node16",
+  "excludeEntrypoints": [
+    "./browser.css",
+    "./theme.css",
+    "./slides.css",
+    "./presentations.css",
+    "./deck.css",
+    "./objects.css",
+    "./charts.css",
+    "./article.css",
+    "./mechanism.css",
+    "./web.css",
+    "./web-gutters.css",
+    "./docs.css"
+  ]
+}

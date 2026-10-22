@@ -23,6 +23,8 @@ jobs:
           test -z "$(git status --porcelain dist)" || { git status --porcelain dist; echo "Rebuild and commit dist/"; exit 1; }
       - name: Load every built entry with import and require
         run: node scripts/load-entries.mjs
+      - name: Types resolve for import and require (attw)
+        run: npm run attw
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 15
