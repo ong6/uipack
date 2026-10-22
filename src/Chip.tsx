@@ -53,7 +53,9 @@ export function Chip({
         height={h}
         rx={h / 2}
         fill={fill}
-        fillOpacity={kind ? 0.55 : 1}
+        // A token hue tints the pill: 55% on paper, a 28% wash in dark themes so the pale
+        // label keeps its contrast (--uipack-chip-tint, set by the theme).
+        style={kind ? { fillOpacity: "var(--uipack-chip-tint, 0.55)" } : undefined}
         stroke="currentColor"
         strokeOpacity={dashed ? 0.5 : 0.8}
         strokeWidth={1.25}
