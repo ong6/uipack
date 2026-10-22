@@ -19,6 +19,7 @@ import {
   TYPE_FACES,
   type DemoStep,
 } from "../src/web";
+import { fontFiles } from "../scripts/css-bundles";
 
 const steps: DemoStep[] = [
   { id: "ask", label: "Ask", title: "Say it", prompt: "Clear it" },
@@ -116,7 +117,7 @@ describe("Landing fonts", () => {
   it("ships the fonts in dist where the built web.css points", () => {
     const pkg = JSON.parse(readFileSync("package.json", "utf8"));
     expect(pkg.exports["./fonts/*"]).toBe("./dist/fonts/*");
-    expect(pkg.scripts.build).toContain("dist/fonts");
+    expect(fontFiles.out).toBe("fonts"); // scripts/build-css.ts copies src/web/fonts there
     const built = readFileSync("dist/web.css", "utf8");
     expect(urls(built).length).toBe(7);
     for (const u of urls(built)) expect(existsSync(`dist/${u}`)).toBe(true);

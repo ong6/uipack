@@ -1,21 +1,8 @@
 import { defineConfig } from "tsup";
+import { entries } from "./scripts/entries";
 
 export default defineConfig({
-  entry: {
-    index: "src/index.ts",
-    presets: "src/presets/index.ts",
-    browser: "src/browser/index.tsx",
-    static: "src/static/index.tsx",
-    slides: "src/slides/index.ts",
-    presentations: "src/presentations/index.ts",
-    objects: "src/objects/index.tsx",
-    web: "src/web/index.ts",
-    docs: "src/docs/index.ts",
-    charts: "src/charts/index.ts",
-    article: "src/article/index.ts",
-    deck: "src/deck/index.ts",
-    mechanism: "src/mechanism/index.ts",
-  },
+  entry: entries,
   format: ["esm", "cjs"],
   dts: true,
   sourcemap: true,
