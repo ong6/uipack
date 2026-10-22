@@ -41,11 +41,11 @@ import "uipack/mechanism.css";
 | `motion` | `"auto"` | `"none"` holds each pose's still frame, as `prefers-reduced-motion: reduce` does. |
 | `interactive` | `true` | `false` renders one still frame: no requestAnimationFrame, no IntersectionObserver, no handlers, no tab stop. Use it for deck thumbnails. |
 | `frame` | `true` | `false` renders the bare machine, without the card, for a slide that places it. |
-| `fig`, `title`, `hint`, `caption` | `"Fig 1"`, `"Verification gate"`, per pose, an honest caption | The card's corners and caption. |
+| `number`, `title`, `hint`, `caption` | `"Fig 1"`, `"Verification gate"`, per pose, an honest caption | The card's corners and caption (`number` as on `Figure`). |
 | `onReadout` | | Called with the readout text whenever it changes (useful with `frame={false}`). |
-| `label` | a description | The SVG's accessible description. |
+| `alt` | a description | The SVG's accessible description, as on `Figure`. |
 
-`GateMachine` is the same machine without the frame; `MechanismFrame` is the card on its own (`fig`, `title`, `hint`, `readout`, `caption`, `theme`, children), and a machine inside it writes its live readout into the bottom-right corner.
+`GateMachine` is the same machine without the frame; `MechanismFrame` is the card on its own (`number`, `title`, `hint`, `readout`, `caption`, `theme`, children), and a machine inside it writes its live readout into the bottom-right corner.
 
 **Pose changes never jump.** Every frame, the machine computes the pose's scripted scene (`sceneAt(pose, t)` in `gate/motion.ts`, a pure function of time) and follows it: tokens ease to their targets (exponential follow, τ 0.05 s) and cross-fade when they leave or join the scene, the plunger, arm and explode shares ride springs, the belt's speed eases. A deck can switch pose mid-run, and the machine moves there from wherever it is. Two instances can be mounted at once (slide transitions): SVG ids come from `useId`, and all state is per instance.
 

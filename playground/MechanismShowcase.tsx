@@ -48,7 +48,7 @@ export default function MechanismShowcase() {
         </div>
         <p className="mechanism-note">{POSES.find((item) => item.id === pose)!.note}</p>
         <div className="mechanism-stage">
-          <VerificationGate pose={pose} theme={theme} fig="Fig 1" title="Verification gate" />
+          <VerificationGate pose={pose} theme={theme} number="Fig 1" title="Verification gate" />
         </div>
       </section>
       <section className="mechanism-page" id="thumbnails">

@@ -144,7 +144,7 @@ describe("VerificationGate", () => {
     expect(bare).toContain('class="um-machine uipack-mechanism"');
     expect(bare).toContain('data-theme="dark"');
     const card = renderToStaticMarkup(
-      <MechanismFrame fig="Fig 2" title="Lock" hint="Hover" readout="ready" caption="A caption.">
+      <MechanismFrame number="Fig 2" title="Lock" hint="Hover" readout="ready" caption="A caption.">
         <svg />
       </MechanismFrame>,
     );

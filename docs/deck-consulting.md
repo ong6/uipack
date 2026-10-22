@@ -70,7 +70,7 @@ Every chart takes plain data and draws static SVG sized to its panel; pass `widt
 | `Matrix2x2` | Items placed on two axes, sized by a third | `x`/`y` (`label`, `domain`, `split`, `format`), `points` (`size`, `highlight`, `labelAt`), `quadrants`, `focus`, `callout` |
 | `Annotation` | A note with a leader line that ends on a data point | Usually through a chart's `callout`/`annotate` prop: text offset `dx`/`dy` from the point, `width`, `align` |
 
-The maths is exported and unit-tested: `linearScale`, `niceTicks`, `bandLayout`, `waterfallBars`, `stackSegments`, `harveyWedge`, `bubbleRadius`, `barPath`, `spreadLabels`, `wrapToWidth`, `annotationGeometry` and `formatValue`, which uses a true minus sign.
+Every chart takes `alt` (its accessible summary, as on `Figure`; a default lists the labels and values), `width` and `height`. The maths is exported and unit-tested: `linearScale`, `niceTicks`, `bandLayout`, `waterfallBars`, `stackSegments`, `harveyWedge`, `bubbleRadius`, `barPath`, `spreadLabels`, `wrapToWidth`, `annotationGeometry` and `formatValue`, which uses a true minus sign.
 
 ## Colour
 

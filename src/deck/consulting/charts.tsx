@@ -263,7 +263,7 @@ export interface BarChartProps extends ChartSize {
   /** Annotate one bar (by label). */
   callout?: ChartCallout & { label: string };
   /** Accessible summary. Defaults to the labels and values. */
-  ariaLabel?: string;
+  alt?: string;
 }
 
 /** Ranked horizontal bars or vertical columns, value at the tip, one optional highlight. */
@@ -275,7 +275,7 @@ export function BarChart({
   domain,
   reference,
   callout,
-  ariaLabel,
+  alt,
   width,
   height,
 }: BarChartProps) {
@@ -289,7 +289,7 @@ export function BarChart({
   const colour = (d: BarDatum) => (!emphasis || d.highlight ? fill.accent : fill.context);
   const values = rows.map((d) => d.value);
   const dom = domain ?? zeroBasedDomain(reference ? [...values, reference.value] : values);
-  const label = ariaLabel ?? `Bar chart. ${rows.map((d) => `${d.label}: ${format(d.value)}`).join("; ")}.`;
+  const label = alt ?? `Bar chart. ${rows.map((d) => `${d.label}: ${format(d.value)}`).join("; ")}.`;
   const valueW = Math.max(...rows.map((d) => textWidth(format(d.value), CX_TYPE.value, 600))) + 14;
   const refTop = reference ? 40 : 4;
 
@@ -405,11 +405,11 @@ export interface WaterfallProps extends ChartSize {
   /** Value-axis domain. A start above zero truncates the totals, marked with a break. */
   domain?: [number, number];
   callout?: ChartCallout & { label: string };
-  ariaLabel?: string;
+  alt?: string;
 }
 
 /** A bridge from a start total through signed deltas to an end total. */
-export function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain, callout, ariaLabel, width, height }: WaterfallProps) {
+export function Waterfall({ steps, format = defaultFormat, goodDirection = "up", domain, callout, alt, width, height }: WaterfallProps) {
   const size = useChartSize({ width, height });
   const W = size.width;
   const H = size.height;
@@ -424,7 +424,7 @@ export function Waterfall({ steps, format = defaultFormat, goodDirection = "up",
   const y = linearScale(dom, [H - bottom, top]);
   const base = y(dom[0]);
   const label =
-    ariaLabel ??
+    alt ??
     `Waterfall. ${bars.map((b) => `${b.label}: ${b.kind === "total" ? format(b.value) : (b.value >= 0 ? "+" : "") + format(b.value)}`).join("; ")}.`;
   const show = (b: (typeof bars)[number]) =>
     b.kind === "total" ? format(b.value) : `${b.value > 0 ? "+" : ""}${format(b.value)}`;
@@ -523,7 +523,7 @@ export interface StackedBarProps extends ChartSize {
   segmentFormat?: Format;
   /** Show the total above each bar (absolute mode). Default true. */
   totals?: boolean;
-  ariaLabel?: string;
+  alt?: string;
 }
 
 /** Stacked bars (or 100% bars) with a legend, segment values where they fit and totals on top. */
@@ -535,7 +535,7 @@ export function StackedBar({
   format = defaultFormat,
   segmentFormat,
   totals = true,
-  ariaLabel,
+  alt,
   width,
   height,
 }: StackedBarProps) {
@@ -548,7 +548,7 @@ export function StackedBar({
   const max = percent ? 100 : Math.max(...sums, 1);
   const fmtSeg = (s: { value: number; share: number }) => (percent ? `${Math.round(s.share * 100)}%` : (segmentFormat ?? format)(s.value));
   const label =
-    ariaLabel ??
+    alt ??
     `Stacked bar chart, ${series.join(", ")}. ${categories
       .map((c, i) => `${c.label}: ${stacks[i].map((s, k) => `${series[k]} ${fmtSeg(s)}`).join(", ")}`)
       .join("; ")}.`;
@@ -719,7 +719,7 @@ export interface LineChartProps extends ChartSize {
   reference?: { value: number; label: string };
   /** One annotated point: series (name or index), the x index, and where the text goes. */
   annotate?: ChartCallout & { series: string | number; index: number };
-  ariaLabel?: string;
+  alt?: string;
 }
 
 /** One to four lines over periods, with end labels, a reference line and one annotated point. */
@@ -731,7 +731,7 @@ export function LineChart({
   domain,
   reference,
   annotate,
-  ariaLabel,
+  alt,
   width,
   height,
 }: LineChartProps) {
@@ -762,7 +762,7 @@ export function LineChart({
   const xs = (i: number) => (periods.length <= 1 ? left : left + (i / (periods.length - 1)) * (right - left - 16) + 8);
   const ys = linearScale(dom, [bottom, top]);
   const label =
-    ariaLabel ??
+    alt ??
     `Line chart, ${periods[0]} to ${periods[periods.length - 1]}. ${series
       .map((s) => `${s.name}: ${s.values.map((v) => (v === null ? "n/a" : format(v))).join(", ")}`)
       .join("; ")}.`;
@@ -977,11 +977,11 @@ export interface Matrix2x2Props extends ChartSize {
   /** Largest bubble radius in canvas px. */
   maxRadius?: number;
   callout?: ChartCallout & { label: string };
-  ariaLabel?: string;
+  alt?: string;
 }
 
 /** A 2×2: labelled axes, quadrant names, sized bubbles and direct labels. */
-export function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, callout, ariaLabel, width, height }: Matrix2x2Props) {
+export function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 46, callout, alt, width, height }: Matrix2x2Props) {
   const size = useChartSize({ width, height });
   const W = size.width;
   const H = size.height;
@@ -1008,7 +1008,7 @@ export function Matrix2x2({ x: xa, y: ya, points, quadrants, focus, maxRadius = 
     br: { x: midX, y: midY, w: right - midX, h: bottom - midY },
   };
   const label =
-    ariaLabel ??
+    alt ??
     `2 by 2 matrix: ${xa.label} against ${ya.label}. ${points.map((p) => `${p.label}: ${fx(p.x)}, ${fy(p.y)}${p.size !== undefined ? `, size ${p.size}` : ""}`).join("; ")}.`;
   const sorted = [...points].sort((a, b) => (b.size ?? 1) - (a.size ?? 1));
   return (

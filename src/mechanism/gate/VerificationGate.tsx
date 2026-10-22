@@ -43,8 +43,8 @@ export interface GateMachineProps {
   motion?: "auto" | "none";
   /** false renders one still frame of the pose: no loops, observers or handlers (deck thumbnails). */
   interactive?: boolean;
-  /** The SVG's accessible description; a default describes the machine. */
-  label?: string;
+  /** The SVG's accessible description (as Figure's `alt`); a default describes the machine. */
+  alt?: string;
   /** Called with the readout text whenever it changes. */
   onReadout?: (text: string) => void;
   className?: string;
@@ -53,7 +53,8 @@ export interface GateMachineProps {
 export interface VerificationGateProps extends GateMachineProps {
   /** false renders the bare machine with no card, for a slide that places it itself. */
   frame?: boolean;
-  fig?: string;
+  /** Top-left corner, as Figure's `number`: "Fig 1". */
+  number?: string;
   title?: string;
   hint?: React.ReactNode;
   caption?: React.ReactNode;
@@ -226,7 +227,8 @@ function useId() {
 }
 
 /** The verification gate without its card. */
-export function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true, label = LABEL, onReadout, className, bare = true }: GateMachineProps & { bare?: boolean }) {
+/** `bare` (internal): the machine is its own styled root; VerificationGate passes false inside its card, which carries the theme. */
+export function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true, alt = LABEL, onReadout, className, bare = true }: GateMachineProps & { bare?: boolean }) {
   const uid = useId();
   const root = React.useRef<HTMLDivElement>(null);
   const live = React.useRef<HTMLSpanElement>(null);
@@ -461,7 +463,7 @@ export function GateMachine({ pose = "idle", theme, motion = "auto", interactive
   const hint = HINTS[pose];
 
   const art = (
-    <svg className="iso-svg" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label={label} focusable="false">
+    <svg className="iso-svg" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label={alt} focusable="false">
       <title id={`${uid}-title`}>Verification gate</title>
       <g data-part="base">
         <path className="iso-halo" d={BASE_ART.halo} />
@@ -696,13 +698,13 @@ function Tokens({ layer, slots }: { layer: Layer; slots: Slot[] }) {
  * a dial indicator measures each against a limit, passing ones reach the
  * result tray and failing ones are swung into a chute back to the hopper.
  */
-export function VerificationGate({ frame = true, fig = "Fig 1", title = "Verification gate", hint, caption = GATE_CAPTION, theme, ...machine }: VerificationGateProps) {
+export function VerificationGate({ frame = true, number = "Fig 1", title = "Verification gate", hint, caption = GATE_CAPTION, theme, ...machine }: VerificationGateProps) {
   const pose = machine.pose ?? "idle";
   if (!frame) return <GateMachine {...machine} theme={theme} />;
   const interactive = machine.interactive ?? true;
   const shownHint = hint ?? (interactive ? HINTS[pose] : undefined);
   return (
-    <MechanismFrame fig={fig} title={title} hint={shownHint} readout={stillScene(pose).readout} caption={caption} theme={theme}>
+    <MechanismFrame number={number} title={title} hint={shownHint} readout={stillScene(pose).readout} caption={caption} theme={theme}>
       <GateMachine {...machine} bare={false} />
     </MechanismFrame>
   );
