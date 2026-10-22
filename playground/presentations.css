@@ -10,11 +10,21 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
   gap: 24px;
 }
+/* Cards in a row share a height; the link row sits on the card's bottom edge, so links line up
+   across the row however long each description is. */
 .style-card {
+  display: flex;
+  flex-direction: column;
   padding: 28px;
   border: 1px solid var(--show-rule);
   background: var(--show-surface);
   border-radius: 6px;
+}
+.style-card > :last-child {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 20px;
+  margin-top: auto;
 }
 .style-card h3 {
   font-size: 24px;
@@ -30,7 +40,6 @@
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  margin-right: 20px;
 }
 .style-swatch {
   display: flex;
