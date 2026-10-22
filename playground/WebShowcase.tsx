@@ -327,11 +327,7 @@ export default function WebShowcase() {
       <SmoothScroll />
       <section data-route="web" id="web-example" className="web-anchor">
         <p className="collection-intro">
-          The example below, built from <code>uipack/web</code>, is one page with one goal: a demo-first hero
-          that shows the product working, one star visual, rhyming icons, and the call to action repeated three times. Flashy pieces
-          each earn their motion; the low-key pieces are the defaults. Wheel scrolling on this page is eased by <code>SmoothScroll</code>;
-          touch and reduced motion keep native scrolling. The page also sets its own head, JSON-LD and FAQ from the discoverability
-          kit; the disclosures under the example show what it publishes.
+          One page built from <code>uipack/web</code>, with one goal: its call to action sits in the hero, the nav and the end.
         </p>
         <PageIndex />
         {painted && (
@@ -442,6 +438,9 @@ export default function WebShowcase() {
               </Section>
             </WebSurface>
             <GeneratedFiles seo={seo} />
+            <p className="collection-intro web-example__aside">
+              Wheel scrolling on this page is eased by <code>SmoothScroll</code>; touch and reduced motion keep native scrolling.
+            </p>
           </>
         )}
       </section>
