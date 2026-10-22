@@ -39,7 +39,7 @@ const add = (a: Omit<Asset, "preview" | "previewDark" | "previewStatic" | "previ
   const file = `${a.id}.svg`;
   writeFileSync(join(OUT, file), a.svg("light"));
   writeFileSync(join(OUT_DARK, file), a.svg("dark"));
-  const { svg, still, ...rest } = a;
+  const { svg: _svg, still, ...rest } = a;
   const entry: Asset = { ...rest, preview: `${OUT}/${file}`, previewDark: `${OUT_DARK}/${file}` };
   if (still) {
     const stillFile = `${a.id}-still.svg`;
