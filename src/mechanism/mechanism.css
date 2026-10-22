@@ -208,6 +208,11 @@
 .uipack-mechanism .um-plate .iso-svg {
   margin-top: -6.5%;
 }
+/* The crop moves the drawing, not the machine: its box (and its inset focus ring) stays inside the
+   plate, and the drawing's empty headroom overhangs into the padding. */
+.uipack-mechanism .um-plate .um-machine {
+  display: flow-root;
+}
 .uipack-mechanism .iso-svg path,
 .uipack-mechanism .iso-svg circle {
   vector-effect: non-scaling-stroke;
