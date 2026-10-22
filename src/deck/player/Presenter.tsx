@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useHydrated } from "../../env";
 import { SLIDE_ROLES, WORDS_PER_MINUTE } from "../storyline";
 import type { DeckSlide, DeckTheme } from "../types";
 import { notesOf, pad } from "./format";
@@ -53,7 +54,10 @@ export function Presenter({
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
-  const elapsed = Math.max(0, Math.floor((now - started) / 1000));
+  // The clock reads 00:00 in server HTML and while hydrating, so the two always match; it runs
+  // from the client's own start after that.
+  const hydrated = useHydrated();
+  const elapsed = hydrated ? Math.max(0, Math.floor((now - started) / 1000)) : 0;
   const plan = slidePlan(slides, minutes ? minutes * 60 : undefined);
   const budget = plan.length ? plan[plan.length - 1].end : 0;
   const { start, end } = plan[index] ?? { start: 0, end: 0 };
