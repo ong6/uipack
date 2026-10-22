@@ -218,6 +218,8 @@ test.describe("/web Landing collection", () => {
     // WebKit settles a paused animation's position on the next frames, so read it after two.
     await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
     const held = await pos();
+    // Wall clock on purpose: a paused CSS animation is proven by real time passing without movement;
+    // there is no event to wait for, and a fake clock would not advance the compositor.
     await page.waitForTimeout(300);
     expect(await pos()).toBe(held);
     await section.getByRole("button", { name: "Play motion" }).click();
@@ -336,6 +338,8 @@ test.describe("/web Landing collection", () => {
     page.on("request", (r) => /plex-serif|space-grotesk/.test(r.url()) && alternates.push(r.url()));
     await page.goto("/web");
     await page.evaluate(() => document.fonts.ready);
+    // Wall clock on purpose: this proves a request does not happen, which no event signals, so it
+    // gives a stray lazy load a moment to start before checking none did.
     await page.waitForTimeout(300);
     expect(alternates).toEqual([]);
     await page.locator(".web-face-toggle").scrollIntoViewIfNeeded();
