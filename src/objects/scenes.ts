@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { createArtDirection } from "./art-directions";
 import type { ObjectVariant, ObjectEdition } from "./variants";
 import { marketBar, MARKET_BAR_MS, MARKET_LOOP_MS } from "./market";
+import { tennisModelUrl } from "../package-assets";
 export type ObjectKind = "ai" | "contact" | "tennis" | "trading" | "server" | "travel" | "reading";
 export interface ObjectPalette {
   paper: number;
@@ -316,13 +317,9 @@ function contact(c: ObjectPalette) {
   };
   return g;
 }
-async function tennis(_c: ObjectPalette, variant: ObjectEdition = 0) {
-  const [{ GLTFLoader }, { default: encoded }] = await Promise.all([
-    import("three/addons/loaders/GLTFLoader.js"),
-    import("./tennis-asset"),
-  ]);
-  const bytes = Uint8Array.from(atob(encoded), (char) => char.charCodeAt(0));
-  const model = await new GLTFLoader().parseAsync(bytes.buffer, "");
+async function tennis(_c: ObjectPalette, variant: ObjectEdition = 0, modelUrl?: string) {
+  const { GLTFLoader } = await import("three/addons/loaders/GLTFLoader.js");
+  const model = await new GLTFLoader().loadAsync(modelUrl ?? tennisModelUrl());
   const g = new THREE.Group();
   g.rotation.set(0.64, -0.25, 0);
   g.position.y = 0.1;
@@ -898,6 +895,8 @@ export async function createObject(
   palette: ObjectPalette,
   variant: ObjectVariant = 0,
   edition: ObjectEdition = 0,
+  /** Overrides the packaged model file for scenes that load one (Studio tennis). */
+  modelUrl?: string,
 ) {
   const finish: ObjectEdition = kind === "contact" ? ((variant % 3) as ObjectEdition) : edition;
   const accent = kind === "reading" ? [palette.accent, 0x793e43, 0x304a67][finish] : [palette.accent, 0x467b98, 0xa0694e][finish];
@@ -906,7 +905,9 @@ export async function createObject(
       ? createContactDirection(variant)
       : kind !== "contact" && variant !== 0
         ? createArtDirection(kind, palette, variant)
-        : await builders[kind]({ ...palette, accent }, finish);
+        : kind === "tennis"
+          ? await tennis({ ...palette, accent }, finish, modelUrl)
+          : await builders[kind]({ ...palette, accent }, finish);
   object.userData.style ??= "studio";
   object.userData.variant = variant;
   object.userData.animate(0);

@@ -196,4 +196,3 @@ function SlideStarter({
 
 
 exports.SlideStarter = SlideStarter; exports.SpeakerGuide = SpeakerGuide; exports.escapeSvgText = escapeSvgText; exports.estimateSpeechSeconds = estimateSpeechSeconds; exports.formatSpeechGuide = formatSpeechGuide; exports.renderSlideSvg = renderSlideSvg;
-//# sourceMappingURL=presentations.cjs.map

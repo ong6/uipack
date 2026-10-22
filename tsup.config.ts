@@ -6,7 +6,7 @@ export default defineConfig({
   format: ["esm", "cjs"],
   splitting: true,
   dts: true,
-  sourcemap: true,
+  sourcemap: false,
   clean: true,
   external: [
     "react",

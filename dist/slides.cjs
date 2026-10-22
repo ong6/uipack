@@ -3,13 +3,13 @@
 
 
 
-var _chunkOQHYF6Z2cjs = require('./chunk-OQHYF6Z2.cjs');
+var _chunkGUY7V4IQcjs = require('./chunk-GUY7V4IQ.cjs');
 
 
-var _chunkA5PZXIEWcjs = require('./chunk-A5PZXIEW.cjs');
+var _chunkNFU4EWVXcjs = require('./chunk-NFU4EWVX.cjs');
 
 
-var _chunkXPCOQ7NOcjs = require('./chunk-XPCOQ7NO.cjs');
+var _chunkYMPVJRTJcjs = require('./chunk-YMPVJRTJ.cjs');
 
 // src/slides/SlidePlayer.tsx
 
@@ -21,7 +21,7 @@ var _react = require('react');
 var _jsxruntime = require('react/jsx-runtime');
 function Diagram({ story, stop }) {
   const visible = story.nodes.filter(
-    (n) => n.kind !== "boundary" && _chunkOQHYF6Z2cjs.resolveNodePose.call(void 0, n, stop).opacity > 0.25
+    (n) => n.kind !== "boundary" && _chunkGUY7V4IQcjs.resolveNodePose.call(void 0, n, stop).opacity > 0.25
   );
   return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-slide-diagram", "data-testid": "slide-diagram", children: [
     /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack-slide-diagram__heading", children: "Diagram view" }),
@@ -51,7 +51,7 @@ function SceneViewport({
   onSettled
 }) {
   const host = _react.useRef.call(void 0, null), labels = _react.useRef.call(void 0, null), runtime = _react.useRef.call(void 0, );
-  const prefersReduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
+  const prefersReduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
   const reduced = motion === "none" || prefersReduced;
   const stop = _nullishCoalesce(story.stops.find((s) => s.id === stopId), () => ( story.stops[0]));
   const latest = _react.useRef.call(void 0, { stop, reduced, paused, onSettled });
@@ -72,7 +72,7 @@ function SceneViewport({
       return;
     }
     setStatus("loading");
-    void Promise.resolve().then(() => _interopRequireWildcard(require("./renderer-2NG6XOL5.cjs"))).then(({ createSlideScene }) => {
+    void Promise.resolve().then(() => _interopRequireWildcard(require("./renderer-I3OQMLUB.cjs"))).then(({ createSlideScene }) => {
       if (cancelled || !host.current || !labels.current) return;
       try {
         runtime.current = createSlideScene(
@@ -185,7 +185,7 @@ function SceneViewport({
                 children: [
                   /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "option", { value: "", children: "Choose a component" }),
                   story.nodes.filter(
-                    (n) => n.kind !== "boundary" && _chunkOQHYF6Z2cjs.resolveNodePose.call(void 0, n, stop).opacity > 0.25
+                    (n) => n.kind !== "boundary" && _chunkGUY7V4IQcjs.resolveNodePose.call(void 0, n, stop).opacity > 0.25
                   ).map((n) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "option", { value: n.id, children: n.label }, n.id))
                 ]
               }
@@ -206,7 +206,7 @@ function SceneViewport({
           reduced ? "Reduced motion" : "Authored camera"
         ] }),
         /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-slide-sr", children: story.nodes.filter(
-          (n) => n.kind !== "boundary" && _chunkOQHYF6Z2cjs.resolveNodePose.call(void 0, n, stop).opacity > 0.25
+          (n) => n.kind !== "boundary" && _chunkGUY7V4IQcjs.resolveNodePose.call(void 0, n, stop).opacity > 0.25
         ).map((n) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "p", { children: [
           n.label,
           ": ",
@@ -220,14 +220,14 @@ function SlideScene(props) {
   const [canvas, setCanvas] = _react.useState.call(void 0, false);
   const [zoom, setZoom] = _react.useState.call(void 0, 1);
   const opener = _react.useRef.call(void 0, null);
-  const errors = _chunkOQHYF6Z2cjs.validateSlideStory.call(void 0, props.story);
+  const errors = _chunkGUY7V4IQcjs.validateSlideStory.call(void 0, props.story);
   if (errors.length)
     return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { role: "alert", className: "uipack-slide-error", children: [
       "Invalid slide story: ",
       errors.join(" ")
     ] });
   return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
-    _chunkA5PZXIEWcjs.CanvasView,
+    _chunkNFU4EWVXcjs.CanvasView,
     {
       restoreFocus: () => _optionalChain([opener, 'access', _31 => _31.current, 'optionalAccess', _32 => _32.focus, 'call', _33 => _33()]),
       open: canvas,
@@ -280,17 +280,17 @@ function Player({
     story.stops.findIndex((s) => s.id === defaultStopId)
   );
   const [internal, setInternal] = _react.useState.call(void 0, initial), [paused, setPaused] = _react.useState.call(void 0, false), [present, setPresent] = _react.useState.call(void 0, false), [diagram, setDiagram] = _react.useState.call(void 0, false), [canvas, setCanvas] = _react.useState.call(void 0, false), [zoom, setZoom] = _react.useState.call(void 0, 1);
-  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, ) || motion === "none";
+  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, ) || motion === "none";
   const opener = _react.useRef.call(void 0, null);
   const root = _react.useRef.call(void 0, null);
   const titleId = _react.useId.call(void 0, );
-  const index = stopId === void 0 ? _chunkOQHYF6Z2cjs.clampStop.call(void 0, internal, story.stops.length) : Math.max(
+  const index = stopId === void 0 ? _chunkGUY7V4IQcjs.clampStop.call(void 0, internal, story.stops.length) : Math.max(
     0,
     story.stops.findIndex((s) => s.id === stopId)
   );
   const stop = story.stops[index];
   const navigate = (value) => {
-    const next = _chunkOQHYF6Z2cjs.clampStop.call(void 0, value, story.stops.length);
+    const next = _chunkGUY7V4IQcjs.clampStop.call(void 0, value, story.stops.length);
     if (stopId === void 0) setInternal(next);
     if (next !== index) _optionalChain([onStopChange, 'optionalCall', _34 => _34(story.stops[next].id)]);
   };
@@ -315,7 +315,7 @@ function Player({
     };
   }, [present]);
   return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
-    _chunkA5PZXIEWcjs.CanvasView,
+    _chunkNFU4EWVXcjs.CanvasView,
     {
       restoreFocus: () => _optionalChain([opener, 'access', _38 => _38.current, 'optionalAccess', _39 => _39.focus, 'call', _40 => _40()]),
       open: canvas,
@@ -484,7 +484,7 @@ function Player({
   );
 }
 function SlidePlayer(props) {
-  const errors = _chunkOQHYF6Z2cjs.validateSlideStory.call(void 0, props.story);
+  const errors = _chunkGUY7V4IQcjs.validateSlideStory.call(void 0, props.story);
   if (errors.length)
     return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { role: "alert", className: "uipack-slide-error", children: [
       "Invalid slide story: ",
@@ -1152,5 +1152,4 @@ var slideStories = [
 
 
 
-exports.SlidePlayer = SlidePlayer; exports.SlideScene = SlideScene; exports.architectureShift = architectureShift; exports.clampStop = _chunkOQHYF6Z2cjs.clampStop; exports.harnessDive = harnessDive; exports.parallelAgents = parallelAgents; exports.quarterTurn = quarterTurn; exports.resolveNodePose = _chunkOQHYF6Z2cjs.resolveNodePose; exports.retrievalLayers = retrievalLayers; exports.slidePalettes = _chunkOQHYF6Z2cjs.slidePalettes; exports.slideStories = slideStories; exports.stagedAssembly = stagedAssembly; exports.validateSlideStory = _chunkOQHYF6Z2cjs.validateSlideStory;
-//# sourceMappingURL=slides.cjs.map
+exports.SlidePlayer = SlidePlayer; exports.SlideScene = SlideScene; exports.architectureShift = architectureShift; exports.clampStop = _chunkGUY7V4IQcjs.clampStop; exports.harnessDive = harnessDive; exports.parallelAgents = parallelAgents; exports.quarterTurn = quarterTurn; exports.resolveNodePose = _chunkGUY7V4IQcjs.resolveNodePose; exports.retrievalLayers = retrievalLayers; exports.slidePalettes = _chunkGUY7V4IQcjs.slidePalettes; exports.slideStories = slideStories; exports.stagedAssembly = stagedAssembly; exports.validateSlideStory = _chunkGUY7V4IQcjs.validateSlideStory;

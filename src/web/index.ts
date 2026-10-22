@@ -106,6 +106,7 @@ export {
   fontPreloads,
   WEB_FONT_FILES,
   organization,
+  person,
   webSite,
   offer,
   softwareApplication,
@@ -125,6 +126,7 @@ export {
   type JsonLdNode,
   type JsonLdDocument,
   type OrganizationOptions,
+  type PersonOptions,
   type WebSiteOptions,
   type OfferOptions,
   type RatingOptions,
@@ -133,6 +135,7 @@ export {
   type FaqItem,
   type BreadcrumbItem,
   type ArticleOptions,
+  type ArticleAuthor,
 } from "./seo";
 export { HeadTags, useHead, JsonLd, type HeadTagsProps, type JsonLdProps } from "./Head";
 export { FAQ, type FAQProps } from "./FAQ";

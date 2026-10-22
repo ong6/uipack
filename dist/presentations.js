@@ -196,4 +196,3 @@ export {
   formatSpeechGuide,
   renderSlideSvg
 };
-//# sourceMappingURL=presentations.js.map

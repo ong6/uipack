@@ -30,6 +30,7 @@
     "./browser.css": "./dist/browser.css",
     "./theme.css": "./dist/theme.css",
     "./assets/manifest.json": "./assets/manifest.json",
+    "./assets/objects/*": "./assets/objects/*",
     "./package.json": "./package.json",
     "./slides": {
       "types": "./dist/slides.d.ts",
@@ -105,7 +106,7 @@
     "*.css"
   ],
   "scripts": {
-    "build": "tsup && tsx scripts/relative-maps.ts && tsx scripts/build-css.ts",
+    "build": "tsup && tsx scripts/build-css.ts",
     "dev": "vite",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
@@ -119,6 +120,8 @@
     "gsap": "^3.15.0",
     "react": ">=18",
     "react-dom": ">=18",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "three": "^0.186.0"
   },
   "devDependencies": {
@@ -142,6 +145,8 @@
     "jsdom": "^26.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "three": "^0.186.0",
     "tsup": "^8.4.0",
     "tsx": "^4.19.3",
@@ -170,10 +175,12 @@
     },
     "gsap": {
       "optional": true
+    },
+    "react-markdown": {
+      "optional": true
+    },
+    "remark-gfm": {
+      "optional": true
     }
-  },
-  "dependencies": {
-    "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1"
   }
 }

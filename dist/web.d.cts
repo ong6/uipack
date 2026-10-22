@@ -684,6 +684,25 @@ interface PageMetaOptions {
     twitterSite?: string;
     /** Robots directives, e.g. "noindex" for a preview. Omitted by default (indexable). */
     robots?: string;
+    /**
+     * This page as Markdown, absolute or relative to `url`: `<link rel="alternate" type="text/markdown">`,
+     * so an agent can fetch clean text instead of parsing the HTML.
+     */
+    markdown?: string;
+    /**
+     * The site's llms.txt, absolute or relative to `url` (usually "/llms.txt"):
+     * `<link rel="describedby" type="text/markdown">`, the site map written for language models.
+     */
+    llmsTxt?: string;
+    /** The site's RSS feed: `<link rel="alternate" type="application/rss+xml">`, titled with `siteName` unless given. */
+    rss?: string | {
+        url: string;
+        title?: string;
+    };
+    /** ISO 8601 first-publication date: `article:published_time`. For `type: "article"`. */
+    publishedTime?: string;
+    /** ISO 8601 last substantive change: `article:modified_time`. For `type: "article"`. */
+    modifiedTime?: string;
 }
 /**
  * The head tags a Landing page needs to be found and previewed: title, description, canonical,
@@ -753,6 +772,26 @@ interface OrganizationOptions {
     id?: string;
 }
 declare function organization(o: OrganizationOptions): JsonLdNode;
+interface PersonOptions {
+    name: string;
+    /** The person's canonical page, e.g. their home page or /about. */
+    url: string;
+    /**
+     * Profiles that are this person elsewhere (GitHub, LinkedIn, X, another site), so answer
+     * engines join them into one entity. Only pages the person controls or that are about them.
+     */
+    sameAs?: string[];
+    image?: string;
+    jobTitle?: string;
+    description?: string;
+    /**
+     * Default `${url}#person`. Every site that mentions the person should use the same id, so
+     * their articles and profiles resolve to one node; pass the home site's id from elsewhere.
+     */
+    id?: string;
+}
+/** A Person, e.g. a site's author. Publish it once, then reference it by `@id` from articles. */
+declare function person(o: PersonOptions): JsonLdNode;
 interface WebSiteOptions {
     name: string;
     url: string;
@@ -848,18 +887,22 @@ interface ArticleOptions {
     /** ISO 8601 dates. */
     datePublished: string;
     dateModified?: string;
-    author: {
-        name: string;
-        url?: string;
-    } | {
-        name: string;
-        url?: string;
-    }[];
+    /**
+     * A name (and url), a `person()` node, or a Person's `{ "@id", name }`. With an `@id` the author
+     * links to that Person node, wherever it is published; the name stays for readers of this page alone.
+     */
+    author: ArticleAuthor | ArticleAuthor[];
     publisher?: {
         "@id"?: string;
     } | string;
     type?: "Article" | "BlogPosting" | "NewsArticle" | "TechArticle";
 }
+/** An article author: plain name and url, a Person's `@id` and name, or a `person()` node. */
+type ArticleAuthor = {
+    name: string;
+    url?: string;
+    "@id"?: string;
+} | JsonLdNode;
 declare function article(o: ArticleOptions): JsonLdNode;
 /** Wrap one node, or several as an "@graph", in a JSON-LD document with its "@context". */
 declare function jsonLd(...nodes: JsonLdNode[]): JsonLdDocument;
@@ -1094,4 +1137,4 @@ declare function llmsTxt({ site, pages, llms }: Pick<BuildCrawlFilesOptions, "si
 /** robots.txt, sitemap.xml and llms.txt for one site, keyed by file name. */
 declare function buildCrawlFiles(o: BuildCrawlFilesOptions): CrawlFiles;
 
-export { AI_CRAWLERS, type AiCrawler, type AiCrawlerAgent, type AiCrawlerPolicy, type AiCrawlerPreset, type ArticleOptions, Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, Body, type BodyProps, type BreadcrumbItem, type BuildCrawlFilesOptions, type CrawlFiles, type CrawlPage, type CrawlRule, type CrawlerPurpose, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, FAQ, type FAQProps, type FaqItem, type Feature, FeatureGrid, type FeatureGridProps, type FontPreloadOptions, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, type HeadTag, HeadTags, type HeadTagsProps, Heading, type HeadingProps, type InViewOptions, JsonLd, type JsonLdDocument, type JsonLdNode, type JsonLdProps, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type OfferOptions, type OrganizationOptions, type PageMetaOptions, type PaintTransitionOptions, type ProductOptions, type RatingOptions, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SmoothScroll, type SmoothScrollController, type SmoothScrollHandle, type SmoothScrollOptions, type SmoothScrollProps, type SmoothScrollTarget, type SmoothScrollToOptions, type SoftwareApplicationOptions, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeRole, type TypeStep, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, type WebFontFace, type WebSiteOptions, WebSurface, type WebSurfaceProps, type WheelLike, article, breadcrumbList, buildCrawlFiles, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, easeOutExpo, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, jsonLd, jsonLdTag, llmsTxt, normalizeWheel, offer, organization, pageMeta, product, ref, resolveAiCrawlers, robotsTxt, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webSite, withPaintTransition, withViewTransition };
+export { AI_CRAWLERS, type AiCrawler, type AiCrawlerAgent, type AiCrawlerPolicy, type AiCrawlerPreset, type ArticleAuthor, type ArticleOptions, Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, Body, type BodyProps, type BreadcrumbItem, type BuildCrawlFilesOptions, type CrawlFiles, type CrawlPage, type CrawlRule, type CrawlerPurpose, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, FAQ, type FAQProps, type FaqItem, type Feature, FeatureGrid, type FeatureGridProps, type FontPreloadOptions, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, type HeadTag, HeadTags, type HeadTagsProps, Heading, type HeadingProps, type InViewOptions, JsonLd, type JsonLdDocument, type JsonLdNode, type JsonLdProps, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type OfferOptions, type OrganizationOptions, type PageMetaOptions, type PaintTransitionOptions, type PersonOptions, type ProductOptions, type RatingOptions, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SmoothScroll, type SmoothScrollController, type SmoothScrollHandle, type SmoothScrollOptions, type SmoothScrollProps, type SmoothScrollTarget, type SmoothScrollToOptions, type SoftwareApplicationOptions, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeRole, type TypeStep, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, type WebFontFace, type WebSiteOptions, WebSurface, type WebSurfaceProps, type WheelLike, article, breadcrumbList, buildCrawlFiles, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, easeOutExpo, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, jsonLd, jsonLdTag, llmsTxt, normalizeWheel, offer, organization, pageMeta, person, product, ref, resolveAiCrawlers, robotsTxt, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webSite, withPaintTransition, withViewTransition };

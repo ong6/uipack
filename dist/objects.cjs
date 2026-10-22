@@ -1,10 +1,10 @@
 "use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { newObj[key] = obj[key]; } } } newObj.default = obj; return newObj; } } function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 
-var _chunkA5PZXIEWcjs = require('./chunk-A5PZXIEW.cjs');
+var _chunkNFU4EWVXcjs = require('./chunk-NFU4EWVX.cjs');
 
 
 
-var _chunkXPCOQ7NOcjs = require('./chunk-XPCOQ7NO.cjs');
+var _chunkYMPVJRTJcjs = require('./chunk-YMPVJRTJ.cjs');
 
 // src/objects/ObjectScene.tsx
 var _react = require('react');
@@ -228,7 +228,8 @@ function ObjectStage({
   variant = 0,
   edition = 0,
   controls = "full",
-  surface = "styled"
+  surface = "styled",
+  modelUrl
 }) {
   const hostRef = _react.useRef.call(void 0, null);
   const canvasRef = _react.useRef.call(void 0, null);
@@ -244,7 +245,7 @@ function ObjectStage({
   const [ready, setReady] = _react.useState.call(void 0, false);
   const [paused, setPaused] = _react.useState.call(void 0, false);
   const [completed, setCompleted] = _react.useState.call(void 0, false);
-  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
   const colorMode = theme;
   const zoomRef = _react.useRef.call(void 0, zoom);
   zoomRef.current = zoom;
@@ -295,7 +296,7 @@ function ObjectStage({
       setReady(false);
     };
     canvas.addEventListener("webglcontextlost", handleContextLost);
-    Promise.all([Promise.resolve().then(() => _interopRequireWildcard(require("three"))), Promise.resolve().then(() => _interopRequireWildcard(require("./scenes-YKYLR5NL.cjs"))), Promise.resolve().then(() => _interopRequireWildcard(require("three/addons/environments/RoomEnvironment.js")))]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
+    Promise.all([Promise.resolve().then(() => _interopRequireWildcard(require("three"))), Promise.resolve().then(() => _interopRequireWildcard(require("./scenes-5X3TRBZU.cjs"))), Promise.resolve().then(() => _interopRequireWildcard(require("three/addons/environments/RoomEnvironment.js")))]).then(async ([THREE, { createObject, disposeObject }, { RoomEnvironment }]) => {
       if (disposed) return;
       try {
         renderer = new THREE.WebGLRenderer({
@@ -317,7 +318,7 @@ function ObjectStage({
         const camera = new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 100);
         camera.position.set(0, variant === 4 && kind !== "contact" ? -0.15 : 0, 10);
         const colors = _nullishCoalesce(palette, () => ( objectPalettes[colorMode]));
-        const object = await createObject(kind, colors, variant === "random" ? 0 : variant, edition);
+        const object = await createObject(kind, colors, variant === "random" ? 0 : variant, edition, modelUrl);
         if (disposed || contextLost) {
           disposeObject(object);
           return;
@@ -496,7 +497,7 @@ function ObjectStage({
       replayRef.current = null;
       resumeRef.current = null;
     };
-  }, [active, kind, colorMode, palette, variant, edition]);
+  }, [active, kind, colorMode, palette, variant, edition, modelUrl]);
   const togglePaused = () => {
     const next = !pausedRef.current;
     pausedRef.current = next;
@@ -576,7 +577,7 @@ function ObjectScene(props) {
       }
     ),
     /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
-      _chunkA5PZXIEWcjs.CanvasView,
+      _chunkNFU4EWVXcjs.CanvasView,
       {
         open,
         onClose: () => setOpen(false),
@@ -676,6 +677,7 @@ function ObjectGallery({
   edition = 0,
   theme = "light",
   palette,
+  modelUrl,
   onChange
 }) {
   variant = normalizeObjectVariant(kind, variant);
@@ -686,7 +688,7 @@ function ObjectGallery({
       theme,
       library: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
         /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h3", { children: "Object library" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "nav", { "aria-label": "Choose an object", className: "uipack-scene-list", onFocus: _chunkXPCOQ7NOcjs.keepFocusedInView, children: objectScenes.map((item) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "nav", { "aria-label": "Choose an object", className: "uipack-scene-list", onFocus: _chunkYMPVJRTJcjs.keepFocusedInView, children: objectScenes.map((item) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
           "button",
           {
             type: "button",
@@ -714,7 +716,8 @@ function ObjectGallery({
               variant,
               edition,
               theme,
-              palette
+              palette,
+              modelUrl
             },
             kind
           ) }),
@@ -752,4 +755,3 @@ function ObjectGallery({
 
 
 exports.AnimationWorkspace = AnimationWorkspace; exports.ObjectDirectionPicker = ObjectDirectionPicker; exports.ObjectGallery = ObjectGallery; exports.ObjectInspector = ObjectInspector; exports.ObjectScene = ObjectScene; exports.chooseObjectVariant = chooseObjectVariant; exports.directionSymbols = directionSymbols; exports.normalizeObjectVariant = normalizeObjectVariant; exports.objectDirectionIndex = objectDirectionIndex; exports.objectDirections = objectDirections; exports.objectEditions = objectEditions; exports.objectPalettes = objectPalettes; exports.objectScenes = objectScenes; exports.objectVariants = objectVariants; exports.parseObjectVariant = parseObjectVariant; exports.transferObjectVariant = transferObjectVariant;
-//# sourceMappingURL=objects.cjs.map

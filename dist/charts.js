@@ -1,6 +1,6 @@
 import {
   prefersReducedMotion
-} from "./chunk-44EABMMS.js";
+} from "./chunk-KYO6UXHN.js";
 
 // src/charts/model.ts
 var DEFAULT_LABELS = {
@@ -1238,4 +1238,3 @@ export {
   spanChartCss,
   spanThresholds
 };
-//# sourceMappingURL=charts.js.map

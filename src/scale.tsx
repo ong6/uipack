@@ -9,7 +9,7 @@ export interface FigureScale {
   floor: number;
 }
 
-export const FigureScaleContext = createContext<FigureScale>({ floor: 0 });
+export const FigureScaleContext = /*#__PURE__*/ createContext<FigureScale>({ floor: 0 });
 
 /** Width a figure is assumed to render at before it is measured (the prose breakout on junxiong.dev). */
 export const DEFAULT_RENDER_WIDTH = 1088;

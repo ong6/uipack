@@ -17,6 +17,6 @@ export interface DrillContextValue {
   open?: (id: string) => void;
 }
 
-export const DrillContext = createContext<DrillContextValue | null>(null);
+export const DrillContext = /*#__PURE__*/ createContext<DrillContextValue | null>(null);
 
 export const useDrill = () => useContext(DrillContext);

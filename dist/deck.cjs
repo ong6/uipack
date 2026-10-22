@@ -1,15 +1,15 @@
 "use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 
-var _chunkYEVVKV3Jcjs = require('./chunk-YEVVKV3J.cjs');
+var _chunkRMV7QAIQcjs = require('./chunk-RMV7QAIQ.cjs');
 
 
 
 
-var _chunkVGPFDDCPcjs = require('./chunk-VGPFDDCP.cjs');
+var _chunkKQ7UFCOUcjs = require('./chunk-KQ7UFCOU.cjs');
 
 
 
-var _chunkXPCOQ7NOcjs = require('./chunk-XPCOQ7NO.cjs');
+var _chunkYMPVJRTJcjs = require('./chunk-YMPVJRTJ.cjs');
 
 // src/deck/DeckPlayer.tsx
 
@@ -153,8 +153,8 @@ function resolveTransition(from, to, transitionOf, fallback = "advance") {
   const t = _nullishCoalesce(transitionOf(Math.max(from, to)), () => ( fallback));
   return typeof t === "string" ? { kind: t } : { kind: "zoom", zoom: t.zoom };
 }
-var slideZoomFrame = (target, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => _chunkVGPFDDCPcjs.zoomFrame.call(void 0, target, width, height);
-var slideZoomSamples = (target, forward, samples = 24, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => _chunkVGPFDDCPcjs.zoomSamples.call(void 0, target, forward, width, height, { samples, radius: 6 });
+var slideZoomFrame = (target, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => _chunkKQ7UFCOUcjs.zoomFrame.call(void 0, target, width, height);
+var slideZoomSamples = (target, forward, samples = 24, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => _chunkKQ7UFCOUcjs.zoomSamples.call(void 0, target, forward, width, height, { samples, radius: 6 });
 function flipFrom(from, to, scale, fit = "auto", textScale) {
   if (textScale && fit !== "stretch") {
     return {
@@ -258,7 +258,7 @@ function runTransition(opts) {
       play(outer, samples.map((s) => ({ offset: s.offset, transform: s.outer, transformOrigin: origin })), timing);
       play(inner, samples.map((s) => ({ offset: s.offset, transform: s.inner, transformOrigin: origin, clipPath: s.clip, opacity: s.innerOpacity })), timing);
       for (const child of Array.from(target.children)) {
-        play(child, samples.map((s) => ({ offset: s.offset, opacity: 1 - _chunkVGPFDDCPcjs.smoothstep.call(void 0, 0.01, 0.09, s.p) })), timing);
+        play(child, samples.map((s) => ({ offset: s.offset, opacity: 1 - _chunkKQ7UFCOUcjs.smoothstep.call(void 0, 0.01, 0.09, s.p) })), timing);
       }
       const around = partitionForMorph(outer, /* @__PURE__ */ new Set([opts.transition.zoom])).rest;
       const fade = zoomInto ? [{ opacity: 1 }, { opacity: 0, offset: 0.3 }, { opacity: 0 }] : [{ opacity: 0 }, { opacity: 0, offset: 0.7 }, { opacity: 1 }];
@@ -361,7 +361,7 @@ function runTransition(opts) {
 function useCanvasScale() {
   const ref = _react.useRef.call(void 0, null);
   const [scale, setScale] = _react.useState.call(void 0, 0);
-  _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
+  _chunkYMPVJRTJcjs.useIsoLayoutEffect.call(void 0, () => {
     const el = ref.current;
     if (!el) return;
     const measure = () => setScale(el.clientWidth / CANVAS_WIDTH);
@@ -1614,7 +1614,7 @@ function Player({
   const [fullscreen, setFullscreen] = _react.useState.call(void 0, false);
   const [reading, setReading] = _react.useState.call(void 0, initialView === "read");
   const [printing, setPrinting] = _react.useState.call(void 0, false);
-  const prefersReduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
+  const prefersReduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
   const reducedMotion = motion === "none" || prefersReduced;
   const { ref: stageRef, scale } = useCanvasScale();
   const rootRef = _react.useRef.call(void 0, null);
@@ -1627,7 +1627,7 @@ function Player({
     viewRef.current = next2;
     setView(next2);
   };
-  const { settle, fly } = _chunkYEVVKV3Jcjs.useLayerFlight.call(void 0, 
+  const { settle, fly } = _chunkRMV7QAIQcjs.useLayerFlight.call(void 0, 
     () => _optionalChain([stageRef, 'access', _35 => _35.current, 'optionalAccess', _36 => _36.querySelectorAll, 'call', _37 => _37(".uipack-deck-layer"), 'access', _38 => _38.forEach, 'call', _39 => _39((el) => {
       el.style.zIndex = "";
       el.style.visibility = "";
@@ -1656,7 +1656,7 @@ function Player({
     if (step > 0) commit({ ...v, step: step - 1 });
     else if (v.index > 0) go(v.index - 1, Infinity);
   }, [go, maxStep]);
-  _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
+  _chunkYMPVJRTJcjs.useIsoLayoutEffect.call(void 0, () => {
     const layer = toRef.current;
     if (!layer) return;
     setMaxStep(
@@ -1666,7 +1666,7 @@ function Player({
       )
     );
   }, [view.index, slides]);
-  _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
+  _chunkYMPVJRTJcjs.useIsoLayoutEffect.call(void 0, () => {
     if (!view.from) return;
     const from2 = fromRef.current;
     const to = toRef.current;
@@ -1985,7 +1985,7 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
   const focus = thumbnail ? null : bentoFocusAt(step, tour);
   const gridRef = _react.useRef.call(void 0, null);
   const [camera, setCamera] = _react.useState.call(void 0, null);
-  _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
+  _chunkYMPVJRTJcjs.useIsoLayoutEffect.call(void 0, () => {
     const grid = gridRef.current;
     if (!grid || !focus) return setCamera(null);
     const cell = grid.querySelector(`[data-bento-cell="${CSS.escape(focus)}"]`);
@@ -2390,7 +2390,7 @@ function useChartSize(fixed, fallback = { width: 640, height: 360 }) {
   });
   const fixedW = _optionalChain([fixed, 'optionalAccess', _72 => _72.width]);
   const fixedH = _optionalChain([fixed, 'optionalAccess', _73 => _73.height]);
-  _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
+  _chunkYMPVJRTJcjs.useIsoLayoutEffect.call(void 0, () => {
     const el = ref.current;
     if (!el || fixedW !== void 0 && fixedH !== void 0) return;
     const measure = () => {
@@ -3213,4 +3213,3 @@ function HarveyTable({ columns, rows, corner = "Option", showKey = true, keyNote
 
 
 exports.Annotation = Annotation; exports.BarChart = BarChart; exports.Bento = Bento; exports.BentoCell = BentoCell; exports.Build = Build; exports.CANVAS_HEIGHT = CANVAS_HEIGHT; exports.CANVAS_WIDTH = CANVAS_WIDTH; exports.CX_TYPE = CX_TYPE; exports.ConsultingSlide = ConsultingSlide; exports.DeckPlayer = DeckPlayer; exports.DeckSlideContext = DeckSlideContext; exports.HarveyBall = HarveyBall; exports.HarveyTable = HarveyTable; exports.KpiTiles = KpiTiles; exports.LINT_RULES = LINT_RULES; exports.LineChart = LineChart; exports.MAX_TITLE_WORDS = MAX_TITLE_WORDS; exports.MIN_TEXT_PX = MIN_TEXT_PX; exports.Matrix2x2 = Matrix2x2; exports.Morph = Morph; exports.Panel = Panel; exports.REPEATABLE_ROLES = REPEATABLE_ROLES; exports.Ref = Ref; exports.SLIDE_ROLES = SLIDE_ROLES; exports.STORYLINE_TEMPLATES = STORYLINE_TEMPLATES; exports.Slide = Slide; exports.SlideThumbnail = SlideThumbnail; exports.SoWhat = SoWhat; exports.Sparkline = Sparkline; exports.StackedBar = StackedBar; exports.Tracker = Tracker; exports.WORDS_PER_MINUTE = WORDS_PER_MINUTE; exports.Waterfall = Waterfall; exports.annotationGeometry = annotationGeometry; exports.bandLayout = bandLayout; exports.barPath = barPath; exports.bentoCamera = bentoCamera; exports.bentoFocusAt = bentoFocusAt; exports.bubbleRadius = bubbleRadius; exports.deckMotion = deckMotion; exports.flipFrom = flipFrom; exports.formatStoryline = formatStoryline; exports.formatValue = formatValue; exports.formatter = formatter; exports.getStorylineTemplate = getStorylineTemplate; exports.harveyQuarters = harveyQuarters; exports.harveyWedge = harveyWedge; exports.linearScale = linearScale; exports.lintDeck = lintDeck; exports.niceStep = niceStep; exports.niceTicks = niceTicks; exports.resolveTransition = resolveTransition; exports.runTransition = runTransition; exports.slideZoomFrame = slideZoomFrame; exports.slideZoomSamples = slideZoomSamples; exports.spreadLabels = spreadLabels; exports.stackSegments = stackSegments; exports.starterDeck = starterDeck; exports.storylineOf = storylineOf; exports.talkSeconds = talkSeconds; exports.templateOutline = templateOutline; exports.textWidth = textWidth; exports.useDeckSlide = useDeckSlide; exports.waterfallBars = waterfallBars; exports.wrapToWidth = wrapToWidth; exports.zeroBasedDomain = zeroBasedDomain;
-//# sourceMappingURL=deck.cjs.map

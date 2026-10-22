@@ -250,4 +250,3 @@ export {
   extractDocsHeadings,
   slugifyDocsHeading
 };
-//# sourceMappingURL=docs.js.map

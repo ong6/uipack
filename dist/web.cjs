@@ -2,7 +2,7 @@
 
 
 
-var _chunkXPCOQ7NOcjs = require('./chunk-XPCOQ7NO.cjs');
+var _chunkYMPVJRTJcjs = require('./chunk-YMPVJRTJ.cjs');
 
 // src/web/Surface.tsx
 var _jsxruntime = require('react/jsx-runtime');
@@ -143,7 +143,7 @@ function FeatureGrid({ features, spotlight = false }) {
 
 function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger = 45 }) {
   const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
   const [state, setState] = _react.useState.call(void 0, "static");
   _react.useEffect.call(void 0, () => {
     const el = ref2.current;
@@ -356,7 +356,7 @@ function DemoPlayer({
   onStepChange
 }) {
   const timing = _react.useMemo.call(void 0, () => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
-  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
   const rootRef = _react.useRef.call(void 0, null);
   const tabsRef = _react.useRef.call(void 0, null);
   const [elapsed, setElapsed] = _react.useState.call(void 0, 0);
@@ -631,7 +631,7 @@ function useFinePointer() {
 }
 function transitionDocument() {
   const doc = typeof document === "undefined" ? void 0 : document;
-  const reduced = _chunkXPCOQ7NOcjs.prefersReducedMotion.call(void 0, );
+  const reduced = _chunkYMPVJRTJcjs.prefersReducedMotion.call(void 0, );
   return _optionalChain([doc, 'optionalAccess', _39 => _39.startViewTransition]) && !reduced ? doc : void 0;
 }
 function withViewTransition(update) {
@@ -769,7 +769,7 @@ function useParentSpotlight(ref2, enabled) {
 }
 function GridBackground({ variant, size = 24, fade = true, spotlight = false }) {
   const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
   const fine = useFinePointer();
   useParentSpotlight(ref2, spotlight && fine && !reduced);
   return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
@@ -885,7 +885,7 @@ function DriftingGutters({ contentWidth = 1120, top = 72, minViewport = 1280, dr
 
 function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div", className = "" }) {
   const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
   const [state, setState] = _react.useState.call(void 0, "static");
   _react.useEffect.call(void 0, () => {
     const el = ref2.current;
@@ -933,7 +933,7 @@ function scrambleFrame(text, t, mode, seed = 0) {
 }
 function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "span", className = "" }) {
   const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
   const inView = useInView(ref2, { once: true, threshold: 0.5 });
   const [t, setT] = _react.useState.call(void 0, 1);
   const [tick, setTick] = _react.useState.call(void 0, 0);
@@ -978,7 +978,7 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
 var easeOut = (t) => 1 - Math.pow(1 - t, 3);
 function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix = "", suffix = "", className = "", face = "display" }) {
   const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
   const inView = useInView(ref2, { once: true, threshold: 0.6 });
   const [current, setCurrent] = _react.useState.call(void 0, value);
   const [armed, setArmed] = _react.useState.call(void 0, false);
@@ -1011,7 +1011,7 @@ function Marquee({ items, label, duration = 30, reverse = false }) {
   const ref2 = _react.useRef.call(void 0, null);
   const copyRef = _react.useRef.call(void 0, null);
   const inView = useInView(ref2);
-  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
   const [paused, setPaused] = _react.useState.call(void 0, false);
   const [mounted, setMounted] = _react.useState.call(void 0, false);
   _react.useEffect.call(void 0, () => setMounted(true), []);
@@ -1042,7 +1042,7 @@ function Marquee({ items, label, duration = 30, reverse = false }) {
 }
 function useHoverMotion(apply, reset) {
   const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
   const onPointerMove = (e) => {
     if (reduced || e.pointerType !== "mouse" && e.pointerType !== "pen") return;
     const el = ref2.current;
@@ -1084,7 +1084,7 @@ function MagneticButton({ strength = 6, ...button }) {
 var lerp = ([a, b], t) => a + (b - a) * t;
 function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY = [0, 0], opacity = [1, 1], className = "" }) {
   const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
   const raw = useScrollProgress(ref2);
   const t = reduced ? 0.5 : raw;
   const style = {
@@ -1147,7 +1147,7 @@ function nativeScrollTo(target, { offset, immediate } = {}) {
   if (!canUseDom()) return;
   const y = resolveTop(target, offset);
   if (y === null) return;
-  window.scrollTo({ top: clamp(y, 0, maxScroll()), behavior: immediate || _chunkXPCOQ7NOcjs.prefersReducedMotion.call(void 0, ) ? "auto" : "smooth" });
+  window.scrollTo({ top: clamp(y, 0, maxScroll()), behavior: immediate || _chunkYMPVJRTJcjs.prefersReducedMotion.call(void 0, ) ? "auto" : "smooth" });
 }
 function pageOwnsWheel(e) {
   const root = document.documentElement;
@@ -1321,7 +1321,7 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
   };
   const fine = typeof window.matchMedia === "function" ? window.matchMedia(FINE) : null;
   const evaluate = () => {
-    const next = !destroyed && fine !== null && fine.matches && !_chunkXPCOQ7NOcjs.prefersReducedMotion.call(void 0, );
+    const next = !destroyed && fine !== null && fine.matches && !_chunkYMPVJRTJcjs.prefersReducedMotion.call(void 0, );
     if (next === enabled) return;
     enabled = next;
     if (enabled) attach();
@@ -1370,7 +1370,7 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
   };
   active = controller;
   if (fine) listen(fine, true);
-  const stopReduced = _chunkXPCOQ7NOcjs.onReducedMotionChange.call(void 0, evaluate);
+  const stopReduced = _chunkYMPVJRTJcjs.onReducedMotionChange.call(void 0, evaluate);
   document.addEventListener("click", onClick);
   evaluate();
   return controller;
@@ -1422,6 +1422,15 @@ function pageMeta(o) {
     { tag: "link", attrs: { rel: "canonical", href: o.url } }
   ];
   if (o.robots) tags.push({ tag: "meta", attrs: { name: "robots", content: o.robots } });
+  if (o.markdown) tags.push({ tag: "link", attrs: { rel: "alternate", type: "text/markdown", href: absoluteUrl(o.markdown, o.url) } });
+  if (o.llmsTxt) tags.push({ tag: "link", attrs: { rel: "describedby", type: "text/markdown", href: absoluteUrl(o.llmsTxt, o.url) } });
+  const rss = typeof o.rss === "string" ? { url: o.rss } : o.rss;
+  if (rss) {
+    const title = _nullishCoalesce(rss.title, () => ( o.siteName));
+    const attrs = { rel: "alternate", type: "application/rss+xml", href: absoluteUrl(rss.url, o.url) };
+    if (title) attrs.title = title;
+    tags.push({ tag: "link", attrs });
+  }
   const og = (property, content) => content !== void 0 && content !== "" && tags.push({ tag: "meta", attrs: { property, content: String(content) } });
   og("og:type", _nullishCoalesce(o.type, () => ( "website")));
   og("og:title", o.title);
@@ -1435,6 +1444,8 @@ function pageMeta(o) {
     og("og:image:width", image.width);
     og("og:image:height", image.height);
   }
+  og("article:published_time", o.publishedTime);
+  og("article:modified_time", _nullishCoalesce(o.modifiedTime, () => ( o.publishedTime)));
   const tw = (name, content) => content && tags.push({ tag: "meta", attrs: { name, content } });
   tw("twitter:card", imageUrl ? "summary_large_image" : "summary");
   tw("twitter:title", o.title);
@@ -1490,6 +1501,18 @@ function clean(o) {
 }
 function organization(o) {
   return clean({ "@type": "Organization", "@id": _nullishCoalesce(o.id, () => ( nodeId(o.url, "organization"))), name: o.name, url: o.url, logo: o.logo, description: o.description, sameAs: o.sameAs });
+}
+function person(o) {
+  return clean({
+    "@type": "Person",
+    "@id": _nullishCoalesce(o.id, () => ( nodeId(o.url, "person"))),
+    name: o.name,
+    url: o.url,
+    image: o.image,
+    jobTitle: o.jobTitle,
+    description: o.description,
+    sameAs: o.sameAs
+  });
 }
 function webSite(o) {
   return clean({
@@ -1566,8 +1589,14 @@ function breadcrumbList(items) {
     itemListElement: items.map((b, i) => clean({ "@type": "ListItem", position: i + 1, name: b.name, item: b.url }))
   };
 }
+function authorNode(a) {
+  const name = typeof a.name === "string" ? a.name : void 0;
+  if (!name) throw new Error("article: every author needs a name");
+  const url = typeof a.url === "string" ? a.url : void 0;
+  return clean({ "@type": "Person", "@id": typeof a["@id"] === "string" ? a["@id"] : void 0, name, url });
+}
 function article(o) {
-  const authors = (Array.isArray(o.author) ? o.author : [o.author]).map((a) => clean({ "@type": "Person", name: a.name, url: a.url }));
+  const authors = (Array.isArray(o.author) ? o.author : [o.author]).map(authorNode);
   return clean({
     "@type": _nullishCoalesce(o.type, () => ( "Article")),
     headline: o.headline,
@@ -1900,5 +1929,5 @@ function buildCrawlFiles(o) {
 
 
 
-exports.AI_CRAWLERS = AI_CRAWLERS; exports.Aurora = Aurora; exports.BackgroundFrame = BackgroundFrame; exports.BeamLines = BeamLines; exports.Body = Body; exports.CtaButton = CtaButton; exports.DEFAULT_STAR_VALUES = DEFAULT_STAR_VALUES; exports.DEFAULT_TIMING = DEFAULT_TIMING; exports.DISPLAY_FROM_STEP = DISPLAY_FROM_STEP; exports.DemoPlayer = DemoPlayer; exports.DotGrid = DotGrid; exports.DriftingGutters = DriftingGutters; exports.EMPHASIS = EMPHASIS; exports.Eyebrow = Eyebrow; exports.FAQ = FAQ; exports.FeatureGrid = FeatureGrid; exports.GRID_COLUMNS = GRID_COLUMNS; exports.GlassNav = GlassNav; exports.GrainOverlay = GrainOverlay; exports.Grid = Grid; exports.GridItem = GridItem; exports.HeadTags = HeadTags; exports.Heading = Heading; exports.JsonLd = JsonLd; exports.LineGrid = LineGrid; exports.MagneticButton = MagneticButton; exports.Marquee = Marquee; exports.MaskedStar = MaskedStar; exports.NoiseLayer = NoiseLayer; exports.NumberTicker = NumberTicker; exports.Reveal = Reveal; exports.RevealText = RevealText; exports.RhymeIcon = RhymeIcon; exports.SMOOTH_SCROLL_ATTR = SMOOTH_SCROLL_ATTR; exports.SMOOTH_SCROLL_PREVENT_ATTR = SMOOTH_SCROLL_PREVENT_ATTR; exports.SPACE = SPACE; exports.ScrollTransform = ScrollTransform; exports.Section = Section; exports.SmoothScroll = SmoothScroll; exports.SpotlightCard = SpotlightCard; exports.StarChart = StarChart; exports.StarHero = StarHero; exports.Subhead = Subhead; exports.TYPE_BASE_PX = TYPE_BASE_PX; exports.TYPE_FACES = TYPE_FACES; exports.TYPE_RATIO = TYPE_RATIO; exports.TYPE_STEPS = TYPE_STEPS; exports.TextScramble = TextScramble; exports.TiltCard = TiltCard; exports.WEB_FONT_FILES = WEB_FONT_FILES; exports.WHEEL_LINE_PX = WHEEL_LINE_PX; exports.WHEEL_PAGE_FRACTION = WHEEL_PAGE_FRACTION; exports.WebSurface = WebSurface; exports.article = article; exports.breadcrumbList = breadcrumbList; exports.buildCrawlFiles = buildCrawlFiles; exports.createSmoothScroll = createSmoothScroll; exports.curvePath = curvePath; exports.demoCycle = demoCycle; exports.demoEnd = demoEnd; exports.demoFrame = demoFrame; exports.easeOutExpo = easeOutExpo; exports.faqPage = faqPage; exports.followRate = followRate; exports.followStep = followStep; exports.fontPreloads = fontPreloads; exports.formatLastmod = formatLastmod; exports.headTagKey = headTagKey; exports.headTagsToHtml = headTagsToHtml; exports.jsonLd = jsonLd; exports.jsonLdTag = jsonLdTag; exports.llmsTxt = llmsTxt; exports.normalizeWheel = normalizeWheel; exports.offer = offer; exports.organization = organization; exports.pageMeta = pageMeta; exports.product = product; exports.ref = ref; exports.resolveAiCrawlers = resolveAiCrawlers; exports.robotsTxt = robotsTxt; exports.scrambleFrame = scrambleFrame; exports.scrollProgressOf = scrollProgressOf; exports.serializeJsonLd = serializeJsonLd; exports.sitemapXml = sitemapXml; exports.slugify = slugify; exports.smoothScrollTo = smoothScrollTo; exports.softwareApplication = softwareApplication; exports.stepStart = stepStart; exports.typeMetrics = typeMetrics; exports.typeRole = typeRole; exports.typeScale = typeScale; exports.useFinePointer = useFinePointer; exports.useHead = useHead; exports.useInView = useInView; exports.useScrollProgress = useScrollProgress; exports.useSmoothScroll = useSmoothScroll; exports.webSite = webSite; exports.withPaintTransition = withPaintTransition; exports.withViewTransition = withViewTransition;
-//# sourceMappingURL=web.cjs.map
+
+exports.AI_CRAWLERS = AI_CRAWLERS; exports.Aurora = Aurora; exports.BackgroundFrame = BackgroundFrame; exports.BeamLines = BeamLines; exports.Body = Body; exports.CtaButton = CtaButton; exports.DEFAULT_STAR_VALUES = DEFAULT_STAR_VALUES; exports.DEFAULT_TIMING = DEFAULT_TIMING; exports.DISPLAY_FROM_STEP = DISPLAY_FROM_STEP; exports.DemoPlayer = DemoPlayer; exports.DotGrid = DotGrid; exports.DriftingGutters = DriftingGutters; exports.EMPHASIS = EMPHASIS; exports.Eyebrow = Eyebrow; exports.FAQ = FAQ; exports.FeatureGrid = FeatureGrid; exports.GRID_COLUMNS = GRID_COLUMNS; exports.GlassNav = GlassNav; exports.GrainOverlay = GrainOverlay; exports.Grid = Grid; exports.GridItem = GridItem; exports.HeadTags = HeadTags; exports.Heading = Heading; exports.JsonLd = JsonLd; exports.LineGrid = LineGrid; exports.MagneticButton = MagneticButton; exports.Marquee = Marquee; exports.MaskedStar = MaskedStar; exports.NoiseLayer = NoiseLayer; exports.NumberTicker = NumberTicker; exports.Reveal = Reveal; exports.RevealText = RevealText; exports.RhymeIcon = RhymeIcon; exports.SMOOTH_SCROLL_ATTR = SMOOTH_SCROLL_ATTR; exports.SMOOTH_SCROLL_PREVENT_ATTR = SMOOTH_SCROLL_PREVENT_ATTR; exports.SPACE = SPACE; exports.ScrollTransform = ScrollTransform; exports.Section = Section; exports.SmoothScroll = SmoothScroll; exports.SpotlightCard = SpotlightCard; exports.StarChart = StarChart; exports.StarHero = StarHero; exports.Subhead = Subhead; exports.TYPE_BASE_PX = TYPE_BASE_PX; exports.TYPE_FACES = TYPE_FACES; exports.TYPE_RATIO = TYPE_RATIO; exports.TYPE_STEPS = TYPE_STEPS; exports.TextScramble = TextScramble; exports.TiltCard = TiltCard; exports.WEB_FONT_FILES = WEB_FONT_FILES; exports.WHEEL_LINE_PX = WHEEL_LINE_PX; exports.WHEEL_PAGE_FRACTION = WHEEL_PAGE_FRACTION; exports.WebSurface = WebSurface; exports.article = article; exports.breadcrumbList = breadcrumbList; exports.buildCrawlFiles = buildCrawlFiles; exports.createSmoothScroll = createSmoothScroll; exports.curvePath = curvePath; exports.demoCycle = demoCycle; exports.demoEnd = demoEnd; exports.demoFrame = demoFrame; exports.easeOutExpo = easeOutExpo; exports.faqPage = faqPage; exports.followRate = followRate; exports.followStep = followStep; exports.fontPreloads = fontPreloads; exports.formatLastmod = formatLastmod; exports.headTagKey = headTagKey; exports.headTagsToHtml = headTagsToHtml; exports.jsonLd = jsonLd; exports.jsonLdTag = jsonLdTag; exports.llmsTxt = llmsTxt; exports.normalizeWheel = normalizeWheel; exports.offer = offer; exports.organization = organization; exports.pageMeta = pageMeta; exports.person = person; exports.product = product; exports.ref = ref; exports.resolveAiCrawlers = resolveAiCrawlers; exports.robotsTxt = robotsTxt; exports.scrambleFrame = scrambleFrame; exports.scrollProgressOf = scrollProgressOf; exports.serializeJsonLd = serializeJsonLd; exports.sitemapXml = sitemapXml; exports.slugify = slugify; exports.smoothScrollTo = smoothScrollTo; exports.softwareApplication = softwareApplication; exports.stepStart = stepStart; exports.typeMetrics = typeMetrics; exports.typeRole = typeRole; exports.typeScale = typeScale; exports.useFinePointer = useFinePointer; exports.useHead = useHead; exports.useInView = useInView; exports.useScrollProgress = useScrollProgress; exports.useSmoothScroll = useSmoothScroll; exports.webSite = webSite; exports.withPaintTransition = withPaintTransition; exports.withViewTransition = withViewTransition;

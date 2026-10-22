@@ -14,7 +14,7 @@ export interface SelectedItem {
   /** The selected element; the note is placed against it. */
   anchor?: Element;
 }
-export const SelectionContext = createContext<{
+export const SelectionContext = /*#__PURE__*/ createContext<{
   enabled: boolean;
   selected: SelectedItem | null;
   select: (item: SelectedItem | null) => void;

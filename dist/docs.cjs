@@ -250,4 +250,3 @@ function DocsMarkdown({ source }) {
 
 
 exports.DocsLayout = DocsLayout; exports.DocsMarkdown = DocsMarkdown; exports.extractDocsHeadings = extractDocsHeadings; exports.slugifyDocsHeading = slugifyDocsHeading;
-//# sourceMappingURL=docs.cjs.map

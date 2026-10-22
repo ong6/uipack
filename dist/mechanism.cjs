@@ -1,9 +1,9 @@
 "use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { newObj[key] = obj[key]; } } } newObj.default = obj; return newObj; } } function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 
-var _chunkVGPFDDCPcjs = require('./chunk-VGPFDDCP.cjs');
+var _chunkKQ7UFCOUcjs = require('./chunk-KQ7UFCOU.cjs');
 
 
-var _chunkXPCOQ7NOcjs = require('./chunk-XPCOQ7NO.cjs');
+var _chunkYMPVJRTJcjs = require('./chunk-YMPVJRTJ.cjs');
 
 // src/mechanism/gate/VerificationGate.tsx
 var _react = require('react'); var React2 = _interopRequireWildcard(_react); var React = _interopRequireWildcard(_react);
@@ -1043,7 +1043,7 @@ var PERIOD = 5.4;
 var IDLE_START = 4 * PERIOD + 0.4;
 var KEEP_RETURNED = 1.8;
 var clamp = (value, low = 0, high = 1) => Math.min(high, Math.max(low, value));
-var smooth = (value) => _chunkVGPFDDCPcjs.smoothstep.call(void 0, 0, 1, value);
+var smooth = (value) => _chunkKQ7UFCOUcjs.smoothstep.call(void 0, 0, 1, value);
 var lerp = (a, b, t) => a + (b - a) * t;
 var mix3 = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
 function tokenAt(u, check, slot) {
@@ -1334,7 +1334,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
   const root = React2.useRef(null);
   const live = React2.useRef(null);
   const animated = interactive && motion === "auto";
-  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
   const stillness = React2.useRef(reduced);
   stillness.current = reduced;
   const start = React2.useRef(null);
@@ -1829,4 +1829,3 @@ var GATE_LIMIT = LIMIT;
 
 
 exports.AZIMUTH = AZIMUTH; exports.Dots = Dots; exports.ELEVATION = ELEVATION; exports.FaceText = FaceText; exports.GATE_CAPTION = GATE_CAPTION; exports.GATE_CYCLE_LENGTH = CYCLE_LENGTH; exports.GATE_LIMIT = GATE_LIMIT; exports.GATE_PASS_CHECK = PASS_CHECK; exports.GATE_PERIOD = PERIOD; exports.GATE_RETURN_CHECK = RETURN_CHECK; exports.GATE_RUN_LONG = RUN_LONG; exports.GATE_SCALE = SCALE; exports.GateMachine = GateMachine; exports.Line = Line; exports.MechanismFrame = MechanismFrame; exports.SHADES = SHADES; exports.Solid = Solid; exports.VerificationGate = VerificationGate; exports.Wire = Wire; exports.axisVector = axisVector; exports.boxCorners = boxCorners; exports.cameraOf = cameraOf; exports.circleIn = circleIn; exports.circleRing = circleRing; exports.coil = coil; exports.corners = corners; exports.cylinder = cylinder; exports.depthOf = depthOf; exports.dotGrid = dotGrid; exports.extrude = extrude; exports.faceCircle = faceCircle; exports.fitProjection = fitProjection; exports.follow = follow; exports.gateCheckAt = checkAt; exports.gateSceneAt = sceneAt; exports.gateStillScene = stillScene; exports.gateTallyOf = tallyOf; exports.gateTallyText = tallyText; exports.gateTokenAt = tokenAt; exports.gateVerdictOf = verdictOf; exports.gateVerdictText = verdictText; exports.haloOf = haloOf; exports.holdStill = holdStill; exports.insetPlan = insetPlan; exports.iso = iso; exports.joinPaths = joinPaths; exports.knurl = knurl; exports.lineOnTop = lineOnTop; exports.onTop = onTop; exports.pathOf = pathOf; exports.planOutline = planOutline; exports.pointsAt = pointsAt; exports.prismOf = prismOf; exports.radialTicks = radialTicks; exports.ring = ring; exports.ringOf = ringOf; exports.ringSeam = ringSeam; exports.rise = rise; exports.roundedPlan = roundedPlan; exports.screenRise = screenRise; exports.segment = segment; exports.sideArc = sideArc; exports.sideMatrix = sideMatrix; exports.sideRing = sideRing; exports.sideSeam = sideSeam; exports.sideTicks = sideTicks; exports.slabOf = slabOf; exports.spring = spring; exports.topMatrix = topMatrix; exports.topTicks = topTicks; exports.towardViewer = towardViewer; exports.translateAlong = translateAlong; exports.viewOf = viewOf;
-//# sourceMappingURL=mechanism.cjs.map

@@ -3,13 +3,13 @@ import {
   resolveNodePose,
   slidePalettes,
   validateSlideStory
-} from "./chunk-AZPFC2BR.js";
+} from "./chunk-BBBJN4JA.js";
 import {
   CanvasView
-} from "./chunk-7K2SUJSS.js";
+} from "./chunk-WTI575DG.js";
 import {
   usePrefersReducedMotion
-} from "./chunk-44EABMMS.js";
+} from "./chunk-KYO6UXHN.js";
 
 // src/slides/SlidePlayer.tsx
 import {
@@ -72,7 +72,7 @@ function SceneViewport({
       return;
     }
     setStatus("loading");
-    void import("./renderer-BUS3ZQAM.js").then(({ createSlideScene }) => {
+    void import("./renderer-FCSSD6LH.js").then(({ createSlideScene }) => {
       if (cancelled || !host.current || !labels.current) return;
       try {
         runtime.current = createSlideScene(
@@ -1153,4 +1153,3 @@ export {
   stagedAssembly,
   validateSlideStory
 };
-//# sourceMappingURL=slides.js.map

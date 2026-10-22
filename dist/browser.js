@@ -1,6 +1,6 @@
 import {
   keepFocusedInView
-} from "./chunk-44EABMMS.js";
+} from "./chunk-KYO6UXHN.js";
 
 // src/browser/index.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -79,4 +79,3 @@ export {
   categories,
   filterAssets
 };
-//# sourceMappingURL=browser.js.map

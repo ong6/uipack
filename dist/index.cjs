@@ -1,20 +1,13 @@
 "use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 
-var _chunkYEVVKV3Jcjs = require('./chunk-YEVVKV3J.cjs');
+var _chunkRMV7QAIQcjs = require('./chunk-RMV7QAIQ.cjs');
 
 
 
 
 
 
-var _chunkVGPFDDCPcjs = require('./chunk-VGPFDDCP.cjs');
-
-
-
-
-
-
-
+var _chunkKQ7UFCOUcjs = require('./chunk-KQ7UFCOU.cjs');
 
 
 
@@ -41,7 +34,14 @@ var _chunkVGPFDDCPcjs = require('./chunk-VGPFDDCP.cjs');
 
 
 
-var _chunkGKZXXH6Kcjs = require('./chunk-GKZXXH6K.cjs');
+
+
+
+
+
+
+
+var _chunkZEVTITYCcjs = require('./chunk-ZEVTITYC.cjs');
 
 
 
@@ -53,19 +53,19 @@ var _chunkGKZXXH6Kcjs = require('./chunk-GKZXXH6K.cjs');
 
 
 
-var _chunkAF2HLZ75cjs = require('./chunk-AF2HLZ75.cjs');
+var _chunkXEK5V7KFcjs = require('./chunk-XEK5V7KF.cjs');
 
 
-var _chunkA5PZXIEWcjs = require('./chunk-A5PZXIEW.cjs');
+var _chunkNFU4EWVXcjs = require('./chunk-NFU4EWVX.cjs');
 
 
 
-var _chunkXPCOQ7NOcjs = require('./chunk-XPCOQ7NO.cjs');
+var _chunkYMPVJRTJcjs = require('./chunk-YMPVJRTJ.cjs');
 
 // src/Badge.tsx
 var _jsxruntime = require('react/jsx-runtime');
 function Badge({ cx, cy, text, accent, r = 9, size: size0 = 10 }) {
-  const size = _chunkAF2HLZ75cjs.useFontFloor.call(void 0, size0);
+  const size = _chunkXEK5V7KFcjs.useFontFloor.call(void 0, size0);
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-uipack": "badge", children: [
     /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "circle", { cx, cy, r, fill: "var(--uipack-bg)", stroke, strokeOpacity: accent ? 1 : 0.6, strokeWidth: 1.25 }),
@@ -86,8 +86,8 @@ function wallSegments(from, to, holes = [], gap = 9) {
   return segs;
 }
 function Wall({ at, from, to, holes = [], axis = "v", thickness: t = 16, gap = 9, flow }) {
-  const hover = _chunkGKZXXH6Kcjs.useFigureHover.call(void 0, );
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "g", { "data-uipack": "wall", ..._chunkGKZXXH6Kcjs.hoverAttrs.call(void 0, flow, void 0, hover), children: wallSegments(from, to, holes, gap).map(([a, b]) => {
+  const hover = _chunkZEVTITYCcjs.useFigureHover.call(void 0, );
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "g", { "data-uipack": "wall", ..._chunkZEVTITYCcjs.hoverAttrs.call(void 0, flow, void 0, hover), children: wallSegments(from, to, holes, gap).map(([a, b]) => {
     const r = axis === "v" ? { x: at - t / 2, y: a, width: t, height: b - a } : { x: a, y: at - t / 2, width: b - a, height: t };
     return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "rect", { ...r, rx: 2, fill: "var(--uipack-surface-raised)", stroke: "currentColor", strokeOpacity: 0.55, strokeWidth: 1.25 }, a);
   }) });
@@ -96,7 +96,7 @@ function Wall({ at, from, to, holes = [], axis = "v", thickness: t = 16, gap = 9
 // src/Cross.tsx
 
 function Cross({ x, y, r = 5, kind }) {
-  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-uipack": "cross", stroke: _chunkGKZXXH6Kcjs.connectorStroke.call(void 0, kind), strokeOpacity: kind ? 1 : 0.8, strokeWidth: 1.75, strokeLinecap: "round", "aria-hidden": "true", children: [
+  return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-uipack": "cross", stroke: _chunkZEVTITYCcjs.connectorStroke.call(void 0, kind), strokeOpacity: kind ? 1 : 0.8, strokeWidth: 1.75, strokeLinecap: "round", "aria-hidden": "true", children: [
     /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { x1: x - r, y1: y - r, x2: x + r, y2: y + r }),
     /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { x1: x - r, y1: y + r, x2: x + r, y2: y - r })
   ] });
@@ -214,7 +214,7 @@ function runDrill(opts) {
     local = { x: r.left - s.left, y: r.top - s.top, w: r.width, h: r.height };
     const userW = _optionalChain([boxEl, 'access', _ => _.width, 'optionalAccess', _2 => _2.baseVal, 'optionalAccess', _3 => _3.value]);
     if (userW) k = r.width / userW;
-    samples = _chunkVGPFDDCPcjs.zoomSamples.call(void 0, local, kind === "in", W, H, { samples: 32, radius: 6 * k });
+    samples = _chunkKQ7UFCOUcjs.zoomSamples.call(void 0, local, kind === "in", W, H, { samples: 32, radius: 6 * k });
   }
   if (!samples || !local) kind = "fade";
   if (kind === "fade") {
@@ -229,7 +229,7 @@ function runDrill(opts) {
   const forward = kind === "in";
   const outer = forward ? from : to;
   const inner = forward ? to : from;
-  const frame = _chunkVGPFDDCPcjs.zoomFrame.call(void 0, local, W, H);
+  const frame = _chunkKQ7UFCOUcjs.zoomFrame.call(void 0, local, W, H);
   const origin = `${frame.fx.toFixed(2)}px ${frame.fy.toFixed(2)}px`;
   inner.dataset.role = "inner";
   inner.style.zIndex = "2";
@@ -237,7 +237,7 @@ function runDrill(opts) {
   const timing = { duration: _nullishCoalesce(opts.duration, () => ( drillMotion.zoom)), easing: "linear" };
   play(
     outer,
-    samples.map((s) => ({ offset: s.offset, transform: s.outer, transformOrigin: origin, opacity: 1 - _chunkVGPFDDCPcjs.smoothstep.call(void 0, 0.88, 0.99, s.p) })),
+    samples.map((s) => ({ offset: s.offset, transform: s.outer, transformOrigin: origin, opacity: 1 - _chunkKQ7UFCOUcjs.smoothstep.call(void 0, 0.88, 0.99, s.p) })),
     timing
   );
   play(
@@ -249,13 +249,13 @@ function runDrill(opts) {
     play(part, samples.map((s) => ({ offset: s.offset, opacity: 1 - s.innerOpacity })), timing);
   }
   const halo = opts.target.querySelector(".uipack-drill-node__halo");
-  if (halo) play(halo, samples.map((s) => ({ offset: s.offset, opacity: 1 - _chunkVGPFDDCPcjs.smoothstep.call(void 0, 0, 0.25, s.p) })), timing);
+  if (halo) play(halo, samples.map((s) => ({ offset: s.offset, opacity: 1 - _chunkKQ7UFCOUcjs.smoothstep.call(void 0, 0, 0.25, s.p) })), timing);
   return anims;
 }
 
 // src/drill/context.tsx
 
-var DrillContext = _react.createContext.call(void 0, null);
+var DrillContext = /* @__PURE__ */ _react.createContext.call(void 0, null);
 var useDrill = () => _react.useContext.call(void 0, DrillContext);
 
 // src/drill/model.ts
@@ -357,7 +357,7 @@ function drillStatic(props, path) {
 
 var last = (p) => p[p.length - 1];
 var BackGlyph = () => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "svg", { viewBox: "0 0 12 12", "aria-hidden": "true", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "path", { d: "M7.5 2.5 4 6l3.5 3.5", fill: "none", stroke: "currentColor", strokeWidth: "1.6", strokeLinecap: "round", strokeLinejoin: "round" }) });
-var DrillLayer = _react.memo.call(void 0, function DrillLayer2({ level, figId, frame, floorWide, floorNarrow, levels, open, current }) {
+var DrillLayer = /* @__PURE__ */ _react.memo.call(void 0, function DrillLayer2({ level, figId, frame, floorWide, floorNarrow, levels, open, current }) {
   const lid = `${figId}-${cleanId(level.id)}`;
   const ctx = (variant) => ({
     levels,
@@ -376,7 +376,7 @@ var DrillLayer = _react.memo.call(void 0, function DrillLayer2({ level, figId, f
       preserveAspectRatio: "xMidYMid meet",
       role: "group",
       "aria-label": level.alt,
-      children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, DrillContext.Provider, { value: ctx(variant), children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkAF2HLZ75cjs.FigureScaleContext.Provider, { value: { floor }, children: render({ id: variant === "wide" ? lid : `${lid}-n`, variant, ghost: false, level }) }) })
+      children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, DrillContext.Provider, { value: ctx(variant), children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkXEK5V7KFcjs.FigureScaleContext.Provider, { value: { floor }, children: render({ id: variant === "wide" ? lid : `${lid}-n`, variant, ghost: false, level }) }) })
     }
   );
   return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: "uipack-drill__layer", "data-level": level.id, "data-current": current ? "true" : void 0, children: [
@@ -384,7 +384,7 @@ var DrillLayer = _react.memo.call(void 0, function DrillLayer2({ level, figId, f
     frame.narrow ? draw("narrow", _nullishCoalesce(level.narrow, () => ( level.render)), _nullishCoalesce(level.narrowViewBox, () => ( frame.narrow)), floorNarrow) : null
   ] });
 });
-function DrillFigure({
+function DrillFigureRoot({
   levels,
   root,
   viewBox,
@@ -423,7 +423,7 @@ function DrillFigure({
   const focusIntent = _react.useRef.call(void 0, false);
   const pendingFocus = _react.useRef.call(void 0, null);
   const [announcement, setAnnouncement] = _react.useState.call(void 0, "");
-  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkYMPVJRTJcjs.usePrefersReducedMotion.call(void 0, );
   const [playing, setPlaying] = _react.useState.call(void 0, true);
   const [cycle, setCycle] = _react.useState.call(void 0, 0);
   const [expanded, setExpanded] = _react.useState.call(void 0, false);
@@ -475,7 +475,7 @@ function DrillFigure({
     [navigate, ids]
   );
   const layerEl = (lid) => _nullishCoalesce(_optionalChain([stageRef, 'access', _20 => _20.current, 'optionalAccess', _21 => _21.querySelector, 'call', _22 => _22(`:scope > [data-level="${typeof CSS !== "undefined" && CSS.escape ? CSS.escape(lid) : lid}"]`)]), () => ( null));
-  const { anims, settle, fly } = _chunkYEVVKV3Jcjs.useLayerFlight.call(void 0, 
+  const { anims, settle, fly } = _chunkRMV7QAIQcjs.useLayerFlight.call(void 0, 
     () => _optionalChain([stageRef, 'access', _23 => _23.current, 'optionalAccess', _24 => _24.querySelectorAll, 'call', _25 => _25(":scope > .uipack-drill__layer"), 'access', _26 => _26.forEach, 'call', _27 => _27(clearLayer)])
   );
   const finish = (n) => {
@@ -486,7 +486,7 @@ function DrillFigure({
     settle();
     setView({ path: v.path, flight: null });
   };
-  _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
+  _chunkYMPVJRTJcjs.useIsoLayoutEffect.call(void 0, () => {
     const v = viewRef.current;
     if (samePath(requested, v.path)) return;
     select(null);
@@ -512,7 +512,7 @@ function DrillFigure({
     setView({ path: requested, flight: { from, kind: move === "in" ? "in" : move === "out" ? "out" : "fade", seq: seq.current } });
   }, [requested]);
   const flightSeq = _optionalChain([view, 'access', _30 => _30.flight, 'optionalAccess', _31 => _31.seq]);
-  _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
+  _chunkYMPVJRTJcjs.useIsoLayoutEffect.call(void 0, () => {
     const f = viewRef.current.flight;
     const stage = stageRef.current;
     if (!f || !stage) return;
@@ -526,7 +526,7 @@ function DrillFigure({
     const run = runDrill({ kind: f.kind, from: fromEl, to: toEl, target, stage, canvas: canvasRef.current, reduced, duration });
     fly(run, () => finish(f.seq));
   }, [flightSeq]);
-  _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
+  _chunkYMPVJRTJcjs.useIsoLayoutEffect.call(void 0, () => {
     if (view.flight || !pendingFocus.current) return;
     const { from, to } = pendingFocus.current;
     pendingFocus.current = null;
@@ -565,14 +565,14 @@ function DrillFigure({
     [playing, reduced, cycle, toggle, replay]
   );
   const note = _optionalChain([selected, 'optionalAccess', _38 => _38.detail]) ? selected : null;
-  _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
+  _chunkYMPVJRTJcjs.useIsoLayoutEffect.call(void 0, () => {
     setNotePos(null);
     const canvas = canvasRef.current;
     const el = noteRef.current;
     const anchor2 = _optionalChain([note, 'optionalAccess', _39 => _39.anchor]);
     if (!canvas || !el || !anchor2) return;
     const place = () => {
-      if (anchor2.isConnected) setNotePos(_chunkGKZXXH6Kcjs.placeNote.call(void 0, canvas, el, anchor2));
+      if (anchor2.isConnected) setNotePos(_chunkZEVTITYCcjs.placeNote.call(void 0, canvas, el, anchor2));
     };
     place();
     if (typeof ResizeObserver === "undefined") return;
@@ -595,7 +595,7 @@ function DrillFigure({
   });
   const showControls = controls && !reduced;
   return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
-    _chunkA5PZXIEWcjs.CanvasView,
+    _chunkNFU4EWVXcjs.CanvasView,
     {
       restoreFocus: () => _optionalChain([opener, 'access', _40 => _40.current, 'optionalAccess', _41 => _41.focus, 'call', _42 => _42()]),
       open: expanded,
@@ -608,7 +608,7 @@ function DrillFigure({
       theme,
       layout: "figure",
       zoom: { value: zoom, min: 1, max: 3, onChange: setZoom },
-      children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkGKZXXH6Kcjs.SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkAF2HLZ75cjs.FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkGKZXXH6Kcjs.FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+      children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkXEK5V7KFcjs.FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
         "figure",
         {
           id: figId,
@@ -684,17 +684,17 @@ function DrillFigure({
                 ) : null,
                 showControls ? /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
                   /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: replay, children: [
-                    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkGKZXXH6Kcjs.ReplayGlyph, {}),
+                    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.ReplayGlyph, {}),
                     " Replay"
                   ] }),
                   /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: toggle, "aria-pressed": !playing, children: [
-                    playing ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkGKZXXH6Kcjs.PauseGlyph, {}) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkGKZXXH6Kcjs.PlayGlyph, {}),
+                    playing ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.PauseGlyph, {}) : /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.PlayGlyph, {}),
                     " ",
                     playing ? "Pause" : "Play"
                   ] })
                 ] }) : null
               ] }),
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkGKZXXH6Kcjs.Legend, { items: _nullishCoalesce(current.legend, () => ( [])) })
+              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Legend, { items: _nullishCoalesce(current.legend, () => ( [])) })
             ] }),
             /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack__sr", role: "status", children: note ? `${note.label}: ${note.detail}` : "" }),
             /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { className: "uipack__sr", "aria-live": "polite", "data-drill-announce": "", children: announcement }),
@@ -747,7 +747,10 @@ function DrillFigure({
     }
   );
 }
-DrillFigure.toStatic = (props) => drillStatic(props);
+var DrillFigure = /* @__PURE__ */ Object.assign(DrillFigureRoot, {
+  displayName: "DrillFigure",
+  toStatic: (props) => drillStatic(props)
+});
 
 // src/drill/DrillNode.tsx
 
@@ -771,7 +774,7 @@ function Ghost({ child, ctx, box, uid }) {
   const mini = slice > MINI_ABOVE;
   const k = MINI_SCALE;
   const port = mini ? { x: box.x + box.w - f.w * k - 30, y: box.y, width: f.w * k, height: box.h, viewBox: `0 ${(f.h - box.h / k) / 2} ${f.w} ${box.h / k}` } : { x: box.x, y: box.y, width: box.w, height: box.h, viewBox: `0 0 ${f.w} ${f.h}` };
-  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "svg", { ...port, preserveAspectRatio: "xMidYMid slice", overflow: "hidden", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkGKZXXH6Kcjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkAF2HLZ75cjs.FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkAF2HLZ75cjs.FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "svg", { ...port, preserveAspectRatio: "xMidYMid slice", overflow: "hidden", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkXEK5V7KFcjs.FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkXEK5V7KFcjs.FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) });
 }
 function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node }) {
   const ctx = useDrill();
@@ -784,11 +787,11 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
     const g = ghostRef.current;
     if (g) setCount(g.querySelectorAll('[data-uipack="node"]').length);
   }, [drill, _optionalChain([ctx, 'optionalAccess', _49 => _49.variant])]);
-  if (!ctx || !child) return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkGKZXXH6Kcjs.Node, { ...node, label: text });
+  if (!ctx || !child) return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { ...node, label: text });
   const box = drillBox({ x: node.x, y: node.y, w: node.w, h: node.h }, grow);
-  if (ctx.ghost) return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkGKZXXH6Kcjs.Node, { ...node, ...box, label: text });
+  if (ctx.ghost) return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.Node, { ...node, ...box, label: text });
   const summary = _nullishCoalesce(child.summary, () => ( (count ? `${count} part${count === 1 ? "" : "s"} inside` : "")));
-  const name = `${_chunkGKZXXH6Kcjs.nodeName.call(void 0, text, node.sub)}, open${summary ? `: ${summary}` : ""}`;
+  const name = `${_chunkZEVTITYCcjs.nodeName.call(void 0, text, node.sub)}, open${summary ? `: ${summary}` : ""}`;
   const interactive = ctx.interactive && !!ctx.open;
   const activate = (e) => {
     e.preventDefault();
@@ -837,8 +840,8 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
             "aria-hidden": "true"
           }
         ),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkGKZXXH6Kcjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
-          _chunkGKZXXH6Kcjs.Node,
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkZEVTITYCcjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+          _chunkZEVTITYCcjs.Node,
           {
             ...node,
             ...box,
@@ -944,5 +947,4 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
 
 
 
-exports.Badge = Badge; exports.Bus = _chunkGKZXXH6Kcjs.Bus; exports.Chip = _chunkGKZXXH6Kcjs.Chip; exports.Connector = _chunkGKZXXH6Kcjs.Connector; exports.Cross = Cross; exports.DEFAULT_RENDER_WIDTH = _chunkAF2HLZ75cjs.DEFAULT_RENDER_WIDTH; exports.DRILL_GROW = DRILL_GROW; exports.Defs = _chunkGKZXXH6Kcjs.Defs; exports.DrillFigure = DrillFigure; exports.DrillNode = DrillNode; exports.Figure = _chunkGKZXXH6Kcjs.Figure; exports.FigureHoverContext = _chunkGKZXXH6Kcjs.FigureHoverContext; exports.FigureMotionContext = _chunkAF2HLZ75cjs.FigureMotionContext; exports.FigureScaleContext = _chunkAF2HLZ75cjs.FigureScaleContext; exports.FigureScaleProvider = _chunkAF2HLZ75cjs.FigureScaleProvider; exports.Group = _chunkGKZXXH6Kcjs.Group; exports.Label = _chunkGKZXXH6Kcjs.Label; exports.Lane = _chunkGKZXXH6Kcjs.Lane; exports.Legend = _chunkGKZXXH6Kcjs.Legend; exports.Node = _chunkGKZXXH6Kcjs.Node; exports.Packet = _chunkGKZXXH6Kcjs.Packet; exports.TOKEN_SHAPE = _chunkAF2HLZ75cjs.TOKEN_SHAPE; exports.Token = _chunkAF2HLZ75cjs.Token; exports.Wall = Wall; exports.Wordmark = Wordmark; exports.anchor = _chunkGKZXXH6Kcjs.anchor; exports.busStub = _chunkGKZXXH6Kcjs.busStub; exports.busStubs = _chunkGKZXXH6Kcjs.busStubs; exports.connectorStroke = _chunkGKZXXH6Kcjs.connectorStroke; exports.drillAnnouncement = drillAnnouncement; exports.drillBox = drillBox; exports.drillFocusTarget = drillFocusTarget; exports.drillMotion = drillMotion; exports.drillMove = drillMove; exports.drillReducer = drillReducer; exports.drillStatic = drillStatic; exports.easeInOutCubic = _chunkVGPFDDCPcjs.easeInOutCubic; exports.flowList = _chunkGKZXXH6Kcjs.flowList; exports.fontFloor = _chunkAF2HLZ75cjs.fontFloor; exports.grid = _chunkGKZXXH6Kcjs.grid; exports.hoverAttrs = _chunkGKZXXH6Kcjs.hoverAttrs; exports.icons = _chunkGKZXXH6Kcjs.icons; exports.innerClipStart = _chunkVGPFDDCPcjs.innerClipStart; exports.marks = marks; exports.normalizeDrillPath = normalizePath; exports.pathFromPoints = _chunkGKZXXH6Kcjs.pathFromPoints; exports.pointAlong = _chunkGKZXXH6Kcjs.pointAlong; exports.polylineLength = _chunkGKZXXH6Kcjs.polylineLength; exports.route = _chunkGKZXXH6Kcjs.route; exports.smoothstep = _chunkVGPFDDCPcjs.smoothstep; exports.tokenColor = _chunkAF2HLZ75cjs.tokenColor; exports.trim = _chunkGKZXXH6Kcjs.trim; exports.useFigureHover = _chunkGKZXXH6Kcjs.useFigureHover; exports.useFigureMotion = _chunkAF2HLZ75cjs.useFigureMotion; exports.useFontFloor = _chunkAF2HLZ75cjs.useFontFloor; exports.usePrefersReducedMotion = _chunkXPCOQ7NOcjs.usePrefersReducedMotion; exports.wallSegments = wallSegments; exports.zoomFrame = _chunkVGPFDDCPcjs.zoomFrame; exports.zoomSamples = _chunkVGPFDDCPcjs.zoomSamples;
-//# sourceMappingURL=index.cjs.map
+exports.Badge = Badge; exports.Bus = _chunkZEVTITYCcjs.Bus; exports.Chip = _chunkZEVTITYCcjs.Chip; exports.Connector = _chunkZEVTITYCcjs.Connector; exports.Cross = Cross; exports.DEFAULT_RENDER_WIDTH = _chunkXEK5V7KFcjs.DEFAULT_RENDER_WIDTH; exports.DRILL_GROW = DRILL_GROW; exports.Defs = _chunkZEVTITYCcjs.Defs; exports.DrillFigure = DrillFigure; exports.DrillNode = DrillNode; exports.Figure = _chunkZEVTITYCcjs.Figure; exports.FigureHoverContext = _chunkZEVTITYCcjs.FigureHoverContext; exports.FigureMotionContext = _chunkXEK5V7KFcjs.FigureMotionContext; exports.FigureScaleContext = _chunkXEK5V7KFcjs.FigureScaleContext; exports.FigureScaleProvider = _chunkXEK5V7KFcjs.FigureScaleProvider; exports.Group = _chunkZEVTITYCcjs.Group; exports.Label = _chunkZEVTITYCcjs.Label; exports.Lane = _chunkZEVTITYCcjs.Lane; exports.Legend = _chunkZEVTITYCcjs.Legend; exports.Node = _chunkZEVTITYCcjs.Node; exports.Packet = _chunkZEVTITYCcjs.Packet; exports.TOKEN_SHAPE = _chunkXEK5V7KFcjs.TOKEN_SHAPE; exports.Token = _chunkXEK5V7KFcjs.Token; exports.Wall = Wall; exports.Wordmark = Wordmark; exports.anchor = _chunkZEVTITYCcjs.anchor; exports.busStub = _chunkZEVTITYCcjs.busStub; exports.busStubs = _chunkZEVTITYCcjs.busStubs; exports.connectorStroke = _chunkZEVTITYCcjs.connectorStroke; exports.drillAnnouncement = drillAnnouncement; exports.drillBox = drillBox; exports.drillFocusTarget = drillFocusTarget; exports.drillMotion = drillMotion; exports.drillMove = drillMove; exports.drillReducer = drillReducer; exports.drillStatic = drillStatic; exports.easeInOutCubic = _chunkKQ7UFCOUcjs.easeInOutCubic; exports.flowList = _chunkZEVTITYCcjs.flowList; exports.fontFloor = _chunkXEK5V7KFcjs.fontFloor; exports.grid = _chunkZEVTITYCcjs.grid; exports.hoverAttrs = _chunkZEVTITYCcjs.hoverAttrs; exports.icons = _chunkZEVTITYCcjs.icons; exports.innerClipStart = _chunkKQ7UFCOUcjs.innerClipStart; exports.marks = marks; exports.normalizeDrillPath = normalizePath; exports.pathFromPoints = _chunkZEVTITYCcjs.pathFromPoints; exports.pointAlong = _chunkZEVTITYCcjs.pointAlong; exports.polylineLength = _chunkZEVTITYCcjs.polylineLength; exports.route = _chunkZEVTITYCcjs.route; exports.smoothstep = _chunkKQ7UFCOUcjs.smoothstep; exports.tokenColor = _chunkXEK5V7KFcjs.tokenColor; exports.trim = _chunkZEVTITYCcjs.trim; exports.useFigureHover = _chunkZEVTITYCcjs.useFigureHover; exports.useFigureMotion = _chunkXEK5V7KFcjs.useFigureMotion; exports.useFontFloor = _chunkXEK5V7KFcjs.useFontFloor; exports.usePrefersReducedMotion = _chunkYMPVJRTJcjs.usePrefersReducedMotion; exports.wallSegments = wallSegments; exports.zoomFrame = _chunkKQ7UFCOUcjs.zoomFrame; exports.zoomSamples = _chunkKQ7UFCOUcjs.zoomSamples;

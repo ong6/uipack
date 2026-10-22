@@ -5,7 +5,7 @@ import {
   TOKEN_SHAPE,
   Token,
   fontFloor
-} from "./chunk-BLGJSYKN.js";
+} from "./chunk-3R6VZY52.js";
 
 // src/static/index.tsx
 import { isValidElement } from "react";
@@ -159,4 +159,3 @@ export {
   resolvePalette,
   wrapText
 };
-//# sourceMappingURL=static.js.map

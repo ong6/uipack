@@ -509,10 +509,16 @@ interface DrillFigureProps {
  * clip shaped like the node box, and Back reverses the same path. The header
  * carries a breadcrumb, a Back control, Open canvas and the motion controls.
  */
-declare function DrillFigure({ levels, root, viewBox, narrowViewBox, path, defaultPath, onPathChange, number, eyebrow, headingLevel, expandable, controls, theme, background, minFont, duration, className, id, }: DrillFigureProps): react.JSX.Element | null;
-declare namespace DrillFigure {
-    var toStatic: (props: DrillFigureProps) => DrillStaticFigure;
-}
+declare function DrillFigureRoot({ levels, root, viewBox, narrowViewBox, path, defaultPath, onPathChange, number, eyebrow, headingLevel, expandable, controls, theme, background, minFont, duration, className, id, }: DrillFigureProps): react.JSX.Element | null;
+/**
+ * A stack of figures in the Figure style; see `DrillFigureRoot`.
+ * `renderStatic(<DrillFigure …/>)` draws the level at the figure's path. `toStatic` is attached
+ * through a pure `Object.assign`, not a top-level property write, so bundlers can drop an unused figure.
+ */
+declare const DrillFigure: typeof DrillFigureRoot & {
+    displayName: string;
+    toStatic: (props: DrillFigureProps) => DrillStaticFigure;
+};
 
 interface DrillNodeProps extends Omit<NodeProps, "label" | "href" | "inlay"> {
     /** Id of the level this node opens. */

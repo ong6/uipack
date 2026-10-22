@@ -157,7 +157,7 @@ test("curated look persists through loop, theme and expanded canvas", async ({ p
 });
 
 test("a pinned look is reproducible and failed model loading shows the fallback", async ({ page }) => {
-  await page.route("**/tennis-asset*", route => route.abort());
+  await page.route("**/tennis-return*.glb", route => route.abort());
   await page.goto("/animations?story=tennis&variant=0");
   await expect(page.locator(".uipack-object")).toHaveAttribute("data-variant", "0");
   await expect(page.locator(".uipack-object canvas")).toHaveAttribute("data-renderer", "fallback");

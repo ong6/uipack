@@ -173,4 +173,3 @@ function LinkList({ label = "Go deeper", links, children, id, className }) {
 
 
 exports.Callout = Callout; exports.ChangeNote = ChangeNote; exports.LayerHead = LayerHead; exports.LinkList = LinkList; exports.NoteCard = NoteCard; exports.NoteCluster = NoteCluster; exports.TermList = TermList; exports.formatNoteDate = formatNoteDate; exports.layerIndex = layerIndex; exports.linkDomain = linkDomain;
-//# sourceMappingURL=article.cjs.map

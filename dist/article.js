@@ -173,4 +173,3 @@ export {
   layerIndex,
   linkDomain
 };
-//# sourceMappingURL=article.js.map
