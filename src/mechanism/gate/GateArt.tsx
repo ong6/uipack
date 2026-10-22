@@ -1,6 +1,8 @@
 // The gate's drawing: every part of the machine as SVG, in paint order, at the display's first frame.
 // After that the loop (useGateLoop) moves the parts in place through display.ts's paintDisplay,
 // which finds them by the data-part, data-assembly and data-slot attributes set here.
+import { useRef, useState } from "react";
+import { useIsoLayoutEffect } from "../../env";
 import { Dots, Line, Solid } from "../kit/draw";
 import {
   BASE_ART,
@@ -30,11 +32,46 @@ import type { Layer } from "./motion";
 import { HEIGHT, WIDTH, move } from "./view";
 import { fine, readingOf, shareMove, tokenMove, tokenPaths, type Display, type Slot } from "./display";
 
-export function GateArt({ uid, alt, shown }: { uid: string; alt: string; shown: Display }) {
+/** Margin round a still frame's drawing, in drawing units: the same on every pose. */
+const FIT_PAD = 24;
+
+/**
+ * The view box that frames a still pose by its own bounds: the drawing's box, padded evenly and
+ * widened to the canvas's aspect, centred. (One fixed view box gave the exploded Apart pose an 8px
+ * top margin beside 25px on the others.) Null when the drawing can't be measured.
+ */
+export function fitViewBox(box: { x: number; y: number; width: number; height: number } | null): string | null {
+  if (!box || !box.width || !box.height) return null;
+  let w = box.width + 2 * FIT_PAD;
+  let h = box.height + 2 * FIT_PAD;
+  if (w / h > WIDTH / HEIGHT) h = (w * HEIGHT) / WIDTH;
+  else w = (h * WIDTH) / HEIGHT;
+  const x = box.x + box.width / 2 - w / 2;
+  const y = box.y + box.height / 2 - h / 2;
+  return [x, y, w, h].map((v) => v.toFixed(1)).join(" ");
+}
+
+export function GateArt({ uid, alt, shown, fit = false }: { uid: string; alt: string; shown: Display; fit?: boolean }) {
   const reading = readingOf(shown);
   const arm = armOf(shown.arm.at);
+  // A still frame (fit) is framed by its own bounds once it is laid out; a live one keeps the fixed
+  // canvas, so the camera holds still while the machine moves between poses.
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [fitted, setFitted] = useState<string | null>(null);
+  useIsoLayoutEffect(() => {
+    const svg = svgRef.current;
+    if (!fit || !svg || typeof svg.getBBox !== "function") return setFitted(null);
+    setFitted(fitViewBox(svg.getBBox()));
+  }, [fit, shown]);
   return (
-    <svg className="iso-svg" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label={alt} focusable="false">
+    <svg
+      ref={svgRef}
+      className="iso-svg"
+      viewBox={fitted ?? `0 0 ${WIDTH} ${HEIGHT}`}
+      role="img"
+      aria-label={alt}
+      focusable="false"
+    >
       <title id={`${uid}-title`}>Verification gate</title>
       <g data-part="base">
         <path className="iso-halo" d={BASE_ART.halo} />

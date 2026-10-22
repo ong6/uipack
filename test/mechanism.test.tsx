@@ -1,4 +1,5 @@
 import { readFileSync, readdirSync } from "node:fs";
+import { fitViewBox } from "../src/mechanism/gate/GateArt";
 import { render } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { onServer } from "./on-server";
@@ -264,5 +265,18 @@ describe("vendored Anatomy kit", () => {
     const files = readdirSync("src/mechanism", { recursive: true, encoding: "utf8" }).filter((f) => /\.tsx?$/.test(f));
     expect(files).toContain("gate/VerificationGate.tsx");
     for (const file of files) expect(readFileSync(`src/mechanism/${file}`, "utf8")).not.toMatch(/from "three"|from "gsap"/);
+  });
+});
+
+describe("still poses are framed by their own bounds", () => {
+  it("pads the drawing evenly and keeps the canvas's aspect", () => {
+    const tall = fitViewBox({ x: 10, y: -20, width: 500, height: 380 })!.split(" ").map(Number);
+    const wide = fitViewBox({ x: 40, y: 60, width: 520, height: 200 })!.split(" ").map(Number);
+    for (const [, , w, h] of [tall, wide]) expect(w / h).toBeCloseTo(600 / 360, 2);
+    // The limiting side gets exactly the pad; the drawing stays centred.
+    expect(tall[1]).toBeCloseTo(-20 - 24, 1);
+    expect(wide[0]).toBeCloseTo(40 - 24, 1);
+    expect(fitViewBox(null)).toBeNull();
+    expect(fitViewBox({ x: 0, y: 0, width: 0, height: 0 })).toBeNull();
   });
 });

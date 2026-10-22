@@ -94,7 +94,7 @@ export function GateMachine({
           : undefined
       }
     >
-      <GateArt uid={uid} alt={alt} shown={shown} />
+      <GateArt uid={uid} alt={alt} shown={shown} fit={!interactive} />
       {interactive ? <span ref={live} className="um-hidden" aria-live="polite" /> : null}
     </div>
   );
