@@ -1,21 +1,19 @@
 import {
   DEFAULT_RENDER_WIDTH,
+  FigureMotionContext,
   FigureScaleContext,
   Token,
   fontFloor,
+  useFigureMotion,
   useFontFloor
-} from "./chunk-BEGV5DNB.js";
+} from "./chunk-BLGJSYKN.js";
 import {
   CanvasView
-} from "./chunk-BK4QH7YO.js";
+} from "./chunk-7K2SUJSS.js";
 import {
-  FigureMotionContext,
-  useFigureMotion,
+  useIsoLayoutEffect,
   usePrefersReducedMotion
-} from "./chunk-PH4YUQN4.js";
-import {
-  useIsoLayoutEffect
-} from "./chunk-YUGHDI4S.js";
+} from "./chunk-44EABMMS.js";
 
 // src/hover.tsx
 import { createContext, useContext } from "react";
@@ -1034,4 +1032,4 @@ export {
   Label,
   Defs
 };
-//# sourceMappingURL=chunk-E2JDT6JP.js.map
+//# sourceMappingURL=chunk-3O24THDQ.js.map

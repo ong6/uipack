@@ -1,6 +1,6 @@
 "use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } }
 
-var _chunkJ7BYXE6Qcjs = require('./chunk-J7BYXE6Q.cjs');
+var _chunkXPCOQ7NOcjs = require('./chunk-XPCOQ7NO.cjs');
 
 // src/browser/index.tsx
 var _react = require('react');
@@ -42,7 +42,7 @@ function AssetBrowser({ manifest, initialCategory = ALL, onAction, actionLabel =
     timer.current = window.setTimeout(() => setFlash(null), 1400);
   };
   return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: ["uipack-browser", _nullishCoalesce(className, () => ( ""))].join(" ").trim(), "data-category": category, children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "nav", { className: "uipack-browser__side", "aria-label": "Asset categories", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { role: "list", onFocus: _chunkJ7BYXE6Qcjs.keepFocusedInView, children: cats.map((c) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "li", { children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "button", { type: "button", className: "uipack-browser__cat", "aria-pressed": category === c.name, onClick: () => setCategory(c.name), children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "nav", { className: "uipack-browser__side", "aria-label": "Asset categories", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "ul", { role: "list", onFocus: _chunkXPCOQ7NOcjs.keepFocusedInView, children: cats.map((c) => /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "li", { children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "button", { type: "button", className: "uipack-browser__cat", "aria-pressed": category === c.name, onClick: () => setCategory(c.name), children: [
       /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: c.name }),
       /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: "uipack-browser__count", "aria-label": `${c.count} assets`, children: c.count })
     ] }) }, c.name)) }) }),

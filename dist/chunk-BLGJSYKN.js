@@ -1,3 +1,18 @@
+// src/context.tsx
+import { createContext, useContext } from "react";
+var noop = () => {
+};
+var FigureMotionContext = createContext({
+  playing: true,
+  reduced: false,
+  cycle: 0,
+  toggle: noop,
+  replay: noop
+});
+function useFigureMotion() {
+  return useContext(FigureMotionContext);
+}
+
 // src/tokens.tsx
 import { jsx } from "react/jsx-runtime";
 var TOKEN_SHAPE = {
@@ -36,9 +51,9 @@ function Token({ shape, kind = "neutral", r = 5, cx = 0, cy = 0, style }) {
 }
 
 // src/scale.tsx
-import { createContext, useContext } from "react";
+import { createContext as createContext2, useContext as useContext2 } from "react";
 import { jsx as jsx2 } from "react/jsx-runtime";
-var FigureScaleContext = createContext({ floor: 0 });
+var FigureScaleContext = createContext2({ floor: 0 });
 var DEFAULT_RENDER_WIDTH = 1088;
 function fontFloor(vbWidth, renderWidth, minFont) {
   if (!vbWidth || !renderWidth || !minFont) return 0;
@@ -48,11 +63,13 @@ function FigureScaleProvider({ floor, children }) {
   return /* @__PURE__ */ jsx2(FigureScaleContext.Provider, { value: { floor }, children });
 }
 function useFontFloor(size) {
-  const { floor } = useContext(FigureScaleContext);
+  const { floor } = useContext2(FigureScaleContext);
   return Math.max(size, floor);
 }
 
 export {
+  FigureMotionContext,
+  useFigureMotion,
   TOKEN_SHAPE,
   tokenColor,
   Token,
@@ -62,4 +79,4 @@ export {
   FigureScaleProvider,
   useFontFloor
 };
-//# sourceMappingURL=chunk-BEGV5DNB.js.map
+//# sourceMappingURL=chunk-BLGJSYKN.js.map

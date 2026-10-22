@@ -1,10 +1,8 @@
 "use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 
-var _chunkTKLHLAXGcjs = require('./chunk-TKLHLAXG.cjs');
 
 
-
-var _chunkJ7BYXE6Qcjs = require('./chunk-J7BYXE6Q.cjs');
+var _chunkXPCOQ7NOcjs = require('./chunk-XPCOQ7NO.cjs');
 
 // src/web/Surface.tsx
 var _jsxruntime = require('react/jsx-runtime');
@@ -145,7 +143,7 @@ function FeatureGrid({ features, spotlight = false }) {
 
 function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger = 45 }) {
   const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
   const [state, setState] = _react.useState.call(void 0, "static");
   _react.useEffect.call(void 0, () => {
     const el = ref2.current;
@@ -358,7 +356,7 @@ function DemoPlayer({
   onStepChange
 }) {
   const timing = _react.useMemo.call(void 0, () => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
-  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
   const rootRef = _react.useRef.call(void 0, null);
   const tabsRef = _react.useRef.call(void 0, null);
   const [elapsed, setElapsed] = _react.useState.call(void 0, 0);
@@ -633,7 +631,7 @@ function useFinePointer() {
 }
 function transitionDocument() {
   const doc = typeof document === "undefined" ? void 0 : document;
-  const reduced = _chunkJ7BYXE6Qcjs.prefersReducedMotion.call(void 0, );
+  const reduced = _chunkXPCOQ7NOcjs.prefersReducedMotion.call(void 0, );
   return _optionalChain([doc, 'optionalAccess', _39 => _39.startViewTransition]) && !reduced ? doc : void 0;
 }
 function withViewTransition(update) {
@@ -771,7 +769,7 @@ function useParentSpotlight(ref2, enabled) {
 }
 function GridBackground({ variant, size = 24, fade = true, spotlight = false }) {
   const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
   const fine = useFinePointer();
   useParentSpotlight(ref2, spotlight && fine && !reduced);
   return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
@@ -887,7 +885,7 @@ function DriftingGutters({ contentWidth = 1120, top = 72, minViewport = 1280, dr
 
 function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div", className = "" }) {
   const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
   const [state, setState] = _react.useState.call(void 0, "static");
   _react.useEffect.call(void 0, () => {
     const el = ref2.current;
@@ -935,7 +933,7 @@ function scrambleFrame(text, t, mode, seed = 0) {
 }
 function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "span", className = "" }) {
   const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
   const inView = useInView(ref2, { once: true, threshold: 0.5 });
   const [t, setT] = _react.useState.call(void 0, 1);
   const [tick, setTick] = _react.useState.call(void 0, 0);
@@ -980,7 +978,7 @@ function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "spa
 var easeOut = (t) => 1 - Math.pow(1 - t, 3);
 function NumberTicker({ value, from = 0, duration = 1400, format, locale, prefix = "", suffix = "", className = "", face = "display" }) {
   const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
   const inView = useInView(ref2, { once: true, threshold: 0.6 });
   const [current, setCurrent] = _react.useState.call(void 0, value);
   const [armed, setArmed] = _react.useState.call(void 0, false);
@@ -1013,7 +1011,7 @@ function Marquee({ items, label, duration = 30, reverse = false }) {
   const ref2 = _react.useRef.call(void 0, null);
   const copyRef = _react.useRef.call(void 0, null);
   const inView = useInView(ref2);
-  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
   const [paused, setPaused] = _react.useState.call(void 0, false);
   const [mounted, setMounted] = _react.useState.call(void 0, false);
   _react.useEffect.call(void 0, () => setMounted(true), []);
@@ -1044,7 +1042,7 @@ function Marquee({ items, label, duration = 30, reverse = false }) {
 }
 function useHoverMotion(apply, reset) {
   const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
   const onPointerMove = (e) => {
     if (reduced || e.pointerType !== "mouse" && e.pointerType !== "pen") return;
     const el = ref2.current;
@@ -1086,7 +1084,7 @@ function MagneticButton({ strength = 6, ...button }) {
 var lerp = ([a, b], t) => a + (b - a) * t;
 function ScrollTransform({ children, rotate = [0, 0], scale = [1, 1], translateY = [0, 0], opacity = [1, 1], className = "" }) {
   const ref2 = _react.useRef.call(void 0, null);
-  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
   const raw = useScrollProgress(ref2);
   const t = reduced ? 0.5 : raw;
   const style = {
@@ -1122,12 +1120,10 @@ function normalizeWheel(e, viewport) {
 var clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 var SMOOTH_SCROLL_ATTR = "data-uipack-smooth-scroll";
 var SMOOTH_SCROLL_PREVENT_ATTR = "data-smooth-scroll-prevent";
-var REDUCED = _chunkJ7BYXE6Qcjs.REDUCED_MOTION_QUERY;
 var SCROLL_KEYS = /* @__PURE__ */ new Set([" ", "PageUp", "PageDown", "ArrowUp", "ArrowDown", "Home", "End"]);
 var FINE = "(hover: hover) and (pointer: fine)";
 var active = null;
 var canUseDom = () => typeof window !== "undefined" && typeof document !== "undefined";
-var matches = (q) => canUseDom() && typeof window.matchMedia === "function" && window.matchMedia(q).matches;
 var maxScroll = () => Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
 function safeQuery(selector) {
   try {
@@ -1151,7 +1147,7 @@ function nativeScrollTo(target, { offset, immediate } = {}) {
   if (!canUseDom()) return;
   const y = resolveTop(target, offset);
   if (y === null) return;
-  window.scrollTo({ top: clamp(y, 0, maxScroll()), behavior: immediate || matches(REDUCED) ? "auto" : "smooth" });
+  window.scrollTo({ top: clamp(y, 0, maxScroll()), behavior: immediate || _chunkXPCOQ7NOcjs.prefersReducedMotion.call(void 0, ) ? "auto" : "smooth" });
 }
 function pageOwnsWheel(e) {
   const root = document.documentElement;
@@ -1323,9 +1319,9 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
     window.removeEventListener("resize", onResize);
     document.removeEventListener("visibilitychange", onVisibility);
   };
-  const queries = typeof window.matchMedia === "function" ? [window.matchMedia(REDUCED), window.matchMedia(FINE)] : [];
+  const fine = typeof window.matchMedia === "function" ? window.matchMedia(FINE) : null;
   const evaluate = () => {
-    const next = !destroyed && queries.length === 2 && !queries[0].matches && queries[1].matches;
+    const next = !destroyed && fine !== null && fine.matches && !_chunkXPCOQ7NOcjs.prefersReducedMotion.call(void 0, );
     if (next === enabled) return;
     enabled = next;
     if (enabled) attach();
@@ -1364,7 +1360,8 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
     destroy() {
       if (destroyed) return;
       destroyed = true;
-      queries.forEach((mq) => listen(mq, false));
+      if (fine) listen(fine, false);
+      stopReduced();
       document.removeEventListener("click", onClick);
       if (enabled) detach();
       enabled = false;
@@ -1372,7 +1369,8 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
     }
   };
   active = controller;
-  queries.forEach((mq) => listen(mq, true));
+  if (fine) listen(fine, true);
+  const stopReduced = _chunkXPCOQ7NOcjs.onReducedMotionChange.call(void 0, evaluate);
   document.addEventListener("click", onClick);
   evaluate();
   return controller;

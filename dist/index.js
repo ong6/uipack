@@ -1,4 +1,7 @@
 import {
+  useLayerFlight
+} from "./chunk-QNMAJRNW.js";
+import {
   easeInOutCubic,
   innerClipStart,
   smoothstep,
@@ -38,28 +41,26 @@ import {
   route,
   trim,
   useFigureHover
-} from "./chunk-E2JDT6JP.js";
+} from "./chunk-3O24THDQ.js";
 import {
   DEFAULT_RENDER_WIDTH,
+  FigureMotionContext,
   FigureScaleContext,
   FigureScaleProvider,
   TOKEN_SHAPE,
   Token,
   fontFloor,
   tokenColor,
+  useFigureMotion,
   useFontFloor
-} from "./chunk-BEGV5DNB.js";
+} from "./chunk-BLGJSYKN.js";
 import {
   CanvasView
-} from "./chunk-BK4QH7YO.js";
+} from "./chunk-7K2SUJSS.js";
 import {
-  FigureMotionContext,
-  useFigureMotion,
+  useIsoLayoutEffect,
   usePrefersReducedMotion
-} from "./chunk-PH4YUQN4.js";
-import {
-  useIsoLayoutEffect
-} from "./chunk-YUGHDI4S.js";
+} from "./chunk-44EABMMS.js";
 
 // src/Badge.tsx
 import { jsx, jsxs } from "react/jsx-runtime";
@@ -418,7 +419,6 @@ function DrillFigure({
   const [view, setView] = useState(() => ({ path: requested, flight: null }));
   const viewRef = useRef(view);
   viewRef.current = view;
-  const anims = useRef([]);
   const seq = useRef(0);
   const focusIntent = useRef(false);
   const pendingFocus = useRef(null);
@@ -475,11 +475,9 @@ function DrillFigure({
     [navigate, ids]
   );
   const layerEl = (lid) => stageRef.current?.querySelector(`:scope > [data-level="${typeof CSS !== "undefined" && CSS.escape ? CSS.escape(lid) : lid}"]`) ?? null;
-  const settle = () => {
-    for (const a of anims.current) a.cancel();
-    anims.current = [];
-    stageRef.current?.querySelectorAll(":scope > .uipack-drill__layer").forEach(clearLayer);
-  };
+  const { anims, settle, fly } = useLayerFlight(
+    () => stageRef.current?.querySelectorAll(":scope > .uipack-drill__layer").forEach(clearLayer)
+  );
   const finish = (n) => {
     const v = viewRef.current;
     if (!v.flight || v.flight.seq !== n) return;
@@ -526,19 +524,8 @@ function DrillFigure({
     }
     const target = f.kind === "in" ? findDrillNode(fromEl, last(viewRef.current.path)) : f.kind === "out" ? findDrillNode(toEl, last(f.from)) : null;
     const run = runDrill({ kind: f.kind, from: fromEl, to: toEl, target, stage, canvas: canvasRef.current, reduced, duration });
-    anims.current = run;
-    if (!run.length) {
-      finish(f.seq);
-      return;
-    }
-    const n = f.seq;
-    Promise.all(run.map((a) => a.finished)).then(
-      () => finish(n),
-      () => {
-      }
-    );
+    fly(run, () => finish(f.seq));
   }, [flightSeq]);
-  useEffect(() => () => anims.current.forEach((a) => a.cancel()), []);
   useIsoLayoutEffect(() => {
     if (view.flight || !pendingFocus.current) return;
     const { from, to } = pendingFocus.current;

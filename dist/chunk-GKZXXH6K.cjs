@@ -4,18 +4,16 @@
 
 
 
-var _chunkHTRLVYU7cjs = require('./chunk-HTRLVYU7.cjs');
 
 
-var _chunkSN4T6OE6cjs = require('./chunk-SN4T6OE6.cjs');
+var _chunkAF2HLZ75cjs = require('./chunk-AF2HLZ75.cjs');
+
+
+var _chunkA5PZXIEWcjs = require('./chunk-A5PZXIEW.cjs');
 
 
 
-
-var _chunkTKLHLAXGcjs = require('./chunk-TKLHLAXG.cjs');
-
-
-var _chunkJ7BYXE6Qcjs = require('./chunk-J7BYXE6Q.cjs');
+var _chunkXPCOQ7NOcjs = require('./chunk-XPCOQ7NO.cjs');
 
 // src/hover.tsx
 var _react = require('react');
@@ -55,7 +53,7 @@ function Legend({ items }) {
         onPointerEnter: hoverable ? (e) => isPointer(e) && hover.setKind(kind) : void 0,
         onPointerLeave: hoverable ? (e) => isPointer(e) && hover.setKind(null) : void 0,
         children: [
-          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "svg", { viewBox: "-8 -8 16 16", "aria-hidden": "true", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkHTRLVYU7cjs.Token, { kind, shape: it.shape, r: 5.5 }) }),
+          /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "svg", { viewBox: "-8 -8 16 16", "aria-hidden": "true", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkAF2HLZ75cjs.Token, { kind, shape: it.shape, r: 5.5 }) }),
           /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { children: it.label })
         ]
       },
@@ -127,7 +125,7 @@ function placeNote(canvas, note, anchor2) {
   return { left, top };
 }
 function useRenderedWidth(ref, fixed, layoutKey) {
-  const [w, setW] = _react.useState.call(void 0, _nullishCoalesce(fixed, () => ( _chunkHTRLVYU7cjs.DEFAULT_RENDER_WIDTH)));
+  const [w, setW] = _react.useState.call(void 0, _nullishCoalesce(fixed, () => ( _chunkAF2HLZ75cjs.DEFAULT_RENDER_WIDTH)));
   _react.useEffect.call(void 0, () => {
     if (fixed != null) return;
     const el = ref.current;
@@ -185,7 +183,7 @@ function Figure({
   const opener = _react.useRef.call(void 0, null);
   const auto = _react.useId.call(void 0, );
   const figId = _nullishCoalesce(id, () => ( `uipack-${auto.replace(/:/g, "")}`));
-  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
+  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
   const [playing, setPlaying] = _react.useState.call(void 0, true);
   const [cycle, setCycle] = _react.useState.call(void 0, 0);
   const [expanded, setExpanded] = _react.useState.call(void 0, false);
@@ -212,12 +210,12 @@ function Figure({
   const wideW = useRenderedWidth(wideRef, measuredWidth, expanded);
   const narrowW = useRenderedWidth(narrowRef, measuredWidth, expanded);
   const wideScale = _react.useMemo.call(void 0, 
-    () => ({ floor: _chunkHTRLVYU7cjs.fontFloor.call(void 0, vbWidth(viewBox), wideW, minFont) }),
+    () => ({ floor: _chunkAF2HLZ75cjs.fontFloor.call(void 0, vbWidth(viewBox), wideW, minFont) }),
     [viewBox, wideW, minFont]
   );
   const narrowScale = _react.useMemo.call(void 0, 
     () => ({
-      floor: _chunkHTRLVYU7cjs.fontFloor.call(void 0, vbWidth(_nullishCoalesce(narrowViewBox, () => ( viewBox))), narrowW, minFont)
+      floor: _chunkAF2HLZ75cjs.fontFloor.call(void 0, vbWidth(_nullishCoalesce(narrowViewBox, () => ( viewBox))), narrowW, minFont)
     }),
     [narrowViewBox, viewBox, narrowW, minFont]
   );
@@ -243,7 +241,7 @@ function Figure({
     [playing, reduced, cycle, toggle, replay]
   );
   const note = _optionalChain([selected, 'optionalAccess', _4 => _4.detail]) ? selected : null;
-  _chunkJ7BYXE6Qcjs.useIsoLayoutEffect.call(void 0, () => {
+  _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
     setNotePos(null);
     const canvas = canvasRef.current;
     const el = noteRef.current;
@@ -261,7 +259,7 @@ function Figure({
   const showControls = controls && !reduced;
   const hasHead = expandable || number || eyebrow || title || caption || legend.length || showControls;
   return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
-    _chunkSN4T6OE6cjs.CanvasView,
+    _chunkA5PZXIEWcjs.CanvasView,
     {
       restoreFocus: () => _optionalChain([opener, 'access', _6 => _6.current, 'optionalAccess', _7 => _7.focus, 'call', _8 => _8()]),
       open: expanded,
@@ -274,7 +272,7 @@ function Figure({
       theme,
       layout: "figure",
       zoom: { value: zoom, min: 1, max: 3, onChange: setZoom },
-      children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkTKLHLAXGcjs.FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+      children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkAF2HLZ75cjs.FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
         "figure",
         {
           id: figId,
@@ -385,7 +383,7 @@ function Figure({
                       viewBox,
                       role: "group",
                       "aria-label": alt,
-                      children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkHTRLVYU7cjs.FigureScaleContext.Provider, { value: wideScale, children })
+                      children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkAF2HLZ75cjs.FigureScaleContext.Provider, { value: wideScale, children })
                     }
                   ),
                   narrow ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
@@ -396,7 +394,7 @@ function Figure({
                       viewBox: _nullishCoalesce(narrowViewBox, () => ( viewBox)),
                       role: "group",
                       "aria-label": alt,
-                      children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkHTRLVYU7cjs.FigureScaleContext.Provider, { value: narrowScale, children: narrow })
+                      children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkAF2HLZ75cjs.FigureScaleContext.Provider, { value: narrowScale, children: narrow })
                     }
                   ) : null
                 ]
@@ -412,7 +410,7 @@ function Figure({
 // src/Lane.tsx
 
 function Lane({ x, w, y, title, h, size: size0 = 11 }) {
-  const size = _chunkHTRLVYU7cjs.useFontFloor.call(void 0, size0);
+  const size = _chunkAF2HLZ75cjs.useFontFloor.call(void 0, size0);
   return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-uipack": "lane", children: [
     /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "text", { x: x + w / 2, y, textAnchor: "middle", fontSize: size, fontWeight: 700, fontFamily: "var(--uipack-mono)", letterSpacing: ".08em", fill: "currentColor", children: title.toUpperCase() }),
     h ? /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "line", { x1: x + w, y1: y + 12, x2: x + w, y2: y + h, stroke: "currentColor", strokeOpacity: 0.15, strokeDasharray: "2 6" }) : null
@@ -437,7 +435,7 @@ function Group({
   const hover = useFigureHover();
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const dashed = variant === "dashed";
-  const ts = _chunkHTRLVYU7cjs.useFontFloor.call(void 0, _nullishCoalesce(titleSize, () => ( (dashed ? 11 : 14))));
+  const ts = _chunkAF2HLZ75cjs.useFontFloor.call(void 0, _nullishCoalesce(titleSize, () => ( (dashed ? 11 : 14))));
   const selection = useItemSelection(_nullishCoalesce(title, () => ( "Group")), hint);
   return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
     "g",
@@ -621,8 +619,8 @@ function Node({
   inlay
 }) {
   const hover = useFigureHover();
-  const size = _chunkHTRLVYU7cjs.useFontFloor.call(void 0, size0);
-  const subSize = _chunkHTRLVYU7cjs.useFontFloor.call(void 0, subSize0);
+  const size = _chunkAF2HLZ75cjs.useFontFloor.call(void 0, size0);
+  const subSize = _chunkAF2HLZ75cjs.useFontFloor.call(void 0, subSize0);
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
   const glyph = typeof icon === "string" ? icons[icon] : icon;
   const pad = 14;
@@ -722,7 +720,7 @@ function Chip({
   hint
 }) {
   const hover = useFigureHover();
-  const size = _chunkHTRLVYU7cjs.useFontFloor.call(void 0, size0);
+  const size = _chunkAF2HLZ75cjs.useFontFloor.call(void 0, size0);
   const fill = !kind ? "var(--uipack-surface)" : kind === "accent" ? "var(--uipack-accent)" : `var(--uipack-token-${kind})`;
   const selection = useItemSelection(label || "Empty slot", hint);
   return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
@@ -929,7 +927,7 @@ function Bus({ axis = "v", at, from, to, stubs, kind, flow, defs, dots = true, i
 
 
 function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at, r = 5, reverse, radius = 6, flow, trim: t, id }) {
-  const { reduced, prerender } = _chunkTKLHLAXGcjs.useFigureMotion.call(void 0, );
+  const { reduced, prerender } = _chunkAF2HLZ75cjs.useFigureMotion.call(void 0, );
   const hover = useFigureHover();
   const [ts, te] = _nullishCoalesce(t, () => ( [r + 2, 12]));
   const trimmed = trim(points, ts, te);
@@ -942,10 +940,10 @@ function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at, r = 5
   const pre = prerender || globalThis.__UIPACK_PRERENDER__ === true;
   if (reduced || !mounted && !pre) {
     const [cx, cy] = pointAlong(pts, staticAt);
-    return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "g", { id, "data-uipack": "packet", "data-static": "true", ...attrs, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkHTRLVYU7cjs.Token, { kind, shape, r, cx, cy }) });
+    return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "g", { id, "data-uipack": "packet", "data-static": "true", ...attrs, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkAF2HLZ75cjs.Token, { kind, shape, r, cx, cy }) });
   }
   return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { id, "data-uipack": "packet", ...attrs, children: [
-    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkHTRLVYU7cjs.Token, { kind, shape, r }),
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkAF2HLZ75cjs.Token, { kind, shape, r }),
     /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "animateMotion", { dur: `${dur}s`, begin: `${delay}s`, repeatCount: "indefinite", path: d, calcMode: "linear" })
   ] });
 }
@@ -953,7 +951,7 @@ function Packet({ points, kind = "request", shape, dur = 3, delay = 0, at, r = 5
 // src/Label.tsx
 
 function Label({ x, y, text, anchor: anchor2 = "start", accent, size: size0 = 11, font = "mono" }) {
-  const size = _chunkHTRLVYU7cjs.useFontFloor.call(void 0, size0);
+  const size = _chunkAF2HLZ75cjs.useFontFloor.call(void 0, size0);
   const w = text.length * size * (font === "mono" ? 0.62 : 0.55) + 8;
   const rx = anchor2 === "middle" ? x - w / 2 : anchor2 === "end" ? x - w + 4 : x - 4;
   return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "g", { "data-uipack": "label", children: [
@@ -1034,4 +1032,4 @@ function Defs({ id }) {
 
 
 exports.SelectionContext = SelectionContext; exports.FigureHoverContext = FigureHoverContext; exports.useFigureHover = useFigureHover; exports.flowList = flowList; exports.hoverAttrs = hoverAttrs; exports.Legend = Legend; exports.placeNote = placeNote; exports.PauseGlyph = PauseGlyph; exports.PlayGlyph = PlayGlyph; exports.ReplayGlyph = ReplayGlyph; exports.Figure = Figure; exports.Lane = Lane; exports.Group = Group; exports.icons = icons; exports.nodeName = nodeName; exports.Node = Node; exports.Chip = Chip; exports.anchor = anchor; exports.route = route; exports.pathFromPoints = pathFromPoints; exports.pointAlong = pointAlong; exports.polylineLength = polylineLength; exports.trim = trim; exports.grid = grid; exports.connectorStroke = connectorStroke; exports.Connector = Connector; exports.busStub = busStub; exports.busStubs = busStubs; exports.Bus = Bus; exports.Packet = Packet; exports.Label = Label; exports.Defs = Defs;
-//# sourceMappingURL=chunk-5K6GAGIM.cjs.map
+//# sourceMappingURL=chunk-GKZXXH6K.cjs.map

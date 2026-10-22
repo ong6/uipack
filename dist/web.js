@@ -1,10 +1,8 @@
 import {
+  onReducedMotionChange,
+  prefersReducedMotion,
   usePrefersReducedMotion
-} from "./chunk-PH4YUQN4.js";
-import {
-  REDUCED_MOTION_QUERY,
-  prefersReducedMotion
-} from "./chunk-YUGHDI4S.js";
+} from "./chunk-44EABMMS.js";
 
 // src/web/Surface.tsx
 import { jsx } from "react/jsx-runtime";
@@ -1122,12 +1120,10 @@ function normalizeWheel(e, viewport) {
 var clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 var SMOOTH_SCROLL_ATTR = "data-uipack-smooth-scroll";
 var SMOOTH_SCROLL_PREVENT_ATTR = "data-smooth-scroll-prevent";
-var REDUCED = REDUCED_MOTION_QUERY;
 var SCROLL_KEYS = /* @__PURE__ */ new Set([" ", "PageUp", "PageDown", "ArrowUp", "ArrowDown", "Home", "End"]);
 var FINE = "(hover: hover) and (pointer: fine)";
 var active = null;
 var canUseDom = () => typeof window !== "undefined" && typeof document !== "undefined";
-var matches = (q) => canUseDom() && typeof window.matchMedia === "function" && window.matchMedia(q).matches;
 var maxScroll = () => Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
 function safeQuery(selector) {
   try {
@@ -1151,7 +1147,7 @@ function nativeScrollTo(target, { offset, immediate } = {}) {
   if (!canUseDom()) return;
   const y = resolveTop(target, offset);
   if (y === null) return;
-  window.scrollTo({ top: clamp(y, 0, maxScroll()), behavior: immediate || matches(REDUCED) ? "auto" : "smooth" });
+  window.scrollTo({ top: clamp(y, 0, maxScroll()), behavior: immediate || prefersReducedMotion() ? "auto" : "smooth" });
 }
 function pageOwnsWheel(e) {
   const root = document.documentElement;
@@ -1323,9 +1319,9 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
     window.removeEventListener("resize", onResize);
     document.removeEventListener("visibilitychange", onVisibility);
   };
-  const queries = typeof window.matchMedia === "function" ? [window.matchMedia(REDUCED), window.matchMedia(FINE)] : [];
+  const fine = typeof window.matchMedia === "function" ? window.matchMedia(FINE) : null;
   const evaluate = () => {
-    const next = !destroyed && queries.length === 2 && !queries[0].matches && queries[1].matches;
+    const next = !destroyed && fine !== null && fine.matches && !prefersReducedMotion();
     if (next === enabled) return;
     enabled = next;
     if (enabled) attach();
@@ -1364,7 +1360,8 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
     destroy() {
       if (destroyed) return;
       destroyed = true;
-      queries.forEach((mq) => listen(mq, false));
+      if (fine) listen(fine, false);
+      stopReduced();
       document.removeEventListener("click", onClick);
       if (enabled) detach();
       enabled = false;
@@ -1372,7 +1369,8 @@ function createSmoothScroll({ lerp: lerp2 = 0.1, wheelMultiplier = 1, anchors = 
     }
   };
   active = controller;
-  queries.forEach((mq) => listen(mq, true));
+  if (fine) listen(fine, true);
+  const stopReduced = onReducedMotionChange(evaluate);
   document.addEventListener("click", onClick);
   evaluate();
   return controller;

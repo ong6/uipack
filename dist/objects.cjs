@@ -1,10 +1,10 @@
 "use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { newObj[key] = obj[key]; } } } newObj.default = obj; return newObj; } } function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 
-var _chunkSN4T6OE6cjs = require('./chunk-SN4T6OE6.cjs');
+var _chunkA5PZXIEWcjs = require('./chunk-A5PZXIEW.cjs');
 
 
 
-var _chunkJ7BYXE6Qcjs = require('./chunk-J7BYXE6Q.cjs');
+var _chunkXPCOQ7NOcjs = require('./chunk-XPCOQ7NO.cjs');
 
 // src/objects/ObjectScene.tsx
 var _react = require('react');
@@ -244,7 +244,7 @@ function ObjectStage({
   const [ready, setReady] = _react.useState.call(void 0, false);
   const [paused, setPaused] = _react.useState.call(void 0, false);
   const [completed, setCompleted] = _react.useState.call(void 0, false);
-  const [reduced, setReduced] = _react.useState.call(void 0, false);
+  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
   const colorMode = theme;
   const zoomRef = _react.useRef.call(void 0, zoom);
   zoomRef.current = zoom;
@@ -253,22 +253,15 @@ function ObjectStage({
     _optionalChain([resizeRef, 'access', _ => _.current, 'optionalCall', _2 => _2()]);
   }, [zoom]);
   _react.useEffect.call(void 0, () => {
-    const media = window.matchMedia(_chunkJ7BYXE6Qcjs.REDUCED_MOTION_QUERY);
-    const update = () => {
-      reducedRef.current = media.matches;
-      setReduced(media.matches);
-      if (media.matches) _optionalChain([settleRef, 'access', _3 => _3.current, 'optionalCall', _4 => _4()]);
-      if (media.matches && frameRef.current) {
+    reducedRef.current = reduced;
+    if (reduced) {
+      _optionalChain([settleRef, 'access', _3 => _3.current, 'optionalCall', _4 => _4()]);
+      if (frameRef.current) {
         cancelAnimationFrame(frameRef.current);
         frameRef.current = null;
       }
-      if (!media.matches && activeRef.current && !pausedRef.current && !completedRef.current)
-        _optionalChain([resumeRef, 'access', _5 => _5.current, 'optionalCall', _6 => _6()]);
-    };
-    update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
+    } else if (activeRef.current && !pausedRef.current && !completedRef.current) _optionalChain([resumeRef, 'access', _5 => _5.current, 'optionalCall', _6 => _6()]);
+  }, [reduced]);
   _react.useEffect.call(void 0, () => {
     activeRef.current = active;
     if (active && !pausedRef.current && !reducedRef.current)
@@ -583,7 +576,7 @@ function ObjectScene(props) {
       }
     ),
     /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
-      _chunkSN4T6OE6cjs.CanvasView,
+      _chunkA5PZXIEWcjs.CanvasView,
       {
         open,
         onClose: () => setOpen(false),
@@ -693,7 +686,7 @@ function ObjectGallery({
       theme,
       library: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, _jsxruntime.Fragment, { children: [
         /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h3", { children: "Object library" }),
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "nav", { "aria-label": "Choose an object", className: "uipack-scene-list", onFocus: _chunkJ7BYXE6Qcjs.keepFocusedInView, children: objectScenes.map((item) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "nav", { "aria-label": "Choose an object", className: "uipack-scene-list", onFocus: _chunkXPCOQ7NOcjs.keepFocusedInView, children: objectScenes.map((item) => /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, 
           "button",
           {
             type: "button",

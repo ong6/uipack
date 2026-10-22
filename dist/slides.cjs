@@ -6,11 +6,10 @@
 var _chunkOQHYF6Z2cjs = require('./chunk-OQHYF6Z2.cjs');
 
 
-var _chunkSN4T6OE6cjs = require('./chunk-SN4T6OE6.cjs');
+var _chunkA5PZXIEWcjs = require('./chunk-A5PZXIEW.cjs');
 
 
-var _chunkTKLHLAXGcjs = require('./chunk-TKLHLAXG.cjs');
-require('./chunk-J7BYXE6Q.cjs');
+var _chunkXPCOQ7NOcjs = require('./chunk-XPCOQ7NO.cjs');
 
 // src/slides/SlidePlayer.tsx
 
@@ -52,7 +51,7 @@ function SceneViewport({
   onSettled
 }) {
   const host = _react.useRef.call(void 0, null), labels = _react.useRef.call(void 0, null), runtime = _react.useRef.call(void 0, );
-  const prefersReduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
+  const prefersReduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
   const reduced = motion === "none" || prefersReduced;
   const stop = _nullishCoalesce(story.stops.find((s) => s.id === stopId), () => ( story.stops[0]));
   const latest = _react.useRef.call(void 0, { stop, reduced, paused, onSettled });
@@ -228,7 +227,7 @@ function SlideScene(props) {
       errors.join(" ")
     ] });
   return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
-    _chunkSN4T6OE6cjs.CanvasView,
+    _chunkA5PZXIEWcjs.CanvasView,
     {
       restoreFocus: () => _optionalChain([opener, 'access', _31 => _31.current, 'optionalAccess', _32 => _32.focus, 'call', _33 => _33()]),
       open: canvas,
@@ -281,7 +280,7 @@ function Player({
     story.stops.findIndex((s) => s.id === defaultStopId)
   );
   const [internal, setInternal] = _react.useState.call(void 0, initial), [paused, setPaused] = _react.useState.call(void 0, false), [present, setPresent] = _react.useState.call(void 0, false), [diagram, setDiagram] = _react.useState.call(void 0, false), [canvas, setCanvas] = _react.useState.call(void 0, false), [zoom, setZoom] = _react.useState.call(void 0, 1);
-  const reduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, ) || motion === "none";
+  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, ) || motion === "none";
   const opener = _react.useRef.call(void 0, null);
   const root = _react.useRef.call(void 0, null);
   const titleId = _react.useId.call(void 0, );
@@ -316,7 +315,7 @@ function Player({
     };
   }, [present]);
   return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
-    _chunkSN4T6OE6cjs.CanvasView,
+    _chunkA5PZXIEWcjs.CanvasView,
     {
       restoreFocus: () => _optionalChain([opener, 'access', _38 => _38.current, 'optionalAccess', _39 => _39.focus, 'call', _40 => _40()]),
       open: canvas,

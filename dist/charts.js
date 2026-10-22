@@ -1,6 +1,6 @@
 import {
   prefersReducedMotion
-} from "./chunk-YUGHDI4S.js";
+} from "./chunk-44EABMMS.js";
 
 // src/charts/model.ts
 var DEFAULT_LABELS = {

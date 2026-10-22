@@ -1,6 +1,6 @@
 "use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 
-var _chunkJ7BYXE6Qcjs = require('./chunk-J7BYXE6Q.cjs');
+var _chunkXPCOQ7NOcjs = require('./chunk-XPCOQ7NO.cjs');
 
 // src/CanvasView.tsx
 var _react = require('react');
@@ -13,7 +13,7 @@ function useCanvasGestures(ref, open, zoom) {
   const pending = _react.useRef.call(void 0, );
   const queued = _react.useRef.call(void 0, zoom.value);
   const frame = _react.useRef.call(void 0, 0);
-  _chunkJ7BYXE6Qcjs.useIsoLayoutEffect.call(void 0, () => {
+  _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
     queued.current = zoom.value;
     const anchor = pending.current;
     if (!anchor) return;
@@ -233,6 +233,8 @@ function CanvasView({
   }, [open]);
   const close = _react.useRef.call(void 0, onClose);
   close.current = onClose;
+  const restore = _react.useRef.call(void 0, restoreFocus);
+  restore.current = restoreFocus;
   _react.useEffect.call(void 0, () => {
     if (!open) return;
     const opener = document.activeElement;
@@ -241,9 +243,7 @@ function CanvasView({
     _optionalChain([dialog, 'access', _14 => _14.current, 'optionalAccess', _15 => _15.showModal, 'call', _16 => _16()]);
     return () => {
       document.body.style.overflow = previous;
-      requestAnimationFrame(
-        () => restoreFocus ? restoreFocus() : _optionalChain([opener, 'optionalAccess', _17 => _17.focus, 'call', _18 => _18()])
-      );
+      requestAnimationFrame(() => restore.current ? restore.current() : _optionalChain([opener, 'optionalAccess', _17 => _17.focus, 'call', _18 => _18()]));
     };
   }, [open]);
   _react.useEffect.call(void 0, () => {
@@ -335,4 +335,4 @@ function CanvasView({
 
 
 exports.CanvasView = CanvasView;
-//# sourceMappingURL=chunk-SN4T6OE6.cjs.map
+//# sourceMappingURL=chunk-A5PZXIEW.cjs.map

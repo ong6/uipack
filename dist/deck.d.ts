@@ -273,7 +273,7 @@ interface DeckPlayerProps {
  * Plays a deck: one transition grammar, build steps, keyboard, touch and buttons, an overview,
  * full screen and a synced speaker view. Slides are authored on a 1920×1080 canvas.
  */
-declare function DeckPlayer({ slides, id, title, theme, transition, motion, mode, initial, onPositionChange, presenterHref, keyboard, view: initialView, lint, className, }: DeckPlayerProps): react.JSX.Element;
+declare function DeckPlayer(props: DeckPlayerProps): react.JSX.Element;
 
 /** A still, scaled copy of one slide, fully built. Used by the overview and the speaker view. */
 declare function SlideThumbnail({ slide, index, count, theme, }: {

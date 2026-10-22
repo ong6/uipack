@@ -1,13 +1,14 @@
 import {
+  useLayerFlight
+} from "./chunk-QNMAJRNW.js";
+import {
   zoomFrame,
   zoomSamples
 } from "./chunk-QQDTNXY7.js";
 import {
+  useIsoLayoutEffect,
   usePrefersReducedMotion
-} from "./chunk-PH4YUQN4.js";
-import {
-  useIsoLayoutEffect
-} from "./chunk-YUGHDI4S.js";
+} from "./chunk-44EABMMS.js";
 
 // src/deck/DeckPlayer.tsx
 import {
@@ -1363,7 +1364,24 @@ function Reader({
 
 // src/deck/DeckPlayer.tsx
 import { Fragment as Fragment2, jsx as jsx8, jsxs as jsxs8 } from "react/jsx-runtime";
-function DeckPlayer({
+function DeckPlayer(props) {
+  if (props.slides.length === 0) return /* @__PURE__ */ jsx8(EmptyDeck, { ...props });
+  return /* @__PURE__ */ jsx8(Player, { ...props });
+}
+function EmptyDeck({ title, theme = "light", className }) {
+  return /* @__PURE__ */ jsx8(
+    "div",
+    {
+      className: ["uipack-deck", className].filter(Boolean).join(" "),
+      "data-theme": theme,
+      role: "region",
+      "aria-label": title,
+      "aria-roledescription": "slide deck",
+      children: /* @__PURE__ */ jsx8("div", { className: "uipack-deck-stage uipack-deck-empty", children: /* @__PURE__ */ jsx8("p", { children: "No slides" }) })
+    }
+  );
+}
+function Player({
   slides,
   id,
   title,
@@ -1396,21 +1414,18 @@ function DeckPlayer({
   const fromRef = useRef3(null);
   const toRef = useRef3(null);
   const overviewButtonRef = useRef3(null);
-  const anims = useRef3([]);
-  const maxStep = useRef3(0);
+  const [maxStep, setMaxStep] = useState4(0);
   const viewRef = useRef3(view);
   const commit = (next2) => {
     viewRef.current = next2;
     setView(next2);
   };
-  const settle = () => {
-    for (const a of anims.current) a.cancel();
-    anims.current = [];
-    stageRef.current?.querySelectorAll(".uipack-deck-layer").forEach((el) => {
+  const { settle, fly } = useLayerFlight(
+    () => stageRef.current?.querySelectorAll(".uipack-deck-layer").forEach((el) => {
       el.style.zIndex = "";
       el.style.visibility = "";
-    });
-  };
+    })
+  );
   const go = useCallback(
     (index, step = 0) => {
       const target = Math.min(Math.max(index, 0), count - 1);
@@ -1425,21 +1440,23 @@ function DeckPlayer({
   );
   const next = useCallback(() => {
     const v = viewRef.current;
-    if (v.step < maxStep.current) commit({ ...v, step: v.step + 1 });
+    if (v.step < maxStep) commit({ ...v, step: v.step + 1 });
     else if (v.index < count - 1) go(v.index + 1, 0);
-  }, [count, go]);
+  }, [count, go, maxStep]);
   const prev = useCallback(() => {
     const v = viewRef.current;
-    const step = Math.min(v.step, maxStep.current);
+    const step = Math.min(v.step, maxStep);
     if (step > 0) commit({ ...v, step: step - 1 });
     else if (v.index > 0) go(v.index - 1, Infinity);
-  }, [go]);
+  }, [go, maxStep]);
   useIsoLayoutEffect(() => {
     const layer = toRef.current;
     if (!layer) return;
-    maxStep.current = Array.from(layer.querySelectorAll("[data-build], [data-steps]")).reduce(
-      (m, el) => Math.max(m, Number(el.getAttribute("data-build") ?? el.getAttribute("data-steps")) || 0),
-      0
+    setMaxStep(
+      Array.from(layer.querySelectorAll("[data-build], [data-steps]")).reduce(
+        (m, el) => Math.max(m, Number(el.getAttribute("data-build") ?? el.getAttribute("data-steps")) || 0),
+        0
+      )
     );
   }, [view.index, slides]);
   useIsoLayoutEffect(() => {
@@ -1462,15 +1479,7 @@ function DeckPlayer({
       scale,
       reducedMotion
     });
-    anims.current = started;
-    if (!started.length) return done();
-    Promise.all(started.map((a) => a.finished)).then(
-      () => {
-        if (viewRef.current.seq === seq) done();
-      },
-      () => {
-      }
-    );
+    fly(started, done);
   }, [view.seq]);
   const channel = useRef3(null);
   const remote = useRef3(false);
@@ -1509,7 +1518,9 @@ function DeckPlayer({
     }
     channel.current?.postMessage({ type: "go", index: view.index, step: view.step });
   }, [view.index, view.step]);
+  const [canFullscreen, setCanFullscreen] = useState4(false);
   useEffect3(() => {
+    setCanFullscreen(document.fullscreenEnabled !== false);
     const onChange = () => setFullscreen(document.fullscreenElement === rootRef.current);
     document.addEventListener("fullscreenchange", onChange);
     return () => document.removeEventListener("fullscreenchange", onChange);
@@ -1605,9 +1616,9 @@ function DeckPlayer({
   };
   const current = slides[view.index];
   const from = view.from ? slides[view.from.index] : null;
-  const stepNow = Math.min(view.step, maxStep.current);
+  const stepNow = Math.min(view.step, maxStep);
   const atStart = view.index === 0 && stepNow === 0;
-  const atEnd = view.index === count - 1 && view.step >= maxStep.current;
+  const atEnd = view.index === count - 1 && view.step >= maxStep;
   const stage = /* @__PURE__ */ jsx8(
     "div",
     {
@@ -1657,7 +1668,7 @@ function DeckPlayer({
       atStart,
       atEnd,
       mode,
-      canFullscreen: typeof document !== "undefined" && document.fullscreenEnabled !== false,
+      canFullscreen,
       fullscreen,
       overviewButtonRef,
       onPrev: prev,
@@ -1732,7 +1743,6 @@ function DeckPlayer({
 import {
   Children,
   isValidElement,
-  useLayoutEffect,
   useRef as useRef4,
   useState as useState5
 } from "react";
@@ -1754,7 +1764,7 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
   const focus = thumbnail ? null : bentoFocusAt(step, tour);
   const gridRef = useRef4(null);
   const [camera, setCamera] = useState5(null);
-  useLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const grid = gridRef.current;
     if (!grid || !focus) return setCamera(null);
     const cell = grid.querySelector(`[data-bento-cell="${CSS.escape(focus)}"]`);

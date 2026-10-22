@@ -132,8 +132,6 @@ interface WireStyle {
     size?: number;
 }
 
-/** The check's limit, in the dial's units (0 to 10). */
-declare const LIMIT = 6;
 /** The dial's full scale. */
 declare const SCALE = 10;
 type Verdict = "pass" | "return";
@@ -315,8 +313,6 @@ declare function FaceText({ transform, children, size, tone, anchor, }: {
     anchor?: "start" | "middle" | "end";
 }): react.JSX.Element;
 
-declare const asksForStillness: () => boolean;
-declare function useStillness(): boolean;
 declare function follow(current: number, target: number, dt: number, seconds: number, calm?: boolean): number;
 interface Spring {
     at: number;
@@ -336,4 +332,4 @@ declare function circleIn(centre: Point3, radius: number, axis: "x" | "y", steps
 /** A closed circle drawn on a vertical face (a bearing ring, a bore, a motor cap). */
 declare function faceCircle(centre: Point3, radius: number, axis: "x" | "y", projection: Projection, steps?: number): string;
 
-export { AZIMUTH, CYCLE_LENGTH, type Check, Dots, ELEVATION, type ExtrudeOptions, FaceText, type FadeLineStyle, type Faded, type FitOptions, type Flat, GATE_CAPTION, GATE_LIMIT, GateMachine, type GateMachineProps, type GatePose, LIMIT, type Layer, Line, type LineStyle, type LineTone, MechanismFrame, type MechanismFrameProps, PASS_CHECK, PERIOD, type Plan, type Plane, type Point3, type Projection, RETURN_CHECK, RUN_LONG, SCALE, SHADES, type Scene, Solid, type SolidPaths, type SolidStyle, type Spring, type Tally, type Ticks, type TokenTarget, type Tone, type Verdict, VerificationGate, type VerificationGateProps, Wire, type WireStyle, asksForStillness, axisVector, boxCorners, cameraOf, checkAt, circleIn, circleRing, coil, corners, cylinder, depthOf, dotGrid, extrude, faceCircle, fitProjection, follow, haloOf, holdStill, insetPlan, iso, joinPaths, knurl, lineOnTop, onTop, pathOf, planOutline, pointsAt, prismOf, radialTicks, ring, ringOf, ringSeam, rise, roundedPlan, sceneAt, screenRise, segment, sideArc, sideMatrix, sideRing, sideSeam, sideTicks, slabOf, spring, stillScene, tallyOf, tallyText, tokenAt, topMatrix, topTicks, towardViewer, translateAlong, useStillness, verdictOf, verdictText, viewOf };
+export { AZIMUTH, Dots, ELEVATION, type ExtrudeOptions, FaceText, type FadeLineStyle, type Faded, type FitOptions, type Flat, GATE_CAPTION, CYCLE_LENGTH as GATE_CYCLE_LENGTH, GATE_LIMIT, PASS_CHECK as GATE_PASS_CHECK, PERIOD as GATE_PERIOD, RETURN_CHECK as GATE_RETURN_CHECK, RUN_LONG as GATE_RUN_LONG, SCALE as GATE_SCALE, type Check as GateCheck, type Layer as GateLayer, GateMachine, type GateMachineProps, type GatePose, type Scene as GateScene, type Tally as GateTally, type TokenTarget as GateTokenTarget, type Verdict as GateVerdict, Line, type LineStyle, type LineTone, MechanismFrame, type MechanismFrameProps, type Plan, type Plane, type Point3, type Projection, SHADES, Solid, type SolidPaths, type SolidStyle, type Spring, type Ticks, type Tone, VerificationGate, type VerificationGateProps, Wire, type WireStyle, axisVector, boxCorners, cameraOf, circleIn, circleRing, coil, corners, cylinder, depthOf, dotGrid, extrude, faceCircle, fitProjection, follow, checkAt as gateCheckAt, sceneAt as gateSceneAt, stillScene as gateStillScene, tallyOf as gateTallyOf, tallyText as gateTallyText, tokenAt as gateTokenAt, verdictOf as gateVerdictOf, verdictText as gateVerdictText, haloOf, holdStill, insetPlan, iso, joinPaths, knurl, lineOnTop, onTop, pathOf, planOutline, pointsAt, prismOf, radialTicks, ring, ringOf, ringSeam, rise, roundedPlan, screenRise, segment, sideArc, sideMatrix, sideRing, sideSeam, sideTicks, slabOf, spring, topMatrix, topTicks, towardViewer, translateAlong, viewOf };

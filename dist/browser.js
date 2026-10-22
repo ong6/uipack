@@ -1,6 +1,6 @@
 import {
   keepFocusedInView
-} from "./chunk-YUGHDI4S.js";
+} from "./chunk-44EABMMS.js";
 
 // src/browser/index.tsx
 import { useEffect, useMemo, useRef, useState } from "react";

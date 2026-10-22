@@ -1,6 +1,6 @@
 import {
   useIsoLayoutEffect
-} from "./chunk-YUGHDI4S.js";
+} from "./chunk-44EABMMS.js";
 
 // src/CanvasView.tsx
 import { useEffect as useEffect2, useRef as useRef2 } from "react";
@@ -233,6 +233,8 @@ function CanvasView({
   }, [open]);
   const close = useRef2(onClose);
   close.current = onClose;
+  const restore = useRef2(restoreFocus);
+  restore.current = restoreFocus;
   useEffect2(() => {
     if (!open) return;
     const opener = document.activeElement;
@@ -241,9 +243,7 @@ function CanvasView({
     dialog.current?.showModal();
     return () => {
       document.body.style.overflow = previous;
-      requestAnimationFrame(
-        () => restoreFocus ? restoreFocus() : opener?.focus()
-      );
+      requestAnimationFrame(() => restore.current ? restore.current() : opener?.focus());
     };
   }, [open]);
   useEffect2(() => {
@@ -335,4 +335,4 @@ function CanvasView({
 export {
   CanvasView
 };
-//# sourceMappingURL=chunk-BK4QH7YO.js.map
+//# sourceMappingURL=chunk-7K2SUJSS.js.map

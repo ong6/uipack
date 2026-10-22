@@ -3,7 +3,7 @@
 var _chunkVGPFDDCPcjs = require('./chunk-VGPFDDCP.cjs');
 
 
-var _chunkJ7BYXE6Qcjs = require('./chunk-J7BYXE6Q.cjs');
+var _chunkXPCOQ7NOcjs = require('./chunk-XPCOQ7NO.cjs');
 
 // src/mechanism/gate/VerificationGate.tsx
 var _react = require('react'); var React2 = _interopRequireWildcard(_react); var React = _interopRequireWildcard(_react);
@@ -402,20 +402,7 @@ function fitProjection(points, width, height, { pad = 24, headroom = 0, azimuth 
 // src/mechanism/kit/live.tsx
 
 var _jsxruntime = require('react/jsx-runtime');
-var STILLNESS = "(prefers-reduced-motion: reduce)";
 var LONGEST_FRAME = 1 / 30;
-var asksForStillness = () => typeof window !== "undefined" && window.matchMedia(STILLNESS).matches;
-function useStillness() {
-  return React.useSyncExternalStore(
-    (changed) => {
-      const query = window.matchMedia(STILLNESS);
-      query.addEventListener("change", changed);
-      return () => query.removeEventListener("change", changed);
-    },
-    asksForStillness,
-    () => false
-  );
-}
 function follow(current, target, dt, seconds, calm = false) {
   if (calm) return target;
   const next = current + (target - current) * (1 - Math.exp(-dt / seconds));
@@ -1347,9 +1334,12 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
   const root = React2.useRef(null);
   const live = React2.useRef(null);
   const animated = interactive && motion === "auto";
+  const reduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
+  const stillness = React2.useRef(reduced);
+  stillness.current = reduced;
   const start = React2.useRef(null);
   if (!start.current || !interactive) {
-    const calm = !animated || asksForStillness();
+    const calm = !animated || reduced;
     const t = calm || pose === "idle" ? STILL_AT[pose] : 0;
     const scene = calm ? stillScene(pose) : sceneAt(pose, t);
     start.current = { display: displayOf(scene, calm && pose === "apart" ? 1 : 0), scene, t: calm ? STILL_AT[pose] : t };
@@ -1375,7 +1365,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
   readoutRef.current = onReadout;
   const sceneNow = React2.useCallback(() => {
     const s = state.current;
-    const calm = asksForStillness() || motion === "none";
+    const calm = stillness.current || motion === "none";
     const scene = calm ? stillScene(poseRef.current) : sceneAt(poseRef.current, s.t, s.round);
     if (s.paused && poseRef.current === "idle") return { ...scene, belt: 0, readout: `${scene.readout} \xB7 paused`, phase: "paused" };
     return scene;
@@ -1438,7 +1428,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
     const tick = (now) => {
       const dt = s.last ? Math.min((now - s.last) / 1e3, 1 / 30) : 1 / 60;
       s.last = now;
-      const calm = asksForStillness() || motion === "none";
+      const calm = stillness.current || motion === "none";
       const current = poseRef.current;
       if (!s.paused && !calm) s.t += dt;
       const scene = sceneNow();
@@ -1478,7 +1468,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
     const s = state.current;
     const changed = poseRef.current !== pose;
     poseRef.current = pose;
-    const calm = asksForStillness() || motion === "none";
+    const calm = stillness.current || motion === "none";
     if (changed) {
       s.t = calm ? STILL_AT[pose] : 0;
       s.round++;
@@ -1511,34 +1501,33 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
       { rootMargin: "120px 0px" }
     );
     observer.observe(node);
+    const s = state.current;
     return () => {
       observer.disconnect();
       stop();
-      state.current.timers.forEach((timer) => window.clearTimeout(timer));
-      state.current.timers = [];
+      s.timers.forEach((timer) => window.clearTimeout(timer));
+      s.timers = [];
     };
   }, [interactive, run, stop]);
+  const wasReduced = React2.useRef(reduced);
   React2.useEffect(() => {
-    if (!interactive || typeof window === "undefined" || !window.matchMedia) return;
-    const query = window.matchMedia(_chunkJ7BYXE6Qcjs.REDUCED_MOTION_QUERY);
-    const changed = () => {
-      const s = state.current;
-      if (query.matches) {
-        stop();
-        s.t = STILL_AT[poseRef.current];
-        aim(poseRef.current === "apart", true);
-        const scene = sceneNow();
-        step(s.display, scene, 1, true, s.targets);
-        draw(scene);
-      } else run();
-    };
-    _optionalChain([query, 'access', _38 => _38.addEventListener, 'optionalCall', _39 => _39("change", changed)]);
-    return () => _optionalChain([query, 'access', _40 => _40.removeEventListener, 'optionalCall', _41 => _41("change", changed)]);
-  }, [interactive, aim, draw, run, sceneNow, stop]);
+    if (wasReduced.current === reduced) return;
+    wasReduced.current = reduced;
+    if (!interactive) return;
+    const s = state.current;
+    if (reduced) {
+      stop();
+      s.t = STILL_AT[poseRef.current];
+      aim(poseRef.current === "apart", true);
+      const scene = sceneNow();
+      step(s.display, scene, 1, true, s.targets);
+      draw(scene);
+    } else run();
+  }, [reduced, interactive, aim, draw, run, sceneNow, stop]);
   const act = () => {
     const s = state.current;
     const current = poseRef.current;
-    const calm = asksForStillness() || motion === "none";
+    const calm = stillness.current || motion === "none";
     if (current === "idle") s.paused = !s.paused;
     else if (current === "apart") {
       const open = ASSEMBLIES.every((name) => s.targets[name] === 1);
@@ -1839,8 +1828,5 @@ var GATE_LIMIT = LIMIT;
 
 
 
-
-
-
-exports.AZIMUTH = AZIMUTH; exports.CYCLE_LENGTH = CYCLE_LENGTH; exports.Dots = Dots; exports.ELEVATION = ELEVATION; exports.FaceText = FaceText; exports.GATE_CAPTION = GATE_CAPTION; exports.GATE_LIMIT = GATE_LIMIT; exports.GateMachine = GateMachine; exports.LIMIT = LIMIT; exports.Line = Line; exports.MechanismFrame = MechanismFrame; exports.PASS_CHECK = PASS_CHECK; exports.PERIOD = PERIOD; exports.RETURN_CHECK = RETURN_CHECK; exports.RUN_LONG = RUN_LONG; exports.SCALE = SCALE; exports.SHADES = SHADES; exports.Solid = Solid; exports.VerificationGate = VerificationGate; exports.Wire = Wire; exports.asksForStillness = asksForStillness; exports.axisVector = axisVector; exports.boxCorners = boxCorners; exports.cameraOf = cameraOf; exports.checkAt = checkAt; exports.circleIn = circleIn; exports.circleRing = circleRing; exports.coil = coil; exports.corners = corners; exports.cylinder = cylinder; exports.depthOf = depthOf; exports.dotGrid = dotGrid; exports.extrude = extrude; exports.faceCircle = faceCircle; exports.fitProjection = fitProjection; exports.follow = follow; exports.haloOf = haloOf; exports.holdStill = holdStill; exports.insetPlan = insetPlan; exports.iso = iso; exports.joinPaths = joinPaths; exports.knurl = knurl; exports.lineOnTop = lineOnTop; exports.onTop = onTop; exports.pathOf = pathOf; exports.planOutline = planOutline; exports.pointsAt = pointsAt; exports.prismOf = prismOf; exports.radialTicks = radialTicks; exports.ring = ring; exports.ringOf = ringOf; exports.ringSeam = ringSeam; exports.rise = rise; exports.roundedPlan = roundedPlan; exports.sceneAt = sceneAt; exports.screenRise = screenRise; exports.segment = segment; exports.sideArc = sideArc; exports.sideMatrix = sideMatrix; exports.sideRing = sideRing; exports.sideSeam = sideSeam; exports.sideTicks = sideTicks; exports.slabOf = slabOf; exports.spring = spring; exports.stillScene = stillScene; exports.tallyOf = tallyOf; exports.tallyText = tallyText; exports.tokenAt = tokenAt; exports.topMatrix = topMatrix; exports.topTicks = topTicks; exports.towardViewer = towardViewer; exports.translateAlong = translateAlong; exports.useStillness = useStillness; exports.verdictOf = verdictOf; exports.verdictText = verdictText; exports.viewOf = viewOf;
+exports.AZIMUTH = AZIMUTH; exports.Dots = Dots; exports.ELEVATION = ELEVATION; exports.FaceText = FaceText; exports.GATE_CAPTION = GATE_CAPTION; exports.GATE_CYCLE_LENGTH = CYCLE_LENGTH; exports.GATE_LIMIT = GATE_LIMIT; exports.GATE_PASS_CHECK = PASS_CHECK; exports.GATE_PERIOD = PERIOD; exports.GATE_RETURN_CHECK = RETURN_CHECK; exports.GATE_RUN_LONG = RUN_LONG; exports.GATE_SCALE = SCALE; exports.GateMachine = GateMachine; exports.Line = Line; exports.MechanismFrame = MechanismFrame; exports.SHADES = SHADES; exports.Solid = Solid; exports.VerificationGate = VerificationGate; exports.Wire = Wire; exports.axisVector = axisVector; exports.boxCorners = boxCorners; exports.cameraOf = cameraOf; exports.circleIn = circleIn; exports.circleRing = circleRing; exports.coil = coil; exports.corners = corners; exports.cylinder = cylinder; exports.depthOf = depthOf; exports.dotGrid = dotGrid; exports.extrude = extrude; exports.faceCircle = faceCircle; exports.fitProjection = fitProjection; exports.follow = follow; exports.gateCheckAt = checkAt; exports.gateSceneAt = sceneAt; exports.gateStillScene = stillScene; exports.gateTallyOf = tallyOf; exports.gateTallyText = tallyText; exports.gateTokenAt = tokenAt; exports.gateVerdictOf = verdictOf; exports.gateVerdictText = verdictText; exports.haloOf = haloOf; exports.holdStill = holdStill; exports.insetPlan = insetPlan; exports.iso = iso; exports.joinPaths = joinPaths; exports.knurl = knurl; exports.lineOnTop = lineOnTop; exports.onTop = onTop; exports.pathOf = pathOf; exports.planOutline = planOutline; exports.pointsAt = pointsAt; exports.prismOf = prismOf; exports.radialTicks = radialTicks; exports.ring = ring; exports.ringOf = ringOf; exports.ringSeam = ringSeam; exports.rise = rise; exports.roundedPlan = roundedPlan; exports.screenRise = screenRise; exports.segment = segment; exports.sideArc = sideArc; exports.sideMatrix = sideMatrix; exports.sideRing = sideRing; exports.sideSeam = sideSeam; exports.sideTicks = sideTicks; exports.slabOf = slabOf; exports.spring = spring; exports.topMatrix = topMatrix; exports.topTicks = topTicks; exports.towardViewer = towardViewer; exports.translateAlong = translateAlong; exports.viewOf = viewOf;
 //# sourceMappingURL=mechanism.cjs.map

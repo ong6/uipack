@@ -4,11 +4,8 @@
 
 
 
-var _chunkHTRLVYU7cjs = require('./chunk-HTRLVYU7.cjs');
 
-
-var _chunkTKLHLAXGcjs = require('./chunk-TKLHLAXG.cjs');
-require('./chunk-J7BYXE6Q.cjs');
+var _chunkAF2HLZ75cjs = require('./chunk-AF2HLZ75.cjs');
 
 // src/static/index.tsx
 var _react = require('react');
@@ -98,10 +95,10 @@ function renderStatic(input, opts = {}) {
   g.__UIPACK_PRERENDER__ = motion;
   let drawing;
   try {
-    const floor = _chunkHTRLVYU7cjs.fontFloor.call(void 0, vw, _nullishCoalesce(opts.width, () => ( _chunkHTRLVYU7cjs.DEFAULT_RENDER_WIDTH)), _nullishCoalesce(opts.minFont, () => ( 11)));
+    const floor = _chunkAF2HLZ75cjs.fontFloor.call(void 0, vw, _nullishCoalesce(opts.width, () => ( _chunkAF2HLZ75cjs.DEFAULT_RENDER_WIDTH)), _nullishCoalesce(opts.minFont, () => ( 11)));
     drawing = inlineVars(
       _server.renderToStaticMarkup.call(void 0, 
-        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkTKLHLAXGcjs.FigureMotionContext.Provider, { value: ctx, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkHTRLVYU7cjs.FigureScaleProvider, { floor, children: fig.children }) })
+        /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkAF2HLZ75cjs.FigureMotionContext.Provider, { value: ctx, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkAF2HLZ75cjs.FigureScaleProvider, { floor, children: fig.children }) })
       ),
       p
     );
@@ -137,7 +134,7 @@ function renderStatic(input, opts = {}) {
       let lx = pad;
       for (const it of fig.legend) {
         const kind = _nullishCoalesce(it.kind, () => ( "neutral"));
-        const tok = inlineVars(_server.renderToStaticMarkup.call(void 0, /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkHTRLVYU7cjs.Token, { kind, shape: _nullishCoalesce(it.shape, () => ( _chunkHTRLVYU7cjs.TOKEN_SHAPE[kind])), r: 5.5, cx: lx + 6, cy: hy - 4 })), p);
+        const tok = inlineVars(_server.renderToStaticMarkup.call(void 0, /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _chunkAF2HLZ75cjs.Token, { kind, shape: _nullishCoalesce(it.shape, () => ( _chunkAF2HLZ75cjs.TOKEN_SHAPE[kind])), r: 5.5, cx: lx + 6, cy: hy - 4 })), p);
         head.push(tok, `<text x="${lx + 20}" y="${hy}" font-family="${p.sans}" font-size="13" fill="${p.fg}">${esc(it.label)}</text>`);
         lx += 20 + it.label.length * 7.4 + 24;
       }

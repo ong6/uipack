@@ -1,10 +1,10 @@
 import {
   CanvasView
-} from "./chunk-BK4QH7YO.js";
+} from "./chunk-7K2SUJSS.js";
 import {
-  REDUCED_MOTION_QUERY,
-  keepFocusedInView
-} from "./chunk-YUGHDI4S.js";
+  keepFocusedInView,
+  usePrefersReducedMotion
+} from "./chunk-44EABMMS.js";
 
 // src/objects/ObjectScene.tsx
 import { useEffect, useRef, useState } from "react";
@@ -244,7 +244,7 @@ function ObjectStage({
   const [ready, setReady] = useState(false);
   const [paused, setPaused] = useState(false);
   const [completed, setCompleted] = useState(false);
-  const [reduced, setReduced] = useState(false);
+  const reduced = usePrefersReducedMotion();
   const colorMode = theme;
   const zoomRef = useRef(zoom);
   zoomRef.current = zoom;
@@ -253,22 +253,15 @@ function ObjectStage({
     resizeRef.current?.();
   }, [zoom]);
   useEffect(() => {
-    const media = window.matchMedia(REDUCED_MOTION_QUERY);
-    const update = () => {
-      reducedRef.current = media.matches;
-      setReduced(media.matches);
-      if (media.matches) settleRef.current?.();
-      if (media.matches && frameRef.current) {
+    reducedRef.current = reduced;
+    if (reduced) {
+      settleRef.current?.();
+      if (frameRef.current) {
         cancelAnimationFrame(frameRef.current);
         frameRef.current = null;
       }
-      if (!media.matches && activeRef.current && !pausedRef.current && !completedRef.current)
-        resumeRef.current?.();
-    };
-    update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
+    } else if (activeRef.current && !pausedRef.current && !completedRef.current) resumeRef.current?.();
+  }, [reduced]);
   useEffect(() => {
     activeRef.current = active;
     if (active && !pausedRef.current && !reducedRef.current)

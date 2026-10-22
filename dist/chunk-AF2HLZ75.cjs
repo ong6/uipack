@@ -1,4 +1,19 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } }// src/tokens.tsx
+"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } }// src/context.tsx
+var _react = require('react');
+var noop = () => {
+};
+var FigureMotionContext = _react.createContext.call(void 0, {
+  playing: true,
+  reduced: false,
+  cycle: 0,
+  toggle: noop,
+  replay: noop
+});
+function useFigureMotion() {
+  return _react.useContext.call(void 0, FigureMotionContext);
+}
+
+// src/tokens.tsx
 var _jsxruntime = require('react/jsx-runtime');
 var TOKEN_SHAPE = {
   request: "square",
@@ -36,7 +51,7 @@ function Token({ shape, kind = "neutral", r = 5, cx = 0, cy = 0, style }) {
 }
 
 // src/scale.tsx
-var _react = require('react');
+
 
 var FigureScaleContext = _react.createContext.call(void 0, { floor: 0 });
 var DEFAULT_RENDER_WIDTH = 1088;
@@ -61,5 +76,7 @@ function useFontFloor(size) {
 
 
 
-exports.TOKEN_SHAPE = TOKEN_SHAPE; exports.tokenColor = tokenColor; exports.Token = Token; exports.FigureScaleContext = FigureScaleContext; exports.DEFAULT_RENDER_WIDTH = DEFAULT_RENDER_WIDTH; exports.fontFloor = fontFloor; exports.FigureScaleProvider = FigureScaleProvider; exports.useFontFloor = useFontFloor;
-//# sourceMappingURL=chunk-HTRLVYU7.cjs.map
+
+
+exports.FigureMotionContext = FigureMotionContext; exports.useFigureMotion = useFigureMotion; exports.TOKEN_SHAPE = TOKEN_SHAPE; exports.tokenColor = tokenColor; exports.Token = Token; exports.FigureScaleContext = FigureScaleContext; exports.DEFAULT_RENDER_WIDTH = DEFAULT_RENDER_WIDTH; exports.fontFloor = fontFloor; exports.FigureScaleProvider = FigureScaleProvider; exports.useFontFloor = useFontFloor;
+//# sourceMappingURL=chunk-AF2HLZ75.cjs.map

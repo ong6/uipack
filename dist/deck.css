@@ -689,6 +689,13 @@
 .uipack-deck-presenter__role b {
   color: var(--deck-fg);
 }
+.uipack-deck-empty {
+  display: grid;
+  place-items: center;
+  color: var(--deck-muted);
+  font-family: var(--deck-mono);
+  font-size: 14px;
+}
 /* Bento slides: a grid of containers the camera moves between (canvas pixels). */
 /* The bento's box is the camera's window: zoomed cells never spill over the heading or footer.
    The grid is inset 3px so cell outlines aren't clipped at rest. */

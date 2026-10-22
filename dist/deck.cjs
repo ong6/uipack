@@ -1,13 +1,14 @@
 "use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 
+var _chunkYEVVKV3Jcjs = require('./chunk-YEVVKV3J.cjs');
+
+
 
 var _chunkVGPFDDCPcjs = require('./chunk-VGPFDDCP.cjs');
 
 
-var _chunkTKLHLAXGcjs = require('./chunk-TKLHLAXG.cjs');
 
-
-var _chunkJ7BYXE6Qcjs = require('./chunk-J7BYXE6Q.cjs');
+var _chunkXPCOQ7NOcjs = require('./chunk-XPCOQ7NO.cjs');
 
 // src/deck/DeckPlayer.tsx
 
@@ -315,7 +316,7 @@ function runTransition(opts) {
 function useCanvasScale() {
   const ref = _react.useRef.call(void 0, null);
   const [scale, setScale] = _react.useState.call(void 0, 0);
-  _chunkJ7BYXE6Qcjs.useIsoLayoutEffect.call(void 0, () => {
+  _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
     const el = ref.current;
     if (!el) return;
     const measure = () => setScale(el.clientWidth / CANVAS_WIDTH);
@@ -1363,7 +1364,24 @@ function Reader({
 
 // src/deck/DeckPlayer.tsx
 
-function DeckPlayer({
+function DeckPlayer(props) {
+  if (props.slides.length === 0) return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, EmptyDeck, { ...props });
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, Player, { ...props });
+}
+function EmptyDeck({ title, theme = "light", className }) {
+  return /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+    "div",
+    {
+      className: ["uipack-deck", className].filter(Boolean).join(" "),
+      "data-theme": theme,
+      role: "region",
+      "aria-label": title,
+      "aria-roledescription": "slide deck",
+      children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: "uipack-deck-stage uipack-deck-empty", children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "p", { children: "No slides" }) })
+    }
+  );
+}
+function Player({
   slides,
   id,
   title,
@@ -1389,28 +1407,25 @@ function DeckPlayer({
   const [overview, setOverview] = _react.useState.call(void 0, false);
   const [fullscreen, setFullscreen] = _react.useState.call(void 0, false);
   const [reading, setReading] = _react.useState.call(void 0, initialView === "read");
-  const prefersReduced = _chunkTKLHLAXGcjs.usePrefersReducedMotion.call(void 0, );
+  const prefersReduced = _chunkXPCOQ7NOcjs.usePrefersReducedMotion.call(void 0, );
   const reducedMotion = motion === "none" || prefersReduced;
   const { ref: stageRef, scale } = useCanvasScale();
   const rootRef = _react.useRef.call(void 0, null);
   const fromRef = _react.useRef.call(void 0, null);
   const toRef = _react.useRef.call(void 0, null);
   const overviewButtonRef = _react.useRef.call(void 0, null);
-  const anims = _react.useRef.call(void 0, []);
-  const maxStep = _react.useRef.call(void 0, 0);
+  const [maxStep, setMaxStep] = _react.useState.call(void 0, 0);
   const viewRef = _react.useRef.call(void 0, view);
   const commit = (next2) => {
     viewRef.current = next2;
     setView(next2);
   };
-  const settle = () => {
-    for (const a of anims.current) a.cancel();
-    anims.current = [];
-    _optionalChain([stageRef, 'access', _28 => _28.current, 'optionalAccess', _29 => _29.querySelectorAll, 'call', _30 => _30(".uipack-deck-layer"), 'access', _31 => _31.forEach, 'call', _32 => _32((el) => {
+  const { settle, fly } = _chunkYEVVKV3Jcjs.useLayerFlight.call(void 0, 
+    () => _optionalChain([stageRef, 'access', _28 => _28.current, 'optionalAccess', _29 => _29.querySelectorAll, 'call', _30 => _30(".uipack-deck-layer"), 'access', _31 => _31.forEach, 'call', _32 => _32((el) => {
       el.style.zIndex = "";
       el.style.visibility = "";
-    })]);
-  };
+    })])
+  );
   const go = _react.useCallback.call(void 0, 
     (index, step = 0) => {
       const target = Math.min(Math.max(index, 0), count - 1);
@@ -1425,24 +1440,26 @@ function DeckPlayer({
   );
   const next = _react.useCallback.call(void 0, () => {
     const v = viewRef.current;
-    if (v.step < maxStep.current) commit({ ...v, step: v.step + 1 });
+    if (v.step < maxStep) commit({ ...v, step: v.step + 1 });
     else if (v.index < count - 1) go(v.index + 1, 0);
-  }, [count, go]);
+  }, [count, go, maxStep]);
   const prev = _react.useCallback.call(void 0, () => {
     const v = viewRef.current;
-    const step = Math.min(v.step, maxStep.current);
+    const step = Math.min(v.step, maxStep);
     if (step > 0) commit({ ...v, step: step - 1 });
     else if (v.index > 0) go(v.index - 1, Infinity);
-  }, [go]);
-  _chunkJ7BYXE6Qcjs.useIsoLayoutEffect.call(void 0, () => {
+  }, [go, maxStep]);
+  _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
     const layer = toRef.current;
     if (!layer) return;
-    maxStep.current = Array.from(layer.querySelectorAll("[data-build], [data-steps]")).reduce(
-      (m, el) => Math.max(m, Number(_nullishCoalesce(el.getAttribute("data-build"), () => ( el.getAttribute("data-steps")))) || 0),
-      0
+    setMaxStep(
+      Array.from(layer.querySelectorAll("[data-build], [data-steps]")).reduce(
+        (m, el) => Math.max(m, Number(_nullishCoalesce(el.getAttribute("data-build"), () => ( el.getAttribute("data-steps")))) || 0),
+        0
+      )
     );
   }, [view.index, slides]);
-  _chunkJ7BYXE6Qcjs.useIsoLayoutEffect.call(void 0, () => {
+  _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
     if (!view.from) return;
     const from2 = fromRef.current;
     const to = toRef.current;
@@ -1462,15 +1479,7 @@ function DeckPlayer({
       scale,
       reducedMotion
     });
-    anims.current = started;
-    if (!started.length) return done();
-    Promise.all(started.map((a) => a.finished)).then(
-      () => {
-        if (viewRef.current.seq === seq) done();
-      },
-      () => {
-      }
-    );
+    fly(started, done);
   }, [view.seq]);
   const channel = _react.useRef.call(void 0, null);
   const remote = _react.useRef.call(void 0, false);
@@ -1509,7 +1518,9 @@ function DeckPlayer({
     }
     _optionalChain([channel, 'access', _36 => _36.current, 'optionalAccess', _37 => _37.postMessage, 'call', _38 => _38({ type: "go", index: view.index, step: view.step })]);
   }, [view.index, view.step]);
+  const [canFullscreen, setCanFullscreen] = _react.useState.call(void 0, false);
   _react.useEffect.call(void 0, () => {
+    setCanFullscreen(document.fullscreenEnabled !== false);
     const onChange = () => setFullscreen(document.fullscreenElement === rootRef.current);
     document.addEventListener("fullscreenchange", onChange);
     return () => document.removeEventListener("fullscreenchange", onChange);
@@ -1605,9 +1616,9 @@ function DeckPlayer({
   };
   const current = slides[view.index];
   const from = view.from ? slides[view.from.index] : null;
-  const stepNow = Math.min(view.step, maxStep.current);
+  const stepNow = Math.min(view.step, maxStep);
   const atStart = view.index === 0 && stepNow === 0;
-  const atEnd = view.index === count - 1 && view.step >= maxStep.current;
+  const atEnd = view.index === count - 1 && view.step >= maxStep;
   const stage = /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
     "div",
     {
@@ -1657,7 +1668,7 @@ function DeckPlayer({
       atStart,
       atEnd,
       mode,
-      canFullscreen: typeof document !== "undefined" && document.fullscreenEnabled !== false,
+      canFullscreen,
       fullscreen,
       overviewButtonRef,
       onPrev: prev,
@@ -1736,7 +1747,6 @@ function DeckPlayer({
 
 
 
-
 function BentoCell(_) {
   return null;
 }
@@ -1754,7 +1764,7 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
   const focus = thumbnail ? null : bentoFocusAt(step, tour);
   const gridRef = _react.useRef.call(void 0, null);
   const [camera, setCamera] = _react.useState.call(void 0, null);
-  _react.useLayoutEffect.call(void 0, () => {
+  _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
     const grid = gridRef.current;
     if (!grid || !focus) return setCamera(null);
     const cell = grid.querySelector(`[data-bento-cell="${CSS.escape(focus)}"]`);
@@ -2139,7 +2149,7 @@ function useChartSize(fixed, fallback = { width: 640, height: 360 }) {
   });
   const fixedW = _optionalChain([fixed, 'optionalAccess', _62 => _62.width]);
   const fixedH = _optionalChain([fixed, 'optionalAccess', _63 => _63.height]);
-  _chunkJ7BYXE6Qcjs.useIsoLayoutEffect.call(void 0, () => {
+  _chunkXPCOQ7NOcjs.useIsoLayoutEffect.call(void 0, () => {
     const el = ref.current;
     if (!el || fixedW !== void 0 && fixedH !== void 0) return;
     const measure = () => {

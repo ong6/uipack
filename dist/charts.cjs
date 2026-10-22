@@ -1,6 +1,6 @@
 "use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
 
-var _chunkJ7BYXE6Qcjs = require('./chunk-J7BYXE6Q.cjs');
+var _chunkXPCOQ7NOcjs = require('./chunk-XPCOQ7NO.cjs');
 
 // src/charts/model.ts
 var DEFAULT_LABELS = {
@@ -1209,7 +1209,7 @@ function enhanceLayerStack(root) {
   const onClick = (event) => {
     if (!win || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const link = _optionalChain([event, 'access', _92 => _92.target, 'access', _93 => _93.closest, 'optionalCall', _94 => _94('a[href^="#"]')]);
-    if (!link || !root.contains(link) || _chunkJ7BYXE6Qcjs.prefersReducedMotion.call(void 0, win)) return;
+    if (!link || !root.contains(link) || _chunkXPCOQ7NOcjs.prefersReducedMotion.call(void 0, win)) return;
     const hash = link.getAttribute("href");
     const target = doc.getElementById(decodeURIComponent(hash.slice(1)));
     if (!target) return;

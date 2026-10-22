@@ -6,11 +6,10 @@ import {
 } from "./chunk-AZPFC2BR.js";
 import {
   CanvasView
-} from "./chunk-BK4QH7YO.js";
+} from "./chunk-7K2SUJSS.js";
 import {
   usePrefersReducedMotion
-} from "./chunk-PH4YUQN4.js";
-import "./chunk-YUGHDI4S.js";
+} from "./chunk-44EABMMS.js";
 
 // src/slides/SlidePlayer.tsx
 import {

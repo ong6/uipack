@@ -5,6 +5,22 @@ var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 function prefersReducedMotion(win = typeof window === "undefined" ? void 0 : window) {
   return typeof _optionalChain([win, 'optionalAccess', _ => _.matchMedia]) === "function" && win.matchMedia(REDUCED_MOTION_QUERY).matches;
 }
+function onReducedMotionChange(listener) {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return () => {
+  };
+  const query = window.matchMedia(REDUCED_MOTION_QUERY);
+  const changed = () => listener(query.matches);
+  if (typeof query.addEventListener === "function") {
+    query.addEventListener("change", changed);
+    return () => query.removeEventListener("change", changed);
+  }
+  query.addListener(changed);
+  return () => query.removeListener(changed);
+}
+function usePrefersReducedMotion() {
+  return _react.useSyncExternalStore.call(void 0, onReducedMotionChange, prefersReducedMotion, serverSnapshot);
+}
+var serverSnapshot = () => false;
 function keepFocusedInView(event) {
   _optionalChain([event, 'access', _2 => _2.target, 'optionalAccess', _3 => _3.scrollIntoView, 'optionalCall', _4 => _4({ block: "nearest", inline: "nearest" })]);
 }
@@ -14,5 +30,6 @@ function keepFocusedInView(event) {
 
 
 
-exports.useIsoLayoutEffect = useIsoLayoutEffect; exports.REDUCED_MOTION_QUERY = REDUCED_MOTION_QUERY; exports.prefersReducedMotion = prefersReducedMotion; exports.keepFocusedInView = keepFocusedInView;
-//# sourceMappingURL=chunk-J7BYXE6Q.cjs.map
+
+exports.useIsoLayoutEffect = useIsoLayoutEffect; exports.prefersReducedMotion = prefersReducedMotion; exports.onReducedMotionChange = onReducedMotionChange; exports.usePrefersReducedMotion = usePrefersReducedMotion; exports.keepFocusedInView = keepFocusedInView;
+//# sourceMappingURL=chunk-XPCOQ7NO.cjs.map

@@ -2,8 +2,8 @@ import {
   smoothstep
 } from "./chunk-QQDTNXY7.js";
 import {
-  REDUCED_MOTION_QUERY
-} from "./chunk-YUGHDI4S.js";
+  usePrefersReducedMotion
+} from "./chunk-44EABMMS.js";
 
 // src/mechanism/gate/VerificationGate.tsx
 import * as React2 from "react";
@@ -402,20 +402,7 @@ function fitProjection(points, width, height, { pad = 24, headroom = 0, azimuth 
 // src/mechanism/kit/live.tsx
 import * as React from "react";
 import { jsx } from "react/jsx-runtime";
-var STILLNESS = "(prefers-reduced-motion: reduce)";
 var LONGEST_FRAME = 1 / 30;
-var asksForStillness = () => typeof window !== "undefined" && window.matchMedia(STILLNESS).matches;
-function useStillness() {
-  return React.useSyncExternalStore(
-    (changed) => {
-      const query = window.matchMedia(STILLNESS);
-      query.addEventListener("change", changed);
-      return () => query.removeEventListener("change", changed);
-    },
-    asksForStillness,
-    () => false
-  );
-}
 function follow(current, target, dt, seconds, calm = false) {
   if (calm) return target;
   const next = current + (target - current) * (1 - Math.exp(-dt / seconds));
@@ -1347,9 +1334,12 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
   const root = React2.useRef(null);
   const live = React2.useRef(null);
   const animated = interactive && motion === "auto";
+  const reduced = usePrefersReducedMotion();
+  const stillness = React2.useRef(reduced);
+  stillness.current = reduced;
   const start = React2.useRef(null);
   if (!start.current || !interactive) {
-    const calm = !animated || asksForStillness();
+    const calm = !animated || reduced;
     const t = calm || pose === "idle" ? STILL_AT[pose] : 0;
     const scene = calm ? stillScene(pose) : sceneAt(pose, t);
     start.current = { display: displayOf(scene, calm && pose === "apart" ? 1 : 0), scene, t: calm ? STILL_AT[pose] : t };
@@ -1375,7 +1365,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
   readoutRef.current = onReadout;
   const sceneNow = React2.useCallback(() => {
     const s = state.current;
-    const calm = asksForStillness() || motion === "none";
+    const calm = stillness.current || motion === "none";
     const scene = calm ? stillScene(poseRef.current) : sceneAt(poseRef.current, s.t, s.round);
     if (s.paused && poseRef.current === "idle") return { ...scene, belt: 0, readout: `${scene.readout} \xB7 paused`, phase: "paused" };
     return scene;
@@ -1438,7 +1428,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
     const tick = (now) => {
       const dt = s.last ? Math.min((now - s.last) / 1e3, 1 / 30) : 1 / 60;
       s.last = now;
-      const calm = asksForStillness() || motion === "none";
+      const calm = stillness.current || motion === "none";
       const current = poseRef.current;
       if (!s.paused && !calm) s.t += dt;
       const scene = sceneNow();
@@ -1478,7 +1468,7 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
     const s = state.current;
     const changed = poseRef.current !== pose;
     poseRef.current = pose;
-    const calm = asksForStillness() || motion === "none";
+    const calm = stillness.current || motion === "none";
     if (changed) {
       s.t = calm ? STILL_AT[pose] : 0;
       s.round++;
@@ -1511,34 +1501,33 @@ function GateMachine({ pose = "idle", theme, motion = "auto", interactive = true
       { rootMargin: "120px 0px" }
     );
     observer.observe(node);
+    const s = state.current;
     return () => {
       observer.disconnect();
       stop();
-      state.current.timers.forEach((timer) => window.clearTimeout(timer));
-      state.current.timers = [];
+      s.timers.forEach((timer) => window.clearTimeout(timer));
+      s.timers = [];
     };
   }, [interactive, run, stop]);
+  const wasReduced = React2.useRef(reduced);
   React2.useEffect(() => {
-    if (!interactive || typeof window === "undefined" || !window.matchMedia) return;
-    const query = window.matchMedia(REDUCED_MOTION_QUERY);
-    const changed = () => {
-      const s = state.current;
-      if (query.matches) {
-        stop();
-        s.t = STILL_AT[poseRef.current];
-        aim(poseRef.current === "apart", true);
-        const scene = sceneNow();
-        step(s.display, scene, 1, true, s.targets);
-        draw(scene);
-      } else run();
-    };
-    query.addEventListener?.("change", changed);
-    return () => query.removeEventListener?.("change", changed);
-  }, [interactive, aim, draw, run, sceneNow, stop]);
+    if (wasReduced.current === reduced) return;
+    wasReduced.current = reduced;
+    if (!interactive) return;
+    const s = state.current;
+    if (reduced) {
+      stop();
+      s.t = STILL_AT[poseRef.current];
+      aim(poseRef.current === "apart", true);
+      const scene = sceneNow();
+      step(s.display, scene, 1, true, s.targets);
+      draw(scene);
+    } else run();
+  }, [reduced, interactive, aim, draw, run, sceneNow, stop]);
   const act = () => {
     const s = state.current;
     const current = poseRef.current;
-    const calm = asksForStillness() || motion === "none";
+    const calm = stillness.current || motion === "none";
     if (current === "idle") s.paused = !s.paused;
     else if (current === "apart") {
       const open = ASSEMBLIES.every((name) => s.targets[name] === 1);
@@ -1767,30 +1756,27 @@ function VerificationGate({ frame = true, number = "Fig 1", title = "Verificatio
 var GATE_LIMIT = LIMIT;
 export {
   AZIMUTH,
-  CYCLE_LENGTH,
   Dots,
   ELEVATION,
   FaceText,
   GATE_CAPTION,
+  CYCLE_LENGTH as GATE_CYCLE_LENGTH,
   GATE_LIMIT,
+  PASS_CHECK as GATE_PASS_CHECK,
+  PERIOD as GATE_PERIOD,
+  RETURN_CHECK as GATE_RETURN_CHECK,
+  RUN_LONG as GATE_RUN_LONG,
+  SCALE as GATE_SCALE,
   GateMachine,
-  LIMIT,
   Line,
   MechanismFrame,
-  PASS_CHECK,
-  PERIOD,
-  RETURN_CHECK,
-  RUN_LONG,
-  SCALE,
   SHADES,
   Solid,
   VerificationGate,
   Wire,
-  asksForStillness,
   axisVector,
   boxCorners,
   cameraOf,
-  checkAt,
   circleIn,
   circleRing,
   coil,
@@ -1802,6 +1788,14 @@ export {
   faceCircle,
   fitProjection,
   follow,
+  checkAt as gateCheckAt,
+  sceneAt as gateSceneAt,
+  stillScene as gateStillScene,
+  tallyOf as gateTallyOf,
+  tallyText as gateTallyText,
+  tokenAt as gateTokenAt,
+  verdictOf as gateVerdictOf,
+  verdictText as gateVerdictText,
   haloOf,
   holdStill,
   insetPlan,
@@ -1820,7 +1814,6 @@ export {
   ringSeam,
   rise,
   roundedPlan,
-  sceneAt,
   screenRise,
   segment,
   sideArc,
@@ -1830,17 +1823,10 @@ export {
   sideTicks,
   slabOf,
   spring,
-  stillScene,
-  tallyOf,
-  tallyText,
-  tokenAt,
   topMatrix,
   topTicks,
   towardViewer,
   translateAlong,
-  useStillness,
-  verdictOf,
-  verdictText,
   viewOf
 };
 //# sourceMappingURL=mechanism.js.map

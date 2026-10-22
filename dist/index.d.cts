@@ -365,7 +365,12 @@ interface FigureMotion {
 declare const FigureMotionContext: react.Context<FigureMotion>;
 /** Motion state of the enclosing Figure. Outside a Figure it plays forever. */
 declare function useFigureMotion(): FigureMotion;
-/** True when the OS asks for reduced motion. Server render says false. */
+
+/**
+ * True when the viewer asks for reduced motion, and re-renders when that changes. The one
+ * subscription every part shares. The server render and hydration say false, so they match; the
+ * real value follows straight after.
+ */
 declare function usePrefersReducedMotion(): boolean;
 
 /** What a level's `render` receives. */
