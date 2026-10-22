@@ -43,7 +43,8 @@ describe("built entries share one copy of each React context", () => {
     it(`dist/*${ext}`, () => {
       const created = new Map<string, number>();
       for (const f of files.filter((f) => f.endsWith(ext))) {
-        for (const m of readFileSync(`dist/${f}`, "utf8").matchAll(/\b(\w+Context) = (?:_react\.|\(0, \w+\.)?createContext\b/g))
+        // esbuild may rename the import (createContext2) when one chunk imports it twice.
+        for (const m of readFileSync(`dist/${f}`, "utf8").matchAll(/\b(\w+Context) = (?:_react\.|\(0, \w+\.)?createContext\d*\b/g))
           created.set(m[1], (created.get(m[1]) ?? 0) + 1);
       }
       expect(created.get("FigureMotionContext")).toBe(1);
