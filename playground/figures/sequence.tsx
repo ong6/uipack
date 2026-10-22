@@ -1,4 +1,4 @@
-import { Badge, Connector, Defs, Figure, Label, Lane, Node, Packet, type ConnectorKind, type Flow, type Point } from "../../src";
+import { Badge, Connector, Cross, Defs, Figure, Label, Lane, Node, Packet, type ConnectorKind, type Flow, type Point } from "../../src";
 
 // A sequence diagram from the parts: actors across the top, time runs down
 // their dashed lifelines, and each message is a numbered arrow with a packet.
@@ -36,18 +36,14 @@ function Message({ id, m, delay }: { id: string; m: Msg; delay: number }) {
   );
 }
 
-/** A message that never arrives: dashed, no head, a ✕ where it stops. */
-/** `labelX` moves the label off a lifeline the message crosses. */
+/** A message that never arrives: dashed, no head, a Cross where it stops. `labelX` moves the label off a lifeline the message crosses. */
 function Lost({ from, to, y, n, label, labelX, flow }: { from: number; to: number; y: number; n: number; label: string; labelX?: number; flow: Flow }) {
   const dir = to > from ? 1 : -1;
   const end = to - dir * 16;
   return (
     <g>
       <Connector points={[[from + dir * 14, y], [end, y]]} arrow={false} dashed flow={flow} />
-      <g stroke="currentColor" strokeOpacity={0.8} strokeWidth={1.75} strokeLinecap="round">
-        <line x1={end - 5} y1={y - 5} x2={end + 5} y2={y + 5} />
-        <line x1={end - 5} y1={y + 5} x2={end + 5} y2={y - 5} />
-      </g>
+      <Cross x={end} y={y} />
       <Label x={labelX ?? (from + to) / 2} y={y - 10} text={label} anchor="middle" />
       <Badge cx={from} cy={y} text={String(n)} r={10} />
     </g>

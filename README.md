@@ -213,6 +213,8 @@ Pose changes move smoothly from wherever the machine is; it stops offscreen, hol
 - `Bus`: a trunk with stubs and a junction dot at each join. `busStub` and `busStubs` give the same points to packets.
 - `Packet`: a token that rides a connector's points, looping.
 - `Badge`, `Label`, `Legend`, `Token`, `Defs`: step numbers, text with an underlay, the key, the shape itself, the arrowhead markers.
+- `Wall`: solid slabs with a gap at each of its `holes`, standing (`axis="v"`) or lying (`"h"`); one layer of a layered-checks figure. `wallSegments` gives the runs.
+- `Cross`: a ✕ where something stops, such as a lost message at the end of a dashed `Connector` with `arrow={false}`.
 - `icons`: 25 line glyphs in a 16px box (db, cache, queue, service, client, blob, agent, doc, model, tool, gateway, lock, key, clock, cron, browser, terminal, git, cloud, region, user, robot, chart, warning, more). `marks`: my own marks for the tool family, plus `Wordmark`.
 - Geometry: `anchor`, `route`, `pathFromPoints`, `pointAlong`, `trim`, `polylineLength`, `grid`.
 

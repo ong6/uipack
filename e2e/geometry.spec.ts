@@ -100,4 +100,41 @@ test.describe("geometry", () => {
     });
     expect(small).toEqual([]);
   });
+
+  for (const width of [1440, 390]) {
+    test(`node text stays inside its box on every drawing at ${width}`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 1100 });
+      await page.goto("/");
+      await page.locator("[data-section] figure.uipack").first().waitFor();
+      await page.evaluate(() => document.fonts.ready);
+      const over = await page.evaluate(() => {
+        const out: string[] = [];
+        for (const node of document.querySelectorAll<SVGGElement>('[data-section] svg [data-uipack="node"]')) {
+          if (!node.getClientRects().length) continue; // the other drawing, or a drill level not showing
+          const box = node.querySelector<SVGRectElement>(":scope > rect")!.getBBox();
+          for (const t of node.querySelectorAll<SVGTextElement>(":scope > text")) {
+            const b = t.getBBox();
+            if (!b.width) continue;
+            // 1 unit of slack: a glyph's side bearing may touch the stroke without crossing it.
+            if (b.x < box.x - 1 || b.x + b.width > box.x + box.width + 1)
+              out.push(`${node.closest("[data-section]")?.getAttribute("data-section")}: "${t.textContent}" ${b.x.toFixed(0)}..${(b.x + b.width).toFixed(0)} in ${box.x}..${box.x + box.width}`);
+          }
+        }
+        return out;
+      });
+      expect(over).toEqual([]);
+    });
+  }
+
+  test("a figure with nothing moving offers no Pause or Replay", async ({ page }) => {
+    await page.goto("/");
+    await page.locator("[data-section] figure.uipack").first().waitFor();
+    const wrong = await page.evaluate(() =>
+      [...document.querySelectorAll<HTMLElement>("[data-section] figure.uipack")]
+        .filter((f) => !f.querySelector("animateMotion, animate, animateTransform") && f.querySelector(".uipack__ctl--motion"))
+        .map((f) => f.closest("[data-section]")?.getAttribute("data-section")),
+    );
+    expect(wrong).toEqual([]);
+  });
 });
+

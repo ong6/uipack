@@ -1,8 +1,9 @@
 import { Figure, Lane, hoverAttrs, useFigureHover } from "../../src";
 
-// A small Sankey: band thickness is the count. There is no Sankey primitive,
-// so the bars and bands are drawn here on the theme's token colours (they
-// follow light and dark), inside a Figure for the frame, legend and canvas.
+// A small Sankey: band thickness is the count. There is no Sankey part (a
+// candidate: docs/contributing.md), so the bars and bands are drawn here on the
+// theme's token colours (they follow light and dark), inside a Figure for the
+// frame, legend and canvas. Nothing moves, so the figure has no Pause/Replay.
 // Ported from the job-search Sankey in the notes site, with neutral data.
 
 type Channel = "chat" | "email" | "phone";
@@ -221,6 +222,7 @@ export function FlowVolumesFigure({ number }: { number: string }) {
         { label: "Email", kind: "change" },
         { label: "Phone", kind: "response" },
       ]}
+      controls={false}
       viewBox="0 0 1120 464"
       narrow={<Narrow />}
       narrowViewBox="0 0 360 520"

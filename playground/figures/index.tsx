@@ -52,7 +52,7 @@ export const figureSections: FigureSection[] = [
   },
   {
     id: "parts",
-    intro: "The vocabulary every pattern below is built from, one of each on the 8px grid: Node, Badge, Lane, Connector, Packet, Label, Group, Chip, Bus, icons and marks.",
+    intro: "The vocabulary every pattern below is built from, one of each on the 8px grid: Node, Badge, Lane, Connector, Packet, Label, Group, Chip, Bus, Wall, Cross, icons and marks.",
     render: (n) => <PartsFigure number={n} />,
   },
   {
@@ -79,17 +79,9 @@ export const figureSections: FigureSection[] = [
     preset: "beforeAfter",
     intro: "Use when one change to a flow is the whole point. Built from the beforeAfter preset: two dashed Groups holding the same stages, with the changed stage and its inbound edge in accent.",
     render: (n) =>
-      preset(
-        "beforeAfter",
-        n,
-        { caption: "Notice that only one stage differs between the panels. It and the edge into it are the accent; everything else is drawn the same so the eye goes to the change." },
-        {
-          after: {
-            ...PRESETS.beforeAfter.spec.after,
-            stages: PRESETS.beforeAfter.spec.after.stages.map((s) => (s.label === "Customer" ? { ...s, sub: "reads it" } : s)),
-          },
-        },
-      ),
+      preset("beforeAfter", n, {
+        caption: "Notice that only one stage differs between the panels. It and the edge into it are the accent; everything else is drawn the same so the eye goes to the change.",
+      }),
   },
   {
     id: "fan-out-fan-in",
@@ -148,7 +140,7 @@ export const figureSections: FigureSection[] = [
   },
   {
     id: "sequence",
-    intro: "Use when the order of messages between actors matters more than the topology. Built from a Lane and header Node per actor, dashed lifelines (Connector with arrow={false}), a numbered Badge and Packet per message, a dashed self-loop for a retry and a line ending in ✕ for a lost message.",
+    intro: "Use when the order of messages between actors matters more than the topology. Built from a Lane and header Node per actor, dashed lifelines (Connector with arrow={false}), a numbered Badge and Packet per message, a dashed self-loop for a retry and a dashed line ending in a Cross for a lost message.",
     render: (n) => <SequenceFigure number={n} />,
   },
   {
@@ -168,12 +160,12 @@ export const figureSections: FigureSection[] = [
   },
   {
     id: "layered-checks",
-    intro: "Use when several imperfect checks together stop most problems. Built from a numbered Badge over each layer, one Connector per item through walls with gaps (drawn locally; there is no Wall part yet), and the accent on the one item that slips through.",
+    intro: "Use when several imperfect checks together stop most problems. Built from a numbered Badge over each layer, one Connector per item through Walls whose holes open a gap where an item passes, and the accent on the one item that slips through.",
     render: (n) => <LayeredChecksFigure number={n} />,
   },
   {
     id: "flow-volumes",
-    intro: "Use when how many go each way is the point, not just where they go. Built inside a Figure from bars and bands drawn on the theme's token colours, with legend hover by channel; there is no Sankey primitive yet.",
+    intro: "Use when how many go each way is the point, not just where they go. Built inside a Figure from bars and bands drawn on the theme's token colours, with legend hover by channel. Nothing moves, so it sets controls={false}. The bands are drawn in the playground: a Sankey part is a candidate (see docs/contributing.md).",
     render: (n) => <FlowVolumesFigure number={n} />,
   },
   {

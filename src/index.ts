@@ -8,6 +8,8 @@ export { Connector, connectorStroke, type ConnectorProps, type ConnectorKind } f
 export { Bus, busStub, busStubs, type BusProps, type BusStub } from "./Bus";
 export { Packet, type PacketProps } from "./Packet";
 export { Badge, type BadgeProps } from "./Badge";
+export { Wall, wallSegments, type WallProps } from "./Wall";
+export { Cross, type CrossProps } from "./Cross";
 export { Label, type LabelProps } from "./Label";
 export { Defs, type DefsProps } from "./Defs";
 export { Token, tokenColor, TOKEN_SHAPE, type TokenKind, type TokenShape, type TokenProps } from "./tokens";

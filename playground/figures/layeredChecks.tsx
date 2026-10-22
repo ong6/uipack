@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
-import { Badge, Connector, Defs, Figure, Group, Label, Node, Packet, useFontFloor, type Point } from "../../src";
+import { Badge, Connector, Defs, Figure, Group, Label, Node, Packet, Wall, useFontFloor, type Point } from "../../src";
 
 // Layered checks: a sieve. Ported from the structure of the notes'
 // verification-sieve figure: numbered layers, one line per item through walls
-// with gaps, each item stopped at a different wall, one slipping through to
-// the accent, a check on one of the checks, and an outer frame. Walls and the
-// caught marks are drawn here from the theme's variables; there is no Wall part.
+// with gaps (the Wall part), each item stopped at a different wall, one
+// slipping through to the accent, a check on one of the checks, and an outer
+// frame. The caught marks are drawn here from the theme's variables.
 
 /** Text that follows the figure's font floor, for the layer headings. */
 function Txt({ x, y, size, children, mono, bold, anchor = "middle", muted }: { x: number; y: number; size: number; children: ReactNode; mono?: boolean; bold?: boolean; anchor?: "start" | "middle" | "end"; muted?: boolean }) {
@@ -14,25 +14,6 @@ function Txt({ x, y, size, children, mono, bold, anchor = "middle", muted }: { x
     <text x={x} y={y} fontSize={fs} fontFamily={mono ? "var(--uipack-mono)" : "var(--uipack-sans)"} fontWeight={bold ? 600 : 400} textAnchor={anchor} fill="currentColor" fillOpacity={muted ? 0.72 : 1}>
       {children}
     </text>
-  );
-}
-
-/** A wall: solid slabs with a gap wherever an item passes. `axis` "v" stands up, "h" lies across. */
-function Wall({ at, from, to, holes, axis, t = 16, gap = 9 }: { at: number; from: number; to: number; holes: number[]; axis: "v" | "h"; t?: number; gap?: number }) {
-  const segs: [number, number][] = [];
-  let s = from;
-  for (const c of [...holes].sort((a, b) => a - b)) {
-    segs.push([s, c - gap]);
-    s = c + gap;
-  }
-  segs.push([s, to]);
-  return (
-    <g data-figure-part="wall">
-      {segs.map(([a, b]) => {
-        const r = axis === "v" ? { x: at - t / 2, y: a, width: t, height: b - a } : { x: a, y: at - t / 2, width: b - a, height: t };
-        return <rect key={a} {...r} rx={2} fill="var(--uipack-surface-raised)" stroke="currentColor" strokeOpacity={0.55} strokeWidth={1.25} />;
-      })}
-    </g>
   );
 }
 
@@ -141,7 +122,7 @@ function Narrow() {
         );
       })}
       {MY.map((y, k) => (
-        <Wall key={y} at={y} from={24} to={192} axis="h" t={10} gap={7} holes={holesAt(k, MX)} />
+        <Wall key={y} at={y} from={24} to={192} axis="h" thickness={10} gap={7} holes={holesAt(k, MX)} />
       ))}
       {LAYERS.map(([name, sub], i) => (
         <g key={name}>

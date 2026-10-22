@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { Badge, Bus, Chip, Connector, Defs, Figure, Group, Label, Lane, Legend, Node, Packet, busStubs, useFigureMotion } from "../src";
+import { Badge, Bus, Chip, Connector, Cross, Defs, Figure, Group, Label, Lane, Legend, Node, Packet, Wall, busStubs, useFigureMotion, wallSegments } from "../src";
 
 const wrap = (ui: React.ReactNode, props: Partial<React.ComponentProps<typeof Figure>> = {}) =>
   render(
@@ -124,6 +124,41 @@ describe("parts", () => {
     expect(container.querySelector("li:nth-child(2) path")).not.toBeNull();
     rerender(<Legend items={[]} />);
     expect(container.querySelector("ul")).toBeNull();
+  });
+});
+
+describe("Wall and Cross", () => {
+  it("wallSegments opens a gap of 2×gap round every hole, in any order, and drops empty runs", () => {
+    expect(wallSegments(0, 100, [60, 20], 5)).toEqual([[0, 15], [25, 55], [65, 100]]);
+    expect(wallSegments(0, 100, [2], 5)).toEqual([[7, 100]]);
+    expect(wallSegments(0, 100)).toEqual([[0, 100]]);
+  });
+  it("a standing wall draws one slab per run, centred on `at`; a lying one swaps the axes", () => {
+    const { container } = render(
+      <svg>
+        <Wall at={100} from={0} to={100} holes={[50]} />
+        <Wall at={40} from={0} to={100} holes={[50]} axis="h" thickness={10} gap={7} />
+      </svg>,
+    );
+    const [v, h] = container.querySelectorAll('[data-uipack="wall"]');
+    expect([...v.querySelectorAll("rect")].map((r) => [r.getAttribute("x"), r.getAttribute("width"), r.getAttribute("y"), r.getAttribute("height")])).toEqual([
+      ["92", "16", "0", "41"],
+      ["92", "16", "59", "41"],
+    ]);
+    expect([...h.querySelectorAll("rect")].map((r) => [r.getAttribute("y"), r.getAttribute("height"), r.getAttribute("x"), r.getAttribute("width")])).toEqual([
+      ["35", "10", "0", "43"],
+      ["35", "10", "57", "43"],
+    ]);
+  });
+  it("Cross draws two strokes through its centre in the kind's colour, hidden from assistive tech", () => {
+    const { container } = render(<svg><Cross x={10} y={20} r={4} kind="accent" /></svg>);
+    const g = container.querySelector('[data-uipack="cross"]')!;
+    expect(g).toHaveAttribute("aria-hidden", "true");
+    expect(g).toHaveAttribute("stroke", "var(--uipack-accent)");
+    expect([...g.querySelectorAll("line")].map((l) => [l.getAttribute("x1"), l.getAttribute("y1"), l.getAttribute("x2"), l.getAttribute("y2")])).toEqual([
+      ["6", "16", "14", "24"],
+      ["6", "24", "14", "16"],
+    ]);
   });
 });
 

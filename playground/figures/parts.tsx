@@ -1,4 +1,4 @@
-import { Badge, Bus, Chip, Connector, Defs, Figure, Group, Label, Lane, Node, Packet, icons, marks, route, type IconName, type MarkName } from "../../src";
+import { Badge, Bus, Chip, Connector, Cross, Defs, Figure, Group, Label, Lane, Node, Packet, Wall, icons, marks, route, type IconName, type MarkName } from "../../src";
 
 const iconNames = Object.keys(icons) as IconName[];
 const markNames = Object.keys(marks) as MarkName[];
@@ -23,7 +23,7 @@ export function PartsFigure({ number }: { number: string }) {
         { label: "Change", kind: "change" },
         { label: "Neutral", kind: "neutral" },
       ]}
-      viewBox="0 0 1120 400"
+      viewBox="0 0 1120 448"
       alt="A sampler of every uipack component.">
       <Defs id="parts" />
       <Lane x={16} w={240} y={24} title="Nodes" />
@@ -65,16 +65,22 @@ export function PartsFigure({ number }: { number: string }) {
       <Bus axis="v" at={984} from={184} to={232} stubs={[{ at: 184, to: 960, flow: "beta" }, { at: 232, to: 960, flow: "beta" }, { at: 208, to: 1008, arrow: true, flow: "beta" }]} defs="parts" flow="beta" />
       <Packet points={[[984, 208], [1008, 208]]} kind="request" dur={1.2} r={4} flow="beta" />
 
-      <Lane x={16} w={240} y={344} title="Icons" />
+      <Lane x={592} w={512} y={296} title="Wall, cross" />
+      <Wall at={720} from={312} to={376} holes={[344]} />
+      <Connector points={[[608, 344], [832, 344]]} defs="parts" />
+      <Connector points={[[880, 344], [1080, 344]]} arrow={false} dashed inset={[2, 8]} />
+      <Cross x={1088} y={344} />
+
+      <Lane x={16} w={240} y={392} title="Icons" />
       {iconNames.map((n, i) => (
-        <g key={n} transform={`translate(${16 + (i % 25) * 28}, 360)`} fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+        <g key={n} transform={`translate(${16 + (i % 25) * 28}, 408)`} fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
           <title>{n}</title>
           {icons[n]}
         </g>
       ))}
-      <Lane x={760} w={344} y={344} title="Marks" />
+      <Lane x={760} w={344} y={392} title="Marks" />
       {markNames.map((n, i) => (
-        <g key={n} transform={`translate(${760 + i * 40}, 356)`} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        <g key={n} transform={`translate(${760 + i * 40}, 404)`} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
           <title>{n}</title>
           <g transform="scale(0.75)">{marks[n]}</g>
         </g>

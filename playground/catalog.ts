@@ -215,7 +215,7 @@ export const webEntries: CatalogEntry[] = [
 export const figureEntries: CatalogEntry[] = (
   [
     ["bare-figure", "Bare figure: just the canvas", ["Frame", "Canvas"]],
-    ["parts", "Parts: every primitive once", ["Node", "Group", "Chip", "Connector", "Packet", "Bus", "Icon", "Mark"]],
+    ["parts", "Parts: every primitive once", ["Node", "Group", "Chip", "Connector", "Packet", "Bus", "Wall", "Cross", "Icon", "Mark"]],
     ["pipeline", "Pipeline: stages in a line", ["Preset", "Pipeline", "Queue"]],
     ["loops", "Loops: repeat a step, return to the start", ["Loop", "Feedback", "Return path"]],
     ["decision-tree", "Decision tree: one question per level", ["Decision", "Branch", "Tree"]],
