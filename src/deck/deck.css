@@ -206,6 +206,14 @@
   line-height: 1.5;
   text-wrap: pretty;
 }
+/* starterDeck: the template's advice, set apart from the claim it describes. */
+.uipack-deck-starter-note {
+  max-width: 44ch;
+  margin-top: 40px;
+  padding-left: 28px;
+  border-left: 4px solid var(--deck-accent);
+  color: var(--deck-muted);
+}
 .uipack-deck-number {
   margin: 0;
   font-weight: 600;

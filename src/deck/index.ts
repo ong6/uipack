@@ -43,6 +43,7 @@ export {
   type StorylineTemplateId,
 } from "./storyline";
 export { Bento, BentoCell, bentoCamera, bentoFocusAt, type BentoProps, type BentoCellProps } from "./bento";
+export { starterDeck } from "./starter";
 export {
   // Consulting slides: frame and panels
   ConsultingSlide,
