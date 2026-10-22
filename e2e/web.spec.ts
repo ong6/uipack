@@ -450,6 +450,8 @@ test.describe("/web discoverability", () => {
     // The canonical drops the theme parameter: one URL per page, whatever the view state.
     await expect(page.locator('head link[rel="canonical"]')).toHaveAttribute("href", `${origin}/web`);
     await expect(page).toHaveTitle("Tidy: forty emails in, three that need you");
+    // The playground is an illustrative demo: its index.html keeps it out of search indexes.
+    await expect(page.locator('head meta[name="robots"]')).toHaveAttribute("content", "noindex");
     const meta = (sel: string) => page.locator(`head meta[${sel}]`).getAttribute("content");
     expect(await meta('name="description"')).toMatch(/^Tidy, an illustrative inbox agent/);
     expect(await meta('property="og:title"')).toBe("Tidy: forty emails in, three that need you");

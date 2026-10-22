@@ -11,7 +11,8 @@ Reusable SVG figures, primitives, 3D animations, and presentation composition ex
 - Reuse `playground/ShowcaseShell.tsx` for every collection. Never create another logo, header, theme toggle, page width, or navigation system.
 - Classify content by both type and style. Register catalog metadata in `playground/catalog.ts`. Technical is the existing style; light/dark are colour themes within it, not new styles.
 - A new visual style needs a distinct style ID, scoped tokens, renderer/components, example data, documentation, and mobile evidence. Do not recolour Technical globally or invent unavailable style choices.
-- Use existing sans/mono typography, semantic flow colours, spacing, borders, and buttons. Scope CSS; no global h1/h2/button rules.
+- Use the style's own type roles, never a new face. Technical (figures, charts, article, shell): system sans for text, system mono for labels, IDs and controls, no font requests. Landing (`uipack/web`): three self-hosted roles, Instrument Serif display (heading step 4 and up), IBM Plex Sans text, IBM Plex Mono labels and data. Deck and Mechanism: IBM Plex Sans and Mono when the host provides them (`--font-sans`/`--font-mono`), else the system stacks.
+- Use the existing semantic flow colours, spacing, borders, and buttons. Scope CSS under the entry's root class; no global h1/h2/button rules.
 - Motion explains change. Prefer one camera movement or object sequence per beat. Respect reduced motion and keep labels readable.
 - Every interactive feature must work with touch and keyboard. Selection is persistent, reversible, and visible without colour alone. Keep links as links.
 - Dense diagrams need an authored narrow layout or an internally scrollable readable drawing. Do not compress labels into unreadable text or allow page-wide overflow.

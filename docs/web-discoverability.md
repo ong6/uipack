@@ -301,6 +301,9 @@ animation frame and only while in view; no long tasks while scrolling on desktop
 - The playground is a client-rendered SPA, so its raw HTML has none of this; the e2e tests read the
   rendered DOM. A real Landing page must be server-rendered or pre-rendered for checks 1, 4 and 5
   to reach crawlers that do not run JavaScript.
+- The playground's `index.html` carries `<meta name="robots" content="noindex">`: it is an
+  illustrative demo, so a deployed copy never gets indexed. A real page sets `robots` through
+  `pageMeta` only for previews.
 - The demo page has no `og:image`. Social previews fall back to a summary card.
 - The FAQ JSON-LD no longer earns a Google rich result; it is kept for other consumers.
 - `DemoPlayer`'s transcript holds step text, prompts, actions and the final metric, not the
