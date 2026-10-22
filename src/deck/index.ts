@@ -3,15 +3,7 @@
 export { DeckPlayer, type DeckPlayerProps } from "./DeckPlayer";
 export { SlideThumbnail } from "./player/Layer";
 export { Build, Morph, Slide, DeckSlideContext, useDeckSlide, type DeckSlideState } from "./parts";
-export {
-  CANVAS_HEIGHT,
-  CANVAS_WIDTH,
-  deckMotion,
-  slideZoomFrame,
-  type Rect,
-  type ResolvedTransition,
-  type TransitionKind,
-} from "./transitions";
+export { CANVAS_HEIGHT, CANVAS_WIDTH, deckMotion, type Rect, type TransitionKind } from "./transitions";
 export {
   LINT_RULES,
   MAX_TITLE_WORDS,
