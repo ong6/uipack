@@ -242,6 +242,19 @@ test.describe("/deck player", () => {
     await speaker.close();
   });
 
+  test("the speaker view's clocks are named in words: a timer for elapsed time, a labelled budget", async ({ page }) => {
+    await page.goto("/deck?presenter=1");
+    const clock = page.locator(".uipack-deck-presenter__clock");
+    const timer = clock.getByRole("timer");
+    await expect(timer).toHaveCount(1);
+    await expect(timer).toHaveText(/^Elapsed time \d\d:\d\d$/);
+    await expect(clock.locator(".uipack-deck-presenter__budget > span").first()).toHaveText(/^Time budget \/ 08:00$/);
+    // No aria-label on a role-less span (axe: aria-prohibited-attr).
+    await expect(clock.locator("span[aria-label]:not([role])")).toHaveCount(0);
+    // The words are for assistive technology; the clock still reads 00:00 on screen.
+    expect(await timer.evaluate((el) => (el as HTMLElement).innerText.trim())).toMatch(/\d\d:\d\d$/);
+  });
+
   test("reduced motion swaps slides with a short fade and no movement", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/deck?slide=ghost&view=present");
