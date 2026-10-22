@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { SLIDE_ROLES, WORDS_PER_MINUTE } from "../storyline";
 import type { DeckSlide, DeckTheme } from "../types";
 import { notesOf, pad } from "./format";
@@ -61,6 +61,24 @@ export function Presenter({
   const drift = elapsed > end ? elapsed - end : elapsed < start ? elapsed - start : 0;
   const pace = Math.abs(drift) < 15 ? "on pace" : drift > 0 ? `${clock(drift)} behind` : `${clock(-drift)} ahead`;
   const notes = notesOf(slides[index]);
+  // On a wide screen the side column is one screen tall and the talk track scrolls inside it. When
+  // there is more below, the track fades at its foot and says so, so a cut-off Bridge is never missed.
+  const notesRef = useRef<HTMLElement>(null);
+  const [more, setMore] = useState(false);
+  useEffect(() => {
+    const el = notesRef.current;
+    if (!el) return;
+    el.scrollTop = 0;
+    const check = () => setMore(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
+    check();
+    el.addEventListener("scroll", check, { passive: true });
+    const ro = typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(check);
+    ro?.observe(el);
+    return () => {
+      el.removeEventListener("scroll", check);
+      ro?.disconnect();
+    };
+  }, [index]);
   const upcoming = slides[index + 1];
   const role = slides[index].role;
   return (
@@ -110,7 +128,14 @@ export function Presenter({
             Reset clock
           </button>
         </section>
-        <section className="uipack-deck-presenter__notes">
+        <section
+          ref={notesRef}
+          className="uipack-deck-presenter__notes"
+          // Focusable, so the track scrolls from the keyboard when it is taller than the column.
+          tabIndex={0}
+          aria-label="Talk track"
+          data-more={more ? "" : undefined}
+        >
           {role && (
             <p className="uipack-deck-presenter__role">
               <b>{SLIDE_ROLES[role].label}</b> answers “{SLIDE_ROLES[role].question}”
@@ -131,6 +156,11 @@ export function Presenter({
             </>
           )}
         </section>
+        {more && (
+          <p className="uipack-deck-presenter__more" aria-hidden="true">
+            More below ↓
+          </p>
+        )}
       </aside>
     </div>
   );

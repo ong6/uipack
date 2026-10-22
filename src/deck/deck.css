@@ -629,6 +629,48 @@
   margin: 0;
   color: var(--deck-muted);
 }
+/* A wide screen: the side column fits the screen above the controls, beside the slide, and the talk track scrolls
+   inside it when it is longer; its foot fades and says "More below" while there is more. The next
+   slide's thumbnail is capped, so the track gets the height. */
+@media (min-width: 901px) {
+  .uipack-deck-presenter {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, clamp(380px, 27vw, 520px));
+  }
+  .uipack-deck-presenter__side {
+    position: sticky;
+    top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    /* Room for the page's padding and the controls under it (44px and its margin). */
+    max-height: calc(100svh - 100px);
+  }
+  .uipack-deck-presenter__next .uipack-deck-thumb {
+    max-width: 360px;
+  }
+  .uipack-deck-presenter__notes {
+    flex: 1 1 auto;
+    min-height: 120px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 8px;
+  }
+  .uipack-deck-presenter__notes[data-more] {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
+  }
+}
+.uipack-deck-presenter__notes:focus-visible {
+  outline: 2px solid var(--deck-accent);
+  outline-offset: 4px;
+}
+.uipack-deck-presenter__more {
+  margin: -8px 0 0;
+  color: var(--deck-accent);
+  font: 600 12px/1.4 var(--deck-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
 @media (max-width: 900px) {
   .uipack-deck-presenter {
     grid-template-columns: 1fr;
