@@ -3,8 +3,7 @@ import * as THREE from "three";
 import { createArtDirection } from "./art-directions";
 import type { ObjectVariant, ObjectEdition } from "./variants";
 import { marketBar, MARKET_BAR_MS, MARKET_LOOP_MS } from "./market";
-export type ObjectKind =
-  "ai" | "contact" | "tennis" | "trading" | "server" | "travel" | "reading";
+export type ObjectKind = "ai" | "contact" | "tennis" | "trading" | "server" | "travel" | "reading";
 export interface ObjectPalette {
   paper: number;
   ink: number;
@@ -12,27 +11,16 @@ export interface ObjectPalette {
   accent: number;
 }
 export const DURATION = 5400;
-const p = (t: number, a: number, b: number) =>
-  Math.max(0, Math.min(1, (t - a) / (b - a)));
+const p = (t: number, a: number, b: number) => Math.max(0, Math.min(1, (t - a) / (b - a)));
 const ease = (x: number) => x * x * x * (x * (x * 6 - 15) + 10);
 const mix = THREE.MathUtils.lerp;
-const mat = (color: number) =>
-  new THREE.MeshStandardMaterial({ color, roughness: 0.72, metalness: 0.04 });
+const mat = (color: number) => new THREE.MeshStandardMaterial({ color, roughness: 0.72, metalness: 0.04 });
 const mesh = (g: THREE.BufferGeometry, color: number, x = 0, y = 0, z = 0) => {
   const m = new THREE.Mesh(g, mat(color));
   m.position.set(x, y, z);
   return m;
 };
-function slab(
-  w: number,
-  h: number,
-  d: number,
-  color: number,
-  x = 0,
-  y = 0,
-  z = 0,
-  r = 0.06,
-) {
+function slab(w: number, h: number, d: number, color: number, x = 0, y = 0, z = 0, r = 0.06) {
   r = Math.min(r, w / 2, h / 2);
   const s = new THREE.Shape();
   const a = -w / 2,
@@ -60,32 +48,14 @@ function slab(
 }
 function line(points: number[][], color: number, opacity = 1) {
   return new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints(
-      points.map((v) => new THREE.Vector3(v[0], v[1], v[2] ?? 0)),
-    ),
+    new THREE.BufferGeometry().setFromPoints(points.map((v) => new THREE.Vector3(v[0], v[1], v[2] ?? 0))),
     new THREE.LineBasicMaterial({ color, transparent: opacity < 1, opacity }),
   );
 }
 function tube(points: THREE.Vector3[], radius: number, color: number) {
-  return mesh(
-    new THREE.TubeGeometry(
-      new THREE.CatmullRomCurve3(points),
-      64,
-      radius,
-      8,
-      false,
-    ),
-    color,
-  );
+  return mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 64, radius, 8, false), color);
 }
-function label(
-  text: string,
-  color: number,
-  x: number,
-  y: number,
-  z: number,
-  size = 0.16,
-) {
+function label(text: string, color: number, x: number, y: number, z: number, size = 0.16) {
   // CanvasTexture is created only in the lazy, browser-only renderer.
   const canvas = document.createElement("canvas");
   canvas.width = 512;
@@ -124,16 +94,7 @@ function ai(c: ObjectPalette) {
   g.add(keyboard);
   for (let row = 0; row < 4; row++)
     for (let col = 0; col < 10; col++) {
-      const key = slab(
-        0.18,
-        0.09,
-        0.018,
-        c.ink,
-        -0.98 + col * 0.215,
-        -0.88,
-        0.18 + row * 0.13,
-        0.015,
-      );
+      const key = slab(0.18, 0.09, 0.018, c.ink, -0.98 + col * 0.215, -0.88, 0.18 + row * 0.13, 0.015);
       key.rotation.x = -Math.PI / 2;
       g.add(key);
     }
@@ -144,29 +105,12 @@ function ai(c: ObjectPalette) {
   g.add(slab(2.72, 1.85, 0.13, c.ink, 0, 0.04, -0.1));
   g.add(slab(2.5, 1.61, 0.022, 0x18232d, 0, 0.04, -0.015));
   for (let i = 0; i < 3; i++)
-    g.add(
-      mesh(
-        new THREE.SphereGeometry(0.032, 12, 8),
-        [0xed6a64, 0xe4b75d, 0x6fba88][i],
-        -1.1 + i * 0.11,
-        0.71,
-        0.016,
-      ),
-    );
+    g.add(mesh(new THREE.SphereGeometry(0.032, 12, 8), [0xed6a64, 0xe4b75d, 0x6fba88][i], -1.1 + i * 0.11, 0.71, 0.016));
   g.add(label("AGENT / LOCAL", 0xa5b9bd, 0.32, 0.71, 0.034, 0.11));
   const code: THREE.Mesh[] = [];
   for (let row = 0; row < 7; row++) {
     const length = [0.92, 1.65, 1.26, 0.72, 1.42, 1.08, 0.58][row];
-    const strip = slab(
-      length,
-      0.047,
-      0.01,
-      [0x79b6ed, 0xa6d5af, 0xddd7bd][row % 3],
-      0,
-      0.47 - row * 0.16,
-      0.03,
-      0.01,
-    );
+    const strip = slab(length, 0.047, 0.01, [0x79b6ed, 0xa6d5af, 0xddd7bd][row % 3], 0, 0.47 - row * 0.16, 0.03, 0.01);
     strip.userData.length = length;
     strip.userData.left = -1.06 + (row % 3) * 0.12;
     code.push(strip);
@@ -177,10 +121,7 @@ function ai(c: ObjectPalette) {
   const satellites = [-1, 1].map((side) => {
     const chip = new THREE.Group();
     chip.position.set(side * 1.65, 0.6, 0.2);
-    chip.add(
-      slab(0.72, 0.72, 0.12, c.paper),
-      slab(0.58, 0.05, 0.018, c.accent, 0, -0.21, 0.08, 0.008),
-    );
+    chip.add(slab(0.72, 0.72, 0.12, c.paper), slab(0.58, 0.05, 0.018, c.accent, 0, -0.21, 0.08, 0.008));
     chip.add(label(side < 0 ? "</>" : "AI", c.ink, 0, 0.05, 0.09, 0.2));
     g.add(chip);
     return chip;
@@ -201,10 +142,7 @@ function ai(c: ObjectPalette) {
     return m;
   });
   const result = new THREE.Group();
-  result.add(
-    slab(1.45, 0.37, 0.05, 0x235b47),
-    label("TASK COMPLETE", 0xe1f4e6, 0, 0, 0.06, 0.15),
-  );
+  result.add(slab(1.45, 0.37, 0.05, 0x235b47), label("TASK COMPLETE", 0xe1f4e6, 0, 0, 0.06, 0.15));
   result.position.set(0, -0.49, 0.16);
   g.add(result);
   g.userData.animate = (time: number) => {
@@ -218,9 +156,7 @@ function ai(c: ObjectPalette) {
     });
     const row = Math.min(6, Math.floor(typing));
     cursor.position.set(
-      code[row].position.x +
-        (code[row].userData.length * code[row].scale.x) / 2 +
-        0.06,
+      code[row].position.x + (code[row].userData.length * code[row].scale.x) / 2 + 0.06,
       0.47 - row * 0.16,
       0.04,
     );
@@ -240,15 +176,7 @@ function ai(c: ObjectPalette) {
     phase(
       g,
       t,
-      t < 700
-        ? "prompt"
-        : t < 2100
-          ? "prompt-to-tools"
-          : t < 2850
-            ? "tools"
-            : t < 4250
-              ? "tools-to-check"
-              : "check",
+      t < 700 ? "prompt" : t < 2100 ? "prompt-to-tools" : t < 2850 ? "tools" : t < 4250 ? "tools-to-check" : "check",
       p(t, 700, 4250),
     );
   };
@@ -288,13 +216,7 @@ function contact(c: ObjectPalette) {
     } else if (index === 1) {
       source.add(
         slab(0.48, 0.3, 0.018, c.accent, 0, 0.03, 0.13, 0.07),
-        mesh(
-          new THREE.ConeGeometry(0.075, 0.15, 3),
-          c.accent,
-          -0.14,
-          -0.18,
-          0.13,
-        ),
+        mesh(new THREE.ConeGeometry(0.075, 0.15, 3), c.accent, -0.14, -0.18, 0.13),
       );
     } else {
       source.add(
@@ -356,26 +278,11 @@ function contact(c: ObjectPalette) {
   tray.rotation.x = -0.18;
   inbox.add(tray);
   const receipts = sourceY.map((_, index) => {
-    const receipt = slab(
-      0.72,
-      0.18,
-      0.025,
-      c.paper,
-      0,
-      -0.25 + index * 0.14,
-      0.34,
-      0.025,
-    );
+    const receipt = slab(0.72, 0.18, 0.025, c.paper, 0, -0.25 + index * 0.14, 0.34, 0.025);
     inbox.add(receipt);
     return receipt;
   });
-  const status = mesh(
-    new THREE.TorusGeometry(0.12, 0.027, 10, 40),
-    c.accent,
-    0.43,
-    0.53,
-    0.14,
-  );
+  const status = mesh(new THREE.TorusGeometry(0.12, 0.027, 10, 40), c.accent, 0.43, 0.53, 0.14);
   inbox.add(status);
   g.add(inbox);
 
@@ -403,13 +310,7 @@ function contact(c: ObjectPalette) {
     phase(
       g,
       t,
-      t < 900
-        ? "open-channels"
-        : t < 3650
-          ? "route-signals"
-          : t < 4750
-            ? "collect-messages"
-            : "contact-ready",
+      t < 900 ? "open-channels" : t < 3650 ? "route-signals" : t < 4750 ? "collect-messages" : "contact-ready",
       p(t, 700, 4750),
     );
   };
@@ -417,25 +318,48 @@ function contact(c: ObjectPalette) {
 }
 async function tennis(_c: ObjectPalette, variant: ObjectEdition = 0) {
   const [{ GLTFLoader }, { default: encoded }] = await Promise.all([
-    import("three/addons/loaders/GLTFLoader.js"), import("./tennis-asset"),
+    import("three/addons/loaders/GLTFLoader.js"),
+    import("./tennis-asset"),
   ]);
   const bytes = Uint8Array.from(atob(encoded), (char) => char.charCodeAt(0));
   const model = await new GLTFLoader().parseAsync(bytes.buffer, "");
   const g = new THREE.Group();
   g.rotation.set(0.64, -0.25, 0);
-  g.position.y = 0.10;
+  g.position.y = 0.1;
   model.scene.scale.setScalar(0.69);
   model.scene.position.y = -0.65;
   g.add(model.scene);
   const colors = [
-    { Court: 0x326658, "Court stripe": 0x386e5e, "Court surround": 0x284c43, Jersey: 0xeee9db, "Kit accent": 0x27534a, Shorts: 0x283e48 },
-    { Court: 0xa65e43, "Court stripe": 0xad6549, "Court surround": 0x704434, Jersey: 0xe6ddcc, "Kit accent": 0x6e4538, Shorts: 0x574036 },
-    { Court: 0x446b89, "Court stripe": 0x4b7291, "Court surround": 0x304958, Jersey: 0xd5e7e3, "Kit accent": 0x24564d, Shorts: 0x203d4a },
+    {
+      Court: 0x326658,
+      "Court stripe": 0x386e5e,
+      "Court surround": 0x284c43,
+      Jersey: 0xeee9db,
+      "Kit accent": 0x27534a,
+      Shorts: 0x283e48,
+    },
+    {
+      Court: 0xa65e43,
+      "Court stripe": 0xad6549,
+      "Court surround": 0x704434,
+      Jersey: 0xe6ddcc,
+      "Kit accent": 0x6e4538,
+      Shorts: 0x574036,
+    },
+    {
+      Court: 0x446b89,
+      "Court stripe": 0x4b7291,
+      "Court surround": 0x304958,
+      Jersey: 0xd5e7e3,
+      "Kit accent": 0x24564d,
+      Shorts: 0x203d4a,
+    },
   ][variant];
   model.scene.traverse((item) => {
     const m = item as THREE.Mesh;
     if (!m.isMesh) return;
-    m.castShadow = !m.name.startsWith("Court"); m.receiveShadow = true;
+    m.castShadow = !m.name.startsWith("Court");
+    m.receiveShadow = true;
     for (const material of Array.isArray(m.material) ? m.material : [m.material]) {
       const color = colors[material.name as keyof typeof colors];
       if (color !== undefined) (material as THREE.MeshStandardMaterial).color.setHex(color);
@@ -454,7 +378,10 @@ async function tennis(_c: ObjectPalette, variant: ObjectEdition = 0) {
   g.userData.ball = ball;
   g.userData.racket = racket;
   g.userData.racketContact = new THREE.Vector3(0, 0.63, 0);
-  g.userData.dispose = () => { mixer.stopAllAction(); mixer.uncacheRoot(model.scene); };
+  g.userData.dispose = () => {
+    mixer.stopAllAction();
+    mixer.uncacheRoot(model.scene);
+  };
   g.userData.animate = (time: number) => {
     const t = ((time % 6000) + 6000) % 6000;
     mixer.setTime(t / 1000);
@@ -467,66 +394,115 @@ function trading(c: ObjectPalette, variant: ObjectEdition = 0) {
   const g = new THREE.Group();
   g.rotation.set(0.06, -0.19, 0);
   const casing = slab(4.08, 2.62, 0.16, 0x263038, 0, 0.26, 0, 0.055);
-  casing.material.metalness = 0.45; casing.material.roughness = 0.4;
+  casing.material.metalness = 0.45;
+  casing.material.roughness = 0.4;
   g.add(casing, slab(0.32, 0.6, 0.18, 0x303d45, 0, -1.18, -0.04, 0.035));
   const foot = slab(1.38, 0.5, 0.095, 0x3c4951, 0, -1.51, 0.16, 0.065);
-  foot.rotation.x = -Math.PI / 2; g.add(foot);
-  g.add(label("MARKET STUDY", 0x899b9f, 0, -0.94, 0.10, 0.075));
+  foot.rotation.x = -Math.PI / 2;
+  g.add(foot);
+  g.add(label("MARKET STUDY", 0x899b9f, 0, -0.94, 0.1, 0.075));
   g.add(mesh(new THREE.SphereGeometry(0.019, 12, 8), 0x51bfa6, 1.8, -0.94, 0.105));
-  const canvas = document.createElement("canvas"); canvas.width = 1056; canvas.height = 620;
+  const canvas = document.createElement("canvas");
+  canvas.width = 1056;
+  canvas.height = 620;
   const ctx = canvas.getContext("2d")!;
-  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace;
-  const display = new THREE.Mesh(new THREE.PlaneGeometry(3.82, 2.24), new THREE.MeshBasicMaterial({ map: texture, toneMapped: false }));
-  display.position.set(0, 0.34, 0.12); g.add(display);
-  const green = "#32c99a", red = "#ee6972";
-  const left = 38, right = 958, top = 108, bottom = 422, volumeBottom = 543;
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  const display = new THREE.Mesh(
+    new THREE.PlaneGeometry(3.82, 2.24),
+    new THREE.MeshBasicMaterial({ map: texture, toneMapped: false }),
+  );
+  display.position.set(0, 0.34, 0.12);
+  g.add(display);
+  const green = "#32c99a",
+    red = "#ee6972";
+  const left = 38,
+    right = 958,
+    top = 108,
+    bottom = 422,
+    volumeBottom = 543;
   const step = (right - left) / 24;
-  const priceY = (value: number) => bottom - (value - 96.5) / 7 * (bottom - top);
+  const priceY = (value: number) => bottom - ((value - 96.5) / 7) * (bottom - top);
   const stroke = (x1: number, y1: number, x2: number, y2: number, color: string, width = 1) => {
-    ctx.strokeStyle = color; ctx.lineWidth = width; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
   };
   g.userData.loopDuration = MARKET_LOOP_MS;
   g.userData.restTime = 3600;
   g.userData.marketBar = (index: number) => marketBar(index, variant);
   g.userData.animate = (time: number) => {
     const t = ((time % MARKET_LOOP_MS) + MARKET_LOOP_MS) % MARKET_LOOP_MS;
-    const offset = Math.max(0, time) / MARKET_BAR_MS, first = Math.floor(offset), fraction = offset - first;
-    ctx.fillStyle = "#111a22"; ctx.fillRect(0, 0, 1056, 620);
-    ctx.textAlign = "left"; ctx.font = "600 23px monospace"; ctx.fillStyle = "#e5ebee"; ctx.fillText("DEMO / USD", 30, 39);
-    ctx.font = "15px monospace"; ctx.fillStyle = "#91a4b0"; ctx.fillText("1m  ·  OHLC + VOLUME", 30, 70);
-    ctx.textAlign = "right"; ctx.fillStyle = "#c2ced4"; ctx.fillText("SIMULATED · REPEATING STUDY", 1026, 39);
+    const offset = Math.max(0, time) / MARKET_BAR_MS,
+      first = Math.floor(offset),
+      fraction = offset - first;
+    ctx.fillStyle = "#111a22";
+    ctx.fillRect(0, 0, 1056, 620);
+    ctx.textAlign = "left";
+    ctx.font = "600 23px monospace";
+    ctx.fillStyle = "#e5ebee";
+    ctx.fillText("DEMO / USD", 30, 39);
+    ctx.font = "15px monospace";
+    ctx.fillStyle = "#91a4b0";
+    ctx.fillText("1m  ·  OHLC + VOLUME", 30, 70);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#c2ced4";
+    ctx.fillText("SIMULATED · REPEATING STUDY", 1026, 39);
     stroke(28, 87, 1028, 87, "#2a3944");
     ctx.font = "14px monospace";
     for (let value = 97; value <= 103; value++) {
-      const y = priceY(value); stroke(left, y, right, y, "#25323c");
-      ctx.textAlign = "left"; ctx.fillStyle = "#91a4b0"; ctx.fillText(value.toFixed(2), right + 12, y + 5);
+      const y = priceY(value);
+      stroke(left, y, right, y, "#25323c");
+      ctx.textAlign = "left";
+      ctx.fillStyle = "#91a4b0";
+      ctx.fillText(value.toFixed(2), right + 12, y + 5);
     }
     stroke(left, 456, right, 456, "#2c3a44");
-    ctx.textAlign = "left"; ctx.fillStyle = "#91a4b0"; ctx.fillText("VOL", left, 478);
-    ctx.save(); ctx.beginPath(); ctx.rect(left, top, right - left, volumeBottom - top); ctx.clip();
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#91a4b0";
+    ctx.fillText("VOL", left, 478);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(left, top, right - left, volumeBottom - top);
+    ctx.clip();
     for (let i = first - 1; i <= first + 25; i++) {
-      const bar = marketBar(i, variant), x = left + (i - first - fraction + .5) * step;
+      const bar = marketBar(i, variant),
+        x = left + (i - first - fraction + 0.5) * step;
       if (i % 6 === 0) stroke(x, top, x, volumeBottom, "#1e2b35");
       const color = bar.close >= bar.open ? green : red;
       stroke(x, priceY(bar.high), x, priceY(bar.low), color, 2);
       ctx.fillStyle = color;
       ctx.fillRect(x - 9, priceY(Math.max(bar.open, bar.close)), 18, Math.max(2, Math.abs(priceY(bar.open) - priceY(bar.close))));
       const h = Math.min(57, bar.volume / 12);
-      ctx.globalAlpha = .50; ctx.fillRect(x - 9, volumeBottom - h, 18, h); ctx.globalAlpha = 1;
+      ctx.globalAlpha = 0.5;
+      ctx.fillRect(x - 9, volumeBottom - h, 18, h);
+      ctx.globalAlpha = 1;
     }
     ctx.restore();
-    ctx.textAlign = "left"; ctx.fillStyle = "#91a4b0";
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#91a4b0";
     // Time advances with the viewport even when the authored OHLC pattern repeats.
-    for (let i = first; i <= first + 24; i++) if (i % 4 === 0) {
-      const x = left + (i - first - fraction + .5) * step;
-      if (x >= left && x <= right - 40) {
-        const minute = (570 + i) % 1440;
-        ctx.fillText(String(Math.floor(minute / 60)).padStart(2, "0") + ":" + String(minute % 60).padStart(2, "0"), x - 12, 569);
+    for (let i = first; i <= first + 24; i++)
+      if (i % 4 === 0) {
+        const x = left + (i - first - fraction + 0.5) * step;
+        if (x >= left && x <= right - 40) {
+          const minute = (570 + i) % 1440;
+          ctx.fillText(
+            String(Math.floor(minute / 60)).padStart(2, "0") + ":" + String(minute % 60).padStart(2, "0"),
+            x - 12,
+            569,
+          );
+        }
       }
-    }
-    ctx.fillStyle = "#6f8695"; ctx.font = "13px monospace"; ctx.fillText("Illustrative prices · fixed USD scale · no live feed", left, 603);
+    ctx.fillStyle = "#6f8695";
+    ctx.font = "13px monospace";
+    ctx.fillText("Illustrative prices · fixed USD scale · no live feed", left, 603);
     texture.needsUpdate = true;
-    g.userData.phase = "market-pan"; g.userData.pose = t / MARKET_LOOP_MS;
+    g.userData.phase = "market-pan";
+    g.userData.pose = t / MARKET_LOOP_MS;
     g.userData.scroll = offset;
   };
   return g;
@@ -535,135 +511,257 @@ function server(c: ObjectPalette) {
   const g = new THREE.Group();
   g.rotation.set(0.24, -0.46, -0.035);
   // Folded metal rails, storage, vented compute and a patch panel.
-  const alloy = 0x74858b, graphite = 0x273139;
-  const metal = (w: number, h: number, d: number, color: number, x=0, y=0, z=0) => {
-    const part = slab(w,h,d,color,x,y,z,0.025);
-    part.material.metalness = 0.48; part.material.roughness = 0.38;
+  const alloy = 0x74858b,
+    graphite = 0x273139;
+  const metal = (w: number, h: number, d: number, color: number, x = 0, y = 0, z = 0) => {
+    const part = slab(w, h, d, color, x, y, z, 0.025);
+    part.material.metalness = 0.48;
+    part.material.roughness = 0.38;
     return part;
   };
-  g.add(metal(3.08,0.11,1.55,graphite,0,-1.3), metal(3.08,0.08,1.55,alloy,0,1.3));
-  for (const x of [-1.43,1.43]) for (const z of [-0.66,0.66]) {
-    g.add(metal(0.09,2.55,0.09,alloy,x,0,z));
-    if (z>0) for(let n=0;n<13;n++) g.add(mesh(new THREE.BoxGeometry(0.034,0.047,0.008),graphite,x,-1.1+n*.18,z+.051));
-  }
-  const trays: THREE.Group[] = [], fans: THREE.Group[] = [], lamps: THREE.Mesh[] = [];
-  for(let i=0;i<3;i++) {
-    const tray=new THREE.Group(); tray.position.y=.82-i*.82;
-    tray.add(metal(2.7,.61,1.18,graphite),metal(2.69,.58,.035,i===1?c.accent:alloy,0,0,.607));
-    for(const x of [-1.2,1.2]) {
-      tray.add(metal(.04,.35,.1,0xc2ccca,x,0,.70));
-      for(const y of [-.22,.22]) {
-        const screw=mesh(new THREE.CylinderGeometry(.027,.027,.013,10),0xced2cb,x,y,.647);
-        screw.rotation.x=Math.PI/2;tray.add(screw);
+  g.add(metal(3.08, 0.11, 1.55, graphite, 0, -1.3), metal(3.08, 0.08, 1.55, alloy, 0, 1.3));
+  for (const x of [-1.43, 1.43])
+    for (const z of [-0.66, 0.66]) {
+      g.add(metal(0.09, 2.55, 0.09, alloy, x, 0, z));
+      if (z > 0)
+        for (let n = 0; n < 13; n++)
+          g.add(mesh(new THREE.BoxGeometry(0.034, 0.047, 0.008), graphite, x, -1.1 + n * 0.18, z + 0.051));
+    }
+  const trays: THREE.Group[] = [],
+    fans: THREE.Group[] = [],
+    lamps: THREE.Mesh[] = [];
+  for (let i = 0; i < 3; i++) {
+    const tray = new THREE.Group();
+    tray.position.y = 0.82 - i * 0.82;
+    tray.add(metal(2.7, 0.61, 1.18, graphite), metal(2.69, 0.58, 0.035, i === 1 ? c.accent : alloy, 0, 0, 0.607));
+    for (const x of [-1.2, 1.2]) {
+      tray.add(metal(0.04, 0.35, 0.1, 0xc2ccca, x, 0, 0.7));
+      for (const y of [-0.22, 0.22]) {
+        const screw = mesh(new THREE.CylinderGeometry(0.027, 0.027, 0.013, 10), 0xced2cb, x, y, 0.647);
+        screw.rotation.x = Math.PI / 2;
+        tray.add(screw);
       }
     }
-    if(i===0) {
-      for(let n=0;n<6;n++) {
-        const x=-.88+n*.30;
-        tray.add(metal(.25,.37,.05,graphite,x,0,.665),metal(.17,.024,.01,0xa8b5b5,x,-.10,.70));
-        const lamp=mesh(new THREE.SphereGeometry(.018,8,6),c.accent,x+.06,.11,.704);lamps.push(lamp);tray.add(lamp);
+    if (i === 0) {
+      for (let n = 0; n < 6; n++) {
+        const x = -0.88 + n * 0.3;
+        tray.add(metal(0.25, 0.37, 0.05, graphite, x, 0, 0.665), metal(0.17, 0.024, 0.01, 0xa8b5b5, x, -0.1, 0.7));
+        const lamp = mesh(new THREE.SphereGeometry(0.018, 8, 6), c.accent, x + 0.06, 0.11, 0.704);
+        lamps.push(lamp);
+        tray.add(lamp);
       }
-    } else if(i===1) {
-      for(const x of [-.70,0,.70]) {
-        tray.add(mesh(new THREE.TorusGeometry(.20,.025,8,32),graphite,x,0,.662));
-        const fan=new THREE.Group();fan.position.set(x,0,.674);
-        for(let blade=0;blade<7;blade++) {
-          const vane=slab(.073,.135,.014,0x26383f,0,.105,0,.026);
-          const pivot=new THREE.Group();pivot.rotation.z=blade*Math.PI*2/7;pivot.add(vane);fan.add(pivot);
+    } else if (i === 1) {
+      for (const x of [-0.7, 0, 0.7]) {
+        tray.add(mesh(new THREE.TorusGeometry(0.2, 0.025, 8, 32), graphite, x, 0, 0.662));
+        const fan = new THREE.Group();
+        fan.position.set(x, 0, 0.674);
+        for (let blade = 0; blade < 7; blade++) {
+          const vane = slab(0.073, 0.135, 0.014, 0x26383f, 0, 0.105, 0, 0.026);
+          const pivot = new THREE.Group();
+          pivot.rotation.z = (blade * Math.PI * 2) / 7;
+          pivot.add(vane);
+          fan.add(pivot);
         }
-        const hub=mesh(new THREE.CylinderGeometry(.054,.054,.022,16),alloy);hub.rotation.x=Math.PI/2;fan.add(hub);
-        fans.push(fan);tray.add(fan);
-        for(let n=-2;n<=2;n++) tray.add(line([[-.17+x,n*.064,.703],[.17+x,n*.064,.703]],0xa8b8b6,.65));
+        const hub = mesh(new THREE.CylinderGeometry(0.054, 0.054, 0.022, 16), alloy);
+        hub.rotation.x = Math.PI / 2;
+        fan.add(hub);
+        fans.push(fan);
+        tray.add(fan);
+        for (let n = -2; n <= 2; n++)
+          tray.add(
+            line(
+              [
+                [-0.17 + x, n * 0.064, 0.703],
+                [0.17 + x, n * 0.064, 0.703],
+              ],
+              0xa8b8b6,
+              0.65,
+            ),
+          );
       }
     } else {
-      for(let n=0;n<8;n++) {
-        const x=-.91+n*.26;
-        tray.add(metal(.18,.15,.025,graphite,x,.04,.654));
-        for(let k=0;k<3;k++)tray.add(mesh(new THREE.BoxGeometry(.016,.042,.008),0xc3ac70,x-.045+k*.045,.075,.676));
+      for (let n = 0; n < 8; n++) {
+        const x = -0.91 + n * 0.26;
+        tray.add(metal(0.18, 0.15, 0.025, graphite, x, 0.04, 0.654));
+        for (let k = 0; k < 3; k++)
+          tray.add(mesh(new THREE.BoxGeometry(0.016, 0.042, 0.008), 0xc3ac70, x - 0.045 + k * 0.045, 0.075, 0.676));
       }
-      for(let n=0;n<2;n++) {
-        const wire=tube([new THREE.Vector3(-.78+n*.75,.02,.7),new THREE.Vector3(-.78+n*.75,-.23,.95),new THREE.Vector3(-.34+n*.75,-.23,.95),new THREE.Vector3(-.39+n*.75,.02,.7)],.024,n?0xbd9166:c.accent);
+      for (let n = 0; n < 2; n++) {
+        const wire = tube(
+          [
+            new THREE.Vector3(-0.78 + n * 0.75, 0.02, 0.7),
+            new THREE.Vector3(-0.78 + n * 0.75, -0.23, 0.95),
+            new THREE.Vector3(-0.34 + n * 0.75, -0.23, 0.95),
+            new THREE.Vector3(-0.39 + n * 0.75, 0.02, 0.7),
+          ],
+          0.024,
+          n ? 0xbd9166 : c.accent,
+        );
         tray.add(wire);
       }
     }
-    trays.push(tray);g.add(tray);
+    trays.push(tray);
+    g.add(tray);
   }
-  g.add(label("INFERENCE / STUDY",c.ink,0,-1.59,.3,.17));
-  g.userData.animate=(time:number)=>{
-    const t=Math.min(time,DURATION);
-    trays.forEach((tray,i)=>{
-      const q=ease(p(t,180+i*650,1500+i*650));
-      tray.position.z=mix(1.0,0,q);tray.position.x=mix(i%2?-.30:.30,0,q);
+  g.add(label("INFERENCE / STUDY", c.ink, 0, -1.59, 0.3, 0.17));
+  g.userData.animate = (time: number) => {
+    const t = Math.min(time, DURATION);
+    trays.forEach((tray, i) => {
+      const q = ease(p(t, 180 + i * 650, 1500 + i * 650));
+      tray.position.z = mix(1.0, 0, q);
+      tray.position.x = mix(i % 2 ? -0.3 : 0.3, 0, q);
     });
-    const power=ease(p(t,2800,4200));
-    fans.forEach((fan,i)=>fan.rotation.z=power*(Math.PI*3+i*.35));
-    lamps.forEach(lamp=>{const material=lamp.material as THREE.MeshStandardMaterial;material.emissive.setHex(c.accent);material.emissiveIntensity=.7*power;});
-    phase(g,t,t<1500?"place-chassis":t<2450?"place-compute":t<3550?"place-memory":"bandwidth-check",p(t,180,4200));
+    const power = ease(p(t, 2800, 4200));
+    fans.forEach((fan, i) => (fan.rotation.z = power * (Math.PI * 3 + i * 0.35)));
+    lamps.forEach((lamp) => {
+      const material = lamp.material as THREE.MeshStandardMaterial;
+      material.emissive.setHex(c.accent);
+      material.emissiveIntensity = 0.7 * power;
+    });
+    phase(
+      g,
+      t,
+      t < 1500 ? "place-chassis" : t < 2450 ? "place-compute" : t < 3550 ? "place-memory" : "bandwidth-check",
+      p(t, 180, 4200),
+    );
   };
   return g;
 }
-function travel(c: ObjectPalette, variant: ObjectEdition=0) {
-  const g=new THREE.Group();g.rotation.set(.38,-.24,-.10);
-  const atlas=document.createElement("canvas");atlas.width=1536;atlas.height=1024;
-  const ctx=atlas.getContext("2d")!;
-  const looks=[{land:"#e8e8cd",contour:"#a0b692",water:"#9cbdc1",park:"#c6d1ad"},{land:"#ede7d2",contour:"#b2b59b",water:"#94bdcf",park:"#c5d2b7"},{land:"#ecdcc6",contour:"#c6ab89",water:"#adc4c0",park:"#d6c59d"}];
-  const look=looks[variant];ctx.fillStyle=look.land;ctx.fillRect(0,0,1536,1024);
+function travel(c: ObjectPalette, variant: ObjectEdition = 0) {
+  const g = new THREE.Group();
+  g.rotation.set(0.38, -0.24, -0.1);
+  const atlas = document.createElement("canvas");
+  atlas.width = 1536;
+  atlas.height = 1024;
+  const ctx = atlas.getContext("2d")!;
+  const looks = [
+    { land: "#e8e8cd", contour: "#a0b692", water: "#9cbdc1", park: "#c6d1ad" },
+    { land: "#ede7d2", contour: "#b2b59b", water: "#94bdcf", park: "#c5d2b7" },
+    { land: "#ecdcc6", contour: "#c6ab89", water: "#adc4c0", park: "#d6c59d" },
+  ];
+  const look = looks[variant];
+  ctx.fillStyle = look.land;
+  ctx.fillRect(0, 0, 1536, 1024);
   // Original topographic print; no downloaded map or implied real destination.
-  ctx.lineWidth=2;ctx.strokeStyle=look.contour;
-  for(let n=0;n<28;n++) {
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = look.contour;
+  for (let n = 0; n < 28; n++) {
     ctx.beginPath();
-    for(let x=0;x<=1536;x+=12){const y=n*48-130+85*Math.sin(x/290+variant*.8)+35*Math.sin(x/110+n*.32);if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}
+    for (let x = 0; x <= 1536; x += 12) {
+      const y = n * 48 - 130 + 85 * Math.sin(x / 290 + variant * 0.8) + 35 * Math.sin(x / 110 + n * 0.32);
+      if (x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
     ctx.stroke();
   }
-  ctx.strokeStyle=look.water;ctx.lineWidth=variant===1?110:48;ctx.beginPath();
-  for(let y=0;y<=1024;y+=12){const x=1080+110*Math.sin(y/180+variant)+y*.12;if(y===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();
-  for(let row=0;row<6;row++) for(let col=0;col<9;col++) {
-    const x=90+col*146+Math.sin(row*2+col)*24,y=120+row*142;
-    ctx.fillStyle=(row+col)%4===0?look.park:"#f3efdc";ctx.fillRect(x,y,58+(col%3)*16,45+(row%2)*22);
+  ctx.strokeStyle = look.water;
+  ctx.lineWidth = variant === 1 ? 110 : 48;
+  ctx.beginPath();
+  for (let y = 0; y <= 1024; y += 12) {
+    const x = 1080 + 110 * Math.sin(y / 180 + variant) + y * 0.12;
+    if (y === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
   }
-  for(let road=0;road<4;road++) {
-    ctx.beginPath();ctx.strokeStyle="#faf5e6";ctx.lineWidth=12;
-    for(let x=0;x<=1536;x+=12){const y=180+road*205+45*Math.sin(x/260+road);if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();
+  ctx.stroke();
+  for (let row = 0; row < 6; row++)
+    for (let col = 0; col < 9; col++) {
+      const x = 90 + col * 146 + Math.sin(row * 2 + col) * 24,
+        y = 120 + row * 142;
+      ctx.fillStyle = (row + col) % 4 === 0 ? look.park : "#f3efdc";
+      ctx.fillRect(x, y, 58 + (col % 3) * 16, 45 + (row % 2) * 22);
+    }
+  for (let road = 0; road < 4; road++) {
+    ctx.beginPath();
+    ctx.strokeStyle = "#faf5e6";
+    ctx.lineWidth = 12;
+    for (let x = 0; x <= 1536; x += 12) {
+      const y = 180 + road * 205 + 45 * Math.sin(x / 260 + road);
+      if (x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
   }
-  const texture=new THREE.CanvasTexture(atlas);texture.colorSpace=THREE.SRGBColorSpace;
-  const folds:THREE.Group[]=[];
-  for(let i=0;i<3;i++) {
-    const fold=new THREE.Group();fold.position.x=i===0?-.615:i===2?.615:0;
-    const center=i===0?-.615:i===2?.615:0;
-    fold.add(slab(1.23,2.45,.013,c.paper,center,0,0,.008));
-    const geometry=new THREE.PlaneGeometry(1.23,2.45);const uv=geometry.attributes.uv;
-    for(let n=0;n<uv.count;n++)uv.setX(n,(uv.getX(n)+i)/3);
-    const surface=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({map:texture,roughness:.96}));
-    surface.position.set(center,0,.029);fold.add(surface);folds.push(fold);g.add(fold);
+  const texture = new THREE.CanvasTexture(atlas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  const folds: THREE.Group[] = [];
+  for (let i = 0; i < 3; i++) {
+    const fold = new THREE.Group();
+    fold.position.x = i === 0 ? -0.615 : i === 2 ? 0.615 : 0;
+    const center = i === 0 ? -0.615 : i === 2 ? 0.615 : 0;
+    fold.add(slab(1.23, 2.45, 0.013, c.paper, center, 0, 0, 0.008));
+    const geometry = new THREE.PlaneGeometry(1.23, 2.45);
+    const uv = geometry.attributes.uv;
+    for (let n = 0; n < uv.count; n++) uv.setX(n, (uv.getX(n) + i) / 3);
+    const surface = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ map: texture, roughness: 0.96 }));
+    surface.position.set(center, 0, 0.029);
+    fold.add(surface);
+    folds.push(fold);
+    g.add(fold);
   }
-  const paths=[
-    [[-1.51,-.69],[-.91,-.40],[-.45,.27],[.22,.47],[.78,.26],[1.48,.76]],
-    [[-1.48,-.76],[-.92,-.1],[-.32,-.24],[.27,.34],[.76,.74],[1.45,.62]],
-    [[-1.5,-.58],[-1.0,.13],[-.48,.62],[.10,.27],[.71,.51],[1.45,.81]],
+  const paths = [
+    [
+      [-1.51, -0.69],
+      [-0.91, -0.4],
+      [-0.45, 0.27],
+      [0.22, 0.47],
+      [0.78, 0.26],
+      [1.48, 0.76],
+    ],
+    [
+      [-1.48, -0.76],
+      [-0.92, -0.1],
+      [-0.32, -0.24],
+      [0.27, 0.34],
+      [0.76, 0.74],
+      [1.45, 0.62],
+    ],
+    [
+      [-1.5, -0.58],
+      [-1.0, 0.13],
+      [-0.48, 0.62],
+      [0.1, 0.27],
+      [0.71, 0.51],
+      [1.45, 0.81],
+    ],
   ];
-  const curve=new THREE.CatmullRomCurve3(paths[variant].map(([x,y])=>new THREE.Vector3(x,y,.075)));
-  const route=mesh(new THREE.TubeGeometry(curve,128,.019,8,false),c.accent);g.add(route);
-  const pin=new THREE.Group();pin.add(mesh(new THREE.SphereGeometry(.085,20,12),c.accent,0,0,.23));
-  const needle=mesh(new THREE.CylinderGeometry(.014,.014,.21,8),0x615d50,0,0,.105);needle.rotation.x=Math.PI/2;pin.add(needle);g.add(pin);
-  const ring=mesh(new THREE.TorusGeometry(.095,.012,8,32),c.accent);ring.position.copy(curve.getPointAt(0));g.add(ring);
-  const compass=new THREE.Group();compass.position.set(-1.49,.88,.05);
-  compass.add(mesh(new THREE.TorusGeometry(.14,.007,6,32),0x687466));
-  const north=mesh(new THREE.ConeGeometry(.042,.21,3),c.accent,0,.015,.015);compass.add(north);g.add(compass);
-  const count=route.geometry.index!.count;g.userData.mapFolds=folds;
-  g.userData.animate=(time:number)=>{
-    const t=Math.min(time,DURATION),open=ease(p(t,200,1600)),draw=ease(p(t,1700,4650));
-    folds[0].rotation.y=mix(1.05,0,open);folds[2].rotation.y=mix(-1.05,0,open);
-    route.geometry.setDrawRange(0,Math.floor(draw*count/3)*3);
-    route.visible=pin.visible=ring.visible=t>=1700;compass.visible=t>=1600;
+  const curve = new THREE.CatmullRomCurve3(paths[variant].map(([x, y]) => new THREE.Vector3(x, y, 0.075)));
+  const route = mesh(new THREE.TubeGeometry(curve, 128, 0.019, 8, false), c.accent);
+  g.add(route);
+  const pin = new THREE.Group();
+  pin.add(mesh(new THREE.SphereGeometry(0.085, 20, 12), c.accent, 0, 0, 0.23));
+  const needle = mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.21, 8), 0x615d50, 0, 0, 0.105);
+  needle.rotation.x = Math.PI / 2;
+  pin.add(needle);
+  g.add(pin);
+  const ring = mesh(new THREE.TorusGeometry(0.095, 0.012, 8, 32), c.accent);
+  ring.position.copy(curve.getPointAt(0));
+  g.add(ring);
+  const compass = new THREE.Group();
+  compass.position.set(-1.49, 0.88, 0.05);
+  compass.add(mesh(new THREE.TorusGeometry(0.14, 0.007, 6, 32), 0x687466));
+  const north = mesh(new THREE.ConeGeometry(0.042, 0.21, 3), c.accent, 0, 0.015, 0.015);
+  compass.add(north);
+  g.add(compass);
+  const count = route.geometry.index!.count;
+  g.userData.mapFolds = folds;
+  g.userData.animate = (time: number) => {
+    const t = Math.min(time, DURATION),
+      open = ease(p(t, 200, 1600)),
+      draw = ease(p(t, 1700, 4650));
+    folds[0].rotation.y = mix(1.05, 0, open);
+    folds[2].rotation.y = mix(-1.05, 0, open);
+    route.geometry.setDrawRange(0, Math.floor((draw * count) / 3) * 3);
+    route.visible = pin.visible = ring.visible = t >= 1700;
+    compass.visible = t >= 1600;
     pin.position.copy(curve.getPointAt(draw));
-    phase(g,t,t<1600?"unfold-map":t<4650?"draw-route":"arrive",draw);
+    phase(g, t, t < 1600 ? "unfold-map" : t < 4650 ? "draw-route" : "arrive", draw);
   };
   return g;
 }
 
 function reading(c: ObjectPalette) {
   const g = new THREE.Group();
-  g.rotation.set(0.56, -0.30, -0.13);
+  g.rotation.set(0.56, -0.3, -0.13);
   const width = 1.46,
     height = 2.12;
   // Each half has its own cover and paper block, meeting at a rounded spine.
@@ -671,28 +769,19 @@ function reading(c: ObjectPalette) {
     const half = new THREE.Group();
     half.position.x = side * 0.045;
     half.rotation.y = side * 0.12;
-    half.add(
-      slab(
-        width + 0.11,
-        height + 0.13,
-        0.065,
-        c.accent,
-        (side * width) / 2,
-        0,
-        -0.13,
-        0.035,
-      ),
-    );
+    half.add(slab(width + 0.11, height + 0.13, 0.065, c.accent, (side * width) / 2, 0, -0.13, 0.035));
     // Thin curved leaves keep the book from reading as two rounded plastic blocks.
     for (let leaf = 8; leaf >= 0; leaf--) {
       const sheet = new THREE.PlaneGeometry(width, height, 32, 1);
       const vertices = sheet.attributes.position;
       for (let i = 0; i < vertices.count; i++) {
         const u = vertices.getX(i) + width / 2;
-        vertices.setXYZ(i, side * u, vertices.getY(i), 0.065 + 0.025 * Math.sin(u / width * Math.PI) - 0.06 * u - leaf * 0.011);
+        vertices.setXYZ(i, side * u, vertices.getY(i), 0.065 + 0.025 * Math.sin((u / width) * Math.PI) - 0.06 * u - leaf * 0.011);
       }
       sheet.computeVertexNormals();
-      half.add(new THREE.Mesh(sheet, new THREE.MeshStandardMaterial({ color: c.paper, roughness: 0.96, side: THREE.DoubleSide })));
+      half.add(
+        new THREE.Mesh(sheet, new THREE.MeshStandardMaterial({ color: c.paper, roughness: 0.96, side: THREE.DoubleSide })),
+      );
     }
     for (let i = 0; i < 5; i++)
       half.add(
@@ -706,25 +795,35 @@ function reading(c: ObjectPalette) {
         ),
       );
     for (let row = 0; row < 11; row++) {
-      const start = 0.2, end = width - 0.16 - (row % 4) * 0.055;
-      half.add(line(Array.from({ length: 17 }, (_, step) => {
-        const u = mix(start, end, step / 16);
-        return [side * u, 0.64 - row * 0.145, 0.07 + 0.025 * Math.sin(u / width * Math.PI) - 0.06 * u];
-      }), c.muted, 0.65));
+      const start = 0.2,
+        end = width - 0.16 - (row % 4) * 0.055;
+      half.add(
+        line(
+          Array.from({ length: 17 }, (_, step) => {
+            const u = mix(start, end, step / 16);
+            return [side * u, 0.64 - row * 0.145, 0.07 + 0.025 * Math.sin((u / width) * Math.PI) - 0.06 * u];
+          }),
+          c.muted,
+          0.65,
+        ),
+      );
     }
-    half.add(label(side < 0 ? "FIELD NOTES" : "ON ATTENTION", c.ink, side * .77, .85, .045, .10));
+    half.add(label(side < 0 ? "FIELD NOTES" : "ON ATTENTION", c.ink, side * 0.77, 0.85, 0.045, 0.1));
     for (let edge = 0; edge < 4; edge++)
-      half.add(line([[side * (width - 0.004), -height / 2 + 0.04, -0.06 + edge * 0.022], [side * (width - 0.004), height / 2 - 0.04, -0.06 + edge * 0.022]], c.muted, 0.28));
+      half.add(
+        line(
+          [
+            [side * (width - 0.004), -height / 2 + 0.04, -0.06 + edge * 0.022],
+            [side * (width - 0.004), height / 2 - 0.04, -0.06 + edge * 0.022],
+          ],
+          c.muted,
+          0.28,
+        ),
+      );
     g.add(half);
     return half;
   });
-  const spine = mesh(
-    new THREE.CylinderGeometry(0.072, 0.072, height + 0.14, 20),
-    c.accent,
-    0,
-    0,
-    -0.08,
-  );
+  const spine = mesh(new THREE.CylinderGeometry(0.072, 0.072, height + 0.14, 20), c.accent, 0, 0, -0.08);
   g.add(spine);
   const textureCanvas = document.createElement("canvas");
   textureCanvas.width = 256;
@@ -733,18 +832,24 @@ function reading(c: ObjectPalette) {
   ctx.fillStyle = "#" + new THREE.Color(c.paper).getHexString();
   ctx.fillRect(0, 0, 256, 512);
   ctx.fillStyle = "#6b7064";
-  ctx.font = "500 16px serif"; ctx.fillText("On attention", 30, 52);
-  for (let row = 0; row < 14; row++)
-    ctx.fillRect(30, 86 + row * 25, 186 - (row % 5) * 13, 2);
+  ctx.font = "500 16px serif";
+  ctx.fillText("On attention", 30, 52);
+  for (let row = 0; row < 14; row++) ctx.fillRect(30, 86 + row * 25, 186 - (row % 5) * 13, 2);
   const texture = new THREE.CanvasTexture(textureCanvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   const geometry = new THREE.PlaneGeometry(width, height, 40, 8);
   geometry.translate(width / 2, 0, 0);
-  const page = new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({map:texture,side:THREE.FrontSide,roughness:.96}));
+  const page = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ map: texture, side: THREE.FrontSide, roughness: 0.96 }));
   // Paper has two printed faces. The back print must not mirror when the page turns.
-  const reverseTexture=texture.clone();reverseTexture.repeat.x=-1;reverseTexture.offset.x=1;reverseTexture.needsUpdate=true;
-  const reverse=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({map:reverseTexture,side:THREE.BackSide,roughness:.96}));
-  g.add(page,reverse);
+  const reverseTexture = texture.clone();
+  reverseTexture.repeat.x = -1;
+  reverseTexture.offset.x = 1;
+  reverseTexture.needsUpdate = true;
+  const reverse = new THREE.Mesh(
+    geometry,
+    new THREE.MeshStandardMaterial({ map: reverseTexture, side: THREE.BackSide, roughness: 0.96 }),
+  );
+  g.add(page, reverse);
   g.userData.pageGeometry = geometry;
   const positions = geometry.attributes.position,
     original = Float32Array.from(positions.array);
@@ -756,33 +861,26 @@ function reading(c: ObjectPalette) {
       q = ease(p(t, 750, 4050)),
       theta = Math.PI * q;
     for (let i = 0; i < positions.count; i++) {
-      const u=original[i*3],v=original[i*3+1];
+      const u = original[i * 3],
+        v = original[i * 3 + 1];
       // Integrate tangent angles of a curling strip, retaining its paper length.
-      const curl=.62*Math.sin(theta),segments=12;
-      let x=0,z=0;
-      for(let n=0;n<segments;n++) {
-        const along=u*(n+.5)/segments;
-        const angle=theta+curl*Math.sin(along/width*Math.PI)-.18*Math.cos(theta);
-        x+=Math.cos(angle)*u/segments;z+=Math.sin(angle)*u/segments;
+      const curl = 0.62 * Math.sin(theta),
+        segments = 12;
+      let x = 0,
+        z = 0;
+      for (let n = 0; n < segments; n++) {
+        const along = (u * (n + 0.5)) / segments;
+        const angle = theta + curl * Math.sin((along / width) * Math.PI) - 0.18 * Math.cos(theta);
+        x += (Math.cos(angle) * u) / segments;
+        z += (Math.sin(angle) * u) / segments;
       }
-      positions.setXYZ(i,x+.045*Math.cos(theta),v+.025*Math.sin(theta)*u/width,.11+z);
+      positions.setXYZ(i, x + 0.045 * Math.cos(theta), v + (0.025 * Math.sin(theta) * u) / width, 0.11 + z);
     }
     positions.needsUpdate = true;
     geometry.computeVertexNormals();
     halves[0].rotation.y = -0.12;
     halves[1].rotation.y = 0.12;
-    phase(
-      g,
-      t,
-      t < 750
-        ? "open-book"
-        : t < 1500
-          ? "lift-page"
-          : t < 4050
-            ? "turn-page"
-            : "settle-page",
-      q,
-    );
+    phase(g, t, t < 750 ? "open-book" : t < 1500 ? "lift-page" : t < 4050 ? "turn-page" : "settle-page", q);
   };
   return g;
 }
@@ -795,14 +893,20 @@ export const builders = {
   travel,
   reading,
 };
-export async function createObject(kind: ObjectKind, palette: ObjectPalette, variant: ObjectVariant = 0, edition: ObjectEdition = 0) {
-  const finish: ObjectEdition = kind === "contact" ? (variant % 3) as ObjectEdition : edition;
+export async function createObject(
+  kind: ObjectKind,
+  palette: ObjectPalette,
+  variant: ObjectVariant = 0,
+  edition: ObjectEdition = 0,
+) {
+  const finish: ObjectEdition = kind === "contact" ? ((variant % 3) as ObjectEdition) : edition;
   const accent = kind === "reading" ? [palette.accent, 0x793e43, 0x304a67][finish] : [palette.accent, 0x467b98, 0xa0694e][finish];
-  const object = kind === "contact" && (variant === 3 || variant === 4)
-    ? createContactDirection(variant)
-    : kind !== "contact" && variant !== 0
-    ? createArtDirection(kind, palette, variant)
-    : await builders[kind]({ ...palette, accent }, finish);
+  const object =
+    kind === "contact" && (variant === 3 || variant === 4)
+      ? createContactDirection(variant)
+      : kind !== "contact" && variant !== 0
+        ? createArtDirection(kind, palette, variant)
+        : await builders[kind]({ ...palette, accent }, finish);
   object.userData.style ??= "studio";
   object.userData.variant = variant;
   object.userData.animate(0);
