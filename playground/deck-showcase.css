@@ -83,7 +83,13 @@
    font, and --deck-radius-sm also rounds slide thumbnails, so these set the controls alone; slide
    content keeps the deck's type. */
 :is(.deck-showcase, .deck-speaker-page)
-  :is(.uipack-deck-controls, .uipack-deck-overview__head, .uipack-deck-presenter__side, .uipack-deck-read)
+  :is(
+    .uipack-deck-controls,
+    .uipack-deck-overview__head,
+    .uipack-deck-presenter__side,
+    .uipack-deck-read,
+    .uipack-deck-phone-hint
+  )
   button {
   border-radius: var(--show-control-radius);
   font: var(--show-control-font);

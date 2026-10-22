@@ -313,6 +313,11 @@ function Player({
     window.open(href, `uipack-deck-speaker-${id}`, "popup,width=1280,height=820");
   };
 
+  const openReader = () => {
+    setReadOpen({ focus: true });
+    setReading(true);
+  };
+
   const closeOverview = () => {
     setOverview(false);
     requestAnimationFrame(() => overviewButtonRef.current?.focus());
@@ -447,10 +452,7 @@ function Player({
       overviewButtonRef={overviewButtonRef}
       onPrev={prev}
       onNext={next}
-      onRead={() => {
-        setReadOpen({ focus: true });
-        setReading(true);
-      }}
+      onRead={openReader}
       onPrint={() => setPrinting(true)}
       onOverview={() => setOverview(true)}
       onPresenter={openPresenter}
@@ -499,6 +501,15 @@ function Player({
         />
       ) : (
         <>
+          {mode === "audience" && (
+            // Shown on a phone only (deck.css): a 1920px slide is drawn at a fifth of its size there.
+            <p className="uipack-deck-phone-hint">
+              Slides are small on a phone; the read view is easier.{" "}
+              <button type="button" onClick={openReader}>
+                Read view
+              </button>
+            </p>
+          )}
           {mode === "presenter" ? (
             <Presenter
               slides={slides}
