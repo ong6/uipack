@@ -33,12 +33,6 @@
   color: var(--show-muted);
   font-size: 13px;
 }
-.slides-showcase__usage summary {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-}
 .slides-showcase__usage pre {
   line-height: 1.7;
   overflow: auto;
@@ -110,10 +104,10 @@
   min-height: 44px;
   padding: 0 14px;
   border: 1px solid var(--show-rule);
-  border-radius: 6px;
+  border-radius: var(--show-control-radius);
   background: transparent;
   color: var(--show-ink);
-  font: 500 13px/1.2 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font: var(--show-control-font);
   cursor: pointer;
 }
 .slides-showcase__empty button:hover {

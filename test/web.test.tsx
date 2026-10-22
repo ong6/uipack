@@ -233,7 +233,7 @@ describe("DemoPlayer", () => {
     expect(step(container)).toBe("1");
   });
 
-  it("shows the final state and every step statically under reduced motion", () => {
+  it("holds the final state under reduced motion, with every step kept as text", () => {
     globalThis.__reduced = true;
     const { container } = render(
       <DemoPlayer steps={steps} label="Demo" timing={timing} initialMetric={40} cta={<a href="#try">Try it yourself</a>} />,

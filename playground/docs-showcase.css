@@ -2,7 +2,7 @@
    Landing example on /web, so the shell's page and the hosted page read as two things. */
 .docs-frame {
   border: 1px solid var(--show-rule);
-  border-radius: 12px;
+  border-radius: var(--show-radius);
   padding: 0 32px;
 }
 @media (max-width: 720px) {

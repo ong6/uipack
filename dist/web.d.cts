@@ -319,7 +319,8 @@ interface DemoPlayerProps {
 /**
  * A baked-in product demo: a window frame that types a prompt, ticks through the
  * agent's actions and settles on the result. Plays when on screen, pauses when off,
- * and shows every step statically under reduced motion.
+ * and holds still on its final state under reduced motion (the steps stay in the DOM as text,
+ * so the window and a second, visible list never repeat the same actions).
  */
 declare function DemoPlayer({ steps, label, address, initialMetric, metricLabel, placeholder, autoplay, loop, timing: timingProp, cta, className, onStepChange, }: DemoPlayerProps): react.JSX.Element;
 
@@ -406,8 +407,12 @@ interface MaskedStarProps {
     values?: number[];
     /** Mirror the star: "x" rises toward the start edge, "y" hangs from the top. Default "none". */
     flip?: "x" | "y" | "none";
-    /** Where the copy sits; the mask clears that area. Default "center". */
-    clear?: "center" | "start";
+    /**
+     * Where the copy sits; the mask clears that area. "center" and "start" suit a hero; "top" suits a
+     * card whose copy runs full width above: the star rises in the lower half, faded up toward the copy.
+     * Default "center".
+     */
+    clear?: "center" | "start" | "top";
 }
 /** The star of the show behind a headline: flipped, then masked clear of the text. */
 declare function MaskedStar({ values, flip, clear }: MaskedStarProps): react.JSX.Element;
@@ -418,12 +423,18 @@ interface BeamLinesProps {
     count?: number;
     /** Seconds for a beam to cross. Default 6. */
     duration?: number;
+    /**
+     * Keep the beams off the copy. "top": the copy runs full width above, so the grid and its beams
+     * fill the lower half, faded up toward the copy. Default "none" (a radial fade, for a band
+     * with little text).
+     */
+    clear?: "none" | "top";
 }
 /**
  * Thin light beams travelling along grid lines, like packets on a connector. Positions are
  * deterministic, so server and client agree. Paused off screen; parked mid-line under reduced motion.
  */
-declare function BeamLines({ size, count, duration }: BeamLinesProps): react.JSX.Element;
+declare function BeamLines({ size, count, duration, clear }: BeamLinesProps): react.JSX.Element;
 interface DriftingGuttersProps {
     /** Width of the centred content column the gutters flank: px, or any CSS length. Default 1120. */
     contentWidth?: number | string;

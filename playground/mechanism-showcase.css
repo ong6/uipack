@@ -1,5 +1,7 @@
-.mechanism-page .collection-intro code {
-  font-size: 13px;
+/* The host's hook for Mechanism's mono (labels and its Pause control): the shell's system mono,
+   so the page's controls and the machine's labels share one face with the header and nav. */
+.mechanism-page {
+  --font-mono: var(--show-font-mono);
 }
 .mechanism-poses {
   display: flex;
@@ -38,7 +40,7 @@
   width: 100%;
   padding: 8px;
   border: 1px solid var(--show-rule);
-  border-radius: 6px;
+  border-radius: var(--show-radius);
   background: var(--show-surface);
   color: inherit;
   font: inherit;
@@ -52,7 +54,7 @@
   display: block;
 }
 .mechanism-thumb-label {
-  font: 500 12px ui-monospace, monospace;
+  font: 500 12px var(--show-font-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--show-muted);

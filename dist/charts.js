@@ -426,7 +426,10 @@ function Key({ model }) {
     ] }),
     samples.badges.length ? /* @__PURE__ */ jsxs("li", { children: [
       /* @__PURE__ */ jsx("span", { className: "uipack-span__key-label", children: labels.keyDeals }),
-      samples.badges.map((kind) => /* @__PURE__ */ jsx("span", { className: "uipack-span__badge", "data-kind": kind, children: kind === "shutdown" ? word(kind) : `${kind === "licensed" ? "\u219D" : "\u2192"} ${word(kind)}` }, kind))
+      samples.badges.map((kind) => /* @__PURE__ */ jsxs("span", { className: "uipack-span__key-item", children: [
+        /* @__PURE__ */ jsx("span", { className: "uipack-span__badge", "data-kind": kind, "aria-hidden": "true", children: kind === "shutdown" ? "shut" : kind === "licensed" ? "\u219D" : "\u2192" }),
+        word(kind)
+      ] }, kind))
     ] }) : null,
     samples.value ? /* @__PURE__ */ jsxs("li", { children: [
       /* @__PURE__ */ jsx("span", { className: "uipack-span__key-label", children: labels.keySize }),

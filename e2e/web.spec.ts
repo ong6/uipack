@@ -44,12 +44,15 @@ test.describe("/web Landing collection", () => {
     expect(await stepOf(page)).toBe(1);
   });
 
-  test("reduced motion shows the final state with every step listed", async ({ page }) => {
+  test("reduced motion shows the final state once, with every step kept as text", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/web");
     await expect(demo(page)).toHaveAttribute("data-state", "static");
     await expect(page.getByTestId("demo-metric")).toHaveText("3");
-    await expect(demo(page).getByRole("list", { name: "Demo steps" }).locator(":scope > li")).toHaveCount(3);
+    // The steps stay in the DOM for screen readers, but only the window is drawn: no second copy.
+    const steps = demo(page).getByRole("list", { name: "Demo steps" });
+    await expect(steps.locator(":scope > li")).toHaveCount(3);
+    expect(await steps.evaluate((el) => el.parentElement!.getBoundingClientRect().height)).toBeLessThanOrEqual(1);
     await expect(demo(page).getByRole("button", { name: /Pause|Replay/ })).toHaveCount(0);
     await expect(demo(page).getByRole("link", { name: "Try it yourself" })).toBeVisible();
     // Reveal text is readable without scrolling it into view.
@@ -174,6 +177,30 @@ test.describe("/web Landing collection", () => {
     await expect(tile.locator(".uipack-web-gridbg")).toHaveAttribute("data-lit", "true");
   });
 
+  test("backgrounds: one Pause holds every looping layer, and Play resumes them (WCAG 2.2.2)", async ({ page }) => {
+    await page.goto("/web");
+    const section = page.locator("#web-backgrounds");
+    await section.scrollIntoViewIfNeeded();
+    const states = () =>
+      section.evaluate((el) =>
+        [...el.querySelectorAll(".uipack-web-aurora i, .uipack-web-beams i, .uipack-web-gutters__drift, .uipack-web-gutters__signal")].map(
+          (n) => getComputedStyle(n).animationPlayState,
+        ),
+      );
+    // Layers off screen already wait (IntersectionObserver); the ones in view run.
+    expect(await states()).toContain("running");
+    await section.getByRole("button", { name: "Pause motion" }).click();
+    expect(new Set(await states())).toEqual(new Set(["paused"]));
+    const beam = section.locator(".uipack-web-beams i").first();
+    const pos = () => beam.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41);
+    const held = await pos();
+    await page.waitForTimeout(300);
+    expect(await pos()).toBe(held);
+    await section.getByRole("button", { name: "Play motion" }).click();
+    // In view, they run again (each layer still waits whenever it is off screen).
+    expect(await states()).toContain("running");
+  });
+
   test("motion and backgrounds hold still under reduced motion", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/web");
@@ -186,6 +213,8 @@ test.describe("/web Landing collection", () => {
     expect(await page.locator(".uipack-web-aurora i").first().evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
     await expect(page.locator(".web-reveal-list")).toHaveAttribute("data-state", "static");
     expect(await page.locator(".uipack-web-gutters__drift").first().evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
+    // Nothing loops, so the Backgrounds section offers no Pause.
+    await expect(page.locator("#web-backgrounds").getByRole("button", { name: /motion/ })).toHaveCount(0);
     // The paint transition swaps the theme instantly and leaves no stylesheet behind.
     const html = page.locator("html");
     const before = await html.getAttribute("data-theme");

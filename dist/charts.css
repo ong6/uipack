@@ -243,7 +243,7 @@
   margin-left: 4px;
 }
 .uipack-span .uipack-span__key .uipack-span__badge {
-  padding: 0 4px;
+  padding: 0 3px;
 }
 .uipack-span .uipack-span__swatch {
   flex: none;
@@ -774,6 +774,11 @@
   border-bottom: 1.5px solid currentColor;
   transform: rotate(45deg);
   transition: transform 120ms ease;
+}
+.uipack-span:has(.uipack-span__expand:not(:checked)) .uipack-span__toggle--foot {
+  /* One "Show all" at a time: the top toggle expands; the foot's only job is to collapse a long
+     expanded list from where the reader finished it. */
+  display: none;
 }
 .uipack-span:has(.uipack-span__expand:checked) .uipack-span__toggle--foot::before {
   margin-top: 3px;

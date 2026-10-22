@@ -117,8 +117,12 @@ export interface MaskedStarProps {
   values?: number[];
   /** Mirror the star: "x" rises toward the start edge, "y" hangs from the top. Default "none". */
   flip?: "x" | "y" | "none";
-  /** Where the copy sits; the mask clears that area. Default "center". */
-  clear?: "center" | "start";
+  /**
+   * Where the copy sits; the mask clears that area. "center" and "start" suit a hero; "top" suits a
+   * card whose copy runs full width above: the star rises in the lower half, faded up toward the copy.
+   * Default "center".
+   */
+  clear?: "center" | "start" | "top";
 }
 
 /** The star of the show behind a headline: flipped, then masked clear of the text. */
@@ -137,13 +141,19 @@ export interface BeamLinesProps {
   count?: number;
   /** Seconds for a beam to cross. Default 6. */
   duration?: number;
+  /**
+   * Keep the beams off the copy. "top": the copy runs full width above, so the grid and its beams
+   * fill the lower half, faded up toward the copy. Default "none" (a radial fade, for a band
+   * with little text).
+   */
+  clear?: "none" | "top";
 }
 
 /**
  * Thin light beams travelling along grid lines, like packets on a connector. Positions are
  * deterministic, so server and client agree. Paused off screen; parked mid-line under reduced motion.
  */
-export function BeamLines({ size = 48, count = 5, duration = 6 }: BeamLinesProps) {
+export function BeamLines({ size = 48, count = 5, duration = 6, clear = "none" }: BeamLinesProps) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref);
   const beams = Array.from({ length: count }, (_, i) => ({
@@ -157,6 +167,7 @@ export function BeamLines({ size = 48, count = 5, duration = 6 }: BeamLinesProps
       ref={ref}
       className="uipack-web-beams"
       data-bg="beams"
+      data-clear={clear === "none" ? undefined : clear}
       data-paused={!inView || undefined}
       aria-hidden="true"
       style={{ "--cell": `${size}px` } as CSSProperties}

@@ -156,9 +156,14 @@ function Key({ model }: { model: SpanChartModel }) {
       {samples.badges.length ? (
         <li>
           <span className="uipack-span__key-label">{labels.keyDeals}</span>
+          {/* A small sample of each badge as rows show it, then the word in plain ink, like the
+              bar swatches: the key explains the badges without four more coloured pills. */}
           {samples.badges.map((kind) => (
-            <span className="uipack-span__badge" data-kind={kind} key={kind}>
-              {kind === "shutdown" ? word(kind) : `${kind === "licensed" ? "↝" : "→"} ${word(kind)}`}
+            <span className="uipack-span__key-item" key={kind}>
+              <span className="uipack-span__badge" data-kind={kind} aria-hidden="true">
+                {kind === "shutdown" ? "shut" : kind === "licensed" ? "↝" : "→"}
+              </span>
+              {word(kind)}
             </span>
           ))}
         </li>

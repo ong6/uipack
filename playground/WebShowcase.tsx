@@ -51,7 +51,7 @@ import { tidyFaq, tidySeo } from "./web-seo";
 import "../src/web/web.css";
 import "../src/web/gutters.css";
 import "./web-showcase.css";
-import { keepFocusedInView } from "../src/env";
+import { keepFocusedInView, usePrefersReducedMotion } from "../src/env";
 
 // Example content. The player owns timing and playback; these words belong to the playground.
 const inboxRows = [
@@ -345,11 +345,7 @@ export default function WebShowcase() {
       <SmoothScroll />
       <section data-route="web" id="web-example" className="web-anchor">
         <p className="collection-intro">
-          The example below, built from <code>uipack/web</code>, is one page with one goal: a demo-first hero
-          that shows the product working, one star visual, rhyming icons, and the call to action repeated three times. Flashy pieces
-          each earn their motion; the low-key pieces are the defaults. Wheel scrolling on this page is eased by <code>SmoothScroll</code>;
-          touch and reduced motion keep native scrolling. The page also sets its own head, JSON-LD and FAQ from the discoverability
-          kit; the disclosures under the example show what it publishes.
+          One page built from <code>uipack/web</code>, with one call to action in the hero, the nav and the end.
         </p>
         <PageIndex />
         {painted && (
@@ -460,6 +456,9 @@ export default function WebShowcase() {
               </Section>
             </WebSurface>
             <GeneratedFiles seo={seo} />
+            <p className="collection-intro web-example__aside">
+              Wheel scrolling on this page is eased by <code>SmoothScroll</code>; touch and reduced motion keep native scrolling.
+            </p>
           </>
         )}
       </section>
@@ -528,7 +527,7 @@ export default function WebShowcase() {
                 </GridItem>
                 <GridItem span={[12, 8, 4]}>
                   <div className="web-block">
-                    <Eyebrow>Grid · 12 / 8 / 4 columns, 8-pt gutters</Eyebrow>
+                    <Eyebrow>Grid · 12 / 8 / 4 columns, 32 / 24px gutters</Eyebrow>
                     <Grid className="web-columns">
                       {Array.from({ length: 12 }, (_, i) => (
                         <GridItem key={i} span={[1, 1, 1]}>
@@ -547,7 +546,7 @@ export default function WebShowcase() {
 
           <section id="web-principles" className="web-anchor">
             <h2>Principles · {principles.length}</h2>
-            <ol className="web-principles">
+            <ol className="web-principles" role="list">
               {principles.map((p) => (
                 <li key={p}>{p}</li>
               ))}
@@ -764,18 +763,34 @@ const backgroundTiles = [
   { id: "dots", name: "Dot grid", note: "Radial fade. Lights under a mouse; still on touch.", bg: <DotGrid spotlight /> },
   { id: "lines", name: "Line grid", note: "Hairlines at 8% ink, faded toward the edges.", bg: <LineGrid spotlight size={32} /> },
   { id: "aurora", name: "Aurora", note: "Three blurred token colours drift slowly, capped at 28% opacity.", bg: <Aurora /> },
-  { id: "star", name: "Masked star", note: "The hero's star, masked clear of the copy.", bg: <MaskedStar clear="start" /> },
-  { id: "beams", name: "Beam lines", note: "Light rides the grid lines, like packets on a connector.", bg: <BeamLines /> },
+  { id: "star", name: "Masked star", note: "The hero's star, masked clear of the copy.", bg: <MaskedStar clear="top" /> },
+  { id: "beams", name: "Beam lines", note: "Light rides the grid lines, like packets on a connector.", bg: <BeamLines clear="top" /> },
 ];
 
 function BackgroundsSection({ theme, surfaceStyle }: { theme: "light" | "dark"; surfaceStyle?: CSSProperties }) {
+  // The aurora, beams and gutters loop for as long as they are on screen; one Pause holds them all
+  // (WCAG 2.2.2). Under reduced motion they are already still, so there is nothing to pause.
+  const reduced = usePrefersReducedMotion();
+  const [paused, setPaused] = useState(false);
   return (
-    <section data-section="backgrounds" id="web-backgrounds" className="web-anchor">
+    <section
+      data-section="backgrounds"
+      id="web-backgrounds"
+      className="web-anchor"
+      data-web-motion={paused && !reduced ? "paused" : undefined}
+    >
       <h2>Backgrounds · {backgroundTiles.length + 1}</h2>
-      <p className="collection-intro">
-        One ambient effect per viewport on a real page; this gallery breaks that rule to compare them. Backgrounds sit at low contrast so the
-        text above keeps 4.5:1. Moving ones pause off screen and hold still under reduced motion.
-      </p>
+      <div className="web-section-intro">
+        <p className="collection-intro">
+          One ambient effect per viewport on a real page; this gallery breaks that rule to compare them. Backgrounds sit at low contrast so the
+          text above keeps 4.5:1. Moving ones pause off screen and hold still under reduced motion.
+        </p>
+        {!reduced && (
+          <button type="button" className="web-motion-toggle" onClick={() => setPaused((p) => !p)}>
+            {paused ? "Play motion" : "Pause motion"}
+          </button>
+        )}
+      </div>
       <WebSurface theme={theme} className="web-panel" style={surfaceStyle}>
         <Grid>
           {backgroundTiles.map((tile) => (

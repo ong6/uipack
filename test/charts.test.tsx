@@ -222,12 +222,14 @@ describe("SpanChart markup", () => {
     expect(sections).toEqual(["Bars", "Deals", "Size", "Type"]);
     expect(key.children[0].textContent).toBe("BarsMainAlso in");
     const kinds = [...key.querySelectorAll(".uipack-span__badge")].map((b) => [b.getAttribute("data-kind"), b.textContent]);
+    // Each kind: a sample badge as rows show it, then its word in plain ink.
     expect(kinds).toEqual([
-      ["acquired", "→ acquired"],
-      ["pending", "→ pending"],
-      ["licensed", "↝ licensed"],
-      ["shutdown", "shut down"],
+      ["acquired", "→"],
+      ["pending", "→"],
+      ["licensed", "↝"],
+      ["shutdown", "shut"],
     ]);
+    expect(key.children[1].textContent).toBe("Deals→acquired→pending↝licensedshutshut down");
     expect(key.children[2].textContent).toBe("Size$4.5Tlargest first");
     expect(key.children[3].textContent).toBe("Typenuclearfocus");
     // The phone drawer holds the same sections.
