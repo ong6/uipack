@@ -143,6 +143,10 @@ function DocsLayout({
     ] })
   ] });
 }
+function shiftLevel(level, offset = 0) {
+  const shift = Number.isFinite(offset) ? Math.trunc(offset) : 0;
+  return Math.min(6, Math.max(1, level + shift));
+}
 function textFromChildren(children) {
   return Children.toArray(children).map((child) => {
     if (typeof child === "string" || typeof child === "number") {
@@ -160,7 +164,7 @@ function plainHeadingText(markdown) {
 function slugifyDocsHeading(value) {
   return value.normalize("NFKD").toLocaleLowerCase("en-US").replace(/[’']/g, "").replace(/[^\p{Letter}\p{Number}\s-]/gu, "").trim().replace(/\s+/g, "-").replace(/-+/g, "-");
 }
-function extractDocsHeadings(source) {
+function extractDocsHeadings(source, { headingOffset = 0 } = {}) {
   const headings = [];
   const occurrences = /* @__PURE__ */ new Map();
   let fence = null;
@@ -180,7 +184,7 @@ function extractDocsHeadings(source) {
     occurrences.set(baseId, count + 1);
     headings.push({
       id: count === 0 ? baseId : `${baseId}-${count}`,
-      level: match[1].length,
+      level: shiftLevel(match[1].length, headingOffset),
       line: index + 1,
       title
     });
@@ -215,17 +219,18 @@ function headingComponent(level, headingIds) {
     );
   };
 }
-function DocsMarkdown({ source }) {
+function DocsMarkdown({ source, headingOffset = 0 }) {
   const headingIds = new Map(
-    extractDocsHeadings(source).map((heading) => [heading.line, heading.id])
+    extractDocsHeadings(source).map((heading2) => [heading2.line, heading2.id])
   );
+  const heading = (level) => headingComponent(shiftLevel(level, headingOffset), headingIds);
   const components = {
-    h1: headingComponent(1, headingIds),
-    h2: headingComponent(2, headingIds),
-    h3: headingComponent(3, headingIds),
-    h4: headingComponent(4, headingIds),
-    h5: headingComponent(5, headingIds),
-    h6: headingComponent(6, headingIds),
+    h1: heading(1),
+    h2: heading(2),
+    h3: heading(3),
+    h4: heading(4),
+    h5: heading(5),
+    h6: heading(6),
     table: ({ node, ...props }) => /* @__PURE__ */ jsx(
       "div",
       {

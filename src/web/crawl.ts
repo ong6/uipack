@@ -77,6 +77,11 @@ export interface CrawlPage {
   optional?: boolean;
   /** A clean Markdown copy of the page (llmstxt.org suggests `page.md`); llms.txt links it instead. */
   markdown?: string;
+  /**
+   * The page's text as Markdown, for llms-full.txt. YAML frontmatter and a leading `# Title` are
+   * dropped (the file writes its own heading). Pages without it are left out of llms-full.txt.
+   */
+  content?: string;
   /** Leave out of sitemap.xml and llms.txt (e.g. a thank-you page). */
   noindex?: boolean;
 }
@@ -99,7 +104,12 @@ export interface CrawlFiles {
   "robots.txt": string;
   "sitemap.xml": string;
   "llms.txt": string;
+  /** Present when at least one page has `content`. */
+  "llms-full.txt"?: string;
 }
+
+/** Where buildCrawlFiles serves the full-text file, linked from llms.txt's Optional section. */
+export const LLMS_FULL_PATH = "/llms-full.txt";
 
 const siteRoot = (site: string) => {
   if (!/^https?:\/\//i.test(site)) throw new Error(`buildCrawlFiles: site must be an absolute URL (got "${site}")`);
@@ -189,15 +199,50 @@ export function llmsTxt({ site, pages, llms }: Pick<BuildCrawlFilesOptions, "sit
   }
   const item = (p: CrawlPage) => `- [${oneLine(p.title).replace(/[[\]]/g, "")}](${pageUrl(site, p.markdown ?? p.path)})${p.description ? `: ${oneLine(p.description)}` : ""}`;
   for (const [name, list] of sections) out.push("", `## ${name}`, "", ...list.map(item));
-  if (optional.length) out.push("", "## Optional", "", ...optional.map(item));
+  const full = pages.some((p) => !p.noindex && p.content?.trim())
+    ? [`- [Full text](${pageUrl(site, LLMS_FULL_PATH)}): every page above as Markdown in one file`]
+    : [];
+  if (optional.length || full.length) out.push("", "## Optional", "", ...optional.map(item), ...full);
   return `${out.join("\n")}\n`;
 }
 
-/** robots.txt, sitemap.xml and llms.txt for one site, keyed by file name. */
+/** Page Markdown without YAML frontmatter or a leading H1 that repeats the title. */
+function pageBody(content: string, title: string): string {
+  let body = content.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
+  body = body.replace(/^---\n[\s\S]*?\n---\n/, "");
+  const h1 = /^\s*#\s+(.+?)\s*#*\s*\n/.exec(body);
+  if (h1 && oneLine(h1[1]) === oneLine(title)) body = body.slice(h1[0].length);
+  return body.trim();
+}
+
+/**
+ * llms-full.txt: the llms.txt header, then each page's Markdown in one file, so an agent can read the
+ * whole site in one request. Each page opens with its title as an H1, its URL and, when known, the
+ * date it last changed, and pages are separated by `---`. The same order as llms.txt: sections, then
+ * Optional. Only pages with `content` are included; noindex pages never are.
+ */
+export function llmsFullTxt({ site, pages, llms }: Pick<BuildCrawlFilesOptions, "site" | "pages" | "llms">): string {
+  const out: string[] = [`# ${oneLine(llms.title)}`, "", `> ${oneLine(llms.summary)}`];
+  if (llms.details) out.push("", llms.details.trim());
+  out.push("", `Source: ${siteRoot(site)}`);
+  const withText = pages.filter((p) => !p.noindex && p.content?.trim());
+  const sections = new Map<string, CrawlPage[]>();
+  for (const p of withText.filter((x) => !x.optional)) sections.set(p.section ?? "Pages", [...(sections.get(p.section ?? "Pages") ?? []), p]);
+  for (const p of [...[...sections.values()].flat(), ...withText.filter((x) => x.optional)]) {
+    out.push("", "---", "", `# ${oneLine(p.title)}`, "", `URL: ${pageUrl(site, p.path)}`);
+    if (p.lastmod) out.push(`Updated: ${formatLastmod(p.lastmod)}`);
+    out.push("", pageBody(p.content ?? "", p.title));
+  }
+  return `${out.join("\n")}\n`;
+}
+
+/** robots.txt, sitemap.xml, llms.txt and (when pages carry `content`) llms-full.txt, keyed by file name. */
 export function buildCrawlFiles(o: BuildCrawlFilesOptions): CrawlFiles {
-  return {
+  const files: CrawlFiles = {
     "robots.txt": robotsTxt(o),
     "sitemap.xml": sitemapXml(o),
     "llms.txt": llmsTxt(o),
   };
+  if (o.pages.some((p) => !p.noindex && p.content?.trim())) files["llms-full.txt"] = llmsFullTxt(o);
+  return files;
 }

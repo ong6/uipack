@@ -19,6 +19,13 @@ import {
   article,
   breadcrumbList,
   buildCrawlFiles,
+  collectionPage,
+  itemList,
+  llmsFullTxt,
+  personRef,
+  profilePage,
+  softwareSourceCode,
+  webPage,
   faqPage,
   fontPreloads,
   formatLastmod,
@@ -29,6 +36,7 @@ import {
   pageMeta,
   person,
   product,
+  ref,
   resolveAiCrawlers,
   serializeJsonLd,
   softwareApplication,
@@ -330,6 +338,113 @@ describe("JSON-LD", () => {
     expect(() => article({ headline: "H", url: "https://a.example/p", datePublished: "2026-10-01", author: { "@type": "Person", "@id": "x" } })).toThrow(/name/);
   });
 
+  const homeId = "https://jun.example/#person";
+  const junOptions = { name: "Jun", url: "https://jun.example/", id: homeId, sameAs: ["https://github.com/jun", "https://www.linkedin.com/in/jun"] };
+
+  it("personRef keeps the name beside the @id, and a bare @id author is refused", () => {
+    expect(personRef(person(junOptions))).toEqual({ "@type": "Person", "@id": homeId, name: "Jun", url: "https://jun.example/" });
+    expect(personRef({ "@id": homeId, name: "Jun" })).toEqual({ "@type": "Person", "@id": homeId, name: "Jun" });
+    expect(() => personRef({ "@type": "Person", "@id": homeId })).toThrow(/name/);
+    // ref() is a bare link for isPartOf or publisher; as an author it names nobody, so article() refuses it.
+    expect(() => article({ headline: "H", url: "https://n.example/p", datePublished: "2026-10-01", author: ref(homeId) as never })).toThrow(/name/);
+  });
+
+  it("dates: Date or ISO 8601, dateModified defaults to datePublished, never before it", () => {
+    const a = article({ headline: "H", url: "https://n.example/p", datePublished: new Date("2026-10-01T08:00:00Z"), dateModified: "2026-10-21", author: { name: "Jun" } });
+    expect(a).toMatchObject({ datePublished: "2026-10-01T08:00:00.000Z", dateModified: "2026-10-21" });
+    expect(() => article({ headline: "H", url: "https://n.example/p", datePublished: "2026-10-21", dateModified: "2026-10-01", author: { name: "Jun" } })).toThrow(/before datePublished/);
+    expect(() => article({ headline: "H", url: "https://n.example/p", datePublished: "21 Oct 2026", author: { name: "Jun" } })).toThrow(/ISO 8601/);
+    expect(article({ headline: "H", url: "https://n.example/p", datePublished: "2026-10-01", author: { name: "Jun" }, id: "https://n.example/p#article", isPartOf: "https://n.example/#blog" })).toMatchObject({
+      "@id": "https://n.example/p#article",
+      isPartOf: { "@id": "https://n.example/#blog" },
+    });
+  });
+
+  it("builds a WebPage linked to its site and subject, with an author reference", () => {
+    const page = webPage({
+      url: "https://jun.example/ai-tooling",
+      name: "AI tooling",
+      description: "Tools for agents.",
+      isPartOf: "https://jun.example/#website",
+      about: homeId,
+      author: { "@id": homeId, name: "Jun" },
+      dateModified: "2026-10-20",
+    });
+    expect(page).toEqual({
+      "@type": "WebPage",
+      "@id": "https://jun.example/ai-tooling#webpage",
+      url: "https://jun.example/ai-tooling",
+      name: "AI tooling",
+      description: "Tools for agents.",
+      isPartOf: { "@id": "https://jun.example/#website" },
+      about: { "@id": homeId },
+      author: { "@type": "Person", "@id": homeId, name: "Jun" },
+      dateModified: "2026-10-20",
+    });
+    expect(webPage({ url: "https://a.example/about", name: "About", type: "AboutPage" })["@type"]).toBe("AboutPage");
+  });
+
+  it("builds a ProfilePage whose mainEntity is the full Person with sameAs and the home site's @id", () => {
+    const profile = profilePage({ url: "https://notes.example/about", person: junOptions, isPartOf: "https://notes.example/#website", dateModified: "2026-10-22" });
+    expect(profile).toMatchObject({
+      "@type": "ProfilePage",
+      "@id": "https://notes.example/about#profilepage",
+      name: "Jun",
+      isPartOf: { "@id": "https://notes.example/#website" },
+      mainEntity: { "@type": "Person", "@id": homeId, name: "Jun", sameAs: junOptions.sameAs },
+      dateModified: "2026-10-22",
+    });
+    // A prebuilt person() node is used as is.
+    expect(profilePage({ url: "https://jun.example/about", person: person(junOptions), name: "About Jun" }).mainEntity).toEqual(person(junOptions));
+    expect(() => profilePage({ url: "https://a.example/", person: { "@type": "Person" } })).toThrow(/name/);
+  });
+
+  it("builds SoftwareSourceCode with repository, language, licence and author", () => {
+    expect(
+      softwareSourceCode({
+        name: "uipack",
+        codeRepository: "https://github.com/jun/uipack",
+        url: "https://jun.example/uipack",
+        programmingLanguage: ["TypeScript", "CSS"],
+        license: "https://opensource.org/licenses/MIT",
+        keywords: ["react", "svg"],
+        author: person(junOptions),
+        dateModified: "2026-10-22",
+      }),
+    ).toEqual({
+      "@type": "SoftwareSourceCode",
+      "@id": "https://jun.example/uipack#code",
+      name: "uipack",
+      url: "https://jun.example/uipack",
+      codeRepository: "https://github.com/jun/uipack",
+      programmingLanguage: ["TypeScript", "CSS"],
+      license: "https://opensource.org/licenses/MIT",
+      keywords: "react, svg",
+      author: { "@type": "Person", "@id": homeId, name: "Jun", url: "https://jun.example/" },
+      dateModified: "2026-10-22",
+    });
+    expect(softwareSourceCode({ name: "x", codeRepository: "https://github.com/a/x" })["@id"]).toBe("https://github.com/a/x#code");
+  });
+
+  it("builds an ItemList and a CollectionPage whose mainEntity is that list, in page order", () => {
+    const post = article({ headline: "B", url: "https://n.example/b", datePublished: "2026-10-02", author: { name: "Jun" } });
+    expect(itemList([{ url: "https://n.example/a", name: "A" }, post], { order: "descending" })).toEqual({
+      "@type": "ItemList",
+      itemListOrder: "https://schema.org/ItemListOrderDescending",
+      numberOfItems: 2,
+      itemListElement: [
+        { "@type": "ListItem", position: 1, url: "https://n.example/a", name: "A" },
+        { "@type": "ListItem", position: 2, item: post },
+      ],
+    });
+    const index = collectionPage({ url: "https://n.example/", name: "Notes", isPartOf: "https://n.example/#website", items: [{ url: "https://n.example/a", name: "A", description: "First." }] });
+    expect(index).toMatchObject({
+      "@type": "CollectionPage",
+      "@id": "https://n.example/#collection",
+      mainEntity: { "@type": "ItemList", "@id": "https://n.example/#items", numberOfItems: 1, itemListElement: [{ position: 1, name: "A", description: "First." }] },
+    });
+  });
+
   it("serialises safely: </script> and <!-- cannot close the tag, and the JSON round-trips", () => {
     const data = { name: "</script><script>alert(1)</script>", note: "<!-- & -->", ls: "a\u2028b" };
     const s = serializeJsonLd(data);
@@ -436,6 +551,61 @@ describe("crawl files", () => {
     expect(new DOMParser().parseFromString(xml, "application/xml").querySelector("parsererror")).toBeNull();
     expect(formatLastmod("2026-10-22T08:00:00+08:00")).toBe("2026-10-22T08:00:00+08:00");
     expect(() => formatLastmod("22/10/2026")).toThrow(/W3C/);
+  });
+
+  it("llms-full.txt concatenates page Markdown under titles and URLs, and llms.txt links it", () => {
+    const opts = {
+      site: "https://n.example",
+      llms: { title: "Notes", summary: "Working notes." },
+      pages: [
+        { path: "/", title: "Notes", description: "Index." },
+        { path: "/old", title: "Old post", content: "Old text.", optional: true },
+        { path: "/a", title: "Post A", lastmod: "2026-10-21", content: "---\ntitle: Post A\n---\n# Post A\n\nFirst *line*.\n\n## Part\n\nMore.\n" },
+        { path: "/draft", title: "Draft", content: "Hidden.", noindex: true },
+        { path: "/b", title: "Post B", content: "# Another title\n\nKept, because it is not the page title.", section: "Projects" },
+      ],
+    };
+    expect(llmsFullTxt(opts)).toBe(
+      [
+        "# Notes",
+        "",
+        "> Working notes.",
+        "",
+        "Source: https://n.example/",
+        "",
+        "---",
+        "",
+        "# Post A",
+        "",
+        "URL: https://n.example/a",
+        "Updated: 2026-10-21",
+        "",
+        "First *line*.\n\n## Part\n\nMore.",
+        "",
+        "---",
+        "",
+        "# Post B",
+        "",
+        "URL: https://n.example/b",
+        "",
+        "# Another title\n\nKept, because it is not the page title.",
+        "",
+        "---",
+        "",
+        "# Old post",
+        "",
+        "URL: https://n.example/old",
+        "",
+        "Old text.",
+        "",
+      ].join("\n"),
+    );
+    const built = buildCrawlFiles(opts);
+    expect(built["llms-full.txt"]).toBe(llmsFullTxt(opts));
+    expect(built["llms.txt"]).toContain("## Optional\n\n- [Old post](https://n.example/old)\n- [Full text](https://n.example/llms-full.txt): every page above as Markdown in one file\n");
+    // Without page content there is no full-text file, and llms.txt does not point at one.
+    expect(files).not.toHaveProperty("llms-full.txt");
+    expect(files["llms.txt"]).not.toContain("llms-full");
   });
 
   it("llms.txt follows llmstxt.org: H1, blockquote, details, H2 file lists, Optional last", () => {

@@ -1,4 +1,4 @@
-// Writes robots.txt, sitemap.xml and llms.txt for a Landing site with buildCrawlFiles().
+// Writes robots.txt, sitemap.xml, llms.txt (and llms-full.txt when pages carry content) for a Landing site with buildCrawlFiles().
 //
 //   npx tsx scripts/build-crawl-files.ts --out dist-site
 //   npx tsx scripts/build-crawl-files.ts --config ./crawl.config.ts --out public
@@ -7,7 +7,7 @@
 // --config  a module whose default export is BuildCrawlFilesOptions (or a function of the --site
 //           value returning one). Without it, the /web demo's own config (playground/web-seo.ts).
 // --site    origin for the demo config. Default https://tidy.example.
-// --out     directory to write the three files into. Without it, they print to stdout.
+// --out     directory to write the files into. Without it, they print to stdout.
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";

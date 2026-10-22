@@ -17,6 +17,24 @@ export interface ExtractedDocsHeading {
 
 export interface DocsMarkdownProps {
   source: string;
+  /**
+   * Levels to add to every Markdown heading, so `#` renders as `h2` with 1. Use it when the host
+   * page already has its own `h1`. Clamped to `h6`; anchor ids do not change. Default 0.
+   */
+  headingOffset?: number;
+}
+
+export interface ExtractDocsHeadingsOptions {
+  /** The same offset passed to `DocsMarkdown`, so `level` is the rendered level. Default 0. */
+  headingOffset?: number;
+}
+
+type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+
+/** The rendered level of a Markdown heading after `offset`, between 1 and 6. */
+function shiftLevel(level: number, offset = 0): HeadingLevel {
+  const shift = Number.isFinite(offset) ? Math.trunc(offset) : 0;
+  return Math.min(6, Math.max(1, level + shift)) as HeadingLevel;
 }
 
 function textFromChildren(children: ReactNode): string {
@@ -53,7 +71,10 @@ export function slugifyDocsHeading(value: string) {
     .replace(/-+/g, "-");
 }
 
-export function extractDocsHeadings(source: string): ExtractedDocsHeading[] {
+export function extractDocsHeadings(
+  source: string,
+  { headingOffset = 0 }: ExtractDocsHeadingsOptions = {},
+): ExtractedDocsHeading[] {
   const headings: ExtractedDocsHeading[] = [];
   const occurrences = new Map<string, number>();
   let fence: string | null = null;
@@ -76,7 +97,7 @@ export function extractDocsHeadings(source: string): ExtractedDocsHeading[] {
     occurrences.set(baseId, count + 1);
     headings.push({
       id: count === 0 ? baseId : `${baseId}-${count}`,
-      level: match[1].length,
+      level: shiftLevel(match[1].length, headingOffset),
       line: index + 1,
       title,
     });
@@ -105,7 +126,7 @@ function tableColumns(node: TableNode | undefined): number {
 type HeadingComponent = NonNullable<Components["h1"]>;
 
 function headingComponent(
-  level: 1 | 2 | 3 | 4 | 5 | 6,
+  level: HeadingLevel,
   headingIds: Map<number, string>,
 ): HeadingComponent {
   return function DocsHeading({ node, children, ...props }) {
@@ -130,17 +151,19 @@ function headingComponent(
   };
 }
 
-export function DocsMarkdown({ source }: DocsMarkdownProps) {
+export function DocsMarkdown({ source, headingOffset = 0 }: DocsMarkdownProps) {
   const headingIds = new Map(
     extractDocsHeadings(source).map((heading) => [heading.line, heading.id]),
   );
+  const heading = (level: HeadingLevel) =>
+    headingComponent(shiftLevel(level, headingOffset), headingIds);
   const components: Components = {
-    h1: headingComponent(1, headingIds),
-    h2: headingComponent(2, headingIds),
-    h3: headingComponent(3, headingIds),
-    h4: headingComponent(4, headingIds),
-    h5: headingComponent(5, headingIds),
-    h6: headingComponent(6, headingIds),
+    h1: heading(1),
+    h2: heading(2),
+    h3: heading(3),
+    h4: heading(4),
+    h5: heading(5),
+    h6: heading(6),
     table: ({ node, ...props }) => (
       <div
         className="uipack-docs__table"
