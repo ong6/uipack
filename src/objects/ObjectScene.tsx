@@ -545,8 +545,10 @@ export function ObjectScene(props: ObjectSceneProps) {
   const opener = useRef<HTMLButtonElement>(null);
   const [randomVariant, setRandomVariant] = useState<ObjectVariant | null>(null);
   // One pick per mount (after it, so the server and client agree); normalizeObjectVariant fits it to a later kind.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { setRandomVariant(chooseObjectVariant(Math.random, props.kind === "contact" ? 5 : objectDirections.length)); }, []);
+  useEffect(() => {
+    setRandomVariant(chooseObjectVariant(Math.random, props.kind === "contact" ? 5 : objectDirections.length));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const canVary = props.variant === undefined || props.variant === "random";
   const controls = props.controls ?? "full";
   const chosenVariant = canVary ? randomVariant : props.variant as ObjectVariant;

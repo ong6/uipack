@@ -106,7 +106,7 @@ describe("Landing fonts", () => {
     expect(hosted).toHaveLength(7);
     for (const f of hosted) {
       expect(f).toContain("font-display: swap;");
-      expect(f).toMatch(/unicode-range: U\+0000-00FF/);
+      expect(f).toMatch(/unicode-range:\s+U\+0000-00FF/);
     }
     for (const u of urls(css)) {
       expect(u).toMatch(/^\.\/fonts\/[a-z0-9-]+\.woff2$/);

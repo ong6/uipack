@@ -412,8 +412,8 @@ describe("DriftingGutters", () => {
     expect(readFileSync("src/web/web.css", "utf8")).not.toMatch(/uipack-web-gutters/);
     expect(JSON.parse(readFileSync("package.json", "utf8")).exports["./web-gutters.css"]).toBe("./dist/web-gutters.css");
     const reduced = css.slice(css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
-    expect(reduced).toMatch(/\.uipack-web-gutters__drift,\s*\.uipack-web-gutters__signal \{ animation: none; \}/);
-    expect(css).toMatch(/\.uipack-web-gutters \{ display: none; \}\s*@media \(min-width: 1280px\)/);
+    expect(reduced).toMatch(/\.uipack-web-gutters__drift,\s*\.uipack-web-gutters__signal \{\s*animation: none;\s*\}/);
+    expect(css).toMatch(/\.uipack-web-gutters \{\s*display: none;\s*\}\s*@media \(min-width: 1280px\)/);
     expect(css).toMatch(/pointer-events: none;[^}]*color: var\(--web-gutters-color, var\(--web-accent/);
   });
 });
