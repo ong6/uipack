@@ -109,7 +109,7 @@ test.describe("/deck player", () => {
   test("phones open the deck as a readable document without page overflow", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/deck");
-    await expect(page.getByText("Reading · 8 slides")).toBeVisible();
+    await expect(page.getByText("Reading · 7 slides")).toBeVisible();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
     await page.getByRole("button", { name: /Present from slide 3/ }).click();
