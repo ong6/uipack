@@ -66,3 +66,30 @@
 
 /* The scene title is a card-level title on the heading scale (design-direction.md): 20 / 600. */
 .slides-showcase .uipack-animation-heading h3 { font-size: 20px; letter-spacing: -0.01em; }
+
+/* Beside the preview, the library takes the preview column's height instead of setting it:
+   it contributes no height of its own (height 0, then stretched to the row), and the scene
+   list scrolls inside it. So the panel ends where the preview and its usage end, with no
+   empty band under "Use this animation". Below 700px the library is a row above the preview. */
+@media (min-width: 701px) {
+  .slides-showcase .uipack-animation-library {
+    display: flex;
+    flex-direction: column;
+    height: 0;
+    min-height: 100%;
+    box-sizing: border-box;
+  }
+  .slides-showcase .uipack-scene-list {
+    flex: 1 1 0;
+    min-height: 132px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /* Room for a focus ring the scroll box would clip, without moving the list. */
+    padding: 4px 4px 48px;
+    margin: -4px -4px -20px;
+    scroll-padding-block: 8px 56px;
+    /* A soft edge says the list goes on; the bottom padding lets the last item clear it. */
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
+  }
+}
