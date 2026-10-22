@@ -118,6 +118,8 @@
     "gsap": "^3.15.0",
     "react": ">=18",
     "react-dom": ">=18",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "three": "^0.186.0"
   },
   "devDependencies": {
@@ -138,6 +140,8 @@
     "jsdom": "^26.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "three": "^0.186.0",
     "tsup": "^8.4.0",
     "tsx": "^4.19.3",
@@ -166,10 +170,12 @@
     },
     "gsap": {
       "optional": true
+    },
+    "react-markdown": {
+      "optional": true
+    },
+    "remark-gfm": {
+      "optional": true
     }
-  },
-  "dependencies": {
-    "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1"
   }
 }

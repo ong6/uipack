@@ -43,7 +43,11 @@ export function RequestFlow() {
 
 Separate entries, so a page loads only what it draws: `uipack` for parts, `uipack/presets` for ready figures, `uipack/charts` with `uipack/charts.css` for the span chart and layer stack, `uipack/article` with `uipack/article.css` for the labelled blocks of a long article, `uipack/presentations` for slide starters and speaker guides, `uipack/deck` with `uipack/deck.css` for the deck player, `uipack/web` with `uipack/web.css` for landing-page blocks (with head, JSON-LD, FAQ and crawl-file helpers: [web discoverability](docs/web-discoverability.md)), `uipack/mechanism` with `uipack/mechanism.css` for crafted isometric machines, and `uipack/browser` with `uipack/browser.css` for the asset browser.
 
-`uipack/docs` with `uipack/docs.css` provides a product-documentation shell and Markdown renderer: grouped navigation, a 680px prose column, an h2/h3 table of contents, mobile disclosure, heading anchors, and previous/next links. See the [docs layout guide](docs/docs-layout.md) and the rendered `/docs` gallery entry.
+`uipack/docs` with `uipack/docs.css` provides a product-documentation shell and Markdown renderer: grouped navigation, a 680px prose column, an h2/h3 table of contents, mobile disclosure, heading anchors, and previous/next links. See the [docs layout guide](docs/docs-layout.md) and the rendered `/docs` gallery entry. Its Markdown renderer needs `react-markdown` and `remark-gfm`, which are optional peer dependencies so other entries don't install them; a consumer of `uipack/docs` adds them itself:
+
+```sh
+npm install react-markdown@^10.1.0 remark-gfm@^4.0.1
+```
 
 `npm run dev` opens a playground with a two-row nav (groups, then the group's pages). Diagrams: `/` (also `/diagrams`) is the figure design system, each diagram pattern once from the bare canvas and the parts sampler to the drill-down (`/drill` opens it there), with when to use it and what it is built from; `/charts` the layer stack and span chart; `/article` the article parts in a host article. Presentations: `/deck` (the deck player, with `?deck=moves|bento|consulting`) and `/presentations` (slide starters and a complete narrative example). Motion & 3D: `/animations` (`/slides` remains an alias) and `/mechanism` (the Mechanism style's verification gate, its poses and thumbnails). Web: `/web` for the Landing building blocks and `/docs` for the documentation layout. Foundations: `/styles` indexes visual styles and `/assets` browses icons, marks, backgrounds and motion tokens.
 
