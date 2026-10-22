@@ -54,3 +54,8 @@ describe("built entries share one copy of each React context", () => {
     });
   }
 });
+
+// CommonJS cannot parse import.meta: one left in a .cjs chunk makes require() of it throw.
+it("no CommonJS file mentions import.meta", () => {
+  for (const f of readdirSync("dist").filter((f) => f.endsWith(".cjs"))) expect(readFileSync(`dist/${f}`, "utf8"), f).not.toMatch(/\bimport\.meta\b/);
+});
