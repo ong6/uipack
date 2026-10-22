@@ -50,7 +50,7 @@ A style is an implementation, not a label: register it only when its renderer ex
 
 ## A new slide part or chart
 
-1. The part: layout parts in `src/deck/parts.tsx` (or `bento.tsx`), consulting charts in `src/deck/consulting/charts.tsx`. Sizes are canvas pixels; a chart measures its box with `useChartSize` and takes `alt`, `width` and `height` like the others.
+1. The part: layout parts in `src/deck/parts.tsx` (or `bento.tsx`), consulting charts one per file in `src/deck/consulting/charts/` (shared frame, text and fills in `shared.tsx`; add the new file to `charts/index.ts`). Sizes are canvas pixels; a chart measures its box with `useChartSize` and takes `alt`, `width` and `height` like the others.
 2. Its maths as pure functions in `src/deck/consulting/scale.ts` (scales, ticks, layouts, `wrapToWidth`, `formatValue`), unit-tested in `test/deck-consulting.test.tsx`.
 3. Styles in `src/deck/deck.css` or `src/deck/consulting/consulting.css`, under `.uipack-deck`, using the deck tokens (`--deck-fg`, `--deck-accent`, `--deck-radius`, `--deck-settle`…). Text on a slide is at least `MIN_TEXT_PX` on the canvas.
 4. Export it by name from `src/deck/consulting/index.ts` and again in the consulting block of `src/deck/index.ts`. Check the name is not already used by another entry (`Callout` is article's; deck's is `Annotation`).
