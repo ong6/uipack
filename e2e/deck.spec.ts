@@ -112,9 +112,29 @@ test.describe("/deck player", () => {
   test("at 1280×900 the slide and its controls fit the first screen", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("/deck?view=present");
-    const bottom = await page.locator(".uipack-deck-controls").evaluate((el) => el.getBoundingClientRect().bottom);
-    expect(bottom).toBeLessThanOrEqual(900);
+    // The page fits the deck to the window once its controls have mounted.
+    await expect.poll(() => page.locator(".uipack-deck-controls").evaluate((el) => el.getBoundingClientRect().bottom)).toBeLessThanOrEqual(900);
   });
+
+  for (const [width, height] of [
+    [1440, 900],
+    [1440, 1000],
+    [1920, 1080],
+  ] as const) {
+    test(`at ${width}×${height} the controls end where the slide ends, and stay on screen`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto("/deck?view=present");
+      await expect(page.getByRole("button", { name: "Full screen" })).toBeVisible();
+      const read = () =>
+        page.evaluate(() => {
+          const stage = document.querySelector(".uipack-deck-stage")!.getBoundingClientRect();
+          const tools = Array.from(document.querySelectorAll(".uipack-deck-controls button")).map((b) => b.getBoundingClientRect());
+          return { gap: Math.round(Math.abs(Math.max(...tools.map((t) => t.right)) - stage.right)), bottom: Math.max(...tools.map((t) => t.bottom)) };
+        });
+      await expect.poll(async () => (await read()).gap).toBeLessThanOrEqual(1);
+      expect((await read()).bottom).toBeLessThanOrEqual(height);
+    });
+  }
 
   // WebKit's default Tab skips buttons, so a dialog of buttons that leaves Tab to the browser
   // loses focus to the page: Escape then does nothing and the deck keys stay off. Runs in both engines.
