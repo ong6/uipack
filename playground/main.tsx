@@ -11,6 +11,7 @@ const Web = lazy(() => import("./WebShowcase"));
 const Docs = lazy(() => import("./DocsShowcase"));
 const Article = lazy(() => import("./ArticleShowcase"));
 const Deck = lazy(() => import("./DeckShowcase"));
+const Mechanism = lazy(() => import("./MechanismShowcase"));
 
 const params = new URLSearchParams(location.search);
 const theme = params.get("theme");
@@ -39,6 +40,10 @@ createRoot(document.getElementById("root")!).render(
     ) : location.pathname.replace(/\/$/, "") === "/article" ? (
       <Suspense fallback={<p>Loading article parts…</p>}>
         <Article />
+      </Suspense>
+    ) : location.pathname.replace(/\/$/, "") === "/mechanism" ? (
+      <Suspense fallback={<p>Loading mechanism…</p>}>
+        <Mechanism />
       </Suspense>
     ) : ["/styles", "/presentations"].includes(
         location.pathname.replace(/\/$/, ""),

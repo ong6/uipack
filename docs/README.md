@@ -15,4 +15,5 @@ Agent instructions live in [AGENTS.md](../AGENTS.md). Setup and verification liv
 - [Article parts](article.md): `uipack/article` (NoteCard, NoteCluster, LayerHead, TermList, Callout, ChangeNote, LinkList), the labelled blocks of a long article section, with the HTML and class contract for hosts that emit the markup without React.
 - [Product documentation layout](docs-layout.md): the `uipack/docs` shell, Markdown renderer, navigation, anchors, and responsive behavior.
 - [Portfolio ideas](portfolio-ideas.md): prioritized places where `uipack/web` pieces would improve junxiong.dev, and what to avoid.
+- [Mechanism style](mechanism.md): `uipack/mechanism`, crafted isometric machines after Anatomy (MIT); the verification gate, its pose API for slides, and how to build a new machine.
 - [Object scenes](objects.md): seven reusable, lazy 3D illustrations and their player.

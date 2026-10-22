@@ -17,6 +17,14 @@ export const visualStyles = [
     tokens: "src/web/web.css",
     guidance: "docs/web-principles.md",
   },
+  {
+    id: "mechanism",
+    name: "Mechanism",
+    description:
+      "Crafted isometric machines whose working is the explanation: many small precise parts, calm sprung motion, one lit part and a live readout wired to a small model. After Anatomy (MIT).",
+    tokens: "src/mechanism/mechanism.css",
+    guidance: "docs/mechanism.md",
+  },
   ...objectDirections.map((direction, variant) => ({
     id: direction.id, name: direction.name, description: direction.description,
     tokens: variant === 0 ? 'src/objects/objects.css' : variant < 3 ? 'src/objects/art-directions.ts' : 'src/objects/expanded-directions.ts',
@@ -32,6 +40,7 @@ export const libraryPages = [
   { id: "web", label: "Web UI", path: "/web" },
   { id: "docs", label: "Docs layout", path: "/docs" },
   { id: "article", label: "Article parts", path: "/article" },
+  { id: "mechanism", label: "Mechanism", path: "/mechanism" },
   { id: "styles", label: "Styles", path: "/styles" },
 ] as const;
 export type LibraryPage = (typeof libraryPages)[number]["id"];
@@ -191,4 +200,9 @@ export const deckEntries: CatalogEntry[] = [
   { id: "deck-morph", title: "Morph transition", type: "deck", styleId: "technical", tags: ["Transition", "Motion", "Shared element"] },
   { id: "deck-zoom", title: "Zoom transition", type: "deck", styleId: "technical", tags: ["Transition", "Motion", "Camera"] },
   { id: "deck-read", title: "Read view", type: "deck", styleId: "technical", tags: ["Presentation", "Mobile", "Async"] },
+];
+
+/** Mechanism-style machines (uipack/mechanism), rendered on /mechanism. */
+export const mechanismEntries: CatalogEntry[] = [
+  { id: "verification-gate", title: "Verification gate", type: "mechanism", styleId: "mechanism", tags: ["Mechanism", "Agents", "Isometric", "Pose"] },
 ];

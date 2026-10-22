@@ -1,0 +1,70 @@
+.mechanism-page .collection-intro code {
+  font-size: 13px;
+}
+.mechanism-poses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+.mechanism-poses button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--show-rule);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: 500 13px ui-monospace, monospace;
+  cursor: pointer;
+}
+.mechanism-poses button[aria-pressed="true"] {
+  border-color: var(--show-accent);
+  color: var(--show-accent);
+  background: var(--show-surface);
+}
+.mechanism-poses button:focus-visible,
+.mechanism-thumbs button:focus-visible {
+  outline: 2px solid var(--show-accent);
+  outline-offset: 2px;
+}
+.mechanism-note {
+  margin: 0 0 16px;
+  min-height: 1.6em;
+  font-size: 14px;
+  color: var(--show-muted);
+}
+.mechanism-stage {
+  max-width: 960px;
+}
+.mechanism-thumbs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mechanism-thumbs button {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--show-rule);
+  border-radius: 6px;
+  background: var(--show-surface);
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.mechanism-thumbs button[aria-pressed="true"] {
+  border-color: var(--show-accent);
+}
+.mechanism-thumb {
+  display: block;
+}
+.mechanism-thumb-label {
+  font: 500 12px ui-monospace, monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--show-muted);
+}

@@ -7,7 +7,7 @@ UIPACK is a library of reusable visual explanations. The browser organizes two i
 | Axis | Values |
 | --- | --- |
 | Content type | Figures, Assets, 3D animations, Presentations |
-| Visual style | Technical diagrams; Landing for web pages; Studio, Paper, Kinetic, Cartoon, Realistic and Abstract for 3D objects |
+| Visual style | Technical diagrams; Landing for web pages; Mechanism for crafted isometric machines; Studio, Paper, Kinetic, Cartoon, Realistic and Abstract for 3D objects |
 
 The Styles collection is the index of visual languages. Light and dark are themes within a style. Do not use “slides” as the name for all 3D content. The existing `uipack/slides` API and `/slides` URL remain compatibility paths.
 
@@ -16,6 +16,10 @@ The Styles collection is the index of visual languages. Light and dark are theme
 ## Landing style
 
 Landing is the web style of `uipack/web`, shown at `/web`. Its tokens live in `src/web/web.css` under `.uipack-web`: a neutral page, a secondary tint for bands and panels, and one indigo accent reserved for calls to action and the hero's star. It sets type in three self-hosted roles (Instrument Serif display from heading step 4, IBM Plex Sans text, IBM Plex Mono labels and data) on a 16px × 1.25 scale, with opacity hierarchy (100/87/66), a 12/8/4 container grid and 8-pt spacing. It never recolours Technical, and the shared shell keeps its Technical navigation. The rules and their sources are in [web principles](web-principles.md).
+
+## Mechanism style
+
+Mechanism is `uipack/mechanism`, shown at `/mechanism`: one isometric machine whose working is the explanation, after Anatomy (MIT). It reuses the Technical palette under `.uipack-mechanism` (paper `#f6f5f1`/white, ink `#1a1c1a`, forest `#205f49`; dark `#0a100d`, `#0e1512`/`#14201b`, `#e8ece9`, mint `#71dcb2`) and maps Anatomy's tones onto it: base `lo`, structure `mid`, subject `hi`, and one `lit` part in the accent. Labels sit in the card corners in small uppercase mono, never in the drawing. Topology stays with Figures and camera tours with 3D animations. See [the Mechanism guide](mechanism.md).
 
 ## Technical style
 

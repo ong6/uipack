@@ -225,3 +225,40 @@
 .deck-demo-tokens tr[data-current] .deck-demo-tokens__ms {
   color: var(--deck-accent);
 }
+
+/* Example deck: the verification gate machine gets the larger column */
+.uipack-deck-slide.deck-demo-gate {
+  grid-template-columns: 0.78fr 1.22fr;
+  column-gap: 48px;
+}
+.deck-demo-gate__copy {
+  align-self: center;
+}
+.deck-demo-gate__beats {
+  display: grid;
+  gap: 22px;
+  margin: 56px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--deck-muted);
+  font-size: 32px;
+  line-height: 1.35;
+}
+.deck-demo-gate__beats li {
+  padding-left: 28px;
+  border-left: 4px solid var(--deck-rule);
+}
+.deck-demo-gate__beats li[data-current],
+.deck-demo-gate__beats li[data-built] {
+  border-color: var(--deck-accent);
+  color: var(--deck-fg);
+}
+.deck-demo-gate__machine {
+  align-self: center;
+}
+.deck-demo-gate__machine svg {
+  display: block;
+  width: 118%;
+  height: auto;
+  margin: -6% -9% -6% -9%;
+}

@@ -72,8 +72,8 @@ test.describe("/deck player", () => {
     await expect(dialog).toBeHidden();
     await expect(page.getByRole("button", { name: "All slides" })).toBeFocused();
     await page.getByRole("button", { name: "All slides" }).click();
-    await dialog.getByRole("button", { name: /05 One clock/ }).click();
-    await expect(deck(page)).toHaveAttribute("data-index", "4");
+    await dialog.getByRole("button", { name: /06 One clock/ }).click();
+    await expect(deck(page)).toHaveAttribute("data-index", "5");
   });
 
   test("a speaker window stays in step with the audience window", async ({ page, context }) => {
@@ -109,7 +109,7 @@ test.describe("/deck player", () => {
   test("phones open the deck as a readable document without page overflow", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/deck");
-    await expect(page.getByText("Reading · 7 slides")).toBeVisible();
+    await expect(page.getByText("Reading · 8 slides")).toBeVisible();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
     await page.getByRole("button", { name: /Present from slide 3/ }).click();

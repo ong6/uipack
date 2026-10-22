@@ -1,4 +1,7 @@
 import { Build, Morph, Slide, deckMotion, type DeckSlide } from "../src/deck";
+import { GateMachine, type GatePose } from "../src/mechanism";
+
+const gatePoses: GatePose[] = ["pass", "return", "apart"];
 
 const Arrow = () => (
   <svg className="deck-demo-arrow" viewBox="0 0 72 16" aria-hidden="true">
@@ -135,6 +138,41 @@ export const deckExample: DeckSlide[] = [
       say: "Inside the checks there are three gates. The schema check, the policy check, and the evidence check. The last one is the one teams skip.",
       delivery: "Go back one slide to show the zoom reversing.",
       next: "All of these moves share one clock.",
+    },
+  },
+  {
+    id: "gate",
+    title: "The check as a machine",
+    headline: "A check is a gauge every proposal passes under before it lands.",
+    role: "mechanism",
+    render: ({ step, thumbnail, theme, reducedMotion }) => (
+      <Slide eyebrow="Mechanism style" footer={footer} layout="split" className="deck-demo-gate">
+        <div className="deck-demo-gate__copy">
+          <h2 className="uipack-deck-heading">A check is a gauge every proposal passes under.</h2>
+          <ol className="deck-demo-gate__beats">
+            <li data-current="">Under the limit: it rides on to the result tray.</li>
+            <Build as="li" step={1}>
+              Over the limit: an arm pushes it back for another try.
+            </Build>
+            <Build as="li" step={2}>
+              Taken apart: every assembly that does the checking.
+            </Build>
+          </ol>
+        </div>
+        <div className="deck-demo-gate__machine">
+          <GateMachine
+            pose={gatePoses[Math.min(Number.isFinite(step) ? step : 2, 2)]}
+            theme={theme}
+            motion={reducedMotion ? "none" : "auto"}
+            interactive={!thumbnail}
+          />
+        </div>
+      </Slide>
+    ),
+    notes: {
+      say: "Same idea as the last slide, drawn as a machine. A proposal rides under a dial gauge. Under the limit it lands; over it, an arm swings it back to be revised. Taken apart, you can see what each piece of the check does.",
+      delivery: "Press Next twice: first the return, then the exploded view.",
+      next: "Every move in this deck shares one clock.",
     },
   },
   {

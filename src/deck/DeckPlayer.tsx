@@ -180,8 +180,13 @@ export function DeckPlayer({
   const overviewButtonRef = useRef<HTMLButtonElement>(null);
   const anims = useRef<Animation[]>([]);
   const maxStep = useRef(0);
+  // The latest position, updated as soon as it changes, so quick repeated presses (a clicker's
+  // double tap) each apply to where the previous one left the deck, not to the last render.
   const viewRef = useRef(view);
-  viewRef.current = view;
+  const commit = (next: View) => {
+    viewRef.current = next;
+    setView(next);
+  };
 
   const settle = () => {
     for (const a of anims.current) a.cancel();
@@ -196,7 +201,8 @@ export function DeckPlayer({
     (index: number, step = 0) => {
       const target = Math.min(Math.max(index, 0), count - 1);
       settle();
-      setView((v) =>
+      const v = viewRef.current;
+      commit(
         v.index === target
           ? { ...v, step, from: null }
           : { index: target, step, from: { index: v.index, step: v.step }, seq: v.seq + 1 },
@@ -208,14 +214,14 @@ export function DeckPlayer({
 
   const next = useCallback(() => {
     const v = viewRef.current;
-    if (v.step < maxStep.current) setView({ ...v, step: v.step + 1 });
+    if (v.step < maxStep.current) commit({ ...v, step: v.step + 1 });
     else if (v.index < count - 1) go(v.index + 1, 0);
   }, [count, go]);
 
   const prev = useCallback(() => {
     const v = viewRef.current;
     const step = Math.min(v.step, maxStep.current);
-    if (step > 0) setView({ ...v, step: step - 1 });
+    if (step > 0) commit({ ...v, step: step - 1 });
     else if (v.index > 0) go(v.index - 1, Infinity);
   }, [go]);
 
@@ -240,7 +246,7 @@ export function DeckPlayer({
       settle();
       // Hide the outgoing copy until React removes it, so it never flashes back at full opacity.
       if (from) from.style.visibility = "hidden";
-      setView((v) => (v.seq === seq ? { ...v, from: null } : v));
+      if (viewRef.current.seq === seq) commit({ ...viewRef.current, from: null });
     };
     if (!from || !to || !scale) return done();
     const resolved = resolveTransition(view.from.index, view.index, (i) => slides[i]?.transition, transition);
@@ -279,7 +285,7 @@ export function DeckPlayer({
         const v = viewRef.current;
         if (v.index === msg.index && v.step === msg.step) return;
         remote.current = true;
-        if (v.index === msg.index) setView({ ...v, step: msg.step ?? 0 });
+        if (v.index === msg.index) commit({ ...v, step: msg.step ?? 0 });
         else go(msg.index, msg.step ?? 0);
       }
     };

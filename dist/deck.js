@@ -1191,7 +1191,10 @@ function DeckPlayer({
   const anims = useRef([]);
   const maxStep = useRef(0);
   const viewRef = useRef(view);
-  viewRef.current = view;
+  const commit = (next2) => {
+    viewRef.current = next2;
+    setView(next2);
+  };
   const settle = () => {
     for (const a of anims.current) a.cancel();
     anims.current = [];
@@ -1204,8 +1207,9 @@ function DeckPlayer({
     (index, step = 0) => {
       const target = Math.min(Math.max(index, 0), count - 1);
       settle();
-      setView(
-        (v) => v.index === target ? { ...v, step, from: null } : { index: target, step, from: { index: v.index, step: v.step }, seq: v.seq + 1 }
+      const v = viewRef.current;
+      commit(
+        v.index === target ? { ...v, step, from: null } : { index: target, step, from: { index: v.index, step: v.step }, seq: v.seq + 1 }
       );
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1213,13 +1217,13 @@ function DeckPlayer({
   );
   const next = useCallback(() => {
     const v = viewRef.current;
-    if (v.step < maxStep.current) setView({ ...v, step: v.step + 1 });
+    if (v.step < maxStep.current) commit({ ...v, step: v.step + 1 });
     else if (v.index < count - 1) go(v.index + 1, 0);
   }, [count, go]);
   const prev = useCallback(() => {
     const v = viewRef.current;
     const step = Math.min(v.step, maxStep.current);
-    if (step > 0) setView({ ...v, step: step - 1 });
+    if (step > 0) commit({ ...v, step: step - 1 });
     else if (v.index > 0) go(v.index - 1, Infinity);
   }, [go]);
   useIsoLayoutEffect(() => {
@@ -1238,7 +1242,7 @@ function DeckPlayer({
     const done = () => {
       settle();
       if (from2) from2.style.visibility = "hidden";
-      setView((v) => v.seq === seq ? { ...v, from: null } : v);
+      if (viewRef.current.seq === seq) commit({ ...viewRef.current, from: null });
     };
     if (!from2 || !to || !scale) return done();
     const resolved = resolveTransition(view.from.index, view.index, (i) => slides[i]?.transition, transition);
@@ -1273,7 +1277,7 @@ function DeckPlayer({
         const v = viewRef.current;
         if (v.index === msg.index && v.step === msg.step) return;
         remote.current = true;
-        if (v.index === msg.index) setView({ ...v, step: msg.step ?? 0 });
+        if (v.index === msg.index) commit({ ...v, step: msg.step ?? 0 });
         else go(msg.index, msg.step ?? 0);
       }
     };
