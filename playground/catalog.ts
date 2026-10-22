@@ -110,6 +110,20 @@ export function pageHeading(page: PageDef) {
 export function documentTitle(page: PageDef) {
   return [page.query && page.title ? page.label : null, page.title ?? page.label, "uipack"].filter(Boolean).join(" · ");
 }
+
+/**
+ * A sub-view query that names nothing (`/deck?deck=bogus`): the param, its value and the entry
+ * shown instead, or null when the query is absent or matches a page.
+ */
+export function unknownSubView(page: PageDef, search: string) {
+  const params = new URLSearchParams(search);
+  const same = pageDefs.filter((p) => p.path === page.path && p.query);
+  for (const key of new Set(same.flatMap((p) => Object.keys(p.query!)))) {
+    const value = params.get(key);
+    if (value !== null && !same.some((p) => p.query![key] === value)) return { key, value, shown: page };
+  }
+  return null;
+}
 export interface CatalogEntry {
   id: string;
   title: string;

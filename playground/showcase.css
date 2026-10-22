@@ -226,6 +226,15 @@ body {
   line-height: 1.6;
   color: var(--show-muted);
 }
+/* "Deck “bogus” not found, showing Tech talk." under the intro. */
+.showcase-title p.showcase-title__note {
+  width: fit-content;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  border-left: 3px solid var(--show-accent);
+  background: var(--show-surface);
+  color: var(--show-ink);
+}
 @media (max-width: 540px) {
   .showcase-groups a,
   .showcase-pages a {
@@ -468,4 +477,23 @@ body {
     flex: none;
     clip-path: inset(0 calc(100% - 24px) 0 0);
   }
+}
+
+/* The page for an unknown address: every page, by group. */
+.showcase-not-found__groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 24px 32px;
+}
+.showcase-not-found ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.showcase-not-found li a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--show-accent);
+  font-size: 16px;
 }

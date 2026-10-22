@@ -4,7 +4,8 @@ import "../src/theme.css";
 import "./showcase.css";
 import "../src/canvas.css";
 import { App } from "./App";
-import { libraryPages, type LibraryPage } from "./catalog";
+import { libraryGroups, libraryPages, pageDefs, pageHref, type LibraryPage } from "./catalog";
+import { ShowcaseShell, useShowcaseTheme } from "./ShowcaseShell";
 
 const CatalogPages = lazy(() => import("./CatalogPages"));
 const Slides = lazy(() => import("./SlideShowcase"));
@@ -35,8 +36,8 @@ const pageComponents: Record<LibraryPage, ComponentType> = {
   assets: App,
 };
 
-/** Older or shorthand paths that open a page: /slides (3D animations), /diagrams, /drill (the drill-down section). */
-const aliases: Record<string, LibraryPage> = { "/slides": "animations", "/diagrams": "figures", "/drill": "figures" };
+/** Older or shorthand paths that open a page: /slides (3D animations), /diagrams, /drill (the drill-down section), /index.html. */
+const aliases: Record<string, LibraryPage> = { "/slides": "animations", "/diagrams": "figures", "/drill": "figures", "/index.html": "figures" };
 
 const routes = new Map<string, ComponentType>(libraryPages.map((p) => [p.path, pageComponents[p.id]]));
 for (const [path, id] of Object.entries(aliases)) routes.set(path, pageComponents[id]);
@@ -45,7 +46,36 @@ const params = new URLSearchParams(location.search);
 const theme = params.get("theme");
 document.documentElement.dataset.theme = theme === "dark" ? "dark" : "light";
 
-const Page = routes.get(location.pathname.replace(/(.)\/$/, "$1")) ?? App;
+/** An address that names no page says so and lists every page, rather than showing another page. */
+function NotFound() {
+  const { theme, flip } = useShowcaseTheme();
+  return (
+    <ShowcaseShell active="not-found" theme={theme} flip={flip}>
+      <section className="showcase-not-found">
+        <div className="showcase-not-found__groups">
+          {libraryGroups.map((g) => (
+            <section key={g.id} aria-labelledby={`not-found-${g.id}`}>
+              <h2 id={`not-found-${g.id}`} className="showcase-subhead">
+                {g.label}
+              </h2>
+              <ul>
+                {pageDefs
+                  .filter((p) => p.group === g.id)
+                  .map((p) => (
+                    <li key={p.id}>
+                      <a href={pageHref(p, theme)}>{p.query && p.title ? `${p.title} · ${p.label}` : p.label}</a>
+                    </li>
+                  ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      </section>
+    </ShowcaseShell>
+  );
+}
+
+const Page = routes.get(location.pathname.replace(/(.)\/$/, "$1")) ?? NotFound;
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

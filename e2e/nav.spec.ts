@@ -365,3 +365,29 @@ test.describe("landmarks and skip link", () => {
     });
   }
 });
+
+test("an unknown address says so and links to every page", async ({ page }) => {
+  await page.goto("/nope?theme=dark");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Page not found");
+  await expect(page).toHaveTitle("Page not found · uipack");
+  // Not the diagrams page in disguise.
+  await expect(page.locator('section[data-section="pipeline"]')).toHaveCount(0);
+  await expect(groupsNav(page).locator('[aria-current="page"]')).toHaveCount(0);
+  const links = page.getByRole("main").getByRole("link");
+  await expect(links).toHaveCount(ALL.length);
+  const hrefs = await links.evaluateAll((els) => els.map((a) => a.getAttribute("href")));
+  expect(hrefs.every((h) => h!.endsWith("theme=dark"))).toBe(true);
+  await page.getByRole("main").getByRole("link", { name: "Charts" }).click();
+  await expect(page).toHaveURL(/\/charts\?theme=dark$/);
+  await expect(title(page)).toHaveText("Charts");
+});
+
+test("an unknown deck shows a visible note and the default deck", async ({ page }) => {
+  await page.goto("/deck?deck=bogus");
+  await expect(page.getByRole("status").filter({ hasText: "not found" })).toHaveText("Deck “bogus” not found, showing Tech talk.");
+  await expect(title(page)).toHaveText("Deck player · Tech talk");
+  await page.goto("/deck?deck=bento");
+  await expect(page.locator(".showcase-title__note")).toHaveCount(0);
+  await page.goto("/deck");
+  await expect(page.locator(".showcase-title__note")).toHaveCount(0);
+});
