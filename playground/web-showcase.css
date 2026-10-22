@@ -412,10 +412,14 @@
   min-height: 44px;
   padding: 0 12px;
   border: 1px solid var(--show-rule);
-  /* Shell chrome, not Landing: the shell's control radius and face. */
+  /* Shell chrome with the shell's control radius, but set in the sample's label face (IBM Plex
+     Mono, already loaded on this page): the chips index the Landing sample and sit on its edge,
+     so two different monos never meet. */
   border-radius: var(--show-control-radius);
   color: var(--show-ink);
-  font: var(--show-control-font);
+  font:
+    400 13px/1.2 "IBM Plex Mono",
+    var(--show-font-mono);
   text-decoration: none;
 }
 .web-index a::before {
