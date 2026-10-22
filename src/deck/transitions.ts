@@ -365,10 +365,18 @@ export function runTransition(opts: RunOptions): Animation[] {
         const kids = Array.from(el.children).filter((c): c is HTMLElement => c instanceof HTMLElement);
         return r.w * r.h > fromArea / 6 && kids.length > 1 && crossed(el) ? kids : [el];
       });
+      // Words that sit where the incoming slide has words of its own (an eyebrow, a heading) hand
+      // over rather than crossfade, so two lines of text never print over each other: the outgoing
+      // copy holds for a third of the flight and is gone by half, and the incoming one starts there.
+      const incomingText = inn.rest.filter((el) => isText(el) && !unbuilt(el)).map(rectOf);
+      const handedOver: Rect[] = [];
       for (const el of outgoing) {
         if (besideOut(el)) play(el, [{ opacity: 1 }, { opacity: 0 }], { duration: deckMotion.morph * 0.08, easing: "linear" });
         else if (crossed(el)) play(el, [{ opacity: 1 }, { opacity: 0 }], leave);
-        else play(el, [{ opacity: 1 }, { opacity: 1, offset: 0.55, easing: "ease-in-out" }, { opacity: 0 }], { duration: deckMotion.morph * 0.6, easing: "linear" });
+        else if (isText(el) && incomingText.some((r) => overlaps(r, rectOf(el)))) {
+          handedOver.push(rectOf(el));
+          play(el, [{ opacity: 1 }, { opacity: 1, offset: 0.66, easing: "ease-in" }, { opacity: 0 }], { duration: deckMotion.morph * 0.5, easing: "linear" });
+        } else play(el, [{ opacity: 1 }, { opacity: 1, offset: 0.55, easing: "ease-in-out" }, { opacity: 0 }], { duration: deckMotion.morph * 0.6, easing: "linear" });
       }
       for (const el of out.containers) if (paintsBox(el)) play(el, paintFrames(el, "from"), leave);
       // Incoming blocks settle in once the outgoing slide has cleared. Blocks a traveller still has
@@ -392,9 +400,10 @@ export function runTransition(opts: RunOptions): Animation[] {
         if (beside(el) || underPath(el)) {
           play(el, [{ opacity: 0 }, { opacity: 1 }], { duration: deckMotion.base, delay: deckMotion.morph * 0.72, easing: deckMotion.settle });
         } else {
+          const after = isText(el) && handedOver.some((r) => overlaps(r, rectOf(el))) ? deckMotion.morph * 0.5 : 0;
           play(el, [{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }], {
             duration: deckMotion.slow,
-            delay: deckMotion.morph * 0.4 + Math.min(i++, 6) * deckMotion.stagger,
+            delay: Math.max(after, deckMotion.morph * 0.4 + Math.min(i++, 6) * deckMotion.stagger),
             easing: deckMotion.settle,
           });
         }

@@ -336,6 +336,44 @@ test.describe("/deck motion: no mid-flight glitches", () => {
     expect(await at(page, 0.62 * 760, opacityOf)).toBe(0);
   });
 
+  test("a morph hands words over rather than printing two lines on top of each other", async ({ page }) => {
+    await page.goto("/deck?slide=problem&view=present");
+    await deck(page).focus();
+    await settled(page);
+    await page.keyboard.press("ArrowRight");
+    for (const f of [0.3, 0.4, 0.45, 0.5, 0.6]) {
+      const o = await at(page, f * 760, () => {
+        const eyebrow = (id: string) => Number(getComputedStyle(document.querySelector(`.uipack-deck-layer[data-slide="${id}"] .uipack-deck-eyebrow`)!).opacity);
+        return { out: eyebrow("problem"), in: eyebrow("evidence") };
+      });
+      expect(Math.min(o.out, o.in), `both eyebrows showing at ${f}`).toBeLessThan(0.15);
+    }
+  });
+
+  test("bento camera: the cell being left keeps its detail, the next one waits, and no face rides the pull-back", async ({ page }) => {
+    // `at` serialises its reader, so each one names its cell inline.
+    const latency = () => Number(getComputedStyle(document.querySelector('[data-bento-cell="latency"] .uipack-deck-bento__detail')!).opacity);
+    const shipped = () => Number(getComputedStyle(document.querySelector('[data-bento-cell="shipped"] .uipack-deck-bento__detail')!).opacity);
+    // Cell to cell: latency → shipped.
+    await page.goto("/deck?deck=bento&slide=quarter&step=1&view=present");
+    await deck(page).focus();
+    await settled(page);
+    await page.keyboard.press("ArrowRight");
+    expect(await at(page, 0.3 * 860, latency)).toBeGreaterThan(0.9);
+    expect(await at(page, 0.5 * 860, shipped)).toBe(0);
+    expect(await at(page, 0.95 * 860, shipped)).toBeGreaterThan(0.5);
+    // The pull-back: the grid is partly outside the box mid-move, so every face waits.
+    await page.evaluate(() => document.getAnimations().forEach((a) => a.finish()));
+    await page.keyboard.press("ArrowRight");
+    const faces = await at(page, 0.5 * 860, () =>
+      Math.max(
+        ...Array.from(document.querySelectorAll(".uipack-deck-layer:not([aria-hidden]) .uipack-deck-bento__face"), (f) => Number(getComputedStyle(f).opacity)),
+      ),
+    );
+    expect(faces).toBe(0);
+    expect(await at(page, 0.4 * 860, shipped)).toBeGreaterThan(0.5);
+  });
+
   test("a bento cell never shows its face and its detail at once", async ({ page }) => {
     await page.goto("/deck?deck=bento&slide=quarter&step=1&view=present");
     await deck(page).focus();
