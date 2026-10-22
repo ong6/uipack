@@ -55,7 +55,7 @@ import "@fontsource/ibm-plex-serif/latin-400.css";
 import "@fontsource/space-grotesk/latin-500.css";
 import "../src/web/gutters.css";
 import "./web-showcase.css";
-import { keepFocusedInView } from "../src/env";
+import { keepFocusedInView, usePrefersReducedMotion } from "../src/env";
 
 // Example content. The player owns timing and playback; these words belong to the playground.
 const inboxRows = [
@@ -750,13 +750,29 @@ const backgroundTiles = [
 ];
 
 function BackgroundsSection({ theme, surfaceStyle }: { theme: "light" | "dark"; surfaceStyle?: CSSProperties }) {
+  // The aurora, beams and gutters loop for as long as they are on screen; one Pause holds them all
+  // (WCAG 2.2.2). Under reduced motion they are already still, so there is nothing to pause.
+  const reduced = usePrefersReducedMotion();
+  const [paused, setPaused] = useState(false);
   return (
-    <section data-section="backgrounds" id="web-backgrounds" className="web-anchor">
+    <section
+      data-section="backgrounds"
+      id="web-backgrounds"
+      className="web-anchor"
+      data-web-motion={paused && !reduced ? "paused" : undefined}
+    >
       <h2>Backgrounds · {backgroundTiles.length + 1}</h2>
-      <p className="collection-intro">
-        One ambient effect per viewport on a real page; this gallery breaks that rule to compare them. Backgrounds sit at low contrast so the
-        text above keeps 4.5:1. Moving ones pause off screen and hold still under reduced motion.
-      </p>
+      <div className="web-section-intro">
+        <p className="collection-intro">
+          One ambient effect per viewport on a real page; this gallery breaks that rule to compare them. Backgrounds sit at low contrast so the
+          text above keeps 4.5:1. Moving ones pause off screen and hold still under reduced motion.
+        </p>
+        {!reduced && (
+          <button type="button" className="web-motion-toggle" onClick={() => setPaused((p) => !p)}>
+            {paused ? "Play motion" : "Pause motion"}
+          </button>
+        )}
+      </div>
       <WebSurface theme={theme} className="web-panel" style={surfaceStyle}>
         <Grid>
           {backgroundTiles.map((tile) => (

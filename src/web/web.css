@@ -1115,6 +1115,9 @@
 }
 .uipack-web-beams i[data-axis="v"]::after { bottom: -2px; left: -2px; }
 .uipack-web-beams[data-paused] i { animation-play-state: paused; }
+/* A page's own Pause for ambient motion (WCAG 2.2.2): data-web-motion="paused" on any ancestor
+   holds the aurora, the beams and the drifting gutters where they are. */
+[data-web-motion="paused"] :is(.uipack-web-aurora i, .uipack-web-beams i) { animation-play-state: paused; }
 @keyframes uipack-web-beam-x {
   from { transform: translateX(-140px); }
   to { transform: translateX(calc(100cqw + 20px)); }

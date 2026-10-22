@@ -482,3 +482,27 @@
   white-space: pre;
 }
 .web-generated pre:focus-visible { outline: 2px solid var(--show-accent); outline-offset: 2px; }
+
+/* ---------- A section's own motion control (Backgrounds) ---------- */
+/* The intro and its Pause share a row: the button sits at the panel's right edge, on the intro's
+   last line, so it reads as the section's control rather than part of one tile. */
+.web-section-intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-bottom: 20px;
+}
+.web-section-intro > .collection-intro { margin: 0; }
+.web-motion-toggle {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--show-rule);
+  border-radius: var(--show-control-radius);
+  background: transparent;
+  color: var(--show-ink);
+  font: var(--show-control-font);
+  cursor: pointer;
+}
+.web-motion-toggle:hover { border-color: var(--show-ink); }
