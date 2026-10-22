@@ -522,6 +522,18 @@ describe("enhanceSpanChart", () => {
     expect(inference.checked).toBe(true);
   });
 
+  it("a cleanup straight after a reset cancels the pending resync", async () => {
+    const { root, $ } = setup();
+    const cleanup = enhanceSpanChart(root);
+    $("#ai-stack-layer-inference").click();
+    root.querySelector("form")!.reset();
+    cleanup();
+    await new Promise((r) => setTimeout(r, 5));
+    // The resync would focus the chart's first filter and re-mark the chart; neither happens.
+    expect(document.activeElement).not.toBe($("#ai-stack-layer-all"));
+    expect(root).not.toHaveAttribute("data-span-counting");
+  });
+
   it("writes the shown count while filtered", () => {
     const { root, $ } = setup();
     enhanceSpanChart(root);

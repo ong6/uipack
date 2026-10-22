@@ -162,10 +162,14 @@ export function enhanceSpanChart(root: HTMLElement): () => void {
     update(true);
     restore();
   };
+  // The pending post-reset resync, cleared on cleanup so it never runs against a torn-down chart.
+  let resetTimer: number | undefined;
   const onReset = () => {
     // The reset event fires before the controls change. Focus would otherwise
     // fall to the page when the pressed button disappears.
-    win?.setTimeout(() => {
+    if (win && resetTimer !== undefined) win.clearTimeout(resetTimer);
+    resetTimer = win?.setTimeout(() => {
+      resetTimer = undefined;
       sync();
       applySearch();
       update(true);
@@ -301,6 +305,7 @@ export function enhanceSpanChart(root: HTMLElement): () => void {
   onHash();
 
   return () => {
+    if (win && resetTimer !== undefined) win.clearTimeout(resetTimer);
     root.removeEventListener("click", onClick);
     root.removeEventListener("click", onClearClick);
     body?.removeEventListener("pointermove", onBodyMove);
