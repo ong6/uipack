@@ -42,6 +42,16 @@ A style is an implementation, not a label: register it only when its renderer ex
 4. The nav table in `e2e/nav.spec.ts` (`GROUPS`, written out on purpose) and the table in `playground/README.md`.
 5. Run `e2e/nav.spec.ts` and `e2e/alignment.spec.ts`; add the path to `PAGES` in `alignment.spec.ts`.
 
+## Which slide system
+
+Three entries draw slides. New slide work goes in `uipack/deck`; the other two are kept so existing imports and links keep working.
+
+| Entry | Role | Add to it when |
+| --- | --- | --- |
+| `uipack/deck` | The deck player: a whole talk on a 1920×1080 canvas with one transition grammar, builds, an overview and storyline lint, a speaker view, a read view and PDF export. Slide parts and the consulting charts live here. | Any new slide, part, chart, transition or example deck. |
+| `uipack/presentations` | Slide starters: three single 16:9 layouts (Opening, Explanation, System) as serializable data with a speaker guide, rendered by `SlideStarter` or exported to SVG by `renderSlideSvg`. | Fixes to those three layouts and their SVG output only. |
+| `uipack/slides` | Three.js and GSAP 3D animations (`SlidePlayer`, `SlideScene`): a persistent scene with camera stops, shown in the playground as 3D animations (`/animations`, alias `/slides`). The name is historical. | A 3D animation to embed in a slide or page, not a deck. |
+
 ## A new example deck
 
 1. `playground/<name>Deck.tsx` exports `DeckSlide[]` (and `LintOptions` if it follows a storyline template). Build slides from `Slide`, `Morph`, `Build`, `Bento` and the consulting parts; sizes are canvas pixels on 1920×1080.
@@ -85,9 +95,13 @@ The diagrams page shows each pattern once, simplest first. Add one the first tim
 2. `scripts/entries.ts`: `<entry>: "src/<entry>/index.ts"`. tsup builds `dist/<entry>.{js,cjs,d.ts}` from it.
 3. `package.json` `exports`: `"./<entry>": { "types": "./dist/<entry>.d.ts", "import": "./dist/<entry>.js", "require": "./dist/<entry>.cjs" }`.
 4. If it has styles: a line in `scripts/css-bundles.ts` (`{ out: "<entry>.css", from: [...] }`) and `"./<entry>.css": "./dist/<entry>.css"` in `exports`. `test/package.test.tsx` fails until entries, bundles and exports agree. (`exports` stays hand-written: npm reads `package.json` as it is, and the test names the line you missed.)
-5. Keep heavy dependencies out of the default entry: Three.js and GSAP only behind an optional, lazy entry, and add them to tsup's `external` list.
+5. Keep heavy dependencies out of the default entry: Three.js and GSAP only behind an optional, lazy entry. A heavy dependency an entry needs goes in three places: `peerDependencies` in `package.json`, `peerDependenciesMeta` with `{ "optional": true }` (so consumers who skip the entry never install it), and `external` in `tsup.config.ts` (so it is never bundled into `dist/`).
 6. Docs: `docs/<entry>.md` (shipped by the `docs/*.md` glob in `files`), a line in `docs/README.md`, a section in the root README and a line in `src/README.md`.
 7. `npm run build`, commit `dist/`, and load every built entry in both module systems with `node scripts/load-entries.mjs` (CI runs it, and fails if `dist/` differs from a fresh build).
+
+## Formatting
+
+Prettier owns the format: print width 130, double quotes. The config, `npm run format` and `npm run format:check` (also run in CI) are being added; until then, match the surrounding code and do not reformat lines a change does not touch. ESLint (`eslint.config.js`) checks correctness only: the rules of hooks, unhandled promises and unused code. `tsc` also fails on unused locals and parameters; prefix a parameter kept for its position with `_`.
 
 ## Candidates
 
