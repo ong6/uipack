@@ -638,6 +638,8 @@
   grid-template-columns: minmax(0, 3fr) minmax(220px, 2fr);
   gap: 24px;
   align-items: start;
+  /* Opened at a slide (a shared link, or back from presenting), the item sits a little below the top. */
+  scroll-margin-top: 16px;
 }
 @media (max-width: 720px) {
   .uipack-deck-read > ol > li {

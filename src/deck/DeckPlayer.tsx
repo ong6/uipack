@@ -115,6 +115,9 @@ function Player({
   const [overview, setOverview] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [reading, setReading] = useState(initialView === "read");
+  // How the reader opens: at the current slide when a link named one, focused when the viewer
+  // switched from presenting (so Read keeps their place); at the top otherwise.
+  const [readOpen, setReadOpen] = useState<{ focus: boolean } | null>(startIndex > 0 ? { focus: false } : null);
   const [printing, setPrinting] = useState(false);
   // The viewer's setting (shared with every entry) or the deck's own motion="none".
   const prefersReduced = usePrefersReducedMotion();
@@ -418,7 +421,10 @@ function Player({
       overviewButtonRef={overviewButtonRef}
       onPrev={prev}
       onNext={next}
-      onRead={() => setReading(true)}
+      onRead={() => {
+        setReadOpen({ focus: true });
+        setReading(true);
+      }}
       onPrint={() => setPrinting(true)}
       onOverview={() => setOverview(true)}
       onPresenter={openPresenter}
@@ -449,10 +455,19 @@ function Player({
         <Reader
           slides={slides}
           theme={theme}
+          index={view.index}
+          open={readOpen}
           onPresent={(i) => {
             setReading(false);
             go(i, 0);
-            requestAnimationFrame(() => rootRef.current?.focus({ preventScroll: true }));
+            requestAnimationFrame(() => {
+              const root = rootRef.current;
+              if (!root) return;
+              root.focus({ preventScroll: true });
+              // The reader was scrolled (a phone reads far down the page): bring the stage up with it.
+              const { top, bottom } = root.getBoundingClientRect();
+              if (top < 0 || bottom > window.innerHeight) root.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
+            });
           }}
         />
       ) : (

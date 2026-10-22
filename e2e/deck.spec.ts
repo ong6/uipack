@@ -101,13 +101,50 @@ test.describe("/deck player", () => {
       const scale = await canvas.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a);
       expect(scale).toBeGreaterThan(0);
       await expect(page.locator(".uipack-deck-stage .uipack-deck-slide").first()).toBeVisible();
-      // And back to reading, then Present from the top.
+      // And back to reading, where the head's Present starts from the slide being read.
       await page.getByRole("button", { name: "Read", exact: true }).click();
-      await page.getByRole("button", { name: "Present", exact: true }).click();
-      await expect(deck(page)).toHaveAttribute("data-index", "0");
+      await page.getByRole("button", { name: "Present from 03", exact: true }).click();
+      await expect(deck(page)).toHaveAttribute("data-index", "2");
       expect(await canvas.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a)).toBeGreaterThan(0);
     });
   }
+
+  test.describe("on a phone, Read and Present keep your place", () => {
+    test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
+    const deckTop = (page: Page) => deck(page).evaluate((el) => el.getBoundingClientRect().top);
+
+    test("Present from here brings the stage on screen, and Read returns to that slide, focused", async ({ page }) => {
+      await page.goto("/deck");
+      const fromFive = page.getByRole("button", { name: /Present from slide 5/ });
+      await fromFive.scrollIntoViewIfNeeded();
+      await fromFive.tap();
+      await expect(deck(page)).toHaveAttribute("data-index", "4");
+      await expect(deck(page)).toBeFocused();
+      // The deck was far above the viewport; it scrolls up so the stage and its controls show.
+      await expect.poll(() => deckTop(page)).toBeGreaterThanOrEqual(-1);
+      await expect.poll(() => deckTop(page)).toBeLessThan(10);
+      await expect(page.locator(".uipack-deck-controls")).toBeInViewport();
+
+      await page.getByRole("button", { name: "Read", exact: true }).tap();
+      const back = page.getByRole("button", { name: /Present from slide 5/ });
+      await expect(back).toBeFocused();
+      await expect(back).toBeInViewport();
+      const item = page.locator(".uipack-deck-read > ol > li").nth(4);
+      await expect.poll(() => item.evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBeLessThanOrEqual(40);
+    });
+
+    test("a shared ?slide= link opens Read at that slide, and the head's Present starts from it", async ({ page }) => {
+      await page.goto("/deck?slide=fix");
+      const item = page.locator(".uipack-deck-read > ol > li").nth(4);
+      await expect.poll(() => item.evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBeGreaterThanOrEqual(0);
+      await expect.poll(() => item.evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBeLessThanOrEqual(40);
+      // Opening a link moves no focus.
+      await expect(page.locator(".uipack-deck-read__present:focus")).toHaveCount(0);
+      await page.getByRole("button", { name: "Present from 05", exact: true }).tap();
+      await expect(deck(page)).toHaveAttribute("data-index", "4");
+      await expect(page.locator(".uipack-deck-controls")).toBeInViewport();
+    });
+  });
 
   test("at 1280×900 the slide and its controls fit the first screen", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
