@@ -39,6 +39,22 @@
 .deck-showcase__reference kbd {
   font: 500 13px/1.4 var(--font-mono, ui-monospace, Menlo, monospace);
 }
+/* The player's own controls (the bar, the overview, speaker and read views) are playground controls
+   here: the shell's control font and radius (showcase.css). The library has no hook for a control's
+   font, and --deck-radius-sm also rounds slide thumbnails, so these set the controls alone; slide
+   content keeps the deck's type. */
+:is(.deck-showcase, .deck-speaker-page)
+  :is(.uipack-deck-controls, .uipack-deck-overview__head, .uipack-deck-presenter__side, .uipack-deck-read)
+  button {
+  border-radius: var(--show-control-radius);
+  font: var(--show-control-font);
+}
+/* Under a narrow slide the tools tighten to the small control size, as the library's do. */
+@container (max-width: 760px) {
+  :is(.deck-showcase, .deck-speaker-page) .uipack-deck-tools button {
+    font: var(--show-control-font-sm);
+  }
+}
 .deck-speaker-page {
   min-height: 100vh;
   padding: 20px;
