@@ -68,8 +68,10 @@ function Ghost({
   // words reach into that third, the preview fades in after them instead of running under them.
   const left = box.x + box.w * (1 - PREVIEW_SHARE);
   // Under the open marker (top right, 10 to 22 down), so the two never overlap.
-  const port = { x: left, y: box.y + 26, width: box.x + box.w - 8 - left, height: box.h - 32, viewBox: `0 0 ${f.w} ${f.h}` };
-  const fade = clearOf + 4 > left ? { from: clearOf + 2, to: Math.min(clearOf + 22, port.x + port.width) } : null;
+  // A 12px inset on the right, and a 10px gap after the label's words before the preview starts to
+  // show, so the miniature never touches the words or the node's edge.
+  const port = { x: left, y: box.y + 26, width: box.x + box.w - 12 - left, height: box.h - 32, viewBox: `0 0 ${f.w} ${f.h}` };
+  const fade = clearOf + 12 > left ? { from: clearOf + 10, to: Math.min(clearOf + 30, port.x + port.width) } : null;
   return (
     <g mask={fade ? `url(#${uid}-fade)` : undefined}>
       {fade ? (
