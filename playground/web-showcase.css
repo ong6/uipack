@@ -1,18 +1,15 @@
 /* Playground-only layout for /web. Library styles live in src/web/web.css. */
+/* The shell's chrome around a Landing sample: the shell's 6px radius and rule (design-direction.md),
+   in both themes. The sample keeps its own radii inside. */
 .web-example {
   border: 1px solid var(--show-rule);
-  border-radius: 12px;
+  border-radius: var(--show-radius);
   overflow: clip;
 }
 .web-panel {
   border: 1px solid var(--show-rule);
-  border-radius: 12px;
+  border-radius: var(--show-radius);
   padding: var(--web-s4);
-}
-/* In dark, the Landing's blue-black and the shell's green-black meet at the frame. One hairline
-   tinted with the Landing's indigo marks that edge as a window onto another style. */
-:root[data-theme="dark"] :is(.web-example, .web-panel) {
-  border-color: rgb(169 157 255 / 0.3);
 }
 @media (max-width: 720px) {
   .web-panel {
