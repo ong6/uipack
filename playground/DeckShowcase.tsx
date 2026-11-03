@@ -89,6 +89,13 @@ const moves = [
 const SIDE_COLUMN = 340;
 /** The page height around a slide that sits under the intro: header, title, intro and controls. */
 const STACKED_CHROME = 484;
+/**
+ * The narrowest slide the side layout may give. A wide but short window (a browser docked over an
+ * editor panel) used to pick the side layout and get a slide a few hundred pixels wide or less,
+ * because the side column is sized from the window height left under the title; below this width
+ * the slide stacks under the intro at full width instead, and the page scrolls.
+ */
+const MIN_SIDE_SLIDE = 560;
 /** Presenting, the window keeps only the controls' row under the slide (with their gap and a margin). */
 const PRESENT_CHROME = 44 + 14 + 12;
 
@@ -117,6 +124,8 @@ function useFitBelowHeader(presenting: boolean) {
     if (!el || !main) return;
     // The controls are found, and observed, when they appear; main's box changes size then.
     let watched: Element | null = null;
+    // The window size at which the side layout was tried and came out too narrow.
+    let rejected: string | null = null;
     const ro = typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(() => fit());
     const fit = () => {
       const controls = el.querySelector<HTMLElement>(".uipack-deck-controls");
@@ -126,7 +135,30 @@ function useFitBelowHeader(presenting: boolean) {
       }
       const column = main.clientWidth;
       const stacked = Math.min(column, ((window.innerHeight - (presenting ? PRESENT_CHROME : STACKED_CHROME)) * 16) / 9);
-      const side = window.innerWidth >= 960 && stacked <= column - SIDE_COLUMN;
+      // The slide the side layout would give: as main's grid sizes it (100svh less --deck-chrome),
+      // from where the deck would start, right under the title.
+      const h1 = main.querySelector(".showcase-title > h1");
+      const sideTop =
+        el.dataset.layout === "side"
+          ? (el.querySelector(".uipack-deck") ?? el).getBoundingClientRect().top
+          : (h1?.getBoundingClientRect().bottom ?? 0) + 24;
+      const sideSlide = Math.min(column - SIDE_COLUMN, ((window.innerHeight - sideTop - (44 + 14 + 22)) * 16) / 9);
+      const size = `${window.innerWidth}x${window.innerHeight}`;
+      let side =
+        rejected !== size &&
+        window.innerWidth >= 960 &&
+        stacked <= column - SIDE_COLUMN &&
+        sideSlide >= MIN_SIDE_SLIDE &&
+        sideSlide > stacked;
+      // The estimate can't know whether the controls wrap in the narrower column; if the side layout
+      // came out too narrow after all, stack and don't try it again until the window changes size.
+      if (side && el.dataset.layout === "side") {
+        const actual = (el.querySelector(".uipack-deck") ?? el).getBoundingClientRect().width;
+        if (actual > 0 && actual < MIN_SIDE_SLIDE) {
+          rejected = size;
+          side = false;
+        }
+      }
       if ((el.dataset.layout === "side") !== side) {
         if (side) el.dataset.layout = "side";
         else delete el.dataset.layout;

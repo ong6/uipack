@@ -652,6 +652,20 @@ test.describe("/deck motion: no mid-flight glitches", () => {
 });
 
 test.describe("/deck layout", () => {
+  test("a wide, short window never squeezes the slide beside the intro", async ({ page }) => {
+    // A browser docked over an editor panel: wide, a few hundred pixels tall.
+    for (const [width, height] of [
+      [1564, 520],
+      [1440, 700],
+      [1440, 900],
+    ]) {
+      await page.setViewportSize({ width, height });
+      await page.goto("/deck?deck=moves");
+      const deck = page.locator(".uipack-deck").first();
+      await deck.waitFor();
+      await expect.poll(async () => (await deck.boundingBox())!.width).toBeGreaterThanOrEqual(560);
+    }
+  });
   for (const id of ["moves", "bento"]) {
     test(`${id}: every slide's footer sits at the same height`, async ({ page }) => {
       await page.goto(`/deck?deck=${id}&view=present&motion=none`);
