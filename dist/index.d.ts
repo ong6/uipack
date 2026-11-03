@@ -102,9 +102,13 @@ interface ChipProps {
     size?: number;
     /** One short sentence on what the chip stands for. Makes it selectable inside a Figure. */
     hint?: string;
+    /** "pill" (default) for a slot or flag; "tag" is a small-radius box for a symbol, a key or a call (`PARSE()`). */
+    shape?: "pill" | "tag";
+    /** A lighter wash of `kind`: the older or unchanged one beside a full-tint chip. */
+    soft?: boolean;
 }
 /** Pill: a connection slot, a request in a queue, a status flag. */
-declare function Chip({ x, y, w, h, label, dashed, kind, flow, size: size0, hint }: ChipProps): react.JSX.Element;
+declare function Chip({ x, y, w, h, label, dashed, kind, flow, size: size0, hint, shape, soft }: ChipProps): react.JSX.Element;
 
 type Point = [number, number];
 type Side = "top" | "right" | "bottom" | "left";
@@ -231,15 +235,37 @@ interface PacketProps {
      * Default `r + 2` and 12.
      */
     trim?: [number, number];
+    /**
+     * Pop out at the start of each trip and shrink away at the end, as if the
+     * token leaves one box and is drawn into the next. Default true; false
+     * keeps a constant size.
+     */
+    emerge?: boolean;
     id?: string;
 }
+/** Seconds of the pop at the start of a trip and of the shrink at its end. */
+declare const PACKET_POP = 0.28;
+declare const PACKET_SINK = 0.32;
 /**
- * A token moving along a polyline with SMIL `animateMotion`. Under
+ * The scale keyframes of one trip, as SMIL attributes: 0 to a slight
+ * overshoot and back to 1 (ease out), a hold, then an accelerating shrink to
+ * 0. The pop and the shrink last the same seconds whatever the trip's length,
+ * capped at a fifth of the trip each so a short hop still travels.
+ */
+declare function packetScaleKeys(dur: number): {
+    values: string;
+    keyTimes: string;
+    keySplines: string;
+};
+/**
+ * A token moving along a polyline with SMIL `animateMotion`. It pops out as
+ * it leaves and shrinks away as it arrives (`emerge`), on the same clock as
+ * the motion. Under
  * prefers-reduced-motion it renders once at `at` and never moves. Pause and
  * Replay come from the enclosing Figure, which drives the SVG timeline
  * (pauseAnimations, setCurrentTime), so offsets survive a replay.
  */
-declare function Packet({ points, kind, shape, dur, delay, at, r, reverse, radius, flow, trim: t, id, }: PacketProps): react.JSX.Element;
+declare function Packet({ points, kind, shape, dur, delay, at, r, reverse, radius, flow, trim: t, emerge, id, }: PacketProps): react.JSX.Element;
 
 interface BadgeProps {
     cx: number;
@@ -293,6 +319,103 @@ interface CrossProps {
  * `r + 6` units short of where the line would have arrived.
  */
 declare function Cross({ x, y, r, kind }: CrossProps): react.JSX.Element;
+
+interface TreeRailProps {
+    /** The trunk's x. */
+    x: number;
+    /** Where the trunk starts (under the parent's mark). */
+    y: number;
+    /** One y per child row; the trunk runs to the last. */
+    rows: number[];
+    /** Where each branch ends: one x for every row, or one per row. */
+    to: number | number[];
+}
+/** A trunk with a square elbow to every child row and a junction dot at each join, as on a Bus. */
+declare function TreeRail({ x, y, rows, to }: TreeRailProps): react.JSX.Element | null;
+interface TreeMarkProps {
+    /** Left edge of the mark. */
+    x: number;
+    /** Vertical centre of the row. */
+    y: number;
+    /** Width; the height follows. Default 22 for a folder, 16 for a file. */
+    size?: number;
+    /** Fill with the accent wash instead of the surface. */
+    tint?: boolean;
+}
+/** A folder outline with a tab. */
+declare function FolderMark({ x, y, size, tint }: TreeMarkProps): react.JSX.Element;
+/** A page with a folded corner. */
+declare function FileMark({ x, y, size, tint }: TreeMarkProps): react.JSX.Element;
+interface SheetProps {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    /** The file's name: a path, an ID, a hash. Drawn as the sheet's tracked mono eyebrow. */
+    name?: string;
+    /** Sans title under the name. */
+    title?: string;
+    /** Muted note after the title. */
+    note?: string;
+    /** Where the title row starts, from the sheet's left edge. Default 20. */
+    titleX?: number;
+    /** Header height (eyebrow and title row); the rule under it is drawn when the sheet has children. Default 76 with a name, 52 without. */
+    head?: number;
+    /** Accent outline and eyebrow: the sheet the figure is about. */
+    accent?: boolean;
+    /** Drawn inside, under the header (rows, chips). */
+    children?: ReactNode;
+    size?: number;
+}
+/**
+ * A file as a card in the Technical box language: 6px corners like a Node,
+ * the file's name as a tracked mono eyebrow (as a dashed Group or a Figure
+ * labels itself), a title and note under it, and its contents below a rule.
+ */
+declare function Sheet({ x, y, w, h, name, title, note, titleX, head: head0, accent, children, size: size0, }: SheetProps): react.JSX.Element;
+
+type CurvePoint = [number, number];
+interface CurveNote {
+    /** Where on the curve, 0..1 along the x axis. */
+    at: number;
+    label: string;
+    /** Height of the pin's stem above the point. Default 24. */
+    dy?: number;
+    /** Negative puts the label left of the stem (it also flips by itself at the plot's right edge). */
+    dx?: number;
+    /** The figure's one highlighted point: an accent dot and accent text. */
+    accent?: boolean;
+}
+interface CurveMeasure {
+    /** Where, 0..1 along the x axis. */
+    at: number;
+    label: string;
+}
+interface CurvePlotProps {
+    /** Plot box: the axes' origin is its bottom-left corner. */
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    /** Data in 0..1 on both axes, x increasing. Drawn as a smooth curve through every point. */
+    points: CurvePoint[];
+    xTitle?: string;
+    yTitle?: string;
+    /** Labels under the two ends of the x axis, e.g. ["None", "All"]. */
+    xEnds?: [string, string];
+    notes?: CurveNote[];
+    measure?: CurveMeasure;
+    size?: number;
+}
+/**
+ * Monotone cubic (Fritsch–Carlson) through the points as cubic Bézier
+ * segments: it never overshoots a plateau or dips past a level stretch, so a
+ * flat run stays flat.
+ */
+declare function curveSegments(pts: CurvePoint[]): [CurvePoint, CurvePoint, CurvePoint, CurvePoint][];
+/** The curve's y (0..1) at x (0..1). The control points sit at thirds, so x is linear in t. */
+declare function curveAt(pts: CurvePoint[], x: number): number;
+declare function CurvePlot({ x, y, w, h, points, xTitle, yTitle, xEnds, notes, measure, size: size0 }: CurvePlotProps): react.JSX.Element;
 
 interface LabelProps {
     x: number;
@@ -545,4 +668,4 @@ declare const drillMotion: {
     readonly reduced: 160;
 };
 
-export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, Cross, type CrossProps, DEFAULT_RENDER_WIDTH, DRILL_GROW, Defs, type DefsProps, type DrillAction, DrillFigure, type DrillFigureProps, type DrillFocus, type DrillLevel, type DrillMove, DrillNode, type DrillNodeProps, type DrillPath, type DrillRenderContext, type DrillStaticFigure, type FigureHover, FigureHoverContext, type FigureMotion, FigureMotionContext, type FigureScale, FigureScaleProvider, type Flow, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, LegendItem, type MarkName, Node, type NodeProps, Packet, type PacketProps, type Point, type Side, TokenKind, TokenShape, Wall, type WallProps, Wordmark, anchor, busStub, busStubs, connectorStroke, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, flowList, fontFloor, grid, hoverAttrs, marks, normalizePath as normalizeDrillPath, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFigureMotion, useFontFloor, usePrefersReducedMotion, wallSegments };
+export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, Cross, type CrossProps, type CurveMeasure, type CurveNote, CurvePlot, type CurvePlotProps, type CurvePoint, DEFAULT_RENDER_WIDTH, DRILL_GROW, Defs, type DefsProps, type DrillAction, DrillFigure, type DrillFigureProps, type DrillFocus, type DrillLevel, type DrillMove, DrillNode, type DrillNodeProps, type DrillPath, type DrillRenderContext, type DrillStaticFigure, type FigureHover, FigureHoverContext, type FigureMotion, FigureMotionContext, type FigureScale, FigureScaleProvider, FileMark, type Flow, FolderMark, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, LegendItem, type MarkName, Node, type NodeProps, PACKET_POP, PACKET_SINK, Packet, type PacketProps, type Point, Sheet, type SheetProps, type Side, TokenKind, TokenShape, type TreeMarkProps, TreeRail, type TreeRailProps, Wall, type WallProps, Wordmark, anchor, busStub, busStubs, connectorStroke, curveAt, curveSegments, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, flowList, fontFloor, grid, hoverAttrs, marks, normalizePath as normalizeDrillPath, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFigureMotion, useFontFloor, usePrefersReducedMotion, wallSegments };

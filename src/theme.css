@@ -39,6 +39,7 @@
     --uipack-token-response: #5fd39b;
     --uipack-token-change: #c39aff;
     --uipack-chip-tint: 0.28;
+    --uipack-chip-soft: 0.12;
   }
 }
 [data-theme="dark"] .uipack,
@@ -56,6 +57,7 @@
   /* Filled chips (a busy slot, an overloaded flag) are a 28% wash here, so their pale label holds
      4.5:1 or better on every token hue. */
   --uipack-chip-tint: 0.28;
+  --uipack-chip-soft: 0.12;
 }
 
 .uipack *,

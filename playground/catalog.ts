@@ -384,7 +384,9 @@ const figureRows = [
   ["numbered-steps", "Numbered steps: one path across column lanes", ["Badge", "Walkthrough", "Lanes"]],
   ["service-map", "Service map: clients, one platform, its stores", ["Reference", "Bus", "Hub", "Lanes"]],
   ["layered-checks", "Layered checks: each layer stops some, one slips through", ["Filter", "Defence in depth"]],
+  ["file-tree", "File tree: what is stored where, and what a file holds", ["Tree", "Files", "Storage"]],
   ["flow-volumes", "Flow volumes: where every item ends up", ["Sankey", "Volumes"]],
+  ["annotated-curve", "Annotated curve: one trend and the points that matter", ["Chart", "Curve", "Callout"]],
   ["drill-figure", "Drill-down: a figure inside a node", ["Drill-down", "Zoom", "Levels"]],
 ] as const;
 /** A diagram pattern's id. `figureDetails` in playground/figures/index.tsx needs one entry per id. */

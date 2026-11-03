@@ -1,7 +1,7 @@
 'use strict';
 
 var chunkGMEMTAF2_cjs = require('./chunk-GMEMTAF2.cjs');
-var chunkZGNHFS7D_cjs = require('./chunk-ZGNHFS7D.cjs');
+var chunkJ7NWTW75_cjs = require('./chunk-J7NWTW75.cjs');
 var chunkXEK5V7KF_cjs = require('./chunk-XEK5V7KF.cjs');
 var chunk2JULAQB4_cjs = require('./chunk-2JULAQB4.cjs');
 var chunkSDBNPDW6_cjs = require('./chunk-SDBNPDW6.cjs');
@@ -40,8 +40,8 @@ function wallSegments(from, to, holes = [], gap = 9) {
   return segs;
 }
 function Wall({ at, from, to, holes = [], axis = "v", thickness: t = 16, gap = 9, flow }) {
-  const hover = chunkZGNHFS7D_cjs.useFigureHover();
-  return /* @__PURE__ */ jsxRuntime.jsx("g", { "data-uipack": "wall", ...chunkZGNHFS7D_cjs.hoverAttrs(flow, void 0, hover), children: wallSegments(from, to, holes, gap).map(([a, b]) => {
+  const hover = chunkJ7NWTW75_cjs.useFigureHover();
+  return /* @__PURE__ */ jsxRuntime.jsx("g", { "data-uipack": "wall", ...chunkJ7NWTW75_cjs.hoverAttrs(flow, void 0, hover), children: wallSegments(from, to, holes, gap).map(([a, b]) => {
     const r = axis === "v" ? { x: at - t / 2, y: a, width: t, height: b - a } : { x: a, y: at - t / 2, width: b - a, height: t };
     return /* @__PURE__ */ jsxRuntime.jsx(
       "rect",
@@ -62,7 +62,7 @@ function Cross({ x, y, r = 5, kind }) {
     "g",
     {
       "data-uipack": "cross",
-      stroke: chunkZGNHFS7D_cjs.connectorStroke(kind),
+      stroke: chunkJ7NWTW75_cjs.connectorStroke(kind),
       strokeOpacity: kind ? 1 : 0.8,
       strokeWidth: 1.75,
       strokeLinecap: "round",
@@ -73,6 +73,281 @@ function Cross({ x, y, r = 5, kind }) {
       ]
     }
   );
+}
+function TreeRail({ x, y, rows, to }) {
+  if (!rows.length) return null;
+  const end = Math.max(...rows);
+  const d = [`M${x},${y} V${end}`, ...rows.map((r, i) => `M${x},${r} H${Array.isArray(to) ? to[i] : to}`)].join(" ");
+  return /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-uipack": "tree-rail", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("path", { d, fill: "none", stroke: "currentColor", strokeOpacity: 0.8, strokeWidth: 1.25 }),
+    rows.map((r) => /* @__PURE__ */ jsxRuntime.jsx("circle", { "data-uipack": "junction", cx: x, cy: r, r: 2.5, fill: "currentColor", fillOpacity: 0.7 }, r))
+  ] });
+}
+var wash = { fill: "var(--uipack-accent)", fillOpacity: 0.16 };
+var paper = { fill: "var(--uipack-surface)" };
+function FolderMark({ x, y, size = 22, tint = true }) {
+  const w = size;
+  const h = Math.round(size * 0.72);
+  const t = y - h / 2;
+  const tab = w * 0.38;
+  const d = `M${x + 2},${t} H${x + tab} L${x + tab + 3},${t + 3} H${x + w - 2} Q${x + w},${t + 3} ${x + w},${t + 5} V${t + h - 2} Q${x + w},${t + h} ${x + w - 2},${t + h} H${x + 2} Q${x},${t + h} ${x},${t + h - 2} V${t + 2} Q${x},${t} ${x + 2},${t} Z`;
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    "path",
+    {
+      "data-uipack": "folder-mark",
+      d,
+      ...tint ? wash : paper,
+      stroke: "currentColor",
+      strokeWidth: 1.25,
+      strokeLinejoin: "round"
+    }
+  );
+}
+function FileMark({ x, y, size = 16, tint = false }) {
+  const w = size;
+  const h = Math.round(size * 1.25);
+  const t = y - h / 2;
+  const f = w * 0.34;
+  const d = `M${x},${t} H${x + w - f} L${x + w},${t + f} V${t + h} H${x} Z M${x + w - f},${t} V${t + f} H${x + w}`;
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    "path",
+    {
+      "data-uipack": "file-mark",
+      d,
+      ...tint ? wash : paper,
+      stroke: "currentColor",
+      strokeWidth: 1.25,
+      strokeLinejoin: "round"
+    }
+  );
+}
+function Sheet({
+  x,
+  y,
+  w,
+  h,
+  name,
+  title,
+  note,
+  titleX = 20,
+  head: head0,
+  accent,
+  children,
+  size: size0 = 16
+}) {
+  const size = chunkXEK5V7KF_cjs.useFontFloor(size0);
+  const eyebrow = chunkXEK5V7KF_cjs.useFontFloor(12);
+  const noteSize = chunkXEK5V7KF_cjs.useFontFloor(size0 - 2);
+  const stroke = accent ? "var(--uipack-accent)" : "currentColor";
+  const head = head0 ?? (name ? 76 : 52);
+  const pad = 20;
+  const top = name ? 30 : 0;
+  const rowY = (children ? y + top + (head - top) / 2 : y + top + (h - top) / 2) - (name ? 2 : 0);
+  return /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-uipack": "sheet", children: [
+    /* @__PURE__ */ jsxRuntime.jsx(
+      "rect",
+      {
+        x,
+        y,
+        width: w,
+        height: h,
+        rx: 6,
+        fill: "var(--uipack-surface)",
+        stroke,
+        strokeOpacity: accent ? 1 : 0.8,
+        strokeWidth: 1.25
+      }
+    ),
+    name ? /* @__PURE__ */ jsxRuntime.jsx(
+      "text",
+      {
+        x: x + pad,
+        y: y + 24,
+        fontSize: eyebrow,
+        fontFamily: "var(--uipack-mono)",
+        letterSpacing: ".08em",
+        fontWeight: 600,
+        fill: stroke,
+        fillOpacity: accent ? 1 : 0.75,
+        children: name.toUpperCase()
+      }
+    ) : null,
+    title || note ? /* @__PURE__ */ jsxRuntime.jsxs("text", { x: x + titleX, y: rowY + size * 0.36, fontSize: size, fontWeight: 600, fill: "currentColor", children: [
+      title,
+      note ? /* @__PURE__ */ jsxRuntime.jsx("tspan", { dx: title ? 12 : 0, fontSize: noteSize, fontWeight: 400, fillOpacity: 0.72, children: note }) : null
+    ] }) : null,
+    children ? /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntime.jsx(
+        "line",
+        {
+          x1: x + pad,
+          x2: x + w - pad,
+          y1: y + head,
+          y2: y + head,
+          stroke: "currentColor",
+          strokeOpacity: 0.35,
+          strokeWidth: 1.25,
+          strokeDasharray: "2 4"
+        }
+      ),
+      children
+    ] }) : null
+  ] });
+}
+var r1 = (n) => Math.round(n * 10) / 10;
+function curveSegments(pts) {
+  const n = pts.length;
+  const d = pts.slice(0, -1).map((p, i) => (pts[i + 1][1] - p[1]) / (pts[i + 1][0] - p[0] || 1));
+  const m = pts.map((_, i) => i === 0 ? d[0] : i === n - 1 ? d[n - 2] : d[i - 1] * d[i] <= 0 ? 0 : (d[i - 1] + d[i]) / 2);
+  for (let i = 0; i < n - 1; i++) {
+    if (d[i] === 0) {
+      m[i] = 0;
+      m[i + 1] = 0;
+      continue;
+    }
+    const a = m[i] / d[i];
+    const b = m[i + 1] / d[i];
+    const h = a * a + b * b;
+    if (h > 9) {
+      const t = 3 / Math.sqrt(h);
+      m[i] = t * a * d[i];
+      m[i + 1] = t * b * d[i];
+    }
+  }
+  return pts.slice(0, -1).map((p, i) => {
+    const q = pts[i + 1];
+    const h = (q[0] - p[0]) / 3;
+    return [p, [p[0] + h, p[1] + m[i] * h], [q[0] - h, q[1] - m[i + 1] * h], q];
+  });
+}
+var cubic = (a, b, c, d, t) => (1 - t) ** 3 * a + 3 * (1 - t) ** 2 * t * b + 3 * (1 - t) * t ** 2 * c + t ** 3 * d;
+function curveAt(pts, x) {
+  const segs = curveSegments(pts);
+  const seg = segs.find((s) => x <= s[3][0]) ?? segs[segs.length - 1];
+  const t = Math.min(1, Math.max(0, (x - seg[0][0]) / (seg[3][0] - seg[0][0] || 1)));
+  return cubic(seg[0][1], seg[1][1], seg[2][1], seg[3][1], t);
+}
+function Pin({
+  x,
+  y,
+  rise,
+  label,
+  accent,
+  back,
+  right,
+  size
+}) {
+  const ink = accent ? "var(--uipack-accent)" : "currentColor";
+  const text = label.toUpperCase();
+  const tw = text.length * size * 0.62 + text.length * size * 0.08;
+  const left = back || x + 10 + tw > right;
+  const ty = y - rise;
+  const tx = left ? x - 10 : x + 10;
+  return /* @__PURE__ */ jsxRuntime.jsxs("g", { children: [
+    /* @__PURE__ */ jsxRuntime.jsx(
+      "path",
+      {
+        d: `M${x},${y} V${ty} H${left ? x - 6 : x + 6}`,
+        fill: "none",
+        stroke: ink,
+        strokeOpacity: accent ? 1 : 0.6,
+        strokeWidth: 1
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx("rect", { x: left ? tx - tw - 4 : tx - 4, y: ty - size * 0.7, width: tw + 8, height: size * 1.4, fill: "var(--uipack-bg)" }),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      "text",
+      {
+        x: tx,
+        y: ty + size * 0.36,
+        textAnchor: left ? "end" : "start",
+        fontSize: size,
+        fontFamily: "var(--uipack-mono)",
+        letterSpacing: ".08em",
+        fontWeight: 600,
+        fill: ink,
+        children: text
+      }
+    )
+  ] });
+}
+function CurvePlot({ x, y, w, h, points, xTitle, yTitle, xEnds, notes = [], measure, size: size0 = 14 }) {
+  const small = chunkXEK5V7KF_cjs.useFontFloor(size0 - 2);
+  const bottom = y + h;
+  const px = (u) => r1(x + u * w);
+  const py = (v) => r1(bottom - v * h);
+  const segs = curveSegments(points);
+  const d = `M${px(points[0][0])},${py(points[0][1])} ` + segs.map(([, c1, c2, p]) => `C${px(c1[0])},${py(c1[1])} ${px(c2[0])},${py(c2[1])} ${px(p[0])},${py(p[1])}`).join(" ");
+  const head = 6;
+  const tracked = { fontFamily: "var(--uipack-mono)", letterSpacing: ".1em", fontWeight: 500 };
+  return /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-uipack": "curve-plot", children: [
+    /* @__PURE__ */ jsxRuntime.jsx(
+      "path",
+      {
+        d: `M${x},${y - 12} V${bottom} H${x + w + 12} M${x - head / 1.4},${y - 12 + head} L${x},${y - 12} L${x + head / 1.4},${y - 12 + head} M${x + w + 12 - head},${bottom - head / 1.4} L${x + w + 12},${bottom} L${x + w + 12 - head},${bottom + head / 1.4}`,
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: 1.25,
+        strokeLinecap: "round",
+        strokeLinejoin: "round"
+      }
+    ),
+    yTitle ? /* @__PURE__ */ jsxRuntime.jsx(
+      "text",
+      {
+        transform: `translate(${x - 18}, ${y + h / 2}) rotate(-90)`,
+        textAnchor: "middle",
+        fontSize: small,
+        fill: "currentColor",
+        ...tracked,
+        children: yTitle.toUpperCase()
+      }
+    ) : null,
+    xTitle ? /* @__PURE__ */ jsxRuntime.jsx("text", { x: x + w / 2, y: bottom + 26, textAnchor: "middle", fontSize: small, fill: "currentColor", ...tracked, children: xTitle.toUpperCase() }) : null,
+    xEnds ? /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntime.jsx("text", { x, y: bottom + 26, fontSize: small, fill: "currentColor", fillOpacity: 0.8, children: xEnds[0] }),
+      /* @__PURE__ */ jsxRuntime.jsx("text", { x: x + w + 12, y: bottom + 26, textAnchor: "end", fontSize: small, fill: "currentColor", fillOpacity: 0.8, children: xEnds[1] })
+    ] }) : null,
+    /* @__PURE__ */ jsxRuntime.jsx("path", { d, fill: "none", stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round" }),
+    measure ? (() => {
+      const mx = px(measure.at);
+      const top = py(curveAt(points, measure.at)) + 3;
+      const end = bottom - 1;
+      const cap = 5;
+      return /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-uipack": "curve-measure", children: [
+        /* @__PURE__ */ jsxRuntime.jsx(
+          "path",
+          {
+            d: `M${mx},${top} V${end} M${mx - cap},${top} H${mx + cap} M${mx - cap},${end} H${mx + cap}`,
+            fill: "none",
+            stroke: "var(--uipack-accent)",
+            strokeWidth: 1.5
+          }
+        ),
+        /* @__PURE__ */ jsxRuntime.jsx(Pin, { x: mx, y: top - 6, rise: 22, label: measure.label, accent: true, right: x + w + 12, size: small })
+      ] });
+    })() : null,
+    notes.map((n) => {
+      const cx = px(n.at);
+      const cy = py(curveAt(points, n.at));
+      return /* @__PURE__ */ jsxRuntime.jsxs("g", { "data-uipack": "curve-note", children: [
+        /* @__PURE__ */ jsxRuntime.jsx(
+          Pin,
+          {
+            x: cx,
+            y: cy - (n.accent ? 9 : 4),
+            rise: Math.abs(n.dy ?? 24),
+            label: n.label,
+            accent: n.accent,
+            back: (n.dx ?? 1) < 0,
+            right: x + w + 12,
+            size: small
+          }
+        ),
+        n.accent ? /* @__PURE__ */ jsxRuntime.jsx("circle", { cx, cy, r: 5, fill: "var(--uipack-bg)", stroke: "var(--uipack-accent)", strokeWidth: 3 }) : null
+      ] }, n.label);
+    })
+  ] });
 }
 var marks = {
   uipack: /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
@@ -160,7 +435,7 @@ function DrillControls({ parentLabel, onBack, onOpen, openerRef, motion }) {
     onOpen ? /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", className: "uipack__ctl", ref: openerRef, onClick: onOpen, children: "Open canvas" }) : null,
     motion ? /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
       /* @__PURE__ */ jsxRuntime.jsxs("button", { type: "button", className: "uipack__ctl uipack__ctl--motion", onClick: motion.replay, children: [
-        /* @__PURE__ */ jsxRuntime.jsx(chunkZGNHFS7D_cjs.ReplayGlyph, {}),
+        /* @__PURE__ */ jsxRuntime.jsx(chunkJ7NWTW75_cjs.ReplayGlyph, {}),
         " Replay"
       ] }),
       /* @__PURE__ */ jsxRuntime.jsxs(
@@ -171,7 +446,7 @@ function DrillControls({ parentLabel, onBack, onOpen, openerRef, motion }) {
           onClick: motion.toggle,
           "aria-pressed": !motion.playing,
           children: [
-            motion.playing ? /* @__PURE__ */ jsxRuntime.jsx(chunkZGNHFS7D_cjs.PauseGlyph, {}) : /* @__PURE__ */ jsxRuntime.jsx(chunkZGNHFS7D_cjs.PlayGlyph, {}),
+            motion.playing ? /* @__PURE__ */ jsxRuntime.jsx(chunkJ7NWTW75_cjs.PauseGlyph, {}) : /* @__PURE__ */ jsxRuntime.jsx(chunkJ7NWTW75_cjs.PlayGlyph, {}),
             " ",
             motion.playing ? "Pause" : "Play"
           ]
@@ -370,7 +645,7 @@ function useNotePlacement(canvasRef, noteRef, note, zoom, expanded) {
     const anchor2 = note?.anchor;
     if (!canvas || !el || !anchor2) return;
     const place = () => {
-      if (anchor2.isConnected) setNotePos(chunkZGNHFS7D_cjs.placeNote(canvas, el, anchor2));
+      if (anchor2.isConnected) setNotePos(chunkJ7NWTW75_cjs.placeNote(canvas, el, anchor2));
     };
     place();
     if (typeof ResizeObserver === "undefined") return;
@@ -695,7 +970,7 @@ function DrillFigureRoot({
   const note = selected?.detail ? selected : null;
   const notePos = useNotePlacement(canvasRef, noteRef, note, zoom, expanded);
   const frame = react.useMemo(() => ({ wide: viewBox, narrow: narrowViewBox }), [viewBox, narrowViewBox]);
-  chunkZGNHFS7D_cjs.useRovingFocus(canvasRef, expanded);
+  chunkJ7NWTW75_cjs.useRovingFocus(canvasRef, expanded);
   const openCanvas = react.useCallback(() => {
     select(null);
     setExpanded(true);
@@ -726,7 +1001,7 @@ function DrillFigureRoot({
       theme,
       layout: "figure",
       zoom: { value: zoom, min: 1, max: 3, onChange: setZoom },
-      children: /* @__PURE__ */ jsxRuntime.jsx(chunkZGNHFS7D_cjs.SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsxRuntime.jsx(chunkZGNHFS7D_cjs.FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxRuntime.jsxs(
+      children: /* @__PURE__ */ jsxRuntime.jsx(chunkJ7NWTW75_cjs.SelectionContext.Provider, { value: { enabled: true, selected, select }, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: motion, children: /* @__PURE__ */ jsxRuntime.jsx(chunkJ7NWTW75_cjs.FigureHoverContext.Provider, { value: hover, children: /* @__PURE__ */ jsxRuntime.jsxs(
         "figure",
         {
           id: figId,
@@ -789,7 +1064,7 @@ function DrillFigureRoot({
                   motion: controls && !reduced ? motion : null
                 }
               ),
-              /* @__PURE__ */ jsxRuntime.jsx(chunkZGNHFS7D_cjs.Legend, { items: current.legend ?? [] })
+              /* @__PURE__ */ jsxRuntime.jsx(chunkJ7NWTW75_cjs.Legend, { items: current.legend ?? [] })
             ] }),
             /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack__sr", role: "status", children: note ? `${note.label}: ${note.detail}` : "" }),
             /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack__sr", "aria-live": "polite", "data-drill-announce": "", children: announcement }),
@@ -883,7 +1158,7 @@ function Ghost({
       ] }),
       /* @__PURE__ */ jsxRuntime.jsx("rect", { x: port.x, y: port.y, width: port.width, height: port.height, fill: `url(#${uid}-fade-g)` })
     ] }) : null,
-    /* @__PURE__ */ jsxRuntime.jsx("svg", { ...port, preserveAspectRatio: "xMaxYMid meet", overflow: "hidden", children: /* @__PURE__ */ jsxRuntime.jsx("svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ jsxRuntime.jsx(chunkZGNHFS7D_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ jsxRuntime.jsx(DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) })
+    /* @__PURE__ */ jsxRuntime.jsx("svg", { ...port, preserveAspectRatio: "xMaxYMid meet", overflow: "hidden", children: /* @__PURE__ */ jsxRuntime.jsx("svg", { width: f.w, height: f.h, viewBox: levelVb, preserveAspectRatio: "xMidYMid meet", children: /* @__PURE__ */ jsxRuntime.jsx(chunkJ7NWTW75_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureMotionContext.Provider, { value: stillMotion, children: /* @__PURE__ */ jsxRuntime.jsx(chunkXEK5V7KF_cjs.FigureScaleContext.Provider, { value: { floor: 0 }, children: /* @__PURE__ */ jsxRuntime.jsx(DrillContext.Provider, { value: inner, children: render({ id: `${ctx.idPrefix}-g${uid}`, variant: narrow ? "narrow" : "wide", ghost: true, level: child }) }) }) }) }) }) })
   ] });
 }
 function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node }) {
@@ -897,11 +1172,11 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
     const g = ghostRef.current;
     if (g) setCount(g.querySelectorAll('[data-uipack="node"]').length);
   }, [drill, ctx?.variant]);
-  if (!ctx || !child) return /* @__PURE__ */ jsxRuntime.jsx(chunkZGNHFS7D_cjs.Node, { ...node, label: text });
+  if (!ctx || !child) return /* @__PURE__ */ jsxRuntime.jsx(chunkJ7NWTW75_cjs.Node, { ...node, label: text });
   const box = drillBox({ x: node.x, y: node.y, w: node.w, h: node.h }, grow);
-  if (ctx.ghost) return /* @__PURE__ */ jsxRuntime.jsx(chunkZGNHFS7D_cjs.Node, { ...node, ...box, label: text });
+  if (ctx.ghost) return /* @__PURE__ */ jsxRuntime.jsx(chunkJ7NWTW75_cjs.Node, { ...node, ...box, label: text });
   const summary = child.summary ?? (count ? `${count} part${count === 1 ? "" : "s"} inside` : "");
-  const name = `${chunkZGNHFS7D_cjs.nodeName(text, node.sub)}, open${summary ? `: ${summary}` : ""}`;
+  const name = `${chunkJ7NWTW75_cjs.nodeName(text, node.sub)}, open${summary ? `: ${summary}` : ""}`;
   const interactive = ctx.interactive && !!ctx.open;
   const activate = (e) => {
     e.preventDefault();
@@ -950,8 +1225,8 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
             "aria-hidden": "true"
           }
         ),
-        /* @__PURE__ */ jsxRuntime.jsx(chunkZGNHFS7D_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(
-          chunkZGNHFS7D_cjs.Node,
+        /* @__PURE__ */ jsxRuntime.jsx(chunkJ7NWTW75_cjs.SelectionContext.Provider, { value: noSelection, children: /* @__PURE__ */ jsxRuntime.jsx(
+          chunkJ7NWTW75_cjs.Node,
           {
             ...node,
             ...box,
@@ -989,7 +1264,7 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
             ] })
           }
         ) }),
-        interactive ? /* @__PURE__ */ jsxRuntime.jsx(chunkZGNHFS7D_cjs.FocusRing, { x: box.x, y: box.y, w: box.w, h: box.h, rx: RADIUS }) : null,
+        interactive ? /* @__PURE__ */ jsxRuntime.jsx(chunkJ7NWTW75_cjs.FocusRing, { x: box.x, y: box.y, w: box.w, h: box.h, rx: RADIUS }) : null,
         /* @__PURE__ */ jsxRuntime.jsx(
           "g",
           {
@@ -1024,107 +1299,119 @@ Object.defineProperty(exports, "zoomSamples", {
 });
 Object.defineProperty(exports, "Bus", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.Bus; }
+  get: function () { return chunkJ7NWTW75_cjs.Bus; }
 });
 Object.defineProperty(exports, "Chip", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.Chip; }
+  get: function () { return chunkJ7NWTW75_cjs.Chip; }
 });
 Object.defineProperty(exports, "Connector", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.Connector; }
+  get: function () { return chunkJ7NWTW75_cjs.Connector; }
 });
 Object.defineProperty(exports, "Defs", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.Defs; }
+  get: function () { return chunkJ7NWTW75_cjs.Defs; }
 });
 Object.defineProperty(exports, "Figure", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.Figure; }
+  get: function () { return chunkJ7NWTW75_cjs.Figure; }
 });
 Object.defineProperty(exports, "FigureHoverContext", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.FigureHoverContext; }
+  get: function () { return chunkJ7NWTW75_cjs.FigureHoverContext; }
 });
 Object.defineProperty(exports, "Group", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.Group; }
+  get: function () { return chunkJ7NWTW75_cjs.Group; }
 });
 Object.defineProperty(exports, "Label", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.Label; }
+  get: function () { return chunkJ7NWTW75_cjs.Label; }
 });
 Object.defineProperty(exports, "Lane", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.Lane; }
+  get: function () { return chunkJ7NWTW75_cjs.Lane; }
 });
 Object.defineProperty(exports, "Legend", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.Legend; }
+  get: function () { return chunkJ7NWTW75_cjs.Legend; }
 });
 Object.defineProperty(exports, "Node", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.Node; }
+  get: function () { return chunkJ7NWTW75_cjs.Node; }
+});
+Object.defineProperty(exports, "PACKET_POP", {
+  enumerable: true,
+  get: function () { return chunkJ7NWTW75_cjs.PACKET_POP; }
+});
+Object.defineProperty(exports, "PACKET_SINK", {
+  enumerable: true,
+  get: function () { return chunkJ7NWTW75_cjs.PACKET_SINK; }
 });
 Object.defineProperty(exports, "Packet", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.Packet; }
+  get: function () { return chunkJ7NWTW75_cjs.Packet; }
 });
 Object.defineProperty(exports, "anchor", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.anchor; }
+  get: function () { return chunkJ7NWTW75_cjs.anchor; }
 });
 Object.defineProperty(exports, "busStub", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.busStub; }
+  get: function () { return chunkJ7NWTW75_cjs.busStub; }
 });
 Object.defineProperty(exports, "busStubs", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.busStubs; }
+  get: function () { return chunkJ7NWTW75_cjs.busStubs; }
 });
 Object.defineProperty(exports, "connectorStroke", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.connectorStroke; }
+  get: function () { return chunkJ7NWTW75_cjs.connectorStroke; }
 });
 Object.defineProperty(exports, "flowList", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.flowList; }
+  get: function () { return chunkJ7NWTW75_cjs.flowList; }
 });
 Object.defineProperty(exports, "grid", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.grid; }
+  get: function () { return chunkJ7NWTW75_cjs.grid; }
 });
 Object.defineProperty(exports, "hoverAttrs", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.hoverAttrs; }
+  get: function () { return chunkJ7NWTW75_cjs.hoverAttrs; }
 });
 Object.defineProperty(exports, "icons", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.icons; }
+  get: function () { return chunkJ7NWTW75_cjs.icons; }
+});
+Object.defineProperty(exports, "packetScaleKeys", {
+  enumerable: true,
+  get: function () { return chunkJ7NWTW75_cjs.packetScaleKeys; }
 });
 Object.defineProperty(exports, "pathFromPoints", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.pathFromPoints; }
+  get: function () { return chunkJ7NWTW75_cjs.pathFromPoints; }
 });
 Object.defineProperty(exports, "pointAlong", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.pointAlong; }
+  get: function () { return chunkJ7NWTW75_cjs.pointAlong; }
 });
 Object.defineProperty(exports, "polylineLength", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.polylineLength; }
+  get: function () { return chunkJ7NWTW75_cjs.polylineLength; }
 });
 Object.defineProperty(exports, "route", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.route; }
+  get: function () { return chunkJ7NWTW75_cjs.route; }
 });
 Object.defineProperty(exports, "trim", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.trim; }
+  get: function () { return chunkJ7NWTW75_cjs.trim; }
 });
 Object.defineProperty(exports, "useFigureHover", {
   enumerable: true,
-  get: function () { return chunkZGNHFS7D_cjs.useFigureHover; }
+  get: function () { return chunkJ7NWTW75_cjs.useFigureHover; }
 });
 Object.defineProperty(exports, "DEFAULT_RENDER_WIDTH", {
   enumerable: true,
@@ -1176,11 +1463,18 @@ Object.defineProperty(exports, "usePrefersReducedMotion", {
 });
 exports.Badge = Badge;
 exports.Cross = Cross;
+exports.CurvePlot = CurvePlot;
 exports.DRILL_GROW = DRILL_GROW;
 exports.DrillFigure = DrillFigure;
 exports.DrillNode = DrillNode;
+exports.FileMark = FileMark;
+exports.FolderMark = FolderMark;
+exports.Sheet = Sheet;
+exports.TreeRail = TreeRail;
 exports.Wall = Wall;
 exports.Wordmark = Wordmark;
+exports.curveAt = curveAt;
+exports.curveSegments = curveSegments;
 exports.drillAnnouncement = drillAnnouncement;
 exports.drillBox = drillBox;
 exports.drillFocusTarget = drillFocusTarget;

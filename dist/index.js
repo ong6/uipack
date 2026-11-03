@@ -1,7 +1,7 @@
 import { useLayerFlight, zoomSamples, zoomFrame } from './chunk-JZZTE6QO.js';
 export { innerClipStart, zoomFrame, zoomSamples } from './chunk-JZZTE6QO.js';
-import { useFigureHover, hoverAttrs, connectorStroke, Node, nodeName, SelectionContext, FocusRing, useRovingFocus, FigureHoverContext, Legend, ReplayGlyph, PauseGlyph, PlayGlyph, placeNote } from './chunk-LL24QD5P.js';
-export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-LL24QD5P.js';
+import { useFigureHover, hoverAttrs, connectorStroke, Node, nodeName, SelectionContext, FocusRing, useRovingFocus, FigureHoverContext, Legend, ReplayGlyph, PauseGlyph, PlayGlyph, placeNote } from './chunk-U45GT72A.js';
+export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, PACKET_POP, PACKET_SINK, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-U45GT72A.js';
 import { useFontFloor, FigureMotionContext, FigureScaleContext } from './chunk-3R6VZY52.js';
 export { DEFAULT_RENDER_WIDTH, FigureMotionContext, FigureScaleProvider, TOKEN_SHAPE, Token, fontFloor, tokenColor, useFigureMotion, useFontFloor } from './chunk-3R6VZY52.js';
 import { CanvasView } from './chunk-D3TRNW7E.js';
@@ -76,6 +76,281 @@ function Cross({ x, y, r = 5, kind }) {
       ]
     }
   );
+}
+function TreeRail({ x, y, rows, to }) {
+  if (!rows.length) return null;
+  const end = Math.max(...rows);
+  const d = [`M${x},${y} V${end}`, ...rows.map((r, i) => `M${x},${r} H${Array.isArray(to) ? to[i] : to}`)].join(" ");
+  return /* @__PURE__ */ jsxs("g", { "data-uipack": "tree-rail", children: [
+    /* @__PURE__ */ jsx("path", { d, fill: "none", stroke: "currentColor", strokeOpacity: 0.8, strokeWidth: 1.25 }),
+    rows.map((r) => /* @__PURE__ */ jsx("circle", { "data-uipack": "junction", cx: x, cy: r, r: 2.5, fill: "currentColor", fillOpacity: 0.7 }, r))
+  ] });
+}
+var wash = { fill: "var(--uipack-accent)", fillOpacity: 0.16 };
+var paper = { fill: "var(--uipack-surface)" };
+function FolderMark({ x, y, size = 22, tint = true }) {
+  const w = size;
+  const h = Math.round(size * 0.72);
+  const t = y - h / 2;
+  const tab = w * 0.38;
+  const d = `M${x + 2},${t} H${x + tab} L${x + tab + 3},${t + 3} H${x + w - 2} Q${x + w},${t + 3} ${x + w},${t + 5} V${t + h - 2} Q${x + w},${t + h} ${x + w - 2},${t + h} H${x + 2} Q${x},${t + h} ${x},${t + h - 2} V${t + 2} Q${x},${t} ${x + 2},${t} Z`;
+  return /* @__PURE__ */ jsx(
+    "path",
+    {
+      "data-uipack": "folder-mark",
+      d,
+      ...tint ? wash : paper,
+      stroke: "currentColor",
+      strokeWidth: 1.25,
+      strokeLinejoin: "round"
+    }
+  );
+}
+function FileMark({ x, y, size = 16, tint = false }) {
+  const w = size;
+  const h = Math.round(size * 1.25);
+  const t = y - h / 2;
+  const f = w * 0.34;
+  const d = `M${x},${t} H${x + w - f} L${x + w},${t + f} V${t + h} H${x} Z M${x + w - f},${t} V${t + f} H${x + w}`;
+  return /* @__PURE__ */ jsx(
+    "path",
+    {
+      "data-uipack": "file-mark",
+      d,
+      ...tint ? wash : paper,
+      stroke: "currentColor",
+      strokeWidth: 1.25,
+      strokeLinejoin: "round"
+    }
+  );
+}
+function Sheet({
+  x,
+  y,
+  w,
+  h,
+  name,
+  title,
+  note,
+  titleX = 20,
+  head: head0,
+  accent,
+  children,
+  size: size0 = 16
+}) {
+  const size = useFontFloor(size0);
+  const eyebrow = useFontFloor(12);
+  const noteSize = useFontFloor(size0 - 2);
+  const stroke = accent ? "var(--uipack-accent)" : "currentColor";
+  const head = head0 ?? (name ? 76 : 52);
+  const pad = 20;
+  const top = name ? 30 : 0;
+  const rowY = (children ? y + top + (head - top) / 2 : y + top + (h - top) / 2) - (name ? 2 : 0);
+  return /* @__PURE__ */ jsxs("g", { "data-uipack": "sheet", children: [
+    /* @__PURE__ */ jsx(
+      "rect",
+      {
+        x,
+        y,
+        width: w,
+        height: h,
+        rx: 6,
+        fill: "var(--uipack-surface)",
+        stroke,
+        strokeOpacity: accent ? 1 : 0.8,
+        strokeWidth: 1.25
+      }
+    ),
+    name ? /* @__PURE__ */ jsx(
+      "text",
+      {
+        x: x + pad,
+        y: y + 24,
+        fontSize: eyebrow,
+        fontFamily: "var(--uipack-mono)",
+        letterSpacing: ".08em",
+        fontWeight: 600,
+        fill: stroke,
+        fillOpacity: accent ? 1 : 0.75,
+        children: name.toUpperCase()
+      }
+    ) : null,
+    title || note ? /* @__PURE__ */ jsxs("text", { x: x + titleX, y: rowY + size * 0.36, fontSize: size, fontWeight: 600, fill: "currentColor", children: [
+      title,
+      note ? /* @__PURE__ */ jsx("tspan", { dx: title ? 12 : 0, fontSize: noteSize, fontWeight: 400, fillOpacity: 0.72, children: note }) : null
+    ] }) : null,
+    children ? /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx(
+        "line",
+        {
+          x1: x + pad,
+          x2: x + w - pad,
+          y1: y + head,
+          y2: y + head,
+          stroke: "currentColor",
+          strokeOpacity: 0.35,
+          strokeWidth: 1.25,
+          strokeDasharray: "2 4"
+        }
+      ),
+      children
+    ] }) : null
+  ] });
+}
+var r1 = (n) => Math.round(n * 10) / 10;
+function curveSegments(pts) {
+  const n = pts.length;
+  const d = pts.slice(0, -1).map((p, i) => (pts[i + 1][1] - p[1]) / (pts[i + 1][0] - p[0] || 1));
+  const m = pts.map((_, i) => i === 0 ? d[0] : i === n - 1 ? d[n - 2] : d[i - 1] * d[i] <= 0 ? 0 : (d[i - 1] + d[i]) / 2);
+  for (let i = 0; i < n - 1; i++) {
+    if (d[i] === 0) {
+      m[i] = 0;
+      m[i + 1] = 0;
+      continue;
+    }
+    const a = m[i] / d[i];
+    const b = m[i + 1] / d[i];
+    const h = a * a + b * b;
+    if (h > 9) {
+      const t = 3 / Math.sqrt(h);
+      m[i] = t * a * d[i];
+      m[i + 1] = t * b * d[i];
+    }
+  }
+  return pts.slice(0, -1).map((p, i) => {
+    const q = pts[i + 1];
+    const h = (q[0] - p[0]) / 3;
+    return [p, [p[0] + h, p[1] + m[i] * h], [q[0] - h, q[1] - m[i + 1] * h], q];
+  });
+}
+var cubic = (a, b, c, d, t) => (1 - t) ** 3 * a + 3 * (1 - t) ** 2 * t * b + 3 * (1 - t) * t ** 2 * c + t ** 3 * d;
+function curveAt(pts, x) {
+  const segs = curveSegments(pts);
+  const seg = segs.find((s) => x <= s[3][0]) ?? segs[segs.length - 1];
+  const t = Math.min(1, Math.max(0, (x - seg[0][0]) / (seg[3][0] - seg[0][0] || 1)));
+  return cubic(seg[0][1], seg[1][1], seg[2][1], seg[3][1], t);
+}
+function Pin({
+  x,
+  y,
+  rise,
+  label,
+  accent,
+  back,
+  right,
+  size
+}) {
+  const ink = accent ? "var(--uipack-accent)" : "currentColor";
+  const text = label.toUpperCase();
+  const tw = text.length * size * 0.62 + text.length * size * 0.08;
+  const left = back || x + 10 + tw > right;
+  const ty = y - rise;
+  const tx = left ? x - 10 : x + 10;
+  return /* @__PURE__ */ jsxs("g", { children: [
+    /* @__PURE__ */ jsx(
+      "path",
+      {
+        d: `M${x},${y} V${ty} H${left ? x - 6 : x + 6}`,
+        fill: "none",
+        stroke: ink,
+        strokeOpacity: accent ? 1 : 0.6,
+        strokeWidth: 1
+      }
+    ),
+    /* @__PURE__ */ jsx("rect", { x: left ? tx - tw - 4 : tx - 4, y: ty - size * 0.7, width: tw + 8, height: size * 1.4, fill: "var(--uipack-bg)" }),
+    /* @__PURE__ */ jsx(
+      "text",
+      {
+        x: tx,
+        y: ty + size * 0.36,
+        textAnchor: left ? "end" : "start",
+        fontSize: size,
+        fontFamily: "var(--uipack-mono)",
+        letterSpacing: ".08em",
+        fontWeight: 600,
+        fill: ink,
+        children: text
+      }
+    )
+  ] });
+}
+function CurvePlot({ x, y, w, h, points, xTitle, yTitle, xEnds, notes = [], measure, size: size0 = 14 }) {
+  const small = useFontFloor(size0 - 2);
+  const bottom = y + h;
+  const px = (u) => r1(x + u * w);
+  const py = (v) => r1(bottom - v * h);
+  const segs = curveSegments(points);
+  const d = `M${px(points[0][0])},${py(points[0][1])} ` + segs.map(([, c1, c2, p]) => `C${px(c1[0])},${py(c1[1])} ${px(c2[0])},${py(c2[1])} ${px(p[0])},${py(p[1])}`).join(" ");
+  const head = 6;
+  const tracked = { fontFamily: "var(--uipack-mono)", letterSpacing: ".1em", fontWeight: 500 };
+  return /* @__PURE__ */ jsxs("g", { "data-uipack": "curve-plot", children: [
+    /* @__PURE__ */ jsx(
+      "path",
+      {
+        d: `M${x},${y - 12} V${bottom} H${x + w + 12} M${x - head / 1.4},${y - 12 + head} L${x},${y - 12} L${x + head / 1.4},${y - 12 + head} M${x + w + 12 - head},${bottom - head / 1.4} L${x + w + 12},${bottom} L${x + w + 12 - head},${bottom + head / 1.4}`,
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: 1.25,
+        strokeLinecap: "round",
+        strokeLinejoin: "round"
+      }
+    ),
+    yTitle ? /* @__PURE__ */ jsx(
+      "text",
+      {
+        transform: `translate(${x - 18}, ${y + h / 2}) rotate(-90)`,
+        textAnchor: "middle",
+        fontSize: small,
+        fill: "currentColor",
+        ...tracked,
+        children: yTitle.toUpperCase()
+      }
+    ) : null,
+    xTitle ? /* @__PURE__ */ jsx("text", { x: x + w / 2, y: bottom + 26, textAnchor: "middle", fontSize: small, fill: "currentColor", ...tracked, children: xTitle.toUpperCase() }) : null,
+    xEnds ? /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx("text", { x, y: bottom + 26, fontSize: small, fill: "currentColor", fillOpacity: 0.8, children: xEnds[0] }),
+      /* @__PURE__ */ jsx("text", { x: x + w + 12, y: bottom + 26, textAnchor: "end", fontSize: small, fill: "currentColor", fillOpacity: 0.8, children: xEnds[1] })
+    ] }) : null,
+    /* @__PURE__ */ jsx("path", { d, fill: "none", stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round" }),
+    measure ? (() => {
+      const mx = px(measure.at);
+      const top = py(curveAt(points, measure.at)) + 3;
+      const end = bottom - 1;
+      const cap = 5;
+      return /* @__PURE__ */ jsxs("g", { "data-uipack": "curve-measure", children: [
+        /* @__PURE__ */ jsx(
+          "path",
+          {
+            d: `M${mx},${top} V${end} M${mx - cap},${top} H${mx + cap} M${mx - cap},${end} H${mx + cap}`,
+            fill: "none",
+            stroke: "var(--uipack-accent)",
+            strokeWidth: 1.5
+          }
+        ),
+        /* @__PURE__ */ jsx(Pin, { x: mx, y: top - 6, rise: 22, label: measure.label, accent: true, right: x + w + 12, size: small })
+      ] });
+    })() : null,
+    notes.map((n) => {
+      const cx = px(n.at);
+      const cy = py(curveAt(points, n.at));
+      return /* @__PURE__ */ jsxs("g", { "data-uipack": "curve-note", children: [
+        /* @__PURE__ */ jsx(
+          Pin,
+          {
+            x: cx,
+            y: cy - (n.accent ? 9 : 4),
+            rise: Math.abs(n.dy ?? 24),
+            label: n.label,
+            accent: n.accent,
+            back: (n.dx ?? 1) < 0,
+            right: x + w + 12,
+            size: small
+          }
+        ),
+        n.accent ? /* @__PURE__ */ jsx("circle", { cx, cy, r: 5, fill: "var(--uipack-bg)", stroke: "var(--uipack-accent)", strokeWidth: 3 }) : null
+      ] }, n.label);
+    })
+  ] });
 }
 var marks = {
   uipack: /* @__PURE__ */ jsxs(Fragment, { children: [
@@ -1013,4 +1288,4 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
   );
 }
 
-export { Badge, Cross, DRILL_GROW, DrillFigure, DrillNode, Wall, Wordmark, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, marks, normalizePath as normalizeDrillPath, wallSegments };
+export { Badge, Cross, CurvePlot, DRILL_GROW, DrillFigure, DrillNode, FileMark, FolderMark, Sheet, TreeRail, Wall, Wordmark, curveAt, curveSegments, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, marks, normalizePath as normalizeDrillPath, wallSegments };

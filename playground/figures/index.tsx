@@ -14,6 +14,8 @@ import { NestedGroupsFigure } from "./nestedGroups";
 import { NumberedStepsFigure } from "./numberedSteps";
 import { LayeredChecksFigure } from "./layeredChecks";
 import { FlowVolumesFigure } from "./flowVolumes";
+import { FileTreeFigure } from "./fileTree";
+import { AnnotatedCurveFigure } from "./annotatedCurve";
 import { figureEntries, type FigureId } from "../catalog";
 
 /** One section of the diagrams page. Its h2 is the catalog title of the same id (`figureEntries`). */
@@ -169,10 +171,20 @@ const figureDetails: Record<FigureId, Omit<FigureSection, "id">> = {
       "Use when several imperfect checks together stop most problems. Built from a numbered Badge over each layer, one Connector per item through Walls whose holes open a gap where an item passes, and the accent on the one item that slips through.",
     render: (n) => <LayeredChecksFigure number={n} />,
   },
+  "file-tree": {
+    intro:
+      "Use when where things are stored is the point, or what one file holds inside. Built from FolderMark and FileMark on a TreeRail, dog-eared Sheets for files (a mono name, a title, contents under a rule), and tag Chips: soft for content already stored, full for new, a dashed box for content reused rather than stored.",
+    render: (n) => <FileTreeFigure number={n} />,
+  },
   "flow-volumes": {
     intro:
       "Use when how many go each way is the point, not just where they go. Built inside a Figure from bars and bands drawn on the theme's token colours, with legend hover by channel. Nothing moves, so it sets controls={false}. The bands are drawn in the playground: a Sankey part is a candidate (see docs/contributing.md).",
     render: (n) => <FlowVolumesFigure number={n} />,
+  },
+  "annotated-curve": {
+    intro:
+      "Use when the shape of one trend is the point and a few spots on it need a name. Built from CurvePlot: arrowed axes with tracked mono titles and end labels instead of ticks, one smooth ink curve, notes on dotted leaders, one accent dot and a bracket measuring what remains. Nothing moves, so it sets controls={false}.",
+    render: (n) => <AnnotatedCurveFigure number={n} />,
   },
   "drill-figure": {
     intro:

@@ -13,6 +13,7 @@ import {
   Legend,
   Node,
   Packet,
+  packetScaleKeys,
   Wall,
   busStubs,
   useFigureMotion,
@@ -138,6 +139,43 @@ describe("parts", () => {
     expect(am).not.toBeNull();
     expect(am!.getAttribute("dur")).toBe("2s");
     expect(am!.getAttribute("path")).toMatch(/^M7,0/); // trimmed 2 at the start, 12 at the end
+  });
+  it("Packet pops out and shrinks away on the motion's clock", () => {
+    const { container } = wrap(
+      <Packet
+        points={[
+          [0, 0],
+          [100, 0],
+        ]}
+        dur={2}
+        delay={-0.5}
+      />,
+    );
+    const at = container.querySelector("animateTransform")!;
+    expect(at.getAttribute("type")).toBe("scale");
+    expect(at.getAttribute("dur")).toBe("2s");
+    expect(at.getAttribute("begin")).toBe("-0.5s");
+    expect(at.getAttribute("values")).toBe("0;1.2;1;1;0");
+    expect(at.getAttribute("keyTimes")).toBe("0;0.084;0.14;0.84;1");
+    expect(at.getAttribute("keySplines")!.split(";")).toHaveLength(4);
+  });
+  it("Packet keeps a constant size with emerge={false}", () => {
+    const { container } = wrap(
+      <Packet
+        points={[
+          [0, 0],
+          [100, 0],
+        ]}
+        emerge={false}
+      />,
+    );
+    expect(container.querySelector("animateTransform")).toBeNull();
+    expect(container.querySelector("animateMotion")).not.toBeNull();
+  });
+  it("packetScaleKeys caps the pop and the shrink on a short trip", () => {
+    const k = packetScaleKeys(0.5).keyTimes.split(";").map(Number);
+    expect(k).toEqual([0, 0.12, 0.2, 0.8, 1]);
+    for (let i = 1; i < k.length; i++) expect(k[i]).toBeGreaterThan(k[i - 1]);
   });
   it("Packet reverses the path for a response", () => {
     const { container } = wrap(

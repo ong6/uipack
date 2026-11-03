@@ -212,10 +212,12 @@ Pose changes move smoothly from wherever the machine is; it stops offscreen, hol
 - `Lane`: mono uppercase column header, centred over `x..x+w`.
 - `Group`: a boxed service (solid, centred title) or a dashed boundary (mono title).
 - `Node`: a box with a label, a mono `sub`, an `icon`, an optional `hint` (one short sentence shown in a note beside the box when it is selected inside a Figure; a native tooltip elsewhere) and `href` (renders as a link with a focus ring). `Chip` and `Group` take the same `hint`.
-- `Chip`: a pill for a connection slot, a queued item, a status flag.
+- `Chip`: a pill for a connection slot, a queued item, a status flag. `shape="tag"` makes it a small-radius box for a symbol or a section (`INTRO`, `PARSE()`); `soft` gives `kind` a lighter wash for the already-stored one beside a full-tint chip.
 - `Connector`: a rounded orthogonal path with one arrowhead.
 - `Bus`: a trunk with stubs and a junction dot at each join. `busStub` and `busStubs` give the same points to packets.
-- `Packet`: a token that rides a connector's points, looping.
+- `Packet`: a token that rides a connector's points, looping. It pops out slightly as it leaves (0 to 1.2 to 1 over 0.28 s) and shrinks away as it arrives (0.32 s, accelerating), on the motion's own clock, so Pause and Replay hold it too; `emerge={false}` keeps a constant size.
+- `TreeRail`, `FolderMark`, `FileMark`, `Sheet`: a file tree. A trunk with square elbows and a junction dot at each child row; folder and page marks; a file as a card with its name as a tracked mono eyebrow, a title and note, and its contents under a dotted rule.
+- `CurvePlot`: one annotated curve: arrowed axes with tracked mono titles and end labels instead of ticks, a monotone smooth curve (it never overshoots a plateau), pinned mono callouts, an accent ring for the highlighted point and a bracket measuring what remains. `curveAt` reads the drawn curve's y at any x.
 - `Badge`, `Label`, `Legend`, `Token`, `Defs`: step numbers, text with an underlay, the key, the shape itself, the arrowhead markers.
 - `Wall`: solid slabs with a gap at each of its `holes`, standing (`axis="v"`) or lying (`"h"`); one layer of a layered-checks figure. `wallSegments` gives the runs.
 - `Cross`: a ✕ where something stops, such as a lost message at the end of a dashed `Connector` with `arrow={false}`.
@@ -344,7 +346,7 @@ Strokes are `currentColor`, so a figure inherits the page's text colour and one 
 
 ## Motion
 
-Packets animate with SMIL `animateMotion`. I picked SMIL over CSS `offset-path` because `Figure` can then drive the whole SVG timeline with `pauseAnimations()` and `setCurrentTime(0)`, which is what Pause and Replay do; every packet keeps its offset after a replay and nothing needs JavaScript per frame. Chromium and WebKit both pass the browser suite on it.
+Packets animate with SMIL `animateMotion` (and an `animateTransform` scale for the pop and the shrink). I picked SMIL over CSS `offset-path` because `Figure` can then drive the whole SVG timeline with `pauseAnimations()` and `setCurrentTime(0)`, which is what Pause and Replay do; every packet keeps its offset after a replay and nothing needs JavaScript per frame. Chromium and WebKit both pass the browser suite on it.
 
 Under `prefers-reduced-motion: reduce` a packet renders once at `at` and never moves, and the controls disappear. `at` defaults to `(0.5 + delay / dur) mod 1`, so packets that share a path spread out instead of stacking on the midpoint. Server rendering also produces the static token; motion starts after mount.
 

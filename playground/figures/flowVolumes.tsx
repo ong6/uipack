@@ -54,8 +54,30 @@ const FILL: Record<Tone, string> = {
   email: "var(--uipack-token-change)",
   phone: "var(--uipack-token-response)",
   solved: "var(--uipack-fg)",
-  open: "var(--uipack-muted)",
+  open: "var(--uipack-surface)",
 };
+/**
+ * Bars take the page's box language: a channel bar is tinted with its token
+ * hue and outlined like a Chip, a solved outcome is solid ink, an open one is
+ * an empty dashed slot, so state reads without colour.
+ */
+function barPaint(tone: Tone) {
+  if (tone === "open")
+    return {
+      fill: "var(--uipack-surface)",
+      stroke: "currentColor",
+      strokeOpacity: 0.7,
+      strokeWidth: 1.25,
+      strokeDasharray: "3 3",
+    };
+  if (tone === "ink" || tone === "solved") return { fill: "var(--uipack-fg)" };
+  return {
+    fill: FILL[tone],
+    style: { fillOpacity: "var(--uipack-chip-tint, 0.55)" },
+    stroke: FILL[tone],
+    strokeWidth: 1.25,
+  };
+}
 const ORDER = Object.fromEntries(ITEMS.map((n, i) => [n.id, i]));
 const BY_ID = Object.fromEntries(ITEMS.map((n) => [n.id, n]));
 const channelOf = (from: string, to: string): Channel => (from === "all" ? (to as Channel) : (from as Channel));
@@ -122,7 +144,10 @@ function Bands({ s }: { s: Spec }) {
           key={`${b.from}-${b.to}`}
           d={b.d}
           fill={FILL[b.channel]}
-          fillOpacity={0.3}
+          fillOpacity={0.16}
+          stroke={FILL[b.channel]}
+          strokeOpacity={0.55}
+          strokeWidth={1}
           {...hoverAttrs([b.channel, b.to], KIND[b.channel], hover)}
         >
           <title>{`${BY_ID[b.from].label} → ${BY_ID[b.to].label}: ${b.n}`}</title>
@@ -138,7 +163,7 @@ function Bands({ s }: { s: Spec }) {
             width={s.bar}
             height={p.y1 - p.y0}
             rx={2}
-            fill={FILL[n.tone]}
+            {...barPaint(n.tone)}
             {...hoverAttrs(
               n.col === 1 ? n.id : n.col === 2 ? n.id : undefined,
               n.col === 1 ? KIND[n.id as Channel] : undefined,
@@ -254,7 +279,7 @@ export function FlowVolumesFigure({ number }: { number: string }) {
       number={number}
       eyebrow="Flow volumes"
       title="Most tickets are solved on the first reply"
-      caption="Notice that thickness is the count: each band is as wide as the tickets it carries, and the channel colour runs through to the outcome. Labels sit beside the bars, never on a band; solid bars are solved, grey ones are not."
+      caption="Notice that thickness is the count: each band is as wide as the tickets it carries, and the channel colour runs through to the outcome. Labels sit beside the bars, never on a band; solid bars are solved, dashed ones are still open."
       legend={[
         { label: "Chat", kind: "request" },
         { label: "Email", kind: "change" },

@@ -6,10 +6,20 @@ export { Node, type NodeProps } from "./Node";
 export { Chip, type ChipProps } from "./Chip";
 export { Connector, connectorStroke, type ConnectorProps, type ConnectorKind } from "./Connector";
 export { Bus, busStub, busStubs, type BusProps, type BusStub } from "./Bus";
-export { Packet, type PacketProps } from "./Packet";
+export { Packet, packetScaleKeys, PACKET_POP, PACKET_SINK, type PacketProps } from "./Packet";
 export { Badge, type BadgeProps } from "./Badge";
 export { Wall, wallSegments, type WallProps } from "./Wall";
 export { Cross, type CrossProps } from "./Cross";
+export { TreeRail, FolderMark, FileMark, Sheet, type TreeRailProps, type TreeMarkProps, type SheetProps } from "./Tree";
+export {
+  CurvePlot,
+  curveAt,
+  curveSegments,
+  type CurvePlotProps,
+  type CurvePoint,
+  type CurveNote,
+  type CurveMeasure,
+} from "./CurvePlot";
 export { Label, type LabelProps } from "./Label";
 export { Defs, type DefsProps } from "./Defs";
 export { Token, tokenColor, TOKEN_SHAPE, type TokenKind, type TokenShape, type TokenProps } from "./tokens";
