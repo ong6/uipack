@@ -814,7 +814,13 @@ describe("charts.css", () => {
       .map((s) => s.trim())
       .filter(
         (s) =>
-          s && !s.startsWith("@") && !s.startsWith("(") && !/^(media|supports|container)\b/.test(s) && !s.includes("prefers-"),
+          s &&
+          !s.startsWith("@") &&
+          !s.startsWith("(") &&
+          !/^(media|supports|container)\b/.test(s) &&
+          !s.includes("prefers-") &&
+          // Keyframe steps (the entrance's from/to) are not selectors.
+          !/^(from|to|[\d.]+%)$/.test(s),
       );
     expect(selectors.length).toBeGreaterThan(100);
     for (const s of selectors) expect(s).toMatch(/uipack-(span|stack)/);

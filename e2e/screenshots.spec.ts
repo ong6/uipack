@@ -81,6 +81,8 @@ for (const theme of ["light", "dark"] as const) {
     test(`shot charts ${theme} ${w}`, async ({ page }) => {
       test.setTimeout(60_000);
       await page.setViewportSize({ width: viewport, height: 1000 });
+      // Rows and bands settle in as they scroll into view; reduced motion shoots them at rest.
+      await page.emulateMedia({ reducedMotion: "reduce" });
       await page.goto(`/charts?theme=${theme}&frame=${frame}#span-chart`);
       const chart = "#ai-stack";
       await page.locator(chart).waitFor();
@@ -133,6 +135,8 @@ for (const theme of ["light", "dark"] as const) {
       );
       await page.screenshot({ path, fullPage: true, clip });
     };
+    // Cards settle in as they scroll into view; reduced motion shoots them at rest.
+    await page.emulateMedia({ reducedMotion: "reduce" });
     const first = "#layer-section .uipack-layerhead";
     const cluster = "#layer-section .uipack-cluster";
     const wide = "#layer-section .uipack-cluster--wide";

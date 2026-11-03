@@ -20,6 +20,8 @@ async function open(
     viewport: { width, height: phone ? 844 : 1000 },
     isMobile: phone,
     hasTouch: phone,
+    // Cards settle in as they scroll into view (a transform); the audit measures them at rest.
+    reducedMotion: "reduce",
     ...options,
   });
   const page = await context.newPage();

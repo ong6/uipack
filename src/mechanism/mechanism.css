@@ -154,6 +154,14 @@
   /* Inset: the plate clips its overflow, and on phones the machine spans its full width. */
   outline-offset: -2px;
 }
+/* Hover marks an interactive machine with a hairline in its edge colour, the
+   focus ring's shape at half its weight; focus keeps its own ring. */
+@media (hover: hover) {
+  .uipack-mechanism .um-machine[data-interactive]:hover:not(:focus-visible) {
+    outline: 1px solid var(--um-edge);
+    outline-offset: -1px;
+  }
+}
 .uipack-mechanism .um-hidden {
   position: absolute;
   width: 1px;
@@ -182,8 +190,15 @@
   font: 500 12px/1 var(--um-mono);
   cursor: pointer;
 }
-.uipack-mechanism .um-motion:hover {
-  border-color: var(--anatomy-strong);
+@media (hover: hover) {
+  .uipack-mechanism .um-motion:hover {
+    border-color: var(--anatomy-strong);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .uipack-mechanism .um-motion {
+    transition: border-color 120ms ease;
+  }
 }
 .uipack-mechanism .um-motion:focus-visible {
   outline: 2px solid var(--anatomy-lit);

@@ -813,14 +813,19 @@ test.describe("LayerStack", () => {
       band.evaluate((el) => [getComputedStyle(el).borderTopColor, getComputedStyle(el.querySelector("b")!).color]);
     const rest = await look();
     await band.hover();
-    const hovered = await look();
-    expect(hovered[0]).not.toBe(rest[0]);
-    expect(hovered[1]).toBe(hovered[0]);
+    // The edge and the title ease to the accent (160ms), so poll until both settle on it.
+    let hovered: string[] = [];
+    await expect
+      .poll(async () => {
+        hovered = await look();
+        return hovered[0] !== rest[0] && hovered[1] === hovered[0];
+      })
+      .toBe(true);
     await page.mouse.move(0, 0);
     await page.keyboard.press("Shift");
     await band.focus();
     expect(await band.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe("solid");
-    expect(await look()).toEqual(hovered);
+    await expect.poll(look).toEqual(hovered);
     await expect(band).toHaveAccessibleName(
       "Layer 08 Inference. Every request costs compute; price per token sets the margin. Go to section",
     );

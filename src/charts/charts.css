@@ -1812,6 +1812,91 @@
   }
 }
 
+/* Hover feedback eases in (colour, border, background only; nothing that
+   moves a box). The LayerStack's "↓" nudges 2px toward where it goes. */
+@media (prefers-reduced-motion: no-preference) {
+  .uipack-span .uipack-span__item summary {
+    transition: background-color 160ms ease;
+  }
+  .uipack-span .uipack-span__chip,
+  .uipack-span .uipack-span__toggle--foot {
+    transition: border-color 120ms ease;
+  }
+  .uipack-stack .uipack-stack__band,
+  .uipack-stack .uipack-stack__node {
+    transition: border-color 160ms ease;
+  }
+  .uipack-stack .uipack-stack__text > b,
+  .uipack-stack .uipack-stack__node > b,
+  .uipack-stack .uipack-stack__rail {
+    transition: color 160ms ease;
+  }
+  .uipack-stack .uipack-stack__go {
+    transition:
+      color 160ms ease,
+      transform 160ms ease;
+  }
+  @media (hover: hover) {
+    .uipack-stack a.uipack-stack__band:hover .uipack-stack__go {
+      transform: translateY(2px);
+    }
+  }
+}
+
+/* Entrance: as a stack or a timeline scrolls into view its bands settle in,
+   a step apart, and its rows fade in. Rows fade only (no movement under the
+   sticky header) and fill backwards, so a row that has arrived drops the
+   stacking context an opacity animation creates and its bars stay above the
+   column rules. CSS-only, where scroll-driven animations exist. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .uipack-stack .uipack-stack__band {
+      --ls-i: 0;
+      animation: uipack-stack-enter cubic-bezier(0.2, 0.7, 0.2, 1) both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--ls-i) * 5%) entry calc(40% + var(--ls-i) * 5%);
+    }
+    .uipack-stack .uipack-stack__band + .uipack-stack__band {
+      --ls-i: 1;
+    }
+    .uipack-stack .uipack-stack__band + .uipack-stack__band + .uipack-stack__band {
+      --ls-i: 2;
+    }
+    .uipack-stack .uipack-stack__band + .uipack-stack__band + .uipack-stack__band + .uipack-stack__band {
+      --ls-i: 3;
+    }
+    .uipack-span .uipack-span__item {
+      animation: uipack-span-enter cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+  }
+}
+@keyframes uipack-stack-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes uipack-span-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media print {
+  .uipack-stack .uipack-stack__band,
+  .uipack-span .uipack-span__item {
+    animation: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .uipack-span .uipack-span__name > i,
   .uipack-span .uipack-span__toggle--foot::before,

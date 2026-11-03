@@ -307,9 +307,11 @@
   white-space: nowrap;
   cursor: pointer;
 }
-.uipack-deck-controls button:hover:not(:disabled) {
-  border-color: var(--deck-accent);
-  color: var(--deck-accent);
+@media (hover: hover) {
+  .uipack-deck-controls button:hover:not(:disabled) {
+    border-color: var(--deck-accent);
+    color: var(--deck-accent);
+  }
 }
 .uipack-deck-controls button:disabled {
   opacity: 0.4;
@@ -566,6 +568,12 @@
   margin-right: 6px;
   color: var(--deck-muted);
   font: 600 12px/1 var(--deck-mono);
+}
+/* Hover lifts a thumbnail 2px with an accent edge: no shadow, which marks the current slide. */
+@media (hover: hover) {
+  .uipack-deck-overview__grid > li > button:hover {
+    border-color: var(--deck-accent);
+  }
 }
 .uipack-deck-thumb {
   position: relative;
@@ -844,9 +852,11 @@
   white-space: nowrap;
   cursor: pointer;
 }
-.uipack-deck-read button:hover {
-  border-color: var(--deck-accent);
-  color: var(--deck-accent);
+@media (hover: hover) {
+  .uipack-deck-read button:hover {
+    border-color: var(--deck-accent);
+    color: var(--deck-accent);
+  }
 }
 .uipack-deck-read button:focus-visible {
   outline: 2px solid var(--deck-accent);
@@ -901,8 +911,10 @@
   text-align: left;
   cursor: pointer;
 }
-.uipack-deck-storyline > ol > li > button:hover {
-  background: color-mix(in srgb, var(--deck-accent) 8%, transparent);
+@media (hover: hover) {
+  .uipack-deck-storyline > ol > li > button:hover {
+    background: color-mix(in srgb, var(--deck-accent) 8%, transparent);
+  }
 }
 .uipack-deck-storyline > ol > li > button:focus-visible {
   outline: 2px solid var(--deck-accent);
@@ -1096,6 +1108,30 @@
 .uipack-deck-print__notes p {
   margin: 0;
   color: #3d433f;
+}
+/* Chrome hover eases in: colour and border on the buttons, a background on the
+   storyline rows, a 2px lift on overview thumbnails (a transform, so no box moves).
+   Slides, bento cells and the canvas take no hover. */
+@media (prefers-reduced-motion: no-preference) {
+  .uipack-deck-controls button,
+  .uipack-deck-read button {
+    transition:
+      border-color 120ms ease,
+      color 120ms ease;
+  }
+  .uipack-deck-storyline > ol > li > button {
+    transition: background-color 120ms ease;
+  }
+  .uipack-deck-overview__grid > li > button {
+    transition:
+      border-color 160ms var(--deck-settle, ease),
+      transform 160ms var(--deck-settle, ease);
+  }
+  @media (hover: hover) {
+    .uipack-deck-overview__grid > li > button:hover {
+      transform: translateY(-2px);
+    }
+  }
 }
 /* The PDF / Print button prints a copy mounted at the end of <body>: off screen until printed. */
 @media screen {

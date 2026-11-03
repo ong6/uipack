@@ -76,7 +76,7 @@ Three rules reach outside a part, on purpose:
 
 Host prose rules (`.prose p`, `.prose ul`, `.prose li`, `.prose a`) do not reach the parts' own elements, whichever stylesheet loads last: every rule names two classes. Content passed in as children (links, emphasis, code in a Callout, ChangeNote or LinkList body) keeps the host's styling. ChangeNote's body also keeps the host's prose font.
 
-Motion is a 160ms colour change and a 3px arrow nudge on hover, only under `prefers-reduced-motion: no-preference`. In forced-colours mode the markers draw in `CanvasText` and focus rings in `Highlight`.
+Motion is small and only under `prefers-reduced-motion: no-preference`. Hover (on devices that hover) is a 160ms colour and border change with a short arrow nudge: 3px right on a NoteCard, 2px up on the LayerHead map link. Where the browser supports scroll-driven animations (`animation-timeline: view()`), a NoteCard settles in as it scrolls into view (fades in and rises 8px over the first part of its entry, on `cubic-bezier(0.2, 0.7, 0.2, 1)`); elsewhere, in print and under reduced motion it is simply there. In forced-colours mode the markers draw in `CanvasText` and focus rings in `Highlight`.
 
 ## Class contract
 

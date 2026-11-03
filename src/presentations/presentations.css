@@ -138,9 +138,18 @@
   );
   cursor: pointer;
 }
-.uipack-speaker-guide__action button:hover {
-  border-color: var(--presentation-accent);
-  color: var(--presentation-accent);
+@media (hover: hover) {
+  .uipack-speaker-guide__action button:hover {
+    border-color: var(--presentation-accent);
+    color: var(--presentation-accent);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .uipack-speaker-guide__action button {
+    transition:
+      border-color 120ms ease,
+      color 120ms ease;
+  }
 }
 .uipack-speaker-guide__action button:active {
   background: var(--presentation-bg);
