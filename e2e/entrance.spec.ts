@@ -3,7 +3,7 @@ import { expect, test } from "./fixtures";
 test.use({ entrance: true });
 
 test.describe("figure entrance", () => {
-  test("a figure below the fold waits, rises in when scrolled to, then settles", async ({ page }) => {
+  test("a figure below the fold waits, rises in when scrolled to, then settles", { tag: "@cross-browser" }, async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
     const first = page.locator("figure.uipack").first().locator(".uipack__canvas");

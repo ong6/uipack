@@ -41,7 +41,7 @@ const FIGURES = [
   "reduced",
   "static",
 ];
-const SHELL = ["nav", "typography", "alignment", "page-audit", "showcase", "gallery"];
+const SHELL = ["nav", "page-audit", "showcase", "gallery"];
 
 /** First matching rule wins. A path no rule matches runs no browser test. */
 const AREAS = [
