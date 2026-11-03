@@ -71,54 +71,58 @@ test.describe("drill-down figure", () => {
     await expect(fig(page).locator("[data-drill-announce]")).toHaveText("Back to Agent harness. Agent harness");
   });
 
-  test("mid-flight the child is clipped exactly inside the node box, and the label gives way", async ({ page }) => {
-    const box = await drillNode(page, "checks").locator(':scope > [data-uipack="node"] > rect').boundingBox();
-    await drillNode(page, "checks").click();
-    await freezeAt(page, 330);
-    const m = await page.evaluate(() => {
-      const inner = document.querySelector<HTMLElement>('#drill-main .uipack-drill__layer[data-role="inner"]')!;
-      const outerNode = document.querySelector(
-        '#drill-main .uipack-drill__layer:not([data-role]) [data-drill="checks"] > [data-uipack="node"] > rect',
-      )!;
-      const r = inner.getBoundingClientRect();
-      const s = r.width / inner.offsetWidth;
-      const cs = getComputedStyle(inner);
-      // Computed inset() uses the 1–4 value shorthand.
-      const v = cs.clipPath
-        .match(/inset\(([^)]*?)(?: round|\))/)![1]
-        .trim()
-        .split(/\s+/)
-        .map(parseFloat);
-      const [t, ri, b, l] = [v[0], v[1] ?? v[0], v[2] ?? v[0], v[3] ?? v[1] ?? v[0]];
-      const label = document.querySelector('#drill-main [data-drill="checks"] > [data-uipack="node"] > text')!;
-      return {
-        clip: { left: r.left + l * s, top: r.top + t * s, right: r.right - ri * s, bottom: r.bottom - b * s },
-        node: outerNode.getBoundingClientRect().toJSON(),
-        opacity: Number(cs.opacity),
-        labelOpacity: Number(getComputedStyle(label).opacity),
-        round: /round/.test(cs.clipPath),
-      };
-    });
-    // The clip and the (zooming) node box agree to a pixel.
-    expect(Math.abs(m.clip.left - m.node.left)).toBeLessThan(1.5);
-    expect(Math.abs(m.clip.right - m.node.right)).toBeLessThan(1.5);
-    expect(Math.abs(m.clip.top - m.node.top)).toBeLessThan(1.5);
-    expect(Math.abs(m.clip.bottom - m.node.bottom)).toBeLessThan(1.5);
-    expect(m.round).toBe(true);
-    expect(m.node.width).toBeGreaterThan(box!.width * 1.05);
-    expect(m.opacity).toBeGreaterThan(0);
-    expect(m.labelOpacity).toBeLessThan(1);
-    // Later the child has taken over the label entirely.
-    await freezeAt(page, 700);
-    const later = await page.evaluate(() =>
-      Number(
-        getComputedStyle(document.querySelector('#drill-main [data-drill="checks"] > [data-uipack="node"] > text')!).opacity,
-      ),
-    );
-    expect(later).toBeLessThan(0.05);
-    await page.evaluate(() => document.getAnimations().forEach((a) => a.play()));
-    await settled(page);
-  });
+  test(
+    "mid-flight the child is clipped exactly inside the node box, and the label gives way",
+    { tag: "@cross-browser" },
+    async ({ page }) => {
+      const box = await drillNode(page, "checks").locator(':scope > [data-uipack="node"] > rect').boundingBox();
+      await drillNode(page, "checks").click();
+      await freezeAt(page, 330);
+      const m = await page.evaluate(() => {
+        const inner = document.querySelector<HTMLElement>('#drill-main .uipack-drill__layer[data-role="inner"]')!;
+        const outerNode = document.querySelector(
+          '#drill-main .uipack-drill__layer:not([data-role]) [data-drill="checks"] > [data-uipack="node"] > rect',
+        )!;
+        const r = inner.getBoundingClientRect();
+        const s = r.width / inner.offsetWidth;
+        const cs = getComputedStyle(inner);
+        // Computed inset() uses the 1–4 value shorthand.
+        const v = cs.clipPath
+          .match(/inset\(([^)]*?)(?: round|\))/)![1]
+          .trim()
+          .split(/\s+/)
+          .map(parseFloat);
+        const [t, ri, b, l] = [v[0], v[1] ?? v[0], v[2] ?? v[0], v[3] ?? v[1] ?? v[0]];
+        const label = document.querySelector('#drill-main [data-drill="checks"] > [data-uipack="node"] > text')!;
+        return {
+          clip: { left: r.left + l * s, top: r.top + t * s, right: r.right - ri * s, bottom: r.bottom - b * s },
+          node: outerNode.getBoundingClientRect().toJSON(),
+          opacity: Number(cs.opacity),
+          labelOpacity: Number(getComputedStyle(label).opacity),
+          round: /round/.test(cs.clipPath),
+        };
+      });
+      // The clip and the (zooming) node box agree to a pixel.
+      expect(Math.abs(m.clip.left - m.node.left)).toBeLessThan(1.5);
+      expect(Math.abs(m.clip.right - m.node.right)).toBeLessThan(1.5);
+      expect(Math.abs(m.clip.top - m.node.top)).toBeLessThan(1.5);
+      expect(Math.abs(m.clip.bottom - m.node.bottom)).toBeLessThan(1.5);
+      expect(m.round).toBe(true);
+      expect(m.node.width).toBeGreaterThan(box!.width * 1.05);
+      expect(m.opacity).toBeGreaterThan(0);
+      expect(m.labelOpacity).toBeLessThan(1);
+      // Later the child has taken over the label entirely.
+      await freezeAt(page, 700);
+      const later = await page.evaluate(() =>
+        Number(
+          getComputedStyle(document.querySelector('#drill-main [data-drill="checks"] > [data-uipack="node"] > text')!).opacity,
+        ),
+      );
+      expect(later).toBeLessThan(0.05);
+      await page.evaluate(() => document.getAnimations().forEach((a) => a.play()));
+      await settled(page);
+    },
+  );
 
   test("Back mid-flight reverses the same path and settles cleanly", async ({ page }) => {
     await drillNode(page, "checks").click();
@@ -180,7 +184,7 @@ test("reduced motion crossfades without scaling", async ({ page }) => {
 
 test.describe("phone", () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
-  test("at 390px the page never overflows and the narrow drawing drills by tap", async ({ page }) => {
+  test("at 390px the page never overflows and the narrow drawing drills by tap", { tag: "@cross-browser" }, async ({ page }) => {
     await page.goto("/drill");
     const node = drillNode(page, "checks");
     await node.waitFor();

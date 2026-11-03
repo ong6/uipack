@@ -59,36 +59,44 @@ test.describe("asset browser", () => {
     expect(row).toBeGreaterThanOrEqual(44);
   });
 
-  test("keyboard: tab reaches categories, search and the first action", async ({ page, browserName }) => {
-    await page.goto("/assets");
-    await page.locator(".uipack-browser__card").first().waitFor();
-    // WebKit only moves focus with Tab when the OS setting allows it, so it gets Option+Tab.
-    const tab = browserName === "webkit" ? "Alt+Tab" : "Tab";
-    await page.getByRole("button", { name: /^All/ }).focus();
-    await page.keyboard.press(tab);
-    await expect(page.getByRole("button", { name: /^Icons/ })).toBeFocused();
-    await page.getByRole("searchbox").focus();
-    await page.keyboard.press(tab);
-    await expect(page.locator(".uipack-browser__action").first()).toBeFocused();
-    await page.keyboard.press("Enter");
-    await expect(page.locator(".uipack-browser__action").first()).toHaveText("Copied");
-  });
+  test(
+    "keyboard: tab reaches categories, search and the first action",
+    { tag: "@cross-browser" },
+    async ({ page, browserName }) => {
+      await page.goto("/assets");
+      await page.locator(".uipack-browser__card").first().waitFor();
+      // WebKit only moves focus with Tab when the OS setting allows it, so it gets Option+Tab.
+      const tab = browserName === "webkit" ? "Alt+Tab" : "Tab";
+      await page.getByRole("button", { name: /^All/ }).focus();
+      await page.keyboard.press(tab);
+      await expect(page.getByRole("button", { name: /^Icons/ })).toBeFocused();
+      await page.getByRole("searchbox").focus();
+      await page.keyboard.press(tab);
+      await expect(page.locator(".uipack-browser__action").first()).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(page.locator(".uipack-browser__action").first()).toHaveText("Copied");
+    },
+  );
 
-  test("an empty search offers Clear search, which empties the field and puts focus back in it", async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/assets");
-    await page.locator(".uipack-browser__card").first().waitFor();
-    const search = page.getByRole("searchbox");
-    await search.fill("zzqqxx");
-    await expect(page.getByText("Nothing matches “zzqqxx”.")).toBeVisible();
-    const clear = page.getByRole("button", { name: "Clear search" });
-    expect((await clear.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-    await clear.click();
-    await expect(search).toHaveValue("");
-    await expect(search).toBeFocused();
-    await expect(page.locator(".uipack-browser__card").first()).toBeVisible();
-    await expect(page.locator(".uipack-browser__empty")).toHaveCount(0);
-  });
+  test(
+    "an empty search offers Clear search, which empties the field and puts focus back in it",
+    { tag: "@cross-browser" },
+    async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto("/assets");
+      await page.locator(".uipack-browser__card").first().waitFor();
+      const search = page.getByRole("searchbox");
+      await search.fill("zzqqxx");
+      await expect(page.getByText("Nothing matches “zzqqxx”.")).toBeVisible();
+      const clear = page.getByRole("button", { name: "Clear search" });
+      expect((await clear.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+      await clear.click();
+      await expect(search).toHaveValue("");
+      await expect(search).toBeFocused();
+      await expect(page.locator(".uipack-browser__card").first()).toBeVisible();
+      await expect(page.locator(".uipack-browser__empty")).toHaveCount(0);
+    },
+  );
 
   test("under reduced motion the packet preview is its still; the plain canvas has an edge", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });

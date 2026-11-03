@@ -44,6 +44,9 @@ export default defineConfig({
           : undefined,
       },
     },
-    { name: "webkit", use: { ...devices["Desktop Safari"] } },
+    // WebKit runs a smoke subset: the tests tagged @cross-browser, where the engines differ
+    // (keyboard focus and Tab, gestures, smooth scroll, SMIL, WebGL setup, fonts, the built package).
+    // Chromium runs everything.
+    { name: "webkit", grep: /@cross-browser/, use: { ...devices["Desktop Safari"] } },
   ],
 });

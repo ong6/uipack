@@ -3,22 +3,26 @@ import { playAnimationTime } from "./helpers";
 const kinds = ["ai", "contact", "tennis", "trading", "server", "travel", "reading"];
 for (const theme of ["light", "dark"])
   for (const width of [390, 1440]) {
-    test(`objects fit and render at ${width} in ${theme}`, async ({ page }) => {
-      await page.setViewportSize({ width, height: 900 });
-      await page.emulateMedia({ reducedMotion: "reduce" });
-      const errors: string[] = [];
-      page.on("pageerror", (e) => errors.push(e.message));
-      for (const kind of kinds) {
-        await page.goto(`/animations?story=${kind}&theme=${theme}`);
-        const canvas = page.locator(".uipack-object canvas");
-        await expect(canvas).toHaveAttribute("data-renderer", "webgl");
-        await expect(canvas).toHaveAttribute("data-phase", "rest");
-        await canvas.scrollIntoViewIfNeeded();
-        expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
-        await expect(page.getByRole("button", { name: /motion$/ })).toHaveCount(0);
-      }
-      expect(errors).toEqual([]);
-    });
+    test(
+      `objects fit and render at ${width} in ${theme}`,
+      { tag: width === 390 && theme === "light" ? ["@cross-browser"] : [] },
+      async ({ page }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.emulateMedia({ reducedMotion: "reduce" });
+        const errors: string[] = [];
+        page.on("pageerror", (e) => errors.push(e.message));
+        for (const kind of kinds) {
+          await page.goto(`/animations?story=${kind}&theme=${theme}`);
+          const canvas = page.locator(".uipack-object canvas");
+          await expect(canvas).toHaveAttribute("data-renderer", "webgl");
+          await expect(canvas).toHaveAttribute("data-phase", "rest");
+          await canvas.scrollIntoViewIfNeeded();
+          expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+          await expect(page.getByRole("button", { name: /motion$/ })).toHaveCount(0);
+        }
+        expect(errors).toEqual([]);
+      },
+    );
   }
 test("object playback pauses, finishes, replays and opens one accessible canvas", async ({ page }) => {
   await page.goto("/animations?story=travel&variant=0");

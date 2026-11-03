@@ -4,7 +4,8 @@ import { expect, test } from "./fixtures";
 // The exported file is loaded the way a README or a Markdown site loads it:
 // through <img>, where no page CSS, JavaScript or fonts can reach it. Motion
 // is checked by screenshotting the image twice; the pixels differ only when
-// SMIL runs inside the image.
+// SMIL runs inside the image. That the file carries no CSS variables and keeps SMIL is a unit test
+// on renderStatic (test/static.test.tsx).
 async function mount(page: import("@playwright/test").Page, src: string) {
   await page.goto("/");
   await page.evaluate((src) => {
@@ -19,16 +20,7 @@ async function mount(page: import("@playwright/test").Page, src: string) {
 }
 
 test.describe("static export in <img>", () => {
-  test("the file carries no CSS variables and keeps SMIL", () => {
-    const svg = readFileSync("playground/e2e-static/motion.svg", "utf8");
-    expect(svg).not.toContain("var(--");
-    expect(svg).toContain("<animateMotion");
-    expect(svg).toMatch(/^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"/);
-    const still = readFileSync("playground/e2e-static/still.svg", "utf8");
-    expect(still).not.toContain("<animateMotion");
-  });
-
-  test("packets move inside the image when motion is on", async ({ page }) => {
+  test("packets move inside the image when motion is on", { tag: "@cross-browser" }, async ({ page }) => {
     const img = await mount(page, "/e2e-static/motion.svg");
     const a = await img.screenshot();
     await expect.poll(async () => a.equals(await img.screenshot())).toBe(false);

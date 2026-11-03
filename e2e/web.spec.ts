@@ -74,26 +74,30 @@ test.describe("/web Landing collection", () => {
     ).toBe("1");
   });
 
-  test("spotlight follows the mouse and keyboard focus shows it too", async ({ page, browserName }) => {
-    // Safari moves Tab focus through links only with Option held.
-    const tab = browserName === "webkit" ? "Alt+Tab" : "Tab";
-    await page.goto("/web");
-    const card = page.locator("#web-how .uipack-web-spotlight").first();
-    await card.scrollIntoViewIfNeeded();
-    const box = (await card.boundingBox())!;
-    await page.mouse.move(box.x + 40, box.y + 30);
-    await expect.poll(() => card.evaluate((el) => el.style.getPropertyValue("--spot-x"))).toBe("40px");
-    const on = () => card.evaluate((el) => getComputedStyle(el).getPropertyValue("--spot-on").trim());
-    expect(await on()).toBe("1");
-    await page.mouse.move(0, 0);
-    // A spotlight whose link has keyboard focus lights without the pointer.
-    const flashy = page.locator(".web-panel .uipack-web-spotlight").first();
-    await flashy.getByRole("link").focus();
-    await page.keyboard.press(`Shift+${tab}`);
-    await page.keyboard.press(tab);
-    await expect(flashy.getByRole("link")).toBeFocused();
-    expect(await flashy.evaluate((el) => getComputedStyle(el).getPropertyValue("--spot-on").trim())).toBe("1");
-  });
+  test(
+    "spotlight follows the mouse and keyboard focus shows it too",
+    { tag: "@cross-browser" },
+    async ({ page, browserName }) => {
+      // Safari moves Tab focus through links only with Option held.
+      const tab = browserName === "webkit" ? "Alt+Tab" : "Tab";
+      await page.goto("/web");
+      const card = page.locator("#web-how .uipack-web-spotlight").first();
+      await card.scrollIntoViewIfNeeded();
+      const box = (await card.boundingBox())!;
+      await page.mouse.move(box.x + 40, box.y + 30);
+      await expect.poll(() => card.evaluate((el) => el.style.getPropertyValue("--spot-x"))).toBe("40px");
+      const on = () => card.evaluate((el) => getComputedStyle(el).getPropertyValue("--spot-on").trim());
+      expect(await on()).toBe("1");
+      await page.mouse.move(0, 0);
+      // A spotlight whose link has keyboard focus lights without the pointer.
+      const flashy = page.locator(".web-panel .uipack-web-spotlight").first();
+      await flashy.getByRole("link").focus();
+      await page.keyboard.press(`Shift+${tab}`);
+      await page.keyboard.press(tab);
+      await expect(flashy.getByRole("link")).toBeFocused();
+      expect(await flashy.evaluate((el) => getComputedStyle(el).getPropertyValue("--spot-on").trim())).toBe("1");
+    },
+  );
 
   for (const theme of ["light", "dark"] as const) {
     test(`${theme}: no console errors and no page overflow at 390px`, async ({ page }) => {
@@ -264,74 +268,81 @@ test.describe("/web Landing collection", () => {
     await expect(page.locator("style[data-uipack-paint]")).toHaveCount(0);
   });
 
-  test("type: three self-hosted faces, display headings, no external requests or console errors", async ({ page, baseURL }) => {
-    const origin = new URL(baseURL!).origin;
-    const external: string[] = [];
-    const fonts: string[] = [];
-    const errors: string[] = [];
-    page.on("request", (r) => {
-      if (/^https?:/.test(r.url()) && new URL(r.url()).origin !== origin) external.push(r.url());
-      if (r.resourceType() === "font") fonts.push(r.url());
-    });
-    page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
-    page.on("pageerror", (e) => errors.push(String(e)));
-    await page.goto("/web");
-    await page.evaluate(() => document.fonts.ready);
-    const loaded = () =>
-      page.evaluate(() => {
-        const out: string[] = [];
-        document.fonts.forEach((f) => f.status === "loaded" && out.push(`${f.family.replace(/"/g, "")} ${f.weight} ${f.style}`));
-        return out;
+  test(
+    "type: three self-hosted faces, display headings, no external requests or console errors",
+    { tag: "@cross-browser" },
+    async ({ page, baseURL }) => {
+      const origin = new URL(baseURL!).origin;
+      const external: string[] = [];
+      const fonts: string[] = [];
+      const errors: string[] = [];
+      page.on("request", (r) => {
+        if (/^https?:/.test(r.url()) && new URL(r.url()).origin !== origin) external.push(r.url());
+        if (r.resourceType() === "font") fonts.push(r.url());
       });
-    await expect
-      .poll(loaded)
-      .toEqual(
-        expect.arrayContaining([
-          "Instrument Serif 400 normal",
-          "Instrument Serif 400 italic",
-          "IBM Plex Sans 400 normal",
-          "IBM Plex Sans 600 normal",
-          "IBM Plex Mono 600 normal",
-        ]),
-      );
-    // Every font comes from the package's own fonts folder, as woff2.
-    expect(fonts.length).toBeGreaterThanOrEqual(5);
-    // (The specimen toggle's alternates come from @fontsource in the playground only.)
-    for (const url of fonts.filter((u) => !u.includes("/@fontsource/"))) expect(url).toMatch(/\/web\/fonts\/[a-z0-9-]+\.woff2$/);
-    expect(external).toEqual([]);
-    const family = (sel: string) =>
-      page
-        .locator(sel)
-        .first()
-        .evaluate((el) => getComputedStyle(el).fontFamily.split(",")[0].replace(/"/g, "").trim());
-    const weight = (sel: string) =>
-      page
-        .locator(sel)
-        .first()
-        .evaluate((el) => getComputedStyle(el).fontWeight);
-    expect(await family(".uipack-web-hero h1")).toBe("Instrument Serif");
-    expect(await weight(".uipack-web-hero h1")).toBe("400");
-    expect(await family("#web-how h2")).toBe("Instrument Serif");
-    expect(await family("#web-proof .uipack-web-ticker")).toBe("Instrument Serif");
-    expect(await family("[data-testid=demo-metric]")).toBe("Instrument Serif");
-    expect(await family("#web-how h3")).toBe("IBM Plex Sans");
-    expect(await weight("#web-how h3")).toBe("600");
-    expect(await family(".uipack-web-hero .uipack-web-subhead")).toBe("IBM Plex Sans");
-    expect(await family(".uipack-web-hero .uipack-web-cta")).toBe("IBM Plex Sans");
-    expect(await family(".uipack-web-nav__links a")).toBe("IBM Plex Sans");
-    expect(await family(".uipack-web-hero .uipack-web-eyebrow")).toBe("IBM Plex Mono");
-    expect(await family(".uipack-web-demo__address")).toBe("IBM Plex Mono");
-    // The specimen's toggle previews another display face on every Landing surface, then returns.
-    // Its alternates load as the toggle nears the viewport; let the labels settle in their faces first.
-    await page.locator(".web-face-toggle").scrollIntoViewIfNeeded();
-    await expect.poll(loaded).toEqual(expect.arrayContaining(["IBM Plex Serif 400 normal", "Space Grotesk 500 normal"]));
-    await page.getByRole("radio", { name: "Space Grotesk" }).check();
-    await expect.poll(() => family(".uipack-web-hero h1")).toBe("Space Grotesk");
-    expect(await weight(".uipack-web-hero h1")).toBe("500");
-    await page.getByRole("radio", { name: "Instrument Serif" }).check();
-    await expect.poll(() => family(".uipack-web-hero h1")).toBe("Instrument Serif");
-    expect(errors).toEqual([]);
-  });
+      page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
+      page.on("pageerror", (e) => errors.push(String(e)));
+      await page.goto("/web");
+      await page.evaluate(() => document.fonts.ready);
+      const loaded = () =>
+        page.evaluate(() => {
+          const out: string[] = [];
+          document.fonts.forEach(
+            (f) => f.status === "loaded" && out.push(`${f.family.replace(/"/g, "")} ${f.weight} ${f.style}`),
+          );
+          return out;
+        });
+      await expect
+        .poll(loaded)
+        .toEqual(
+          expect.arrayContaining([
+            "Instrument Serif 400 normal",
+            "Instrument Serif 400 italic",
+            "IBM Plex Sans 400 normal",
+            "IBM Plex Sans 600 normal",
+            "IBM Plex Mono 600 normal",
+          ]),
+        );
+      // Every font comes from the package's own fonts folder, as woff2.
+      expect(fonts.length).toBeGreaterThanOrEqual(5);
+      // (The specimen toggle's alternates come from @fontsource in the playground only.)
+      for (const url of fonts.filter((u) => !u.includes("/@fontsource/")))
+        expect(url).toMatch(/\/web\/fonts\/[a-z0-9-]+\.woff2$/);
+      expect(external).toEqual([]);
+      const family = (sel: string) =>
+        page
+          .locator(sel)
+          .first()
+          .evaluate((el) => getComputedStyle(el).fontFamily.split(",")[0].replace(/"/g, "").trim());
+      const weight = (sel: string) =>
+        page
+          .locator(sel)
+          .first()
+          .evaluate((el) => getComputedStyle(el).fontWeight);
+      expect(await family(".uipack-web-hero h1")).toBe("Instrument Serif");
+      expect(await weight(".uipack-web-hero h1")).toBe("400");
+      expect(await family("#web-how h2")).toBe("Instrument Serif");
+      expect(await family("#web-proof .uipack-web-ticker")).toBe("Instrument Serif");
+      expect(await family("[data-testid=demo-metric]")).toBe("Instrument Serif");
+      expect(await family("#web-how h3")).toBe("IBM Plex Sans");
+      expect(await weight("#web-how h3")).toBe("600");
+      expect(await family(".uipack-web-hero .uipack-web-subhead")).toBe("IBM Plex Sans");
+      expect(await family(".uipack-web-hero .uipack-web-cta")).toBe("IBM Plex Sans");
+      expect(await family(".uipack-web-nav__links a")).toBe("IBM Plex Sans");
+      expect(await family(".uipack-web-hero .uipack-web-eyebrow")).toBe("IBM Plex Mono");
+      expect(await family(".uipack-web-demo__address")).toBe("IBM Plex Mono");
+      // The specimen's toggle previews another display face on every Landing surface, then returns.
+      // Its alternates load as the toggle nears the viewport; let the labels settle in their faces first.
+      await page.locator(".web-face-toggle").scrollIntoViewIfNeeded();
+      await expect.poll(loaded).toEqual(expect.arrayContaining(["IBM Plex Serif 400 normal", "Space Grotesk 500 normal"]));
+      await page.getByRole("radio", { name: "Space Grotesk" }).check();
+      await expect.poll(() => family(".uipack-web-hero h1")).toBe("Space Grotesk");
+      expect(await weight(".uipack-web-hero h1")).toBe("500");
+      await page.getByRole("radio", { name: "Instrument Serif" }).check();
+      await expect.poll(() => family(".uipack-web-hero h1")).toBe("Instrument Serif");
+      expect(errors).toEqual([]);
+    },
+  );
 
   test("type: the specimen's alternate display faces load only when its toggle nears the viewport", async ({ page }) => {
     const alternates: string[] = [];
@@ -347,7 +358,7 @@ test.describe("/web Landing collection", () => {
     await expect.poll(() => alternates.some((u) => /plex-serif.*\.woff2/.test(u))).toBe(true);
   });
 
-  test("SmoothScroll eases a wheel over many frames and lands on its target", async ({ page }) => {
+  test("SmoothScroll eases a wheel over many frames and lands on its target", { tag: "@cross-browser" }, async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/web");
     await expect(page.locator("html")).toHaveAttribute("data-uipack-smooth-scroll", "");
@@ -382,7 +393,7 @@ test.describe("/web Landing collection", () => {
     expect(prevented).toBe(false);
   });
 
-  test("anchor links ease to their section and land below the sticky nav", async ({ page }) => {
+  test("anchor links ease to their section and land below the sticky nav", { tag: "@cross-browser" }, async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/web");
     const nav = page.locator(".uipack-web-nav");
@@ -441,53 +452,57 @@ test.describe("/web Landing collection", () => {
     await expect(page.locator("#web-pricing")).toBeFocused();
   });
 
-  test("nav Pricing glides to the pricing section, below the nav, with focus and hash", async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto("/web");
-    const nav = page.locator(".uipack-web-nav");
-    // Every nav link is a real in-page anchor with a real target.
-    for (const link of await nav.locator(".uipack-web-nav__links a").all()) {
-      const href = (await link.getAttribute("href"))!;
-      expect(href).toMatch(/^#web-/);
-      await expect(page.locator(href)).toHaveCount(1);
-    }
-    await page.evaluate(() => {
-      const w = window as unknown as { __ys: number[] };
-      w.__ys = [];
-      const t0 = performance.now();
-      const frame = () => {
-        w.__ys.push(window.scrollY);
-        if (performance.now() - t0 < 2500) requestAnimationFrame(frame);
-      };
-      requestAnimationFrame(frame);
-    });
-    const before = await page.evaluate(() => window.scrollY);
-    await nav.getByRole("link", { name: "Pricing" }).click();
-    await expect(page).toHaveURL(/#web-pricing$/);
-    const heading = page.locator("#web-pricing-title");
-    await expect.poll(() => gapBelowNav(page, "#web-pricing"), { timeout: 4_000 }).toBeLessThan(80);
-    await waitForStable(() => page.evaluate(() => window.scrollY));
-    const final = await page.evaluate(() => window.scrollY);
-    const ys = await page.evaluate(() => (window as unknown as { __ys: number[] }).__ys);
-    // Not one jump: the position rises through many frames and never overshoots.
-    expect(new Set(ys.filter((y) => y > before + 1 && y < final - 1)).size).toBeGreaterThanOrEqual(4);
-    for (let i = 1; i < ys.length; i++) expect(ys[i]).toBeGreaterThanOrEqual(ys[i - 1]);
-    expect(Math.max(...ys)).toBeLessThanOrEqual(final + 1);
-    // The Pricing eyebrow and heading end up just below the 65px sticky nav, fully visible.
-    const gap = await gapBelowNav(page, "#web-pricing");
-    expect(gap).toBeGreaterThanOrEqual(16);
-    expect(gap).toBeLessThanOrEqual(56);
-    const navBottom = await nav.evaluate((el) => el.getBoundingClientRect().bottom);
-    const headingBox = (await heading.boundingBox())!;
-    expect(headingBox.y).toBeGreaterThan(navBottom);
-    expect(headingBox.y - navBottom).toBeLessThan(120);
-    expect(headingBox.y + headingBox.height).toBeLessThan(800);
-    await expect(page.locator("#web-pricing")).toBeFocused();
-  });
+  test(
+    "nav Pricing glides to the pricing section, below the nav, with focus and hash",
+    { tag: "@cross-browser" },
+    async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 800 });
+      await page.goto("/web");
+      const nav = page.locator(".uipack-web-nav");
+      // Every nav link is a real in-page anchor with a real target.
+      for (const link of await nav.locator(".uipack-web-nav__links a").all()) {
+        const href = (await link.getAttribute("href"))!;
+        expect(href).toMatch(/^#web-/);
+        await expect(page.locator(href)).toHaveCount(1);
+      }
+      await page.evaluate(() => {
+        const w = window as unknown as { __ys: number[] };
+        w.__ys = [];
+        const t0 = performance.now();
+        const frame = () => {
+          w.__ys.push(window.scrollY);
+          if (performance.now() - t0 < 2500) requestAnimationFrame(frame);
+        };
+        requestAnimationFrame(frame);
+      });
+      const before = await page.evaluate(() => window.scrollY);
+      await nav.getByRole("link", { name: "Pricing" }).click();
+      await expect(page).toHaveURL(/#web-pricing$/);
+      const heading = page.locator("#web-pricing-title");
+      await expect.poll(() => gapBelowNav(page, "#web-pricing"), { timeout: 4_000 }).toBeLessThan(80);
+      await waitForStable(() => page.evaluate(() => window.scrollY));
+      const final = await page.evaluate(() => window.scrollY);
+      const ys = await page.evaluate(() => (window as unknown as { __ys: number[] }).__ys);
+      // Not one jump: the position rises through many frames and never overshoots.
+      expect(new Set(ys.filter((y) => y > before + 1 && y < final - 1)).size).toBeGreaterThanOrEqual(4);
+      for (let i = 1; i < ys.length; i++) expect(ys[i]).toBeGreaterThanOrEqual(ys[i - 1]);
+      expect(Math.max(...ys)).toBeLessThanOrEqual(final + 1);
+      // The Pricing eyebrow and heading end up just below the 65px sticky nav, fully visible.
+      const gap = await gapBelowNav(page, "#web-pricing");
+      expect(gap).toBeGreaterThanOrEqual(16);
+      expect(gap).toBeLessThanOrEqual(56);
+      const navBottom = await nav.evaluate((el) => el.getBoundingClientRect().bottom);
+      const headingBox = (await heading.boundingBox())!;
+      expect(headingBox.y).toBeGreaterThan(navBottom);
+      expect(headingBox.y - navBottom).toBeLessThan(120);
+      expect(headingBox.y + headingBox.height).toBeLessThan(800);
+      await expect(page.locator("#web-pricing")).toBeFocused();
+    },
+  );
 
   test.describe("touch", () => {
     test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
-    test("touch devices keep native scrolling with CSS smooth anchors", async ({ page }) => {
+    test("touch devices keep native scrolling with CSS smooth anchors", { tag: "@cross-browser" }, async ({ page }) => {
       await page.goto("/web");
       await expect(page.locator(".uipack-web").first()).toBeVisible();
       const fine = await page.evaluate(() => matchMedia("(hover: hover) and (pointer: fine)").matches);
@@ -503,42 +518,46 @@ test.describe("/web Landing collection", () => {
     });
   });
 
-  test("drifting gutters flank the column and drift; paint transition pours and cleans up", async ({ page, browserName }) => {
-    await page.goto("/web");
-    const stage = page.locator('[data-bg-tile="gutters"]');
-    await stage.scrollIntoViewIfNeeded();
-    const gutters = stage.locator(".uipack-web-gutters");
-    await expect(gutters).toHaveAttribute("aria-hidden", "true");
-    // The wrapper has no box of its own (its sides are fixed); check its display and the sides.
-    expect(await gutters.evaluate((el) => getComputedStyle(el).display)).toBe("block");
-    await expect(stage.locator('[data-side="left"]')).toBeVisible();
-    const stageBox = (await stage.boundingBox())!;
-    const left = (await stage.locator('[data-side="left"]').boundingBox())!;
-    const right = (await stage.locator('[data-side="right"]').boundingBox())!;
-    expect(Math.abs(left.x - stageBox.x)).toBeLessThan(2);
-    expect(Math.abs(right.x + right.width - (stageBox.x + stageBox.width))).toBeLessThan(2);
-    expect(left.width).toBeGreaterThan(stageBox.width * 0.2);
-    expect(await gutters.evaluate((el) => getComputedStyle(el.firstElementChild!.nextElementSibling!).pointerEvents)).toBe(
-      "none",
-    );
-    const drift = stage.locator(".uipack-web-gutters__drift").first();
-    const y = () => drift.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m42);
-    const a = await y();
-    await expect.poll(y).toBeLessThan(a);
+  test(
+    "drifting gutters flank the column and drift; paint transition pours and cleans up",
+    { tag: "@cross-browser" },
+    async ({ page, browserName }) => {
+      await page.goto("/web");
+      const stage = page.locator('[data-bg-tile="gutters"]');
+      await stage.scrollIntoViewIfNeeded();
+      const gutters = stage.locator(".uipack-web-gutters");
+      await expect(gutters).toHaveAttribute("aria-hidden", "true");
+      // The wrapper has no box of its own (its sides are fixed); check its display and the sides.
+      expect(await gutters.evaluate((el) => getComputedStyle(el).display)).toBe("block");
+      await expect(stage.locator('[data-side="left"]')).toBeVisible();
+      const stageBox = (await stage.boundingBox())!;
+      const left = (await stage.locator('[data-side="left"]').boundingBox())!;
+      const right = (await stage.locator('[data-side="right"]').boundingBox())!;
+      expect(Math.abs(left.x - stageBox.x)).toBeLessThan(2);
+      expect(Math.abs(right.x + right.width - (stageBox.x + stageBox.width))).toBeLessThan(2);
+      expect(left.width).toBeGreaterThan(stageBox.width * 0.2);
+      expect(await gutters.evaluate((el) => getComputedStyle(el.firstElementChild!.nextElementSibling!).pointerEvents)).toBe(
+        "none",
+      );
+      const drift = stage.locator(".uipack-web-gutters__drift").first();
+      const y = () => drift.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m42);
+      const a = await y();
+      await expect.poll(y).toBeLessThan(a);
 
-    const html = page.locator("html");
-    const before = await html.getAttribute("data-theme");
-    const button = page.getByRole("button", { name: /^Pour (dark|light) theme$/ });
-    await button.scrollIntoViewIfNeeded();
-    await button.click();
-    await expect(html).not.toHaveAttribute("data-theme", before ?? "light");
-    const supported = await page.evaluate(() => "startViewTransition" in document);
-    test.skip(!supported, `${browserName} has no View Transitions; the instant fallback is covered above`);
-    await expect(page.locator("style[data-uipack-paint]")).toHaveCount(1);
-    await expect(html).toHaveClass(/theme-switching/);
-    await expect(page.locator("style[data-uipack-paint]")).toHaveCount(0, { timeout: 5_000 });
-    await expect(html).not.toHaveClass(/theme-switching/);
-  });
+      const html = page.locator("html");
+      const before = await html.getAttribute("data-theme");
+      const button = page.getByRole("button", { name: /^Pour (dark|light) theme$/ });
+      await button.scrollIntoViewIfNeeded();
+      await button.click();
+      await expect(html).not.toHaveAttribute("data-theme", before ?? "light");
+      const supported = await page.evaluate(() => "startViewTransition" in document);
+      test.skip(!supported, `${browserName} has no View Transitions; the instant fallback is covered above`);
+      await expect(page.locator("style[data-uipack-paint]")).toHaveCount(1);
+      await expect(html).toHaveClass(/theme-switching/);
+      await expect(page.locator("style[data-uipack-paint]")).toHaveCount(0, { timeout: 5_000 });
+      await expect(html).not.toHaveClass(/theme-switching/);
+    },
+  );
 });
 
 test.describe("/web discoverability", () => {

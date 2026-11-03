@@ -1,43 +1,10 @@
-import { figureEntries, libraryGroups, pageDefs, pagePath } from "../playground/catalog";
-import { expect, test, waitForPage, waitForStable, type Page } from "./fixtures";
+import { figureEntries } from "../playground/catalog";
+import { expect, test, waitForPage, waitForStable } from "./fixtures";
+import { ALL, GROUPS, groupsNav, h1Of, outline, pagesNav, tabOf, title } from "./page-audit";
 
-// The information architecture the shell must render, read from the catalog: the groups in
-// order, each with the page it opens on and its pages as [label, path].
-const GROUPS = libraryGroups.map((g) => ({
-  label: g.label,
-  opens: pageDefs.find((p) => p.id === g.defaultPage)!.label,
-  pages: pageDefs.filter((p) => p.group === g.id).map((p) => [p.label, pagePath(p)] as const),
-}));
-const ALL = GROUPS.flatMap((g) => g.pages.map(([label, path]) => ({ group: g.label, label, path })));
-
-// /web hosts a complete sample landing page: its hero is the one h1 and the shell title is plain text.
-const title = (page: Page) => page.locator(".showcase-title h1, .showcase-title .showcase-title__name");
-
-// Sub-views (the decks) are catalog entries with a query and a title: they share one page, and the
-// h1 names the page before the sub-view.
-const subViewOf = (label: string) => pageDefs.find((p) => p.label === label && p.query && p.title)?.title;
-const h1Of = (label: string) => {
-  const pageTitle = subViewOf(label);
-  return pageTitle ? `${pageTitle} · ${label}` : label;
-};
-// The browser tab: the sub-view first. /web too: its sample page keeps the rest of its own head.
-const tabOf = (label: string) => {
-  const pageTitle = subViewOf(label);
-  return pageTitle ? `${label} · ${pageTitle} · uipack` : `${label} · uipack`;
-};
+// Every page's own outline, tab title, phone header and overflow are checked in page-audit.spec.ts.
+// This spec covers moving between pages: the nav rows, the phone menu, aliases, sub-views and fallbacks.
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-const groupsNav = (page: Page) => page.getByRole("navigation", { name: "Library groups" });
-const pagesNav = (page: Page) => page.getByRole("navigation", { name: "Library pages" });
-
-// Heading levels in document order, ignoring hidden headings.
-async function outline(page: Page) {
-  return page.evaluate(() =>
-    [...document.querySelectorAll<HTMLElement>("h1, h2, h3, h4, h5, h6")]
-      .filter((h) => h.getClientRects().length > 0)
-      .map((h) => ({ level: Number(h.tagName[1]), text: h.textContent?.trim() ?? "" })),
-  );
-}
 
 test("every page is reachable through both nav rows with the right current markers", async ({ page }) => {
   test.setTimeout(90_000); // visits every page, including the 3D and web ones, in dev mode
@@ -118,85 +85,8 @@ test("assets page lists no diagrams", async ({ page }) => {
   expect(cats.map((c) => c.replace(/\d+$/, "").trim())).toEqual(["All", "Icons", "Motion", "Backgrounds", "Marks"]);
 });
 
-test.describe("headings", () => {
-  for (const { label, path } of ALL) {
-    test(`${label}: one h1 (the shell's), sentence-case h2s, no skipped levels`, async ({ page }) => {
-      await page.goto(path);
-      await expect(page.locator("h1")).toHaveCount(1);
-      await expect(title(page)).toHaveText(h1Of(label));
-      await expect(page.locator(".showcase-title > p:not(.showcase-title__name)")).not.toBeEmpty();
-      // Wait for the page body to render (lazy chunks) before reading the outline.
-      await expect(page.locator(".showcase-shell > section, .showcase-shell > div:not(.showcase-title)").first()).toBeVisible();
-      const headings = await outline(page);
-      expect(headings.filter((h) => h.level === 1)).toHaveLength(1);
-      let previous = 0;
-      for (const h of headings) {
-        expect(h.level, `"${h.text}" follows an h${previous}`).toBeLessThanOrEqual(previous + 1);
-        previous = h.level;
-      }
-      // Every main is named by the page: by its h1, or on /web (whose h1 is the sample's hero) by its label.
-      if (path === "/web") await expect(page.getByRole("main", { name: "Web UI" })).toBeVisible();
-      if (path !== "/web") {
-        for (const h of headings.filter((h) => h.level === 2)) {
-          expect(h.text, "h2 reads as a title, not a path or a counter").not.toMatch(/[/·]|^[a-z]/);
-        }
-      }
-    });
-  }
-});
-
-// Mobile routes the owner asked to keep clean: no page-wide overflow at 390 and 768.
-const MOBILE_ROUTES = ["/", "/charts", "/assets", "/styles", "/presentations", "/animations", "/docs", "/article"];
-
-for (const width of [390, 768]) {
-  test.describe(`${width}px`, () => {
-    test.use({ viewport: { width, height: 900 } });
-    for (const route of MOBILE_ROUTES) {
-      for (const theme of ["light", "dark"]) {
-        test(`${route} (${theme}): no page overflow`, async ({ page }) => {
-          await page.goto(`${route}?theme=${theme}`);
-          await expect(title(page)).toBeVisible();
-          // The lazily loaded page body and the fonts decide the width, not a fixed delay.
-          await expect(
-            page.locator(".showcase-shell > section, .showcase-shell > div:not(.showcase-title)").first(),
-          ).toBeVisible();
-          await page.evaluate(() => document.fonts.ready);
-          expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
-        });
-      }
-    }
-  });
-}
-
 test.describe("390px header and menu", () => {
   test.use({ viewport: { width: 390, height: 844 } });
-
-  for (const { label, path } of ALL) {
-    test(`${label}: compact header, 44px controls`, async ({ page }) => {
-      await page.goto(path);
-      await expect(title(page)).toHaveText(h1Of(label));
-      const header = await page.locator(".showcase-header").boundingBox();
-      expect(header!.height).toBeLessThanOrEqual(64);
-      // The two desktop rows are not shown.
-      await expect(groupsNav(page)).toBeHidden();
-      await expect(pagesNav(page)).toBeHidden();
-      for (const b of [page.locator(".showcase-menu-button"), page.locator("button.theme")]) {
-        const box = (await b.boundingBox())!;
-        expect(box.height).toBeGreaterThanOrEqual(44);
-        expect(box.width).toBeGreaterThanOrEqual(44);
-      }
-      // The menu button shows the page name whole, with its group small above it.
-      const button = page.locator(".showcase-menu-button");
-      await expect(button.locator(".showcase-menu-button__page")).toHaveText(label);
-      await expect(button.locator(".showcase-menu-button__group")).toHaveText(ALL.find((p) => p.label === label)!.group);
-      expect(
-        await button.locator(".showcase-menu-button__page").evaluate((el) => {
-          const b = el.closest("button")!.getBoundingClientRect();
-          return el.scrollWidth <= el.clientWidth && el.getBoundingClientRect().right <= b.right;
-        }),
-      ).toBe(true);
-    });
-  }
 
   test("the menu button names where you are, lists every page, navigates and keeps the theme", async ({ page }) => {
     await page.goto("/charts?theme=dark");
@@ -230,7 +120,7 @@ test.describe("390px header and menu", () => {
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   });
 
-  test("Escape and Close both close the menu and return focus to the button", async ({ page }) => {
+  test("Escape and Close both close the menu and return focus to the button", { tag: "@cross-browser" }, async ({ page }) => {
     await page.goto("/");
     const button = page.locator(".showcase-menu-button");
     const sheet = page.getByRole("dialog", { name: "Library menu" });
@@ -246,30 +136,34 @@ test.describe("390px header and menu", () => {
     await expect(button).toBeFocused();
   });
 
-  test("Tab and Shift+Tab cycle the menu's own controls, never the dialog box or the page", async ({ page, browserName }) => {
-    const tab = browserName === "webkit" ? "Alt+Tab" : "Tab";
-    await page.goto("/charts");
-    const sheet = page.getByRole("dialog", { name: "Library menu" });
-    await page.locator(".showcase-menu-button").click();
-    await expect(sheet).toBeVisible();
-    const close = sheet.getByRole("button", { name: "Close" });
-    await expect(close).toBeFocused();
-    const stops = await sheet.locator("a[href], button").count();
-    // One full lap and a step more: every stop is a link or Close inside the menu, and the lap ends on Close.
-    for (let i = 0; i < stops; i++) {
-      await page.keyboard.press(tab);
-      expect(
-        await page.evaluate(
-          () => document.activeElement?.closest("dialog") !== null && /^(A|BUTTON)$/.test(document.activeElement!.tagName),
-        ),
-      ).toBe(true);
-    }
-    await expect(close).toBeFocused();
-    await page.keyboard.press(`Shift+${tab}`);
-    await expect(sheet.getByRole("link").last()).toBeFocused();
-  });
+  test(
+    "Tab and Shift+Tab cycle the menu's own controls, never the dialog box or the page",
+    { tag: "@cross-browser" },
+    async ({ page, browserName }) => {
+      const tab = browserName === "webkit" ? "Alt+Tab" : "Tab";
+      await page.goto("/charts");
+      const sheet = page.getByRole("dialog", { name: "Library menu" });
+      await page.locator(".showcase-menu-button").click();
+      await expect(sheet).toBeVisible();
+      const close = sheet.getByRole("button", { name: "Close" });
+      await expect(close).toBeFocused();
+      const stops = await sheet.locator("a[href], button").count();
+      // One full lap and a step more: every stop is a link or Close inside the menu, and the lap ends on Close.
+      for (let i = 0; i < stops; i++) {
+        await page.keyboard.press(tab);
+        expect(
+          await page.evaluate(
+            () => document.activeElement?.closest("dialog") !== null && /^(A|BUTTON)$/.test(document.activeElement!.tagName),
+          ),
+        ).toBe(true);
+      }
+      await expect(close).toBeFocused();
+      await page.keyboard.press(`Shift+${tab}`);
+      await expect(sheet.getByRole("link").last()).toBeFocused();
+    },
+  );
 
-  test("the open menu locks the page's scroll and gives it back on close", async ({ page }) => {
+  test("the open menu locks the page's scroll and gives it back on close", { tag: "@cross-browser" }, async ({ page }) => {
     await page.goto("/charts");
     await expect(page.locator(".showcase-loading")).toHaveCount(0);
     await page.evaluate(() => scrollTo(0, 400));
@@ -355,16 +249,6 @@ test.describe("deck sub-views in the 390px menu", () => {
   });
 });
 
-test("each page names itself in the browser tab, deck sub-views included", async ({ page }) => {
-  for (const { label, path } of ALL) {
-    await page.goto(path);
-    await expect(page).toHaveTitle(tabOf(label));
-  }
-  // The deck sub-views tell their tabs apart.
-  await page.goto("/deck?deck=bento");
-  await expect(page).toHaveTitle("Bento · Deck player · uipack");
-});
-
 test.describe("desktop deck sub-views", () => {
   test.use({ viewport: { width: 1280, height: 900 } });
   test("sit together under a Deck player label, ended by a divider, and the h1 names the sub-view", async ({ page }) => {
@@ -387,40 +271,44 @@ test.describe("desktop deck sub-views", () => {
 
 test.describe("landmarks and skip link", () => {
   for (const width of [1280, 390]) {
-    test(`${width}px: banner outside main, a skip link first that lands in main`, async ({ page, browserName }) => {
-      await page.setViewportSize({ width, height: 900 });
-      await page.goto("/charts");
-      // Tab order is only final once the lazy page has rendered its controls into main.
-      await waitForPage(page);
-      // One banner (the shell header) and one main; the navs sit in the banner, not in main.
-      await expect(page.getByRole("banner")).toHaveCount(1);
-      await expect(page.getByRole("main")).toHaveCount(1);
-      await expect(page.locator("main header, main nav.showcase-groups, main nav.showcase-pages")).toHaveCount(0);
-      await expect(page.locator("main h1")).toHaveText("Charts");
-      // The skip link is hidden until it takes focus, as the first Tab stop.
-      const skip = page.getByRole("link", { name: "Skip to content" });
-      expect((await skip.boundingBox())!.y + (await skip.boundingBox())!.height).toBeLessThanOrEqual(0);
-      const firstFocusable = await page.evaluate(
-        () =>
-          document.querySelector<HTMLElement>(
-            "a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex='-1'])",
-          )?.textContent,
-      );
-      expect(firstFocusable).toBe("Skip to content");
-      // WebKit's default Tab reaches text fields only, so there the link takes focus directly.
-      if (browserName === "webkit") await skip.focus();
-      else await page.keyboard.press("Tab");
-      await expect(skip).toBeFocused();
-      const box = (await skip.boundingBox())!;
-      expect(box.y).toBeGreaterThanOrEqual(0);
-      expect(box.height).toBeGreaterThanOrEqual(44);
-      await page.keyboard.press("Enter");
-      await expect(page.getByRole("main")).toBeFocused();
-      // The next Tab continues from inside main, past the header.
-      if (browserName === "webkit") return;
-      await page.keyboard.press("Tab");
-      expect(await page.evaluate(() => !!document.activeElement?.closest("main"))).toBe(true);
-    });
+    test(
+      `${width}px: banner outside main, a skip link first that lands in main`,
+      { tag: "@cross-browser" },
+      async ({ page, browserName }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto("/charts");
+        // Tab order is only final once the lazy page has rendered its controls into main.
+        await waitForPage(page);
+        // One banner (the shell header) and one main; the navs sit in the banner, not in main.
+        await expect(page.getByRole("banner")).toHaveCount(1);
+        await expect(page.getByRole("main")).toHaveCount(1);
+        await expect(page.locator("main header, main nav.showcase-groups, main nav.showcase-pages")).toHaveCount(0);
+        await expect(page.locator("main h1")).toHaveText("Charts");
+        // The skip link is hidden until it takes focus, as the first Tab stop.
+        const skip = page.getByRole("link", { name: "Skip to content" });
+        expect((await skip.boundingBox())!.y + (await skip.boundingBox())!.height).toBeLessThanOrEqual(0);
+        const firstFocusable = await page.evaluate(
+          () =>
+            document.querySelector<HTMLElement>(
+              "a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex='-1'])",
+            )?.textContent,
+        );
+        expect(firstFocusable).toBe("Skip to content");
+        // WebKit's default Tab reaches text fields only, so there the link takes focus directly.
+        if (browserName === "webkit") await skip.focus();
+        else await page.keyboard.press("Tab");
+        await expect(skip).toBeFocused();
+        const box = (await skip.boundingBox())!;
+        expect(box.y).toBeGreaterThanOrEqual(0);
+        expect(box.height).toBeGreaterThanOrEqual(44);
+        await page.keyboard.press("Enter");
+        await expect(page.getByRole("main")).toBeFocused();
+        // The next Tab continues from inside main, past the header.
+        if (browserName === "webkit") return;
+        await page.keyboard.press("Tab");
+        expect(await page.evaluate(() => !!document.activeElement?.closest("main"))).toBe(true);
+      },
+    );
   }
 });
 

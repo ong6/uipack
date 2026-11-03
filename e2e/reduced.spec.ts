@@ -7,7 +7,7 @@ test.describe("reduced motion", () => {
   test.beforeEach(async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
   });
-  test("renders one static token at the midpoint and hides the controls", async ({ page }) => {
+  test("renders one static token at the midpoint and hides the controls", { tag: "@cross-browser" }, async ({ page }) => {
     const console_: string[] = [];
     page.on("console", (m) => (m.type() === "error" || m.type() === "warning") && console_.push(m.text()));
     await page.goto("/");

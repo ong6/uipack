@@ -12,12 +12,12 @@ test.describe("packet motion", () => {
     await page.locator("svg", { has: page.locator("#e2e-packet") }).scrollIntoViewIfNeeded();
   });
 
-  test("moves while playing", async ({ page }) => {
+  test("moves while playing", { tag: "@cross-browser" }, async ({ page }) => {
     const a = await packetCentre(page);
     await expect.poll(async () => dist(a, await packetCentre(page))).toBeGreaterThan(4);
   });
 
-  test("holds still after Pause, resumes on Play", async ({ page }) => {
+  test("holds still after Pause, resumes on Play", { tag: "@cross-browser" }, async ({ page }) => {
     const figure = page.locator("figure", { hasText: "Every part" });
     await figure.getByRole("button", { name: "Pause" }).click();
     const a = await packetCentre(page);
@@ -29,7 +29,7 @@ test.describe("packet motion", () => {
     await expect.poll(async () => dist(b, await packetCentre(page))).toBeGreaterThan(4);
   });
 
-  test("Replay restarts from the path start", async ({ page }) => {
+  test("Replay restarts from the path start", { tag: "@cross-browser" }, async ({ page }) => {
     const figure = page.locator("figure", { hasText: "Every part" });
     const start = await pathPoint(page, 0);
     // Well into the 2s trip.

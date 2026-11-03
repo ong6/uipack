@@ -30,9 +30,14 @@ jobs:
     timeout-minutes: 15
     strategy:
       fail-fast: false
+      # Chromium runs the whole suite in three shards; WebKit runs the @cross-browser subset
+      # (playwright.config.ts) on one runner.
       matrix:
-        browser: [chromium, webkit]
-        shard: [1, 2, 3, 4]
+        include:
+          - { browser: chromium, shard: 1, shards: 3 }
+          - { browser: chromium, shard: 2, shards: 3 }
+          - { browser: chromium, shard: 3, shards: 3 }
+          - { browser: webkit, shard: 1, shards: 1 }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -44,11 +49,11 @@ jobs:
         run: sudo apt-get install -y xvfb libgl1-mesa-dri libegl-mesa0
       - name: Test Chromium with Mesa
         if: matrix.browser == 'chromium'
-        run: xvfb-run --auto-servernum npm run test:e2e -- --project=chromium --shard=${{ matrix.shard }}/4
+        run: xvfb-run --auto-servernum npm run test:e2e -- --project=chromium --shard=${{ matrix.shard }}/${{ matrix.shards }}
         env: { CI: "1" }
       - name: Test WebKit
         if: matrix.browser == 'webkit'
-        run: npm run test:e2e -- --project=webkit --shard=${{ matrix.shard }}/4
+        run: npm run test:e2e -- --project=webkit --shard=${{ matrix.shard }}/${{ matrix.shards }}
         env: { CI: "1" }
       - uses: actions/upload-artifact@v4
         if: always()
