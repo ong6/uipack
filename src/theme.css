@@ -681,23 +681,22 @@
 }
 
 /* Entrance. A figure that starts below the fold waits (data-enter="wait") and,
-   when it scrolls in, its parts rise into place one after another, from a soft
-   blur to sharp (data-enter="in"); Figure sets --uipack-i per part and removes
-   the attribute once it has settled. The default is the finished drawing:
-   without JavaScript, under reduced motion or in a static export nothing waits. */
+   when it scrolls in, washes in from the top down in about 0.6s: each part
+   fades up 6px from a 2px blur, delayed by where its top edge sits
+   (--uipack-d, set by src/entrance.ts, 0–240ms). The default is the finished
+   drawing: without JavaScript, under reduced motion or in a static export
+   nothing waits. */
 @media (prefers-reduced-motion: no-preference) {
   .uipack__canvas[data-enter] > svg > * {
-    transform-box: fill-box;
-    transform-origin: 50% 50%;
     transition:
-      opacity 520ms cubic-bezier(0.2, 0.7, 0.2, 1),
-      transform 620ms cubic-bezier(0.2, 0.7, 0.2, 1),
-      filter 520ms ease;
-    transition-delay: calc(var(--uipack-i, 0) * 45ms);
+      opacity 340ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 300ms ease-out;
+    transition-delay: var(--uipack-d, 0ms);
   }
   .uipack__canvas[data-enter="wait"] > svg > * {
     opacity: 0;
-    transform: translateY(8px) scale(0.985);
-    filter: blur(3px);
+    transform: translateY(6px);
+    filter: blur(2px);
   }
 }

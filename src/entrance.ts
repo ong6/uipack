@@ -10,20 +10,22 @@ export function entranceOff(): boolean {
   return g.__UIPACK_ENTRANCE__ === false || g.document?.documentElement?.dataset.uipackEntrance === "off";
 }
 
-/** Parts that get their own step; later parts share the last delay. */
-export const ENTRANCE_STEPS = 14;
-/** How long after the last step starts the attribute is cleared, in ms. */
-const SETTLE_MS = 1300;
+/** The whole drawing is revealed within this window, top edge first, in ms. */
+export const ENTRANCE_SWEEP = 240;
+/** Longest single part transition (theme.css), plus slack, before cleanup, in ms. */
+const SETTLE_MS = ENTRANCE_SWEEP + 520;
 
 /**
  * Scroll-in entrance for a figure's canvas. Only a canvas that starts below
- * the fold waits: its drawing's top-level parts are numbered (`--uipack-i`)
- * and hidden by `data-enter="wait"`; when a fifth of it is in view it switches
- * to `"in"` and the theme's transition reveals the parts in order, then the
- * attribute and the numbering are removed so hover transitions take over
- * again. Nothing happens under reduced motion, without IntersectionObserver,
- * for a canvas already on screen, or when the host turned it off (`entranceOff`), so server markup, static exports and
- * above-the-fold figures always show the finished drawing.
+ * the fold waits: each top-level part of its drawing gets a delay from where
+ * its top edge sits (`--uipack-d`, 0 at the top to ENTRANCE_SWEEP at the
+ * bottom), so the drawing washes in from the top down rather than part by
+ * part, and `data-enter="wait"` hides it. When an eighth of it is in view it
+ * switches to `"in"` and the theme's transition reveals it; then the attribute
+ * and the delays are removed so hover transitions take over again. Nothing
+ * happens under reduced motion, without IntersectionObserver, for a canvas
+ * already on screen, or when the host turned it off (`entranceOff`), so server
+ * markup, static exports and above-the-fold figures show the finished drawing.
  */
 export function useFigureEntrance(ref: RefObject<HTMLElement>, disabled: boolean) {
   useEffect(() => {
@@ -33,12 +35,17 @@ export function useFigureEntrance(ref: RefObject<HTMLElement>, disabled: boolean
     const box = el.getBoundingClientRect();
     if (box.top < window.innerHeight && box.bottom > 0) return;
     const parts = [...el.querySelectorAll<SVGElement>(":scope > svg > *")];
-    parts.forEach((p, i) => p.style.setProperty("--uipack-i", String(Math.min(i, ENTRANCE_STEPS))));
+    for (const p of parts) {
+      const svg = p.ownerSVGElement?.getBoundingClientRect();
+      const r = p.getBoundingClientRect();
+      const at = svg && svg.height > 0 ? Math.min(1, Math.max(0, (r.top - svg.top) / svg.height)) : 0;
+      p.style.setProperty("--uipack-d", `${Math.round(at * ENTRANCE_SWEEP)}ms`);
+    }
     el.setAttribute("data-enter", "wait");
     let timer: ReturnType<typeof setTimeout> | undefined;
     const clear = () => {
       el.removeAttribute("data-enter");
-      for (const p of parts) p.style.removeProperty("--uipack-i");
+      for (const p of parts) p.style.removeProperty("--uipack-d");
     };
     const io = new IntersectionObserver(
       (entries) => {
@@ -47,7 +54,7 @@ export function useFigureEntrance(ref: RefObject<HTMLElement>, disabled: boolean
         el.setAttribute("data-enter", "in");
         timer = setTimeout(clear, SETTLE_MS);
       },
-      { threshold: 0.2 },
+      { threshold: 0.125 },
     );
     io.observe(el);
     return () => {
