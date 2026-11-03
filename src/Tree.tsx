@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import { useFontFloor } from "./scale";
+import { useFigureHover, hoverAttrs, isPointer, flowList, type Flow } from "./hover";
+import { FocusRing, useItemSelection } from "./selection";
 
 // File-tree parts: a rail that branches to each row, folder and file marks,
 // and a dog-eared Sheet that holds a file's contents. Drawn from the theme's
@@ -103,6 +105,10 @@ export interface SheetProps {
   /** Drawn inside, under the header (rows, chips). */
   children?: ReactNode;
   size?: number;
+  /** Flow names this file takes part in; hovering it highlights the flow, as a Node does. */
+  flow?: Flow;
+  /** One short sentence on what the file holds. Makes the sheet selectable inside a Figure. */
+  hint?: string;
 }
 
 /**
@@ -123,7 +129,19 @@ export function Sheet({
   accent,
   children,
   size: size0 = 16,
+  flow,
+  hint,
 }: SheetProps) {
+  const hover = useFigureHover();
+  const flows = flowList(flow);
+  const label = title ?? name ?? "File";
+  const selection = useItemSelection(label, hint, flows[0], true, name && title ? `${title}, ${name}` : label);
+  const handlers = flows.length
+    ? {
+        onPointerEnter: (e: React.PointerEvent) => isPointer(e) && hover.setFlow(flows[0]),
+        onPointerLeave: (e: React.PointerEvent) => isPointer(e) && hover.setFlow(null),
+      }
+    : {};
   const size = useFontFloor(size0);
   const eyebrow = useFontFloor(12);
   const noteSize = useFontFloor(size0 - 2);
@@ -133,7 +151,7 @@ export function Sheet({
   const top = name ? 30 : 0;
   const rowY = (children ? y + top + (head - top) / 2 : y + top + (h - top) / 2) - (name ? 2 : 0);
   return (
-    <g data-uipack="sheet">
+    <g data-uipack="sheet" {...hoverAttrs(flow, undefined, hover)} {...handlers} {...selection}>
       <rect
         x={x}
         y={y}
@@ -145,6 +163,7 @@ export function Sheet({
         strokeOpacity={accent ? 1 : 0.8}
         strokeWidth={1.25}
       />
+      {selection.role ? <FocusRing x={x} y={y} w={w} h={h} rx={6} /> : null}
       {name ? (
         <text
           x={x + pad}

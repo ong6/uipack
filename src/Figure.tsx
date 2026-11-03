@@ -1,4 +1,5 @@
 import { CanvasView } from "./CanvasView";
+import { useFigureEntrance } from "./entrance";
 import { useIsoLayoutEffect, usePrefersReducedMotion } from "./env";
 import { SelectionContext, type SelectedItem } from "./selection";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode, createElement } from "react";
@@ -155,6 +156,7 @@ export function Figure({
     [hoverFlow, hoverKind, selected],
   );
   const canvasRef = useRef<HTMLDivElement>(null);
+  useFigureEntrance(canvasRef, reduced || expanded);
   const noteRef = useRef<HTMLDivElement>(null);
   const [notePos, setNotePos] = useState<{ left: number; top: number } | null>(null);
   const wideRef = useRef<SVGSVGElement>(null);

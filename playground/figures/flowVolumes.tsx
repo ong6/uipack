@@ -1,9 +1,10 @@
-import { Figure, Lane, hoverAttrs, useFigureHover } from "../../src";
+import { Figure, Lane, hoverAttrs, isPointer, useFigureHover } from "../../src";
 
 // A small Sankey: band thickness is the count. There is no Sankey part (a
 // candidate: docs/contributing.md), so the bars and bands are drawn here on the
 // theme's token colours (they follow light and dark), inside a Figure for the
-// frame, legend and canvas. Nothing moves, so the figure has no Pause/Replay.
+// frame, legend and canvas. Nothing moves, so the figure has no Pause/Replay. Hovering a band or a bar
+// keeps its channel or outcome and fades the rest, as hovering a Node does.
 // Ported from the job-search Sankey in the notes site, with neutral data.
 
 type Channel = "chat" | "email" | "phone";
@@ -137,6 +138,11 @@ function layout(s: Spec) {
 function Bands({ s }: { s: Spec }) {
   const hover = useFigureHover();
   const { items, pos, bands } = layout(s);
+  // A band or a bar starts a hover the way a Node does: its flow stays, the rest fade.
+  const lead = (flow: string) => ({
+    onPointerEnter: (e: React.PointerEvent) => isPointer(e) && hover.setFlow(flow),
+    onPointerLeave: (e: React.PointerEvent) => isPointer(e) && hover.setFlow(null),
+  });
   return (
     <>
       {bands.map((b) => (
@@ -148,7 +154,9 @@ function Bands({ s }: { s: Spec }) {
           stroke={FILL[b.channel]}
           strokeOpacity={0.55}
           strokeWidth={1}
+          data-uipack="band"
           {...hoverAttrs([b.channel, b.to], KIND[b.channel], hover)}
+          {...lead(b.channel)}
         >
           <title>{`${BY_ID[b.from].label} → ${BY_ID[b.to].label}: ${b.n}`}</title>
         </path>
@@ -164,6 +172,8 @@ function Bands({ s }: { s: Spec }) {
             height={p.y1 - p.y0}
             rx={2}
             {...barPaint(n.tone)}
+            data-uipack="bar"
+            {...(n.col > 0 ? lead(n.id) : {})}
             {...hoverAttrs(
               n.col === 1 ? n.id : n.col === 2 ? n.id : undefined,
               n.col === 1 ? KIND[n.id as Channel] : undefined,

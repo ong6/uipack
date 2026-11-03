@@ -59,10 +59,26 @@ function Wide() {
       </Txt>
       <TreeRail x={48} y={64} rows={[128, 224, 304]} to={160} />
 
-      <Sheet x={160} y={88} w={R - 160} h={80} name="03/14…" title="Loose copy A" />
+      <Sheet
+        x={160}
+        y={88}
+        w={R - 160}
+        h={80}
+        name="03/14…"
+        title="Loose copy A"
+        hint="The report as it stood on 14 March, stored whole"
+      />
       <Chip x={R - 196} y={112} w={164} h={32} label="intro" kind="accent" soft shape="tag" size={13} />
 
-      <Sheet x={160} y={184} w={R - 160} h={80} name="03/15…" title="Loose copy B" />
+      <Sheet
+        x={160}
+        y={184}
+        w={R - 160}
+        h={80}
+        name="03/15…"
+        title="Loose copy B"
+        hint="The next day's report, stored whole again: the intro twice"
+      />
       <Chip x={R - 376} y={208} w={164} h={32} label="intro" kind="accent" soft shape="tag" size={13} />
       <Chip x={R - 196} y={208} w={164} h={32} label="summary" kind="accent" shape="tag" size={13} />
 
@@ -72,7 +88,16 @@ function Wide() {
       </Txt>
       <TreeRail x={168} y={318} rows={[456, 584]} to={224} />
 
-      <Sheet x={224} y={344} w={R - 224} h={204} name="arch-7f3a….zip" title="Archive with 2 copies" accent>
+      <Sheet
+        x={224}
+        y={344}
+        w={R - 224}
+        h={204}
+        name="arch-7f3a….zip"
+        title="Archive with 2 copies"
+        accent
+        hint="Both copies in one file; B stores only what changed"
+      >
         <Txt x={244} y={456} size={16}>
           Copy A
         </Txt>

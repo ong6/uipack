@@ -14,6 +14,7 @@ Reusable SVG figures, primitives, 3D animations, and presentation composition ex
 - Use the style's own type roles, never a new face. Technical (figures, charts, article, shell): system sans for text, system mono for labels, IDs and controls, no font requests. Landing (`uipack/web`): three self-hosted roles, Instrument Serif display (heading step 4 and up), IBM Plex Sans text, IBM Plex Mono labels and data. Deck and Mechanism: IBM Plex Sans and Mono when the host provides them (`--font-sans`/`--font-mono`), else the system stacks.
 - Use the existing semantic flow colours, spacing, borders, and buttons. Scope CSS under the entry's root class; no global h1/h2/button rules.
 - Motion explains change. Prefer one camera movement or object sequence per beat. Respect reduced motion and keep labels readable.
+- Every new part, figure and page ships the interaction polish in `docs/design-direction.md` (hover on what a reader points at, one 120–160ms timing, the scroll-in entrance, packets that arrive and leave). A review that finds a part without it treats that as unfinished.
 - Every interactive feature must work with touch and keyboard. Selection is persistent, reversible, and visible without colour alone. Keep links as links.
 - Dense diagrams need an authored narrow layout or an internally scrollable readable drawing. Do not compress labels into unreadable text or allow page-wide overflow.
 - Figures and animation players offer Open canvas. Preserve modal focus containment, Escape, return focus, close controls, and scroll restoration.

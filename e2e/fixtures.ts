@@ -14,7 +14,14 @@ export { expect, type Browser, type Page, type Locator, type BrowserContext } fr
  */
 const PAGE_BUDGET = 48;
 
-export const test = base.extend<object, { browser: Browser }>({
+export const test = base.extend<{ entrance: boolean }, { browser: Browser }>({
+  // Figures rise into place when scrolled into view; that would move every box a test
+  // measures. Off by default here; e2e/entrance.spec.ts turns it on with test.use({ entrance: true }).
+  entrance: [false, { option: true }],
+  page: async ({ page, entrance }, use) => {
+    if (!entrance) await page.addInitScript(() => ((window as { __UIPACK_ENTRANCE__?: boolean }).__UIPACK_ENTRANCE__ = false));
+    await use(page);
+  },
   browser: [
     async ({ playwright, browserName }, use) => {
       const launch = () => playwright[browserName].launch();

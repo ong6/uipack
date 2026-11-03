@@ -1,7 +1,7 @@
 import { useLayerFlight, zoomSamples, zoomFrame } from './chunk-JZZTE6QO.js';
 export { innerClipStart, zoomFrame, zoomSamples } from './chunk-JZZTE6QO.js';
-import { useFigureHover, hoverAttrs, connectorStroke, Node, nodeName, SelectionContext, FocusRing, useRovingFocus, FigureHoverContext, Legend, ReplayGlyph, PauseGlyph, PlayGlyph, placeNote } from './chunk-U45GT72A.js';
-export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, PACKET_POP, PACKET_SINK, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-U45GT72A.js';
+import { useFigureHover, hoverAttrs, connectorStroke, flowList, useItemSelection, FocusRing, Node, nodeName, SelectionContext, isPointer, useRovingFocus, FigureHoverContext, Legend, ReplayGlyph, PauseGlyph, PlayGlyph, placeNote } from './chunk-QY24ZKKQ.js';
+export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, PACKET_POP, PACKET_SINK, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, isPointer, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-QY24ZKKQ.js';
 import { useFontFloor, FigureMotionContext, FigureScaleContext } from './chunk-3R6VZY52.js';
 export { DEFAULT_RENDER_WIDTH, FigureMotionContext, FigureScaleProvider, TOKEN_SHAPE, Token, fontFloor, tokenColor, useFigureMotion, useFontFloor } from './chunk-3R6VZY52.js';
 import { CanvasView } from './chunk-D3TRNW7E.js';
@@ -136,8 +136,18 @@ function Sheet({
   head: head0,
   accent,
   children,
-  size: size0 = 16
+  size: size0 = 16,
+  flow,
+  hint
 }) {
+  const hover = useFigureHover();
+  const flows = flowList(flow);
+  const label = title ?? name ?? "File";
+  const selection = useItemSelection(label, hint, flows[0], true, name && title ? `${title}, ${name}` : label);
+  const handlers = flows.length ? {
+    onPointerEnter: (e) => isPointer(e) && hover.setFlow(flows[0]),
+    onPointerLeave: (e) => isPointer(e) && hover.setFlow(null)
+  } : {};
   const size = useFontFloor(size0);
   const eyebrow = useFontFloor(12);
   const noteSize = useFontFloor(size0 - 2);
@@ -146,7 +156,7 @@ function Sheet({
   const pad = 20;
   const top = name ? 30 : 0;
   const rowY = (children ? y + top + (head - top) / 2 : y + top + (h - top) / 2) - (name ? 2 : 0);
-  return /* @__PURE__ */ jsxs("g", { "data-uipack": "sheet", children: [
+  return /* @__PURE__ */ jsxs("g", { "data-uipack": "sheet", ...hoverAttrs(flow, void 0, hover), ...handlers, ...selection, children: [
     /* @__PURE__ */ jsx(
       "rect",
       {
@@ -161,6 +171,7 @@ function Sheet({
         strokeWidth: 1.25
       }
     ),
+    selection.role ? /* @__PURE__ */ jsx(FocusRing, { x, y, w, h, rx: 6 }) : null,
     name ? /* @__PURE__ */ jsx(
       "text",
       {

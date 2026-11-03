@@ -1,4 +1,5 @@
 import { useFontFloor } from "./scale";
+import { useFigureHover, hoverAttrs, type Flow } from "./hover";
 
 export interface LaneProps {
   /** Left edge and width of the column the header sits over. */
@@ -9,13 +10,16 @@ export interface LaneProps {
   /** Draw a faint vertical rule down to `h`. */
   h?: number;
   size?: number;
+  /** Flow names of the column; the header fades with the rest when another flow is hovered. */
+  flow?: Flow;
 }
 
-/** Mono uppercase column header, the way the OpenAI figures label CLIENTS / PLATFORM / STORAGE. */
-export function Lane({ x, w, y, title, h, size: size0 = 11 }: LaneProps) {
+/** Mono uppercase column header (CLIENTS / PLATFORM / STORAGE). */
+export function Lane({ x, w, y, title, h, size: size0 = 11, flow }: LaneProps) {
   const size = useFontFloor(size0);
+  const hover = useFigureHover();
   return (
-    <g data-uipack="lane">
+    <g data-uipack="lane" {...hoverAttrs(flow, undefined, hover)}>
       <text
         x={x + w / 2}
         y={y}

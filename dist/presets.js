@@ -1,4 +1,4 @@
-import { Figure, Defs, Connector, Packet, Node, busStub, route, Lane, Group, Bus, Label, Chip } from './chunk-U45GT72A.js';
+import { Figure, Defs, Connector, Packet, Node, busStub, route, Lane, Group, Bus, Label, Chip } from './chunk-QY24ZKKQ.js';
 import './chunk-3R6VZY52.js';
 import './chunk-D3TRNW7E.js';
 import './chunk-V4CVL4FJ.js';
@@ -252,9 +252,9 @@ function serviceMapParts(spec = defaultServiceMap, id) {
   }
   const wide = /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx(Defs, { id }),
-    /* @__PURE__ */ jsx(Lane, { x: client.x, w: client.w, y: 40, title: lc }),
-    /* @__PURE__ */ jsx(Lane, { x: platform.x, w: platform.w, y: 40, title: lp }),
-    /* @__PURE__ */ jsx(Lane, { x: store.x, w: store.w, y: 40, title: lr }),
+    /* @__PURE__ */ jsx(Lane, { x: client.x, w: client.w, y: 40, title: lc, flow: READ }),
+    /* @__PURE__ */ jsx(Lane, { x: platform.x, w: platform.w, y: 40, title: lp, flow: spec.sinks ? [READ, CDC] : READ }),
+    /* @__PURE__ */ jsx(Lane, { x: store.x, w: store.w, y: 40, title: lr, flow: READ }),
     spec.clients.map((c, i) => /* @__PURE__ */ jsx(
       Node,
       {

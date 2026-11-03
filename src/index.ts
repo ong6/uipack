@@ -37,7 +37,7 @@ export {
   type Side,
   type Box,
 } from "./geometry";
-export { useFigureHover, FigureHoverContext, hoverAttrs, flowList, type FigureHover, type Flow } from "./hover";
+export { useFigureHover, FigureHoverContext, hoverAttrs, flowList, isPointer, type FigureHover, type Flow } from "./hover";
 export { useFontFloor, fontFloor, FigureScaleProvider, DEFAULT_RENDER_WIDTH, type FigureScale } from "./scale";
 export { useFigureMotion, FigureMotionContext, type FigureMotion } from "./context";
 export { usePrefersReducedMotion } from "./env";

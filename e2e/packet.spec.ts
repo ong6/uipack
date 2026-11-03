@@ -50,7 +50,7 @@ test.describe("themes", () => {
       page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
       page.on("pageerror", (e) => errors.push(e.message));
       await page.goto(`/?theme=${theme}`);
-      await expect(page.locator("figure.uipack")).toHaveCount(18); // one per pattern section, the drill-down included
+      await expect(page.locator("figure.uipack")).toHaveCount(20); // one per pattern section, the drill-down included
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
       const bg = await page
         .locator("figure.uipack")

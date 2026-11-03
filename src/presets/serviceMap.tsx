@@ -167,9 +167,9 @@ export function serviceMapParts(spec: ServiceMapSpec = defaultServiceMap, id: st
   const wide = (
     <>
       <Defs id={id} />
-      <Lane x={client.x} w={client.w} y={40} title={lc} />
-      <Lane x={platform.x} w={platform.w} y={40} title={lp} />
-      <Lane x={store.x} w={store.w} y={40} title={lr} />
+      <Lane x={client.x} w={client.w} y={40} title={lc} flow={READ} />
+      <Lane x={platform.x} w={platform.w} y={40} title={lp} flow={spec.sinks ? [READ, CDC] : READ} />
+      <Lane x={store.x} w={store.w} y={40} title={lr} flow={READ} />
       {spec.clients.map((c, i) => (
         <Node
           key={c.label}

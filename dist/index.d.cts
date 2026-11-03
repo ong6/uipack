@@ -8,19 +8,6 @@ export { i as icons } from './index-DwRqkLtz.cjs';
 export { Z as ZoomFrame, R as ZoomRect, a as ZoomSample, b as ZoomSampleOptions, i as innerClipStart, z as zoomFrame, c as zoomSamples } from './zoom-math-DJBPrdGD.cjs';
 export { e as easeInOutCubic, s as smoothstep } from './math-DL8QKXOl.cjs';
 
-interface LaneProps {
-    /** Left edge and width of the column the header sits over. */
-    x: number;
-    w: number;
-    y: number;
-    title: string;
-    /** Draw a faint vertical rule down to `h`. */
-    h?: number;
-    size?: number;
-}
-/** Mono uppercase column header, the way the OpenAI figures label CLIENTS / PLATFORM / STORAGE. */
-declare function Lane({ x, w, y, title, h, size: size0 }: LaneProps): react.JSX.Element;
-
 type Flow = string | string[];
 interface FigureHover {
     /** Flow name under the pointer, or null. */
@@ -39,6 +26,25 @@ declare const flowList: (flow?: Flow) => string[];
  * "dim" when something else is hovered, absent when nothing is.
  */
 declare function hoverAttrs(flow: Flow | undefined, kind: string | undefined, hover: FigureHover): Record<string, string>;
+/** Ignore touch so a tap does not leave a figure stuck in hover state. */
+declare const isPointer: (e: {
+    pointerType?: string;
+}) => boolean;
+
+interface LaneProps {
+    /** Left edge and width of the column the header sits over. */
+    x: number;
+    w: number;
+    y: number;
+    title: string;
+    /** Draw a faint vertical rule down to `h`. */
+    h?: number;
+    size?: number;
+    /** Flow names of the column; the header fades with the rest when another flow is hovered. */
+    flow?: Flow;
+}
+/** Mono uppercase column header (CLIENTS / PLATFORM / STORAGE). */
+declare function Lane({ x, w, y, title, h, size: size0, flow }: LaneProps): react.JSX.Element;
 
 interface GroupProps {
     x: number;
@@ -366,13 +372,17 @@ interface SheetProps {
     /** Drawn inside, under the header (rows, chips). */
     children?: ReactNode;
     size?: number;
+    /** Flow names this file takes part in; hovering it highlights the flow, as a Node does. */
+    flow?: Flow;
+    /** One short sentence on what the file holds. Makes the sheet selectable inside a Figure. */
+    hint?: string;
 }
 /**
  * A file as a card in the Technical box language: 6px corners like a Node,
  * the file's name as a tracked mono eyebrow (as a dashed Group or a Figure
  * labels itself), a title and note under it, and its contents below a rule.
  */
-declare function Sheet({ x, y, w, h, name, title, note, titleX, head: head0, accent, children, size: size0, }: SheetProps): react.JSX.Element;
+declare function Sheet({ x, y, w, h, name, title, note, titleX, head: head0, accent, children, size: size0, flow, hint, }: SheetProps): react.JSX.Element;
 
 type CurvePoint = [number, number];
 interface CurveNote {
@@ -668,4 +678,4 @@ declare const drillMotion: {
     readonly reduced: 160;
 };
 
-export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, Cross, type CrossProps, type CurveMeasure, type CurveNote, CurvePlot, type CurvePlotProps, type CurvePoint, DEFAULT_RENDER_WIDTH, DRILL_GROW, Defs, type DefsProps, type DrillAction, DrillFigure, type DrillFigureProps, type DrillFocus, type DrillLevel, type DrillMove, DrillNode, type DrillNodeProps, type DrillPath, type DrillRenderContext, type DrillStaticFigure, type FigureHover, FigureHoverContext, type FigureMotion, FigureMotionContext, type FigureScale, FigureScaleProvider, FileMark, type Flow, FolderMark, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, LegendItem, type MarkName, Node, type NodeProps, PACKET_POP, PACKET_SINK, Packet, type PacketProps, type Point, Sheet, type SheetProps, type Side, TokenKind, TokenShape, type TreeMarkProps, TreeRail, type TreeRailProps, Wall, type WallProps, Wordmark, anchor, busStub, busStubs, connectorStroke, curveAt, curveSegments, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, flowList, fontFloor, grid, hoverAttrs, marks, normalizePath as normalizeDrillPath, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFigureMotion, useFontFloor, usePrefersReducedMotion, wallSegments };
+export { Badge, type BadgeProps, type Box, Bus, type BusProps, type BusStub, Chip, type ChipProps, Connector, type ConnectorKind, type ConnectorProps, Cross, type CrossProps, type CurveMeasure, type CurveNote, CurvePlot, type CurvePlotProps, type CurvePoint, DEFAULT_RENDER_WIDTH, DRILL_GROW, Defs, type DefsProps, type DrillAction, DrillFigure, type DrillFigureProps, type DrillFocus, type DrillLevel, type DrillMove, DrillNode, type DrillNodeProps, type DrillPath, type DrillRenderContext, type DrillStaticFigure, type FigureHover, FigureHoverContext, type FigureMotion, FigureMotionContext, type FigureScale, FigureScaleProvider, FileMark, type Flow, FolderMark, Group, type GroupProps, IconName, Label, type LabelProps, Lane, type LaneProps, LegendItem, type MarkName, Node, type NodeProps, PACKET_POP, PACKET_SINK, Packet, type PacketProps, type Point, Sheet, type SheetProps, type Side, TokenKind, TokenShape, type TreeMarkProps, TreeRail, type TreeRailProps, Wall, type WallProps, Wordmark, anchor, busStub, busStubs, connectorStroke, curveAt, curveSegments, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, flowList, fontFloor, grid, hoverAttrs, isPointer, marks, normalizePath as normalizeDrillPath, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover, useFigureMotion, useFontFloor, usePrefersReducedMotion, wallSegments };
