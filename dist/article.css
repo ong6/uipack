@@ -401,8 +401,10 @@ a.uipack-notecard.uipack-notecard:focus-visible .uipack-notecard__go {
   display: inline-block;
   margin-right: 4px;
 }
-.uipack-layerhead .uipack-layerhead__map:hover {
-  color: var(--ua-accent);
+@media (hover: hover) {
+  .uipack-layerhead .uipack-layerhead__map:hover {
+    color: var(--ua-accent);
+  }
 }
 .uipack-layerhead .uipack-layerhead__map:focus-visible {
   color: var(--ua-accent);
@@ -636,6 +638,41 @@ a.uipack-notecard.uipack-notecard:focus-visible .uipack-notecard__go {
     transition:
       color 160ms ease,
       text-decoration-color 160ms ease;
+  }
+  .uipack-layerhead .uipack-layerhead__map::before {
+    transition: transform 160ms ease;
+  }
+  @media (hover: hover) {
+    .uipack-layerhead .uipack-layerhead__map:hover::before {
+      transform: translateY(-2px);
+    }
+  }
+}
+
+/* Entrance: a card settles in as it scrolls into view. CSS-only, where
+   scroll-driven animations exist; elsewhere, and in print, it is simply there. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .uipack-notecard.uipack-notecard {
+      animation: uipack-article-enter cubic-bezier(0.2, 0.7, 0.2, 1) both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+  }
+}
+@keyframes uipack-article-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media print {
+  .uipack-notecard.uipack-notecard {
+    animation: none !important;
   }
 }
 

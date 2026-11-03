@@ -24,7 +24,7 @@ Reusable SVG figures, primitives, 3D animations, and presentation composition ex
 
 Inspect Git status first. Preserve unrelated changes; do not deploy the homepage from this repo. Keep existing `uipack/slides` imports and `/slides` links working while presenting the feature as 3D animations.
 
-Run `npm run typecheck`, `npm run lint`, `npm test`, `npm run build` (then commit `dist/`), and affected Playwright tests. Run the full browser suite for shared Figure, shell, theme, or interaction changes. Use a bounded worker count on this machine. Do not build or mutate source while browser tests are running. Verify the built package too; `dist/` is intentionally committed.
+Run `npm run typecheck`, `npm run lint`, `npm run build` (then commit `dist/`) and `npm run test:affected`: only the unit tests that import what changed and the browser specs mapped to the changed areas, Chromium only (owner, 2026-11-04). `-- --dry` prints the plan. CI runs the full suites on every push; run them locally only when asked or when the script reports an unmapped path. When you add a spec or a source area, add its row to `AREAS` in `scripts/affected.mjs`. Use a bounded worker count on this machine. Do not build or mutate source while browser tests are running. Verify the built package too; `dist/` is intentionally committed.
 
 Inspect real browser screenshots at desktop and 390px, with both themes when colour changes. Automated tests do not prove visual polish. Report failures, skips, and unsupported behaviour honestly. Test the meaning of an interaction, not just matching implementation details.
 
