@@ -66,7 +66,9 @@ for (const variant of [1, 2, 3, 4, 5]) {
       await page.emulateMedia({ reducedMotion: "no-preference" });
       await page.goto(`/animations?story=travel&variant=${variant}`);
       const canvas = page.locator(".uipack-object canvas");
-      await expect(canvas, id).toHaveAttribute("data-renderer", "webgl");
+      // The first scene in a fresh CI shard compiles its shaders on software WebGL, which can take
+      // longer than the default 5s; later scenes reuse the warm chunk.
+      await expect(canvas, id).toHaveAttribute("data-renderer", "webgl", { timeout: 20_000 });
       await expect(canvas, id).toHaveAttribute("data-playback", "loop");
       await canvas.scrollIntoViewIfNeeded();
       // The loop keeps playing past the end of its first 12s cycle.
