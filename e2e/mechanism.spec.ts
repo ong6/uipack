@@ -65,8 +65,8 @@ test("changing the pose moves the token and reaches the verdict", async ({ page 
   await expect(page.locator(readout)).toHaveText("reads 4.2 ≤ 6.0 · passed", { timeout: 15_000 });
   await page.getByRole("button", { name: "Apart", exact: true }).click();
   await expect(page.locator(readout)).toHaveText("apart · 6 assemblies", { timeout: 4000 });
-  const lifted = await page.locator(`${machine} [data-assembly="hopper"]`).first().getAttribute("transform");
-  expect(lifted).toMatch(/translate/);
+  // The readout changes before the assemblies finish lifting on a slow runner; wait for the move.
+  await expect(page.locator(`${machine} [data-assembly="hopper"]`).first()).toHaveAttribute("transform", /translate/);
 });
 
 test("reduced motion holds one still, readable frame per pose", async ({ browser }) => {
