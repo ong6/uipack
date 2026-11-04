@@ -156,7 +156,8 @@
     --ui-dur-slow: 560ms;
 
     /* Ornament slots: what this style paints where a layout leaves room for it */
-    --ui-backdrop: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ui-ink) 20%, transparent) 1px, transparent 1.5px) 0 0 / 16px 16px;
+    --ui-backdrop: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ui-ink) 20%, transparent) 1px, transparent 1.5px) 0
+      0 / 16px 16px;
     --ui-backdrop-mask: radial-gradient(ellipse 80% 70% at 50% 35%, black 25%, transparent 78%);
     --ui-frame-border: var(--ui-rule-width) solid var(--ui-line);
     --ui-card-shadow: none;
@@ -309,12 +310,8 @@
     --ui-section-rule: none;
     --ui-grain: 1;
     --ui-glow: 1;
-    --ui-cta-shadow:
-      0 1px 0 rgb(255 255 255 / 0.18) inset,
-      0 8px 20px -10px var(--ui-accent);
-    --ui-cta-shadow-hover:
-      0 1px 0 rgb(255 255 255 / 0.18) inset,
-      0 12px 28px -10px var(--ui-accent);
+    --ui-cta-shadow: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 8px 20px -10px var(--ui-accent);
+    --ui-cta-shadow-hover: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 12px 28px -10px var(--ui-accent);
     --ui-em-style: italic;
     --ui-em-color: inherit;
     --ui-star-fill: 1;
@@ -399,7 +396,12 @@
        shadow. marker: the disc again, small. */
     --ui-backdrop:
       radial-gradient(circle at 100% 0, var(--ui-accent) 0 min(24cqi, 300px), transparent calc(min(24cqi, 300px) + 1px)),
-      radial-gradient(circle at 100% 0, transparent 0 calc(min(24cqi, 300px) + 18px), var(--ui-ink) calc(min(24cqi, 300px) + 19px) calc(min(24cqi, 300px) + 21px), transparent calc(min(24cqi, 300px) + 22px)),
+      radial-gradient(
+        circle at 100% 0,
+        transparent 0 calc(min(24cqi, 300px) + 18px),
+        var(--ui-ink) calc(min(24cqi, 300px) + 19px) calc(min(24cqi, 300px) + 21px),
+        transparent calc(min(24cqi, 300px) + 22px)
+      ),
       repeating-linear-gradient(90deg, var(--ui-ink) 0 2px, transparent 2px 14px) 0 100% / 100% 24px no-repeat;
     --ui-backdrop-mask: none;
     --ui-frame-border: 2px solid var(--ui-ink);
@@ -630,7 +632,6 @@
     display: none;
   }
 }
-
 
 /* Interaction. Every element that names a flow or a kind carries a data-state
    set by the figure: "hit" for the hovered flow or kind, "dim" for the rest.

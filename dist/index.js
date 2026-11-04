@@ -18,7 +18,13 @@ var uiStyles = [
     id: "technical",
     name: "Technical",
     summary: "Diagram-led and ours: warm paper, ink, one forest accent, thin rules, 6px radius, a dotted grid.",
-    fonts: ["ibm-plex-sans-latin-400-normal.woff2", "ibm-plex-sans-latin-600-normal.woff2", "ibm-plex-mono-latin-400-normal.woff2", "ibm-plex-mono-latin-600-normal.woff2"],
+    fonts: [
+      "ibm-plex-sans-latin-400-normal.woff2",
+      "ibm-plex-sans-latin-500-normal.woff2",
+      "ibm-plex-sans-latin-600-normal.woff2",
+      "ibm-plex-mono-latin-400-normal.woff2",
+      "ibm-plex-mono-latin-600-normal.woff2"
+    ],
     preload: [],
     prefers: ["hero", "mechanism", "proof", "how", "faq", "pricing"]
   },
@@ -42,7 +48,14 @@ var uiStyles = [
     id: "graphical",
     name: "Graphical",
     summary: "Poster: bone paper, black ink, one signal-orange accent, condensed display caps, hard edges, one disc motif.",
-    fonts: ["anton-latin-400-normal.woff2", "ibm-plex-sans-latin-400-normal.woff2", "ibm-plex-sans-latin-600-normal.woff2", "ibm-plex-mono-latin-600-normal.woff2"],
+    fonts: [
+      "anton-latin-400-normal.woff2",
+      "ibm-plex-sans-latin-400-normal.woff2",
+      "ibm-plex-sans-latin-500-normal.woff2",
+      "ibm-plex-sans-latin-600-normal.woff2",
+      "ibm-plex-mono-latin-400-normal.woff2",
+      "ibm-plex-mono-latin-600-normal.woff2"
+    ],
     preload: ["anton-latin-400-normal.woff2"],
     prefers: ["hero", "proof", "how", "mechanism", "pricing", "faq"]
   }

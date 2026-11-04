@@ -31,7 +31,10 @@ var cssColors = {
   rule: "var(--ui-slide-line, var(--ui-line))"
 };
 var resolvedFaces = { sans: "IBM Plex Sans, system-ui, sans-serif", mono: "IBM Plex Mono, ui-monospace, monospace" };
-var cssFaces = { sans: "var(--ui-slide-font-text, var(--ui-font-text))", mono: "var(--ui-slide-font-label, var(--ui-font-label))" };
+var cssFaces = {
+  sans: "var(--ui-slide-font-text, var(--ui-font-text))",
+  mono: "var(--ui-slide-font-label, var(--ui-font-label))"
+};
 function escapeSvgText(value) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 }
@@ -143,25 +146,41 @@ function SpeakerGuide({ speech, slideTitle = "Slide", onCopy, className = "", th
     ] })
   ] });
 }
-function SlideStarter({ slide, theme = "light", style, showSpeech = true, className = "", onCopySpeech }) {
-  return /* @__PURE__ */ jsxs("section", { className: `uipack-slide-starter ${className}`.trim(), "data-theme": theme, "data-ui-style": style, "data-layout": slide.layout, children: [
-    /* @__PURE__ */ jsxs("figure", { className: "uipack-slide-starter__figure", children: [
-      /* @__PURE__ */ jsx(
-        "div",
-        {
-          className: "uipack-slide-starter__preview",
-          dangerouslySetInnerHTML: {
-            __html: renderSlideSvg(slide, { theme, paint: "css" })
-          }
-        }
-      ),
-      /* @__PURE__ */ jsxs("figcaption", { children: [
-        /* @__PURE__ */ jsx("strong", { children: slide.title }),
-        /* @__PURE__ */ jsx("span", { children: slide.description })
-      ] })
-    ] }),
-    showSpeech && /* @__PURE__ */ jsx(SpeakerGuide, { speech: slide.speech, slideTitle: slide.title, theme, onCopy: onCopySpeech })
-  ] });
+function SlideStarter({
+  slide,
+  theme = "light",
+  style,
+  showSpeech = true,
+  className = "",
+  onCopySpeech
+}) {
+  return /* @__PURE__ */ jsxs(
+    "section",
+    {
+      className: `uipack-slide-starter ${className}`.trim(),
+      "data-theme": theme,
+      "data-ui-style": style,
+      "data-layout": slide.layout,
+      children: [
+        /* @__PURE__ */ jsxs("figure", { className: "uipack-slide-starter__figure", children: [
+          /* @__PURE__ */ jsx(
+            "div",
+            {
+              className: "uipack-slide-starter__preview",
+              dangerouslySetInnerHTML: {
+                __html: renderSlideSvg(slide, { theme, paint: "css" })
+              }
+            }
+          ),
+          /* @__PURE__ */ jsxs("figcaption", { children: [
+            /* @__PURE__ */ jsx("strong", { children: slide.title }),
+            /* @__PURE__ */ jsx("span", { children: slide.description })
+          ] })
+        ] }),
+        showSpeech && /* @__PURE__ */ jsx(SpeakerGuide, { speech: slide.speech, slideTitle: slide.title, theme, onCopy: onCopySpeech })
+      ]
+    }
+  );
 }
 
 export { SlideStarter, SpeakerGuide, escapeSvgText, estimateSpeechSeconds, formatSpeechGuide, renderSlideSvg };

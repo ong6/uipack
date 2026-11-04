@@ -235,13 +235,23 @@ function RhymeIcon({ at = 0.5, values = DEFAULT_STAR_VALUES, size = 40 }) {
 }
 function GrainOverlay({ opacity = 0.07, frequency = 0.8 }) {
   const id = useId().replace(/:/g, "");
-  return /* @__PURE__ */ jsxs("svg", { className: "uipack-web-noise", "aria-hidden": "true", focusable: "false", style: { "--noise-opacity": opacity }, "data-bg": "grain", children: [
-    /* @__PURE__ */ jsxs("filter", { id: `${id}-n`, children: [
-      /* @__PURE__ */ jsx("feTurbulence", { type: "fractalNoise", baseFrequency: frequency, numOctaves: "3", stitchTiles: "stitch" }),
-      /* @__PURE__ */ jsx("feColorMatrix", { type: "saturate", values: "0" })
-    ] }),
-    /* @__PURE__ */ jsx("rect", { width: "100%", height: "100%", filter: `url(#${id}-n)` })
-  ] });
+  return /* @__PURE__ */ jsxs(
+    "svg",
+    {
+      className: "uipack-web-noise",
+      "aria-hidden": "true",
+      focusable: "false",
+      style: { "--noise-opacity": opacity },
+      "data-bg": "grain",
+      children: [
+        /* @__PURE__ */ jsxs("filter", { id: `${id}-n`, children: [
+          /* @__PURE__ */ jsx("feTurbulence", { type: "fractalNoise", baseFrequency: frequency, numOctaves: "3", stitchTiles: "stitch" }),
+          /* @__PURE__ */ jsx("feColorMatrix", { type: "saturate", values: "0" })
+        ] }),
+        /* @__PURE__ */ jsx("rect", { width: "100%", height: "100%", filter: `url(#${id}-n)` })
+      ]
+    }
+  );
 }
 var NoiseLayer = GrainOverlay;
 function StarHero({
