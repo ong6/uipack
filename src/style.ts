@@ -10,7 +10,7 @@ export interface UiStyleMeta {
   name: string;
   /** One line: what it is for. */
   summary: string;
-  /** Self-hosted faces the style fetches (uipack/fonts/*), in the order a page needs them. */
+  /** Self-hosted faces the style fetches on /web (uipack/fonts/*), as measured by Lighthouse. */
   fonts: readonly string[];
   /** The display face to preload for a hero headline, if any (fontPreloads). */
   preload: readonly string[];
@@ -26,7 +26,13 @@ export const uiStyles: readonly UiStyleMeta[] = [
     id: "technical",
     name: "Technical",
     summary: "Diagram-led and ours: warm paper, ink, one forest accent, thin rules, 6px radius, a dotted grid.",
-    fonts: ["ibm-plex-sans-latin-400-normal.woff2", "ibm-plex-sans-latin-600-normal.woff2", "ibm-plex-mono-latin-400-normal.woff2", "ibm-plex-mono-latin-600-normal.woff2"],
+    fonts: [
+      "ibm-plex-sans-latin-400-normal.woff2",
+      "ibm-plex-sans-latin-500-normal.woff2",
+      "ibm-plex-sans-latin-600-normal.woff2",
+      "ibm-plex-mono-latin-400-normal.woff2",
+      "ibm-plex-mono-latin-600-normal.woff2",
+    ],
     preload: [],
     prefers: ["hero", "mechanism", "proof", "how", "faq", "pricing"],
   },
@@ -50,7 +56,14 @@ export const uiStyles: readonly UiStyleMeta[] = [
     id: "graphical",
     name: "Graphical",
     summary: "Poster: bone paper, black ink, one signal-orange accent, condensed display caps, hard edges, one disc motif.",
-    fonts: ["anton-latin-400-normal.woff2", "ibm-plex-sans-latin-400-normal.woff2", "ibm-plex-sans-latin-600-normal.woff2", "ibm-plex-mono-latin-600-normal.woff2"],
+    fonts: [
+      "anton-latin-400-normal.woff2",
+      "ibm-plex-sans-latin-400-normal.woff2",
+      "ibm-plex-sans-latin-500-normal.woff2",
+      "ibm-plex-sans-latin-600-normal.woff2",
+      "ibm-plex-mono-latin-400-normal.woff2",
+      "ibm-plex-mono-latin-600-normal.woff2",
+    ],
     preload: ["anton-latin-400-normal.woff2"],
     prefers: ["hero", "proof", "how", "mechanism", "pricing", "faq"],
   },

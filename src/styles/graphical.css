@@ -71,7 +71,12 @@
        shadow. marker: the disc again, small. */
     --ui-backdrop:
       radial-gradient(circle at 100% 0, var(--ui-accent) 0 min(24cqi, 300px), transparent calc(min(24cqi, 300px) + 1px)),
-      radial-gradient(circle at 100% 0, transparent 0 calc(min(24cqi, 300px) + 18px), var(--ui-ink) calc(min(24cqi, 300px) + 19px) calc(min(24cqi, 300px) + 21px), transparent calc(min(24cqi, 300px) + 22px)),
+      radial-gradient(
+        circle at 100% 0,
+        transparent 0 calc(min(24cqi, 300px) + 18px),
+        var(--ui-ink) calc(min(24cqi, 300px) + 19px) calc(min(24cqi, 300px) + 21px),
+        transparent calc(min(24cqi, 300px) + 22px)
+      ),
       repeating-linear-gradient(90deg, var(--ui-ink) 0 2px, transparent 2px 14px) 0 100% / 100% 24px no-repeat;
     --ui-backdrop-mask: none;
     --ui-frame-border: 2px solid var(--ui-ink);

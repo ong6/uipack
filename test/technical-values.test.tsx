@@ -25,7 +25,19 @@ const rgba = (hex: string, alpha: number) => {
 };
 
 describe("technicalValues mirrors src/styles/technical.css", () => {
-  const solid = ["paper", "surface", "surface-raised", "surface-2", "ink", "ink-2", "accent", "flow-request", "flow-response", "flow-change", "slide-line"] as const;
+  const solid = [
+    "paper",
+    "surface",
+    "surface-raised",
+    "surface-2",
+    "ink",
+    "ink-2",
+    "accent",
+    "flow-request",
+    "flow-response",
+    "flow-change",
+    "slide-line",
+  ] as const;
   for (const role of solid) {
     it(role, () => {
       const [light, dark] = pair(role);

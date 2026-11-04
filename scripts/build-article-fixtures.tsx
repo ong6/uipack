@@ -3,13 +3,15 @@
 // (no hydration; the tests also run with JavaScript off). Run by Playwright's
 // globalSetup; output is gitignored.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { styleFiles } from "./css-bundles";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Callout, LinkList, NoteCard, NoteCluster } from "../src/article";
 import { LayerSection, harness, inference, notes, plannedNote } from "../examples/articleParts";
 
 const OUT = "playground/e2e-static";
 mkdirSync(OUT, { recursive: true });
-const css = readFileSync("src/article/article.css", "utf8");
+// The entry stylesheet as shipped: the role layer first (src/styles), then the entry.
+const css = [...styleFiles, "src/article/article.css"].map((f) => readFileSync(f, "utf8")).join("\n");
 
 // A copy of the notes site's article page (junxiong-notes app/globals.css):
 // palette in both themes, a 44rem .wrap, serif .prose with overflow-wrap:

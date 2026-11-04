@@ -235,8 +235,12 @@ function PageIndex() {
 /** Each style's three faces, as the specimen labels them. */
 const styleFaces: Record<UiStyleId, { display: string; text: string; mono: string }> = {
   technical: { display: "IBM Plex Sans 600", text: "IBM Plex Sans 400 / 500 / 600", mono: "IBM Plex Mono 400 / 600" },
-  landing: { display: `${TYPE_FACES.display} 400 + italic`, text: `${TYPE_FACES.text} 400 / 500 / 600`, mono: `${TYPE_FACES.mono} 400 / 600` },
-  graphical: { display: "Anton 400, set in caps", text: "IBM Plex Sans 400 / 600", mono: "IBM Plex Mono 600" },
+  landing: {
+    display: `${TYPE_FACES.display} 400 + italic`,
+    text: `${TYPE_FACES.text} 400 / 500 / 600`,
+    mono: `${TYPE_FACES.mono} 400 / 600`,
+  },
+  graphical: { display: "Anton 400, set in caps", text: "IBM Plex Sans 400 / 500 / 600", mono: "IBM Plex Mono 400 / 600" },
 };
 
 function TypeSpecimen({
@@ -328,7 +332,12 @@ function TypeSpecimen({
             </div>
           </GridItem>
         </Grid>
-        <fieldset className="web-face-toggle" ref={toggle} hidden={uiStyle !== "landing"} onFocus={() => void loadAlternateFaces()}>
+        <fieldset
+          className="web-face-toggle"
+          ref={toggle}
+          hidden={uiStyle !== "landing"}
+          onFocus={() => void loadAlternateFaces()}
+        >
           <legend>Compare display faces</legend>
           <div className="web-face-toggle__options">
             {displayFaces.map((f) => (
@@ -408,7 +417,8 @@ function LayoutSwitch({
       <fieldset>
         <legend>Section order</legend>
         <label>
-          <input type="radio" name="web-layout" checked={layout === "style"} onChange={() => pick("style")} /> The style&rsquo;s own
+          <input type="radio" name="web-layout" checked={layout === "style"} onChange={() => pick("style")} /> The style&rsquo;s
+          own
         </label>
         <label>
           <input type="radio" name="web-layout" checked={layout === "shared"} onChange={() => pick("shared")} /> Shared
@@ -608,12 +618,7 @@ export default function WebShowcase() {
         <LayoutSwitch layout={layout} setLayout={setLayout} order={order} />
         {painted && (
           <>
-            <WebSurface
-              theme={theme}
-              className="web-example"
-              style={uiStyle}
-              css={surfaceStyle}
-            >
+            <WebSurface theme={theme} className="web-example" style={uiStyle} css={surfaceStyle}>
               <JsonLd data={seo.jsonLd} />
               <GlassNav
                 brand={
@@ -629,7 +634,12 @@ export default function WebShowcase() {
                 cta={<CtaButton href="#web-pricing">Start free</CtaButton>}
               />
               {order.map((id) => (
-                <ExampleSection key={id} id={id} align={layout === "style" && uiStyle === "technical" ? "start" : "center"} seo={seo} />
+                <ExampleSection
+                  key={id}
+                  id={id}
+                  align={layout === "style" && uiStyle === "technical" ? "start" : "center"}
+                  seo={seo}
+                />
               ))}
             </WebSurface>
             <GeneratedFiles seo={seo} />

@@ -64,6 +64,8 @@ const AREAS = [
   [/^src\/(CanvasView|canvas)/, ["canvas", "canvas-gestures"]],
   // Root parts, theme, presets and the figures page: every figure-level spec.
   [/^src\/[^/]+\.(tsx?|css)$|^src\/presets\/|^playground\/figures\//, FIGURES],
+  // The Foundations guide pages: their outline, scale, alignment and overflow, and the nav rows.
+  [/^playground\/(Foundations|foundations)/, ["nav", "page-audit"]],
   [/^playground\/(ShowcaseShell|showcase\.css|catalog|routes|nav|main|index\.html)/, [...SHELL, "style-swap"]],
   [/^dist\//, ["dist-smoke"]],
 ];

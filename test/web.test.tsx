@@ -111,7 +111,8 @@ describe("Landing fonts", () => {
     // Nothing leaves the package: no absolute or protocol-relative font URLs.
     expect(css).not.toMatch(/url\("?(https?:)?\/\//);
     const files = readdirSync("src/web/fonts");
-    for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono", "anton"]) expect(files).toContain(`OFL-${name}.txt`);
+    for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono", "anton"])
+      expect(files).toContain(`OFL-${name}.txt`);
     expect(files.filter((f) => f.endsWith(".woff2")).sort()).toEqual(
       urls(css)
         .map((u) => u.slice(8))
@@ -125,7 +126,7 @@ describe("Landing fonts", () => {
     expect(pkg.exports["./fonts/*"]).toBe("./dist/fonts/*");
     expect(fontFiles.out).toBe("fonts"); // scripts/build-css.ts copies src/web/fonts there
     const built = readFileSync("dist/web.css", "utf8");
-    expect(urls(built).length).toBe(7);
+    expect(urls(built).length).toBe(8);
     for (const u of urls(built)) expect(existsSync(`dist/${u}`)).toBe(true);
     for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono"])
       expect(existsSync(`dist/fonts/OFL-${name}.txt`)).toBe(true);

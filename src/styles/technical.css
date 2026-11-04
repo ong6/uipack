@@ -74,7 +74,8 @@
     --ui-dur-slow: 560ms;
 
     /* Ornament slots: what this style paints where a layout leaves room for it */
-    --ui-backdrop: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ui-ink) 20%, transparent) 1px, transparent 1.5px) 0 0 / 16px 16px;
+    --ui-backdrop: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ui-ink) 20%, transparent) 1px, transparent 1.5px) 0
+      0 / 16px 16px;
     --ui-backdrop-mask: radial-gradient(ellipse 80% 70% at 50% 35%, black 25%, transparent 78%);
     --ui-frame-border: var(--ui-rule-width) solid var(--ui-line);
     --ui-card-shadow: none;

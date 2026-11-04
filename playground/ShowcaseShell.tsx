@@ -57,7 +57,9 @@ export function ShowcaseThemeProvider({ children }: { children: ReactNode }) {
     setStyleState(next);
   };
   return (
-    <ShowcaseThemeContext.Provider value={{ theme, flip, uiStyle, setUiStyle, note, setNote }}>{children}</ShowcaseThemeContext.Provider>
+    <ShowcaseThemeContext.Provider value={{ theme, flip, uiStyle, setUiStyle, note, setNote }}>
+      {children}
+    </ShowcaseThemeContext.Provider>
   );
 }
 

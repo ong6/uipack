@@ -3,6 +3,7 @@
 // static site ships them (no hydration; tests also run with JavaScript off).
 // Run by Playwright's globalSetup; output is gitignored.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { styleFiles } from "./css-bundles";
 import { renderToStaticMarkup } from "react-dom/server";
 import { agentLoop } from "../src/presets";
 import { renderStatic } from "../src/static";
@@ -24,7 +25,8 @@ writeFileSync(`${OUT}/motion.svg`, renderStatic(agentLoop(), { theme: "light", m
 writeFileSync(`${OUT}/still.svg`, renderStatic(agentLoop(), { theme: "dark", motion: false }));
 writeFileSync(`${OUT}/bare.svg`, renderStatic(agentLoop(), { frame: false, background: false, motion: true }));
 
-const css = readFileSync("src/charts/charts.css", "utf8");
+// The entry stylesheet as shipped: the role layer first (src/styles), then the entry.
+const css = [...styleFiles, "src/charts/charts.css"].map((f) => readFileSync(f, "utf8")).join("\n");
 const page = (title: string, body: string, head = `<style>${css}</style>`) => `<!doctype html>
 <html lang="en">
 <head>

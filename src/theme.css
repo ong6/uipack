@@ -205,7 +205,6 @@
   }
 }
 
-
 /* Interaction. Every element that names a flow or a kind carries a data-state
    set by the figure: "hit" for the hovered flow or kind, "dim" for the rest.
    Only pointer devices get any of this. */

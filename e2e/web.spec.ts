@@ -27,7 +27,7 @@ test.describe("/web Landing collection", () => {
     // its end (about 9.4s) before the test pressed Pause. On a paused fake clock it moves only when
     // the test moves time.
     await page.clock.install();
-    await page.goto("/web");
+    await page.goto("/web?style=landing");
     await demo(page).scrollIntoViewIfNeeded();
     await expect(demo(page)).toHaveAttribute("data-state", "playing");
     await pauseClock(page);
@@ -50,7 +50,7 @@ test.describe("/web Landing collection", () => {
   });
 
   test("DemoPlayer settles on the result and step tabs work from the keyboard", async ({ page }) => {
-    await page.goto("/web");
+    await page.goto("/web?style=landing");
     const tab = demo(page).getByRole("button", { name: /03 Review/ });
     await tab.focus();
     await page.keyboard.press("Enter");
@@ -64,7 +64,7 @@ test.describe("/web Landing collection", () => {
 
   test("reduced motion shows the final state once, with every step kept as text", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/web");
+    await page.goto("/web?style=landing");
     await expect(demo(page)).toHaveAttribute("data-state", "static");
     await expect(page.getByTestId("demo-metric")).toHaveText("3");
     // The steps stay in the DOM for screen readers, but only the window is drawn: no second copy.
@@ -90,7 +90,7 @@ test.describe("/web Landing collection", () => {
     async ({ page, browserName }) => {
       // Safari moves Tab focus through links only with Option held.
       const tab = browserName === "webkit" ? "Alt+Tab" : "Tab";
-      await page.goto("/web");
+      await page.goto("/web?style=landing");
       const card = page.locator("#web-how .uipack-web-spotlight").first();
       await card.scrollIntoViewIfNeeded();
       const box = (await card.boundingBox())!;
@@ -115,10 +115,11 @@ test.describe("/web Landing collection", () => {
       page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
       page.on("pageerror", (e) => errors.push(String(e)));
       await page.setViewportSize({ width: 390, height: 844 });
-      await page.goto(`/web?theme=${theme}`);
+      await page.goto(`/web?style=landing&theme=${theme}`);
       await expect(page.locator(".uipack-web").first()).toHaveAttribute("data-theme", theme);
       await expect(page.locator(".showcase-menu-button")).toHaveAccessibleName("Web: Web UI");
-      await expect(page.locator(".showcase-context a")).toHaveText("Landing style");
+      // The context line carries the style switcher, with Landing current.
+      await expect(page.locator(".showcase-context [aria-current]")).toHaveText("Landing");
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
       await waitForStable(() => page.evaluate(() => window.scrollY));
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
@@ -135,7 +136,7 @@ test.describe("/web Landing collection", () => {
         expect(box.height).toBeGreaterThanOrEqual(44);
       }
       await page.setViewportSize({ width: 1440, height: 1000 });
-      await page.goto(`/web?theme=${theme}`);
+      await page.goto(`/web?style=landing&theme=${theme}`);
       await expect(page.getByRole("button", { name: "Menu" })).toBeHidden();
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1440);
       expect(errors).toEqual([]);
@@ -145,12 +146,12 @@ test.describe("/web Landing collection", () => {
   test("Styles index lists Landing and links to Web UI", async ({ page }) => {
     await page.goto("/styles");
     const card = page.locator(".style-card", { hasText: "Landing" });
-    await card.getByRole("link", { name: "Web UI building blocks" }).click();
-    await expect(page).toHaveURL(/\/web\?theme=light/);
+    await card.getByRole("link", { name: "Landing page" }).click();
+    await expect(page).toHaveURL(/\/web\?style=landing&theme=light/);
   });
 
   test("motion: ticker counts in view, reveal shows, marquee moves and pauses", async ({ page }) => {
-    await page.goto("/web");
+    await page.goto("/web?style=landing");
     const ticker = page.locator("#web-proof .uipack-web-ticker").first();
     await expect(ticker.getByTestId("ticker-live")).toHaveText("0");
     await ticker.scrollIntoViewIfNeeded();
@@ -195,7 +196,7 @@ test.describe("/web Landing collection", () => {
   });
 
   test("backgrounds: moving layers pause off screen and run in view", async ({ page }) => {
-    await page.goto("/web");
+    await page.goto("/web?style=landing");
     const aurora = page.locator(".uipack-web-aurora");
     await expect(aurora).toHaveAttribute("data-paused", "true");
     await aurora.scrollIntoViewIfNeeded();
@@ -212,7 +213,7 @@ test.describe("/web Landing collection", () => {
   });
 
   test("backgrounds: one Pause holds every looping layer, and Play resumes them (WCAG 2.2.2)", async ({ page }) => {
-    await page.goto("/web");
+    await page.goto("/web?style=landing");
     const section = page.locator("#web-backgrounds");
     await section.scrollIntoViewIfNeeded();
     const states = () =>
@@ -243,7 +244,7 @@ test.describe("/web Landing collection", () => {
 
   test("motion and backgrounds hold still under reduced motion", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/web");
+    await page.goto("/web?style=landing");
     await expect(page.locator(".uipack-web-marquee")).toHaveAttribute("data-static", "true");
     await expect(page.locator(".uipack-web-marquee__list")).toHaveCount(1);
     await expect(page.locator(".uipack-web-marquee").getByRole("button")).toHaveCount(0);
@@ -292,7 +293,7 @@ test.describe("/web Landing collection", () => {
       });
       page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
       page.on("pageerror", (e) => errors.push(String(e)));
-      await page.goto("/web");
+      await page.goto("/web?style=landing");
       await page.evaluate(() => document.fonts.ready);
       const loaded = () =>
         page.evaluate(() => {
@@ -357,7 +358,7 @@ test.describe("/web Landing collection", () => {
   test("type: the specimen's alternate display faces load only when its toggle nears the viewport", async ({ page }) => {
     const alternates: string[] = [];
     page.on("request", (r) => /plex-serif|space-grotesk/.test(r.url()) && alternates.push(r.url()));
-    await page.goto("/web");
+    await page.goto("/web?style=landing");
     await page.evaluate(() => document.fonts.ready);
     // Wall clock on purpose: this proves a request does not happen, which no event signals, so it
     // gives a stray lazy load a moment to start before checking none did.
@@ -374,7 +375,7 @@ test.describe("/web Landing collection", () => {
     async ({ page, browserName }) => {
       skipSlowWebKit(browserName);
       await page.setViewportSize({ width: 1280, height: 800 });
-      await page.goto("/web");
+      await page.goto("/web?style=landing");
       await expect(page.locator("html")).toHaveAttribute("data-uipack-smooth-scroll", "");
       await page.mouse.move(640, 200);
       const start = await page.evaluate(() => window.scrollY);
@@ -414,7 +415,7 @@ test.describe("/web Landing collection", () => {
     async ({ page, browserName }) => {
       skipSlowWebKit(browserName);
       await page.setViewportSize({ width: 1280, height: 800 });
-      await page.goto("/web");
+      await page.goto("/web?style=landing");
       const nav = page.locator(".uipack-web-nav");
       const before = await page.evaluate(() => window.scrollY);
       // Record the scroll position every frame from before the click until it settles.
@@ -453,7 +454,7 @@ test.describe("/web Landing collection", () => {
 
   test("reduced motion keeps native scrolling", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/web");
+    await page.goto("/web?style=landing");
     await expect(page.locator(".uipack-web").first()).toBeVisible();
     expect(await page.locator("html").getAttribute("data-uipack-smooth-scroll")).toBeNull();
     expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe("auto");
@@ -478,7 +479,7 @@ test.describe("/web Landing collection", () => {
     async ({ page, browserName }) => {
       skipSlowWebKit(browserName);
       await page.setViewportSize({ width: 1280, height: 800 });
-      await page.goto("/web");
+      await page.goto("/web?style=landing");
       const nav = page.locator(".uipack-web-nav");
       // Every nav link is a real in-page anchor with a real target.
       for (const link of await nav.locator(".uipack-web-nav__links a").all()) {
@@ -524,7 +525,7 @@ test.describe("/web Landing collection", () => {
   test.describe("touch", () => {
     test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
     test("touch devices keep native scrolling with CSS smooth anchors", { tag: "@cross-browser" }, async ({ page }) => {
-      await page.goto("/web");
+      await page.goto("/web?style=landing");
       await expect(page.locator(".uipack-web").first()).toBeVisible();
       const fine = await page.evaluate(() => matchMedia("(hover: hover) and (pointer: fine)").matches);
       test.skip(fine, "this browser still reports a fine pointer with touch emulation");
@@ -543,7 +544,7 @@ test.describe("/web Landing collection", () => {
     "drifting gutters flank the column and drift; paint transition pours and cleans up",
     { tag: "@cross-browser" },
     async ({ page, browserName }) => {
-      await page.goto("/web");
+      await page.goto("/web?style=landing");
       const stage = page.locator('[data-bg-tile="gutters"]');
       await stage.scrollIntoViewIfNeeded();
       const gutters = stage.locator(".uipack-web-gutters");
@@ -592,7 +593,7 @@ test.describe("/web discoverability", () => {
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     page.on("pageerror", (e) => errors.push(String(e)));
     const origin = new URL(baseURL!).origin;
-    await page.goto("/web?theme=dark");
+    await page.goto("/web?style=landing&theme=dark");
     await expect(page.locator(".uipack-web-hero h1")).toBeVisible();
     expect(await page.locator("h1").count()).toBe(1);
     // The canonical drops the theme parameter: one URL per page, whatever the view state.
@@ -644,7 +645,7 @@ test.describe("/web discoverability", () => {
   });
 
   test("animated text is real text: demo transcript, final ticker values and the quote are in the DOM", async ({ page }) => {
-    await page.goto("/web");
+    await page.goto("/web?style=landing");
     const transcript = page.locator(".uipack-web-demo").getByRole("list", { name: "Demo transcript" });
     await expect(transcript.locator(":scope > li")).toHaveCount(3);
     await expect(transcript).toContainText("Drafted replies for review");
@@ -658,7 +659,7 @@ test.describe("/web discoverability", () => {
 
   test("390px: FAQ and the generated-file disclosures fit without page overflow", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/web");
+    await page.goto("/web?style=landing");
     await page.getByText("View generated robots.txt / sitemap.xml / llms.txt").click();
     await page.getByText("View generated head tags and JSON-LD").click();
     await page.locator("#web-faq").scrollIntoViewIfNeeded();

@@ -68,6 +68,10 @@ for (const width of [1440, 390]) {
       await page.goto(`/web?style=${style}&layout=shared&theme=light`);
       const example = page.locator(".web-example");
       await expect(example).toHaveAttribute("data-ui-style", style);
+      // Walk the page so the below-the-fold figure (loaded when near) is in place, then measure at the top.
+      await page.locator("#web-mechanism").scrollIntoViewIfNeeded();
+      await expect(page.locator("#web-mechanism figure")).toBeVisible({ timeout: 10_000 });
+      await page.evaluate(() => scrollTo(0, 0));
       await page.evaluate(() => document.fonts.ready);
       runs[style] = await boxes(page, WEB_REGIONS);
       headings[style] = await example.locator("h1, h2, h3").allTextContents();
@@ -146,7 +150,8 @@ test("deck: the same slides in every style keep the region map and the reading o
         expect(b.text, `${style} slide ${s + 1} ${b.name} words`).toBe(base[i].text);
         // The eyebrow, the headline's start and the footer stay put: the region map is the layout's.
         expect(Math.abs(b.x - base[i].x), `${style} slide ${s + 1} ${b.name} x`).toBeLessThanOrEqual(TOL);
-        if (b.name !== "headline") expect(Math.abs(b.y - base[i].y), `${style} slide ${s + 1} ${b.name} y`).toBeLessThanOrEqual(TOL);
+        if (b.name !== "headline")
+          expect(Math.abs(b.y - base[i].y), `${style} slide ${s + 1} ${b.name} y`).toBeLessThanOrEqual(TOL);
       }
     }
   expect(errors).toEqual([]);

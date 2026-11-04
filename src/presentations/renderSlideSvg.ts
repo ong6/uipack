@@ -44,7 +44,10 @@ const cssColors: Colors = {
 };
 
 const resolvedFaces = { sans: "IBM Plex Sans, system-ui, sans-serif", mono: "IBM Plex Mono, ui-monospace, monospace" };
-const cssFaces = { sans: "var(--ui-slide-font-text, var(--ui-font-text))", mono: "var(--ui-slide-font-label, var(--ui-font-label))" };
+const cssFaces = {
+  sans: "var(--ui-slide-font-text, var(--ui-font-text))",
+  mono: "var(--ui-slide-font-label, var(--ui-font-label))",
+};
 
 export function escapeSvgText(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
@@ -91,7 +94,8 @@ export function renderSlideSvg(slide: SlideStarterData, options: RenderSlideSvgO
   const eyebrow = (value: string) => text(64, 105, value, 15, colors.accent, 600, true, "start", "label", 0.14);
   const foot = (x: number, value: string, anchor: "start" | "end") =>
     text(x, 635, value, 13, colors.muted, 500, true, anchor, "label", 0.06);
-  const rule = (x1: number, y: number, x2: number) => `<path d="M${x1} ${y}H${x2}"${paint({ stroke: colors.rule })} stroke-width="2"/>`;
+  const rule = (x1: number, y: number, x2: number) =>
+    `<path d="M${x1} ${y}H${x2}"${paint({ stroke: colors.rule })} stroke-width="2"/>`;
   const footer = slide.footer
     ? rule(64, 592, 1136) +
       foot(64, slide.footer.label, "start") +

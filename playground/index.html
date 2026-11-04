@@ -23,7 +23,8 @@
          the decks show their content in the chosen style, so it never flashes another one. -->
     <script>
       (function () {
-        var q = new URLSearchParams(location.search), d = document.documentElement;
+        var q = new URLSearchParams(location.search),
+          d = document.documentElement;
         var t = q.get("theme") === "dark" ? "dark" : "light";
         d.setAttribute("data-theme", t);
         d.setAttribute("data-ui-theme", t);

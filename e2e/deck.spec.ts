@@ -694,10 +694,11 @@ test.describe("/deck layout", () => {
 test.describe("/deck print and PDF", () => {
   test("?view=print saves a PDF with one 16:9 page per slide", async ({ page, browserName }) => {
     test.skip(browserName !== "chromium", "page.pdf() is Chromium-only");
-    // The bento deck's two tour details print as pages of their own after the quarter slide.
+    // The bento deck's two tour details print as pages of their own after the quarter slide; its
+    // fact and section slides (the archetypes) add two more.
     for (const [id, count] of [
       ["moves", 7],
-      ["bento", 7],
+      ["bento", 9],
       ["consulting", 8],
     ] as const) {
       await page.goto(`/deck?deck=${id}&view=print`);

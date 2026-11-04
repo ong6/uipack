@@ -64,7 +64,9 @@ describe("contrast, every style, both themes", () => {
           // are 4.42 and 4.27:1. Those labels are bar values at 20px+ canvas type, semibold, where
           // the large-text floor is 3:1.
           const floor = id === "technical" && theme === "light" && (n === 2 || n === 4) ? 4.2 : 4.5;
-          expect(contrast(role(id, `on-data-${n}`, theme), role(id, `data-${n}`, theme)), `data-${n}`).toBeGreaterThanOrEqual(floor);
+          expect(contrast(role(id, `on-data-${n}`, theme), role(id, `data-${n}`, theme)), `data-${n}`).toBeGreaterThanOrEqual(
+            floor,
+          );
         }
       });
       it(`${id} ${theme}: the accent as text (or its accent-ink) holds 4.5:1 on paper; the accent fill 3:1`, () => {

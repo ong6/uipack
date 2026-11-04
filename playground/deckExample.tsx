@@ -1,4 +1,4 @@
-import { Build, Morph, Slide, quoteSlide, type DeckSlide } from "../src/deck";
+import { Build, Morph, Slide, type DeckSlide } from "../src/deck";
 
 /*
  * The tech talk: a team lead arguing that reviews should open with their answer, presented in the
@@ -155,25 +155,9 @@ export const deckExample: DeckSlide[] = [
     notes: {
       say: "Here is the nineteen again, as one row of a comparison. The review log splits our twenty-four reviews into two groups. Eleven opened with their answer: a median of one meeting and six days to a decision. Thirteen buried it: three meetings and nineteen days. Same teams, same kinds of decision, same six months. The difference is the order of the slides. We can't prove the order caused all of it, but in every pair of reviews from the same team, the answer-first one was decided sooner. Source: the platform review log, April to September 2026, median per group.",
       delivery: "Trace the two bars left to right, then read the meetings column.",
-      next: "And here is what that first meeting sounds like.",
-    },
-  },
-  // The quote archetype: the headline says what the words prove, the body holds the words.
-  quoteSlide({
-    id: "voices",
-    title: "What meeting one asks",
-    eyebrow: "The review log",
-    headline: "Nine of the 13 buried reviews ended meeting one asking what we needed.",
-    quote: "So what do you need from us?",
-    attribution: "An approver, first meeting of review 14",
-    footer,
-    role: "evidence",
-    notes: {
-      say: "This is the question the review log records most often at the end of a first meeting. Nine of the thirteen reviews that buried their answer ended meeting one with an approver asking some version of it: so what do you need from us? It is a fair question. The deck had not said. Every one of those nine needed a second meeting to answer it. Source: the platform review log, meeting notes, April to September 2026.",
-      delivery: "Read the quote once, flatly, and let the room recognise it.",
       next: "So how do you check a review before you give it?",
     },
-  }),
+  },
   {
     id: "ghost",
     title: "The ghost deck flags it",

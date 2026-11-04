@@ -164,27 +164,9 @@ export const bentoDeck: DeckSlide[] = [
     notes: {
       say: "The headline first: search is twice as fast as it was in Q2, and it costs less to serve. p95 latency went from four hundred and twelve milliseconds to one hundred and ninety-eight, and cost per thousand queries fell eighteen percent. What users noticed: the share of searches that end in a click rose from sixty-one percent to sixty-four, so more people found what they came for. Everything after this slide is the evidence, the one risk that could undo it, and the one decision we need from the Platform leads by the thirtieth of October. Source: the search latency, cost and click-through dashboards, Q2 against Q3.",
       delivery: "State the speed and cost numbers slowly, then the click-through. Don't explain yet.",
-      next: "Here is the speed as one number.",
-    },
-  },
-  // The fact archetype: one number, its unit and its baseline, from across the room.
-  factSlide({
-    id: "latency",
-    title: "198 ms at p95",
-    eyebrow: "Latency",
-    headline: "p95 search latency fell from 412 ms to 198 ms in one quarter.",
-    value: "198",
-    unit: "ms p95",
-    baseline: "From 412 ms in Q2, on the same query mix.",
-    source: "Search latency dashboard, Q2 against Q3",
-    footer,
-    role: "evidence",
-    notes: {
-      say: "Here is the speed as one number. At the ninety-fifth percentile, a search took four hundred and twelve milliseconds in Q2 and takes one hundred and ninety-eight now, on the same mix of queries. That is the slowest one in twenty searches, so it is what people waiting on a slow result actually feel. Source: the search latency dashboard, Q2 against Q3.",
-      delivery: "Say the two numbers, then stop.",
       next: "Here's where the speed came from.",
     },
-  }),
+  },
   {
     id: "quarter",
     title: "Caching did most of it",
@@ -315,9 +297,27 @@ export const bentoDeck: DeckSlide[] = [
     notes: {
       say: "Here's the risk box up close. The cache tier is at seventy-one percent memory and climbing about three points a week. On that trend it reaches eighty-six percent by the seventeenth of November, and peak traffic from the twenty-third adds about four more, which takes it past ninety, where evictions undo most of the retrieval gain. A shard takes two engineers three weeks, so approved by the end of October it lands on the twentieth of November, before the peak. And we'll know early if we're wrong: if memory passes eighty-five percent before the tenth of November, the trend is faster than forecast, and we cap long-tail caching while the shard finishes. Source: the cache capacity forecast from the search dashboard.",
       delivery: "Point at the dashed line crossing the limit, then at the tripwire line.",
-      next: "Which brings us to next quarter.",
+      next: "Before the plan, the speed as one number.",
     },
   },
+  // The fact archetype: one number, its unit and its baseline, from across the room.
+  factSlide({
+    id: "latency",
+    title: "198 ms at p95",
+    eyebrow: "Latency",
+    headline: "p95 search latency fell from 412 ms to 198 ms in one quarter.",
+    value: "198",
+    unit: "ms p95",
+    baseline: "From 412 ms in Q2, on the same query mix.",
+    source: "Search latency dashboard, Q2 against Q3",
+    footer,
+    role: "evidence",
+    notes: {
+      say: "Here is the speed as one number. At the ninety-fifth percentile, a search took four hundred and twelve milliseconds in Q2 and takes one hundred and ninety-eight now, on the same mix of queries. That is the slowest one in twenty searches, so it is what people waiting on a slow result actually feel. Source: the search latency dashboard, Q2 against Q3.",
+      delivery: "Say the two numbers, then stop.",
+      next: "Which brings us to next quarter.",
+    },
+  }),
   // The section archetype: a divider that still makes a claim; the part number fills the body.
   sectionSlide({
     id: "next",

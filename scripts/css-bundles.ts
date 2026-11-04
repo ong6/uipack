@@ -6,7 +6,12 @@
 /** The role layer and every style's value set (src/styles). Every entry's stylesheet starts with
  * it, so an entry works on its own and `style="…"` works on any entry; importing two entries
  * repeats identical declarations, which is harmless. `uipack/styles.css` is the layer alone. */
-export const styleFiles = ["src/styles/roles.css", "src/styles/technical.css", "src/styles/landing.css", "src/styles/graphical.css"];
+export const styleFiles = [
+  "src/styles/roles.css",
+  "src/styles/technical.css",
+  "src/styles/landing.css",
+  "src/styles/graphical.css",
+];
 
 const withRoles = (...files: string[]) => [...styleFiles, ...files];
 

@@ -78,12 +78,8 @@
     --ui-section-rule: none;
     --ui-grain: 1;
     --ui-glow: 1;
-    --ui-cta-shadow:
-      0 1px 0 rgb(255 255 255 / 0.18) inset,
-      0 8px 20px -10px var(--ui-accent);
-    --ui-cta-shadow-hover:
-      0 1px 0 rgb(255 255 255 / 0.18) inset,
-      0 12px 28px -10px var(--ui-accent);
+    --ui-cta-shadow: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 8px 20px -10px var(--ui-accent);
+    --ui-cta-shadow-hover: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 12px 28px -10px var(--ui-accent);
     --ui-em-style: italic;
     --ui-em-color: inherit;
     --ui-star-fill: 1;

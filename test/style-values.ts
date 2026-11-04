@@ -150,8 +150,11 @@ export function resolveColor(value: string, theme: Theme, vars: Record<string, s
   if (v.startsWith("rgb")) {
     const body = v.slice(v.indexOf("(") + 1, v.lastIndexOf(")"));
     const [rgb, alpha] = body.split("/");
-    const parts = rgb.split(/[\s,]+/).filter(Boolean).map(Number);
-    const a = alpha !== undefined ? Number(alpha) : parts[3] ?? 1;
+    const parts = rgb
+      .split(/[\s,]+/)
+      .filter(Boolean)
+      .map(Number);
+    const a = alpha !== undefined ? Number(alpha) : (parts[3] ?? 1);
     return [parts[0], parts[1], parts[2], a];
   }
   if (v.startsWith("color-mix(")) {
