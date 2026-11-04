@@ -13,6 +13,7 @@ export type SlotName =
   | "eyebrow"
   | "headline"
   | "lede"
+  | "point"
   | "label"
   | "quote"
   | "attribution"
@@ -53,6 +54,9 @@ export interface SlotBudget {
  * The budget table. Sizes are canvas pixels on the 1920×1080 slide, so the measures hold at any
  * screen size. The headline's word limit is also `MAX_TITLE_WORDS` (rule `title-length`).
  */
+/** Most body points on one slide: more than three is a second idea or an appendix table. */
+export const MAX_POINTS = 3;
+
 export const SLOT_BUDGETS: Readonly<Record<SlotName, SlotBudget>> = {
   title: {
     role: "Short name for the overview, counter and screen readers; never longer than a headline",
@@ -82,6 +86,14 @@ export const SLOT_BUDGETS: Readonly<Record<SlotName, SlotBudget>> = {
     maxWords: 30,
     maxLines: 3,
     charsPerLine: 60,
+    maxSentences: 1,
+    overflow: "wrap",
+  },
+  point: {
+    role: "Body: one supporting line under the headline, a phrase or short clause, at most three a slide",
+    maxWords: 12,
+    maxLines: 1,
+    charsPerLine: 72,
     maxSentences: 1,
     overflow: "wrap",
   },

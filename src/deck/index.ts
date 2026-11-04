@@ -18,6 +18,7 @@ export {
   type EndSlideProps,
 } from "./archetypes";
 export {
+  MAX_POINTS,
   SLOT_BUDGETS,
   slotLines,
   slotProblems,

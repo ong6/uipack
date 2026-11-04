@@ -2,7 +2,7 @@
 import { WORDS_PER_MINUTE } from "../../speech";
 import { QUANTIFIED_ROLES, REPEATABLE_ROLES, SLIDE_ROLES, type SlideRole } from "./roles";
 import { getStorylineTemplate, type StorylineTemplate } from "./templates";
-import { SLOT_BUDGETS, slotLines, slotProblems, type SlotName } from "../budgets";
+import { MAX_POINTS, SLOT_BUDGETS, slotLines, slotProblems, type SlotName } from "../budgets";
 import { MAX_TITLE_WORDS, type LintFinding, type LintOptions, type LintRule, type LintSeverity, type StorySlide } from "./rules";
 import {
   TOPIC_LABELS,
@@ -165,8 +165,15 @@ export const LINT_CHECKS: readonly LintCheck[] = [
           ["title", slide.headline ? slide.title : undefined],
           ["eyebrow", slide.eyebrow],
           ["lede", slide.lede],
+          ...(slide.points ?? []).map((p): [SlotName, string] => ["point", p]),
           ...(Object.entries(slide.slots ?? {}) as [SlotName, string][]),
         ];
+        if ((slide.points?.length ?? 0) > MAX_POINTS)
+          report(
+            "warn",
+            `${slide.points!.length} body points; keep it to ${MAX_POINTS}. Merge them, split the slide, or move the rest to the appendix.`,
+            slide.id,
+          );
         // The headline's words are title-length's; its lines are checked here.
         const headline = headlineOf(slide);
         if (headline) {
@@ -369,8 +376,9 @@ export const LINT_CHECKS: readonly LintCheck[] = [
       const budget = options.minutes ?? template?.minutes.max;
       if (budget === undefined) return;
       const seconds = talkSeconds(slides);
-      // The shortest budget this talk should fill: the given minutes, else the template's minimum.
-      const floor = options.minutes ?? template!.minutes.min;
+      // The shortest budget this talk should fill: the given minutes, else the template's minimum,
+      // capped at a minute a presented slide so a deck the brief fixes short isn't padded to the template.
+      const floor = options.minutes ?? Math.min(template!.minutes.min, Math.max(presented.length, 1));
       if (seconds > budget * 60) {
         report(
           "warn",

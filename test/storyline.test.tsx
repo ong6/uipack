@@ -467,9 +467,17 @@ describe("lintDeck", () => {
     });
 
     it("uses the template's shortest length when no minutes are given", () => {
-      // decision-request runs 8–15 minutes: half of 8 is 4 minutes, about 540 words.
-      expect(find(lintDeck(spoken(good, 60), { template: "decision-request" }), "talk-time")).toHaveLength(1);
+      // decision-request runs 8–15 minutes, capped at a minute for each of the six presented slides:
+      // half of 6 is 3 minutes, about 405 words.
+      expect(find(lintDeck(spoken(good, 40), { template: "decision-request" }), "talk-time")).toHaveLength(1);
       expect(find(lintDeck(spoken(good, 80), { template: "decision-request" }), "talk-time")).toEqual([]);
+    });
+
+    it("caps the template's floor at a minute a presented slide, for a deck the brief fixes short", () => {
+      // Three presented slides: the floor is 3 minutes, not decision-request's 8; half is about 200 words.
+      const short = spoken(good.slice(0, 3), 70);
+      expect(find(lintDeck(short, { template: "decision-request" }), "talk-time")).toEqual([]);
+      expect(find(lintDeck(spoken(good.slice(0, 3), 40), { template: "decision-request" }), "talk-time")).toHaveLength(1);
     });
 
     it("stays quiet without a budget, and while slides still lack a track (notes-present reports those)", () => {
@@ -812,6 +820,13 @@ describe("slot-budget", () => {
     expect(budget({ slots: { value: "1,234,567" } })[0].message).toMatch(/9 characters, at most 6/);
     const long = "Uploads resize every single large image before the request returns, so the slowest uploads time out";
     expect(budget({ headline: long })[0].message).toMatch(/about 3 lines/);
+  });
+
+  it("flags a body point over its budget and more than three points", () => {
+    expect(budget({ points: ["Median first response: 9 hours in September, 2 in October"] })).toEqual([]);
+    const long = "About one ticket in seventeen now reaches the wrong product area, up from one in twenty-five";
+    expect(budget({ points: [long] })[0].message).toMatch(/^Point .*16 words, at most 12/);
+    expect(budget({ points: ["One", "Two", "Three", "Four"] })[0].message).toMatch(/4 body points; keep it to 3/);
   });
 
   it("reads separators as no words and counts sentences only at their ends", () => {

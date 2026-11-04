@@ -23,6 +23,8 @@ export interface StorySlide {
   eyebrow?: string;
   /** The one-sentence lede under the headline, as data. */
   lede?: string;
+  /** Body points, as data: at most three, each within the `point` budget. */
+  points?: readonly string[];
   /** Any other slot text the slide declares (quote, value, owner…), checked against `SLOT_BUDGETS`. */
   slots?: Partial<Record<SlotName, string>>;
 }
@@ -114,7 +116,8 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   "deck-length": { severity: "warn", check: "About one to two minutes per presented slide." },
   "talk-time": {
     severity: "warn",
-    check: "The talk track fits the time budget at 135 words a minute, and covers at least half of it.",
+    check:
+      "The talk track fits the time budget at 135 words a minute, and covers at least half of it (the minutes given, else the template's shortest length, capped at one minute per presented slide).",
   },
   "template-beats": {
     severity: "warn",
@@ -124,7 +127,7 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   "slot-budget": {
     severity: "warn",
     check:
-      "Every slot the slide declares as data (title, eyebrow, headline lines, lede, and archetype slots such as quote, value, owner and date) fits its text budget in SLOT_BUDGETS: an eyebrow is one to four words, a lede one sentence, a headline at most two lines, a label no sentence.",
+      "Every slot the slide declares as data (title, eyebrow, headline lines, lede, body points, and archetype slots such as quote, value, owner and date) fits its text budget in SLOT_BUDGETS: an eyebrow is one to four words, a lede one sentence, a headline at most two lines, a body point at most 12 words on one line and at most three a slide, a label no sentence.",
   },
 };
 
