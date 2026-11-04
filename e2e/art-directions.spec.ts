@@ -53,13 +53,15 @@ for (const [k, kind] of kinds.entries())
     });
   }
 
-// Playback for every direction but the default (whose loop the objects spec covers), in one page.
-timingTest(
-  "every direction loops, pauses, holds under reduced motion, opens a canvas and survives context loss",
-  async ({ page }) => {
-    test.setTimeout(120_000);
-    await page.clock.install();
-    for (const variant of [1, 2, 3, 4, 5]) {
+// Playback for every direction but the default (whose loop the objects spec covers), one fresh page
+// each: in one shared page the fake clock, reduced-motion emulation and the lost context carried
+// from one direction into the next and the later directions hung.
+for (const variant of [1, 2, 3, 4, 5]) {
+  timingTest(
+    `${objectDirections[variant].id} loops, pauses, holds under reduced motion, opens a canvas and survives context loss`,
+    async ({ page }) => {
+      test.setTimeout(60_000);
+      await page.clock.install();
       const id = objectDirections[variant].id;
       await page.emulateMedia({ reducedMotion: "no-preference" });
       await page.goto(`/animations?story=travel&variant=${variant}`);
@@ -98,9 +100,9 @@ timingTest(
       await canvas.dispatchEvent("webglcontextlost");
       await expect(canvas, id).toHaveAttribute("data-renderer", "fallback");
       if (variant <= 2) await expect(page.getByRole("img", { name: "Local map illustration" })).toBeVisible();
-    }
-  },
-);
+    },
+  );
+}
 
 // The paint budget at phone width, one test per direction on its heaviest object (the most draw
 // calls at rest in the render test above, whose numbers do not change with width or theme). Chromium only: the thresholds are

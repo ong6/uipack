@@ -83,7 +83,7 @@ body {
   min-width: 0;
 }
 /* The heading scale (docs/design-direction.md): page title 40, section heading 24 (22 on
-   phones), card and figure titles 18–20 at 600. e2e/typography.spec.ts holds every page to it. */
+   phones), card and figure titles 18–20 at 600. e2e/page-audit.spec.ts holds every page to it. */
 .showcase-shell > section > h2,
 .showcase-shell .deck-showcase__reference > section > h2 {
   font-size: 24px;

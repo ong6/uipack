@@ -98,5 +98,11 @@ const run = (cmd, a) => {
 };
 if (!onlyE2e && (sources.length || tests.length))
   run("npx", ["vitest", "related", "--run", "--passWithNoTests", ...sources, ...tests]);
-if (!onlyUnit && e2e.length) run("npx", ["playwright", "test", ...e2e, "--project=chromium", "--workers=4"]);
+// Software WebGL starves under parallel workers (paint budgets and lost contexts), so the 3D specs
+// run on one worker, everything else on four.
+const GL = /\/(art-directions|contact-directions|objects)\.spec\.ts$/;
+const gl = e2e.filter((p) => GL.test(p));
+const rest = e2e.filter((p) => !GL.test(p));
+if (!onlyUnit && rest.length) run("npx", ["playwright", "test", ...rest, "--project=chromium", "--workers=4"]);
+if (!onlyUnit && gl.length) run("npx", ["playwright", "test", ...gl, "--project=chromium", "--workers=1"]);
 process.exit(failed ? 1 : 0);
