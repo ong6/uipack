@@ -101,7 +101,11 @@
     --ui-band-ink-2: light-dark(#a9b3ad, #9aa39e);
     --ui-band-cta: light-dark(#71dcb2, #71dcb2);
     --ui-on-band-cta: light-dark(#07110c, #07110c);
-    --ui-band-pattern: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ui-band-ink) 16%, transparent) 1px, transparent 1.5px)
+    --ui-band-pattern: radial-gradient(
+        circle at 1px 1px,
+        color-mix(in srgb, var(--ui-band-ink) 16%, transparent) 1px,
+        transparent 1.5px
+      )
       0 0 / 16px 16px;
     /* The hero backdrop below 720px: the same dotted grid. */
     --ui-backdrop-narrow: var(--ui-backdrop);

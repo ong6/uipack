@@ -8,22 +8,38 @@ The components enforce what they can; the rest is on the page author.
 `uipack/web` renders in three styles, one value set each in `src/styles` (see
 [docs/system/style.md](system/style.md)). Pick one with `<WebSurface uiStyle="…">` or a whole page with `<WebPage uiStyle="…" sections={…}>` (or
 `data-ui-style` on any ancestor, set before paint by `styleBootScript()`). A swap changes tokens and
-ornament slots only: the same sections, boxes and reading order (`e2e/style-swap.spec.ts`). Each
-style recommends a section order (`uiStyles[].prefers`); the shared order works in all three.
+ornament slots only: the same sections in the page's own order, the same hero, boxes and reading
+order (`e2e/style-swap.spec.ts`). A style's own order (`uiStyles[].prefers`) is an explicit opt-in.
 
-| Style | Use it for | Palette | Faces | Ornaments | Recommended order |
+| Style | Use it for | Palette | Faces | Ornaments | Own order (opt-in only) |
 | --- | --- | --- | --- | --- | --- |
-| **Technical** (default) | Product and project pages that should read like junxiong.dev's figures | Paper `#f6f5f1`, ink `#1a1c1a`, one forest accent `#205f49` (dark: `#0a100d`, `#e8ece9`, mint `#71dcb2`) | IBM Plex Sans (headlines at 600, −0.02em), IBM Plex Mono labels | Dotted-grid backdrop, masked; 2px-radius accent square before eyebrows; 1px section rules; thin frames, 6px radius, no shadow, no glow or grain; headline emphasis in the accent, not italic | Hero with the figure (start-aligned) → steps as numbered rows → demo → proof → FAQ → pricing |
-| **Landing** (generic) | When the brief is a conventional SaaS landing page | Neutral `#f7f7f4`, lavender band `#ebe9f4`, indigo CTA `#4b3fd6` | Instrument Serif display from step 4, Plex Sans, Plex Mono | Grain and glass, soft shadows, 16px cards, round pills, accent glow under the CTA and spotlight | Hero (centred, demo) → steps → mechanism → proof → FAQ → pricing |
-| **Graphical** | Launches, events, campaigns: a page that should look like a poster | Bone `#f1eee6`, black ink, one signal orange `#f24a00` (text uses `#b23700`) | Anton display in caps at 1.3× the scale, Plex Sans, Plex Mono | The accent disc and a ruled band in the hero backdrop; the disc again as every eyebrow marker; 2px ink frames with hard 6px offset shadows; 0 radius; 2px section rules; no glow or grain | Hero → proof (big numbers) → steps → mechanism → pricing → FAQ |
+| **Technical** (default) | Product and project pages that should read like junxiong.dev's figures | Paper `#f6f5f1`, ink `#1a1c1a`, one forest accent `#205f49` (dark: `#0a100d`, `#e8ece9`, mint `#71dcb2`) | IBM Plex Sans (headlines at 650, −0.02em, display steps at 1.1×), IBM Plex Mono labels | Dotted-grid backdrop, masked; 2px-radius accent square and a mono section index before eyebrows (`01 / HOW IT WORKS`); accent registration marks on cards, plans and the quote; 1px section rules; thin frames, 6px radius, no shadow, no glow or grain; headline emphasis in the accent, not italic; an ink closing band with a mint button | Hero with the figure → steps as numbered rows → demo → proof → FAQ → pricing |
+| **Landing** (generic) | When the brief is a conventional SaaS landing page | Neutral `#f7f7f4`, lavender band `#ebe9f4`, indigo CTA `#4b3fd6` | Instrument Serif display from step 4, Plex Sans, Plex Mono | Grain and glass, soft shadows, 16px cards, round pills, accent glow under the CTA and spotlight; an indigo-black closing band | Hero (centred, demo) → steps → mechanism → proof → FAQ → pricing |
+| **Graphical** | Launches, events, campaigns: a page that should look like a poster | Bone `#f1eee6`, black ink, one signal orange `#f24a00` (text uses `#b23700`) | Anton display in caps at 1.3× the scale, Plex Sans, Plex Mono | The accent disc and a ruled band in the hero backdrop (below 720px a small disc in the corner, no ring); the disc again as every eyebrow marker; 2px ink frames with hard 6px offset shadows; 0 radius; 2px section rules; figure flows in ink, grey and orange; an orange closing band; no glow or grain | Hero → proof (big numbers) → steps → mechanism → pricing → FAQ |
 
-**Layout defaults per style.** `WebPage` renders sections by id in the style's recommended order
-(`uiStyles[].prefers`) and sets `data-ui-layout="style"`, which turns on the style's layout
-defaults (`uiStyles[].layout`): Technical fills the hero's proof slot with the working figure
-instead of a product mock-up, sets the hero and every section head on the start edge and draws
-steps as numbered rows; Landing and Graphical keep the centred demo hero and step cards.
-`layout="shared"` renders every style on one order and layout, so a swap changes tokens only.
-Section render functions receive `{ uiStyle, layout, defaults }`.
+**One layout in every style (default).** `WebPage` renders `sections` in the order the page lists
+them and sets `data-ui-layout="shared"`: every style gets the same order, the same hero proof and
+start-edge alignment, so a swap changes the look and nothing else. Section render functions
+receive `{ uiStyle, layout, defaults }`; by default `defaults` is the same for all three (`hero:
+"demo"`, `align: "start"`, `steps: "cards"`). `layout="style"` opts into a style's own order and
+defaults (`uiStyles[].prefers` and `.layout`, `data-ui-layout="style"`): Technical then puts the
+figure in the hero and draws steps as numbered rows. Ids a style doesn't name are kept, after the
+ones it does.
+
+**Figures on a web page.** `WebSurface` (and so `WebPage`) gives figures quiet chrome: no Open
+canvas and no legend with fewer than two entries, which belong to articles and docs. `Figure
+chrome="full"` (or `WebSurface figureChrome="full"`) brings them back. A figure takes the page's
+text and label faces, its frame (Graphical's 2px ink and hard shadow, Landing's soft lift) and its
+radius, and each style keeps the flow colours in its own palette.
+
+**Closing parts.** `Proof`, `PricingPlans`, `ClosingCta`, `SiteFooter`, `Brand` and `FeatureGrid
+numbered` are one layout in every style, painted through roles. Use them rather than page CSS, so
+the swap keeps them in place.
+
+**The nav at phone width.** Below 720px `GlassNav` folds its links into a menu, with the brand on
+the start edge and Menu on the end edge. Below 520px the CTA moves into the open menu too, so a CTA
+of any length never pushes the toggle off a 390px screen. The hero CTA sits right under the nav and
+goes full width there.
 
 Shared finish rules hold in every style: one accent, glow only for selection (Landing's ambient
 glow is its documented exception, and its spotlight turns off elsewhere), contrast of 4.5:1 for
@@ -269,8 +285,12 @@ numbers are in [web discoverability](web-discoverability.md).
 | `SpotlightCard` | 14; off for `hover: none` and reduced motion; keyboard focus shows it |
 | `RevealText` | 14, 23; text stays in the DOM, visible without JavaScript; units keep their spaces |
 | `Eyebrow`, `Heading`, `Subhead`, `Body` | 6, 7, 19, 20, 24; `Heading` levels 1–6 |
-| `CtaButton`, `GlassNav` | 1, 5, 9 |
-| `Section`, `FeatureGrid`, `Grid`, `RhymeIcon` | 4, 8, 24, 30 (`Section lazyRender`) |
+| `CtaButton`, `GlassNav` | 1, 5, 9; GlassNav's CTA moves into the menu below 520px |
+| `Proof` | 6, 23, 24; the lead number with its denominator and meter, ruled stats, a named quote with drawn marks |
+| `PricingPlans` | 1, 8, 26; one to three plans fill the column, features and a button per card, the featured plan gets the accent |
+| `ClosingCta` | 1, 9, 24; the third CTA on the style's band roles |
+| `SiteFooter`, `Brand` | 24; the page ends on a footer; the wordmark is set in the display face |
+| `Section`, `FeatureGrid`, `Grid`, `RhymeIcon` | 4, 8, 24, 30 (`Section lazyRender`); `FeatureGrid numbered` for steps |
 | `Reveal`, `TextScramble`, `NumberTicker` | 14, 21, 23; final text reserves the space; screen readers get the final value; server HTML has it once |
 | `SmoothScroll`, `useSmoothScroll`, `createSmoothScroll`, `smoothScrollTo` | 14, 22; off on touch and under reduced motion |
 | `Marquee` | 14, 15, 23; Pause button, pauses on hover, focus and off screen; inert duplicate added after mount; static row under reduced motion |

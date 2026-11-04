@@ -92,7 +92,11 @@
     --ui-band-ink-2: light-dark(#b9b9c6, #b9b9c6);
     --ui-band-cta: light-dark(#a99dff, #a99dff);
     --ui-on-band-cta: light-dark(#0d0d13, #0d0d13);
-    --ui-band-pattern: radial-gradient(70% 140% at 100% 0, color-mix(in srgb, var(--ui-band-cta) 26%, transparent), transparent 70%);
+    --ui-band-pattern: radial-gradient(
+      70% 140% at 100% 0,
+      color-mix(in srgb, var(--ui-band-cta) 26%, transparent),
+      transparent 70%
+    );
     --ui-backdrop-narrow: none;
     --ui-section-index: none;
     --ui-corner-marks: none;

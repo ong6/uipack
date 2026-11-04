@@ -162,6 +162,7 @@
     "README.md",
     "LICENSE",
     "docs/*.md",
+    "docs/system/*.md",
     "AGENTS.md",
     "CLAUDE.md",
     "src/README.md",

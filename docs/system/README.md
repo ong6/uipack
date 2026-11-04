@@ -69,15 +69,17 @@ decoration and text length):
 - **Every slot has a text budget.** A headline is 3–14 words on at most two lines, an eyebrow 1–4
   words, a label 2–3. `SLOT_BUDGETS` holds the table and `lintDeck` reports `slot-budget`
   ([Writing, slot budgets](writing.md#slot-budgets)).
-- **A style may recommend layouts, never require them.** On the web the section order is part of a
-  look, so each style names a sequence for the same content (`uiStyles[].prefers`,
-  [Layout, web](layout.md#web)); every style still renders every layout.
+- **A style swap never moves a section.** A web page renders its author's section order and one
+  layout in every style, so swapping `uiStyle` changes tokens and ornaments only, never the
+  writing, the order or what sits in the hero. A style's own sequence (`uiStyles[].prefers`) is an
+  explicit opt-in, `WebPage layout="style"` ([Layout, web](layout.md#web)).
 - **The web loads one style at a time.** CSS sits in cascade layers (`uipack.tokens`,
   `uipack.base`, `uipack.layout`, `uipack.ornaments`), so an unlayered host rule wins without
   `!important`. A blocking head script (`styleBootScript`) sets `data-ui-style` and
   `data-ui-theme` before the first paint. Each style fetches only its own faces, preloads only its
   display face and swaps over metric-matched fallbacks.
 
+This folder ships in the npm package: a consumer reads it at `node_modules/uipack/docs/system/`.
 What exists in code and what is still missing is in
 [Style roles, "Where the code stands"](style.md#where-the-code-stands). The Foundations pages
 (`/foundations`) show each layer live.
@@ -88,7 +90,7 @@ What exists in code and what is still missing is in
 | --- | --- | --- | --- | --- |
 | Diagrams | `uipack` (`Figure`), `uipack/presets`, `uipack/drill`, `uipack/charts`, `uipack/article` | Technical | Claim sentence, 2–3 word labels, labelled arrows, one-line caption | 8px grid, lanes, groups, authored narrow drawing |
 | Slides | `uipack/deck` (new work), `uipack/presentations` (three starters) | Technical (deck tokens) | Action titles, ghost deck, slide roles, storylines, talk track, a concrete ask | 1920×1080 canvas, eyebrow/headline/body/footer regions, slide archetypes |
-| Web | `uipack/web`, `uipack/docs` | Technical (Landing and Graphical swap in) | One goal per page, outcome headline, one CTA in three places | 12/8/4 grid, 8pt spacing, section archetypes, a sequence per style |
+| Web | `uipack/web`, `uipack/docs` | Technical (Landing and Graphical swap in) | One goal per page, outcome headline, one CTA in three places | 12/8/4 grid, 8pt spacing, section archetypes, one order in every style |
 | Motion | Packets, entrance, deck transitions, `uipack/web` motion | Inherits the host style's motion tokens | One sentence per beat | Beats, the timing scale, transition grammar |
 | 3D | `uipack/slides` (camera stories), `uipack/objects`, `uipack/mechanism` | Studio / Mechanism | A label set and one line of narration per stop | Camera stops, framing, the 2D fallback |
 
