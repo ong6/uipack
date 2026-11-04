@@ -81,10 +81,19 @@
     --ui-cta-shadow: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 8px 20px -10px var(--ui-accent);
     --ui-cta-shadow-hover: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 12px 28px -10px var(--ui-accent);
     --ui-em-style: italic;
-    --ui-em-color: inherit;
+    --ui-em-color: currentColor;
     --ui-star-fill: 1;
     --ui-display-scale: 1;
 
+    --ui-accent-ink: var(--ui-accent);
+    --ui-node: var(--ui-surface);
+    --ui-line-solid: var(--ui-line);
+    --ui-inv-node: var(--ui-inv-surface);
+    --ui-data-neg-ink: var(--ui-data-neg);
+    --ui-slide-font-display: var(--ui-font-display);
+    --ui-web-font-display: var(--ui-font-display);
+    --ui-alert: light-dark(#b42318, #ff8a7a);
+    --ui-warn: light-dark(#b4471f, #f08a5d);
     --ui-web-font-text: var(--ui-font-text);
     --ui-web-font-label: var(--ui-font-label);
     --ui-slide-font-text: var(--ui-font-text);

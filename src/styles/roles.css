@@ -14,60 +14,49 @@
 @layer uipack.tokens, uipack.base, uipack.layout, uipack.ornaments;
 
 @layer uipack.tokens {
-  /* Optional roles: a style may tune these; components fall back to a core role when a style
-     leaves them unset. Reset on every style host so a tuned value never leaks into a child that
-     uses another style. */
+  /* Every --ui-* role is filled by every style (test/style-roles.test.tsx). --tune-* values are
+     not roles: they are Technical's hand-tuned values for one component (a Mechanism shade, the
+     docs entry's warm palette), read as var(--tune-x, <derived from core roles>), so any other
+     style gets the derivation. Reset on every style host so a tuned value never leaks into a child
+     that uses another style. */
   [data-ui-style] {
-    --ui-node: initial;
-    --ui-line-solid: initial;
-    --ui-accent-ink: initial;
-    --ui-data-neg-ink: initial;
-    --ui-inv-node: initial;
-    --ui-slide-ink-2: initial;
-    --ui-slide-line: initial;
-    --ui-slide-font-text: initial;
-    --ui-slide-font-label: initial;
-    --ui-slide-font-display: initial;
-    --ui-web-font-text: initial;
-    --ui-web-font-label: initial;
-    --ui-web-font-display: initial;
-    --ui-docs-surface: initial;
-    --ui-docs-surface-strong: initial;
-    --ui-docs-line: initial;
-    --ui-docs-warm-ink: initial;
-    --ui-docs-warm-ink-2: initial;
-    --ui-docs-warm-line: initial;
-    --ui-docs-warm-surface: initial;
-    --ui-docs-warm-surface-strong: initial;
-    --ui-docs-warm-accent: initial;
-    --ui-docs-warm-focus: initial;
-    --ui-print-line: initial;
-    --ui-print-ink-2: initial;
-    --ui-alert: initial;
-    --ui-warn: initial;
-    --ui-letterbox: initial;
-    --ui-mech-text: initial;
-    --ui-mech-muted: initial;
-    --ui-mech-top: initial;
-    --ui-mech-shade-0: initial;
-    --ui-mech-shade-1: initial;
-    --ui-mech-shade-2: initial;
-    --ui-mech-shade-3: initial;
-    --ui-mech-cavity: initial;
-    --ui-mech-lit-top: initial;
-    --ui-mech-lit-shade: initial;
-    --ui-mech-mid: initial;
-    --ui-mech-lo: initial;
-    --ui-mech-faint: initial;
-    --ui-mech-halo: initial;
-    --ui-mech-dot: initial;
-    --ui-object-paper: initial;
-    --ui-object-glow: initial;
-    --ui-object-ink: initial;
-    --ui-object-ink-2: initial;
-    --ui-object-line: initial;
-    --ui-object-edge: initial;
-    --ui-object-control-ink-2: initial;
+    --tune-slide-ink-2: initial;
+    --tune-slide-line: initial;
+    --tune-docs-surface: initial;
+    --tune-docs-surface-strong: initial;
+    --tune-docs-line: initial;
+    --tune-docs-warm-ink: initial;
+    --tune-docs-warm-ink-2: initial;
+    --tune-docs-warm-line: initial;
+    --tune-docs-warm-surface: initial;
+    --tune-docs-warm-surface-strong: initial;
+    --tune-docs-warm-accent: initial;
+    --tune-docs-warm-focus: initial;
+    --tune-print-line: initial;
+    --tune-print-ink-2: initial;
+    --tune-letterbox: initial;
+    --tune-mech-text: initial;
+    --tune-mech-muted: initial;
+    --tune-mech-top: initial;
+    --tune-mech-shade-0: initial;
+    --tune-mech-shade-1: initial;
+    --tune-mech-shade-2: initial;
+    --tune-mech-shade-3: initial;
+    --tune-mech-cavity: initial;
+    --tune-mech-lit-top: initial;
+    --tune-mech-lit-shade: initial;
+    --tune-mech-mid: initial;
+    --tune-mech-lo: initial;
+    --tune-mech-faint: initial;
+    --tune-mech-halo: initial;
+    --tune-mech-dot: initial;
+    --tune-object-paper: initial;
+    --tune-object-glow: initial;
+    --tune-object-ink: initial;
+    --tune-object-ink-2: initial;
+    --tune-object-line: initial;
+    --tune-object-edge: initial;
+    --tune-object-control-ink-2: initial;
   }
 
   /* Theme hosts: any element can set its colour theme for everything inside it. An explicit

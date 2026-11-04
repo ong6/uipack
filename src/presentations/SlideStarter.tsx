@@ -7,7 +7,7 @@ export interface SlideStarterProps {
   slide: SlideStarterData;
   theme?: PresentationTheme;
   /** The style it is painted in (sets data-ui-style); omitted, the nearest ancestor's, else Technical. */
-  style?: UiStyleId;
+  uiStyle?: UiStyleId;
   showSpeech?: boolean;
   className?: string;
   onCopySpeech?: (text: string) => void;
@@ -16,7 +16,7 @@ export interface SlideStarterProps {
 export function SlideStarter({
   slide,
   theme = "light",
-  style,
+  uiStyle,
   showSpeech = true,
   className = "",
   onCopySpeech,
@@ -25,7 +25,7 @@ export function SlideStarter({
     <section
       className={`uipack-slide-starter ${className}`.trim()}
       data-theme={theme}
-      data-ui-style={style}
+      data-ui-style={uiStyle}
       data-layout={slide.layout}
     >
       <figure className="uipack-slide-starter__figure">

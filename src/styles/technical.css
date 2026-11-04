@@ -17,6 +17,7 @@
     --ui-line-soft: color-mix(in srgb, var(--ui-ink) 16%, transparent);
     /* The one accent, and what sits on it */
     --ui-accent: light-dark(#205f49, #71dcb2);
+    --ui-accent-ink: var(--ui-accent);
     --ui-on-accent: light-dark(#f6f5f1, #07110c);
     --ui-accent-surface: light-dark(#2a6b54, #8fe4c3);
     --ui-accent-ink-2: light-dark(#cfe3d9, #1d4a38);
@@ -93,58 +94,58 @@
     --ui-star-fill: 0;
     --ui-display-scale: 1;
 
-    /* Optional roles tuned for Technical's media */
+    /* Roles whose Technical values are tuned for one medium, then --tune-* component values */
     --ui-node: light-dark(#fbfaf6, #0e1512);
     --ui-inv-node: light-dark(#18221d, #f6f5f1);
     --ui-line-solid: light-dark(#c4ccc6, #34443b);
     --ui-data-neg-ink: light-dark(#a8431f, #f0936c);
-    --ui-slide-ink-2: light-dark(#5c625e, #aeb8b2);
-    --ui-slide-line: light-dark(#bac3bc, #43544b);
+    --tune-slide-ink-2: light-dark(#5c625e, #aeb8b2);
+    --tune-slide-line: light-dark(#bac3bc, #43544b);
     --ui-slide-font-text: var(--font-sans, "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
     --ui-slide-font-display: var(--ui-slide-font-text);
     --ui-slide-font-label: var(--font-mono, "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
     --ui-web-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --ui-web-font-display: var(--ui-web-font-text);
     --ui-web-font-label: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    --ui-docs-surface: light-dark(#edefec, #14201b);
-    --ui-docs-surface-strong: light-dark(#e2e6e2, #1d2c26);
-    --ui-docs-line: light-dark(rgb(26 28 26 / 0.16), rgb(232 236 233 / 0.18));
+    --tune-docs-surface: light-dark(#edefec, #14201b);
+    --tune-docs-surface-strong: light-dark(#e2e6e2, #1d2c26);
+    --tune-docs-line: light-dark(rgb(26 28 26 / 0.16), rgb(232 236 233 / 0.18));
     /* The docs layout's warm default palette (DocsLayout palette="warm") */
-    --ui-docs-warm-ink: light-dark(#29231f, #f2ece3);
-    --ui-docs-warm-ink-2: light-dark(#655c55, #aea198);
-    --ui-docs-warm-line: light-dark(rgb(41 35 31 / 0.18), rgb(242 236 227 / 0.2));
-    --ui-docs-warm-surface: light-dark(#fbf8f2, #211d1a);
-    --ui-docs-warm-surface-strong: light-dark(#e7ded2, #37302b);
-    --ui-docs-warm-accent: light-dark(#234ea2, #9ab6ff);
-    --ui-docs-warm-focus: light-dark(#315db6, #9ab6ff);
-    --ui-print-line: #dfe3e0;
-    --ui-print-ink-2: #3d433f;
+    --tune-docs-warm-ink: light-dark(#29231f, #f2ece3);
+    --tune-docs-warm-ink-2: light-dark(#655c55, #aea198);
+    --tune-docs-warm-line: light-dark(rgb(41 35 31 / 0.18), rgb(242 236 227 / 0.2));
+    --tune-docs-warm-surface: light-dark(#fbf8f2, #211d1a);
+    --tune-docs-warm-surface-strong: light-dark(#e7ded2, #37302b);
+    --tune-docs-warm-accent: light-dark(#234ea2, #9ab6ff);
+    --tune-docs-warm-focus: light-dark(#315db6, #9ab6ff);
+    --tune-print-line: #dfe3e0;
+    --tune-print-ink-2: #3d433f;
     --ui-alert: light-dark(#b42318, #ff8a7a);
     --ui-warn: light-dark(#b4471f, #f08a5d);
-    --ui-letterbox: #050806;
+    --tune-letterbox: #050806;
     /* Mechanism: Anatomy's four solid tones by facing, the cavity, the lit faces and the edges */
-    --ui-mech-text: light-dark(#3d423f, #b9c2bd);
-    --ui-mech-muted: light-dark(#5c625e, #8f9a94);
-    --ui-mech-top: light-dark(#ffffff, #1a2822);
-    --ui-mech-shade-0: light-dark(#dcdfdb, #0b110e);
-    --ui-mech-shade-1: light-dark(#e5e8e4, #0f1714);
-    --ui-mech-shade-2: light-dark(#edefec, #131d18);
-    --ui-mech-shade-3: light-dark(#f4f5f3, #17231e);
-    --ui-mech-cavity: light-dark(#d3d7d3, #070b09);
-    --ui-mech-lit-top: light-dark(#eef6f2, #1f3a2f);
-    --ui-mech-lit-shade: light-dark(#dcebe4, #182e25);
-    --ui-mech-mid: light-dark(#858b87, #8a958f);
-    --ui-mech-lo: light-dark(#b3b8b4, #66726c);
-    --ui-mech-faint: light-dark(#d5d9d5, #28332e);
-    --ui-mech-halo: light-dark(#848a84, #020403);
-    --ui-mech-dot: light-dark(#2f3431, #e8ece9);
+    --tune-mech-text: light-dark(#3d423f, #b9c2bd);
+    --tune-mech-muted: light-dark(#5c625e, #8f9a94);
+    --tune-mech-top: light-dark(#ffffff, #1a2822);
+    --tune-mech-shade-0: light-dark(#dcdfdb, #0b110e);
+    --tune-mech-shade-1: light-dark(#e5e8e4, #0f1714);
+    --tune-mech-shade-2: light-dark(#edefec, #131d18);
+    --tune-mech-shade-3: light-dark(#f4f5f3, #17231e);
+    --tune-mech-cavity: light-dark(#d3d7d3, #070b09);
+    --tune-mech-lit-top: light-dark(#eef6f2, #1f3a2f);
+    --tune-mech-lit-shade: light-dark(#dcebe4, #182e25);
+    --tune-mech-mid: light-dark(#858b87, #8a958f);
+    --tune-mech-lo: light-dark(#b3b8b4, #66726c);
+    --tune-mech-faint: light-dark(#d5d9d5, #28332e);
+    --tune-mech-halo: light-dark(#848a84, #020403);
+    --tune-mech-dot: light-dark(#2f3431, #e8ece9);
     /* Object scenes (Studio stage, gallery and controls) */
-    --ui-object-paper: light-dark(#faf9f6, #14201b);
-    --ui-object-glow: light-dark(#ffffff, #25382f);
-    --ui-object-ink: light-dark(#292e32, #e8ece9);
-    --ui-object-ink-2: light-dark(#626c65, #a6b4aa);
-    --ui-object-line: light-dark(#d6dcd5, #36463c);
-    --ui-object-edge: #87958c;
-    --ui-object-control-ink-2: light-dark(#526459, #b7c8bf);
+    --tune-object-paper: light-dark(#faf9f6, #14201b);
+    --tune-object-glow: light-dark(#ffffff, #25382f);
+    --tune-object-ink: light-dark(#292e32, #e8ece9);
+    --tune-object-ink-2: light-dark(#626c65, #a6b4aa);
+    --tune-object-line: light-dark(#d6dcd5, #36463c);
+    --tune-object-edge: #87958c;
+    --tune-object-control-ink-2: light-dark(#526459, #b7c8bf);
   }
 }

@@ -6,7 +6,7 @@
   --deck-bg: var(--ui-paper);
   --deck-surface: var(--ui-surface-raised);
   --deck-fg: var(--ui-ink);
-  --deck-muted: var(--ui-slide-ink-2, var(--ui-ink-2));
+  --deck-muted: var(--tune-slide-ink-2, var(--ui-ink-2));
   --deck-rule: var(--ui-line-solid, var(--ui-line));
   --deck-accent: var(--ui-accent-ink, var(--ui-accent));
   --deck-node: var(--ui-node, var(--ui-surface));
@@ -50,7 +50,7 @@
   --deck-bg: var(--ui-paper);
   --deck-surface: var(--ui-surface-raised);
   --deck-fg: var(--ui-ink);
-  --deck-muted: var(--ui-slide-ink-2, var(--ui-ink-2));
+  --deck-muted: var(--tune-slide-ink-2, var(--ui-ink-2));
   --deck-rule: var(--ui-line-solid, var(--ui-line));
   --deck-accent: var(--ui-accent-ink, var(--ui-accent));
   --deck-node: var(--ui-node, var(--ui-surface));
@@ -548,7 +548,7 @@
   place-items: center;
   width: 100vw;
   height: 100vh;
-  background: var(--ui-letterbox, black);
+  background: var(--tune-letterbox, black);
 }
 .uipack-deck:fullscreen .uipack-deck-stage {
   width: min(100vw, calc(100vh * 16 / 9));
@@ -1117,7 +1117,7 @@
 .uipack-deck-print[data-notes] .uipack-deck-print__notes {
   grid-row: 1 / -1;
   grid-column: 2;
-  border-left: 1px solid var(--ui-print-line, var(--ui-line));
+  border-left: 1px solid var(--tune-print-line, var(--ui-line));
 }
 .uipack-deck-print__say {
   grid-row: 2;
@@ -1128,7 +1128,7 @@
   min-height: 0;
   overflow: hidden;
   padding: 18px 28px 16px 32px;
-  border-top: 1px solid var(--ui-print-line, var(--ui-line));
+  border-top: 1px solid var(--tune-print-line, var(--ui-line));
   font: 400 13.5px/1.5 var(--deck-sans);
 }
 .uipack-deck-print__say > b,
@@ -1140,7 +1140,7 @@
 }
 .uipack-deck-print__say > p {
   margin: 0;
-  color: var(--ui-print-ink-2, var(--ui-ink-2));
+  color: var(--tune-print-ink-2, var(--ui-ink-2));
 }
 .uipack-deck-print__notes .uipack-deck-print__cue {
   margin: 0 0 10px;
@@ -1176,7 +1176,7 @@
 }
 .uipack-deck-print__notes p {
   margin: 0;
-  color: var(--ui-print-ink-2, var(--ui-ink-2));
+  color: var(--tune-print-ink-2, var(--ui-ink-2));
 }
 /* Chrome hover eases in: colour and border on the buttons, a background on the
    storyline rows, a 2px lift on overview thumbnails (a transform, so no box moves).

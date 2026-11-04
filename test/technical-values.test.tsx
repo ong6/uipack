@@ -7,7 +7,7 @@ const css = readFileSync("src/styles/technical.css", "utf8");
 
 /** `--ui-<role>: light-dark(<light>, <dark>)` from technical.css, as [light, dark]. */
 function pair(role: string): [string, string] {
-  const m = css.match(new RegExp(`--ui-${role}:\\s*light-dark\\(\\s*(#[0-9a-f]{6}),\\s*(#[0-9a-f]{6})\\s*\\)`, "i"));
+  const m = css.match(new RegExp(`--(?:ui|tune)-${role}:\\s*light-dark\\(\\s*(#[0-9a-f]{6}),\\s*(#[0-9a-f]{6})\\s*\\)`, "i"));
   if (!m) throw new Error(`technical.css has no light-dark pair for --ui-${role}`);
   return [m[1].toLowerCase(), m[2].toLowerCase()];
 }

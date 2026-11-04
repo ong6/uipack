@@ -5,7 +5,7 @@
   --slide-surface: var(--ui-surface-raised);
   --slide-ink: var(--ui-ink);
   --slide-muted: var(--ui-ink-2);
-  --slide-rule: var(--ui-slide-line, var(--ui-line));
+  --slide-rule: var(--tune-slide-line, var(--ui-line));
   --slide-accent: var(--ui-accent);
   --slide-request: var(--ui-flow-request);
   --slide-response: var(--ui-flow-response);

@@ -33,12 +33,31 @@ describe("style value sets", () => {
     expect(css).toContain("@layer uipack.tokens, uipack.base, uipack.layout, uipack.ornaments;");
   });
 
-  it("resets every optional role on a style host, so Technical's tuned values never leak into another style", () => {
+  it("fills the same roles in every style: no role exists in one style only", () => {
+    const sets = styles.map((id) => Object.keys(readStyle(id)).sort());
+    for (const [i, id] of styles.entries()) expect(sets[i], id).toEqual(sets[0]);
+  });
+
+  it("keeps component tuning out of the roles: --tune-* values are Technical's, reset on every style host", () => {
     const roles = readFileSync("src/styles/roles.css", "utf8");
-    const reset = new Set([...roles.matchAll(/--ui-([a-z0-9-]+):\s*initial;/g)].map((m) => m[1]));
-    const technical = Object.keys(readStyle("technical"));
-    const optional = technical.filter((r) => !(CORE_ROLES as readonly string[]).includes(r));
-    expect(optional.filter((r) => !reset.has(r))).toEqual([]);
+    const reset = new Set([...roles.matchAll(/--tune-([a-z0-9-]+):\s*initial;/g)].map((m) => m[1]));
+    const css = (id: StyleId) => readFileSync(STYLE_FILES[id], "utf8");
+    const tuned = [...css("technical").matchAll(/--tune-([a-z0-9-]+):/g)].map((m) => m[1]);
+    expect(tuned.length).toBeGreaterThan(0);
+    expect(tuned.filter((t) => !reset.has(t))).toEqual([]);
+    // Every use site gives a tuned value a fallback, so another style gets a derivation, never nothing.
+    const sources = [
+      "src/mechanism/mechanism.css",
+      "src/objects/objects.css",
+      "src/docs/docs.css",
+      "src/deck/deck.css",
+      "src/presentations/presentations.css",
+      "src/slides/slides.css",
+    ];
+    for (const f of sources) {
+      const uses = [...readFileSync(f, "utf8").matchAll(/var\(--tune-[a-z0-9-]+(,?)/g)];
+      for (const u of uses) expect(u[1], `${f}: ${u[0]} needs a fallback`).toBe(",");
+    }
   });
 });
 

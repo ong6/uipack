@@ -17,7 +17,7 @@ export interface TechnicalColors {
   "flow-request": string;
   "flow-response": string;
   "flow-change": string;
-  /** Slides: the starters' rule (optional role --ui-slide-line). */
+  /** Slides: the starters' rule (optional role --tune-slide-line). */
   "slide-line": string;
 }
 

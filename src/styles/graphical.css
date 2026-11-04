@@ -95,6 +95,14 @@
     --ui-star-fill: 0;
     --ui-display-scale: 1.3;
 
+    --ui-node: var(--ui-surface);
+    --ui-line-solid: var(--ui-line);
+    --ui-inv-node: var(--ui-inv-surface);
+    --ui-data-neg-ink: var(--ui-data-neg);
+    --ui-slide-font-display: var(--ui-font-display);
+    --ui-web-font-display: var(--ui-font-display);
+    --ui-alert: light-dark(#c0174f, #ff6b93);
+    --ui-warn: light-dark(#8a5a00, #ffb347);
     --ui-web-font-text: var(--ui-font-text);
     --ui-web-font-label: var(--ui-font-label);
     --ui-slide-font-text: var(--ui-font-text);

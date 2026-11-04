@@ -2,13 +2,13 @@
    --ui-docs-warm-* roles; a style that leaves them unset falls back to its core roles), and the
    style's own palette with palette="technical". Dark follows data-theme only. */
 .uipack-docs {
-  --docs-ink: var(--ui-docs-warm-ink, var(--ui-ink));
-  --docs-muted: var(--ui-docs-warm-ink-2, var(--ui-ink-2));
-  --docs-rule: var(--ui-docs-warm-line, var(--ui-line-soft));
-  --docs-surface: var(--ui-docs-warm-surface, var(--ui-surface));
-  --docs-surface-strong: var(--ui-docs-warm-surface-strong, var(--ui-surface-2));
-  --docs-accent: var(--ui-docs-warm-accent, var(--ui-accent));
-  --docs-focus: var(--ui-docs-warm-focus, var(--ui-accent));
+  --docs-ink: var(--tune-docs-warm-ink, var(--ui-ink));
+  --docs-muted: var(--tune-docs-warm-ink-2, var(--ui-ink-2));
+  --docs-rule: var(--tune-docs-warm-line, var(--ui-line-soft));
+  --docs-surface: var(--tune-docs-warm-surface, var(--ui-surface));
+  --docs-surface-strong: var(--tune-docs-warm-surface-strong, var(--ui-surface-2));
+  --docs-accent: var(--tune-docs-warm-accent, var(--ui-accent));
+  --docs-focus: var(--tune-docs-warm-focus, var(--ui-accent));
   color-scheme: light;
   color: var(--docs-ink);
   font-family: var(--font-sans, system-ui, sans-serif);
@@ -25,9 +25,9 @@
 .uipack-docs[data-palette="technical"] {
   --docs-ink: var(--ui-ink);
   --docs-muted: var(--ui-ink-2);
-  --docs-rule: var(--ui-docs-line, var(--ui-line-soft));
-  --docs-surface: var(--ui-docs-surface, var(--ui-surface-2));
-  --docs-surface-strong: var(--ui-docs-surface-strong, var(--ui-surface-2));
+  --docs-rule: var(--tune-docs-line, var(--ui-line-soft));
+  --docs-surface: var(--tune-docs-surface, var(--ui-surface-2));
+  --docs-surface-strong: var(--tune-docs-surface-strong, var(--ui-surface-2));
   --docs-accent: var(--ui-accent);
   --docs-focus: var(--ui-accent);
 }

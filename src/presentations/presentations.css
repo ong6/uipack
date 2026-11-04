@@ -4,8 +4,8 @@
   --presentation-bg: var(--ui-paper);
   --presentation-surface: var(--ui-surface-raised);
   --presentation-ink: var(--ui-ink);
-  --presentation-muted: var(--ui-slide-ink-2, var(--ui-ink-2));
-  --presentation-rule: var(--ui-slide-line, var(--ui-line));
+  --presentation-muted: var(--tune-slide-ink-2, var(--ui-ink-2));
+  --presentation-rule: var(--tune-slide-line, var(--ui-line));
   --presentation-accent: var(--ui-accent);
   color-scheme: light;
   color: var(--presentation-ink);

@@ -5,10 +5,10 @@
 }
 .uipack-object {
   /* The Studio stage's names for the roles (src/styles); tuned in Technical as --ui-object-*. */
-  --object-bg: var(--ui-object-paper, var(--ui-surface));
-  --object-ink: var(--ui-object-ink, var(--ui-ink));
+  --object-bg: var(--tune-object-paper, var(--ui-surface));
+  --object-ink: var(--tune-object-ink, var(--ui-ink));
   --object-accent: var(--ui-accent);
-  --object-rule: var(--ui-object-line, var(--ui-line));
+  --object-rule: var(--tune-object-line, var(--ui-line));
   color-scheme: light;
   position: relative;
   width: 100%;
@@ -17,7 +17,7 @@
   overflow: hidden;
   border: 1px solid var(--object-rule);
   border-radius: 6px;
-  background: radial-gradient(ellipse at 50% 36%, var(--ui-object-glow, var(--ui-surface-raised)) 0%, var(--object-bg) 72%);
+  background: radial-gradient(ellipse at 50% 36%, var(--tune-object-glow, var(--ui-surface-raised)) 0%, var(--object-bg) 72%);
   color: var(--object-ink);
 }
 .uipack-object[data-theme="dark"] {
@@ -72,7 +72,7 @@
   right: 12px;
   min-height: 44px;
   padding: 0 14px;
-  border: 1px solid var(--ui-object-edge, var(--ui-line));
+  border: 1px solid var(--tune-object-edge, var(--ui-line));
   border-radius: 4px;
   color: inherit;
   background: var(--object-bg, var(--ui-surface));
@@ -92,7 +92,7 @@
 .uipack-object-frame {
   --object-control-bg: var(--uipack-surface, var(--ui-surface-raised));
   --object-control-fg: var(--uipack-fg, var(--ui-ink));
-  --object-control-muted: var(--uipack-muted, var(--ui-object-control-ink-2, var(--ui-ink-2)));
+  --object-control-muted: var(--uipack-muted, var(--tune-object-control-ink-2, var(--ui-ink-2)));
   --object-control-border: var(--uipack-border, var(--ui-line));
   color-scheme: light;
 }
@@ -235,8 +235,8 @@
 /* Gallery furniture remains quiet so each authored world owns the stage. */
 .uipack-animation-workspace {
   --gallery-ink: var(--ui-ink);
-  --gallery-muted: var(--ui-object-ink-2, var(--ui-ink-2));
-  --gallery-rule: var(--ui-object-line, var(--ui-line));
+  --gallery-muted: var(--tune-object-ink-2, var(--ui-ink-2));
+  --gallery-rule: var(--tune-object-line, var(--ui-line));
   --gallery-surface: var(--ui-surface-raised);
   --gallery-accent: var(--ui-accent);
   color-scheme: light;
