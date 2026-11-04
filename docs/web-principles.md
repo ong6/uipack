@@ -61,7 +61,8 @@ three.
 
 1. **One goal per page.** One primary CTA, placed in the hero, in the nav, and again at the end: three
    placements, one action, one accent colour. Add social proof between them. `CtaButton`
-   `variant="primary"` is the only thing that uses the accent fill. (SMWD-5)
+   `variant="primary"` is the only thing that uses the accent fill. The goal is the reader's next
+   step; an internal approval behind the launch stays in the deck, off the page. (SMWD-5)
 2. **Show the product working.** A demo-first hero beats decoration. Flashy effects impress other
    developers; customers need proof of value. He is “not trying to impress other designers or win
    awards” (SMWD-6, 4:44), and “most designers design for looks, pro designers design for action”:

@@ -14,8 +14,8 @@ The code lives behind [`src/deck/storyline.ts`](../src/deck/storyline.ts), with 
 | **Action titles** | Every title is a full claim ("Index freshness fell from 40 to 6 minutes"), not a topic ("Results"). 3–14 words. | Does the title say what to conclude? |
 | **Ghost deck** | Read only the titles, in order. They should tell the whole argument. | Run `storylineOf`; does it read as a story? |
 | **One idea per slide** | One claim, and a body that proves it. Two claims means two slides. | Can you state the slide in one sentence? |
-| **Evidence with sources** | Every number has a baseline, a window and a source: on the slide when it changes the decision, otherwise in the notes. | "Where's that from?" has an answer. |
-| **A specific ask** | End on a decision or action, a named owner (a team or role: "platform leads", "the payments team", "VP Eng", an @handle; not "we", "the team", a first name or "owner TBD") and a firm calendar date ("next quarter", "Monday-ish" and "next Monday maybe" are not). Not "Questions?" | Could someone act on it tomorrow, and would they know it's theirs? |
+| **Evidence with sources** | Every number has a baseline, a window and a source: on the slide when it changes the decision, otherwise in the notes. Each covers only the number it was given for; a number without one shows `Source: TODO`, never a neighbour's. Nothing goes in that the input doesn't say: no guessed causes, scopes or reassurances (see [Writing](system/writing.md#rules-for-every-medium)). | "Where's that from?" has an answer, and it's the right one. |
+| **A specific ask** | End on a decision or action, a named owner (a team or role: "platform leads", "the payments team", "VP Eng", an @handle; not "we", "the team", a first name or "owner TBD") and a firm calendar date ("next quarter", "Monday-ish" and "next Monday maybe" are not), and what happens on a no or a missed date. Not "Questions?" | Could someone act on it tomorrow, and would they know it's theirs? |
 | **Design serves the claim** | The dominant visual element is the evidence for the title. Cut decoration, logos and anything the title doesn't need. | Cover the title: does the visual still point at it? |
 
 For a decision deck, use SCQA: **S**ituation (what the room accepts), **C**omplication (what changed), **Q**uestion (what to do), **A**nswer (the recommendation). With an exec audience, put the A first and let S and C follow as support.
@@ -45,6 +45,8 @@ Tag each slide with the job it does. The linter and the ghost deck read these ta
 ## The six storylines
 
 Each template is an ordered list of beats (`role`, `purpose`, `titlePattern`, `example`, `guidance`, and sometimes a suggested `move`), plus `remember`: what leadership should be able to repeat a week later. Draft that line first; slide one and the ask should carry it. `templateOutline(id)` turns a template into a scaffold deck. The example titles below describe generic projects; the numbers are illustrative.
+
+A template is a default order, not a quota. When the brief fixes a shorter deck or the facts can't fill a beat (no options, no milestones), merge it into a neighbour or drop it, and put one `TODO:` question for the missing facts in that slide's notes; `template-beats` will name the gap, which is the honest result. Never invent options, milestones or numbers to fill a slot. With a fixed slide count and no time given, pass `minutes` as about one per presented slide.
 
 ### Project update / results (5–8 slides, 5–10 min)
 
@@ -76,7 +78,7 @@ Put the status word first. If the project is at risk, say so on slide one. With 
 | 7 | risk *(optional)* | If queue lag passes one minute, we fall back to inline resizing |
 | 8 | ask | Platform leads: decide by 14 March so the work is staffed in Q2 |
 
-Compare the options on one slide using the same criteria, and always include "do nothing". Naming what the recommendation costs is what makes it credible.
+Compare the options on one slide using the same criteria, and always include "do nothing", which the facts can always state: what stays as it is. Naming what the recommendation costs is what makes it credible.
 
 ### Technical deep dive (7–12 slides, 12–25 min)
 
@@ -168,7 +170,7 @@ People will read your deck without you in the room. Write it so it still works:
 
 ## The checklist `lintDeck` enforces
 
-`lintDeck(slides, { template?, minutes?, answerFirst? })` reads `{ id, title, role?, notes?, headline?, source? }[]`. A `DeckSlide` already fits. When the overview `title` is a short name, pass the on-slide claim as `headline`.
+`lintDeck(slides, { template?, minutes?, answerFirst? })` reads `{ id, title, role?, notes?, headline?, source?, eyebrow?, lede?, points?, slots? }[]`. A `DeckSlide` already fits. When the overview `title` is a short name, pass the on-slide claim as `headline`.
 
 | Rule | Severity | Check |
 |---|---|---|
@@ -189,8 +191,8 @@ People will read your deck without you in the room. Write it so it still works:
 | `role-repeat` | warn | No two adjacent slides share a role, except evidence, mechanism, demo and appendix. |
 | `deck-length` | warn / tip | About one to two minutes per presented slide; with only a template given, the slide count falls inside its range. |
 | `template-beats` | warn | With a `template`, every beat it doesn't mark optional has a slide in that role: a decision request without an options slide, or a postmortem without its plan, hears which beat is missing. |
-| `talk-time` | warn | The `say` text fits the time budget at 135 words a minute, and, once every slide has a track, covers at least half of it (the `minutes` given, else the template's shortest length). A thin track leaves the speaker view's clock and a forwarded deck with nothing to go on. |
-| `slot-budget` | warn | Every slot the slide declares as data fits its text budget in `SLOT_BUDGETS` (table below): the headline runs to at most two lines at the heading's measure, an eyebrow is one to four words, a lede one sentence, a label never a sentence, a fact's value at most six characters. Slots written only in JSX are not seen; the archetype factories (`sectionSlide`, `quoteSlide`, `factSlide`, `endSlide`) declare theirs. |
+| `talk-time` | warn | The `say` text fits the time budget at 135 words a minute, and, once every slide has a track, covers at least half of it (the `minutes` given, else the template's shortest length, capped at one minute per presented slide so a deck the brief fixes short isn't padded). A thin track leaves the speaker view's clock and a forwarded deck with nothing to go on. |
+| `slot-budget` | warn | Every slot the slide declares as data fits its text budget in `SLOT_BUDGETS` (table below): the headline runs to at most two lines at the heading's measure, an eyebrow is one to four words, a lede one sentence, a body point (`points`) at most 12 words with at most three a slide, a label never a sentence, a fact's value at most six characters. Slots written only in JSX are not seen; the archetype factories (`sectionSlide`, `quoteSlide`, `factSlide`, `endSlide`) declare theirs. |
 
 ### Slot text budgets
 
@@ -202,6 +204,7 @@ Each slot of the slide region map holds a fixed amount of text in every layout a
 | `eyebrow` | 1–4 words, one line (40 chars), no sentence | wraps |
 | `headline` | 3–14 words, ≤ 2 lines at 44 chars, one sentence | wraps, balanced |
 | `lede` | ≤ 30 words, ≤ 3 lines at 60 chars, one sentence | wraps |
+| `point` (each of `points`) | ≤ 12 words, one line at 72 chars, at most 3 a slide | wraps |
 | `label` | ≤ 3 words, no sentence | wraps |
 | `quote` | ≤ 30 words, ≤ 4 lines at 40 chars, ≤ 2 sentences | wraps, balanced |
 | `attribution` | ≤ 8 words, one line | wraps |
