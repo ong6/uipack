@@ -1072,7 +1072,7 @@ var LINT_RULES = {
   "deck-length": { severity: "warn", check: "About one to two minutes per presented slide." },
   "talk-time": {
     severity: "warn",
-    check: "The talk track fits the time budget at 135 words a minute, and covers at least half of it."
+    check: "The talk track fits the time budget at 135 words a minute, and covers at least half of it (the minutes given, else the template's shortest length, capped at one minute per presented slide)."
   },
   "template-beats": {
     severity: "warn",
@@ -1080,12 +1080,13 @@ var LINT_RULES = {
   },
   "slot-budget": {
     severity: "warn",
-    check: "Every slot the slide declares as data (title, eyebrow, headline lines, lede, and archetype slots such as quote, value, owner and date) fits its text budget in SLOT_BUDGETS: an eyebrow is one to four words, a lede one sentence, a headline at most two lines, a label no sentence."
+    check: "Every slot the slide declares as data (title, eyebrow, headline lines, lede, body points, and archetype slots such as quote, value, owner and date) fits its text budget in SLOT_BUDGETS: an eyebrow is one to four words, a lede one sentence, a headline at most two lines, a body point at most 12 words on one line and at most three a slide, a label no sentence."
   }
 };
 var MAX_TITLE_WORDS = 14;
 
 // src/deck/budgets.ts
+var MAX_POINTS = 3;
 var SLOT_BUDGETS = {
   title: {
     role: "Short name for the overview, counter and screen readers; never longer than a headline",
@@ -1115,6 +1116,14 @@ var SLOT_BUDGETS = {
     maxWords: 30,
     maxLines: 3,
     charsPerLine: 60,
+    maxSentences: 1,
+    overflow: "wrap"
+  },
+  point: {
+    role: "Body: one supporting line under the headline, a phrase or short clause, at most three a slide",
+    maxWords: 12,
+    maxLines: 1,
+    charsPerLine: 72,
     maxSentences: 1,
     overflow: "wrap"
   },
@@ -1515,8 +1524,15 @@ var LINT_CHECKS = [
           ["title", slide.headline ? slide.title : void 0],
           ["eyebrow", slide.eyebrow],
           ["lede", slide.lede],
+          ...(slide.points ?? []).map((p) => ["point", p]),
           ...Object.entries(slide.slots ?? {})
         ];
+        if ((slide.points?.length ?? 0) > MAX_POINTS)
+          report(
+            "warn",
+            `${slide.points.length} body points; keep it to ${MAX_POINTS}. Merge them, split the slide, or move the rest to the appendix.`,
+            slide.id
+          );
         const headline = headlineOf(slide);
         if (headline) {
           const b = SLOT_BUDGETS.headline;
@@ -1710,7 +1726,7 @@ var LINT_CHECKS = [
       const budget = options.minutes ?? template?.minutes.max;
       if (budget === void 0) return;
       const seconds = talkSeconds(slides);
-      const floor = options.minutes ?? template.minutes.min;
+      const floor = options.minutes ?? Math.min(template.minutes.min, Math.max(presented.length, 1));
       if (seconds > budget * 60) {
         report(
           "warn",
@@ -4442,6 +4458,7 @@ exports.HarveyTable = HarveyTable;
 exports.KpiTiles = KpiTiles;
 exports.LINT_RULES = LINT_RULES;
 exports.LineChart = LineChart;
+exports.MAX_POINTS = MAX_POINTS;
 exports.MAX_TITLE_WORDS = MAX_TITLE_WORDS;
 exports.MIN_TEXT_PX = MIN_TEXT_PX;
 exports.Matrix2x2 = Matrix2x2;

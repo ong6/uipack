@@ -14,7 +14,7 @@ export { R as Rect } from './zoom-math-DJBPrdGD.js';
  * Plain data and pure functions, no React: a CLI or an editor can read it.
  */
 /** A named slot of the slide region map. */
-type SlotName = "title" | "eyebrow" | "headline" | "lede" | "label" | "quote" | "attribution" | "value" | "unit" | "baseline" | "number" | "action" | "owner" | "date" | "source";
+type SlotName = "title" | "eyebrow" | "headline" | "lede" | "point" | "label" | "quote" | "attribution" | "value" | "unit" | "baseline" | "number" | "action" | "owner" | "date" | "source";
 /** What the slot does when its text runs past the box (the CSS the archetypes ship). */
 type SlotOverflow = 
 /** Wraps onto more lines, balanced; the region below moves down. */
@@ -41,6 +41,8 @@ interface SlotBudget {
  * The budget table. Sizes are canvas pixels on the 1920×1080 slide, so the measures hold at any
  * screen size. The headline's word limit is also `MAX_TITLE_WORDS` (rule `title-length`).
  */
+/** Most body points on one slide: more than three is a second idea or an appendix table. */
+declare const MAX_POINTS = 3;
 declare const SLOT_BUDGETS: Readonly<Record<SlotName, SlotBudget>>;
 /** Words as a reader counts them: separators like "·" and "—" are not words. */
 declare const slotWords: (text: string) => string[];
@@ -111,6 +113,8 @@ interface DeckSlide {
     lede?: string;
     /** On-slide source line for the slide's numbers. */
     source?: string;
+    /** Body points, as data: at most three, each within the `point` budget. */
+    points?: readonly string[];
     /** Other slot text the slide declares, checked against `SLOT_BUDGETS`. */
     slots?: Partial<Record<SlotName, string>>;
     /** Talk track for the presenter view. A string is treated as `say`. */
@@ -187,6 +191,8 @@ interface StorySlide {
     eyebrow?: string;
     /** The one-sentence lede under the headline, as data. */
     lede?: string;
+    /** Body points, as data: at most three, each within the `point` budget. */
+    points?: readonly string[];
     /** Any other slot text the slide declares (quote, value, owner…), checked against `SLOT_BUDGETS`. */
     slots?: Partial<Record<SlotName, string>>;
 }
@@ -982,4 +988,4 @@ interface HarveyTableProps {
 /** Options × criteria: Harvey balls (0–4) and text cells, with one row marked as the recommendation. */
 declare function HarveyTable({ columns, rows, corner, showKey, keyNote, }: HarveyTableProps): react.JSX.Element;
 
-export { Annotation, type AnnotationGeometry, type AnnotationProps, type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, type DeckNotes, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, EndSlide, type EndSlideProps, FactSlide, type FactSlideProps, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, QuoteSlide, type QuoteSlideProps, REPEATABLE_ROLES, Ref, SLIDE_ROLES, SLOT_BUDGETS, STORYLINE_TEMPLATES, SectionSlide, type SectionSlideProps, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, type SlotBudget, type SlotName, type SlotOverflow, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, Tracker, type TrackerProps, type TransitionKind, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, endSlide, factSlide, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, quoteSlide, sectionSlide, slotLines, slotProblems, slotSentences, slotWords, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, toneOf, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };
+export { Annotation, type AnnotationGeometry, type AnnotationProps, type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, type DeckNotes, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, EndSlide, type EndSlideProps, FactSlide, type FactSlideProps, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_POINTS, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, QuoteSlide, type QuoteSlideProps, REPEATABLE_ROLES, Ref, SLIDE_ROLES, SLOT_BUDGETS, STORYLINE_TEMPLATES, SectionSlide, type SectionSlideProps, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, type SlotBudget, type SlotName, type SlotOverflow, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, Tracker, type TrackerProps, type TransitionKind, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, endSlide, factSlide, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, quoteSlide, sectionSlide, slotLines, slotProblems, slotSentences, slotWords, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, toneOf, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };
