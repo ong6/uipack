@@ -1,5 +1,6 @@
 import * as react from 'react';
 import { S as SpeechGuide } from './speech-BOroEnEA.js';
+import { U as UiStyleId } from './style-4C2eEC6A.js';
 
 type PresentationTheme = "light" | "dark";
 
@@ -63,11 +64,13 @@ type SlideStarterData = OpeningSlideStarter | ExplanationSlideStarter | SystemSl
 interface SlideStarterProps {
     slide: SlideStarterData;
     theme?: PresentationTheme;
+    /** The style it is painted in (sets data-ui-style); omitted, the nearest ancestor's, else Technical. */
+    style?: UiStyleId;
     showSpeech?: boolean;
     className?: string;
     onCopySpeech?: (text: string) => void;
 }
-declare function SlideStarter({ slide, theme, showSpeech, className, onCopySpeech }: SlideStarterProps): react.JSX.Element;
+declare function SlideStarter({ slide, theme, style, showSpeech, className, onCopySpeech }: SlideStarterProps): react.JSX.Element;
 
 declare function estimateSpeechSeconds(say: string): number;
 declare function formatSpeechGuide(speech: SpeechGuide): string;
@@ -83,6 +86,12 @@ declare function SpeakerGuide({ speech, slideTitle, onCopy, className, theme }: 
 interface RenderSlideSvgOptions {
     theme?: PresentationTheme;
     width?: number;
+    /**
+     * "resolved" (default) writes Technical's literal colours and faces, for a standalone file. "css"
+     * paints with the style roles (var(--ui-ink)…) in style attributes, so the SVG inlined in a page
+     * follows the page's style and theme (SlideStarter does this).
+     */
+    paint?: "resolved" | "css";
 }
 declare function escapeSvgText(value: string): string;
 declare function renderSlideSvg(slide: SlideStarterData, options?: RenderSlideSvgOptions): string;

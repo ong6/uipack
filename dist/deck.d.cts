@@ -2,7 +2,54 @@ import * as react from 'react';
 import { ReactNode, ElementType, CSSProperties, ReactElement } from 'react';
 import { S as SpeechGuide } from './speech-BOroEnEA.cjs';
 export { W as WORDS_PER_MINUTE } from './speech-BOroEnEA.cjs';
+import { U as UiStyleId } from './style-4C2eEC6A.cjs';
 export { R as Rect } from './zoom-math-DJBPrdGD.cjs';
+
+/**
+ * Slot text budgets: how much text each slot of the shared slide region map holds before it stops
+ * reading at a glance (docs/system/writing.md, "Each word has one place to live"; layout.md,
+ * "Regions"). Every archetype fills these slots, so a budget holds in every layout and every style.
+ * `lintDeck` reports a slot over budget as `slot-budget`.
+ *
+ * Plain data and pure functions, no React: a CLI or an editor can read it.
+ */
+/** A named slot of the slide region map. */
+type SlotName = "title" | "eyebrow" | "headline" | "lede" | "label" | "quote" | "attribution" | "value" | "unit" | "baseline" | "number" | "action" | "owner" | "date" | "source";
+/** What the slot does when its text runs past the box (the CSS the archetypes ship). */
+type SlotOverflow = 
+/** Wraps onto more lines, balanced; the region below moves down. */
+"wrap-balance"
+/** Wraps onto more lines; the region below moves down. */
+ | "wrap"
+/** Stays on one line and is clipped with an ellipsis; the full text stays in the DOM. */
+ | "ellipsis";
+interface SlotBudget {
+    /** Where the slot sits and what it says, for docs and lint messages. */
+    role: string;
+    minWords?: number;
+    maxWords?: number;
+    /** Most characters; for a number or a code, where words do not measure it. */
+    maxChars?: number;
+    /** Most lines at the slot's measure (`charsPerLine`, an estimate for Plex Sans at the slot's size). */
+    maxLines?: number;
+    charsPerLine?: number;
+    /** Most sentences: one for a lede, never a sentence in a label. */
+    maxSentences?: number;
+    overflow: SlotOverflow;
+}
+/**
+ * The budget table. Sizes are canvas pixels on the 1920×1080 slide, so the measures hold at any
+ * screen size. The headline's word limit is also `MAX_TITLE_WORDS` (rule `title-length`).
+ */
+declare const SLOT_BUDGETS: Readonly<Record<SlotName, SlotBudget>>;
+/** Words as a reader counts them: separators like "·" and "—" are not words. */
+declare const slotWords: (text: string) => string[];
+/** Sentences: a full stop, question or exclamation mark followed by a space and a capital, or the end. */
+declare function slotSentences(text: string): number;
+/** Estimated lines at the slot's measure, wrapping on words. */
+declare function slotLines(text: string, charsPerLine: number): number;
+/** What is wrong with `text` in `slot`, as short reasons; empty when it fits. */
+declare function slotProblems(slot: SlotName, text: string): string[];
 
 type DeckTheme = "light" | "dark";
 /**
@@ -52,6 +99,20 @@ interface DeckSlide {
     transition?: DeckTransition;
     /** Background tone. The stage cross-fades between tones. */
     tone?: "paper" | "ink" | "accent";
+    /**
+     * Invert the slide within its style: the style's inverse roles (dark ground in a light deck,
+     * light ground in a dark one). Sugar for `tone: "ink"`; an explicit `tone` wins. It is a variant
+     * of the style, not another style.
+     */
+    invert?: boolean;
+    /** The eyebrow, as data, so `lintDeck` can check its budget (the archetype factories set it). */
+    eyebrow?: string;
+    /** The one-sentence lede, as data. */
+    lede?: string;
+    /** On-slide source line for the slide's numbers. */
+    source?: string;
+    /** Other slot text the slide declares, checked against `SLOT_BUDGETS`. */
+    slots?: Partial<Record<SlotName, string>>;
     /** Talk track for the presenter view. A string is treated as `say`. */
     notes?: DeckNotes | string;
     render: (context: DeckRenderContext) => ReactNode;
@@ -122,9 +183,15 @@ interface StorySlide {
     headline?: string;
     /** On-slide source line for the slide's numbers. */
     source?: string;
+    /** The eyebrow above the headline, when the slide declares it as data (archetype slides do). */
+    eyebrow?: string;
+    /** The one-sentence lede under the headline, as data. */
+    lede?: string;
+    /** Any other slot text the slide declares (quote, value, owner…), checked against `SLOT_BUDGETS`. */
+    slots?: Partial<Record<SlotName, string>>;
 }
 type LintSeverity = "error" | "warn" | "tip";
-type LintRule = "deck-empty" | "duplicate-id" | "title-present" | "title-claim" | "title-length" | "title-specific" | "one-idea" | "notes-present" | "number-source" | "roles-missing" | "answer-first" | "outcome-first" | "closing-ask" | "ask-concrete" | "role-repeat" | "deck-length" | "talk-time" | "template-beats";
+type LintRule = "deck-empty" | "duplicate-id" | "title-present" | "title-claim" | "title-length" | "title-specific" | "one-idea" | "notes-present" | "number-source" | "roles-missing" | "answer-first" | "outcome-first" | "closing-ask" | "ask-concrete" | "role-repeat" | "deck-length" | "talk-time" | "template-beats" | "slot-budget";
 interface LintFinding {
     slideId?: string;
     rule: LintRule;
@@ -224,6 +291,12 @@ interface DeckPlayerProps {
     /** Accessible name of the deck. */
     title: string;
     theme?: DeckTheme;
+    /**
+     * The style the deck is painted in (sets data-ui-style): "technical" (default), "landing" or
+     * "graphical". Only tokens change: every slide keeps its regions, words and reading order.
+     * Omitted, the deck follows the nearest ancestor with data-ui-style.
+     */
+    style?: UiStyleId;
     /** Default transition for slides that do not set one. */
     transition?: DeckTransition;
     motion?: "auto" | "none";
@@ -315,11 +388,75 @@ declare function Build({ step, as: Tag, className, style, children, }: {
 declare function Slide({ eyebrow, footer, layout, className, children, }: {
     eyebrow?: ReactNode;
     footer?: ReactNode;
-    /** `stack` flows top to bottom; `center` centres a statement; `split` is two columns. */
-    layout?: "stack" | "center" | "split";
+    /**
+     * `stack` flows top to bottom; `center` centres a statement; `split` is two columns. The
+     * archetypes (`SectionSlide`, `QuoteSlide`, `FactSlide`, `EndSlide`) set `section`, `quote`,
+     * `fact` and `end`: a stack whose body region they fill their own way.
+     */
+    layout?: "stack" | "center" | "split" | "section" | "quote" | "fact" | "end";
     className?: string;
     children?: ReactNode;
 }): react.JSX.Element;
+
+interface Frame {
+    /** The section this slide sits in, 1–4 words. */
+    eyebrow: string;
+    /** The claim, one sentence. */
+    headline: string;
+    footer?: ReactNode;
+}
+interface SectionSlideProps extends Frame {
+    /** The part number, e.g. "02". */
+    number: string;
+    /** One sentence on what this part proves. */
+    lede?: string;
+}
+/** Section: a divider that still makes a claim. The part number fills the body, large, in the accent. */
+declare function SectionSlide({ eyebrow, headline, number, lede, footer }: SectionSlideProps): react.JSX.Element;
+interface QuoteSlideProps extends Frame {
+    /** What someone said, at most two sentences. */
+    quote: string;
+    /** Who said it, by role ("Payments lead, review 7"). */
+    attribution: string;
+}
+/** Quote: the headline states what the quote proves; the body holds the words, in the display face. */
+declare function QuoteSlide({ eyebrow, headline, quote, attribution, footer }: QuoteSlideProps): react.JSX.Element;
+interface FactSlideProps extends Frame {
+    /** The one number, at most six characters ("198", "$8.40"). */
+    value: string;
+    /** What it counts ("ms at p95"). */
+    unit?: string;
+    /** The comparison and window ("from 412 ms in Q2"). */
+    baseline: string;
+    /** The named artifact behind it. */
+    source?: string;
+}
+/** Fact: one number with its unit and baseline, read from across the room. */
+declare function FactSlide({ eyebrow, headline, value, unit, baseline, source, footer }: FactSlideProps): react.JSX.Element;
+interface EndSlideProps extends Frame {
+    /** The decision or action asked for. */
+    action: string;
+    /** Who decides or acts: a team or a role. */
+    owner: string;
+    /** A calendar date. */
+    date: string;
+    lede?: string;
+}
+/** End: the ask as a claim, then its three parts in a row: the action, the owner and the date. */
+declare function EndSlide({ eyebrow, headline, action, owner, date, lede, footer }: EndSlideProps): react.JSX.Element;
+/** What every factory takes besides its archetype's slots: the slide's identity, role and talk. */
+type SlideMeta = Omit<DeckSlide, "render" | "headline" | "eyebrow" | "lede" | "slots" | "source">;
+/** A section divider as a `DeckSlide`, its words as data. */
+declare function sectionSlide({ eyebrow, headline, number, lede, footer, ...meta }: SlideMeta & SectionSlideProps): DeckSlide;
+/** A quote slide as a `DeckSlide`. */
+declare function quoteSlide({ eyebrow, headline, quote, attribution, footer, ...meta }: SlideMeta & QuoteSlideProps): DeckSlide;
+/** A fact slide as a `DeckSlide`. Its `source` also satisfies the number-source check. */
+declare function factSlide({ eyebrow, headline, value, unit, baseline, source, footer, ...meta }: SlideMeta & FactSlideProps): DeckSlide;
+/** An end slide (the ask) as a `DeckSlide`. */
+declare function endSlide({ eyebrow, headline, action, owner, date, lede, footer, ...meta }: SlideMeta & EndSlideProps): DeckSlide;
+
+/** The tone a slide is painted in: its `tone`, else "ink" when it is inverted, else "paper". */
+declare const toneOf: (slide: Pick<DeckSlide, "tone" | "invert">) => NonNullable<DeckSlide["tone"]>;
 
 interface BentoCellProps {
     /** Stable ID: the tour refers to it, and a `{ zoom: id }` transition can fly into it. */
@@ -845,4 +982,4 @@ interface HarveyTableProps {
 /** Options × criteria: Harvey balls (0–4) and text cells, with one row marked as the recommendation. */
 declare function HarveyTable({ columns, rows, corner, showKey, keyNote, }: HarveyTableProps): react.JSX.Element;
 
-export { Annotation, type AnnotationGeometry, type AnnotationProps, type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, type DeckNotes, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, REPEATABLE_ROLES, Ref, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, Tracker, type TrackerProps, type TransitionKind, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };
+export { Annotation, type AnnotationGeometry, type AnnotationProps, type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, type DeckNotes, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, EndSlide, type EndSlideProps, FactSlide, type FactSlideProps, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, QuoteSlide, type QuoteSlideProps, REPEATABLE_ROLES, Ref, SLIDE_ROLES, SLOT_BUDGETS, STORYLINE_TEMPLATES, SectionSlide, type SectionSlideProps, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, type SlotBudget, type SlotName, type SlotOverflow, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, Tracker, type TrackerProps, type TransitionKind, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, endSlide, factSlide, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, quoteSlide, sectionSlide, slotLines, slotProblems, slotSentences, slotWords, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, toneOf, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };

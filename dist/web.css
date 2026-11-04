@@ -1,7 +1,432 @@
-/* uipack/web.css — the Landing style. Every rule is scoped under .uipack-web.
-   60 / 30 / 10: --web-bg is the neutral, --web-secondary the supporting band,
-   --web-accent the single accent reserved for calls to action and the star. */
+/* uipack/styles.css — the role layer (docs/system/style.md, "The role contract").
+   Layouts and components ask for a role (var(--ui-ink-2)); a style answers with values. A style
+   is one value set, keyed by data-ui-style on any element; the closest one wins because custom
+   properties inherit. Technical is the default on :root.
 
+   Light and dark are two halves of one value set: every colour role is light-dark(light, dark),
+   resolved where it is used from the element's color-scheme. An entry keeps its own rule for
+   when it is dark (the figure follows prefers-color-scheme and data-theme, the deck only its own
+   data-theme) and sets color-scheme there; data-ui-theme does the same for any element.
+
+   Cascade layers, lowest first: tokens (these value sets), base (entry rules), layout (regions
+   and grids), ornaments (what a style paints into a layout's named slots). An unlayered host
+   rule beats all four, so a host override needs no !important. */
+@layer uipack.tokens, uipack.base, uipack.layout, uipack.ornaments;
+
+@layer uipack.tokens {
+  /* Optional roles: a style may tune these; components fall back to a core role when a style
+     leaves them unset. Reset on every style host so a tuned value never leaks into a child that
+     uses another style. */
+  [data-ui-style] {
+    --ui-node: initial;
+    --ui-line-solid: initial;
+    --ui-accent-ink: initial;
+    --ui-data-neg-ink: initial;
+    --ui-inv-node: initial;
+    --ui-slide-ink-2: initial;
+    --ui-slide-line: initial;
+    --ui-slide-font-text: initial;
+    --ui-slide-font-label: initial;
+    --ui-slide-font-display: initial;
+    --ui-web-font-text: initial;
+    --ui-web-font-label: initial;
+    --ui-web-font-display: initial;
+    --ui-docs-surface: initial;
+    --ui-docs-surface-strong: initial;
+    --ui-docs-line: initial;
+    --ui-docs-warm-ink: initial;
+    --ui-docs-warm-ink-2: initial;
+    --ui-docs-warm-line: initial;
+    --ui-docs-warm-surface: initial;
+    --ui-docs-warm-surface-strong: initial;
+    --ui-docs-warm-accent: initial;
+    --ui-docs-warm-focus: initial;
+    --ui-print-line: initial;
+    --ui-print-ink-2: initial;
+    --ui-alert: initial;
+    --ui-warn: initial;
+    --ui-letterbox: initial;
+    --ui-mech-text: initial;
+    --ui-mech-muted: initial;
+    --ui-mech-top: initial;
+    --ui-mech-shade-0: initial;
+    --ui-mech-shade-1: initial;
+    --ui-mech-shade-2: initial;
+    --ui-mech-shade-3: initial;
+    --ui-mech-cavity: initial;
+    --ui-mech-lit-top: initial;
+    --ui-mech-lit-shade: initial;
+    --ui-mech-mid: initial;
+    --ui-mech-lo: initial;
+    --ui-mech-faint: initial;
+    --ui-mech-halo: initial;
+    --ui-mech-dot: initial;
+    --ui-object-paper: initial;
+    --ui-object-glow: initial;
+    --ui-object-ink: initial;
+    --ui-object-ink-2: initial;
+    --ui-object-line: initial;
+    --ui-object-edge: initial;
+    --ui-object-control-ink-2: initial;
+  }
+
+  /* Theme hosts: any element can set its colour theme for everything inside it. An explicit
+     data-ui-theme outranks an entry's own theme rule (important in a layer beats every normal
+     declaration), so <Figure theme> and data-ui-theme never fight. */
+  [data-ui-theme="light"] {
+    color-scheme: light !important;
+  }
+  [data-ui-theme="dark"] {
+    color-scheme: dark !important;
+  }
+}
+/* Technical — the default style: warm paper, near-black ink, one forest/mint accent, thin lines,
+   6px radius, system type for figures, IBM Plex where a host or the web entry provides it.
+   The owner's own look (junxiong.dev's figures). Values: docs/system/style.md, "Technical values". */
+@layer uipack.tokens {
+  :root,
+  [data-ui-style="technical"] {
+    /* Surfaces */
+    --ui-paper: light-dark(#f6f5f1, #0a100d);
+    --ui-surface: light-dark(#ffffff, #0e1512);
+    --ui-surface-raised: light-dark(#ffffff, #14201b);
+    --ui-surface-2: light-dark(#f4f6f4, #1b2a24);
+    /* Ink: text at three emphasis levels, lines at two weights */
+    --ui-ink: light-dark(#1a1c1a, #e8ece9);
+    --ui-ink-2: light-dark(#5c625e, #9aa39e);
+    --ui-ink-3: color-mix(in srgb, var(--ui-ink) 66%, var(--ui-paper));
+    --ui-line: color-mix(in srgb, var(--ui-ink) 22%, transparent);
+    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 16%, transparent);
+    /* The one accent, and what sits on it */
+    --ui-accent: light-dark(#205f49, #71dcb2);
+    --ui-on-accent: light-dark(#f6f5f1, #07110c);
+    --ui-accent-surface: light-dark(#2a6b54, #8fe4c3);
+    --ui-accent-ink-2: light-dark(#cfe3d9, #1d4a38);
+    --ui-accent-line: light-dark(#5b927d, #3f9c78);
+    /* Flow tokens, always paired with a shape: square request, circle response, diamond change */
+    --ui-flow-request: light-dark(#4f6fe6, #8ea4ff);
+    --ui-flow-response: light-dark(#3fb27f, #5fd39b);
+    --ui-flow-change: light-dark(#9a63e0, #c39aff);
+    /* Data: signed values (always with a sign or arrow), a context grey, four categorical slots */
+    --ui-data-pos: light-dark(#1a7a52, #33a979);
+    --ui-data-neg: light-dark(#c0482f, #d4623f);
+    --ui-data-context: light-dark(#8b928d, #6b756f);
+    --ui-data-1: light-dark(#1a7a52, #33a979);
+    --ui-data-2: light-dark(#4f6fe6, #5f7fef);
+    --ui-data-3: light-dark(#c27a1f, #c0832b);
+    --ui-data-4: light-dark(#9a63e0, #9f72e6);
+    --ui-on-data-1: light-dark(#ffffff, #0a100d);
+    --ui-on-data-2: light-dark(#ffffff, #0a100d);
+    --ui-on-data-3: light-dark(#1a1c1a, #0a100d);
+    --ui-on-data-4: light-dark(#1a1c1a, #0a100d);
+    /* Invert: the per-slide or per-band inverse within the style (deck "ink" tone) */
+    --ui-inv-paper: light-dark(#111814, #e8ece9);
+    --ui-inv-surface: light-dark(#18221d, #ffffff);
+    --ui-inv-ink: light-dark(#eef1ee, #0e1512);
+    --ui-inv-ink-2: light-dark(#a9b3ad, #4c5751);
+    --ui-inv-line: light-dark(#3a4a41, #b5c0b9);
+    --ui-inv-accent: light-dark(#71dcb2, #205f49);
+
+    /* Type */
+    --ui-font-text: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --ui-font-label: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --ui-font-display: var(--ui-font-text);
+    --ui-display-weight: 650;
+    --ui-display-tracking: -0.02em;
+    --ui-display-case: none;
+    --ui-label-tracking: 0.08em;
+    /* Shape and line */
+    --ui-radius: 6px;
+    --ui-radius-sm: 4px;
+    --ui-radius-xs: 2px;
+    --ui-radius-pill: 6px;
+    --ui-nav-fill: color-mix(in srgb, var(--ui-paper) 94%, transparent);
+    --ui-nav-blur: none;
+    --ui-stroke: 1.25;
+    --ui-rule-width: 1px;
+    /* Scalars a style may own (research brief, contract change 1) */
+    --ui-density: 1;
+    --ui-type-ratio: 1.25;
+    --ui-measure: 65ch;
+    /* Motion feel */
+    --ui-ease-settle: cubic-bezier(0.2, 0.7, 0.2, 1);
+    --ui-ease-travel: cubic-bezier(0.55, 0, 0.15, 1);
+    --ui-dur-quick: 160ms;
+    --ui-dur-base: 320ms;
+    --ui-dur-slow: 560ms;
+
+    /* Ornament slots: what this style paints where a layout leaves room for it */
+    --ui-backdrop: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ui-ink) 20%, transparent) 1px, transparent 1.5px) 0 0 / 16px 16px;
+    --ui-backdrop-mask: radial-gradient(ellipse 80% 70% at 50% 35%, black 25%, transparent 78%);
+    --ui-frame-border: var(--ui-rule-width) solid var(--ui-line);
+    --ui-card-shadow: none;
+    --ui-frame-shadow: none;
+    --ui-marker-size: 8px;
+    --ui-marker-shape: 2px;
+    --ui-marker-color: var(--ui-accent);
+    --ui-section-rule: inset 0 1px 0 var(--ui-line-soft);
+    --ui-grain: 0;
+    --ui-glow: 0;
+    --ui-cta-shadow: none;
+    --ui-cta-shadow-hover: 0 0 0 1px var(--ui-accent);
+    --ui-em-style: normal;
+    --ui-em-color: var(--ui-accent);
+    --ui-star-fill: 0;
+    --ui-display-scale: 1;
+
+    /* Optional roles tuned for Technical's media */
+    --ui-node: light-dark(#fbfaf6, #0e1512);
+    --ui-inv-node: light-dark(#18221d, #f6f5f1);
+    --ui-line-solid: light-dark(#c4ccc6, #34443b);
+    --ui-data-neg-ink: light-dark(#a8431f, #f0936c);
+    --ui-slide-ink-2: light-dark(#5c625e, #aeb8b2);
+    --ui-slide-line: light-dark(#bac3bc, #43544b);
+    --ui-slide-font-text: var(--font-sans, "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+    --ui-slide-font-display: var(--ui-slide-font-text);
+    --ui-slide-font-label: var(--font-mono, "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+    --ui-web-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --ui-web-font-display: var(--ui-web-font-text);
+    --ui-web-font-label: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --ui-docs-surface: light-dark(#edefec, #14201b);
+    --ui-docs-surface-strong: light-dark(#e2e6e2, #1d2c26);
+    --ui-docs-line: light-dark(rgb(26 28 26 / 0.16), rgb(232 236 233 / 0.18));
+    /* The docs layout's warm default palette (DocsLayout palette="warm") */
+    --ui-docs-warm-ink: light-dark(#29231f, #f2ece3);
+    --ui-docs-warm-ink-2: light-dark(#655c55, #aea198);
+    --ui-docs-warm-line: light-dark(rgb(41 35 31 / 0.18), rgb(242 236 227 / 0.2));
+    --ui-docs-warm-surface: light-dark(#fbf8f2, #211d1a);
+    --ui-docs-warm-surface-strong: light-dark(#e7ded2, #37302b);
+    --ui-docs-warm-accent: light-dark(#234ea2, #9ab6ff);
+    --ui-docs-warm-focus: light-dark(#315db6, #9ab6ff);
+    --ui-print-line: #dfe3e0;
+    --ui-print-ink-2: #3d433f;
+    --ui-alert: light-dark(#b42318, #ff8a7a);
+    --ui-warn: light-dark(#b4471f, #f08a5d);
+    --ui-letterbox: #050806;
+    /* Mechanism: Anatomy's four solid tones by facing, the cavity, the lit faces and the edges */
+    --ui-mech-text: light-dark(#3d423f, #b9c2bd);
+    --ui-mech-muted: light-dark(#5c625e, #8f9a94);
+    --ui-mech-top: light-dark(#ffffff, #1a2822);
+    --ui-mech-shade-0: light-dark(#dcdfdb, #0b110e);
+    --ui-mech-shade-1: light-dark(#e5e8e4, #0f1714);
+    --ui-mech-shade-2: light-dark(#edefec, #131d18);
+    --ui-mech-shade-3: light-dark(#f4f5f3, #17231e);
+    --ui-mech-cavity: light-dark(#d3d7d3, #070b09);
+    --ui-mech-lit-top: light-dark(#eef6f2, #1f3a2f);
+    --ui-mech-lit-shade: light-dark(#dcebe4, #182e25);
+    --ui-mech-mid: light-dark(#858b87, #8a958f);
+    --ui-mech-lo: light-dark(#b3b8b4, #66726c);
+    --ui-mech-faint: light-dark(#d5d9d5, #28332e);
+    --ui-mech-halo: light-dark(#848a84, #020403);
+    --ui-mech-dot: light-dark(#2f3431, #e8ece9);
+    /* Object scenes (Studio stage, gallery and controls) */
+    --ui-object-paper: light-dark(#faf9f6, #14201b);
+    --ui-object-glow: light-dark(#ffffff, #25382f);
+    --ui-object-ink: light-dark(#292e32, #e8ece9);
+    --ui-object-ink-2: light-dark(#626c65, #a6b4aa);
+    --ui-object-line: light-dark(#d6dcd5, #36463c);
+    --ui-object-edge: #87958c;
+    --ui-object-control-ink-2: light-dark(#526459, #b7c8bf);
+  }
+}
+/* Landing — the generic landing option: neutral page, lavender secondary band, indigo CTA accent,
+   editorial serif headlines from heading step 4, 16px cards, grain and glass for depth. Kept for
+   pages that should read as a conventional SaaS landing page; the default web style is Technical.
+   Guide: docs/web-principles.md. */
+@layer uipack.tokens {
+  [data-ui-style="landing"] {
+    --ui-paper: light-dark(#f7f7f4, #0d0d13);
+    --ui-surface: light-dark(#ffffff, #16161f);
+    --ui-surface-raised: light-dark(#ffffff, #16161f);
+    --ui-surface-2: light-dark(#ebe9f4, #1e1c2e);
+    --ui-ink: light-dark(rgb(18 18 23), rgb(242 242 247));
+    --ui-ink-2: color-mix(in srgb, var(--ui-ink) 87%, transparent);
+    --ui-ink-3: color-mix(in srgb, var(--ui-ink) 66%, transparent);
+    --ui-line: color-mix(in srgb, var(--ui-ink) 24%, transparent);
+    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 12%, transparent);
+    --ui-accent: light-dark(#4b3fd6, #a99dff);
+    --ui-on-accent: light-dark(#ffffff, #0d0d13);
+    --ui-accent-surface: light-dark(#5a4fe0, #b8aeff);
+    --ui-accent-ink-2: light-dark(#e4e1ff, #2a2466);
+    --ui-accent-line: light-dark(#7a70e6, #8a7ee8);
+    --ui-flow-request: light-dark(#4f6fe6, #8ea4ff);
+    --ui-flow-response: light-dark(#3fb27f, #5fd39b);
+    --ui-flow-change: light-dark(#9a63e0, #c39aff);
+    --ui-data-pos: light-dark(#1a7a52, #33a979);
+    --ui-data-neg: light-dark(#c0482f, #d4623f);
+    --ui-data-context: light-dark(#8e8e99, #6b6b78);
+    --ui-data-1: light-dark(#4b3fd6, #a99dff);
+    --ui-data-2: light-dark(#1a7a52, #33a979);
+    --ui-data-3: light-dark(#c27a1f, #c0832b);
+    --ui-data-4: light-dark(#5c5c6b, #9a9aab);
+    --ui-on-data-1: light-dark(#ffffff, #0d0d13);
+    --ui-on-data-2: light-dark(#ffffff, #0d0d13);
+    --ui-on-data-3: light-dark(#121217, #0d0d13);
+    --ui-on-data-4: light-dark(#ffffff, #0d0d13);
+    --ui-inv-paper: light-dark(#16161f, #f2f2f7);
+    --ui-inv-surface: light-dark(#1e1c2e, #ffffff);
+    --ui-inv-ink: light-dark(#f2f2f7, #121217);
+    --ui-inv-ink-2: light-dark(#b9b9c6, #4a4a57);
+    --ui-inv-line: light-dark(#3a3850, #c9c7d8);
+    --ui-inv-accent: light-dark(#a99dff, #4b3fd6);
+
+    --ui-font-display: "Instrument Serif", "Instrument Serif Fallback", ui-serif, Georgia, "Times New Roman", serif;
+    --ui-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --ui-font-label: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --ui-display-weight: 400;
+    --ui-display-tracking: -0.01em;
+    --ui-display-case: none;
+    --ui-label-tracking: 0.08em;
+    --ui-radius: 16px;
+    --ui-radius-sm: 12px;
+    --ui-radius-xs: 4px;
+    --ui-radius-pill: 999px;
+    --ui-nav-fill: light-dark(rgb(247 247 244 / 0.72), rgb(13 13 19 / 0.66));
+    --ui-nav-blur: blur(14px) saturate(1.4);
+    --ui-stroke: 1.25;
+    --ui-rule-width: 1px;
+    --ui-density: 1;
+    --ui-type-ratio: 1.25;
+    --ui-measure: 65ch;
+    --ui-ease-settle: cubic-bezier(0.2, 0.7, 0.2, 1);
+    --ui-ease-travel: cubic-bezier(0.55, 0, 0.15, 1);
+    --ui-dur-quick: 160ms;
+    --ui-dur-base: 320ms;
+    --ui-dur-slow: 560ms;
+
+    /* Ornaments: quiet depth. The grain and aurora are components (GrainOverlay, Aurora); the
+       backdrop slot itself stays empty. */
+    --ui-backdrop: none;
+    --ui-backdrop-mask: none;
+    --ui-frame-border: 1px solid var(--ui-line-soft);
+    --ui-card-shadow: none;
+    --ui-frame-shadow:
+      0 1px 2px light-dark(rgb(18 18 23 / 0.06), rgb(0 0 0 / 0.4)),
+      0 24px 48px -24px light-dark(rgb(18 18 23 / 0.28), rgb(0 0 0 / 0.7));
+    --ui-marker-size: 0px;
+    --ui-marker-shape: 0px;
+    --ui-marker-color: transparent;
+    --ui-section-rule: none;
+    --ui-grain: 1;
+    --ui-glow: 1;
+    --ui-cta-shadow:
+      0 1px 0 rgb(255 255 255 / 0.18) inset,
+      0 8px 20px -10px var(--ui-accent);
+    --ui-cta-shadow-hover:
+      0 1px 0 rgb(255 255 255 / 0.18) inset,
+      0 12px 28px -10px var(--ui-accent);
+    --ui-em-style: italic;
+    --ui-em-color: inherit;
+    --ui-star-fill: 1;
+    --ui-display-scale: 1;
+
+    --ui-web-font-text: var(--ui-font-text);
+    --ui-web-font-label: var(--ui-font-label);
+    --ui-slide-font-text: var(--ui-font-text);
+    --ui-slide-font-label: var(--ui-font-label);
+  }
+}
+/* Graphical — a bold poster style: bone paper, black ink, one signal-orange accent, condensed
+   display caps (Anton), hard edges, 2px rules and hard offset frames. Its one motif is the disc:
+   the hero's backdrop disc returns as every marker. Shapes go only through the ornament slots,
+   so a layout and its words are the same as in any other style. Guide: docs/web-principles.md,
+   "Graphical". */
+@layer uipack.tokens {
+  [data-ui-style="graphical"] {
+    --ui-paper: light-dark(#f1eee6, #121212);
+    --ui-surface: light-dark(#fbfaf6, #1b1b1b);
+    --ui-surface-raised: light-dark(#ffffff, #222222);
+    --ui-surface-2: light-dark(#e6e1d3, #262420);
+    --ui-ink: light-dark(#111111, #f1eee6);
+    --ui-ink-2: light-dark(#363532, #cfcbc0);
+    --ui-ink-3: light-dark(#57554f, #a29e93);
+    --ui-line: light-dark(#111111, #f1eee6);
+    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 22%, transparent);
+    --ui-accent: light-dark(#f24a00, #ff6a26);
+    --ui-accent-ink: light-dark(#b23700, #ff7f45);
+    --ui-on-accent: light-dark(#111111, #111111);
+    --ui-accent-surface: light-dark(#ff6a26, #ff8247);
+    --ui-accent-ink-2: light-dark(#2b1406, #2b1406);
+    --ui-accent-line: light-dark(#111111, #111111);
+    --ui-flow-request: light-dark(#2348e0, #8ea4ff);
+    --ui-flow-response: light-dark(#14805a, #5fd39b);
+    --ui-flow-change: light-dark(#8a3fd6, #c39aff);
+    --ui-data-pos: light-dark(#14805a, #33a979);
+    --ui-data-neg: light-dark(#c0174f, #ff6b93);
+    --ui-data-context: light-dark(#8f8b80, #6a675f);
+    --ui-data-1: light-dark(#f24a00, #ff6a26);
+    --ui-data-2: light-dark(#111111, #f1eee6);
+    --ui-data-3: light-dark(#2348e0, #7f97ff);
+    --ui-data-4: light-dark(#8f8b80, #8a867b);
+    --ui-on-data-1: light-dark(#111111, #111111);
+    --ui-on-data-2: light-dark(#f1eee6, #111111);
+    --ui-on-data-3: light-dark(#ffffff, #111111);
+    --ui-on-data-4: light-dark(#111111, #111111);
+    --ui-inv-paper: light-dark(#111111, #f1eee6);
+    --ui-inv-surface: light-dark(#1e1e1e, #ffffff);
+    --ui-inv-ink: light-dark(#f1eee6, #111111);
+    --ui-inv-ink-2: light-dark(#cfcbc0, #363532);
+    --ui-inv-line: light-dark(#f1eee6, #111111);
+    --ui-inv-accent: light-dark(#ff6a26, #c74000);
+
+    --ui-font-display: "Anton", "Anton Fallback", Impact, "Arial Narrow", sans-serif-condensed, sans-serif;
+    --ui-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --ui-font-label: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --ui-display-weight: 400;
+    --ui-display-tracking: 0.005em;
+    --ui-display-case: uppercase;
+    --ui-label-tracking: 0.12em;
+    --ui-radius: 0px;
+    --ui-radius-sm: 0px;
+    --ui-radius-xs: 0px;
+    --ui-radius-pill: 0px;
+    --ui-nav-fill: var(--ui-paper);
+    --ui-nav-blur: none;
+    --ui-stroke: 2;
+    --ui-rule-width: 2px;
+    --ui-density: 1;
+    --ui-type-ratio: 1.25;
+    --ui-measure: 60ch;
+    /* Poster motion: things land, they do not float. */
+    --ui-ease-settle: cubic-bezier(0.3, 0.9, 0.2, 1);
+    --ui-ease-travel: cubic-bezier(0.7, 0, 0.2, 1);
+    --ui-dur-quick: 120ms;
+    --ui-dur-base: 240ms;
+    --ui-dur-slow: 480ms;
+
+    /* Ornaments. backdrop: the accent disc, cut by the slot's top-right corner, and a band of
+       ink rules along the slot's foot, never under the copy. frame: 2px ink and a hard offset
+       shadow. marker: the disc again, small. */
+    --ui-backdrop:
+      radial-gradient(circle at 100% 0, var(--ui-accent) 0 min(24cqi, 300px), transparent calc(min(24cqi, 300px) + 1px)),
+      radial-gradient(circle at 100% 0, transparent 0 calc(min(24cqi, 300px) + 18px), var(--ui-ink) calc(min(24cqi, 300px) + 19px) calc(min(24cqi, 300px) + 21px), transparent calc(min(24cqi, 300px) + 22px)),
+      repeating-linear-gradient(90deg, var(--ui-ink) 0 2px, transparent 2px 14px) 0 100% / 100% 24px no-repeat;
+    --ui-backdrop-mask: none;
+    --ui-frame-border: 2px solid var(--ui-ink);
+    --ui-card-shadow: 6px 6px 0 var(--ui-ink);
+    --ui-frame-shadow: 6px 6px 0 var(--ui-ink);
+    --ui-marker-size: 12px;
+    --ui-marker-shape: 50%;
+    --ui-marker-color: var(--ui-accent);
+    --ui-section-rule: inset 0 2px 0 var(--ui-ink);
+    --ui-grain: 0;
+    --ui-glow: 0;
+    --ui-cta-shadow: 4px 4px 0 var(--ui-ink);
+    --ui-cta-shadow-hover: 6px 6px 0 var(--ui-ink);
+    --ui-em-style: normal;
+    --ui-em-color: var(--ui-accent-ink);
+    --ui-star-fill: 0;
+    --ui-display-scale: 1.3;
+
+    --ui-web-font-text: var(--ui-font-text);
+    --ui-web-font-label: var(--ui-font-label);
+    --ui-slide-font-text: var(--ui-font-text);
+    --ui-slide-font-label: var(--ui-font-label);
+  }
+}
+/* uipack self-hosted faces, shared by the styles that use them (Landing, Technical web, Graphical)
+   and by the deck when it is shown in one of them. A face is declared here but fetched only when
+   an element uses it, so each style downloads only its own files. */
 /* ---------- Faces: three roles, self-hosted ----------
    Display  Instrument Serif 400 + italic: headlines (steps 4–6), hero, big numbers.
    Text     IBM Plex Sans 400/500/600: body, UI, buttons, nav, headings at steps 0–3.
@@ -78,6 +503,17 @@
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
     U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+/* Graphical's display face: Anton 400, condensed poster caps (18 KB). */
+@font-face {
+  font-family: "Anton";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/anton-latin-400-normal.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 /* Metric-matched fallbacks shown during swap: a local face scaled to the web font's average
    character width (size-adjust) with its ascent and descent, so lines wrap in the same place
    and the swap barely moves anything. Measured from the woff2 files and the local fonts. */
@@ -105,1526 +541,1603 @@
   descent-override: 27.5%;
   line-gap-override: 0%;
 }
-
-.uipack-web {
-  --web-bg: #f7f7f4;
-  --web-surface: #ffffff;
-  --web-secondary: #ebe9f4;
-  --web-accent: #4b3fd6;
-  --web-on-accent: #ffffff;
-  --web-ink-rgb: 18 18 23;
-  --web-glass: rgb(247 247 244 / 0.72);
-  --web-shadow: 0 1px 2px rgb(18 18 23 / 0.06), 0 24px 48px -24px rgb(18 18 23 / 0.28);
-  --web-noise-blend: multiply;
-  /* Backgrounds sit at low contrast: one cap for the whole aurora layer. */
-  --web-aurora-opacity: 0.28;
-
-  /* Opacity emphasis: 100 / 87 / 66. */
-  --web-ink: rgb(var(--web-ink-rgb));
-  --web-ink-medium: rgb(var(--web-ink-rgb) / 0.87);
-  --web-ink-low: rgb(var(--web-ink-rgb) / 0.66);
-  --web-hairline: rgb(var(--web-ink-rgb) / 0.12);
-  --web-rule: rgb(var(--web-ink-rgb) / 0.24);
-
-  /* Type: three roles on a 16px base, Major Third. Display sets headings at steps 4–6 and big
-     numbers; text sets everything you read or press; mono sets labels and data. Override a
-     role's family with its token; give a heavier display face its own weight and tracking. */
-  --web-font-display: "Instrument Serif", "Instrument Serif Fallback", ui-serif, Georgia, "Times New Roman", serif;
-  --web-display-weight: 400;
-  --web-display-tracking: -0.01em;
-  --web-font-sans: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  /* --web-font-sans is the original name; overriding either one changes the text face. */
-  --web-font-text: var(--web-font-sans);
-  --web-font-mono: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  --web-step--1: 0.8rem;
-  --web-step-0: 1rem;
-  --web-step-1: 1.25rem;
-  --web-step-2: 1.5625rem;
-  --web-step-3: 1.9531rem;
-  --web-step-4: 2.4414rem;
-  --web-step-5: 3.0518rem;
-  --web-step-6: 3.8147rem;
-
-  /* 8-point spacing. */
-  --web-s1: 0.5rem;
-  --web-s2: 1rem;
-  --web-s3: 1.5rem;
-  --web-s4: 2rem;
-  --web-s6: 3rem;
-  --web-s8: 4rem;
-  --web-s12: 6rem;
-  --web-radius: 16px;
-  --web-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
-
-  container: web / inline-size;
-  /* Native controls (radios, checkboxes, scrollbars) follow the surface's theme, not the page's. */
-  color-scheme: light;
-  background: var(--web-bg);
-  color: var(--web-ink);
-  font-family: var(--web-font-text);
-  font-size: var(--web-step-0);
-  line-height: 1.5;
-  font-kerning: normal;
-  -webkit-font-smoothing: antialiased;
-  /* Anchor targets clear a sticky GlassNav (also read by SmoothScroll). */
-  --web-scroll-offset: 5rem;
+/* Anton over Impact, measured on caps and figures (Graphical sets its display face in caps). */
+@font-face {
+  font-family: "Anton Fallback";
+  src: local("Impact"), local("Impact Regular");
+  size-adjust: 95.67%;
+  ascent-override: 122.95%;
+  descent-override: 34.4%;
+  line-gap-override: 0%;
 }
-.uipack-web :where([id]) {
-  scroll-margin-top: var(--web-scroll-offset);
-}
+/* uipack/web.css — web page parts. Every rule is scoped under .uipack-web and every colour, face,
+   radius and ornament comes from the style roles (src/styles): data-ui-style="technical" (the
+   default, diagram-led), "landing" (the generic landing page) or "graphical" (poster).
+   60 / 30 / 10: --web-bg is the neutral, --web-secondary the supporting band, --web-accent the
+   single accent reserved for calls to action and the star. */
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .uipack-web:not([data-theme="light"]) {
-    --web-bg: #0d0d13;
-    --web-surface: #16161f;
-    --web-secondary: #1e1c2e;
-    --web-accent: #a99dff;
-    --web-on-accent: #0d0d13;
-    --web-ink-rgb: 242 242 247;
-    --web-glass: rgb(13 13 19 / 0.66);
-    --web-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 24px 48px -24px rgb(0 0 0 / 0.7);
+/* Base layer: an unlayered host rule outranks these without !important; the style's ornaments
+   (web-styles.css, uipack.ornaments) paint over them. */
+@layer uipack.base {
+  .uipack-web {
+    --web-bg: var(--ui-paper);
+    --web-surface: var(--ui-surface);
+    --web-secondary: var(--ui-surface-2);
+    --web-accent: var(--ui-accent);
+    --web-accent-ink: var(--ui-accent-ink, var(--ui-accent));
+    --web-on-accent: var(--ui-on-accent);
+    --web-glass: var(--ui-nav-fill);
+    --web-glass-blur: var(--ui-nav-blur);
+    --web-shadow: var(--ui-frame-shadow);
+    --web-frame-border: var(--ui-frame-border);
+    --web-noise-blend: multiply;
+    /* Backgrounds sit at low contrast: one cap for the whole aurora layer. */
+    --web-aurora-opacity: 0.28;
+
+    /* Opacity emphasis: 100 / 87 / 66. */
+    --web-ink: var(--ui-ink);
+    --web-ink-medium: var(--ui-ink-2);
+    --web-ink-low: var(--ui-ink-3);
+    --web-hairline: var(--ui-line-soft);
+    --web-rule: var(--ui-line);
+
+    /* Type: three roles on a 16px base, Major Third. Display sets headings at steps 4–6 and big
+       numbers; text sets everything you read or press; mono sets labels and data. Override a
+       role's family with its token; give a heavier display face its own weight and tracking. */
+    --web-font-display: var(--ui-web-font-display, var(--ui-font-display));
+    --web-display-weight: var(--ui-display-weight);
+    --web-display-tracking: var(--ui-display-tracking);
+    --web-display-case: var(--ui-display-case);
+    --web-font-sans: var(--ui-web-font-text, var(--ui-font-text));
+    /* --web-font-sans is the original name; overriding either one changes the text face. */
+    --web-font-text: var(--web-font-sans);
+    --web-font-mono: var(--ui-web-font-label, var(--ui-font-label));
+    --web-label-tracking: var(--ui-label-tracking);
+    --web-step--1: 0.8rem;
+    --web-step-0: 1rem;
+    --web-step-1: 1.25rem;
+    --web-step-2: 1.5625rem;
+    --web-step-3: 1.9531rem;
+    --web-step-4: 2.4414rem;
+    --web-step-5: 3.0518rem;
+    --web-step-6: 3.8147rem;
+    /* A style may set its display face larger (Graphical's condensed caps): steps 4–6 only. */
+    --web-display-scale: var(--ui-display-scale, 1);
+
+    /* 8-point spacing. */
+    --web-s1: 0.5rem;
+    --web-s2: 1rem;
+    --web-s3: 1.5rem;
+    --web-s4: 2rem;
+    --web-s6: 3rem;
+    --web-s8: 4rem;
+    --web-s12: 6rem;
+    --web-radius: var(--ui-radius);
+    --web-radius-panel: var(--ui-radius-sm);
+    --web-radius-inner: max(0px, calc(var(--ui-radius-sm) - 2px));
+    --web-radius-pill: var(--ui-radius-pill);
+    --web-ease: var(--ui-ease-settle);
+
+    container: web / inline-size;
+    /* Native controls (radios, checkboxes, scrollbars) follow the surface's theme, not the page's. */
+    color-scheme: light;
+    background: var(--web-bg);
+    color: var(--web-ink);
+    font-family: var(--web-font-text);
+    font-size: var(--web-step-0);
+    line-height: 1.5;
+    font-kerning: normal;
+    -webkit-font-smoothing: antialiased;
+    /* Anchor targets clear a sticky GlassNav (also read by SmoothScroll). */
+    --web-scroll-offset: 5rem;
+  }
+  .uipack-web :where([id]) {
+    scroll-margin-top: var(--web-scroll-offset);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .uipack-web:not([data-theme="light"]) {
+      --web-noise-blend: screen;
+      --web-aurora-opacity: 0.34;
+      color-scheme: dark;
+    }
+  }
+  [data-theme="dark"] .uipack-web:not([data-theme="light"]),
+  .uipack-web[data-theme="dark"] {
+    color-scheme: dark;
     --web-noise-blend: screen;
     --web-aurora-opacity: 0.34;
-    color-scheme: dark;
   }
-}
-[data-theme="dark"] .uipack-web:not([data-theme="light"]),
-.uipack-web[data-theme="dark"] {
-  color-scheme: dark;
-  --web-bg: #0d0d13;
-  --web-surface: #16161f;
-  --web-secondary: #1e1c2e;
-  --web-accent: #a99dff;
-  --web-on-accent: #0d0d13;
-  --web-ink-rgb: 242 242 247;
-  --web-glass: rgb(13 13 19 / 0.66);
-  --web-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 24px 48px -24px rgb(0 0 0 / 0.7);
-  --web-noise-blend: screen;
-  --web-aurora-opacity: 0.34;
-}
 
-.uipack-web *,
-.uipack-web *::before,
-.uipack-web *::after {
-  box-sizing: border-box;
-}
-.uipack-web :where(a, button):focus-visible {
-  outline: 2px solid var(--web-accent);
-  outline-offset: 3px;
-}
-/* No-JS path for in-page links on a landing page (one with a sticky GlassNav): the browser
-   eases anchor jumps; targets clear the nav through scroll-margin-top above. SmoothScroll
-   marks <html> while it runs and takes over, so the two never stack. */
-@media (prefers-reduced-motion: no-preference) {
-  html:has(.uipack-web-nav[data-sticky]):not([data-uipack-smooth-scroll]) {
-    scroll-behavior: smooth;
+  .uipack-web *,
+  .uipack-web *::before,
+  .uipack-web *::after {
+    box-sizing: border-box;
   }
-}
+  .uipack-web :where(a, button):focus-visible {
+    outline: 2px solid var(--web-accent);
+    outline-offset: 3px;
+  }
+  /* No-JS path for in-page links on a landing page (one with a sticky GlassNav): the browser
+     eases anchor jumps; targets clear the nav through scroll-margin-top above. SmoothScroll
+     marks <html> while it runs and takes over, so the two never stack. */
+  @media (prefers-reduced-motion: no-preference) {
+    html:has(.uipack-web-nav[data-sticky]):not([data-uipack-smooth-scroll]) {
+      scroll-behavior: smooth;
+    }
+  }
 
-/* ---------- Text hierarchy ---------- */
-.uipack-web-eyebrow {
-  margin: 0;
-  font-family: var(--web-font-mono);
-  font-size: var(--web-step--1);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--web-ink-low);
-}
-/* Small headings (steps 0–3) are set in the text face at 600: at these sizes a hairline serif
-   loses its contrast and reads as body. From step 4 (39px; 31px in narrow containers) the
-   display face takes over at its one weight, with tracking and leading tuned for it. */
-.uipack-web-heading {
-  margin: 0;
-  font-family: var(--web-font-text);
-  font-weight: 600;
-  color: var(--web-ink);
-  text-wrap: balance;
-}
-.uipack-web-heading:is([data-step="4"], [data-step="5"], [data-step="6"]) {
-  font-family: var(--web-font-display);
-  font-weight: var(--web-display-weight);
-  font-synthesis-weight: none;
-}
-.uipack-web-heading a {
-  color: inherit;
-  text-decoration: none;
-}
-.uipack-web-heading a:hover {
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
-.uipack-web-heading[data-step="6"] {
-  font-size: var(--web-step-6);
-  line-height: 1.02;
-  letter-spacing: var(--web-display-tracking);
-}
-.uipack-web-heading[data-step="5"] {
-  font-size: var(--web-step-5);
-  line-height: 1.05;
-  letter-spacing: var(--web-display-tracking);
-}
-.uipack-web-heading[data-step="4"] {
-  font-size: var(--web-step-4);
-  line-height: 1.1;
-  letter-spacing: var(--web-display-tracking);
-}
-.uipack-web-heading[data-step="3"] {
-  font-size: var(--web-step-3);
-  line-height: 1.2;
-  letter-spacing: -0.015em;
-  font-weight: 500;
-}
-.uipack-web-heading[data-step="2"] {
-  font-size: var(--web-step-2);
-  line-height: 1.3;
-  letter-spacing: -0.01em;
-}
-.uipack-web-heading[data-step="1"] {
-  font-size: var(--web-step-1);
-  line-height: 1.35;
-  letter-spacing: -0.005em;
-}
-.uipack-web-heading[data-step="0"] {
-  font-size: var(--web-step-0);
-  line-height: 1.5;
-}
-@container web (max-width: 720px) {
-  /* Narrow containers step headings down the scale; a heading keeps its face. The display
-     face is about a quarter narrower than the text face, so steps 6 and 5 drop one step
-     instead of two; the hero scales with its container between 39 and 49px. */
+  /* ---------- Text hierarchy ---------- */
+  .uipack-web-eyebrow {
+    margin: 0;
+    font-family: var(--web-font-mono);
+    font-size: var(--web-step--1);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--web-ink-low);
+  }
+  /* Small headings (steps 0–3) are set in the text face at 600: at these sizes a hairline serif
+     loses its contrast and reads as body. From step 4 (39px; 31px in narrow containers) the
+     display face takes over at its one weight, with tracking and leading tuned for it. */
+  .uipack-web-heading {
+    margin: 0;
+    font-family: var(--web-font-text);
+    font-weight: 600;
+    color: var(--web-ink);
+    text-wrap: balance;
+  }
+  .uipack-web-heading:is([data-step="4"], [data-step="5"], [data-step="6"]) {
+    font-family: var(--web-font-display);
+    font-weight: var(--web-display-weight);
+    text-transform: var(--web-display-case);
+    font-synthesis-weight: none;
+  }
+  .uipack-web-heading a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .uipack-web-heading a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
   .uipack-web-heading[data-step="6"] {
-    font-size: clamp(var(--web-step-4), 11.5cqi, var(--web-step-5));
-    line-height: 1.05;
+    font-size: calc(var(--web-step-6) * var(--web-display-scale));
+    line-height: 1.02;
+    letter-spacing: var(--web-display-tracking);
   }
   .uipack-web-heading[data-step="5"] {
-    font-size: var(--web-step-4);
-    line-height: 1.1;
+    font-size: calc(var(--web-step-5) * var(--web-display-scale));
+    line-height: 1.05;
+    letter-spacing: var(--web-display-tracking);
   }
   .uipack-web-heading[data-step="4"] {
-    font-size: var(--web-step-3);
+    font-size: calc(var(--web-step-4) * var(--web-display-scale));
+    line-height: 1.1;
+    letter-spacing: var(--web-display-tracking);
   }
   .uipack-web-heading[data-step="3"] {
+    font-size: var(--web-step-3);
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    font-weight: 500;
+  }
+  .uipack-web-heading[data-step="2"] {
     font-size: var(--web-step-2);
     line-height: 1.3;
+    letter-spacing: -0.01em;
   }
-}
-.uipack-web-subhead {
-  margin: 0;
-  font-size: var(--web-step-1);
-  line-height: 1.4;
-  color: var(--web-ink-medium);
-  max-width: 44ch;
-  text-wrap: pretty;
-}
-.uipack-web-body {
-  margin: 0;
-  font-size: var(--web-step-0);
-  line-height: 1.5;
-  max-width: 65ch;
-  color: var(--web-ink-low);
-  text-wrap: pretty;
-}
-.uipack-web-body[data-emphasis="high"] {
-  color: var(--web-ink);
-}
-.uipack-web-body[data-emphasis="medium"] {
-  color: var(--web-ink-medium);
-}
-
-/* ---------- CTA ---------- */
-.uipack-web-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--web-s1);
-  min-height: 44px;
-  padding: 0 20px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  font: 500 var(--web-step-0) / 1 var(--web-font-text);
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    transform 160ms var(--web-ease),
-    box-shadow 160ms var(--web-ease),
-    background-color 160ms;
-}
-.uipack-web-cta[data-size="lg"] {
-  min-height: 52px;
-  padding: 0 28px;
-}
-.uipack-web-cta[data-variant="primary"] {
-  background: var(--web-accent);
-  color: var(--web-on-accent);
-  box-shadow:
-    0 1px 0 rgb(255 255 255 / 0.18) inset,
-    0 8px 20px -10px var(--web-accent);
-}
-.uipack-web-cta[data-variant="secondary"] {
-  background: transparent;
-  color: var(--web-ink);
-  border-color: var(--web-rule);
-}
-@media (hover: hover) {
-  .uipack-web-cta[data-variant="primary"]:hover {
-    box-shadow:
-      0 1px 0 rgb(255 255 255 / 0.18) inset,
-      0 12px 28px -10px var(--web-accent);
-    transform: translateY(-1px);
+  .uipack-web-heading[data-step="1"] {
+    font-size: var(--web-step-1);
+    line-height: 1.35;
+    letter-spacing: -0.005em;
   }
-  .uipack-web-cta[data-variant="secondary"]:hover {
-    background: var(--web-secondary);
+  .uipack-web-heading[data-step="0"] {
+    font-size: var(--web-step-0);
+    line-height: 1.5;
   }
-}
-.uipack-web-cta:active {
-  transform: translateY(0);
-}
-
-/* ---------- Glass nav ---------- */
-.uipack-web-nav {
-  z-index: 10;
-  background: var(--web-glass);
-  -webkit-backdrop-filter: blur(14px) saturate(1.4);
-  backdrop-filter: blur(14px) saturate(1.4);
-  border-bottom: 1px solid var(--web-hairline);
-}
-.uipack-web-nav[data-sticky] {
-  position: sticky;
-  top: 0;
-}
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .uipack-web-nav {
-    background: var(--web-bg);
+  @container web (max-width: 720px) {
+    /* Narrow containers step headings down the scale; a heading keeps its face. The display
+       face is about a quarter narrower than the text face, so steps 6 and 5 drop one step
+       instead of two; the hero scales with its container between 39 and 49px. */
+    .uipack-web-heading[data-step="6"] {
+      font-size: calc(clamp(var(--web-step-4), 11.5cqi, var(--web-step-5)) * var(--web-display-scale));
+      line-height: 1.05;
+    }
+    .uipack-web-heading[data-step="5"] {
+      font-size: calc(var(--web-step-4) * var(--web-display-scale));
+      line-height: 1.1;
+    }
+    .uipack-web-heading[data-step="4"] {
+      font-size: calc(var(--web-step-3) * var(--web-display-scale));
+    }
+    .uipack-web-heading[data-step="3"] {
+      font-size: var(--web-step-2);
+      line-height: 1.3;
+    }
   }
-}
-.uipack-web-nav__bar {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--web-s2);
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 10px var(--web-s3);
-}
-.uipack-web-nav__brand {
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-.uipack-web-nav__brand a {
-  color: inherit;
-  text-decoration: none;
-}
-.uipack-web-nav__nav {
-  margin-left: auto;
-}
-.uipack-web-nav__links {
-  display: flex;
-  gap: 4px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.uipack-web-nav__links a {
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0 12px;
-  border-radius: 10px;
-  color: var(--web-ink-medium);
-  text-decoration: none;
-  font-size: 0.9375rem;
-}
-@media (hover: hover) {
-  .uipack-web-nav__links a:hover {
+  .uipack-web-subhead {
+    margin: 0;
+    font-size: var(--web-step-1);
+    line-height: 1.4;
+    color: var(--web-ink-medium);
+    max-width: 44ch;
+    text-wrap: pretty;
+  }
+  .uipack-web-body {
+    margin: 0;
+    font-size: var(--web-step-0);
+    line-height: 1.5;
+    max-width: 65ch;
+    color: var(--web-ink-low);
+    text-wrap: pretty;
+  }
+  .uipack-web-body[data-emphasis="high"] {
     color: var(--web-ink);
-    background: rgb(var(--web-ink-rgb) / 0.06);
   }
-}
-.uipack-web-nav__toggle {
-  display: none;
-  min-height: 44px;
-  min-width: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--web-hairline);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--web-ink);
-  font: 500 0.9375rem var(--web-font-text);
-  cursor: pointer;
-}
-@container web (max-width: 720px) {
-  .uipack-web-nav__bar {
-    padding: 8px var(--web-s2);
-    gap: var(--web-s1);
+  .uipack-web-body[data-emphasis="medium"] {
+    color: var(--web-ink-medium);
   }
-  .uipack-web-nav__nav {
-    margin-left: 0;
-    order: 4;
-  }
-  .uipack-web-nav__cta {
-    margin-left: auto;
-  }
-  .uipack-web-nav__toggle {
+
+  /* ---------- CTA ---------- */
+  .uipack-web-cta {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    gap: var(--web-s1);
+    min-height: 44px;
+    padding: 0 20px;
+    border-radius: var(--web-radius-pill);
+    border: 1px solid transparent;
+    font: 500 var(--web-step-0) / 1 var(--web-font-text);
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      transform 160ms var(--web-ease),
+      box-shadow 160ms var(--web-ease),
+      background-color 160ms;
   }
-  .uipack-web-nav__links {
-    display: none;
+  .uipack-web-cta[data-size="lg"] {
+    min-height: 52px;
+    padding: 0 28px;
   }
-  .uipack-web-nav[data-open] .uipack-web-nav__links {
-    display: grid;
-    position: absolute;
-    left: var(--web-s2);
-    right: var(--web-s2);
-    top: calc(100% + 4px);
-    padding: var(--web-s1);
-    background: var(--web-surface);
-    border: 1px solid var(--web-hairline);
-    border-radius: 12px;
-    box-shadow: var(--web-shadow);
+  .uipack-web-cta[data-variant="primary"] {
+    background: var(--web-accent);
+    color: var(--web-on-accent);
+    box-shadow: var(--ui-cta-shadow);
   }
-  .uipack-web-nav__cta .uipack-web-cta {
-    padding: 0 16px;
-  }
-}
-
-/* ---------- Star hero ---------- */
-.uipack-web-hero {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  padding: var(--web-s12) var(--web-s3) var(--web-s8);
-  text-align: center;
-}
-.uipack-web-hero__visual {
-  position: absolute;
-  inset: 22% 0 0;
-  z-index: -2;
-  /* The star stays out of the headline's way: it fades in below the copy. It also fades out
-     towards its low start, which runs under the proof's step list and controls, so the line
-     never draws through text (as MaskedStar's data-clear="start"). */
-  --web-hero-clear: linear-gradient(to right, transparent 0%, transparent 30%, #000 62%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 34%, #000 88%, transparent 100%), var(--web-hero-clear);
-  -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(to bottom, transparent 0%, #000 34%, #000 88%, transparent 100%), var(--web-hero-clear);
-  mask-composite: intersect;
-}
-.uipack-web-hero__visual > * {
-  width: 100%;
-  height: 100%;
-}
-.uipack-web-hero__copy {
-  display: grid;
-  justify-items: center;
-  gap: var(--web-s3);
-  max-width: 880px;
-  margin: 0 auto;
-}
-.uipack-web-hero__copy .uipack-web-heading {
-  max-width: 12em;
-}
-.uipack-web-hero__copy .uipack-web-subhead {
-  max-width: 40ch;
-}
-.uipack-web-hero__actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--web-s2);
-  margin-top: var(--web-s1);
-}
-.uipack-web-hero__proof {
-  max-width: 1040px;
-  margin: var(--web-s8) auto 0;
-  text-align: left;
-}
-@container web (max-width: 720px) {
-  .uipack-web-hero {
-    padding: var(--web-s8) var(--web-s2) var(--web-s6);
-  }
-  .uipack-web-hero__copy {
-    gap: var(--web-s2);
-  }
-  .uipack-web-hero__proof {
-    margin-top: var(--web-s6);
-  }
-  /* A phone stacks the demo under the copy: the star spans the column and rises out from behind
-     the demo's top edge to the right, rather than running off the side as a sliver. */
-  .uipack-web-hero__visual {
-    inset: 28% 0 0;
-    --web-hero-clear: linear-gradient(to right, transparent 0%, transparent 32%, #000 62%);
-  }
-}
-.uipack-web-noise {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  pointer-events: none;
-  mix-blend-mode: var(--web-noise-blend);
-}
-/* In the hero the star sits behind the demo; its guide rules would read as stray lines across it. */
-.uipack-web-hero .uipack-web-star__rule {
-  display: none;
-}
-.uipack-web-star__rule {
-  stroke: var(--web-hairline);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-.uipack-web-star__line {
-  stroke-width: 3;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-}
-.uipack-web-star__glow {
-  stroke-width: 18;
-  stroke-linecap: round;
-  opacity: 0.22;
-  filter: blur(8px);
-  vector-effect: non-scaling-stroke;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .uipack-web-star__line,
-  .uipack-web-star__glow {
-    stroke-dasharray: 1 1;
-    animation: uipack-web-draw 1.8s var(--web-ease) 200ms both;
-  }
-  .uipack-web-star__area {
-    animation: uipack-web-fade 1.4s var(--web-ease) 700ms both;
-  }
-}
-@keyframes uipack-web-draw {
-  from {
-    stroke-dashoffset: 1;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-@keyframes uipack-web-fade {
-  from {
-    opacity: 0;
-  }
-}
-
-/* ---------- Rhyme icon ---------- */
-.uipack-web-rhyme rect {
-  fill: var(--web-secondary);
-  stroke: var(--web-hairline);
-}
-.uipack-web-rhyme path {
-  fill: none;
-  stroke: var(--web-ink);
-  stroke-width: 1.75;
-  stroke-linecap: round;
-}
-.uipack-web-rhyme line {
-  stroke: var(--web-ink-low);
-  stroke-width: 1;
-  stroke-dasharray: 2 2;
-}
-.uipack-web-rhyme circle {
-  fill: var(--web-accent);
-  stroke: var(--web-surface);
-  stroke-width: 1.5;
-}
-
-/* ---------- Grid + sections ---------- */
-.uipack-web-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--web-s3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.uipack-web-grid__item {
-  grid-column: span var(--span-n, 4);
-  min-width: 0;
-  display: grid;
-}
-@container web (min-width: 640px) {
-  .uipack-web-grid {
-    grid-template-columns: repeat(8, minmax(0, 1fr));
-  }
-  .uipack-web-grid__item {
-    grid-column: span var(--span-m, 4);
-  }
-}
-@container web (min-width: 1024px) {
-  .uipack-web-grid {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: var(--web-s4);
-  }
-  .uipack-web-grid__item {
-    grid-column: span var(--span-w, 4);
-  }
-}
-.uipack-web-section {
-  --web-section-pad: var(--web-s12);
-  padding: var(--web-section-pad) var(--web-s3);
-}
-/* An anchored section lands with its first line 24px past the scroll offset (about 40px under a
-   sticky GlassNav): its own top padding tucks under the glass instead of leaving a 96px gap. */
-.uipack-web-section[id] {
-  scroll-margin-top: calc(var(--web-scroll-offset) - var(--web-section-pad) + var(--web-s3));
-}
-.uipack-web-section[data-tone="secondary"] {
-  background: var(--web-secondary);
-}
-/* Two sections on the same ground in a row (FAQ, then pricing) would stack both paddings, 192px of
-   blank page with no band to explain it; the second one's top padding halves. */
-.uipack-web-section:not([data-tone="secondary"]) + .uipack-web-section:not([data-tone="secondary"]) {
-  padding-top: calc(var(--web-section-pad) / 2);
-}
-.uipack-web-section:not([data-tone="secondary"]) + .uipack-web-section[id]:not([data-tone="secondary"]) {
-  scroll-margin-top: calc(var(--web-scroll-offset) - var(--web-section-pad) / 2 + var(--web-s3));
-}
-.uipack-web-section__inner {
-  max-width: 1120px;
-  margin: 0 auto;
-  display: grid;
-  gap: var(--web-s6);
-}
-.uipack-web-section__head {
-  display: grid;
-  gap: var(--web-s2);
-  max-width: 720px;
-}
-.uipack-web-section[data-align="center"] .uipack-web-section__head {
-  justify-items: center;
-  text-align: center;
-  margin: 0 auto;
-}
-@container web (max-width: 720px) {
-  .uipack-web-section {
-    --web-section-pad: var(--web-s8);
-    padding: var(--web-section-pad) var(--web-s2);
-  }
-  .uipack-web-section__inner {
-    gap: var(--web-s4);
-  }
-}
-/* Below-the-fold sections can skip layout and paint until they near the viewport. The content
-   stays in the DOM (crawlers, find-in-page, screen readers); `auto` remembers the rendered size
-   so the scrollbar does not jump once a section has been seen. */
-.uipack-web-section[data-lazy] {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 720px;
-}
-
-/* ---------- FAQ ---------- */
-.uipack-web-faq__list {
-  display: grid;
-  margin: 0;
-  border-top: 1px solid var(--web-hairline);
-}
-.uipack-web-faq__item {
-  display: grid;
-  gap: var(--web-s1);
-  padding: var(--web-s3) 0;
-  border-bottom: 1px solid var(--web-hairline);
-}
-.uipack-web-faq__answer {
-  display: grid;
-  gap: var(--web-s1);
-  max-width: 64ch;
-}
-.uipack-web-faq__answer > p {
-  margin: 0;
-}
-.uipack-web-faq__list[data-variant="accordion"] .uipack-web-faq__item {
-  padding: 0;
-  gap: 0;
-}
-.uipack-web-faq__list[data-variant="accordion"] summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--web-s2);
-  min-height: 44px;
-  padding: var(--web-s2) 0;
-  cursor: pointer;
-  list-style: none;
-  font-size: var(--web-step-1);
-  font-weight: 600;
-  line-height: 1.35;
-}
-.uipack-web-faq__list[data-variant="accordion"] summary::-webkit-details-marker {
-  display: none;
-}
-.uipack-web-faq__list[data-variant="accordion"] summary:focus-visible {
-  outline: 2px solid var(--web-accent);
-  outline-offset: 3px;
-}
-.uipack-web-faq__list[data-variant="accordion"] .uipack-web-faq__answer {
-  padding-bottom: var(--web-s3);
-}
-.uipack-web-faq__icon {
-  position: relative;
-  flex: none;
-  width: 16px;
-  height: 16px;
-}
-.uipack-web-faq__icon::before,
-.uipack-web-faq__icon::after {
-  content: "";
-  position: absolute;
-  inset: 7px 0;
-  background: var(--web-ink-low);
-  border-radius: 1px;
-}
-.uipack-web-faq__icon::after {
-  rotate: 90deg;
-  transition: rotate 200ms var(--web-ease);
-}
-.uipack-web-faq__item[open] .uipack-web-faq__icon::after {
-  rotate: 0deg;
-}
-@container web (min-width: 1024px) {
-  /* Head beside the questions: 5 of 12 columns, then 7. */
-  .uipack-web-faq .uipack-web-section__inner {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    align-items: start;
-    column-gap: var(--web-s4);
-  }
-  .uipack-web-faq[data-align="center"] .uipack-web-section__inner {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .uipack-web-faq__icon::after {
-    transition: none;
-  }
-}
-
-.uipack-web-feature,
-.uipack-web-spotlight {
-  display: grid;
-  align-content: start;
-  gap: var(--web-s2);
-  padding: var(--web-s4);
-  border: 1px solid var(--web-hairline);
-  border-radius: var(--web-radius);
-  background: var(--web-surface);
-  color: inherit;
-  text-decoration: none;
-}
-.uipack-web-feature__icon {
-  margin-bottom: var(--web-s1);
-  line-height: 0;
-}
-@container web (max-width: 720px) {
-  .uipack-web-feature,
-  .uipack-web-spotlight {
-    padding: var(--web-s3);
-  }
-}
-
-/* ---------- Spotlight card ---------- */
-.uipack-web-spotlight {
-  position: relative;
-  isolation: isolate;
-  --spot-x: 50%;
-  --spot-y: 0%;
-  --spot-on: 0;
-}
-.uipack-web-spotlight::before,
-.uipack-web-spotlight::after {
-  content: "";
-  position: absolute;
-  pointer-events: none;
-  border-radius: inherit;
-  opacity: var(--spot-on);
-  transition: opacity 240ms var(--web-ease);
-}
-/* Fill: a soft radial light under the pointer. */
-.uipack-web-spotlight::after {
-  inset: 0;
-  z-index: -1;
-  background: radial-gradient(
-    380px circle at var(--spot-x) var(--spot-y),
-    color-mix(in srgb, var(--web-accent) 12%, transparent),
-    transparent 65%
-  );
-}
-/* Border glow: the same light, masked to the 1px ring. */
-.uipack-web-spotlight::before {
-  inset: -1px;
-  padding: 1px;
-  background: radial-gradient(260px circle at var(--spot-x) var(--spot-y), var(--web-accent), transparent 70%);
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask:
-    linear-gradient(#000 0 0) content-box exclude,
-    linear-gradient(#000 0 0);
-}
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .uipack-web-spotlight:hover {
-    --spot-on: 1;
-  }
-}
-/* Keyboard: the same highlight, fixed at the top edge, with or without motion. */
-.uipack-web-spotlight:focus-visible,
-.uipack-web-spotlight:has(:focus-visible) {
-  --spot-on: 1;
-  --spot-x: 50% !important;
-  --spot-y: 0% !important;
-}
-.uipack-web-spotlight:focus-visible {
-  outline: 2px solid var(--web-accent);
-  outline-offset: 3px;
-}
-@media (prefers-reduced-motion: reduce) {
-  .uipack-web-spotlight::before,
-  .uipack-web-spotlight::after {
-    transition: none;
-  }
-}
-
-/* ---------- Reveal text ---------- */
-.uipack-web-reveal__unit {
-  display: inline-block;
-}
-.uipack-web-reveal[data-by="line"] .uipack-web-reveal__unit {
-  display: block;
-}
-.uipack-web-reveal[data-state="waiting"] .uipack-web-reveal__unit {
-  opacity: 0;
-  transform: translateY(0.45em);
-}
-.uipack-web-reveal[data-state="shown"] .uipack-web-reveal__unit {
-  transition:
-    opacity 600ms var(--web-ease),
-    transform 600ms var(--web-ease);
-  transition-delay: calc(var(--i) * var(--stagger));
-}
-
-/* ---------- Demo player ---------- */
-.uipack-web-demo {
-  display: grid;
-  gap: var(--web-s2);
-  min-width: 0;
-}
-.uipack-web-demo__sr {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-.uipack-web-demo__window {
-  overflow: hidden;
-  border: 1px solid var(--web-hairline);
-  border-radius: var(--web-radius);
-  background: var(--web-surface);
-  box-shadow: var(--web-shadow);
-}
-.uipack-web-demo__chrome {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  padding: 0 var(--web-s2);
-  border-bottom: 1px solid var(--web-hairline);
-  background: rgb(var(--web-ink-rgb) / 0.025);
-}
-.uipack-web-demo__dots {
-  position: absolute;
-  left: var(--web-s2);
-  display: flex;
-  gap: 6px;
-}
-.uipack-web-demo__dots i {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgb(var(--web-ink-rgb) / 0.14);
-}
-.uipack-web-demo__address {
-  max-width: 60%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding: 2px 12px;
-  border-radius: 999px;
-  background: rgb(var(--web-ink-rgb) / 0.05);
-  font: var(--web-step--1) var(--web-font-mono);
-  color: var(--web-ink-low);
-}
-.uipack-web-demo__body {
-  display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: var(--web-s3);
-  padding: var(--web-s3);
-  min-height: 336px;
-}
-.uipack-web-demo__work {
-  display: grid;
-  align-content: start;
-  gap: var(--web-s2);
-  min-width: 0;
-}
-.uipack-web-demo__composer {
-  display: flex;
-  align-items: center;
-  min-height: 56px;
-  padding: 12px var(--web-s2);
-  border: 1px solid var(--web-rule);
-  border-radius: 12px;
-  background: var(--web-bg);
-  color: var(--web-ink);
-  overflow-wrap: anywhere;
-}
-.uipack-web-demo__placeholder {
-  color: var(--web-ink-low);
-}
-.uipack-web-demo__caret {
-  flex: none;
-  width: 2px;
-  height: 1.2em;
-  margin-left: 2px;
-  background: var(--web-accent);
-  animation: uipack-web-blink 1s steps(1) infinite;
-}
-@keyframes uipack-web-blink {
-  50% {
-    opacity: 0;
-  }
-}
-.uipack-web-demo__log {
-  display: grid;
-  gap: 4px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.uipack-web-demo__log li {
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 12px;
-  min-height: 40px;
-  padding: 0 12px;
-  border-radius: 10px;
-  color: var(--web-ink-medium);
-  animation: uipack-web-rise 320ms var(--web-ease) both;
-}
-/* Queued: the plan before it runs, quiet until its turn; its count is the result, so it waits. */
-.uipack-web-demo__log li[data-state="pending"] {
-  color: var(--web-ink-low);
-}
-.uipack-web-demo__log li[data-state="pending"] small {
-  visibility: hidden;
-}
-.uipack-web-demo__log li[data-state="pending"] .uipack-web-demo__tick {
-  border-style: dashed;
-}
-.uipack-web-demo__log li[data-state="running"] {
-  background: rgb(var(--web-ink-rgb) / 0.04);
-  color: var(--web-ink);
-}
-.uipack-web-demo__log small {
-  font: var(--web-step--1) var(--web-font-mono);
-  color: var(--web-ink-low);
-}
-.uipack-web-demo__tick {
-  display: grid;
-  place-items: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 1.5px solid var(--web-rule);
-}
-.uipack-web-demo__log li[data-state="done"] .uipack-web-demo__tick {
-  border-color: var(--web-ink);
-  background: var(--web-ink);
-}
-.uipack-web-demo__tick svg {
-  width: 14px;
-  height: 14px;
-  fill: none;
-  stroke: var(--web-surface);
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.uipack-web-demo__log li[data-state="running"] .uipack-web-demo__tick {
-  border-color: var(--web-ink-low);
-  border-top-color: transparent;
-  animation: uipack-web-spin 800ms linear infinite;
-}
-@keyframes uipack-web-spin {
-  to {
-    transform: rotate(1turn);
-  }
-}
-@keyframes uipack-web-rise {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-}
-.uipack-web-demo__result {
-  display: grid;
-  align-content: start;
-  gap: var(--web-s2);
-  min-width: 0;
-  padding: var(--web-s3);
-  border-radius: 12px;
-  background: var(--web-secondary);
-}
-.uipack-web-demo__metric {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 4px 12px;
-  margin: 0;
-}
-.uipack-web-demo__metric strong {
-  font: var(--web-display-weight) var(--web-step-6) / 1 var(--web-font-display);
-  letter-spacing: var(--web-display-tracking);
-  font-variant-numeric: tabular-nums;
-  font-synthesis-weight: none;
-  animation: uipack-web-rise 280ms var(--web-ease) both;
-}
-.uipack-web-demo__metric span {
-  color: var(--web-ink-low);
-}
-.uipack-web-demo__screen {
-  min-width: 0;
-  animation: uipack-web-fade 400ms var(--web-ease) both;
-}
-.uipack-web-demo__controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--web-s1) var(--web-s2);
-}
-.uipack-web-demo__tabs,
-.uipack-web-demo__buttons {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--web-s1);
-}
-.uipack-web-demo__tabs button,
-.uipack-web-demo__buttons > button {
-  min-height: 44px;
-  min-width: 44px;
-  padding: 0 16px;
-  border: 1px solid var(--web-hairline);
-  border-radius: 999px;
-  /* Opaque, so the hero's star never shows through a label. */
-  background: var(--web-surface);
-  color: var(--web-ink-medium);
-  font: 500 0.9375rem var(--web-font-text);
-  cursor: pointer;
-}
-.uipack-web-demo__tabs button[aria-current="step"] {
-  background: var(--web-secondary);
-  border-color: var(--web-rule);
-  color: var(--web-ink);
-}
-@media (hover: hover) {
-  .uipack-web-demo__tabs button:hover,
-  .uipack-web-demo__buttons > button:hover {
+  .uipack-web-cta[data-variant="secondary"] {
+    background: transparent;
     color: var(--web-ink);
     border-color: var(--web-rule);
   }
-}
-.uipack-web-demo__num {
-  font-family: var(--web-font-mono);
-  font-size: var(--web-step--1);
-  color: var(--web-ink-low);
-  font-variant-numeric: tabular-nums;
-}
-.uipack-web-demo__caption {
-  margin: 0;
-  color: var(--web-ink-low);
-  font-size: 0.9375rem;
-}
-.uipack-web-demo__static {
-  display: grid;
-  gap: var(--web-s2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.uipack-web-demo__static > li {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--web-s2);
-  padding: var(--web-s2);
-  border: 1px solid var(--web-hairline);
-  border-radius: 12px;
-  background: var(--web-surface);
-}
-.uipack-web-demo__static p {
-  margin: 4px 0 0;
-  color: var(--web-ink-medium);
-}
-.uipack-web-demo__static ul {
-  margin: 8px 0 0;
-  padding-left: 1.2em;
-  color: var(--web-ink-low);
-}
-@container web (max-width: 720px) {
-  .uipack-web-demo__body {
-    grid-template-columns: minmax(0, 1fr);
-    padding: var(--web-s2);
+  @media (hover: hover) {
+    .uipack-web-cta[data-variant="primary"]:hover {
+      box-shadow: var(--ui-cta-shadow-hover);
+      transform: translateY(-1px);
+    }
+    .uipack-web-cta[data-variant="secondary"]:hover {
+      background: var(--web-secondary);
+    }
+  }
+  .uipack-web-cta:active {
+    transform: translateY(0);
+  }
+
+  /* ---------- Glass nav ---------- */
+  .uipack-web-nav {
+    z-index: 10;
+    background: var(--web-glass);
+    -webkit-backdrop-filter: var(--web-glass-blur);
+    backdrop-filter: var(--web-glass-blur);
+    border-bottom: 1px solid var(--web-hairline);
+  }
+  .uipack-web-nav[data-sticky] {
+    position: sticky;
+    top: 0;
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .uipack-web-nav {
+      background: var(--web-bg);
+    }
+  }
+  .uipack-web-nav__bar {
+    position: relative;
+    display: flex;
+    align-items: center;
     gap: var(--web-s2);
-    min-height: 0;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 10px var(--web-s3);
+  }
+  .uipack-web-nav__brand {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .uipack-web-nav__brand a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .uipack-web-nav__nav {
+    margin-left: auto;
+  }
+  .uipack-web-nav__links {
+    display: flex;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .uipack-web-nav__links a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: var(--web-radius-inner);
+    color: var(--web-ink-medium);
+    text-decoration: none;
+    font-size: 0.9375rem;
+  }
+  @media (hover: hover) {
+    .uipack-web-nav__links a:hover {
+      color: var(--web-ink);
+      background: color-mix(in srgb, var(--web-ink) 6%, transparent);
+    }
+  }
+  .uipack-web-nav__toggle {
+    display: none;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--web-hairline);
+    border-radius: var(--web-radius-pill);
+    background: transparent;
+    color: var(--web-ink);
+    font: 500 0.9375rem var(--web-font-text);
+    cursor: pointer;
+  }
+  @container web (max-width: 720px) {
+    .uipack-web-nav__bar {
+      padding: 8px var(--web-s2);
+      gap: var(--web-s1);
+    }
+    .uipack-web-nav__nav {
+      margin-left: 0;
+      order: 4;
+    }
+    .uipack-web-nav__cta {
+      margin-left: auto;
+    }
+    .uipack-web-nav__toggle {
+      display: inline-flex;
+      align-items: center;
+    }
+    .uipack-web-nav__links {
+      display: none;
+    }
+    .uipack-web-nav[data-open] .uipack-web-nav__links {
+      display: grid;
+      position: absolute;
+      left: var(--web-s2);
+      right: var(--web-s2);
+      top: calc(100% + 4px);
+      padding: var(--web-s1);
+      background: var(--web-surface);
+      border: 1px solid var(--web-hairline);
+      border-radius: var(--web-radius-panel);
+      box-shadow: var(--web-shadow);
+    }
+    .uipack-web-nav__cta .uipack-web-cta {
+      padding: 0 16px;
+    }
+  }
+
+  /* ---------- Star hero ---------- */
+  .uipack-web-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding: var(--web-s12) var(--web-s3) var(--web-s8);
+    text-align: center;
+  }
+  .uipack-web-hero__visual {
+    position: absolute;
+    inset: 22% 0 0;
+    z-index: -2;
+    /* The star stays out of the headline's way: it fades in below the copy. It also fades out
+       towards its low start, which runs under the proof's step list and controls, so the line
+       never draws through text (as MaskedStar's data-clear="start"). */
+    --web-hero-clear: linear-gradient(to right, transparent 0%, transparent 30%, black 62%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 34%, black 88%, transparent 100%), var(--web-hero-clear);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to bottom, transparent 0%, black 34%, black 88%, transparent 100%), var(--web-hero-clear);
+    mask-composite: intersect;
+  }
+  .uipack-web-hero__visual > * {
+    width: 100%;
+    height: 100%;
+  }
+  .uipack-web-hero__copy {
+    display: grid;
+    justify-items: center;
+    gap: var(--web-s3);
+    max-width: 880px;
+    margin: 0 auto;
+  }
+  .uipack-web-hero__copy .uipack-web-heading {
+    max-width: 12em;
+  }
+  .uipack-web-hero__copy .uipack-web-subhead {
+    max-width: 40ch;
+  }
+  .uipack-web-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--web-s2);
+    margin-top: var(--web-s1);
+  }
+  .uipack-web-hero__proof {
+    max-width: 1040px;
+    margin: var(--web-s8) auto 0;
+    text-align: left;
+  }
+  @container web (max-width: 720px) {
+    .uipack-web-hero {
+      padding: var(--web-s8) var(--web-s2) var(--web-s6);
+    }
+    .uipack-web-hero__copy {
+      gap: var(--web-s2);
+    }
+    .uipack-web-hero__proof {
+      margin-top: var(--web-s6);
+    }
+    /* A phone stacks the demo under the copy: the star spans the column and rises out from behind
+       the demo's top edge to the right, rather than running off the side as a sliver. */
+    .uipack-web-hero__visual {
+      inset: 28% 0 0;
+      --web-hero-clear: linear-gradient(to right, transparent 0%, transparent 32%, black 62%);
+    }
+  }
+  .uipack-web-noise {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    opacity: var(--noise-opacity, 0.07);
+    mix-blend-mode: var(--web-noise-blend);
+  }
+  /* The hero's grain is an ornament: only styles with grain (Landing) show it. */
+  .uipack-web-hero > .uipack-web-noise {
+    opacity: calc(var(--noise-opacity, 0.07) * var(--ui-grain, 1));
+  }
+  /* Emphasis inside a display headline: Landing's real italic; Technical and Graphical colour the
+     phrase with the accent instead (neither ships a display italic, and a synthesised one is not drawn). */
+  .uipack-web-heading:is([data-step="4"], [data-step="5"], [data-step="6"]) em {
+    font-style: var(--ui-em-style, italic);
+    color: var(--ui-em-color, inherit);
+  }
+  .uipack-web-star__area {
+    opacity: var(--ui-star-fill, 1);
+  }
+  /* In the hero the star sits behind the demo; its guide rules would read as stray lines across it. */
+  .uipack-web-hero .uipack-web-star__rule {
+    display: none;
+  }
+  .uipack-web-star__rule {
+    stroke: var(--web-hairline);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .uipack-web-star__line {
+    stroke-width: 3;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .uipack-web-star__glow {
+    stroke-width: 18;
+    stroke-linecap: round;
+    opacity: calc(0.22 * var(--ui-glow, 1));
+    filter: blur(8px);
+    vector-effect: non-scaling-stroke;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .uipack-web-star__line,
+    .uipack-web-star__glow {
+      stroke-dasharray: 1 1;
+      animation: uipack-web-draw 1.8s var(--web-ease) 200ms both;
+    }
+    .uipack-web-star__area {
+      animation: uipack-web-fade 1.4s var(--web-ease) 700ms both;
+    }
+  }
+  @keyframes uipack-web-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes uipack-web-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* ---------- Rhyme icon ---------- */
+  .uipack-web-rhyme rect {
+    fill: var(--web-secondary);
+    stroke: var(--web-hairline);
+  }
+  .uipack-web-rhyme path {
+    fill: none;
+    stroke: var(--web-ink);
+    stroke-width: 1.75;
+    stroke-linecap: round;
+  }
+  .uipack-web-rhyme line {
+    stroke: var(--web-ink-low);
+    stroke-width: 1;
+    stroke-dasharray: 2 2;
+  }
+  .uipack-web-rhyme circle {
+    fill: var(--web-accent);
+    stroke: var(--web-surface);
+    stroke-width: 1.5;
+  }
+
+  /* ---------- Grid + sections ---------- */
+  .uipack-web-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--web-s3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .uipack-web-grid__item {
+    grid-column: span var(--span-n, 4);
+    min-width: 0;
+    display: grid;
+  }
+  @container web (min-width: 640px) {
+    .uipack-web-grid {
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+    }
+    .uipack-web-grid__item {
+      grid-column: span var(--span-m, 4);
+    }
+  }
+  @container web (min-width: 1024px) {
+    .uipack-web-grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: var(--web-s4);
+    }
+    .uipack-web-grid__item {
+      grid-column: span var(--span-w, 4);
+    }
+  }
+  .uipack-web-section {
+    --web-section-pad: var(--web-s12);
+    padding: var(--web-section-pad) var(--web-s3);
+  }
+  /* An anchored section lands with its first line 24px past the scroll offset (about 40px under a
+     sticky GlassNav): its own top padding tucks under the glass instead of leaving a 96px gap. */
+  .uipack-web-section[id] {
+    scroll-margin-top: calc(var(--web-scroll-offset) - var(--web-section-pad) + var(--web-s3));
+  }
+  .uipack-web-section[data-tone="secondary"] {
+    background: var(--web-secondary);
+  }
+  /* Two sections on the same ground in a row (FAQ, then pricing) would stack both paddings, 192px of
+     blank page with no band to explain it; the second one's top padding halves. */
+  .uipack-web-section:not([data-tone="secondary"]) + .uipack-web-section:not([data-tone="secondary"]) {
+    padding-top: calc(var(--web-section-pad) / 2);
+  }
+  .uipack-web-section:not([data-tone="secondary"]) + .uipack-web-section[id]:not([data-tone="secondary"]) {
+    scroll-margin-top: calc(var(--web-scroll-offset) - var(--web-section-pad) / 2 + var(--web-s3));
+  }
+  .uipack-web-section__inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: grid;
+    gap: var(--web-s6);
+  }
+  .uipack-web-section__head {
+    display: grid;
+    gap: var(--web-s2);
+    max-width: 720px;
+  }
+  .uipack-web-section[data-align="center"] .uipack-web-section__head {
+    justify-items: center;
+    text-align: center;
+    margin: 0 auto;
+  }
+  @container web (max-width: 720px) {
+    .uipack-web-section {
+      --web-section-pad: var(--web-s8);
+      padding: var(--web-section-pad) var(--web-s2);
+    }
+    .uipack-web-section__inner {
+      gap: var(--web-s4);
+    }
+  }
+  /* Below-the-fold sections can skip layout and paint until they near the viewport. The content
+     stays in the DOM (crawlers, find-in-page, screen readers); `auto` remembers the rendered size
+     so the scrollbar does not jump once a section has been seen. */
+  .uipack-web-section[data-lazy] {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 720px;
+  }
+
+  /* ---------- FAQ ---------- */
+  .uipack-web-faq__list {
+    display: grid;
+    margin: 0;
+    border-top: 1px solid var(--web-hairline);
+  }
+  .uipack-web-faq__item {
+    display: grid;
+    gap: var(--web-s1);
+    padding: var(--web-s3) 0;
+    border-bottom: 1px solid var(--web-hairline);
+  }
+  .uipack-web-faq__answer {
+    display: grid;
+    gap: var(--web-s1);
+    max-width: 64ch;
+  }
+  .uipack-web-faq__answer > p {
+    margin: 0;
+  }
+  .uipack-web-faq__list[data-variant="accordion"] .uipack-web-faq__item {
+    padding: 0;
+    gap: 0;
+  }
+  .uipack-web-faq__list[data-variant="accordion"] summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--web-s2);
+    min-height: 44px;
+    padding: var(--web-s2) 0;
+    cursor: pointer;
+    list-style: none;
+    font-size: var(--web-step-1);
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .uipack-web-faq__list[data-variant="accordion"] summary::-webkit-details-marker {
+    display: none;
+  }
+  .uipack-web-faq__list[data-variant="accordion"] summary:focus-visible {
+    outline: 2px solid var(--web-accent);
+    outline-offset: 3px;
+  }
+  .uipack-web-faq__list[data-variant="accordion"] .uipack-web-faq__answer {
+    padding-bottom: var(--web-s3);
+  }
+  .uipack-web-faq__icon {
+    position: relative;
+    flex: none;
+    width: 16px;
+    height: 16px;
+  }
+  .uipack-web-faq__icon::before,
+  .uipack-web-faq__icon::after {
+    content: "";
+    position: absolute;
+    inset: 7px 0;
+    background: var(--web-ink-low);
+    border-radius: 1px;
+  }
+  .uipack-web-faq__icon::after {
+    rotate: 90deg;
+    transition: rotate 200ms var(--web-ease);
+  }
+  .uipack-web-faq__item[open] .uipack-web-faq__icon::after {
+    rotate: 0deg;
+  }
+  @container web (min-width: 1024px) {
+    /* Head beside the questions: 5 of 12 columns, then 7. */
+    .uipack-web-faq .uipack-web-section__inner {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      align-items: start;
+      column-gap: var(--web-s4);
+    }
+    .uipack-web-faq[data-align="center"] .uipack-web-section__inner {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .uipack-web-faq__icon::after {
+      transition: none;
+    }
+  }
+
+  .uipack-web-feature,
+  .uipack-web-spotlight {
+    display: grid;
+    align-content: start;
+    gap: var(--web-s2);
+    padding: var(--web-s4);
+    border: var(--web-frame-border);
+    border-radius: var(--web-radius);
+    background: var(--web-surface);
+    box-shadow: var(--ui-card-shadow);
+    color: inherit;
+    text-decoration: none;
+  }
+  .uipack-web-feature__icon {
+    margin-bottom: var(--web-s1);
+    line-height: 0;
+  }
+  @container web (max-width: 720px) {
+    .uipack-web-feature,
+    .uipack-web-spotlight {
+      padding: var(--web-s3);
+    }
+  }
+
+  /* ---------- Spotlight card ---------- */
+  .uipack-web-spotlight {
+    position: relative;
+    isolation: isolate;
+    --spot-x: 50%;
+    --spot-y: 0%;
+    --spot-on: 0;
+  }
+  .uipack-web-spotlight::before,
+  .uipack-web-spotlight::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    border-radius: inherit;
+    /* Ambient glow is Landing's: other styles keep the keyboard ring and lose the light. */
+    opacity: calc(var(--spot-on) * var(--ui-glow, 1));
+    transition: opacity 240ms var(--web-ease);
+  }
+  /* Fill: a soft radial light under the pointer. */
+  .uipack-web-spotlight::after {
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      380px circle at var(--spot-x) var(--spot-y),
+      color-mix(in srgb, var(--web-accent) 12%, transparent),
+      transparent 65%
+    );
+  }
+  /* Border glow: the same light, masked to the 1px ring. */
+  .uipack-web-spotlight::before {
+    inset: -1px;
+    padding: 1px;
+    background: radial-gradient(260px circle at var(--spot-x) var(--spot-y), var(--web-accent), transparent 70%);
+    -webkit-mask:
+      linear-gradient(black 0 0) content-box,
+      linear-gradient(black 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(black 0 0) content-box exclude,
+      linear-gradient(black 0 0);
+  }
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .uipack-web-spotlight:hover {
+      --spot-on: 1;
+    }
+  }
+  /* Keyboard: the same highlight, fixed at the top edge, with or without motion. */
+  .uipack-web-spotlight:focus-visible,
+  .uipack-web-spotlight:has(:focus-visible) {
+    --spot-on: 1;
+    --spot-x: 50% !important;
+    --spot-y: 0% !important;
+  }
+  .uipack-web-spotlight:focus-visible {
+    outline: 2px solid var(--web-accent);
+    outline-offset: 3px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .uipack-web-spotlight::before,
+    .uipack-web-spotlight::after {
+      transition: none;
+    }
+  }
+
+  /* ---------- Reveal text ---------- */
+  .uipack-web-reveal__unit {
+    display: inline-block;
+  }
+  .uipack-web-reveal[data-by="line"] .uipack-web-reveal__unit {
+    display: block;
+  }
+  .uipack-web-reveal[data-state="waiting"] .uipack-web-reveal__unit {
+    opacity: 0;
+    transform: translateY(0.45em);
+  }
+  .uipack-web-reveal[data-state="shown"] .uipack-web-reveal__unit {
+    transition:
+      opacity 600ms var(--web-ease),
+      transform 600ms var(--web-ease);
+    transition-delay: calc(var(--i) * var(--stagger));
+  }
+
+  /* ---------- Demo player ---------- */
+  .uipack-web-demo {
+    display: grid;
+    gap: var(--web-s2);
+    min-width: 0;
+  }
+  .uipack-web-demo__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .uipack-web-demo__window {
+    overflow: hidden;
+    border: var(--web-frame-border);
+    border-radius: var(--web-radius);
+    background: var(--web-surface);
+    box-shadow: var(--web-shadow);
+  }
+  .uipack-web-demo__chrome {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0 var(--web-s2);
+    border-bottom: 1px solid var(--web-hairline);
+    background: color-mix(in srgb, var(--web-ink) 2.5%, transparent);
+  }
+  .uipack-web-demo__dots {
+    position: absolute;
+    left: var(--web-s2);
+    display: flex;
+    gap: 6px;
+  }
+  .uipack-web-demo__dots i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--web-ink) 14%, transparent);
+  }
+  .uipack-web-demo__address {
+    max-width: 60%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 2px 12px;
+    border-radius: var(--web-radius-pill);
+    background: color-mix(in srgb, var(--web-ink) 5%, transparent);
+    font: var(--web-step--1) var(--web-font-mono);
+    color: var(--web-ink-low);
+  }
+  .uipack-web-demo__body {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: var(--web-s3);
+    padding: var(--web-s3);
+    min-height: 336px;
   }
   .uipack-web-demo__work {
-    min-height: 232px;
+    display: grid;
+    align-content: start;
+    gap: var(--web-s2);
+    min-width: 0;
+  }
+  .uipack-web-demo__composer {
+    display: flex;
+    align-items: center;
+    min-height: 56px;
+    padding: 12px var(--web-s2);
+    border: 1px solid var(--web-rule);
+    border-radius: var(--web-radius-panel);
+    background: var(--web-bg);
+    color: var(--web-ink);
+    overflow-wrap: anywhere;
+  }
+  .uipack-web-demo__placeholder {
+    color: var(--web-ink-low);
+  }
+  .uipack-web-demo__caret {
+    flex: none;
+    width: 2px;
+    height: 1.2em;
+    margin-left: 2px;
+    background: var(--web-accent);
+    animation: uipack-web-blink 1s steps(1) infinite;
+  }
+  @keyframes uipack-web-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  .uipack-web-demo__log {
+    display: grid;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .uipack-web-demo__log li {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: var(--web-radius-inner);
+    color: var(--web-ink-medium);
+    animation: uipack-web-rise 320ms var(--web-ease) both;
+  }
+  /* Queued: the plan before it runs, quiet until its turn; its count is the result, so it waits. */
+  .uipack-web-demo__log li[data-state="pending"] {
+    color: var(--web-ink-low);
+  }
+  .uipack-web-demo__log li[data-state="pending"] small {
+    visibility: hidden;
+  }
+  .uipack-web-demo__log li[data-state="pending"] .uipack-web-demo__tick {
+    border-style: dashed;
+  }
+  .uipack-web-demo__log li[data-state="running"] {
+    background: color-mix(in srgb, var(--web-ink) 4%, transparent);
+    color: var(--web-ink);
+  }
+  .uipack-web-demo__log small {
+    font: var(--web-step--1) var(--web-font-mono);
+    color: var(--web-ink-low);
+  }
+  .uipack-web-demo__tick {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid var(--web-rule);
+  }
+  .uipack-web-demo__log li[data-state="done"] .uipack-web-demo__tick {
+    border-color: var(--web-ink);
+    background: var(--web-ink);
+  }
+  .uipack-web-demo__tick svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: var(--web-surface);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .uipack-web-demo__log li[data-state="running"] .uipack-web-demo__tick {
+    border-color: var(--web-ink-low);
+    border-top-color: transparent;
+    animation: uipack-web-spin 800ms linear infinite;
+  }
+  @keyframes uipack-web-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+  @keyframes uipack-web-rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
   }
   .uipack-web-demo__result {
-    padding: var(--web-s2);
+    display: grid;
+    align-content: start;
+    gap: var(--web-s2);
+    min-width: 0;
+    padding: var(--web-s3);
+    border-radius: var(--web-radius-panel);
+    background: var(--web-secondary);
+  }
+  .uipack-web-demo__metric {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin: 0;
   }
   .uipack-web-demo__metric strong {
-    font-size: var(--web-step-4);
+    font: var(--web-display-weight) var(--web-step-6) / 1 var(--web-font-display);
+    letter-spacing: var(--web-display-tracking);
+    font-variant-numeric: tabular-nums;
+    font-synthesis-weight: none;
+    animation: uipack-web-rise 280ms var(--web-ease) both;
+  }
+  .uipack-web-demo__metric span {
+    color: var(--web-ink-low);
+  }
+  .uipack-web-demo__screen {
+    min-width: 0;
+    animation: uipack-web-fade 400ms var(--web-ease) both;
   }
   .uipack-web-demo__controls {
-    justify-content: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--web-s1) var(--web-s2);
   }
-}
+  .uipack-web-demo__tabs,
+  .uipack-web-demo__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--web-s1);
+  }
+  .uipack-web-demo__tabs button,
+  .uipack-web-demo__buttons > button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--web-hairline);
+    border-radius: var(--web-radius-pill);
+    /* Opaque, so the hero's star never shows through a label. */
+    background: var(--web-surface);
+    color: var(--web-ink-medium);
+    font: 500 0.9375rem var(--web-font-text);
+    cursor: pointer;
+  }
+  .uipack-web-demo__tabs button[aria-current="step"] {
+    background: var(--web-secondary);
+    border-color: var(--web-rule);
+    color: var(--web-ink);
+  }
+  @media (hover: hover) {
+    .uipack-web-demo__tabs button:hover,
+    .uipack-web-demo__buttons > button:hover {
+      color: var(--web-ink);
+      border-color: var(--web-rule);
+    }
+  }
+  .uipack-web-demo__num {
+    font-family: var(--web-font-mono);
+    font-size: var(--web-step--1);
+    color: var(--web-ink-low);
+    font-variant-numeric: tabular-nums;
+  }
+  .uipack-web-demo__caption {
+    margin: 0;
+    color: var(--web-ink-low);
+    font-size: 0.9375rem;
+  }
+  .uipack-web-demo__static {
+    display: grid;
+    gap: var(--web-s2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .uipack-web-demo__static > li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--web-s2);
+    padding: var(--web-s2);
+    border: 1px solid var(--web-hairline);
+    border-radius: var(--web-radius-panel);
+    background: var(--web-surface);
+  }
+  .uipack-web-demo__static p {
+    margin: 4px 0 0;
+    color: var(--web-ink-medium);
+  }
+  .uipack-web-demo__static ul {
+    margin: 8px 0 0;
+    padding-left: 1.2em;
+    color: var(--web-ink-low);
+  }
+  @container web (max-width: 720px) {
+    .uipack-web-demo__body {
+      grid-template-columns: minmax(0, 1fr);
+      padding: var(--web-s2);
+      gap: var(--web-s2);
+      min-height: 0;
+    }
+    .uipack-web-demo__work {
+      min-height: 232px;
+    }
+    .uipack-web-demo__result {
+      padding: var(--web-s2);
+    }
+    .uipack-web-demo__metric strong {
+      font-size: var(--web-step-4);
+    }
+    .uipack-web-demo__controls {
+      justify-content: flex-start;
+    }
+  }
 
-@media (prefers-reduced-motion: reduce) {
-  .uipack-web-cta,
-  .uipack-web-demo__log li,
-  .uipack-web-demo__metric strong,
-  .uipack-web-demo__screen,
-  .uipack-web-demo__caret,
-  .uipack-web-demo__log li[data-state="running"] .uipack-web-demo__tick {
-    animation: none;
-    transition: none;
+  @media (prefers-reduced-motion: reduce) {
+    .uipack-web-cta,
+    .uipack-web-demo__log li,
+    .uipack-web-demo__metric strong,
+    .uipack-web-demo__screen,
+    .uipack-web-demo__caret,
+    .uipack-web-demo__log li[data-state="running"] .uipack-web-demo__tick {
+      animation: none;
+      transition: none;
+    }
+    .uipack-web-reveal .uipack-web-reveal__unit {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
   }
-  .uipack-web-reveal .uipack-web-reveal__unit {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-}
 
-/* =================================================================== Backgrounds
-   One ambient effect per viewport. Every layer is decorative (aria-hidden), sits
-   under the content at low contrast, and never takes pointer events. */
-.uipack-web-bgframe {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-}
-.uipack-web-bgframe__content {
-  position: relative;
-}
-.uipack-web-gridbg,
-.uipack-web-aurora,
-.uipack-web-maskedstar,
-.uipack-web-beams {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-}
-.uipack-web-gridbg {
-  --grid-ink: rgb(var(--web-ink-rgb) / 0.2);
-  --grid-line: rgb(var(--web-ink-rgb) / 0.08);
-}
-.uipack-web-gridbg[data-bg="dots"],
-.uipack-web-gridbg[data-bg="dots"] .uipack-web-gridbg__lit {
-  background-image: radial-gradient(circle at 1px 1px, var(--grid-ink) 1px, transparent 1.5px);
-  background-size: var(--cell) var(--cell);
-}
-.uipack-web-gridbg[data-bg="lines"],
-.uipack-web-gridbg[data-bg="lines"] .uipack-web-gridbg__lit,
-.uipack-web-beams {
-  background-image:
-    linear-gradient(var(--grid-line, rgb(var(--web-ink-rgb) / 0.08)) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line, rgb(var(--web-ink-rgb) / 0.08)) 1px, transparent 1px);
-  background-size: var(--cell) var(--cell);
-}
-.uipack-web-gridbg[data-fade],
-.uipack-web-beams {
-  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 40%, #000 25%, transparent 78%);
-  mask-image: radial-gradient(ellipse 75% 70% at 50% 40%, #000 25%, transparent 78%);
-}
-.uipack-web-gridbg__lit {
-  position: absolute;
-  inset: 0;
-  --grid-ink: var(--web-accent);
-  --grid-line: color-mix(in srgb, var(--web-accent) 55%, transparent);
-  -webkit-mask-image: radial-gradient(180px circle at var(--spot-x, 50%) var(--spot-y, 50%), #000, transparent 70%);
-  mask-image: radial-gradient(180px circle at var(--spot-x, 50%) var(--spot-y, 50%), #000, transparent 70%);
-  opacity: 0;
-  transition: opacity 300ms var(--web-ease);
-}
-.uipack-web-gridbg[data-lit] .uipack-web-gridbg__lit {
-  opacity: 1;
-}
-
-.uipack-web-aurora {
-  inset: -15%;
-  opacity: var(--web-aurora-opacity);
-  filter: blur(72px);
-}
-.uipack-web-aurora i {
-  position: absolute;
-  width: 55%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  animation: uipack-web-drift var(--aurora-duration, 24s) ease-in-out infinite alternate;
-}
-.uipack-web-aurora i:nth-child(1) {
-  left: 0;
-  top: 0;
-  background: var(--web-accent);
-}
-.uipack-web-aurora i:nth-child(2) {
-  right: 0;
-  top: 5%;
-  background: color-mix(in srgb, var(--web-accent) 50%, var(--web-bg));
-  animation-direction: alternate-reverse;
-  animation-delay: calc(var(--aurora-duration, 24s) * -0.33);
-}
-.uipack-web-aurora i:nth-child(3) {
-  left: 25%;
-  bottom: -5%;
-  background: var(--web-secondary);
-  animation-delay: calc(var(--aurora-duration, 24s) * -0.66);
-}
-.uipack-web-aurora[data-paused] i {
-  animation-play-state: paused;
-}
-@keyframes uipack-web-drift {
-  0% {
-    transform: translate(0, 0) scale(1);
+  /* =================================================================== Backgrounds
+     One ambient effect per viewport. Every layer is decorative (aria-hidden), sits
+     under the content at low contrast, and never takes pointer events. */
+  .uipack-web-bgframe {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
   }
-  50% {
-    transform: translate(10%, 8%) scale(1.12);
+  .uipack-web-bgframe__content {
+    position: relative;
   }
-  100% {
-    transform: translate(-8%, 4%) scale(0.94);
+  .uipack-web-gridbg,
+  .uipack-web-aurora,
+  .uipack-web-maskedstar,
+  .uipack-web-beams {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
   }
-}
-
-.uipack-web-maskedstar {
-  -webkit-mask-image: radial-gradient(ellipse 50% 42% at 50% 40%, transparent 35%, #000 90%);
-  mask-image: radial-gradient(ellipse 50% 42% at 50% 40%, transparent 35%, #000 90%);
-}
-.uipack-web-maskedstar[data-clear="start"] {
-  -webkit-mask-image: linear-gradient(90deg, transparent 30%, #000 85%);
-  mask-image: linear-gradient(90deg, transparent 30%, #000 85%);
-}
-.uipack-web-maskedstar[data-clear="top"],
-.uipack-web-beams[data-clear="top"] {
-  top: 50%;
-  -webkit-mask-image: linear-gradient(180deg, transparent, #000 45%), linear-gradient(90deg, transparent, #000 30%);
-  -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(180deg, transparent, #000 45%), linear-gradient(90deg, transparent, #000 30%);
-  mask-composite: intersect;
-}
-.uipack-web-maskedstar > svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-.uipack-web-maskedstar[data-flip="x"] > svg {
-  transform: scaleX(-1);
-}
-.uipack-web-maskedstar[data-flip="y"] > svg {
-  transform: scaleY(-1);
-}
-
-.uipack-web-beams {
-  overflow: hidden;
-  container-type: size;
-}
-.uipack-web-beams i {
-  position: absolute;
-  display: block;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-.uipack-web-beams i::after {
-  content: "";
-  position: absolute;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--web-accent);
-  box-shadow: 0 0 8px var(--web-accent);
-}
-.uipack-web-beams i[data-axis="h"] {
-  top: var(--line);
-  left: 0;
-  width: 120px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--web-accent));
-  animation-name: uipack-web-beam-x;
-}
-.uipack-web-beams i[data-axis="h"]::after {
-  right: -2px;
-  top: -2px;
-}
-.uipack-web-beams i[data-axis="v"] {
-  left: var(--line);
-  top: 0;
-  width: 1px;
-  height: 120px;
-  background: linear-gradient(180deg, transparent, var(--web-accent));
-  animation-name: uipack-web-beam-y;
-}
-.uipack-web-beams i[data-axis="v"]::after {
-  bottom: -2px;
-  left: -2px;
-}
-.uipack-web-beams[data-paused] i {
-  animation-play-state: paused;
-}
-/* A page's own Pause for ambient motion (WCAG 2.2.2): data-web-motion="paused" on any ancestor
-   holds the aurora, the beams and the drifting gutters where they are. */
-[data-web-motion="paused"] :is(.uipack-web-aurora i, .uipack-web-beams i) {
-  animation-play-state: paused;
-}
-@keyframes uipack-web-beam-x {
-  from {
-    transform: translateX(-140px);
+  .uipack-web-gridbg {
+    --grid-ink: color-mix(in srgb, var(--web-ink) 20%, transparent);
+    --grid-line: color-mix(in srgb, var(--web-ink) 8%, transparent);
   }
-  to {
-    transform: translateX(calc(100cqw + 20px));
+  .uipack-web-gridbg[data-bg="dots"],
+  .uipack-web-gridbg[data-bg="dots"] .uipack-web-gridbg__lit {
+    background-image: radial-gradient(circle at 1px 1px, var(--grid-ink) 1px, transparent 1.5px);
+    background-size: var(--cell) var(--cell);
   }
-}
-@keyframes uipack-web-beam-y {
-  from {
-    transform: translateY(-140px);
+  .uipack-web-gridbg[data-bg="lines"],
+  .uipack-web-gridbg[data-bg="lines"] .uipack-web-gridbg__lit,
+  .uipack-web-beams {
+    background-image:
+      linear-gradient(var(--grid-line, color-mix(in srgb, var(--web-ink) 8%, transparent)) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line, color-mix(in srgb, var(--web-ink) 8%, transparent)) 1px, transparent 1px);
+    background-size: var(--cell) var(--cell);
   }
-  to {
-    transform: translateY(calc(100cqh + 20px));
-  }
-}
-
-/* =================================================================== Motion */
-.uipack-web-revealgroup[data-state="waiting"] > * {
-  opacity: 0;
-}
-.uipack-web-revealgroup[data-state="waiting"][data-variant="up"] > * {
-  transform: translateY(16px);
-}
-.uipack-web-revealgroup[data-state="waiting"][data-variant="blur"] > * {
-  filter: blur(8px);
-  transform: translateY(8px);
-}
-.uipack-web-revealgroup[data-state="shown"] > * {
-  transition:
-    opacity 600ms var(--web-ease),
-    transform 600ms var(--web-ease),
-    filter 600ms var(--web-ease);
-  transition-delay: calc(var(--i, 0) * var(--stagger, 80ms));
-}
-
-.uipack-web-scramble {
-  display: inline-grid;
-}
-.uipack-web-scramble > * {
-  grid-area: 1 / 1;
-}
-/* The final text reserves the box and is what assistive tech reads. Server HTML and the first
-   render show it as plain text; once mounted (data-armed) the live layer draws over it. */
-.uipack-web-scramble[data-armed] > .uipack-web-scramble__ghost,
-.uipack-web-ticker[data-armed] > .uipack-web-scramble__ghost {
-  color: transparent;
-}
-.uipack-web-scramble__live {
-  pointer-events: none;
-}
-.uipack-web-scramble:not([data-done])[data-mode="scramble"] .uipack-web-scramble__live {
-  font-variant-ligatures: none;
-}
-/* Big numbers use the display face. Its figures are proportional, so the count is laid over
-   the final value instead of sizing the box: the stat never changes width while it counts. */
-.uipack-web-ticker {
-  position: relative;
-  display: inline-block;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.uipack-web-ticker[data-face="display"] {
-  font-family: var(--web-font-display);
-  font-weight: var(--web-display-weight);
-  font-synthesis-weight: none;
-  letter-spacing: var(--web-display-tracking);
-}
-.uipack-web-ticker > .uipack-web-scramble__live {
-  position: absolute;
-  inset: 0;
-}
-
-/* Pause sits outside the moving row, with room before it: the row has faded out entirely
-   (outlines too) a step before the button, so no chip runs into it. */
-.uipack-web-marquee {
-  display: flex;
-  align-items: center;
-  gap: var(--web-s4);
-  min-width: 0;
-}
-.uipack-web-marquee__viewport {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 82%, transparent 97%);
-  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 82%, transparent 97%);
-}
-.uipack-web-marquee__track {
-  display: flex;
-  width: max-content;
-  animation: uipack-web-marquee var(--marquee-duration, 30s) linear infinite;
-}
-.uipack-web-marquee[data-reverse] .uipack-web-marquee__track {
-  animation-direction: reverse;
-}
-.uipack-web-marquee[data-paused] .uipack-web-marquee__track,
-.uipack-web-marquee__viewport:hover .uipack-web-marquee__track,
-.uipack-web-marquee:focus-within .uipack-web-marquee__track {
-  animation-play-state: paused;
-}
-.uipack-web-marquee__list {
-  display: flex;
-  flex: none;
-  gap: var(--web-s4);
-  margin: 0;
-  padding: 0 var(--web-s4) 0 0;
-  list-style: none;
-}
-.uipack-web-marquee__list li {
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  white-space: nowrap;
-  color: var(--web-ink-medium);
-}
-.uipack-web-marquee[data-static] .uipack-web-marquee__viewport {
-  -webkit-mask-image: none;
-  mask-image: none;
-}
-.uipack-web-marquee[data-static] .uipack-web-marquee__track {
-  width: auto;
-  animation: none;
-}
-.uipack-web-marquee[data-static] .uipack-web-marquee__list {
-  flex-wrap: wrap;
-  flex: 1;
-  gap: var(--web-s1) var(--web-s4);
-}
-.uipack-web-marquee__toggle {
-  flex: none;
-  min-height: 44px;
-  min-width: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--web-hairline);
-  border-radius: 999px;
-  /* Opaque, so the hero's star never shows through a label. */
-  background: var(--web-surface);
-  color: var(--web-ink-medium);
-  font: 500 0.9375rem var(--web-font-text);
-  cursor: pointer;
-}
-@keyframes uipack-web-marquee {
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-.uipack-web-tilt {
-  display: grid;
-  align-content: start;
-  gap: var(--web-s2);
-  padding: var(--web-s4);
-  border: 1px solid var(--web-hairline);
-  border-radius: var(--web-radius);
-  background: var(--web-surface);
-  color: inherit;
-  text-decoration: none;
-  transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
-  transition:
-    transform 160ms var(--web-ease),
-    box-shadow 200ms var(--web-ease);
-}
-.uipack-web-tilt:hover {
-  box-shadow: var(--web-shadow);
-}
-.uipack-web-tilt:focus-visible {
-  transform: translateY(-2px);
-  box-shadow: var(--web-shadow);
-}
-.uipack-web-magnetic {
-  display: inline-block;
-}
-.uipack-web-magnetic > .uipack-web-cta {
-  translate: var(--pull-x, 0) var(--pull-y, 0);
-  transition:
-    translate 200ms var(--web-ease),
-    transform 160ms var(--web-ease),
-    box-shadow 160ms var(--web-ease);
-}
-
-.uipack-web-scrollx__inner {
-  transform: translateY(var(--st-y, 0)) rotate(var(--st-rotate, 0deg)) scale(var(--st-scale, 1));
-  opacity: var(--st-opacity, 1);
-  will-change: transform;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .uipack-web-aurora i,
-  .uipack-web-marquee__track {
-    animation: none;
-  }
-  .uipack-web-beams i[data-axis] {
-    animation: none;
-    transform: translate(0, 0);
-  }
-  .uipack-web-beams i[data-axis="h"] {
-    left: 40%;
-  }
-  .uipack-web-beams i[data-axis="v"] {
-    top: 35%;
-  }
-  .uipack-web-revealgroup > * {
-    opacity: 1 !important;
-    transform: none !important;
-    filter: none !important;
-    transition: none !important;
-  }
-  .uipack-web-tilt,
-  .uipack-web-tilt:focus-visible {
-    transform: none;
-    transition: none;
-  }
-  .uipack-web-magnetic > .uipack-web-cta {
-    translate: none;
-    transition: none;
+  .uipack-web-gridbg[data-fade],
+  .uipack-web-beams {
+    -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 40%, black 25%, transparent 78%);
+    mask-image: radial-gradient(ellipse 75% 70% at 50% 40%, black 25%, transparent 78%);
   }
   .uipack-web-gridbg__lit {
-    display: none;
+    position: absolute;
+    inset: 0;
+    --grid-ink: var(--web-accent);
+    --grid-line: color-mix(in srgb, var(--web-accent) 55%, transparent);
+    -webkit-mask-image: radial-gradient(180px circle at var(--spot-x, 50%) var(--spot-y, 50%), black, transparent 70%);
+    mask-image: radial-gradient(180px circle at var(--spot-x, 50%) var(--spot-y, 50%), black, transparent 70%);
+    opacity: 0;
+    transition: opacity 300ms var(--web-ease);
+  }
+  .uipack-web-gridbg[data-lit] .uipack-web-gridbg__lit {
+    opacity: 1;
+  }
+
+  .uipack-web-aurora {
+    inset: -15%;
+    /* Landing's full cap; styles without ambient glow keep 35% of it. */
+    opacity: calc(var(--web-aurora-opacity) * (0.35 + 0.65 * var(--ui-glow, 1)));
+    filter: blur(72px);
+  }
+  .uipack-web-aurora i {
+    position: absolute;
+    width: 55%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    animation: uipack-web-drift var(--aurora-duration, 24s) ease-in-out infinite alternate;
+  }
+  .uipack-web-aurora i:nth-child(1) {
+    left: 0;
+    top: 0;
+    background: var(--web-accent);
+  }
+  .uipack-web-aurora i:nth-child(2) {
+    right: 0;
+    top: 5%;
+    background: color-mix(in srgb, var(--web-accent) 50%, var(--web-bg));
+    animation-direction: alternate-reverse;
+    animation-delay: calc(var(--aurora-duration, 24s) * -0.33);
+  }
+  .uipack-web-aurora i:nth-child(3) {
+    left: 25%;
+    bottom: -5%;
+    background: var(--web-secondary);
+    animation-delay: calc(var(--aurora-duration, 24s) * -0.66);
+  }
+  .uipack-web-aurora[data-paused] i {
+    animation-play-state: paused;
+  }
+  @keyframes uipack-web-drift {
+    0% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(10%, 8%) scale(1.12);
+    }
+    100% {
+      transform: translate(-8%, 4%) scale(0.94);
+    }
+  }
+
+  .uipack-web-maskedstar {
+    -webkit-mask-image: radial-gradient(ellipse 50% 42% at 50% 40%, transparent 35%, black 90%);
+    mask-image: radial-gradient(ellipse 50% 42% at 50% 40%, transparent 35%, black 90%);
+  }
+  .uipack-web-maskedstar[data-clear="start"] {
+    -webkit-mask-image: linear-gradient(90deg, transparent 30%, black 85%);
+    mask-image: linear-gradient(90deg, transparent 30%, black 85%);
+  }
+  .uipack-web-maskedstar[data-clear="top"],
+  .uipack-web-beams[data-clear="top"] {
+    top: 50%;
+    -webkit-mask-image: linear-gradient(180deg, transparent, black 45%), linear-gradient(90deg, transparent, black 30%);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(180deg, transparent, black 45%), linear-gradient(90deg, transparent, black 30%);
+    mask-composite: intersect;
+  }
+  .uipack-web-maskedstar > svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .uipack-web-maskedstar[data-flip="x"] > svg {
+    transform: scaleX(-1);
+  }
+  .uipack-web-maskedstar[data-flip="y"] > svg {
+    transform: scaleY(-1);
+  }
+
+  .uipack-web-beams {
+    overflow: hidden;
+    container-type: size;
+  }
+  .uipack-web-beams i {
+    position: absolute;
+    display: block;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+  .uipack-web-beams i::after {
+    content: "";
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--web-accent);
+    box-shadow: 0 0 8px var(--web-accent);
+  }
+  .uipack-web-beams i[data-axis="h"] {
+    top: var(--line);
+    left: 0;
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--web-accent));
+    animation-name: uipack-web-beam-x;
+  }
+  .uipack-web-beams i[data-axis="h"]::after {
+    right: -2px;
+    top: -2px;
+  }
+  .uipack-web-beams i[data-axis="v"] {
+    left: var(--line);
+    top: 0;
+    width: 1px;
+    height: 120px;
+    background: linear-gradient(180deg, transparent, var(--web-accent));
+    animation-name: uipack-web-beam-y;
+  }
+  .uipack-web-beams i[data-axis="v"]::after {
+    bottom: -2px;
+    left: -2px;
+  }
+  .uipack-web-beams[data-paused] i {
+    animation-play-state: paused;
+  }
+  /* A page's own Pause for ambient motion (WCAG 2.2.2): data-web-motion="paused" on any ancestor
+     holds the aurora, the beams and the drifting gutters where they are. */
+  [data-web-motion="paused"] :is(.uipack-web-aurora i, .uipack-web-beams i) {
+    animation-play-state: paused;
+  }
+  @keyframes uipack-web-beam-x {
+    from {
+      transform: translateX(-140px);
+    }
+    to {
+      transform: translateX(calc(100cqw + 20px));
+    }
+  }
+  @keyframes uipack-web-beam-y {
+    from {
+      transform: translateY(-140px);
+    }
+    to {
+      transform: translateY(calc(100cqh + 20px));
+    }
+  }
+
+  /* =================================================================== Motion */
+  .uipack-web-revealgroup[data-state="waiting"] > * {
+    opacity: 0;
+  }
+  .uipack-web-revealgroup[data-state="waiting"][data-variant="up"] > * {
+    transform: translateY(16px);
+  }
+  .uipack-web-revealgroup[data-state="waiting"][data-variant="blur"] > * {
+    filter: blur(8px);
+    transform: translateY(8px);
+  }
+  .uipack-web-revealgroup[data-state="shown"] > * {
+    transition:
+      opacity 600ms var(--web-ease),
+      transform 600ms var(--web-ease),
+      filter 600ms var(--web-ease);
+    transition-delay: calc(var(--i, 0) * var(--stagger, 80ms));
+  }
+
+  .uipack-web-scramble {
+    display: inline-grid;
+  }
+  .uipack-web-scramble > * {
+    grid-area: 1 / 1;
+  }
+  /* The final text reserves the box and is what assistive tech reads. Server HTML and the first
+     render show it as plain text; once mounted (data-armed) the live layer draws over it. */
+  .uipack-web-scramble[data-armed] > .uipack-web-scramble__ghost,
+  .uipack-web-ticker[data-armed] > .uipack-web-scramble__ghost {
+    color: transparent;
+  }
+  .uipack-web-scramble__live {
+    pointer-events: none;
+  }
+  .uipack-web-scramble:not([data-done])[data-mode="scramble"] .uipack-web-scramble__live {
+    font-variant-ligatures: none;
+  }
+  /* Big numbers use the display face. Its figures are proportional, so the count is laid over
+     the final value instead of sizing the box: the stat never changes width while it counts. */
+  .uipack-web-ticker {
+    position: relative;
+    display: inline-block;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .uipack-web-ticker[data-face="display"] {
+    font-family: var(--web-font-display);
+    font-weight: var(--web-display-weight);
+    font-synthesis-weight: none;
+    letter-spacing: var(--web-display-tracking);
+  }
+  .uipack-web-ticker > .uipack-web-scramble__live {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Pause sits outside the moving row, with room before it: the row has faded out entirely
+     (outlines too) a step before the button, so no chip runs into it. */
+  .uipack-web-marquee {
+    display: flex;
+    align-items: center;
+    gap: var(--web-s4);
+    min-width: 0;
+  }
+  .uipack-web-marquee__viewport {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 82%, transparent 97%);
+    mask-image: linear-gradient(90deg, transparent, black 8%, black 82%, transparent 97%);
+  }
+  .uipack-web-marquee__track {
+    display: flex;
+    width: max-content;
+    animation: uipack-web-marquee var(--marquee-duration, 30s) linear infinite;
+  }
+  .uipack-web-marquee[data-reverse] .uipack-web-marquee__track {
+    animation-direction: reverse;
+  }
+  .uipack-web-marquee[data-paused] .uipack-web-marquee__track,
+  .uipack-web-marquee__viewport:hover .uipack-web-marquee__track,
+  .uipack-web-marquee:focus-within .uipack-web-marquee__track {
+    animation-play-state: paused;
+  }
+  .uipack-web-marquee__list {
+    display: flex;
+    flex: none;
+    gap: var(--web-s4);
+    margin: 0;
+    padding: 0 var(--web-s4) 0 0;
+    list-style: none;
+  }
+  .uipack-web-marquee__list li {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    white-space: nowrap;
+    color: var(--web-ink-medium);
+  }
+  .uipack-web-marquee[data-static] .uipack-web-marquee__viewport {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .uipack-web-marquee[data-static] .uipack-web-marquee__track {
+    width: auto;
+    animation: none;
+  }
+  .uipack-web-marquee[data-static] .uipack-web-marquee__list {
+    flex-wrap: wrap;
+    flex: 1;
+    gap: var(--web-s1) var(--web-s4);
+  }
+  .uipack-web-marquee__toggle {
+    flex: none;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--web-hairline);
+    border-radius: var(--web-radius-pill);
+    /* Opaque, so the hero's star never shows through a label. */
+    background: var(--web-surface);
+    color: var(--web-ink-medium);
+    font: 500 0.9375rem var(--web-font-text);
+    cursor: pointer;
+  }
+  @keyframes uipack-web-marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .uipack-web-tilt {
+    display: grid;
+    align-content: start;
+    gap: var(--web-s2);
+    padding: var(--web-s4);
+    border: 1px solid var(--web-hairline);
+    border-radius: var(--web-radius);
+    background: var(--web-surface);
+    color: inherit;
+    text-decoration: none;
+    transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+    transition:
+      transform 160ms var(--web-ease),
+      box-shadow 200ms var(--web-ease);
+  }
+  .uipack-web-tilt:hover {
+    box-shadow: var(--web-shadow);
+  }
+  .uipack-web-tilt:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: var(--web-shadow);
+  }
+  .uipack-web-magnetic {
+    display: inline-block;
+  }
+  .uipack-web-magnetic > .uipack-web-cta {
+    translate: var(--pull-x, 0) var(--pull-y, 0);
+    transition:
+      translate 200ms var(--web-ease),
+      transform 160ms var(--web-ease),
+      box-shadow 160ms var(--web-ease);
+  }
+
+  .uipack-web-scrollx__inner {
+    transform: translateY(var(--st-y, 0)) rotate(var(--st-rotate, 0deg)) scale(var(--st-scale, 1));
+    opacity: var(--st-opacity, 1);
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .uipack-web-aurora i,
+    .uipack-web-marquee__track {
+      animation: none;
+    }
+    .uipack-web-beams i[data-axis] {
+      animation: none;
+      transform: translate(0, 0);
+    }
+    .uipack-web-beams i[data-axis="h"] {
+      left: 40%;
+    }
+    .uipack-web-beams i[data-axis="v"] {
+      top: 35%;
+    }
+    .uipack-web-revealgroup > * {
+      opacity: 1 !important;
+      transform: none !important;
+      filter: none !important;
+      transition: none !important;
+    }
+    .uipack-web-tilt,
+    .uipack-web-tilt:focus-visible {
+      transform: none;
+      transition: none;
+    }
+    .uipack-web-magnetic > .uipack-web-cta {
+      translate: none;
+      transition: none;
+    }
+    .uipack-web-gridbg__lit {
+      display: none;
+    }
+  }
+}
+/* uipack/web ornament slots. A layout leaves named slots; a style paints them through its roles
+   (src/styles: --ui-backdrop, --ui-marker-*, --ui-section-rule…). Nothing here takes space or
+   moves a box, so a style swap keeps every region, box and the reading order: the backdrop is an
+   absolutely placed layer, the marker hangs outside its eyebrow, the rule is an inset shadow. */
+@layer uipack.ornaments {
+  /* Backdrop: the hero's ground (Technical: a dotted grid, masked; Graphical: the disc). */
+  .uipack-web-hero__backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    pointer-events: none;
+    background: var(--ui-backdrop);
+    -webkit-mask-image: var(--ui-backdrop-mask);
+    mask-image: var(--ui-backdrop-mask);
+  }
+  /* Marker: the style's motif, small, hung before each eyebrow (Technical: a 2px-radius square,
+     the request token's shape; Graphical: the hero's disc). Landing has none. */
+  .uipack-web-eyebrow {
+    position: relative;
+  }
+  .uipack-web-eyebrow::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    width: var(--ui-marker-size, 0px);
+    height: var(--ui-marker-size, 0px);
+    margin-right: calc(var(--ui-marker-size, 0px) * 0.75);
+    border-radius: var(--ui-marker-shape, 0px);
+    background: var(--ui-marker-color, transparent);
+    transform: translateY(-50%);
+  }
+  /* Rule: a line at the top of each section after the first, drawn inside it. */
+  .uipack-web-section {
+    box-shadow: var(--ui-section-rule, none);
+  }
+}
+
+/* Layout variants the styles recommend (uiStyles[].prefers); any style renders any of them. */
+@layer uipack.layout {
+  /* The hero's start-edge layout (StarHero align="start"), which Technical recommends. */
+  .uipack-web-hero[data-align="start"] {
+    text-align: start;
+  }
+  .uipack-web-hero[data-align="start"] .uipack-web-hero__copy {
+    justify-items: start;
+    max-width: 1040px;
+  }
+  .uipack-web-hero[data-align="start"] .uipack-web-hero__actions {
+    justify-content: start;
   }
 }
 /* Drifting gutters (also its own entry, uipack/web-gutters.css, for pages that use
    nothing else from uipack/web): a dotted grid sliding upward in the side gutters of a centred column.
    Fixed to the viewport (or the nearest transformed ancestor), so it may live outside
-   .uipack-web: colour falls back from --web-gutters-color to --web-accent to the light accent.
+   .uipack-web: colour falls back from --web-gutters-color to --web-accent to the style's accent role.
    Hidden below 1280px by default (DriftingGutters minViewport adds its own rule otherwise). */
 .uipack-web-gutters {
   display: none;
@@ -1642,20 +2155,20 @@
   overflow: hidden;
   pointer-events: none;
   z-index: 0;
-  color: var(--web-gutters-color, var(--web-accent, #4b3fd6));
-  --gutters-mask-y: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  color: var(--web-gutters-color, var(--web-accent, var(--ui-accent)));
+  --gutters-mask-y: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
 }
 .uipack-web-gutters__side[data-side="left"] {
   left: 0;
-  -webkit-mask-image: linear-gradient(to left, transparent, #000 45%), var(--gutters-mask-y);
-  mask-image: linear-gradient(to left, transparent, #000 45%), var(--gutters-mask-y);
+  -webkit-mask-image: linear-gradient(to left, transparent, black 45%), var(--gutters-mask-y);
+  mask-image: linear-gradient(to left, transparent, black 45%), var(--gutters-mask-y);
   -webkit-mask-composite: source-in;
   mask-composite: intersect;
 }
 .uipack-web-gutters__side[data-side="right"] {
   right: 0;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 45%), var(--gutters-mask-y);
-  mask-image: linear-gradient(to right, transparent, #000 45%), var(--gutters-mask-y);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 45%), var(--gutters-mask-y);
+  mask-image: linear-gradient(to right, transparent, black 45%), var(--gutters-mask-y);
   -webkit-mask-composite: source-in;
   mask-composite: intersect;
 }

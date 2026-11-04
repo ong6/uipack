@@ -1,37 +1,26 @@
 import { fontFloor, DEFAULT_RENDER_WIDTH, FigureMotionContext, FigureScaleProvider, Token, TOKEN_SHAPE } from './chunk-3R6VZY52.js';
+import { technicalValues, technicalFonts } from './chunk-LUFIOW7C.js';
 import { isValidElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { jsx } from 'react/jsx-runtime';
 
-var LIGHT = {
-  fg: "#1a1c1a",
-  muted: "#5c625e",
-  bg: "#ffffff",
-  surface: "#ffffff",
-  "surface-raised": "#f4f6f4",
-  grid: "rgba(26, 28, 26, 0.16)",
-  border: "rgba(26, 28, 26, 0.22)",
-  accent: "#205f49",
-  "token-request": "#4f6fe6",
-  "token-response": "#3fb27f",
-  "token-change": "#9a63e0",
-  mono: "ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace",
-  sans: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
-};
-var DARK = {
-  ...LIGHT,
-  fg: "#e8ece9",
-  muted: "#9aa39e",
-  bg: "#0e1512",
-  surface: "#14201b",
-  "surface-raised": "#1a2a23",
-  grid: "rgba(232, 236, 233, 0.16)",
-  border: "rgba(232, 236, 233, 0.22)",
-  accent: "#71dcb2",
-  "token-request": "#8ea4ff",
-  "token-response": "#5fd39b",
-  "token-change": "#c39aff"
-};
+var paletteOf = (c) => ({
+  fg: c.ink,
+  muted: c["ink-2"],
+  bg: c.surface,
+  surface: c["surface-raised"],
+  "surface-raised": c["surface-2"],
+  grid: c["line-soft"],
+  border: c.line,
+  accent: c.accent,
+  "token-request": c["flow-request"],
+  "token-response": c["flow-response"],
+  "token-change": c["flow-change"],
+  mono: technicalFonts.mono,
+  sans: technicalFonts.sans
+});
+var LIGHT = paletteOf(technicalValues.light);
+var DARK = paletteOf(technicalValues.dark);
 function resolvePalette(theme) {
   const p = !theme || theme === "light" ? LIGHT : theme === "dark" ? DARK : { ...theme.base === "dark" ? DARK : LIGHT, ...stripBase(theme) };
   return { ...p, mono: p.mono.replace(/"/g, "'"), sans: p.sans.replace(/"/g, "'") };
@@ -42,7 +31,7 @@ function stripBase(t) {
 }
 function inlineVars(markup, p) {
   return markup.replace(
-    /var\(--uipack-([a-z-]+)(?:,\s*[^)]*)?\)/g,
+    /var\(--uipack-([a-z-]+)(?:,\s*(?:[^()]|\([^()]*\))*)?\)/g,
     (_, k) => p[k] ?? "currentColor"
   );
 }

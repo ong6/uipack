@@ -1,28 +1,39 @@
 'use strict';
 
 var chunk3OIHMAKF_cjs = require('./chunk-3OIHMAKF.cjs');
+var chunk4IWXI4YM_cjs = require('./chunk-4IWXI4YM.cjs');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
 
 // src/presentations/renderSlideSvg.ts
 var palettes = {
   light: {
-    paper: "#f6f5f1",
-    surface: "#ffffff",
-    ink: "#1a1c1a",
-    muted: "#5c625e",
-    accent: "#205f49",
-    rule: "#bac3bc"
+    paper: chunk4IWXI4YM_cjs.technicalValues.light.paper,
+    surface: chunk4IWXI4YM_cjs.technicalValues.light["surface-raised"],
+    ink: chunk4IWXI4YM_cjs.technicalValues.light.ink,
+    muted: chunk4IWXI4YM_cjs.technicalValues.light["ink-2"],
+    accent: chunk4IWXI4YM_cjs.technicalValues.light.accent,
+    rule: chunk4IWXI4YM_cjs.technicalValues.light["slide-line"]
   },
   dark: {
-    paper: "#0a100d",
-    surface: "#14201b",
-    ink: "#e8ece9",
-    muted: "#9aa39e",
-    accent: "#71dcb2",
-    rule: "#43544b"
+    paper: chunk4IWXI4YM_cjs.technicalValues.dark.paper,
+    surface: chunk4IWXI4YM_cjs.technicalValues.dark["surface-raised"],
+    ink: chunk4IWXI4YM_cjs.technicalValues.dark.ink,
+    muted: chunk4IWXI4YM_cjs.technicalValues.dark["ink-2"],
+    accent: chunk4IWXI4YM_cjs.technicalValues.dark.accent,
+    rule: chunk4IWXI4YM_cjs.technicalValues.dark["slide-line"]
   }
 };
+var cssColors = {
+  paper: "var(--ui-paper)",
+  surface: "var(--ui-surface-raised)",
+  ink: "var(--ui-ink)",
+  muted: "var(--ui-ink-2)",
+  accent: "var(--ui-accent)",
+  rule: "var(--ui-slide-line, var(--ui-line))"
+};
+var resolvedFaces = { sans: "IBM Plex Sans, system-ui, sans-serif", mono: "IBM Plex Mono, ui-monospace, monospace" };
+var cssFaces = { sans: "var(--ui-slide-font-text, var(--ui-font-text))", mono: "var(--ui-slide-font-label, var(--ui-font-label))" };
 function escapeSvgText(value) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 }
@@ -31,33 +42,36 @@ function accessibleTitle(slide) {
 }
 function renderSlideSvg(slide, options = {}) {
   const theme = options.theme ?? "light";
-  const colors = palettes[theme];
+  const css = options.paint === "css";
+  const colors = css ? cssColors : palettes[theme];
+  const faces = css ? cssFaces : resolvedFaces;
+  const paint = (p) => css ? ` style="${[p.fill && `fill:${p.fill}`, p.stroke && `stroke:${p.stroke}`, p.font && `font-family:${p.font}`].filter(Boolean).join(";")}"` : `${p.font ? ` font-family="${p.font}"` : ""}${p.fill ? ` fill="${p.fill}"` : ""}${p.stroke ? ` stroke="${p.stroke}"` : ""}`;
   const width = options.width ?? 1200;
   const height = Math.round(width * 9 / 16);
-  const text = (x, y, value, size = 26, color = colors.ink, weight = 400, mono = false, anchor = "start", role, tracking) => `<text x="${x}" y="${y}"${anchor === "end" ? ' text-anchor="end"' : ""}${role ? ` class="uipack-slide-starter__${role}"` : ""} font-family="${mono ? "IBM Plex Mono, ui-monospace, monospace" : "IBM Plex Sans, system-ui, sans-serif"}" font-size="${size}" fill="${color}" font-weight="${weight}"${tracking ? ` letter-spacing="${tracking}em"` : ""}>${escapeSvgText(tracking ? value.toUpperCase() : value)}</text>`;
+  const text = (x, y, value, size = 26, color = colors.ink, weight = 400, mono = false, anchor = "start", role, tracking) => `<text x="${x}" y="${y}"${anchor === "end" ? ' text-anchor="end"' : ""}${role ? ` class="uipack-slide-starter__${role}"` : ""} ${css ? "" : paint({ font: mono ? faces.mono : faces.sans })} font-size="${size}"${paint(css ? { fill: color, font: mono ? faces.mono : faces.sans } : { fill: color })} font-weight="${weight}"${tracking ? ` letter-spacing="${tracking}em"` : ""}>${escapeSvgText(tracking ? value.toUpperCase() : value)}</text>`;
   const eyebrow = (value) => text(64, 105, value, 15, colors.accent, 600, true, "start", "label", 0.14);
   const foot = (x, value, anchor) => text(x, 635, value, 13, colors.muted, 500, true, anchor, "label", 0.06);
-  const rule = (x1, y, x2) => `<path d="M${x1} ${y}H${x2}" stroke="${colors.rule}" stroke-width="2"/>`;
+  const rule = (x1, y, x2) => `<path d="M${x1} ${y}H${x2}"${paint({ stroke: colors.rule })} stroke-width="2"/>`;
   const footer = slide.footer ? rule(64, 592, 1136) + foot(64, slide.footer.label, "start") + (slide.footer.page ? foot(1136, slide.footer.page, "end") : "") : "";
   let body = "";
   if (slide.layout === "opening") {
     body = eyebrow(slide.content.eyebrow) + text(64, 277, slide.content.headline[0], 78, colors.ink, 600) + text(64, 371, slide.content.headline[1], 78, colors.ink, 600) + text(64, 457, slide.content.context, 28, colors.muted, 400, false, "start", "fine");
   } else if (slide.layout === "explanation") {
     const [first, second] = slide.content.applications;
-    body = eyebrow(slide.content.eyebrow) + text(64, 196, slide.content.headline, 52, colors.ink, 600) + `<rect x="64" y="264" width="440" height="256" fill="${colors.surface}" stroke="${colors.rule}"/>` + text(96, 328, slide.content.foundation.title, 22, colors.accent, 700, true, "start", "label") + text(96, 399, slide.content.foundation.detail, 30, colors.ink, 600, false, "start", "boxed") + text(568, 310, first.title, 30, colors.ink, 600, false, "start", "boxed") + text(568, 358, first.detail, 24, colors.muted, 400, false, "start", "fine") + text(568, 442, second.title, 30, colors.ink, 600, false, "start", "boxed") + text(568, 490, second.detail, 24, colors.muted, 400, false, "start", "fine");
+    body = eyebrow(slide.content.eyebrow) + text(64, 196, slide.content.headline, 52, colors.ink, 600) + `<rect x="64" y="264" width="440" height="256"${paint({ fill: colors.surface, stroke: colors.rule })}/>` + text(96, 328, slide.content.foundation.title, 22, colors.accent, 700, true, "start", "label") + text(96, 399, slide.content.foundation.detail, 30, colors.ink, 600, false, "start", "boxed") + text(568, 310, first.title, 30, colors.ink, 600, false, "start", "boxed") + text(568, 358, first.detail, 24, colors.muted, 400, false, "start", "fine") + text(568, 442, second.title, 30, colors.ink, 600, false, "start", "boxed") + text(568, 490, second.detail, 24, colors.muted, 400, false, "start", "fine");
   } else {
     body = eyebrow(slide.content.eyebrow) + text(64, 196, slide.content.headline, 52, colors.ink, 600);
     slide.content.steps.forEach((step, index) => {
       const x = 64 + index * 392;
-      body += `<rect x="${x}" y="295" width="288" height="138" fill="${colors.surface}" stroke="${colors.rule}" stroke-width="2"/>` + text(x + 24, 351, step.title, 30, colors.ink, 600, false, "start", "boxed") + text(x + 24, 394, step.detail, 20, colors.muted, 400, true, "start", "boxed");
+      body += `<rect x="${x}" y="295" width="288" height="138"${paint({ fill: colors.surface, stroke: colors.rule })} stroke-width="2"/>` + text(x + 24, 351, step.title, 30, colors.ink, 600, false, "start", "boxed") + text(x + 24, 394, step.detail, 20, colors.muted, 400, true, "start", "boxed");
       if (index < slide.content.steps.length - 1) {
         const arrow = x + 302;
-        body += `<path d="M${arrow} 364h70m-10-8 10 8-10 8" fill="none" stroke="${colors.accent}" stroke-width="3"/>`;
+        body += `<path d="M${arrow} 364h70m-10-8 10 8-10 8" fill="none"${paint({ stroke: colors.accent })} stroke-width="3"/>`;
       }
     });
     body += text(64, 521, slide.content.caption, 27, colors.muted, 400, false, "start", "fine");
   }
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 1200 675" role="img"><title>${escapeSvgText(`${slide.title}: ${accessibleTitle(slide)}`)}</title><desc>${escapeSvgText(slide.description)}</desc><rect width="1200" height="675" fill="${colors.paper}"/>${body}${footer}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 1200 675" role="img"><title>${escapeSvgText(`${slide.title}: ${accessibleTitle(slide)}`)}</title><desc>${escapeSvgText(slide.description)}</desc><rect width="1200" height="675"${paint({ fill: colors.paper })}/>${body}${footer}</svg>`;
 }
 function estimateSpeechSeconds(say) {
   const words = say.trim().match(/\S+/g)?.length ?? 0;
@@ -131,15 +145,15 @@ function SpeakerGuide({ speech, slideTitle = "Slide", onCopy, className = "", th
     ] })
   ] });
 }
-function SlideStarter({ slide, theme = "light", showSpeech = true, className = "", onCopySpeech }) {
-  return /* @__PURE__ */ jsxRuntime.jsxs("section", { className: `uipack-slide-starter ${className}`.trim(), "data-theme": theme, "data-layout": slide.layout, children: [
+function SlideStarter({ slide, theme = "light", style, showSpeech = true, className = "", onCopySpeech }) {
+  return /* @__PURE__ */ jsxRuntime.jsxs("section", { className: `uipack-slide-starter ${className}`.trim(), "data-theme": theme, "data-ui-style": style, "data-layout": slide.layout, children: [
     /* @__PURE__ */ jsxRuntime.jsxs("figure", { className: "uipack-slide-starter__figure", children: [
       /* @__PURE__ */ jsxRuntime.jsx(
         "div",
         {
           className: "uipack-slide-starter__preview",
           dangerouslySetInnerHTML: {
-            __html: renderSlideSvg(slide, { theme })
+            __html: renderSlideSvg(slide, { theme, paint: "css" })
           }
         }
       ),

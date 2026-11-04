@@ -4,8 +4,10 @@ import { usePrefersReducedMotion, useLatest, useHydrated, onReducedMotionChange,
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { useState, useRef, useId, useEffect, Fragment as Fragment$1, useMemo, useCallback, useSyncExternalStore, createElement } from 'react';
 
-function WebSurface({ children, theme, as: Tag = "div", className = "", style }) {
-  return /* @__PURE__ */ jsx(Tag, { className: `uipack-web ${className}`.trim(), "data-theme": theme, "data-style": "landing", style, children });
+function WebSurface({ children, theme, as: Tag = "div", className = "", style, css }) {
+  const uiStyle = typeof style === "string" ? style : void 0;
+  const inline = typeof style === "object" ? { ...style, ...css } : css;
+  return /* @__PURE__ */ jsx(Tag, { className: `uipack-web ${className}`.trim(), "data-theme": theme, "data-ui-style": uiStyle, style: inline, children });
 }
 function Grid({ children, className = "", as: Tag = "div" }) {
   return /* @__PURE__ */ jsx(Tag, { className: `uipack-web-grid ${className}`.trim(), children });
@@ -103,7 +105,8 @@ function Section({
   align = "start",
   id,
   className = "",
-  lazyRender = false
+  lazyRender = false,
+  style
 }) {
   const headingId = id ? `${id}-title` : void 0;
   return /* @__PURE__ */ jsx(
@@ -114,6 +117,7 @@ function Section({
       "data-tone": tone,
       "data-align": align,
       "data-lazy": lazyRender || void 0,
+      "data-ui-style": style,
       "aria-labelledby": title ? headingId : void 0,
       children: /* @__PURE__ */ jsxs("div", { className: "uipack-web-section__inner", children: [
         (eyebrow || title || intro) && /* @__PURE__ */ jsxs("div", { className: "uipack-web-section__head", children: [
@@ -231,7 +235,7 @@ function RhymeIcon({ at = 0.5, values = DEFAULT_STAR_VALUES, size = 40 }) {
 }
 function GrainOverlay({ opacity = 0.07, frequency = 0.8 }) {
   const id = useId().replace(/:/g, "");
-  return /* @__PURE__ */ jsxs("svg", { className: "uipack-web-noise", "aria-hidden": "true", focusable: "false", style: { opacity }, "data-bg": "grain", children: [
+  return /* @__PURE__ */ jsxs("svg", { className: "uipack-web-noise", "aria-hidden": "true", focusable: "false", style: { "--noise-opacity": opacity }, "data-bg": "grain", children: [
     /* @__PURE__ */ jsxs("filter", { id: `${id}-n`, children: [
       /* @__PURE__ */ jsx("feTurbulence", { type: "fractalNoise", baseFrequency: frequency, numOctaves: "3", stitchTiles: "stitch" }),
       /* @__PURE__ */ jsx("feColorMatrix", { type: "saturate", values: "0" })
@@ -249,9 +253,11 @@ function StarHero({
   values,
   children,
   noise = 0.07,
-  headingId
+  headingId,
+  align = "center"
 }) {
-  return /* @__PURE__ */ jsxs("section", { className: "uipack-web-hero", "aria-labelledby": headingId, children: [
+  return /* @__PURE__ */ jsxs("section", { className: "uipack-web-hero", "data-align": align, "aria-labelledby": headingId, children: [
+    /* @__PURE__ */ jsx("div", { className: "uipack-web-hero__backdrop", "aria-hidden": "true" }),
     /* @__PURE__ */ jsx("div", { className: "uipack-web-hero__visual", children: visual ?? /* @__PURE__ */ jsx(StarChart, { values }) }),
     noise > 0 && /* @__PURE__ */ jsx(NoiseLayer, { opacity: noise }),
     /* @__PURE__ */ jsxs("div", { className: "uipack-web-hero__copy", children: [
@@ -678,8 +684,8 @@ var PAINT_SWITCHING = "theme-switching";
 function paintTransitionCss(width, height, duration = 750) {
   const drips = rollDrips(width, height, duration);
   const name = `uipack-paint-${Date.now().toString(36)}-${(paintCount++).toString(36)}`;
-  const solid = "linear-gradient(#000, #000)";
-  const tip = "radial-gradient(circle closest-side, #000 96%, transparent)";
+  const solid = "linear-gradient(black, black)";
+  const tip = "radial-gradient(circle closest-side, black 96%, transparent)";
   const images = [solid, ...drips.flatMap(() => [solid, tip])].join(", ");
   const keyframes = Array.from({ length: PAINT_STEPS + 1 }, (_, i) => {
     const t = i / PAINT_STEPS * duration;

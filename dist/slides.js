@@ -1,6 +1,7 @@
-import { validateSlideStory, resolveNodePose, clampStop } from './chunk-FDQ4SBOZ.js';
-export { clampStop, resolveNodePose, slidePalettes, validateSlideStory } from './chunk-FDQ4SBOZ.js';
-import { CanvasView } from './chunk-D3TRNW7E.js';
+import { validateSlideStory, resolveNodePose, clampStop } from './chunk-MOIVK6KY.js';
+export { clampStop, resolveNodePose, slidePalettes, validateSlideStory } from './chunk-MOIVK6KY.js';
+import './chunk-PDVYL5TE.js';
+import { CanvasView } from './chunk-5NWU4OWV.js';
 import { usePrefersReducedMotion, useLatest } from './chunk-I6LF4PLF.js';
 import { useState, useRef, useCallback, useEffect, useId } from 'react';
 import { jsxs, jsx } from 'react/jsx-runtime';
@@ -53,7 +54,7 @@ function SceneViewport({
   useEffect(() => {
     let cancelled = false;
     if (fallback) return;
-    void import('./renderer-M5ZWAWHJ.js').then(({ createSlideScene }) => {
+    void import('./renderer-E3IJ32WH.js').then(({ createSlideScene }) => {
       if (cancelled || !host.current || !labels.current) return;
       try {
         runtime.current = createSlideScene(

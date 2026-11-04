@@ -1,6 +1,7 @@
 import { ReactNode, ReactElement } from 'react';
-import { a as FigureProps } from './Figure-DplQvXou.js';
+import { a as FigureProps } from './Figure-tO_yMmnU.js';
 import { L as LegendItem } from './Legend-n6GikDm_.js';
+import './style-4C2eEC6A.js';
 
 type StaticTheme = "light" | "dark";
 /** Every colour the theme exposes, as literals. Keys mirror `--uipack-*`. */
@@ -19,6 +20,7 @@ interface Palette {
     mono: string;
     sans: string;
 }
+/** Technical's light and dark values (src/styles/technical-values.ts, the mirror of technical.css). */
 declare const LIGHT: Palette;
 declare const DARK: Palette;
 interface StaticFigure {

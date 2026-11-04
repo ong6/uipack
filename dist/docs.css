@@ -1,11 +1,441 @@
+/* uipack/styles.css — the role layer (docs/system/style.md, "The role contract").
+   Layouts and components ask for a role (var(--ui-ink-2)); a style answers with values. A style
+   is one value set, keyed by data-ui-style on any element; the closest one wins because custom
+   properties inherit. Technical is the default on :root.
+
+   Light and dark are two halves of one value set: every colour role is light-dark(light, dark),
+   resolved where it is used from the element's color-scheme. An entry keeps its own rule for
+   when it is dark (the figure follows prefers-color-scheme and data-theme, the deck only its own
+   data-theme) and sets color-scheme there; data-ui-theme does the same for any element.
+
+   Cascade layers, lowest first: tokens (these value sets), base (entry rules), layout (regions
+   and grids), ornaments (what a style paints into a layout's named slots). An unlayered host
+   rule beats all four, so a host override needs no !important. */
+@layer uipack.tokens, uipack.base, uipack.layout, uipack.ornaments;
+
+@layer uipack.tokens {
+  /* Optional roles: a style may tune these; components fall back to a core role when a style
+     leaves them unset. Reset on every style host so a tuned value never leaks into a child that
+     uses another style. */
+  [data-ui-style] {
+    --ui-node: initial;
+    --ui-line-solid: initial;
+    --ui-accent-ink: initial;
+    --ui-data-neg-ink: initial;
+    --ui-inv-node: initial;
+    --ui-slide-ink-2: initial;
+    --ui-slide-line: initial;
+    --ui-slide-font-text: initial;
+    --ui-slide-font-label: initial;
+    --ui-slide-font-display: initial;
+    --ui-web-font-text: initial;
+    --ui-web-font-label: initial;
+    --ui-web-font-display: initial;
+    --ui-docs-surface: initial;
+    --ui-docs-surface-strong: initial;
+    --ui-docs-line: initial;
+    --ui-docs-warm-ink: initial;
+    --ui-docs-warm-ink-2: initial;
+    --ui-docs-warm-line: initial;
+    --ui-docs-warm-surface: initial;
+    --ui-docs-warm-surface-strong: initial;
+    --ui-docs-warm-accent: initial;
+    --ui-docs-warm-focus: initial;
+    --ui-print-line: initial;
+    --ui-print-ink-2: initial;
+    --ui-alert: initial;
+    --ui-warn: initial;
+    --ui-letterbox: initial;
+    --ui-mech-text: initial;
+    --ui-mech-muted: initial;
+    --ui-mech-top: initial;
+    --ui-mech-shade-0: initial;
+    --ui-mech-shade-1: initial;
+    --ui-mech-shade-2: initial;
+    --ui-mech-shade-3: initial;
+    --ui-mech-cavity: initial;
+    --ui-mech-lit-top: initial;
+    --ui-mech-lit-shade: initial;
+    --ui-mech-mid: initial;
+    --ui-mech-lo: initial;
+    --ui-mech-faint: initial;
+    --ui-mech-halo: initial;
+    --ui-mech-dot: initial;
+    --ui-object-paper: initial;
+    --ui-object-glow: initial;
+    --ui-object-ink: initial;
+    --ui-object-ink-2: initial;
+    --ui-object-line: initial;
+    --ui-object-edge: initial;
+    --ui-object-control-ink-2: initial;
+  }
+
+  /* Theme hosts: any element can set its colour theme for everything inside it. An explicit
+     data-ui-theme outranks an entry's own theme rule (important in a layer beats every normal
+     declaration), so <Figure theme> and data-ui-theme never fight. */
+  [data-ui-theme="light"] {
+    color-scheme: light !important;
+  }
+  [data-ui-theme="dark"] {
+    color-scheme: dark !important;
+  }
+}
+/* Technical — the default style: warm paper, near-black ink, one forest/mint accent, thin lines,
+   6px radius, system type for figures, IBM Plex where a host or the web entry provides it.
+   The owner's own look (junxiong.dev's figures). Values: docs/system/style.md, "Technical values". */
+@layer uipack.tokens {
+  :root,
+  [data-ui-style="technical"] {
+    /* Surfaces */
+    --ui-paper: light-dark(#f6f5f1, #0a100d);
+    --ui-surface: light-dark(#ffffff, #0e1512);
+    --ui-surface-raised: light-dark(#ffffff, #14201b);
+    --ui-surface-2: light-dark(#f4f6f4, #1b2a24);
+    /* Ink: text at three emphasis levels, lines at two weights */
+    --ui-ink: light-dark(#1a1c1a, #e8ece9);
+    --ui-ink-2: light-dark(#5c625e, #9aa39e);
+    --ui-ink-3: color-mix(in srgb, var(--ui-ink) 66%, var(--ui-paper));
+    --ui-line: color-mix(in srgb, var(--ui-ink) 22%, transparent);
+    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 16%, transparent);
+    /* The one accent, and what sits on it */
+    --ui-accent: light-dark(#205f49, #71dcb2);
+    --ui-on-accent: light-dark(#f6f5f1, #07110c);
+    --ui-accent-surface: light-dark(#2a6b54, #8fe4c3);
+    --ui-accent-ink-2: light-dark(#cfe3d9, #1d4a38);
+    --ui-accent-line: light-dark(#5b927d, #3f9c78);
+    /* Flow tokens, always paired with a shape: square request, circle response, diamond change */
+    --ui-flow-request: light-dark(#4f6fe6, #8ea4ff);
+    --ui-flow-response: light-dark(#3fb27f, #5fd39b);
+    --ui-flow-change: light-dark(#9a63e0, #c39aff);
+    /* Data: signed values (always with a sign or arrow), a context grey, four categorical slots */
+    --ui-data-pos: light-dark(#1a7a52, #33a979);
+    --ui-data-neg: light-dark(#c0482f, #d4623f);
+    --ui-data-context: light-dark(#8b928d, #6b756f);
+    --ui-data-1: light-dark(#1a7a52, #33a979);
+    --ui-data-2: light-dark(#4f6fe6, #5f7fef);
+    --ui-data-3: light-dark(#c27a1f, #c0832b);
+    --ui-data-4: light-dark(#9a63e0, #9f72e6);
+    --ui-on-data-1: light-dark(#ffffff, #0a100d);
+    --ui-on-data-2: light-dark(#ffffff, #0a100d);
+    --ui-on-data-3: light-dark(#1a1c1a, #0a100d);
+    --ui-on-data-4: light-dark(#1a1c1a, #0a100d);
+    /* Invert: the per-slide or per-band inverse within the style (deck "ink" tone) */
+    --ui-inv-paper: light-dark(#111814, #e8ece9);
+    --ui-inv-surface: light-dark(#18221d, #ffffff);
+    --ui-inv-ink: light-dark(#eef1ee, #0e1512);
+    --ui-inv-ink-2: light-dark(#a9b3ad, #4c5751);
+    --ui-inv-line: light-dark(#3a4a41, #b5c0b9);
+    --ui-inv-accent: light-dark(#71dcb2, #205f49);
+
+    /* Type */
+    --ui-font-text: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --ui-font-label: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --ui-font-display: var(--ui-font-text);
+    --ui-display-weight: 650;
+    --ui-display-tracking: -0.02em;
+    --ui-display-case: none;
+    --ui-label-tracking: 0.08em;
+    /* Shape and line */
+    --ui-radius: 6px;
+    --ui-radius-sm: 4px;
+    --ui-radius-xs: 2px;
+    --ui-radius-pill: 6px;
+    --ui-nav-fill: color-mix(in srgb, var(--ui-paper) 94%, transparent);
+    --ui-nav-blur: none;
+    --ui-stroke: 1.25;
+    --ui-rule-width: 1px;
+    /* Scalars a style may own (research brief, contract change 1) */
+    --ui-density: 1;
+    --ui-type-ratio: 1.25;
+    --ui-measure: 65ch;
+    /* Motion feel */
+    --ui-ease-settle: cubic-bezier(0.2, 0.7, 0.2, 1);
+    --ui-ease-travel: cubic-bezier(0.55, 0, 0.15, 1);
+    --ui-dur-quick: 160ms;
+    --ui-dur-base: 320ms;
+    --ui-dur-slow: 560ms;
+
+    /* Ornament slots: what this style paints where a layout leaves room for it */
+    --ui-backdrop: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ui-ink) 20%, transparent) 1px, transparent 1.5px) 0 0 / 16px 16px;
+    --ui-backdrop-mask: radial-gradient(ellipse 80% 70% at 50% 35%, black 25%, transparent 78%);
+    --ui-frame-border: var(--ui-rule-width) solid var(--ui-line);
+    --ui-card-shadow: none;
+    --ui-frame-shadow: none;
+    --ui-marker-size: 8px;
+    --ui-marker-shape: 2px;
+    --ui-marker-color: var(--ui-accent);
+    --ui-section-rule: inset 0 1px 0 var(--ui-line-soft);
+    --ui-grain: 0;
+    --ui-glow: 0;
+    --ui-cta-shadow: none;
+    --ui-cta-shadow-hover: 0 0 0 1px var(--ui-accent);
+    --ui-em-style: normal;
+    --ui-em-color: var(--ui-accent);
+    --ui-star-fill: 0;
+    --ui-display-scale: 1;
+
+    /* Optional roles tuned for Technical's media */
+    --ui-node: light-dark(#fbfaf6, #0e1512);
+    --ui-inv-node: light-dark(#18221d, #f6f5f1);
+    --ui-line-solid: light-dark(#c4ccc6, #34443b);
+    --ui-data-neg-ink: light-dark(#a8431f, #f0936c);
+    --ui-slide-ink-2: light-dark(#5c625e, #aeb8b2);
+    --ui-slide-line: light-dark(#bac3bc, #43544b);
+    --ui-slide-font-text: var(--font-sans, "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+    --ui-slide-font-display: var(--ui-slide-font-text);
+    --ui-slide-font-label: var(--font-mono, "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+    --ui-web-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --ui-web-font-display: var(--ui-web-font-text);
+    --ui-web-font-label: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --ui-docs-surface: light-dark(#edefec, #14201b);
+    --ui-docs-surface-strong: light-dark(#e2e6e2, #1d2c26);
+    --ui-docs-line: light-dark(rgb(26 28 26 / 0.16), rgb(232 236 233 / 0.18));
+    /* The docs layout's warm default palette (DocsLayout palette="warm") */
+    --ui-docs-warm-ink: light-dark(#29231f, #f2ece3);
+    --ui-docs-warm-ink-2: light-dark(#655c55, #aea198);
+    --ui-docs-warm-line: light-dark(rgb(41 35 31 / 0.18), rgb(242 236 227 / 0.2));
+    --ui-docs-warm-surface: light-dark(#fbf8f2, #211d1a);
+    --ui-docs-warm-surface-strong: light-dark(#e7ded2, #37302b);
+    --ui-docs-warm-accent: light-dark(#234ea2, #9ab6ff);
+    --ui-docs-warm-focus: light-dark(#315db6, #9ab6ff);
+    --ui-print-line: #dfe3e0;
+    --ui-print-ink-2: #3d433f;
+    --ui-alert: light-dark(#b42318, #ff8a7a);
+    --ui-warn: light-dark(#b4471f, #f08a5d);
+    --ui-letterbox: #050806;
+    /* Mechanism: Anatomy's four solid tones by facing, the cavity, the lit faces and the edges */
+    --ui-mech-text: light-dark(#3d423f, #b9c2bd);
+    --ui-mech-muted: light-dark(#5c625e, #8f9a94);
+    --ui-mech-top: light-dark(#ffffff, #1a2822);
+    --ui-mech-shade-0: light-dark(#dcdfdb, #0b110e);
+    --ui-mech-shade-1: light-dark(#e5e8e4, #0f1714);
+    --ui-mech-shade-2: light-dark(#edefec, #131d18);
+    --ui-mech-shade-3: light-dark(#f4f5f3, #17231e);
+    --ui-mech-cavity: light-dark(#d3d7d3, #070b09);
+    --ui-mech-lit-top: light-dark(#eef6f2, #1f3a2f);
+    --ui-mech-lit-shade: light-dark(#dcebe4, #182e25);
+    --ui-mech-mid: light-dark(#858b87, #8a958f);
+    --ui-mech-lo: light-dark(#b3b8b4, #66726c);
+    --ui-mech-faint: light-dark(#d5d9d5, #28332e);
+    --ui-mech-halo: light-dark(#848a84, #020403);
+    --ui-mech-dot: light-dark(#2f3431, #e8ece9);
+    /* Object scenes (Studio stage, gallery and controls) */
+    --ui-object-paper: light-dark(#faf9f6, #14201b);
+    --ui-object-glow: light-dark(#ffffff, #25382f);
+    --ui-object-ink: light-dark(#292e32, #e8ece9);
+    --ui-object-ink-2: light-dark(#626c65, #a6b4aa);
+    --ui-object-line: light-dark(#d6dcd5, #36463c);
+    --ui-object-edge: #87958c;
+    --ui-object-control-ink-2: light-dark(#526459, #b7c8bf);
+  }
+}
+/* Landing — the generic landing option: neutral page, lavender secondary band, indigo CTA accent,
+   editorial serif headlines from heading step 4, 16px cards, grain and glass for depth. Kept for
+   pages that should read as a conventional SaaS landing page; the default web style is Technical.
+   Guide: docs/web-principles.md. */
+@layer uipack.tokens {
+  [data-ui-style="landing"] {
+    --ui-paper: light-dark(#f7f7f4, #0d0d13);
+    --ui-surface: light-dark(#ffffff, #16161f);
+    --ui-surface-raised: light-dark(#ffffff, #16161f);
+    --ui-surface-2: light-dark(#ebe9f4, #1e1c2e);
+    --ui-ink: light-dark(rgb(18 18 23), rgb(242 242 247));
+    --ui-ink-2: color-mix(in srgb, var(--ui-ink) 87%, transparent);
+    --ui-ink-3: color-mix(in srgb, var(--ui-ink) 66%, transparent);
+    --ui-line: color-mix(in srgb, var(--ui-ink) 24%, transparent);
+    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 12%, transparent);
+    --ui-accent: light-dark(#4b3fd6, #a99dff);
+    --ui-on-accent: light-dark(#ffffff, #0d0d13);
+    --ui-accent-surface: light-dark(#5a4fe0, #b8aeff);
+    --ui-accent-ink-2: light-dark(#e4e1ff, #2a2466);
+    --ui-accent-line: light-dark(#7a70e6, #8a7ee8);
+    --ui-flow-request: light-dark(#4f6fe6, #8ea4ff);
+    --ui-flow-response: light-dark(#3fb27f, #5fd39b);
+    --ui-flow-change: light-dark(#9a63e0, #c39aff);
+    --ui-data-pos: light-dark(#1a7a52, #33a979);
+    --ui-data-neg: light-dark(#c0482f, #d4623f);
+    --ui-data-context: light-dark(#8e8e99, #6b6b78);
+    --ui-data-1: light-dark(#4b3fd6, #a99dff);
+    --ui-data-2: light-dark(#1a7a52, #33a979);
+    --ui-data-3: light-dark(#c27a1f, #c0832b);
+    --ui-data-4: light-dark(#5c5c6b, #9a9aab);
+    --ui-on-data-1: light-dark(#ffffff, #0d0d13);
+    --ui-on-data-2: light-dark(#ffffff, #0d0d13);
+    --ui-on-data-3: light-dark(#121217, #0d0d13);
+    --ui-on-data-4: light-dark(#ffffff, #0d0d13);
+    --ui-inv-paper: light-dark(#16161f, #f2f2f7);
+    --ui-inv-surface: light-dark(#1e1c2e, #ffffff);
+    --ui-inv-ink: light-dark(#f2f2f7, #121217);
+    --ui-inv-ink-2: light-dark(#b9b9c6, #4a4a57);
+    --ui-inv-line: light-dark(#3a3850, #c9c7d8);
+    --ui-inv-accent: light-dark(#a99dff, #4b3fd6);
+
+    --ui-font-display: "Instrument Serif", "Instrument Serif Fallback", ui-serif, Georgia, "Times New Roman", serif;
+    --ui-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --ui-font-label: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --ui-display-weight: 400;
+    --ui-display-tracking: -0.01em;
+    --ui-display-case: none;
+    --ui-label-tracking: 0.08em;
+    --ui-radius: 16px;
+    --ui-radius-sm: 12px;
+    --ui-radius-xs: 4px;
+    --ui-radius-pill: 999px;
+    --ui-nav-fill: light-dark(rgb(247 247 244 / 0.72), rgb(13 13 19 / 0.66));
+    --ui-nav-blur: blur(14px) saturate(1.4);
+    --ui-stroke: 1.25;
+    --ui-rule-width: 1px;
+    --ui-density: 1;
+    --ui-type-ratio: 1.25;
+    --ui-measure: 65ch;
+    --ui-ease-settle: cubic-bezier(0.2, 0.7, 0.2, 1);
+    --ui-ease-travel: cubic-bezier(0.55, 0, 0.15, 1);
+    --ui-dur-quick: 160ms;
+    --ui-dur-base: 320ms;
+    --ui-dur-slow: 560ms;
+
+    /* Ornaments: quiet depth. The grain and aurora are components (GrainOverlay, Aurora); the
+       backdrop slot itself stays empty. */
+    --ui-backdrop: none;
+    --ui-backdrop-mask: none;
+    --ui-frame-border: 1px solid var(--ui-line-soft);
+    --ui-card-shadow: none;
+    --ui-frame-shadow:
+      0 1px 2px light-dark(rgb(18 18 23 / 0.06), rgb(0 0 0 / 0.4)),
+      0 24px 48px -24px light-dark(rgb(18 18 23 / 0.28), rgb(0 0 0 / 0.7));
+    --ui-marker-size: 0px;
+    --ui-marker-shape: 0px;
+    --ui-marker-color: transparent;
+    --ui-section-rule: none;
+    --ui-grain: 1;
+    --ui-glow: 1;
+    --ui-cta-shadow:
+      0 1px 0 rgb(255 255 255 / 0.18) inset,
+      0 8px 20px -10px var(--ui-accent);
+    --ui-cta-shadow-hover:
+      0 1px 0 rgb(255 255 255 / 0.18) inset,
+      0 12px 28px -10px var(--ui-accent);
+    --ui-em-style: italic;
+    --ui-em-color: inherit;
+    --ui-star-fill: 1;
+    --ui-display-scale: 1;
+
+    --ui-web-font-text: var(--ui-font-text);
+    --ui-web-font-label: var(--ui-font-label);
+    --ui-slide-font-text: var(--ui-font-text);
+    --ui-slide-font-label: var(--ui-font-label);
+  }
+}
+/* Graphical — a bold poster style: bone paper, black ink, one signal-orange accent, condensed
+   display caps (Anton), hard edges, 2px rules and hard offset frames. Its one motif is the disc:
+   the hero's backdrop disc returns as every marker. Shapes go only through the ornament slots,
+   so a layout and its words are the same as in any other style. Guide: docs/web-principles.md,
+   "Graphical". */
+@layer uipack.tokens {
+  [data-ui-style="graphical"] {
+    --ui-paper: light-dark(#f1eee6, #121212);
+    --ui-surface: light-dark(#fbfaf6, #1b1b1b);
+    --ui-surface-raised: light-dark(#ffffff, #222222);
+    --ui-surface-2: light-dark(#e6e1d3, #262420);
+    --ui-ink: light-dark(#111111, #f1eee6);
+    --ui-ink-2: light-dark(#363532, #cfcbc0);
+    --ui-ink-3: light-dark(#57554f, #a29e93);
+    --ui-line: light-dark(#111111, #f1eee6);
+    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 22%, transparent);
+    --ui-accent: light-dark(#f24a00, #ff6a26);
+    --ui-accent-ink: light-dark(#b23700, #ff7f45);
+    --ui-on-accent: light-dark(#111111, #111111);
+    --ui-accent-surface: light-dark(#ff6a26, #ff8247);
+    --ui-accent-ink-2: light-dark(#2b1406, #2b1406);
+    --ui-accent-line: light-dark(#111111, #111111);
+    --ui-flow-request: light-dark(#2348e0, #8ea4ff);
+    --ui-flow-response: light-dark(#14805a, #5fd39b);
+    --ui-flow-change: light-dark(#8a3fd6, #c39aff);
+    --ui-data-pos: light-dark(#14805a, #33a979);
+    --ui-data-neg: light-dark(#c0174f, #ff6b93);
+    --ui-data-context: light-dark(#8f8b80, #6a675f);
+    --ui-data-1: light-dark(#f24a00, #ff6a26);
+    --ui-data-2: light-dark(#111111, #f1eee6);
+    --ui-data-3: light-dark(#2348e0, #7f97ff);
+    --ui-data-4: light-dark(#8f8b80, #8a867b);
+    --ui-on-data-1: light-dark(#111111, #111111);
+    --ui-on-data-2: light-dark(#f1eee6, #111111);
+    --ui-on-data-3: light-dark(#ffffff, #111111);
+    --ui-on-data-4: light-dark(#111111, #111111);
+    --ui-inv-paper: light-dark(#111111, #f1eee6);
+    --ui-inv-surface: light-dark(#1e1e1e, #ffffff);
+    --ui-inv-ink: light-dark(#f1eee6, #111111);
+    --ui-inv-ink-2: light-dark(#cfcbc0, #363532);
+    --ui-inv-line: light-dark(#f1eee6, #111111);
+    --ui-inv-accent: light-dark(#ff6a26, #c74000);
+
+    --ui-font-display: "Anton", "Anton Fallback", Impact, "Arial Narrow", sans-serif-condensed, sans-serif;
+    --ui-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --ui-font-label: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --ui-display-weight: 400;
+    --ui-display-tracking: 0.005em;
+    --ui-display-case: uppercase;
+    --ui-label-tracking: 0.12em;
+    --ui-radius: 0px;
+    --ui-radius-sm: 0px;
+    --ui-radius-xs: 0px;
+    --ui-radius-pill: 0px;
+    --ui-nav-fill: var(--ui-paper);
+    --ui-nav-blur: none;
+    --ui-stroke: 2;
+    --ui-rule-width: 2px;
+    --ui-density: 1;
+    --ui-type-ratio: 1.25;
+    --ui-measure: 60ch;
+    /* Poster motion: things land, they do not float. */
+    --ui-ease-settle: cubic-bezier(0.3, 0.9, 0.2, 1);
+    --ui-ease-travel: cubic-bezier(0.7, 0, 0.2, 1);
+    --ui-dur-quick: 120ms;
+    --ui-dur-base: 240ms;
+    --ui-dur-slow: 480ms;
+
+    /* Ornaments. backdrop: the accent disc, cut by the slot's top-right corner, and a band of
+       ink rules along the slot's foot, never under the copy. frame: 2px ink and a hard offset
+       shadow. marker: the disc again, small. */
+    --ui-backdrop:
+      radial-gradient(circle at 100% 0, var(--ui-accent) 0 min(24cqi, 300px), transparent calc(min(24cqi, 300px) + 1px)),
+      radial-gradient(circle at 100% 0, transparent 0 calc(min(24cqi, 300px) + 18px), var(--ui-ink) calc(min(24cqi, 300px) + 19px) calc(min(24cqi, 300px) + 21px), transparent calc(min(24cqi, 300px) + 22px)),
+      repeating-linear-gradient(90deg, var(--ui-ink) 0 2px, transparent 2px 14px) 0 100% / 100% 24px no-repeat;
+    --ui-backdrop-mask: none;
+    --ui-frame-border: 2px solid var(--ui-ink);
+    --ui-card-shadow: 6px 6px 0 var(--ui-ink);
+    --ui-frame-shadow: 6px 6px 0 var(--ui-ink);
+    --ui-marker-size: 12px;
+    --ui-marker-shape: 50%;
+    --ui-marker-color: var(--ui-accent);
+    --ui-section-rule: inset 0 2px 0 var(--ui-ink);
+    --ui-grain: 0;
+    --ui-glow: 0;
+    --ui-cta-shadow: 4px 4px 0 var(--ui-ink);
+    --ui-cta-shadow-hover: 6px 6px 0 var(--ui-ink);
+    --ui-em-style: normal;
+    --ui-em-color: var(--ui-accent-ink);
+    --ui-star-fill: 0;
+    --ui-display-scale: 1.3;
+
+    --ui-web-font-text: var(--ui-font-text);
+    --ui-web-font-label: var(--ui-font-label);
+    --ui-slide-font-text: var(--ui-font-text);
+    --ui-slide-font-label: var(--ui-font-label);
+  }
+}
+/* Two palettes, both from the roles (src/styles): the warm docs palette by default (optional
+   --ui-docs-warm-* roles; a style that leaves them unset falls back to its core roles), and the
+   style's own palette with palette="technical". Dark follows data-theme only. */
 .uipack-docs {
-  --docs-ink: #29231f;
-  --docs-muted: #655c55;
-  --docs-rule: rgba(41, 35, 31, 0.18);
-  --docs-surface: #fbf8f2;
-  --docs-surface-strong: #e7ded2;
-  --docs-accent: #234ea2;
-  --docs-focus: #315db6;
+  --docs-ink: var(--ui-docs-warm-ink, var(--ui-ink));
+  --docs-muted: var(--ui-docs-warm-ink-2, var(--ui-ink-2));
+  --docs-rule: var(--ui-docs-warm-line, var(--ui-line-soft));
+  --docs-surface: var(--ui-docs-warm-surface, var(--ui-surface));
+  --docs-surface-strong: var(--ui-docs-warm-surface-strong, var(--ui-surface-2));
+  --docs-accent: var(--ui-docs-warm-accent, var(--ui-accent));
+  --docs-focus: var(--ui-docs-warm-focus, var(--ui-accent));
+  color-scheme: light;
   color: var(--docs-ink);
   font-family: var(--font-sans, system-ui, sans-serif);
   position: relative;
@@ -13,35 +443,19 @@
 }
 
 .uipack-docs[data-theme="dark"] {
-  --docs-ink: #f2ece3;
-  --docs-muted: #aea198;
-  --docs-rule: rgba(242, 236, 227, 0.2);
-  --docs-surface: #211d1a;
-  --docs-surface-strong: #37302b;
-  --docs-accent: #9ab6ff;
-  --docs-focus: #9ab6ff;
+  color-scheme: dark;
 }
 
 /* The Technical palette (docs/design-direction.md), opt-in with palette="technical" so hosts on
-   the warm default keep their look. Selectors match the warm ones' weight plus one attribute. */
+   the warm default keep their look. In another style it is that style's palette. */
 .uipack-docs[data-palette="technical"] {
-  --docs-ink: #1a1c1a;
-  --docs-muted: #5c625e;
-  --docs-rule: rgba(26, 28, 26, 0.16);
-  --docs-surface: #edefec;
-  --docs-surface-strong: #e2e6e2;
-  --docs-accent: #205f49;
-  --docs-focus: #205f49;
-}
-
-.uipack-docs[data-palette="technical"][data-theme="dark"] {
-  --docs-ink: #e8ece9;
-  --docs-muted: #9aa39e;
-  --docs-rule: rgba(232, 236, 233, 0.18);
-  --docs-surface: #14201b;
-  --docs-surface-strong: #1d2c26;
-  --docs-accent: #71dcb2;
-  --docs-focus: #71dcb2;
+  --docs-ink: var(--ui-ink);
+  --docs-muted: var(--ui-ink-2);
+  --docs-rule: var(--ui-docs-line, var(--ui-line-soft));
+  --docs-surface: var(--ui-docs-surface, var(--ui-surface-2));
+  --docs-surface-strong: var(--ui-docs-surface-strong, var(--ui-surface-2));
+  --docs-accent: var(--ui-accent);
+  --docs-focus: var(--ui-accent);
 }
 
 .uipack-docs *,

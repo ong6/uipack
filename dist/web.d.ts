@@ -1,5 +1,6 @@
 import * as react from 'react';
 import { ReactNode, ElementType, CSSProperties, ButtonHTMLAttributes, RefObject, ReactElement } from 'react';
+import { U as UiStyleId } from './style-4C2eEC6A.js';
 export { a as easeOutExpo } from './math-DL8QKXOl.js';
 
 interface WebSurfaceProps {
@@ -8,10 +9,18 @@ interface WebSurfaceProps {
     theme?: "light" | "dark";
     as?: ElementType;
     className?: string;
-    style?: CSSProperties;
+    /**
+     * The style the page is painted in: "technical" (the default, diagram-led), "landing" (the
+     * generic landing page) or "graphical" (poster). Sets data-ui-style; omitted, the nearest
+     * ancestor's. A swap changes tokens and ornaments only. An object is still accepted as inline
+     * CSS, as before; pass both as `style` and `css`.
+     */
+    style?: UiStyleId | CSSProperties;
+    /** Inline CSS for the root, when `style` names the visual style. */
+    css?: CSSProperties;
 }
-/** Root of the Landing style: carries its scoped tokens, background and type. */
-declare function WebSurface({ children, theme, as: Tag, className, style }: WebSurfaceProps): react.JSX.Element;
+/** Root of a web page or panel: carries the style's tokens, background and type. */
+declare function WebSurface({ children, theme, as: Tag, className, style, css }: WebSurfaceProps): react.JSX.Element;
 interface GridProps {
     children: ReactNode;
     className?: string;
@@ -142,9 +151,11 @@ interface SectionProps {
      * for sections above an in-page link target.
      */
     lazyRender?: boolean;
+    /** Paint this section in another style (data-ui-style), e.g. one Graphical band on a Technical page. */
+    style?: UiStyleId;
 }
 /** A page section on the 8-pt rhythm, with an optional eyebrow, heading and intro. */
-declare function Section({ eyebrow, title, intro, children, tone, align, id, className, lazyRender, }: SectionProps): react.JSX.Element;
+declare function Section({ eyebrow, title, intro, children, tone, align, id, className, lazyRender, style, }: SectionProps): react.JSX.Element;
 interface Feature {
     title: string;
     body: ReactNode;
@@ -204,12 +215,14 @@ interface StarHeroProps {
     /** Noise opacity; 0 turns it off. */
     noise?: number;
     headingId?: string;
+    /** Layout: copy centred over the proof (default) or set on the start edge. */
+    align?: "center" | "start";
 }
 /**
  * One focal visual derived from the product story, masked so it never fights the headline,
  * with a quiet noise layer for depth. Copy uses opacity hierarchy, not extra colours.
  */
-declare function StarHero({ eyebrow, title, subtitle, actions, visual, values, children, noise, headingId, }: StarHeroProps): react.JSX.Element;
+declare function StarHero({ eyebrow, title, subtitle, actions, visual, values, children, noise, headingId, align, }: StarHeroProps): react.JSX.Element;
 
 /** Default story data: messages handled over a morning (40 in, 3 left). Rising, so it reads as progress. */
 declare const DEFAULT_STAR_VALUES: number[];

@@ -1,6 +1,7 @@
 'use strict';
 
-var chunk2JULAQB4_cjs = require('./chunk-2JULAQB4.cjs');
+var chunkPOU3TTIE_cjs = require('./chunk-POU3TTIE.cjs');
+var chunkD43QOXLX_cjs = require('./chunk-D43QOXLX.cjs');
 var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
@@ -335,10 +336,7 @@ function mountObjectScene(canvas, options) {
     }
   };
 }
-var objectPalettes = {
-  light: { paper: 15986663, ink: 2698802, muted: 10136485, accent: 2121545 },
-  dark: { paper: 14212825, ink: 3755080, muted: 8492426, accent: 7454115 }
-};
+var objectPalettes = chunkPOU3TTIE_cjs.studioObjectPalettes;
 var styles = {
   scene: "uipack-object",
   canvas: "uipack-object__canvas",
@@ -575,7 +573,7 @@ function ObjectScene(props) {
     ] }),
     controls === "full" && /* @__PURE__ */ jsxRuntime.jsx("button", { ref: opener, type: "button", className: "uipack-object-open", onClick: () => setOpen(true), children: "Open canvas" }),
     /* @__PURE__ */ jsxRuntime.jsx(
-      chunk2JULAQB4_cjs.CanvasView,
+      chunkD43QOXLX_cjs.CanvasView,
       {
         open,
         onClose: () => setOpen(false),

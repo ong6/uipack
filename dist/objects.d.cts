@@ -69,6 +69,7 @@ interface ObjectSceneProps {
      */
     modelUrl?: string;
 }
+/** The Studio scenes' material palette per theme (src/styles/scene-palettes.ts). */
 declare const objectPalettes: {
     light: {
         paper: number;

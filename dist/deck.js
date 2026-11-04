@@ -7,6 +7,9 @@ import { createContext, useContext, useState, useRef, useMemo, Children, isValid
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { flushSync, createPortal } from 'react-dom';
 
+// src/deck/tone.ts
+var toneOf = (slide) => slide.tone ?? (slide.invert ? "ink" : "paper");
+
 // src/deck/player/format.ts
 var railAt = (i, count) => `${count > 1 ? i / (count - 1) * 100 : 0}%`;
 var pad = (n) => String(n).padStart(2, "0");
@@ -534,7 +537,7 @@ var Layer = /* @__PURE__ */ forwardRef(function Layer2({ slide, index, count, st
     {
       ref,
       className: "uipack-deck-layer",
-      "data-tone": slide.tone ?? "paper",
+      "data-tone": toneOf(slide),
       "data-slide": slide.id,
       role: thumbnail ? void 0 : "group",
       "aria-roledescription": thumbnail ? void 0 : "slide",
@@ -556,7 +559,7 @@ function SlideThumbnail({
   step = Infinity
 }) {
   const { ref, scale } = useCanvasScale();
-  return /* @__PURE__ */ jsx("div", { ref, className: "uipack-deck-thumb", "data-tone": slide.tone ?? "paper", children: /* @__PURE__ */ jsx("div", { className: "uipack-deck-canvas", style: { transform: `scale(${scale})`, visibility: scale ? void 0 : "hidden" }, children: /* @__PURE__ */ jsx(Layer, { slide, index, count, step, active: false, thumbnail: true, theme, reducedMotion: true }) }) });
+  return /* @__PURE__ */ jsx("div", { ref, className: "uipack-deck-thumb", "data-tone": toneOf(slide), children: /* @__PURE__ */ jsx("div", { className: "uipack-deck-canvas", style: { transform: `scale(${scale})`, visibility: scale ? void 0 : "hidden" }, children: /* @__PURE__ */ jsx(Layer, { slide, index, count, step, active: false, thumbnail: true, theme, reducedMotion: true }) }) });
 }
 
 // src/deck/storyline/roles.ts
@@ -1073,9 +1076,138 @@ var LINT_RULES = {
   "template-beats": {
     severity: "warn",
     check: "With a template, every beat it requires has a slide in that role: a decision request has its options, a postmortem its plan."
+  },
+  "slot-budget": {
+    severity: "warn",
+    check: "Every slot the slide declares as data (title, eyebrow, headline lines, lede, and archetype slots such as quote, value, owner and date) fits its text budget in SLOT_BUDGETS: an eyebrow is one to four words, a lede one sentence, a headline at most two lines, a label no sentence."
   }
 };
 var MAX_TITLE_WORDS = 14;
+
+// src/deck/budgets.ts
+var SLOT_BUDGETS = {
+  title: {
+    role: "Short name for the overview, counter and screen readers; never longer than a headline",
+    maxWords: 14,
+    overflow: "ellipsis"
+  },
+  eyebrow: {
+    role: "Above the headline: the section, not the claim",
+    minWords: 1,
+    maxWords: 4,
+    maxLines: 1,
+    charsPerLine: 40,
+    maxSentences: 0,
+    overflow: "wrap"
+  },
+  headline: {
+    role: "The claim as one sentence",
+    minWords: 3,
+    maxWords: 14,
+    maxLines: 2,
+    charsPerLine: 44,
+    maxSentences: 1,
+    overflow: "wrap-balance"
+  },
+  lede: {
+    role: "Under the headline: one sentence of why or caveat",
+    maxWords: 30,
+    maxLines: 3,
+    charsPerLine: 60,
+    maxSentences: 1,
+    overflow: "wrap"
+  },
+  label: { role: "Inside a drawing or a tile", maxWords: 3, maxSentences: 0, overflow: "wrap" },
+  quote: {
+    role: "Quote archetype: the words someone said",
+    maxWords: 30,
+    maxLines: 4,
+    charsPerLine: 40,
+    maxSentences: 2,
+    overflow: "wrap-balance"
+  },
+  attribution: {
+    role: "Quote archetype: who said it, in what role",
+    maxWords: 8,
+    maxLines: 1,
+    charsPerLine: 60,
+    maxSentences: 0,
+    overflow: "wrap"
+  },
+  value: { role: "Fact archetype: the one number", maxChars: 6, overflow: "wrap" },
+  unit: { role: "Fact archetype: what the number counts", maxWords: 4, maxSentences: 0, overflow: "wrap" },
+  baseline: {
+    role: "Fact archetype: the comparison and window",
+    maxWords: 12,
+    maxLines: 1,
+    charsPerLine: 70,
+    maxSentences: 1,
+    overflow: "wrap"
+  },
+  number: { role: "Section archetype: the part number", maxChars: 3, overflow: "wrap" },
+  action: {
+    role: "End archetype: the decision or action asked for",
+    minWords: 2,
+    maxWords: 12,
+    maxLines: 2,
+    charsPerLine: 32,
+    maxSentences: 1,
+    overflow: "wrap"
+  },
+  owner: {
+    role: "End archetype: who decides or acts (a team or role)",
+    minWords: 1,
+    maxWords: 5,
+    maxSentences: 0,
+    overflow: "wrap"
+  },
+  date: { role: "End archetype: a calendar date", minWords: 1, maxWords: 4, maxSentences: 0, overflow: "wrap" },
+  source: {
+    role: "Footer: the named artifact behind the numbers",
+    maxWords: 30,
+    maxLines: 2,
+    charsPerLine: 110,
+    overflow: "wrap"
+  }
+};
+var slotWords = (text) => text.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w));
+function slotSentences(text) {
+  const t = text.trim();
+  if (!t) return 0;
+  const inner = t.match(/[.!?](?=\s+[A-Z“"])/g)?.length ?? 0;
+  return inner + (/[.!?]["”)]?$/.test(t) ? 1 : 0);
+}
+function slotLines(text, charsPerLine) {
+  let lines = 1;
+  let used = 0;
+  for (const word of text.trim().split(/\s+/)) {
+    const need = used === 0 ? word.length : used + 1 + word.length;
+    if (need > charsPerLine && used > 0) {
+      lines++;
+      used = word.length;
+    } else used = need;
+  }
+  return lines;
+}
+function slotProblems(slot, text) {
+  const b = SLOT_BUDGETS[slot];
+  const words = slotWords(text).length;
+  const out = [];
+  if (b.minWords !== void 0 && words < b.minWords) out.push(`${words} word${words === 1 ? "" : "s"}, at least ${b.minWords}`);
+  if (b.maxWords !== void 0 && words > b.maxWords) out.push(`${words} words, at most ${b.maxWords}`);
+  if (b.maxChars !== void 0 && text.trim().length > b.maxChars)
+    out.push(`${text.trim().length} characters, at most ${b.maxChars}`);
+  if (b.maxLines !== void 0 && b.charsPerLine) {
+    const lines = slotLines(text, b.charsPerLine);
+    if (lines > b.maxLines) out.push(`about ${lines} lines, at most ${b.maxLines}`);
+  }
+  if (b.maxSentences !== void 0) {
+    const n = slotSentences(text);
+    if (b.maxSentences === 0 && n > 0 && words > 3) out.push("a sentence, where a label belongs");
+    else if (b.maxSentences > 0 && n > b.maxSentences) out.push(`${n} sentences, at most ${b.maxSentences}`);
+  }
+  return out;
+}
 
 // src/deck/storyline/heuristics.ts
 var TOPIC_LABELS = /* @__PURE__ */ new Set([
@@ -1372,6 +1504,36 @@ var LINT_CHECKS = [
       for (const { slide, headline } of titledSlides(deck))
         if (/[.!?]["”’)]?\s+\S/.test(headline))
           report("tip", "Title has more than one sentence. One idea per slide: split it or pick one.", slide.id);
+    }
+  },
+  {
+    rule: "slot-budget",
+    check: ({ slides }, report) => {
+      for (const slide of slides) {
+        const declared = [
+          ["title", slide.headline ? slide.title : void 0],
+          ["eyebrow", slide.eyebrow],
+          ["lede", slide.lede],
+          ...Object.entries(slide.slots ?? {})
+        ];
+        const headline = headlineOf(slide);
+        if (headline) {
+          const b = SLOT_BUDGETS.headline;
+          const lines = slotLines(headline, b.charsPerLine);
+          if (lines > b.maxLines)
+            report(
+              "warn",
+              `The headline runs to about ${lines} lines at the slide's measure; keep it to ${b.maxLines}.`,
+              slide.id
+            );
+        }
+        for (const [slot, text] of declared) {
+          if (text === void 0 || slot === "headline") continue;
+          const problems = slotProblems(slot, text);
+          if (problems.length)
+            report("warn", `${slot[0].toUpperCase()}${slot.slice(1)} "${text}": ${problems.join("; ")}.`, slide.id);
+        }
+      }
     }
   },
   {
@@ -1977,7 +2139,7 @@ function PrintSlide({
       {
         ref: detail ? void 0 : ref,
         className: "uipack-deck-print__page",
-        "data-tone": s.tone ?? "paper",
+        "data-tone": toneOf(s),
         "data-detail": detail ? "" : void 0,
         "aria-label": `${pad(i + 1)}: ${s.title}${detail ? `, detail: ${detail}` : ""}`,
         children: [
@@ -2018,6 +2180,7 @@ function PrintSlide({
 function PrintJob({
   slides,
   theme,
+  style,
   title,
   notes,
   onDone
@@ -2052,7 +2215,7 @@ function PrintJob({
     };
   }, [title, doneRef]);
   return createPortal(
-    /* @__PURE__ */ jsx("div", { className: "uipack-deck-print-root", children: /* @__PURE__ */ jsx("div", { className: "uipack-deck", "data-theme": theme, children: /* @__PURE__ */ jsx(Printout, { slides, theme, notes }) }) }),
+    /* @__PURE__ */ jsx("div", { className: "uipack-deck-print-root", children: /* @__PURE__ */ jsx("div", { className: "uipack-deck", "data-theme": theme, "data-ui-style": style, children: /* @__PURE__ */ jsx(Printout, { slides, theme, notes }) }) }),
     document.body
   );
 }
@@ -2413,12 +2576,13 @@ function DeckPlayer(props) {
   if (props.slides.length === 0) return /* @__PURE__ */ jsx(EmptyDeck, { ...props });
   return /* @__PURE__ */ jsx(Player, { ...props });
 }
-function EmptyDeck({ title, theme = "light", className }) {
+function EmptyDeck({ title, theme = "light", style, className }) {
   return /* @__PURE__ */ jsx(
     "div",
     {
       className: ["uipack-deck", className].filter(Boolean).join(" "),
       "data-theme": theme,
+      "data-ui-style": style,
       role: "region",
       "aria-label": title,
       "aria-roledescription": "slide deck",
@@ -2431,6 +2595,7 @@ function Player({
   id,
   title,
   theme = "light",
+  style,
   transition = "advance",
   motion = "auto",
   mode = "audience",
@@ -2515,7 +2680,7 @@ function Player({
   const stepNow = Math.min(view.step, maxStep);
   const atStart = view.index === 0 && stepNow === 0;
   const atEnd = view.index === count - 1 && view.step >= maxStep;
-  const stage = /* @__PURE__ */ jsx("div", { ref: stageRef, className: "uipack-deck-stage", "data-tone": current.tone ?? "paper", ...swipe, children: /* @__PURE__ */ jsxs("div", { className: "uipack-deck-canvas", style: { transform: `scale(${scale})`, visibility: scale ? void 0 : "hidden" }, children: [
+  const stage = /* @__PURE__ */ jsx("div", { ref: stageRef, className: "uipack-deck-stage", "data-tone": toneOf(current), ...swipe, children: /* @__PURE__ */ jsxs("div", { className: "uipack-deck-canvas", style: { transform: `scale(${scale})`, visibility: scale ? void 0 : "hidden" }, children: [
     from && view.from && /* @__PURE__ */ jsx(
       Layer,
       {
@@ -2571,6 +2736,7 @@ function Player({
       ref: rootRef,
       className: ["uipack-deck", className].filter(Boolean).join(" "),
       "data-theme": theme,
+      "data-ui-style": style,
       "data-mode": mode,
       "data-motion": reducedMotion ? "none" : "auto",
       "data-index": view.index,
@@ -2628,6 +2794,7 @@ function Player({
         printing && /* @__PURE__ */ jsx(
           PrintJob,
           {
+            style,
             slides,
             theme,
             title,
@@ -2664,6 +2831,123 @@ function Player({
       ]
     }
   );
+}
+function SectionSlide({ eyebrow, headline, number, lede, footer }) {
+  return /* @__PURE__ */ jsxs(Slide, { eyebrow, footer, layout: "section", children: [
+    /* @__PURE__ */ jsx("h2", { className: "uipack-deck-heading", children: headline }),
+    lede && /* @__PURE__ */ jsx("p", { className: "uipack-deck-lede", children: lede }),
+    /* @__PURE__ */ jsx("p", { className: "uipack-deck-section-number", "aria-hidden": "true", children: number })
+  ] });
+}
+function QuoteSlide({ eyebrow, headline, quote, attribution, footer }) {
+  return /* @__PURE__ */ jsxs(Slide, { eyebrow, footer, layout: "quote", children: [
+    /* @__PURE__ */ jsx("h2", { className: "uipack-deck-heading", children: headline }),
+    /* @__PURE__ */ jsxs("figure", { className: "uipack-deck-quote", children: [
+      /* @__PURE__ */ jsx("blockquote", { children: /* @__PURE__ */ jsx("p", { children: quote }) }),
+      /* @__PURE__ */ jsx("figcaption", { className: "uipack-deck-label", children: attribution })
+    ] })
+  ] });
+}
+function FactSlide({ eyebrow, headline, value, unit, baseline, source, footer }) {
+  return /* @__PURE__ */ jsxs(Slide, { eyebrow, footer, layout: "fact", children: [
+    /* @__PURE__ */ jsx("h2", { className: "uipack-deck-heading", children: headline }),
+    /* @__PURE__ */ jsxs("div", { className: "uipack-deck-fact", children: [
+      /* @__PURE__ */ jsxs("p", { className: "uipack-deck-number", children: [
+        value,
+        unit && /* @__PURE__ */ jsx("span", { className: "uipack-deck-fact__unit", children: unit })
+      ] }),
+      /* @__PURE__ */ jsx("p", { className: "uipack-deck-fact__baseline", children: baseline })
+    ] }),
+    source && /* @__PURE__ */ jsx("p", { className: "uipack-deck-label uipack-deck-fact__source", children: source })
+  ] });
+}
+function EndSlide({ eyebrow, headline, action, owner, date, lede, footer }) {
+  return /* @__PURE__ */ jsxs(Slide, { eyebrow, footer, layout: "end", children: [
+    /* @__PURE__ */ jsx("h2", { className: "uipack-deck-heading", children: headline }),
+    lede && /* @__PURE__ */ jsx("p", { className: "uipack-deck-lede", children: lede }),
+    /* @__PURE__ */ jsxs("dl", { className: "uipack-deck-end", children: [
+      /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsx("dt", { className: "uipack-deck-label", children: "Decision" }),
+        /* @__PURE__ */ jsx("dd", { children: action })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsx("dt", { className: "uipack-deck-label", children: "Owner" }),
+        /* @__PURE__ */ jsx("dd", { children: owner })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsx("dt", { className: "uipack-deck-label", children: "By" }),
+        /* @__PURE__ */ jsx("dd", { children: date })
+      ] })
+    ] })
+  ] });
+}
+function sectionSlide({ eyebrow, headline, number, lede, footer, ...meta }) {
+  return {
+    ...meta,
+    headline,
+    eyebrow,
+    lede,
+    slots: { number },
+    render: () => /* @__PURE__ */ jsx(SectionSlide, { eyebrow, headline, number, lede, footer })
+  };
+}
+function quoteSlide({ eyebrow, headline, quote, attribution, footer, ...meta }) {
+  return {
+    ...meta,
+    headline,
+    eyebrow,
+    slots: { quote, attribution },
+    render: () => /* @__PURE__ */ jsx(QuoteSlide, { eyebrow, headline, quote, attribution, footer })
+  };
+}
+function factSlide({
+  eyebrow,
+  headline,
+  value,
+  unit,
+  baseline,
+  source,
+  footer,
+  ...meta
+}) {
+  return {
+    ...meta,
+    headline,
+    eyebrow,
+    source,
+    slots: { value, baseline, ...unit ? { unit } : {}, ...source ? { source } : {} },
+    render: () => /* @__PURE__ */ jsx(
+      FactSlide,
+      {
+        eyebrow,
+        headline,
+        value,
+        unit,
+        baseline,
+        source,
+        footer
+      }
+    )
+  };
+}
+function endSlide({
+  eyebrow,
+  headline,
+  action,
+  owner,
+  date,
+  lede,
+  footer,
+  ...meta
+}) {
+  return {
+    ...meta,
+    headline,
+    eyebrow,
+    lede,
+    slots: { action, owner, date },
+    render: () => /* @__PURE__ */ jsx(EndSlide, { eyebrow, headline, action, owner, date, lede, footer })
+  };
 }
 function BentoCell(_) {
   return null;
@@ -4135,4 +4419,4 @@ function HarveyTable({
   ] });
 }
 
-export { Annotation, BarChart, Bento, BentoCell, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, ConsultingSlide, DeckPlayer, DeckSlideContext, HarveyBall, HarveyTable, KpiTiles, LINT_RULES, LineChart, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, Morph, Panel, REPEATABLE_ROLES, Ref, SLIDE_ROLES, STORYLINE_TEMPLATES, Slide, SlideThumbnail, SoWhat, Sparkline, StackedBar, Tracker, Waterfall, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };
+export { Annotation, BarChart, Bento, BentoCell, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, ConsultingSlide, DeckPlayer, DeckSlideContext, EndSlide, FactSlide, HarveyBall, HarveyTable, KpiTiles, LINT_RULES, LineChart, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, Morph, Panel, QuoteSlide, REPEATABLE_ROLES, Ref, SLIDE_ROLES, SLOT_BUDGETS, STORYLINE_TEMPLATES, SectionSlide, Slide, SlideThumbnail, SoWhat, Sparkline, StackedBar, Tracker, Waterfall, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, endSlide, factSlide, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, quoteSlide, sectionSlide, slotLines, slotProblems, slotSentences, slotWords, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, toneOf, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };

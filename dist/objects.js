@@ -1,4 +1,5 @@
-import { CanvasView } from './chunk-D3TRNW7E.js';
+import { studioObjectPalettes } from './chunk-PDVYL5TE.js';
+import { CanvasView } from './chunk-5NWU4OWV.js';
 import { keepFocusedInView, usePrefersReducedMotion } from './chunk-I6LF4PLF.js';
 import { useState, useRef, useEffect } from 'react';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
@@ -333,10 +334,7 @@ function mountObjectScene(canvas, options) {
     }
   };
 }
-var objectPalettes = {
-  light: { paper: 15986663, ink: 2698802, muted: 10136485, accent: 2121545 },
-  dark: { paper: 14212825, ink: 3755080, muted: 8492426, accent: 7454115 }
-};
+var objectPalettes = studioObjectPalettes;
 var styles = {
   scene: "uipack-object",
   canvas: "uipack-object__canvas",
