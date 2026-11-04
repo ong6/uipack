@@ -6,16 +6,24 @@ The components enforce what they can; the rest is on the page author.
 ## Web styles
 
 `uipack/web` renders in three styles, one value set each in `src/styles` (see
-[docs/system/style.md](system/style.md)). Pick one with `<WebSurface style="…">` (or
+[docs/system/style.md](system/style.md)). Pick one with `<WebSurface uiStyle="…">` or a whole page with `<WebPage uiStyle="…" sections={…}>` (or
 `data-ui-style` on any ancestor, set before paint by `styleBootScript()`). A swap changes tokens and
 ornament slots only: the same sections, boxes and reading order (`e2e/style-swap.spec.ts`). Each
 style recommends a section order (`uiStyles[].prefers`); the shared order works in all three.
 
 | Style | Use it for | Palette | Faces | Ornaments | Recommended order |
 | --- | --- | --- | --- | --- | --- |
-| **Technical** (default, ours) | Product and project pages that should read like junxiong.dev's figures | Paper `#f6f5f1`, ink `#1a1c1a`, one forest accent `#205f49` (dark: `#0a100d`, `#e8ece9`, mint `#71dcb2`) | IBM Plex Sans (headlines at 600, −0.02em), IBM Plex Mono labels | Dotted-grid backdrop, masked; 2px-radius accent square before eyebrows; 1px section rules; thin frames, 6px radius, no shadow, no glow or grain; headline emphasis in the accent, not italic | Hero (start-aligned) → mechanism figure → proof → steps → FAQ → pricing |
+| **Technical** (default) | Product and project pages that should read like junxiong.dev's figures | Paper `#f6f5f1`, ink `#1a1c1a`, one forest accent `#205f49` (dark: `#0a100d`, `#e8ece9`, mint `#71dcb2`) | IBM Plex Sans (headlines at 600, −0.02em), IBM Plex Mono labels | Dotted-grid backdrop, masked; 2px-radius accent square before eyebrows; 1px section rules; thin frames, 6px radius, no shadow, no glow or grain; headline emphasis in the accent, not italic | Hero with the figure (start-aligned) → steps as numbered rows → demo → proof → FAQ → pricing |
 | **Landing** (generic) | When the brief is a conventional SaaS landing page | Neutral `#f7f7f4`, lavender band `#ebe9f4`, indigo CTA `#4b3fd6` | Instrument Serif display from step 4, Plex Sans, Plex Mono | Grain and glass, soft shadows, 16px cards, round pills, accent glow under the CTA and spotlight | Hero (centred, demo) → steps → mechanism → proof → FAQ → pricing |
 | **Graphical** | Launches, events, campaigns: a page that should look like a poster | Bone `#f1eee6`, black ink, one signal orange `#f24a00` (text uses `#b23700`) | Anton display in caps at 1.3× the scale, Plex Sans, Plex Mono | The accent disc and a ruled band in the hero backdrop; the disc again as every eyebrow marker; 2px ink frames with hard 6px offset shadows; 0 radius; 2px section rules; no glow or grain | Hero → proof (big numbers) → steps → mechanism → pricing → FAQ |
+
+**Layout defaults per style.** `WebPage` renders sections by id in the style's recommended order
+(`uiStyles[].prefers`) and sets `data-ui-layout="style"`, which turns on the style's layout
+defaults (`uiStyles[].layout`): Technical fills the hero's proof slot with the working figure
+instead of a product mock-up, sets the hero and every section head on the start edge and draws
+steps as numbered rows; Landing and Graphical keep the centred demo hero and step cards.
+`layout="shared"` renders every style on one order and layout, so a swap changes tokens only.
+Section render functions receive `{ uiStyle, layout, defaults }`.
 
 Shared finish rules hold in every style: one accent, glow only for selection (Landing's ambient
 glow is its documented exception, and its spotlight turns off elsewhere), contrast of 4.5:1 for

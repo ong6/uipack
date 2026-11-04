@@ -96,7 +96,7 @@ yet.
 
 ## Slides
 
-The full guide is [deck-storytelling.md](../deck-storytelling.md), and `lintDeck` checks it. The core:
+The full guide is [Deck storytelling](../deck-storytelling.md), and `lintDeck` checks it. The core:
 
 - **Answer first.** The conclusion is on slide one or two. Slide one names the outcome ("Search
   got twice as fast"), not the system.
@@ -117,7 +117,7 @@ The full guide is [deck-storytelling.md](../deck-storytelling.md), and `lintDeck
 
 ## Web
 
-The full rules are in [web-principles.md](../web-principles.md). The core:
+The full rules are in [Web principles](../web-principles.md). The core:
 
 - **One goal per page.** One primary action, placed in the hero, the nav and the end.
 - **The headline is the outcome for the reader**, the subhead says how, and a demo proves it within

@@ -57,13 +57,16 @@ move a box, which is why a swap keeps every region in place (`src/web/web-styles
 | `--ui-grain`, `--ui-glow`, `--ui-star-fill` | Ambient depth switches (0 or 1) | 0 | 1 | 0 |
 | `--ui-cta-shadow(-hover)` | The primary button | None | Accent glow | Hard ink offset |
 
-**Optional roles.** Technical tunes some media with roles a style may leave unset; components read
-them with a fallback to a core role (`var(--ui-slide-ink-2, var(--ui-ink-2))`), and every style
-host resets them, so a tuned value never leaks into a child in another style. Today only Technical
-sets them: `--ui-node`, `--ui-inv-node`, `--ui-line-solid`, `--ui-accent-ink`, `--ui-data-neg-ink`,
-`--ui-slide-*` (deck ink-2, line and faces), `--ui-web-font-*` (Plex on the web), `--ui-docs-*`,
-`--ui-print-*`, `--ui-alert`, `--ui-warn`, `--ui-letterbox`, `--ui-mech-*` (Mechanism tones) and
-`--ui-object-*` (the Studio stage). Graphical sets `--ui-accent-ink`.
+**Every style fills every role.** A few roles have Technical values tuned for one medium
+(`--ui-node`, `--ui-line-solid`, `--ui-inv-node`, `--ui-accent-ink`, `--ui-data-neg-ink`,
+`--ui-slide-font-*`, `--ui-web-font-*`, `--ui-alert`, `--ui-warn`); Landing and Graphical fill them
+too, mostly by pointing at a core role.
+
+**Component tuning is not a role.** `--tune-*` values are Technical's hand-tuned colours for one
+component: Mechanism tones (`--tune-mech-*`), the Studio stage (`--tune-object-*`), the docs entry's
+palettes (`--tune-docs-*`), slide ink and rules (`--tune-slide-*`), print (`--tune-print-*`) and
+the full-screen letterbox. A component reads one as `var(--tune-x, <a mix of core roles>)`, so any
+other style gets the derivation, and every style host resets them so they never leak.
 
 A role keeps its meaning across styles. Landing's accent is indigo, Technical's forest and
 Graphical's signal orange, but in each it marks the single thing that matters. A style may not add
@@ -74,12 +77,12 @@ a second accent.
 | Style | For | Character | Values | Guide |
 | --- | --- | --- | --- | --- |
 | **Technical** (default) | Diagrams, charts, article parts, decks, the shell, and web pages | Warm paper, near-black ink, forest/mint accent, thin lines, 6px radius, system type in figures and IBM Plex on slides and the web; on the web a page leads with a working diagram | `src/styles/technical.css` | Below |
-| **Landing** (generic landing) | A conventional SaaS landing page, when that is the brief | Neutral page, lavender band, indigo CTA accent, Instrument Serif headlines, 16px cards, glass and grain | `src/styles/landing.css` | [web-principles.md](../web-principles.md) |
-| **Graphical** | Posters, launches, a page that should be loud | Bone paper, black ink, one signal-orange accent, Anton display caps, hard edges, 2px rules, hard offset frames, one disc motif | `src/styles/graphical.css` | [web-principles.md](../web-principles.md) |
-| **Mechanism** | One isometric machine whose working is the point | Technical palette mapped to four solid tones (`--ui-mech-*`), one lit part | `src/mechanism/mechanism.css` | [mechanism.md](../mechanism.md) |
-| **3D art directions** | Object scenes | Studio (reads `--ui-object-*`), Paper worlds, Kinetic, Cartoon, Realistic, Abstract | `src/objects/*` | [objects.md](../objects.md) |
+| **Landing** (generic landing) | A conventional SaaS landing page, for a conventional marketing page | Neutral page, lavender band, indigo CTA accent, Instrument Serif headlines, 16px cards, glass and grain | `src/styles/landing.css` | [Web principles](../web-principles.md) |
+| **Graphical** | Posters, launches, a page that should be loud | Bone paper, black ink, one signal-orange accent, Anton display caps, hard edges, 2px rules, hard offset frames, one disc motif | `src/styles/graphical.css` | [Web principles](../web-principles.md) |
+| **Mechanism** | One isometric machine whose working is the point | Technical palette mapped to four solid tones (`--tune-mech-*`), one lit part | `src/mechanism/mechanism.css` | [Mechanism](../mechanism.md) |
+| **3D art directions** | Object scenes | Studio (reads `--tune-object-*`), Paper worlds, Kinetic, Cartoon, Realistic, Abstract | `src/objects/*` | [Object scenes](../objects.md) |
 
-Set a style with the `style` prop (`Figure`, `DeckPlayer`, `SlideStarter`, `WebSurface`, `Section`)
+Set a style with the `uiStyle` prop (`Figure`, `DeckPlayer`, `SlideStarter`, `WebSurface`, `Section`)
 or `data-ui-style` on any element; the nearest one wins. `uiStyles` in `uipack` lists the three
 swappable styles with their fonts, the face to preload and their recommended web section order.
 
@@ -141,7 +144,7 @@ add a new one. A different face is a new style, or a documented override hook (`
 
 - **One accent**, on one thing per unit.
 - **Glow means selection.** It is never ambient. The one exception is a drillable node's soft glow
-  ([design-direction.md](../design-direction.md)).
+  ([Design direction](../design-direction.md)).
 - **Hierarchy by weight and opacity**, not by more hues. Text at 100 / 87 / 66% of one ink.
 - **Contrast** of at least 4.5:1 for small text and 3:1 for large, in both themes.
 - **Radius scale**: one container radius per style (Technical 6px, Landing 16px cards), 4px for
@@ -200,13 +203,13 @@ canvas px on the 1920×1080 canvas, so they scale with the slide.
 
 Three styles paint web pages, from the same parts and the same words:
 
-- **Technical** is the default and the owner's own look: paper, ink, the forest accent, IBM Plex,
+- **Technical** is the default and the house look: paper, ink, the forest accent, IBM Plex,
   thin rules, a dotted-grid backdrop and a square marker before each eyebrow. The page leads with a
   working diagram (its recommended order puts the mechanism figure straight after the hero).
 - **Landing** is the generic landing page: neutral 60% (`#f7f7f4` / `#0d0d13`), lavender 30%
   (`#ebe9f4` / `#1e1c2e`), indigo 10% (`#4b3fd6`) for CTAs and the star only; Instrument Serif from
   step 4; text at 100/87/66% ink; 16px cards; grain and glass. Its 30 rules are in
-  [web-principles.md](../web-principles.md).
+  [Web principles](../web-principles.md).
 - **Graphical** is a poster: Anton caps at 1.3×, one orange disc in the hero backdrop that returns
   as every eyebrow marker, 2px ink rules and hard offset frames, no glow, no blur.
 
@@ -258,11 +261,11 @@ corner radii; mobile paints at 30fps at most; reduced motion shows an authored s
 The contract is in place:
 
 1. `src/styles/roles.css` declares `@layer uipack.tokens, uipack.base, uipack.layout,
-   uipack.ornaments` and the optional-role reset; each style is one value set. Every entry's
+   uipack.ornaments` and the `--tune-*` reset; each style is one value set. Every entry's
    stylesheet in `dist/` starts with the role layer; `uipack/styles.css` is the layer alone.
-2. Every entry aliases its private tokens to roles (`--deck-fg: var(--ui-ink)`). Technical renders
-   pixel-identical to before in both themes at 1440 and 390, checked per route against screenshots.
-3. `Figure`, `DeckPlayer`, `SlideStarter`, `WebSurface` and `Section` take `style`.
+2. Every entry aliases its private tokens to roles (`--deck-fg: var(--ui-ink)`). The aliases leave
+   Technical's look unchanged in both themes at 1440 and 390, checked per route against screenshots.
+3. `Figure`, `DeckPlayer`, `SlideStarter`, `WebSurface` and `Section` take `uiStyle`.
 4. `e2e/style-swap.spec.ts` renders the same `DeckSlide[]` and the same web page in every style and
    checks the regions, columns and reading order match, with no console errors.
 5. A new style is one value set in `src/styles/` plus its doc and a `uiStyles` entry. It adds a
@@ -273,8 +276,8 @@ Known gaps:
 - Hex literals remain in four files, each listed with its reason in `test/no-hex.test.tsx`: the
   vendored Mechanism kit, 3D subject materials, the five non-Studio art-direction stage gradients
   and two candle strokes in the object fallback.
-- Optional roles are tuned for Technical only. Landing and Graphical fall back to core roles for
-  the deck's node fill, Mechanism tones, the Studio stage and docs.
+- Component tuning (`--tune-*`) exists for Technical only. Landing and Graphical get derivations
+  of their core roles for Mechanism tones, the Studio stage and docs.
 - Consulting charts and bento decks in Landing and Graphical pass the swap test but have had no
   visual review; dense chart labels in Anton have not been checked.
 - Only the web reads the ornament slots. Figures and slides have no backdrop or marker slot yet.

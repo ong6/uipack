@@ -75,7 +75,7 @@ const slides: DeckSlide[] = [
 <DeckPlayer id="platform-review" title="Platform review" slides={slides} theme="light" />;
 ```
 
-`style="technical" | "landing" | "graphical"` paints the same slides in another style (it sets
+`uiStyle="technical" | "landing" | "graphical"` paints the same slides in another style (it sets
 `data-ui-style`; omitted, the deck follows an ancestor's, else Technical). Only tokens change: the
 eyebrow, headline and footer keep their regions, and headlines take the style's display face
 (Plex Sans 650, Instrument Serif, Anton caps). The playground keeps it in `?style=` with a switcher

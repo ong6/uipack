@@ -3,8 +3,8 @@
 Layout is the structure layer: the canvas, the grid, named regions, which content slot fills each
 region, the reading order, and the beat order with its transitions. It is **sizes in grid units and
 slot names, with no colours, faces or sentences in it**. A layout reads content fields (`eyebrow`,
-`headline`, `body`…, see [writing.md](writing.md#the-content-schema)) and style roles (see
-[style.md](style.md#the-role-contract)), so any content can fill it and any style can paint it.
+`headline`, `body`…, see [Writing](writing.md#the-content-schema)) and style roles (see
+[Style roles](style.md#the-role-contract)), so any content can fill it and any style can paint it.
 
 ## Rules for every medium
 

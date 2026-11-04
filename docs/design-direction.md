@@ -9,7 +9,7 @@ UIPACK is a library of reusable visual explanations. The browser organizes two i
 | Axis | Values |
 | --- | --- |
 | Content type | Diagrams (architecture diagrams, charts, article parts), Presentations, Motion & 3D, Web, Foundations (styles, icons and marks) |
-| Visual style | Technical (default: diagrams, decks, and the default web style); Landing (the generic landing page); Graphical (poster web pages and decks); Mechanism for crafted isometric machines; Studio, Paper, Kinetic, Cartoon, Realistic and Abstract for 3D objects. Technical, Landing and Graphical are value sets of one role layer (`src/styles`), swapped with `style` / `data-ui-style` |
+| Visual style | Technical (default: diagrams, decks, and the default web style); Landing (the generic landing page); Graphical (poster web pages and decks); Mechanism for crafted isometric machines; Studio, Paper, Kinetic, Cartoon, Realistic and Abstract for 3D objects. Technical, Landing and Graphical are value sets of one role layer (`src/styles`), swapped with `uiStyle` / `data-ui-style` |
 
 The Styles collection is the index of visual languages. Light and dark are themes within a style. Do not use “slides” as the name for all 3D content. The existing `uipack/slides` API and `/slides` URL remain compatibility paths.
 
