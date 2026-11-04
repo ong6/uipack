@@ -1,12 +1,22 @@
 'use strict';
 
-var chunkFD5DXHMS_cjs = require('./chunk-FD5DXHMS.cjs');
+var chunkUJWLLUDU_cjs = require('./chunk-UJWLLUDU.cjs');
 var chunkSDBNPDW6_cjs = require('./chunk-SDBNPDW6.cjs');
+var chunkCRQKMR73_cjs = require('./chunk-CRQKMR73.cjs');
 var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
 var jsxRuntime = require('react/jsx-runtime');
 var react = require('react');
 
-function WebSurface({ children, theme, as: Tag = "div", className = "", style, uiStyle, layout }) {
+function WebSurface({
+  children,
+  theme,
+  as: Tag = "div",
+  className = "",
+  style,
+  uiStyle,
+  layout,
+  figureChrome = "quiet"
+}) {
   return /* @__PURE__ */ jsxRuntime.jsx(
     Tag,
     {
@@ -15,7 +25,7 @@ function WebSurface({ children, theme, as: Tag = "div", className = "", style, u
       "data-ui-style": uiStyle,
       "data-ui-layout": layout,
       style,
-      children
+      children: /* @__PURE__ */ jsxRuntime.jsx(chunkCRQKMR73_cjs.FigureChromeContext.Provider, { value: figureChrome, children })
     }
   );
 }
@@ -26,30 +36,43 @@ function GridItem({ children, span = [4, 4, 4], className = "", as: Tag = "div" 
   const style = { "--span-w": span[0], "--span-m": span[1], "--span-n": span[2] };
   return /* @__PURE__ */ jsxRuntime.jsx(Tag, { className: `uipack-web-grid__item ${className}`.trim(), style, children });
 }
-var SHARED = { hero: "demo", align: "center", steps: "cards" };
+var SHARED = { hero: "demo", align: "start", steps: "cards" };
 function WebPage({
   sections,
   nav,
   uiStyle = "technical",
-  layout = "style",
+  layout = "shared",
   order,
   theme,
+  figureChrome,
   className = "",
   style,
   as,
   children
 }) {
-  const meta = chunkFD5DXHMS_cjs.uiStyles.find((s) => s.id === uiStyle);
+  const meta = chunkUJWLLUDU_cjs.uiStyles.find((s) => s.id === uiStyle);
   const page = { uiStyle, layout, defaults: layout === "style" ? meta.layout : SHARED };
-  const ids = order ? order.filter((id) => id in sections) : chunkFD5DXHMS_cjs.sectionOrder(uiStyle, Object.keys(sections), layout);
-  return /* @__PURE__ */ jsxRuntime.jsxs(WebSurface, { uiStyle, theme, className, style, as, layout, children: [
-    nav,
-    ids.map((id) => {
-      const section = sections[id];
-      return /* @__PURE__ */ jsxRuntime.jsx(react.Fragment, { children: typeof section === "function" ? section(page) : section }, id);
-    }),
-    children
-  ] });
+  const ids = order ? order.filter((id) => id in sections) : chunkUJWLLUDU_cjs.sectionOrder(uiStyle, Object.keys(sections), layout);
+  return /* @__PURE__ */ jsxRuntime.jsxs(
+    WebSurface,
+    {
+      uiStyle,
+      theme,
+      className,
+      style,
+      as,
+      layout,
+      figureChrome,
+      children: [
+        nav,
+        ids.map((id) => {
+          const section = sections[id];
+          return /* @__PURE__ */ jsxRuntime.jsx(react.Fragment, { children: typeof section === "function" ? section(page) : section }, id);
+        }),
+        children
+      ]
+    }
+  );
 }
 function Eyebrow({ children, className = "", as: Tag = "p", id }) {
   return /* @__PURE__ */ jsxRuntime.jsx(Tag, { id, className: `uipack-web-eyebrow ${className}`.trim(), children });
@@ -96,7 +119,10 @@ function GlassNav({ brand, links, cta, sticky = true, label = "Primary" }) {
   }, [open]);
   return /* @__PURE__ */ jsxRuntime.jsx("header", { className: "uipack-web-nav", "data-sticky": sticky || void 0, "data-open": open || void 0, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-nav__bar", children: [
     /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-nav__brand", children: brand }),
-    /* @__PURE__ */ jsxRuntime.jsx("nav", { "aria-label": label, className: "uipack-web-nav__nav", children: /* @__PURE__ */ jsxRuntime.jsx("ul", { id: listId, className: "uipack-web-nav__links", children: links.map((l) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsx("a", { href: l.href, onClick: () => setOpen(false), children: l.label }) }, l.href + l.label)) }) }),
+    /* @__PURE__ */ jsxRuntime.jsx("nav", { "aria-label": label, className: "uipack-web-nav__nav", children: /* @__PURE__ */ jsxRuntime.jsxs("ul", { id: listId, className: "uipack-web-nav__links", children: [
+      links.map((l) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsx("a", { href: l.href, onClick: () => setOpen(false), children: l.label }) }, l.href + l.label)),
+      cta && /* @__PURE__ */ jsxRuntime.jsx("li", { className: "uipack-web-nav__menu-cta", onClick: () => setOpen(false), children: cta })
+    ] }) }),
     cta && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-nav__cta", children: cta }),
     /* @__PURE__ */ jsxRuntime.jsx(
       "button",
@@ -156,7 +182,10 @@ function Section({
       "aria-labelledby": title ? headingId : void 0,
       children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-section__inner", children: [
         (eyebrow || title || intro) && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-section__head", children: [
-          eyebrow && /* @__PURE__ */ jsxRuntime.jsx(Eyebrow, { children: eyebrow }),
+          eyebrow && /* @__PURE__ */ jsxRuntime.jsxs(Eyebrow, { children: [
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-section__index", "aria-hidden": "true" }),
+            eyebrow
+          ] }),
           title && /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 2, id: headingId, children: title }),
           intro && /* @__PURE__ */ jsxRuntime.jsx(Body, { children: intro })
         ] }),
@@ -165,15 +194,107 @@ function Section({
     }
   );
 }
-function FeatureGrid({ features, spotlight = false }) {
-  return /* @__PURE__ */ jsxRuntime.jsx(Grid, { as: "ul", className: "uipack-web-features", children: features.map((f) => {
+function FeatureGrid({ features, spotlight = false, numbered = false }) {
+  return /* @__PURE__ */ jsxRuntime.jsx(Grid, { as: numbered ? "ol" : "ul", className: `uipack-web-features${numbered ? " uipack-web-features--numbered" : ""}`, children: features.map((f, i) => {
     const inner = /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+      numbered && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-feature__num", "aria-hidden": "true", children: i + 1 }),
       f.icon && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-feature__icon", children: f.icon }),
       /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 3, size: 1, children: f.href ? /* @__PURE__ */ jsxRuntime.jsx("a", { href: f.href, children: f.title }) : f.title }),
       /* @__PURE__ */ jsxRuntime.jsx(Body, { children: f.body })
     ] });
     return /* @__PURE__ */ jsxRuntime.jsx(GridItem, { as: "li", span: [4, 4, 4], children: spotlight ? /* @__PURE__ */ jsxRuntime.jsx(SpotlightCard, { children: inner }) : /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-feature", children: inner }) }, f.title);
   }) });
+}
+function Proof({ lead, stats = [], quote, className = "" }) {
+  const ratio = lead?.ratio === void 0 ? void 0 : Math.min(1, Math.max(0, lead.ratio));
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-proof ${className}`.trim(), "data-has-quote": quote ? "" : void 0, children: [
+    (lead || stats.length > 0) && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-proof__numbers", children: [
+      lead && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-proof__lead", children: [
+        /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-web-proof__value", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("span", { children: lead.value }),
+          lead.of && /* @__PURE__ */ jsxRuntime.jsx("small", { children: lead.of })
+        ] }),
+        /* @__PURE__ */ jsxRuntime.jsx(Body, { emphasis: "medium", children: lead.label }),
+        ratio !== void 0 && /* @__PURE__ */ jsxRuntime.jsx(
+          "span",
+          {
+            className: "uipack-web-proof__meter",
+            role: "img",
+            "aria-label": `${Math.round(ratio * 1e3) / 10}%`,
+            style: { "--ratio": ratio }
+          }
+        )
+      ] }),
+      stats.length > 0 && /* @__PURE__ */ jsxRuntime.jsx("dl", { className: "uipack-web-proof__stats", children: stats.map((s, i) => /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx("dt", { children: s.label }),
+        /* @__PURE__ */ jsxRuntime.jsx("dd", { children: s.value })
+      ] }, i)) })
+    ] }),
+    quote && /* @__PURE__ */ jsxRuntime.jsxs("figure", { className: "uipack-web-quote", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("blockquote", { children: /* @__PURE__ */ jsxRuntime.jsx("p", { children: quote.text }) }),
+      /* @__PURE__ */ jsxRuntime.jsxs("figcaption", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx("strong", { children: quote.name }),
+        quote.role && /* @__PURE__ */ jsxRuntime.jsx("span", { children: quote.role })
+      ] })
+    ] })
+  ] });
+}
+var Check = () => /* @__PURE__ */ jsxRuntime.jsx("svg", { viewBox: "0 0 16 16", "aria-hidden": "true", className: "uipack-web-plan__check", children: /* @__PURE__ */ jsxRuntime.jsx(
+  "path",
+  {
+    d: "M3.5 8.5l3 3 6-7",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "1.75",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }
+) });
+function PricingPlans({ plans, note, className = "" }) {
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-pricing ${className}`.trim(), children: [
+    /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "uipack-web-pricing__plans", style: { "--plans": Math.min(3, plans.length) }, children: plans.map((p, i) => /* @__PURE__ */ jsxRuntime.jsxs("li", { className: "uipack-web-plan", "data-featured": p.featured ? "" : void 0, children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-plan__head", children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 3, size: 1, className: "uipack-web-plan__name", children: p.name }),
+        p.badge && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-plan__badge", children: p.badge })
+      ] }),
+      /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-web-plan__price", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("span", { children: p.price }),
+        p.period && /* @__PURE__ */ jsxRuntime.jsx("small", { children: p.period })
+      ] }),
+      p.summary && /* @__PURE__ */ jsxRuntime.jsx(Body, { children: p.summary }),
+      p.features && p.features.length > 0 && /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "uipack-web-plan__features", children: p.features.map((f, j) => /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Check, {}),
+        /* @__PURE__ */ jsxRuntime.jsx("span", { children: f })
+      ] }, j)) }),
+      p.action && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-plan__action", children: /* @__PURE__ */ jsxRuntime.jsx(CtaButton, { href: p.action.href, variant: p.featured ? "primary" : "secondary", children: p.action.label }) })
+    ] }, i)) }),
+    note && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-pricing__note", children: note })
+  ] });
+}
+function ClosingCta({ title, intro, action, note, eyebrow, id, className = "" }) {
+  const headingId = id ? `${id}-title` : void 0;
+  return /* @__PURE__ */ jsxRuntime.jsx("section", { id, className: `uipack-web-closing ${className}`.trim(), "aria-labelledby": headingId, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-closing__inner", children: [
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-closing__copy", children: [
+      eyebrow && /* @__PURE__ */ jsxRuntime.jsx(Eyebrow, { children: eyebrow }),
+      /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 2, size: 5, id: headingId, children: title }),
+      intro && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-closing__intro", children: intro })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-closing__action", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("a", { className: "uipack-web-cta uipack-web-closing__cta", "data-size": "lg", "data-variant": "primary", href: action.href, children: action.label }),
+      note && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-closing__note", children: note })
+    ] })
+  ] }) });
+}
+function SiteFooter({ brand, links = [], note, children, className = "" }) {
+  return /* @__PURE__ */ jsxRuntime.jsx("footer", { className: `uipack-web-footer ${className}`.trim(), children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-footer__inner", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-footer__brand", children: brand }),
+    links.length > 0 && /* @__PURE__ */ jsxRuntime.jsx("nav", { "aria-label": "Footer", className: "uipack-web-footer__nav", children: /* @__PURE__ */ jsxRuntime.jsx("ul", { children: links.map((l, i) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsx("a", { href: l.href, children: l.label }) }, i)) }) }),
+    children && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-footer__extra", children }),
+    note && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-footer__note", children: note })
+  ] }) });
+}
+function Brand({ children, href }) {
+  return href ? /* @__PURE__ */ jsxRuntime.jsx("a", { className: "uipack-web-brand", href, children }) : /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-brand", children });
 }
 function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger = 45 }) {
   const ref2 = react.useRef(null);
@@ -299,11 +420,12 @@ function StarHero({
   children,
   noise = 0.07,
   headingId,
-  align = "center"
+  align = "start"
 }) {
+  const backdrop = visual ?? (children ? null : /* @__PURE__ */ jsxRuntime.jsx(StarChart, { values }));
   return /* @__PURE__ */ jsxRuntime.jsxs("section", { className: "uipack-web-hero", "data-align": align, "aria-labelledby": headingId, children: [
     /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__backdrop", "aria-hidden": "true" }),
-    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__visual", children: visual ?? /* @__PURE__ */ jsxRuntime.jsx(StarChart, { values }) }),
+    backdrop && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__visual", children: backdrop }),
     noise > 0 && /* @__PURE__ */ jsxRuntime.jsx(NoiseLayer, { opacity: noise }),
     /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-hero__copy", children: [
       eyebrow && /* @__PURE__ */ jsxRuntime.jsx(Eyebrow, { children: eyebrow }),
@@ -2180,6 +2302,8 @@ exports.Aurora = Aurora;
 exports.BackgroundFrame = BackgroundFrame;
 exports.BeamLines = BeamLines;
 exports.Body = Body;
+exports.Brand = Brand;
+exports.ClosingCta = ClosingCta;
 exports.CtaButton = CtaButton;
 exports.DEFAULT_STAR_VALUES = DEFAULT_STAR_VALUES;
 exports.DEFAULT_TIMING = DEFAULT_TIMING;
@@ -2206,6 +2330,8 @@ exports.Marquee = Marquee;
 exports.MaskedStar = MaskedStar;
 exports.NoiseLayer = NoiseLayer;
 exports.NumberTicker = NumberTicker;
+exports.PricingPlans = PricingPlans;
+exports.Proof = Proof;
 exports.Reveal = Reveal;
 exports.RevealText = RevealText;
 exports.RhymeIcon = RhymeIcon;
@@ -2214,6 +2340,7 @@ exports.SMOOTH_SCROLL_PREVENT_ATTR = SMOOTH_SCROLL_PREVENT_ATTR;
 exports.SPACE = SPACE;
 exports.ScrollTransform = ScrollTransform;
 exports.Section = Section;
+exports.SiteFooter = SiteFooter;
 exports.SmoothScroll = SmoothScroll;
 exports.SpotlightCard = SpotlightCard;
 exports.StarChart = StarChart;

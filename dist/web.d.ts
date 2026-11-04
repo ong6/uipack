@@ -1,6 +1,7 @@
 import * as react from 'react';
 import { ReactNode, ElementType, CSSProperties, ButtonHTMLAttributes, RefObject, ReactElement } from 'react';
-import { U as UiStyleId, a as UiStyleMeta } from './style-CBYPyqqV.js';
+import { F as FigureChrome } from './context-Baoq0bBr.js';
+import { U as UiStyleId, a as UiStyleMeta } from './style-D_zKtqes.js';
 export { a as easeOutExpo } from './math-DL8QKXOl.js';
 
 interface WebSurfaceProps {
@@ -18,9 +19,14 @@ interface WebSurfaceProps {
     uiStyle?: UiStyleId;
     /** "style" applies the style's layout defaults (set by WebPage); "shared" or omitted, none. */
     layout?: "style" | "shared";
+    /**
+     * Tool chrome for figures inside: "quiet" (default) drops Open canvas and one-entry legends,
+     * which belong to articles and docs, not a marketing page. "full" keeps them.
+     */
+    figureChrome?: FigureChrome;
 }
 /** Root of a web page or panel: carries the style's tokens, background and type. */
-declare function WebSurface({ children, theme, as: Tag, className, style, uiStyle, layout }: WebSurfaceProps): react.JSX.Element;
+declare function WebSurface({ children, theme, as: Tag, className, style, uiStyle, layout, figureChrome, }: WebSurfaceProps): react.JSX.Element;
 interface GridProps {
     children: ReactNode;
     className?: string;
@@ -41,7 +47,7 @@ declare function GridItem({ children, span, className, as: Tag }: GridItemProps)
 interface WebPageContext {
     uiStyle: UiStyleId;
     layout: "style" | "shared";
-    /** The style's layout defaults; under layout="shared", the shared defaults (demo hero, centred, cards). */
+    /** The layout defaults: shared (demo hero, start edge, cards) unless the page opted into layout="style". */
     defaults: UiStyleMeta["layout"];
 }
 interface WebPageProps {
@@ -52,24 +58,27 @@ interface WebPageProps {
     /** The style; default "technical". */
     uiStyle?: UiStyleId;
     /**
-     * "style" (default): the section order and layout defaults the style recommends (`uiStyles[].prefers`
-     * and `.layout`). "shared": one order and layout for every style, so a swap changes tokens only.
+     * "shared" (default): the page's own section order (the keys of `sections`) and one layout in
+     * every style, so a swap changes tokens and ornaments only. "style" is an explicit opt-in to the
+     * style's own sequence and layout defaults (`uiStyles[].prefers` and `.layout`).
      */
     layout?: "style" | "shared";
     /** Or an explicit order of section ids. */
     order?: readonly string[];
     theme?: "light" | "dark";
+    /** Figure tool chrome on the page (WebSurface `figureChrome`): "quiet" by default. */
+    figureChrome?: WebSurfaceProps["figureChrome"];
     className?: string;
     style?: CSSProperties;
     as?: ElementType;
     children?: ReactNode;
 }
 /**
- * A whole web page in one style: the style's tokens and ornaments (WebSurface), its recommended
- * section sequence, and its layout defaults (`data-ui-layout="style"`, which web-styles.css reads:
- * Technical sets the hero and section heads on the start edge and the steps as numbered rows).
+ * A whole web page in one style: the style's tokens and ornaments (WebSurface) over the page's own
+ * section order. Swapping `uiStyle` keeps every section, its words and its position. Opt into a
+ * style's own sequence and layout defaults with `layout="style"` (`data-ui-layout="style"`).
  */
-declare function WebPage({ sections, nav, uiStyle, layout, order, theme, className, style, as, children, }: WebPageProps): react.JSX.Element;
+declare function WebPage({ sections, nav, uiStyle, layout, order, theme, figureChrome, className, style, as, children, }: WebPageProps): react.JSX.Element;
 
 /** Landing style type scale: 16px base, Major Third (x1.25), expressed in rem. */
 declare const TYPE_BASE_PX = 16;
@@ -159,13 +168,20 @@ interface GlassNavProps {
     /** Brand mark or name; wrap it in a link yourself if it should navigate. */
     brand: ReactNode;
     links: GlassNavLink[];
-    /** The page's one goal, repeated from the hero. */
+    /**
+     * The page's one goal, repeated from the hero. It sits in the bar while there is room; in a
+     * container narrower than 520px it moves into the open menu, so a long label never pushes the
+     * Menu toggle off a phone screen.
+     */
     cta?: ReactNode;
     /** Stick to the top of the scroll container. Default true. */
     sticky?: boolean;
     label?: string;
 }
-/** Sticky bar with a subtle backdrop blur and a hairline border. Links fold into a menu in narrow containers. */
+/**
+ * Sticky bar with a subtle backdrop blur and a hairline border. Links fold into a menu below 720px
+ * (brand on the left, Menu on the right edge), and the CTA joins them below 520px.
+ */
 declare function GlassNav({ brand, links, cta, sticky, label }: GlassNavProps): react.JSX.Element;
 
 interface SectionProps {
@@ -200,9 +216,14 @@ interface FeatureGridProps {
     features: Feature[];
     /** Upgrade the quiet cards to pointer-following spotlight cards. */
     spotlight?: boolean;
+    /**
+     * Number the cards 1, 2, 3 in the style's display face and accent: for steps, where order is
+     * the point. The number is decorative (aria-hidden); the list is already ordered.
+     */
+    numbered?: boolean;
 }
 /** Three across at 12 columns, two at 8, one at 4. */
-declare function FeatureGrid({ features, spotlight }: FeatureGridProps): react.JSX.Element;
+declare function FeatureGrid({ features, spotlight, numbered }: FeatureGridProps): react.JSX.Element;
 
 interface SpotlightCardProps {
     children: ReactNode;
@@ -216,6 +237,107 @@ interface SpotlightCardProps {
  * focus shows the same highlight, fixed at the top edge.
  */
 declare function SpotlightCard({ children, href, className }: SpotlightCardProps): react.JSX.Element;
+
+interface ProofStat {
+    value: ReactNode;
+    /** What the number measures, in a few words. */
+    label: ReactNode;
+}
+interface ProofLead extends ProofStat {
+    /** The denominator, set small beside the value: "of 1,263". */
+    of?: ReactNode;
+    /** 0–1: draws a meter under the number (1,240 / 1,263 → 0.982). */
+    ratio?: number;
+}
+interface ProofQuote {
+    /** The quote itself, without quotation marks: the block draws them (the opening one hangs). */
+    text: ReactNode;
+    name: ReactNode;
+    role?: ReactNode;
+}
+interface ProofProps {
+    /** The headline number: large, with its denominator and an optional meter. */
+    lead?: ProofLead;
+    /** Two to four supporting numbers in a ruled row. */
+    stats?: ProofStat[];
+    quote?: ProofQuote;
+    className?: string;
+}
+/**
+ * Proof in one block: the headline number (with what it is out of), supporting numbers, and a
+ * named quote in a framed card beside them (stacked below 1024px). Put it inside a `Section`.
+ */
+declare function Proof({ lead, stats, quote, className }: ProofProps): react.JSX.Element;
+interface PricingAction {
+    label: ReactNode;
+    href: string;
+}
+interface PricingPlan {
+    name: ReactNode;
+    /** "$9", "$0", "Free". Set in the display face. */
+    price: ReactNode;
+    /** "a month", "/month". */
+    period?: ReactNode;
+    /** One line: who the plan is for. */
+    summary?: ReactNode;
+    /** What the plan includes, one short line each. */
+    features?: ReactNode[];
+    /** The plan's button, pinned to the card's foot. */
+    action?: PricingAction;
+    /** The plan to steer towards: accent frame and the primary button. */
+    featured?: boolean;
+    /** A short tag on the featured plan: "Unlimited". */
+    badge?: ReactNode;
+}
+interface PricingPlansProps {
+    plans: PricingPlan[];
+    /** Fine print under the plans: "Prices in USD. Cancel any time." */
+    note?: ReactNode;
+    className?: string;
+}
+/**
+ * Plan cards that share a row and a height: name, price, who it is for, what it includes and its
+ * own button at the foot. One to three plans fill the column evenly (one column below 640px).
+ */
+declare function PricingPlans({ plans, note, className }: PricingPlansProps): react.JSX.Element;
+interface ClosingCtaProps {
+    title: ReactNode;
+    intro?: ReactNode;
+    /** The page's one goal, a third time. */
+    action: PricingAction;
+    /** Small reassurance under the button: "No sign-up. Runs in your browser." */
+    note?: ReactNode;
+    eyebrow?: ReactNode;
+    id?: string;
+    className?: string;
+}
+/**
+ * The closing call to action: a full-bleed band painted with the style's band roles (Technical:
+ * ink with mint; Graphical: signal orange; Landing: deep indigo), the claim on the start edge and
+ * the button beside it (below it on a phone).
+ */
+declare function ClosingCta({ title, intro, action, note, eyebrow, id, className }: ClosingCtaProps): react.JSX.Element;
+interface SiteFooterProps {
+    /** The wordmark, as in the nav. */
+    brand: ReactNode;
+    links?: {
+        label: ReactNode;
+        href: string;
+    }[];
+    /** Fine print: "© 2026 Ledgerline". */
+    note?: ReactNode;
+    /** Anything else for the footer's end edge (a style or theme switcher). */
+    children?: ReactNode;
+    className?: string;
+}
+/** The page's foot: brand and links on one rule, fine print below. The page ends here, not mid-section. */
+declare function SiteFooter({ brand, links, note, children, className }: SiteFooterProps): react.JSX.Element;
+interface BrandProps {
+    children: ReactNode;
+    href?: string;
+}
+/** A text wordmark in the style's display face (Graphical's caps, Landing's serif, Technical's sans). */
+declare function Brand({ children, href }: BrandProps): react.JSX.Element;
 
 interface RevealTextProps {
     /** Words reveal one by one. */
@@ -240,7 +362,11 @@ interface StarHeroProps {
     subtitle?: ReactNode;
     /** The CTA(s). Put the page's one goal here, then repeat it in the nav and at the end. */
     actions?: ReactNode;
-    /** The star of the show. Defaults to StarChart; pass a still, an SVG, or a 3D scene. */
+    /**
+     * A backdrop visual behind the copy: a still, an SVG or a 3D scene. Without one, a StarChart is
+     * drawn only when the hero has no proof below the copy; with a demo or figure as `children`,
+     * that proof is the star, and a second curve would only peek out around it.
+     */
     visual?: ReactNode;
     /** Values for the default StarChart, taken from your product story. */
     values?: number[];
@@ -249,7 +375,7 @@ interface StarHeroProps {
     /** Noise opacity; 0 turns it off. */
     noise?: number;
     headingId?: string;
-    /** Layout: copy centred over the proof (default) or set on the start edge. */
+    /** Layout: copy on the start edge, in the sections' column (default), or centred over the proof. */
     align?: "center" | "start";
 }
 /**
@@ -1352,4 +1478,4 @@ interface RssFeedOptions {
  */
 declare function rssFeed({ title, link, description, items, self, language }: RssFeedOptions): string;
 
-export { AI_CRAWLERS, type AiCrawler, type AiCrawlerAgent, type AiCrawlerPolicy, type AiCrawlerPreset, type ArticleAuthor, type ArticleOptions, Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, Body, type BodyProps, type BreadcrumbItem, type BuildCrawlFilesOptions, type CollectionPageOptions, type CrawlFiles, type CrawlPage, type CrawlRule, type CrawlerPurpose, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, FAQ, type FAQProps, type FaqItem, type Feature, FeatureGrid, type FeatureGridProps, type FontPreloadOptions, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, type HeadTag, HeadTags, type HeadTagsProps, Heading, type HeadingProps, type InViewOptions, type ItemListEntry, type ItemListOptions, JsonLd, type JsonLdDocument, type JsonLdNode, type JsonLdProps, LLMS_FULL_PATH, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type OfferOptions, type OrganizationOptions, type PageMetaOptions, type PaintTransitionOptions, type PersonOptions, type ProductOptions, type ProfilePageOptions, type RatingOptions, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, type RssFeedOptions, type RssItem, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, type SchemaDate, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SmoothScroll, type SmoothScrollController, type SmoothScrollHandle, type SmoothScrollOptions, type SmoothScrollProps, type SmoothScrollTarget, type SmoothScrollToOptions, type SoftwareApplicationOptions, type SoftwareSourceCodeOptions, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeRole, type TypeStep, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, type WebFontFace, WebPage, type WebPageContext, type WebPageOptions, type WebPageProps, type WebSiteOptions, WebSurface, type WebSurfaceProps, type WheelLike, article, breadcrumbList, buildCrawlFiles, collectionPage, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, itemList, jsonLd, jsonLdTag, llmsFullTxt, llmsTxt, normalizeWheel, offer, organization, pageMeta, person, personRef, product, profilePage, ref, resolveAiCrawlers, robotsTxt, rssFeed, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, softwareSourceCode, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webPage, webSite, withPaintTransition, withViewTransition };
+export { AI_CRAWLERS, type AiCrawler, type AiCrawlerAgent, type AiCrawlerPolicy, type AiCrawlerPreset, type ArticleAuthor, type ArticleOptions, Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, Body, type BodyProps, Brand, type BrandProps, type BreadcrumbItem, type BuildCrawlFilesOptions, ClosingCta, type ClosingCtaProps, type CollectionPageOptions, type CrawlFiles, type CrawlPage, type CrawlRule, type CrawlerPurpose, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, FAQ, type FAQProps, type FaqItem, type Feature, FeatureGrid, type FeatureGridProps, type FontPreloadOptions, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, type HeadTag, HeadTags, type HeadTagsProps, Heading, type HeadingProps, type InViewOptions, type ItemListEntry, type ItemListOptions, JsonLd, type JsonLdDocument, type JsonLdNode, type JsonLdProps, LLMS_FULL_PATH, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type OfferOptions, type OrganizationOptions, type PageMetaOptions, type PaintTransitionOptions, type PersonOptions, type PricingAction, type PricingPlan, PricingPlans, type PricingPlansProps, type ProductOptions, type ProfilePageOptions, Proof, type ProofLead, type ProofProps, type ProofQuote, type ProofStat, type RatingOptions, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, type RssFeedOptions, type RssItem, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, type SchemaDate, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SiteFooter, type SiteFooterProps, SmoothScroll, type SmoothScrollController, type SmoothScrollHandle, type SmoothScrollOptions, type SmoothScrollProps, type SmoothScrollTarget, type SmoothScrollToOptions, type SoftwareApplicationOptions, type SoftwareSourceCodeOptions, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeRole, type TypeStep, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, type WebFontFace, WebPage, type WebPageContext, type WebPageOptions, type WebPageProps, type WebSiteOptions, WebSurface, type WebSurfaceProps, type WheelLike, article, breadcrumbList, buildCrawlFiles, collectionPage, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, itemList, jsonLd, jsonLdTag, llmsFullTxt, llmsTxt, normalizeWheel, offer, organization, pageMeta, person, personRef, product, profilePage, ref, resolveAiCrawlers, robotsTxt, rssFeed, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, softwareSourceCode, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webPage, webSite, withPaintTransition, withViewTransition };
