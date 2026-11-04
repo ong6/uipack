@@ -28,14 +28,34 @@ Shared building blocks, so a new part does not grow its own copy:
 
 ## A new visual style
 
-A style is an implementation, not a label: register it only when its renderer exists.
+A style is one value set plus its doc. Layouts and components read roles (`var(--ui-ink-2)`), so a
+new style needs no component changes unless it adds a part. The contract is
+[docs/system/style.md](system/style.md#the-role-contract).
 
-1. Tokens and rules in a scoped stylesheet under the style's root class (Landing: `src/web/web.css` under `.uipack-web`; Mechanism: `src/mechanism/mechanism.css` under `.uipack-mechanism`). Never recolour Technical.
-2. The components or renderer that draw in it, with real example data.
-3. A guidance doc (`docs/<style>.md`): when to use it, type roles, palette, motion rules. Add a row to the style table in `docs/design-direction.md` and its type roles to the typography line in `AGENTS.md`.
-4. Register it in `visualStyles` in `playground/catalog.ts` (`id`, `name`, `description`, `tokens`, `guidance`). `/styles` renders a card from it; `test/catalog.test.tsx` checks both files exist.
-5. A page that shows it (next recipe), with `styleName` on its `libraryPages` entry so the shell's context line names the style.
-6. Evidence: screenshots at 1440 and 390 in both themes in `docs/`, referenced from the doc.
+1. **The value set**: `src/styles/<id>.css`, one `[data-ui-style="<id>"]` block inside
+   `@layer uipack.tokens`, defining every core role (`test/style-values.ts` lists them;
+   `test/style-roles.test.tsx` fails on a missing one). Colours are `light-dark(light, dark)`
+   pairs. Optional roles (Technical's tuned `--ui-node`, `--ui-slide-*`…) stay unset: components
+   fall back to a core role. Never edit Technical's values to get a look.
+2. **Ornament slots**, still values: `--ui-backdrop` (and `-mask`), `--ui-frame-border`,
+   `--ui-frame-shadow`, `--ui-card-shadow`, `--ui-marker-size/-shape/-color`, `--ui-section-rule`,
+   `--ui-grain`, `--ui-glow`, `--ui-cta-shadow(-hover)`, `--ui-em-style/-color`, `--ui-star-fill`.
+   A slot never takes space, so a swap keeps every box.
+3. **Faces**, if the style brings one: a latin-subset woff2 in `src/web/fonts/` with its OFL
+   licence, an `@font-face` (`font-display: swap`) and a metric-matched `… Fallback` face
+   (`size-adjust`, `ascent-override`) in `src/web/fonts.css`. A face is fetched only when the style
+   uses it.
+4. **Register it**: add the file to `styleFiles` in `scripts/css-bundles.ts`, the id to `UiStyleId`
+   and `uiStyles` in `src/style.ts` (summary, fonts, the display face to preload, the web section
+   order it `prefers`), `STYLE_FILES` in `test/style-values.ts`, `visualStyles` in
+   `playground/catalog.ts` (`/styles` renders its card) and the `styles` lists of the pages that
+   switch (`/web`, the decks).
+5. **Tests that must pass**: contrast in both themes (`test/style-roles.test.tsx`), the swap boxes
+   (`e2e/style-swap.spec.ts`), no hex outside `src/styles` (`test/no-hex.test.tsx`).
+6. **Evidence and docs**: a row in the style table of `docs/system/style.md`, its section in
+   `docs/web-principles.md`, screenshots of `/web?style=<id>` and a deck at 1440 and 390 in both
+   themes under `docs/styles/`, and its `/web` mobile LCP against Landing's (budget: within 10%,
+   CLS under 0.05).
 7. `npm run build` and commit `dist/` with the change.
 
 ## A new playground page

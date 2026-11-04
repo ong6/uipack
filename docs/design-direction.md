@@ -9,7 +9,7 @@ UIPACK is a library of reusable visual explanations. The browser organizes two i
 | Axis | Values |
 | --- | --- |
 | Content type | Diagrams (architecture diagrams, charts, article parts), Presentations, Motion & 3D, Web, Foundations (styles, icons and marks) |
-| Visual style | Technical diagrams; Landing for web pages; Mechanism for crafted isometric machines; Studio, Paper, Kinetic, Cartoon, Realistic and Abstract for 3D objects |
+| Visual style | Technical (default: diagrams, decks, and the default web style); Landing (the generic landing page); Graphical (poster web pages and decks); Mechanism for crafted isometric machines; Studio, Paper, Kinetic, Cartoon, Realistic and Abstract for 3D objects. Technical, Landing and Graphical are value sets of one role layer (`src/styles`), swapped with `style` / `data-ui-style` |
 
 The Styles collection is the index of visual languages. Light and dark are themes within a style. Do not use “slides” as the name for all 3D content. The existing `uipack/slides` API and `/slides` URL remain compatibility paths.
 
@@ -17,7 +17,7 @@ The Styles collection is the index of visual languages. Light and dark are theme
 
 ## Landing style
 
-Landing is the web style of `uipack/web`, shown at `/web`. Its tokens live in `src/web/web.css` under `.uipack-web`: a neutral page, a secondary tint for bands and panels, and one indigo accent reserved for calls to action and the hero's star. It sets type in three self-hosted roles (Instrument Serif display from heading step 4, IBM Plex Sans text, IBM Plex Mono labels and data) on a 16px × 1.25 scale, with opacity hierarchy (100/87/66), a 12/8/4 container grid and 8-pt spacing. It never recolours Technical, and the shared shell keeps its Technical navigation. The rules and their sources are in [web principles](web-principles.md).
+Landing is the generic landing option of `uipack/web`, shown at `/web?style=landing`; the default web style is Technical. Its values live in `src/styles/landing.css`: a neutral page, a secondary tint for bands and panels, and one indigo accent reserved for calls to action and the hero's star. It sets type in three self-hosted roles (Instrument Serif display from heading step 4, IBM Plex Sans text, IBM Plex Mono labels and data) on a 16px × 1.25 scale, with opacity hierarchy (100/87/66), a 12/8/4 container grid and 8-pt spacing. It never recolours Technical, and the shared shell keeps its Technical navigation. The rules and their sources are in [web principles](web-principles.md).
 
 ## Mechanism style
 

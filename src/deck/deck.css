@@ -8,7 +8,7 @@
   --deck-fg: var(--ui-ink);
   --deck-muted: var(--ui-slide-ink-2, var(--ui-ink-2));
   --deck-rule: var(--ui-line-solid, var(--ui-line));
-  --deck-accent: var(--ui-accent);
+  --deck-accent: var(--ui-accent-ink, var(--ui-accent));
   --deck-node: var(--ui-node, var(--ui-surface));
   --deck-sans: var(--ui-slide-font-text, var(--ui-font-text));
   --deck-mono: var(--ui-slide-font-label, var(--ui-font-label));
@@ -52,7 +52,7 @@
   --deck-fg: var(--ui-ink);
   --deck-muted: var(--ui-slide-ink-2, var(--ui-ink-2));
   --deck-rule: var(--ui-line-solid, var(--ui-line));
-  --deck-accent: var(--ui-accent);
+  --deck-accent: var(--ui-accent-ink, var(--ui-accent));
   --deck-node: var(--ui-node, var(--ui-surface));
 }
 .uipack-deck [data-tone="ink"] {

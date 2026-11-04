@@ -1,7 +1,42 @@
-# Web principles (Landing style)
+# Web principles
 
 The rules behind `uipack/web`. Each has the rule, the number to hold it to, and where it came from.
 The components enforce what they can; the rest is on the page author.
+
+## Web styles
+
+`uipack/web` renders in three styles, one value set each in `src/styles` (see
+[docs/system/style.md](system/style.md)). Pick one with `<WebSurface style="…">` (or
+`data-ui-style` on any ancestor, set before paint by `styleBootScript()`). A swap changes tokens and
+ornament slots only: the same sections, boxes and reading order (`e2e/style-swap.spec.ts`). Each
+style recommends a section order (`uiStyles[].prefers`); the shared order works in all three.
+
+| Style | Use it for | Palette | Faces | Ornaments | Recommended order |
+| --- | --- | --- | --- | --- | --- |
+| **Technical** (default, ours) | Product and project pages that should read like junxiong.dev's figures | Paper `#f6f5f1`, ink `#1a1c1a`, one forest accent `#205f49` (dark: `#0a100d`, `#e8ece9`, mint `#71dcb2`) | IBM Plex Sans (headlines at 600, −0.02em), IBM Plex Mono labels | Dotted-grid backdrop, masked; 2px-radius accent square before eyebrows; 1px section rules; thin frames, 6px radius, no shadow, no glow or grain; headline emphasis in the accent, not italic | Hero (start-aligned) → mechanism figure → proof → steps → FAQ → pricing |
+| **Landing** (generic) | When the brief is a conventional SaaS landing page | Neutral `#f7f7f4`, lavender band `#ebe9f4`, indigo CTA `#4b3fd6` | Instrument Serif display from step 4, Plex Sans, Plex Mono | Grain and glass, soft shadows, 16px cards, round pills, accent glow under the CTA and spotlight | Hero (centred, demo) → steps → mechanism → proof → FAQ → pricing |
+| **Graphical** | Launches, events, campaigns: a page that should look like a poster | Bone `#f1eee6`, black ink, one signal orange `#f24a00` (text uses `#b23700`) | Anton display in caps at 1.3× the scale, Plex Sans, Plex Mono | The accent disc and a ruled band in the hero backdrop; the disc again as every eyebrow marker; 2px ink frames with hard 6px offset shadows; 0 radius; 2px section rules; no glow or grain | Hero → proof (big numbers) → steps → mechanism → pricing → FAQ |
+
+Shared finish rules hold in every style: one accent, glow only for selection (Landing's ambient
+glow is its documented exception, and its spotlight turns off elsewhere), contrast of 4.5:1 for
+small text in both themes (`test/style-roles.test.tsx`), the finished state under reduced motion.
+Graphical avoids the generic-AI tropes on purpose: no purple, no gradient blobs, no glass, no
+emoji icons, no rounded-everything; Landing keeps some of them because that is its brief.
+
+**Performance per style** (Lighthouse 13.5 mobile, built playground, median of 3, 2026-11-04;
+`/web?style=…`): Technical LCP 2.27 s, 101 KB of fonts in 5 files; Landing 2.57 s, 143 KB in 7;
+Graphical 2.42 s, 119 KB in 6. CLS 0 in all three. The same method on the commit before the
+styles measured Landing at 2.42 s; the 0.15 s is the role layer and the two extra stylesheets on
+the first view. Each style preloads only its own display face, at 720px and wider (Landing:
+Instrument Serif; Graphical: Anton; Technical: none).
+
+Evidence: the first screen of `/web` in each style at 1440 and 390, both themes, is in
+[`docs/styles/`](styles/) (`web-<style>-<width>-<theme>.png`), with the same deck slides in each
+style (`deck-moves-<style>-<theme>.png`, `deck-consulting-<style>-<theme>.png`).
+
+Rules 5 (grain and glass), 9 (the indigo 60/30/10) and 19–21 (the three Landing faces) describe
+Landing. Technical and Graphical replace them with the table above; every other rule applies to all
+three.
 
 | Code | Source |
 | --- | --- |
