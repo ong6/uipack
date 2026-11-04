@@ -1,11 +1,15 @@
+/* Two palettes, both from the roles (src/styles): the warm docs palette by default (optional
+   --ui-docs-warm-* roles; a style that leaves them unset falls back to its core roles), and the
+   style's own palette with palette="technical". Dark follows data-theme only. */
 .uipack-docs {
-  --docs-ink: #29231f;
-  --docs-muted: #655c55;
-  --docs-rule: rgba(41, 35, 31, 0.18);
-  --docs-surface: #fbf8f2;
-  --docs-surface-strong: #e7ded2;
-  --docs-accent: #234ea2;
-  --docs-focus: #315db6;
+  --docs-ink: var(--ui-docs-warm-ink, var(--ui-ink));
+  --docs-muted: var(--ui-docs-warm-ink-2, var(--ui-ink-2));
+  --docs-rule: var(--ui-docs-warm-line, var(--ui-line-soft));
+  --docs-surface: var(--ui-docs-warm-surface, var(--ui-surface));
+  --docs-surface-strong: var(--ui-docs-warm-surface-strong, var(--ui-surface-2));
+  --docs-accent: var(--ui-docs-warm-accent, var(--ui-accent));
+  --docs-focus: var(--ui-docs-warm-focus, var(--ui-accent));
+  color-scheme: light;
   color: var(--docs-ink);
   font-family: var(--font-sans, system-ui, sans-serif);
   position: relative;
@@ -13,35 +17,19 @@
 }
 
 .uipack-docs[data-theme="dark"] {
-  --docs-ink: #f2ece3;
-  --docs-muted: #aea198;
-  --docs-rule: rgba(242, 236, 227, 0.2);
-  --docs-surface: #211d1a;
-  --docs-surface-strong: #37302b;
-  --docs-accent: #9ab6ff;
-  --docs-focus: #9ab6ff;
+  color-scheme: dark;
 }
 
 /* The Technical palette (docs/design-direction.md), opt-in with palette="technical" so hosts on
-   the warm default keep their look. Selectors match the warm ones' weight plus one attribute. */
+   the warm default keep their look. In another style it is that style's palette. */
 .uipack-docs[data-palette="technical"] {
-  --docs-ink: #1a1c1a;
-  --docs-muted: #5c625e;
-  --docs-rule: rgba(26, 28, 26, 0.16);
-  --docs-surface: #edefec;
-  --docs-surface-strong: #e2e6e2;
-  --docs-accent: #205f49;
-  --docs-focus: #205f49;
-}
-
-.uipack-docs[data-palette="technical"][data-theme="dark"] {
-  --docs-ink: #e8ece9;
-  --docs-muted: #9aa39e;
-  --docs-rule: rgba(232, 236, 233, 0.18);
-  --docs-surface: #14201b;
-  --docs-surface-strong: #1d2c26;
-  --docs-accent: #71dcb2;
-  --docs-focus: #71dcb2;
+  --docs-ink: var(--ui-ink);
+  --docs-muted: var(--ui-ink-2);
+  --docs-rule: var(--ui-docs-line, var(--ui-line-soft));
+  --docs-surface: var(--ui-docs-surface, var(--ui-surface-2));
+  --docs-surface-strong: var(--ui-docs-surface-strong, var(--ui-surface-2));
+  --docs-accent: var(--ui-accent);
+  --docs-focus: var(--ui-accent);
 }
 
 .uipack-docs *,

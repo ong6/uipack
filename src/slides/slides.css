@@ -1,31 +1,25 @@
 .uipack-slide-player,
 .uipack-slide-scene {
-  --slide-bg: #0e1512;
-  --slide-surface: #14201b;
-  --slide-ink: #e8ece9;
-  --slide-muted: #9aa39e;
-  --slide-rule: #43544b;
-  --slide-accent: #71dcb2;
-  --slide-request: #8ea4ff;
-  --slide-response: #5fd39b;
-  --slide-change: #c39aff;
-  --slide-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --slide-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  /* The 3D player's names for the roles (src/styles). Dark unless data-theme="light". */
+  --slide-bg: var(--ui-surface);
+  --slide-surface: var(--ui-surface-raised);
+  --slide-ink: var(--ui-ink);
+  --slide-muted: var(--ui-ink-2);
+  --slide-rule: var(--ui-slide-line, var(--ui-line));
+  --slide-accent: var(--ui-accent);
+  --slide-request: var(--ui-flow-request);
+  --slide-response: var(--ui-flow-response);
+  --slide-change: var(--ui-flow-change);
+  --slide-sans: var(--ui-font-text);
+  --slide-mono: var(--ui-font-label);
+  color-scheme: dark;
   color: var(--slide-ink);
   font-family: var(--slide-sans);
   box-sizing: border-box;
 }
 .uipack-slide-player[data-theme="light"],
 .uipack-slide-scene[data-theme="light"] {
-  --slide-bg: #ffffff;
-  --slide-surface: #ffffff;
-  --slide-ink: #1a1c1a;
-  --slide-muted: #5c625e;
-  --slide-rule: #bac3bc;
-  --slide-accent: #205f49;
-  --slide-request: #4f6fe6;
-  --slide-response: #3fb27f;
-  --slide-change: #9a63e0;
+  color-scheme: light;
 }
 .uipack-slide-player *,
 .uipack-slide-scene * {
@@ -337,7 +331,7 @@
 }
 .uipack-slide-error {
   padding: 24px;
-  border: 1px solid #c97979;
+  border: 1px solid var(--ui-data-neg);
 }
 @container (max-width:800px) {
   .uipack-slide-player__body {
@@ -509,12 +503,12 @@
   min-height: 460px;
   display: flex;
   flex-direction: column;
-  background: #0e1512;
-  color: #e8ece9;
+  color-scheme: dark;
+  background: var(--ui-surface);
+  color: var(--ui-ink);
 }
 .uipack-scene-card[data-theme="light"] {
-  background: #fff;
-  color: #1a1c1a;
+  color-scheme: light;
 }
 .uipack-scene-card > .uipack-slide-scene {
   flex: 1;
@@ -534,7 +528,7 @@
   padding: 8px 12px;
   /* The host's control tokens when it has them (the playground's --show-*), else the same values:
      a hairline in the card's ink, never the brightest line on the card. */
-  border: 1px solid var(--show-rule, rgba(232, 236, 233, 0.22));
+  border: 1px solid var(--show-rule, var(--ui-line));
   border-radius: var(--show-control-radius, 6px);
   background: inherit;
   color: inherit;
@@ -542,16 +536,16 @@
   cursor: pointer;
 }
 .uipack-scene-card[data-theme="light"] .uipack-scene-card__open {
-  border-color: var(--show-rule, rgba(26, 28, 26, 0.22));
+  border-color: var(--show-rule, var(--ui-line));
 }
 .uipack-scene-card__open:hover {
-  border-color: var(--slide-accent, #71dcb2);
+  border-color: var(--slide-accent, var(--ui-accent));
 }
 .uipack-scene-card > .uipack-slide-scene .uipack-slide-inspect {
   right: 148px;
   justify-items: end;
 }
 .uipack-scene-card__open:focus-visible {
-  outline: 2px solid #3fb27f;
+  outline: 2px solid var(--ui-flow-response);
   outline-offset: 2px;
 }

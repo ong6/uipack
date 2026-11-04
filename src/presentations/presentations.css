@@ -1,22 +1,19 @@
 .uipack-slide-starter,
 .uipack-speaker-guide {
-  --presentation-bg: #f6f5f1;
-  --presentation-surface: #ffffff;
-  --presentation-ink: #1a1c1a;
-  --presentation-muted: #5c625e;
-  --presentation-rule: #bac3bc;
-  --presentation-accent: #205f49;
+  /* The starters' names for the roles (src/styles). */
+  --presentation-bg: var(--ui-paper);
+  --presentation-surface: var(--ui-surface-raised);
+  --presentation-ink: var(--ui-ink);
+  --presentation-muted: var(--ui-slide-ink-2, var(--ui-ink-2));
+  --presentation-rule: var(--ui-slide-line, var(--ui-line));
+  --presentation-accent: var(--ui-accent);
+  color-scheme: light;
   color: var(--presentation-ink);
-  font-family: var(--font-sans, "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+  font-family: var(--ui-slide-font-text, var(--ui-font-text));
 }
 .uipack-slide-starter[data-theme="dark"],
 .uipack-speaker-guide[data-theme="dark"] {
-  --presentation-bg: #0a100d;
-  --presentation-surface: #14201b;
-  --presentation-ink: #e8ece9;
-  --presentation-muted: #aeb8b2;
-  --presentation-rule: #43544b;
-  --presentation-accent: #71dcb2;
+  color-scheme: dark;
 }
 .uipack-slide-starter *,
 .uipack-slide-starter *::before,

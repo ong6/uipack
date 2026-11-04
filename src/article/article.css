@@ -15,14 +15,14 @@
 .uipack-callout,
 .uipack-change,
 .uipack-links {
-  --ua-fg: var(--uipack-fg, #1a1c1a);
-  --ua-raised: var(--uipack-surface-raised, #f4f6f4);
-  --ua-accent: var(--uipack-accent, #205f49);
-  --ua-sans: var(--uipack-sans, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
-  --ua-mono: var(--uipack-mono, ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+  --ua-fg: var(--uipack-fg, var(--ui-ink));
+  --ua-raised: var(--uipack-surface-raised, var(--ui-surface-2));
+  --ua-accent: var(--uipack-accent, var(--ui-accent));
+  --ua-sans: var(--uipack-sans, var(--ui-font-text));
+  --ua-mono: var(--uipack-mono, var(--ui-font-label));
   /* Uppercase labels: mono by default, like the diagrams; a host may map them to sans. */
   --ua-label-font: var(--uipack-label-font, var(--ua-mono));
-  --ua-radius: var(--uipack-radius, 6px);
+  --ua-radius: var(--uipack-radius, var(--ui-radius));
   /* Space above and below each block in running prose, and between parts
      that follow each other (TermList, ChangeNote, Callout, LinkList). */
   --ua-gap: var(--uipack-article-gap, 1.5rem);
@@ -34,14 +34,13 @@
   --ua-label: color-mix(in srgb, var(--ua-fg) 80%, transparent); /* uppercase label */
   --ua-group: color-mix(in srgb, var(--ua-fg) 50%, transparent); /* dashed group edge, 3:1 */
   --ua-hair: color-mix(in srgb, var(--ua-fg) 22%, transparent); /* hairline rules */
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"])
     :is(.uipack-notecard, .uipack-cluster, .uipack-layerhead, .uipack-terms, .uipack-callout, .uipack-change, .uipack-links) {
-    --ua-fg: var(--uipack-fg, #e8ece9);
-    --ua-raised: var(--uipack-surface-raised, #1b2a24);
-    --ua-accent: var(--uipack-accent, #71dcb2);
+    color-scheme: dark;
   }
 }
 [data-theme="dark"]
@@ -55,9 +54,7 @@
   .uipack-change,
   .uipack-links
 )[data-theme="dark"] {
-  --ua-fg: var(--uipack-fg, #e8ece9);
-  --ua-raised: var(--uipack-surface-raised, #1b2a24);
-  --ua-accent: var(--uipack-accent, #71dcb2);
+  color-scheme: dark;
 }
 
 .uipack-notecard,

@@ -1,21 +1,24 @@
 /* uipack theme. Every colour is a custom property on the figure root, so a
    host overrides by setting the variable on any ancestor (or on .uipack). */
 .uipack {
-  --uipack-fg: #1a1c1a;
-  --uipack-muted: #5c625e;
-  --uipack-bg: #ffffff;
-  --uipack-surface: #ffffff;
-  --uipack-grid: rgba(26, 28, 26, 0.16);
-  --uipack-border: rgba(26, 28, 26, 0.22);
-  --uipack-accent: #205f49;
-  --uipack-token-request: #4f6fe6;
-  --uipack-token-response: #3fb27f;
-  --uipack-token-change: #9a63e0;
-  --uipack-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  --uipack-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --uipack-radius: 6px;
-  --uipack-stroke: 1.25;
+  /* Private names, kept for hosts that override them; each reads a role (src/styles). */
+  --uipack-fg: var(--ui-ink);
+  --uipack-muted: var(--ui-ink-2);
+  --uipack-bg: var(--ui-surface);
+  --uipack-surface: var(--ui-surface-raised);
+  --uipack-surface-raised: var(--ui-surface-2);
+  --uipack-grid: var(--ui-line-soft);
+  --uipack-border: var(--ui-line);
+  --uipack-accent: var(--ui-accent);
+  --uipack-token-request: var(--ui-flow-request);
+  --uipack-token-response: var(--ui-flow-response);
+  --uipack-token-change: var(--ui-flow-change);
+  --uipack-mono: var(--ui-font-label);
+  --uipack-sans: var(--ui-font-text);
+  --uipack-radius: var(--ui-radius);
+  --uipack-stroke: var(--ui-stroke);
 
+  color-scheme: light;
   color: var(--uipack-fg);
   background: var(--uipack-bg);
   font-family: var(--uipack-sans);
@@ -26,38 +29,25 @@
   box-sizing: border-box;
 }
 
+/* Dark: the same roles, their dark halves. Follows the OS unless the page says light, and a
+   data-theme on the page or the figure. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .uipack {
-    --uipack-fg: #e8ece9;
-    --uipack-muted: #9aa39e;
-    --uipack-bg: #0e1512;
-    --uipack-surface: #14201b;
-    --uipack-grid: rgba(232, 236, 233, 0.16);
-    --uipack-border: rgba(232, 236, 233, 0.22);
-    --uipack-accent: #71dcb2;
-    --uipack-token-request: #8ea4ff;
-    --uipack-token-response: #5fd39b;
-    --uipack-token-change: #c39aff;
+    color-scheme: dark;
     --uipack-chip-tint: 0.28;
     --uipack-chip-soft: 0.12;
   }
 }
 [data-theme="dark"] .uipack,
 .uipack[data-theme="dark"] {
-  --uipack-fg: #e8ece9;
-  --uipack-muted: #9aa39e;
-  --uipack-bg: #0e1512;
-  --uipack-surface: #14201b;
-  --uipack-grid: rgba(232, 236, 233, 0.16);
-  --uipack-border: rgba(232, 236, 233, 0.22);
-  --uipack-accent: #71dcb2;
-  --uipack-token-request: #8ea4ff;
-  --uipack-token-response: #5fd39b;
-  --uipack-token-change: #c39aff;
+  color-scheme: dark;
   /* Filled chips (a busy slot, an overloaded flag) are a 28% wash here, so their pale label holds
      4.5:1 or better on every token hue. */
   --uipack-chip-tint: 0.28;
   --uipack-chip-soft: 0.12;
+}
+.uipack[data-theme="light"] {
+  color-scheme: light;
 }
 
 .uipack *,
@@ -215,19 +205,6 @@
   }
 }
 
-/* Surface one step up, for hover. */
-.uipack {
-  --uipack-surface-raised: #f4f6f4;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .uipack {
-    --uipack-surface-raised: #1b2a24;
-  }
-}
-[data-theme="dark"] .uipack,
-.uipack[data-theme="dark"] {
-  --uipack-surface-raised: #1b2a24;
-}
 
 /* Interaction. Every element that names a flow or a kind carries a data-state
    set by the figure: "hit" for the hovered flow or kind, "dim" for the rest.

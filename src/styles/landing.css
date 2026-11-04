@@ -1,0 +1,97 @@
+/* Landing — the generic landing option: neutral page, lavender secondary band, indigo CTA accent,
+   editorial serif headlines from heading step 4, 16px cards, grain and glass for depth. Kept for
+   pages that should read as a conventional SaaS landing page; the default web style is Technical.
+   Guide: docs/web-principles.md. */
+@layer uipack.tokens {
+  [data-ui-style="landing"] {
+    --ui-paper: light-dark(#f7f7f4, #0d0d13);
+    --ui-surface: light-dark(#ffffff, #16161f);
+    --ui-surface-raised: light-dark(#ffffff, #16161f);
+    --ui-surface-2: light-dark(#ebe9f4, #1e1c2e);
+    --ui-ink: light-dark(rgb(18 18 23), rgb(242 242 247));
+    --ui-ink-2: color-mix(in srgb, var(--ui-ink) 87%, transparent);
+    --ui-ink-3: color-mix(in srgb, var(--ui-ink) 66%, transparent);
+    --ui-line: color-mix(in srgb, var(--ui-ink) 24%, transparent);
+    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 12%, transparent);
+    --ui-accent: light-dark(#4b3fd6, #a99dff);
+    --ui-on-accent: light-dark(#ffffff, #0d0d13);
+    --ui-accent-surface: light-dark(#5a4fe0, #b8aeff);
+    --ui-accent-ink-2: light-dark(#e4e1ff, #2a2466);
+    --ui-accent-line: light-dark(#7a70e6, #8a7ee8);
+    --ui-flow-request: light-dark(#4f6fe6, #8ea4ff);
+    --ui-flow-response: light-dark(#3fb27f, #5fd39b);
+    --ui-flow-change: light-dark(#9a63e0, #c39aff);
+    --ui-data-pos: light-dark(#1a7a52, #33a979);
+    --ui-data-neg: light-dark(#c0482f, #d4623f);
+    --ui-data-context: light-dark(#8e8e99, #6b6b78);
+    --ui-data-1: light-dark(#4b3fd6, #a99dff);
+    --ui-data-2: light-dark(#1a7a52, #33a979);
+    --ui-data-3: light-dark(#c27a1f, #c0832b);
+    --ui-data-4: light-dark(#5c5c6b, #9a9aab);
+    --ui-on-data-1: light-dark(#ffffff, #0d0d13);
+    --ui-on-data-2: light-dark(#ffffff, #0d0d13);
+    --ui-on-data-3: light-dark(#121217, #0d0d13);
+    --ui-on-data-4: light-dark(#ffffff, #0d0d13);
+    --ui-inv-paper: light-dark(#16161f, #f2f2f7);
+    --ui-inv-surface: light-dark(#1e1c2e, #ffffff);
+    --ui-inv-ink: light-dark(#f2f2f7, #121217);
+    --ui-inv-ink-2: light-dark(#b9b9c6, #4a4a57);
+    --ui-inv-line: light-dark(#3a3850, #c9c7d8);
+    --ui-inv-accent: light-dark(#a99dff, #4b3fd6);
+
+    --ui-font-display: "Instrument Serif", "Instrument Serif Fallback", ui-serif, Georgia, "Times New Roman", serif;
+    --ui-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --ui-font-label: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --ui-display-weight: 400;
+    --ui-display-tracking: -0.01em;
+    --ui-display-case: none;
+    --ui-label-tracking: 0.08em;
+    --ui-radius: 16px;
+    --ui-radius-sm: 12px;
+    --ui-radius-xs: 4px;
+    --ui-radius-pill: 999px;
+    --ui-nav-fill: light-dark(rgb(247 247 244 / 0.72), rgb(13 13 19 / 0.66));
+    --ui-nav-blur: blur(14px) saturate(1.4);
+    --ui-stroke: 1.25;
+    --ui-rule-width: 1px;
+    --ui-density: 1;
+    --ui-type-ratio: 1.25;
+    --ui-measure: 65ch;
+    --ui-ease-settle: cubic-bezier(0.2, 0.7, 0.2, 1);
+    --ui-ease-travel: cubic-bezier(0.55, 0, 0.15, 1);
+    --ui-dur-quick: 160ms;
+    --ui-dur-base: 320ms;
+    --ui-dur-slow: 560ms;
+
+    /* Ornaments: quiet depth. The grain and aurora are components (GrainOverlay, Aurora); the
+       backdrop slot itself stays empty. */
+    --ui-backdrop: none;
+    --ui-backdrop-mask: none;
+    --ui-frame-border: 1px solid var(--ui-line-soft);
+    --ui-card-shadow: none;
+    --ui-frame-shadow:
+      0 1px 2px light-dark(rgb(18 18 23 / 0.06), rgb(0 0 0 / 0.4)),
+      0 24px 48px -24px light-dark(rgb(18 18 23 / 0.28), rgb(0 0 0 / 0.7));
+    --ui-marker-size: 0px;
+    --ui-marker-shape: 0px;
+    --ui-marker-color: transparent;
+    --ui-section-rule: none;
+    --ui-grain: 1;
+    --ui-glow: 1;
+    --ui-cta-shadow:
+      0 1px 0 rgb(255 255 255 / 0.18) inset,
+      0 8px 20px -10px var(--ui-accent);
+    --ui-cta-shadow-hover:
+      0 1px 0 rgb(255 255 255 / 0.18) inset,
+      0 12px 28px -10px var(--ui-accent);
+    --ui-em-style: italic;
+    --ui-em-color: inherit;
+    --ui-star-fill: 1;
+    --ui-display-scale: 1;
+
+    --ui-web-font-text: var(--ui-font-text);
+    --ui-web-font-label: var(--ui-font-label);
+    --ui-slide-font-text: var(--ui-font-text);
+    --ui-slide-font-label: var(--ui-font-label);
+  }
+}

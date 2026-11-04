@@ -66,7 +66,7 @@ export const icons = {
   gateway: (
     <>
       <path d="M2 8h12M2 8l3-3M2 8l3 3M14 8l-3-3M14 8l-3 3" />
-      <rect x="6" y="5.5" width="4" height="5" rx="1" fill="var(--uipack-surface, #fff)" />
+      <rect x="6" y="5.5" width="4" height="5" rx="1" fill="var(--uipack-surface, var(--ui-surface-raised))" />
     </>
   ),
   lock: (

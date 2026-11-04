@@ -77,8 +77,8 @@ function Ghost({
       {fade ? (
         <mask id={`${uid}-fade`} maskUnits="userSpaceOnUse" x={port.x} y={port.y} width={port.width} height={port.height}>
           <linearGradient id={`${uid}-fade-g`} gradientUnits="userSpaceOnUse" x1={fade.from} x2={fade.to} y1={0} y2={0}>
-            <stop offset="0" stopColor="#fff" stopOpacity="0" />
-            <stop offset="1" stopColor="#fff" />
+            <stop offset="0" stopColor="white" stopOpacity="0" />
+            <stop offset="1" stopColor="white" />
           </linearGradient>
           <rect x={port.x} y={port.y} width={port.width} height={port.height} fill={`url(#${uid}-fade-g)`} />
         </mask>

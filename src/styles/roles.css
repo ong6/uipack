@@ -1,0 +1,82 @@
+/* uipack/styles.css — the role layer (docs/system/style.md, "The role contract").
+   Layouts and components ask for a role (var(--ui-ink-2)); a style answers with values. A style
+   is one value set, keyed by data-ui-style on any element; the closest one wins because custom
+   properties inherit. Technical is the default on :root.
+
+   Light and dark are two halves of one value set: every colour role is light-dark(light, dark),
+   resolved where it is used from the element's color-scheme. An entry keeps its own rule for
+   when it is dark (the figure follows prefers-color-scheme and data-theme, the deck only its own
+   data-theme) and sets color-scheme there; data-ui-theme does the same for any element.
+
+   Cascade layers, lowest first: tokens (these value sets), base (entry rules), layout (regions
+   and grids), ornaments (what a style paints into a layout's named slots). An unlayered host
+   rule beats all four, so a host override needs no !important. */
+@layer uipack.tokens, uipack.base, uipack.layout, uipack.ornaments;
+
+@layer uipack.tokens {
+  /* Optional roles: a style may tune these; components fall back to a core role when a style
+     leaves them unset. Reset on every style host so a tuned value never leaks into a child that
+     uses another style. */
+  [data-ui-style] {
+    --ui-node: initial;
+    --ui-line-solid: initial;
+    --ui-accent-ink: initial;
+    --ui-data-neg-ink: initial;
+    --ui-inv-node: initial;
+    --ui-slide-ink-2: initial;
+    --ui-slide-line: initial;
+    --ui-slide-font-text: initial;
+    --ui-slide-font-label: initial;
+    --ui-slide-font-display: initial;
+    --ui-web-font-text: initial;
+    --ui-web-font-label: initial;
+    --ui-web-font-display: initial;
+    --ui-docs-surface: initial;
+    --ui-docs-surface-strong: initial;
+    --ui-docs-line: initial;
+    --ui-docs-warm-ink: initial;
+    --ui-docs-warm-ink-2: initial;
+    --ui-docs-warm-line: initial;
+    --ui-docs-warm-surface: initial;
+    --ui-docs-warm-surface-strong: initial;
+    --ui-docs-warm-accent: initial;
+    --ui-docs-warm-focus: initial;
+    --ui-print-line: initial;
+    --ui-print-ink-2: initial;
+    --ui-alert: initial;
+    --ui-warn: initial;
+    --ui-letterbox: initial;
+    --ui-mech-text: initial;
+    --ui-mech-muted: initial;
+    --ui-mech-top: initial;
+    --ui-mech-shade-0: initial;
+    --ui-mech-shade-1: initial;
+    --ui-mech-shade-2: initial;
+    --ui-mech-shade-3: initial;
+    --ui-mech-cavity: initial;
+    --ui-mech-lit-top: initial;
+    --ui-mech-lit-shade: initial;
+    --ui-mech-mid: initial;
+    --ui-mech-lo: initial;
+    --ui-mech-faint: initial;
+    --ui-mech-halo: initial;
+    --ui-mech-dot: initial;
+    --ui-object-paper: initial;
+    --ui-object-glow: initial;
+    --ui-object-ink: initial;
+    --ui-object-ink-2: initial;
+    --ui-object-line: initial;
+    --ui-object-edge: initial;
+    --ui-object-control-ink-2: initial;
+  }
+
+  /* Theme hosts: any element can set its colour theme for everything inside it. An explicit
+     data-ui-theme outranks an entry's own theme rule (important in a layer beats every normal
+     declaration), so <Figure theme> and data-ui-theme never fight. */
+  [data-ui-theme="light"] {
+    color-scheme: light !important;
+  }
+  [data-ui-theme="dark"] {
+    color-scheme: dark !important;
+  }
+}

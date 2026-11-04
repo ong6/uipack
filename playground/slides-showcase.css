@@ -114,8 +114,8 @@
     margin: -4px -4px -20px;
     scroll-padding-block: 8px 56px;
     /* A soft edge says the list goes on; the bottom padding lets the last item clear it. */
-    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
-    mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
+    -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 56px), transparent);
+    mask-image: linear-gradient(to bottom, black calc(100% - 56px), transparent);
   }
 }
 

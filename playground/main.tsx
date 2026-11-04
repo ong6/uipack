@@ -1,7 +1,11 @@
 /// <reference types="vite/client" />
 import { lazy, Suspense, StrictMode, useEffect, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
-// Only the shell's CSS is eager; each page imports its own (theme.css with the figures), which loads with its chunk.
+// Only the role layer, Technical's values and the shell's CSS are eager; each page imports its own
+// (theme.css with the figures; the other styles' value sets where a page can switch style), which
+// loads with its chunk.
+import "../src/styles/roles.css";
+import "../src/styles/technical.css";
 import "./showcase.css";
 import { libraryGroups, pageDefs, pageHeading, pageHref, resolvePage } from "./catalog";
 import { pageModules, routePath, routes } from "./routes";

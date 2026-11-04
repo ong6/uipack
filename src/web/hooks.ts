@@ -192,8 +192,8 @@ const PAINT_SWITCHING = "theme-switching";
 export function paintTransitionCss(width: number, height: number, duration = 750): string {
   const drips = rollDrips(width, height, duration);
   const name = `uipack-paint-${Date.now().toString(36)}-${(paintCount++).toString(36)}`;
-  const solid = "linear-gradient(#000, #000)";
-  const tip = "radial-gradient(circle closest-side, #000 96%, transparent)";
+  const solid = "linear-gradient(black, black)";
+  const tip = "radial-gradient(circle closest-side, black 96%, transparent)";
   const images = [solid, ...drips.flatMap(() => [solid, tip])].join(", ");
   const keyframes = Array.from({ length: PAINT_STEPS + 1 }, (_, i) => {
     const t = (i / PAINT_STEPS) * duration;

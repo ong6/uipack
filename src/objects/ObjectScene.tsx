@@ -1,3 +1,4 @@
+import { studioObjectPalettes } from "../styles/scene-palettes";
 import { useEffect, useRef, useState } from "react";
 import {
   objectDirectionIndex,
@@ -35,10 +36,8 @@ export interface ObjectSceneProps {
    */
   modelUrl?: string;
 }
-export const objectPalettes = {
-  light: { paper: 0xf3efe7, ink: 0x292e32, muted: 0x9aaba5, accent: 0x205f49 },
-  dark: { paper: 0xd8ded9, ink: 0x394c48, muted: 0x81958a, accent: 0x71bda3 },
-};
+/** The Studio scenes' material palette per theme (src/styles/scene-palettes.ts). */
+export const objectPalettes = studioObjectPalettes;
 const styles = {
   scene: "uipack-object",
   canvas: "uipack-object__canvas",

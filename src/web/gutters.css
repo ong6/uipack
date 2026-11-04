@@ -1,7 +1,7 @@
 /* Drifting gutters (also its own entry, uipack/web-gutters.css, for pages that use
    nothing else from uipack/web): a dotted grid sliding upward in the side gutters of a centred column.
    Fixed to the viewport (or the nearest transformed ancestor), so it may live outside
-   .uipack-web: colour falls back from --web-gutters-color to --web-accent to the light accent.
+   .uipack-web: colour falls back from --web-gutters-color to --web-accent to the style's accent role.
    Hidden below 1280px by default (DriftingGutters minViewport adds its own rule otherwise). */
 .uipack-web-gutters {
   display: none;
@@ -19,20 +19,20 @@
   overflow: hidden;
   pointer-events: none;
   z-index: 0;
-  color: var(--web-gutters-color, var(--web-accent, #4b3fd6));
-  --gutters-mask-y: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  color: var(--web-gutters-color, var(--web-accent, var(--ui-accent)));
+  --gutters-mask-y: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
 }
 .uipack-web-gutters__side[data-side="left"] {
   left: 0;
-  -webkit-mask-image: linear-gradient(to left, transparent, #000 45%), var(--gutters-mask-y);
-  mask-image: linear-gradient(to left, transparent, #000 45%), var(--gutters-mask-y);
+  -webkit-mask-image: linear-gradient(to left, transparent, black 45%), var(--gutters-mask-y);
+  mask-image: linear-gradient(to left, transparent, black 45%), var(--gutters-mask-y);
   -webkit-mask-composite: source-in;
   mask-composite: intersect;
 }
 .uipack-web-gutters__side[data-side="right"] {
   right: 0;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 45%), var(--gutters-mask-y);
-  mask-image: linear-gradient(to right, transparent, #000 45%), var(--gutters-mask-y);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 45%), var(--gutters-mask-y);
+  mask-image: linear-gradient(to right, transparent, black 45%), var(--gutters-mask-y);
   -webkit-mask-composite: source-in;
   mask-composite: intersect;
 }

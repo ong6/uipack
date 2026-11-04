@@ -12,37 +12,23 @@
   --uipack-cx-grid: color-mix(in srgb, var(--deck-fg) 12%, transparent);
   --uipack-cx-axis: color-mix(in srgb, var(--deck-fg) 55%, transparent);
   --uipack-cx-tint: color-mix(in srgb, var(--deck-accent) 9%, var(--deck-node));
-  --uipack-cx-context: #8b928d;
-  --uipack-cx-total: color-mix(in srgb, var(--deck-fg) 70%, var(--deck-node));
-  --uipack-cx-good: #1a7a52;
-  --uipack-cx-bad: #c0482f;
-  --uipack-cx-good-ink: #205f49;
-  --uipack-cx-bad-ink: #a8431f;
-  --uipack-cx-s1: #1a7a52;
-  --uipack-cx-s2: #4f6fe6;
-  --uipack-cx-s3: #c27a1f;
-  --uipack-cx-s4: #9a63e0;
-  --uipack-cx-s1-ink: #ffffff;
-  --uipack-cx-s2-ink: #ffffff;
-  --uipack-cx-s3-ink: #1a1c1a;
-  --uipack-cx-s4-ink: #1a1c1a;
-}
-.uipack-deck[data-theme="dark"] .uipack-cx-slide,
-.uipack-deck:not([data-theme="dark"]) [data-tone="ink"] .uipack-cx-slide {
-  --uipack-cx-context: #6b756f;
-  --uipack-cx-total: color-mix(in srgb, var(--deck-fg) 52%, var(--deck-node));
-  --uipack-cx-good: #33a979;
-  --uipack-cx-bad: #d4623f;
-  --uipack-cx-good-ink: #71dcb2;
-  --uipack-cx-bad-ink: #f0936c;
-  --uipack-cx-s1: #33a979;
-  --uipack-cx-s2: #5f7fef;
-  --uipack-cx-s3: #c0832b;
-  --uipack-cx-s4: #9f72e6;
-  --uipack-cx-s1-ink: #0a100d;
-  --uipack-cx-s2-ink: #0a100d;
-  --uipack-cx-s3-ink: #0a100d;
-  --uipack-cx-s4-ink: #0a100d;
+  --uipack-cx-context: var(--ui-data-context);
+  --uipack-cx-total: light-dark(
+    color-mix(in srgb, var(--deck-fg) 70%, var(--deck-node)),
+    color-mix(in srgb, var(--deck-fg) 52%, var(--deck-node))
+  );
+  --uipack-cx-good: var(--ui-data-pos);
+  --uipack-cx-bad: var(--ui-data-neg);
+  --uipack-cx-good-ink: var(--ui-accent);
+  --uipack-cx-bad-ink: var(--ui-data-neg-ink, var(--ui-data-neg));
+  --uipack-cx-s1: var(--ui-data-1);
+  --uipack-cx-s2: var(--ui-data-2);
+  --uipack-cx-s3: var(--ui-data-3);
+  --uipack-cx-s4: var(--ui-data-4);
+  --uipack-cx-s1-ink: var(--ui-on-data-1);
+  --uipack-cx-s2-ink: var(--ui-on-data-2);
+  --uipack-cx-s3-ink: var(--ui-on-data-3);
+  --uipack-cx-s4-ink: var(--ui-on-data-4);
 }
 
 /* ---------- Frame ---------- */

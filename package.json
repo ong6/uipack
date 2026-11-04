@@ -48,6 +48,7 @@
       }
     },
     "./browser.css": "./dist/browser.css",
+    "./styles.css": "./dist/styles.css",
     "./theme.css": "./dist/theme.css",
     "./assets/manifest.json": "./assets/manifest.json",
     "./assets/objects/*": "./assets/objects/*",

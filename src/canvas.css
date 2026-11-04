@@ -1,14 +1,15 @@
 /* The dialog lives in <body>, outside .uipack, so it takes the host page's
    font. Colours come from the --uipack-* tokens: a host's values reach it from
-   an ancestor, or CanvasView copies them from the figure it shows. The
-   literals are the Technical defaults for each theme. */
+   an ancestor, or CanvasView copies them from the figure it shows (light-dark()
+   values, resolved by the dialog's own color-scheme). Unset, the roles. */
 .uipack-canvas-dialog {
-  --canvas-bg: var(--uipack-bg, #ffffff);
-  --canvas-surface: var(--uipack-surface, #ffffff);
-  --canvas-fg: var(--uipack-fg, #1a1c1a);
-  --canvas-muted: var(--uipack-muted, #5c625e);
-  --canvas-border: var(--uipack-border, rgba(26, 28, 26, 0.22));
-  --canvas-accent: var(--uipack-accent, #205f49);
+  --canvas-bg: var(--uipack-bg, var(--ui-surface));
+  --canvas-surface: var(--uipack-surface, var(--ui-surface-raised));
+  --canvas-fg: var(--uipack-fg, var(--ui-ink));
+  --canvas-muted: var(--uipack-muted, var(--ui-ink-2));
+  --canvas-border: var(--uipack-border, var(--ui-line));
+  --canvas-accent: var(--uipack-accent, var(--ui-accent));
+  color-scheme: light;
   box-sizing: border-box;
   width: calc(100vw - 32px);
   max-width: none;
@@ -22,12 +23,7 @@
   font-family: inherit;
 }
 .uipack-canvas-dialog[data-theme="dark"] {
-  --canvas-bg: var(--uipack-bg, #0e1512);
-  --canvas-surface: var(--uipack-surface, #14201b);
-  --canvas-fg: var(--uipack-fg, #e8ece9);
-  --canvas-muted: var(--uipack-muted, #9aa39e);
-  --canvas-border: var(--uipack-border, rgba(232, 236, 233, 0.22));
-  --canvas-accent: var(--uipack-accent, #71dcb2);
+  color-scheme: dark;
 }
 .uipack-canvas-dialog::backdrop {
   background: rgb(0 0 0 / 0.65);

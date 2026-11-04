@@ -5,20 +5,21 @@
    src/theme.css. */
 .uipack-span,
 .uipack-stack {
-  --sp-fg: var(--uipack-fg, #1a1c1a);
-  --sp-muted: var(--uipack-muted, #5c625e);
-  --sp-bg: var(--uipack-bg, #ffffff);
-  --sp-surface: var(--uipack-surface, #ffffff);
-  --sp-raised: var(--uipack-surface-raised, #f4f6f4);
-  --sp-border: var(--uipack-border, rgba(26, 28, 26, 0.22));
-  --sp-accent: var(--uipack-accent, #205f49);
-  --sp-change: var(--uipack-token-change, #9a63e0);
-  --sp-mono: var(--uipack-mono, ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
-  --sp-sans: var(--uipack-sans, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+  --sp-fg: var(--uipack-fg, var(--ui-ink));
+  --sp-muted: var(--uipack-muted, var(--ui-ink-2));
+  --sp-bg: var(--uipack-bg, var(--ui-surface));
+  --sp-surface: var(--uipack-surface, var(--ui-surface-raised));
+  --sp-raised: var(--uipack-surface-raised, var(--ui-surface-2));
+  --sp-border: var(--uipack-border, var(--ui-line));
+  --sp-accent: var(--uipack-accent, var(--ui-accent));
+  --sp-change: var(--uipack-token-change, var(--ui-flow-change));
+  --sp-mono: var(--uipack-mono, var(--ui-font-label));
+  --sp-sans: var(--uipack-sans, var(--ui-font-text));
   --sp-sticky: var(--uipack-span-sticky-top, 0px);
   --sp-logo-bg: var(--uipack-span-logo-bg, var(--sp-surface));
   --sp-logo-filter: var(--uipack-span-logo-filter, none);
   --sp-band-mix: 10%;
+  color-scheme: light;
 
   /* Derived once; they follow whichever theme the base tokens resolve to. */
   --sp-hair: var(--uipack-span-hairline, color-mix(in srgb, var(--sp-fg) 10%, transparent));
@@ -34,7 +35,7 @@
 
   /* The site's diagram node: a raised fill, a 1.25px edge at 70% ink, the
      shared radius; tracked uppercase labels at 80% ink; dashed group boxes. */
-  --sp-radius: var(--uipack-radius, 6px);
+  --sp-radius: var(--uipack-radius, var(--ui-radius));
   --sp-node-fill: var(--sp-raised);
   --sp-node-edge: color-mix(in srgb, var(--sp-fg) 70%, transparent);
   --sp-edge: var(--sp-node-edge);
@@ -55,14 +56,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .uipack-span,
   :root:not([data-theme="light"]) .uipack-stack {
-    --sp-fg: var(--uipack-fg, #e8ece9);
-    --sp-muted: var(--uipack-muted, #9aa39e);
-    --sp-bg: var(--uipack-bg, #0e1512);
-    --sp-surface: var(--uipack-surface, #14201b);
-    --sp-raised: var(--uipack-surface-raised, #1b2a24);
-    --sp-border: var(--uipack-border, rgba(232, 236, 233, 0.22));
-    --sp-accent: var(--uipack-accent, #71dcb2);
-    --sp-change: var(--uipack-token-change, #c39aff);
+    color-scheme: dark;
     --sp-logo-bg: var(--uipack-span-logo-bg, var(--sp-fg));
     --sp-logo-filter: var(--uipack-span-logo-filter, none);
     --sp-band-mix: 20%;
@@ -72,14 +66,7 @@
 .uipack-span[data-theme="dark"],
 [data-theme="dark"] .uipack-stack,
 .uipack-stack[data-theme="dark"] {
-  --sp-fg: var(--uipack-fg, #e8ece9);
-  --sp-muted: var(--uipack-muted, #9aa39e);
-  --sp-bg: var(--uipack-bg, #0e1512);
-  --sp-surface: var(--uipack-surface, #14201b);
-  --sp-raised: var(--uipack-surface-raised, #1b2a24);
-  --sp-border: var(--uipack-border, rgba(232, 236, 233, 0.22));
-  --sp-accent: var(--uipack-accent, #71dcb2);
-  --sp-change: var(--uipack-token-change, #c39aff);
+  color-scheme: dark;
   --sp-logo-bg: var(--uipack-span-logo-bg, var(--sp-fg));
   --sp-logo-filter: var(--uipack-span-logo-filter, none);
   --sp-band-mix: 20%;

@@ -1,29 +1,8 @@
+import { technicalSlidePalettes } from "../styles/scene-palettes";
 import type { ResolvedNodePose, SlideNode, SlidePalette, SlideStop, SlideStory, SlideTheme } from "./types";
 
-export const slidePalettes: Record<SlideTheme, SlidePalette> = {
-  dark: {
-    background: "#0e1512",
-    surface: "#14201b",
-    ink: "#e8ece9",
-    muted: "#9aa39e",
-    rule: "#43544b",
-    accent: "#71dcb2",
-    request: "#8ea4ff",
-    response: "#5fd39b",
-    change: "#c39aff",
-  },
-  light: {
-    background: "#ffffff",
-    surface: "#ffffff",
-    ink: "#1a1c1a",
-    muted: "#5c625e",
-    rule: "#bac3bc",
-    accent: "#205f49",
-    request: "#4f6fe6",
-    response: "#3fb27f",
-    change: "#9a63e0",
-  },
-};
+// Technical's values, mirrored for WebGL in src/styles/scene-palettes.ts.
+export const slidePalettes: Record<SlideTheme, SlidePalette> = technicalSlidePalettes;
 export function clampStop(index: number, count: number): number {
   return Math.max(0, Math.min(Math.max(0, count - 1), Number.isFinite(index) ? Math.trunc(index) : 0));
 }

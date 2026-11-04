@@ -1,6 +1,7 @@
 {
   "profile": "node16",
   "excludeEntrypoints": [
+    "./styles.css",
     "./browser.css",
     "./theme.css",
     "./slides.css",

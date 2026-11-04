@@ -11,6 +11,7 @@ import type { FigureProps } from "../Figure";
 import type { LegendItem } from "../Legend";
 import type { FigureMeta, PresetFigureProps } from "../presets/shared";
 import { Token, TOKEN_SHAPE } from "../tokens";
+import { technicalFonts, technicalValues, type TechnicalColors } from "../styles/technical-values";
 
 export type StaticTheme = "light" | "dark";
 
@@ -31,36 +32,26 @@ export interface Palette {
   sans: string;
 }
 
-export const LIGHT: Palette = {
-  fg: "#1a1c1a",
-  muted: "#5c625e",
-  bg: "#ffffff",
-  surface: "#ffffff",
-  "surface-raised": "#f4f6f4",
-  grid: "rgba(26, 28, 26, 0.16)",
-  border: "rgba(26, 28, 26, 0.22)",
-  accent: "#205f49",
-  "token-request": "#4f6fe6",
-  "token-response": "#3fb27f",
-  "token-change": "#9a63e0",
-  mono: "ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace",
-  sans: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
-};
+const paletteOf = (c: TechnicalColors): Palette => ({
+  fg: c.ink,
+  muted: c["ink-2"],
+  bg: c.surface,
+  surface: c["surface-raised"],
+  "surface-raised": c["surface-2"],
+  grid: c["line-soft"],
+  border: c.line,
+  accent: c.accent,
+  "token-request": c["flow-request"],
+  "token-response": c["flow-response"],
+  "token-change": c["flow-change"],
+  mono: technicalFonts.mono,
+  sans: technicalFonts.sans,
+});
 
-export const DARK: Palette = {
-  ...LIGHT,
-  fg: "#e8ece9",
-  muted: "#9aa39e",
-  bg: "#0e1512",
-  surface: "#14201b",
-  "surface-raised": "#1a2a23",
-  grid: "rgba(232, 236, 233, 0.16)",
-  border: "rgba(232, 236, 233, 0.22)",
-  accent: "#71dcb2",
-  "token-request": "#8ea4ff",
-  "token-response": "#5fd39b",
-  "token-change": "#c39aff",
-};
+/** Technical's light and dark values (src/styles/technical-values.ts, the mirror of technical.css). */
+export const LIGHT: Palette = paletteOf(technicalValues.light);
+
+export const DARK: Palette = paletteOf(technicalValues.dark);
 
 export interface StaticFigure {
   /** The wide drawing. */
@@ -109,7 +100,7 @@ function stripBase(t: Partial<Palette> & { base?: StaticTheme }): Partial<Palett
 /** Replace every `var(--uipack-x)` with the palette literal. Unknown names fall back to currentColor. */
 export function inlineVars(markup: string, p: Palette): string {
   return markup.replace(
-    /var\(--uipack-([a-z-]+)(?:,\s*[^)]*)?\)/g,
+    /var\(--uipack-([a-z-]+)(?:,\s*(?:[^()]|\([^()]*\))*)?\)/g,
     (_, k: string) => (p as unknown as Record<string, string>)[k] ?? "currentColor",
   );
 }

@@ -5,66 +5,51 @@
    hi for the subject, and one lit part (the forest or mint accent) the reader
    watches. The drawing rules are adapted from Anatomy's ISO_CSS. */
 .uipack-mechanism {
-  --anatomy-page: #f6f5f1;
-  --anatomy-card: #ffffff;
-  --anatomy-text: #3d423f;
-  --anatomy-strong: #1a1c1a;
-  --anatomy-muted: #5c625e;
+  /* Anatomy's names for the roles (src/styles). The four solid tones, the cavity and the lit
+     faces are Mechanism's own optional roles (--ui-mech-*), tuned in the Technical value set; a
+     style that leaves them unset gets them mixed from its ink, surface and accent. */
+  --anatomy-page: var(--ui-paper);
+  --anatomy-card: var(--ui-surface);
+  --anatomy-text: var(--ui-mech-text, var(--ui-ink-2));
+  --anatomy-strong: var(--ui-ink);
+  --anatomy-muted: var(--ui-mech-muted, var(--ui-ink-2));
   --anatomy-paper: var(--anatomy-card);
-  --anatomy-face: #ffffff;
-  --anatomy-top: #ffffff;
-  --anatomy-shade-0: #dcdfdb;
-  --anatomy-shade-1: #e5e8e4;
-  --anatomy-shade-2: #edefec;
-  --anatomy-shade-3: #f4f5f3;
-  --anatomy-cavity: #d3d7d3;
-  --anatomy-lit-top: #eef6f2;
-  --anatomy-lit-shade: #dcebe4;
-  --anatomy-hi: #1a1c1a;
-  --anatomy-mid: #858b87;
-  --anatomy-lo: #b3b8b4;
-  --anatomy-faint: #d5d9d5;
-  --anatomy-lit: #205f49;
-  --anatomy-halo: #848a84;
+  --anatomy-face: var(--ui-surface-raised);
+  --anatomy-top: var(--ui-mech-top, var(--ui-surface-raised));
+  --anatomy-shade-0: var(--ui-mech-shade-0, color-mix(in srgb, var(--ui-ink) 14%, var(--ui-surface)));
+  --anatomy-shade-1: var(--ui-mech-shade-1, color-mix(in srgb, var(--ui-ink) 10%, var(--ui-surface)));
+  --anatomy-shade-2: var(--ui-mech-shade-2, color-mix(in srgb, var(--ui-ink) 7%, var(--ui-surface)));
+  --anatomy-shade-3: var(--ui-mech-shade-3, color-mix(in srgb, var(--ui-ink) 4%, var(--ui-surface)));
+  --anatomy-cavity: var(--ui-mech-cavity, color-mix(in srgb, var(--ui-ink) 18%, var(--ui-surface)));
+  --anatomy-lit-top: var(--ui-mech-lit-top, color-mix(in srgb, var(--ui-accent) 8%, var(--ui-surface)));
+  --anatomy-lit-shade: var(--ui-mech-lit-shade, color-mix(in srgb, var(--ui-accent) 16%, var(--ui-surface)));
+  --anatomy-hi: var(--ui-ink);
+  --anatomy-mid: var(--ui-mech-mid, color-mix(in srgb, var(--ui-ink) 55%, var(--ui-surface)));
+  --anatomy-lo: var(--ui-mech-lo, color-mix(in srgb, var(--ui-ink) 35%, var(--ui-surface)));
+  --anatomy-faint: var(--ui-mech-faint, color-mix(in srgb, var(--ui-ink) 15%, var(--ui-surface)));
+  --anatomy-lit: var(--ui-accent);
+  --anatomy-halo: var(--ui-mech-halo, var(--ui-ink-2));
   --anatomy-halo-opacity: 0.3;
-  --anatomy-dot: #2f3431;
+  --anatomy-dot: var(--ui-mech-dot, var(--ui-ink));
   --anatomy-weight: 0.6px;
   --anatomy-ease: cubic-bezier(0.32, 0.72, 0, 1);
-  --um-sans: var(--font-sans, "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
-  --um-mono: var(--font-mono, "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
-  --um-edge: rgba(26, 28, 26, 0.22);
+  /* A host's --font-sans / --font-mono still wins (the playground sets the shell's mono). */
+  --um-sans: var(--font-sans, var(--ui-slide-font-text, var(--ui-font-text)));
+  --um-mono: var(--font-mono, var(--ui-slide-font-label, var(--ui-font-label)));
+  --um-edge: var(--ui-line);
+  color-scheme: light;
   color: var(--anatomy-text);
   font-family: var(--um-sans);
 }
 
+/* Dark: the roles' dark halves. Edges hold 3:1 or better against the card, face and top fills
+   (lo 3.1–3.7:1, mid 4.9–6:1), and draw a little heavier than on paper: a hairline of light on
+   dark reads fainter than its colour. */
 [data-theme="dark"] .uipack-mechanism:not([data-theme="light"]),
 .uipack-mechanism[data-theme="dark"] {
-  --anatomy-page: #0a100d;
-  --anatomy-card: #0e1512;
-  --anatomy-text: #b9c2bd;
-  --anatomy-strong: #e8ece9;
-  --anatomy-muted: #8f9a94;
-  --anatomy-face: #14201b;
-  --anatomy-top: #1a2822;
-  --anatomy-shade-0: #0b110e;
-  --anatomy-shade-1: #0f1714;
-  --anatomy-shade-2: #131d18;
-  --anatomy-shade-3: #17231e;
-  --anatomy-cavity: #070b09;
-  --anatomy-lit-top: #1f3a2f;
-  --anatomy-lit-shade: #182e25;
-  --anatomy-hi: #e8ece9;
-  /* Edges hold 3:1 or better against the card, face and top fills (lo 3.1–3.7:1, mid 4.9–6:1), and
-     draw a little heavier than on paper: a hairline of light on dark reads fainter than its colour. */
-  --anatomy-mid: #8a958f;
-  --anatomy-lo: #66726c;
-  --anatomy-faint: #28332e;
-  --anatomy-lit: #71dcb2;
-  --anatomy-halo: #020403;
+  color-scheme: dark;
   --anatomy-halo-opacity: 0.85;
-  --anatomy-dot: #e8ece9;
   --anatomy-weight: 0.8px;
-  --um-edge: rgba(232, 236, 233, 0.22);
 }
 
 .uipack-mechanism *,
