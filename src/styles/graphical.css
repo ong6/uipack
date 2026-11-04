@@ -20,9 +20,11 @@
     --ui-accent-surface: light-dark(#ff6a26, #ff8247);
     --ui-accent-ink-2: light-dark(#2b1406, #2b1406);
     --ui-accent-line: light-dark(#111111, #111111);
-    --ui-flow-request: light-dark(#2348e0, #8ea4ff);
-    --ui-flow-response: light-dark(#14805a, #5fd39b);
-    --ui-flow-change: light-dark(#8a3fd6, #c39aff);
+    /* Flows stay in the poster's three inks (shape still tells them apart): request in ink,
+       response in the warm grey, change in the orange's text tone. No blue beside the orange. */
+    --ui-flow-request: light-dark(#111111, #f1eee6);
+    --ui-flow-response: light-dark(#57554f, #a29e93);
+    --ui-flow-change: light-dark(#b23700, #ff7f45);
     --ui-data-pos: light-dark(#14805a, #33a979);
     --ui-data-neg: light-dark(#c0174f, #ff6b93);
     --ui-data-context: light-dark(#8f8b80, #6a675f);
@@ -45,7 +47,7 @@
     --ui-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --ui-font-label: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
     --ui-display-weight: 400;
-    --ui-display-tracking: 0.005em;
+    --ui-display-tracking: 0.012em;
     --ui-display-case: uppercase;
     --ui-label-tracking: 0.12em;
     --ui-radius: 0px;
@@ -94,6 +96,22 @@
     --ui-em-color: var(--ui-accent-ink);
     --ui-star-fill: 0;
     --ui-display-scale: 1.3;
+
+    /* Web closing band (ClosingCta): the poster's orange, black type, a black button, and the
+       hero's tick rule along the top. */
+    --ui-band-fill: light-dark(#ff6a26, #ff8247);
+    --ui-band-ink: light-dark(#111111, #111111);
+    --ui-band-ink-2: light-dark(#2b1406, #2b1406);
+    --ui-band-cta: light-dark(#111111, #111111);
+    --ui-on-band-cta: light-dark(#f1eee6, #f1eee6);
+    --ui-band-pattern: repeating-linear-gradient(90deg, var(--ui-band-ink) 0 2px, transparent 2px 14px) 0 0 / 100% 16px no-repeat;
+    /* Below 720px the disc shrinks into the corner and drops its ring, so it never crosses the
+       eyebrow or the headline (the copy starts 64px down; the disc ends at 48px). */
+    --ui-backdrop-narrow:
+      radial-gradient(circle at 100% 0, var(--ui-accent) 0 48px, transparent 49px),
+      repeating-linear-gradient(90deg, var(--ui-ink) 0 2px, transparent 2px 14px) 0 100% / 100% 16px no-repeat;
+    --ui-section-index: none;
+    --ui-corner-marks: none;
 
     --ui-node: var(--ui-surface);
     --ui-line-solid: var(--ui-line);

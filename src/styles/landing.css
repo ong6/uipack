@@ -18,7 +18,8 @@
     --ui-accent-surface: light-dark(#5a4fe0, #b8aeff);
     --ui-accent-ink-2: light-dark(#e4e1ff, #2a2466);
     --ui-accent-line: light-dark(#7a70e6, #8a7ee8);
-    --ui-flow-request: light-dark(#4f6fe6, #8ea4ff);
+    /* Request in slate, so the indigo accent is the only blue-violet in a figure. */
+    --ui-flow-request: light-dark(#5c5c6b, #9a9aab);
     --ui-flow-response: light-dark(#3fb27f, #5fd39b);
     --ui-flow-change: light-dark(#9a63e0, #c39aff);
     --ui-data-pos: light-dark(#1a7a52, #33a979);
@@ -84,6 +85,17 @@
     --ui-em-color: currentColor;
     --ui-star-fill: 1;
     --ui-display-scale: 1;
+
+    /* Web closing band (ClosingCta): deep indigo-black with a lavender CTA and one soft glow. */
+    --ui-band-fill: light-dark(#16161f, #1e1c2e);
+    --ui-band-ink: light-dark(#f2f2f7, #f2f2f7);
+    --ui-band-ink-2: light-dark(#b9b9c6, #b9b9c6);
+    --ui-band-cta: light-dark(#a99dff, #a99dff);
+    --ui-on-band-cta: light-dark(#0d0d13, #0d0d13);
+    --ui-band-pattern: radial-gradient(70% 140% at 100% 0, color-mix(in srgb, var(--ui-band-cta) 26%, transparent), transparent 70%);
+    --ui-backdrop-narrow: none;
+    --ui-section-index: none;
+    --ui-corner-marks: none;
 
     --ui-accent-ink: var(--ui-accent);
     --ui-node: var(--ui-surface);

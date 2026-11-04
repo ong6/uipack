@@ -92,7 +92,27 @@
     --ui-em-style: normal;
     --ui-em-color: var(--ui-accent);
     --ui-star-fill: 0;
-    --ui-display-scale: 1;
+    --ui-display-scale: 1.1;
+
+    /* Web closing band (ClosingCta): the ink band with the mint accent in both themes, and the
+       figure's dotted grid faintly over it. */
+    --ui-band-fill: light-dark(#111814, #14201b);
+    --ui-band-ink: light-dark(#eef1ee, #e8ece9);
+    --ui-band-ink-2: light-dark(#a9b3ad, #9aa39e);
+    --ui-band-cta: light-dark(#71dcb2, #71dcb2);
+    --ui-on-band-cta: light-dark(#07110c, #07110c);
+    --ui-band-pattern: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ui-band-ink) 16%, transparent) 1px, transparent 1.5px)
+      0 0 / 16px 16px;
+    /* The hero backdrop below 720px: the same dotted grid. */
+    --ui-backdrop-narrow: var(--ui-backdrop);
+    /* Section index: each section's eyebrow opens with its number (01, 02…), as a figure does. */
+    --ui-section-index: inline;
+    /* Registration marks: 10px accent corners on cards, plans and the quote, as on a drawing sheet. */
+    --ui-corner-marks:
+      linear-gradient(var(--ui-accent), var(--ui-accent)) 0 0 / 10px 1.5px no-repeat,
+      linear-gradient(var(--ui-accent), var(--ui-accent)) 0 0 / 1.5px 10px no-repeat,
+      linear-gradient(var(--ui-accent), var(--ui-accent)) 100% 100% / 10px 1.5px no-repeat,
+      linear-gradient(var(--ui-accent), var(--ui-accent)) 100% 100% / 1.5px 10px no-repeat;
 
     /* Roles whose Technical values are tuned for one medium, then --tune-* component values */
     --ui-node: light-dark(#fbfaf6, #0e1512);

@@ -54,28 +54,6 @@
   border-radius: var(--ui-radius-xs);
   background: color-mix(in srgb, var(--web-ink) 10%, transparent);
 }
-.web-quote {
-  display: grid;
-  justify-items: center;
-  gap: var(--web-s3);
-  text-align: center;
-}
-.web-quote__text {
-  margin: 0;
-  max-width: 28ch;
-  font: var(--web-display-weight) var(--web-step-4) / 1.1 var(--web-font-display);
-  letter-spacing: var(--web-display-tracking);
-  text-wrap: balance;
-}
-@container web (max-width: 720px) {
-  .web-quote__text {
-    font-size: var(--web-step-3);
-  }
-}
-.web-closing {
-  display: flex;
-  justify-content: center;
-}
 /* A demo block fills its grid cell; its Replay sits on the bottom edge, so a row's Replays line up. */
 .web-block {
   display: flex;
@@ -916,15 +894,7 @@
     min-height: 720px;
   }
 }
-/* The sample's own blocks follow Technical's start edge when the page uses its layout (WebPage
-   layout="style"): the quote, the stats and the closing CTA sit under their heads, not centred. */
-.uipack-web[data-ui-style="technical"][data-ui-layout="style"] :is(.web-quote) {
-  justify-items: start;
-  text-align: start;
-}
-.uipack-web[data-ui-style="technical"][data-ui-layout="style"] :is(.web-stats, .web-closing) {
-  justify-content: start;
-}
+
 .web-nested {
   margin-top: 32px;
 }

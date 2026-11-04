@@ -5,6 +5,23 @@ export { CtaButton, type CtaButtonProps } from "./CtaButton";
 export { GlassNav, type GlassNavProps, type GlassNavLink } from "./GlassNav";
 export { Section, FeatureGrid, type SectionProps, type Feature, type FeatureGridProps } from "./Section";
 export { SpotlightCard, type SpotlightCardProps } from "./SpotlightCard";
+export {
+  Proof,
+  PricingPlans,
+  ClosingCta,
+  SiteFooter,
+  Brand,
+  type ProofProps,
+  type ProofStat,
+  type ProofLead,
+  type ProofQuote,
+  type PricingPlansProps,
+  type PricingPlan,
+  type PricingAction,
+  type ClosingCtaProps,
+  type SiteFooterProps,
+  type BrandProps,
+} from "./Blocks";
 export { RevealText, type RevealTextProps } from "./RevealText";
 export { StarHero, type StarHeroProps } from "./StarHero";
 export {

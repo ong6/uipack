@@ -379,7 +379,7 @@
     padding: 0;
     list-style: none;
   }
-  .uipack-web-nav__links a {
+  .uipack-web-nav__links a:not(.uipack-web-cta) {
     display: flex;
     align-items: center;
     min-height: 44px;
@@ -390,7 +390,7 @@
     font-size: 0.9375rem;
   }
   @media (hover: hover) {
-    .uipack-web-nav__links a:hover {
+    .uipack-web-nav__links a:not(.uipack-web-cta):hover {
       color: var(--web-ink);
       background: color-mix(in srgb, var(--web-ink) 6%, transparent);
     }
@@ -407,17 +407,21 @@
     font: 500 0.9375rem var(--web-font-text);
     cursor: pointer;
   }
+  .uipack-web-nav__menu-cta {
+    display: none;
+  }
   @container web (max-width: 720px) {
     .uipack-web-nav__bar {
       padding: 8px var(--web-s2);
       gap: var(--web-s1);
     }
+    /* Brand on the start edge, the toggle on the end edge, whatever sits between them. */
+    .uipack-web-nav__brand {
+      margin-right: auto;
+    }
     .uipack-web-nav__nav {
       margin-left: 0;
       order: 4;
-    }
-    .uipack-web-nav__cta {
-      margin-left: auto;
     }
     .uipack-web-nav__toggle {
       display: inline-flex;
@@ -440,6 +444,17 @@
     }
     .uipack-web-nav__cta .uipack-web-cta {
       padding: 0 16px;
+    }
+  }
+  @container web (max-width: 520px) {
+    .uipack-web-nav__cta {
+      display: none;
+    }
+    .uipack-web-nav__menu-cta {
+      display: grid;
+      padding-top: var(--web-s1);
+      margin-top: var(--web-s1);
+      border-top: 1px solid var(--web-hairline);
     }
   }
 
@@ -488,8 +503,12 @@
     gap: var(--web-s2);
     margin-top: var(--web-s1);
   }
+  /* A secondary action over the hero's backdrop (Technical's dots) sits on the page's ground. */
+  .uipack-web-hero .uipack-web-cta[data-variant="secondary"]:not(:hover) {
+    background: var(--web-bg);
+  }
   .uipack-web-hero__proof {
-    max-width: 1040px;
+    max-width: 1120px;
     margin: var(--web-s8) auto 0;
     text-align: left;
   }
@@ -502,6 +521,12 @@
     }
     .uipack-web-hero__proof {
       margin-top: var(--web-s6);
+    }
+  }
+  @container web (max-width: 520px) {
+    /* A phone gives each hero action the full column: a thumb-sized target, no ragged pair. */
+    .uipack-web-hero__actions > * {
+      flex: 1 1 100%;
     }
     /* A phone stacks the demo under the copy: the star spans the column and rises out from behind
        the demo's top edge to the right, rather than running off the side as a sliver. */
@@ -1587,5 +1612,445 @@
     .uipack-web-gridbg__lit {
       display: none;
     }
+  }
+}
+
+/* A figure on a web page belongs to the page: it takes the page style's text and label faces
+   (Plex on the web, Anton never: figure text stays at label sizes), the style's frame (Graphical's
+   2px ink and hard shadow, Landing's soft lift) and the card radius. Unlayered on purpose: the
+   figure's own theme.css is unlayered, and this is the more specific rule. A host overrides it
+   with `.uipack-web .uipack` of its own. */
+.uipack-web .uipack {
+  --uipack-sans: var(--web-font-text);
+  --uipack-mono: var(--web-font-mono);
+  border: var(--web-frame-border);
+  border-radius: var(--web-radius);
+  box-shadow: var(--web-shadow);
+}
+.uipack-web .uipack__title {
+  font-family: var(--web-font-text);
+}
+
+/* ---------- Closing parts: steps numbers, proof, pricing, closing band, footer, wordmark ----------
+   One layout in every style; frames, faces and the band read roles (src/styles). */
+@layer uipack.base {
+  .uipack-web {
+    --web-band-fill: var(--ui-band-fill);
+    --web-band-ink: var(--ui-band-ink);
+    --web-band-ink-2: var(--ui-band-ink-2);
+    --web-band-cta: var(--ui-band-cta);
+    --web-on-band-cta: var(--ui-on-band-cta);
+  }
+  .uipack-web [data-ui-style] {
+    --web-band-fill: var(--ui-band-fill);
+    --web-band-ink: var(--ui-band-ink);
+    --web-band-ink-2: var(--ui-band-ink-2);
+    --web-band-cta: var(--ui-band-cta);
+    --web-on-band-cta: var(--ui-on-band-cta);
+  }
+  /* Display numerals: proof values, prices, step numbers. Tabular where the face has them. */
+  .uipack-web :is(.uipack-web-proof__value, .uipack-web-proof__stats dd, .uipack-web-plan__price),
+  .uipack-web .uipack-web-feature__num {
+    font-family: var(--web-font-display);
+    font-weight: var(--web-display-weight);
+    letter-spacing: var(--web-display-tracking);
+    text-transform: var(--web-display-case);
+    font-variant-numeric: tabular-nums;
+    font-synthesis-weight: none;
+    color: var(--web-ink);
+  }
+  /* Step numbers are the one display numeral in the accent. */
+  .uipack-web .uipack-web-features .uipack-web-feature__num {
+    color: var(--web-accent-ink);
+  }
+
+  /* Steps: FeatureGrid numbered. */
+  .uipack-web .uipack-web-feature__num {
+    display: block;
+    font-size: calc(var(--web-step-4) * var(--web-display-scale));
+    line-height: 1;
+    margin-bottom: var(--web-s1);
+  }
+
+  /* Proof */
+  .uipack-web-proof {
+    display: grid;
+    gap: var(--web-s6);
+    align-items: center;
+  }
+  @container web (min-width: 1024px) {
+    .uipack-web-proof[data-has-quote] {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: var(--web-s8);
+    }
+  }
+  .uipack-web-proof__numbers {
+    display: grid;
+    gap: var(--web-s4);
+  }
+  .uipack-web-proof__lead {
+    display: grid;
+    gap: var(--web-s2);
+    justify-items: start;
+  }
+  .uipack-web-proof__value {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--web-s1) var(--web-s2);
+    margin: 0;
+    font-size: calc(var(--web-step-6) * 1.5 * var(--web-display-scale));
+    line-height: 1;
+  }
+  /* The numeral's descender (a comma) clears whatever wraps under it. */
+  .uipack-web-proof__value > span {
+    padding-bottom: 0.12em;
+  }
+  @container web (max-width: 720px) {
+    .uipack-web-proof__value {
+      font-size: calc(var(--web-step-6) * var(--web-display-scale));
+    }
+    .uipack-web .uipack-web-proof__stats {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--web-s2);
+    }
+    .uipack-web .uipack-web-proof__stats dd {
+      font-size: calc(var(--web-step-3) * var(--web-display-scale));
+    }
+  }
+  .uipack-web-proof__value small {
+    font: 500 var(--web-step-2) / 1.2 var(--web-font-text);
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--web-ink-low);
+  }
+  .uipack-web-proof__lead .uipack-web-body {
+    max-width: 44ch;
+  }
+  .uipack-web-proof__meter {
+    display: block;
+    width: min(100%, 420px);
+    height: 8px;
+    border: var(--ui-rule-width) solid var(--web-rule);
+    border-radius: var(--web-radius-pill);
+    background:
+      linear-gradient(var(--web-accent), var(--web-accent)) 0 0 / calc(var(--ratio) * 100%) 100% no-repeat,
+      var(--web-surface);
+  }
+  .uipack-web-proof__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+    gap: var(--web-s3);
+    margin: 0;
+    padding-top: var(--web-s3);
+    border-top: var(--ui-rule-width) solid var(--web-rule);
+  }
+  .uipack-web-proof__stats > div {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: var(--web-s1);
+  }
+  .uipack-web-proof__stats dt {
+    font: 400 var(--web-step--1) / 1.4 var(--web-font-mono);
+    letter-spacing: 0.02em;
+    color: var(--web-ink-low);
+  }
+  .uipack-web-proof__stats dd {
+    margin: 0;
+    font-size: calc(var(--web-step-4) * var(--web-display-scale));
+    line-height: 1;
+  }
+
+  /* Quote: a framed card on the style's inverse ground, with drawn quotation marks. */
+  .uipack-web-quote {
+    position: relative;
+    display: grid;
+    gap: var(--web-s3);
+    margin: 0;
+    padding: var(--web-s4);
+    border: var(--web-frame-border);
+    border-color: var(--ui-inv-line);
+    border-radius: var(--web-radius);
+    background: var(--ui-corner-marks), var(--ui-inv-paper);
+    box-shadow: var(--ui-card-shadow);
+    color: var(--ui-inv-ink);
+  }
+  .uipack-web-quote blockquote {
+    margin: 0;
+  }
+  .uipack-web-quote blockquote p {
+    margin: 0;
+    font: var(--web-display-weight) calc(var(--web-step-2) * var(--web-display-scale)) / 1.25 var(--web-font-display);
+    letter-spacing: var(--web-display-tracking);
+    text-transform: var(--web-display-case);
+    text-wrap: pretty;
+  }
+  /* The opening mark hangs into the margin in the inverse accent, so the text keeps its edge. */
+  .uipack-web-quote blockquote p::before {
+    content: "\201C";
+    display: inline-block;
+    margin-left: -0.5em;
+    width: 0.5em;
+    color: var(--ui-inv-accent);
+  }
+  .uipack-web-quote blockquote p::after {
+    content: "\201D";
+  }
+  .uipack-web-quote figcaption {
+    display: grid;
+    gap: 2px;
+    padding-top: var(--web-s2);
+    border-top: 1px solid color-mix(in srgb, var(--ui-inv-ink) 22%, transparent);
+    font-size: var(--web-step-0);
+  }
+  .uipack-web-quote figcaption strong {
+    font-weight: 600;
+  }
+  .uipack-web-quote figcaption span {
+    font: 400 var(--web-step--1) / 1.4 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+    color: var(--ui-inv-ink-2);
+  }
+
+  /* Pricing */
+  .uipack-web-pricing {
+    display: grid;
+    gap: var(--web-s3);
+  }
+  .uipack-web-pricing__plans {
+    display: grid;
+    gap: var(--web-s3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @container web (min-width: 640px) {
+    .uipack-web-pricing__plans {
+      grid-template-columns: repeat(var(--plans, 2), minmax(0, 1fr));
+      gap: var(--web-s4);
+    }
+  }
+  .uipack-web-plan {
+    display: flex;
+    flex-direction: column;
+    gap: var(--web-s2);
+    padding: var(--web-s4);
+    border: var(--web-frame-border);
+    border-radius: var(--web-radius);
+    background: var(--ui-corner-marks), var(--web-surface);
+    box-shadow: var(--ui-card-shadow);
+    text-align: start;
+  }
+  .uipack-web-plan[data-featured] {
+    border-color: var(--web-accent);
+    box-shadow:
+      inset 0 0 0 1px var(--web-accent),
+      var(--ui-card-shadow);
+  }
+  .uipack-web-plan__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--web-s2);
+  }
+  .uipack-web-plan__badge {
+    padding: 4px 8px;
+    border-radius: var(--web-radius-pill);
+    background: var(--web-accent);
+    color: var(--web-on-accent);
+    font: 600 var(--web-step--1) / 1.2 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+  }
+  .uipack-web-plan__price {
+    display: flex;
+    align-items: baseline;
+    gap: var(--web-s1);
+    margin: 0;
+    font-size: calc(var(--web-step-5) * var(--web-display-scale));
+    line-height: 1;
+  }
+  .uipack-web-plan__price small {
+    font: 400 var(--web-step-0) / 1.2 var(--web-font-text);
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--web-ink-low);
+  }
+  .uipack-web-plan__features {
+    display: grid;
+    gap: var(--web-s1);
+    margin: 0;
+    padding: var(--web-s2) 0 0;
+    border-top: 1px solid var(--web-hairline);
+    list-style: none;
+  }
+  .uipack-web-plan__features li {
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr);
+    gap: var(--web-s1);
+    align-items: start;
+    color: var(--web-ink-medium);
+  }
+  .uipack-web-plan__check {
+    width: 16px;
+    height: 16px;
+    margin-top: 0.2em;
+    color: var(--web-accent-ink);
+  }
+  .uipack-web-plan__action {
+    display: grid;
+    margin-top: auto;
+    padding-top: var(--web-s2);
+  }
+  .uipack-web-pricing__note {
+    margin: 0;
+    font: 400 var(--web-step--1) / 1.5 var(--web-font-mono);
+    color: var(--web-ink-low);
+  }
+
+  /* Closing band */
+  .uipack-web-closing {
+    position: relative;
+    isolation: isolate;
+    padding: var(--web-s12) var(--web-s3);
+    background: var(--ui-band-pattern), var(--web-band-fill);
+    color: var(--web-band-ink);
+  }
+  .uipack-web-closing__inner {
+    display: grid;
+    gap: var(--web-s4);
+    max-width: 1120px;
+    margin: 0 auto;
+    align-items: end;
+  }
+  @container web (min-width: 1024px) {
+    .uipack-web-closing__inner {
+      grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+      gap: var(--web-s8);
+    }
+    .uipack-web-closing .uipack-web-closing__action {
+      justify-items: end;
+      text-align: end;
+    }
+  }
+  .uipack-web-closing__copy {
+    display: grid;
+    gap: var(--web-s2);
+    justify-items: start;
+  }
+  .uipack-web-closing .uipack-web-heading,
+  .uipack-web-closing .uipack-web-eyebrow {
+    color: var(--web-band-ink);
+  }
+  /* The eyebrow marker on the band is band ink: an accent marker would vanish on an accent band. */
+  .uipack-web-closing {
+    --ui-marker-color: var(--web-band-ink);
+  }
+  .uipack-web-closing + .uipack-web-footer {
+    border-top: 0;
+  }
+  .uipack-web-closing .uipack-web-heading {
+    max-width: 16em;
+  }
+  .uipack-web-closing__intro {
+    margin: 0;
+    max-width: 48ch;
+    font-size: var(--web-step-1);
+    line-height: 1.45;
+    color: var(--web-band-ink-2);
+  }
+  .uipack-web-closing__action {
+    display: grid;
+    gap: var(--web-s1);
+    justify-items: start;
+  }
+  .uipack-web-closing .uipack-web-closing__cta {
+    background: var(--web-band-cta);
+    color: var(--web-on-band-cta);
+    box-shadow: none;
+  }
+  .uipack-web-closing__cta:focus-visible {
+    outline-color: var(--web-band-ink);
+  }
+  .uipack-web-closing__note {
+    margin: 0;
+    font: 400 var(--web-step--1) / 1.5 var(--web-font-mono);
+    color: var(--web-band-ink-2);
+  }
+  @container web (max-width: 720px) {
+    .uipack-web-closing {
+      padding: var(--web-s8) var(--web-s2);
+    }
+    .uipack-web-closing__action,
+    .uipack-web-closing__action > .uipack-web-cta {
+      width: 100%;
+    }
+  }
+
+  /* Footer */
+  .uipack-web-footer {
+    padding: var(--web-s4) var(--web-s3);
+    border-top: var(--ui-rule-width) solid var(--web-hairline);
+    background: var(--web-bg);
+    color: var(--web-ink-medium);
+  }
+  .uipack-web-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--web-s2) var(--web-s4);
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+  .uipack-web-footer__nav {
+    margin-right: auto;
+  }
+  .uipack-web-footer__nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--web-s1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .uipack-web-footer__nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 8px;
+    color: var(--web-ink-medium);
+    text-decoration: none;
+    font-size: 0.9375rem;
+  }
+  .uipack-web-footer__nav a:hover {
+    color: var(--web-ink);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .uipack-web-footer__note {
+    flex-basis: 100%;
+    margin: 0;
+    font: 400 var(--web-step--1) / 1.5 var(--web-font-mono);
+    color: var(--web-ink-low);
+  }
+  @container web (max-width: 720px) {
+    .uipack-web-footer {
+      padding: var(--web-s4) var(--web-s2);
+    }
+    .uipack-web-footer__nav {
+      flex-basis: 100%;
+      margin-left: -8px;
+    }
+  }
+
+  /* Wordmark */
+  .uipack-web-brand {
+    font: var(--web-display-weight) var(--web-step-1) / 1 var(--web-font-display);
+    letter-spacing: var(--web-display-tracking);
+    text-transform: var(--web-display-case);
+    color: var(--web-ink);
+    text-decoration: none;
   }
 }

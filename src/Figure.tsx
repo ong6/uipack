@@ -2,8 +2,8 @@ import { CanvasView } from "./CanvasView";
 import { useFigureEntrance } from "./entrance";
 import { useIsoLayoutEffect, usePrefersReducedMotion } from "./env";
 import { SelectionContext, type SelectedItem } from "./selection";
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode, createElement } from "react";
-import { FigureMotionContext, type FigureMotion } from "./context";
+import { useCallback, useContext, useEffect, useId, useMemo, useRef, useState, type ReactNode, createElement } from "react";
+import { FigureChromeContext, FigureMotionContext, type FigureChrome, type FigureMotion } from "./context";
 import { Legend, type LegendItem } from "./Legend";
 import { FigureHoverContext, type FigureHover } from "./hover";
 import { FigureScaleContext, DEFAULT_RENDER_WIDTH, fontFloor } from "./scale";
@@ -11,8 +11,14 @@ import { useRovingFocus } from "./roving";
 import type { UiStyleId } from "./style";
 
 export interface FigureProps {
-  /** Allow opening a zoomable canvas. */
+  /** Allow opening a zoomable canvas. Default: true, except under quiet chrome. */
   expandable?: boolean;
+  /**
+   * Tool chrome. "full": Open canvas and the legend as given. "quiet": no Open canvas, and no
+   * legend with fewer than two entries (a one-entry key explains nothing). Omitted, the nearest
+   * provider decides: a `uipack/web` page (WebSurface, WebPage) is quiet, anything else full.
+   */
+  chrome?: FigureChrome;
   /** "Figure 01" or "Fig. 3". Rendered mono, uppercase, before the eyebrow title. */
   number?: string;
   /** Short mono topic after the number: "What is Habitat?". */
@@ -122,7 +128,8 @@ export const ReplayGlyph = () => (
 );
 
 export function Figure({
-  expandable = true,
+  expandable: expandableProp,
+  chrome: chromeProp,
   number,
   eyebrow,
   title,
@@ -143,6 +150,10 @@ export function Figure({
   measuredWidth,
   id,
 }: FigureProps) {
+  const pageChrome = useContext(FigureChromeContext);
+  const chrome = chromeProp ?? pageChrome;
+  const expandable = expandableProp ?? chrome === "full";
+  const legendItems = chrome === "quiet" && legend.length < 2 ? [] : legend;
   const opener = useRef<HTMLButtonElement>(null);
   const auto = useId();
   const figId = id ?? `uipack-${auto.replace(/:/g, "")}`;
@@ -225,7 +236,7 @@ export function Figure({
   useRovingFocus(canvasRef, expanded);
 
   const showControls = controls && !reduced;
-  const hasHead = expandable || number || eyebrow || title || caption || legend.length || showControls;
+  const hasHead = expandable || number || eyebrow || title || caption || legendItems.length || showControls;
 
   return (
     <CanvasView
@@ -308,7 +319,7 @@ export function Figure({
                       )}
                     </div>
                   ) : null}
-                  <Legend items={legend} />
+                  <Legend items={legendItems} />
                 </div>
               ) : null}
               <p className="uipack__sr" role="status">

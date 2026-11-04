@@ -9,14 +9,21 @@ export interface GlassNavProps {
   /** Brand mark or name; wrap it in a link yourself if it should navigate. */
   brand: ReactNode;
   links: GlassNavLink[];
-  /** The page's one goal, repeated from the hero. */
+  /**
+   * The page's one goal, repeated from the hero. It sits in the bar while there is room; in a
+   * container narrower than 520px it moves into the open menu, so a long label never pushes the
+   * Menu toggle off a phone screen.
+   */
   cta?: ReactNode;
   /** Stick to the top of the scroll container. Default true. */
   sticky?: boolean;
   label?: string;
 }
 
-/** Sticky bar with a subtle backdrop blur and a hairline border. Links fold into a menu in narrow containers. */
+/**
+ * Sticky bar with a subtle backdrop blur and a hairline border. Links fold into a menu below 720px
+ * (brand on the left, Menu on the right edge), and the CTA joins them below 520px.
+ */
 export function GlassNav({ brand, links, cta, sticky = true, label = "Primary" }: GlassNavProps) {
   const [open, setOpen] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -44,6 +51,11 @@ export function GlassNav({ brand, links, cta, sticky = true, label = "Primary" }
                 </a>
               </li>
             ))}
+            {cta && (
+              <li className="uipack-web-nav__menu-cta" onClick={() => setOpen(false)}>
+                {cta}
+              </li>
+            )}
           </ul>
         </nav>
         {cta && <div className="uipack-web-nav__cta">{cta}</div>}

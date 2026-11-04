@@ -47,6 +47,11 @@ import {
   SmoothScroll,
   TYPE_FACES,
   FAQ,
+  Proof,
+  PricingPlans,
+  ClosingCta,
+  SiteFooter,
+  Brand,
   JsonLd,
   useHead,
   headTagsToHtml,
@@ -399,9 +404,10 @@ const sectionNames: Record<string, string> = {
   proof: "Proof",
   faq: "FAQ",
   pricing: "Pricing",
+  closing: "Closing",
 };
 
-/** The layout control: the style's recommended section order, or the one shared order. */
+/** The layout control: the page's own order in every style (default), or the style's opt-in order. */
 function LayoutSwitch({
   layout,
   setLayout,
@@ -413,7 +419,7 @@ function LayoutSwitch({
 }) {
   const pick = (next: "style" | "shared") => {
     const url = new URL(location.href);
-    if (next === "shared") url.searchParams.set("layout", "shared");
+    if (next === "style") url.searchParams.set("layout", "style");
     else url.searchParams.delete("layout");
     history.replaceState(null, "", url);
     setLayout(next);
@@ -423,11 +429,12 @@ function LayoutSwitch({
       <fieldset>
         <legend>Section order</legend>
         <label>
-          <input type="radio" name="web-layout" checked={layout === "style"} onChange={() => pick("style")} /> The style&rsquo;s
-          own
+          <input type="radio" name="web-layout" checked={layout === "shared"} onChange={() => pick("shared")} /> The page&rsquo;s
+          own (default)
         </label>
         <label>
-          <input type="radio" name="web-layout" checked={layout === "shared"} onChange={() => pick("shared")} /> Shared
+          <input type="radio" name="web-layout" checked={layout === "style"} onChange={() => pick("style")} /> The style&rsquo;s
+          (opt-in)
         </label>
       </fieldset>
       <p aria-live="polite">
@@ -531,14 +538,16 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
         </StarHero>
       </div>
     ),
-    demo: (
+    how: (
       <Section
-        id="web-demo"
-        eyebrow="Demo"
-        title="Watch it clear an inbox in nine seconds."
-        intro="The same three steps, played on a sample inbox."
+        id="web-how"
+        eyebrow="How it works"
+        title="Three steps, all of them visible."
+        intro="Each step is one thing you can check, in the order it happens."
       >
-        <div data-section-id="demo">{demo}</div>
+        <div data-section-id="how">
+          <FeatureGrid features={features} spotlight numbered />
+        </div>
       </Section>
     ),
     mechanism: (
@@ -551,47 +560,48 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
         <LazyFlow />
       </Section>
     ),
-    how: (
-      <Section
-        id="web-how"
-        eyebrow="How it works"
-        title="Three steps, all of them visible."
-        intro="Each step is one thing you can check, in the order it happens."
-      >
-        <div data-section-id="how">
-          <FeatureGrid features={features} spotlight />
-        </div>
-      </Section>
-    ),
+    // The demo gets its own section only when the hero holds the figure (Technical, opt-in layout).
+    demo: (page: WebPageContext) =>
+      page.defaults.hero === "demo" ? null : (
+        <Section
+          id="web-demo"
+          eyebrow="Demo"
+          title="Watch it clear an inbox in nine seconds."
+          intro="The same three steps, played on a sample inbox."
+        >
+          <div data-section-id="demo">{demo}</div>
+        </Section>
+      ),
     proof: (
-      <Section id="web-proof" tone="secondary" align="center" eyebrow="Social proof slot">
-        <div className="web-quote" data-section-id="proof">
-          <RevealText
-            as="blockquote"
-            className="web-quote__text"
-            text="I stopped opening my inbox before coffee. It leaves me three things, and they are the right three."
+      <Section
+        id="web-proof"
+        tone="secondary"
+        eyebrow="Social proof slot"
+        title="Thirty-seven messages handled before nine."
+        intro="Placeholder numbers and quote. Replace them with a named customer and measured numbers before you ship."
+      >
+        <div data-section-id="proof">
+          <Proof
+            lead={{ value: <NumberTicker value={37} />, of: "of 40", label: "messages handled this morning", ratio: 37 / 40 }}
+            stats={[
+              { value: <NumberTicker value={92} suffix="%" />, label: "fewer unread" },
+              {
+                value: <NumberTicker value={9.4} format={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }} suffix=" s" />,
+                label: "to watch the demo",
+              },
+            ]}
+            quote={{
+              text: (
+                <RevealText
+                  as="span"
+                  className="web-quote__text"
+                  text="I stopped opening my inbox before coffee. It leaves me three things, and they are the right three."
+                />
+              ),
+              name: "Placeholder name",
+              role: "Placeholder role",
+            }}
           />
-          <Body>Placeholder quote. Replace it with a named customer and a number before you ship.</Body>
-          <dl className="web-stats">
-            <div>
-              <dt>messages handled this morning</dt>
-              <dd>
-                <NumberTicker value={37} />
-              </dd>
-            </div>
-            <div>
-              <dt>fewer unread</dt>
-              <dd>
-                <NumberTicker value={92} suffix="%" />
-              </dd>
-            </div>
-            <div>
-              <dt>to watch the demo</dt>
-              <dd>
-                <NumberTicker value={9.4} format={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }} suffix=" s" />
-              </dd>
-            </div>
-          </dl>
         </div>
       </Section>
     ),
@@ -615,10 +625,42 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
         }
         intro="Free for 30 days, no card needed. One inbox, every action visible."
       >
-        <div className="web-closing" data-section-id="pricing">
-          <CtaButton size="lg">Start free</CtaButton>
+        <div data-section-id="pricing">
+          <PricingPlans
+            plans={[
+              {
+                name: "Trial",
+                price: "$0",
+                period: "for 30 days",
+                summary: "Every feature, no card needed.",
+                features: ["One inbox", "Every action visible", "Drafts wait for your approval"],
+                action: { label: "Start free", href: "#web-pricing" },
+              },
+              {
+                name: "Personal",
+                price: "$8",
+                period: "a month",
+                summary: "After the trial, for one inbox.",
+                features: ["One inbox", "Every action visible", "Cancel any time"],
+                action: { label: "Start free", href: "#web-pricing" },
+                featured: true,
+                badge: "Most picked",
+              },
+            ]}
+            note="Illustrative prices for a sample product."
+          />
         </div>
       </Section>
+    ),
+    closing: (
+      <ClosingCta
+        id="web-closing"
+        eyebrow="Start"
+        title="Get your morning back."
+        intro="Thirty days free, then $8 a month. One inbox, every action visible."
+        action={{ label: "Start free", href: "#web-pricing" }}
+        note="No card needed for the trial."
+      />
     ),
   };
 }
@@ -641,11 +683,11 @@ function NestedStyleDemo({ theme }: { theme: "light" | "dark" }) {
 
 export default function WebShowcase() {
   const { theme, flip } = useShowcaseTheme();
-  // The style switcher lives in the shell's context line (?style=); ?layout= picks the section
-  // order: "style" (the default) is the order the style recommends, "shared" is one order for all.
+  // The style switcher lives in the shell's context line (?style=). A swap keeps the page's own
+  // section order and layout; ?layout=style opts into the order and layout the style would pick.
   const uiStyle = useShowcaseStyle(webPage);
   const [layout, setLayout] = useState<"style" | "shared">(() =>
-    new URLSearchParams(location.search).get("layout") === "shared" ? "shared" : "style",
+    new URLSearchParams(location.search).get("layout") === "style" ? "style" : "shared",
   );
   const order = sectionOrder(uiStyle, Object.keys(exampleSections(null)), layout);
   const [face, setFace] = useState<DisplayFaceId>("instrument-serif");
@@ -696,7 +738,17 @@ export default function WebShowcase() {
                 </>
               }
               sections={exampleSections(seo)}
-            />
+            >
+              <SiteFooter
+                brand={<Brand href="#web-top">Tidy</Brand>}
+                links={[
+                  { label: "How it works", href: "#web-how" },
+                  { label: "Proof", href: "#web-proof" },
+                  { label: "Pricing", href: "#web-pricing" },
+                ]}
+                note="Tidy is an illustrative product for this sample page."
+              />
+            </WebPage>
             <NestedStyleDemo theme={theme} />
             <GeneratedFiles seo={seo} />
             <p className="collection-intro web-example__aside">

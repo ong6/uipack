@@ -8,7 +8,11 @@ export interface StarHeroProps {
   subtitle?: ReactNode;
   /** The CTA(s). Put the page's one goal here, then repeat it in the nav and at the end. */
   actions?: ReactNode;
-  /** The star of the show. Defaults to StarChart; pass a still, an SVG, or a 3D scene. */
+  /**
+   * A backdrop visual behind the copy: a still, an SVG or a 3D scene. Without one, a StarChart is
+   * drawn only when the hero has no proof below the copy; with a demo or figure as `children`,
+   * that proof is the star, and a second curve would only peek out around it.
+   */
   visual?: ReactNode;
   /** Values for the default StarChart, taken from your product story. */
   values?: number[];
@@ -17,7 +21,7 @@ export interface StarHeroProps {
   /** Noise opacity; 0 turns it off. */
   noise?: number;
   headingId?: string;
-  /** Layout: copy centred over the proof (default) or set on the start edge. */
+  /** Layout: copy on the start edge, in the sections' column (default), or centred over the proof. */
   align?: "center" | "start";
 }
 
@@ -35,13 +39,14 @@ export function StarHero({
   children,
   noise = 0.07,
   headingId,
-  align = "center",
+  align = "start",
 }: StarHeroProps) {
+  const backdrop = visual ?? (children ? null : <StarChart values={values} />);
   return (
     <section className="uipack-web-hero" data-align={align} aria-labelledby={headingId}>
       {/* The backdrop ornament slot: empty here, painted by the style (--ui-backdrop). */}
       <div className="uipack-web-hero__backdrop" aria-hidden="true" />
-      <div className="uipack-web-hero__visual">{visual ?? <StarChart values={values} />}</div>
+      {backdrop && <div className="uipack-web-hero__visual">{backdrop}</div>}
       {noise > 0 && <NoiseLayer opacity={noise} />}
       <div className="uipack-web-hero__copy">
         {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}

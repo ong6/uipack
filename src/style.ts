@@ -15,15 +15,13 @@ export interface UiStyleMeta {
   /** The display face to preload for a hero headline, if any (fontPreloads). */
   preload: readonly string[];
   /**
-   * The web section sequence the style recommends for the same content (research brief: order is
-   * part of a look). A recommendation only: every style renders every layout.
+   * A section sequence the style would pick for itself. Opt-in only (`WebPage layout="style"`):
+   * by default a page keeps its author's order in every style, so a swap never moves a section.
    */
   prefers: readonly string[];
   /**
-   * The layout defaults the style recommends, applied by `WebPage` (layout="style") and by the
-   * style's layout CSS: what fills the hero's proof slot, how the hero and section heads align,
-   * and whether steps are cards or numbered rows. A recommendation only: layout="shared" renders
-   * every style on the same layout.
+   * Layout defaults the style would pick for itself (what fills the hero's proof slot, alignment,
+   * cards or numbered rows). Opt-in only, like `prefers`: the default layout is shared by every style.
    */
   layout: { hero: "demo" | "figure"; align: "center" | "start"; steps: "cards" | "rows" };
 }
@@ -79,16 +77,18 @@ export const uiStyles: readonly UiStyleMeta[] = [
   },
 ];
 
-/** The section order every style renders when the layout is shared (the swap test's order). */
+/** A conventional section order for a landing page, for pages that want a starting point. */
 export const sharedSectionOrder = ["hero", "how", "mechanism", "proof", "faq", "pricing"] as const;
 
 /**
- * The ids to render, in order: the style's recommended sequence (layout "style") or the shared
- * one, keeping only ids the page provides.
+ * The ids to render, in order. Shared (the default): the page's own order, the same in every
+ * style. "style" (opt-in): the style's `prefers` sequence, keeping only ids the page provides,
+ * then any the sequence does not name, in the page's order, so no section is ever dropped.
  */
-export function sectionOrder(style: UiStyleId, available: readonly string[], layout: "style" | "shared" = "style"): string[] {
-  const wanted = layout === "shared" ? sharedSectionOrder : uiStyles.find((s) => s.id === style)!.prefers;
-  return wanted.filter((id) => available.includes(id));
+export function sectionOrder(style: UiStyleId, available: readonly string[], layout: "style" | "shared" = "shared"): string[] {
+  if (layout === "shared") return [...available];
+  const wanted = uiStyles.find((s) => s.id === style)!.prefers.filter((id) => available.includes(id));
+  return [...wanted, ...available.filter((id) => !wanted.includes(id))];
 }
 
 export const isUiStyle = (value: unknown): value is UiStyleId => uiStyles.some((s) => s.id === value);
