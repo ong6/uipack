@@ -133,16 +133,19 @@ function Wide() {
       <Packet points={p1} kind="request" dur={1.4} flow={ORDER} r={4} />
       <Connector points={p2} defs={id} kind="request" flow={ORDER} />
       <Packet points={p2} kind="request" dur={1.4} delay={-0.4} flow={ORDER} r={4} />
+      <Label x={(checkout.x + checkout.w + 320) / 2} y={cy(checkout) - 10} text="order" anchor="middle" />
       <Label x={480} y={cy(validate) - 10} text="queue" anchor="middle" />
       <Connector points={hold} defs={id} flow={ORDER} />
       <Label x={756} y={cy(reserve) - 10} text="hold" anchor="middle" />
       <Connector points={p3} defs={id} kind="request" flow={ORDER} />
+      <Label x={cx(reserve) + 12} y={(reserve.y + reserve.h + charge.y) / 2 + 4} text="held" />
       <Connector points={paid} defs={id} kind="request" flow={ORDER} />
       <Packet points={paid} kind="request" dur={1.4} delay={-0.8} flow={ORDER} r={4} />
       <Label x={756} y={cy(charge) - 10} text="paid" anchor="middle" accent />
       <Connector points={no} defs={id} dashed flow={DECLINED} />
       <Label x={cx(charge) + 12} y={292} text="declined" />
       <Connector points={p5} defs={id} kind="request" flow={ORDER} />
+      <Label x={cx(orders) + 12} y={(orders.y + orders.h + receipt.y) / 2 + 4} text="receipt id" />
       <Connector points={back} defs={id} kind="response" flow={RECEIPT} />
       <Packet points={back} kind="response" dur={3.6} flow={RECEIPT} r={4} />
       <Label x={cx(checkout) + 12} y={cy(receipt) - 10} text="receipt" />
@@ -215,7 +218,7 @@ export function NumberedStepsFigure({ number }: { number: string }) {
     <Figure
       number={number}
       eyebrow="Numbered steps"
-      title="An order in six steps"
+      title="An order is accepted in two steps; four more run off the request path"
       caption="Notice the numbers: they let the reader follow one path across four areas without arrows doing all the work. Hover any step to light the whole path; the declined branch and the receipt back to the client have flows of their own."
       legend={[
         { label: "Order", kind: "request" },

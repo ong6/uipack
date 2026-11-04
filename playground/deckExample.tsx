@@ -1,4 +1,4 @@
-import { Build, Morph, Slide, type DeckSlide } from "../src/deck";
+import { Build, Morph, Slide, quoteSlide, type DeckSlide } from "../src/deck";
 
 /*
  * The tech talk: a team lead arguing that reviews should open with their answer, presented in the
@@ -56,7 +56,7 @@ export const deckExample: DeckSlide[] = [
     headline: "Reviews that open with the answer were decided in one meeting, not three.",
     role: "answer",
     render: () => (
-      <Slide eyebrow="Team leads · how we run reviews · Illustrative" footer={footer} layout="center">
+      <Slide eyebrow="How we run reviews" footer={footer} layout="center">
         <h2 className="uipack-deck-title deck-demo-cover-title">
           Reviews that open with the answer were decided in one meeting, not three.
         </h2>
@@ -78,7 +78,7 @@ export const deckExample: DeckSlide[] = [
     headline: "A review that buries its answer takes three meetings and 19 days to decide.",
     role: "problem",
     render: () => (
-      <Slide eyebrow="The cost of a buried answer" footer={footer} layout="split" className="deck-demo-problem">
+      <Slide eyebrow="Buried answers" footer={footer} layout="split" className="deck-demo-problem">
         <div className="deck-demo-problem__copy">
           <h2 className="uipack-deck-heading">A review that buries its answer takes three meetings and 19 days to decide.</h2>
           <ol className="deck-demo-meetings">
@@ -116,7 +116,7 @@ export const deckExample: DeckSlide[] = [
     // The same 19 days travels into its row: the morph says "this number, compared".
     transition: "morph",
     render: () => (
-      <Slide eyebrow="Answer first against answer buried" footer={footer} className="deck-demo-evidence">
+      <Slide eyebrow="The review log" footer={footer} className="deck-demo-evidence">
         <h2 className="uipack-deck-heading">Answer-first reviews were decided in 6 days; buried ones took 19.</h2>
         <table className="deck-demo-compare">
           <thead>
@@ -155,9 +155,25 @@ export const deckExample: DeckSlide[] = [
     notes: {
       say: "Here is the nineteen again, as one row of a comparison. The review log splits our twenty-four reviews into two groups. Eleven opened with their answer: a median of one meeting and six days to a decision. Thirteen buried it: three meetings and nineteen days. Same teams, same kinds of decision, same six months. The difference is the order of the slides. We can't prove the order caused all of it, but in every pair of reviews from the same team, the answer-first one was decided sooner. Source: the platform review log, April to September 2026, median per group.",
       delivery: "Trace the two bars left to right, then read the meetings column.",
-      next: "So how do you check a review before you give it?",
+      next: "And here is what that first meeting sounds like.",
     },
   },
+  // The quote archetype: the headline says what the words prove, the body holds the words.
+  quoteSlide({
+    id: "voices",
+    title: "What meeting one asks",
+    eyebrow: "The review log",
+    headline: "Nine of the 13 buried reviews ended meeting one asking what we needed.",
+    quote: "So what do you need from us?",
+    attribution: "An approver, first meeting of review 14",
+    footer,
+    role: "evidence",
+    notes: {
+      say: "This is the question the review log records most often at the end of a first meeting. Nine of the thirteen reviews that buried their answer ended meeting one with an approver asking some version of it: so what do you need from us? It is a fair question. The deck had not said. Every one of those nine needed a second meeting to answer it. Source: the platform review log, meeting notes, April to September 2026.",
+      delivery: "Read the quote once, flatly, and let the room recognise it.",
+      next: "So how do you check a review before you give it?",
+    },
+  }),
   {
     id: "ghost",
     title: "The ghost deck flags it",
@@ -207,7 +223,7 @@ export const deckExample: DeckSlide[] = [
     // The ghost deck's flagged card opens into the slide it stands for: the same slide, closer.
     transition: { zoom: "flagged" },
     render: () => (
-      <Slide eyebrow="Inside slide 02 · Cost update" footer={footer} className="deck-demo-fix">
+      <Slide eyebrow="Inside slide 02" footer={footer} className="deck-demo-fix">
         <h2 className="uipack-deck-heading">A flagged slide takes three edits: a claim, one chart and a source.</h2>
         <div className="deck-demo-fix__table">
           <p className="uipack-deck-label" aria-hidden="true">
@@ -248,7 +264,7 @@ export const deckExample: DeckSlide[] = [
     title: "Three pilots by 30 November",
     headline: "Three pilot reviews by 30 November, then we count days to a decision again.",
     role: "plan",
-    tone: "ink",
+    invert: true,
     render: () => (
       <Slide eyebrow="The pilot" footer={footer} className="deck-demo-plan">
         <h2 className="uipack-deck-heading">Three pilot reviews by 30 November, then we count days to a decision again.</h2>

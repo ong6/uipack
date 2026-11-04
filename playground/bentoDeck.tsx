@@ -1,4 +1,4 @@
-import { Bento, BentoCell, Slide, type DeckSlide } from "../src/deck";
+import { Bento, BentoCell, Slide, endSlide, factSlide, sectionSlide, type DeckSlide } from "../src/deck";
 
 const footer = "Search platform · Q3 review · Illustrative";
 
@@ -164,9 +164,27 @@ export const bentoDeck: DeckSlide[] = [
     notes: {
       say: "The headline first: search is twice as fast as it was in Q2, and it costs less to serve. p95 latency went from four hundred and twelve milliseconds to one hundred and ninety-eight, and cost per thousand queries fell eighteen percent. What users noticed: the share of searches that end in a click rose from sixty-one percent to sixty-four, so more people found what they came for. Everything after this slide is the evidence, the one risk that could undo it, and the one decision we need from the Platform leads by the thirtieth of October. Source: the search latency, cost and click-through dashboards, Q2 against Q3.",
       delivery: "State the speed and cost numbers slowly, then the click-through. Don't explain yet.",
-      next: "Here's where the speed came from.",
+      next: "Here is the speed as one number.",
     },
   },
+  // The fact archetype: one number, its unit and its baseline, from across the room.
+  factSlide({
+    id: "latency",
+    title: "198 ms at p95",
+    eyebrow: "Latency",
+    headline: "p95 search latency fell from 412 ms to 198 ms in one quarter.",
+    value: "198",
+    unit: "ms p95",
+    baseline: "From 412 ms in Q2, on the same query mix.",
+    source: "Search latency dashboard, Q2 against Q3",
+    footer,
+    role: "evidence",
+    notes: {
+      say: "Here is the speed as one number. At the ninety-fifth percentile, a search took four hundred and twelve milliseconds in Q2 and takes one hundred and ninety-eight now, on the same mix of queries. That is the slowest one in twenty searches, so it is what people waiting on a slow result actually feel. Source: the search latency dashboard, Q2 against Q3.",
+      delivery: "Say the two numbers, then stop.",
+      next: "Here's where the speed came from.",
+    },
+  }),
   {
     id: "quarter",
     title: "Caching did most of it",
@@ -297,17 +315,33 @@ export const bentoDeck: DeckSlide[] = [
     notes: {
       say: "Here's the risk box up close. The cache tier is at seventy-one percent memory and climbing about three points a week. On that trend it reaches eighty-six percent by the seventeenth of November, and peak traffic from the twenty-third adds about four more, which takes it past ninety, where evictions undo most of the retrieval gain. A shard takes two engineers three weeks, so approved by the end of October it lands on the twentieth of November, before the peak. And we'll know early if we're wrong: if memory passes eighty-five percent before the tenth of November, the trend is faster than forecast, and we cap long-tail caching while the shard finishes. Source: the cache capacity forecast from the search dashboard.",
       delivery: "Point at the dashed line crossing the limit, then at the tripwire line.",
-      next: "So the shard leads next quarter's plan.",
+      next: "Which brings us to next quarter.",
     },
   },
+  // The section archetype: a divider that still makes a claim; the part number fills the body.
+  sectionSlide({
+    id: "next",
+    title: "Next quarter",
+    eyebrow: "Part 02",
+    number: "02",
+    headline: "Next quarter holds the speed through the peak and cuts cost again.",
+    lede: "One plan, three dated steps, and one decision that unblocks the first.",
+    footer,
+    role: "context",
+    notes: {
+      say: "That was the quarter. The second part is next quarter, and it has two jobs: hold the speed through the November peak, and keep cutting what search costs to run. The shard leads the plan because it is the one with a deadline.",
+      delivery: "Pause on the part number; this is a breath, not a slide to read.",
+      next: "So the shard leads next quarter's plan.",
+    },
+  }),
   {
     id: "plan",
     title: "By January",
     headline: "By January we hold latency and cut cost another 10%.",
     role: "plan",
-    tone: "ink",
+    invert: true,
     render: () => (
-      <Slide eyebrow="By January · cost per 1k queries" footer={footer}>
+      <Slide eyebrow="Next quarter" footer={footer}>
         <h2 className="uipack-deck-heading">By January we hold latency and cut cost another 10%.</h2>
         <ol className="deck-bento-plan">
           {[
@@ -339,25 +373,22 @@ export const bentoDeck: DeckSlide[] = [
       next: "The shard needs one decision, and it's dated.",
     },
   },
-  {
+  // The end archetype: the ask as a claim, then its decision, owner and date in a row.
+  endSlide({
     id: "ask",
-    title: "The ask",
+    title: "Approve the shard by 30 October",
+    eyebrow: "Decision needed",
     headline: "Platform leads: approve two engineers for the cache shard by 30 October.",
+    lede: "Three weeks of work lands the shard by 20\u00a0November, three days before the peak.",
+    action: "Two engineers for three weeks on the cache shard",
+    owner: "Platform leads",
+    date: "30 October",
+    footer,
     role: "ask",
     tone: "accent",
-    render: () => (
-      <Slide eyebrow="Decision needed" footer={footer} layout="center">
-        <h2 className="uipack-deck-title deck-bento-ask-title">
-          Platform leads: approve two engineers for the cache shard by 30 October.
-        </h2>
-        <p className="uipack-deck-lede">
-          Three weeks of work lands the shard by 20{"\u00a0"}November, three days before the peak.
-        </p>
-      </Slide>
-    ),
     notes: {
       say: "One decision for the Platform leads: two engineers for three weeks, approved by the thirtieth of October, so the shard starts on the second of November and lands by the twentieth, three days before peak traffic. If memory passes eighty-five percent first, we cap long-tail caching and the date still holds.",
       delivery: "Stop talking after the ask. Wait for an answer.",
     },
-  },
+  }),
 ];

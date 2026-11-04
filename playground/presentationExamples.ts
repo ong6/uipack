@@ -28,8 +28,8 @@ export const presentationStarters: SlideStarterData[] = [
       headline: "Separate what they see from what you say.",
       foundation: { title: "The point", detail: "One claim per slide" },
       applications: [
-        { title: "On screen", detail: "The structure people need to see." },
-        { title: "Out loud", detail: "The reasoning that makes it useful." },
+        { title: "On screen", detail: "the structure to see" },
+        { title: "Out loud", detail: "the reasoning, said" },
       ],
     },
     speech: {
@@ -45,7 +45,7 @@ export const presentationStarters: SlideStarterData[] = [
     title: "System",
     description: "A three-step flow and the decision it supports.",
     content: {
-      eyebrow: "How it fits together",
+      eyebrow: "The workflow",
       headline: "One idea, designed for two channels.",
       steps: [
         { title: "Claim", detail: "what matters" },

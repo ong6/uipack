@@ -127,7 +127,11 @@ function Wide() {
       <Connector points={query} defs={id} kind="request" flow="query" />
       <Packet points={query} kind="request" dur={1.6} delay={-0.8} flow="query" r={4} />
       <Connector points={read} defs={id} kind="request" flow="query" />
+      <Label x={(clients.x + clients.w + lb.x) / 2} y={CY - 10} text="https" anchor="middle" />
+      <Label x={(lb.x + lb.w + api.x) / 2} y={CY - 10} text="route" anchor="middle" />
+      <Label x={(api.x + api.w + worker.x) / 2 + 4} y={CY - 14} text="job" anchor="middle" />
       <Label x={814} y={CY - 10} text="query" anchor="middle" />
+      <Label x={policy.x + policy.w / 2 + 8} y={(policy.y + policy.h + tables.y) / 2 + 4} text="rows" />
     </>
   );
 }
@@ -177,6 +181,9 @@ function Narrow() {
       <Connector points={down(workerN, policyN)} defs={id} kind="request" flow="query" />
       <Packet points={down(workerN, policyN)} kind="request" dur={1.8} delay={-0.6} flow="query" r={4} />
       <Connector points={down(policyN, tablesN)} defs={id} kind="request" flow="query" />
+      <Label x={SPINE + 8} y={(c.y + c.h + lbN.y) / 2 + 4} text="https" />
+      <Label x={SPINE + 8} y={(apiN.y + apiN.h + workerN.y) / 2 + 4} text="job" />
+      <Label x={SPINE + 8} y={(workerN.y + workerN.h + policyN.y) / 2 + 4} text="query" />
     </>
   );
 }

@@ -34,7 +34,7 @@ export function PartsFigure({ number }: { number: string }) {
     <Figure
       number={number}
       eyebrow="Every part"
-      title="Nodes, groups, chips, connectors, packets"
+      title="Every figure on this page is built from these parts"
       caption="One of each. Connectors carry one arrowhead, in the request direction; the response is the same points ridden backwards. Hover a node or a legend item."
       legend={[
         { label: "Request", kind: "request" },
