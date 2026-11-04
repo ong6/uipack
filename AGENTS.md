@@ -1,6 +1,6 @@
 # UIPACK agent guide
 
-Read `docs/design-direction.md` before changing any visible UI. Read the nearest README before editing its area. `CLAUDE.md` points here; keep one canonical policy.
+Read `docs/system/README.md` (the design system: style, writing and layout as independent layers) and `docs/design-direction.md` before changing any visible UI. Read the nearest README before editing its area. `CLAUDE.md` points here; keep one canonical policy.
 
 ## What this library is
 

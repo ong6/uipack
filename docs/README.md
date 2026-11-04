@@ -1,5 +1,6 @@
 # UIPACK documentation
 
+- **[Design system](system/README.md): start here.** The philosophy and the three independent layers, [style](system/style.md), [writing](system/writing.md) and [layout](system/layout.md), each with sections for diagrams, slides, web, motion and 3D.
 - [Design direction](design-direction.md): visual style, catalog taxonomy, mobile interaction, and presentation composition.
 - The diagrams page (`/` in the playground) is the figure design system: one section per diagram pattern, simplest first, each with when to use it and the parts it is built from. Its sections are `figureEntries` in `playground/catalog.ts`; add a pattern there and in `playground/figures/` the first time a published figure uses it.
 - [3D animation API](slides.md): scenes, camera stops, animation settings, and integration. The `slides` filename and API remain compatible.

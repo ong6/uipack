@@ -1,5 +1,7 @@
 # Design direction
 
+The design system (philosophy, the style/writing/layout layers and their per-medium rules) is in [system/](system/README.md). This page covers the playground shell, catalog taxonomy, interaction polish and acceptance.
+
 ## The product structure
 
 UIPACK is a library of reusable visual explanations. The browser organizes two independent axes:
