@@ -1,0 +1,53 @@
+/* The style switcher in the shell's context line (ShowcaseShell StyleSwitcher). Shell type and
+   roles only. On a phone the context line hides its group name but keeps the switcher. */
+.showcase-style-switch {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.showcase-style-switch__label {
+  margin-right: 4px;
+}
+.showcase-style-switch a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--show-rule);
+  border-radius: var(--show-control-radius);
+  color: var(--show-ink);
+  font: var(--show-control-font-sm);
+  text-decoration: none;
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease;
+}
+.showcase-style-switch a:hover {
+  border-color: var(--show-ink);
+}
+.showcase-style-switch a[aria-current] {
+  border-color: var(--show-accent);
+  background: color-mix(in srgb, var(--show-accent) 12%, transparent);
+  box-shadow: inset 0 0 0 1px var(--show-accent);
+}
+.showcase-style-switch a:focus-visible {
+  outline: 2px solid var(--show-accent);
+  outline-offset: 2px;
+}
+.showcase-context:has(.showcase-style-switch) {
+  align-items: center;
+  flex-wrap: wrap;
+}
+@media (max-width: 719px) {
+  .showcase-context:has(.showcase-style-switch) {
+    display: flex;
+    margin: -8px 0 0;
+  }
+  .showcase-context:has(.showcase-style-switch) > :not(.showcase-style-switch) {
+    display: none;
+  }
+  .showcase-style-switch a {
+    min-height: 44px;
+  }
+}

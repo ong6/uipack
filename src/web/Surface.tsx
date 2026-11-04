@@ -1,4 +1,5 @@
 import type { CSSProperties, ElementType, ReactNode } from "react";
+import type { UiStyleId } from "../style";
 
 export interface WebSurfaceProps {
   children: ReactNode;
@@ -6,13 +7,23 @@ export interface WebSurfaceProps {
   theme?: "light" | "dark";
   as?: ElementType;
   className?: string;
-  style?: CSSProperties;
+  /**
+   * The style the page is painted in: "technical" (the default, diagram-led), "landing" (the
+   * generic landing page) or "graphical" (poster). Sets data-ui-style; omitted, the nearest
+   * ancestor's. A swap changes tokens and ornaments only. An object is still accepted as inline
+   * CSS, as before; pass both as `style` and `css`.
+   */
+  style?: UiStyleId | CSSProperties;
+  /** Inline CSS for the root, when `style` names the visual style. */
+  css?: CSSProperties;
 }
 
-/** Root of the Landing style: carries its scoped tokens, background and type. */
-export function WebSurface({ children, theme, as: Tag = "div", className = "", style }: WebSurfaceProps) {
+/** Root of a web page or panel: carries the style's tokens, background and type. */
+export function WebSurface({ children, theme, as: Tag = "div", className = "", style, css }: WebSurfaceProps) {
+  const uiStyle = typeof style === "string" ? style : undefined;
+  const inline = typeof style === "object" ? { ...style, ...css } : css;
   return (
-    <Tag className={`uipack-web ${className}`.trim()} data-theme={theme} data-style="landing" style={style}>
+    <Tag className={`uipack-web ${className}`.trim()} data-theme={theme} data-ui-style={uiStyle} style={inline}>
       {children}
     </Tag>
   );

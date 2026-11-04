@@ -6,16 +6,25 @@ export const visualStyles = [
   {
     id: "technical",
     name: "Technical",
-    description: "Precise system diagrams, restrained colour, directional motion, and clear labels.",
-    tokens: "src/theme.css",
-    guidance: "docs/design-direction.md",
+    description:
+      "The default and ours: precise system diagrams, warm paper, one forest accent, thin rules and a dotted grid. On the web, a page leads with a working diagram.",
+    tokens: "src/styles/technical.css",
+    guidance: "docs/system/style.md",
   },
   {
     id: "landing",
-    name: "Landing",
+    name: "Landing (generic)",
     description:
-      "Marketing-site building blocks: a demo-first hero, one star visual, opacity hierarchy, quiet depth and a single accent for calls to action.",
-    tokens: "src/web/web.css",
+      "The generic SaaS landing page, kept for when that is the brief: a demo-first hero, lavender band, indigo CTA, serif headlines, glass and grain.",
+    tokens: "src/styles/landing.css",
+    guidance: "docs/web-principles.md",
+  },
+  {
+    id: "graphical",
+    name: "Graphical",
+    description:
+      "Poster: bone paper, black ink, one signal-orange accent, condensed display caps, hard edges and one disc motif that rhymes from the hero down the page.",
+    tokens: "src/styles/graphical.css",
     guidance: "docs/web-principles.md",
   },
   {
@@ -69,6 +78,11 @@ export interface PageDef {
   hostsPage?: boolean;
   /** The `visualStyles` name the page's content uses, shown in the shell's context line; default "Technical". */
   styleName?: string;
+  /**
+   * Styles the page's content can be shown in (`uiStyles` ids). The shell then shows a style
+   * switcher in its context line, kept in `?style=` so it survives a reload; the first is the default.
+   */
+  styles?: readonly string[];
 }
 
 /**
@@ -106,6 +120,7 @@ export const libraryPages = [
     title: "Deck player",
     path: "/deck",
     query: { deck: "moves" },
+    styles: ["technical", "landing", "graphical"],
     isDefault: true,
     intro:
       "Tech talk deck: a team lead argues that reviews should open with their answer, with evidence, a pilot and a dated ask. Every slide advances except one morph (the same number becoming a table row) and one zoom (into the slide the ghost deck flags). Swipe on a touch screen, or click the deck and use the arrow keys.",
@@ -117,6 +132,7 @@ export const libraryPages = [
     title: "Deck player",
     path: "/deck",
     query: { deck: "bento" },
+    styles: ["technical", "landing", "graphical"],
     intro:
       "Bento review deck: a quarterly review on one bento slide. Next moves a camera between the containers, and each one shows denser detail when it is in focus.",
   },
@@ -127,6 +143,7 @@ export const libraryPages = [
     title: "Deck player",
     path: "/deck",
     query: { deck: "consulting" },
+    styles: ["technical", "landing", "graphical"],
     intro:
       "Consulting deck: a decision request in consulting style, with dense charts, callouts, a so-what panel and sources, read headline by headline.",
   },
@@ -158,8 +175,8 @@ export const libraryPages = [
     label: "Web UI",
     path: "/web",
     hostsPage: true,
-    styleName: "Landing",
-    intro: "Landing-page building blocks: a demo-first hero, spotlight features, motion and backgrounds.",
+    styles: ["technical", "landing", "graphical"],
+    intro: "One product page in three styles: the same words and sections, swapped by tokens and ornament slots alone.",
   },
   {
     id: "docs",

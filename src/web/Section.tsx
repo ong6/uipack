@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { UiStyleId } from "../style";
 import { Body, Eyebrow, Heading } from "./Text";
 import { Grid, GridItem } from "./Surface";
 import { SpotlightCard } from "./SpotlightCard";
@@ -20,6 +21,8 @@ export interface SectionProps {
    * for sections above an in-page link target.
    */
   lazyRender?: boolean;
+  /** Paint this section in another style (data-ui-style), e.g. one Graphical band on a Technical page. */
+  style?: UiStyleId;
 }
 
 /** A page section on the 8-pt rhythm, with an optional eyebrow, heading and intro. */
@@ -33,6 +36,7 @@ export function Section({
   id,
   className = "",
   lazyRender = false,
+  style,
 }: SectionProps) {
   const headingId = id ? `${id}-title` : undefined;
   return (
@@ -42,6 +46,7 @@ export function Section({
       data-tone={tone}
       data-align={align}
       data-lazy={lazyRender || undefined}
+      data-ui-style={style}
       aria-labelledby={title ? headingId : undefined}
     >
       <div className="uipack-web-section__inner">

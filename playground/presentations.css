@@ -113,13 +113,20 @@
   overflow: hidden;
   background: var(--web-bg);
 }
+/* The style's backdrop ornament (Graphical's disc), sized by the preview (a container); Landing has none. */
+.style-preview__landing::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ui-backdrop);
+}
 .style-preview__star {
   position: absolute;
   inset: 62% -4% -2% -4%;
   width: 108%;
   height: 40%;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 40%);
-  mask-image: linear-gradient(to right, transparent, #000 40%);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 40%);
+  mask-image: linear-gradient(to right, transparent, black 40%);
 }
 .style-preview__landing-copy {
   position: relative;
@@ -139,7 +146,12 @@
   font-size: clamp(26px, 8cqi, 34px);
   line-height: 1.02;
   letter-spacing: var(--web-display-tracking);
+  text-transform: var(--web-display-case);
   color: var(--web-ink);
+}
+.style-preview__display em {
+  font-style: var(--ui-em-style, italic);
+  color: var(--ui-em-color, inherit);
 }
 .style-preview__landing .uipack-web-cta {
   min-height: 0;
@@ -176,10 +188,10 @@
   background: var(--show-surface);
   overflow: hidden;
 }
-/* In dark, the 3D stage paints the Technical figure surface (#0e1512); the slide takes the same
-   surface, so its two halves meet without a seam. */
+/* In dark, the 3D stage paints the Technical figure surface (--ui-surface); the slide takes the
+   same surface, so its two halves meet without a seam. */
 :root[data-theme="dark"] .composed-deck {
-  background: #0e1512;
+  background: var(--ui-surface);
 }
 .composed-deck__copy {
   padding: 52px 20px 40px 40px;

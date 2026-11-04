@@ -1,8 +1,12 @@
 import { Connector, Defs, Figure, Label, Node } from "../src";
 import { GateMachine } from "../src/mechanism";
 import { CtaButton, Eyebrow, StarChart, WebSurface } from "../src/web";
+import "../src/styles/landing.css";
+import "../src/styles/graphical.css";
 import "../src/mechanism/mechanism.css";
+import "../src/web/fonts.css";
 import "../src/web/web.css";
+import "../src/web/web-styles.css";
 
 type Theme = "light" | "dark";
 
@@ -58,9 +62,9 @@ function TechnicalPreview({ theme }: { theme: Theme }) {
   );
 }
 
-function LandingPreview({ theme }: { theme: Theme }) {
+function LandingPreview({ theme, style = "landing" }: { theme: Theme; style?: "landing" | "graphical" }) {
   return (
-    <WebSurface theme={theme} className="style-preview__landing">
+    <WebSurface theme={theme} style={style} className="style-preview__landing">
       <StarChart className="style-preview__star" />
       <div className="style-preview__landing-copy">
         <Eyebrow>Inbox agent</Eyebrow>
@@ -86,6 +90,8 @@ export function StylePreview({ id, theme }: { id: string; theme: Theme }) {
         <TechnicalPreview theme={theme} />
       ) : id === "landing" ? (
         <LandingPreview theme={theme} />
+      ) : id === "graphical" ? (
+        <LandingPreview theme={theme} style="graphical" />
       ) : id === "mechanism" ? (
         <MechanismPreview theme={theme} />
       ) : still ? (

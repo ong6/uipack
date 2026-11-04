@@ -13,6 +13,7 @@ export function CanvasView({
   children,
   zoom,
   theme,
+  uiStyle,
   restoreFocus,
   layout,
 }: {
@@ -22,6 +23,8 @@ export function CanvasView({
   children: ReactNode;
   zoom: CanvasZoom;
   theme?: string;
+  /** The style of what it shows (data-ui-style), carried into the dialog, which sits in <body>. */
+  uiStyle?: string;
   restoreFocus?: () => void;
   /** "figure" centres a drawing that is shorter than the canvas. */
   layout?: "figure";
@@ -100,6 +103,7 @@ export function CanvasView({
       ref={dialog}
       className="uipack-canvas-dialog"
       data-theme={theme ?? document.documentElement.dataset.theme}
+      data-ui-style={uiStyle}
       aria-label={title}
       onCancel={(e) => {
         e.preventDefault();

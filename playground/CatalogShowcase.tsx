@@ -145,9 +145,15 @@ export default function CatalogShowcase() {
                       <a href={`/?theme=${theme}`}>Diagrams</a>
                       <a href={`/animations?theme=${theme}`}>3D animations</a>
                       <a href={`/presentations?theme=${theme}`}>Presentations</a>
+                      <a href={`/web?style=technical&theme=${theme}`}>Product page</a>
                     </>
                   ) : style.id === "landing" ? (
-                    <a href={`/web?theme=${theme}`}>Web UI building blocks</a>
+                    <a href={`/web?style=landing&theme=${theme}`}>Landing page</a>
+                  ) : style.id === "graphical" ? (
+                    <>
+                      <a href={`/web?style=graphical&theme=${theme}`}>Poster page</a>
+                      <a href={`/deck?deck=moves&style=graphical&theme=${theme}`}>Deck</a>
+                    </>
                   ) : style.id === "mechanism" ? (
                     <a href={`/mechanism?theme=${theme}`}>Verification gate machine</a>
                   ) : (

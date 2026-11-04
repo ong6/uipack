@@ -17,12 +17,28 @@
       name="description"
       content="The uipack playground: React and SVG figures, charts, 3D animations, decks and Landing-page blocks for engineering write-ups, each with its source."
     />
-    <!-- /web: preload the Landing hero's display faces (uipack/web fontPreloads: display + italic,
-         because the hero title has an <em>). Vite rewrites each href to the built file the CSS uses;
-         media="not all" keeps them inert on every other route, and the script below turns them on
-         for /web in a build, at 720px and wider: there the swap re-wrapped the centred headline
-         (CLS 0.042 at 1440px), while on a phone it moved nothing and the preload only slowed the
-         first paint. The dev server serves fonts from another URL, so it skips them. -->
+    <!-- Before the first paint, a blocking script sets the theme and the page's style from the URL
+         (uipack styleBootScript, inlined): data-theme and data-ui-theme from ?theme=, data-ui-style
+         from ?style=. The shell stays Technical (its frame sets data-ui-style="technical"); /web and
+         the decks show their content in the chosen style, so it never flashes another one. -->
+    <script>
+      (function () {
+        var q = new URLSearchParams(location.search), d = document.documentElement;
+        var t = q.get("theme") === "dark" ? "dark" : "light";
+        d.setAttribute("data-theme", t);
+        d.setAttribute("data-ui-theme", t);
+        var s = q.get("style");
+        if (["technical", "landing", "graphical"].indexOf(s) >= 0) d.setAttribute("data-ui-style", s);
+      })();
+    </script>
+    <!-- /web: preload only the active style's display face (uipack/web fontPreloads; uiStyles[].preload).
+         Technical preloads nothing: its hero is Plex Sans, whose swap moves nothing measurable.
+         Landing preloads Instrument Serif (display + italic, the hero title has an <em>); Graphical
+         preloads Anton. Vite rewrites each href to the built file the CSS uses; media="not all" keeps
+         them inert, and the script below turns on the active style's set for /web in a build, at
+         720px and wider: there the Landing swap re-wrapped the centred headline (CLS 0.042 at
+         1440px), while on a phone it moved nothing and the preload only slowed the first paint.
+         The dev server serves fonts from another URL, so it skips them. -->
     <link
       rel="preload"
       as="font"
@@ -30,7 +46,7 @@
       crossorigin
       href="../src/web/fonts/instrument-serif-latin-400-normal.woff2"
       media="not all"
-      data-preload-route="/web"
+      data-preload-style="landing"
     />
     <link
       rel="preload"
@@ -39,17 +55,28 @@
       crossorigin
       href="../src/web/fonts/instrument-serif-latin-400-italic.woff2"
       media="not all"
-      data-preload-route="/web"
+      data-preload-style="landing"
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      crossorigin
+      href="../src/web/fonts/anton-latin-400-normal.woff2"
+      media="not all"
+      data-preload-style="graphical"
     />
     <script>
-      if (location.pathname.replace(/\/$/, "") === "/web")
-        for (const l of document.querySelectorAll('link[data-preload-route="/web"]')) {
+      if (location.pathname.replace(/\/$/, "") === "/web") {
+        var style = document.documentElement.getAttribute("data-ui-style") || "technical";
+        for (const l of document.querySelectorAll('link[data-preload-style="' + style + '"]')) {
           if (!l.getAttribute("href").startsWith("/assets/")) continue;
           const on = l.cloneNode();
           on.setAttribute("media", "(min-width: 720px)");
-          on.removeAttribute("data-preload-route");
+          on.removeAttribute("data-preload-style");
           l.after(on);
         }
+      }
     </script>
   </head>
   <body>
