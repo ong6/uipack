@@ -156,3 +156,67 @@ test("deck: the same slides in every style keep the region map and the reading o
     }
   expect(errors).toEqual([]);
 });
+
+test("a Section with its own uiStyle repaints inside another style's page", async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto("/web?style=technical&theme=light");
+  const own = page.locator("#web-nested-technical");
+  const nested = page.locator("#web-nested-graphical");
+  await expect(nested).toHaveAttribute("data-ui-style", "graphical");
+  const look = (section: typeof own) =>
+    section.evaluate((el) => {
+      const cta = el.querySelector(".uipack-web-cta")!;
+      const heading = el.querySelector(".uipack-web-heading")!;
+      return {
+        cta: getComputedStyle(cta).backgroundColor,
+        radius: getComputedStyle(cta).borderTopLeftRadius,
+        face: getComputedStyle(heading).fontFamily,
+        ground: getComputedStyle(el).backgroundColor,
+      };
+    });
+  const a = await look(own);
+  const b = await look(nested);
+  expect(a.cta).toBe("rgb(32, 95, 73)"); // Technical forest
+  expect(b.cta).toBe("rgb(242, 74, 0)"); // Graphical signal orange
+  expect(b.radius).toBe("0px");
+  expect(b.face).toMatch(/^"?Anton/);
+  expect(a.face).not.toMatch(/Anton/);
+  expect(b.ground).toBe("rgb(241, 238, 230)"); // bone paper
+  expect(errors).toEqual([]);
+});
+
+test("Technical's own layout: a figure in the hero, start-aligned heads, steps as numbered rows", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const errors = watchErrors(page);
+  await page.goto("/web?style=technical&theme=light");
+  const example = page.locator(".web-example");
+  await expect(example).toHaveAttribute("data-ui-layout", "style");
+  const hero = page.locator(".web-example .uipack-web-hero");
+  // The finished state shows without scrolling: the hero's figure renders once the page has loaded.
+  await expect(hero.locator("figure.uipack")).toBeVisible({ timeout: 10_000 });
+  await expect(hero.locator(".uipack-web-demo")).toHaveCount(0);
+  expect(await hero.evaluate((el) => getComputedStyle(el).textAlign)).toBe("start");
+  const head = page.locator("#web-pricing .uipack-web-section__head");
+  expect(await head.evaluate((el) => getComputedStyle(el).textAlign)).toBe("start");
+  // Steps: one column of rows, each the full width of the list.
+  const list = await page.locator("#web-how .uipack-web-features").boundingBox();
+  for (const row of await page.locator("#web-how .uipack-web-features > li").all())
+    expect(Math.abs((await row.boundingBox())!.width - list!.width)).toBeLessThanOrEqual(1);
+  // Landing keeps its centred demo hero.
+  await page.goto("/web?style=landing&theme=light");
+  await expect(page.locator(".web-example .uipack-web-hero .uipack-web-demo")).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("the shell stays Technical whatever style the page shows", async ({ page }) => {
+  for (const style of STYLES) {
+    await page.goto(`/web?style=${style}&theme=light`);
+    await expect(page.locator("html")).toHaveAttribute("data-ui-style", style);
+    const shell = await page.evaluate(() => ({
+      body: getComputedStyle(document.body).backgroundColor,
+      link: getComputedStyle(document.querySelector(".showcase-groups a[aria-current]")!).color,
+    }));
+    expect(shell.body, style).toBe("rgb(246, 245, 241)");
+    expect(shell.link, style).toBe("rgb(32, 95, 73)");
+  }
+});

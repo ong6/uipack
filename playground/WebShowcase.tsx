@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSPropertie
 import { flushSync } from "react-dom";
 import { useShowcaseStyle, useShowcaseTheme } from "./ShowcaseShell";
 import { libraryPages, webEntries } from "./catalog";
-import { uiStyles, type UiStyleId } from "../src/style";
+import { sectionOrder, type UiStyleId } from "../src/style";
 import {
   Body,
   CtaButton,
@@ -20,6 +20,9 @@ import {
   StarHero,
   Subhead,
   WebSurface,
+  WebPage,
+  type WebPageContext,
+  type WebPageProps,
   typeScale,
   type DemoStep,
   Aurora,
@@ -278,7 +281,12 @@ function TypeSpecimen({
         enough to read and press, and the mono face marks labels and data. All three are self-hosted woff2 files in the package
         (latin only) and swap in over metric-matched fallbacks.
       </p>
-      <WebSurface theme={theme} className="web-panel" style={uiStyle} css={uiStyle === "landing" ? faceStyle(face) : undefined}>
+      <WebSurface
+        theme={theme}
+        className="web-panel"
+        uiStyle={uiStyle}
+        style={uiStyle === "landing" ? faceStyle(face) : undefined}
+      >
         <Grid>
           <GridItem span={[12, 8, 4]}>
             <div className="web-role" data-role="display">
@@ -383,13 +391,11 @@ const webPage = libraryPages.find((p) => p.id === "web")!;
 // it sits below the fold in every order, and keeping it off the critical path holds /web's LCP.
 const TidyFlow = lazy(() => import("./webTidyFlow"));
 
-/** One section order for every style: the swap test (e2e/style-swap.spec.ts) compares boxes in it. */
-const sharedOrder = ["hero", "how", "mechanism", "proof", "faq", "pricing"] as const;
-
 const sectionNames: Record<string, string> = {
   hero: "Hero",
   mechanism: "Mechanism",
   how: "Steps",
+  demo: "Demo",
   proof: "Proof",
   faq: "FAQ",
   pricing: "Pricing",
@@ -432,158 +438,205 @@ function LayoutSwitch({
 }
 
 /**
- * Renders its children once they come within 800px of the viewport (a placeholder of the same
- * height until then), so a below-the-fold figure's chunk never competes with the first view.
+ * True once the page has loaded and the browser is idle: below-the-fold and hero figures render
+ * then, without waiting to be scrolled into view, and their chunk never competes with the first view.
  */
-function WhenNear({ children }: { children: ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [near, setNear] = useState(() => typeof IntersectionObserver === "undefined");
+function useAfterLoad() {
+  const [ready, setReady] = useState(() => typeof window === "undefined");
   useEffect(() => {
-    const el = ref.current;
-    if (!el || near) return;
-    const io = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && setNear(true), {
-      rootMargin: "800px 0px",
-    });
-    io.observe(el);
-    return () => io.disconnect();
-  }, [near]);
-  return near ? <>{children}</> : <div ref={ref} className="web-mechanism__placeholder" />;
+    if (ready) return;
+    let timer = 0;
+    let idle = 0;
+    const ric = (window as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+    // A second after load (or after mount, if the page has already loaded), then the next idle
+    // moment: well after the first view's paint.
+    const go = () => {
+      timer = window.setTimeout(() => {
+        if (ric) idle = ric(() => setReady(true), { timeout: 1500 });
+        else setReady(true);
+      }, 1000);
+    };
+    if (document.readyState === "complete") go();
+    else window.addEventListener("load", go, { once: true });
+    return () => {
+      window.removeEventListener("load", go);
+      clearTimeout(timer);
+      (window as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback?.(idle);
+    };
+  }, [ready]);
+  return ready;
 }
 
-function ExampleSection({ id, align, seo }: { id: string; align: "center" | "start"; seo: ReturnType<typeof tidySeo> }) {
-  switch (id) {
-    case "hero":
-      return (
-        <div id="web-top" data-section-id="hero">
-          <StarHero
-            headingId="web-hero-title"
-            align={align}
-            eyebrow="Inbox agent"
-            title={
-              <>
-                Forty emails in. Three that <em>need you.</em>
-              </>
-            }
-            subtitle="Tidy reads, files and drafts while you watch. You keep the decisions only you can make."
-            actions={
-              <>
-                <CtaButton size="lg" href="#web-pricing">
-                  Start free
-                </CtaButton>
-                <CtaButton size="lg" variant="secondary" href="#web-how">
-                  See how it works
-                </CtaButton>
-              </>
-            }
-          >
-            <DemoPlayer
-              label="Product demo: clearing an inbox"
-              address="tidy.example/inbox"
-              steps={demoSteps}
-              initialMetric={40}
-              metricLabel="in your inbox"
-              cta={
-                <CtaButton variant="secondary" href="#web-pricing">
-                  Try it yourself
-                </CtaButton>
-              }
-            />
-          </StarHero>
-        </div>
-      );
-    case "mechanism":
-      return (
-        <Section
-          id="web-mechanism"
-          eyebrow="Mechanism"
-          title="Every message takes the same four steps."
-          intro="Select a step to see what it does. Drafts wait in a queue until you approve them."
-        >
-          <div className="web-mechanism" data-section-id="mechanism">
-            <WhenNear>
-              <Suspense fallback={<div className="web-mechanism__placeholder" />}>
-                <TidyFlow />
-              </Suspense>
-            </WhenNear>
-          </div>
-        </Section>
-      );
-    case "how":
-      return (
-        <Section
-          id="web-how"
-          eyebrow="How it works"
-          title="Three steps, all of them visible."
-          intro="The same curve from the hero marks each step, so the page reads as one idea."
-        >
-          <div data-section-id="how">
-            <FeatureGrid features={features} spotlight />
-          </div>
-        </Section>
-      );
-    case "proof":
-      return (
-        <Section id="web-proof" tone="secondary" align="center" eyebrow="Social proof slot">
-          <div className="web-quote" data-section-id="proof">
-            <RevealText
-              as="blockquote"
-              className="web-quote__text"
-              text="I stopped opening my inbox before coffee. It leaves me three things, and they are the right three."
-            />
-            <Body>Placeholder quote. Replace it with a named customer and a number before you ship.</Body>
-            <dl className="web-stats">
-              <div>
-                <dt>messages handled this morning</dt>
-                <dd>
-                  <NumberTicker value={37} />
-                </dd>
-              </div>
-              <div>
-                <dt>fewer unread</dt>
-                <dd>
-                  <NumberTicker value={92} suffix="%" />
-                </dd>
-              </div>
-              <div>
-                <dt>to watch the demo</dt>
-                <dd>
-                  <NumberTicker value={9.4} format={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }} suffix=" s" />
-                </dd>
-              </div>
-            </dl>
-          </div>
-        </Section>
-      );
-    case "faq":
-      return (
-        <FAQ
-          id="web-faq"
-          items={tidyFaq}
-          url={seo.url}
-          intro="Example answers for an illustrative product. Each first sentence answers the question on its own, so an answer engine can quote it alone."
-        />
-      );
-    case "pricing":
-      return (
-        <Section
-          id="web-pricing"
-          align="center"
-          eyebrow="Pricing"
+/** The mechanism figure, rendered once the page has loaded, over a placeholder of its height. */
+function LazyFlow({ headingLevel = 3 }: { headingLevel?: 2 | 3 }) {
+  const ready = useAfterLoad();
+  return (
+    <div className="web-mechanism" data-section-id="mechanism">
+      {ready ? (
+        <Suspense fallback={<div className="web-mechanism__placeholder" />}>
+          <TidyFlow headingLevel={headingLevel} />
+        </Suspense>
+      ) : (
+        <div className="web-mechanism__placeholder" />
+      )}
+    </div>
+  );
+}
+
+const demo = (
+  <DemoPlayer
+    label="Product demo: clearing an inbox"
+    address="tidy.example/inbox"
+    steps={demoSteps}
+    initialMetric={40}
+    metricLabel="in your inbox"
+    cta={
+      <CtaButton variant="secondary" href="#web-pricing">
+        Try it yourself
+      </CtaButton>
+    }
+  />
+);
+
+/**
+ * The sample page's content, by section id. WebPage picks the order (the style's own or the shared
+ * one) and tells the hero what fills its proof slot: Technical leads with the working diagram, the
+ * others with the demo.
+ */
+function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["sections"] {
+  return {
+    hero: (page: WebPageContext) => (
+      <div id="web-top" data-section-id="hero">
+        <StarHero
+          headingId="web-hero-title"
+          eyebrow="Inbox agent"
           title={
             <>
-              Get your morning back for <em>$8 a month.</em>
+              Forty emails in. Three that <em>need you.</em>
             </>
           }
-          intro="Free for 30 days, no card needed. One inbox, every action visible."
+          subtitle="Tidy reads, files and drafts while you watch. You keep the decisions only you can make."
+          actions={
+            <>
+              <CtaButton size="lg" href="#web-pricing">
+                Start free
+              </CtaButton>
+              <CtaButton size="lg" variant="secondary" href="#web-how">
+                See how it works
+              </CtaButton>
+            </>
+          }
         >
-          <div className="web-closing" data-section-id="pricing">
-            <CtaButton size="lg">Start free</CtaButton>
-          </div>
-        </Section>
-      );
-    default:
-      return null;
-  }
+          {page.defaults.hero === "figure" ? <LazyFlow headingLevel={2} /> : demo}
+        </StarHero>
+      </div>
+    ),
+    demo: (
+      <Section
+        id="web-demo"
+        eyebrow="Demo"
+        title="Watch it clear an inbox in nine seconds."
+        intro="The same three steps, played on a sample inbox."
+      >
+        <div data-section-id="demo">{demo}</div>
+      </Section>
+    ),
+    mechanism: (
+      <Section
+        id="web-mechanism"
+        eyebrow="Mechanism"
+        title="Every message takes the same four steps."
+        intro="Select a step to see what it does. Drafts wait in a queue until you approve them."
+      >
+        <LazyFlow />
+      </Section>
+    ),
+    how: (
+      <Section
+        id="web-how"
+        eyebrow="How it works"
+        title="Three steps, all of them visible."
+        intro="The same curve from the hero marks each step, so the page reads as one idea."
+      >
+        <div data-section-id="how">
+          <FeatureGrid features={features} spotlight />
+        </div>
+      </Section>
+    ),
+    proof: (
+      <Section id="web-proof" tone="secondary" align="center" eyebrow="Social proof slot">
+        <div className="web-quote" data-section-id="proof">
+          <RevealText
+            as="blockquote"
+            className="web-quote__text"
+            text="I stopped opening my inbox before coffee. It leaves me three things, and they are the right three."
+          />
+          <Body>Placeholder quote. Replace it with a named customer and a number before you ship.</Body>
+          <dl className="web-stats">
+            <div>
+              <dt>messages handled this morning</dt>
+              <dd>
+                <NumberTicker value={37} />
+              </dd>
+            </div>
+            <div>
+              <dt>fewer unread</dt>
+              <dd>
+                <NumberTicker value={92} suffix="%" />
+              </dd>
+            </div>
+            <div>
+              <dt>to watch the demo</dt>
+              <dd>
+                <NumberTicker value={9.4} format={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }} suffix=" s" />
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </Section>
+    ),
+    faq: seo ? (
+      <FAQ
+        id="web-faq"
+        items={tidyFaq}
+        url={seo.url}
+        intro="Example answers for an illustrative product. Each first sentence answers the question on its own, so an answer engine can quote it alone."
+      />
+    ) : null,
+    pricing: (
+      <Section
+        id="web-pricing"
+        align="center"
+        eyebrow="Pricing"
+        title={
+          <>
+            Get your morning back for <em>$8 a month.</em>
+          </>
+        }
+        intro="Free for 30 days, no card needed. One inbox, every action visible."
+      >
+        <div className="web-closing" data-section-id="pricing">
+          <CtaButton size="lg">Start free</CtaButton>
+        </div>
+      </Section>
+    ),
+  };
+}
+
+/** One band in another style: a Graphical Section inside the Technical page (Section uiStyle). */
+function NestedStyleDemo({ theme }: { theme: "light" | "dark" }) {
+  // After load: its Graphical band fetches Anton, which no other style on the first view needs.
+  if (!useAfterLoad()) return null;
+  return (
+    <WebSurface theme={theme} uiStyle="technical" className="web-panel web-nested">
+      <Section id="web-nested-technical" eyebrow="Technical" title="This band is the page's own style.">
+        <CtaButton>Start free</CtaButton>
+      </Section>
+      <Section id="web-nested-graphical" uiStyle="graphical" eyebrow="Graphical" title="This band sets uiStyle on its Section.">
+        <CtaButton>Start free</CtaButton>
+      </Section>
+    </WebSurface>
+  );
 }
 
 export default function WebShowcase() {
@@ -594,7 +647,7 @@ export default function WebShowcase() {
   const [layout, setLayout] = useState<"style" | "shared">(() =>
     new URLSearchParams(location.search).get("layout") === "shared" ? "shared" : "style",
   );
-  const order = layout === "shared" ? sharedOrder : uiStyles.find((x) => x.id === uiStyle)!.prefers;
+  const order = sectionOrder(uiStyle, Object.keys(exampleSections(null)), layout);
   const [face, setFace] = useState<DisplayFaceId>("instrument-serif");
   // The display-face comparison is Landing's (its faces); other styles keep their own.
   const surfaceStyle = uiStyle === "landing" ? faceStyle(face) : undefined;
@@ -618,30 +671,33 @@ export default function WebShowcase() {
         <LayoutSwitch layout={layout} setLayout={setLayout} order={order} />
         {painted && (
           <>
-            <WebSurface theme={theme} className="web-example" style={uiStyle} css={surfaceStyle}>
-              <JsonLd data={seo.jsonLd} />
-              <GlassNav
-                brand={
-                  <a href="#web-top" className="web-brand">
-                    <RhymeIcon at={1} size={28} /> Tidy
-                  </a>
-                }
-                links={[
-                  { label: "How it works", href: "#web-how" },
-                  { label: "Proof", href: "#web-proof" },
-                  { label: "Pricing", href: "#web-pricing" },
-                ]}
-                cta={<CtaButton href="#web-pricing">Start free</CtaButton>}
-              />
-              {order.map((id) => (
-                <ExampleSection
-                  key={id}
-                  id={id}
-                  align={layout === "style" && uiStyle === "technical" ? "start" : "center"}
-                  seo={seo}
-                />
-              ))}
-            </WebSurface>
+            <WebPage
+              theme={theme}
+              className="web-example"
+              uiStyle={uiStyle}
+              layout={layout}
+              style={surfaceStyle}
+              nav={
+                <>
+                  <JsonLd data={seo.jsonLd} />
+                  <GlassNav
+                    brand={
+                      <a href="#web-top" className="web-brand">
+                        <RhymeIcon at={1} size={28} /> Tidy
+                      </a>
+                    }
+                    links={[
+                      { label: "How it works", href: "#web-how" },
+                      { label: "Proof", href: "#web-proof" },
+                      { label: "Pricing", href: "#web-pricing" },
+                    ]}
+                    cta={<CtaButton href="#web-pricing">Start free</CtaButton>}
+                  />
+                </>
+              }
+              sections={exampleSections(seo)}
+            />
+            <NestedStyleDemo theme={theme} />
             <GeneratedFiles seo={seo} />
             <p className="collection-intro web-example__aside">
               Wheel scrolling on this page is eased by <code>SmoothScroll</code>; touch and reduced motion keep native scrolling.
@@ -655,7 +711,7 @@ export default function WebShowcase() {
           <TypeSpecimen theme={theme} uiStyle={uiStyle} face={face} setFace={setFace} />
 
           <FlashySection count={flashy.length}>
-            <WebSurface theme={theme} className="web-panel" style={uiStyle} css={surfaceStyle}>
+            <WebSurface theme={theme} className="web-panel" uiStyle={uiStyle} style={surfaceStyle}>
               <Grid as="ul">
                 {flashy.map((entry) => (
                   <GridItem as="li" key={entry.id} span={[3, 4, 4]}>
@@ -683,7 +739,7 @@ export default function WebShowcase() {
             <p className="collection-intro">
               The defaults that make a page read as designed: scale, hierarchy, one accent, and a grid.
             </p>
-            <WebSurface theme={theme} className="web-panel web-lowkey" style={uiStyle} css={surfaceStyle}>
+            <WebSurface theme={theme} className="web-panel web-lowkey" uiStyle={uiStyle} style={surfaceStyle}>
               <Grid>
                 <GridItem span={[7, 8, 4]}>
                   <div className="web-block">
@@ -955,7 +1011,7 @@ function MotionSection({
         uses only transform, opacity and filter so nothing shifts, and settles to its final state under reduced motion. Hover
         effects are mouse-only.
       </p>
-      <WebSurface theme={theme} className="web-panel" style={uiStyle} css={surfaceStyle}>
+      <WebSurface theme={theme} className="web-panel" uiStyle={uiStyle} style={surfaceStyle}>
         <Grid>
           <GridItem span={[4, 4, 4]}>
             <div className="web-block">
@@ -1102,7 +1158,7 @@ function BackgroundsSection({
           </button>
         )}
       </div>
-      <WebSurface theme={theme} className="web-panel" style={uiStyle} css={surfaceStyle}>
+      <WebSurface theme={theme} className="web-panel" uiStyle={uiStyle} style={surfaceStyle}>
         <Grid>
           {backgroundTiles.map((tile) => (
             <GridItem key={tile.id} span={[4, 4, 4]}>

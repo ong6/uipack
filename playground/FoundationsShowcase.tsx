@@ -1,4 +1,4 @@
-import { useId, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import "../src/styles/landing.css";
 import "../src/styles/graphical.css";
 import "../src/web/fonts.css";
@@ -35,8 +35,8 @@ import layoutDoc from "../docs/system/layout.md?raw";
 const REPO = "https://github.com/ong6/uipack/blob/main/docs";
 
 /**
- * A system doc as page prose: its h1 dropped (the page has one), its headings one level down
- * under the section's h2, and its links pointed at these pages or at the repo.
+ * A system doc as page prose: its h1 dropped (the page has one) and its links pointed at these
+ * pages or at the repo.
  */
 function guide(source: string) {
   const pages: Record<string, string> = {
@@ -47,20 +47,139 @@ function guide(source: string) {
   };
   return source
     .replace(/^# .*\n+/, "")
-    .replace(/\]\(([a-z-]+\.md)(#[^)]*)?\)/g, (_m, file: string, hash = "") =>
+    .replace(/\]\(([A-Za-z0-9-]+\.md)(#[^)]*)?\)/g, (_m, file: string, hash = "") =>
       pages[file] ? `](${pages[file]}${hash})` : `](${REPO}/system/${file}${hash})`,
     )
     .replace(/\]\(\.\.\/([^)]+)\)/g, `](${REPO}/$1)`);
 }
 
-function Guide({ source, label }: { source: string; label: string }) {
+const slug = (title: string) =>
+  title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+type DocSection = { title: string; id: string; body: string };
+
+/** A doc split at its h2s: the lead before the first, then one entry per section. */
+function splitDoc(source: string): { lead: string; sections: DocSection[] } {
+  const [lead, ...rest] = guide(source).split(/^## /m);
+  return {
+    lead: lead.trim(),
+    sections: rest.map((chunk) => {
+      const title = chunk.slice(0, chunk.indexOf("\n")).trim();
+      return { title, id: slug(title), body: chunk.slice(chunk.indexOf("\n") + 1).trim() };
+    }),
+  };
+}
+
+const MEDIA = ["Diagrams", "Slides", "Web", "Motion", "3D"] as const;
+
+/** Opens a closed disclosure when the address points at something inside it. */
+function useHashOpens() {
+  useEffect(() => {
+    const open = () => {
+      const id = decodeURIComponent(location.hash.slice(1));
+      const target = id ? document.getElementById(id) : null;
+      const details = target?.closest("details");
+      if (!target || !details) return;
+      details.open = true;
+      target.scrollIntoView();
+    };
+    open();
+    window.addEventListener("hashchange", open);
+    return () => window.removeEventListener("hashchange", open);
+  }, []);
+}
+
+/**
+ * One doc's per-medium sections as tabs (Diagrams, Slides, Web, Motion, 3D). Real tabs: arrow
+ * keys, Home and End move between them; each panel is the doc's own section for that medium.
+ */
+function MediumTabs({ source, label }: { source: string; label: string }) {
   const { theme } = useShowcaseTheme();
+  const media = splitDoc(source).sections.filter((sec) => (MEDIA as readonly string[]).includes(sec.title));
+  const [current, setCurrent] = useState(0);
+  const tabs = useRef<(HTMLButtonElement | null)[]>([]);
+  const base = useId();
+  const move = (e: KeyboardEvent) => {
+    const keys: Record<string, number> = { ArrowRight: 1, ArrowLeft: -1 };
+    let next = current;
+    if (e.key in keys) next = (current + keys[e.key] + media.length) % media.length;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = media.length - 1;
+    else return;
+    e.preventDefault();
+    setCurrent(next);
+    tabs.current[next]?.focus();
+  };
+  const shown = media[current];
   return (
     <section>
-      <h2>{label}</h2>
-      <div className="uipack-docs fdn-guide" data-palette="technical" data-theme={theme}>
-        <DocsMarkdown source={guide(source)} headingOffset={1} />
+      <h2>{label} by medium</h2>
+      <div className="fdn-tabs" role="tablist" aria-label={`${label} by medium`} onKeyDown={move}>
+        {media.map((m, i) => (
+          <button
+            key={m.id}
+            ref={(el) => void (tabs.current[i] = el)}
+            type="button"
+            role="tab"
+            id={`${base}-tab-${i}`}
+            aria-selected={i === current}
+            aria-controls={`${base}-panel`}
+            tabIndex={i === current ? 0 : -1}
+            onClick={() => setCurrent(i)}
+          >
+            {m.title}
+          </button>
+        ))}
       </div>
+      <div
+        className="uipack-docs fdn-guide fdn-tabpanel"
+        data-palette="technical"
+        data-theme={theme}
+        role="tabpanel"
+        id={`${base}-panel`}
+        aria-labelledby={`${base}-tab-${current}`}
+      >
+        {shown && <DocsMarkdown source={shown.body} headingOffset={0} />}
+      </div>
+    </section>
+  );
+}
+
+/** The rest of a doc, closed until asked for, with the source a link away. */
+function FullSpec({
+  source,
+  page,
+  file,
+  skip = [],
+  open = false,
+}: {
+  source: string;
+  page: string;
+  file: string;
+  skip?: string[];
+  open?: boolean;
+}) {
+  const { theme } = useShowcaseTheme();
+  useHashOpens();
+  const { lead, sections } = splitDoc(source);
+  const rest = sections.filter((sec) => !(MEDIA as readonly string[]).includes(sec.title) && !skip.includes(sec.title));
+  const body = [lead, ...rest.map((sec) => `## ${sec.title}\n\n${sec.body}`)].filter(Boolean).join("\n\n");
+  return (
+    <section>
+      <h2>The full {page} specification</h2>
+      <p className="collection-intro">
+        Every rule and value, as the library documents them. The same text is in the repository:{" "}
+        <a href={`${REPO}/system/${file}`}>{page} on GitHub</a>.
+      </p>
+      <details className="fdn-spec" open={open}>
+        <summary>Read the full {page} specification</summary>
+        <div className="uipack-docs fdn-guide" data-palette="technical" data-theme={theme}>
+          <DocsMarkdown source={body} headingOffset={1} />
+        </div>
+      </details>
     </section>
   );
 }
@@ -220,77 +339,59 @@ function LayerToggle() {
             title="One slide, three layers"
             slides={[unitSlide(content, layout)]}
             theme={theme}
-            style={style}
+            uiStyle={style}
             motion="none"
           />
         </div>
-        <WebSurface theme={theme} style={style} className="fdn-unit__web">
+        <WebSurface theme={theme} uiStyle={style} className="fdn-unit__web">
           <UnitSection c={content} layout={layout} />
         </WebSurface>
       </div>
       <p className="fdn-note" aria-live="polite">
-        <code>{`<DeckPlayer style="${style}" slides={[${layout}Slide(${writing})]} />`}</code>
+        <code>{`<DeckPlayer uiStyle="${style}" slides={[${layout}Slide(${writing})]} />`}</code>
       </p>
     </section>
   );
 }
 
-const contract = [
-  [
-    "Style",
-    "A value set for the roles, light and dark; scalars (density, type ratio, measure); what it paints in ornament slots",
-    "Positions, region sizes, words",
-  ],
-  ["Writing", "Typed content: eyebrow, headline, lede, body, caption, notes, source, role", "Colours, font names, coordinates"],
-  [
-    "Layout",
-    "Regions and slots with text budgets, ornament slots, a grid, a reading order, beats",
-    "Hex values, face names, sentences",
-  ],
-];
+function ContractSection() {
+  const { theme } = useShowcaseTheme();
+  const layers = splitDoc(overviewDoc).sections.find((sec) => sec.title.startsWith("Three layers"))!;
+  return (
+    <section>
+      <h2>The contract between the layers</h2>
+      <div className="uipack-docs fdn-guide" data-palette="technical" data-theme={theme}>
+        <DocsMarkdown source={layers.body} headingOffset={1} />
+      </div>
+      <ul className="fdn-links">
+        <li>
+          <a href="/foundations/style">Style roles</a>: the roles, ornament slots and values.
+        </li>
+        <li>
+          <a href="/foundations/writing">Writing</a>: the content schema and slot budgets.
+        </li>
+        <li>
+          <a href="/foundations/layout">Layout</a>: regions, archetypes and narrow forms.
+        </li>
+        <li>
+          <a href="/foundations/mix">Mix and match</a>: what swaps cleanly and where it leaks.
+        </li>
+      </ul>
+    </section>
+  );
+}
 
 function Overview() {
   return (
     <>
       <LayerToggle />
-      <section>
-        <h2>The contract between the layers</h2>
-        <div className="fdn-table" tabIndex={0} role="region" aria-label="Layer contract">
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">Layer</th>
-                <th scope="col">Owns</th>
-                <th scope="col">Never contains</th>
-              </tr>
-            </thead>
-            <tbody>
-              {contract.map(([layer, owns, never]) => (
-                <tr key={layer}>
-                  <th scope="row">{layer}</th>
-                  <td>{owns}</td>
-                  <td>{never}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <ul className="fdn-links">
-          <li>
-            <a href="/foundations/style">Style roles</a>: the roles, ornament slots and values.
-          </li>
-          <li>
-            <a href="/foundations/writing">Writing</a>: the content schema and slot budgets.
-          </li>
-          <li>
-            <a href="/foundations/layout">Layout</a>: regions, archetypes and narrow forms.
-          </li>
-          <li>
-            <a href="/foundations/mix">Mix and match</a>: what swaps cleanly and where it leaks.
-          </li>
-        </ul>
-      </section>
-      <Guide source={overviewDoc} label="The system in full" />
+      <ContractSection />
+      <FullSpec
+        source={overviewDoc}
+        page="Foundations overview"
+        file="README.md"
+        skip={["Three layers, swapped independently", "Skills that use this spec"]}
+      />
     </>
   );
 }
@@ -339,7 +440,7 @@ function Swatches({ style, theme }: { style: UiStyleId; theme: "light" | "dark" 
 function OrnamentPanel({ style }: { style: UiStyleId }) {
   const { theme } = useShowcaseTheme();
   return (
-    <WebSurface theme={theme} style={style} className="fdn-ornaments">
+    <WebSurface theme={theme} uiStyle={style} className="fdn-ornaments">
       <div className="fdn-ornaments__stage">
         <div className="uipack-web-hero__backdrop" aria-hidden="true" />
         <Eyebrow>Inbox agent</Eyebrow>
@@ -419,7 +520,8 @@ function StylePage() {
           Every style is shown in the <a href="/styles">styles gallery</a>, with Mechanism and the 3D art directions.
         </p>
       </section>
-      <Guide source={styleDoc} label="The style guide" />
+      <MediumTabs source={styleDoc} label="Style" />
+      <FullSpec source={styleDoc} page="Style roles" file="style.md" />
     </>
   );
 }
@@ -503,7 +605,8 @@ function WritingPage() {
         <p className="collection-intro">The same check the linter runs, on one slot.</p>
         <BudgetChecker />
       </section>
-      <Guide source={writingDoc} label="The writing guide" />
+      <MediumTabs source={writingDoc} label="Writing" />
+      <FullSpec source={writingDoc} page="Writing" file="writing.md" />
     </>
   );
 }
@@ -572,7 +675,7 @@ function LayoutPage() {
           <Choice legend="Style" value={style} options={styleOptions} onChange={setStyle} />
         </div>
         <div className="fdn-deck">
-          <DeckPlayer id="foundations-archetypes" title="Slide archetypes" slides={archetypeDeck} theme={theme} style={style} />
+          <DeckPlayer id="foundations-archetypes" title="Slide archetypes" slides={archetypeDeck} theme={theme} uiStyle={style} />
         </div>
       </section>
       <section>
@@ -583,7 +686,8 @@ function LayoutPage() {
         </p>
         {pipeline(undefined, "foundations-narrow")}
       </section>
-      <Guide source={layoutDoc} label="The layout guide" />
+      <MediumTabs source={layoutDoc} label="Layout" />
+      <FullSpec source={layoutDoc} page="Layout" file="layout.md" />
     </>
   );
 }
@@ -680,7 +784,7 @@ function MixPage() {
         </p>
         <div className="fdn-grid3">
           {uiStyles.map((s) => (
-            <WebSurface key={s.id} theme={theme} style={s.id} className="fdn-mini">
+            <WebSurface key={s.id} theme={theme} uiStyle={s.id} className="fdn-mini">
               <Eyebrow>{s.name}</Eyebrow>
               <Heading level={3} size={4}>
                 Search answers in <em>198 ms</em> at p95
@@ -726,7 +830,7 @@ const recipes: { name: string; style: string; sequence: string[]; template: stri
     link: "The page in Landing",
   },
   {
-    name: "Product page (ours)",
+    name: "Product page (Technical)",
     style: "Technical",
     sequence: ["hero, start edge", "mechanism figure", "proof", "steps", "FAQ", "pricing"],
     template: "hero { … }, figure spec { stages, queue, caption }, stats[], faq[]",

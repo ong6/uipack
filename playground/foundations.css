@@ -125,13 +125,25 @@
   font-size: 13px;
 }
 
-/* Tables: scroll inside their frame on a phone. */
-.fdn-table {
+/* Tables scroll inside their frame on a phone, with a shadow at the edge that still has columns
+   to show: the covers scroll with the content (local), the shadows stay put (scroll), so a shadow
+   shows only where more of the table is hidden. */
+.fdn-table,
+.fdn-guide .uipack-docs__table {
   max-width: 100%;
   overflow-x: auto;
+  background:
+    linear-gradient(to right, var(--show-surface) 30%, transparent) left / 32px 100% no-repeat local,
+    linear-gradient(to left, var(--show-surface) 30%, transparent) right / 32px 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, color-mix(in srgb, var(--show-ink) 22%, transparent), transparent) left / 14px 100%
+      no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, color-mix(in srgb, var(--show-ink) 22%, transparent), transparent) right / 14px
+      100% no-repeat scroll,
+    var(--show-surface);
+}
+.fdn-table {
   border: 1px solid var(--show-rule);
   border-radius: var(--show-radius);
-  background: var(--show-surface);
 }
 .fdn-table:focus-visible {
   outline: 2px solid var(--show-accent);
@@ -501,4 +513,69 @@
 }
 .fdn-glow[data-glow="ambient"] {
   box-shadow: 0 0 32px 6px color-mix(in srgb, var(--ui-accent) 45%, transparent);
+}
+
+/* Per-medium tabs over one doc section at a time. */
+.fdn-tabs {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 0 16px;
+  border-bottom: 1px solid var(--show-rule);
+}
+.fdn-tabs [role="tab"] {
+  flex: none;
+  min-height: 44px;
+  margin-bottom: -1px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--show-muted);
+  font: var(--show-control-font);
+  cursor: pointer;
+  transition:
+    color 140ms ease,
+    border-color 140ms ease;
+}
+.fdn-tabs [role="tab"]:hover {
+  color: var(--show-ink);
+}
+.fdn-tabs [role="tab"][aria-selected="true"] {
+  border-bottom-color: var(--show-accent);
+  color: var(--show-ink);
+}
+.fdn-tabs [role="tab"]:focus-visible {
+  outline: 2px solid var(--show-accent);
+  outline-offset: -2px;
+}
+.fdn-tabpanel {
+  min-height: 12rem;
+}
+
+/* The full spec, closed by default. */
+.fdn-spec {
+  border: 1px solid var(--show-rule);
+  border-radius: var(--show-radius);
+  background: var(--show-surface);
+}
+.fdn-spec > summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  color: var(--show-ink);
+  font: var(--show-control-font);
+  cursor: pointer;
+}
+.fdn-spec > summary:focus-visible {
+  outline: 2px solid var(--show-accent);
+  outline-offset: 2px;
+}
+.fdn-spec[open] > summary {
+  border-bottom: 1px solid var(--show-rule);
+}
+.fdn-spec > .fdn-guide {
+  padding: 8px 16px 16px;
 }

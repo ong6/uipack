@@ -12,8 +12,11 @@
   --show-eyebrow-font: 600 12px/1.3 var(--show-font-mono);
   --show-eyebrow-tracking: 0.08em;
   --show-radius: 6px;
-  /* The shell is Technical: its colours are the roles (src/styles), whose dark half follows
-     the page's data-theme through color-scheme. */
+}
+/* The shell is Technical whatever style the page shows: <body data-ui-style="technical"> (index.html)
+   holds Technical's roles, and the shell's colours read them there, not on <html>, which carries
+   the page's style. Their dark half follows data-theme through color-scheme. */
+body {
   --show-bg: var(--ui-paper);
   --show-ink: var(--ui-ink);
   --show-muted: var(--ui-ink-2);

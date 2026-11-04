@@ -9,7 +9,10 @@
 .showcase-style-switch__label {
   margin-right: 4px;
 }
-.showcase-style-switch a {
+/* Real boxes: the context line's touch-target trick (padding with a negative margin) would let
+   these overlap the header rule and the title. */
+.showcase-context .showcase-style-switch a {
+  margin: 0;
   display: inline-flex;
   align-items: center;
   min-height: 32px;
@@ -42,12 +45,16 @@
 @media (max-width: 719px) {
   .showcase-context:has(.showcase-style-switch) {
     display: flex;
-    margin: -8px 0 0;
+    margin: -16px 0 0;
+  }
+  /* The title keeps clear of the switch row: 16px between them. */
+  .showcase-context:has(.showcase-style-switch) + .showcase-title {
+    margin-top: -16px;
   }
   .showcase-context:has(.showcase-style-switch) > :not(.showcase-style-switch) {
     display: none;
   }
-  .showcase-style-switch a {
+  .showcase-context .showcase-style-switch a {
     min-height: 44px;
   }
 }

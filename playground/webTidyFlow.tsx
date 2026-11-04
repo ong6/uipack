@@ -23,6 +23,6 @@ const tidyFlow: PipelineSpec = {
 };
 
 /** The /web sample's mechanism figure, in whatever style its WebSurface sets. */
-export default function TidyFlow() {
-  return pipeline(tidyFlow, "web-tidy-flow");
+export default function TidyFlow({ headingLevel = 3 }: { headingLevel?: 2 | 3 }) {
+  return pipeline({ ...tidyFlow, figure: { ...tidyFlow.figure, headingLevel } }, `web-tidy-flow-${headingLevel}`);
 }

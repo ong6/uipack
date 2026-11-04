@@ -7,7 +7,7 @@ export const visualStyles = [
     id: "technical",
     name: "Technical",
     description:
-      "The default and ours: precise system diagrams, warm paper, one forest accent, thin rules and a dotted grid. On the web, a page leads with a working diagram.",
+      "The default: precise system diagrams, warm paper, one forest accent, thin rules and a dotted grid. On the web, a page leads with a working diagram.",
     tokens: "src/styles/technical.css",
     guidance: "docs/system/style.md",
   },

@@ -64,7 +64,7 @@ function TechnicalPreview({ theme }: { theme: Theme }) {
 
 function LandingPreview({ theme, style = "landing" }: { theme: Theme; style?: "landing" | "graphical" }) {
   return (
-    <WebSurface theme={theme} style={style} className="style-preview__landing">
+    <WebSurface theme={theme} uiStyle={style} className="style-preview__landing">
       <StarChart className="style-preview__star" />
       <div className="style-preview__landing-copy">
         <Eyebrow>Inbox agent</Eyebrow>
