@@ -31,7 +31,7 @@ export interface DeckPlayerProps {
    * "graphical". Only tokens change: every slide keeps its regions, words and reading order.
    * Omitted, the deck follows the nearest ancestor with data-ui-style.
    */
-  style?: UiStyleId;
+  uiStyle?: UiStyleId;
   /** Default transition for slides that do not set one. */
   transition?: DeckTransition;
   motion?: "auto" | "none";
@@ -76,12 +76,12 @@ export function DeckPlayer(props: DeckPlayerProps) {
   return <Player {...props} />;
 }
 
-function EmptyDeck({ title, theme = "light", style, className }: DeckPlayerProps) {
+function EmptyDeck({ title, theme = "light", uiStyle, className }: DeckPlayerProps) {
   return (
     <div
       className={["uipack-deck", className].filter(Boolean).join(" ")}
       data-theme={theme}
-      data-ui-style={style}
+      data-ui-style={uiStyle}
       role="region"
       aria-label={title}
       aria-roledescription="slide deck"
@@ -98,7 +98,7 @@ function Player({
   id,
   title,
   theme = "light",
-  style,
+  uiStyle,
   transition = "advance",
   motion = "auto",
   mode = "audience",
@@ -251,7 +251,7 @@ function Player({
       ref={rootRef}
       className={["uipack-deck", className].filter(Boolean).join(" ")}
       data-theme={theme}
-      data-ui-style={style}
+      data-ui-style={uiStyle}
       data-mode={mode}
       data-motion={reducedMotion ? "none" : "auto"}
       data-index={view.index}
@@ -316,7 +316,7 @@ function Player({
       )}
       {printing && (
         <PrintJob
-          style={style}
+          uiStyle={uiStyle}
           slides={slides}
           theme={theme}
           title={title}

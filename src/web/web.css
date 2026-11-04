@@ -79,6 +79,65 @@
     /* Anchor targets clear a sticky GlassNav (also read by SmoothScroll). */
     --web-scroll-offset: 5rem;
   }
+  /* A nested style scope (<Section uiStyle>, any [data-ui-style] inside a page) re-reads the roles:
+     the aliases above resolve where they are declared, so each scope declares them again. */
+  .uipack-web [data-ui-style] {
+    --web-bg: var(--ui-paper);
+    --web-surface: var(--ui-surface);
+    --web-secondary: var(--ui-surface-2);
+    --web-accent: var(--ui-accent);
+    --web-accent-ink: var(--ui-accent-ink, var(--ui-accent));
+    --web-on-accent: var(--ui-on-accent);
+    --web-glass: var(--ui-nav-fill);
+    --web-glass-blur: var(--ui-nav-blur);
+    --web-shadow: var(--ui-frame-shadow);
+    --web-frame-border: var(--ui-frame-border);
+    --web-noise-blend: multiply;
+    --web-aurora-opacity: 0.28;
+    --web-ink: var(--ui-ink);
+    --web-ink-medium: var(--ui-ink-2);
+    --web-ink-low: var(--ui-ink-3);
+    --web-hairline: var(--ui-line-soft);
+    --web-rule: var(--ui-line);
+    --web-font-display: var(--ui-web-font-display, var(--ui-font-display));
+    --web-display-weight: var(--ui-display-weight);
+    --web-display-tracking: var(--ui-display-tracking);
+    --web-display-case: var(--ui-display-case);
+    --web-font-sans: var(--ui-web-font-text, var(--ui-font-text));
+    --web-font-text: var(--web-font-sans);
+    --web-font-mono: var(--ui-web-font-label, var(--ui-font-label));
+    --web-label-tracking: var(--ui-label-tracking);
+    --web-step--1: 0.8rem;
+    --web-step-0: 1rem;
+    --web-step-1: 1.25rem;
+    --web-step-2: 1.5625rem;
+    --web-step-3: 1.9531rem;
+    --web-step-4: 2.4414rem;
+    --web-step-5: 3.0518rem;
+    --web-step-6: 3.8147rem;
+    --web-display-scale: var(--ui-display-scale, 1);
+    --web-s1: 0.5rem;
+    --web-s2: 1rem;
+    --web-s3: 1.5rem;
+    --web-s4: 2rem;
+    --web-s6: 3rem;
+    --web-s8: 4rem;
+    --web-s12: 6rem;
+    --web-radius: var(--ui-radius);
+    --web-radius-panel: var(--ui-radius-sm);
+    --web-radius-inner: max(0px, calc(var(--ui-radius-sm) - 2px));
+    --web-radius-pill: var(--ui-radius-pill);
+    --web-ease: var(--ui-ease-settle);
+    --web-scroll-offset: 5rem;
+  }
+  .uipack-web :is(.uipack-web-section, .uipack-web-hero)[data-ui-style]:not([data-tone="secondary"]) {
+    background: var(--web-bg);
+  }
+  .uipack-web [data-ui-style] {
+    color: var(--web-ink);
+    font-family: var(--web-font-text);
+  }
+
   .uipack-web :where([id]) {
     scroll-margin-top: var(--web-scroll-offset);
   }

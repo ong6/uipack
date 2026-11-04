@@ -40,7 +40,7 @@ export interface FigureProps {
    * "graphical". Only tokens change; the drawing, its words and its layout stay put. Omitted, the
    * figure follows the nearest ancestor with data-ui-style.
    */
-  style?: UiStyleId;
+  uiStyle?: UiStyleId;
   /** Canvas background: the dotted grid (default), plain, or ruled lines. */
   background?: "dots" | "plain" | "ruled";
   /**
@@ -137,7 +137,7 @@ export function Figure({
   alt,
   className,
   theme,
-  style,
+  uiStyle,
   background = "dots",
   minFont = 11,
   measuredWidth,
@@ -238,7 +238,7 @@ export function Figure({
       }}
       title={title ?? eyebrow ?? "Figure canvas"}
       theme={theme}
-      uiStyle={style}
+      uiStyle={uiStyle}
       layout="figure"
       zoom={{ value: zoom, min: 1, max: 3, onChange: setZoom }}
     >
@@ -251,7 +251,7 @@ export function Figure({
                 .join(" ")
                 .trim()}
               data-theme={theme}
-              data-ui-style={style}
+              data-ui-style={uiStyle}
               data-hover-flow={hoverFlow ?? undefined}
               data-hover-kind={hoverKind ?? undefined}
               onKeyDown={(e) => {

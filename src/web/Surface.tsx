@@ -7,23 +7,27 @@ export interface WebSurfaceProps {
   theme?: "light" | "dark";
   as?: ElementType;
   className?: string;
+  style?: CSSProperties;
   /**
    * The style the page is painted in: "technical" (the default, diagram-led), "landing" (the
    * generic landing page) or "graphical" (poster). Sets data-ui-style; omitted, the nearest
-   * ancestor's. A swap changes tokens and ornaments only. An object is still accepted as inline
-   * CSS, as before; pass both as `style` and `css`.
+   * ancestor's. A swap changes tokens, ornaments and the layout defaults the style sets.
    */
-  style?: UiStyleId | CSSProperties;
-  /** Inline CSS for the root, when `style` names the visual style. */
-  css?: CSSProperties;
+  uiStyle?: UiStyleId;
+  /** "style" applies the style's layout defaults (set by WebPage); "shared" or omitted, none. */
+  layout?: "style" | "shared";
 }
 
 /** Root of a web page or panel: carries the style's tokens, background and type. */
-export function WebSurface({ children, theme, as: Tag = "div", className = "", style, css }: WebSurfaceProps) {
-  const uiStyle = typeof style === "string" ? style : undefined;
-  const inline = typeof style === "object" ? { ...style, ...css } : css;
+export function WebSurface({ children, theme, as: Tag = "div", className = "", style, uiStyle, layout }: WebSurfaceProps) {
   return (
-    <Tag className={`uipack-web ${className}`.trim()} data-theme={theme} data-ui-style={uiStyle} style={inline}>
+    <Tag
+      className={`uipack-web ${className}`.trim()}
+      data-theme={theme}
+      data-ui-style={uiStyle}
+      data-ui-layout={layout}
+      style={style}
+    >
       {children}
     </Tag>
   );

@@ -1,5 +1,13 @@
 export { Figure, type FigureProps } from "./Figure";
-export { uiStyles, isUiStyle, styleBootScript, type UiStyleId, type UiStyleMeta } from "./style";
+export {
+  uiStyles,
+  isUiStyle,
+  styleBootScript,
+  sectionOrder,
+  sharedSectionOrder,
+  type UiStyleId,
+  type UiStyleMeta,
+} from "./style";
 export { Legend, type LegendItem, type LegendProps } from "./Legend";
 export { Lane, type LaneProps } from "./Lane";
 export { Group, type GroupProps } from "./Group";

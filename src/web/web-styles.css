@@ -13,22 +13,26 @@
     -webkit-mask-image: var(--ui-backdrop-mask);
     mask-image: var(--ui-backdrop-mask);
   }
-  /* Marker: the style's motif, small, hung before each eyebrow (Technical: a 2px-radius square,
-     the request token's shape; Graphical: the hero's disc). Landing has none. */
-  .uipack-web-eyebrow {
-    position: relative;
-  }
-  .uipack-web-eyebrow::before {
+  /* Marker: the style's motif, small, before each eyebrow (Technical: a 2px-radius square, the
+     request token's shape; Graphical: the hero's disc). Landing has none. It sits inline, and an
+     invisible twin after the text balances it, so a centred eyebrow keeps its axis and nothing
+     hangs into the page's edge padding. */
+  .uipack-web-eyebrow::before,
+  .uipack-web-eyebrow::after {
     content: "";
-    position: absolute;
-    top: 50%;
-    right: 100%;
+    display: inline-block;
     width: var(--ui-marker-size, 0px);
     height: var(--ui-marker-size, 0px);
-    margin-right: calc(var(--ui-marker-size, 0px) * 0.75);
+    vertical-align: 0.05em;
     border-radius: var(--ui-marker-shape, 0px);
+  }
+  .uipack-web-eyebrow::before {
+    margin-right: calc(var(--ui-marker-size, 0px) * 0.75);
     background: var(--ui-marker-color, transparent);
-    transform: translateY(-50%);
+  }
+  .uipack-web-eyebrow::after {
+    margin-left: calc(var(--ui-marker-size, 0px) * 0.75);
+    visibility: hidden;
   }
   /* Rule: a line at the top of each section after the first, drawn inside it. */
   .uipack-web-section {
@@ -48,5 +52,85 @@
   }
   .uipack-web-hero[data-align="start"] .uipack-web-hero__actions {
     justify-content: start;
+  }
+
+  /* Technical's own layout (uiStyles technical.layout, applied when WebPage's layout is "style"):
+     the hero and every section head on the start edge, and steps as numbered rows instead of a row
+     of icon cards. Shared layout leaves these out, so a swap there changes tokens only. */
+  .uipack-web[data-ui-style="technical"][data-ui-layout="style"] .uipack-web-hero {
+    text-align: start;
+  }
+  /* The figure is the hero's star here: no decorative chart behind it. */
+  .uipack-web[data-ui-style="technical"][data-ui-layout="style"] .uipack-web-hero__visual {
+    display: none;
+  }
+  .uipack-web[data-ui-style="technical"][data-ui-layout="style"] .uipack-web-hero__copy {
+    justify-items: start;
+    max-width: 1040px;
+  }
+  .uipack-web[data-ui-style="technical"][data-ui-layout="style"] .uipack-web-hero__actions {
+    justify-content: start;
+  }
+  .uipack-web[data-ui-style="technical"][data-ui-layout="style"]
+    .uipack-web-section[data-align="center"]
+    .uipack-web-section__head {
+    justify-items: start;
+    text-align: start;
+    margin: 0;
+  }
+  .uipack-web[data-ui-style="technical"][data-ui-layout="style"] .uipack-web-features {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    counter-reset: uipack-step;
+    border-top: var(--ui-rule-width) solid var(--web-rule);
+  }
+  .uipack-web[data-ui-style="technical"][data-ui-layout="style"] .uipack-web-features > li {
+    grid-column: 1 / -1;
+    counter-increment: uipack-step;
+  }
+  .uipack-web[data-ui-style="technical"][data-ui-layout="style"]
+    .uipack-web-features
+    :is(.uipack-web-feature, .uipack-web-spotlight) {
+    grid-template-columns: 4rem minmax(0, 2fr) minmax(0, 3fr);
+    align-items: baseline;
+    column-gap: var(--web-s3);
+    padding: var(--web-s3) 0;
+    border: 0;
+    border-bottom: var(--ui-rule-width) solid var(--web-rule);
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .uipack-web[data-ui-style="technical"][data-ui-layout="style"]
+    .uipack-web-features
+    :is(.uipack-web-feature, .uipack-web-spotlight)::before {
+    content: counter(uipack-step, decimal-leading-zero);
+    position: static;
+    inset: auto;
+    padding: 0;
+    background: none;
+    opacity: 1;
+    -webkit-mask: none;
+    mask: none;
+    font: 600 var(--web-step--1) / 1.5 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    color: var(--web-accent-ink);
+  }
+  .uipack-web[data-ui-style="technical"][data-ui-layout="style"] .uipack-web-features .uipack-web-feature__icon {
+    display: none;
+  }
+  @container web (max-width: 720px) {
+    .uipack-web[data-ui-style="technical"][data-ui-layout="style"]
+      .uipack-web-features
+      :is(.uipack-web-feature, .uipack-web-spotlight) {
+      grid-template-columns: 3rem minmax(0, 1fr);
+      row-gap: var(--web-s1);
+    }
+    .uipack-web[data-ui-style="technical"][data-ui-layout="style"]
+      .uipack-web-features
+      :is(.uipack-web-feature, .uipack-web-spotlight)
+      > :not(:first-child):not(.uipack-web-feature__icon) {
+      grid-column: 2;
+    }
   }
 }

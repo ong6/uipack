@@ -19,13 +19,20 @@ export interface UiStyleMeta {
    * part of a look). A recommendation only: every style renders every layout.
    */
   prefers: readonly string[];
+  /**
+   * The layout defaults the style recommends, applied by `WebPage` (layout="style") and by the
+   * style's layout CSS: what fills the hero's proof slot, how the hero and section heads align,
+   * and whether steps are cards or numbered rows. A recommendation only: layout="shared" renders
+   * every style on the same layout.
+   */
+  layout: { hero: "demo" | "figure"; align: "center" | "start"; steps: "cards" | "rows" };
 }
 
 export const uiStyles: readonly UiStyleMeta[] = [
   {
     id: "technical",
     name: "Technical",
-    summary: "Diagram-led and ours: warm paper, ink, one forest accent, thin rules, 6px radius, a dotted grid.",
+    summary: "Diagram-led: warm paper, ink, one forest accent, thin rules, 6px radius, a dotted grid.",
     fonts: [
       "ibm-plex-sans-latin-400-normal.woff2",
       "ibm-plex-sans-latin-500-normal.woff2",
@@ -34,7 +41,8 @@ export const uiStyles: readonly UiStyleMeta[] = [
       "ibm-plex-mono-latin-600-normal.woff2",
     ],
     preload: [],
-    prefers: ["hero", "mechanism", "proof", "how", "faq", "pricing"],
+    prefers: ["hero", "how", "demo", "proof", "faq", "pricing"],
+    layout: { hero: "figure", align: "start", steps: "rows" },
   },
   {
     id: "landing",
@@ -51,6 +59,7 @@ export const uiStyles: readonly UiStyleMeta[] = [
     ],
     preload: ["instrument-serif-latin-400-normal.woff2", "instrument-serif-latin-400-italic.woff2"],
     prefers: ["hero", "how", "mechanism", "proof", "faq", "pricing"],
+    layout: { hero: "demo", align: "center", steps: "cards" },
   },
   {
     id: "graphical",
@@ -66,8 +75,21 @@ export const uiStyles: readonly UiStyleMeta[] = [
     ],
     preload: ["anton-latin-400-normal.woff2"],
     prefers: ["hero", "proof", "how", "mechanism", "pricing", "faq"],
+    layout: { hero: "demo", align: "center", steps: "cards" },
   },
 ];
+
+/** The section order every style renders when the layout is shared (the swap test's order). */
+export const sharedSectionOrder = ["hero", "how", "mechanism", "proof", "faq", "pricing"] as const;
+
+/**
+ * The ids to render, in order: the style's recommended sequence (layout "style") or the shared
+ * one, keeping only ids the page provides.
+ */
+export function sectionOrder(style: UiStyleId, available: readonly string[], layout: "style" | "shared" = "style"): string[] {
+  const wanted = layout === "shared" ? sharedSectionOrder : uiStyles.find((s) => s.id === style)!.prefers;
+  return wanted.filter((id) => available.includes(id));
+}
 
 export const isUiStyle = (value: unknown): value is UiStyleId => uiStyles.some((s) => s.id === value);
 

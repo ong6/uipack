@@ -22,7 +22,7 @@ export interface SectionProps {
    */
   lazyRender?: boolean;
   /** Paint this section in another style (data-ui-style), e.g. one Graphical band on a Technical page. */
-  style?: UiStyleId;
+  uiStyle?: UiStyleId;
 }
 
 /** A page section on the 8-pt rhythm, with an optional eyebrow, heading and intro. */
@@ -36,7 +36,7 @@ export function Section({
   id,
   className = "",
   lazyRender = false,
-  style,
+  uiStyle,
 }: SectionProps) {
   const headingId = id ? `${id}-title` : undefined;
   return (
@@ -46,7 +46,7 @@ export function Section({
       data-tone={tone}
       data-align={align}
       data-lazy={lazyRender || undefined}
-      data-ui-style={style}
+      data-ui-style={uiStyle}
       aria-labelledby={title ? headingId : undefined}
     >
       <div className="uipack-web-section__inner">

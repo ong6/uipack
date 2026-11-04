@@ -124,14 +124,14 @@ function PrintSlide({
 export function PrintJob({
   slides,
   theme,
-  style,
+  uiStyle,
   title,
   notes,
   onDone,
 }: {
   slides: DeckSlide[];
   theme: DeckTheme;
-  style?: string;
+  uiStyle?: string;
   title: string;
   notes?: boolean;
   onDone: () => void;
@@ -169,7 +169,7 @@ export function PrintJob({
   }, [title, doneRef]);
   return createPortal(
     <div className="uipack-deck-print-root">
-      <div className="uipack-deck" data-theme={theme} data-ui-style={style}>
+      <div className="uipack-deck" data-theme={theme} data-ui-style={uiStyle}>
         <Printout slides={slides} theme={theme} notes={notes} />
       </div>
     </div>,
