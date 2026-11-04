@@ -95,11 +95,11 @@ What exists in code and what is still missing is in
 ## Skills that use this spec
 
 The spec lives here, in the public repo. Skills point at it and add workflow; they don't restate
-values. The planned shape:
+values:
 
 | Skill | Role | Reads |
 | --- | --- | --- |
-| `uipack-design` (new) | The entry point for any UI Pack visual: pick the medium, write the content, choose the layout, apply a style, review against the three layers. Routes execution to the skills below. | This folder |
+| `uipack-design` | The entry point for any UI Pack visual: pick the medium, write the content, choose the layout, apply a style, review against the three layers. Routes execution to the skills below. | This folder |
 | `system-diagram` (existing) | Executes diagrams. Its taste table defers to [Style roles, diagrams](style.md#diagrams) and [Layout, diagrams](layout.md#diagrams). | Diagram sections |
 | `3d-design`, `blender-authoring` (existing) | Execute 3D. Art direction comes from [Style roles, 3D](style.md#3d). | 3D sections |
 | `frontend-design`, `ux-design` | Execute web pages: Technical by default, Landing for a generic landing page, Graphical for a poster. | Web sections, [Web principles](../web-principles.md) |
