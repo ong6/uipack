@@ -2,6 +2,7 @@
 import { WORDS_PER_MINUTE } from "../../speech";
 import { QUANTIFIED_ROLES, REPEATABLE_ROLES, SLIDE_ROLES, type SlideRole } from "./roles";
 import { getStorylineTemplate, type StorylineTemplate } from "./templates";
+import { SLOT_BUDGETS, slotLines, slotProblems, type SlotName } from "../budgets";
 import { MAX_TITLE_WORDS, type LintFinding, type LintOptions, type LintRule, type LintSeverity, type StorySlide } from "./rules";
 import {
   TOPIC_LABELS,
@@ -154,6 +155,37 @@ export const LINT_CHECKS: readonly LintCheck[] = [
       for (const { slide, headline } of titledSlides(deck))
         if (/[.!?]["”’)]?\s+\S/.test(headline))
           report("tip", "Title has more than one sentence. One idea per slide: split it or pick one.", slide.id);
+    },
+  },
+  {
+    rule: "slot-budget",
+    check: ({ slides }, report) => {
+      for (const slide of slides) {
+        const declared: [SlotName, string | undefined][] = [
+          ["title", slide.headline ? slide.title : undefined],
+          ["eyebrow", slide.eyebrow],
+          ["lede", slide.lede],
+          ...(Object.entries(slide.slots ?? {}) as [SlotName, string][]),
+        ];
+        // The headline's words are title-length's; its lines are checked here.
+        const headline = headlineOf(slide);
+        if (headline) {
+          const b = SLOT_BUDGETS.headline;
+          const lines = slotLines(headline, b.charsPerLine!);
+          if (lines > b.maxLines!)
+            report(
+              "warn",
+              `The headline runs to about ${lines} lines at the slide's measure; keep it to ${b.maxLines}.`,
+              slide.id,
+            );
+        }
+        for (const [slot, text] of declared) {
+          if (text === undefined || slot === "headline") continue;
+          const problems = slotProblems(slot, text);
+          if (problems.length)
+            report("warn", `${slot[0].toUpperCase()}${slot.slice(1)} "${text}": ${problems.join("; ")}.`, slide.id);
+        }
+      }
     },
   },
   {

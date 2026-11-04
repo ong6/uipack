@@ -190,6 +190,29 @@ People will read your deck without you in the room. Write it so it still works:
 | `deck-length` | warn / tip | About one to two minutes per presented slide; with only a template given, the slide count falls inside its range. |
 | `template-beats` | warn | With a `template`, every beat it doesn't mark optional has a slide in that role: a decision request without an options slide, or a postmortem without its plan, hears which beat is missing. |
 | `talk-time` | warn | The `say` text fits the time budget at 135 words a minute, and, once every slide has a track, covers at least half of it (the `minutes` given, else the template's shortest length). A thin track leaves the speaker view's clock and a forwarded deck with nothing to go on. |
+| `slot-budget` | warn | Every slot the slide declares as data fits its text budget in `SLOT_BUDGETS` (table below): the headline runs to at most two lines at the heading's measure, an eyebrow is one to four words, a lede one sentence, a label never a sentence, a fact's value at most six characters. Slots written only in JSX are not seen; the archetype factories (`sectionSlide`, `quoteSlide`, `factSlide`, `endSlide`) declare theirs. |
+
+### Slot text budgets
+
+Each slot of the slide region map holds a fixed amount of text in every layout and every style. Measures are estimates for IBM Plex Sans at the slot's canvas size; `slotProblems(slot, text)` applies one.
+
+| Slot | Budget | When it runs over |
+| --- | --- | --- |
+| `title` (overview name) | ≤ 14 words | ellipsis |
+| `eyebrow` | 1–4 words, one line (40 chars), no sentence | wraps |
+| `headline` | 3–14 words, ≤ 2 lines at 44 chars, one sentence | wraps, balanced |
+| `lede` | ≤ 30 words, ≤ 3 lines at 60 chars, one sentence | wraps |
+| `label` | ≤ 3 words, no sentence | wraps |
+| `quote` | ≤ 30 words, ≤ 4 lines at 40 chars, ≤ 2 sentences | wraps, balanced |
+| `attribution` | ≤ 8 words, one line | wraps |
+| `value` | ≤ 6 characters | wraps |
+| `unit` | ≤ 4 words | wraps |
+| `baseline` | ≤ 12 words, one line, one sentence | wraps |
+| `number` (section) | ≤ 3 characters | wraps |
+| `action` | 2–12 words, ≤ 2 lines, one sentence | wraps |
+| `owner` | 1–5 words (a team or role) | wraps |
+| `date` | 1–4 words | wraps |
+| `source` | ≤ 30 words, ≤ 2 lines | wraps |
 
 These checks are heuristics. They catch a missing ask or a topic-label title, but they can't tell whether a claim is true. Rehearse the deck out loud and have someone else read the ghost deck cold.
 

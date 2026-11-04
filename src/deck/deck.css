@@ -2,34 +2,34 @@
    pixels on a 1920×1080 canvas; the player scales the canvas to fit. */
 
 .uipack-deck {
-  --deck-bg: #f6f5f1;
-  --deck-surface: #ffffff;
-  --deck-fg: #1a1c1a;
-  --deck-muted: #5c625e;
-  --deck-rule: #c4ccc6;
-  --deck-accent: #205f49;
-  --deck-node: #fbfaf6;
-  --deck-sans: var(--font-sans, "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
-  --deck-mono: var(--font-mono, "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+  /* The deck's names for the roles (src/styles). A style swap changes the roles, not these. */
+  --deck-bg: var(--ui-paper);
+  --deck-surface: var(--ui-surface-raised);
+  --deck-fg: var(--ui-ink);
+  --deck-muted: var(--ui-slide-ink-2, var(--ui-ink-2));
+  --deck-rule: var(--ui-line-solid, var(--ui-line));
+  --deck-accent: var(--ui-accent);
+  --deck-node: var(--ui-node, var(--ui-surface));
+  --deck-sans: var(--ui-slide-font-text, var(--ui-font-text));
+  --deck-mono: var(--ui-slide-font-label, var(--ui-font-label));
+  /* Headlines, cover titles and hero numbers: the style's display face, weight, tracking and case. */
+  --deck-display: var(--ui-slide-font-display, var(--ui-font-display));
+  --deck-display-weight: var(--ui-display-weight);
+  --deck-display-case: var(--ui-display-case);
   /* The deck's clock in CSS: the same curves as deckMotion.settle and .travel (transitions.ts). */
-  --deck-settle: cubic-bezier(0.2, 0.7, 0.2, 1);
-  --deck-travel: cubic-bezier(0.55, 0, 0.15, 1);
+  --deck-settle: var(--ui-ease-settle);
+  --deck-travel: var(--ui-ease-travel);
   /* Chrome radii; slide content (bento cells, panels) sets its own. */
-  --deck-radius: 6px;
-  --deck-radius-sm: 4px;
+  --deck-radius: var(--ui-radius);
+  --deck-radius-sm: var(--ui-radius-sm);
+  color-scheme: light;
   position: relative;
   color: var(--deck-fg);
   font-family: var(--deck-sans);
   outline: none;
 }
 .uipack-deck[data-theme="dark"] {
-  --deck-bg: #0a100d;
-  --deck-surface: #14201b;
-  --deck-fg: #e8ece9;
-  --deck-muted: #aeb8b2;
-  --deck-rule: #34443b;
-  --deck-accent: #71dcb2;
-  --deck-node: #0e1512;
+  color-scheme: dark;
 }
 .uipack-deck:focus-visible {
   outline: 2px solid var(--deck-accent);
@@ -42,62 +42,36 @@
   box-sizing: border-box;
 }
 
-/* Tones: an inverse "ink" slide and an "accent" slide, in both themes. "paper" restates the theme,
-   so a paper slide inside a stage already showing the next slide's tone (mid-transition) keeps its
-   own colours: the incoming tone only shows inside the incoming layer. */
+/* Tones: an inverse "ink" slide (the style's invert roles) and an "accent" slide, in both themes.
+   "paper" restates the theme, so a paper slide inside a stage already showing the next slide's
+   tone (mid-transition) keeps its own colours: the incoming tone only shows inside the incoming
+   layer. */
 .uipack-deck [data-tone="paper"] {
-  --deck-bg: #f6f5f1;
-  --deck-surface: #ffffff;
-  --deck-fg: #1a1c1a;
-  --deck-muted: #5c625e;
-  --deck-rule: #c4ccc6;
-  --deck-accent: #205f49;
-  --deck-node: #fbfaf6;
-}
-.uipack-deck[data-theme="dark"] [data-tone="paper"] {
-  --deck-bg: #0a100d;
-  --deck-surface: #14201b;
-  --deck-fg: #e8ece9;
-  --deck-muted: #aeb8b2;
-  --deck-rule: #34443b;
-  --deck-accent: #71dcb2;
-  --deck-node: #0e1512;
+  --deck-bg: var(--ui-paper);
+  --deck-surface: var(--ui-surface-raised);
+  --deck-fg: var(--ui-ink);
+  --deck-muted: var(--ui-slide-ink-2, var(--ui-ink-2));
+  --deck-rule: var(--ui-line-solid, var(--ui-line));
+  --deck-accent: var(--ui-accent);
+  --deck-node: var(--ui-node, var(--ui-surface));
 }
 .uipack-deck [data-tone="ink"] {
-  --deck-bg: #111814;
-  --deck-surface: #18221d;
-  --deck-fg: #eef1ee;
-  --deck-muted: #a9b3ad;
-  --deck-rule: #3a4a41;
-  --deck-accent: #71dcb2;
-  --deck-node: #18221d;
-}
-.uipack-deck[data-theme="dark"] [data-tone="ink"] {
-  --deck-bg: #e8ece9;
-  --deck-surface: #ffffff;
-  --deck-fg: #0e1512;
-  --deck-muted: #4c5751;
-  --deck-rule: #b5c0b9;
-  --deck-accent: #205f49;
-  --deck-node: #f6f5f1;
+  --deck-bg: var(--ui-inv-paper);
+  --deck-surface: var(--ui-inv-surface);
+  --deck-fg: var(--ui-inv-ink);
+  --deck-muted: var(--ui-inv-ink-2);
+  --deck-rule: var(--ui-inv-line);
+  --deck-accent: var(--ui-inv-accent);
+  --deck-node: var(--ui-inv-node, var(--ui-inv-surface));
 }
 .uipack-deck [data-tone="accent"] {
-  --deck-bg: #205f49;
-  --deck-surface: #2a6b54;
-  --deck-fg: #f6f5f1;
-  --deck-muted: #cfe3d9;
-  --deck-rule: #5b927d;
-  --deck-accent: #f6f5f1;
-  --deck-node: #2a6b54;
-}
-.uipack-deck[data-theme="dark"] [data-tone="accent"] {
-  --deck-bg: #71dcb2;
-  --deck-surface: #8fe4c3;
-  --deck-fg: #07110c;
-  --deck-muted: #1d4a38;
-  --deck-rule: #3f9c78;
-  --deck-accent: #07110c;
-  --deck-node: #8fe4c3;
+  --deck-bg: var(--ui-accent);
+  --deck-surface: var(--ui-accent-surface);
+  --deck-fg: var(--ui-on-accent);
+  --deck-muted: var(--ui-accent-ink-2);
+  --deck-rule: var(--ui-accent-line);
+  --deck-accent: var(--ui-on-accent);
+  --deck-node: var(--ui-accent-surface);
 }
 
 /* Stage and canvas */
@@ -180,7 +154,9 @@
 .uipack-deck-title,
 .uipack-deck-heading {
   margin: 0;
-  font-weight: 650;
+  font-family: var(--deck-display);
+  font-weight: var(--deck-display-weight);
+  text-transform: var(--deck-display-case);
   text-wrap: balance;
 }
 .uipack-deck-title {
@@ -220,7 +196,8 @@
 }
 .uipack-deck-number {
   margin: 0;
-  font-weight: 600;
+  font-family: var(--deck-display);
+  font-weight: min(600, var(--deck-display-weight));
   font-size: 360px;
   line-height: 0.9;
   letter-spacing: -0.06em;
@@ -237,6 +214,98 @@
   font: 500 20px/1.4 var(--deck-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+/* Archetypes: section, quote, fact and end (archetypes.tsx). Each keeps the eyebrow, headline
+   and footer where every slide has them and fills only the body region, between the headline and
+   the footer. Colours and faces are deck tokens, so each renders in every style and tone. */
+.uipack-deck-slide:is([data-layout="section"], [data-layout="quote"], [data-layout="fact"], [data-layout="end"])
+  > .uipack-deck-footer {
+  margin-top: 0;
+}
+/* Section: the part number fills the body's lower right, in the accent, above a rule. */
+.uipack-deck-section-number {
+  margin: auto 0 32px;
+  align-self: flex-end;
+  color: var(--deck-accent);
+  font-family: var(--deck-display);
+  font-weight: min(600, var(--deck-display-weight));
+  font-size: 300px;
+  line-height: 0.8;
+  letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
+}
+/* Quote: the words in the display face, set off by one accent rule, then who said it. */
+.uipack-deck-quote {
+  display: grid;
+  gap: 28px;
+  max-width: 1240px;
+  margin: 72px 0 auto;
+  padding-left: 44px;
+  border-left: 6px solid var(--deck-accent);
+}
+.uipack-deck-quote blockquote {
+  margin: 0;
+}
+.uipack-deck-quote blockquote p {
+  margin: 0;
+  font-family: var(--deck-display);
+  font-weight: min(500, var(--deck-display-weight));
+  font-size: 56px;
+  line-height: 1.22;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+/* Fact: one number with its unit, its baseline under it; the source sits on the footer. */
+.uipack-deck-fact {
+  display: grid;
+  gap: 24px;
+  margin: auto 0;
+}
+.uipack-deck-fact .uipack-deck-number {
+  color: var(--deck-accent);
+  font-size: 300px;
+}
+.uipack-deck-fact__unit {
+  margin-left: 0.3em;
+  color: var(--deck-fg);
+  font-family: var(--deck-sans);
+  font-weight: 500;
+  font-size: 64px;
+  letter-spacing: 0;
+}
+.uipack-deck-fact__baseline {
+  margin: 0;
+  color: var(--deck-muted);
+  font-size: 40px;
+  line-height: 1.3;
+}
+.uipack-deck-fact__source {
+  margin-bottom: 24px;
+}
+/* End: the ask's three parts in a row, each a label over its value. */
+.uipack-deck-end {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 40px;
+  margin: auto 0 48px;
+}
+.uipack-deck-end > div {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 4px solid var(--deck-accent);
+}
+.uipack-deck-end dt {
+  margin: 0;
+}
+.uipack-deck-end dd {
+  margin: 0;
+  font-size: 44px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-wrap: balance;
 }
 
 /* Diagram node on a slide: the same spec as UI Pack figures, at slide scale. */
@@ -479,7 +548,7 @@
   place-items: center;
   width: 100vw;
   height: 100vh;
-  background: #050806;
+  background: var(--ui-letterbox, black);
 }
 .uipack-deck:fullscreen .uipack-deck-stage {
   width: min(100vw, calc(100vh * 16 / 9));
@@ -643,10 +712,7 @@
   color: var(--deck-muted);
 }
 .uipack-deck-presenter__pace[data-pace="behind"] {
-  color: #b4471f;
-}
-.uipack-deck[data-theme="dark"] .uipack-deck-presenter__pace[data-pace="behind"] {
-  color: #f08a5d;
+  color: var(--ui-warn, var(--ui-data-neg));
 }
 .uipack-deck-presenter__bar {
   position: relative;
@@ -719,8 +785,8 @@
     padding-right: 8px;
   }
   .uipack-deck-presenter__notes[data-more] {
-    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
-    mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
+    -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 56px), transparent);
+    mask-image: linear-gradient(to bottom, black calc(100% - 56px), transparent);
   }
 }
 /* At a camera stop the stop's words lead; the whole slide's track is one click away. */
@@ -962,10 +1028,7 @@
   text-transform: uppercase;
 }
 .uipack-deck-storyline__findings [data-severity="error"] b {
-  color: #b42318;
-}
-.uipack-deck[data-theme="dark"] .uipack-deck-storyline__findings [data-severity="error"] b {
-  color: #ff8a7a;
+  color: var(--ui-alert, var(--ui-data-neg));
 }
 .uipack-deck-storyline__findings [data-severity="warn"] b {
   color: var(--deck-fg);
@@ -1042,13 +1105,19 @@
   display: grid;
   grid-template-columns: 960px 1fr;
   grid-template-rows: 540px 1fr;
-  background: #ffffff;
-  color: #1a1c1a;
+  background: var(--ui-surface);
+  color: var(--ui-ink);
+}
+/* The notes and talk track print on the light half of the style, whatever the slide's theme. */
+.uipack-deck-print[data-notes] :is(.uipack-deck-print__notes, .uipack-deck-print__say) {
+  color-scheme: light;
+  background: var(--ui-surface);
+  color: var(--ui-ink);
 }
 .uipack-deck-print[data-notes] .uipack-deck-print__notes {
   grid-row: 1 / -1;
   grid-column: 2;
-  border-left: 1px solid #dfe3e0;
+  border-left: 1px solid var(--ui-print-line, var(--ui-line));
 }
 .uipack-deck-print__say {
   grid-row: 2;
@@ -1059,19 +1128,19 @@
   min-height: 0;
   overflow: hidden;
   padding: 18px 28px 16px 32px;
-  border-top: 1px solid #dfe3e0;
+  border-top: 1px solid var(--ui-print-line, var(--ui-line));
   font: 400 13.5px/1.5 var(--deck-sans);
 }
 .uipack-deck-print__say > b,
 .uipack-deck-print__cue > b {
-  color: #5c625e;
+  color: var(--ui-ink-2);
   font: 600 11px/1.9 var(--deck-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 .uipack-deck-print__say > p {
   margin: 0;
-  color: #3d433f;
+  color: var(--ui-print-ink-2, var(--ui-ink-2));
 }
 .uipack-deck-print__notes .uipack-deck-print__cue {
   margin: 0 0 10px;
@@ -1097,7 +1166,7 @@
 }
 .uipack-deck-print__notes .uipack-deck-print__title {
   margin: 0 0 6px;
-  color: #5c625e;
+  color: var(--ui-ink-2);
   font: 600 11px/1.3 var(--deck-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1107,7 +1176,7 @@
 }
 .uipack-deck-print__notes p {
   margin: 0;
-  color: #3d433f;
+  color: var(--ui-print-ink-2, var(--ui-ink-2));
 }
 /* Chrome hover eases in: colour and border on the buttons, a background on the
    storyline rows, a 2px lift on overview thumbnails (a transform, so no box moves).

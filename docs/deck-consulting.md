@@ -13,13 +13,13 @@ import "uipack/deck.css";
 const slide: DeckSlide = {
   id: "summary",
   title: "Folding two sites saves $14M a year",
-  headline: "Folding Northgate and Riverside into Eastfield and Harbour saves $14M a year for $9M",
+  headline: "Folding Northgate and Riverside into two hubs saves $14M a year for $9M",
   role: "answer",
   render: () => (
     <ConsultingSlide
       tracker={{ sections: ["Summary", "Situation", "Options", "Decision"], current: "Summary" }}
       sticker="Illustrative"
-      title="Folding Northgate and Riverside into Eastfield and Harbour saves $14M a year for $9M"
+      title="Folding Northgate and Riverside into two hubs saves $14M a year for $9M"
       subtitle="Fulfilment network, FY22–FY25; $M unless stated"
       rows="auto minmax(0, 1fr)"
       notes={["Operating margin before central costs."]}

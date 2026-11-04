@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { toneOf } from "./tone";
 import { usePrefersReducedMotion } from "../env";
 import { useLayerFlight } from "../flight";
 import { Controls } from "./player/Controls";
@@ -16,6 +17,7 @@ import { startIndexOf, useDeckPosition } from "./player/usePosition";
 import { useDeckTransition } from "./player/useTransition";
 import { lintDeck, type LintOptions } from "./storyline";
 import type { DeckPosition, DeckSlide, DeckTheme, DeckTransition } from "./types";
+import type { UiStyleId } from "../style";
 
 export interface DeckPlayerProps {
   slides: DeckSlide[];
@@ -24,6 +26,12 @@ export interface DeckPlayerProps {
   /** Accessible name of the deck. */
   title: string;
   theme?: DeckTheme;
+  /**
+   * The style the deck is painted in (sets data-ui-style): "technical" (default), "landing" or
+   * "graphical". Only tokens change: every slide keeps its regions, words and reading order.
+   * Omitted, the deck follows the nearest ancestor with data-ui-style.
+   */
+  style?: UiStyleId;
   /** Default transition for slides that do not set one. */
   transition?: DeckTransition;
   motion?: "auto" | "none";
@@ -68,11 +76,12 @@ export function DeckPlayer(props: DeckPlayerProps) {
   return <Player {...props} />;
 }
 
-function EmptyDeck({ title, theme = "light", className }: DeckPlayerProps) {
+function EmptyDeck({ title, theme = "light", style, className }: DeckPlayerProps) {
   return (
     <div
       className={["uipack-deck", className].filter(Boolean).join(" ")}
       data-theme={theme}
+      data-ui-style={style}
       role="region"
       aria-label={title}
       aria-roledescription="slide deck"
@@ -89,6 +98,7 @@ function Player({
   id,
   title,
   theme = "light",
+  style,
   transition = "advance",
   motion = "auto",
   mode = "audience",
@@ -186,7 +196,7 @@ function Player({
   const atEnd = view.index === count - 1 && view.step >= maxStep;
 
   const stage = (
-    <div ref={stageRef} className="uipack-deck-stage" data-tone={current.tone ?? "paper"} {...swipe}>
+    <div ref={stageRef} className="uipack-deck-stage" data-tone={toneOf(current)} {...swipe}>
       <div className="uipack-deck-canvas" style={{ transform: `scale(${scale})`, visibility: scale ? undefined : "hidden" }}>
         {from && view.from && (
           <Layer
@@ -241,6 +251,7 @@ function Player({
       ref={rootRef}
       className={["uipack-deck", className].filter(Boolean).join(" ")}
       data-theme={theme}
+      data-ui-style={style}
       data-mode={mode}
       data-motion={reducedMotion ? "none" : "auto"}
       data-index={view.index}
@@ -305,6 +316,7 @@ function Player({
       )}
       {printing && (
         <PrintJob
+          style={style}
           slides={slides}
           theme={theme}
           title={title}

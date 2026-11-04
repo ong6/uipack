@@ -17,6 +17,7 @@ import {
   type SlideRole,
   type StorySlide,
 } from "../src/deck/storyline";
+import { SLOT_BUDGETS, slotLines, slotProblems, slotSentences, slotWords } from "../src/deck/budgets";
 
 const say = (text: string) => ({ say: text, delivery: "Pause after the number.", next: "" });
 
@@ -143,7 +144,7 @@ describe("storyline templates", () => {
       expect(SLIDE_ROLES[role].question).toBeTruthy();
     }
     expect(REPEATABLE_ROLES).toContain("evidence");
-    expect(Object.keys(LINT_RULES)).toHaveLength(18);
+    expect(Object.keys(LINT_RULES)).toHaveLength(19);
   });
 });
 
@@ -781,5 +782,51 @@ describe("storylineOf", () => {
         "3. (untitled)",
       ].join("\n"),
     );
+  });
+});
+
+describe("slot-budget", () => {
+  const budget = (slide: Partial<StorySlide>) =>
+    find(lintDeck(withSlide(good, "context", slide)), "slot-budget").filter((f) => f.slideId === "context");
+
+  it("passes slots inside their budgets", () => {
+    expect(
+      budget({
+        eyebrow: "Upload pipeline",
+        lede: "Resizing waits on the request today.",
+        slots: { label: "Resize queue", value: "4%", owner: "Platform leads", date: "14 March" },
+      }),
+    ).toEqual([]);
+  });
+
+  it("flags an eyebrow over four words and a lede of two sentences", () => {
+    const hits = budget({ eyebrow: "Team leads · how we run reviews today", lede: "It waits. Then it fails." });
+    expect(hits.map((h) => h.message)).toEqual([
+      expect.stringMatching(/^Eyebrow .*7 words, at most 4/),
+      expect.stringMatching(/^Lede .*2 sentences, at most 1/),
+    ]);
+  });
+
+  it("flags a label that is a sentence, a long number and a headline past two lines", () => {
+    expect(budget({ slots: { label: "This box resizes every image." } })[0].message).toMatch(/a sentence, where a label belongs/);
+    expect(budget({ slots: { value: "1,234,567" } })[0].message).toMatch(/9 characters, at most 6/);
+    const long = "Uploads resize every single large image before the request returns, so the slowest uploads time out";
+    expect(budget({ headline: long })[0].message).toMatch(/about 3 lines/);
+  });
+
+  it("reads separators as no words and counts sentences only at their ends", () => {
+    expect(slotWords("Q3 · review · Illustrative")).toEqual(["Q3", "review", "Illustrative"]);
+    expect(slotSentences("p95 fell 2.4× in Q3.")).toBe(1);
+    expect(slotSentences("No full stop")).toBe(0);
+    expect(slotLines("one two three", 7)).toBe(2);
+    expect(slotProblems("owner", "Platform leads")).toEqual([]);
+  });
+
+  it("budgets every slot, with an overflow behaviour each", () => {
+    for (const [slot, b] of Object.entries(SLOT_BUDGETS)) {
+      expect(b.overflow, slot).toMatch(/^(wrap|wrap-balance|ellipsis)$/);
+      expect(b.maxWords ?? b.maxChars, slot).toBeGreaterThan(0);
+    }
+    expect(SLOT_BUDGETS.headline.maxWords).toBe(MAX_TITLE_WORDS);
   });
 });

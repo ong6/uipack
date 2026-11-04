@@ -2,6 +2,7 @@
 import { WORDS_PER_MINUTE, type SpeechGuide } from "../../speech";
 import type { SlideRole } from "./roles";
 import type { StorylineTemplateId } from "./templates";
+import type { SlotName } from "../budgets";
 
 /**
  * The minimal slide shape the linter reads. A `DeckSlide` already fits; add `role`, and
@@ -18,6 +19,12 @@ export interface StorySlide {
   headline?: string;
   /** On-slide source line for the slide's numbers. */
   source?: string;
+  /** The eyebrow above the headline, when the slide declares it as data (archetype slides do). */
+  eyebrow?: string;
+  /** The one-sentence lede under the headline, as data. */
+  lede?: string;
+  /** Any other slot text the slide declares (quote, value, owner…), checked against `SLOT_BUDGETS`. */
+  slots?: Partial<Record<SlotName, string>>;
 }
 
 export type LintSeverity = "error" | "warn" | "tip";
@@ -40,7 +47,8 @@ export type LintRule =
   | "role-repeat"
   | "deck-length"
   | "talk-time"
-  | "template-beats";
+  | "template-beats"
+  | "slot-budget";
 
 export interface LintFinding {
   slideId?: string;
@@ -112,6 +120,11 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
     severity: "warn",
     check:
       "With a template, every beat it requires has a slide in that role: a decision request has its options, a postmortem its plan.",
+  },
+  "slot-budget": {
+    severity: "warn",
+    check:
+      "Every slot the slide declares as data (title, eyebrow, headline lines, lede, and archetype slots such as quote, value, owner and date) fits its text budget in SLOT_BUDGETS: an eyebrow is one to four words, a lede one sentence, a headline at most two lines, a label no sentence.",
   },
 };
 

@@ -1,4 +1,5 @@
 import { forwardRef, useCallback, useRef, useState } from "react";
+import { toneOf } from "../tone";
 import { flushSync } from "react-dom";
 import { useIsoLayoutEffect } from "../../env";
 import { DeckSlideContext } from "../parts";
@@ -51,7 +52,7 @@ export const Layer = /*#__PURE__*/ forwardRef<HTMLDivElement, LayerProps>(functi
     <div
       ref={ref}
       className="uipack-deck-layer"
-      data-tone={slide.tone ?? "paper"}
+      data-tone={toneOf(slide)}
       data-slide={slide.id}
       role={thumbnail ? undefined : "group"}
       aria-roledescription={thumbnail ? undefined : "slide"}
@@ -84,7 +85,7 @@ export function SlideThumbnail({
 }) {
   const { ref, scale } = useCanvasScale();
   return (
-    <div ref={ref} className="uipack-deck-thumb" data-tone={slide.tone ?? "paper"}>
+    <div ref={ref} className="uipack-deck-thumb" data-tone={toneOf(slide)}>
       <div className="uipack-deck-canvas" style={{ transform: `scale(${scale})`, visibility: scale ? undefined : "hidden" }}>
         <Layer slide={slide} index={index} count={count} step={step} active={false} thumbnail theme={theme} reducedMotion />
       </div>

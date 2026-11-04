@@ -3,6 +3,31 @@
 export { DeckPlayer, type DeckPlayerProps } from "./DeckPlayer";
 export { SlideThumbnail } from "./player/Layer";
 export { Build, Morph, Slide, DeckSlideContext, useDeckSlide, type DeckSlideState } from "./parts";
+export {
+  SectionSlide,
+  QuoteSlide,
+  FactSlide,
+  EndSlide,
+  sectionSlide,
+  quoteSlide,
+  factSlide,
+  endSlide,
+  type SectionSlideProps,
+  type QuoteSlideProps,
+  type FactSlideProps,
+  type EndSlideProps,
+} from "./archetypes";
+export {
+  SLOT_BUDGETS,
+  slotLines,
+  slotProblems,
+  slotSentences,
+  slotWords,
+  type SlotBudget,
+  type SlotName,
+  type SlotOverflow,
+} from "./budgets";
+export { toneOf } from "./tone";
 export { CANVAS_HEIGHT, CANVAS_WIDTH, deckMotion, type Rect, type TransitionKind } from "./transitions";
 export {
   LINT_RULES,

@@ -12,8 +12,16 @@ import {
   deckMotion,
   Morph,
   Slide,
+  DeckSlideContext,
+  endSlide,
+  factSlide,
+  lintDeck,
+  quoteSlide,
+  sectionSlide,
+  toneOf,
   type DeckSlide,
 } from "../src/deck";
+import { headlineDrift } from "../src/deck/player/headline";
 // Internal to the player: tested at their module, not exported from uipack/deck.
 import { flipFrom, resolveTransition, slideZoomFrame, slideZoomSamples, slideZoomWindow } from "../src/deck/transitions";
 import { slidePlan } from "../src/deck/player/Presenter";
@@ -67,10 +75,13 @@ const current = () => deck().getAttribute("data-index");
 const step = () => deck().getAttribute("data-step");
 
 describe("deck clock", () => {
-  it("deck.css carries the same easing curves as deckMotion", () => {
+  it("deck.css reads the style's motion roles, and Technical's carry the same curves as deckMotion", () => {
     const css = readFileSync("src/deck/deck.css", "utf8");
-    expect(css).toContain(`--deck-settle: ${deckMotion.settle};`);
-    expect(css).toContain(`--deck-travel: ${deckMotion.travel};`);
+    expect(css).toContain("--deck-settle: var(--ui-ease-settle);");
+    expect(css).toContain("--deck-travel: var(--ui-ease-travel);");
+    const technical = readFileSync("src/styles/technical.css", "utf8");
+    expect(technical).toContain(`--ui-ease-settle: ${deckMotion.settle};`);
+    expect(technical).toContain(`--ui-ease-travel: ${deckMotion.travel};`);
   });
 });
 
@@ -594,5 +605,104 @@ describe("Bento", () => {
     expect(plan[0].start).toBe(0);
     expect(plan[plan.length - 1].end).toBeCloseTo(120);
     expect(plan[0].end).toBeGreaterThan(plan[1].end - plan[1].start);
+  });
+});
+
+describe("slide archetypes", () => {
+  const frame = { eyebrow: "Latency", footer: "Q3 review" };
+  const archetypes: DeckSlide[] = [
+    sectionSlide({
+      id: "s",
+      title: "Part two",
+      ...frame,
+      number: "02",
+      headline: "Next quarter holds the speed through the peak.",
+    }),
+    quoteSlide({
+      id: "q",
+      title: "Meeting one",
+      ...frame,
+      headline: "Nine of 13 reviews ended asking what we needed.",
+      quote: "So what do you need from us?",
+      attribution: "An approver, review 14",
+    }),
+    factSlide({
+      id: "f",
+      title: "198 ms",
+      ...frame,
+      headline: "p95 latency fell from 412 ms to 198 ms.",
+      value: "198",
+      unit: "ms p95",
+      baseline: "From 412 ms in Q2.",
+      source: "Search latency dashboard",
+    }),
+    endSlide({
+      id: "e",
+      title: "The ask",
+      ...frame,
+      headline: "Platform leads: approve the shard by 30 October.",
+      action: "Two engineers for the shard",
+      owner: "Platform leads",
+      date: "30 October",
+    }),
+  ];
+  const shown = (slide: DeckSlide) =>
+    render(
+      <DeckSlideContext.Provider value={{ step: Infinity, active: true, thumbnail: false, index: 0, count: 1 }}>
+        {slide.render({ step: Infinity, active: true, thumbnail: false, theme: "light", reducedMotion: true })}
+      </DeckSlideContext.Provider>,
+    ).container;
+
+  it.each(archetypes.map((s) => [s.slots && Object.keys(s.slots).join("+"), s] as const))(
+    "%s: keeps the shared regions (eyebrow, headline, footer) in reading order and says its headline",
+    (_, slide) => {
+      const el = shown(slide);
+      const root = el.querySelector(".uipack-deck-slide")!;
+      expect(root.getAttribute("data-layout")).toMatch(/^(section|quote|fact|end)$/);
+      const order = [...root.children].map((c) => c.className.split(" ")[0]);
+      expect(order[0]).toBe("uipack-deck-eyebrow");
+      expect(order[1]).toBe("uipack-deck-heading");
+      expect(order[order.length - 1]).toBe("uipack-deck-footer");
+      expect(headlineDrift(slide, el)).toBeNull();
+      expect(slide.eyebrow).toBe("Latency");
+    },
+  );
+
+  it("declares its words as slots that lintDeck checks", () => {
+    expect(archetypes[2].slots).toEqual({
+      value: "198",
+      unit: "ms p95",
+      baseline: "From 412 ms in Q2.",
+      source: "Search latency dashboard",
+    });
+    expect(archetypes[3].slots).toEqual({ action: "Two engineers for the shard", owner: "Platform leads", date: "30 October" });
+    const tooLong = factSlide({
+      id: "x",
+      title: "x",
+      eyebrow: "Latency",
+      headline: "p95 latency fell by more than half.",
+      value: "1,234,567",
+      baseline: "Q2",
+    });
+    expect(
+      lintDeck([tooLong])
+        .filter((f) => f.rule === "slot-budget")
+        .map((f) => f.message),
+    ).toEqual([expect.stringMatching(/^Value "1,234,567": 9 characters/)]);
+  });
+
+  it("uses no hex colour in its CSS: every value is a deck token", () => {
+    const css = readFileSync("src/deck/deck.css", "utf8");
+    const block = css.slice(css.indexOf("/* Archetypes:"), css.indexOf("/* Diagram node on a slide"));
+    expect(block.length).toBeGreaterThan(200);
+    expect(block).not.toMatch(/#[0-9a-f]{3,8}\b/i);
+  });
+});
+
+describe("invert", () => {
+  it("is sugar for the ink tone within the style; an explicit tone wins", () => {
+    expect(toneOf({ invert: true })).toBe("ink");
+    expect(toneOf({})).toBe("paper");
+    expect(toneOf({ invert: true, tone: "accent" })).toBe("accent");
   });
 });

@@ -75,6 +75,37 @@ const slides: DeckSlide[] = [
 <DeckPlayer id="platform-review" title="Platform review" slides={slides} theme="light" />;
 ```
 
+### Archetypes and invert
+
+Four archetypes fill the shared region map (eyebrow, headline, body, footer: [layout.md](system/layout.md#slides)) without moving the eyebrow, headline or footer. Each is a component and a factory that takes typed words and returns a `DeckSlide`, so `lintDeck` can check its slots against their budgets ([deck storytelling](deck-storytelling.md#slot-text-budgets)):
+
+| Archetype | Body | Typical role | Build it with |
+| --- | --- | --- | --- |
+| Section | The part number, large, in the accent | `context` | `sectionSlide({ id, title, eyebrow, number, headline, lede?, footer, role, notes })` |
+| Quote | The words in the display face, an accent rule, who said it | `evidence` | `quoteSlide({ …, headline, quote, attribution })` |
+| Fact | One number in the accent, its unit, its baseline; the source over the footer | `evidence` | `factSlide({ …, headline, value, unit?, baseline, source? })` |
+| End | The ask's decision, owner and date in a row | `ask` | `endSlide({ …, headline, action, owner, date, lede? })` |
+
+```tsx
+import { factSlide } from "uipack/deck";
+
+const latency = factSlide({
+  id: "latency",
+  title: "198 ms at p95",
+  eyebrow: "Latency",
+  headline: "p95 search latency fell from 412 ms to 198 ms in one quarter.",
+  value: "198",
+  unit: "ms p95",
+  baseline: "From 412 ms in Q2, on the same query mix.",
+  source: "Search latency dashboard, Q2 against Q3",
+  footer: "Search platform · Q3 review",
+  role: "evidence",
+  notes: { say: "…" },
+});
+```
+
+`invert: true` paints one slide in the style's inverse roles (a dark ground in a light deck, a light one in a dark deck): sugar for `tone: "ink"`, which wins if both are set. It is a variant within the style, never another style. The tech talk's plan slide and the bento review's plan slide use it; the bento review also shows a fact, a section and an end slide, and the tech talk a quote.
+
 Slide type comes from classes on the canvas scale, so every deck sets text the same way: `uipack-deck-eyebrow`, `-label`, `-title` (120px), `-heading` (76px), `-lede`, `-body` (32px) and `-number` (a 360px figure). Slide colours come from the tone (`paper`, `ink`, `accent`) and the deck tokens (`--deck-fg`, `--deck-muted`, `--deck-accent`, `--deck-rule`, `--deck-radius`). A new part or chart follows [contributing](contributing.md#a-new-slide-part-or-chart).
 
 ## Transitions

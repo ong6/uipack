@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { SpeechGuide } from "../speech";
 import type { SlideRole } from "./storyline";
+import type { SlotName } from "./budgets";
 
 export type DeckTheme = "light" | "dark";
 
@@ -52,6 +53,20 @@ export interface DeckSlide {
   transition?: DeckTransition;
   /** Background tone. The stage cross-fades between tones. */
   tone?: "paper" | "ink" | "accent";
+  /**
+   * Invert the slide within its style: the style's inverse roles (dark ground in a light deck,
+   * light ground in a dark one). Sugar for `tone: "ink"`; an explicit `tone` wins. It is a variant
+   * of the style, not another style.
+   */
+  invert?: boolean;
+  /** The eyebrow, as data, so `lintDeck` can check its budget (the archetype factories set it). */
+  eyebrow?: string;
+  /** The one-sentence lede, as data. */
+  lede?: string;
+  /** On-slide source line for the slide's numbers. */
+  source?: string;
+  /** Other slot text the slide declares, checked against `SLOT_BUDGETS`. */
+  slots?: Partial<Record<SlotName, string>>;
   /** Talk track for the presenter view. A string is treated as `say`. */
   notes?: DeckNotes | string;
   render: (context: DeckRenderContext) => ReactNode;

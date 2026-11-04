@@ -87,8 +87,12 @@ export function Slide({
 }: {
   eyebrow?: ReactNode;
   footer?: ReactNode;
-  /** `stack` flows top to bottom; `center` centres a statement; `split` is two columns. */
-  layout?: "stack" | "center" | "split";
+  /**
+   * `stack` flows top to bottom; `center` centres a statement; `split` is two columns. The
+   * archetypes (`SectionSlide`, `QuoteSlide`, `FactSlide`, `EndSlide`) set `section`, `quote`,
+   * `fact` and `end`: a stack whose body region they fill their own way.
+   */
+  layout?: "stack" | "center" | "split" | "section" | "quote" | "fact" | "end";
   className?: string;
   children?: ReactNode;
 }) {

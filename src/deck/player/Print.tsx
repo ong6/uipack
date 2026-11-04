@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { toneOf } from "../tone";
 import { createPortal } from "react-dom";
 import { useLatest } from "../../env";
 import type { DeckSlide, DeckTheme } from "../types";
@@ -68,7 +69,7 @@ function PrintSlide({
         key={step}
         ref={detail ? undefined : ref}
         className="uipack-deck-print__page"
-        data-tone={s.tone ?? "paper"}
+        data-tone={toneOf(s)}
         data-detail={detail ? "" : undefined}
         aria-label={`${pad(i + 1)}: ${s.title}${detail ? `, detail: ${detail}` : ""}`}
       >
@@ -123,12 +124,14 @@ function PrintSlide({
 export function PrintJob({
   slides,
   theme,
+  style,
   title,
   notes,
   onDone,
 }: {
   slides: DeckSlide[];
   theme: DeckTheme;
+  style?: string;
   title: string;
   notes?: boolean;
   onDone: () => void;
@@ -166,7 +169,7 @@ export function PrintJob({
   }, [title, doneRef]);
   return createPortal(
     <div className="uipack-deck-print-root">
-      <div className="uipack-deck" data-theme={theme}>
+      <div className="uipack-deck" data-theme={theme} data-ui-style={style}>
         <Printout slides={slides} theme={theme} notes={notes} />
       </div>
     </div>,
