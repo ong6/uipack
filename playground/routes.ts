@@ -21,6 +21,13 @@ export const pageModules = {
   mechanism: "MechanismShowcase",
   web: "WebShowcase",
   docs: "DocsShowcase",
+  foundations: "FoundationsShowcase",
+  "foundations-style": "FoundationsShowcase",
+  "foundations-writing": "FoundationsShowcase",
+  "foundations-layout": "FoundationsShowcase",
+  "foundations-mix": "FoundationsShowcase",
+  "foundations-recipes": "FoundationsShowcase",
+  "foundations-dont": "FoundationsShowcase",
   styles: "CatalogShowcase",
   assets: "FiguresShowcase",
 } as const satisfies Record<LibraryPage, string>;

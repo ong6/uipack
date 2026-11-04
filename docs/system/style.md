@@ -7,42 +7,81 @@ styles. See [the system overview](README.md) for how style fits with writing and
 
 ## The role contract
 
-These are the roles every style must fill. The names are the target contract (`--ui-*`); the
-right-hand column shows what each existing entry calls the role today.
+These are the roles every style must fill. They live in `src/styles/`: `roles.css` declares the
+cascade layers and resets the optional roles, and each style is one value set
+(`technical.css`, `landing.css`, `graphical.css`) keyed by `data-ui-style`. Technical is also the
+default on `:root`. Every colour role is `light-dark(light, dark)`, so light and dark are two
+halves of one value set, resolved from the element's `color-scheme`. `test/style-roles.test.tsx`
+fails if a style leaves a core role out.
 
-| Role | Means | Today |
+**Colour**
+
+| Role | Means | Entry names that read it |
 | --- | --- | --- |
-| `--ui-paper` | Page or canvas background | `--uipack-bg`, `--deck-bg`, `--web-bg` |
-| `--ui-surface` | Card, node and panel fill | `--uipack-surface`, `--deck-surface`, `--deck-node`, `--web-surface` |
-| `--ui-surface-2` | Secondary band or tint (Landing's 30%) | `--web-secondary` |
-| `--ui-ink` | Primary text and strokes | `--uipack-fg`, `--deck-fg`, `--web-ink` |
-| `--ui-ink-2` | Secondary text (sub-labels, ledes) | `--uipack-muted`, `--deck-muted`, `--web-ink-medium` |
-| `--ui-ink-3` | Tertiary text (footers, metadata) | `--web-ink-low` |
-| `--ui-line` | Borders, rules, grid | `--uipack-border`, `--uipack-grid`, `--deck-rule` |
-| `--ui-accent` | The one highlighted thing: the claim's path, the CTA, the lit part | `--uipack-accent`, `--deck-accent`, `--web-accent` |
-| `--ui-flow-request` / `-response` / `-change` | Flow tokens (always paired with a shape) | `--uipack-token-*` |
-| `--ui-data-pos` / `-neg` | Signed data values (always paired with a sign or arrow) | `--uipack-cx-*` |
-| `--ui-data-1` … `-4` | Categorical data slots | `--uipack-cx-*` |
-| `--ui-font-display` | Big headlines and big numbers | `--web-font-display`; deck uses sans at 650 |
-| `--ui-font-text` | Body, titles, labels in prose | `--uipack-sans`, `--deck-sans`, `--web-font-text` |
-| `--ui-font-label` | Eyebrows, IDs, data, controls (tracked caps) | `--uipack-mono`, `--deck-mono`, `--web-font-mono` |
-| `--ui-radius` / `-sm` / `-xs` | Container / inner box / mark | `--uipack-radius`, `--deck-radius(-sm)`, `--web-radius` |
-| `--ui-stroke` | Default line weight in SVG units | `--uipack-stroke` |
-| `--ui-ease-settle` / `-travel` | Curves for arriving and travelling things | `--deck-settle`, `--deck-travel` |
-| `--ui-dur-quick` / `-base` / `-slow` | The timing scale (below) | `deckMotion` |
-| 3D `paper` / `ink` / `muted` / `accent` | Numeric colours for materials | `ObjectScene palette` |
+| `--ui-paper` | Page or canvas background | `--deck-bg`, `--web-bg`, `--presentation-bg` |
+| `--ui-surface` | Figure card and panel fill | `--uipack-bg`, `--web-surface` |
+| `--ui-surface-raised` | A box raised off the surface (figure nodes, deck chrome) | `--uipack-surface`, `--deck-surface` |
+| `--ui-surface-2` | Secondary band or tint, hover fill | `--uipack-surface-raised`, `--web-secondary` |
+| `--ui-ink` / `-2` / `-3` | Text and strokes at three emphasis levels | `--uipack-fg`, `--uipack-muted`, `--deck-fg`, `--web-ink(-medium/-low)` |
+| `--ui-line` / `-soft` | Borders and rules; grid and hairlines | `--uipack-border`, `--uipack-grid`, `--web-rule`, `--web-hairline` |
+| `--ui-accent`, `--ui-on-accent` | The one highlighted thing, and text on it | `--uipack-accent`, `--deck-accent`, `--web-accent` |
+| `--ui-accent-surface` / `-ink-2` / `-line` | The deck's accent-tone slide | `[data-tone="accent"]` |
+| `--ui-flow-request` / `-response` / `-change` | Flow tokens, always paired with a shape | `--uipack-token-*` |
+| `--ui-data-pos` / `-neg` / `-context` | Signed values (with a sign or arrow) and the context grey | `--uipack-cx-good`, `-bad`, `-context` |
+| `--ui-data-1` … `-4`, `--ui-on-data-1` … `-4` | Categorical slots and the label on each | `--uipack-cx-s1` … |
+| `--ui-inv-paper` / `-surface` / `-ink` / `-ink-2` / `-line` / `-accent` | The invert variant inside the style (deck `invert`, `tone="ink"`) | `[data-tone="ink"]` |
 
-A role keeps its meaning across styles. Landing's accent is indigo and Technical's is forest, but
-in both it marks the single thing that matters. A style may not add a second accent.
+**Type, shape, motion and scalars**
+
+| Role | Means |
+| --- | --- |
+| `--ui-font-display` / `-text` / `-label` | The three faces |
+| `--ui-display-weight` / `-tracking` / `-case`, `--ui-display-scale` | How the display face is set; Graphical sets caps at 1.3× |
+| `--ui-label-tracking` | Tracked caps for eyebrows and labels |
+| `--ui-em-style`, `--ui-em-color` | The emphasised phrase in a display headline (Landing italic, others the accent) |
+| `--ui-radius` / `-sm` / `-xs` / `-pill` | Container, inner box, mark, control |
+| `--ui-stroke`, `--ui-rule-width` | SVG line weight, CSS rule weight |
+| `--ui-density`, `--ui-type-ratio`, `--ui-measure` | Scalars a style may own: spacing scale, type ratio, line length |
+| `--ui-ease-settle` / `-travel`, `--ui-dur-quick` / `-base` / `-slow` | Motion feel |
+
+**Ornament slots.** A layout leaves named slots; a style paints them. They never take space or
+move a box, which is why a swap keeps every region in place (`src/web/web-styles.css`).
+
+| Slot role | Painted where | Technical | Landing | Graphical |
+| --- | --- | --- | --- | --- |
+| `--ui-backdrop`, `--ui-backdrop-mask` | Behind the hero | Dotted grid, faded | None (grain and aurora are components) | Accent disc, ring, ink tick band |
+| `--ui-marker-size` / `-shape` / `-color` | Hung before each eyebrow | 8px square, 2px radius | None | 12px accent disc |
+| `--ui-section-rule` | Top edge of each section | 1px soft line | None | 2px ink |
+| `--ui-frame-border`, `--ui-frame-shadow`, `--ui-card-shadow` | Cards and framed windows | 1px line, flat | Hairline, soft shadow | 2px ink, hard 6px offset |
+| `--ui-nav-fill`, `--ui-nav-blur` | The sticky nav | Paper at 94% | Glass, 14px blur | Solid paper |
+| `--ui-grain`, `--ui-glow`, `--ui-star-fill` | Ambient depth switches (0 or 1) | 0 | 1 | 0 |
+| `--ui-cta-shadow(-hover)` | The primary button | None | Accent glow | Hard ink offset |
+
+**Optional roles.** Technical tunes some media with roles a style may leave unset; components read
+them with a fallback to a core role (`var(--ui-slide-ink-2, var(--ui-ink-2))`), and every style
+host resets them, so a tuned value never leaks into a child in another style. Today only Technical
+sets them: `--ui-node`, `--ui-inv-node`, `--ui-line-solid`, `--ui-accent-ink`, `--ui-data-neg-ink`,
+`--ui-slide-*` (deck ink-2, line and faces), `--ui-web-font-*` (Plex on the web), `--ui-docs-*`,
+`--ui-print-*`, `--ui-alert`, `--ui-warn`, `--ui-letterbox`, `--ui-mech-*` (Mechanism tones) and
+`--ui-object-*` (the Studio stage). Graphical sets `--ui-accent-ink`.
+
+A role keeps its meaning across styles. Landing's accent is indigo, Technical's forest and
+Graphical's signal orange, but in each it marks the single thing that matters. A style may not add
+a second accent.
 
 ## The styles
 
-| Style | For | Character | Tokens | Guide |
+| Style | For | Character | Values | Guide |
 | --- | --- | --- | --- | --- |
-| **Technical** | Diagrams, charts, article parts, decks, the shell | Warm paper, near-black ink, forest/mint accent, thin lines, 6px radius, system type | `src/theme.css`, `src/deck/deck.css` | Below |
-| **Landing** | Marketing and product pages | Neutral page, lavender secondary, indigo CTA accent, editorial serif headlines, quiet depth | `src/web/web.css` | [web-principles.md](../web-principles.md) |
-| **Mechanism** | One isometric machine whose working is the point | Technical palette mapped to four solid tones, one lit part | `src/mechanism/mechanism.css` | [mechanism.md](../mechanism.md) |
-| **3D art directions** | Object scenes | Studio, Paper worlds, Kinetic, Cartoon, Realistic, Abstract | `src/objects/*` | [objects.md](../objects.md) |
+| **Technical** (default) | Diagrams, charts, article parts, decks, the shell, and web pages | Warm paper, near-black ink, forest/mint accent, thin lines, 6px radius, system type in figures and IBM Plex on slides and the web; on the web a page leads with a working diagram | `src/styles/technical.css` | Below |
+| **Landing** (generic landing) | A conventional SaaS landing page, when that is the brief | Neutral page, lavender band, indigo CTA accent, Instrument Serif headlines, 16px cards, glass and grain | `src/styles/landing.css` | [web-principles.md](../web-principles.md) |
+| **Graphical** | Posters, launches, a page that should be loud | Bone paper, black ink, one signal-orange accent, Anton display caps, hard edges, 2px rules, hard offset frames, one disc motif | `src/styles/graphical.css` | [web-principles.md](../web-principles.md) |
+| **Mechanism** | One isometric machine whose working is the point | Technical palette mapped to four solid tones (`--ui-mech-*`), one lit part | `src/mechanism/mechanism.css` | [mechanism.md](../mechanism.md) |
+| **3D art directions** | Object scenes | Studio (reads `--ui-object-*`), Paper worlds, Kinetic, Cartoon, Realistic, Abstract | `src/objects/*` | [objects.md](../objects.md) |
+
+Set a style with the `style` prop (`Figure`, `DeckPlayer`, `SlideStarter`, `WebSurface`, `Section`)
+or `data-ui-style` on any element; the nearest one wins. `uiStyles` in `uipack` lists the three
+swappable styles with their fonts, the face to preload and their recommended web section order.
 
 ### Technical values
 
@@ -64,17 +103,39 @@ in both it marks the single thing that matters. A style may not add a second acc
 The red is a data colour only: a falling bar, a down delta, always with a sign or an arrow. It is
 never a status colour, an accent or decoration.
 
+### Landing and Graphical values
+
+| Role | Landing light / dark | Graphical light / dark |
+| --- | --- | --- |
+| paper | `#f7f7f4` / `#0d0d13` | `#f1eee6` / `#121212` |
+| surface | `#ffffff` / `#16161f` | `#fbfaf6` / `#1b1b1b` |
+| surface-2 | `#ebe9f4` / `#1e1c2e` | `#e6e1d3` / `#262420` |
+| ink | `rgb(18 18 23)` / `rgb(242 242 247)` | `#111111` / `#f1eee6` |
+| ink-2 / ink-3 | ink at 87% / 66% | `#363532`, `#57554f` / `#cfcbc0`, `#a29e93` |
+| line / line-soft | ink at 24% / 12% | solid ink / ink at 22% |
+| accent | `#4b3fd6` / `#a99dff` | `#f24a00` / `#ff6a26` (as small text `#b23700` / `#ff7f45`) |
+| on-accent | `#ffffff` / `#0d0d13` | `#111111` |
+| radius | 16px cards, 12px panels, round pills | 0 everywhere |
+
+Both keep Technical's flow hues (Graphical darkens two for its bone paper) and its data colours.
+
 ### Type roles
 
 | Style | Display | Text | Label |
 | --- | --- | --- | --- |
 | Technical (figures, charts, article, shell) | Text face at 650–700 | System sans | System mono, tracked caps 0.08em |
 | Technical deck | IBM Plex Sans 650, −0.02em (when the host provides it) | IBM Plex Sans | IBM Plex Mono, tracked caps 0.14em |
+| Technical web | IBM Plex Sans 600 (`--ui-web-font-*`) | IBM Plex Sans | IBM Plex Mono |
 | Landing | Instrument Serif 400, heading step 4 and up | IBM Plex Sans | IBM Plex Mono |
+| Graphical | Anton 400 in caps, 1.3× from heading step 4 | IBM Plex Sans | IBM Plex Mono, tracked 0.12em |
 | Mechanism | n/a (no words in the drawing) | Host sans | Mono caps, at least 11px, card corners only |
 
-Technical makes no font requests. Use a style's own faces and never add a new one. A different face
-is a new style, or a documented override hook (Landing's `--web-font-display`).
+Figures make no font requests. Fonts are self-hosted, latin-only woff2 in `uipack/fonts/*`
+(`src/web/fonts.css`), each with a metric-matched local fallback, and a browser fetches a face only
+when the active style uses it: Technical web 5 files (101 KB), Graphical 6 (119 KB), Landing 7
+(143 KB). Preload only the active style's display face (`uiStyles[].preload`): none for
+Technical, Instrument Serif for Landing, Anton for Graphical. Use a style's own faces and never
+add a new one. A different face is a new style, or a documented override hook (`--web-font-display`).
 
 ### Shared finish rules (every style)
 
@@ -137,11 +198,20 @@ canvas px on the 1920×1080 canvas, so they scale with the slide.
 
 ## Web
 
-Landing owns web pages: [web-principles.md](../web-principles.md) holds the 30 numbered rules. Its
-style values in short: neutral 60% (`#f7f7f4` / `#0d0d13`), secondary 30% (`#ebe9f4` /
-`#1e1c2e`), indigo accent 10% (`#4b3fd6`) for CTAs and the star only; type 16px × 1.25 with
-Instrument Serif from step 4; text at 100/87/66% ink; 16px cards, 12px panels, round pills; grain
-plus glass for depth. Technical web surfaces (docs, the shell) keep Technical.
+Three styles paint web pages, from the same parts and the same words:
+
+- **Technical** is the default and the owner's own look: paper, ink, the forest accent, IBM Plex,
+  thin rules, a dotted-grid backdrop and a square marker before each eyebrow. The page leads with a
+  working diagram (its recommended order puts the mechanism figure straight after the hero).
+- **Landing** is the generic landing page: neutral 60% (`#f7f7f4` / `#0d0d13`), lavender 30%
+  (`#ebe9f4` / `#1e1c2e`), indigo 10% (`#4b3fd6`) for CTAs and the star only; Instrument Serif from
+  step 4; text at 100/87/66% ink; 16px cards; grain and glass. Its 30 rules are in
+  [web-principles.md](../web-principles.md).
+- **Graphical** is a poster: Anton caps at 1.3×, one orange disc in the hero backdrop that returns
+  as every eyebrow marker, 2px ink rules and hard offset frames, no glow, no blur.
+
+All three keep one accent, 4.5:1 small text in both themes and reduced motion. `/web?style=` shows
+the same page in each; `?layout=shared` puts them in one section order.
 
 ## Motion
 
@@ -185,19 +255,26 @@ corner radii; mobile paints at 30fps at most; reduced motion shows an authored s
 
 ## Where the code stands
 
-The role contract is the target. Today each entry declares its own namespace and re-declares the
-Technical values: `--uipack-*` (figures), `--deck-*`, `--web-*`, `--anatomy-*` and `--um-*`
-(Mechanism), `--presentation-*`, `--sp-*` and `--ls-*` (charts), `--ua-*` (article),
-`--uipack-cx-*` (consulting). So a style swap is a per-entry job, and the deck can't yet be shown in
-Landing.
+The contract is in place:
 
-Migration, in order. Each step ships on its own:
+1. `src/styles/roles.css` declares `@layer uipack.tokens, uipack.base, uipack.layout,
+   uipack.ornaments` and the optional-role reset; each style is one value set. Every entry's
+   stylesheet in `dist/` starts with the role layer; `uipack/styles.css` is the layer alone.
+2. Every entry aliases its private tokens to roles (`--deck-fg: var(--ui-ink)`). Technical renders
+   pixel-identical to before in both themes at 1440 and 390, checked per route against screenshots.
+3. `Figure`, `DeckPlayer`, `SlideStarter`, `WebSurface` and `Section` take `style`.
+4. `e2e/style-swap.spec.ts` renders the same `DeckSlide[]` and the same web page in every style and
+   checks the regions, columns and reading order match, with no console errors.
+5. A new style is one value set in `src/styles/` plus its doc and a `uiStyles` entry. It adds a
+   component only when it adds a part.
 
-1. Add `src/styles/roles.css`: the `--ui-*` roles with Technical as the default value set, and
-   `[data-ui-style="landing"]` and `[data-ui-theme="dark"]` value sets.
-2. Alias each entry's private tokens to roles (`--deck-fg: var(--ui-ink)`), deleting the duplicated
-   hex. There should be no visual change, and the screenshot suites prove it.
-3. Give `DeckPlayer`, `Figure` and `SlideStarter` a `style` prop that sets `data-ui-style`.
-4. Prove the swap on the example decks: the same `DeckSlide[]` rendered in Technical and Landing,
-   with identical regions and reading order (an e2e check on block boxes).
-5. A new style is then one value set plus its doc, with no component changes unless it adds a part.
+Known gaps:
+
+- Hex literals remain in four files, each listed with its reason in `test/no-hex.test.tsx`: the
+  vendored Mechanism kit, 3D subject materials, the five non-Studio art-direction stage gradients
+  and two candle strokes in the object fallback.
+- Optional roles are tuned for Technical only. Landing and Graphical fall back to core roles for
+  the deck's node fill, Mechanism tones, the Studio stage and docs.
+- Consulting charts and bento decks in Landing and Graphical pass the swap test but have had no
+  visual review; dense chart labels in Anton have not been checked.
+- Only the web reads the ornament slots. Figures and slides have no backdrop or marker slot yet.

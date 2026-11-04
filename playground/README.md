@@ -13,6 +13,7 @@ Run `npm run dev` from the repo root. The nav has two rows: groups, then the act
 | Motion & 3D | Mechanism | `/mechanism` |
 | Web | Web UI | `/web` |
 | Web | Docs layout | `/docs` |
+| Foundations | Overview, Style roles, Writing, Layout, Mix and match, Recipes, Do and don't | `/foundations`, `/foundations/style`, `/foundations/writing`, `/foundations/layout`, `/foundations/mix`, `/foundations/recipes`, `/foundations/do-and-dont` |
 | Foundations | Styles | `/styles` |
 | Foundations | Icons & marks | `/assets` |
 
@@ -27,6 +28,7 @@ Every page has the same headings: the context line (`<Group> · <Style> style`),
 - `/web`: Web UI in the Landing style. One composed landing page (glass nav, star hero, demo player, spotlight features, reveal quote, closing CTA), then the flashy, low-key, Motion and Backgrounds sections and the principles.
 - `/article`: the `uipack/article` parts in a host article: a 40rem prose column with blog-like prose CSS and a 56rem slot for wide clusters. `#layer-section` composes the Inference and Harness sections; the other anchors show each part's variants. `?host=notes` maps the tokens to the notes site's palette. The content is `examples/articleParts.tsx`; `scripts/build-article-fixtures.tsx` renders it to static HTML in a copy of the notes site's article layout for the no-JavaScript tests.
 - `/mechanism`: the Mechanism style. The verification gate in its card with pose buttons (`?pose=idle|pass|return|apart`), and the four still thumbnails a deck would render (`interactive={false}`, `frame={false}`).
+- `/foundations/*`: the design system guide (`FoundationsShowcase.tsx`, `foundations.css`). Overview swaps style, writing and layout on one slide and one web section with three radio groups; Style roles renders each style's roles as live swatches in light and dark and its ornament slots on the same markup; Writing renders `SLOT_BUDGETS` and a live budget check; Layout steps through the section, quote, fact, invert and end archetypes in a chosen style and shows a narrow figure; Mix and match, Recipes and Do and don't are tables and paired examples. Each page ends with its `docs/system/*.md` guide, rendered with `DocsMarkdown` (its h1 dropped, links pointed at these pages or the repo), so the docs stay the one source.
 - `/styles`: visual-language catalog (Technical, Landing, Mechanism, and six object art directions). Each card shows the style itself (`StylePreviews.tsx`): a live figure, Landing hero and gate machine, and stills of the travel study for the six WebGL directions (`assets/styles/`, regenerated with `node scripts/style-stills.mjs` while the dev server runs on port 5285).
 
 `ShowcaseShell.tsx` owns shared navigation/theme handling (`ShowcaseThemeProvider`, `useShowcaseTheme`); a page's `styleName` in `catalog.ts` names its content style in the context line. `showcase.css` owns page tokens and layout. `catalog.ts` owns type/style/tag metadata. Collection pages must not introduce another header or global styles.

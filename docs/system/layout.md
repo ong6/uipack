@@ -99,6 +99,14 @@ moving, not the page jumping. The footer stays put across transitions.
 | Bento | A grid of cells the camera tours | `evidence` (dense) | `Bento` + `BentoCell` |
 | Plan | Milestones on a line with owners and dates | `plan` | `Slide` blocks |
 | Ask | The decision, the owner, the date | `ask` | `Slide layout="center"` |
+| Section | A chapter divider: a big number, the chapter's claim, one line | `context` | `sectionSlide`, `SectionSlide` |
+| Quote | One quote in the reader's words, with who said it | `evidence` | `quoteSlide`, `QuoteSlide` |
+| Fact | One number with its unit, baseline and source | `evidence` | `factSlide`, `FactSlide` |
+| End | The ask as a slide: action, owner, date | `ask` | `endSlide`, `EndSlide` |
+
+**Invert.** Any slide can set `invert` (sugar for `tone="ink"`): the same layout on the style's
+invert roles, a dark ground in a light deck. It is a variant inside the style, not another style,
+and it never changes a region.
 
 Keep a slide to a handful of top-level blocks. That's what `advance` staggers. Embedded figures
 keep their own diagram layout. The slide gives them the body region and nothing else.
@@ -111,9 +119,21 @@ words nor the style.
 
 - **Grid.** 12 columns at 1024px and up, 8 at 640px, 4 below. Spacing is 8pt. `Grid` and
   `GridItem span={[w, m, n]}` respond to their container.
-- **Section archetypes**, in their usual order: glass nav → demo-first hero (headline, subhead, CTA,
-  the star or `DemoPlayer`) → proof (logos, numbers) → feature grid (cards with actions pinned to
-  the bottom) → how it works (a figure) → pricing → FAQ → final CTA.
+- **Section archetypes**: nav, hero (headline, subhead, CTA, the star or `DemoPlayer`), mechanism
+  (a working figure), steps (feature cards with actions pinned to the bottom), proof (a quote and
+  numbers), FAQ, pricing with the final CTA.
+- **Each style recommends a sequence** for the same sections (`uiStyles[].prefers` in `uipack`).
+  The order is part of a look: the demo hero, three cards, pricing and FAQ is the generic landing
+  template, so the other styles reorder it.
+
+  | Style | Recommended order | Hero |
+  | --- | --- | --- |
+  | Technical | hero → mechanism → proof → steps → FAQ → pricing | Copy on the start edge; the diagram follows at once |
+  | Landing | hero → steps → mechanism → proof → FAQ → pricing | Centred |
+  | Graphical | hero → proof → steps → mechanism → pricing → FAQ | Centred; the numbers come second, as a poster's |
+
+  A recommendation only: `/web?layout=shared` shows all three in one order, which is what the swap
+  test compares.
 - One goal, so the primary CTA appears three times (hero, nav, end) and nothing else competes.
 - One ambient background per viewport, behind the star, never behind body copy.
 - Cards that share a row share a height, with the action row at `margin-top: auto`.

@@ -55,7 +55,7 @@ export const libraryGroups = [
   { id: "presentations", label: "Presentations", defaultPage: "deck" },
   { id: "motion", label: "Motion & 3D", defaultPage: "animations" },
   { id: "web-group", label: "Web", defaultPage: "web" },
-  { id: "foundations", label: "Foundations", defaultPage: "styles" },
+  { id: "foundations", label: "Foundations", defaultPage: "foundations" },
 ] as const;
 export type LibraryGroup = (typeof libraryGroups)[number]["id"];
 
@@ -184,6 +184,56 @@ export const libraryPages = [
     label: "Docs layout",
     path: "/docs",
     intro: "A three-column product documentation shell with responsive navigation and Markdown prose.",
+  },
+  {
+    id: "foundations",
+    group: "foundations",
+    label: "Overview",
+    path: "/foundations",
+    intro:
+      "Style, writing and layout are three layers you swap one at a time; change each on one slide and one web section below.",
+  },
+  {
+    id: "foundations-style",
+    group: "foundations",
+    label: "Style roles",
+    path: "/foundations/style",
+    intro: "The roles every style fills, the ornament slots it paints, and each style's values in light and dark.",
+  },
+  {
+    id: "foundations-writing",
+    group: "foundations",
+    label: "Writing",
+    path: "/foundations/writing",
+    intro: "Words are typed data: a claim per unit, a text budget per slot, and one place for each kind of sentence.",
+  },
+  {
+    id: "foundations-layout",
+    group: "foundations",
+    label: "Layout",
+    path: "/foundations/layout",
+    intro: "Regions, archetypes and narrow forms: where each slot sits and in what order it is read.",
+  },
+  {
+    id: "foundations-mix",
+    group: "foundations",
+    label: "Mix and match",
+    path: "/foundations/mix",
+    intro: "What changes when you swap each layer, and the four places one layer still leaks into another.",
+  },
+  {
+    id: "foundations-recipes",
+    group: "foundations",
+    label: "Recipes",
+    path: "/foundations/recipes",
+    intro: "Six common jobs, each as a style, an archetype sequence and a content template, with the live page.",
+  },
+  {
+    id: "foundations-dont",
+    group: "foundations",
+    label: "Do and don't",
+    path: "/foundations/do-and-dont",
+    intro: "Paired examples of the rules, and the checklist of generic AI-landing tropes to keep out.",
   },
   {
     id: "styles",

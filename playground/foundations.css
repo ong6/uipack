@@ -1,0 +1,504 @@
+/* The Foundations guide pages (FoundationsShowcase.tsx). Shell tokens for the page's own chrome;
+   samples (decks, web sections, swatches) read the style roles inside their own style host. */
+
+/* Controls: one radio group per layer, 44px targets. */
+.fdn-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  margin: 0 0 20px;
+}
+.fdn-choice {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.fdn-choice legend {
+  margin: 0 0 4px;
+  padding: 0;
+  color: var(--show-muted);
+  font: var(--show-eyebrow-font);
+  letter-spacing: var(--show-eyebrow-tracking);
+  text-transform: uppercase;
+}
+.fdn-choice > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.fdn-choice label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+}
+.fdn-choice input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.fdn-choice span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--show-rule);
+  border-radius: var(--show-control-radius);
+  background: var(--show-surface);
+  color: var(--show-ink);
+  font: var(--show-control-font);
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease;
+}
+.fdn-choice label:hover span {
+  border-color: var(--show-ink);
+}
+.fdn-choice input:checked + span {
+  border-color: var(--show-accent);
+  background: color-mix(in srgb, var(--show-accent) 12%, var(--show-surface));
+  box-shadow: inset 0 0 0 1px var(--show-accent);
+}
+.fdn-choice input:focus-visible + span {
+  outline: 2px solid var(--show-accent);
+  outline-offset: 2px;
+}
+
+/* One unit: the slide and the web section side by side when there is room. */
+.fdn-unit {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 24px;
+  align-items: start;
+}
+.fdn-unit__deck .uipack-deck {
+  --deck-chrome: 220px;
+}
+.fdn-unit__web {
+  border: 1px solid var(--show-rule);
+  border-radius: var(--show-radius);
+  overflow: hidden;
+}
+.fdn-unit__web .uipack-web-section {
+  --web-section-pad: var(--web-s6);
+  padding-inline: var(--web-s4);
+}
+@media (max-width: 960px) {
+  .fdn-unit {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.fdn-fact {
+  display: grid;
+  gap: 4px;
+}
+.fdn-fact__value {
+  font-family: var(--web-font-display);
+  font-weight: var(--web-display-weight);
+  font-size: calc(var(--web-step-6) * var(--web-display-scale));
+  line-height: 1;
+  color: var(--web-ink);
+}
+.fdn-fact__value small {
+  margin-left: 0.25em;
+  font-family: var(--web-font-mono);
+  font-size: var(--web-step-0);
+  color: var(--web-ink-medium);
+}
+.fdn-fact__baseline {
+  font-family: var(--web-font-mono);
+  font-size: var(--web-step--1);
+  color: var(--web-ink-low);
+}
+.fdn-actions {
+  display: flex;
+  justify-content: center;
+}
+.fdn-note {
+  margin: 12px 0 0;
+  overflow-x: auto;
+  color: var(--show-muted);
+  font-size: 13px;
+}
+
+/* Tables: scroll inside their frame on a phone. */
+.fdn-table {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--show-rule);
+  border-radius: var(--show-radius);
+  background: var(--show-surface);
+}
+.fdn-table:focus-visible {
+  outline: 2px solid var(--show-accent);
+  outline-offset: 2px;
+}
+.fdn-table table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.fdn-table :is(th, td) {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--show-rule);
+  text-align: left;
+  vertical-align: top;
+}
+.fdn-table thead th {
+  color: var(--show-muted);
+  font: var(--show-eyebrow-font);
+  letter-spacing: var(--show-eyebrow-tracking);
+  text-transform: uppercase;
+}
+.fdn-table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+.fdn-table tbody th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.fdn-links {
+  margin: 16px 0 0;
+  padding-left: 20px;
+  line-height: 1.8;
+  color: var(--show-muted);
+}
+.fdn-links a,
+.fdn-table a,
+.fdn-recipe > a {
+  color: var(--show-accent);
+}
+
+/* The rendered system docs. */
+.fdn-guide {
+  padding: 0;
+  max-width: 76ch;
+}
+
+/* Style roles: a card per style, light and dark swatch columns. */
+.fdn-styles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 24px;
+}
+.fdn-style,
+.fdn-recipe,
+.fdn-pair {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--show-rule);
+  border-radius: var(--show-radius);
+  background: var(--show-surface);
+}
+.fdn-style h3,
+.fdn-recipe h3,
+.fdn-pair h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.fdn-style > p,
+.fdn-pair > p {
+  margin: 0 0 16px;
+  color: var(--show-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.fdn-pair > p {
+  margin: 12px 0 0;
+}
+.fdn-style__themes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.fdn-swatches {
+  min-width: 0;
+  padding: 12px;
+  border-radius: 4px;
+  background: var(--ui-paper);
+  color: var(--ui-ink);
+  outline: 1px solid var(--ui-line-soft);
+}
+.fdn-swatches__head {
+  margin: 0 0 8px;
+  font: 600 11px/1.3 var(--ui-font-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ui-ink-2);
+}
+.fdn-swatches ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fdn-swatches li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  line-height: 1.25;
+}
+.fdn-swatches li code {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ui-ink-2);
+  font-size: 11px;
+}
+.fdn-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px var(--ui-line-soft);
+}
+.fdn-swatches__text {
+  margin: 10px 0 0;
+  font-size: 13px;
+}
+
+/* Ornament panels: the same markup, painted by each style. */
+.fdn-grid3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 16px;
+}
+.fdn-ornaments {
+  border: 1px solid var(--show-rule);
+  border-radius: var(--show-radius);
+  overflow: hidden;
+}
+.fdn-ornaments {
+  display: grid;
+}
+.fdn-ornaments__stage {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 40px 24px 24px 40px;
+  min-height: 300px;
+}
+.fdn-display {
+  margin: 0;
+  max-width: 9em;
+  font-family: var(--web-font-display);
+  font-weight: var(--web-display-weight);
+  font-size: calc(var(--web-step-4) * var(--web-display-scale));
+  line-height: 1.05;
+  letter-spacing: var(--web-display-tracking);
+  text-transform: var(--web-display-case);
+  color: var(--web-ink);
+}
+.fdn-display em {
+  font-style: var(--ui-em-style, italic);
+  color: var(--ui-em-color, inherit);
+}
+.fdn-ornaments__card {
+  max-width: 260px;
+  padding: 16px !important;
+}
+/* The button sits at the stage's foot, so it lines up across the three styles whatever the face. */
+.fdn-ornaments__stage > .uipack-web-cta {
+  margin-top: auto;
+}
+.fdn-mini {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 24px 24px 24px 40px;
+  border: 1px solid var(--show-rule);
+  border-radius: var(--show-radius);
+}
+.fdn-mini--row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 20px;
+}
+
+/* Writing: the budget checker. */
+.fdn-checker {
+  display: grid;
+  gap: 8px;
+  max-width: 640px;
+}
+.fdn-checker label span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--show-muted);
+  font: var(--show-eyebrow-font);
+  letter-spacing: var(--show-eyebrow-tracking);
+  text-transform: uppercase;
+}
+.fdn-checker select,
+.fdn-checker textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--show-rule);
+  border-radius: var(--show-control-radius);
+  background: var(--show-surface);
+  color: var(--show-ink);
+  font: 15px/1.5 var(--show-font-sans);
+}
+.fdn-checker select {
+  max-width: 240px;
+  font: var(--show-control-font);
+}
+.fdn-checker :is(select, textarea):focus-visible {
+  outline: 2px solid var(--show-accent);
+  outline-offset: 2px;
+}
+.fdn-checker__result {
+  margin: 0;
+  font: var(--show-control-font);
+  color: var(--show-ink);
+}
+
+/* Layout: the archetype deck. */
+.fdn-deck .uipack-deck {
+  --deck-chrome: 200px;
+}
+
+/* Recipes. */
+.fdn-recipes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fdn-recipe {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.fdn-recipe dl {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+.fdn-recipe dt {
+  color: var(--show-muted);
+  font: var(--show-eyebrow-font);
+  letter-spacing: var(--show-eyebrow-tracking);
+  text-transform: uppercase;
+}
+.fdn-recipe dd {
+  margin: 2px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.fdn-recipe dd code {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.fdn-recipe > a {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.fdn-sequence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fdn-sequence li {
+  padding: 2px 8px;
+  border: 1px solid var(--show-rule);
+  border-radius: 4px;
+  font: 500 12px/1.5 var(--show-font-mono);
+}
+.fdn-sequence li + li::before {
+  content: "→ ";
+  color: var(--show-muted);
+}
+
+/* Do and don't. */
+.fdn-pairs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr));
+  gap: 16px;
+}
+.fdn-pair__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 540px) {
+  .fdn-pair__row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.fdn-pair figure {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  margin: 0;
+  min-width: 0;
+}
+.fdn-pair figcaption {
+  font: var(--show-eyebrow-font);
+  letter-spacing: var(--show-eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--show-muted);
+}
+.fdn-pair figure[data-verdict="do"] figcaption {
+  color: var(--show-accent);
+}
+.fdn-pair figure[data-verdict="dont"] figcaption::before {
+  content: "✕ ";
+}
+.fdn-pair figure[data-verdict="do"] figcaption::before {
+  content: "✓ ";
+}
+.fdn-node {
+  width: 100%;
+  height: auto;
+}
+.fdn-node rect {
+  fill: var(--ui-surface-raised);
+  stroke: color-mix(in srgb, var(--ui-ink) 70%, transparent);
+  stroke-width: 1.25;
+}
+.fdn-node text {
+  fill: var(--ui-ink);
+  font: 600 15px var(--ui-font-text);
+}
+.fdn-node .fdn-node__sub {
+  fill: var(--ui-ink-2);
+  font: 400 12px var(--ui-font-label);
+}
+.fdn-glow {
+  display: grid;
+  place-items: center;
+  min-height: 96px;
+  border: 1px solid var(--ui-line);
+  border-radius: 6px;
+  background: var(--ui-surface);
+  color: var(--ui-ink);
+  font-weight: 600;
+}
+.fdn-glow[data-glow="ambient"] {
+  box-shadow: 0 0 32px 6px color-mix(in srgb, var(--ui-accent) 45%, transparent);
+}

@@ -37,7 +37,7 @@ test("the theme toggle updates the nav links and keeps the page", async ({ page 
   await page.getByRole("button", { name: "dark mode", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(pagesNav(page).getByRole("link", { name: "Article parts" })).toHaveAttribute("href", "/article?theme=dark");
-  await expect(groupsNav(page).getByRole("link", { name: "Foundations" })).toHaveAttribute("href", "/styles?theme=dark");
+  await expect(groupsNav(page).getByRole("link", { name: "Foundations" })).toHaveAttribute("href", "/foundations?theme=dark");
   await expect(pagesNav(page).locator('[aria-current="page"]')).toHaveText("Charts");
 });
 

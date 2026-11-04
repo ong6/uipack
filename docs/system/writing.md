@@ -51,7 +51,36 @@ type Content = {
 ```
 
 `DeckSlide` (deck), `SlideStarterData.content` + `.speech` (starters) and preset specs are today's
-implementations of this shape.
+implementations of this shape. The deck archetype factories (`sectionSlide`, `quoteSlide`,
+`factSlide`, `endSlide`) take these fields as data, so the linter can read them.
+
+## Slot budgets
+
+Each slot holds a fixed amount of text before it stops reading at a glance. The budget belongs to
+the slot, so it holds in every layout and every style (a condensed display face is no excuse for a
+longer headline). `SLOT_BUDGETS` in `uipack/deck` is the table; `lintDeck` reports a slot over
+budget as `slot-budget` (a warning), and `slotProblems(slot, text)` checks one string. Line counts
+are estimates at the slot's measure on the 1920×1080 canvas.
+
+| Slot | Budget | When it runs over |
+| --- | --- | --- |
+| eyebrow | 1–4 words, one line, not a sentence | wraps |
+| headline | 3–14 words, at most 2 lines | wraps, balanced |
+| title | at most 14 words (overview and screen readers) | ellipsis |
+| lede | at most 30 words, 3 lines, one sentence | wraps |
+| label | at most 3 words, not a sentence | wraps |
+| quote | at most 30 words, 4 lines, 2 sentences | wraps, balanced |
+| attribution | at most 8 words | wraps |
+| value / number | at most 6 / 3 characters | wraps |
+| unit | at most 4 words | wraps |
+| baseline | at most 12 words | wraps |
+| action | 2–12 words | wraps |
+| owner | 1–5 words | wraps |
+| date | 1–4 words | wraps |
+| source | at most 30 words | wraps |
+
+The web uses the same budgets for its eyebrows, headlines and labels; they are not linted there
+yet.
 
 ## Diagrams
 
