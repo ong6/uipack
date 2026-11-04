@@ -1,5 +1,14 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { DeckPlayer } from "../src/deck";
+// The deck's sans and mono are IBM Plex "when the host provides it" (src/deck/deck.css); the site
+// does through next/font, so the deck page does too. Without it each machine falls back to its own
+// system face and slide fit differs by platform.
+import "@fontsource/ibm-plex-sans/latin-400.css";
+import "@fontsource/ibm-plex-sans/latin-600.css";
+import "@fontsource/ibm-plex-sans/latin-700.css";
+import "@fontsource/ibm-plex-mono/latin-500.css";
+import "@fontsource/ibm-plex-mono/latin-600.css";
+import "@fontsource/ibm-plex-mono/latin-700.css";
 import "../src/deck/deck.css";
 import "../src/deck/bento.css";
 import "../src/deck/consulting/consulting.css";

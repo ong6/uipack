@@ -377,12 +377,11 @@ export const consultingDeck: DeckSlide[] = [
               },
               {
                 label: "Renegotiate freight",
-                detail: "Carriers are already close to market rates",
                 cells: { saving: "$4M", cost: "$0.5M", margin: 1, service: 4, speed: 4, undo: 4 },
               },
               {
                 label: "Consolidate to two hubs",
-                detail: "Close Northgate and Riverside; expand Eastfield and Harbour",
+                detail: "Close Northgate and Riverside",
                 highlight: true,
                 cells: { saving: "$14M", cost: "$9M", margin: 4, service: 2, speed: 2, undo: 1 },
               },
@@ -512,7 +511,7 @@ export const consultingDeck: DeckSlide[] = [
               <Ref n={2} /> for comparison
             </>
           }
-          cols={7}
+          cols={6}
           rows={2}
         >
           <LineChart
@@ -535,7 +534,7 @@ export const consultingDeck: DeckSlide[] = [
             }}
           />
         </Panel>
-        <Panel title="Three phases, one owner each" unit="A phase ends when its exit test passes" cols={5}>
+        <Panel title="Three phases, one owner each" unit="A phase ends when its exit test passes" cols={6}>
           <HarveyTable
             corner="When"
             showKey={false}
@@ -548,7 +547,7 @@ export const consultingDeck: DeckSlide[] = [
               { label: "M3–M6", cells: { what: "Hire and train hub teams", owner: "People" } },
               {
                 label: "M6–M9",
-                cells: { what: "Dual running: move Northgate, then Riverside; both closed by M9", owner: "Operations" },
+                cells: { what: "Close Northgate, then Riverside", owner: "Operations" },
               },
               {
                 label: "M12",
@@ -567,10 +566,9 @@ export const consultingDeck: DeckSlide[] = [
             ]}
           />
         </Panel>
-        <SoWhat title="Tripwire" cols={5}>
+        <SoWhat title="Tripwire" cols={6}>
           <p>
-            If on-time delivery stays below <strong>88% for four weeks</strong>, we pause the Riverside move and keep the site
-            open until service recovers.
+            If on-time delivery stays below <strong>88% for four weeks</strong>, we pause the Riverside move.
           </p>
         </SoWhat>
       </ConsultingSlide>

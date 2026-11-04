@@ -135,6 +135,13 @@ test("a pinned look is reproducible and failed model loading shows the fallback"
 });
 
 test("modeled tennis keeps painting within the mobile frame budget", async ({ page }, testInfo) => {
+  // A paint rate means something on a real GPU. CI renders WebGL on the CPU (Mesa llvmpipe), where
+  // the skinned Blender model paints at about 6 a second; the paper and kinetic directions keep a
+  // CI-calibrated budget in art-directions.spec.ts.
+  test.skip(
+    Boolean(process.env.CI) && process.platform === "linux",
+    "paint rate is checked on real GPUs, not CI's software WebGL",
+  );
   await page.setViewportSize({ width: 390, height: 900 });
   await page.goto("/animations?story=tennis&variant=0");
   const canvas = page.locator(".uipack-object canvas");
@@ -161,6 +168,9 @@ test("modeled tennis keeps painting within the mobile frame budget", async ({ pa
 
 for (const kind of ["tennis", "trading"])
   test(`${kind} keeps looping, pauses and respects reduced motion`, async ({ page }) => {
+    // 6.5s of playback in 50ms steps renders 130 frames; under CI's software WebGL that alone
+    // can take most of the default 30s.
+    test.slow();
     await page.clock.install();
     await page.goto(`/animations?story=${kind}&variant=0`);
     const canvas = page.locator(".uipack-object canvas");
@@ -198,8 +208,9 @@ test("offscreen object playback suspends and resumes without racing forward", as
     document.body.prepend(spacer);
     window.scrollTo(0, 0);
   });
-  // Off screen, painting stops.
-  await waitForStable(() => canvas.getAttribute("data-frames"));
+  // Off screen, painting stops. Sample slower than one frame takes under CI's software WebGL, or a
+  // frame still in flight when the canvas left the screen lands after "stable".
+  await waitForStable(() => canvas.getAttribute("data-frames"), { every: 400 });
   const frames = await canvas.getAttribute("data-frames");
   const pose = Number(await canvas.getAttribute("data-pose"));
   // Wall clock on purpose: while off screen, nothing paints however long it waits.

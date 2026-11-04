@@ -44,6 +44,11 @@ jobs:
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Map the system font to Roboto (e2e/ci-fonts.conf explains why)
+        run: |
+          sudo apt-get install -y fonts-roboto
+          mkdir -p ~/.config/fontconfig && cp e2e/ci-fonts.conf ~/.config/fontconfig/fonts.conf
+          fc-cache -f && fc-match system-ui
       - name: Install Mesa for Chromium
         if: matrix.browser == 'chromium'
         run: sudo apt-get install -y xvfb libgl1-mesa-dri libegl-mesa0
