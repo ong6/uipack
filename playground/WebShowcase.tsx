@@ -556,7 +556,7 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
         id="web-how"
         eyebrow="How it works"
         title="Three steps, all of them visible."
-        intro="The same curve from the hero marks each step, so the page reads as one idea."
+        intro="Each step is one thing you can check, in the order it happens."
       >
         <div data-section-id="how">
           <FeatureGrid features={features} spotlight />
