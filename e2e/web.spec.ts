@@ -570,7 +570,9 @@ test.describe("/web Landing collection", () => {
       const button = page.getByRole("button", { name: /^Pour (dark|light) theme$/ });
       await button.scrollIntoViewIfNeeded();
       await button.click();
-      await expect(html).not.toHaveAttribute("data-theme", before ?? "light");
+      // The theme flips inside the view transition's callback, which headless WebKit on CI can
+      // take more than the default 5s to run.
+      await expect(html).not.toHaveAttribute("data-theme", before ?? "light", { timeout: 15_000 });
       const supported = await page.evaluate(() => "startViewTransition" in document);
       test.skip(!supported, `${browserName} has no View Transitions; the instant fallback is covered above`);
       await expect(page.locator("style[data-uipack-paint]")).toHaveCount(1);

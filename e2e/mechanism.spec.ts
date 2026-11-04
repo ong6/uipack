@@ -45,6 +45,7 @@ for (const theme of ["light", "dark"] as const) {
 }
 
 test("changing the pose moves the token and reaches the verdict", async ({ page }) => {
+  test.slow();
   await page.goto("/mechanism?theme=light");
   await expect(page.locator(machine)).toBeVisible();
   await page.getByRole("button", { name: "Return", exact: true }).click();
@@ -57,10 +58,11 @@ test("changing the pose moves the token and reaches the verdict", async ({ page 
       return later ? Math.hypot(later.x - first.x, later.y - first.y) : 0;
     })
     .toBeGreaterThan(20);
-  await expect(page.locator(readout)).toHaveText("reads 6.6 > 6.0 · returned", { timeout: 6000 });
+  // The verdict waits on the token's whole run; CI's runner takes over 6s for it, so allow 15.
+  await expect(page.locator(readout)).toHaveText("reads 6.6 > 6.0 · returned", { timeout: 15_000 });
   // The arm swings across the belt for a return.
   await page.getByRole("button", { name: "Pass", exact: true }).click();
-  await expect(page.locator(readout)).toHaveText("reads 4.2 ≤ 6.0 · passed", { timeout: 6000 });
+  await expect(page.locator(readout)).toHaveText("reads 4.2 ≤ 6.0 · passed", { timeout: 15_000 });
   await page.getByRole("button", { name: "Apart", exact: true }).click();
   await expect(page.locator(readout)).toHaveText("apart · 6 assemblies", { timeout: 4000 });
   const lifted = await page.locator(`${machine} [data-assembly="hopper"]`).first().getAttribute("transform");
