@@ -1,14 +1,23 @@
 'use strict';
 
+var chunkFD5DXHMS_cjs = require('./chunk-FD5DXHMS.cjs');
 var chunkSDBNPDW6_cjs = require('./chunk-SDBNPDW6.cjs');
 var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
 var jsxRuntime = require('react/jsx-runtime');
 var react = require('react');
 
-function WebSurface({ children, theme, as: Tag = "div", className = "", style, css }) {
-  const uiStyle = typeof style === "string" ? style : void 0;
-  const inline = typeof style === "object" ? { ...style, ...css } : css;
-  return /* @__PURE__ */ jsxRuntime.jsx(Tag, { className: `uipack-web ${className}`.trim(), "data-theme": theme, "data-ui-style": uiStyle, style: inline, children });
+function WebSurface({ children, theme, as: Tag = "div", className = "", style, uiStyle, layout }) {
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    Tag,
+    {
+      className: `uipack-web ${className}`.trim(),
+      "data-theme": theme,
+      "data-ui-style": uiStyle,
+      "data-ui-layout": layout,
+      style,
+      children
+    }
+  );
 }
 function Grid({ children, className = "", as: Tag = "div" }) {
   return /* @__PURE__ */ jsxRuntime.jsx(Tag, { className: `uipack-web-grid ${className}`.trim(), children });
@@ -16,6 +25,31 @@ function Grid({ children, className = "", as: Tag = "div" }) {
 function GridItem({ children, span = [4, 4, 4], className = "", as: Tag = "div" }) {
   const style = { "--span-w": span[0], "--span-m": span[1], "--span-n": span[2] };
   return /* @__PURE__ */ jsxRuntime.jsx(Tag, { className: `uipack-web-grid__item ${className}`.trim(), style, children });
+}
+var SHARED = { hero: "demo", align: "center", steps: "cards" };
+function WebPage({
+  sections,
+  nav,
+  uiStyle = "technical",
+  layout = "style",
+  order,
+  theme,
+  className = "",
+  style,
+  as,
+  children
+}) {
+  const meta = chunkFD5DXHMS_cjs.uiStyles.find((s) => s.id === uiStyle);
+  const page = { uiStyle, layout, defaults: layout === "style" ? meta.layout : SHARED };
+  const ids = order ? order.filter((id) => id in sections) : chunkFD5DXHMS_cjs.sectionOrder(uiStyle, Object.keys(sections), layout);
+  return /* @__PURE__ */ jsxRuntime.jsxs(WebSurface, { uiStyle, theme, className, style, as, layout, children: [
+    nav,
+    ids.map((id) => {
+      const section = sections[id];
+      return /* @__PURE__ */ jsxRuntime.jsx(react.Fragment, { children: typeof section === "function" ? section(page) : section }, id);
+    }),
+    children
+  ] });
 }
 function Eyebrow({ children, className = "", as: Tag = "p", id }) {
   return /* @__PURE__ */ jsxRuntime.jsx(Tag, { id, className: `uipack-web-eyebrow ${className}`.trim(), children });
@@ -107,7 +141,7 @@ function Section({
   id,
   className = "",
   lazyRender = false,
-  style
+  uiStyle
 }) {
   const headingId = id ? `${id}-title` : void 0;
   return /* @__PURE__ */ jsxRuntime.jsx(
@@ -118,7 +152,7 @@ function Section({
       "data-tone": tone,
       "data-align": align,
       "data-lazy": lazyRender || void 0,
-      "data-ui-style": style,
+      "data-ui-style": uiStyle,
       "aria-labelledby": title ? headingId : void 0,
       children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-section__inner", children: [
         (eyebrow || title || intro) && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-section__head", children: [
@@ -2194,6 +2228,7 @@ exports.TiltCard = TiltCard;
 exports.WEB_FONT_FILES = WEB_FONT_FILES;
 exports.WHEEL_LINE_PX = WHEEL_LINE_PX;
 exports.WHEEL_PAGE_FRACTION = WHEEL_PAGE_FRACTION;
+exports.WebPage = WebPage;
 exports.WebSurface = WebSurface;
 exports.article = article;
 exports.breadcrumbList = breadcrumbList;

@@ -1,4 +1,4 @@
-import { Figure, Defs, Connector, Packet, Node, busStub, route, Lane, Group, Bus, Label, Chip } from './chunk-65MELR2Z.js';
+import { Figure, Defs, Connector, Packet, Node, busStub, route, Lane, Group, Bus, Label, Chip } from './chunk-FHHVEYHB.js';
 import './chunk-3R6VZY52.js';
 import './chunk-5NWU4OWV.js';
 import './chunk-V4CVL4FJ.js';

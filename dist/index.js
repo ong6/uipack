@@ -1,10 +1,11 @@
 import { useLayerFlight, zoomSamples, zoomFrame } from './chunk-JZZTE6QO.js';
 export { innerClipStart, zoomFrame, zoomSamples } from './chunk-JZZTE6QO.js';
-import { useFigureHover, hoverAttrs, connectorStroke, flowList, useItemSelection, FocusRing, Node, nodeName, SelectionContext, isPointer, useRovingFocus, FigureHoverContext, Legend, ReplayGlyph, PauseGlyph, PlayGlyph, placeNote } from './chunk-65MELR2Z.js';
-export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, PACKET_POP, PACKET_SINK, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, isPointer, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-65MELR2Z.js';
+import { useFigureHover, hoverAttrs, connectorStroke, flowList, useItemSelection, FocusRing, Node, nodeName, SelectionContext, isPointer, useRovingFocus, FigureHoverContext, Legend, ReplayGlyph, PauseGlyph, PlayGlyph, placeNote } from './chunk-FHHVEYHB.js';
+export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, PACKET_POP, PACKET_SINK, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, isPointer, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-FHHVEYHB.js';
 import { useFontFloor, FigureMotionContext, FigureScaleContext } from './chunk-3R6VZY52.js';
 export { DEFAULT_RENDER_WIDTH, FigureMotionContext, FigureScaleProvider, TOKEN_SHAPE, Token, fontFloor, tokenColor, useFigureMotion, useFontFloor } from './chunk-3R6VZY52.js';
 import { CanvasView } from './chunk-5NWU4OWV.js';
+export { isUiStyle, sectionOrder, sharedSectionOrder, styleBootScript, uiStyles } from './chunk-62QUGO5F.js';
 import { smoothstep } from './chunk-V4CVL4FJ.js';
 export { easeInOutCubic, smoothstep } from './chunk-V4CVL4FJ.js';
 import { usePrefersReducedMotion, useLatest, useIsoLayoutEffect } from './chunk-I6LF4PLF.js';
@@ -12,64 +13,6 @@ export { usePrefersReducedMotion } from './chunk-I6LF4PLF.js';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { useId, useRef, useState, useEffect, createContext, useMemo, useCallback, createElement, useContext, memo } from 'react';
 
-// src/style.ts
-var uiStyles = [
-  {
-    id: "technical",
-    name: "Technical",
-    summary: "Diagram-led and ours: warm paper, ink, one forest accent, thin rules, 6px radius, a dotted grid.",
-    fonts: [
-      "ibm-plex-sans-latin-400-normal.woff2",
-      "ibm-plex-sans-latin-500-normal.woff2",
-      "ibm-plex-sans-latin-600-normal.woff2",
-      "ibm-plex-mono-latin-400-normal.woff2",
-      "ibm-plex-mono-latin-600-normal.woff2"
-    ],
-    preload: [],
-    prefers: ["hero", "mechanism", "proof", "how", "faq", "pricing"]
-  },
-  {
-    id: "landing",
-    name: "Landing",
-    summary: "The generic landing page: lavender band, indigo CTA, editorial serif headlines, glass and grain.",
-    fonts: [
-      "instrument-serif-latin-400-normal.woff2",
-      "instrument-serif-latin-400-italic.woff2",
-      "ibm-plex-sans-latin-400-normal.woff2",
-      "ibm-plex-sans-latin-500-normal.woff2",
-      "ibm-plex-sans-latin-600-normal.woff2",
-      "ibm-plex-mono-latin-400-normal.woff2",
-      "ibm-plex-mono-latin-600-normal.woff2"
-    ],
-    preload: ["instrument-serif-latin-400-normal.woff2", "instrument-serif-latin-400-italic.woff2"],
-    prefers: ["hero", "how", "mechanism", "proof", "faq", "pricing"]
-  },
-  {
-    id: "graphical",
-    name: "Graphical",
-    summary: "Poster: bone paper, black ink, one signal-orange accent, condensed display caps, hard edges, one disc motif.",
-    fonts: [
-      "anton-latin-400-normal.woff2",
-      "ibm-plex-sans-latin-400-normal.woff2",
-      "ibm-plex-sans-latin-500-normal.woff2",
-      "ibm-plex-sans-latin-600-normal.woff2",
-      "ibm-plex-mono-latin-400-normal.woff2",
-      "ibm-plex-mono-latin-600-normal.woff2"
-    ],
-    preload: ["anton-latin-400-normal.woff2"],
-    prefers: ["hero", "proof", "how", "mechanism", "pricing", "faq"]
-  }
-];
-var isUiStyle = (value) => uiStyles.some((s) => s.id === value);
-function styleBootScript({
-  param = "style",
-  themeParam = "theme",
-  storageKey = "uipack-style",
-  fallback = "technical"
-} = {}) {
-  const ids = JSON.stringify(uiStyles.map((s) => s.id));
-  return `(function(){try{var q=new URLSearchParams(location.search),d=document.documentElement,ids=${ids},s=q.get(${JSON.stringify(param)})||localStorage.getItem(${JSON.stringify(storageKey)});if(ids.indexOf(s)<0)s=${JSON.stringify(fallback)};d.setAttribute("data-ui-style",s);var t=q.get(${JSON.stringify(themeParam)});if(t==="light"||t==="dark")d.setAttribute("data-ui-theme",t)}catch(e){}})();`;
-}
 function Badge({ cx, cy, text, accent, r = 9, size: size0 = 10 }) {
   const size = useFontFloor(size0);
   const stroke = accent ? "var(--uipack-accent)" : "currentColor";
@@ -1357,4 +1300,4 @@ function DrillNode({ drill, label, grow = DRILL_GROW, preview = true, ...node })
   );
 }
 
-export { Badge, Cross, CurvePlot, DRILL_GROW, DrillFigure, DrillNode, FileMark, FolderMark, Sheet, TreeRail, Wall, Wordmark, curveAt, curveSegments, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, isUiStyle, marks, normalizePath as normalizeDrillPath, styleBootScript, uiStyles, wallSegments };
+export { Badge, Cross, CurvePlot, DRILL_GROW, DrillFigure, DrillNode, FileMark, FolderMark, Sheet, TreeRail, Wall, Wordmark, curveAt, curveSegments, drillAnnouncement, drillBox, drillFocusTarget, drillMotion, drillMove, drillReducer, drillStatic, marks, normalizePath as normalizeDrillPath, wallSegments };

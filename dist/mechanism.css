@@ -14,60 +14,49 @@
 @layer uipack.tokens, uipack.base, uipack.layout, uipack.ornaments;
 
 @layer uipack.tokens {
-  /* Optional roles: a style may tune these; components fall back to a core role when a style
-     leaves them unset. Reset on every style host so a tuned value never leaks into a child that
-     uses another style. */
+  /* Every --ui-* role is filled by every style (test/style-roles.test.tsx). --tune-* values are
+     not roles: they are Technical's hand-tuned values for one component (a Mechanism shade, the
+     docs entry's warm palette), read as var(--tune-x, <derived from core roles>), so any other
+     style gets the derivation. Reset on every style host so a tuned value never leaks into a child
+     that uses another style. */
   [data-ui-style] {
-    --ui-node: initial;
-    --ui-line-solid: initial;
-    --ui-accent-ink: initial;
-    --ui-data-neg-ink: initial;
-    --ui-inv-node: initial;
-    --ui-slide-ink-2: initial;
-    --ui-slide-line: initial;
-    --ui-slide-font-text: initial;
-    --ui-slide-font-label: initial;
-    --ui-slide-font-display: initial;
-    --ui-web-font-text: initial;
-    --ui-web-font-label: initial;
-    --ui-web-font-display: initial;
-    --ui-docs-surface: initial;
-    --ui-docs-surface-strong: initial;
-    --ui-docs-line: initial;
-    --ui-docs-warm-ink: initial;
-    --ui-docs-warm-ink-2: initial;
-    --ui-docs-warm-line: initial;
-    --ui-docs-warm-surface: initial;
-    --ui-docs-warm-surface-strong: initial;
-    --ui-docs-warm-accent: initial;
-    --ui-docs-warm-focus: initial;
-    --ui-print-line: initial;
-    --ui-print-ink-2: initial;
-    --ui-alert: initial;
-    --ui-warn: initial;
-    --ui-letterbox: initial;
-    --ui-mech-text: initial;
-    --ui-mech-muted: initial;
-    --ui-mech-top: initial;
-    --ui-mech-shade-0: initial;
-    --ui-mech-shade-1: initial;
-    --ui-mech-shade-2: initial;
-    --ui-mech-shade-3: initial;
-    --ui-mech-cavity: initial;
-    --ui-mech-lit-top: initial;
-    --ui-mech-lit-shade: initial;
-    --ui-mech-mid: initial;
-    --ui-mech-lo: initial;
-    --ui-mech-faint: initial;
-    --ui-mech-halo: initial;
-    --ui-mech-dot: initial;
-    --ui-object-paper: initial;
-    --ui-object-glow: initial;
-    --ui-object-ink: initial;
-    --ui-object-ink-2: initial;
-    --ui-object-line: initial;
-    --ui-object-edge: initial;
-    --ui-object-control-ink-2: initial;
+    --tune-slide-ink-2: initial;
+    --tune-slide-line: initial;
+    --tune-docs-surface: initial;
+    --tune-docs-surface-strong: initial;
+    --tune-docs-line: initial;
+    --tune-docs-warm-ink: initial;
+    --tune-docs-warm-ink-2: initial;
+    --tune-docs-warm-line: initial;
+    --tune-docs-warm-surface: initial;
+    --tune-docs-warm-surface-strong: initial;
+    --tune-docs-warm-accent: initial;
+    --tune-docs-warm-focus: initial;
+    --tune-print-line: initial;
+    --tune-print-ink-2: initial;
+    --tune-letterbox: initial;
+    --tune-mech-text: initial;
+    --tune-mech-muted: initial;
+    --tune-mech-top: initial;
+    --tune-mech-shade-0: initial;
+    --tune-mech-shade-1: initial;
+    --tune-mech-shade-2: initial;
+    --tune-mech-shade-3: initial;
+    --tune-mech-cavity: initial;
+    --tune-mech-lit-top: initial;
+    --tune-mech-lit-shade: initial;
+    --tune-mech-mid: initial;
+    --tune-mech-lo: initial;
+    --tune-mech-faint: initial;
+    --tune-mech-halo: initial;
+    --tune-mech-dot: initial;
+    --tune-object-paper: initial;
+    --tune-object-glow: initial;
+    --tune-object-ink: initial;
+    --tune-object-ink-2: initial;
+    --tune-object-line: initial;
+    --tune-object-edge: initial;
+    --tune-object-control-ink-2: initial;
   }
 
   /* Theme hosts: any element can set its colour theme for everything inside it. An explicit
@@ -99,6 +88,7 @@
     --ui-line-soft: color-mix(in srgb, var(--ui-ink) 16%, transparent);
     /* The one accent, and what sits on it */
     --ui-accent: light-dark(#205f49, #71dcb2);
+    --ui-accent-ink: var(--ui-accent);
     --ui-on-accent: light-dark(#f6f5f1, #07110c);
     --ui-accent-surface: light-dark(#2a6b54, #8fe4c3);
     --ui-accent-ink-2: light-dark(#cfe3d9, #1d4a38);
@@ -175,59 +165,59 @@
     --ui-star-fill: 0;
     --ui-display-scale: 1;
 
-    /* Optional roles tuned for Technical's media */
+    /* Roles whose Technical values are tuned for one medium, then --tune-* component values */
     --ui-node: light-dark(#fbfaf6, #0e1512);
     --ui-inv-node: light-dark(#18221d, #f6f5f1);
     --ui-line-solid: light-dark(#c4ccc6, #34443b);
     --ui-data-neg-ink: light-dark(#a8431f, #f0936c);
-    --ui-slide-ink-2: light-dark(#5c625e, #aeb8b2);
-    --ui-slide-line: light-dark(#bac3bc, #43544b);
+    --tune-slide-ink-2: light-dark(#5c625e, #aeb8b2);
+    --tune-slide-line: light-dark(#bac3bc, #43544b);
     --ui-slide-font-text: var(--font-sans, "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
     --ui-slide-font-display: var(--ui-slide-font-text);
     --ui-slide-font-label: var(--font-mono, "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
     --ui-web-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --ui-web-font-display: var(--ui-web-font-text);
     --ui-web-font-label: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    --ui-docs-surface: light-dark(#edefec, #14201b);
-    --ui-docs-surface-strong: light-dark(#e2e6e2, #1d2c26);
-    --ui-docs-line: light-dark(rgb(26 28 26 / 0.16), rgb(232 236 233 / 0.18));
+    --tune-docs-surface: light-dark(#edefec, #14201b);
+    --tune-docs-surface-strong: light-dark(#e2e6e2, #1d2c26);
+    --tune-docs-line: light-dark(rgb(26 28 26 / 0.16), rgb(232 236 233 / 0.18));
     /* The docs layout's warm default palette (DocsLayout palette="warm") */
-    --ui-docs-warm-ink: light-dark(#29231f, #f2ece3);
-    --ui-docs-warm-ink-2: light-dark(#655c55, #aea198);
-    --ui-docs-warm-line: light-dark(rgb(41 35 31 / 0.18), rgb(242 236 227 / 0.2));
-    --ui-docs-warm-surface: light-dark(#fbf8f2, #211d1a);
-    --ui-docs-warm-surface-strong: light-dark(#e7ded2, #37302b);
-    --ui-docs-warm-accent: light-dark(#234ea2, #9ab6ff);
-    --ui-docs-warm-focus: light-dark(#315db6, #9ab6ff);
-    --ui-print-line: #dfe3e0;
-    --ui-print-ink-2: #3d433f;
+    --tune-docs-warm-ink: light-dark(#29231f, #f2ece3);
+    --tune-docs-warm-ink-2: light-dark(#655c55, #aea198);
+    --tune-docs-warm-line: light-dark(rgb(41 35 31 / 0.18), rgb(242 236 227 / 0.2));
+    --tune-docs-warm-surface: light-dark(#fbf8f2, #211d1a);
+    --tune-docs-warm-surface-strong: light-dark(#e7ded2, #37302b);
+    --tune-docs-warm-accent: light-dark(#234ea2, #9ab6ff);
+    --tune-docs-warm-focus: light-dark(#315db6, #9ab6ff);
+    --tune-print-line: #dfe3e0;
+    --tune-print-ink-2: #3d433f;
     --ui-alert: light-dark(#b42318, #ff8a7a);
     --ui-warn: light-dark(#b4471f, #f08a5d);
-    --ui-letterbox: #050806;
+    --tune-letterbox: #050806;
     /* Mechanism: Anatomy's four solid tones by facing, the cavity, the lit faces and the edges */
-    --ui-mech-text: light-dark(#3d423f, #b9c2bd);
-    --ui-mech-muted: light-dark(#5c625e, #8f9a94);
-    --ui-mech-top: light-dark(#ffffff, #1a2822);
-    --ui-mech-shade-0: light-dark(#dcdfdb, #0b110e);
-    --ui-mech-shade-1: light-dark(#e5e8e4, #0f1714);
-    --ui-mech-shade-2: light-dark(#edefec, #131d18);
-    --ui-mech-shade-3: light-dark(#f4f5f3, #17231e);
-    --ui-mech-cavity: light-dark(#d3d7d3, #070b09);
-    --ui-mech-lit-top: light-dark(#eef6f2, #1f3a2f);
-    --ui-mech-lit-shade: light-dark(#dcebe4, #182e25);
-    --ui-mech-mid: light-dark(#858b87, #8a958f);
-    --ui-mech-lo: light-dark(#b3b8b4, #66726c);
-    --ui-mech-faint: light-dark(#d5d9d5, #28332e);
-    --ui-mech-halo: light-dark(#848a84, #020403);
-    --ui-mech-dot: light-dark(#2f3431, #e8ece9);
+    --tune-mech-text: light-dark(#3d423f, #b9c2bd);
+    --tune-mech-muted: light-dark(#5c625e, #8f9a94);
+    --tune-mech-top: light-dark(#ffffff, #1a2822);
+    --tune-mech-shade-0: light-dark(#dcdfdb, #0b110e);
+    --tune-mech-shade-1: light-dark(#e5e8e4, #0f1714);
+    --tune-mech-shade-2: light-dark(#edefec, #131d18);
+    --tune-mech-shade-3: light-dark(#f4f5f3, #17231e);
+    --tune-mech-cavity: light-dark(#d3d7d3, #070b09);
+    --tune-mech-lit-top: light-dark(#eef6f2, #1f3a2f);
+    --tune-mech-lit-shade: light-dark(#dcebe4, #182e25);
+    --tune-mech-mid: light-dark(#858b87, #8a958f);
+    --tune-mech-lo: light-dark(#b3b8b4, #66726c);
+    --tune-mech-faint: light-dark(#d5d9d5, #28332e);
+    --tune-mech-halo: light-dark(#848a84, #020403);
+    --tune-mech-dot: light-dark(#2f3431, #e8ece9);
     /* Object scenes (Studio stage, gallery and controls) */
-    --ui-object-paper: light-dark(#faf9f6, #14201b);
-    --ui-object-glow: light-dark(#ffffff, #25382f);
-    --ui-object-ink: light-dark(#292e32, #e8ece9);
-    --ui-object-ink-2: light-dark(#626c65, #a6b4aa);
-    --ui-object-line: light-dark(#d6dcd5, #36463c);
-    --ui-object-edge: #87958c;
-    --ui-object-control-ink-2: light-dark(#526459, #b7c8bf);
+    --tune-object-paper: light-dark(#faf9f6, #14201b);
+    --tune-object-glow: light-dark(#ffffff, #25382f);
+    --tune-object-ink: light-dark(#292e32, #e8ece9);
+    --tune-object-ink-2: light-dark(#626c65, #a6b4aa);
+    --tune-object-line: light-dark(#d6dcd5, #36463c);
+    --tune-object-edge: #87958c;
+    --tune-object-control-ink-2: light-dark(#526459, #b7c8bf);
   }
 }
 /* Landing — the generic landing option: neutral page, lavender secondary band, indigo CTA accent,
@@ -313,10 +303,19 @@
     --ui-cta-shadow: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 8px 20px -10px var(--ui-accent);
     --ui-cta-shadow-hover: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 12px 28px -10px var(--ui-accent);
     --ui-em-style: italic;
-    --ui-em-color: inherit;
+    --ui-em-color: currentColor;
     --ui-star-fill: 1;
     --ui-display-scale: 1;
 
+    --ui-accent-ink: var(--ui-accent);
+    --ui-node: var(--ui-surface);
+    --ui-line-solid: var(--ui-line);
+    --ui-inv-node: var(--ui-inv-surface);
+    --ui-data-neg-ink: var(--ui-data-neg);
+    --ui-slide-font-display: var(--ui-font-display);
+    --ui-web-font-display: var(--ui-font-display);
+    --ui-alert: light-dark(#b42318, #ff8a7a);
+    --ui-warn: light-dark(#b4471f, #f08a5d);
     --ui-web-font-text: var(--ui-font-text);
     --ui-web-font-label: var(--ui-font-label);
     --ui-slide-font-text: var(--ui-font-text);
@@ -420,6 +419,14 @@
     --ui-star-fill: 0;
     --ui-display-scale: 1.3;
 
+    --ui-node: var(--ui-surface);
+    --ui-line-solid: var(--ui-line);
+    --ui-inv-node: var(--ui-inv-surface);
+    --ui-data-neg-ink: var(--ui-data-neg);
+    --ui-slide-font-display: var(--ui-font-display);
+    --ui-web-font-display: var(--ui-font-display);
+    --ui-alert: light-dark(#c0174f, #ff6b93);
+    --ui-warn: light-dark(#8a5a00, #ffb347);
     --ui-web-font-text: var(--ui-font-text);
     --ui-web-font-label: var(--ui-font-label);
     --ui-slide-font-text: var(--ui-font-text);
@@ -438,27 +445,27 @@
      style that leaves them unset gets them mixed from its ink, surface and accent. */
   --anatomy-page: var(--ui-paper);
   --anatomy-card: var(--ui-surface);
-  --anatomy-text: var(--ui-mech-text, var(--ui-ink-2));
+  --anatomy-text: var(--tune-mech-text, var(--ui-ink-2));
   --anatomy-strong: var(--ui-ink);
-  --anatomy-muted: var(--ui-mech-muted, var(--ui-ink-2));
+  --anatomy-muted: var(--tune-mech-muted, var(--ui-ink-2));
   --anatomy-paper: var(--anatomy-card);
   --anatomy-face: var(--ui-surface-raised);
-  --anatomy-top: var(--ui-mech-top, var(--ui-surface-raised));
-  --anatomy-shade-0: var(--ui-mech-shade-0, color-mix(in srgb, var(--ui-ink) 14%, var(--ui-surface)));
-  --anatomy-shade-1: var(--ui-mech-shade-1, color-mix(in srgb, var(--ui-ink) 10%, var(--ui-surface)));
-  --anatomy-shade-2: var(--ui-mech-shade-2, color-mix(in srgb, var(--ui-ink) 7%, var(--ui-surface)));
-  --anatomy-shade-3: var(--ui-mech-shade-3, color-mix(in srgb, var(--ui-ink) 4%, var(--ui-surface)));
-  --anatomy-cavity: var(--ui-mech-cavity, color-mix(in srgb, var(--ui-ink) 18%, var(--ui-surface)));
-  --anatomy-lit-top: var(--ui-mech-lit-top, color-mix(in srgb, var(--ui-accent) 8%, var(--ui-surface)));
-  --anatomy-lit-shade: var(--ui-mech-lit-shade, color-mix(in srgb, var(--ui-accent) 16%, var(--ui-surface)));
+  --anatomy-top: var(--tune-mech-top, var(--ui-surface-raised));
+  --anatomy-shade-0: var(--tune-mech-shade-0, color-mix(in srgb, var(--ui-ink) 14%, var(--ui-surface)));
+  --anatomy-shade-1: var(--tune-mech-shade-1, color-mix(in srgb, var(--ui-ink) 10%, var(--ui-surface)));
+  --anatomy-shade-2: var(--tune-mech-shade-2, color-mix(in srgb, var(--ui-ink) 7%, var(--ui-surface)));
+  --anatomy-shade-3: var(--tune-mech-shade-3, color-mix(in srgb, var(--ui-ink) 4%, var(--ui-surface)));
+  --anatomy-cavity: var(--tune-mech-cavity, color-mix(in srgb, var(--ui-ink) 18%, var(--ui-surface)));
+  --anatomy-lit-top: var(--tune-mech-lit-top, color-mix(in srgb, var(--ui-accent) 8%, var(--ui-surface)));
+  --anatomy-lit-shade: var(--tune-mech-lit-shade, color-mix(in srgb, var(--ui-accent) 16%, var(--ui-surface)));
   --anatomy-hi: var(--ui-ink);
-  --anatomy-mid: var(--ui-mech-mid, color-mix(in srgb, var(--ui-ink) 55%, var(--ui-surface)));
-  --anatomy-lo: var(--ui-mech-lo, color-mix(in srgb, var(--ui-ink) 35%, var(--ui-surface)));
-  --anatomy-faint: var(--ui-mech-faint, color-mix(in srgb, var(--ui-ink) 15%, var(--ui-surface)));
+  --anatomy-mid: var(--tune-mech-mid, color-mix(in srgb, var(--ui-ink) 55%, var(--ui-surface)));
+  --anatomy-lo: var(--tune-mech-lo, color-mix(in srgb, var(--ui-ink) 35%, var(--ui-surface)));
+  --anatomy-faint: var(--tune-mech-faint, color-mix(in srgb, var(--ui-ink) 15%, var(--ui-surface)));
   --anatomy-lit: var(--ui-accent);
-  --anatomy-halo: var(--ui-mech-halo, var(--ui-ink-2));
+  --anatomy-halo: var(--tune-mech-halo, var(--ui-ink-2));
   --anatomy-halo-opacity: 0.3;
-  --anatomy-dot: var(--ui-mech-dot, var(--ui-ink));
+  --anatomy-dot: var(--tune-mech-dot, var(--ui-ink));
   --anatomy-weight: 0.6px;
   --anatomy-ease: cubic-bezier(0.32, 0.72, 0, 1);
   /* A host's --font-sans / --font-mono still wins (the playground sets the shell's mono). */

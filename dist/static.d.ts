@@ -1,7 +1,7 @@
 import { ReactNode, ReactElement } from 'react';
-import { a as FigureProps } from './Figure-CEA0-mDV.js';
+import { a as FigureProps } from './Figure-BOLOaSlA.js';
 import { L as LegendItem } from './Legend-n6GikDm_.js';
-import './style-DA3Lo6HE.js';
+import './style-CBYPyqqV.js';
 
 type StaticTheme = "light" | "dark";
 /** Every colour the theme exposes, as literals. Keys mirror `--uipack-*`. */

@@ -2,7 +2,7 @@ import * as react from 'react';
 import { ReactNode, ElementType, CSSProperties, ReactElement } from 'react';
 import { S as SpeechGuide } from './speech-BOroEnEA.cjs';
 export { W as WORDS_PER_MINUTE } from './speech-BOroEnEA.cjs';
-import { U as UiStyleId } from './style-DA3Lo6HE.cjs';
+import { U as UiStyleId } from './style-CBYPyqqV.cjs';
 export { R as Rect } from './zoom-math-DJBPrdGD.cjs';
 
 /**
@@ -296,7 +296,7 @@ interface DeckPlayerProps {
      * "graphical". Only tokens change: every slide keeps its regions, words and reading order.
      * Omitted, the deck follows the nearest ancestor with data-ui-style.
      */
-    style?: UiStyleId;
+    uiStyle?: UiStyleId;
     /** Default transition for slides that do not set one. */
     transition?: DeckTransition;
     motion?: "auto" | "none";

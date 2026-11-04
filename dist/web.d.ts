@@ -1,6 +1,6 @@
 import * as react from 'react';
 import { ReactNode, ElementType, CSSProperties, ButtonHTMLAttributes, RefObject, ReactElement } from 'react';
-import { U as UiStyleId } from './style-DA3Lo6HE.js';
+import { U as UiStyleId, a as UiStyleMeta } from './style-CBYPyqqV.js';
 export { a as easeOutExpo } from './math-DL8QKXOl.js';
 
 interface WebSurfaceProps {
@@ -9,18 +9,18 @@ interface WebSurfaceProps {
     theme?: "light" | "dark";
     as?: ElementType;
     className?: string;
+    style?: CSSProperties;
     /**
      * The style the page is painted in: "technical" (the default, diagram-led), "landing" (the
      * generic landing page) or "graphical" (poster). Sets data-ui-style; omitted, the nearest
-     * ancestor's. A swap changes tokens and ornaments only. An object is still accepted as inline
-     * CSS, as before; pass both as `style` and `css`.
+     * ancestor's. A swap changes tokens, ornaments and the layout defaults the style sets.
      */
-    style?: UiStyleId | CSSProperties;
-    /** Inline CSS for the root, when `style` names the visual style. */
-    css?: CSSProperties;
+    uiStyle?: UiStyleId;
+    /** "style" applies the style's layout defaults (set by WebPage); "shared" or omitted, none. */
+    layout?: "style" | "shared";
 }
 /** Root of a web page or panel: carries the style's tokens, background and type. */
-declare function WebSurface({ children, theme, as: Tag, className, style, css }: WebSurfaceProps): react.JSX.Element;
+declare function WebSurface({ children, theme, as: Tag, className, style, uiStyle, layout }: WebSurfaceProps): react.JSX.Element;
 interface GridProps {
     children: ReactNode;
     className?: string;
@@ -36,6 +36,40 @@ interface GridItemProps {
     as?: ElementType;
 }
 declare function GridItem({ children, span, className, as: Tag }: GridItemProps): react.JSX.Element;
+
+/** What a section's render function learns about the page it is placed on. */
+interface WebPageContext {
+    uiStyle: UiStyleId;
+    layout: "style" | "shared";
+    /** The style's layout defaults; under layout="shared", the shared defaults (demo hero, centred, cards). */
+    defaults: UiStyleMeta["layout"];
+}
+interface WebPageProps {
+    /** Sections by id. A function receives the page context, e.g. to fill the hero with the style's proof. */
+    sections: Record<string, ReactNode | ((page: WebPageContext) => ReactNode)>;
+    /** Rendered first, outside the order (a GlassNav). */
+    nav?: ReactNode;
+    /** The style; default "technical". */
+    uiStyle?: UiStyleId;
+    /**
+     * "style" (default): the section order and layout defaults the style recommends (`uiStyles[].prefers`
+     * and `.layout`). "shared": one order and layout for every style, so a swap changes tokens only.
+     */
+    layout?: "style" | "shared";
+    /** Or an explicit order of section ids. */
+    order?: readonly string[];
+    theme?: "light" | "dark";
+    className?: string;
+    style?: CSSProperties;
+    as?: ElementType;
+    children?: ReactNode;
+}
+/**
+ * A whole web page in one style: the style's tokens and ornaments (WebSurface), its recommended
+ * section sequence, and its layout defaults (`data-ui-layout="style"`, which web-styles.css reads:
+ * Technical sets the hero and section heads on the start edge and the steps as numbered rows).
+ */
+declare function WebPage({ sections, nav, uiStyle, layout, order, theme, className, style, as, children, }: WebPageProps): react.JSX.Element;
 
 /** Landing style type scale: 16px base, Major Third (x1.25), expressed in rem. */
 declare const TYPE_BASE_PX = 16;
@@ -152,10 +186,10 @@ interface SectionProps {
      */
     lazyRender?: boolean;
     /** Paint this section in another style (data-ui-style), e.g. one Graphical band on a Technical page. */
-    style?: UiStyleId;
+    uiStyle?: UiStyleId;
 }
 /** A page section on the 8-pt rhythm, with an optional eyebrow, heading and intro. */
-declare function Section({ eyebrow, title, intro, children, tone, align, id, className, lazyRender, style, }: SectionProps): react.JSX.Element;
+declare function Section({ eyebrow, title, intro, children, tone, align, id, className, lazyRender, uiStyle, }: SectionProps): react.JSX.Element;
 interface Feature {
     title: string;
     body: ReactNode;
@@ -1318,4 +1352,4 @@ interface RssFeedOptions {
  */
 declare function rssFeed({ title, link, description, items, self, language }: RssFeedOptions): string;
 
-export { AI_CRAWLERS, type AiCrawler, type AiCrawlerAgent, type AiCrawlerPolicy, type AiCrawlerPreset, type ArticleAuthor, type ArticleOptions, Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, Body, type BodyProps, type BreadcrumbItem, type BuildCrawlFilesOptions, type CollectionPageOptions, type CrawlFiles, type CrawlPage, type CrawlRule, type CrawlerPurpose, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, FAQ, type FAQProps, type FaqItem, type Feature, FeatureGrid, type FeatureGridProps, type FontPreloadOptions, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, type HeadTag, HeadTags, type HeadTagsProps, Heading, type HeadingProps, type InViewOptions, type ItemListEntry, type ItemListOptions, JsonLd, type JsonLdDocument, type JsonLdNode, type JsonLdProps, LLMS_FULL_PATH, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type OfferOptions, type OrganizationOptions, type PageMetaOptions, type PaintTransitionOptions, type PersonOptions, type ProductOptions, type ProfilePageOptions, type RatingOptions, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, type RssFeedOptions, type RssItem, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, type SchemaDate, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SmoothScroll, type SmoothScrollController, type SmoothScrollHandle, type SmoothScrollOptions, type SmoothScrollProps, type SmoothScrollTarget, type SmoothScrollToOptions, type SoftwareApplicationOptions, type SoftwareSourceCodeOptions, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeRole, type TypeStep, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, type WebFontFace, type WebPageOptions, type WebSiteOptions, WebSurface, type WebSurfaceProps, type WheelLike, article, breadcrumbList, buildCrawlFiles, collectionPage, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, itemList, jsonLd, jsonLdTag, llmsFullTxt, llmsTxt, normalizeWheel, offer, organization, pageMeta, person, personRef, product, profilePage, ref, resolveAiCrawlers, robotsTxt, rssFeed, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, softwareSourceCode, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webPage, webSite, withPaintTransition, withViewTransition };
+export { AI_CRAWLERS, type AiCrawler, type AiCrawlerAgent, type AiCrawlerPolicy, type AiCrawlerPreset, type ArticleAuthor, type ArticleOptions, Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, Body, type BodyProps, type BreadcrumbItem, type BuildCrawlFilesOptions, type CollectionPageOptions, type CrawlFiles, type CrawlPage, type CrawlRule, type CrawlerPurpose, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, FAQ, type FAQProps, type FaqItem, type Feature, FeatureGrid, type FeatureGridProps, type FontPreloadOptions, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, type HeadTag, HeadTags, type HeadTagsProps, Heading, type HeadingProps, type InViewOptions, type ItemListEntry, type ItemListOptions, JsonLd, type JsonLdDocument, type JsonLdNode, type JsonLdProps, LLMS_FULL_PATH, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type OfferOptions, type OrganizationOptions, type PageMetaOptions, type PaintTransitionOptions, type PersonOptions, type ProductOptions, type ProfilePageOptions, type RatingOptions, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, type RssFeedOptions, type RssItem, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, type SchemaDate, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SmoothScroll, type SmoothScrollController, type SmoothScrollHandle, type SmoothScrollOptions, type SmoothScrollProps, type SmoothScrollTarget, type SmoothScrollToOptions, type SoftwareApplicationOptions, type SoftwareSourceCodeOptions, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeRole, type TypeStep, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, type WebFontFace, WebPage, type WebPageContext, type WebPageOptions, type WebPageProps, type WebSiteOptions, WebSurface, type WebSurfaceProps, type WheelLike, article, breadcrumbList, buildCrawlFiles, collectionPage, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, itemList, jsonLd, jsonLdTag, llmsFullTxt, llmsTxt, normalizeWheel, offer, organization, pageMeta, person, personRef, product, profilePage, ref, resolveAiCrawlers, robotsTxt, rssFeed, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, softwareSourceCode, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webPage, webSite, withPaintTransition, withViewTransition };

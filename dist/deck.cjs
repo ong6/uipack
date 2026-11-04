@@ -2181,7 +2181,7 @@ function PrintSlide({
 function PrintJob({
   slides,
   theme,
-  style,
+  uiStyle,
   title,
   notes,
   onDone
@@ -2216,7 +2216,7 @@ function PrintJob({
     };
   }, [title, doneRef]);
   return reactDom.createPortal(
-    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-deck-print-root", children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-deck", "data-theme": theme, "data-ui-style": style, children: /* @__PURE__ */ jsxRuntime.jsx(Printout, { slides, theme, notes }) }) }),
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-deck-print-root", children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-deck", "data-theme": theme, "data-ui-style": uiStyle, children: /* @__PURE__ */ jsxRuntime.jsx(Printout, { slides, theme, notes }) }) }),
     document.body
   );
 }
@@ -2577,13 +2577,13 @@ function DeckPlayer(props) {
   if (props.slides.length === 0) return /* @__PURE__ */ jsxRuntime.jsx(EmptyDeck, { ...props });
   return /* @__PURE__ */ jsxRuntime.jsx(Player, { ...props });
 }
-function EmptyDeck({ title, theme = "light", style, className }) {
+function EmptyDeck({ title, theme = "light", uiStyle, className }) {
   return /* @__PURE__ */ jsxRuntime.jsx(
     "div",
     {
       className: ["uipack-deck", className].filter(Boolean).join(" "),
       "data-theme": theme,
-      "data-ui-style": style,
+      "data-ui-style": uiStyle,
       role: "region",
       "aria-label": title,
       "aria-roledescription": "slide deck",
@@ -2596,7 +2596,7 @@ function Player({
   id,
   title,
   theme = "light",
-  style,
+  uiStyle,
   transition = "advance",
   motion = "auto",
   mode = "audience",
@@ -2737,7 +2737,7 @@ function Player({
       ref: rootRef,
       className: ["uipack-deck", className].filter(Boolean).join(" "),
       "data-theme": theme,
-      "data-ui-style": style,
+      "data-ui-style": uiStyle,
       "data-mode": mode,
       "data-motion": reducedMotion ? "none" : "auto",
       "data-index": view.index,
@@ -2795,7 +2795,7 @@ function Player({
         printing && /* @__PURE__ */ jsxRuntime.jsx(
           PrintJob,
           {
-            style,
+            uiStyle,
             slides,
             theme,
             title,

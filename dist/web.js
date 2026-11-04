@@ -1,13 +1,22 @@
+import { uiStyles, sectionOrder } from './chunk-62QUGO5F.js';
 import { clamp, easeOutCubic, lerp, smoothstep, easeOutExpo } from './chunk-V4CVL4FJ.js';
 export { easeOutExpo } from './chunk-V4CVL4FJ.js';
 import { usePrefersReducedMotion, useLatest, useHydrated, onReducedMotionChange, prefersReducedMotion } from './chunk-I6LF4PLF.js';
-import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { useState, useRef, useId, useEffect, Fragment as Fragment$1, useMemo, useCallback, useSyncExternalStore, createElement } from 'react';
+import { jsx, jsxs, Fragment as Fragment$1 } from 'react/jsx-runtime';
+import { Fragment, useState, useRef, useId, useEffect, useMemo, useCallback, useSyncExternalStore, createElement } from 'react';
 
-function WebSurface({ children, theme, as: Tag = "div", className = "", style, css }) {
-  const uiStyle = typeof style === "string" ? style : void 0;
-  const inline = typeof style === "object" ? { ...style, ...css } : css;
-  return /* @__PURE__ */ jsx(Tag, { className: `uipack-web ${className}`.trim(), "data-theme": theme, "data-ui-style": uiStyle, style: inline, children });
+function WebSurface({ children, theme, as: Tag = "div", className = "", style, uiStyle, layout }) {
+  return /* @__PURE__ */ jsx(
+    Tag,
+    {
+      className: `uipack-web ${className}`.trim(),
+      "data-theme": theme,
+      "data-ui-style": uiStyle,
+      "data-ui-layout": layout,
+      style,
+      children
+    }
+  );
 }
 function Grid({ children, className = "", as: Tag = "div" }) {
   return /* @__PURE__ */ jsx(Tag, { className: `uipack-web-grid ${className}`.trim(), children });
@@ -15,6 +24,31 @@ function Grid({ children, className = "", as: Tag = "div" }) {
 function GridItem({ children, span = [4, 4, 4], className = "", as: Tag = "div" }) {
   const style = { "--span-w": span[0], "--span-m": span[1], "--span-n": span[2] };
   return /* @__PURE__ */ jsx(Tag, { className: `uipack-web-grid__item ${className}`.trim(), style, children });
+}
+var SHARED = { hero: "demo", align: "center", steps: "cards" };
+function WebPage({
+  sections,
+  nav,
+  uiStyle = "technical",
+  layout = "style",
+  order,
+  theme,
+  className = "",
+  style,
+  as,
+  children
+}) {
+  const meta = uiStyles.find((s) => s.id === uiStyle);
+  const page = { uiStyle, layout, defaults: layout === "style" ? meta.layout : SHARED };
+  const ids = order ? order.filter((id) => id in sections) : sectionOrder(uiStyle, Object.keys(sections), layout);
+  return /* @__PURE__ */ jsxs(WebSurface, { uiStyle, theme, className, style, as, layout, children: [
+    nav,
+    ids.map((id) => {
+      const section = sections[id];
+      return /* @__PURE__ */ jsx(Fragment, { children: typeof section === "function" ? section(page) : section }, id);
+    }),
+    children
+  ] });
 }
 function Eyebrow({ children, className = "", as: Tag = "p", id }) {
   return /* @__PURE__ */ jsx(Tag, { id, className: `uipack-web-eyebrow ${className}`.trim(), children });
@@ -106,7 +140,7 @@ function Section({
   id,
   className = "",
   lazyRender = false,
-  style
+  uiStyle
 }) {
   const headingId = id ? `${id}-title` : void 0;
   return /* @__PURE__ */ jsx(
@@ -117,7 +151,7 @@ function Section({
       "data-tone": tone,
       "data-align": align,
       "data-lazy": lazyRender || void 0,
-      "data-ui-style": style,
+      "data-ui-style": uiStyle,
       "aria-labelledby": title ? headingId : void 0,
       children: /* @__PURE__ */ jsxs("div", { className: "uipack-web-section__inner", children: [
         (eyebrow || title || intro) && /* @__PURE__ */ jsxs("div", { className: "uipack-web-section__head", children: [
@@ -132,7 +166,7 @@ function Section({
 }
 function FeatureGrid({ features, spotlight = false }) {
   return /* @__PURE__ */ jsx(Grid, { as: "ul", className: "uipack-web-features", children: features.map((f) => {
-    const inner = /* @__PURE__ */ jsxs(Fragment, { children: [
+    const inner = /* @__PURE__ */ jsxs(Fragment$1, { children: [
       f.icon && /* @__PURE__ */ jsx("div", { className: "uipack-web-feature__icon", children: f.icon }),
       /* @__PURE__ */ jsx(Heading, { level: 3, size: 1, children: f.href ? /* @__PURE__ */ jsx("a", { href: f.href, children: f.title }) : f.title }),
       /* @__PURE__ */ jsx(Body, { children: f.body })
@@ -164,7 +198,7 @@ function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger =
   }, [reduced]);
   const units = lines ?? text.split(/\s+/).filter(Boolean);
   const byLine = !!lines;
-  return /* @__PURE__ */ jsx(Tag, { ref: ref2, className: `uipack-web-reveal ${className}`.trim(), "data-state": state, "data-by": byLine ? "line" : "word", children: units.map((u, i) => /* @__PURE__ */ jsxs(Fragment$1, { children: [
+  return /* @__PURE__ */ jsx(Tag, { ref: ref2, className: `uipack-web-reveal ${className}`.trim(), "data-state": state, "data-by": byLine ? "line" : "word", children: units.map((u, i) => /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx("span", { className: "uipack-web-reveal__unit", style: { "--i": i, "--stagger": `${stagger}ms` }, children: u }),
     i < units.length - 1 ? " " : null
   ] }, i)) });
@@ -1802,7 +1836,7 @@ function toProps(attrs) {
   return out;
 }
 function HeadTags({ tags }) {
-  return /* @__PURE__ */ jsx(Fragment, { children: tags.map((t) => {
+  return /* @__PURE__ */ jsx(Fragment$1, { children: tags.map((t) => {
     const key = headTagKey(t);
     if (t.tag === "title") return /* @__PURE__ */ jsx("title", { children: t.text }, key);
     if (t.tag === "script") return /* @__PURE__ */ jsx("script", { ...toProps(t.attrs), dangerouslySetInnerHTML: { __html: t.text } }, key);
@@ -2136,4 +2170,4 @@ ${channel.join("\n")}
 `;
 }
 
-export { AI_CRAWLERS, Aurora, BackgroundFrame, BeamLines, Body, CtaButton, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, DemoPlayer, DotGrid, DriftingGutters, EMPHASIS, Eyebrow, FAQ, FeatureGrid, GRID_COLUMNS, GlassNav, GrainOverlay, Grid, GridItem, HeadTags, Heading, JsonLd, LLMS_FULL_PATH, LineGrid, MagneticButton, Marquee, MaskedStar, NoiseLayer, NumberTicker, Reveal, RevealText, RhymeIcon, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, ScrollTransform, Section, SmoothScroll, SpotlightCard, StarChart, StarHero, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, TiltCard, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, WebSurface, article, breadcrumbList, buildCrawlFiles, collectionPage, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, itemList, jsonLd, jsonLdTag, llmsFullTxt, llmsTxt, normalizeWheel, offer, organization, pageMeta, person, personRef, product, profilePage, ref, resolveAiCrawlers, robotsTxt, rssFeed, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, softwareSourceCode, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webPage, webSite, withPaintTransition, withViewTransition };
+export { AI_CRAWLERS, Aurora, BackgroundFrame, BeamLines, Body, CtaButton, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, DemoPlayer, DotGrid, DriftingGutters, EMPHASIS, Eyebrow, FAQ, FeatureGrid, GRID_COLUMNS, GlassNav, GrainOverlay, Grid, GridItem, HeadTags, Heading, JsonLd, LLMS_FULL_PATH, LineGrid, MagneticButton, Marquee, MaskedStar, NoiseLayer, NumberTicker, Reveal, RevealText, RhymeIcon, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, ScrollTransform, Section, SmoothScroll, SpotlightCard, StarChart, StarHero, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, TiltCard, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, WebPage, WebSurface, article, breadcrumbList, buildCrawlFiles, collectionPage, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, itemList, jsonLd, jsonLdTag, llmsFullTxt, llmsTxt, normalizeWheel, offer, organization, pageMeta, person, personRef, product, profilePage, ref, resolveAiCrawlers, robotsTxt, rssFeed, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, softwareSourceCode, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webPage, webSite, withPaintTransition, withViewTransition };

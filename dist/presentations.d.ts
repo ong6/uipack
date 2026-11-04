@@ -1,6 +1,6 @@
 import * as react from 'react';
 import { S as SpeechGuide } from './speech-BOroEnEA.js';
-import { U as UiStyleId } from './style-DA3Lo6HE.js';
+import { U as UiStyleId } from './style-CBYPyqqV.js';
 
 type PresentationTheme = "light" | "dark";
 
@@ -65,12 +65,12 @@ interface SlideStarterProps {
     slide: SlideStarterData;
     theme?: PresentationTheme;
     /** The style it is painted in (sets data-ui-style); omitted, the nearest ancestor's, else Technical. */
-    style?: UiStyleId;
+    uiStyle?: UiStyleId;
     showSpeech?: boolean;
     className?: string;
     onCopySpeech?: (text: string) => void;
 }
-declare function SlideStarter({ slide, theme, style, showSpeech, className, onCopySpeech, }: SlideStarterProps): react.JSX.Element;
+declare function SlideStarter({ slide, theme, uiStyle, showSpeech, className, onCopySpeech, }: SlideStarterProps): react.JSX.Element;
 
 declare function estimateSpeechSeconds(say: string): number;
 declare function formatSpeechGuide(speech: SpeechGuide): string;

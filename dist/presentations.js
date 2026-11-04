@@ -28,7 +28,7 @@ var cssColors = {
   ink: "var(--ui-ink)",
   muted: "var(--ui-ink-2)",
   accent: "var(--ui-accent)",
-  rule: "var(--ui-slide-line, var(--ui-line))"
+  rule: "var(--tune-slide-line, var(--ui-line))"
 };
 var resolvedFaces = { sans: "IBM Plex Sans, system-ui, sans-serif", mono: "IBM Plex Mono, ui-monospace, monospace" };
 var cssFaces = {
@@ -149,7 +149,7 @@ function SpeakerGuide({ speech, slideTitle = "Slide", onCopy, className = "", th
 function SlideStarter({
   slide,
   theme = "light",
-  style,
+  uiStyle,
   showSpeech = true,
   className = "",
   onCopySpeech
@@ -159,7 +159,7 @@ function SlideStarter({
     {
       className: `uipack-slide-starter ${className}`.trim(),
       "data-theme": theme,
-      "data-ui-style": style,
+      "data-ui-style": uiStyle,
       "data-layout": slide.layout,
       children: [
         /* @__PURE__ */ jsxs("figure", { className: "uipack-slide-starter__figure", children: [
