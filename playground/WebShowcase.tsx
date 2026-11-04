@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { flushSync } from "react-dom";
-import { useShowcaseTheme } from "./ShowcaseShell";
-import { webEntries } from "./catalog";
+import { useShowcaseStyle, useShowcaseTheme } from "./ShowcaseShell";
+import { libraryPages, webEntries } from "./catalog";
+import { uiStyles, type UiStyleId } from "../src/style";
 import {
   Body,
   CtaButton,
@@ -49,7 +50,11 @@ import {
   jsonLdTag,
 } from "../src/web";
 import { tidyFaq, tidySeo } from "./web-seo";
+import "../src/styles/landing.css";
+import "../src/styles/graphical.css";
+import "../src/web/fonts.css";
 import "../src/web/web.css";
+import "../src/web/web-styles.css";
 import "../src/web/gutters.css";
 import "./web-showcase.css";
 import { keepFocusedInView, usePrefersReducedMotion } from "../src/env";
@@ -227,12 +232,21 @@ function PageIndex() {
   );
 }
 
+/** Each style's three faces, as the specimen labels them. */
+const styleFaces: Record<UiStyleId, { display: string; text: string; mono: string }> = {
+  technical: { display: "IBM Plex Sans 600", text: "IBM Plex Sans 400 / 500 / 600", mono: "IBM Plex Mono 400 / 600" },
+  landing: { display: `${TYPE_FACES.display} 400 + italic`, text: `${TYPE_FACES.text} 400 / 500 / 600`, mono: `${TYPE_FACES.mono} 400 / 600` },
+  graphical: { display: "Anton 400, set in caps", text: "IBM Plex Sans 400 / 600", mono: "IBM Plex Mono 600" },
+};
+
 function TypeSpecimen({
   theme,
+  uiStyle,
   face,
   setFace,
 }: {
   theme: "light" | "dark";
+  uiStyle: UiStyleId;
   face: DisplayFaceId;
   setFace: (id: DisplayFaceId) => void;
 }) {
@@ -260,12 +274,13 @@ function TypeSpecimen({
         enough to read and press, and the mono face marks labels and data. All three are self-hosted woff2 files in the package
         (latin only) and swap in over metric-matched fallbacks.
       </p>
-      <WebSurface theme={theme} className="web-panel" style={faceStyle(face)}>
+      <WebSurface theme={theme} className="web-panel" style={uiStyle} css={uiStyle === "landing" ? faceStyle(face) : undefined}>
         <Grid>
           <GridItem span={[12, 8, 4]}>
             <div className="web-role" data-role="display">
               <Eyebrow>
-                Display · {face === "instrument-serif" ? `${TYPE_FACES.display} 400 + italic` : `${current.name} (preview)`}
+                Display ·{" "}
+                {uiStyle !== "landing" || face === "instrument-serif" ? styleFaces[uiStyle].display : `${current.name} (preview)`}
               </Eyebrow>
               <p className="web-role__display">
                 Forty in. <em>Three</em> left.
@@ -278,7 +293,7 @@ function TypeSpecimen({
           </GridItem>
           <GridItem span={[6, 4, 4]}>
             <div className="web-role" data-role="text">
-              <Eyebrow>Text · {TYPE_FACES.text} 400 / 500 / 600</Eyebrow>
+              <Eyebrow>Text · {styleFaces[uiStyle].text}</Eyebrow>
               <Heading level={3} size={2}>
                 Watch every action
               </Heading>
@@ -294,7 +309,7 @@ function TypeSpecimen({
           </GridItem>
           <GridItem span={[6, 4, 4]}>
             <div className="web-role" data-role="mono">
-              <Eyebrow>Mono · {TYPE_FACES.mono} 400 / 600</Eyebrow>
+              <Eyebrow>Mono · {styleFaces[uiStyle].mono}</Eyebrow>
               <dl className="web-role__data">
                 <div>
                   <dt>step</dt>
@@ -313,7 +328,7 @@ function TypeSpecimen({
             </div>
           </GridItem>
         </Grid>
-        <fieldset className="web-face-toggle" ref={toggle} onFocus={() => void loadAlternateFaces()}>
+        <fieldset className="web-face-toggle" ref={toggle} hidden={uiStyle !== "landing"} onFocus={() => void loadAlternateFaces()}>
           <legend>Compare display faces</legend>
           <div className="web-face-toggle__options">
             {displayFaces.map((f) => (
@@ -353,10 +368,226 @@ function usePainted() {
   return painted;
 }
 
+const webPage = libraryPages.find((p) => p.id === "web")!;
+
+// The mechanism figure (Figure, presets, theme.css) loads as its own chunk after the first paint:
+// it sits below the fold in every order, and keeping it off the critical path holds /web's LCP.
+const TidyFlow = lazy(() => import("./webTidyFlow"));
+
+/** One section order for every style: the swap test (e2e/style-swap.spec.ts) compares boxes in it. */
+const sharedOrder = ["hero", "how", "mechanism", "proof", "faq", "pricing"] as const;
+
+const sectionNames: Record<string, string> = {
+  hero: "Hero",
+  mechanism: "Mechanism",
+  how: "Steps",
+  proof: "Proof",
+  faq: "FAQ",
+  pricing: "Pricing",
+};
+
+/** The layout control: the style's recommended section order, or the one shared order. */
+function LayoutSwitch({
+  layout,
+  setLayout,
+  order,
+}: {
+  layout: "style" | "shared";
+  setLayout: (l: "style" | "shared") => void;
+  order: readonly string[];
+}) {
+  const pick = (next: "style" | "shared") => {
+    const url = new URL(location.href);
+    if (next === "shared") url.searchParams.set("layout", "shared");
+    else url.searchParams.delete("layout");
+    history.replaceState(null, "", url);
+    setLayout(next);
+  };
+  return (
+    <div className="web-layout-switch">
+      <fieldset>
+        <legend>Section order</legend>
+        <label>
+          <input type="radio" name="web-layout" checked={layout === "style"} onChange={() => pick("style")} /> The style&rsquo;s own
+        </label>
+        <label>
+          <input type="radio" name="web-layout" checked={layout === "shared"} onChange={() => pick("shared")} /> Shared
+        </label>
+      </fieldset>
+      <p aria-live="polite">
+        <code>{order.map((id) => sectionNames[id]).join(" → ")}</code>
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Renders its children once they come within 800px of the viewport (a placeholder of the same
+ * height until then), so a below-the-fold figure's chunk never competes with the first view.
+ */
+function WhenNear({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [near, setNear] = useState(() => typeof IntersectionObserver === "undefined");
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || near) return;
+    const io = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && setNear(true), {
+      rootMargin: "800px 0px",
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [near]);
+  return near ? <>{children}</> : <div ref={ref} className="web-mechanism__placeholder" />;
+}
+
+function ExampleSection({ id, align, seo }: { id: string; align: "center" | "start"; seo: ReturnType<typeof tidySeo> }) {
+  switch (id) {
+    case "hero":
+      return (
+        <div id="web-top" data-section-id="hero">
+          <StarHero
+            headingId="web-hero-title"
+            align={align}
+            eyebrow="Inbox agent"
+            title={
+              <>
+                Forty emails in. Three that <em>need you.</em>
+              </>
+            }
+            subtitle="Tidy reads, files and drafts while you watch. You keep the decisions only you can make."
+            actions={
+              <>
+                <CtaButton size="lg" href="#web-pricing">
+                  Start free
+                </CtaButton>
+                <CtaButton size="lg" variant="secondary" href="#web-how">
+                  See how it works
+                </CtaButton>
+              </>
+            }
+          >
+            <DemoPlayer
+              label="Product demo: clearing an inbox"
+              address="tidy.example/inbox"
+              steps={demoSteps}
+              initialMetric={40}
+              metricLabel="in your inbox"
+              cta={
+                <CtaButton variant="secondary" href="#web-pricing">
+                  Try it yourself
+                </CtaButton>
+              }
+            />
+          </StarHero>
+        </div>
+      );
+    case "mechanism":
+      return (
+        <Section
+          id="web-mechanism"
+          eyebrow="Mechanism"
+          title="Every message takes the same four steps."
+          intro="Select a step to see what it does. Drafts wait in a queue until you approve them."
+        >
+          <div className="web-mechanism" data-section-id="mechanism">
+            <WhenNear>
+              <Suspense fallback={<div className="web-mechanism__placeholder" />}>
+                <TidyFlow />
+              </Suspense>
+            </WhenNear>
+          </div>
+        </Section>
+      );
+    case "how":
+      return (
+        <Section
+          id="web-how"
+          eyebrow="How it works"
+          title="Three steps, all of them visible."
+          intro="The same curve from the hero marks each step, so the page reads as one idea."
+        >
+          <div data-section-id="how">
+            <FeatureGrid features={features} spotlight />
+          </div>
+        </Section>
+      );
+    case "proof":
+      return (
+        <Section id="web-proof" tone="secondary" align="center" eyebrow="Social proof slot">
+          <div className="web-quote" data-section-id="proof">
+            <RevealText
+              as="blockquote"
+              className="web-quote__text"
+              text="I stopped opening my inbox before coffee. It leaves me three things, and they are the right three."
+            />
+            <Body>Placeholder quote. Replace it with a named customer and a number before you ship.</Body>
+            <dl className="web-stats">
+              <div>
+                <dt>messages handled this morning</dt>
+                <dd>
+                  <NumberTicker value={37} />
+                </dd>
+              </div>
+              <div>
+                <dt>fewer unread</dt>
+                <dd>
+                  <NumberTicker value={92} suffix="%" />
+                </dd>
+              </div>
+              <div>
+                <dt>to watch the demo</dt>
+                <dd>
+                  <NumberTicker value={9.4} format={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }} suffix=" s" />
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </Section>
+      );
+    case "faq":
+      return (
+        <FAQ
+          id="web-faq"
+          items={tidyFaq}
+          url={seo.url}
+          intro="Example answers for an illustrative product. Each first sentence answers the question on its own, so an answer engine can quote it alone."
+        />
+      );
+    case "pricing":
+      return (
+        <Section
+          id="web-pricing"
+          align="center"
+          eyebrow="Pricing"
+          title={
+            <>
+              Get your morning back for <em>$8 a month.</em>
+            </>
+          }
+          intro="Free for 30 days, no card needed. One inbox, every action visible."
+        >
+          <div className="web-closing" data-section-id="pricing">
+            <CtaButton size="lg">Start free</CtaButton>
+          </div>
+        </Section>
+      );
+    default:
+      return null;
+  }
+}
+
 export default function WebShowcase() {
   const { theme, flip } = useShowcaseTheme();
+  // The style switcher lives in the shell's context line (?style=); ?layout= picks the section
+  // order: "style" (the default) is the order the style recommends, "shared" is one order for all.
+  const uiStyle = useShowcaseStyle(webPage);
+  const [layout, setLayout] = useState<"style" | "shared">(() =>
+    new URLSearchParams(location.search).get("layout") === "shared" ? "shared" : "style",
+  );
+  const order = layout === "shared" ? sharedOrder : uiStyles.find((x) => x.id === uiStyle)!.prefers;
   const [face, setFace] = useState<DisplayFaceId>("instrument-serif");
-  const surfaceStyle = faceStyle(face);
+  // The display-face comparison is Landing's (its faces); other styles keep their own.
+  const surfaceStyle = uiStyle === "landing" ? faceStyle(face) : undefined;
   // The demo page publishes a real head (title, description, canonical, Open Graph), JSON-LD for
   // the product and its Pricing offer, and an FAQ, all from playground/web-seo.ts.
   const seo = useMemo(() => tidySeo(location.origin), []);
@@ -374,9 +605,15 @@ export default function WebShowcase() {
           One page built from <code>uipack/web</code>, with one call to action in the hero, the nav and the end.
         </p>
         <PageIndex />
+        <LayoutSwitch layout={layout} setLayout={setLayout} order={order} />
         {painted && (
           <>
-            <WebSurface theme={theme} className="web-example" style={surfaceStyle}>
+            <WebSurface
+              theme={theme}
+              className="web-example"
+              style={uiStyle}
+              css={surfaceStyle}
+            >
               <JsonLd data={seo.jsonLd} />
               <GlassNav
                 brand={
@@ -391,100 +628,9 @@ export default function WebShowcase() {
                 ]}
                 cta={<CtaButton href="#web-pricing">Start free</CtaButton>}
               />
-              <div id="web-top">
-                <StarHero
-                  headingId="web-hero-title"
-                  eyebrow="Inbox agent"
-                  title={
-                    <>
-                      Forty emails in. Three that <em>need you.</em>
-                    </>
-                  }
-                  subtitle="Tidy reads, files and drafts while you watch. You keep the decisions only you can make."
-                  actions={
-                    <>
-                      <CtaButton size="lg" href="#web-pricing">
-                        Start free
-                      </CtaButton>
-                      <CtaButton size="lg" variant="secondary" href="#web-how">
-                        See how it works
-                      </CtaButton>
-                    </>
-                  }
-                >
-                  <DemoPlayer
-                    label="Product demo: clearing an inbox"
-                    address="tidy.example/inbox"
-                    steps={demoSteps}
-                    initialMetric={40}
-                    metricLabel="in your inbox"
-                    cta={
-                      <CtaButton variant="secondary" href="#web-pricing">
-                        Try it yourself
-                      </CtaButton>
-                    }
-                  />
-                </StarHero>
-              </div>
-              <Section
-                id="web-how"
-                eyebrow="How it works"
-                title="Three steps, all of them visible."
-                intro="The same curve from the hero marks each step, so the page reads as one idea."
-              >
-                <FeatureGrid features={features} spotlight />
-              </Section>
-              <Section id="web-proof" tone="secondary" align="center" eyebrow="Social proof slot">
-                <div className="web-quote">
-                  <RevealText
-                    as="blockquote"
-                    className="web-quote__text"
-                    text="I stopped opening my inbox before coffee. It leaves me three things, and they are the right three."
-                  />
-                  <Body>Placeholder quote. Replace it with a named customer and a number before you ship.</Body>
-                  <dl className="web-stats">
-                    <div>
-                      <dt>messages handled this morning</dt>
-                      <dd>
-                        <NumberTicker value={37} />
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>fewer unread</dt>
-                      <dd>
-                        <NumberTicker value={92} suffix="%" />
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>to watch the demo</dt>
-                      <dd>
-                        <NumberTicker value={9.4} format={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }} suffix=" s" />
-                      </dd>
-                    </div>
-                  </dl>
-                </div>
-              </Section>
-              <FAQ
-                id="web-faq"
-                items={tidyFaq}
-                url={seo.url}
-                intro="Example answers for an illustrative product. Each first sentence answers the question on its own, so an answer engine can quote it alone."
-              />
-              <Section
-                id="web-pricing"
-                align="center"
-                eyebrow="Pricing"
-                title={
-                  <>
-                    Get your morning back for <em>$8 a month.</em>
-                  </>
-                }
-                intro="Free for 30 days, no card needed. One inbox, every action visible."
-              >
-                <div className="web-closing">
-                  <CtaButton size="lg">Start free</CtaButton>
-                </div>
-              </Section>
+              {order.map((id) => (
+                <ExampleSection key={id} id={id} align={layout === "style" && uiStyle === "technical" ? "start" : "center"} seo={seo} />
+              ))}
             </WebSurface>
             <GeneratedFiles seo={seo} />
             <p className="collection-intro web-example__aside">
@@ -496,10 +642,10 @@ export default function WebShowcase() {
 
       {painted && (
         <>
-          <TypeSpecimen theme={theme} face={face} setFace={setFace} />
+          <TypeSpecimen theme={theme} uiStyle={uiStyle} face={face} setFace={setFace} />
 
           <FlashySection count={flashy.length}>
-            <WebSurface theme={theme} className="web-panel" style={surfaceStyle}>
+            <WebSurface theme={theme} className="web-panel" style={uiStyle} css={surfaceStyle}>
               <Grid as="ul">
                 {flashy.map((entry) => (
                   <GridItem as="li" key={entry.id} span={[3, 4, 4]}>
@@ -527,7 +673,7 @@ export default function WebShowcase() {
             <p className="collection-intro">
               The defaults that make a page read as designed: scale, hierarchy, one accent, and a grid.
             </p>
-            <WebSurface theme={theme} className="web-panel web-lowkey" style={surfaceStyle}>
+            <WebSurface theme={theme} className="web-panel web-lowkey" style={uiStyle} css={surfaceStyle}>
               <Grid>
                 <GridItem span={[7, 8, 4]}>
                   <div className="web-block">
@@ -579,8 +725,8 @@ export default function WebShowcase() {
             </WebSurface>
           </section>
 
-          <MotionSection theme={theme} flip={flip} surfaceStyle={surfaceStyle} />
-          <BackgroundsSection theme={theme} surfaceStyle={surfaceStyle} />
+          <MotionSection theme={theme} flip={flip} uiStyle={uiStyle} surfaceStyle={surfaceStyle} />
+          <BackgroundsSection theme={theme} uiStyle={uiStyle} surfaceStyle={surfaceStyle} />
 
           <section id="web-principles" className="web-anchor">
             <h2>Principles · {principles.length}</h2>
@@ -781,10 +927,12 @@ function MotionSection({
   theme,
   flip,
   surfaceStyle,
+  uiStyle,
 }: {
   theme: "light" | "dark";
   flip: () => void;
   surfaceStyle?: CSSProperties;
+  uiStyle: UiStyleId;
 }) {
   const [revealKey, setRevealKey] = useState(0);
   const [scrambleKey, setScrambleKey] = useState(0);
@@ -797,7 +945,7 @@ function MotionSection({
         uses only transform, opacity and filter so nothing shifts, and settles to its final state under reduced motion. Hover
         effects are mouse-only.
       </p>
-      <WebSurface theme={theme} className="web-panel" style={surfaceStyle}>
+      <WebSurface theme={theme} className="web-panel" style={uiStyle} css={surfaceStyle}>
         <Grid>
           <GridItem span={[4, 4, 4]}>
             <div className="web-block">
@@ -912,7 +1060,15 @@ const backgroundTiles = [
   },
 ];
 
-function BackgroundsSection({ theme, surfaceStyle }: { theme: "light" | "dark"; surfaceStyle?: CSSProperties }) {
+function BackgroundsSection({
+  theme,
+  uiStyle,
+  surfaceStyle,
+}: {
+  theme: "light" | "dark";
+  uiStyle: UiStyleId;
+  surfaceStyle?: CSSProperties;
+}) {
   // The aurora, beams and gutters loop for as long as they are on screen; one Pause holds them all
   // (WCAG 2.2.2). Under reduced motion they are already still, so there is nothing to pause.
   const reduced = usePrefersReducedMotion();
@@ -936,7 +1092,7 @@ function BackgroundsSection({ theme, surfaceStyle }: { theme: "light" | "dark"; 
           </button>
         )}
       </div>
-      <WebSurface theme={theme} className="web-panel" style={surfaceStyle}>
+      <WebSurface theme={theme} className="web-panel" style={uiStyle} css={surfaceStyle}>
         <Grid>
           {backgroundTiles.map((tile) => (
             <GridItem key={tile.id} span={[4, 4, 4]}>

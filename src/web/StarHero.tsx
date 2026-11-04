@@ -17,6 +17,8 @@ export interface StarHeroProps {
   /** Noise opacity; 0 turns it off. */
   noise?: number;
   headingId?: string;
+  /** Layout: copy centred over the proof (default) or set on the start edge. */
+  align?: "center" | "start";
 }
 
 /**
@@ -33,9 +35,12 @@ export function StarHero({
   children,
   noise = 0.07,
   headingId,
+  align = "center",
 }: StarHeroProps) {
   return (
-    <section className="uipack-web-hero" aria-labelledby={headingId}>
+    <section className="uipack-web-hero" data-align={align} aria-labelledby={headingId}>
+      {/* The backdrop ornament slot: empty here, painted by the style (--ui-backdrop). */}
+      <div className="uipack-web-hero__backdrop" aria-hidden="true" />
       <div className="uipack-web-hero__visual">{visual ?? <StarChart values={values} />}</div>
       {noise > 0 && <NoiseLayer opacity={noise} />}
       <div className="uipack-web-hero__copy">

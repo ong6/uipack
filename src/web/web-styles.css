@@ -1,0 +1,52 @@
+/* uipack/web ornament slots. A layout leaves named slots; a style paints them through its roles
+   (src/styles: --ui-backdrop, --ui-marker-*, --ui-section-rule…). Nothing here takes space or
+   moves a box, so a style swap keeps every region, box and the reading order: the backdrop is an
+   absolutely placed layer, the marker hangs outside its eyebrow, the rule is an inset shadow. */
+@layer uipack.ornaments {
+  /* Backdrop: the hero's ground (Technical: a dotted grid, masked; Graphical: the disc). */
+  .uipack-web-hero__backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    pointer-events: none;
+    background: var(--ui-backdrop);
+    -webkit-mask-image: var(--ui-backdrop-mask);
+    mask-image: var(--ui-backdrop-mask);
+  }
+  /* Marker: the style's motif, small, hung before each eyebrow (Technical: a 2px-radius square,
+     the request token's shape; Graphical: the hero's disc). Landing has none. */
+  .uipack-web-eyebrow {
+    position: relative;
+  }
+  .uipack-web-eyebrow::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    width: var(--ui-marker-size, 0px);
+    height: var(--ui-marker-size, 0px);
+    margin-right: calc(var(--ui-marker-size, 0px) * 0.75);
+    border-radius: var(--ui-marker-shape, 0px);
+    background: var(--ui-marker-color, transparent);
+    transform: translateY(-50%);
+  }
+  /* Rule: a line at the top of each section after the first, drawn inside it. */
+  .uipack-web-section {
+    box-shadow: var(--ui-section-rule, none);
+  }
+}
+
+/* Layout variants the styles recommend (uiStyles[].prefers); any style renders any of them. */
+@layer uipack.layout {
+  /* The hero's start-edge layout (StarHero align="start"), which Technical recommends. */
+  .uipack-web-hero[data-align="start"] {
+    text-align: start;
+  }
+  .uipack-web-hero[data-align="start"] .uipack-web-hero__copy {
+    justify-items: start;
+    max-width: 1040px;
+  }
+  .uipack-web-hero[data-align="start"] .uipack-web-hero__actions {
+    justify-content: start;
+  }
+}

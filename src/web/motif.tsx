@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useId, type CSSProperties } from "react";
 import { clamp } from "../math";
 
 /** Default story data: messages handled over a morning (40 in, 3 left). Rising, so it reads as progress. */
@@ -99,7 +99,7 @@ export interface GrainOverlayProps {
 export function GrainOverlay({ opacity = 0.07, frequency = 0.8 }: GrainOverlayProps) {
   const id = useId().replace(/:/g, "");
   return (
-    <svg className="uipack-web-noise" aria-hidden="true" focusable="false" style={{ opacity }} data-bg="grain">
+    <svg className="uipack-web-noise" aria-hidden="true" focusable="false" style={{ "--noise-opacity": opacity } as CSSProperties} data-bg="grain">
       <filter id={`${id}-n`}>
         <feTurbulence type="fractalNoise" baseFrequency={frequency} numOctaves="3" stitchTiles="stitch" />
         <feColorMatrix type="saturate" values="0" />
