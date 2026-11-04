@@ -46,7 +46,7 @@ Tag each slide with the job it does. The linter and the ghost deck read these ta
 
 Each template is an ordered list of beats (`role`, `purpose`, `titlePattern`, `example`, `guidance`, and sometimes a suggested `move`), plus `remember`: what leadership should be able to repeat a week later. Draft that line first; slide one and the ask should carry it. `templateOutline(id)` turns a template into a scaffold deck. The example titles below describe generic projects; the numbers are illustrative.
 
-A template is a default order, not a quota. When the brief fixes a shorter deck or the facts can't fill a beat (no options, no milestones), merge it into a neighbour or drop it, and put one `TODO:` question for the missing facts in that slide's notes; `template-beats` will name the gap, which is the honest result. Never invent options, milestones or numbers to fill a slot. With a fixed slide count and no time given, pass `minutes` as about one per presented slide.
+A template is a default order, not a quota. When the brief fixes a shorter deck or the facts can't fill a beat (no options, no milestones), merge it into a neighbour or drop it, and put one `TODO:` question for the missing facts in that slide's notes; `template-beats` will name the gap, which is the honest result. Never invent options, milestones or numbers to fill a slot. Notes stay about a minute a slide; `talk-time` doesn't ask a short deck to fill the template's length.
 
 ### Project update / results (5–8 slides, 5–10 min)
 
