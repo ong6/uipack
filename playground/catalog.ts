@@ -123,7 +123,7 @@ export const libraryPages = [
     styles: ["technical", "landing", "graphical"],
     isDefault: true,
     intro:
-      "Tech talk deck: a team lead argues that reviews should open with their answer, with evidence, a pilot and a dated ask. Every slide advances except one morph (the same number becoming a table row) and one zoom (into the slide the ghost deck flags). Swipe on a touch screen, or click the deck and use the arrow keys.",
+      "Tech talk deck: a team lead argues that reviews should open with their answer, with evidence, a pilot and a dated ask. Written to present: short titles, the numbers in points, cue notes in the speaker view (S). Every slide advances except one morph (the same number becoming a table row) and one zoom (into the slide the ghost deck flags). Swipe on a touch screen, or click the deck and use the arrow keys.",
   },
   {
     id: "deck-bento",
@@ -145,7 +145,7 @@ export const libraryPages = [
     query: { deck: "consulting" },
     styles: ["technical", "landing", "graphical"],
     intro:
-      "Consulting deck: a decision request in consulting style, with dense charts, callouts, a so-what panel and sources, read headline by headline.",
+      "Consulting deck: a decision request in consulting style, with dense charts, callouts, a so-what panel and sources. Written to be read without the presenter, so every title is a full-sentence conclusion.",
   },
   {
     id: "presentations",

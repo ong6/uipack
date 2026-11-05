@@ -114,10 +114,17 @@
   font-size: var(--web-step--1);
   color: var(--web-ink-low);
 }
-.fdn-actions {
-  display: flex;
-  justify-content: center;
+/* A presented slide's points, in the web section and the slide sketches: fragments, one per line. */
+.fdn-points {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 1.1em;
+  color: var(--web-ink);
+  font-size: var(--web-step-0);
+  line-height: 1.4;
 }
+
 .fdn-note {
   margin: 12px 0 0;
   overflow-x: auto;

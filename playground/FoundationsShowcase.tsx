@@ -11,10 +11,10 @@ import "../src/docs/docs.css";
 import "./foundations.css";
 import {
   DeckPlayer,
-  Slide,
   SLOT_BUDGETS,
   endSlide,
   factSlide,
+  pointsSlide,
   quoteSlide,
   sectionSlide,
   slotProblems,
@@ -218,22 +218,21 @@ const styleOptions = uiStyles.map((s) => ({ id: s.id, label: s.name }));
 
 /* ---------------------------------------------------------------- one unit, three layers */
 
-type Content = { eyebrow: string; headline: string; lede: string; value: string; unit: string; baseline: string; source: string };
+/** One unit's words, written for a presented slide: a short title and the fragments it's spoken from. */
+type Content = { title: string; points: string[]; value: string; unit: string; baseline: string; source: string };
 
 const writings: Record<"search" | "reviews", Content> = {
   search: {
-    eyebrow: "Search",
-    headline: "Search answers in 198 ms at p95, twice as fast as March",
-    lede: "One index replaced five, and the cache serves the rest.",
+    title: "Search: twice as fast since March",
+    points: ["p95 198 ms, half of March", "5 indexes → 1", "The cache serves the rest"],
     value: "198",
     unit: "ms at p95",
     baseline: "410 ms in March",
     source: "The search latency dashboard, October",
   },
   reviews: {
-    eyebrow: "Reviews",
-    headline: "Answer-first reviews were decided in one meeting, not three",
-    lede: "Same teams and the same six months; only the order of the slides changed.",
+    title: "Review decisions: 3 meetings → 1",
+    points: ["Same teams, same 6 months", "Only change: the answer moved to slide 1"],
     value: "1",
     unit: "meeting",
     baseline: "3 when the answer came last",
@@ -241,42 +240,28 @@ const writings: Record<"search" | "reviews", Content> = {
   },
 };
 
-type LayoutId = "fact" | "statement";
+type LayoutId = "fact" | "points";
 
 function unitSlide(c: Content, layout: LayoutId): DeckSlide {
   if (layout === "fact")
     return factSlide({
       id: "unit",
-      title: c.eyebrow,
+      title: c.title,
       role: "evidence",
-      eyebrow: c.eyebrow,
-      headline: c.headline,
+      headline: c.title,
       value: c.value,
       unit: c.unit,
       baseline: c.baseline,
       source: c.source,
       footer: "Foundations",
     });
-  return {
-    id: "unit",
-    title: c.eyebrow,
-    role: "answer",
-    eyebrow: c.eyebrow,
-    headline: c.headline,
-    lede: c.lede,
-    render: () => (
-      <Slide eyebrow={c.eyebrow} layout="center" footer="Foundations">
-        <h2 className="uipack-deck-heading">{c.headline}</h2>
-        <p className="uipack-deck-lede">{c.lede}</p>
-      </Slide>
-    ),
-  };
+  return pointsSlide({ id: "unit", title: c.title, role: "answer", headline: c.title, points: c.points, footer: "Foundations" });
 }
 
-/** The same content as a web section: the layout picks a number block or a statement. */
+/** The same content as a web section: the layout picks a number block or the points. */
 function UnitSection({ c, layout }: { c: Content; layout: LayoutId }) {
   return (
-    <Section eyebrow={c.eyebrow} title={c.headline} intro={c.lede} align={layout === "statement" ? "center" : "start"}>
+    <Section title={c.title}>
       {layout === "fact" && (
         <div className="fdn-fact">
           <span className="fdn-fact__value">
@@ -288,10 +273,12 @@ function UnitSection({ c, layout }: { c: Content; layout: LayoutId }) {
           </span>
         </div>
       )}
-      {layout === "statement" && (
-        <div className="fdn-actions">
-          <CtaButton>Read the review</CtaButton>
-        </div>
+      {layout === "points" && (
+        <ul className="fdn-points">
+          {c.points.map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ul>
       )}
     </Section>
   );
@@ -326,7 +313,7 @@ function LayerToggle() {
           value={layout}
           options={[
             { id: "fact", label: "Fact" },
-            { id: "statement", label: "Statement" },
+            { id: "points", label: "Points" },
           ]}
           onChange={setLayout}
         />
@@ -529,8 +516,8 @@ function StylePage() {
 /* ---------------------------------------------------------------- writing */
 
 function BudgetChecker() {
-  const [slot, setSlot] = useState<SlotName>("headline");
-  const [text, setText] = useState("Results");
+  const [slot, setSlot] = useState<SlotName>("point");
+  const [text, setText] = useState("The first response now takes two hours, down from nine.");
   const problems = slotProblems(slot, text);
   const inputId = useId();
   return (
@@ -614,45 +601,31 @@ function WritingPage() {
 /* ---------------------------------------------------------------- layout */
 
 const archetypeDeck: DeckSlide[] = [
+  { ...unitSlide(writings.reviews, "points"), id: "points", title: "Points" },
   sectionSlide({
     id: "section",
     title: "Section",
     role: "context",
-    eyebrow: "Part two",
     number: "02",
-    headline: "The index, not the model, set our latency",
-    lede: "Three changes, in the order we shipped them.",
+    headline: "Where latency comes from",
     footer: "Archetypes",
   }),
   quoteSlide({
     id: "quote",
     title: "Quote",
     role: "evidence",
-    eyebrow: "Support",
-    headline: "Agents stopped asking for the same document twice",
+    headline: "What support agents say",
     quote: "I search once now. The answer is on the first screen.",
     attribution: "Support lead, EMEA",
     footer: "Archetypes",
   }),
-  factSlide({
-    id: "fact",
-    title: "Fact",
-    role: "evidence",
-    eyebrow: "Latency",
-    headline: "Search answers in 198 ms at p95",
-    value: "198",
-    unit: "ms at p95",
-    baseline: "410 ms in March",
-    source: "The search latency dashboard",
-    footer: "Archetypes",
-  }),
-  { ...unitSlide(writings.reviews, "statement"), id: "invert", title: "Statement, inverted", invert: true },
+  { ...unitSlide(writings.search, "fact"), id: "fact", title: "Fact" },
+  { ...unitSlide(writings.search, "points"), id: "invert", title: "Points, inverted", invert: true },
   endSlide({
     id: "end",
     title: "End",
     role: "ask",
-    eyebrow: "The ask",
-    headline: "Approve the shared index for every region",
+    headline: "Approve the rollout by 20 November",
     action: "Approve the rollout plan",
     owner: "Platform leads",
     date: "20 November",
@@ -668,8 +641,9 @@ function LayoutPage() {
       <section>
         <h2>Slide archetypes on one region map</h2>
         <p className="collection-intro">
-          Section, quote, fact, an inverted statement and end. The eyebrow, headline and footer stay in the same place on every
-          slide; only the body region changes. Step through with the arrows, and swap the style to see the map hold.
+          Points (the default for a presented deck), section, quote, fact, inverted points and end. The headline and footer stay
+          in the same place on every slide, and so would an eyebrow on the rare slide that has one; only the body region changes.
+          Step through with the arrows, and swap the style to see the map hold.
         </p>
         <div className="fdn-toggles">
           <Choice legend="Style" value={style} options={styleOptions} onChange={setStyle} />
@@ -778,18 +752,18 @@ function MixPage() {
         </div>
       </section>
       <section>
-        <h2>The same headline in three faces</h2>
+        <h2>The same title in three faces</h2>
         <p className="collection-intro">
-          One claim, one layout, three styles. The column and the order hold; the line breaks follow each face.
+          One title, one layout, three styles. The column and the order hold; the line breaks follow each face.
         </p>
         <div className="fdn-grid3">
           {uiStyles.map((s) => (
             <WebSurface key={s.id} theme={theme} uiStyle={s.id} className="fdn-mini">
               <Eyebrow>{s.name}</Eyebrow>
               <Heading level={3} size={4}>
-                Search answers in <em>198 ms</em> at p95
+                Search: <em>twice as fast</em> since March
               </Heading>
-              <Body>One index replaced five, and the cache serves the rest.</Body>
+              <Body>p95 198 ms, half of March · 5 indexes → 1</Body>
             </WebSurface>
           ))}
         </div>
@@ -800,7 +774,6 @@ function MixPage() {
           The linter catches it before any style is chosen: <code>{slotProblems("headline", longHeadline).join("; ")}</code>.
         </p>
         <WebSurface theme={theme} className="fdn-mini">
-          <Eyebrow>Reviews</Eyebrow>
           <Heading level={3} size={4}>
             {longHeadline}
           </Heading>
@@ -817,7 +790,7 @@ const recipes: { name: string; style: string; sequence: string[]; template: stri
     name: "Talk deck",
     style: "Technical",
     sequence: ["cover", "answer", "evidence", "mechanism", "plan", "end"],
-    template: "DeckSlide { role, eyebrow, headline, lede, notes { say, next } }",
+    template: "DeckSlide { role, headline (2–5 words), points[2–4], notes { say: cues, next } }",
     href: "/deck?deck=moves",
     link: "Tech talk deck",
   },
@@ -970,18 +943,129 @@ const tropes = [
   ["Gradient text and gradient buttons", "One flat accent on one thing"],
 ];
 
+/** A slide's words as a small sketch: the optional eyebrow, the title, the optional lede and the points. */
+function SlideSketch({ eyebrow, title, lede, points }: { eyebrow?: string; title: string; lede?: string; points?: string[] }) {
+  const { theme } = useShowcaseTheme();
+  return (
+    <WebSurface theme={theme} className="fdn-mini">
+      {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+      <Heading level={4} size={3}>
+        {title}
+      </Heading>
+      {lede && <Body>{lede}</Body>}
+      {points && (
+        <ul className="fdn-points">
+          {points.map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ul>
+      )}
+    </WebSurface>
+  );
+}
+
+/** Patterns that make slide text read as generated. Any one is fine now and then; on every slide it's a template. */
+const slideTells = [
+  [
+    "“X, not Y” on every slide",
+    "decided in one meeting, not three",
+    "State the fact (3 meetings → 1); say the contrast if it matters",
+  ],
+  [
+    "Two balanced clauses on a semicolon",
+    "Same teams and the same six months; only the order of the slides changed.",
+    "Two points, or keep one and say the other",
+  ],
+  [
+    "A comparison bolted onto every claim",
+    "198 ms at p95, twice as fast as March",
+    "The baseline as its own point, or said aloud",
+  ],
+  ["Matched number pairs", "one meeting, not three · one index replaced five", "One number per point, with its baseline"],
+  ["A tidy closing clause", "…and the cache serves the rest", "Stop at the fact"],
+  ["A coined term used as if established", "Answer-first reviews", "Say what happened: reviews that opened with the answer"],
+  [
+    "The same three-part shape on every slide",
+    "Eyebrow, sentence headline, lede, ten times",
+    "Mix labels, verdicts and the odd question; no eyebrow or lede by default",
+  ],
+  ["A one-word caps eyebrow", "REVIEWS, SEARCH", "Drop it; the title names the topic"],
+];
+
 function DontPage() {
   const { theme } = useShowcaseTheme();
   return (
     <>
       <section>
+        <h2>Slide writing</h2>
+        <p className="collection-intro">
+          A presented slide is a short title and the fragments the speaker talks from; the speaker says the because. Full-sentence
+          titles are for decks read without the speaker, and there the title must state the real conclusion.
+        </p>
+        <div className="fdn-pairs">
+          <Pair
+            title="A review result"
+            dont={
+              <SlideSketch
+                eyebrow="Reviews"
+                title="Answer-first reviews were decided in one meeting, not three"
+                lede="Same teams and the same six months; only the order of the slides changed."
+              />
+            }
+            doit={
+              <SlideSketch
+                title="Review decisions: 3 meetings → 1"
+                points={["Same teams, same 6 months", "Only change: the answer moved to slide 1"]}
+              />
+            }
+            why="The sentence and its lede are a script to read out, built on a contrast, a semicolon and a coined term. The short title is a cue, the points carry the numbers, and the speaker says why it matters."
+          />
+          <Pair
+            title="A speed result"
+            dont={
+              <SlideSketch
+                eyebrow="Search"
+                title="Search answers in 198 ms at p95, twice as fast as March"
+                lede="One index replaced five, and the cache serves the rest."
+              />
+            }
+            doit={
+              <SlideSketch
+                title="Search: twice as fast since March"
+                points={["p95 198 ms, half of March", "5 indexes → 1", "The cache serves the rest"]}
+              />
+            }
+            why="A comparison bolted onto the claim and a tidy closing clause read as generated. As fragments, the same facts sit on screen to point at, and the speaker words them fresh each time."
+          />
+        </div>
+        <div className="fdn-table" tabIndex={0} role="region" aria-label="AI tells in slide text">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Tell</th>
+                <th scope="col">Looks like</th>
+                <th scope="col">Instead</th>
+              </tr>
+            </thead>
+            <tbody>
+              {slideTells.map(([tell, looks, instead]) => (
+                <tr key={tell}>
+                  <th scope="row">{tell}</th>
+                  <td>{looks}</td>
+                  <td>{instead}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section>
         <h2>Paired examples</h2>
         <div className="fdn-pairs">
           <Pair
-            title="Headlines state the claim"
+            title="Titles name the topic or the verdict"
             dont={
               <WebSurface theme={theme} className="fdn-mini">
-                <Eyebrow>Results</Eyebrow>
                 <Heading level={4} size={3}>
                   Results
                 </Heading>
@@ -989,13 +1073,12 @@ function DontPage() {
             }
             doit={
               <WebSurface theme={theme} className="fdn-mini">
-                <Eyebrow>Results</Eyebrow>
                 <Heading level={4} size={3}>
-                  Index freshness fell from 40 to 6 minutes
+                  Index freshness: 40 → 6 min
                 </Heading>
               </WebSurface>
             }
-            why="A topic title could head any slide. A claim is a sentence the reader can repeat."
+            why="“Results” could head any slide. A topic or a short verdict gives the speaker something to talk from; the full claim is said aloud, or written out as the title in a deck sent without you."
           />
           <Pair
             title="Labels, not sentences, in the drawing"

@@ -22,44 +22,40 @@ const objectLinks = {
   abstract: "Open the glass passage",
 };
 
+/* A talk given from the slides: short titles, the points the speaker talks from, no eyebrow or lede. */
 const chapters = [
   {
     name: "Opening",
-    eyebrow: "Agent systems",
-    title: "A model is only the beginning.",
-    text: "The harness turns a proposal into a bounded action, and an action into an outcome we can inspect.",
+    title: "The model is the start",
+    points: ["Proposal → bounded action", "Action → an outcome we can inspect"],
     stop: "outside",
     kind: "opening",
   },
   {
     name: "Argument",
-    eyebrow: "The design problem",
-    title: "Every action needs a boundary.",
-    text: "Separate what the model proposes from what the system permits. Keep the evidence that connects the two.",
+    title: "Every action needs a boundary",
+    points: ["Supply relevant context", "Limit available actions", "Verify observable results"],
     stop: "inside",
     kind: "argument",
   },
   {
     name: "Explanation",
-    eyebrow: "Inside the system",
-    title: "Give context. Bound the action. Keep the proof.",
-    text: "Use one visual to explain the responsibilities around the model. Reveal details at the pace of the argument.",
+    title: "Inside the harness",
+    points: ["Context goes in", "The action stays in bounds", "Proof comes out"],
     stop: "action",
     kind: "explanation",
   },
   {
     name: "Comparison",
-    eyebrow: "Before / after",
-    title: "Make verification part of the path.",
-    text: "A plausible response and a verified outcome are different deliverables.",
+    title: "Plausible or verified?",
+    points: ["A response can sound right", "A verified outcome carries its evidence"],
     stop: "result",
     kind: "comparison",
   },
   {
     name: "Closing",
-    eyebrow: "A practical starting point",
-    title: "One goal. One bounded workflow. One inspectable result.",
-    text: "Choose a workflow, define the checks, and demonstrate the evidence before expanding the system.",
+    title: "Start with one workflow",
+    points: ["Pick it", "Define the checks", "Show the evidence, then expand"],
     stop: "result",
     kind: "closing",
   },
@@ -209,16 +205,12 @@ export default function CatalogShowcase() {
             }}
           >
             <div className="composed-deck__copy" aria-live="polite">
-              <p className="deck-eyebrow">{chapter.eyebrow}</p>
               <h3 className="composed-deck__title">{chapter.title}</h3>
-              <p>{chapter.text}</p>
-              {chapter.kind === "argument" && (
-                <ol>
-                  <li>Supply relevant context</li>
-                  <li>Limit available actions</li>
-                  <li>Verify observable results</li>
-                </ol>
-              )}
+              <ul className="composed-deck__points">
+                {chapter.points.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ul>
               {chapter.kind === "comparison" && (
                 <div className="deck-comparison">
                   <div>
@@ -231,9 +223,7 @@ export default function CatalogShowcase() {
                   </div>
                 </div>
               )}
-              {chapter.kind === "closing" && (
-                <p className="deck-takeaway">Next decision: which workflow should we prove first?</p>
-              )}
+              {chapter.kind === "closing" && <p className="deck-takeaway">Which workflow do we prove first?</p>}
             </div>
             <div className="composed-deck__visual" hidden={chapter.kind === "comparison" || chapter.kind === "closing"}>
               <SlideScene story={harnessDive} stopId={chapter.stop} theme={theme} />

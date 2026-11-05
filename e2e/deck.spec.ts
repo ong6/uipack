@@ -544,13 +544,13 @@ test.describe("/deck motion: no mid-flight glitches", () => {
     await page.keyboard.press("ArrowRight");
     for (const f of [0.3, 0.4, 0.45, 0.5, 0.6]) {
       const o = await at(page, f * 760, () => {
-        const eyebrow = (id: string) =>
+        const heading = (id: string) =>
           Number(
-            getComputedStyle(document.querySelector(`.uipack-deck-layer[data-slide="${id}"] .uipack-deck-eyebrow`)!).opacity,
+            getComputedStyle(document.querySelector(`.uipack-deck-layer[data-slide="${id}"] .uipack-deck-heading`)!).opacity,
           );
-        return { out: eyebrow("problem"), in: eyebrow("evidence") };
+        return { out: heading("problem"), in: heading("evidence") };
       });
-      expect(Math.min(o.out, o.in), `both eyebrows showing at ${f}`).toBeLessThan(0.15);
+      expect(Math.min(o.out, o.in), `both headings showing at ${f}`).toBeLessThan(0.15);
     }
   });
 
