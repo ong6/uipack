@@ -1,4 +1,4 @@
-import { uiStyles, sectionOrder } from './chunk-P4WV2HFJ.js';
+import { uiStyles, sectionOrder } from './chunk-AKYK7LU4.js';
 import { clamp, easeOutCubic, lerp, smoothstep, easeOutExpo } from './chunk-V4CVL4FJ.js';
 export { easeOutExpo } from './chunk-V4CVL4FJ.js';
 import { FigureChromeContext } from './chunk-ZEGJBMAE.js';
@@ -687,6 +687,7 @@ function demoFrame(steps, elapsed, timing = DEFAULT_TIMING, initialMetric) {
   };
 }
 var TICK_MS = 40;
+var DEV = typeof process !== "undefined" && process.env.NODE_ENV !== "production";
 function lastWith(steps, upTo, pick) {
   for (let k = upTo; k >= 0; k--) {
     const v = pick(steps[k]);
@@ -724,6 +725,13 @@ function DemoPlayer({
   const armed = useRef(false);
   const playingRef = useLatest(playing);
   const doneRef = useLatest(elapsed >= end);
+  const blank = mode === "steps" && !steps.some((s) => s.screen !== void 0 && s.screen !== null);
+  useEffect(() => {
+    if (DEV && blank)
+      console.warn(
+        `uipack/web: DemoPlayer "${label}" runs in steps mode with no step \`screen\`, so its result pane is empty. Give the last step the product's real output (a ScheduleGrid, DataTable, FileTable or RecordCard).`
+      );
+  }, [blank, label]);
   useEffect(() => {
     const el = rootRef.current;
     if (reduced) return;

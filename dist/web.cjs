@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkX3NRT47Q_cjs = require('./chunk-X3NRT47Q.cjs');
+var chunk46YG3UCF_cjs = require('./chunk-46YG3UCF.cjs');
 var chunkSDBNPDW6_cjs = require('./chunk-SDBNPDW6.cjs');
 var chunkCRQKMR73_cjs = require('./chunk-CRQKMR73.cjs');
 var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
@@ -50,9 +50,9 @@ function WebPage({
   as,
   children
 }) {
-  const meta = chunkX3NRT47Q_cjs.uiStyles.find((s) => s.id === uiStyle);
+  const meta = chunk46YG3UCF_cjs.uiStyles.find((s) => s.id === uiStyle);
   const page = { uiStyle, layout, defaults: layout === "style" ? meta.layout : SHARED };
-  const ids = order ? order.filter((id) => id in sections) : chunkX3NRT47Q_cjs.sectionOrder(uiStyle, Object.keys(sections), layout);
+  const ids = order ? order.filter((id) => id in sections) : chunk46YG3UCF_cjs.sectionOrder(uiStyle, Object.keys(sections), layout);
   return /* @__PURE__ */ jsxRuntime.jsxs(
     WebSurface,
     {
@@ -688,6 +688,7 @@ function demoFrame(steps, elapsed, timing = DEFAULT_TIMING, initialMetric) {
   };
 }
 var TICK_MS = 40;
+var DEV = typeof process !== "undefined" && process.env.NODE_ENV !== "production";
 function lastWith(steps, upTo, pick) {
   for (let k = upTo; k >= 0; k--) {
     const v = pick(steps[k]);
@@ -725,6 +726,13 @@ function DemoPlayer({
   const armed = react.useRef(false);
   const playingRef = chunkKV6PPCWS_cjs.useLatest(playing);
   const doneRef = chunkKV6PPCWS_cjs.useLatest(elapsed >= end);
+  const blank = mode === "steps" && !steps.some((s) => s.screen !== void 0 && s.screen !== null);
+  react.useEffect(() => {
+    if (DEV && blank)
+      console.warn(
+        `uipack/web: DemoPlayer "${label}" runs in steps mode with no step \`screen\`, so its result pane is empty. Give the last step the product's real output (a ScheduleGrid, DataTable, FileTable or RecordCard).`
+      );
+  }, [blank, label]);
   react.useEffect(() => {
     const el = rootRef.current;
     if (reduced) return;

@@ -69,70 +69,92 @@
     color-scheme: dark !important;
   }
 }
-/* Technical — the default style: warm paper, near-black ink, one forest/mint accent, thin lines,
-   6px radius, system type for figures, IBM Plex where a host or the web entry provides it.
-   The owner's own look (junxiong.dev's figures). Values: docs/system/style.md, "Technical values". */
+/* Technical — the default style, "Cyanotype": every page is a blueprint. Prussian-blue ink on a
+   cool white sheet; a dark half that is the cyanotype itself (pale lines on deep Prussian blue, not
+   near-black); one amber mark for the thing that matters (text-safe amber in light, gold in dark).
+   Square corners and 1px hairlines; drafting-film grid on the hero and the figure canvas only;
+   dimension-line section heads, crop-mark card corners, ringed step numbers. Archivo Expanded for
+   every heading (page, slide, figure), Archivo for text, Martian Mono for labels.
+   Values: docs/system/style.md, "Technical values". Chosen blind over four alternatives
+   (review 2026-11-05); the earlier warm-paper, forest-green, IBM Plex set matched generic defaults. */
 @layer uipack.tokens {
   :root,
   [data-ui-style="technical"] {
     /* Surfaces */
-    --ui-paper: light-dark(#f6f5f1, #0a100d);
-    --ui-surface: light-dark(#ffffff, #0e1512);
-    --ui-surface-raised: light-dark(#ffffff, #14201b);
-    --ui-surface-2: light-dark(#f4f6f4, #1b2a24);
-    /* Ink: text at three emphasis levels, lines at two weights */
-    --ui-ink: light-dark(#1a1c1a, #e8ece9);
-    --ui-ink-2: light-dark(#5c625e, #9aa39e);
-    --ui-ink-3: color-mix(in srgb, var(--ui-ink) 66%, var(--ui-paper));
-    --ui-line: color-mix(in srgb, var(--ui-ink) 22%, transparent);
-    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 16%, transparent);
-    /* The one accent, and what sits on it */
-    --ui-accent: light-dark(#205f49, #71dcb2);
+    --ui-paper: light-dark(#f3f6f9, #0a2342);
+    --ui-surface: light-dark(#fcfdfe, #0d2a4f);
+    --ui-surface-raised: light-dark(#ffffff, #12345f);
+    --ui-surface-2: light-dark(#e2e9f1, #11315a);
+    /* Ink: Prussian blue, not near-black; three emphasis levels, lines at two weights */
+    --ui-ink: light-dark(#0b2748, #edf3fb);
+    --ui-ink-2: light-dark(#3d5878, #acc2dc);
+    --ui-ink-3: light-dark(#4b6485, #9db4cf);
+    --ui-line: color-mix(in srgb, var(--ui-ink) 26%, transparent);
+    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 13%, transparent);
+    /* The one accent: one tested amber per theme, for fills, strokes and text alike. Light #9c5700
+       holds 5.1:1 on paper and leans orange so it never reads olive; dark is gold. On an inverted
+       (dark) ground in light, the gold is used, and the amber on a light ground in dark. */
+    --ui-accent: light-dark(#9c5700, #f0c45a);
     --ui-accent-ink: var(--ui-accent);
-    --ui-on-accent: light-dark(#f6f5f1, #07110c);
-    --ui-accent-surface: light-dark(#2a6b54, #8fe4c3);
-    --ui-accent-ink-2: light-dark(#cfe3d9, #1d4a38);
-    --ui-accent-line: light-dark(#5b927d, #3f9c78);
-    /* Flow tokens, always paired with a shape: square request, circle response, diamond change */
-    --ui-flow-request: light-dark(#4f6fe6, #8ea4ff);
-    --ui-flow-response: light-dark(#3fb27f, #5fd39b);
-    --ui-flow-change: light-dark(#9a63e0, #c39aff);
-    /* Data: signed values (always with a sign or arrow), a context grey, four categorical slots */
-    --ui-data-pos: light-dark(#1a7a52, #33a979);
-    --ui-data-neg: light-dark(#c0482f, #d4623f);
-    --ui-data-context: light-dark(#8b928d, #6b756f);
-    --ui-data-1: light-dark(#1a7a52, #33a979);
-    --ui-data-2: light-dark(#4f6fe6, #5f7fef);
-    --ui-data-3: light-dark(#c27a1f, #c0832b);
-    --ui-data-4: light-dark(#9a63e0, #9f72e6);
-    --ui-on-data-1: light-dark(#ffffff, #0a100d);
-    --ui-on-data-2: light-dark(#ffffff, #0a100d);
-    --ui-on-data-3: light-dark(#1a1c1a, #0a100d);
-    --ui-on-data-4: light-dark(#1a1c1a, #0a100d);
+    --ui-accent-stroke: var(--ui-accent);
+    --ui-on-accent: light-dark(#ffffff, #0a2342);
+    --ui-accent-surface: light-dark(#0b2748, #f0c45a);
+    --ui-accent-ink-2: light-dark(#f0c45a, #0a2342);
+    --ui-accent-line: light-dark(#2f4f78, #b8913a);
+    /* Flow tokens, always paired with a shape: square request, circle response, diamond change.
+       Fixed jobs in a diagram: the accent marks numbered steps and the one thing; request is the
+       main flow; response is the return path; error is a failed or declined branch. */
+    --ui-flow-request: light-dark(#0b77a3, #8fd6ff);
+    --ui-flow-response: light-dark(#2b7a4b, #8be6ae);
+    --ui-flow-change: light-dark(#7048c0, #d2b4ff);
+    --ui-flow-error: light-dark(#c2392b, #ff8c7a);
+    /* Data: signed values (always with a sign or arrow), a context grey, four categorical slots:
+       Prussian, amber, cyan, slate */
+    --ui-data-pos: light-dark(#2b7a4b, #8be6ae);
+    --ui-data-neg: light-dark(#c2392b, #ff8c7a);
+    --ui-data-context: light-dark(#8ea0b5, #6f88a8);
+    --ui-data-1: light-dark(#0b2748, #edf3fb);
+    --ui-data-2: light-dark(#9c5700, #f0c45a);
+    --ui-data-3: light-dark(#0b77a3, #8fd6ff);
+    --ui-data-4: light-dark(#5a708b, #86a0c0);
+    --ui-on-data-1: light-dark(#ffffff, #0a2342);
+    --ui-on-data-2: light-dark(#ffffff, #0a2342);
+    --ui-on-data-3: light-dark(#ffffff, #0a2342);
+    --ui-on-data-4: light-dark(#ffffff, #0a2342);
     /* Invert: the per-slide or per-band inverse within the style (deck "ink" tone) */
-    --ui-inv-paper: light-dark(#111814, #e8ece9);
-    --ui-inv-surface: light-dark(#18221d, #ffffff);
-    --ui-inv-ink: light-dark(#eef1ee, #0e1512);
-    --ui-inv-ink-2: light-dark(#a9b3ad, #4c5751);
-    --ui-inv-line: light-dark(#3a4a41, #b5c0b9);
-    --ui-inv-accent: light-dark(#71dcb2, #205f49);
+    --ui-inv-paper: light-dark(#0b2748, #f3f6f9);
+    --ui-inv-surface: light-dark(#10305a, #ffffff);
+    --ui-inv-ink: light-dark(#eef3fa, #0b2748);
+    --ui-inv-ink-2: light-dark(#a9bfd9, #3d5878);
+    --ui-inv-line: light-dark(#335781, #b9c8d9);
+    --ui-inv-accent: light-dark(#f0c45a, #9c5700);
 
-    /* Type */
-    --ui-font-text: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    --ui-font-label: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    --ui-font-display: var(--ui-font-text);
-    --ui-display-weight: 650;
-    --ui-display-tracking: -0.02em;
+    /* Type: one heading face everywhere (Archivo at 112.5% width, a static instance), Archivo
+       text, Martian Mono labels; self-hosted in uipack/fonts (src/web/fonts.css) with
+       metric-matched fallbacks. */
+    --ui-font-display: "Archivo Expanded", "Archivo Expanded Fallback", "Archivo", system-ui, sans-serif;
+    --ui-font-heading: var(--ui-font-display);
+    --ui-font-text: "Archivo", "Archivo Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --ui-font-label: "Martian Mono", "Martian Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --ui-web-font-display: var(--ui-font-display);
+    --ui-web-font-text: var(--ui-font-text);
+    --ui-web-font-label: var(--ui-font-label);
+    --ui-slide-font-display: var(--ui-font-display);
+    --ui-slide-font-text: var(--ui-font-text);
+    --ui-slide-font-label: var(--ui-font-label);
+    --ui-display-weight: 600;
+    --ui-display-tracking: -0.01em;
     --ui-display-case: none;
-    --ui-label-tracking: 0.08em;
-    /* Shape and line */
-    --ui-radius: 6px;
-    --ui-radius-sm: 4px;
-    --ui-radius-xs: 2px;
-    --ui-radius-pill: 6px;
+    --ui-display-scale: 1;
+    --ui-label-tracking: 0.02em;
+    /* Shape and line: square corners, 1px hairlines */
+    --ui-radius: 0px;
+    --ui-radius-sm: 0px;
+    --ui-radius-xs: 0px;
+    --ui-radius-pill: 0px;
     --ui-nav-fill: color-mix(in srgb, var(--ui-paper) 94%, transparent);
     --ui-nav-blur: none;
-    --ui-stroke: 1.25;
+    --ui-stroke: 1;
     --ui-rule-width: 1px;
     /* Scalars a style may own (research brief, contract change 1) */
     --ui-type-ratio: 1.25;
@@ -144,120 +166,126 @@
     --ui-dur-base: 320ms;
     --ui-dur-slow: 560ms;
 
-    /* Ornament slots: what this style paints where a layout leaves room for it */
-    --ui-backdrop: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ui-ink) 20%, transparent) 1px, transparent 1.5px) 0
-      0 / 16px 16px;
-    --ui-backdrop-mask: radial-gradient(ellipse 80% 70% at 50% 35%, black 25%, transparent 78%);
+    /* Ornament slots: what this style paints where a layout leaves room for it. The drafting-film
+       grid (12px minor, 60px major hairlines) belongs to two places only, the hero ground and the
+       figure canvas, so it reads as a signature rather than wallpaper. */
+    --ui-backdrop:
+      linear-gradient(90deg, color-mix(in srgb, var(--ui-ink) 11%, transparent) 1px, transparent 1px) -1px -1px / 60px 60px,
+      linear-gradient(color-mix(in srgb, var(--ui-ink) 11%, transparent) 1px, transparent 1px) -1px -1px / 60px 60px,
+      linear-gradient(90deg, color-mix(in srgb, var(--ui-ink) 5%, transparent) 1px, transparent 1px) -1px -1px / 12px 12px,
+      linear-gradient(color-mix(in srgb, var(--ui-ink) 5%, transparent) 1px, transparent 1px) -1px -1px / 12px 12px;
+    --ui-backdrop-mask: linear-gradient(to bottom, black 20%, transparent 85%);
+    --ui-backdrop-narrow: var(--ui-backdrop);
+    --ui-canvas-pattern:
+      linear-gradient(90deg, color-mix(in srgb, var(--ui-ink) 12%, transparent) 1px, transparent 1px) -1px -1px / 60px 60px,
+      linear-gradient(color-mix(in srgb, var(--ui-ink) 12%, transparent) 1px, transparent 1px) -1px -1px / 60px 60px,
+      linear-gradient(90deg, color-mix(in srgb, var(--ui-ink) 5%, transparent) 1px, transparent 1px) -1px -1px / 12px 12px,
+      linear-gradient(color-mix(in srgb, var(--ui-ink) 5%, transparent) 1px, transparent 1px) -1px -1px / 12px 12px;
     --ui-frame-border: var(--ui-rule-width) solid var(--ui-line);
     --ui-card-shadow: none;
     --ui-frame-shadow: none;
-    --ui-marker-size: 8px;
-    --ui-marker-shape: 2px;
+    /* Eyebrow marker: a 7px amber dot. */
+    --ui-marker-size: 7px;
+    --ui-marker-shape: 50%;
     --ui-marker-color: var(--ui-accent);
-    /* The section rule moves onto the column (--ui-column-rule): a drawing sheet's title rule, not a
+    /* The section rule moves onto the column (--ui-column-rule): a dimension line, not a
        full-bleed line. */
     --ui-section-rule: none;
     --ui-grain: 0;
     --ui-glow: 0;
     --ui-cta-shadow: none;
-    --ui-cta-shadow-hover: 0 0 0 1px var(--ui-accent);
+    --ui-cta-shadow-hover: 0 0 0 3px color-mix(in srgb, var(--ui-accent) 30%, transparent);
+    /* Primary button: Prussian ink in light (the amber marks, the ink acts), gold in dark. */
+    --ui-cta-fill: light-dark(var(--ui-ink), var(--ui-accent));
+    --ui-on-cta: light-dark(#ffffff, #0a2342);
+    /* The headline's key phrase: ink over an amber revision underline in light; gold in dark. */
     --ui-em-style: normal;
-    --ui-em-color: var(--ui-accent);
+    --ui-em-color: light-dark(var(--ui-ink), var(--ui-accent));
+    --ui-em-decoration: underline light-dark(var(--ui-accent), transparent) 0.09em;
     --ui-star-fill: 0;
-    --ui-display-scale: 1.1;
 
-    /* Web closing band (ClosingCta): the ink band with the mint accent in both themes, and the
-       figure's dotted grid faintly over it. */
-    --ui-band-fill: light-dark(#111814, #14201b);
-    --ui-band-ink: light-dark(#eef1ee, #e8ece9);
-    --ui-band-ink-2: light-dark(#a9b3ad, #9aa39e);
-    --ui-band-cta: light-dark(#71dcb2, #71dcb2);
-    --ui-on-band-cta: light-dark(#07110c, #07110c);
-    --ui-band-pattern: radial-gradient(
-        circle at 1px 1px,
-        color-mix(in srgb, var(--ui-band-ink) 16%, transparent) 1px,
-        transparent 1.5px
-      )
-      0 0 / 16px 16px;
-    /* The hero backdrop below 720px: the same dotted grid. */
-    --ui-backdrop-narrow: var(--ui-backdrop);
-    /* Section index: each section's eyebrow opens with its number (01, 02…), as a figure does. */
+    /* Web closing band (ClosingCta): the Prussian band, plain (no grid: the grid is the hero's and
+       the figure's), with the gold call to action in both themes. */
+    --ui-band-fill: light-dark(#0b2748, #061a33);
+    --ui-band-ink: light-dark(#eef3fa, #edf3fb);
+    --ui-band-ink-2: light-dark(#a9bfd9, #acc2dc);
+    --ui-band-cta: light-dark(#f0c45a, #f0c45a);
+    --ui-on-band-cta: light-dark(#0b2748, #0a2342);
+    --ui-band-pattern: none;
+    /* Section index: each section's eyebrow opens with its number (01, 02…), as a drawing does. */
     --ui-section-index: inline;
-    /* Registration marks: 10px accent corners on cards, plans and the quote, as on a drawing sheet. */
+    /* Crop marks: 8px ink corners at all four corners of cards, plans and the quote. */
     --ui-corner-marks:
-      linear-gradient(var(--ui-accent), var(--ui-accent)) 0 0 / 10px 1.5px no-repeat,
-      linear-gradient(var(--ui-accent), var(--ui-accent)) 0 0 / 1.5px 10px no-repeat,
-      linear-gradient(var(--ui-accent), var(--ui-accent)) 100% 100% / 10px 1.5px no-repeat,
-      linear-gradient(var(--ui-accent), var(--ui-accent)) 100% 100% / 1.5px 10px no-repeat;
+      linear-gradient(var(--ui-ink), var(--ui-ink)) 0 0 / 8px 1px no-repeat,
+      linear-gradient(var(--ui-ink), var(--ui-ink)) 0 0 / 1px 8px no-repeat,
+      linear-gradient(var(--ui-ink), var(--ui-ink)) 100% 0 / 8px 1px no-repeat,
+      linear-gradient(var(--ui-ink), var(--ui-ink)) 100% 0 / 1px 8px no-repeat,
+      linear-gradient(var(--ui-ink), var(--ui-ink)) 0 100% / 8px 1px no-repeat,
+      linear-gradient(var(--ui-ink), var(--ui-ink)) 0 100% / 1px 8px no-repeat,
+      linear-gradient(var(--ui-ink), var(--ui-ink)) 100% 100% / 8px 1px no-repeat,
+      linear-gradient(var(--ui-ink), var(--ui-ink)) 100% 100% / 1px 8px no-repeat;
 
-    /* Component treatment on the web (docs/system/style.md, "Treatment roles"): a drawing sheet.
-       Compact rhythm; every section's column opens on a title rule with end ticks and a short accent
-       bar; steps are labelled STEP 01 in mono over a hairline; stats sit between vertical rules; the
-       quote is an annotation (surface, hairline, accent rule), not an inverted card; table cells are
-       square and mono. */
-    --ui-density: 0.8;
+    /* Component treatment on the web (docs/system/style.md, "Treatment roles"): an engineering
+       drawing. Compact rhythm; every section's column opens on a dimension line (a hairline with an
+       end tick at both ends); steps sit in a detail bubble (a 36px ringed circle, the number in
+       mono); stats sit between vertical rules; the quote is a hairline annotation; the featured
+       plan carries a 4px amber top rule; table cells are square, the peak in Prussian ink. */
+    --ui-density: 0.9;
     --ui-column-rule:
-      linear-gradient(var(--ui-accent), var(--ui-accent)) 0 0 / 40px 3px no-repeat,
-      linear-gradient(var(--ui-line), var(--ui-line)) 0 1px / 100% 1px no-repeat,
-      linear-gradient(var(--ui-line), var(--ui-line)) 100% 0 / 1px 9px no-repeat;
-    --ui-column-rule-gap: 28px;
+      linear-gradient(var(--ui-ink), var(--ui-ink)) 0 0 / 1px 11px no-repeat,
+      linear-gradient(var(--ui-ink), var(--ui-ink)) 100% 0 / 1px 11px no-repeat,
+      linear-gradient(var(--ui-line), var(--ui-line)) 0 5px / 100% 1px no-repeat;
+    --ui-column-rule-gap: 30px;
     --ui-card-fill: var(--ui-surface);
     --ui-card-pad: 1.5rem;
-    --ui-num-font: var(--ui-web-font-label);
+    --ui-num-font: var(--ui-font-label);
     --ui-num-size: 0.75rem;
     --ui-num-weight: 600;
-    --ui-num-prefix: "Step ";
-    --ui-num-pad: inline;
-    --ui-num-rule: 1px solid var(--ui-line-soft);
-    --ui-num-color: var(--ui-accent-ink);
-    --ui-num-fill: transparent;
-    --ui-num-box: auto;
-    --ui-num-bleed: 1;
-    --ui-num-gap: 0.875rem;
-    --ui-num-display: block;
+    --ui-num-prefix: "";
+    --ui-num-pad: none;
+    --ui-num-rule: 0 solid transparent;
+    --ui-num-color: var(--ui-ink);
+    --ui-num-fill: var(--ui-surface);
+    --ui-num-ring: inset 0 0 0 1px var(--ui-ink);
+    --ui-num-box: 2.25rem;
+    --ui-num-bleed: 0;
+    --ui-num-gap: 0px;
+    --ui-num-display: grid;
     --ui-stat-divider: 1px solid var(--ui-line);
     --ui-quote-fill: var(--ui-surface);
     --ui-quote-ink: var(--ui-ink);
     --ui-quote-ink-2: var(--ui-ink-2);
     --ui-quote-line: var(--ui-line-soft);
     --ui-quote-mark: var(--ui-accent-ink);
-    --ui-quote-face: var(--ui-web-font-text);
+    --ui-quote-face: var(--ui-font-text);
     --ui-quote-weight: 500;
     --ui-quote-case: none;
-    --ui-quote-size: 1.375rem;
-    --ui-quote-rule: inset 3px 0 0 var(--ui-accent);
+    --ui-quote-size: 1.3rem;
+    --ui-quote-rule: inset 0 0 0 1px var(--ui-line);
     --ui-quote-shadow: 0 0 transparent;
-    --ui-plan-featured-border: var(--ui-line);
-    --ui-plan-featured-ring: inset 0 3px 0 var(--ui-accent);
-    --ui-cell-fill: color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface));
+    --ui-plan-featured-border: var(--ui-ink);
+    --ui-plan-featured-ring: inset 0 4px 0 var(--ui-accent);
+    --ui-cell-fill: var(--ui-surface-2);
     --ui-cell-ink: var(--ui-ink);
-    --ui-cell-line: color-mix(in srgb, var(--ui-accent) 22%, transparent);
-    --ui-cell-peak: var(--ui-accent);
-    --ui-on-cell-peak: var(--ui-on-accent);
+    --ui-cell-line: color-mix(in srgb, var(--ui-ink) 18%, transparent);
+    --ui-cell-peak: var(--ui-ink);
+    --ui-on-cell-peak: var(--ui-paper);
     --ui-cell-off-ink: var(--ui-ink-3);
-    --ui-cell-radius: 2px;
+    --ui-cell-radius: 0px;
     --ui-window-dots: none;
     --ui-window-bar: transparent;
-    /* Figures on a web page: the request token in ink, not blue, so a diagram carries only the
-       style's green beside its greys. Articles and docs keep the tuned flow hues above. */
-    --ui-web-flow-request: light-dark(#3a4640, #b9c6bf);
+    /* Figures on a web page keep the full flow code: the request (main flow) in its own cyan. */
+    --ui-web-flow-request: var(--ui-flow-request);
 
-    /* Roles whose Technical values are tuned for one medium, then --tune-* component values */
-    --ui-node: light-dark(#fbfaf6, #0e1512);
-    --ui-inv-node: light-dark(#18221d, #f6f5f1);
-    --ui-line-solid: light-dark(#c4ccc6, #34443b);
-    --ui-data-neg-ink: light-dark(#a8431f, #f0936c);
-    --tune-slide-ink-2: light-dark(#5c625e, #aeb8b2);
-    --tune-slide-line: light-dark(#bac3bc, #43544b);
-    --ui-slide-font-text: var(--font-sans, "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
-    --ui-slide-font-display: var(--ui-slide-font-text);
-    --ui-slide-font-label: var(--font-mono, "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
-    --ui-web-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    --ui-web-font-display: var(--ui-web-font-text);
-    --ui-web-font-label: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    --tune-docs-surface: light-dark(#edefec, #14201b);
-    --tune-docs-surface-strong: light-dark(#e2e6e2, #1d2c26);
-    --tune-docs-line: light-dark(rgb(26 28 26 / 0.16), rgb(232 236 233 / 0.18));
+    /* Roles whose Technical values are tuned for one medium, then --tune-* component values.
+       Mechanism shades, object scenes and the docs surfaces derive from the roles above. */
+    --ui-node: light-dark(#ffffff, #0d2a4f);
+    --ui-inv-node: light-dark(#10305a, #ffffff);
+    --ui-line-solid: light-dark(#b9c8d9, #2e5180);
+    --ui-data-neg-ink: light-dark(#b0331f, #ff9d8d);
+    --ui-alert: light-dark(#b3321f, #ff8c7a);
+    --ui-warn: light-dark(#8a5a00, #f0c45a);
+    --tune-slide-line: light-dark(#b9c8d9, #2e5180);
     /* The docs layout's warm default palette (DocsLayout palette="warm") */
     --tune-docs-warm-ink: light-dark(#29231f, #f2ece3);
     --tune-docs-warm-ink-2: light-dark(#655c55, #aea198);
@@ -266,35 +294,9 @@
     --tune-docs-warm-surface-strong: light-dark(#e7ded2, #37302b);
     --tune-docs-warm-accent: light-dark(#234ea2, #9ab6ff);
     --tune-docs-warm-focus: light-dark(#315db6, #9ab6ff);
-    --tune-print-line: #dfe3e0;
-    --tune-print-ink-2: #3d433f;
-    --ui-alert: light-dark(#b42318, #ff8a7a);
-    --ui-warn: light-dark(#b4471f, #f08a5d);
-    --tune-letterbox: #050806;
-    /* Mechanism: Anatomy's four solid tones by facing, the cavity, the lit faces and the edges */
-    --tune-mech-text: light-dark(#3d423f, #b9c2bd);
-    --tune-mech-muted: light-dark(#5c625e, #8f9a94);
-    --tune-mech-top: light-dark(#ffffff, #1a2822);
-    --tune-mech-shade-0: light-dark(#dcdfdb, #0b110e);
-    --tune-mech-shade-1: light-dark(#e5e8e4, #0f1714);
-    --tune-mech-shade-2: light-dark(#edefec, #131d18);
-    --tune-mech-shade-3: light-dark(#f4f5f3, #17231e);
-    --tune-mech-cavity: light-dark(#d3d7d3, #070b09);
-    --tune-mech-lit-top: light-dark(#eef6f2, #1f3a2f);
-    --tune-mech-lit-shade: light-dark(#dcebe4, #182e25);
-    --tune-mech-mid: light-dark(#858b87, #8a958f);
-    --tune-mech-lo: light-dark(#b3b8b4, #66726c);
-    --tune-mech-faint: light-dark(#d5d9d5, #28332e);
-    --tune-mech-halo: light-dark(#848a84, #020403);
-    --tune-mech-dot: light-dark(#2f3431, #e8ece9);
-    /* Object scenes (Studio stage, gallery and controls) */
-    --tune-object-paper: light-dark(#faf9f6, #14201b);
-    --tune-object-glow: light-dark(#ffffff, #25382f);
-    --tune-object-ink: light-dark(#292e32, #e8ece9);
-    --tune-object-ink-2: light-dark(#626c65, #a6b4aa);
-    --tune-object-line: light-dark(#d6dcd5, #36463c);
-    --tune-object-edge: #87958c;
-    --tune-object-control-ink-2: light-dark(#526459, #b7c8bf);
+    --tune-print-line: #c9d4e0;
+    --tune-print-ink-2: #3d5878;
+    --tune-letterbox: #04101f;
   }
 }
 /* Landing — the generic landing option, done well: a cool neutral page, a pale grey secondary band,
@@ -314,6 +316,7 @@
     --ui-line: color-mix(in srgb, var(--ui-ink) 18%, transparent);
     --ui-line-soft: color-mix(in srgb, var(--ui-ink) 9%, transparent);
     --ui-accent: light-dark(#2348d6, #8ba6ff);
+    --ui-accent-stroke: var(--ui-accent);
     --ui-on-accent: light-dark(#ffffff, #0b0c10);
     --ui-accent-surface: light-dark(#2f55e0, #a3b8ff);
     --ui-accent-ink-2: light-dark(#e3e9ff, #1c2a5e);
@@ -322,6 +325,8 @@
     --ui-flow-request: light-dark(#5c5c6b, #9a9aab);
     --ui-flow-response: light-dark(#3fb27f, #5fd39b);
     --ui-flow-change: light-dark(#9a63e0, #c39aff);
+    /* A failed or declined branch in a diagram. */
+    --ui-flow-error: light-dark(#c0362c, #ff8a7a);
     --ui-data-pos: light-dark(#1a7a52, #33a979);
     --ui-data-neg: light-dark(#c0482f, #d4623f);
     --ui-data-context: light-dark(#8d929b, #6a707b);
@@ -343,6 +348,8 @@
     --ui-font-display: "Instrument Serif", "Instrument Serif Fallback", ui-serif, Georgia, "Times New Roman", serif;
     --ui-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --ui-font-label: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    /* Small headings (a figure's title) stay in the text face; the display face starts at step 4. */
+    --ui-font-heading: var(--ui-font-text);
     --ui-display-weight: 400;
     --ui-display-tracking: -0.01em;
     --ui-display-case: none;
@@ -367,6 +374,8 @@
        backdrop slot itself stays empty. */
     --ui-backdrop: none;
     --ui-backdrop-mask: none;
+    /* The figure canvas: the 12px dot grid. */
+    --ui-canvas-pattern: radial-gradient(var(--ui-line-soft) 1px, transparent 1.2px) 0 0 / 12px 12px;
     --ui-frame-border: 1px solid var(--ui-line-soft);
     --ui-card-shadow:
       0 1px 2px light-dark(rgb(15 17 21 / 0.05), rgb(0 0 0 / 0.35)),
@@ -389,6 +398,9 @@
       0 10px 24px -10px var(--ui-accent);
     --ui-em-style: italic;
     --ui-em-color: var(--ui-accent-ink);
+    --ui-em-decoration: none;
+    --ui-cta-fill: var(--ui-accent);
+    --ui-on-cta: var(--ui-on-accent);
     --ui-star-fill: 1;
     --ui-display-scale: 1;
 
@@ -422,6 +434,7 @@
     --ui-num-rule: 0 solid transparent;
     --ui-num-color: var(--ui-accent-ink);
     --ui-num-fill: color-mix(in srgb, var(--ui-accent) 10%, var(--ui-surface));
+    --ui-num-ring: none;
     --ui-num-box: 2.25rem;
     --ui-num-bleed: 0;
     --ui-num-gap: 0px;
@@ -483,6 +496,7 @@
     --ui-line: light-dark(#111111, #f1eee6);
     --ui-line-soft: color-mix(in srgb, var(--ui-ink) 22%, transparent);
     --ui-accent: light-dark(#f24a00, #ff6a26);
+    --ui-accent-stroke: var(--ui-accent);
     --ui-accent-ink: light-dark(#b23700, #ff7f45);
     --ui-on-accent: light-dark(#111111, #111111);
     --ui-accent-surface: light-dark(#ff6a26, #ff8247);
@@ -493,6 +507,8 @@
     --ui-flow-request: light-dark(#111111, #f1eee6);
     --ui-flow-response: light-dark(#57554f, #a29e93);
     --ui-flow-change: light-dark(#b23700, #ff7f45);
+    /* A failed or declined branch in a diagram. */
+    --ui-flow-error: light-dark(#c8102e, #ff6b5e);
     --ui-data-pos: light-dark(#14805a, #33a979);
     --ui-data-neg: light-dark(#c0174f, #ff6b93);
     --ui-data-context: light-dark(#8f8b80, #6a675f);
@@ -514,6 +530,8 @@
     --ui-font-display: "Anton", "Anton Fallback", Impact, "Arial Narrow", sans-serif-condensed, sans-serif;
     --ui-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --ui-font-label: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    /* Small headings (a figure's title) stay in the text face; the display face starts at step 4. */
+    --ui-font-heading: var(--ui-font-text);
     --ui-display-weight: 400;
     --ui-display-tracking: 0.012em;
     --ui-display-case: uppercase;
@@ -548,6 +566,8 @@
       ),
       repeating-linear-gradient(90deg, var(--ui-ink) 0 2px, transparent 2px 14px) 0 100% / 100% 24px no-repeat;
     --ui-backdrop-mask: none;
+    /* The figure canvas: the 12px dot grid. */
+    --ui-canvas-pattern: radial-gradient(var(--ui-line-soft) 1px, transparent 1.2px) 0 0 / 12px 12px;
     --ui-frame-border: 2px solid var(--ui-ink);
     --ui-card-shadow: 6px 6px 0 var(--ui-ink);
     --ui-frame-shadow: 6px 6px 0 var(--ui-ink);
@@ -561,6 +581,9 @@
     --ui-cta-shadow-hover: 6px 6px 0 var(--ui-ink);
     --ui-em-style: normal;
     --ui-em-color: var(--ui-accent-ink);
+    --ui-em-decoration: none;
+    --ui-cta-fill: var(--ui-accent);
+    --ui-on-cta: var(--ui-on-accent);
     --ui-star-fill: 0;
     --ui-display-scale: 1.3;
 
@@ -594,6 +617,7 @@
     --ui-num-rule: 0 solid transparent;
     --ui-num-color: var(--ui-accent-ink);
     --ui-num-fill: transparent;
+    --ui-num-ring: none;
     --ui-num-box: auto;
     --ui-num-bleed: 0;
     --ui-num-gap: 0px;
@@ -637,15 +661,16 @@
     --ui-slide-font-label: var(--ui-font-label);
   }
 }
-/* uipack self-hosted faces, shared by the styles that use them (Landing, Technical web, Graphical)
-   and by the deck when it is shown in one of them. A face is declared here but fetched only when
-   an element uses it, so each style downloads only its own files. */
-/* ---------- Faces: three roles, self-hosted ----------
-   Display  Instrument Serif 400 + italic: headlines (steps 4–6), hero, big numbers.
-   Text     IBM Plex Sans 400/500/600: body, UI, buttons, nav, headings at steps 0–3.
-   Mono     IBM Plex Mono 400/600: eyebrows, labels, data, code, metadata.
-   Latin subset woff2 from Fontsource (SIL OFL 1.1; licences in ./fonts). Files are fetched
-   from the package's own fonts/ folder, and only when a Landing element uses them. */
+/* uipack self-hosted faces, shared by the styles that use them (Technical, Landing, Graphical).
+   Every entry stylesheet carries this file right after the style value sets
+   (scripts/css-bundles.ts). A face is declared here but fetched only when an element uses it, so
+   each style downloads only its own files.
+   Technical  Archivo Expanded 600 display, Archivo 400/500/600 text, Martian Mono 400/600 labels.
+   Landing    Instrument Serif 400 + italic display (steps 4–6), IBM Plex Sans 400/500/600 text,
+              IBM Plex Mono 400/600 labels and data.
+   Graphical  Anton 400 display caps, IBM Plex Sans text, IBM Plex Mono labels.
+   Latin subset woff2 from Fontsource (SIL OFL 1.1; licences in ./fonts), fetched from the
+   package's own fonts/ folder. */
 @font-face {
   font-family: "Instrument Serif";
   font-style: normal;
@@ -727,6 +752,71 @@
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
     U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+/* Technical's faces (Cyanotype): Archivo Expanded 600 for display (Archivo's width axis pinned at
+   112.5%, like drafting lettering; one static instance, 14 KB), Archivo 400/500/600 for text and
+   Martian Mono 400/600 for labels, its width axis pinned at 75 (the narrowest): a 0.6em advance,
+   the width every diagram, chart and control is authored for (the default 112.5 sets at 0.7em and
+   pushes sub-labels out of their boxes). One heading face for page, slide and figure. */
+@font-face {
+  font-family: "Archivo Expanded";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("./fonts/archivo-expanded-latin-600-normal.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/archivo-latin-400-normal.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("./fonts/archivo-latin-500-normal.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("./fonts/archivo-latin-600-normal.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Martian Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/martian-mono-condensed-latin-400-normal.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Martian Mono";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("./fonts/martian-mono-condensed-latin-600-normal.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 /* Metric-matched fallbacks shown during swap: a local face scaled to the web font's average
    character width (size-adjust) with its ascent and descent, so lines wrap in the same place
    and the swap barely moves anything. Measured from the woff2 files and the local fonts. */
@@ -761,6 +851,34 @@
   size-adjust: 95.67%;
   ascent-override: 122.95%;
   descent-override: 34.4%;
+  line-gap-override: 0%;
+}
+/* Technical: Archivo Expanded over Arial Bold (the display face is set at 600), Archivo over
+   Arial, Martian Mono (condensed to Courier's 0.6em advance) over Courier New. Measured with fontTools on a sentence plus
+   figures: average advance ratio, then ascent and descent divided by it. */
+@font-face {
+  font-family: "Archivo Expanded Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold"), local("Arimo Bold");
+  font-weight: 600;
+  size-adjust: 109.17%;
+  ascent-override: 80.43%;
+  descent-override: 19.24%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Archivo Fallback";
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("Arimo");
+  size-adjust: 98.55%;
+  ascent-override: 89.09%;
+  descent-override: 21.31%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Martian Mono Fallback";
+  src: local("Courier New"), local("CourierNewPSMT"), local("Liberation Mono"), local("Cousine");
+  size-adjust: 100%;
+  ascent-override: 100%;
+  descent-override: 20%;
   line-gap-override: 0%;
 }
 /* uipack/web.css — web page parts. Every rule is scoped under .uipack-web and every colour, face,
@@ -1075,8 +1193,9 @@
     padding: 0 28px;
   }
   .uipack-web-cta[data-variant="primary"] {
-    background: var(--web-accent);
-    color: var(--web-on-accent);
+    /* The style's primary fill (--ui-cta-fill): the accent, or Technical's Prussian ink in light. */
+    background: var(--ui-cta-fill, var(--web-accent));
+    color: var(--ui-on-cta, var(--web-on-accent));
     box-shadow: var(--ui-cta-shadow);
   }
   .uipack-web-cta[data-variant="secondary"] {
@@ -1333,6 +1452,10 @@
   .uipack-web-heading:is([data-step="4"], [data-step="5"], [data-step="6"]) em {
     font-style: var(--ui-em-style, italic);
     color: var(--ui-em-color, inherit);
+    /* Technical's amber revision underline (light only); none elsewhere. */
+    text-decoration: var(--ui-em-decoration, none);
+    text-underline-offset: 0.14em;
+    text-decoration-skip-ink: none;
   }
   .uipack-web-star__area {
     opacity: var(--ui-star-fill, 1);
@@ -1727,7 +1850,8 @@
     background: color-mix(in srgb, var(--web-ink) 14%, transparent);
   }
   .uipack-web-demo__address {
-    max-width: 60%;
+    /* Room for a full address in a wide mono (Martian Mono) on a phone; the dots take the rest. */
+    max-width: 85%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -2401,7 +2525,7 @@
 }
 
 /* A figure on a web page belongs to the page: it takes the page style's text and label faces
-   (Plex on the web, Anton never: figure text stays at label sizes), the style's frame (Graphical's
+   (Anton never: figure text stays at label sizes; the title takes the style's heading face), the style's frame (Graphical's
    2px ink and hard shadow, Landing's soft lift) and the card radius. Unlayered on purpose: the
    figure's own theme.css is unlayered, and this is the more specific rule. A host overrides it
    with `.uipack-web .uipack` of its own. */
@@ -2413,10 +2537,10 @@
   box-shadow: var(--web-shadow);
 }
 .uipack-web .uipack__title {
-  font-family: var(--web-font-text);
+  font-family: var(--ui-font-heading, var(--web-font-text));
 }
-/* Flow tokens on a web page come from the style's web palette (Technical draws requests in ink, so a
-   page figure carries the style's green and greys, never a stray blue). */
+/* Flow tokens on a web page come from the style's web palette (--ui-web-flow-request: Technical
+   keeps its cyan main flow; Landing draws requests in slate so its cobalt stays the only blue). */
 .uipack-web .uipack {
   --uipack-token-request: var(--ui-web-flow-request, var(--ui-flow-request));
 }
@@ -2469,6 +2593,8 @@
     /* Round for a badge; square where the number's rule bleeds across the card. */
     border-radius: calc((1 - var(--ui-num-bleed, 0)) * 999px);
     background: var(--ui-num-fill, transparent);
+    /* A ring around the number (Technical's detail bubble). */
+    box-shadow: var(--ui-num-ring, none);
     font: var(--ui-num-weight, 400) var(--ui-num-size, 3rem) / 1 var(--ui-num-font, var(--web-font-display));
     letter-spacing: var(--web-label-tracking);
     text-transform: uppercase;

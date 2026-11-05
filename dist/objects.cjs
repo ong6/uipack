@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkPOU3TTIE_cjs = require('./chunk-POU3TTIE.cjs');
+var chunkROALLHW7_cjs = require('./chunk-ROALLHW7.cjs');
 var chunkD43QOXLX_cjs = require('./chunk-D43QOXLX.cjs');
 var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
 var react = require('react');
@@ -336,7 +336,7 @@ function mountObjectScene(canvas, options) {
     }
   };
 }
-var objectPalettes = chunkPOU3TTIE_cjs.studioObjectPalettes;
+var objectPalettes = chunkROALLHW7_cjs.studioObjectPalettes;
 var styles = {
   scene: "uipack-object",
   canvas: "uipack-object__canvas",

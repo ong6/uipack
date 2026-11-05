@@ -1,5 +1,5 @@
 import { WORDS_PER_MINUTE } from './chunk-K7T4NUBP.js';
-import { technicalValues } from './chunk-LUFIOW7C.js';
+import { technicalValues, technicalFonts } from './chunk-UQE4FCJO.js';
 import { useId, useState } from 'react';
 import { jsxs, jsx } from 'react/jsx-runtime';
 
@@ -30,7 +30,7 @@ var cssColors = {
   accent: "var(--ui-accent)",
   rule: "var(--tune-slide-line, var(--ui-line))"
 };
-var resolvedFaces = { sans: "IBM Plex Sans, system-ui, sans-serif", mono: "IBM Plex Mono, ui-monospace, monospace" };
+var resolvedFaces = { sans: technicalFonts.sans, mono: technicalFonts.mono };
 var cssFaces = {
   sans: "var(--ui-slide-font-text, var(--ui-font-text))",
   mono: "var(--ui-slide-font-label, var(--ui-font-label))"

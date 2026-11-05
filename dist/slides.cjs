@@ -1,14 +1,14 @@
 'use strict';
 
-var chunkQJMIXI3X_cjs = require('./chunk-QJMIXI3X.cjs');
-require('./chunk-POU3TTIE.cjs');
+var chunkPRNHRSTA_cjs = require('./chunk-PRNHRSTA.cjs');
+require('./chunk-ROALLHW7.cjs');
 var chunkD43QOXLX_cjs = require('./chunk-D43QOXLX.cjs');
 var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
 
 function Diagram({ story, stop }) {
-  const visible = story.nodes.filter((n) => n.kind !== "boundary" && chunkQJMIXI3X_cjs.resolveNodePose(n, stop).opacity > 0.25);
+  const visible = story.nodes.filter((n) => n.kind !== "boundary" && chunkPRNHRSTA_cjs.resolveNodePose(n, stop).opacity > 0.25);
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-slide-diagram", "data-testid": "slide-diagram", children: [
     /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-slide-diagram__heading", children: "Diagram view" }),
     /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-slide-diagram__nodes", children: visible.map((n) => /* @__PURE__ */ jsxRuntime.jsxs("div", { "data-tone": n.tone, children: [
@@ -55,7 +55,7 @@ function SceneViewport({
   react.useEffect(() => {
     let cancelled = false;
     if (fallback) return;
-    void import('./renderer-UO6EUI2U.cjs').then(({ createSlideScene }) => {
+    void import('./renderer-E2OGEJPX.cjs').then(({ createSlideScene }) => {
       if (cancelled || !host.current || !labels.current) return;
       try {
         runtime.current = createSlideScene(
@@ -152,7 +152,7 @@ function SceneViewport({
             " ",
             /* @__PURE__ */ jsxRuntime.jsxs("select", { "aria-label": "Inspect component", value: selected ?? "", onChange: (e) => setSelected(e.target.value || null), children: [
               /* @__PURE__ */ jsxRuntime.jsx("option", { value: "", children: "Choose a component" }),
-              story.nodes.filter((n) => n.kind !== "boundary" && chunkQJMIXI3X_cjs.resolveNodePose(n, stop).opacity > 0.25).map((n) => /* @__PURE__ */ jsxRuntime.jsx("option", { value: n.id, children: n.label }, n.id))
+              story.nodes.filter((n) => n.kind !== "boundary" && chunkPRNHRSTA_cjs.resolveNodePose(n, stop).opacity > 0.25).map((n) => /* @__PURE__ */ jsxRuntime.jsx("option", { value: n.id, children: n.label }, n.id))
             ] })
           ] }),
           chosen && /* @__PURE__ */ jsxRuntime.jsxs("p", { role: "status", children: [
@@ -169,7 +169,7 @@ function SceneViewport({
           " ",
           reduced ? "Reduced motion" : "Authored camera"
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-slide-sr", children: story.nodes.filter((n) => n.kind !== "boundary" && chunkQJMIXI3X_cjs.resolveNodePose(n, stop).opacity > 0.25).map((n) => /* @__PURE__ */ jsxRuntime.jsxs("p", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-slide-sr", children: story.nodes.filter((n) => n.kind !== "boundary" && chunkPRNHRSTA_cjs.resolveNodePose(n, stop).opacity > 0.25).map((n) => /* @__PURE__ */ jsxRuntime.jsxs("p", { children: [
           n.label,
           ": ",
           n.detail
@@ -182,7 +182,7 @@ function SlideScene(props) {
   const [canvas, setCanvas] = react.useState(false);
   const [zoom, setZoom] = react.useState(1);
   const opener = react.useRef(null);
-  const errors = chunkQJMIXI3X_cjs.validateSlideStory(props.story);
+  const errors = chunkPRNHRSTA_cjs.validateSlideStory(props.story);
   if (errors.length)
     return /* @__PURE__ */ jsxRuntime.jsxs("div", { role: "alert", className: "uipack-slide-error", children: [
       "Invalid slide story: ",
@@ -230,13 +230,13 @@ function Player({
   const opener = react.useRef(null);
   const root = react.useRef(null);
   const titleId = react.useId();
-  const index = stopId === void 0 ? chunkQJMIXI3X_cjs.clampStop(internal, story.stops.length) : Math.max(
+  const index = stopId === void 0 ? chunkPRNHRSTA_cjs.clampStop(internal, story.stops.length) : Math.max(
     0,
     story.stops.findIndex((s) => s.id === stopId)
   );
   const stop = story.stops[index];
   const navigate = (value) => {
-    const next = chunkQJMIXI3X_cjs.clampStop(value, story.stops.length);
+    const next = chunkPRNHRSTA_cjs.clampStop(value, story.stops.length);
     if (stopId === void 0) setInternal(next);
     if (next !== index) onStopChange?.(story.stops[next].id);
   };
@@ -388,7 +388,7 @@ function Player({
   );
 }
 function SlidePlayer(props) {
-  const errors = chunkQJMIXI3X_cjs.validateSlideStory(props.story);
+  const errors = chunkPRNHRSTA_cjs.validateSlideStory(props.story);
   if (errors.length)
     return /* @__PURE__ */ jsxRuntime.jsxs("div", { role: "alert", className: "uipack-slide-error", children: [
       "Invalid slide story: ",
@@ -1045,19 +1045,19 @@ var slideStories = [
 
 Object.defineProperty(exports, "clampStop", {
   enumerable: true,
-  get: function () { return chunkQJMIXI3X_cjs.clampStop; }
+  get: function () { return chunkPRNHRSTA_cjs.clampStop; }
 });
 Object.defineProperty(exports, "resolveNodePose", {
   enumerable: true,
-  get: function () { return chunkQJMIXI3X_cjs.resolveNodePose; }
+  get: function () { return chunkPRNHRSTA_cjs.resolveNodePose; }
 });
 Object.defineProperty(exports, "slidePalettes", {
   enumerable: true,
-  get: function () { return chunkQJMIXI3X_cjs.slidePalettes; }
+  get: function () { return chunkPRNHRSTA_cjs.slidePalettes; }
 });
 Object.defineProperty(exports, "validateSlideStory", {
   enumerable: true,
-  get: function () { return chunkQJMIXI3X_cjs.validateSlideStory; }
+  get: function () { return chunkPRNHRSTA_cjs.validateSlideStory; }
 });
 exports.SlidePlayer = SlidePlayer;
 exports.SlideScene = SlideScene;
