@@ -658,9 +658,9 @@ var STORYLINE_TEMPLATES = [
       {
         role: "evidence",
         purpose: "The result against the goal agreed at the start.",
-        titlePattern: "<Metric>",
-        example: "Index freshness",
-        points: ["40 min \u2192 6", "Goal: 10 min"],
+        titlePattern: "<Metric>: <before> \u2192 <after>",
+        example: "Freshness: 40 \u2192 6 min",
+        points: ["Goal: 10 min", "Source: the indexing dashboard"],
         readAlone: "Index freshness improved from 40 minutes to 6 against a 10-minute goal",
         guidance: "Same metric and baseline as the last update. Source and window on the slide.",
         repeatable: true
@@ -725,8 +725,8 @@ var STORYLINE_TEMPLATES = [
       {
         role: "context",
         purpose: "Situation: what the room already accepts.",
-        titlePattern: "<System> today",
-        example: "Uploads resize inline",
+        titlePattern: "<What the system does> today",
+        example: "Every upload resizes inline",
         points: ["Every image, before the request returns"],
         readAlone: "Uploads resize every image inline before the request returns",
         guidance: "One slide. If the room would nod at every word, it's the right context."
@@ -734,17 +734,17 @@ var STORYLINE_TEMPLATES = [
       {
         role: "problem",
         purpose: "Complication: what broke or changed, sized, and why now.",
-        titlePattern: "<Problem>",
-        example: "Upload timeouts",
-        points: ["4% of large uploads", "Volume doubles by Q4"],
+        titlePattern: "<How often it fails>",
+        example: "4% of large uploads time out",
+        points: ["Volume doubles by Q4"],
         readAlone: "Large uploads time out 4% of the time, and volume doubles by Q4",
         guidance: "A number with a source. 'Why now' turns a nice-to-have into a decision."
       },
       {
         role: "option",
         purpose: "Two or three real options, including doing nothing, on the same criteria.",
-        titlePattern: "<N> options",
-        example: "Three options",
+        titlePattern: "<N> options compared",
+        example: "Three options compared",
         points: ["Bigger servers", "A resize queue", "Do nothing"],
         readAlone: "Three options: bigger servers, a resize queue, or doing nothing",
         guidance: "One comparison slide. A straw-man option tells the room the answer was rigged."
@@ -752,9 +752,9 @@ var STORYLINE_TEMPLATES = [
       {
         role: "recommendation",
         purpose: "Why the chosen option wins and what you trade away.",
-        titlePattern: "Why <option>?",
-        example: "Why the queue?",
-        points: ["Ends timeouts", "Cost: thumbnails about 5 s later"],
+        titlePattern: "Why <option> wins",
+        example: "Why the queue wins",
+        points: ["Cost: thumbnails about 5 s later"],
         readAlone: "A queue ends timeouts at the cost of thumbnails arriving 5 seconds later",
         guidance: "Naming the cost is what makes the recommendation credible."
       },
@@ -809,9 +809,9 @@ var STORYLINE_TEMPLATES = [
       {
         role: "problem",
         purpose: "Why it matters: the constraint that makes the obvious design fail.",
-        titlePattern: "Why not <naive approach>?",
-        example: "Why not a central counter?",
-        points: ["+2 ms network hop", "On every request"],
+        titlePattern: "<Naive approach> costs <number>",
+        example: "A central counter costs 2 ms",
+        points: ["One network hop", "On every request"],
         readAlone: "A central counter adds a 2 ms network hop to every request",
         guidance: "Engineers care about the design only once they feel the constraint."
       },
@@ -849,18 +849,18 @@ var STORYLINE_TEMPLATES = [
       {
         role: "evidence",
         purpose: "Measured behaviour, with method and source.",
-        titlePattern: "<Test>",
-        example: "Load test",
-        points: ["+0.2 ms latency", "3% overshoot at peak"],
+        titlePattern: "<Test>: <result>",
+        example: "Load test: +0.2 ms",
+        points: ["3% overshoot at peak", "Source: load test 12"],
         readAlone: "Load tests show 0.2 ms added latency and 3% overshoot at peak",
         guidance: "Say how it was measured. A benchmark without a method is an anecdote."
       },
       {
         role: "option",
         purpose: "Trade-offs and rejected alternatives.",
-        titlePattern: "The trade-off",
-        example: "The trade-off",
-        points: ["Accept brief overshoot", "Skip the extra network hop"],
+        titlePattern: "<Cost accepted> is the price",
+        example: "Brief overshoot is the price",
+        points: ["Buys: no extra network hop"],
         readAlone: "We accept brief overshoot in exchange for no extra network hop",
         guidance: "The trade-off slide is where senior engineers decide whether to trust you."
       },
@@ -898,7 +898,7 @@ var STORYLINE_TEMPLATES = [
         role: "answer",
         purpose: "What shipped, for whom, and the change it makes.",
         titlePattern: "<What users can now do>",
-        example: "One-click refunds",
+        example: "Refunds take one click",
         points: ["Support agents, no ticket", "Was a two-day wait"],
         readAlone: "Support agents can now issue refunds in one click instead of a two-day ticket",
         guidance: "The user and the outcome, not the feature name."
@@ -936,9 +936,9 @@ var STORYLINE_TEMPLATES = [
       {
         role: "evidence",
         purpose: "Early results, with window and source, and what isn't measured yet.",
-        titlePattern: "<Window>",
-        example: "First two weeks",
-        points: ["1,200 refunds skipped engineering"],
+        titlePattern: "<Result>",
+        example: "1,200 refunds skipped engineering",
+        points: ["In the first two weeks", "Source: the refunds log"],
         readAlone: "In the first two weeks, 1,200 refunds skipped the engineering queue",
         guidance: "Usage beats opinions. Say 'not measured yet' rather than imply a result."
       },
@@ -1058,8 +1058,8 @@ var STORYLINE_TEMPLATES = [
       {
         role: "evidence",
         purpose: "One outcome per slide: result, baseline, source, and your part in it.",
-        titlePattern: "<Change>",
-        example: "Smarter retries",
+        titlePattern: "<Change> <what it did>",
+        example: "Smarter retries cut failures",
         points: ["Failed payments: 3% \u2192 2%", "Share of all attempts"],
         readAlone: "Smarter retries cut failed payments from 3% to 2% of attempts",
         guidance: "Say what you did versus what the team did. Credit others by name.",
@@ -1077,9 +1077,9 @@ var STORYLINE_TEMPLATES = [
       {
         role: "problem",
         purpose: "What didn't land, and what changed because of it.",
-        titlePattern: "What slipped",
-        example: "What slipped",
-        points: ["Fraud-rule rewrite: 3 months late", "Now: rules ship behind flags"],
+        titlePattern: "<Work> slipped <duration>",
+        example: "Fraud rules slipped 3 months",
+        points: ["Now: rules ship behind flags"],
         readAlone: "The fraud-rule rewrite slipped three months, so rules now ship behind flags",
         guidance: "One honest miss makes the wins believable.",
         optional: true
@@ -1260,11 +1260,11 @@ var LINT_RULES = {
   "title-present": { severity: "error", check: "Every slide has a title." },
   "title-claim": {
     severity: "error",
-    check: "Presented: the title names the slide's topic or verdict, not its kind ('Background', 'Results', 'Next steps' warn). Read-alone: the title states a claim of three or more words, not a topic label."
+    check: "Presented: a content slide's title is a short verdict the speaker can say ('Crashes down by two thirds', 'Start time: 0.2 s slower'); a bare topic label ('Crash rate') warns except on a cover, section, mechanism, demo or appendix slide, and a word that names the slide's kind ('Background', 'Results', 'Next steps') warns everywhere. Read-alone: the title states a claim of three or more words, not a topic label."
   },
   "title-length": {
     severity: "warn",
-    check: "Presented: the title is at most 6 words, a label or a verdict, never a sentence to read out. Read-alone: at most 14 words."
+    check: "Presented: the title is at most 6 words, a spoken verdict, never a sentence to read out. Read-alone: at most 14 words."
   },
   "title-specific": {
     severity: "warn",
@@ -1538,11 +1538,25 @@ function titleForm(title) {
 var NOT_CONTRAST_RE = /,\s+not\s+(?:a\s+|an\s+|the\s+)?[\p{L}\p{N}]|\bnot\b[^,.;:!?]{1,40},\s+but\b/iu;
 var COMPARISON_KICKER_RE = /,\s+(?:(?:twice|half|three times|four times|\d+(?:\.\d+)?\s*[x×]|\d+(?:\.\d+)?\s+times)\s+(?:as\s+\p{L}+\s+as|\p{L}+er\s+than)|\p{L}+er\s+than)\b/iu;
 var SEMICOLON_CLAUSES_RE = /\S\s*;\s+\p{L}/u;
+var VERB_RE = /\b(?:is|are|was|were|be|been|am|has|have|had|do|does|did|can|could|will|would|shall|should|may|might|must|won't|can't|isn't|aren't|wasn't|weren't|don't|doesn't|didn't|hasn't|haven't|got|gets|get|goes|went|came|comes|fell|falls|rose|rises|grew|grows|cut|cuts|took|takes|made|makes|kept|keeps|held|holds|ran|runs|won|wins|lost|loses|beat|beats|left|leaves|stays|needs|need|costs|shows|says|means|works|adds|drops|lands|hits|saves|ships|ends|stops|slips|slip|breaks|fails|moves|doubles|halves|applies|apply|drains|refills|decides|syncs|serves|catches|caught|missed|misses|pays|buys|bought|brings|brought|lets|helps|returns|reaches|matters|wait|waits|take|resize|resizes|uses|use|blocks|sits|lives)\b/i;
+var NOT_PAST_RE = /^(?:hundred|speed|seed|feed|breed|bleed|greed|embed|shed|bed|red|need)$/i;
+function isLabelTitle(title) {
+  const t = title.trim();
+  if (isSpecific(t) || hasFirmDate(t)) return false;
+  if (/[:→]|->/.test(t)) return false;
+  if (VERB_RE.test(t) || DECISION_RE.test(wordsOf(t)[0] ?? "")) return false;
+  return !wordsOf(t).some((w) => /^\p{L}{3,}ed$/u.test(w) && !NOT_PAST_RE.test(w));
+}
 
 // src/deck/storyline/checks.ts
 function titledSlides(deck) {
   return deck.slides.filter((slide) => slide.role !== "appendix").map((slide) => ({ slide, headline: headlineOf(slide) })).filter(({ headline }) => headline);
 }
+var LABEL_ROLES = ["cover", "mechanism", "demo", "appendix"];
+var labelAllowed = (deck, slide) => {
+  const role = deck.roleAt(slide);
+  return Boolean(role && LABEL_ROLES.includes(role) || slide.slots?.number !== void 0);
+};
 var bodyText = (slide) => [...slide.points ?? [], ...Object.values(slide.slots ?? {})].filter(Boolean);
 var wordCount = (text) => text.match(/\S+/g)?.length ?? 0;
 var MAX_CUE_WORDS = 60;
@@ -1568,7 +1582,11 @@ var LINT_CHECKS = [
     check: ({ slides }, report) => {
       for (const slide of slides)
         if (!headlineOf(slide))
-          report("error", "No title. Give it a short label or verdict (read-alone: the conclusion as a sentence).", slide.id);
+          report(
+            "error",
+            "No title. Give it a short verdict the speaker can say (read-alone: the conclusion as a sentence).",
+            slide.id
+          );
     }
   },
   {
@@ -1582,13 +1600,16 @@ var LINT_CHECKS = [
           if (TOPIC_LABELS.has(label))
             report(
               soft("warn"),
-              `"${headline}" names the kind of slide, not its topic. Name the topic ("Search latency") or the verdict ("Search: twice as fast since March").`,
+              `"${headline}" names the kind of slide, not its topic. Say the verdict ("Search: twice as fast since March").`,
               slide.id
             );
           else if (TOPIC_OPENING_RE.test(headline))
+            report(soft("tip"), `"${headline}" opens like a topic ("${topicOpening(headline)}"). Say the verdict.`, slide.id);
+          else if (labelAllowed(deck, slide) || !isLabelTitle(headline)) continue;
+          else
             report(
-              soft("tip"),
-              `"${headline}" opens like a topic ("${topicOpening(headline)}"). Name the thing itself, or the verdict.`,
+              "warn",
+              `"${headline}" is a topic label on a content slide. Say the verdict the speaker would say aloud ("Crashes down by two thirds", "Start time: 0.2 s slower"); keep bare labels for agenda and section slides.`,
               slide.id
             );
           continue;
@@ -1627,7 +1648,7 @@ var LINT_CHECKS = [
         if (deck.mode === "presented")
           report(
             "warn",
-            `"${headline}" is ${words} words, a sentence to read out. Cut it to a 2\u20135 word label or verdict, put the numbers in the points and say the rest. (Sent without you? Lint it with mode "read-alone".)`,
+            `"${headline}" is ${words} words, a sentence to read out. Cut it to a 2\u20135 word verdict, put the numbers in the points and say the rest. (Sent without you? Lint it with mode "read-alone".)`,
             slide.id
           );
         else report("warn", `Title is ${words} words; keep it to ${MAX_TITLE_WORDS} or move detail to the body.`, slide.id);
@@ -1679,7 +1700,7 @@ var LINT_CHECKS = [
       if (forms.every((f) => f === forms[0]) && (forms[0] === "colon" || forms[0] === "sentence")) {
         report(
           "warn",
-          forms[0] === "colon" ? 'Every title is "Topic: verdict". Mix the forms: a plain label ("Search latency"), a verdict, the occasional question.' : "Every title is a full sentence, so the deck reads as a script. Use short labels and verdicts, and say the sentences aloud."
+          forms[0] === "colon" ? 'Every title is "Topic: verdict". Mix the forms: a plain verdict ("Search got twice as fast"), a "Topic: value" pair, the occasional question.' : "Every title is a full sentence, so the deck reads as a script. Use short spoken verdicts, and say the full sentences aloud."
         );
       }
     }
