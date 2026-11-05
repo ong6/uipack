@@ -1052,16 +1052,16 @@ var STORYLINE_TEMPLATES = [
         titlePattern: "<Outcome with its size>",
         example: "A third fewer payment failures",
         points: ["Two launches unblocked"],
-        readAlone: "This half we cut payment failures by a third and unblocked two launches",
+        readAlone: "Payment failures fell by a third this half, and two launches were unblocked",
         guidance: "If a reviewer reads one slide, this is it."
       },
       {
         role: "evidence",
         purpose: "One outcome per slide: result, baseline, source, and your part in it.",
-        titlePattern: "<Change> <what it did>",
-        example: "Smarter retries cut failures",
-        points: ["Failed payments: 3% \u2192 2%", "Share of all attempts"],
-        readAlone: "Smarter retries cut failed payments from 3% to 2% of attempts",
+        titlePattern: "<Metric>: <before> \u2192 <after>",
+        example: "Failed payments: 3% \u2192 2%",
+        points: ["Since smarter retries shipped", "Share of all attempts"],
+        readAlone: "Failed payments went from 3% to 2% of attempts after smarter retries shipped",
         guidance: "Say what you did versus what the team did. Credit others by name.",
         repeatable: true
       },
@@ -1315,7 +1315,7 @@ var LINT_RULES = {
   },
   "notes-cues": {
     severity: "warn",
-    check: "Presented: each slide's `say` is cues, not a script: at most 60 words (the claim to say, the number to point at), with the bridge in `next`."
+    check: "Presented: each slide's `say` is cues, not a script: at most 60 words (the claim to say, the number to point at), with the bridge in `next`. A `say` of stage directions only ('Point at the 9', 'Walk the figure') warns: say the claim and the number; a stage direction beside content is a tip to move it to `delivery`."
   },
   "slide-shape": {
     severity: "warn",
@@ -1324,6 +1324,10 @@ var LINT_RULES = {
   "ai-tells": {
     severity: "warn",
     check: "No templated rhetoric: a 'X, not Y' contrast or an appended comparison ('\u2026, twice as fast as March') on more than one slide warns; a semicolon joining two clauses in a title, lede or point is a tip."
+  },
+  "causal-claim": {
+    severity: "warn",
+    check: "A deck that shows a before/after comparison ('61.2% \u2192 63.0%', 'was 40', 'Sep vs Oct') claims no cause from it: a cause verb ('lifted', 'cut', 'drove', 'because') in a title, lede or point warns outside mechanism, plan and ask slides (say 'after', 'since', 'went from\u2026 to'). A tip when nothing on the slides, notes or source says once that it is a before/after of two windows, not a controlled test."
   }
 };
 var MAX_TITLE_WORDS = TITLE_WORDS["read-alone"];
@@ -1538,6 +1542,10 @@ function titleForm(title) {
 var NOT_CONTRAST_RE = /,\s+not\s+(?:a\s+|an\s+|the\s+)?[\p{L}\p{N}]|\bnot\b[^,.;:!?]{1,40},\s+but\b/iu;
 var COMPARISON_KICKER_RE = /,\s+(?:(?:twice|half|three times|four times|\d+(?:\.\d+)?\s*[x×]|\d+(?:\.\d+)?\s+times)\s+(?:as\s+\p{L}+\s+as|\p{L}+er\s+than)|\p{L}+er\s+than)\b/iu;
 var SEMICOLON_CLAUSES_RE = /\S\s*;\s+\p{L}/u;
+var BEFORE_AFTER_RE = /\d[^→]*(?:→|->)\s*[~≈]?\d|\bfrom\s+(?:about\s+|~)?\d[^,;]*?\bto\s+(?:about\s+|~)?\d|\bwas\s+(?:about\s+|~)?\d|\d[^,;]*\bvs\.?\s|\bbefore\b[^,;]*\bafter\b/i;
+var CAUSAL_RE = /\b(?:lift(?:s|ed)?|boost(?:s|ed)?|dr(?:ove|ives|iven)|cut(?:s)?|slash(?:es|ed)?|caused|led to|leads to|resulted in|results in|because|thanks to|due to|delivered)\b/i;
+var NOT_A_TEST_RE = /before[\s/-]*(?:and[\s-]*)?after|not\s+(?:a\s+)?(?:controlled\s+|a\/b\s+)?test|not proof|correlat|two windows/i;
+var STAGE_DIRECTION_RE = /^(?:point(?:\s+(?:at|to))?|walk(?:\s+(?:through|the))?|pause|click|gesture|show|look\s+at|wait|advance|turn\s+to|go\s+to|hold|let\s+it|read\s+out|trace)\b/i;
 var VERB_RE = /\b(?:is|are|was|were|be|been|am|has|have|had|do|does|did|can|could|will|would|shall|should|may|might|must|won't|can't|isn't|aren't|wasn't|weren't|don't|doesn't|didn't|hasn't|haven't|got|gets|get|goes|went|came|comes|fell|falls|rose|rises|grew|grows|cut|cuts|took|takes|made|makes|kept|keeps|held|holds|ran|runs|won|wins|lost|loses|beat|beats|left|leaves|stays|needs|need|costs|shows|says|means|works|adds|drops|lands|hits|saves|ships|ends|stops|slips|slip|breaks|fails|moves|doubles|halves|applies|apply|drains|refills|decides|syncs|serves|catches|caught|missed|misses|pays|buys|bought|brings|brought|lets|helps|returns|reaches|matters|wait|waits|take|resize|resizes|uses|use|blocks|sits|lives)\b/i;
 var NOT_PAST_RE = /^(?:hundred|speed|seed|feed|breed|bleed|greed|embed|shed|bed|red|need)$/i;
 function isLabelTitle(title) {
@@ -1731,6 +1739,32 @@ var LINT_CHECKS = [
     }
   },
   {
+    // A before/after of two windows shows what changed alongside the change, not that it caused it.
+    rule: "causal-claim",
+    check: (deck, report) => {
+      const slides = deck.slides.filter((s) => s.role !== "appendix");
+      const linesOf = (s) => [headlineOf(s), s.lede ?? "", ...s.points ?? []].filter(Boolean);
+      if (!slides.some((s) => linesOf(s).some((l) => BEFORE_AFTER_RE.test(l)))) return;
+      const exempt = ["mechanism", "plan", "ask"];
+      for (const slide of slides) {
+        if (exempt.includes(deck.roleAt(slide))) continue;
+        const line = linesOf(slide).find((l) => CAUSAL_RE.test(l) && !NOT_A_TEST_RE.test(l));
+        if (line)
+          report(
+            "warn",
+            `"${line}" claims a cause from a before/after comparison. Say what went with it: "after", "since", "went from\u2026 to".`,
+            slide.id
+          );
+      }
+      const said = slides.some((s) => [...linesOf(s), notesText(s.notes), s.source ?? ""].some((t) => NOT_A_TEST_RE.test(t)));
+      if (!said && slides.some((s) => sayOf(s.notes)))
+        report(
+          "tip",
+          'The deck compares before and after but never says so. Say it once, in a cue or a point: "before/after of two windows, not a controlled test".'
+        );
+    }
+  },
+  {
     rule: "slot-budget",
     check: ({ slides }, report) => {
       for (const slide of slides) {
@@ -1789,6 +1823,20 @@ var LINT_CHECKS = [
           report(
             "warn",
             `The notes run ${words} words, a script to recite. Cut them to a few short cue lines (the claim to say, the number to point at) and the bridge in \`next\`; you'll say it in your own words.`,
+            slide.id
+          );
+        const lines = sayOf(slide.notes).split(/\n+|(?<=[.!?])\s+/).map((l) => l.trim()).filter(Boolean);
+        const directions = lines.filter((l) => STAGE_DIRECTION_RE.test(l));
+        if (directions.length && directions.length === lines.length)
+          report(
+            "warn",
+            `The notes are only stage directions ("${directions[0]}"). Cue the content: the claim to say and the number to point at, in a few words ("Desktop only: 61.2 \u2192 63.0 over four weeks").`,
+            slide.id
+          );
+        else if (directions.length)
+          report(
+            "tip",
+            `"${directions[0]}" is a stage direction; move it to \`delivery\` and keep \`say\` for what to say.`,
             slide.id
           );
       }
