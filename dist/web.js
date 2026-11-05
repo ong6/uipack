@@ -3,8 +3,8 @@ import { clamp, easeOutCubic, lerp, smoothstep, easeOutExpo } from './chunk-V4CV
 export { easeOutExpo } from './chunk-V4CVL4FJ.js';
 import { FigureChromeContext } from './chunk-ZEGJBMAE.js';
 import { usePrefersReducedMotion, useLatest, useHydrated, onReducedMotionChange, prefersReducedMotion } from './chunk-I6LF4PLF.js';
-import { jsx, jsxs, Fragment as Fragment$1 } from 'react/jsx-runtime';
-import { Fragment, useState, useRef, useId, useEffect, useMemo, useCallback, useSyncExternalStore, createElement, isValidElement } from 'react';
+import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
+import { createContext, useRef, useContext, useState, useId, useEffect, Fragment as Fragment$1, useMemo, useCallback, useSyncExternalStore, createElement, isValidElement } from 'react';
 
 function WebSurface({
   children,
@@ -35,6 +35,103 @@ function GridItem({ children, span = [4, 4, 4], className = "", as: Tag = "div" 
   const style = { "--span-w": span[0], "--span-m": span[1], "--span-n": span[2] };
   return /* @__PURE__ */ jsx(Tag, { className: `uipack-web-grid__item ${className}`.trim(), style, children });
 }
+function Eyebrow({ children, className = "", as: Tag = "p", id }) {
+  return /* @__PURE__ */ jsx(Tag, { id, className: `uipack-web-eyebrow ${className}`.trim(), children });
+}
+var DEFAULT_STEP = { 1: 6, 2: 4, 3: 2, 4: 1, 5: 0, 6: 0 };
+function Heading({ children, level = 2, size, className = "", id }) {
+  const Tag = `h${level}`;
+  const step = size ?? DEFAULT_STEP[level];
+  return /* @__PURE__ */ jsx(Tag, { id, className: `uipack-web-heading ${className}`.trim(), "data-step": step, children });
+}
+function Subhead({ children, className = "", as: Tag = "p", id }) {
+  return /* @__PURE__ */ jsx(Tag, { id, className: `uipack-web-subhead ${className}`.trim(), children });
+}
+function Body({ children, emphasis = "low", className = "", as: Tag = "p", id }) {
+  return /* @__PURE__ */ jsx(Tag, { id, className: `uipack-web-body ${className}`.trim(), "data-emphasis": emphasis, children });
+}
+function SpotlightCard({ children, href, className = "" }) {
+  const ref2 = useRef(null);
+  const onMove = (e) => {
+    if (e.pointerType === "touch") return;
+    const el = ref2.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty("--spot-x", `${e.clientX - r.left}px`);
+    el.style.setProperty("--spot-y", `${e.clientY - r.top}px`);
+  };
+  const onLeave = () => {
+    ref2.current?.style.removeProperty("--spot-x");
+    ref2.current?.style.removeProperty("--spot-y");
+  };
+  const cls = `uipack-web-spotlight ${className}`.trim();
+  if (href)
+    return /* @__PURE__ */ jsx("a", { ref: (n) => ref2.current = n, className: cls, href, onPointerMove: onMove, onPointerLeave: onLeave, children });
+  return /* @__PURE__ */ jsx("div", { ref: (n) => ref2.current = n, className: cls, onPointerMove: onMove, onPointerLeave: onLeave, children });
+}
+var SectionIndexContext = createContext(void 0);
+var sectionIndexLabel = (n) => String(n).padStart(2, "0");
+function Section({
+  eyebrow,
+  title,
+  intro,
+  children,
+  tone = "default",
+  align = "start",
+  id,
+  className = "",
+  lazyRender = false,
+  uiStyle
+}) {
+  const headingId = id ? `${id}-title` : void 0;
+  const index = useContext(SectionIndexContext);
+  return /* @__PURE__ */ jsx(
+    "section",
+    {
+      id,
+      className: `uipack-web-section ${className}`.trim(),
+      "data-tone": tone,
+      "data-align": align,
+      "data-lazy": lazyRender || void 0,
+      "data-ui-style": uiStyle,
+      "aria-labelledby": title ? headingId : void 0,
+      children: /* @__PURE__ */ jsxs("div", { className: "uipack-web-section__inner", children: [
+        (eyebrow || title || intro) && /* @__PURE__ */ jsxs("div", { className: "uipack-web-section__head", children: [
+          eyebrow && /* @__PURE__ */ jsxs(Eyebrow, { children: [
+            index !== void 0 && /* @__PURE__ */ jsx("span", { className: "uipack-web-section__index", "aria-hidden": "true", children: sectionIndexLabel(index) }),
+            eyebrow
+          ] }),
+          title && /* @__PURE__ */ jsx(Heading, { level: 2, id: headingId, children: title }),
+          intro && /* @__PURE__ */ jsx(Body, { children: intro })
+        ] }),
+        children
+      ] })
+    }
+  );
+}
+function FeatureGrid({ features, spotlight = false, numbered = false }) {
+  return /* @__PURE__ */ jsx(Grid, { as: numbered ? "ol" : "ul", className: `uipack-web-features${numbered ? " uipack-web-features--numbered" : ""}`, children: features.map((f, i) => {
+    const inner = /* @__PURE__ */ jsxs(Fragment, { children: [
+      numbered && /* @__PURE__ */ jsxs("span", { className: "uipack-web-feature__num", "aria-hidden": "true", children: [
+        i < 9 && /* @__PURE__ */ jsx("span", { className: "uipack-web-feature__pad", children: "0" }),
+        i + 1
+      ] }),
+      f.icon && /* @__PURE__ */ jsx("div", { className: "uipack-web-feature__icon", children: f.icon }),
+      /* @__PURE__ */ jsx(Heading, { level: 3, size: 1, children: f.href ? /* @__PURE__ */ jsx("a", { href: f.href, children: f.title }) : f.title }),
+      /* @__PURE__ */ jsx(Body, { children: f.body })
+    ] });
+    return /* @__PURE__ */ jsx(GridItem, { as: "li", span: [4, 4, 4], children: spotlight ? /* @__PURE__ */ jsx(SpotlightCard, { children: inner }) : /* @__PURE__ */ jsx("div", { className: "uipack-web-feature", children: inner }) }, f.title);
+  }) });
+}
+function numberSections(ids, sections, page) {
+  let n = 0;
+  return ids.flatMap((id) => {
+    const section = sections[id];
+    const node = typeof section === "function" ? section(page) : section;
+    if (node === null || node === void 0 || node === false) return [];
+    return [{ id, node, index: id === "hero" ? void 0 : ++n }];
+  });
+}
 var SHARED = { hero: "demo", align: "start", steps: "cards" };
 function WebPage({
   sections,
@@ -64,29 +161,11 @@ function WebPage({
       figureChrome,
       children: [
         nav,
-        ids.map((id) => {
-          const section = sections[id];
-          return /* @__PURE__ */ jsx(Fragment, { children: typeof section === "function" ? section(page) : section }, id);
-        }),
+        numberSections(ids, sections, page).map(({ id, node, index }) => /* @__PURE__ */ jsx(SectionIndexContext.Provider, { value: index, children: node }, id)),
         children
       ]
     }
   );
-}
-function Eyebrow({ children, className = "", as: Tag = "p", id }) {
-  return /* @__PURE__ */ jsx(Tag, { id, className: `uipack-web-eyebrow ${className}`.trim(), children });
-}
-var DEFAULT_STEP = { 1: 6, 2: 4, 3: 2, 4: 1, 5: 0, 6: 0 };
-function Heading({ children, level = 2, size, className = "", id }) {
-  const Tag = `h${level}`;
-  const step = size ?? DEFAULT_STEP[level];
-  return /* @__PURE__ */ jsx(Tag, { id, className: `uipack-web-heading ${className}`.trim(), "data-step": step, children });
-}
-function Subhead({ children, className = "", as: Tag = "p", id }) {
-  return /* @__PURE__ */ jsx(Tag, { id, className: `uipack-web-subhead ${className}`.trim(), children });
-}
-function Body({ children, emphasis = "low", className = "", as: Tag = "p", id }) {
-  return /* @__PURE__ */ jsx(Tag, { id, className: `uipack-web-body ${className}`.trim(), "data-emphasis": emphasis, children });
 }
 function CtaButton({
   children,
@@ -100,7 +179,7 @@ function CtaButton({
 }) {
   const cls = `uipack-web-cta ${className}`.trim();
   if (short !== void 0)
-    children = /* @__PURE__ */ jsxs(Fragment$1, { children: [
+    children = /* @__PURE__ */ jsxs(Fragment, { children: [
       /* @__PURE__ */ jsx("span", { className: "uipack-web-cta__long", children }),
       /* @__PURE__ */ jsx("span", { className: "uipack-web-cta__short", children: short })
     ] });
@@ -144,76 +223,6 @@ function GlassNav({ brand, links, cta: ctaProp, sticky = true, label = "Primary"
       }
     )
   ] }) });
-}
-function SpotlightCard({ children, href, className = "" }) {
-  const ref2 = useRef(null);
-  const onMove = (e) => {
-    if (e.pointerType === "touch") return;
-    const el = ref2.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    el.style.setProperty("--spot-x", `${e.clientX - r.left}px`);
-    el.style.setProperty("--spot-y", `${e.clientY - r.top}px`);
-  };
-  const onLeave = () => {
-    ref2.current?.style.removeProperty("--spot-x");
-    ref2.current?.style.removeProperty("--spot-y");
-  };
-  const cls = `uipack-web-spotlight ${className}`.trim();
-  if (href)
-    return /* @__PURE__ */ jsx("a", { ref: (n) => ref2.current = n, className: cls, href, onPointerMove: onMove, onPointerLeave: onLeave, children });
-  return /* @__PURE__ */ jsx("div", { ref: (n) => ref2.current = n, className: cls, onPointerMove: onMove, onPointerLeave: onLeave, children });
-}
-function Section({
-  eyebrow,
-  title,
-  intro,
-  children,
-  tone = "default",
-  align = "start",
-  id,
-  className = "",
-  lazyRender = false,
-  uiStyle
-}) {
-  const headingId = id ? `${id}-title` : void 0;
-  return /* @__PURE__ */ jsx(
-    "section",
-    {
-      id,
-      className: `uipack-web-section ${className}`.trim(),
-      "data-tone": tone,
-      "data-align": align,
-      "data-lazy": lazyRender || void 0,
-      "data-ui-style": uiStyle,
-      "aria-labelledby": title ? headingId : void 0,
-      children: /* @__PURE__ */ jsxs("div", { className: "uipack-web-section__inner", children: [
-        (eyebrow || title || intro) && /* @__PURE__ */ jsxs("div", { className: "uipack-web-section__head", children: [
-          eyebrow && /* @__PURE__ */ jsxs(Eyebrow, { children: [
-            /* @__PURE__ */ jsx("span", { className: "uipack-web-section__index", "aria-hidden": "true" }),
-            eyebrow
-          ] }),
-          title && /* @__PURE__ */ jsx(Heading, { level: 2, id: headingId, children: title }),
-          intro && /* @__PURE__ */ jsx(Body, { children: intro })
-        ] }),
-        children
-      ] })
-    }
-  );
-}
-function FeatureGrid({ features, spotlight = false, numbered = false }) {
-  return /* @__PURE__ */ jsx(Grid, { as: numbered ? "ol" : "ul", className: `uipack-web-features${numbered ? " uipack-web-features--numbered" : ""}`, children: features.map((f, i) => {
-    const inner = /* @__PURE__ */ jsxs(Fragment$1, { children: [
-      numbered && /* @__PURE__ */ jsxs("span", { className: "uipack-web-feature__num", "aria-hidden": "true", children: [
-        i < 9 && /* @__PURE__ */ jsx("span", { className: "uipack-web-feature__pad", children: "0" }),
-        i + 1
-      ] }),
-      f.icon && /* @__PURE__ */ jsx("div", { className: "uipack-web-feature__icon", children: f.icon }),
-      /* @__PURE__ */ jsx(Heading, { level: 3, size: 1, children: f.href ? /* @__PURE__ */ jsx("a", { href: f.href, children: f.title }) : f.title }),
-      /* @__PURE__ */ jsx(Body, { children: f.body })
-    ] });
-    return /* @__PURE__ */ jsx(GridItem, { as: "li", span: [4, 4, 4], children: spotlight ? /* @__PURE__ */ jsx(SpotlightCard, { children: inner }) : /* @__PURE__ */ jsx("div", { className: "uipack-web-feature", children: inner }) }, f.title);
-  }) });
 }
 function WorkedExample({ title, given, lines, note, label, className = "" }) {
   return /* @__PURE__ */ jsxs(
@@ -338,7 +347,7 @@ function PricingPlans({ plans, note, className = "" }) {
       );
   }
   return /* @__PURE__ */ jsxs("div", { className: `uipack-web-pricing ${className}`.trim(), children: [
-    /* @__PURE__ */ jsx("ul", { className: "uipack-web-pricing__plans", style: { "--plans": Math.min(3, plans.length) }, children: plans.map((p, i) => /* @__PURE__ */ jsxs("li", { className: "uipack-web-plan", "data-featured": p.featured ? "" : void 0, children: [
+    /* @__PURE__ */ jsx("ul", { className: "uipack-web-pricing__plans", "data-count": plans.length, style: { "--plans": Math.min(3, plans.length) }, children: plans.map((p, i) => /* @__PURE__ */ jsxs("li", { className: "uipack-web-plan", "data-featured": p.featured ? "" : void 0, children: [
       /* @__PURE__ */ jsxs("div", { className: "uipack-web-plan__head", children: [
         /* @__PURE__ */ jsx(Heading, { level: 3, size: 1, className: "uipack-web-plan__name", children: p.name }),
         p.badge && /* @__PURE__ */ jsx("span", { className: "uipack-web-plan__badge", children: p.badge })
@@ -563,7 +572,7 @@ function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger =
   }, [reduced]);
   const units = lines ?? text.split(/\s+/).filter(Boolean);
   const byLine = !!lines;
-  return /* @__PURE__ */ jsx(Tag, { ref: ref2, className: `uipack-web-reveal ${className}`.trim(), "data-state": state, "data-by": byLine ? "line" : "word", children: units.map((u, i) => /* @__PURE__ */ jsxs(Fragment, { children: [
+  return /* @__PURE__ */ jsx(Tag, { ref: ref2, className: `uipack-web-reveal ${className}`.trim(), "data-state": state, "data-by": byLine ? "line" : "word", children: units.map((u, i) => /* @__PURE__ */ jsxs(Fragment$1, { children: [
     /* @__PURE__ */ jsx("span", { className: "uipack-web-reveal__unit", style: { "--i": i, "--stagger": `${stagger}ms` }, children: u }),
     i < units.length - 1 ? " " : null
   ] }, i)) });
@@ -787,9 +796,40 @@ function DemoPlayer({
   const mode = modeProp ?? (steps.some((s) => s.prompt) ? "agent" : "steps");
   const rail = mode === "steps" ? railProp : void 0;
   const reduced = usePrefersReducedMotion() || still;
+  const stepper = reduced && !still;
+  const [held, setHeld] = useState(null);
+  const classicTabs = rail !== "compact";
+  const controls = !reduced || stepper && classicTabs;
   const rootRef = useRef(null);
   const tabsRef = useRef(null);
   const railRef = useRef(null);
+  const bodyRef = useRef(null);
+  useEffect(() => {
+    const el = bodyRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    let width = 0;
+    let tallest = 0;
+    const ro = new ResizeObserver(([entry]) => {
+      const border = getComputedStyle(el).boxSizing === "border-box";
+      const box = (border ? entry.borderBoxSize : entry.contentBoxSize)?.[0];
+      const w = box ? box.inlineSize : entry.contentRect.width;
+      const h = box ? box.blockSize : entry.contentRect.height;
+      if (Math.abs(w - width) > 1) {
+        width = w;
+        tallest = 0;
+        if (el.style.minHeight) {
+          el.style.minHeight = "";
+          return;
+        }
+      }
+      if (h > tallest + 0.5) {
+        tallest = h;
+        el.style.minHeight = `${Math.ceil(h)}px`;
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const end = demoEnd(steps, timing);
   const cycle = demoCycle(steps, timing);
   const [elapsed, setElapsed] = useState(end);
@@ -843,7 +883,8 @@ function DemoPlayer({
     };
   }, [reduced, autoplay, loop, end, playingRef, doneRef]);
   const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
-  const frame = reduced ? finalFrame : demoFrame(steps, elapsed, timing, initialMetric);
+  const heldFrame = held === null || held >= steps.length - 1 ? finalFrame : demoFrame(steps, stepStart(steps, held + 1, timing) - 1, timing, initialMetric);
+  const frame = reduced ? heldFrame : demoFrame(steps, elapsed, timing, initialMetric);
   const finished = !loop && frame.done;
   const running = playing && !finished && inView && !reduced;
   useEffect(() => {
@@ -869,11 +910,12 @@ function DemoPlayer({
   }, [frame.step, stepChangeRef]);
   const seek = useCallback(
     (i) => {
+      if (reduced) return setHeld(i);
       armed.current = true;
       setElapsed(stepStart(steps, i, timing));
       setPlaying(true);
     },
-    [steps, timing]
+    [steps, timing, reduced]
   );
   const replay = () => seek(0);
   const toggle = () => {
@@ -928,7 +970,7 @@ function DemoPlayer({
             ] }),
             address && /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__address", children: address })
           ] }),
-          /* @__PURE__ */ jsxs("div", { className: "uipack-web-demo__body", children: [
+          /* @__PURE__ */ jsxs("div", { className: "uipack-web-demo__body", ref: bodyRef, children: [
             rail === "side" && /* @__PURE__ */ jsx("div", { className: "uipack-web-demo__work", children: /* @__PURE__ */ jsx("ol", { className: "uipack-web-demo__log uipack-web-demo__steps", "aria-label": "Progress", children: steps.map((s, i) => {
               const state = stepState(i);
               const detail = (s.actions ?? []).map(toAction).find((a) => a.detail)?.detail;
@@ -944,7 +986,7 @@ function DemoPlayer({
                 state === "pending" && /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__sr", children: " (queued)" })
               ] }, s.id);
             }) }) }),
-            mode === "agent" && /* @__PURE__ */ jsx("div", { className: "uipack-web-demo__work", children: /* @__PURE__ */ jsxs(Fragment$1, { children: [
+            mode === "agent" && /* @__PURE__ */ jsx("div", { className: "uipack-web-demo__work", children: /* @__PURE__ */ jsxs(Fragment, { children: [
               /* @__PURE__ */ jsxs("div", { className: "uipack-web-demo__composer", "data-typing": typing || void 0, children: [
                 /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__sr", children: promptText }),
                 /* @__PURE__ */ jsx("span", { "aria-hidden": "true", className: visiblePrompt ? "" : "uipack-web-demo__placeholder", children: visiblePrompt || placeholder }),
@@ -970,14 +1012,14 @@ function DemoPlayer({
             ] }),
             rail === "compact" && /* @__PURE__ */ jsx("ol", { className: "uipack-web-demo__rail", "aria-label": "Progress", ref: railRef, onKeyDown: onTabKey, children: steps.map((s, i) => {
               const state = stepState(i);
-              const body = /* @__PURE__ */ jsxs(Fragment$1, { children: [
+              const body = /* @__PURE__ */ jsxs(Fragment, { children: [
                 /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__tick", "aria-hidden": "true", children: state === "done" ? /* @__PURE__ */ jsx("svg", { viewBox: "0 0 16 16", children: /* @__PURE__ */ jsx("path", { d: "M3.5 8.5l3 3 6-7" }) }) : null }),
                 /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
                 /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__rail-label", children: s.label }),
                 state === "running" && /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__sr", children: " (in progress)" }),
                 state === "pending" && /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__sr", children: " (queued)" })
               ] });
-              return /* @__PURE__ */ jsx("li", { "data-state": state, "aria-current": !reduced && i === frame.step ? "step" : void 0, children: reduced ? /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__rail-item", title: s.title, children: body }) : /* @__PURE__ */ jsx(
+              return /* @__PURE__ */ jsx("li", { "data-state": state, "aria-current": !still && i === frame.step ? "step" : void 0, children: still ? /* @__PURE__ */ jsx("span", { className: "uipack-web-demo__rail-item", title: s.title, children: body }) : /* @__PURE__ */ jsx(
                 "button",
                 {
                   type: "button",
@@ -1013,8 +1055,8 @@ function DemoPlayer({
           ] }, s.id)) }),
           !reduced && finalFrame.metric !== void 0 && /* @__PURE__ */ jsx("p", { children: `Result: ${finalFrame.metric}${metricLabel ? ` ${metricLabel}` : ""}.` })
         ] }),
-        !reduced && /* @__PURE__ */ jsxs("div", { className: "uipack-web-demo__controls", children: [
-          rail !== "compact" && /* @__PURE__ */ jsx("div", { className: "uipack-web-demo__tabs", role: "group", "aria-label": "Demo steps", ref: tabsRef, onKeyDown: onTabKey, children: steps.map((s, i) => /* @__PURE__ */ jsxs(
+        controls && /* @__PURE__ */ jsxs("div", { className: "uipack-web-demo__controls", children: [
+          classicTabs && /* @__PURE__ */ jsx("div", { className: "uipack-web-demo__tabs", role: "group", "aria-label": "Demo steps", ref: tabsRef, onKeyDown: onTabKey, children: steps.map((s, i) => /* @__PURE__ */ jsxs(
             "button",
             {
               type: "button",
@@ -1030,12 +1072,14 @@ function DemoPlayer({
             s.id
           )) }),
           /* @__PURE__ */ jsxs("div", { className: "uipack-web-demo__buttons", children: [
-            /* @__PURE__ */ jsx("button", { type: "button", onClick: toggle, children: playing && !finished ? "Pause" : "Play" }),
-            /* @__PURE__ */ jsx("button", { type: "button", onClick: replay, children: "Replay" }),
+            !reduced && /* @__PURE__ */ jsxs(Fragment, { children: [
+              /* @__PURE__ */ jsx("button", { type: "button", onClick: toggle, children: playing && !finished ? "Pause" : "Play" }),
+              /* @__PURE__ */ jsx("button", { type: "button", onClick: replay, children: "Replay" })
+            ] }),
             cta
           ] })
         ] }),
-        reduced && cta && /* @__PURE__ */ jsx("div", { className: "uipack-web-demo__buttons", children: cta }),
+        !controls && cta && /* @__PURE__ */ jsx("div", { className: "uipack-web-demo__buttons", children: cta }),
         /* @__PURE__ */ jsxs(
           "p",
           {
@@ -2315,7 +2359,7 @@ function toProps(attrs) {
   return out;
 }
 function HeadTags({ tags }) {
-  return /* @__PURE__ */ jsx(Fragment$1, { children: tags.map((t) => {
+  return /* @__PURE__ */ jsx(Fragment, { children: tags.map((t) => {
     const key = headTagKey(t);
     if (t.tag === "title") return /* @__PURE__ */ jsx("title", { children: t.text }, key);
     if (t.tag === "script") return /* @__PURE__ */ jsx("script", { ...toProps(t.attrs), dangerouslySetInnerHTML: { __html: t.text } }, key);
@@ -2649,4 +2693,4 @@ ${channel.join("\n")}
 `;
 }
 
-export { AI_CRAWLERS, Aurora, BackgroundFrame, BeamLines, BeforeAfter, Body, Brand, ClosingCta, CtaButton, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, DataTable, DemoPlayer, DotGrid, DriftingGutters, EMPHASIS, Eyebrow, FAQ, FeatureGrid, FileTable, GRID_COLUMNS, GlassNav, GrainOverlay, Grid, GridItem, HeadTags, Heading, ItemList, JsonLd, LLMS_FULL_PATH, LineGrid, MagneticButton, Marquee, MaskedStar, NoiseLayer, NumberTicker, PricingPlans, ProductWindow, Proof, RecordCard, Reveal, RevealText, RhymeIcon, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, ScheduleGrid, ScrollTransform, Section, SiteFooter, SmoothScroll, SpotlightCard, StarChart, StarHero, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, TiltCard, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, WebPage, WebSurface, WorkedExample, article, breadcrumbList, buildCrawlFiles, collectionPage, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, itemList, jsonLd, jsonLdTag, llmsFullTxt, llmsTxt, normalizeWheel, offer, organization, pageMeta, person, personRef, product, profilePage, ref, resolveAiCrawlers, robotsTxt, rssFeed, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, softwareSourceCode, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webPage, webSite, withPaintTransition, withViewTransition };
+export { AI_CRAWLERS, Aurora, BackgroundFrame, BeamLines, BeforeAfter, Body, Brand, ClosingCta, CtaButton, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, DataTable, DemoPlayer, DotGrid, DriftingGutters, EMPHASIS, Eyebrow, FAQ, FeatureGrid, FileTable, GRID_COLUMNS, GlassNav, GrainOverlay, Grid, GridItem, HeadTags, Heading, ItemList, JsonLd, LLMS_FULL_PATH, LineGrid, MagneticButton, Marquee, MaskedStar, NoiseLayer, NumberTicker, PricingPlans, ProductWindow, Proof, RecordCard, Reveal, RevealText, RhymeIcon, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, ScheduleGrid, ScrollTransform, Section, SectionIndexContext, SiteFooter, SmoothScroll, SpotlightCard, StarChart, StarHero, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, TiltCard, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, WebPage, WebSurface, WorkedExample, article, breadcrumbList, buildCrawlFiles, collectionPage, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, itemList, jsonLd, jsonLdTag, llmsFullTxt, llmsTxt, normalizeWheel, numberSections, offer, organization, pageMeta, person, personRef, product, profilePage, ref, resolveAiCrawlers, robotsTxt, rssFeed, scrambleFrame, scrollProgressOf, sectionIndexLabel, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, softwareSourceCode, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webPage, webSite, withPaintTransition, withViewTransition };

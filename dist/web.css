@@ -2992,6 +2992,17 @@
     padding: 0;
     list-style: none;
   }
+  /* One plan reads as a card, not a banner: it keeps a card's measure on the section's alignment. */
+  .uipack-web-pricing__plans[data-count="1"] {
+    width: 100%;
+    max-width: 36rem;
+  }
+  .uipack-web-section[data-align="center"] .uipack-web-pricing__plans[data-count="1"] {
+    margin-inline: auto;
+  }
+  .uipack-web-section[data-align="center"] .uipack-web-pricing__plans[data-count="1"] + .uipack-web-pricing__note {
+    text-align: center;
+  }
   @container web (min-width: 640px) {
     .uipack-web-pricing__plans {
       grid-template-columns: repeat(var(--plans, 2), minmax(0, 1fr));
@@ -4015,8 +4026,9 @@
     width: 12px;
     height: 12px;
   }
-  /* Rail with no controls beside it (static, reduced motion): the row is a quiet record. */
-  .uipack-web-demo[data-state="static"] .uipack-web-demo__rail-item {
+  /* A `static` rail is plain text, a quiet record; under reduced motion its items stay buttons
+     (each holds its step's finished frame). */
+  span.uipack-web-demo__rail-item {
     cursor: default;
   }
   @media (prefers-reduced-motion: reduce) {
@@ -4111,18 +4123,9 @@
     }
   }
   /* Section index: a style that numbers its sections (Technical) shows each Section eyebrow's
-     number before its words, counted down the page. Hidden spans do not count. */
-  /* The page root is a size container, which scopes counters to inside it: the counter starts on
-     its first child, whose scope runs on through the following siblings (every section). */
-  .uipack-web > :first-child {
-    counter-reset: uipack-section;
-  }
+     number (WebPage passes it, in page order) before its words. */
   .uipack-web-section__index {
     display: var(--ui-section-index, none);
-    counter-increment: uipack-section;
-  }
-  .uipack-web-section__index::before {
-    content: counter(uipack-section, decimal-leading-zero);
     color: var(--web-accent-ink);
   }
   .uipack-web-section__index::after {
