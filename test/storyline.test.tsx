@@ -1104,11 +1104,13 @@ describe("lintDeck: presented decks (the default)", () => {
       expect(find(lintPresented(withSlide(noCompare, "answer", { title: "Caching cut tickets" })), "causal-claim")).toEqual([]);
     });
 
-    it("asks for no method sentence: causal-free wording is the caveat", () => {
+    it("tips when no cue says the numbers come from two windows, before and after", () => {
       const silent = withSlide(presented, "answer", {
         notes: cues("Answer-first reviews decided in one meeting.\nSource: the platform review log."),
       });
-      expect(find(lintPresented(silent), "causal-claim")).toEqual([]);
+      expect(find(lintPresented(silent), "causal-claim")).toEqual([
+        expect.objectContaining({ severity: "tip", message: expect.stringMatching(/never says so/) }),
+      ]);
       expect(find(lintPresented(presented), "causal-claim")).toEqual([]);
     });
   });

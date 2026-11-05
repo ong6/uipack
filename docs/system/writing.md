@@ -18,8 +18,9 @@ render in any layout that has matching slots, in any style. See [the system over
    writer's bookkeeping in front of the reader. Mention a gap only when the decision turns on it,
    once, as a plain sentence in the notes ("iOS isn't in these numbers"). A before/after claims no
    cause: say "after", "since" or "went from… to", never "lifted", "cut", "drove" or "because"
-   (`causal-claim`). That wording is the caveat; don't add a method sentence ("not a controlled
-   test") unless the decision depends on cause. Reasoning from the given facts is not a new fact:
+   (`causal-claim`). Say once in the whole deliverable, in a plain sentence in the deck's
+   evidence-slide notes, that the numbers compare two windows ("this compares September with
+   October; other things changed too"). Nowhere else: not in the figure, the page or a title. Reasoning from the given facts is not a new fact:
    why a number matters and what follows for this audience are what notes are for. A consequence
    the input gives as a purpose can be stated ("approve by 9 January so it ships in spring": a
    later yes misses spring). A recommendation is said as one ("we recommend"), never as a measured
@@ -29,8 +30,10 @@ render in any layout that has matching slots, in any style. See [the system over
 4. **A baseline, a window and a source travel with the number they were given for, and only
    that number.** "The search latency dashboard, May vs June, all regions" given for p95 says
    nothing about the error rate in the next sentence. A number given without them is stated as
-   given ("errors rose from 2% to 3%"): never borrow a neighbour's source, and don't append a
-   disclaimer about the missing one. Keep the measure's own word and its qualifiers exactly:
+   given ("errors rose from 2% to 3%"): never borrow a neighbour's source, and don't scatter
+   disclaimers about the missing one. Sources live in one place per piece: the evidence slide's
+   source line or notes for a deck, the source line for a figure. List each number's source there
+   once, and a number the input gave without one as "source not given", there and nowhere else. Keep the measure's own word and its qualifiers exactly:
    a median stays a median (or its exact plain form, "half of requests"), "up to 15 minutes" never
    becomes "a short while" or "15 min", "about 40" keeps its "about". Put all three on the canvas when they change the
    decision, otherwise in the caption, notes or source line, stated once as a named artifact.
@@ -98,7 +101,9 @@ render in any layout that has matching slots, in any style. See [the system over
    - Each number keeps its exact qualifier, and its own source and window when given
    - Nothing invented, and no gap announced that the decision doesn't need
    - No phrase repeats across the pieces ("still to confirm", a caveat, a title shape on 3+ slides)
-   - Nothing speaks to the builder ("the figure fills the body", "see Figure")
+   - The copy holds only the reader's words: no role tags ("(answer)"), no field labels
+     ("So-what:", "Delivery:"), no notes to the builder ("the figure fills the body"), no brief
+     instructions in the headings
    - No AI tells (rule 10)
    ```
 

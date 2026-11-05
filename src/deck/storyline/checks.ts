@@ -297,6 +297,13 @@ export const LINT_CHECKS: readonly LintCheck[] = [
             slide.id,
           );
       }
+      const said = slides.some((s) => [...linesOf(s), notesText(s.notes), s.source ?? ""].some((t) => NOT_A_TEST_RE.test(t)));
+      // A titles-only outline has nowhere to say it yet; notes-present reports that.
+      if (!said && slides.some((s) => sayOf(s.notes)))
+        report(
+          "tip",
+          'The deck compares before and after but never says so. Say it once, in a plain sentence in the evidence slide\'s notes: "this compares two windows, before and after".',
+        );
     },
   },
   {
