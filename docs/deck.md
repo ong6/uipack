@@ -82,7 +82,7 @@ const slides: DeckSlide[] = [
 `uiStyle="technical" | "landing" | "graphical"` paints the same slides in another style (it sets
 `data-ui-style`; omitted, the deck follows an ancestor's, else Technical). Only tokens change: the
 headline, body and footer keep their regions (and an eyebrow, on a slide that has one), and headlines take the style's display face
-(Archivo Expanded, Instrument Serif, Anton caps). The playground keeps it in `?style=` with a switcher
+(IBM Plex Sans, Instrument Serif, Anton caps). The playground keeps it in `?style=` with a switcher
 in the shell's context line. Consulting charts read the data roles, so they follow the style too;
 their dense layouts were tuned in Technical.
 

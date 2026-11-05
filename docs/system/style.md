@@ -65,7 +65,7 @@ move a box, which is why a swap keeps every region in place (`src/web/web-styles
 | `--ui-cta-shadow(-hover)` | The primary button | None (a 3px amber halo on hover) | An ink key: a 2px inset foot that deepens on hover | Hard ink offset |
 | `--ui-cta-fill`, `--ui-on-cta` | The primary button's fill and label | Prussian ink in light, gold in dark | The accent | The accent |
 | `--ui-band-*` | The closing band | Plain Prussian band (no grid: the grid is the hero's and the figure's), gold button | Ledger-green band, ivory button, a perforation along the top | Signal-orange band, black button, ink tick rule along the top |
-| `--ui-stamp-*` (fill, ink, accent, border, inner, radius, rotate, face, case, size, shadow) | `StarHero stamp`: the page's one measured number, in the copy | A revision tag: square, ruled, amber top bar, the figure in Archivo Expanded | A die-cut label: ivory, ink edge, perforated inner edge, tilted 3° | A postmark: orange disc, double ink ring, Anton caps, tilted 8°, hard shadow |
+| `--ui-stamp-*` (fill, ink, accent, border, inner, radius, rotate, face, case, size, shadow) | `StarHero stamp`: the page's one measured number, in the copy | A revision tag: square, ruled, amber top bar, the figure in the heading face | A die-cut label: ivory, ink edge, perforated inner edge, tilted 3° | A postmark: orange disc, double ink ring, Anton caps, tilted 8°, hard shadow |
 
 **Treatment roles (web components).** Range comes from how each style draws the same parts, not
 from moving them: the layout is one, the treatment is the style's. Every style fills these.
@@ -104,7 +104,7 @@ a second accent.
 
 | Style | For | Character | Values | Guide |
 | --- | --- | --- | --- | --- |
-| **Technical** (default) | Diagrams, charts, article parts, decks, the shell, and web pages | Cyanotype: Prussian-blue ink on a cool white sheet, a deep-blue dark half, one amber mark, square corners and hairlines, a drafting grid on the hero and figure canvas only; Archivo Expanded headings on page, slide and figure, Archivo text, Martian Mono labels; on the web a page shows the product's real output first | `src/styles/technical.css` | Below |
+| **Technical** (default) | Diagrams, charts, article parts, decks, the shell, and web pages | Cyanotype: Prussian-blue ink on a cool white sheet, a deep-blue dark half, one amber mark, square corners and hairlines, a drafting grid on the hero and figure canvas only; IBM Plex Sans 600 headings on page, slide and figure, Plex Sans text, IBM Plex Mono labels; on the web a page shows the product's real output first | `src/styles/technical.css` | Below |
 | **Landing** (product marketing) | A product-marketing page that should read as considered print, not stock SaaS | Label stock: warm ivory page, kraft band, one ledger-green accent, Instrument Serif headlines, ruled 1px forms with perforated (dashed) divisions, no shadow or glow, 4px corners, a solid masthead nav | `src/styles/landing.css` | [Web principles](../web-principles.md) |
 | **Graphical** | Posters, launches, a page that should be loud | Bone paper, black ink, one signal-orange accent, Anton display caps, hard edges, 2px rules, hard offset frames, one disc motif (the hero stamp) | `src/styles/graphical.css` | [Web principles](../web-principles.md) |
 | **Mechanism** | One isometric machine whose working is the point | Technical's roles mapped to four solid tones (derived; `--tune-mech-*` hooks), one lit part | `src/mechanism/mechanism.css` | [Mechanism](../mechanism.md) |
@@ -171,18 +171,18 @@ Both keep Technical's flow hues (Graphical darkens two for its bone paper) and i
 
 | Style | Display | Text | Label |
 | --- | --- | --- | --- |
-| Technical (page, slide, figure, chart, article, shell) | Archivo Expanded 600 (Archivo at 112.5% width), −0.01em; also every figure and consulting-slide title (`--ui-font-heading`) | Archivo 400 / 500 / 600 | Martian Mono 400 / 600 at its narrowest width (75: a 0.6em advance, the width diagrams and controls are authored for), tracked 0.02em |
+| Technical (page, slide, figure, chart, article, shell) | IBM Plex Sans 600, −0.01em; also every figure and consulting-slide title (`--ui-font-heading`) | IBM Plex Sans 400 / 500 / 600 | IBM Plex Mono 400 / 600 (a 0.6em advance, the width diagrams and controls are authored for), tracked 0.02em |
 | Landing | Instrument Serif 400, heading step 4 and up | IBM Plex Sans | IBM Plex Mono |
 | Graphical | Anton 400 in caps, 1.3× from heading step 4 | IBM Plex Sans | IBM Plex Mono, tracked 0.12em |
 | Mechanism | n/a (no words in the drawing) | Host sans | Mono caps, at least 11px, card corners only |
 
 Fonts are self-hosted, latin-only woff2 in `uipack/fonts/*` (`src/web/fonts.css`, carried by every
-entry stylesheet), each with a metric-matched local fallback (Archivo Expanded over Arial Bold,
-Archivo over Arial, Martian Mono over Courier New), and a browser fetches a face only when the
+entry stylesheet), each with a metric-matched local fallback (IBM Plex Sans over Arial,
+IBM Plex Mono over Courier New), and a browser fetches a face only when the
 active style uses it: Technical 6 files (77 KB), Graphical 6 (119 KB), Landing 7 (143 KB). Preload
-only the active style's display face (`uiStyles[].preload`): Archivo Expanded for Technical,
+only the active style's display face (`uiStyles[].preload`): IBM Plex Sans 600 for Technical,
 Instrument Serif for Landing, Anton for Graphical. Static SVG export (`uipack/static`) cannot load
-web fonts and names Archivo and Martian Mono before the system stacks. Mono captions and secondary
+web fonts and names IBM Plex Sans and IBM Plex Mono before the system stacks. Mono captions and secondary
 text stay at 12px or more and 4.5:1 in both themes. Use a style's own faces and never add a new one.
 A different face is a new style, or a documented override hook (`--web-font-display`).
 
@@ -204,7 +204,7 @@ user units for a `viewBox` drawn at about its rendered width.
 
 | Element | Rule |
 | --- | --- |
-| Frame | `Figure` card: Martian Mono eyebrow `FIGURE 01 · TOPIC`, title in the heading face (Archivo Expanded 20 / 600), one-line caption, legend, Pause / Replay top-right; 1px border at 26% ink, square corners |
+| Frame | `Figure` card: IBM Plex Mono eyebrow `FIGURE 01 · TOPIC`, title in the heading face (IBM Plex Sans 20 / 600), one-line caption, legend, Pause / Replay top-right; 1px border at 26% ink, square corners |
 | Canvas | Surface fill with the style's canvas pattern (`--ui-canvas-pattern`: Technical's drafting film, 12px minor and 60px major hairlines); no inner frame. The grid lives here and behind the hero only, never as page wallpaper |
 | Node | 6px radius inside the drawing (only the frame is square), surface fill, 1 stroke at 70% ink (accent at 100%); label 13 / 600, optional mono sub-label at 75%; optional icon slot |
 | Colour jobs | Accent: numbered steps and the one thing. Request cyan: the main flow. Response green: the return path. Violet: async change. Red (`--uipack-token-error`): an error or declined branch |
@@ -225,7 +225,7 @@ frame.
 ## Slides
 
 Slides take the style's roles through the deck tokens and the deck's type scale. In Technical the
-slide headline is Archivo Expanded, the same face as the page and figure headings. Sizes are
+slide headline is IBM Plex Sans 600, the same face as the page and figure headings. Sizes are
 canvas px on the 1920×1080 canvas, so they scale with the slide.
 
 | Text | Size / weight | Face |
@@ -252,7 +252,7 @@ Three styles paint web pages, from the same parts, the same words and the same l
 
 - **Technical** is the default and the house look, and should read as the most deliberate of the
   three: an engineering drawing (Cyanotype). Prussian ink on a cool white sheet (deep Prussian blue
-  in dark), one amber mark, Archivo Expanded headlines whose key phrase sits over an amber revision
+  in dark), one amber mark, IBM Plex Sans headlines whose key phrase sits over an amber revision
   underline (gold in dark), a Prussian primary button, a drafting-film grid behind the hero only,
   a 7px amber dot and a mono section index before each eyebrow (`01 / HOW IT WORKS`), a dimension
   line over each section's column, steps in ringed detail bubbles, ink crop marks on cards, stats

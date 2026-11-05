@@ -1024,7 +1024,9 @@ describe("lintDeck: presented decks (the default)", () => {
     });
 
     it("ignores source lines and notes too short to judge", () => {
-      const sourced = withSlide(presented, "risk", { notes: cues("Source: the cache capacity forecast, 71% full today, tripwire 85%") });
+      const sourced = withSlide(presented, "risk", {
+        notes: cues("Source: the cache capacity forecast, 71% full today, tripwire 85%"),
+      });
       expect(find(lintPresented(sourced), "notes-echo")).toEqual([]);
       expect(find(lintPresented(withSlide(presented, "risk", { notes: cues("Tripwire at 85%") })), "notes-echo")).toEqual([]);
     });
@@ -1068,7 +1070,11 @@ describe("lintDeck: presented decks (the default)", () => {
     });
 
     it("reads only the slide, not the notes, and is off when read alone", () => {
-      const hidden = { title: "Decide by 14 March", points: ["Platform leads"], notes: cues("Approve the queue: six engineer-weeks.") };
+      const hidden = {
+        title: "Decide by 14 March",
+        points: ["Platform leads"],
+        notes: cues("Approve the queue: six engineer-weeks."),
+      };
       expect(scope(hidden)[0].message).toMatch(/approved or done.*what it costs/);
       expect(find(lintDeck(deck(hidden)), "ask-scope")).toEqual([]);
     });

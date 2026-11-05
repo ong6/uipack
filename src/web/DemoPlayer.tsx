@@ -112,6 +112,16 @@ export function DemoPlayer({
     if (!el || typeof ResizeObserver === "undefined") return;
     let width = 0;
     let tallest = 0;
+    let frame = 0;
+    // Writing min-height inside the observer callback resizes the box it observes, which WebKit
+    // reports as "ResizeObserver loop completed with undelivered notifications"; apply it on the
+    // next frame instead.
+    const apply = (value: string) => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        el.style.minHeight = value;
+      });
+    };
     const ro = new ResizeObserver(([entry]) => {
       // min-height applies to the box its box-sizing names, so measure that box.
       const border = getComputedStyle(el).boxSizing === "border-box";
@@ -123,17 +133,20 @@ export function DemoPlayer({
         width = w;
         tallest = 0;
         if (el.style.minHeight) {
-          el.style.minHeight = "";
+          apply("");
           return;
         }
       }
       if (h > tallest + 0.5) {
         tallest = h;
-        el.style.minHeight = `${Math.ceil(h)}px`;
+        apply(`${Math.ceil(h)}px`);
       }
     });
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      cancelAnimationFrame(frame);
+      ro.disconnect();
+    };
   }, []);
   const end = demoEnd(steps, timing);
   const cycle = demoCycle(steps, timing);
@@ -198,7 +211,9 @@ export function DemoPlayer({
 
   const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
   const heldFrame =
-    held === null || held >= steps.length - 1 ? finalFrame : demoFrame(steps, stepStart(steps, held + 1, timing) - 1, timing, initialMetric);
+    held === null || held >= steps.length - 1
+      ? finalFrame
+      : demoFrame(steps, stepStart(steps, held + 1, timing) - 1, timing, initialMetric);
   const frame = reduced ? heldFrame : demoFrame(steps, elapsed, timing, initialMetric);
   // A play-once demo stops at its last frame: Play then replays it from the start.
   const finished = !loop && frame.done;

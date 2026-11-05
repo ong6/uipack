@@ -41,7 +41,7 @@ export function RequestFlow() {
 }
 ```
 
-**Styles.** Every colour, face, radius and ornament is a role (`--ui-paper`, `--ui-ink-2`, `--ui-accent`, `--ui-font-display`, `--ui-backdrop`…) defined once per style in `src/styles` and shipped at the top of every entry stylesheet (alone as `uipack/styles.css`). Technical is the default: Cyanotype, a blueprint (Prussian-blue ink on a cool white sheet, a deep-blue dark half, one amber mark, square hairlines, Archivo Expanded headings on page, slide and figure, Martian Mono labels). `uiStyle="landing"` or `uiStyle="graphical"` on a component, or `data-ui-style` on any ancestor, swaps the values and nothing else. `uiStyles` lists them (faces, the display face to preload, and the web section order each would pick, used only under `WebPage layout="style"`; by default a page keeps its own order in every style) and `styleBootScript()` returns a blocking head script that sets `data-ui-style` and `data-ui-theme` before the first paint. The contract: [docs/system/style.md](docs/system/style.md).
+**Styles.** Every colour, face, radius and ornament is a role (`--ui-paper`, `--ui-ink-2`, `--ui-accent`, `--ui-font-display`, `--ui-backdrop`…) defined once per style in `src/styles` and shipped at the top of every entry stylesheet (alone as `uipack/styles.css`). Technical is the default: Cyanotype, a blueprint (Prussian-blue ink on a cool white sheet, a deep-blue dark half, one amber mark, square hairlines, IBM Plex Sans headings on page, slide and figure, IBM Plex Mono labels). `uiStyle="landing"` or `uiStyle="graphical"` on a component, or `data-ui-style` on any ancestor, swaps the values and nothing else. `uiStyles` lists them (faces, the display face to preload, and the web section order each would pick, used only under `WebPage layout="style"`; by default a page keeps its own order in every style) and `styleBootScript()` returns a blocking head script that sets `data-ui-style` and `data-ui-theme` before the first paint. The contract: [docs/system/style.md](docs/system/style.md).
 
 Separate entries, so a page loads only what it draws: `uipack` for parts, `uipack/presets` for ready figures, `uipack/charts` with `uipack/charts.css` for the span chart and layer stack, `uipack/article` with `uipack/article.css` for the labelled blocks of a long article, `uipack/presentations` for slide starters and speaker guides, `uipack/deck` with `uipack/deck.css` for the deck player, `uipack/web` with `uipack/web.css` for web pages in three styles (with head, JSON-LD, FAQ and crawl-file helpers: [web discoverability](docs/web-discoverability.md)), `uipack/mechanism` with `uipack/mechanism.css` for crafted isometric machines, and `uipack/browser` with `uipack/browser.css` for the asset browser.
 
@@ -176,7 +176,7 @@ const steps: DemoStep[] = [
 </BackgroundFrame>
 ```
 
-Every class and token is scoped under `.uipack-web`; there are no global element rules. Type comes in three self-hosted roles per style: Technical sets Archivo Expanded for display, Archivo for text and Martian Mono for labels and data; Landing sets Instrument Serif for display (headings at steps 4–6, the hero, big numbers), IBM Plex Sans for text and IBM Plex Mono for labels and data. They are latin woff2 files in `uipack/fonts/*` (fetched only when the active style uses them, no third-party requests); override `--web-font-display`, `--web-font-text` or `--web-font-mono` to change one. `<SmoothScroll />` is an opt-in, dependency-free Lenis-style wheel easing that moves the real page scroll (off on touch and under reduced motion) and eases in-page anchors below a sticky `GlassNav`; `smoothScrollTo(target, { offset, duration })` scrolls from code. See [type roles and smooth scrolling](docs/web-principles.md#type-roles). Under reduced motion, DemoPlayer holds still on its final state (every step stays in the DOM as text for screen readers and crawlers), and the other pieces render still. `/web` in the playground composes a full example page.
+Every class and token is scoped under `.uipack-web`; there are no global element rules. Type comes in three self-hosted roles per style: Technical sets IBM Plex Sans for display (600) and text and IBM Plex Mono for labels and data; Landing sets Instrument Serif for display (headings at steps 4–6, the hero, big numbers), IBM Plex Sans for text and IBM Plex Mono for labels and data. They are latin woff2 files in `uipack/fonts/*` (fetched only when the active style uses them, no third-party requests); override `--web-font-display`, `--web-font-text` or `--web-font-mono` to change one. `<SmoothScroll />` is an opt-in, dependency-free Lenis-style wheel easing that moves the real page scroll (off on touch and under reduced motion) and eases in-page anchors below a sticky `GlassNav`; `smoothScrollTo(target, { offset, duration })` scrolls from code. See [type roles and smooth scrolling](docs/web-principles.md#type-roles). Under reduced motion, DemoPlayer holds still on its final state (every step stays in the DOM as text for screen readers and crawlers), and the other pieces render still. `/web` in the playground composes a full example page.
 
 ![Web UI, light](docs/web-1440-light.png)
 ![Web UI motion, dark](docs/web-motion-1440-dark.png)
@@ -341,8 +341,8 @@ Every colour is a CSS custom property on `.uipack`, so a host restyles by settin
   --uipack-token-response: #2b7a4b;
   --uipack-token-change: #7048c0;
   --uipack-token-error: #c2392b;
-  --uipack-mono: "Martian Mono", ui-monospace, Menlo, monospace;
-  --uipack-sans: Archivo, system-ui, sans-serif;
+  --uipack-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --uipack-sans: "IBM Plex Sans", system-ui, sans-serif;
 }
 ```
 

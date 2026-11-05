@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { DeckPlayer } from "../src/deck";
-// Every style's slide faces are self-hosted (src/web/fonts.css): Technical's Archivo and Martian
-// Mono, Plex for Landing and Graphical, so slide fit is the same on every machine.
+// Every style's slide faces are self-hosted (src/web/fonts.css): Technical's IBM Plex Sans and
+// Mono (Plex for Landing and Graphical too), so slide fit is the same on every machine.
 import "../src/styles/landing.css";
 import "../src/styles/graphical.css";
 import "../src/web/fonts.css";

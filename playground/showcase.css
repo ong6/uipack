@@ -10,7 +10,7 @@
    holds Technical's roles, and the shell's colours read them there, not on <html>, which carries
    the page's style. Their dark half follows data-theme through color-scheme. */
 body {
-  /* Type: Technical's faces (Archivo Expanded headings, Archivo text, Martian Mono labels), read on <body> like the colours. */
+  /* Type: Technical's faces (IBM Plex Sans headings and text, IBM Plex Mono labels), read on <body> like the colours. */
   --show-font-sans: var(--ui-font-text);
   --show-font-display: var(--ui-font-display);
   --show-font-mono: var(--ui-font-label);

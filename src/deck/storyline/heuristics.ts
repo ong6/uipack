@@ -410,7 +410,10 @@ const ECHO_STOP = /*#__PURE__*/ new Set(
 
 /** A word's rough root, so "approve" and "approval", "change" and "changes" match. */
 const echoRoot = (word: string) => {
-  const w = word.toLowerCase().replace(/['’]s$/, "").replace(/[.,%]+$/, "");
+  const w = word
+    .toLowerCase()
+    .replace(/['’]s$/, "")
+    .replace(/[.,%]+$/, "");
   return w.length > 5 ? w.slice(0, 5) : w.replace(/s$/, "");
 };
 
@@ -434,9 +437,13 @@ export function notesEcho(slide: StorySlide): { share: number; words: number } {
   if (!roots.length) return { share: 0, words: 0 };
   const shown = new Set(
     contentRoots(
-      [headlineOf(slide), slide.lede ?? "", ...(slide.points ?? []), ...Object.values(slide.slots ?? {}), slide.source ?? ""].join(
-        " ",
-      ),
+      [
+        headlineOf(slide),
+        slide.lede ?? "",
+        ...(slide.points ?? []),
+        ...Object.values(slide.slots ?? {}),
+        slide.source ?? "",
+      ].join(" "),
     ),
   );
   return { share: roots.filter((w) => shown.has(w)).length / roots.length, words: roots.length };
@@ -473,7 +480,8 @@ export function hasAskObject(headline: string, shown: string): boolean {
 }
 
 /** "No extra cost", "free", "zero headcount": an ask that says it costs nothing still names its cost. */
-const NO_COST_RE = /\b(?:no|zero|without)\s+(?:extra\s+|additional\s+|new\s+)?(?:cost|budget|spend|headcount|people|engineers?)\b|\bfree\b/i;
+const NO_COST_RE =
+  /\b(?:no|zero|without)\s+(?:extra\s+|additional\s+|new\s+)?(?:cost|budget|spend|headcount|people|engineers?)\b|\bfree\b/i;
 /** Money: "$40k", "€1,200", "40k a year". */
 const MONEY_RE = /[$€£¥]\s?\d|\b\d[\d,.]*\s?(?:k|m|bn)\b/i;
 

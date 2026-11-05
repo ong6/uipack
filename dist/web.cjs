@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkV7EQURTV_cjs = require('./chunk-V7EQURTV.cjs');
+var chunkDYSI3HXX_cjs = require('./chunk-DYSI3HXX.cjs');
 var chunkSDBNPDW6_cjs = require('./chunk-SDBNPDW6.cjs');
 var chunkCRQKMR73_cjs = require('./chunk-CRQKMR73.cjs');
 var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
@@ -147,9 +147,9 @@ function WebPage({
   as,
   children
 }) {
-  const meta = chunkV7EQURTV_cjs.uiStyles.find((s) => s.id === uiStyle);
+  const meta = chunkDYSI3HXX_cjs.uiStyles.find((s) => s.id === uiStyle);
   const page = { uiStyle, layout, defaults: layout === "style" ? meta.layout : SHARED };
-  const ids = order ? order.filter((id) => id in sections) : chunkV7EQURTV_cjs.sectionOrder(uiStyle, Object.keys(sections), layout);
+  const ids = order ? order.filter((id) => id in sections) : chunkDYSI3HXX_cjs.sectionOrder(uiStyle, Object.keys(sections), layout);
   return /* @__PURE__ */ jsxRuntime.jsxs(
     WebSurface,
     {
@@ -348,22 +348,30 @@ function PricingPlans({ plans, note, className = "" }) {
       );
   }
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-pricing ${className}`.trim(), children: [
-    /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "uipack-web-pricing__plans", "data-count": plans.length, style: { "--plans": Math.min(3, plans.length) }, children: plans.map((p, i) => /* @__PURE__ */ jsxRuntime.jsxs("li", { className: "uipack-web-plan", "data-featured": p.featured ? "" : void 0, children: [
-      /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-plan__head", children: [
-        /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 3, size: 1, className: "uipack-web-plan__name", children: p.name }),
-        p.badge && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-plan__badge", children: p.badge })
-      ] }),
-      /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-web-plan__price", children: [
-        /* @__PURE__ */ jsxRuntime.jsx("span", { children: p.price }),
-        p.period && /* @__PURE__ */ jsxRuntime.jsx("small", { children: p.period })
-      ] }),
-      p.summary && /* @__PURE__ */ jsxRuntime.jsx(Body, { children: p.summary }),
-      p.features && p.features.length > 0 && /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "uipack-web-plan__features", children: p.features.map((f, j) => /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(Check, {}),
-        /* @__PURE__ */ jsxRuntime.jsx("span", { children: f })
-      ] }, j)) }),
-      p.action && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-plan__action", children: /* @__PURE__ */ jsxRuntime.jsx(CtaButton, { href: p.action.href, variant: p.featured ? "primary" : "secondary", children: p.action.label }) })
-    ] }, i)) }),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      "ul",
+      {
+        className: "uipack-web-pricing__plans",
+        "data-count": plans.length,
+        style: { "--plans": Math.min(3, plans.length) },
+        children: plans.map((p, i) => /* @__PURE__ */ jsxRuntime.jsxs("li", { className: "uipack-web-plan", "data-featured": p.featured ? "" : void 0, children: [
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-plan__head", children: [
+            /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 3, size: 1, className: "uipack-web-plan__name", children: p.name }),
+            p.badge && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-plan__badge", children: p.badge })
+          ] }),
+          /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-web-plan__price", children: [
+            /* @__PURE__ */ jsxRuntime.jsx("span", { children: p.price }),
+            p.period && /* @__PURE__ */ jsxRuntime.jsx("small", { children: p.period })
+          ] }),
+          p.summary && /* @__PURE__ */ jsxRuntime.jsx(Body, { children: p.summary }),
+          p.features && p.features.length > 0 && /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "uipack-web-plan__features", children: p.features.map((f, j) => /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
+            /* @__PURE__ */ jsxRuntime.jsx(Check, {}),
+            /* @__PURE__ */ jsxRuntime.jsx("span", { children: f })
+          ] }, j)) }),
+          p.action && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-plan__action", children: /* @__PURE__ */ jsxRuntime.jsx(CtaButton, { href: p.action.href, variant: p.featured ? "primary" : "secondary", children: p.action.label }) })
+        ] }, i))
+      }
+    ),
     note && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-pricing__note", children: note })
   ] });
 }
@@ -810,6 +818,13 @@ function DemoPlayer({
     if (!el || typeof ResizeObserver === "undefined") return;
     let width = 0;
     let tallest = 0;
+    let frame2 = 0;
+    const apply = (value) => {
+      cancelAnimationFrame(frame2);
+      frame2 = requestAnimationFrame(() => {
+        el.style.minHeight = value;
+      });
+    };
     const ro = new ResizeObserver(([entry]) => {
       const border = getComputedStyle(el).boxSizing === "border-box";
       const box = (border ? entry.borderBoxSize : entry.contentBoxSize)?.[0];
@@ -819,17 +834,20 @@ function DemoPlayer({
         width = w;
         tallest = 0;
         if (el.style.minHeight) {
-          el.style.minHeight = "";
+          apply("");
           return;
         }
       }
       if (h > tallest + 0.5) {
         tallest = h;
-        el.style.minHeight = `${Math.ceil(h)}px`;
+        apply(`${Math.ceil(h)}px`);
       }
     });
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      cancelAnimationFrame(frame2);
+      ro.disconnect();
+    };
   }, []);
   const end = demoEnd(steps, timing);
   const cycle = demoCycle(steps, timing);

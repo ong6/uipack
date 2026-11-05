@@ -410,7 +410,7 @@
   background: transparent;
   color: var(--deck-fg);
   font: 500 13px/1 var(--deck-mono);
-  /* A wide label face (Technical's Martian Mono) tracks tighter, so the row still fits on one line. */
+  /* A label face with wide tracking tracks tighter, so the row still fits on one line. */
   letter-spacing: min(0.04em, var(--ui-label-tracking, 0.04em));
   white-space: nowrap;
   cursor: pointer;
