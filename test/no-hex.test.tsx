@@ -11,10 +11,6 @@ const ALLOWED: Record<string, { count: number; why: string }> = {
     count: 61,
     why: "Vendored isometric kit (MIT, src/mechanism/kit/LICENSE), kept byte-for-byte; mechanism.css maps its output to roles.",
   },
-  "src/objects/scenes.ts": {
-    count: 29,
-    why: "Material and canvas-texture colours of the authored 3D subjects (WebGL reads numbers, not CSS).",
-  },
   "src/objects/objects.css": {
     count: 24,
     why: "Stage gradients of the five non-Studio 3D art directions, each its own style (docs/objects.md); Studio reads roles.",
