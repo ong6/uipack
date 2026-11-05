@@ -208,6 +208,7 @@
   font-size: 18px;
   font-weight: 600;
   line-height: 1.3;
+  text-wrap: balance;
 }
 .fdn-style > p,
 .fdn-pair > p {
@@ -223,6 +224,12 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
+}
+/* On a phone the light and dark halves stack, so every role's token name shows whole. */
+@media (max-width: 540px) {
+  .fdn-style__themes {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .fdn-swatches {
   min-width: 0;
@@ -410,6 +417,7 @@
   letter-spacing: var(--web-display-tracking);
   text-transform: var(--web-display-case);
   color: var(--web-ink);
+  text-wrap: balance;
 }
 .fdn-display em {
   font-style: var(--ui-em-style, normal);
@@ -587,8 +595,9 @@
   }
 }
 .fdn-pair figure {
+  /* The caption, then the example filling the rest: the two boxes in a pair share a height. */
   display: grid;
-  align-content: start;
+  grid-template-rows: auto 1fr;
   gap: 8px;
   margin: 0;
   min-width: 0;
