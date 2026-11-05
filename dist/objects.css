@@ -967,6 +967,7 @@
   border-radius: 50%;
   color: inherit;
   background: transparent;
+  font: 500 12px/1 var(--uipack-mono, ui-monospace, monospace);
   cursor: pointer;
 }
 .uipack-object-open {
