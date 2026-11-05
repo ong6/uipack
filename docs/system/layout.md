@@ -126,7 +126,7 @@ words nor the style.
   | Archetype | Component | Holds |
   | --- | --- | --- |
   | Nav | `GlassNav` | Brand (on the sections' start edge), links, the CTA. Below 720px: brand on the start edge, Menu on the end edge. The CTA stays in the bar beside Menu, with its `short` label (`cta={{ label, short, href }}`); below 340px it moves into the menu |
-  | Hero | `StarHero` | Eyebrow, headline, subhead, actions, then the proof: a `DemoPlayer` or a `Figure`. `layout="split"` (use it with a product proof) sets copy on 5 columns and the proof on 7 from 1024px, top-aligned, so a wide screen has no empty half; stacked below. `stamp={{ value, label }}` carries the page's one measured number in the style's device (Technical revision tag, Landing die-cut label, Graphical postmark), beside the actions |
+  | Hero | `StarHero` | Eyebrow, headline, subhead, actions, then the proof: a `DemoPlayer` or a `Figure`. `layout="split"` (use it with a product proof) sets copy on 5 columns and the proof on 7 from 1024px, top-aligned, so a wide screen has no empty half; stacked below. `stamp={{ value, label }}` carries the page's one measured number in the style's device (Technical's revision tag; the written specs give a die-cut label and a postmark), beside the actions |
   | Demo | `DemoPlayer` steps mode | The product's screens. `rail="compact"` (default): one row of step labels over the screen, the step tabs while it plays, under the screen below 720px; `"side"` the full checklist in a start column (under the screen below 720px); `"none"`. At rest (and under reduced motion) no step caption shows |
   | Steps | `Section` + `FeatureGrid numbered` | Three numbered cards |
   | Mechanism | `Section` + `Figure` | A working figure, with quiet chrome on a web page |
@@ -136,9 +136,10 @@ words nor the style.
   | Closing | `ClosingCta` | A full-bleed band: the claim, the CTA a third time, a reassurance line |
   | Footer | `SiteFooter` | Brand, links, fine print |
 
-- **One order in every style.** `WebPage` renders `sections` in the order the page lists them, in
-  every style, and the hero keeps whatever proof the page put there. Swapping the style changes
-  tokens and ornaments only. Alignment is the start edge everywhere by default.
+- **The author's order.** `WebPage` renders `sections` in the order the page lists them, and the
+  hero keeps whatever proof the page put there. A style changes tokens and ornaments only, so a
+  style built later from a [written spec](styles/README.md) keeps the same order. Alignment is the
+  start edge by default.
 - **A style's own sequence is opt-in.** `WebPage layout="style"` uses `uiStyles[].prefers` and
   `.layout` (what fills the hero, alignment, cards or rows). Ids a style doesn't name are kept, after
   the ones it does. Section ids it knows: `hero`, `how`, `demo`, `mechanism`, `proof`, `faq`,
@@ -147,11 +148,10 @@ words nor the style.
   | Style | Its own order (opt-in) | Its own hero |
   | --- | --- | --- |
   | Technical | hero → how → demo → proof → FAQ → pricing | The figure, start edge; steps as numbered rows |
-  | Landing | hero → how → mechanism → proof → FAQ → pricing | The demo, centred |
-  | Graphical | hero → proof → how → mechanism → pricing → FAQ | The demo, centred |
 
-  Section render functions receive `{ uiStyle, layout, defaults }`; under the default layout,
-  `defaults` is `{ hero: "demo", align: "start", steps: "cards" }` in every style.
+  The written specs record their own orders for when they are built. Section render functions
+  receive `{ uiStyle, layout, defaults }`; under the default layout, `defaults` is
+  `{ hero: "demo", align: "start", steps: "cards" }`.
 - One goal, so the primary CTA appears three times (hero, nav, closing band) and nothing else competes.
 - One ambient background per viewport, behind the star, never behind body copy. A hero with a
   proof draws no extra chart: the proof is the star.

@@ -3,38 +3,41 @@
 The rules behind `uipack/web`. Each has the rule, the number to hold it to, and where it came from.
 The components enforce what they can; the rest is on the page author.
 
-## Web styles
+## Web style
 
-`uipack/web` renders in three styles, one value set each in `src/styles` (see
-[docs/system/style.md](system/style.md)). Pick one with `<WebSurface uiStyle="…">` or a whole page with `<WebPage uiStyle="…" sections={…}>` (or
-`data-ui-style` on any ancestor, set before paint by `styleBootScript()`). A swap changes tokens and
-ornament slots only: the same sections in the page's own order, the same hero, boxes and reading
-order (`e2e/style-swap.spec.ts`). A style's own order (`uiStyles[].prefers`) is an explicit opt-in.
+`uipack/web` renders in Technical, the one implemented style (its values in `src/styles/technical.css`,
+its roles in [docs/system/style.md](system/style.md)). Landing and Graphical are written specs
+([docs/system/styles/](system/styles/README.md)) that fill the same role contract; an agent builds a
+new style from a spec by adding one value set in `src/styles`, registering it in `uiStyles`, and
+testing it. `<WebSurface uiStyle="…">`, `<WebPage uiStyle="…" sections={…}>` and `data-ui-style` on
+any ancestor (set before paint by `styleBootScript()`) select a registered style; omitted, it is
+Technical. A style changes tokens and ornament slots only: the same sections in the page's own
+order, the same hero, boxes and reading order.
 
 | Style | Use it for | Palette | Faces | Ornaments | Own order (opt-in only) |
 | --- | --- | --- | --- | --- | --- |
-| **Technical** (default) | Product and project pages that should read like junxiong.dev's figures | Cyanotype: cool white `#f3f6f9`, Prussian ink `#0b2748`, one amber `#9c5700` (dark: deep Prussian `#0a2342`, `#edf3fb`, gold `#f0c45a`) | IBM Plex Sans 600 headlines (the same face on slides and figure titles), Plex Sans text, IBM Plex Mono labels | An engineering drawing, compact (density 0.9). Drafting-film grid behind the hero only (and on figure canvases), masked; a 7px amber dot and a mono section index before eyebrows (`01 / HOW IT WORKS`); a dimension line (hairline, end ticks at both ends) over each section's column; steps in 36px ringed detail bubbles; ink crop marks at all four corners of cards and plans; stats between 1px rules; the quote as a hairline annotation; the featured plan with a 4px amber top rule; square table cells with Prussian peaks; windows without traffic lights; figures with the full flow code (cyan main flow); square corners, 1px hairlines, no shadow, glow or grain; the headline's key phrase in ink over an amber underline (gold in dark); a Prussian primary button (gold in dark); a plain Prussian closing band with a gold button | Hero with the figure → steps as numbered rows → demo → proof → FAQ → pricing |
-| **Landing** (product marketing) | When the brief is a product-marketing page that should read as considered print | Warm ivory `#f6f2e8`, kraft band `#ece5d4`, ledger-green CTA `#1d5a43` | Instrument Serif display from step 4 (emphasis in green italic), Plex Sans, Plex Mono | Label stock (density 1): a solid masthead nav; ruled 1px forms with 4px corners and no shadow or glow; perforated (dashed) internal divisions; steps as "No. 1" stubs; a pull quote on a green rule; the featured plan as the green-tinted ticket; kraft table chips; ink-key buttons; a die-cut label stamp; a ledger-green closing band with an ivory button | Hero (centred, demo) → steps → mechanism → proof → FAQ → pricing |
-| **Graphical** | Launches, events, campaigns: a page that should look like a poster | Bone `#f1eee6`, black ink, one signal orange `#f24a00` (text uses `#b23700`) | Anton display in caps at 1.3× the scale, Plex Sans, Plex Mono | The accent disc and a ruled band in the hero backdrop (below 720px the tick band only, so no clipped disc under the nav); giant Anton step numerals; stats between 2px ink rules; the quote as an orange poster block in caps; the featured plan with an orange offset shadow; ink-ruled table cells; the disc again as every eyebrow marker; 2px ink frames with hard 6px offset shadows; 0 radius; 2px section rules; figure flows in ink, grey and orange; an orange closing band; no glow or grain | Hero → proof (big numbers) → steps → mechanism → pricing → FAQ |
+| **Technical** | Product and project pages that should read like junxiong.dev's figures | Cyanotype: cool white `#f3f6f9`, Prussian ink `#0b2748`, one amber `#9c5700` (dark: deep Prussian `#0a2342`, `#edf3fb`, gold `#f0c45a`) | IBM Plex Sans 600 headlines (the same face on slides and figure titles), Plex Sans text, IBM Plex Mono labels | An engineering drawing, compact (density 0.9). Drafting-film grid behind the hero only (and on figure canvases), masked; a 7px amber dot and a mono section index before eyebrows (`01 / HOW IT WORKS`); a dimension line (hairline, end ticks at both ends) over each section's column; steps in 36px ringed detail bubbles; ink crop marks at all four corners of cards and plans; stats between 1px rules; the quote as a hairline annotation; the featured plan with a 4px amber top rule; square table cells with Prussian peaks; windows without traffic lights; figures with the full flow code (cyan main flow); square corners, 1px hairlines, no shadow, glow or grain; the headline's key phrase in ink over an amber underline (gold in dark); a Prussian primary button (gold in dark); a plain Prussian closing band with a gold button | Hero with the figure → steps as numbered rows → demo → proof → FAQ → pricing |
 
-**One layout in every style (default).** `WebPage` renders `sections` in the order the page lists
-them and sets `data-ui-layout="shared"`: every style gets the same order, the same hero proof and
-start-edge alignment, so a swap changes the look and nothing else. Section render functions
-receive `{ uiStyle, layout, defaults }`; by default `defaults` is the same for all three (`hero:
-"demo"`, `align: "start"`, `steps: "cards"`). `layout="style"` opts into a style's own order and
-defaults (`uiStyles[].prefers` and `.layout`, `data-ui-layout="style"`): Technical then puts the
-figure in the hero and draws steps as numbered rows. Ids a style doesn't name are kept, after the
-ones it does.
+A brief that needs a warmer product-marketing page or a loud poster builds the
+[Landing](system/styles/landing.md) or [Graphical](system/styles/graphical.md) spec first; it
+does not restyle Technical.
+
+**The author's layout (default).** `WebPage` renders `sections` in the order the page lists them
+and sets `data-ui-layout="shared"`: the page's own order, hero proof and start-edge alignment,
+whatever the style. Section render functions receive `{ uiStyle, layout, defaults }`; by default
+`defaults` is `{ hero: "demo", align: "start", steps: "cards" }`. `layout="style"` opts into the
+style's own order and defaults (`uiStyles[].prefers` and `.layout`, `data-ui-layout="style"`):
+Technical then puts the figure in the hero and draws steps as numbered rows. Ids a style doesn't
+name are kept, after the ones it does.
 
 **Figures on a web page.** `WebSurface` (and so `WebPage`) gives figures quiet chrome: no Open
 canvas and no legend with fewer than two entries, which belong to articles and docs. `Figure
 chrome="full"` (or `WebSurface figureChrome="full"`) brings them back. A figure takes the page's
-text and label faces, its frame (Graphical's 2px ink and hard shadow, Landing's 1px ink edge) and its
-radius, and each style keeps the flow colours in its own palette.
+text and label faces, its frame and its radius, and the flow colours stay in the style's palette.
 
 **Closing parts.** `Proof`, `PricingPlans`, `ClosingCta`, `SiteFooter`, `Brand` and `FeatureGrid
-numbered` are one layout in every style, painted through roles. Use them rather than page CSS, so
-the swap keeps them in place.
+numbered` are one layout, painted through roles. Use them rather than page CSS, so a style
+built later from a spec paints them without moving them.
 
 **The nav at phone width.** Below 720px `GlassNav` folds its links into a menu, with the brand on
 the start edge and Menu on the end edge. The page's goal stays in the bar as a compact button beside
@@ -43,8 +46,7 @@ about 20 characters ("Start a free trial") so brand, button and Menu share a 390
 
 **Show the product's real output.** The largest object above the fold is the product doing its
 job with real-looking rows: never an empty demo panel, a chat box for a product that is not a chat,
-or an icon-in-a-box flow. The parts for it, one layout in every style and painted by the
-treatment roles:
+or an icon-in-a-box flow. The parts for it, one layout painted by the treatment roles:
 
 | Part | Shows |
 | --- | --- |
@@ -66,26 +68,18 @@ then replace the words and rows.
 
 Shared finish rules hold in every style: one accent, glow only for selection (no style has an
 ambient glow; `GrainOverlay` and `Aurora` are opt-in components), contrast of 4.5:1 for
-small text in both themes (`test/style-roles.test.tsx`), the finished state under reduced motion.
-Graphical avoids the generic-AI tropes on purpose: no purple, no gradient blobs, no glass, no
-emoji icons, no rounded-everything; so does Landing since 2026-11-05 (label stock replaced its
-cobalt, glass and soft shadows, which read as stock SaaS beside Technical).
+small text in both themes (`test/style-roles.test.tsx`), the finished state under reduced motion,
+and none of the generic-AI tropes: no purple, no gradient blobs, no glass, no emoji icons, no
+rounded-everything.
 
-**Performance per style** (Lighthouse 13.5 mobile, built playground, median of 3, 2026-11-04;
-`/web?style=…`): Technical LCP 2.27 s, 101 KB of fonts in 5 files (before Cyanotype; now 77 KB
-in 6, not yet re-measured); Landing 2.57 s, 143 KB in 7;
-Graphical 2.42 s, 119 KB in 6. CLS 0 in all three. The same method on the commit before the
-styles measured Landing at 2.42 s; the 0.15 s is the role layer and the two extra stylesheets on
-the first view. Each style preloads only its own display face, at 720px and wider (Landing:
-Instrument Serif; Graphical: Anton; Technical: IBM Plex Sans 600).
+**Performance** (Lighthouse 13.5 mobile, built playground, median of 3, 2026-11-04, `/web`):
+Technical LCP 2.27 s, 101 KB of fonts in 5 files (the same IBM Plex files it ships now; measured
+before the Cyanotype colours), CLS 0. `/web` preloads only the display weight, IBM Plex Sans 600, at
+720px and wider. The written specs record the numbers Landing and Graphical measured.
 
-Evidence: the first screen of `/web` in each style at 1440 and 390, both themes, is in
-[`docs/styles/`](styles/) (`web-<style>-<width>-<theme>.png`), with the same deck slides in each
-style (`deck-moves-<style>-<theme>.png`, `deck-consulting-<style>-<theme>.png`).
-
-Rules 5 (grain and glass, now opt-in components), 9 (the 60/30/10, now ivory, kraft and green)
-and 19–21 (the three Landing faces) describe Landing. Technical and Graphical replace them with the table above; every other rule applies to all
-three.
+The numbered rules below hold for every style. Where a rule names a value (rule 5's grain and glass,
+rule 9's 60 / 30 / 10, rules 19–21's faces), Technical's value is given; a style built from a spec
+takes the spec's.
 
 | Code | Source |
 | --- | --- |
@@ -119,8 +113,10 @@ three.
    page, pause rendering off-screen, and ship a still image on mobile. (CA)
 4. **Visual rhyming.** Repeat one shape motif from the star down the page. `RhymeIcon` draws feature
    icons from the hero's own curve. (SMWD-6)
-5. **Quiet depth.** Noise at 6–8% opacity and glass (backdrop blur 14px, 1px hairline at 12% ink).
-   Noise is inline SVG `feTurbulence`: no image file, no request. (SMWD-6)
+5. **Quiet depth.** Noise at 6–8% opacity and glass (backdrop blur 14px, 1px hairline at 12% ink),
+   when a page asks for them. Noise is inline SVG `feTurbulence`: no image file, no request.
+   Technical's own depth is flat: no grain, a paper nav at 94%, hairlines instead of shadows; grain
+   and glass stay opt-in components. (SMWD-6)
 6. **Hierarchy by opacity, not more colours.** Text at 100% / 87% / 66% of one ink colour
    (Material's high, medium, and low emphasis). (SMWD-6)
 
@@ -133,16 +129,18 @@ three.
    Every gap and padding is a multiple of 8. `Grid` and `GridItem span={[w, m, n]}` respond to their
    container, not the viewport. (SMWD-5)
 9. **60 / 30 / 10 colour, 2–3 colours in total.** Neutral 60% (`--web-bg`), secondary 30%
-   (`--web-secondary`), one accent 10% (`--web-accent`) reserved for CTAs and the star. (SMWD-5)
+   (`--web-secondary`), one accent 10% (`--web-accent`) reserved for CTAs and the star. In
+   Technical: the cool white sheet, its blue-grey surface-2 and amber. (SMWD-5)
 10. **Contrast of at least 4.5:1 for small text and 3:1 for large text,** in both themes. The unit tests compute this
     from `web.css` for 66% and 87% text on every surface. (SMWD-5)
 
 ## Process
 
 11. **Choose the headline font first, then pair it.** Browse Fontshare, uncut.wtf and Fonts In Use; pick the
-    display face that carries the brand, then a quiet text face. Landing ships one tested pairing in three
-    roles (see [Type roles](#type-roles)); to use your own, set `--web-font-display` (and
-    `--web-display-weight` / `--web-display-tracking`) on `.uipack-web`. (SMWD-6, RN)
+    display face that carries the brand, then a quiet text face. Technical ships one tested pairing
+    in three roles (see [Type roles](#type-roles)); a different pairing is a new style built from a
+    [written spec](system/styles/README.md), or the documented override: set `--web-font-display`
+    (and `--web-display-weight` / `--web-display-tracking`) on `.uipack-web`. (SMWD-6, RN)
 12. **Make a radically different version before refining.** Two or three divergent directions first,
     then polish the winner. (SMWD-6)
 13. **Start from an 80% snippet, then tune it.** 21st.dev, React Bits and Canvas UI give a working
@@ -179,47 +177,38 @@ three.
 
 ## Type roles
 
-19. **Three faces, one job each.** The faces are self-hosted: latin-subset woff2 files in the package's
-    `fonts/` folder (`dist/fonts`, exported as `uipack/fonts/*`), each with its SIL OFL licence,
-    `font-display: swap`, and no third-party request. A browser fetches a file only when a Landing
-    element uses it; the whole set is 141 KB. (This rule and the next two describe Landing's faces;
-    Technical's are IBM Plex Sans and IBM Plex Mono, in
-    [Style](system/style.md#type-roles).)
+19. **Three roles, one job each.** The faces are self-hosted: latin-subset woff2 files in the
+    package's `fonts/` folder (`dist/fonts`, exported as `uipack/fonts/*`), each with its SIL OFL
+    licence, `font-display: swap`, and no third-party request. A browser fetches a file only when an
+    element uses it; Technical's five files are about 101 KB. (The written specs give the faces a
+    Landing or Graphical build would add.)
 
     | Role | Token | Face | Weights | Jobs |
     | --- | --- | --- | --- | --- |
-    | Display | `--web-font-display` | Instrument Serif | 400 + italic (21 + 22 KB) | Headings at steps 4–6, the hero, big numbers (`NumberTicker`, the DemoPlayer metric, prices), pull quotes |
+    | Display | `--web-font-display` | IBM Plex Sans | 600 (24 KB) | Headings at steps 4–6, the hero, big numbers (`NumberTicker`, the DemoPlayer metric, prices), the stamp; the same face and weight as slide and figure titles |
     | Text | `--web-font-text` (alias `--web-font-sans`) | IBM Plex Sans | 400 / 500 / 600 (22 + 24 + 24 KB) | Body, subheads, buttons, nav, headings at steps 0–3 |
-    | Mono | `--web-font-mono` | IBM Plex Mono | 400 / 600 (15 + 16 KB) | Eyebrows, labels, step numbers, addresses, data, code, metadata |
+    | Mono | `--web-font-mono` | IBM Plex Mono | 400 / 600 (15 + 16 KB) | Eyebrows, labels, step numbers, addresses, data, code, metadata; a 0.6em advance, the width diagrams and controls are authored for |
 
-    Why this pairing: a high-contrast editorial serif gives headlines a voice the grotesk body cannot,
-    and Plex Sans and Plex Mono are already the owner's site faces. Instrument Serif's x-height
-    (0.510 em) matches Plex Sans (0.516 em), so a serif headline and sans copy share a size rhythm;
-    its letters are about a quarter narrower (average width 0.36 em against 0.48 em).
+    Why this pairing: one grotesk family for headings and copy keeps page, slide and figure titles
+    in one voice, and the mono's fixed advance keeps labels, IDs and controls on the widths the
+    figures are drawn for. Plex Sans and Plex Mono are already the owner's site faces.
 
-20. **The face is decided by size.** `Heading` steps 4–6 (39, 49, 61px; 31px and up in narrow
-    containers) use the display face at its one weight (`--web-display-weight: 400`, faux bold off)
-    with `--web-display-tracking: -0.01em` and leading 1.1 / 1.05 / 1.02. Steps 0–3 stay in the text
-    face: a hairline serif loses its contrast below about 32px and reads as body. Text headings are
-    600, except step 3 at 500 so a 31px sans heading does not outweigh a 39px serif one; their tracking
-    runs −0.015em (step 3) to 0. Because the display face is narrower, steps 6 and 5 drop one step in
-    narrow containers instead of two, and the hero scales between 39 and 49px with its container
-    (`11.5cqi`). `typeRole(step)` and `typeMetrics(step)` return the same rule in code. Use `<em>`
-    in a display headline for the one phrase that matters: the italic is a real face.
+20. **The face role is decided by size.** `Heading` steps 4–6 (39, 49, 61px; one step smaller in
+    narrow containers) use the display role at its one weight (`--web-display-weight: 600`, faux
+    bold off) with `--web-display-tracking: -0.01em` and leading 1.1 / 1.05 / 1.02. Steps 0–3 use
+    the text role at 600, except step 3 at 500; their tracking runs −0.015em (step 3) to 0. In
+    narrow containers steps 6 and 5 drop one step, and the hero scales between 39 and 49px with its
+    container (`11.5cqi`). `typeRole(step)` and `typeMetrics(step)` return the same rule in code.
+    Use `<em>` in a display headline for the one phrase that matters: Technical sets it in ink over
+    an amber underline (gold in dark), never a synthesised italic.
 
-21. **Swap without a jump.** Each face has a local fallback (`Instrument Serif Fallback` on Times New
-    Roman, `IBM Plex Sans Fallback` on Arial, `IBM Plex Mono Fallback` on Courier New, the same pair Technical uses; with Liberation
-    equivalents) scaled with `size-adjust` to the web font's average character width,
-    with its ascent and descent overridden, so lines wrap in the same places before and after the
-    swap. `NumberTicker` lays its count over the final value, because Instrument Serif has
-    proportional figures only. Pass `face="inherit"` for a number inside a sentence. The match is
-    by average width, not per string: on `/web` at 1440px the centred hero headline still re-wrapped
-    on the swap (CLS 0.042), so wide layouts also preload the display face (rule 30).
-
-The `/web` playground's type specimen compares two alternates, IBM Plex Serif 400 and Space
-Grotesk 500 (−0.03em), across every Landing surface on the page. They load from `@fontsource` in the
-playground only and are not in the package, and only when the toggle comes within 600px of the
-viewport or takes focus, so `/web`'s first view requests the package's seven files and no others.
+21. **Swap without a jump.** Each face has a local fallback (`IBM Plex Sans Fallback` on Arial,
+    `IBM Plex Mono Fallback` on Courier New, with Liberation equivalents) scaled with `size-adjust`
+    to the web font's average character width, with its ascent and descent overridden, so lines
+    wrap in the same places before and after the swap. `NumberTicker` lays its count over the final
+    value, so a changing number never shifts its line. Pass `face="inherit"` for a number inside a
+    sentence. The match is by average width, not per string, so wide layouts also preload the
+    display face (rule 30).
 
 ## Smooth scrolling
 

@@ -28,35 +28,27 @@ Shared building blocks, so a new part does not grow its own copy:
 
 ## A new visual style
 
-A style is one value set plus its doc. Layouts and components read roles (`var(--ui-ink-2)`), so a
-new style needs no component changes unless it adds a part. The contract is
-[docs/system/style.md](system/style.md#the-role-contract).
+Technical is the one implemented style. Landing and Graphical are written specs that fill the same
+role contract; an agent builds a new style from a spec by adding one value set in `src/styles`,
+registering it in `uiStyles`, and testing it. The full recipe, with every file and test, is in
+[docs/system/styles/README.md](system/styles/README.md); the contract is
+[docs/system/style.md](system/style.md#the-role-contract). In short:
 
 1. **The value set**: `src/styles/<id>.css`, one `[data-ui-style="<id>"]` block inside
-   `@layer uipack.tokens`, defining every core role (`test/style-values.ts` lists them;
-   `test/style-roles.test.tsx` fails on a missing one). Colours are `light-dark(light, dark)`
-   pairs. Optional roles (Technical's tuned `--ui-node`, `--ui-slide-*`…) stay unset: components
-   fall back to a core role. Never edit Technical's values to get a look.
-2. **Ornament slots**, still values: `--ui-backdrop` (and `-mask`), `--ui-frame-border`,
-   `--ui-frame-shadow`, `--ui-card-shadow`, `--ui-marker-size/-shape/-color`, `--ui-section-rule`,
-   `--ui-grain`, `--ui-glow`, `--ui-cta-shadow(-hover)`, `--ui-em-style/-color`, `--ui-star-fill`.
-   A slot never takes space, so a swap keeps every box.
-3. **Faces**, if the style brings one: a latin-subset woff2 in `src/web/fonts/` with its OFL
-   licence, an `@font-face` (`font-display: swap`) and a metric-matched `… Fallback` face
-   (`size-adjust`, `ascent-override`) in `src/web/fonts.css`. A face is fetched only when the style
-   uses it.
-4. **Register it**: add the file to `styleFiles` in `scripts/css-bundles.ts`, the id to `UiStyleId`
-   and `uiStyles` in `src/style.ts` (summary, fonts, the display face to preload, the web section
-   order it `prefers`), `STYLE_FILES` in `test/style-values.ts`, `visualStyles` in
-   `playground/catalog.ts` (`/styles` renders its card) and the `styles` lists of the pages that
-   switch (`/web`, the decks).
-5. **Tests that must pass**: contrast in both themes (`test/style-roles.test.tsx`), the swap boxes
-   (`e2e/style-swap.spec.ts`), no hex outside `src/styles` (`test/no-hex.test.tsx`).
-6. **Evidence and docs**: a row in the style table of `docs/system/style.md`, its section in
-   `docs/web-principles.md`, screenshots of `/web?style=<id>` and a deck at 1440 and 390 in both
-   themes under `docs/styles/`, and its `/web` mobile LCP against Landing's (budget: within 10%,
-   CLS under 0.05).
-7. `npm run build` and commit `dist/` with the change.
+   `@layer uipack.tokens` that sets every role (`test/style-values.ts` lists them;
+   `test/style-roles.test.tsx` fails on a missing one), ornament slots and treatment roles
+   included. Never edit Technical's values to get a look; add a component only for a new part.
+2. **Faces**, if the style brings one: a latin-subset woff2 in `src/web/fonts/` with its OFL
+   licence, an `@font-face` (`font-display: swap`) and a metric-matched `… Fallback` face in
+   `src/web/fonts.css`, and the font tests in `test/web.test.tsx` updated.
+3. **Register it**: `styleFiles` in `scripts/css-bundles.ts`, `UiStyleId` and `uiStyles` in
+   `src/style.ts` (summary, fonts, the face to preload, its opt-in `prefers` order and `layout`),
+   `STYLE_FILES` in `test/style-values.ts`.
+4. **Test it**: role completeness and contrast in both themes, no hex outside `src/styles`, label
+   fit with the new faces (`e2e/geometry.spec.ts`, `e2e/charts.spec.ts`), and screenshots at 1440
+   and 390 in both themes, inspected by eye.
+5. Mark the spec implemented, add the style to `docs/system/style.md`, then `npm run build` and
+   commit `dist/` with the change.
 
 ## A new playground page
 

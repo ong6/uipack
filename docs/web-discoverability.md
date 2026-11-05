@@ -1,4 +1,4 @@
-# Web discoverability (Landing style)
+# Web discoverability
 
 How a page built with `uipack/web` gets found, read and quoted: by search engines, by answer
 engines (ChatGPT search, Perplexity, Claude, Google AI Overviews and AI Mode), and by people on a
@@ -14,7 +14,7 @@ correct head, honest structured data, an explicit crawler policy and a fast firs
 
 ## Checklist
 
-A Landing page is ready to be found and quoted when:
+A `uipack/web` page is ready to be found and quoted when:
 
 | # | Check | How |
 | --- | --- | --- |
@@ -45,7 +45,7 @@ checked for its final text (`test/web-seo.test.tsx`).
 | `StarHero`, `Section`, `FeatureGrid`, `GlassNav`, `CtaButton` | Already correct: one `h1`, `h2`/`h3`, real `<a href>`, decorative SVG `aria-hidden`. | Unchanged; covered by a test. |
 | Backgrounds, `StarChart`, `RhymeIcon` | Decorative only (`aria-hidden`), sized by `viewBox` and CSS or explicit `width`/`height`; `::before`/`::after` hold only `content: ""` decoration. | Unchanged. |
 
-No Landing component renders a raster image, so there is no `<img>` to size; give your own images
+No `uipack/web` component renders a raster image, so there is no `<img>` to size; give your own images
 `width` and `height` (or `aspect-ratio`) so they reserve their box.
 
 ## API
@@ -101,15 +101,15 @@ basics][g-js]).
 ### Fonts: `fontPreloads`
 
 ```ts
-fontPreloads();                                         // display face only: /fonts/instrument-serif-latin-400-normal.woff2
-fontPreloads({ faces: ["display", "display-italic"] }); // hero title with an <em>
+fontPreloads();                                         // display face only: /fonts/ibm-plex-sans-latin-600-normal.woff2
+fontPreloads({ faces: ["display", "mono"] });           // a hero that also sets a mono eyebrow
 fontPreloads({ href: (file) => fontUrls[file] });       // bundler-hashed URLs; must equal what web.css fetches
 fontPreloads({ media: "(min-width: 720px)" });          // only where the swap moves the hero
 ```
 
 Returns `<link rel="preload" as="font" type="font/woff2" crossorigin>` descriptors. `WEB_FONT_FILES`
-maps each face (`display`, `display-italic`, `text`, `text-500`, `text-600`, `mono`, `mono-600`) to
-its file in `uipack/fonts/*`. Preload the faces the hero shows and nothing else: a preload takes
+maps each of Technical's faces (`display`, `text`, `text-500`, `text-600`, `mono`, `mono-600`) to
+its file in `uipack/fonts/*`; `display` is IBM Plex Sans 600, the same file as `text-600`. Preload the faces the hero shows and nothing else: a preload takes
 bandwidth from everything else in the first view and ignores `unicode-range` ([web.dev, font best
 practices][wd-fonts]). The measurements below show that trade.
 
@@ -336,6 +336,11 @@ control, and user-triggered agents may not follow it.
 Two methods, which disagree on mobile LCP by more than a factor of two. Use Lighthouse for the
 absolute number and the trace for comparing changes.
 
+These measurements (2026-10-23) were taken when `/web` rendered in the former Landing style, now a
+[written spec](system/styles/landing.md), with its Instrument Serif display faces. `/web` now renders
+in Technical, which fetches five IBM Plex files (about 101 KB) and preloads only Plex Sans 600; the
+method and the lessons below still apply, the absolute numbers have not been re-measured.
+
 **Lighthouse** 13.5 (CLI, headless Chrome, default mobile and `--preset=desktop`, simulated
 throttling), median of 3 runs, built playground (`vite build`, `vite preview`), 2026-10-23, after
 the playground's lazy-route change (below):
@@ -455,7 +460,7 @@ animation frame and only while in view; no long tasks while scrolling on desktop
 ## Limits
 
 - The playground is a client-rendered SPA, so its raw HTML has none of this; the e2e tests read the
-  rendered DOM. A real Landing page must be server-rendered or pre-rendered for checks 1, 4 and 5
+  rendered DOM. A real page must be server-rendered or pre-rendered for checks 1, 4 and 5
   to reach crawlers that do not run JavaScript.
 - The playground's `index.html` carries `<meta name="robots" content="noindex">`: it is an
   illustrative demo, so a deployed copy never gets indexed. A real page sets `robots` through

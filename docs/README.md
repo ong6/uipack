@@ -12,10 +12,11 @@
 - [Drill-down figures](drill.md): `DrillFigure` and `DrillNode`, a stack of figures where a node zooms open into its own figure, with the glow affordance, breadcrumb, keyboard, reduced motion and static export.
 
 Agent instructions live in [AGENTS.md](../AGENTS.md). Setup and verification live in the [root README](../README.md).
-- [Contributing](contributing.md): step-by-step recipes with the exact files to touch for a new visual style, playground page, example deck, slide part or chart, figure pattern, Mechanism machine and package entry, plus the shared helpers and prop names to reuse.
+- [Contributing](contributing.md): step-by-step recipes with the exact files to touch for a new visual style (from a [written spec](system/styles/README.md)), playground page, example deck, slide part or chart, figure pattern, Mechanism machine and package entry, plus the shared helpers and prop names to reuse.
 - [Component-first workflow](component-first.md): build, register, verify, then consume significant UI.
-- [Web principles](web-principles.md): the Landing style's numbered rules (`uipack/web`), each with its number and source video, including motion and backgrounds.
-- [Web discoverability](web-discoverability.md): how a Landing page gets found and quoted by search and answer engines: the checklist, `pageMeta`, JSON-LD builders, `FAQ`, `buildCrawlFiles` (robots.txt with an AI-crawler stance, sitemap.xml, llms.txt), `fontPreloads`, and measured before/after numbers.
+- [Web principles](web-principles.md): the numbered rules for `uipack/web` pages (in Technical, the implemented style), each with its number and source video, including motion and backgrounds.
+- [Style specs](system/styles/README.md): Landing and Graphical as written specs, and how an agent builds a new style from one.
+- [Web discoverability](web-discoverability.md): how a `uipack/web` page gets found and quoted by search and answer engines: the checklist, `pageMeta`, JSON-LD builders, `FAQ`, `buildCrawlFiles` (robots.txt with an AI-crawler stance, sitemap.xml, llms.txt), `fontPreloads`, and measured before/after numbers.
 - [Charts](charts.md): `SpanChart` (companies on the layers of a stack, with CSS-only layer, size and deals filters) and `LayerStack` (a bottom-up layer diagram with zone notes and cross-cutting rails), both static HTML with no JavaScript.
 - [Article parts](article.md): `uipack/article` (NoteCard, NoteCluster, LayerHead, TermList, Callout, ChangeNote, LinkList), the labelled blocks of a long article section, with the HTML and class contract for hosts that emit the markup without React.
 - [Product documentation layout](docs-layout.md): the `uipack/docs` shell, Markdown renderer, navigation, anchors, and responsive behavior.

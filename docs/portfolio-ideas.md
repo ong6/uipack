@@ -24,8 +24,8 @@ Nothing here has been applied; the homepage is untouched. Based on a read-only s
 ## Prerequisite (do first)
 
 Bump the pinned `uipack` commit to one that exports `./web`. Import `uipack/web.css` once in
-`_app.js`, and add a `uipack/web` entry to `ui-inventory.json`. Map the Landing tokens to the site
-rather than shipping Landing's cobalt. On the element that wraps the pieces, set:
+`_app.js`, and add a `uipack/web` entry to `ui-inventory.json`. Map the web tokens to the site
+rather than shipping the library's default palette. On the element that wraps the pieces, set:
 
 - `--web-accent` to cobalt
 - `--web-bg` and `--web-surface` to the paper tokens
@@ -54,8 +54,8 @@ The components are token-driven, so this is configuration, not a fork.
 - **`Marquee` for skills or stack.** The brief keeps stack strips off the homepage, and `/resume`
   reads better as a static, scannable list.
 - **`Aurora`, `BeamLines`, `SpotlightCard` or `MaskedStar` on existing pages.** They are ambient
-  glow in the Landing style. In the Technical style, glow is a selection signal only. Use them only
-  if a product landing page (e.g. a future Groundplane page) adopts the Landing style end to end.
+  glow. In the Technical style, glow is a selection signal only. Use them only if a product landing
+  page (e.g. a future Groundplane page) adopts a style built for it end to end.
 - **`TiltCard` / `MagneticButton` on the project cards.** The cards already lift 2px, and the
   portrait is already tilted 1.5°, so a second tilt competes with it. Magnetic buttons suit a
   single primary CTA, and the homepage deliberately has none.

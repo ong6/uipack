@@ -79,12 +79,13 @@ const slides: DeckSlide[] = [
 <DeckPlayer id="platform-review" title="Platform review" slides={slides} theme="light" />;
 ```
 
-`uiStyle="technical" | "landing" | "graphical"` paints the same slides in another style (it sets
-`data-ui-style`; omitted, the deck follows an ancestor's, else Technical). Only tokens change: the
-headline, body and footer keep their regions (and an eyebrow, on a slide that has one), and headlines take the style's display face
-(IBM Plex Sans, Instrument Serif, Anton caps). The playground keeps it in `?style=` with a switcher
-in the shell's context line. Consulting charts read the data roles, so they follow the style too;
-their dense layouts were tuned in Technical.
+`uiStyle` sets the style the deck is painted in (it sets `data-ui-style`; omitted, the deck
+follows an ancestor's, else Technical). Technical is the one implemented style; Landing and
+Graphical are [written specs](system/styles/README.md) an agent can build as new value sets. A style
+changes tokens only: the headline, body and footer keep their regions (and an eyebrow, on a slide
+that has one), and headlines take the style's display face (IBM Plex Sans 600 in Technical).
+Consulting charts read the data roles, so they would follow a new style too; their dense layouts
+were tuned in Technical.
 
 ### Archetypes and invert
 
