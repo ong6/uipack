@@ -157,6 +157,16 @@ const Fallback = ({ kind, label }: { kind: ObjectKind; label: string }) => {
   );
 };
 
+/** The player's quiet controls draw a 16px glyph; the accessible name is the hidden text beside it. */
+const ControlIcon = ({ name }: { name: "pause" | "play" | "replay" | "expand" }) => (
+  <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+    {name === "pause" && <path d="M5.5 3.5v9M10.5 3.5v9" />}
+    {name === "play" && <path d="M5 3.2v9.6L12.5 8z" fill="currentColor" />}
+    {name === "replay" && <path d="M3.5 8a4.5 4.5 0 1 0 1.4-3.3M3.5 2.8v2.4h2.4" />}
+    {name === "expand" && <path d="M9.5 2.5h4v4M13.5 2.5 9 7M6.5 13.5h-4v-4M2.5 13.5 7 9" />}
+  </svg>
+);
+
 function ObjectStage({
   kind,
   label,
@@ -272,19 +282,10 @@ function ObjectStage({
           className={styles.pause}
           onClick={completed ? replay : togglePaused}
           aria-pressed={completed ? undefined : paused}
-          aria-label={completed ? "Replay motion" : paused ? "Resume motion" : "Pause motion"}
+          title={completed ? "Replay" : paused ? "Resume" : "Pause"}
         >
-          {controls === "playback"
-            ? completed
-              ? "Replay"
-              : paused
-                ? "Resume"
-                : "Pause"
-            : completed
-              ? "Replay motion"
-              : paused
-                ? "Resume motion"
-                : "Pause motion"}
+          <ControlIcon name={completed ? "replay" : paused ? "play" : "pause"} />
+          <span className="uipack-object__sr">{completed ? "Replay motion" : paused ? "Resume motion" : "Pause motion"}</span>
         </button>
       )}
     </div>
@@ -316,9 +317,9 @@ export function ObjectScene(props: ObjectSceneProps) {
       {controls === "full" && variant !== null && (
         <div className="uipack-object-edition">
           <span>
-            {variant === 0 && props.kind !== "contact"
-              ? `Studio · ${objectEditions[props.kind][props.edition ?? 0]}`
-              : objectVariants[props.kind][variant]}
+            {objectVariants[props.kind][variant]}
+            {/* A non-default Studio edition is named after the direction's own name, never instead of it. */}
+            {variant === 0 && props.kind !== "contact" && props.edition ? ` · ${objectEditions[props.kind][props.edition]}` : ""}
           </span>
           {canVary && (
             <button type="button" onClick={anotherLook} aria-label="Another look">
@@ -328,8 +329,9 @@ export function ObjectScene(props: ObjectSceneProps) {
         </div>
       )}
       {controls === "full" && (
-        <button ref={opener} type="button" className="uipack-object-open" onClick={() => setOpen(true)}>
-          Open canvas
+        <button ref={opener} type="button" className="uipack-object-open" onClick={() => setOpen(true)} title="Open canvas">
+          <ControlIcon name="expand" />
+          <span className="uipack-object__sr">Open canvas</span>
         </button>
       )}
       <CanvasView
