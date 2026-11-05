@@ -928,3 +928,7 @@
 .web-nested {
   margin-top: 32px;
 }
+/* A band's call to action keeps the hero button's size; a grid item would otherwise stretch. */
+.web-nested .uipack-web-section__inner > .uipack-web-cta {
+  justify-self: start;
+}

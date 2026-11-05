@@ -632,7 +632,7 @@ function NestedStyleDemo({ theme }: { theme: "light" | "dark" }) {
       <Section id="web-nested-technical" eyebrow="Technical" title="This band is the page's own style.">
         <CtaButton>Start free</CtaButton>
       </Section>
-      <Section id="web-nested-graphical" uiStyle="graphical" eyebrow="Graphical" title="This band sets uiStyle on its Section.">
+      <Section id="web-nested-graphical" uiStyle="graphical" eyebrow="Graphical" title="This band sets its style on its section.">
         <CtaButton>Start free</CtaButton>
       </Section>
     </WebSurface>
