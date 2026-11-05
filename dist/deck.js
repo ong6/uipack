@@ -1335,7 +1335,7 @@ var LINT_RULES = {
   },
   "causal-claim": {
     severity: "warn",
-    check: "A deck that shows a before/after comparison ('61.2% \u2192 63.0%', 'was 40', 'Sep vs Oct') claims no cause from it: a cause verb ('lifted', 'cut', 'drove', 'because') in a title, lede or point warns outside mechanism, plan and ask slides (say 'after', 'since', 'went from\u2026 to'). A tip when nothing on the slides, notes or source says once that it is a before/after of two windows, not a controlled test."
+    check: "A deck that shows a before/after comparison ('61.2% \u2192 63.0%', 'was 40', 'Sep vs Oct') claims no cause from it: a cause verb ('lifted', 'cut', 'drove', 'because') in a title, lede or point warns outside mechanism, plan and ask slides (say 'after', 'since', 'went from\u2026 to'). A tip when nothing on the slides, notes or source says once that the numbers come from two windows, before and after."
   }
 };
 var MAX_TITLE_WORDS = TITLE_WORDS["read-alone"];
@@ -1817,7 +1817,7 @@ var LINT_CHECKS = [
       if (!said && slides.some((s) => sayOf(s.notes)))
         report(
           "tip",
-          'The deck compares before and after but never says so. Say it once, in a cue or a point: "before/after of two windows, not a controlled test".'
+          'The deck compares before and after but never says so. Say it once, in a cue or a point: "these numbers come from two windows, before and after".'
         );
     }
   },
