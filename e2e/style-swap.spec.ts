@@ -176,7 +176,7 @@ test("a Section with its own uiStyle repaints inside another style's page", asyn
     });
   const a = await look(own);
   const b = await look(nested);
-  expect(a.cta).toBe("rgb(32, 95, 73)"); // Technical forest
+  expect(a.cta).toBe("rgb(11, 39, 72)"); // Technical: the primary button is Prussian ink in light
   expect(b.cta).toBe("rgb(242, 74, 0)"); // Graphical signal orange
   expect(b.radius).toBe("0px");
   expect(b.face).toMatch(/^"?Anton/);
@@ -238,7 +238,7 @@ test("the shell stays Technical whatever style the page shows", async ({ page })
       body: getComputedStyle(document.body).backgroundColor,
       link: getComputedStyle(document.querySelector(".showcase-groups a[aria-current]")!).color,
     }));
-    expect(shell.body, style).toBe("rgb(246, 245, 241)");
-    expect(shell.link, style).toBe("rgb(32, 95, 73)");
+    expect(shell.body, style).toBe("rgb(243, 246, 249)");
+    expect(shell.link, style).toBe("rgb(156, 87, 0)");
   }
 });

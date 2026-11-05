@@ -15,6 +15,7 @@
     --ui-line: color-mix(in srgb, var(--ui-ink) 18%, transparent);
     --ui-line-soft: color-mix(in srgb, var(--ui-ink) 9%, transparent);
     --ui-accent: light-dark(#2348d6, #8ba6ff);
+    --ui-accent-stroke: var(--ui-accent);
     --ui-on-accent: light-dark(#ffffff, #0b0c10);
     --ui-accent-surface: light-dark(#2f55e0, #a3b8ff);
     --ui-accent-ink-2: light-dark(#e3e9ff, #1c2a5e);
@@ -23,6 +24,8 @@
     --ui-flow-request: light-dark(#5c5c6b, #9a9aab);
     --ui-flow-response: light-dark(#3fb27f, #5fd39b);
     --ui-flow-change: light-dark(#9a63e0, #c39aff);
+    /* A failed or declined branch in a diagram. */
+    --ui-flow-error: light-dark(#c0362c, #ff8a7a);
     --ui-data-pos: light-dark(#1a7a52, #33a979);
     --ui-data-neg: light-dark(#c0482f, #d4623f);
     --ui-data-context: light-dark(#8d929b, #6a707b);
@@ -44,6 +47,8 @@
     --ui-font-display: "Instrument Serif", "Instrument Serif Fallback", ui-serif, Georgia, "Times New Roman", serif;
     --ui-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --ui-font-label: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    /* Small headings (a figure's title) stay in the text face; the display face starts at step 4. */
+    --ui-font-heading: var(--ui-font-text);
     --ui-display-weight: 400;
     --ui-display-tracking: -0.01em;
     --ui-display-case: none;
@@ -68,6 +73,8 @@
        backdrop slot itself stays empty. */
     --ui-backdrop: none;
     --ui-backdrop-mask: none;
+    /* The figure canvas: the 12px dot grid. */
+    --ui-canvas-pattern: radial-gradient(var(--ui-line-soft) 1px, transparent 1.2px) 0 0 / 12px 12px;
     --ui-frame-border: 1px solid var(--ui-line-soft);
     --ui-card-shadow:
       0 1px 2px light-dark(rgb(15 17 21 / 0.05), rgb(0 0 0 / 0.35)),
@@ -90,6 +97,9 @@
       0 10px 24px -10px var(--ui-accent);
     --ui-em-style: italic;
     --ui-em-color: var(--ui-accent-ink);
+    --ui-em-decoration: none;
+    --ui-cta-fill: var(--ui-accent);
+    --ui-on-cta: var(--ui-on-accent);
     --ui-star-fill: 1;
     --ui-display-scale: 1;
 
@@ -123,6 +133,7 @@
     --ui-num-rule: 0 solid transparent;
     --ui-num-color: var(--ui-accent-ink);
     --ui-num-fill: color-mix(in srgb, var(--ui-accent) 10%, var(--ui-surface));
+    --ui-num-ring: none;
     --ui-num-box: 2.25rem;
     --ui-num-bleed: 0;
     --ui-num-gap: 0px;

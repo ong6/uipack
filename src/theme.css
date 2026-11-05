@@ -9,10 +9,11 @@
   --uipack-surface-raised: var(--ui-surface-2);
   --uipack-grid: var(--ui-line-soft);
   --uipack-border: var(--ui-line);
-  --uipack-accent: var(--ui-accent);
+  --uipack-accent: var(--ui-accent-stroke, var(--ui-accent));
   --uipack-token-request: var(--ui-flow-request);
   --uipack-token-response: var(--ui-flow-response);
   --uipack-token-change: var(--ui-flow-change);
+  --uipack-token-error: var(--ui-flow-error);
   --uipack-mono: var(--ui-font-label);
   --uipack-sans: var(--ui-font-text);
   --uipack-radius: var(--ui-radius);
@@ -78,7 +79,9 @@
   margin: 8px 0 0;
   font-size: 20px;
   line-height: 1.25;
-  /* A card-level title: 600, below the page's section headings (24 / 650). */
+  /* A card-level title: 600, below the page's section headings. The style's heading face
+     (--ui-font-heading: Technical's display face, so page, slide and figure share one). */
+  font-family: var(--ui-font-heading, inherit);
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -150,9 +153,10 @@
   position: relative;
   padding: 24px 32px 32px;
   border-top: 1px solid var(--uipack-border);
-  background-color: var(--uipack-bg);
-  background-image: radial-gradient(var(--uipack-grid) 1px, transparent 1.2px);
-  background-size: 12px 12px;
+  /* The style's canvas ground (--ui-canvas-pattern): Technical's drafting-film grid, a dot grid
+     elsewhere. */
+  background:
+    var(--ui-canvas-pattern, radial-gradient(var(--uipack-grid) 1px, transparent 1.2px) 0 0 / 12px 12px), var(--uipack-bg);
 }
 /* A figure with no header: the figure's own border is the canvas's top edge (no double line). */
 .uipack > .uipack__sr:first-child + .uipack__canvas {

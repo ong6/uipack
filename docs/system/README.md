@@ -62,7 +62,7 @@ Four more rules keep the split honest where it would otherwise leak:
 
 - **A style may own scalars and ornaments, never positions or words.** Density, type ratio,
   line length and display scale are style roles. Shapes a style adds (Graphical's disc, Technical's
-  dotted grid) go in named ornament slots that never take space, so every region stays put.
+  drafting grid) go in named ornament slots that never take space, so every region stays put.
 - **Every slot has a text budget.** A presented slide's headline is 2–5 words (at most 14 when the
   deck is read without its speaker), a body point a fragment of at most 8 words, an optional
   eyebrow 1–4 words, a label 2–3. The linter flags any slot over budget
@@ -83,7 +83,7 @@ each layer live.
 
 **For implementers.** Roles are CSS custom properties (`--ui-paper`, `--ui-ink`, `--ui-accent`,
 `--ui-flow-request`, `--ui-font-display`, `--ui-radius`, `--ui-ease-settle`…), so a layout writes
-`color: var(--ui-ink-2)`, never `#5c625e` or `font-family: "IBM Plex Sans"`. A component takes the
+`color: var(--ui-ink-2)`, never `#3d5878` or `font-family: "Archivo"`. A component takes the
 style as a prop (`<DeckPlayer uiStyle="graphical">`). Content types are `DeckSlide`,
 `SlideStarterData` and the preset specs; notes are `notes { say, delivery, next }`. Budgets are
 `SLOT_BUDGETS`, checked by `lintDeck` as `slot-budget`. Each style's recommended order is

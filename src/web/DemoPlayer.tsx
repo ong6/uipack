@@ -43,6 +43,7 @@ export interface DemoPlayerProps {
 }
 
 const TICK_MS = 40;
+const DEV = typeof process !== "undefined" && process.env.NODE_ENV !== "production";
 
 function lastWith<T>(steps: DemoStep[], upTo: number, pick: (s: DemoStep) => T | undefined): T | undefined {
   for (let k = upTo; k >= 0; k--) {
@@ -93,6 +94,15 @@ export function DemoPlayer({
   const armed = useRef(false);
   const playingRef = useLatest(playing);
   const doneRef = useLatest(elapsed >= end);
+  // Steps mode exists to show the product's output: with no `screen` on any step its wide result
+  // pane is a blank panel, which reads as a placeholder (review 2026-11-05). Say so in development.
+  const blank = mode === "steps" && !steps.some((s) => s.screen !== undefined && s.screen !== null);
+  useEffect(() => {
+    if (DEV && blank)
+      console.warn(
+        `uipack/web: DemoPlayer "${label}" runs in steps mode with no step \`screen\`, so its result pane is empty. Give the last step the product's real output (a ScheduleGrid, DataTable, FileTable or RecordCard).`,
+      );
+  }, [blank, label]);
 
   useEffect(() => {
     const el = rootRef.current;

@@ -1,5 +1,5 @@
 import type { PresentationTheme, SlideStarterData } from "./types";
-import { technicalValues } from "../styles/technical-values";
+import { technicalFonts, technicalValues } from "../styles/technical-values";
 
 export interface RenderSlideSvgOptions {
   theme?: PresentationTheme;
@@ -43,7 +43,7 @@ const cssColors: Colors = {
   rule: "var(--tune-slide-line, var(--ui-line))",
 };
 
-const resolvedFaces = { sans: "IBM Plex Sans, system-ui, sans-serif", mono: "IBM Plex Mono, ui-monospace, monospace" };
+const resolvedFaces = { sans: technicalFonts.sans, mono: technicalFonts.mono };
 const cssFaces = {
   sans: "var(--ui-slide-font-text, var(--ui-font-text))",
   mono: "var(--ui-slide-font-label, var(--ui-font-label))",

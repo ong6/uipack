@@ -177,7 +177,7 @@ function TypeScaleSpecimen() {
 type DisplayFaceId = "instrument-serif" | "ibm-plex-serif" | "space-grotesk";
 
 // Playground-only display alternates for the type specimen's comparison toggle. Not shipped:
-// the package carries Instrument Serif, IBM Plex Sans and IBM Plex Mono only. Their CSS (and so
+// the package carries Archivo, Martian Mono, Instrument Serif, IBM Plex Sans and Mono and Anton only. Their CSS (and so
 // their two font files) loads when the toggle nears the viewport or is used, not with /web's first view.
 let alternateFaces: Promise<unknown> | undefined;
 const loadAlternateFaces = () =>
@@ -242,7 +242,7 @@ function PageIndex() {
 
 /** Each style's three faces, as the specimen labels them. */
 const styleFaces: Record<UiStyleId, { display: string; text: string; mono: string }> = {
-  technical: { display: "IBM Plex Sans 600", text: "IBM Plex Sans 400 / 500 / 600", mono: "IBM Plex Mono 400 / 600" },
+  technical: { display: "Archivo Expanded 600", text: "Archivo 400 / 500 / 600", mono: "Martian Mono 400 / 600" },
   landing: {
     display: `${TYPE_FACES.display} 400 + italic`,
     text: `${TYPE_FACES.text} 400 / 500 / 600`,

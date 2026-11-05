@@ -81,7 +81,7 @@ Every chart takes `alt` (its accessible summary, as on `Figure`; a default lists
 
 Colour does one job per chart:
 
-- **Emphasis** (the default): the highlighted bar, line or bubble uses the accent (forest in light, mint in dark) and the rest use a context grey.
+- **Emphasis** (the default): the highlighted bar, line or bubble uses the accent (amber in light, gold in dark, in Technical) and the rest use a context grey.
 - **Categorical** (stacked bars, lines without a highlight): four slots that pass the dataviz validator on the panel surface in both themes. The worst adjacent CVD ΔE is 22.7 in light and 21.7 in dark. Light uses `#1a7a52 #4f6fe6 #c27a1f #9a63e0`; dark uses `#33a979 #5f7fef #c0832b #9f72e6`. Values inside segments use white or ink, whichever clears contrast. Fold a fifth series into "Other".
 - **Good and bad** (waterfall deltas, KPI deltas): green and red-orange. Their CVD separation sits in the 6–8 warning band, so direction also shows as a ▲/▼ arrow and a signed value. A cost bridge sets `goodDirection="down"`.
 

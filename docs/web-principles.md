@@ -13,7 +13,7 @@ order (`e2e/style-swap.spec.ts`). A style's own order (`uiStyles[].prefers`) is 
 
 | Style | Use it for | Palette | Faces | Ornaments | Own order (opt-in only) |
 | --- | --- | --- | --- | --- | --- |
-| **Technical** (default) | Product and project pages that should read like junxiong.dev's figures | Paper `#f6f5f1`, ink `#1a1c1a`, one forest accent `#205f49` (dark: `#0a100d`, `#e8ece9`, mint `#71dcb2`) | IBM Plex Sans (headlines at 650, −0.02em, display steps at 1.1×), IBM Plex Mono labels | A drawing sheet, compact (density 0.8). Dotted-grid backdrop, masked; 2px-radius accent square and a mono section index before eyebrows (`01 / HOW IT WORKS`); a title rule with an end tick and a 40px accent bar over each section's column; `STEP 01` in mono over a hairline on step cards; stats between 1px rules; the quote as an annotation with a 3px accent rule; the featured plan with an accent bar on top; square mono table cells; windows without traffic lights; figure request tokens in ink; accent registration marks on cards and plans; thin frames, 6px radius, no shadow, no glow or grain; headline emphasis in the accent, not italic; an ink closing band with a mint button | Hero with the figure → steps as numbered rows → demo → proof → FAQ → pricing |
+| **Technical** (default) | Product and project pages that should read like junxiong.dev's figures | Cyanotype: cool white `#f3f6f9`, Prussian ink `#0b2748`, one amber `#9c5700` (dark: deep Prussian `#0a2342`, `#edf3fb`, gold `#f0c45a`) | Archivo Expanded 600 headlines (the same face on slides and figure titles), Archivo text, Martian Mono labels | An engineering drawing, compact (density 0.9). Drafting-film grid behind the hero only (and on figure canvases), masked; a 7px amber dot and a mono section index before eyebrows (`01 / HOW IT WORKS`); a dimension line (hairline, end ticks at both ends) over each section's column; steps in 36px ringed detail bubbles; ink crop marks at all four corners of cards and plans; stats between 1px rules; the quote as a hairline annotation; the featured plan with a 4px amber top rule; square table cells with Prussian peaks; windows without traffic lights; figures with the full flow code (cyan main flow); square corners, 1px hairlines, no shadow, glow or grain; the headline's key phrase in ink over an amber underline (gold in dark); a Prussian primary button (gold in dark); a plain Prussian closing band with a gold button | Hero with the figure → steps as numbered rows → demo → proof → FAQ → pricing |
 | **Landing** (generic) | When the brief is a conventional SaaS landing page | Cool neutral `#fbfbfa`, pale grey band `#f1f2f4`, cobalt CTA `#2348d6` | Instrument Serif display from step 4 (emphasis in cobalt italic), Plex Sans, Plex Mono | Airy (density 1.1); glass nav; 12px cards lifted by layered soft shadows; 10px controls; steps in tinted round badges; the quote as a white serif card; the featured plan with an accent ring and tinted glow; soft tinted table chips; a near-black closing band with a white button; no lavender, no gradient wash | Hero (centred, demo) → steps → mechanism → proof → FAQ → pricing |
 | **Graphical** | Launches, events, campaigns: a page that should look like a poster | Bone `#f1eee6`, black ink, one signal orange `#f24a00` (text uses `#b23700`) | Anton display in caps at 1.3× the scale, Plex Sans, Plex Mono | The accent disc and a ruled band in the hero backdrop (below 720px the tick band only, so no clipped disc under the nav); giant Anton step numerals; stats between 2px ink rules; the quote as an orange poster block in caps; the featured plan with an orange offset shadow; ink-ruled table cells; the disc again as every eyebrow marker; 2px ink frames with hard 6px offset shadows; 0 radius; 2px section rules; figure flows in ink, grey and orange; an orange closing band; no glow or grain | Hero → proof (big numbers) → steps → mechanism → pricing → FAQ |
 
@@ -71,11 +71,12 @@ Graphical avoids the generic-AI tropes on purpose: no purple, no gradient blobs,
 emoji icons, no rounded-everything; Landing keeps some of them because that is its brief.
 
 **Performance per style** (Lighthouse 13.5 mobile, built playground, median of 3, 2026-11-04;
-`/web?style=…`): Technical LCP 2.27 s, 101 KB of fonts in 5 files; Landing 2.57 s, 143 KB in 7;
+`/web?style=…`): Technical LCP 2.27 s, 101 KB of fonts in 5 files (before Cyanotype; now 77 KB
+in 6, not yet re-measured); Landing 2.57 s, 143 KB in 7;
 Graphical 2.42 s, 119 KB in 6. CLS 0 in all three. The same method on the commit before the
 styles measured Landing at 2.42 s; the 0.15 s is the role layer and the two extra stylesheets on
 the first view. Each style preloads only its own display face, at 720px and wider (Landing:
-Instrument Serif; Graphical: Anton; Technical: none).
+Instrument Serif; Graphical: Anton; Technical: Archivo Expanded).
 
 Evidence: the first screen of `/web` in each style at 1440 and 390, both themes, is in
 [`docs/styles/`](styles/) (`web-<style>-<width>-<theme>.png`), with the same deck slides in each
@@ -180,7 +181,9 @@ three.
 19. **Three faces, one job each.** The faces are self-hosted: latin-subset woff2 files in the package's
     `fonts/` folder (`dist/fonts`, exported as `uipack/fonts/*`), each with its SIL OFL licence,
     `font-display: swap`, and no third-party request. A browser fetches a file only when a Landing
-    element uses it; the whole set is 141 KB.
+    element uses it; the whole set is 141 KB. (This rule and the next two describe Landing's faces;
+    Technical's are Archivo Expanded, Archivo and Martian Mono, 77 KB, in
+    [Style](system/style.md#type-roles).)
 
     | Role | Token | Face | Weights | Jobs |
     | --- | --- | --- | --- | --- |
@@ -204,8 +207,9 @@ three.
     in a display headline for the one phrase that matters: the italic is a real face.
 
 21. **Swap without a jump.** Each face has a local fallback (`Instrument Serif Fallback` on Times New
-    Roman, `IBM Plex Sans Fallback` on Arial, `IBM Plex Mono Fallback` on Courier New, with
-    Liberation equivalents) scaled with `size-adjust` to the web font's average character width,
+    Roman, `IBM Plex Sans Fallback` on Arial, `IBM Plex Mono Fallback` on Courier New; for Technical
+    `Archivo Expanded Fallback` on Arial Bold, `Archivo Fallback` on Arial, `Martian Mono Fallback`
+    on Courier New; with Liberation equivalents) scaled with `size-adjust` to the web font's average character width,
     with its ascent and descent overridden, so lines wrap in the same places before and after the
     swap. `NumberTicker` lays its count over the final value, because Instrument Serif has
     proportional figures only. Pass `face="inherit"` for a number inside a sentence. The match is

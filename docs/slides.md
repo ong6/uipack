@@ -118,7 +118,7 @@ const story: SlideStory = {
 
 ## Style
 
-The player uses UIPACK's forest/mint palette, shape-coded blue/green/violet flows, small corner radii, and sans/mono type roles. It supports explicit `theme="dark"` and `theme="light"`. CSS fonts use the same system sans and monospace stacks as the SVG figures. No font request is made by the package.
+The player uses Technical's Cyanotype palette (Prussian ink, amber accent, deep-blue dark half; `technicalSlidePalettes`), shape-coded cyan/green/violet flows, small corner radii, and sans/mono type roles. It supports explicit `theme="dark"` and `theme="light"`. CSS text uses the style's faces (Archivo, Martian Mono) from `uipack/fonts`.
 
 ## Scope and limits
 

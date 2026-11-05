@@ -96,6 +96,8 @@
 .uipack-cx-title {
   max-width: 1680px;
   margin: 0;
+  /* The style's heading face: Technical's display face, the text face elsewhere. */
+  font-family: var(--ui-font-heading, var(--deck-sans));
   font-size: 54px;
   font-weight: 650;
   line-height: 1.12;

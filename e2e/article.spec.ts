@@ -258,7 +258,7 @@ test.describe("Article parts in the playground (notes palette)", () => {
         .locator("a.uipack-notecard")
         .first()
         .evaluate((el) => getComputedStyle(el).backgroundColor);
-      expect(fill).toBe(theme === "light" ? "rgb(244, 246, 244)" : "rgb(27, 42, 36)");
+      expect(fill).toBe(theme === "light" ? "rgb(226, 233, 241)" : "rgb(17, 49, 90)");
       await close();
     }
   });
@@ -633,7 +633,7 @@ test.describe("Article parts as static HTML in the notes site, JavaScript off", 
           .locator("a.uipack-notecard")
           .first()
           .evaluate((el) => getComputedStyle(el).backgroundColor),
-      ).toBe(theme === "light" ? "rgb(244, 246, 244)" : "rgb(27, 42, 36)");
+      ).toBe(theme === "light" ? "rgb(226, 233, 241)" : "rgb(17, 49, 90)");
       await close();
     }
   });

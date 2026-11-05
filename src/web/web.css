@@ -310,8 +310,9 @@
     padding: 0 28px;
   }
   .uipack-web-cta[data-variant="primary"] {
-    background: var(--web-accent);
-    color: var(--web-on-accent);
+    /* The style's primary fill (--ui-cta-fill): the accent, or Technical's Prussian ink in light. */
+    background: var(--ui-cta-fill, var(--web-accent));
+    color: var(--ui-on-cta, var(--web-on-accent));
     box-shadow: var(--ui-cta-shadow);
   }
   .uipack-web-cta[data-variant="secondary"] {
@@ -568,6 +569,10 @@
   .uipack-web-heading:is([data-step="4"], [data-step="5"], [data-step="6"]) em {
     font-style: var(--ui-em-style, italic);
     color: var(--ui-em-color, inherit);
+    /* Technical's amber revision underline (light only); none elsewhere. */
+    text-decoration: var(--ui-em-decoration, none);
+    text-underline-offset: 0.14em;
+    text-decoration-skip-ink: none;
   }
   .uipack-web-star__area {
     opacity: var(--ui-star-fill, 1);
@@ -962,7 +967,8 @@
     background: color-mix(in srgb, var(--web-ink) 14%, transparent);
   }
   .uipack-web-demo__address {
-    max-width: 60%;
+    /* Room for a full address in a wide mono (Martian Mono) on a phone; the dots take the rest. */
+    max-width: 85%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1636,7 +1642,7 @@
 }
 
 /* A figure on a web page belongs to the page: it takes the page style's text and label faces
-   (Plex on the web, Anton never: figure text stays at label sizes), the style's frame (Graphical's
+   (Anton never: figure text stays at label sizes; the title takes the style's heading face), the style's frame (Graphical's
    2px ink and hard shadow, Landing's soft lift) and the card radius. Unlayered on purpose: the
    figure's own theme.css is unlayered, and this is the more specific rule. A host overrides it
    with `.uipack-web .uipack` of its own. */
@@ -1648,10 +1654,10 @@
   box-shadow: var(--web-shadow);
 }
 .uipack-web .uipack__title {
-  font-family: var(--web-font-text);
+  font-family: var(--ui-font-heading, var(--web-font-text));
 }
-/* Flow tokens on a web page come from the style's web palette (Technical draws requests in ink, so a
-   page figure carries the style's green and greys, never a stray blue). */
+/* Flow tokens on a web page come from the style's web palette (--ui-web-flow-request: Technical
+   keeps its cyan main flow; Landing draws requests in slate so its cobalt stays the only blue). */
 .uipack-web .uipack {
   --uipack-token-request: var(--ui-web-flow-request, var(--ui-flow-request));
 }
@@ -1704,6 +1710,8 @@
     /* Round for a badge; square where the number's rule bleeds across the card. */
     border-radius: calc((1 - var(--ui-num-bleed, 0)) * 999px);
     background: var(--ui-num-fill, transparent);
+    /* A ring around the number (Technical's detail bubble). */
+    box-shadow: var(--ui-num-ring, none);
     font: var(--ui-num-weight, 400) var(--ui-num-size, 3rem) / 1 var(--ui-num-font, var(--web-font-display));
     letter-spacing: var(--web-label-tracking);
     text-transform: uppercase;

@@ -1207,9 +1207,9 @@ function ChainSketch() {
 const tropes = [
   [
     "Purple or indigo accent on a grey page",
-    "Technical's forest and Graphical's orange; Landing's cobalt only when the brief is a generic landing page",
+    "Technical's Prussian blue and amber, Graphical's orange; Landing's cobalt only when the brief is a generic landing page",
   ],
-  ["Inter or Roboto everywhere", "IBM Plex on the web, system type in figures, Anton for posters"],
+  ["Inter or Roboto everywhere", "Archivo Expanded headings on page, slide and figure; Martian Mono labels; Anton for posters"],
   [
     "Centred hero, one CTA, three icon cards",
     "Technical shows a working diagram in the first screen, straight after the headline; each style reorders the sections",
