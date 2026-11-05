@@ -939,6 +939,7 @@
 .uipack-deck-read__detail figcaption {
   color: var(--deck-muted);
   font: 500 12px/1.35 var(--deck-mono);
+  text-wrap: balance;
 }
 /* Cue notes are short lines; keep the author's line breaks wherever the track is shown. */
 .uipack-deck-presenter__notes p,

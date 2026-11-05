@@ -84,6 +84,8 @@
   font-family: var(--ui-font-heading, inherit);
   font-weight: 600;
   letter-spacing: -0.01em;
+  /* A wrapped title splits evenly instead of leaving one word on its last line. */
+  text-wrap: balance;
 }
 .uipack__caption {
   grid-column: 1;

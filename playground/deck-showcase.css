@@ -74,6 +74,7 @@
 .deck-showcase__reference th {
   width: 38%;
   font-weight: 400;
+  text-wrap: balance;
 }
 .deck-showcase__reference code,
 .deck-showcase__reference kbd {

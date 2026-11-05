@@ -393,6 +393,7 @@
 .uipack-docs__table th {
   background: var(--docs-surface);
   font-weight: 700;
+  text-wrap: balance;
 }
 
 .uipack-docs__pagination {

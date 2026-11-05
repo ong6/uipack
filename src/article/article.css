@@ -178,7 +178,7 @@
   font: 600 16px/1.35 var(--ua-sans);
   letter-spacing: -0.005em;
   color: var(--ua-fg);
-  text-wrap: pretty;
+  text-wrap: balance;
 }
 /* Three lines on screen; the rest stays in the DOM, so in the link's name. */
 .uipack-notecard .uipack-notecard__desc {
@@ -577,6 +577,7 @@ a.uipack-notecard.uipack-notecard:focus-visible .uipack-notecard__go {
   -webkit-tap-highlight-color: transparent;
 }
 .uipack-links .uipack-links__title {
+  text-wrap: balance;
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;

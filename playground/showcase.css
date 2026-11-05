@@ -94,6 +94,8 @@ body {
   letter-spacing: -0.01em;
   margin: 0 0 8px;
   color: var(--show-ink);
+  /* No one-word last line when a heading wraps on a phone. */
+  text-wrap: balance;
 }
 .showcase-header {
   display: grid;
