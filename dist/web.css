@@ -2787,6 +2787,17 @@
     padding: 0;
     list-style: none;
   }
+  /* One plan reads as a card, not a banner: it keeps a card's measure on the section's alignment. */
+  .uipack-web-pricing__plans[data-count="1"] {
+    width: 100%;
+    max-width: 36rem;
+  }
+  .uipack-web-section[data-align="center"] .uipack-web-pricing__plans[data-count="1"] {
+    margin-inline: auto;
+  }
+  .uipack-web-section[data-align="center"] .uipack-web-pricing__plans[data-count="1"] + .uipack-web-pricing__note {
+    text-align: center;
+  }
   @container web (min-width: 640px) {
     .uipack-web-pricing__plans {
       grid-template-columns: repeat(var(--plans, 2), minmax(0, 1fr));
@@ -3725,18 +3736,9 @@
     }
   }
   /* Section index: a style that numbers its sections (Technical) shows each Section eyebrow's
-     number before its words, counted down the page. Hidden spans do not count. */
-  /* The page root is a size container, which scopes counters to inside it: the counter starts on
-     its first child, whose scope runs on through the following siblings (every section). */
-  .uipack-web > :first-child {
-    counter-reset: uipack-section;
-  }
+     number (WebPage passes it, in page order) before its words. */
   .uipack-web-section__index {
     display: var(--ui-section-index, none);
-    counter-increment: uipack-section;
-  }
-  .uipack-web-section__index::before {
-    content: counter(uipack-section, decimal-leading-zero);
     color: var(--web-accent-ink);
   }
   .uipack-web-section__index::after {

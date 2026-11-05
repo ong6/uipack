@@ -74,6 +74,15 @@ interface WebPageProps {
     children?: ReactNode;
 }
 /**
+ * Each slot's content and its section number: 1, 2, 3… down the page in its order, skipping the
+ * hero (it has no section eyebrow) and any slot that renders nothing (null, false, undefined).
+ */
+declare function numberSections(ids: readonly string[], sections: WebPageProps["sections"], page: WebPageContext): {
+    id: string;
+    node: ReactNode;
+    index: number | undefined;
+}[];
+/**
  * A whole web page in one style: the style's tokens and ornaments (WebSurface) over the page's own
  * section order. Swapping `uiStyle` keeps every section, its words and its position. Opt into a
  * style's own sequence and layout defaults with `layout="style"` (`data-ui-layout="style"`).
@@ -203,6 +212,14 @@ interface SectionProps {
     /** Paint this section in another style (data-ui-style), e.g. one Graphical band on a Technical page. */
     uiStyle?: UiStyleId;
 }
+/**
+ * The section's place on its page (1, 2, 3…), provided by `WebPage` to each section slot after the
+ * hero, in the page's order; a slot that renders nothing takes no number. A style that numbers its
+ * sections (Technical) shows it before the eyebrow as `02 /`. Outside a WebPage there is no number.
+ */
+declare const SectionIndexContext: react.Context<number | undefined>;
+/** Two digits, as a drawing sheet numbers its views: 1 → "01". */
+declare const sectionIndexLabel: (n: number) => string;
 /** A page section on the 8-pt rhythm, with an optional eyebrow, heading and intro. */
 declare function Section({ eyebrow, title, intro, children, tone, align, id, className, lazyRender, uiStyle, }: SectionProps): react.JSX.Element;
 interface Feature {
@@ -350,7 +367,8 @@ interface PricingPlansProps {
 }
 /**
  * Plan cards that share a row and a height: name, price, who it is for, what it includes and its
- * own button at the foot. One to three plans fill the column evenly (one column below 640px).
+ * own button at the foot. Two or three plans fill the column evenly (one column below 640px); a
+ * single plan keeps a card's measure (36rem), on the section's alignment.
  */
 declare function PricingPlans({ plans, note, className }: PricingPlansProps): react.JSX.Element;
 interface ClosingCtaProps {
@@ -667,8 +685,8 @@ interface DemoPlayerProps {
      */
     autoplay?: boolean;
     /**
-     * Hold the finished result with no controls, as under reduced motion: for thumbnails, print or
-     * a capture. The default already rests on the result until the demo plays.
+     * Hold the finished result with no controls (reduced motion keeps the step tabs): for
+     * thumbnails, print or a capture. The default already rests on the result until the demo plays.
      */
     static?: boolean;
     /** Restart after the last step's hold. Default false: the result stays. */
@@ -685,7 +703,9 @@ interface DemoPlayerProps {
  * server renders and what paints first, so a capture, a reader who jumps past it or one who never
  * scrolls to it sees the outcome, not an empty composer. As it nears the viewport it rewinds to
  * the first frame and plays while a quarter of it is on screen; scrolled fully away mid-play, it
- * settles back on the result. Reduced motion and `static` hold the result with no controls (the
+ * settles back on the result. Reduced motion holds the result with no Play, Pause or Replay; its
+ * step tabs stay and show each step's finished frame, with nothing moving. `static` holds the
+ * result with no controls at all (the
  * steps stay in the DOM as text, so the window and a second, visible list never repeat the same
  * actions).
  */
@@ -1671,4 +1691,4 @@ interface RssFeedOptions {
  */
 declare function rssFeed({ title, link, description, items, self, language }: RssFeedOptions): string;
 
-export { AI_CRAWLERS, type AiCrawler, type AiCrawlerAgent, type AiCrawlerPolicy, type AiCrawlerPreset, type ArticleAuthor, type ArticleOptions, Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, BeforeAfter, type BeforeAfterProps, type BeforeAfterSide, Body, type BodyProps, Brand, type BrandProps, type BreadcrumbItem, type BuildCrawlFilesOptions, ClosingCta, type ClosingCtaProps, type CollectionPageOptions, type CrawlFiles, type CrawlPage, type CrawlRule, type CrawlerPurpose, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, type DataColumn, DataTable, type DataTableProps, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, FAQ, type FAQProps, type FaqItem, type Feature, FeatureGrid, type FeatureGridProps, FileTable, type FileTableProps, type FontPreloadOptions, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, type HeadTag, HeadTags, type HeadTagsProps, Heading, type HeadingProps, type InViewOptions, ItemList, type ItemListEntry, type ItemListOptions, type ItemListProps, type ItemListRow, JsonLd, type JsonLdDocument, type JsonLdNode, type JsonLdProps, LLMS_FULL_PATH, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type OfferOptions, type OrganizationOptions, type PageMetaOptions, type PaintTransitionOptions, type PersonOptions, type PricingAction, type PricingPlan, PricingPlans, type PricingPlansProps, type ProductOptions, ProductWindow, type ProductWindowProps, type ProfilePageOptions, Proof, type ProofLead, type ProofProps, type ProofQuote, type ProofStat, type RatingOptions, RecordCard, type RecordCardProps, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, type RssFeedOptions, type RssItem, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, type ScheduleCell, ScheduleGrid, type ScheduleGridProps, type ScheduleRow, type ScheduleTone, type SchemaDate, ScrollTransform, type ScrollTransformProps, Section, type SectionProps, SiteFooter, type SiteFooterProps, SmoothScroll, type SmoothScrollController, type SmoothScrollHandle, type SmoothScrollOptions, type SmoothScrollProps, type SmoothScrollTarget, type SmoothScrollToOptions, type SoftwareApplicationOptions, type SoftwareSourceCodeOptions, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeRole, type TypeStep, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, type WebFontFace, WebPage, type WebPageContext, type WebPageOptions, type WebPageProps, type WebSiteOptions, WebSurface, type WebSurfaceProps, type WheelLike, WorkedExample, type WorkedExampleProps, type WorkedLine, type WorkedQuantity, article, breadcrumbList, buildCrawlFiles, collectionPage, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, itemList, jsonLd, jsonLdTag, llmsFullTxt, llmsTxt, normalizeWheel, offer, organization, pageMeta, person, personRef, product, profilePage, ref, resolveAiCrawlers, robotsTxt, rssFeed, scrambleFrame, scrollProgressOf, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, softwareSourceCode, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webPage, webSite, withPaintTransition, withViewTransition };
+export { AI_CRAWLERS, type AiCrawler, type AiCrawlerAgent, type AiCrawlerPolicy, type AiCrawlerPreset, type ArticleAuthor, type ArticleOptions, Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, BeforeAfter, type BeforeAfterProps, type BeforeAfterSide, Body, type BodyProps, Brand, type BrandProps, type BreadcrumbItem, type BuildCrawlFilesOptions, ClosingCta, type ClosingCtaProps, type CollectionPageOptions, type CrawlFiles, type CrawlPage, type CrawlRule, type CrawlerPurpose, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, type DataColumn, DataTable, type DataTableProps, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, FAQ, type FAQProps, type FaqItem, type Feature, FeatureGrid, type FeatureGridProps, FileTable, type FileTableProps, type FontPreloadOptions, GRID_COLUMNS, GlassNav, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, type HeadTag, HeadTags, type HeadTagsProps, Heading, type HeadingProps, type InViewOptions, ItemList, type ItemListEntry, type ItemListOptions, type ItemListProps, type ItemListRow, JsonLd, type JsonLdDocument, type JsonLdNode, type JsonLdProps, LLMS_FULL_PATH, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type OfferOptions, type OrganizationOptions, type PageMetaOptions, type PaintTransitionOptions, type PersonOptions, type PricingAction, type PricingPlan, PricingPlans, type PricingPlansProps, type ProductOptions, ProductWindow, type ProductWindowProps, type ProfilePageOptions, Proof, type ProofLead, type ProofProps, type ProofQuote, type ProofStat, type RatingOptions, RecordCard, type RecordCardProps, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, type RssFeedOptions, type RssItem, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, type ScheduleCell, ScheduleGrid, type ScheduleGridProps, type ScheduleRow, type ScheduleTone, type SchemaDate, ScrollTransform, type ScrollTransformProps, Section, SectionIndexContext, type SectionProps, SiteFooter, type SiteFooterProps, SmoothScroll, type SmoothScrollController, type SmoothScrollHandle, type SmoothScrollOptions, type SmoothScrollProps, type SmoothScrollTarget, type SmoothScrollToOptions, type SoftwareApplicationOptions, type SoftwareSourceCodeOptions, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeRole, type TypeStep, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, type WebFontFace, WebPage, type WebPageContext, type WebPageOptions, type WebPageProps, type WebSiteOptions, WebSurface, type WebSurfaceProps, type WheelLike, WorkedExample, type WorkedExampleProps, type WorkedLine, type WorkedQuantity, article, breadcrumbList, buildCrawlFiles, collectionPage, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, itemList, jsonLd, jsonLdTag, llmsFullTxt, llmsTxt, normalizeWheel, numberSections, offer, organization, pageMeta, person, personRef, product, profilePage, ref, resolveAiCrawlers, robotsTxt, rssFeed, scrambleFrame, scrollProgressOf, sectionIndexLabel, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, softwareSourceCode, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webPage, webSite, withPaintTransition, withViewTransition };

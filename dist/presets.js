@@ -32,6 +32,7 @@ function toFigure(meta, parts, id) {
       narrowViewBox: parts.narrowViewBox,
       alt: meta.alt,
       static: meta.static,
+      chrome: meta.chrome,
       children: parts.wide
     }
   );
