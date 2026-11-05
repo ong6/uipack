@@ -185,6 +185,7 @@ words nor the style.
      riso duotone).
   3. Match the page's numbers: the callout's reading is a row of the table beside it.
   4. Put the device in `inset`, with one dimension if size matters ("40 mm").
+  A worked example ships with the starter: `examples/web-starter/device.tsx` (`DeviceShot`).
 
 ## Motion
 

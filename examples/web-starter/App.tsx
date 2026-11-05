@@ -175,7 +175,8 @@ export default function App({ uiStyle, theme }: { uiStyle: UiStyleId; theme?: "l
                 the proof's corner (value up to 4 characters, label up to about 30). A physical or
                 visual product also passes media={<ProductShot …>} (a photo, or a drawing painted
                 from the --ui-media-* roles), shown above the demo: docs/system/layout.md,
-                "Product visuals". Tallyroom is software, so its screens are the product. */}
+                "Product visuals", and ./device.tsx for a worked one. Tallyroom is software, so its
+                screens are the product. */}
             <StarHero
               layout="split"
               stamp={{ value: "2 h", label: "median close, was ~9 h" }}

@@ -202,6 +202,9 @@
     --ui-stamp-face: var(--ui-font-display);
     --ui-stamp-case: none;
     --ui-stamp-size: 3rem;
+    /* Square label: the full box takes text (see web.css, the stamp). */
+    --ui-stamp-fit: 4.6rem;
+    --ui-stamp-label-width: 9em;
     --ui-stamp-shadow: none;
 
     --ui-accent-ink: var(--ui-accent);

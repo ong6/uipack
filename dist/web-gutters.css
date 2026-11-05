@@ -290,6 +290,9 @@
     --ui-stamp-face: var(--ui-font-display);
     --ui-stamp-case: none;
     --ui-stamp-size: 2.25rem;
+    /* Square tag: the full box takes text (see web.css, the stamp). */
+    --ui-stamp-fit: 4.6rem;
+    --ui-stamp-label-width: 9em;
     --ui-stamp-shadow: inset 0 3px 0 var(--ui-accent);
 
     /* Shared roles the web parts read (style.md): the spot fill (Technical: the accent), the
@@ -537,6 +540,9 @@
     --ui-stamp-face: var(--ui-font-display);
     --ui-stamp-case: none;
     --ui-stamp-size: 3rem;
+    /* Square label: the full box takes text (see web.css, the stamp). */
+    --ui-stamp-fit: 4.6rem;
+    --ui-stamp-label-width: 9em;
     --ui-stamp-shadow: none;
 
     --ui-accent-ink: var(--ui-accent);
@@ -725,6 +731,9 @@
     --ui-stamp-face: var(--ui-font-display);
     --ui-stamp-case: uppercase;
     --ui-stamp-size: 3.25rem;
+    /* Round: text keeps to the disc's inscribed square (see web.css, the stamp). */
+    --ui-stamp-fit: 3.4rem;
+    --ui-stamp-label-width: 6.5em;
     --ui-stamp-shadow: 6px 6px 0 var(--ui-ink);
 
     /* Shared roles the web parts read (style.md): the spot fill is the accent; no key-phrase fill

@@ -640,15 +640,17 @@
     color: var(--ui-stamp-accent);
   }
   .uipack-web-hero__stamp-label {
-    max-width: 9em;
+    max-width: var(--ui-stamp-label-width, 9em);
     font: 600 0.6875rem / 1.3 var(--web-font-mono);
     letter-spacing: var(--web-label-tracking);
     text-transform: uppercase;
   }
   /* The figure sizes itself to the value (--stamp-len, set from its characters), so "64%" or
      "£40" clears the inner ring; the label is clamped at three lines. */
+  /* A round stamp (--ui-stamp-radius: 50%) only has its inscribed square for text, so its style
+     sets a smaller --ui-stamp-fit (the width the figure may take) and --ui-stamp-label-width. */
   .uipack-web-hero__stamp-value {
-    font-size: min(var(--ui-stamp-size), calc(4.6rem / (var(--stamp-len, 3) * 0.62)));
+    font-size: min(var(--ui-stamp-size), calc(var(--ui-stamp-fit, 4.6rem) / (var(--stamp-len, 3) * 0.62)));
   }
   .uipack-web-hero__stamp-label {
     display: -webkit-box;
@@ -726,10 +728,10 @@
       padding: 12px;
     }
     .uipack-web-hero__proof > .uipack-web-hero__stamp .uipack-web-hero__stamp-value {
-      font-size: min(calc(var(--ui-stamp-size) * 0.8), calc(4.6rem / (var(--stamp-len, 3) * 0.62)));
+      font-size: min(calc(var(--ui-stamp-size) * 0.8), calc(var(--ui-stamp-fit, 4.6rem) / (var(--stamp-len, 3) * 0.62)));
     }
     .uipack-web-hero__proof > .uipack-web-hero__stamp .uipack-web-hero__stamp-label {
-      max-width: 9em;
+      max-width: var(--ui-stamp-label-width, 9em);
       font-size: 0.625rem;
     }
   }
