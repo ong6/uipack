@@ -177,7 +177,7 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   "causal-claim": {
     severity: "warn",
     check:
-      "A deck that shows a before/after comparison ('61.2% → 63.0%', 'was 40', 'Sep vs Oct') claims no cause from it: a cause verb ('lifted', 'cut', 'drove', 'because') in a title, lede or point warns outside mechanism, plan and ask slides (say 'after', 'since', 'went from… to'). A tip when nothing on the slides, notes or source says once that it is a before/after of two windows, not a controlled test.",
+      "A deck that shows a before/after comparison ('61.2% → 63.0%', 'was 40', 'Sep vs Oct') claims no cause from it: a cause verb ('lifted', 'cut', 'drove', 'because') in a title, lede or point warns outside mechanism, plan and ask slides (say 'after', 'since', 'went from… to'). A tip when nothing on the slides, notes or source says once that the numbers come from two windows, before and after.",
   },
 };
 

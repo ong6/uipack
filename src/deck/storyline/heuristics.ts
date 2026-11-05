@@ -368,7 +368,7 @@ export const BEFORE_AFTER_RE =
 /** A verb that claims a cause: "Cached cards lifted checkout", "drove", "because", "thanks to". */
 export const CAUSAL_RE =
   /\b(?:lift(?:s|ed)?|boost(?:s|ed)?|dr(?:ove|ives|iven)|cut(?:s)?|slash(?:es|ed)?|caused|led to|leads to|resulted in|results in|because|thanks to|due to|delivered)\b/i;
-/** A cue that says the comparison is not a test: "before/after of two windows", "not a controlled test". */
+/** A cue that says how the comparison was made: "two windows, before and after". The older "not a controlled test" still counts. */
 export const NOT_A_TEST_RE =
   /before[\s/-]*(?:and[\s-]*)?after|not\s+(?:a\s+)?(?:controlled\s+|a\/b\s+)?test|not proof|correlat|two windows/i;
 /** A stage direction with no content of its own: "Point at the 9", "Walk the figure left to right", "Pause". */

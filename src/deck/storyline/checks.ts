@@ -302,7 +302,7 @@ export const LINT_CHECKS: readonly LintCheck[] = [
       if (!said && slides.some((s) => sayOf(s.notes)))
         report(
           "tip",
-          'The deck compares before and after but never says so. Say it once, in a cue or a point: "before/after of two windows, not a controlled test".',
+          'The deck compares before and after but never says so. Say it once, in a cue or a point: "these numbers come from two windows, before and after".',
         );
     },
   },

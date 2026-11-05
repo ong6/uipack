@@ -49,7 +49,7 @@ const rewritten: Record<string, Partial<DeckSlide>> = {
       say: cues(
         "Freshness is why we're migrating.",
         "An edit shows up in search in 6 minutes. It used to take 40.",
-        "Migrated against old traffic: not a controlled test.",
+        "Two windows, before and after the migration.",
         "Source: the freshness dashboard.",
       ),
       delivery: "Point at the goal, not the old number.",

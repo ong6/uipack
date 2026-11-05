@@ -1104,7 +1104,7 @@ describe("lintDeck: presented decks (the default)", () => {
       expect(find(lintPresented(withSlide(noCompare, "answer", { title: "Caching cut tickets" })), "causal-claim")).toEqual([]);
     });
 
-    it("tips when no cue says it is a before/after, not a controlled test", () => {
+    it("tips when no cue says the numbers come from two windows, before and after", () => {
       const silent = withSlide(presented, "answer", {
         notes: cues("Answer-first reviews decided in one meeting.\nSource: the platform review log."),
       });

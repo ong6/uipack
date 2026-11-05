@@ -157,12 +157,12 @@ export const bentoDeck: DeckSlide[] = [
   {
     id: "answer",
     title: "Twice as fast",
-    headline: "Search: twice as fast, and cheaper",
+    headline: "Search got twice as fast",
     role: "answer",
     points: ["p95: 412 ms → 198 ms", "Cost per query −18%", "Searches ending in a click: 61% → 64%"],
     render: () => (
       <Slide footer={footer} layout="center">
-        <h2 className="uipack-deck-title deck-bento-cover-title">Search: twice as fast, and cheaper</h2>
+        <h2 className="uipack-deck-title deck-bento-cover-title">Search got twice as fast</h2>
         <ul className="uipack-deck-points deck-bento-cover-points">
           <li>p95: 412 ms → 198 ms</li>
           <li>Cost per query −18%</li>
@@ -172,11 +172,11 @@ export const bentoDeck: DeckSlide[] = [
     ),
     notes: {
       say: cues(
-        "Twice as fast as Q2, and cheaper to serve.",
+        "Search got twice as fast since Q2.",
         "Clicks: more people found what they came for.",
         "Then: the evidence, one risk, one decision by 30 October.",
         "Source: the search latency, cost and click-through dashboards, Q2 against Q3.",
-        "A before/after of two quarters, not a controlled test.",
+        "The numbers compare two quarters, before and after.",
       ),
       delivery: "Speed and cost first, then the clicks. Don't explain yet.",
       next: "Where the speed came from",
@@ -361,7 +361,7 @@ export const bentoDeck: DeckSlide[] = [
     role: "context",
     notes: {
       say: cues("Two jobs: hold the speed through the peak, keep cutting cost.", "The shard leads: it has the deadline."),
-      delivery: "Pause on the part number. A breath, not a slide to read.",
+      delivery: "Pause on the part number. Take a breath here.",
       next: "The plan",
     },
   }),

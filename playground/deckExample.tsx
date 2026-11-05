@@ -29,7 +29,7 @@ const groups = [
 
 /** A first draft of a review, as the ghost deck shows it: titles alone, with the check's flags. */
 const ghost = [
-  { role: "Answer", title: "Search: twice as fast, and cheaper" },
+  { role: "Answer", title: "Search got twice as fast" },
   { role: "Evidence", title: "Search now costs 18% less per query this quarter", flag: "A sentence to read out", zoom: true },
   { role: "Evidence", title: "Caching: 140 of the 214 ms" },
   { role: "Risk", title: "Will the cache hold in November?" },

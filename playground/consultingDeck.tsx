@@ -177,7 +177,7 @@ export const consultingDeck: DeckSlide[] = [
           " as orders spread across five sites",
         ]}
         subtitle="Fulfilment network, FY22–FY25"
-        takeaway="The network grew in sites, not in scale: each new site added split shipments and part-empty shifts."
+        takeaway="Each new site added split shipments and part-empty shifts."
         notes={["Index of annual totals; FY22 = 100.", "Dashed line: network average, weighted by orders shipped."]}
         source={source}
       >
