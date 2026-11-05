@@ -732,8 +732,8 @@
     --ui-stamp-case: uppercase;
     --ui-stamp-size: 3.25rem;
     /* Round: text keeps to the disc's inscribed square (see web.css, the stamp). */
-    --ui-stamp-fit: 3.4rem;
-    --ui-stamp-label-width: 6.5em;
+    --ui-stamp-fit: 3rem;
+    --ui-stamp-label-width: 8em;
     --ui-stamp-shadow: 6px 6px 0 var(--ui-ink);
 
     /* Shared roles the web parts read (style.md): the spot fill is the accent; no key-phrase fill
@@ -1686,8 +1686,11 @@
     color: var(--web-ink-low);
   }
   @container web (max-width: 520px) {
+    /* One equal column per fact, however many there are. */
     .uipack-web-hero__facts {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: none;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, 1fr);
       gap: 12px;
       margin-top: var(--web-s1);
     }
@@ -3001,7 +3004,8 @@
     .uipack-web .uipack-web-proof__stats > div + div {
       border-top: 1px var(--ui-perf, solid) var(--web-hairline);
     }
-    .uipack-web .uipack-web-proof__stats dd {
+    .uipack-web .uipack-web-proof__stats dd,
+    .uipack-web[data-ui-style] .uipack-web-proof__stats[data-headline] dd {
       order: -1;
       font-size: calc(var(--web-step-3) * var(--web-display-scale));
     }
@@ -3044,7 +3048,11 @@
     border-inline-start: var(--ui-stat-divider, 0 solid transparent);
     padding-inline-start: var(--web-s3);
   }
+  .uipack-web-proof__stats > div {
+    min-width: 0;
+  }
   .uipack-web-proof__stats dt {
+    overflow-wrap: break-word;
     font: 400 var(--web-step--1) / 1.4 var(--web-font-mono);
     letter-spacing: 0.02em;
     color: var(--web-ink-low);
@@ -3616,6 +3624,10 @@
     font-weight: 400;
     white-space: nowrap;
   }
+  .uipack-web-table tbody :is(th, td):not([data-align="end"]) {
+    white-space: normal;
+    min-width: 7ch;
+  }
   .uipack-web-table :is(th, td):first-child {
     padding-inline-start: 0;
   }
@@ -4026,6 +4038,16 @@
   @container web (max-width: 720px) {
     .uipack-web-worked {
       padding: var(--web-s2);
+    }
+  }
+  /* A phone-width sheet: each line's result goes under its rule. */
+  @container uipack-worked (max-width: 420px) {
+    .uipack-web-worked .uipack-web-worked__lines {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .uipack-web-worked .uipack-web-worked__result {
+      justify-items: start;
+      text-align: start;
     }
   }
   @container uipack-worked (max-width: 600px) {
@@ -5213,13 +5235,14 @@
     display: grid;
     place-items: center;
     border: 2px solid var(--ui-media-ground);
-    background: var(--ui-accent);
+    /* Bone on ink: the picture is painted orange and black, so an orange pin vanished into it. */
+    background: var(--ui-media-ink);
     box-shadow: 3px 3px 0 var(--ui-media-ground);
   }
   .uipack-web[data-ui-style="graphical"] .uipack-web-shot__pin::before {
     content: counter(uipack-shot);
     font: 400 0.875rem / 1 var(--web-font-display);
-    color: var(--ui-on-accent);
+    color: var(--ui-media-ground);
   }
   .uipack-web[data-ui-style="graphical"] .uipack-web-shot__leader {
     stroke-width: 3;
@@ -5289,12 +5312,30 @@
       padding-inline-end: 10px;
     }
   }
-  .uipack-web[data-ui-style="landing"] .uipack-web-table tr[data-highlight] :is(th, td) {
-    background: var(--ui-spot);
-    color: var(--ui-on-spot);
+  /* The marked row printed solid: cell by cell in a table, the whole card when a phone stacks it. */
+  @container uipack-table (min-width: 441px) {
+    .uipack-web[data-ui-style="landing"] .uipack-web-table tr[data-highlight] :is(th, td) {
+      background: var(--ui-spot);
+      color: var(--ui-on-spot);
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table tr[data-highlight] :is(th, td):first-child {
+      box-shadow: none;
+    }
   }
-  .uipack-web[data-ui-style="landing"] .uipack-web-table tr[data-highlight] :is(th, td):first-child {
-    box-shadow: none;
+  @container uipack-table (max-width: 440px) {
+    .uipack-web[data-ui-style="landing"] .uipack-web-table:not([data-narrow="stack"]) tr[data-highlight] :is(th, td) {
+      background: var(--ui-spot);
+      color: var(--ui-on-spot);
+      box-shadow: none;
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table[data-narrow="stack"] tr[data-highlight] {
+      background: var(--ui-spot);
+      box-shadow: none;
+      color: var(--ui-on-spot);
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table[data-narrow="stack"] tr[data-highlight] :is(th, td, .uipack-web-table__label) {
+      color: inherit;
+    }
   }
   /* Lists: names in the display face, states as pink dots with an off-register keyline. */
   .uipack-web[data-ui-style="landing"] .uipack-web-list__text strong {

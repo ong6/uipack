@@ -695,8 +695,11 @@
     color: var(--web-ink-low);
   }
   @container web (max-width: 520px) {
+    /* One equal column per fact, however many there are. */
     .uipack-web-hero__facts {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: none;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, 1fr);
       gap: 12px;
       margin-top: var(--web-s1);
     }
@@ -2010,7 +2013,8 @@
     .uipack-web .uipack-web-proof__stats > div + div {
       border-top: 1px var(--ui-perf, solid) var(--web-hairline);
     }
-    .uipack-web .uipack-web-proof__stats dd {
+    .uipack-web .uipack-web-proof__stats dd,
+    .uipack-web[data-ui-style] .uipack-web-proof__stats[data-headline] dd {
       order: -1;
       font-size: calc(var(--web-step-3) * var(--web-display-scale));
     }
@@ -2053,7 +2057,11 @@
     border-inline-start: var(--ui-stat-divider, 0 solid transparent);
     padding-inline-start: var(--web-s3);
   }
+  .uipack-web-proof__stats > div {
+    min-width: 0;
+  }
   .uipack-web-proof__stats dt {
+    overflow-wrap: break-word;
     font: 400 var(--web-step--1) / 1.4 var(--web-font-mono);
     letter-spacing: 0.02em;
     color: var(--web-ink-low);
@@ -2625,6 +2633,10 @@
     font-weight: 400;
     white-space: nowrap;
   }
+  .uipack-web-table tbody :is(th, td):not([data-align="end"]) {
+    white-space: normal;
+    min-width: 7ch;
+  }
   .uipack-web-table :is(th, td):first-child {
     padding-inline-start: 0;
   }
@@ -3035,6 +3047,16 @@
   @container web (max-width: 720px) {
     .uipack-web-worked {
       padding: var(--web-s2);
+    }
+  }
+  /* A phone-width sheet: each line's result goes under its rule. */
+  @container uipack-worked (max-width: 420px) {
+    .uipack-web-worked .uipack-web-worked__lines {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .uipack-web-worked .uipack-web-worked__result {
+      justify-items: start;
+      text-align: start;
     }
   }
   @container uipack-worked (max-width: 600px) {

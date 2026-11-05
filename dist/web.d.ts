@@ -483,8 +483,7 @@ interface DataColumn {
      * "low": a supporting column the table drops when it is narrower than 440px (a phone, a narrow
      * card), so the key columns are never cut or scrolled away. "key": the column the page is about
      * (payback, price, the result); it must stay visible: below 440px it is pinned to the end edge in
-     * "fit" and "scroll" mode, set large on the name's line in "stack" mode, and it makes "auto"
-     * stack sooner. Default "high". The first column (the row's name) is always kept.
+     * "fit" and "scroll" mode and set large on the name's line in "stack" mode. Default "high". The first column (the row's name) is always kept.
      */
     priority?: "high" | "low" | "key";
 }
@@ -501,9 +500,9 @@ interface DataTableProps {
     /**
      * Below 440px of table width: "fit" keeps the row layout (minus `priority: "low"` columns),
      * "stack" turns each row into a small record (name, then label and value per column), "scroll"
-     * keeps every column and scrolls inside itself. Default "auto": "stack" when more than four
-     * columns remain after the low-priority ones are dropped, or more than three with a
-     * `priority: "key"` column (a phone must never scroll the key value away), otherwise "fit".
+     * keeps every column and scrolls inside itself. Default "auto": "stack" when more than three
+     * columns remain after the low-priority ones are dropped (four columns at 390 crop or scroll
+     * the key value away), otherwise "fit", where text columns wrap and numbers stay on one line.
      */
     narrow?: "auto" | "fit" | "stack" | "scroll";
     className?: string;

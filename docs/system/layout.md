@@ -160,8 +160,8 @@ words nor the style.
   inside spreads its rows over it (equal rows), so no window ends in an empty box. Balance the
   pair's content rather than leaving one card half full.
 - **Product surfaces at 390.** A `DataTable` drops `priority: "low"` columns below 440px of its own
-  width, and with more than four remaining columns (more than three with a `priority: "key"`
-  column) stacks each row as a small record (`narrow` overrides: `fit`, `stack`, `scroll`). Mark
+  width, and with more than three remaining columns stacks each row as a small record (text
+  columns wrap and numbers stay on one line, so a long row name never pushes the key column out) (`narrow` overrides: `fit`, `stack`, `scroll`). Mark
   the column the page is about (payback, price, the result) `priority: "key"`: stacked, it sits
   large on the row's name line; in `fit` or `scroll` it is pinned to the end edge, never scrolled
   off. `WorkedExample` results take a `unit` set small beside the

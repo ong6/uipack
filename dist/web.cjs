@@ -445,8 +445,7 @@ function ProductWindow({
 function DataTable({ columns, rows, highlight, label, note, narrow = "auto", className = "" }) {
   const marked = new Set(highlight === void 0 ? [] : Array.isArray(highlight) ? highlight : [highlight]);
   const kept = columns.filter((c, j) => j === 0 || c.priority !== "low").length;
-  const hasKey = columns.some((c, j) => j > 0 && c.priority === "key");
-  const mode = narrow === "auto" ? kept > 4 || hasKey && kept > 3 ? "stack" : "fit" : narrow;
+  const mode = narrow === "auto" ? kept > 3 ? "stack" : "fit" : narrow;
   const prio = (c, j) => j > 0 && (c.priority === "low" || c.priority === "key") ? c.priority : void 0;
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-table ${className}`.trim(), "data-narrow": mode, children: [
     /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-table__scroll", role: "region", "aria-label": label, tabIndex: 0, children: /* @__PURE__ */ jsxRuntime.jsxs("table", { children: [

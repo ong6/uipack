@@ -170,8 +170,8 @@
     --ui-stamp-case: uppercase;
     --ui-stamp-size: 3.25rem;
     /* Round: text keeps to the disc's inscribed square (see web.css, the stamp). */
-    --ui-stamp-fit: 3.4rem;
-    --ui-stamp-label-width: 6.5em;
+    --ui-stamp-fit: 3rem;
+    --ui-stamp-label-width: 8em;
     --ui-stamp-shadow: 6px 6px 0 var(--ui-ink);
 
     /* Shared roles the web parts read (style.md): the spot fill is the accent; no key-phrase fill

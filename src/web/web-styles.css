@@ -623,13 +623,14 @@
     display: grid;
     place-items: center;
     border: 2px solid var(--ui-media-ground);
-    background: var(--ui-accent);
+    /* Bone on ink: the picture is painted orange and black, so an orange pin vanished into it. */
+    background: var(--ui-media-ink);
     box-shadow: 3px 3px 0 var(--ui-media-ground);
   }
   .uipack-web[data-ui-style="graphical"] .uipack-web-shot__pin::before {
     content: counter(uipack-shot);
     font: 400 0.875rem / 1 var(--web-font-display);
-    color: var(--ui-on-accent);
+    color: var(--ui-media-ground);
   }
   .uipack-web[data-ui-style="graphical"] .uipack-web-shot__leader {
     stroke-width: 3;
@@ -699,12 +700,30 @@
       padding-inline-end: 10px;
     }
   }
-  .uipack-web[data-ui-style="landing"] .uipack-web-table tr[data-highlight] :is(th, td) {
-    background: var(--ui-spot);
-    color: var(--ui-on-spot);
+  /* The marked row printed solid: cell by cell in a table, the whole card when a phone stacks it. */
+  @container uipack-table (min-width: 441px) {
+    .uipack-web[data-ui-style="landing"] .uipack-web-table tr[data-highlight] :is(th, td) {
+      background: var(--ui-spot);
+      color: var(--ui-on-spot);
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table tr[data-highlight] :is(th, td):first-child {
+      box-shadow: none;
+    }
   }
-  .uipack-web[data-ui-style="landing"] .uipack-web-table tr[data-highlight] :is(th, td):first-child {
-    box-shadow: none;
+  @container uipack-table (max-width: 440px) {
+    .uipack-web[data-ui-style="landing"] .uipack-web-table:not([data-narrow="stack"]) tr[data-highlight] :is(th, td) {
+      background: var(--ui-spot);
+      color: var(--ui-on-spot);
+      box-shadow: none;
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table[data-narrow="stack"] tr[data-highlight] {
+      background: var(--ui-spot);
+      box-shadow: none;
+      color: var(--ui-on-spot);
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table[data-narrow="stack"] tr[data-highlight] :is(th, td, .uipack-web-table__label) {
+      color: inherit;
+    }
   }
   /* Lists: names in the display face, states as pink dots with an off-register keyline. */
   .uipack-web[data-ui-style="landing"] .uipack-web-list__text strong {

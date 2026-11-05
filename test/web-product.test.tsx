@@ -353,7 +353,7 @@ describe("key columns, proof caveat, FAQ aside, product shot", () => {
     { key: "payback", label: "Payback", align: "end" as const, priority: "key" as const },
   ];
   const rows = [{ spot: "Loft hatch", cost: "£12", saves: "£38", payback: "3.8 mo" }];
-  it("DataTable stacks sooner with a key column, so a phone never scrolls the key away", () => {
+  it("DataTable stacks four or more columns on a phone, so the key value is never scrolled away", () => {
     const { container } = render(<DataTable label="Fixes" columns={cols} rows={rows} />);
     expect(container.querySelector(".uipack-web-table")).toHaveAttribute("data-narrow", "stack");
     const key = [...container.querySelectorAll("[data-priority=key]")];
@@ -361,7 +361,10 @@ describe("key columns, proof caveat, FAQ aside, product shot", () => {
     expect(key[1]).toHaveTextContent("3.8 mo");
     const plain = cols.map((c) => ({ ...c, priority: undefined }));
     const { container: c2 } = render(<DataTable label="Fixes" columns={plain} rows={rows} />);
-    expect(c2.querySelector(".uipack-web-table")).toHaveAttribute("data-narrow", "fit");
+    expect(c2.querySelector(".uipack-web-table")).toHaveAttribute("data-narrow", plain.length > 3 ? "stack" : "fit");
+    const three = plain.slice(0, 3);
+    const { container: c3 } = render(<DataTable label="Fixes" columns={three} rows={rows} />);
+    expect(c3.querySelector(".uipack-web-table")).toHaveAttribute("data-narrow", "fit");
   });
   it("Proof sets three stats without a lead as the headline row, with the caveat under them", () => {
     const { container } = render(
