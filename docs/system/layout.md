@@ -30,8 +30,8 @@ label, 72 with a sub-label. Lanes are on the 8px grid with headers at y 40.
 **Size first.** Decide the render width (column width or a breakout), then size the `viewBox` to
 it. A 1120 `viewBox` in a 680 column puts 13px labels at 8px.
 
-**Patterns.** The diagram page (`/`) is the catalogue of figure layouts, simplest first. Pick one
-before drawing:
+**Patterns.** The diagram gallery, the playground's home page, is the catalogue of figure layouts,
+simplest first. Pick one by the shape of the claim before drawing:
 
 | Claim shape | Pattern |
 | --- | --- |

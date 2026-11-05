@@ -38,8 +38,7 @@ UI Pack draws explanations. A visual exists to make one thing understood faster 
 You can change any layer without touching the other two:
 
 - **Same words and layout, new style.** Restyle a Technical deck as Graphical: the headlines,
-  notes, slide order and regions stay put, and only the tokens and ornaments change
-  (`<DeckPlayer uiStyle="graphical">`).
+  notes, slide order and regions stay put, and only the colours, faces and ornaments change.
 - **Same style and words, new layout.** Turn a deck's comparison slide into a bento slide, or a
   wide figure into its stacked narrow drawing.
 - **Same style and layout, new words.** A slide archetype or figure preset fed different content.
@@ -48,40 +47,47 @@ What makes that work is a contract between the layers:
 
 | Layer | Owns | Must never contain |
 | --- | --- | --- |
-| Style | A value set for the roles (`--ui-paper`, `--ui-ink`, `--ui-accent`, `--ui-flow-request`, `--ui-font-display`, `--ui-radius`, `--ui-ease-settle`…) with light and dark halves; scalars it may own (density, type ratio, measure, display scale); what it paints in a layout's ornament slots (backdrop, marker, rule, frame); 3D material palettes | Positions, sizes of regions, words |
-| Writing | Typed content: `headline`, `points`, optional `eyebrow` and `lede`, `body`, `figure`, `caption`, `notes { say, delivery, next }`, `source`, `role` | Colours, font names, coordinates |
-| Layout | Named regions and slots, each slot's text budget, ornament slots left for the style, a grid, a reading order, a beat order and transitions, sizes in grid units | Hex values, face names, sentences |
+| Style | The value of every role (paper, ink, accent, the flow colours, the display face, radius, easing), each with a light and a dark value; a few scalars (density, type ratio, line length, display scale); what it paints in the ornament slots (backdrop, marker, rule, frame); 3D material palettes | Positions, region sizes, words |
+| Writing | The words, as typed fields: headline, points, an optional eyebrow and lede, body, figure, caption, speaker notes, source and the slide's role | Colours, font names, coordinates |
+| Layout | Named regions and the slots in them, each slot's text budget, the ornament slots left for the style, a grid, a reading order, a beat order and transitions | Colour values, face names, sentences |
 
 Two rules follow from the contract:
 
-- **Layout and writing read roles, never values.** A layout says `color: var(--ui-ink-2)`, never
-  `#5c625e`, and never `font-family: "IBM Plex Sans"`.
-- **Content is data.** Words live in a typed object (`DeckSlide`, `SlideStarterData`, a preset
-  spec) that any layout with matching slots can render. A slide's words are never baked into its
-  layout component.
+- **Layout and writing ask for a role, never a value.** A layout says "the second ink", never a
+  hex code or a font name, so a new style changes the answer without touching the layout.
+- **Content is data.** Words live in a typed object that any layout with matching slots can
+  render. A slide's words are never baked into its layout component.
 
-Four more rules keep the split honest where it would otherwise leak (on density, fonts,
-decoration and text length):
+Four more rules keep the split honest where it would otherwise leak:
 
 - **A style may own scalars and ornaments, never positions or words.** Density, type ratio,
-  measure and display scale are style roles. Shapes a style adds (Graphical's disc, Technical's
-  dotted grid) go through named ornament slots that never take space, so every region stays put.
+  line length and display scale are style roles. Shapes a style adds (Graphical's disc, Technical's
+  dotted grid) go in named ornament slots that never take space, so every region stays put.
 - **Every slot has a text budget.** A presented slide's headline is 2–5 words (at most 14 when the
-  deck is read without its speaker), a body point a fragment of at most 8 words, an eyebrow
-  (optional) 1–4 words, a label 2–3. `SLOT_BUDGETS` holds the table and `lintDeck` reports `slot-budget`
+  deck is read without its speaker), a body point a fragment of at most 8 words, an optional
+  eyebrow 1–4 words, a label 2–3. The linter flags any slot over budget
   ([Writing, slot budgets](writing.md#slot-budgets)).
 - **A style may recommend layouts, never require them.** On the web the section order is part of a
-  look, so each style names a sequence for the same content (`uiStyles[].prefers`,
-  [Layout, web](layout.md#web)); every style still renders every layout.
-- **The web loads one style at a time.** CSS sits in cascade layers (`uipack.tokens`,
-  `uipack.base`, `uipack.layout`, `uipack.ornaments`), so an unlayered host rule wins without
-  `!important`. A blocking head script (`styleBootScript`) sets `data-ui-style` and
-  `data-ui-theme` before the first paint. Each style fetches only its own faces, preloads only its
-  display face and swaps over metric-matched fallbacks.
+  look, so each style names an order for the same content ([Layout, web](layout.md#web)); every
+  style still renders every layout.
+- **The web loads one style at a time.** The library's CSS sits in cascade layers, so a page's own
+  rules win without `!important`. A small script in the page head sets the style and theme before
+  the first paint, and each style fetches only its own fonts.
 
 What exists in code and what is still missing is in
-[Style roles, "Where the code stands"](style.md#where-the-code-stands). The Foundations pages
-(`/foundations`) show each layer live.
+[Style roles, "Where the code stands"](style.md#where-the-code-stands). The Foundations pages show
+each layer live.
+
+**For implementers.** Roles are CSS custom properties (`--ui-paper`, `--ui-ink`, `--ui-accent`,
+`--ui-flow-request`, `--ui-font-display`, `--ui-radius`, `--ui-ease-settle`…), so a layout writes
+`color: var(--ui-ink-2)`, never `#5c625e` or `font-family: "IBM Plex Sans"`. A component takes the
+style as a prop (`<DeckPlayer uiStyle="graphical">`). Content types are `DeckSlide`,
+`SlideStarterData` and the preset specs; notes are `notes { say, delivery, next }`. Budgets are
+`SLOT_BUDGETS`, checked by `lintDeck` as `slot-budget`. Each style's recommended order is
+`uiStyles[].prefers`. The cascade layers are `uipack.tokens`, `uipack.base`, `uipack.layout` and
+`uipack.ornaments`; the head script is `styleBootScript`, which sets `data-ui-style` and
+`data-ui-theme`.
+
 
 ## Media at a glance
 

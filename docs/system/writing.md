@@ -132,8 +132,9 @@ yet.
   or unknown source says so in the source line.
 - Step numbers (`01 / 02 / 03`) only when order matters, and the caption refers to them.
 - A `hint` (selection note) is one short sentence on what the part does.
-- ❌ a box labelled "RAG pipeline". ✅ `Chunk → Embed → pgvector`, with arrows `~1000 chars` and
-  `1536-dim`.
+- **Name the parts, not the system.** Don't draw one box labelled "RAG pipeline". Draw the
+  stages the claim is about, Chunk → Embed → pgvector, and label the arrows with what travels
+  (`~1000 chars`, `1536-dim`).
 
 ## Slides
 
