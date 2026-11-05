@@ -12,7 +12,7 @@ Write every deck for one of two modes, and lint it in that mode (`lintDeck(slide
 | Title | 2–5 words: a verdict that sounds spoken (a bare label only on agenda, section and mechanism slides) | The real conclusion as one sentence, 3–14 words |
 | Body | 2–4 fragments that carry the numbers and cues, or one piece of evidence | Points, a chart or a table that proves the title |
 | Eyebrow, lede | None by default | None by default |
-| Notes | Cues: a few short lines, said in your own words | The talk track in full sentences |
+| Notes | Cues for what the slide can't hold (why, so-what, trade-off, bridge), said in your own words | The talk track in full sentences |
 
 The same slide, both ways:
 
@@ -40,7 +40,7 @@ The code lives behind [`src/deck/storyline.ts`](../src/deck/storyline.ts), with 
 | **One idea per slide, said once** | One claim, and a body that proves it without repeating the title. Two claims means two slides. Each slide adds something: slide one may preview the answer and the ask, but a later slide adds the baseline, the source or the cost, never the same line again. | Can you state the slide in one sentence, and what it adds to the one before? |
 | **Evidence slides show one thing** | A short spoken headline and one piece of evidence: a chart, a number with its baseline, a screenshot (Evans, Willison). | Can you point at it while you say the claim? |
 | **Evidence with sources** | Every number has a baseline, a window and a source: on the slide when it changes the decision, otherwise in the notes. Each covers only the number it was given for; a number without one gets a line in the notes the speaker can say ("source still to confirm"), never a neighbour's source and never a `TODO` on the slide. Qualifiers are copied exactly ("up to 15 minutes", "about 40"). Nothing goes in that the input doesn't say: no guessed causes, scopes or reassurances, and no gap stated as a fact about the team ("we haven't costed a fix"). A before/after says "after" or "since", never "lifted" or "cut", and says once that it is two windows, not a controlled test (see [Writing](system/writing.md#rules-for-every-medium)). | "Where's that from?" has an answer, and it's the right one. |
-| **A specific ask** | End on a decision or action, a named owner (a team or role: "platform leads", "the payments team", "VP Eng", an @handle; not "we", "the team", a first name or "owner TBD") and a firm calendar date ("next quarter", "Monday-ish" and "next Monday maybe" are not), and what happens on a no or a missed date (a stated purpose gives it: "so it ships in spring" means a later yes misses spring). Not "Questions?" | Could someone act on it tomorrow, and would they know it's theirs? |
+| **A specific ask** | End on a decision or action with its object ("approve Spanish and French", not "approve by 15 January") and, when the facts give one, its cost, on the ask slide itself; a named owner (a team or role: "platform leads", "the payments team", "VP Eng", an @handle; not "we", "the team", a first name or "owner TBD") and a firm calendar date ("next quarter", "Monday-ish" and "next Monday maybe" are not), and what happens on a no or a missed date (a stated purpose gives it: "so it ships in spring" means a later yes misses spring). Not "Questions?" | Could someone act on it tomorrow, and would they know it's theirs? |
 | **Design serves the claim** | The dominant visual element is the evidence for the title. Cut decoration, logos and anything the title doesn't need, eyebrows and ledes included. | Cover the title: does the visual still point at it? |
 | **Written by a person** | No "X, not Y" on every slide, no clauses balanced on a semicolon, no comparison bolted onto every claim, no tidy closing clause, no coined term used as if established, no three-part template repeated slide after slide ([the full list](system/writing.md#rules-for-every-medium)). | Read the deck aloud: does any line sound like a slogan? |
 
@@ -62,7 +62,7 @@ Tag each slide with the job it does. The linter and the ghost deck read these ta
 | `recommendation` | Which one, and what does it cost? | The pick, why it wins, the trade-off accepted. |
 | `plan` | What happens next? | Milestones, cost, how we'll know it worked. |
 | `risk` | What could go wrong? | Top risk, mitigation, and the tripwire for reversing. |
-| `ask` | What do you need from me? | Decision or action, owner, date. |
+| `ask` | What do you need from me? | Decision or action and its object, cost, owner, date, what a no means. |
 | `demo` | Show me. | The real thing, one rehearsed path, with a fallback. |
 | `appendix` | Where's the detail? | Backup for questions and async readers. Not presented. |
 
@@ -102,7 +102,7 @@ Put the status word in slide one's title. If the project is at risk, say so ther
 | 5 | recommendation | Why the queue wins | Cost: thumbnails about 5 s later | A queue ends timeouts at the cost of thumbnails arriving 5 seconds later |
 | 6 | plan | Six engineer-weeks | Done when timeouts drop below 0.1% | Six engineer-weeks, done when upload timeouts drop below 0.1% |
 | 7 | risk *(optional)* | Tripwire: queue lag over 1 min | Fall back to inline resizing | If queue lag passes one minute, we fall back to inline resizing |
-| 8 | ask | Decide by 14 March | Platform leads · So Q2 can staff it | Platform leads: decide by 14 March so the work is staffed in Q2 |
+| 8 | ask | Approve the queue by 14 March | Platform leads · Six engineer-weeks · Later misses Q2 staffing | Platform leads: approve the six-week queue by 14 March so Q2 can staff it |
 
 Compare the options on one slide using the same criteria, and always include "do nothing", which the facts can always state: what stays as it is. Naming what the recommendation costs is what makes it credible.
 
@@ -183,18 +183,18 @@ The player has one default move and two special ones. A special move only means 
 
 In a typical deck, about one slide in ten uses morph or zoom. The templates mark where those moves fit.
 
-## Speaker notes: cues, not a script
+## Speaker notes: what the slide can't hold
 
-A presented deck's notes are what you glance at, not what you read out. You'll say it differently each time, and that's the point: the slide holds the order and the numbers, so you only have to remember what each point stands for.
+A presented deck's notes are what you glance at, not what you read out. The slide already holds the order and the numbers, and the room can read it, so a note that restates its slide gives you nothing to say. Notes carry what the slide can't: why it matters, the so-what for this audience, the trade-off if the answer is no, the open question, and the bridge. All of it is reasoning from the given facts; a note never adds a new fact.
 
-- **`say`: a few short lines, one thought each,** at most about 60 words (`notes-cues` warns past that). Content first: the claim to say and the number to point at, in a few words ("Desktop only: 61.2 → 63.0 over four weeks"), then the caveat and the source. "Point at the 9" alone is a stage direction, not a cue (`notes-cues` warns when `say` is nothing else). Separate lines with `\n`; the speaker view, read view and notes PDF keep the breaks.
+- **`say`: a few short lines, one thought each,** at most about 60 words (`notes-cues` warns past that). Under "1 engineer, 3 weeks, 400 articles": "Why now: those customers meet the February price change on the old bot", "The engineering is small; the 400-article review is the open item". Not "Cost: one engineer for about three weeks", which the slide already says (`notes-echo` warns when more than half a note's words are on its slide; source lines don't count). End with the source. "Point at the 9" alone is a stage direction, not a cue (`notes-cues` warns when `say` is nothing else). Separate lines with `\n`; the speaker view, read view and notes PDF keep the breaks.
 - **`delivery`: one cue** for pace or where to point ("Point at the 19 and hold it").
 - **`next`: the bridge,** a few words ("The 19 becomes one row"), only where the link isn't obvious; the same "Next: …" under every slide reads as a template.
 - **Timing comes from the slide count,** about a minute a slide, so pass `minutes` to the player for its clock. `talk-time` only warns when the notes run over the budget; it doesn't ask cues to fill it.
 
 ```ts
 notes: {
-  say: "Answer first: decided in one meeting. Buried: three.\n24 platform reviews, April to September.\nSource: the platform review log.",
+  say: "Two fewer meetings for every decision this room takes.\nSame teams and half-year: a before/after of two windows.\nSource: the platform review log, 24 reviews, April to September.",
   delivery: "Say one, then three. Stop.",
   next: "What a buried answer costs",
 }
@@ -226,6 +226,7 @@ When a deck goes out without its speaker (a pre-read, a deck forwarded up the ch
 | `one-idea` | tip | The title is a single sentence. |
 | `notes-present` | warn | Every presented slide has `say` notes: cues when presented, a talk track when read alone. |
 | `notes-cues` | warn / tip | Presented only: a slide's `say` runs at most about 60 words. Past that it is a script to recite; cut it to cue lines and put the bridge in `next`. A `say` made only of stage directions ("Walk the figure left to right", "Point at the 9, then the old 40") warns; one beside content cues is a tip to move it to `delivery`. |
+| `notes-echo` | warn | Presented only: a slide's `say` adds to its slide. When 55% or more of its content words (source lines aside, at least six words) are already in the title, points, lede, slots or source, it warns: cue why it matters, the so-what, the trade-off and the bridge instead. |
 | `slide-shape` | warn | The deck doesn't repeat one shape: with four or more content slides, not every one has an eyebrow and a lede (either mode), and, when presented, not every title is "Topic: verdict" or every one a full sentence. (Labels on content slides are `title-claim`'s finding.) |
 | `ai-tells` | warn / tip | A "X, not Y" contrast, or a comparison bolted onto a claim ("…, twice as fast as March"), in the titles, ledes or points of more than one slide warns. A semicolon balancing two clauses in a title, lede or point is a tip. |
 | `causal-claim` | warn / tip | In a deck with a before/after comparison ("61.2% → 63.0%", "was 40", "Sep vs Oct"), a title, lede or point that claims a cause ("lifted", "cut", "drove", "slashed", "caused", "led to", "because", "thanks to", "due to") warns, except on mechanism, plan and ask slides; say "after", "since" or "went from… to". When the deck has notes but nothing on it says once that it is a before/after ("before/after of two windows", "not a controlled test"), a tip. |
@@ -235,6 +236,7 @@ When a deck goes out without its speaker (a pre-read, a deck forwarded up the ch
 | `outcome-first` | tip | Slide one's title names an outcome (a number, a comparison, or a word like faster, cheaper, cut, saved, unblocked, on track), not just the system. Off where `answer-first` is off. |
 | `closing-ask` | error / warn | An `ask` slide exists and is the last presented slide. |
 | `ask-concrete` | warn | The ask, across its title, points, end-slide slots and notes, names an action, an owner and a date. The owner is a role ("Platform leads", "the payments director", "VP Eng", "Dana, our platform lead"), a named team ("Storage team", "the payments team"), "<Name> owns it" or an @handle; "we", "you", "the team", a bare capitalised word ("Please continue to Support this effort", "Thanks Bob"), a placeholder ("owner TBD", "Leads to approve") and "lead" as a verb ("We will lead the review") don't count. The date is on a calendar and said firmly: a month, a weekday, a numeric date, Q3 or H2, or today. "Next quarter", "soon", "going forward", "Monday-ish" and "Next Monday maybe" don't count. |
+| `ask-scope` | warn | Presented only: the ask slide itself (title, points, slots; not the notes) names what is approved or done, a decision verb with its object ("Approve by 15 January 2027" and "Decide by 14 March" have none; "Schema freeze from 20 May" does), and, when an answer, option, recommendation or plan slide states a cost (people, effort or money with a quantity), that cost too. |
 | `role-repeat` | warn | No two adjacent slides share a role, except evidence, mechanism, demo and appendix. |
 | `deck-length` | warn / tip | About one to two minutes per presented slide; with only a template given, the slide count falls inside its range. |
 | `template-beats` | warn | With a `template`, every beat it doesn't mark optional has a slide in that role: a decision request without an options slide, or a postmortem without its plan, hears which beat is missing. |
@@ -264,7 +266,7 @@ Each slot of the slide region map holds a fixed amount of text in every layout a
 | `date` | 1–4 words | wraps |
 | `source` | ≤ 30 words, ≤ 2 lines | wraps |
 
-These checks are heuristics. They catch a missing ask or a topic-label title, but they can't tell whether a claim is true. Rehearse the deck out loud and have someone else read the ghost deck cold.
+These checks are heuristics. They catch a missing ask or a topic-label title, but they can't tell whether a claim is true. After the draft, reread it as the audience against the [review checklist](system/writing.md#rules-for-every-medium) (rule 11) and revise once; then rehearse it out loud and have someone else read the ghost deck cold.
 
 ```ts
 import { lintDeck, storylineOf, templateOutline } from "uipack/deck";

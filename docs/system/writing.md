@@ -19,7 +19,9 @@ render in any layout that has matching slots, in any style. See [the system over
    needs it, pin it to the data in the notes or caption ("iOS isn't in these numbers", "the brief
    has no cost for a fix", "iOS 0.8%: source still to confirm"). A consequence the input gives as a
    purpose can be stated: "approve by 9 January so it ships in spring" means a later yes misses
-   spring. A recommendation is said as one ("we recommend"), never as a measured fact. A
+   spring. Reasoning from the given facts is not a new fact: why a number matters, what follows
+   for this audience and what a no costs are what notes are for. A recommendation is said as one
+   ("we recommend"), never as a measured fact. A
    before/after comparison claims no cause: say "after", "since", "went from… to", never "lifted",
    "cut", "drove" or "because", and say once, briefly, that it is a before/after of two windows,
    not a controlled test (`causal-claim`).
@@ -42,7 +44,7 @@ render in any layout that has matching slots, in any style. See [the system over
    | Title / headline | The top of the unit | A presented slide: 2–5 words, a verdict you'd say aloud (`Search: twice as fast since March`, `Starts got 0.2 s slower`); a bare label only on agenda, section and mechanism slides. A slide read without its speaker, a figure: the claim as a full sentence, 3–14 words. A web section: a short plain head (see [Web](#web)) |
    | Caption / lede | Under the figure (caption) or, rarely, a slide title (lede) | One plain sentence for the why or a caveat; slides have no lede by default |
    | Body | Slides and pages only | Slides: 2–4 fragments of at most 8 words, no full stops, carrying the numbers and cues (`p95 198 ms, half of March`, `5 indexes → 1`). Pages: short paragraphs |
-   | Notes / narration | Speaker view, voice-over, `say` | A presented deck: cues, a few short lines. A read-alone deck, a voice-over: full sentences |
+   | Notes / narration | Speaker view, voice-over, `say` | A presented deck: a few short cue lines that add what the slide can't hold (why, so-what, trade-off, bridge). A read-alone deck, a voice-over: full sentences |
    | Source | Footer or footnote | A named artifact ("the search latency dashboard", "load test 12") |
 
 6. **Plain names, in the audience's words.** "The gap-down fade strategy", not an internal code;
@@ -62,7 +64,8 @@ render in any layout that has matching slots, in any style. See [the system over
    the point under it, a later slide doesn't restate slide one, and a page's hero, subhead and
    sections each carry a different fact. Slide one may preview the answer and the ask in a few
    words; the evidence slide then adds what slide one lacks (baseline, window, source), and the
-   ask slide adds the owner, cost and consequence.
+   ask slide adds the owner, cost and consequence. The ask is the one slide that names its object
+   and cost again, in a few words, because it stays up while the room decides.
 10. **Write like a person, not a template.** Each of these is fine once; repeated, they read as
    generated (Wikipedia's "Signs of AI writing" names most of them):
 
@@ -79,6 +82,19 @@ render in any layout that has matching slots, in any style. See [the system over
 
    Hoffman's note on his own LinkedIn pitch applies too: be wary of adjectives and especially
    adverbs ("high", not "very high").
+11. **Reread as the audience, then revise once.** After the draft, read it cold as the person who
+   must act on it, check each line below, and fix every miss in one revision pass:
+
+   ```text
+   - Every title states a point and can't mislead by omission ("three weeks" hiding a 400-article review)
+   - Every point is unambiguous alone ("survey: ~6% responded", not "6% answered")
+   - Every note adds why, so-what, the trade-off or the bridge; none restates its slide
+   - The ask names action, object, cost, owner, date and what a no means
+   - Each number keeps its exact qualifier, source and window
+   - Nothing invented; no gap stated as fact
+   - No AI tells (rule 10)
+   - A before/after figure shows both states
+   ```
 
 ## The content schema
 
@@ -216,19 +232,23 @@ nothing. A short verdict keeps both.
   `recommendation`, `plan`, `risk`, `ask`, `demo`, `appendix`) tag each slide's job. Six storyline
   templates order them: project update, decision request, deep dive, launch, postmortem, review
   highlights.
-- **End on a concrete ask**: an action, a named owner (a role or team) and a calendar date (with
+- **End on a concrete ask**: an action and its object ("approve Spanish and French", never
+  "approve by 15 January"), its cost when the facts give one, a named owner (a role or team) and a calendar date (with
   its year when that isn't this year), in the title or the points, plus what happens on a no or a
   missed date: the input's stated purpose gives it ("so it ships in spring": later misses spring);
   if nothing does, leave it out. Never "Questions?".
-- **Notes are cues when presented.** `say` is a few short lines, one thought each and at most about
-  60 words (`notes-cues`), content first: the claim to say and the number to point at, in a few
-  words ("Desktop only: 61.2 → 63.0 over four weeks"), then the caveat and the source. A stage
-  direction alone ("Point at the 9") is not a cue; it goes in `delivery`.
+- **Notes are cues that add what the slide can't hold.** The room reads the slide, so `say` is a
+  few short lines, one thought each and at most about 60 words (`notes-cues`), on why it matters,
+  the so-what for this audience, the trade-off if the answer is no, and the open question, all
+  reasoned from the given facts, then the source. A note that restates its slide's points fails
+  (`notes-echo`): "Cost: one engineer for three weeks" under a slide that says so gives the speaker
+  nothing; "If no, Spanish and French meet the price change on the old bot" does. A stage direction
+  alone ("Point at the 9") goes in `delivery`.
   `delivery` is one cue for pace or where to point; `next` is the bridge, a few words, only where
   the link isn't obvious (the same "Next: …" under every slide reads as a template). Because you
   talk in your own words, the talk's length comes from the slide count, about a minute a slide, not
   from the notes. A read-alone deck keeps `say` in full sentences at about 135 words a minute (100–135
-  words a slide when only the count is fixed); notes restate and explain, never pad.
+  words a slide when only the count is fixed); notes explain, never pad.
 - **No AI tells** (rule 10 above): `ai-tells` flags a "X, not Y" contrast or a bolted-on comparison
   on more than one slide, and a semicolon balancing two clauses.
 
