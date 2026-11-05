@@ -160,7 +160,8 @@ yet.
   Nothing points from a screen to a metric or a ticket count. Node labels use the input's words,
   not coined ones.
 - **Results live in a sub-label or the caption**, never as their own node; a time window (`30 days
-  after`) is not a node either. Before and after panels show the same measures.
+  after`) is not a node either. Before and after panels show the same measures, and a figure of a change
+  draws both states (the old path faded beside the new), never the new flow alone.
 - **A statistic lives once, in the sub-label of the node it measures**, with its baseline:
   `p95 198ms · was 410ms` on the search node, `3% · was 5%` on the retry branch's node. On an arrow or a
   single path, it reads as if it covered only that path.
