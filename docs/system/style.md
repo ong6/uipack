@@ -56,7 +56,7 @@ move a box, which is why a swap keeps every region in place (`src/web/web-styles
 | `--ui-backdrop-narrow` | Behind the hero below 720px | The same grid |
 | `--ui-canvas-pattern` | A figure's canvas (`Figure background="dots"`, the default) | The same drafting film, at 12% / 5% ink | 12px dot grid | 12px dot grid | None | A 48px disc in the corner, no ring, so it clears the copy |
 | `--ui-marker-size` / `-shape` / `-color` | Hung before each eyebrow | 7px amber dot | None | 12px accent disc |
-| `--ui-section-index` | `inline` or `none`: each `Section` eyebrow's number, counted down the page | `01 / HOW IT WORKS` in mono | None | None |
+| `--ui-section-index` | `inline` or `none`: each `Section` eyebrow's number in page order (`WebPage` numbers its sections after the hero; a section outside a `WebPage` has none) | `01 / HOW IT WORKS` in mono | None | None |
 | `--ui-corner-marks` | Background layers on quiet cards, plans and the quote | 8px ink crop marks at all four corners | None | None |
 | `--ui-section-rule` | Top edge of each section | 1px soft line | None | 2px ink |
 | `--ui-frame-border`, `--ui-frame-shadow`, `--ui-card-shadow` | Cards and framed windows | 1px line, flat | Hairline, soft shadow | 2px ink, hard 6px offset |

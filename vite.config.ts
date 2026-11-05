@@ -1,5 +1,6 @@
 import react from "@vitejs/plugin-react";
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { realpathSync } from "node:fs";
 import { defineConfig, type Plugin } from "vite";
 import type { OutputBundle, OutputChunk } from "rollup";
 import { pageModules, routes } from "./playground/routes";
@@ -99,6 +100,8 @@ export default defineConfig({
   root: "playground",
   publicDir: false,
   appType: "spa",
-  server: { fs: { allow: [".."] } },
+  // The repo, plus node_modules where it really lives: a git worktree may symlink it from
+  // another checkout, and files outside the allow list (the type specimen's @fontsource faces) 404.
+  server: { fs: { allow: ["..", realpathSync("node_modules")] } },
   define: { __UIPACK_ROOT__: JSON.stringify(process.cwd()) },
 });

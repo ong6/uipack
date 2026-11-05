@@ -29,8 +29,8 @@ export interface DemoPlayerProps {
    */
   autoplay?: boolean;
   /**
-   * Hold the finished result with no controls, as under reduced motion: for thumbnails, print or
-   * a capture. The default already rests on the result until the demo plays.
+   * Hold the finished result with no controls (reduced motion keeps the step tabs): for
+   * thumbnails, print or a capture. The default already rests on the result until the demo plays.
    */
   static?: boolean;
   /** Restart after the last step's hold. Default false: the result stays. */
@@ -59,7 +59,9 @@ function lastWith<T>(steps: DemoStep[], upTo: number, pick: (s: DemoStep) => T |
  * server renders and what paints first, so a capture, a reader who jumps past it or one who never
  * scrolls to it sees the outcome, not an empty composer. As it nears the viewport it rewinds to
  * the first frame and plays while a quarter of it is on screen; scrolled fully away mid-play, it
- * settles back on the result. Reduced motion and `static` hold the result with no controls (the
+ * settles back on the result. Reduced motion holds the result with no Play, Pause or Replay; its
+ * step tabs stay and show each step's finished frame, with nothing moving. `static` holds the
+ * result with no controls at all (the
  * steps stay in the DOM as text, so the window and a second, visible list never repeat the same
  * actions).
  */
@@ -82,8 +84,43 @@ export function DemoPlayer({
   const timing = useMemo(() => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
   const mode = modeProp ?? (steps.some((s) => s.prompt) ? "agent" : "steps");
   const reduced = usePrefersReducedMotion() || still;
+  // Under reduced motion (not `static`) the step tabs stay: each shows its step's finished frame,
+  // with nothing moving, so a reader can still walk through the demo.
+  const stepper = reduced && !still;
+  const [held, setHeld] = useState<number | null>(null);
   const rootRef = useRef<HTMLElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  // The window keeps the tallest height it has shown at this width (the resting result first), so
+  // rewinding to a shorter first frame never pulls the sections below it up mid-scroll.
+  useEffect(() => {
+    const el = bodyRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    let width = 0;
+    let tallest = 0;
+    const ro = new ResizeObserver(([entry]) => {
+      // min-height applies to the box its box-sizing names, so measure that box.
+      const border = getComputedStyle(el).boxSizing === "border-box";
+      const box = (border ? entry.borderBoxSize : entry.contentBoxSize)?.[0];
+      const w = box ? box.inlineSize : entry.contentRect.width;
+      const h = box ? box.blockSize : entry.contentRect.height;
+      if (Math.abs(w - width) > 1) {
+        // A new width reflows everything: forget the old height and measure again.
+        width = w;
+        tallest = 0;
+        if (el.style.minHeight) {
+          el.style.minHeight = "";
+          return;
+        }
+      }
+      if (h > tallest + 0.5) {
+        tallest = h;
+        el.style.minHeight = `${Math.ceil(h)}px`;
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const end = demoEnd(steps, timing);
   const cycle = demoCycle(steps, timing);
   // At rest on the result until it is about to be seen (or Play is pressed).
@@ -146,7 +183,9 @@ export function DemoPlayer({
   }, [reduced, autoplay, loop, end, playingRef, doneRef]);
 
   const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
-  const frame = reduced ? finalFrame : demoFrame(steps, elapsed, timing, initialMetric);
+  const heldFrame =
+    held === null || held >= steps.length - 1 ? finalFrame : demoFrame(steps, stepStart(steps, held + 1, timing) - 1, timing, initialMetric);
+  const frame = reduced ? heldFrame : demoFrame(steps, elapsed, timing, initialMetric);
   // A play-once demo stops at its last frame: Play then replays it from the start.
   const finished = !loop && frame.done;
   const running = playing && !finished && inView && !reduced;
@@ -175,12 +214,13 @@ export function DemoPlayer({
 
   const seek = useCallback(
     (i: number) => {
+      if (reduced) return setHeld(i);
       // The reader took over: no later rewind as it comes into view.
       armed.current = true;
       setElapsed(stepStart(steps, i, timing));
       setPlaying(true);
     },
-    [steps, timing],
+    [steps, timing, reduced],
   );
   const replay = () => seek(0);
   const toggle = () => {
@@ -243,7 +283,7 @@ export function DemoPlayer({
           </span>
           {address && <span className="uipack-web-demo__address">{address}</span>}
         </div>
-        <div className="uipack-web-demo__body">
+        <div className="uipack-web-demo__body" ref={bodyRef}>
           <div className="uipack-web-demo__work">
             {mode === "steps" ? (
               <ol className="uipack-web-demo__log uipack-web-demo__steps" aria-label="Progress">
@@ -351,7 +391,7 @@ export function DemoPlayer({
           <p>{`Result: ${finalFrame.metric}${metricLabel ? ` ${metricLabel}` : ""}.`}</p>
         )}
       </div>
-      {!reduced && (
+      {(!reduced || stepper) && (
         <div className="uipack-web-demo__controls">
           <div className="uipack-web-demo__tabs" role="group" aria-label="Demo steps" ref={tabsRef} onKeyDown={onTabKey}>
             {steps.map((s, i) => (
@@ -367,17 +407,21 @@ export function DemoPlayer({
             ))}
           </div>
           <div className="uipack-web-demo__buttons">
-            <button type="button" onClick={toggle}>
-              {playing && !finished ? "Pause" : "Play"}
-            </button>
-            <button type="button" onClick={replay}>
-              Replay
-            </button>
+            {!reduced && (
+              <>
+                <button type="button" onClick={toggle}>
+                  {playing && !finished ? "Pause" : "Play"}
+                </button>
+                <button type="button" onClick={replay}>
+                  Replay
+                </button>
+              </>
+            )}
             {cta}
           </div>
         </div>
       )}
-      {reduced && cta && <div className="uipack-web-demo__buttons">{cta}</div>}
+      {reduced && !stepper && cta && <div className="uipack-web-demo__buttons">{cta}</div>}
       <p className="uipack-web-demo__caption" id={`${id}-caption`} aria-live="polite">
         <span className="uipack-web-demo__num">
           {String(frame.step + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}

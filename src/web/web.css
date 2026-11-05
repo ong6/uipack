@@ -1904,6 +1904,17 @@
     padding: 0;
     list-style: none;
   }
+  /* One plan reads as a card, not a banner: it keeps a card's measure on the section's alignment. */
+  .uipack-web-pricing__plans[data-count="1"] {
+    width: 100%;
+    max-width: 36rem;
+  }
+  .uipack-web-section[data-align="center"] .uipack-web-pricing__plans[data-count="1"] {
+    margin-inline: auto;
+  }
+  .uipack-web-section[data-align="center"] .uipack-web-pricing__plans[data-count="1"] + .uipack-web-pricing__note {
+    text-align: center;
+  }
   @container web (min-width: 640px) {
     .uipack-web-pricing__plans {
       grid-template-columns: repeat(var(--plans, 2), minmax(0, 1fr));

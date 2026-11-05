@@ -62,7 +62,7 @@ test.describe("/web Landing collection", () => {
     expect(await stepOf(page)).toBe(1);
   });
 
-  test("reduced motion shows the final state once, with every step kept as text", async ({ page }) => {
+  test("reduced motion shows the final state once, with every step kept as text and the step tabs kept", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/web?style=landing");
     await expect(demo(page)).toHaveAttribute("data-state", "static");
@@ -72,9 +72,12 @@ test.describe("/web Landing collection", () => {
     await expect(steps.locator(":scope > li")).toHaveCount(3);
     expect(await steps.evaluate((el) => el.parentElement!.getBoundingClientRect().height)).toBeLessThanOrEqual(1);
     await expect(demo(page).getByRole("button", { name: /Pause|Replay/ })).toHaveCount(0);
-    await expect(demo(page).getByRole("link", { name: "Try it yourself" })).toBeVisible();
+    // The step tabs stay: each shows its step's finished frame, nothing moves.
+    await demo(page).getByRole("button", { name: /01 Ask/ }).click();
+    expect(await stepOf(page)).toBe(0);
+    await expect(demo(page)).toHaveAttribute("data-state", "static");
     // Reveal text is readable without scrolling it into view.
-    const quote = page.locator(".web-quote__text");
+    const quote = page.locator("#web-proof .uipack-web-reveal");
     await expect(quote).toHaveAttribute("data-state", "static");
     expect(
       await quote
@@ -621,7 +624,7 @@ test.describe("/web discoverability", () => {
     expect(app.offers).toMatchObject({ "@type": "Offer", price: "8.00", priceCurrency: "USD" });
     expect(app.url).toBe(`${origin}/web`);
     // The offer says what the Pricing section shows.
-    await expect(page.locator("#web-pricing h2")).toContainText("$8 a month");
+    await expect(page.locator("#web-pricing")).toContainText("then $8 a month");
 
     // Every FAQ question in the markup is a visible h3 on the page, with its answer as visible text.
     const faq = nodes.find((n) => n["@type"] === "FAQPage");
@@ -644,7 +647,7 @@ test.describe("/web discoverability", () => {
     expect(errors).toEqual([]);
   });
 
-  test("animated text is real text: demo transcript, final ticker values and the quote are in the DOM", async ({ page }) => {
+  test("animated text is real text: demo transcript, final ticker values and the revealed heading are in the DOM", async ({ page }) => {
     await page.goto("/web?style=landing");
     const transcript = page.locator(".uipack-web-demo").getByRole("list", { name: "Demo transcript" });
     await expect(transcript.locator(":scope > li")).toHaveCount(3);
@@ -652,9 +655,7 @@ test.describe("/web discoverability", () => {
     await expect(page.locator(".uipack-web-demo")).toContainText("Result: 3 in your inbox.");
     // Off-screen tickers wait at 0, but the final value is the accessible text.
     await expect(page.locator("#web-proof .uipack-web-ticker .uipack-web-scramble__ghost").first()).toHaveText("37");
-    await expect(page.locator(".web-quote__text")).toHaveText(
-      "I stopped opening my inbox before coffee. It leaves me three things, and they are the right three.",
-    );
+    await expect(page.locator("#web-proof .uipack-web-reveal")).toHaveText("Every action is listed.");
   });
 
   test("390px: FAQ and the generated-file disclosures fit without page overflow", async ({ page }) => {

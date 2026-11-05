@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import {
   CtaButton,
   DemoPlayer,
@@ -264,6 +264,21 @@ describe("DemoPlayer", () => {
     expect(list.children).toHaveLength(3);
     expect(list.textContent).toContain("Filed");
     expect(screen.getByRole("link", { name: "Try it yourself" })).toBeInTheDocument();
+  });
+
+  it("keeps the step tabs under reduced motion: each shows its step's finished frame, nothing plays", () => {
+    globalThis.__reduced = true;
+    const { container } = render(<DemoPlayer steps={steps} label="Demo" timing={timing} initialMetric={40} />);
+    const tabs = within(screen.getByRole("group", { name: "Demo steps" })).getAllByRole("button");
+    expect(tabs.map((t) => t.textContent)).toEqual(["01 Ask", "02 Act", "03 Review"]);
+    expect(tabs[2]).toHaveAttribute("aria-current", "step");
+    fireEvent.click(tabs[1]);
+    expect(container.querySelector(".uipack-web-demo")).toHaveAttribute("data-step", "1");
+    expect(container.querySelector(".uipack-web-demo")).toHaveAttribute("data-state", "static");
+    // The Act step, finished: both actions done, the metric set by the last one.
+    expect(metric()).toBe("5");
+    advance(5000);
+    expect(container.querySelector(".uipack-web-demo")).toHaveAttribute("data-step", "1");
   });
 
   it("static holds the result with no controls, like reduced motion", () => {
