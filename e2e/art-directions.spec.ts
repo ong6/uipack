@@ -109,9 +109,9 @@ for (const variant of [1, 2, 3, 4, 5]) {
 // The paint budget at phone width, one test per direction on its heaviest object (the most draw
 // calls at rest in the render test above, whose numbers do not change with width or theme). Chromium only: the thresholds are
 // calibrated to its WebGL, locally and on CI's Mesa.
-// Measured 2026-11: paper tennis 176 calls, kinetic server 108, cartoon trading 92, realistic travel
-// 126 (and the most triangles), abstract trading 25.
-const heaviest: Record<number, string> = { 1: "tennis", 2: "server", 3: "trading", 4: "travel", 5: "trading" };
+// Measured 2026-11-05 after the restyle (most calls at rest, either theme or width): paper trading 23,
+// kinetic server 57, cartoon server 130 (and the most triangles, 41k), realistic server 69, abstract server 28.
+const heaviest: Record<number, string> = { 1: "trading", 2: "server", 3: "server", 4: "server", 5: "server" };
 for (const variant of [1, 2, 3, 4, 5]) {
   const kind = heaviest[variant];
   timingTest(`mobile geometry and paint budget: ${kind}/${objectDirections[variant].id}`, async ({ page, browserName }, info) => {

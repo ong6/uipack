@@ -670,9 +670,9 @@ body {
 .showcase-shell :is(.catalog-filters select, .uipack-edition-select select):hover {
   border-color: var(--show-ink);
 }
-/* Controls inside a figure or stage frame: the 3D stage's Open canvas and Pause, the machine's
-   Pause. The same mono as the figure's own (.uipack__ctl), at the in-frame size. */
-.showcase-shell :is(.uipack-object-open, .uipack-object__motion, .uipack-mechanism .um-motion) {
+/* Controls inside a stage frame: the machine's Pause. The same mono as the figure's own
+   (.uipack__ctl), at the in-frame size. (The 3D stage's controls are icon chips, objects.css.) */
+.showcase-shell .uipack-mechanism .um-motion {
   font: var(--show-control-font-sm);
   border-radius: var(--show-control-radius);
 }

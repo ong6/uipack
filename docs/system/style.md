@@ -300,12 +300,12 @@ so the same story can be rendered in another direction.
 
 | Direction | Character |
 | --- | --- |
-| Studio (default) | Physical details, soft light, close-up choreography |
-| Paper worlds | Cut-paper stages, layered landscapes, pop-up architecture |
-| Kinetic | Brass mechanisms, ceramic forms, suspended motion |
-| Cartoon | Rounded little places, toy-like details, playful motion |
-| Realistic | Tactile materials, precision details, intimate camera angles |
-| Abstract | Optical glass, sculptural rhythms, unexpected silhouettes |
+| Studio (default) | Product photography: one object on a seamless sweep, soft key, low lens |
+| Paper worlds | Cut-card toy theatres: layered flats in a proscenium, one warm key |
+| Kinetic | Brass armatures and glazed ceramic on a turned slate base |
+| Cartoon | Floating toy islands, toon shading, day and night |
+| Realistic | Low macro close-ups on real surfaces, grazing window light |
+| Abstract | Refractive glass against colour bands, obsidian accents |
 | Mechanism (SVG) | Isometric solids in four tones by facing, one lit part in the accent |
 
 Shared 3D rules: the scene's palette maps to the four roles (`paper`, `ink`, `muted`, `accent`);

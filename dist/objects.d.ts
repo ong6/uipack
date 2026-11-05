@@ -15,27 +15,27 @@ type ObjectVariant = ObjectEdition | 3 | 4 | 5;
 declare const objectDirections: readonly [{
     readonly id: "studio";
     readonly name: "Studio objects";
-    readonly description: "Physical details, soft light, close-up choreography.";
+    readonly description: "Product photography: one object on a seamless sweep, soft light, a low lens.";
 }, {
     readonly id: "paper-theatre";
     readonly name: "Paper worlds";
-    readonly description: "Cut-paper stages, layered landscapes and pop-up architecture.";
+    readonly description: "Cut-card toy theatres: layered flats in a proscenium under one warm light.";
 }, {
     readonly id: "kinetic";
     readonly name: "Kinetic sculptures";
-    readonly description: "Brass mechanisms, ceramic forms and suspended motion.";
+    readonly description: "Brass armatures and glazed ceramic turning on a slate base.";
 }, {
     readonly id: "cartoon";
     readonly name: "Cartoon worlds";
-    readonly description: "Rounded little places, toy-like details and playful motion.";
+    readonly description: "Floating toy islands with toon shading, by day and by night.";
 }, {
     readonly id: "realistic";
     readonly name: "Realistic close‑ups";
-    readonly description: "Tactile materials, precision details and intimate camera angles.";
+    readonly description: "Low close-ups on real surfaces under grazing window light.";
 }, {
     readonly id: "abstract";
     readonly name: "Abstract forms";
-    readonly description: "Optical glass, sculptural rhythms and unexpected silhouettes.";
+    readonly description: "Refractive glass against bands of colour, with obsidian accents.";
 }];
 declare const objectVariants: Record<ObjectKind, readonly string[]>;
 declare function chooseObjectVariant(random?: () => number, count?: number): ObjectVariant;
