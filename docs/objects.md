@@ -11,7 +11,7 @@ import "uipack/objects.css";
 
 Seven scenes: `ai`, `contact`, `tennis`, `trading`, `server`, `travel`, `reading`. Studio `tennis` plays an original Blender-authored model; other scenes and directions are procedural. Studio `contact` routes three generic communication signals into a shared inbox. `objectScenes` contains their titles and descriptions. Theme is `light` or `dark`; optional `palette` accepts numeric `paper`, `ink`, `muted`, and `accent` colours. Keep a custom palette reference stable.
 
-`active={false}` shows the labelled SVG fallback with no WebGL renderer or Three.js load. Active scenes lazily import Three.js. Studio tennis and trading loop continuously; the other studio scenes play once for 5.4 seconds, then offer Replay. All five non-Studio directions run seamless 12-second loops. Pause/Resume preserve time. Hidden tabs suspend rendering; mobile painting is capped at 30fps. Reduced motion draws an authored static pose and hides motion controls. Context loss and renderer-load errors retain the fallback. Geometry, materials, textures, observers and animation frames are disposed on unmount. An IntersectionObserver also suspends gallery playback when the canvas leaves the viewport, preserving elapsed time.
+`active={false}` shows the labelled SVG fallback with no WebGL renderer or Three.js load. Active scenes lazily import Three.js. Studio tennis and trading loop continuously; the other Studio scenes (server, travel, contact) play once for 5.4 seconds, then offer Replay. All five non-Studio directions run seamless 12-second loops. Pause/Resume preserve time. Hidden tabs suspend rendering; mobile painting is capped at 30fps. Reduced motion draws an authored static pose and hides motion controls. Context loss and renderer-load errors retain the fallback. Geometry, materials, textures, observers and animation frames are disposed on unmount. An IntersectionObserver also suspends gallery playback when the canvas leaves the viewport, preserving elapsed time.
 
 Use `controls="playback"` in compact consumer embeds. The scene still starts automatically,
 stops off-screen, settles, and exposes Pause/Resume/Replay, but leaves **Another look** and
@@ -21,42 +21,80 @@ Open canvas reuses the shared accessible dialog, with bounded zoom, Escape and f
 
 Review all seven examples in `/animations` (Objects filter). Consumers import the scene and player from `uipack/objects`; geometry and playback stay in the package.
 
-The revised hobby sequences show an agent laptop typing and receiving tool results, two opposing tennis players rallying across a net, a continuously advancing red/green candlestick chart with aligned volume, and a thin sheet turning over layered book pages. The map has connected folding panels, three original terrain prints and three paths. The inference rack has drive bays, seven-blade fans, patch ports and cables; its assembly and fan spin settle together. The book uses a near-constant-length curl and separately oriented front/back print. Both tennis contacts are checked against the exported racket faces at impact. See [the component-first workflow](component-first.md#complex-modeled-animation) for the Blender authoring path.
+The Studio sequences show two opposing tennis players rallying across a net and a continuously advancing red/green candlestick chart with aligned volume. The map has connected folding panels, three original terrain prints and three paths. The inference rack has drive bays, seven-blade fans, patch ports and cables; its assembly and fan spin settle together. Both tennis contacts are checked against the exported racket faces at impact. See [the component-first workflow](component-first.md#complex-modeled-animation) for the Blender authoring path.
 
 
 ## Curated variations
 
-The six hobbies have six named directions; Contact has three original inbox editions plus Cartoon and Kinetic directions. `variant="random"` is the default: selection happens on the
-client once per component mount. A fresh mount can repeat the same look by chance. Replay, theme
-changes and Open canvas preserve it. **Another look** cycles through the available directions without a reload.
-Use `variant={0}` through `{5}` to pin a reproducible look; pinned scenes hide the cycling button.
-The playground accepts `?story=tennis&variant=1`. `objectVariants` exports the names.
+There are six named directions, and each subject offers only the two or three that suit it
+(below). `objectLooks` lists each kind's variant IDs, its default first; `objectVariants` names them.
+`variant="random"` is the default: selection happens on the client once per component mount, among
+the kind's looks. A fresh mount can repeat the same look by chance. Replay, theme changes and Open
+canvas preserve it. **Another look** cycles through the kind's looks without a reload. Pin a look
+with its variant ID (`variant={4}`); pinned scenes hide the cycling button. A variant the kind does
+not offer shows the kind's default instead (`normalizeObjectVariant`), and `createObject` does the
+same, so an old pin never breaks a page. The playground accepts `?story=tennis&variant=3` and says
+when it falls back.
 
-| Variant | Direction | Look | Scenes (ai, tennis, trading, server, travel, reading) |
+| Variant | Direction | Look | Subjects that offer it |
 | --- | --- | --- | --- |
-| 0 | Studio objects | Product photography: one object on a seamless sweep, the same low 36° lens and soft key for every subject; state shows through physical cues, never screen text | Agent laptop, racket, can and a bouncing ball (the packaged ball model), market abacus, inference hardware, Z-folded atlas, hardcover turning on a stand |
-| 1 | Paper worlds | Cut-card toy theatres: an open proscenium with nested arches and four to six extruded flats stepped back in depth, lit by one warm key whose shadow falls between the layers; frames alternate viridian and persimmon on a cream mat | Thinking head with cogs, a long raked centre court with a low net and two paper players rallying on a wire, market accordion, night city of rack towers, alpine passage with a train, pop-up castle from an open book |
-| 2 | Kinetic sculptures | Polished brass armatures and glazed ceramic bodies on a turned slate base; the base never moves, the mechanism does | Neural orrery with a ceramic chip weight, balance beam with a racket and a ball on equal arms, market balance with a bone gauge, compute tiles hanging from a gantry, celadon globe in a brass meridian, open folio hanging from a turning arm with a counterweight |
-| 3 | Cartoon worlds | A floating toy island per subject with soil strata, toon-shaded chunky props and bean characters; day in light mode, night (moonlight, lit windows, a warm fill on faces) in dark | Night workshop, courtside club, exchange avenue, cloud factory, island express, reading nook |
-| 4 | Realistic close-ups | Low, near macro still lifes on a real surface (walnut, hard court, a board, a map) that runs out of frame, long lens, grazing window light by day; at night a warm desk-lamp practical with falloff and a cool rim | Key travel (a real QWERTY patch), match point (ball on the baseline, racket as bokeh), ticker study, heatsink and fan, field compass, glasses on an open book |
-| 5 | Abstract forms | Refractive glass sculptures in front of flat colour bands, with polished obsidian as the one secondary material and a tinted caustic shadow; in dark a glowing back-light seen only through the glass keeps it luminous | Thought lattice, elastic exchange (a ball with a glass seam), risk rhythm, signal stack, Möbius passage (horizon and route arrow), unwritten leaves |
+| 0 | Studio objects | Product photography: one object on a seamless sweep, the same low 36° lens and soft key for every subject; state shows through physical cues, never screen text | Racket, can and a bouncing ball (the packaged ball model), market abacus, inference hardware, Z-folded atlas; Contact's three inbox editions |
+| 1 | Paper worlds | Cut-card toy theatres: an open proscenium with nested arches and four to six extruded flats stepped back in depth, lit by one warm key whose shadow falls between the layers; frames alternate viridian and persimmon on a cream mat | Alpine passage with a train, pop-up castle from an open book |
+| 2 | Kinetic sculptures | Polished brass armatures and glazed ceramic bodies on a turned slate base; the base never moves, the mechanism does | Neural orrery with a ceramic chip weight, market balance with a bone gauge, celadon globe in a brass meridian |
+| 3 | Cartoon worlds | A floating toy island per subject with soil strata, toon-shaded chunky props and bean characters; day in light mode, night (moonlight, lit windows, a warm fill on faces) in dark | Night workshop, courtside club, reading nook; Contact's little post office |
+| 4 | Realistic close-ups | Low, near macro still lifes on a real surface (hard court, a board, walnut) that runs out of frame, long lens, grazing window light by day; at night a warm desk-lamp practical with falloff and a cool rim | Match point (ball on the baseline, racket as bokeh), heatsink and fan, glasses on an open book |
+| 5 | Abstract forms | Refractive glass sculptures in front of flat colour bands with a tinted caustic shadow; in dark a glowing back-light seen only through the glass keeps it luminous | Thought lattice (a prism splitting a beam), risk rhythm |
 
-Each direction has its own source file with one builder per kind and its look (`src/objects/LOOK.md`):
+### Directions per subject
+
+The owner asked for "a few that make sense for that type" instead of all six per subject (2026-11-06).
+The cut follows the six blind judges' round-3 remarks per subject in the 3D review
+(`skills-private/.evals/uipack-review/review/3d/p2/reduced-matrix.md`; "n/6" is how many judges said
+it). The first listed is the subject's default.
+
+| Subject | Keeps (variant) | Why |
+| --- | --- | --- |
+| AI | Abstract (5) | A glass prism splitting a beam: "best concept in the set", praised by 6/6. |
+| | Kinetic (2) | The orrery with a chip reads AI as a mechanism: "chip makes AI legible" (5/6). |
+| | Cartoon (3) | A robot at a desk reads at a glance and suits a friendly AI. Dropped: Studio (the laptop screen is "a stock AI cliché"), Paper ("stock" gear-in-head), Realistic (keyboard layout errors, 6/6). |
+| Tennis | Realistic (4) | A ball on the court line in macro; the felt reads (5/6). |
+| | Cartoon (3) | The clay court with bean players reads well at 1x once strung (4/6). |
+| | Studio (0) | Racket, can and balls as one product still, legible at 1x (6/6). Dropped: Paper (tilted placard court, 4/6), Kinetic (racket clips the plinth, 6/6), Abstract ("blob with ears", 6/6). |
+| Trading | Kinetic (2) | A balance with a gauge is a natural market metaphor (5/6). |
+| | Abstract (5) | A rising line through glass bars reads at 1x (5/6). |
+| | Studio (0) | The candlestick abacus is a real product idea and reads at 1x (5/6). Dropped: Paper ("weakest metaphor"), Cartoon (market stall is filler), Realistic (pixel-font ticker). |
+| Server | Realistic (4) | The hot-swap sled is "the best-modelled asset", "a real server close-up". |
+| | Studio (0) | The rack is the most product-like server; all six read it at 1x. Dropped: Paper (a skyline that "doesn't say server"), Abstract ("cryptic"), Kinetic (blades read as plastic), Cartoon (cloud factory is a stretch). |
+| Travel | Studio (0) | The folded atlas "feels like a styled product still" (6/6 praised). |
+| | Paper (1) | The layered alpine landscape is the paper promise and reads at 1x. |
+| | Kinetic (2) | The armillary globe is a real instrument and the best kinetic motion (7.8/10). Dropped: Cartoon (island too small), Realistic (compass needle points south), Abstract (weaker than the rest). |
+| Reading | Realistic (4) | Tortoiseshell glasses on an open book, the most tactile card (4/6). |
+| | Cartoon (3) | The reading nook reads at 1x and suits the cosy toy world. |
+| | Paper (1) | A pop-up world is the natural paper idea for reading. Dropped: Studio (book on a lip with no support), Kinetic (the book "hangs awkwardly"), Abstract ("ambiguous", 4/6). |
+| Contact | Studio editions (0–2), Cartoon (3) | The original inboxes and the post office the website uses. Dropped: Kinetic correspondence mobile (variant 4), which no judge reviewed and no page used; it now shows Studio. |
+
+The junxiong.dev site pins an older uipack. Its picks reading = 2 (Kinetic) and server = 3
+(Cartoon) no longer exist; when it upgrades they show the kind's default (Realistic for both) until
+it picks again.
+
+Each direction has its own source file with one builder per subject it serves and its look (`src/objects/LOOK.md`):
 `studio.ts` (`studioLook`), `paper-worlds.ts` (`paperWorld`, `paperLook`), `kinetic-sculptures.ts`
 (`kineticWorld`, `kineticLook`), and `expanded-cartoon.ts`, `expanded-realistic.ts` and `expanded-abstract.ts`
 (`cartoonLook`, `realisticLook`, `abstractLook`), with shared mesh and texture helpers in `expanded-kit.ts`.
-`art-directions.ts` routes directions 1 and 2 and `expanded-directions.ts` routes 3 to 5. `src/objects/procedural.ts`
-holds the 12 s loop clock (`playLoop`) they and `contact-directions.ts` share. `directionTokens` and each direction's
-materials own its palette, and the scoped direction rules in `objects.css` own the light/dark stage backgrounds. Custom
-palettes continue to control Studio; the other directions retain their authored material palette. All geometry and
-textures are original and procedural, MIT licensed, with no downloaded models, textures or font dependency. Only Studio
-tennis loads a packaged model file.
+Each keys its builders by `KindWithLook<variant>`, so TypeScript rejects a builder for a subject that does not list
+the direction and a listed subject without one. `art-directions.ts` routes directions 1 and 2 and `expanded-directions.ts`
+routes 3 to 5. `src/objects/procedural.ts` holds the 12 s loop clock (`playLoop`) they and `contact-directions.ts` share.
+`directionTokens` and each direction's materials own its palette, and the scoped direction rules in `objects.css` own the
+light/dark stage backgrounds. Custom palettes continue to control Studio; the other directions retain their authored
+material palette. All geometry and textures are original and procedural, MIT licensed, with no downloaded models, textures
+or font dependency. Only Studio tennis loads a packaged model file.
 
 `objectDirections` exports stable IDs (`studio`, `paper-theatre`, `kinetic`, `cartoon`, `realistic`, `abstract`), names and descriptions.
-Use `<ObjectDirectionPicker value={variant} onChange={setVariant} />` to control a set of scenes.
-`objectStyleEntries` in the playground catalog registers all 36 hobby examples plus two new Contact directions; `/styles` links
-to the corresponding scene. The selector changes geometry, composition and choreography, not
-just colour. The existing `builders` remain available internally for legacy modeling tests.
+Use `<ObjectDirectionPicker value={variant} onChange={setVariant} kind="travel" />` to choose among one subject's looks;
+without `kind` it offers all six, for a set of scenes (each shows its default for a direction it lacks).
+`objectStyleEntries` in the playground catalog registers the 17 subject examples (one per subject and direction it offers);
+`/styles` links each direction's card to a subject that offers it. The selector changes geometry, composition and
+choreography, not just colour.
 
 Review at 390 and 1440 in both themes. Budget for the new directions: under 220 draw calls with
 shadows, under 100k triangles, no external asset request. The player still mounts only the active
@@ -156,7 +194,7 @@ camera, clip controls and non-WebGL fallback are unchanged. The court has subtle
 baseline ticks; the ball seam follows the ball at the correct scale.
 
 The shared light rig uses a warm key and cool edge light, with no post-processing or new dependency.
-The atlas uploads one 1536×1024 texture when created; the book uploads two 256×512 printed faces.
+The atlas uploads one 1536×1024 texture when created.
 Trading keeps its existing 1056×620 canvas texture and forward timeline. Performance and captures
 for the built consumer are recorded in the homepage's local animation review artifact.
 
@@ -168,9 +206,9 @@ optional `palette`, and `onChange(kind, variant, edition)`. The consumer owns UR
 `AnimationWorkspace` and `ObjectInspector` expose the same layout for mixed collections.
 The playground renders these at `/animations`; the website uses `ObjectGallery` at `/uipack#objects`.
 
-All original looks remain available through `objectEditions`. `ObjectScene` accepts
-`edition` independently of `variant`; Paper and Kinetic ignore it. Contact retains
-its original `variant` behavior for 0–2; see the Contact section below for variants 3–4. For example, Studio clay tennis is
+The original Studio finishes remain available through `objectEditions`, for the subjects that offer Studio. `ObjectScene` accepts
+`edition` independently of `variant`; the other directions ignore it. Contact retains
+its original `variant` behavior for 0–2; see the Contact section below for variant 3. For example, Studio clay tennis is
 `<ObjectScene kind="tennis" label="Club rally" variant={0} edition={1} />`.
 The corresponding playground URL is `/animations?story=tennis&variant=0&edition=1`.
 Gallery selections are explicit and stable across reload, replay, theme and Open canvas.
@@ -188,16 +226,17 @@ Each new scene is original code-authored geometry under the library license; no 
 ### Contact art directions and personal picks
 
 Contact preserves its original numeric finish IDs 0–2. Variant 3 is **Cartoon · Little post office**,
-a miniature mailbox with a letter-delivery loop and moving flag. Variant 4 is **Kinetic · Correspondence mobile**,
-a brass mobile of three glazed ceramic envelopes over a ceramic inbox tray, on the Kinetic direction's turned slate base. Both are original
-procedural models, loop every 12 seconds, and use the shared controls and static fallback. The Contact inspector
-shows only Studio, Cartoon and Kinetic; its Studio edition selector retains all three original finishes.
+a miniature mailbox with a letter-delivery loop and moving flag: an original procedural model that loops every 12 seconds
+and uses the shared controls and static fallback. The Contact inspector shows only Studio and Cartoon; its Studio edition
+selector retains all three original finishes. The Kinetic correspondence mobile (variant 4) was removed on 2026-11-06;
+a pinned 4 shows the signature inbox.
 `objectDirectionIndex(kind, variant)` resolves these legacy IDs to the shared visual style.
-`transferObjectVariant(from, to, variant)` preserves supported styles when switching objects and uses Studio otherwise.
+`transferObjectVariant(from, to, variant)` keeps the direction when switching objects if the next one offers it, and uses
+that object's default otherwise.
 
-Kinetic Open book hangs from an arm that turns a full 360 degrees every 12 seconds while its individual leaves flex.
 The website's default hobby selection is Cartoon AI, Studio Tennis, Studio Trading, Cartoon Inference,
-Paper Travel and Kinetic Reading. Its My picks control restores this set after a global style preview.
+Paper Travel and Kinetic Reading (see "Directions per subject" for the two that now fall back). Its My picks control
+restores this set after a global style preview.
 
 The website Contact page pins Cartoon (variant 3). Compare the other inbox styles in UI Pack; Contact no longer changes style from URL preview parameters.
 
