@@ -6,16 +6,24 @@ import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 
 // src/objects/variants.ts
 var objectDirections = [
-  { id: "studio", name: "Studio objects", description: "Physical details, soft light, close-up choreography." },
-  { id: "paper-theatre", name: "Paper worlds", description: "Cut-paper stages, layered landscapes and pop-up architecture." },
-  { id: "kinetic", name: "Kinetic sculptures", description: "Brass mechanisms, ceramic forms and suspended motion." },
-  { id: "cartoon", name: "Cartoon worlds", description: "Rounded little places, toy-like details and playful motion." },
+  {
+    id: "studio",
+    name: "Studio objects",
+    description: "Product photography: one object on a seamless sweep, soft light, a low lens."
+  },
+  {
+    id: "paper-theatre",
+    name: "Paper worlds",
+    description: "Cut-card toy theatres: layered flats in a proscenium under one warm light."
+  },
+  { id: "kinetic", name: "Kinetic sculptures", description: "Brass armatures and glazed ceramic turning on a slate base." },
+  { id: "cartoon", name: "Cartoon worlds", description: "Floating toy islands with toon shading, by day and by night." },
   {
     id: "realistic",
     name: "Realistic close\u2011ups",
-    description: "Tactile materials, precision details and intimate camera angles."
+    description: "Low close-ups on real surfaces under grazing window light."
   },
-  { id: "abstract", name: "Abstract forms", description: "Optical glass, sculptural rhythms and unexpected silhouettes." }
+  { id: "abstract", name: "Abstract forms", description: "Refractive glass against bands of colour, with obsidian accents." }
 ];
 var objectVariants = {
   ai: [
@@ -42,7 +50,7 @@ var objectVariants = {
     "Abstract \xB7 Elastic exchange"
   ],
   trading: [
-    "Studio \xB7 Market terminal",
+    "Studio \xB7 Market abacus",
     "Paper \xB7 Market accordion",
     "Kinetic \xB7 Market balance",
     "Cartoon \xB7 Exchange avenue",
@@ -51,8 +59,8 @@ var objectVariants = {
   ],
   server: [
     "Studio \xB7 Inference hardware",
-    "Paper \xB7 Server architecture",
-    "Kinetic \xB7 Floating compute",
+    "Paper \xB7 Server city",
+    "Kinetic \xB7 Hanging compute",
     "Cartoon \xB7 Cloud factory",
     "Realistic \xB7 Silicon detail",
     "Abstract \xB7 Signal stack"
@@ -144,7 +152,7 @@ function mountObjectScene(canvas, options) {
     onReady(false);
   };
   canvas.addEventListener("webglcontextlost", handleContextLost);
-  Promise.all([import('three'), import('./scenes-N5FF46VE.js'), import('./look-THOY3OIA.js')]).then(async ([THREE, { createObject, disposeObject }, look]) => {
+  Promise.all([import('three'), import('./scenes-TQNUOTN6.js'), import('./look-THOY3OIA.js')]).then(async ([THREE, { createObject, disposeObject }, look]) => {
     if (disposed) return;
     materialTextures = look.materialTextures;
     try {
