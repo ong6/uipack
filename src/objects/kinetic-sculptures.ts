@@ -2,6 +2,7 @@
 // bead, a polished brass armature with ball joints at every junction, and glazed ceramic bodies
 // that swing, counterbalance and turn. The base never moves; the motion is the mechanism's.
 import * as THREE from "three";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { contactShadow, lookMaterial, shade, themed, type ObjectLook } from "./look";
 import { TAU, vec, type Tick } from "./procedural";
@@ -36,12 +37,12 @@ export function sculptureMaterials() {
     inkGlaze: ceramic(K.inkGlaze),
     oxblood: ceramic(K.oxblood),
     optic: ceramic(K.optic),
-    // Dark slate stone; at night it lifts a little so the turned profile still reads on a dark card.
+    // Dark slate stone; at night it turns a warm grey so the turned profile holds on a navy card.
     slate: themed(lookMaterial("plastic", K.slate, { roughness: 0.55, envMapIntensity: 0.8 }), {
-      dark: { color: shade(K.slate, 0.05) },
+      dark: { color: shade(K.slate, 0.13) },
     }),
     stone: themed(lookMaterial("plastic", K.stone, { roughness: 0.62, envMapIntensity: 0.6 }), {
-      dark: { color: shade(K.stone, -0.42) },
+      dark: { color: shade(K.stone, -0.22) },
     }),
   };
 }
@@ -175,10 +176,33 @@ function globeTexture() {
   return texture;
 }
 
+/**
+ * The AI weight: a square ink-glaze chip package with brass pins on all four edges and a bone die
+ * printed with a small brass neural glyph (three nodes, three links). Faces +z; `r` is its half size.
+ */
+function chip(b: Batch, m: SculptureMaterials, at: THREE.Vector3, r: number) {
+  const T = 0.09;
+  b.add(m.inkGlaze, new RoundedBoxGeometry(2 * r, 2 * r, T, 3, 0.03).translate(at.x, at.y, at.z));
+  for (let i = 0; i < 5; i++) {
+    const u = -r * 0.66 + (i * r * 1.32) / 4;
+    for (const side of [-1, 1]) {
+      b.add(m.brass, new THREE.BoxGeometry(0.1, 0.035, 0.03).translate(at.x + side * (r + 0.04), at.y + u, at.z));
+      b.add(m.brass, new THREE.BoxGeometry(0.035, 0.1, 0.03).translate(at.x + u, at.y + side * (r + 0.04), at.z));
+    }
+  }
+  const z = at.z + T / 2;
+  b.add(m.bone, new RoundedBoxGeometry(1.15 * r, 1.15 * r, 0.03, 2, 0.012).translate(at.x, at.y, z));
+  const nodes = [vec(-0.26, -0.2, 0), vec(0.26, -0.2, 0), vec(0, 0.26, 0)].map((p) =>
+    p.multiplyScalar(r * 1.0).add(vec(at.x, at.y, z + 0.022)),
+  );
+  nodes.forEach((p, i) => b.add(m.brass, rodGeometry(p, nodes[(i + 1) % 3], 0.012), ballGeometry(p, 0.04, 14)));
+  b.add(m.oxblood, ballGeometry(vec(at.x, at.y - r * 0.04, z + 0.022), 0.035, 14));
+}
+
 /* ---------------------------------------------------------------- Subjects */
 
 const sculptures: Record<Kind, (root: THREE.Group, m: SculptureMaterials, ticks: Tick[]) => void> = {
-  /** A neural orrery: three ceramic bodies on counterweighted arms turning at different rates. */
+  /** A neural orrery: a glazed silicon chip and two ceramic nodes on counterweighted arms turning at different rates. */
   ai(root, m, ticks) {
     const TOP = 1.08;
     new Batch(root)
@@ -199,9 +223,9 @@ const sculptures: Record<Kind, (root: THREE.Group, m: SculptureMaterials, ticks:
       phase: number;
       drop: number;
     }[] = [
-      { y: -0.55, reach: 1.2, back: 0.55, r: 0.27, body: m.bone, turns: 1, phase: -1.29, drop: 0.32 },
-      { y: 0.1, reach: 0.92, back: 0.42, r: 0.2, body: m.inkGlaze, turns: -1, phase: 4.38, drop: 0.24 },
-      { y: 0.72, reach: 0.64, back: 0.32, r: 0.15, body: m.oxblood, turns: 2, phase: -2.78, drop: 0.18 },
+      { y: -0.34, reach: 1.1, back: 0.55, r: 0.3, body: m.inkGlaze, turns: 1, phase: -1.29, drop: 0.16 },
+      { y: 0.24, reach: 0.92, back: 0.42, r: 0.21, body: m.bone, turns: -1, phase: 4.38, drop: 0.24 },
+      { y: 0.8, reach: 0.64, back: 0.32, r: 0.16, body: m.oxblood, turns: 2, phase: -2.78, drop: 0.18 },
     ];
     for (const arm of arms) {
       const group = new THREE.Group();
@@ -212,29 +236,20 @@ const sculptures: Record<Kind, (root: THREE.Group, m: SculptureMaterials, ticks:
       b.add(m.brass, new THREE.CylinderGeometry(0.06, 0.06, 0.1, 20));
       b.strut(m.brass, vec(arm.reach, 0, 0), vec(arm.reach, -arm.drop, 0), 0.016, [false, false]);
       b.add(m.agedBrass, ballGeometry(vec(-arm.back, 0, 0), arm.r * 0.55));
-      b.add(arm.body, ballGeometry(vec(arm.reach, -arm.drop - arm.r, 0), arm.r, 32));
+      if (arm.turns === 1) chip(b, m, vec(arm.reach, -arm.drop - arm.r, 0), arm.r);
+      else b.add(arm.body, ballGeometry(vec(arm.reach, -arm.drop - arm.r, 0), arm.r, 32));
       b.done();
-      // The largest body carries a small brass moon on its own arm.
-      let moon: THREE.Group | null = null;
-      if (arm.turns === 1) {
-        moon = new THREE.Group();
-        moon.position.set(arm.reach, -arm.drop - arm.r, 0);
-        group.add(moon);
-        new Batch(moon)
-          .strut(m.brass, vec(0, 0, 0), vec(0.44, 0.05, 0), 0.012, [false, false])
-          .add(m.brass, ballGeometry(vec(0.44, 0.05, 0), 0.06))
-          .done();
-      }
       ticks.push((angle) => {
         group.rotation.y = arm.phase + arm.turns * angle;
-        if (moon) moon.rotation.y = 3 * angle;
       });
     }
   },
 
-  /** A ceramic ball on a pendulum arm, counterbalanced by a brass racket that counter-swings. */
+  /** A balance beam pinned at its centre: a brass racket on one arm, a ceramic ball on the other, each counter-swinging. */
   tennis(root, m, ticks) {
     const PIVOT = 0.62;
+    // A true balance: the pin at the beam's centre, racket and ball on equal arms.
+    const ARM = 1.0;
     new Batch(root)
       .strut(m.brass, vec(0, PLINTH_TOP, 0), vec(0, PIVOT - 0.05, 0), 0.04, [false, false])
       .add(m.brass, new THREE.CylinderGeometry(0.1, 0.12, 0.06, 24).translate(0, PLINTH_TOP + 0.03, 0))
@@ -248,16 +263,16 @@ const sculptures: Record<Kind, (root: THREE.Group, m: SculptureMaterials, ticks:
     beam.position.y = PIVOT;
     root.add(beam);
     new Batch(beam)
-      .strut(m.brass, vec(-0.78, 0, 0), vec(1.18, 0, 0), 0.03)
+      .strut(m.brass, vec(-ARM, 0, 0), vec(ARM, 0, 0), 0.03)
       .add(m.agedBrass, new THREE.CylinderGeometry(0.035, 0.035, 0.24, 16).rotateX(Math.PI / 2))
       .done();
     const racketPin = new THREE.Group();
-    racketPin.position.x = -0.78;
+    racketPin.position.x = -ARM;
     beam.add(racketPin);
     const racketModel = brassRacket(racketPin, m);
     racketModel.position.y = -0.06;
     const ballArm = new THREE.Group();
-    ballArm.position.x = 1.18;
+    ballArm.position.x = ARM;
     beam.add(ballArm);
     const ballBatch = new Batch(ballArm).strut(m.brass, vec(0, 0, 0), vec(0, -0.62, 0), 0.016, [false, false]);
     ballBatch.add(m.optic, ballGeometry(vec(0, -0.62 - 0.21, 0), 0.21, 36));
@@ -272,10 +287,10 @@ const sculptures: Record<Kind, (root: THREE.Group, m: SculptureMaterials, ticks:
     ballBatch.done();
     ticks.push((angle) => {
       // A pendulum with a small second harmonic, so it hangs at the ends of its swing.
-      const swing = 0.3 * Math.sin(angle) + 0.04 * Math.sin(2 * angle);
+      const swing = 0.4 * Math.sin(angle) + 0.05 * Math.sin(2 * angle);
       beam.rotation.z = swing;
-      racketPin.rotation.z = -swing + 0.22 * Math.sin(angle - 0.9);
-      ballArm.rotation.z = -swing - 0.16 * Math.sin(angle - 0.7);
+      racketPin.rotation.z = -swing + 0.34 * Math.sin(angle - 0.9);
+      ballArm.rotation.z = -swing - 0.26 * Math.sin(angle - 0.7);
     });
   },
 
@@ -285,13 +300,14 @@ const sculptures: Record<Kind, (root: THREE.Group, m: SculptureMaterials, ticks:
     const s = new Batch(root)
       .strut(m.brass, vec(0, PLINTH_TOP, 0), vec(0, BEAM_Y, 0), 0.042, [false, false])
       .add(m.brass, new THREE.CylinderGeometry(0.1, 0.13, 0.07, 24).translate(0, PLINTH_TOP + 0.035, 0));
-    // A bone ceramic dial behind the pivot with brass ticks.
+    // A bone ceramic gauge above the pivot, rimmed in brass, with brass ticks for the pointer.
     s.add(
-      m.inkGlaze,
+      m.bone,
       new THREE.CylinderGeometry(0.42, 0.42, 0.03, 48, 1, false, -Math.PI / 2, Math.PI)
         .rotateX(Math.PI / 2)
         .translate(0, BEAM_Y, -0.08),
     );
+    s.add(m.brass, new THREE.TorusGeometry(0.42, 0.016, 8, 48, Math.PI).translate(0, BEAM_Y, -0.08));
     for (let i = -4; i <= 4; i++) {
       const a = (i / 4) * 0.7;
       s.add(
@@ -350,9 +366,9 @@ const sculptures: Record<Kind, (root: THREE.Group, m: SculptureMaterials, ticks:
       b.done();
     }
     ticks.push((angle) => {
-      const tip = 0.15 * Math.sin(angle) + 0.03 * Math.sin(3 * angle);
+      const tip = 0.24 * Math.sin(angle) + 0.04 * Math.sin(3 * angle);
       beam.rotation.z = tip;
-      for (const [i, pan] of pans.entries()) pan.rotation.z = -tip + 0.05 * Math.sin(angle - 0.8 + i);
+      for (const [i, pan] of pans.entries()) pan.rotation.z = -tip + 0.08 * Math.sin(angle - 0.8 + i);
     });
   },
 
@@ -405,8 +421,8 @@ const sculptures: Record<Kind, (root: THREE.Group, m: SculptureMaterials, ticks:
     });
     ticks.push((angle) => {
       tiles.forEach((tile, i) => {
-        tile.rotation.y = 0.2 * Math.sin(angle - i * 0.75);
-        tile.rotation.z = 0.025 * Math.sin(angle - i * 0.75 + 1.2);
+        tile.rotation.y = 0.34 * Math.sin(angle - i * 0.75);
+        tile.rotation.z = 0.04 * Math.sin(angle - i * 0.75 + 1.2);
       });
       for (const { mesh, top, bottom } of links) {
         const a = top(),
@@ -475,63 +491,72 @@ const sculptures: Record<Kind, (root: THREE.Group, m: SculptureMaterials, ticks:
     });
   },
 
-  /** A ceramic folio turning on a brass spindle, one leaf rocking between its covers, a bob swinging below. */
+  /**
+   * A reading mobile: a brass arm turns on top of the column, an open ceramic folio hanging from one
+   * end by its spine, a ceramic counterweight on the other, one leaf rocking between the covers.
+   */
   reading(root, m, ticks) {
-    const BASE = -0.38;
+    const TOP = 0.98;
     new Batch(root)
-      .strut(m.brass, vec(0, PLINTH_TOP, 0), vec(0, BASE, 0), 0.04, [false, true])
+      .strut(m.brass, vec(0, PLINTH_TOP, 0), vec(0, TOP - 0.05, 0), 0.04, [false, false])
       .add(m.brass, new THREE.CylinderGeometry(0.1, 0.13, 0.07, 24).translate(0, PLINTH_TOP + 0.035, 0))
-      .add(m.brass, new THREE.CylinderGeometry(0.14, 0.06, 0.08, 24).translate(0, BASE + 0.07, 0))
+      .add(m.brass, new THREE.CylinderGeometry(0.075, 0.06, 0.06, 20).translate(0, TOP - 0.06, 0))
       .done();
+    // The arm turns a full circle a loop; it carries everything that moves.
     const folio = new THREE.Group();
     folio.name = "kinetic-folio";
-    folio.position.y = BASE + 0.12;
+    folio.position.y = TOP;
     root.add(folio);
-    const H = 1.25,
-      W = 0.8;
-    new Batch(folio).strut(m.brass, vec(0, 0, 0), vec(0, H + 0.08, 0), 0.03, [false, true]).done();
+    const REACH = 0.62,
+      BACK = 0.62,
+      H = 1.2,
+      W = 0.78,
+      HANG = 0.14;
+    const arm = new Batch(folio)
+      .add(m.brass, ballGeometry(vec(0, 0, 0), 0.07))
+      .strut(m.brass, vec(-BACK, 0, 0), vec(REACH, 0, 0), 0.026, [true, true])
+      // The counterweight drops from the short end.
+      .strut(m.brass, vec(-BACK, 0, 0), vec(-BACK, -0.34, 0), 0.014, [false, false])
+      .add(m.oxblood, ballGeometry(vec(-BACK, -0.34 - 0.17, 0), 0.17, 32))
+      // The folio hangs by its spine from the long end: a link, then the spine rod as its hinge.
+      .strut(m.brass, vec(REACH, 0, 0), vec(REACH, -HANG, 0), 0.014, [false, true]);
+    arm.strut(m.brass, vec(REACH, -HANG, 0), vec(REACH, -HANG - H - 0.04, 0), 0.022, [false, true]);
+    arm.done();
+    const book = new THREE.Group();
+    book.position.set(REACH, -HANG - H / 2 - 0.02, 0);
+    folio.add(book);
     const leaf = (open: number, material: THREE.Material, thick: number) => {
       const hinge = new THREE.Group();
       hinge.rotation.y = open;
-      hinge.position.y = H / 2 + 0.04;
-      folio.add(hinge);
-      const mesh = new THREE.Mesh(new THREE.BoxGeometry(W, H, thick).translate(W / 2 + 0.035, 0, 0), material);
-      hinge.add(mesh);
+      book.add(hinge);
+      hinge.add(new THREE.Mesh(new THREE.BoxGeometry(W, H, thick).translate(W / 2 + 0.03, 0, 0), material));
       return hinge;
     };
-    // The book opens towards +z (local angle -π/2), covers wide, leaves fanned between them.
-    const MID = -Math.PI / 2;
-    leaf(MID - 1.25, m.inkGlaze, 0.05);
-    leaf(MID + 1.25, m.inkGlaze, 0.05);
-    const fixedLeaves = new Batch(folio);
-    for (const a of [MID - 1.12, MID - 0.98, MID + 0.98, MID + 1.12])
-      fixedLeaves.add(
-        m.bone,
-        new THREE.BoxGeometry(W * 0.96, H * 0.94, 0.016)
-          .translate(W * 0.48 + 0.04, 0, 0)
-          .rotateY(a)
-          .translate(0, H / 2 + 0.04, 0),
-      );
+    // The book opens outwards from the arm (local +x is radial, so local angle 0 points away from
+    // the column): covers wide, leaves fanned between them.
+    const MID = 0;
+    leaf(MID - 1.08, m.inkGlaze, 0.05);
+    leaf(MID + 1.08, m.inkGlaze, 0.05);
+    const fixedLeaves = new Batch(book);
+    for (const a of [MID - 0.95, MID - 0.82, MID + 0.82, MID + 0.95])
+      fixedLeaves.add(m.bone, new THREE.BoxGeometry(W * 0.96, H * 0.94, 0.016).translate(W * 0.48 + 0.035, 0, 0).rotateY(a));
     fixedLeaves.done();
     const turning = leaf(0, m.bone, 0.016);
-    // A brass bob on a rod swings from the spindle's foot, like a bookmark ribbon made rigid.
-    const bob = new THREE.Group();
-    bob.position.set(0, 0.02, 0);
-    folio.add(bob);
-    new Batch(bob)
-      .strut(m.brass, vec(0, 0, 0), vec(0, -0.5, 0.32), 0.011, [false, false])
-      .add(m.oxblood, ballGeometry(vec(0, -0.5, 0.32), 0.075, 24))
-      .done();
     ticks.push((angle) => {
-      folio.rotation.y = -0.6 + angle;
+      folio.rotation.y = -1.75 + angle; // at rest the book hangs right of the column, its pages turned three-quarters to the audience
       // The leaf rocks from cover to cover twice a turn.
-      turning.rotation.y = MID + 0.85 * Math.sin(angle * 2);
-      bob.rotation.x = 0.25 * Math.sin(angle * 2 + 0.6);
+      turning.rotation.y = MID + 0.7 * Math.sin(angle * 2);
+      // The folio hangs turned towards the audience and sways on its link.
+      book.rotation.y = -0.75 + 0.18 * Math.sin(angle * 2 + 0.6);
     });
   },
 };
 
-export function kineticLook(): ObjectLook {
+/**
+ * The kinetic rig. `fill` is the share of the frame's height the sculpture fills: the six subjects
+ * use 0.8 so the mechanism, not the empty card, carries a small card (contact keeps the default).
+ */
+export function kineticLook(fill = 0.7): ObjectLook {
   return {
     rig: {
       both: {
@@ -550,12 +575,15 @@ export function kineticLook(): ObjectLook {
         exposure: 1.05,
         reflections: 1.0,
         hemisphere: { sky: 0x9fb2d0, ground: 0x101418, intensity: 0.2 },
-        rim: { intensity: 3.4 },
-        key: { intensity: 2.4 },
+        rim: { intensity: 3.6, color: 0xa9c8ff },
+        key: { intensity: 2.5 },
+        // A warm kicker from back left: a second rim along the brass and the plinth's edge.
+        fill: { color: 0xffd29a, intensity: 1.6, position: [-5, 2.5, -3.5] },
+        environment: { intensity: 0.9 },
       },
     },
     camera: { projection: "perspective", fov: 28, pitch: 8 },
-    framing: { fill: 0.7, maxWidth: 0.8 },
+    framing: { fill, maxWidth: 0.82 },
     castShadows: true,
   };
 }
