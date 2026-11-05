@@ -280,7 +280,7 @@ describe("lintDeck", () => {
       find(lintDeck(withSlide(good, "context", { title: "Uploads take 9 seconds at p95", ...patch })), "number-source");
 
     it("flags an unsourced number", () => {
-      expect(check({ notes: "They're slow." })).toEqual([expect.objectContaining({ slideId: "context", severity: "warn" })]);
+      expect(check({ notes: "They're slow." })).toEqual([expect.objectContaining({ slideId: "context", severity: "tip" })]);
     });
 
     it("accepts a source in notes or on the slide", () => {
@@ -1104,13 +1104,11 @@ describe("lintDeck: presented decks (the default)", () => {
       expect(find(lintPresented(withSlide(noCompare, "answer", { title: "Caching cut tickets" })), "causal-claim")).toEqual([]);
     });
 
-    it("tips when no cue says the numbers come from two windows, before and after", () => {
+    it("asks for no method sentence: causal-free wording is the caveat", () => {
       const silent = withSlide(presented, "answer", {
         notes: cues("Answer-first reviews decided in one meeting.\nSource: the platform review log."),
       });
-      expect(find(lintPresented(silent), "causal-claim")).toEqual([
-        expect.objectContaining({ severity: "tip", message: expect.stringMatching(/never says so/) }),
-      ]);
+      expect(find(lintPresented(silent), "causal-claim")).toEqual([]);
       expect(find(lintPresented(presented), "causal-claim")).toEqual([]);
     });
   });
