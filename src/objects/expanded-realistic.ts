@@ -20,12 +20,13 @@ import {
   placed,
   ribbonGeometry,
   roundedBox,
-  rodGeometry,
   seeded,
   smoothstep,
   sphere,
   tube,
   valueNoise,
+  valueNoise2,
+  themeProbe,
   type ArtKind,
 } from "./expanded-kit";
 
@@ -42,13 +43,18 @@ export const realisticLook: ObjectLook = {
       rim: { color: 0xffffff, intensity: 1.3, position: [3, 2.6, -5] },
     },
     light: { reflections: 1 },
+    // Night: the window is gone. A warm desk lamp up to the right is the key (with a pool of light
+    // from the practical in realistic()), and a cool moonlit rim from behind left cuts the silhouettes.
     dark: {
-      exposure: 0.92,
-      hemisphere: { sky: 0xb8c4d8, ground: 0x15130f, intensity: 0.28 },
-      environment: { intensity: 0.28 },
-      key: { intensity: 4 },
-      rim: { color: 0xbcd0ff, intensity: 2.4 },
-      reflections: 0.85,
+      exposure: 1,
+      hemisphere: { sky: 0x8090b0, ground: 0x0e0c0a, intensity: 0.16 },
+      environment: { intensity: 0.16 },
+      key: { color: 0xffc58c, intensity: 0.9, position: [4.5, 3.6, 2.8] },
+      fill: { color: 0x9aaad0, intensity: 0.12, position: [-5, 1.5, 5] },
+      rim: { color: 0xa8bfff, intensity: 2.8, position: [-3.5, 0.9, -5] },
+      // Presets take their image light from `reflections`, not the environment intensity: keep it
+      // low, or the room's even light washes the lamp's falloff out.
+      reflections: 0.32,
     },
   },
   camera: { projection: "perspective", fov: 20, pitch: 15 },
@@ -77,7 +83,7 @@ function groundFade() {
 }
 
 /** A table-top plane under the subject (y 0), excluded from framing; it still takes the key's shadow. */
-function surface(root: THREE.Object3D, map: THREE.Texture, normalMap: THREE.Texture | null, roughness: number, dark = 0.62) {
+function surface(root: THREE.Object3D, map: THREE.Texture, normalMap: THREE.Texture | null, roughness: number, dark = 0.72) {
   const material = themed(
     new THREE.MeshStandardMaterial({
       map,
@@ -99,31 +105,75 @@ function surface(root: THREE.Object3D, map: THREE.Texture, normalMap: THREE.Text
   return plane;
 }
 
-/** Oiled walnut planks, grain running away from the lens. */
+/**
+ * Oiled walnut: two flat-sawn planks per tile, laid across the frame (so the grain never converges
+ * on the vanishing point), with wavy latewood lines, long open pores and a dark seam between planks.
+ * Tiles every WOOD_TILE units, sharp enough for the macro shots.
+ */
+const WOOD_TILE = 3;
+const WOOD_SIZE = 512;
+let woodField: { field: Float32Array; tones: Float32Array } | undefined;
+/** The wood's height channels (latewood, pores, seam) and albedo tone, computed once per page. */
+function woodData() {
+  if (woodField) return woodField;
+  const SIZE = WOOD_SIZE;
+  const field = new Float32Array(SIZE * SIZE * 3),
+    tones = new Float32Array(SIZE * SIZE);
+  for (let y = 0; y < SIZE; y++)
+    for (let x = 0; x < SIZE; x++) {
+      const u = (x + 0.5) / SIZE,
+        v = (y + 0.5) / SIZE;
+      const plank = Math.floor(v * 2);
+      const w = (v * 2) % 1;
+      // Flat-sawn figure: growth rings cut at a shallow angle, so they close into cathedral arches
+      // along the plank (one per plank, phase shifted) and run as long wavy lines at its edges.
+      const n1 = valueNoise2(u * 6, w * 3, 6, 64, 11 + plank),
+        n2 = valueNoise2(u * 3, w * 2, 3, 64, 5 + plank);
+      const across = (w - 0.5) * 5 + 0.7 * (n1 - 0.5);
+      const cut = 0.9 + 1.1 * (0.5 + 0.5 * Math.cos((u + plank * 0.43) * TAU)) + 0.6 * n2;
+      const rings = Math.hypot(across, cut) * 8 + 0.8 * n1;
+      const ring = rings % 1;
+      // Each growth ring's latewood band varies in weight, as real seasons do.
+      const weight = 0.45 + 0.55 * valueNoise2(Math.floor(rings) * 7.3, plank * 3.1, 4096, 4096, 41);
+      const late = weight * smoothstep(0.6, 0.85, ring) * (1 - smoothstep(0.9, 1, ring));
+      // Open pores: faint dark dashes running with the grain.
+      const pores = smoothstep(0.7, 0.95, valueNoise2(u * 40, v * 220, 40, 220, 23));
+      const figure = valueNoise2(u * 4, v * 6, 4, 6, 31 + plank);
+      const seam = smoothstep(0.01, 0, Math.min(w, 1 - w));
+      const i = (y * SIZE + x) * 3;
+      field[i] = late;
+      field[i + 1] = pores;
+      field[i + 2] = seam;
+      const tone = clamp01(0.6 + 0.18 * figure + (plank ? 0.05 : -0.04) - 0.22 * late - 0.08 * pores);
+      tones[i / 3] = tone * (1 - 0.7 * seam);
+    }
+  return (woodField = { field, tones });
+}
 function walnut(root: THREE.Object3D) {
-  const grain = (u: number, v: number) => {
-    const plank = Math.floor(u * 5);
-    const warp = fbm(u * 8, v * 2.5, 64, 4, 3 + plank) * 7;
-    const rings = 0.5 + 0.5 * Math.sin((u * 5 * 9 + warp + plank * 1.7) * Math.PI);
-    return { rings, plank };
-  };
-  const map = paintTexture(256, 512, (u, v) => {
-    const { rings, plank } = grain(u, v);
-    const fine = valueNoise(u * 256, v * 24, 256, 9);
-    const edge = Math.min((u * 5) % 1, 1 - ((u * 5) % 1));
-    const seam = smoothstep(0.02, 0, edge);
-    const figure = fbm(u * 4, v * 6, 4, 3, 17 + plank);
-    const tone = 0.3 + 0.22 * rings ** 2 + 0.08 * fine + 0.3 * figure + (plank % 2) * 0.05;
-    const [r, g, b] = mixRgb(0x24170f, 0x6a4830, clamp01(tone));
-    return [r * (1 - seam * 0.6), g * (1 - seam * 0.6), b * (1 - seam * 0.6)];
-  });
-  const normalMap = normalTexture(
-    128,
-    (u, v) => 0.6 * valueNoise(u * 128, v * 10, 128, 4) + 0.4 * grain(u, v).rings,
-    0.8,
-    [1, 1],
+  const SIZE = WOOD_SIZE;
+  const { field, tones } = woodData();
+  const map = paintTexture(
+    SIZE,
+    SIZE,
+    (_u, _v, x, y) => {
+      const t = tones[y * SIZE + x];
+      return mixRgb(0x2a1a10, 0x8a6240, t);
+    },
+    { repeat: [GROUND_WIDTH / WOOD_TILE, GROUND_DEPTH / WOOD_TILE] },
   );
-  return surface(root, map, normalMap, 0.5);
+  map.anisotropy = 8;
+  // Half resolution is plenty for the relief, and halves the build cost.
+  const normalMap = normalTexture(
+    SIZE / 2,
+    (u, v) => {
+      const i = (Math.min(SIZE - 1, Math.floor(v * SIZE)) * SIZE + Math.min(SIZE - 1, Math.floor(u * SIZE))) * 3;
+      return 0.6 - 0.3 * field[i] - 0.12 * field[i + 1] - 0.8 * field[i + 2];
+    },
+    2,
+    [GROUND_WIDTH / WOOD_TILE, GROUND_DEPTH / WOOD_TILE],
+  );
+  normalMap.anisotropy = 8;
+  return surface(root, map, normalMap, 0.46);
 }
 
 /** Pebbled vegetable-tanned leather. */
@@ -310,25 +360,24 @@ const models: Record<ArtKind, Model> = {
       HEIGHT = 0.2,
       DISH = 0.012;
     const pbt = lookMaterial("plastic", 0xe8e3d6, { roughness: 0.74 });
-    const grey = lookMaterial("plastic", 0x8e9298, { roughness: 0.72 });
     const accent = lookMaterial("plastic", 0xd45a26, { roughness: 0.6 });
     const capGeometry = keycapGeometry(WIDTH, HEIGHT, WIDTH, DISH);
+    // A real QWERTY patch with ANSI row stagger: the top row sits a quarter key left of home, the bottom row half a key right.
     const rows = [
-      { keys: ["T", "Y", "U", "I", "P"], z: -0.62, offset: -0.1 },
-      { keys: ["G", "H", "J", "K", "M"], z: -0.24, offset: 0 },
-      { keys: ["B", "N", "M", ",", "."], z: 0.14, offset: 0.19 },
+      { keys: ["T", "Y", "U", "I", "O"], z: -0.62, offset: -0.25 * KEY },
+      { keys: ["G", "H", "J", "K", "L"], z: -0.24, offset: 0 },
+      { keys: ["B", "N", "M", ",", "."], z: 0.14, offset: 0.5 * KEY },
     ];
     // Which keys type, and when: J (the hero, homing bar) is mid-press at the rest frame.
     const typing: Record<string, number> = { J: 1.88, K: 3.4, H: 5.1, U: 0.4 };
     const legends = new Map<string, THREE.Material>();
     for (const row of rows)
       row.keys.forEach((text, col) => {
-        if (row.z === 0.14 && col === 2) text = "M";
         const x = -0.86 + col * KEY + row.offset;
         if (Math.abs(x) > 1.3) return;
         const key = group(root, x, 0.24 + HEIGHT / 2 + 0.02, row.z);
         const hero = text === "J";
-        const material = hero ? accent : col === 4 ? grey : pbt;
+        const material = hero ? accent : pbt;
         mesh(key, capGeometry, material);
         const legend =
           legends.get(text) ??
@@ -461,7 +510,8 @@ const models: Record<ArtKind, Model> = {
     const machine = group(root, -1.12, 0, -0.95);
     machine.rotation.y = 0.35;
     const enamel = lookMaterial("ceramic", 0x15171a, { roughness: 0.28 });
-    const brass = lookMaterial("metal", 0xc9a35a, { roughness: 0.26 });
+    // Aged brass: a browner, less saturated base and a satin finish rubbed bright only where hands go.
+    const brass = lookMaterial("metal", 0x8c7752, { roughness: 0.46 });
     block(machine, [1.1, 0.42, 0.9], enamel, [0, 0.21, 0], 0.05);
     block(machine, [1.18, 0.05, 0.98], brass, [0, 0.445, 0], 0.02);
     const wheel = group(machine, 0.18, 0.66, 0.05);
@@ -751,9 +801,9 @@ const models: Record<ArtKind, Model> = {
         ["S", 180],
         ["W", 270],
       ] as const) {
-        const cx = 0.6 * Math.sin((a * Math.PI) / 180),
-          cy = 0.6 * Math.cos((a * Math.PI) / 180);
-        const s = 0.026;
+        const cx = 0.53 * Math.sin((a * Math.PI) / 180),
+          cy = 0.53 * Math.cos((a * Math.PI) / 180);
+        const s = 0.028;
         const col = Math.floor((x - cx) / s + 2.5),
           row = Math.floor(-(y - cy) / s + 3.5);
         if (glyphDot(letter, col, row)) {
@@ -761,8 +811,8 @@ const models: Record<ArtKind, Model> = {
           else ink = 1;
         }
       }
-      // A red north triangle at the rim.
-      if (y > 0.66 && y < 0.79 && Math.abs(x) < (0.79 - y) * 0.5) red = 1;
+      // A red north triangle at the rim, clear of the N so the two never merge into an "A".
+      if (y > 0.71 && y < 0.82 && Math.abs(x) < (0.82 - y) * 0.45) red = 1;
       if (r > 0.985) return [40, 40, 42];
       const base = mixRgb(0x17191c, 0x23262a, valueNoise(u * 60, v * 60, 60, 3));
       if (red) return [210, 58, 42];
@@ -888,42 +938,75 @@ const models: Record<ArtKind, Model> = {
       { repeat: [2, 2] },
     );
     const acetate = lookMaterial("ceramic", 0xffffff, { map: tortoise, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.08 });
-    const glasses = group(root, 0.55, 0.575, 0.18);
-    glasses.rotation.set(-0.12, -0.32, 0);
+    const glasses = group(root, 0.5, 0.64, 0.3);
+    glasses.rotation.set(-0.06, -0.22, 0);
+    const RX = 0.25,
+      RY = 0.2,
+      BAND = 0.032,
+      DEPTH = 0.03;
+    // A soft-cornered "P3" lens: an ellipse squared off a little, so the rim reads as cut acetate, not a wire ring.
+    const lensPoint = (cx: number, t: number, grow: number) => {
+      const c = Math.cos(t),
+        s = Math.sin(t);
+      const k = 0.86;
+      const x = Math.sign(c) * Math.abs(c) ** k,
+        y = Math.sign(s) * Math.abs(s) ** k;
+      return new THREE.Vector2(cx + x * (RX + grow), y * (RY + grow) - 0.012 * (1 - s));
+    };
+    const outline = (cx: number, grow: number, reverse: boolean) => {
+      const points = Array.from({ length: 129 }, (_, i) => lensPoint(cx, ((reverse ? 128 - i : i) / 128) * TAU, grow));
+      return points;
+    };
     const rim = (cx: number) => {
-      const shape = new THREE.Shape();
-      const rx = 0.25,
-        ry = 0.2;
-      shape.absellipse(cx, 0, rx + 0.03, ry + 0.03, 0, TAU, false, 0);
-      const hole = new THREE.Path();
-      hole.absellipse(cx, 0, rx, ry, 0, TAU, true, 0);
-      shape.holes.push(hole);
+      const shape = new THREE.Shape(outline(cx, BAND, false));
+      shape.holes.push(new THREE.Path(outline(cx, 0, true)));
       return shape;
     };
-    const frontShapes = [rim(-0.3), rim(0.3)];
-    const front = new THREE.ExtrudeGeometry(frontShapes, {
-      depth: 0.035,
+    const front = new THREE.ExtrudeGeometry([rim(-0.3), rim(0.3)], {
+      depth: DEPTH,
       bevelEnabled: true,
       bevelSize: 0.012,
       bevelThickness: 0.012,
-      bevelSegments: 2,
-      curveSegments: 40,
+      bevelSegments: 5,
+      curveSegments: 128,
     });
-    front.computeBoundingBox();
+    front.translate(0, 0, -DEPTH / 2);
     const uv = front.attributes.uv;
     for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 0.8, uv.getY(i) * 0.8);
-    mesh(glasses, front, acetate);
-    mesh(glasses, tube([vec(-0.06, 0.05, 0.02), vec(0, 0.085, 0.02), vec(0.06, 0.05, 0.02)], 0.028, false, 12, 8), acetate);
+    // Smooth the shading across the many short outline segments (the bevel stays crisp).
+    const smoothFront = mergeVertices(front.deleteAttribute("normal"), 1e-4);
+    smoothFront.computeVertexNormals();
+    mesh(glasses, smoothFront, acetate);
+    // The keyhole bridge.
+    mesh(glasses, tube([vec(-0.07, 0.07, 0), vec(0, 0.1, 0), vec(0.07, 0.07, 0)], 0.026, false, 16, 12), acetate);
+    // End pieces and barrel hinges at the outer corners; the temples stand open, running back over
+    // the page and bending down at the ear so the glasses rest on their rims and temple tips.
+    const pin = lookMaterial("metal", 0xc8c2b4, { roughness: 0.3 });
     for (const side of [-1, 1]) {
-      // Temples folded behind the front, nearly crossing.
+      const edge = side * (0.3 + RX + BAND);
+      mesh(glasses, roundedBox(0.05, 0.075, 0.07, 0.02), acetate, edge - side * 0.012, 0.09, -0.04);
+      cylinder(glasses, 0.009, 0.085, pin, [edge - side * 0.004, 0.09, -0.075], 10);
       const temple = mesh(
         glasses,
-        mergeable(rodGeometry(vec(side * 0.58, 0.1, -0.02), vec(-side * 0.18, -0.21, -0.3), 0.013, 8)),
+        tube(
+          [
+            vec(edge - side * 0.006, 0.09, -0.07),
+            vec(edge + side * 0.004, 0.088, -0.16),
+            vec(edge + side * 0.01, 0.07, -0.55),
+            vec(edge + side * 0.006, 0.04, -0.85),
+            vec(edge - side * 0.004, -0.06, -0.97),
+            vec(edge - side * 0.01, -0.26, -1.0),
+          ],
+          0.013,
+          false,
+          64,
+          10,
+        ),
         acetate,
       );
       temple.castShadow = true;
-      const lens = mesh(glasses, new THREE.CircleGeometry(1, 48), clearGlass(), side * 0.3, 0, 0.018);
-      lens.scale.set(0.25, 0.2, 1);
+      const lensShape = new THREE.Shape(outline(side * 0.3, 0.004, false));
+      const lens = mesh(glasses, new THREE.ShapeGeometry(lensShape, 64), clearGlass(), 0, 0, 0.004);
       decal(lens);
     }
     pool(root, 1.3, 0.5, 0.55, 0.05, 0.4, 0.32);
@@ -940,9 +1023,25 @@ const subjectCamera: Record<ArtKind, { pitch: number; yaw?: number; fill?: numbe
   reading: { pitch: 20, fill: 0.5, maxWidth: 0.7 },
 };
 
+/** Where the night lamp hangs over each subject (it pools light on the subject and falls off into the dark). */
+const lampAt: Record<ArtKind, [number, number, number]> = {
+  ai: [2.1, 1.0, 0.3],
+  tennis: [0.9, 1.4, 0.9],
+  trading: [1.3, 1.0, 0.5],
+  server: [0.9, 1.6, 0.9],
+  travel: [0.8, 1.5, 0.9],
+  reading: [1.7, 1.1, 0.6],
+};
+
 export function realistic(kind: ArtKind, ticks: Tick[]) {
   const root = new THREE.Group();
   models[kind](root, ticks);
+  // The practical: a warm point light, on only in the dark theme.
+  const lamp = new THREE.PointLight(0xffb36e, 0, 0, 2);
+  lamp.position.set(...lampAt[kind]);
+  root.add(lamp);
+  const dark = themeProbe(root);
+  ticks.push(() => (lamp.intensity = dark() ? 9 : 0));
   const { pitch, yaw = 0, fill, maxWidth } = subjectCamera[kind];
   root.userData.look = {
     ...realisticLook,

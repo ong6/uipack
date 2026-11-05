@@ -131,6 +131,22 @@ export function valueNoise(x: number, y: number, period = 256, seed = 1) {
     d = hash(wrap(xi + 1), wrap(yi + 1), seed);
   return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
 }
+/** Smooth value noise in 0..1 that tiles every `periodX` cells across and `periodY` cells down. */
+export function valueNoise2(x: number, y: number, periodX: number, periodY: number, seed = 1) {
+  const xi = Math.floor(x),
+    yi = Math.floor(y),
+    xf = x - xi,
+    yf = y - yi;
+  const wx = (n: number) => ((n % periodX) + periodX) % periodX,
+    wy = (n: number) => ((n % periodY) + periodY) % periodY;
+  const u = xf * xf * (3 - 2 * xf),
+    v = yf * yf * (3 - 2 * yf);
+  const a = hash(wx(xi), wy(yi), seed),
+    b = hash(wx(xi + 1), wy(yi), seed),
+    c = hash(wx(xi), wy(yi + 1), seed),
+    d = hash(wx(xi + 1), wy(yi + 1), seed);
+  return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+}
 /** Fractal noise, tiling over `period` base cells. */
 export function fbm(x: number, y: number, period: number, octaves = 4, seed = 1) {
   let sum = 0,
@@ -144,6 +160,23 @@ export function fbm(x: number, y: number, period: number, octaves = 4, seed = 1)
     frequency *= 2;
   }
   return sum / total;
+}
+
+/* ---------------------------------------------------------------- Theme */
+
+/**
+ * Builders don't know the theme; mount.ts applies per-theme material changes after building. This
+ * reads one hidden themed material back, so a tick can switch parts that are not materials (a
+ * practical light) per theme. Returns true in the dark theme.
+ */
+export function themeProbe(parent: THREE.Object3D) {
+  const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  material.userData.themes = { dark: { color: 0x000000 } };
+  const probe = new THREE.Mesh(new THREE.PlaneGeometry(0.001, 0.001), material);
+  probe.visible = false;
+  probe.userData.frameIgnore = true;
+  parent.add(probe);
+  return () => material.color.r < 0.5;
 }
 
 /* ---------------------------------------------------------------- Textures */
@@ -232,7 +265,9 @@ const GLYPHS: Record<string, string> = {
   I: "01110001000010000100001000010001110",
   J: "00111000100001000010000101001001100",
   K: "10001100101010011000101001001010001",
+  L: "10000100001000010000100001000011111",
   M: "10001110111010110101100011000110001",
+  O: "01110100011000110001100011000101110",
   P: "11110100011000111110100001000010000",
   T: "11111001000010000100001000010000100",
   U: "10001100011000110001100011000101110",
