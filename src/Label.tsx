@@ -14,7 +14,9 @@ export interface LabelProps {
 /** Text with a page-coloured underlay so it can sit on a connector. */
 export function Label({ x, y, text, anchor = "start", accent, size: size0 = 11, font = "mono" }: LabelProps) {
   const size = useFontFloor(size0);
-  const w = text.length * size * (font === "mono" ? 0.62 : 0.55) + 8;
+  // Mono: the label face's 0.6em advance plus the .06em tracking below; sans: an average advance.
+  // 4 units of underlay on each side, so a connector never shows through the ends.
+  const w = text.length * size * (font === "mono" ? 0.66 : 0.56) + 8;
   const rx = anchor === "middle" ? x - w / 2 : anchor === "end" ? x - w + 4 : x - 4;
   return (
     <g data-uipack="label">

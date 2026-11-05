@@ -14,6 +14,23 @@ async function open(page: Page, width: number) {
 
 // Node text fits with room to spare: at least 4 units between it and either side of the box,
 // so no label or subtitle reads as touching the border.
+// A connector label's page-coloured underlay covers its whole word, so no line shows through
+// either end (it is sized from the label face's advance, not measured).
+function labelPlateShort() {
+  const out: string[] = [];
+  for (const label of document.querySelectorAll<SVGGElement>('[data-section] svg [data-uipack="label"]')) {
+    if (!label.getClientRects().length) continue;
+    const plate = label.querySelector("rect")!.getBBox();
+    const text = label.querySelector("text")!.getBBox();
+    if (!text.width) continue;
+    if (text.x < plate.x - 0.5 || text.x + text.width > plate.x + plate.width + 0.5)
+      out.push(
+        `"${label.textContent}" ${text.x.toFixed(1)}..${(text.x + text.width).toFixed(1)} on ${plate.x.toFixed(1)}..${(plate.x + plate.width).toFixed(1)}`,
+      );
+  }
+  return out;
+}
+
 function nodeTextOverflow() {
   const out: string[] = [];
   for (const node of document.querySelectorAll<SVGGElement>('[data-section] svg [data-uipack="node"]')) {
@@ -134,6 +151,8 @@ test.describe("geometry", () => {
 
     await test.step("node text stays inside its box, clear of the border, on every drawing", async () => {
       expect(await page.evaluate(nodeTextOverflow)).toEqual([]);
+      expect(await page.evaluate(labelPlateShort)).toEqual([]);
+      expect(await page.evaluate(labelPlateShort)).toEqual([]);
     });
 
     await test.step("a figure with nothing moving offers no Pause or Replay", async () => {
