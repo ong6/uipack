@@ -90,7 +90,7 @@ export const SLOT_BUDGETS: Readonly<Record<SlotName, SlotBudget>> = {
     overflow: "wrap",
   },
   headline: {
-    role: "Presented: a 2–5 word label or spoken verdict. Read-alone: the conclusion as one sentence",
+    role: "Presented: a 2–5 word spoken verdict (a bare label only on agenda, section and mechanism slides). Read-alone: the conclusion as one sentence",
     minWords: 1,
     maxWords: 14,
     maxLines: 2,
