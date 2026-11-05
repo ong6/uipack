@@ -54,6 +54,12 @@ export interface FigureProps {
    * Otherwise it is measured after mount; before that, 1088 is assumed.
    */
   measuredWidth?: number;
+  /**
+   * Hold the finished resting frame: no scroll-in entrance, no moving packets, no Pause or
+   * Replay. Reduced motion does the same. The default already paints the finished drawing
+   * first and layers motion on top; use this for thumbnails, print or a capture.
+   */
+  static?: boolean;
   id?: string;
 }
 
@@ -141,12 +147,14 @@ export function Figure({
   background = "dots",
   minFont = 11,
   measuredWidth,
+  static: still = false,
   id,
 }: FigureProps) {
   const opener = useRef<HTMLButtonElement>(null);
   const auto = useId();
   const figId = id ?? `uipack-${auto.replace(/:/g, "")}`;
-  const reduced = usePrefersReducedMotion();
+  const prefersReduced = usePrefersReducedMotion();
+  const reduced = prefersReduced || still;
   const [playing, setPlaying] = useState(true);
   const [cycle, setCycle] = useState(0);
   const [expanded, setExpanded] = useState(false);

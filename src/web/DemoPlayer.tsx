@@ -15,8 +15,16 @@ export interface DemoPlayerProps {
   metricLabel?: string;
   /** Placeholder for the composer before anything is typed. */
   placeholder?: string;
-  /** Start when at least a quarter is on screen. Default true. */
+  /**
+   * Play from the start as it scrolls into view. Default true. Until then, and without it until
+   * Play, the player rests on its finished result.
+   */
   autoplay?: boolean;
+  /**
+   * Hold the finished result with no controls, as under reduced motion: for thumbnails, print or
+   * a capture. The default already rests on the result until the demo plays.
+   */
+  static?: boolean;
   /** Restart after the last step's hold. Default false: the result stays. */
   loop?: boolean;
   timing?: Partial<DemoTiming>;
@@ -38,9 +46,13 @@ function lastWith<T>(steps: DemoStep[], upTo: number, pick: (s: DemoStep) => T |
 
 /**
  * A baked-in product demo: a window frame that types a prompt, ticks through the
- * agent's actions and settles on the result. Plays when on screen, pauses when off,
- * and holds still on its final state under reduced motion (the steps stay in the DOM as text,
- * so the window and a second, visible list never repeat the same actions).
+ * agent's actions and settles on the result. Its resting state is the result: that is what the
+ * server renders and what paints first, so a capture, a reader who jumps past it or one who never
+ * scrolls to it sees the outcome, not an empty composer. As it nears the viewport it rewinds to
+ * the first frame and plays while a quarter of it is on screen; scrolled fully away mid-play, it
+ * settles back on the result. Reduced motion and `static` hold the result with no controls (the
+ * steps stay in the DOM as text, so the window and a second, visible list never repeat the same
+ * actions).
  */
 export function DemoPlayer({
   steps,
@@ -50,6 +62,7 @@ export function DemoPlayer({
   metricLabel,
   placeholder = "Ask for something…",
   autoplay = true,
+  static: still = false,
   loop = false,
   timing: timingProp,
   cta,
@@ -57,26 +70,60 @@ export function DemoPlayer({
   onStepChange,
 }: DemoPlayerProps) {
   const timing = useMemo(() => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
-  const reduced = usePrefersReducedMotion();
+  const reduced = usePrefersReducedMotion() || still;
   const rootRef = useRef<HTMLElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
-  const [elapsed, setElapsed] = useState(0);
+  const end = demoEnd(steps, timing);
+  const cycle = demoCycle(steps, timing);
+  // At rest on the result until it is about to be seen (or Play is pressed).
+  const [elapsed, setElapsed] = useState(end);
   const [playing, setPlaying] = useState(autoplay);
   const [inView, setInView] = useState(false);
   const id = useId();
-  const end = demoEnd(steps, timing);
-  const cycle = demoCycle(steps, timing);
+  const armed = useRef(false);
+  const playingRef = useLatest(playing);
+  const doneRef = useLatest(elapsed >= end);
 
   useEffect(() => {
     const el = rootRef.current;
+    if (reduced) return;
+    // Rewind to the first frame once, just before it is seen, so it plays from the start.
+    const arm = () => {
+      if (armed.current || !autoplay) return;
+      armed.current = true;
+      setElapsed(0);
+    };
     if (!el || typeof IntersectionObserver === "undefined") {
+      arm();
       setInView(true);
       return;
     }
-    const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.25 });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+    const near = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) arm();
+      },
+      { rootMargin: "0px 0px 25% 0px" },
+    );
+    const view = new IntersectionObserver(
+      ([entry]) => {
+        setInView(entry.intersectionRatio >= 0.25);
+        // Fully off screen before autoplay reached the end: settle on the result rather than
+        // freeze on a half-typed frame, and play from the start again next time it comes near.
+        // A reader who paused keeps their place.
+        if (!entry.isIntersecting && armed.current && playingRef.current && !loop && !doneRef.current) {
+          armed.current = false;
+          setElapsed(end);
+        }
+      },
+      { threshold: [0, 0.25] },
+    );
+    near.observe(el);
+    view.observe(el);
+    return () => {
+      near.disconnect();
+      view.disconnect();
+    };
+  }, [reduced, autoplay, loop, end, playingRef, doneRef]);
 
   const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
   const frame = reduced ? finalFrame : demoFrame(steps, elapsed, timing, initialMetric);
@@ -108,6 +155,8 @@ export function DemoPlayer({
 
   const seek = useCallback(
     (i: number) => {
+      // The reader took over: no later rewind as it comes into view.
+      armed.current = true;
       setElapsed(stepStart(steps, i, timing));
       setPlaying(true);
     },

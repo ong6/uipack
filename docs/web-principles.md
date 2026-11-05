@@ -109,7 +109,10 @@ three.
     Impeccable pass) before shipping. (SMWD-5, RN)
 14. **Motion explains change.** Each flashy piece earns its motion: typing shows input, ticks show
     work, the metric falls as it happens, the star draws once. Under `prefers-reduced-motion`, every
-    piece renders its final, complete state (`DemoPlayer` lists all steps). Pointer effects stay off
+    piece renders its final, complete state (`DemoPlayer` lists all steps). The resting state is the
+    finished one in every case: `DemoPlayer` paints its result first and rewinds to play only as it
+    comes into view, and a figure is drawn before its entrance plays, so a capture or a reader who
+    jumps past never sees an empty frame (`static` on either holds the rest). Pointer effects stay off
     on touch. Scroll reveals use IntersectionObserver and CSS; no GSAP needed. Animate only
     transform, opacity and filter, and reserve final sizes (`TextScramble` and `NumberTicker` lay the
     final text under the live one), so nothing shifts. Moving content that runs longer than 5 s
@@ -265,7 +268,7 @@ numbers are in [web discoverability](web-discoverability.md).
 
 | Component | Rules |
 | --- | --- |
-| `DemoPlayer` | 2, 14, 23; Pause/Replay/step tabs at 44px, autoplay only in view; transcript of every step in the HTML |
+| `DemoPlayer` | 2, 14, 23; Pause/Replay/step tabs at 44px; rests on the result, autoplays from the start only in view and settles back on the result if scrolled away mid-play; `static` holds the result; transcript of every step in the HTML |
 | `StarHero`, `StarChart`, `NoiseLayer` | 3, 5, 6 |
 | `SpotlightCard` | 14; off for `hover: none` and reduced motion; keyboard focus shows it |
 | `RevealText` | 14, 23; text stays in the DOM, visible without JavaScript; units keep their spaces |

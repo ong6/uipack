@@ -238,11 +238,13 @@ describe("DemoPlayer", () => {
     expect(step(container)).toBe("2");
   });
 
-  it("does not advance without autoplay until Play", () => {
-    const { container } = render(<DemoPlayer steps={steps} label="Demo" timing={timing} autoplay={false} />);
+  it("rests on the result without autoplay, and Play runs it from the start", () => {
+    const { container } = render(<DemoPlayer steps={steps} label="Demo" timing={timing} autoplay={false} initialMetric={40} />);
     advance(3000);
-    expect(step(container)).toBe("0");
+    expect(step(container)).toBe("2");
+    expect(metric()).toBe("3");
     fireEvent.click(screen.getByRole("button", { name: "Play" }));
+    expect(step(container)).toBe("0");
     advance(stepStart(steps, 1, timing) + 10);
     expect(step(container)).toBe("1");
   });
@@ -262,21 +264,30 @@ describe("DemoPlayer", () => {
     expect(screen.getByRole("link", { name: "Try it yourself" })).toBeInTheDocument();
   });
 
+  it("static holds the result with no controls, like reduced motion", () => {
+    const { container } = render(<DemoPlayer steps={steps} label="Demo" timing={timing} initialMetric={40} static />);
+    advance(5000);
+    expect(container.querySelector(".uipack-web-demo")).toHaveAttribute("data-state", "static");
+    expect(metric()).toBe("3");
+    expect(screen.queryByRole("button", { name: /Pause|Replay|Play/ })).toBeNull();
+  });
+
   it("opens on the plan: the first acting step's actions listed as queued, not an empty pane", () => {
-    render(<DemoPlayer steps={steps} label="Demo" timing={timing} autoplay={false} />);
+    render(<DemoPlayer steps={steps} label="Demo" timing={timing} />);
     const log = screen.getByRole("list", { name: "Agent actions" });
     expect([...log.children].map((li) => li.getAttribute("data-state"))).toEqual(["pending", "pending"]);
     expect(log.textContent).toContain("Archived");
     expect(log.textContent).toContain("(queued)");
   });
 
-  it("server-renders the first frame without touching window", async () => {
+  it("server-renders the finished result without touching window", async () => {
     const html = await onServer(async ({ renderToString }) => {
       const server = await import("../src/web");
       return renderToString(<server.DemoPlayer steps={steps} label="Demo" initialMetric={40} />);
     });
     expect(html).toContain("Clear it");
-    expect(html).toContain('data-step="0"');
+    expect(html).toContain('data-step="2"');
+    expect(html).toContain('data-state="finished"');
   });
 });
 

@@ -26,6 +26,8 @@ export interface FigureMeta {
   caption?: string;
   alt: string;
   headingLevel?: 2 | 3 | 4 | 5;
+  /** Hold the finished resting frame (Figure's `static`). */
+  static?: boolean;
 }
 
 /** What a preset produces; `Figure`-ready. */
@@ -80,6 +82,7 @@ export function toFigure(meta: FigureMeta, parts: PresetParts, id?: string) {
       narrow={parts.narrow}
       narrowViewBox={parts.narrowViewBox}
       alt={meta.alt}
+      static={meta.static}
     >
       {parts.wide}
     </Figure>
