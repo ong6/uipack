@@ -212,7 +212,7 @@ interface StorySlide {
     slots?: Partial<Record<SlotName, string>>;
 }
 type LintSeverity = "error" | "warn" | "tip";
-type LintRule = "deck-empty" | "duplicate-id" | "title-present" | "title-claim" | "title-length" | "title-specific" | "one-idea" | "notes-present" | "number-source" | "roles-missing" | "answer-first" | "outcome-first" | "closing-ask" | "ask-concrete" | "role-repeat" | "deck-length" | "talk-time" | "template-beats" | "slot-budget" | "notes-cues" | "slide-shape" | "ai-tells" | "causal-claim";
+type LintRule = "deck-empty" | "duplicate-id" | "title-present" | "title-claim" | "title-length" | "title-specific" | "one-idea" | "notes-present" | "number-source" | "roles-missing" | "answer-first" | "outcome-first" | "closing-ask" | "ask-concrete" | "role-repeat" | "deck-length" | "talk-time" | "template-beats" | "slot-budget" | "notes-cues" | "notes-echo" | "ask-scope" | "slide-shape" | "ai-tells" | "causal-claim";
 interface LintFinding {
     slideId?: string;
     rule: LintRule;

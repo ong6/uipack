@@ -780,12 +780,12 @@ var STORYLINE_TEMPLATES = [
       },
       {
         role: "ask",
-        purpose: "The decision, who makes it, by when.",
-        titlePattern: "Decide by <date>",
-        example: "Decide by 14 March",
-        points: ["Platform leads", "So Q2 can staff it"],
-        readAlone: "Platform leads: decide by 14 March so the work is staffed in Q2",
-        guidance: "Repeat the ask from slide one."
+        purpose: "The decision and what it costs, who makes it, by when, and what a no means.",
+        titlePattern: "Approve <what> by <date>",
+        example: "Approve the queue by 14 March",
+        points: ["Platform leads", "Six engineer-weeks", "Later misses Q2 staffing"],
+        readAlone: "Platform leads: approve the six-week queue by 14 March so Q2 can staff it",
+        guidance: "Name what is approved and its cost on this slide; it stays up while the room decides."
       }
     ]
   },
@@ -1316,7 +1316,15 @@ var LINT_RULES = {
   },
   "notes-cues": {
     severity: "warn",
-    check: "Presented: each slide's `say` is cues, not a script: at most 60 words (the claim to say, the number to point at), with the bridge in `next`. A `say` of stage directions only ('Point at the 9', 'Walk the figure') warns: say the claim and the number; a stage direction beside content is a tip to move it to `delivery`."
+    check: "Presented: each slide's `say` is cues, not a script: at most 60 words (why it matters, the so-what, the trade-off), with the bridge in `next`. A `say` of stage directions only ('Point at the 9', 'Walk the figure') warns; a stage direction beside content is a tip to move it to `delivery`."
+  },
+  "notes-echo": {
+    severity: "warn",
+    check: "Presented: a slide's notes add what the slide can't hold (why it matters, the so-what for this audience, the trade-off if the answer is no, the bridge), reasoned from the given facts. Notes whose content words are mostly (55% or more) already on the slide warn; source lines don't count."
+  },
+  "ask-scope": {
+    severity: "warn",
+    check: "Presented: the ask slide itself says what is approved or done (a decision verb with its object: 'approve Spanish and French', not 'approve by 15 January') and, when another slide states a cost, what it costs (a quantity that isn't a date: 'one engineer, about three weeks', or 'no extra cost')."
   },
   "slide-shape": {
     severity: "warn",
@@ -1556,6 +1564,52 @@ function isLabelTitle(title) {
   if (VERB_RE.test(t) || DECISION_RE.test(wordsOf(t)[0] ?? "")) return false;
   return !wordsOf(t).some((w) => /^\p{L}{3,}ed$/u.test(w) && !NOT_PAST_RE.test(w));
 }
+var ECHO_STOP = /* @__PURE__ */ new Set(
+  /* @__PURE__ */ "a an the and or but nor so yet of to in on at for by with from as into onto over under up down out off per via vs is are was were be been being am it its it's this that these those there here then than also only just very too i we you they he she me us them our your their my his her who what which when where why how all any each both do does did done has have had will would can could should shall may might must not no yes get gets got say says said mean means still now more most less about around plus such s they've we've you've it's that's there's isn't aren't wasn't weren't don't doesn't didn't won't can't we're they're you're i'm let's".split(" ")
+);
+var echoRoot = (word) => {
+  const w = word.toLowerCase().replace(/['’]s$/, "").replace(/[.,%]+$/, "");
+  return w.length > 5 ? w.slice(0, 5) : w.replace(/s$/, "");
+};
+function contentRoots(text) {
+  return wordsOf(text.replace(/[-–—/]/g, " ")).map(echoRoot).filter((w) => w && !ECHO_STOP.has(w));
+}
+function notesEcho(slide) {
+  const said = sayOf(slide.notes).split(/\n+/).filter((line) => !/^\s*(?:[-•*]\s*)?sources?\b/i.test(line)).join(" ");
+  const roots = contentRoots(said);
+  if (!roots.length) return { share: 0, words: 0 };
+  const shown = new Set(
+    contentRoots(
+      [headlineOf(slide), slide.lede ?? "", ...slide.points ?? [], ...Object.values(slide.slots ?? {}), slide.source ?? ""].join(
+        " "
+      )
+    )
+  );
+  return { share: roots.filter((w) => shown.has(w)).length / roots.length, words: roots.length };
+}
+var NO_OBJECT_RE = /^(?:by|before|on|until|till|at|from|in|this|that|it|now|today|tomorrow|tonight|soon|asap|please|here|\d|$)/i;
+var ASK_FRAME_RE = /^(?:by|before|on|until|till|at|from|in|of|for|to|this|that|it|now|today|tomorrow|tonight|soon|asap|please|we|you|need|needs|your|our|the|a|an|so|and|or|yes|no|go|ahead|sign|off|approval|decision|deadline|ask|needed|required)$/i;
+function hasAskObject(headline, shown) {
+  const re = new RegExp(DECISION_RE.source, "gi");
+  for (const m of shown.matchAll(re)) {
+    const rest = shown.slice((m.index ?? 0) + m[0].length).replace(/^\s*(?:off\s+on|off|on)?\s*/i, "").replace(/^(?:the|a|an|our|this|to)\s+/i, "");
+    const next = rest.match(/^[\p{L}\p{N}][\p{L}\p{N}'’-]*/u)?.[0] ?? "";
+    if (next && !NO_OBJECT_RE.test(next) && !DATE_RE.test(next)) return true;
+  }
+  const left = wordsOf(headline).filter(
+    (w) => !DECISION_RE.test(w) && !ASK_FRAME_RE.test(w) && !DATE_RE.test(w) && !/^\d/.test(w) && !hasOwner(w)
+  );
+  return left.length > 0;
+}
+var NO_COST_RE = /\b(?:no|zero|without)\s+(?:extra\s+|additional\s+|new\s+)?(?:cost|budget|spend|headcount|people|engineers?)\b|\bfree\b/i;
+var MONEY_RE = /[$€£¥]\s?\d|\b\d[\d,.]*\s?(?:k|m|bn)\b/i;
+function hasAskCost(text) {
+  return isSpecific(text) || MONEY_RE.test(text) || NO_COST_RE.test(text);
+}
+var COST_WORD_RE = /\b(?:budget|spend|engineers?|engineer-(?:days|weeks|months)|headcount|FTEs?|hires?|people|contractors?|licen[cs]es?)\b|[$€£¥]\s?\d/i;
+function statesCost(text) {
+  return COST_WORD_RE.test(text) && hasAskCost(text);
+}
 
 // src/deck/storyline/checks.ts
 function titledSlides(deck) {
@@ -1569,6 +1623,9 @@ var labelAllowed = (deck, slide) => {
 var bodyText = (slide) => [...slide.points ?? [], ...Object.values(slide.slots ?? {})].filter(Boolean);
 var wordCount = (text) => text.match(/\S+/g)?.length ?? 0;
 var MAX_CUE_WORDS = 60;
+var COST_ROLES = ["answer", "option", "recommendation", "plan"];
+var ECHO_SHARE = 0.55;
+var ECHO_MIN_WORDS = 6;
 var LINT_CHECKS = [
   {
     rule: "deck-empty",
@@ -1809,7 +1866,7 @@ var LINT_CHECKS = [
         if (!sayOf(slide.notes))
           report(
             "warn",
-            "No speaker notes. Give the cues: the claim you'll say, the number to point at, and the bridge in `next`.",
+            "No speaker notes. Cue what the slide can't hold: why it matters, what follows for this audience, the trade-off, and the bridge in `next`.",
             slide.id
           );
     }
@@ -1823,7 +1880,7 @@ var LINT_CHECKS = [
         if (words > MAX_CUE_WORDS)
           report(
             "warn",
-            `The notes run ${words} words, a script to recite. Cut them to a few short cue lines (the claim to say, the number to point at) and the bridge in \`next\`; you'll say it in your own words.`,
+            `The notes run ${words} words, a script to recite. Cut them to a few short cue lines (why it matters, the so-what, the trade-off) and the bridge in \`next\`; you'll say it in your own words.`,
             slide.id
           );
         const lines = sayOf(slide.notes).split(/\n+|(?<=[.!?])\s+/).map((l) => l.trim()).filter(Boolean);
@@ -1831,7 +1888,7 @@ var LINT_CHECKS = [
         if (directions.length && directions.length === lines.length)
           report(
             "warn",
-            `The notes are only stage directions ("${directions[0]}"). Cue the content: the claim to say and the number to point at, in a few words ("Desktop only: 61.2 \u2192 63.0 over four weeks").`,
+            `The notes are only stage directions ("${directions[0]}"). Cue what the slide can't say: why the number matters to this room, what follows from it ("Desktop only, so mobile is still open").`,
             slide.id
           );
         else if (directions.length)
@@ -1840,6 +1897,21 @@ var LINT_CHECKS = [
             `"${directions[0]}" is a stage direction; move it to \`delivery\` and keep \`say\` for what to say.`,
             slide.id
           );
+      }
+    }
+  },
+  {
+    rule: "notes-echo",
+    check: ({ presented, mode }, report) => {
+      if (mode !== "presented") return;
+      for (const slide of presented) {
+        const { share, words } = notesEcho(slide);
+        if (words < ECHO_MIN_WORDS || share < ECHO_SHARE) continue;
+        report(
+          "warn",
+          `The notes mostly repeat the slide (${Math.round(share * 100)}% of their words are on it). The room can read the slide; cue what it can't hold: why it matters to this audience, what follows from the number, the trade-off, and the bridge to the next slide. Reason from the given facts; add no new ones.`,
+          slide.id
+        );
       }
     }
   },
@@ -1940,6 +2012,23 @@ var LINT_CHECKS = [
           missing.includes("a date") && hedged && 'The date is hedged ("-ish", "maybe", "TBC"); commit to one.'
         ].filter(Boolean);
         report("warn", [`The ask is missing ${missing.join(", ")}.`, ...hints].join(" "), ask.id);
+      }
+    }
+  },
+  {
+    rule: "ask-scope",
+    check: ({ asks, presented, mode, roleAt }, report) => {
+      if (mode !== "presented") return;
+      const costed = presented.find(
+        (s) => !asks.includes(s) && COST_ROLES.includes(roleAt(s)) && statesCost([headlineOf(s), ...bodyText(s)].join(". "))
+      );
+      for (const ask of asks) {
+        const shown = [headlineOf(ask), ...bodyText(ask)].join(". ");
+        const missing = [
+          !hasAskObject(headlineOf(ask), shown) && 'what is being approved or done ("approve Spanish and French", not "approve by 15 January")',
+          costed && !hasAskCost(shown) && `what it costs: "${headlineOf(costed)}" states a cost, so put it on the ask in a few words, beside the decision it buys`
+        ].filter(Boolean);
+        if (missing.length) report("warn", `The ask slide doesn't say ${missing.join(", or ")}.`, ask.id);
       }
     }
   },
