@@ -1,22 +1,24 @@
 import { test, expect } from "./fixtures";
-import { objectDirections } from "../src/objects/variants";
+import { objectDirections, objectLooks } from "../src/objects/variants";
+import { objectScenes } from "../src/objects/scene-list";
 import { playAnimationTime } from "./helpers";
 test.describe.configure({ mode: "parallel" });
 // Canvas snapshots and video recording perturb the timings being measured.
 // These tests still retain failure screenshots and their measured JSON samples.
 const timingTest = test.extend({ trace: "off", video: "off" });
-const kinds = ["ai", "tennis", "trading", "server", "travel", "reading"];
+const kinds = ["ai", "tennis", "trading", "server", "travel", "reading"] as const;
 // The render budget every look keeps at rest, at both widths: the mobile paint test below holds the
 // same numbers while the scene plays.
 const MAX_DRAW_CALLS = 220;
 const MAX_TRIANGLES = 100_000;
 
-// One test per object × direction steps through both themes and both widths in one page, so the
-// full 6 objects × 6 directions × 2 themes × 2 widths matrix is still exercised. WebKit runs one
-// direction per object (the diagonal), enough to show each object's scene builds in its WebGL.
-for (const [k, kind] of kinds.entries())
-  for (const [variant, direction] of objectDirections.entries()) {
-    const tag = k === variant ? ["@cross-browser"] : [];
+// One test per object and each direction it offers (objectLooks: 17 pairs) steps through both
+// themes and both widths in one page. WebKit runs each object's default look, enough to show each
+// object's scene builds in its WebGL.
+for (const kind of kinds)
+  for (const variant of objectLooks[kind]) {
+    const direction = objectDirections[variant];
+    const tag = variant === objectLooks[kind][0] ? ["@cross-browser"] : [];
     test(`art direction ${kind}/${direction.id}: light and dark, 390 and 1440`, { tag }, async ({ page }, info) => {
       // Four theme/width builds of one scene: software WebGL on a loaded runner can pass 30 s.
       test.setTimeout(90_000);
@@ -55,18 +57,24 @@ for (const [k, kind] of kinds.entries())
     });
   }
 
-// Playback for every direction but the default (whose loop the objects spec covers), one fresh page
-// each: in one shared page the fake clock, reduced-motion emulation and the lost context carried
-// from one direction into the next and the later directions hung.
+// Playback for every direction but Studio (whose loop the objects spec covers), one fresh page
+// each, on a subject that offers it: travel for Paper and Kinetic (which also switch to each
+// other there), the matrix's own picks otherwise. In one shared page the fake clock,
+// reduced-motion emulation and the lost context carried from one direction into the next and the
+// later directions hung.
+const playbackStory: Record<number, (typeof kinds)[number]> = { 1: "travel", 2: "travel", 3: "tennis", 4: "reading", 5: "ai" };
 for (const variant of [1, 2, 3, 4, 5]) {
   timingTest(
     `${objectDirections[variant].id} loops, pauses, holds under reduced motion, opens a canvas and survives context loss`,
     async ({ page }) => {
-      test.setTimeout(60_000);
+      // Five scene builds (the page, a switched look for Paper and Kinetic, Open canvas and back)
+      // and 12.5 s of stepped playback: CI's software WebGL ran Paper past 60 s.
+      test.setTimeout(process.env.CI ? 120_000 : 60_000);
       await page.clock.install();
       const id = objectDirections[variant].id;
+      const story = playbackStory[variant];
       await page.emulateMedia({ reducedMotion: "no-preference" });
-      await page.goto(`/animations?story=travel&variant=${variant}`);
+      await page.goto(`/animations?story=${story}&variant=${variant}`);
       const canvas = page.locator(".uipack-object canvas");
       // The first scene in a fresh CI shard compiles its shaders on software WebGL, which can take
       // longer than the default 5s; later scenes reuse the warm chunk.
@@ -103,7 +111,8 @@ for (const variant of [1, 2, 3, 4, 5]) {
       await expect(page.getByRole("button", { name: "Open canvas", exact: true })).toBeFocused();
       await canvas.dispatchEvent("webglcontextlost");
       await expect(canvas, id).toHaveAttribute("data-renderer", "fallback");
-      if (variant <= 2) await expect(page.getByRole("img", { name: "Local map illustration" })).toBeVisible();
+      const title = objectScenes.find((scene) => scene.id === story)!.title;
+      await expect(page.getByRole("img", { name: `${title} illustration` })).toBeVisible();
     },
   );
 }
@@ -111,9 +120,10 @@ for (const variant of [1, 2, 3, 4, 5]) {
 // The paint budget at phone width, one test per direction on its heaviest object (the most draw
 // calls at rest in the render test above, whose numbers do not change with width or theme). Chromium only: the thresholds are
 // calibrated to its WebGL, locally and on CI's Mesa.
-// Measured 2026-11-05 after the restyle (most calls at rest, either theme or width): paper trading 23,
-// kinetic server 57, cartoon server 130 (and the most triangles, 41k), realistic server 69, abstract server 28.
-const heaviest: Record<number, string> = { 1: "trading", 2: "server", 3: "server", 4: "server", 5: "server" };
+// Measured 2026-11-06 over the subjects each direction keeps (most calls at rest, either theme or
+// width): paper reading 17, kinetic AI 31, cartoon tennis 109 (and the most triangles, 26k),
+// realistic server 69, abstract AI 20.
+const heaviest: Record<number, (typeof kinds)[number]> = { 1: "reading", 2: "ai", 3: "tennis", 4: "server", 5: "ai" };
 for (const variant of [1, 2, 3, 4, 5]) {
   const kind = heaviest[variant];
   timingTest(`mobile geometry and paint budget: ${kind}/${objectDirections[variant].id}`, async ({ page, browserName }, info) => {

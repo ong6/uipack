@@ -1,10 +1,7 @@
 import { test, expect } from "./fixtures";
-// One test per contact style: both widths and themes in one page, then reduced motion and the
-// WebGL fallback.
-for (const [variant, style] of [
-  [3, "cartoon"],
-  [4, "kinetic"],
-] as const) {
+// Contact's one authored direction (Cartoon, variant 3; 0–2 are Studio editions): both widths and
+// themes in one page, then reduced motion and the WebGL fallback.
+for (const [variant, style] of [[3, "cartoon"]] as const) {
   test(`contact ${style}: 390 and 1440, light and dark, reduced motion and WebGL fallback`, async ({ page }, info) => {
     test.setTimeout(60_000);
     const canvas = page.locator(".uipack-object canvas");
@@ -26,6 +23,11 @@ for (const [variant, style] of [
         expect(await page.evaluate(() => document.documentElement.scrollWidth), where).toBe(width);
         await page.getByRole("button", { name: "Resume motion", exact: true }).click();
         await expect.poll(() => canvas.getAttribute("data-frames"), { message: `${where}: resumes` }).not.toBe(frames);
+        // Contact offers Studio editions and Cartoon only.
+        await expect(page.getByRole("group", { name: "3D art direction" }).getByRole("button")).toHaveText([
+          /Studio objects/,
+          /Cartoon worlds/,
+        ]);
         await page.getByRole("button", { name: "Studio objects", exact: true }).click();
         await expect(page.getByRole("combobox", { name: /Inbox edition/ })).toBeVisible();
       }
