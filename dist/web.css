@@ -313,420 +313,14 @@
     --tune-letterbox: #04101f;
   }
 }
-/* Landing — the product-marketing option, with a component language of its own: "label stock".
-   Warm ivory paper and a kraft secondary band, warm near-black ink, one deep ledger-green accent
-   (no blue: Technical owns the cool palette). Editorial serif headlines from heading step 4.
-   Parts are printed forms, not floating cards: 1px ink rules, 4px corners, no drop shadows and no
-   glow; internal divisions are perforations (dashed rules, --ui-perf); steps are numbered stubs
-   ("No. 1") torn off along a perforation; stats are serif figures between perforated rules; the
-   quote is a pull quote on a green rule; the featured plan is the green-tinted ticket; buttons are
-   square-cornered ink keys; the hero stamp is a die-cut label. Guide: docs/web-principles.md. */
-@layer uipack.tokens {
-  [data-ui-style="landing"] {
-    --ui-paper: light-dark(#f6f2e8, #14130f);
-    --ui-surface: light-dark(#fffdf7, #1c1a15);
-    --ui-surface-raised: light-dark(#ffffff, #23211b);
-    --ui-surface-2: light-dark(#ece5d4, #221f19);
-    --ui-ink: light-dark(#1d1a15, #f2ece0);
-    --ui-ink-2: color-mix(in srgb, var(--ui-ink) 87%, transparent);
-    --ui-ink-3: color-mix(in srgb, var(--ui-ink) 66%, transparent);
-    --ui-line: color-mix(in srgb, var(--ui-ink) 30%, transparent);
-    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 14%, transparent);
-    --ui-accent: light-dark(#1d5a43, #8fd1ad);
-    --ui-accent-stroke: var(--ui-accent);
-    --ui-on-accent: light-dark(#fffdf7, #14130f);
-    --ui-accent-surface: light-dark(#246b50, #a6dcbf);
-    --ui-accent-ink-2: light-dark(#dcebe2, #173b2d);
-    --ui-accent-line: light-dark(#5f9a80, #5e9c7f);
-    /* Request in warm slate, so the green accent is the only saturated hue in a figure. */
-    --ui-flow-request: light-dark(#5f5a52, #a39d92);
-    --ui-flow-response: light-dark(#3a9a6c, #5fd39b);
-    --ui-flow-change: light-dark(#9a63e0, #c39aff);
-    /* A failed or declined branch in a diagram. */
-    --ui-flow-error: light-dark(#b8341f, #ff8a7a);
-    --ui-data-pos: light-dark(#1d6b4c, #3fb07f);
-    --ui-data-neg: light-dark(#b8452b, #d4623f);
-    --ui-data-context: light-dark(#8f897d, #6f6a60);
-    --ui-data-1: light-dark(#1d5a43, #8fd1ad);
-    --ui-data-2: light-dark(#a8571c, #d99a55);
-    --ui-data-3: light-dark(#5f5a52, #a39d92);
-    --ui-data-4: light-dark(#7a5c99, #b89ad6);
-    --ui-on-data-1: light-dark(#ffffff, #14130f);
-    --ui-on-data-2: light-dark(#ffffff, #14130f);
-    --ui-on-data-3: light-dark(#ffffff, #14130f);
-    --ui-on-data-4: light-dark(#ffffff, #14130f);
-    --ui-inv-paper: light-dark(#1d1a15, #f2ece0);
-    --ui-inv-surface: light-dark(#26231d, #fffdf7);
-    --ui-inv-ink: light-dark(#f2ece0, #1d1a15);
-    --ui-inv-ink-2: light-dark(#c4bcad, #4f4a41);
-    --ui-inv-line: light-dark(#4a453c, #c9c1b2);
-    --ui-inv-accent: light-dark(#8fd1ad, #1d5a43);
-
-    --ui-font-display: "Instrument Serif", "Instrument Serif Fallback", ui-serif, Georgia, "Times New Roman", serif;
-    --ui-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    --ui-font-label: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    /* Small headings (a figure's title) stay in the text face; the display face starts at step 4. */
-    --ui-font-heading: var(--ui-font-text);
-    --ui-display-weight: 400;
-    --ui-display-tracking: -0.01em;
-    --ui-display-case: none;
-    --ui-label-tracking: 0.08em;
-    --ui-radius: 4px;
-    --ui-radius-sm: 4px;
-    --ui-radius-xs: 2px;
-    --ui-radius-pill: 3px;
-    /* A solid bar, not glass: a printed masthead. */
-    --ui-nav-fill: var(--ui-paper);
-    --ui-nav-blur: none;
-    --ui-stroke: 1.25;
-    --ui-rule-width: 1px;
-    --ui-type-ratio: 1.25;
-    --ui-measure: 65ch;
-    --ui-ease-settle: cubic-bezier(0.2, 0.7, 0.2, 1);
-    --ui-ease-travel: cubic-bezier(0.55, 0, 0.15, 1);
-    --ui-dur-quick: 160ms;
-    --ui-dur-base: 320ms;
-    --ui-dur-slow: 560ms;
-
-    /* Ornaments: none ambient (no grain, glow or aurora). The backdrop slot stays empty; the hero's
-       one device is the stamp, a die-cut label carrying the page's number. */
-    --ui-backdrop: none;
-    --ui-backdrop-mask: none;
-    /* The figure canvas: a faint ruled ledger. */
-    --ui-canvas-pattern: linear-gradient(var(--ui-line-soft) 1px, transparent 1px) 0 0 / 100% 24px;
-    --ui-frame-border: 1px solid var(--ui-line);
-    --ui-card-shadow: none;
-    --ui-frame-shadow: none;
-    --ui-marker-size: 0px;
-    --ui-marker-shape: 0px;
-    --ui-marker-color: transparent;
-    /* Each section opens on a ruled line, as a printed form. */
-    --ui-section-rule: inset 0 1px 0 var(--ui-line-soft);
-    --ui-grain: 0;
-    --ui-glow: 0;
-    /* An ink key: no glow; it presses down on hover. */
-    --ui-cta-shadow: inset 0 -2px 0 color-mix(in srgb, black 28%, transparent);
-    --ui-cta-shadow-hover: inset 0 -3px 0 color-mix(in srgb, black 36%, transparent);
-    --ui-em-style: italic;
-    --ui-em-color: var(--ui-accent-ink);
-    --ui-em-decoration: none;
-    --ui-cta-fill: var(--ui-accent);
-    --ui-on-cta: var(--ui-on-accent);
-    --ui-star-fill: 1;
-    --ui-display-scale: 1.05;
-
-    /* Web closing band (ClosingCta): the ledger green with an ivory button, a perforation along
-       the top edge. */
-    --ui-band-fill: light-dark(#1d5a43, #173b2d);
-    --ui-band-ink: light-dark(#f6f2e8, #f2ece0);
-    --ui-band-ink-2: light-dark(#cfe3d7, #c3d9cb);
-    --ui-band-cta: light-dark(#f6f2e8, #f2ece0);
-    --ui-on-band-cta: light-dark(#1d1a15, #14130f);
-    --ui-band-pattern: repeating-linear-gradient(
-        90deg,
-        color-mix(in srgb, var(--ui-band-ink) 55%, transparent) 0 6px,
-        transparent 6px 12px
-      )
-      0 12px / 100% 1px no-repeat;
-    --ui-backdrop-narrow: none;
-    --ui-section-index: none;
-    --ui-corner-marks: none;
-
-    /* Component treatment on the web (docs/system/style.md, "Treatment roles"): label stock. Ruled
-       ivory forms with 1px ink edges and no shadow; steps are "No. 1" stubs over a perforation that
-       runs edge to edge; stats are serif figures between dashed rules; the quote is a pull quote on
-       a 3px green rule with no card; the featured plan is the green-tinted ticket; table rows and
-       internal divisions are perforated; cells are kraft chips. */
-    --ui-density: 1;
-    --ui-perf: dashed;
-    --ui-column-rule: none;
-    --ui-column-rule-gap: 0px;
-    --ui-card-fill: var(--ui-surface);
-    --ui-card-pad: 1.75rem;
-    --ui-num-font: var(--ui-font-display);
-    --ui-num-size: 1.875rem;
-    --ui-num-weight: 400;
-    --ui-num-prefix: "No.\00a0";
-    --ui-num-pad: none;
-    --ui-num-rule: 1px dashed var(--ui-line);
-    --ui-num-color: var(--ui-accent-ink);
-    --ui-num-fill: transparent;
-    --ui-num-ring: none;
-    --ui-num-box: auto;
-    --ui-num-bleed: 1;
-    --ui-num-gap: 0.875rem;
-    --ui-num-display: block;
-    --ui-stat-divider: 1px dashed var(--ui-line);
-    --ui-quote-fill: transparent;
-    --ui-quote-ink: var(--ui-ink);
-    --ui-quote-ink-2: var(--ui-ink-3);
-    --ui-quote-line: transparent;
-    --ui-quote-mark: var(--ui-accent-ink);
-    --ui-quote-face: var(--ui-font-display);
-    --ui-quote-weight: 400;
-    --ui-quote-case: none;
-    --ui-quote-size: 2.125rem;
-    --ui-quote-rule: inset 3px 0 0 var(--ui-accent);
-    --ui-quote-shadow: 0 0 transparent;
-    --ui-plan-featured-border: var(--ui-accent);
-    --ui-plan-featured-ring: inset 0 0 0 1px var(--ui-accent);
-    --ui-plan-featured-fill: color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface));
-    --ui-cell-fill: var(--ui-surface-2);
-    --ui-cell-ink: var(--ui-ink);
-    --ui-cell-line: color-mix(in srgb, var(--ui-ink) 22%, transparent);
-    --ui-cell-peak: var(--ui-accent);
-    --ui-on-cell-peak: var(--ui-on-accent);
-    --ui-cell-off-ink: var(--ui-ink-3);
-    --ui-cell-radius: 2px;
-    /* No traffic lights: a product view is a printed panel with a ruled head. */
-    --ui-window-dots: none;
-    --ui-window-bar: transparent;
-    --ui-web-flow-request: var(--ui-flow-request);
-    /* Stamp (StarHero stamp): a die-cut label, perforated inner edge, tilted as if stuck on. */
-    --ui-stamp-fill: var(--ui-surface);
-    --ui-stamp-ink: var(--ui-ink);
-    --ui-stamp-accent: var(--ui-accent-ink);
-    --ui-stamp-border: 1px solid var(--ui-ink);
-    --ui-stamp-inner: 1px dashed var(--ui-line);
-    --ui-stamp-radius: 6px;
-    --ui-stamp-rotate: -3deg;
-    --ui-stamp-face: var(--ui-font-display);
-    --ui-stamp-case: none;
-    --ui-stamp-size: 2.75rem;
-    --ui-stamp-shadow: none;
-
-    --ui-accent-ink: var(--ui-accent);
-    --ui-node: var(--ui-surface);
-    --ui-line-solid: var(--ui-line);
-    --ui-inv-node: var(--ui-inv-surface);
-    --ui-data-neg-ink: var(--ui-data-neg);
-    --ui-slide-font-display: var(--ui-font-display);
-    --ui-web-font-display: var(--ui-font-display);
-    --ui-alert: light-dark(#b42318, #ff8a7a);
-    --ui-warn: light-dark(#b4471f, #f08a5d);
-    --ui-web-font-text: var(--ui-font-text);
-    --ui-web-font-label: var(--ui-font-label);
-    --ui-slide-font-text: var(--ui-font-text);
-    --ui-slide-font-label: var(--ui-font-label);
-  }
-}
-/* Graphical — a bold poster style: bone paper, black ink, one signal-orange accent, condensed
-   display caps (Anton), hard edges, 2px rules and hard offset frames. Its one motif is the disc:
-   the hero's stamp (a postmark that carries the page's number) returns as every marker. Shapes go only through the ornament slots,
-   so a layout and its words are the same as in any other style. Guide: docs/web-principles.md,
-   "Graphical". */
-@layer uipack.tokens {
-  [data-ui-style="graphical"] {
-    --ui-paper: light-dark(#f1eee6, #121212);
-    --ui-surface: light-dark(#fbfaf6, #1b1b1b);
-    --ui-surface-raised: light-dark(#ffffff, #222222);
-    --ui-surface-2: light-dark(#e6e1d3, #262420);
-    --ui-ink: light-dark(#111111, #f1eee6);
-    --ui-ink-2: light-dark(#363532, #cfcbc0);
-    --ui-ink-3: light-dark(#57554f, #a29e93);
-    --ui-line: light-dark(#111111, #f1eee6);
-    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 22%, transparent);
-    --ui-accent: light-dark(#f24a00, #ff6a26);
-    --ui-accent-stroke: var(--ui-accent);
-    --ui-accent-ink: light-dark(#b23700, #ff7f45);
-    --ui-on-accent: light-dark(#111111, #111111);
-    --ui-accent-surface: light-dark(#ff6a26, #ff8247);
-    --ui-accent-ink-2: light-dark(#2b1406, #2b1406);
-    --ui-accent-line: light-dark(#111111, #111111);
-    /* Flows stay in the poster's three inks (shape still tells them apart): request in ink,
-       response in the warm grey, change in the orange's text tone. No blue beside the orange. */
-    --ui-flow-request: light-dark(#111111, #f1eee6);
-    --ui-flow-response: light-dark(#57554f, #a29e93);
-    --ui-flow-change: light-dark(#b23700, #ff7f45);
-    /* A failed or declined branch in a diagram. */
-    --ui-flow-error: light-dark(#c8102e, #ff6b5e);
-    --ui-data-pos: light-dark(#14805a, #33a979);
-    --ui-data-neg: light-dark(#c0174f, #ff6b93);
-    --ui-data-context: light-dark(#8f8b80, #6a675f);
-    --ui-data-1: light-dark(#f24a00, #ff6a26);
-    --ui-data-2: light-dark(#111111, #f1eee6);
-    --ui-data-3: light-dark(#2348e0, #7f97ff);
-    --ui-data-4: light-dark(#8f8b80, #8a867b);
-    --ui-on-data-1: light-dark(#111111, #111111);
-    --ui-on-data-2: light-dark(#f1eee6, #111111);
-    --ui-on-data-3: light-dark(#ffffff, #111111);
-    --ui-on-data-4: light-dark(#111111, #111111);
-    --ui-inv-paper: light-dark(#111111, #f1eee6);
-    --ui-inv-surface: light-dark(#1e1e1e, #ffffff);
-    --ui-inv-ink: light-dark(#f1eee6, #111111);
-    --ui-inv-ink-2: light-dark(#cfcbc0, #363532);
-    --ui-inv-line: light-dark(#f1eee6, #111111);
-    --ui-inv-accent: light-dark(#ff6a26, #c74000);
-
-    --ui-font-display: "Anton", "Anton Fallback", Impact, "Arial Narrow", sans-serif-condensed, sans-serif;
-    --ui-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    --ui-font-label: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    /* Small headings (a figure's title) stay in the text face; the display face starts at step 4. */
-    --ui-font-heading: var(--ui-font-text);
-    --ui-display-weight: 400;
-    --ui-display-tracking: 0.012em;
-    --ui-display-case: uppercase;
-    --ui-label-tracking: 0.12em;
-    --ui-radius: 0px;
-    --ui-radius-sm: 0px;
-    --ui-radius-xs: 0px;
-    --ui-radius-pill: 0px;
-    --ui-nav-fill: var(--ui-paper);
-    --ui-nav-blur: none;
-    --ui-stroke: 2;
-    --ui-rule-width: 2px;
-    --ui-type-ratio: 1.25;
-    --ui-measure: 60ch;
-    /* Poster motion: things land, they do not float. */
-    --ui-ease-settle: cubic-bezier(0.3, 0.9, 0.2, 1);
-    --ui-ease-travel: cubic-bezier(0.7, 0, 0.2, 1);
-    --ui-dur-quick: 120ms;
-    --ui-dur-base: 240ms;
-    --ui-dur-slow: 480ms;
-
-    /* Ornaments. backdrop: none. The disc is no longer decoration: it is the hero's stamp (a
-       postmark carrying the page's number, StarHero stamp) and returns small as every marker.
-       frame: 2px ink and a hard offset shadow. */
-    --ui-backdrop: none;
-    --ui-backdrop-mask: none;
-    /* The figure canvas: the 12px dot grid. */
-    --ui-canvas-pattern: radial-gradient(var(--ui-line-soft) 1px, transparent 1.2px) 0 0 / 12px 12px;
-    --ui-frame-border: 2px solid var(--ui-ink);
-    --ui-card-shadow: 6px 6px 0 var(--ui-ink);
-    --ui-frame-shadow: 6px 6px 0 var(--ui-ink);
-    --ui-marker-size: 12px;
-    --ui-marker-shape: 50%;
-    --ui-marker-color: var(--ui-accent);
-    --ui-section-rule: inset 0 2px 0 var(--ui-ink);
-    --ui-grain: 0;
-    --ui-glow: 0;
-    --ui-cta-shadow: 4px 4px 0 var(--ui-ink);
-    --ui-cta-shadow-hover: 6px 6px 0 var(--ui-ink);
-    --ui-em-style: normal;
-    --ui-em-color: var(--ui-accent-ink);
-    --ui-em-decoration: none;
-    --ui-cta-fill: var(--ui-accent);
-    --ui-on-cta: var(--ui-on-accent);
-    --ui-star-fill: 0;
-    --ui-display-scale: 1.3;
-
-    /* Web closing band (ClosingCta): the poster's orange, black type, a black button, and the
-       hero's tick rule along the top. */
-    --ui-band-fill: light-dark(#ff6a26, #ff8247);
-    --ui-band-ink: light-dark(#111111, #111111);
-    --ui-band-ink-2: light-dark(#2b1406, #2b1406);
-    --ui-band-cta: light-dark(#111111, #111111);
-    --ui-on-band-cta: light-dark(#f1eee6, #f1eee6);
-    --ui-band-pattern: repeating-linear-gradient(90deg, var(--ui-band-ink) 0 2px, transparent 2px 14px) 0 0 / 100% 16px no-repeat;
-    --ui-backdrop-narrow: none;
-    --ui-section-index: none;
-    --ui-corner-marks: none;
-
-    /* Component treatment on the web: a poster. Steps are giant Anton numerals in the accent; stats
-       sit between 2px ink rules; the quote is an orange poster block in caps with a hard shadow;
-       the featured plan casts an orange shadow; table cells are ink-ruled boxes. */
-    --ui-density: 0.95;
-    --ui-column-rule: none;
-    --ui-column-rule-gap: 0px;
-    --ui-card-fill: var(--ui-surface);
-    --ui-card-pad: 1.75rem;
-    --ui-num-font: var(--ui-font-display);
-    --ui-num-size: 4rem;
-    --ui-num-weight: 400;
-    --ui-num-prefix: "";
-    --ui-num-pad: none;
-    --ui-num-rule: 0 solid transparent;
-    --ui-num-color: var(--ui-accent-ink);
-    --ui-num-fill: transparent;
-    --ui-num-ring: none;
-    --ui-num-box: auto;
-    --ui-num-bleed: 0;
-    --ui-num-gap: 0px;
-    --ui-num-display: block;
-    --ui-stat-divider: 2px solid var(--ui-ink);
-    --ui-quote-fill: var(--ui-accent);
-    --ui-quote-ink: var(--ui-on-accent);
-    --ui-quote-ink-2: var(--ui-accent-ink-2);
-    --ui-quote-line: var(--ui-on-accent);
-    --ui-quote-mark: var(--ui-on-accent);
-    --ui-quote-face: var(--ui-font-display);
-    --ui-quote-weight: 400;
-    --ui-quote-case: uppercase;
-    --ui-quote-size: 2.25rem;
-    --ui-quote-rule: 0 0 transparent;
-    --ui-quote-shadow: 8px 8px 0 var(--ui-ink);
-    --ui-plan-featured-border: var(--ui-ink);
-    --ui-plan-featured-ring: 8px 8px 0 var(--ui-accent);
-    --ui-cell-fill: var(--ui-surface);
-    --ui-cell-ink: var(--ui-ink);
-    --ui-cell-line: var(--ui-ink);
-    --ui-cell-peak: var(--ui-accent);
-    --ui-on-cell-peak: var(--ui-on-accent);
-    --ui-cell-off-ink: var(--ui-ink-3);
-    --ui-cell-radius: 0px;
-    --ui-window-dots: flex;
-    --ui-window-bar: var(--ui-surface-2);
-    --ui-web-flow-request: var(--ui-flow-request);
-    --ui-perf: solid;
-    --ui-plan-featured-fill: var(--ui-surface);
-    /* Stamp (StarHero stamp): the poster's one disc, now a postmark that carries the page's number:
-       an orange seal with a double ink ring, tilted, with a hard shadow. */
-    --ui-stamp-fill: var(--ui-accent);
-    --ui-stamp-ink: var(--ui-on-accent);
-    --ui-stamp-accent: var(--ui-on-accent);
-    --ui-stamp-border: 2px solid var(--ui-ink);
-    --ui-stamp-inner: 2px solid var(--ui-ink);
-    --ui-stamp-radius: 50%;
-    --ui-stamp-rotate: -8deg;
-    --ui-stamp-face: var(--ui-font-display);
-    --ui-stamp-case: uppercase;
-    --ui-stamp-size: 3.25rem;
-    --ui-stamp-shadow: 6px 6px 0 var(--ui-ink);
-
-    --ui-node: var(--ui-surface);
-    --ui-line-solid: var(--ui-line);
-    --ui-inv-node: var(--ui-inv-surface);
-    --ui-data-neg-ink: var(--ui-data-neg);
-    --ui-slide-font-display: var(--ui-font-display);
-    --ui-web-font-display: var(--ui-font-display);
-    --ui-alert: light-dark(#c0174f, #ff6b93);
-    --ui-warn: light-dark(#8a5a00, #ffb347);
-    --ui-web-font-text: var(--ui-font-text);
-    --ui-web-font-label: var(--ui-font-label);
-    --ui-slide-font-text: var(--ui-font-text);
-    --ui-slide-font-label: var(--ui-font-label);
-  }
-}
-/* uipack self-hosted faces, shared by the styles that use them (Technical, Landing, Graphical).
+/* uipack self-hosted faces, the ones the registered styles name (src/styles).
    Every entry stylesheet carries this file right after the style value sets
    (scripts/css-bundles.ts). A face is declared here but fetched only when an element uses it, so
-   each style downloads only its own files.
+   a page downloads only the files its style uses.
    Technical  IBM Plex Sans 400/500/600 text and headings (600), IBM Plex Mono 400/600 labels.
-   Landing    Instrument Serif 400 + italic display (steps 4–6), IBM Plex Sans 400/500/600 text,
-              IBM Plex Mono 400/600 labels and data.
-   Graphical  Anton 400 display caps, IBM Plex Sans text, IBM Plex Mono labels.
+   A new style that names another face adds its woff2, licence, @font-face and fallback here.
    Latin subset woff2 from Fontsource (SIL OFL 1.1; licences in ./fonts), fetched from the
    package's own fonts/ folder. */
-@font-face {
-  font-family: "Instrument Serif";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("./fonts/instrument-serif-latin-400-normal.woff2") format("woff2");
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
-    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: "Instrument Serif";
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-  src: url("./fonts/instrument-serif-latin-400-italic.woff2") format("woff2");
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
-    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
 @font-face {
   font-family: "IBM Plex Sans";
   font-style: normal;
@@ -777,28 +371,9 @@
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
     U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
-/* Graphical's display face: Anton 400, condensed poster caps (18 KB). */
-@font-face {
-  font-family: "Anton";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("./fonts/anton-latin-400-normal.woff2") format("woff2");
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
-    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
 /* Metric-matched fallbacks shown during swap: a local face scaled to the web font's average
    character width (size-adjust) with its ascent and descent, so lines wrap in the same place
    and the swap barely moves anything. Measured from the woff2 files and the local fonts. */
-@font-face {
-  font-family: "Instrument Serif Fallback";
-  src: local("Times New Roman"), local("TimesNewRomanPSMT"), local("Liberation Serif"), local("Tinos");
-  size-adjust: 81.75%;
-  ascent-override: 121.1%;
-  descent-override: 37.92%;
-  line-gap-override: 0%;
-}
 @font-face {
   font-family: "IBM Plex Sans Fallback";
   src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("Arimo");
@@ -815,18 +390,9 @@
   descent-override: 27.5%;
   line-gap-override: 0%;
 }
-/* Anton over Impact, measured on caps and figures (Graphical sets its display face in caps). */
-@font-face {
-  font-family: "Anton Fallback";
-  src: local("Impact"), local("Impact Regular");
-  size-adjust: 95.67%;
-  ascent-override: 122.95%;
-  descent-override: 34.4%;
-  line-gap-override: 0%;
-}
 /* uipack/web.css — web page parts. Every rule is scoped under .uipack-web and every colour, face,
    radius and ornament comes from the style roles (src/styles): data-ui-style="technical" (the
-   default, diagram-led), "landing" (the generic landing page) or "graphical" (poster).
+   default and only implemented style, diagram-led). Fallbacks in var() are Technical's values.
    60 / 30 / 10: --web-bg is the neutral, --web-secondary the supporting band, --web-accent the
    single accent reserved for calls to action and the star. */
 
@@ -875,7 +441,7 @@
     --web-step-4: 2.4414rem;
     --web-step-5: 3.0518rem;
     --web-step-6: 3.8147rem;
-    /* A style may set its display face larger (Graphical's condensed caps): steps 4–6 only. */
+    /* A style may set its display face larger (a condensed display face): steps 4–6 only. */
     --web-display-scale: var(--ui-display-scale, 1);
 
     /* 8-point spacing. */
@@ -1419,7 +985,7 @@
   }
 
   /* Stamp (StarHero stamp): the page's one number, part of the copy. The style paints it
-     (--ui-stamp-*): Graphical a postmark disc, Technical a revision tag, Landing a die-cut label.
+     (--ui-stamp-*): Technical a revision tag.
      A stacked hero wears it on the empty end side of the headline (absolutely placed, so it moves
      no box); a split hero sets it under the actions; below 720px it is a one-line label there. */
   .uipack-web-hero__copy {
@@ -1446,7 +1012,7 @@
     text-align: center;
     rotate: var(--ui-stamp-rotate);
   }
-  /* The inner ring: Graphical's second ink ring, Landing's perforation, Technical's hairline. */
+  /* The inner ring (--ui-stamp-inner): Technical's hairline. */
   .uipack-web-hero__stamp::before {
     content: "";
     position: absolute;
@@ -1528,14 +1094,15 @@
     opacity: var(--noise-opacity, 0.07);
     mix-blend-mode: var(--web-noise-blend);
   }
-  /* The hero's grain is an ornament: only styles with grain (Landing) show it. */
+  /* The hero's grain is an ornament: only styles with grain (--ui-grain: 1) show it. */
   .uipack-web-hero > .uipack-web-noise {
-    opacity: calc(var(--noise-opacity, 0.07) * var(--ui-grain, 1));
+    opacity: calc(var(--noise-opacity, 0.07) * var(--ui-grain, 0));
   }
-  /* Emphasis inside a display headline: Landing's real italic; Technical and Graphical colour the
-     phrase with the accent instead (neither ships a display italic, and a synthesised one is not drawn). */
+  /* Emphasis inside a display headline: a style with a display italic sets it (--ui-em-style);
+     Technical marks the phrase with colour and an underline instead (it ships no display italic,
+     and a synthesised one is not drawn). */
   .uipack-web-heading:is([data-step="4"], [data-step="5"], [data-step="6"]) em {
-    font-style: var(--ui-em-style, italic);
+    font-style: var(--ui-em-style, normal);
     color: var(--ui-em-color, inherit);
     /* Technical's amber revision underline (light only); none elsewhere. */
     text-decoration: var(--ui-em-decoration, none);
@@ -1543,7 +1110,7 @@
     text-decoration-skip-ink: none;
   }
   .uipack-web-star__area {
-    opacity: var(--ui-star-fill, 1);
+    opacity: var(--ui-star-fill, 0);
   }
   /* In the hero the star sits behind the demo; its guide rules would read as stray lines across it. */
   .uipack-web-hero .uipack-web-star__rule {
@@ -1643,10 +1210,10 @@
       grid-column: span var(--span-w, 4);
     }
   }
-  /* The style's density (--ui-density: Technical 0.8, Graphical 0.95, Landing 1.1) scales the
+  /* The style's density (--ui-density: Technical 0.9) scales the
      vertical rhythm only, so a swap changes heights, never columns. */
   .uipack-web-section {
-    --web-section-pad: calc(var(--web-s12) * var(--ui-density, 1));
+    --web-section-pad: calc(var(--web-s12) * var(--ui-density, 0.9));
     padding: var(--web-section-pad) var(--web-s3);
   }
   /* An anchored section lands with its first line 24px past the scroll offset (about 40px under a
@@ -1683,7 +1250,7 @@
   }
   @container web (max-width: 720px) {
     .uipack-web-section {
-      --web-section-pad: calc(var(--web-s8) * var(--ui-density, 1));
+      --web-section-pad: calc(var(--web-s8) * var(--ui-density, 0.9));
       padding: var(--web-section-pad) var(--web-s2);
     }
     .uipack-web-section__inner {
@@ -1821,8 +1388,8 @@
     position: absolute;
     pointer-events: none;
     border-radius: inherit;
-    /* Ambient glow is Landing's: other styles keep the keyboard ring and lose the light. */
-    opacity: calc(var(--spot-on) * var(--ui-glow, 1));
+    /* Ambient glow is a style's (--ui-glow); Technical has none, so it keeps the keyboard ring and loses the light. */
+    opacity: calc(var(--spot-on) * var(--ui-glow, 0));
     transition: opacity 240ms var(--web-ease);
   }
   /* Fill: a soft radial light under the pointer. */
@@ -1926,7 +1493,7 @@
   }
   .uipack-web-demo__dots {
     /* The style decides whether a window wears traffic lights (Technical: no, a drawing sheet). */
-    display: var(--ui-window-dots, flex);
+    display: var(--ui-window-dots, none);
     grid-column: 1;
     gap: 6px;
   }
@@ -2265,8 +1832,8 @@
 
   .uipack-web-aurora {
     inset: -15%;
-    /* Landing's full cap; styles without ambient glow keep 35% of it. */
-    opacity: calc(var(--web-aurora-opacity) * (0.35 + 0.65 * var(--ui-glow, 1)));
+    /* A style with ambient glow gets the full cap; one without (Technical) keeps 35% of it. */
+    opacity: calc(var(--web-aurora-opacity) * (0.35 + 0.65 * var(--ui-glow, 0)));
     filter: blur(72px);
   }
   .uipack-web-aurora i {
@@ -2612,8 +2179,8 @@
 }
 
 /* A figure on a web page belongs to the page: it takes the page style's text and label faces
-   (Anton never: figure text stays at label sizes; the title takes the style's heading face), the style's frame (Graphical's
-   2px ink and hard shadow, Landing's soft lift) and the card radius. Unlayered on purpose: the
+   (figure text stays at label sizes; the title takes the style's heading face), the style's frame
+   and the card radius. Unlayered on purpose: the
    figure's own theme.css is unlayered, and this is the more specific rule. A host overrides it
    with `.uipack-web .uipack` of its own. */
 .uipack-web .uipack {
@@ -2627,7 +2194,7 @@
   font-family: var(--ui-font-heading, var(--web-font-text));
 }
 /* Flow tokens on a web page come from the style's web palette (--ui-web-flow-request: Technical
-   keeps its cyan main flow; Landing draws requests in warm slate so its green stays the only hue). */
+   keeps its cyan main flow; a style may redraw requests so its accent stays the only hue). */
 .uipack-web .uipack {
   --uipack-token-request: var(--ui-web-flow-request, var(--ui-flow-request));
 }
@@ -2665,9 +2232,8 @@
     color: var(--web-accent-ink);
   }
 
-  /* Steps: FeatureGrid numbered. The style owns the treatment (--ui-num-*): Technical a mono
-     "STEP 01" over a hairline across the card, Graphical a giant display numeral, Landing a tinted
-     round badge. */
+  /* Steps: FeatureGrid numbered. The style owns the treatment (--ui-num-*): Technical a
+     ringed detail bubble with the number in mono. */
   .uipack-web .uipack-web-features .uipack-web-feature__num {
     display: var(--ui-num-display, block);
     place-items: center;
@@ -2794,7 +2360,7 @@
     justify-content: flex-end;
     gap: var(--web-s1);
   }
-  /* Stat dividers are the style's (Technical hairlines, Graphical 2px ink, Landing none). */
+  /* Stat dividers are the style's (--ui-stat-divider; Technical hairlines). */
   .uipack-web-proof__stats > div + div {
     border-inline-start: var(--ui-stat-divider, 0 solid transparent);
     padding-inline-start: var(--web-s3);
@@ -2926,8 +2492,7 @@
     box-shadow: var(--ui-card-shadow);
     text-align: start;
   }
-  /* The featured plan: Technical an accent bar along the top, Graphical an orange offset shadow,
-     Landing the green-tinted ticket with a green edge (--ui-plan-featured-*). */
+  /* The featured plan (--ui-plan-featured-*): Technical an accent bar along the top. */
   .uipack-web-plan[data-featured] {
     background: var(--ui-corner-marks), var(--ui-plan-featured-fill, var(--web-surface));
     border-color: var(--ui-plan-featured-border, var(--web-accent));
@@ -3141,8 +2706,8 @@
 
 /* ---------- Product surfaces: window, table, schedule, list, record, file; worked numbers ----------
    Show the product's real output. One layout in every style; cells, rules, frames and marks read
-   roles (--ui-cell-*, --ui-window-*, the frame roles), so Technical draws square mono cells,
-   Graphical ink-ruled boxes and Landing soft tinted chips from the same rows. */
+   roles (--ui-cell-*, --ui-window-*, the frame roles), so Technical draws square mono cells
+   and another style its own cells from the same rows. */
 @layer uipack.base {
   .uipack-web-window {
     display: grid;
@@ -3167,7 +2732,7 @@
     background: var(--ui-window-bar, transparent);
   }
   .uipack-web-window__dots {
-    display: var(--ui-window-dots, flex);
+    display: var(--ui-window-dots, none);
     gap: 6px;
   }
   .uipack-web-window__dots i {
@@ -3990,7 +3555,7 @@
    moves a box, so a style swap keeps every region, box and the reading order: the backdrop is an
    absolutely placed layer, the marker hangs outside its eyebrow, the rule is an inset shadow. */
 @layer uipack.ornaments {
-  /* Backdrop: the hero's ground (Technical: a dotted grid, masked; Graphical: the disc). */
+  /* Backdrop: the hero's ground (Technical: the drafting grid, masked). */
   .uipack-web-hero__backdrop {
     position: absolute;
     inset: 0;
@@ -4000,8 +3565,8 @@
     -webkit-mask-image: var(--ui-backdrop-mask);
     mask-image: var(--ui-backdrop-mask);
   }
-  /* Marker: the style's motif, small, before each eyebrow (Technical: a 2px-radius square, the
-     request token's shape; Graphical: the hero's disc). Landing has none. It sits inline, and an
+  /* Marker: the style's motif, small, before each eyebrow (Technical: a 7px amber dot); a style
+     may paint none. It sits inline, and an
      invisible twin after the text balances it, so a centred eyebrow keeps its axis and nothing
      hangs into the page's edge padding. */
   .uipack-web-eyebrow::before,
@@ -4021,8 +3586,8 @@
     margin-left: calc(var(--ui-marker-size, 0px) * 0.75);
     visibility: hidden;
   }
-  /* Narrow backdrop: below 720px a style may paint a smaller ornament (Graphical's disc shrinks
-     into the corner and drops its ring, so it never crosses the copy). */
+  /* Narrow backdrop: below 720px a style may paint a smaller ornament (a large motif
+     shrinks into the corner, so it never crosses the copy). */
   @container web (max-width: 720px) {
     .uipack-web-hero__backdrop {
       background: var(--ui-backdrop-narrow, var(--ui-backdrop));

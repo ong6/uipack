@@ -2,7 +2,7 @@ import * as react from 'react';
 import { ReactNode, ElementType, CSSProperties, ReactElement } from 'react';
 import { S as SpeechGuide } from './speech-BOroEnEA.js';
 export { W as WORDS_PER_MINUTE } from './speech-BOroEnEA.js';
-import { U as UiStyleId } from './style-CHmnF0sx.js';
+import { U as UiStyleId } from './style-CrBWEzsd.js';
 export { R as Rect } from './zoom-math-DJBPrdGD.js';
 
 /**
@@ -330,8 +330,8 @@ interface DeckPlayerProps {
     title: string;
     theme?: DeckTheme;
     /**
-     * The style the deck is painted in (sets data-ui-style): "technical" (default), "landing" or
-     * "graphical". Only tokens change: every slide keeps its regions, words and reading order.
+     * The style the deck is painted in (sets data-ui-style): a registered style id, "technical"
+     * (the default and only one today). Only tokens change: every slide keeps its regions, words and reading order.
      * Omitted, the deck follows the nearest ancestor with data-ui-style.
      */
     uiStyle?: UiStyleId;

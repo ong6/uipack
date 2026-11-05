@@ -1,7 +1,7 @@
 import * as react from 'react';
 import { ReactNode, ElementType, CSSProperties, ButtonHTMLAttributes, RefObject, ReactElement } from 'react';
 import { F as FigureChrome } from './context-Baoq0bBr.cjs';
-import { U as UiStyleId, a as UiStyleMeta } from './style-CHmnF0sx.cjs';
+import { U as UiStyleId, a as UiStyleMeta } from './style-CrBWEzsd.cjs';
 export { a as easeOutExpo } from './math-DL8QKXOl.cjs';
 
 interface WebSurfaceProps {
@@ -12,8 +12,8 @@ interface WebSurfaceProps {
     className?: string;
     style?: CSSProperties;
     /**
-     * The style the page is painted in: "technical" (the default, diagram-led), "landing" (the
-     * generic landing page) or "graphical" (poster). Sets data-ui-style; omitted, the nearest
+     * The style the page is painted in: a registered style id, "technical" (the
+     * default and only implemented style, diagram-led). Sets data-ui-style; omitted, the nearest
      * ancestor's. A swap changes tokens, ornaments and the layout defaults the style sets.
      */
     uiStyle?: UiStyleId;
@@ -89,16 +89,16 @@ declare function numberSections(ids: readonly string[], sections: WebPageProps["
  */
 declare function WebPage({ sections, nav, uiStyle, layout, order, theme, figureChrome, className, style, as, children, }: WebPageProps): react.JSX.Element;
 
-/** Landing style type scale: 16px base, Major Third (x1.25), expressed in rem. */
+/** The web type scale: 16px base, Major Third (x1.25), expressed in rem. */
 declare const TYPE_BASE_PX = 16;
 declare const TYPE_RATIO = 1.25;
 /** Font size for a scale step, in rem, rounded to 4 places. Step 0 is the body size. */
 declare function typeScale(step: number): number;
 /** The three type roles. Display: headlines and big numbers. Text: everything read or pressed. Mono: labels and data. */
 type TypeRole = "display" | "text" | "mono";
-/** Default faces per role (web.css: --web-font-display, --web-font-text, --web-font-mono). */
+/** Default faces per role, Technical's (web.css: --web-font-display, --web-font-text, --web-font-mono). */
 declare const TYPE_FACES: {
-    readonly display: "Instrument Serif";
+    readonly display: "IBM Plex Sans";
     readonly text: "IBM Plex Sans";
     readonly mono: "IBM Plex Mono";
 };
@@ -107,10 +107,9 @@ declare const DISPLAY_FROM_STEP = 4;
 /** Which face a heading at this step uses: display from step 4 up, text below it. */
 declare function typeRole(step: number): Exclude<TypeRole, "mono">;
 /**
- * Leading and tracking per heading step, matching web.css. Display steps carry the single
- * display weight with light tracking (the serif is already narrow); text steps tighten
- * gradually toward body copy at 1.5. Step 3 drops to 500 so a 31px sans heading does not
- * outweigh a 39px display one.
+ * Leading and tracking per heading step, matching web.css and Technical's display roles
+ * (--ui-display-weight 600, --ui-display-tracking -0.01em). Text steps tighten gradually toward
+ * body copy at 1.5. Step 3 drops to 500 so a 31px heading does not outweigh a 39px display one.
  */
 declare function typeMetrics(step: number): {
     role: Exclude<TypeRole, "mono">;
@@ -120,7 +119,7 @@ declare function typeMetrics(step: number): {
 };
 declare const TYPE_STEPS: readonly [-1, 0, 1, 2, 3, 4, 5, 6];
 type TypeStep = (typeof TYPE_STEPS)[number];
-/** Opacity emphasis for text on any Landing surface (Material's high / medium / low). */
+/** Opacity emphasis for text on any web surface (Material's high / medium / low). */
 declare const EMPHASIS: {
     readonly high: 1;
     readonly medium: 0.87;
@@ -219,7 +218,7 @@ interface SectionProps {
      * for sections above an in-page link target.
      */
     lazyRender?: boolean;
-    /** Paint this section in another style (data-ui-style), e.g. one Graphical band on a Technical page. */
+    /** Paint this section in another style (data-ui-style), e.g. one band in a second registered style. */
     uiStyle?: UiStyleId;
 }
 /**
@@ -403,7 +402,7 @@ interface ClosingCtaProps {
 }
 /**
  * The closing call to action: a full-bleed band painted with the style's band roles (Technical:
- * ink with mint; Graphical: signal orange; Landing: near-black with a white button), the claim on the start edge and
+ * the Prussian band with a gold button), the claim on the start edge and
  * the button beside it (below it on a phone).
  */
 declare function ClosingCta({ title, intro, action, note, eyebrow, id, className }: ClosingCtaProps): react.JSX.Element;
@@ -426,7 +425,7 @@ interface BrandProps {
     children: ReactNode;
     href?: string;
 }
-/** A text wordmark in the style's display face (Graphical's caps, Landing's serif, Technical's sans). */
+/** A text wordmark in the style's display face (Technical's IBM Plex Sans 600). */
 declare function Brand({ children, href }: BrandProps): react.JSX.Element;
 
 interface ProductWindowProps {
@@ -616,8 +615,8 @@ interface StarHeroProps {
     layout?: "stack" | "split";
     /**
      * One short fact the page proves (a measured number and a few words, e.g. `{ value: "18%",
-     * label: "lower postage" }`), worn as the style's stamp: Graphical's orange postmark, Technical's
-     * revision tag, Landing's die-cut label. It belongs to the copy: under the actions in a split
+     * label: "lower postage" }`), worn as the style's stamp (Technical's
+     * revision tag). It belongs to the copy: under the actions in a split
      * hero and on a phone, on the empty end side of a stacked hero's headline. Never on the product.
      */
     stamp?: {
@@ -1040,8 +1039,8 @@ interface SmoothScrollOptions {
 interface SmoothScrollToOptions {
     /**
      * Pixels to keep clear above the target. For an element or selector the default is its
-     * scroll-margin-top plus the page's scroll-padding-top (web.css sets 5rem on Landing ids,
-     * which clears GlassNav); for a number it is 0.
+     * scroll-margin-top plus the page's scroll-padding-top (web.css sets 5rem on a page's
+     * section ids, which clears GlassNav); for a number it is 0.
      */
     offset?: number;
     /** Milliseconds for a fixed-length, exponential-out scroll. Omit to use the follow. */
@@ -1103,7 +1102,7 @@ type SmoothScrollProps = SmoothScrollOptions;
 declare function SmoothScroll(props: SmoothScrollProps): null;
 
 /**
- * Framework-agnostic SEO and answer-engine helpers for Landing pages. Everything here is pure:
+ * Framework-agnostic SEO and answer-engine helpers for web pages. Everything here is pure:
  * it returns data (head tags, JSON-LD objects, strings) that any server, static generator or
  * client can render. React wrappers live in Head.tsx; crawl files live in crawl.ts.
  */
@@ -1167,7 +1166,7 @@ interface PageMetaOptions {
     modifiedTime?: string;
 }
 /**
- * The head tags a Landing page needs to be found and previewed: title, description, canonical,
+ * The head tags a web page needs to be found and previewed: title, description, canonical,
  * Open Graph and Twitter cards. Returns plain data; render it with `<HeadTags>`, `useHead` or
  * `headTagsToHtml`.
  */
@@ -1176,10 +1175,12 @@ declare function pageMeta(o: PageMetaOptions): HeadTag[];
 declare function headTagsToHtml(tags: HeadTag[]): string;
 /** The identity of a head tag: a later tag with the same key replaces an earlier one. */
 declare function headTagKey(t: HeadTag): string;
-/** The self-hosted Landing faces, by role. Files ship in `uipack/fonts/*` (dist/fonts). */
+/**
+ * The self-hosted faces of the default style (Technical), by role. Files ship in `uipack/fonts/*`
+ * (dist/fonts). Technical's display face is IBM Plex Sans 600, the same file as "text-600".
+ */
 declare const WEB_FONT_FILES: {
-    readonly display: "instrument-serif-latin-400-normal.woff2";
-    readonly "display-italic": "instrument-serif-latin-400-italic.woff2";
+    readonly display: "ibm-plex-sans-latin-600-normal.woff2";
     readonly text: "ibm-plex-sans-latin-400-normal.woff2";
     readonly "text-500": "ibm-plex-sans-latin-500-normal.woff2";
     readonly "text-600": "ibm-plex-sans-latin-600-normal.woff2";
@@ -1190,8 +1191,7 @@ type WebFontFace = keyof typeof WEB_FONT_FILES;
 interface FontPreloadOptions {
     /**
      * The faces above the fold. Default `["display"]`: the hero headline, usually the LCP text.
-     * Add "display-italic" when the hero title has an `<em>`. Preload two at most; every
-     * preload competes with the hero's other requests.
+     * Preload two at most; every preload competes with the hero's other requests.
      */
     faces?: WebFontFace[];
     /** Where the woff2 files are served, e.g. "/fonts/". Default "/fonts/". */
@@ -1547,7 +1547,7 @@ interface FAQProps {
 declare function FAQ({ items, eyebrow, title, intro, id, url, jsonLd, variant, tone, lazyRender, }: FAQProps): react.JSX.Element;
 
 /**
- * Crawl files for a Landing site: robots.txt with an explicit stance per AI crawler,
+ * Crawl files for a web site: robots.txt with an explicit stance per AI crawler,
  * sitemap.xml with lastmod, llms.txt in the llmstxt.org format, and an RSS 2.0 feed. Pure string
  * builders; write the result wherever your host serves the site root.
  */
@@ -1564,7 +1564,7 @@ interface AiCrawler {
     docs: string;
 }
 /**
- * The AI crawlers Landing sites should state a stance on, from each operator's own documentation
+ * The AI crawlers sites should state a stance on, from each operator's own documentation
  * (checked October 2026). Search and user agents decide whether answer engines can find, fetch and
  * cite the page; training agents decide whether the page may be used to train models.
  */

@@ -1,4 +1,4 @@
-import { uiStyles, sectionOrder } from './chunk-RZ34PDF3.js';
+import { uiStyles, sectionOrder } from './chunk-EOCXVW6O.js';
 import { clamp, easeOutCubic, lerp, smoothstep, easeOutExpo } from './chunk-V4CVL4FJ.js';
 export { easeOutExpo } from './chunk-V4CVL4FJ.js';
 import { FigureChromeContext } from './chunk-ZEGJBMAE.js';
@@ -1127,7 +1127,7 @@ function typeScale(step) {
   return Math.round(Math.pow(TYPE_RATIO, step) * 1e4) / 1e4;
 }
 var TYPE_FACES = {
-  display: "Instrument Serif",
+  display: "IBM Plex Sans",
   text: "IBM Plex Sans",
   mono: "IBM Plex Mono"
 };
@@ -1136,9 +1136,9 @@ function typeRole(step) {
   return step >= DISPLAY_FROM_STEP ? "display" : "text";
 }
 function typeMetrics(step) {
-  if (step >= 6) return { role: "display", lineHeight: 1.02, letterSpacing: "-0.01em", weight: 400 };
-  if (step >= 5) return { role: "display", lineHeight: 1.05, letterSpacing: "-0.01em", weight: 400 };
-  if (step >= 4) return { role: "display", lineHeight: 1.1, letterSpacing: "-0.01em", weight: 400 };
+  if (step >= 6) return { role: "display", lineHeight: 1.02, letterSpacing: "-0.01em", weight: 600 };
+  if (step >= 5) return { role: "display", lineHeight: 1.05, letterSpacing: "-0.01em", weight: 600 };
+  if (step >= 4) return { role: "display", lineHeight: 1.1, letterSpacing: "-0.01em", weight: 600 };
   if (step >= 3) return { role: "text", lineHeight: 1.2, letterSpacing: "-0.015em", weight: 500 };
   if (step >= 2) return { role: "text", lineHeight: 1.3, letterSpacing: "-0.01em", weight: 600 };
   if (step >= 1) return { role: "text", lineHeight: 1.35, letterSpacing: "-0.005em", weight: 600 };
@@ -2090,8 +2090,7 @@ function headTagKey(t) {
   return `script:${a.id ?? a.type}:${t.text.length}`;
 }
 var WEB_FONT_FILES = {
-  display: "instrument-serif-latin-400-normal.woff2",
-  "display-italic": "instrument-serif-latin-400-italic.woff2",
+  display: "ibm-plex-sans-latin-600-normal.woff2",
   text: "ibm-plex-sans-latin-400-normal.woff2",
   "text-500": "ibm-plex-sans-latin-500-normal.woff2",
   "text-600": "ibm-plex-sans-latin-600-normal.woff2",
