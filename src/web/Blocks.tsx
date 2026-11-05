@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { CtaButton } from "./CtaButton";
 import { Body, Eyebrow, Heading } from "./Text";
+import { BeforeAfter, type BeforeAfterProps } from "./Worked";
 
 /* The landing page's closing parts: proof (numbers and a quote), pricing, the closing call to
    action and the footer. Each is one layout in every style; the style paints it through roles
@@ -29,6 +30,11 @@ export interface ProofQuote {
 export interface ProofProps {
   /** The headline number: large, with its denominator and an optional meter. */
   lead?: ProofLead;
+  /**
+   * A measured change instead of (or before) the lead number: two bars to scale ("~2.5 h" before,
+   * "9 min" after). Use it when the proof is a before/after, not "x of N".
+   */
+  compare?: BeforeAfterProps;
   /** Two to four supporting numbers in a ruled row. */
   stats?: ProofStat[];
   quote?: ProofQuote;
@@ -39,12 +45,13 @@ export interface ProofProps {
  * Proof in one block: the headline number (with what it is out of), supporting numbers, and a
  * named quote in a framed card beside them (stacked below 1024px). Put it inside a `Section`.
  */
-export function Proof({ lead, stats = [], quote, className = "" }: ProofProps) {
+export function Proof({ lead, compare, stats = [], quote, className = "" }: ProofProps) {
   const ratio = lead?.ratio === undefined ? undefined : Math.min(1, Math.max(0, lead.ratio));
   return (
     <div className={`uipack-web-proof ${className}`.trim()} data-has-quote={quote ? "" : undefined}>
-      {(lead || stats.length > 0) && (
+      {(lead || compare || stats.length > 0) && (
         <div className="uipack-web-proof__numbers">
+          {compare && <BeforeAfter {...compare} />}
           {lead && (
             <div className="uipack-web-proof__lead">
               <p className="uipack-web-proof__value">

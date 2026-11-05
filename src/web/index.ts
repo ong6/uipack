@@ -22,6 +22,34 @@ export {
   type SiteFooterProps,
   type BrandProps,
 } from "./Blocks";
+export {
+  ProductWindow,
+  DataTable,
+  ScheduleGrid,
+  ItemList,
+  RecordCard,
+  FileTable,
+  type ProductWindowProps,
+  type DataColumn,
+  type DataTableProps,
+  type ScheduleCell,
+  type ScheduleRow,
+  type ScheduleTone,
+  type ScheduleGridProps,
+  type ItemListRow,
+  type ItemListProps,
+  type RecordCardProps,
+  type FileTableProps,
+} from "./ProductMock";
+export {
+  WorkedExample,
+  BeforeAfter,
+  type WorkedExampleProps,
+  type WorkedLine,
+  type WorkedQuantity,
+  type BeforeAfterProps,
+  type BeforeAfterSide,
+} from "./Worked";
 export { RevealText, type RevealTextProps } from "./RevealText";
 export { StarHero, type StarHeroProps } from "./StarHero";
 export {

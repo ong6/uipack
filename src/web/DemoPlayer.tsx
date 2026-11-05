@@ -15,6 +15,13 @@ export interface DemoPlayerProps {
   metricLabel?: string;
   /** Placeholder for the composer before anything is typed. */
   placeholder?: string;
+  /**
+   * "agent" (the default when any step has a `prompt`): a composer types the prompt and the log ticks
+   * off this step's actions. "steps" (the default otherwise): no composer and no chat; the steps
+   * themselves are the checklist on a narrow start column and the result pane is wide, for a
+   * product whose output is the point (a rota, a table, a report) shown through each step's `screen`.
+   */
+  mode?: "agent" | "steps";
   /** Start when at least a quarter is on screen. Default true. */
   autoplay?: boolean;
   /** Restart after the last step's hold. Default false: the result stays. */
@@ -49,6 +56,7 @@ export function DemoPlayer({
   initialMetric,
   metricLabel,
   placeholder = "Ask for something…",
+  mode: modeProp,
   autoplay = true,
   loop = false,
   timing: timingProp,
@@ -57,6 +65,7 @@ export function DemoPlayer({
   onStepChange,
 }: DemoPlayerProps) {
   const timing = useMemo(() => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
+  const mode = modeProp ?? (steps.some((s) => s.prompt) ? "agent" : "steps");
   const reduced = usePrefersReducedMotion();
   const rootRef = useRef<HTMLElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
@@ -150,7 +159,11 @@ export function DemoPlayer({
   const doneCount = queuedOnly ? 0 : isCurrent ? frame.actionsDone : actions.length;
   const promptDone = !step?.prompt || frame.typed >= (step.prompt?.length ?? 0);
   const runningIdx = isCurrent && promptDone && !frame.settled && frame.actionsDone < actions.length ? frame.actionsDone : -1;
-  const screen = lastWith(steps, frame.settled ? frame.step : frame.step - 1, (s) => s.screen ?? undefined);
+  // The result pane is never empty: before the first step settles it shows the first screen there is.
+  const settledScreen = lastWith(steps, frame.settled ? frame.step : frame.step - 1, (s) => s.screen ?? undefined);
+  const firstScreen = steps.findIndex((s) => s.screen !== undefined && s.screen !== null);
+  const screen = settledScreen ?? (firstScreen >= 0 ? steps[firstScreen].screen : undefined);
+  const screenKey = settledScreen !== undefined ? (frame.settled ? frame.step : frame.step - 1) : `first-${firstScreen}`;
 
   return (
     <section
@@ -159,6 +172,7 @@ export function DemoPlayer({
       aria-label={label}
       data-state={reduced ? "static" : finished ? "finished" : running ? "playing" : "paused"}
       data-step={frame.step}
+      data-mode={mode}
     >
       <div className="uipack-web-demo__window">
         <div className="uipack-web-demo__chrome" aria-hidden="true">
@@ -171,33 +185,62 @@ export function DemoPlayer({
         </div>
         <div className="uipack-web-demo__body">
           <div className="uipack-web-demo__work">
-            <div className="uipack-web-demo__composer" data-typing={typing || undefined}>
-              <span className="uipack-web-demo__sr">{promptText}</span>
-              <span aria-hidden="true" className={visiblePrompt ? "" : "uipack-web-demo__placeholder"}>
-                {visiblePrompt || placeholder}
-              </span>
-              {typing && <span className="uipack-web-demo__caret" aria-hidden="true" />}
-            </div>
-            <ol className="uipack-web-demo__log" aria-label="Agent actions">
-              {actions.map((a, i) => {
-                const state = i < doneCount ? "done" : i === runningIdx ? "running" : "pending";
-                return (
-                  <li key={`${actionStep}-${i}`} data-state={state}>
-                    <span className="uipack-web-demo__tick" aria-hidden="true">
-                      {state === "done" ? (
-                        <svg viewBox="0 0 16 16">
-                          <path d="M3.5 8.5l3 3 6-7" />
-                        </svg>
-                      ) : null}
-                    </span>
-                    <span>{a.label}</span>
-                    {a.detail && <small>{a.detail}</small>}
-                    {state === "running" && <span className="uipack-web-demo__sr"> (in progress)</span>}
-                    {state === "pending" && <span className="uipack-web-demo__sr"> (queued)</span>}
-                  </li>
-                );
-              })}
-            </ol>
+            {mode === "steps" ? (
+              <ol className="uipack-web-demo__log uipack-web-demo__steps" aria-label="Progress">
+                {steps.map((s, i) => {
+                  const state =
+                    i < frame.step || (i === frame.step && frame.settled) ? "done" : i === frame.step ? "running" : "pending";
+                  const detail = (s.actions ?? []).map(toAction).find((a) => a.detail)?.detail;
+                  return (
+                    <li key={s.id} data-state={state}>
+                      <span className="uipack-web-demo__tick" aria-hidden="true">
+                        {state === "done" ? (
+                          <svg viewBox="0 0 16 16">
+                            <path d="M3.5 8.5l3 3 6-7" />
+                          </svg>
+                        ) : null}
+                      </span>
+                      <span>
+                        <span className="uipack-web-demo__num">{String(i + 1).padStart(2, "0")}</span> {s.title}
+                      </span>
+                      {detail && <small>{detail}</small>}
+                      {state === "running" && <span className="uipack-web-demo__sr"> (in progress)</span>}
+                      {state === "pending" && <span className="uipack-web-demo__sr"> (queued)</span>}
+                    </li>
+                  );
+                })}
+              </ol>
+            ) : (
+              <>
+                <div className="uipack-web-demo__composer" data-typing={typing || undefined}>
+                  <span className="uipack-web-demo__sr">{promptText}</span>
+                  <span aria-hidden="true" className={visiblePrompt ? "" : "uipack-web-demo__placeholder"}>
+                    {visiblePrompt || placeholder}
+                  </span>
+                  {typing && <span className="uipack-web-demo__caret" aria-hidden="true" />}
+                </div>
+                <ol className="uipack-web-demo__log" aria-label="Agent actions">
+                  {actions.map((a, i) => {
+                    const state = i < doneCount ? "done" : i === runningIdx ? "running" : "pending";
+                    return (
+                      <li key={`${actionStep}-${i}`} data-state={state}>
+                        <span className="uipack-web-demo__tick" aria-hidden="true">
+                          {state === "done" ? (
+                            <svg viewBox="0 0 16 16">
+                              <path d="M3.5 8.5l3 3 6-7" />
+                            </svg>
+                          ) : null}
+                        </span>
+                        <span>{a.label}</span>
+                        {a.detail && <small>{a.detail}</small>}
+                        {state === "running" && <span className="uipack-web-demo__sr"> (in progress)</span>}
+                        {state === "pending" && <span className="uipack-web-demo__sr"> (queued)</span>}
+                      </li>
+                    );
+                  })}
+                </ol>
+              </>
+            )}
           </div>
           <div className="uipack-web-demo__result">
             {frame.metric !== undefined && (
@@ -209,7 +252,7 @@ export function DemoPlayer({
               </p>
             )}
             {screen !== undefined && (
-              <div className="uipack-web-demo__screen" key={frame.settled ? frame.step : frame.step - 1}>
+              <div className="uipack-web-demo__screen" key={screenKey}>
                 {screen}
               </div>
             )}

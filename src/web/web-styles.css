@@ -66,6 +66,13 @@
   .uipack-web:not([data-ui-layout="style"]) .uipack-web-feature {
     background: var(--ui-corner-marks, none), var(--web-surface);
   }
+  /* Column rule: a style may open each section's column on a title rule (Technical: a hairline
+     across the column with an end tick and a short accent bar, as on a drawing sheet). It paints
+     the column's top padding, so only heights change across styles. */
+  .uipack-web-section__inner {
+    padding-top: var(--ui-column-rule-gap, 0px);
+    background: var(--ui-column-rule, none);
+  }
   /* Rule: a line at the top of each section after the first, drawn inside it. */
   .uipack-web-section {
     box-shadow: var(--ui-section-rule, none);

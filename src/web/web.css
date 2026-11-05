@@ -446,7 +446,21 @@
       padding: 0 16px;
     }
   }
+  /* A phone keeps the page's goal in the bar, as a compact button beside Menu. Only below 340px,
+     where brand, button and toggle no longer fit, does it move into the open menu. */
   @container web (max-width: 520px) {
+    .uipack-web-nav__cta .uipack-web-cta {
+      min-height: 40px;
+      padding: 0 12px;
+      font-size: 0.875rem;
+    }
+    .uipack-web-nav__toggle {
+      min-height: 40px;
+      padding: 0 12px;
+      font-size: 0.875rem;
+    }
+  }
+  @container web (max-width: 340px) {
     .uipack-web-nav__cta {
       display: none;
     }
@@ -656,8 +670,10 @@
       grid-column: span var(--span-w, 4);
     }
   }
+  /* The style's density (--ui-density: Technical 0.8, Graphical 0.95, Landing 1.1) scales the
+     vertical rhythm only, so a swap changes heights, never columns. */
   .uipack-web-section {
-    --web-section-pad: var(--web-s12);
+    --web-section-pad: calc(var(--web-s12) * var(--ui-density, 1));
     padding: var(--web-section-pad) var(--web-s3);
   }
   /* An anchored section lands with its first line 24px past the scroll offset (about 40px under a
@@ -694,7 +710,7 @@
   }
   @container web (max-width: 720px) {
     .uipack-web-section {
-      --web-section-pad: var(--web-s8);
+      --web-section-pad: calc(var(--web-s8) * var(--ui-density, 1));
       padding: var(--web-section-pad) var(--web-s2);
     }
     .uipack-web-section__inner {
@@ -799,10 +815,10 @@
     display: grid;
     align-content: start;
     gap: var(--web-s2);
-    padding: var(--web-s4);
+    padding: var(--ui-card-pad, var(--web-s4));
     border: var(--web-frame-border);
     border-radius: var(--web-radius);
-    background: var(--web-surface);
+    background: var(--ui-card-fill, var(--web-surface));
     box-shadow: var(--ui-card-shadow);
     color: inherit;
     text-decoration: none;
@@ -814,7 +830,7 @@
   @container web (max-width: 720px) {
     .uipack-web-feature,
     .uipack-web-spotlight {
-      padding: var(--web-s3);
+      padding: min(var(--ui-card-pad, var(--web-s3)), var(--web-s3));
     }
   }
 
@@ -1630,6 +1646,11 @@
 .uipack-web .uipack__title {
   font-family: var(--web-font-text);
 }
+/* Flow tokens on a web page come from the style's web palette (Technical draws requests in ink, so a
+   page figure carries the style's green and greys, never a stray blue). */
+.uipack-web .uipack {
+  --uipack-token-request: var(--ui-web-flow-request, var(--ui-flow-request));
+}
 
 /* ---------- Closing parts: steps numbers, proof, pricing, closing band, footer, wordmark ----------
    One layout in every style; frames, faces and the band read roles (src/styles). */
@@ -1664,12 +1685,36 @@
     color: var(--web-accent-ink);
   }
 
-  /* Steps: FeatureGrid numbered. */
-  .uipack-web .uipack-web-feature__num {
-    display: block;
-    font-size: calc(var(--web-step-4) * var(--web-display-scale));
-    line-height: 1;
-    margin-bottom: var(--web-s1);
+  /* Steps: FeatureGrid numbered. The style owns the treatment (--ui-num-*): Technical a mono
+     "STEP 01" over a hairline across the card, Graphical a giant display numeral, Landing a tinted
+     round badge. */
+  .uipack-web .uipack-web-features .uipack-web-feature__num {
+    display: var(--ui-num-display, block);
+    place-items: center;
+    width: var(--ui-num-box, auto);
+    height: var(--ui-num-box, auto);
+    /* --ui-num-bleed 1 runs the number's rule across the whole card, edge to edge. */
+    margin: 0 calc(-1 * var(--ui-num-bleed, 0) * var(--ui-card-pad, var(--web-s4))) var(--web-s1);
+    padding: 0 calc(var(--ui-num-bleed, 0) * var(--ui-card-pad, var(--web-s4))) var(--ui-num-gap, 0px);
+    border-bottom: var(--ui-num-rule, 0 solid transparent);
+    border-radius: 999px;
+    background: var(--ui-num-fill, transparent);
+    font: var(--ui-num-weight, 400) var(--ui-num-size, 3rem) / 1 var(--ui-num-font, var(--web-font-display));
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+    color: var(--ui-num-color, var(--web-accent-ink));
+  }
+  .uipack-web .uipack-web-features .uipack-web-feature__num::before {
+    content: var(--ui-num-prefix, "");
+  }
+  .uipack-web .uipack-web-feature__pad {
+    display: var(--ui-num-pad, none);
+  }
+  @container web (max-width: 720px) {
+    .uipack-web .uipack-web-features .uipack-web-feature__num {
+      margin-inline: calc(-1 * var(--ui-num-bleed, 0) * min(var(--ui-card-pad, var(--web-s3)), var(--web-s3)));
+      padding-inline: calc(var(--ui-num-bleed, 0) * min(var(--ui-card-pad, var(--web-s3)), var(--web-s3)));
+    }
   }
 
   /* Proof */
@@ -1710,11 +1755,26 @@
     .uipack-web-proof__value {
       font-size: calc(var(--web-step-6) * var(--web-display-scale));
     }
+    /* A phone stacks the stats as full-width rows, value then label, so a label never wraps into
+       a narrow column of one or two words. */
     .uipack-web .uipack-web-proof__stats {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+    .uipack-web .uipack-web-proof__stats > div {
+      display: grid;
+      grid-template-columns: minmax(6.5rem, auto) minmax(0, 1fr);
+      align-items: baseline;
       gap: var(--web-s2);
+      padding: var(--web-s2) 0;
+      border-inline-start: 0;
+      padding-inline-start: 0;
+    }
+    .uipack-web .uipack-web-proof__stats > div + div {
+      border-top: 1px solid var(--web-hairline);
     }
     .uipack-web .uipack-web-proof__stats dd {
+      order: -1;
       font-size: calc(var(--web-step-3) * var(--web-display-scale));
     }
   }
@@ -1751,6 +1811,11 @@
     justify-content: flex-end;
     gap: var(--web-s1);
   }
+  /* Stat dividers are the style's (Technical hairlines, Graphical 2px ink, Landing none). */
+  .uipack-web-proof__stats > div + div {
+    border-inline-start: var(--ui-stat-divider, 0 solid transparent);
+    padding-inline-start: var(--web-s3);
+  }
   .uipack-web-proof__stats dt {
     font: 400 var(--web-step--1) / 1.4 var(--web-font-mono);
     letter-spacing: 0.02em;
@@ -1770,20 +1835,20 @@
     margin: 0;
     padding: var(--web-s4);
     border: var(--web-frame-border);
-    border-color: var(--ui-inv-line);
+    border-color: var(--ui-quote-line, var(--ui-inv-line));
     border-radius: var(--web-radius);
-    background: var(--ui-corner-marks), var(--ui-inv-paper);
-    box-shadow: var(--ui-card-shadow);
-    color: var(--ui-inv-ink);
+    background: var(--ui-quote-fill, var(--ui-inv-paper));
+    box-shadow: var(--ui-quote-rule, 0 0 transparent), var(--ui-quote-shadow, 0 0 transparent);
+    color: var(--ui-quote-ink, var(--ui-inv-ink));
   }
   .uipack-web-quote blockquote {
     margin: 0;
   }
   .uipack-web-quote blockquote p {
     margin: 0;
-    font: var(--web-display-weight) calc(var(--web-step-2) * var(--web-display-scale)) / 1.25 var(--web-font-display);
-    letter-spacing: var(--web-display-tracking);
-    text-transform: var(--web-display-case);
+    font: var(--ui-quote-weight, 400) var(--ui-quote-size, 1.5rem) / 1.25 var(--ui-quote-face, var(--web-font-display));
+    letter-spacing: -0.005em;
+    text-transform: var(--ui-quote-case, none);
     text-wrap: pretty;
   }
   /* The opening mark hangs into the margin in the inverse accent, so the text keeps its edge. */
@@ -1792,7 +1857,7 @@
     display: inline-block;
     margin-left: -0.5em;
     width: 0.5em;
-    color: var(--ui-inv-accent);
+    color: var(--ui-quote-mark, var(--ui-inv-accent));
   }
   .uipack-web-quote blockquote p::after {
     content: "\201D";
@@ -1801,7 +1866,7 @@
     display: grid;
     gap: 2px;
     padding-top: var(--web-s2);
-    border-top: 1px solid color-mix(in srgb, var(--ui-inv-ink) 22%, transparent);
+    border-top: 1px solid color-mix(in srgb, var(--ui-quote-ink, var(--ui-inv-ink)) 22%, transparent);
     font-size: var(--web-step-0);
   }
   .uipack-web-quote figcaption strong {
@@ -1811,7 +1876,7 @@
     font: 400 var(--web-step--1) / 1.4 var(--web-font-mono);
     letter-spacing: var(--web-label-tracking);
     text-transform: uppercase;
-    color: var(--ui-inv-ink-2);
+    color: var(--ui-quote-ink-2, var(--ui-inv-ink-2));
   }
 
   /* Pricing */
@@ -1843,11 +1908,11 @@
     box-shadow: var(--ui-card-shadow);
     text-align: start;
   }
+  /* The featured plan: Technical an accent bar along the top, Graphical an orange offset shadow,
+     Landing an accent ring with a tinted lift (--ui-plan-featured-*). */
   .uipack-web-plan[data-featured] {
-    border-color: var(--web-accent);
-    box-shadow:
-      inset 0 0 0 1px var(--web-accent),
-      var(--ui-card-shadow);
+    border-color: var(--ui-plan-featured-border, var(--web-accent));
+    box-shadow: var(--ui-plan-featured-ring, inset 0 0 0 1px var(--web-accent));
   }
   .uipack-web-plan__head {
     display: flex;
@@ -2052,5 +2117,645 @@
     text-transform: var(--web-display-case);
     color: var(--web-ink);
     text-decoration: none;
+  }
+}
+
+/* ---------- Product surfaces: window, table, schedule, list, record, file; worked numbers ----------
+   Show the product's real output. One layout in every style; cells, rules, frames and marks read
+   roles (--ui-cell-*, --ui-window-*, the frame roles), so Technical draws square mono cells,
+   Graphical ink-ruled boxes and Landing soft tinted chips from the same rows. */
+@layer uipack.base {
+  .uipack-web-window {
+    display: grid;
+    min-width: 0;
+    overflow: hidden;
+    border: var(--web-frame-border);
+    border-radius: var(--web-radius);
+    background: var(--web-surface);
+    box-shadow: var(--web-shadow);
+    text-align: start;
+  }
+  .uipack-web-window__bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--web-s2);
+    min-height: 36px;
+    padding: 0 var(--web-s2);
+    border-bottom: 1px solid var(--web-hairline);
+    background: var(--ui-window-bar, transparent);
+  }
+  .uipack-web-window__dots {
+    display: var(--ui-window-dots, flex);
+    gap: 6px;
+  }
+  .uipack-web-window__dots i {
+    width: 9px;
+    height: 9px;
+    border-radius: var(--web-radius-pill);
+    background: color-mix(in srgb, var(--web-ink) 16%, transparent);
+  }
+  .uipack-web-window__address {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font: var(--web-step--1) / 1 var(--web-font-mono);
+    color: var(--web-ink-low);
+  }
+  .uipack-web-window__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--web-s2);
+    padding: var(--web-s2) var(--web-s3) 0;
+  }
+  .uipack-web-window__title {
+    margin: 0;
+    font-weight: 600;
+    font-size: var(--web-step-0);
+    line-height: 1.3;
+  }
+  .uipack-web-window__subtitle {
+    margin: 2px 0 0;
+    font-size: 0.8125rem;
+    color: var(--web-ink-low);
+  }
+  .uipack-web-window__status {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border: 1px solid var(--ui-cell-line, var(--web-hairline));
+    border-radius: var(--web-radius-pill);
+    background: var(--ui-cell-fill, var(--web-secondary));
+    font: 500 0.75rem / 1.2 var(--web-font-mono);
+    color: var(--web-ink);
+    white-space: nowrap;
+  }
+  .uipack-web-window__status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: var(--web-radius-pill);
+    background: var(--web-accent);
+  }
+  .uipack-web-window__body {
+    min-width: 0;
+    padding: var(--web-s2) var(--web-s3);
+  }
+  .uipack-web-window__foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--web-s1) var(--web-s2);
+    padding: 12px var(--web-s3);
+    border-top: 1px solid var(--web-hairline);
+    font: var(--web-step--1) / 1.4 var(--web-font-mono);
+    color: var(--web-ink-low);
+  }
+  .uipack-web-window__foot > :first-child {
+    color: var(--web-ink);
+  }
+  @container web (max-width: 720px) {
+    .uipack-web-window__head {
+      padding: var(--web-s2) var(--web-s2) 0;
+    }
+    .uipack-web-window__body {
+      padding: 12px var(--web-s2);
+    }
+    .uipack-web-window__foot {
+      padding: 10px var(--web-s2);
+    }
+  }
+
+  /* Tables: DataTable, ScheduleGrid. The rule runs under every cell of a row, so it never breaks. */
+  .uipack-web-table__scroll {
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    border-radius: var(--web-radius-inner);
+  }
+  .uipack-web-table__scroll:focus-visible {
+    outline: 2px solid var(--web-accent);
+    outline-offset: 2px;
+  }
+  .uipack-web-table table,
+  .uipack-web-schedule table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+  .uipack-web-table :is(th, td) {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--web-hairline);
+    text-align: start;
+    font-size: 0.9375rem;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+  .uipack-web-table :is(th, td):first-child {
+    padding-inline-start: 0;
+  }
+  .uipack-web-table :is(th, td):last-child {
+    padding-inline-end: 0;
+  }
+  .uipack-web-table thead th,
+  .uipack-web-schedule thead th {
+    padding-top: 0;
+    border-bottom: var(--ui-rule-width) solid var(--web-rule);
+    font: 500 0.6875rem / 1.2 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+    color: var(--web-ink-low);
+  }
+  .uipack-web-table [data-align="end"] {
+    text-align: end;
+  }
+  .uipack-web-table tbody th {
+    font-family: var(--web-font-mono);
+    font-size: 0.875rem;
+    color: var(--web-ink-medium);
+  }
+  .uipack-web-table tr[data-highlight] :is(th, td) {
+    background: var(--ui-cell-fill, var(--web-secondary));
+    color: var(--web-ink);
+    font-weight: 600;
+  }
+  .uipack-web-table tr[data-highlight] :is(th, td):first-child {
+    box-shadow: inset 3px 0 0 var(--ui-cell-peak, var(--web-accent));
+    padding-inline-start: 12px;
+  }
+  .uipack-web-table tr[data-highlight] :is(th, td):last-child {
+    padding-inline-end: 12px;
+  }
+  .uipack-web-table__bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 7rem;
+  }
+  .uipack-web-table__bar i {
+    flex: none;
+    width: calc(var(--v) * 6rem);
+    height: 8px;
+    border-radius: var(--web-radius-xs, 2px);
+    background: color-mix(in srgb, var(--ui-cell-peak, var(--web-accent)) 45%, transparent);
+  }
+  .uipack-web-table tr[data-highlight] .uipack-web-table__bar i {
+    background: var(--ui-cell-peak, var(--web-accent));
+  }
+  .uipack-web-table__note {
+    margin: 12px 0 0;
+    padding: 10px 12px;
+    border-radius: var(--web-radius-inner);
+    background: var(--web-secondary);
+    font: 0.8125rem / 1.5 var(--web-font-mono);
+    color: var(--web-ink-medium);
+    white-space: normal;
+  }
+
+  .uipack-web-schedule :is(th, td) {
+    padding: 3px;
+    border: 0;
+    text-align: center;
+    font-weight: 400;
+  }
+  .uipack-web-schedule thead th {
+    padding: 0 3px 8px;
+  }
+  .uipack-web-schedule :is(thead th, tbody th):first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    padding-inline: 0 10px;
+    background: var(--web-surface);
+    text-align: start;
+  }
+  .uipack-web-schedule tbody th {
+    min-width: 4.5rem;
+    white-space: nowrap;
+  }
+  .uipack-web-schedule tbody th span {
+    display: block;
+    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 1.2;
+  }
+  .uipack-web-schedule tbody th small {
+    display: block;
+    font: 0.6875rem / 1.3 var(--web-font-mono);
+    color: var(--web-ink-low);
+  }
+  .uipack-web-schedule td > span {
+    display: grid;
+    place-items: center;
+    min-width: 3.25rem;
+    min-height: 2.25rem;
+    padding: 4px 6px;
+    border: 1px solid var(--ui-cell-line, transparent);
+    border-radius: var(--ui-cell-radius, 4px);
+    background: var(--ui-cell-fill, var(--web-secondary));
+    color: var(--ui-cell-ink, var(--web-ink));
+    font: 500 0.75rem / 1.2 var(--web-font-mono);
+    white-space: pre-line;
+  }
+  .uipack-web-schedule td[data-tone="off"] > span {
+    border-style: dashed;
+    border-color: var(--web-hairline);
+    background: transparent;
+    color: var(--ui-cell-off-ink, var(--web-ink-low));
+    font-weight: 400;
+  }
+  .uipack-web-schedule td[data-tone="peak"] > span,
+  .uipack-web-schedule__legend i[data-tone="peak"] {
+    border-color: var(--ui-cell-peak, var(--web-accent));
+    background: var(--ui-cell-peak, var(--web-accent));
+    color: var(--ui-on-cell-peak, var(--web-on-accent));
+    font-weight: 600;
+  }
+  .uipack-web-schedule__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--web-s1) var(--web-s3);
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+    font: 0.75rem / 1.3 var(--web-font-mono);
+    color: var(--web-ink-low);
+  }
+  .uipack-web-schedule__legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .uipack-web-schedule__legend i {
+    width: 14px;
+    height: 10px;
+    border: 1px solid var(--ui-cell-line, transparent);
+    border-radius: var(--ui-cell-radius, 3px);
+    background: var(--ui-cell-fill, var(--web-secondary));
+  }
+  .uipack-web-schedule__legend i[data-tone="off"] {
+    border-style: dashed;
+    border-color: var(--web-rule);
+    background: transparent;
+  }
+  @container web (max-width: 720px) {
+    .uipack-web-schedule td > span {
+      min-width: 2.75rem;
+      min-height: 2.125rem;
+      padding: 3px 4px;
+      font-size: 0.6875rem;
+    }
+    .uipack-web-schedule :is(th, td) {
+      padding: 2px;
+    }
+    .uipack-web-schedule tbody th {
+      min-width: 3.75rem;
+    }
+    .uipack-web-table :is(th, td) {
+      padding: 8px;
+      font-size: 0.875rem;
+    }
+  }
+
+  /* ItemList and RecordCard */
+  .uipack-web-list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .uipack-web-list li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--web-hairline);
+  }
+  .uipack-web-list li:not([data-status]) {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .uipack-web-list__mark {
+    width: 10px;
+    height: 10px;
+    border-radius: var(--web-radius-pill);
+    border: 1.5px solid var(--web-ink-low);
+  }
+  .uipack-web-list li[data-status="done"] .uipack-web-list__mark {
+    border-color: var(--web-accent);
+    background: var(--web-accent);
+  }
+  .uipack-web-list li[data-status="attention"] .uipack-web-list__mark {
+    border-color: var(--ui-cell-peak, var(--web-accent));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-cell-peak, var(--web-accent)) 25%, transparent);
+  }
+  .uipack-web-list__text {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+  .uipack-web-list__text strong {
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+  .uipack-web-list__text span {
+    font-size: 0.8125rem;
+    color: var(--web-ink-low);
+  }
+  .uipack-web-list__meta {
+    font: 500 0.8125rem / 1.2 var(--web-font-mono);
+    color: var(--web-ink-medium);
+    white-space: nowrap;
+  }
+  .uipack-web-record {
+    display: grid;
+    gap: 12px;
+    padding: var(--web-s2) var(--web-s3);
+    border: var(--web-frame-border);
+    border-radius: var(--web-radius-panel);
+    background: var(--ui-corner-marks, none), var(--web-surface);
+    box-shadow: var(--ui-card-shadow);
+  }
+  .uipack-web-record__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--web-s2);
+  }
+  .uipack-web-record__eyebrow {
+    margin: 0 0 2px;
+    font: 500 0.6875rem / 1.2 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+    color: var(--web-ink-low);
+  }
+  .uipack-web-record__title {
+    margin: 0;
+    font-weight: 600;
+  }
+  .uipack-web-record dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+    gap: 10px var(--web-s2);
+    margin: 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--web-hairline);
+  }
+  .uipack-web-record dt {
+    font: 0.6875rem / 1.3 var(--web-font-mono);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--web-ink-low);
+  }
+  .uipack-web-record dd {
+    margin: 2px 0 0;
+    font-size: 0.9375rem;
+  }
+  .uipack-web-file__name {
+    font-family: var(--web-font-mono);
+    font-size: 0.875rem;
+  }
+
+  /* WorkedExample: input, bracket into each rule, results. */
+  .uipack-web-worked {
+    display: grid;
+    gap: var(--web-s2);
+    min-width: 0;
+    padding: var(--web-s3);
+    border: var(--web-frame-border);
+    border-radius: var(--web-radius);
+    background: var(--ui-corner-marks, none), var(--web-surface);
+    box-shadow: var(--web-shadow);
+  }
+  .uipack-web-worked__title {
+    margin: 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--web-hairline);
+    font: 500 var(--web-step--1) / 1.3 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+    color: var(--web-ink-low);
+  }
+  .uipack-web-worked__sheet {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+    align-items: center;
+    gap: var(--web-s3);
+  }
+  .uipack-web-worked__given,
+  .uipack-web-worked__result {
+    display: grid;
+    gap: 4px;
+    align-content: center;
+  }
+  .uipack-web-worked__value {
+    font: var(--web-display-weight) calc(var(--web-step-5) * var(--web-display-scale)) / 1 var(--web-font-display);
+    letter-spacing: var(--web-display-tracking);
+    text-transform: var(--web-display-case);
+    font-variant-numeric: tabular-nums;
+    font-synthesis-weight: none;
+  }
+  .uipack-web-worked__label {
+    font-size: 0.875rem;
+    color: var(--web-ink-medium);
+  }
+  .uipack-web-worked__result .uipack-web-worked__value {
+    color: var(--web-accent-ink);
+  }
+  .uipack-web-worked__lines {
+    position: relative;
+    display: grid;
+    gap: var(--web-s2);
+    margin: 0;
+    padding: 0 0 0 var(--web-s3);
+    list-style: none;
+  }
+  /* The bracket: one rule down the lines' start edge, from the first line's middle to the last's. */
+  .uipack-web-worked__lines::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: calc(50% / var(--lines, 1));
+    bottom: calc(50% / var(--lines, 1));
+    border-left: var(--ui-rule-width) solid var(--web-rule);
+  }
+  .uipack-web-worked__lines li {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(2rem, 4rem) minmax(7.5rem, auto);
+    align-items: center;
+    gap: var(--web-s2);
+  }
+  .uipack-web-worked__lines li::before {
+    content: "";
+    position: absolute;
+    left: calc(-1 * var(--web-s3));
+    width: calc(var(--web-s3) - 8px);
+    top: 50%;
+    border-top: var(--ui-rule-width) solid var(--web-rule);
+  }
+  .uipack-web-worked__rule {
+    display: grid;
+    gap: 4px;
+    padding: 10px 14px;
+    border: 1px solid var(--ui-cell-line, var(--web-hairline));
+    border-radius: var(--ui-cell-radius, var(--web-radius-inner));
+    background: var(--ui-cell-fill, var(--web-secondary));
+    font-size: 0.9375rem;
+  }
+  .uipack-web-worked__rule code {
+    font: 500 0.8125rem / 1.3 var(--web-font-mono);
+    color: var(--web-ink-medium);
+  }
+  .uipack-web-worked__arrow {
+    position: relative;
+    height: 0;
+    border-top: var(--ui-rule-width) solid var(--web-ink-low);
+  }
+  .uipack-web-worked__arrow::after {
+    content: "";
+    position: absolute;
+    right: -1px;
+    top: -5px;
+    width: 8px;
+    height: 8px;
+    border-top: var(--ui-rule-width) solid var(--web-ink-low);
+    border-right: var(--ui-rule-width) solid var(--web-ink-low);
+    transform: translateY(calc(-0.5 * var(--ui-rule-width))) rotate(45deg);
+  }
+  .uipack-web-worked__note {
+    margin: 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--web-hairline);
+    font-size: 0.875rem;
+    color: var(--web-ink-medium);
+  }
+  @container web (max-width: 720px) {
+    .uipack-web-worked {
+      padding: var(--web-s2);
+    }
+    .uipack-web-worked__sheet {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--web-s2);
+    }
+    .uipack-web-worked__value {
+      font-size: calc(var(--web-step-4) * var(--web-display-scale));
+    }
+    .uipack-web-worked__lines {
+      padding-left: var(--web-s2);
+    }
+    .uipack-web-worked__lines li {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+    }
+    .uipack-web-worked__lines li::before {
+      left: calc(-1 * var(--web-s2));
+      width: calc(var(--web-s2) - 4px);
+    }
+    .uipack-web-worked__arrow {
+      display: none;
+    }
+    .uipack-web-worked__result {
+      justify-items: end;
+      text-align: end;
+    }
+  }
+
+  /* BeforeAfter */
+  .uipack-web-compare {
+    display: grid;
+    gap: var(--web-s3);
+  }
+  .uipack-web-compare__change {
+    margin: 0;
+    font: var(--web-display-weight) calc(var(--web-step-6) * 1.25 * var(--web-display-scale)) / 1 var(--web-font-display);
+    letter-spacing: var(--web-display-tracking);
+    text-transform: var(--web-display-case);
+    font-synthesis-weight: none;
+  }
+  .uipack-web-compare dl {
+    display: grid;
+    gap: var(--web-s2);
+    margin: 0;
+  }
+  .uipack-web-compare__row {
+    display: grid;
+    gap: 6px;
+  }
+  .uipack-web-compare__row dt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+  }
+  .uipack-web-compare__tag {
+    font: 600 0.6875rem / 1.2 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+    color: var(--web-ink);
+  }
+  .uipack-web-compare__label {
+    font-size: 0.875rem;
+    color: var(--web-ink-low);
+  }
+  .uipack-web-compare__row dd {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+  }
+  .uipack-web-compare__bar {
+    flex: none;
+    width: calc(var(--v) * (100% - 7rem));
+    min-width: 6px;
+    height: 14px;
+    border: 1px solid var(--web-rule);
+    border-radius: var(--web-radius-xs, 2px);
+    background: repeating-linear-gradient(135deg, var(--web-hairline) 0 2px, transparent 2px 6px);
+  }
+  .uipack-web-compare__row[data-side="after"] .uipack-web-compare__bar {
+    border-color: var(--ui-cell-peak, var(--web-accent));
+    background: var(--ui-cell-peak, var(--web-accent));
+  }
+  .uipack-web-compare__value {
+    font: 600 var(--web-step-1) / 1 var(--web-font-text);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .uipack-web-compare__row[data-side="after"] .uipack-web-compare__value {
+    color: var(--web-accent-ink);
+  }
+
+  /* DemoPlayer, steps mode: a narrow checklist and a wide result pane for the product's output. */
+  .uipack-web-demo[data-mode="steps"] .uipack-web-demo__body {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    min-height: 0;
+  }
+  .uipack-web-demo[data-mode="steps"] .uipack-web-demo__steps li {
+    grid-template-columns: 20px minmax(0, 1fr);
+    align-items: start;
+    padding: 10px 12px;
+    line-height: 1.35;
+  }
+  .uipack-web-demo[data-mode="steps"] .uipack-web-demo__steps li small {
+    grid-column: 2;
+  }
+  .uipack-web-demo[data-mode="steps"] .uipack-web-demo__tick {
+    margin-top: 1px;
+  }
+  .uipack-web-demo[data-mode="steps"] .uipack-web-demo__result {
+    padding: 0;
+    background: none;
+  }
+  @container web (max-width: 720px) {
+    .uipack-web-demo[data-mode="steps"] .uipack-web-demo__body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .uipack-web-demo[data-mode="steps"] .uipack-web-demo__work {
+      min-height: 0;
+    }
   }
 }

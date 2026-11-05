@@ -150,6 +150,42 @@ export const icons = {
       <path d="M8 6.5v3.5M8 12.25h.01" />
     </>
   ),
+  person: (
+    <>
+      <circle cx="8" cy="4.5" r="2.5" />
+      <path d="M3.5 14.5V12a4.5 4.5 0 0 1 9 0v2.5" />
+    </>
+  ),
+  calendar: (
+    <>
+      <rect x="2" y="3" width="12" height="11" rx="1.5" />
+      <path d="M2 6.5h12M5 1.5v3M11 1.5v3M5 9.5h2M9 9.5h2M5 12h2" />
+    </>
+  ),
+  file: (
+    <>
+      <path d="M4 1.5h5.5L13 5v9.5H4z" />
+      <path d="M9.5 1.5V5H13M6 8.5h5M6 11h5M8.5 8.5v4" />
+    </>
+  ),
+  table: (
+    <>
+      <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" />
+      <path d="M1.5 6h13M1.5 9.5h13M6 6v7.5" />
+    </>
+  ),
+  receipt: (
+    <>
+      <path d="M3.5 1.5h9v13l-1.5-1-1.5 1-1.5-1-1.5 1-1.5-1-1.5 1z" />
+      <path d="M6 5h4M6 8h4M6 11h2" />
+    </>
+  ),
+  phone: (
+    <>
+      <rect x="4" y="1.5" width="8" height="13" rx="1.5" />
+      <path d="M7 12.25h2" />
+    </>
+  ),
   more: (
     <>
       <circle cx="3" cy="8" r="1" fill="currentColor" />

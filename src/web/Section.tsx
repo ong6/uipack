@@ -100,6 +100,8 @@ export function FeatureGrid({ features, spotlight = false, numbered = false }: F
           <>
             {numbered && (
               <span className="uipack-web-feature__num" aria-hidden="true">
+                {/* The leading zero shows where the style numbers with two digits (Technical's STEP 01). */}
+                {i < 9 && <span className="uipack-web-feature__pad">0</span>}
                 {i + 1}
               </span>
             )}

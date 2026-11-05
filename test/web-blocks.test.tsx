@@ -176,7 +176,7 @@ describe("closing parts", () => {
     );
     expect(container.querySelector("ol.uipack-web-features--numbered")).not.toBeNull();
     const nums = [...container.querySelectorAll(".uipack-web-feature__num")];
-    expect(nums.map((n) => n.textContent)).toEqual(["1", "2"]);
+    expect(nums.map((n) => n.textContent)).toEqual(["01", "02"]);
     for (const n of nums) expect(n).toHaveAttribute("aria-hidden", "true");
   });
 

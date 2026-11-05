@@ -6,7 +6,17 @@ import { Lane } from "../Lane";
 import { Node } from "../Node";
 import { Packet } from "../Packet";
 import type { Point } from "../geometry";
-import { Stack, stackHeight, presetFigure, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
+import type { LegendItem } from "../Legend";
+import {
+  Stack,
+  stackHeight,
+  presetFigure,
+  nodeWidthFor,
+  NARROW_W,
+  type FigureMeta,
+  type Item,
+  type PresetParts,
+} from "./shared";
 
 export interface PipelineSpec {
   figure: FigureMeta;
@@ -14,6 +24,11 @@ export interface PipelineSpec {
   /** A queue drawn after stage `after` (0-based), with `depth` waiting slots. */
   queue?: Item & { after: number; depth?: number };
   laneTitle?: string;
+  /**
+   * The key under the drawing. Default: "Inline" and "Queued" when there is a queue, none without
+   * one. Pass your own entries, or `false` to hide it.
+   */
+  legend?: LegendItem[] | false;
 }
 
 export const defaultPipeline: PipelineSpec = {
@@ -38,7 +53,9 @@ export const defaultPipeline: PipelineSpec = {
 const FLOW = "job";
 
 export function pipelineParts(spec: PipelineSpec = defaultPipeline, id: string): PresetParts {
-  const stage = { w: 136, h: 48, step: 176, y: 96 };
+  // Boxes widen to fit the longest label or sub (never below 136px), so a label is never cut to fit.
+  const w = nodeWidthFor([...spec.stages, ...(spec.queue ? [spec.queue] : [])], { min: 136, size: 13, subSize: 10 });
+  const stage = { w, h: 48, step: w + 40, y: 96 };
   const cy = stage.y + stage.h / 2;
   const slots: ("stage" | "queue")[] = [];
   spec.stages.forEach((_, i) => {
@@ -148,10 +165,16 @@ export function pipelineParts(spec: PipelineSpec = defaultPipeline, id: string):
     narrow: <Stack steps={steps} id={`${id}-n`} />,
     viewBox: `0 0 ${Math.max(width, 640)} ${stage.y + stage.h + 48}`,
     narrowViewBox: `0 0 ${NARROW_W} ${stackHeight(steps.length)}`,
-    legend: [
-      { label: "Inline", kind: "request" },
-      { label: "Queued", kind: "change" },
-    ],
+    legend:
+      spec.legend === false
+        ? []
+        : (spec.legend ??
+          (spec.queue
+            ? [
+                { label: "Inline", kind: "request" },
+                { label: "Queued", kind: "change" },
+              ]
+            : [])),
   };
 }
 
