@@ -395,3 +395,101 @@ export function isLabelTitle(title: string): boolean {
   if (VERB_RE.test(t) || DECISION_RE.test(wordsOf(t)[0] ?? "")) return false;
   return !wordsOf(t).some((w) => /^\p{L}{3,}ed$/u.test(w) && !NOT_PAST_RE.test(w));
 }
+
+/** Words that carry no content of their own, so they don't count when notes are compared with their slide. */
+const ECHO_STOP = /*#__PURE__*/ new Set(
+  /*#__PURE__*/ (
+    "a an the and or but nor so yet of to in on at for by with from as into onto over under up down out off per via vs " +
+    "is are was were be been being am it its it's this that these those there here then than also only just very too " +
+    "i we you they he she me us them our your their my his her who what which when where why how all any each both " +
+    "do does did done has have had will would can could should shall may might must not no yes get gets got say says " +
+    "said mean means still now more most less about around plus such s they've we've you've it's that's there's " +
+    "isn't aren't wasn't weren't don't doesn't didn't won't can't we're they're you're i'm let's"
+  ).split(" "),
+);
+
+/** A word's rough root, so "approve" and "approval", "change" and "changes" match. */
+const echoRoot = (word: string) => {
+  const w = word.toLowerCase().replace(/['’]s$/, "").replace(/[.,%]+$/, "");
+  return w.length > 5 ? w.slice(0, 5) : w.replace(/s$/, "");
+};
+
+/** The content words of a text, as rough roots. */
+export function contentRoots(text: string): string[] {
+  return wordsOf(text.replace(/[-–—/]/g, " "))
+    .map(echoRoot)
+    .filter((w) => w && !ECHO_STOP.has(w));
+}
+
+/**
+ * How much of a slide's `say` only repeats the slide: the share of its content words (source lines
+ * aside) that already appear in the title, points, lede or slots. `words` is how many it compared.
+ */
+export function notesEcho(slide: StorySlide): { share: number; words: number } {
+  const said = sayOf(slide.notes)
+    .split(/\n+/)
+    .filter((line) => !/^\s*(?:[-•*]\s*)?sources?\b/i.test(line))
+    .join(" ");
+  const roots = contentRoots(said);
+  if (!roots.length) return { share: 0, words: 0 };
+  const shown = new Set(
+    contentRoots(
+      [headlineOf(slide), slide.lede ?? "", ...(slide.points ?? []), ...Object.values(slide.slots ?? {}), slide.source ?? ""].join(
+        " ",
+      ),
+    ),
+  );
+  return { share: roots.filter((w) => shown.has(w)).length / roots.length, words: roots.length };
+}
+
+/** Words after an ask's verb that leave it without an object: "Approve by 15 January", "Decide now". */
+const NO_OBJECT_RE =
+  /^(?:by|before|on|until|till|at|from|in|this|that|it|now|today|tomorrow|tonight|soon|asap|please|here|\d|$)/i;
+
+/** Words that say who, when or how urgently, not what: what is left of an ask's title without them is its object. */
+const ASK_FRAME_RE =
+  /^(?:by|before|on|until|till|at|from|in|of|for|to|this|that|it|now|today|tomorrow|tonight|soon|asap|please|we|you|need|needs|your|our|the|a|an|so|and|or|yes|no|go|ahead|sign|off|approval|decision|deadline|ask|needed|required)$/i;
+
+/**
+ * Whether an ask says what is decided or done: a decision verb followed by its object ("approve
+ * Spanish and French", "review the sync design doc"), or a title with something left once its
+ * verb, owner words and date are gone ("Schema freeze from 20 May", "One more engineer by July").
+ * "Approve by 15 January 2027" and "Decide by 14 March" have no object.
+ */
+export function hasAskObject(headline: string, shown: string): boolean {
+  const re = new RegExp(DECISION_RE.source, "gi");
+  for (const m of shown.matchAll(re)) {
+    const rest = shown
+      .slice((m.index ?? 0) + m[0].length)
+      .replace(/^\s*(?:off\s+on|off|on)?\s*/i, "")
+      .replace(/^(?:the|a|an|our|this|to)\s+/i, "");
+    const next = rest.match(/^[\p{L}\p{N}][\p{L}\p{N}'’-]*/u)?.[0] ?? "";
+    if (next && !NO_OBJECT_RE.test(next) && !DATE_RE.test(next)) return true;
+  }
+  const left = wordsOf(headline).filter(
+    (w) => !DECISION_RE.test(w) && !ASK_FRAME_RE.test(w) && !DATE_RE.test(w) && !/^\d/.test(w) && !hasOwner(w),
+  );
+  return left.length > 0;
+}
+
+/** "No extra cost", "free", "zero headcount": an ask that says it costs nothing still names its cost. */
+const NO_COST_RE = /\b(?:no|zero|without)\s+(?:extra\s+|additional\s+|new\s+)?(?:cost|budget|spend|headcount|people|engineers?)\b|\bfree\b/i;
+/** Money: "$40k", "€1,200", "40k a year". */
+const MONEY_RE = /[$€£¥]\s?\d|\b\d[\d,.]*\s?(?:k|m|bn)\b/i;
+
+/**
+ * Whether an ask names what it costs: a quantity that isn't a date ("one engineer for about three
+ * weeks", "400 articles", "$40k"), or says plainly that it costs nothing.
+ */
+export function hasAskCost(text: string): boolean {
+  return isSpecific(text) || MONEY_RE.test(text) || NO_COST_RE.test(text);
+}
+
+/** Words that make a quantity a cost: people, effort, money, work to do. */
+const COST_WORD_RE =
+  /\b(?:budget|spend|engineers?|engineer-(?:days|weeks|months)|headcount|FTEs?|hires?|people|contractors?|licen[cs]es?)\b|[$€£¥]\s?\d/i;
+
+/** Whether a slide's text states a cost: a quantity with a cost word ("one engineer for about three weeks", "$40k"). */
+export function statesCost(text: string): boolean {
+  return COST_WORD_RE.test(text) && hasAskCost(text);
+}

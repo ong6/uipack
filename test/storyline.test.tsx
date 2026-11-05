@@ -161,7 +161,7 @@ describe("storyline templates", () => {
       expect(SLIDE_ROLES[role].question).toBeTruthy();
     }
     expect(REPEATABLE_ROLES).toContain("evidence");
-    expect(Object.keys(LINT_RULES)).toHaveLength(23);
+    expect(Object.keys(LINT_RULES)).toHaveLength(25);
   });
 });
 
@@ -990,6 +990,88 @@ describe("lintDeck: presented decks (the default)", () => {
       expect.objectContaining({ slideId: "evidence", severity: "tip", message: expect.stringMatching(/move it to `delivery`/) }),
     ]);
     expect(find(lintDeck(only), "notes-cues")).toEqual([]);
+  });
+
+  describe("notes-echo", () => {
+    // Round-4 review deck: notes that restate their slide, and the same slide with notes that add to it.
+    const cost: Partial<StorySlide> = {
+      title: "Spanish and French: about three weeks",
+      points: ["One engineer", "Translation review of 400 articles", "Those chats unchanged today"],
+    };
+    it("warns when a presented slide's notes mostly repeat its words", () => {
+      const echo = withSlide(presented, "risk", {
+        ...cost,
+        notes: cues(
+          "Spanish and French chats still run the old way\nCost: one engineer for about three weeks\nPlus a translation review of 400 articles",
+        ),
+      });
+      expect(find(lintPresented(echo), "notes-echo")).toEqual([
+        expect.objectContaining({ slideId: "risk", severity: "warn", message: expect.stringMatching(/mostly repeat the slide/) }),
+      ]);
+      // A deck sent without its speaker may restate and explain in full sentences.
+      expect(find(lintDeck(echo), "notes-echo")).toEqual([]);
+    });
+
+    it("passes notes that add the why, the so-what, the trade-off and the bridge", () => {
+      const adds = withSlide(presented, "risk", {
+        ...cost,
+        notes: cues(
+          "Why now: those customers meet the price change on the old bot\nThe engineering is small; the review is the open item\nIf no: they keep general-training answers",
+          "What Marcus approves",
+        ),
+      });
+      expect(find(lintPresented(adds), "notes-echo")).toEqual([]);
+    });
+
+    it("ignores source lines and notes too short to judge", () => {
+      const sourced = withSlide(presented, "risk", { notes: cues("Source: the cache capacity forecast, 71% full today, tripwire 85%") });
+      expect(find(lintPresented(sourced), "notes-echo")).toEqual([]);
+      expect(find(lintPresented(withSlide(presented, "risk", { notes: cues("Tripwire at 85%") })), "notes-echo")).toEqual([]);
+    });
+  });
+
+  describe("ask-scope", () => {
+    const plan: StorySlide = {
+      id: "plan",
+      title: "1 engineer, 3 weeks",
+      role: "plan",
+      points: ["Plus a translation review of 400 articles"],
+      notes: cues("The review is the open item; the engineering is small."),
+    };
+    const deck = (ask: Partial<StorySlide>, withPlan = true) => {
+      const slides = withSlide(presented, "ask", ask);
+      return withPlan ? [...slides.slice(0, -1), plan, slides[slides.length - 1]] : slides;
+    };
+    const scope = (ask: Partial<StorySlide>, withPlan = true, options: LintOptions = {}) =>
+      find(lintPresented(deck(ask, withPlan), options), "ask-scope");
+
+    it("warns when the ask slide says neither what is approved nor what it costs", () => {
+      const [hit] = scope({
+        title: "Approve by 15 January 2027",
+        points: ["Head of support", "Later approval misses the price change"],
+      });
+      expect(hit).toMatchObject({ slideId: "ask", severity: "warn" });
+      expect(hit.message).toMatch(/what is being approved or done/);
+      expect(hit.message).toMatch(/what it costs: "1 engineer, 3 weeks" states a cost/);
+    });
+
+    it("passes an ask with its object and cost on the slide", () => {
+      expect(
+        scope({
+          title: "Approve Spanish and French by 15 January",
+          points: ["Head of support", "1 engineer ~3 weeks + 400-article review"],
+        }),
+      ).toEqual([]);
+      // A noun-phrase ask names its object too, and a cost-free deck asks for no cost.
+      expect(scope({ title: "Schema freeze from 20 May", points: ["Platform leads to approve"] }, false)).toEqual([]);
+      expect(find(lintPresented(presented), "ask-scope")).toEqual([]);
+    });
+
+    it("reads only the slide, not the notes, and is off when read alone", () => {
+      const hidden = { title: "Decide by 14 March", points: ["Platform leads"], notes: cues("Approve the queue: six engineer-weeks.") };
+      expect(scope(hidden)[0].message).toMatch(/approved or done.*what it costs/);
+      expect(find(lintDeck(deck(hidden)), "ask-scope")).toEqual([]);
+    });
   });
 
   describe("causal-claim", () => {

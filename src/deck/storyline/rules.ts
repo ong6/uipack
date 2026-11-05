@@ -52,6 +52,8 @@ export type LintRule =
   | "template-beats"
   | "slot-budget"
   | "notes-cues"
+  | "notes-echo"
+  | "ask-scope"
   | "slide-shape"
   | "ai-tells"
   | "causal-claim";
@@ -150,7 +152,17 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   "notes-cues": {
     severity: "warn",
     check:
-      "Presented: each slide's `say` is cues, not a script: at most 60 words (the claim to say, the number to point at), with the bridge in `next`. A `say` of stage directions only ('Point at the 9', 'Walk the figure') warns: say the claim and the number; a stage direction beside content is a tip to move it to `delivery`.",
+      "Presented: each slide's `say` is cues, not a script: at most 60 words (why it matters, the so-what, the trade-off), with the bridge in `next`. A `say` of stage directions only ('Point at the 9', 'Walk the figure') warns; a stage direction beside content is a tip to move it to `delivery`.",
+  },
+  "notes-echo": {
+    severity: "warn",
+    check:
+      "Presented: a slide's notes add what the slide can't hold (why it matters, the so-what for this audience, the trade-off if the answer is no, the bridge), reasoned from the given facts. Notes whose content words are mostly (55% or more) already on the slide warn; source lines don't count.",
+  },
+  "ask-scope": {
+    severity: "warn",
+    check:
+      "Presented: the ask slide itself says what is approved or done (a decision verb with its object: 'approve Spanish and French', not 'approve by 15 January') and, when another slide states a cost, what it costs (a quantity that isn't a date: 'one engineer, about three weeks', or 'no extra cost').",
   },
   "slide-shape": {
     severity: "warn",

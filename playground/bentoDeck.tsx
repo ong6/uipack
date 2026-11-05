@@ -344,7 +344,7 @@ export const bentoDeck: DeckSlide[] = [
     notes: {
       say: cues(
         "p95: the slowest search in twenty. What people waiting actually feel.",
-        "412 ms in Q2, 198 now, same queries.",
+        "Same query mix both quarters, so easier queries don't explain it.",
         "Source: the search latency dashboard, Q2 against Q3.",
       ),
       delivery: "Say the two numbers, then stop.",

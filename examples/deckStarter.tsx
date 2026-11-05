@@ -109,8 +109,9 @@ const rewritten: Record<string, Partial<DeckSlide>> = {
     ]),
     notes: {
       say: cues(
-        "Platform leads: approve a two-week freeze on index schema changes from 20 May.",
-        "Without it, a schema change during cutover costs another backfill.",
+        "Why: two weeks from 20 May spans the 30 May cutover, when a schema change hurts most.",
+        "If no: one change mid-cutover means another backfill.",
+        "Teams with a change planned land it before 20 May.",
       ),
       delivery: "Stop after the ask and wait for an answer.",
     },

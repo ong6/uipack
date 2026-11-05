@@ -329,8 +329,8 @@ export const deckExample: DeckSlide[] = [
     ),
     notes: {
       say: cues(
-        "Team leads: titles of your next review, in order, by Friday 6 November.",
-        "Just the titles. That's where the argument lives.",
+        "Just the titles, in order. That's where the argument lives.",
+        "Friday 6 November leaves a week to rewrite before the 13 November reviews.",
         "Already answer first? Send it anyway. It becomes the example.",
       ),
       delivery: "End on the date. Leave it up for questions.",

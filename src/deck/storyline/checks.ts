@@ -34,6 +34,10 @@ import {
   CAUSAL_RE,
   NOT_A_TEST_RE,
   STAGE_DIRECTION_RE,
+  notesEcho,
+  hasAskObject,
+  hasAskCost,
+  statesCost,
 } from "./heuristics";
 
 /** What every check reads: the deck, its options, and what is derived from them once. */
@@ -86,6 +90,12 @@ const wordCount = (text: string) => text.match(/\S+/g)?.length ?? 0;
 
 /** Most words in a presented slide's `say` before it reads as a script rather than cues. */
 const MAX_CUE_WORDS = 60;
+/** Roles whose slides state what the work costs. */
+const COST_ROLES: readonly SlideRole[] = ["answer", "option", "recommendation", "plan"];
+/** Share of a presented slide's note words already on the slide at which the note only repeats it. */
+export const ECHO_SHARE = 0.55;
+/** Fewest content words a note needs before its echo is judged: "Source: the survey" is too short to tell. */
+const ECHO_MIN_WORDS = 6;
 
 /**
  * The checks, in the order their findings are listed: the deck's identity, then each slide's title
@@ -341,7 +351,7 @@ export const LINT_CHECKS: readonly LintCheck[] = [
         if (!sayOf(slide.notes))
           report(
             "warn",
-            "No speaker notes. Give the cues: the claim you'll say, the number to point at, and the bridge in `next`.",
+            "No speaker notes. Cue what the slide can't hold: why it matters, what follows for this audience, the trade-off, and the bridge in `next`.",
             slide.id,
           );
     },
@@ -355,7 +365,7 @@ export const LINT_CHECKS: readonly LintCheck[] = [
         if (words > MAX_CUE_WORDS)
           report(
             "warn",
-            `The notes run ${words} words, a script to recite. Cut them to a few short cue lines (the claim to say, the number to point at) and the bridge in \`next\`; you'll say it in your own words.`,
+            `The notes run ${words} words, a script to recite. Cut them to a few short cue lines (why it matters, the so-what, the trade-off) and the bridge in \`next\`; you'll say it in your own words.`,
             slide.id,
           );
         const lines = sayOf(slide.notes)
@@ -366,7 +376,7 @@ export const LINT_CHECKS: readonly LintCheck[] = [
         if (directions.length && directions.length === lines.length)
           report(
             "warn",
-            `The notes are only stage directions ("${directions[0]}"). Cue the content: the claim to say and the number to point at, in a few words ("Desktop only: 61.2 → 63.0 over four weeks").`,
+            `The notes are only stage directions ("${directions[0]}"). Cue what the slide can't say: why the number matters to this room, what follows from it ("Desktop only, so mobile is still open").`,
             slide.id,
           );
         else if (directions.length)
@@ -375,6 +385,21 @@ export const LINT_CHECKS: readonly LintCheck[] = [
             `"${directions[0]}" is a stage direction; move it to \`delivery\` and keep \`say\` for what to say.`,
             slide.id,
           );
+      }
+    },
+  },
+  {
+    rule: "notes-echo",
+    check: ({ presented, mode }, report) => {
+      if (mode !== "presented") return;
+      for (const slide of presented) {
+        const { share, words } = notesEcho(slide);
+        if (words < ECHO_MIN_WORDS || share < ECHO_SHARE) continue;
+        report(
+          "warn",
+          `The notes mostly repeat the slide (${Math.round(share * 100)}% of their words are on it). The room can read the slide; cue what it can't hold: why it matters to this audience, what follows from the number, the trade-off, and the bridge to the next slide. Reason from the given facts; add no new ones.`,
+          slide.id,
+        );
       }
     },
   },
@@ -481,6 +506,32 @@ export const LINT_CHECKS: readonly LintCheck[] = [
           missing.includes("a date") && hedged && 'The date is hedged ("-ish", "maybe", "TBC"); commit to one.',
         ].filter(Boolean);
         report("warn", [`The ask is missing ${missing.join(", ")}.`, ...hints].join(" "), ask.id);
+      }
+    },
+  },
+  {
+    rule: "ask-scope",
+    check: ({ asks, presented, mode, roleAt }, report) => {
+      if (mode !== "presented") return;
+      // A cost stated on an answer, option, recommendation or plan slide belongs on the ask too (a
+      // problem slide's "needed an engineer" is the pain, not the price); with none, none is asked for.
+      const costed = presented.find(
+        (s) =>
+          !asks.includes(s) &&
+          COST_ROLES.includes(roleAt(s) as SlideRole) &&
+          statesCost([headlineOf(s), ...bodyText(s)].join(". ")),
+      );
+      for (const ask of asks) {
+        // On the slide, so a forwarded copy still says what is asked and what it costs.
+        const shown = [headlineOf(ask), ...bodyText(ask)].join(". ");
+        const missing = [
+          !hasAskObject(headlineOf(ask), shown) &&
+            'what is being approved or done ("approve Spanish and French", not "approve by 15 January")',
+          costed &&
+            !hasAskCost(shown) &&
+            `what it costs: "${headlineOf(costed)}" states a cost, so put it on the ask in a few words, beside the decision it buys`,
+        ].filter(Boolean);
+        if (missing.length) report("warn", `The ask slide doesn't say ${missing.join(", or ")}.`, ask.id);
       }
     },
   },
