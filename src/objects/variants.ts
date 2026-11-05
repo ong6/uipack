@@ -4,16 +4,24 @@ import type { ObjectKind } from "./scenes";
 export type ObjectEdition = 0 | 1 | 2;
 export type ObjectVariant = ObjectEdition | 3 | 4 | 5;
 export const objectDirections = [
-  { id: "studio", name: "Studio objects", description: "Physical details, soft light, close-up choreography." },
-  { id: "paper-theatre", name: "Paper worlds", description: "Cut-paper stages, layered landscapes and pop-up architecture." },
-  { id: "kinetic", name: "Kinetic sculptures", description: "Brass mechanisms, ceramic forms and suspended motion." },
-  { id: "cartoon", name: "Cartoon worlds", description: "Rounded little places, toy-like details and playful motion." },
+  {
+    id: "studio",
+    name: "Studio objects",
+    description: "Product photography: one object on a seamless sweep, soft light, a low lens.",
+  },
+  {
+    id: "paper-theatre",
+    name: "Paper worlds",
+    description: "Cut-card toy theatres: layered flats in a proscenium under one warm light.",
+  },
+  { id: "kinetic", name: "Kinetic sculptures", description: "Brass armatures and glazed ceramic turning on a slate base." },
+  { id: "cartoon", name: "Cartoon worlds", description: "Floating toy islands with toon shading, by day and by night." },
   {
     id: "realistic",
     name: "Realistic close‑ups",
-    description: "Tactile materials, precision details and intimate camera angles.",
+    description: "Low close-ups on real surfaces under grazing window light.",
   },
-  { id: "abstract", name: "Abstract forms", description: "Optical glass, sculptural rhythms and unexpected silhouettes." },
+  { id: "abstract", name: "Abstract forms", description: "Refractive glass against bands of colour, with obsidian accents." },
 ] as const;
 export const objectVariants: Record<ObjectKind, readonly string[]> = {
   ai: [
@@ -40,7 +48,7 @@ export const objectVariants: Record<ObjectKind, readonly string[]> = {
     "Abstract · Elastic exchange",
   ],
   trading: [
-    "Studio · Market terminal",
+    "Studio · Market abacus",
     "Paper · Market accordion",
     "Kinetic · Market balance",
     "Cartoon · Exchange avenue",
@@ -49,8 +57,8 @@ export const objectVariants: Record<ObjectKind, readonly string[]> = {
   ],
   server: [
     "Studio · Inference hardware",
-    "Paper · Server architecture",
-    "Kinetic · Floating compute",
+    "Paper · Server city",
+    "Kinetic · Hanging compute",
     "Cartoon · Cloud factory",
     "Realistic · Silicon detail",
     "Abstract · Signal stack",

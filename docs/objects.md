@@ -32,25 +32,25 @@ changes and Open canvas preserve it. **Another look** cycles through the availab
 Use `variant={0}` through `{5}` to pin a reproducible look; pinned scenes hide the cycling button.
 The playground accepts `?story=tennis&variant=1`. `objectVariants` exports the names.
 
-The six hobby scenes have six distinct art directions. Contact retains its three inbox accents and adds Cartoon (3) and Kinetic (4).
-
-| Variant | Direction | Geometry / perspective | Motion |
+| Variant | Direction | Look | Scenes (ai, tennis, trading, server, travel, reading) |
 | --- | --- | --- | --- |
-| 0 | Studio objects | Detailed physical objects, macro and three-quarter views | Typing, modeled tennis rally, live simulated chart, assembly, folding map, curling sheet |
-| 1 | Paper worlds | Thick cut-paper theatre stages, angled depth layers, pop-up book architecture | Layer parallax, paper flight, folding chart accordion, floating instruction cards |
-| 2 | Kinetic sculptures | Brass and ceramic mechanisms on plinths, open space and orbital perspective | Neural orrery, orbiting tennis ball, balanced market mobile, exploded compute, armillary globe, suspended folio |
+| 0 | Studio objects | Product photography: one object on a seamless sweep, the same low 36° lens and soft key for every subject; state shows through physical cues, never screen text | Agent laptop, racket, can and a bouncing ball (the packaged ball model), market abacus, inference hardware, Z-folded atlas, hardcover turning on a stand |
+| 1 | Paper worlds | Cut-card toy theatres: an open proscenium with nested arches and four to six extruded flats stepped back in depth, lit by one warm key whose shadow falls between the layers | Thinking head with cogs, centre court with paper players on a wire, market accordion, night city of rack towers, alpine passage with a train, pop-up castle from an open book |
+| 2 | Kinetic sculptures | Polished brass armatures and glazed ceramic bodies on a turned slate base; the base never moves, the mechanism does | Neural orrery, pendulum ball with a counter-swinging racket, market balance, compute tiles hanging from a gantry, celadon globe in a brass meridian, folio turning on a spindle |
+| 3 | Cartoon worlds | A floating toy island per subject with soil strata, toon-shaded chunky props and bean characters; day in light mode, night (moonlight, lit windows) in dark | Night workshop, courtside club, exchange avenue, cloud factory, island express, reading nook |
+| 4 | Realistic close-ups | Low, near macro still lifes on a real surface (walnut, hard court, a board, a map) that runs out of frame, long lens, grazing window light | Key travel, match point (ball on the baseline, racket as bokeh), ticker study, heatsink and fan, field compass, glasses on an open book |
+| 5 | Abstract forms | Refractive glass sculptures in front of flat colour bands, with polished obsidian as the one secondary material and a tinted caustic shadow | Thought lattice, elastic exchange, risk rhythm, signal stack, Möbius passage, unwritten leaves |
 
-| 3 | Cartoon worlds | Rounded miniature places, elevated three-quarter view | Keyboard workshop, court, market avenue, cloud factory, island train and reading nook |
-| 4 | Realistic close-ups | Material-focused studies of keys, felt, steel, paper and circuitry | Key travel, ball study, ticker spool, cooling fans, compass needle and quiet book stack |
-| 5 | Abstract forms | Transmissive glass, polished metal, arcs and ribbons | Thought lattice, elastic exchange, risk rhythm, signal stack, portals and curved leaves |
-
-`src/objects/art-directions.ts` and `src/objects/expanded-directions.ts` are the editable sources for all thirty non-Studio scenes:
-one builder per kind in each direction's table (`paperModels`, `kineticModels`, `cartoonModels`, `realisticModels`, `abstractModels`),
-on a shared stage per direction. `src/objects/procedural.ts` holds the 12 s loop clock (`playLoop`) they and `contact-directions.ts` share.
-`directionTokens` and the expanded direction material factories own their materials, and the scoped direction rules in `objects.css` own their
-light/dark stage backgrounds. Custom palettes continue to control Studio; the other directions
-retain their authored material palette. All geometry is original, MIT licensed, with no downloaded
-models, textures or font dependency. The new directions require no model downloads.
+Each direction has its own source file with one builder per kind and its look (`src/objects/LOOK.md`):
+`studio.ts` (`studioLook`), `paper-worlds.ts` (`paperWorld`, `paperLook`), `kinetic-sculptures.ts`
+(`kineticWorld`, `kineticLook`), and `expanded-cartoon.ts`, `expanded-realistic.ts` and `expanded-abstract.ts`
+(`cartoonLook`, `realisticLook`, `abstractLook`), with shared mesh and texture helpers in `expanded-kit.ts`.
+`art-directions.ts` routes directions 1 and 2 and `expanded-directions.ts` routes 3 to 5. `src/objects/procedural.ts`
+holds the 12 s loop clock (`playLoop`) they and `contact-directions.ts` share. `directionTokens` and each direction's
+materials own its palette, and the scoped direction rules in `objects.css` own the light/dark stage backgrounds. Custom
+palettes continue to control Studio; the other directions retain their authored material palette. All geometry and
+textures are original and procedural, MIT licensed, with no downloaded models, textures or font dependency. Only Studio
+tennis loads a packaged model file.
 
 `objectDirections` exports stable IDs (`studio`, `paper-theatre`, `kinetic`, `cartoon`, `realistic`, `abstract`), names and descriptions.
 Use `<ObjectDirectionPicker value={variant} onChange={setVariant} />` to control a set of scenes.
@@ -189,7 +189,7 @@ Each new scene is original code-authored geometry under the library license; no 
 
 Contact preserves its original numeric finish IDs 0–2. Variant 3 is **Cartoon · Little post office**,
 a miniature mailbox with a letter-delivery loop and moving flag. Variant 4 is **Kinetic · Correspondence mobile**,
-a brass mobile with suspended envelopes, a ceramic receiving tray and orbiting signal. Both are original
+a brass mobile of three glazed ceramic envelopes over a ceramic inbox tray, on the Kinetic direction's turned slate base. Both are original
 procedural models, loop every 12 seconds, and use the shared controls and static fallback. The Contact inspector
 shows only Studio, Cartoon and Kinetic; its Studio edition selector retains all three original finishes.
 `objectDirectionIndex(kind, variant)` resolves these legacy IDs to the shared visual style.

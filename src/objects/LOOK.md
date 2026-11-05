@@ -26,9 +26,10 @@ const brass = lookMaterial("metal", 0xb8893b, { roughness: 0.22 });
 const base = themed(lookMaterial("plastic", 0x1e2a33, { roughness: 0.7 }), { dark: { color: shade(0x1e2a33, -0.3) } });
 ```
 
-Today every direction's look reproduces its old render (`paperLook`, `kineticLook` in
-`art-directions.ts`, `LOOKS` in `expanded-directions.ts`, Studio's in `scenes.ts#createObject`).
-Change those, not `mount.ts`.
+Each direction's look lives beside its builders: `studioLook` in `studio.ts` (Contact's original
+editions fall back to the defaults in `scenes.ts#createObject`), `paperLook` in `paper-worlds.ts`,
+`kineticLook` in `kinetic-sculptures.ts`, and `cartoonLook`, `realisticLook` and `abstractLook` in
+`expanded-cartoon.ts`, `expanded-realistic.ts` and `expanded-abstract.ts`. Change those, not `mount.ts`.
 
 ## Light rigs (`lightRigs`, `rig`)
 
