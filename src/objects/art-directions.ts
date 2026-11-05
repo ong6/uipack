@@ -23,7 +23,7 @@ export function createArtDirection(kind: ArtKind, variant: 1 | 2 | 3 | 4 | 5) {
   const ticks: Tick[] = [];
   const root = variant === 1 ? paperWorld(kind, ticks) : kineticWorld(kind, ticks);
   root.userData.style = variant === 1 ? "paper-theatre" : "kinetic";
-  root.userData.look = variant === 1 ? paperLook(kind) : kineticLook();
+  root.userData.look = variant === 1 ? paperLook(kind) : kineticLook(0.8);
   playLoop(root, ticks, REST_MS, variant === 1 ? "paper-parallax" : "kinetic-orbit");
   return root;
 }

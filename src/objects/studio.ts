@@ -17,7 +17,7 @@ const FLOOR = -1;
 /**
  * Studio's look: a large soft key from the top left with a real (soft) shadow on the sweep, a cool
  * fill from the right, a rim from behind, and a room environment for reflections. The same 36° lens
- * 18° above the tabletop for every subject. Dark mode is a lower-key room with a stronger rim.
+ * 18° above the tabletop for every subject. Dark mode is a lower-key room with a kicker and a stronger rim.
  */
 export const studioLook: ObjectLook = {
   rig: {
@@ -31,14 +31,16 @@ export const studioLook: ObjectLook = {
       fill: { color: 0xe6eeff, intensity: 0.45, position: [6, 2, 5] },
       rim: { color: 0xe0eaff, intensity: 1.6, position: [3, 4, -6] },
     },
+    // Night: the key stays, the fill moves behind-left as a cool kicker, and the rim comes round
+    // higher and brighter, so graphite and aluminium edges separate from the dark card.
     dark: {
-      exposure: 1,
-      environment: { intensity: 0.3 },
-      reflections: 0.8,
-      hemisphere: { sky: 0xa8bccb, ground: 0x0e1514, intensity: 0.32 },
-      key: { intensity: 2.7 },
-      fill: { intensity: 0.22 },
-      rim: { color: 0xb6d2ff, intensity: 3.4 },
+      exposure: 1.05,
+      environment: { intensity: 0.34 },
+      reflections: 0.9,
+      hemisphere: { sky: 0xb4c6d2, ground: 0x18201e, intensity: 0.42 },
+      key: { intensity: 2.8 },
+      fill: { color: 0xd4e4ff, intensity: 2.6, position: [-6, 2.2, -4.5] },
+      rim: { color: 0xc2d8ff, intensity: 4.6, position: [5, 5, -5] },
     },
   },
   camera: { projection: "perspective", fov: 36, pitch: 18 },
@@ -56,16 +58,16 @@ const GRAPHITE = 0x2b2f2e,
 function studioMaterials(palette: ObjectPalette) {
   return {
     aluminium: themed(lookMaterial("brushedMetal", ALUMINIUM, { roughness: 0.32 }), {
-      dark: { color: 0x8c918d, roughness: 0.5 },
+      dark: { color: 0x989d98, roughness: 0.42 },
     }),
     satin: themed(lookMaterial("brushedMetal", 0xb8bcb6, { roughness: 0.22, anisotropy: 0.3 }), {
-      dark: { color: 0x7f8480, roughness: 0.42 },
+      dark: { color: 0x949994, roughness: 0.36 },
     }),
     steel: lookMaterial("metal", 0xd9dbd6, { roughness: 0.2 }),
     graphite: themed(lookMaterial("ceramic", GRAPHITE, { roughness: 0.55, clearcoat: 0.3, clearcoatRoughness: 0.4 }), {
-      dark: { color: 0x232726 },
+      dark: { color: 0x353b3a },
     }),
-    keycap: lookMaterial("plastic", 0x2f3433, { roughness: 0.62 }),
+    keycap: themed(lookMaterial("plastic", 0x2f3433, { roughness: 0.62 }), { dark: { color: 0x3c4241, roughness: 0.5 } }),
     rubber: lookMaterial("rubber", 0x1d2121),
     accent: lookMaterial("ceramic", palette.accent, { roughness: 0.42, clearcoat: 0.5, clearcoatRoughness: 0.2 }),
     glass: lookMaterial("ceramic", 0x07090a, { roughness: 0.08, clearcoat: 1, clearcoatRoughness: 0.02 }),
@@ -208,31 +210,43 @@ export function ai(palette: ObjectPalette, edition: ObjectEdition = 0) {
   const LH = 1.98;
   lid.add(box(W, LH, 0.065, mat.aluminium, 0, LH / 2, -0.04, 0.05));
   lid.add(box(W - 0.06, LH - 0.06, 0.012, mat.glass, 0, LH / 2, -0.002, 0.04));
-  // The display: an out-of-focus glow of windows, never legible text.
+  // The display: a clean emissive wash with one crisp agent mark (a four-point spark), never text.
   const screenCanvas = document.createElement("canvas");
-  screenCanvas.width = 512;
-  screenCanvas.height = 320;
+  screenCanvas.width = 1024;
+  screenCanvas.height = 640;
   const ctx = screenCanvas.getContext("2d")!;
   const tint = [palette.accent, 0x2f5a7a, 0x8a5a3c][edition];
-  const g = ctx.createLinearGradient?.(0, 0, 512, 320);
-  if (g) {
-    g.addColorStop(0, css(shade(tint, -0.35)));
-    g.addColorStop(1, css(0x0b1214));
-    ctx.fillStyle = g;
-  } else ctx.fillStyle = css(0x0b1214);
-  ctx.fillRect(0, 0, 512, 320);
-  if ("filter" in ctx) ctx.filter = "blur(7px)";
-  ctx.globalAlpha = 0.55;
-  ctx.fillStyle = css(shade(tint, 0.35));
-  ctx.fillRect(36, 40, 250, 230);
-  ctx.globalAlpha = 0.22;
-  ctx.fillStyle = css(0xdfe8e4);
-  for (let row = 0; row < 7; row++) ctx.fillRect(60, 64 + row * 26, 120 + ((row * 53) % 90), 9);
-  ctx.globalAlpha = 0.45;
-  ctx.fillStyle = css(shade(tint, 0.6));
-  ctx.fillRect(310, 40, 168, 110);
-  ctx.globalAlpha = 1;
-  if ("filter" in ctx) ctx.filter = "none";
+  const wash = ctx.createLinearGradient?.(0, 0, 1024, 640);
+  if (wash) {
+    wash.addColorStop(0, css(shade(tint, 0.05)));
+    wash.addColorStop(0.55, css(shade(tint, -0.45)));
+    wash.addColorStop(1, css(0x0a1113));
+    ctx.fillStyle = wash;
+  } else ctx.fillStyle = css(shade(tint, -0.45));
+  ctx.fillRect(0, 0, 1024, 640);
+  // A soft halo behind the mark, drawn as a radial gradient (no blur filter, so edges stay clean).
+  const halo = ctx.createRadialGradient?.(512, 290, 0, 512, 290, 300);
+  if (halo) {
+    halo.addColorStop(0, css(shade(tint, 0.35)));
+    halo.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = halo;
+    ctx.fillRect(0, 0, 1024, 640);
+    ctx.globalAlpha = 1;
+  }
+  /** A four-point spark: concave sides meeting at the centre. */
+  const spark = (x: number, y: number, r: number, color: string) => {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(x, y - r);
+    ctx.quadraticCurveTo?.(x, y, x + r * 0.78, y);
+    ctx.quadraticCurveTo?.(x, y, x, y + r);
+    ctx.quadraticCurveTo?.(x, y, x - r * 0.78, y);
+    ctx.quadraticCurveTo?.(x, y, x, y - r);
+    ctx.fill?.();
+  };
+  spark(512, 290, 150, css(0xf4f8f4));
+  spark(650, 168, 46, css(shade(tint, 0.7)));
   const screenTexture = new THREE.CanvasTexture(screenCanvas);
   screenTexture.colorSpace = THREE.SRGBColorSpace;
   const screenMaterial = lookMaterial("plastic", 0x050607, {
@@ -248,8 +262,8 @@ export function ai(palette: ObjectPalette, edition: ObjectEdition = 0) {
   // A progress bar of light along the bottom of the display.
   const barMaterial = glow(shade(palette.accent, 0.45), 0);
   barMaterial.toneMapped = false;
-  const bar = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 0.05), barMaterial);
-  bar.position.set(0, 0.32, 0.009);
+  const bar = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 0.05), barMaterial);
+  bar.position.set(0, 0.42, 0.009);
   bar.userData.glow = true;
   lid.add(bar);
   // Screen light spills onto the keys.
@@ -280,7 +294,7 @@ export function ai(palette: ObjectPalette, edition: ObjectEdition = 0) {
     keyboard.instanceMatrix.needsUpdate = true;
     const work = smootherstep(progress(t, 2700, 4200));
     bar.scale.x = Math.max(0.001, work);
-    bar.position.x = -0.95 * (1 - work);
+    bar.position.x = -0.65 * (1 - work);
     barMaterial.emissiveIntensity = 1.4 * Math.min(1, wake * 4) * (work > 0 ? 1 : 0) + 0.8 * done;
     const working = t > 1500 && t < 4400 ? 0.55 + 0.45 * Math.sin(t / 140) : 0;
     statusMaterial.emissive.setHex(done > 0.5 ? palette.accent : AMBER);
@@ -829,7 +843,7 @@ export function travel(palette: ObjectPalette, edition: ObjectEdition = 0) {
   const mat = studioMaterials(palette);
   const PW = 1.23,
     PH = 2.45,
-    OPEN = 0.78;
+    OPEN = 0.98;
   // An original topographic print: contours, a lake and river, woods, roads and a fold grid.
   const atlas = document.createElement("canvas");
   atlas.width = 1536;
@@ -886,11 +900,27 @@ export function travel(palette: ObjectPalette, edition: ObjectEdition = 0) {
     }
     ctx.stroke();
   }
-  // Wear along the folds: a faint shade either side of each crease, and the horizontal half-fold.
-  ctx.globalAlpha = 0.1;
+  // Wear along the folds: a worn shade either side of each crease with a bright ridge on it, and
+  // the horizontal half-fold, so the creases read as pressed paper even where the light is flat.
+  for (const x of [512, 1024]) {
+    const crease = ctx.createLinearGradient?.(x - 40, 0, x + 40, 0);
+    if (crease) {
+      crease.addColorStop(0, "rgba(90,84,68,0)");
+      crease.addColorStop(0.42, "rgba(90,84,68,0.26)");
+      crease.addColorStop(0.5, "rgba(90,84,68,0.1)");
+      crease.addColorStop(0.58, "rgba(90,84,68,0.26)");
+      crease.addColorStop(1, "rgba(90,84,68,0)");
+      ctx.fillStyle = crease;
+      ctx.fillRect(x - 40, 0, 80, 1024);
+    }
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = css(0xfffcf2);
+    ctx.fillRect(x - 2, 0, 4, 1024);
+    ctx.globalAlpha = 1;
+  }
+  ctx.globalAlpha = 0.14;
   ctx.fillStyle = css(0x5a5444);
-  for (const x of [512, 1024]) ctx.fillRect(x - 6, 0, 12, 1024);
-  ctx.fillRect(0, 506, 1536, 12);
+  ctx.fillRect(0, 504, 1536, 16);
   ctx.globalAlpha = 1;
   const texture = new THREE.CanvasTexture(atlas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -923,7 +953,8 @@ export function travel(palette: ObjectPalette, edition: ObjectEdition = 0) {
       [1.5, 0.85],
     ],
   ][edition];
-  const flat = new THREE.CatmullRomCurve3(routes.map(([x, y]) => new THREE.Vector3(x, y, 0)));
+  // Squeezed in from the paper's edges so both pins sit well inside the sheet.
+  const flat = new THREE.CatmullRomCurve3(routes.map(([x, y]) => new THREE.Vector3(x * 0.74, y * 0.85, 0)));
   const flatPoints = flat.getSpacedPoints(240);
   const panelOf = (x: number) => (x < -PW / 2 ? 0 : x > PW / 2 ? 2 : 1);
   const toLocal = (p: THREE.Vector3, panel: number) => new THREE.Vector3(p.x - (panel - 1) * (PW / 2), p.y, 0.013);
@@ -942,6 +973,9 @@ export function travel(palette: ObjectPalette, edition: ObjectEdition = 0) {
     const panel = new THREE.Mesh(sheet, [mat.paper, mat.paper, mat.paper, mat.paper, print, mat.paper]);
     panel.position.x = center;
     fold.add(panel);
+    // Where the sheet stands on the table: a tight occlusion line that turns with its panel.
+    const seat = contactShadow(PW * 1.04, 0.17, { x: center, y: -PH / 2 + 0.003, opacity: 0.78 });
+    fold.add(seat);
     // The route's run across this panel, raised ink on the paper.
     const indices = flatPoints.map((p, n) => (panelOf(p.x) === i ? n : -1)).filter((n) => n >= 0);
     if (indices.length > 1) {
@@ -963,15 +997,21 @@ export function travel(palette: ObjectPalette, edition: ObjectEdition = 0) {
     map.add(fold);
   }
   // Pins: a graphite one at the start, and the accent one that travels the route.
+  // Each is pushed into the paper: a short needle, the head close to the sheet, and a soft dark
+  // seat on the print where it enters (offset away from the key).
   const pin = (head: THREE.Material) => {
     const group = new THREE.Group();
-    group.add(turned(cylinder(0.009, 0.24, mat.steel, 0, 0, 0.12, 8)));
-    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.075, 24, 16), head);
-    cap.position.z = 0.25;
-    group.add(cap);
-    const collar = cylinder(0.05, 0.05, head, 0, 0, 0.19, 20);
+    group.add(turned(cylinder(0.011, 0.11, mat.steel, 0, 0, 0.05, 8)));
+    const collar = cylinder(0.045, 0.04, head, 0, 0, 0.1, 20);
     collar.rotation.x = Math.PI / 2;
     group.add(collar);
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.08, 24, 16), head);
+    cap.position.z = 0.16;
+    group.add(cap);
+    const seat = contactShadow(0.2, 0.2, { x: 0.025, y: -0.025, z: 0.012, opacity: 0.55 });
+    seat.rotation.x = 0;
+    group.add(seat);
+    group.userData.seat = seat;
     map.add(group);
     return group;
   };
@@ -984,6 +1024,10 @@ export function travel(palette: ObjectPalette, edition: ObjectEdition = 0) {
     fold.updateMatrix();
     object.position.copy(toLocal(p, panel).setZ(lift).applyMatrix4(fold.matrix));
     object.quaternion.copy(fold.quaternion);
+    // The seat stays on the paper while the pin hovers, fainter until it is pushed home.
+    const seat = object.userData.seat as THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>;
+    seat.position.z = 0.012 - lift;
+    seat.material.opacity = 0.55 * (1 - lift / 0.12);
   };
   root.userData.mapFolds = folds;
   root.userData.animate = (time: number) => {
@@ -1007,7 +1051,12 @@ export function travel(palette: ObjectPalette, edition: ObjectEdition = 0) {
     place(traveller, draw, lerp(0.09, 0, push));
     phase(root, t, t < 1600 ? "unfold-map" : t < 4650 ? "draw-route" : "arrive", draw);
   };
-  return finish(root);
+  // Less sky light than the other subjects, so each panel's angle to the key shows in its tone.
+  const both = studioLook.rig!.both!;
+  return finish(root, {
+    ...studioLook,
+    rig: { ...studioLook.rig, both: { ...both, hemisphere: { ...both.hemisphere, intensity: 0.45 } } },
+  });
 }
 
 /* ---------------------------------------------------------------- Reading: a hardcover on a stand */
@@ -1122,24 +1171,30 @@ export function reading(palette: ObjectPalette) {
   root.userData.pageGeometry = geometry;
   const positions = geometry.attributes.position,
     original = Float32Array.from(positions.array);
-  // A satin ribbon from the spine, draped over the shelf.
+  // A flat satin ribbon from the spine: out of the gutter, over the shelf's lip and a short tail
+  // down its face, so it ends on the stand rather than hanging into space.
+  const ribbonPath = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(0.0, -height / 2 + 0.42, 0.08),
+    new THREE.Vector3(0.02, -height / 2 + 0.08, 0.115),
+    new THREE.Vector3(0.045, -height / 2 + 0.042, 0.168),
+    new THREE.Vector3(0.06, -height / 2 + 0.0, 0.197),
+    new THREE.Vector3(0.07, -height / 2 - 0.11, 0.198),
+  ]);
+  const ribbonPoints = ribbonPath.getPoints(40);
+  const ribbonPositions: number[] = [];
+  const ribbonIndex: number[] = [];
+  ribbonPoints.forEach((p, n) => {
+    ribbonPositions.push(p.x - 0.036, p.y, p.z, p.x + 0.036, p.y, p.z);
+    if (n > 0) ribbonIndex.push(2 * n - 2, 2 * n - 1, 2 * n, 2 * n - 1, 2 * n + 1, 2 * n);
+  });
+  const ribbonGeometry = new THREE.BufferGeometry();
+  ribbonGeometry.setAttribute("position", new THREE.Float32BufferAttribute(ribbonPositions, 3));
+  ribbonGeometry.setIndex(ribbonIndex);
+  ribbonGeometry.computeVertexNormals();
   const ribbon = new THREE.Mesh(
-    new THREE.TubeGeometry(
-      new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0.02, -height / 2 + 0.2, 0.07),
-        new THREE.Vector3(0.12, -height / 2 - 0.02, 0.1),
-        new THREE.Vector3(0.24, -height / 2 - 0.1, 0.22),
-        new THREE.Vector3(0.3, -height / 2 - 0.22, 0.24),
-        new THREE.Vector3(0.36, -height / 2 - 0.5, 0.22),
-      ]),
-      24,
-      0.024,
-      6,
-      false,
-    ),
-    lookMaterial("ceramic", 0xb65748, { roughness: 0.35, clearcoat: 0.6 }),
+    ribbonGeometry,
+    lookMaterial("plastic", 0xa3392d, { roughness: 0.42, side: THREE.DoubleSide }),
   );
-  ribbon.scale.z = 0.35;
   book.add(ribbon);
   // The stand: a back plate, a shelf with a lip under the book, a kickstand and a base on the table.
   book.add(box(2.5, 1.7, 0.04, mat.aluminium, 0, -0.15, -0.2, 0.03));

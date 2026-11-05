@@ -35,11 +35,11 @@ The playground accepts `?story=tennis&variant=1`. `objectVariants` exports the n
 | Variant | Direction | Look | Scenes (ai, tennis, trading, server, travel, reading) |
 | --- | --- | --- | --- |
 | 0 | Studio objects | Product photography: one object on a seamless sweep, the same low 36° lens and soft key for every subject; state shows through physical cues, never screen text | Agent laptop, racket, can and a bouncing ball (the packaged ball model), market abacus, inference hardware, Z-folded atlas, hardcover turning on a stand |
-| 1 | Paper worlds | Cut-card toy theatres: an open proscenium with nested arches and four to six extruded flats stepped back in depth, lit by one warm key whose shadow falls between the layers | Thinking head with cogs, centre court with paper players on a wire, market accordion, night city of rack towers, alpine passage with a train, pop-up castle from an open book |
-| 2 | Kinetic sculptures | Polished brass armatures and glazed ceramic bodies on a turned slate base; the base never moves, the mechanism does | Neural orrery, pendulum ball with a counter-swinging racket, market balance, compute tiles hanging from a gantry, celadon globe in a brass meridian, folio turning on a spindle |
-| 3 | Cartoon worlds | A floating toy island per subject with soil strata, toon-shaded chunky props and bean characters; day in light mode, night (moonlight, lit windows) in dark | Night workshop, courtside club, exchange avenue, cloud factory, island express, reading nook |
-| 4 | Realistic close-ups | Low, near macro still lifes on a real surface (walnut, hard court, a board, a map) that runs out of frame, long lens, grazing window light | Key travel, match point (ball on the baseline, racket as bokeh), ticker study, heatsink and fan, field compass, glasses on an open book |
-| 5 | Abstract forms | Refractive glass sculptures in front of flat colour bands, with polished obsidian as the one secondary material and a tinted caustic shadow | Thought lattice, elastic exchange, risk rhythm, signal stack, Möbius passage, unwritten leaves |
+| 1 | Paper worlds | Cut-card toy theatres: an open proscenium with nested arches and four to six extruded flats stepped back in depth, lit by one warm key whose shadow falls between the layers; frames alternate viridian and persimmon on a cream mat | Thinking head with cogs, a long raked centre court with a low net and two paper players rallying on a wire, market accordion, night city of rack towers, alpine passage with a train, pop-up castle from an open book |
+| 2 | Kinetic sculptures | Polished brass armatures and glazed ceramic bodies on a turned slate base; the base never moves, the mechanism does | Neural orrery with a ceramic chip weight, balance beam with a racket and a ball on equal arms, market balance with a bone gauge, compute tiles hanging from a gantry, celadon globe in a brass meridian, open folio hanging from a turning arm with a counterweight |
+| 3 | Cartoon worlds | A floating toy island per subject with soil strata, toon-shaded chunky props and bean characters; day in light mode, night (moonlight, lit windows, a warm fill on faces) in dark | Night workshop, courtside club, exchange avenue, cloud factory, island express, reading nook |
+| 4 | Realistic close-ups | Low, near macro still lifes on a real surface (walnut, hard court, a board, a map) that runs out of frame, long lens, grazing window light by day; at night a warm desk-lamp practical with falloff and a cool rim | Key travel (a real QWERTY patch), match point (ball on the baseline, racket as bokeh), ticker study, heatsink and fan, field compass, glasses on an open book |
+| 5 | Abstract forms | Refractive glass sculptures in front of flat colour bands, with polished obsidian as the one secondary material and a tinted caustic shadow; in dark a glowing back-light seen only through the glass keeps it luminous | Thought lattice, elastic exchange (a ball with a glass seam), risk rhythm, signal stack, Möbius passage (horizon and route arrow), unwritten leaves |
 
 Each direction has its own source file with one builder per kind and its look (`src/objects/LOOK.md`):
 `studio.ts` (`studioLook`), `paper-worlds.ts` (`paperWorld`, `paperLook`), `kinetic-sculptures.ts`
@@ -195,7 +195,7 @@ shows only Studio, Cartoon and Kinetic; its Studio edition selector retains all 
 `objectDirectionIndex(kind, variant)` resolves these legacy IDs to the shared visual style.
 `transferObjectVariant(from, to, variant)` preserves supported styles when switching objects and uses Studio otherwise.
 
-Kinetic Open book now rotates a full 360 degrees every 12 seconds while its individual leaves flex.
+Kinetic Open book hangs from an arm that turns a full 360 degrees every 12 seconds while its individual leaves flex.
 The website's default hobby selection is Cartoon AI, Studio Tennis, Studio Trading, Cartoon Inference,
 Paper Travel and Kinetic Reading. Its My picks control restores this set after a global style preview.
 

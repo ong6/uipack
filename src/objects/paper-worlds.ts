@@ -145,8 +145,11 @@ function opening(arch: Arch, inset: number) {
   return poly([[-hw, FLOOR - 0.02], ...top, [hw, FLOOR - 0.02]], true);
 }
 
+/** The set uses two frame colours, alternating card to card, so the six stages read as one set. */
+const FRAMES = { viridian: C.viridian, persimmon: C.persimmon } as const;
+
 interface TheatreOptions {
-  frame: number;
+  frame: (typeof FRAMES)[keyof typeof FRAMES];
   trims: [number, number];
   arch: Arch;
   backdrop: number;
@@ -198,6 +201,9 @@ class Theatre {
     const { frame, trims, arch, backdrop, floor, walls = backdrop } = this.options;
     // Proscenium: the front panel and two nested arches stepping back.
     const outer = rect(-1.98, -1.42, 1.98, 1.44);
+    // A cream mat just proud of the frame's outline: a light rim that keeps the proscenium's edge
+    // readable on a dark card.
+    this.add(card(withHoles(shape(rect(-2.05, -1.49, 2.05, 1.51)), [opening(arch, 0.02)]), C.cream, FRONT - 0.012, 0.012));
     this.add(card(withHoles(shape(outer), [opening(arch, 0)]), frame, FRONT));
     this.add(card(withHoles(shape(rect(-1.92, FLOOR - 0.05, 1.92, 1.38)), [opening(arch, 0.085)]), trims[0], FRONT - 0.07));
     this.add(card(withHoles(shape(rect(-1.88, FLOOR - 0.05, 1.88, 1.34)), [opening(arch, 0.15)]), trims[1], FRONT - 0.14));
@@ -256,7 +262,7 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
   /** Five mountain flats, a road winding back between them, a train on a slot and a sun on a rod. */
   travel(ticks) {
     const t = new Theatre({
-      frame: C.deepViridian,
+      frame: FRAMES.viridian,
       trims: [C.cream, C.persimmon],
       arch: "round",
       backdrop: 0xf6d6b4,
@@ -467,7 +473,7 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
   /** An open book on a raked floor; a castle pops up from its gutter as the pages breathe. */
   reading(ticks) {
     const t = new Theatre({
-      frame: C.persimmon,
+      frame: FRAMES.persimmon,
       trims: [C.cream, C.ink],
       arch: "scallop",
       backdrop: 0x6f8fa3,
@@ -607,151 +613,182 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
     return t.finish();
   },
 
-  /** Stepped stands in three flats, a raked court, a cut net and two paper players rallying on a wire. */
+  /**
+   * Centre court seen from behind the baseline: a long raked court with doubles alleys and service
+   * boxes, a low net across it, stands behind, and two paper players rallying a ball on a wire.
+   */
   tennis(ticks) {
-    const t = new Theatre({ frame: C.ink, trims: [C.persimmon, C.cream], arch: "flat", backdrop: 0xf4dcc0, floor: C.sand });
-    // Pennants strung across the top.
-    const pennants: Pt[][] = [];
-    for (let i = 0; i < 9; i++) {
-      const x = -1.4 + i * 0.35;
-      pennants.push([
-        [x - 0.12, 0.98],
-        [x + 0.12, 0.98],
-        [x, 0.8],
-      ]);
-    }
-    pennants.forEach((p, i) => t.add(card(shape(p), [C.persimmon, C.viridian, C.lemon][i % 3], -0.5, 0.015)));
-    // Three tiers of crowd: scalloped tops read as rows of heads.
+    const t = new Theatre({
+      frame: FRAMES.persimmon,
+      trims: [C.cream, C.viridian],
+      arch: "flat",
+      backdrop: 0xf4dcc0,
+      floor: C.sand,
+    });
+    // Two flats of crowd: scalloped tops read as rows of heads.
     const crowd = (top: number, bump: number, phase: number): Pt[] => [
       [-1.85, FLOOR],
-      ...sample(90, (s) => [-1.85 + 3.7 * s, top + bump * Math.abs(Math.sin(Math.PI * (s * 22 + phase)))] as Pt),
+      ...sample(90, (s) => [-1.85 + 3.7 * s, top + bump * Math.abs(Math.sin(Math.PI * (s * 18 + phase)))] as Pt),
       [1.85, FLOOR],
     ];
-    t.add(card(shape(crowd(0.42, 0.07, 0)), 0xb4c8d1, -0.68));
-    t.add(card(shape(crowd(0.15, 0.075, 0.5)), 0x86a7b6, -0.52));
-    t.add(card(shape(rect(-0.32, 0.5, 0.32, 0.8)), C.ink, -0.66));
-    t.add(card(shape(rect(-0.24, 0.57, -0.04, 0.73)), C.persimmon, -0.66 + CARD + 0.004, 0.01));
-    t.add(card(shape(rect(0.04, 0.57, 0.24, 0.73)), C.cream, -0.66 + CARD + 0.004, 0.01));
-    const nearStand = t.hinge(-0.36);
-    t.part(nearStand, [card(shape(crowd(-0.2, 0.07, 0.25).map(([x, y]) => [x, y - FLOOR] as Pt)), C.slate, 0)]);
-    // The court: a raked floor with its lines laid on top.
+    t.add(card(shape(crowd(0.52, 0.08, 0)), 0xb4c8d1, -0.76));
+    const stand = t.hinge(-0.68);
+    t.part(stand, [card(shape(crowd(0.2, 0.085, 0.5).map(([x, y]) => [x, y - FLOOR] as Pt)), C.slate, 0)]);
+    // The court, raked towards the audience from its near baseline. Court units: x across (doubles
+    // ±0.5), y along its length (baselines at 0.06 and 1.56, net at 0.81), so it is 1.5 times as
+    // long as it is wide, and the rake still shows it longer than wide from the audience.
+    const RAKE = 0.6;
+    const NEAR_Z = 0.86;
+    const onCourt = (x: number, y: number) =>
+      new THREE.Vector3(x, FLOOR + 0.004 + y * Math.sin(RAKE), NEAR_Z - y * Math.cos(RAKE));
     const court = new THREE.Group();
-    court.position.set(0, FLOOR + 0.01, 0.3);
-    court.rotation.x = -Math.PI / 2 + 0.42;
+    court.position.set(0, FLOOR + 0.004, NEAR_Z);
+    court.rotation.x = -Math.PI / 2 + RAKE;
     t.root.add(court);
-    const lines = [rect(-1.32, -0.5, 1.32, 0.5)].map((r) => card(shape(r), C.viridian, 0, 0.02));
-    for (const [x0, y0, x1, y1] of [
-      [-1.22, -0.44, 1.22, -0.41],
-      [-1.22, 0.41, 1.22, 0.44],
-      [-1.22, -0.44, -1.19, 0.44],
-      [1.19, -0.44, 1.22, 0.44],
-      [-1.22, -0.33, 1.22, -0.3],
-      [-1.22, 0.3, 1.22, 0.33],
-      [-0.72, -0.31, -0.69, 0.31],
-      [0.69, -0.31, 0.72, 0.31],
-      [-0.71, -0.015, 0.71, 0.015],
-    ])
-      lines.push(card(shape(rect(x0, y0, x1, y1)), C.cream, 0.022, 0.008));
-    t.part(court, lines);
-    // The net, with its mesh cut out of the card.
-    const netCard = shape(rect(-1.36, 0, 1.36, 0.3));
-    for (let i = 0; i < 26; i++)
+    const NET = 0.81,
+      HALF = 0.75,
+      W = 0.5,
+      S = 0.37,
+      SERVICE = 0.4;
+    const L = 0.022; // line width
+    const courtParts = [card(shape(rect(-0.68, -0.04, 0.68, 1.68)), C.viridian, 0, 0.02)];
+    const line = (x0: number, y0: number, x1: number, y1: number) =>
+      courtParts.push(card(shape(rect(x0, y0, x1, y1)), C.cream, 0.022, 0.008));
+    for (const y of [NET - HALF, NET + HALF]) line(-W, y - L / 2, W, y + L / 2); // baselines
+    for (const x of [-W, W, -S, S]) line(x - L / 2, NET - HALF, x + L / 2, NET + HALF); // sidelines
+    for (const y of [NET - SERVICE, NET + SERVICE]) line(-S, y - L / 2, S, y + L / 2); // service lines
+    line(-L / 2, NET - SERVICE, L / 2, NET + SERVICE); // centre service line
+    t.part(court, courtParts);
+    // The net: low across the court's width, its mesh cut out of the card, a white tape on top.
+    const net = onCourt(0, NET);
+    const NET_H = 0.12;
+    const netCard = shape(rect(-0.57, 0, 0.57, NET_H));
+    for (let i = 0; i < 18; i++)
       for (let j = 0; j < 2; j++)
-        netCard.holes.push(poly(rect(-1.3 + i * 0.1, 0.03 + j * 0.1, -1.24 + i * 0.1, 0.09 + j * 0.1), true));
+        netCard.holes.push(poly(rect(-0.54 + i * 0.0605, 0.012 + j * 0.036, -0.502 + i * 0.0605, 0.04 + j * 0.036), true));
     const netGroup = new THREE.Group();
-    netGroup.position.set(0, FLOOR + 0.06, 0.3);
+    netGroup.position.copy(net);
     t.root.add(netGroup);
     t.part(netGroup, [
-      card(netCard, C.ink, 0, 0.02),
-      card(shape(rect(-1.36, 0.22, 1.36, 0.3)), C.cream, 0.022, 0.008),
-      card(shape(rect(-1.42, -0.06, -1.36, 0.38)), C.ink, 0),
-      card(shape(rect(1.36, -0.06, 1.42, 0.38)), C.ink, 0),
+      card(netCard, C.ink, 0, 0.016),
+      card(shape(rect(-0.57, NET_H - 0.03, 0.57, NET_H)), C.cream, 0.018, 0.008),
+      card(shape(rect(-0.6, -0.02, -0.56, NET_H + 0.025)), C.ink, 0),
+      card(shape(rect(0.56, -0.02, 0.6, NET_H + 0.025)), C.ink, 0),
     ]);
-    // Two players: an ink silhouette with a coloured shirt and a racket arm on a pin.
-    const player = (x: number, z: number, scale: number, facing: 1 | -1, shirt: number) => {
+    // A player: ink silhouette, coloured shirt, and a racket arm on a shoulder pin. The racket is part
+    // of the arm's own mesh (hand, grip, open throat, oval strung head), so it can never come loose.
+    const SWING = [-0.9, 0.15]; // arm angle: wound back … level at the hit (a forehand)
+    const player = (x: number, base: THREE.Vector3, scale: number, facing: 1 | -1, shirt: number) => {
       const body = new THREE.Group();
-      body.position.set(x, FLOOR + 0.02, z);
+      body.position.set(x, base.y, base.z);
       body.scale.set(scale * facing, scale, scale);
       t.root.add(body);
-      const head = circle(0, 0.92, 0.1) as THREE.Shape;
       t.part(body, [
-        card(head, C.ink, 0),
+        card(circle(0, 0.92, 0.1) as THREE.Shape, C.ink, 0),
         card(
           shape([
-            [-0.13, 0.42],
-            [-0.16, 0.78],
-            [0.16, 0.78],
-            [0.13, 0.42],
+            [-0.14, 0.42],
+            [-0.17, 0.79],
+            [0.17, 0.79],
+            [0.14, 0.42],
           ]),
           shirt,
           0.01,
         ),
         card(
           shape([
-            [-0.13, 0.44],
-            [-0.2, 0],
-            [-0.1, 0],
-            [0, 0.3],
-            [0.1, 0],
-            [0.2, 0],
-            [0.13, 0.44],
+            [-0.14, 0.44],
+            [-0.22, 0],
+            [-0.11, 0],
+            [0, 0.28],
+            [0.11, 0],
+            [0.22, 0],
+            [0.14, 0.44],
           ]),
           C.ink,
           0,
         ),
+        // The free arm, out for balance.
         card(
           shape([
-            [-0.15, 0.74],
-            [-0.32, 0.5],
-            [-0.26, 0.46],
-            [-0.1, 0.64],
+            [-0.15, 0.76],
+            [-0.36, 0.56],
+            [-0.31, 0.5],
+            [-0.11, 0.66],
           ]),
-          C.ink,
-          0,
+          C.apricot,
+          0.005,
         ),
       ]);
       const arm = new THREE.Group();
-      arm.position.set(0.14, 0.72, 0.03);
+      arm.position.set(0.12, 0.74, 0.035);
       body.add(arm);
-      const hoop = shape(sample(40, (s) => [0.62 + 0.13 * Math.cos(s * TAU), 0.17 * Math.sin(s * TAU)]));
-      const strings = new THREE.Path();
-      strings.absellipse(0.62, 0, 0.1, 0.14, 0, TAU, false, 0);
-      hoop.holes.push(strings);
+      const head = shape(sample(40, (s) => [0.68 + 0.15 * Math.cos(s * TAU), 0.11 * Math.sin(s * TAU)]));
+      for (let i = 0; i < 4; i++)
+        for (let j = 0; j < 3; j++) {
+          const cx = 0.6 + i * 0.052,
+            cy = -0.05 + j * 0.05;
+          if (((cx - 0.68) / 0.12) ** 2 + (cy / 0.085) ** 2 < 0.9) head.holes.push(poly(rect(cx - 0.018, cy - 0.017, cx + 0.018, cy + 0.017), true));
+        }
+      const throat = shape([
+        [0.4, -0.022],
+        [0.55, -0.08],
+        [0.55, 0.08],
+        [0.4, 0.022],
+      ]);
+      throat.holes.push(
+        poly(
+          [
+            [0.45, 0],
+            [0.535, -0.05],
+            [0.535, 0.05],
+          ],
+          true,
+        ),
+      );
       t.part(arm, [
         card(
           shape([
-            [0, -0.04],
-            [0.3, -0.03],
-            [0.3, 0.03],
-            [0, 0.04],
+            [0, -0.045],
+            [0.27, -0.035],
+            [0.27, 0.035],
+            [0, 0.045],
           ]),
-          C.ink,
+          C.apricot,
           0,
         ),
-        card(shape(rect(0.28, -0.02, 0.5, 0.02)), C.persimmon, 0),
-        card(hoop, C.persimmon, 0),
+        card(shape(rect(0.24, -0.026, 0.42, 0.026)), C.ink, 0.004),
+        card(throat, C.ink, 0.004),
+        card(head, C.ink, 0.004),
+        // The strings: cream card behind the head, showing through its cut mesh.
+        card(shape(sample(30, (s) => [0.68 + 0.13 * Math.cos(s * TAU), 0.095 * Math.sin(s * TAU)])), C.cream, -0.01, 0.012),
       ]);
-      return arm;
+      arm.rotation.z = SWING[1];
+      body.updateMatrixWorld(true);
+      const strike = arm.localToWorld(new THREE.Vector3(0.68, 0, 0.03));
+      return { arm, strike };
     };
-    const farArm = player(-0.95, -0.12, 0.78, 1, C.dusty);
-    const nearArm = player(1.0, 0.68, 1.0, -1, C.persimmon);
-    // The ball rides a visible wire over the net.
+    const far = player(-0.3, onCourt(-0.3, NET + HALF + 0.02), 0.72, 1, C.cream);
+    const near = player(0.72, onCourt(0.72, 0.16), 1.05, -1, C.persimmon);
+    // The ball rides a visible wire from racket to racket, high over the net.
+    const a = far.strike,
+      b = near.strike;
     const path = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-0.58, FLOOR + 0.5, -0.1),
-      new THREE.Vector3(-0.1, FLOOR + 1.25, 0.15),
-      new THREE.Vector3(0.45, FLOOR + 1.2, 0.45),
-      new THREE.Vector3(0.52, FLOOR + 0.66, 0.7),
+      a,
+      a.clone().lerp(b, 0.4).setY(net.y + 0.5),
+      a.clone().lerp(b, 0.72).setY(net.y + 0.42),
+      b,
     ]);
-    t.add(tint(new THREE.TubeGeometry(path, 48, 0.012, 5, false), C.ink, new THREE.Color(C.ink)));
+    t.add(tint(new THREE.TubeGeometry(path, 48, 0.011, 5, false), C.ink, new THREE.Color(C.ink)));
     const tennisBall = new THREE.Group();
     t.root.add(tennisBall);
-    const ballCard = shape(sample(24, (s) => [0.085 * Math.cos(s * TAU), 0.085 * Math.sin(s * TAU)]));
+    const ballCard = shape(sample(24, (s) => [0.075 * Math.cos(s * TAU), 0.075 * Math.sin(s * TAU)]));
     t.part(tennisBall, [
       card(ballCard, C.lemon, -0.02, 0.04),
       card(
         shape(
-          sample(12, (s) => [-0.06 + 0.12 * s, 0.03 * Math.sin(s * TAU)]).concat(
-            sample(12, (s) => [0.06 - 0.12 * s, 0.03 * Math.sin((1 - s) * TAU) + 0.015]),
+          sample(12, (s) => [-0.055 + 0.11 * s, 0.026 * Math.sin(s * TAU)]).concat(
+            sample(12, (s) => [0.055 - 0.11 * s, 0.026 * Math.sin((1 - s) * TAU) + 0.014]),
           ),
         ),
         C.cream,
@@ -763,9 +800,9 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
       const s = (1 - Math.cos(angle * 2)) / 2; // two rallies a loop
       tennisBall.position.copy(path.getPointAt(s));
       tennisBall.rotation.z = angle * 4;
-      nearArm.rotation.z = -0.35 + 0.95 * s ** 6;
-      farArm.rotation.z = -0.35 + 0.95 * (1 - s) ** 6;
-      nearStand.rotation.x = 0.03 * Math.sin(angle * 2);
+      near.arm.rotation.z = SWING[0] + (SWING[1] - SWING[0]) * s ** 5;
+      far.arm.rotation.z = SWING[0] + (SWING[1] - SWING[0]) * (1 - s) ** 5;
+      stand.rotation.x = 0.03 * Math.sin(angle * 2);
     });
     return t.finish();
   },
@@ -773,7 +810,7 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
   /** A paper head in profile with cogs turning inside a window in its skull, and an idea bulb. */
   ai(ticks) {
     const t = new Theatre({
-      frame: C.ink,
+      frame: FRAMES.viridian,
       trims: [C.apricot, C.persimmon],
       arch: "pointed",
       backdrop: C.cream,
@@ -801,7 +838,7 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
     }
     t.part(rays, rayParts);
     rays.position.x = 0.35;
-    // Cogs behind the head, at three depths.
+    // Four cogs at three depths: one big drive behind, a meshing pair in the skull window, one below.
     const gears: [THREE.Object3D, number][] = [];
     const gear = (teeth: number, x: number, y: number, z: number, color: number, turns: number) => {
       const { outline } = cog(teeth);
@@ -815,7 +852,6 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
     gear(12, 0.88 + 0.0, -0.66, -0.2, C.viridian, -2);
     gear(12, -0.62, 0.42, 0.06, C.persimmon, -2);
     gear(8, -0.12, 0.44, 0.1, C.viridian, 3);
-    gear(8, -0.74, -0.02, 0.1, C.apricot, 3);
     // The head: a profile facing right, with a round window cut in the skull.
     const profile: Pt[] = [
       [-0.85, FLOOR],
@@ -897,7 +933,7 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
   /** A night city of rack towers in receding flats, windows cut out over lamplit card. */
   server(ticks) {
     const t = new Theatre({
-      frame: C.slate,
+      frame: FRAMES.persimmon,
       trims: [C.cream, C.ink],
       arch: "stepped",
       backdrop: 0x9fbccb,
@@ -905,34 +941,6 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
       walls: 0x86a6b6,
     });
     t.add(card(circle(1.1, 1.1, 0.22) as THREE.Shape, C.cream, BACK + CARD + 0.02));
-    // Far skyline with small windows.
-    const skyline = (blocks: [number, number, number][], z: number, color: number, win: [number, number, number, number]) => {
-      const outline: Pt[] = [[-1.85, FLOOR]];
-      const holes: THREE.Path[] = [];
-      for (const [x0, x1, h] of blocks) {
-        outline.push([x0, FLOOR + h], [x1, FLOOR + h]);
-        const [w, hh, gx, gy] = win;
-        for (let x = x0 + gx; x + w < x1 - gx / 2; x += w + gx)
-          for (let y = FLOOR + h - gy - hh; y > FLOOR + 0.3; y -= hh + gy) holes.push(poly(rect(x, y, x + w, y + hh), true));
-      }
-      outline.push([1.85, FLOOR]);
-      return card(withHoles(shape(outline), holes), color, z);
-    };
-    t.add(
-      skyline(
-        [
-          [-1.85, -1.3, 1.5],
-          [-1.3, -0.7, 1.9],
-          [-0.7, -0.2, 1.3],
-          [-0.2, 0.5, 2.05],
-          [0.5, 1.0, 1.55],
-          [1.0, 1.85, 1.8],
-        ],
-        -0.6,
-        C.dusty,
-        [0.07, 0.09, 0.07, 0.1],
-      ),
-    );
     // Middle: rack towers with rows of unit slots.
     const midTowers: [number, number, number][] = [
       [-1.55, -0.85, 1.55],
@@ -1020,7 +1028,7 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
   /** A real accordion fold whose peaks trace the price line, breathing as it folds. */
   trading(ticks) {
     const t = new Theatre({
-      frame: C.viridian,
+      frame: FRAMES.viridian,
       trims: [C.apricot, C.ink],
       arch: "gable",
       backdrop: 0xc9dbe2,
@@ -1150,7 +1158,7 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
 };
 
 /** Camera per subject: near-frontal, a little above, a little to the right so the layers stack. */
-const pitches: Record<Kind, number> = { travel: 6, reading: 12, tennis: 15, ai: 6, server: 6, trading: 8 };
+const pitches: Record<Kind, number> = { travel: 6, reading: 12, tennis: 18, ai: 6, server: 6, trading: 8 };
 
 export function paperLook(kind: Kind): ObjectLook {
   return {
