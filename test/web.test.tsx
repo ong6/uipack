@@ -325,6 +325,45 @@ describe("GlassNav", () => {
   });
 });
 
+describe("GlassNav short CTA", () => {
+  it("takes the CTA as data and gives the bar a short label for a phone", () => {
+    const { container } = render(
+      <GlassNav brand="Parcelmark" links={[]} cta={{ label: "See what you'd have saved", short: "See savings", href: "#s" }} />,
+    );
+    const bar = container.querySelector(".uipack-web-nav__cta a")!;
+    expect(bar).toHaveAttribute("href", "#s");
+    expect(bar.querySelector(".uipack-web-cta__long")).toHaveTextContent("See what you'd have saved");
+    expect(bar.querySelector(".uipack-web-cta__short")).toHaveTextContent("See savings");
+    // CSS swaps the two below 720px, in the bar only; the open menu keeps the full label.
+    const css = readFileSync("src/web/web.css", "utf8");
+    expect(css).toMatch(/\.uipack-web-nav__cta \.uipack-web-cta__short \{\s*display: inline;/);
+  });
+});
+
+describe("StarHero split and stamp", () => {
+  it("marks the split layout and sets the stamp in the copy, never on the proof", () => {
+    const { container } = render(
+      <StarHero title="T" layout="split" stamp={{ value: "18%", label: "lower postage" }}>
+        <p>proof</p>
+      </StarHero>,
+    );
+    const hero = container.querySelector(".uipack-web-hero")!;
+    expect(hero).toHaveAttribute("data-layout", "split");
+    expect(hero).toHaveAttribute("data-has-proof");
+    const stamp = container.querySelector(".uipack-web-hero__stamp")!;
+    expect(stamp.closest(".uipack-web-hero__copy")).not.toBeNull();
+    expect(stamp).toHaveTextContent("18%lower postage");
+  });
+  it("every style paints the stamp, and Graphical's disc is no longer a bare backdrop", () => {
+    for (const id of ["technical", "landing", "graphical"] as const) {
+      const v = readStyle(id);
+      for (const r of ["stamp-fill", "stamp-ink", "stamp-border", "stamp-radius", "stamp-face", "perf", "plan-featured-fill"])
+        expect(v[r], `${id} ${r}`).toBeDefined();
+    }
+    expect(readStyle("graphical").backdrop).toBe("none");
+  });
+});
+
 describe("RevealText and hierarchy", () => {
   it("keeps every word in the DOM and stays static under reduced motion", () => {
     globalThis.__reduced = true;

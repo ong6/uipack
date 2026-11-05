@@ -3,6 +3,8 @@ import { CtaButton } from "./CtaButton";
 import { Body, Eyebrow, Heading } from "./Text";
 import { BeforeAfter, type BeforeAfterProps } from "./Worked";
 
+const DEV = typeof process !== "undefined" && process.env.NODE_ENV !== "production";
+
 /* The landing page's closing parts: proof (numbers and a quote), pricing, the closing call to
    action and the footer. Each is one layout in every style; the style paints it through roles
    (frame, radius, display face, the band roles), so a swap never moves a box. */
@@ -35,7 +37,10 @@ export interface ProofProps {
    * "9 min" after). Use it when the proof is a before/after, not "x of N".
    */
   compare?: BeforeAfterProps;
-  /** Two to four supporting numbers in a ruled row. */
+  /**
+   * Two to four supporting numbers in a ruled row. A single one is set as one compact line under
+   * the lead or comparison ("214 beta shops"), not a lone big number in an empty row.
+   */
   stats?: ProofStat[];
   quote?: ProofQuote;
   className?: string;
@@ -70,7 +75,7 @@ export function Proof({ lead, compare, stats = [], quote, className = "" }: Proo
             </div>
           )}
           {stats.length > 0 && (
-            <dl className="uipack-web-proof__stats">
+            <dl className="uipack-web-proof__stats" data-count={stats.length === 1 ? 1 : undefined}>
               {stats.map((s, i) => (
                 <div key={i}>
                   <dt>{s.label}</dt>
@@ -111,7 +116,11 @@ export interface PricingPlan {
   summary?: ReactNode;
   /** What the plan includes, one short line each. */
   features?: ReactNode[];
-  /** The plan's button, pinned to the card's foot. */
+  /**
+   * The plan's button, pinned to the card's foot. Give each plan its own label, saying what that
+   * plan's click does ("Start free", "Try Shop free", "Talk to us"); the featured plan carries the
+   * page's goal. One label repeated on every plan reads as a template.
+   */
   action?: PricingAction;
   /** The plan to steer towards: accent frame and the primary button. */
   featured?: boolean;
@@ -144,6 +153,13 @@ const Check = () => (
  * own button at the foot. One to three plans fill the column evenly (one column below 640px).
  */
 export function PricingPlans({ plans, note, className = "" }: PricingPlansProps) {
+  if (DEV && plans.length > 1) {
+    const labels = plans.map((p) => p.action?.label).filter((l) => typeof l === "string");
+    if (labels.length === plans.length && new Set(labels).size === 1)
+      console.warn(
+        `uipack/web: PricingPlans gives every plan the same button label ("${labels[0]}"). Give each plan its own (what that plan's click does) and mark one plan \`featured\`.`,
+      );
+  }
   return (
     <div className={`uipack-web-pricing ${className}`.trim()}>
       <ul className="uipack-web-pricing__plans" style={{ "--plans": Math.min(3, plans.length) } as CSSProperties}>

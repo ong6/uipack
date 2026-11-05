@@ -6,6 +6,8 @@ import type { CSSProperties, ReactNode } from "react";
 
 export interface WorkedQuantity {
   value: ReactNode;
+  /** The value's unit, set small beside it so "4.8 kg" fits a narrow result column: "kg", "h". */
+  unit?: ReactNode;
   /** What the number counts: "covers forecast", "servers". */
   label: ReactNode;
 }
@@ -46,7 +48,7 @@ export function WorkedExample({ title, given, lines, note, label, className = ""
       {title && <p className="uipack-web-worked__title">{title}</p>}
       <div className="uipack-web-worked__sheet" style={{ "--lines": lines.length } as CSSProperties}>
         <div className="uipack-web-worked__given">
-          <span className="uipack-web-worked__value">{given.value}</span>
+          <Value q={given} />
           <span className="uipack-web-worked__label">{given.label}</span>
         </div>
         <ol className="uipack-web-worked__lines">
@@ -58,7 +60,7 @@ export function WorkedExample({ title, given, lines, note, label, className = ""
               </span>
               <span className="uipack-web-worked__arrow" aria-hidden="true" />
               <span className="uipack-web-worked__result">
-                <span className="uipack-web-worked__value">{l.result.value}</span>
+                <Value q={l.result} />
                 <span className="uipack-web-worked__label">{l.result.label}</span>
               </span>
             </li>
@@ -67,6 +69,15 @@ export function WorkedExample({ title, given, lines, note, label, className = ""
       </div>
       {note && <p className="uipack-web-worked__note">{note}</p>}
     </div>
+  );
+}
+
+function Value({ q }: { q: WorkedQuantity }) {
+  return (
+    <span className="uipack-web-worked__value">
+      {q.value}
+      {q.unit !== undefined && <small> {q.unit}</small>}
+    </span>
   );
 }
 

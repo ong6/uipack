@@ -24,6 +24,15 @@ export interface DemoPlayerProps {
    */
   mode?: "agent" | "steps";
   /**
+   * Steps mode only: how the step list is drawn. "compact" (default): one row of numbered step
+   * labels over the result, which doubles as the step tabs while the demo plays, so the product's
+   * output takes the window's full width; below 720px the row moves under the result. "side": the
+   * full checklist (titles and action details) in a narrow start column. "none": no visible list
+   * (the steps stay in the DOM as text). The page's "How it works" usually lists the same steps,
+   * so keep the rail compact or off there.
+   */
+  rail?: "compact" | "side" | "none";
+  /**
    * Play from the start once at least a quarter is on screen. Default true. Until then, and
    * without it until Play, the player rests on its finished result.
    */
@@ -71,6 +80,7 @@ export function DemoPlayer({
   metricLabel,
   placeholder = "Ask for something…",
   mode: modeProp,
+  rail: railProp = "compact",
   autoplay = true,
   static: still = false,
   loop = false,
@@ -81,9 +91,11 @@ export function DemoPlayer({
 }: DemoPlayerProps) {
   const timing = useMemo(() => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
   const mode = modeProp ?? (steps.some((s) => s.prompt) ? "agent" : "steps");
+  const rail = mode === "steps" ? railProp : undefined;
   const reduced = usePrefersReducedMotion() || still;
   const rootRef = useRef<HTMLElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
+  const railRef = useRef<HTMLOListElement>(null);
   const end = demoEnd(steps, timing);
   const cycle = demoCycle(steps, timing);
   // At rest on the result until it is about to be seen (or Play is pressed).
@@ -167,6 +179,8 @@ export function DemoPlayer({
   }, [running, loop, cycle, end]);
 
   const step = steps[frame.step];
+  const stepState = (i: number) =>
+    i < frame.step || (i === frame.step && frame.settled) ? "done" : i === frame.step ? "running" : "pending";
   // Only real step changes are reported, so the latest callback is read through a ref.
   const stepChangeRef = useLatest(onStepChange);
   useEffect(() => {
@@ -188,7 +202,7 @@ export function DemoPlayer({
     setPlaying((p) => !p);
   };
 
-  const onTabKey = (e: KeyboardEvent<HTMLDivElement>) => {
+  const onTabKey = (e: KeyboardEvent<HTMLElement>) => {
     const keys: Record<string, number> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
     let next: number | undefined;
     if (e.key in keys) next = (frame.step + keys[e.key] + steps.length) % steps.length;
@@ -197,7 +211,7 @@ export function DemoPlayer({
     if (next === undefined) return;
     e.preventDefault();
     seek(next);
-    tabsRef.current?.querySelectorAll("button")[next]?.focus();
+    (railRef.current ?? tabsRef.current)?.querySelectorAll("button")[next]?.focus();
   };
 
   // The composer shows this step's prompt as it types, or the most recent one in full.
@@ -233,6 +247,7 @@ export function DemoPlayer({
       data-state={reduced ? "static" : finished ? "finished" : running ? "playing" : "paused"}
       data-step={frame.step}
       data-mode={mode}
+      data-rail={rail}
     >
       <div className="uipack-web-demo__window">
         <div className="uipack-web-demo__chrome" aria-hidden="true">
@@ -244,12 +259,11 @@ export function DemoPlayer({
           {address && <span className="uipack-web-demo__address">{address}</span>}
         </div>
         <div className="uipack-web-demo__body">
-          <div className="uipack-web-demo__work">
-            {mode === "steps" ? (
+          {rail === "side" && (
+            <div className="uipack-web-demo__work">
               <ol className="uipack-web-demo__log uipack-web-demo__steps" aria-label="Progress">
                 {steps.map((s, i) => {
-                  const state =
-                    i < frame.step || (i === frame.step && frame.settled) ? "done" : i === frame.step ? "running" : "pending";
+                  const state = stepState(i);
                   const detail = (s.actions ?? []).map(toAction).find((a) => a.detail)?.detail;
                   return (
                     <li key={s.id} data-state={state}>
@@ -270,7 +284,10 @@ export function DemoPlayer({
                   );
                 })}
               </ol>
-            ) : (
+            </div>
+          )}
+          {mode === "agent" && (
+            <div className="uipack-web-demo__work">
               <>
                 <div className="uipack-web-demo__composer" data-typing={typing || undefined}>
                   <span className="uipack-web-demo__sr">{promptText}</span>
@@ -300,8 +317,8 @@ export function DemoPlayer({
                   })}
                 </ol>
               </>
-            )}
-          </div>
+            </div>
+          )}
           <div className="uipack-web-demo__result">
             {frame.metric !== undefined && (
               <p className="uipack-web-demo__metric">
@@ -317,6 +334,47 @@ export function DemoPlayer({
               </div>
             )}
           </div>
+          {rail === "compact" && (
+            <ol className="uipack-web-demo__rail" aria-label="Progress" ref={railRef} onKeyDown={onTabKey}>
+              {steps.map((s, i) => {
+                const state = stepState(i);
+                const body = (
+                  <>
+                    <span className="uipack-web-demo__tick" aria-hidden="true">
+                      {state === "done" ? (
+                        <svg viewBox="0 0 16 16">
+                          <path d="M3.5 8.5l3 3 6-7" />
+                        </svg>
+                      ) : null}
+                    </span>
+                    <span className="uipack-web-demo__num">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="uipack-web-demo__rail-label">{s.label}</span>
+                    {state === "running" && <span className="uipack-web-demo__sr"> (in progress)</span>}
+                    {state === "pending" && <span className="uipack-web-demo__sr"> (queued)</span>}
+                  </>
+                );
+                return (
+                  <li key={s.id} data-state={state} aria-current={!reduced && i === frame.step ? "step" : undefined}>
+                    {reduced ? (
+                      <span className="uipack-web-demo__rail-item" title={s.title}>
+                        {body}
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        className="uipack-web-demo__rail-item"
+                        title={s.title}
+                        aria-controls={`${id}-caption`}
+                        onClick={() => seek(i)}
+                      >
+                        {body}
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+          )}
         </div>
       </div>
 
@@ -353,19 +411,21 @@ export function DemoPlayer({
       </div>
       {!reduced && (
         <div className="uipack-web-demo__controls">
-          <div className="uipack-web-demo__tabs" role="group" aria-label="Demo steps" ref={tabsRef} onKeyDown={onTabKey}>
-            {steps.map((s, i) => (
-              <button
-                key={s.id}
-                type="button"
-                aria-current={i === frame.step ? "step" : undefined}
-                aria-controls={`${id}-caption`}
-                onClick={() => seek(i)}
-              >
-                <span className="uipack-web-demo__num">{String(i + 1).padStart(2, "0")}</span> {s.label}
-              </button>
-            ))}
-          </div>
+          {rail !== "compact" && (
+            <div className="uipack-web-demo__tabs" role="group" aria-label="Demo steps" ref={tabsRef} onKeyDown={onTabKey}>
+              {steps.map((s, i) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  aria-current={i === frame.step ? "step" : undefined}
+                  aria-controls={`${id}-caption`}
+                  onClick={() => seek(i)}
+                >
+                  <span className="uipack-web-demo__num">{String(i + 1).padStart(2, "0")}</span> {s.label}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="uipack-web-demo__buttons">
             <button type="button" onClick={toggle}>
               {playing && !finished ? "Pause" : "Play"}
@@ -378,7 +438,14 @@ export function DemoPlayer({
         </div>
       )}
       {reduced && cta && <div className="uipack-web-demo__buttons">{cta}</div>}
-      <p className="uipack-web-demo__caption" id={`${id}-caption`} aria-live="polite">
+      {/* The step caption narrates a run. At rest on the result (before it plays, after it ends,
+          static or reduced motion) it would read as a frozen carousel and repeat the last step's
+          title, so it is visually hidden then (still announced, still the tabs' target). */}
+      <p
+        className={`uipack-web-demo__caption${reduced || finished ? " uipack-web-demo__sr" : ""}`}
+        id={`${id}-caption`}
+        aria-live="polite"
+      >
         <span className="uipack-web-demo__num">
           {String(frame.step + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}
         </span>{" "}

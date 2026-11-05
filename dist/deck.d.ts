@@ -2,7 +2,7 @@ import * as react from 'react';
 import { ReactNode, ElementType, CSSProperties, ReactElement } from 'react';
 import { S as SpeechGuide } from './speech-BOroEnEA.js';
 export { W as WORDS_PER_MINUTE } from './speech-BOroEnEA.js';
-import { U as UiStyleId } from './style-D_zKtqes.js';
+import { U as UiStyleId } from './style-CHmnF0sx.js';
 export { R as Rect } from './zoom-math-DJBPrdGD.js';
 
 /**

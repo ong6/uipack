@@ -12,9 +12,17 @@ export interface ProductWindowProps {
   subtitle?: ReactNode;
   /** A short state on the title's end edge: "Ready to publish". */
   status?: ReactNode;
+  /**
+   * Where the numbers come from, as a mono tag on the title row: "Sample rates", "Sample data",
+   * "Live, 09:40". Use it rather than a `footer` that only says where the data is from.
+   */
+  source?: ReactNode;
   /** Shown in the window bar, e.g. "app.example.com/rota". Leave it out for a bare panel. */
   address?: string;
-  /** A fact about the output under it, start edge: "Fri 19:00 · 84 covers forecast". */
+  /**
+   * A fact about the output under it, start edge: "Fri 19:00 · 84 covers forecast". With a
+   * `footerEnd` it is a ruled foot row; alone it is a caption under the output (no empty band).
+   */
   footer?: ReactNode;
   /** The footer's end edge: "5 of 14 staff shown". */
   footerEnd?: ReactNode;
@@ -29,6 +37,7 @@ export function ProductWindow({
   title,
   subtitle,
   status,
+  source,
   address,
   footer,
   footerEnd,
@@ -48,21 +57,28 @@ export function ProductWindow({
           <span className="uipack-web-window__address">{address}</span>
         </div>
       )}
-      {(title || status) && (
+      {(title || status || source) && (
         <div className="uipack-web-window__head">
           <div>
             {title && <p className="uipack-web-window__title">{title}</p>}
             {subtitle && <p className="uipack-web-window__subtitle">{subtitle}</p>}
           </div>
-          {status && <span className="uipack-web-window__status">{status}</span>}
+          {(status || source) && (
+            <div className="uipack-web-window__tags">
+              {status && <span className="uipack-web-window__status">{status}</span>}
+              {source && <span className="uipack-web-window__source">{source}</span>}
+            </div>
+          )}
         </div>
       )}
       <div className="uipack-web-window__body">{children}</div>
-      {(footer || footerEnd) && (
+      {footerEnd ? (
         <div className="uipack-web-window__foot">
           <span>{footer}</span>
-          {footerEnd && <span>{footerEnd}</span>}
+          <span>{footerEnd}</span>
         </div>
+      ) : (
+        footer && <p className="uipack-web-window__caption">{footer}</p>
       )}
     </div>
   );
@@ -76,6 +92,12 @@ export interface DataColumn {
   align?: "start" | "end";
   /** Draw the (numeric) value as a bar out of this maximum, with the number beside it. */
   barMax?: number;
+  /**
+   * "low": a supporting column the table drops when it is narrower than 440px (a phone, a narrow
+   * card), so the key columns are never cut or scrolled away. Default "high". The first column
+   * (the row's name) is always kept.
+   */
+  priority?: "high" | "low";
 }
 
 export interface DataTableProps {
@@ -88,21 +110,35 @@ export interface DataTableProps {
   label: string;
   /** One line under the table: how a highlighted row was worked out, or where the data is from. */
   note?: ReactNode;
+  /**
+   * Below 440px of table width: "fit" keeps the row layout (minus `priority: "low"` columns),
+   * "stack" turns each row into a small record (name, then label and value per column), "scroll"
+   * keeps every column and scrolls inside itself. Default "auto": "stack" when more than four
+   * columns remain after the low-priority ones are dropped, otherwise "fit".
+   */
+  narrow?: "auto" | "fit" | "stack" | "scroll";
   className?: string;
 }
 
 /** A compact data table: mono headers, rules across every cell, optional inline bars, one marked row. */
-export function DataTable({ columns, rows, highlight, label, note, className = "" }: DataTableProps) {
+export function DataTable({ columns, rows, highlight, label, note, narrow = "auto", className = "" }: DataTableProps) {
   const marked = new Set(highlight === undefined ? [] : Array.isArray(highlight) ? highlight : [highlight]);
+  const kept = columns.filter((c, j) => j === 0 || c.priority !== "low").length;
+  const mode = narrow === "auto" ? (kept > 4 ? "stack" : "fit") : narrow;
   return (
-    <div className={`uipack-web-table ${className}`.trim()}>
+    <div className={`uipack-web-table ${className}`.trim()} data-narrow={mode}>
       <div className="uipack-web-table__scroll" role="region" aria-label={label} tabIndex={0}>
         <table>
           <caption className="uipack-web-demo__sr">{label}</caption>
           <thead>
             <tr>
-              {columns.map((c) => (
-                <th key={c.key} scope="col" data-align={c.align ?? (c.barMax !== undefined ? "start" : undefined)}>
+              {columns.map((c, j) => (
+                <th
+                  key={c.key}
+                  scope="col"
+                  data-align={c.align ?? (c.barMax !== undefined ? "start" : undefined)}
+                  data-priority={c.priority === "low" && j > 0 ? "low" : undefined}
+                >
                   {c.label}
                 </th>
               ))}
@@ -117,7 +153,17 @@ export function DataTable({ columns, rows, highlight, label, note, className = "
                   const bar =
                     c.barMax !== undefined && typeof v === "number" ? Math.max(0, Math.min(1, v / c.barMax)) : undefined;
                   return (
-                    <Cell key={c.key} scope={j === 0 ? "row" : undefined} data-align={c.align}>
+                    <Cell
+                      key={c.key}
+                      scope={j === 0 ? "row" : undefined}
+                      data-align={c.align}
+                      data-priority={c.priority === "low" && j > 0 ? "low" : undefined}
+                    >
+                      {mode === "stack" && j > 0 && (
+                        <span className="uipack-web-table__label" aria-hidden="true">
+                          {c.label}
+                        </span>
+                      )}
                       {bar === undefined ? (
                         v
                       ) : (

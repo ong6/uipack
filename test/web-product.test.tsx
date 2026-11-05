@@ -14,6 +14,8 @@ import {
   type DemoStep,
 } from "../src/web";
 import { pipelineParts } from "../src/presets";
+import { PricingPlans } from "../src/web";
+import { styleBootScript } from "../src/style";
 
 describe("product surfaces", () => {
   it("DataTable: real rows, a marked row, bars to scale, a focusable named scroll region", () => {
@@ -129,8 +131,8 @@ describe("DemoPlayer steps mode", () => {
     },
     { id: "b", label: "Draft", title: "Draft the rota", screen: <p>Rota grid</p> },
   ];
-  it("has no composer, lists the steps as progress, and never shows an empty result pane", () => {
-    const { container } = render(<DemoPlayer steps={steps} label="Demo" autoplay={false} />);
+  it("rail=side: has no composer, lists the steps as progress, and never shows an empty result pane", () => {
+    const { container } = render(<DemoPlayer steps={steps} label="Demo" autoplay={false} rail="side" />);
     expect(container.querySelector(".uipack-web-demo")).toHaveAttribute("data-mode", "steps");
     expect(container.querySelector(".uipack-web-demo__composer")).toBeNull();
     const progress = screen.getByRole("list", { name: "Progress" });
@@ -144,6 +146,31 @@ describe("DemoPlayer steps mode", () => {
     fireEvent.click(screen.getByRole("button", { name: "Play" }));
     expect(container.querySelector(".uipack-web-demo")).toHaveAttribute("data-step", "0");
     expect(result).toHaveTextContent("Sales table");
+  });
+  it("rail=compact (default): one row of step labels that are the step tabs, and no caption at rest", () => {
+    const { container } = render(<DemoPlayer steps={steps} label="Demo" autoplay={false} />);
+    const demo = container.querySelector(".uipack-web-demo")!;
+    expect(demo).toHaveAttribute("data-rail", "compact");
+    expect(container.querySelector(".uipack-web-demo__work")).toBeNull();
+    const progress = screen.getByRole("list", { name: "Progress" });
+    expect([...progress.children].map((li) => li.textContent)).toEqual(["01Read", "02Draft"]);
+    // The rail is the tab row: no second "Demo steps" group of buttons.
+    expect(screen.queryByRole("group", { name: "Demo steps" })).toBeNull();
+    // At rest on the result, the "02 / 02 <title>" caption is visually hidden (it would read as a
+    // frozen carousel); it narrates only while the demo runs.
+    const caption = container.querySelector(".uipack-web-demo__caption")!;
+    expect(caption).toHaveClass("uipack-web-demo__sr");
+    fireEvent.click(within(progress).getByRole("button", { name: /01\s*Read/ }));
+    expect(demo).toHaveAttribute("data-step", "0");
+    expect(caption).not.toHaveClass("uipack-web-demo__sr");
+    expect(within(progress).getAllByRole("listitem")[0]).toHaveAttribute("aria-current", "step");
+  });
+  it("rail=none and static: no visible list, no controls, no caption", () => {
+    const { container } = render(<DemoPlayer steps={steps} label="Demo" rail="none" static />);
+    expect(screen.queryByRole("list", { name: "Progress" })).toBeNull();
+    expect(screen.queryByRole("button")).toBeNull();
+    expect(container.querySelector(".uipack-web-demo__caption")).toHaveClass("uipack-web-demo__sr");
+    expect(container.querySelector(".uipack-web-demo__result")).toHaveTextContent("Rota grid");
   });
   it("keeps the agent composer when a step has a prompt", () => {
     const { container } = render(
@@ -175,5 +202,118 @@ describe("pipeline preset", () => {
     expect(
       pipelineParts({ figure, stages: [{ label: "A" }], legend: [{ label: "Covers", kind: "request" }] }, "p5").legend,
     ).toHaveLength(1);
+  });
+});
+
+describe("narrow-safe product surfaces", () => {
+  const cols = [
+    { key: "order", label: "Order" },
+    { key: "courier", label: "Courier" },
+    { key: "charged", label: "Charged as", priority: "low" as const },
+    { key: "price", label: "Label", align: "end" as const },
+  ];
+  it("DataTable marks low-priority columns (never the first) and fits by default", () => {
+    const { container } = render(
+      <DataTable
+        label="Batch"
+        columns={[{ ...cols[0], priority: "low" }, ...cols.slice(1)]}
+        rows={[{ order: "#1", courier: "Evri", charged: "0.6 kg", price: "£2.79" }]}
+      />,
+    );
+    expect(container.querySelector(".uipack-web-table")).toHaveAttribute("data-narrow", "fit");
+    const low = [...container.querySelectorAll("[data-priority=low]")].map((c) => c.textContent);
+    expect(low).toEqual(["Charged as", "0.6 kg"]);
+  });
+  it("DataTable stacks rows with a label per cell when more than four columns remain", () => {
+    const wide = [...cols.map((c) => ({ ...c, priority: undefined })), { key: "promise", label: "Promise" }];
+    const { container } = render(<DataTable label="Batch" columns={wide} rows={[{ order: "#1", promise: "2 days" }]} />);
+    expect(container.querySelector(".uipack-web-table")).toHaveAttribute("data-narrow", "stack");
+    // The label beside each value is presentational; the header row still names the columns.
+    const labels = [...container.querySelectorAll(".uipack-web-table__label")];
+    expect(labels.map((l) => l.textContent)).toEqual(["Courier", "Charged as", "Label", "Promise"]);
+    for (const l of labels) expect(l).toHaveAttribute("aria-hidden", "true");
+  });
+  it("ProductWindow: source is a tag on the title row; a lone footer is a caption, not a ruled row", () => {
+    const { container } = render(
+      <ProductWindow
+        label="Rates"
+        title="Rates for 4.8 kg"
+        status="Royal Mail wins"
+        source="Sample rates"
+        footer="Two-day promise"
+      >
+        <p>table</p>
+      </ProductWindow>,
+    );
+    expect(container.querySelector(".uipack-web-window__source")).toHaveTextContent("Sample rates");
+    expect(container.querySelector(".uipack-web-window__foot")).toBeNull();
+    expect(container.querySelector(".uipack-web-window__caption")).toHaveTextContent("Two-day promise");
+  });
+  it("WorkedExample sets a unit small beside its value", () => {
+    const { container } = render(
+      <WorkedExample
+        given={{ value: "3", unit: "kg", label: "actual" }}
+        lines={[{ rule: "r", result: { value: "4.8", unit: "kg", label: "chargeable" } }]}
+      />,
+    );
+    const values = [...container.querySelectorAll(".uipack-web-worked__value")];
+    expect(values.map((v) => v.textContent)).toEqual(["3 kg", "4.8 kg"]);
+    expect(values[1].querySelector("small")).toHaveTextContent("kg");
+  });
+  it("Proof sets a single stat as one compact line", () => {
+    const { container } = render(<Proof stats={[{ value: "214", label: "beta shops" }]} />);
+    expect(container.querySelector(".uipack-web-proof__stats")).toHaveAttribute("data-count", "1");
+  });
+  it("PricingPlans warns when every plan repeats one button label", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const action = { label: "Start", href: "#" };
+    render(
+      <PricingPlans
+        plans={[
+          { name: "A", price: "£0", action },
+          { name: "B", price: "£9", action, featured: true },
+        ]}
+      />,
+    );
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("same button label"));
+    warn.mockClear();
+    render(
+      <PricingPlans
+        plans={[
+          { name: "A", price: "£0", action },
+          { name: "B", price: "£9", action: { label: "Try B", href: "#" } },
+        ]}
+      />,
+    );
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+});
+
+describe("styleBootScript", () => {
+  const run = (search: string, stored: Record<string, string> = {}, opts?: Parameters<typeof styleBootScript>[0]) => {
+    const attrs: Record<string, string> = {};
+    const store = { ...stored };
+    const fake = {
+      location: { search },
+      localStorage: { getItem: (k: string) => store[k] ?? null, removeItem: (k: string) => delete store[k] },
+      document: { documentElement: { setAttribute: (k: string, v: string) => (attrs[k] = v) } },
+    };
+    new Function("location", "localStorage", "document", styleBootScript(opts))(fake.location, fake.localStorage, fake.document);
+    return { attrs, store };
+  };
+  it("accepts aliases and sets both theme attributes", () => {
+    const { attrs } = run("?style=3&theme=dark", {}, { aliases: { "3": "landing" } });
+    expect(attrs).toEqual({ "data-ui-style": "landing", "data-theme": "dark", "data-ui-theme": "dark" });
+  });
+  it("follows the system without a theme, remembers a stored one, and ?theme=system clears it", () => {
+    expect(run("").attrs).toEqual({ "data-ui-style": "technical" });
+    expect(run("", { "uipack-theme": "light" }).attrs["data-theme"]).toBe("light");
+    const cleared = run("?theme=system", { "uipack-theme": "light" });
+    expect(cleared.attrs["data-theme"]).toBeUndefined();
+    expect(cleared.store["uipack-theme"]).toBeUndefined();
+  });
+  it("ignores unknown and prototype keys", () => {
+    expect(run("?style=constructor").attrs["data-ui-style"]).toBe("technical");
   });
 });
