@@ -15,7 +15,7 @@ export interface StorySlide {
   role?: SlideRole;
   /** Talk track. A string is treated as `say`. */
   notes?: (SpeechGuide & { stops?: Record<string, string> }) | string;
-  /** The title shown on the slide: a short label or verdict when presented, the full conclusion when read alone. */
+  /** The title shown on the slide: a short spoken verdict when presented, the full conclusion when read alone. */
   headline?: string;
   /** On-slide source line for the slide's numbers. */
   source?: string;
@@ -85,12 +85,12 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   "title-claim": {
     severity: "error",
     check:
-      "Presented: the title names the slide's topic or verdict, not its kind ('Background', 'Results', 'Next steps' warn). Read-alone: the title states a claim of three or more words, not a topic label.",
+      "Presented: a content slide's title is a short verdict the speaker can say ('Crashes down by two thirds', 'Start time: 0.2 s slower'); a bare topic label ('Crash rate') warns except on a cover, section, mechanism, demo or appendix slide, and a word that names the slide's kind ('Background', 'Results', 'Next steps') warns everywhere. Read-alone: the title states a claim of three or more words, not a topic label.",
   },
   "title-length": {
     severity: "warn",
     check:
-      "Presented: the title is at most 6 words, a label or a verdict, never a sentence to read out. Read-alone: at most 14 words.",
+      "Presented: the title is at most 6 words, a spoken verdict, never a sentence to read out. Read-alone: at most 14 words.",
   },
   "title-specific": {
     severity: "warn",

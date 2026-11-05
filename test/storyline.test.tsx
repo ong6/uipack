@@ -890,7 +890,7 @@ describe("lintDeck: presented decks (the default)", () => {
     },
     {
       id: "evidence",
-      title: "Search latency",
+      title: "Search: twice as fast",
       role: "evidence",
       points: ["p95 198 ms, half of March", "5 indexes → 1"],
       source: "Search latency dashboard, March against October",
@@ -926,18 +926,32 @@ describe("lintDeck: presented decks (the default)", () => {
     expect(find(lintDeck(withSlide(presented, "problem", { title: long })), "title-length")).toEqual([]);
   });
 
-  it("accepts short labels and questions, and warns only on words that name the slide's kind", () => {
+  it("accepts verdicts and questions, and warns on a label title on a content slide", () => {
     const claim = (title: string, role?: SlideRole) =>
       find(lintPresented(withSlide(presented, "risk", { title, ...(role ? { role } : {}) })), "title-claim");
-    expect(claim("Search latency")).toEqual([]);
     expect(claim("Will the cache hold?")).toEqual([]);
-    expect(claim("Results")[0].severity).toBe("warn");
+    expect(claim("Android crashes down by two thirds")).toEqual([]);
+    expect(claim("Start time: 0.2 s slower")).toEqual([]);
+    expect(claim("Approve iOS by 9 January")).toEqual([]);
+    expect(claim("Starts got slower")).toEqual([]);
+    for (const label of ["Crash rate", "Same work on iOS", "Slower starts?"]) {
+      const [hit] = claim(label);
+      expect(hit).toMatchObject({ severity: "warn", slideId: "risk" });
+      expect(hit.message).toMatch(/topic label on a content slide/);
+    }
+    // Labels stay fine where a slide only names its part: a mechanism zoom, a section divider, the cover.
+    expect(claim("The local bucket", "mechanism")).toEqual([]);
+    expect(
+      find(lintPresented(withSlide(presented, "risk", { title: "Crash rate", slots: { number: "02" } })), "title-claim"),
+    ).toEqual([]);
+    expect(claim("Results")[0].message).toMatch(/names the kind of slide/);
     expect(claim("Next steps")[0].message).toMatch(/names the kind of slide/);
     expect(claim("Overview", "cover")[0].severity).toBe("tip");
   });
 
   it("reads the quantity from the points, not only the title", () => {
-    const specific = (points: string[]) => find(lintPresented(withSlide(presented, "evidence", { points })), "title-specific");
+    const specific = (points: string[]) =>
+      find(lintPresented(withSlide(presented, "evidence", { title: "Search got faster", points })), "title-specific");
     expect(specific(["p95 198 ms, half of March"])).toEqual([]);
     expect(specific(["Much faster", "Users are happier"])[0].message).toMatch(/in the title or a point/);
   });
@@ -989,7 +1003,7 @@ describe("lintDeck: presented decks (the default)", () => {
       expect(find(lintDeck(sentences), "slide-shape")).toEqual([]);
     });
 
-    it("leaves a deck of plain labels alone (Hickey's talks are all labels)", () => {
+    it("doesn't call a deck of plain labels one shape (title-claim flags labels on content slides)", () => {
       const labels = presented.map((s, i) => ({ ...s, title: ["Reviews", "Meetings", "Latency", "Cache", "Titles"][i] }));
       expect(find(lintPresented(labels), "slide-shape")).toEqual([]);
     });

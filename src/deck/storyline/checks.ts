@@ -26,6 +26,7 @@ import {
   isSpecific,
   inferRoles,
   titleForm,
+  isLabelTitle,
   NOT_CONTRAST_RE,
   COMPARISON_KICKER_RE,
   SEMICOLON_CLAUSES_RE,
@@ -65,6 +66,13 @@ function titledSlides(deck: LintContext) {
     .filter(({ headline }) => headline);
 }
 
+/** Slides whose title may be a bare label: the cover, a section divider, a zoom into one part, a demo, the appendix. */
+const LABEL_ROLES: readonly SlideRole[] = ["cover", "mechanism", "demo", "appendix"];
+const labelAllowed = (deck: LintContext, slide: StorySlide) => {
+  const role = deck.roleAt(slide);
+  return Boolean((role && LABEL_ROLES.includes(role)) || slide.slots?.number !== undefined);
+};
+
 /** A slide's body points and declared slots: where a presented slide's numbers sit. */
 const bodyText = (slide: StorySlide) =>
   [...(slide.points ?? []), ...Object.values(slide.slots ?? {})].filter(Boolean) as string[];
@@ -102,7 +110,11 @@ export const LINT_CHECKS: readonly LintCheck[] = [
     check: ({ slides }, report) => {
       for (const slide of slides)
         if (!headlineOf(slide))
-          report("error", "No title. Give it a short label or verdict (read-alone: the conclusion as a sentence).", slide.id);
+          report(
+            "error",
+            "No title. Give it a short verdict the speaker can say (read-alone: the conclusion as a sentence).",
+            slide.id,
+          );
     },
   },
   {
@@ -118,13 +130,16 @@ export const LINT_CHECKS: readonly LintCheck[] = [
           if (TOPIC_LABELS.has(label))
             report(
               soft("warn"),
-              `"${headline}" names the kind of slide, not its topic. Name the topic ("Search latency") or the verdict ("Search: twice as fast since March").`,
+              `"${headline}" names the kind of slide, not its topic. Say the verdict ("Search: twice as fast since March").`,
               slide.id,
             );
           else if (TOPIC_OPENING_RE.test(headline))
+            report(soft("tip"), `"${headline}" opens like a topic ("${topicOpening(headline)}"). Say the verdict.`, slide.id);
+          else if (labelAllowed(deck, slide) || !isLabelTitle(headline)) continue;
+          else
             report(
-              soft("tip"),
-              `"${headline}" opens like a topic ("${topicOpening(headline)}"). Name the thing itself, or the verdict.`,
+              "warn",
+              `"${headline}" is a topic label on a content slide. Say the verdict the speaker would say aloud ("Crashes down by two thirds", "Start time: 0.2 s slower"); keep bare labels for agenda and section slides.`,
               slide.id,
             );
           continue;
@@ -163,7 +178,7 @@ export const LINT_CHECKS: readonly LintCheck[] = [
         if (deck.mode === "presented")
           report(
             "warn",
-            `"${headline}" is ${words} words, a sentence to read out. Cut it to a 2–5 word label or verdict, put the numbers in the points and say the rest. (Sent without you? Lint it with mode "read-alone".)`,
+            `"${headline}" is ${words} words, a sentence to read out. Cut it to a 2–5 word verdict, put the numbers in the points and say the rest. (Sent without you? Lint it with mode "read-alone".)`,
             slide.id,
           );
         else report("warn", `Title is ${words} words; keep it to ${MAX_TITLE_WORDS} or move detail to the body.`, slide.id);
@@ -219,8 +234,8 @@ export const LINT_CHECKS: readonly LintCheck[] = [
         report(
           "warn",
           forms[0] === "colon"
-            ? 'Every title is "Topic: verdict". Mix the forms: a plain label ("Search latency"), a verdict, the occasional question.'
-            : "Every title is a full sentence, so the deck reads as a script. Use short labels and verdicts, and say the sentences aloud.",
+            ? 'Every title is "Topic: verdict". Mix the forms: a plain verdict ("Search got twice as fast"), a "Topic: value" pair, the occasional question.'
+            : "Every title is a full sentence, so the deck reads as a script. Use short spoken verdicts, and say the full sentences aloud.",
         );
       }
     },
@@ -530,7 +545,7 @@ function lintContext(slides: readonly StorySlide[], options: LintOptions): LintC
 }
 
 /**
- * Check a deck's argument: titles that fit the mode (short labels and verdicts when presented, full
+ * Check a deck's argument: titles that fit the mode (short spoken verdicts when presented, full
  * conclusions when read alone), answer first, a concrete closing ask, role rhythm,
  * talk tracks, sources for numbers, and length against the time budget. Runs `LINT_CHECKS` in
  * order. Pure; no DOM.

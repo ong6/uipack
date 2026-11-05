@@ -9,7 +9,7 @@ export interface StoryBeat {
   role: SlideRole;
   /** What this beat must achieve. */
   purpose: string;
-  /** The short title's shape, with `<placeholders>`: a label, a verdict or a question. */
+  /** The short title's shape, with `<placeholders>`: a verdict, a question, or a label on a mechanism or demo beat. */
   titlePattern: string;
   /** A filled short title for a generic engineering project (presented). Illustrative, not real data. */
   example: string;
@@ -71,9 +71,9 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
       {
         role: "evidence",
         purpose: "The result against the goal agreed at the start.",
-        titlePattern: "<Metric>",
-        example: "Index freshness",
-        points: ["40 min → 6", "Goal: 10 min"],
+        titlePattern: "<Metric>: <before> → <after>",
+        example: "Freshness: 40 → 6 min",
+        points: ["Goal: 10 min", "Source: the indexing dashboard"],
         readAlone: "Index freshness improved from 40 minutes to 6 against a 10-minute goal",
         guidance: "Same metric and baseline as the last update. Source and window on the slide.",
         repeatable: true,
@@ -138,8 +138,8 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
       {
         role: "context",
         purpose: "Situation: what the room already accepts.",
-        titlePattern: "<System> today",
-        example: "Uploads resize inline",
+        titlePattern: "<What the system does> today",
+        example: "Every upload resizes inline",
         points: ["Every image, before the request returns"],
         readAlone: "Uploads resize every image inline before the request returns",
         guidance: "One slide. If the room would nod at every word, it's the right context.",
@@ -147,17 +147,17 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
       {
         role: "problem",
         purpose: "Complication: what broke or changed, sized, and why now.",
-        titlePattern: "<Problem>",
-        example: "Upload timeouts",
-        points: ["4% of large uploads", "Volume doubles by Q4"],
+        titlePattern: "<How often it fails>",
+        example: "4% of large uploads time out",
+        points: ["Volume doubles by Q4"],
         readAlone: "Large uploads time out 4% of the time, and volume doubles by Q4",
         guidance: "A number with a source. 'Why now' turns a nice-to-have into a decision.",
       },
       {
         role: "option",
         purpose: "Two or three real options, including doing nothing, on the same criteria.",
-        titlePattern: "<N> options",
-        example: "Three options",
+        titlePattern: "<N> options compared",
+        example: "Three options compared",
         points: ["Bigger servers", "A resize queue", "Do nothing"],
         readAlone: "Three options: bigger servers, a resize queue, or doing nothing",
         guidance: "One comparison slide. A straw-man option tells the room the answer was rigged.",
@@ -165,9 +165,9 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
       {
         role: "recommendation",
         purpose: "Why the chosen option wins and what you trade away.",
-        titlePattern: "Why <option>?",
-        example: "Why the queue?",
-        points: ["Ends timeouts", "Cost: thumbnails about 5 s later"],
+        titlePattern: "Why <option> wins",
+        example: "Why the queue wins",
+        points: ["Cost: thumbnails about 5 s later"],
         readAlone: "A queue ends timeouts at the cost of thumbnails arriving 5 seconds later",
         guidance: "Naming the cost is what makes the recommendation credible.",
       },
@@ -222,9 +222,9 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
       {
         role: "problem",
         purpose: "Why it matters: the constraint that makes the obvious design fail.",
-        titlePattern: "Why not <naive approach>?",
-        example: "Why not a central counter?",
-        points: ["+2 ms network hop", "On every request"],
+        titlePattern: "<Naive approach> costs <number>",
+        example: "A central counter costs 2 ms",
+        points: ["One network hop", "On every request"],
         readAlone: "A central counter adds a 2 ms network hop to every request",
         guidance: "Engineers care about the design only once they feel the constraint.",
       },
@@ -262,18 +262,18 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
       {
         role: "evidence",
         purpose: "Measured behaviour, with method and source.",
-        titlePattern: "<Test>",
-        example: "Load test",
-        points: ["+0.2 ms latency", "3% overshoot at peak"],
+        titlePattern: "<Test>: <result>",
+        example: "Load test: +0.2 ms",
+        points: ["3% overshoot at peak", "Source: load test 12"],
         readAlone: "Load tests show 0.2 ms added latency and 3% overshoot at peak",
         guidance: "Say how it was measured. A benchmark without a method is an anecdote.",
       },
       {
         role: "option",
         purpose: "Trade-offs and rejected alternatives.",
-        titlePattern: "The trade-off",
-        example: "The trade-off",
-        points: ["Accept brief overshoot", "Skip the extra network hop"],
+        titlePattern: "<Cost accepted> is the price",
+        example: "Brief overshoot is the price",
+        points: ["Buys: no extra network hop"],
         readAlone: "We accept brief overshoot in exchange for no extra network hop",
         guidance: "The trade-off slide is where senior engineers decide whether to trust you.",
       },
@@ -311,7 +311,7 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
         role: "answer",
         purpose: "What shipped, for whom, and the change it makes.",
         titlePattern: "<What users can now do>",
-        example: "One-click refunds",
+        example: "Refunds take one click",
         points: ["Support agents, no ticket", "Was a two-day wait"],
         readAlone: "Support agents can now issue refunds in one click instead of a two-day ticket",
         guidance: "The user and the outcome, not the feature name.",
@@ -349,9 +349,9 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
       {
         role: "evidence",
         purpose: "Early results, with window and source, and what isn't measured yet.",
-        titlePattern: "<Window>",
-        example: "First two weeks",
-        points: ["1,200 refunds skipped engineering"],
+        titlePattern: "<Result>",
+        example: "1,200 refunds skipped engineering",
+        points: ["In the first two weeks", "Source: the refunds log"],
         readAlone: "In the first two weeks, 1,200 refunds skipped the engineering queue",
         guidance: "Usage beats opinions. Say 'not measured yet' rather than imply a result.",
       },
@@ -471,8 +471,8 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
       {
         role: "evidence",
         purpose: "One outcome per slide: result, baseline, source, and your part in it.",
-        titlePattern: "<Change>",
-        example: "Smarter retries",
+        titlePattern: "<Change> <what it did>",
+        example: "Smarter retries cut failures",
         points: ["Failed payments: 3% → 2%", "Share of all attempts"],
         readAlone: "Smarter retries cut failed payments from 3% to 2% of attempts",
         guidance: "Say what you did versus what the team did. Credit others by name.",
@@ -490,9 +490,9 @@ export const STORYLINE_TEMPLATES: readonly StorylineTemplate[] = [
       {
         role: "problem",
         purpose: "What didn't land, and what changed because of it.",
-        titlePattern: "What slipped",
-        example: "What slipped",
-        points: ["Fraud-rule rewrite: 3 months late", "Now: rules ship behind flags"],
+        titlePattern: "<Work> slipped <duration>",
+        example: "Fraud rules slipped 3 months",
+        points: ["Now: rules ship behind flags"],
         readAlone: "The fraud-rule rewrite slipped three months, so rules now ship behind flags",
         guidance: "One honest miss makes the wins believable.",
         optional: true,

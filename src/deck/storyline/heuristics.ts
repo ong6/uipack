@@ -361,3 +361,24 @@ export const COMPARISON_KICKER_RE =
   /,\s+(?:(?:twice|half|three times|four times|\d+(?:\.\d+)?\s*[x×]|\d+(?:\.\d+)?\s+times)\s+(?:as\s+\p{L}+\s+as|\p{L}+er\s+than)|\p{L}+er\s+than)\b/iu;
 /** Two clauses balanced on a semicolon: "Same teams and the same six months; only the order changed." */
 export const SEMICOLON_CLAUSES_RE = /\S\s*;\s+\p{L}/u;
+
+/** Auxiliaries, modals and common finite verbs: a title with one says something happened or holds. */
+const VERB_RE =
+  /\b(?:is|are|was|were|be|been|am|has|have|had|do|does|did|can|could|will|would|shall|should|may|might|must|won't|can't|isn't|aren't|wasn't|weren't|don't|doesn't|didn't|hasn't|haven't|got|gets|get|goes|went|came|comes|fell|falls|rose|rises|grew|grows|cut|cuts|took|takes|made|makes|kept|keeps|held|holds|ran|runs|won|wins|lost|loses|beat|beats|left|leaves|stays|needs|need|costs|shows|says|means|works|adds|drops|lands|hits|saves|ships|ends|stops|slips|slip|breaks|fails|moves|doubles|halves|applies|apply|drains|refills|decides|syncs|serves|catches|caught|missed|misses|pays|buys|bought|brings|brought|lets|helps|returns|reaches|matters|wait|waits|take|resize|resizes|uses|use|blocks|sits|lives)\b/i;
+/** Words ending in -ed that are not past tenses. */
+const NOT_PAST_RE = /^(?:hundred|speed|seed|feed|breed|bleed|greed|embed|shed|bed|red|need)$/i;
+
+/**
+ * A topic label rather than a spoken verdict: no quantity, no date, no "Topic: value" or arrow,
+ * and no verb ("Crash rate", "Same work on iOS", "Slower starts?"). A verdict says something the
+ * speaker can say aloud ("Crashes down by two thirds", "Start time: 0.2 s slower", "Will the cache
+ * hold?"). Labels suit agenda and section slides; a content slide states what it shows.
+ */
+export function isLabelTitle(title: string): boolean {
+  const t = title.trim();
+  if (isSpecific(t) || hasFirmDate(t)) return false;
+  if (/[:→]|->/.test(t)) return false;
+  // An imperative opens with its verb ("Approve iOS by 9 January"); elsewhere "start" or "review" may be a noun.
+  if (VERB_RE.test(t) || DECISION_RE.test(wordsOf(t)[0] ?? "")) return false;
+  return !wordsOf(t).some((w) => /^\p{L}{3,}ed$/u.test(w) && !NOT_PAST_RE.test(w));
+}

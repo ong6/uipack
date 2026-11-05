@@ -44,7 +44,7 @@ const rewritten: Record<string, Partial<DeckSlide>> = {
     },
   },
   [`${TEMPLATE}-2`]: {
-    ...written("Freshness", "Index freshness", ["40 min → 6", "Goal: 10 min", "p95, last 14 days, migrated traffic"]),
+    ...written("Freshness", "Freshness: 40 → 6 min", ["Goal: 10 min", "p95, last 14 days, migrated traffic"]),
     notes: {
       say: cues(
         "Freshness is why we're migrating.",
