@@ -119,24 +119,41 @@ words nor the style.
 ## Web
 
 - **Grid.** 12 columns at 1024px and up, 8 at 640px, 4 below. Spacing is 8pt. `Grid` and
-  `GridItem span={[w, m, n]}` respond to their container.
-- **Section archetypes**: nav, hero (headline, subhead, CTA, the star or `DemoPlayer`), mechanism
-  (a working figure), steps (feature cards with actions pinned to the bottom), proof (a quote and
-  numbers), FAQ, pricing with the final CTA.
-- **Each style recommends a sequence** for the same sections (`uiStyles[].prefers` in `uipack`).
-  The order is part of a look: the demo hero, three cards, pricing and FAQ is the generic landing
-  template, so the other styles reorder it.
+  `GridItem span={[w, m, n]}` respond to their container. The hero, every section and the closing
+  band share one 1120px column, so every left edge on the page lines up.
+- **Section archetypes**, each a component:
 
-  | Style | Recommended order | Hero |
+  | Archetype | Component | Holds |
   | --- | --- | --- |
-  | Technical | hero → mechanism → proof → steps → FAQ → pricing | Copy on the start edge; the diagram follows at once |
-  | Landing | hero → steps → mechanism → proof → FAQ → pricing | Centred |
-  | Graphical | hero → proof → steps → mechanism → pricing → FAQ | Centred; the numbers come second, as a poster's |
+  | Nav | `GlassNav` | Brand, links, the CTA. Below 720px: brand on the start edge, Menu on the end edge. The CTA stays in the bar as a compact button beside Menu; below 340px it moves into the menu |
+  | Hero | `StarHero` | Eyebrow, headline, subhead, actions on the start edge (default), then the proof: a `DemoPlayer` or a `Figure` |
+  | Steps | `Section` + `FeatureGrid numbered` | Three numbered cards |
+  | Mechanism | `Section` + `Figure` | A working figure, with quiet chrome on a web page |
+  | Proof | `Section` + `Proof` | The headline number with its denominator and meter, ruled stats, a framed named quote |
+  | FAQ | `FAQ` | Head beside the questions at 1024px and up |
+  | Pricing | `Section` + `PricingPlans` | One to three plan cards, each with features and its own button |
+  | Closing | `ClosingCta` | A full-bleed band: the claim, the CTA a third time, a reassurance line |
+  | Footer | `SiteFooter` | Brand, links, fine print |
 
-  A recommendation only: `/web?layout=shared` shows all three in one order, which is what the swap
-  test compares.
-- One goal, so the primary CTA appears three times (hero, nav, end) and nothing else competes.
-- One ambient background per viewport, behind the star, never behind body copy.
+- **One order in every style.** `WebPage` renders `sections` in the order the page lists them, in
+  every style, and the hero keeps whatever proof the page put there. Swapping the style changes
+  tokens and ornaments only. Alignment is the start edge everywhere by default.
+- **A style's own sequence is opt-in.** `WebPage layout="style"` uses `uiStyles[].prefers` and
+  `.layout` (what fills the hero, alignment, cards or rows). Ids a style doesn't name are kept, after
+  the ones it does. Section ids it knows: `hero`, `how`, `demo`, `mechanism`, `proof`, `faq`,
+  `pricing`.
+
+  | Style | Its own order (opt-in) | Its own hero |
+  | --- | --- | --- |
+  | Technical | hero → how → demo → proof → FAQ → pricing | The figure, start edge; steps as numbered rows |
+  | Landing | hero → how → mechanism → proof → FAQ → pricing | The demo, centred |
+  | Graphical | hero → proof → how → mechanism → pricing → FAQ | The demo, centred |
+
+  Section render functions receive `{ uiStyle, layout, defaults }`; under the default layout,
+  `defaults` is `{ hero: "demo", align: "start", steps: "cards" }` in every style.
+- One goal, so the primary CTA appears three times (hero, nav, closing band) and nothing else competes.
+- One ambient background per viewport, behind the star, never behind body copy. A hero with a
+  proof draws no extra chart: the proof is the star.
 - Cards that share a row share a height, with the action row at `margin-top: auto`.
 
 ## Motion

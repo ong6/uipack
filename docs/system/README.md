@@ -67,13 +67,16 @@ Four more rules keep the split honest where it would otherwise leak:
   deck is read without its speaker), a body point a fragment of at most 8 words, an optional
   eyebrow 1–4 words, a label 2–3. The linter flags any slot over budget
   ([Writing, slot budgets](writing.md#slot-budgets)).
-- **A style may recommend layouts, never require them.** On the web the section order is part of a
-  look, so each style names an order for the same content ([Layout, web](layout.md#web)); every
-  style still renders every layout.
+- **A style swap never moves a section.** A web page keeps its author's section order and layout
+  in every style, so a swap changes colours, type and ornaments only, never the writing, the order
+  or what sits in the hero. A style's own recommended order is an explicit opt-in
+  ([Layout, web](layout.md#web)).
 - **The web loads one style at a time.** The library's CSS sits in cascade layers, so a page's own
   rules win without `!important`. A small script in the page head sets the style and theme before
-  the first paint, and each style fetches only its own fonts.
+  the first paint, and each style fetches only its own fonts, preloads only its display face and
+  swaps over size-matched fallbacks.
 
+This folder ships in the npm package: a consumer reads it at `node_modules/uipack/docs/system/`.
 What exists in code and what is still missing is in
 [Style roles, "Where the code stands"](style.md#where-the-code-stands). The Foundations pages show
 each layer live.
@@ -84,9 +87,9 @@ each layer live.
 style as a prop (`<DeckPlayer uiStyle="graphical">`). Content types are `DeckSlide`,
 `SlideStarterData` and the preset specs; notes are `notes { say, delivery, next }`. Budgets are
 `SLOT_BUDGETS`, checked by `lintDeck` as `slot-budget`. Each style's recommended order is
-`uiStyles[].prefers`. The cascade layers are `uipack.tokens`, `uipack.base`, `uipack.layout` and
-`uipack.ornaments`; the head script is `styleBootScript`, which sets `data-ui-style` and
-`data-ui-theme`.
+`uiStyles[].prefers`, used only with `WebPage layout="style"`. The cascade layers are
+`uipack.tokens`, `uipack.base`, `uipack.layout` and `uipack.ornaments`; the head script is
+`styleBootScript`, which sets `data-ui-style` and `data-ui-theme`.
 
 
 ## Media at a glance
@@ -95,7 +98,7 @@ style as a prop (`<DeckPlayer uiStyle="graphical">`). Content types are `DeckSli
 | --- | --- | --- | --- | --- |
 | Diagrams | `uipack` (`Figure`), `uipack/presets`, `uipack/drill`, `uipack/charts`, `uipack/article` | Technical | Claim sentence, 2–3 word labels, labelled arrows, one-line caption | 8px grid, lanes, groups, authored narrow drawing |
 | Slides | `uipack/deck` (new work), `uipack/presentations` (three starters) | Technical (deck tokens) | Short titles and fragment points with cue notes (presented) or full-sentence titles (read-alone), ghost deck, slide roles, storylines, a concrete ask | 1920×1080 canvas, headline/body/footer regions, slide archetypes |
-| Web | `uipack/web`, `uipack/docs` | Technical (Landing and Graphical swap in) | One goal per page, outcome headline, one CTA in three places | 12/8/4 grid, 8pt spacing, section archetypes, a sequence per style |
+| Web | `uipack/web`, `uipack/docs` | Technical (Landing and Graphical swap in) | One goal per page, outcome headline, one CTA in three places | 12/8/4 grid, 8pt spacing, section archetypes, one order in every style |
 | Motion | Packets, entrance, deck transitions, `uipack/web` motion | Inherits the host style's motion tokens | One sentence per beat | Beats, the timing scale, transition grammar |
 | 3D | `uipack/slides` (camera stories), `uipack/objects`, `uipack/mechanism` | Studio / Mechanism | A label set and one line of narration per stop | Camera stops, framing, the 2D fallback |
 

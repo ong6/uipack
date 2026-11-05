@@ -314,7 +314,12 @@ describe("GlassNav", () => {
     fireEvent.keyDown(document, { key: "Escape" });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(document.activeElement).toBe(toggle);
-    expect(screen.getByRole("link", { name: "Start" })).toHaveAttribute("data-variant", "primary");
+    // The CTA renders twice: in the bar, and in the menu, where CSS shows it below 340px only.
+    const ctas = screen.getAllByRole("link", { name: "Start" });
+    expect(ctas).toHaveLength(2);
+    for (const cta of ctas) expect(cta).toHaveAttribute("data-variant", "primary");
+    expect(ctas[0].closest(".uipack-web-nav__menu-cta")).not.toBeNull();
+    expect(ctas[1].closest(".uipack-web-nav__cta")).not.toBeNull();
   });
 });
 

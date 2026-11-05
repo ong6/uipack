@@ -52,7 +52,13 @@ export function Section({
       <div className="uipack-web-section__inner">
         {(eyebrow || title || intro) && (
           <div className="uipack-web-section__head">
-            {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+            {eyebrow && (
+              <Eyebrow>
+                {/* The style's section index (Technical: 01, 02…); empty and hidden elsewhere. */}
+                <span className="uipack-web-section__index" aria-hidden="true" />
+                {eyebrow}
+              </Eyebrow>
+            )}
             {title && (
               <Heading level={2} id={headingId}>
                 {title}
@@ -78,15 +84,27 @@ export interface FeatureGridProps {
   features: Feature[];
   /** Upgrade the quiet cards to pointer-following spotlight cards. */
   spotlight?: boolean;
+  /**
+   * Number the cards 1, 2, 3 in the style's display face and accent: for steps, where order is
+   * the point. The number is decorative (aria-hidden); the list is already ordered.
+   */
+  numbered?: boolean;
 }
 
 /** Three across at 12 columns, two at 8, one at 4. */
-export function FeatureGrid({ features, spotlight = false }: FeatureGridProps) {
+export function FeatureGrid({ features, spotlight = false, numbered = false }: FeatureGridProps) {
   return (
-    <Grid as="ul" className="uipack-web-features">
-      {features.map((f) => {
+    <Grid as={numbered ? "ol" : "ul"} className={`uipack-web-features${numbered ? " uipack-web-features--numbered" : ""}`}>
+      {features.map((f, i) => {
         const inner = (
           <>
+            {numbered && (
+              <span className="uipack-web-feature__num" aria-hidden="true">
+                {/* The leading zero shows where the style numbers with two digits (Technical's STEP 01). */}
+                {i < 9 && <span className="uipack-web-feature__pad">0</span>}
+                {i + 1}
+              </span>
+            )}
             {f.icon && <div className="uipack-web-feature__icon">{f.icon}</div>}
             <Heading level={3} size={1}>
               {f.href ? <a href={f.href}>{f.title}</a> : f.title}

@@ -26,10 +26,11 @@ fails if a style leaves a core role out.
 | `--ui-line` / `-soft` | Borders and rules; grid and hairlines | `--uipack-border`, `--uipack-grid`, `--web-rule`, `--web-hairline` |
 | `--ui-accent`, `--ui-on-accent` | The one highlighted thing, and text on it | `--uipack-accent`, `--deck-accent`, `--web-accent` |
 | `--ui-accent-surface` / `-ink-2` / `-line` | The deck's accent-tone slide | `[data-tone="accent"]` |
-| `--ui-flow-request` / `-response` / `-change` | Flow tokens, always paired with a shape | `--uipack-token-*` |
+| `--ui-flow-request` / `-response` / `-change` | Flow tokens, always paired with a shape. Each style keeps them in its own palette (Graphical: ink, warm grey, orange text tone; Landing: slate request), so a figure on its page never carries another style's blue | `--uipack-token-*` |
 | `--ui-data-pos` / `-neg` / `-context` | Signed values (with a sign or arrow) and the context grey | `--uipack-cx-good`, `-bad`, `-context` |
 | `--ui-data-1` … `-4`, `--ui-on-data-1` … `-4` | Categorical slots and the label on each | `--uipack-cx-s1` … |
-| `--ui-inv-paper` / `-surface` / `-ink` / `-ink-2` / `-line` / `-accent` | The invert variant inside the style (deck `invert`, `tone="ink"`) | `[data-tone="ink"]` |
+| `--ui-inv-paper` / `-surface` / `-ink` / `-ink-2` / `-line` / `-accent` | The invert variant inside the style (deck `invert`, `tone="ink"`) | `[data-tone="ink"]`, the web quote card |
+| `--ui-band-fill` / `-ink` / `-ink-2` / `-cta`, `--ui-on-band-cta`, `--ui-band-pattern` | The web closing band (`ClosingCta`): its ground, text, button and pattern | `--web-band-*` |
 
 **Type, shape, motion and scalars**
 
@@ -50,12 +51,32 @@ move a box, which is why a swap keeps every region in place (`src/web/web-styles
 | Slot role | Painted where | Technical | Landing | Graphical |
 | --- | --- | --- | --- | --- |
 | `--ui-backdrop`, `--ui-backdrop-mask` | Behind the hero | Dotted grid, faded | None (grain and aurora are components) | Accent disc, ring, ink tick band |
+| `--ui-backdrop-narrow` | Behind the hero below 720px | The same grid | None | A 48px disc in the corner, no ring, so it clears the copy |
 | `--ui-marker-size` / `-shape` / `-color` | Hung before each eyebrow | 8px square, 2px radius | None | 12px accent disc |
+| `--ui-section-index` | `inline` or `none`: each `Section` eyebrow's number, counted down the page | `01 / HOW IT WORKS` in mono | None | None |
+| `--ui-corner-marks` | Background layers on quiet cards, plans and the quote | 10px accent registration marks at two corners | None | None |
 | `--ui-section-rule` | Top edge of each section | 1px soft line | None | 2px ink |
 | `--ui-frame-border`, `--ui-frame-shadow`, `--ui-card-shadow` | Cards and framed windows | 1px line, flat | Hairline, soft shadow | 2px ink, hard 6px offset |
 | `--ui-nav-fill`, `--ui-nav-blur` | The sticky nav | Paper at 94% | Glass, 14px blur | Solid paper |
 | `--ui-grain`, `--ui-glow`, `--ui-star-fill` | Ambient depth switches (0 or 1) | 0 | 1 | 0 |
 | `--ui-cta-shadow(-hover)` | The primary button | None | Accent glow | Hard ink offset |
+| `--ui-band-*` | The closing band | Ink band, mint button, faint dotted grid | Near-black band, white button, a hairline of light along the top | Signal-orange band, black button, ink tick rule along the top |
+
+**Treatment roles (web components).** Range comes from how each style draws the same parts, not
+from moving them: the layout is one, the treatment is the style's. Every style fills these.
+
+| Role | Painted where | Technical (drawing sheet) | Landing (polished SaaS) | Graphical (poster) |
+| --- | --- | --- | --- | --- |
+| `--ui-density` | Section padding (vertical only) | 0.8, compact | 1.1, airy | 0.95 |
+| `--ui-column-rule`, `-gap` | Top of each section's column | Hairline across the column, end tick, 40px accent bar | None | None (2px full-bleed section rule instead) |
+| `--ui-card-fill`, `--ui-card-pad` | Step and feature cards | Surface, 1.5rem | Surface, 2rem, layered soft shadow | Surface, 1.75rem, hard ink shadow |
+| `--ui-num-*` (font, size, weight, prefix, pad, rule, color, fill, box, display, bleed, gap) | `FeatureGrid numbered` | Mono `STEP 01` over a hairline that bleeds across the card | Accent numeral in a tinted round badge | Giant Anton numeral in the accent |
+| `--ui-stat-divider` | Between proof stats | 1px rule | None | 2px ink |
+| `--ui-quote-*` (fill, ink, ink-2, line, mark, face, weight, case, size, rule, shadow) | The proof quote | Annotation: surface, hairline, 3px accent rule, text face | White card, serif, accent mark, soft lift | Orange poster block, Anton caps, hard ink shadow |
+| `--ui-plan-featured-border`, `-ring` | The featured plan | 3px accent bar along the top | Accent ring and a tinted glow | Orange offset shadow |
+| `--ui-cell-*` (fill, ink, line, peak, on-peak, off-ink, radius) | Product surfaces: table highlights, schedule cells, status chips, worked rules | Square cells, faint accent tint, accent peaks | Soft tinted chips, 6px | Ink-ruled boxes, orange peaks |
+| `--ui-window-dots`, `--ui-window-bar` | `ProductWindow` and `DemoPlayer` chrome | No traffic lights, clear bar | Dots on a grey bar | Square dots on a tinted bar |
+| `--ui-web-flow-request` | The request token of a figure on a web page | Ink (`#3a4640` / `#b9c6bf`), so a page figure carries no blue | The style's flow request | The style's flow request |
 
 **Every style fills every role.** A few roles have Technical values tuned for one medium
 (`--ui-node`, `--ui-line-solid`, `--ui-inv-node`, `--ui-accent-ink`, `--ui-data-neg-ink`,
@@ -68,7 +89,7 @@ palettes (`--tune-docs-*`), slide ink and rules (`--tune-slide-*`), print (`--tu
 the full-screen letterbox. A component reads one as `var(--tune-x, <a mix of core roles>)`, so any
 other style gets the derivation, and every style host resets them so they never leak.
 
-A role keeps its meaning across styles. Landing's accent is indigo, Technical's forest and
+A role keeps its meaning across styles. Landing's accent is cobalt, Technical's forest and
 Graphical's signal orange, but in each it marks the single thing that matters. A style may not add
 a second accent.
 
@@ -77,14 +98,14 @@ a second accent.
 | Style | For | Character | Values | Guide |
 | --- | --- | --- | --- | --- |
 | **Technical** (default) | Diagrams, charts, article parts, decks, the shell, and web pages | Warm paper, near-black ink, forest/mint accent, thin lines, 6px radius, system type in figures and IBM Plex on slides and the web; on the web a page leads with a working diagram | `src/styles/technical.css` | Below |
-| **Landing** (generic landing) | A conventional SaaS landing page, for a conventional marketing page | Neutral page, lavender band, indigo CTA accent, Instrument Serif headlines, 16px cards, glass and grain | `src/styles/landing.css` | [Web principles](../web-principles.md) |
+| **Landing** (generic landing) | A conventional SaaS landing page, for a conventional marketing page | Cool neutral page, pale grey band, one cobalt accent, Instrument Serif headlines, 12px cards with layered soft shadows, 10px controls, glass nav | `src/styles/landing.css` | [Web principles](../web-principles.md) |
 | **Graphical** | Posters, launches, a page that should be loud | Bone paper, black ink, one signal-orange accent, Anton display caps, hard edges, 2px rules, hard offset frames, one disc motif | `src/styles/graphical.css` | [Web principles](../web-principles.md) |
 | **Mechanism** | One isometric machine whose working is the point | Technical palette mapped to four solid tones (`--tune-mech-*`), one lit part | `src/mechanism/mechanism.css` | [Mechanism](../mechanism.md) |
 | **3D art directions** | Object scenes | Studio (reads `--tune-object-*`), Paper worlds, Kinetic, Cartoon, Realistic, Abstract | `src/objects/*` | [Object scenes](../objects.md) |
 
 Set a style with the `uiStyle` prop (`Figure`, `DeckPlayer`, `SlideStarter`, `WebSurface`, `Section`)
 or `data-ui-style` on any element; the nearest one wins. `uiStyles` in `uipack` lists the three
-swappable styles with their fonts, the face to preload and their recommended web section order.
+swappable styles with their fonts, the face to preload and their own web section order (used only when a page opts in with `WebPage layout="style"`).
 
 ### Technical values
 
@@ -110,15 +131,15 @@ never a status colour, an accent or decoration.
 
 | Role | Landing light / dark | Graphical light / dark |
 | --- | --- | --- |
-| paper | `#f7f7f4` / `#0d0d13` | `#f1eee6` / `#121212` |
-| surface | `#ffffff` / `#16161f` | `#fbfaf6` / `#1b1b1b` |
-| surface-2 | `#ebe9f4` / `#1e1c2e` | `#e6e1d3` / `#262420` |
-| ink | `rgb(18 18 23)` / `rgb(242 242 247)` | `#111111` / `#f1eee6` |
+| paper | `#fbfbfa` / `#0b0c10` | `#f1eee6` / `#121212` |
+| surface | `#ffffff` / `#14161c` | `#fbfaf6` / `#1b1b1b` |
+| surface-2 | `#f1f2f4` / `#171a21` | `#e6e1d3` / `#262420` |
+| ink | `#0f1115` / `#f2f3f5` | `#111111` / `#f1eee6` |
 | ink-2 / ink-3 | ink at 87% / 66% | `#363532`, `#57554f` / `#cfcbc0`, `#a29e93` |
-| line / line-soft | ink at 24% / 12% | solid ink / ink at 22% |
-| accent | `#4b3fd6` / `#a99dff` | `#f24a00` / `#ff6a26` (as small text `#b23700` / `#ff7f45`) |
-| on-accent | `#ffffff` / `#0d0d13` | `#111111` |
-| radius | 16px cards, 12px panels, round pills | 0 everywhere |
+| line / line-soft | ink at 18% / 9% | solid ink / ink at 22% |
+| accent | `#2348d6` / `#8ba6ff` | `#f24a00` / `#ff6a26` (as small text `#b23700` / `#ff7f45`) |
+| on-accent | `#ffffff` / `#0b0c10` | `#111111` |
+| radius | 12px cards, 10px panels and controls | 0 everywhere |
 
 Both keep Technical's flow hues (Graphical darkens two for its bone paper) and its data colours.
 
@@ -201,20 +222,27 @@ canvas px on the 1920×1080 canvas, so they scale with the slide.
 
 ## Web
 
-Three styles paint web pages, from the same parts and the same words:
+Three styles paint web pages, from the same parts, the same words and the same layout:
 
-- **Technical** is the default and the house look: paper, ink, the forest accent, IBM Plex,
-  thin rules, a dotted-grid backdrop and a square marker before each eyebrow. The page leads with a
-  working diagram (its recommended order puts the mechanism figure straight after the hero).
-- **Landing** is the generic landing page: neutral 60% (`#f7f7f4` / `#0d0d13`), lavender 30%
-  (`#ebe9f4` / `#1e1c2e`), indigo 10% (`#4b3fd6`) for CTAs and the star only; Instrument Serif from
-  step 4; text at 100/87/66% ink; 16px cards; grain and glass. Its 30 rules are in
-  [Web principles](../web-principles.md).
+- **Technical** is the default and the house look, and should read as the most deliberate of the
+  three: a drawing sheet. Paper, ink, the forest accent, IBM Plex with display type at 1.1×, a
+  compact rhythm, a dotted-grid backdrop, a square marker and a mono section index before each
+  eyebrow (`01 / HOW IT WORKS`), a title rule with an end tick and an accent bar over each
+  section's column, `STEP 01` labels over hairlines, stats between vertical rules, the quote as an
+  annotation with an accent rule, square mono table cells, windows without traffic lights, accent
+  registration marks on cards, figures with ink request tokens, and an ink closing band with a mint button.
+- **Landing** is the generic landing page done well: cool neutral 60% (`#fbfbfa` / `#0b0c10`), pale
+  grey 30% (`#f1f2f4` / `#171a21`), cobalt 10% (`#2348d6`) for CTAs and the star only; Instrument
+  Serif from step 4 with the emphasis in cobalt italic; 12px cards lifted by layered soft shadows;
+  steps in tinted round badges; a near-black closing band with a white button; no lavender, no
+  gradient wash. Its 30 rules are in [Web principles](../web-principles.md).
 - **Graphical** is a poster: Anton caps at 1.3×, one orange disc in the hero backdrop that returns
-  as every eyebrow marker, 2px ink rules and hard offset frames, no glow, no blur.
+  as every eyebrow marker, 2px ink rules and hard offset frames, an orange closing band, no glow, no blur.
 
-All three keep one accent, 4.5:1 small text in both themes and reduced motion. `/web?style=` shows
-the same page in each; `?layout=shared` puts them in one section order.
+All three keep one accent, 4.5:1 small text in both themes and reduced motion. A figure on a web
+page takes the page's text and label faces, frame and radius, and its flows stay in the style's
+palette. `/web?style=` shows the same page in each, in the same order. `?layout=style` is the
+opt-in view of each style's own order ([Layout, web](layout.md#web)).
 
 ## Motion
 
@@ -281,3 +309,5 @@ Known gaps:
 - Consulting charts and bento decks in Landing and Graphical pass the swap test but have had no
   visual review; dense chart labels in Anton have not been checked.
 - Only the web reads the ornament slots. Figures and slides have no backdrop or marker slot yet.
+- Figures keep their own node radius in Graphical (rounded boxes inside a square frame); the
+  frame, faces and flow colours follow the page.

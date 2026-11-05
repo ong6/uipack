@@ -47,14 +47,18 @@ const WEB_REGIONS: [string, string][] = [
   ["mechanism", "#web-mechanism"],
   ["figure", "#web-mechanism figure"],
   ["proof", "#web-proof"],
-  ["stats", "#web-proof .web-stats"],
+  ["stats", "#web-proof .uipack-web-proof__stats"],
+  ["quote", "#web-proof .uipack-web-quote"],
   ["faq", "#web-faq"],
   ["pricing", "#web-pricing"],
-  ["closing cta", "#web-pricing .uipack-web-cta"],
+  ["plans", "#web-pricing .uipack-web-pricing__plans"],
+  ["closing", "#web-closing"],
+  ["closing cta", "#web-closing .uipack-web-cta"],
+  ["footer", ".web-example .uipack-web-footer"],
 ];
 
-/** Shrink-to-fit regions centred on the page: their width follows the face, their axis must not move. */
-const CENTRED = ["hero eyebrow", "hero title", "hero subtitle", "hero actions", "stats", "closing cta"];
+/** Shrink-to-fit regions on the start edge: their width follows the face, their start must not move. */
+const SHRINK = ["hero eyebrow", "hero title", "hero subtitle", "hero actions", "closing cta"];
 
 for (const width of [1440, 390]) {
   test(`web: the same page in every style keeps its regions, order and columns at ${width}px`, async ({ page }) => {
@@ -65,7 +69,8 @@ for (const width of [1440, 390]) {
     const runs: Record<string, Box[]> = {};
     const headings: Record<string, string[]> = {};
     for (const style of STYLES) {
-      await page.goto(`/web?style=${style}&layout=shared&theme=light`);
+      // No layout parameter: the default keeps the page's own order and layout in every style.
+      await page.goto(`/web?style=${style}&theme=light`);
       const example = page.locator(".web-example");
       await expect(example).toHaveAttribute("data-ui-style", style);
       // Walk the page so the below-the-fold figure (loaded when near) is in place, then measure at the top.
@@ -85,17 +90,12 @@ for (const width of [1440, 390]) {
       // The same regions top to bottom.
       const order = (r: Box[]) => [...r].sort((a, b) => a.y - b.y || a.x - b.x).map((b) => b.name);
       expect(order(run)).toEqual(order(base));
-      // The same columns: every region starts and spans the same width (font metrics change heights only).
+      // The same columns: every region starts and spans the same width (font metrics change heights
+      // only); shrink-to-fit copy keeps its start edge.
       for (const [i, b] of run.entries()) {
-        if (CENTRED.includes(b.name)) continue;
         expect(Math.abs(b.x - base[i].x), `${style} ${b.name} x`).toBeLessThanOrEqual(TOL);
+        if (SHRINK.includes(b.name)) continue;
         expect(Math.abs(b.w - base[i].w), `${style} ${b.name} width`).toBeLessThanOrEqual(TOL);
-      }
-      // Centred copy stays centred on the same axis.
-      for (const name of CENTRED) {
-        const a = run.find((b) => b.name === name)!;
-        const t = base.find((b) => b.name === name)!;
-        expect(Math.abs(a.x + a.w / 2 - (t.x + t.w / 2)), `${style} ${name} centre`).toBeLessThanOrEqual(TOL);
       }
     }
     expect(errors).toEqual([]);
@@ -185,10 +185,32 @@ test("a Section with its own uiStyle repaints inside another style's page", asyn
   expect(errors).toEqual([]);
 });
 
-test("Technical's own layout: a figure in the hero, start-aligned heads, steps as numbered rows", async ({ page }) => {
+test("by default the hero holds the same proof in every style, on the sections' left edge", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   const errors = watchErrors(page);
-  await page.goto("/web?style=technical&theme=light");
+  for (const style of STYLES) {
+    await page.goto(`/web?style=${style}&theme=light`);
+    const hero = page.locator(".web-example .uipack-web-hero");
+    await expect(hero.locator(".uipack-web-demo")).toBeVisible();
+    await expect(hero.locator("figure.uipack")).toHaveCount(0);
+    await expect(page.locator(".web-example")).toHaveAttribute("data-ui-layout", "shared");
+    // The hero's copy and proof start where every section's content starts.
+    const left = async (sel: string) => Math.round((await page.locator(sel).first().boundingBox())!.x);
+    const edge = await left("#web-how .uipack-web-section__inner");
+    expect(Math.abs((await left(".web-example .uipack-web-hero__copy")) - edge), `${style} hero copy`).toBeLessThanOrEqual(1);
+    expect(Math.abs((await left(".web-example .uipack-web-hero__proof")) - edge), `${style} hero proof`).toBeLessThanOrEqual(1);
+    // A figure on the page is quiet: no Open canvas, no one-entry legend.
+    await page.locator("#web-mechanism").scrollIntoViewIfNeeded();
+    await expect(page.locator("#web-mechanism figure")).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator("#web-mechanism").getByRole("button", { name: "Open canvas" })).toHaveCount(0);
+  }
+  expect(errors).toEqual([]);
+});
+
+test("Technical's own layout (opt-in): a figure in the hero, start-aligned heads, steps as numbered rows", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const errors = watchErrors(page);
+  await page.goto("/web?style=technical&layout=style&theme=light");
   const example = page.locator(".web-example");
   await expect(example).toHaveAttribute("data-ui-layout", "style");
   const hero = page.locator(".web-example .uipack-web-hero");
@@ -202,8 +224,8 @@ test("Technical's own layout: a figure in the hero, start-aligned heads, steps a
   const list = await page.locator("#web-how .uipack-web-features").boundingBox();
   for (const row of await page.locator("#web-how .uipack-web-features > li").all())
     expect(Math.abs((await row.boundingBox())!.width - list!.width)).toBeLessThanOrEqual(1);
-  // Landing keeps its centred demo hero.
-  await page.goto("/web?style=landing&theme=light");
+  // Landing's own layout keeps its centred demo hero.
+  await page.goto("/web?style=landing&layout=style&theme=light");
   await expect(page.locator(".web-example .uipack-web-hero .uipack-web-demo")).toBeVisible();
   expect(errors).toEqual([]);
 });

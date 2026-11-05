@@ -64,7 +64,6 @@
     --ui-stroke: 1.25;
     --ui-rule-width: 1px;
     /* Scalars a style may own (research brief, contract change 1) */
-    --ui-density: 1;
     --ui-type-ratio: 1.25;
     --ui-measure: 65ch;
     /* Motion feel */
@@ -84,7 +83,9 @@
     --ui-marker-size: 8px;
     --ui-marker-shape: 2px;
     --ui-marker-color: var(--ui-accent);
-    --ui-section-rule: inset 0 1px 0 var(--ui-line-soft);
+    /* The section rule moves onto the column (--ui-column-rule): a drawing sheet's title rule, not a
+       full-bleed line. */
+    --ui-section-rule: none;
     --ui-grain: 0;
     --ui-glow: 0;
     --ui-cta-shadow: none;
@@ -92,7 +93,83 @@
     --ui-em-style: normal;
     --ui-em-color: var(--ui-accent);
     --ui-star-fill: 0;
-    --ui-display-scale: 1;
+    --ui-display-scale: 1.1;
+
+    /* Web closing band (ClosingCta): the ink band with the mint accent in both themes, and the
+       figure's dotted grid faintly over it. */
+    --ui-band-fill: light-dark(#111814, #14201b);
+    --ui-band-ink: light-dark(#eef1ee, #e8ece9);
+    --ui-band-ink-2: light-dark(#a9b3ad, #9aa39e);
+    --ui-band-cta: light-dark(#71dcb2, #71dcb2);
+    --ui-on-band-cta: light-dark(#07110c, #07110c);
+    --ui-band-pattern: radial-gradient(
+        circle at 1px 1px,
+        color-mix(in srgb, var(--ui-band-ink) 16%, transparent) 1px,
+        transparent 1.5px
+      )
+      0 0 / 16px 16px;
+    /* The hero backdrop below 720px: the same dotted grid. */
+    --ui-backdrop-narrow: var(--ui-backdrop);
+    /* Section index: each section's eyebrow opens with its number (01, 02…), as a figure does. */
+    --ui-section-index: inline;
+    /* Registration marks: 10px accent corners on cards, plans and the quote, as on a drawing sheet. */
+    --ui-corner-marks:
+      linear-gradient(var(--ui-accent), var(--ui-accent)) 0 0 / 10px 1.5px no-repeat,
+      linear-gradient(var(--ui-accent), var(--ui-accent)) 0 0 / 1.5px 10px no-repeat,
+      linear-gradient(var(--ui-accent), var(--ui-accent)) 100% 100% / 10px 1.5px no-repeat,
+      linear-gradient(var(--ui-accent), var(--ui-accent)) 100% 100% / 1.5px 10px no-repeat;
+
+    /* Component treatment on the web (docs/system/style.md, "Treatment roles"): a drawing sheet.
+       Compact rhythm; every section's column opens on a title rule with end ticks and a short accent
+       bar; steps are labelled STEP 01 in mono over a hairline; stats sit between vertical rules; the
+       quote is an annotation (surface, hairline, accent rule), not an inverted card; table cells are
+       square and mono. */
+    --ui-density: 0.8;
+    --ui-column-rule:
+      linear-gradient(var(--ui-accent), var(--ui-accent)) 0 0 / 40px 3px no-repeat,
+      linear-gradient(var(--ui-line), var(--ui-line)) 0 1px / 100% 1px no-repeat,
+      linear-gradient(var(--ui-line), var(--ui-line)) 100% 0 / 1px 9px no-repeat;
+    --ui-column-rule-gap: 28px;
+    --ui-card-fill: var(--ui-surface);
+    --ui-card-pad: 1.5rem;
+    --ui-num-font: var(--ui-web-font-label);
+    --ui-num-size: 0.75rem;
+    --ui-num-weight: 600;
+    --ui-num-prefix: "Step ";
+    --ui-num-pad: inline;
+    --ui-num-rule: 1px solid var(--ui-line-soft);
+    --ui-num-color: var(--ui-accent-ink);
+    --ui-num-fill: transparent;
+    --ui-num-box: auto;
+    --ui-num-bleed: 1;
+    --ui-num-gap: 0.875rem;
+    --ui-num-display: block;
+    --ui-stat-divider: 1px solid var(--ui-line);
+    --ui-quote-fill: var(--ui-surface);
+    --ui-quote-ink: var(--ui-ink);
+    --ui-quote-ink-2: var(--ui-ink-2);
+    --ui-quote-line: var(--ui-line-soft);
+    --ui-quote-mark: var(--ui-accent-ink);
+    --ui-quote-face: var(--ui-web-font-text);
+    --ui-quote-weight: 500;
+    --ui-quote-case: none;
+    --ui-quote-size: 1.375rem;
+    --ui-quote-rule: inset 3px 0 0 var(--ui-accent);
+    --ui-quote-shadow: 0 0 transparent;
+    --ui-plan-featured-border: var(--ui-line);
+    --ui-plan-featured-ring: inset 0 3px 0 var(--ui-accent);
+    --ui-cell-fill: color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface));
+    --ui-cell-ink: var(--ui-ink);
+    --ui-cell-line: color-mix(in srgb, var(--ui-accent) 22%, transparent);
+    --ui-cell-peak: var(--ui-accent);
+    --ui-on-cell-peak: var(--ui-on-accent);
+    --ui-cell-off-ink: var(--ui-ink-3);
+    --ui-cell-radius: 2px;
+    --ui-window-dots: none;
+    --ui-window-bar: transparent;
+    /* Figures on a web page: the request token in ink, not blue, so a diagram carries only the
+       style's green beside its greys. Articles and docs keep the tuned flow hues above. */
+    --ui-web-flow-request: light-dark(#3a4640, #b9c6bf);
 
     /* Roles whose Technical values are tuned for one medium, then --tune-* component values */
     --ui-node: light-dark(#fbfaf6, #0e1512);

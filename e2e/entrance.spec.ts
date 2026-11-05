@@ -68,9 +68,12 @@ test.describe("figure entrance", () => {
   }
 
   test("a demo player rests on its result until it is about to be seen", async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
+    // A short window keeps the demo (it sits under the hero) outside the 25% look-ahead band.
+    await page.setViewportSize({ width: 1440, height: 600 });
     await page.goto("/web", { waitUntil: "load" });
     const demo = page.locator(".uipack-web-demo").first();
+    const top = await demo.evaluate((el) => el.getBoundingClientRect().top);
+    expect(top).toBeGreaterThan(600 * 1.25);
     await expect(demo).toHaveAttribute("data-state", "finished");
     await expect(demo.getByTestId("demo-metric")).toHaveText("3");
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));

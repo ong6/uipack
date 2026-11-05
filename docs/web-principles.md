@@ -8,22 +8,61 @@ The components enforce what they can; the rest is on the page author.
 `uipack/web` renders in three styles, one value set each in `src/styles` (see
 [docs/system/style.md](system/style.md)). Pick one with `<WebSurface uiStyle="…">` or a whole page with `<WebPage uiStyle="…" sections={…}>` (or
 `data-ui-style` on any ancestor, set before paint by `styleBootScript()`). A swap changes tokens and
-ornament slots only: the same sections, boxes and reading order (`e2e/style-swap.spec.ts`). Each
-style recommends a section order (`uiStyles[].prefers`); the shared order works in all three.
+ornament slots only: the same sections in the page's own order, the same hero, boxes and reading
+order (`e2e/style-swap.spec.ts`). A style's own order (`uiStyles[].prefers`) is an explicit opt-in.
 
-| Style | Use it for | Palette | Faces | Ornaments | Recommended order |
+| Style | Use it for | Palette | Faces | Ornaments | Own order (opt-in only) |
 | --- | --- | --- | --- | --- | --- |
-| **Technical** (default) | Product and project pages that should read like junxiong.dev's figures | Paper `#f6f5f1`, ink `#1a1c1a`, one forest accent `#205f49` (dark: `#0a100d`, `#e8ece9`, mint `#71dcb2`) | IBM Plex Sans (headlines at 600, −0.02em), IBM Plex Mono labels | Dotted-grid backdrop, masked; 2px-radius accent square before eyebrows; 1px section rules; thin frames, 6px radius, no shadow, no glow or grain; headline emphasis in the accent, not italic | Hero with the figure (start-aligned) → steps as numbered rows → demo → proof → FAQ → pricing |
-| **Landing** (generic) | When the brief is a conventional SaaS landing page | Neutral `#f7f7f4`, lavender band `#ebe9f4`, indigo CTA `#4b3fd6` | Instrument Serif display from step 4, Plex Sans, Plex Mono | Grain and glass, soft shadows, 16px cards, round pills, accent glow under the CTA and spotlight | Hero (centred, demo) → steps → mechanism → proof → FAQ → pricing |
-| **Graphical** | Launches, events, campaigns: a page that should look like a poster | Bone `#f1eee6`, black ink, one signal orange `#f24a00` (text uses `#b23700`) | Anton display in caps at 1.3× the scale, Plex Sans, Plex Mono | The accent disc and a ruled band in the hero backdrop; the disc again as every eyebrow marker; 2px ink frames with hard 6px offset shadows; 0 radius; 2px section rules; no glow or grain | Hero → proof (big numbers) → steps → mechanism → pricing → FAQ |
+| **Technical** (default) | Product and project pages that should read like junxiong.dev's figures | Paper `#f6f5f1`, ink `#1a1c1a`, one forest accent `#205f49` (dark: `#0a100d`, `#e8ece9`, mint `#71dcb2`) | IBM Plex Sans (headlines at 650, −0.02em, display steps at 1.1×), IBM Plex Mono labels | A drawing sheet, compact (density 0.8). Dotted-grid backdrop, masked; 2px-radius accent square and a mono section index before eyebrows (`01 / HOW IT WORKS`); a title rule with an end tick and a 40px accent bar over each section's column; `STEP 01` in mono over a hairline on step cards; stats between 1px rules; the quote as an annotation with a 3px accent rule; the featured plan with an accent bar on top; square mono table cells; windows without traffic lights; figure request tokens in ink; accent registration marks on cards and plans; thin frames, 6px radius, no shadow, no glow or grain; headline emphasis in the accent, not italic; an ink closing band with a mint button | Hero with the figure → steps as numbered rows → demo → proof → FAQ → pricing |
+| **Landing** (generic) | When the brief is a conventional SaaS landing page | Cool neutral `#fbfbfa`, pale grey band `#f1f2f4`, cobalt CTA `#2348d6` | Instrument Serif display from step 4 (emphasis in cobalt italic), Plex Sans, Plex Mono | Airy (density 1.1); glass nav; 12px cards lifted by layered soft shadows; 10px controls; steps in tinted round badges; the quote as a white serif card; the featured plan with an accent ring and tinted glow; soft tinted table chips; a near-black closing band with a white button; no lavender, no gradient wash | Hero (centred, demo) → steps → mechanism → proof → FAQ → pricing |
+| **Graphical** | Launches, events, campaigns: a page that should look like a poster | Bone `#f1eee6`, black ink, one signal orange `#f24a00` (text uses `#b23700`) | Anton display in caps at 1.3× the scale, Plex Sans, Plex Mono | The accent disc and a ruled band in the hero backdrop (below 720px the tick band only, so no clipped disc under the nav); giant Anton step numerals; stats between 2px ink rules; the quote as an orange poster block in caps; the featured plan with an orange offset shadow; ink-ruled table cells; the disc again as every eyebrow marker; 2px ink frames with hard 6px offset shadows; 0 radius; 2px section rules; figure flows in ink, grey and orange; an orange closing band; no glow or grain | Hero → proof (big numbers) → steps → mechanism → pricing → FAQ |
 
-**Layout defaults per style.** `WebPage` renders sections by id in the style's recommended order
-(`uiStyles[].prefers`) and sets `data-ui-layout="style"`, which turns on the style's layout
-defaults (`uiStyles[].layout`): Technical fills the hero's proof slot with the working figure
-instead of a product mock-up, sets the hero and every section head on the start edge and draws
-steps as numbered rows; Landing and Graphical keep the centred demo hero and step cards.
-`layout="shared"` renders every style on one order and layout, so a swap changes tokens only.
-Section render functions receive `{ uiStyle, layout, defaults }`.
+**One layout in every style (default).** `WebPage` renders `sections` in the order the page lists
+them and sets `data-ui-layout="shared"`: every style gets the same order, the same hero proof and
+start-edge alignment, so a swap changes the look and nothing else. Section render functions
+receive `{ uiStyle, layout, defaults }`; by default `defaults` is the same for all three (`hero:
+"demo"`, `align: "start"`, `steps: "cards"`). `layout="style"` opts into a style's own order and
+defaults (`uiStyles[].prefers` and `.layout`, `data-ui-layout="style"`): Technical then puts the
+figure in the hero and draws steps as numbered rows. Ids a style doesn't name are kept, after the
+ones it does.
+
+**Figures on a web page.** `WebSurface` (and so `WebPage`) gives figures quiet chrome: no Open
+canvas and no legend with fewer than two entries, which belong to articles and docs. `Figure
+chrome="full"` (or `WebSurface figureChrome="full"`) brings them back. A figure takes the page's
+text and label faces, its frame (Graphical's 2px ink and hard shadow, Landing's soft lift) and its
+radius, and each style keeps the flow colours in its own palette.
+
+**Closing parts.** `Proof`, `PricingPlans`, `ClosingCta`, `SiteFooter`, `Brand` and `FeatureGrid
+numbered` are one layout in every style, painted through roles. Use them rather than page CSS, so
+the swap keeps them in place.
+
+**The nav at phone width.** Below 720px `GlassNav` folds its links into a menu, with the brand on
+the start edge and Menu on the end edge. The page's goal stays in the bar as a compact button beside
+Menu (44px touch target, 0.875rem type); only below 340px does it move into the open menu. Keep the CTA label to
+about 20 characters ("Start a free trial") so brand, button and Menu share a 390px bar.
+
+**Show the product's real output.** The largest object above the fold is the product doing its
+job with real-looking rows: never an empty demo panel, a chat box for a product that is not a chat,
+or an icon-in-a-box flow. The parts for it, one layout in every style and painted by the
+treatment roles:
+
+| Part | Shows |
+| --- | --- |
+| `ProductWindow` | A framed product view: window bar, title and status, the output, a footer fact |
+| `DataTable` | Rows with mono heads, rules across every cell, inline bars (`barMax`), one marked row and a worked note |
+| `ScheduleGrid` | People by days (a rota, a calendar): day-off cells, marked cells with a legend; all seven days fit at 390px |
+| `FileTable` | A file's rows as the product reads them (a CSV or export) |
+| `ItemList`, `RecordCard` | Records with a state (needs you, waiting, done); one record's fields |
+| `WorkedExample` | The mechanism as one calculation: input, each rule with its arithmetic, each result (84 covers ÷ 14 = 6 servers) |
+| `BeforeAfter` (or `Proof compare`) | A measured change as two bars to scale |
+| `DemoPlayer` steps mode | No prompt on any step: no composer, the steps as a checklist, a wide result pane holding each step's `screen` (put the parts above in it). The pane is never empty; the last screen is what a still capture shows, so make it the fullest |
+
+On a marketing page, show the mechanism with `WorkedExample` and real numbers rather than a
+`pipeline` figure; when you do use a preset, boxes widen to fit their labels, `legend` takes your
+own entries or `false`, and icons include `person`, `calendar`, `file`, `table`, `receipt`,
+`phone` and `clock`. A working page with every block wired is in
+[`examples/web-starter`](../examples/web-starter/App.tsx) (it ships in the package): copy it,
+then replace the words and rows.
 
 Shared finish rules hold in every style: one accent, glow only for selection (Landing's ambient
 glow is its documented exception, and its spotlight turns off elsewhere), contrast of 4.5:1 for
@@ -42,7 +81,7 @@ Evidence: the first screen of `/web` in each style at 1440 and 390, both themes,
 [`docs/styles/`](styles/) (`web-<style>-<width>-<theme>.png`), with the same deck slides in each
 style (`deck-moves-<style>-<theme>.png`, `deck-consulting-<style>-<theme>.png`).
 
-Rules 5 (grain and glass), 9 (the indigo 60/30/10) and 19–21 (the three Landing faces) describe
+Rules 5 (grain and glass), 9 (the cobalt 60/30/10) and 19–21 (the three Landing faces) describe
 Landing. Technical and Graphical replace them with the table above; every other rule applies to all
 three.
 
@@ -273,8 +312,12 @@ numbers are in [web discoverability](web-discoverability.md).
 | `SpotlightCard` | 14; off for `hover: none` and reduced motion; keyboard focus shows it |
 | `RevealText` | 14, 23; text stays in the DOM, visible without JavaScript; units keep their spaces |
 | `Eyebrow`, `Heading`, `Subhead`, `Body` | 6, 7, 19, 20, 24; `Heading` levels 1–6 |
-| `CtaButton`, `GlassNav` | 1, 5, 9 |
-| `Section`, `FeatureGrid`, `Grid`, `RhymeIcon` | 4, 8, 24, 30 (`Section lazyRender`) |
+| `CtaButton`, `GlassNav` | 1, 5, 9; GlassNav keeps a compact CTA beside Menu on a phone (into the menu only below 340px) |
+| `Proof` | 6, 23, 24; the lead number with its denominator and meter, ruled stats, a named quote with drawn marks |
+| `PricingPlans` | 1, 8, 26; one to three plans fill the column, features and a button per card, the featured plan gets the accent |
+| `ClosingCta` | 1, 9, 24; the third CTA on the style's band roles |
+| `SiteFooter`, `Brand` | 24; the page ends on a footer; the wordmark is set in the display face |
+| `Section`, `FeatureGrid`, `Grid`, `RhymeIcon` | 4, 8, 24, 30 (`Section lazyRender`); `FeatureGrid numbered` for steps |
 | `Reveal`, `TextScramble`, `NumberTicker` | 14, 21, 23; final text reserves the space; screen readers get the final value; server HTML has it once |
 | `SmoothScroll`, `useSmoothScroll`, `createSmoothScroll`, `smoothScrollTo` | 14, 22; off on touch and under reduced motion |
 | `Marquee` | 14, 15, 23; Pause button, pauses on hover, focus and off screen; inert duplicate added after mount; static row under reduced motion |
