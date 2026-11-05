@@ -101,7 +101,7 @@ export default defineConfig({
   publicDir: false,
   appType: "spa",
   // The repo, plus node_modules where it really lives: a git worktree may symlink it from
-  // another checkout, and files outside the allow list (the type specimen's @fontsource faces) 404.
+  // another checkout, and files outside the allow list 404.
   server: { fs: { allow: ["..", realpathSync("node_modules")] } },
   define: { __UIPACK_ROOT__: JSON.stringify(process.cwd()) },
 });
