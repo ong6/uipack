@@ -24,10 +24,11 @@ render in any layout that has matching slots, in any style. See [the system over
    ("we recommend"), never as a measured fact. A
    before/after comparison claims no cause: say "after", "since", "went from… to", never "lifted",
    "cut", "drove" or "because", and say once, briefly, that it is a before/after of two windows
-   (`causal-claim`). Once per deliverable, not once per piece: put it in the deck's notes or a
-   caption, in plain words ("this compares two months; other things changed too"), never in a
-   customer headline or subhead, and never as a repeated "not a controlled test" stock phrase.
-3. **Specific beats upbeat.** Use a number and what it measures, a multiple ("twice"), or a
+   (`causal-claim`). Say it once per deliverable, in the deck's notes or a caption, in plain words
+   ("this compares two months, and other things changed too"). It never goes in a customer headline
+   or subhead, and method and caveats never appear as stock phrases in the prose ("not a controlled
+   test", "same window and source", "my arithmetic").
+3. **Be specific.** Use a number and what it measures, a multiple ("twice"), or a
    before and after ("3 meetings → 1"). "In a good place" could describe any quarter.
 4. **Every number has a baseline, a window and a source, and each binds only to the number it
    measures.** "The search latency dashboard, May vs June, all regions" given for p95 says nothing
@@ -35,7 +36,7 @@ render in any layout that has matching slots, in any style. See [the system over
    confirm, never "same window and source". Keep the measure's own word and its qualifiers exactly:
    a median stays a median (or its exact plain form, "half of requests"), "up to 15 minutes" never
    becomes "a short while" or "15 min", "about 40" keeps its "about". Put all three on the canvas when they change the
-   decision, otherwise in the caption or notes.
+   decision, otherwise in the caption, notes or source line, stated once as a named artifact.
 5. **Each word has one place to live:**
 
    | Words | Where | Length |
@@ -49,26 +50,27 @@ render in any layout that has matching slots, in any style. See [the system over
    | Notes / narration | Speaker view, voice-over, `say` | A presented deck: a few short cue lines that add what the slide can't hold (why, so-what, trade-off, bridge). A read-alone deck, a voice-over: full sentences |
    | Source | Footer or footnote | A named artifact ("the search latency dashboard", "load test 12") |
 
-6. **Plain names, in the audience's words.** "The gap-down fade strategy", not an internal code;
-   codes go in parentheses only when someone needs to trace them. Don't coin a label the input
-   doesn't use ("off-main decode"). Copy for users says what they notice ("images now load in the
-   background"), not the mechanism ("main thread") or the tool that measured it ("Crashlytics":
-   "our crash reports"), and keeps the scope qualifier they need ("on Android"). A public or
-   customer page carries no internal metrics (conversion rates, ticket counts) unless its reader
-   cares about them: "cards that used to go missing now show up", not "tickets fell from 40 to 9".
+6. **Plain names, in the audience's words.** Use the plain name ("the gap-down fade strategy");
+   an internal code goes in parentheses only when someone needs to trace it. Don't coin a label the
+   input doesn't use ("off-main decode"). Copy for users says what they notice ("images now load in
+   the background"). It leaves out the mechanism ("main thread"), names the measuring tool as what
+   it is to them ("Crashlytics" becomes "our crash reports"), and keeps the scope qualifier they
+   need ("on Android"). A public or customer page carries no internal metrics (conversion rates,
+   ticket counts) unless its reader cares about them. It says "cards that used to go missing now
+   show up"; "tickets fell from 40 to 9" stays in the internal deck.
 7. **No sentences in the drawing, no labels in the notes.** If a label wraps, split the part or
    move the sentence to the caption.
 8. **Readable alone.** A screenshot of a figure and a muted video still make the point. A presented
    slide still shows its numbers and their baselines, so a forwarded copy keeps the facts; a deck
    that must carry the whole argument without its speaker is written read-alone (see
-   [Slides](#slides)). Caveats that change the conclusion stay on the canvas, not only in the notes.
+   [Slides](#slides)). Caveats that change the conclusion stay on the canvas as well as in the notes.
 9. **Each unit adds something.** A point or number appears once per piece: a title doesn't repeat
    the point under it, a later slide doesn't restate slide one, and a page's hero, subhead and
    sections each carry a different fact. Slide one may preview the answer and the ask in a few
    words; the evidence slide then adds what slide one lacks (baseline, window, source), and the
    ask slide adds the owner, cost and consequence. The ask is the one slide that names its object
    and cost again, in a few words, because it stays up while the room decides.
-10. **Write like a person, not a template.** Each of these is fine once; repeated, they read as
+10. **Write like a person.** Each of these is fine once; repeated, they read as
    generated (Wikipedia's "Signs of AI writing" names most of them):
 
    | Tell | Looks like | Instead |
@@ -78,18 +80,22 @@ render in any layout that has matching slots, in any style. See [the system over
    | A comparison bolted onto every claim | "198 ms at p95, twice as fast as March" | The baseline as its own point, or said aloud |
    | Matched number pairs | "one meeting, not three" next to "one index replaced five" | One number per point, with its baseline |
    | A tidy closing clause | "…and the cache serves the rest" | Stop at the fact |
+   | A kicker line ending a section | "Speed is the feature." | End on the last fact or verdict |
+   | A formula closing section | a closing "In summary" or "What we'd do next" recap | End on the ask, or stop |
+   | Source disclaimers in the prose | "not a controlled test" or "same window and source" inside a sentence | Method and source once, in a caption, note or source line |
+   | Three items where one would do | "faster, cheaper and simpler" | Keep the item that carries the point |
    | A coined term used as if established | "Answer-first reviews" | Say what happened: reviews that opened with the answer |
    | The same shape on every unit | eyebrow, sentence headline, lede, slide after slide | Vary the form: labels, verdicts, the occasional question |
    | A one-word caps eyebrow | `REVIEWS`, `SEARCH` | Drop it; the title names the topic |
 
    Hoffman's note on his own LinkedIn pitch applies too: be wary of adjectives and especially
-   adverbs ("high", not "very high").
+   adverbs (cut "very" from "very high").
 11. **Reread as the audience, then revise once.** After the draft, read it cold as the person who
    must act on it, check each line below, and fix every miss in one revision pass:
 
    ```text
    - Every title states a point and can't mislead by omission ("three weeks" hiding a 400-article review)
-   - Every point is unambiguous alone ("survey: ~6% responded", not "6% answered")
+   - Every point is unambiguous alone ("survey: ~6% responded"; "6% answered" hides the base)
    - Every note adds why, so-what, the trade-off or the bridge; none restates its slide
    - The ask names action, object, cost, owner, date and what a no means
    - Each number keeps its exact qualifier, source and window
@@ -127,16 +133,16 @@ the slot, so it holds in every layout and every style (a condensed display face 
 longer headline). `SLOT_BUDGETS` in `uipack/deck` is the table; `lintDeck` reports a slot over
 budget as `slot-budget` (a warning), and `slotProblems(slot, text)` checks one string. Line counts
 are estimates at the slot's measure on the 1920×1080 canvas. The headline's length depends on the
-deck's mode (`TITLE_WORDS`), so `title-length` checks it, not `slot-budget`.
+deck's mode (`TITLE_WORDS`), so `title-length` checks it instead of `slot-budget`.
 
 | Slot | Budget | When it runs over |
 | --- | --- | --- |
-| eyebrow (optional) | 1–4 words, one line, not a sentence | wraps |
+| eyebrow (optional) | 1–4 words, one line, never a sentence | wraps |
 | headline | presented: at most 6 words (aim for 2–5); read-alone: at most 14, on at most 2 lines | wraps, balanced |
 | title | at most 14 words (overview and screen readers) | ellipsis |
 | lede (optional) | at most 30 words, 3 lines, one sentence | wraps |
 | point (body line) | at most 8 words, one line, a fragment with no full stop; 2–4 a slide | wraps |
-| label | at most 3 words, not a sentence | wraps |
+| label | at most 3 words, never a sentence | wraps |
 | quote | at most 30 words, 4 lines, 2 sentences | wraps, balanced |
 | attribution | at most 8 words | wraps |
 | value / number | at most 6 / 3 characters | wraps |
@@ -154,7 +160,7 @@ yet.
 
 - The **caption** states the claim. A stranger should be able to say it from the picture alone, and
   the caption confirms it.
-- **Draw the system or the flow, not the results.** At most six nodes; past that, use two
+- **Draw the system or the flow.** At most six nodes; past that, use two
   figures with two claims, or a drill-down. Every box appears in the caption (its claim or its
   caveat) or in an arrow label.
 - Every arrow follows the direction of flow and is labelled with what moves or the rule that gates
@@ -200,8 +206,9 @@ speaker would say, so the speaker recites it and the room reads ahead. A bare la
 the other way: the room waits for the speaker to learn the point, and a forwarded slide says
 nothing. A short verdict keeps both.
 
-- **Answer first.** The conclusion is on slide one or two, and slide one names the outcome
-  ("Search: twice as fast, and cheaper"), not the system. Its points carry the trade-off and the ask.
+- **Answer first.** The conclusion is on slide one or two. Name the outcome on slide one, such as
+  "Search: twice as fast since March"; the system's name goes on slide two, as the reason. Slide
+  one's points carry the trade-off and the ask.
 - **Short spoken verdicts, mixed forms.** A verdict ("Android crashes down by two thirds"), a
   "Topic: value" pair ("Start time: 0.2 s slower"), the occasional question about something not yet
   known ("Will the cache hold?"), never one about a measured fact ("Slower starts?"). Labels
@@ -228,15 +235,15 @@ nothing. A short verdict keeps both.
   weeks").
 - **One idea per slide, said once.** The body proves the title without repeating it, and no slide
   restates another (rule 9). Cover the title, and the visual should still point at it.
-- **The facts set the length, not the template.** When the input can't fill a beat (no options,
+- **The facts set the length.** When the input can't fill a beat (no options,
   no milestones), merge or drop it; don't invent content to fill it, and don't announce the gap as
   a fact about the team (rule 2). "Do nothing" can always be stated from the facts: what stays as it is.
 - **Roles** (`cover`, `answer`, `context`, `problem`, `evidence`, `mechanism`, `option`,
   `recommendation`, `plan`, `risk`, `ask`, `demo`, `appendix`) tag each slide's job. Six storyline
   templates order them: project update, decision request, deep dive, launch, postmortem, review
   highlights.
-- **End on a concrete ask**: an action and its object ("approve Spanish and French", never
-  "approve by 15 January"), its cost when the facts give one, a named owner (a role or team) and a calendar date (with
+- **End on a concrete ask**: an action and its object ("approve Spanish and French"; a bare
+  "approve by 15 January" has no object), its cost when the facts give one, a named owner (a role or team) and a calendar date (with
   its year when that isn't this year), in the title or the points, plus what happens on a no or a
   missed date: the input's stated purpose gives it ("so it ships in spring": later misses spring);
   if nothing does, leave it out. Never "Questions?".
@@ -299,5 +306,5 @@ matters.
 - **One subject, one story.** Write the stops as a beat script, one sentence of narration each.
 - **A small label set per stop**, 2–3 words each. Only the labels that stop's sentence needs.
 - Inspect details (selection) are one sentence on what the component does.
-- The 2D fallback lists the same components and connections in words. It is content, not an
-  error message.
+- The 2D fallback lists the same components and connections in words. Write it as content
+  that a reader can follow.
