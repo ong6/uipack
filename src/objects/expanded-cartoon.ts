@@ -5,19 +5,10 @@ import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { themed, type ObjectLook } from "./look";
 import { TAU, vec, type Tick } from "./procedural";
-import {
-  block,
-  cylinder,
-  group,
-  mergeable,
-  mesh,
-  paintTexture,
-  placed,
-  roundedBox,
-  sphere,
-  tube,
-  type ArtKind,
-} from "./expanded-kit";
+import { block, cylinder, group, mergeable, mesh, paintTexture, placed, sphere, tube } from "./expanded-kit";
+import type { KindWithLook } from "./variants";
+
+type Kind = Exclude<KindWithLook<3>, "contact">;
 
 export const cartoonLook: ObjectLook = {
   rig: {
@@ -50,7 +41,6 @@ const palette = {
   soil: 0xa0704a,
   soilDark: 0x7a5236,
   rock: 0x8d8ea0,
-  sand: 0xf5d99a,
   sky: 0x6ec1f0,
   coral: 0xff7a59,
   sun: 0xffc93c,
@@ -73,7 +63,10 @@ function night(color: number, character = false) {
 }
 
 interface Toons {
-  (color: number, options?: { glow?: number; dayGlow?: number; transparent?: number; character?: boolean }): THREE.MeshToonMaterial;
+  (
+    color: number,
+    options?: { glow?: number; dayGlow?: number; transparent?: number; character?: boolean },
+  ): THREE.MeshToonMaterial;
 }
 
 /** A material factory sharing one three-step gradient and caching by colour. */
@@ -197,7 +190,14 @@ function bean(parent: THREE.Object3D, toon: Toons, color: number, x: number, z: 
   smile.rotation.z = Math.PI;
   const arm = (side: number) => {
     const pivot = group(body, side * 0.19, 0.33, 0);
-    const limb = mesh(pivot, new THREE.CapsuleGeometry(0.045, 0.12, 4, 8), toon(color, { character: true }), side * 0.04, -0.08, 0);
+    const limb = mesh(
+      pivot,
+      new THREE.CapsuleGeometry(0.045, 0.12, 4, 8),
+      toon(color, { character: true }),
+      side * 0.04,
+      -0.08,
+      0,
+    );
     limb.rotation.z = side * 0.4;
     return pivot;
   };
@@ -223,36 +223,12 @@ function pine(parent: THREE.Object3D, toon: Toons, x: number, z: number, scale =
   mesh(container, new THREE.ConeGeometry(0.17, 0.3, 8), toon(0x3f9a63), 0, 0.5, 0);
   return container;
 }
-/** A gable roof prism, `width` across, `height` tall, `depth` deep. */
-function roofGeometry(width: number, height: number, depth: number) {
-  const shape = new THREE.Shape();
-  shape.moveTo(-width / 2, 0);
-  shape.lineTo(0, height);
-  shape.lineTo(width / 2, 0);
-  shape.closePath();
-  const geometry = new THREE.ExtrudeGeometry(shape, {
-    depth,
-    bevelEnabled: true,
-    bevelSize: 0.03,
-    bevelThickness: 0.03,
-    bevelSegments: 2,
-  });
-  geometry.translate(0, 0, -depth / 2);
-  return geometry;
-}
-/** Vertical candy stripes for awnings. */
-function stripes(a: number, b: number, count: number) {
-  const toRgb = (c: number) => [(c >> 16) & 255, (c >> 8) & 255, c & 255] as [number, number, number];
-  const texture = paintTexture(count * 8, 2, (u) => (Math.floor(u * count) % 2 ? toRgb(b) : toRgb(a)));
-  texture.magFilter = THREE.NearestFilter;
-  return texture;
-}
 
 /* ---------------------------------------------------------------- Scenes */
 
 type Scene = (world: THREE.Group, ticks: Tick[], toon: Toons) => void;
 
-const scenes: Record<ArtKind, Scene> = {
+const scenes: Record<Kind, Scene> = {
   /** Night workshop: a little robot taps at a workbench under a desk lamp; an idea pops above it. */
   ai(world, ticks, toon) {
     island(world, toon, 1.45, 1.05, 2);
@@ -354,7 +330,9 @@ const scenes: Record<ArtKind, Scene> = {
       bean(court, toon, palette.plum, 0.8, -0.12, -Math.PI / 2 - 0.3),
     ];
     // Rackets: a wrapped grip, an open throat and a strung oval head.
-    const stringTexture = paintTexture(32, 40, (_u, _v, x, y) => (x % 4 === 1 || y % 4 === 1 ? [255, 250, 236, 255] : [0, 0, 0, 0]));
+    const stringTexture = paintTexture(32, 40, (_u, _v, x, y) =>
+      x % 4 === 1 || y % 4 === 1 ? [255, 250, 236, 255] : [0, 0, 0, 0],
+    );
     stringTexture.magFilter = THREE.NearestFilter;
     const stringMaterial = new THREE.MeshToonMaterial({
       map: stringTexture,
@@ -407,226 +385,6 @@ const scenes: Record<ArtKind, Scene> = {
       players[1].root.position.z = -0.12 + 0.1 * Math.sin(angle * 3 + 1);
       players[0].body.position.y = 0.04 * Math.abs(Math.sin(angle * 6));
       players[1].body.position.y = 0.04 * Math.abs(Math.sin(angle * 6 + 1));
-    });
-  },
-
-  /** Exchange avenue: market stalls under striped awnings and a ticker board whose arrow bounces up. */
-  trading(world, ticks, toon) {
-    island(world, toon, 1.55, 1.1, 8);
-    block(world, [2.6, 0.03, 0.42], toon(palette.sand), [0, 0.0, 0.42], 0.015);
-    const stall = (x: number, z: number, a: number, b: number, goods: number) => {
-      const s = group(world, x, 0, z);
-      block(s, [0.62, 0.36, 0.36], toon(palette.cream), [0, 0.18, 0], 0.05);
-      block(s, [0.66, 0.06, 0.4], toon(palette.wood), [0, 0.39, 0], 0.03);
-      for (const px of [-0.29, 0.29]) block(s, [0.04, 0.5, 0.04], toon(palette.wood), [px, 0.62, -0.15], 0.015);
-      const awning = new THREE.MeshToonMaterial({
-        map: stripes(a, b, 5),
-        gradientMap: toon(palette.white).gradientMap as THREE.Texture,
-      });
-      themed(awning, { dark: { color: night(0xffffff) } });
-      const roof = block(s, [0.74, 0.05, 0.5], awning, [0, 0.86, 0.04], 0.025);
-      roof.rotation.x = 0.32;
-      for (let i = 0; i < 3; i++) sphere(s, 0.07, toon(goods), [-0.18 + i * 0.18, 0.47, 0.06], 10);
-      return s;
-    };
-    stall(-0.95, -0.15, palette.coral, palette.cream, 0xff5a5a);
-    stall(-0.25, -0.4, palette.sky, palette.cream, palette.sun);
-    // The ticker board on two posts, its arrow bouncing.
-    const board = group(world, 0.75, 0, -0.35);
-    for (const x of [-0.4, 0.4]) block(board, [0.06, 0.9, 0.06], toon(palette.ink), [x, 0.45, 0], 0.02);
-    block(board, [1.0, 0.7, 0.1], toon(palette.ink), [0, 1.05, 0], 0.07);
-    const screen = toon(0x1c3a3a, { glow: 0x1c3a3a, dayGlow: 0.3 });
-    block(board, [0.88, 0.58, 0.02], screen, [0, 1.05, 0.055], 0.04);
-    const barMaterial = toon(0x4fe08a, { glow: 0x4fe08a, dayGlow: 0.9 });
-    const bars: THREE.Mesh[] = [];
-    [0.14, 0.22, 0.18, 0.3, 0.38].forEach((h, i) => {
-      const bar = block(board, [0.08, h, 0.03], barMaterial, [-0.33 + i * 0.12, 0.83 + h / 2, 0.07], 0.015);
-      bars.push(bar);
-    });
-    const arrowShape = new THREE.Shape();
-    arrowShape.moveTo(-0.06, 0);
-    arrowShape.lineTo(0.06, 0);
-    arrowShape.lineTo(0.06, 0.14);
-    arrowShape.lineTo(0.13, 0.14);
-    arrowShape.lineTo(0, 0.3);
-    arrowShape.lineTo(-0.13, 0.14);
-    arrowShape.lineTo(-0.06, 0.14);
-    arrowShape.closePath();
-    const arrow = mesh(
-      board,
-      new THREE.ExtrudeGeometry(arrowShape, {
-        depth: 0.06,
-        bevelEnabled: true,
-        bevelSize: 0.015,
-        bevelThickness: 0.015,
-        bevelSegments: 2,
-      }),
-      toon(0x4fe08a, { glow: 0x4fe08a, dayGlow: 0.6 }),
-      0.62,
-      1.3,
-      0.02,
-    );
-    arrow.rotation.z = -0.35;
-    // The shopkeeper, waving.
-    const keeper = bean(world, toon, palette.sun, -0.55, 0.42, 0.2);
-    keeper.root.scale.setScalar(1.15);
-    // A street lamp.
-    cylinder(world, 0.03, 0.9, toon(palette.ink), [0.2, 0.45, 0.62], 8);
-    sphere(world, 0.08, toon(palette.glow, { glow: palette.glow, dayGlow: 0.3 }), [0.2, 0.95, 0.62], 12);
-    tree(world, toon, 1.25, 0.45, 0.7);
-    ticks.push((angle) => {
-      const hop = Math.abs(Math.sin(angle * 3));
-      arrow.position.y = 1.3 + 0.12 * hop;
-      arrow.scale.set(1 + 0.12 * (1 - hop), 1 - 0.1 * (1 - hop), 1);
-      bars.forEach((bar, i) => (bar.scale.y = 0.75 + 0.25 * (0.5 + 0.5 * Math.sin(angle * 3 + i * 0.9))));
-      keeper.right.rotation.z = 2.2 + 0.4 * Math.sin(angle * 8);
-      keeper.body.rotation.z = 0.06 * Math.sin(angle * 4);
-    });
-  },
-
-  /** Cloud factory: server-rack chimneys puff cloud-shaped steam; a conveyor feeds the door. */
-  server(world, ticks, toon) {
-    island(world, toon, 1.55, 1.1, 11);
-    const factory = group(world, -0.45, 0, -0.15);
-    block(factory, [1.6, 0.62, 0.8], toon(palette.cream), [0, 0.31, 0], 0.08);
-    const roofs: THREE.BufferGeometry[] = [];
-    for (let i = 0; i < 3; i++) roofs.push(mergeable(placed(roofGeometry(0.5, 0.26, 0.82), -0.53 + i * 0.53, 0.62, 0)));
-    mesh(factory, mergeGeometries(roofs), toon(palette.coral));
-    block(factory, [0.3, 0.38, 0.04], toon(palette.plum), [0.45, 0.19, 0.41], 0.05);
-    const windows = toon(0xbfe7ff, { glow: palette.glow, dayGlow: 0 });
-    const panes: THREE.BufferGeometry[] = [];
-    for (const x of [-0.55, -0.2, 0.1]) panes.push(mergeable(placed(roundedBox(0.22, 0.2, 0.03, 0.05), x, 0.36, 0.41)));
-    mesh(factory, mergeGeometries(panes), windows);
-    // Two server racks as chimneys, LEDs blinking up their faces.
-    const leds: THREE.MeshToonMaterial[] = [];
-    const puffs: { cloud: THREE.Group; x: number; z: number; base: number; offset: number }[] = [];
-    [0.72, 1.18].forEach((x, c) => {
-      const rack = group(world, x, 0, -0.55 + c * 0.05);
-      block(rack, [0.38, 1.0 + c * 0.15, 0.38], toon(0x3a3f5c), [0, (1.0 + c * 0.15) / 2, 0], 0.07);
-      const h = 1.0 + c * 0.15;
-      for (let i = 0; i < 4; i++) {
-        block(rack, [0.3, 0.08, 0.02], toon(0x252a40), [0, 0.25 + i * 0.22, 0.195], 0.02);
-        const led = toon(i % 2 ? 0x5dffb0 : 0x7fd6ff, { glow: i % 2 ? 0x5dffb0 : 0x7fd6ff, dayGlow: 0.8 }).clone();
-        leds.push(led);
-        sphere(rack, 0.025, led, [0.1, 0.25 + i * 0.22, 0.21], 8);
-      }
-      for (let k = 0; k < 3; k++) {
-        const cloud = group(world, x, h, rack.position.z);
-        for (const [dx, dy, r] of [
-          [-0.1, 0, 0.12],
-          [0.04, 0.05, 0.15],
-          [0.15, -0.01, 0.1],
-        ])
-          sphere(cloud, r, toon(0xeef3ff), [dx, dy, 0], 12);
-        puffs.push({ cloud, x, z: rack.position.z, base: h, offset: (k + 0.5) / 3 + c * 0.17 });
-      }
-    });
-    // The conveyor: a belt and little parcels riding into the door.
-    block(world, [1.3, 0.08, 0.26], toon(palette.ink), [0.75, 0.12, 0.5], 0.04);
-    for (const x of [0.2, 1.3]) block(world, [0.06, 0.12, 0.06], toon(palette.ink), [x, 0.04, 0.5], 0.02);
-    const parcels: THREE.Mesh[] = [];
-    for (let i = 0; i < 3; i++) parcels.push(block(world, [0.16, 0.14, 0.16], toon(palette.sun), [0, 0.24, 0.5], 0.03));
-    const worker = bean(world, toon, palette.sky, 1.05, 0.05, -0.4);
-    worker.root.scale.setScalar(1.15);
-    const hat = mesh(worker.body, new THREE.SphereGeometry(0.15, 14, 8, 0, TAU, 0, Math.PI / 2), toon(palette.sun), 0, 0.52, 0);
-    hat.scale.set(1.15, 0.8, 1.15);
-    pine(world, toon, -1.25, 0.45, 0.85);
-    ticks.push((angle) => {
-      leds.forEach((led, i) => (led.emissiveIntensity = Math.sin(angle * 10 + i * 1.7) > 0.2 ? 1.8 : 0.15));
-      for (const { cloud, x, z, base, offset } of puffs) {
-        const p = (angle / TAU + offset) % 1;
-        const swell = Math.sin(Math.PI * p);
-        cloud.position.set(x + 0.25 * p, base + 0.12 + 0.55 * p, z);
-        cloud.scale.setScalar(0.25 + 0.9 * swell);
-      }
-      parcels.forEach((parcel, i) => {
-        const p = ((angle / TAU) * 2 + i / 3 + 0.1) % 1;
-        parcel.position.x = 1.3 - 1.05 * p;
-        parcel.scale.setScalar(Math.min(1, Math.min(p, 1 - p) * 8));
-      });
-      worker.right.rotation.z = 2.4 + 0.5 * Math.sin(angle * 6);
-    });
-  },
-
-  /** Island express: a steam-less toy train loops the island past a station and a windmill. */
-  travel(world, ticks, toon) {
-    const RX = 1.25,
-      RZ = 0.88;
-    island(world, toon, 1.65, 1.2, 14);
-    // The track: two rails and sleepers.
-    const railPoints = (r: number) =>
-      Array.from({ length: 64 }, (_, i) => vec(Math.cos((i / 64) * TAU) * (RX + r), 0.05, Math.sin((i / 64) * TAU) * (RZ + r)));
-    const rails = mergeGeometries([
-      mergeable(tube(railPoints(-0.07), 0.016, true, 128, 6)),
-      mergeable(tube(railPoints(0.07), 0.016, true, 128, 6)),
-    ]);
-    mesh(world, rails, toon(0x9aa0b5));
-    const sleepers = new THREE.InstancedMesh(roundedBox(0.06, 0.03, 0.22, 0.01, 1), toon(palette.wood), 40);
-    const m = new THREE.Matrix4();
-    for (let i = 0; i < 40; i++) {
-      const a = (i / 40) * TAU;
-      const p = vec(Math.cos(a) * RX, 0.02, Math.sin(a) * RZ);
-      const heading = Math.atan2(Math.cos(a) * RZ, -Math.sin(a) * RX);
-      m.compose(p, new THREE.Quaternion().setFromEuler(new THREE.Euler(0, -heading + Math.PI / 2, 0)), vec(1, 1, 1));
-      sleepers.setMatrixAt(i, m);
-    }
-    world.add(sleepers);
-    // The hill and its windmill.
-    const hill = sphere(world, 0.44, toon(palette.grassDark), [-0.5, -0.1, -0.3], 20);
-    hill.scale.set(1.15, 0.85, 0.9);
-    const mill = group(world, -0.5, 0.24, -0.35);
-    mesh(mill, new THREE.CylinderGeometry(0.1, 0.16, 0.5, 10), toon(palette.cream), 0, 0.25, 0);
-    mesh(mill, new THREE.ConeGeometry(0.14, 0.18, 10), toon(palette.coral), 0, 0.59, 0);
-    const sails = group(mill, 0, 0.45, 0.16);
-    for (let i = 0; i < 4; i++) {
-      const sail = block(sails, [0.07, 0.34, 0.015], toon(palette.white), [0, 0.19, 0], 0.01);
-      const holder = group(sails);
-      holder.rotation.z = (i * TAU) / 4;
-      holder.add(sail);
-    }
-    // The station: a platform, a little roof and a sign.
-    const station = group(world, 0.5, 0, 0.05);
-    block(station, [0.6, 0.08, 0.26], toon(palette.sand), [0, 0.04, 0], 0.03);
-    for (const x of [-0.22, 0.22]) block(station, [0.04, 0.34, 0.04], toon(palette.ink), [x, 0.25, -0.05], 0.015);
-    block(station, [0.66, 0.05, 0.34], toon(palette.sky), [0, 0.44, -0.02], 0.025);
-    const passenger = bean(station, toon, palette.coral, 0.05, 0.02, 0.4);
-    passenger.root.position.y = 0.08;
-    passenger.root.scale.setScalar(0.85);
-    pine(world, toon, 1.0, -0.45, 0.8);
-    pine(world, toon, -0.95, 0.35, 0.65);
-    // The train: an engine and two carriages following the same loop.
-    const car = (color: number, engine: boolean) => {
-      const c = group(world);
-      const body = group(c, 0, 0.08, 0);
-      if (engine) {
-        const boiler = mesh(body, new THREE.CylinderGeometry(0.1, 0.1, 0.3, 16), toon(palette.coral), 0.05, 0.13, 0);
-        boiler.rotation.z = Math.PI / 2;
-        block(body, [0.18, 0.28, 0.22], toon(palette.plum), [-0.15, 0.17, 0], 0.04);
-        block(body, [0.22, 0.04, 0.26], toon(palette.ink), [-0.15, 0.33, 0], 0.02);
-        cylinder(body, 0.035, 0.12, toon(palette.ink), [0.14, 0.27, 0], 8, 0.05);
-        block(body, [0.42, 0.06, 0.22], toon(palette.ink), [0, 0.02, 0], 0.02);
-        sphere(body, 0.035, toon(palette.glow, { glow: palette.glow, dayGlow: 0.6 }), [0.2, 0.15, 0], 8);
-      } else {
-        block(body, [0.36, 0.22, 0.22], toon(color), [0, 0.14, 0], 0.05);
-        block(body, [0.4, 0.04, 0.26], toon(palette.cream), [0, 0.27, 0], 0.02);
-        const win = toon(0xbfe7ff, { glow: palette.glow, dayGlow: 0 });
-        for (const side of [-1, 1]) block(body, [0.24, 0.08, 0.01], win, [0, 0.17, side * 0.112], 0.02);
-      }
-      for (const x of [-0.12, 0.12])
-        for (const z of [-0.1, 0.1]) cylinder(body, 0.045, 0.03, toon(palette.ink), [x, 0, z], 10).rotation.x = Math.PI / 2;
-      return { c, body };
-    };
-    const train = [car(palette.coral, true), car(palette.sky, false), car(palette.sun, false)];
-    ticks.push((angle) => {
-      train.forEach(({ c, body }, i) => {
-        const a = -angle + i * 0.36 + 2.6;
-        c.position.set(Math.cos(a) * RX, 0.0, Math.sin(a) * RZ);
-        // Local +x (the engine's nose) points along the direction of travel (decreasing a).
-        c.rotation.y = Math.atan2(Math.cos(a) * RZ, Math.sin(a) * RX);
-        body.position.y = 0.08 + 0.012 * Math.abs(Math.sin(angle * 24 + i));
-      });
-      sails.rotation.z = angle * 2;
-      passenger.right.rotation.z = 2.3 + 0.5 * Math.sin(angle * 6);
     });
   },
 
@@ -709,9 +467,9 @@ const scenes: Record<ArtKind, Scene> = {
 };
 
 /** Subjects whose tall props (the idea bulb, the ticker arrow) need more headroom: the camera backs off 10%. */
-const subjectFill: Partial<Record<ArtKind, number>> = { ai: 0.7, trading: 0.7 };
+const subjectFill: Partial<Record<Kind, number>> = { ai: 0.7 };
 
-export function cartoon(kind: ArtKind, ticks: Tick[]) {
+export function cartoon(kind: Kind, ticks: Tick[]) {
   const root = new THREE.Group();
   const fill = subjectFill[kind];
   if (fill) root.userData.look = { ...cartoonLook, framing: { ...(cartoonLook.framing || {}), fill } } satisfies ObjectLook;

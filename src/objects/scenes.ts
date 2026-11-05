@@ -3,7 +3,14 @@ import * as THREE from "three";
 import { createArtDirection } from "./art-directions";
 import { materialTextures, type ObjectLook } from "./look";
 import * as studio from "./studio";
-import type { ObjectVariant, ObjectEdition } from "./variants";
+import {
+  hasObjectLook,
+  normalizeObjectVariant,
+  objectLooks,
+  type KindWithLook,
+  type ObjectVariant,
+  type ObjectEdition,
+} from "./variants";
 import { tennisModelUrl } from "../package-assets";
 import { lerp, progress, smootherstep } from "../math";
 export type ObjectKind = "ai" | "contact" | "tennis" | "trading" | "server" | "travel" | "reading";
@@ -222,32 +229,41 @@ function contact(palette: ObjectPalette) {
   };
   return group;
 }
-export const builders = {
-  ai: studio.ai,
+/** Studio's procedural builders (Studio tennis loads its model in `createObject`). */
+const studioBuilders: Record<
+  Exclude<KindWithLook<0>, "tennis">,
+  (palette: ObjectPalette, finish: ObjectEdition) => THREE.Group
+> = {
   contact,
   trading: studio.trading,
   server: studio.server,
   travel: studio.travel,
-  reading: studio.reading,
 };
 export async function createObject(
   kind: ObjectKind,
   palette: ObjectPalette,
-  variant: ObjectVariant = 0,
+  /** A variant the kind does not offer builds its default look (`objectLooks`). Default: that default. */
+  requested?: ObjectVariant,
   edition: ObjectEdition = 0,
   /** Overrides the packaged model file for scenes that load one (Studio tennis). */
   modelUrl?: string,
 ) {
+  const variant = normalizeObjectVariant(kind, requested ?? objectLooks[kind][0]);
   const finish: ObjectEdition = kind === "contact" ? ((variant % 3) as ObjectEdition) : edition;
-  const accent = kind === "reading" ? [palette.accent, 0x793e43, 0x304a67][finish] : [palette.accent, 0x467b98, 0xa0694e][finish];
+  const accent = [palette.accent, 0x467b98, 0xa0694e][finish];
   const object =
-    kind === "contact" && (variant === 3 || variant === 4)
-      ? createContactDirection(variant)
-      : kind !== "contact" && variant !== 0
+    kind === "contact"
+      ? variant === 3
+        ? createContactDirection()
+        : contact({ ...palette, accent })
+      : variant !== 0
         ? createArtDirection(kind, variant)
         : kind === "tennis"
           ? await studio.tennis({ ...palette, accent }, finish, modelUrl ?? tennisModelUrl())
-          : await builders[kind]({ ...palette, accent }, finish);
+          : hasObjectLook(kind, 0)
+            ? await studioBuilders[kind]({ ...palette, accent }, finish)
+            : null;
+  if (!object) throw new Error(`${kind} has no Studio look`);
   object.userData.style ??= "studio";
   // Studio's look (src/objects/LOOK.md): the defaults, with the key's shadow map for the tennis
   // model and the contact editions' meshes casting, as before the look system.

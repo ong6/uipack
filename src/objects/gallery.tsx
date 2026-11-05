@@ -8,6 +8,8 @@ import {
   transferObjectVariant,
   objectDirections,
   objectEditions,
+  objectLooks,
+  hasObjectLook,
   directionSymbols,
   type ObjectEdition,
   type ObjectVariant,
@@ -44,39 +46,44 @@ export function ObjectInspector({
   onVariantChange: (value: ObjectVariant) => void;
   onEditionChange: (value: ObjectEdition) => void;
 }) {
-  // A look the kind lacks (contact has five) falls back to the first.
+  // A look the kind lacks falls back to its default.
   const variant = normalizeObjectVariant(kind, requested);
   const contact = kind === "contact";
+  // Only the kind's directions, each opening its first look (contact's Studio is its edition 0).
+  const directions = objectDirections
+    .map((direction, index) => ({
+      direction,
+      index,
+      look: objectLooks[kind].find((look) => objectDirectionIndex(kind, look) === index),
+    }))
+    .filter((entry): entry is typeof entry & { look: ObjectVariant } => entry.look !== undefined);
   return (
     <aside className="uipack-object-inspector">
       {
         <>
           <h3>Art direction</h3>
           <div role="group" aria-label="3D art direction" className="uipack-direction-list">
-            {objectDirections
-              .map((direction, index) => ({ direction, index }))
-              .filter(({ index }) => !contact || [0, 2, 3].includes(index))
-              .map(({ direction, index }) => (
-                <button
-                  type="button"
-                  key={direction.id}
-                  aria-label={direction.name}
-                  aria-pressed={objectDirectionIndex(kind, variant) === index}
-                  onClick={() => onVariantChange((contact && index === 2 ? 4 : index) as ObjectVariant)}
-                >
-                  <span className="uipack-direction-symbol" aria-hidden="true">
-                    {directionSymbols[index]}
-                  </span>
-                  <span>
-                    <strong>{direction.name}</strong>
-                    <small>{direction.description}</small>
-                  </span>
-                </button>
-              ))}
+            {directions.map(({ direction, index, look }) => (
+              <button
+                type="button"
+                key={direction.id}
+                aria-label={direction.name}
+                aria-pressed={objectDirectionIndex(kind, variant) === index}
+                onClick={() => onVariantChange(look)}
+              >
+                <span className="uipack-direction-symbol" aria-hidden="true">
+                  {directionSymbols[index]}
+                </span>
+                <span>
+                  <strong>{direction.name}</strong>
+                  <small>{direction.description}</small>
+                </span>
+              </button>
+            ))}
           </div>
         </>
       }
-      {(contact ? variant < 3 : variant === 0) && (
+      {hasObjectLook(kind, 0) && objectDirectionIndex(kind, variant) === 0 && (
         <label className="uipack-edition-select">
           {contact ? "Inbox edition" : "Studio edition"}
           <select
@@ -113,7 +120,7 @@ export function ObjectGallery({
   modelUrl?: string;
   onChange: (kind: ObjectKind, variant: ObjectVariant, edition: ObjectEdition) => void;
 }) {
-  // A look the kind lacks (contact has five) falls back to the first.
+  // A look the kind lacks falls back to its default.
   const variant = normalizeObjectVariant(kind, requested);
   const scene = objectScenes.find((item) => item.id === kind)!;
   return (

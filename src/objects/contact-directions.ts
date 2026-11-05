@@ -3,17 +3,8 @@ import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.j
 import type { ObjectLook } from "./look";
 import { playLoop, TAU, vec, type Tick } from "./procedural";
 import { clamp, smoothstep } from "../math";
-import {
-  Batch,
-  ballGeometry,
-  kineticLook,
-  PLINTH_TOP,
-  rodGeometry,
-  sculptureMaterials,
-  sculpturePlinth,
-} from "./kinetic-sculptures";
 
-// Original procedural studies. Contact legacy variants 0–2 stay in scenes.ts.
+// Contact's original procedural study (variant 3). Its Studio editions 0–2 stay in scenes.ts.
 const colors = { cream: 0xf6e9ca, coral: 0xe97c5d, blue: 0x6997ad, green: 0x8bb39b, dark: 0x293f49, gold: 0xbe965c };
 /** Reduced motion shows the pose 3.2 s into the loop, once the letter is in flight. */
 const REST_MS = 3200;
@@ -118,71 +109,13 @@ function cartoonMailbox(root: THREE.Group, ticks: Tick[]) {
   });
 }
 
-/* ---------------------------------------------------------------- Kinetic (variant 4) */
-
-/**
- * A brass mobile of three glazed ceramic envelopes over a ceramic inbox tray, on the kinetic
- * direction's turned base (kinetic-sculptures.ts). The beam turns and each letter swings on its pin.
- */
-function kineticMobile(root: THREE.Group, ticks: Tick[]) {
-  const m = sculptureMaterials();
-  const HANGER_LENGTHS = [0.62, 1.0, 0.46];
-  const POST_Z = -0.3;
-  sculpturePlinth(root, m);
-  new Batch(root)
-    .strut(m.brass, vec(0, PLINTH_TOP, POST_Z), vec(0, 1.32, POST_Z), 0.036, [false, false])
-    .add(m.brass, new THREE.CylinderGeometry(0.09, 0.12, 0.06, 24).translate(0, PLINTH_TOP + 0.03, POST_Z))
-    .done();
-  // The inbox: a bone ceramic tray on the stone top.
-  const tray = new Batch(root);
-  tray.add(m.bone, new RoundedBoxGeometry(1.2, 0.08, 0.76, 2, 0.03).translate(0, PLINTH_TOP + 0.04, 0.14));
-  for (const x of [-0.58, 0.58])
-    tray.add(m.bone, new RoundedBoxGeometry(0.06, 0.2, 0.76, 2, 0.025).translate(x, PLINTH_TOP + 0.1, 0.14));
-  tray.add(m.bone, new RoundedBoxGeometry(1.2, 0.2, 0.06, 2, 0.025).translate(0, PLINTH_TOP + 0.1, -0.22));
-  tray.add(m.celadon, new RoundedBoxGeometry(0.62, 0.05, 0.42, 2, 0.02).rotateY(0.15).translate(0, PLINTH_TOP + 0.105, 0.16));
-  tray.done();
-  const mobile = new THREE.Group();
-  root.add(mobile);
-  mobile.position.set(0, 1.32, POST_Z);
-  new Batch(mobile)
-    .strut(m.brass, vec(-1.1, 0, 0), vec(1.1, 0, 0), 0.026)
-    .add(m.brass, ballGeometry(vec(0, 0, 0), 0.08))
-    .done();
-  const glazes = [m.bone, m.celadon, m.oxblood];
-  for (let i = 0; i < 3; i++) {
-    const hanger = new THREE.Group();
-    mobile.add(hanger);
-    hanger.position.x = (i - 1) * 1.0;
-    const length = HANGER_LENGTHS[i];
-    const letter = new THREE.Group();
-    letter.position.y = -length - 0.21;
-    hanger.add(letter);
-    new Batch(hanger).strut(m.brass, vec(0, 0, 0), vec(0, -length, 0), 0.011, [false, true]).done();
-    const env = new Batch(letter).add(glazes[i], new RoundedBoxGeometry(0.62, 0.42, 0.06, 2, 0.02));
-    // The flap: a brass V on both faces.
-    for (const z of [-0.034, 0.034]) {
-      env.add(m.brass, rodGeometry(vec(-0.27, 0.17, z), vec(0, -0.03, z), 0.01));
-      env.add(m.brass, rodGeometry(vec(0, -0.03, z), vec(0.27, 0.17, z), 0.01));
-    }
-    env.done();
-    ticks.push((angle) => {
-      hanger.rotation.z = 0.085 * Math.sin(angle + i * 1.8);
-      letter.rotation.y = 0.32 * Math.sin(angle + i);
-    });
-  }
-  ticks.push((angle) => {
-    mobile.rotation.y = 0.3 + 0.38 * Math.sin(angle);
-    mobile.rotation.z = 0.05 * Math.sin(angle);
-  });
-}
-
-export function createContactDirection(variant: 3 | 4) {
+/** Contact variant 3, Cartoon: the little post office. */
+export function createContactDirection() {
   const root = new THREE.Group(),
     ticks: Tick[] = [];
-  if (variant === 3) cartoonMailbox(root, ticks);
-  else kineticMobile(root, ticks);
-  root.userData.look = (variant === 3 ? { castShadows: true } : kineticLook()) satisfies ObjectLook;
-  root.userData.style = variant === 3 ? "cartoon" : "kinetic";
-  playLoop(root, ticks, REST_MS, variant === 3 ? "letter-delivery" : "correspondence-mobile");
+  cartoonMailbox(root, ticks);
+  root.userData.look = { castShadows: true } satisfies ObjectLook;
+  root.userData.style = "cartoon";
+  playLoop(root, ticks, REST_MS, "letter-delivery");
   return root;
 }

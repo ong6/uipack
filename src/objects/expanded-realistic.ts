@@ -9,7 +9,6 @@ import {
   clamp01,
   cylinder,
   fbm,
-  glyphDot,
   group,
   mergeable,
   mesh,
@@ -27,8 +26,10 @@ import {
   valueNoise,
   valueNoise2,
   themeProbe,
-  type ArtKind,
 } from "./expanded-kit";
+import type { KindWithLook } from "./variants";
+
+type Kind = Exclude<KindWithLook<4>, "contact">;
 
 export const realisticLook: ObjectLook = {
   rig: {
@@ -176,16 +177,6 @@ function walnut(root: THREE.Object3D) {
   return surface(root, map, normalMap, 0.46);
 }
 
-/** Pebbled vegetable-tanned leather. */
-function leather(root: THREE.Object3D) {
-  const map = paintTexture(256, 512, (u, v) => {
-    const tone = fbm(u * 6, v * 12, 6, 4, 21);
-    return mixRgb(0x4a2715, 0x8a5332, tone);
-  });
-  const normalMap = normalTexture(128, (u, v) => fbm(u * 16, v * 16, 16, 3, 5), 3, [10, 20]);
-  return surface(root, map, normalMap, 0.62);
-}
-
 /** A sanded acrylic hard court, blue, with its baseline. */
 function court(root: THREE.Object3D) {
   const map = paintTexture(
@@ -293,122 +284,7 @@ const clearGlass = () =>
 
 type Model = (root: THREE.Group, ticks: Tick[]) => void;
 
-/** A sculpted keycap: tapered walls, a cylindrical dish and rounded edges. */
-function keycapGeometry(width: number, height: number, depth: number, dish = 0.012) {
-  const geometry = mergeable(roundedBox(width, height, depth, 0.03, 3));
-  const position = geometry.attributes.position;
-  for (let i = 0; i < position.count; i++) {
-    let x = position.getX(i),
-      y = position.getY(i),
-      z = position.getZ(i);
-    const t = (y + height / 2) / height;
-    const taper = 1 - 0.2 * t;
-    x *= taper;
-    z *= taper;
-    z -= 0.02 * t; // the top leans back, like a cylindrical profile
-    const top = smoothstep(height / 2 - 0.03, height / 2, y);
-    y -= dish * top * (1 - (x / ((width * taper) / 2)) ** 2);
-    position.setXYZ(i, x, y, z);
-  }
-  geometry.deleteAttribute("normal");
-  const merged = mergeVertices(geometry, 1e-4);
-  merged.computeVertexNormals();
-  return merged;
-}
-
-/** A legend printed into the key's dish (it follows the curve). */
-function legendGeometry(text: string, width: number, keyTop: number, keyHalfWidth: number, dish: number, x: number, z: number) {
-  const geometry = new THREE.PlaneGeometry(width, width * 1.4, 6, 1);
-  geometry.rotateX(-Math.PI / 2);
-  const position = geometry.attributes.position;
-  for (let i = 0; i < position.count; i++) {
-    const px = position.getX(i) + x;
-    position.setXYZ(i, px, keyTop - dish * (1 - (px / keyHalfWidth) ** 2) + 0.0018, position.getZ(i) + z);
-  }
-  geometry.computeVertexNormals();
-  geometry.userData.text = text;
-  return geometry;
-}
-
-/** One texture per legend: a single 5×7 glyph, white on transparent. */
-function legendTexture(text: string) {
-  return paintTexture(
-    24,
-    32,
-    (_u, _v, x, y) => {
-      const on = glyphDot(text, Math.floor((x - 2) / 4), 6 - Math.floor((y - 2) / 4)) ? 255 : 0;
-      return [on, on, on];
-    },
-    { srgb: false },
-  );
-}
-
-const models: Record<ArtKind, Model> = {
-  /** Key travel: a cluster of PBT keycaps in macro on an aluminium case; one key types in rhythm. */
-  ai(root, ticks) {
-    walnut(root);
-    const caseGroup = group(root);
-    const aluminium = lookMaterial("brushedMetal", 0xb8bcc0, { roughness: 0.34, anisotropy: 0.8 });
-    block(caseGroup, [3.4, 0.22, 1.9], aluminium, [0.1, 0.11, -0.1], 0.06);
-    const plate = lookMaterial("plastic", 0x1c1e21, { roughness: 0.55 });
-    block(caseGroup, [3.2, 0.03, 1.72], plate, [0.1, 0.225, -0.1], 0.01);
-    setDressing(caseGroup);
-    pool(root, 3.6, 2.2, 0.1, -0.1, 0.5);
-
-    const KEY = 0.38,
-      WIDTH = 0.35,
-      HEIGHT = 0.2,
-      DISH = 0.012;
-    const pbt = lookMaterial("plastic", 0xe8e3d6, { roughness: 0.74 });
-    const accent = lookMaterial("plastic", 0xd45a26, { roughness: 0.6 });
-    const capGeometry = keycapGeometry(WIDTH, HEIGHT, WIDTH, DISH);
-    // A real QWERTY patch with ANSI row stagger: the top row sits a quarter key left of home, the bottom row half a key right.
-    const rows = [
-      { keys: ["T", "Y", "U", "I", "O"], z: -0.62, offset: -0.25 * KEY },
-      { keys: ["G", "H", "J", "K", "L"], z: -0.24, offset: 0 },
-      { keys: ["B", "N", "M", ",", "."], z: 0.14, offset: 0.5 * KEY },
-    ];
-    // Which keys type, and when: J (the hero, homing bar) is mid-press at the rest frame.
-    const typing: Record<string, number> = { J: 1.88, K: 3.4, H: 5.1, U: 0.4 };
-    const legends = new Map<string, THREE.Material>();
-    for (const row of rows)
-      row.keys.forEach((text, col) => {
-        const x = -0.86 + col * KEY + row.offset;
-        if (Math.abs(x) > 1.3) return;
-        const key = group(root, x, 0.24 + HEIGHT / 2 + 0.02, row.z);
-        const hero = text === "J";
-        const material = hero ? accent : pbt;
-        mesh(key, capGeometry, material);
-        const legend =
-          legends.get(text) ??
-          new THREE.MeshStandardMaterial({
-            color: hero ? 0xfff4e8 : 0x24262a,
-            alphaMap: legendTexture(text),
-            transparent: true,
-            roughness: 0.6,
-            polygonOffset: true,
-            polygonOffsetFactor: -2,
-            depthWrite: false,
-          });
-        legends.set(text, legend);
-        const topHalf = (WIDTH * 0.8) / 2;
-        decal(mesh(key, legendGeometry(text, 0.07, HEIGHT / 2, topHalf, 0, -0.05, -0.06), legend));
-        if (hero) {
-          const bar = mesh(key, roundedBox(0.08, 0.012, 0.018, 0.006), material, 0, HEIGHT / 2 - DISH + 0.004, 0.06);
-          bar.userData.frameIgnore = true;
-        }
-        const phase = typing[text];
-        if (phase !== undefined) {
-          const rest = key.position.y;
-          // A quick press and a springy return, twice a loop.
-          ticks.push((angle) => {
-            const press = Math.max(0, Math.cos(angle * 2 - phase * 2)) ** 24;
-            key.position.y = rest - 0.07 * press;
-          });
-        }
-      });
-  },
-
+const models: Record<Kind, Model> = {
   /** Match point: a felt ball resting on the baseline, a racket out of focus behind it. */
   tennis(root, ticks) {
     court(root);
@@ -501,102 +377,6 @@ const models: Record<ArtKind, Model> = {
       const x = 0.16 * Math.sin(angle);
       roller.position.x = x;
       ball.rotation.z = -x / RADIUS;
-    });
-  },
-
-  /** Ticker study: quotes printed on paper tape, curling out of a brass ticker onto walnut. */
-  trading(root, ticks) {
-    walnut(root);
-    const machine = group(root, -1.12, 0, -0.95);
-    machine.rotation.y = 0.35;
-    const enamel = lookMaterial("ceramic", 0x15171a, { roughness: 0.28 });
-    // Aged brass: a browner, less saturated base and a satin finish rubbed bright only where hands go.
-    const brass = lookMaterial("metal", 0x8c7752, { roughness: 0.46 });
-    block(machine, [1.1, 0.42, 0.9], enamel, [0, 0.21, 0], 0.05);
-    block(machine, [1.18, 0.05, 0.98], brass, [0, 0.445, 0], 0.02);
-    const wheel = group(machine, 0.18, 0.66, 0.05);
-    wheel.rotation.x = Math.PI / 2;
-    const knurl = new THREE.CylinderGeometry(0.17, 0.17, 0.56, 48, 1);
-    const kp = knurl.attributes.position;
-    for (let i = 0; i < kp.count; i++) {
-      const a = Math.atan2(kp.getZ(i), kp.getX(i));
-      const r = Math.hypot(kp.getX(i), kp.getZ(i));
-      if (r > 0.1) {
-        const k = 1 + 0.025 * Math.cos(a * 24);
-        kp.setX(i, kp.getX(i) * k);
-        kp.setZ(i, kp.getZ(i) * k);
-      }
-    }
-    knurl.computeVertexNormals();
-    mesh(wheel, knurl, brass);
-    cylinder(wheel, 0.06, 0.64, lookMaterial("brushedMetal", 0xb4b7ba), [0, 0, 0], 16);
-    const roller = group(machine, -0.2, 0.62, 0.05);
-    roller.rotation.x = Math.PI / 2;
-    cylinder(roller, 0.11, 0.5, lookMaterial("rubber", 0x22201e), [0, 0, 0], 24);
-    for (const z of [-0.3, 0.3]) block(machine, [0.7, 0.36, 0.05], brass, [0, 0.6, z], 0.02);
-    setDressing(machine);
-    pool(root, 1.7, 1.5, -1.12, -0.95, 0.55);
-
-    // The tape: printed in two colours, scrolling out as the wheel turns.
-    const TEXT = "UIPK 42.18^ +1.24   ACME 7.05v -0.31   TIDY 118.6^ +3.90   ";
-    const columns = TEXT.length * 6;
-    const SCALE = 4;
-    const colour = (cx: number) => {
-      const index = Math.floor(cx / 6);
-      let start = index;
-      while (start > 0 && TEXT[start - 1] !== " ") start--;
-      let end = index;
-      while (end < TEXT.length && TEXT[end] !== " ") end++;
-      const token = TEXT.slice(start, end);
-      return token.includes("^") || token.startsWith("+")
-        ? 0x1f7a4d
-        : token.includes("v") || token.startsWith("-")
-          ? 0xb3362b
-          : 0x1d2433;
-    };
-    const tapeMap = paintTexture(columns * SCALE, 16 * SCALE, (u, v, x, y) => {
-      const cx = Math.floor(x / SCALE),
-        cy = Math.floor(y / SCALE) - 4;
-      const fibre = 0.96 + 0.04 * valueNoise(u * 400, v * 20, 400, 6);
-      const paper = mixRgb(0xf3ecdb, 0xe9dfc8, valueNoise(u * 40, v * 4, 40, 2));
-      if (glyphDot(TEXT, cx, cy)) {
-        // Round dots, like a print head.
-        const dx = (x % SCALE) - SCALE / 2 + 0.5,
-          dy = (y % SCALE) - SCALE / 2 + 0.5;
-        if (dx * dx + dy * dy <= (SCALE / 2) ** 2) {
-          const ink = colour(cx);
-          return mixRgb(ink, ink, 0).map((c) => c * fibre) as [number, number, number];
-        }
-      }
-      return paper.map((c) => c * fibre) as [number, number, number];
-    });
-    tapeMap.wrapS = THREE.RepeatWrapping;
-    const TAPE = 0.34;
-    const repeatLength = TAPE * ((columns * SCALE) / (16 * SCALE));
-    tapeMap.repeat.set(1 / repeatLength, 1);
-    const tapeGeometry = ribbonGeometry(
-      [
-        vec(-1.05, 0.62, -0.8),
-        vec(-0.75, 0.45, -0.55),
-        vec(-0.55, 0.06, -0.3),
-        vec(-0.25, 0.008, -0.05),
-        vec(0.3, 0.008, 0.18),
-        vec(0.85, 0.01, 0.25),
-        vec(1.2, 0.04, 0.22),
-        vec(1.45, 0.15, 0.17),
-      ],
-      TAPE,
-      160,
-    );
-    const tapeMaterial = lookMaterial("paper", 0xffffff, { map: tapeMap, side: THREE.DoubleSide, roughness: 0.9 });
-    tapeMaterial.normalScale.set(0.08, 0.08);
-    mesh(root, tapeGeometry, tapeMaterial);
-    pool(root, 1.8, 0.6, 0.35, 0.15, 0.35);
-    ticks.push((angle) => {
-      tapeMap.offset.x = -angle / TAU;
-      // Whole turns per loop, so the loop is seamless.
-      wheel.rotation.y = -angle * 12;
-      roller.rotation.y = angle * 18;
     });
   },
 
@@ -722,142 +502,6 @@ const models: Record<ArtKind, Model> = {
     const led = block(root, [0.07, 0.03, 0.04], ledMaterial, [0.42, 0.015, 0.62], 0.01);
     led.userData.frameIgnore = true;
     ticks.push((angle) => (ledMaterial.emissiveIntensity = 0.4 + 2.6 * Math.max(0, Math.sin(angle * 6)) ** 4));
-  },
-
-  /** Field compass: a steel compass tilted on a rolled map case, its needle hunting north. */
-  travel(root, ticks) {
-    leather(root);
-    // A topographic map sheet under it, with a soft crease.
-    const mapTexture = paintTexture(256, 256, (u, v) => {
-      const h = fbm(u * 3, v * 3, 3, 4, 12);
-      const contour = smoothstep(0.08, 0.0, Math.abs(((h * 14) % 1) - 0.5) - 0.42);
-      const river = smoothstep(0.012, 0.003, Math.abs(v - 0.55 - 0.08 * Math.sin(u * 9)));
-      const grid = Math.min(Math.abs(((u * 6) % 1) - 0.5), Math.abs(((v * 6) % 1) - 0.5)) > 0.492 ? 1 : 0;
-      const route = smoothstep(0.01, 0.004, Math.abs(u - 0.3 - 0.4 * v * v)) * (Math.floor(v * 40) % 2);
-      const base = mixRgb(0xece3cc, 0xd9cfae, h);
-      let c: [number, number, number] = base;
-      if (grid) c = mixRgb(0xece3cc, 0x9aa7a9, 0.6);
-      c = c.map((x, i) => mix(x, [148, 120, 76][i], contour * 0.75)) as [number, number, number];
-      c = c.map((x, i) => mix(x, [72, 130, 178][i], river)) as [number, number, number];
-      c = c.map((x, i) => mix(x, [196, 52, 40][i], route)) as [number, number, number];
-      return c;
-    });
-    const sheet = new THREE.PlaneGeometry(2.6, 1.9, 12, 1);
-    const sp = sheet.attributes.position;
-    for (let i = 0; i < sp.count; i++) sp.setZ(i, 0.05 * Math.abs(sp.getX(i) - 0.2));
-    sheet.computeVertexNormals();
-    const map = mesh(root, sheet, lookMaterial("paper", 0xffffff, { map: mapTexture, roughness: 0.92 }), 0.3, 0.012, -0.15);
-    map.rotation.set(-Math.PI / 2, 0, 0.12);
-    setDressing(map);
-
-    // The rolled leather case it leans on.
-    const roll = cylinder(root, 0.27, 3.4, lookMaterial("plastic", 0x3a2216, { roughness: 0.7 }), [0, 0.27, -1.08], 40);
-    roll.rotation.z = Math.PI / 2;
-    setDressing(roll);
-
-    const compass = group(root, 0, 0.36, -0.08);
-    compass.rotation.x = 0.3; // tipped toward the lens, its back edge on the roll
-    compass.rotation.y = -0.15;
-    const steel = lookMaterial("brushedMetal", 0xc2c6ca, { roughness: 0.26, anisotropy: 0.5 });
-    const profile = [
-      [0, -0.09],
-      [0.8, -0.09],
-      [0.86, -0.075],
-      [0.9, -0.03],
-      [0.91, 0.05],
-      [0.89, 0.09],
-      [0.85, 0.1],
-      [0.81, 0.08],
-      [0.8, 0.02],
-      [0, 0.02],
-    ].map(([r, y]) => new THREE.Vector2(r, y));
-    mesh(compass, new THREE.LatheGeometry(profile, 96), steel);
-    // Knurled bezel.
-    const bezel = new THREE.TorusGeometry(0.865, 0.035, 8, 180);
-    const bp = bezel.attributes.position;
-    for (let i = 0; i < bp.count; i++) {
-      const a = Math.atan2(bp.getY(i), bp.getX(i));
-      const k = 1 + 0.0025 * Math.cos(a * 90);
-      bp.setXY(i, bp.getX(i) * k, bp.getY(i) * k);
-    }
-    bezel.rotateX(Math.PI / 2);
-    bezel.computeVertexNormals();
-    mesh(compass, bezel, steel, 0, 0.085, 0);
-    const dialMap = paintTexture(512, 512, (u, v) => {
-      const x = (u - 0.5) * 2,
-        y = (v - 0.5) * 2;
-      const r = Math.hypot(x, y);
-      const deg = ((Math.atan2(x, y) * 180) / Math.PI + 360) % 360;
-      const arc = (d: number, step: number) => (Math.abs(((d + step / 2) % step) - step / 2) * Math.PI * r) / 180;
-      let ink = 0;
-      if (r > 0.8 && r < 0.93) ink = Math.max(ink, smoothstep(0.009, 0.004, arc(deg, 5)));
-      if (r > 0.72 && r < 0.94) ink = Math.max(ink, smoothstep(0.014, 0.008, arc(deg, 30)));
-      if (r > 0.95 && r < 0.965) ink = 1;
-      // Cardinal letters, upright.
-      let red = 0;
-      for (const [letter, a] of [
-        ["N", 0],
-        ["E", 90],
-        ["S", 180],
-        ["W", 270],
-      ] as const) {
-        const cx = 0.53 * Math.sin((a * Math.PI) / 180),
-          cy = 0.53 * Math.cos((a * Math.PI) / 180);
-        const s = 0.028;
-        const col = Math.floor((x - cx) / s + 2.5),
-          row = Math.floor(-(y - cy) / s + 3.5);
-        if (glyphDot(letter, col, row)) {
-          if (letter === "N") red = 1;
-          else ink = 1;
-        }
-      }
-      // A red north triangle at the rim, clear of the N so the two never merge into an "A".
-      if (y > 0.71 && y < 0.82 && Math.abs(x) < (0.82 - y) * 0.45) red = 1;
-      if (r > 0.985) return [40, 40, 42];
-      const base = mixRgb(0x17191c, 0x23262a, valueNoise(u * 60, v * 60, 60, 3));
-      if (red) return [210, 58, 42];
-      return base.map((c, i) => mix(c, [236, 228, 204][i], ink)) as [number, number, number];
-    });
-    const dial = mesh(
-      compass,
-      new THREE.CircleGeometry(0.8, 96),
-      new THREE.MeshStandardMaterial({ map: dialMap, roughness: 0.55 }),
-      0,
-      0.021,
-      0,
-    );
-    dial.rotation.x = -Math.PI / 2;
-    decal(dial);
-    const needle = group(compass, 0, 0.06, 0);
-    const half = (sign: number) => {
-      const shape = new THREE.Shape();
-      shape.moveTo(-0.07, 0);
-      shape.lineTo(0, 0.6 * sign);
-      shape.lineTo(0.07, 0);
-      shape.closePath();
-      const geometry = new THREE.ExtrudeGeometry(shape, {
-        depth: 0.018,
-        bevelEnabled: true,
-        bevelThickness: 0.008,
-        bevelSize: 0.008,
-        bevelSegments: 1,
-      });
-      geometry.rotateX(-Math.PI / 2);
-      return geometry;
-    };
-    mesh(needle, half(-1), lookMaterial("ceramic", 0xd0402e, { roughness: 0.3 }));
-    mesh(needle, half(1), lookMaterial("ceramic", 0xece6d6, { roughness: 0.3 }));
-    cylinder(needle, 0.045, 0.05, lookMaterial("metal", 0xc9a35a), [0, 0.02, 0], 20);
-    // The crystal: a faint dome you only see by its reflections.
-    const crystal = new THREE.SphereGeometry(2.4, 64, 4, 0, TAU, 0, Math.asin(0.84 / 2.4));
-    crystal.translate(0, -2.4 * Math.cos(Math.asin(0.84 / 2.4)) + 0.09, 0);
-    decal(mesh(compass, crystal, clearGlass()));
-    // The bale.
-    const bale = mesh(compass, new THREE.TorusGeometry(0.16, 0.03, 12, 48), steel, 0, 0.0, -1.02);
-    bale.rotation.x = Math.PI / 2;
-    block(compass, [0.18, 0.08, 0.12], steel, [0, 0, -0.9], 0.03);
-    pool(root, 2.0, 1.2, 0, 0.0, 0.6);
-    ticks.push((angle) => (needle.rotation.y = 0.3 + 0.22 * Math.sin(angle) * (0.75 + 0.25 * Math.cos(angle * 2))));
   },
 
   /** Quiet chapter: tortoiseshell glasses folded on an open book, a page lifting in the draught. */
@@ -1014,26 +658,20 @@ const models: Record<ArtKind, Model> = {
 };
 
 /** One lens for the whole direction; the angle and crop move with the subject's height. */
-const subjectCamera: Record<ArtKind, { pitch: number; yaw?: number; fill?: number; maxWidth?: number }> = {
-  ai: { pitch: 26, fill: 0.86, maxWidth: 1.04 },
+const subjectCamera: Record<Kind, { pitch: number; yaw?: number; fill?: number; maxWidth?: number }> = {
   tennis: { pitch: 13, fill: 0.62 },
-  trading: { pitch: 24, fill: 0.84, maxWidth: 1 },
   server: { pitch: 16, fill: 0.8 },
-  travel: { pitch: 22, fill: 0.84 },
   reading: { pitch: 20, fill: 0.5, maxWidth: 0.7 },
 };
 
 /** Where the night lamp hangs over each subject (it pools light on the subject and falls off into the dark). */
-const lampAt: Record<ArtKind, [number, number, number]> = {
-  ai: [2.1, 1.0, 0.3],
+const lampAt: Record<Kind, [number, number, number]> = {
   tennis: [0.9, 1.4, 0.9],
-  trading: [1.3, 1.0, 0.5],
   server: [0.9, 1.6, 0.9],
-  travel: [0.8, 1.5, 0.9],
   reading: [1.7, 1.1, 0.6],
 };
 
-export function realistic(kind: ArtKind, ticks: Tick[]) {
+export function realistic(kind: Kind, ticks: Tick[]) {
   const root = new THREE.Group();
   models[kind](root, ticks);
   // The practical: a warm point light, on only in the dark theme.
