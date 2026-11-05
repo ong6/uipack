@@ -52,6 +52,8 @@ export default function Slides() {
       `${e.title} ${e.tags.join(" ")}`.toLowerCase().includes(query.toLowerCase()),
   );
   const object = objectScenes.find((s) => s.id === storyId);
+  // The look the object shows: the requested one when it offers it, otherwise its default.
+  const shown = object ? normalizeObjectVariant(object.id, variant) : variant;
   const story = slideStories.find((s) => s.id === storyId) ?? slideStories[0];
   // A bad ?story= or ?variant= says what it fell back to, like the deck's "not found" line. It reads
   // the address each render, so it goes once a choice rewrites the address.
@@ -61,7 +63,7 @@ export default function Slides() {
   const notFound: string[] = [];
   if (badStory !== null && !knownStory(badStory))
     notFound.push(`Story “${badStory}” not found, showing ${object?.title ?? story.title}.`);
-  // A variant names an art direction only if it parses and the object has it (contact keeps five).
+  // A variant names an art direction only if it parses and the object offers it (`objectLooks`).
   // A slide story has one look; it keeps a valid variant in the address (carried between stories)
   // without comment, but says so for one that names nothing.
   const parsedVariant = parseObjectVariant(badVariant);
@@ -72,9 +74,7 @@ export default function Slides() {
     badVariant !== null &&
     (String(parsedVariant) !== badVariant || normalizeObjectVariant(object.id, parsedVariant) !== parsedVariant)
   )
-    notFound.push(
-      `Variant “${badVariant}” not found, showing ${objectDirections[objectDirectionIndex(object.id, variant)].name}.`,
-    );
+    notFound.push(`Variant “${badVariant}” not found, showing ${objectDirections[objectDirectionIndex(object.id, shown)].name}.`);
   useShowcaseNote(notFound.length ? notFound.join(" ") : null);
   const clearFilters = () => {
     setQuery("");
@@ -160,7 +160,7 @@ export default function Slides() {
                   label={object.title}
                   surface={surface}
                   theme={theme}
-                  variant={normalizeObjectVariant(object.id, variant)}
+                  variant={shown}
                   edition={edition}
                 />
               </div>
@@ -177,7 +177,7 @@ export default function Slides() {
             {object && (
               <ObjectInspector
                 kind={object.id}
-                variant={normalizeObjectVariant(object.id, variant)}
+                variant={shown}
                 edition={edition}
                 onVariantChange={chooseDirection}
                 onEditionChange={chooseEdition}
@@ -186,13 +186,13 @@ export default function Slides() {
           </div>
           <div className="slides-showcase__below">
             <p>
-              {object && objectDirectionIndex(object.id, variant) !== 0
-                ? `${objectDirections[objectDirectionIndex(object.id, variant)].description} Original animated study; no live data.`
+              {object && objectDirectionIndex(object.id, shown) !== 0
+                ? `${objectDirections[objectDirectionIndex(object.id, shown)].description} Original animated study; no live data.`
                 : (object?.description ?? story.description)}
             </p>
             <p>
               {object
-                ? objectDirectionIndex(object.id, variant) !== 0 || object.id === "tennis" || object.id === "trading"
+                ? objectDirectionIndex(object.id, shown) !== 0 || object.id === "tennis" || object.id === "trading"
                   ? "Continuous motion. Pause and resume at your own pace."
                   : "One sequence, then rest. Pause or replay at your own pace."
                 : "Illustrative systems / Use Next, the numbered stops, or arrow keys inside the presentation."}
@@ -202,7 +202,7 @@ export default function Slides() {
             <summary>Use this animation</summary>
             <pre>
               {object
-                ? `import { ObjectScene } from "uipack/objects";\nimport "uipack/objects.css";\n\n<ObjectScene kind="${object.id}" label="${object.title}" variant={${normalizeObjectVariant(object.id, variant)}} edition={${edition}} />`
+                ? `import { ObjectScene } from "uipack/objects";\nimport "uipack/objects.css";\n\n<ObjectScene kind="${object.id}" label="${object.title}" variant={${shown}} edition={${edition}} />`
                 : `import { SlidePlayer, harnessDive } from "uipack/slides";\nimport "uipack/slides.css";\n\n<SlidePlayer story={harnessDive} />`}
             </pre>
             <p>
