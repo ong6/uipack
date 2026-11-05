@@ -1,51 +1,58 @@
-/* Landing — the product-marketing option, with a component language of its own: "label stock".
-   Warm ivory paper and a kraft secondary band, warm near-black ink, one deep ledger-green accent
-   (no blue: Technical owns the cool palette). Editorial serif headlines from heading step 4.
-   Parts are printed forms, not floating cards: 1px ink rules, 4px corners, no drop shadows and no
-   glow; internal divisions are perforations (dashed rules, --ui-perf); steps are numbered stubs
-   ("No. 1") torn off along a perforation; stats are serif figures between perforated rules; the
-   quote is a pull quote on a green rule; the featured plan is the green-tinted ticket; buttons are
-   square-cornered ink keys; the hero stamp is a die-cut label. Guide: docs/web-principles.md. */
+/* Landing — the product-marketing option, with one idea of its own: a two-ink risograph print.
+   Everything is printed in two drums on cool off-white stock: a deep plum ink for type and keylines,
+   and fluorescent pink as the one spot colour, laid down as flat screens and printed slightly off
+   register. So: display type carries a pink ghost a hair off its plum (--ui-display-shadow); cards
+   are plum keylines over a pink screen offset by 6px; tints are halftone dot screens (the hero's
+   halftone sun, the secondary band, the closing band's edge); the primary button and the closing
+   band are solid fluorescent pink with plum type; steps are pink riso dots with an off-register
+   keyline; the headline's key phrase sits on a pink highlighter pass, not in italic. Instrument
+   Serif display set upright, IBM Plex Sans text, IBM Plex Mono labels in tracked caps.
+   Not stock SaaS (no gradients, glass or shadows), not warm editorial (no cream, no forest green,
+   no italics) and not a Cyanotype sibling (no blue, no grid). Guide: docs/system/style.md. */
 @layer uipack.tokens {
   [data-ui-style="landing"] {
-    --ui-paper: light-dark(#f6f2e8, #14130f);
-    --ui-surface: light-dark(#fffdf7, #1c1a15);
-    --ui-surface-raised: light-dark(#ffffff, #23211b);
-    --ui-surface-2: light-dark(#ece5d4, #221f19);
-    --ui-ink: light-dark(#1d1a15, #f2ece0);
+    --ui-paper: light-dark(#efeeea, #17111b);
+    --ui-surface: light-dark(#fbfaf8, #20182a);
+    --ui-surface-raised: light-dark(#ffffff, #2a2034);
+    /* The pink drum's light screen: the secondary band and every tint. */
+    --ui-surface-2: light-dark(#f6dfe8, #2c1829);
+    --ui-ink: light-dark(#2a1736, #f5eef4);
     --ui-ink-2: color-mix(in srgb, var(--ui-ink) 87%, transparent);
-    --ui-ink-3: color-mix(in srgb, var(--ui-ink) 66%, transparent);
-    --ui-line: color-mix(in srgb, var(--ui-ink) 30%, transparent);
-    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 14%, transparent);
-    --ui-accent: light-dark(#1d5a43, #8fd1ad);
+    --ui-ink-3: color-mix(in srgb, var(--ui-ink) 70%, transparent);
+    --ui-line: color-mix(in srgb, var(--ui-ink) 34%, transparent);
+    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 15%, transparent);
+    /* The accent as text and strokes: the pink printed dense. --ui-spot is the fluorescent fill. */
+    --ui-accent: light-dark(#b0115b, #ff6aa8);
     --ui-accent-stroke: var(--ui-accent);
-    --ui-on-accent: light-dark(#fffdf7, #14130f);
-    --ui-accent-surface: light-dark(#246b50, #a6dcbf);
-    --ui-accent-ink-2: light-dark(#dcebe2, #173b2d);
-    --ui-accent-line: light-dark(#5f9a80, #5e9c7f);
-    /* Request in warm slate, so the green accent is the only saturated hue in a figure. */
-    --ui-flow-request: light-dark(#5f5a52, #a39d92);
-    --ui-flow-response: light-dark(#3a9a6c, #5fd39b);
-    --ui-flow-change: light-dark(#9a63e0, #c39aff);
+    --ui-on-accent: light-dark(#ffffff, #17111b);
+    --ui-spot: light-dark(#ff4f9a, #ff4f9a);
+    --ui-on-spot: light-dark(#2a1736, #17111b);
+    --ui-accent-surface: light-dark(#ff4f9a, #ff4f9a);
+    --ui-accent-ink-2: light-dark(#3d1533, #2a0f22);
+    --ui-accent-line: light-dark(#c2286c, #b32a68);
+    /* Flows in the plum family, so the pink stays the only loud hue in a figure. */
+    --ui-flow-request: light-dark(#5e4a6e, #b9a6c9);
+    --ui-flow-response: light-dark(#2f7a6a, #6fd3b8);
+    --ui-flow-change: light-dark(#7a46c8, #c39aff);
     /* A failed or declined branch in a diagram. */
     --ui-flow-error: light-dark(#b8341f, #ff8a7a);
-    --ui-data-pos: light-dark(#1d6b4c, #3fb07f);
-    --ui-data-neg: light-dark(#b8452b, #d4623f);
-    --ui-data-context: light-dark(#8f897d, #6f6a60);
-    --ui-data-1: light-dark(#1d5a43, #8fd1ad);
-    --ui-data-2: light-dark(#a8571c, #d99a55);
-    --ui-data-3: light-dark(#5f5a52, #a39d92);
-    --ui-data-4: light-dark(#7a5c99, #b89ad6);
-    --ui-on-data-1: light-dark(#ffffff, #14130f);
-    --ui-on-data-2: light-dark(#ffffff, #14130f);
-    --ui-on-data-3: light-dark(#ffffff, #14130f);
-    --ui-on-data-4: light-dark(#ffffff, #14130f);
-    --ui-inv-paper: light-dark(#1d1a15, #f2ece0);
-    --ui-inv-surface: light-dark(#26231d, #fffdf7);
-    --ui-inv-ink: light-dark(#f2ece0, #1d1a15);
-    --ui-inv-ink-2: light-dark(#c4bcad, #4f4a41);
-    --ui-inv-line: light-dark(#4a453c, #c9c1b2);
-    --ui-inv-accent: light-dark(#8fd1ad, #1d5a43);
+    --ui-data-pos: light-dark(#2f7a5a, #5fcf9b);
+    --ui-data-neg: light-dark(#b8341f, #ff8a7a);
+    --ui-data-context: light-dark(#958c99, #6f6676);
+    --ui-data-1: light-dark(#b0115b, #ff6aa8);
+    --ui-data-2: light-dark(#2a1736, #f5eef4);
+    --ui-data-3: light-dark(#5e4a6e, #b9a6c9);
+    --ui-data-4: light-dark(#a85600, #f0a24a);
+    --ui-on-data-1: light-dark(#ffffff, #17111b);
+    --ui-on-data-2: light-dark(#ffffff, #17111b);
+    --ui-on-data-3: light-dark(#ffffff, #17111b);
+    --ui-on-data-4: light-dark(#ffffff, #17111b);
+    --ui-inv-paper: light-dark(#2a1736, #f5eef4);
+    --ui-inv-surface: light-dark(#34203f, #ffffff);
+    --ui-inv-ink: light-dark(#f5eef4, #2a1736);
+    --ui-inv-ink-2: light-dark(#d2c1d8, #5a4565);
+    --ui-inv-line: light-dark(#5a4565, #cdbcd3);
+    --ui-inv-accent: light-dark(#ff6aa8, #b0115b);
 
     --ui-font-display: "Instrument Serif", "Instrument Serif Fallback", ui-serif, Georgia, "Times New Roman", serif;
     --ui-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -55,129 +62,146 @@
     --ui-display-weight: 400;
     --ui-display-tracking: -0.01em;
     --ui-display-case: none;
-    --ui-label-tracking: 0.08em;
-    --ui-radius: 4px;
-    --ui-radius-sm: 4px;
+    --ui-label-tracking: 0.1em;
+    --ui-radius: 2px;
+    --ui-radius-sm: 2px;
     --ui-radius-xs: 2px;
-    --ui-radius-pill: 3px;
-    /* A solid bar, not glass: a printed masthead. */
+    --ui-radius-pill: 2px;
+    /* A solid bar, not glass: the print's masthead. */
     --ui-nav-fill: var(--ui-paper);
     --ui-nav-blur: none;
     --ui-stroke: 1.25;
     --ui-rule-width: 1px;
     --ui-type-ratio: 1.25;
-    --ui-measure: 65ch;
+    --ui-measure: 62ch;
     --ui-ease-settle: cubic-bezier(0.2, 0.7, 0.2, 1);
     --ui-ease-travel: cubic-bezier(0.55, 0, 0.15, 1);
     --ui-dur-quick: 160ms;
     --ui-dur-base: 320ms;
     --ui-dur-slow: 560ms;
 
-    /* Ornaments: none ambient (no grain, glow or aurora). The backdrop slot stays empty; the hero's
-       one device is the stamp, a die-cut label carrying the page's number. */
-    --ui-backdrop: none;
-    --ui-backdrop-mask: none;
-    /* The figure canvas: a faint ruled ledger. */
-    --ui-canvas-pattern: linear-gradient(var(--ui-line-soft) 1px, transparent 1px) 0 0 / 100% 24px;
-    --ui-frame-border: 1px solid var(--ui-line);
-    --ui-card-shadow: none;
-    --ui-frame-shadow: none;
-    --ui-marker-size: 0px;
+    /* Ornaments. The hero's ground is a halftone sun: a pink dot screen fading out from the
+       top-end corner. No grain, glow or aurora. */
+    --ui-backdrop: radial-gradient(circle, color-mix(in srgb, var(--ui-spot) 70%, transparent) 1.7px, transparent 2.1px) 0 0 / 9px 9px;
+    --ui-backdrop-mask: radial-gradient(circle at 92% 8%, black 0, rgb(0 0 0 / 0.55) 22%, transparent 46%);
+    --ui-backdrop-narrow: radial-gradient(circle, color-mix(in srgb, var(--ui-spot) 60%, transparent) 1.4px, transparent 1.8px) 0 0 / 8px 8px;
+    /* The figure canvas: a faint pink dot screen. */
+    --ui-canvas-pattern: radial-gradient(color-mix(in srgb, var(--ui-spot) 30%, transparent) 1px, transparent 1.3px) 0 0 / 10px 10px;
+    /* A plum keyline over a pink screen printed 6px off register. */
+    --ui-frame-border: 1px solid color-mix(in srgb, var(--ui-ink) 82%, transparent);
+    --ui-card-shadow: 6px 6px 0 color-mix(in srgb, var(--ui-spot) 38%, transparent);
+    --ui-frame-shadow: 6px 6px 0 color-mix(in srgb, var(--ui-spot) 38%, transparent);
+    --ui-marker-size: 9px;
     --ui-marker-shape: 0px;
-    --ui-marker-color: transparent;
-    /* Each section opens on a ruled line, as a printed form. */
-    --ui-section-rule: inset 0 1px 0 var(--ui-line-soft);
+    --ui-marker-color: var(--ui-spot);
+    /* Each section opens on a dotted plum rule: the halftone's edge. */
+    --ui-section-rule: none;
     --ui-grain: 0;
     --ui-glow: 0;
-    /* An ink key: no glow; it presses down on hover. */
-    --ui-cta-shadow: inset 0 -2px 0 color-mix(in srgb, black 28%, transparent);
-    --ui-cta-shadow-hover: inset 0 -3px 0 color-mix(in srgb, black 36%, transparent);
-    --ui-em-style: italic;
-    --ui-em-color: var(--ui-accent-ink);
+    /* The button: solid fluorescent pink, plum type, a plum keyline; on hover the keyline slips
+       off register. */
+    --ui-cta-shadow: inset 0 0 0 1px var(--ui-ink);
+    --ui-cta-shadow-hover: inset 0 0 0 1px var(--ui-ink), 3px 3px 0 var(--ui-ink);
+    --ui-em-style: normal;
+    --ui-em-color: var(--ui-ink);
     --ui-em-decoration: none;
-    --ui-cta-fill: var(--ui-accent);
-    --ui-on-cta: var(--ui-on-accent);
+    /* The key phrase: a pink highlighter pass behind it. */
+    --ui-em-fill: linear-gradient(
+      transparent 56%,
+      light-dark(color-mix(in srgb, var(--ui-spot) 72%, transparent), color-mix(in srgb, var(--ui-spot) 45%, transparent)) 56% 90%,
+      transparent 90%
+    );
+    /* Display type: the pink drum's ghost, a hair off register. */
+    --ui-display-shadow: 0.03em 0.025em 0 color-mix(in srgb, var(--ui-spot) 78%, transparent);
+    --ui-cta-fill: var(--ui-spot);
+    --ui-on-cta: var(--ui-on-spot);
     --ui-star-fill: 1;
-    --ui-display-scale: 1.05;
+    --ui-display-scale: 1.08;
 
-    /* Web closing band (ClosingCta): the ledger green with an ivory button, a perforation along
-       the top edge. */
-    --ui-band-fill: light-dark(#1d5a43, #173b2d);
-    --ui-band-ink: light-dark(#f6f2e8, #f2ece0);
-    --ui-band-ink-2: light-dark(#cfe3d7, #c3d9cb);
-    --ui-band-cta: light-dark(#f6f2e8, #f2ece0);
-    --ui-on-band-cta: light-dark(#1d1a15, #14130f);
-    --ui-band-pattern: repeating-linear-gradient(
-        90deg,
-        color-mix(in srgb, var(--ui-band-ink) 55%, transparent) 0 6px,
-        transparent 6px 12px
-      )
-      0 12px / 100% 1px no-repeat;
-    --ui-backdrop-narrow: none;
+    /* Product imagery (ProductShot, a hero illustration): a riso duotone, plum to pink to paper. */
+    --ui-media-ground: #2a1736;
+    --ui-media-cold: #2a1736;
+    --ui-media-mid: #7d2468;
+    --ui-media-warm: #ff4f9a;
+    --ui-media-hot: #ffe2ee;
+    --ui-media-ink: #fbfaf8;
+    --ui-media-ramp: linear-gradient(90deg, var(--ui-media-cold), var(--ui-media-mid), var(--ui-media-warm), var(--ui-media-hot));
+    --ui-media-filter: grayscale(1) contrast(1.15);
+    --ui-media-tint: var(--ui-spot);
+    --ui-media-blend: multiply;
+
+    /* Web closing band (ClosingCta): solid fluorescent pink, plum type, a plum button, two rows
+       of halftone dots along the top edge. */
+    --ui-band-fill: light-dark(#ff4f9a, #ff4f9a);
+    --ui-band-ink: light-dark(#2a1736, #17111b);
+    --ui-band-ink-2: light-dark(#3d1533, #2a0f22);
+    --ui-band-cta: light-dark(#2a1736, #17111b);
+    --ui-on-band-cta: light-dark(#fbfaf8, #f5eef4);
+    --ui-band-pattern: radial-gradient(circle, color-mix(in srgb, var(--ui-band-ink) 55%, transparent) 1.6px, transparent 2px) 0 10px / 9px 9px repeat-x;
     --ui-section-index: none;
     --ui-corner-marks: none;
 
-    /* Component treatment on the web (docs/system/style.md, "Treatment roles"): label stock. Ruled
-       ivory forms with 1px ink edges and no shadow; steps are "No. 1" stubs over a perforation that
-       runs edge to edge; stats are serif figures between dashed rules; the quote is a pull quote on
-       a 3px green rule with no card; the featured plan is the green-tinted ticket; table rows and
-       internal divisions are perforated; cells are kraft chips. */
-    --ui-density: 1;
-    --ui-perf: dashed;
+    /* Component treatment on the web (docs/system/style.md, "Treatment roles"): the riso print.
+       Airy rhythm; dotted internal rules; steps are pink riso dots with an off-register keyline;
+       stats sit between dotted rules; the quote is a large upright pull quote with a pink mark; the
+       featured plan is printed on the pink screen; tables have a pink header screen and the marked
+       row printed solid pink. */
+    --ui-density: 1.12;
+    --ui-perf: dotted;
     --ui-column-rule: none;
     --ui-column-rule-gap: 0px;
     --ui-card-fill: var(--ui-surface);
     --ui-card-pad: 1.75rem;
     --ui-num-font: var(--ui-font-display);
-    --ui-num-size: 1.875rem;
+    --ui-num-size: 1.625rem;
     --ui-num-weight: 400;
-    --ui-num-prefix: "No.\00a0";
+    --ui-num-prefix: "";
     --ui-num-pad: none;
-    --ui-num-rule: 1px dashed var(--ui-line);
-    --ui-num-color: var(--ui-accent-ink);
-    --ui-num-fill: transparent;
-    --ui-num-ring: none;
-    --ui-num-box: auto;
-    --ui-num-bleed: 1;
-    --ui-num-gap: 0.875rem;
-    --ui-num-display: block;
-    --ui-stat-divider: 1px dashed var(--ui-line);
+    --ui-num-rule: 0 solid transparent;
+    --ui-num-color: var(--ui-on-spot);
+    --ui-num-fill: var(--ui-spot);
+    --ui-num-ring: 4px -3px 0 -1px var(--ui-card-fill), 4px -3px 0 0 var(--ui-ink);
+    --ui-num-box: 2.75rem;
+    --ui-num-bleed: 0;
+    --ui-num-gap: 0px;
+    --ui-num-display: grid;
+    --ui-stat-divider: 1px dotted var(--ui-line);
     --ui-quote-fill: transparent;
     --ui-quote-ink: var(--ui-ink);
     --ui-quote-ink-2: var(--ui-ink-3);
     --ui-quote-line: transparent;
-    --ui-quote-mark: var(--ui-accent-ink);
+    --ui-quote-mark: var(--ui-spot);
     --ui-quote-face: var(--ui-font-display);
     --ui-quote-weight: 400;
     --ui-quote-case: none;
-    --ui-quote-size: 2.125rem;
-    --ui-quote-rule: inset 3px 0 0 var(--ui-accent);
+    --ui-quote-size: 2.25rem;
+    --ui-quote-rule: 0 0 transparent;
     --ui-quote-shadow: 0 0 transparent;
-    --ui-plan-featured-border: var(--ui-accent);
-    --ui-plan-featured-ring: inset 0 0 0 1px var(--ui-accent);
-    --ui-plan-featured-fill: color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface));
+    --ui-plan-featured-border: var(--ui-ink);
+    --ui-plan-featured-ring: 6px 6px 0 var(--ui-spot);
+    --ui-plan-featured-fill: var(--ui-surface-2);
     --ui-cell-fill: var(--ui-surface-2);
     --ui-cell-ink: var(--ui-ink);
     --ui-cell-line: color-mix(in srgb, var(--ui-ink) 22%, transparent);
-    --ui-cell-peak: var(--ui-accent);
-    --ui-on-cell-peak: var(--ui-on-accent);
+    --ui-cell-peak: var(--ui-spot);
+    --ui-on-cell-peak: var(--ui-on-spot);
     --ui-cell-off-ink: var(--ui-ink-3);
     --ui-cell-radius: 2px;
-    /* No traffic lights: a product view is a printed panel with a ruled head. */
+    /* No traffic lights: a product view is a printed panel with a pink head screen. */
     --ui-window-dots: none;
-    --ui-window-bar: transparent;
+    --ui-window-bar: var(--ui-surface-2);
     --ui-web-flow-request: var(--ui-flow-request);
-    /* Stamp (StarHero stamp): a die-cut label, perforated inner edge, tilted as if stuck on. */
-    --ui-stamp-fill: var(--ui-surface);
-    --ui-stamp-ink: var(--ui-ink);
-    --ui-stamp-accent: var(--ui-accent-ink);
-    --ui-stamp-border: 1px solid var(--ui-ink);
-    --ui-stamp-inner: 1px dashed var(--ui-line);
-    --ui-stamp-radius: 6px;
-    --ui-stamp-rotate: -3deg;
+    /* Stamp (StarHero stamp): a fluorescent-pink sticker, plum type, its keyline off register. */
+    --ui-stamp-fill: var(--ui-spot);
+    --ui-stamp-ink: var(--ui-on-spot);
+    --ui-stamp-accent: var(--ui-on-spot);
+    --ui-stamp-border: 0 solid transparent;
+    --ui-stamp-inner: 1.5px solid var(--ui-on-spot);
+    --ui-stamp-radius: 18px;
+    --ui-stamp-rotate: 5deg;
     --ui-stamp-face: var(--ui-font-display);
     --ui-stamp-case: none;
-    --ui-stamp-size: 2.75rem;
+    --ui-stamp-size: 3rem;
     --ui-stamp-shadow: none;
 
     --ui-accent-ink: var(--ui-accent);

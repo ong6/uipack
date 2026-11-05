@@ -14,7 +14,14 @@ export interface FAQProps {
   items: FaqItem[];
   eyebrow?: ReactNode;
   title?: ReactNode;
+  /**
+   * One line under the title. From 1024px the head is a column of its own beside the questions,
+   * so give it an `intro` and an `aside` (a contact line, or the page's CTA): a bare title leaves
+   * that column empty.
+   */
   intro?: ReactNode;
+  /** Under the intro in the head column: a CtaButton, "Still unsure? Email us", a guarantee. */
+  aside?: ReactNode;
   /** Section id, for nav links. Default "faq". */
   id?: string;
   /** The page's canonical URL, used for the FAQPage "@id". */
@@ -50,6 +57,7 @@ export function FAQ({
   eyebrow = "FAQ",
   title = "Questions, answered",
   intro,
+  aside,
   id = "faq",
   url,
   jsonLd = true,
@@ -68,7 +76,7 @@ export function FAQ({
   );
   const itemId = (item: FaqItem) => item.id ?? `${id}-${slugify(item.question)}`;
   return (
-    <Section id={id} eyebrow={eyebrow} title={title} intro={intro} tone={tone} lazyRender={lazyRender} className="uipack-web-faq">
+    <Section id={id} eyebrow={eyebrow} title={title} intro={intro} aside={aside} tone={tone} lazyRender={lazyRender} className="uipack-web-faq">
       <div className="uipack-web-faq__list" data-variant={variant}>
         {items.map((item) =>
           variant === "accordion" ? (

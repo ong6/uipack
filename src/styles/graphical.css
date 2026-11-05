@@ -113,7 +113,7 @@
     /* Component treatment on the web: a poster. Steps are giant Anton numerals in the accent; stats
        sit between 2px ink rules; the quote is an orange poster block in caps with a hard shadow;
        the featured plan casts an orange shadow; table cells are ink-ruled boxes. */
-    --ui-density: 0.95;
+    --ui-density: 1;
     --ui-column-rule: none;
     --ui-column-rule-gap: 0px;
     --ui-card-fill: var(--ui-surface);
@@ -170,6 +170,25 @@
     --ui-stamp-case: uppercase;
     --ui-stamp-size: 3.25rem;
     --ui-stamp-shadow: 6px 6px 0 var(--ui-ink);
+
+    /* Shared roles the web parts read (style.md): the spot fill is the accent; no key-phrase fill
+       or display ghost (the accent colour does it). */
+    --ui-spot: var(--ui-accent);
+    --ui-on-spot: var(--ui-on-accent);
+    --ui-em-fill: none;
+    --ui-display-shadow: none;
+    /* Product imagery (ProductShot, a hero illustration): poster duotone, ink through warm grey
+       to the signal orange and a pale peach. */
+    --ui-media-ground: #111111;
+    --ui-media-cold: #111111;
+    --ui-media-mid: #57554f;
+    --ui-media-warm: #f24a00;
+    --ui-media-hot: #ffd8c2;
+    --ui-media-ink: #f1eee6;
+    --ui-media-ramp: linear-gradient(90deg, var(--ui-media-cold), var(--ui-media-mid), var(--ui-media-warm), var(--ui-media-hot));
+    --ui-media-filter: grayscale(1) contrast(1.35);
+    --ui-media-tint: transparent;
+    --ui-media-blend: normal;
 
     --ui-node: var(--ui-surface);
     --ui-line-solid: var(--ui-line);

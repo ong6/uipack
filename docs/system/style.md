@@ -32,6 +32,9 @@ fails if a style leaves a core role out.
 | `--ui-data-1` … `-4`, `--ui-on-data-1` … `-4` | Categorical slots and the label on each | `--uipack-cx-s1` … |
 | `--ui-inv-paper` / `-surface` / `-ink` / `-ink-2` / `-line` / `-accent` | The invert variant inside the style (deck `invert`, `tone="ink"`) | `[data-tone="ink"]`, the web quote card |
 | `--ui-band-fill` / `-ink` / `-ink-2` / `-cta`, `--ui-on-band-cta`, `--ui-band-pattern` | The web closing band (`ClosingCta`): its ground, text, button and pattern | `--web-band-*` |
+| `--ui-spot`, `--ui-on-spot` | The accent as a large flat fill (a sticker, a marked row, a lens in a drawing) and type on it. Technical and Graphical: the accent; Landing: the fluorescent pink, where `--ui-accent` is the pink printed dense enough for text | treatments, product drawings |
+| `--ui-media-ground` / `-cold` / `-mid` / `-warm` / `-hot` / `-ink`, `--ui-media-ramp` | Product imagery: a four-stop tonal ramp for drawn pictures (a thermal frame, a heat map, a scan), its ground and the ink of marks over it. Technical a cyanotype (Prussian, cyan, white, amber), Graphical a poster duotone (ink, grey, orange, peach), Landing a riso duotone (plum, pink, paper) | `ProductShot`, bespoke product drawings |
+| `--ui-media-filter`, `--ui-media-tint`, `--ui-media-blend` | How a photo in a `ProductShot` is printed: Technical a cyanotype (greyscale lightened over Prussian), Graphical hard greyscale, Landing a pink duotone | `ProductShot src` |
 
 **Type, shape, motion and scalars**
 
@@ -41,7 +44,8 @@ fails if a style leaves a core role out.
 | `--ui-font-heading` | Small headings outside the display steps: a figure's title, a consulting slide's title. Technical: the display face, so page, slide and figure share one heading face; Landing and Graphical: the text face |
 | `--ui-display-weight` / `-tracking` / `-case`, `--ui-display-scale` | How the display face is set; Graphical sets caps at 1.3× |
 | `--ui-label-tracking` | Tracked caps for eyebrows and labels |
-| `--ui-em-style`, `--ui-em-color`, `--ui-em-decoration` | The emphasised phrase in a display headline (Landing italic; Graphical the accent; Technical ink over an amber underline in light, gold in dark) |
+| `--ui-em-style`, `--ui-em-color`, `--ui-em-decoration`, `--ui-em-fill` | The emphasised phrase in a display headline (Landing upright on a pink highlighter pass; Graphical the accent; Technical ink over an amber underline in light, gold in dark) |
+| `--ui-display-shadow` | A ghost under display type, numerals and the quote: Landing's pink drum printed a hair off register; none elsewhere |
 | `--ui-radius` / `-sm` / `-xs` / `-pill` | Container, inner box, mark, control |
 | `--ui-stroke`, `--ui-rule-width` | SVG line weight, CSS rule weight |
 | `--ui-density`, `--ui-type-ratio`, `--ui-measure` | Scalars a style may own: spacing scale, type ratio, line length |
@@ -52,37 +56,53 @@ move a box, which is why a swap keeps every region in place (`src/web/web-styles
 
 | Slot role | Painted where | Technical | Landing | Graphical |
 | --- | --- | --- | --- | --- |
-| `--ui-backdrop`, `--ui-backdrop-mask` | Behind the hero | Drafting film (12px minor, 60px major hairlines), faded downward | None | None (the disc is the stamp now) |
+| `--ui-backdrop`, `--ui-backdrop-mask` | Behind the hero | Drafting film (12px minor, 60px major hairlines), faded downward | A halftone sun: a 9px pink dot screen fading out from the top-end corner | None (the disc is the stamp now) |
 | `--ui-backdrop-narrow` | Behind the hero below 720px | The same grid |
 | `--ui-canvas-pattern` | A figure's canvas (`Figure background="dots"`, the default) | The same drafting film, at 12% / 5% ink | 12px dot grid | 12px dot grid | None | A 48px disc in the corner, no ring, so it clears the copy |
-| `--ui-marker-size` / `-shape` / `-color` | Hung before each eyebrow | 7px amber dot | None | 12px accent disc |
+| `--ui-marker-size` / `-shape` / `-color` | Hung before each eyebrow | 7px amber dot | 9px pink square | 12px accent disc |
 | `--ui-section-index` | `inline` or `none`: each `Section` eyebrow's number in page order (`WebPage` numbers its sections after the hero; a section outside a `WebPage` has none) | `01 / HOW IT WORKS` in mono | None | None |
 | `--ui-corner-marks` | Background layers on quiet cards, plans and the quote | 8px ink crop marks at all four corners | None | None |
-| `--ui-section-rule` | Top edge of each section | 1px soft line | 1px soft ruled line | 2px ink |
-| `--ui-frame-border`, `--ui-frame-shadow`, `--ui-card-shadow` | Cards and framed windows | 1px line, flat | 1px ink line (30%), flat, 4px corners | 2px ink, hard 6px offset |
+| `--ui-section-rule` | Top edge of each section | 1px soft line | None (a dotted plum rule, drawn by the treatment) | 2px ink |
+| `--ui-frame-border`, `--ui-frame-shadow`, `--ui-card-shadow` | Cards and framed windows | 1px line, flat | A plum keyline over a pink screen printed 6px off register, 2px corners | 2px ink, hard 6px offset |
 | `--ui-nav-fill`, `--ui-nav-blur` | The sticky nav | Paper at 94% | Solid paper (a masthead) | Solid paper |
 | `--ui-grain`, `--ui-glow`, `--ui-star-fill` | Ambient depth switches (0 or 1) | 0 | 0 (star fill 1) | 0 |
-| `--ui-cta-shadow(-hover)` | The primary button | None (a 3px amber halo on hover) | An ink key: a 2px inset foot that deepens on hover | Hard ink offset |
-| `--ui-cta-fill`, `--ui-on-cta` | The primary button's fill and label | Prussian ink in light, gold in dark | The accent | The accent |
-| `--ui-band-*` | The closing band | Plain Prussian band (no grid: the grid is the hero's and the figure's), gold button | Ledger-green band, ivory button, a perforation along the top | Signal-orange band, black button, ink tick rule along the top |
-| `--ui-stamp-*` (fill, ink, accent, border, inner, radius, rotate, face, case, size, shadow) | `StarHero stamp`: the page's one measured number, in the copy | A revision tag: square, ruled, amber top bar, the figure in Archivo Expanded | A die-cut label: ivory, ink edge, perforated inner edge, tilted 3° | A postmark: orange disc, double ink ring, Anton caps, tilted 8°, hard shadow |
+| `--ui-cta-shadow(-hover)` | The primary button | None (a 3px amber halo on hover) | A plum keyline that slips 3px off register on hover | Hard ink offset |
+| `--ui-cta-fill`, `--ui-on-cta` | The primary button's fill and label | Prussian ink in light, gold in dark | Fluorescent pink, plum label | The accent |
+| `--ui-band-*` | The closing band | Plain Prussian band (no grid: the grid is the hero's and the figure's), gold button | Solid fluorescent pink, plum type and button, a row of halftone dots along the top | Signal-orange band, black button, ink tick rule along the top |
+| `--ui-stamp-*` (fill, ink, accent, border, inner, radius, rotate, face, case, size, shadow) | `StarHero stamp`: the page's one measured number, on the proof's corner (split) or in the copy | A revision tag: square, ruled, amber top bar, the figure in Archivo Expanded | A riso sticker: pink, rounded, plum serif figure, its keyline printed off register, tilted 5° | A postmark: orange disc, double ink ring, Anton caps, tilted 8°, hard shadow |
 
 **Treatment roles (web components).** Range comes from how each style draws the same parts, not
 from moving them: the layout is one, the treatment is the style's. Every style fills these.
 
-| Role | Painted where | Technical (engineering drawing) | Landing (label stock) | Graphical (poster) |
+| Role | Painted where | Technical (engineering drawing) | Landing (riso print) | Graphical (poster) |
 | --- | --- | --- | --- | --- |
-| `--ui-density` | Section padding (vertical only) | 0.9, compact | 1, even | 0.95 |
-| `--ui-perf` | Line style of internal divisions: table rows, card and window heads, feature lists, the step rail | `solid` | `dashed` (perforations) | `solid` |
+| `--ui-density` | Section padding (vertical only) | 0.8, compact | 1.12, airy | 1 |
+| `--ui-perf` | Line style of internal divisions: table rows, card and window heads, feature lists, the step rail | `solid` | `dotted` (the halftone's edge) | `solid` |
 | `--ui-column-rule`, `-gap` | Top of each section's column | A dimension line: a hairline across the column with an end tick at both ends | None | None (2px full-bleed section rule instead) |
-| `--ui-card-fill`, `--ui-card-pad` | Step and feature cards | Surface, 1.5rem | Ivory surface, 1.75rem, 1px ink edge, no shadow | Surface, 1.75rem, hard ink shadow |
-| `--ui-num-*` (font, size, weight, prefix, pad, rule, color, fill, ring, box, display, bleed, gap) | `FeatureGrid numbered` | A detail bubble: the number in mono inside a 36px ink-ringed circle | A stub: "No. 1" in the serif, green, over a perforation across the card | Giant Anton numeral in the accent |
-| `--ui-stat-divider` | Between proof stats | 1px rule | 1px dashed rule | 2px ink |
-| `--ui-quote-*` (fill, ink, ink-2, line, mark, face, weight, case, size, rule, shadow) | The proof quote | Annotation: surface, a 1px hairline frame, text face, amber quote mark | A pull quote: no card, the serif at 34px on a 3px green rule | Orange poster block, Anton caps, hard ink shadow |
-| `--ui-plan-featured-border`, `-ring`, `-fill` | The featured plan | Ink border, 4px amber rule along the top | The green-tinted ticket with a green edge | Orange offset shadow |
-| `--ui-cell-*` (fill, ink, line, peak, on-peak, off-ink, radius) | Product surfaces: table highlights, schedule cells, status chips, worked rules | Square cells on surface-2, Prussian-ink peaks | Kraft chips, 2px corners, green peaks | Ink-ruled boxes, orange peaks |
-| `--ui-window-dots`, `--ui-window-bar` | `ProductWindow` and `DemoPlayer` chrome | No traffic lights, clear bar | No traffic lights, a ruled head | Square dots on a tinted bar |
-| `--ui-web-flow-request` | The request token of a figure on a web page | The style's flow request (cyan, the main flow) | Warm slate, so the green stays the only saturated hue | The style's flow request |
+| `--ui-card-fill`, `--ui-card-pad` | Step and feature cards | Surface, 1.5rem | Surface, 1.75rem, plum keyline over an offset pink screen | Surface, 1.75rem, hard ink shadow |
+| `--ui-num-*` (font, size, weight, prefix, pad, rule, color, fill, ring, box, display, bleed, gap) | `FeatureGrid numbered` | A detail bubble: the number in mono inside a 36px ink-ringed circle | A riso dot: the serif numeral on a 44px pink disc, a plum keyline printed off register | Giant Anton numeral in the accent |
+| `--ui-stat-divider` | Between proof stats | 1px rule | 1px dotted rule | 2px ink |
+| `--ui-quote-*` (fill, ink, ink-2, line, mark, face, weight, case, size, rule, shadow) | The proof quote | Annotation: surface, a 1px hairline frame, text face, amber quote mark | A pull quote: no card, the upright serif at 36px with the pink ghost, a pink mark | Orange poster block, Anton caps, hard ink shadow |
+| `--ui-plan-featured-border`, `-ring`, `-fill` | The featured plan | Ink border, 4px amber rule along the top | Printed on the pink screen, a solid pink offset | Orange offset shadow |
+| `--ui-cell-*` (fill, ink, line, peak, on-peak, off-ink, radius) | Product surfaces: table highlights, schedule cells, status chips, worked rules | Square cells on surface-2, Prussian-ink peaks | Pink screens, 2px corners, solid pink peaks | Ink-ruled boxes, orange peaks |
+| `--ui-window-dots`, `--ui-window-bar` | `ProductWindow` and `DemoPlayer` chrome | No traffic lights, clear bar | No traffic lights, a pink head screen | Square dots on a tinted bar |
+| `--ui-web-flow-request` | The request token of a figure on a web page | The style's flow request (cyan, the main flow) | Plum grey, so the pink stays the only loud hue | The style's flow request |
+
+**Component treatments (per-style CSS on the same markup).** Roles change values; some parts also
+change how they are drawn: pseudo content, which edges are ruled, inner padding, the face of a
+column. Those live in `src/web/web-styles.css` keyed on the page's style and never move a box, change
+a column count or reorder content (`e2e/style-swap.spec.ts`). A nested `Section uiStyle` gets that
+style's roles but the page's treatment.
+
+| Part | Technical: an engineering drawing | Landing: a two-ink riso print | Graphical: a poster and its tickets |
+| --- | --- | --- | --- |
+| `DataTable` | A drawing schedule: every cell ruled, ink frame, tinted head, item numbers `01`… | Pink head screen, names in the serif, dotted rows, the marked row printed solid pink | A stamped receipt: 4px rules top and bottom, dashed tear rows, `#1` in orange, the marked row in reverse with an orange tab |
+| `WorkedExample` | A dimensioned detail on drafting film: rules as ruled callouts with numbered balloons, arrows as dimension lines, results boxed, a `NOTE` title-block cell | Rules as plum keylines with the pink screen printed 4px off register, dotted leaders ending in a pink dot, results in the serif | A receipt sum: the given as an orange ticket, ink slips with hard shadows, heavy arrows, results over a total rule |
+| `ItemList` | Drawing notes: numbered `1.` in mono, values in a ruled cell | Names in the serif, pink riso dots for states | A ticket stub: heavy rules, dashed rows, values in reverse tags, stamped squares |
+| `Proof` stats | A title block: ruled cells in an ink frame, label first in mono caps | Big upright serif figures with the pink ghost over a dotted rule | Anton figures under a 4px rule, labels in bold mono caps |
+| `FAQ` | Each question numbered `01` | A pink square with an off-register keyline | `Q1` stamped in orange, a 3px top rule |
+| `ProductShot` | A drawing sheet: an inner keyline, numbered balloon pins, Prussian tag notes, a title-block caption | A riso duotone: pink pins with a paper keyline, paper notes with a pink offset, dotted leaders | A poster plate: 3px frame, orange numbered discs, 3px leaders, reverse tags |
+| Bands | Plain | The secondary band a pink halftone screen; dotted rules between plain sections | Plain, 2px ink section rules |
 
 **Every style fills every role.** A few roles have Technical values tuned for one medium
 (`--ui-node`, `--ui-line-solid`, `--ui-inv-node`, `--ui-accent-ink`, `--ui-data-neg-ink`,
@@ -105,7 +125,7 @@ a second accent.
 | Style | For | Character | Values | Guide |
 | --- | --- | --- | --- | --- |
 | **Technical** (default) | Diagrams, charts, article parts, decks, the shell, and web pages | Cyanotype: Prussian-blue ink on a cool white sheet, a deep-blue dark half, one amber mark, square corners and hairlines, a drafting grid on the hero and figure canvas only; Archivo Expanded headings on page, slide and figure, Archivo text, Martian Mono labels; on the web a page shows the product's real output first | `src/styles/technical.css` | Below |
-| **Landing** (product marketing) | A product-marketing page that should read as considered print, not stock SaaS | Label stock: warm ivory page, kraft band, one ledger-green accent, Instrument Serif headlines, ruled 1px forms with perforated (dashed) divisions, no shadow or glow, 4px corners, a solid masthead nav | `src/styles/landing.css` | [Web principles](../web-principles.md) |
+| **Landing** (product marketing) | A product-marketing page that should read as considered print: neither stock SaaS, nor warm editorial, nor Technical | A two-ink risograph print: plum ink and one fluorescent-pink spot on cool off-white stock, the pink printed a hair off register (display ghosts, offset screens behind keylines), halftone dot screens for tints, upright Instrument Serif headlines with the key phrase on a pink highlighter pass, Plex Sans text, Plex Mono labels in tracked caps, 2px corners, a solid masthead | `src/styles/landing.css` | Below, and [Web principles](../web-principles.md) |
 | **Graphical** | Posters, launches, a page that should be loud | Bone paper, black ink, one signal-orange accent, Anton display caps, hard edges, 2px rules, hard offset frames, one disc motif (the hero stamp) | `src/styles/graphical.css` | [Web principles](../web-principles.md) |
 | **Mechanism** | One isometric machine whose working is the point | Technical's roles mapped to four solid tones (derived; `--tune-mech-*` hooks), one lit part | `src/mechanism/mechanism.css` | [Mechanism](../mechanism.md) |
 | **3D art directions** | Object scenes | Studio (reads `--tune-object-*`), Paper worlds, Kinetic, Cartoon, Realistic, Abstract | `src/objects/*` | [Object scenes](../objects.md) |
@@ -155,15 +175,27 @@ never a status colour, an accent or decoration.
 
 | Role | Landing light / dark | Graphical light / dark |
 | --- | --- | --- |
-| paper | `#f6f2e8` / `#14130f` | `#f1eee6` / `#121212` |
-| surface | `#fffdf7` / `#1c1a15` | `#fbfaf6` / `#1b1b1b` |
-| surface-2 | `#ece5d4` / `#221f19` | `#e6e1d3` / `#262420` |
-| ink | `#1d1a15` / `#f2ece0` | `#111111` / `#f1eee6` |
-| ink-2 / ink-3 | ink at 87% / 66% | `#363532`, `#57554f` / `#cfcbc0`, `#a29e93` |
-| line / line-soft | ink at 30% / 14% | solid ink / ink at 22% |
-| accent | `#1d5a43` / `#8fd1ad` | `#f24a00` / `#ff6a26` (as small text `#b23700` / `#ff7f45`) |
-| on-accent | `#fffdf7` / `#14130f` | `#111111` |
-| radius | 4px cards and panels, 3px controls | 0 everywhere |
+| paper | `#efeeea` / `#17111b` | `#f1eee6` / `#121212` |
+| surface | `#fbfaf8` / `#20182a` | `#fbfaf6` / `#1b1b1b` |
+| surface-2 (Landing: the pink screen) | `#f6dfe8` / `#2c1829` | `#e6e1d3` / `#262420` |
+| ink | plum `#2a1736` / `#f5eef4` | `#111111` / `#f1eee6` |
+| ink-2 / ink-3 | ink at 87% / 70% | `#363532`, `#57554f` / `#cfcbc0`, `#a29e93` |
+| line / line-soft | ink at 34% / 15% | solid ink / ink at 22% |
+| accent (text, strokes) | `#b0115b` / `#ff6aa8` | `#f24a00` / `#ff6a26` (as small text `#b23700` / `#ff7f45`) |
+| spot (fills) | fluorescent pink `#ff4f9a`, plum type on it | the accent |
+| on-accent | `#ffffff` / `#17111b` | `#111111` |
+| radius | 2px | 0 everywhere |
+
+**Landing's concept.** One idea: the page is a two-ink risograph print. Two drums only: plum for
+type and keylines, fluorescent pink for every fill. The pink is laid down as flat screens and
+halftone dots and printed slightly off register, so display type carries a pink ghost, cards and
+worked rules are plum keylines with their pink screen shifted 4–6px, the step numbers are pink dots
+with a keyline that misses, and the stamp is a pink sticker. Tints are dot screens (the hero's
+halftone sun, the secondary band, the closing band's edge). Type is Instrument Serif set upright
+(no italic: emphasis is a highlighter pass), Plex Sans text and Plex Mono labels in tracked caps.
+It avoids stock SaaS (no gradients, glass, soft shadows or blue), warm editorial (no cream, forest
+green or italics) and Technical (no grid, no blue, no hairline drafting). Product imagery prints as
+a plum-to-pink duotone.
 
 Both keep Technical's flow hues (Graphical darkens two for its bone paper) and its data colours.
 
@@ -261,14 +293,14 @@ Three styles paint web pages, from the same parts, the same words and the same l
   with the full flow code, and a plain Prussian closing band with a gold button. The hero shows the
   product's real output (a filled rota, table or record through the product-surface parts), never
   a blank panel: a `DemoPlayer` in steps mode needs a `screen` on its last step.
-- **Landing** is product marketing in label stock, owned so it reads as neither Technical nor stock
-  SaaS: warm ivory 60% (`#f6f2e8` / `#14130f`), kraft 30% (`#ece5d4` / `#221f19`), ledger green 10%
-  (`#1d5a43`) for CTAs and the star only; Instrument Serif from step 4 with the emphasis in green
-  italic; ruled forms with 1px ink edges and no shadow; internal divisions as perforations
-  (`--ui-perf: dashed`); steps as "No. 1" stubs; a pull quote on a green rule; the featured plan as
-  the green-tinted ticket; square-cornered ink-key buttons; a die-cut label stamp; a ledger-green
-  closing band with an ivory button. No glow, no glass, no blue, no traffic lights. Its 30 rules are
-  in [Web principles](../web-principles.md).
+- **Landing** is product marketing as a two-ink riso print (concept above), owned so it reads as
+  neither Technical, nor stock SaaS, nor warm editorial: cool off-white stock 60% (`#efeeea` /
+  `#17111b`), the pink screen 30% (`#f6dfe8`), fluorescent pink 10% (`#ff4f9a`) for the CTA, the
+  marked row, the stamp, the step dots and the closing band; plum ink for type and keylines;
+  upright Instrument Serif from step 4 with a pink off-register ghost and the key phrase on a pink
+  highlighter; keylines over offset pink screens; dotted internal rules (`--ui-perf: dotted`);
+  halftone screens for tints; product imagery as a plum-to-pink duotone. No glow, no glass, no
+  gradient, no blue, no italics.
 - **Graphical** is a poster: Anton caps at 1.3×, one orange disc that carries content (the hero
   stamp, a postmark with the page's number) and returns as every eyebrow marker, 2px ink rules and hard offset frames, an orange closing band, no glow, no blur.
 

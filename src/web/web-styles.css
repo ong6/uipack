@@ -165,3 +165,663 @@
     }
   }
 }
+
+/* ---------- Component treatments: one markup, three drawings ----------
+   Each style draws the same parts in its own vernacular, on the same boxes and in the same places
+   (docs/system/style.md, "Component treatments"): Technical an engineering drawing (tables as a
+   drawing schedule, the worked case as a dimensioned detail with numbered balloons, lists as
+   drawing notes, stats in a title block), Graphical a poster and its tickets (tables and lists as
+   stamped receipts with heavy rules, the worked case as a receipt sum), Landing a two-ink riso
+   print (pink header screens, the marked row printed solid pink, off-register keylines, halftone
+   bands). They key on the page's style (WebPage / WebSurface data-ui-style); a nested style scope
+   gets that style's roles but keeps the page's treatment. Only borders, fills, faces, pseudo
+   content and inner padding change: never a box's place, a column count or the reading order. */
+@layer uipack.ornaments {
+  /* Display ghost on the wordmark, worked figures and quote (Landing only paints it). */
+  .uipack-web-brand,
+  .uipack-web-worked__value,
+  .uipack-web-quote blockquote p {
+    text-shadow: var(--ui-display-shadow, none);
+  }
+  .uipack-web-faq__list {
+    counter-reset: uipack-faq;
+  }
+  .uipack-web-faq__item {
+    counter-increment: uipack-faq;
+  }
+
+  /* ===== Technical: an engineering drawing ===== */
+  /* Tables: a drawing schedule. Ruled on every cell, an ink frame, a tinted head, item numbers. */
+  @container uipack-table (min-width: 441px) {
+    .uipack-web[data-ui-style="technical"] .uipack-web-table table {
+      border: 1px solid var(--web-ink);
+      counter-reset: uipack-row;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table :is(th, td),
+    .uipack-web[data-ui-style="technical"] .uipack-web-table :is(th, td):is(:first-child, :last-child) {
+      padding: 7px 10px;
+      border: 1px solid var(--web-hairline);
+      font-size: 0.875rem;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table thead th {
+      padding-top: 8px;
+      background: var(--web-secondary);
+      border-bottom: 1px solid var(--web-ink);
+      color: var(--web-ink-medium);
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table tbody tr {
+      counter-increment: uipack-row;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table tbody th::before {
+      content: counter(uipack-row, decimal-leading-zero);
+      display: inline-block;
+      width: 1.75rem;
+      color: var(--web-ink-low);
+      font-size: 0.6875rem;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table tr[data-highlight] :is(th, td):first-child {
+      padding-inline-start: 10px;
+    }
+  }
+  /* The worked case: a dimensioned detail. Drafting film under it, each rule a ruled callout with
+     a numbered balloon, each arrow a dimension line (an extension tick, a solid head), each result
+     a boxed dimension figure, the note a title-block cell. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked {
+    background: var(--ui-corner-marks), var(--ui-canvas-pattern), var(--web-surface);
+    counter-reset: uipack-worked;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__lines li {
+    counter-increment: uipack-worked;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__given {
+    padding: 10px 12px;
+    border: 1px dashed var(--web-ink-low);
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__rule {
+    position: relative;
+    padding: 8px 12px 8px 42px;
+    border: 1px solid var(--web-ink);
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__rule::before {
+    content: counter(uipack-worked);
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    translate: 0 -50%;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--web-ink);
+    font: 600 0.6875rem / 1 var(--web-font-mono);
+    color: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__arrow {
+    border-top: 1px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__arrow::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: -6px;
+    height: 11px;
+    border-left: 1px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__arrow::after {
+    top: -4px;
+    right: -1px;
+    width: 0;
+    height: 0;
+    border: 4px solid transparent;
+    border-left: 9px solid var(--web-ink);
+    border-right: 0;
+    transform: none;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__result {
+    padding: 6px 10px;
+    border: 1px solid var(--web-ink);
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__note {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    padding: 8px 10px;
+    border: 1px solid var(--web-rule);
+    background: var(--web-surface);
+    font-size: 0.8125rem;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__note::before {
+    content: "NOTE";
+    font: 600 0.6875rem / 1.6 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    color: var(--web-accent-ink);
+  }
+  /* Lists: drawing notes, numbered in mono; values in a ruled cell. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-list {
+    counter-reset: uipack-note;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list li {
+    counter-increment: uipack-note;
+    padding: 9px 0;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list__text strong::before {
+    content: counter(uipack-note) ".";
+    display: inline-block;
+    min-width: 1.5rem;
+    font: 600 0.75rem / 1 var(--web-font-mono);
+    color: var(--web-accent-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list__text > span {
+    padding-inline-start: 1.5rem;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list__meta {
+    padding: 3px 7px;
+    border: 1px solid var(--web-rule);
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list__mark {
+    border-radius: 0;
+  }
+  /* Stats: a title block. Ruled cells in an ink frame, the label first in mono caps. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) {
+    gap: 1px;
+    padding: 0;
+    border: 1px solid var(--web-ink);
+    background: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) > div {
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 16px 16px;
+    border: 0;
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) dt {
+    order: -1;
+    max-width: none;
+    font: 500 0.6875rem / 1.4 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+    color: var(--web-ink-low);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats[data-headline] dd {
+    font-size: calc(var(--web-step-5) * var(--web-display-scale));
+  }
+  /* Hero facts: a title block strip, ruled cells in an ink frame, the label first. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-hero__facts {
+    gap: 1px;
+    padding: 0;
+    border: 1px solid var(--web-ink);
+    background: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-hero__facts > div {
+    flex-direction: column;
+    padding: 8px 12px 10px;
+    border: 0;
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-hero__facts dt {
+    font-size: 0.6875rem;
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+  }
+  /* FAQ: each question carries its item number, as a drawing's note does. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-faq__q::before {
+    content: counter(uipack-faq, decimal-leading-zero);
+    display: inline-block;
+    min-width: 2.25rem;
+    font: 600 0.75rem / 1 var(--web-font-mono);
+    color: var(--web-accent-ink);
+    vertical-align: 0.12em;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-faq__answer {
+    padding-inline-start: 2.25rem;
+  }
+  /* Product shot: a drawing sheet. Numbered balloons on the pins, leaders landing on a shoulder,
+     notes as Prussian tags, the caption a title-block strip. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__plate {
+    box-shadow: inset 0 0 0 6px var(--web-surface), inset 0 0 0 7px var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__pin {
+    left: -11px;
+    top: -11px;
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--ui-media-ground);
+    background: var(--ui-media-ink);
+    box-shadow: none;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__pin::before {
+    content: counter(uipack-shot);
+    font: 600 0.6875rem / 1 var(--web-font-mono);
+    color: var(--ui-media-ground);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__leader {
+    stroke-width: 1;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__note {
+    border: 1px solid var(--ui-media-ink);
+    background: var(--ui-media-ground);
+    color: var(--ui-media-ink);
+    font-family: var(--web-font-mono);
+    letter-spacing: 0.02em;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__tag {
+    border: 1px solid var(--ui-media-ink);
+    background: var(--ui-media-ground);
+    color: var(--ui-media-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__inset {
+    border-color: var(--web-ink);
+    background: var(--ui-canvas-pattern), var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__caption {
+    border-top-color: var(--web-ink);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    font-size: 0.75rem;
+  }
+
+  /* ===== Graphical: a poster and its tickets ===== */
+  /* Tables: a stamped receipt. Heavy rules top and bottom, perforated rows, the marked row
+     printed in reverse with an orange tab, item numbers stamped in orange. */
+  @container uipack-table (min-width: 441px) {
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table table {
+      border-top: 4px solid var(--web-ink);
+      border-bottom: 4px solid var(--web-ink);
+      counter-reset: uipack-row;
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table :is(th, td) {
+      padding: 11px 9px;
+      border-bottom: 2px dashed color-mix(in srgb, var(--web-ink) 45%, transparent);
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table thead th {
+      padding-top: 10px;
+      border-bottom: 2px solid var(--web-ink);
+      font-weight: 600;
+      color: var(--web-ink);
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table tbody tr {
+      counter-increment: uipack-row;
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table tbody th {
+      font-weight: 600;
+      color: var(--web-ink);
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table :is(th, td):first-child {
+      padding-inline-start: 0;
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table :is(th, td):last-child {
+      padding-inline-end: 0;
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table tbody th::before {
+      content: "#" counter(uipack-row);
+      display: inline-block;
+      min-width: 1.75rem;
+      color: var(--web-accent-ink);
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table td[data-align="end"] {
+      font-weight: 600;
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table tr[data-highlight] :is(th, td) {
+      background: var(--web-ink);
+      color: var(--web-bg);
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table tr[data-highlight] th::before {
+      color: var(--web-accent);
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table tr[data-highlight] :is(th, td):first-child {
+      box-shadow: inset 6px 0 0 var(--web-accent);
+      padding-inline-start: 14px;
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table tr[data-highlight] :is(th, td):last-child {
+      padding-inline-end: 8px;
+    }
+  }
+  /* Lists: a ticket stub. Heavy rules top and bottom, perforated rows, values in reverse tags,
+     states as stamped squares. */
+  .uipack-web[data-ui-style="graphical"] .uipack-web-list {
+    border-top: 3px solid var(--web-ink);
+    border-bottom: 3px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-list li {
+    border-bottom: 2px dashed color-mix(in srgb, var(--web-ink) 45%, transparent);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-list li:last-child {
+    border-bottom: 0;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-list__text strong {
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-list__meta {
+    padding: 3px 7px;
+    background: var(--web-ink);
+    color: var(--web-bg);
+    font-weight: 600;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-list__mark {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--web-ink);
+    border-radius: 0;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-list li[data-status="done"] .uipack-web-list__mark {
+    border-color: var(--web-ink);
+    background: var(--web-accent);
+  }
+  /* The worked case: a receipt sum. The given is an orange ticket, each rule an ink-framed slip
+     with a hard shadow, each arrow a heavy one, each result a big figure over a total rule. */
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__title {
+    padding-bottom: 10px;
+    border-bottom: 3px solid var(--web-ink);
+    font: 400 calc(var(--web-step-2) * var(--web-display-scale)) / 1 var(--web-font-display);
+    letter-spacing: var(--web-display-tracking);
+    color: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__given {
+    padding: 12px 14px;
+    border: 2px solid var(--web-ink);
+    background: var(--web-accent);
+    color: var(--web-on-accent);
+    box-shadow: 4px 4px 0 var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__given .uipack-web-worked__label {
+    color: inherit;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__rule {
+    border: 2px solid var(--web-ink);
+    background: var(--web-surface);
+    box-shadow: 4px 4px 0 var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__rule code {
+    font-weight: 600;
+    color: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__arrow {
+    border-top: 3px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__arrow::after {
+    top: -7.5px;
+    right: -2px;
+    width: 0;
+    height: 0;
+    border: 6px solid transparent;
+    border-left: 11px solid var(--web-ink);
+    border-right: 0;
+    transform: none;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__result {
+    padding-bottom: 6px;
+    border-bottom: 4px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__note {
+    border-top: 2px dashed var(--web-ink);
+    font-family: var(--web-font-mono);
+    font-size: 0.8125rem;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__lines::before,
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__lines li::before {
+    border-width: 3px;
+    border-color: var(--web-ink);
+  }
+  /* Stats: poster figures between heavy rules. */
+  .uipack-web[data-ui-style="graphical"] .uipack-web-proof__stats:not([data-count="1"]) {
+    padding-top: var(--web-s3);
+    border-top: 4px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-proof__stats:not([data-count="1"]) dt {
+    font: 600 0.75rem / 1.4 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+    color: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-proof__caveat {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.75rem;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-hero__facts {
+    border-top: 4px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-hero__facts dt {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--web-ink);
+  }
+  /* FAQ: "Q.1" stamped in orange. */
+  .uipack-web[data-ui-style="graphical"] .uipack-web-faq__q::before {
+    content: "Q" counter(uipack-faq);
+    display: inline-block;
+    min-width: 2.75rem;
+    font: 400 1.25em / 1 var(--web-font-display);
+    color: var(--web-accent-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-faq__answer {
+    padding-inline-start: 2.75rem;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-faq__list {
+    border-top: 3px solid var(--web-ink);
+  }
+  /* Product shot: a poster plate. Heavy frame, orange numbered discs, 3px leaders, reverse tags. */
+  .uipack-web[data-ui-style="graphical"] .uipack-web-shot {
+    border-width: 3px;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-shot__pin {
+    left: -13px;
+    top: -13px;
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--ui-media-ground);
+    background: var(--ui-accent);
+    box-shadow: 3px 3px 0 var(--ui-media-ground);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-shot__pin::before {
+    content: counter(uipack-shot);
+    font: 400 0.875rem / 1 var(--web-font-display);
+    color: var(--ui-on-accent);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-shot__leader {
+    stroke-width: 3;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-shot__note {
+    border: 2px solid var(--ui-media-ground);
+    background: var(--ui-media-ink);
+    color: var(--ui-media-ground);
+    box-shadow: 3px 3px 0 var(--ui-media-ground);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-shot__tag {
+    background: var(--ui-accent);
+    color: var(--ui-on-accent);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-shot__inset {
+    border: 2px solid var(--web-ink);
+    box-shadow: 4px 4px 0 var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-shot__caption {
+    border-top: 3px solid var(--web-ink);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--web-ink);
+  }
+
+  /* ===== Landing: a two-ink riso print ===== */
+  /* Bands and rules: the secondary band is a pink halftone screen; each plain section after the
+     first opens on a dotted plum rule. */
+  .uipack-web[data-ui-style="landing"] .uipack-web-section[data-tone="secondary"] {
+    background:
+      radial-gradient(circle, color-mix(in srgb, var(--ui-spot) 30%, transparent) 1.1px, transparent 1.5px) 0 0 / 8px 8px,
+      var(--web-secondary);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-section + .uipack-web-section:not([data-tone="secondary"]) {
+    background: radial-gradient(circle, var(--web-rule) 1px, transparent 1.4px) 0 0 / 6px 3px repeat-x;
+  }
+  /* Tables: the pink drum prints the head as a screen and the marked row solid; names in the
+     display face; plum dotted rules. */
+  @container uipack-table (min-width: 441px) {
+    .uipack-web[data-ui-style="landing"] .uipack-web-table thead th {
+      padding-top: 9px;
+      padding-bottom: 9px;
+      background: color-mix(in srgb, var(--ui-spot) 22%, var(--web-surface));
+      border-bottom: 1px solid var(--web-ink);
+      color: var(--web-ink);
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table thead th:first-child {
+      padding-inline-start: 10px;
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table thead th:last-child {
+      padding-inline-end: 10px;
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table :is(th, td) {
+      padding-block: 11px;
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table tbody th {
+      font: 400 1.125rem / 1.2 var(--web-font-display);
+      color: var(--web-ink);
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table tbody :is(th, td):first-child {
+      padding-inline-start: 10px;
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table tbody :is(th, td):last-child {
+      padding-inline-end: 10px;
+    }
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-table tr[data-highlight] :is(th, td) {
+    background: var(--ui-spot);
+    color: var(--ui-on-spot);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-table tr[data-highlight] :is(th, td):first-child {
+    box-shadow: none;
+  }
+  /* Lists: names in the display face, states as pink dots with an off-register keyline. */
+  .uipack-web[data-ui-style="landing"] .uipack-web-list__text strong {
+    font: 400 1.125rem / 1.2 var(--web-font-display);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-list__mark {
+    width: 12px;
+    height: 12px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ui-spot);
+    box-shadow: 2px -2px 0 -1px var(--web-surface), 2px -2px 0 0 var(--web-ink);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-list li[data-status="done"] .uipack-web-list__mark {
+    background: var(--ui-spot);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-list__meta {
+    padding: 2px 8px;
+    background: var(--web-secondary);
+    color: var(--web-ink);
+  }
+  /* The worked case: pink screens with plum keylines off register, dotted leaders ending in a
+     pink dot, results in the display face. */
+  /* An off-register pair: the pink screen is printed 4px down and right of its plum keyline. */
+  .uipack-web[data-ui-style="landing"] .uipack-web-worked__rule {
+    border: 1px solid var(--web-ink);
+    background:
+      linear-gradient(color-mix(in srgb, var(--ui-spot) 26%, transparent), color-mix(in srgb, var(--ui-spot) 26%, transparent))
+        4px 4px / 100% 100% no-repeat,
+      var(--web-surface);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-worked__arrow {
+    border-top: 2px dotted var(--web-ink);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-worked__arrow::after {
+    top: -5px;
+    right: -4px;
+    width: 9px;
+    height: 9px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ui-spot);
+    transform: none;
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-worked__lines::before,
+  .uipack-web[data-ui-style="landing"] .uipack-web-worked__lines li::before {
+    border-style: dotted;
+    border-width: 2px;
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-worked__result .uipack-web-worked__value {
+    color: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-worked__value {
+    font-size: calc(var(--web-step-5) * 1.12);
+  }
+  /* Stats: big upright figures with the pink ghost over a dotted rule. */
+  .uipack-web[data-ui-style="landing"] .uipack-web-proof__stats:not([data-count="1"]) {
+    border-top: 0;
+    background: radial-gradient(circle, var(--web-rule) 1px, transparent 1.4px) 0 0 / 6px 3px repeat-x;
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-proof__stats[data-headline] dd {
+    font-size: calc(var(--web-step-6) * 1.25);
+  }
+  /* FAQ: each question hangs a pink square. */
+  .uipack-web[data-ui-style="landing"] .uipack-web-faq__q::before {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-inline-end: 12px;
+    background: var(--ui-spot);
+    box-shadow: 2px 2px 0 -1px var(--web-bg), 2px 2px 0 0 var(--web-ink);
+    vertical-align: 0.08em;
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-faq__answer {
+    padding-inline-start: 22px;
+  }
+  /* The stamp's keyline prints off register. */
+  .uipack-web[data-ui-style="landing"] .uipack-web-hero__stamp::before {
+    translate: 3px 3px;
+  }
+  /* Product shot: a riso duotone plate. Pink pins with a paper keyline, paper notes with a pink
+     offset, the tag on a pink screen. */
+  .uipack-web[data-ui-style="landing"] .uipack-web-shot__pin {
+    border: 2px solid var(--ui-media-ink);
+    background: var(--ui-spot);
+    box-shadow: 3px 3px 0 -1px var(--ui-media-ground), 3px 3px 0 1px var(--ui-media-ink);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-shot__leader {
+    stroke-width: 1.5;
+    stroke-dasharray: 2 3;
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-shot__note {
+    background: var(--ui-media-ink);
+    color: var(--ui-media-ground);
+    box-shadow: 4px 4px 0 var(--ui-spot);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-shot__note strong {
+    font: 400 1rem / 1.1 var(--web-font-display);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-shot__tag {
+    background: var(--ui-spot);
+    color: var(--ui-on-spot);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-shot__inset {
+    border-color: var(--web-ink);
+    box-shadow: 4px 4px 0 color-mix(in srgb, var(--ui-spot) 45%, transparent);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-shot__caption {
+    border-top-style: dotted;
+  }
+  /* Below 520px every style's detail view is a plain row under the plate. */
+  @container web (max-width: 520px) {
+    .uipack-web[data-ui-style] .uipack-web-shot__inset {
+      border: 0;
+      border-top: var(--ui-rule-width) solid var(--web-rule);
+      box-shadow: none;
+    }
+  }
+}

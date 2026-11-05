@@ -230,7 +230,7 @@
        end tick at both ends); steps sit in a detail bubble (a 36px ringed circle, the number in
        mono); stats sit between vertical rules; the quote is a hairline annotation; the featured
        plan carries a 4px amber top rule; table cells are square, the peak in Prussian ink. */
-    --ui-density: 0.9;
+    --ui-density: 0.8;
     --ui-column-rule:
       linear-gradient(var(--ui-ink), var(--ui-ink)) 0 0 / 1px 11px no-repeat,
       linear-gradient(var(--ui-ink), var(--ui-ink)) 100% 0 / 1px 11px no-repeat,
@@ -292,6 +292,25 @@
     --ui-stamp-size: 2.25rem;
     --ui-stamp-shadow: inset 0 3px 0 var(--ui-accent);
 
+    /* Shared roles the web parts read (style.md): the spot fill (Technical: the accent), the
+       headline's key-phrase fill and display ghost (none here: the amber underline does it). */
+    --ui-spot: var(--ui-accent);
+    --ui-on-spot: var(--ui-on-accent);
+    --ui-em-fill: none;
+    --ui-display-shadow: none;
+    /* Product imagery (ProductShot, a hero illustration): a cyanotype, Prussian through cyan and
+       white to the one amber, so a thermal frame or a heat map reads as a blueprint print. */
+    --ui-media-ground: #0a2342;
+    --ui-media-cold: #0a2342;
+    --ui-media-mid: #1f5f9a;
+    --ui-media-warm: #b9dcf2;
+    --ui-media-hot: #f0c45a;
+    --ui-media-ink: #f3f6f9;
+    --ui-media-ramp: linear-gradient(90deg, var(--ui-media-cold), var(--ui-media-mid), var(--ui-media-warm), var(--ui-media-hot));
+    --ui-media-filter: grayscale(1) contrast(1.1);
+    --ui-media-tint: #0b2748;
+    --ui-media-blend: lighten;
+
     /* Roles whose Technical values are tuned for one medium, then --tune-* component values.
        Mechanism shades, object scenes and the docs surfaces derive from the roles above. */
     --ui-node: light-dark(#ffffff, #0d2a4f);
@@ -314,54 +333,61 @@
     --tune-letterbox: #04101f;
   }
 }
-/* Landing — the product-marketing option, with a component language of its own: "label stock".
-   Warm ivory paper and a kraft secondary band, warm near-black ink, one deep ledger-green accent
-   (no blue: Technical owns the cool palette). Editorial serif headlines from heading step 4.
-   Parts are printed forms, not floating cards: 1px ink rules, 4px corners, no drop shadows and no
-   glow; internal divisions are perforations (dashed rules, --ui-perf); steps are numbered stubs
-   ("No. 1") torn off along a perforation; stats are serif figures between perforated rules; the
-   quote is a pull quote on a green rule; the featured plan is the green-tinted ticket; buttons are
-   square-cornered ink keys; the hero stamp is a die-cut label. Guide: docs/web-principles.md. */
+/* Landing — the product-marketing option, with one idea of its own: a two-ink risograph print.
+   Everything is printed in two drums on cool off-white stock: a deep plum ink for type and keylines,
+   and fluorescent pink as the one spot colour, laid down as flat screens and printed slightly off
+   register. So: display type carries a pink ghost a hair off its plum (--ui-display-shadow); cards
+   are plum keylines over a pink screen offset by 6px; tints are halftone dot screens (the hero's
+   halftone sun, the secondary band, the closing band's edge); the primary button and the closing
+   band are solid fluorescent pink with plum type; steps are pink riso dots with an off-register
+   keyline; the headline's key phrase sits on a pink highlighter pass, not in italic. Instrument
+   Serif display set upright, IBM Plex Sans text, IBM Plex Mono labels in tracked caps.
+   Not stock SaaS (no gradients, glass or shadows), not warm editorial (no cream, no forest green,
+   no italics) and not a Cyanotype sibling (no blue, no grid). Guide: docs/system/style.md. */
 @layer uipack.tokens {
   [data-ui-style="landing"] {
-    --ui-paper: light-dark(#f6f2e8, #14130f);
-    --ui-surface: light-dark(#fffdf7, #1c1a15);
-    --ui-surface-raised: light-dark(#ffffff, #23211b);
-    --ui-surface-2: light-dark(#ece5d4, #221f19);
-    --ui-ink: light-dark(#1d1a15, #f2ece0);
+    --ui-paper: light-dark(#efeeea, #17111b);
+    --ui-surface: light-dark(#fbfaf8, #20182a);
+    --ui-surface-raised: light-dark(#ffffff, #2a2034);
+    /* The pink drum's light screen: the secondary band and every tint. */
+    --ui-surface-2: light-dark(#f6dfe8, #2c1829);
+    --ui-ink: light-dark(#2a1736, #f5eef4);
     --ui-ink-2: color-mix(in srgb, var(--ui-ink) 87%, transparent);
-    --ui-ink-3: color-mix(in srgb, var(--ui-ink) 66%, transparent);
-    --ui-line: color-mix(in srgb, var(--ui-ink) 30%, transparent);
-    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 14%, transparent);
-    --ui-accent: light-dark(#1d5a43, #8fd1ad);
+    --ui-ink-3: color-mix(in srgb, var(--ui-ink) 70%, transparent);
+    --ui-line: color-mix(in srgb, var(--ui-ink) 34%, transparent);
+    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 15%, transparent);
+    /* The accent as text and strokes: the pink printed dense. --ui-spot is the fluorescent fill. */
+    --ui-accent: light-dark(#b0115b, #ff6aa8);
     --ui-accent-stroke: var(--ui-accent);
-    --ui-on-accent: light-dark(#fffdf7, #14130f);
-    --ui-accent-surface: light-dark(#246b50, #a6dcbf);
-    --ui-accent-ink-2: light-dark(#dcebe2, #173b2d);
-    --ui-accent-line: light-dark(#5f9a80, #5e9c7f);
-    /* Request in warm slate, so the green accent is the only saturated hue in a figure. */
-    --ui-flow-request: light-dark(#5f5a52, #a39d92);
-    --ui-flow-response: light-dark(#3a9a6c, #5fd39b);
-    --ui-flow-change: light-dark(#9a63e0, #c39aff);
+    --ui-on-accent: light-dark(#ffffff, #17111b);
+    --ui-spot: light-dark(#ff4f9a, #ff4f9a);
+    --ui-on-spot: light-dark(#2a1736, #17111b);
+    --ui-accent-surface: light-dark(#ff4f9a, #ff4f9a);
+    --ui-accent-ink-2: light-dark(#3d1533, #2a0f22);
+    --ui-accent-line: light-dark(#c2286c, #b32a68);
+    /* Flows in the plum family, so the pink stays the only loud hue in a figure. */
+    --ui-flow-request: light-dark(#5e4a6e, #b9a6c9);
+    --ui-flow-response: light-dark(#2f7a6a, #6fd3b8);
+    --ui-flow-change: light-dark(#7a46c8, #c39aff);
     /* A failed or declined branch in a diagram. */
     --ui-flow-error: light-dark(#b8341f, #ff8a7a);
-    --ui-data-pos: light-dark(#1d6b4c, #3fb07f);
-    --ui-data-neg: light-dark(#b8452b, #d4623f);
-    --ui-data-context: light-dark(#8f897d, #6f6a60);
-    --ui-data-1: light-dark(#1d5a43, #8fd1ad);
-    --ui-data-2: light-dark(#a8571c, #d99a55);
-    --ui-data-3: light-dark(#5f5a52, #a39d92);
-    --ui-data-4: light-dark(#7a5c99, #b89ad6);
-    --ui-on-data-1: light-dark(#ffffff, #14130f);
-    --ui-on-data-2: light-dark(#ffffff, #14130f);
-    --ui-on-data-3: light-dark(#ffffff, #14130f);
-    --ui-on-data-4: light-dark(#ffffff, #14130f);
-    --ui-inv-paper: light-dark(#1d1a15, #f2ece0);
-    --ui-inv-surface: light-dark(#26231d, #fffdf7);
-    --ui-inv-ink: light-dark(#f2ece0, #1d1a15);
-    --ui-inv-ink-2: light-dark(#c4bcad, #4f4a41);
-    --ui-inv-line: light-dark(#4a453c, #c9c1b2);
-    --ui-inv-accent: light-dark(#8fd1ad, #1d5a43);
+    --ui-data-pos: light-dark(#2f7a5a, #5fcf9b);
+    --ui-data-neg: light-dark(#b8341f, #ff8a7a);
+    --ui-data-context: light-dark(#958c99, #6f6676);
+    --ui-data-1: light-dark(#b0115b, #ff6aa8);
+    --ui-data-2: light-dark(#2a1736, #f5eef4);
+    --ui-data-3: light-dark(#5e4a6e, #b9a6c9);
+    --ui-data-4: light-dark(#a85600, #f0a24a);
+    --ui-on-data-1: light-dark(#ffffff, #17111b);
+    --ui-on-data-2: light-dark(#ffffff, #17111b);
+    --ui-on-data-3: light-dark(#ffffff, #17111b);
+    --ui-on-data-4: light-dark(#ffffff, #17111b);
+    --ui-inv-paper: light-dark(#2a1736, #f5eef4);
+    --ui-inv-surface: light-dark(#34203f, #ffffff);
+    --ui-inv-ink: light-dark(#f5eef4, #2a1736);
+    --ui-inv-ink-2: light-dark(#d2c1d8, #5a4565);
+    --ui-inv-line: light-dark(#5a4565, #cdbcd3);
+    --ui-inv-accent: light-dark(#ff6aa8, #b0115b);
 
     --ui-font-display: "Instrument Serif", "Instrument Serif Fallback", ui-serif, Georgia, "Times New Roman", serif;
     --ui-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -371,129 +397,146 @@
     --ui-display-weight: 400;
     --ui-display-tracking: -0.01em;
     --ui-display-case: none;
-    --ui-label-tracking: 0.08em;
-    --ui-radius: 4px;
-    --ui-radius-sm: 4px;
+    --ui-label-tracking: 0.1em;
+    --ui-radius: 2px;
+    --ui-radius-sm: 2px;
     --ui-radius-xs: 2px;
-    --ui-radius-pill: 3px;
-    /* A solid bar, not glass: a printed masthead. */
+    --ui-radius-pill: 2px;
+    /* A solid bar, not glass: the print's masthead. */
     --ui-nav-fill: var(--ui-paper);
     --ui-nav-blur: none;
     --ui-stroke: 1.25;
     --ui-rule-width: 1px;
     --ui-type-ratio: 1.25;
-    --ui-measure: 65ch;
+    --ui-measure: 62ch;
     --ui-ease-settle: cubic-bezier(0.2, 0.7, 0.2, 1);
     --ui-ease-travel: cubic-bezier(0.55, 0, 0.15, 1);
     --ui-dur-quick: 160ms;
     --ui-dur-base: 320ms;
     --ui-dur-slow: 560ms;
 
-    /* Ornaments: none ambient (no grain, glow or aurora). The backdrop slot stays empty; the hero's
-       one device is the stamp, a die-cut label carrying the page's number. */
-    --ui-backdrop: none;
-    --ui-backdrop-mask: none;
-    /* The figure canvas: a faint ruled ledger. */
-    --ui-canvas-pattern: linear-gradient(var(--ui-line-soft) 1px, transparent 1px) 0 0 / 100% 24px;
-    --ui-frame-border: 1px solid var(--ui-line);
-    --ui-card-shadow: none;
-    --ui-frame-shadow: none;
-    --ui-marker-size: 0px;
+    /* Ornaments. The hero's ground is a halftone sun: a pink dot screen fading out from the
+       top-end corner. No grain, glow or aurora. */
+    --ui-backdrop: radial-gradient(circle, color-mix(in srgb, var(--ui-spot) 70%, transparent) 1.7px, transparent 2.1px) 0 0 / 9px 9px;
+    --ui-backdrop-mask: radial-gradient(circle at 92% 8%, black 0, rgb(0 0 0 / 0.55) 22%, transparent 46%);
+    --ui-backdrop-narrow: radial-gradient(circle, color-mix(in srgb, var(--ui-spot) 60%, transparent) 1.4px, transparent 1.8px) 0 0 / 8px 8px;
+    /* The figure canvas: a faint pink dot screen. */
+    --ui-canvas-pattern: radial-gradient(color-mix(in srgb, var(--ui-spot) 30%, transparent) 1px, transparent 1.3px) 0 0 / 10px 10px;
+    /* A plum keyline over a pink screen printed 6px off register. */
+    --ui-frame-border: 1px solid color-mix(in srgb, var(--ui-ink) 82%, transparent);
+    --ui-card-shadow: 6px 6px 0 color-mix(in srgb, var(--ui-spot) 38%, transparent);
+    --ui-frame-shadow: 6px 6px 0 color-mix(in srgb, var(--ui-spot) 38%, transparent);
+    --ui-marker-size: 9px;
     --ui-marker-shape: 0px;
-    --ui-marker-color: transparent;
-    /* Each section opens on a ruled line, as a printed form. */
-    --ui-section-rule: inset 0 1px 0 var(--ui-line-soft);
+    --ui-marker-color: var(--ui-spot);
+    /* Each section opens on a dotted plum rule: the halftone's edge. */
+    --ui-section-rule: none;
     --ui-grain: 0;
     --ui-glow: 0;
-    /* An ink key: no glow; it presses down on hover. */
-    --ui-cta-shadow: inset 0 -2px 0 color-mix(in srgb, black 28%, transparent);
-    --ui-cta-shadow-hover: inset 0 -3px 0 color-mix(in srgb, black 36%, transparent);
-    --ui-em-style: italic;
-    --ui-em-color: var(--ui-accent-ink);
+    /* The button: solid fluorescent pink, plum type, a plum keyline; on hover the keyline slips
+       off register. */
+    --ui-cta-shadow: inset 0 0 0 1px var(--ui-ink);
+    --ui-cta-shadow-hover: inset 0 0 0 1px var(--ui-ink), 3px 3px 0 var(--ui-ink);
+    --ui-em-style: normal;
+    --ui-em-color: var(--ui-ink);
     --ui-em-decoration: none;
-    --ui-cta-fill: var(--ui-accent);
-    --ui-on-cta: var(--ui-on-accent);
+    /* The key phrase: a pink highlighter pass behind it. */
+    --ui-em-fill: linear-gradient(
+      transparent 56%,
+      light-dark(color-mix(in srgb, var(--ui-spot) 72%, transparent), color-mix(in srgb, var(--ui-spot) 45%, transparent)) 56% 90%,
+      transparent 90%
+    );
+    /* Display type: the pink drum's ghost, a hair off register. */
+    --ui-display-shadow: 0.03em 0.025em 0 color-mix(in srgb, var(--ui-spot) 78%, transparent);
+    --ui-cta-fill: var(--ui-spot);
+    --ui-on-cta: var(--ui-on-spot);
     --ui-star-fill: 1;
-    --ui-display-scale: 1.05;
+    --ui-display-scale: 1.08;
 
-    /* Web closing band (ClosingCta): the ledger green with an ivory button, a perforation along
-       the top edge. */
-    --ui-band-fill: light-dark(#1d5a43, #173b2d);
-    --ui-band-ink: light-dark(#f6f2e8, #f2ece0);
-    --ui-band-ink-2: light-dark(#cfe3d7, #c3d9cb);
-    --ui-band-cta: light-dark(#f6f2e8, #f2ece0);
-    --ui-on-band-cta: light-dark(#1d1a15, #14130f);
-    --ui-band-pattern: repeating-linear-gradient(
-        90deg,
-        color-mix(in srgb, var(--ui-band-ink) 55%, transparent) 0 6px,
-        transparent 6px 12px
-      )
-      0 12px / 100% 1px no-repeat;
-    --ui-backdrop-narrow: none;
+    /* Product imagery (ProductShot, a hero illustration): a riso duotone, plum to pink to paper. */
+    --ui-media-ground: #2a1736;
+    --ui-media-cold: #2a1736;
+    --ui-media-mid: #7d2468;
+    --ui-media-warm: #ff4f9a;
+    --ui-media-hot: #ffe2ee;
+    --ui-media-ink: #fbfaf8;
+    --ui-media-ramp: linear-gradient(90deg, var(--ui-media-cold), var(--ui-media-mid), var(--ui-media-warm), var(--ui-media-hot));
+    --ui-media-filter: grayscale(1) contrast(1.15);
+    --ui-media-tint: var(--ui-spot);
+    --ui-media-blend: multiply;
+
+    /* Web closing band (ClosingCta): solid fluorescent pink, plum type, a plum button, two rows
+       of halftone dots along the top edge. */
+    --ui-band-fill: light-dark(#ff4f9a, #ff4f9a);
+    --ui-band-ink: light-dark(#2a1736, #17111b);
+    --ui-band-ink-2: light-dark(#3d1533, #2a0f22);
+    --ui-band-cta: light-dark(#2a1736, #17111b);
+    --ui-on-band-cta: light-dark(#fbfaf8, #f5eef4);
+    --ui-band-pattern: radial-gradient(circle, color-mix(in srgb, var(--ui-band-ink) 55%, transparent) 1.6px, transparent 2px) 0 10px / 9px 9px repeat-x;
     --ui-section-index: none;
     --ui-corner-marks: none;
 
-    /* Component treatment on the web (docs/system/style.md, "Treatment roles"): label stock. Ruled
-       ivory forms with 1px ink edges and no shadow; steps are "No. 1" stubs over a perforation that
-       runs edge to edge; stats are serif figures between dashed rules; the quote is a pull quote on
-       a 3px green rule with no card; the featured plan is the green-tinted ticket; table rows and
-       internal divisions are perforated; cells are kraft chips. */
-    --ui-density: 1;
-    --ui-perf: dashed;
+    /* Component treatment on the web (docs/system/style.md, "Treatment roles"): the riso print.
+       Airy rhythm; dotted internal rules; steps are pink riso dots with an off-register keyline;
+       stats sit between dotted rules; the quote is a large upright pull quote with a pink mark; the
+       featured plan is printed on the pink screen; tables have a pink header screen and the marked
+       row printed solid pink. */
+    --ui-density: 1.12;
+    --ui-perf: dotted;
     --ui-column-rule: none;
     --ui-column-rule-gap: 0px;
     --ui-card-fill: var(--ui-surface);
     --ui-card-pad: 1.75rem;
     --ui-num-font: var(--ui-font-display);
-    --ui-num-size: 1.875rem;
+    --ui-num-size: 1.625rem;
     --ui-num-weight: 400;
-    --ui-num-prefix: "No.\00a0";
+    --ui-num-prefix: "";
     --ui-num-pad: none;
-    --ui-num-rule: 1px dashed var(--ui-line);
-    --ui-num-color: var(--ui-accent-ink);
-    --ui-num-fill: transparent;
-    --ui-num-ring: none;
-    --ui-num-box: auto;
-    --ui-num-bleed: 1;
-    --ui-num-gap: 0.875rem;
-    --ui-num-display: block;
-    --ui-stat-divider: 1px dashed var(--ui-line);
+    --ui-num-rule: 0 solid transparent;
+    --ui-num-color: var(--ui-on-spot);
+    --ui-num-fill: var(--ui-spot);
+    --ui-num-ring: 4px -3px 0 -1px var(--ui-card-fill), 4px -3px 0 0 var(--ui-ink);
+    --ui-num-box: 2.75rem;
+    --ui-num-bleed: 0;
+    --ui-num-gap: 0px;
+    --ui-num-display: grid;
+    --ui-stat-divider: 1px dotted var(--ui-line);
     --ui-quote-fill: transparent;
     --ui-quote-ink: var(--ui-ink);
     --ui-quote-ink-2: var(--ui-ink-3);
     --ui-quote-line: transparent;
-    --ui-quote-mark: var(--ui-accent-ink);
+    --ui-quote-mark: var(--ui-spot);
     --ui-quote-face: var(--ui-font-display);
     --ui-quote-weight: 400;
     --ui-quote-case: none;
-    --ui-quote-size: 2.125rem;
-    --ui-quote-rule: inset 3px 0 0 var(--ui-accent);
+    --ui-quote-size: 2.25rem;
+    --ui-quote-rule: 0 0 transparent;
     --ui-quote-shadow: 0 0 transparent;
-    --ui-plan-featured-border: var(--ui-accent);
-    --ui-plan-featured-ring: inset 0 0 0 1px var(--ui-accent);
-    --ui-plan-featured-fill: color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface));
+    --ui-plan-featured-border: var(--ui-ink);
+    --ui-plan-featured-ring: 6px 6px 0 var(--ui-spot);
+    --ui-plan-featured-fill: var(--ui-surface-2);
     --ui-cell-fill: var(--ui-surface-2);
     --ui-cell-ink: var(--ui-ink);
     --ui-cell-line: color-mix(in srgb, var(--ui-ink) 22%, transparent);
-    --ui-cell-peak: var(--ui-accent);
-    --ui-on-cell-peak: var(--ui-on-accent);
+    --ui-cell-peak: var(--ui-spot);
+    --ui-on-cell-peak: var(--ui-on-spot);
     --ui-cell-off-ink: var(--ui-ink-3);
     --ui-cell-radius: 2px;
-    /* No traffic lights: a product view is a printed panel with a ruled head. */
+    /* No traffic lights: a product view is a printed panel with a pink head screen. */
     --ui-window-dots: none;
-    --ui-window-bar: transparent;
+    --ui-window-bar: var(--ui-surface-2);
     --ui-web-flow-request: var(--ui-flow-request);
-    /* Stamp (StarHero stamp): a die-cut label, perforated inner edge, tilted as if stuck on. */
-    --ui-stamp-fill: var(--ui-surface);
-    --ui-stamp-ink: var(--ui-ink);
-    --ui-stamp-accent: var(--ui-accent-ink);
-    --ui-stamp-border: 1px solid var(--ui-ink);
-    --ui-stamp-inner: 1px dashed var(--ui-line);
-    --ui-stamp-radius: 6px;
-    --ui-stamp-rotate: -3deg;
+    /* Stamp (StarHero stamp): a fluorescent-pink sticker, plum type, its keyline off register. */
+    --ui-stamp-fill: var(--ui-spot);
+    --ui-stamp-ink: var(--ui-on-spot);
+    --ui-stamp-accent: var(--ui-on-spot);
+    --ui-stamp-border: 0 solid transparent;
+    --ui-stamp-inner: 1.5px solid var(--ui-on-spot);
+    --ui-stamp-radius: 18px;
+    --ui-stamp-rotate: 5deg;
     --ui-stamp-face: var(--ui-font-display);
     --ui-stamp-case: none;
-    --ui-stamp-size: 2.75rem;
+    --ui-stamp-size: 3rem;
     --ui-stamp-shadow: none;
 
     --ui-accent-ink: var(--ui-accent);
@@ -626,7 +669,7 @@
     /* Component treatment on the web: a poster. Steps are giant Anton numerals in the accent; stats
        sit between 2px ink rules; the quote is an orange poster block in caps with a hard shadow;
        the featured plan casts an orange shadow; table cells are ink-ruled boxes. */
-    --ui-density: 0.95;
+    --ui-density: 1;
     --ui-column-rule: none;
     --ui-column-rule-gap: 0px;
     --ui-card-fill: var(--ui-surface);
@@ -683,6 +726,25 @@
     --ui-stamp-case: uppercase;
     --ui-stamp-size: 3.25rem;
     --ui-stamp-shadow: 6px 6px 0 var(--ui-ink);
+
+    /* Shared roles the web parts read (style.md): the spot fill is the accent; no key-phrase fill
+       or display ghost (the accent colour does it). */
+    --ui-spot: var(--ui-accent);
+    --ui-on-spot: var(--ui-on-accent);
+    --ui-em-fill: none;
+    --ui-display-shadow: none;
+    /* Product imagery (ProductShot, a hero illustration): poster duotone, ink through warm grey
+       to the signal orange and a pale peach. */
+    --ui-media-ground: #111111;
+    --ui-media-cold: #111111;
+    --ui-media-mid: #57554f;
+    --ui-media-warm: #f24a00;
+    --ui-media-hot: #ffd8c2;
+    --ui-media-ink: #f1eee6;
+    --ui-media-ramp: linear-gradient(90deg, var(--ui-media-cold), var(--ui-media-mid), var(--ui-media-warm), var(--ui-media-hot));
+    --ui-media-filter: grayscale(1) contrast(1.35);
+    --ui-media-tint: transparent;
+    --ui-media-blend: normal;
 
     --ui-node: var(--ui-surface);
     --ui-line-solid: var(--ui-line);
@@ -1121,6 +1183,8 @@
     font-weight: var(--web-display-weight);
     text-transform: var(--web-display-case);
     font-synthesis-weight: none;
+    /* Landing's off-register pink ghost; none elsewhere. */
+    text-shadow: var(--ui-display-shadow, none);
   }
   .uipack-web-heading a {
     color: inherit;
@@ -1513,7 +1577,7 @@
   }
 
   /* Stamp (StarHero stamp): the page's one number, part of the copy. The style paints it
-     (--ui-stamp-*): Graphical a postmark disc, Technical a revision tag, Landing a die-cut label.
+     (--ui-stamp-*): Graphical a postmark disc, Technical a revision tag, Landing a pink riso sticker.
      A stacked hero wears it on the empty end side of the headline (absolutely placed, so it moves
      no box); a split hero sets it under the actions; below 720px it is a one-line label there. */
   .uipack-web-hero__copy {
@@ -1563,26 +1627,97 @@
     letter-spacing: var(--web-label-tracking);
     text-transform: uppercase;
   }
-  /* Split hero: beside the actions on the copy column's end edge, its foot on theirs; the actions
-     keep clear of it (they wrap), so the copy column grows by nothing. */
+  /* The figure sizes itself to the value (--stamp-len, set from its characters), so "64%" or
+     "£40" clears the inner ring; the label is clamped at three lines. */
+  .uipack-web-hero__stamp-value {
+    font-size: min(var(--ui-stamp-size), calc(4.6rem / (var(--stamp-len, 3) * 0.62)));
+  }
+  .uipack-web-hero__stamp-label {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
+  /* Hero facts: a ruled row of two or three plain facts under the actions. */
+  .uipack-web-hero__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+    gap: var(--web-s2);
+    width: 100%;
+    max-width: 34rem;
+    margin: var(--web-s3) 0 0;
+    padding-top: var(--web-s2);
+    border-top: var(--ui-rule-width) var(--ui-perf, solid) var(--web-rule);
+    text-align: start;
+  }
+  .uipack-web-hero__facts > div {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: 4px;
+    min-width: 0;
+  }
+  .uipack-web-hero__facts > div + div {
+    padding-inline-start: var(--web-s2);
+    border-inline-start: var(--ui-stat-divider, 0 solid transparent);
+  }
+  .uipack-web-hero__facts dd {
+    margin: 0;
+    font: var(--web-display-weight) calc(var(--web-step-2) * var(--web-display-scale)) / 1.05 var(--web-font-display);
+    letter-spacing: var(--web-display-tracking);
+    text-transform: var(--web-display-case);
+    text-shadow: var(--ui-display-shadow, none);
+    font-synthesis-weight: none;
+  }
+  .uipack-web-hero__facts dt {
+    font: 400 var(--web-step--1) / 1.4 var(--web-font-mono);
+    color: var(--web-ink-low);
+  }
+  @container web (max-width: 520px) {
+    .uipack-web-hero__facts {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: var(--web-s1);
+    }
+    .uipack-web-hero__facts > div + div {
+      padding-inline-start: 12px;
+    }
+    .uipack-web-hero__facts dd {
+      font-size: calc(var(--web-step-1) * var(--web-display-scale));
+    }
+    .uipack-web-hero__facts dt {
+      font-size: 0.75rem;
+    }
+  }
+  /* Split hero: the stamp is stuck on the proof's top-end corner (the media's, when there is one),
+     overhanging it by 1.25rem, as a sticker on a print. It moves no box. */
+  .uipack-web-hero__proof {
+    position: relative;
+  }
+  .uipack-web-hero__media {
+    min-width: 0;
+    margin-bottom: var(--web-s3);
+  }
   @container web (min-width: 1024px) {
-    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__stamp {
-      top: auto;
-      bottom: 0;
-      width: 8rem;
-      min-height: 8rem;
+    .uipack-web-hero__proof > .uipack-web-hero__stamp {
+      top: -1.25rem;
+      right: -1.25rem;
+      width: 7.75rem;
+      min-height: 7.75rem;
       padding: 12px;
     }
-    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__stamp-value {
-      font-size: calc(var(--ui-stamp-size) * 0.8);
+    .uipack-web-hero__proof > .uipack-web-hero__stamp .uipack-web-hero__stamp-value {
+      font-size: min(calc(var(--ui-stamp-size) * 0.8), calc(4.6rem / (var(--stamp-len, 3) * 0.62)));
     }
-    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__stamp-label {
+    .uipack-web-hero__proof > .uipack-web-hero__stamp .uipack-web-hero__stamp-label {
+      max-width: 9em;
       font-size: 0.625rem;
     }
-    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__actions:has(+ .uipack-web-hero__stamp) {
-      min-height: 8rem;
-      align-content: end;
-      padding-inline-end: calc(8rem + var(--web-s3));
+  }
+  @container web (max-width: 1023px) {
+    .uipack-web-hero__proof > .uipack-web-hero__stamp {
+      margin: 0 0 var(--web-s2);
     }
   }
   @container web (max-width: 1023px) {
@@ -1635,6 +1770,10 @@
     text-decoration: var(--ui-em-decoration, none);
     text-underline-offset: 0.14em;
     text-decoration-skip-ink: none;
+    /* Landing's highlighter pass behind the phrase; none elsewhere. */
+    background: var(--ui-em-fill, none);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
   }
   .uipack-web-star__area {
     opacity: var(--ui-star-fill, 1);
@@ -2746,6 +2885,7 @@
   /* Display numerals: proof values, prices, step numbers. Tabular where the face has them. */
   .uipack-web :is(.uipack-web-proof__value, .uipack-web-proof__stats dd, .uipack-web-plan__price),
   .uipack-web .uipack-web-feature__num {
+    text-shadow: var(--ui-display-shadow, none);
     font-family: var(--web-font-display);
     font-weight: var(--web-display-weight);
     letter-spacing: var(--web-display-tracking);
@@ -3239,9 +3379,10 @@
    Graphical ink-ruled boxes and Landing soft tinted chips from the same rows. */
 @layer uipack.base {
   .uipack-web-window {
-    display: grid;
-    /* Stretched by a taller neighbour in a grid row, the rows stay packed at the top. */
-    align-content: start;
+    /* A column: stretched by a taller neighbour in a grid row, the body takes the extra height
+       (a list inside spreads its rows over it), so no window ends in an empty box. */
+    display: flex;
+    flex-direction: column;
     min-width: 0;
     overflow: hidden;
     border: var(--web-frame-border);
@@ -3329,8 +3470,18 @@
     white-space: nowrap;
   }
   .uipack-web-window__body {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
     min-width: 0;
     padding: var(--web-s2) var(--web-s3);
+  }
+  .uipack-web-window__body > * {
+    min-width: 0;
+  }
+  .uipack-web-grid__item > .uipack-web-window .uipack-web-window__body > .uipack-web-list:only-child {
+    flex: 1 0 auto;
+    grid-auto-rows: 1fr;
   }
   /* A lone footer is a caption of the output, not a ruled band of its own. */
   .uipack-web-window__caption {
@@ -3793,6 +3944,9 @@
   .uipack-web-worked__lines {
     position: relative;
     display: grid;
+    /* One set of columns for every line (subgrid), so the rule boxes share one width and the
+       results one edge. */
+    grid-template-columns: minmax(0, 1fr) minmax(2rem, 4rem) minmax(7.5rem, max-content);
     gap: var(--web-s2);
     margin: 0;
     padding: 0 0 0 var(--web-s3);
@@ -3810,9 +3964,9 @@
   .uipack-web-worked__lines li {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(2rem, 4rem) minmax(7.5rem, max-content);
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
     align-items: center;
-    gap: var(--web-s2);
   }
   .uipack-web-worked__lines li::before {
     content: "";
@@ -3875,9 +4029,9 @@
       padding-left: var(--web-s2);
     }
     /* The result column fits its value with a unit ("4.8 kg"); the rule takes what is left. */
-    .uipack-web-worked__lines li {
+    .uipack-web-worked__lines {
       grid-template-columns: minmax(0, 1fr) minmax(5.5rem, max-content);
-      gap: 12px;
+      column-gap: 12px;
     }
     .uipack-web-worked__lines li::before {
       left: calc(-1 * var(--web-s2));
@@ -4079,6 +4233,350 @@
     }
   }
 }
+
+/* ---------- Product shot, key columns, proof caveat, section aside ---------- */
+@layer uipack.base {
+  /* ProductShot: a plate (the picture, its pins, readouts and detail view) over a caption strip.
+     The style draws the frame, pins, leaders and notes (web-styles.css); here is the geometry. */
+  .uipack-web-shot {
+    display: grid;
+    min-width: 0;
+    margin: 0;
+    border: var(--web-frame-border);
+    border-radius: var(--web-radius);
+    background: var(--web-surface);
+    box-shadow: var(--web-shadow);
+    text-align: start;
+  }
+  .uipack-web-shot__stage {
+    position: relative;
+    min-width: 0;
+  }
+  .uipack-web-shot__plate {
+    position: relative;
+    aspect-ratio: var(--shot-aspect, 5 / 2);
+    overflow: hidden;
+    border-radius: var(--web-radius-inner) var(--web-radius-inner) 0 0;
+    background: var(--ui-media-ground);
+    color: var(--ui-media-ink);
+  }
+  .uipack-web-shot__media {
+    position: absolute;
+    inset: 0;
+  }
+  .uipack-web-shot__media > :is(svg, img, canvas, video) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* A photo takes the style's media treatment: Technical a cyanotype print, Graphical a hard
+     greyscale, Landing a riso duotone. A role-painted drawing already speaks the style. */
+  .uipack-web-shot__media[data-kind="image"] img {
+    filter: var(--ui-media-filter, none);
+  }
+  .uipack-web-shot__media[data-kind="image"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--ui-media-tint, transparent);
+    mix-blend-mode: var(--ui-media-blend, normal);
+    pointer-events: none;
+  }
+  .uipack-web-shot__hud {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: grid;
+    justify-items: start;
+    gap: 6px;
+    max-width: 45%;
+  }
+  .uipack-web-shot__tag {
+    padding: 3px 7px;
+    background: var(--ui-media-ink);
+    color: var(--ui-media-ground);
+    font: 600 0.6875rem / 1.3 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+  }
+  .uipack-web-shot__readouts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin: 0;
+    padding: 3px 7px;
+    background: color-mix(in srgb, var(--ui-media-ground) 72%, transparent);
+    font: 500 0.75rem / 1.3 var(--web-font-mono);
+  }
+  .uipack-web-shot__readouts > div {
+    display: flex;
+    gap: 6px;
+  }
+  .uipack-web-shot__readouts dt {
+    opacity: 0.8;
+  }
+  .uipack-web-shot__readouts dd {
+    margin: 0;
+    font-weight: 600;
+  }
+  /* Callouts: a pin at (x, y), an elbow leader, a note at the leader's end. Each is a zero-size
+     anchor, so nothing in the plate moves. */
+  .uipack-web-shot__callouts {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    pointer-events: none;
+    counter-reset: uipack-shot;
+  }
+  .uipack-web-shot__callouts li {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 0;
+    height: 0;
+    counter-increment: uipack-shot;
+    --leader-w: 3rem;
+    --leader-h: 1.5rem;
+  }
+  .uipack-web-shot__pin {
+    position: absolute;
+    left: -8px;
+    top: -8px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--ui-media-ink);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--ui-media-ground) 60%, transparent);
+  }
+  .uipack-web-shot__leader {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: var(--leader-w);
+    height: var(--leader-h);
+    overflow: visible;
+    fill: none;
+    stroke: var(--ui-media-ink);
+    stroke-width: 1.25;
+  }
+  .uipack-web-shot__note {
+    position: absolute;
+    left: var(--leader-w);
+    top: calc(-1 * var(--leader-h));
+    translate: 6px -50%;
+    display: grid;
+    gap: 1px;
+    width: max-content;
+    max-width: 13rem;
+    padding: 5px 8px;
+    background: var(--ui-media-ink);
+    color: var(--ui-media-ground);
+    font: 600 0.75rem / 1.25 var(--web-font-text);
+  }
+  .uipack-web-shot__note span {
+    font: 500 0.75rem / 1.25 var(--web-font-mono);
+  }
+  .uipack-web-shot__callouts li[data-side="start"] .uipack-web-shot__leader {
+    left: auto;
+    right: 0;
+    scale: -1 1;
+  }
+  .uipack-web-shot__callouts li[data-side="start"] .uipack-web-shot__note {
+    left: auto;
+    right: var(--leader-w);
+    translate: -6px -50%;
+  }
+  .uipack-web-shot__callouts li[data-rise="down"] .uipack-web-shot__leader {
+    bottom: auto;
+    top: 0;
+    scale: 1 -1;
+  }
+  .uipack-web-shot__callouts li[data-rise="down"][data-side="start"] .uipack-web-shot__leader {
+    scale: -1 -1;
+  }
+  .uipack-web-shot__callouts li[data-rise="down"] .uipack-web-shot__note {
+    top: var(--leader-h);
+  }
+  .uipack-web-shot__inset {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    display: grid;
+    gap: 4px;
+    width: 21%;
+    padding: 6px;
+    border: 1px solid var(--web-rule);
+    background: var(--web-surface);
+    color: var(--web-ink);
+  }
+  .uipack-web-shot__inset-label {
+    font: 600 0.625rem / 1.2 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+    color: var(--web-ink-low);
+  }
+  @container web (max-width: 520px) {
+    .uipack-web-shot__inset-art {
+      order: -1;
+    }
+  }
+  .uipack-web-shot__inset-art {
+    aspect-ratio: 3 / 2;
+    line-height: 0;
+  }
+  .uipack-web-shot__inset-art > svg {
+    width: 100%;
+    height: 100%;
+  }
+  .uipack-web-shot__caption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px var(--web-s2);
+    padding: 10px var(--web-s2);
+    border-top: var(--ui-rule-width) solid var(--web-rule);
+    font: 400 var(--web-step--1) / 1.4 var(--web-font-mono);
+    color: var(--web-ink-medium);
+  }
+  .uipack-web-shot__scale {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--web-ink-low);
+    white-space: nowrap;
+  }
+  .uipack-web-shot__scale i {
+    width: 72px;
+    height: 8px;
+    background: var(--ui-media-ramp);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--web-ink) 25%, transparent);
+  }
+  @container web (max-width: 520px) {
+    .uipack-web-shot__callouts li {
+      --leader-w: 1.75rem;
+      --leader-h: 1rem;
+    }
+    .uipack-web-shot__note {
+      max-width: 9rem;
+      padding: 3px 6px;
+      font-size: 0.6875rem;
+    }
+    /* The detail view leaves the plate for a row under it: label, then the drawing. */
+    .uipack-web-shot__inset {
+      position: static;
+      grid-template-columns: 6.5rem minmax(0, 1fr);
+      align-items: center;
+      column-gap: var(--web-s2);
+      width: auto;
+      padding: 8px var(--web-s2);
+      border: 0;
+      border-top: var(--ui-rule-width) solid var(--web-rule);
+      box-shadow: none;
+    }
+    .uipack-web-shot__hud {
+      top: 8px;
+      left: 8px;
+    }
+    .uipack-web-shot__readouts {
+      font-size: 0.6875rem;
+    }
+  }
+
+  /* DataTable key column (priority "key"): below 440px it is never scrolled away. In fit and
+     scroll mode it is pinned to the end edge; in stack mode it sits on the name's line, large. */
+  @container uipack-table (max-width: 440px) {
+    .uipack-web-table:not([data-narrow="stack"]) [data-priority="key"] {
+      position: sticky;
+      right: 0;
+      z-index: 1;
+      background: var(--web-surface);
+      box-shadow: -10px 0 10px -8px color-mix(in srgb, var(--web-ink) 30%, transparent);
+    }
+    .uipack-web-table[data-narrow="stack"] tr:has(> [data-priority="key"]) > th {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .uipack-web-table[data-narrow="stack"] tr > td[data-priority="key"] {
+      grid-column: 2;
+      grid-row: 1;
+      justify-content: flex-end;
+      align-self: baseline;
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--web-ink);
+    }
+    .uipack-web-table[data-narrow="stack"] td[data-priority="key"] .uipack-web-table__label {
+      display: none;
+    }
+  }
+
+  /* Proof: a caveat under the numbers; three or four stats as the headline row. */
+  .uipack-web-proof__caveat {
+    margin: 0;
+    font: 400 var(--web-step--1) / 1.5 var(--web-font-mono);
+    color: var(--web-ink-low);
+  }
+  .uipack-web .uipack-web-proof__stats[data-headline] {
+    grid-template-columns: repeat(var(--stats, 3), minmax(0, 1fr));
+    gap: var(--web-s3);
+  }
+  .uipack-web .uipack-web-proof__stats[data-headline] dd {
+    font-size: calc(var(--web-step-6) * var(--web-display-scale));
+  }
+  .uipack-web .uipack-web-proof__stats[data-headline] dt {
+    max-width: 18ch;
+    font: 400 var(--web-step-0) / 1.4 var(--web-font-text);
+    letter-spacing: 0;
+    color: var(--web-ink-medium);
+  }
+  @container web (max-width: 720px) {
+    .uipack-web .uipack-web-proof__stats[data-headline] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--web-s3) var(--web-s2);
+    }
+    .uipack-web .uipack-web-proof__stats[data-headline] > div {
+      display: flex;
+      flex-direction: column-reverse;
+      justify-content: flex-end;
+      gap: var(--web-s1);
+      padding: 0;
+      border: 0;
+    }
+    .uipack-web .uipack-web-proof__stats[data-headline] > div:nth-child(odd) {
+      padding-inline-start: 0;
+    }
+    .uipack-web .uipack-web-proof__stats[data-headline] > div:nth-child(even) {
+      border-inline-start: var(--ui-stat-divider, 0 solid transparent);
+      padding-inline-start: var(--web-s2);
+    }
+    .uipack-web .uipack-web-proof__stats[data-headline] dd {
+      order: 0;
+      font-size: calc(var(--web-step-5) * var(--web-display-scale));
+    }
+    .uipack-web .uipack-web-proof__stats[data-headline] dt {
+      font-size: var(--web-step--1);
+    }
+  }
+
+  /* Section aside: more for the head (a note, a CTA). In the FAQ the head column travels with
+     the questions, so its CTA stays in view. */
+  .uipack-web-section__aside {
+    display: grid;
+    justify-items: start;
+    gap: var(--web-s2);
+    margin-top: var(--web-s1);
+  }
+  @container web (min-width: 1024px) {
+    .uipack-web-faq .uipack-web-section__head {
+      position: sticky;
+      top: var(--web-scroll-offset);
+    }
+  }
+}
 /* uipack/web ornament slots. A layout leaves named slots; a style paints them through its roles
    (src/styles: --ui-backdrop, --ui-marker-*, --ui-section-rule…). Nothing here takes space or
    moves a box, so a style swap keeps every region, box and the reading order: the backdrop is an
@@ -4243,6 +4741,666 @@
       :is(.uipack-web-feature, .uipack-web-spotlight)
       > :not(:first-child):not(.uipack-web-feature__icon) {
       grid-column: 2;
+    }
+  }
+}
+
+/* ---------- Component treatments: one markup, three drawings ----------
+   Each style draws the same parts in its own vernacular, on the same boxes and in the same places
+   (docs/system/style.md, "Component treatments"): Technical an engineering drawing (tables as a
+   drawing schedule, the worked case as a dimensioned detail with numbered balloons, lists as
+   drawing notes, stats in a title block), Graphical a poster and its tickets (tables and lists as
+   stamped receipts with heavy rules, the worked case as a receipt sum), Landing a two-ink riso
+   print (pink header screens, the marked row printed solid pink, off-register keylines, halftone
+   bands). They key on the page's style (WebPage / WebSurface data-ui-style); a nested style scope
+   gets that style's roles but keeps the page's treatment. Only borders, fills, faces, pseudo
+   content and inner padding change: never a box's place, a column count or the reading order. */
+@layer uipack.ornaments {
+  /* Display ghost on the wordmark, worked figures and quote (Landing only paints it). */
+  .uipack-web-brand,
+  .uipack-web-worked__value,
+  .uipack-web-quote blockquote p {
+    text-shadow: var(--ui-display-shadow, none);
+  }
+  .uipack-web-faq__list {
+    counter-reset: uipack-faq;
+  }
+  .uipack-web-faq__item {
+    counter-increment: uipack-faq;
+  }
+
+  /* ===== Technical: an engineering drawing ===== */
+  /* Tables: a drawing schedule. Ruled on every cell, an ink frame, a tinted head, item numbers. */
+  @container uipack-table (min-width: 441px) {
+    .uipack-web[data-ui-style="technical"] .uipack-web-table table {
+      border: 1px solid var(--web-ink);
+      counter-reset: uipack-row;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table :is(th, td),
+    .uipack-web[data-ui-style="technical"] .uipack-web-table :is(th, td):is(:first-child, :last-child) {
+      padding: 7px 10px;
+      border: 1px solid var(--web-hairline);
+      font-size: 0.875rem;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table thead th {
+      padding-top: 8px;
+      background: var(--web-secondary);
+      border-bottom: 1px solid var(--web-ink);
+      color: var(--web-ink-medium);
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table tbody tr {
+      counter-increment: uipack-row;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table tbody th::before {
+      content: counter(uipack-row, decimal-leading-zero);
+      display: inline-block;
+      width: 1.75rem;
+      color: var(--web-ink-low);
+      font-size: 0.6875rem;
+    }
+    .uipack-web[data-ui-style="technical"] .uipack-web-table tr[data-highlight] :is(th, td):first-child {
+      padding-inline-start: 10px;
+    }
+  }
+  /* The worked case: a dimensioned detail. Drafting film under it, each rule a ruled callout with
+     a numbered balloon, each arrow a dimension line (an extension tick, a solid head), each result
+     a boxed dimension figure, the note a title-block cell. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked {
+    background: var(--ui-corner-marks), var(--ui-canvas-pattern), var(--web-surface);
+    counter-reset: uipack-worked;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__lines li {
+    counter-increment: uipack-worked;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__given {
+    padding: 10px 12px;
+    border: 1px dashed var(--web-ink-low);
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__rule {
+    position: relative;
+    padding: 8px 12px 8px 42px;
+    border: 1px solid var(--web-ink);
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__rule::before {
+    content: counter(uipack-worked);
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    translate: 0 -50%;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--web-ink);
+    font: 600 0.6875rem / 1 var(--web-font-mono);
+    color: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__arrow {
+    border-top: 1px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__arrow::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: -6px;
+    height: 11px;
+    border-left: 1px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__arrow::after {
+    top: -4px;
+    right: -1px;
+    width: 0;
+    height: 0;
+    border: 4px solid transparent;
+    border-left: 9px solid var(--web-ink);
+    border-right: 0;
+    transform: none;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__result {
+    padding: 6px 10px;
+    border: 1px solid var(--web-ink);
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__note {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    padding: 8px 10px;
+    border: 1px solid var(--web-rule);
+    background: var(--web-surface);
+    font-size: 0.8125rem;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-worked__note::before {
+    content: "NOTE";
+    font: 600 0.6875rem / 1.6 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    color: var(--web-accent-ink);
+  }
+  /* Lists: drawing notes, numbered in mono; values in a ruled cell. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-list {
+    counter-reset: uipack-note;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list li {
+    counter-increment: uipack-note;
+    padding: 9px 0;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list__text strong::before {
+    content: counter(uipack-note) ".";
+    display: inline-block;
+    min-width: 1.5rem;
+    font: 600 0.75rem / 1 var(--web-font-mono);
+    color: var(--web-accent-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list__text > span {
+    padding-inline-start: 1.5rem;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list__meta {
+    padding: 3px 7px;
+    border: 1px solid var(--web-rule);
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-list__mark {
+    border-radius: 0;
+  }
+  /* Stats: a title block. Ruled cells in an ink frame, the label first in mono caps. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) {
+    gap: 1px;
+    padding: 0;
+    border: 1px solid var(--web-ink);
+    background: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) > div {
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 16px 16px;
+    border: 0;
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats:not([data-count="1"]) dt {
+    order: -1;
+    max-width: none;
+    font: 500 0.6875rem / 1.4 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+    color: var(--web-ink-low);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-proof__stats[data-headline] dd {
+    font-size: calc(var(--web-step-5) * var(--web-display-scale));
+  }
+  /* Hero facts: a title block strip, ruled cells in an ink frame, the label first. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-hero__facts {
+    gap: 1px;
+    padding: 0;
+    border: 1px solid var(--web-ink);
+    background: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-hero__facts > div {
+    flex-direction: column;
+    padding: 8px 12px 10px;
+    border: 0;
+    background: var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-hero__facts dt {
+    font-size: 0.6875rem;
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+  }
+  /* FAQ: each question carries its item number, as a drawing's note does. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-faq__q::before {
+    content: counter(uipack-faq, decimal-leading-zero);
+    display: inline-block;
+    min-width: 2.25rem;
+    font: 600 0.75rem / 1 var(--web-font-mono);
+    color: var(--web-accent-ink);
+    vertical-align: 0.12em;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-faq__answer {
+    padding-inline-start: 2.25rem;
+  }
+  /* Product shot: a drawing sheet. Numbered balloons on the pins, leaders landing on a shoulder,
+     notes as Prussian tags, the caption a title-block strip. */
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__plate {
+    box-shadow: inset 0 0 0 6px var(--web-surface), inset 0 0 0 7px var(--web-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__pin {
+    left: -11px;
+    top: -11px;
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--ui-media-ground);
+    background: var(--ui-media-ink);
+    box-shadow: none;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__pin::before {
+    content: counter(uipack-shot);
+    font: 600 0.6875rem / 1 var(--web-font-mono);
+    color: var(--ui-media-ground);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__leader {
+    stroke-width: 1;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__note {
+    border: 1px solid var(--ui-media-ink);
+    background: var(--ui-media-ground);
+    color: var(--ui-media-ink);
+    font-family: var(--web-font-mono);
+    letter-spacing: 0.02em;
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__tag {
+    border: 1px solid var(--ui-media-ink);
+    background: var(--ui-media-ground);
+    color: var(--ui-media-ink);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__inset {
+    border-color: var(--web-ink);
+    background: var(--ui-canvas-pattern), var(--web-surface);
+  }
+  .uipack-web[data-ui-style="technical"] .uipack-web-shot__caption {
+    border-top-color: var(--web-ink);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    font-size: 0.75rem;
+  }
+
+  /* ===== Graphical: a poster and its tickets ===== */
+  /* Tables: a stamped receipt. Heavy rules top and bottom, perforated rows, the marked row
+     printed in reverse with an orange tab, item numbers stamped in orange. */
+  @container uipack-table (min-width: 441px) {
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table table {
+      border-top: 4px solid var(--web-ink);
+      border-bottom: 4px solid var(--web-ink);
+      counter-reset: uipack-row;
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table :is(th, td) {
+      padding: 11px 9px;
+      border-bottom: 2px dashed color-mix(in srgb, var(--web-ink) 45%, transparent);
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table thead th {
+      padding-top: 10px;
+      border-bottom: 2px solid var(--web-ink);
+      font-weight: 600;
+      color: var(--web-ink);
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table tbody tr {
+      counter-increment: uipack-row;
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table tbody th {
+      font-weight: 600;
+      color: var(--web-ink);
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table :is(th, td):first-child {
+      padding-inline-start: 0;
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table :is(th, td):last-child {
+      padding-inline-end: 0;
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table tbody th::before {
+      content: "#" counter(uipack-row);
+      display: inline-block;
+      min-width: 1.75rem;
+      color: var(--web-accent-ink);
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table td[data-align="end"] {
+      font-weight: 600;
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table tr[data-highlight] :is(th, td) {
+      background: var(--web-ink);
+      color: var(--web-bg);
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table tr[data-highlight] th::before {
+      color: var(--web-accent);
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table tr[data-highlight] :is(th, td):first-child {
+      box-shadow: inset 6px 0 0 var(--web-accent);
+      padding-inline-start: 14px;
+    }
+    .uipack-web[data-ui-style="graphical"] .uipack-web-table tr[data-highlight] :is(th, td):last-child {
+      padding-inline-end: 8px;
+    }
+  }
+  /* Lists: a ticket stub. Heavy rules top and bottom, perforated rows, values in reverse tags,
+     states as stamped squares. */
+  .uipack-web[data-ui-style="graphical"] .uipack-web-list {
+    border-top: 3px solid var(--web-ink);
+    border-bottom: 3px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-list li {
+    border-bottom: 2px dashed color-mix(in srgb, var(--web-ink) 45%, transparent);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-list li:last-child {
+    border-bottom: 0;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-list__text strong {
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-list__meta {
+    padding: 3px 7px;
+    background: var(--web-ink);
+    color: var(--web-bg);
+    font-weight: 600;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-list__mark {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--web-ink);
+    border-radius: 0;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-list li[data-status="done"] .uipack-web-list__mark {
+    border-color: var(--web-ink);
+    background: var(--web-accent);
+  }
+  /* The worked case: a receipt sum. The given is an orange ticket, each rule an ink-framed slip
+     with a hard shadow, each arrow a heavy one, each result a big figure over a total rule. */
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__title {
+    padding-bottom: 10px;
+    border-bottom: 3px solid var(--web-ink);
+    font: 400 calc(var(--web-step-2) * var(--web-display-scale)) / 1 var(--web-font-display);
+    letter-spacing: var(--web-display-tracking);
+    color: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__given {
+    padding: 12px 14px;
+    border: 2px solid var(--web-ink);
+    background: var(--web-accent);
+    color: var(--web-on-accent);
+    box-shadow: 4px 4px 0 var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__given .uipack-web-worked__label {
+    color: inherit;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__rule {
+    border: 2px solid var(--web-ink);
+    background: var(--web-surface);
+    box-shadow: 4px 4px 0 var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__rule code {
+    font-weight: 600;
+    color: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__arrow {
+    border-top: 3px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__arrow::after {
+    top: -7.5px;
+    right: -2px;
+    width: 0;
+    height: 0;
+    border: 6px solid transparent;
+    border-left: 11px solid var(--web-ink);
+    border-right: 0;
+    transform: none;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__result {
+    padding-bottom: 6px;
+    border-bottom: 4px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__note {
+    border-top: 2px dashed var(--web-ink);
+    font-family: var(--web-font-mono);
+    font-size: 0.8125rem;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__lines::before,
+  .uipack-web[data-ui-style="graphical"] .uipack-web-worked__lines li::before {
+    border-width: 3px;
+    border-color: var(--web-ink);
+  }
+  /* Stats: poster figures between heavy rules. */
+  .uipack-web[data-ui-style="graphical"] .uipack-web-proof__stats:not([data-count="1"]) {
+    padding-top: var(--web-s3);
+    border-top: 4px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-proof__stats:not([data-count="1"]) dt {
+    font: 600 0.75rem / 1.4 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+    color: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-proof__caveat {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.75rem;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-hero__facts {
+    border-top: 4px solid var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-hero__facts dt {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--web-ink);
+  }
+  /* FAQ: "Q.1" stamped in orange. */
+  .uipack-web[data-ui-style="graphical"] .uipack-web-faq__q::before {
+    content: "Q" counter(uipack-faq);
+    display: inline-block;
+    min-width: 2.75rem;
+    font: 400 1.25em / 1 var(--web-font-display);
+    color: var(--web-accent-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-faq__answer {
+    padding-inline-start: 2.75rem;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-faq__list {
+    border-top: 3px solid var(--web-ink);
+  }
+  /* Product shot: a poster plate. Heavy frame, orange numbered discs, 3px leaders, reverse tags. */
+  .uipack-web[data-ui-style="graphical"] .uipack-web-shot {
+    border-width: 3px;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-shot__pin {
+    left: -13px;
+    top: -13px;
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--ui-media-ground);
+    background: var(--ui-accent);
+    box-shadow: 3px 3px 0 var(--ui-media-ground);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-shot__pin::before {
+    content: counter(uipack-shot);
+    font: 400 0.875rem / 1 var(--web-font-display);
+    color: var(--ui-on-accent);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-shot__leader {
+    stroke-width: 3;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-shot__note {
+    border: 2px solid var(--ui-media-ground);
+    background: var(--ui-media-ink);
+    color: var(--ui-media-ground);
+    box-shadow: 3px 3px 0 var(--ui-media-ground);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-shot__tag {
+    background: var(--ui-accent);
+    color: var(--ui-on-accent);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-shot__inset {
+    border: 2px solid var(--web-ink);
+    box-shadow: 4px 4px 0 var(--web-ink);
+  }
+  .uipack-web[data-ui-style="graphical"] .uipack-web-shot__caption {
+    border-top: 3px solid var(--web-ink);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--web-ink);
+  }
+
+  /* ===== Landing: a two-ink riso print ===== */
+  /* Bands and rules: the secondary band is a pink halftone screen; each plain section after the
+     first opens on a dotted plum rule. */
+  .uipack-web[data-ui-style="landing"] .uipack-web-section[data-tone="secondary"] {
+    background:
+      radial-gradient(circle, color-mix(in srgb, var(--ui-spot) 30%, transparent) 1.1px, transparent 1.5px) 0 0 / 8px 8px,
+      var(--web-secondary);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-section + .uipack-web-section:not([data-tone="secondary"]) {
+    background: radial-gradient(circle, var(--web-rule) 1px, transparent 1.4px) 0 0 / 6px 3px repeat-x;
+  }
+  /* Tables: the pink drum prints the head as a screen and the marked row solid; names in the
+     display face; plum dotted rules. */
+  @container uipack-table (min-width: 441px) {
+    .uipack-web[data-ui-style="landing"] .uipack-web-table thead th {
+      padding-top: 9px;
+      padding-bottom: 9px;
+      background: color-mix(in srgb, var(--ui-spot) 22%, var(--web-surface));
+      border-bottom: 1px solid var(--web-ink);
+      color: var(--web-ink);
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table thead th:first-child {
+      padding-inline-start: 10px;
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table thead th:last-child {
+      padding-inline-end: 10px;
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table :is(th, td) {
+      padding-block: 11px;
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table tbody th {
+      font: 400 1.125rem / 1.2 var(--web-font-display);
+      color: var(--web-ink);
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table tbody :is(th, td):first-child {
+      padding-inline-start: 10px;
+    }
+    .uipack-web[data-ui-style="landing"] .uipack-web-table tbody :is(th, td):last-child {
+      padding-inline-end: 10px;
+    }
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-table tr[data-highlight] :is(th, td) {
+    background: var(--ui-spot);
+    color: var(--ui-on-spot);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-table tr[data-highlight] :is(th, td):first-child {
+    box-shadow: none;
+  }
+  /* Lists: names in the display face, states as pink dots with an off-register keyline. */
+  .uipack-web[data-ui-style="landing"] .uipack-web-list__text strong {
+    font: 400 1.125rem / 1.2 var(--web-font-display);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-list__mark {
+    width: 12px;
+    height: 12px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ui-spot);
+    box-shadow: 2px -2px 0 -1px var(--web-surface), 2px -2px 0 0 var(--web-ink);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-list li[data-status="done"] .uipack-web-list__mark {
+    background: var(--ui-spot);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-list__meta {
+    padding: 2px 8px;
+    background: var(--web-secondary);
+    color: var(--web-ink);
+  }
+  /* The worked case: pink screens with plum keylines off register, dotted leaders ending in a
+     pink dot, results in the display face. */
+  /* An off-register pair: the pink screen is printed 4px down and right of its plum keyline. */
+  .uipack-web[data-ui-style="landing"] .uipack-web-worked__rule {
+    border: 1px solid var(--web-ink);
+    background:
+      linear-gradient(color-mix(in srgb, var(--ui-spot) 26%, transparent), color-mix(in srgb, var(--ui-spot) 26%, transparent))
+        4px 4px / 100% 100% no-repeat,
+      var(--web-surface);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-worked__arrow {
+    border-top: 2px dotted var(--web-ink);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-worked__arrow::after {
+    top: -5px;
+    right: -4px;
+    width: 9px;
+    height: 9px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ui-spot);
+    transform: none;
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-worked__lines::before,
+  .uipack-web[data-ui-style="landing"] .uipack-web-worked__lines li::before {
+    border-style: dotted;
+    border-width: 2px;
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-worked__result .uipack-web-worked__value {
+    color: var(--web-ink);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-worked__value {
+    font-size: calc(var(--web-step-5) * 1.12);
+  }
+  /* Stats: big upright figures with the pink ghost over a dotted rule. */
+  .uipack-web[data-ui-style="landing"] .uipack-web-proof__stats:not([data-count="1"]) {
+    border-top: 0;
+    background: radial-gradient(circle, var(--web-rule) 1px, transparent 1.4px) 0 0 / 6px 3px repeat-x;
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-proof__stats[data-headline] dd {
+    font-size: calc(var(--web-step-6) * 1.25);
+  }
+  /* FAQ: each question hangs a pink square. */
+  .uipack-web[data-ui-style="landing"] .uipack-web-faq__q::before {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-inline-end: 12px;
+    background: var(--ui-spot);
+    box-shadow: 2px 2px 0 -1px var(--web-bg), 2px 2px 0 0 var(--web-ink);
+    vertical-align: 0.08em;
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-faq__answer {
+    padding-inline-start: 22px;
+  }
+  /* The stamp's keyline prints off register. */
+  .uipack-web[data-ui-style="landing"] .uipack-web-hero__stamp::before {
+    translate: 3px 3px;
+  }
+  /* Product shot: a riso duotone plate. Pink pins with a paper keyline, paper notes with a pink
+     offset, the tag on a pink screen. */
+  .uipack-web[data-ui-style="landing"] .uipack-web-shot__pin {
+    border: 2px solid var(--ui-media-ink);
+    background: var(--ui-spot);
+    box-shadow: 3px 3px 0 -1px var(--ui-media-ground), 3px 3px 0 1px var(--ui-media-ink);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-shot__leader {
+    stroke-width: 1.5;
+    stroke-dasharray: 2 3;
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-shot__note {
+    background: var(--ui-media-ink);
+    color: var(--ui-media-ground);
+    box-shadow: 4px 4px 0 var(--ui-spot);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-shot__note strong {
+    font: 400 1rem / 1.1 var(--web-font-display);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-shot__tag {
+    background: var(--ui-spot);
+    color: var(--ui-on-spot);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-shot__inset {
+    border-color: var(--web-ink);
+    box-shadow: 4px 4px 0 color-mix(in srgb, var(--ui-spot) 45%, transparent);
+  }
+  .uipack-web[data-ui-style="landing"] .uipack-web-shot__caption {
+    border-top-style: dotted;
+  }
+  /* Below 520px every style's detail view is a plain row under the plate. */
+  @container web (max-width: 520px) {
+    .uipack-web[data-ui-style] .uipack-web-shot__inset {
+      border: 0;
+      border-top: var(--ui-rule-width) solid var(--web-rule);
+      box-shadow: none;
     }
   }
 }

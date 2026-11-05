@@ -159,7 +159,7 @@
        end tick at both ends); steps sit in a detail bubble (a 36px ringed circle, the number in
        mono); stats sit between vertical rules; the quote is a hairline annotation; the featured
        plan carries a 4px amber top rule; table cells are square, the peak in Prussian ink. */
-    --ui-density: 0.9;
+    --ui-density: 0.8;
     --ui-column-rule:
       linear-gradient(var(--ui-ink), var(--ui-ink)) 0 0 / 1px 11px no-repeat,
       linear-gradient(var(--ui-ink), var(--ui-ink)) 100% 0 / 1px 11px no-repeat,
@@ -220,6 +220,25 @@
     --ui-stamp-case: none;
     --ui-stamp-size: 2.25rem;
     --ui-stamp-shadow: inset 0 3px 0 var(--ui-accent);
+
+    /* Shared roles the web parts read (style.md): the spot fill (Technical: the accent), the
+       headline's key-phrase fill and display ghost (none here: the amber underline does it). */
+    --ui-spot: var(--ui-accent);
+    --ui-on-spot: var(--ui-on-accent);
+    --ui-em-fill: none;
+    --ui-display-shadow: none;
+    /* Product imagery (ProductShot, a hero illustration): a cyanotype, Prussian through cyan and
+       white to the one amber, so a thermal frame or a heat map reads as a blueprint print. */
+    --ui-media-ground: #0a2342;
+    --ui-media-cold: #0a2342;
+    --ui-media-mid: #1f5f9a;
+    --ui-media-warm: #b9dcf2;
+    --ui-media-hot: #f0c45a;
+    --ui-media-ink: #f3f6f9;
+    --ui-media-ramp: linear-gradient(90deg, var(--ui-media-cold), var(--ui-media-mid), var(--ui-media-warm), var(--ui-media-hot));
+    --ui-media-filter: grayscale(1) contrast(1.1);
+    --ui-media-tint: #0b2748;
+    --ui-media-blend: lighten;
 
     /* Roles whose Technical values are tuned for one medium, then --tune-* component values.
        Mechanism shades, object scenes and the docs surfaces derive from the roles above. */

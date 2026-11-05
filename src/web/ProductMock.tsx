@@ -94,10 +94,12 @@ export interface DataColumn {
   barMax?: number;
   /**
    * "low": a supporting column the table drops when it is narrower than 440px (a phone, a narrow
-   * card), so the key columns are never cut or scrolled away. Default "high". The first column
-   * (the row's name) is always kept.
+   * card), so the key columns are never cut or scrolled away. "key": the column the page is about
+   * (payback, price, the result); it must stay visible: below 440px it is pinned to the end edge in
+   * "fit" and "scroll" mode, set large on the name's line in "stack" mode, and it makes "auto"
+   * stack sooner. Default "high". The first column (the row's name) is always kept.
    */
-  priority?: "high" | "low";
+  priority?: "high" | "low" | "key";
 }
 
 export interface DataTableProps {
@@ -114,7 +116,8 @@ export interface DataTableProps {
    * Below 440px of table width: "fit" keeps the row layout (minus `priority: "low"` columns),
    * "stack" turns each row into a small record (name, then label and value per column), "scroll"
    * keeps every column and scrolls inside itself. Default "auto": "stack" when more than four
-   * columns remain after the low-priority ones are dropped, otherwise "fit".
+   * columns remain after the low-priority ones are dropped, or more than three with a
+   * `priority: "key"` column (a phone must never scroll the key value away), otherwise "fit".
    */
   narrow?: "auto" | "fit" | "stack" | "scroll";
   className?: string;
@@ -124,7 +127,9 @@ export interface DataTableProps {
 export function DataTable({ columns, rows, highlight, label, note, narrow = "auto", className = "" }: DataTableProps) {
   const marked = new Set(highlight === undefined ? [] : Array.isArray(highlight) ? highlight : [highlight]);
   const kept = columns.filter((c, j) => j === 0 || c.priority !== "low").length;
-  const mode = narrow === "auto" ? (kept > 4 ? "stack" : "fit") : narrow;
+  const hasKey = columns.some((c, j) => j > 0 && c.priority === "key");
+  const mode = narrow === "auto" ? (kept > 4 || (hasKey && kept > 3) ? "stack" : "fit") : narrow;
+  const prio = (c: DataColumn, j: number) => (j > 0 && (c.priority === "low" || c.priority === "key") ? c.priority : undefined);
   return (
     <div className={`uipack-web-table ${className}`.trim()} data-narrow={mode}>
       <div className="uipack-web-table__scroll" role="region" aria-label={label} tabIndex={0}>
@@ -137,7 +142,7 @@ export function DataTable({ columns, rows, highlight, label, note, narrow = "aut
                   key={c.key}
                   scope="col"
                   data-align={c.align ?? (c.barMax !== undefined ? "start" : undefined)}
-                  data-priority={c.priority === "low" && j > 0 ? "low" : undefined}
+                  data-priority={prio(c, j)}
                 >
                   {c.label}
                 </th>
@@ -157,7 +162,7 @@ export function DataTable({ columns, rows, highlight, label, note, narrow = "aut
                       key={c.key}
                       scope={j === 0 ? "row" : undefined}
                       data-align={c.align}
-                      data-priority={c.priority === "low" && j > 0 ? "low" : undefined}
+                      data-priority={prio(c, j)}
                     >
                       {mode === "stack" && j > 0 && (
                         <span className="uipack-web-table__label" aria-hidden="true">

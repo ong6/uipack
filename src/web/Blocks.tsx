@@ -38,10 +38,17 @@ export interface ProofProps {
    */
   compare?: BeforeAfterProps;
   /**
-   * Two to four supporting numbers in a ruled row. A single one is set as one compact line under
-   * the lead or comparison ("214 beta shops"), not a lone big number in an empty row.
+   * Two to four numbers in a ruled row. Without a `lead`, they are the headline: set large, one
+   * column each (two by two below 720px), so three or four measured facts carry the block on their
+   * own. With a lead they support it. A single one is set as one compact line under the lead or
+   * comparison ("214 beta shops"), not a lone big number in an empty row.
    */
   stats?: ProofStat[];
+  /**
+   * One line under the numbers saying how they were measured or what they are not: "Savings are
+   * estimated by the app, not metered." Keep the caveat with the numbers, not in the footer only.
+   */
+  caveat?: ReactNode;
   quote?: ProofQuote;
   className?: string;
 }
@@ -50,7 +57,7 @@ export interface ProofProps {
  * Proof in one block: the headline number (with what it is out of), supporting numbers, and a
  * named quote in a framed card beside them (stacked below 1024px). Put it inside a `Section`.
  */
-export function Proof({ lead, compare, stats = [], quote, className = "" }: ProofProps) {
+export function Proof({ lead, compare, stats = [], caveat, quote, className = "" }: ProofProps) {
   const ratio = lead?.ratio === undefined ? undefined : Math.min(1, Math.max(0, lead.ratio));
   return (
     <div className={`uipack-web-proof ${className}`.trim()} data-has-quote={quote ? "" : undefined}>
@@ -75,7 +82,12 @@ export function Proof({ lead, compare, stats = [], quote, className = "" }: Proo
             </div>
           )}
           {stats.length > 0 && (
-            <dl className="uipack-web-proof__stats" data-count={stats.length === 1 ? 1 : undefined}>
+            <dl
+              className="uipack-web-proof__stats"
+              data-count={stats.length === 1 ? 1 : undefined}
+              data-headline={!lead && !compare && stats.length > 1 ? "" : undefined}
+              style={{ "--stats": Math.min(4, stats.length) } as CSSProperties}
+            >
               {stats.map((s, i) => (
                 <div key={i}>
                   <dt>{s.label}</dt>
@@ -84,6 +96,7 @@ export function Proof({ lead, compare, stats = [], quote, className = "" }: Proo
               ))}
             </dl>
           )}
+          {caveat && <p className="uipack-web-proof__caveat">{caveat}</p>}
         </div>
       )}
       {quote && (
@@ -215,9 +228,10 @@ export interface ClosingCtaProps {
 }
 
 /**
- * The closing call to action: a full-bleed band painted with the style's band roles (Technical:
- * ink with mint; Graphical: signal orange; Landing: near-black with a white button), the claim on the start edge and
- * the button beside it (below it on a phone).
+ * The closing call to action: a full-bleed band painted with the style's band roles
+ * (`--ui-band-*`: Technical a plain Prussian band with a gold button; Graphical signal orange with
+ * a black button and a tick rule; Landing the fluorescent-pink riso band with a plum button and a
+ * halftone edge), the claim on the start edge and the button beside it (below it on a phone).
  */
 export function ClosingCta({ title, intro, action, note, eyebrow, id, className = "" }: ClosingCtaProps) {
   const headingId = id ? `${id}-title` : undefined;

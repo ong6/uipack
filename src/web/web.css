@@ -201,6 +201,8 @@
     font-weight: var(--web-display-weight);
     text-transform: var(--web-display-case);
     font-synthesis-weight: none;
+    /* Landing's off-register pink ghost; none elsewhere. */
+    text-shadow: var(--ui-display-shadow, none);
   }
   .uipack-web-heading a {
     color: inherit;
@@ -593,7 +595,7 @@
   }
 
   /* Stamp (StarHero stamp): the page's one number, part of the copy. The style paints it
-     (--ui-stamp-*): Graphical a postmark disc, Technical a revision tag, Landing a die-cut label.
+     (--ui-stamp-*): Graphical a postmark disc, Technical a revision tag, Landing a pink riso sticker.
      A stacked hero wears it on the empty end side of the headline (absolutely placed, so it moves
      no box); a split hero sets it under the actions; below 720px it is a one-line label there. */
   .uipack-web-hero__copy {
@@ -643,26 +645,97 @@
     letter-spacing: var(--web-label-tracking);
     text-transform: uppercase;
   }
-  /* Split hero: beside the actions on the copy column's end edge, its foot on theirs; the actions
-     keep clear of it (they wrap), so the copy column grows by nothing. */
+  /* The figure sizes itself to the value (--stamp-len, set from its characters), so "64%" or
+     "£40" clears the inner ring; the label is clamped at three lines. */
+  .uipack-web-hero__stamp-value {
+    font-size: min(var(--ui-stamp-size), calc(4.6rem / (var(--stamp-len, 3) * 0.62)));
+  }
+  .uipack-web-hero__stamp-label {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
+  /* Hero facts: a ruled row of two or three plain facts under the actions. */
+  .uipack-web-hero__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+    gap: var(--web-s2);
+    width: 100%;
+    max-width: 34rem;
+    margin: var(--web-s3) 0 0;
+    padding-top: var(--web-s2);
+    border-top: var(--ui-rule-width) var(--ui-perf, solid) var(--web-rule);
+    text-align: start;
+  }
+  .uipack-web-hero__facts > div {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: 4px;
+    min-width: 0;
+  }
+  .uipack-web-hero__facts > div + div {
+    padding-inline-start: var(--web-s2);
+    border-inline-start: var(--ui-stat-divider, 0 solid transparent);
+  }
+  .uipack-web-hero__facts dd {
+    margin: 0;
+    font: var(--web-display-weight) calc(var(--web-step-2) * var(--web-display-scale)) / 1.05 var(--web-font-display);
+    letter-spacing: var(--web-display-tracking);
+    text-transform: var(--web-display-case);
+    text-shadow: var(--ui-display-shadow, none);
+    font-synthesis-weight: none;
+  }
+  .uipack-web-hero__facts dt {
+    font: 400 var(--web-step--1) / 1.4 var(--web-font-mono);
+    color: var(--web-ink-low);
+  }
+  @container web (max-width: 520px) {
+    .uipack-web-hero__facts {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: var(--web-s1);
+    }
+    .uipack-web-hero__facts > div + div {
+      padding-inline-start: 12px;
+    }
+    .uipack-web-hero__facts dd {
+      font-size: calc(var(--web-step-1) * var(--web-display-scale));
+    }
+    .uipack-web-hero__facts dt {
+      font-size: 0.75rem;
+    }
+  }
+  /* Split hero: the stamp is stuck on the proof's top-end corner (the media's, when there is one),
+     overhanging it by 1.25rem, as a sticker on a print. It moves no box. */
+  .uipack-web-hero__proof {
+    position: relative;
+  }
+  .uipack-web-hero__media {
+    min-width: 0;
+    margin-bottom: var(--web-s3);
+  }
   @container web (min-width: 1024px) {
-    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__stamp {
-      top: auto;
-      bottom: 0;
-      width: 8rem;
-      min-height: 8rem;
+    .uipack-web-hero__proof > .uipack-web-hero__stamp {
+      top: -1.25rem;
+      right: -1.25rem;
+      width: 7.75rem;
+      min-height: 7.75rem;
       padding: 12px;
     }
-    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__stamp-value {
-      font-size: calc(var(--ui-stamp-size) * 0.8);
+    .uipack-web-hero__proof > .uipack-web-hero__stamp .uipack-web-hero__stamp-value {
+      font-size: min(calc(var(--ui-stamp-size) * 0.8), calc(4.6rem / (var(--stamp-len, 3) * 0.62)));
     }
-    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__stamp-label {
+    .uipack-web-hero__proof > .uipack-web-hero__stamp .uipack-web-hero__stamp-label {
+      max-width: 9em;
       font-size: 0.625rem;
     }
-    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__actions:has(+ .uipack-web-hero__stamp) {
-      min-height: 8rem;
-      align-content: end;
-      padding-inline-end: calc(8rem + var(--web-s3));
+  }
+  @container web (max-width: 1023px) {
+    .uipack-web-hero__proof > .uipack-web-hero__stamp {
+      margin: 0 0 var(--web-s2);
     }
   }
   @container web (max-width: 1023px) {
@@ -715,6 +788,10 @@
     text-decoration: var(--ui-em-decoration, none);
     text-underline-offset: 0.14em;
     text-decoration-skip-ink: none;
+    /* Landing's highlighter pass behind the phrase; none elsewhere. */
+    background: var(--ui-em-fill, none);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
   }
   .uipack-web-star__area {
     opacity: var(--ui-star-fill, 1);
@@ -1826,6 +1903,7 @@
   /* Display numerals: proof values, prices, step numbers. Tabular where the face has them. */
   .uipack-web :is(.uipack-web-proof__value, .uipack-web-proof__stats dd, .uipack-web-plan__price),
   .uipack-web .uipack-web-feature__num {
+    text-shadow: var(--ui-display-shadow, none);
     font-family: var(--web-font-display);
     font-weight: var(--web-display-weight);
     letter-spacing: var(--web-display-tracking);
@@ -2319,9 +2397,10 @@
    Graphical ink-ruled boxes and Landing soft tinted chips from the same rows. */
 @layer uipack.base {
   .uipack-web-window {
-    display: grid;
-    /* Stretched by a taller neighbour in a grid row, the rows stay packed at the top. */
-    align-content: start;
+    /* A column: stretched by a taller neighbour in a grid row, the body takes the extra height
+       (a list inside spreads its rows over it), so no window ends in an empty box. */
+    display: flex;
+    flex-direction: column;
     min-width: 0;
     overflow: hidden;
     border: var(--web-frame-border);
@@ -2409,8 +2488,18 @@
     white-space: nowrap;
   }
   .uipack-web-window__body {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
     min-width: 0;
     padding: var(--web-s2) var(--web-s3);
+  }
+  .uipack-web-window__body > * {
+    min-width: 0;
+  }
+  .uipack-web-grid__item > .uipack-web-window .uipack-web-window__body > .uipack-web-list:only-child {
+    flex: 1 0 auto;
+    grid-auto-rows: 1fr;
   }
   /* A lone footer is a caption of the output, not a ruled band of its own. */
   .uipack-web-window__caption {
@@ -2873,6 +2962,9 @@
   .uipack-web-worked__lines {
     position: relative;
     display: grid;
+    /* One set of columns for every line (subgrid), so the rule boxes share one width and the
+       results one edge. */
+    grid-template-columns: minmax(0, 1fr) minmax(2rem, 4rem) minmax(7.5rem, max-content);
     gap: var(--web-s2);
     margin: 0;
     padding: 0 0 0 var(--web-s3);
@@ -2890,9 +2982,9 @@
   .uipack-web-worked__lines li {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(2rem, 4rem) minmax(7.5rem, max-content);
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
     align-items: center;
-    gap: var(--web-s2);
   }
   .uipack-web-worked__lines li::before {
     content: "";
@@ -2955,9 +3047,9 @@
       padding-left: var(--web-s2);
     }
     /* The result column fits its value with a unit ("4.8 kg"); the rule takes what is left. */
-    .uipack-web-worked__lines li {
+    .uipack-web-worked__lines {
       grid-template-columns: minmax(0, 1fr) minmax(5.5rem, max-content);
-      gap: 12px;
+      column-gap: 12px;
     }
     .uipack-web-worked__lines li::before {
       left: calc(-1 * var(--web-s2));
@@ -3156,6 +3248,350 @@
     }
     .uipack-web-demo[data-mode="steps"] .uipack-web-demo__steps li small {
       display: none;
+    }
+  }
+}
+
+/* ---------- Product shot, key columns, proof caveat, section aside ---------- */
+@layer uipack.base {
+  /* ProductShot: a plate (the picture, its pins, readouts and detail view) over a caption strip.
+     The style draws the frame, pins, leaders and notes (web-styles.css); here is the geometry. */
+  .uipack-web-shot {
+    display: grid;
+    min-width: 0;
+    margin: 0;
+    border: var(--web-frame-border);
+    border-radius: var(--web-radius);
+    background: var(--web-surface);
+    box-shadow: var(--web-shadow);
+    text-align: start;
+  }
+  .uipack-web-shot__stage {
+    position: relative;
+    min-width: 0;
+  }
+  .uipack-web-shot__plate {
+    position: relative;
+    aspect-ratio: var(--shot-aspect, 5 / 2);
+    overflow: hidden;
+    border-radius: var(--web-radius-inner) var(--web-radius-inner) 0 0;
+    background: var(--ui-media-ground);
+    color: var(--ui-media-ink);
+  }
+  .uipack-web-shot__media {
+    position: absolute;
+    inset: 0;
+  }
+  .uipack-web-shot__media > :is(svg, img, canvas, video) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* A photo takes the style's media treatment: Technical a cyanotype print, Graphical a hard
+     greyscale, Landing a riso duotone. A role-painted drawing already speaks the style. */
+  .uipack-web-shot__media[data-kind="image"] img {
+    filter: var(--ui-media-filter, none);
+  }
+  .uipack-web-shot__media[data-kind="image"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--ui-media-tint, transparent);
+    mix-blend-mode: var(--ui-media-blend, normal);
+    pointer-events: none;
+  }
+  .uipack-web-shot__hud {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: grid;
+    justify-items: start;
+    gap: 6px;
+    max-width: 45%;
+  }
+  .uipack-web-shot__tag {
+    padding: 3px 7px;
+    background: var(--ui-media-ink);
+    color: var(--ui-media-ground);
+    font: 600 0.6875rem / 1.3 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+  }
+  .uipack-web-shot__readouts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin: 0;
+    padding: 3px 7px;
+    background: color-mix(in srgb, var(--ui-media-ground) 72%, transparent);
+    font: 500 0.75rem / 1.3 var(--web-font-mono);
+  }
+  .uipack-web-shot__readouts > div {
+    display: flex;
+    gap: 6px;
+  }
+  .uipack-web-shot__readouts dt {
+    opacity: 0.8;
+  }
+  .uipack-web-shot__readouts dd {
+    margin: 0;
+    font-weight: 600;
+  }
+  /* Callouts: a pin at (x, y), an elbow leader, a note at the leader's end. Each is a zero-size
+     anchor, so nothing in the plate moves. */
+  .uipack-web-shot__callouts {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    pointer-events: none;
+    counter-reset: uipack-shot;
+  }
+  .uipack-web-shot__callouts li {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 0;
+    height: 0;
+    counter-increment: uipack-shot;
+    --leader-w: 3rem;
+    --leader-h: 1.5rem;
+  }
+  .uipack-web-shot__pin {
+    position: absolute;
+    left: -8px;
+    top: -8px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--ui-media-ink);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--ui-media-ground) 60%, transparent);
+  }
+  .uipack-web-shot__leader {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: var(--leader-w);
+    height: var(--leader-h);
+    overflow: visible;
+    fill: none;
+    stroke: var(--ui-media-ink);
+    stroke-width: 1.25;
+  }
+  .uipack-web-shot__note {
+    position: absolute;
+    left: var(--leader-w);
+    top: calc(-1 * var(--leader-h));
+    translate: 6px -50%;
+    display: grid;
+    gap: 1px;
+    width: max-content;
+    max-width: 13rem;
+    padding: 5px 8px;
+    background: var(--ui-media-ink);
+    color: var(--ui-media-ground);
+    font: 600 0.75rem / 1.25 var(--web-font-text);
+  }
+  .uipack-web-shot__note span {
+    font: 500 0.75rem / 1.25 var(--web-font-mono);
+  }
+  .uipack-web-shot__callouts li[data-side="start"] .uipack-web-shot__leader {
+    left: auto;
+    right: 0;
+    scale: -1 1;
+  }
+  .uipack-web-shot__callouts li[data-side="start"] .uipack-web-shot__note {
+    left: auto;
+    right: var(--leader-w);
+    translate: -6px -50%;
+  }
+  .uipack-web-shot__callouts li[data-rise="down"] .uipack-web-shot__leader {
+    bottom: auto;
+    top: 0;
+    scale: 1 -1;
+  }
+  .uipack-web-shot__callouts li[data-rise="down"][data-side="start"] .uipack-web-shot__leader {
+    scale: -1 -1;
+  }
+  .uipack-web-shot__callouts li[data-rise="down"] .uipack-web-shot__note {
+    top: var(--leader-h);
+  }
+  .uipack-web-shot__inset {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    display: grid;
+    gap: 4px;
+    width: 21%;
+    padding: 6px;
+    border: 1px solid var(--web-rule);
+    background: var(--web-surface);
+    color: var(--web-ink);
+  }
+  .uipack-web-shot__inset-label {
+    font: 600 0.625rem / 1.2 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+    color: var(--web-ink-low);
+  }
+  @container web (max-width: 520px) {
+    .uipack-web-shot__inset-art {
+      order: -1;
+    }
+  }
+  .uipack-web-shot__inset-art {
+    aspect-ratio: 3 / 2;
+    line-height: 0;
+  }
+  .uipack-web-shot__inset-art > svg {
+    width: 100%;
+    height: 100%;
+  }
+  .uipack-web-shot__caption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px var(--web-s2);
+    padding: 10px var(--web-s2);
+    border-top: var(--ui-rule-width) solid var(--web-rule);
+    font: 400 var(--web-step--1) / 1.4 var(--web-font-mono);
+    color: var(--web-ink-medium);
+  }
+  .uipack-web-shot__scale {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--web-ink-low);
+    white-space: nowrap;
+  }
+  .uipack-web-shot__scale i {
+    width: 72px;
+    height: 8px;
+    background: var(--ui-media-ramp);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--web-ink) 25%, transparent);
+  }
+  @container web (max-width: 520px) {
+    .uipack-web-shot__callouts li {
+      --leader-w: 1.75rem;
+      --leader-h: 1rem;
+    }
+    .uipack-web-shot__note {
+      max-width: 9rem;
+      padding: 3px 6px;
+      font-size: 0.6875rem;
+    }
+    /* The detail view leaves the plate for a row under it: label, then the drawing. */
+    .uipack-web-shot__inset {
+      position: static;
+      grid-template-columns: 6.5rem minmax(0, 1fr);
+      align-items: center;
+      column-gap: var(--web-s2);
+      width: auto;
+      padding: 8px var(--web-s2);
+      border: 0;
+      border-top: var(--ui-rule-width) solid var(--web-rule);
+      box-shadow: none;
+    }
+    .uipack-web-shot__hud {
+      top: 8px;
+      left: 8px;
+    }
+    .uipack-web-shot__readouts {
+      font-size: 0.6875rem;
+    }
+  }
+
+  /* DataTable key column (priority "key"): below 440px it is never scrolled away. In fit and
+     scroll mode it is pinned to the end edge; in stack mode it sits on the name's line, large. */
+  @container uipack-table (max-width: 440px) {
+    .uipack-web-table:not([data-narrow="stack"]) [data-priority="key"] {
+      position: sticky;
+      right: 0;
+      z-index: 1;
+      background: var(--web-surface);
+      box-shadow: -10px 0 10px -8px color-mix(in srgb, var(--web-ink) 30%, transparent);
+    }
+    .uipack-web-table[data-narrow="stack"] tr:has(> [data-priority="key"]) > th {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .uipack-web-table[data-narrow="stack"] tr > td[data-priority="key"] {
+      grid-column: 2;
+      grid-row: 1;
+      justify-content: flex-end;
+      align-self: baseline;
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--web-ink);
+    }
+    .uipack-web-table[data-narrow="stack"] td[data-priority="key"] .uipack-web-table__label {
+      display: none;
+    }
+  }
+
+  /* Proof: a caveat under the numbers; three or four stats as the headline row. */
+  .uipack-web-proof__caveat {
+    margin: 0;
+    font: 400 var(--web-step--1) / 1.5 var(--web-font-mono);
+    color: var(--web-ink-low);
+  }
+  .uipack-web .uipack-web-proof__stats[data-headline] {
+    grid-template-columns: repeat(var(--stats, 3), minmax(0, 1fr));
+    gap: var(--web-s3);
+  }
+  .uipack-web .uipack-web-proof__stats[data-headline] dd {
+    font-size: calc(var(--web-step-6) * var(--web-display-scale));
+  }
+  .uipack-web .uipack-web-proof__stats[data-headline] dt {
+    max-width: 18ch;
+    font: 400 var(--web-step-0) / 1.4 var(--web-font-text);
+    letter-spacing: 0;
+    color: var(--web-ink-medium);
+  }
+  @container web (max-width: 720px) {
+    .uipack-web .uipack-web-proof__stats[data-headline] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--web-s3) var(--web-s2);
+    }
+    .uipack-web .uipack-web-proof__stats[data-headline] > div {
+      display: flex;
+      flex-direction: column-reverse;
+      justify-content: flex-end;
+      gap: var(--web-s1);
+      padding: 0;
+      border: 0;
+    }
+    .uipack-web .uipack-web-proof__stats[data-headline] > div:nth-child(odd) {
+      padding-inline-start: 0;
+    }
+    .uipack-web .uipack-web-proof__stats[data-headline] > div:nth-child(even) {
+      border-inline-start: var(--ui-stat-divider, 0 solid transparent);
+      padding-inline-start: var(--web-s2);
+    }
+    .uipack-web .uipack-web-proof__stats[data-headline] dd {
+      order: 0;
+      font-size: calc(var(--web-step-5) * var(--web-display-scale));
+    }
+    .uipack-web .uipack-web-proof__stats[data-headline] dt {
+      font-size: var(--web-step--1);
+    }
+  }
+
+  /* Section aside: more for the head (a note, a CTA). In the FAQ the head column travels with
+     the questions, so its CTA stays in view. */
+  .uipack-web-section__aside {
+    display: grid;
+    justify-items: start;
+    gap: var(--web-s2);
+    margin-top: var(--web-s1);
+  }
+  @container web (min-width: 1024px) {
+    .uipack-web-faq .uipack-web-section__head {
+      position: sticky;
+      top: var(--web-scroll-offset);
     }
   }
 }

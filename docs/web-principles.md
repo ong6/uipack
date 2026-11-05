@@ -14,7 +14,7 @@ order (`e2e/style-swap.spec.ts`). A style's own order (`uiStyles[].prefers`) is 
 | Style | Use it for | Palette | Faces | Ornaments | Own order (opt-in only) |
 | --- | --- | --- | --- | --- | --- |
 | **Technical** (default) | Product and project pages that should read like junxiong.dev's figures | Cyanotype: cool white `#f3f6f9`, Prussian ink `#0b2748`, one amber `#9c5700` (dark: deep Prussian `#0a2342`, `#edf3fb`, gold `#f0c45a`) | Archivo Expanded 600 headlines (the same face on slides and figure titles), Archivo text, Martian Mono labels | An engineering drawing, compact (density 0.9). Drafting-film grid behind the hero only (and on figure canvases), masked; a 7px amber dot and a mono section index before eyebrows (`01 / HOW IT WORKS`); a dimension line (hairline, end ticks at both ends) over each section's column; steps in 36px ringed detail bubbles; ink crop marks at all four corners of cards and plans; stats between 1px rules; the quote as a hairline annotation; the featured plan with a 4px amber top rule; square table cells with Prussian peaks; windows without traffic lights; figures with the full flow code (cyan main flow); square corners, 1px hairlines, no shadow, glow or grain; the headline's key phrase in ink over an amber underline (gold in dark); a Prussian primary button (gold in dark); a plain Prussian closing band with a gold button | Hero with the figure → steps as numbered rows → demo → proof → FAQ → pricing |
-| **Landing** (product marketing) | When the brief is a product-marketing page that should read as considered print | Warm ivory `#f6f2e8`, kraft band `#ece5d4`, ledger-green CTA `#1d5a43` | Instrument Serif display from step 4 (emphasis in green italic), Plex Sans, Plex Mono | Label stock (density 1): a solid masthead nav; ruled 1px forms with 4px corners and no shadow or glow; perforated (dashed) internal divisions; steps as "No. 1" stubs; a pull quote on a green rule; the featured plan as the green-tinted ticket; kraft table chips; ink-key buttons; a die-cut label stamp; a ledger-green closing band with an ivory button | Hero (centred, demo) → steps → mechanism → proof → FAQ → pricing |
+| **Landing** (product marketing) | When the brief is a product-marketing page that should read as considered print | Off-white stock `#efeeea`, pink screen `#f6dfe8`, plum ink `#2a1736`, fluorescent-pink spot `#ff4f9a` (text accent `#b0115b`) | Instrument Serif display from step 4, upright, with a pink off-register ghost; Plex Sans; Plex Mono in tracked caps | A two-ink riso print (density 1.12): a solid masthead nav; plum keylines over pink screens printed 6px off register; dotted internal rules; halftone screens (the hero's sun, the secondary band, the band's edge); steps as pink riso dots; the key phrase on a pink highlighter; tables with a pink head screen and the marked row solid pink; a pink sticker stamp; a solid pink closing band with a plum button; product imagery as a plum-to-pink duotone | Hero (centred, demo) → steps → mechanism → proof → FAQ → pricing |
 | **Graphical** | Launches, events, campaigns: a page that should look like a poster | Bone `#f1eee6`, black ink, one signal orange `#f24a00` (text uses `#b23700`) | Anton display in caps at 1.3× the scale, Plex Sans, Plex Mono | The accent disc and a ruled band in the hero backdrop (below 720px the tick band only, so no clipped disc under the nav); giant Anton step numerals; stats between 2px ink rules; the quote as an orange poster block in caps; the featured plan with an orange offset shadow; ink-ruled table cells; the disc again as every eyebrow marker; 2px ink frames with hard 6px offset shadows; 0 radius; 2px section rules; figure flows in ink, grey and orange; an orange closing band; no glow or grain | Hero → proof (big numbers) → steps → mechanism → pricing → FAQ |
 
 **One layout in every style (default).** `WebPage` renders `sections` in the order the page lists
@@ -69,7 +69,9 @@ ambient glow; `GrainOverlay` and `Aurora` are opt-in components), contrast of 4.
 small text in both themes (`test/style-roles.test.tsx`), the finished state under reduced motion.
 Graphical avoids the generic-AI tropes on purpose: no purple, no gradient blobs, no glass, no
 emoji icons, no rounded-everything; so does Landing since 2026-11-05 (label stock replaced its
-cobalt, glass and soft shadows, which read as stock SaaS beside Technical).
+cobalt, glass and soft shadows, which read as stock SaaS beside Technical; on 2026-11-05 the riso
+print replaced label stock, whose cream, forest green and italic serif read as the stock
+warm-editorial template).
 
 **Performance per style** (Lighthouse 13.5 mobile, built playground, median of 3, 2026-11-04;
 `/web?style=…`): Technical LCP 2.27 s, 101 KB of fonts in 5 files (before Cyanotype; now 77 KB
@@ -83,7 +85,7 @@ Evidence: the first screen of `/web` in each style at 1440 and 390, both themes,
 [`docs/styles/`](styles/) (`web-<style>-<width>-<theme>.png`), with the same deck slides in each
 style (`deck-moves-<style>-<theme>.png`, `deck-consulting-<style>-<theme>.png`).
 
-Rules 5 (grain and glass, now opt-in components), 9 (the 60/30/10, now ivory, kraft and green)
+Rules 5 (grain and glass, now opt-in components), 9 (the 60/30/10, now off-white stock, the pink screen and the fluorescent spot)
 and 19–21 (the three Landing faces) describe Landing. Technical and Graphical replace them with the table above; every other rule applies to all
 three.
 

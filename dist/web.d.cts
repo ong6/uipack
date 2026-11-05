@@ -1,7 +1,7 @@
 import * as react from 'react';
 import { ReactNode, ElementType, CSSProperties, ButtonHTMLAttributes, RefObject, ReactElement } from 'react';
 import { F as FigureChrome } from './context-Baoq0bBr.cjs';
-import { U as UiStyleId, a as UiStyleMeta } from './style-CHmnF0sx.cjs';
+import { U as UiStyleId, b as UiStyleMeta } from './style-C1gtgDaR.cjs';
 export { a as easeOutExpo } from './math-DL8QKXOl.cjs';
 
 interface WebSurfaceProps {
@@ -221,6 +221,12 @@ interface SectionProps {
     lazyRender?: boolean;
     /** Paint this section in another style (data-ui-style), e.g. one Graphical band on a Technical page. */
     uiStyle?: UiStyleId;
+    /**
+     * More for the head, under the intro: a short supporting note, a contact line or a CtaButton.
+     * Use it where the head sits in a column of its own (FAQ at 1024px and up), so that column
+     * carries something besides a title.
+     */
+    aside?: ReactNode;
 }
 /**
  * The section's place on its page (1, 2, 3…), provided by `WebPage` to each section slot after the
@@ -231,7 +237,7 @@ declare const SectionIndexContext: react.Context<number | undefined>;
 /** Two digits, as a drawing sheet numbers its views: 1 → "01". */
 declare const sectionIndexLabel: (n: number) => string;
 /** A page section on the 8-pt rhythm, with an optional eyebrow, heading and intro. */
-declare function Section({ eyebrow, title, intro, children, tone, align, id, className, lazyRender, uiStyle, }: SectionProps): react.JSX.Element;
+declare function Section({ eyebrow, title, intro, children, tone, align, id, className, lazyRender, uiStyle, aside, }: SectionProps): react.JSX.Element;
 interface Feature {
     title: string;
     body: ReactNode;
@@ -341,10 +347,17 @@ interface ProofProps {
      */
     compare?: BeforeAfterProps;
     /**
-     * Two to four supporting numbers in a ruled row. A single one is set as one compact line under
-     * the lead or comparison ("214 beta shops"), not a lone big number in an empty row.
+     * Two to four numbers in a ruled row. Without a `lead`, they are the headline: set large, one
+     * column each (two by two below 720px), so three or four measured facts carry the block on their
+     * own. With a lead they support it. A single one is set as one compact line under the lead or
+     * comparison ("214 beta shops"), not a lone big number in an empty row.
      */
     stats?: ProofStat[];
+    /**
+     * One line under the numbers saying how they were measured or what they are not: "Savings are
+     * estimated by the app, not metered." Keep the caveat with the numbers, not in the footer only.
+     */
+    caveat?: ReactNode;
     quote?: ProofQuote;
     className?: string;
 }
@@ -352,7 +365,7 @@ interface ProofProps {
  * Proof in one block: the headline number (with what it is out of), supporting numbers, and a
  * named quote in a framed card beside them (stacked below 1024px). Put it inside a `Section`.
  */
-declare function Proof({ lead, compare, stats, quote, className }: ProofProps): react.JSX.Element;
+declare function Proof({ lead, compare, stats, caveat, quote, className }: ProofProps): react.JSX.Element;
 interface PricingAction {
     label: ReactNode;
     href: string;
@@ -402,9 +415,10 @@ interface ClosingCtaProps {
     className?: string;
 }
 /**
- * The closing call to action: a full-bleed band painted with the style's band roles (Technical:
- * ink with mint; Graphical: signal orange; Landing: near-black with a white button), the claim on the start edge and
- * the button beside it (below it on a phone).
+ * The closing call to action: a full-bleed band painted with the style's band roles
+ * (`--ui-band-*`: Technical a plain Prussian band with a gold button; Graphical signal orange with
+ * a black button and a tick rule; Landing the fluorescent-pink riso band with a plum button and a
+ * halftone edge), the claim on the start edge and the button beside it (below it on a phone).
  */
 declare function ClosingCta({ title, intro, action, note, eyebrow, id, className }: ClosingCtaProps): react.JSX.Element;
 interface SiteFooterProps {
@@ -467,10 +481,12 @@ interface DataColumn {
     barMax?: number;
     /**
      * "low": a supporting column the table drops when it is narrower than 440px (a phone, a narrow
-     * card), so the key columns are never cut or scrolled away. Default "high". The first column
-     * (the row's name) is always kept.
+     * card), so the key columns are never cut or scrolled away. "key": the column the page is about
+     * (payback, price, the result); it must stay visible: below 440px it is pinned to the end edge in
+     * "fit" and "scroll" mode, set large on the name's line in "stack" mode, and it makes "auto"
+     * stack sooner. Default "high". The first column (the row's name) is always kept.
      */
-    priority?: "high" | "low";
+    priority?: "high" | "low" | "key";
 }
 interface DataTableProps {
     columns: DataColumn[];
@@ -486,7 +502,8 @@ interface DataTableProps {
      * Below 440px of table width: "fit" keeps the row layout (minus `priority: "low"` columns),
      * "stack" turns each row into a small record (name, then label and value per column), "scroll"
      * keeps every column and scrolls inside itself. Default "auto": "stack" when more than four
-     * columns remain after the low-priority ones are dropped, otherwise "fit".
+     * columns remain after the low-priority ones are dropped, or more than three with a
+     * `priority: "key"` column (a phone must never scroll the key value away), otherwise "fit".
      */
     narrow?: "auto" | "fit" | "stack" | "scroll";
     className?: string;
@@ -570,6 +587,58 @@ interface FileTableProps extends Omit<DataTableProps, "label"> {
 /** A file's rows as the product reads them (a CSV, an export): the file name, a state and the table. */
 declare function FileTable({ fileName, summary, status, footer, className, ...table }: FileTableProps): react.JSX.Element;
 
+interface ProductShotCallout {
+    /** The point the callout marks, in % of the plate: from the start edge (0–100) and from the top (0–100). */
+    x: number;
+    y: number;
+    /** What is there: "Loft hatch". */
+    label: ReactNode;
+    /** The reading at that point, mono: "−7.4 °C", "3.8 mo payback". */
+    value?: ReactNode;
+    /** Side of the point the note sits on. Default: the side with more room (start when x > 55). */
+    side?: "start" | "end";
+}
+interface ProductShotReadout {
+    label: ReactNode;
+    value: ReactNode;
+}
+interface ProductShotProps {
+    /** Accessible name: what the picture shows, in words ("Thermal view of a loft hatch, 7 °C colder than the room"). */
+    label: string;
+    /** A role-painted illustration (an SVG or CSS drawing that reads --ui-media-* and the ink roles). */
+    children?: ReactNode;
+    /** Or a photo or render. Photos get the style's media treatment (--ui-media-filter, --ui-media-tint). */
+    src?: string;
+    /** Alt text for `src`; default `label`. */
+    alt?: string;
+    /** A short mono tag on the plate's top-start corner: "Thermal view", "Actual size". */
+    tag?: ReactNode;
+    /** One to three readings under the tag: [{ label: "Room", value: "19.6 °C" }]. */
+    readouts?: ProductShotReadout[];
+    /** Up to three pins with a leader and a note. Keep the top-end corner free: a split hero sticks its stamp there. */
+    callouts?: ProductShotCallout[];
+    /**
+     * A small detail view on the plate's bottom-end corner (under the plate, as a row, below 520px):
+     * the hardware, a close-up, the package. Keep callouts out of the plate's end quarter.
+     */
+    inset?: {
+        label: ReactNode;
+        children: ReactNode;
+    };
+    /** The caption strip under the plate: what and where ("Landing ceiling, 21:40, 4 °C outside"). */
+    caption?: ReactNode;
+    /** A key for a colour ramp in the picture (a heat map, a thermal frame), drawn from --ui-media-ramp. */
+    scale?: {
+        start: ReactNode;
+        end: ReactNode;
+    };
+    /** Plate aspect ratio. Default "5 / 2", short enough to sit above a product table in a split hero. */
+    aspect?: string;
+    className?: string;
+}
+/** A framed picture of the product with pinned callouts: the device, the scan, the label, beside its output. */
+declare function ProductShot({ label, children, src, alt, tag, readouts, callouts, inset, caption, scale, aspect, className, }: ProductShotProps): react.JSX.Element;
+
 interface RevealTextProps {
     /** Words reveal one by one. */
     text?: string;
@@ -603,6 +672,12 @@ interface StarHeroProps {
     values?: number[];
     /** Below the copy, e.g. a DemoPlayer that proves the claim. */
     children?: ReactNode;
+    /**
+     * The product itself, shown above `children` in the proof column: a `ProductShot` framing a
+     * photo, a render or a role-painted illustration (a thermal frame, the device, the label). Use
+     * it whenever the product is physical or visual, so the hero shows the thing next to its output.
+     */
+    media?: ReactNode;
     /** Noise opacity; 0 turns it off. */
     noise?: number;
     headingId?: string;
@@ -617,19 +692,32 @@ interface StarHeroProps {
     /**
      * One short fact the page proves (a measured number and a few words, e.g. `{ value: "18%",
      * label: "lower postage" }`), worn as the style's stamp: Graphical's orange postmark, Technical's
-     * revision tag, Landing's die-cut label. It belongs to the copy: under the actions in a split
-     * hero and on a phone, on the empty end side of a stacked hero's headline. Never on the product.
+     * revision tag, Landing's riso sticker. Split hero: stuck on the proof's top-end corner (the
+     * media's, if there is one; keep that corner of the visual quiet). Stacked hero: on the empty end
+     * side of the headline. Below 1024px: a one-line strip. Keep the value to 4 characters ("64%",
+     * "£40", "3×") and the label to about 28 characters (three short lines); the stamp sizes its
+     * figure to the value and clamps the label at three lines.
      */
     stamp?: {
         value: ReactNode;
         label: ReactNode;
     };
+    /**
+     * Two or three plain facts under the actions, as a ruled row (value, then a few words): the
+     * price, the time it takes, what it works with, e.g. `{ value: "£40", label: "one-off, app
+     * included" }`. They fill the copy column of a split hero, whose proof is taller than the copy.
+     * Not the stamp's number again: each fact once on the page.
+     */
+    facts?: {
+        value: ReactNode;
+        label: ReactNode;
+    }[];
 }
 /**
  * One focal visual derived from the product story, masked so it never fights the headline,
  * with a quiet noise layer for depth. Copy uses opacity hierarchy, not extra colours.
  */
-declare function StarHero({ eyebrow, title, subtitle, actions, visual, values, children, noise, headingId, align, layout, stamp, }: StarHeroProps): react.JSX.Element;
+declare function StarHero({ eyebrow, title, subtitle, actions, visual, values, children, noise, headingId, align, layout, stamp, media, facts, }: StarHeroProps): react.JSX.Element;
 
 /** Default story data: messages handled over a morning (40 in, 3 left). Rising, so it reads as progress. */
 declare const DEFAULT_STAR_VALUES: number[];
@@ -1520,7 +1608,14 @@ interface FAQProps {
     items: FaqItem[];
     eyebrow?: ReactNode;
     title?: ReactNode;
+    /**
+     * One line under the title. From 1024px the head is a column of its own beside the questions,
+     * so give it an `intro` and an `aside` (a contact line, or the page's CTA): a bare title leaves
+     * that column empty.
+     */
     intro?: ReactNode;
+    /** Under the intro in the head column: a CtaButton, "Still unsure? Email us", a guarantee. */
+    aside?: ReactNode;
     /** Section id, for nav links. Default "faq". */
     id?: string;
     /** The page's canonical URL, used for the FAQPage "@id". */
@@ -1544,7 +1639,7 @@ interface FAQProps {
  * Questions and answers whose visible text and FAQPage JSON-LD come from one array, so the
  * markup can never say something the page does not.
  */
-declare function FAQ({ items, eyebrow, title, intro, id, url, jsonLd, variant, tone, lazyRender, }: FAQProps): react.JSX.Element;
+declare function FAQ({ items, eyebrow, title, intro, aside, id, url, jsonLd, variant, tone, lazyRender, }: FAQProps): react.JSX.Element;
 
 /**
  * Crawl files for a Landing site: robots.txt with an explicit stance per AI crawler,
@@ -1755,4 +1850,4 @@ interface RssFeedOptions {
  */
 declare function rssFeed({ title, link, description, items, self, language }: RssFeedOptions): string;
 
-export { AI_CRAWLERS, type AiCrawler, type AiCrawlerAgent, type AiCrawlerPolicy, type AiCrawlerPreset, type ArticleAuthor, type ArticleOptions, Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, BeforeAfter, type BeforeAfterProps, type BeforeAfterSide, Body, type BodyProps, Brand, type BrandProps, type BreadcrumbItem, type BuildCrawlFilesOptions, ClosingCta, type ClosingCtaProps, type CollectionPageOptions, type CrawlFiles, type CrawlPage, type CrawlRule, type CrawlerPurpose, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, type DataColumn, DataTable, type DataTableProps, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, FAQ, type FAQProps, type FaqItem, type Feature, FeatureGrid, type FeatureGridProps, FileTable, type FileTableProps, type FontPreloadOptions, GRID_COLUMNS, GlassNav, type GlassNavCta, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, type HeadTag, HeadTags, type HeadTagsProps, Heading, type HeadingProps, type InViewOptions, ItemList, type ItemListEntry, type ItemListOptions, type ItemListProps, type ItemListRow, JsonLd, type JsonLdDocument, type JsonLdNode, type JsonLdProps, LLMS_FULL_PATH, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type OfferOptions, type OrganizationOptions, type PageMetaOptions, type PaintTransitionOptions, type PersonOptions, type PricingAction, type PricingPlan, PricingPlans, type PricingPlansProps, type ProductOptions, ProductWindow, type ProductWindowProps, type ProfilePageOptions, Proof, type ProofLead, type ProofProps, type ProofQuote, type ProofStat, type RatingOptions, RecordCard, type RecordCardProps, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, type RssFeedOptions, type RssItem, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, type ScheduleCell, ScheduleGrid, type ScheduleGridProps, type ScheduleRow, type ScheduleTone, type SchemaDate, ScrollTransform, type ScrollTransformProps, Section, SectionIndexContext, type SectionProps, SiteFooter, type SiteFooterProps, SmoothScroll, type SmoothScrollController, type SmoothScrollHandle, type SmoothScrollOptions, type SmoothScrollProps, type SmoothScrollTarget, type SmoothScrollToOptions, type SoftwareApplicationOptions, type SoftwareSourceCodeOptions, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeRole, type TypeStep, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, type WebFontFace, WebPage, type WebPageContext, type WebPageOptions, type WebPageProps, type WebSiteOptions, WebSurface, type WebSurfaceProps, type WheelLike, WorkedExample, type WorkedExampleProps, type WorkedLine, type WorkedQuantity, article, breadcrumbList, buildCrawlFiles, collectionPage, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, itemList, jsonLd, jsonLdTag, llmsFullTxt, llmsTxt, normalizeWheel, numberSections, offer, organization, pageMeta, person, personRef, product, profilePage, ref, resolveAiCrawlers, robotsTxt, rssFeed, scrambleFrame, scrollProgressOf, sectionIndexLabel, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, softwareSourceCode, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webPage, webSite, withPaintTransition, withViewTransition };
+export { AI_CRAWLERS, type AiCrawler, type AiCrawlerAgent, type AiCrawlerPolicy, type AiCrawlerPreset, type ArticleAuthor, type ArticleOptions, Aurora, type AuroraProps, BackgroundFrame, type BackgroundFrameProps, BeamLines, type BeamLinesProps, BeforeAfter, type BeforeAfterProps, type BeforeAfterSide, Body, type BodyProps, Brand, type BrandProps, type BreadcrumbItem, type BuildCrawlFilesOptions, ClosingCta, type ClosingCtaProps, type CollectionPageOptions, type CrawlFiles, type CrawlPage, type CrawlRule, type CrawlerPurpose, CtaButton, type CtaButtonProps, DEFAULT_STAR_VALUES, DEFAULT_TIMING, DISPLAY_FROM_STEP, type DataColumn, DataTable, type DataTableProps, type DemoAction, type DemoFrame, DemoPlayer, type DemoPlayerProps, type DemoStep, type DemoTiming, DotGrid, DriftingGutters, type DriftingGuttersProps, EMPHASIS, Eyebrow, FAQ, type FAQProps, type FaqItem, type Feature, FeatureGrid, type FeatureGridProps, FileTable, type FileTableProps, type FontPreloadOptions, GRID_COLUMNS, GlassNav, type GlassNavCta, type GlassNavLink, type GlassNavProps, GrainOverlay, type GrainOverlayProps, Grid, type GridBackgroundProps, GridItem, type GridItemProps, type GridProps, type HeadTag, HeadTags, type HeadTagsProps, Heading, type HeadingProps, type InViewOptions, ItemList, type ItemListEntry, type ItemListOptions, type ItemListProps, type ItemListRow, JsonLd, type JsonLdDocument, type JsonLdNode, type JsonLdProps, LLMS_FULL_PATH, LineGrid, MagneticButton, type MagneticButtonProps, Marquee, type MarqueeProps, MaskedStar, type MaskedStarProps, NoiseLayer, NumberTicker, type NumberTickerProps, type OfferOptions, type OrganizationOptions, type PageMetaOptions, type PaintTransitionOptions, type PersonOptions, type PricingAction, type PricingPlan, PricingPlans, type PricingPlansProps, type ProductOptions, ProductShot, type ProductShotCallout, type ProductShotProps, type ProductShotReadout, ProductWindow, type ProductWindowProps, type ProfilePageOptions, Proof, type ProofLead, type ProofProps, type ProofQuote, type ProofStat, type RatingOptions, RecordCard, type RecordCardProps, Reveal, type RevealProps, RevealText, type RevealTextProps, RhymeIcon, type RhymeIconProps, type RssFeedOptions, type RssItem, SMOOTH_SCROLL_ATTR, SMOOTH_SCROLL_PREVENT_ATTR, SPACE, type ScheduleCell, ScheduleGrid, type ScheduleGridProps, type ScheduleRow, type ScheduleTone, type SchemaDate, ScrollTransform, type ScrollTransformProps, Section, SectionIndexContext, type SectionProps, SiteFooter, type SiteFooterProps, SmoothScroll, type SmoothScrollController, type SmoothScrollHandle, type SmoothScrollOptions, type SmoothScrollProps, type SmoothScrollTarget, type SmoothScrollToOptions, type SoftwareApplicationOptions, type SoftwareSourceCodeOptions, SpotlightCard, type SpotlightCardProps, StarChart, type StarChartProps, StarHero, type StarHeroProps, Subhead, TYPE_BASE_PX, TYPE_FACES, TYPE_RATIO, TYPE_STEPS, TextScramble, type TextScrambleProps, TiltCard, type TiltCardProps, type TypeRole, type TypeStep, WEB_FONT_FILES, WHEEL_LINE_PX, WHEEL_PAGE_FRACTION, type WebFontFace, WebPage, type WebPageContext, type WebPageOptions, type WebPageProps, type WebSiteOptions, WebSurface, type WebSurfaceProps, type WheelLike, WorkedExample, type WorkedExampleProps, type WorkedLine, type WorkedQuantity, article, breadcrumbList, buildCrawlFiles, collectionPage, createSmoothScroll, curvePath, demoCycle, demoEnd, demoFrame, faqPage, followRate, followStep, fontPreloads, formatLastmod, headTagKey, headTagsToHtml, itemList, jsonLd, jsonLdTag, llmsFullTxt, llmsTxt, normalizeWheel, numberSections, offer, organization, pageMeta, person, personRef, product, profilePage, ref, resolveAiCrawlers, robotsTxt, rssFeed, scrambleFrame, scrollProgressOf, sectionIndexLabel, serializeJsonLd, sitemapXml, slugify, smoothScrollTo, softwareApplication, softwareSourceCode, stepStart, typeMetrics, typeRole, typeScale, useFinePointer, useHead, useInView, useScrollProgress, useSmoothScroll, webPage, webSite, withPaintTransition, withViewTransition };
