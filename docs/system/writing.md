@@ -178,7 +178,7 @@ yet.
 - **One scope per figure.** Every number in it shares the caption's population and window, and the
   source line names them. A part outside that scope (a planned or other-region step) carries it in
   its sub-label (`planned · not live`) and the caption says it is unmeasured; a number with a different
-  or unknown source says so in the source line.
+  source names its own in the source line, and one given without a source gets none (rule 4).
 - Step numbers (`01 / 02 / 03`) only when order matters, and the caption refers to them.
 - A `hint` (selection note) is one short sentence on what the part does.
 - **Name the parts, not the system.** Don't draw one box labelled "RAG pipeline". Draw the
