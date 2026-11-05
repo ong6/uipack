@@ -23,8 +23,10 @@ render in any layout that has matching slots, in any style. See [the system over
    for this audience and what a no costs are what notes are for. A recommendation is said as one
    ("we recommend"), never as a measured fact. A
    before/after comparison claims no cause: say "after", "since", "went from… to", never "lifted",
-   "cut", "drove" or "because", and say once, briefly, that it is a before/after of two windows,
-   not a controlled test (`causal-claim`).
+   "cut", "drove" or "because", and say once, briefly, that it is a before/after of two windows
+   (`causal-claim`). Once per deliverable, not once per piece: put it in the deck's notes or a
+   caption, in plain words ("this compares two months; other things changed too"), never in a
+   customer headline or subhead, and never as a repeated "not a controlled test" stock phrase.
 3. **Specific beats upbeat.** Use a number and what it measures, a multiple ("twice"), or a
    before and after ("3 meetings → 1"). "In a good place" could describe any quarter.
 4. **Every number has a baseline, a window and a source, and each binds only to the number it
@@ -263,7 +265,10 @@ The full rules are in [Web principles](../web-principles.md). The core:
   any trade-off its readers will feel (a higher error rate) as a section. Internal metrics
   (conversion, ticket counts) stay off it too (rule 6): say what the customer notices.
 - **The headline is the outcome for the reader**, in their words and with its scope ("on
-  Android"); the subhead says how, and a demo proves it within 15 seconds.
+  Android"); the subhead says how, and a demo proves it within 15 seconds. An announcement page
+  reads as one: the headline says what changed for the reader ("Pull requests check in about
+  7 minutes"), never a metric label ("CI: median 18 → 7"), and a section says what they do
+  differently, if anything.
 - **Section heads are short and plain**: 2–5 words naming what the reader gets ("Fewer crashes",
   "A slightly slower start", "Android only"), never the section's kind ("Features") and never a
   sentence crammed with numbers. The supporting line carries the number, once.
