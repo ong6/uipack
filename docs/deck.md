@@ -9,28 +9,30 @@ For information-dense slides in the strategy-consulting style (panels of charts,
 ## Your first deck in five minutes
 
 1. **Pick the storyline.** Project update, decision request, deep dive, launch, postmortem or review highlights ([deck storytelling](deck-storytelling.md) has all six, each with the one line leadership should remember).
-2. **Get a playable draft.** `starterDeck(template)` returns one stub slide per beat, titled with the template's example claim and showing its title pattern and advice.
-3. **Write the titles first.** Rewrite each `headline` with your facts and read them in order (G, then Storyline): that ghost deck is your argument. Slide one names the business outcome, not the system.
-4. **Replace each stub's `render`** with the slide that proves its title, and add `notes` (what you'll say).
-5. **Check it.** Pass `lint` while you write; the Storyline tab lists what's missing (talk tracks, sources for numbers, an ask without an owner or a date). Remove `lint`, present, then send the PDF.
+2. **Get a playable draft.** `starterDeck(template)` returns one stub slide per beat, with the template's example title and points, its title pattern and advice.
+3. **Write the titles and points first.** Rewrite each `headline` (2–5 words: a label or a verdict) and its `points` (the numbers, as fragments) with your facts, and read the titles in order (G, then Storyline): that ghost deck is your outline. Slide one names the business outcome, not the system.
+4. **Replace each stub's `render`** with the slide that shows its points or its one piece of evidence, and add cue `notes`: a few short lines on what you'll say.
+5. **Check it.** Pass `lint` while you write; the Storyline tab lists what's missing (notes, sources for numbers, an ask without an owner or a date). Remove `lint`, present, then send the PDF. If the deck will be read without you, write full-sentence titles and lint with `mode: "read-alone"` ([the two modes](deck-storytelling.md#two-modes-presented-and-read-alone)).
 
 ```tsx
-import { DeckPlayer, Slide, starterDeck, type DeckSlide } from "uipack/deck";
+import { DeckPlayer, PointsSlide, starterDeck, type DeckSlide } from "uipack/deck";
 import "uipack/deck.css";
 
 const footer = "Search platform · Index migration update";
 const draft = starterDeck("project-update", { footer });
 
 // Keep each stub's id and role; replace the rest as you write, about the same project as the stubs.
+const headline = "Index migration: on track";
+const points = ["70% of queries moved", "No regressions", "Cutover 30 May"];
 const written: Record<string, Partial<DeckSlide>> = {
   "project-update-1": {
-    headline: "The index migration is on track: 70% of queries moved, no regressions.",
-    render: () => (
-      <Slide eyebrow="Index migration · status" footer={footer} layout="center">
-        <h2 className="uipack-deck-title">The index migration is on track: 70% of queries moved, no regressions.</h2>
-      </Slide>
-    ),
-    notes: { say: "Seventy percent of queries now run on the new index, with no regressions. Source: the migration dashboard.", delivery: "Slowly." },
+    headline,
+    points,
+    render: () => <PointsSlide headline={headline} points={points} footer={footer} />,
+    notes: {
+      say: "On track. 70% of queries on the new index.\nNo regressions.\nSource: the migration dashboard.",
+      delivery: "Say 'on track' first.",
+    },
   },
 };
 const slides = draft.map((s) => ({ ...s, ...written[s.id] }));
@@ -50,14 +52,16 @@ const slides: DeckSlide[] = [
   {
     id: "answer",
     title: "Latency",
-    headline: "Caching cut p95 latency by half.",
+    headline: "Search p95: halved",
     role: "answer",
+    points: ["410 ms → 198 ms", "Caching did most of it"],
     render: () => (
-      <Slide eyebrow="Search latency" footer="Platform review">
-        <Morph id="headline" as="h1" className="uipack-deck-title">Caching cut p95 latency by half.</Morph>
+      <Slide footer="Platform review">
+        <Morph id="headline" as="h1" className="uipack-deck-title">Search p95: halved</Morph>
+        <ul className="uipack-deck-points"><li>410 ms → 198 ms</li><li>Caching did most of it</li></ul>
       </Slide>
     ),
-    notes: { say: "…", delivery: "Pause after the number.", next: "Here is where the time went." },
+    notes: { say: "Half the wait at p95.\nSource: the search latency dashboard.", delivery: "Pause after the number.", next: "Where the time went" },
   },
   {
     id: "where",
@@ -65,7 +69,7 @@ const slides: DeckSlide[] = [
     transition: "morph",
     render: () => (
       <Slide footer="Platform review">
-        <Morph id="headline" as="p">Caching cut p95 latency by half.</Morph>
+        <Morph id="headline" as="p">Search p95: halved</Morph>
         <Build step={1}>…</Build>
       </Slide>
     ),
@@ -77,18 +81,19 @@ const slides: DeckSlide[] = [
 
 `uiStyle="technical" | "landing" | "graphical"` paints the same slides in another style (it sets
 `data-ui-style`; omitted, the deck follows an ancestor's, else Technical). Only tokens change: the
-eyebrow, headline and footer keep their regions, and headlines take the style's display face
+headline, body and footer keep their regions (and an eyebrow, on a slide that has one), and headlines take the style's display face
 (Plex Sans 650, Instrument Serif, Anton caps). The playground keeps it in `?style=` with a switcher
 in the shell's context line. Consulting charts read the data roles, so they follow the style too;
 their dense layouts were tuned in Technical.
 
 ### Archetypes and invert
 
-Four archetypes fill the shared region map (eyebrow, headline, body, footer: [layout.md](system/layout.md#slides)) without moving the eyebrow, headline or footer. Each is a component and a factory that takes typed words and returns a `DeckSlide`, so `lintDeck` can check its slots against their budgets ([deck storytelling](deck-storytelling.md#slot-text-budgets)):
+Five archetypes fill the shared region map (headline, body, footer, and an optional eyebrow: [layout.md](system/layout.md#slides)) without moving the headline or footer. Each is a component and a factory that takes typed words and returns a `DeckSlide`, so `lintDeck` can check its slots against their budgets ([deck storytelling](deck-storytelling.md#slot-text-budgets)). None needs an eyebrow or a lede; both are optional and off by default.
 
 | Archetype | Body | Typical role | Build it with |
 | --- | --- | --- | --- |
-| Section | The part number, large, in the accent | `context` | `sectionSlide({ id, title, eyebrow, number, headline, lede?, footer, role, notes })` |
+| Points | 2–4 fragments that carry the numbers, large; the default for a presented deck | any | `pointsSlide({ id, title, headline, points, source?, footer, role, notes })` |
+| Section | The part number, large, in the accent | `context` | `sectionSlide({ id, title, number, headline, eyebrow?, lede?, footer, role, notes })` |
 | Quote | The words in the display face, an accent rule, who said it | `evidence` | `quoteSlide({ …, headline, quote, attribution })` |
 | Fact | One number in the accent, its unit, its baseline; the source over the footer | `evidence` | `factSlide({ …, headline, value, unit?, baseline, source? })` |
 | End | The ask's decision, owner and date in a row | `ask` | `endSlide({ …, headline, action, owner, date, lede? })` |
@@ -99,21 +104,20 @@ import { factSlide } from "uipack/deck";
 const latency = factSlide({
   id: "latency",
   title: "198 ms at p95",
-  eyebrow: "Latency",
-  headline: "p95 search latency fell from 412 ms to 198 ms in one quarter.",
+  headline: "The slowest search in 20",
   value: "198",
   unit: "ms p95",
-  baseline: "From 412 ms in Q2, on the same query mix.",
+  baseline: "Q2: 412 ms, same query mix",
   source: "Search latency dashboard, Q2 against Q3",
   footer: "Search platform · Q3 review",
   role: "evidence",
-  notes: { say: "…" },
+  notes: { say: "p95: the slowest search in twenty.\n412 ms in Q2, 198 now.\nSource: the search latency dashboard." },
 });
 ```
 
 `invert: true` paints one slide in the style's inverse roles (a dark ground in a light deck, a light one in a dark deck): sugar for `tone: "ink"`, which wins if both are set. It is a variant within the style, never another style. The tech talk's plan slide and the bento review's plan slide use it; the bento review also shows a fact, a section and an end slide, and the tech talk a quote.
 
-Slide type comes from classes on the canvas scale, so every deck sets text the same way: `uipack-deck-eyebrow`, `-label`, `-title` (120px), `-heading` (76px), `-lede`, `-body` (32px) and `-number` (a 360px figure). Slide colours come from the tone (`paper`, `ink`, `accent`) and the deck tokens (`--deck-fg`, `--deck-muted`, `--deck-accent`, `--deck-rule`, `--deck-radius`). A new part or chart follows [contributing](contributing.md#a-new-slide-part-or-chart).
+Slide type comes from classes on the canvas scale, so every deck sets text the same way: `uipack-deck-eyebrow`, `-label`, `-title` (120px), `-heading` (76px), `-points` (a list of 56px fragments), `-lede`, `-body` (32px) and `-number` (a 360px figure). Slide colours come from the tone (`paper`, `ink`, `accent`) and the deck tokens (`--deck-fg`, `--deck-muted`, `--deck-accent`, `--deck-rule`, `--deck-radius`). A new part or chart follows [contributing](contributing.md#a-new-slide-part-or-chart).
 
 ## Transitions
 
@@ -147,7 +151,7 @@ Authoring notes:
 
 ```tsx
 <Slide footer="Q3 review">
-  <h2 className="uipack-deck-heading">Four numbers and two lists tell the whole quarter.</h2>
+  <h2 className="uipack-deck-heading">The quarter on one page</h2>
   <Bento columns={6} rows={4} tour={["latency", "shipped"]}>
     <BentoCell id="latency" col={3} row={2} detail={<LatencyBreakdown />}>
       <p className="uipack-deck-bento-label">p95 latency</p>
@@ -180,7 +184,7 @@ The stage never grows taller than the viewport leaves for it, so the slide and i
 
 ## Speaker view
 
-The Speaker view button opens the same page with `presenter=1` (override with `presenterHref`) and the host renders `mode="presenter"`. Windows showing the same deck `id` stay in step over `BroadcastChannel`, both ways; opening a speaker window never moves the audience. It shows the current slide with a band under it: what the next press does (`Build 2 of 3: Policy…`, `camera to Where the 214 ms went`, the pull-back, or the next slide's name), the next slide, and a paced clock. On a wide screen the slide is sized so that band fits above the controls, and the talk track takes a column of its own beside them, a screen tall (`notes`: say, delivery, bridge, under the slide's role and the question it answers). At a camera stop the stop's part of the track (`notes.stops[id]`) leads as Say at this stop, with the slide's whole track in a closed disclosure under it. The clock shows elapsed time against the budget (the `minutes` prop, else `lint.minutes`, else the talk tracks' own length at 135 words a minute), this slide's planned window, and how far ahead or behind you are. The elapsed clock is a `role="timer"` and each number carries visually hidden words (Elapsed time, Time budget), so a screen reader names them; the host page supplies the window's title and h1 (the playground's is a visually hidden "Tech talk deck, speaker view").
+The Speaker view button opens the same page with `presenter=1` (override with `presenterHref`) and the host renders `mode="presenter"`. Windows showing the same deck `id` stay in step over `BroadcastChannel`, both ways; opening a speaker window never moves the audience. It shows the current slide with a band under it: what the next press does (`Build 2 of 3: Policy…`, `camera to Where the 214 ms went`, the pull-back, or the next slide's name), the next slide, and a paced clock. On a wide screen the slide is sized so that band fits above the controls, and the talk track takes a column of its own beside them, a screen tall (`notes`: say, delivery, bridge, under the slide's role and the question it answers). At a camera stop the stop's part of the track (`notes.stops[id]`) leads as Say at this stop, with the slide's whole track in a closed disclosure under it. The clock shows elapsed time against the budget (the `minutes` prop, else `lint.minutes`, else the talk tracks' own length at 135 words a minute; cue notes are shorter than what you'll say, so pass `minutes` for a presented deck), this slide's planned window, and how far ahead or behind you are. The elapsed clock is a `role="timer"` and each number carries visually hidden words (Elapsed time, Time budget), so a screen reader names them; the host page supplies the window's title and h1 (the playground's is a visually hidden "Tech talk deck, speaker view").
 
 ## Read view
 
@@ -196,7 +200,7 @@ The **PDF / Print** button prints every slide, fully built, one per 16:9 page (1
 
 ## Storyline and checks
 
-Give slides a `role` (`cover`, `answer`, `context`, `problem`, `evidence`, `mechanism`, `option`, `recommendation`, `plan`, `risk`, `ask`, `demo`, `appendix`) and a `headline` (the one-sentence action title). The overview's Storyline tab lists the headlines in order: read alone, they should make the argument. Pass `lint` (or `lint={{ template: "decision-request", minutes: 10 }}`) to show `lintDeck` findings there: titles that are labels rather than claims, claims without a quantity, a missing early answer, no concrete closing ask (an owner that is a placeholder, a hedged date), numbers without a named source, a template beat with no slide, missing or thin talk tracks, and length against the time budget. A deck with no roles still gets the answer-first and closing-ask checks, on roles read from its titles. Leave `lint` off for the audience. In development builds the player also warns in the console, once per slide, when a slide's on-slide heading (its first `h1` or `h2`) no longer says its `headline`, since the two are written separately. The templates, roles and every rule are in [deck storytelling](deck-storytelling.md).
+Give slides a `role` (`cover`, `answer`, `context`, `problem`, `evidence`, `mechanism`, `option`, `recommendation`, `plan`, `risk`, `ask`, `demo`, `appendix`), a `headline` (the title on the slide: 2–5 words when presented, the full conclusion when read alone) and its `points`. The overview's Storyline tab lists the headlines in order: read alone, they should outline the argument. Pass `lint` (or `lint={{ template: "decision-request", minutes: 10 }}`, adding `mode: "read-alone"` for a deck sent without you) to show `lintDeck` findings there: titles that are sentences to read out (presented) or labels rather than claims (read-alone), slides without a quantity, notes that are a script rather than cues, the same shape on every slide, repeated AI tells, a missing early answer, no concrete closing ask (an owner that is a placeholder, a hedged date), numbers without a named source, a template beat with no slide, missing or thin talk tracks, and length against the time budget. A deck with no roles still gets the answer-first and closing-ask checks, on roles read from its titles. Leave `lint` off for the audience. In development builds the player also warns in the console, once per slide, when a slide's on-slide heading (its first `h1` or `h2`) no longer says its `headline`, since the two are written separately. The templates, roles and every rule are in [deck storytelling](deck-storytelling.md).
 
 ## URL and position
 

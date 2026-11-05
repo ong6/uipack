@@ -15,8 +15,8 @@ render in any layout that has matching slots, in any style. See [the system over
    p95 already counts retried requests"). A fact the piece needs but the input lacks becomes a visible
    `TODO:` question in the slot it belongs to (`Source: TODO`), not a filler line. A recommendation
    is said as one ("we recommend"), never as a measured fact.
-3. **Specific beats upbeat.** Use a number and what it measures, a multiple ("twice"), or two
-   quantities compared ("one meeting, not three"). "In a good place" could describe any quarter.
+3. **Specific beats upbeat.** Use a number and what it measures, a multiple ("twice"), or a
+   before and after ("3 meetings → 1"). "In a good place" could describe any quarter.
 4. **Every number has a baseline, a window and a source, and each binds only to the number it
    measures.** "The search latency dashboard, May vs June, all regions" given for p95 says nothing
    about the error rate in the next sentence: that one gets `Window and source: TODO`, never "same
@@ -29,19 +29,37 @@ render in any layout that has matching slots, in any style. See [the system over
    | --- | --- | --- |
    | Label | Inside the drawing | 2–3 words; a mono sub-label for a value (`1536-dim`, `p95 198ms`) |
    | Arrow label | On the line | What travels or the rule (`cosine · floor 0.35`, `async · queue`) |
-   | Eyebrow | Above the title | 1–4 words, a category or section (`FIGURE 02 · RETRIEVAL`, `RESULTS`) |
-   | Title / headline | The top of the unit | The claim as a full sentence, 3–14 words |
-   | Caption / lede | Under the title or figure | One sentence that adds the why or the caveat |
-   | Body | Slides and pages only | Up to three points of at most 12 words, phrases without full stops; each supports the title, never a second claim |
-   | Notes / narration | Speaker view, voice-over, `say` | Full sentences, the talk track |
+   | Eyebrow | Above the title; optional, and off on slides by default | 1–4 words, a category or section (`FIGURE 02 · RETRIEVAL`), never the claim |
+   | Title / headline | The top of the unit | A presented slide: 2–5 words, a topic label or a verdict you'd say aloud (`Search: twice as fast since March`). A slide read without its speaker, a figure, a web section: the claim as a full sentence, 3–14 words |
+   | Caption / lede | Under the figure (caption) or, rarely, a slide title (lede) | One plain sentence for the why or a caveat; slides have no lede by default |
+   | Body | Slides and pages only | Slides: 2–4 fragments of at most 8 words, no full stops, carrying the numbers and cues (`p95 198 ms, half of March`, `5 indexes → 1`). Pages: short paragraphs |
+   | Notes / narration | Speaker view, voice-over, `say` | A presented deck: cues, a few short lines. A read-alone deck, a voice-over: full sentences |
    | Source | Footer or footnote | A named artifact ("the search latency dashboard", "load test 12") |
 
 6. **Plain names.** "The gap-down fade strategy", not an internal code. Codes go in parentheses
    only when someone needs to trace them.
 7. **No sentences in the drawing, no labels in the notes.** If a label wraps, split the part or
    move the sentence to the caption.
-8. **Readable alone.** A forwarded slide, a screenshot of a figure and a muted video still make the
-   point. Caveats that change the conclusion stay on the canvas, not only in the notes.
+8. **Readable alone.** A screenshot of a figure and a muted video still make the point. A presented
+   slide still shows its numbers and their baselines, so a forwarded copy keeps the facts; a deck
+   that must carry the whole argument without its speaker is written read-alone (see
+   [Slides](#slides)). Caveats that change the conclusion stay on the canvas, not only in the notes.
+9. **Write like a person, not a template.** Each of these is fine once; repeated, they read as
+   generated (Wikipedia's "Signs of AI writing" names most of them):
+
+   | Tell | Looks like | Instead |
+   | --- | --- | --- |
+   | "X, not Y" on every slide | "decided in one meeting, not three" | State the fact (`3 meetings → 1`); say the contrast if it matters |
+   | Two balanced clauses on a semicolon | "Same teams and the same six months; only the order of the slides changed." | Two points, or keep one and say the other |
+   | A comparison bolted onto every claim | "198 ms at p95, twice as fast as March" | The baseline as its own point, or said aloud |
+   | Matched number pairs | "one meeting, not three" next to "one index replaced five" | One number per point, with its baseline |
+   | A tidy closing clause | "…and the cache serves the rest" | Stop at the fact |
+   | A coined term used as if established | "Answer-first reviews" | Say what happened: reviews that opened with the answer |
+   | The same shape on every unit | eyebrow, sentence headline, lede, slide after slide | Vary the form: labels, verdicts, the occasional question |
+   | A one-word caps eyebrow | `REVIEWS`, `SEARCH` | Drop it; the title names the topic |
+
+   Hoffman's note on his own LinkedIn pitch applies too: be wary of adjectives and especially
+   adverbs ("high", not "very high").
 
 ## The content schema
 
@@ -50,19 +68,20 @@ Each medium fills a subset of one shape. These field names are what layouts bind
 ```ts
 type Content = {
   role?: SlideRole;          // the job this unit does (slides)
-  eyebrow?: string;
-  headline: string;          // the claim
-  lede?: string;             // one sentence of why or caveat
-  body?: Block[];            // points, a figure, a chart, KPI items, a table
+  eyebrow?: string;          // optional, off on slides by default
+  headline: string;          // presented: a short label or verdict; read-alone: the claim
+  lede?: string;             // optional: one plain sentence of caveat
+  points?: string[];         // slides: 2–4 fragments that carry the numbers
+  body?: Block[];            // a figure, a chart, KPI items, a table
   caption?: string;          // figures
   source?: string;
-  notes?: { say: string; delivery?: string; next?: string };
+  notes?: { say: string; delivery?: string; next?: string }; // say: cues when presented
 };
 ```
 
 `DeckSlide` (deck), `SlideStarterData.content` + `.speech` (starters) and preset specs are today's
-implementations of this shape. The deck archetype factories (`sectionSlide`, `quoteSlide`,
-`factSlide`, `endSlide`) take these fields as data, so the linter can read them.
+implementations of this shape. The deck archetype factories (`pointsSlide`, `sectionSlide`,
+`quoteSlide`, `factSlide`, `endSlide`) take these fields as data, so the linter can read them.
 
 ## Slot budgets
 
@@ -70,15 +89,16 @@ Each slot holds a fixed amount of text before it stops reading at a glance. The 
 the slot, so it holds in every layout and every style (a condensed display face is no excuse for a
 longer headline). `SLOT_BUDGETS` in `uipack/deck` is the table; `lintDeck` reports a slot over
 budget as `slot-budget` (a warning), and `slotProblems(slot, text)` checks one string. Line counts
-are estimates at the slot's measure on the 1920×1080 canvas.
+are estimates at the slot's measure on the 1920×1080 canvas. The headline's length depends on the
+deck's mode (`TITLE_WORDS`), so `title-length` checks it, not `slot-budget`.
 
 | Slot | Budget | When it runs over |
 | --- | --- | --- |
-| eyebrow | 1–4 words, one line, not a sentence | wraps |
-| headline | 3–14 words, at most 2 lines | wraps, balanced |
+| eyebrow (optional) | 1–4 words, one line, not a sentence | wraps |
+| headline | presented: at most 6 words (aim for 2–5); read-alone: at most 14, on at most 2 lines | wraps, balanced |
 | title | at most 14 words (overview and screen readers) | ellipsis |
-| lede | at most 30 words, 3 lines, one sentence | wraps |
-| point (body line) | at most 12 words, one line, at most 3 a slide | wraps |
+| lede (optional) | at most 30 words, 3 lines, one sentence | wraps |
+| point (body line) | at most 8 words, one line, a fragment with no full stop; 2–4 a slide | wraps |
 | label | at most 3 words, not a sentence | wraps |
 | quote | at most 30 words, 4 lines, 2 sentences | wraps, balanced |
 | attribution | at most 8 words | wraps |
@@ -117,16 +137,46 @@ yet.
 
 ## Slides
 
-The full guide is [Deck storytelling](../deck-storytelling.md), and `lintDeck` checks it. The core:
+The full guide is [Deck storytelling](../deck-storytelling.md), and `lintDeck` checks it. Every
+deck is written for one of two modes, passed as `lintDeck(slides, { mode })` or the player's
+`lint={{ mode }}`:
 
-- **Answer first.** The conclusion is on slide one or two. Slide one names the outcome ("Search
-  got twice as fast"), not the system. Its body carries the trade-off and the ask that qualify
-  the answer.
-- **Action titles.** Every headline is a claim of 3–14 words. "Index freshness fell from 40 to 6
-  minutes", not "Results". An evidence or cost headline also says what the number means for the
-  decision, from the given facts ("Moving the last two regions costs one engineer for six weeks"),
-  not the bare figure again.
-- **Ghost deck.** The titles alone, in order, tell the whole argument (`storylineOf`).
+| Mode | When | Title | Body | Notes |
+| --- | --- | --- | --- | --- |
+| `presented` (default) | You give it, and the room hears you | 2–5 words: a topic label (`Search latency`) or a verdict that sounds spoken (`Review decisions: 3 meetings → 1`) | 2–4 fragments carrying the numbers and cues, or one piece of evidence | Cues: a few short lines |
+| `read-alone` | It goes out without you: a pre-read, a forwarded deck, a consulting-style customer readout | The real conclusion as one sentence, 3–14 words | Points, or one piece of evidence | The talk track in full sentences |
+
+Why presented is the default: across 66 well-regarded decks and talks (keynotes, engineering
+talks, pitch decks), the strongest fit for a speaker who talks from on-slide points is a short title
+over a few fragments (Rich Hickey, Rob Pike, LinkedIn's Series B deck, Benedict Evans), or a short
+spoken claim over one piece of evidence (Simon Willison, Evans). None of the 26 tech talks used an
+eyebrow over a sentence headline over a lede. A sentence headline plus a lede writes out what the
+speaker would say, so the speaker recites it and the room reads ahead.
+
+- **Answer first.** The conclusion is on slide one or two, and slide one names the outcome
+  ("Search: twice as fast, and cheaper"), not the system. Its points carry the trade-off and the ask.
+- **Short titles, mixed forms.** A label ("Search latency"), a verdict ("Decided in 6 days"), the
+  occasional question ("Will the cache hold?"). Never the same shape on every slide
+  (`slide-shape`).
+- **The points carry the numbers.** Each is a fragment: a number with its baseline ("p95: 412 ms →
+  198 ms"), a cue ("Only change: the answer moved to slide 1"), a caveat that must stay on screen
+  ("Not proof of cause"). An answer, evidence, problem or recommendation slide quantifies its claim
+  in the title or a point. A plan slide carries a date or a number.
+- **Evidence slides: a short spoken headline and one piece of evidence.** A chart, a number with
+  its baseline (the fact archetype), a screenshot. The headline says what it shows ("The slowest
+  search in 20"); the evidence does the proving.
+- **No eyebrow and no lede by default.** Add a lede only for a caveat that would change the decision
+  and doesn't fit as a point.
+- **Say the because.** The full claim, the comparison and the reasoning are spoken, from cues.
+  Nothing on a presented slide needs reading aloud, so you can word it differently every time.
+- **Ghost deck.** The titles alone, in order, still outline the argument (`storylineOf`): a
+  speaker's outline when presented, the argument in full sentences when read alone.
+- **Read-alone titles state the real conclusion.** The Boeing slide NASA saw before Columbia was
+  titled "Review of Test Data Indicates Conservatism for Tile Penetration"; the caveat that decided
+  it (the foam was 1,920 cubic inches, the test 3) was its last, smallest bullet. A sentence title is
+  only as good as the conclusion it states. An evidence or cost title says what the number means
+  for the decision, from the given facts ("Moving the last two regions costs one engineer for six
+  weeks").
 - **One idea per slide.** The body proves the title. Cover the title, and the visual should still
   point at it.
 - **The facts set the length, not the template.** When the input can't fill a beat (no options,
@@ -136,13 +186,17 @@ The full guide is [Deck storytelling](../deck-storytelling.md), and `lintDeck` c
   `recommendation`, `plan`, `risk`, `ask`, `demo`, `appendix`) tag each slide's job. Six storyline
   templates order them: project update, decision request, deep dive, launch, postmortem, review
   highlights.
-- **End on a concrete ask**: an action, a named owner (a role or team) and a calendar date, plus
-  what happens on a no or a missed date (if the input doesn't say, a `TODO:` in the notes). Never
-  "Questions?".
-- **Notes carry the talk.** `say` in full sentences (about 135 words a minute), `delivery` for cues,
-  `next` for the bridge to the next slide. When the brief fixes the slide count but not the time,
-  budget about a minute a slide (100–135 words); notes restate and explain, never pad.
-- Eyebrows on slides name the section, not the slide's claim.
+- **End on a concrete ask**: an action, a named owner (a role or team) and a calendar date, in the
+  title or the points, plus what happens on a no or a missed date (if the input doesn't say, a
+  `TODO:` in the notes). Never "Questions?".
+- **Notes are cues when presented.** `say` is a few short lines, one thought each and at most about
+  60 words (`notes-cues`): the claim to say, the number to point at, the caveat, the source.
+  `delivery` is one cue for pace or where to point; `next` is the bridge, a few words. Because you
+  talk in your own words, the talk's length comes from the slide count, about a minute a slide, not
+  from the notes. A read-alone deck keeps `say` in full sentences at about 135 words a minute (100–135
+  words a slide when only the count is fixed); notes restate and explain, never pad.
+- **No AI tells** (rule 9 above): `ai-tells` flags a "X, not Y" contrast or a bolted-on comparison
+  on more than one slide, and a semicolon balancing two clauses.
 
 ## Web
 
@@ -154,7 +208,7 @@ The full rules are in [Web principles](../web-principles.md). The core:
   any trade-off its readers will feel (a higher error rate) as a section.
 - **The headline is the outcome for the reader**, the subhead says how, and a demo proves it within
   15 seconds.
-- **Section heads are claims** too. "Answers in one search, not five" beats "Features".
+- **Section heads are claims** too. "Answers in one search" beats "Features".
 - **The FAQ answers real objections** in the asker's words. Its text and its structured data share
   one source.
 - Body copy is short: one idea per paragraph, at most three sentences.

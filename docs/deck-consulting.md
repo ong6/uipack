@@ -2,6 +2,8 @@
 
 `uipack/deck` includes parts for information-dense slides in the strategy-consulting style: a lot of evidence on one page, still readable when projected. Each slide carries one full-sentence claim, the panels that prove it, a "so what", and footnotes with a source. They play in the [deck player](deck.md) like any other slide. Morph and zoom work on them too, so you can zoom from a dense slide into one panel.
 
+A consulting deck is built to be read without its presenter, so it is the [read-alone mode](deck-storytelling.md#two-modes-presented-and-read-alone): each `title` is the full conclusion as one sentence, and the talk track is written out. Lint it with `{ mode: "read-alone" }`, as the example does. For a deck you present and talk through, use short titles and points instead.
+
 Run `npm run dev` and open `/deck?deck=consulting` to see the example: a seven-slide decision request with illustrative data, plus an appendix slide holding the cost model behind every number.
 
 ![Summary slide, light](deck-consulting-summary-light.png)

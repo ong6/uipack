@@ -49,7 +49,7 @@ What makes that work is a contract between the layers:
 | Layer | Owns | Must never contain |
 | --- | --- | --- |
 | Style | A value set for the roles (`--ui-paper`, `--ui-ink`, `--ui-accent`, `--ui-flow-request`, `--ui-font-display`, `--ui-radius`, `--ui-ease-settle`…) with light and dark halves; scalars it may own (density, type ratio, measure, display scale); what it paints in a layout's ornament slots (backdrop, marker, rule, frame); 3D material palettes | Positions, sizes of regions, words |
-| Writing | Typed content: `eyebrow`, `headline`, `body`, `figure`, `caption`, `notes { say, delivery, next }`, `source`, `role` | Colours, font names, coordinates |
+| Writing | Typed content: `headline`, `points`, optional `eyebrow` and `lede`, `body`, `figure`, `caption`, `notes { say, delivery, next }`, `source`, `role` | Colours, font names, coordinates |
 | Layout | Named regions and slots, each slot's text budget, ornament slots left for the style, a grid, a reading order, a beat order and transitions, sizes in grid units | Hex values, face names, sentences |
 
 Two rules follow from the contract:
@@ -66,8 +66,9 @@ decoration and text length):
 - **A style may own scalars and ornaments, never positions or words.** Density, type ratio,
   measure and display scale are style roles. Shapes a style adds (Graphical's disc, Technical's
   dotted grid) go through named ornament slots that never take space, so every region stays put.
-- **Every slot has a text budget.** A headline is 3–14 words on at most two lines, an eyebrow 1–4
-  words, a label 2–3. `SLOT_BUDGETS` holds the table and `lintDeck` reports `slot-budget`
+- **Every slot has a text budget.** A presented slide's headline is 2–5 words (at most 14 when the
+  deck is read without its speaker), a body point a fragment of at most 8 words, an eyebrow
+  (optional) 1–4 words, a label 2–3. `SLOT_BUDGETS` holds the table and `lintDeck` reports `slot-budget`
   ([Writing, slot budgets](writing.md#slot-budgets)).
 - **A style may recommend layouts, never require them.** On the web the section order is part of a
   look, so each style names a sequence for the same content (`uiStyles[].prefers`,
@@ -87,7 +88,7 @@ What exists in code and what is still missing is in
 | Medium | Entry | Default style | Writing core | Layout core |
 | --- | --- | --- | --- | --- |
 | Diagrams | `uipack` (`Figure`), `uipack/presets`, `uipack/drill`, `uipack/charts`, `uipack/article` | Technical | Claim sentence, 2–3 word labels, labelled arrows, one-line caption | 8px grid, lanes, groups, authored narrow drawing |
-| Slides | `uipack/deck` (new work), `uipack/presentations` (three starters) | Technical (deck tokens) | Action titles, ghost deck, slide roles, storylines, talk track, a concrete ask | 1920×1080 canvas, eyebrow/headline/body/footer regions, slide archetypes |
+| Slides | `uipack/deck` (new work), `uipack/presentations` (three starters) | Technical (deck tokens) | Short titles and fragment points with cue notes (presented) or full-sentence titles (read-alone), ghost deck, slide roles, storylines, a concrete ask | 1920×1080 canvas, headline/body/footer regions, slide archetypes |
 | Web | `uipack/web`, `uipack/docs` | Technical (Landing and Graphical swap in) | One goal per page, outcome headline, one CTA in three places | 12/8/4 grid, 8pt spacing, section archetypes, a sequence per style |
 | Motion | Packets, entrance, deck transitions, `uipack/web` motion | Inherits the host style's motion tokens | One sentence per beat | Beats, the timing scale, transition grammar |
 | 3D | `uipack/slides` (camera stories), `uipack/objects`, `uipack/mechanism` | Studio / Mechanism | A label set and one line of narration per stop | Camera stops, framing, the 2D fallback |

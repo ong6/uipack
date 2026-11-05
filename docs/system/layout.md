@@ -66,10 +66,10 @@ drawings without one keep their readable width and scroll inside the frame.
 ```text
 ┌──────────────────────────────────────────────────────────── 1920 ┐
 │  112                                                             │
-│  EYEBROW  ............................................ (eyebrow) │
+│  (eyebrow: optional, off by default) ................. (eyebrow) │
 │  44                                                              │
-│  Headline: the claim, at most two lines ............. (headline) │
-│  Lede: one sentence of why ............................... (lede) │
+│  Headline: 2–5 words, or the claim when read alone .. (headline) │
+│  (lede: optional, one sentence of caveat) ................ (lede) │
 │                                                                  │
 │  ┌ BODY ──────────────────────────────────────────────────────┐  │
 │  │  the evidence: figure / chart / points / tiles / table     │  │
@@ -79,20 +79,21 @@ drawings without one keep their readable width and scroll inside the frame.
 └─ 144 ──────────────────────────────────────────────────── 144 ───┘
 ```
 
-The eyebrow and headline keep the same position on every slide, so `advance` reads as the argument
-moving, not the page jumping. The footer stays put across transitions.
+The headline keeps the same position on every slide (and so does an eyebrow, on the rare slide
+that has one), so `advance` reads as the argument moving, not the page jumping. The footer stays put
+across transitions.
 
 **Archetypes.** Each one is a layout over the regions above, with the role it usually serves:
 
 | Archetype | Body | Typical role | Built as |
 | --- | --- | --- | --- |
-| Cover | None. Big title, eyebrow, footer | `cover` | `Slide layout="center"`, `.uipack-deck-title` |
-| Statement | The headline alone, centred | `answer`, `recommendation` | `Slide layout="center"` |
+| Points | A short title and 2–4 fragments that carry the numbers; the default for a presented deck | any, most often `answer`, `problem`, `plan` | `pointsSlide`, `PointsSlide` |
+| Cover | None. Big title, footer | `cover` | `Slide layout="center"`, `.uipack-deck-title` |
+| Statement | The title alone, centred, or with its points | `answer`, `recommendation` | `Slide layout="center"` |
 | Hero number | One number (360) with its label and baseline | `evidence` | `.uipack-deck-number` |
-| Figure + narration | A diagram across the body, one-line lede | `mechanism` | `Slide` + `Figure`; zoom target for a drill |
+| Figure + narration | A diagram across the body, the narration in the notes | `mechanism` | `Slide` + `Figure`; zoom target for a drill |
 | Split | Text left, visual right (or the reverse) | `evidence`, `mechanism` | `Slide layout="split"` |
 | Before / after | Two columns with matching rows, the change highlighted | `evidence`, `option` | Morph the changed element |
-| Points | Three supporting points, at most | `context`, `problem` | `Slide` blocks |
 | KPI row | 3–4 tiles, one highlighted | `evidence` | `KpiTiles` |
 | Options | Options against criteria | `option` | `HarveyTable`, `Matrix2x2` |
 | Consulting frame | Tracker, action title, a 12-column grid of panels, "So what", notes, source | Any data slide | `ConsultingSlide` + `Panel` |
