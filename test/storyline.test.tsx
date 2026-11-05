@@ -161,7 +161,7 @@ describe("storyline templates", () => {
       expect(SLIDE_ROLES[role].question).toBeTruthy();
     }
     expect(REPEATABLE_ROLES).toContain("evidence");
-    expect(Object.keys(LINT_RULES)).toHaveLength(22);
+    expect(Object.keys(LINT_RULES)).toHaveLength(23);
   });
 });
 
@@ -877,7 +877,7 @@ describe("lintDeck: presented decks (the default)", () => {
       role: "answer",
       points: ["Same teams, same 6 months", "Only change: the answer moved to slide 1"],
       notes: cues(
-        "Answer-first reviews decided in one meeting.\nPoint at 3 → 1.\nSource: the platform review log.",
+        "Answer-first reviews decided in one meeting.\nBefore/after of two windows, not a test.\nSource: the platform review log.",
         "What a buried answer costs",
       ),
     },
@@ -974,6 +974,63 @@ describe("lintDeck: presented decks (the default)", () => {
       expect.objectContaining({ slideId: "problem", severity: "warn", message: expect.stringMatching(/70 words, a script/) }),
     ]);
     expect(find(lintDeck(deck), "notes-cues")).toEqual([]);
+  });
+
+  it("notes-cues: warns on notes that are only stage directions, tips one beside content", () => {
+    const only = withSlide(presented, "evidence", {
+      notes: cues("Walk the figure left to right.\nPoint at the 9, then the old 40."),
+    });
+    expect(find(lintPresented(only), "notes-cues")).toEqual([
+      expect.objectContaining({ slideId: "evidence", severity: "warn", message: expect.stringMatching(/only stage directions/) }),
+    ]);
+    const mixed = withSlide(presented, "evidence", {
+      notes: cues("Desktop only: 61.2 → 63.0 over four weeks.\nPoint at the 9."),
+    });
+    expect(find(lintPresented(mixed), "notes-cues")).toEqual([
+      expect.objectContaining({ slideId: "evidence", severity: "tip", message: expect.stringMatching(/move it to `delivery`/) }),
+    ]);
+    expect(find(lintDeck(only), "notes-cues")).toEqual([]);
+  });
+
+  describe("causal-claim", () => {
+    it("warns on a cause verb in a deck that shows a before/after, outside mechanism, plan and ask", () => {
+      const lifted = withSlide(presented, "answer", { title: "Cached cards lifted checkout" });
+      expect(find(lintPresented(lifted), "causal-claim")).toEqual([
+        expect.objectContaining({ slideId: "answer", severity: "warn", message: expect.stringMatching(/claims a cause/) }),
+      ]);
+      for (const point of ["Tickets fell because of the cache", "Retries drove failures down", "Caching cut tickets"])
+        expect(find(lintPresented(withSlide(presented, "problem", { points: [point] })), "causal-claim"), point).toHaveLength(1);
+      // Said as timing, it's fine; so is a mechanism slide saying how the part works.
+      expect(
+        find(lintPresented(withSlide(presented, "answer", { title: "Checkout: 61.2% → 63.0% since caching" })), "causal-claim"),
+      ).toEqual([]);
+      expect(
+        find(
+          lintPresented([
+            ...presented,
+            { id: "how", title: "The cache cuts provider calls", role: "mechanism", notes: cues("One call a day.") },
+          ]),
+          "causal-claim",
+        ),
+      ).toEqual([]);
+      // No before/after anywhere: nothing to overclaim from.
+      const noCompare = presented.map((s) => ({
+        ...s,
+        title: s.title.replace(/→/g, "to"),
+        points: (s.points ?? []).filter((p) => !p.includes("→")),
+      }));
+      expect(find(lintPresented(withSlide(noCompare, "answer", { title: "Caching cut tickets" })), "causal-claim")).toEqual([]);
+    });
+
+    it("tips when no cue says it is a before/after, not a controlled test", () => {
+      const silent = withSlide(presented, "answer", {
+        notes: cues("Answer-first reviews decided in one meeting.\nSource: the platform review log."),
+      });
+      expect(find(lintPresented(silent), "causal-claim")).toEqual([
+        expect.objectContaining({ severity: "tip", message: expect.stringMatching(/never says so/) }),
+      ]);
+      expect(find(lintPresented(presented), "causal-claim")).toEqual([]);
+    });
   });
 
   it("talk-time: cues are not timed against the budget's floor", () => {

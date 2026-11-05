@@ -53,7 +53,8 @@ export type LintRule =
   | "slot-budget"
   | "notes-cues"
   | "slide-shape"
-  | "ai-tells";
+  | "ai-tells"
+  | "causal-claim";
 
 export interface LintFinding {
   slideId?: string;
@@ -149,7 +150,7 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   "notes-cues": {
     severity: "warn",
     check:
-      "Presented: each slide's `say` is cues, not a script: at most 60 words (the claim to say, the number to point at), with the bridge in `next`.",
+      "Presented: each slide's `say` is cues, not a script: at most 60 words (the claim to say, the number to point at), with the bridge in `next`. A `say` of stage directions only ('Point at the 9', 'Walk the figure') warns: say the claim and the number; a stage direction beside content is a tip to move it to `delivery`.",
   },
   "slide-shape": {
     severity: "warn",
@@ -160,6 +161,11 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
     severity: "warn",
     check:
       "No templated rhetoric: a 'X, not Y' contrast or an appended comparison ('…, twice as fast as March') on more than one slide warns; a semicolon joining two clauses in a title, lede or point is a tip.",
+  },
+  "causal-claim": {
+    severity: "warn",
+    check:
+      "A deck that shows a before/after comparison ('61.2% → 63.0%', 'was 40', 'Sep vs Oct') claims no cause from it: a cause verb ('lifted', 'cut', 'drove', 'because') in a title, lede or point warns outside mechanism, plan and ask slides (say 'after', 'since', 'went from… to'). A tip when nothing on the slides, notes or source says once that it is a before/after of two windows, not a controlled test.",
   },
 };
 

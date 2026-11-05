@@ -362,6 +362,19 @@ export const COMPARISON_KICKER_RE =
 /** Two clauses balanced on a semicolon: "Same teams and the same six months; only the order changed." */
 export const SEMICOLON_CLAUSES_RE = /\S\s*;\s+\p{L}/u;
 
+/** A before/after comparison of two numbers: "61.2% → 63.0%", "from 40 to 9 a week", "9 a week, was 40", "Sep vs Oct". */
+export const BEFORE_AFTER_RE =
+  /\d[^→]*(?:→|->)\s*[~≈]?\d|\bfrom\s+(?:about\s+|~)?\d[^,;]*?\bto\s+(?:about\s+|~)?\d|\bwas\s+(?:about\s+|~)?\d|\d[^,;]*\bvs\.?\s|\bbefore\b[^,;]*\bafter\b/i;
+/** A verb that claims a cause: "Cached cards lifted checkout", "drove", "because", "thanks to". */
+export const CAUSAL_RE =
+  /\b(?:lift(?:s|ed)?|boost(?:s|ed)?|dr(?:ove|ives|iven)|cut(?:s)?|slash(?:es|ed)?|caused|led to|leads to|resulted in|results in|because|thanks to|due to|delivered)\b/i;
+/** A cue that says the comparison is not a test: "before/after of two windows", "not a controlled test". */
+export const NOT_A_TEST_RE =
+  /before[\s/-]*(?:and[\s-]*)?after|not\s+(?:a\s+)?(?:controlled\s+|a\/b\s+)?test|not proof|correlat|two windows/i;
+/** A stage direction with no content of its own: "Point at the 9", "Walk the figure left to right", "Pause". */
+export const STAGE_DIRECTION_RE =
+  /^(?:point(?:\s+(?:at|to))?|walk(?:\s+(?:through|the))?|pause|click|gesture|show|look\s+at|wait|advance|turn\s+to|go\s+to|hold|let\s+it|read\s+out|trace)\b/i;
+
 /** Auxiliaries, modals and common finite verbs: a title with one says something happened or holds. */
 const VERB_RE =
   /\b(?:is|are|was|were|be|been|am|has|have|had|do|does|did|can|could|will|would|shall|should|may|might|must|won't|can't|isn't|aren't|wasn't|weren't|don't|doesn't|didn't|hasn't|haven't|got|gets|get|goes|went|came|comes|fell|falls|rose|rises|grew|grows|cut|cuts|took|takes|made|makes|kept|keeps|held|holds|ran|runs|won|wins|lost|loses|beat|beats|left|leaves|stays|needs|need|costs|shows|says|means|works|adds|drops|lands|hits|saves|ships|ends|stops|slips|slip|breaks|fails|moves|doubles|halves|applies|apply|drains|refills|decides|syncs|serves|catches|caught|missed|misses|pays|buys|bought|brings|brought|lets|helps|returns|reaches|matters|wait|waits|take|resize|resizes|uses|use|blocks|sits|lives)\b/i;

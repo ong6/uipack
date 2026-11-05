@@ -176,6 +176,7 @@ export const bentoDeck: DeckSlide[] = [
         "Clicks: more people found what they came for.",
         "Then: the evidence, one risk, one decision by 30 October.",
         "Source: the search latency, cost and click-through dashboards, Q2 against Q3.",
+        "A before/after of two quarters, not a controlled test.",
       ),
       delivery: "Speed and cost first, then the clicks. Don't explain yet.",
       next: "Where the speed came from",

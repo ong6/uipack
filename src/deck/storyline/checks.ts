@@ -30,6 +30,10 @@ import {
   NOT_CONTRAST_RE,
   COMPARISON_KICKER_RE,
   SEMICOLON_CLAUSES_RE,
+  BEFORE_AFTER_RE,
+  CAUSAL_RE,
+  NOT_A_TEST_RE,
+  STAGE_DIRECTION_RE,
 } from "./heuristics";
 
 /** What every check reads: the deck, its options, and what is derived from them once. */
@@ -266,6 +270,33 @@ export const LINT_CHECKS: readonly LintCheck[] = [
     },
   },
   {
+    // A before/after of two windows shows what changed alongside the change, not that it caused it.
+    rule: "causal-claim",
+    check: (deck, report) => {
+      const slides = deck.slides.filter((s) => s.role !== "appendix");
+      const linesOf = (s: StorySlide) => [headlineOf(s), s.lede ?? "", ...(s.points ?? [])].filter(Boolean);
+      if (!slides.some((s) => linesOf(s).some((l) => BEFORE_AFTER_RE.test(l)))) return;
+      const exempt: readonly (SlideRole | undefined)[] = ["mechanism", "plan", "ask"];
+      for (const slide of slides) {
+        if (exempt.includes(deck.roleAt(slide))) continue;
+        const line = linesOf(slide).find((l) => CAUSAL_RE.test(l) && !NOT_A_TEST_RE.test(l));
+        if (line)
+          report(
+            "warn",
+            `"${line}" claims a cause from a before/after comparison. Say what went with it: "after", "since", "went from… to".`,
+            slide.id,
+          );
+      }
+      const said = slides.some((s) => [...linesOf(s), notesText(s.notes), s.source ?? ""].some((t) => NOT_A_TEST_RE.test(t)));
+      // A titles-only outline has nowhere to say it yet; notes-present reports that.
+      if (!said && slides.some((s) => sayOf(s.notes)))
+        report(
+          "tip",
+          'The deck compares before and after but never says so. Say it once, in a cue or a point: "before/after of two windows, not a controlled test".',
+        );
+    },
+  },
+  {
     rule: "slot-budget",
     check: ({ slides }, report) => {
       for (const slide of slides) {
@@ -325,6 +356,23 @@ export const LINT_CHECKS: readonly LintCheck[] = [
           report(
             "warn",
             `The notes run ${words} words, a script to recite. Cut them to a few short cue lines (the claim to say, the number to point at) and the bridge in \`next\`; you'll say it in your own words.`,
+            slide.id,
+          );
+        const lines = sayOf(slide.notes)
+          .split(/\n+|(?<=[.!?])\s+/)
+          .map((l) => l.trim())
+          .filter(Boolean);
+        const directions = lines.filter((l) => STAGE_DIRECTION_RE.test(l));
+        if (directions.length && directions.length === lines.length)
+          report(
+            "warn",
+            `The notes are only stage directions ("${directions[0]}"). Cue the content: the claim to say and the number to point at, in a few words ("Desktop only: 61.2 → 63.0 over four weeks").`,
+            slide.id,
+          );
+        else if (directions.length)
+          report(
+            "tip",
+            `"${directions[0]}" is a stage direction; move it to \`delivery\` and keep \`say\` for what to say.`,
             slide.id,
           );
       }
