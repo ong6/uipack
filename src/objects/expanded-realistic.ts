@@ -106,12 +106,15 @@ function surface(root: THREE.Object3D, map: THREE.Texture, normalMap: THREE.Text
 }
 
 /**
- * Oiled walnut: two flat-sawn planks per tile, laid across the frame (so the grain never converges
- * on the vanishing point), with wavy latewood lines, long open pores and a dark seam between planks.
- * Tiles every WOOD_TILE units, sharp enough for the macro shots.
+ * Oiled walnut, quarter-sawn: one plank per tile, laid across the frame (so the grain never
+ * converges on the vanishing point). Straight, near-parallel growth lines that drift a little along
+ * the board, each latewood band its own weight and width, long open pores running with the grain,
+ * broad colour streaks and a dark seam between planks; no rings, so nothing smears at grazing
+ * angles. A tile is WOOD_TILE units (about 15 cm at the keycaps' scale), lines about 2 mm apart.
  */
 const WOOD_TILE = 3;
 const WOOD_SIZE = 512;
+const WOOD_LINES = 78;
 let woodField: { field: Float32Array; tones: Float32Array } | undefined;
 /** The wood's height channels (latewood, pores, seam) and albedo tone, computed once per page. */
 function woodData() {
@@ -119,61 +122,127 @@ function woodData() {
   const SIZE = WOOD_SIZE;
   const field = new Float32Array(SIZE * SIZE * 3),
     tones = new Float32Array(SIZE * SIZE);
+  const lineHash = (n: number, salt: number) => valueNoise2(n * 13.7 + salt, salt * 3.3, 4096, 4096, 41);
   for (let y = 0; y < SIZE; y++)
     for (let x = 0; x < SIZE; x++) {
       const u = (x + 0.5) / SIZE,
         v = (y + 0.5) / SIZE;
-      const plank = Math.floor(v * 2);
-      const w = (v * 2) % 1;
-      // Flat-sawn figure: growth rings cut at a shallow angle, so they close into cathedral arches
-      // along the plank (one per plank, phase shifted) and run as long wavy lines at its edges.
-      const n1 = valueNoise2(u * 6, w * 3, 6, 64, 11 + plank),
-        n2 = valueNoise2(u * 3, w * 2, 3, 64, 5 + plank);
-      const across = (w - 0.5) * 5 + 0.7 * (n1 - 0.5);
-      const cut = 0.9 + 1.1 * (0.5 + 0.5 * Math.cos((u + plank * 0.43) * TAU)) + 0.6 * n2;
-      const rings = Math.hypot(across, cut) * 8 + 0.8 * n1;
-      const ring = rings % 1;
-      // Each growth ring's latewood band varies in weight, as real seasons do.
-      const weight = 0.45 + 0.55 * valueNoise2(Math.floor(rings) * 7.3, plank * 3.1, 4096, 4096, 41);
-      const late = weight * smoothstep(0.6, 0.85, ring) * (1 - smoothstep(0.9, 1, ring));
-      // Open pores: faint dark dashes running with the grain.
-      const pores = smoothstep(0.7, 0.95, valueNoise2(u * 40, v * 220, 40, 220, 23));
-      const figure = valueNoise2(u * 4, v * 6, 4, 6, 31 + plank);
-      const seam = smoothstep(0.01, 0, Math.min(w, 1 - w));
+      // The grain coordinate across the plank, wandering slowly along it.
+      const drift = 0.5 * (valueNoise2(u * 2, v * 3, 2, 3, 11) - 0.5) + 0.18 * (valueNoise2(u * 7, v * 9, 7, 9, 3) - 0.5);
+      // Uneven seasons: the line spacing bunches and opens across the plank.
+      const g =
+        (v + drift * 0.03) * WOOD_LINES +
+        5 * (valueNoise2(0, v * 9, 1, 9, 51) - 0.5) +
+        2 * (valueNoise2(0, v * 23, 1, 23, 52) - 0.5);
+      const line = Math.floor(g),
+        ring = g - line;
+      const weight = 0.35 + 0.65 * lineHash(line, 1),
+        width = 0.16 + 0.22 * lineHash(line, 2);
+      // Earlywood darkens gradually into the latewood band, which ends sharply.
+      const late = weight * smoothstep(1 - width - 0.18, 1 - width, ring) * (1 - smoothstep(0.93, 1, ring));
+      // Open pores: dark dashes a few millimetres long, running with the grain.
+      const pores = smoothstep(0.7, 0.95, valueNoise2(u * 56, v * 420, 56, 420, 23));
+      const streak = valueNoise2(u * 2, v * 16, 2, 16, 31) * 0.7 + valueNoise2(u * 1, v * 5, 1, 5, 37) * 0.3;
+      const seam = smoothstep(0.006, 0, Math.min(v, 1 - v));
       const i = (y * SIZE + x) * 3;
       field[i] = late;
       field[i + 1] = pores;
       field[i + 2] = seam;
-      const tone = clamp01(0.6 + 0.18 * figure + (plank ? 0.05 : -0.04) - 0.22 * late - 0.08 * pores);
-      tones[i / 3] = tone * (1 - 0.7 * seam);
+      const tone = clamp01(0.46 + 0.44 * streak - 0.17 * late - 0.12 * pores);
+      tones[i / 3] = tone * (1 - 0.75 * seam);
     }
   return (woodField = { field, tones });
 }
 function walnut(root: THREE.Object3D) {
   const SIZE = WOOD_SIZE;
   const { field, tones } = woodData();
-  const map = paintTexture(
-    SIZE,
-    SIZE,
-    (_u, _v, x, y) => {
-      const t = tones[y * SIZE + x];
-      return mixRgb(0x2a1a10, 0x8a6240, t);
-    },
-    { repeat: [GROUND_WIDTH / WOOD_TILE, GROUND_DEPTH / WOOD_TILE] },
-  );
+  const repeat: [number, number] = [GROUND_WIDTH / WOOD_TILE, GROUND_DEPTH / WOOD_TILE];
+  const map = paintTexture(SIZE, SIZE, (_u, _v, x, y) => mixRgb(0x2a1a10, 0x94683f, tones[y * SIZE + x]), { repeat });
   map.anisotropy = 8;
   // Half resolution is plenty for the relief, and halves the build cost.
   const normalMap = normalTexture(
     SIZE / 2,
     (u, v) => {
       const i = (Math.min(SIZE - 1, Math.floor(v * SIZE)) * SIZE + Math.min(SIZE - 1, Math.floor(u * SIZE))) * 3;
-      return 0.6 - 0.3 * field[i] - 0.12 * field[i + 1] - 0.8 * field[i + 2];
+      return 0.6 - 0.08 * field[i] - 0.14 * field[i + 1] - 0.8 * field[i + 2];
     },
     2,
-    [GROUND_WIDTH / WOOD_TILE, GROUND_DEPTH / WOOD_TILE],
+    repeat,
   );
   normalMap.anisotropy = 8;
-  return surface(root, map, normalMap, 0.46);
+  // The oil sits glossier on the dense latewood and dull in the pores and the seam.
+  const roughnessMap = paintTexture(
+    SIZE / 2,
+    SIZE / 2,
+    (_u, _v, x, y) => {
+      const i = (y * 2 * SIZE + x * 2) * 3;
+      const r = clamp01(0.72 - 0.16 * field[i] + 0.25 * field[i + 1] + 0.3 * field[i + 2]) * 255;
+      return [r, r, r];
+    },
+    { srgb: false, repeat },
+  );
+  const plane = surface(root, map, normalMap, 0.62);
+  (plane.material as THREE.MeshStandardMaterial).roughnessMap = roughnessMap;
+  return plane;
+}
+
+/* ---------------------------------------------------------------- Wear */
+
+const wearMaps = new Map<string, THREE.Texture>();
+/**
+ * A roughness map (green channel) that breaks up a perfect CG finish: soft smudges, a fine mottle
+ * and, for metal, hairline scratches running every which way that catch the light. Mean about 0.78.
+ */
+function wearMap(scratches: number, repeat = 1, seed = 1) {
+  const key = `${scratches}:${repeat}:${seed}`;
+  const cached = wearMaps.get(key);
+  if (cached) return cached;
+  const SIZE = 256;
+  const lines = new Float32Array(SIZE * SIZE);
+  const random = seeded(seed * 97 + 13);
+  for (let n = 0; n < scratches; n++) {
+    const x0 = random() * SIZE,
+      y0 = random() * SIZE,
+      angle = random() * Math.PI,
+      length = 12 + random() * 110,
+      strength = 0.35 + 0.65 * random();
+    for (let t = 0; t < length; t++) {
+      const px = Math.floor(x0 + Math.cos(angle) * t),
+        py = Math.floor(y0 + Math.sin(angle) * t);
+      const i = (((py % SIZE) + SIZE) % SIZE) * SIZE + (((px % SIZE) + SIZE) % SIZE);
+      lines[i] = Math.max(lines[i], strength * Math.sin((t / length) * Math.PI));
+    }
+  }
+  const texture = paintTexture(
+    SIZE,
+    SIZE,
+    (u, v, x, y) => {
+      const smudge = fbm(u * 4, v * 4, 4, 4, seed + 2),
+        mottle = valueNoise(u * 64, v * 64, 64, seed + 5);
+      const r = clamp01(0.64 + 0.18 * smudge + 0.06 * mottle - 0.03 + 0.22 * lines[y * SIZE + x]) * 255;
+      return [r, r, r];
+    },
+    { srgb: false, repeat: [repeat, repeat] },
+  );
+  wearMaps.set(key, texture);
+  return texture;
+}
+/** Give a material a wear map, keeping its average roughness where it was. Its geometry needs UVs. */
+function worn<M extends THREE.MeshStandardMaterial>(material: M, scratches = 0, repeat = 1, seed = 1) {
+  material.roughnessMap = wearMap(scratches, repeat, seed);
+  material.roughness = Math.min(1, material.roughness / 0.78);
+  return material;
+}
+/** Box-projected UVs for a geometry built without them (merged, sculpted parts). */
+function projectUv(geometry: THREE.BufferGeometry, scale = 2) {
+  const position = geometry.attributes.position;
+  const uv = new Float32Array(position.count * 2);
+  for (let i = 0; i < position.count; i++) {
+    uv[i * 2] = (position.getX(i) + position.getZ(i) * 0.7) * scale;
+    uv[i * 2 + 1] = (position.getY(i) + position.getZ(i) * 0.4) * scale;
+  }
+  geometry.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+  return geometry;
 }
 
 /** Pebbled vegetable-tanned leather. */
@@ -201,54 +270,123 @@ function court(root: THREE.Object3D) {
   return surface(root, map, normalMap, 0.82);
 }
 
-/** Green solder mask over copper traces, with vias. */
-function circuitBoard(root: THREE.Object3D) {
-  const W = 256,
-    H = 512;
-  const copper = new Float32Array(W * H);
+/** The powder-coated steel lid of the server below: dark, orange-peel textured, faintly mottled. */
+function steelLid(root: THREE.Object3D) {
+  const map = paintTexture(
+    128,
+    128,
+    (u, v) => mixRgb(0x2c2f34, 0x3b3f45, 0.55 * fbm(u * 3, v * 3, 3, 3, 14) + 0.25 * valueNoise(u * 128, v * 128, 128, 6)),
+    { repeat: [5, 10] },
+  );
+  const normalMap = normalTexture(128, (u, v) => fbm(u * 24, v * 24, 24, 2, 9), 1.6, [16, 32]);
+  const plane = surface(root, map, normalMap, 0.5 / 0.78, 0.6);
+  (plane.material as THREE.MeshStandardMaterial).roughnessMap = wearMap(40, 3, 4);
+  return plane;
+}
+
+/**
+ * A bare SSD board: green solder mask over copper. The mask pools thinner (and lighter) over each
+ * trace, so traces stand proud with a soft bevel; the gold edge fingers, test pads and vias are bare
+ * ENIG metal (metalness in blue, roughness in green); white silkscreen outlines the parts.
+ */
+function ssdBoardMaterial() {
+  const W = 128,
+    H = 256;
+  const copper = new Float32Array(W * H),
+    gold = new Float32Array(W * H),
+    silk = new Float32Array(W * H);
   const random = seeded(77);
-  const stroke = (x0: number, y0: number, x1: number, y1: number, width: number) => {
-    const steps = Math.ceil(Math.hypot(x1 - x0, y1 - y0));
-    for (let s = 0; s <= steps; s++) {
-      const x = x0 + ((x1 - x0) * s) / Math.max(steps, 1),
-        y = y0 + ((y1 - y0) * s) / Math.max(steps, 1);
-      for (let dy = -width; dy <= width; dy++)
-        for (let dx = -width; dx <= width; dx++) {
-          const px = Math.round(x + dx),
-            py = Math.round(y + dy);
-          if (px >= 0 && py >= 0 && px < W && py < H) copper[py * W + px] = 1;
-        }
-    }
+  const dot = (target: Float32Array, x: number, y: number, r: number) => {
+    for (let dy = -r; dy <= r; dy++)
+      for (let dx = -r; dx <= r; dx++) {
+        const px = Math.round(x + dx),
+          py = Math.round(y + dy);
+        if (px >= 0 && py >= 0 && px < W && py < H && dx * dx + dy * dy <= r * r + 0.5) target[py * W + px] = 1;
+      }
   };
-  for (let i = 0; i < 70; i++) {
-    let x = random() * W,
-      y = random() * H;
-    const width = random() < 0.2 ? 2 : 1;
-    for (let leg = 0; leg < 3; leg++) {
-      const length = 20 + random() * 90;
-      const dir = Math.floor(random() * 4);
-      const diagonal = random() < 0.4;
-      const nx = x + (dir === 0 ? length : dir === 1 ? -length : diagonal ? length * 0.5 : 0);
-      const ny = y + (dir === 2 ? length : dir === 3 ? -length : diagonal ? length * 0.5 : 0);
-      stroke(x, y, nx, ny, width);
-      x = nx;
-      y = ny;
+  const stroke = (target: Float32Array, x0: number, y0: number, x1: number, y1: number, r: number) => {
+    const steps = Math.ceil(Math.hypot(x1 - x0, y1 - y0));
+    for (let n = 0; n <= steps; n++)
+      dot(target, x0 + ((x1 - x0) * n) / Math.max(1, steps), y0 + ((y1 - y0) * n) / Math.max(1, steps), r);
+  };
+  // Buses of parallel traces with 45° doglegs, the way a router lays them, ending in vias.
+  for (let bus = 0; bus < 9; bus++) {
+    const x = 8 + random() * (W - 16),
+      y = 20 + random() * (H - 40),
+      count = 3 + Math.floor(random() * 4),
+      run = 18 + random() * 50,
+      turn = random() < 0.5 ? -1 : 1;
+    for (let k = 0; k < count; k++) {
+      const ox = x + k * 3,
+        oy = y + k * 3;
+      stroke(copper, ox, oy, ox, oy + run, 0.6);
+      stroke(copper, ox, oy + run, ox + turn * 14, oy + run + 14, 0.6);
+      dot(gold, ox + turn * 14, oy + run + 14, 1.4);
     }
-    for (let dy = -3; dy <= 3; dy++)
-      for (let dx = -3; dx <= 3; dx++) if (dx * dx + dy * dy <= 9) stroke(x + dx, y + dy, x + dx, y + dy, 0);
   }
-  const at = (x: number, y: number) => copper[((y + H) % H) * W + ((x + W) % W)];
-  const map = paintTexture(W, H, (_u, _v, x, y) => (at(x, y) ? [46, 104, 72] : [22, 64, 44]));
+  // Gold edge fingers along the bottom edge, and silkscreen frames round the chip sites.
+  for (let k = 0; k < 22; k++)
+    for (let y = H - 10; y < H - 1; y++) for (let x = 6 + k * 5; x < 9 + k * 5; x++) gold[y * W + x] = 1;
+  for (const [x0, y0, x1, y1] of [
+    [12, 18, 58, 70],
+    [70, 18, 116, 70],
+    [12, 92, 58, 144],
+    [70, 92, 116, 144],
+    [34, 166, 94, 214],
+  ]) {
+    stroke(silk, x0, y0, x1, y0, 0.4);
+    stroke(silk, x0, y1, x1, y1, 0.4);
+    stroke(silk, x0, y0, x0, y1, 0.4);
+    stroke(silk, x1, y0, x1, y1, 0.4);
+  }
+  // Soften the copper into a height field so the mask over it has a rounded shoulder.
+  const height = new Float32Array(W * H);
+  for (let y = 0; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      let sum = 0;
+      for (let dy = -1; dy <= 1; dy++)
+        for (let dx = -1; dx <= 1; dx++)
+          sum += copper[Math.min(H - 1, Math.max(0, y + dy)) * W + Math.min(W - 1, Math.max(0, x + dx))];
+      height[y * W + x] = sum / 9 + 0.6 * gold[y * W + x];
+    }
+  const at = (x: number, y: number) => height[Math.min(H - 1, Math.max(0, y)) * W + Math.min(W - 1, Math.max(0, x))];
+  const map = paintTexture(W, H, (u, v, x, y) => {
+    const i = y * W + x;
+    if (gold[i]) return [214, 172, 92];
+    if (silk[i]) return [226, 230, 222];
+    const n = valueNoise(u * 40, v * 80, 40, 3);
+    return mixRgb(0x123d2a, 0x2f7350, clamp01(0.75 * height[i] + 0.12 * n));
+  });
   const normalMap = paintTexture(
     W,
     H,
     (_u, _v, x, y) => {
-      const n = vec(-(at(x + 1, y) - at(x - 1, y)) * 0.8, -(at(x, y + 1) - at(x, y - 1)) * 0.8, 1).normalize();
+      const n = vec(-(at(x + 1, y) - at(x - 1, y)) * 1.4, -(at(x, y + 1) - at(x, y - 1)) * 1.4, 1).normalize();
       return [(n.x * 0.5 + 0.5) * 255, (n.y * 0.5 + 0.5) * 255, (n.z * 0.5 + 0.5) * 255];
     },
     { srgb: false },
   );
-  return surface(root, map, normalMap, 0.32, 0.55);
+  const surfaceMap = paintTexture(
+    W,
+    H,
+    (u, v, x, y) => {
+      const i = y * W + x;
+      const rough = gold[i] ? 0.3 : silk[i] ? 0.8 : 0.34 + 0.12 * valueNoise(u * 16, v * 32, 16, 8);
+      return [0, rough * 255, gold[i] ? 255 : 0];
+    },
+    { srgb: false },
+  );
+  const material = new THREE.MeshStandardMaterial({
+    map,
+    normalMap,
+    roughnessMap: surfaceMap,
+    metalnessMap: surfaceMap,
+    metalness: 1,
+    roughness: 1,
+  });
+  // Let mount.ts give it the room reflections, or the gold reads black.
+  material.userData.lookReflections = 1;
+  return material;
 }
 
 /** A soft baked shadow pooled right under a part (ambient occlusion where it meets the surface). */
@@ -313,12 +451,22 @@ function keycapGeometry(width: number, height: number, depth: number, dish = 0.0
   geometry.deleteAttribute("normal");
   const merged = mergeVertices(geometry, 1e-4);
   merged.computeVertexNormals();
-  return merged;
+  // Edge wear: rounded edges and corners, where fingers and light scatter in the PBT, read a shade lighter.
+  const normal = merged.attributes.normal;
+  const colors = new Float32Array(normal.count * 3);
+  for (let i = 0; i < normal.count; i++) {
+    const edge = 1 - Math.max(Math.abs(normal.getX(i)), Math.abs(normal.getY(i)), Math.abs(normal.getZ(i)));
+    const shade = 0.95 + 0.22 * smoothstep(0.05, 0.35, edge);
+    colors.set([shade, shade, shade * 0.98], i * 3);
+  }
+  merged.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  return projectUv(merged, 3);
 }
 
 /** A legend printed into the key's dish (it follows the curve). */
 function legendGeometry(text: string, width: number, keyTop: number, keyHalfWidth: number, dish: number, x: number, z: number) {
-  const geometry = new THREE.PlaneGeometry(width, width * 1.4, 6, 1);
+  const columns = text.length * 6 - 1;
+  const geometry = new THREE.PlaneGeometry((width * (columns + 1)) / 6, width * 1.4, 6 * text.length, 1);
   geometry.rotateX(-Math.PI / 2);
   const position = geometry.attributes.position;
   for (let i = 0; i < position.count; i++) {
@@ -330,27 +478,87 @@ function legendGeometry(text: string, width: number, keyTop: number, keyHalfWidt
   return geometry;
 }
 
-/** One texture per legend: a single 5×7 glyph, white on transparent. */
-function legendTexture(text: string) {
-  return paintTexture(
-    24,
-    32,
+/**
+ * A legend's mask, drawn as strokes rather than square pixels: the 5×7 dots joined into rounded
+ * lines (diagonals only where no square path exists), so it reads as a printed typeface.
+ */
+function legendMask(text: string, width: number, height: number) {
+  const columns = text.length * 6 - 1;
+  const cell = height / 9; // seven rows plus a cell of margin top and bottom
+  const on = (cx: number, cy: number) => glyphDot(text, cx, cy);
+  const segment = (px: number, py: number, ax: number, ay: number, bx: number, by: number) => {
+    const dx = bx - ax,
+      dy = by - ay;
+    const t = clamp01(((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy || 1));
+    return Math.hypot(px - ax - dx * t, py - ay - dy * t);
+  };
+  const mask = new Float32Array(width * height);
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const gx = (x + 0.5) / cell - (width / cell - columns) / 2,
+        gy = 6 - ((y + 0.5) / cell - 1);
+      let nearest = 9;
+      for (let cy = Math.floor(gy) - 1; cy <= Math.floor(gy) + 1; cy++)
+        for (let cx = Math.floor(gx) - 1; cx <= Math.floor(gx) + 1; cx++) {
+          if (!on(cx, cy)) continue;
+          const ax = cx + 0.5,
+            ay = cy + 0.5;
+          nearest = Math.min(nearest, Math.hypot(gx - ax, gy - ay));
+          for (const [ox, oy] of [
+            [1, 0],
+            [0, 1],
+            [1, 1],
+            [-1, 1],
+          ]) {
+            if (!on(cx + ox, cy + oy) || Math.floor((cx + ox) / 6) !== Math.floor(cx / 6)) continue;
+            if (ox && oy && (on(cx + ox, cy) || on(cx, cy + oy))) continue;
+            nearest = Math.min(nearest, segment(gx, gy, ax, ay, ax + ox, ay + oy));
+          }
+        }
+      mask[y * width + x] = smoothstep(0.5, 0.36, nearest);
+    }
+  return mask;
+}
+/** A legend's alpha and a normal map that sinks it a hair into the cap, so grazing light finds its edges. */
+function legendTextures(text: string) {
+  const height = 64,
+    width = Math.round(((text.length * 6) / 6) * 46);
+  const mask = legendMask(text, width, height);
+  const at = (x: number, y: number) => mask[Math.min(height - 1, Math.max(0, y)) * width + Math.min(width - 1, Math.max(0, x))];
+  const alphaMap = paintTexture(
+    width,
+    height,
     (_u, _v, x, y) => {
-      const on = glyphDot(text, Math.floor((x - 2) / 4), 6 - Math.floor((y - 2) / 4)) ? 255 : 0;
-      return [on, on, on];
+      const a = at(x, y) * 255;
+      return [a, a, a];
     },
     { srgb: false },
   );
+  const normalMap = paintTexture(
+    width,
+    height,
+    (_u, _v, x, y) => {
+      const n = vec((at(x + 1, y) - at(x - 1, y)) * 1.2, (at(x, y + 1) - at(x, y - 1)) * 1.2, 1).normalize();
+      return [(n.x * 0.5 + 0.5) * 255, (n.y * 0.5 + 0.5) * 255, (n.z * 0.5 + 0.5) * 255];
+    },
+    { srgb: false },
+  );
+  return { alphaMap, normalMap };
 }
 
 const models: Record<ArtKind, Model> = {
-  /** Key travel: a cluster of PBT keycaps in macro on an aluminium case; one key types in rhythm. */
+  /**
+   * Key travel: a cluster of PBT keycaps in macro on an aluminium case. The hero is the AI key (the
+   * dedicated assistant key new keyboards carry), its legend backlit and a warm glow spilling from
+   * under it onto the plate; it types in rhythm with its neighbours.
+   */
   ai(root, ticks) {
     walnut(root);
     const caseGroup = group(root);
-    const aluminium = lookMaterial("brushedMetal", 0xb8bcc0, { roughness: 0.34, anisotropy: 0.8 });
-    block(caseGroup, [3.4, 0.22, 1.9], aluminium, [0.1, 0.11, -0.1], 0.06);
-    const plate = lookMaterial("plastic", 0x1c1e21, { roughness: 0.55 });
+    // Space-grey anodised, with a generous radius, so its far edge is a soft roll of light, not a hairline.
+    const aluminium = worn(lookMaterial("brushedMetal", 0x74787d, { roughness: 0.4, anisotropy: 0.8 }), 120, 2, 2);
+    block(caseGroup, [3.4, 0.22, 1.9], aluminium, [0.1, 0.11, -0.1], 0.075);
+    const plate = worn(lookMaterial("plastic", 0x1c1e21, { roughness: 0.55 }), 20, 2, 3);
     block(caseGroup, [3.2, 0.03, 1.72], plate, [0.1, 0.225, -0.1], 0.01);
     setDressing(caseGroup);
     pool(root, 3.6, 2.2, 0.1, -0.1, 0.5);
@@ -359,43 +567,111 @@ const models: Record<ArtKind, Model> = {
       WIDTH = 0.35,
       HEIGHT = 0.2,
       DISH = 0.012;
-    const pbt = lookMaterial("plastic", 0xe8e3d6, { roughness: 0.74 });
-    const accent = lookMaterial("plastic", 0xd45a26, { roughness: 0.6 });
+    // PBT: dry and slightly translucent, so a soft sheen rolls round the edges; worn a little glossier where fingers land.
+    const pbt = worn(
+      lookMaterial("ceramic", 0xe8e3d6, {
+        roughness: 0.66,
+        clearcoat: 0,
+        sheen: 0.5,
+        sheenRoughness: 0.45,
+        sheenColor: new THREE.Color(0xfff6e6),
+        vertexColors: true,
+      }),
+      0,
+      1,
+      11,
+    );
+    const accent = worn(
+      lookMaterial("ceramic", 0xd45a26, {
+        roughness: 0.56,
+        clearcoat: 0,
+        sheen: 0.6,
+        sheenRoughness: 0.4,
+        sheenColor: new THREE.Color(0xffb28a),
+        vertexColors: true,
+      }),
+      0,
+      1,
+      12,
+    );
     const capGeometry = keycapGeometry(WIDTH, HEIGHT, WIDTH, DISH);
     // A real QWERTY patch with ANSI row stagger: the top row sits a quarter key left of home, the bottom row half a key right.
     const rows = [
       { keys: ["T", "Y", "U", "I", "O"], z: -0.62, offset: -0.25 * KEY },
-      { keys: ["G", "H", "J", "K", "L"], z: -0.24, offset: 0 },
+      { keys: ["G", "H", "AI", "K", "L"], z: -0.24, offset: 0 },
       { keys: ["B", "N", "M", ",", "."], z: 0.14, offset: 0.5 * KEY },
     ];
-    // Which keys type, and when: J (the hero, homing bar) is mid-press at the rest frame.
-    const typing: Record<string, number> = { J: 1.88, K: 3.4, H: 5.1, U: 0.4 };
+    // Which keys type, and when: the AI key is mid-press at the rest frame.
+    const typing: Record<string, number> = { AI: 1.88, K: 3.4, H: 5.1, U: 0.4 };
     const legends = new Map<string, THREE.Material>();
+    // The backlight: the hero's legend shines through, and light leaks out round its skirt.
+    const shine = themed(
+      new THREE.MeshStandardMaterial({
+        color: 0xfff1dc,
+        emissive: 0xffc98a,
+        emissiveIntensity: 1.3,
+        roughness: 0.5,
+        transparent: true,
+        depthWrite: false,
+      }),
+      { dark: { emissiveIntensity: 2.4 } },
+    );
+    const spill = new THREE.MeshBasicMaterial({
+      color: 0xff9a4a,
+      transparent: true,
+      opacity: 0.55,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      toneMapped: false,
+      alphaMap: paintTexture(
+        64,
+        64,
+        (u, v) => {
+          // A rounded square ring of light just outside the cap's footprint, fading outward.
+          const d = Math.max(Math.abs(u - 0.5), Math.abs(v - 0.5)) * 2;
+          const a = smoothstep(0.42, 0.55, d) * (1 - smoothstep(0.55, 1, d)) * 255;
+          return [a, a, a];
+        },
+        { srgb: false },
+      ),
+    });
+    const dark = themeProbe(root);
+    let pressGlow: ((press: number) => void) | undefined;
     for (const row of rows)
       row.keys.forEach((text, col) => {
         const x = -0.86 + col * KEY + row.offset;
         if (Math.abs(x) > 1.3) return;
         const key = group(root, x, 0.24 + HEIGHT / 2 + 0.02, row.z);
-        const hero = text === "J";
+        const hero = text === "AI";
         const material = hero ? accent : pbt;
         mesh(key, capGeometry, material);
-        const legend =
-          legends.get(text) ??
-          new THREE.MeshStandardMaterial({
-            color: hero ? 0xfff4e8 : 0x24262a,
-            alphaMap: legendTexture(text),
-            transparent: true,
-            roughness: 0.6,
-            polygonOffset: true,
-            polygonOffsetFactor: -2,
-            depthWrite: false,
-          });
-        legends.set(text, legend);
+        let legend = legends.get(text);
+        if (!legend) {
+          const { alphaMap, normalMap } = legendTextures(text);
+          legend = hero
+            ? shine.clone()
+            : new THREE.MeshStandardMaterial({
+                color: 0x2a2b2e,
+                alphaMap,
+                normalMap,
+                normalScale: new THREE.Vector2(0.6, 0.6),
+                transparent: true,
+                roughness: 0.5,
+                polygonOffset: true,
+                polygonOffsetFactor: -2,
+                depthWrite: false,
+              });
+          if (hero) Object.assign(legend, { alphaMap, polygonOffset: true, polygonOffsetFactor: -2 });
+          legends.set(text, legend);
+        }
         const topHalf = (WIDTH * 0.8) / 2;
-        decal(mesh(key, legendGeometry(text, 0.07, HEIGHT / 2, topHalf, 0, -0.05, -0.06), legend));
+        decal(mesh(key, legendGeometry(text, hero ? 0.088 : 0.07, HEIGHT / 2, topHalf, 0, hero ? 0 : -0.05, -0.06), legend));
         if (hero) {
-          const bar = mesh(key, roundedBox(0.08, 0.012, 0.018, 0.006), material, 0, HEIGHT / 2 - DISH + 0.004, 0.06);
-          bar.userData.frameIgnore = true;
+          const glow = mesh(root, new THREE.PlaneGeometry(0.62, 0.62), spill, x, 0.243, row.z - 0.01);
+          glow.rotation.x = -Math.PI / 2;
+          glow.renderOrder = 2;
+          glow.userData.frameIgnore = true;
+          pressGlow = (press) => (spill.opacity = (dark() ? 1.6 : 0.9) * (0.75 + 0.5 * press));
         }
         const phase = typing[text];
         if (phase !== undefined) {
@@ -404,6 +680,7 @@ const models: Record<ArtKind, Model> = {
           ticks.push((angle) => {
             const press = Math.max(0, Math.cos(angle * 2 - phase * 2)) ** 24;
             key.position.y = rest - 0.07 * press;
+            if (hero) pressGlow?.(press);
           });
         }
       });
@@ -441,7 +718,7 @@ const models: Record<ArtKind, Model> = {
     // The racket behind, already out of focus: a soft painted card leaning on nothing we can see.
     const blurred = paintTexture(192, 240, (u, v) => {
       const x = (u - 0.5) * 2,
-        y = (v - 0.62) * 2.4;
+        y = (v - 0.57) * 2.65;
       const r = Math.hypot(x / 0.86, y / 1.02);
       const frame = smoothstep(0.24, 0.04, Math.abs(r - 0.93));
       const inside = smoothstep(0.84, 0.66, r);
@@ -451,39 +728,57 @@ const models: Record<ArtKind, Model> = {
         (smoothstep(0.32, 0.05, Math.abs(((((x * 7) % 1) + 1) % 1) - 0.5) * 2 - 0.7) +
           smoothstep(0.32, 0.05, Math.abs(((((y * 7) % 1) + 1) % 1) - 0.5) * 2 - 0.7));
       const throat = v < 0.3 ? smoothstep(0.12, 0.03, Math.abs(x)) * smoothstep(0, 0.08, v) : 0;
-      const a = clamp01(Math.max(frame, strings * 0.55, throat));
+      const a = clamp01(Math.max(frame, strings * 0.85, throat));
       const [r1, g1, b1] = frame > strings ? [28, 31, 36] : [214, 214, 200];
       return [r1, g1, b1, a * 150];
     });
     const card = new THREE.MeshBasicMaterial({ map: blurred, transparent: true, depthWrite: false, toneMapped: true });
-    const racket = mesh(root, new THREE.PlaneGeometry(1.3, 1.6), themed(card, { dark: { color: 0x7a7f88 } }), 0.95, 0.42, -2.4);
-    racket.rotation.set(-0.3, -0.35, -0.6);
+    // Its whole head sits inside the card, up and to the right of the ball, its throat running out low.
+    const racket = mesh(root, new THREE.PlaneGeometry(1.15, 1.42), themed(card, { dark: { color: 0x7a7f88 } }), 0.62, 0.12, -2.1);
+    racket.rotation.set(-0.25, -0.3, -0.5);
     racket.userData.frameIgnore = true;
 
     const RADIUS = 0.42;
     const roller = group(root, 0, 0, 0.05);
     const ball = group(roller, 0, RADIUS, 0);
-    const felt = lookMaterial("felt", 0xcfd93b, { grain: 3, sheenRoughness: 0.6, roughness: 1 });
+    // The felt's colour wanders a little (dye and wear), darker in the matted patches.
+    const feltTone = paintTexture(256, 128, (u, v) => {
+      const n = fbm(u * 6, v * 3, 6, 4, 17);
+      return mixRgb(0xb9c22e, 0xd8e246, clamp01(0.25 + 0.9 * n));
+    });
+    const felt = lookMaterial("felt", 0xffffff, { map: feltTone, grain: 3, sheenRoughness: 0.6, roughness: 1 });
     sphere(ball, RADIUS, felt, [0, 0, 0], 48);
-    // A fuzz shell: a slightly larger, noisy, half-clear sphere breaks the silhouette like real nap.
-    const fuzzMap = paintTexture(
-      128,
-      64,
-      (u, v) => {
-        const n = valueNoise(u * 128, v * 64, 128, 31);
-        const a = smoothstep(0.55, 0.95, n) * 90;
+    // Fuzz: shells of nap, each a little larger and sparser (alpha-tested strands, so they never sort
+    // wrong), lighter toward the tips. They break the silhouette into a soft halo like real felt.
+    const strands = paintTexture(
+      512,
+      256,
+      (u, v, x, y) => {
+        const strand =
+          valueNoise2(x * 0.9, y * 1.8, 512 * 0.9, 256 * 1.8, 31) * 0.65 + valueNoise(u * 512, v * 256, 512, 32) * 0.35;
+        const a = strand * 255;
         return [a, a, a];
       },
       { srgb: false },
     );
-    const fuzz = new THREE.MeshStandardMaterial({
-      color: 0xe4ec7a,
-      roughness: 1,
-      alphaMap: fuzzMap,
-      transparent: true,
-      depthWrite: false,
-    });
-    decal(sphere(ball, RADIUS * 1.025, fuzz, [0, 0, 0], 40));
+    const SHELLS = 5;
+    for (let k = 1; k <= SHELLS; k++) {
+      const t = k / SHELLS;
+      const nap = lookMaterial("felt", new THREE.Color(0xc7d03a).lerp(new THREE.Color(0xf0f5a8), 0.15 + 0.55 * t), {
+        alphaMap: strands,
+        alphaTest: 0.52 + 0.22 * t,
+        sheenRoughness: 0.5,
+      });
+      themed(nap, {
+        dark: {
+          color: new THREE.Color(0xc7d03a)
+            .lerp(new THREE.Color(0xf0f5a8), 0.1 + 0.4 * t)
+            .multiplyScalar(0.9)
+            .getHex(),
+        },
+      });
+      decal(sphere(ball, RADIUS * (1 + 0.007 * k), nap, [0, 0, 0], 48));
+    }
     // The seam: a white rubber channel sunk into the felt.
     const seam = Array.from({ length: 129 }, (_, i) => {
       const a = (i / 128) * TAU;
@@ -509,9 +804,9 @@ const models: Record<ArtKind, Model> = {
     walnut(root);
     const machine = group(root, -1.12, 0, -0.95);
     machine.rotation.y = 0.35;
-    const enamel = lookMaterial("ceramic", 0x15171a, { roughness: 0.28 });
+    const enamel = worn(lookMaterial("ceramic", 0x15171a, { roughness: 0.28 }), 50, 2, 21);
     // Aged brass: a browner, less saturated base and a satin finish rubbed bright only where hands go.
-    const brass = lookMaterial("metal", 0x8c7752, { roughness: 0.46 });
+    const brass = worn(lookMaterial("metal", 0x8c7752, { roughness: 0.46 }), 40, 3, 22);
     block(machine, [1.1, 0.42, 0.9], enamel, [0, 0.21, 0], 0.05);
     block(machine, [1.18, 0.05, 0.98], brass, [0, 0.445, 0], 0.02);
     const wheel = group(machine, 0.18, 0.66, 0.05);
@@ -529,7 +824,7 @@ const models: Record<ArtKind, Model> = {
     }
     knurl.computeVertexNormals();
     mesh(wheel, knurl, brass);
-    cylinder(wheel, 0.06, 0.64, lookMaterial("brushedMetal", 0xb4b7ba), [0, 0, 0], 16);
+    cylinder(wheel, 0.06, 0.64, worn(lookMaterial("brushedMetal", 0xb4b7ba), 60, 1, 23), [0, 0, 0], 16);
     const roller = group(machine, -0.2, 0.62, 0.05);
     roller.rotation.x = Math.PI / 2;
     cylinder(roller, 0.11, 0.5, lookMaterial("rubber", 0x22201e), [0, 0, 0], 24);
@@ -600,128 +895,182 @@ const models: Record<ArtKind, Model> = {
     });
   },
 
-  /** Silicon detail: a finned heatsink with copper heat pipes and a fan, low across a board. */
+  /**
+   * Silicon detail: the front of a rack server in macro. A zinc rack ear with its pull handle and a
+   * captive thumbscrew, a row of hot-swap sled bezels, and one sled pulled out on its rails, latch
+   * open, showing the bare SSD board it carries. Activity LEDs blink.
+   */
   server(root, ticks) {
-    circuitBoard(root);
-    const sink = group(root, -0.15, 0, -0.1);
-    sink.rotation.y = -0.55;
-    const aluminium = lookMaterial("brushedMetal", 0xaeb3b8, { roughness: 0.42, anisotropy: 0.45 });
-    const copper = lookMaterial("metal", 0xc27a4c, { roughness: 0.22 });
-    block(sink, [1.24, 0.12, 1.12], aluminium, [0, 0.06, 0], 0.02);
-    const fins: THREE.BufferGeometry[] = [];
-    for (let i = 0; i < 16; i++) fins.push(mergeable(placed(roundedBox(0.026, 0.86, 1.1, 0.01, 1), -0.6 + i * 0.08, 0.57, 0)));
-    mesh(sink, mergeGeometries(fins), lookMaterial("metal", 0xb4b9be, { roughness: 0.48 }));
-    const pipes: THREE.BufferGeometry[] = [];
-    for (const z of [-0.3, 0, 0.3])
-      pipes.push(
-        mergeable(
-          tube(
-            [
-              vec(-0.75, 0.95, z),
-              vec(-0.75, 0.25, z),
-              vec(-0.62, 0.11, z),
-              vec(0.62, 0.11, z),
-              vec(0.75, 0.25, z),
-              vec(0.75, 0.95, z),
-            ],
-            0.045,
-            false,
-            64,
-            12,
-          ),
-        ),
-      );
-    mesh(sink, mergeGeometries(pipes), copper);
-    // Pipe ends capped with a crimp.
-    for (const x of [-0.75, 0.75]) for (const z of [-0.3, 0, 0.3]) cylinder(sink, 0.05, 0.04, copper, [x, 0.97, z], 12);
+    steelLid(root);
+    const rack = group(root, -0.95, 0, 0.15);
+    rack.rotation.y = 0.42;
+    const HEIGHT = 0.66;
+    const powder = worn(lookMaterial("plastic", 0x24272c, { roughness: 0.5 }), 30, 2, 3);
+    const zinc = worn(lookMaterial("metal", 0xa7acb2, { roughness: 0.36 }), 90, 1, 5);
+    const chrome = worn(lookMaterial("metal", 0xd8dce0, { roughness: 0.16 }), 60, 2, 6);
+    const bezelPlastic = worn(lookMaterial("plastic", 0x17181b, { roughness: 0.42 }), 0, 2, 7);
+    const recess = lookMaterial("plastic", 0x07080a, { roughness: 0.7 });
 
-    // The fan, on the heatsink's right side, so the lens sees it at a steep angle.
-    const fan = group(sink, 0.72, 0.53, 0);
-    fan.rotation.y = Math.PI / 2;
-    const frameShape = new THREE.Shape();
-    const S = 0.5,
-      R = 0.08;
-    frameShape.moveTo(-S + R, -S);
-    frameShape.lineTo(S - R, -S);
-    frameShape.quadraticCurveTo(S, -S, S, -S + R);
-    frameShape.lineTo(S, S - R);
-    frameShape.quadraticCurveTo(S, S, S - R, S);
-    frameShape.lineTo(-S + R, S);
-    frameShape.quadraticCurveTo(-S, S, -S, S - R);
-    frameShape.lineTo(-S, -S + R);
-    frameShape.quadraticCurveTo(-S, -S, -S + R, -S);
-    const hole = new THREE.Path();
-    hole.absarc(0, 0, 0.46, 0, TAU, true);
-    frameShape.holes.push(hole);
-    const frameGeometry = new THREE.ExtrudeGeometry(frameShape, {
-      depth: 0.12,
-      bevelEnabled: true,
-      bevelSize: 0.012,
-      bevelThickness: 0.012,
-      bevelSegments: 2,
-      curveSegments: 40,
-    });
-    const plastic = lookMaterial("plastic", 0x1d1f22, { roughness: 0.5 });
-    mesh(fan, frameGeometry, plastic);
-    const rotor = group(fan, 0, 0, 0.07);
-    const blades: THREE.BufferGeometry[] = [
-      mergeable(placed(new THREE.CylinderGeometry(0.15, 0.15, 0.08, 32), 0, 0, 0, Math.PI / 2)),
-    ];
-    for (let i = 0; i < 7; i++) {
-      const blade = new THREE.Shape();
-      blade.moveTo(0.13, -0.05);
-      blade.quadraticCurveTo(0.32, -0.12, 0.43, 0.02);
-      blade.quadraticCurveTo(0.33, 0.12, 0.13, 0.08);
-      blade.closePath();
-      const geometry = new THREE.ExtrudeGeometry(blade, { depth: 0.012, bevelEnabled: false, curveSegments: 10 });
-      geometry.translate(0, 0, -0.006);
-      geometry.rotateX(0.45);
-      geometry.rotateZ((i * TAU) / 7);
-      blades.push(mergeable(geometry));
-    }
-    mesh(rotor, mergeGeometries(blades), lookMaterial("plastic", 0x2a2d31, { roughness: 0.42 }));
-    const badge = mesh(
-      rotor,
-      new THREE.CylinderGeometry(0.1, 0.1, 0.01, 32),
-      lookMaterial("brushedMetal", 0xa9adb1),
+    // The chassis, running back and out of frame to the right.
+    const chassis = group(rack);
+    // Shallow enough that its back edge (and the room beyond) shows above it, so the frame has air.
+    block(chassis, [3.05, HEIGHT, 1.0], powder, [1.5, HEIGHT / 2, -0.52], 0.02);
+    block(chassis, [2.95, HEIGHT - 0.08, 0.02], recess, [1.5, HEIGHT / 2, 0.0], 0.005);
+    setDressing(chassis);
+    pool(root, 3.4, 1.2, 0.35, -0.2, 0.55);
+
+    // The rack ear: a plate with a slot and a hole, folded back along the chassis side.
+    const ear = new THREE.Shape();
+    const EW = 0.44;
+    ear.moveTo(-EW, 0.0);
+    ear.lineTo(0, 0);
+    ear.lineTo(0, HEIGHT);
+    ear.lineTo(-EW + 0.05, HEIGHT);
+    ear.quadraticCurveTo(-EW, HEIGHT, -EW, HEIGHT - 0.05);
+    ear.lineTo(-EW, 0.05);
+    ear.quadraticCurveTo(-EW, 0, -EW + 0.05, 0);
+    const slot = new THREE.Path();
+    slot.absellipse(-0.12, 0.17, 0.045, 0.032, 0, TAU, true);
+    ear.holes.push(slot);
+    const screwHole = new THREE.Path();
+    screwHole.absarc(-0.12, HEIGHT - 0.17, 0.042, 0, TAU, true);
+    ear.holes.push(screwHole);
+    mesh(
+      rack,
+      new THREE.ExtrudeGeometry(ear, {
+        depth: 0.035,
+        bevelEnabled: true,
+        bevelSize: 0.006,
+        bevelThickness: 0.006,
+        bevelSegments: 2,
+        curveSegments: 24,
+      }),
+      zinc,
+      -0.02,
       0,
       0,
-      0.045,
     );
-    badge.rotation.x = Math.PI / 2;
-    ticks.push((angle) => (rotor.rotation.z = -angle * 6));
-    pool(root, 1.9, 1.7, -0.15, -0.1, 0.65);
-
-    // Board furniture: polymer capacitors, a DIMM in its slot, and a status LED that blinks.
-    const dressing = group(root);
-    const can = lookMaterial("brushedMetal", 0xb9bdc2, { roughness: 0.4 });
-    const sleeve = lookMaterial("plastic", 0x262a30, { roughness: 0.45 });
-    for (let i = 0; i < 5; i++) {
-      const x = -1.05 + i * 0.2,
-        z = 0.78;
-      cylinder(dressing, 0.075, 0.16, can, [x, 0.08, z], 24);
-      cylinder(dressing, 0.077, 0.06, sleeve, [x, 0.03, z], 24);
+    block(rack, [0.035, HEIGHT, 0.42], zinc, [-0.035, HEIGHT / 2, -0.2], 0.008);
+    // The pull handle: a chrome loop bolted to the ear.
+    mesh(
+      rack,
+      tube(
+        [vec(-0.33, 0.1, 0.04), vec(-0.33, 0.12, 0.17), vec(-0.33, 0.3, 0.2), vec(-0.33, 0.5, 0.17), vec(-0.33, 0.56, 0.04)],
+        0.024,
+        false,
+        48,
+        12,
+      ),
+      chrome,
+    );
+    for (const y of [0.1, 0.56]) cylinder(rack, 0.04, 0.03, chrome, [-0.33, y, 0.045], 16).rotation.x = Math.PI / 2;
+    // The captive thumbscrew: a knurled head and a washer in the upper hole.
+    const knurl = new THREE.CylinderGeometry(0.075, 0.075, 0.07, 48, 1);
+    const kp = knurl.attributes.position;
+    for (let i = 0; i < kp.count; i++) {
+      const a = Math.atan2(kp.getZ(i), kp.getX(i));
+      if (Math.hypot(kp.getX(i), kp.getZ(i)) > 0.05) {
+        const k = 1 + 0.04 * Math.max(0, Math.cos(a * 18)) ** 0.5;
+        kp.setX(i, kp.getX(i) * k);
+        kp.setZ(i, kp.getZ(i) * k);
+      }
     }
-    const chips: THREE.BufferGeometry[] = [];
-    for (let i = 0; i < 6; i++)
-      chips.push(mergeable(placed(roundedBox(0.09, 0.03, 0.05, 0.008, 1), 0.55 + i * 0.13, 0.015, 0.75)));
-    mesh(dressing, mergeGeometries(chips), lookMaterial("plastic", 0x141416, { roughness: 0.35 }));
-    const slot = group(dressing, 0.6, 0, -1.3);
-    slot.rotation.y = -0.55;
-    block(slot, [2.2, 0.12, 0.12], lookMaterial("plastic", 0x1a1a1c, { roughness: 0.5 }), [0, 0.06, 0], 0.02);
-    block(slot, [2.0, 0.55, 0.03], lookMaterial("plastic", 0x1d5b3e, { roughness: 0.4 }), [0, 0.38, 0], 0.01);
-    for (let i = 0; i < 8; i++)
-      block(slot, [0.2, 0.18, 0.02], lookMaterial("plastic", 0x111214, { roughness: 0.4 }), [-0.84 + i * 0.24, 0.4, 0.025], 0.01);
-    setDressing(dressing);
-    const ledMaterial = new THREE.MeshStandardMaterial({
-      color: 0x1a3a26,
-      emissive: 0x3dff8a,
-      emissiveIntensity: 2,
-      roughness: 0.3,
+    knurl.computeVertexNormals();
+    const screw = group(rack, -0.14, HEIGHT - 0.17, 0.035);
+    screw.rotation.x = Math.PI / 2;
+    cylinder(screw, 0.06, 0.012, chrome, [0, -0.008, 0], 32);
+    mesh(screw, knurl, chrome, 0, -0.05, 0);
+
+    // The sled bezels: a honeycomb vent, a latch lever with its orange touch point, two light pipes.
+    const vent = paintTexture(128, 96, (u, v) => {
+      // Hexagonal holes on a 12-across grid: distance to the nearest centre of a staggered lattice.
+      const gx = u * 12,
+        gy = v * 9 * 1.1547;
+      const row = Math.floor(gy),
+        shift = row % 2 ? 0.5 : 0;
+      const dx = ((gx + shift) % 1) - 0.5,
+        dy = (gy % 1) - 0.5;
+      const hex = Math.max(Math.abs(dx), Math.abs(dx) * 0.5 + Math.abs(dy) * 0.866);
+      const hole = smoothstep(0.36, 0.3, hex);
+      const c = 30 - 26 * hole;
+      return [c, c, c + 2];
     });
-    const led = block(root, [0.07, 0.03, 0.04], ledMaterial, [0.42, 0.015, 0.62], 0.01);
-    led.userData.frameIgnore = true;
-    ticks.push((angle) => (ledMaterial.emissiveIntensity = 0.4 + 2.6 * Math.max(0, Math.sin(angle * 6)) ** 4));
+    const ventNormal = paintTexture(
+      128,
+      96,
+      (u, v) => {
+        const gx = u * 12,
+          gy = v * 9 * 1.1547;
+        const row = Math.floor(gy),
+          shift = row % 2 ? 0.5 : 0;
+        const dx = ((gx + shift) % 1) - 0.5,
+          dy = (gy % 1) - 0.5;
+        const hex = Math.max(Math.abs(dx), Math.abs(dx) * 0.5 + Math.abs(dy) * 0.866);
+        const rim = smoothstep(0.3, 0.36, hex) * smoothstep(0.44, 0.36, hex);
+        const len = Math.hypot(dx, dy) || 1;
+        const n = vec((dx / len) * rim * 0.7, (dy / len) * rim * 0.7, 1).normalize();
+        return [(n.x * 0.5 + 0.5) * 255, (n.y * 0.5 + 0.5) * 255, (n.z * 0.5 + 0.5) * 255];
+      },
+      { srgb: false },
+    );
+    const ventMaterial = lookMaterial("plastic", 0xffffff, { map: vent, normalMap: ventNormal, roughness: 0.5 });
+    const lever = worn(lookMaterial("metal", 0x8e9399, { roughness: 0.3 }), 40, 1, 8);
+    const touch = lookMaterial("plastic", 0xd8622a, { roughness: 0.45 });
+    const leds: THREE.MeshStandardMaterial[] = [];
+    const SLED = 0.62,
+      PITCH = 0.68,
+      BH = HEIGHT - 0.12;
+    const sled = (x: number, out: boolean, index: number) => {
+      const front = group(rack, x, HEIGHT / 2, 0);
+      block(front, [SLED, BH, 0.07], bezelPlastic, [0, 0, 0.035], 0.012);
+      decal(mesh(front, new THREE.PlaneGeometry(SLED - 0.12, BH * 0.5), ventMaterial, -0.02, 0.07, 0.0715));
+      // The latch: a lever hinged at the left end, swung open on the pulled sled.
+      const hinge = group(front, -SLED / 2 + 0.05, -BH / 2 + 0.07, 0.085);
+      hinge.rotation.y = out ? -0.75 : 0;
+      block(hinge, [SLED - 0.12, 0.07, 0.03], lever, [(SLED - 0.12) / 2, 0, 0], 0.012);
+      block(hinge, [0.08, 0.072, 0.036], touch, [SLED - 0.17, 0, 0.004], 0.012);
+      cylinder(hinge, 0.018, 0.08, chrome, [0, 0, 0], 12);
+      for (const [k, color] of [
+        [0, 0x46ff8c],
+        [1, index === 1 ? 0xffa53a : 0x4aa8ff],
+      ] as const) {
+        const led = new THREE.MeshStandardMaterial({ color: 0x101410, emissive: color, emissiveIntensity: 1.6, roughness: 0.2 });
+        leds.push(led);
+        decal(block(front, [0.03, 0.03, 0.02], led, [SLED / 2 - 0.05, BH / 2 - 0.06 - k * 0.06, 0.075], 0.006));
+      }
+      return front;
+    };
+    const fronts: THREE.Group[] = [];
+    for (let i = 0; i < 4; i++) fronts.push(sled(0.38 + i * PITCH, i === 1, i));
+    // Only the ear, the pulled sled and its neighbours are framed; the rest runs out of the frame.
+    for (const front of fronts.slice(3)) setDressing(front);
+
+    // The pulled sled's tray: two rails and the bare board between them, half out of its bay.
+    const pulled = fronts[1];
+    const tray = group(pulled, 0, -BH / 2 + 0.02, -0.02);
+    for (const side of [-1, 1]) block(tray, [0.03, 0.07, 1.25], zinc, [side * (SLED / 2 - 0.03), 0.03, -0.6], 0.008);
+    block(tray, [SLED - 0.08, 0.012, 1.2], ssdBoardMaterial(), [0, 0.03, -0.62], 0.004);
+    const chip = worn(lookMaterial("plastic", 0x141518, { roughness: 0.38 }), 0, 3, 9);
+    const chips: THREE.BufferGeometry[] = [];
+    for (const [cx, cz, w, d] of [
+      [-0.12, -0.25, 0.2, 0.22],
+      [0.12, -0.25, 0.2, 0.22],
+      [-0.12, -0.6, 0.2, 0.22],
+      [0.12, -0.6, 0.2, 0.22],
+      [0, -0.95, 0.24, 0.2],
+    ])
+      chips.push(mergeable(placed(roundedBox(w, 0.025, d, 0.006, 1), cx, 0.05, cz), true));
+    mesh(tray, mergeGeometries(chips), chip);
+    pulled.position.z = 0.85;
+    pool(root, 0.9, 1.2, -0.1, 0.75, 0.4);
+
+    ticks.push((angle) => {
+      leds.forEach(
+        (led, i) => (led.emissiveIntensity = i % 2 ? 1.4 : 0.3 + 2.2 * Math.max(0, Math.sin(angle * 9 + i * 1.3)) ** 6),
+      );
+      // The pulled sled eases a touch further out and back.
+      pulled.position.z = 0.85 + 0.05 * Math.sin(angle);
+    });
   },
 
   /** Field compass: a steel compass tilted on a rolled map case, its needle hunting north. */
@@ -751,14 +1100,21 @@ const models: Record<ArtKind, Model> = {
     setDressing(map);
 
     // The rolled leather case it leans on.
-    const roll = cylinder(root, 0.27, 3.4, lookMaterial("plastic", 0x3a2216, { roughness: 0.7 }), [0, 0.27, -1.08], 40);
+    const roll = cylinder(
+      root,
+      0.27,
+      3.4,
+      worn(lookMaterial("plastic", 0x3a2216, { roughness: 0.7 }), 0, 3, 25),
+      [0, 0.27, -1.08],
+      40,
+    );
     roll.rotation.z = Math.PI / 2;
     setDressing(roll);
 
     const compass = group(root, 0, 0.36, -0.08);
     compass.rotation.x = 0.3; // tipped toward the lens, its back edge on the roll
     compass.rotation.y = -0.15;
-    const steel = lookMaterial("brushedMetal", 0xc2c6ca, { roughness: 0.26, anisotropy: 0.5 });
+    const steel = worn(lookMaterial("brushedMetal", 0xc2c6ca, { roughness: 0.26, anisotropy: 0.5 }), 140, 2, 24);
     const profile = [
       [0, -0.09],
       [0.8, -0.09],
@@ -937,7 +1293,12 @@ const models: Record<ArtKind, Model> = {
       },
       { repeat: [2, 2] },
     );
-    const acetate = lookMaterial("ceramic", 0xffffff, { map: tortoise, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.08 });
+    const acetate = worn(
+      lookMaterial("ceramic", 0xffffff, { map: tortoise, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.08 }),
+      30,
+      2,
+      27,
+    );
     const glasses = group(root, 0.5, 0.64, 0.3);
     glasses.rotation.set(-0.06, -0.22, 0);
     const RX = 0.25,
@@ -981,7 +1342,7 @@ const models: Record<ArtKind, Model> = {
     mesh(glasses, tube([vec(-0.07, 0.07, 0), vec(0, 0.1, 0), vec(0.07, 0.07, 0)], 0.026, false, 16, 12), acetate);
     // End pieces and barrel hinges at the outer corners; the temples stand open, running back over
     // the page and bending down at the ear so the glasses rest on their rims and temple tips.
-    const pin = lookMaterial("metal", 0xc8c2b4, { roughness: 0.3 });
+    const pin = worn(lookMaterial("metal", 0xc8c2b4, { roughness: 0.3 }), 60, 1, 26);
     for (const side of [-1, 1]) {
       const edge = side * (0.3 + RX + BAND);
       mesh(glasses, roundedBox(0.05, 0.075, 0.07, 0.02), acetate, edge - side * 0.012, 0.09, -0.04);
@@ -1018,7 +1379,7 @@ const subjectCamera: Record<ArtKind, { pitch: number; yaw?: number; fill?: numbe
   ai: { pitch: 26, fill: 0.86, maxWidth: 1.04 },
   tennis: { pitch: 13, fill: 0.62 },
   trading: { pitch: 24, fill: 0.84, maxWidth: 1 },
-  server: { pitch: 16, fill: 0.8 },
+  server: { pitch: 20, fill: 0.8 },
   travel: { pitch: 22, fill: 0.84 },
   reading: { pitch: 20, fill: 0.5, maxWidth: 0.7 },
 };
