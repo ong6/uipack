@@ -7,6 +7,12 @@ export interface CtaButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElem
   /** Renders a link (keep links as links). */
   href?: string;
   size?: "md" | "lg";
+  /**
+   * A shorter label for a tight bar ("See your savings" for "See what you'd have saved"). GlassNav
+   * shows it in its bar below 720px, where the full label no longer fits beside brand and Menu;
+   * the open menu and every wider bar keep `children`.
+   */
+  short?: ReactNode;
 }
 
 export function CtaButton({
@@ -16,9 +22,17 @@ export function CtaButton({
   size = "md",
   className = "",
   type = "button",
+  short,
   ...rest
 }: CtaButtonProps) {
   const cls = `uipack-web-cta ${className}`.trim();
+  if (short !== undefined)
+    children = (
+      <>
+        <span className="uipack-web-cta__long">{children}</span>
+        <span className="uipack-web-cta__short">{short}</span>
+      </>
+    );
   if (href)
     return (
       <a className={cls} href={href} data-variant={variant} data-size={size}>

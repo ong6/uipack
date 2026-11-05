@@ -35,7 +35,7 @@ import {
 } from "uipack/web";
 import type { UiStyleId } from "uipack";
 
-const CTA = { label: "Start a free trial", href: "#pricing" };
+const CTA = { label: "Start a free trial", short: "Try free", href: "#pricing" };
 const nav = [
   { label: "How it works", href: "#how" },
   { label: "Matching", href: "#matching" },
@@ -143,7 +143,7 @@ const plans: PricingPlan[] = [
     period: "a month",
     summary: "One business.",
     features: ["One business", "Unlimited lines", "14 days free"],
-    action: CTA,
+    action: { label: CTA.label, href: CTA.href },
     featured: true,
   },
   {
@@ -152,26 +152,29 @@ const plans: PricingPlan[] = [
     period: "a month",
     summary: "For bookkeepers.",
     features: ["Up to five businesses", "Unlimited lines", "14 days free"],
-    action: CTA,
+    // Each plan's button says what its click does; only the featured one repeats the page's goal.
+    action: { label: "Try Practice free", href: "#pricing" },
   },
 ];
 
-export default function App({ uiStyle, theme }: { uiStyle: UiStyleId; theme: "light" | "dark" }) {
+// Omit `theme` to follow the system; pass "light" or "dark" to force one.
+export default function App({ uiStyle, theme }: { uiStyle: UiStyleId; theme?: "light" | "dark" }) {
   return (
     <WebPage
       uiStyle={uiStyle}
       theme={theme}
       nav={
-        <GlassNav
-          brand={<Brand href="#top">Tallyroom</Brand>}
-          links={nav}
-          cta={<CtaButton href={CTA.href}>{CTA.label}</CtaButton>}
-        />
+        // The CTA as data: `short` is the label a phone's bar shows beside Menu.
+        <GlassNav brand={<Brand href="#top">Tallyroom</Brand>} links={nav} cta={CTA} />
       }
       sections={{
         hero: (
           <div id="top">
+            {/* layout="split": copy beside the product from 1024px (no empty half above it). The
+                stamp carries the page's one measured number in the style's own device. */}
             <StarHero
+              layout="split"
+              stamp={{ value: "2 h", label: "median close, was ~9 h" }}
               eyebrow="Bookkeeping for small businesses"
               title={
                 <>
@@ -190,8 +193,10 @@ export default function App({ uiStyle, theme }: { uiStyle: UiStyleId; theme: "li
                 </>
               }
             >
-              {/* No prompt on any step, so the player runs in "steps" mode: a checklist and a wide
-                  result pane that settles on the product's own screen. */}
+              {/* No prompt on any step, so the player runs in "steps" mode: the product's screen at
+                  full width under one compact row of step labels (rail="compact", the default;
+                  the "How it works" section lists the steps in full). It rests on the last screen,
+                  so make that the fullest. */}
               <DemoPlayer label="Sample run: closing October" address="app.tallyroom.example/close" steps={demoSteps} />
             </StarHero>
           </div>
@@ -220,13 +225,15 @@ export default function App({ uiStyle, theme }: { uiStyle: UiStyleId; theme: "li
                   title="+£650.00 from K. Okafor"
                   subtitle="Candidates, best first"
                   status="Needs you"
+                  source="Sample data"
                 >
                   <DataTable
                     label="Candidate invoices for the payment"
                     columns={[
                       { key: "invoice", label: "Invoice" },
                       { key: "score", label: "Score", barMax: 100 },
-                      { key: "days", label: "Days apart", align: "end" },
+                      // priority "low": dropped first when the table is narrow (a phone).
+                      { key: "days", label: "Days apart", align: "end", priority: "low" },
                     ]}
                     rows={[
                       { invoice: "INV-1041", score: 92, days: 2 },

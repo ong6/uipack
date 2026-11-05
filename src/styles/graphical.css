@@ -1,6 +1,6 @@
 /* Graphical — a bold poster style: bone paper, black ink, one signal-orange accent, condensed
    display caps (Anton), hard edges, 2px rules and hard offset frames. Its one motif is the disc:
-   the hero's backdrop disc returns as every marker. Shapes go only through the ornament slots,
+   the hero's stamp (a postmark that carries the page's number) returns as every marker. Shapes go only through the ornament slots,
    so a layout and its words are the same as in any other style. Guide: docs/web-principles.md,
    "Graphical". */
 @layer uipack.tokens {
@@ -72,18 +72,10 @@
     --ui-dur-base: 240ms;
     --ui-dur-slow: 480ms;
 
-    /* Ornaments. backdrop: the accent disc, cut by the slot's top-right corner, and a band of
-       ink rules along the slot's foot, never under the copy. frame: 2px ink and a hard offset
-       shadow. marker: the disc again, small. */
-    --ui-backdrop:
-      radial-gradient(circle at 100% 0, var(--ui-accent) 0 min(24cqi, 300px), transparent calc(min(24cqi, 300px) + 1px)),
-      radial-gradient(
-        circle at 100% 0,
-        transparent 0 calc(min(24cqi, 300px) + 18px),
-        var(--ui-ink) calc(min(24cqi, 300px) + 19px) calc(min(24cqi, 300px) + 21px),
-        transparent calc(min(24cqi, 300px) + 22px)
-      ),
-      repeating-linear-gradient(90deg, var(--ui-ink) 0 2px, transparent 2px 14px) 0 100% / 100% 24px no-repeat;
+    /* Ornaments. backdrop: none. The disc is no longer decoration: it is the hero's stamp (a
+       postmark carrying the page's number, StarHero stamp) and returns small as every marker.
+       frame: 2px ink and a hard offset shadow. */
+    --ui-backdrop: none;
     --ui-backdrop-mask: none;
     /* The figure canvas: the 12px dot grid. */
     --ui-canvas-pattern: radial-gradient(var(--ui-line-soft) 1px, transparent 1.2px) 0 0 / 12px 12px;
@@ -114,9 +106,7 @@
     --ui-band-cta: light-dark(#111111, #111111);
     --ui-on-band-cta: light-dark(#f1eee6, #f1eee6);
     --ui-band-pattern: repeating-linear-gradient(90deg, var(--ui-band-ink) 0 2px, transparent 2px 14px) 0 0 / 100% 16px no-repeat;
-    /* Below 720px the disc goes: under a sticky nav a corner disc reads as a clipped sliver. The
-       tick band stays, and the eyebrow markers carry the disc. */
-    --ui-backdrop-narrow: repeating-linear-gradient(90deg, var(--ui-ink) 0 2px, transparent 2px 14px) 0 100% / 100% 16px no-repeat;
+    --ui-backdrop-narrow: none;
     --ui-section-index: none;
     --ui-corner-marks: none;
 
@@ -165,6 +155,21 @@
     --ui-window-dots: flex;
     --ui-window-bar: var(--ui-surface-2);
     --ui-web-flow-request: var(--ui-flow-request);
+    --ui-perf: solid;
+    --ui-plan-featured-fill: var(--ui-surface);
+    /* Stamp (StarHero stamp): the poster's one disc, now a postmark that carries the page's number:
+       an orange seal with a double ink ring, tilted, with a hard shadow. */
+    --ui-stamp-fill: var(--ui-accent);
+    --ui-stamp-ink: var(--ui-on-accent);
+    --ui-stamp-accent: var(--ui-on-accent);
+    --ui-stamp-border: 2px solid var(--ui-ink);
+    --ui-stamp-inner: 2px solid var(--ui-ink);
+    --ui-stamp-radius: 50%;
+    --ui-stamp-rotate: -8deg;
+    --ui-stamp-face: var(--ui-font-display);
+    --ui-stamp-case: uppercase;
+    --ui-stamp-size: 3.25rem;
+    --ui-stamp-shadow: 6px 6px 0 var(--ui-ink);
 
     --ui-node: var(--ui-surface);
     --ui-line-solid: var(--ui-line);

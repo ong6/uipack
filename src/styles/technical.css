@@ -205,6 +205,21 @@
     --ui-window-bar: transparent;
     /* Figures on a web page keep the full flow code: the request (main flow) in its own cyan. */
     --ui-web-flow-request: var(--ui-flow-request);
+    /* Perforation style for internal divisions (table rows, card heads): Technical's are solid hairlines. */
+    --ui-perf: solid;
+    --ui-plan-featured-fill: var(--ui-surface);
+    /* Stamp (StarHero stamp): a drawing's revision tag, square, ruled, the figure in the heading face. */
+    --ui-stamp-fill: var(--ui-surface);
+    --ui-stamp-ink: var(--ui-ink);
+    --ui-stamp-accent: var(--ui-accent-ink);
+    --ui-stamp-border: 1px solid var(--ui-ink);
+    --ui-stamp-inner: 1px solid var(--ui-line-soft);
+    --ui-stamp-radius: 0px;
+    --ui-stamp-rotate: 0deg;
+    --ui-stamp-face: var(--ui-font-display);
+    --ui-stamp-case: none;
+    --ui-stamp-size: 2.25rem;
+    --ui-stamp-shadow: inset 0 3px 0 var(--ui-accent);
 
     /* Roles whose Technical values are tuned for one medium, then --tune-* component values.
        Mechanism shades, object scenes and the docs surfaces derive from the roles above. */

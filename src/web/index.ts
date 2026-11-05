@@ -2,7 +2,7 @@ export { WebSurface, Grid, GridItem, type WebSurfaceProps, type GridProps, type 
 export { WebPage, type WebPageProps, type WebPageContext } from "./WebPage";
 export { Eyebrow, Heading, Subhead, Body, type HeadingProps, type BodyProps } from "./Text";
 export { CtaButton, type CtaButtonProps } from "./CtaButton";
-export { GlassNav, type GlassNavProps, type GlassNavLink } from "./GlassNav";
+export { GlassNav, type GlassNavProps, type GlassNavLink, type GlassNavCta } from "./GlassNav";
 export { Section, FeatureGrid, type SectionProps, type Feature, type FeatureGridProps } from "./Section";
 export { SpotlightCard, type SpotlightCardProps } from "./SpotlightCard";
 export {

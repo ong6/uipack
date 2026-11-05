@@ -106,9 +106,11 @@ describe("contrast, every style, both themes", () => {
 });
 
 describe("one accent per style", () => {
-  it.each(styles)("%s glows only where it is Landing's ambient depth", (id) => {
+  // No style glows or grains by default (Landing dropped its ambient glow for printed, ruled forms
+  // on 2026-11-05: glow and soft shadow read as stock SaaS). GrainOverlay and Aurora stay opt-in.
+  it.each(styles)("%s has no ambient glow or grain", (id) => {
     const vars = readStyle(id);
-    expect(vars.glow).toBe(id === "landing" ? "1" : "0");
-    expect(vars.grain).toBe(id === "landing" ? "1" : "0");
+    expect(vars.glow).toBe("0");
+    expect(vars.grain).toBe("0");
   });
 });

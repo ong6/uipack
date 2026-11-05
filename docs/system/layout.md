@@ -125,13 +125,14 @@ words nor the style.
 
   | Archetype | Component | Holds |
   | --- | --- | --- |
-  | Nav | `GlassNav` | Brand, links, the CTA. Below 720px: brand on the start edge, Menu on the end edge. The CTA stays in the bar as a compact button beside Menu; below 340px it moves into the menu |
-  | Hero | `StarHero` | Eyebrow, headline, subhead, actions on the start edge (default), then the proof: a `DemoPlayer` or a `Figure` |
+  | Nav | `GlassNav` | Brand (on the sections' start edge), links, the CTA. Below 720px: brand on the start edge, Menu on the end edge. The CTA stays in the bar beside Menu, with its `short` label (`cta={{ label, short, href }}`); below 340px it moves into the menu |
+  | Hero | `StarHero` | Eyebrow, headline, subhead, actions, then the proof: a `DemoPlayer` or a `Figure`. `layout="split"` (use it with a product proof) sets copy on 5 columns and the proof on 7 from 1024px, top-aligned, so a wide screen has no empty half; stacked below. `stamp={{ value, label }}` carries the page's one measured number in the style's device (Technical revision tag, Landing die-cut label, Graphical postmark), beside the actions |
+  | Demo | `DemoPlayer` steps mode | The product's screens. `rail="compact"` (default): one row of step labels over the screen, the step tabs while it plays, under the screen below 720px; `"side"` the full checklist in a start column (under the screen below 720px); `"none"`. At rest (and under reduced motion) no step caption shows |
   | Steps | `Section` + `FeatureGrid numbered` | Three numbered cards |
   | Mechanism | `Section` + `Figure` | A working figure, with quiet chrome on a web page |
-  | Proof | `Section` + `Proof` | The headline number with its denominator and meter, ruled stats, a framed named quote |
+  | Proof | `Section` + `Proof` | The headline number (or a before/after `compare`), ruled stats (one stat sets as a single compact line), a named quote |
   | FAQ | `FAQ` | Head beside the questions at 1024px and up |
-  | Pricing | `Section` + `PricingPlans` | One to three plan cards, each with features and its own button |
+  | Pricing | `Section` + `PricingPlans` | One to three plan cards, each with features and its own button label (what that plan's click does); one plan `featured` carries the page's goal |
   | Closing | `ClosingCta` | A full-bleed band: the claim, the CTA a third time, a reassurance line |
   | Footer | `SiteFooter` | Brand, links, fine print |
 
@@ -154,7 +155,13 @@ words nor the style.
 - One goal, so the primary CTA appears three times (hero, nav, closing band) and nothing else competes.
 - One ambient background per viewport, behind the star, never behind body copy. A hero with a
   proof draws no extra chart: the proof is the star.
-- Cards that share a row share a height, with the action row at `margin-top: auto`.
+- Cards that share a row share a height, with the action row at `margin-top: auto`; a product
+  window stretched by a taller neighbour keeps its rows packed at the top.
+- **Product surfaces at 390.** A `DataTable` drops `priority: "low"` columns below 440px of its own
+  width, and with more than four remaining columns stacks each row as a small record (`narrow`
+  overrides: `fit`, `stack`, `scroll`). `WorkedExample` results take a `unit` set small beside the
+  value, and the result column fits the value. A `ProductWindow`'s data source goes in `source`
+  (a tag on its title row), not a lone `footer`; a lone footer renders as a caption.
 
 ## Motion
 

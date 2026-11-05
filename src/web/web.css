@@ -142,15 +142,17 @@
     scroll-margin-top: var(--web-scroll-offset);
   }
 
+  /* Theme: an explicit theme on the page, else on an ancestor (data-theme, or data-ui-theme as
+     styleBootScript and the role layer set it; the two are synonyms here), else the system's. */
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .uipack-web:not([data-theme="light"]) {
+    :root:not([data-theme="light"], [data-ui-theme="light"]) .uipack-web:not([data-theme="light"], [data-ui-theme="light"]) {
       --web-noise-blend: screen;
       --web-aurora-opacity: 0.34;
       color-scheme: dark;
     }
   }
-  [data-theme="dark"] .uipack-web:not([data-theme="light"]),
-  .uipack-web[data-theme="dark"] {
+  :is([data-theme="dark"], [data-ui-theme="dark"]) .uipack-web:not([data-theme="light"], [data-ui-theme="light"]),
+  .uipack-web:is([data-theme="dark"], [data-ui-theme="dark"]) {
     color-scheme: dark;
     --web-noise-blend: screen;
     --web-aurora-opacity: 0.34;
@@ -350,14 +352,20 @@
       background: var(--web-bg);
     }
   }
+  /* The bar's content box is the sections' 1120px column (padding outside it), so the brand sits
+     on every section's start edge and the CTA on its end edge. */
   .uipack-web-nav__bar {
     position: relative;
     display: flex;
     align-items: center;
     gap: var(--web-s2);
-    max-width: 1120px;
+    max-width: calc(1120px + 2 * var(--web-s3));
     margin: 0 auto;
     padding: 10px var(--web-s3);
+  }
+  /* CtaButton short: the full label everywhere but a phone's nav bar. */
+  .uipack-web-cta__short {
+    display: none;
   }
   .uipack-web-nav__brand {
     display: flex;
@@ -445,6 +453,12 @@
     }
     .uipack-web-nav__cta .uipack-web-cta {
       padding: 0 16px;
+    }
+    .uipack-web-nav__cta .uipack-web-cta__long {
+      display: none;
+    }
+    .uipack-web-nav__cta .uipack-web-cta__short {
+      display: inline;
     }
   }
   /* A phone keeps the page's goal in the bar, as a compact button beside Menu. Only below 340px,
@@ -548,6 +562,134 @@
     .uipack-web-hero__visual {
       inset: 28% 0 0;
       --web-hero-clear: linear-gradient(to right, transparent 0%, transparent 32%, black 62%);
+    }
+  }
+  /* Split hero (StarHero layout="split"): copy on the start 5 of 12 columns, the proof on the end
+     7, from 1024px; stacked below. The two share the sections' 1120px column, so the copy's start
+     edge is every section's start edge. */
+  @container web (min-width: 1024px) {
+    .uipack-web-hero[data-layout="split"][data-has-proof] {
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      /* Top-aligned, so the copy never moves while the demo's screens change height. */
+      align-items: start;
+      column-gap: var(--web-s6);
+      padding: var(--web-s8) max(var(--web-s3), calc((100% - 1120px) / 2)) var(--web-s8);
+    }
+    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__copy {
+      padding-top: var(--web-s3);
+    }
+    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__copy {
+      max-width: none;
+      margin: 0;
+    }
+    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-heading[data-step="6"] {
+      font-size: calc(clamp(var(--web-step-5), 4.2cqi, var(--web-step-6)) * var(--web-display-scale));
+    }
+    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__proof {
+      max-width: none;
+      margin: 0;
+    }
+  }
+
+  /* Stamp (StarHero stamp): the page's one number, part of the copy. The style paints it
+     (--ui-stamp-*): Graphical a postmark disc, Technical a revision tag, Landing a die-cut label.
+     A stacked hero wears it on the empty end side of the headline (absolutely placed, so it moves
+     no box); a split hero sets it under the actions; below 720px it is a one-line label there. */
+  .uipack-web-hero__copy {
+    position: relative;
+  }
+  .uipack-web-hero__stamp {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 4px;
+    width: 10rem;
+    min-height: 10rem;
+    margin: 0;
+    padding: var(--web-s2);
+    border: var(--ui-stamp-border);
+    border-radius: var(--ui-stamp-radius);
+    background: var(--ui-stamp-fill);
+    box-shadow: var(--ui-stamp-shadow);
+    color: var(--ui-stamp-ink);
+    text-align: center;
+    rotate: var(--ui-stamp-rotate);
+  }
+  /* The inner ring: Graphical's second ink ring, Landing's perforation, Technical's hairline. */
+  .uipack-web-hero__stamp::before {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border: var(--ui-stamp-inner);
+    border-radius: var(--ui-stamp-radius);
+    pointer-events: none;
+  }
+  .uipack-web-hero__stamp-value {
+    font: var(--web-display-weight) var(--ui-stamp-size) / 1 var(--ui-stamp-face);
+    letter-spacing: var(--web-display-tracking);
+    text-transform: var(--ui-stamp-case);
+    font-variant-numeric: tabular-nums;
+    font-synthesis-weight: none;
+    color: var(--ui-stamp-accent);
+  }
+  .uipack-web-hero__stamp-label {
+    max-width: 9em;
+    font: 600 0.6875rem / 1.3 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+  }
+  /* Split hero: beside the actions on the copy column's end edge, its foot on theirs; the actions
+     keep clear of it (they wrap), so the copy column grows by nothing. */
+  @container web (min-width: 1024px) {
+    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__stamp {
+      top: auto;
+      bottom: 0;
+      width: 8rem;
+      min-height: 8rem;
+      padding: 12px;
+    }
+    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__stamp-value {
+      font-size: calc(var(--ui-stamp-size) * 0.8);
+    }
+    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__stamp-label {
+      font-size: 0.625rem;
+    }
+    .uipack-web-hero[data-layout="split"][data-has-proof] .uipack-web-hero__actions:has(+ .uipack-web-hero__stamp) {
+      min-height: 8rem;
+      align-content: end;
+      padding-inline-end: calc(8rem + var(--web-s3));
+    }
+  }
+  @container web (max-width: 1023px) {
+    .uipack-web-hero__stamp {
+      position: relative;
+      top: auto;
+      right: auto;
+      display: inline-flex;
+      align-items: baseline;
+      gap: var(--web-s1);
+      width: auto;
+      min-height: 0;
+      margin-top: var(--web-s1);
+      padding: 10px var(--web-s2);
+      border-radius: min(var(--ui-stamp-radius), 6px);
+      rotate: none;
+      text-align: start;
+    }
+    .uipack-web-hero__stamp::before {
+      inset: 3px;
+      border-radius: min(var(--ui-stamp-radius), 4px);
+    }
+    .uipack-web-hero__stamp-value {
+      font-size: calc(var(--ui-stamp-size) * 0.6);
+    }
+    .uipack-web-hero__stamp-label {
+      max-width: none;
     }
   }
   .uipack-web-noise {
@@ -740,7 +882,7 @@
     display: grid;
     gap: var(--web-s1);
     padding: var(--web-s3) 0;
-    border-bottom: 1px solid var(--web-hairline);
+    border-bottom: 1px var(--ui-perf, solid) var(--web-hairline);
   }
   .uipack-web-faq__answer {
     display: grid;
@@ -943,21 +1085,23 @@
     background: var(--web-surface);
     box-shadow: var(--web-shadow);
   }
+  /* Dots, address, and an empty end column: the address centres between them and truncates
+     before it can run under the dots, however long it is. */
   .uipack-web-demo__chrome {
     position: relative;
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(max-content, 1fr) minmax(0, auto) minmax(0, 1fr);
     align-items: center;
-    justify-content: center;
+    column-gap: var(--web-s1);
     min-height: 40px;
     padding: 0 var(--web-s2);
-    border-bottom: 1px solid var(--web-hairline);
+    border-bottom: 1px var(--ui-perf, solid) var(--web-hairline);
     background: color-mix(in srgb, var(--web-ink) 2.5%, transparent);
   }
   .uipack-web-demo__dots {
     /* The style decides whether a window wears traffic lights (Technical: no, a drawing sheet). */
     display: var(--ui-window-dots, flex);
-    position: absolute;
-    left: var(--web-s2);
+    grid-column: 1;
     gap: 6px;
   }
   .uipack-web-demo__dots i {
@@ -967,8 +1111,8 @@
     background: color-mix(in srgb, var(--web-ink) 14%, transparent);
   }
   .uipack-web-demo__address {
-    /* Room for a full address in a wide mono (Martian Mono) on a phone; the dots take the rest. */
-    max-width: 85%;
+    grid-column: 2;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1657,7 +1801,7 @@
   font-family: var(--ui-font-heading, var(--web-font-text));
 }
 /* Flow tokens on a web page come from the style's web palette (--ui-web-flow-request: Technical
-   keeps its cyan main flow; Landing draws requests in slate so its cobalt stays the only blue). */
+   keeps its cyan main flow; Landing draws requests in warm slate so its green stays the only hue). */
 .uipack-web .uipack {
   --uipack-token-request: var(--ui-web-flow-request, var(--ui-flow-request));
 }
@@ -1784,7 +1928,7 @@
       padding-inline-start: 0;
     }
     .uipack-web .uipack-web-proof__stats > div + div {
-      border-top: 1px solid var(--web-hairline);
+      border-top: 1px var(--ui-perf, solid) var(--web-hairline);
     }
     .uipack-web .uipack-web-proof__stats dd {
       order: -1;
@@ -1838,6 +1982,30 @@
     margin: 0;
     font-size: calc(var(--web-step-4) * var(--web-display-scale));
     line-height: 1;
+  }
+  /* One supporting number: a single compact line ("214 beta shops"), value then label. */
+  .uipack-web .uipack-web-proof__stats[data-count="1"] {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: var(--web-s2);
+  }
+  .uipack-web .uipack-web-proof__stats[data-count="1"] > div {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    align-items: baseline;
+    gap: var(--web-s1);
+    padding: 0;
+    border: 0;
+  }
+  .uipack-web .uipack-web-proof__stats[data-count="1"] dd {
+    order: 0;
+    font-size: calc(var(--web-step-2) * var(--web-display-scale));
+  }
+  .uipack-web .uipack-web-proof__stats[data-count="1"] dt {
+    font-size: var(--web-step-0);
+    font-family: var(--web-font-text);
+    letter-spacing: 0;
+    color: var(--web-ink-medium);
   }
 
   /* Quote: a framed card on the style's inverse ground, with drawn quotation marks. */
@@ -1922,8 +2090,9 @@
     text-align: start;
   }
   /* The featured plan: Technical an accent bar along the top, Graphical an orange offset shadow,
-     Landing an accent ring with a tinted lift (--ui-plan-featured-*). */
+     Landing the green-tinted ticket with a green edge (--ui-plan-featured-*). */
   .uipack-web-plan[data-featured] {
+    background: var(--ui-corner-marks), var(--ui-plan-featured-fill, var(--web-surface));
     border-color: var(--ui-plan-featured-border, var(--web-accent));
     box-shadow: var(--ui-plan-featured-ring, inset 0 0 0 1px var(--web-accent));
   }
@@ -1961,7 +2130,7 @@
     gap: var(--web-s1);
     margin: 0;
     padding: var(--web-s2) 0 0;
-    border-top: 1px solid var(--web-hairline);
+    border-top: 1px var(--ui-perf, solid) var(--web-hairline);
     list-style: none;
   }
   .uipack-web-plan__features li {
@@ -2140,6 +2309,8 @@
 @layer uipack.base {
   .uipack-web-window {
     display: grid;
+    /* Stretched by a taller neighbour in a grid row, the rows stay packed at the top. */
+    align-content: start;
     min-width: 0;
     overflow: hidden;
     border: var(--web-frame-border);
@@ -2155,7 +2326,7 @@
     gap: var(--web-s2);
     min-height: 36px;
     padding: 0 var(--web-s2);
-    border-bottom: 1px solid var(--web-hairline);
+    border-bottom: 1px var(--ui-perf, solid) var(--web-hairline);
     background: var(--ui-window-bar, transparent);
   }
   .uipack-web-window__dots {
@@ -2213,9 +2384,29 @@
     border-radius: var(--web-radius-pill);
     background: var(--web-accent);
   }
+  .uipack-web-window__tags {
+    flex: none;
+    display: grid;
+    justify-items: end;
+    gap: 6px;
+  }
+  .uipack-web-window__source {
+    font: 400 0.6875rem / 1.2 var(--web-font-mono);
+    letter-spacing: var(--web-label-tracking);
+    text-transform: uppercase;
+    color: var(--web-ink-low);
+    white-space: nowrap;
+  }
   .uipack-web-window__body {
     min-width: 0;
     padding: var(--web-s2) var(--web-s3);
+  }
+  /* A lone footer is a caption of the output, not a ruled band of its own. */
+  .uipack-web-window__caption {
+    margin: calc(-1 * var(--web-s1)) 0 0;
+    padding: 0 var(--web-s3) var(--web-s2);
+    font: var(--web-step--1) / 1.4 var(--web-font-mono);
+    color: var(--web-ink-low);
   }
   .uipack-web-window__foot {
     display: flex;
@@ -2223,7 +2414,7 @@
     justify-content: space-between;
     gap: var(--web-s1) var(--web-s2);
     padding: 12px var(--web-s3);
-    border-top: 1px solid var(--web-hairline);
+    border-top: 1px var(--ui-perf, solid) var(--web-hairline);
     font: var(--web-step--1) / 1.4 var(--web-font-mono);
     color: var(--web-ink-low);
   }
@@ -2240,9 +2431,74 @@
     .uipack-web-window__foot {
       padding: 10px var(--web-s2);
     }
+    .uipack-web-window__caption {
+      padding: 0 var(--web-s2) 12px;
+    }
   }
 
-  /* Tables: DataTable, ScheduleGrid. The rule runs under every cell of a row, so it never breaks. */
+  /* Tables: DataTable, ScheduleGrid. The rule runs under every cell of a row, so it never breaks.
+     A DataTable is its own size container: below 440px it drops its low-priority columns, and in
+     "stack" mode each row becomes a small record, so a key column is never cut. */
+  .uipack-web-table {
+    container: uipack-table / inline-size;
+    min-width: 0;
+  }
+  .uipack-web-table__label {
+    display: none;
+  }
+  @container uipack-table (max-width: 440px) {
+    .uipack-web-table:not([data-narrow="scroll"]) [data-priority="low"] {
+      display: none;
+    }
+    .uipack-web-table[data-narrow="stack"] thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .uipack-web-table[data-narrow="stack"] :is(table, tbody, tr) {
+      display: block;
+    }
+    .uipack-web-table[data-narrow="stack"] tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: var(--web-s2);
+      padding: 10px 0;
+      border-bottom: 1px var(--ui-perf, solid) var(--web-hairline);
+    }
+    .uipack-web-table[data-narrow="stack"] tr[data-highlight] {
+      padding-inline: 12px;
+      background: var(--ui-cell-fill, var(--web-secondary));
+      box-shadow: inset 3px 0 0 var(--ui-cell-peak, var(--web-accent));
+    }
+    .uipack-web-table[data-narrow="stack"] :is(th, td) {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--web-s1);
+      padding: 2px 0;
+      border: 0;
+      background: none;
+      box-shadow: none;
+      white-space: normal;
+    }
+    .uipack-web-table[data-narrow="stack"] tr[data-highlight] :is(th, td) {
+      padding-inline: 0;
+      background: none;
+      box-shadow: none;
+    }
+    .uipack-web-table[data-narrow="stack"] tbody th {
+      grid-column: 1 / -1;
+      padding-bottom: 4px;
+    }
+    .uipack-web-table[data-narrow="stack"] .uipack-web-table__label {
+      display: inline;
+      font: 500 0.6875rem / 1.6 var(--web-font-mono);
+      letter-spacing: var(--web-label-tracking);
+      text-transform: uppercase;
+      color: var(--web-ink-low);
+    }
+  }
   .uipack-web-table__scroll {
     min-width: 0;
     overflow-x: auto;
@@ -2261,7 +2517,7 @@
   }
   .uipack-web-table :is(th, td) {
     padding: 10px 12px;
-    border-bottom: 1px solid var(--web-hairline);
+    border-bottom: 1px var(--ui-perf, solid) var(--web-hairline);
     text-align: start;
     font-size: 0.9375rem;
     font-weight: 400;
@@ -2460,7 +2716,7 @@
     align-items: center;
     gap: 12px;
     padding: 12px 0;
-    border-bottom: 1px solid var(--web-hairline);
+    border-bottom: 1px var(--ui-perf, solid) var(--web-hairline);
   }
   .uipack-web-list li:not([data-status]) {
     grid-template-columns: minmax(0, 1fr) auto;
@@ -2529,7 +2785,7 @@
     gap: 10px var(--web-s2);
     margin: 0;
     padding-top: 12px;
-    border-top: 1px solid var(--web-hairline);
+    border-top: 1px var(--ui-perf, solid) var(--web-hairline);
   }
   .uipack-web-record dt {
     font: 0.6875rem / 1.3 var(--web-font-mono);
@@ -2563,7 +2819,7 @@
   .uipack-web-worked__title {
     margin: 0;
     padding-bottom: 12px;
-    border-bottom: 1px solid var(--web-hairline);
+    border-bottom: 1px var(--ui-perf, solid) var(--web-hairline);
     font: 500 var(--web-step--1) / 1.3 var(--web-font-mono);
     letter-spacing: var(--web-label-tracking);
     text-transform: uppercase;
@@ -2587,6 +2843,14 @@
     text-transform: var(--web-display-case);
     font-variant-numeric: tabular-nums;
     font-synthesis-weight: none;
+  }
+  .uipack-web-worked__value {
+    white-space: nowrap;
+  }
+  .uipack-web-worked__value small {
+    font: 500 0.4em / 1 var(--web-font-text);
+    letter-spacing: 0;
+    text-transform: none;
   }
   .uipack-web-worked__label {
     font-size: 0.875rem;
@@ -2615,7 +2879,7 @@
   .uipack-web-worked__lines li {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(2rem, 4rem) minmax(7.5rem, auto);
+    grid-template-columns: minmax(0, 1fr) minmax(2rem, 4rem) minmax(7.5rem, max-content);
     align-items: center;
     gap: var(--web-s2);
   }
@@ -2659,7 +2923,7 @@
   .uipack-web-worked__note {
     margin: 0;
     padding-top: 12px;
-    border-top: 1px solid var(--web-hairline);
+    border-top: 1px var(--ui-perf, solid) var(--web-hairline);
     font-size: 0.875rem;
     color: var(--web-ink-medium);
   }
@@ -2679,8 +2943,9 @@
     .uipack-web-worked__lines {
       padding-left: var(--web-s2);
     }
+    /* The result column fits its value with a unit ("4.8 kg"); the rule takes what is left. */
     .uipack-web-worked__lines li {
-      grid-template-columns: minmax(0, 1fr) 5.5rem;
+      grid-template-columns: minmax(0, 1fr) minmax(5.5rem, max-content);
       gap: 12px;
     }
     .uipack-web-worked__lines li::before {
@@ -2761,10 +3026,83 @@
     color: var(--web-accent-ink);
   }
 
-  /* DemoPlayer, steps mode: a narrow checklist and a wide result pane for the product's output. */
+  /* DemoPlayer, steps mode. rail="side": a narrow checklist and a wide result pane. rail="compact"
+     (default): the result takes the full width under one row of step labels (the step tabs while
+     it plays); below 720px the row moves under the result. rail="none": the result alone. */
   .uipack-web-demo[data-mode="steps"] .uipack-web-demo__body {
-    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    grid-template-columns: minmax(0, 1fr);
     min-height: 0;
+  }
+  .uipack-web-demo[data-rail="side"] .uipack-web-demo__body {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  }
+  .uipack-web-demo__rail {
+    order: -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px var(--web-s3);
+    margin: 0;
+    padding: 0 0 12px;
+    border-bottom: 1px var(--ui-perf, solid) var(--web-hairline);
+    list-style: none;
+  }
+  .uipack-web-demo__rail-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--web-ink-medium);
+    font: 500 0.875rem / 1.2 var(--web-font-text);
+    text-align: start;
+  }
+  button.uipack-web-demo__rail-item {
+    min-height: 44px;
+    cursor: pointer;
+  }
+  .uipack-web-demo__rail li[data-state="pending"] .uipack-web-demo__rail-item {
+    color: var(--web-ink-low);
+  }
+  .uipack-web-demo__rail li[aria-current="step"] .uipack-web-demo__rail-item {
+    color: var(--web-ink);
+    box-shadow: inset 0 -2px 0 var(--web-accent);
+  }
+  @media (hover: hover) {
+    button.uipack-web-demo__rail-item:hover {
+      color: var(--web-ink);
+    }
+  }
+  .uipack-web-demo__rail .uipack-web-demo__tick {
+    width: 18px;
+    height: 18px;
+  }
+  .uipack-web-demo__rail li[data-state="done"] .uipack-web-demo__tick {
+    border-color: var(--web-ink);
+    background: var(--web-ink);
+  }
+  .uipack-web-demo__rail li[data-state="pending"] .uipack-web-demo__tick {
+    border-style: dashed;
+  }
+  .uipack-web-demo__rail li[data-state="running"] .uipack-web-demo__tick {
+    border-color: var(--web-ink-low);
+    border-top-color: transparent;
+    animation: uipack-web-spin 800ms linear infinite;
+  }
+  .uipack-web-demo__rail .uipack-web-demo__tick svg {
+    width: 12px;
+    height: 12px;
+  }
+  /* Rail with no controls beside it (static, reduced motion): the row is a quiet record. */
+  .uipack-web-demo[data-state="static"] .uipack-web-demo__rail-item {
+    cursor: default;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .uipack-web-demo__rail li[data-state="running"] .uipack-web-demo__tick {
+      animation: none;
+    }
   }
   .uipack-web-demo[data-mode="steps"] .uipack-web-demo__steps li {
     grid-template-columns: 20px minmax(0, 1fr);
@@ -2785,6 +3123,17 @@
   @container web (max-width: 720px) {
     .uipack-web-demo[data-mode="steps"] .uipack-web-demo__body {
       grid-template-columns: minmax(0, 1fr);
+    }
+    /* A phone shows the product's output first; the steps follow it. */
+    .uipack-web-demo[data-rail="side"] .uipack-web-demo__result {
+      order: -1;
+    }
+    .uipack-web-demo__rail {
+      order: 0;
+      padding: 12px 0 0;
+      border-bottom: 0;
+      border-top: 1px var(--ui-perf, solid) var(--web-hairline);
+      gap: 0 var(--web-s2);
     }
     .uipack-web-demo[data-mode="steps"] .uipack-web-demo__work {
       min-height: 0;
