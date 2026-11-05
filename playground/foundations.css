@@ -912,3 +912,26 @@
 .fdn-table + .fdn-pairs {
   margin-top: 24px;
 }
+
+/* Tables rendered from the system docs read like the guides' own tables: one frame, mono caps
+   column names, the key column in bold, no shaded header row. */
+.fdn-guide .uipack-docs__table {
+  border: 1px solid var(--show-rule);
+  border-radius: var(--show-radius);
+}
+.fdn-guide .uipack-docs__table table {
+  width: 100%;
+}
+.fdn-guide .uipack-docs__table thead th {
+  background: none;
+  color: var(--show-muted);
+  font: var(--show-eyebrow-font);
+  letter-spacing: var(--show-eyebrow-tracking);
+  text-transform: uppercase;
+}
+.fdn-guide .uipack-docs__table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+.fdn-guide .uipack-docs__table tbody td:first-child {
+  font-weight: 600;
+}

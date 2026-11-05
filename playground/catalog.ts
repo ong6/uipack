@@ -191,7 +191,7 @@ export const libraryPages = [
     label: "Overview",
     path: "/foundations",
     intro:
-      "Style, writing and layout are three layers you swap one at a time; change each on one slide and one web section below.",
+      "Style, writing and layout are three layers you swap one at a time. Change each one on the slide and the web section below.",
   },
   {
     id: "foundations-style",

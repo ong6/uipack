@@ -391,9 +391,8 @@ function LayerToggle() {
     <section>
       <h2>Swap one layer at a time</h2>
       <p className="collection-intro">
-        One unit, shown twice: as a slide and as a web section. Each control changes one layer. Style changes only colours, faces
-        and decoration; writing changes only the words; layout changes only where the words sit. Try each one and watch what stays
-        still.
+        One unit, shown twice: as a slide and as a web section. Each control changes one layer. Style changes colours, faces and
+        decoration. Writing changes the words. Layout changes where the words sit. Try each one and watch what stays still.
       </p>
       <div className="fdn-toggles">
         <Choice legend="Style" value={style} options={styleOptions} onChange={setStyle} />
