@@ -1063,7 +1063,7 @@ function MixPage() {
 
 /* ---------------------------------------------------------------- recipes */
 
-const recipes: { name: string; style: string; sequence: string[]; template: string; href: string; link: string }[] = [
+export const recipes: { name: string; style: string; sequence: string[]; template: string; href: string; link: string }[] = [
   {
     name: "Talk deck",
     style: "Technical",

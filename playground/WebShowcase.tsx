@@ -648,6 +648,9 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
   };
 }
 
+/** The sample page's section ids in its own order (the keys of its sections). */
+export const exampleSectionIds = () => Object.keys(exampleSections(null));
+
 /** One band in another style: a Graphical Section inside the Technical page (Section uiStyle). */
 function NestedStyleDemo({ theme }: { theme: "light" | "dark" }) {
   // After load: its Graphical band fetches Anton, which no other style on the first view needs.
@@ -984,7 +987,7 @@ function Replay({ onClick }: { onClick: () => void }) {
 function ViewTransitionDemo() {
   const [yearly, setYearly] = useState(false);
   return (
-    <div className="web-block">
+    <div className="web-block" data-sample>
       <Eyebrow>View transition · with fallback</Eyebrow>
       <div className="web-price" style={{ viewTransitionName: "web-price" } as CSSProperties}>
         <strong>{yearly ? "$96" : "$10"}</strong>
@@ -1051,7 +1054,7 @@ function MotionSection({
       <WebSurface theme={theme} className="web-panel" uiStyle={uiStyle} style={surfaceStyle}>
         <Grid>
           <GridItem span={[4, 4, 4]}>
-            <div className="web-block">
+            <div className="web-block" data-sample>
               <Eyebrow>Reveal on scroll · staggered</Eyebrow>
               <Reveal key={revealKey} variant="blur" className="web-reveal-list">
                 <div>Ask in a sentence</div>
@@ -1062,7 +1065,7 @@ function MotionSection({
             </div>
           </GridItem>
           <GridItem span={[4, 4, 4]}>
-            <div className="web-block" key={scrambleKey}>
+            <div className="web-block" data-sample key={scrambleKey}>
               <Eyebrow>Text scramble · typewriter</Eyebrow>
               <Heading level={3} size={3}>
                 <TextScramble text="Forty in. Three left." />
@@ -1074,7 +1077,7 @@ function MotionSection({
             </div>
           </GridItem>
           <GridItem span={[4, 8, 4]}>
-            <div className="web-block">
+            <div className="web-block" data-sample>
               <Eyebrow>Number ticker · proof stats</Eyebrow>
               <dl className="web-stats" data-align="start" key={tickerKey}>
                 <div>
@@ -1105,7 +1108,7 @@ function MotionSection({
             </div>
           </GridItem>
           <GridItem span={[4, 8, 4]}>
-            <div className="web-block">
+            <div className="web-block" data-sample>
               <Eyebrow>Tilt card · magnetic button</Eyebrow>
               <TiltCard href="#web-how">
                 <RhymeIcon at={0.55} />
