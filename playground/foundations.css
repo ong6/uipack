@@ -584,6 +584,15 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr));
   gap: 16px;
 }
+/* Pairs side by side share their rows (title, examples, note): the example boxes in one row are
+   as tall as the tallest, and the notes start on one line. */
+.fdn-pairs > .fdn-pair {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  row-gap: 0;
+  align-content: start;
+}
 .fdn-pair__row {
   display: grid;
   grid-template-columns: 1fr 1fr;
