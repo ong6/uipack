@@ -150,7 +150,8 @@ const Check = () => (
 
 /**
  * Plan cards that share a row and a height: name, price, who it is for, what it includes and its
- * own button at the foot. One to three plans fill the column evenly (one column below 640px).
+ * own button at the foot. Two or three plans fill the column evenly (one column below 640px); a
+ * single plan keeps a card's measure (36rem), on the section's alignment.
  */
 export function PricingPlans({ plans, note, className = "" }: PricingPlansProps) {
   if (DEV && plans.length > 1) {
@@ -162,7 +163,7 @@ export function PricingPlans({ plans, note, className = "" }: PricingPlansProps)
   }
   return (
     <div className={`uipack-web-pricing ${className}`.trim()}>
-      <ul className="uipack-web-pricing__plans" style={{ "--plans": Math.min(3, plans.length) } as CSSProperties}>
+      <ul className="uipack-web-pricing__plans" data-count={plans.length} style={{ "--plans": Math.min(3, plans.length) } as CSSProperties}>
         {plans.map((p, i) => (
           <li key={i} className="uipack-web-plan" data-featured={p.featured ? "" : undefined}>
             <div className="uipack-web-plan__head">

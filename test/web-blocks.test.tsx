@@ -3,7 +3,18 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { Connector, Figure } from "../src";
 import { sectionOrder } from "../src/style";
-import { ClosingCta, FeatureGrid, PricingPlans, Proof, Section, SiteFooter, StarHero, WebPage, WebSurface } from "../src/web";
+import {
+  ClosingCta,
+  FeatureGrid,
+  PricingPlans,
+  Proof,
+  Section,
+  SiteFooter,
+  StarHero,
+  WebPage,
+  WebSurface,
+  numberSections,
+} from "../src/web";
 import { STYLE_FILES, readStyle } from "./style-values";
 
 const figure = (props: Partial<Parameters<typeof Figure>[0]> = {}) => (
@@ -180,10 +191,36 @@ describe("closing parts", () => {
     for (const n of nums) expect(n).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("a Section eyebrow carries the style's index slot, hidden from assistive tech", () => {
-    const { container } = render(<Section eyebrow="FAQ" title="Questions" />);
-    expect(container.querySelector(".uipack-web-eyebrow .uipack-web-section__index")).toHaveAttribute("aria-hidden", "true");
+  it("a Section outside a page has no number; inside WebPage each section is numbered in page order", () => {
+    const { container: alone } = render(<Section eyebrow="FAQ" title="Questions" />);
+    expect(alone.querySelector(".uipack-web-section__index")).toBeNull();
     expect(screen.getByText("FAQ")).toBeInTheDocument();
+
+    const { container } = render(
+      <WebPage
+        sections={{
+          hero: <header>Hero</header>,
+          how: <Section eyebrow="How it works" title="Steps" />,
+          // A slot that renders nothing takes no number.
+          demo: () => null,
+          mechanism: <Section eyebrow="Mechanism" title="Mechanism" />,
+          faq: <Section eyebrow="FAQ" title="Questions" />,
+        }}
+      />,
+    );
+    const nums = [...container.querySelectorAll(".uipack-web-eyebrow .uipack-web-section__index")];
+    expect(nums.map((n) => n.textContent)).toEqual(["01", "02", "03"]);
+    for (const n of nums) expect(n).toHaveAttribute("aria-hidden", "true");
+  });
+
+  it("numberSections follows an explicit order and skips the hero", () => {
+    const page = { uiStyle: "technical", layout: "shared", defaults: { hero: "demo", align: "start", steps: "cards" } } as const;
+    const out = numberSections(["hero", "faq", "how"], { hero: "h", how: "s", faq: "f" }, page);
+    expect(out.map((s) => [s.id, s.index])).toEqual([
+      ["hero", undefined],
+      ["faq", 1],
+      ["how", 2],
+    ]);
   });
 
   it("every style fills the band, index, corner-mark and narrow-backdrop roles", () => {

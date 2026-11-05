@@ -21,6 +21,8 @@ import {
   Subhead,
   WebSurface,
   WebPage,
+  ProductWindow,
+  ItemList,
   type WebPageContext,
   type WebPageProps,
   typeScale,
@@ -491,26 +493,34 @@ function LazyFlow({ headingLevel = 3 }: { headingLevel?: 2 | 3 }) {
 }
 
 const demo = (
-  <DemoPlayer
-    label="Product demo: clearing an inbox"
+  <DemoPlayer label="Product demo: clearing an inbox" address="tidy.example/inbox" steps={demoSteps} initialMetric={40} metricLabel="in your inbox" />
+);
+
+/** The hero's still: the product's real output after one run, the three messages left for you. */
+const heroResult = (
+  <ProductWindow
+    label="Tidy's inbox after one run: three messages need you"
     address="tidy.example/inbox"
-    steps={demoSteps}
-    initialMetric={40}
-    metricLabel="in your inbox"
-    cta={
-      <CtaButton variant="secondary" href="#web-pricing">
-        Try it yourself
-      </CtaButton>
-    }
-  />
+    title="Needs you"
+    status="3 of 40"
+    footer="37 archived, filed, snoozed or drafted"
+    footerEnd="Drafts wait for you"
+  >
+    <ItemList
+      label="Messages that need you"
+      items={inboxRows.map((r) => ({ title: r.subject, detail: r.from, meta: r.due, status: "attention" as const }))}
+    />
+  </ProductWindow>
 );
 
 /**
- * The sample page's content, by section id. WebPage picks the order (the style's own or the shared
- * one) and tells the hero what fills its proof slot: Technical leads with the working diagram, the
- * others with the demo.
+ * The sample page's content, by section id, in its own order: Hero, Steps, Mechanism, Demo,
+ * Proof, FAQ, Pricing, Closing. Every style keeps that order; the opt-in style layout lets the
+ * style pick what fills the hero (Technical: the working diagram; the others: the demo), and the
+ * section that would repeat the hero's content then renders nothing.
  */
 function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["sections"] {
+  const heroHolds = (page: WebPageContext) => (page.layout === "style" ? page.defaults.hero : "result");
   return {
     hero: (page: WebPageContext) => (
       <div id="web-top" data-section-id="hero">
@@ -528,13 +538,13 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
               <CtaButton size="lg" href="#web-pricing">
                 Start free
               </CtaButton>
-              <CtaButton size="lg" variant="secondary" href="#web-how">
-                See how it works
+              <CtaButton size="lg" variant="secondary" href="#web-demo">
+                Watch the demo
               </CtaButton>
             </>
           }
         >
-          {page.defaults.hero === "figure" ? <LazyFlow headingLevel={2} /> : demo}
+          {heroHolds(page) === "figure" ? <LazyFlow headingLevel={2} /> : heroHolds(page) === "demo" ? demo : heroResult}
         </StarHero>
       </div>
     ),
@@ -542,7 +552,7 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
       <Section
         id="web-how"
         eyebrow="How it works"
-        title="Three steps, all of them visible."
+        title="Ask, watch, decide."
         intro="Each step is one thing you can check, in the order it happens."
       >
         <div data-section-id="how">
@@ -550,24 +560,24 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
         </div>
       </Section>
     ),
-    mechanism: (
-      <Section
-        id="web-mechanism"
-        eyebrow="Mechanism"
-        title="Every message takes the same four steps."
-        intro="Select a step to see what it does. Drafts wait in a queue until you approve them."
-      >
-        <LazyFlow />
-      </Section>
-    ),
-    // The demo gets its own section only when the hero holds the figure (Technical, opt-in layout).
+    mechanism: (page: WebPageContext) =>
+      heroHolds(page) === "figure" ? null : (
+        <Section
+          id="web-mechanism"
+          eyebrow="Mechanism"
+          title="Nothing is sent without you."
+          intro="Select a step to see what it does."
+        >
+          <LazyFlow />
+        </Section>
+      ),
     demo: (page: WebPageContext) =>
-      page.defaults.hero === "demo" ? null : (
+      heroHolds(page) === "demo" ? null : (
         <Section
           id="web-demo"
           eyebrow="Demo"
           title="Watch it clear an inbox in nine seconds."
-          intro="The same three steps, played on a sample inbox."
+          intro="The three steps, played on a sample inbox. Pick a step to see it."
         >
           <div data-section-id="demo">{demo}</div>
         </Section>
@@ -576,31 +586,19 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
       <Section
         id="web-proof"
         tone="secondary"
-        eyebrow="Social proof slot"
-        title="Thirty-seven messages handled before nine."
-        intro="Placeholder numbers and quote. Replace them with a named customer and measured numbers before you ship."
+        eyebrow="Proof"
+        title={<RevealText as="span" text="Every action is listed." />}
+        intro="The sample inbox from the demo, after one run. Each action can be stopped or undone from the list."
       >
         <div data-section-id="proof">
           <Proof
-            lead={{ value: <NumberTicker value={37} />, of: "of 40", label: "messages handled this morning", ratio: 37 / 40 }}
+            lead={{ value: <NumberTicker value={37} />, of: "of 40", label: "messages handled in the sample inbox", ratio: 37 / 40 }}
             stats={[
-              { value: <NumberTicker value={92} suffix="%" />, label: "fewer unread" },
-              {
-                value: <NumberTicker value={9.4} format={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }} suffix=" s" />,
-                label: "to watch the demo",
-              },
+              { value: <NumberTicker value={22} />, label: "newsletters archived" },
+              { value: <NumberTicker value={9} />, label: "receipts filed" },
+              { value: <NumberTicker value={2} />, label: "threads snoozed" },
+              { value: <NumberTicker value={4} />, label: "replies drafted" },
             ]}
-            quote={{
-              text: (
-                <RevealText
-                  as="span"
-                  className="web-quote__text"
-                  text="I stopped opening my inbox before coffee. It leaves me three things, and they are the right three."
-                />
-              ),
-              name: "Placeholder name",
-              role: "Placeholder role",
-            }}
           />
         </div>
       </Section>
@@ -618,33 +616,18 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
         id="web-pricing"
         align="center"
         eyebrow="Pricing"
-        title={
-          <>
-            Get your morning back for <em>$8 a month.</em>
-          </>
-        }
-        intro="Free for 30 days, no card needed. One inbox, every action visible."
+        title="One plan, one inbox."
+        intro="Free for 30 days with no card, then $8 a month."
       >
         <div data-section-id="pricing">
           <PricingPlans
             plans={[
               {
-                name: "Trial",
-                price: "$0",
-                period: "for 30 days",
-                summary: "Every feature, no card needed.",
-                features: ["One inbox", "Every action visible", "Drafts wait for your approval"],
-                action: { label: "Start free", href: "#web-pricing" },
-              },
-              {
                 name: "Personal",
                 price: "$8",
                 period: "a month",
-                summary: "After the trial, for one inbox.",
-                features: ["One inbox", "Every action visible", "Cancel any time"],
-                action: { label: "Start free", href: "#web-pricing" },
-                featured: true,
-                badge: "Most picked",
+                summary: "After a free 30-day trial.",
+                features: ["One inbox", "Every action listed as it happens", "Drafts wait for your approval", "Cancel any time"],
               },
             ]}
             note="Illustrative prices for a sample product."
@@ -656,8 +639,8 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
       <ClosingCta
         id="web-closing"
         eyebrow="Start"
-        title="Get your morning back."
-        intro="Thirty days free, then $8 a month. One inbox, every action visible."
+        title="Try it on your own inbox."
+        intro="Thirty days free. Tidy drafts replies but never sends them."
         action={{ label: "Start free", href: "#web-pricing" }}
         note="No card needed for the trial."
       />
@@ -730,6 +713,7 @@ export default function WebShowcase() {
                     }
                     links={[
                       { label: "How it works", href: "#web-how" },
+                      { label: "Demo", href: "#web-demo" },
                       { label: "Proof", href: "#web-proof" },
                       { label: "Pricing", href: "#web-pricing" },
                     ]}
@@ -743,6 +727,7 @@ export default function WebShowcase() {
                 brand={<Brand href="#web-top">Tidy</Brand>}
                 links={[
                   { label: "How it works", href: "#web-how" },
+                  { label: "Demo", href: "#web-demo" },
                   { label: "Proof", href: "#web-proof" },
                   { label: "Pricing", href: "#web-pricing" },
                 ]}
@@ -983,7 +968,7 @@ const flashyNotes: Record<string, string> = {
   "demo-player": "Types the prompt, ticks through actions, lands on the result. Plays in view, Pause and Replay, step tabs.",
   "star-hero": "One gradient derived from the product story, masked behind the headline, with inline noise.",
   "spotlight-card": "A radial light and border glow that follow a fine pointer. Keyboard focus shows it too.",
-  "reveal-text": "Words rise in when the quote scrolls into view. Plain text without JavaScript.",
+  "reveal-text": "Words rise in when the Proof heading scrolls into view. Plain text without JavaScript.",
 };
 
 const skills = ["React", "TypeScript", "SVG", "Three.js", "Blender", "Node", "Postgres", "Playwright", "Vite", "Design systems"];

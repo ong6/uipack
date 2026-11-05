@@ -42,18 +42,9 @@
     }
   }
   /* Section index: a style that numbers its sections (Technical) shows each Section eyebrow's
-     number before its words, counted down the page. Hidden spans do not count. */
-  /* The page root is a size container, which scopes counters to inside it: the counter starts on
-     its first child, whose scope runs on through the following siblings (every section). */
-  .uipack-web > :first-child {
-    counter-reset: uipack-section;
-  }
+     number (WebPage passes it, in page order) before its words. */
   .uipack-web-section__index {
     display: var(--ui-section-index, none);
-    counter-increment: uipack-section;
-  }
-  .uipack-web-section__index::before {
-    content: counter(uipack-section, decimal-leading-zero);
     color: var(--web-accent-ink);
   }
   .uipack-web-section__index::after {

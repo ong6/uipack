@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 import type { UiStyleId } from "../style";
 import { Body, Eyebrow, Heading } from "./Text";
 import { Grid, GridItem } from "./Surface";
@@ -25,6 +25,16 @@ export interface SectionProps {
   uiStyle?: UiStyleId;
 }
 
+/**
+ * The section's place on its page (1, 2, 3…), provided by `WebPage` to each section slot after the
+ * hero, in the page's order; a slot that renders nothing takes no number. A style that numbers its
+ * sections (Technical) shows it before the eyebrow as `02 /`. Outside a WebPage there is no number.
+ */
+export const SectionIndexContext = createContext<number | undefined>(undefined);
+
+/** Two digits, as a drawing sheet numbers its views: 1 → "01". */
+export const sectionIndexLabel = (n: number) => String(n).padStart(2, "0");
+
 /** A page section on the 8-pt rhythm, with an optional eyebrow, heading and intro. */
 export function Section({
   eyebrow,
@@ -39,6 +49,7 @@ export function Section({
   uiStyle,
 }: SectionProps) {
   const headingId = id ? `${id}-title` : undefined;
+  const index = useContext(SectionIndexContext);
   return (
     <section
       id={id}
@@ -54,8 +65,12 @@ export function Section({
           <div className="uipack-web-section__head">
             {eyebrow && (
               <Eyebrow>
-                {/* The style's section index (Technical: 01, 02…); empty and hidden elsewhere. */}
-                <span className="uipack-web-section__index" aria-hidden="true" />
+                {/* The section's number on its page (Technical shows it: 01, 02…; hidden elsewhere). */}
+                {index !== undefined && (
+                  <span className="uipack-web-section__index" aria-hidden="true">
+                    {sectionIndexLabel(index)}
+                  </span>
+                )}
                 {eyebrow}
               </Eyebrow>
             )}

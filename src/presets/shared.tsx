@@ -3,6 +3,7 @@ import { Connector } from "../Connector";
 import { Defs } from "../Defs";
 import { Figure } from "../Figure";
 import type { LegendItem } from "../Legend";
+import type { FigureChrome } from "../context";
 import { Node } from "../Node";
 import { Packet } from "../Packet";
 import type { IconName } from "../icons";
@@ -28,6 +29,8 @@ export interface FigureMeta {
   headingLevel?: 2 | 3 | 4 | 5;
   /** Hold the finished resting frame (Figure's `static`). */
   static?: boolean;
+  /** Tool chrome (Figure's `chrome`): "full" brings Open canvas back on a quiet web page, e.g. for a hero figure. */
+  chrome?: FigureChrome;
 }
 
 /** What a preset produces; `Figure`-ready. */
@@ -83,6 +86,7 @@ export function toFigure(meta: FigureMeta, parts: PresetParts, id?: string) {
       narrowViewBox={parts.narrowViewBox}
       alt={meta.alt}
       static={meta.static}
+      chrome={meta.chrome}
     >
       {parts.wide}
     </Figure>

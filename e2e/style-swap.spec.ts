@@ -41,14 +41,15 @@ const WEB_REGIONS: [string, string][] = [
   ["hero title", "#web-hero-title"],
   ["hero subtitle", ".web-example .uipack-web-hero .uipack-web-subhead"],
   ["hero actions", ".web-example .uipack-web-hero__actions"],
-  ["demo", ".web-example .uipack-web-demo"],
+  ["hero output", ".web-example .uipack-web-hero .uipack-web-window"],
   ["how", "#web-how"],
   ["how cards", "#web-how .uipack-web-features"],
   ["mechanism", "#web-mechanism"],
   ["figure", "#web-mechanism figure"],
+  ["demo", "#web-demo"],
+  ["demo player", "#web-demo .uipack-web-demo"],
   ["proof", "#web-proof"],
   ["stats", "#web-proof .uipack-web-proof__stats"],
-  ["quote", "#web-proof .uipack-web-quote"],
   ["faq", "#web-faq"],
   ["pricing", "#web-pricing"],
   ["plans", "#web-pricing .uipack-web-pricing__plans"],
@@ -185,14 +186,16 @@ test("a Section with its own uiStyle repaints inside another style's page", asyn
   expect(errors).toEqual([]);
 });
 
-test("by default the hero holds the same proof in every style, on the sections' left edge", async ({ page }) => {
+test("by default the hero holds the same product output in every style, on the sections' left edge, and the demo has its own section", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   const errors = watchErrors(page);
   for (const style of STYLES) {
     await page.goto(`/web?style=${style}&theme=light`);
     const hero = page.locator(".web-example .uipack-web-hero");
-    await expect(hero.locator(".uipack-web-demo")).toBeVisible();
+    await expect(hero.locator(".uipack-web-window")).toBeVisible();
+    await expect(hero.locator(".uipack-web-demo")).toHaveCount(0);
     await expect(hero.locator("figure.uipack")).toHaveCount(0);
+    await expect(page.locator("#web-demo .uipack-web-demo")).toHaveCount(1);
     await expect(page.locator(".web-example")).toHaveAttribute("data-ui-layout", "shared");
     // The hero's copy and proof start where every section's content starts.
     const left = async (sel: string) => Math.round((await page.locator(sel).first().boundingBox())!.x);

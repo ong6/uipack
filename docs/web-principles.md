@@ -150,7 +150,7 @@ three.
     Impeccable pass) before shipping. (SMWD-5, RN)
 14. **Motion explains change.** Each flashy piece earns its motion: typing shows input, ticks show
     work, the metric falls as it happens, the star draws once. Under `prefers-reduced-motion`, every
-    piece renders its final, complete state (`DemoPlayer` lists all steps). The resting state is the
+    piece renders its final, complete state (`DemoPlayer` lists all steps and keeps its step tabs, each showing its step's finished frame with nothing moving). The resting state is the
     finished one in every case: `DemoPlayer` paints its result first and rewinds to play only as it
     comes into view, and a figure is drawn before its entrance plays, so a capture or a reader who
     jumps past never sees an empty frame (`static` on either holds the rest). Pointer effects stay off
@@ -260,7 +260,7 @@ viewport or takes focus, so `/web`'s first view requests the package's seven fil
       `scroll-behavior: smooth` on `<html>` (only under `prefers-reduced-motion: no-preference`).
       SmoothScroll marks `<html data-uipack-smooth-scroll>` and sets `scroll-behavior: auto` inline
       while it eases, so the two never stack. Every nav link should point at a real section: in
-      `/web`, How it works, Proof and Pricing go to `#web-how`, `#web-proof` and `#web-pricing`.
+      `/web`, How it works, Demo, Proof and Pricing go to `#web-how`, `#web-demo`, `#web-proof` and `#web-pricing`.
     - **API:** `scrollTo(target, { offset, duration, immediate })`, where the target is a y
       position, an element or a selector. Without `duration` it uses the follow; with it, an
       exponential-out tween of that many milliseconds. `smoothScrollTo()` uses the mounted
@@ -312,14 +312,14 @@ numbers are in [web discoverability](web-discoverability.md).
 
 | Component | Rules |
 | --- | --- |
-| `DemoPlayer` | 2, 14, 23; Pause/Replay/step tabs at 44px; rests on the result, autoplays from the start only in view and settles back on the result if scrolled away mid-play; `static` holds the result; transcript of every step in the HTML |
+| `DemoPlayer` | 2, 14, 23; Pause/Replay/step tabs at 44px; rests on the result, autoplays from the start only in view and settles back on the result if scrolled away mid-play; under reduced motion the step tabs stay (each shows its finished frame) and Pause/Replay go; `static` holds the result with no controls; transcript of every step in the HTML |
 | `StarHero`, `StarChart`, `NoiseLayer` | 3, 5, 6 |
 | `SpotlightCard` | 14; off for `hover: none` and reduced motion; keyboard focus shows it |
 | `RevealText` | 14, 23; text stays in the DOM, visible without JavaScript; units keep their spaces |
 | `Eyebrow`, `Heading`, `Subhead`, `Body` | 6, 7, 19, 20, 24; `Heading` levels 1–6 |
 | `CtaButton`, `GlassNav` | 1, 5, 9; GlassNav keeps a compact CTA beside Menu on a phone (into the menu only below 340px) |
 | `Proof` | 6, 23, 24; the lead number with its denominator and meter, ruled stats, a named quote with drawn marks |
-| `PricingPlans` | 1, 8, 26; one to three plans fill the column, features and a button per card, the featured plan gets the accent |
+| `PricingPlans` | 1, 8, 26; two or three plans fill the column, a single plan keeps a card's 36rem measure; features and an optional button per card (leave it off when the closing band holds the page's one action), the featured plan gets the accent |
 | `ClosingCta` | 1, 9, 24; the third CTA on the style's band roles |
 | `SiteFooter`, `Brand` | 24; the page ends on a footer; the wordmark is set in the display face |
 | `Section`, `FeatureGrid`, `Grid`, `RhymeIcon` | 4, 8, 24, 30 (`Section lazyRender`); `FeatureGrid numbered` for steps |

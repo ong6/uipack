@@ -12,6 +12,7 @@ import "./foundations.css";
 import {
   DeckPlayer,
   SLOT_BUDGETS,
+  TITLE_WORDS,
   endSlide,
   factSlide,
   pointsSlide,
@@ -190,13 +191,16 @@ function FullSpec({
 /** The seven guides in reading order, from the catalog (one source for labels and intros). */
 const guides = libraryPages.filter((p) => p.group === "foundations" && p.path.startsWith("/foundations"));
 
-/** Code names for the reader who builds with the library, kept out of the running prose. */
+/**
+ * Code names for the reader who builds with the library: a closed aside, so the guide scans as
+ * ideas and examples and the API is one click away.
+ */
 function Implementers({ children }: { children: ReactNode }) {
   return (
-    <aside className="fdn-impl" aria-label="For implementers">
-      <p className="fdn-impl__label">For implementers</p>
+    <details className="fdn-impl">
+      <summary className="fdn-impl__label">For implementers: the code names</summary>
       <div className="fdn-impl__body">{children}</div>
-    </aside>
+    </details>
   );
 }
 
@@ -317,7 +321,7 @@ type Content = { title: string; points: string[]; value: string; unit: string; b
 const writings: Record<"search" | "reviews", Content> = {
   search: {
     title: "Search: twice as fast since March",
-    points: ["p95 198 ms, half of March", "5 indexes → 1", "The cache serves the rest"],
+    points: ["p95 198 ms, was 410 ms", "5 indexes → 1"],
     value: "198",
     unit: "ms at p95",
     baseline: "410 ms in March",
@@ -387,9 +391,8 @@ function LayerToggle() {
     <section>
       <h2>Swap one layer at a time</h2>
       <p className="collection-intro">
-        One unit, shown twice: as a slide and as a web section. Each control changes one layer. Style changes only colours, faces
-        and decoration; writing changes only the words; layout changes only where the words sit. Try each one and watch what stays
-        still.
+        One unit, shown twice: as a slide and as a web section. Each control changes one layer. Style changes colours, faces and
+        decoration. Writing changes the words. Layout changes where the words sit. Try each one and watch what stays still.
       </p>
       <div className="fdn-toggles">
         <Choice legend="Style" value={style} options={styleOptions} onChange={setStyle} />
@@ -679,8 +682,11 @@ function BudgetChecker() {
         <span>Words</span>
       </label>
       <textarea id={inputId} rows={2} value={text} onChange={(e) => setText(e.target.value)} />
-      <p className="fdn-checker__result" role="status">
-        {problems.length ? `Over budget: ${problems.join("; ")}.` : "Fits the budget."}
+      <p className="fdn-checker__result" role="status" data-verdict={problems.length ? "over" : "fits"}>
+        <span className="fdn-checker__icon" aria-hidden="true">
+          {problems.length ? "✕" : "✓"}
+        </span>
+        <span>{problems.length ? `Over budget: ${problems.join("; ")}.` : "Fits the budget."}</span>
       </p>
     </div>
   );
@@ -711,6 +717,46 @@ function WritingPage() {
   return (
     <>
       <section>
+        <h2>Headlines: presented or read alone</h2>
+        <p className="collection-intro">
+          Decide first who carries the argument. When you present, you do: the title is a short verdict and you say the claim. When
+          the piece goes out without you, the title has to carry it: write the claim as a full sentence.
+        </p>
+        <div className="fdn-table" tabIndex={0} role="region" aria-label="Headline modes">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Mode</th>
+                <th scope="col">When</th>
+                <th scope="col">Title</th>
+                <th scope="col">Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Presented (the default for slides)</th>
+                <td>You give it and the room hears you</td>
+                <td>2–5 words, a verdict you&rsquo;d say aloud; a bare label only on agenda, section and mechanism slides</td>
+                <td>Search: twice as fast since March</td>
+              </tr>
+              <tr>
+                <th scope="row">Read alone</th>
+                <td>A pre-read, a forwarded deck, a figure</td>
+                <td>The real conclusion as one sentence, 3–14 words</td>
+                <td>Index freshness fell from 40 to 6 minutes</td>
+              </tr>
+              <tr>
+                <th scope="row">Web page</th>
+                <td>Read alone, by a visitor</td>
+                <td>The hero says what changed for the reader; section heads are 2–5 plain words naming what they get</td>
+                <td>Pull requests check in about 7 minutes</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <HeadlinePairs />
+      </section>
+      <section>
         <h2>Slot budgets</h2>
         <p className="collection-intro">
           A slot is a named place for words: the headline, a point, a label. Each holds a fixed amount before it stops reading at
@@ -734,7 +780,11 @@ function WritingPage() {
                     <code>{name}</code>
                   </th>
                   <td>{b.role}</td>
-                  <td>{budgetText(b)}</td>
+                  <td>
+                    {name === "headline"
+                      ? `presented: at most ${TITLE_WORDS.presented} words (aim for 2–5); read alone: at most ${TITLE_WORDS["read-alone"]}, on at most ${b.maxLines} lines`
+                      : budgetText(b)}
+                  </td>
                   <td>{overflowText[b.overflow] ?? b.overflow}</td>
                 </tr>
               ))}
@@ -772,10 +822,10 @@ function WritingPage() {
       <MediumTabs source={writingDoc} label="Writing" />
       <Checklist
         items={[
-          "The headline is a short spoken label (presented) or the claim as one sentence (read alone).",
+          "A presented slide's title is a short spoken verdict; a read-alone slide or a figure states the claim as one sentence.",
           "Every number has a baseline, a window and a source.",
           "Labels are two or three words; sentences go in the caption or the notes.",
-          "Nothing you were not given: an unknown fact is a visible TODO, not a guess.",
+          "Nothing you were not given: a missing fact is left out or pinned to the data in a note, never guessed.",
           "The linter reports no slot over budget.",
         ]}
       />
@@ -881,7 +931,11 @@ const leaks = [
     "Anton caps are narrower than Plex Sans and taller at 1.3×, so a heading changes height.",
     "Region order and columns stay fixed; heights may move",
   ],
-  ["Density", "A style that wanted roomier cards would change every box.", "Density is a style role; all three use 1"],
+  [
+    "Density",
+    "Technical pads sections at 0.9, Graphical 0.95, Landing 1.1, so a page grows or shrinks vertically.",
+    "Density scales vertical section padding only; columns and boxes keep their widths",
+  ],
   [
     "Ornaments",
     "A poster disc behind the copy would hide words.",
@@ -958,7 +1012,7 @@ function MixPage() {
               <Heading level={3} size={4}>
                 Search: <em>twice as fast</em> since March
               </Heading>
-              <Body>p95 198 ms, half of March · 5 indexes → 1</Body>
+              <Body>p95 198 ms, was 410 ms · 5 indexes → 1</Body>
             </WebSurface>
           ))}
         </div>
@@ -1021,7 +1075,7 @@ const recipes: { name: string; style: string; sequence: string[]; template: stri
   {
     name: "Landing page (generic)",
     style: "Landing",
-    sequence: ["hero + demo", "steps", "mechanism", "proof", "FAQ", "pricing"],
+    sequence: ["hero + product output", "steps", "mechanism", "demo", "proof", "FAQ", "pricing", "closing"],
     template: "hero { eyebrow, headline, subhead, cta }, features[3], faq[], offer",
     href: "/web?style=landing",
     link: "The page in Landing",
@@ -1029,8 +1083,8 @@ const recipes: { name: string; style: string; sequence: string[]; template: stri
   {
     name: "Product page (Technical)",
     style: "Technical",
-    sequence: ["hero", "mechanism figure", "proof", "steps", "FAQ", "pricing"],
-    template: "hero { … }, figure spec { stages, queue, caption }, stats[], faq[]",
+    sequence: ["hero + product output", "steps", "mechanism figure", "demo", "proof", "FAQ", "pricing", "closing"],
+    template: "hero { … }, figure spec { stages, queue, caption }, demo steps[], stats[], faq[]",
     href: "/web?style=technical",
     link: "The page in Technical",
   },
@@ -1212,10 +1266,10 @@ const tropes = [
   ["Inter or Roboto everywhere", "Archivo Expanded headings on page, slide and figure; Martian Mono labels; Anton for posters"],
   [
     "Centred hero, one CTA, three icon cards",
-    "Technical shows a working diagram in the first screen, straight after the headline; each style reorders the sections",
+    "The product's real output in the first screen, straight after the headline; one section order in every style",
   ],
-  ["Rounded everything", "6px in Technical, 0 in Graphical"],
-  ["Floating dashboard screenshot as the hero", "A live mechanism figure or the product demo"],
+  ["Rounded everything", "Square corners in Technical and Graphical; Landing's 12px cards only on a generic landing page"],
+  ["Floating dashboard screenshot as the hero", "The product's real output drawn from data, the mechanism figure or the demo"],
   ["Instrument Serif as the default headline face", "Only in Landing, the generic option"],
   ["Glassy blobs and ambient glow", "Glow means selection; grain and aurora only in Landing, one per viewport"],
   ["Emoji as icons", "Shape-coded flow tokens and the icon set"],
@@ -1271,52 +1325,66 @@ const slideTells = [
   ["A one-word caps eyebrow", "REVIEWS, SEARCH", "Drop it; the title names the topic"],
 ];
 
+/**
+ * The two headline modes from writing.md, each with its do and don't: a presented slide (a short
+ * spoken verdict over fragments) and a read-alone deck, figure or web page (the claim written out).
+ */
+function HeadlinePairs() {
+  const { theme } = useShowcaseTheme();
+  return (
+    <div className="fdn-pairs">
+      <Pair
+        title="Presented slide: a short verdict you'd say aloud"
+        dont={
+          <SlideSketch
+            eyebrow="Search"
+            title="Search answers in 198 ms at p95, twice as fast as March"
+            lede="One index replaced five."
+          />
+        }
+        doit={<SlideSketch title="Search: twice as fast since March" points={["p95 198 ms, was 410 ms", "5 indexes → 1"]} />}
+        why="With a speaker in the room, a sentence title and a lede are a script: the room reads ahead while the speaker recites it. A 2–5 word verdict is the cue, the points carry the numbers, and the speaker says why it matters."
+      />
+      <Pair
+        title="Read alone, a figure or the web: the claim as a sentence"
+        dont={
+          <WebSurface theme={theme} className="fdn-mini">
+            <Heading level={4} size={3}>
+              Results
+            </Heading>
+          </WebSurface>
+        }
+        doit={
+          <WebSurface theme={theme} className="fdn-mini">
+            <Heading level={4} size={3}>
+              Index freshness fell from 40 to 6 minutes
+            </Heading>
+          </WebSurface>
+        }
+        why="Forwarded without you, a label or a bare verdict says nothing. Write the real conclusion as one sentence of 3–14 words; on a web page, the hero says what changed for the reader and each section head names what they get."
+      />
+    </div>
+  );
+}
+
 function DontPage() {
   const { theme } = useShowcaseTheme();
   return (
     <>
       <section>
-        <h2>Slide writing</h2>
+        <h2>Headlines: two modes</h2>
         <p className="collection-intro">
-          A presented slide is a short title and the fragments the speaker talks from; the speaker says the because. Full-sentence
-          titles are for decks read without the speaker, and there the title must state the real conclusion.
+          Claim headlines are right when nobody is there to say the claim. A presented slide gets a short verdict, and the speaker
+          says the because. A deck read without its speaker, a figure and a web page write the claim out. Each mode has its own
+          way to go wrong.
         </p>
-        <div className="fdn-pairs">
-          <Pair
-            title="A review result"
-            dont={
-              <SlideSketch
-                eyebrow="Reviews"
-                title="Answer-first reviews were decided in one meeting, not three"
-                lede="Same teams and the same six months; only the order of the slides changed."
-              />
-            }
-            doit={
-              <SlideSketch
-                title="Review decisions: 3 meetings → 1"
-                points={["Same teams, same 6 months", "Only change: the answer moved to slide 1"]}
-              />
-            }
-            why="The sentence and its lede are a script to read out, built on a contrast, a semicolon and a coined term. The short title is a cue, the points carry the numbers, and the speaker says why it matters."
-          />
-          <Pair
-            title="A speed result"
-            dont={
-              <SlideSketch
-                eyebrow="Search"
-                title="Search answers in 198 ms at p95, twice as fast as March"
-                lede="One index replaced five, and the cache serves the rest."
-              />
-            }
-            doit={
-              <SlideSketch
-                title="Search: twice as fast since March"
-                points={["p95 198 ms, half of March", "5 indexes → 1", "The cache serves the rest"]}
-              />
-            }
-            why="A comparison bolted onto the claim and a tidy closing clause read as generated. As fragments, the same facts sit on screen to point at, and the speaker words them fresh each time."
-          />
-        </div>
+        <HeadlinePairs />
+      </section>
+      <section>
+        <h2>Slide text that reads as generated</h2>
+        <p className="collection-intro">
+          Any one of these is fine now and then. On every slide it reads as a template.
+        </p>
         <div className="fdn-table" tabIndex={0} role="region" aria-label="AI tells in slide text">
           <table>
             <thead>
@@ -1341,24 +1409,6 @@ function DontPage() {
       <section>
         <h2>Paired examples</h2>
         <div className="fdn-pairs">
-          <Pair
-            title="Titles name the topic or the verdict"
-            dont={
-              <WebSurface theme={theme} className="fdn-mini">
-                <Heading level={4} size={3}>
-                  Results
-                </Heading>
-              </WebSurface>
-            }
-            doit={
-              <WebSurface theme={theme} className="fdn-mini">
-                <Heading level={4} size={3}>
-                  Index freshness: 40 → 6 min
-                </Heading>
-              </WebSurface>
-            }
-            why="“Results” could head any slide. A topic or a short verdict gives the speaker something to talk from; the full claim is said aloud, or written out as the title in a deck sent without you."
-          />
           <Pair
             title="Labels, not sentences, in the drawing"
             dont={<NodeSketch label="This service checks that" wrapped="each request is valid" />}
@@ -1388,8 +1438,19 @@ function DontPage() {
                 Card
               </div>
             }
-            doit={<div className="fdn-glow">Card</div>}
-            why="An ambient glow says everything is selected. Technical and Graphical turn it off (--ui-glow: 0)."
+            doit={
+              <div className="fdn-glow-row">
+                <div className="fdn-glow">Card</div>
+                <div className="fdn-glow" data-selected="">
+                  <span className="fdn-glow__tick" aria-hidden="true">
+                    ✓
+                  </span>
+                  Selected
+                </div>
+                <div className="fdn-glow">Card</div>
+              </div>
+            }
+            why="An ambient glow says everything is selected. Mark the one selected card with a ring, a tick and the word, so it reads without colour; the rest stay plain."
           />
         </div>
       </section>
@@ -1422,7 +1483,7 @@ function DontPage() {
           "No trope from the list above without a reason you could defend.",
           "One filled button per view; everything else is secondary.",
           "Shape-coded marks and icons, never emoji.",
-          "Titles name a topic or a verdict, never just \u201cResults\u201d.",
+          "Presented titles are short spoken verdicts; read-alone titles state the claim; never just \u201cResults\u201d.",
           "Drawings carry labels; captions carry the sentences.",
         ]}
       />

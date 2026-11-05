@@ -165,6 +165,31 @@ describe("DemoPlayer steps mode", () => {
     expect(caption).not.toHaveClass("uipack-web-demo__sr");
     expect(within(progress).getAllByRole("listitem")[0]).toHaveAttribute("aria-current", "step");
   });
+  it("reduced motion: the compact rail stays the step tabs (each holds its finished frame); side keeps the classic tabs", () => {
+    globalThis.__reduced = true;
+    try {
+      const { container, unmount } = render(<DemoPlayer steps={steps} label="Demo" />);
+      const demo = container.querySelector(".uipack-web-demo")!;
+      expect(demo).toHaveAttribute("data-state", "static");
+      const progress = screen.getByRole("list", { name: "Progress" });
+      expect(within(progress).getAllByRole("listitem")[1]).toHaveAttribute("aria-current", "step");
+      expect(screen.queryByRole("group", { name: "Demo steps" })).toBeNull();
+      expect(screen.queryByRole("button", { name: /Play|Pause|Replay/ })).toBeNull();
+      fireEvent.click(within(progress).getByRole("button", { name: /01\s*Read/ }));
+      expect(demo).toHaveAttribute("data-step", "0");
+      expect(demo).toHaveAttribute("data-state", "static");
+      expect(container.querySelector(".uipack-web-demo__result")).toHaveTextContent("Sales table");
+      // Nothing narrates a run, so the caption stays visually hidden.
+      expect(container.querySelector(".uipack-web-demo__caption")).toHaveClass("uipack-web-demo__sr");
+      unmount();
+      render(<DemoPlayer steps={steps} label="Demo" rail="side" />);
+      const tabs = within(screen.getByRole("group", { name: "Demo steps" })).getAllByRole("button");
+      expect(tabs.map((t) => t.textContent)).toEqual(["01 Read", "02 Draft"]);
+      expect(screen.queryByRole("button", { name: /Play|Pause|Replay/ })).toBeNull();
+    } finally {
+      globalThis.__reduced = false;
+    }
+  });
   it("rail=none and static: no visible list, no controls, no caption", () => {
     const { container } = render(<DemoPlayer steps={steps} label="Demo" rail="none" static />);
     expect(screen.queryByRole("list", { name: "Progress" })).toBeNull();

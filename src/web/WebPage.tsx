@@ -1,6 +1,7 @@
-import { Fragment, type CSSProperties, type ElementType, type ReactNode } from "react";
+import { type CSSProperties, type ElementType, type ReactNode } from "react";
 import { sectionOrder, uiStyles, type UiStyleId, type UiStyleMeta } from "../style";
 import { WebSurface, type WebSurfaceProps } from "./Surface";
+import { SectionIndexContext } from "./Section";
 
 /** What a section's render function learns about the page it is placed on. */
 export interface WebPageContext {
@@ -32,6 +33,24 @@ export interface WebPageProps {
   style?: CSSProperties;
   as?: ElementType;
   children?: ReactNode;
+}
+
+/**
+ * Each slot's content and its section number: 1, 2, 3… down the page in its order, skipping the
+ * hero (it has no section eyebrow) and any slot that renders nothing (null, false, undefined).
+ */
+export function numberSections(
+  ids: readonly string[],
+  sections: WebPageProps["sections"],
+  page: WebPageContext,
+): { id: string; node: ReactNode; index: number | undefined }[] {
+  let n = 0;
+  return ids.flatMap((id) => {
+    const section = sections[id];
+    const node = typeof section === "function" ? section(page) : section;
+    if (node === null || node === undefined || node === false) return [];
+    return [{ id, node, index: id === "hero" ? undefined : ++n }];
+  });
 }
 
 const SHARED: UiStyleMeta["layout"] = { hero: "demo", align: "start", steps: "cards" };
@@ -68,10 +87,11 @@ export function WebPage({
       figureChrome={figureChrome}
     >
       {nav}
-      {ids.map((id) => {
-        const section = sections[id];
-        return <Fragment key={id}>{typeof section === "function" ? section(page) : section}</Fragment>;
-      })}
+      {numberSections(ids, sections, page).map(({ id, node, index }) => (
+        <SectionIndexContext.Provider key={id} value={index}>
+          {node}
+        </SectionIndexContext.Provider>
+      ))}
       {children}
     </WebSurface>
   );

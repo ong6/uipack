@@ -1,6 +1,7 @@
 import * as react from 'react';
 import { ReactNode } from 'react';
 import { L as LegendItem, T as TokenKind } from './Legend-n6GikDm_.cjs';
+import { F as FigureChrome } from './context-Baoq0bBr.cjs';
 import { I as IconName } from './index-BCiSvaJI.cjs';
 
 /** One box in a preset spec. */
@@ -21,6 +22,8 @@ interface FigureMeta {
     headingLevel?: 2 | 3 | 4 | 5;
     /** Hold the finished resting frame (Figure's `static`). */
     static?: boolean;
+    /** Tool chrome (Figure's `chrome`): "full" brings Open canvas back on a quiet web page, e.g. for a hero figure. */
+    chrome?: FigureChrome;
 }
 /** What a preset produces; `Figure`-ready. */
 interface PresetParts {
