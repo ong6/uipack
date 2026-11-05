@@ -1,4 +1,4 @@
-import { Figure, Defs, Connector, Packet, Node, busStub, route, Lane, Group, Bus, Label, Chip } from './chunk-FHHVEYHB.js';
+import { Figure, Defs, Connector, Packet, Node, busStub, route, Lane, Group, Bus, Label, Chip } from './chunk-TWIJNNIG.js';
 import './chunk-3R6VZY52.js';
 import './chunk-5NWU4OWV.js';
 import './chunk-V4CVL4FJ.js';
@@ -30,6 +30,7 @@ function toFigure(meta, parts, id) {
       narrow: parts.narrow,
       narrowViewBox: parts.narrowViewBox,
       alt: meta.alt,
+      static: meta.static,
       children: parts.wide
     }
   );

@@ -1,5 +1,5 @@
 import { ReactNode, ReactElement } from 'react';
-import { a as FigureProps } from './Figure-lmTs6Iem.cjs';
+import { a as FigureProps } from './Figure-Br08PNDN.cjs';
 import { L as LegendItem } from './Legend-n6GikDm_.cjs';
 import './style-CBYPyqqV.cjs';
 

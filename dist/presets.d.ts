@@ -19,6 +19,8 @@ interface FigureMeta {
     caption?: string;
     alt: string;
     headingLevel?: 2 | 3 | 4 | 5;
+    /** Hold the finished resting frame (Figure's `static`). */
+    static?: boolean;
 }
 /** What a preset produces; `Figure`-ready. */
 interface PresetParts {

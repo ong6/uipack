@@ -354,8 +354,16 @@ interface DemoPlayerProps {
     metricLabel?: string;
     /** Placeholder for the composer before anything is typed. */
     placeholder?: string;
-    /** Start when at least a quarter is on screen. Default true. */
+    /**
+     * Play from the start as it scrolls into view. Default true. Until then, and without it until
+     * Play, the player rests on its finished result.
+     */
     autoplay?: boolean;
+    /**
+     * Hold the finished result with no controls, as under reduced motion: for thumbnails, print or
+     * a capture. The default already rests on the result until the demo plays.
+     */
+    static?: boolean;
     /** Restart after the last step's hold. Default false: the result stays. */
     loop?: boolean;
     timing?: Partial<DemoTiming>;
@@ -366,11 +374,15 @@ interface DemoPlayerProps {
 }
 /**
  * A baked-in product demo: a window frame that types a prompt, ticks through the
- * agent's actions and settles on the result. Plays when on screen, pauses when off,
- * and holds still on its final state under reduced motion (the steps stay in the DOM as text,
- * so the window and a second, visible list never repeat the same actions).
+ * agent's actions and settles on the result. Its resting state is the result: that is what the
+ * server renders and what paints first, so a capture, a reader who jumps past it or one who never
+ * scrolls to it sees the outcome, not an empty composer. As it nears the viewport it rewinds to
+ * the first frame and plays while a quarter of it is on screen; scrolled fully away mid-play, it
+ * settles back on the result. Reduced motion and `static` hold the result with no controls (the
+ * steps stay in the DOM as text, so the window and a second, visible list never repeat the same
+ * actions).
  */
-declare function DemoPlayer({ steps, label, address, initialMetric, metricLabel, placeholder, autoplay, loop, timing: timingProp, cta, className, onStepChange, }: DemoPlayerProps): react.JSX.Element;
+declare function DemoPlayer({ steps, label, address, initialMetric, metricLabel, placeholder, autoplay, static: still, loop, timing: timingProp, cta, className, onStepChange, }: DemoPlayerProps): react.JSX.Element;
 
 interface InViewOptions {
     /** Fraction of the element that must be visible. Default 0. */

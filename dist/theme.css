@@ -1091,24 +1091,23 @@
   }
 }
 
-/* Entrance. A figure that starts below the fold waits (data-enter="wait") and,
-   when it scrolls in, washes in from the top down in about 0.6s: each part
-   fades up 6px from a 2px blur, delayed by where its top edge sits
-   (--uipack-d, set by src/entrance.ts, 0–240ms). The default is the finished
-   drawing: without JavaScript, under reduced motion or in a static export
-   nothing waits. */
-@media (prefers-reduced-motion: no-preference) {
-  .uipack__canvas[data-enter] > svg > * {
-    transition:
-      opacity 340ms cubic-bezier(0.22, 1, 0.36, 1),
-      transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
-      filter 300ms ease-out;
-    transition-delay: var(--uipack-d, 0ms);
-  }
-  .uipack__canvas[data-enter="wait"] > svg > * {
+/* Entrance. The finished drawing always paints first; nothing waits hidden. A figure
+   that starts below the fold plays this once when its first pixel scrolls in
+   (data-enter="in", set by src/entrance.ts): each part fades up 6px from a 2px
+   blur, delayed by where its top edge sits (--uipack-d, 0–240ms), so the
+   drawing washes in from the top down in about 0.6s. Without JavaScript, under
+   reduced motion, in a static export or a capture that never scrolls, it is
+   simply the finished drawing. */
+@keyframes uipack-enter {
+  from {
     opacity: 0;
     transform: translateY(6px);
     filter: blur(2px);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .uipack__canvas[data-enter="in"] > svg > * {
+    animation: uipack-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) var(--uipack-d, 0ms) backwards;
   }
 }
 /* The dialog lives in <body>, outside .uipack, so it takes the host page's

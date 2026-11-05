@@ -388,6 +388,7 @@ function DemoPlayer({
   metricLabel,
   placeholder = "Ask for something\u2026",
   autoplay = true,
+  static: still = false,
   loop = false,
   timing: timingProp,
   cta,
@@ -395,25 +396,54 @@ function DemoPlayer({
   onStepChange
 }) {
   const timing = useMemo(() => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
-  const reduced = usePrefersReducedMotion();
+  const reduced = usePrefersReducedMotion() || still;
   const rootRef = useRef(null);
   const tabsRef = useRef(null);
-  const [elapsed, setElapsed] = useState(0);
+  const end = demoEnd(steps, timing);
+  const cycle = demoCycle(steps, timing);
+  const [elapsed, setElapsed] = useState(end);
   const [playing, setPlaying] = useState(autoplay);
   const [inView, setInView] = useState(false);
   const id = useId();
-  const end = demoEnd(steps, timing);
-  const cycle = demoCycle(steps, timing);
+  const armed = useRef(false);
+  const playingRef = useLatest(playing);
+  const doneRef = useLatest(elapsed >= end);
   useEffect(() => {
     const el = rootRef.current;
+    if (reduced) return;
+    const arm = () => {
+      if (armed.current || !autoplay) return;
+      armed.current = true;
+      setElapsed(0);
+    };
     if (!el || typeof IntersectionObserver === "undefined") {
+      arm();
       setInView(true);
       return;
     }
-    const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.25 });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+    const near = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) arm();
+      },
+      { rootMargin: "0px 0px 25% 0px" }
+    );
+    const view = new IntersectionObserver(
+      ([entry]) => {
+        setInView(entry.intersectionRatio >= 0.25);
+        if (!entry.isIntersecting && armed.current && playingRef.current && !loop && !doneRef.current) {
+          armed.current = false;
+          setElapsed(end);
+        }
+      },
+      { threshold: [0, 0.25] }
+    );
+    near.observe(el);
+    view.observe(el);
+    return () => {
+      near.disconnect();
+      view.disconnect();
+    };
+  }, [reduced, autoplay, loop, end, playingRef, doneRef]);
   const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
   const frame = reduced ? finalFrame : demoFrame(steps, elapsed, timing, initialMetric);
   const finished = !loop && frame.done;
@@ -440,6 +470,7 @@ function DemoPlayer({
   }, [frame.step, stepChangeRef]);
   const seek = useCallback(
     (i) => {
+      armed.current = true;
       setElapsed(stepStart(steps, i, timing));
       setPlaying(true);
     },
