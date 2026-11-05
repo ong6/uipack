@@ -137,7 +137,7 @@ describe("server HTML carries the final text of animated components", () => {
     expect(container.querySelectorAll(".uipack-web-marquee__list")).toHaveLength(2);
   });
 
-  it("a Landing page has one h1, real headings in order, and real links", () => {
+  it("a web page has one h1, real headings in order, and real links", () => {
     const html = renderToStaticMarkup(
       <>
         <GlassNav
@@ -279,7 +279,7 @@ describe("fontPreloads", () => {
     const tags = fontPreloads({ base: "/fonts" });
     expect(tags).toHaveLength(1);
     expect(headTagsToHtml(tags)).toBe(
-      '<link rel="preload" href="/fonts/instrument-serif-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous">',
+      '<link rel="preload" href="/fonts/ibm-plex-sans-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous">',
     );
   });
   it("can scope the preload to wide layouts with a media query", () => {
@@ -287,12 +287,12 @@ describe("fontPreloads", () => {
   });
   it("takes extra faces and a resolver for bundler URLs", () => {
     const tags = fontPreloads({
-      faces: ["display", "display-italic"],
+      faces: ["display", "text"],
       href: (f) => `/assets/${f.replace(".woff2", "-abc.woff2")}`,
     });
     expect(tags.map((t) => (t.tag === "link" ? t.attrs.href : ""))).toEqual([
-      "/assets/instrument-serif-latin-400-normal-abc.woff2",
-      "/assets/instrument-serif-latin-400-italic-abc.woff2",
+      "/assets/ibm-plex-sans-latin-600-normal-abc.woff2",
+      "/assets/ibm-plex-sans-latin-400-normal-abc.woff2",
     ]);
   });
 });

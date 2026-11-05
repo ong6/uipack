@@ -1,9 +1,13 @@
 /**
- * The styles UI Pack ships, one value set each in src/styles (docs/system/style.md). A component's
- * `style` prop sets `data-ui-style` on its root; omitted, it follows the nearest ancestor that
- * sets one, else Technical. A swap changes tokens only: the same regions, boxes and reading order.
+ * The styles UI Pack ships, one value set each in src/styles (docs/system/style.md). Technical is
+ * the one implemented style. Landing and Graphical are written specs (docs/system/styles/) that
+ * fill the same role contract; an agent builds a new style from a spec by adding one value set in
+ * src/styles, registering it here (the id below and an entry in `uiStyles`), and testing it.
+ * A component's `uiStyle` prop sets `data-ui-style` on its root; omitted, it follows the nearest
+ * ancestor that sets one, else Technical. A swap changes tokens only: the same regions, boxes and
+ * reading order.
  */
-export type UiStyleId = "technical" | "landing" | "graphical";
+export type UiStyleId = "technical";
 
 export interface UiStyleMeta {
   id: UiStyleId;
@@ -41,41 +45,6 @@ export const uiStyles: readonly UiStyleMeta[] = [
     preload: ["ibm-plex-sans-latin-600-normal.woff2"],
     prefers: ["hero", "how", "demo", "proof", "faq", "pricing"],
     layout: { hero: "figure", align: "start", steps: "rows" },
-  },
-  {
-    id: "landing",
-    name: "Landing",
-    summary:
-      "Product marketing in label stock: warm ivory and kraft, one ledger-green accent, editorial serif headlines, ruled forms with perforated divisions, no shadows.",
-    fonts: [
-      "instrument-serif-latin-400-normal.woff2",
-      "instrument-serif-latin-400-italic.woff2",
-      "ibm-plex-sans-latin-400-normal.woff2",
-      "ibm-plex-sans-latin-500-normal.woff2",
-      "ibm-plex-sans-latin-600-normal.woff2",
-      "ibm-plex-mono-latin-400-normal.woff2",
-      "ibm-plex-mono-latin-600-normal.woff2",
-    ],
-    preload: ["instrument-serif-latin-400-normal.woff2", "instrument-serif-latin-400-italic.woff2"],
-    prefers: ["hero", "how", "mechanism", "proof", "faq", "pricing"],
-    layout: { hero: "demo", align: "center", steps: "cards" },
-  },
-  {
-    id: "graphical",
-    name: "Graphical",
-    summary:
-      "Poster: bone paper, black ink, one signal-orange accent, condensed display caps, hard edges, one disc motif (the hero stamp).",
-    fonts: [
-      "anton-latin-400-normal.woff2",
-      "ibm-plex-sans-latin-400-normal.woff2",
-      "ibm-plex-sans-latin-500-normal.woff2",
-      "ibm-plex-sans-latin-600-normal.woff2",
-      "ibm-plex-mono-latin-400-normal.woff2",
-      "ibm-plex-mono-latin-600-normal.woff2",
-    ],
-    preload: ["anton-latin-400-normal.woff2"],
-    prefers: ["hero", "proof", "how", "mechanism", "pricing", "faq"],
-    layout: { hero: "demo", align: "center", steps: "cards" },
   },
 ];
 
@@ -119,7 +88,7 @@ export function styleBootScript({
   storageKey?: string;
   themeStorageKey?: string;
   fallback?: UiStyleId;
-  /** Extra values `?style=` accepts, mapped to a style id: `{ "1": "technical", poster: "graphical" }`. */
+  /** Extra values `?style=` accepts, mapped to a style id: `{ "1": "technical", blueprint: "technical" }`. */
   aliases?: Record<string, UiStyleId>;
 } = {}): string {
   const map: Record<string, UiStyleId> = { ...aliases };

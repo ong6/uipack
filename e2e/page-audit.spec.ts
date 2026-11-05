@@ -23,7 +23,7 @@ const FOCUS_RING_PAGES: Record<number, string[]> = {
   1440: ["/mechanism", "/docs", "/presentations"],
   390: ["/animations", "/assets", "/mechanism", "/web", "/"],
 };
-// WebKit runs the audit on a few pages: the diagrams page, the Landing page with its own faces, and the docs layout.
+// WebKit runs the audit on a few pages: the diagrams page, the /web sample page, and the docs layout.
 const CROSS_BROWSER = ["/", "/web", "/docs"];
 
 async function open(page: Page, path: string, width: number) {

@@ -1,6 +1,6 @@
 /* uipack/web.css — web page parts. Every rule is scoped under .uipack-web and every colour, face,
    radius and ornament comes from the style roles (src/styles): data-ui-style="technical" (the
-   default, diagram-led), "landing" (the generic landing page) or "graphical" (poster).
+   default and only implemented style, diagram-led). Fallbacks in var() are Technical's values.
    60 / 30 / 10: --web-bg is the neutral, --web-secondary the supporting band, --web-accent the
    single accent reserved for calls to action and the star. */
 
@@ -49,7 +49,7 @@
     --web-step-4: 2.4414rem;
     --web-step-5: 3.0518rem;
     --web-step-6: 3.8147rem;
-    /* A style may set its display face larger (Graphical's condensed caps): steps 4–6 only. */
+    /* A style may set its display face larger (a condensed display face): steps 4–6 only. */
     --web-display-scale: var(--ui-display-scale, 1);
 
     /* 8-point spacing. */
@@ -593,7 +593,7 @@
   }
 
   /* Stamp (StarHero stamp): the page's one number, part of the copy. The style paints it
-     (--ui-stamp-*): Graphical a postmark disc, Technical a revision tag, Landing a die-cut label.
+     (--ui-stamp-*): Technical a revision tag.
      A stacked hero wears it on the empty end side of the headline (absolutely placed, so it moves
      no box); a split hero sets it under the actions; below 720px it is a one-line label there. */
   .uipack-web-hero__copy {
@@ -620,7 +620,7 @@
     text-align: center;
     rotate: var(--ui-stamp-rotate);
   }
-  /* The inner ring: Graphical's second ink ring, Landing's perforation, Technical's hairline. */
+  /* The inner ring (--ui-stamp-inner): Technical's hairline. */
   .uipack-web-hero__stamp::before {
     content: "";
     position: absolute;
@@ -702,14 +702,15 @@
     opacity: var(--noise-opacity, 0.07);
     mix-blend-mode: var(--web-noise-blend);
   }
-  /* The hero's grain is an ornament: only styles with grain (Landing) show it. */
+  /* The hero's grain is an ornament: only styles with grain (--ui-grain: 1) show it. */
   .uipack-web-hero > .uipack-web-noise {
-    opacity: calc(var(--noise-opacity, 0.07) * var(--ui-grain, 1));
+    opacity: calc(var(--noise-opacity, 0.07) * var(--ui-grain, 0));
   }
-  /* Emphasis inside a display headline: Landing's real italic; Technical and Graphical colour the
-     phrase with the accent instead (neither ships a display italic, and a synthesised one is not drawn). */
+  /* Emphasis inside a display headline: a style with a display italic sets it (--ui-em-style);
+     Technical marks the phrase with colour and an underline instead (it ships no display italic,
+     and a synthesised one is not drawn). */
   .uipack-web-heading:is([data-step="4"], [data-step="5"], [data-step="6"]) em {
-    font-style: var(--ui-em-style, italic);
+    font-style: var(--ui-em-style, normal);
     color: var(--ui-em-color, inherit);
     /* Technical's amber revision underline (light only); none elsewhere. */
     text-decoration: var(--ui-em-decoration, none);
@@ -717,7 +718,7 @@
     text-decoration-skip-ink: none;
   }
   .uipack-web-star__area {
-    opacity: var(--ui-star-fill, 1);
+    opacity: var(--ui-star-fill, 0);
   }
   /* In the hero the star sits behind the demo; its guide rules would read as stray lines across it. */
   .uipack-web-hero .uipack-web-star__rule {
@@ -817,10 +818,10 @@
       grid-column: span var(--span-w, 4);
     }
   }
-  /* The style's density (--ui-density: Technical 0.8, Graphical 0.95, Landing 1.1) scales the
+  /* The style's density (--ui-density: Technical 0.9) scales the
      vertical rhythm only, so a swap changes heights, never columns. */
   .uipack-web-section {
-    --web-section-pad: calc(var(--web-s12) * var(--ui-density, 1));
+    --web-section-pad: calc(var(--web-s12) * var(--ui-density, 0.9));
     padding: var(--web-section-pad) var(--web-s3);
   }
   /* An anchored section lands with its first line 24px past the scroll offset (about 40px under a
@@ -857,7 +858,7 @@
   }
   @container web (max-width: 720px) {
     .uipack-web-section {
-      --web-section-pad: calc(var(--web-s8) * var(--ui-density, 1));
+      --web-section-pad: calc(var(--web-s8) * var(--ui-density, 0.9));
       padding: var(--web-section-pad) var(--web-s2);
     }
     .uipack-web-section__inner {
@@ -995,8 +996,8 @@
     position: absolute;
     pointer-events: none;
     border-radius: inherit;
-    /* Ambient glow is Landing's: other styles keep the keyboard ring and lose the light. */
-    opacity: calc(var(--spot-on) * var(--ui-glow, 1));
+    /* Ambient glow is a style's (--ui-glow); Technical has none, so it keeps the keyboard ring and loses the light. */
+    opacity: calc(var(--spot-on) * var(--ui-glow, 0));
     transition: opacity 240ms var(--web-ease);
   }
   /* Fill: a soft radial light under the pointer. */
@@ -1100,7 +1101,7 @@
   }
   .uipack-web-demo__dots {
     /* The style decides whether a window wears traffic lights (Technical: no, a drawing sheet). */
-    display: var(--ui-window-dots, flex);
+    display: var(--ui-window-dots, none);
     grid-column: 1;
     gap: 6px;
   }
@@ -1439,8 +1440,8 @@
 
   .uipack-web-aurora {
     inset: -15%;
-    /* Landing's full cap; styles without ambient glow keep 35% of it. */
-    opacity: calc(var(--web-aurora-opacity) * (0.35 + 0.65 * var(--ui-glow, 1)));
+    /* A style with ambient glow gets the full cap; one without (Technical) keeps 35% of it. */
+    opacity: calc(var(--web-aurora-opacity) * (0.35 + 0.65 * var(--ui-glow, 0)));
     filter: blur(72px);
   }
   .uipack-web-aurora i {
@@ -1786,8 +1787,8 @@
 }
 
 /* A figure on a web page belongs to the page: it takes the page style's text and label faces
-   (Anton never: figure text stays at label sizes; the title takes the style's heading face), the style's frame (Graphical's
-   2px ink and hard shadow, Landing's soft lift) and the card radius. Unlayered on purpose: the
+   (figure text stays at label sizes; the title takes the style's heading face), the style's frame
+   and the card radius. Unlayered on purpose: the
    figure's own theme.css is unlayered, and this is the more specific rule. A host overrides it
    with `.uipack-web .uipack` of its own. */
 .uipack-web .uipack {
@@ -1801,7 +1802,7 @@
   font-family: var(--ui-font-heading, var(--web-font-text));
 }
 /* Flow tokens on a web page come from the style's web palette (--ui-web-flow-request: Technical
-   keeps its cyan main flow; Landing draws requests in warm slate so its green stays the only hue). */
+   keeps its cyan main flow; a style may redraw requests so its accent stays the only hue). */
 .uipack-web .uipack {
   --uipack-token-request: var(--ui-web-flow-request, var(--ui-flow-request));
 }
@@ -1839,9 +1840,8 @@
     color: var(--web-accent-ink);
   }
 
-  /* Steps: FeatureGrid numbered. The style owns the treatment (--ui-num-*): Technical a mono
-     "STEP 01" over a hairline across the card, Graphical a giant display numeral, Landing a tinted
-     round badge. */
+  /* Steps: FeatureGrid numbered. The style owns the treatment (--ui-num-*): Technical a
+     ringed detail bubble with the number in mono. */
   .uipack-web .uipack-web-features .uipack-web-feature__num {
     display: var(--ui-num-display, block);
     place-items: center;
@@ -1968,7 +1968,7 @@
     justify-content: flex-end;
     gap: var(--web-s1);
   }
-  /* Stat dividers are the style's (Technical hairlines, Graphical 2px ink, Landing none). */
+  /* Stat dividers are the style's (--ui-stat-divider; Technical hairlines). */
   .uipack-web-proof__stats > div + div {
     border-inline-start: var(--ui-stat-divider, 0 solid transparent);
     padding-inline-start: var(--web-s3);
@@ -2100,8 +2100,7 @@
     box-shadow: var(--ui-card-shadow);
     text-align: start;
   }
-  /* The featured plan: Technical an accent bar along the top, Graphical an orange offset shadow,
-     Landing the green-tinted ticket with a green edge (--ui-plan-featured-*). */
+  /* The featured plan (--ui-plan-featured-*): Technical an accent bar along the top. */
   .uipack-web-plan[data-featured] {
     background: var(--ui-corner-marks), var(--ui-plan-featured-fill, var(--web-surface));
     border-color: var(--ui-plan-featured-border, var(--web-accent));
@@ -2315,8 +2314,8 @@
 
 /* ---------- Product surfaces: window, table, schedule, list, record, file; worked numbers ----------
    Show the product's real output. One layout in every style; cells, rules, frames and marks read
-   roles (--ui-cell-*, --ui-window-*, the frame roles), so Technical draws square mono cells,
-   Graphical ink-ruled boxes and Landing soft tinted chips from the same rows. */
+   roles (--ui-cell-*, --ui-window-*, the frame roles), so Technical draws square mono cells
+   and another style its own cells from the same rows. */
 @layer uipack.base {
   .uipack-web-window {
     display: grid;
@@ -2341,7 +2340,7 @@
     background: var(--ui-window-bar, transparent);
   }
   .uipack-web-window__dots {
-    display: var(--ui-window-dots, flex);
+    display: var(--ui-window-dots, none);
     gap: 6px;
   }
   .uipack-web-window__dots i {

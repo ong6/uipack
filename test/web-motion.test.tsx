@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { contrast, over, readStyle, role } from "./style-values";
+import { uiStyles } from "../src/style";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import {
@@ -466,7 +467,7 @@ describe("backgrounds", () => {
       ["light", light],
       ["dark", dark],
     ] as const) {
-      for (const style of ["technical", "landing", "graphical"] as const) {
+      for (const { id: style } of uiStyles) {
         // Worst case: the accent blob at full layer opacity over the page.
         // Styles without ambient glow (--ui-glow: 0) keep 35% of the cap (web.css .uipack-web-aurora).
         const glow = Number(readStyle(style).glow);

@@ -6,9 +6,8 @@
   --show-eyebrow-tracking: 0.08em;
   --show-radius: 6px;
 }
-/* The shell is Technical whatever style the page shows: <body data-ui-style="technical"> (index.html)
-   holds Technical's roles, and the shell's colours read them there, not on <html>, which carries
-   the page's style. Their dark half follows data-theme through color-scheme. */
+/* The shell is Technical: <body data-ui-style="technical"> (index.html) holds Technical's roles,
+   and the shell's colours read them there. Their dark half follows data-theme through color-scheme. */
 body {
   /* Type: Technical's faces (IBM Plex Sans headings and text, IBM Plex Mono labels), read on <body> like the colours. */
   --show-font-sans: var(--ui-font-text);
@@ -694,7 +693,7 @@ body {
   font-family: var(--show-font-sans);
 }
 /* Inline code in shell copy (intros, notes, usage) is the shell mono, never the UA's generic
-   monospace. Zero specificity: a style's own code rule (docs prose, Landing) still wins. */
+   monospace. Zero specificity: a style's own code rule (docs prose, the /web sample) still wins. */
 :where(.showcase-shell) :is(code, kbd, samp, pre) {
   font-family: var(--show-font-mono);
 }

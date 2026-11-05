@@ -27,8 +27,8 @@ export interface DeckPlayerProps {
   title: string;
   theme?: DeckTheme;
   /**
-   * The style the deck is painted in (sets data-ui-style): "technical" (default), "landing" or
-   * "graphical". Only tokens change: every slide keeps its regions, words and reading order.
+   * The style the deck is painted in (sets data-ui-style): a registered style id, "technical"
+   * (the default and only one today). Only tokens change: every slide keeps its regions, words and reading order.
    * Omitted, the deck follows the nearest ancestor with data-ui-style.
    */
   uiStyle?: UiStyleId;

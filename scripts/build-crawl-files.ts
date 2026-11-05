@@ -1,4 +1,4 @@
-// Writes robots.txt, sitemap.xml, llms.txt (and llms-full.txt when pages carry content) for a Landing site with buildCrawlFiles().
+// Writes robots.txt, sitemap.xml, llms.txt (and llms-full.txt when pages carry content) for a web site with buildCrawlFiles().
 //
 //   npx tsx scripts/build-crawl-files.ts --out dist-site
 //   npx tsx scripts/build-crawl-files.ts --config ./crawl.config.ts --out public

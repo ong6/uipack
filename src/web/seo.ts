@@ -1,5 +1,5 @@
 /**
- * Framework-agnostic SEO and answer-engine helpers for Landing pages. Everything here is pure:
+ * Framework-agnostic SEO and answer-engine helpers for web pages. Everything here is pure:
  * it returns data (head tags, JSON-LD objects, strings) that any server, static generator or
  * client can render. React wrappers live in Head.tsx; crawl files live in crawl.ts.
  */
@@ -59,7 +59,7 @@ function absoluteUrl(u: string, base: string): string {
 }
 
 /**
- * The head tags a Landing page needs to be found and previewed: title, description, canonical,
+ * The head tags a web page needs to be found and previewed: title, description, canonical,
  * Open Graph and Twitter cards. Returns plain data; render it with `<HeadTags>`, `useHead` or
  * `headTagsToHtml`.
  */
@@ -140,10 +140,12 @@ export function headTagKey(t: HeadTag): string {
 
 /* ---------------------------------------------------------------- Fonts */
 
-/** The self-hosted Landing faces, by role. Files ship in `uipack/fonts/*` (dist/fonts). */
+/**
+ * The self-hosted faces of the default style (Technical), by role. Files ship in `uipack/fonts/*`
+ * (dist/fonts). Technical's display face is IBM Plex Sans 600, the same file as "text-600".
+ */
 export const WEB_FONT_FILES = {
-  display: "instrument-serif-latin-400-normal.woff2",
-  "display-italic": "instrument-serif-latin-400-italic.woff2",
+  display: "ibm-plex-sans-latin-600-normal.woff2",
   text: "ibm-plex-sans-latin-400-normal.woff2",
   "text-500": "ibm-plex-sans-latin-500-normal.woff2",
   "text-600": "ibm-plex-sans-latin-600-normal.woff2",
@@ -156,8 +158,7 @@ export type WebFontFace = keyof typeof WEB_FONT_FILES;
 export interface FontPreloadOptions {
   /**
    * The faces above the fold. Default `["display"]`: the hero headline, usually the LCP text.
-   * Add "display-italic" when the hero title has an `<em>`. Preload two at most; every
-   * preload competes with the hero's other requests.
+   * Preload two at most; every preload competes with the hero's other requests.
    */
   faces?: WebFontFace[];
   /** Where the woff2 files are served, e.g. "/fonts/". Default "/fonts/". */

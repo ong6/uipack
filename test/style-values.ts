@@ -7,10 +7,9 @@ import { readFileSync } from "node:fs";
 export type RGBA = [number, number, number, number];
 export type Theme = "light" | "dark";
 
+/** Each registered style's value set (one entry per `uiStyles` id; test/style-roles.test.tsx checks both lists agree). */
 export const STYLE_FILES = {
   technical: "src/styles/technical.css",
-  landing: "src/styles/landing.css",
-  graphical: "src/styles/graphical.css",
 } as const;
 export type StyleId = keyof typeof STYLE_FILES;
 

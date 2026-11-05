@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { Connector, Figure } from "../src";
-import { sectionOrder } from "../src/style";
+import { sectionOrder, uiStyles } from "../src/style";
 import {
   ClosingCta,
   FeatureGrid,
@@ -15,7 +15,7 @@ import {
   WebSurface,
   numberSections,
 } from "../src/web";
-import { STYLE_FILES, readStyle } from "./style-values";
+import { readStyle } from "./style-values";
 
 const figure = (props: Partial<Parameters<typeof Figure>[0]> = {}) => (
   <Figure title="Flow" viewBox="0 0 100 40" alt="A flow" legend={[{ label: "Request", kind: "request" }]} {...props}>
@@ -31,17 +31,17 @@ const figure = (props: Partial<Parameters<typeof Figure>[0]> = {}) => (
 describe("a style swap keeps the page's layout", () => {
   it("renders the page's own section order in every style by default", () => {
     const ids = ["hero", "how", "demo", "proof", "pricing", "faq"];
-    for (const style of ["technical", "landing", "graphical"] as const) expect(sectionOrder(style, ids)).toEqual(ids);
+    for (const style of uiStyles.map((s) => s.id)) expect(sectionOrder(style, ids)).toEqual(ids);
   });
 
   it("keeps every section under the opt-in style order, appending ids the style does not name", () => {
-    const order = sectionOrder("graphical", ["hero", "how", "demo", "faq", "closing"], "style");
-    expect(order.slice(0, 3)).toEqual(["hero", "how", "faq"]);
-    expect([...order].sort()).toEqual(["closing", "demo", "faq", "hero", "how"]);
+    // Technical prefers hero, how, demo, proof, faq, pricing.
+    const order = sectionOrder("technical", ["faq", "closing", "demo", "how", "hero"], "style");
+    expect(order).toEqual(["hero", "how", "demo", "faq", "closing"]);
   });
 
   it("WebPage renders sections in the order given, with the shared defaults, whatever the style", () => {
-    for (const style of ["technical", "landing", "graphical"] as const) {
+    for (const style of uiStyles.map((s) => s.id)) {
       const seen: string[] = [];
       const { container, unmount } = render(
         <WebPage
@@ -107,13 +107,6 @@ describe("figure chrome on a web page", () => {
     expect(css).toMatch(
       /\.uipack-web \.uipack \{[^}]*--uipack-sans: var\(--web-font-text\);[^}]*--uipack-mono: var\(--web-font-mono\);/,
     );
-  });
-
-  it("Graphical and Landing draw request flows in their own palette, not Technical's blue", () => {
-    for (const id of ["graphical", "landing"] as const) {
-      const css = readFileSync(STYLE_FILES[id], "utf8");
-      expect(css, id).not.toMatch(/--ui-flow-request: light-dark\(#(2348e0|4f6fe6)/i);
-    }
   });
 });
 
@@ -224,7 +217,7 @@ describe("closing parts", () => {
   });
 
   it("every style fills the band, index, corner-mark and narrow-backdrop roles", () => {
-    for (const id of ["technical", "landing", "graphical"] as const) {
+    for (const id of uiStyles.map((s) => s.id)) {
       const vars = readStyle(id);
       for (const r of [
         "band-fill",

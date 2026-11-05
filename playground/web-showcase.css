@@ -1,5 +1,5 @@
 /* Playground-only layout for /web. Library styles live in src/web/web.css. */
-/* The shell's chrome around a Landing sample: the shell's 6px radius and rule (design-direction.md),
+/* The shell's chrome around the sample page: the shell's 6px radius and rule (design-direction.md),
    in both themes. The sample keeps its own radii inside. */
 .web-example {
   border: 1px solid var(--show-rule);
@@ -389,7 +389,7 @@
   padding: 0 12px;
   border: 1px solid var(--show-rule);
   /* Shell chrome with the shell's control radius, but set in the sample's label face (IBM Plex
-     Mono, already loaded on this page): the chips index the Landing sample and sit on its edge,
+     Mono, already loaded on this page): the chips index the sample page and sit on its edge,
      so two different monos never meet. */
   border-radius: var(--show-control-radius);
   color: var(--show-ink);
@@ -447,6 +447,14 @@
   letter-spacing: var(--web-display-tracking);
   text-wrap: balance;
 }
+/* The key phrase, as the style marks it in a display headline (web.css): Technical's amber underline. */
+.web-role__display em {
+  font-style: var(--ui-em-style, normal);
+  color: var(--ui-em-color, inherit);
+  text-decoration: var(--ui-em-decoration, none);
+  text-underline-offset: 0.14em;
+  text-decoration-skip-ink: none;
+}
 .web-role__data {
   display: grid;
   margin: 0;
@@ -472,58 +480,6 @@
   color: var(--web-ink);
   font-weight: 600;
   overflow-wrap: anywhere;
-}
-.web-face-toggle {
-  display: grid;
-  gap: var(--web-s1);
-  min-width: 0;
-  margin: var(--web-s4) 0 0;
-  padding: 0;
-  border: 0;
-}
-.web-face-toggle legend {
-  margin-bottom: var(--web-s1);
-  padding: 0;
-  font: 600 var(--web-step--1) var(--web-font-mono);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--web-ink-low);
-}
-.web-face-toggle__options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--web-s1);
-}
-.web-face-toggle label {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 44px;
-  padding: 0 18px 0 14px;
-  border: 1px solid var(--web-hairline);
-  border-radius: var(--web-radius-pill);
-  background: var(--web-surface);
-  cursor: pointer;
-  font-size: var(--web-step-1);
-  line-height: 1;
-}
-.web-face-toggle label:has(:checked) {
-  border-color: var(--web-ink);
-  background: var(--web-secondary);
-}
-.web-face-toggle label:has(:focus-visible) {
-  outline: 2px solid var(--web-accent);
-  outline-offset: 3px;
-}
-.web-face-toggle input {
-  margin: 0;
-  font: inherit;
-  accent-color: var(--web-ink);
-}
-.web-face-toggle__note {
-  margin: 0;
-  color: var(--web-ink-low);
-  font-size: 0.9375rem;
 }
 @container web (max-width: 720px) {
   .web-role {
@@ -623,7 +579,7 @@
 }
 
 /* ---------- Flashy previews: a small looping sketch of each piece ---------- */
-/* Drawn in the Landing tokens on the card's own surface. A 4.8s loop, held by the section's Pause
+/* Drawn in the page's tokens on the card's own surface. A 4.8s loop, held by the section's Pause
    (data-web-motion="paused"), and the complete final frame under reduced motion. */
 .web-flashy-preview {
   position: relative;
@@ -843,45 +799,6 @@
   }
 }
 
-/* The layout control beside the page index: the style's recommended section order or the shared one. */
-.web-layout-switch {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 16px;
-  margin: 0 0 16px;
-  color: var(--show-muted);
-  font: var(--show-control-font-sm);
-}
-.web-layout-switch fieldset {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 12px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-.web-layout-switch legend {
-  float: left;
-  margin-right: 4px;
-  padding: 0;
-}
-.web-layout-switch label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  color: var(--show-ink);
-  cursor: pointer;
-}
-.web-layout-switch input {
-  margin: 0;
-  accent-color: var(--show-accent);
-}
-.web-layout-switch p {
-  margin: 0;
-}
 .web-mechanism .uipack {
   margin: 0;
 }
@@ -893,12 +810,4 @@
   .web-mechanism__placeholder {
     min-height: 720px;
   }
-}
-
-.web-nested {
-  margin-top: 32px;
-}
-/* A band's call to action keeps the hero button's size; a grid item would otherwise stretch. */
-.web-nested .uipack-web-section__inner > .uipack-web-cta {
-  justify-self: start;
 }

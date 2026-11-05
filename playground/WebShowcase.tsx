@@ -1,8 +1,7 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { flushSync } from "react-dom";
-import { useShowcaseStyle, useShowcaseTheme } from "./ShowcaseShell";
-import { libraryPages, webEntries } from "./catalog";
-import { sectionOrder, type UiStyleId } from "../src/style";
+import { useShowcaseTheme } from "./ShowcaseShell";
+import { webEntries } from "./catalog";
 import {
   Body,
   CtaButton,
@@ -23,7 +22,6 @@ import {
   WebPage,
   ProductWindow,
   ItemList,
-  type WebPageContext,
   type WebPageProps,
   typeScale,
   type DemoStep,
@@ -47,7 +45,6 @@ import {
   withPaintTransition,
   DriftingGutters,
   SmoothScroll,
-  TYPE_FACES,
   FAQ,
   Proof,
   PricingPlans,
@@ -60,8 +57,6 @@ import {
   jsonLdTag,
 } from "../src/web";
 import { tidyFaq, tidySeo } from "./web-seo";
-import "../src/styles/landing.css";
-import "../src/styles/graphical.css";
 import "../src/web/fonts.css";
 import "../src/web/web.css";
 import "../src/web/web-styles.css";
@@ -176,48 +171,6 @@ function TypeScaleSpecimen() {
   );
 }
 
-type DisplayFaceId = "instrument-serif" | "ibm-plex-serif" | "space-grotesk";
-
-// Playground-only display alternates for the type specimen's comparison toggle. Not shipped:
-// the package carries Instrument Serif, IBM Plex Sans and Mono and Anton only. Their CSS (and so
-// their two font files) loads when the toggle nears the viewport or is used, not with /web's first view.
-let alternateFaces: Promise<unknown> | undefined;
-const loadAlternateFaces = () =>
-  (alternateFaces ??= Promise.all([
-    import("@fontsource/ibm-plex-serif/latin-400.css"),
-    import("@fontsource/space-grotesk/latin-500.css"),
-  ]));
-
-// Each alternate brings its own weight and tracking: a grotesk needs more weight and tighter
-// tracking than a hairline serif to hold the same headline.
-const displayFaces: { id: DisplayFaceId; name: string; family: string; note: string; style?: CSSProperties }[] = [
-  {
-    id: "instrument-serif",
-    name: "Instrument Serif",
-    family: "var(--web-font-display)",
-    note: "Default. A high-contrast editorial serif with one weight and a real italic.",
-  },
-  {
-    id: "ibm-plex-serif",
-    name: "IBM Plex Serif",
-    family: '"IBM Plex Serif", "Instrument Serif Fallback", Georgia, serif',
-    note: "Plex's own serif: calmer and wider, the same voice as the text face. Its italic is synthesised here.",
-    style: { "--web-display-weight": 400, "--web-display-tracking": "-0.02em" } as CSSProperties,
-  },
-  {
-    id: "space-grotesk",
-    name: "Space Grotesk",
-    family: '"Space Grotesk", "IBM Plex Sans Fallback", system-ui, sans-serif',
-    note: "A geometric grotesk at 500: technical and punchy, close to the text face. It has no italic.",
-    style: { "--web-display-weight": 500, "--web-display-tracking": "-0.03em" } as CSSProperties,
-  },
-];
-
-const faceStyle = (id: DisplayFaceId): CSSProperties | undefined => {
-  const f = displayFaces.find((d) => d.id === id)!;
-  return f.style ? ({ ...f.style, "--web-font-display": f.family } as CSSProperties) : undefined;
-};
-
 const pageIndex = [
   { href: "#web-example", label: "Example page" },
   { href: "#web-type", label: "Type" },
@@ -242,83 +195,41 @@ function PageIndex() {
   );
 }
 
-/** Each style's three faces, as the specimen labels them. */
-const styleFaces: Record<UiStyleId, { display: string; text: string; mono: string }> = {
-  technical: { display: "IBM Plex Sans 600", text: "IBM Plex Sans 400 / 500 / 600", mono: "IBM Plex Mono 400 / 600" },
-  landing: {
-    display: `${TYPE_FACES.display} 400 + italic`,
-    text: `${TYPE_FACES.text} 400 / 500 / 600`,
-    mono: `${TYPE_FACES.mono} 400 / 600`,
-  },
-  graphical: { display: "Anton 400, set in caps", text: "IBM Plex Sans 400 / 500 / 600", mono: "IBM Plex Mono 400 / 600" },
-};
+/** Technical's three type roles, as the specimen labels them. */
+const faces = { display: "IBM Plex Sans 600", text: "IBM Plex Sans 400 / 500 / 600", mono: "IBM Plex Mono 400 / 600" };
 
-function TypeSpecimen({
-  theme,
-  uiStyle,
-  face,
-  setFace,
-}: {
-  theme: "light" | "dark";
-  uiStyle: UiStyleId;
-  face: DisplayFaceId;
-  setFace: (id: DisplayFaceId) => void;
-}) {
-  const current = displayFaces.find((f) => f.id === face)!;
-  const toggle = useRef<HTMLFieldSetElement>(null);
-  useEffect(() => {
-    const el = toggle.current;
-    if (!el || typeof IntersectionObserver === "undefined") return void loadAlternateFaces();
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((e) => e.isIntersecting)) return;
-        io.disconnect();
-        void loadAlternateFaces();
-      },
-      { rootMargin: "600px 0px" },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+function TypeSpecimen({ theme }: { theme: "light" | "dark" }) {
   return (
     <section id="web-type" data-section="type" className="web-anchor">
       <h2>Type · 3 roles</h2>
       <p className="collection-intro">
-        Three faces, each with one job. The display face carries the brand in headlines and big numbers, the text face is quiet
-        enough to read and press, and the mono face marks labels and data. All three are self-hosted woff2 files in the package
-        (latin only) and swap in over metric-matched fallbacks.
+        Three roles, each with one job. The display role carries headlines and big numbers, the text role is quiet enough to read
+        and press, and the mono role marks labels and data. Technical fills them with two families, IBM Plex Sans and IBM Plex
+        Mono: five self-hosted woff2 files in the package (latin only) that swap in over metric-matched fallbacks.
       </p>
-      <WebSurface
-        theme={theme}
-        className="web-panel"
-        uiStyle={uiStyle}
-        style={uiStyle === "landing" ? faceStyle(face) : undefined}
-      >
+      <WebSurface theme={theme} className="web-panel">
         <Grid>
           <GridItem span={[12, 8, 4]}>
             <div className="web-role" data-role="display">
-              <Eyebrow>
-                Display ·{" "}
-                {uiStyle !== "landing" || face === "instrument-serif" ? styleFaces[uiStyle].display : `${current.name} (preview)`}
-              </Eyebrow>
+              <Eyebrow>Display · {faces.display}</Eyebrow>
               <p className="web-role__display">
                 Forty in. <em>Three</em> left.
               </p>
               <Body>
                 Headings at steps 4–6 (39–61px, or 31px and up in narrow containers), the hero, big numbers and pull quotes. One
-                weight; the italic marks the phrase that matters.
+                weight; an amber underline marks the phrase that matters.
               </Body>
             </div>
           </GridItem>
           <GridItem span={[6, 4, 4]}>
             <div className="web-role" data-role="text">
-              <Eyebrow>Text · {styleFaces[uiStyle].text}</Eyebrow>
+              <Eyebrow>Text · {faces.text}</Eyebrow>
               <Heading level={3} size={2}>
                 Watch every action
               </Heading>
               <Body emphasis="medium">
-                Body, subheads, buttons, nav and headings at steps 0–3. At those sizes a hairline serif loses its contrast, so
-                small headings stay in the sans at 600.
+                Body, subheads, buttons, nav and headings at steps 0–3. The same family as the display role, so page, slide and
+                figure titles share one voice.
               </Body>
               <div className="web-buttons">
                 <CtaButton>Start free</CtaButton>
@@ -328,7 +239,7 @@ function TypeSpecimen({
           </GridItem>
           <GridItem span={[6, 4, 4]}>
             <div className="web-role" data-role="mono">
-              <Eyebrow>Mono · {styleFaces[uiStyle].mono}</Eyebrow>
+              <Eyebrow>Mono · {faces.mono}</Eyebrow>
               <dl className="web-role__data">
                 <div>
                   <dt>step</dt>
@@ -347,25 +258,6 @@ function TypeSpecimen({
             </div>
           </GridItem>
         </Grid>
-        <fieldset
-          className="web-face-toggle"
-          ref={toggle}
-          hidden={uiStyle !== "landing"}
-          onFocus={() => void loadAlternateFaces()}
-        >
-          <legend>Compare display faces</legend>
-          <div className="web-face-toggle__options">
-            {displayFaces.map((f) => (
-              <label key={f.id}>
-                <input type="radio" name="web-display-face" value={f.id} checked={face === f.id} onChange={() => setFace(f.id)} />
-                <span style={{ fontFamily: f.family }}>{f.name}</span>
-              </label>
-            ))}
-          </div>
-          <p className="web-face-toggle__note" aria-live="polite">
-            {current.note} The choice previews on every Landing surface on this page; the package ships Instrument Serif only.
-          </p>
-        </fieldset>
       </WebSurface>
     </section>
   );
@@ -373,9 +265,9 @@ function TypeSpecimen({
 
 /**
  * False for the first paint, then true. The page paints its intro and index first and renders
- * the Landing example and the sections under it in the next task: the first paint on a slow phone
- * no longer waits for the example's render and layout, and the Landing faces (requested by that
- * layout) load after the intro is up. Nothing above moves; the rest appears below it.
+ * the example page and the sections under it in the next task: the first paint on a slow phone
+ * no longer waits for the example's render and layout, and the faces it requests load after the
+ * intro is up. Nothing above moves; the rest appears below it.
  */
 function usePainted() {
   // A hidden tab never paints (and pauses animation frames), so it renders everything at once.
@@ -392,59 +284,9 @@ function usePainted() {
   return painted;
 }
 
-const webPage = libraryPages.find((p) => p.id === "web")!;
-
 // The mechanism figure (Figure, presets, theme.css) loads as its own chunk after the first paint:
 // it sits below the fold in every order, and keeping it off the critical path holds /web's LCP.
 const TidyFlow = lazy(() => import("./webTidyFlow"));
-
-const sectionNames: Record<string, string> = {
-  hero: "Hero",
-  mechanism: "Mechanism",
-  how: "Steps",
-  demo: "Demo",
-  proof: "Proof",
-  faq: "FAQ",
-  pricing: "Pricing",
-  closing: "Closing",
-};
-
-/** The layout control: the page's own order in every style (default), or the style's opt-in order. */
-function LayoutSwitch({
-  layout,
-  setLayout,
-  order,
-}: {
-  layout: "style" | "shared";
-  setLayout: (l: "style" | "shared") => void;
-  order: readonly string[];
-}) {
-  const pick = (next: "style" | "shared") => {
-    const url = new URL(location.href);
-    if (next === "style") url.searchParams.set("layout", "style");
-    else url.searchParams.delete("layout");
-    history.replaceState(null, "", url);
-    setLayout(next);
-  };
-  return (
-    <div className="web-layout-switch">
-      <fieldset>
-        <legend>Section order</legend>
-        <label>
-          <input type="radio" name="web-layout" checked={layout === "shared"} onChange={() => pick("shared")} /> The page&rsquo;s
-          own (default)
-        </label>
-        <label>
-          <input type="radio" name="web-layout" checked={layout === "style"} onChange={() => pick("style")} /> The style&rsquo;s
-          (opt-in)
-        </label>
-      </fieldset>
-      <p aria-live="polite">
-        <code>{order.map((id) => sectionNames[id]).join(" → ")}</code>
-      </p>
-    </div>
-  );
-}
 
 /**
  * True once the page has loaded and the browser is idle: below-the-fold and hero figures render
@@ -477,13 +319,13 @@ function useAfterLoad() {
 }
 
 /** The mechanism figure, rendered once the page has loaded, over a placeholder of its height. */
-function LazyFlow({ headingLevel = 3 }: { headingLevel?: 2 | 3 }) {
+function LazyFlow() {
   const ready = useAfterLoad();
   return (
     <div className="web-mechanism" data-section-id="mechanism">
       {ready ? (
         <Suspense fallback={<div className="web-mechanism__placeholder" />}>
-          <TidyFlow headingLevel={headingLevel} />
+          <TidyFlow />
         </Suspense>
       ) : (
         <div className="web-mechanism__placeholder" />
@@ -521,14 +363,12 @@ const heroResult = (
 
 /**
  * The sample page's content, by section id, in its own order: Hero, Steps, Mechanism, Demo,
- * Proof, FAQ, Pricing, Closing. Every style keeps that order; the opt-in style layout lets the
- * style pick what fills the hero (Technical: the working diagram; the others: the demo), and the
- * section that would repeat the hero's content then renders nothing.
+ * Proof, FAQ, Pricing, Closing. The hero holds the product's real output; the working diagram and
+ * the demo each have their own section.
  */
-function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["sections"] {
-  const heroHolds = (page: WebPageContext) => (page.layout === "style" ? page.defaults.hero : "result");
+function exampleSections(seo: ReturnType<typeof tidySeo>): WebPageProps["sections"] {
   return {
-    hero: (page: WebPageContext) => (
+    hero: (
       <div id="web-top" data-section-id="hero">
         <StarHero
           headingId="web-hero-title"
@@ -550,7 +390,7 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
             </>
           }
         >
-          {heroHolds(page) === "figure" ? <LazyFlow headingLevel={2} /> : heroHolds(page) === "demo" ? demo : heroResult}
+          {heroResult}
         </StarHero>
       </div>
     ),
@@ -566,28 +406,26 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
         </div>
       </Section>
     ),
-    mechanism: (page: WebPageContext) =>
-      heroHolds(page) === "figure" ? null : (
-        <Section
-          id="web-mechanism"
-          eyebrow="Mechanism"
-          title="Nothing is sent without you."
-          intro="Select a step to see what it does."
-        >
-          <LazyFlow />
-        </Section>
-      ),
-    demo: (page: WebPageContext) =>
-      heroHolds(page) === "demo" ? null : (
-        <Section
-          id="web-demo"
-          eyebrow="Demo"
-          title="Watch it clear an inbox in nine seconds."
-          intro="The three steps, played on a sample inbox. Pick a step to see it."
-        >
-          <div data-section-id="demo">{demo}</div>
-        </Section>
-      ),
+    mechanism: (
+      <Section
+        id="web-mechanism"
+        eyebrow="Mechanism"
+        title="Nothing is sent without you."
+        intro="Select a step to see what it does."
+      >
+        <LazyFlow />
+      </Section>
+    ),
+    demo: (
+      <Section
+        id="web-demo"
+        eyebrow="Demo"
+        title="Watch it clear an inbox in nine seconds."
+        intro="The three steps, played on a sample inbox. Pick a step to see it."
+      >
+        <div data-section-id="demo">{demo}</div>
+      </Section>
+    ),
     proof: (
       <Section
         id="web-proof"
@@ -614,14 +452,14 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
         </div>
       </Section>
     ),
-    faq: seo ? (
+    faq: (
       <FAQ
         id="web-faq"
         items={tidyFaq}
         url={seo.url}
         intro="Example answers for an illustrative product. Each first sentence answers the question on its own, so an answer engine can quote it alone."
       />
-    ) : null,
+    ),
     pricing: (
       <Section
         id="web-pricing"
@@ -659,34 +497,8 @@ function exampleSections(seo: ReturnType<typeof tidySeo> | null): WebPageProps["
   };
 }
 
-/** One band in another style: a Graphical Section inside the Technical page (Section uiStyle). */
-function NestedStyleDemo({ theme }: { theme: "light" | "dark" }) {
-  // After load: its Graphical band fetches Anton, which no other style on the first view needs.
-  if (!useAfterLoad()) return null;
-  return (
-    <WebSurface theme={theme} uiStyle="technical" className="web-panel web-nested">
-      <Section id="web-nested-technical" eyebrow="Technical" title="This band is the page's own style.">
-        <CtaButton>Start free</CtaButton>
-      </Section>
-      <Section id="web-nested-graphical" uiStyle="graphical" eyebrow="Graphical" title="This band sets its style on its section.">
-        <CtaButton>Start free</CtaButton>
-      </Section>
-    </WebSurface>
-  );
-}
-
 export default function WebShowcase() {
   const { theme, flip } = useShowcaseTheme();
-  // The style switcher lives in the shell's context line (?style=). A swap keeps the page's own
-  // section order and layout; ?layout=style opts into the order and layout the style would pick.
-  const uiStyle = useShowcaseStyle(webPage);
-  const [layout, setLayout] = useState<"style" | "shared">(() =>
-    new URLSearchParams(location.search).get("layout") === "style" ? "style" : "shared",
-  );
-  const order = sectionOrder(uiStyle, Object.keys(exampleSections(null)), layout);
-  const [face, setFace] = useState<DisplayFaceId>("instrument-serif");
-  // The display-face comparison is Landing's (its faces); other styles keep their own.
-  const surfaceStyle = uiStyle === "landing" ? faceStyle(face) : undefined;
   // The demo page publishes a real head (title, description, canonical, Open Graph), JSON-LD for
   // the product and its Pricing offer, and an FAQ, all from playground/web-seo.ts.
   const seo = useMemo(() => tidySeo(location.origin), []);
@@ -704,15 +516,12 @@ export default function WebShowcase() {
           One page built from <code>uipack/web</code>, with one call to action in the hero, the nav and the end.
         </p>
         <PageIndex />
-        <LayoutSwitch layout={layout} setLayout={setLayout} order={order} />
         {painted && (
           <>
             <WebPage
               theme={theme}
               className="web-example"
-              uiStyle={uiStyle}
-              layout={layout}
-              style={surfaceStyle}
+              uiStyle="technical"
               nav={
                 <>
                   <JsonLd data={seo.jsonLd} />
@@ -745,7 +554,6 @@ export default function WebShowcase() {
                 note="Tidy is an illustrative product for this sample page."
               />
             </WebPage>
-            <NestedStyleDemo theme={theme} />
             <GeneratedFiles seo={seo} />
             <p className="collection-intro web-example__aside">
               Wheel scrolling on this page is eased by <code>SmoothScroll</code>; touch and reduced motion keep native scrolling.
@@ -756,10 +564,10 @@ export default function WebShowcase() {
 
       {painted && (
         <>
-          <TypeSpecimen theme={theme} uiStyle={uiStyle} face={face} setFace={setFace} />
+          <TypeSpecimen theme={theme} />
 
           <FlashySection count={flashy.length}>
-            <WebSurface theme={theme} className="web-panel" uiStyle={uiStyle} style={surfaceStyle}>
+            <WebSurface theme={theme} className="web-panel">
               <Grid as="ul">
                 {flashy.map((entry) => (
                   <GridItem as="li" key={entry.id} span={[3, 4, 4]}>
@@ -787,7 +595,7 @@ export default function WebShowcase() {
             <p className="collection-intro">
               The defaults that make a page read as designed: scale, hierarchy, one accent, and a grid.
             </p>
-            <WebSurface theme={theme} className="web-panel web-lowkey" uiStyle={uiStyle} style={surfaceStyle}>
+            <WebSurface theme={theme} className="web-panel web-lowkey">
               <Grid>
                 <GridItem span={[7, 8, 4]}>
                   <div className="web-block">
@@ -839,8 +647,8 @@ export default function WebShowcase() {
             </WebSurface>
           </section>
 
-          <MotionSection theme={theme} flip={flip} uiStyle={uiStyle} surfaceStyle={surfaceStyle} />
-          <BackgroundsSection theme={theme} uiStyle={uiStyle} surfaceStyle={surfaceStyle} />
+          <MotionSection theme={theme} flip={flip} />
+          <BackgroundsSection theme={theme} />
 
           <section id="web-principles" className="web-anchor">
             <h2>Principles · {principles.length}</h2>
@@ -929,7 +737,7 @@ function FlashySection({ count, children }: { count: number; children: ReactNode
 const PREVIEW_CURVE = curvePath([0, 1, 2, 5, 9, 16, 22, 31, 33, 35, 37, 37], 200, 72, 8);
 
 /**
- * A small looping sketch of each Flashy piece, drawn in the Landing tokens: what it does at a
+ * A small looping sketch of each Flashy piece, drawn in the page's tokens: what it does at a
  * glance, before the title's link jumps to the real one. Decorative (the note says it in words);
  * still and complete under reduced motion, held by the section's Pause.
  */
@@ -1037,17 +845,7 @@ function PaintTransitionDemo({ theme, flip }: { theme: "light" | "dark"; flip: (
   );
 }
 
-function MotionSection({
-  theme,
-  flip,
-  surfaceStyle,
-  uiStyle,
-}: {
-  theme: "light" | "dark";
-  flip: () => void;
-  surfaceStyle?: CSSProperties;
-  uiStyle: UiStyleId;
-}) {
+function MotionSection({ theme, flip }: { theme: "light" | "dark"; flip: () => void }) {
   const [revealKey, setRevealKey] = useState(0);
   const [scrambleKey, setScrambleKey] = useState(0);
   const [tickerKey, setTickerKey] = useState(0);
@@ -1059,7 +857,7 @@ function MotionSection({
         uses only transform, opacity and filter so nothing shifts, and settles to its final state under reduced motion. Hover
         effects are mouse-only.
       </p>
-      <WebSurface theme={theme} className="web-panel" uiStyle={uiStyle} style={surfaceStyle}>
+      <WebSurface theme={theme} className="web-panel">
         <Grid>
           <GridItem span={[4, 4, 4]}>
             <div className="web-block">
@@ -1174,15 +972,7 @@ const backgroundTiles = [
   },
 ];
 
-function BackgroundsSection({
-  theme,
-  uiStyle,
-  surfaceStyle,
-}: {
-  theme: "light" | "dark";
-  uiStyle: UiStyleId;
-  surfaceStyle?: CSSProperties;
-}) {
+function BackgroundsSection({ theme }: { theme: "light" | "dark" }) {
   // The aurora, beams and gutters loop for as long as they are on screen; one Pause holds them all
   // (WCAG 2.2.2). Under reduced motion they are already still, so there is nothing to pause.
   const reduced = usePrefersReducedMotion();
@@ -1206,7 +996,7 @@ function BackgroundsSection({
           </button>
         )}
       </div>
-      <WebSurface theme={theme} className="web-panel" uiStyle={uiStyle} style={surfaceStyle}>
+      <WebSurface theme={theme} className="web-panel">
         <Grid>
           {backgroundTiles.map((tile) => (
             <GridItem key={tile.id} span={[4, 4, 4]}>

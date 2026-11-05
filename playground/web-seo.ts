@@ -38,12 +38,12 @@ export const tidyFaq: FaqItem[] = [
 ];
 
 const description =
-  "Tidy, an illustrative inbox agent, reads, files and drafts while you watch and leaves only the messages that need you. A UIPACK Landing-style demo page.";
+  "Tidy, an illustrative inbox agent, reads, files and drafts while you watch and leaves only the messages that need you. A UIPACK web demo page.";
 
 /** Everything the demo page publishes about itself, for a page served at `${origin}/web`. */
 export function tidySeo(origin: string) {
   const url = `${origin.replace(/\/$/, "")}/web`;
-  const org = organization({ name: "Tidy", url, description: "Illustrative company behind the UIPACK Landing demo." });
+  const org = organization({ name: "Tidy", url, description: "Illustrative company behind the UIPACK web demo." });
   const plan = offer({
     name: "Tidy",
     price: "8.00",
@@ -69,17 +69,17 @@ export function tidySeo(origin: string) {
       },
       {
         path: "https://github.com/ong6/uipack/blob/main/docs/web-principles.md",
-        title: "Landing web principles",
-        description: "The design rules behind the Landing style, each with its source.",
+        title: "Web principles",
+        description: "The design rules behind uipack/web pages, each with its source.",
         optional: true,
       },
     ],
     llms: {
-      title: "Tidy (UIPACK Landing demo)",
+      title: "Tidy (UIPACK web demo)",
       summary:
         "Tidy is an illustrative inbox agent: it reads, files and drafts replies while you watch, and leaves only the messages that need a person.",
       details:
-        "Tidy is not a real product. The page demonstrates the Landing style of uipack/web, and its prices and answers are example copy.",
+        "Tidy is not a real product. The page demonstrates uipack/web in the Technical style, and its prices and answers are example copy.",
     },
   };
   return {
@@ -97,7 +97,7 @@ export function tidySeo(origin: string) {
       softwareApplication({
         name: "Tidy",
         type: "WebApplication",
-        description: "Illustrative inbox agent from the UIPACK Landing demo; not a real product.",
+        description: "Illustrative inbox agent from the UIPACK web demo; not a real product.",
         url,
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",

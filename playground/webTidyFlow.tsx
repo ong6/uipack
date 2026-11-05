@@ -2,7 +2,7 @@ import { pipeline, type PipelineSpec } from "../src/presets";
 import "../src/theme.css";
 import "../src/canvas.css";
 
-/** "How it works" as a working diagram: the Technical style leads with it. */
+/** "How it works" as a working diagram, in the Mechanism section. */
 const tidyFlow: PipelineSpec = {
   figure: {
     number: "Figure 01",
@@ -22,12 +22,7 @@ const tidyFlow: PipelineSpec = {
   queue: { label: "Drafts", sub: "for review", icon: "queue", after: 2, depth: 3 },
 };
 
-/**
- * The /web sample's mechanism figure, in whatever style its WebSurface sets. As the hero's star
- * (heading level 2) it keeps its full chrome (Open canvas beside Replay and Pause); in its section
- * the page's quiet chrome applies.
- */
-export default function TidyFlow({ headingLevel = 3 }: { headingLevel?: 2 | 3 }) {
-  const chrome = headingLevel === 2 ? "full" : undefined;
-  return pipeline({ ...tidyFlow, figure: { ...tidyFlow.figure, headingLevel, chrome } }, `web-tidy-flow-${headingLevel}`);
+/** The /web sample's mechanism figure, in its own section, with the page's quiet chrome. */
+export default function TidyFlow() {
+  return pipeline(tidyFlow, "web-tidy-flow-3");
 }

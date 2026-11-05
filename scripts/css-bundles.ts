@@ -9,8 +9,6 @@
 export const styleFiles = [
   "src/styles/roles.css",
   "src/styles/technical.css",
-  "src/styles/landing.css",
-  "src/styles/graphical.css",
   // The self-hosted faces the styles name (Technical's IBM Plex Sans and Mono on every entry:
   // figures, charts, the article and the deck share one heading face). A face is fetched only
   // when an element uses it. Its url()s are relative, so every bundle sits beside dist/fonts.

@@ -7,25 +7,9 @@ export const visualStyles = [
     id: "technical",
     name: "Technical",
     description:
-      "The default, a blueprint: precise system diagrams in Prussian-blue ink, one amber mark, square hairlines and a drafting grid on the hero and figures. On the web, a page leads with the product's real output.",
+      "The one implemented web style, a blueprint: precise system diagrams in Prussian-blue ink, one amber mark, square hairlines and a drafting grid on the hero and figures. On the web, a page leads with the product's real output.",
     tokens: "src/styles/technical.css",
     guidance: "docs/system/style.md",
-  },
-  {
-    id: "landing",
-    name: "Landing (generic)",
-    description:
-      "Product marketing in label stock: a demo-first hero, warm ivory and kraft, one ledger-green CTA, serif headlines, ruled forms with perforated divisions and no shadows.",
-    tokens: "src/styles/landing.css",
-    guidance: "docs/web-principles.md",
-  },
-  {
-    id: "graphical",
-    name: "Graphical",
-    description:
-      "Poster: bone paper, black ink, one signal-orange accent, condensed display caps, hard edges and one disc motif that rhymes from the hero down the page.",
-    tokens: "src/styles/graphical.css",
-    guidance: "docs/web-principles.md",
   },
   {
     id: "mechanism",
@@ -49,6 +33,28 @@ export const visualStyles = [
     variant,
   })),
 ] as const;
+/**
+ * Styles that exist as written specs only (docs/system/styles/): each fills the same role contract
+ * as Technical, so an agent builds one by adding a value set in src/styles, registering it in
+ * `uiStyles` (src/style.ts) and testing it. Nothing in the playground renders them.
+ */
+export const writtenStyleSpecs = [
+  {
+    id: "landing",
+    name: "Landing",
+    description:
+      "Product marketing in label stock: warm ivory and kraft, one ledger-green accent, editorial serif headlines, ruled forms with perforated divisions and no shadows.",
+    spec: "docs/system/styles/landing.md",
+  },
+  {
+    id: "graphical",
+    name: "Graphical",
+    description:
+      "A poster: bone paper, black ink, one signal-orange accent, condensed display caps, hard edges and one disc motif for launches, events and campaigns.",
+    spec: "docs/system/styles/graphical.md",
+  },
+] as const;
+
 /** Navigation groups, in display order. A group opens on its default page. Add a group here; add pages below. */
 export const libraryGroups = [
   { id: "diagrams", label: "Diagrams", defaultPage: "figures" },
@@ -74,15 +80,10 @@ export interface PageDef {
   query?: Readonly<Record<string, string>>;
   isDefault?: boolean;
   intro: string;
-  /** The page hosts a complete sample page with its own h1 (the Landing demo), so the shell's title is not a heading. */
+  /** The page hosts a complete sample page with its own h1 (the /web sample), so the shell's title is not a heading. */
   hostsPage?: boolean;
   /** The `visualStyles` name the page's content uses, shown in the shell's context line; default "Technical". */
   styleName?: string;
-  /**
-   * Styles the page's content can be shown in (`uiStyles` ids). The shell then shows a style
-   * switcher in its context line, kept in `?style=` so it survives a reload; the first is the default.
-   */
-  styles?: readonly string[];
 }
 
 /**
@@ -120,7 +121,6 @@ export const libraryPages = [
     title: "Deck player",
     path: "/deck",
     query: { deck: "moves" },
-    styles: ["technical", "landing", "graphical"],
     isDefault: true,
     intro:
       "Tech talk deck: a team lead argues that reviews should open with their answer, with evidence, a pilot and a dated ask. Written to present: short titles, the numbers in points, cue notes in the speaker view (S). Every slide advances except one morph (the same number becoming a table row) and one zoom (into the slide the ghost deck flags). Swipe on a touch screen, or click the deck and use the arrow keys.",
@@ -132,7 +132,6 @@ export const libraryPages = [
     title: "Deck player",
     path: "/deck",
     query: { deck: "bento" },
-    styles: ["technical", "landing", "graphical"],
     intro:
       "Bento review deck: a quarterly review on one bento slide. Next moves a camera between the containers, and each one shows denser detail when it is in focus.",
   },
@@ -143,7 +142,6 @@ export const libraryPages = [
     title: "Deck player",
     path: "/deck",
     query: { deck: "consulting" },
-    styles: ["technical", "landing", "graphical"],
     intro:
       "Consulting deck: a decision request in consulting style, with dense charts, callouts, a so-what panel and sources. Written to be read without the presenter, so every title is a full-sentence conclusion.",
   },
@@ -175,8 +173,7 @@ export const libraryPages = [
     label: "Web UI",
     path: "/web",
     hostsPage: true,
-    styles: ["technical", "landing", "graphical"],
-    intro: "One product page in three styles: the same words and sections, swapped by tokens and ornament slots alone.",
+    intro: "A product page in Technical, the one implemented style, then every part it is made of.",
   },
   {
     id: "docs",
@@ -191,14 +188,15 @@ export const libraryPages = [
     label: "Overview",
     path: "/foundations",
     intro:
-      "Style, writing and layout are three layers you swap one at a time. Change each one on the slide and the web section below.",
+      "Style, writing and layout are three separate layers. Swap the writing and the layout live below; the style layer is the role contract Technical fills.",
   },
   {
     id: "foundations-style",
     group: "foundations",
     label: "Style roles",
     path: "/foundations/style",
-    intro: "The roles every style fills, the ornament slots it paints, and each style's values in light and dark.",
+    intro:
+      "The roles every style fills, the ornament slots it paints, Technical's values in light and dark, and the written specs that fill the same contract.",
   },
   {
     id: "foundations-writing",
@@ -219,7 +217,7 @@ export const libraryPages = [
     group: "foundations",
     label: "Mix and match",
     path: "/foundations/mix",
-    intro: "What changes when you swap each layer, and the four places one layer still leaks into another.",
+    intro: "What each layer owns, and the four places one layer still leaks into another.",
   },
   {
     id: "foundations-recipes",
@@ -240,7 +238,7 @@ export const libraryPages = [
     group: "foundations",
     label: "Styles",
     path: "/styles",
-    intro: "The visual languages in the library and where each one is used.",
+    intro: "The visual languages in the library, where each one is used, and the styles written as specs for agents to build.",
   },
   {
     id: "assets",
@@ -389,17 +387,17 @@ objectStyleEntries.push(
   })),
 );
 
-/** Landing-style web building blocks, shown on /web. Flashy pieces earn their motion; low-key pieces are the defaults. */
+/** Web building blocks, shown on /web. Flashy pieces earn their motion; low-key pieces are the defaults. */
 export const webEntries: CatalogEntry[] = [
-  { id: "demo-player", title: "Demo player", type: "web", styleId: "landing", tags: ["Flashy", "Hero", "Motion"] },
-  { id: "star-hero", title: "Star hero", type: "web", styleId: "landing", tags: ["Flashy", "Hero"] },
-  { id: "spotlight-card", title: "Spotlight card", type: "web", styleId: "landing", tags: ["Flashy", "Card"] },
-  { id: "reveal-text", title: "Reveal text", type: "web", styleId: "landing", tags: ["Flashy", "Type", "Motion"] },
-  { id: "type-scale", title: "Type scale", type: "web", styleId: "landing", tags: ["Low-key", "Type"] },
-  { id: "text-hierarchy", title: "Text hierarchy", type: "web", styleId: "landing", tags: ["Low-key", "Type"] },
-  { id: "cta-button", title: "CTA button", type: "web", styleId: "landing", tags: ["Low-key", "Action"] },
-  { id: "glass-nav", title: "Glass nav", type: "web", styleId: "landing", tags: ["Low-key", "Navigation"] },
-  { id: "feature-grid", title: "Section and feature grid", type: "web", styleId: "landing", tags: ["Low-key", "Layout"] },
+  { id: "demo-player", title: "Demo player", type: "web", styleId: "technical", tags: ["Flashy", "Hero", "Motion"] },
+  { id: "star-hero", title: "Star hero", type: "web", styleId: "technical", tags: ["Flashy", "Hero"] },
+  { id: "spotlight-card", title: "Spotlight card", type: "web", styleId: "technical", tags: ["Flashy", "Card"] },
+  { id: "reveal-text", title: "Reveal text", type: "web", styleId: "technical", tags: ["Flashy", "Type", "Motion"] },
+  { id: "type-scale", title: "Type scale", type: "web", styleId: "technical", tags: ["Low-key", "Type"] },
+  { id: "text-hierarchy", title: "Text hierarchy", type: "web", styleId: "technical", tags: ["Low-key", "Type"] },
+  { id: "cta-button", title: "CTA button", type: "web", styleId: "technical", tags: ["Low-key", "Action"] },
+  { id: "glass-nav", title: "Glass nav", type: "web", styleId: "technical", tags: ["Low-key", "Navigation"] },
+  { id: "feature-grid", title: "Section and feature grid", type: "web", styleId: "technical", tags: ["Low-key", "Layout"] },
   ...(
     [
       ["reveal", "Reveal on scroll"],
@@ -411,7 +409,7 @@ export const webEntries: CatalogEntry[] = [
       ["view-transition", "View transition helper"],
       ["paint-transition", "Paint transition"],
     ] as const
-  ).map(([id, title]) => ({ id, title, type: "web" as const, styleId: "landing", tags: ["Motion"] })),
+  ).map(([id, title]) => ({ id, title, type: "web" as const, styleId: "technical", tags: ["Motion"] })),
   ...(
     [
       ["grain-overlay", "Grain overlay"],
@@ -422,7 +420,7 @@ export const webEntries: CatalogEntry[] = [
       ["beam-lines", "Beam lines"],
       ["drifting-gutters", "Drifting gutters"],
     ] as const
-  ).map(([id, title]) => ({ id, title, type: "web" as const, styleId: "landing", tags: ["Backgrounds"] })),
+  ).map(([id, title]) => ({ id, title, type: "web" as const, styleId: "technical", tags: ["Backgrounds"] })),
 ];
 
 /**

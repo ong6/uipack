@@ -1,5 +1,5 @@
 /* Playground-only frame for /docs: the sample docs site sits in a bordered window like the
-   Landing example on /web, so the shell's page and the hosted page read as two things. */
+   sample page on /web, so the shell's page and the hosted page read as two things. */
 .docs-frame {
   border: 1px solid var(--show-rule);
   border-radius: var(--show-radius);

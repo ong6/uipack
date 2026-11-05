@@ -54,8 +54,8 @@ export interface SmoothScrollOptions {
 export interface SmoothScrollToOptions {
   /**
    * Pixels to keep clear above the target. For an element or selector the default is its
-   * scroll-margin-top plus the page's scroll-padding-top (web.css sets 5rem on Landing ids,
-   * which clears GlassNav); for a number it is 0.
+   * scroll-margin-top plus the page's scroll-padding-top (web.css sets 5rem on a page's
+   * section ids, which clears GlassNav); for a number it is 0.
    */
   offset?: number;
   /** Milliseconds for a fixed-length, exponential-out scroll. Omit to use the follow. */

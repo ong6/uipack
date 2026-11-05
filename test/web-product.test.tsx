@@ -328,8 +328,14 @@ describe("styleBootScript", () => {
     return { attrs, store };
   };
   it("accepts aliases and sets both theme attributes", () => {
-    const { attrs } = run("?style=3&theme=dark", {}, { aliases: { "3": "landing" } });
-    expect(attrs).toEqual({ "data-ui-style": "landing", "data-theme": "dark", "data-ui-theme": "dark" });
+    const { attrs } = run("?style=1&theme=dark", {}, { aliases: { "1": "technical" } });
+    expect(attrs).toEqual({ "data-ui-style": "technical", "data-theme": "dark", "data-ui-theme": "dark" });
+  });
+  it("falls back to Technical for a style that is not registered, from the URL or from storage", () => {
+    // Landing and Graphical are written specs (docs/system/styles/), not registered styles.
+    expect(run("?style=landing").attrs["data-ui-style"]).toBe("technical");
+    expect(run("", { "uipack-style": "graphical" }).attrs["data-ui-style"]).toBe("technical");
+    expect(run("?style=nope", {}, { aliases: { "1": "technical" } }).attrs["data-ui-style"]).toBe("technical");
   });
   it("follows the system without a theme, remembers a stored one, and ?theme=system clears it", () => {
     expect(run("").attrs).toEqual({ "data-ui-style": "technical" });

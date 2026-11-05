@@ -31,8 +31,8 @@ export interface StarHeroProps {
   layout?: "stack" | "split";
   /**
    * One short fact the page proves (a measured number and a few words, e.g. `{ value: "18%",
-   * label: "lower postage" }`), worn as the style's stamp: Graphical's orange postmark, Technical's
-   * revision tag, Landing's die-cut label. It belongs to the copy: under the actions in a split
+   * label: "lower postage" }`), worn as the style's stamp (Technical's
+   * revision tag). It belongs to the copy: under the actions in a split
    * hero and on a phone, on the empty end side of a stacked hero's headline. Never on the product.
    */
   stamp?: { value: ReactNode; label: ReactNode };

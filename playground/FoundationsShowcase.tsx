@@ -1,6 +1,4 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import "../src/styles/landing.css";
-import "../src/styles/graphical.css";
 import "../src/web/fonts.css";
 import "../src/theme.css";
 import "../src/canvas.css";
@@ -27,7 +25,7 @@ import { DocsMarkdown } from "../src/docs";
 import { pipeline } from "../src/presets";
 import { uiStyles, type UiStyleId } from "../src/style";
 import { routePath } from "./routes";
-import { libraryPages } from "./catalog";
+import { libraryPages, writtenStyleSpecs } from "./catalog";
 import { useShowcaseTheme } from "./ShowcaseShell";
 import overviewDoc from "../docs/system/README.md?raw";
 import styleDoc from "../docs/system/style.md?raw";
@@ -35,6 +33,10 @@ import writingDoc from "../docs/system/writing.md?raw";
 import layoutDoc from "../docs/system/layout.md?raw";
 
 const REPO = "https://github.com/ong6/uipack/blob/main/docs";
+
+/** The written style specs and their how-to, on GitHub (docs/system/styles/). */
+const specHref = (spec: string) => `https://github.com/ong6/uipack/blob/main/${spec}`;
+const SPECS_README = `${REPO}/system/styles/README.md`;
 
 /**
  * A system doc as page prose: its h1 dropped (the page has one) and its links pointed at these
@@ -76,6 +78,9 @@ function splitDoc(source: string): { lead: string; sections: DocSection[] } {
 }
 
 const MEDIA = ["Diagrams", "Slides", "Web", "Motion", "3D"] as const;
+
+/** The overview's section on the three layers ("Three independent layers"), shown on its own. */
+const LAYERS_SECTION = /^Three\b.*\blayers\b/i;
 
 /** Opens a closed disclosure when the address points at something inside it. */
 function useHashOpens() {
@@ -161,13 +166,18 @@ function FullSpec({
   source: string;
   page: string;
   file: string;
-  skip?: string[];
+  /** Sections shown elsewhere on the page, by title. */
+  skip?: (string | RegExp)[];
   open?: boolean;
 }) {
   const { theme } = useShowcaseTheme();
   useHashOpens();
   const { lead, sections } = splitDoc(source);
-  const rest = sections.filter((sec) => !(MEDIA as readonly string[]).includes(sec.title) && !skip.includes(sec.title));
+  const rest = sections.filter(
+    (sec) =>
+      !(MEDIA as readonly string[]).includes(sec.title) &&
+      !skip.some((t) => (typeof t === "string" ? sec.title === t : t.test(sec.title))),
+  );
   const body = [lead, ...rest.map((sec) => `## ${sec.title}\n\n${sec.body}`)].filter(Boolean).join("\n\n");
   return (
     <section>
@@ -311,7 +321,31 @@ function Choice<T extends string>({
   );
 }
 
-const styleOptions = uiStyles.map((s) => ({ id: s.id, label: s.name }));
+/**
+ * The style layer, shown beside the live controls: Technical is the one implemented style, so it
+ * is a fact, not a choice; the written specs that fill the same contract are a link away.
+ */
+function StyleLayer() {
+  return (
+    <div className="fdn-fixed" role="group" aria-labelledby="fdn-style-layer">
+      <p className="fdn-fixed__legend" id="fdn-style-layer">
+        Style
+      </p>
+      <p className="fdn-fixed__value">
+        <span className="fdn-fixed__chip">{uiStyles[0].name}</span>
+        <span className="fdn-fixed__note">
+          Written specs:{" "}
+          {writtenStyleSpecs.map((spec, i) => (
+            <span key={spec.id}>
+              {i > 0 && ", "}
+              <a href={specHref(spec.spec)}>{spec.name}</a>
+            </span>
+          ))}
+        </span>
+      </p>
+    </div>
+  );
+}
 
 /* ---------------------------------------------------------------- one unit, three layers */
 
@@ -383,7 +417,6 @@ function UnitSection({ c, layout }: { c: Content; layout: LayoutId }) {
 
 function LayerToggle() {
   const { theme } = useShowcaseTheme();
-  const [style, setStyle] = useState<UiStyleId>("technical");
   const [writing, setWriting] = useState<keyof typeof writings>("search");
   const [layout, setLayout] = useState<LayoutId>("fact");
   const content = writings[writing];
@@ -391,11 +424,11 @@ function LayerToggle() {
     <section>
       <h2>Swap one layer at a time</h2>
       <p className="collection-intro">
-        One unit, shown twice: as a slide and as a web section. Each control changes one layer. Style changes colours, faces and
-        decoration. Writing changes the words. Layout changes where the words sit. Try each one and watch what stays still.
+        One unit, shown twice: as a slide and as a web section. Writing changes the words; layout changes where the words sit.
+        Swap each one and watch what stays still. Style, the third layer, sets colours, faces and decoration from one value set:
+        Technical is the one implemented style, and Landing and Graphical are written specs that fill the same role contract.
       </p>
       <div className="fdn-toggles">
-        <Choice legend="Style" value={style} options={styleOptions} onChange={setStyle} />
         <Choice
           legend="Writing"
           value={writing}
@@ -414,6 +447,7 @@ function LayerToggle() {
           ]}
           onChange={setLayout}
         />
+        <StyleLayer />
       </div>
       <div className="fdn-unit">
         <div className="fdn-unit__deck">
@@ -423,18 +457,19 @@ function LayerToggle() {
             title="One slide, three layers"
             slides={[unitSlide(content, layout)]}
             theme={theme}
-            uiStyle={style}
             motion="none"
           />
         </div>
-        <WebSurface theme={theme} uiStyle={style} className="fdn-unit__web">
+        <WebSurface theme={theme} className="fdn-unit__web">
           <UnitSection c={content} layout={layout} />
         </WebSurface>
       </div>
       <Implementers>
         <p aria-live="polite">
-          The slide above is <code>{`<DeckPlayer uiStyle="${style}" slides={[${layout}Slide(${writing})]} />`}</code>; the web
-          section is the same content in <code>{`<WebSurface uiStyle="${style}">`}</code>.
+          The slide above is <code>{`<DeckPlayer slides={[${layout}Slide(${writing})]} />`}</code>; the web section is the same
+          content in <code>{"<WebSurface>"}</code>. Both take a <code>uiStyle</code> prop; omitted, they paint in Technical. A
+          style built from a spec and registered in <code>uiStyles</code> would be one more value for that prop, with no change to
+          the content or the layout.
         </p>
       </Implementers>
     </section>
@@ -443,7 +478,8 @@ function LayerToggle() {
 
 function ContractSection() {
   const { theme } = useShowcaseTheme();
-  const layers = splitDoc(overviewDoc).sections.find((sec) => sec.title.startsWith("Three layers"))!;
+  const layers = splitDoc(overviewDoc).sections.find((sec) => LAYERS_SECTION.test(sec.title));
+  if (!layers) return null;
   // The doc ends the section with its code names; the page sets them apart.
   const [prose, code = ""] = layers.body.split(/^\*\*For implementers\.\*\*\s*/m);
   return (
@@ -499,14 +535,14 @@ function Overview() {
           "Colours, faces and decoration come from the style, never from the layout or the words.",
           "The words live in a content object, not inside the layout.",
           "Every slot is within its text budget; the linter reports nothing.",
-          "Swapping the style once moves nothing but the paint.",
+          "Layouts and components name a role, never a value, so a new style needs no layout change.",
         ]}
       />
       <FullSpec
         source={overviewDoc}
         page="Foundations overview"
         file="README.md"
-        skip={["Three layers, swapped independently", "Skills that use this spec"]}
+        skip={[LAYERS_SECTION, "Skills that use this spec"]}
       />
     </>
   );
@@ -573,14 +609,16 @@ function OrnamentPanel({ style }: { style: UiStyleId }) {
 }
 
 function StylePage() {
+  const technical = uiStyles[0];
   return (
     <>
       <section>
         <h2>Roles in light and dark</h2>
         <p className="collection-intro">
-          A role is a job a colour does, such as the page background, body text or the one highlighted thing. Every style fills
-          the same twelve roles; only the values change, so a role means the same in every style. These swatches are live: each is
-          read from the style itself, in its light and dark halves.
+          A role is a job a colour does, such as the page background, body text or the one highlighted thing. A style is one value
+          set that fills every role, so a role means the same in every style. Technical is the one implemented style; these
+          swatches are live, read from its value set in its light and dark halves. Landing and Graphical are written specs that
+          fill the same roles on paper.
         </p>
         <div className="fdn-styles">
           {uiStyles.map((s) => (
@@ -596,19 +634,51 @@ function StylePage() {
         </div>
       </section>
       <section>
-        <h2>Ornament slots</h2>
+        <h2>Written specs fill the same contract</h2>
         <p className="collection-intro">
-          The same markup in each style: the backdrop behind the hero, the marker before the eyebrow, the card frame and the
-          primary button. Ornaments never take space, so no box moves when the style changes.
+          Landing and Graphical are written specs (<code>docs/system/styles/</code>): every role&rsquo;s light and dark value, the
+          faces, the ornaments and what the style is for, with no code behind them. An agent builds a new style from a spec in
+          three steps, and nothing else in the library changes.
         </p>
-        <div className="fdn-grid3">
-          {uiStyles.map((s) => (
-            <OrnamentPanel key={s.id} style={s.id} />
+        <ol className="fdn-steps">
+          <li>
+            <strong>Add one value set</strong> in <code>src/styles/&lt;id&gt;.css</code>, keyed by{" "}
+            <code>{'[data-ui-style="<id>"]'}</code>, filling every role Technical fills.
+          </li>
+          <li>
+            <strong>Register it</strong> in <code>uiStyles</code> (<code>src/style.ts</code>) with its fonts and preload, and add
+            any new face to <code>src/web/fonts.css</code>.
+          </li>
+          <li>
+            <strong>Test it:</strong> the role tests check that it defines every role Technical does and holds contrast in both
+            themes; then look at it on a real page at 1440 and 390px.
+          </li>
+        </ol>
+        <ul className="fdn-specs">
+          {writtenStyleSpecs.map((spec) => (
+            <li key={spec.id} className="fdn-spec-card">
+              <p className="fdn-spec-card__kind">Written spec</p>
+              <h3>{spec.name}</h3>
+              <p>{spec.description}</p>
+              <a href={specHref(spec.spec)}>Read the {spec.name} spec</a>
+            </li>
           ))}
-        </div>
+        </ul>
+        <p className="collection-intro">
+          <a href={SPECS_README}>How a spec becomes a style</a>, on GitHub.
+        </p>
       </section>
       <section>
-        <h2>Faces and what each style loads</h2>
+        <h2>Ornament slots</h2>
+        <p className="collection-intro">
+          The markup a layout leaves for the style to paint: the backdrop behind the hero (Technical&rsquo;s drafting grid), the
+          marker before the eyebrow (an amber dot), the card frame (crop marks) and the primary button. Ornaments never take
+          space, so a style that paints them differently moves no box.
+        </p>
+        <OrnamentPanel style={technical.id} />
+      </section>
+      <section>
+        <h2>Faces and what the style loads</h2>
         <div className="fdn-table" tabIndex={0} role="region" aria-label="Fonts per style">
           <table>
             <thead>
@@ -634,14 +704,16 @@ function StylePage() {
           </table>
         </div>
         <p className="collection-intro">
-          Every style is shown in the <a href="/styles">styles gallery</a>, with Mechanism and the 3D art directions.
+          The <a href="/styles">styles gallery</a> shows Technical beside Mechanism and the 3D art directions, and lists the
+          written specs.
         </p>
       </section>
       <Implementers>
         <p>
           Each role is a CSS custom property, named under its swatch (<code>--ui-accent</code>). A style is one value set keyed by{" "}
           <code>data-ui-style</code> on any element, with <code>data-ui-theme</code> for light or dark; components take it as the{" "}
-          <code>uiStyle</code> prop. <code>uiStyles</code> lists the styles with their fonts and preloads.
+          <code>uiStyle</code> prop. <code>uiStyles</code> lists the registered styles (today, Technical) with their fonts and
+          preloads; <code>isUiStyle</code> and <code>styleBootScript</code> fall back to Technical for any other id.
         </p>
       </Implementers>
       <MediumTabs source={styleDoc} label="Style" />
@@ -871,7 +943,6 @@ const archetypeDeck: DeckSlide[] = [
 
 function LayoutPage() {
   const { theme } = useShowcaseTheme();
-  const [style, setStyle] = useState<UiStyleId>("technical");
   return (
     <>
       <section>
@@ -879,13 +950,11 @@ function LayoutPage() {
         <p className="collection-intro">
           Points (the default for a presented deck), section, quote, fact, inverted points and end. The headline and footer stay
           in the same place on every slide, and so would an eyebrow on the rare slide that has one; only the body region changes.
-          Step through with the arrows, and swap the style to see the map hold.
+          Step through with the arrows and watch the map hold. The map belongs to the layout, so a style built from a written spec
+          would repaint these slides without moving a region.
         </p>
-        <div className="fdn-toggles">
-          <Choice legend="Style" value={style} options={styleOptions} onChange={setStyle} />
-        </div>
         <div className="fdn-deck">
-          <DeckPlayer id="foundations-archetypes" title="Slide archetypes" slides={archetypeDeck} theme={theme} uiStyle={style} />
+          <DeckPlayer id="foundations-archetypes" title="Slide archetypes" slides={archetypeDeck} theme={theme} />
         </div>
       </section>
       <section>
@@ -913,27 +982,28 @@ function LayoutPage() {
 
 /* ---------------------------------------------------------------- mix and match */
 
-const swaps = [
+const layers: [string, string, string, string, string][] = [
   [
     "Style",
     "Colours, faces, radii, motion feel, ornaments",
     "Words, regions, reading order, slide order",
-    "/web?style=graphical&layout=shared",
+    "/foundations/style",
+    "The role contract",
   ],
-  ["Writing", "The words in each slot", "Style, regions, order", "/foundations"],
-  ["Layout", "Where slots sit, the archetype, section order", "Words, style", "/web?style=technical"],
+  ["Writing", "The words in each slot", "Style, regions, order", "/foundations", "Swap the words"],
+  ["Layout", "Where slots sit, the archetype, section order", "Words, style", "/foundations/layout", "Archetypes"],
 ];
 
 const leaks = [
   ["Text length", "A 24-word headline wraps to three lines in any style and pushes the body down.", "Slot budgets, linted"],
   [
     "Fonts",
-    "Anton caps are narrower than Plex Sans and taller at 1.3×, so a heading changes height.",
+    "A style's display face sets a heading's height: the Graphical spec's condensed caps run narrower and taller than Technical's Plex Sans.",
     "Region order and columns stay fixed; heights may move",
   ],
   [
     "Density",
-    "Technical pads sections at 0.9, Graphical 0.95, Landing 1.1, so a page grows or shrinks vertically.",
+    "Technical pads sections at 0.9; the Landing spec asks for 1 and the Graphical spec 0.95, so a page built in either grows vertically.",
     "Density scales vertical section padding only; columns and boxes keep their widths",
   ],
   [
@@ -951,25 +1021,29 @@ function MixPage() {
   return (
     <>
       <section>
-        <h2>What each swap changes</h2>
-        <div className="fdn-table" tabIndex={0} role="region" aria-label="What each swap changes">
+        <h2>What each layer owns</h2>
+        <p className="collection-intro">
+          Changing one layer leaves the other two where they were. Writing and layout swap live on Technical; the style layer is
+          the role contract, which Technical fills and the written specs fill on paper.
+        </p>
+        <div className="fdn-table" tabIndex={0} role="region" aria-label="What each layer owns">
           <table>
             <thead>
               <tr>
-                <th scope="col">Swap</th>
+                <th scope="col">Layer</th>
                 <th scope="col">Changes</th>
                 <th scope="col">Stays put</th>
                 <th scope="col">See it</th>
               </tr>
             </thead>
             <tbody>
-              {swaps.map(([what, changes, stays, href]) => (
+              {layers.map(([what, changes, stays, href, link]) => (
                 <tr key={what}>
                   <th scope="row">{what}</th>
                   <td>{changes}</td>
                   <td>{stays}</td>
                   <td>
-                    <a href={href}>Open</a>
+                    <a href={href}>{link}</a>
                   </td>
                 </tr>
               ))}
@@ -1001,14 +1075,15 @@ function MixPage() {
         </div>
       </section>
       <section>
-        <h2>The same title in three faces</h2>
+        <h2>The same title at three widths</h2>
         <p className="collection-intro">
-          One title, one layout, three styles. The column and the order hold; the line breaks follow each face.
+          One title, one style, three column widths. The words and the order hold; the line breaks follow the measure, which is
+          why a heading may change height and a region may not.
         </p>
-        <div className="fdn-grid3">
-          {uiStyles.map((s) => (
-            <WebSurface key={s.id} theme={theme} uiStyle={s.id} className="fdn-mini">
-              <Eyebrow>{s.name}</Eyebrow>
+        <div className="fdn-widths">
+          {(["Wide", "Medium", "Narrow"] as const).map((w) => (
+            <WebSurface key={w} theme={theme} className={`fdn-mini fdn-width--${w.toLowerCase()}`}>
+              <Eyebrow>{w}</Eyebrow>
               <Heading level={3} size={4}>
                 Search: <em>twice as fast</em> since March
               </Heading>
@@ -1045,14 +1120,14 @@ function MixPage() {
                 </ul>
               </WebSurface>
             }
-            why="Fix it in the words, not the type: a short title the speaker talks from, with the window and the cause moved into points. Shrinking the font to fit would break the budget's promise in every other style."
+            why="Fix it in the words, not the type: a short title the speaker talks from, with the window and the cause moved into points. Shrinking the font to fit would break the budget's promise in every other layout and in any style built later."
           />
         </div>
       </section>
       <Checklist
         items={[
-          "Swap each layer once and compare: only that layer changed.",
-          "Headings may change height between faces; regions and their order must not.",
+          "Swap the writing and the layout once each and compare: only that layer changed.",
+          "Headings may change height between widths or faces; regions and their order must not.",
           "Ornaments sit behind or beside text, never over it.",
           "Long text is fixed in the words, never by shrinking the type.",
         ]}
@@ -1073,20 +1148,20 @@ const recipes: { name: string; style: string; sequence: string[]; template: stri
     link: "Tech talk deck",
   },
   {
-    name: "Landing page (generic)",
-    style: "Landing",
-    sequence: ["hero + product output", "steps", "mechanism", "demo", "proof", "FAQ", "pricing", "closing"],
-    template: "hero { eyebrow, headline, subhead, cta }, features[3], faq[], offer",
-    href: "/web?style=landing",
-    link: "The page in Landing",
-  },
-  {
-    name: "Product page (Technical)",
+    name: "Product page",
     style: "Technical",
     sequence: ["hero + product output", "steps", "mechanism figure", "demo", "proof", "FAQ", "pricing", "closing"],
     template: "hero { … }, figure spec { stages, queue, caption }, demo steps[], stats[], faq[]",
-    href: "/web?style=technical",
-    link: "The page in Technical",
+    href: "/web",
+    link: "The product page",
+  },
+  {
+    name: "Landing page (generic)",
+    style: "Landing (a written spec: build the style first)",
+    sequence: ["hero + product output", "steps", "mechanism", "demo", "proof", "FAQ", "pricing", "closing"],
+    template: "hero { eyebrow, headline, subhead, cta }, features[3], faq[], offer",
+    href: specHref("docs/system/styles/landing.md"),
+    link: "The Landing spec",
   },
   {
     name: "Technical article",
@@ -1120,7 +1195,8 @@ function RecipesPage() {
       <section>
         <h2>Six jobs, three layers each</h2>
         <p className="collection-intro">
-          Pick the style, follow the sequence, fill the template, then check it against the live page.
+          Pick the style, follow the sequence, fill the template, then check it against the live page. Technical is the one
+          implemented style; a job that needs another builds it from its written spec first.
         </p>
         <ul className="fdn-recipes">
           {recipes.map((r) => (
@@ -1155,7 +1231,7 @@ function RecipesPage() {
       </section>
       <Checklist
         items={[
-          "The style fits the job: Technical by default, Landing only for a generic landing page, Graphical for a poster.",
+          "The style fits the job: Technical by default; a generic landing page or a poster first builds its style from the Landing or Graphical spec.",
           "The sequence is followed, or you can say why it changed.",
           "Every template field is filled from real facts, with a TODO where one is missing.",
           "The draft is compared side by side with the live example.",
@@ -1261,17 +1337,20 @@ function ChainSketch() {
 const tropes = [
   [
     "Purple or indigo accent on a grey page",
-    "Technical's Prussian blue and amber, Graphical's orange; Landing's cobalt only when the brief is a generic landing page",
+    "Technical's Prussian blue and one amber mark; another accent only from a style built from its written spec",
   ],
-  ["Inter or Roboto everywhere", "IBM Plex Sans 600 headings on page, slide and figure; IBM Plex Mono labels; Anton for posters"],
+  ["Inter or Roboto everywhere", "IBM Plex Sans 600 headings on page, slide and figure; IBM Plex Mono labels"],
   [
     "Centred hero, one CTA, three icon cards",
     "The product's real output in the first screen, straight after the headline; one section order in every style",
   ],
-  ["Rounded everything", "Square corners in Technical and Graphical; Landing's 12px cards only on a generic landing page"],
+  ["Rounded everything", "Square corners in Technical; rounder corners only from a style that specifies them"],
   ["Floating dashboard screenshot as the hero", "The product's real output drawn from data, the mechanism figure or the demo"],
-  ["Instrument Serif as the default headline face", "Only in Landing, the generic option"],
-  ["Glassy blobs and ambient glow", "Glow means selection; grain and aurora only in Landing, one per viewport"],
+  [
+    "A fashionable editorial serif as the default headline face",
+    "The style's own display face: Technical's is IBM Plex Sans 600",
+  ],
+  ["Glassy blobs and ambient glow", "Glow means selection; grain and aurora are opt-in backgrounds, one per viewport"],
   ["Emoji as icons", "Shape-coded flow tokens and the icon set"],
   ["Gradient text and gradient buttons", "One flat accent on one thing"],
 ];

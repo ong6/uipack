@@ -1,5 +1,5 @@
 /**
- * Crawl files for a Landing site: robots.txt with an explicit stance per AI crawler,
+ * Crawl files for a web site: robots.txt with an explicit stance per AI crawler,
  * sitemap.xml with lastmod, llms.txt in the llmstxt.org format, and an RSS 2.0 feed. Pure string
  * builders; write the result wherever your host serves the site root.
  */
@@ -20,7 +20,7 @@ export interface AiCrawler {
 }
 
 /**
- * The AI crawlers Landing sites should state a stance on, from each operator's own documentation
+ * The AI crawlers sites should state a stance on, from each operator's own documentation
  * (checked October 2026). Search and user agents decide whether answer engines can find, fetch and
  * cite the page; training agents decide whether the page may be used to train models.
  */

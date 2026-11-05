@@ -21,7 +21,7 @@ export interface SectionProps {
    * for sections above an in-page link target.
    */
   lazyRender?: boolean;
-  /** Paint this section in another style (data-ui-style), e.g. one Graphical band on a Technical page. */
+  /** Paint this section in another style (data-ui-style), e.g. one band in a second registered style. */
   uiStyle?: UiStyleId;
 }
 

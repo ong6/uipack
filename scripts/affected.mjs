@@ -45,16 +45,16 @@ const SHELL = ["nav", "page-audit", "showcase", "gallery"];
 
 /** First matching rule wins. A path no rule matches runs no browser test. */
 const AREAS = [
-  // The role layer and the style registry: every swap, plus the pages whose look they set.
-  [/^src\/styles\/|^src\/style\.ts$/, ["style-swap", "web", "deck", "page-audit", "geometry"]],
+  // The role layer and the style registry, plus the pages whose look they set.
+  [/^src\/styles\/|^src\/style\.ts$/, ["web", "deck", "page-audit", "geometry"]],
   [/^src\/charts\//, ["charts"]],
   [/^src\/article\//, ["article"]],
   [/^src\/deck\/consulting\//, ["deck-consulting"]],
-  [/^src\/deck\//, ["deck", "style-swap"]],
+  [/^src\/deck\//, ["deck"]],
   [/^src\/presentations\//, ["deck", "showcase"]],
   [/^src\/mechanism\//, ["mechanism"]],
-  [/^src\/web\//, ["web", "style-swap"]],
-  [/^playground\/(WebShowcase|web-showcase|webTidyFlow|DeckShowcase|deck-showcase|style-switch)/, ["web", "deck", "style-swap"]],
+  [/^src\/web\//, ["web"]],
+  [/^playground\/(WebShowcase|web-showcase|web-seo|webTidyFlow|DeckShowcase|deck-showcase)/, ["web", "deck"]],
   [/^src\/objects\//, ["objects", "art-directions", "contact-directions"]],
   [/^src\/slides\//, ["slides"]],
   [/^src\/browser\/|^assets\//, ["assets"]],
@@ -66,7 +66,9 @@ const AREAS = [
   [/^src\/[^/]+\.(tsx?|css)$|^src\/presets\/|^playground\/figures\//, FIGURES],
   // The Foundations guide pages: their outline, scale, alignment and overflow, and the nav rows.
   [/^playground\/(Foundations|foundations)|^docs\/system\//, ["foundations", "nav", "page-audit"]],
-  [/^playground\/(ShowcaseShell|showcase\.css|catalog|routes|nav|main|index\.html)/, [...SHELL, "style-swap"]],
+  [/^playground\/(ShowcaseShell|showcase\.css|catalog|routes|nav|main|index\.html)/, SHELL],
+  // The /styles and /presentations pages (CatalogShowcase): style cards, written specs, slide starters.
+  [/^playground\/(CatalogShowcase|StylePreviews|presentations\.css)/, ["web", "page-audit", "showcase"]],
   [/^dist\//, ["dist-smoke"]],
 ];
 

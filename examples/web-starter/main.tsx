@@ -1,5 +1,5 @@
-// Entry: ?style=technical|graphical|landing picks the look and ?theme=light|dark forces a theme;
-// without ?theme the page follows the system (prefers-color-scheme). For a page served as HTML,
+// Entry: ?style= picks a registered style (Technical, the default and only one today) and
+// ?theme=light|dark forces a theme; without ?theme the page follows the system (prefers-color-scheme). For a page served as HTML,
 // inline `styleBootScript()` (from "uipack") in <head> so the style and theme are set before paint.
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";

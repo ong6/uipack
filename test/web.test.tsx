@@ -19,6 +19,7 @@ import {
   type DemoStep,
 } from "../src/web";
 import { fontFiles } from "../scripts/css-bundles";
+import { uiStyles } from "../src/style";
 import { onServer } from "./on-server";
 import { contrast as ratio, readStyle, role } from "./style-values";
 
@@ -57,7 +58,7 @@ describe("type scale", () => {
   it("gives headings from step 4 the display face and smaller ones the text face", () => {
     expect([6, 5, 4].map(typeRole)).toEqual(["display", "display", "display"]);
     expect([3, 2, 1, 0].map(typeRole)).toEqual(["text", "text", "text", "text"]);
-    expect(TYPE_FACES).toEqual({ display: "Instrument Serif", text: "IBM Plex Sans", mono: "IBM Plex Mono" });
+    expect(TYPE_FACES).toEqual({ display: "IBM Plex Sans", text: "IBM Plex Sans", mono: "IBM Plex Mono" });
     const css = readFileSync("src/web/web.css", "utf8");
     expect(css).toMatch(
       /\.uipack-web-heading:is\(\[data-step="4"\], \[data-step="5"\], \[data-step="6"\]\) \{\n\s+font-family: var\(--web-font-display\);/,
@@ -73,12 +74,13 @@ describe("type scale", () => {
       if (typeMetrics(step).role === "text")
         expect(Number(rule.match(/font-weight: (\d+)/)?.[1] ?? 600)).toBe(typeMetrics(step).weight);
     }
-    // typeMetrics describes Landing, whose value set holds the display tracking.
-    expect(readFileSync("src/styles/landing.css", "utf8")).toContain(`--ui-display-tracking: ${typeMetrics(6).letterSpacing};`);
-    const landing = readStyle("landing");
-    expect(landing["font-display"]).toMatch(/^"Instrument Serif", "Instrument Serif Fallback"/);
-    expect(landing["font-text"]).toMatch(/^"IBM Plex Sans", "IBM Plex Sans Fallback"/);
-    expect(landing["font-label"]).toMatch(/^"IBM Plex Mono", "IBM Plex Mono Fallback"/);
+    // typeMetrics describes Technical, whose value set holds the display weight and tracking.
+    const technical = readStyle("technical");
+    expect(technical["display-tracking"]).toBe(typeMetrics(6).letterSpacing);
+    expect(technical["display-weight"]).toBe(String(typeMetrics(6).weight));
+    expect(technical["font-display"]).toMatch(/^"IBM Plex Sans", "IBM Plex Sans Fallback"/);
+    expect(technical["font-text"]).toMatch(/^"IBM Plex Sans", "IBM Plex Sans Fallback"/);
+    expect(technical["font-label"]).toMatch(/^"IBM Plex Mono", "IBM Plex Mono Fallback"/);
     expect(css).toContain("--web-font-text: var(--web-font-sans);");
     expect(css).toContain("--web-font-display: var(--ui-web-font-display, var(--ui-font-display));");
   });
@@ -95,11 +97,12 @@ describe("type scale", () => {
 describe("Self-hosted fonts", () => {
   const urls = (css: string) => [...css.matchAll(/url\("?([^")]+)"?\)/g)].map((m) => m[1]);
   it("self-hosts every face as woff2 with swap, latin only, beside its licence", () => {
-    // Every style's faces, declared once; a browser fetches a face only when a style uses it.
+    // The registered styles' faces, declared once; a browser fetches a face only when a style uses
+    // it. Technical: IBM Plex Sans 400/500/600 and IBM Plex Mono 400/600.
     const css = readFileSync("src/web/fonts.css", "utf8");
     const faces = css.match(/@font-face \{[^}]*\}/g)!;
     const hosted = faces.filter((f) => f.includes("url("));
-    expect(hosted).toHaveLength(8);
+    expect(hosted).toHaveLength(5);
     for (const f of hosted) {
       expect(f).toContain("font-display: swap;");
       expect(f).toMatch(/unicode-range:\s+U\+0000-00FF/);
@@ -111,8 +114,7 @@ describe("Self-hosted fonts", () => {
     // Nothing leaves the package: no absolute or protocol-relative font URLs.
     expect(css).not.toMatch(/url\("?(https?:)?\/\//);
     const files = readdirSync("src/web/fonts");
-    for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono", "anton"])
-      expect(files).toContain(`OFL-${name}.txt`);
+    expect(files.filter((f) => f.endsWith(".txt")).sort()).toEqual(["OFL-ibm-plex-mono.txt", "OFL-ibm-plex-sans.txt"]);
     expect(files.filter((f) => f.endsWith(".woff2")).sort()).toEqual(
       urls(css)
         .map((u) => u.slice(8))
@@ -126,32 +128,29 @@ describe("Self-hosted fonts", () => {
     expect(pkg.exports["./fonts/*"]).toBe("./dist/fonts/*");
     expect(fontFiles.out).toBe("fonts"); // scripts/build-css.ts copies src/web/fonts there
     const built = readFileSync("dist/web.css", "utf8");
-    expect(urls(built).length).toBe(8);
+    expect(urls(built).length).toBe(5);
     for (const u of urls(built)) expect(existsSync(`dist/${u}`)).toBe(true);
     // Every entry carries the faces (Technical's on figures, charts and the article too).
-    expect(urls(readFileSync("dist/theme.css", "utf8")).length).toBe(8);
-    for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono"])
-      expect(existsSync(`dist/fonts/OFL-${name}.txt`)).toBe(true);
+    expect(urls(readFileSync("dist/theme.css", "utf8")).length).toBe(5);
+    for (const name of ["ibm-plex-sans", "ibm-plex-mono"]) expect(existsSync(`dist/fonts/OFL-${name}.txt`)).toBe(true);
   });
 });
 
-describe("Landing colour tokens", () => {
+describe("Web colour tokens", () => {
   const css = readFileSync("src/web/web.css", "utf8");
-  // Landing's values live in its value set (src/styles/landing.css); test/style-roles.test.tsx
-  // checks every style. These are the web rules on top: 87 / 66% text on every web ground.
+  // Technical's values live in its value set (src/styles/technical.css); test/style-roles.test.tsx
+  // checks every registered style. These are the web rules on top: the three inks on every web ground.
   it.each(["light", "dark"] as const)("passes 4.5:1 for small text in %s", (theme) => {
     for (const ground of ["paper", "surface", "surface-2"]) {
-      const base = role("landing", ground, theme);
-      expect(ratio(role("landing", "ink-3", theme), base)).toBeGreaterThanOrEqual(4.5);
-      expect(ratio(role("landing", "ink-2", theme), base)).toBeGreaterThanOrEqual(4.5);
+      const base = role("technical", ground, theme);
+      expect(ratio(role("technical", "ink-3", theme), base)).toBeGreaterThanOrEqual(4.5);
+      expect(ratio(role("technical", "ink-2", theme), base)).toBeGreaterThanOrEqual(4.5);
     }
-    expect(ratio(role("landing", "on-accent", theme), role("landing", "accent", theme))).toBeGreaterThanOrEqual(4.5);
-    expect(ratio(role("landing", "accent", theme), role("landing", "paper", theme))).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(role("technical", "on-accent", theme), role("technical", "accent", theme))).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(role("technical", "accent", theme), role("technical", "paper", theme))).toBeGreaterThanOrEqual(4.5);
   });
-  it("uses the same 66% low emphasis the docs promise", () => {
-    const landing = readStyle("landing");
-    expect(landing["ink-3"]).toBe("color-mix(in srgb, var(--ui-ink) 66%, transparent)");
-    expect(landing["ink-2"]).toBe("color-mix(in srgb, var(--ui-ink) 87%, transparent)");
+  it("maps the web's three emphasis levels to the style's three inks", () => {
+    expect(css).toContain("--web-ink: var(--ui-ink);");
     expect(css).toContain("--web-ink-low: var(--ui-ink-3);");
     expect(css).toContain("--web-ink-medium: var(--ui-ink-2);");
   });
@@ -369,13 +368,12 @@ describe("StarHero split and stamp", () => {
     expect(stamp.closest(".uipack-web-hero__copy")).not.toBeNull();
     expect(stamp).toHaveTextContent("18%lower postage");
   });
-  it("every style paints the stamp, and Graphical's disc is no longer a bare backdrop", () => {
-    for (const id of ["technical", "landing", "graphical"] as const) {
+  it("every registered style paints the stamp", () => {
+    for (const { id } of uiStyles) {
       const v = readStyle(id);
       for (const r of ["stamp-fill", "stamp-ink", "stamp-border", "stamp-radius", "stamp-face", "perf", "plan-featured-fill"])
         expect(v[r], `${id} ${r}`).toBeDefined();
     }
-    expect(readStyle("graphical").backdrop).toBe("none");
   });
 });
 

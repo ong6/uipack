@@ -1,15 +1,13 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { DeckPlayer } from "../src/deck";
-// Every style's slide faces are self-hosted (src/web/fonts.css): Technical's IBM Plex Sans and
-// Mono (Plex for Landing and Graphical too), so slide fit is the same on every machine.
-import "../src/styles/landing.css";
-import "../src/styles/graphical.css";
+// The slide faces are self-hosted (src/web/fonts.css): Technical's IBM Plex Sans and Mono, so
+// slide fit is the same on every machine.
 import "../src/web/fonts.css";
 import "../src/deck/deck.css";
 import "../src/deck/bento.css";
 import "../src/deck/consulting/consulting.css";
 import "../src/mechanism/mechanism.css";
-import { useShowcaseNote, useShowcaseStyle, useShowcaseTheme } from "./ShowcaseShell";
+import { useShowcaseNote, useShowcaseTheme } from "./ShowcaseShell";
 import { deckEntries, documentTitle, resolvePage } from "./catalog";
 import { deckExamples } from "./deckExamples";
 import "./deck-showcase.css";
@@ -204,8 +202,6 @@ function useFitBelowHeader(presenting: boolean) {
 
 export default function DeckShowcase() {
   const { theme } = useShowcaseTheme();
-  // The style switcher in the shell's context line (?style=): the same slides, other tokens.
-  const style = useShowcaseStyle(resolvePage("deck", location.search));
   // Presenting: opened with ?view=present, or switched to from the read view.
   const [presenting, setPresenting] = useState(view === "present" && params.get("view") === "present");
   const fitRef = useFitBelowHeader(presenting);
@@ -221,7 +217,7 @@ export default function DeckShowcase() {
           title={`${example.name} deck`}
           slides={example.slides}
           theme={theme}
-          uiStyle={style}
+          uiStyle="technical"
           view="print"
           printNotes={params.get("notes") === "1"}
         />
@@ -238,7 +234,7 @@ export default function DeckShowcase() {
           title="Deck player example, speaker view"
           slides={example.slides}
           theme={theme}
-          uiStyle={style}
+          uiStyle="technical"
           motion={motion}
           mode="presenter"
           minutes={example.lint?.minutes}
@@ -258,7 +254,7 @@ export default function DeckShowcase() {
           title="Deck player example"
           slides={example.slides}
           theme={theme}
-          uiStyle={style}
+          uiStyle="technical"
           motion={motion}
           view={view}
           onViewChange={(v) => setPresenting(v === "present")}

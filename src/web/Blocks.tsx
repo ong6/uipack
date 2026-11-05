@@ -220,7 +220,7 @@ export interface ClosingCtaProps {
 
 /**
  * The closing call to action: a full-bleed band painted with the style's band roles (Technical:
- * ink with mint; Graphical: signal orange; Landing: near-black with a white button), the claim on the start edge and
+ * the Prussian band with a gold button), the claim on the start edge and
  * the button beside it (below it on a phone).
  */
 export function ClosingCta({ title, intro, action, note, eyebrow, id, className = "" }: ClosingCtaProps) {
@@ -286,7 +286,7 @@ export interface BrandProps {
   href?: string;
 }
 
-/** A text wordmark in the style's display face (Graphical's caps, Landing's serif, Technical's sans). */
+/** A text wordmark in the style's display face (Technical's IBM Plex Sans 600). */
 export function Brand({ children, href }: BrandProps) {
   return href ? (
     <a className="uipack-web-brand" href={href}>

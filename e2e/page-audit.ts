@@ -63,7 +63,7 @@ export async function checkHeadingOutline(page: Page, label: string, path: strin
 
 // The heading scale in docs/design-direction.md: one size for section headings across pages, and
 // card, figure and scene titles at 18–20px / 600 below them. Sample content keeps its own scale
-// (slides, the Landing page, the docs prose), so headings inside those roots are not the page's.
+// (slides, the /web sample page, the docs prose), so headings inside those roots are not the page's.
 const SAMPLE = ".uipack-web, .uipack-docs, .uipack-deck, .uipack-deck-stage, .composed-deck, .uipack-slide-starter";
 const TITLES = ".uipack__title, .style-card h3, .uipack-animation-heading h3";
 

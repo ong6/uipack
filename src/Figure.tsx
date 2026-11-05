@@ -42,8 +42,8 @@ export interface FigureProps {
   className?: string;
   theme?: "light" | "dark";
   /**
-   * The style it is painted in (sets data-ui-style): "technical" (default), "landing" or
-   * "graphical". Only tokens change; the drawing, its words and its layout stay put. Omitted, the
+   * The style it is painted in (sets data-ui-style): a registered style id, "technical"
+   * (the default and only one today). Only tokens change; the drawing, its words and its layout stay put. Omitted, the
    * figure follows the nearest ancestor with data-ui-style.
    */
   uiStyle?: UiStyleId;

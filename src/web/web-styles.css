@@ -3,7 +3,7 @@
    moves a box, so a style swap keeps every region, box and the reading order: the backdrop is an
    absolutely placed layer, the marker hangs outside its eyebrow, the rule is an inset shadow. */
 @layer uipack.ornaments {
-  /* Backdrop: the hero's ground (Technical: a dotted grid, masked; Graphical: the disc). */
+  /* Backdrop: the hero's ground (Technical: the drafting grid, masked). */
   .uipack-web-hero__backdrop {
     position: absolute;
     inset: 0;
@@ -13,8 +13,8 @@
     -webkit-mask-image: var(--ui-backdrop-mask);
     mask-image: var(--ui-backdrop-mask);
   }
-  /* Marker: the style's motif, small, before each eyebrow (Technical: a 2px-radius square, the
-     request token's shape; Graphical: the hero's disc). Landing has none. It sits inline, and an
+  /* Marker: the style's motif, small, before each eyebrow (Technical: a 7px amber dot); a style
+     may paint none. It sits inline, and an
      invisible twin after the text balances it, so a centred eyebrow keeps its axis and nothing
      hangs into the page's edge padding. */
   .uipack-web-eyebrow::before,
@@ -34,8 +34,8 @@
     margin-left: calc(var(--ui-marker-size, 0px) * 0.75);
     visibility: hidden;
   }
-  /* Narrow backdrop: below 720px a style may paint a smaller ornament (Graphical's disc shrinks
-     into the corner and drops its ring, so it never crosses the copy). */
+  /* Narrow backdrop: below 720px a style may paint a smaller ornament (a large motif
+     shrinks into the corner, so it never crosses the copy). */
   @container web (max-width: 720px) {
     .uipack-web-hero__backdrop {
       background: var(--ui-backdrop-narrow, var(--ui-backdrop));

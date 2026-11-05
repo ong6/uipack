@@ -786,16 +786,21 @@ test.describe("LayerStack", () => {
         "none",
       ]);
       // One line of words, the link's arrow under it.
-      const [words, arrow] = await label.evaluate((el) => {
+      // Counted in line boxes, not pixels: a face's inline content area differs by platform
+      // (IBM Plex Mono at 12px is 15px tall on macOS, 20px on Linux Chromium) while the 16px line
+      // box stays put.
+      const { lines, top, lineHeight, arrowTop } = await label.evaluate((el) => {
         const range = document.createRange();
         range.selectNodeContents(el.firstChild!);
-        return [
-          range.getBoundingClientRect().toJSON(),
-          el.querySelector(".uipack-stack__arrow")!.getBoundingClientRect().toJSON(),
-        ] as DOMRect[];
+        return {
+          lines: range.getClientRects().length,
+          top: range.getBoundingClientRect().top,
+          lineHeight: parseFloat(getComputedStyle(el).lineHeight),
+          arrowTop: el.querySelector(".uipack-stack__arrow")!.getBoundingClientRect().top,
+        };
       });
-      expect(words.height).toBeLessThanOrEqual(17);
-      expect(arrow.top).toBeGreaterThanOrEqual(words.bottom - 1);
+      expect(lines).toBe(1);
+      expect(arrowTop).toBeGreaterThanOrEqual(top + lineHeight - 1);
       expect(await label.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
     }
     await expect(stack.locator('a.uipack-stack__rail[href="#gateways"]')).toHaveAccessibleName(

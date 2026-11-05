@@ -10,8 +10,8 @@ export interface WebSurfaceProps {
   className?: string;
   style?: CSSProperties;
   /**
-   * The style the page is painted in: "technical" (the default, diagram-led), "landing" (the
-   * generic landing page) or "graphical" (poster). Sets data-ui-style; omitted, the nearest
+   * The style the page is painted in: a registered style id, "technical" (the
+   * default and only implemented style, diagram-led). Sets data-ui-style; omitted, the nearest
    * ancestor's. A swap changes tokens, ornaments and the layout defaults the style sets.
    */
   uiStyle?: UiStyleId;

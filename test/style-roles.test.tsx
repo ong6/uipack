@@ -1,7 +1,8 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { cssBundles, styleFiles } from "../scripts/css-bundles";
-import { uiStyles } from "../src/style";
+import { isUiStyle, sectionOrder, uiStyles } from "../src/style";
 import { CORE_ROLES, STYLE_FILES, contrast, readStyle, role, type StyleId, type Theme } from "./style-values";
 
 const styles = Object.keys(STYLE_FILES) as StyleId[];
@@ -13,6 +14,26 @@ describe("style value sets", () => {
     for (const id of styles) expect(styleFiles).toContain(STYLE_FILES[id]);
     // Every entry stylesheet starts with the role layer, so `style` works on any entry alone.
     for (const b of cssBundles) if (b.out !== "web-gutters.css") expect(b.from.slice(0, styleFiles.length)).toEqual(styleFiles);
+  });
+
+  it.each(styles)("%s is registered with self-hosted fonts, a preload among them and a section order", (id) => {
+    // The registry entry a new style adds in src/style.ts next to its value set.
+    const meta = uiStyles.find((s) => s.id === id)!;
+    expect(meta.name).toBeTruthy();
+    expect(meta.summary).toBeTruthy();
+    expect(meta.fonts.length).toBeGreaterThan(0);
+    for (const f of meta.fonts) expect(existsSync(`src/web/fonts/${f}`), f).toBe(true);
+    const fonts = readFileSync("src/web/fonts.css", "utf8");
+    for (const f of meta.fonts) expect(fonts, `${f} has an @font-face`).toContain(`./fonts/${f}`);
+    for (const f of meta.preload) expect(meta.fonts).toContain(f);
+    // Its opt-in order never drops a section the page provides.
+    const ids = ["closing", ...meta.prefers];
+    expect(sectionOrder(id, ids, "style").sort()).toEqual([...ids].sort());
+    expect(isUiStyle(id)).toBe(true);
+  });
+
+  it("an unregistered id is not a style, so the boot script and the props fall back to Technical", () => {
+    for (const id of ["landing", "graphical", "", null, undefined]) expect(isUiStyle(id)).toBe(false);
   });
 
   it.each(styles)("%s defines every core role", (id) => {
@@ -31,6 +52,21 @@ describe("style value sets", () => {
   it("declares the layer order once, tokens first", () => {
     const css = readFileSync("src/styles/roles.css", "utf8");
     expect(css).toContain("@layer uipack.tokens, uipack.base, uipack.layout, uipack.ornaments;");
+  });
+
+  it.each(styles)("%s defines every --ui-* role a component reads (the role contract a new style must fill)", (id) => {
+    const files = (dir: string): string[] =>
+      readdirSync(dir).flatMap((f) => {
+        const p = join(dir, f);
+        return statSync(p).isDirectory() ? files(p) : /\.(css|tsx?)$/.test(f) ? [p] : [];
+      });
+    const used = new Set(
+      files("src")
+        .filter((f) => !f.startsWith(join("src", "styles")))
+        .flatMap((f) => [...readFileSync(f, "utf8").matchAll(/var\(--ui-([a-z0-9-]+)/g)].map((m) => m[1])),
+    );
+    const vars = readStyle(id);
+    expect([...used].filter((r) => !(r in vars)).sort()).toEqual([]);
   });
 
   it("fills the same roles in every style: no role exists in one style only", () => {
@@ -97,17 +133,17 @@ describe("contrast, every style, both themes", () => {
       it(`${id} ${theme}: flow and data marks hold 3:1 on the surface (graphical objects)`, () => {
         for (const mark of ["flow-request", "flow-response", "flow-change", "data-pos", "data-neg", "data-1", "data-2", "data-3"])
           // Flow marks are always paired with their shape (square, circle, diamond) and a label, so
-          // Technical's tuned flow hues (kept in Landing) sit at 2.4:1; everything else holds 3:1.
+          // Technical's tuned flow hues may sit at 2.4:1; everything else holds 3:1.
           expect(contrast(role(id, mark, theme), role(id, "surface", theme)), mark).toBeGreaterThanOrEqual(
-            mark.startsWith("flow") && id !== "graphical" ? 2.4 : 3,
+            mark.startsWith("flow") ? 2.4 : 3,
           );
       });
     }
 });
 
 describe("one accent per style", () => {
-  // No style glows or grains by default (Landing dropped its ambient glow for printed, ruled forms
-  // on 2026-11-05: glow and soft shadow read as stock SaaS). GrainOverlay and Aurora stay opt-in.
+  // No style glows or grains by default (glow and soft shadow read as stock SaaS). GrainOverlay and
+  // Aurora stay opt-in.
   it.each(styles)("%s has no ambient glow or grain", (id) => {
     const vars = readStyle(id);
     expect(vars.glow).toBe("0");

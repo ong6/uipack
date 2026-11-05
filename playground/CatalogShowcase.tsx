@@ -3,7 +3,7 @@ import "../src/canvas.css";
 import { Figure, Node, Connector, Defs, Label } from "../src";
 import { useState } from "react";
 import { useShowcaseTheme } from "./ShowcaseShell";
-import { visualStyles } from "./catalog";
+import { visualStyles, writtenStyleSpecs } from "./catalog";
 import { SlideScene, harnessDive } from "../src/slides";
 import { SlideStarter } from "../src/presentations";
 import { presentationStarters } from "./presentationExamples";
@@ -13,6 +13,9 @@ import "../src/presentations/presentations.css";
 import "./presentations.css";
 
 // Each object card opens the travel study in its own direction, the scene its still shows.
+/** Docs link to the repository, as the Foundations pages do. */
+const REPO = "https://github.com/ong6/uipack/blob/main";
+
 const objectLinks = {
   studio: "Open the woodland atlas",
   "paper-theatre": "Open the alpine passage",
@@ -141,14 +144,8 @@ export default function CatalogShowcase() {
                       <a href={`/?theme=${theme}`}>Diagrams</a>
                       <a href={`/animations?theme=${theme}`}>3D animations</a>
                       <a href={`/presentations?theme=${theme}`}>Presentations</a>
-                      <a href={`/web?style=technical&theme=${theme}`}>Product page</a>
-                    </>
-                  ) : style.id === "landing" ? (
-                    <a href={`/web?style=landing&theme=${theme}`}>Landing page</a>
-                  ) : style.id === "graphical" ? (
-                    <>
-                      <a href={`/web?style=graphical&theme=${theme}`}>Poster page</a>
-                      <a href={`/deck?deck=moves&style=graphical&theme=${theme}`}>Deck</a>
+                      <a href={`/web?theme=${theme}`}>Product page</a>
+                      <a href={`/deck?theme=${theme}`}>Deck</a>
                     </>
                   ) : style.id === "mechanism" ? (
                     <a href={`/mechanism?theme=${theme}`}>Verification gate machine</a>
@@ -162,9 +159,24 @@ export default function CatalogShowcase() {
             ))}
           </div>
           <p className="collection-intro style-grid__note">
-            Technical diagrams, the Landing web style, Mechanism machines, and six object art directions. Each object direction
-            has its own models, materials, perspective and motion.
+            Technical diagrams and web pages, Mechanism machines, and six object art directions. Each object direction has its own
+            models, materials, perspective and motion.
           </p>
+          <h2 className="style-specs__heading">Written style specs</h2>
+          <p className="collection-intro">
+            Technical is the one implemented web style. Landing and Graphical are written specs that fill the same role contract;
+            an agent builds a new style from a spec by adding one value set in <code>src/styles</code>, registering it in{" "}
+            <code>uiStyles</code>, and testing it (<a href={`${REPO}/docs/system/styles/README.md`}>how</a>).
+          </p>
+          <ul className="style-specs">
+            {writtenStyleSpecs.map((spec) => (
+              <li key={spec.id} className="style-spec">
+                <h3>{spec.name}</h3>
+                <p>{spec.description}</p>
+                <a href={`${REPO}/${spec.spec}`}>Read the {spec.name} spec</a>
+              </li>
+            ))}
+          </ul>
         </section>
       ) : (
         <section>

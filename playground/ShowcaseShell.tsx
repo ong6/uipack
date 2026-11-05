@@ -10,16 +10,11 @@ import {
   type PageDef,
 } from "./catalog";
 import { createContext, Fragment, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import "./style-switch.css";
 import { Wordmark } from "../src";
-import { uiStyles, isUiStyle, type UiStyleId } from "../src/style";
 
 type ShowcaseTheme = {
   theme: "light" | "dark";
   flip: () => void;
-  /** The style a page's content is shown in (`?style=`), for pages whose catalog entry lists `styles`. */
-  uiStyle: UiStyleId | null;
-  setUiStyle: (style: UiStyleId) => void;
   /** A page's own "not found, showing X" line for a bad query (a story, a variant); the shell shows it under the intro. */
   note: string | null;
   setNote: (note: string | null) => void;
@@ -44,23 +39,7 @@ export function ShowcaseThemeProvider({ children }: { children: ReactNode }) {
     setTheme(next);
   };
   const [note, setNote] = useState<string | null>(null);
-  // index.html's head script set data-ui-style from ?style= before the first paint.
-  const [uiStyle, setStyleState] = useState<UiStyleId | null>(() => {
-    const s = document.documentElement.dataset.uiStyle;
-    return isUiStyle(s) ? s : null;
-  });
-  const setUiStyle = (next: UiStyleId) => {
-    document.documentElement.dataset.uiStyle = next;
-    const url = new URL(location.href);
-    url.searchParams.set("style", next);
-    history.replaceState(null, "", url);
-    setStyleState(next);
-  };
-  return (
-    <ShowcaseThemeContext.Provider value={{ theme, flip, uiStyle, setUiStyle, note, setNote }}>
-      {children}
-    </ShowcaseThemeContext.Provider>
-  );
+  return <ShowcaseThemeContext.Provider value={{ theme, flip, note, setNote }}>{children}</ShowcaseThemeContext.Provider>;
 }
 
 /** The current theme and the toggle, for the shell and for pages that theme their content. */
@@ -68,51 +47,6 @@ export function useShowcaseTheme(): ShowcaseTheme {
   const value = useContext(ShowcaseThemeContext);
   if (!value) throw new Error("useShowcaseTheme needs a ShowcaseThemeProvider (main.tsx renders it)");
   return value;
-}
-
-/** The style a page shows its content in: `?style=` when the page offers it, else its first listed style. */
-export function useShowcaseStyle(page: { styles?: readonly string[] }): UiStyleId {
-  const { uiStyle } = useShowcaseTheme();
-  const offered = (page.styles ?? []).filter(isUiStyle);
-  return uiStyle && offered.includes(uiStyle) ? uiStyle : (offered[0] ?? "technical");
-}
-
-/**
- * The style switcher, in the shell's context line (never a second header). Links, so each style
- * has an address that survives a reload and works without JavaScript; with it, the swap happens
- * in place.
- */
-function StyleSwitcher({ page }: { page: PageDef }) {
-  const { theme, setUiStyle } = useShowcaseTheme();
-  const current = useShowcaseStyle(page);
-  const offered = uiStyles.filter((s) => page.styles?.includes(s.id));
-  return (
-    <span className="showcase-style-switch" role="group" aria-label="Style">
-      <span className="showcase-style-switch__label" aria-hidden="true">
-        Style
-      </span>
-      {offered.map((s) => {
-        const params = new URLSearchParams(location.search);
-        params.set("style", s.id);
-        params.set("theme", theme);
-        return (
-          <a
-            key={s.id}
-            href={`${location.pathname}?${params}`}
-            aria-current={s.id === current ? "true" : undefined}
-            title={s.summary}
-            onClick={(e) => {
-              if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
-              e.preventDefault();
-              setUiStyle(s.id);
-            }}
-          >
-            {s.name}
-          </a>
-        );
-      })}
-    </span>
-  );
 }
 
 /** A page names what a bad query fell back to; the shell shows it under the intro until it changes or the page goes. */
@@ -171,9 +105,8 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
   // A page with sub-views (a deck, say) resolves to the entry its query names.
   const notFound = active === "not-found";
   const page = notFound ? notFoundPage : resolvePage(active, location.search);
-  // The visual style the page's content uses; the shell itself stays Technical.
-  const shown = useShowcaseStyle(page);
-  const styleName = page.styles ? uiStyles.find((s) => s.id === shown)!.name : (page.styleName ?? "Technical");
+  // The visual style the page's content uses, named in the context line.
+  const styleName = page.styleName ?? "Technical";
   const group = notFound ? undefined : libraryGroups.find((g) => g.id === page.group)!;
   const siblings = group ? pageDefs.filter((p) => p.group === group.id) : [];
   const missing = notFound ? null : unknownSubView(page, location.search);
@@ -347,16 +280,10 @@ export function ShowcaseShell({ active, children }: { active: LibraryPage | "not
         {group && (
           <p className="showcase-context">
             <span>{group.label}</span>
-            {active !== "styles" && !page.styles && (
+            {active !== "styles" && (
               <>
                 <span aria-hidden="true">·</span>
                 <a href={`/styles?theme=${theme}`}>{styleName} style</a>
-              </>
-            )}
-            {page.styles && (
-              <>
-                <span aria-hidden="true">·</span>
-                <StyleSwitcher page={page} />
               </>
             )}
           </p>

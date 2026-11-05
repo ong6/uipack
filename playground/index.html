@@ -15,12 +15,11 @@
     <!-- The default for every route; /web replaces it with its own through useHead. -->
     <meta
       name="description"
-      content="The uipack playground: React and SVG figures, charts, 3D animations, decks and Landing-page blocks for engineering write-ups, each with its source."
+      content="The uipack playground: React and SVG figures, charts, 3D animations, decks and web page blocks for engineering write-ups, each with its source."
     />
-    <!-- Before the first paint, a blocking script sets the theme and the page's style from the URL
-         (uipack styleBootScript, inlined): data-theme and data-ui-theme from ?theme=, data-ui-style
-         from ?style=. The shell stays Technical (its frame sets data-ui-style="technical"); /web and
-         the decks show their content in the chosen style, so it never flashes another one. -->
+    <!-- Before the first paint, a blocking script sets the theme from the URL (the theme half of
+         uipack styleBootScript, inlined): data-theme and data-ui-theme from ?theme=. The style is
+         Technical, the one implemented style, set on <body> and on the shell's frame. -->
     <script>
       (function () {
         var q = new URLSearchParams(location.search),
@@ -28,18 +27,14 @@
         var t = q.get("theme") === "dark" ? "dark" : "light";
         d.setAttribute("data-theme", t);
         d.setAttribute("data-ui-theme", t);
-        var s = q.get("style");
-        if (["technical", "landing", "graphical"].indexOf(s) >= 0) d.setAttribute("data-ui-style", s);
       })();
     </script>
-    <!-- /web: preload only the active style's display face (uipack/web fontPreloads; uiStyles[].preload).
-         Technical preloads IBM Plex Sans 600 (its display weight, the hero headline; text and labels
-         swap in place over metric-matched fallbacks). Landing preloads Instrument Serif (display + italic, the hero title has an <em>); Graphical
-         preloads Anton. Vite rewrites each href to the built file the CSS uses; media="not all" keeps
-         them inert, and the script below turns on the active style's set for /web in a build, at
-         720px and wider: there the Landing swap re-wrapped the centred headline (CLS 0.042 at
-         1440px), while on a phone it moved nothing and the preload only slowed the first paint.
-         The dev server serves fonts from another URL, so it skips them. -->
+    <!-- /web: preload Technical's display face (uipack/web fontPreloads; uiStyles[].preload), IBM
+         Plex Sans 600, the hero headline; text and labels swap in place over metric-matched
+         fallbacks. Vite rewrites the href to the built file the CSS uses; media="not all" keeps it
+         inert, and the script below turns it on for /web in a build, at 720px and wider: on a
+         phone the swap moves nothing and the preload only slows the first paint. The dev server
+         serves fonts from another URL, so it skips it. -->
     <link
       rel="preload"
       as="font"
@@ -47,43 +42,15 @@
       crossorigin
       href="../src/web/fonts/ibm-plex-sans-latin-600-normal.woff2"
       media="not all"
-      data-preload-style="technical"
-    />
-    <link
-      rel="preload"
-      as="font"
-      type="font/woff2"
-      crossorigin
-      href="../src/web/fonts/instrument-serif-latin-400-normal.woff2"
-      media="not all"
-      data-preload-style="landing"
-    />
-    <link
-      rel="preload"
-      as="font"
-      type="font/woff2"
-      crossorigin
-      href="../src/web/fonts/instrument-serif-latin-400-italic.woff2"
-      media="not all"
-      data-preload-style="landing"
-    />
-    <link
-      rel="preload"
-      as="font"
-      type="font/woff2"
-      crossorigin
-      href="../src/web/fonts/anton-latin-400-normal.woff2"
-      media="not all"
-      data-preload-style="graphical"
+      data-preload-web
     />
     <script>
       if (location.pathname.replace(/\/$/, "") === "/web") {
-        var style = document.documentElement.getAttribute("data-ui-style") || "technical";
-        for (const l of document.querySelectorAll('link[data-preload-style="' + style + '"]')) {
+        for (const l of document.querySelectorAll("link[data-preload-web]")) {
           if (!l.getAttribute("href").startsWith("/assets/")) continue;
           const on = l.cloneNode();
           on.setAttribute("media", "(min-width: 720px)");
-          on.removeAttribute("data-preload-style");
+          on.removeAttribute("data-preload-web");
           l.after(on);
         }
       }
