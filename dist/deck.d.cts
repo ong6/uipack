@@ -198,7 +198,7 @@ interface StorySlide {
     notes?: (SpeechGuide & {
         stops?: Record<string, string>;
     }) | string;
-    /** The title shown on the slide: a short label or verdict when presented, the full conclusion when read alone. */
+    /** The title shown on the slide: a short spoken verdict when presented, the full conclusion when read alone. */
     headline?: string;
     /** On-slide source line for the slide's numbers. */
     source?: string;
@@ -212,7 +212,7 @@ interface StorySlide {
     slots?: Partial<Record<SlotName, string>>;
 }
 type LintSeverity = "error" | "warn" | "tip";
-type LintRule = "deck-empty" | "duplicate-id" | "title-present" | "title-claim" | "title-length" | "title-specific" | "one-idea" | "notes-present" | "number-source" | "roles-missing" | "answer-first" | "outcome-first" | "closing-ask" | "ask-concrete" | "role-repeat" | "deck-length" | "talk-time" | "template-beats" | "slot-budget" | "notes-cues" | "slide-shape" | "ai-tells";
+type LintRule = "deck-empty" | "duplicate-id" | "title-present" | "title-claim" | "title-length" | "title-specific" | "one-idea" | "notes-present" | "number-source" | "roles-missing" | "answer-first" | "outcome-first" | "closing-ask" | "ask-concrete" | "role-repeat" | "deck-length" | "talk-time" | "template-beats" | "slot-budget" | "notes-cues" | "notes-echo" | "ask-scope" | "slide-shape" | "ai-tells" | "causal-claim";
 interface LintFinding {
     slideId?: string;
     rule: LintRule;
@@ -245,7 +245,7 @@ interface StoryBeat {
     role: SlideRole;
     /** What this beat must achieve. */
     purpose: string;
-    /** The short title's shape, with `<placeholders>`: a label, a verdict or a question. */
+    /** The short title's shape, with `<placeholders>`: a verdict, a question, or a label on a mechanism or demo beat. */
     titlePattern: string;
     /** A filled short title for a generic engineering project (presented). Illustrative, not real data. */
     example: string;
@@ -298,7 +298,7 @@ declare function templateOutline(template: StorylineTemplate | StorylineTemplate
 }): StorySlide[];
 
 /**
- * Check a deck's argument: titles that fit the mode (short labels and verdicts when presented, full
+ * Check a deck's argument: titles that fit the mode (short spoken verdicts when presented, full
  * conclusions when read alone), answer first, a concrete closing ask, role rhythm,
  * talk tracks, sources for numbers, and length against the time budget. Runs `LINT_CHECKS` in
  * order. Pure; no DOM.
@@ -439,7 +439,7 @@ declare function Slide({ eyebrow, footer, layout, className, children, }: {
 interface Frame {
     /** Optional, off by default: the section this slide sits in, 1–4 words. */
     eyebrow?: string;
-    /** The title: a 2–5 word label or verdict when presented, the conclusion as a sentence when read alone. */
+    /** The title: a 2–5 word spoken verdict when presented (a label only on a cover, section or mechanism slide), the conclusion as a sentence when read alone. */
     headline: string;
     footer?: ReactNode;
 }

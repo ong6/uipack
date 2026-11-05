@@ -948,30 +948,84 @@
   font: 10px monospace;
   text-anchor: middle;
 }
-.uipack-object__motion {
+/* Quiet chrome: the art owns the card. Open canvas and Pause are ghost icon buttons in one top-right
+   cluster: 44px targets, a 32px drawn chip at low contrast that comes up to full ink on hover and
+   focus. Their names are visually hidden text (.uipack-object__sr) for screen readers. */
+.uipack-object__motion,
+.uipack-object-open {
+  --object-chip-ink: color-mix(in srgb, currentColor 58%, transparent);
   position: absolute;
   z-index: 2;
-  bottom: 12px;
-  right: 12px;
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--tune-object-edge, var(--ui-line));
-  border-radius: 4px;
+  top: 8px;
+  right: 8px;
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
   color: inherit;
-  background: var(--object-bg, var(--ui-surface));
-  /* Mono, like Open canvas beside it and every Technical control. */
-  font: 500 12px/1.4 var(--uipack-mono, ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+  background: transparent;
   cursor: pointer;
 }
-.uipack-object-frame[data-controls="playback"] .uipack-object__motion {
-  bottom: 10px;
-  min-height: 44px;
-  padding: 0 11px;
-  border-color: color-mix(in srgb, currentColor 28%, transparent);
-  background: color-mix(in srgb, var(--object-bg, var(--ui-surface)) 90%, transparent);
-  backdrop-filter: blur(8px);
+.uipack-object-open {
+  color: var(--object-control-fg);
 }
-/* Same control as a figure's Open canvas (.uipack__ctl), in either theme. */
+/* Inside a frame with Open canvas, Pause sits just left of it. */
+.uipack-object-frame[data-controls="full"] .uipack-object__motion {
+  right: 52px;
+}
+.uipack-canvas-content .uipack-object__motion {
+  right: 8px;
+}
+.uipack-object__motion::before,
+.uipack-object-open::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  border-radius: 50%;
+  background: transparent;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+.uipack-object__motion svg,
+.uipack-object-open svg {
+  position: relative;
+  color: var(--object-chip-ink);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: color 140ms ease;
+}
+.uipack-object__motion:is(:hover, :focus-visible) svg,
+.uipack-object-open:is(:hover, :focus-visible) svg {
+  color: currentColor;
+}
+.uipack-object__motion:is(:hover, :focus-visible)::before,
+.uipack-object-open:is(:hover, :focus-visible)::before {
+  border-color: color-mix(in srgb, currentColor 45%, transparent);
+  background: color-mix(in srgb, var(--object-bg, var(--ui-surface)) 82%, transparent);
+}
+.uipack-object__motion:focus-visible,
+.uipack-object-open:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+}
+.uipack-object__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+/* Same control colours as a figure's Open canvas (.uipack__ctl), in either theme. */
 .uipack-object-frame {
   --object-control-bg: var(--uipack-surface, var(--ui-surface-raised));
   --object-control-fg: var(--uipack-fg, var(--ui-ink));
@@ -981,30 +1035,6 @@
 }
 .uipack-object-frame[data-theme="dark"] {
   color-scheme: dark;
-}
-.uipack-object-open {
-  position: absolute;
-  z-index: 2;
-  top: 12px;
-  right: 12px;
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0 12px;
-  border: 1px solid var(--object-control-border);
-  border-radius: 6px;
-  color: var(--object-control-fg);
-  background: var(--object-control-bg);
-  font: 500 12px/1 var(--uipack-mono, ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
-  cursor: pointer;
-}
-.uipack-object-open:hover {
-  border-color: var(--object-control-fg);
-}
-.uipack-object__motion:focus-visible,
-.uipack-object-open:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 3px;
 }
 .uipack-canvas-content .uipack-object {
   height: 100%;
@@ -1016,26 +1046,27 @@
   }
 }
 
+/* The look's name: a quiet caption, not a headline. Muted ink at reduced strength, inset from the corner. */
 .uipack-object-edition {
   position: absolute;
   z-index: 2;
-  top: 12px;
-  left: 14px;
+  top: 6px;
+  left: 16px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--object-control-muted);
-  /* The host's shell eyebrow when it has one (the playground's --show-eyebrow-*), else the same. */
-  font: var(--show-eyebrow-font, 600 12px/1.3 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
-  letter-spacing: var(--show-eyebrow-tracking, 0.08em);
-  text-transform: uppercase;
+  gap: 2px;
+  color: color-mix(in srgb, var(--object-control-muted) 78%, transparent);
+  font: 500 12px/1.3 var(--uipack-mono, ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+  letter-spacing: 0.04em;
 }
-/* Leave room for Open canvas at the top right; a long edition name wraps instead of running under it. */
+/* Leave room for the top-right controls; a long name wraps instead of running under them. */
 .uipack-object-frame:has(.uipack-object-open) .uipack-object-edition {
-  max-width: calc(100% - 156px);
+  max-width: calc(100% - 128px);
 }
 .uipack-object-edition span {
   min-width: 0;
+  padding-top: 13px;
+  align-self: flex-start;
 }
 .uipack-object-edition button {
   width: 44px;
@@ -1045,13 +1076,15 @@
   background: transparent;
   color: inherit;
   cursor: pointer;
-  font: 20px system-ui;
+  font: 16px system-ui;
 }
-.uipack-object-edition button:hover {
+.uipack-object-edition button:is(:hover, :focus-visible) {
+  color: var(--object-control-fg);
   background: color-mix(in srgb, currentColor 10%, transparent);
 }
 .uipack-object-edition button:focus-visible {
   outline: 2px solid currentColor;
+  outline-offset: -2px;
 }
 
 /* Authored art-direction surfaces, scoped to the object player. */
