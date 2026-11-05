@@ -1,5 +1,5 @@
 import { fontFloor, DEFAULT_RENDER_WIDTH, FigureScaleProvider, Token, TOKEN_SHAPE } from './chunk-HCR2C6OV.js';
-import { technicalValues, technicalFonts } from './chunk-UQE4FCJO.js';
+import { technicalValues, technicalFonts } from './chunk-ESGEH25T.js';
 import { FigureMotionContext } from './chunk-ZEGJBMAE.js';
 import { isValidElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';

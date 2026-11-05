@@ -163,7 +163,11 @@ export function PricingPlans({ plans, note, className = "" }: PricingPlansProps)
   }
   return (
     <div className={`uipack-web-pricing ${className}`.trim()}>
-      <ul className="uipack-web-pricing__plans" data-count={plans.length} style={{ "--plans": Math.min(3, plans.length) } as CSSProperties}>
+      <ul
+        className="uipack-web-pricing__plans"
+        data-count={plans.length}
+        style={{ "--plans": Math.min(3, plans.length) } as CSSProperties}
+      >
         {plans.map((p, i) => (
           <li key={i} className="uipack-web-plan" data-featured={p.featured ? "" : undefined}>
             <div className="uipack-web-plan__head">

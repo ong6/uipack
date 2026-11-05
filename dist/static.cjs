@@ -1,7 +1,7 @@
 'use strict';
 
 var chunkLF6OWAHL_cjs = require('./chunk-LF6OWAHL.cjs');
-var chunkL3MBR67W_cjs = require('./chunk-L3MBR67W.cjs');
+var chunkCLA7XLG7_cjs = require('./chunk-CLA7XLG7.cjs');
 var chunkCRQKMR73_cjs = require('./chunk-CRQKMR73.cjs');
 var react = require('react');
 var server = require('react-dom/server');
@@ -19,11 +19,11 @@ var paletteOf = (c) => ({
   "token-request": c["flow-request"],
   "token-response": c["flow-response"],
   "token-change": c["flow-change"],
-  mono: chunkL3MBR67W_cjs.technicalFonts.mono,
-  sans: chunkL3MBR67W_cjs.technicalFonts.sans
+  mono: chunkCLA7XLG7_cjs.technicalFonts.mono,
+  sans: chunkCLA7XLG7_cjs.technicalFonts.sans
 });
-var LIGHT = paletteOf(chunkL3MBR67W_cjs.technicalValues.light);
-var DARK = paletteOf(chunkL3MBR67W_cjs.technicalValues.dark);
+var LIGHT = paletteOf(chunkCLA7XLG7_cjs.technicalValues.light);
+var DARK = paletteOf(chunkCLA7XLG7_cjs.technicalValues.dark);
 function resolvePalette(theme) {
   const p = !theme || theme === "light" ? LIGHT : theme === "dark" ? DARK : { ...theme.base === "dark" ? DARK : LIGHT, ...stripBase(theme) };
   return { ...p, mono: p.mono.replace(/"/g, "'"), sans: p.sans.replace(/"/g, "'") };

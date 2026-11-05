@@ -73,7 +73,9 @@ test.describe("/web Landing collection", () => {
     expect(await steps.evaluate((el) => el.parentElement!.getBoundingClientRect().height)).toBeLessThanOrEqual(1);
     await expect(demo(page).getByRole("button", { name: /Pause|Replay/ })).toHaveCount(0);
     // The step tabs stay: each shows its step's finished frame, nothing moves.
-    await demo(page).getByRole("button", { name: /01 Ask/ }).click();
+    await demo(page)
+      .getByRole("button", { name: /01 Ask/ })
+      .click();
     expect(await stepOf(page)).toBe(0);
     await expect(demo(page)).toHaveAttribute("data-state", "static");
     // Reveal text is readable without scrolling it into view.
@@ -647,7 +649,9 @@ test.describe("/web discoverability", () => {
     expect(errors).toEqual([]);
   });
 
-  test("animated text is real text: demo transcript, final ticker values and the revealed heading are in the DOM", async ({ page }) => {
+  test("animated text is real text: demo transcript, final ticker values and the revealed heading are in the DOM", async ({
+    page,
+  }) => {
     await page.goto("/web?style=landing");
     const transcript = page.locator(".uipack-web-demo").getByRole("list", { name: "Demo transcript" });
     await expect(transcript.locator(":scope > li")).toHaveCount(3);

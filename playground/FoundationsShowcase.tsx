@@ -719,8 +719,8 @@ function WritingPage() {
       <section>
         <h2>Headlines: presented or read alone</h2>
         <p className="collection-intro">
-          Decide first who carries the argument. When you present, you do: the title is a short verdict and you say the claim. When
-          the piece goes out without you, the title has to carry it: write the claim as a full sentence.
+          Decide first who carries the argument. When you present, you do: the title is a short verdict and you say the claim.
+          When the piece goes out without you, the title has to carry it: write the claim as a full sentence.
         </p>
         <div className="fdn-table" tabIndex={0} role="region" aria-label="Headline modes">
           <table>
@@ -1263,7 +1263,7 @@ const tropes = [
     "Purple or indigo accent on a grey page",
     "Technical's Prussian blue and amber, Graphical's orange; Landing's cobalt only when the brief is a generic landing page",
   ],
-  ["Inter or Roboto everywhere", "Archivo Expanded headings on page, slide and figure; Martian Mono labels; Anton for posters"],
+  ["Inter or Roboto everywhere", "IBM Plex Sans 600 headings on page, slide and figure; IBM Plex Mono labels; Anton for posters"],
   [
     "Centred hero, one CTA, three icon cards",
     "The product's real output in the first screen, straight after the headline; one section order in every style",
@@ -1382,9 +1382,7 @@ function DontPage() {
       </section>
       <section>
         <h2>Slide text that reads as generated</h2>
-        <p className="collection-intro">
-          Any one of these is fine now and then. On every slide it reads as a template.
-        </p>
+        <p className="collection-intro">Any one of these is fine now and then. On every slide it reads as a template.</p>
         <div className="fdn-table" tabIndex={0} role="region" aria-label="AI tells in slide text">
           <table>
             <thead>

@@ -186,7 +186,9 @@ test("a Section with its own uiStyle repaints inside another style's page", asyn
   expect(errors).toEqual([]);
 });
 
-test("by default the hero holds the same product output in every style, on the sections' left edge, and the demo has its own section", async ({ page }) => {
+test("by default the hero holds the same product output in every style, on the sections' left edge, and the demo has its own section", async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   const errors = watchErrors(page);
   for (const style of STYLES) {

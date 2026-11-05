@@ -99,7 +99,7 @@ describe("Self-hosted fonts", () => {
     const css = readFileSync("src/web/fonts.css", "utf8");
     const faces = css.match(/@font-face \{[^}]*\}/g)!;
     const hosted = faces.filter((f) => f.includes("url("));
-    expect(hosted).toHaveLength(14);
+    expect(hosted).toHaveLength(8);
     for (const f of hosted) {
       expect(f).toContain("font-display: swap;");
       expect(f).toMatch(/unicode-range:\s+U\+0000-00FF/);
@@ -111,7 +111,7 @@ describe("Self-hosted fonts", () => {
     // Nothing leaves the package: no absolute or protocol-relative font URLs.
     expect(css).not.toMatch(/url\("?(https?:)?\/\//);
     const files = readdirSync("src/web/fonts");
-    for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono", "anton", "archivo", "martian-mono"])
+    for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono", "anton"])
       expect(files).toContain(`OFL-${name}.txt`);
     expect(files.filter((f) => f.endsWith(".woff2")).sort()).toEqual(
       urls(css)
@@ -126,11 +126,11 @@ describe("Self-hosted fonts", () => {
     expect(pkg.exports["./fonts/*"]).toBe("./dist/fonts/*");
     expect(fontFiles.out).toBe("fonts"); // scripts/build-css.ts copies src/web/fonts there
     const built = readFileSync("dist/web.css", "utf8");
-    expect(urls(built).length).toBe(14);
+    expect(urls(built).length).toBe(8);
     for (const u of urls(built)) expect(existsSync(`dist/${u}`)).toBe(true);
     // Every entry carries the faces (Technical's on figures, charts and the article too).
-    expect(urls(readFileSync("dist/theme.css", "utf8")).length).toBe(14);
-    for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono", "archivo", "martian-mono"])
+    expect(urls(readFileSync("dist/theme.css", "utf8")).length).toBe(8);
+    for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono"])
       expect(existsSync(`dist/fonts/OFL-${name}.txt`)).toBe(true);
   });
 });

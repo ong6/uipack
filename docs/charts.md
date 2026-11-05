@@ -228,7 +228,7 @@ Both components read the shared `--uipack-*` properties, with the Technical defa
 | `--uipack-radius` | nodes, controls and zone boxes (6px) |
 | `--uipack-label-font` | every tracked uppercase label (default: `--uipack-mono`; tabular numbers stay mono) |
 | `--uipack-token-change` | status badges (text mixed 70% with `fg` for 4.5:1) |
-| `--uipack-sans`, `--uipack-mono` | type (the style's text and label faces: Archivo and Martian Mono in Technical) |
+| `--uipack-sans`, `--uipack-mono` | type (the style's text and label faces: IBM Plex Sans and IBM Plex Mono in Technical) |
 | `--uipack-span-column-highlight` | the chosen column's band (accent 10% in light, 20% in dark) |
 | `--uipack-span-name-width` | SpanChart's name column (216px, 240px from 1000px; the breakpoints assume these) |
 | `--uipack-span-sticky-top` | offset of the sticky header and of scroll restoration under a fixed site header (0px) |

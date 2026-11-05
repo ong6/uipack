@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkV7EQURTV_cjs = require('./chunk-V7EQURTV.cjs');
+var chunkDYSI3HXX_cjs = require('./chunk-DYSI3HXX.cjs');
 var chunkSDBNPDW6_cjs = require('./chunk-SDBNPDW6.cjs');
 var chunkCRQKMR73_cjs = require('./chunk-CRQKMR73.cjs');
 var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
@@ -147,9 +147,9 @@ function WebPage({
   as,
   children
 }) {
-  const meta = chunkV7EQURTV_cjs.uiStyles.find((s) => s.id === uiStyle);
+  const meta = chunkDYSI3HXX_cjs.uiStyles.find((s) => s.id === uiStyle);
   const page = { uiStyle, layout, defaults: layout === "style" ? meta.layout : SHARED };
-  const ids = order ? order.filter((id) => id in sections) : chunkV7EQURTV_cjs.sectionOrder(uiStyle, Object.keys(sections), layout);
+  const ids = order ? order.filter((id) => id in sections) : chunkDYSI3HXX_cjs.sectionOrder(uiStyle, Object.keys(sections), layout);
   return /* @__PURE__ */ jsxRuntime.jsxs(
     WebSurface,
     {

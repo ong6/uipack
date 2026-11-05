@@ -83,7 +83,7 @@ each layer live.
 
 **For implementers.** Roles are CSS custom properties (`--ui-paper`, `--ui-ink`, `--ui-accent`,
 `--ui-flow-request`, `--ui-font-display`, `--ui-radius`, `--ui-ease-settle`…), so a layout writes
-`color: var(--ui-ink-2)`, never `#3d5878` or `font-family: "Archivo"`. A component takes the
+`color: var(--ui-ink-2)`, never `#3d5878` or `font-family: "IBM Plex Sans"`. A component takes the
 style as a prop (`<DeckPlayer uiStyle="graphical">`). Content types are `DeckSlide`,
 `SlideStarterData` and the preset specs; notes are `notes { say, delivery, next }`. Budgets are
 `SLOT_BUDGETS`, checked by `lintDeck` as `slot-budget`. Each style's recommended order is

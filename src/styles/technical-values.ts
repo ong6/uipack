@@ -56,11 +56,11 @@ export const technicalValues: Record<"light" | "dark", TechnicalColors> = {
 
 /**
  * Technical's type stacks, quoted for use inside an SVG attribute. A static SVG shown through
- * <img> cannot load web fonts, so it names Archivo and Martian Mono (used where installed) before
- * the system stacks.
+ * <img> cannot load web fonts, so it names IBM Plex Sans and IBM Plex Mono (used where installed)
+ * before the system stacks.
  */
 export const technicalFonts = {
-  sans: "Archivo, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
-  display: "'Archivo Expanded', Archivo, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
-  mono: "'Martian Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace",
+  sans: "'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+  display: "'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+  mono: "'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace",
 } as const;
