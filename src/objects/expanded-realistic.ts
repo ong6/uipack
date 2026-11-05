@@ -896,7 +896,7 @@ const models: Record<ArtKind, Model> = {
   },
 
   /**
-   * Silicon detail: the front of a rack server in macro. A zinc rack ear with its pull handle and a
+   * Hot swap: the front of a rack server in macro. A zinc rack ear with its pull handle and a
    * captive thumbscrew, a row of hot-swap sled bezels, and one sled pulled out on its rails, latch
    * open, showing the bare SSD board it carries. Activity LEDs blink.
    */

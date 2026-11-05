@@ -60,7 +60,7 @@ export const objectVariants: Record<ObjectKind, readonly string[]> = {
     "Paper · Server city",
     "Kinetic · Hanging compute",
     "Cartoon · Cloud factory",
-    "Realistic · Silicon detail",
+    "Realistic · Hot swap",
     "Abstract · Signal stack",
   ],
   travel: [
