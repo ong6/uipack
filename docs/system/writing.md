@@ -12,15 +12,19 @@ render in any layout that has matching slots, in any style. See [the system over
 2. **Only the facts you were given.** Every number, scope, cause and reassurance traces to the
    input. Arithmetic on given numbers is fine ("40 to 6 minutes" is "34 minutes sooner"); a guess
    about what a metric includes, why it moved or what it rules out is not, however plausible ("the
-   p95 already counts retried requests"). A fact the piece needs but the input lacks becomes a visible
-   `TODO:` question in the slot it belongs to (`Source: TODO`), not a filler line. A recommendation
-   is said as one ("we recommend"), never as a measured fact.
+   p95 already counts retried requests"). A fact the piece needs but the input lacks is never filled
+   in, and finished copy never shows `TODO`: say the gap where it is spoken or read, as a line a
+   person can say ("iOS 0.8%: source still to confirm", "We don't yet know the iOS start-time
+   cost"), in the notes or caption, and off the slide unless it changes the decision. A visible
+   `TODO:` is only for a draft the owner asked to see as a draft. A consequence the input gives as a
+   purpose can be stated: "approve by 9 January so it ships in spring" means a later yes misses
+   spring. A recommendation is said as one ("we recommend"), never as a measured fact.
 3. **Specific beats upbeat.** Use a number and what it measures, a multiple ("twice"), or a
    before and after ("3 meetings → 1"). "In a good place" could describe any quarter.
 4. **Every number has a baseline, a window and a source, and each binds only to the number it
    measures.** "The search latency dashboard, May vs June, all regions" given for p95 says nothing
-   about the error rate in the next sentence: that one gets `Window and source: TODO`, never "same
-   window and source". Keep the measure's own word too: a median stays a median (or
+   about the error rate in the next sentence: its notes say the window and source are still to
+   confirm, never "same window and source". Keep the measure's own word too: a median stays a median (or
    its exact plain form, "half of requests"). Put all three on the canvas when they change the
    decision, otherwise in the caption or notes.
 5. **Each word has one place to live:**
@@ -28,23 +32,31 @@ render in any layout that has matching slots, in any style. See [the system over
    | Words | Where | Length |
    | --- | --- | --- |
    | Label | Inside the drawing | 2–3 words; a mono sub-label for a value (`1536-dim`, `p95 198ms`) |
-   | Arrow label | On the line | What travels or the rule (`cosine · floor 0.35`, `async · queue`) |
+   | Arrow label | On the line | What travels or the rule (`decoded image`, `cosine · floor 0.35`), never a vague noun (`user sessions`, `data`) |
    | Eyebrow | Above the title; optional, and off on slides by default | 1–4 words, a category or section (`FIGURE 02 · RETRIEVAL`), never the claim |
-   | Title / headline | The top of the unit | A presented slide: 2–5 words, a topic label or a verdict you'd say aloud (`Search: twice as fast since March`). A slide read without its speaker, a figure, a web section: the claim as a full sentence, 3–14 words |
+   | Title / headline | The top of the unit | A presented slide: 2–5 words, a verdict you'd say aloud (`Search: twice as fast since March`, `Starts got 0.2 s slower`); a bare label only on agenda, section and mechanism slides. A slide read without its speaker, a figure: the claim as a full sentence, 3–14 words. A web section: a short plain head (see [Web](#web)) |
    | Caption / lede | Under the figure (caption) or, rarely, a slide title (lede) | One plain sentence for the why or a caveat; slides have no lede by default |
    | Body | Slides and pages only | Slides: 2–4 fragments of at most 8 words, no full stops, carrying the numbers and cues (`p95 198 ms, half of March`, `5 indexes → 1`). Pages: short paragraphs |
    | Notes / narration | Speaker view, voice-over, `say` | A presented deck: cues, a few short lines. A read-alone deck, a voice-over: full sentences |
    | Source | Footer or footnote | A named artifact ("the search latency dashboard", "load test 12") |
 
-6. **Plain names.** "The gap-down fade strategy", not an internal code. Codes go in parentheses
-   only when someone needs to trace them.
+6. **Plain names, in the audience's words.** "The gap-down fade strategy", not an internal code;
+   codes go in parentheses only when someone needs to trace them. Don't coin a label the input
+   doesn't use ("off-main decode"). Copy for users says what they notice ("images now load in the
+   background"), not the mechanism ("main thread") or the tool that measured it ("Crashlytics":
+   "our crash reports"), and keeps the scope qualifier they need ("on Android").
 7. **No sentences in the drawing, no labels in the notes.** If a label wraps, split the part or
    move the sentence to the caption.
 8. **Readable alone.** A screenshot of a figure and a muted video still make the point. A presented
    slide still shows its numbers and their baselines, so a forwarded copy keeps the facts; a deck
    that must carry the whole argument without its speaker is written read-alone (see
    [Slides](#slides)). Caveats that change the conclusion stay on the canvas, not only in the notes.
-9. **Write like a person, not a template.** Each of these is fine once; repeated, they read as
+9. **Each unit adds something.** A point or number appears once per piece: a title doesn't repeat
+   the point under it, a later slide doesn't restate slide one, and a page's hero, subhead and
+   sections each carry a different fact. Slide one may preview the answer and the ask in a few
+   words; the evidence slide then adds what slide one lacks (baseline, window, source), and the
+   ask slide adds the owner, cost and consequence.
+10. **Write like a person, not a template.** Each of these is fine once; repeated, they read as
    generated (Wikipedia's "Signs of AI writing" names most of them):
 
    | Tell | Looks like | Instead |
@@ -69,7 +81,7 @@ Each medium fills a subset of one shape. These field names are what layouts bind
 type Content = {
   role?: SlideRole;          // the job this unit does (slides)
   eyebrow?: string;          // optional, off on slides by default
-  headline: string;          // presented: a short label or verdict; read-alone: the claim
+  headline: string;          // presented: a short spoken verdict; read-alone: the claim
   lede?: string;             // optional: one plain sentence of caveat
   points?: string[];         // slides: 2–4 fragments that carry the numbers
   body?: Block[];            // a figure, a chart, KPI items, a table
@@ -119,13 +131,18 @@ yet.
   the caption confirms it.
 - Every box appears in the caption (its claim or its caveat) or in an arrow label. Eight to twelve
   nodes is the ceiling; past that, use two figures with two claims, or a drill-down.
-- Every arrow is labelled with what moves or the rule that gates it, never a statistic.
+- Every arrow is labelled with what moves or the rule that gates it (`decoded image`, `draw`),
+  never a statistic or a noun that names no change (`user sessions`). Node labels use the input's
+  words, not coined ones.
+- **Outcome nodes name the result** (`Crash rate`) with the value and window in the sub-label; a
+  time window (`30 days after`) is not a node. Before and after panels show the same measures.
 - **A statistic lives once, in the sub-label of the node it measures**, with its baseline:
   `p95 198ms · was 410ms` on the outcome node, `3% · was 5%` on the retry branch's node. On an arrow or a
   single path, it reads as if it covered only that path.
 - **Every path ends somewhere.** Each branch, the failure and exception ones included, reaches an
   outcome node or rejoins the flow. If the input doesn't say where a branch goes, end it at a node
-  labelled `TODO: what happens next` rather than drawing an invented route or a dead end.
+  labelled `Not yet known` and say so in the caption, rather than drawing an invented route or a
+  dead end.
 - **One scope per figure.** Every number in it shares the caption's population and window, and the
   source line names them. A part outside that scope (a planned or other-region step) carries it in
   its sub-label (`planned · not live`) and the caption says it is unmeasured; a number with a different
@@ -143,7 +160,7 @@ deck is written for one of two modes, passed as `lintDeck(slides, { mode })` or 
 
 | Mode | When | Title | Body | Notes |
 | --- | --- | --- | --- | --- |
-| `presented` (default) | You give it, and the room hears you | 2–5 words: a topic label (`Search latency`) or a verdict that sounds spoken (`Review decisions: 3 meetings → 1`) | 2–4 fragments carrying the numbers and cues, or one piece of evidence | Cues: a few short lines |
+| `presented` (default) | You give it, and the room hears you | 2–5 words: a verdict that sounds spoken (`Review decisions: 3 meetings → 1`, `Search got twice as fast`); a bare label only on agenda, section and mechanism slides | 2–4 fragments carrying the numbers and cues, or one piece of evidence | Cues: a few short lines |
 | `read-alone` | It goes out without you: a pre-read, a forwarded deck, a consulting-style customer readout | The real conclusion as one sentence, 3–14 words | Points, or one piece of evidence | The talk track in full sentences |
 
 Why presented is the default: across 66 well-regarded decks and talks (keynotes, engineering
@@ -151,13 +168,17 @@ talks, pitch decks), the strongest fit for a speaker who talks from on-slide poi
 over a few fragments (Rich Hickey, Rob Pike, LinkedIn's Series B deck, Benedict Evans), or a short
 spoken claim over one piece of evidence (Simon Willison, Evans). None of the 26 tech talks used an
 eyebrow over a sentence headline over a lede. A sentence headline plus a lede writes out what the
-speaker would say, so the speaker recites it and the room reads ahead.
+speaker would say, so the speaker recites it and the room reads ahead. A bare label goes too far
+the other way: the room waits for the speaker to learn the point, and a forwarded slide says
+nothing. A short verdict keeps both.
 
 - **Answer first.** The conclusion is on slide one or two, and slide one names the outcome
   ("Search: twice as fast, and cheaper"), not the system. Its points carry the trade-off and the ask.
-- **Short titles, mixed forms.** A label ("Search latency"), a verdict ("Decided in 6 days"), the
-  occasional question ("Will the cache hold?"). Never the same shape on every slide
-  (`slide-shape`).
+- **Short spoken verdicts, mixed forms.** A verdict ("Android crashes down by two thirds"), a
+  "Topic: value" pair ("Start time: 0.2 s slower"), the occasional question about something not yet
+  known ("Will the cache hold?"), never one about a measured fact ("Slower starts?"). Labels
+  ("Crash rate") are for agenda, section and mechanism slides; `title-claim` flags one on a
+  content slide. Never the same shape on every slide (`slide-shape`).
 - **The points carry the numbers.** Each is a fragment: a number with its baseline ("p95: 412 ms →
   198 ms"), a cue ("Only change: the answer moved to slide 1"), a caveat that must stay on screen
   ("Not proof of cause"). An answer, evidence, problem or recommendation slide quantifies its claim
@@ -177,25 +198,27 @@ speaker would say, so the speaker recites it and the room reads ahead.
   only as good as the conclusion it states. An evidence or cost title says what the number means
   for the decision, from the given facts ("Moving the last two regions costs one engineer for six
   weeks").
-- **One idea per slide.** The body proves the title. Cover the title, and the visual should still
-  point at it.
+- **One idea per slide, said once.** The body proves the title without repeating it, and no slide
+  restates another (rule 9). Cover the title, and the visual should still point at it.
 - **The facts set the length, not the template.** When the input can't fill a beat (no options,
-  no milestones), merge or drop it and leave one `TODO:` question in that slide's notes; don't
-  invent content to fill it. "Do nothing" can always be stated from the facts: what stays as it is.
+  no milestones), merge or drop it and say the gap in that slide's notes ("No options costed
+  yet"); don't invent content to fill it. "Do nothing" can always be stated from the facts: what stays as it is.
 - **Roles** (`cover`, `answer`, `context`, `problem`, `evidence`, `mechanism`, `option`,
   `recommendation`, `plan`, `risk`, `ask`, `demo`, `appendix`) tag each slide's job. Six storyline
   templates order them: project update, decision request, deep dive, launch, postmortem, review
   highlights.
-- **End on a concrete ask**: an action, a named owner (a role or team) and a calendar date, in the
-  title or the points, plus what happens on a no or a missed date (if the input doesn't say, a
-  `TODO:` in the notes). Never "Questions?".
+- **End on a concrete ask**: an action, a named owner (a role or team) and a calendar date (with
+  its year when that isn't this year), in the title or the points, plus what happens on a no or a
+  missed date: the input's stated purpose gives it ("so it ships in spring": later misses spring);
+  if nothing does, the notes say it is still open. Never "Questions?".
 - **Notes are cues when presented.** `say` is a few short lines, one thought each and at most about
   60 words (`notes-cues`): the claim to say, the number to point at, the caveat, the source.
-  `delivery` is one cue for pace or where to point; `next` is the bridge, a few words. Because you
+  `delivery` is one cue for pace or where to point; `next` is the bridge, a few words, only where
+  the link isn't obvious (the same "Next: …" under every slide reads as a template). Because you
   talk in your own words, the talk's length comes from the slide count, about a minute a slide, not
   from the notes. A read-alone deck keeps `say` in full sentences at about 135 words a minute (100–135
   words a slide when only the count is fixed); notes restate and explain, never pad.
-- **No AI tells** (rule 9 above): `ai-tells` flags a "X, not Y" contrast or a bolted-on comparison
+- **No AI tells** (rule 10 above): `ai-tells` flags a "X, not Y" contrast or a bolted-on comparison
   on more than one slide, and a semicolon balancing two clauses.
 
 ## Web
@@ -206,9 +229,13 @@ The full rules are in [Web principles](../web-principles.md). The core:
   reader's own next step. When the facts' real action is an internal approval, that ask belongs
   in the deck; the page keeps budgets, pending approvals and approvers' names off it, but keeps
   any trade-off its readers will feel (a higher error rate) as a section.
-- **The headline is the outcome for the reader**, the subhead says how, and a demo proves it within
-  15 seconds.
-- **Section heads are claims** too. "Answers in one search" beats "Features".
+- **The headline is the outcome for the reader**, in their words and with its scope ("on
+  Android"); the subhead says how, and a demo proves it within 15 seconds.
+- **Section heads are short and plain**: 2–5 words naming what the reader gets ("Fewer crashes",
+  "A slightly slower start", "Android only"), never the section's kind ("Features") and never a
+  sentence crammed with numbers. The supporting line carries the number, once.
+- **The reader's words** (rule 6): no internals or tool names; a source becomes what it is to them
+  ("our crash reports, 30 days before and after").
 - **The FAQ answers real objections** in the asker's words. Its text and its structured data share
   one source.
 - Body copy is short: one idea per paragraph, at most three sentences.

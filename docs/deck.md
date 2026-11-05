@@ -10,7 +10,7 @@ For information-dense slides in the strategy-consulting style (panels of charts,
 
 1. **Pick the storyline.** Project update, decision request, deep dive, launch, postmortem or review highlights ([deck storytelling](deck-storytelling.md) has all six, each with the one line leadership should remember).
 2. **Get a playable draft.** `starterDeck(template)` returns one stub slide per beat, with the template's example title and points, its title pattern and advice.
-3. **Write the titles and points first.** Rewrite each `headline` (2–5 words: a label or a verdict) and its `points` (the numbers, as fragments) with your facts, and read the titles in order (G, then Storyline): that ghost deck is your outline. Slide one names the business outcome, not the system.
+3. **Write the titles and points first.** Rewrite each `headline` (2–5 words: a verdict you'd say aloud) and its `points` (the numbers, as fragments) with your facts, and read the titles in order (G, then Storyline): that ghost deck is your outline. Slide one names the business outcome, not the system.
 4. **Replace each stub's `render`** with the slide that shows its points or its one piece of evidence, and add cue `notes`: a few short lines on what you'll say.
 5. **Check it.** Pass `lint` while you write; the Storyline tab lists what's missing (notes, sources for numbers, an ask without an owner or a date). Remove `lint`, present, then send the PDF. If the deck will be read without you, write full-sentence titles and lint with `mode: "read-alone"` ([the two modes](deck-storytelling.md#two-modes-presented-and-read-alone)).
 
