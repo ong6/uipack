@@ -2,6 +2,9 @@ import { Bento, BentoCell, Slide, endSlide, factSlide, sectionSlide, type DeckSl
 
 const footer = "Search platform · Q3 review · Illustrative";
 
+/** Cue lines for the speaker: one thought each, said in their own words. */
+const cues = (...lines: string[]) => lines.join("\n");
+
 const List = ({ rows }: { rows: [string, string][] }) => (
   <ul className="uipack-deck-bento-list">
     {rows.map(([a, b]) => (
@@ -145,36 +148,48 @@ const MemoryForecast = () => {
   );
 };
 
-/** A quarterly review: the answer, the quarter on one bento slide, the risk inside it, the plan and the ask. */
+/**
+ * A quarterly review for a speaker who talks freely: the answer, the quarter on one bento slide, the
+ * risk inside it, the plan and the ask. Short titles in mixed forms, numbers in fragments and on the
+ * evidence, cue notes.
+ */
 export const bentoDeck: DeckSlide[] = [
   {
     id: "answer",
     title: "Twice as fast",
-    headline: "Search got twice as fast this quarter, and cheaper to run.",
+    headline: "Search got twice as fast",
     role: "answer",
+    points: ["p95: 412 ms → 198 ms", "Cost per query −18%", "Searches ending in a click: 61% → 64%"],
     render: () => (
-      <Slide eyebrow="Q3 review · Illustrative" footer={footer} layout="center">
-        <h2 className="uipack-deck-title">Search got twice as fast this quarter, and cheaper to run.</h2>
-        <p className="uipack-deck-lede">
-          p95 latency fell from 412 ms to 198 ms and cost per query dropped 18%; searches that end in a click rose from 61% to
-          64%.
-        </p>
+      <Slide footer={footer} layout="center">
+        <h2 className="uipack-deck-title deck-bento-cover-title">Search got twice as fast</h2>
+        <ul className="uipack-deck-points deck-bento-cover-points">
+          <li>p95: 412 ms → 198 ms</li>
+          <li>Cost per query −18%</li>
+          <li>Searches ending in a click: 61% → 64%</li>
+        </ul>
       </Slide>
     ),
     notes: {
-      say: "The headline first: search is twice as fast as it was in Q2, and it costs less to serve. p95 latency went from four hundred and twelve milliseconds to one hundred and ninety-eight, and cost per thousand queries fell eighteen percent. What users noticed: the share of searches that end in a click rose from sixty-one percent to sixty-four, so more people found what they came for. Everything after this slide is the evidence, the one risk that could undo it, and the one decision we need from the Platform leads by the thirtieth of October. Source: the search latency, cost and click-through dashboards, Q2 against Q3.",
-      delivery: "State the speed and cost numbers slowly, then the click-through. Don't explain yet.",
-      next: "Here's where the speed came from.",
+      say: cues(
+        "Search got twice as fast since Q2.",
+        "Clicks: more people found what they came for.",
+        "Then: the evidence, one risk, one decision by 30 October.",
+        "Source: the search latency, cost and click-through dashboards, Q2 against Q3.",
+        "The numbers compare two quarters, before and after.",
+      ),
+      delivery: "Speed and cost first, then the clicks. Don't explain yet.",
+      next: "Where the speed came from",
     },
   },
   {
     id: "quarter",
     title: "Caching did most of it",
-    headline: "Caching saved 140 of the 214 ms we cut this quarter.",
+    headline: "Where the 214 ms went",
     role: "evidence",
     render: () => (
       <Slide footer={footer}>
-        <h2 className="uipack-deck-heading">Caching saved 140 of the 214{"\u00a0"}ms we cut this quarter.</h2>
+        <h2 className="uipack-deck-heading">Where the 214{"\u00a0"}ms went</h2>
         <Bento columns={6} rows={4} tour={["latency", "shipped"]}>
           <BentoCell
             id="latency"
@@ -246,7 +261,7 @@ export const bentoDeck: DeckSlide[] = [
           </BentoCell>
           <BentoCell id="next" col={2} row={2} tone="ink">
             <p className="uipack-deck-bento-label">Next quarter</p>
-            <p className="uipack-deck-bento-title">Hold latency. Cut cost another 10%.</p>
+            <p className="uipack-deck-bento-title">Hold latency, cost −10%</p>
             <p className="uipack-deck-bento-value deck-bento-next">
               $0.37<small>per 1k queries by Jan</small>
             </p>
@@ -255,39 +270,48 @@ export const bentoDeck: DeckSlide[] = [
       </Slide>
     ),
     notes: {
-      say: "This is the whole quarter on one page. The cache in front of the index saved 140 of the 214 milliseconds; a smaller ranking model on the long tail saved another 58, and streaming the first results the last 16. Six changes reached all traffic, each behind a flag, and none rolled back. Cost per thousand queries is down to forty-one cents and errors stayed under the SLO. Underneath sit the one risk and next quarter's plan. Source: search latency dashboard, p95 over seven days, all regions.",
-      delivery: "Press Next to move the camera: latency, then what shipped. The third press pulls back to the whole quarter.",
+      say: cues(
+        "The whole quarter on one page.",
+        "Cache 140 ms, ranker 58, streaming 16.",
+        "Six changes, none rolled back.",
+        "41 cents per 1k queries. Errors under the SLO.",
+        "Source: search latency dashboard, p95 over 7 days, all regions.",
+      ),
+      delivery: "Next moves the camera: latency, then what shipped. The third press pulls back.",
       stops: {
-        latency:
-          "The cache in front of the index saved 140 of the 214 milliseconds; a smaller ranking model on the long tail saved another 58, and streaming the first results the last 16. Source: search latency dashboard, p95 over seven days, all regions.",
-        shipped: "Six changes reached all traffic, each behind a flag, and none rolled back.",
+        latency: cues(
+          "Cache in front of the index: 140 of the 214 ms.",
+          "Smaller long-tail ranker: 58. Streamed results: 16.",
+          "Source: search latency dashboard, p95 over 7 days, all regions.",
+        ),
+        shipped: cues("Six changes reached all traffic.", "Each behind a flag. None rolled back."),
       },
-      next: "One box can undo the rest: the cache is filling up.",
+      next: "The risk box: the cache is filling up",
     },
   },
   {
     id: "risk",
     title: "The cache fills before the peak",
-    headline: "Without a shard, the cache passes 90% memory at the November peak.",
+    headline: "Will the cache hold in November?",
     role: "risk",
     // The risk box on the quarter slide opens into this one: same thing, closer.
     transition: { zoom: "risk" },
     render: () => (
-      <Slide eyebrow="Risk" footer={footer} className="deck-bento-risk">
-        <h2 className="uipack-deck-heading">Without a shard, the cache passes 90% memory at the November peak.</h2>
+      <Slide footer={footer} className="deck-bento-risk">
+        <h2 className="uipack-deck-heading">Will the cache hold in November?</h2>
         <div className="deck-bento-risk__body">
           <dl className="deck-bento-risk__terms">
             <div>
               <dt>Impact</dt>
-              <dd>Above 90%, evictions undo most of the 140 ms retrieval gain.</dd>
+              <dd>Over 90%: evictions undo most of the 140 ms</dd>
             </div>
             <div>
               <dt>Mitigation</dt>
-              <dd>Two engineers shard the tier in three weeks, done by 20 November.</dd>
+              <dd>Shard it: 2 engineers, 3 weeks, done 20 Nov</dd>
             </div>
             <div>
               <dt>Tripwire</dt>
-              <dd>If memory passes 85% before 10 Nov, cap long-tail caching.</dd>
+              <dd>Over 85% before 10 Nov: cap long-tail caching</dd>
             </div>
           </dl>
           <MemoryForecast />
@@ -295,59 +319,66 @@ export const bentoDeck: DeckSlide[] = [
       </Slide>
     ),
     notes: {
-      say: "Here's the risk box up close. The cache tier is at seventy-one percent memory and climbing about three points a week. On that trend it reaches eighty-six percent by the seventeenth of November, and peak traffic from the twenty-third adds about four more, which takes it past ninety, where evictions undo most of the retrieval gain. A shard takes two engineers three weeks, so approved by the end of October it lands on the twentieth of November, before the peak. And we'll know early if we're wrong: if memory passes eighty-five percent before the tenth of November, the trend is faster than forecast, and we cap long-tail caching while the shard finishes. Source: the cache capacity forecast from the search dashboard.",
-      delivery: "Point at the dashed line crossing the limit, then at the tripwire line.",
-      next: "Before the plan, the speed as one number.",
+      say: cues(
+        "No, not without a shard.",
+        "71% today, about 3 points a week. 86% by 17 November.",
+        "Peak from 23 November adds about 4: past 90%.",
+        "Shard approved by 30 October lands 20 November.",
+        "Source: the cache capacity forecast, search dashboard.",
+      ),
+      delivery: "Point at the dashed line crossing the limit, then the tripwire.",
+      next: "The speed as one number",
     },
   },
   // The fact archetype: one number, its unit and its baseline, from across the room.
   factSlide({
     id: "latency",
     title: "198 ms at p95",
-    eyebrow: "Latency",
-    headline: "p95 search latency fell from 412 ms to 198 ms in one quarter.",
+    headline: "The slowest search in 20",
     value: "198",
     unit: "ms p95",
-    baseline: "From 412 ms in Q2, on the same query mix.",
+    baseline: "Q2: 412 ms, same query mix",
     source: "Search latency dashboard, Q2 against Q3",
     footer,
     role: "evidence",
     notes: {
-      say: "Here is the speed as one number. At the ninety-fifth percentile, a search took four hundred and twelve milliseconds in Q2 and takes one hundred and ninety-eight now, on the same mix of queries. That is the slowest one in twenty searches, so it is what people waiting on a slow result actually feel. Source: the search latency dashboard, Q2 against Q3.",
+      say: cues(
+        "p95: the slowest search in twenty. What people waiting actually feel.",
+        "Same query mix both quarters, so easier queries don't explain it.",
+        "Source: the search latency dashboard, Q2 against Q3.",
+      ),
       delivery: "Say the two numbers, then stop.",
-      next: "Which brings us to next quarter.",
+      next: "Next quarter",
     },
   }),
   // The section archetype: a divider that still makes a claim; the part number fills the body.
   sectionSlide({
     id: "next",
     title: "Next quarter",
-    eyebrow: "Part 02",
     number: "02",
-    headline: "Next quarter holds the speed through the peak and cuts cost again.",
-    lede: "One plan, three dated steps, and one decision that unblocks the first.",
+    headline: "Next quarter",
     footer,
     role: "context",
     notes: {
-      say: "That was the quarter. The second part is next quarter, and it has two jobs: hold the speed through the November peak, and keep cutting what search costs to run. The shard leads the plan because it is the one with a deadline.",
-      delivery: "Pause on the part number; this is a breath, not a slide to read.",
-      next: "So the shard leads next quarter's plan.",
+      say: cues("Two jobs: hold the speed through the peak, keep cutting cost.", "The shard leads: it has the deadline."),
+      delivery: "Pause on the part number. Take a breath here.",
+      next: "The plan",
     },
   }),
   {
     id: "plan",
     title: "By January",
-    headline: "By January we hold latency and cut cost another 10%.",
+    headline: "Cost −10% by January",
     role: "plan",
     invert: true,
     render: () => (
-      <Slide eyebrow="Next quarter" footer={footer}>
-        <h2 className="uipack-deck-heading">By January we hold latency and cut cost another 10%.</h2>
+      <Slide footer={footer}>
+        <h2 className="uipack-deck-heading">Cost −10% by January</h2>
         <ol className="deck-bento-plan">
           {[
-            ["Shard the cache", "Smaller nodes; the gain holds through the peak.", "−1%", "20 Nov"],
-            ["Batch the ranker", "Fewer, larger calls on GPUs we already pay for.", "−3%", "Dec"],
-            ["Retire the old index", "One fewer cluster to run.", "−6%", "Jan"],
+            ["Shard the cache", "Smaller nodes, the gain holds through the peak", "−1%", "20 Nov"],
+            ["Batch the ranker", "Fewer, larger calls on GPUs we already pay for", "−3%", "Dec"],
+            ["Retire the old index", "One fewer cluster to run", "−6%", "Jan"],
           ].map(([name, text, share, when], i) => (
             <li key={name}>
               <span className="uipack-deck-label">{String(i + 1).padStart(2, "0")}</span>
@@ -360,7 +391,7 @@ export const bentoDeck: DeckSlide[] = [
           <li className="deck-bento-plan__total">
             <span />
             <b>Together</b>
-            <span>Cost per 1k queries, from $0.41 to about $0.37.</span>
+            <span>Cost per 1k queries: $0.41 → about $0.37</span>
             <span className="deck-bento-plan__share">−10%</span>
             <span className="uipack-deck-label">Jan</span>
           </li>
@@ -368,18 +399,21 @@ export const bentoDeck: DeckSlide[] = [
       </Slide>
     ),
     notes: {
-      say: "Three things next quarter, and each carries part of the ten percent. The cache shard is the urgent one, done by the twentieth of November, three days before the peak; it moves the tier onto smaller nodes, about one point of cost. Then we batch the ranker onto GPUs we already pay for, in December, about three points. And we retire the old index cluster in January, about six. One plus three plus six is the ten percent: cost per thousand queries from forty-one cents to about thirty-seven, while latency holds where it is. Source: the search cost model, Q4 plan.",
+      say: cues(
+        "Shard first: done 20 November, three days before the peak.",
+        "Ranker batching in December, old index out in January.",
+        "1 + 3 + 6 points: 41 cents to about 37. Latency holds.",
+        "Source: the search cost model, Q4 plan.",
+      ),
       delivery: "Spend most of the time on the first item.",
-      next: "The shard needs one decision, and it's dated.",
+      next: "The shard's one decision",
     },
   },
   // The end archetype: the ask as a claim, then its decision, owner and date in a row.
   endSlide({
     id: "ask",
     title: "Approve the shard by 30 October",
-    eyebrow: "Decision needed",
-    headline: "Platform leads: approve two engineers for the cache shard by 30 October.",
-    lede: "Three weeks of work lands the shard by 20\u00a0November, three days before the peak.",
+    headline: "Approve the shard by 30 October",
     action: "Two engineers for three weeks on the cache shard",
     owner: "Platform leads",
     date: "30 October",
@@ -387,8 +421,12 @@ export const bentoDeck: DeckSlide[] = [
     role: "ask",
     tone: "accent",
     notes: {
-      say: "One decision for the Platform leads: two engineers for three weeks, approved by the thirtieth of October, so the shard starts on the second of November and lands by the twentieth, three days before peak traffic. If memory passes eighty-five percent first, we cap long-tail caching and the date still holds.",
-      delivery: "Stop talking after the ask. Wait for an answer.",
+      say: cues(
+        "Platform leads: two engineers, three weeks.",
+        "Approved by 30 October: starts 2 November, lands 20 November.",
+        "Over 85% first? We cap long-tail caching. The date holds.",
+      ),
+      delivery: "Stop after the ask. Wait for an answer.",
     },
   }),
 ];

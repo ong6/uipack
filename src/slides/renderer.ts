@@ -310,11 +310,11 @@ function createRenderer(host: HTMLElement, colors: SlidePalette) {
 
 /** A hemisphere ambient, a key light from above and front, and an accent fill from behind left. */
 function addLights(scene: THREE.Scene, theme: SlideTheme) {
-  scene.add(new THREE.HemisphereLight(theme === "dark" ? 0xd9ffee : 0xffffff, 0x20362b, 2.2));
+  scene.add(new THREE.HemisphereLight(theme === "dark" ? 0xdcebff : 0xffffff, 0x1c2f4a, 2.2));
   const key = new THREE.DirectionalLight(0xffffff, 3.1);
   key.position.set(4, 12, 8);
   scene.add(key);
-  const fill = new THREE.DirectionalLight(0x71dcb2, 1.2);
+  const fill = new THREE.DirectionalLight(0x8fd6ff, 1.2);
   fill.position.set(-8, 2, -6);
   scene.add(fill);
 }

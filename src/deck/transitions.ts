@@ -395,16 +395,21 @@ export function runTransition(opts: RunOptions): Animation[] {
       // outgoing slide holds for a third of the flight and is gone by 60%, crossfading with the
       // incoming blocks (from 40%), so the slide never clears to a lone number on a blank page.
       // A large block (a grid of panels) is judged panel by panel.
-      const fromArea = rectOf(from).w * rectOf(from).h;
-      const outgoing = out.rest.flatMap((el) => {
-        const r = rectOf(el);
-        const kids = Array.from(el.children).filter((c): c is HTMLElement => c instanceof HTMLElement);
-        return r.w * r.h > fromArea / 6 && kids.length > 1 && crossed(el) ? kids : [el];
-      });
       // Words that sit where the incoming slide has words of its own (an eyebrow, a heading) hand
       // over rather than crossfade, so two lines of text never print over each other: the outgoing
       // copy holds for a third of the flight and is gone by half, and the incoming one starts there.
       const incomingText = inn.rest.filter((el) => isText(el) && !unbuilt(el)).map(rectOf);
+      const fromArea = rectOf(from).w * rectOf(from).h;
+      // A column of copy (a heading over a list, in a wrapper) is judged child by child when one of
+      // its lines sits on incoming words, so that line hands over too.
+      const wordsOnWords = (kids: HTMLElement[]) =>
+        kids.some((k) => isText(k) && incomingText.some((r) => overlaps(r, rectOf(k))));
+      const outgoing = out.rest.flatMap((el) => {
+        const r = rectOf(el);
+        const kids = Array.from(el.children).filter((c): c is HTMLElement => c instanceof HTMLElement);
+        if (r.w * r.h > fromArea / 6 && kids.length > 1 && crossed(el)) return kids;
+        return !isText(el) && kids.length > 1 && wordsOnWords(kids) ? kids : [el];
+      });
       const handedOver: Rect[] = [];
       for (const el of outgoing) {
         if (besideOut(el)) play(el, [{ opacity: 1 }, { opacity: 0 }], { duration: deckMotion.morph * 0.08, easing: "linear" });

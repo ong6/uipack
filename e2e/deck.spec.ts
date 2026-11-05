@@ -198,7 +198,8 @@ test.describe("/deck player", () => {
     page.evaluate(() => {
       const stage = document.querySelector(".uipack-deck-stage")!.getBoundingClientRect();
       const controls = document.querySelector(".uipack-deck-controls")!.getBoundingClientRect();
-      return { top: Math.round(stage.top), height: Math.round(stage.height), bottom: Math.round(controls.bottom) };
+      // `|| 0`: a sub-pixel scroll leaves the stage at -0.4px, which rounds to -0, not 0.
+      return { top: Math.round(stage.top) || 0, height: Math.round(stage.height), bottom: Math.round(controls.bottom) };
     });
   test("?view=present at 1280×720 gives the slide the window, below one row of controls", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
@@ -373,7 +374,7 @@ test.describe("/deck player", () => {
     await page.goto("/deck?slide=plan&theme=dark&view=present");
     await expect(deck(page)).toHaveAttribute("data-theme", "dark");
     const bg = await page.locator(".uipack-deck-layer__bg").evaluate((el) => getComputedStyle(el).backgroundColor);
-    expect(bg).toBe("rgb(232, 236, 233)");
+    expect(bg).toBe("rgb(243, 246, 249)");
   });
 });
 
@@ -475,7 +476,7 @@ test.describe("/deck motion: no mid-flight glitches", () => {
       const outer = document.querySelector<HTMLElement>('.uipack-deck-layer[data-slide="quarter"]')!;
       return getComputedStyle(outer.querySelector(".uipack-deck-layer__bg")!).backgroundColor;
     });
-    expect(first).toBe("rgb(246, 245, 241)");
+    expect(first).toBe("rgb(243, 246, 249)");
     const later = await at(page, 0.35 * 1150, () =>
       Number(
         getComputedStyle(document.querySelector('.uipack-deck-layer[data-slide="quarter"] [data-bento-cell="cost"]')!).opacity,
@@ -544,13 +545,13 @@ test.describe("/deck motion: no mid-flight glitches", () => {
     await page.keyboard.press("ArrowRight");
     for (const f of [0.3, 0.4, 0.45, 0.5, 0.6]) {
       const o = await at(page, f * 760, () => {
-        const eyebrow = (id: string) =>
+        const heading = (id: string) =>
           Number(
-            getComputedStyle(document.querySelector(`.uipack-deck-layer[data-slide="${id}"] .uipack-deck-eyebrow`)!).opacity,
+            getComputedStyle(document.querySelector(`.uipack-deck-layer[data-slide="${id}"] .uipack-deck-heading`)!).opacity,
           );
-        return { out: eyebrow("problem"), in: eyebrow("evidence") };
+        return { out: heading("problem"), in: heading("evidence") };
       });
-      expect(Math.min(o.out, o.in), `both eyebrows showing at ${f}`).toBeLessThan(0.15);
+      expect(Math.min(o.out, o.in), `both headings showing at ${f}`).toBeLessThan(0.15);
     }
   });
 

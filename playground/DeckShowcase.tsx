@@ -1,16 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { DeckPlayer } from "../src/deck";
-// The deck's sans and mono are IBM Plex "when the host provides it" (src/deck/deck.css); the site
-// does through next/font, so the deck page does too. Without it each machine falls back to its own
-// system face and slide fit differs by platform.
+// Every style's slide faces are self-hosted (src/web/fonts.css): Technical's Archivo and Martian
+// Mono, Plex for Landing and Graphical, so slide fit is the same on every machine.
 import "../src/styles/landing.css";
 import "../src/styles/graphical.css";
-import "@fontsource/ibm-plex-sans/latin-400.css";
-import "@fontsource/ibm-plex-sans/latin-600.css";
-import "@fontsource/ibm-plex-sans/latin-700.css";
-import "@fontsource/ibm-plex-mono/latin-500.css";
-import "@fontsource/ibm-plex-mono/latin-600.css";
-import "@fontsource/ibm-plex-mono/latin-700.css";
 import "../src/web/fonts.css";
 import "../src/deck/deck.css";
 import "../src/deck/bento.css";

@@ -390,7 +390,8 @@ describe("minimum text size", () => {
 
 describe("example consulting deck", () => {
   test("follows the decision-request storyline with no lint findings", () => {
-    expect(consultingDeckLint).toEqual({ template: "decision-request" });
+    // A consulting readout is read without its presenter: full-sentence titles, linted read-alone.
+    expect(consultingDeckLint).toEqual({ template: "decision-request", mode: "read-alone" });
     expect(lintDeck(consultingDeck, consultingDeckLint)).toEqual([]);
     expect(storylineOf(consultingDeck).map((e) => e.role)).toEqual([
       "answer",

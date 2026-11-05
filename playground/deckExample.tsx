@@ -2,7 +2,9 @@ import { Build, Morph, Slide, type DeckSlide } from "../src/deck";
 
 /*
  * The tech talk: a team lead arguing that reviews should open with their answer, presented in the
- * player it recommends. Every number is illustrative: 24 invented platform reviews.
+ * player it recommends. Every number is illustrative: 24 invented platform reviews. It is written
+ * for a speaker who talks freely: short titles in mixed forms (a verdict, labels, a question), the
+ * numbers in fragments on the slide, and cue notes, not a script.
  *
  * It uses one morph and one zoom, each where the story needs it: the morph carries the 19 days from
  * the problem into the comparison that explains it (the same number, now one row of a table), and
@@ -14,9 +16,9 @@ const source = "Illustrative: 24 platform reviews, April–September 2026, media
 
 /** What the buried-answer reviews spent their meetings on. */
 const meetings = [
-  ["Meeting 1", "Context and six charts.", "“So what do you need from us?”"],
-  ["Meeting 2", "The options, walked through again.", "“Which one do you recommend?”"],
-  ["Meeting 3", "The recommendation, finally on a slide.", "Decided, 19 days after the first."],
+  ["Meeting 1", "Context and six charts", "“So what do you need from us?”"],
+  ["Meeting 2", "The options, again", "“Which one do you recommend?”"],
+  ["Meeting 3", "The recommendation, at last", "Decided on day 19"],
 ] as const;
 
 /** The two groups the review log splits into, on one scale of days to a decision. */
@@ -27,60 +29,68 @@ const groups = [
 
 /** A first draft of a review, as the ghost deck shows it: titles alone, with the check's flags. */
 const ghost = [
-  { role: "Answer", title: "Search got twice as fast this quarter, and cheaper to run" },
-  { role: "Evidence", title: "Cost update", flag: "A label, not a claim", zoom: true },
-  { role: "Evidence", title: "Caching saved 140 of the 214 ms we cut" },
-  { role: "Risk", title: "The cache passes 90% memory at the November peak" },
-  { role: "Plan", title: "Next steps", flag: "A topic label, no date" },
+  { role: "Answer", title: "Search got twice as fast" },
+  { role: "Evidence", title: "Search now costs 18% less per query this quarter", flag: "A sentence to read out", zoom: true },
+  { role: "Evidence", title: "Caching: 140 of the 214 ms" },
+  { role: "Risk", title: "Will the cache hold in November?" },
+  { role: "Plan", title: "Next steps", flag: "Names the slide, no date" },
   { role: "Ask", title: "Thoughts and questions welcome", flag: "No owner, no date" },
 ] as const;
 
 /** The flagged slide, fixed: what changes in each of its three parts. */
 const fixes = [
-  ["Title", "Cost update", "Cost per 1k queries fell 18%, to $0.41"],
-  ["Proof", "Four charts, one per cost line", "One pair of bars: Q2 $0.50, Q3 $0.41"],
-  ["Source", "None", "Search cost dashboard, Q2 against Q3"],
+  ["Title", "Search now costs 18% less per query this quarter", "Cost per 1k queries"],
+  ["Proof", "Four charts, one per cost line", "Q2 $0.50 → Q3 $0.41"],
+  ["Source", "None", "Search cost dashboard"],
 ] as const;
 
 /** The pilot: dated steps, each with an owner. */
 const pilot = [
-  ["6 Nov", "Send the titles of your next review, answer first", "Team leads"],
-  ["13 Nov", "Search, Payments and Storage present in the player", "Their leads"],
-  ["30 Nov", "Count days to a decision against the 19-day baseline", "Developer Experience"],
+  ["6 Nov", "Titles of your next review, answer first", "Team leads"],
+  ["13 Nov", "Search, Payments and Storage present", "Their leads"],
+  ["30 Nov", "Days to a decision, against 19", "Developer Experience"],
 ] as const;
+
+/** Cue lines for the speaker: one thought each, said in their own words. */
+const cues = (...lines: string[]) => lines.join("\n");
 
 export const deckExample: DeckSlide[] = [
   {
     id: "answer",
-    title: "One meeting, not three",
-    headline: "Reviews that open with the answer were decided in one meeting, not three.",
+    title: "3 meetings → 1",
+    headline: "Review decisions: 3 meetings → 1",
     role: "answer",
+    points: ["Same teams, same 6 months", "Only change: the answer moved to slide 1", "Not proof of cause"],
     render: () => (
-      <Slide eyebrow="How we run reviews" footer={footer} layout="center">
-        <h2 className="uipack-deck-title deck-demo-cover-title">
-          Reviews that open with the answer were decided in one meeting, not three.
-        </h2>
-        <p className="uipack-deck-lede deck-demo-lede">
-          <span className="deck-demo-caveat">(Same teams, same six months; not proof of cause.)</span> So, team leads: send me
-          your next review's titles, answer first, by 6{"\u00a0"}November, and present it in the deck player.
-        </p>
+      <Slide footer={footer} layout="center">
+        <h2 className="uipack-deck-title deck-demo-cover-title">Review decisions: 3{"\u00a0"}meetings → 1</h2>
+        <ul className="uipack-deck-points deck-demo-cover-points">
+          <li>Same teams, same 6 months</li>
+          <li>Only change: the answer moved to slide 1</li>
+          <li className="deck-demo-caveat">Not proof of cause</li>
+        </ul>
       </Slide>
     ),
     notes: {
-      say: "Here is the whole talk in one sentence. Of the twenty-four platform reviews we held between April and September, the eleven that opened with their answer were decided in one meeting. The other thirteen took three meetings each, and nineteen days. So I'm asking every team lead to send me the titles of their next review, answer first, by the sixth of November, and to present it in the deck player, which puts the answer on slide one, keeps one claim per slide, and only moves a slide when the story needs it. The numbers in this deck are illustrative. Source: the platform review log, April to September 2026.",
-      delivery: "Say the two numbers slowly: one meeting, three meetings. Then stop.",
-      next: "First, what a buried answer costs.",
+      say: cues(
+        "Answer first: decided in one meeting. Buried: three.",
+        "24 platform reviews, April to September.",
+        "Ask, up front: your next review's titles by 6 November.",
+        "Illustrative numbers. Source: the platform review log.",
+      ),
+      delivery: "Say one, then three. Stop.",
+      next: "What a buried answer costs",
     },
   },
   {
     id: "problem",
-    title: "Nineteen days to decide",
-    headline: "A review that buries its answer takes three meetings and 19 days to decide.",
+    title: "19 days to decide",
+    headline: "19 days to decide",
     role: "problem",
     render: () => (
-      <Slide eyebrow="Buried answers" footer={footer} layout="split" className="deck-demo-problem">
+      <Slide footer={footer} layout="split" className="deck-demo-problem">
         <div className="deck-demo-problem__copy">
-          <h2 className="uipack-deck-heading">A review that buries its answer takes three meetings and 19 days to decide.</h2>
+          <h2 className="uipack-deck-heading">19 days to decide</h2>
           <ol className="deck-demo-meetings">
             {meetings.map(([when, what, said]) => (
               <li key={when}>
@@ -98,26 +108,31 @@ export const deckExample: DeckSlide[] = [
             </Morph>
           </p>
           <p className="deck-demo-problem__unit">days to a decision</p>
-          <p className="uipack-deck-label">Median of 13 reviews · Next: where this number sits</p>
+          <p className="uipack-deck-label">Median of 13 buried-answer reviews</p>
         </div>
       </Slide>
     ),
     notes: {
-      say: "Here is what a buried answer costs. A typical review opens with context and six charts, and the first meeting ends with someone asking what we need from them. The second meeting walks through the options again and ends with: which one do you recommend? The recommendation finally lands in the third meeting. Across the thirteen reviews that buried their answer, the median was three meetings and nineteen days from the first meeting to a decision. That is nineteen days of a team waiting on a call it could have had in the first hour. Source: the platform review log.",
-      delivery: "Point at the 19 and hold it there; the next slide moves it.",
-      next: "Watch the nineteen: it becomes one row of a comparison.",
+      say: cues(
+        "Meeting 1 ends: what do you need from us?",
+        "Meeting 2 ends: which one do you recommend?",
+        "Meeting 3: decided. Median 19 days, 13 reviews.",
+        "Source: the platform review log.",
+      ),
+      delivery: "Point at the 19 and hold it. The next slide moves it.",
+      next: "The 19 becomes one row",
     },
   },
   {
     id: "evidence",
-    title: "Six days against nineteen",
-    headline: "Answer-first reviews were decided in 6 days; buried ones took 19.",
+    title: "Decided in 6 days",
+    headline: "Decided in 6 days",
     role: "evidence",
     // The same 19 days travels into its row: the morph says "this number, compared".
     transition: "morph",
     render: () => (
-      <Slide eyebrow="The review log" footer={footer} className="deck-demo-evidence">
-        <h2 className="uipack-deck-heading">Answer-first reviews were decided in 6 days; buried ones took 19.</h2>
+      <Slide footer={footer} className="deck-demo-evidence">
+        <h2 className="uipack-deck-heading">Decided in 6 days</h2>
         <table className="deck-demo-compare">
           <thead>
             <tr>
@@ -153,19 +168,25 @@ export const deckExample: DeckSlide[] = [
       </Slide>
     ),
     notes: {
-      say: "Here is the nineteen again, as one row of a comparison. The review log splits our twenty-four reviews into two groups. Eleven opened with their answer: a median of one meeting and six days to a decision. Thirteen buried it: three meetings and nineteen days. Same teams, same kinds of decision, same six months. The difference is the order of the slides. We can't prove the order caused all of it, but in every pair of reviews from the same team, the answer-first one was decided sooner. Source: the platform review log, April to September 2026, median per group.",
-      delivery: "Trace the two bars left to right, then read the meetings column.",
-      next: "So how do you check a review before you give it?",
+      say: cues(
+        "Answer first: 11 reviews, 1 meeting, 6 days.",
+        "Buried: 13 reviews, 3 meetings, 19 days.",
+        "Every same-team pair: answer first decided sooner.",
+        "Caveat: can't prove the order caused all of it.",
+        "Source: the platform review log, median per group.",
+      ),
+      delivery: "Trace the two bars, then the meetings column.",
+      next: "How to check a review before you give it",
     },
   },
   {
     id: "ghost",
-    title: "The ghost deck flags it",
-    headline: "Press G: the ghost deck reads a review's titles and flags the weak ones.",
+    title: "Which titles fail?",
+    headline: "Which titles fail?",
     role: "demo",
     render: () => (
-      <Slide eyebrow="Demo · the Storyline view" footer={footer} className="deck-demo-ghost">
-        <h2 className="uipack-deck-heading">Press G: the ghost deck reads a review's titles and flags the weak ones.</h2>
+      <Slide footer={footer} className="deck-demo-ghost">
+        <h2 className="uipack-deck-heading">Which titles fail?</h2>
         <ol className="deck-demo-ghost__grid">
           {ghost.map((g, i) => {
             const card = (
@@ -194,21 +215,26 @@ export const deckExample: DeckSlide[] = [
       </Slide>
     ),
     notes: {
-      say: "This is the check, live. Press G in the player and the Storyline tab shows the review as its titles alone, the ghost deck, with the player's checks beside it. This is the first draft of the search team's quarterly review. Read the titles in order: the answer is there, but slide two is a label, the plan is a topic label with no date, and the ask names nobody. Those three flags are exactly the gaps that cost a second meeting. Fixing them takes minutes, before anyone is in a room.",
-      delivery: "Read the six titles aloud in order, then point at slide two.",
-      next: "Let's go inside slide two and fix it.",
+      say: cues(
+        "Live: press G, then Storyline.",
+        "The search team's first draft, titles only.",
+        "Three flags: a sentence to read out, a plan with no date, an ask with no owner.",
+        "Each one is a second meeting.",
+      ),
+      delivery: "Read the six titles in order, then point at slide 2.",
+      next: "Inside slide 2",
     },
   },
   {
     id: "fix",
-    title: "Three edits fix it",
-    headline: "A flagged slide takes three edits: a claim, one chart and a source.",
+    title: "Three edits",
+    headline: "Three edits",
     role: "mechanism",
     // The ghost deck's flagged card opens into the slide it stands for: the same slide, closer.
     transition: { zoom: "flagged" },
     render: () => (
-      <Slide eyebrow="Inside slide 02" footer={footer} className="deck-demo-fix">
-        <h2 className="uipack-deck-heading">A flagged slide takes three edits: a claim, one chart and a source.</h2>
+      <Slide footer={footer} className="deck-demo-fix">
+        <h2 className="uipack-deck-heading">Three edits</h2>
         <div className="deck-demo-fix__table">
           <p className="uipack-deck-label" aria-hidden="true">
             <span />
@@ -238,20 +264,25 @@ export const deckExample: DeckSlide[] = [
       </Slide>
     ),
     notes: {
-      say: "Inside slide two there are three edits. The title says what to conclude, with its number: cost per thousand queries fell eighteen percent, to forty-one cents. The proof is the one chart that shows it, a pair of bars for the two quarters, instead of four charts of every cost line. And the number gets its source, the search cost dashboard, so nobody has to ask where it came from. Each edit takes a minute. Each one removes a question that would otherwise wait for the next meeting.",
-      delivery: "Press Next for the proof, then the source. Go back one slide to show the zoom reversing.",
-      next: "Here's how we'll try it.",
+      say: cues(
+        "Title: a label you talk from. Say the 18% aloud.",
+        "Proof: one pair of numbers, 50 cents to 41.",
+        "Source: the search cost dashboard.",
+        "A minute each.",
+      ),
+      delivery: "Next for the proof, then the source. Back one slide shows the zoom reversing.",
+      next: "How we'll try it",
     },
   },
   {
     id: "plan",
     title: "Three pilots by 30 November",
-    headline: "Three pilot reviews by 30 November, then we count days to a decision again.",
+    headline: "Three pilots by 30 November",
     role: "plan",
     invert: true,
     render: () => (
-      <Slide eyebrow="The pilot" footer={footer} className="deck-demo-plan">
-        <h2 className="uipack-deck-heading">Three pilot reviews by 30 November, then we count days to a decision again.</h2>
+      <Slide footer={footer} className="deck-demo-plan">
+        <h2 className="uipack-deck-heading">Three pilots by 30 November</h2>
         <ol className="deck-demo-pilot">
           {pilot.map(([when, what, who]) => (
             <li key={when}>
@@ -262,37 +293,47 @@ export const deckExample: DeckSlide[] = [
           ))}
         </ol>
         <p className="deck-demo-pilot__done">
-          <span className="uipack-deck-label">Done when</span> the pilots' median is under 10 days to a decision, against 19
-          today.
+          <span className="uipack-deck-label">Done when</span> pilot median under 10 days (today: 19)
         </p>
       </Slide>
     ),
     notes: {
-      say: "The pilot is small and dated. By the sixth of November, each team lead sends me the titles of their next review, answer first. In the week of the thirteenth, Search, Payments and Storage present theirs in the player. And on the thirtieth, Developer Experience counts days to a decision for those reviews against the nineteen-day baseline. We call it a success if the median comes in under ten days. If it doesn't, we stop, and I'll say so in the next leads' meeting.",
-      delivery: "Read the three dates; let the done-when line land.",
-      next: "Which leaves one thing I need from you.",
+      say: cues(
+        "6 Nov: titles in. 13 Nov: three teams present.",
+        "30 Nov: Developer Experience counts days to a decision.",
+        "Under 10 days: keep it. Otherwise we stop, and I say so at the next leads' meeting.",
+      ),
+      delivery: "Read the three dates, then the done-when line.",
+      next: "The one thing I need",
     },
   },
   {
     id: "ask",
     title: "Send your titles by 6 November",
-    headline: "Team leads: send me your next review's titles, answer first, by 6 November.",
+    headline: "Send your titles by 6 November",
     role: "ask",
     tone: "accent",
+    points: ["Team leads", "Your next review, answer first", "Three rewrites back in 2 working days"],
     render: () => (
-      <Slide eyebrow="The ask" footer={footer} layout="center">
-        <h2 className="uipack-deck-title deck-demo-cover-title">
-          Team leads: send me your next review's titles, answer first, by 6{" "}November.
-        </h2>
-        <p className="uipack-deck-lede deck-demo-lede">I'll send back the three titles I'd rewrite within two working days.</p>
+      <Slide footer={footer} layout="center">
+        <h2 className="uipack-deck-title deck-demo-cover-title">Send your titles by 6{"\u00a0"}November</h2>
+        <ul className="uipack-deck-points deck-demo-cover-points">
+          <li>Team leads</li>
+          <li>Your next review, answer first</li>
+          <li>Three rewrites back in 2 working days</li>
+        </ul>
         <p className="uipack-deck-label deck-demo-keys">
           ← → or swipe · G for all slides and the Storyline · S for the speaker view · F for full screen
         </p>
       </Slide>
     ),
     notes: {
-      say: "One ask, for the team leads in the room. By Friday the sixth of November, send me the titles of your next review, in order, answer first. Just the titles: that's the ghost deck, and it's where the argument lives. I'll send back the three I'd rewrite within two working days, and the three pilot teams present in the player the week after. If your review is already answer first, send it anyway; it becomes the example for everyone else.",
-      delivery: "End on the date. Leave the slide up while you take questions.",
+      say: cues(
+        "Just the titles, in order. That's where the argument lives.",
+        "Friday 6 November leaves a week to rewrite before the 13 November reviews.",
+        "Already answer first? Send it anyway. It becomes the example.",
+      ),
+      delivery: "End on the date. Leave it up for questions.",
     },
   },
 ];

@@ -1,6 +1,6 @@
 import * as react from 'react';
 import { S as SpeechGuide } from './speech-BOroEnEA.cjs';
-import { U as UiStyleId } from './style-CBYPyqqV.cjs';
+import { U as UiStyleId } from './style-CHmnF0sx.cjs';
 
 type PresentationTheme = "light" | "dark";
 
@@ -18,7 +18,8 @@ interface SlideStarterBase {
 interface OpeningSlideStarter extends SlideStarterBase {
     layout: "opening";
     content: {
-        eyebrow: string;
+        /** Optional, off by default: a section name above the headline. */
+        eyebrow?: string;
         headline: [string, string];
         context: string;
     };
@@ -26,7 +27,8 @@ interface OpeningSlideStarter extends SlideStarterBase {
 interface ExplanationSlideStarter extends SlideStarterBase {
     layout: "explanation";
     content: {
-        eyebrow: string;
+        /** Optional, off by default: a section name above the headline. */
+        eyebrow?: string;
         headline: string;
         foundation: {
             title: string;
@@ -44,7 +46,8 @@ interface ExplanationSlideStarter extends SlideStarterBase {
 interface SystemSlideStarter extends SlideStarterBase {
     layout: "system";
     content: {
-        eyebrow: string;
+        /** Optional, off by default: a section name above the headline. */
+        eyebrow?: string;
         headline: string;
         steps: [{
             title: string;

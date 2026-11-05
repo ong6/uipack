@@ -860,8 +860,8 @@ describe("charts.css", () => {
 
   // Palettes: Technical light and dark, and the notes site's light and dark.
   const palettes = {
-    "technical light": { bg: "#ffffff", fg: "#1a1c1a", accent: "#205f49", change: "#9a63e0" },
-    "technical dark": { bg: "#0e1512", fg: "#e8ece9", accent: "#71dcb2", change: "#c39aff" },
+    "technical light": { bg: "#fcfdfe", fg: "#0b2748", accent: "#9c5700", change: "#7048c0" },
+    "technical dark": { bg: "#0d2a4f", fg: "#edf3fb", accent: "#f0c45a", change: "#d2b4ff" },
     "notes light": { bg: "#fffdf9", fg: "#14110d", accent: "#0f7a55", change: "#eb6834" },
     "notes dark": { bg: "#12110f", fg: "#ece7de", accent: "#199e70", change: "#d95926" },
   };

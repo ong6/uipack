@@ -8,16 +8,25 @@ import {
   STORYLINE_TEMPLATES,
   formatStoryline,
   getStorylineTemplate,
-  lintDeck,
+  lintDeck as lintAny,
   storylineOf,
   talkSeconds,
   templateOutline,
   type LintFinding,
+  type LintOptions,
   type LintRule,
   type SlideRole,
   type StorySlide,
 } from "../src/deck/storyline";
-import { SLOT_BUDGETS, slotLines, slotProblems, slotSentences, slotWords } from "../src/deck/budgets";
+import { SLOT_BUDGETS, TITLE_WORDS, slotLines, slotProblems, slotSentences, slotWords } from "../src/deck/budgets";
+
+/**
+ * Most suites below check a deck of full-sentence titles and talk tracks, so they lint it read-alone
+ * (sent without the speaker). The presented default has its own suite at the end.
+ */
+const lintDeck = (slides: readonly StorySlide[], options: LintOptions = {}) =>
+  lintAny(slides, { mode: "read-alone", ...options });
+const lintPresented = (slides: readonly StorySlide[], options: LintOptions = {}) => lintAny(slides, options);
 
 const say = (text: string) => ({ say: text, delivery: "Pause after the number.", next: "" });
 
@@ -49,7 +58,7 @@ const good: StorySlide[] = [
   },
   {
     id: "rec",
-    title: "A queue ends timeouts; thumbnails arrive about 5 seconds later",
+    title: "A queue ends timeouts at the cost of thumbnails arriving 5 seconds later",
     role: "recommendation",
     notes: "The queue wins, and the cost is a short delay on thumbnails, per the resize load test.",
   },
@@ -120,15 +129,23 @@ describe("storyline templates", () => {
   it.each(STORYLINE_TEMPLATES.map((t) => [t.id, t] as const))("%s example ghost deck passes its own lint", (_, t) => {
     const outline = templateOutline(t);
     expect(outline).toHaveLength(t.beats.length);
-    const findings = lintDeck(outline, { template: t.id });
+    const findings = lintPresented(outline, { template: t.id });
     // Examples are titles only, so notes and number sources are expected gaps.
     const relevant = findings.filter((f) => f.rule !== "notes-present" && f.rule !== "number-source");
     expect(relevant).toEqual([]);
     for (const slide of outline) {
-      expect(find(lintDeck([slide]), "title-claim")).toEqual([]);
-      expect(slide.title.split(/\s+/).length).toBeLessThanOrEqual(MAX_TITLE_WORDS);
+      expect(find(lintPresented([slide]), "title-claim")).toEqual([]);
+      expect(slide.title.split(/\s+/).length).toBeLessThanOrEqual(TITLE_WORDS.presented);
+      expect(slide.points?.length).toBeGreaterThan(0);
     }
     expect(findings.filter((f) => titleRules.includes(f.rule))).toEqual([]);
+    // The same beats as full-sentence titles, for a deck sent without its speaker.
+    const readAlone = templateOutline(t, { mode: "read-alone" });
+    const written = lintDeck(readAlone, { template: t.id }).filter(
+      (f) => f.rule !== "notes-present" && f.rule !== "number-source",
+    );
+    expect(written).toEqual([]);
+    for (const slide of readAlone) expect(slide.title.split(/\s+/).length).toBeLessThanOrEqual(MAX_TITLE_WORDS);
   });
 
   it("only suggests zoom and morph where the story needs them", () => {
@@ -144,7 +161,7 @@ describe("storyline templates", () => {
       expect(SLIDE_ROLES[role].question).toBeTruthy();
     }
     expect(REPEATABLE_ROLES).toContain("evidence");
-    expect(Object.keys(LINT_RULES)).toHaveLength(19);
+    expect(Object.keys(LINT_RULES)).toHaveLength(25);
   });
 });
 
@@ -169,7 +186,7 @@ describe("lintDeck", () => {
     // Seven presented slides at about 90 words each fill half of eight minutes. The template needs a plan.
     const plan: StorySlide = {
       id: "plan",
-      title: "Six engineer-weeks; done when upload timeouts drop below 0.1%",
+      title: "Six engineer-weeks, done when upload timeouts drop below 0.1%",
       role: "plan",
       notes: "Two engineers for three weeks.",
     };
@@ -467,9 +484,17 @@ describe("lintDeck", () => {
     });
 
     it("uses the template's shortest length when no minutes are given", () => {
-      // decision-request runs 8–15 minutes: half of 8 is 4 minutes, about 540 words.
-      expect(find(lintDeck(spoken(good, 60), { template: "decision-request" }), "talk-time")).toHaveLength(1);
+      // decision-request runs 8–15 minutes, capped at a minute for each of the six presented slides:
+      // half of 6 is 3 minutes, about 405 words.
+      expect(find(lintDeck(spoken(good, 40), { template: "decision-request" }), "talk-time")).toHaveLength(1);
       expect(find(lintDeck(spoken(good, 80), { template: "decision-request" }), "talk-time")).toEqual([]);
+    });
+
+    it("caps the template's floor at a minute a presented slide, for a deck the brief fixes short", () => {
+      // Three presented slides: the floor is 3 minutes, not decision-request's 8; half is about 200 words.
+      const short = spoken(good.slice(0, 3), 70);
+      expect(find(lintDeck(short, { template: "decision-request" }), "talk-time")).toEqual([]);
+      expect(find(lintDeck(spoken(good.slice(0, 3), 40), { template: "decision-request" }), "talk-time")).toHaveLength(1);
     });
 
     it("stays quiet without a budget, and while slides still lack a track (notes-present reports those)", () => {
@@ -814,6 +839,16 @@ describe("slot-budget", () => {
     expect(budget({ headline: long })[0].message).toMatch(/about 3 lines/);
   });
 
+  it("flags a body point over its budget, a full sentence and more than four points", () => {
+    expect(budget({ points: ["First response: 9 h → 2 h"] })).toEqual([]);
+    const long = "About one ticket in seventeen now reaches the wrong product area, up from one in twenty-five";
+    expect(budget({ points: [long] })[0].message).toMatch(/^Point .*16 words, at most 8/);
+    expect(budget({ points: ["The first response now takes two hours."] })[0].message).toMatch(
+      /a full sentence, where a fragment belongs/,
+    );
+    expect(budget({ points: ["One", "Two", "Three", "Four", "Five"] })[0].message).toMatch(/5 body points; keep it to 4/);
+  });
+
   it("reads separators as no words and counts sentences only at their ends", () => {
     expect(slotWords("Q3 · review · Illustrative")).toEqual(["Q3", "review", "Illustrative"]);
     expect(slotSentences("p95 fell 2.4× in Q3.")).toBe(1);
@@ -828,5 +863,321 @@ describe("slot-budget", () => {
       expect(b.maxWords ?? b.maxChars, slot).toBeGreaterThan(0);
     }
     expect(SLOT_BUDGETS.headline.maxWords).toBe(MAX_TITLE_WORDS);
+  });
+});
+
+describe("lintDeck: presented decks (the default)", () => {
+  const cues = (say: string, next = "") => ({ say, delivery: "Point at the number.", next });
+
+  /** The owner's review deck, rewritten: short titles, fragment points, cue notes. */
+  const presented: StorySlide[] = [
+    {
+      id: "answer",
+      title: "Review decisions: 3 meetings → 1",
+      role: "answer",
+      points: ["Same teams, same 6 months", "Only change: the answer moved to slide 1"],
+      notes: cues(
+        "Answer-first reviews decided in one meeting.\nBefore/after of two windows, not a test.\nSource: the platform review log.",
+        "What a buried answer costs",
+      ),
+    },
+    {
+      id: "problem",
+      title: "19 days to decide",
+      role: "problem",
+      points: ["Three meetings", "Answer on the last slide"],
+      notes: cues("Buried answers took 19 days.\nSource: the platform review log, median of 13 reviews."),
+    },
+    {
+      id: "evidence",
+      title: "Search: twice as fast",
+      role: "evidence",
+      points: ["p95 198 ms, half of March", "5 indexes → 1"],
+      source: "Search latency dashboard, March against October",
+      notes: cues("Twice as fast since March.\nOne index, plus the cache."),
+    },
+    {
+      id: "risk",
+      title: "Will the cache hold?",
+      role: "risk",
+      points: ["71% full today", "Tripwire at 85%"],
+      notes: cues("It fills before the peak.\nSource: the cache capacity forecast."),
+    },
+    {
+      id: "ask",
+      title: "Send your titles",
+      role: "ask",
+      points: ["Team leads", "By 6 November"],
+      notes: cues("Send me your next review's titles, answer first."),
+    },
+  ];
+
+  it("passes a deck of short titles, fragment points and cue notes", () => {
+    expect(lintPresented(presented)).toEqual([]);
+  });
+
+  it("warns when a title is a sentence to read out, and points at read-alone mode", () => {
+    const long = "Answer-first reviews were decided in one meeting, not three";
+    const [hit] = find(lintPresented(withSlide(presented, "problem", { title: long })), "title-length");
+    expect(hit).toMatchObject({ slideId: "problem", severity: "warn" });
+    expect(hit.message).toMatch(/sentence to read out/);
+    expect(hit.message).toMatch(/read-alone/);
+    // The same title is fine in a deck sent without its speaker.
+    expect(find(lintDeck(withSlide(presented, "problem", { title: long })), "title-length")).toEqual([]);
+  });
+
+  it("accepts verdicts and questions, and warns on a label title on a content slide", () => {
+    const claim = (title: string, role?: SlideRole) =>
+      find(lintPresented(withSlide(presented, "risk", { title, ...(role ? { role } : {}) })), "title-claim");
+    expect(claim("Will the cache hold?")).toEqual([]);
+    expect(claim("Android crashes down by two thirds")).toEqual([]);
+    expect(claim("Start time: 0.2 s slower")).toEqual([]);
+    expect(claim("Approve iOS by 9 January")).toEqual([]);
+    expect(claim("Starts got slower")).toEqual([]);
+    for (const label of ["Crash rate", "Same work on iOS", "Slower starts?"]) {
+      const [hit] = claim(label);
+      expect(hit).toMatchObject({ severity: "warn", slideId: "risk" });
+      expect(hit.message).toMatch(/topic label on a content slide/);
+    }
+    // Labels stay fine where a slide only names its part: a mechanism zoom, a section divider, the cover.
+    expect(claim("The local bucket", "mechanism")).toEqual([]);
+    expect(
+      find(lintPresented(withSlide(presented, "risk", { title: "Crash rate", slots: { number: "02" } })), "title-claim"),
+    ).toEqual([]);
+    expect(claim("Results")[0].message).toMatch(/names the kind of slide/);
+    expect(claim("Next steps")[0].message).toMatch(/names the kind of slide/);
+    expect(claim("Overview", "cover")[0].severity).toBe("tip");
+  });
+
+  it("reads the quantity from the points, not only the title", () => {
+    const specific = (points: string[]) =>
+      find(lintPresented(withSlide(presented, "evidence", { title: "Search got faster", points })), "title-specific");
+    expect(specific(["p95 198 ms, half of March"])).toEqual([]);
+    expect(specific(["Much faster", "Users are happier"])[0].message).toMatch(/in the title or a point/);
+  });
+
+  it("asks for a source when a point carries the number", () => {
+    const deck = withSlide(presented, "evidence", { source: undefined, notes: cues("Twice as fast.") });
+    expect(find(lintPresented(deck), "number-source").map((f) => f.slideId)).toEqual(["evidence"]);
+  });
+
+  it("reads the ask's owner and date from its points", () => {
+    expect(find(lintPresented(presented), "ask-concrete")).toEqual([]);
+    const vague = withSlide(presented, "ask", { points: ["Soon"] });
+    expect(find(lintPresented(vague), "ask-concrete")[0].message).toMatch(/an owner, a date/);
+  });
+
+  it("notes-cues: warns when the notes are a script, not cues; off when read alone", () => {
+    const script = Array.from({ length: 70 }, () => "word").join(" ");
+    const deck = withSlide(presented, "problem", { notes: cues(script) });
+    expect(find(lintPresented(deck), "notes-cues")).toEqual([
+      expect.objectContaining({ slideId: "problem", severity: "warn", message: expect.stringMatching(/70 words, a script/) }),
+    ]);
+    expect(find(lintDeck(deck), "notes-cues")).toEqual([]);
+  });
+
+  it("notes-cues: warns on notes that are only stage directions, tips one beside content", () => {
+    const only = withSlide(presented, "evidence", {
+      notes: cues("Walk the figure left to right.\nPoint at the 9, then the old 40."),
+    });
+    expect(find(lintPresented(only), "notes-cues")).toEqual([
+      expect.objectContaining({ slideId: "evidence", severity: "warn", message: expect.stringMatching(/only stage directions/) }),
+    ]);
+    const mixed = withSlide(presented, "evidence", {
+      notes: cues("Desktop only: 61.2 → 63.0 over four weeks.\nPoint at the 9."),
+    });
+    expect(find(lintPresented(mixed), "notes-cues")).toEqual([
+      expect.objectContaining({ slideId: "evidence", severity: "tip", message: expect.stringMatching(/move it to `delivery`/) }),
+    ]);
+    expect(find(lintDeck(only), "notes-cues")).toEqual([]);
+  });
+
+  describe("notes-echo", () => {
+    // Round-4 review deck: notes that restate their slide, and the same slide with notes that add to it.
+    const cost: Partial<StorySlide> = {
+      title: "Spanish and French: about three weeks",
+      points: ["One engineer", "Translation review of 400 articles", "Those chats unchanged today"],
+    };
+    it("warns when a presented slide's notes mostly repeat its words", () => {
+      const echo = withSlide(presented, "risk", {
+        ...cost,
+        notes: cues(
+          "Spanish and French chats still run the old way\nCost: one engineer for about three weeks\nPlus a translation review of 400 articles",
+        ),
+      });
+      expect(find(lintPresented(echo), "notes-echo")).toEqual([
+        expect.objectContaining({ slideId: "risk", severity: "warn", message: expect.stringMatching(/mostly repeat the slide/) }),
+      ]);
+      // A deck sent without its speaker may restate and explain in full sentences.
+      expect(find(lintDeck(echo), "notes-echo")).toEqual([]);
+    });
+
+    it("passes notes that add the why, the so-what, the trade-off and the bridge", () => {
+      const adds = withSlide(presented, "risk", {
+        ...cost,
+        notes: cues(
+          "Why now: those customers meet the price change on the old bot\nThe engineering is small; the review is the open item\nIf no: they keep general-training answers",
+          "What Marcus approves",
+        ),
+      });
+      expect(find(lintPresented(adds), "notes-echo")).toEqual([]);
+    });
+
+    it("ignores source lines and notes too short to judge", () => {
+      const sourced = withSlide(presented, "risk", { notes: cues("Source: the cache capacity forecast, 71% full today, tripwire 85%") });
+      expect(find(lintPresented(sourced), "notes-echo")).toEqual([]);
+      expect(find(lintPresented(withSlide(presented, "risk", { notes: cues("Tripwire at 85%") })), "notes-echo")).toEqual([]);
+    });
+  });
+
+  describe("ask-scope", () => {
+    const plan: StorySlide = {
+      id: "plan",
+      title: "1 engineer, 3 weeks",
+      role: "plan",
+      points: ["Plus a translation review of 400 articles"],
+      notes: cues("The review is the open item; the engineering is small."),
+    };
+    const deck = (ask: Partial<StorySlide>, withPlan = true) => {
+      const slides = withSlide(presented, "ask", ask);
+      return withPlan ? [...slides.slice(0, -1), plan, slides[slides.length - 1]] : slides;
+    };
+    const scope = (ask: Partial<StorySlide>, withPlan = true, options: LintOptions = {}) =>
+      find(lintPresented(deck(ask, withPlan), options), "ask-scope");
+
+    it("warns when the ask slide says neither what is approved nor what it costs", () => {
+      const [hit] = scope({
+        title: "Approve by 15 January 2027",
+        points: ["Head of support", "Later approval misses the price change"],
+      });
+      expect(hit).toMatchObject({ slideId: "ask", severity: "warn" });
+      expect(hit.message).toMatch(/what is being approved or done/);
+      expect(hit.message).toMatch(/what it costs: "1 engineer, 3 weeks" states a cost/);
+    });
+
+    it("passes an ask with its object and cost on the slide", () => {
+      expect(
+        scope({
+          title: "Approve Spanish and French by 15 January",
+          points: ["Head of support", "1 engineer ~3 weeks + 400-article review"],
+        }),
+      ).toEqual([]);
+      // A noun-phrase ask names its object too, and a cost-free deck asks for no cost.
+      expect(scope({ title: "Schema freeze from 20 May", points: ["Platform leads to approve"] }, false)).toEqual([]);
+      expect(find(lintPresented(presented), "ask-scope")).toEqual([]);
+    });
+
+    it("reads only the slide, not the notes, and is off when read alone", () => {
+      const hidden = { title: "Decide by 14 March", points: ["Platform leads"], notes: cues("Approve the queue: six engineer-weeks.") };
+      expect(scope(hidden)[0].message).toMatch(/approved or done.*what it costs/);
+      expect(find(lintDeck(deck(hidden)), "ask-scope")).toEqual([]);
+    });
+  });
+
+  describe("causal-claim", () => {
+    it("warns on a cause verb in a deck that shows a before/after, outside mechanism, plan and ask", () => {
+      const lifted = withSlide(presented, "answer", { title: "Cached cards lifted checkout" });
+      expect(find(lintPresented(lifted), "causal-claim")).toEqual([
+        expect.objectContaining({ slideId: "answer", severity: "warn", message: expect.stringMatching(/claims a cause/) }),
+      ]);
+      for (const point of ["Tickets fell because of the cache", "Retries drove failures down", "Caching cut tickets"])
+        expect(find(lintPresented(withSlide(presented, "problem", { points: [point] })), "causal-claim"), point).toHaveLength(1);
+      // Said as timing, it's fine; so is a mechanism slide saying how the part works.
+      expect(
+        find(lintPresented(withSlide(presented, "answer", { title: "Checkout: 61.2% → 63.0% since caching" })), "causal-claim"),
+      ).toEqual([]);
+      expect(
+        find(
+          lintPresented([
+            ...presented,
+            { id: "how", title: "The cache cuts provider calls", role: "mechanism", notes: cues("One call a day.") },
+          ]),
+          "causal-claim",
+        ),
+      ).toEqual([]);
+      // No before/after anywhere: nothing to overclaim from.
+      const noCompare = presented.map((s) => ({
+        ...s,
+        title: s.title.replace(/→/g, "to"),
+        points: (s.points ?? []).filter((p) => !p.includes("→")),
+      }));
+      expect(find(lintPresented(withSlide(noCompare, "answer", { title: "Caching cut tickets" })), "causal-claim")).toEqual([]);
+    });
+
+    it("tips when no cue says the numbers come from two windows, before and after", () => {
+      const silent = withSlide(presented, "answer", {
+        notes: cues("Answer-first reviews decided in one meeting.\nSource: the platform review log."),
+      });
+      expect(find(lintPresented(silent), "causal-claim")).toEqual([
+        expect.objectContaining({ severity: "tip", message: expect.stringMatching(/never says so/) }),
+      ]);
+      expect(find(lintPresented(presented), "causal-claim")).toEqual([]);
+    });
+  });
+
+  it("talk-time: cues are not timed against the budget's floor", () => {
+    expect(find(lintPresented(presented, { minutes: 8 }), "talk-time")).toEqual([]);
+    expect(find(lintDeck(presented, { minutes: 8 }), "talk-time")).toHaveLength(1);
+  });
+
+  describe("slide-shape", () => {
+    it("warns when every slide has eyebrow, headline and lede, in either mode", () => {
+      const templated = presented.map((s) => ({ ...s, eyebrow: "Reviews", lede: "One plain sentence." }));
+      for (const lint of [lintPresented, lintDeck])
+        expect(find(lint(templated), "slide-shape")).toEqual([
+          expect.objectContaining({ severity: "warn", message: expect.stringMatching(/same three parts/) }),
+        ]);
+      // One slide without them breaks the template.
+      expect(find(lintPresented(templated.map((s, i) => (i ? s : { ...s, eyebrow: undefined }))), "slide-shape")).toEqual([]);
+    });
+
+    it('warns when every presented title is "Topic: verdict", or every one a sentence', () => {
+      const colons = presented.map((s, i) => ({
+        ...s,
+        title: `Part ${i + 1}: ${s.title.split(":").pop()!.replace("?", "").trim()}`,
+      }));
+      expect(find(lintPresented(colons), "slide-shape")[0].message).toMatch(/Topic: verdict/);
+      const sentences = presented.map((s, i) => ({ ...s, title: `This is slide number ${i + 1} and it says one long thing` }));
+      expect(find(lintPresented(sentences), "slide-shape")[0].message).toMatch(/full sentence/);
+      expect(find(lintDeck(sentences), "slide-shape")).toEqual([]);
+    });
+
+    it("doesn't call a deck of plain labels one shape (title-claim flags labels on content slides)", () => {
+      const labels = presented.map((s, i) => ({ ...s, title: ["Reviews", "Meetings", "Latency", "Cache", "Titles"][i] }));
+      expect(find(lintPresented(labels), "slide-shape")).toEqual([]);
+    });
+  });
+
+  describe("ai-tells", () => {
+    it('warns on "X, not Y" or an appended comparison on more than one slide', () => {
+      const deck = withSlide(withSlide(presented, "answer", { title: "One meeting, not three" }), "problem", {
+        points: ["Decided in days, not weeks"],
+      });
+      expect(find(lintPresented(deck), "ai-tells")).toEqual([
+        expect.objectContaining({
+          severity: "warn",
+          slideId: "problem",
+          message: expect.stringMatching(/2 slides use a "X, not Y"/),
+        }),
+      ]);
+      expect(find(lintPresented(withSlide(presented, "answer", { title: "One meeting, not three" })), "ai-tells")).toEqual([]);
+      const kickers = withSlide(
+        withSlide(presented, "evidence", { lede: "Search answers in 198 ms, twice as fast as March" }),
+        "risk",
+        {
+          lede: "The cache fills in weeks, faster than planned",
+        },
+      );
+      expect(find(lintPresented(kickers), "ai-tells")[0].message).toMatch(/comparison bolted onto the claim/);
+    });
+
+    it("tips a semicolon balancing two clauses", () => {
+      const deck = withSlide(presented, "answer", {
+        lede: "Same teams and the same six months; only the order of the slides changed.",
+      });
+      expect(find(lintPresented(deck), "ai-tells")).toEqual([
+        expect.objectContaining({ severity: "tip", slideId: "answer", message: expect.stringMatching(/semicolon/) }),
+      ]);
+    });
   });
 });

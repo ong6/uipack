@@ -15,15 +15,13 @@ export interface UiStyleMeta {
   /** The display face to preload for a hero headline, if any (fontPreloads). */
   preload: readonly string[];
   /**
-   * The web section sequence the style recommends for the same content (research brief: order is
-   * part of a look). A recommendation only: every style renders every layout.
+   * A section sequence the style would pick for itself. Opt-in only (`WebPage layout="style"`):
+   * by default a page keeps its author's order in every style, so a swap never moves a section.
    */
   prefers: readonly string[];
   /**
-   * The layout defaults the style recommends, applied by `WebPage` (layout="style") and by the
-   * style's layout CSS: what fills the hero's proof slot, how the hero and section heads align,
-   * and whether steps are cards or numbered rows. A recommendation only: layout="shared" renders
-   * every style on the same layout.
+   * Layout defaults the style would pick for itself (what fills the hero's proof slot, alignment,
+   * cards or numbered rows). Opt-in only, like `prefers`: the default layout is shared by every style.
    */
   layout: { hero: "demo" | "figure"; align: "center" | "start"; steps: "cards" | "rows" };
 }
@@ -32,22 +30,24 @@ export const uiStyles: readonly UiStyleMeta[] = [
   {
     id: "technical",
     name: "Technical",
-    summary: "Diagram-led: warm paper, ink, one forest accent, thin rules, 6px radius, a dotted grid.",
+    summary: "Diagram-led blueprint: Prussian-blue ink, one amber mark, square hairlines, a drafting grid.",
     fonts: [
-      "ibm-plex-sans-latin-400-normal.woff2",
-      "ibm-plex-sans-latin-500-normal.woff2",
-      "ibm-plex-sans-latin-600-normal.woff2",
-      "ibm-plex-mono-latin-400-normal.woff2",
-      "ibm-plex-mono-latin-600-normal.woff2",
+      "archivo-expanded-latin-600-normal.woff2",
+      "archivo-latin-400-normal.woff2",
+      "archivo-latin-500-normal.woff2",
+      "archivo-latin-600-normal.woff2",
+      "martian-mono-condensed-latin-400-normal.woff2",
+      "martian-mono-condensed-latin-600-normal.woff2",
     ],
-    preload: [],
+    preload: ["archivo-expanded-latin-600-normal.woff2"],
     prefers: ["hero", "how", "demo", "proof", "faq", "pricing"],
     layout: { hero: "figure", align: "start", steps: "rows" },
   },
   {
     id: "landing",
     name: "Landing",
-    summary: "The generic landing page: lavender band, indigo CTA, editorial serif headlines, glass and grain.",
+    summary:
+      "Product marketing in label stock: warm ivory and kraft, one ledger-green accent, editorial serif headlines, ruled forms with perforated divisions, no shadows.",
     fonts: [
       "instrument-serif-latin-400-normal.woff2",
       "instrument-serif-latin-400-italic.woff2",
@@ -64,7 +64,8 @@ export const uiStyles: readonly UiStyleMeta[] = [
   {
     id: "graphical",
     name: "Graphical",
-    summary: "Poster: bone paper, black ink, one signal-orange accent, condensed display caps, hard edges, one disc motif.",
+    summary:
+      "Poster: bone paper, black ink, one signal-orange accent, condensed display caps, hard edges, one disc motif (the hero stamp).",
     fonts: [
       "anton-latin-400-normal.woff2",
       "ibm-plex-sans-latin-400-normal.woff2",
@@ -79,36 +80,58 @@ export const uiStyles: readonly UiStyleMeta[] = [
   },
 ];
 
-/** The section order every style renders when the layout is shared (the swap test's order). */
+/** A conventional section order for a landing page, for pages that want a starting point. */
 export const sharedSectionOrder = ["hero", "how", "mechanism", "proof", "faq", "pricing"] as const;
 
 /**
- * The ids to render, in order: the style's recommended sequence (layout "style") or the shared
- * one, keeping only ids the page provides.
+ * The ids to render, in order. Shared (the default): the page's own order, the same in every
+ * style. "style" (opt-in): the style's `prefers` sequence, keeping only ids the page provides,
+ * then any the sequence does not name, in the page's order, so no section is ever dropped.
  */
-export function sectionOrder(style: UiStyleId, available: readonly string[], layout: "style" | "shared" = "style"): string[] {
-  const wanted = layout === "shared" ? sharedSectionOrder : uiStyles.find((s) => s.id === style)!.prefers;
-  return wanted.filter((id) => available.includes(id));
+export function sectionOrder(style: UiStyleId, available: readonly string[], layout: "style" | "shared" = "shared"): string[] {
+  if (layout === "shared") return [...available];
+  const wanted = uiStyles.find((s) => s.id === style)!.prefers.filter((id) => available.includes(id));
+  return [...wanted, ...available.filter((id) => !wanted.includes(id))];
 }
 
 export const isUiStyle = (value: unknown): value is UiStyleId => uiStyles.some((s) => s.id === value);
 
 /**
- * A blocking inline script for <head> that sets `data-ui-style` and `data-ui-theme` on <html>
- * before the first paint, from a URL parameter, then localStorage, then the default. Put its
- * output in a <script> before any stylesheet so the page never flashes another style.
+ * A blocking inline script for <head> that sets the style and the theme on <html> before the first
+ * paint, so the page never flashes another style or theme. Put its output in a <script> before any
+ * stylesheet.
+ *
+ * Style: `?style=` (a style id, or a key of `aliases`, e.g. `{ "1": "technical" }`), then
+ * localStorage, then `fallback`; written to `data-ui-style`.
+ * Theme: `?theme=light|dark`, then localStorage (`themeStorageKey`), else nothing, so the page
+ * follows the system (`prefers-color-scheme`); `?theme=system` clears a stored choice. Written to
+ * both `data-theme` (read by uipack/web and the figures) and `data-ui-theme` (the role layer).
  */
 export function styleBootScript({
   param = "style",
   themeParam = "theme",
   storageKey = "uipack-style",
+  themeStorageKey = "uipack-theme",
   fallback = "technical",
-}: { param?: string; themeParam?: string; storageKey?: string; fallback?: UiStyleId } = {}): string {
-  const ids = JSON.stringify(uiStyles.map((s) => s.id));
+  aliases = {},
+}: {
+  param?: string;
+  themeParam?: string;
+  storageKey?: string;
+  themeStorageKey?: string;
+  fallback?: UiStyleId;
+  /** Extra values `?style=` accepts, mapped to a style id: `{ "1": "technical", poster: "graphical" }`. */
+  aliases?: Record<string, UiStyleId>;
+} = {}): string {
+  const map: Record<string, UiStyleId> = { ...aliases };
+  for (const s of uiStyles) map[s.id] = s.id;
+  const j = JSON.stringify;
   return (
-    `(function(){try{var q=new URLSearchParams(location.search),d=document.documentElement,ids=${ids},` +
-    `s=q.get(${JSON.stringify(param)})||localStorage.getItem(${JSON.stringify(storageKey)});` +
-    `if(ids.indexOf(s)<0)s=${JSON.stringify(fallback)};d.setAttribute("data-ui-style",s);` +
-    `var t=q.get(${JSON.stringify(themeParam)});if(t==="light"||t==="dark")d.setAttribute("data-ui-theme",t)}catch(e){}})();`
+    `(function(){try{var q=new URLSearchParams(location.search),d=document.documentElement,m=${j(map)},L=localStorage,` +
+    `g=function(k){return k&&Object.prototype.hasOwnProperty.call(m,k)?m[k]:null},` +
+    `s=g(q.get(${j(param)}))||g(L.getItem(${j(storageKey)}))||${j(fallback)};d.setAttribute("data-ui-style",s);` +
+    `var t=q.get(${j(themeParam)});if(t==="system"){L.removeItem(${j(themeStorageKey)});t=null}` +
+    `if(t!=="light"&&t!=="dark")t=L.getItem(${j(themeStorageKey)});` +
+    `if(t==="light"||t==="dark"){d.setAttribute("data-theme",t);d.setAttribute("data-ui-theme",t)}}catch(e){}})();`
   );
 }

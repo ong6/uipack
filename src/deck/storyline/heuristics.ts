@@ -339,3 +339,157 @@ export function inferRoles(slides: readonly StorySlide[]): (SlideRole | undefine
     return undefined;
   });
 }
+
+/**
+ * The form a title takes, for the deck-shape check: a question, a "Topic: verdict" pair, a full
+ * sentence (more than six words), or a short label or verdict. Humans mix these within a deck; a
+ * template repeats one.
+ */
+export type TitleForm = "question" | "colon" | "sentence" | "short";
+export function titleForm(title: string): TitleForm {
+  const t = title.trim();
+  if (/\?["”’)]?$/.test(t)) return "question";
+  if (wordsOf(t).length > 6) return "sentence";
+  if (/^[^:]{1,40}:\s+\S/.test(t)) return "colon";
+  return "short";
+}
+
+/** "X, not Y" and "not X, but Y": a contrast that corrects a misreading nobody made. */
+export const NOT_CONTRAST_RE = /,\s+not\s+(?:a\s+|an\s+|the\s+)?[\p{L}\p{N}]|\bnot\b[^,.;:!?]{1,40},\s+but\b/iu;
+/** A comparison bolted onto a claim: "…, twice as fast as March", "…, 3× faster than Q2". */
+export const COMPARISON_KICKER_RE =
+  /,\s+(?:(?:twice|half|three times|four times|\d+(?:\.\d+)?\s*[x×]|\d+(?:\.\d+)?\s+times)\s+(?:as\s+\p{L}+\s+as|\p{L}+er\s+than)|\p{L}+er\s+than)\b/iu;
+/** Two clauses balanced on a semicolon: "Same teams and the same six months; only the order changed." */
+export const SEMICOLON_CLAUSES_RE = /\S\s*;\s+\p{L}/u;
+
+/** A before/after comparison of two numbers: "61.2% → 63.0%", "from 40 to 9 a week", "9 a week, was 40", "Sep vs Oct". */
+export const BEFORE_AFTER_RE =
+  /\d[^→]*(?:→|->)\s*[~≈]?\d|\bfrom\s+(?:about\s+|~)?\d[^,;]*?\bto\s+(?:about\s+|~)?\d|\bwas\s+(?:about\s+|~)?\d|\d[^,;]*\bvs\.?\s|\bbefore\b[^,;]*\bafter\b/i;
+/** A verb that claims a cause: "Cached cards lifted checkout", "drove", "because", "thanks to". */
+export const CAUSAL_RE =
+  /\b(?:lift(?:s|ed)?|boost(?:s|ed)?|dr(?:ove|ives|iven)|cut(?:s)?|slash(?:es|ed)?|caused|led to|leads to|resulted in|results in|because|thanks to|due to|delivered)\b/i;
+/** A cue that says how the comparison was made: "two windows, before and after". The older "not a controlled test" still counts. */
+export const NOT_A_TEST_RE =
+  /before[\s/-]*(?:and[\s-]*)?after|not\s+(?:a\s+)?(?:controlled\s+|a\/b\s+)?test|not proof|correlat|two windows/i;
+/** A stage direction with no content of its own: "Point at the 9", "Walk the figure left to right", "Pause". */
+export const STAGE_DIRECTION_RE =
+  /^(?:point(?:\s+(?:at|to))?|walk(?:\s+(?:through|the))?|pause|click|gesture|show|look\s+at|wait|advance|turn\s+to|go\s+to|hold|let\s+it|read\s+out|trace)\b/i;
+
+/** Auxiliaries, modals and common finite verbs: a title with one says something happened or holds. */
+const VERB_RE =
+  /\b(?:is|are|was|were|be|been|am|has|have|had|do|does|did|can|could|will|would|shall|should|may|might|must|won't|can't|isn't|aren't|wasn't|weren't|don't|doesn't|didn't|hasn't|haven't|got|gets|get|goes|went|came|comes|fell|falls|rose|rises|grew|grows|cut|cuts|took|takes|made|makes|kept|keeps|held|holds|ran|runs|won|wins|lost|loses|beat|beats|left|leaves|stays|needs|need|costs|shows|says|means|works|adds|drops|lands|hits|saves|ships|ends|stops|slips|slip|breaks|fails|moves|doubles|halves|applies|apply|drains|refills|decides|syncs|serves|catches|caught|missed|misses|pays|buys|bought|brings|brought|lets|helps|returns|reaches|matters|wait|waits|take|resize|resizes|uses|use|blocks|sits|lives)\b/i;
+/** Words ending in -ed that are not past tenses. */
+const NOT_PAST_RE = /^(?:hundred|speed|seed|feed|breed|bleed|greed|embed|shed|bed|red|need)$/i;
+
+/**
+ * A topic label rather than a spoken verdict: no quantity, no date, no "Topic: value" or arrow,
+ * and no verb ("Crash rate", "Same work on iOS", "Slower starts?"). A verdict says something the
+ * speaker can say aloud ("Crashes down by two thirds", "Start time: 0.2 s slower", "Will the cache
+ * hold?"). Labels suit agenda and section slides; a content slide states what it shows.
+ */
+export function isLabelTitle(title: string): boolean {
+  const t = title.trim();
+  if (isSpecific(t) || hasFirmDate(t)) return false;
+  if (/[:→]|->/.test(t)) return false;
+  // An imperative opens with its verb ("Approve iOS by 9 January"); elsewhere "start" or "review" may be a noun.
+  if (VERB_RE.test(t) || DECISION_RE.test(wordsOf(t)[0] ?? "")) return false;
+  return !wordsOf(t).some((w) => /^\p{L}{3,}ed$/u.test(w) && !NOT_PAST_RE.test(w));
+}
+
+/** Words that carry no content of their own, so they don't count when notes are compared with their slide. */
+const ECHO_STOP = /*#__PURE__*/ new Set(
+  /*#__PURE__*/ (
+    "a an the and or but nor so yet of to in on at for by with from as into onto over under up down out off per via vs " +
+    "is are was were be been being am it its it's this that these those there here then than also only just very too " +
+    "i we you they he she me us them our your their my his her who what which when where why how all any each both " +
+    "do does did done has have had will would can could should shall may might must not no yes get gets got say says " +
+    "said mean means still now more most less about around plus such s they've we've you've it's that's there's " +
+    "isn't aren't wasn't weren't don't doesn't didn't won't can't we're they're you're i'm let's"
+  ).split(" "),
+);
+
+/** A word's rough root, so "approve" and "approval", "change" and "changes" match. */
+const echoRoot = (word: string) => {
+  const w = word.toLowerCase().replace(/['’]s$/, "").replace(/[.,%]+$/, "");
+  return w.length > 5 ? w.slice(0, 5) : w.replace(/s$/, "");
+};
+
+/** The content words of a text, as rough roots. */
+export function contentRoots(text: string): string[] {
+  return wordsOf(text.replace(/[-–—/]/g, " "))
+    .map(echoRoot)
+    .filter((w) => w && !ECHO_STOP.has(w));
+}
+
+/**
+ * How much of a slide's `say` only repeats the slide: the share of its content words (source lines
+ * aside) that already appear in the title, points, lede or slots. `words` is how many it compared.
+ */
+export function notesEcho(slide: StorySlide): { share: number; words: number } {
+  const said = sayOf(slide.notes)
+    .split(/\n+/)
+    .filter((line) => !/^\s*(?:[-•*]\s*)?sources?\b/i.test(line))
+    .join(" ");
+  const roots = contentRoots(said);
+  if (!roots.length) return { share: 0, words: 0 };
+  const shown = new Set(
+    contentRoots(
+      [headlineOf(slide), slide.lede ?? "", ...(slide.points ?? []), ...Object.values(slide.slots ?? {}), slide.source ?? ""].join(
+        " ",
+      ),
+    ),
+  );
+  return { share: roots.filter((w) => shown.has(w)).length / roots.length, words: roots.length };
+}
+
+/** Words after an ask's verb that leave it without an object: "Approve by 15 January", "Decide now". */
+const NO_OBJECT_RE =
+  /^(?:by|before|on|until|till|at|from|in|this|that|it|now|today|tomorrow|tonight|soon|asap|please|here|\d|$)/i;
+
+/** Words that say who, when or how urgently, not what: what is left of an ask's title without them is its object. */
+const ASK_FRAME_RE =
+  /^(?:by|before|on|until|till|at|from|in|of|for|to|this|that|it|now|today|tomorrow|tonight|soon|asap|please|we|you|need|needs|your|our|the|a|an|so|and|or|yes|no|go|ahead|sign|off|approval|decision|deadline|ask|needed|required)$/i;
+
+/**
+ * Whether an ask says what is decided or done: a decision verb followed by its object ("approve
+ * Spanish and French", "review the sync design doc"), or a title with something left once its
+ * verb, owner words and date are gone ("Schema freeze from 20 May", "One more engineer by July").
+ * "Approve by 15 January 2027" and "Decide by 14 March" have no object.
+ */
+export function hasAskObject(headline: string, shown: string): boolean {
+  const re = new RegExp(DECISION_RE.source, "gi");
+  for (const m of shown.matchAll(re)) {
+    const rest = shown
+      .slice((m.index ?? 0) + m[0].length)
+      .replace(/^\s*(?:off\s+on|off|on)?\s*/i, "")
+      .replace(/^(?:the|a|an|our|this|to)\s+/i, "");
+    const next = rest.match(/^[\p{L}\p{N}][\p{L}\p{N}'’-]*/u)?.[0] ?? "";
+    if (next && !NO_OBJECT_RE.test(next) && !DATE_RE.test(next)) return true;
+  }
+  const left = wordsOf(headline).filter(
+    (w) => !DECISION_RE.test(w) && !ASK_FRAME_RE.test(w) && !DATE_RE.test(w) && !/^\d/.test(w) && !hasOwner(w),
+  );
+  return left.length > 0;
+}
+
+/** "No extra cost", "free", "zero headcount": an ask that says it costs nothing still names its cost. */
+const NO_COST_RE = /\b(?:no|zero|without)\s+(?:extra\s+|additional\s+|new\s+)?(?:cost|budget|spend|headcount|people|engineers?)\b|\bfree\b/i;
+/** Money: "$40k", "€1,200", "40k a year". */
+const MONEY_RE = /[$€£¥]\s?\d|\b\d[\d,.]*\s?(?:k|m|bn)\b/i;
+
+/**
+ * Whether an ask names what it costs: a quantity that isn't a date ("one engineer for about three
+ * weeks", "400 articles", "$40k"), or says plainly that it costs nothing.
+ */
+export function hasAskCost(text: string): boolean {
+  return isSpecific(text) || MONEY_RE.test(text) || NO_COST_RE.test(text);
+}
+
+/** Words that make a quantity a cost: people, effort, money, work to do. */
+const COST_WORD_RE =
+  /\b(?:budget|spend|engineers?|engineer-(?:days|weeks|months)|headcount|FTEs?|hires?|people|contractors?|licen[cs]es?)\b|[$€£¥]\s?\d/i;
+
+/** Whether a slide's text states a cost: a quantity with a cost word ("one engineer for about three weeks", "$40k"). */
+export function statesCost(text: string): boolean {
+  return COST_WORD_RE.test(text) && hasAskCost(text);
+}

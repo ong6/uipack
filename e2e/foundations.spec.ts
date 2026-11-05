@@ -67,3 +67,40 @@ test("guides fit a phone: no page overflow at 390px", async ({ page }) => {
     expect(overflow, guide.path).toBeLessThanOrEqual(0);
   }
 });
+
+test("the overview indexes every guide, Do and don't included, and each guide links to the next", async ({ page }) => {
+  await page.goto("/foundations?theme=light");
+  const index = page.getByRole("heading", { name: "The guides" }).locator("..");
+  for (const guide of guides.slice(1)) await expect(index.getByRole("link", { name: new RegExp(guide.label) })).toBeVisible();
+  await page.goto("/foundations/recipes?theme=light");
+  const pager = page.getByRole("navigation", { name: "Foundations guides" });
+  await expect(pager.getByRole("link", { name: /Next.*Do and don't/ })).toHaveAttribute("href", "/foundations/do-and-dont");
+  await expect(page.getByRole("heading", { name: "Before you ship" })).toBeVisible();
+});
+
+test("at 390px a guide table stacks into rows that keep every column readable", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/foundations/writing?theme=light");
+  const table = page.getByRole("region", { name: "Slot budgets" });
+  const row = table.locator("tbody tr").first();
+  // Every cell sits inside the viewport, under its column name.
+  for (const cell of await row.locator("th, td").all()) {
+    const box = (await cell.boundingBox())!;
+    expect(box.x + box.width).toBeLessThanOrEqual(390);
+  }
+  await expect(row.locator("td").nth(1)).toHaveAttribute("data-label", "Budget");
+  // The rendered docs' tables stack the same way.
+  await page.goto("/foundations?theme=light");
+  const docCell = page.locator(".fdn-guide table tbody tr").first().locator("td").last();
+  await expect(docCell).toHaveAttribute("data-label", "Must never contain");
+  expect((await docCell.boundingBox())!.x).toBeLessThan(390);
+});
+
+test("the guides use no emoji as icons", async ({ page }) => {
+  for (const guide of guides) {
+    await page.goto(`${guide.path}?theme=light`);
+    await expect(page.locator("main > section h2").first()).toBeVisible();
+    const text = await page.locator("main").innerText();
+    expect(text, guide.path).not.toMatch(/\p{Extended_Pictographic}️?/u);
+  }
+});

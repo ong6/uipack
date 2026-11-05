@@ -24,21 +24,24 @@ fails if a style leaves a core role out.
 | `--ui-surface-2` | Secondary band or tint, hover fill | `--uipack-surface-raised`, `--web-secondary` |
 | `--ui-ink` / `-2` / `-3` | Text and strokes at three emphasis levels | `--uipack-fg`, `--uipack-muted`, `--deck-fg`, `--web-ink(-medium/-low)` |
 | `--ui-line` / `-soft` | Borders and rules; grid and hairlines | `--uipack-border`, `--uipack-grid`, `--web-rule`, `--web-hairline` |
-| `--ui-accent`, `--ui-on-accent` | The one highlighted thing, and text on it | `--uipack-accent`, `--deck-accent`, `--web-accent` |
+| `--ui-accent`, `--ui-on-accent` | The one highlighted thing, and text on it | `--deck-accent`, `--web-accent` |
+| `--ui-accent-stroke` | The accent as a stroke or mark in a drawing (numbered-step rings, the claim's path). Technical: the accent itself, one tested amber per theme; a style whose accent fill is too light for a line on white points this at a darker twin | `--uipack-accent` |
 | `--ui-accent-surface` / `-ink-2` / `-line` | The deck's accent-tone slide | `[data-tone="accent"]` |
-| `--ui-flow-request` / `-response` / `-change` | Flow tokens, always paired with a shape | `--uipack-token-*` |
+| `--ui-flow-request` / `-response` / `-change` / `-error` | Flow tokens, always paired with a shape (`-error`: a failed or declined branch, `--uipack-token-error`). Each style keeps them in its own palette (Graphical: ink, warm grey, orange text tone; Landing: slate request), so a figure on its page never carries another style's blue | `--uipack-token-*` |
 | `--ui-data-pos` / `-neg` / `-context` | Signed values (with a sign or arrow) and the context grey | `--uipack-cx-good`, `-bad`, `-context` |
 | `--ui-data-1` … `-4`, `--ui-on-data-1` … `-4` | Categorical slots and the label on each | `--uipack-cx-s1` … |
-| `--ui-inv-paper` / `-surface` / `-ink` / `-ink-2` / `-line` / `-accent` | The invert variant inside the style (deck `invert`, `tone="ink"`) | `[data-tone="ink"]` |
+| `--ui-inv-paper` / `-surface` / `-ink` / `-ink-2` / `-line` / `-accent` | The invert variant inside the style (deck `invert`, `tone="ink"`) | `[data-tone="ink"]`, the web quote card |
+| `--ui-band-fill` / `-ink` / `-ink-2` / `-cta`, `--ui-on-band-cta`, `--ui-band-pattern` | The web closing band (`ClosingCta`): its ground, text, button and pattern | `--web-band-*` |
 
 **Type, shape, motion and scalars**
 
 | Role | Means |
 | --- | --- |
 | `--ui-font-display` / `-text` / `-label` | The three faces |
+| `--ui-font-heading` | Small headings outside the display steps: a figure's title, a consulting slide's title. Technical: the display face, so page, slide and figure share one heading face; Landing and Graphical: the text face |
 | `--ui-display-weight` / `-tracking` / `-case`, `--ui-display-scale` | How the display face is set; Graphical sets caps at 1.3× |
 | `--ui-label-tracking` | Tracked caps for eyebrows and labels |
-| `--ui-em-style`, `--ui-em-color` | The emphasised phrase in a display headline (Landing italic, others the accent) |
+| `--ui-em-style`, `--ui-em-color`, `--ui-em-decoration` | The emphasised phrase in a display headline (Landing italic; Graphical the accent; Technical ink over an amber underline in light, gold in dark) |
 | `--ui-radius` / `-sm` / `-xs` / `-pill` | Container, inner box, mark, control |
 | `--ui-stroke`, `--ui-rule-width` | SVG line weight, CSS rule weight |
 | `--ui-density`, `--ui-type-ratio`, `--ui-measure` | Scalars a style may own: spacing scale, type ratio, line length |
@@ -49,13 +52,37 @@ move a box, which is why a swap keeps every region in place (`src/web/web-styles
 
 | Slot role | Painted where | Technical | Landing | Graphical |
 | --- | --- | --- | --- | --- |
-| `--ui-backdrop`, `--ui-backdrop-mask` | Behind the hero | Dotted grid, faded | None (grain and aurora are components) | Accent disc, ring, ink tick band |
-| `--ui-marker-size` / `-shape` / `-color` | Hung before each eyebrow | 8px square, 2px radius | None | 12px accent disc |
-| `--ui-section-rule` | Top edge of each section | 1px soft line | None | 2px ink |
-| `--ui-frame-border`, `--ui-frame-shadow`, `--ui-card-shadow` | Cards and framed windows | 1px line, flat | Hairline, soft shadow | 2px ink, hard 6px offset |
-| `--ui-nav-fill`, `--ui-nav-blur` | The sticky nav | Paper at 94% | Glass, 14px blur | Solid paper |
-| `--ui-grain`, `--ui-glow`, `--ui-star-fill` | Ambient depth switches (0 or 1) | 0 | 1 | 0 |
-| `--ui-cta-shadow(-hover)` | The primary button | None | Accent glow | Hard ink offset |
+| `--ui-backdrop`, `--ui-backdrop-mask` | Behind the hero | Drafting film (12px minor, 60px major hairlines), faded downward | None | None (the disc is the stamp now) |
+| `--ui-backdrop-narrow` | Behind the hero below 720px | The same grid |
+| `--ui-canvas-pattern` | A figure's canvas (`Figure background="dots"`, the default) | The same drafting film, at 12% / 5% ink | 12px dot grid | 12px dot grid | None | A 48px disc in the corner, no ring, so it clears the copy |
+| `--ui-marker-size` / `-shape` / `-color` | Hung before each eyebrow | 7px amber dot | None | 12px accent disc |
+| `--ui-section-index` | `inline` or `none`: each `Section` eyebrow's number in page order (`WebPage` numbers its sections after the hero; a section outside a `WebPage` has none) | `01 / HOW IT WORKS` in mono | None | None |
+| `--ui-corner-marks` | Background layers on quiet cards, plans and the quote | 8px ink crop marks at all four corners | None | None |
+| `--ui-section-rule` | Top edge of each section | 1px soft line | 1px soft ruled line | 2px ink |
+| `--ui-frame-border`, `--ui-frame-shadow`, `--ui-card-shadow` | Cards and framed windows | 1px line, flat | 1px ink line (30%), flat, 4px corners | 2px ink, hard 6px offset |
+| `--ui-nav-fill`, `--ui-nav-blur` | The sticky nav | Paper at 94% | Solid paper (a masthead) | Solid paper |
+| `--ui-grain`, `--ui-glow`, `--ui-star-fill` | Ambient depth switches (0 or 1) | 0 | 0 (star fill 1) | 0 |
+| `--ui-cta-shadow(-hover)` | The primary button | None (a 3px amber halo on hover) | An ink key: a 2px inset foot that deepens on hover | Hard ink offset |
+| `--ui-cta-fill`, `--ui-on-cta` | The primary button's fill and label | Prussian ink in light, gold in dark | The accent | The accent |
+| `--ui-band-*` | The closing band | Plain Prussian band (no grid: the grid is the hero's and the figure's), gold button | Ledger-green band, ivory button, a perforation along the top | Signal-orange band, black button, ink tick rule along the top |
+| `--ui-stamp-*` (fill, ink, accent, border, inner, radius, rotate, face, case, size, shadow) | `StarHero stamp`: the page's one measured number, in the copy | A revision tag: square, ruled, amber top bar, the figure in Archivo Expanded | A die-cut label: ivory, ink edge, perforated inner edge, tilted 3° | A postmark: orange disc, double ink ring, Anton caps, tilted 8°, hard shadow |
+
+**Treatment roles (web components).** Range comes from how each style draws the same parts, not
+from moving them: the layout is one, the treatment is the style's. Every style fills these.
+
+| Role | Painted where | Technical (engineering drawing) | Landing (label stock) | Graphical (poster) |
+| --- | --- | --- | --- | --- |
+| `--ui-density` | Section padding (vertical only) | 0.9, compact | 1, even | 0.95 |
+| `--ui-perf` | Line style of internal divisions: table rows, card and window heads, feature lists, the step rail | `solid` | `dashed` (perforations) | `solid` |
+| `--ui-column-rule`, `-gap` | Top of each section's column | A dimension line: a hairline across the column with an end tick at both ends | None | None (2px full-bleed section rule instead) |
+| `--ui-card-fill`, `--ui-card-pad` | Step and feature cards | Surface, 1.5rem | Ivory surface, 1.75rem, 1px ink edge, no shadow | Surface, 1.75rem, hard ink shadow |
+| `--ui-num-*` (font, size, weight, prefix, pad, rule, color, fill, ring, box, display, bleed, gap) | `FeatureGrid numbered` | A detail bubble: the number in mono inside a 36px ink-ringed circle | A stub: "No. 1" in the serif, green, over a perforation across the card | Giant Anton numeral in the accent |
+| `--ui-stat-divider` | Between proof stats | 1px rule | 1px dashed rule | 2px ink |
+| `--ui-quote-*` (fill, ink, ink-2, line, mark, face, weight, case, size, rule, shadow) | The proof quote | Annotation: surface, a 1px hairline frame, text face, amber quote mark | A pull quote: no card, the serif at 34px on a 3px green rule | Orange poster block, Anton caps, hard ink shadow |
+| `--ui-plan-featured-border`, `-ring`, `-fill` | The featured plan | Ink border, 4px amber rule along the top | The green-tinted ticket with a green edge | Orange offset shadow |
+| `--ui-cell-*` (fill, ink, line, peak, on-peak, off-ink, radius) | Product surfaces: table highlights, schedule cells, status chips, worked rules | Square cells on surface-2, Prussian-ink peaks | Kraft chips, 2px corners, green peaks | Ink-ruled boxes, orange peaks |
+| `--ui-window-dots`, `--ui-window-bar` | `ProductWindow` and `DemoPlayer` chrome | No traffic lights, clear bar | No traffic lights, a ruled head | Square dots on a tinted bar |
+| `--ui-web-flow-request` | The request token of a figure on a web page | The style's flow request (cyan, the main flow) | Warm slate, so the green stays the only saturated hue | The style's flow request |
 
 **Every style fills every role.** A few roles have Technical values tuned for one medium
 (`--ui-node`, `--ui-line-solid`, `--ui-inv-node`, `--ui-accent-ink`, `--ui-data-neg-ink`,
@@ -63,12 +90,13 @@ move a box, which is why a swap keeps every region in place (`src/web/web-styles
 too, mostly by pointing at a core role.
 
 **Component tuning is not a role.** `--tune-*` values are Technical's hand-tuned colours for one
-component: Mechanism tones (`--tune-mech-*`), the Studio stage (`--tune-object-*`), the docs entry's
-palettes (`--tune-docs-*`), slide ink and rules (`--tune-slide-*`), print (`--tune-print-*`) and
-the full-screen letterbox. A component reads one as `var(--tune-x, <a mix of core roles>)`, so any
+component: the docs entry's warm palette (`--tune-docs-warm-*`), the slide rule (`--tune-slide-line`), print
+(`--tune-print-*`) and the full-screen letterbox. Mechanism tones (`--tune-mech-*`), the Studio
+stage (`--tune-object-*`) and the docs surfaces are optional hooks that Technical now leaves to the
+derivation. A component reads one as `var(--tune-x, <a mix of core roles>)`, so any
 other style gets the derivation, and every style host resets them so they never leak.
 
-A role keeps its meaning across styles. Landing's accent is indigo, Technical's forest and
+A role keeps its meaning across styles. Landing's accent is ledger green, Technical's amber and
 Graphical's signal orange, but in each it marks the single thing that matters. A style may not add
 a second accent.
 
@@ -76,32 +104,49 @@ a second accent.
 
 | Style | For | Character | Values | Guide |
 | --- | --- | --- | --- | --- |
-| **Technical** (default) | Diagrams, charts, article parts, decks, the shell, and web pages | Warm paper, near-black ink, forest/mint accent, thin lines, 6px radius, system type in figures and IBM Plex on slides and the web; on the web a page leads with a working diagram | `src/styles/technical.css` | Below |
-| **Landing** (generic landing) | A conventional SaaS landing page, for a conventional marketing page | Neutral page, lavender band, indigo CTA accent, Instrument Serif headlines, 16px cards, glass and grain | `src/styles/landing.css` | [Web principles](../web-principles.md) |
-| **Graphical** | Posters, launches, a page that should be loud | Bone paper, black ink, one signal-orange accent, Anton display caps, hard edges, 2px rules, hard offset frames, one disc motif | `src/styles/graphical.css` | [Web principles](../web-principles.md) |
-| **Mechanism** | One isometric machine whose working is the point | Technical palette mapped to four solid tones (`--tune-mech-*`), one lit part | `src/mechanism/mechanism.css` | [Mechanism](../mechanism.md) |
+| **Technical** (default) | Diagrams, charts, article parts, decks, the shell, and web pages | Cyanotype: Prussian-blue ink on a cool white sheet, a deep-blue dark half, one amber mark, square corners and hairlines, a drafting grid on the hero and figure canvas only; Archivo Expanded headings on page, slide and figure, Archivo text, Martian Mono labels; on the web a page shows the product's real output first | `src/styles/technical.css` | Below |
+| **Landing** (product marketing) | A product-marketing page that should read as considered print, not stock SaaS | Label stock: warm ivory page, kraft band, one ledger-green accent, Instrument Serif headlines, ruled 1px forms with perforated (dashed) divisions, no shadow or glow, 4px corners, a solid masthead nav | `src/styles/landing.css` | [Web principles](../web-principles.md) |
+| **Graphical** | Posters, launches, a page that should be loud | Bone paper, black ink, one signal-orange accent, Anton display caps, hard edges, 2px rules, hard offset frames, one disc motif (the hero stamp) | `src/styles/graphical.css` | [Web principles](../web-principles.md) |
+| **Mechanism** | One isometric machine whose working is the point | Technical's roles mapped to four solid tones (derived; `--tune-mech-*` hooks), one lit part | `src/mechanism/mechanism.css` | [Mechanism](../mechanism.md) |
 | **3D art directions** | Object scenes | Studio (reads `--tune-object-*`), Paper worlds, Kinetic, Cartoon, Realistic, Abstract | `src/objects/*` | [Object scenes](../objects.md) |
 
 Set a style with the `uiStyle` prop (`Figure`, `DeckPlayer`, `SlideStarter`, `WebSurface`, `Section`)
 or `data-ui-style` on any element; the nearest one wins. `uiStyles` in `uipack` lists the three
-swappable styles with their fonts, the face to preload and their recommended web section order.
+swappable styles with their fonts, the face to preload and their own web section order (used only when a page opts in with `WebPage layout="style"`).
 
 ### Technical values
 
+Cyanotype, chosen blind over four alternatives in the 2026-11-05 review (the earlier warm paper,
+forest green and IBM Plex matched generic AI defaults). Every page is a blueprint: Prussian-blue ink,
+a dark half that is the cyanotype itself, and one amber mark for the thing that matters.
+
 | Role | Light | Dark |
 | --- | --- | --- |
-| paper (page) | `#f6f5f1` | `#0a100d` |
-| surface (figure, card) | `#ffffff` (deck nodes `#fbfaf6`) | `#0e1512` / raised `#14201b` |
-| ink | `#1a1c1a` | `#e8ece9` |
-| ink-2 | `#5c625e` | `#9aa39e` (deck `#aeb8b2`) |
-| line | ink at 22% (`--uipack-border`), grid at 16% | the same ratios on pale ink |
-| accent | forest `#205f49` | mint `#71dcb2` |
-| flow request (square) | `#4f6fe6` | `#8ea4ff` |
-| flow response (circle) | `#3fb27f` | `#5fd39b` |
-| flow change (diamond) | `#9a63e0` | `#c39aff` |
-| highlighted path | accent **ring** (hollow, so it never reads as a request square) | |
-| data positive / negative | `#1a7a52` / `#c0482f` | `#33a979` / `#d4623f` |
-| data categorical | `#1a7a52 #4f6fe6 #c27a1f #9a63e0` | `#33a979 #5f7fef #c0832b #9f72e6` |
+| paper (page) | `#f3f6f9` | `#0a2342` |
+| surface (figure, card) / raised / surface-2 | `#fcfdfe` / `#ffffff` / `#e2e9f1` | `#0d2a4f` / `#12345f` / `#11315a` |
+| ink / ink-2 / ink-3 | Prussian `#0b2748` / `#3d5878` / `#4b6485` | `#edf3fb` / `#acc2dc` / `#9db4cf` |
+| line | ink at 26% (`--uipack-border`), grid and hairlines at 13% | the same ratios on pale ink |
+| accent (fill, stroke and text: one value) | amber `#9c5700` (5.1:1 on paper, white on it 5.6:1) | gold `#f0c45a` |
+| on-accent | `#ffffff` | `#0a2342` |
+| on an inverted ground (the closing band, `tone="ink"`) | gold `#f0c45a` on Prussian | amber `#9c5700` on the pale invert |
+| primary button | Prussian ink, white label | gold, Prussian label |
+| flow request (square): the main flow | cyan `#0b77a3` | `#8fd6ff` |
+| flow response (circle): the return path | green `#2b7a4b` | `#8be6ae` |
+| flow change (diamond) | violet `#7048c0` | `#d2b4ff` |
+| flow error: a failed or declined branch | `#c2392b` | `#ff8c7a` |
+| highlighted path, numbered steps | accent **ring** (hollow, so it never reads as a request square) | |
+| data positive / negative | `#2b7a4b` / `#c2392b` | `#8be6ae` / `#ff8c7a` |
+| data categorical | Prussian `#0b2748`, amber `#9c5700`, cyan `#0b77a3`, slate `#5a708b` | `#edf3fb #f0c45a #8fd6ff #86a0c0` |
+
+**One amber per theme.** The light amber leans orange (hue 33°) so it never reads olive or
+mustard-brown at text size; it is the same value on the headline underline, the slide bar, step
+rings and the eyebrow dot. Dark uses gold everywhere. Light pages put gold only on a dark inverted
+ground, where it is the dark half's value.
+
+**Diagram colour jobs** (fixed in every Technical figure, slide and page): the accent marks numbered
+steps and the one thing that matters; request cyan is the main flow; response green is the return
+path; violet is an async change; red is an error branch, always dashed or labelled. Nothing else
+gets a hue.
 
 The red is a data colour only: a falling bar, a down delta, always with a sign or an arrow. It is
 never a status colour, an accent or decoration.
@@ -110,15 +155,15 @@ never a status colour, an accent or decoration.
 
 | Role | Landing light / dark | Graphical light / dark |
 | --- | --- | --- |
-| paper | `#f7f7f4` / `#0d0d13` | `#f1eee6` / `#121212` |
-| surface | `#ffffff` / `#16161f` | `#fbfaf6` / `#1b1b1b` |
-| surface-2 | `#ebe9f4` / `#1e1c2e` | `#e6e1d3` / `#262420` |
-| ink | `rgb(18 18 23)` / `rgb(242 242 247)` | `#111111` / `#f1eee6` |
+| paper | `#f6f2e8` / `#14130f` | `#f1eee6` / `#121212` |
+| surface | `#fffdf7` / `#1c1a15` | `#fbfaf6` / `#1b1b1b` |
+| surface-2 | `#ece5d4` / `#221f19` | `#e6e1d3` / `#262420` |
+| ink | `#1d1a15` / `#f2ece0` | `#111111` / `#f1eee6` |
 | ink-2 / ink-3 | ink at 87% / 66% | `#363532`, `#57554f` / `#cfcbc0`, `#a29e93` |
-| line / line-soft | ink at 24% / 12% | solid ink / ink at 22% |
-| accent | `#4b3fd6` / `#a99dff` | `#f24a00` / `#ff6a26` (as small text `#b23700` / `#ff7f45`) |
-| on-accent | `#ffffff` / `#0d0d13` | `#111111` |
-| radius | 16px cards, 12px panels, round pills | 0 everywhere |
+| line / line-soft | ink at 30% / 14% | solid ink / ink at 22% |
+| accent | `#1d5a43` / `#8fd1ad` | `#f24a00` / `#ff6a26` (as small text `#b23700` / `#ff7f45`) |
+| on-accent | `#fffdf7` / `#14130f` | `#111111` |
+| radius | 4px cards and panels, 3px controls | 0 everywhere |
 
 Both keep Technical's flow hues (Graphical darkens two for its bone paper) and its data colours.
 
@@ -126,19 +171,20 @@ Both keep Technical's flow hues (Graphical darkens two for its bone paper) and i
 
 | Style | Display | Text | Label |
 | --- | --- | --- | --- |
-| Technical (figures, charts, article, shell) | Text face at 650–700 | System sans | System mono, tracked caps 0.08em |
-| Technical deck | IBM Plex Sans 650, −0.02em (when the host provides it) | IBM Plex Sans | IBM Plex Mono, tracked caps 0.14em |
-| Technical web | IBM Plex Sans 600 (`--ui-web-font-*`) | IBM Plex Sans | IBM Plex Mono |
+| Technical (page, slide, figure, chart, article, shell) | Archivo Expanded 600 (Archivo at 112.5% width), −0.01em; also every figure and consulting-slide title (`--ui-font-heading`) | Archivo 400 / 500 / 600 | Martian Mono 400 / 600 at its narrowest width (75: a 0.6em advance, the width diagrams and controls are authored for), tracked 0.02em |
 | Landing | Instrument Serif 400, heading step 4 and up | IBM Plex Sans | IBM Plex Mono |
 | Graphical | Anton 400 in caps, 1.3× from heading step 4 | IBM Plex Sans | IBM Plex Mono, tracked 0.12em |
 | Mechanism | n/a (no words in the drawing) | Host sans | Mono caps, at least 11px, card corners only |
 
-Figures make no font requests. Fonts are self-hosted, latin-only woff2 in `uipack/fonts/*`
-(`src/web/fonts.css`), each with a metric-matched local fallback, and a browser fetches a face only
-when the active style uses it: Technical web 5 files (101 KB), Graphical 6 (119 KB), Landing 7
-(143 KB). Preload only the active style's display face (`uiStyles[].preload`): none for
-Technical, Instrument Serif for Landing, Anton for Graphical. Use a style's own faces and never
-add a new one. A different face is a new style, or a documented override hook (`--web-font-display`).
+Fonts are self-hosted, latin-only woff2 in `uipack/fonts/*` (`src/web/fonts.css`, carried by every
+entry stylesheet), each with a metric-matched local fallback (Archivo Expanded over Arial Bold,
+Archivo over Arial, Martian Mono over Courier New), and a browser fetches a face only when the
+active style uses it: Technical 6 files (77 KB), Graphical 6 (119 KB), Landing 7 (143 KB). Preload
+only the active style's display face (`uiStyles[].preload`): Archivo Expanded for Technical,
+Instrument Serif for Landing, Anton for Graphical. Static SVG export (`uipack/static`) cannot load
+web fonts and names Archivo and Martian Mono before the system stacks. Mono captions and secondary
+text stay at 12px or more and 4.5:1 in both themes. Use a style's own faces and never add a new one.
+A different face is a new style, or a documented override hook (`--web-font-display`).
 
 ### Shared finish rules (every style)
 
@@ -147,8 +193,7 @@ add a new one. A different face is a new style, or a documented override hook (`
   ([Design direction](../design-direction.md)).
 - **Hierarchy by weight and opacity**, not by more hues. Text at 100 / 87 / 66% of one ink.
 - **Contrast** of at least 4.5:1 for small text and 3:1 for large, in both themes.
-- **Radius scale**: one container radius per style (Technical 6px, Landing 16px cards), 4px for
-  inner boxes, 2px for marks.
+- **Radius scale**: one container radius per style (Technical 0, square; Landing 4px; Graphical 0).
 - **Texture is optional and quiet**: grain 4–8%, grid lines 8% ink, dots 20% ink. One ambient
   effect per viewport.
 
@@ -159,9 +204,10 @@ user units for a `viewBox` drawn at about its rendered width.
 
 | Element | Rule |
 | --- | --- |
-| Frame | `Figure` card: mono eyebrow `FIGURE 01 · TOPIC`, title (20 / 600), one-line caption, legend, Pause / Replay top-right; 1px border at 22% ink, 6px radius |
-| Canvas | Surface fill, optional dotted grid at 16% ink; no inner frame |
-| Node | 6px radius, surface fill, 1.25 stroke at 70% ink (accent at 100%); label 13 / 600, optional mono sub-label at 75%; optional icon slot |
+| Frame | `Figure` card: Martian Mono eyebrow `FIGURE 01 · TOPIC`, title in the heading face (Archivo Expanded 20 / 600), one-line caption, legend, Pause / Replay top-right; 1px border at 26% ink, square corners |
+| Canvas | Surface fill with the style's canvas pattern (`--ui-canvas-pattern`: Technical's drafting film, 12px minor and 60px major hairlines); no inner frame. The grid lives here and behind the hero only, never as page wallpaper |
+| Node | 6px radius inside the drawing (only the frame is square), surface fill, 1 stroke at 70% ink (accent at 100%); label 13 / 600, optional mono sub-label at 75%; optional icon slot |
+| Colour jobs | Accent: numbered steps and the one thing. Request cyan: the main flow. Response green: the return path. Violet: async change. Red (`--uipack-token-error`): an error or declined branch |
 | Group | Solid: 6px radius, 60% fill, 80% stroke. **Dashed** (an environment, a boundary, an async region): 10px radius, `4 4` dash at 40%; tracked-caps title inside, top-left |
 | Lane | Mono uppercase header (11), `2 6` dotted divider at 15% |
 | Chip | 24 tall, pill (or 4px "tag"), 10px label; filled chips are a 28% (dark) wash |
@@ -172,13 +218,14 @@ user units for a `viewBox` drawn at about its rendered width.
 | Type floor | 11 CSS px rendered (`Figure minFont`); below that, author a narrow drawing |
 | Legend | Shape-coded tokens; prefer writing `async · queue` on the line over a legend entry |
 
-Data charts (`uipack/charts`, consulting charts) use the same node spec: warm fill, 1.25px edges at
-70% ink, 6px radius, tracked caps labels, dashed groups, square legend swatches, flat bars, no outer
+Data charts (`uipack/charts`, consulting charts) use the same node spec: surface fill, 1px edges at
+70% ink, square corners, tracked caps labels, dashed groups, square legend swatches, flat bars, no outer
 frame.
 
 ## Slides
 
-Slides take the Technical palette through the deck tokens and the deck's type scale. Sizes are
+Slides take the style's roles through the deck tokens and the deck's type scale. In Technical the
+slide headline is Archivo Expanded, the same face as the page and figure headings. Sizes are
 canvas px on the 1920×1080 canvas, so they scale with the slide.
 
 | Text | Size / weight | Face |
@@ -201,20 +248,34 @@ canvas px on the 1920×1080 canvas, so they scale with the slide.
 
 ## Web
 
-Three styles paint web pages, from the same parts and the same words:
+Three styles paint web pages, from the same parts, the same words and the same layout:
 
-- **Technical** is the default and the house look: paper, ink, the forest accent, IBM Plex,
-  thin rules, a dotted-grid backdrop and a square marker before each eyebrow. The page leads with a
-  working diagram (its recommended order puts the mechanism figure straight after the hero).
-- **Landing** is the generic landing page: neutral 60% (`#f7f7f4` / `#0d0d13`), lavender 30%
-  (`#ebe9f4` / `#1e1c2e`), indigo 10% (`#4b3fd6`) for CTAs and the star only; Instrument Serif from
-  step 4; text at 100/87/66% ink; 16px cards; grain and glass. Its 30 rules are in
-  [Web principles](../web-principles.md).
-- **Graphical** is a poster: Anton caps at 1.3×, one orange disc in the hero backdrop that returns
-  as every eyebrow marker, 2px ink rules and hard offset frames, no glow, no blur.
+- **Technical** is the default and the house look, and should read as the most deliberate of the
+  three: an engineering drawing (Cyanotype). Prussian ink on a cool white sheet (deep Prussian blue
+  in dark), one amber mark, Archivo Expanded headlines whose key phrase sits over an amber revision
+  underline (gold in dark), a Prussian primary button, a drafting-film grid behind the hero only,
+  a 7px amber dot and a mono section index before each eyebrow (`01 / HOW IT WORKS`), a dimension
+  line over each section's column, steps in ringed detail bubbles, ink crop marks on cards, stats
+  between vertical rules, the quote as a hairline annotation, a 4px amber rule on the featured plan,
+  square table cells with Prussian peaks, windows without traffic lights, figures on the same grid
+  with the full flow code, and a plain Prussian closing band with a gold button. The hero shows the
+  product's real output (a filled rota, table or record through the product-surface parts), never
+  a blank panel: a `DemoPlayer` in steps mode needs a `screen` on its last step.
+- **Landing** is product marketing in label stock, owned so it reads as neither Technical nor stock
+  SaaS: warm ivory 60% (`#f6f2e8` / `#14130f`), kraft 30% (`#ece5d4` / `#221f19`), ledger green 10%
+  (`#1d5a43`) for CTAs and the star only; Instrument Serif from step 4 with the emphasis in green
+  italic; ruled forms with 1px ink edges and no shadow; internal divisions as perforations
+  (`--ui-perf: dashed`); steps as "No. 1" stubs; a pull quote on a green rule; the featured plan as
+  the green-tinted ticket; square-cornered ink-key buttons; a die-cut label stamp; a ledger-green
+  closing band with an ivory button. No glow, no glass, no blue, no traffic lights. Its 30 rules are
+  in [Web principles](../web-principles.md).
+- **Graphical** is a poster: Anton caps at 1.3×, one orange disc that carries content (the hero
+  stamp, a postmark with the page's number) and returns as every eyebrow marker, 2px ink rules and hard offset frames, an orange closing band, no glow, no blur.
 
-All three keep one accent, 4.5:1 small text in both themes and reduced motion. `/web?style=` shows
-the same page in each; `?layout=shared` puts them in one section order.
+All three keep one accent, 4.5:1 small text in both themes and reduced motion. A figure on a web
+page takes the page's text and label faces, frame and radius, and its flows stay in the style's
+palette. `/web?style=` shows the same page in each, in the same order. `?layout=style` is the
+opt-in view of each style's own order ([Layout, web](layout.md#web)).
 
 ## Motion
 
@@ -281,3 +342,5 @@ Known gaps:
 - Consulting charts and bento decks in Landing and Graphical pass the swap test but have had no
   visual review; dense chart labels in Anton have not been checked.
 - Only the web reads the ornament slots. Figures and slides have no backdrop or marker slot yet.
+- Figures keep their own node radius in Graphical (rounded boxes inside a square frame); the
+  frame, faces and flow colours follow the page.

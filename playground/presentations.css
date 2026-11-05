@@ -198,28 +198,20 @@
   align-self: center;
 }
 .composed-deck__title {
-  /* Every slide headline takes the deck's treatment: the deck sans at 650, -0.02em. */
-  font-family: var(--font-sans, "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+  /* Every slide headline takes the deck's treatment: the style's display face and weight. */
+  font-family: var(--ui-slide-font-display, var(--ui-font-display));
   font-size: clamp(30px, 3.7vw, 48px);
-  font-weight: 650;
+  font-weight: var(--ui-display-weight);
   line-height: 1.12;
   letter-spacing: -0.02em;
   margin: 20px 0;
   max-width: 18ch;
 }
-.composed-deck__copy > p:not(.deck-eyebrow) {
+.composed-deck__copy > p {
   font-size: 16px;
   line-height: 1.65;
   color: var(--show-muted);
   max-width: 43ch;
-}
-/* The narrative is a slide, so its eyebrow and footer take the deck's treatment (deck.css
-   .uipack-deck-eyebrow, .uipack-deck-footer): tracked mono caps, the eyebrow in the accent. */
-.deck-eyebrow {
-  color: var(--show-accent);
-  font: 600 12px/1.3 var(--show-font-mono);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
 }
 .composed-deck__visual {
   min-width: 0;
@@ -237,9 +229,16 @@
   border-top: 1px solid var(--show-rule);
   color: var(--show-muted);
 }
-.composed-deck ol {
+/* The points the speaker talks from: fragments, one per line. */
+.composed-deck__points {
+  margin: 0 0 20px;
   padding-left: 22px;
-  line-height: 2.2;
+  font-size: 18px;
+  line-height: 2;
+}
+.composed-deck[data-layout="closing"] .composed-deck__points {
+  display: inline-block;
+  text-align: left;
 }
 .deck-comparison {
   display: grid;

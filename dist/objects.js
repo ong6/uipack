@@ -1,4 +1,4 @@
-import { studioObjectPalettes } from './chunk-PDVYL5TE.js';
+import { studioObjectPalettes } from './chunk-VNW5HB27.js';
 import { CanvasView } from './chunk-5NWU4OWV.js';
 import { keepFocusedInView, usePrefersReducedMotion } from './chunk-I6LF4PLF.js';
 import { useState, useRef, useEffect } from 'react';

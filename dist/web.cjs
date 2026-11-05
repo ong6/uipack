@@ -1,12 +1,22 @@
 'use strict';
 
-var chunkFD5DXHMS_cjs = require('./chunk-FD5DXHMS.cjs');
+var chunkV7EQURTV_cjs = require('./chunk-V7EQURTV.cjs');
 var chunkSDBNPDW6_cjs = require('./chunk-SDBNPDW6.cjs');
+var chunkCRQKMR73_cjs = require('./chunk-CRQKMR73.cjs');
 var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
 var jsxRuntime = require('react/jsx-runtime');
 var react = require('react');
 
-function WebSurface({ children, theme, as: Tag = "div", className = "", style, uiStyle, layout }) {
+function WebSurface({
+  children,
+  theme,
+  as: Tag = "div",
+  className = "",
+  style,
+  uiStyle,
+  layout,
+  figureChrome = "quiet"
+}) {
   return /* @__PURE__ */ jsxRuntime.jsx(
     Tag,
     {
@@ -15,7 +25,7 @@ function WebSurface({ children, theme, as: Tag = "div", className = "", style, u
       "data-ui-style": uiStyle,
       "data-ui-layout": layout,
       style,
-      children
+      children: /* @__PURE__ */ jsxRuntime.jsx(chunkCRQKMR73_cjs.FigureChromeContext.Provider, { value: figureChrome, children })
     }
   );
 }
@@ -25,31 +35,6 @@ function Grid({ children, className = "", as: Tag = "div" }) {
 function GridItem({ children, span = [4, 4, 4], className = "", as: Tag = "div" }) {
   const style = { "--span-w": span[0], "--span-m": span[1], "--span-n": span[2] };
   return /* @__PURE__ */ jsxRuntime.jsx(Tag, { className: `uipack-web-grid__item ${className}`.trim(), style, children });
-}
-var SHARED = { hero: "demo", align: "center", steps: "cards" };
-function WebPage({
-  sections,
-  nav,
-  uiStyle = "technical",
-  layout = "style",
-  order,
-  theme,
-  className = "",
-  style,
-  as,
-  children
-}) {
-  const meta = chunkFD5DXHMS_cjs.uiStyles.find((s) => s.id === uiStyle);
-  const page = { uiStyle, layout, defaults: layout === "style" ? meta.layout : SHARED };
-  const ids = order ? order.filter((id) => id in sections) : chunkFD5DXHMS_cjs.sectionOrder(uiStyle, Object.keys(sections), layout);
-  return /* @__PURE__ */ jsxRuntime.jsxs(WebSurface, { uiStyle, theme, className, style, as, layout, children: [
-    nav,
-    ids.map((id) => {
-      const section = sections[id];
-      return /* @__PURE__ */ jsxRuntime.jsx(react.Fragment, { children: typeof section === "function" ? section(page) : section }, id);
-    }),
-    children
-  ] });
 }
 function Eyebrow({ children, className = "", as: Tag = "p", id }) {
   return /* @__PURE__ */ jsxRuntime.jsx(Tag, { id, className: `uipack-web-eyebrow ${className}`.trim(), children });
@@ -65,52 +50,6 @@ function Subhead({ children, className = "", as: Tag = "p", id }) {
 }
 function Body({ children, emphasis = "low", className = "", as: Tag = "p", id }) {
   return /* @__PURE__ */ jsxRuntime.jsx(Tag, { id, className: `uipack-web-body ${className}`.trim(), "data-emphasis": emphasis, children });
-}
-function CtaButton({
-  children,
-  variant = "primary",
-  href,
-  size = "md",
-  className = "",
-  type = "button",
-  ...rest
-}) {
-  const cls = `uipack-web-cta ${className}`.trim();
-  if (href)
-    return /* @__PURE__ */ jsxRuntime.jsx("a", { className: cls, href, "data-variant": variant, "data-size": size, children });
-  return /* @__PURE__ */ jsxRuntime.jsx("button", { className: cls, type, "data-variant": variant, "data-size": size, ...rest, children });
-}
-function GlassNav({ brand, links, cta, sticky = true, label = "Primary" }) {
-  const [open, setOpen] = react.useState(false);
-  const toggleRef = react.useRef(null);
-  const listId = react.useId();
-  react.useEffect(() => {
-    if (!open) return;
-    const onKey = (e) => {
-      if (e.key !== "Escape") return;
-      setOpen(false);
-      toggleRef.current?.focus();
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open]);
-  return /* @__PURE__ */ jsxRuntime.jsx("header", { className: "uipack-web-nav", "data-sticky": sticky || void 0, "data-open": open || void 0, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-nav__bar", children: [
-    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-nav__brand", children: brand }),
-    /* @__PURE__ */ jsxRuntime.jsx("nav", { "aria-label": label, className: "uipack-web-nav__nav", children: /* @__PURE__ */ jsxRuntime.jsx("ul", { id: listId, className: "uipack-web-nav__links", children: links.map((l) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsx("a", { href: l.href, onClick: () => setOpen(false), children: l.label }) }, l.href + l.label)) }) }),
-    cta && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-nav__cta", children: cta }),
-    /* @__PURE__ */ jsxRuntime.jsx(
-      "button",
-      {
-        ref: toggleRef,
-        type: "button",
-        className: "uipack-web-nav__toggle",
-        "aria-expanded": open,
-        "aria-controls": listId,
-        onClick: () => setOpen((o) => !o),
-        children: open ? "Close" : "Menu"
-      }
-    )
-  ] }) });
 }
 function SpotlightCard({ children, href, className = "" }) {
   const ref2 = react.useRef(null);
@@ -131,6 +70,8 @@ function SpotlightCard({ children, href, className = "" }) {
     return /* @__PURE__ */ jsxRuntime.jsx("a", { ref: (n) => ref2.current = n, className: cls, href, onPointerMove: onMove, onPointerLeave: onLeave, children });
   return /* @__PURE__ */ jsxRuntime.jsx("div", { ref: (n) => ref2.current = n, className: cls, onPointerMove: onMove, onPointerLeave: onLeave, children });
 }
+var SectionIndexContext = react.createContext(void 0);
+var sectionIndexLabel = (n) => String(n).padStart(2, "0");
 function Section({
   eyebrow,
   title,
@@ -144,6 +85,7 @@ function Section({
   uiStyle
 }) {
   const headingId = id ? `${id}-title` : void 0;
+  const index = react.useContext(SectionIndexContext);
   return /* @__PURE__ */ jsxRuntime.jsx(
     "section",
     {
@@ -156,7 +98,10 @@ function Section({
       "aria-labelledby": title ? headingId : void 0,
       children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-section__inner", children: [
         (eyebrow || title || intro) && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-section__head", children: [
-          eyebrow && /* @__PURE__ */ jsxRuntime.jsx(Eyebrow, { children: eyebrow }),
+          eyebrow && /* @__PURE__ */ jsxRuntime.jsxs(Eyebrow, { children: [
+            index !== void 0 && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-section__index", "aria-hidden": "true", children: sectionIndexLabel(index) }),
+            eyebrow
+          ] }),
           title && /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 2, id: headingId, children: title }),
           intro && /* @__PURE__ */ jsxRuntime.jsx(Body, { children: intro })
         ] }),
@@ -165,15 +110,444 @@ function Section({
     }
   );
 }
-function FeatureGrid({ features, spotlight = false }) {
-  return /* @__PURE__ */ jsxRuntime.jsx(Grid, { as: "ul", className: "uipack-web-features", children: features.map((f) => {
+function FeatureGrid({ features, spotlight = false, numbered = false }) {
+  return /* @__PURE__ */ jsxRuntime.jsx(Grid, { as: numbered ? "ol" : "ul", className: `uipack-web-features${numbered ? " uipack-web-features--numbered" : ""}`, children: features.map((f, i) => {
     const inner = /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+      numbered && /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-feature__num", "aria-hidden": "true", children: [
+        i < 9 && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-feature__pad", children: "0" }),
+        i + 1
+      ] }),
       f.icon && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-feature__icon", children: f.icon }),
       /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 3, size: 1, children: f.href ? /* @__PURE__ */ jsxRuntime.jsx("a", { href: f.href, children: f.title }) : f.title }),
       /* @__PURE__ */ jsxRuntime.jsx(Body, { children: f.body })
     ] });
     return /* @__PURE__ */ jsxRuntime.jsx(GridItem, { as: "li", span: [4, 4, 4], children: spotlight ? /* @__PURE__ */ jsxRuntime.jsx(SpotlightCard, { children: inner }) : /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-feature", children: inner }) }, f.title);
   }) });
+}
+function numberSections(ids, sections, page) {
+  let n = 0;
+  return ids.flatMap((id) => {
+    const section = sections[id];
+    const node = typeof section === "function" ? section(page) : section;
+    if (node === null || node === void 0 || node === false) return [];
+    return [{ id, node, index: id === "hero" ? void 0 : ++n }];
+  });
+}
+var SHARED = { hero: "demo", align: "start", steps: "cards" };
+function WebPage({
+  sections,
+  nav,
+  uiStyle = "technical",
+  layout = "shared",
+  order,
+  theme,
+  figureChrome,
+  className = "",
+  style,
+  as,
+  children
+}) {
+  const meta = chunkV7EQURTV_cjs.uiStyles.find((s) => s.id === uiStyle);
+  const page = { uiStyle, layout, defaults: layout === "style" ? meta.layout : SHARED };
+  const ids = order ? order.filter((id) => id in sections) : chunkV7EQURTV_cjs.sectionOrder(uiStyle, Object.keys(sections), layout);
+  return /* @__PURE__ */ jsxRuntime.jsxs(
+    WebSurface,
+    {
+      uiStyle,
+      theme,
+      className,
+      style,
+      as,
+      layout,
+      figureChrome,
+      children: [
+        nav,
+        numberSections(ids, sections, page).map(({ id, node, index }) => /* @__PURE__ */ jsxRuntime.jsx(SectionIndexContext.Provider, { value: index, children: node }, id)),
+        children
+      ]
+    }
+  );
+}
+function CtaButton({
+  children,
+  variant = "primary",
+  href,
+  size = "md",
+  className = "",
+  type = "button",
+  short,
+  ...rest
+}) {
+  const cls = `uipack-web-cta ${className}`.trim();
+  if (short !== void 0)
+    children = /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-cta__long", children }),
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-cta__short", children: short })
+    ] });
+  if (href)
+    return /* @__PURE__ */ jsxRuntime.jsx("a", { className: cls, href, "data-variant": variant, "data-size": size, children });
+  return /* @__PURE__ */ jsxRuntime.jsx("button", { className: cls, type, "data-variant": variant, "data-size": size, ...rest, children });
+}
+var isCtaData = (c) => typeof c === "object" && c !== null && !react.isValidElement(c) && !Array.isArray(c) && "href" in c && "label" in c;
+function GlassNav({ brand, links, cta: ctaProp, sticky = true, label = "Primary" }) {
+  const cta = isCtaData(ctaProp) ? /* @__PURE__ */ jsxRuntime.jsx(CtaButton, { href: ctaProp.href, short: ctaProp.short, children: ctaProp.label }) : ctaProp;
+  const [open, setOpen] = react.useState(false);
+  const toggleRef = react.useRef(null);
+  const listId = react.useId();
+  react.useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      setOpen(false);
+      toggleRef.current?.focus();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+  return /* @__PURE__ */ jsxRuntime.jsx("header", { className: "uipack-web-nav", "data-sticky": sticky || void 0, "data-open": open || void 0, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-nav__bar", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-nav__brand", children: brand }),
+    /* @__PURE__ */ jsxRuntime.jsx("nav", { "aria-label": label, className: "uipack-web-nav__nav", children: /* @__PURE__ */ jsxRuntime.jsxs("ul", { id: listId, className: "uipack-web-nav__links", children: [
+      links.map((l) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsx("a", { href: l.href, onClick: () => setOpen(false), children: l.label }) }, l.href + l.label)),
+      cta && /* @__PURE__ */ jsxRuntime.jsx("li", { className: "uipack-web-nav__menu-cta", onClick: () => setOpen(false), children: cta })
+    ] }) }),
+    cta && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-nav__cta", children: cta }),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      "button",
+      {
+        ref: toggleRef,
+        type: "button",
+        className: "uipack-web-nav__toggle",
+        "aria-expanded": open,
+        "aria-controls": listId,
+        onClick: () => setOpen((o) => !o),
+        children: open ? "Close" : "Menu"
+      }
+    )
+  ] }) });
+}
+function WorkedExample({ title, given, lines, note, label, className = "" }) {
+  return /* @__PURE__ */ jsxRuntime.jsxs(
+    "div",
+    {
+      className: `uipack-web-worked ${className}`.trim(),
+      role: "group",
+      "aria-label": label ?? (typeof title === "string" ? title : "Worked example"),
+      children: [
+        title && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-worked__title", children: title }),
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-worked__sheet", style: { "--lines": lines.length }, children: [
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-worked__given", children: [
+            /* @__PURE__ */ jsxRuntime.jsx(Value, { q: given }),
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-worked__label", children: given.label })
+          ] }),
+          /* @__PURE__ */ jsxRuntime.jsx("ol", { className: "uipack-web-worked__lines", children: lines.map((l, i) => /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
+            /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-worked__rule", children: [
+              /* @__PURE__ */ jsxRuntime.jsx("span", { children: l.rule }),
+              l.working && /* @__PURE__ */ jsxRuntime.jsx("code", { children: l.working })
+            ] }),
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-worked__arrow", "aria-hidden": "true" }),
+            /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-worked__result", children: [
+              /* @__PURE__ */ jsxRuntime.jsx(Value, { q: l.result }),
+              /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-worked__label", children: l.result.label })
+            ] })
+          ] }, i)) })
+        ] }),
+        note && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-worked__note", children: note })
+      ]
+    }
+  );
+}
+function Value({ q }) {
+  return /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-worked__value", children: [
+    q.value,
+    q.unit !== void 0 && /* @__PURE__ */ jsxRuntime.jsxs("small", { children: [
+      " ",
+      q.unit
+    ] })
+  ] });
+}
+function BeforeAfter({ before, after, change, tags = ["Before", "After"], className = "" }) {
+  const max = Math.max(before.measure, after.measure, Number.EPSILON);
+  const side = (s, tag, key) => /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-compare__row", "data-side": key, children: [
+    /* @__PURE__ */ jsxRuntime.jsxs("dt", { children: [
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-compare__tag", children: tag }),
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-compare__label", children: s.label })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsxs("dd", { children: [
+      /* @__PURE__ */ jsxRuntime.jsx(
+        "span",
+        {
+          className: "uipack-web-compare__bar",
+          style: { "--v": Math.max(0.012, s.measure / max) },
+          "aria-hidden": "true"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-compare__value", children: s.value })
+    ] })
+  ] });
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-compare ${className}`.trim(), children: [
+    change && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-compare__change", children: change }),
+    /* @__PURE__ */ jsxRuntime.jsxs("dl", { children: [
+      side(before, tags[0], "before"),
+      side(after, tags[1], "after")
+    ] })
+  ] });
+}
+var DEV = typeof process !== "undefined" && process.env.NODE_ENV !== "production";
+function Proof({ lead, compare, stats = [], quote, className = "" }) {
+  const ratio = lead?.ratio === void 0 ? void 0 : Math.min(1, Math.max(0, lead.ratio));
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-proof ${className}`.trim(), "data-has-quote": quote ? "" : void 0, children: [
+    (lead || compare || stats.length > 0) && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-proof__numbers", children: [
+      compare && /* @__PURE__ */ jsxRuntime.jsx(BeforeAfter, { ...compare }),
+      lead && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-proof__lead", children: [
+        /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-web-proof__value", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("span", { children: lead.value }),
+          lead.of && /* @__PURE__ */ jsxRuntime.jsx("small", { children: lead.of })
+        ] }),
+        /* @__PURE__ */ jsxRuntime.jsx(Body, { emphasis: "medium", children: lead.label }),
+        ratio !== void 0 && /* @__PURE__ */ jsxRuntime.jsx(
+          "span",
+          {
+            className: "uipack-web-proof__meter",
+            role: "img",
+            "aria-label": `${Math.round(ratio * 1e3) / 10}%`,
+            style: { "--ratio": ratio }
+          }
+        )
+      ] }),
+      stats.length > 0 && /* @__PURE__ */ jsxRuntime.jsx("dl", { className: "uipack-web-proof__stats", "data-count": stats.length === 1 ? 1 : void 0, children: stats.map((s, i) => /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx("dt", { children: s.label }),
+        /* @__PURE__ */ jsxRuntime.jsx("dd", { children: s.value })
+      ] }, i)) })
+    ] }),
+    quote && /* @__PURE__ */ jsxRuntime.jsxs("figure", { className: "uipack-web-quote", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("blockquote", { children: /* @__PURE__ */ jsxRuntime.jsx("p", { children: quote.text }) }),
+      /* @__PURE__ */ jsxRuntime.jsxs("figcaption", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx("strong", { children: quote.name }),
+        quote.role && /* @__PURE__ */ jsxRuntime.jsx("span", { children: quote.role })
+      ] })
+    ] })
+  ] });
+}
+var Check = () => /* @__PURE__ */ jsxRuntime.jsx("svg", { viewBox: "0 0 16 16", "aria-hidden": "true", className: "uipack-web-plan__check", children: /* @__PURE__ */ jsxRuntime.jsx(
+  "path",
+  {
+    d: "M3.5 8.5l3 3 6-7",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "1.75",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }
+) });
+function PricingPlans({ plans, note, className = "" }) {
+  if (DEV && plans.length > 1) {
+    const labels = plans.map((p) => p.action?.label).filter((l) => typeof l === "string");
+    if (labels.length === plans.length && new Set(labels).size === 1)
+      console.warn(
+        `uipack/web: PricingPlans gives every plan the same button label ("${labels[0]}"). Give each plan its own (what that plan's click does) and mark one plan \`featured\`.`
+      );
+  }
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-pricing ${className}`.trim(), children: [
+    /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "uipack-web-pricing__plans", "data-count": plans.length, style: { "--plans": Math.min(3, plans.length) }, children: plans.map((p, i) => /* @__PURE__ */ jsxRuntime.jsxs("li", { className: "uipack-web-plan", "data-featured": p.featured ? "" : void 0, children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-plan__head", children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 3, size: 1, className: "uipack-web-plan__name", children: p.name }),
+        p.badge && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-plan__badge", children: p.badge })
+      ] }),
+      /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-web-plan__price", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("span", { children: p.price }),
+        p.period && /* @__PURE__ */ jsxRuntime.jsx("small", { children: p.period })
+      ] }),
+      p.summary && /* @__PURE__ */ jsxRuntime.jsx(Body, { children: p.summary }),
+      p.features && p.features.length > 0 && /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "uipack-web-plan__features", children: p.features.map((f, j) => /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Check, {}),
+        /* @__PURE__ */ jsxRuntime.jsx("span", { children: f })
+      ] }, j)) }),
+      p.action && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-plan__action", children: /* @__PURE__ */ jsxRuntime.jsx(CtaButton, { href: p.action.href, variant: p.featured ? "primary" : "secondary", children: p.action.label }) })
+    ] }, i)) }),
+    note && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-pricing__note", children: note })
+  ] });
+}
+function ClosingCta({ title, intro, action, note, eyebrow, id, className = "" }) {
+  const headingId = id ? `${id}-title` : void 0;
+  return /* @__PURE__ */ jsxRuntime.jsx("section", { id, className: `uipack-web-closing ${className}`.trim(), "aria-labelledby": headingId, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-closing__inner", children: [
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-closing__copy", children: [
+      eyebrow && /* @__PURE__ */ jsxRuntime.jsx(Eyebrow, { children: eyebrow }),
+      /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 2, size: 5, id: headingId, children: title }),
+      intro && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-closing__intro", children: intro })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-closing__action", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("a", { className: "uipack-web-cta uipack-web-closing__cta", "data-size": "lg", "data-variant": "primary", href: action.href, children: action.label }),
+      note && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-closing__note", children: note })
+    ] })
+  ] }) });
+}
+function SiteFooter({ brand, links = [], note, children, className = "" }) {
+  return /* @__PURE__ */ jsxRuntime.jsx("footer", { className: `uipack-web-footer ${className}`.trim(), children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-footer__inner", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-footer__brand", children: brand }),
+    links.length > 0 && /* @__PURE__ */ jsxRuntime.jsx("nav", { "aria-label": "Footer", className: "uipack-web-footer__nav", children: /* @__PURE__ */ jsxRuntime.jsx("ul", { children: links.map((l, i) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsx("a", { href: l.href, children: l.label }) }, i)) }) }),
+    children && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-footer__extra", children }),
+    note && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-footer__note", children: note })
+  ] }) });
+}
+function Brand({ children, href }) {
+  return href ? /* @__PURE__ */ jsxRuntime.jsx("a", { className: "uipack-web-brand", href, children }) : /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-brand", children });
+}
+function ProductWindow({
+  title,
+  subtitle,
+  status,
+  source,
+  address,
+  footer,
+  footerEnd,
+  label,
+  children,
+  className = ""
+}) {
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-window ${className}`.trim(), role: "group", "aria-label": label, children: [
+    address && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-window__bar", "aria-hidden": "true", children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-window__dots", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("i", {}),
+        /* @__PURE__ */ jsxRuntime.jsx("i", {}),
+        /* @__PURE__ */ jsxRuntime.jsx("i", {})
+      ] }),
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-window__address", children: address })
+    ] }),
+    (title || status || source) && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-window__head", children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
+        title && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-window__title", children: title }),
+        subtitle && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-window__subtitle", children: subtitle })
+      ] }),
+      (status || source) && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-window__tags", children: [
+        status && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-window__status", children: status }),
+        source && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-window__source", children: source })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-window__body", children }),
+    footerEnd ? /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-window__foot", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("span", { children: footer }),
+      /* @__PURE__ */ jsxRuntime.jsx("span", { children: footerEnd })
+    ] }) : footer && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-window__caption", children: footer })
+  ] });
+}
+function DataTable({ columns, rows, highlight, label, note, narrow = "auto", className = "" }) {
+  const marked = new Set(highlight === void 0 ? [] : Array.isArray(highlight) ? highlight : [highlight]);
+  const kept = columns.filter((c, j) => j === 0 || c.priority !== "low").length;
+  const mode = narrow === "auto" ? kept > 4 ? "stack" : "fit" : narrow;
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-table ${className}`.trim(), "data-narrow": mode, children: [
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-table__scroll", role: "region", "aria-label": label, tabIndex: 0, children: /* @__PURE__ */ jsxRuntime.jsxs("table", { children: [
+      /* @__PURE__ */ jsxRuntime.jsx("caption", { className: "uipack-web-demo__sr", children: label }),
+      /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsx("tr", { children: columns.map((c, j) => /* @__PURE__ */ jsxRuntime.jsx(
+        "th",
+        {
+          scope: "col",
+          "data-align": c.align ?? (c.barMax !== void 0 ? "start" : void 0),
+          "data-priority": c.priority === "low" && j > 0 ? "low" : void 0,
+          children: c.label
+        },
+        c.key
+      )) }) }),
+      /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: rows.map((row, i) => /* @__PURE__ */ jsxRuntime.jsx("tr", { "data-highlight": marked.has(i) || void 0, children: columns.map((c, j) => {
+        const v = row[c.key];
+        const Cell = j === 0 ? "th" : "td";
+        const bar = c.barMax !== void 0 && typeof v === "number" ? Math.max(0, Math.min(1, v / c.barMax)) : void 0;
+        return /* @__PURE__ */ jsxRuntime.jsxs(
+          Cell,
+          {
+            scope: j === 0 ? "row" : void 0,
+            "data-align": c.align,
+            "data-priority": c.priority === "low" && j > 0 ? "low" : void 0,
+            children: [
+              mode === "stack" && j > 0 && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-table__label", "aria-hidden": "true", children: c.label }),
+              bar === void 0 ? v : /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-table__bar", style: { "--v": bar }, children: [
+                /* @__PURE__ */ jsxRuntime.jsx("i", { "aria-hidden": "true" }),
+                /* @__PURE__ */ jsxRuntime.jsx("span", { children: v })
+              ] })
+            ]
+          },
+          c.key
+        );
+      }) }, i)) })
+    ] }) }),
+    note && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-table__note", children: note })
+  ] });
+}
+var isCell = (c) => typeof c === "object" && c !== null && !react.isValidElement(c) && !Array.isArray(c) && "value" in c;
+function ScheduleGrid({
+  columns,
+  rows,
+  label,
+  corner = "Staff",
+  offLabel = "Off",
+  legend,
+  className = ""
+}) {
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-schedule ${className}`.trim(), children: [
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-table__scroll", role: "region", "aria-label": label, tabIndex: 0, children: /* @__PURE__ */ jsxRuntime.jsxs("table", { children: [
+      /* @__PURE__ */ jsxRuntime.jsx("caption", { className: "uipack-web-demo__sr", children: label }),
+      /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx("th", { scope: "col", children: corner }),
+        columns.map((c, i) => /* @__PURE__ */ jsxRuntime.jsx("th", { scope: "col", children: c }, i))
+      ] }) }),
+      /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: rows.map((r, i) => /* @__PURE__ */ jsxRuntime.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntime.jsxs("th", { scope: "row", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("span", { children: r.name }),
+          r.detail && /* @__PURE__ */ jsxRuntime.jsx("small", { children: r.detail })
+        ] }),
+        columns.map((_, j) => {
+          const raw = r.cells[j];
+          const cell = isCell(raw) ? raw : { value: raw };
+          const empty = cell.value === null || cell.value === void 0 || cell.value === "";
+          const tone = cell.tone ?? (empty ? "off" : "shift");
+          return /* @__PURE__ */ jsxRuntime.jsx("td", { "data-tone": tone, children: /* @__PURE__ */ jsxRuntime.jsx("span", { children: empty ? offLabel : cell.value }) }, j);
+        })
+      ] }, i)) })
+    ] }) }),
+    legend && legend.length > 0 && /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "uipack-web-schedule__legend", children: legend.map((l, i) => /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
+      /* @__PURE__ */ jsxRuntime.jsx("i", { "data-tone": l.tone, "aria-hidden": "true" }),
+      l.label
+    ] }, i)) })
+  ] });
+}
+var STATUS_TEXT = { done: "Done", pending: "Waiting", attention: "Needs you" };
+function ItemList({ items, label, className = "" }) {
+  return /* @__PURE__ */ jsxRuntime.jsx("ul", { className: `uipack-web-list ${className}`.trim(), "aria-label": label, children: items.map((it, i) => /* @__PURE__ */ jsxRuntime.jsxs("li", { "data-status": it.status, children: [
+    it.status && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-list__mark", role: "img", "aria-label": STATUS_TEXT[it.status] }),
+    /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-list__text", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("strong", { children: it.title }),
+      it.detail && /* @__PURE__ */ jsxRuntime.jsx("span", { children: it.detail })
+    ] }),
+    it.meta !== void 0 && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-list__meta", children: it.meta })
+  ] }, i)) });
+}
+function RecordCard({ title, eyebrow, status, fields, className = "" }) {
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-record ${className}`.trim(), children: [
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-record__head", children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
+        eyebrow && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-record__eyebrow", children: eyebrow }),
+        /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-record__title", children: title })
+      ] }),
+      status && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-window__status", children: status })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsx("dl", { children: fields.map((f, i) => /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
+      /* @__PURE__ */ jsxRuntime.jsx("dt", { children: f.label }),
+      /* @__PURE__ */ jsxRuntime.jsx("dd", { children: f.value })
+    ] }, i)) })
+  ] });
+}
+function FileTable({ fileName, summary, status, footer, className = "", ...table }) {
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    ProductWindow,
+    {
+      className: `uipack-web-file ${className}`.trim(),
+      label: fileName,
+      title: /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-file__name", children: fileName }),
+      subtitle: summary,
+      status,
+      footer,
+      children: /* @__PURE__ */ jsxRuntime.jsx(DataTable, { label: fileName, ...table })
+    }
+  );
 }
 function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger = 45 }) {
   const ref2 = react.useRef(null);
@@ -299,19 +673,39 @@ function StarHero({
   children,
   noise = 0.07,
   headingId,
-  align = "center"
+  align = "start",
+  layout = "stack",
+  stamp
 }) {
-  return /* @__PURE__ */ jsxRuntime.jsxs("section", { className: "uipack-web-hero", "data-align": align, "aria-labelledby": headingId, children: [
-    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__backdrop", "aria-hidden": "true" }),
-    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__visual", children: visual ?? /* @__PURE__ */ jsxRuntime.jsx(StarChart, { values }) }),
-    noise > 0 && /* @__PURE__ */ jsxRuntime.jsx(NoiseLayer, { opacity: noise }),
-    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-hero__copy", children: [
-      eyebrow && /* @__PURE__ */ jsxRuntime.jsx(Eyebrow, { children: eyebrow }),
-      /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 1, id: headingId, children: title }),
-      subtitle && /* @__PURE__ */ jsxRuntime.jsx(Subhead, { children: subtitle }),
-      actions && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__actions", children: actions })
-    ] }),
-    children && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__proof", children })
+  const backdrop = visual ?? (children ? null : /* @__PURE__ */ jsxRuntime.jsx(StarChart, { values }));
+  return /* @__PURE__ */ jsxRuntime.jsxs(
+    "section",
+    {
+      className: "uipack-web-hero",
+      "data-align": align,
+      "data-layout": layout,
+      "data-has-proof": children ? "" : void 0,
+      "aria-labelledby": headingId,
+      children: [
+        /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__backdrop", "aria-hidden": "true" }),
+        backdrop && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__visual", children: backdrop }),
+        noise > 0 && /* @__PURE__ */ jsxRuntime.jsx(NoiseLayer, { opacity: noise }),
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-hero__copy", children: [
+          eyebrow && /* @__PURE__ */ jsxRuntime.jsx(Eyebrow, { children: eyebrow }),
+          /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 1, id: headingId, children: title }),
+          subtitle && /* @__PURE__ */ jsxRuntime.jsx(Subhead, { children: subtitle }),
+          actions && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__actions", children: actions }),
+          stamp && /* @__PURE__ */ jsxRuntime.jsx(Stamp, { ...stamp })
+        ] }),
+        children && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__proof", children })
+      ]
+    }
+  );
+}
+function Stamp({ value, label }) {
+  return /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-web-hero__stamp", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-hero__stamp-value", children: value }),
+    /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-hero__stamp-label", children: label })
   ] });
 }
 
@@ -374,6 +768,7 @@ function demoFrame(steps, elapsed, timing = DEFAULT_TIMING, initialMetric) {
   };
 }
 var TICK_MS = 40;
+var DEV2 = typeof process !== "undefined" && process.env.NODE_ENV !== "production";
 function lastWith(steps, upTo, pick) {
   for (let k = upTo; k >= 0; k--) {
     const v = pick(steps[k]);
@@ -388,7 +783,10 @@ function DemoPlayer({
   initialMetric,
   metricLabel,
   placeholder = "Ask for something\u2026",
+  mode: modeProp,
+  rail: railProp = "compact",
   autoplay = true,
+  static: still = false,
   loop = false,
   timing: timingProp,
   cta,
@@ -396,27 +794,98 @@ function DemoPlayer({
   onStepChange
 }) {
   const timing = react.useMemo(() => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
-  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
+  const mode = modeProp ?? (steps.some((s) => s.prompt) ? "agent" : "steps");
+  const rail = mode === "steps" ? railProp : void 0;
+  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion() || still;
+  const stepper = reduced && !still;
+  const [held, setHeld] = react.useState(null);
+  const classicTabs = rail !== "compact";
+  const controls = !reduced || stepper && classicTabs;
   const rootRef = react.useRef(null);
   const tabsRef = react.useRef(null);
-  const [elapsed, setElapsed] = react.useState(0);
+  const railRef = react.useRef(null);
+  const bodyRef = react.useRef(null);
+  react.useEffect(() => {
+    const el = bodyRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    let width = 0;
+    let tallest = 0;
+    const ro = new ResizeObserver(([entry]) => {
+      const border = getComputedStyle(el).boxSizing === "border-box";
+      const box = (border ? entry.borderBoxSize : entry.contentBoxSize)?.[0];
+      const w = box ? box.inlineSize : entry.contentRect.width;
+      const h = box ? box.blockSize : entry.contentRect.height;
+      if (Math.abs(w - width) > 1) {
+        width = w;
+        tallest = 0;
+        if (el.style.minHeight) {
+          el.style.minHeight = "";
+          return;
+        }
+      }
+      if (h > tallest + 0.5) {
+        tallest = h;
+        el.style.minHeight = `${Math.ceil(h)}px`;
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const end = demoEnd(steps, timing);
+  const cycle = demoCycle(steps, timing);
+  const [elapsed, setElapsed] = react.useState(end);
   const [playing, setPlaying] = react.useState(autoplay);
   const [inView, setInView] = react.useState(false);
   const id = react.useId();
-  const end = demoEnd(steps, timing);
-  const cycle = demoCycle(steps, timing);
+  const armed = react.useRef(false);
+  const playingRef = chunkKV6PPCWS_cjs.useLatest(playing);
+  const doneRef = chunkKV6PPCWS_cjs.useLatest(elapsed >= end);
+  const blank = mode === "steps" && !steps.some((s) => s.screen !== void 0 && s.screen !== null);
+  react.useEffect(() => {
+    if (DEV2 && blank)
+      console.warn(
+        `uipack/web: DemoPlayer "${label}" runs in steps mode with no step \`screen\`, so its result pane is empty. Give the last step the product's real output (a ScheduleGrid, DataTable, FileTable or RecordCard).`
+      );
+  }, [blank, label]);
   react.useEffect(() => {
     const el = rootRef.current;
+    if (reduced) return;
+    const arm = () => {
+      if (armed.current || !autoplay) return;
+      armed.current = true;
+      setElapsed(0);
+    };
     if (!el || typeof IntersectionObserver === "undefined") {
+      arm();
       setInView(true);
       return;
     }
-    const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.25 });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+    const near = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) arm();
+      },
+      { rootMargin: "0px 0px 25% 0px" }
+    );
+    const view = new IntersectionObserver(
+      ([entry]) => {
+        setInView(entry.intersectionRatio >= 0.25);
+        if (!entry.isIntersecting && armed.current && playingRef.current && !loop && !doneRef.current) {
+          armed.current = false;
+          setElapsed(end);
+        }
+      },
+      { threshold: [0, 0.25] }
+    );
+    near.observe(el);
+    view.observe(el);
+    return () => {
+      near.disconnect();
+      view.disconnect();
+    };
+  }, [reduced, autoplay, loop, end, playingRef, doneRef]);
   const finalFrame = demoFrame(steps, Infinity, timing, initialMetric);
-  const frame = reduced ? finalFrame : demoFrame(steps, elapsed, timing, initialMetric);
+  const heldFrame = held === null || held >= steps.length - 1 ? finalFrame : demoFrame(steps, stepStart(steps, held + 1, timing) - 1, timing, initialMetric);
+  const frame = reduced ? heldFrame : demoFrame(steps, elapsed, timing, initialMetric);
   const finished = !loop && frame.done;
   const running = playing && !finished && inView && !reduced;
   react.useEffect(() => {
@@ -435,16 +904,19 @@ function DemoPlayer({
     return () => clearInterval(timer);
   }, [running, loop, cycle, end]);
   const step = steps[frame.step];
+  const stepState = (i) => i < frame.step || i === frame.step && frame.settled ? "done" : i === frame.step ? "running" : "pending";
   const stepChangeRef = chunkKV6PPCWS_cjs.useLatest(onStepChange);
   react.useEffect(() => {
     stepChangeRef.current?.(frame.step);
   }, [frame.step, stepChangeRef]);
   const seek = react.useCallback(
     (i) => {
+      if (reduced) return setHeld(i);
+      armed.current = true;
       setElapsed(stepStart(steps, i, timing));
       setPlaying(true);
     },
-    [steps, timing]
+    [steps, timing, reduced]
   );
   const replay = () => seek(0);
   const toggle = () => {
@@ -460,7 +932,7 @@ function DemoPlayer({
     if (next === void 0) return;
     e.preventDefault();
     seek(next);
-    tabsRef.current?.querySelectorAll("button")[next]?.focus();
+    (railRef.current ?? tabsRef.current)?.querySelectorAll("button")[next]?.focus();
   };
   const promptStep = step?.prompt ? frame.step : lastWith(steps, frame.step, (s) => s.prompt ? steps.indexOf(s) : void 0);
   const promptText = promptStep === void 0 ? "" : steps[promptStep].prompt;
@@ -475,7 +947,10 @@ function DemoPlayer({
   const doneCount = queuedOnly ? 0 : isCurrent ? frame.actionsDone : actions.length;
   const promptDone = !step?.prompt || frame.typed >= (step.prompt?.length ?? 0);
   const runningIdx = isCurrent && promptDone && !frame.settled && frame.actionsDone < actions.length ? frame.actionsDone : -1;
-  const screen = lastWith(steps, frame.settled ? frame.step : frame.step - 1, (s) => s.screen ?? void 0);
+  const settledScreen = lastWith(steps, frame.settled ? frame.step : frame.step - 1, (s) => s.screen ?? void 0);
+  const firstScreen = steps.findIndex((s) => s.screen !== void 0 && s.screen !== null);
+  const screen = settledScreen ?? (firstScreen >= 0 ? steps[firstScreen].screen : void 0);
+  const screenKey = settledScreen !== void 0 ? frame.settled ? frame.step : frame.step - 1 : `first-${firstScreen}`;
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "section",
     {
@@ -484,6 +959,8 @@ function DemoPlayer({
       "aria-label": label,
       "data-state": reduced ? "static" : finished ? "finished" : running ? "playing" : "paused",
       "data-step": frame.step,
+      "data-mode": mode,
+      "data-rail": rail,
       children: [
         /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__window", children: [
           /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__chrome", "aria-hidden": "true", children: [
@@ -494,8 +971,23 @@ function DemoPlayer({
             ] }),
             address && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__address", children: address })
           ] }),
-          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__body", children: [
-            /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__work", children: [
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__body", ref: bodyRef, children: [
+            rail === "side" && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-demo__work", children: /* @__PURE__ */ jsxRuntime.jsx("ol", { className: "uipack-web-demo__log uipack-web-demo__steps", "aria-label": "Progress", children: steps.map((s, i) => {
+              const state = stepState(i);
+              const detail = (s.actions ?? []).map(toAction).find((a) => a.detail)?.detail;
+              return /* @__PURE__ */ jsxRuntime.jsxs("li", { "data-state": state, children: [
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__tick", "aria-hidden": "true", children: state === "done" ? /* @__PURE__ */ jsxRuntime.jsx("svg", { viewBox: "0 0 16 16", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M3.5 8.5l3 3 6-7" }) }) : null }),
+                /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
+                  /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
+                  " ",
+                  s.title
+                ] }),
+                detail && /* @__PURE__ */ jsxRuntime.jsx("small", { children: detail }),
+                state === "running" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__sr", children: " (in progress)" }),
+                state === "pending" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__sr", children: " (queued)" })
+              ] }, s.id);
+            }) }) }),
+            mode === "agent" && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-demo__work", children: /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
               /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__composer", "data-typing": typing || void 0, children: [
                 /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__sr", children: promptText }),
                 /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", className: visiblePrompt ? "" : "uipack-web-demo__placeholder", children: visiblePrompt || placeholder }),
@@ -511,14 +1003,35 @@ function DemoPlayer({
                   state === "pending" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__sr", children: " (queued)" })
                 ] }, `${actionStep}-${i}`);
               }) })
-            ] }),
+            ] }) }),
             /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__result", children: [
               frame.metric !== void 0 && /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-web-demo__metric", children: [
                 /* @__PURE__ */ jsxRuntime.jsx("strong", { "data-testid": "demo-metric", children: frame.metric }, frame.metric),
                 metricLabel && /* @__PURE__ */ jsxRuntime.jsx("span", { children: metricLabel })
               ] }),
-              screen !== void 0 && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-demo__screen", children: screen }, frame.settled ? frame.step : frame.step - 1)
-            ] })
+              screen !== void 0 && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-demo__screen", children: screen }, screenKey)
+            ] }),
+            rail === "compact" && /* @__PURE__ */ jsxRuntime.jsx("ol", { className: "uipack-web-demo__rail", "aria-label": "Progress", ref: railRef, onKeyDown: onTabKey, children: steps.map((s, i) => {
+              const state = stepState(i);
+              const body = /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__tick", "aria-hidden": "true", children: state === "done" ? /* @__PURE__ */ jsxRuntime.jsx("svg", { viewBox: "0 0 16 16", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M3.5 8.5l3 3 6-7" }) }) : null }),
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__rail-label", children: s.label }),
+                state === "running" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__sr", children: " (in progress)" }),
+                state === "pending" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__sr", children: " (queued)" })
+              ] });
+              return /* @__PURE__ */ jsxRuntime.jsx("li", { "data-state": state, "aria-current": !still && i === frame.step ? "step" : void 0, children: still ? /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__rail-item", title: s.title, children: body }) : /* @__PURE__ */ jsxRuntime.jsx(
+                "button",
+                {
+                  type: "button",
+                  className: "uipack-web-demo__rail-item",
+                  title: s.title,
+                  "aria-controls": `${id}-caption`,
+                  onClick: () => seek(i),
+                  children: body
+                }
+              ) }, s.id);
+            }) })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__sr", children: [
@@ -543,8 +1056,8 @@ function DemoPlayer({
           ] }, s.id)) }),
           !reduced && finalFrame.metric !== void 0 && /* @__PURE__ */ jsxRuntime.jsx("p", { children: `Result: ${finalFrame.metric}${metricLabel ? ` ${metricLabel}` : ""}.` })
         ] }),
-        !reduced && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__controls", children: [
-          /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-demo__tabs", role: "group", "aria-label": "Demo steps", ref: tabsRef, onKeyDown: onTabKey, children: steps.map((s, i) => /* @__PURE__ */ jsxRuntime.jsxs(
+        controls && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__controls", children: [
+          classicTabs && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-demo__tabs", role: "group", "aria-label": "Demo steps", ref: tabsRef, onKeyDown: onTabKey, children: steps.map((s, i) => /* @__PURE__ */ jsxRuntime.jsxs(
             "button",
             {
               type: "button",
@@ -560,21 +1073,31 @@ function DemoPlayer({
             s.id
           )) }),
           /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__buttons", children: [
-            /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", onClick: toggle, children: playing && !finished ? "Pause" : "Play" }),
-            /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", onClick: replay, children: "Replay" }),
+            !reduced && /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", onClick: toggle, children: playing && !finished ? "Pause" : "Play" }),
+              /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", onClick: replay, children: "Replay" })
+            ] }),
             cta
           ] })
         ] }),
-        reduced && cta && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-demo__buttons", children: cta }),
-        /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-web-demo__caption", id: `${id}-caption`, "aria-live": "polite", children: [
-          /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-demo__num", children: [
-            String(frame.step + 1).padStart(2, "0"),
-            " / ",
-            String(steps.length).padStart(2, "0")
-          ] }),
-          " ",
-          step?.title
-        ] })
+        !controls && cta && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-demo__buttons", children: cta }),
+        /* @__PURE__ */ jsxRuntime.jsxs(
+          "p",
+          {
+            className: `uipack-web-demo__caption${reduced || finished ? " uipack-web-demo__sr" : ""}`,
+            id: `${id}-caption`,
+            "aria-live": "polite",
+            children: [
+              /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-demo__num", children: [
+                String(frame.step + 1).padStart(2, "0"),
+                " / ",
+                String(steps.length).padStart(2, "0")
+              ] }),
+              " ",
+              step?.title
+            ]
+          }
+        )
       ]
     }
   );
@@ -2179,11 +2702,15 @@ exports.AI_CRAWLERS = AI_CRAWLERS;
 exports.Aurora = Aurora;
 exports.BackgroundFrame = BackgroundFrame;
 exports.BeamLines = BeamLines;
+exports.BeforeAfter = BeforeAfter;
 exports.Body = Body;
+exports.Brand = Brand;
+exports.ClosingCta = ClosingCta;
 exports.CtaButton = CtaButton;
 exports.DEFAULT_STAR_VALUES = DEFAULT_STAR_VALUES;
 exports.DEFAULT_TIMING = DEFAULT_TIMING;
 exports.DISPLAY_FROM_STEP = DISPLAY_FROM_STEP;
+exports.DataTable = DataTable;
 exports.DemoPlayer = DemoPlayer;
 exports.DotGrid = DotGrid;
 exports.DriftingGutters = DriftingGutters;
@@ -2191,6 +2718,7 @@ exports.EMPHASIS = EMPHASIS;
 exports.Eyebrow = Eyebrow;
 exports.FAQ = FAQ;
 exports.FeatureGrid = FeatureGrid;
+exports.FileTable = FileTable;
 exports.GRID_COLUMNS = GRID_COLUMNS;
 exports.GlassNav = GlassNav;
 exports.GrainOverlay = GrainOverlay;
@@ -2198,6 +2726,7 @@ exports.Grid = Grid;
 exports.GridItem = GridItem;
 exports.HeadTags = HeadTags;
 exports.Heading = Heading;
+exports.ItemList = ItemList;
 exports.JsonLd = JsonLd;
 exports.LLMS_FULL_PATH = LLMS_FULL_PATH;
 exports.LineGrid = LineGrid;
@@ -2206,14 +2735,21 @@ exports.Marquee = Marquee;
 exports.MaskedStar = MaskedStar;
 exports.NoiseLayer = NoiseLayer;
 exports.NumberTicker = NumberTicker;
+exports.PricingPlans = PricingPlans;
+exports.ProductWindow = ProductWindow;
+exports.Proof = Proof;
+exports.RecordCard = RecordCard;
 exports.Reveal = Reveal;
 exports.RevealText = RevealText;
 exports.RhymeIcon = RhymeIcon;
 exports.SMOOTH_SCROLL_ATTR = SMOOTH_SCROLL_ATTR;
 exports.SMOOTH_SCROLL_PREVENT_ATTR = SMOOTH_SCROLL_PREVENT_ATTR;
 exports.SPACE = SPACE;
+exports.ScheduleGrid = ScheduleGrid;
 exports.ScrollTransform = ScrollTransform;
 exports.Section = Section;
+exports.SectionIndexContext = SectionIndexContext;
+exports.SiteFooter = SiteFooter;
 exports.SmoothScroll = SmoothScroll;
 exports.SpotlightCard = SpotlightCard;
 exports.StarChart = StarChart;
@@ -2230,6 +2766,7 @@ exports.WHEEL_LINE_PX = WHEEL_LINE_PX;
 exports.WHEEL_PAGE_FRACTION = WHEEL_PAGE_FRACTION;
 exports.WebPage = WebPage;
 exports.WebSurface = WebSurface;
+exports.WorkedExample = WorkedExample;
 exports.article = article;
 exports.breadcrumbList = breadcrumbList;
 exports.buildCrawlFiles = buildCrawlFiles;
@@ -2252,6 +2789,7 @@ exports.jsonLdTag = jsonLdTag;
 exports.llmsFullTxt = llmsFullTxt;
 exports.llmsTxt = llmsTxt;
 exports.normalizeWheel = normalizeWheel;
+exports.numberSections = numberSections;
 exports.offer = offer;
 exports.organization = organization;
 exports.pageMeta = pageMeta;
@@ -2265,6 +2803,7 @@ exports.robotsTxt = robotsTxt;
 exports.rssFeed = rssFeed;
 exports.scrambleFrame = scrambleFrame;
 exports.scrollProgressOf = scrollProgressOf;
+exports.sectionIndexLabel = sectionIndexLabel;
 exports.serializeJsonLd = serializeJsonLd;
 exports.sitemapXml = sitemapXml;
 exports.slugify = slugify;

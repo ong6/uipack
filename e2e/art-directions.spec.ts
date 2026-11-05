@@ -18,6 +18,8 @@ for (const [k, kind] of kinds.entries())
   for (const [variant, direction] of objectDirections.entries()) {
     const tag = k === variant ? ["@cross-browser"] : [];
     test(`art direction ${kind}/${direction.id}: light and dark, 390 and 1440`, { tag }, async ({ page }, info) => {
+      // Four theme/width builds of one scene: software WebGL on a loaded runner can pass 30 s.
+      test.setTimeout(90_000);
       await page.emulateMedia({ reducedMotion: "reduce" });
       const errors: string[] = [];
       page.on("pageerror", (error) => errors.push(error.message));

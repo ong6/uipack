@@ -2,6 +2,8 @@
 
 `uipack/deck` includes parts for information-dense slides in the strategy-consulting style: a lot of evidence on one page, still readable when projected. Each slide carries one full-sentence claim, the panels that prove it, a "so what", and footnotes with a source. They play in the [deck player](deck.md) like any other slide. Morph and zoom work on them too, so you can zoom from a dense slide into one panel.
 
+A consulting deck is built to be read without its presenter, so it is the [read-alone mode](deck-storytelling.md#two-modes-presented-and-read-alone): each `title` is the full conclusion as one sentence, and the talk track is written out. Lint it with `{ mode: "read-alone" }`, as the example does. For a deck you present and talk through, use short titles and points instead.
+
 Run `npm run dev` and open `/deck?deck=consulting` to see the example: a seven-slide decision request with illustrative data, plus an appendix slide holding the cost model behind every number.
 
 ![Summary slide, light](deck-consulting-summary-light.png)
@@ -79,7 +81,7 @@ Every chart takes `alt` (its accessible summary, as on `Figure`; a default lists
 
 Colour does one job per chart:
 
-- **Emphasis** (the default): the highlighted bar, line or bubble uses the accent (forest in light, mint in dark) and the rest use a context grey.
+- **Emphasis** (the default): the highlighted bar, line or bubble uses the accent (amber in light, gold in dark, in Technical) and the rest use a context grey.
 - **Categorical** (stacked bars, lines without a highlight): four slots that pass the dataviz validator on the panel surface in both themes. The worst adjacent CVD ΔE is 22.7 in light and 21.7 in dark. Light uses `#1a7a52 #4f6fe6 #c27a1f #9a63e0`; dark uses `#33a979 #5f7fef #c0832b #9f72e6`. Values inside segments use white or ink, whichever clears contrast. Fold a fifth series into "Other".
 - **Good and bad** (waterfall deltas, KPI deltas): green and red-orange. Their CVD separation sits in the 6–8 warning band, so direction also shows as a ▲/▼ arrow and a signed value. A cost bridge sets `goodDirection="down"`.
 

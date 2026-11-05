@@ -7,7 +7,7 @@ for (const theme of ["light", "dark"])
       `objects fit and render at ${width} in ${theme}`,
       { tag: width === 390 && theme === "light" ? ["@cross-browser"] : [] },
       async ({ page }) => {
-        // Six scenes in a row, each built and settled: allow more than the default 30 s on slow runners.
+        // Seven scenes in a row, each built and settled: allow more than the default 30 s on slow runners.
         test.setTimeout(90_000);
         await page.setViewportSize({ width, height: 900 });
         await page.emulateMedia({ reducedMotion: "reduce" });

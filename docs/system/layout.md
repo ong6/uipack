@@ -30,8 +30,8 @@ label, 72 with a sub-label. Lanes are on the 8px grid with headers at y 40.
 **Size first.** Decide the render width (column width or a breakout), then size the `viewBox` to
 it. A 1120 `viewBox` in a 680 column puts 13px labels at 8px.
 
-**Patterns.** The diagram page (`/`) is the catalogue of figure layouts, simplest first. Pick one
-before drawing:
+**Patterns.** The diagram gallery, the playground's home page, is the catalogue of figure layouts,
+simplest first. Pick one by the shape of the claim before drawing:
 
 | Claim shape | Pattern |
 | --- | --- |
@@ -66,10 +66,10 @@ drawings without one keep their readable width and scroll inside the frame.
 ```text
 ┌──────────────────────────────────────────────────────────── 1920 ┐
 │  112                                                             │
-│  EYEBROW  ............................................ (eyebrow) │
+│  (eyebrow: optional, off by default) ................. (eyebrow) │
 │  44                                                              │
-│  Headline: the claim, at most two lines ............. (headline) │
-│  Lede: one sentence of why ............................... (lede) │
+│  Headline: 2–5 words, or the claim when read alone .. (headline) │
+│  (lede: optional, one sentence of caveat) ................ (lede) │
 │                                                                  │
 │  ┌ BODY ──────────────────────────────────────────────────────┐  │
 │  │  the evidence: figure / chart / points / tiles / table     │  │
@@ -79,20 +79,21 @@ drawings without one keep their readable width and scroll inside the frame.
 └─ 144 ──────────────────────────────────────────────────── 144 ───┘
 ```
 
-The eyebrow and headline keep the same position on every slide, so `advance` reads as the argument
-moving, not the page jumping. The footer stays put across transitions.
+The headline keeps the same position on every slide (and so does an eyebrow, on the rare slide
+that has one), so `advance` reads as the argument moving, not the page jumping. The footer stays put
+across transitions.
 
 **Archetypes.** Each one is a layout over the regions above, with the role it usually serves:
 
 | Archetype | Body | Typical role | Built as |
 | --- | --- | --- | --- |
-| Cover | None. Big title, eyebrow, footer | `cover` | `Slide layout="center"`, `.uipack-deck-title` |
-| Statement | The headline alone, centred | `answer`, `recommendation` | `Slide layout="center"` |
+| Points | A short title and 2–4 fragments that carry the numbers; the default for a presented deck | any, most often `answer`, `problem`, `plan` | `pointsSlide`, `PointsSlide` |
+| Cover | None. Big title, footer | `cover` | `Slide layout="center"`, `.uipack-deck-title` |
+| Statement | The title alone, centred, or with its points | `answer`, `recommendation` | `Slide layout="center"` |
 | Hero number | One number (360) with its label and baseline | `evidence` | `.uipack-deck-number` |
-| Figure + narration | A diagram across the body, one-line lede | `mechanism` | `Slide` + `Figure`; zoom target for a drill |
+| Figure + narration | A diagram across the body, the narration in the notes | `mechanism` | `Slide` + `Figure`; zoom target for a drill |
 | Split | Text left, visual right (or the reverse) | `evidence`, `mechanism` | `Slide layout="split"` |
 | Before / after | Two columns with matching rows, the change highlighted | `evidence`, `option` | Morph the changed element |
-| Points | Three supporting points, at most | `context`, `problem` | `Slide` blocks |
 | KPI row | 3–4 tiles, one highlighted | `evidence` | `KpiTiles` |
 | Options | Options against criteria | `option` | `HarveyTable`, `Matrix2x2` |
 | Consulting frame | Tracker, action title, a 12-column grid of panels, "So what", notes, source | Any data slide | `ConsultingSlide` + `Panel` |
@@ -118,25 +119,49 @@ words nor the style.
 ## Web
 
 - **Grid.** 12 columns at 1024px and up, 8 at 640px, 4 below. Spacing is 8pt. `Grid` and
-  `GridItem span={[w, m, n]}` respond to their container.
-- **Section archetypes**: nav, hero (headline, subhead, CTA, the star or `DemoPlayer`), mechanism
-  (a working figure), steps (feature cards with actions pinned to the bottom), proof (a quote and
-  numbers), FAQ, pricing with the final CTA.
-- **Each style recommends a sequence** for the same sections (`uiStyles[].prefers` in `uipack`).
-  The order is part of a look: the demo hero, three cards, pricing and FAQ is the generic landing
-  template, so the other styles reorder it.
+  `GridItem span={[w, m, n]}` respond to their container. The hero, every section and the closing
+  band share one 1120px column, so every left edge on the page lines up.
+- **Section archetypes**, each a component:
 
-  | Style | Recommended order | Hero |
+  | Archetype | Component | Holds |
   | --- | --- | --- |
-  | Technical | hero → mechanism → proof → steps → FAQ → pricing | Copy on the start edge; the diagram follows at once |
-  | Landing | hero → steps → mechanism → proof → FAQ → pricing | Centred |
-  | Graphical | hero → proof → steps → mechanism → pricing → FAQ | Centred; the numbers come second, as a poster's |
+  | Nav | `GlassNav` | Brand (on the sections' start edge), links, the CTA. Below 720px: brand on the start edge, Menu on the end edge. The CTA stays in the bar beside Menu, with its `short` label (`cta={{ label, short, href }}`); below 340px it moves into the menu |
+  | Hero | `StarHero` | Eyebrow, headline, subhead, actions, then the proof: a `DemoPlayer` or a `Figure`. `layout="split"` (use it with a product proof) sets copy on 5 columns and the proof on 7 from 1024px, top-aligned, so a wide screen has no empty half; stacked below. `stamp={{ value, label }}` carries the page's one measured number in the style's device (Technical revision tag, Landing die-cut label, Graphical postmark), beside the actions |
+  | Demo | `DemoPlayer` steps mode | The product's screens. `rail="compact"` (default): one row of step labels over the screen, the step tabs while it plays, under the screen below 720px; `"side"` the full checklist in a start column (under the screen below 720px); `"none"`. At rest (and under reduced motion) no step caption shows |
+  | Steps | `Section` + `FeatureGrid numbered` | Three numbered cards |
+  | Mechanism | `Section` + `Figure` | A working figure, with quiet chrome on a web page |
+  | Proof | `Section` + `Proof` | The headline number (or a before/after `compare`), ruled stats (one stat sets as a single compact line), a named quote |
+  | FAQ | `FAQ` | Head beside the questions at 1024px and up |
+  | Pricing | `Section` + `PricingPlans` | One to three plan cards, each with features and its own button label (what that plan's click does); one plan `featured` carries the page's goal |
+  | Closing | `ClosingCta` | A full-bleed band: the claim, the CTA a third time, a reassurance line |
+  | Footer | `SiteFooter` | Brand, links, fine print |
 
-  A recommendation only: `/web?layout=shared` shows all three in one order, which is what the swap
-  test compares.
-- One goal, so the primary CTA appears three times (hero, nav, end) and nothing else competes.
-- One ambient background per viewport, behind the star, never behind body copy.
-- Cards that share a row share a height, with the action row at `margin-top: auto`.
+- **One order in every style.** `WebPage` renders `sections` in the order the page lists them, in
+  every style, and the hero keeps whatever proof the page put there. Swapping the style changes
+  tokens and ornaments only. Alignment is the start edge everywhere by default.
+- **A style's own sequence is opt-in.** `WebPage layout="style"` uses `uiStyles[].prefers` and
+  `.layout` (what fills the hero, alignment, cards or rows). Ids a style doesn't name are kept, after
+  the ones it does. Section ids it knows: `hero`, `how`, `demo`, `mechanism`, `proof`, `faq`,
+  `pricing`.
+
+  | Style | Its own order (opt-in) | Its own hero |
+  | --- | --- | --- |
+  | Technical | hero → how → demo → proof → FAQ → pricing | The figure, start edge; steps as numbered rows |
+  | Landing | hero → how → mechanism → proof → FAQ → pricing | The demo, centred |
+  | Graphical | hero → proof → how → mechanism → pricing → FAQ | The demo, centred |
+
+  Section render functions receive `{ uiStyle, layout, defaults }`; under the default layout,
+  `defaults` is `{ hero: "demo", align: "start", steps: "cards" }` in every style.
+- One goal, so the primary CTA appears three times (hero, nav, closing band) and nothing else competes.
+- One ambient background per viewport, behind the star, never behind body copy. A hero with a
+  proof draws no extra chart: the proof is the star.
+- Cards that share a row share a height, with the action row at `margin-top: auto`; a product
+  window stretched by a taller neighbour keeps its rows packed at the top.
+- **Product surfaces at 390.** A `DataTable` drops `priority: "low"` columns below 440px of its own
+  width, and with more than four remaining columns stacks each row as a small record (`narrow`
+  overrides: `fit`, `stack`, `scroll`). `WorkedExample` results take a `unit` set small beside the
+  value, and the result column fits the value. A `ProductWindow`'s data source goes in `source`
+  (a tag on its title row), not a lone `footer`; a lone footer renders as a caption.
 
 ## Motion
 

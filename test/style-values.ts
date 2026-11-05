@@ -104,6 +104,15 @@ export const CORE_ROLES = [
   "em-style",
   "em-color",
   "star-fill",
+  // Added with Technical's Cyanotype values (2026-11-05)
+  "accent-stroke",
+  "flow-error",
+  "font-heading",
+  "canvas-pattern",
+  "cta-fill",
+  "on-cta",
+  "em-decoration",
+  "num-ring",
 ] as const;
 
 /** The custom properties a style file declares, name (without --ui-) to raw value. */

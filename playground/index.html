@@ -33,13 +33,22 @@
       })();
     </script>
     <!-- /web: preload only the active style's display face (uipack/web fontPreloads; uiStyles[].preload).
-         Technical preloads nothing: its hero is Plex Sans, whose swap moves nothing measurable.
-         Landing preloads Instrument Serif (display + italic, the hero title has an <em>); Graphical
+         Technical preloads Archivo Expanded (its display face, the hero headline; text and labels
+         swap in place over metric-matched fallbacks). Landing preloads Instrument Serif (display + italic, the hero title has an <em>); Graphical
          preloads Anton. Vite rewrites each href to the built file the CSS uses; media="not all" keeps
          them inert, and the script below turns on the active style's set for /web in a build, at
          720px and wider: there the Landing swap re-wrapped the centred headline (CLS 0.042 at
          1440px), while on a phone it moved nothing and the preload only slowed the first paint.
          The dev server serves fonts from another URL, so it skips them. -->
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      crossorigin
+      href="../src/web/fonts/archivo-expanded-latin-600-normal.woff2"
+      media="not all"
+      data-preload-style="technical"
+    />
     <link
       rel="preload"
       as="font"

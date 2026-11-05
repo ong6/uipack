@@ -41,7 +41,7 @@ export function RequestFlow() {
 }
 ```
 
-**Styles.** Every colour, face, radius and ornament is a role (`--ui-paper`, `--ui-ink-2`, `--ui-accent`, `--ui-font-display`, `--ui-backdrop`…) defined once per style in `src/styles` and shipped at the top of every entry stylesheet (alone as `uipack/styles.css`). Technical is the default; `uiStyle="landing"` or `uiStyle="graphical"` on a component, or `data-ui-style` on any ancestor, swaps the values and nothing else. `uiStyles` lists them (faces, the display face to preload, the web section order each recommends) and `styleBootScript()` returns a blocking head script that sets `data-ui-style` and `data-ui-theme` before the first paint. The contract: [docs/system/style.md](docs/system/style.md).
+**Styles.** Every colour, face, radius and ornament is a role (`--ui-paper`, `--ui-ink-2`, `--ui-accent`, `--ui-font-display`, `--ui-backdrop`…) defined once per style in `src/styles` and shipped at the top of every entry stylesheet (alone as `uipack/styles.css`). Technical is the default: Cyanotype, a blueprint (Prussian-blue ink on a cool white sheet, a deep-blue dark half, one amber mark, square hairlines, Archivo Expanded headings on page, slide and figure, Martian Mono labels). `uiStyle="landing"` or `uiStyle="graphical"` on a component, or `data-ui-style` on any ancestor, swaps the values and nothing else. `uiStyles` lists them (faces, the display face to preload, and the web section order each would pick, used only under `WebPage layout="style"`; by default a page keeps its own order in every style) and `styleBootScript()` returns a blocking head script that sets `data-ui-style` and `data-ui-theme` before the first paint. The contract: [docs/system/style.md](docs/system/style.md).
 
 Separate entries, so a page loads only what it draws: `uipack` for parts, `uipack/presets` for ready figures, `uipack/charts` with `uipack/charts.css` for the span chart and layer stack, `uipack/article` with `uipack/article.css` for the labelled blocks of a long article, `uipack/presentations` for slide starters and speaker guides, `uipack/deck` with `uipack/deck.css` for the deck player, `uipack/web` with `uipack/web.css` for web pages in three styles (with head, JSON-LD, FAQ and crawl-file helpers: [web discoverability](docs/web-discoverability.md)), `uipack/mechanism` with `uipack/mechanism.css` for crafted isometric machines, and `uipack/browser` with `uipack/browser.css` for the asset browser.
 
@@ -145,7 +145,7 @@ Use `SlideScene` with a controlled `stopId` to connect the persistent scene to a
 
 ## Web UI
 
-`uipack/web` builds web pages in three styles: **Technical** (the default, diagram-led), **Landing** (the generic landing page) and **Graphical** (poster), swapped with `uiStyle` on `WebSurface`, or on `WebPage`, which also applies the style's section order and layout defaults ([web styles](docs/web-principles.md#web-styles)). Its building blocks for landing pages and marketing sites are drawn from four design videos and written up as [numbered principles](docs/web-principles.md). The flashy pieces each earn their motion: **DemoPlayer** (a baked-in product demo that types a prompt, ticks through the agent's actions and settles on the result, with Pause, Replay and `01/02/03` step tabs), **StarHero** (one masked focal visual from the product story, with inline SVG noise), **SpotlightCard** (a pointer-following light and border glow, off on touch) and **RevealText** (a scroll-in word reveal). The low-key pieces are the defaults: a 16px × 1.25 type scale, `Eyebrow` / `Heading` / `Subhead` / `Body` with opacity hierarchy, `CtaButton`, a sticky `GlassNav`, and `Section` / `FeatureGrid` on a 12/8/4 grid with icons that rhyme with the hero.
+`uipack/web` builds web pages in three styles: **Technical** (the default, a diagram-led blueprint), **Landing** (the generic landing page) and **Graphical** (poster), swapped with `uiStyle` on `WebSurface` or `WebPage`. A swap keeps the page's own section order, hero and layout; a style's own order is an opt-in, `layout="style"` ([web styles](docs/web-principles.md#web-styles)). Its building blocks for landing pages and marketing sites are drawn from four design videos and written up as [numbered principles](docs/web-principles.md). The flashy pieces each earn their motion: **DemoPlayer** (a baked-in product demo that types a prompt, ticks through the agent's actions and settles on the result, with Pause, Replay and `01/02/03` step tabs), **StarHero** (one masked focal visual from the product story, with inline SVG noise), **SpotlightCard** (a pointer-following light and border glow, off on touch) and **RevealText** (a scroll-in word reveal). The low-key pieces are the defaults: a 16px × 1.25 type scale, `Eyebrow` / `Heading` / `Subhead` / `Body` with opacity hierarchy, `CtaButton`, a sticky `GlassNav`, and `Section` / `FeatureGrid` on a 12/8/4 grid with icons that rhyme with the hero. The closing parts are components too: `Proof` (the headline number, stats and a named quote), `PricingPlans`, `ClosingCta`, `SiteFooter` and `Brand`.
 
 ```tsx
 import "uipack/web.css";
@@ -176,7 +176,7 @@ const steps: DemoStep[] = [
 </BackgroundFrame>
 ```
 
-Every class and token is scoped under `.uipack-web`; there are no global element rules. Type comes in three self-hosted roles: Instrument Serif for display (headings at steps 4–6, the hero, big numbers), IBM Plex Sans for text and IBM Plex Mono for labels and data. They are latin woff2 files in `uipack/fonts/*` (141 KB in all, fetched only when used, no third-party requests); override `--web-font-display`, `--web-font-text` or `--web-font-mono` to change one. `<SmoothScroll />` is an opt-in, dependency-free Lenis-style wheel easing that moves the real page scroll (off on touch and under reduced motion) and eases in-page anchors below a sticky `GlassNav`; `smoothScrollTo(target, { offset, duration })` scrolls from code. See [type roles and smooth scrolling](docs/web-principles.md#type-roles). Under reduced motion, DemoPlayer holds still on its final state (every step stays in the DOM as text for screen readers and crawlers), and the other pieces render still. `/web` in the playground composes a full example page.
+Every class and token is scoped under `.uipack-web`; there are no global element rules. Type comes in three self-hosted roles per style: Technical sets Archivo Expanded for display, Archivo for text and Martian Mono for labels and data; Landing sets Instrument Serif for display (headings at steps 4–6, the hero, big numbers), IBM Plex Sans for text and IBM Plex Mono for labels and data. They are latin woff2 files in `uipack/fonts/*` (fetched only when the active style uses them, no third-party requests); override `--web-font-display`, `--web-font-text` or `--web-font-mono` to change one. `<SmoothScroll />` is an opt-in, dependency-free Lenis-style wheel easing that moves the real page scroll (off on touch and under reduced motion) and eases in-page anchors below a sticky `GlassNav`; `smoothScrollTo(target, { offset, duration })` scrolls from code. See [type roles and smooth scrolling](docs/web-principles.md#type-roles). Under reduced motion, DemoPlayer holds still on its final state (every step stays in the DOM as text for screen readers and crawlers), and the other pieces render still. `/web` in the playground composes a full example page.
 
 ![Web UI, light](docs/web-1440-light.png)
 ![Web UI motion, dark](docs/web-motion-1440-dark.png)
@@ -317,7 +317,7 @@ writeFileSync("figure.svg", renderStatic(agentLoop(spec), { theme: "dark", motio
 | `theme` | `"light"` | `"light"`, `"dark"`, or `{ base, ...overrides }` with any `--uipack-*` key as a literal |
 | `motion` | `true` | keep `animateMotion` (it runs inside `<img>` in every current browser) or render each packet once at its `at` |
 | `frame` | `true` | draw eyebrow, title, caption, legend and the border in SVG; `false` gives the bare drawing |
-| `background` | `true` | paint the canvas and dotted grid; `false` lets the page surface show through |
+| `background` | `true` | paint the canvas and its grid; `false` lets the page surface show through |
 | `width` | viewBox width | the file's `width` attribute; height follows |
 | `minFont` | `11` | text floor in CSS px at the width the file is shown at (1088 when `width` is not given) |
 
@@ -332,16 +332,17 @@ Every colour is a CSS custom property on `.uipack`, so a host restyles by settin
 
 ```css
 .uipack {
-  --uipack-fg: #1a1c1a;
-  --uipack-bg: #ffffff;
+  --uipack-fg: #0b2748;
+  --uipack-bg: #fcfdfe;
   --uipack-surface: #ffffff;
-  --uipack-surface-raised: #f4f6f4;
-  --uipack-accent: #205f49;
-  --uipack-token-request: #4f6fe6;
-  --uipack-token-response: #3fb27f;
-  --uipack-token-change: #9a63e0;
-  --uipack-mono: ui-monospace, Menlo, monospace;
-  --uipack-sans: system-ui, sans-serif;
+  --uipack-surface-raised: #e2e9f1;
+  --uipack-accent: #9c5700;
+  --uipack-token-request: #0b77a3;
+  --uipack-token-response: #2b7a4b;
+  --uipack-token-change: #7048c0;
+  --uipack-token-error: #c2392b;
+  --uipack-mono: "Martian Mono", ui-monospace, Menlo, monospace;
+  --uipack-sans: Archivo, system-ui, sans-serif;
 }
 ```
 

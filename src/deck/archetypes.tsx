@@ -3,25 +3,48 @@ import { Slide } from "./parts";
 import type { DeckSlide } from "./types";
 
 /*
- * Four slide archetypes over the shared region map (docs/system/layout.md, "Slides"): the eyebrow,
- * the headline and the footer sit where they sit on every slide; each archetype fills only the
- * body region its own way. Colours, faces and radii come from the deck tokens, so each one
+ * Five slide archetypes over the shared region map (docs/system/layout.md, "Slides"): the headline
+ * and the footer sit where they sit on every slide (and the optional eyebrow, when a slide has one);
+ * each archetype fills only the body region its own way. Points is the default for a presented deck:
+ * a short title and the fragments the speaker talks from. Colours, faces and radii come from the deck tokens, so each one
  * renders in every style. Content is data: the factories (`sectionSlide`…) take typed words and
  * return a `DeckSlide` whose slots `lintDeck` checks against `SLOT_BUDGETS`.
  */
 
 interface Frame {
-  /** The section this slide sits in, 1–4 words. */
-  eyebrow: string;
-  /** The claim, one sentence. */
+  /** Optional, off by default: the section this slide sits in, 1–4 words. */
+  eyebrow?: string;
+  /** The title: a 2–5 word spoken verdict when presented (a label only on a cover, section or mechanism slide), the conclusion as a sentence when read alone. */
   headline: string;
   footer?: ReactNode;
+}
+
+export interface PointsSlideProps extends Frame {
+  /** 2–4 fragments that carry the numbers and cues ("p95 198 ms, half of March", "5 indexes → 1"). */
+  points: readonly string[];
+  /** The named artifact behind the numbers, shown over the footer. */
+  source?: string;
+}
+
+/** Points: a short title and the fragments the speaker talks from. The default for a presented deck. */
+export function PointsSlide({ eyebrow, headline, points, source, footer }: PointsSlideProps) {
+  return (
+    <Slide eyebrow={eyebrow} footer={footer} layout="points">
+      <h2 className="uipack-deck-heading">{headline}</h2>
+      <ul className="uipack-deck-points">
+        {points.map((p) => (
+          <li key={p}>{p}</li>
+        ))}
+      </ul>
+      {source && <p className="uipack-deck-label uipack-deck-points__source">{source}</p>}
+    </Slide>
+  );
 }
 
 export interface SectionSlideProps extends Frame {
   /** The part number, e.g. "02". */
   number: string;
-  /** One sentence on what this part proves. */
+  /** Optional: one plain sentence on what this part covers. */
   lede?: string;
 }
 
@@ -98,7 +121,7 @@ export interface EndSlideProps extends Frame {
   lede?: string;
 }
 
-/** End: the ask as a claim, then its three parts in a row: the action, the owner and the date. */
+/** End: the ask in a few words, then its three parts in a row: the action, the owner and the date. */
 export function EndSlide({ eyebrow, headline, action, owner, date, lede, footer }: EndSlideProps) {
   return (
     <Slide eyebrow={eyebrow} footer={footer} layout="end">
@@ -123,7 +146,20 @@ export function EndSlide({ eyebrow, headline, action, owner, date, lede, footer 
 }
 
 /** What every factory takes besides its archetype's slots: the slide's identity, role and talk. */
-type SlideMeta = Omit<DeckSlide, "render" | "headline" | "eyebrow" | "lede" | "slots" | "source">;
+type SlideMeta = Omit<DeckSlide, "render" | "headline" | "eyebrow" | "lede" | "slots" | "source" | "points">;
+
+/** A points slide as a `DeckSlide`: the title and points as data, so `lintDeck` reads both. */
+export function pointsSlide({ eyebrow, headline, points, source, footer, ...meta }: SlideMeta & PointsSlideProps): DeckSlide {
+  return {
+    ...meta,
+    headline,
+    eyebrow,
+    points,
+    source,
+    ...(source ? { slots: { source } } : {}),
+    render: () => <PointsSlide eyebrow={eyebrow} headline={headline} points={points} source={source} footer={footer} />,
+  };
+}
 
 /** A section divider as a `DeckSlide`, its words as data. */
 export function sectionSlide({ eyebrow, headline, number, lede, footer, ...meta }: SlideMeta & SectionSlideProps): DeckSlide {

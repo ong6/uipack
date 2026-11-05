@@ -65,6 +65,8 @@ export interface DeckSlide {
   lede?: string;
   /** On-slide source line for the slide's numbers. */
   source?: string;
+  /** Body points, as data: at most three, each within the `point` budget. */
+  points?: readonly string[];
   /** Other slot text the slide declares, checked against `SLOT_BUDGETS`. */
   slots?: Partial<Record<SlotName, string>>;
   /** Talk track for the presenter view. A string is treated as `say`. */

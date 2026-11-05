@@ -34,6 +34,36 @@
     margin-left: calc(var(--ui-marker-size, 0px) * 0.75);
     visibility: hidden;
   }
+  /* Narrow backdrop: below 720px a style may paint a smaller ornament (Graphical's disc shrinks
+     into the corner and drops its ring, so it never crosses the copy). */
+  @container web (max-width: 720px) {
+    .uipack-web-hero__backdrop {
+      background: var(--ui-backdrop-narrow, var(--ui-backdrop));
+    }
+  }
+  /* Section index: a style that numbers its sections (Technical) shows each Section eyebrow's
+     number (WebPage passes it, in page order) before its words. */
+  .uipack-web-section__index {
+    display: var(--ui-section-index, none);
+    color: var(--web-accent-ink);
+  }
+  .uipack-web-section__index::after {
+    content: "/";
+    margin: 0 0.6em;
+    color: var(--web-ink-low);
+    opacity: 0.6;
+  }
+  /* Corner marks on quiet cards (Technical's registration marks; none elsewhere). */
+  .uipack-web:not([data-ui-layout="style"]) .uipack-web-feature {
+    background: var(--ui-corner-marks, none), var(--web-surface);
+  }
+  /* Column rule: a style may open each section's column on a title rule (Technical: a hairline
+     across the column with an end tick and a short accent bar, as on a drawing sheet). It paints
+     the column's top padding, so only heights change across styles. */
+  .uipack-web-section__inner {
+    padding-top: var(--ui-column-rule-gap, 0px);
+    background: var(--ui-column-rule, none);
+  }
   /* Rule: a line at the top of each section after the first, drawn inside it. */
   .uipack-web-section {
     box-shadow: var(--ui-section-rule, none);
@@ -42,13 +72,14 @@
 
 /* Layout variants the styles recommend (uiStyles[].prefers); any style renders any of them. */
 @layer uipack.layout {
-  /* The hero's start-edge layout (StarHero align="start"), which Technical recommends. */
+  /* The hero's start-edge layout (StarHero align="start", the default). The copy and the proof
+     share the sections' 1120px column, so the hero's left edge is every section's left edge. */
   .uipack-web-hero[data-align="start"] {
     text-align: start;
   }
   .uipack-web-hero[data-align="start"] .uipack-web-hero__copy {
     justify-items: start;
-    max-width: 1040px;
+    max-width: 1120px;
   }
   .uipack-web-hero[data-align="start"] .uipack-web-hero__actions {
     justify-content: start;
@@ -66,7 +97,7 @@
   }
   .uipack-web[data-ui-style="technical"][data-ui-layout="style"] .uipack-web-hero__copy {
     justify-items: start;
-    max-width: 1040px;
+    max-width: 1120px;
   }
   .uipack-web[data-ui-style="technical"][data-ui-layout="style"] .uipack-web-hero__actions {
     justify-content: start;

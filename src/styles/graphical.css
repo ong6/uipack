@@ -1,6 +1,6 @@
 /* Graphical — a bold poster style: bone paper, black ink, one signal-orange accent, condensed
    display caps (Anton), hard edges, 2px rules and hard offset frames. Its one motif is the disc:
-   the hero's backdrop disc returns as every marker. Shapes go only through the ornament slots,
+   the hero's stamp (a postmark that carries the page's number) returns as every marker. Shapes go only through the ornament slots,
    so a layout and its words are the same as in any other style. Guide: docs/web-principles.md,
    "Graphical". */
 @layer uipack.tokens {
@@ -15,14 +15,19 @@
     --ui-line: light-dark(#111111, #f1eee6);
     --ui-line-soft: color-mix(in srgb, var(--ui-ink) 22%, transparent);
     --ui-accent: light-dark(#f24a00, #ff6a26);
+    --ui-accent-stroke: var(--ui-accent);
     --ui-accent-ink: light-dark(#b23700, #ff7f45);
     --ui-on-accent: light-dark(#111111, #111111);
     --ui-accent-surface: light-dark(#ff6a26, #ff8247);
     --ui-accent-ink-2: light-dark(#2b1406, #2b1406);
     --ui-accent-line: light-dark(#111111, #111111);
-    --ui-flow-request: light-dark(#2348e0, #8ea4ff);
-    --ui-flow-response: light-dark(#14805a, #5fd39b);
-    --ui-flow-change: light-dark(#8a3fd6, #c39aff);
+    /* Flows stay in the poster's three inks (shape still tells them apart): request in ink,
+       response in the warm grey, change in the orange's text tone. No blue beside the orange. */
+    --ui-flow-request: light-dark(#111111, #f1eee6);
+    --ui-flow-response: light-dark(#57554f, #a29e93);
+    --ui-flow-change: light-dark(#b23700, #ff7f45);
+    /* A failed or declined branch in a diagram. */
+    --ui-flow-error: light-dark(#c8102e, #ff6b5e);
     --ui-data-pos: light-dark(#14805a, #33a979);
     --ui-data-neg: light-dark(#c0174f, #ff6b93);
     --ui-data-context: light-dark(#8f8b80, #6a675f);
@@ -44,8 +49,10 @@
     --ui-font-display: "Anton", "Anton Fallback", Impact, "Arial Narrow", sans-serif-condensed, sans-serif;
     --ui-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --ui-font-label: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    /* Small headings (a figure's title) stay in the text face; the display face starts at step 4. */
+    --ui-font-heading: var(--ui-font-text);
     --ui-display-weight: 400;
-    --ui-display-tracking: 0.005em;
+    --ui-display-tracking: 0.012em;
     --ui-display-case: uppercase;
     --ui-label-tracking: 0.12em;
     --ui-radius: 0px;
@@ -56,7 +63,6 @@
     --ui-nav-blur: none;
     --ui-stroke: 2;
     --ui-rule-width: 2px;
-    --ui-density: 1;
     --ui-type-ratio: 1.25;
     --ui-measure: 60ch;
     /* Poster motion: things land, they do not float. */
@@ -66,19 +72,13 @@
     --ui-dur-base: 240ms;
     --ui-dur-slow: 480ms;
 
-    /* Ornaments. backdrop: the accent disc, cut by the slot's top-right corner, and a band of
-       ink rules along the slot's foot, never under the copy. frame: 2px ink and a hard offset
-       shadow. marker: the disc again, small. */
-    --ui-backdrop:
-      radial-gradient(circle at 100% 0, var(--ui-accent) 0 min(24cqi, 300px), transparent calc(min(24cqi, 300px) + 1px)),
-      radial-gradient(
-        circle at 100% 0,
-        transparent 0 calc(min(24cqi, 300px) + 18px),
-        var(--ui-ink) calc(min(24cqi, 300px) + 19px) calc(min(24cqi, 300px) + 21px),
-        transparent calc(min(24cqi, 300px) + 22px)
-      ),
-      repeating-linear-gradient(90deg, var(--ui-ink) 0 2px, transparent 2px 14px) 0 100% / 100% 24px no-repeat;
+    /* Ornaments. backdrop: none. The disc is no longer decoration: it is the hero's stamp (a
+       postmark carrying the page's number, StarHero stamp) and returns small as every marker.
+       frame: 2px ink and a hard offset shadow. */
+    --ui-backdrop: none;
     --ui-backdrop-mask: none;
+    /* The figure canvas: the 12px dot grid. */
+    --ui-canvas-pattern: radial-gradient(var(--ui-line-soft) 1px, transparent 1.2px) 0 0 / 12px 12px;
     --ui-frame-border: 2px solid var(--ui-ink);
     --ui-card-shadow: 6px 6px 0 var(--ui-ink);
     --ui-frame-shadow: 6px 6px 0 var(--ui-ink);
@@ -92,8 +92,84 @@
     --ui-cta-shadow-hover: 6px 6px 0 var(--ui-ink);
     --ui-em-style: normal;
     --ui-em-color: var(--ui-accent-ink);
+    --ui-em-decoration: none;
+    --ui-cta-fill: var(--ui-accent);
+    --ui-on-cta: var(--ui-on-accent);
     --ui-star-fill: 0;
     --ui-display-scale: 1.3;
+
+    /* Web closing band (ClosingCta): the poster's orange, black type, a black button, and the
+       hero's tick rule along the top. */
+    --ui-band-fill: light-dark(#ff6a26, #ff8247);
+    --ui-band-ink: light-dark(#111111, #111111);
+    --ui-band-ink-2: light-dark(#2b1406, #2b1406);
+    --ui-band-cta: light-dark(#111111, #111111);
+    --ui-on-band-cta: light-dark(#f1eee6, #f1eee6);
+    --ui-band-pattern: repeating-linear-gradient(90deg, var(--ui-band-ink) 0 2px, transparent 2px 14px) 0 0 / 100% 16px no-repeat;
+    --ui-backdrop-narrow: none;
+    --ui-section-index: none;
+    --ui-corner-marks: none;
+
+    /* Component treatment on the web: a poster. Steps are giant Anton numerals in the accent; stats
+       sit between 2px ink rules; the quote is an orange poster block in caps with a hard shadow;
+       the featured plan casts an orange shadow; table cells are ink-ruled boxes. */
+    --ui-density: 0.95;
+    --ui-column-rule: none;
+    --ui-column-rule-gap: 0px;
+    --ui-card-fill: var(--ui-surface);
+    --ui-card-pad: 1.75rem;
+    --ui-num-font: var(--ui-font-display);
+    --ui-num-size: 4rem;
+    --ui-num-weight: 400;
+    --ui-num-prefix: "";
+    --ui-num-pad: none;
+    --ui-num-rule: 0 solid transparent;
+    --ui-num-color: var(--ui-accent-ink);
+    --ui-num-fill: transparent;
+    --ui-num-ring: none;
+    --ui-num-box: auto;
+    --ui-num-bleed: 0;
+    --ui-num-gap: 0px;
+    --ui-num-display: block;
+    --ui-stat-divider: 2px solid var(--ui-ink);
+    --ui-quote-fill: var(--ui-accent);
+    --ui-quote-ink: var(--ui-on-accent);
+    --ui-quote-ink-2: var(--ui-accent-ink-2);
+    --ui-quote-line: var(--ui-on-accent);
+    --ui-quote-mark: var(--ui-on-accent);
+    --ui-quote-face: var(--ui-font-display);
+    --ui-quote-weight: 400;
+    --ui-quote-case: uppercase;
+    --ui-quote-size: 2.25rem;
+    --ui-quote-rule: 0 0 transparent;
+    --ui-quote-shadow: 8px 8px 0 var(--ui-ink);
+    --ui-plan-featured-border: var(--ui-ink);
+    --ui-plan-featured-ring: 8px 8px 0 var(--ui-accent);
+    --ui-cell-fill: var(--ui-surface);
+    --ui-cell-ink: var(--ui-ink);
+    --ui-cell-line: var(--ui-ink);
+    --ui-cell-peak: var(--ui-accent);
+    --ui-on-cell-peak: var(--ui-on-accent);
+    --ui-cell-off-ink: var(--ui-ink-3);
+    --ui-cell-radius: 0px;
+    --ui-window-dots: flex;
+    --ui-window-bar: var(--ui-surface-2);
+    --ui-web-flow-request: var(--ui-flow-request);
+    --ui-perf: solid;
+    --ui-plan-featured-fill: var(--ui-surface);
+    /* Stamp (StarHero stamp): the poster's one disc, now a postmark that carries the page's number:
+       an orange seal with a double ink ring, tilted, with a hard shadow. */
+    --ui-stamp-fill: var(--ui-accent);
+    --ui-stamp-ink: var(--ui-on-accent);
+    --ui-stamp-accent: var(--ui-on-accent);
+    --ui-stamp-border: 2px solid var(--ui-ink);
+    --ui-stamp-inner: 2px solid var(--ui-ink);
+    --ui-stamp-radius: 50%;
+    --ui-stamp-rotate: -8deg;
+    --ui-stamp-face: var(--ui-font-display);
+    --ui-stamp-case: uppercase;
+    --ui-stamp-size: 3.25rem;
+    --ui-stamp-shadow: 6px 6px 0 var(--ui-ink);
 
     --ui-node: var(--ui-surface);
     --ui-line-solid: var(--ui-line);

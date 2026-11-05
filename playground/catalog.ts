@@ -7,7 +7,7 @@ export const visualStyles = [
     id: "technical",
     name: "Technical",
     description:
-      "The default: precise system diagrams, warm paper, one forest accent, thin rules and a dotted grid. On the web, a page leads with a working diagram.",
+      "The default, a blueprint: precise system diagrams in Prussian-blue ink, one amber mark, square hairlines and a drafting grid on the hero and figures. On the web, a page leads with the product's real output.",
     tokens: "src/styles/technical.css",
     guidance: "docs/system/style.md",
   },
@@ -15,7 +15,7 @@ export const visualStyles = [
     id: "landing",
     name: "Landing (generic)",
     description:
-      "The generic SaaS landing page, kept for when that is the brief: a demo-first hero, lavender band, indigo CTA, serif headlines, glass and grain.",
+      "Product marketing in label stock: a demo-first hero, warm ivory and kraft, one ledger-green CTA, serif headlines, ruled forms with perforated divisions and no shadows.",
     tokens: "src/styles/landing.css",
     guidance: "docs/web-principles.md",
   },
@@ -123,7 +123,7 @@ export const libraryPages = [
     styles: ["technical", "landing", "graphical"],
     isDefault: true,
     intro:
-      "Tech talk deck: a team lead argues that reviews should open with their answer, with evidence, a pilot and a dated ask. Every slide advances except one morph (the same number becoming a table row) and one zoom (into the slide the ghost deck flags). Swipe on a touch screen, or click the deck and use the arrow keys.",
+      "Tech talk deck: a team lead argues that reviews should open with their answer, with evidence, a pilot and a dated ask. Written to present: short titles, the numbers in points, cue notes in the speaker view (S). Every slide advances except one morph (the same number becoming a table row) and one zoom (into the slide the ghost deck flags). Swipe on a touch screen, or click the deck and use the arrow keys.",
   },
   {
     id: "deck-bento",
@@ -145,7 +145,7 @@ export const libraryPages = [
     query: { deck: "consulting" },
     styles: ["technical", "landing", "graphical"],
     intro:
-      "Consulting deck: a decision request in consulting style, with dense charts, callouts, a so-what panel and sources, read headline by headline.",
+      "Consulting deck: a decision request in consulting style, with dense charts, callouts, a so-what panel and sources. Written to be read without the presenter, so every title is a full-sentence conclusion.",
   },
   {
     id: "presentations",
@@ -191,7 +191,7 @@ export const libraryPages = [
     label: "Overview",
     path: "/foundations",
     intro:
-      "Style, writing and layout are three layers you swap one at a time; change each on one slide and one web section below.",
+      "Style, writing and layout are three layers you swap one at a time. Change each one on the slide and the web section below.",
   },
   {
     id: "foundations-style",

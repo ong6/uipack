@@ -8,42 +8,83 @@ The components enforce what they can; the rest is on the page author.
 `uipack/web` renders in three styles, one value set each in `src/styles` (see
 [docs/system/style.md](system/style.md)). Pick one with `<WebSurface uiStyle="…">` or a whole page with `<WebPage uiStyle="…" sections={…}>` (or
 `data-ui-style` on any ancestor, set before paint by `styleBootScript()`). A swap changes tokens and
-ornament slots only: the same sections, boxes and reading order (`e2e/style-swap.spec.ts`). Each
-style recommends a section order (`uiStyles[].prefers`); the shared order works in all three.
+ornament slots only: the same sections in the page's own order, the same hero, boxes and reading
+order (`e2e/style-swap.spec.ts`). A style's own order (`uiStyles[].prefers`) is an explicit opt-in.
 
-| Style | Use it for | Palette | Faces | Ornaments | Recommended order |
+| Style | Use it for | Palette | Faces | Ornaments | Own order (opt-in only) |
 | --- | --- | --- | --- | --- | --- |
-| **Technical** (default) | Product and project pages that should read like junxiong.dev's figures | Paper `#f6f5f1`, ink `#1a1c1a`, one forest accent `#205f49` (dark: `#0a100d`, `#e8ece9`, mint `#71dcb2`) | IBM Plex Sans (headlines at 600, −0.02em), IBM Plex Mono labels | Dotted-grid backdrop, masked; 2px-radius accent square before eyebrows; 1px section rules; thin frames, 6px radius, no shadow, no glow or grain; headline emphasis in the accent, not italic | Hero with the figure (start-aligned) → steps as numbered rows → demo → proof → FAQ → pricing |
-| **Landing** (generic) | When the brief is a conventional SaaS landing page | Neutral `#f7f7f4`, lavender band `#ebe9f4`, indigo CTA `#4b3fd6` | Instrument Serif display from step 4, Plex Sans, Plex Mono | Grain and glass, soft shadows, 16px cards, round pills, accent glow under the CTA and spotlight | Hero (centred, demo) → steps → mechanism → proof → FAQ → pricing |
-| **Graphical** | Launches, events, campaigns: a page that should look like a poster | Bone `#f1eee6`, black ink, one signal orange `#f24a00` (text uses `#b23700`) | Anton display in caps at 1.3× the scale, Plex Sans, Plex Mono | The accent disc and a ruled band in the hero backdrop; the disc again as every eyebrow marker; 2px ink frames with hard 6px offset shadows; 0 radius; 2px section rules; no glow or grain | Hero → proof (big numbers) → steps → mechanism → pricing → FAQ |
+| **Technical** (default) | Product and project pages that should read like junxiong.dev's figures | Cyanotype: cool white `#f3f6f9`, Prussian ink `#0b2748`, one amber `#9c5700` (dark: deep Prussian `#0a2342`, `#edf3fb`, gold `#f0c45a`) | Archivo Expanded 600 headlines (the same face on slides and figure titles), Archivo text, Martian Mono labels | An engineering drawing, compact (density 0.9). Drafting-film grid behind the hero only (and on figure canvases), masked; a 7px amber dot and a mono section index before eyebrows (`01 / HOW IT WORKS`); a dimension line (hairline, end ticks at both ends) over each section's column; steps in 36px ringed detail bubbles; ink crop marks at all four corners of cards and plans; stats between 1px rules; the quote as a hairline annotation; the featured plan with a 4px amber top rule; square table cells with Prussian peaks; windows without traffic lights; figures with the full flow code (cyan main flow); square corners, 1px hairlines, no shadow, glow or grain; the headline's key phrase in ink over an amber underline (gold in dark); a Prussian primary button (gold in dark); a plain Prussian closing band with a gold button | Hero with the figure → steps as numbered rows → demo → proof → FAQ → pricing |
+| **Landing** (product marketing) | When the brief is a product-marketing page that should read as considered print | Warm ivory `#f6f2e8`, kraft band `#ece5d4`, ledger-green CTA `#1d5a43` | Instrument Serif display from step 4 (emphasis in green italic), Plex Sans, Plex Mono | Label stock (density 1): a solid masthead nav; ruled 1px forms with 4px corners and no shadow or glow; perforated (dashed) internal divisions; steps as "No. 1" stubs; a pull quote on a green rule; the featured plan as the green-tinted ticket; kraft table chips; ink-key buttons; a die-cut label stamp; a ledger-green closing band with an ivory button | Hero (centred, demo) → steps → mechanism → proof → FAQ → pricing |
+| **Graphical** | Launches, events, campaigns: a page that should look like a poster | Bone `#f1eee6`, black ink, one signal orange `#f24a00` (text uses `#b23700`) | Anton display in caps at 1.3× the scale, Plex Sans, Plex Mono | The accent disc and a ruled band in the hero backdrop (below 720px the tick band only, so no clipped disc under the nav); giant Anton step numerals; stats between 2px ink rules; the quote as an orange poster block in caps; the featured plan with an orange offset shadow; ink-ruled table cells; the disc again as every eyebrow marker; 2px ink frames with hard 6px offset shadows; 0 radius; 2px section rules; figure flows in ink, grey and orange; an orange closing band; no glow or grain | Hero → proof (big numbers) → steps → mechanism → pricing → FAQ |
 
-**Layout defaults per style.** `WebPage` renders sections by id in the style's recommended order
-(`uiStyles[].prefers`) and sets `data-ui-layout="style"`, which turns on the style's layout
-defaults (`uiStyles[].layout`): Technical fills the hero's proof slot with the working figure
-instead of a product mock-up, sets the hero and every section head on the start edge and draws
-steps as numbered rows; Landing and Graphical keep the centred demo hero and step cards.
-`layout="shared"` renders every style on one order and layout, so a swap changes tokens only.
-Section render functions receive `{ uiStyle, layout, defaults }`.
+**One layout in every style (default).** `WebPage` renders `sections` in the order the page lists
+them and sets `data-ui-layout="shared"`: every style gets the same order, the same hero proof and
+start-edge alignment, so a swap changes the look and nothing else. Section render functions
+receive `{ uiStyle, layout, defaults }`; by default `defaults` is the same for all three (`hero:
+"demo"`, `align: "start"`, `steps: "cards"`). `layout="style"` opts into a style's own order and
+defaults (`uiStyles[].prefers` and `.layout`, `data-ui-layout="style"`): Technical then puts the
+figure in the hero and draws steps as numbered rows. Ids a style doesn't name are kept, after the
+ones it does.
 
-Shared finish rules hold in every style: one accent, glow only for selection (Landing's ambient
-glow is its documented exception, and its spotlight turns off elsewhere), contrast of 4.5:1 for
+**Figures on a web page.** `WebSurface` (and so `WebPage`) gives figures quiet chrome: no Open
+canvas and no legend with fewer than two entries, which belong to articles and docs. `Figure
+chrome="full"` (or `WebSurface figureChrome="full"`) brings them back. A figure takes the page's
+text and label faces, its frame (Graphical's 2px ink and hard shadow, Landing's 1px ink edge) and its
+radius, and each style keeps the flow colours in its own palette.
+
+**Closing parts.** `Proof`, `PricingPlans`, `ClosingCta`, `SiteFooter`, `Brand` and `FeatureGrid
+numbered` are one layout in every style, painted through roles. Use them rather than page CSS, so
+the swap keeps them in place.
+
+**The nav at phone width.** Below 720px `GlassNav` folds its links into a menu, with the brand on
+the start edge and Menu on the end edge. The page's goal stays in the bar as a compact button beside
+Menu (44px touch target, 0.875rem type); only below 340px does it move into the open menu. Keep the CTA label to
+about 20 characters ("Start a free trial") so brand, button and Menu share a 390px bar.
+
+**Show the product's real output.** The largest object above the fold is the product doing its
+job with real-looking rows: never an empty demo panel, a chat box for a product that is not a chat,
+or an icon-in-a-box flow. The parts for it, one layout in every style and painted by the
+treatment roles:
+
+| Part | Shows |
+| --- | --- |
+| `ProductWindow` | A framed product view: window bar, title and status, the output, a footer fact |
+| `DataTable` | Rows with mono heads, rules across every cell, inline bars (`barMax`), one marked row and a worked note |
+| `ScheduleGrid` | People by days (a rota, a calendar): day-off cells, marked cells with a legend; all seven days fit at 390px |
+| `FileTable` | A file's rows as the product reads them (a CSV or export) |
+| `ItemList`, `RecordCard` | Records with a state (needs you, waiting, done); one record's fields |
+| `WorkedExample` | The mechanism as one calculation: input, each rule with its arithmetic, each result (84 covers ÷ 14 = 6 servers) |
+| `BeforeAfter` (or `Proof compare`) | A measured change as two bars to scale |
+| `DemoPlayer` steps mode | No prompt on any step: no composer, the steps as a checklist, a wide result pane holding each step's `screen` (put the parts above in it). The pane is never empty; the last screen is what a still capture shows, so make it the fullest |
+
+On a marketing page, show the mechanism with `WorkedExample` and real numbers rather than a
+`pipeline` figure; when you do use a preset, boxes widen to fit their labels, `legend` takes your
+own entries or `false`, and icons include `person`, `calendar`, `file`, `table`, `receipt`,
+`phone` and `clock`. A working page with every block wired is in
+[`examples/web-starter`](../examples/web-starter/App.tsx) (it ships in the package): copy it,
+then replace the words and rows.
+
+Shared finish rules hold in every style: one accent, glow only for selection (no style has an
+ambient glow; `GrainOverlay` and `Aurora` are opt-in components), contrast of 4.5:1 for
 small text in both themes (`test/style-roles.test.tsx`), the finished state under reduced motion.
 Graphical avoids the generic-AI tropes on purpose: no purple, no gradient blobs, no glass, no
-emoji icons, no rounded-everything; Landing keeps some of them because that is its brief.
+emoji icons, no rounded-everything; so does Landing since 2026-11-05 (label stock replaced its
+cobalt, glass and soft shadows, which read as stock SaaS beside Technical).
 
 **Performance per style** (Lighthouse 13.5 mobile, built playground, median of 3, 2026-11-04;
-`/web?style=…`): Technical LCP 2.27 s, 101 KB of fonts in 5 files; Landing 2.57 s, 143 KB in 7;
+`/web?style=…`): Technical LCP 2.27 s, 101 KB of fonts in 5 files (before Cyanotype; now 77 KB
+in 6, not yet re-measured); Landing 2.57 s, 143 KB in 7;
 Graphical 2.42 s, 119 KB in 6. CLS 0 in all three. The same method on the commit before the
 styles measured Landing at 2.42 s; the 0.15 s is the role layer and the two extra stylesheets on
 the first view. Each style preloads only its own display face, at 720px and wider (Landing:
-Instrument Serif; Graphical: Anton; Technical: none).
+Instrument Serif; Graphical: Anton; Technical: Archivo Expanded).
 
 Evidence: the first screen of `/web` in each style at 1440 and 390, both themes, is in
 [`docs/styles/`](styles/) (`web-<style>-<width>-<theme>.png`), with the same deck slides in each
 style (`deck-moves-<style>-<theme>.png`, `deck-consulting-<style>-<theme>.png`).
 
-Rules 5 (grain and glass), 9 (the indigo 60/30/10) and 19–21 (the three Landing faces) describe
-Landing. Technical and Graphical replace them with the table above; every other rule applies to all
+Rules 5 (grain and glass, now opt-in components), 9 (the 60/30/10, now ivory, kraft and green)
+and 19–21 (the three Landing faces) describe Landing. Technical and Graphical replace them with the table above; every other rule applies to all
 three.
 
 | Code | Source |
@@ -61,7 +102,8 @@ three.
 
 1. **One goal per page.** One primary CTA, placed in the hero, in the nav, and again at the end: three
    placements, one action, one accent colour. Add social proof between them. `CtaButton`
-   `variant="primary"` is the only thing that uses the accent fill. (SMWD-5)
+   `variant="primary"` is the only thing that uses the accent fill. The goal is the reader's next
+   step; an internal approval behind the launch stays in the deck, off the page. (SMWD-5)
 2. **Show the product working.** A demo-first hero beats decoration. Flashy effects impress other
    developers; customers need proof of value. He is “not trying to impress other designers or win
    awards” (SMWD-6, 4:44), and “most designers design for looks, pro designers design for action”:
@@ -108,7 +150,10 @@ three.
     Impeccable pass) before shipping. (SMWD-5, RN)
 14. **Motion explains change.** Each flashy piece earns its motion: typing shows input, ticks show
     work, the metric falls as it happens, the star draws once. Under `prefers-reduced-motion`, every
-    piece renders its final, complete state (`DemoPlayer` lists all steps). Pointer effects stay off
+    piece renders its final, complete state (`DemoPlayer` lists all steps and keeps its step tabs, each showing its step's finished frame with nothing moving). The resting state is the
+    finished one in every case: `DemoPlayer` paints its result first and rewinds to play only as it
+    comes into view, and a figure is drawn before its entrance plays, so a capture or a reader who
+    jumps past never sees an empty frame (`static` on either holds the rest). Pointer effects stay off
     on touch. Scroll reveals use IntersectionObserver and CSS; no GSAP needed. Animate only
     transform, opacity and filter, and reserve final sizes (`TextScramble` and `NumberTicker` lay the
     final text under the live one), so nothing shifts. Moving content that runs longer than 5 s
@@ -137,7 +182,9 @@ three.
 19. **Three faces, one job each.** The faces are self-hosted: latin-subset woff2 files in the package's
     `fonts/` folder (`dist/fonts`, exported as `uipack/fonts/*`), each with its SIL OFL licence,
     `font-display: swap`, and no third-party request. A browser fetches a file only when a Landing
-    element uses it; the whole set is 141 KB.
+    element uses it; the whole set is 141 KB. (This rule and the next two describe Landing's faces;
+    Technical's are Archivo Expanded, Archivo and Martian Mono, 77 KB, in
+    [Style](system/style.md#type-roles).)
 
     | Role | Token | Face | Weights | Jobs |
     | --- | --- | --- | --- | --- |
@@ -161,8 +208,9 @@ three.
     in a display headline for the one phrase that matters: the italic is a real face.
 
 21. **Swap without a jump.** Each face has a local fallback (`Instrument Serif Fallback` on Times New
-    Roman, `IBM Plex Sans Fallback` on Arial, `IBM Plex Mono Fallback` on Courier New, with
-    Liberation equivalents) scaled with `size-adjust` to the web font's average character width,
+    Roman, `IBM Plex Sans Fallback` on Arial, `IBM Plex Mono Fallback` on Courier New; for Technical
+    `Archivo Expanded Fallback` on Arial Bold, `Archivo Fallback` on Arial, `Martian Mono Fallback`
+    on Courier New; with Liberation equivalents) scaled with `size-adjust` to the web font's average character width,
     with its ascent and descent overridden, so lines wrap in the same places before and after the
     swap. `NumberTicker` lays its count over the final value, because Instrument Serif has
     proportional figures only. Pass `face="inherit"` for a number inside a sentence. The match is
@@ -212,7 +260,7 @@ viewport or takes focus, so `/web`'s first view requests the package's seven fil
       `scroll-behavior: smooth` on `<html>` (only under `prefers-reduced-motion: no-preference`).
       SmoothScroll marks `<html data-uipack-smooth-scroll>` and sets `scroll-behavior: auto` inline
       while it eases, so the two never stack. Every nav link should point at a real section: in
-      `/web`, How it works, Proof and Pricing go to `#web-how`, `#web-proof` and `#web-pricing`.
+      `/web`, How it works, Demo, Proof and Pricing go to `#web-how`, `#web-demo`, `#web-proof` and `#web-pricing`.
     - **API:** `scrollTo(target, { offset, duration, immediate })`, where the target is a y
       position, an element or a selector. Without `duration` it uses the follow; with it, an
       exponential-out tween of that many milliseconds. `smoothScrollTo()` uses the mounted
@@ -264,13 +312,17 @@ numbers are in [web discoverability](web-discoverability.md).
 
 | Component | Rules |
 | --- | --- |
-| `DemoPlayer` | 2, 14, 23; Pause/Replay/step tabs at 44px, autoplay only in view; transcript of every step in the HTML |
+| `DemoPlayer` | 2, 14, 23; Pause/Replay/step tabs at 44px; rests on the result, autoplays from the start only in view and settles back on the result if scrolled away mid-play; under reduced motion the step tabs stay (each shows its finished frame) and Pause/Replay go; `static` holds the result with no controls; transcript of every step in the HTML |
 | `StarHero`, `StarChart`, `NoiseLayer` | 3, 5, 6 |
 | `SpotlightCard` | 14; off for `hover: none` and reduced motion; keyboard focus shows it |
 | `RevealText` | 14, 23; text stays in the DOM, visible without JavaScript; units keep their spaces |
 | `Eyebrow`, `Heading`, `Subhead`, `Body` | 6, 7, 19, 20, 24; `Heading` levels 1–6 |
-| `CtaButton`, `GlassNav` | 1, 5, 9 |
-| `Section`, `FeatureGrid`, `Grid`, `RhymeIcon` | 4, 8, 24, 30 (`Section lazyRender`) |
+| `CtaButton`, `GlassNav` | 1, 5, 9; GlassNav keeps a compact CTA beside Menu on a phone (into the menu only below 340px) |
+| `Proof` | 6, 23, 24; the lead number with its denominator and meter, ruled stats, a named quote with drawn marks |
+| `PricingPlans` | 1, 8, 26; two or three plans fill the column, a single plan keeps a card's 36rem measure; features and an optional button per card (leave it off when the closing band holds the page's one action), the featured plan gets the accent |
+| `ClosingCta` | 1, 9, 24; the third CTA on the style's band roles |
+| `SiteFooter`, `Brand` | 24; the page ends on a footer; the wordmark is set in the display face |
+| `Section`, `FeatureGrid`, `Grid`, `RhymeIcon` | 4, 8, 24, 30 (`Section lazyRender`); `FeatureGrid numbered` for steps |
 | `Reveal`, `TextScramble`, `NumberTicker` | 14, 21, 23; final text reserves the space; screen readers get the final value; server HTML has it once |
 | `SmoothScroll`, `useSmoothScroll`, `createSmoothScroll`, `smoothScrollTo` | 14, 22; off on touch and under reduced motion |
 | `Marquee` | 14, 15, 23; Pause button, pauses on hover, focus and off screen; inert duplicate added after mount; static row under reduced motion |

@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import {
   CtaButton,
   DemoPlayer,
@@ -92,14 +92,14 @@ describe("type scale", () => {
   });
 });
 
-describe("Landing fonts", () => {
+describe("Self-hosted fonts", () => {
   const urls = (css: string) => [...css.matchAll(/url\("?([^")]+)"?\)/g)].map((m) => m[1]);
   it("self-hosts every face as woff2 with swap, latin only, beside its licence", () => {
     // Every style's faces, declared once; a browser fetches a face only when a style uses it.
     const css = readFileSync("src/web/fonts.css", "utf8");
     const faces = css.match(/@font-face \{[^}]*\}/g)!;
     const hosted = faces.filter((f) => f.includes("url("));
-    expect(hosted).toHaveLength(8);
+    expect(hosted).toHaveLength(14);
     for (const f of hosted) {
       expect(f).toContain("font-display: swap;");
       expect(f).toMatch(/unicode-range:\s+U\+0000-00FF/);
@@ -111,7 +111,7 @@ describe("Landing fonts", () => {
     // Nothing leaves the package: no absolute or protocol-relative font URLs.
     expect(css).not.toMatch(/url\("?(https?:)?\/\//);
     const files = readdirSync("src/web/fonts");
-    for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono", "anton"])
+    for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono", "anton", "archivo", "martian-mono"])
       expect(files).toContain(`OFL-${name}.txt`);
     expect(files.filter((f) => f.endsWith(".woff2")).sort()).toEqual(
       urls(css)
@@ -126,9 +126,11 @@ describe("Landing fonts", () => {
     expect(pkg.exports["./fonts/*"]).toBe("./dist/fonts/*");
     expect(fontFiles.out).toBe("fonts"); // scripts/build-css.ts copies src/web/fonts there
     const built = readFileSync("dist/web.css", "utf8");
-    expect(urls(built).length).toBe(8);
+    expect(urls(built).length).toBe(14);
     for (const u of urls(built)) expect(existsSync(`dist/${u}`)).toBe(true);
-    for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono"])
+    // Every entry carries the faces (Technical's on figures, charts and the article too).
+    expect(urls(readFileSync("dist/theme.css", "utf8")).length).toBe(14);
+    for (const name of ["instrument-serif", "ibm-plex-sans", "ibm-plex-mono", "archivo", "martian-mono"])
       expect(existsSync(`dist/fonts/OFL-${name}.txt`)).toBe(true);
   });
 });
@@ -238,11 +240,13 @@ describe("DemoPlayer", () => {
     expect(step(container)).toBe("2");
   });
 
-  it("does not advance without autoplay until Play", () => {
-    const { container } = render(<DemoPlayer steps={steps} label="Demo" timing={timing} autoplay={false} />);
+  it("rests on the result without autoplay, and Play runs it from the start", () => {
+    const { container } = render(<DemoPlayer steps={steps} label="Demo" timing={timing} autoplay={false} initialMetric={40} />);
     advance(3000);
-    expect(step(container)).toBe("0");
+    expect(step(container)).toBe("2");
+    expect(metric()).toBe("3");
     fireEvent.click(screen.getByRole("button", { name: "Play" }));
+    expect(step(container)).toBe("0");
     advance(stepStart(steps, 1, timing) + 10);
     expect(step(container)).toBe("1");
   });
@@ -262,21 +266,45 @@ describe("DemoPlayer", () => {
     expect(screen.getByRole("link", { name: "Try it yourself" })).toBeInTheDocument();
   });
 
+  it("keeps the step tabs under reduced motion: each shows its step's finished frame, nothing plays", () => {
+    globalThis.__reduced = true;
+    const { container } = render(<DemoPlayer steps={steps} label="Demo" timing={timing} initialMetric={40} />);
+    const tabs = within(screen.getByRole("group", { name: "Demo steps" })).getAllByRole("button");
+    expect(tabs.map((t) => t.textContent)).toEqual(["01 Ask", "02 Act", "03 Review"]);
+    expect(tabs[2]).toHaveAttribute("aria-current", "step");
+    fireEvent.click(tabs[1]);
+    expect(container.querySelector(".uipack-web-demo")).toHaveAttribute("data-step", "1");
+    expect(container.querySelector(".uipack-web-demo")).toHaveAttribute("data-state", "static");
+    // The Act step, finished: both actions done, the metric set by the last one.
+    expect(metric()).toBe("5");
+    advance(5000);
+    expect(container.querySelector(".uipack-web-demo")).toHaveAttribute("data-step", "1");
+  });
+
+  it("static holds the result with no controls, like reduced motion", () => {
+    const { container } = render(<DemoPlayer steps={steps} label="Demo" timing={timing} initialMetric={40} static />);
+    advance(5000);
+    expect(container.querySelector(".uipack-web-demo")).toHaveAttribute("data-state", "static");
+    expect(metric()).toBe("3");
+    expect(screen.queryByRole("button", { name: /Pause|Replay|Play/ })).toBeNull();
+  });
+
   it("opens on the plan: the first acting step's actions listed as queued, not an empty pane", () => {
-    render(<DemoPlayer steps={steps} label="Demo" timing={timing} autoplay={false} />);
+    render(<DemoPlayer steps={steps} label="Demo" timing={timing} />);
     const log = screen.getByRole("list", { name: "Agent actions" });
     expect([...log.children].map((li) => li.getAttribute("data-state"))).toEqual(["pending", "pending"]);
     expect(log.textContent).toContain("Archived");
     expect(log.textContent).toContain("(queued)");
   });
 
-  it("server-renders the first frame without touching window", async () => {
+  it("server-renders the finished result without touching window", async () => {
     const html = await onServer(async ({ renderToString }) => {
       const server = await import("../src/web");
       return renderToString(<server.DemoPlayer steps={steps} label="Demo" initialMetric={40} />);
     });
     expect(html).toContain("Clear it");
-    expect(html).toContain('data-step="0"');
+    expect(html).toContain('data-step="2"');
+    expect(html).toContain('data-state="finished"');
   });
 });
 
@@ -303,7 +331,51 @@ describe("GlassNav", () => {
     fireEvent.keyDown(document, { key: "Escape" });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(document.activeElement).toBe(toggle);
-    expect(screen.getByRole("link", { name: "Start" })).toHaveAttribute("data-variant", "primary");
+    // The CTA renders twice: in the bar, and in the menu, where CSS shows it below 340px only.
+    const ctas = screen.getAllByRole("link", { name: "Start" });
+    expect(ctas).toHaveLength(2);
+    for (const cta of ctas) expect(cta).toHaveAttribute("data-variant", "primary");
+    expect(ctas[0].closest(".uipack-web-nav__menu-cta")).not.toBeNull();
+    expect(ctas[1].closest(".uipack-web-nav__cta")).not.toBeNull();
+  });
+});
+
+describe("GlassNav short CTA", () => {
+  it("takes the CTA as data and gives the bar a short label for a phone", () => {
+    const { container } = render(
+      <GlassNav brand="Parcelmark" links={[]} cta={{ label: "See what you'd have saved", short: "See savings", href: "#s" }} />,
+    );
+    const bar = container.querySelector(".uipack-web-nav__cta a")!;
+    expect(bar).toHaveAttribute("href", "#s");
+    expect(bar.querySelector(".uipack-web-cta__long")).toHaveTextContent("See what you'd have saved");
+    expect(bar.querySelector(".uipack-web-cta__short")).toHaveTextContent("See savings");
+    // CSS swaps the two below 720px, in the bar only; the open menu keeps the full label.
+    const css = readFileSync("src/web/web.css", "utf8");
+    expect(css).toMatch(/\.uipack-web-nav__cta \.uipack-web-cta__short \{\s*display: inline;/);
+  });
+});
+
+describe("StarHero split and stamp", () => {
+  it("marks the split layout and sets the stamp in the copy, never on the proof", () => {
+    const { container } = render(
+      <StarHero title="T" layout="split" stamp={{ value: "18%", label: "lower postage" }}>
+        <p>proof</p>
+      </StarHero>,
+    );
+    const hero = container.querySelector(".uipack-web-hero")!;
+    expect(hero).toHaveAttribute("data-layout", "split");
+    expect(hero).toHaveAttribute("data-has-proof");
+    const stamp = container.querySelector(".uipack-web-hero__stamp")!;
+    expect(stamp.closest(".uipack-web-hero__copy")).not.toBeNull();
+    expect(stamp).toHaveTextContent("18%lower postage");
+  });
+  it("every style paints the stamp, and Graphical's disc is no longer a bare backdrop", () => {
+    for (const id of ["technical", "landing", "graphical"] as const) {
+      const v = readStyle(id);
+      for (const r of ["stamp-fill", "stamp-ink", "stamp-border", "stamp-radius", "stamp-face", "perf", "plan-featured-fill"])
+        expect(v[r], `${id} ${r}`).toBeDefined();
+    }
+    expect(readStyle("graphical").backdrop).toBe("none");
   });
 });
 

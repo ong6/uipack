@@ -1,4 +1,5 @@
 import type { CSSProperties, ElementType, ReactNode } from "react";
+import { FigureChromeContext, type FigureChrome } from "../context";
 import type { UiStyleId } from "../style";
 
 export interface WebSurfaceProps {
@@ -16,10 +17,24 @@ export interface WebSurfaceProps {
   uiStyle?: UiStyleId;
   /** "style" applies the style's layout defaults (set by WebPage); "shared" or omitted, none. */
   layout?: "style" | "shared";
+  /**
+   * Tool chrome for figures inside: "quiet" (default) drops Open canvas and one-entry legends,
+   * which belong to articles and docs, not a marketing page. "full" keeps them.
+   */
+  figureChrome?: FigureChrome;
 }
 
 /** Root of a web page or panel: carries the style's tokens, background and type. */
-export function WebSurface({ children, theme, as: Tag = "div", className = "", style, uiStyle, layout }: WebSurfaceProps) {
+export function WebSurface({
+  children,
+  theme,
+  as: Tag = "div",
+  className = "",
+  style,
+  uiStyle,
+  layout,
+  figureChrome = "quiet",
+}: WebSurfaceProps) {
   return (
     <Tag
       className={`uipack-web ${className}`.trim()}
@@ -28,7 +43,7 @@ export function WebSurface({ children, theme, as: Tag = "div", className = "", s
       data-ui-layout={layout}
       style={style}
     >
-      {children}
+      <FigureChromeContext.Provider value={figureChrome}>{children}</FigureChromeContext.Provider>
     </Tag>
   );
 }

@@ -56,7 +56,7 @@ test.describe("themes", () => {
         .locator("figure.uipack")
         .first()
         .evaluate((el) => getComputedStyle(el).backgroundColor);
-      expect(bg).toBe(theme === "dark" ? "rgb(14, 21, 18)" : "rgb(255, 255, 255)");
+      expect(bg).toBe(theme === "dark" ? "rgb(13, 42, 79)" : "rgb(252, 253, 254)");
       expect(errors).toEqual([]);
     });
   }

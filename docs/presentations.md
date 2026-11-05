@@ -12,21 +12,22 @@ const slide: SlideStarterData = {
   id: "opening",
   layout: "opening",
   title: "Opening",
-  description: "A thesis and one sentence of context.",
+  description: "A short title and one line of context.",
   content: {
-    eyebrow: "Presentation systems",
-    headline: ["Design the slide.", "Plan what you will say."],
-    context: "Keep the visual and its talk track together.",
+    headline: ["Slide and talk,", "planned together"],
+    context: "Points on screen, cues in your notes",
   },
   speech: {
-    say: "A finished slide is only half the work. This starter keeps the spoken explanation beside it.",
-    delivery: "Pause after the first sentence.",
-    next: "Now look at how the two layers divide the work.",
+    say: "The slide is half the work.\nKeep what you'll say beside it, as cues.",
+    delivery: "Pause after the title.",
+    next: "What goes where",
   },
 };
 
 <SlideStarter slide={slide} theme="light" />;
 ```
+
+Write the slide words and the speech the way [Writing](system/writing.md#slides) describes for a presented deck: a short headline (the eyebrow is optional and off by default), fragments on screen, and `say` as a few cue lines rather than a script.
 
 `SpeakerGuide` can be used separately. It derives a rough duration at 135 words per minute, copies the full talk track, announces copy success without moving focus, and does not render the script into the SVG. `showSpeech={false}` produces an audience-only preview.
 
