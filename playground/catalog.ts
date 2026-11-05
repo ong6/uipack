@@ -1,5 +1,5 @@
 // Data-only modules, not the uipack/objects barrel: this file is in the playground's entry chunk.
-import { objectDirectionIndex, objectDirections, objectLooks } from "../src/objects/variants";
+import { objectDirections } from "../src/objects/variants";
 import { objectScenes } from "../src/objects/scene-list";
 /** Content type and visual style are independent axes. Register styles here, never fork the shell. */
 export const visualStyles = [
@@ -356,28 +356,6 @@ export const animationEntries: CatalogEntry[] = [
     tags: ["Transform", "Architecture"],
   },
 ];
-
-/**
- * One rendered example per subject and direction it offers (`objectLooks`), reachable through the
- * gallery's selector. Contact's Studio editions are one Studio example; its Cartoon post office is another.
- */
-export const objectStyleEntries = objectDirections.flatMap((direction, index) =>
-  objectScenes.flatMap((scene) => {
-    const variant = objectLooks[scene.id].find((look) => objectDirectionIndex(scene.id, look) === index);
-    return variant === undefined
-      ? []
-      : [
-          {
-            id: `${scene.id}-${direction.id}`,
-            title: `${scene.title} / ${direction.name}`,
-            type: "animations" as const,
-            styleId: direction.id,
-            tags: ["Objects", direction.id],
-            href: `/animations?story=${scene.id}&variant=${variant}`,
-          },
-        ];
-  }),
-);
 
 /** Web building blocks, shown on /web. Flashy pieces earn their motion; low-key pieces are the defaults. */
 export const webEntries: CatalogEntry[] = [

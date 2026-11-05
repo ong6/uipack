@@ -10,7 +10,7 @@ import type { KindWithLook } from "./variants";
 
 type Kind = Exclude<KindWithLook<2>, "contact">;
 
-export const sculptureTokens = {
+const sculptureTokens = {
   brass: 0xd9b36a,
   agedBrass: 0xa9813f,
   bone: 0xede7dc,

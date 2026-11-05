@@ -13,7 +13,7 @@ type Pt = [number, number];
 type Kind = Exclude<KindWithLook<1>, "contact">;
 
 /** Coloured card stock: a limited palette, like a box of paper. */
-export const cardStock = {
+const cardStock = {
   cream: 0xf3ebdd,
   persimmon: 0xe9714b,
   viridian: 0x2f7f73,

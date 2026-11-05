@@ -1,12 +1,9 @@
 import { createExpandedDirection } from "./expanded-directions";
-import { kineticLook, kineticWorld, sculptureTokens } from "./kinetic-sculptures";
-import { cardStock, paperLook, paperWorld } from "./paper-worlds";
+import { kineticLook, kineticWorld } from "./kinetic-sculptures";
+import { paperLook, paperWorld } from "./paper-worlds";
 import { playLoop, type Tick } from "./procedural";
 import type { ObjectKind } from "./scenes";
 import { hasObjectLook } from "./variants";
-
-/** The authored palettes of directions 1 and 2: paper card stock, and brass, glaze and stone. */
-export const directionTokens = { paper: cardStock, kinetic: sculptureTokens };
 
 /** The kinds an art direction draws; contact has its own (contact-directions.ts). */
 export type ArtKind = Exclude<ObjectKind, "contact">;

@@ -194,7 +194,7 @@
   background: transparent;
   color: inherit;
   cursor: pointer;
-  font: 16px system-ui;
+  font: 16px var(--ui-font-text, system-ui, sans-serif);
 }
 .uipack-object-edition button:is(:hover, :focus-visible) {
   color: var(--object-control-fg);
@@ -239,7 +239,7 @@
   border-radius: 6px;
   color: inherit;
   background: transparent;
-  font: 500 12px/1.4 system-ui;
+  font: 500 12px/1.4 var(--ui-font-text, system-ui, sans-serif);
   cursor: pointer;
 }
 .uipack-object-directions button[aria-pressed="true"] {
@@ -294,9 +294,7 @@
 }
 .uipack-animation-library h3 {
   margin: 0 0 14px;
-  font:
-    600 13px system-ui,
-    sans-serif;
+  font: 600 13px var(--ui-font-text, system-ui, sans-serif);
 }
 .uipack-scene-list {
   display: flex;
@@ -317,9 +315,7 @@
   background: transparent;
   color: inherit;
   cursor: pointer;
-  font:
-    14px system-ui,
-    sans-serif;
+  font: 14px var(--ui-font-text, system-ui, sans-serif);
 }
 .uipack-scene-list button span {
   opacity: 0;
@@ -346,9 +342,7 @@
 }
 .uipack-animation-heading h3 {
   margin: 0;
-  font:
-    600 24px system-ui,
-    sans-serif;
+  font: 600 24px var(--ui-font-text, system-ui, sans-serif);
   letter-spacing: -0.6px;
 }
 .uipack-animation-heading > span {
@@ -366,9 +360,7 @@
 }
 .uipack-object-inspector h3 {
   margin: 0 0 12px;
-  font:
-    600 13px system-ui,
-    sans-serif;
+  font: 600 13px var(--ui-font-text, system-ui, sans-serif);
 }
 .uipack-direction-list {
   display: flex;
@@ -394,31 +386,29 @@
   background: color-mix(in srgb, var(--gallery-accent) 6%, transparent);
 }
 .uipack-direction-symbol {
+  /* One width for every symbol, so the names and descriptions start on one line. */
+  flex: none;
+  width: 24px;
+  text-align: center;
   font-size: 24px;
   line-height: 1;
   color: var(--gallery-accent);
 }
 .uipack-direction-list strong {
   display: block;
-  font:
-    600 13px system-ui,
-    sans-serif;
+  font: 600 13px var(--ui-font-text, system-ui, sans-serif);
 }
 .uipack-direction-list small,
 .uipack-edition-select small {
   display: block;
   margin-top: 6px;
   color: var(--gallery-muted);
-  font:
-    12px/1.5 system-ui,
-    sans-serif;
+  font: 12px/1.5 var(--ui-font-text, system-ui, sans-serif);
 }
 .uipack-edition-select {
   display: block;
   margin-top: 20px;
-  font:
-    600 13px system-ui,
-    sans-serif;
+  font: 600 13px var(--ui-font-text, system-ui, sans-serif);
 }
 .uipack-edition-select select {
   margin-top: 10px;
@@ -429,16 +419,12 @@
   padding: 8px;
   color: var(--gallery-ink);
   background: var(--gallery-surface);
-  font:
-    13px system-ui,
-    sans-serif;
+  font: 13px var(--ui-font-text, system-ui, sans-serif);
 }
 .uipack-gallery-description {
   margin: 18px 0 0;
   max-width: 70ch;
-  font:
-    13px/1.65 system-ui,
-    sans-serif;
+  font: 13px/1.65 var(--ui-font-text, system-ui, sans-serif);
   color: var(--gallery-muted);
 }
 .uipack-animation-workspace button:focus-visible,
@@ -536,21 +522,14 @@
 .uipack-object[data-theme="dark"][data-art-direction="abstract"] {
   background: radial-gradient(ellipse at 50% 40%, #333e61, #141b31);
 }
-/* Six directions stay compact: two columns beside the stage, three below it. */
+/* A subject offers two or three directions: one column beside the stage, each with its line of
+   description, and one even row below it (no card left alone on a row). */
 .uipack-object-review {
   grid-template-columns: minmax(0, 1fr) 250px;
 }
 .uipack-direction-list {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.uipack-direction-list button {
-  flex-direction: column;
-  min-height: 94px;
-  gap: 8px;
-}
-.uipack-direction-list small {
-  display: none;
+  grid-template-columns: minmax(0, 1fr);
 }
 .uipack-object-directions {
   flex-wrap: nowrap;
@@ -565,7 +544,17 @@
     grid-template-columns: minmax(0, 1fr);
   }
   .uipack-direction-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+  .uipack-direction-list button {
+    flex-direction: column;
+    min-height: 94px;
+    gap: 8px;
+  }
+  .uipack-direction-list small {
+    display: none;
   }
 }
 @media (max-width: 700px) {
