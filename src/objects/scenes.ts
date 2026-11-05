@@ -1,6 +1,7 @@
 import { createContactDirection } from "./contact-directions";
 import * as THREE from "three";
 import { createArtDirection } from "./art-directions";
+import { materialTextures, type ObjectLook } from "./look";
 import type { ObjectVariant, ObjectEdition } from "./variants";
 import { marketBar, MARKET_BAR_MS, MARKET_LOOP_MS } from "./market";
 import { tennisModelUrl } from "../package-assets";
@@ -917,6 +918,12 @@ export async function createObject(
           ? await tennis({ ...palette, accent }, finish, modelUrl)
           : await builders[kind]({ ...palette, accent }, finish);
   object.userData.style ??= "studio";
+  // Studio's look (src/objects/LOOK.md): the defaults, with the key's shadow map for the tennis
+  // model and the contact editions' meshes casting, as before the look system.
+  object.userData.look ??= {
+    castShadows: kind === "contact" && variant > 0,
+    rig: kind === "tennis" ? { both: { key: { shadow: true } } } : undefined,
+  } satisfies ObjectLook;
   object.userData.variant = variant;
   object.userData.animate(0);
   return object;
@@ -932,8 +939,7 @@ export function disposeObject(scene: THREE.Object3D) {
     if (drawable.material)
       for (const material of Array.isArray(drawable.material) ? drawable.material : [drawable.material]) {
         materials.add(material);
-        const map = (material as THREE.MeshStandardMaterial).map;
-        if (map) textures.add(map);
+        for (const texture of materialTextures(material)) textures.add(texture);
       }
   });
   textures.forEach((texture) => texture.dispose());

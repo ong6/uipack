@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { createExpandedDirection } from "./expanded-directions";
 import { playLoop, TAU, vec, type Tick } from "./procedural";
+import type { ObjectLook } from "./look";
 import type { ObjectKind } from "./scenes";
 
 /** Original procedural models. Coordinates are authored for the existing orthographic player. */
@@ -605,6 +606,13 @@ function kineticWorld(kind: ArtKind, ticks: Tick[]) {
   return root;
 }
 
+/* ---------------------------------------------------------------- Looks (src/objects/LOOK.md) */
+
+/** Paper's light rig, framing and shadows. The defaults reproduce the pre-look render. */
+const paperLook: ObjectLook = { castShadows: true };
+/** Kinetic's light rig, framing and shadows. */
+const kineticLook: ObjectLook = { castShadows: true };
+
 /* ---------------------------------------------------------------- Entry */
 
 /** Directions 1 (paper theatre) and 2 (kinetic sculpture) are drawn here; 3–5 in expanded-directions.ts. */
@@ -613,6 +621,7 @@ export function createArtDirection(kind: ArtKind, variant: 1 | 2 | 3 | 4 | 5) {
   const ticks: Tick[] = [];
   const root = variant === 1 ? paperWorld(kind, ticks) : kineticWorld(kind, ticks);
   root.userData.style = variant === 1 ? "paper-theatre" : "kinetic";
+  root.userData.look = variant === 1 ? paperLook : kineticLook;
   playLoop(root, ticks, REST_MS, variant === 1 ? "paper-parallax" : "kinetic-orbit");
   return root;
 }

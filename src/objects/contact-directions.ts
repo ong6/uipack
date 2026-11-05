@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import type { ObjectLook } from "./look";
 import { playLoop, TAU, vec, type Tick } from "./procedural";
 import { clamp, smoothstep } from "../math";
 
@@ -159,9 +160,7 @@ export function createContactDirection(variant: 3 | 4) {
     ticks: Tick[] = [];
   if (variant === 3) cartoonMailbox(root, ticks);
   else kineticMobile(root, ticks);
-  // Cartoon spans about x ±1.6 and y -1.5…1.2 (the letter's arc included):
-  // on a narrow, near-square stage, frame that instead of the shared extent.
-  if (variant === 3) root.userData.narrowFrame = { halfWidth: 1.9, halfHeight: 1.5, y: -0.15 };
+  root.userData.look = { castShadows: true } satisfies ObjectLook;
   root.userData.style = variant === 3 ? "cartoon" : "kinetic";
   playLoop(root, ticks, REST_MS, variant === 3 ? "letter-delivery" : "correspondence-mobile");
   return root;

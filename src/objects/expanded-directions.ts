@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import type { ObjectLook } from "./look";
 import { playLoop, TAU, vec, type Tick } from "./procedural";
 import type { ObjectKind } from "./scenes";
 
@@ -698,6 +699,12 @@ function abstract(kind: ArtKind, ticks: Tick[]) {
 
 /* ---------------------------------------------------------------- Entry */
 
+/** Each direction's light rig, framing and shadows (src/objects/LOOK.md). */
+const LOOKS: ObjectLook[] = [
+  { castShadows: true },
+  { castShadows: true },
+  { rig: { light: { environment: { intensity: 0.85 } }, dark: { environment: { intensity: 0.55 } } } },
+];
 const STYLES = ["cartoon", "realistic", "abstract"] as const;
 const BUILDERS = [cartoon, realistic, abstract];
 
@@ -706,6 +713,7 @@ export function createExpandedDirection(kind: ArtKind, variant: 3 | 4 | 5) {
   const object = BUILDERS[variant - 3](kind, ticks);
   const style = STYLES[variant - 3];
   object.userData.style = style;
+  object.userData.look = LOOKS[variant - 3];
   playLoop(object, ticks, REST_MS, `${style}-study`);
   return object;
 }

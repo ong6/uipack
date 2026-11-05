@@ -222,6 +222,7 @@ function ObjectStage({
       variant: resolvedVariant,
       edition,
       modelUrl,
+      theme,
       flags: flagsRef.current,
       host: () => hostRef.current,
       onReady: setReady,
