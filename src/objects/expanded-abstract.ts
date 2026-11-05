@@ -2,9 +2,9 @@
 // The colour lives behind the glass; refraction and dispersion carry the subject. One secondary
 // material, polished obsidian. Grounded by a tinted shadow with a caustic of the band's colour.
 import * as THREE from "three";
-import { contactShadow, lookMaterial, type ObjectLook } from "./look";
+import { contactShadow, lookMaterial, themed, type ObjectLook } from "./look";
 import { TAU, vec, type Tick } from "./procedural";
-import { group, mesh, paintTexture, roundedBox, type ArtKind } from "./expanded-kit";
+import { group, mesh, paintTexture, roundedBox, smoothstep, type ArtKind } from "./expanded-kit";
 
 export const abstractLook: ObjectLook = {
   rig: {
@@ -17,9 +17,10 @@ export const abstractLook: ObjectLook = {
       rim: { color: 0xdce4ff, intensity: 2.2, position: [4, 3, -4] },
     },
     dark: {
-      hemisphere: { sky: 0x8d92d6, ground: 0x0d0e1a, intensity: 0.5 },
-      environment: { intensity: 0.55 },
-      rim: { intensity: 3.2 },
+      hemisphere: { sky: 0x8d92d6, ground: 0x0d0e1a, intensity: 0.6 },
+      environment: { intensity: 0.8 },
+      rim: { intensity: 3.4 },
+      reflections: 1,
     },
   },
   camera: { projection: "perspective", fov: 24, pitch: 5 },
@@ -60,9 +61,68 @@ function band(
   card.rotation.z = rotation;
   return card;
 }
-/** A flat disc of pure colour. */
+let discShade: THREE.Texture | undefined;
+/** A disc of colour, lit like a sphere seen far off: lighter toward the key (upper left), deeper at the lower rim. */
 function disc(parent: THREE.Object3D, color: number, radius: number, x: number, y: number, z: number) {
-  return mesh(parent, new THREE.CircleGeometry(radius, 64), new THREE.MeshBasicMaterial({ color }), x, y, z);
+  discShade ??= paintTexture(128, 128, (u, v) => {
+    const r = Math.hypot(u - 0.5, v - 0.5) * 2;
+    const toKey = Math.hypot(u - 0.3, v - 0.72) * 1.4;
+    const t = 1.12 - 0.3 * Math.min(1, toKey) ** 1.5 - 0.1 * Math.max(0, r - 0.8) / 0.2;
+    const c = Math.min(255, 255 * t * 0.89);
+    return [c, c, c];
+  });
+  return mesh(parent, new THREE.CircleGeometry(radius, 64), new THREE.MeshBasicMaterial({ color, map: discShade }), x, y, z);
+}
+
+/**
+ * A soft back-light for the dark theme: a glowing cyclorama (a floor sweeping up into a wall) behind
+ * the glass that only draws into three's transmission pass, so the glass refracts light instead of
+ * the navy card, down to its feet, while the canvas itself stays clear. Off (fully transparent, so
+ * skipped by the pass) in the light theme.
+ */
+function backGlow(parent: THREE.Object3D, width = 5.2) {
+  const profile: [number, number][] = [];
+  const FLOOR = -0.05,
+    WALL = -1.45,
+    TOP = 2.15,
+    BEND = 0.45;
+  for (let i = 0; i <= 8; i++) profile.push([FLOOR, 0.9 - (i / 8) * (0.9 - (WALL + BEND))]);
+  for (let i = 1; i <= 8; i++) {
+    const a = (i / 8) * (Math.PI / 2);
+    profile.push([FLOOR + BEND - BEND * Math.cos(a), WALL + BEND - BEND * Math.sin(a)]);
+  }
+  for (let i = 1; i <= 8; i++) profile.push([FLOOR + BEND + (i / 8) * (TOP - FLOOR - BEND), WALL]);
+  const positions: number[] = [],
+    uvs: number[] = [],
+    indices: number[] = [];
+  profile.forEach(([y, z], j) => {
+    for (const side of [0, 1]) {
+      positions.push((side - 0.5) * width, y, z);
+      uvs.push(side, j / (profile.length - 1));
+    }
+    if (j > 0) indices.push((j - 1) * 2, (j - 1) * 2 + 1, j * 2, j * 2, (j - 1) * 2 + 1, j * 2 + 1);
+  });
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
+  // Bright across the middle, fading to the card colour at the sides and the ends.
+  const map = paintTexture(64, 64, (u, v) => {
+    const across = smoothstep(0, 0.3, u) * smoothstep(1, 0.7, u);
+    const along = smoothstep(0, 0.25, v) * smoothstep(1, 0.8, v);
+    const t = across * along;
+    return [24 + 150 * t, 29 + 155 * t, 54 + 190 * t];
+  });
+  const material = themed(new THREE.MeshBasicMaterial({ map, depthWrite: false, toneMapped: false, side: THREE.DoubleSide }), {
+    light: { opacity: 0 },
+  });
+  const glow = mesh(parent, geometry, material);
+  glow.renderOrder = -5;
+  glow.userData.frameIgnore = true;
+  glow.onBeforeRender = (renderer) => {
+    material.colorWrite = renderer.getRenderTarget() !== null;
+  };
+  return glow;
 }
 
 let causticMap: (() => THREE.Texture) | undefined;
@@ -113,9 +173,9 @@ const models: Record<ArtKind, Model> = {
     band(root, hues.ultramarine, 0.22, 2.1, 0.55, 1.05, -1.3);
     const lattice = group(root, 0, 1.0, 0);
     const glass = opticalGlass({ thickness: 0.25 });
-    const geometry = roundedBox(0.1, 1.9, 0.1, 0.04, 2);
+    const geometry = roundedBox(0.12, 1.9, 0.12, 0.05, 2);
     const rods: { rod: THREE.Mesh; phi: number }[] = [];
-    const N = 14,
+    const N = 10,
       R = 0.6;
     for (let i = 0; i < N; i++) {
       const phi = (i / N) * TAU;
@@ -141,6 +201,34 @@ const models: Record<ArtKind, Model> = {
   tennis(root, ticks) {
     disc(root, hues.ultramarine, 0.95, 0, 0.95, -1.2);
     band(root, hues.vermilion, 3.4, 0.06, 0, 0.55, -1.15);
+    // The disc is the ball: its seam (two interlocking lobes, front half only) painted pale on the
+    // blue, with a glass rod laid along it that lifts and bends the line as the light moves.
+    const turn = new THREE.Euler(0.1, 0.15, 0.3);
+    const seam = Array.from({ length: 241 }, (_, i) => {
+      const t = (i / 240) * TAU;
+      const a = 0.66,
+        b = 0.34,
+        c = 2 * Math.sqrt(a * b);
+      return vec(a * Math.cos(t) + b * Math.cos(3 * t), a * Math.sin(t) - b * Math.sin(3 * t), c * Math.sin(2 * t))
+        .multiplyScalar(0.9)
+        .applyEuler(turn);
+    });
+    const runs: THREE.Vector3[][] = [];
+    let run: THREE.Vector3[] = [];
+    for (const point of seam) {
+      if (point.z > -0.05) run.push(point);
+      else if (run.length) (runs.push(run), (run = []));
+    }
+    if (run.length) runs.push(run);
+    const stroke = new THREE.MeshBasicMaterial({ color: 0xeef0ff });
+    const seamGlass = opticalGlass({ thickness: 0.4, dispersion: 0.25 });
+    for (const points of runs.filter((r) => r.length > 4)) {
+      const flat = points.map((p) => vec(p.x, p.y + 0.95, 0));
+      const line = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(flat), points.length * 2, 0.03, 6, false).scale(1, 1, 0.05);
+      mesh(root, line, stroke, 0, 0, -1.185);
+      const lifted = points.map((p) => vec(p.x, p.y + 0.95, -1.05 + 0.12 * Math.max(0, p.z)));
+      mesh(root, new THREE.TubeGeometry(new THREE.CatmullRomCurve3(lifted), points.length * 2, 0.06, 12, false), seamGlass).userData.frameIgnore = true;
+    }
     // A biconvex lens profile, turned.
     const profile: THREE.Vector2[] = [];
     for (let i = 0; i <= 24; i++) {
@@ -204,12 +292,13 @@ const models: Record<ArtKind, Model> = {
     });
   },
 
-  /** Signal stack: thick glass plates cantilevered from an obsidian spine, light running up their edges. */
+  /** Signal stack: thick glass plates cantilevered from a glass spine, light running up their edges. */
   server(root, ticks) {
     band(root, hues.vermilion, 0.5, 2.0, 0.25, 1.05, -1.0);
     band(root, hues.ultramarine, 3.0, 0.12, 0, 0.3, -1.05);
-    const spine = obsidian();
-    mesh(root, roundedBox(0.24, 2.0, 0.9, 0.05), spine, -0.95, 1.0, 0);
+    // The spine is glass too, tinted ultramarine, so the stack reads light rather than as a black slab.
+    const spine = opticalGlass({ thickness: 0.9, attenuationColor: new THREE.Color(0x8796ff), attenuationDistance: 1.2 });
+    mesh(root, roundedBox(0.24, 2.0, 0.9, 0.06), spine, -0.95, 1.0, 0);
     const glass = opticalGlass({ thickness: 0.35 });
     const plateGeometry = roundedBox(1.7, 0.14, 0.92, 0.05);
     const edgeGeometry = new THREE.BoxGeometry(1.62, 0.03, 0.02);
@@ -234,11 +323,22 @@ const models: Record<ArtKind, Model> = {
     });
   },
 
-  /** Passage: a single glass Möbius ribbon standing on edge, two crossing bands seen through its twist. */
+  /** Passage: a glass Möbius ribbon standing on a low ultramarine horizon, a vermilion route arrowing through its twist. */
   travel(root, ticks) {
-    const route = group(root);
-    band(route, hues.vermilion, 3.6, 0.22, 0, 1.0, -1.1, 0.42);
-    band(route, hues.ultramarine, 3.6, 0.3, 0, 0.9, -1.2, -0.12);
+    band(root, hues.ultramarine, 3.8, 0.16, 0, 0.62, -1.25);
+    const route = group(root, 0, 0, -1.1);
+    // The route: a ribbon that climbs from the lower left, through the ring, and ends in an arrowhead.
+    const path = new THREE.Shape();
+    const w = 0.11;
+    path.moveTo(-1.8, 0.3 - w);
+    path.bezierCurveTo(-0.7, 0.3 - w, -0.3, 1.25 - w, 0.95, 1.25 - w);
+    path.lineTo(0.95, 1.25 - w * 2.4);
+    path.lineTo(1.45, 1.25);
+    path.lineTo(0.95, 1.25 + w * 2.4);
+    path.lineTo(0.95, 1.25 + w);
+    path.bezierCurveTo(-0.3 - 0.06, 1.25 + w, -0.7 - 0.06, 0.3 + w, -1.8, 0.3 + w);
+    path.closePath();
+    mesh(route, new THREE.ShapeGeometry(path, 32), new THREE.MeshBasicMaterial({ color: hues.vermilion }));
     const U = 160,
       V = 6,
       R = 0.78,
@@ -313,5 +413,6 @@ const models: Record<ArtKind, Model> = {
 export function abstract(kind: ArtKind, ticks: Tick[]) {
   const root = new THREE.Group();
   models[kind](root, ticks);
+  backGlow(root);
   return root;
 }

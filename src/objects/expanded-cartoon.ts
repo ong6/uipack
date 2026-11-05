@@ -25,7 +25,7 @@ export const cartoonLook: ObjectLook = {
       toneMapping: "neutral",
       exposure: 1,
       environment: { kind: "none", intensity: 0 },
-      hemisphere: { sky: 0xd6efff, ground: 0x86b86a, intensity: 1.5 },
+      hemisphere: { sky: 0xd6efff, ground: 0x88b072, intensity: 1.5 },
       key: { color: 0xfff1d6, intensity: 2.4, position: [-3.5, 7, 4.5], shadow: true, shadowRadius: 3 },
       rim: { color: 0xffffff, intensity: 1.1, position: [4, 3, -4] },
     },
@@ -33,6 +33,8 @@ export const cartoonLook: ObjectLook = {
       hemisphere: { sky: 0x5a6cb0, ground: 0x18203a, intensity: 1.1 },
       key: { color: 0xa9bcff, intensity: 1.25, position: [3.5, 6, 3] },
       rim: { color: 0x9fb8ff, intensity: 2.2 },
+      // A warm porch-light fill from the camera side, so faces keep their features at night.
+      fill: { color: 0xffd8a8, intensity: 0.85, position: [1.5, 2.5, 7] },
     },
   },
   camera: { projection: "perspective", fov: 30, pitch: 28 },
@@ -43,8 +45,8 @@ export const cartoonLook: ObjectLook = {
 /* ---------------------------------------------------------------- Toon materials */
 
 const palette = {
-  grass: 0x7ccb6b,
-  grassDark: 0x56a957,
+  grass: 0x84c077,
+  grassDark: 0x5aa25b,
   soil: 0xa0704a,
   soilDark: 0x7a5236,
   rock: 0x8d8ea0,
@@ -61,14 +63,17 @@ const palette = {
   glow: 0xffd27a,
 };
 
-/** The night version of a day colour: darker and pulled toward moonlit blue. */
-function night(color: number) {
+/** The night version of a day colour: darker and pulled toward moonlit blue. Characters keep more of their colour, so faces read. */
+function night(color: number, character = false) {
   const day = new THREE.Color(color);
-  return day.lerp(new THREE.Color(0x2c3a6e), 0.38).multiplyScalar(0.82).getHex();
+  return day
+    .lerp(new THREE.Color(0x2c3a6e), character ? 0.18 : 0.38)
+    .multiplyScalar(character ? 0.96 : 0.82)
+    .getHex();
 }
 
 interface Toons {
-  (color: number, options?: { glow?: number; dayGlow?: number; transparent?: number }): THREE.MeshToonMaterial;
+  (color: number, options?: { glow?: number; dayGlow?: number; transparent?: number; character?: boolean }): THREE.MeshToonMaterial;
 }
 
 /** A material factory sharing one three-step gradient and caching by colour. */
@@ -86,7 +91,7 @@ function toonFactory(): Toons {
   gradient.generateMipmaps = false;
   const cache = new Map<string, THREE.MeshToonMaterial>();
   return (color, options = {}) => {
-    const key = `${color}:${options.glow ?? ""}:${options.dayGlow ?? ""}:${options.transparent ?? ""}`;
+    const key = `${color}:${options.glow ?? ""}:${options.dayGlow ?? ""}:${options.transparent ?? ""}:${options.character ?? ""}`;
     const cached = cache.get(key);
     if (cached) return cached;
     const material = new THREE.MeshToonMaterial({ color, gradientMap: gradient });
@@ -99,7 +104,7 @@ function toonFactory(): Toons {
       material.emissive.set(options.glow);
       material.emissiveIntensity = options.dayGlow ?? 0;
       themed(material, { dark: { color: night(color), emissiveIntensity: 1.6 } });
-    } else themed(material, { dark: { color: night(color) } });
+    } else themed(material, { dark: { color: night(color, options.character) } });
     cache.set(key, material);
     return material;
   };
@@ -178,21 +183,21 @@ function bean(parent: THREE.Object3D, toon: Toons, color: number, x: number, z: 
   const root = group(parent, x, 0, z);
   root.rotation.y = facing;
   const body = group(root);
-  mesh(body, new THREE.CapsuleGeometry(0.19, 0.22, 6, 18), toon(color), 0, 0.3, 0);
+  mesh(body, new THREE.CapsuleGeometry(0.19, 0.22, 6, 18), toon(color, { character: true }), 0, 0.3, 0);
   const ink = toon(palette.ink);
   for (const side of [-1, 1]) {
     const eye = sphere(body, 0.034, ink, [side * 0.075, 0.42, 0.172], 12);
     eye.scale.set(1, 1.3, 0.6);
-    const cheek = sphere(body, 0.035, toon(palette.blush), [side * 0.125, 0.36, 0.16], 10);
+    const cheek = sphere(body, 0.035, toon(palette.blush, { character: true }), [side * 0.125, 0.36, 0.16], 10);
     cheek.scale.set(1, 0.7, 0.4);
-    const foot = sphere(root, 0.07, toon(shadeOf(color)), [side * 0.08, 0.04, 0.03], 10);
+    const foot = sphere(root, 0.07, toon(shadeOf(color), { character: true }), [side * 0.08, 0.04, 0.03], 10);
     foot.scale.set(1, 0.6, 1.3);
   }
   const smile = mesh(body, new THREE.TorusGeometry(0.035, 0.011, 6, 12, Math.PI), ink, 0, 0.375, 0.178);
   smile.rotation.z = Math.PI;
   const arm = (side: number) => {
     const pivot = group(body, side * 0.19, 0.33, 0);
-    const limb = mesh(pivot, new THREE.CapsuleGeometry(0.045, 0.12, 4, 8), toon(color), side * 0.04, -0.08, 0);
+    const limb = mesh(pivot, new THREE.CapsuleGeometry(0.045, 0.12, 4, 8), toon(color, { character: true }), side * 0.04, -0.08, 0);
     limb.rotation.z = side * 0.4;
     return pivot;
   };
@@ -348,14 +353,31 @@ const scenes: Record<ArtKind, Scene> = {
       bean(court, toon, palette.coral, -0.8, 0.12, Math.PI / 2 - 0.3),
       bean(court, toon, palette.plum, 0.8, -0.12, -Math.PI / 2 - 0.3),
     ];
-    const rackets = players.map((player) => {
+    // Rackets: a wrapped grip, an open throat and a strung oval head.
+    const stringTexture = paintTexture(32, 40, (_u, _v, x, y) => (x % 4 === 1 || y % 4 === 1 ? [255, 250, 236, 255] : [0, 0, 0, 0]));
+    stringTexture.magFilter = THREE.NearestFilter;
+    const stringMaterial = new THREE.MeshToonMaterial({
+      map: stringTexture,
+      gradientMap: toon(palette.white).gradientMap as THREE.Texture,
+      alphaTest: 0.5,
+      side: THREE.DoubleSide,
+    });
+    themed(stringMaterial, { dark: { color: night(0xffffff) } });
+    const frameGeometry = new THREE.TorusGeometry(0.075, 0.014, 8, 28);
+    frameGeometry.scale(1, 1.28, 1);
+    const throatGeometry = mergeGeometries([
+      mergeable(placed(new THREE.CylinderGeometry(0.011, 0.011, 0.1, 6), -0.024, 0.11, 0, 0, 0, 0.42)),
+      mergeable(placed(new THREE.CylinderGeometry(0.011, 0.011, 0.1, 6), 0.024, 0.11, 0, 0, 0, -0.42)),
+    ]);
+    const stringGeometry = new THREE.PlaneGeometry(0.15, 0.19);
+    const rackets = players.map((player, p) => {
       const racket = group(player.right, 0.08, -0.16, 0.04);
-      racket.scale.setScalar(1.6);
-      cylinder(racket, 0.02, 0.16, toon(palette.ink), [0, 0.0, 0], 6);
-      const head = mesh(racket, new THREE.TorusGeometry(0.1, 0.022, 8, 20), toon(palette.sky), 0, 0.18, 0);
-      head.scale.y = 1.2;
-      const strings = mesh(racket, new THREE.CircleGeometry(0.095, 16), toon(palette.cream, { transparent: 0.7 }), 0, 0.18, 0);
-      strings.scale.y = 1.2;
+      racket.scale.setScalar(1.2);
+      cylinder(racket, 0.019, 0.13, toon(p ? palette.sun : palette.cream), [0, 0.0, 0], 8);
+      cylinder(racket, 0.024, 0.025, toon(palette.ink), [0, -0.07, 0], 8);
+      mesh(racket, throatGeometry, toon(palette.sky));
+      mesh(racket, frameGeometry, toon(palette.sky), 0, 0.245, 0);
+      mesh(racket, stringGeometry, stringMaterial, 0, 0.245, 0);
       racket.rotation.set(0, 0, -0.5);
       return racket;
     });
@@ -445,17 +467,9 @@ const scenes: Record<ArtKind, Scene> = {
       0.02,
     );
     arrow.rotation.z = -0.35;
-    // The shopkeeper, waving; a balloon tied to the first stall.
+    // The shopkeeper, waving.
     const keeper = bean(world, toon, palette.sun, -0.55, 0.42, 0.2);
     keeper.root.scale.setScalar(1.15);
-    const balloon = group(world, -1.25, 0.9, 0.1);
-    sphere(balloon, 0.17, toon(palette.plum), [0, 0.45, 0], 16).scale.y = 1.15;
-    mesh(balloon, new THREE.ConeGeometry(0.04, 0.05, 8), toon(palette.plum), 0, 0.25, 0).rotation.x = Math.PI;
-    mesh(
-      balloon,
-      tube([vec(0, 0.24), vec(0.04, 0.05), vec(-0.03, -0.15), vec(0.25, -0.3)], 0.008, false, 16, 4),
-      toon(palette.ink),
-    );
     // A street lamp.
     cylinder(world, 0.03, 0.9, toon(palette.ink), [0.2, 0.45, 0.62], 8);
     sphere(world, 0.08, toon(palette.glow, { glow: palette.glow, dayGlow: 0.3 }), [0.2, 0.95, 0.62], 12);
@@ -467,8 +481,6 @@ const scenes: Record<ArtKind, Scene> = {
       bars.forEach((bar, i) => (bar.scale.y = 0.75 + 0.25 * (0.5 + 0.5 * Math.sin(angle * 3 + i * 0.9))));
       keeper.right.rotation.z = 2.2 + 0.4 * Math.sin(angle * 8);
       keeper.body.rotation.z = 0.06 * Math.sin(angle * 4);
-      balloon.position.y = 0.9 + 0.06 * Math.sin(angle * 2);
-      balloon.rotation.z = 0.08 * Math.sin(angle * 2 + 1);
     });
   },
 
@@ -582,7 +594,6 @@ const scenes: Record<ArtKind, Scene> = {
     passenger.root.scale.setScalar(0.85);
     pine(world, toon, 1.0, -0.45, 0.8);
     pine(world, toon, -0.95, 0.35, 0.65);
-    tree(world, toon, 0.75, -0.75, 0.6);
     // The train: an engine and two carriages following the same loop.
     const car = (color: number, engine: boolean) => {
       const c = group(world);
@@ -697,8 +708,13 @@ const scenes: Record<ArtKind, Scene> = {
   },
 };
 
+/** Subjects whose tall props (the idea bulb, the ticker arrow) need more headroom: the camera backs off 10%. */
+const subjectFill: Partial<Record<ArtKind, number>> = { ai: 0.7, trading: 0.7 };
+
 export function cartoon(kind: ArtKind, ticks: Tick[]) {
   const root = new THREE.Group();
+  const fill = subjectFill[kind];
+  if (fill) root.userData.look = { ...cartoonLook, framing: { ...(cartoonLook.framing || {}), fill } } satisfies ObjectLook;
   const world = group(root);
   world.rotation.y = -0.35;
   scenes[kind](world, ticks, toonFactory());
