@@ -2,12 +2,17 @@ import { expect, test, waitForStable, type Page } from "./fixtures";
 import { pauseClock } from "./helpers";
 
 const demo = (page: Page) => page.locator(".uipack-web-demo");
-/** Pixels between the sticky nav's bottom edge and the first line (eyebrow) of a section. */
+/**
+ * Pixels between the sticky nav's bottom edge and the first line of a section: its column rule
+ * (Technical's dimension line, painted in the column's top padding) or, without one, its eyebrow.
+ */
 const gapBelowNav = (page: Page, section: string) =>
   page.evaluate((sel) => {
     const nav = document.querySelector(".uipack-web-nav")!.getBoundingClientRect().bottom;
-    const first = document.querySelector(`${sel} .uipack-web-eyebrow`)!.getBoundingClientRect().top;
-    return Math.round(first - nav);
+    const eyebrow = document.querySelector(`${sel} .uipack-web-eyebrow`)!;
+    const inner = eyebrow.closest(".uipack-web-section__inner");
+    const rule = inner ? parseFloat(getComputedStyle(inner).paddingTop) : 0;
+    return Math.round(eyebrow.getBoundingClientRect().top - rule - nav);
   }, section);
 const stepOf = async (page: Page) => Number(await demo(page).getAttribute("data-step"));
 /**

@@ -51,7 +51,7 @@ function guide(source: string) {
   };
   return source
     .replace(/^# .*\n+/, "")
-    .replace(/\]\(([A-Za-z0-9-]+\.md)(#[^)]*)?\)/g, (_m, file: string, hash = "") =>
+    .replace(/\]\(([A-Za-z0-9-]+(?:\/[A-Za-z0-9-]+)*\.md)(#[^)]*)?\)/g, (_m, file: string, hash = "") =>
       pages[file] ? `](${pages[file]}${hash})` : `](${REPO}/system/${file}${hash})`,
     )
     .replace(/\]\(\.\.\/([^)]+)\)/g, `](${REPO}/$1)`);
