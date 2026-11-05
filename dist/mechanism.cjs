@@ -1,7 +1,7 @@
 'use strict';
 
 var chunkSDBNPDW6_cjs = require('./chunk-SDBNPDW6.cjs');
-var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
+var chunkR272FBXD_cjs = require('./chunk-R272FBXD.cjs');
 var React2 = require('react');
 var jsxRuntime = require('react/jsx-runtime');
 
@@ -1443,7 +1443,7 @@ function GateArt({ uid, alt, shown, fit = false }) {
   const arm = armOf(shown.arm.at);
   const svgRef = React2.useRef(null);
   const [fitted, setFitted] = React2.useState(null);
-  chunkKV6PPCWS_cjs.useIsoLayoutEffect(() => {
+  chunkR272FBXD_cjs.useIsoLayoutEffect(() => {
     const svg = svgRef.current;
     if (!fit || !svg || typeof svg.getBBox !== "function") return setFitted(null);
     setFitted(fitViewBox(svg.getBBox()));
@@ -1675,7 +1675,7 @@ function useGateLoop({ pose, motion, interactive, reduced, onReadout }) {
     heights: []
   });
   const poseRef = React2__namespace.useRef(pose);
-  const latestRef = chunkKV6PPCWS_cjs.useLatest({ reduced, motion, onReadout });
+  const latestRef = chunkR272FBXD_cjs.useLatest({ reduced, motion, onReadout });
   const isCalm = React2__namespace.useCallback(() => latestRef.current.reduced || latestRef.current.motion === "none", [latestRef]);
   const sceneNow = React2__namespace.useCallback(() => {
     const s = state.current;
@@ -1864,7 +1864,7 @@ function GateMachine({
 }) {
   const uid = useId2();
   const animated = interactive && motion === "auto";
-  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
+  const reduced = chunkR272FBXD_cjs.usePrefersReducedMotion();
   const { root, live, shown, paused, act } = useGateLoop({ pose, motion, interactive, reduced, onReadout });
   const hint = HINTS[pose];
   const machine = /* @__PURE__ */ jsxRuntime.jsxs(

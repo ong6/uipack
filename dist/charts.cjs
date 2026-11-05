@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
+var chunkR272FBXD_cjs = require('./chunk-R272FBXD.cjs');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
 
@@ -1352,7 +1352,7 @@ function enhanceLayerStack(root) {
     if (!win || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
       return;
     const link = event.target.closest?.('a[href^="#"]');
-    if (!link || !root.contains(link) || chunkKV6PPCWS_cjs.prefersReducedMotion(win)) return;
+    if (!link || !root.contains(link) || chunkR272FBXD_cjs.prefersReducedMotion(win)) return;
     const hash = link.getAttribute("href");
     const target = doc.getElementById(decodeURIComponent(hash.slice(1)));
     if (!target) return;

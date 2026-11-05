@@ -1,9 +1,9 @@
 'use strict';
 
-var chunkGMEMTAF2_cjs = require('./chunk-GMEMTAF2.cjs');
+var chunkKNRWTQ4K_cjs = require('./chunk-KNRWTQ4K.cjs');
 var chunk3OIHMAKF_cjs = require('./chunk-3OIHMAKF.cjs');
 var chunkSDBNPDW6_cjs = require('./chunk-SDBNPDW6.cjs');
-var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
+var chunkR272FBXD_cjs = require('./chunk-R272FBXD.cjs');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
 var reactDom = require('react-dom');
@@ -87,7 +87,7 @@ function stopAt(layer, step) {
 }
 function useNextCue(enabled, toRef, index, step, maxStep, slides) {
   const [cue, setCue] = react.useState({ cue: "", stop: null });
-  chunkKV6PPCWS_cjs.useIsoLayoutEffect(() => {
+  chunkR272FBXD_cjs.useIsoLayoutEffect(() => {
     if (!enabled) return;
     const at = Math.min(step, maxStep);
     setCue({ cue: nextCue(toRef.current, at, maxStep, slides[index + 1]), stop: stopAt(toRef.current, at) });
@@ -186,7 +186,7 @@ function resolveTransition(from, to, transitionOf, fallback = "advance") {
   const t = transitionOf(Math.max(from, to)) ?? fallback;
   return typeof t === "string" ? { kind: t } : { kind: "zoom", zoom: t.zoom };
 }
-var slideZoomFrame = (target, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => chunkGMEMTAF2_cjs.zoomFrame(target, width, height);
+var slideZoomFrame = (target, width = CANVAS_WIDTH, height = CANVAS_HEIGHT) => chunkKNRWTQ4K_cjs.zoomFrame(target, width, height);
 function slideZoomWindow(target, width = CANVAS_WIDTH, height = CANVAS_HEIGHT, margin = 0.06) {
   const m = Math.min(target.w, target.h) * margin;
   const s = Math.max(0, Math.min((target.w - 2 * m) / width, (target.h - 2 * m) / height));
@@ -195,7 +195,7 @@ function slideZoomWindow(target, width = CANVAS_WIDTH, height = CANVAS_HEIGHT, m
   return { x: target.x + (target.w - w) / 2, y: target.y + (target.h - h) / 2, w, h };
 }
 function slideZoomSamples(target, forward, samples = 24, width = CANVAS_WIDTH, height = CANVAS_HEIGHT, radius = 6) {
-  const frame = chunkGMEMTAF2_cjs.zoomFrame(slideZoomWindow(target, width, height), width, height);
+  const frame = chunkKNRWTQ4K_cjs.zoomFrame(slideZoomWindow(target, width, height), width, height);
   if (!frame) return null;
   const out = [];
   for (let i = 0; i <= samples; i++) {
@@ -523,7 +523,7 @@ function useCanvasScale() {
     setNode(next);
   }, []);
   const [scale, setScale] = react.useState(0);
-  chunkKV6PPCWS_cjs.useIsoLayoutEffect(() => {
+  chunkR272FBXD_cjs.useIsoLayoutEffect(() => {
     if (!node) return;
     const measure = () => setScale(node.clientWidth / CANVAS_WIDTH);
     measure();
@@ -2230,7 +2230,7 @@ function Overview({
 }) {
   const ref = react.useRef(null);
   const [tab, setTab] = react.useState("slides");
-  const closeRef = chunkKV6PPCWS_cjs.useLatest(onClose);
+  const closeRef = chunkR272FBXD_cjs.useLatest(onClose);
   react.useEffect(() => {
     const root = ref.current;
     if (!root) return;
@@ -2351,7 +2351,7 @@ function Presenter({
     const t = setInterval(() => setNow(Date.now()), 1e3);
     return () => clearInterval(t);
   }, []);
-  const hydrated = chunkKV6PPCWS_cjs.useHydrated();
+  const hydrated = chunkR272FBXD_cjs.useHydrated();
   const elapsed = hydrated ? Math.max(0, Math.floor((now - started) / 1e3)) : 0;
   const plan = slidePlan(slides, minutes ? minutes * 60 : void 0);
   const budget = plan.length ? plan[plan.length - 1].end : 0;
@@ -2491,7 +2491,7 @@ function detailStopsOf(root) {
 }
 function useDetailStops(ref, key) {
   const [stops, setStops] = react.useState([]);
-  chunkKV6PPCWS_cjs.useIsoLayoutEffect(() => {
+  chunkR272FBXD_cjs.useIsoLayoutEffect(() => {
     const next = detailStopsOf(ref.current);
     setStops((prev) => JSON.stringify(prev) === JSON.stringify(next) ? prev : next);
   }, [ref, key]);
@@ -2580,7 +2580,7 @@ function PrintJob({
   notes,
   onDone
 }) {
-  const doneRef = chunkKV6PPCWS_cjs.useLatest(onDone);
+  const doneRef = chunkR272FBXD_cjs.useLatest(onDone);
   react.useEffect(() => {
     let cancelled = false;
     const previous = document.title;
@@ -2736,7 +2736,7 @@ function useDeckKeys({ rootRef, keyboard, enabled, actions }) {
     }
     e.preventDefault();
   };
-  const handlerRef = chunkKV6PPCWS_cjs.useLatest(onKeyDown);
+  const handlerRef = chunkR272FBXD_cjs.useLatest(onKeyDown);
   react.useEffect(() => {
     if (keyboard !== "global") return;
     const handler = (e) => {
@@ -2771,7 +2771,7 @@ function useDeckSync({ id, view, viewRef, commit, go, slides, onPositionChange }
   const channel = react.useRef(null);
   const remote = react.useRef(false);
   const reported = react.useRef({ index: view.index, step: view.step });
-  const countRef = chunkKV6PPCWS_cjs.useLatest(slides.length);
+  const countRef = chunkR272FBXD_cjs.useLatest(slides.length);
   react.useEffect(() => {
     if (typeof BroadcastChannel === "undefined") return;
     const ch = new BroadcastChannel(`uipack-deck:${id}`);
@@ -2796,7 +2796,7 @@ function useDeckSync({ id, view, viewRef, commit, go, slides, onPositionChange }
       channel.current = null;
     };
   }, [id, go, commit, viewRef, countRef]);
-  const reportRef = chunkKV6PPCWS_cjs.useLatest({ slides, onPositionChange });
+  const reportRef = chunkR272FBXD_cjs.useLatest({ slides, onPositionChange });
   react.useEffect(() => {
     const last = reported.current;
     if (last.index === view.index && last.step === view.step) return;
@@ -2817,7 +2817,7 @@ function fullscreenAvailable() {
   return doc.fullscreenEnabled === true || prefixed;
 }
 function useFullscreen(rootRef) {
-  const hydrated = chunkKV6PPCWS_cjs.useHydrated();
+  const hydrated = chunkR272FBXD_cjs.useHydrated();
   const available = hydrated && fullscreenAvailable();
   const [fullscreen, setFullscreen] = react.useState(false);
   react.useEffect(() => {
@@ -2895,11 +2895,11 @@ function useDeckPosition({ slides, initial, toRef, settle }) {
     shown = { index, step: index === view.index ? view.step : 0, from: null, seq: view.seq + 1 };
     setView(shown);
   }
-  chunkKV6PPCWS_cjs.useIsoLayoutEffect(() => {
+  chunkR272FBXD_cjs.useIsoLayoutEffect(() => {
     viewRef.current = view;
   }, [view]);
   const [maxStep, setMaxStep] = react.useState(0);
-  chunkKV6PPCWS_cjs.useIsoLayoutEffect(() => {
+  chunkR272FBXD_cjs.useIsoLayoutEffect(() => {
     const layer = toRef.current;
     if (layer) setMaxStep(buildsOn(layer));
   }, [shown.index, slides, toRef]);
@@ -2942,8 +2942,8 @@ function useDeckTransition({
   fly,
   settle
 }) {
-  const latestRef = chunkKV6PPCWS_cjs.useLatest({ view, scale, slides, transition, reducedMotion });
-  chunkKV6PPCWS_cjs.useIsoLayoutEffect(() => {
+  const latestRef = chunkR272FBXD_cjs.useLatest({ view, scale, slides, transition, reducedMotion });
+  chunkR272FBXD_cjs.useIsoLayoutEffect(() => {
     const { view: view2, scale: scale2, slides: slides2, transition: transition2, reducedMotion: reducedMotion2 } = latestRef.current;
     if (!view2.from) return;
     const from = fromRef.current;
@@ -3012,7 +3012,7 @@ function Player({
     () => startIndexOf(slides, initial?.slide) > 0 ? { focus: false } : null
   );
   const [printing, setPrinting] = react.useState(false);
-  const prefersReduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
+  const prefersReduced = chunkR272FBXD_cjs.usePrefersReducedMotion();
   const reducedMotion = motion === "none" || prefersReduced;
   const { ref: stageRef, el: stageEl, scale } = useCanvasScale();
   const rootRef = react.useRef(null);
@@ -3024,7 +3024,7 @@ function Player({
     () => overview && lintKey ? lintDeck(slides, JSON.parse(lintKey)) : void 0,
     [overview, slides, lintKey]
   );
-  const { settle, fly } = chunkGMEMTAF2_cjs.useLayerFlight(
+  const { settle, fly } = chunkKNRWTQ4K_cjs.useLayerFlight(
     () => stageEl.current?.querySelectorAll(".uipack-deck-layer").forEach((el) => {
       el.style.zIndex = "";
       el.style.visibility = "";
@@ -3456,8 +3456,8 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
   const fromRef = react.useRef({ s: 1, tx: 0, ty: 0 });
   const facesRef = react.useRef([]);
   const shownRef = react.useRef(false);
-  const prefersReduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
-  chunkKV6PPCWS_cjs.useIsoLayoutEffect(() => {
+  const prefersReduced = chunkR272FBXD_cjs.usePrefersReducedMotion();
+  chunkR272FBXD_cjs.useIsoLayoutEffect(() => {
     const grid = gridRef.current;
     if (grid && shownRef.current) fromRef.current = cameraOf(getComputedStyle(grid).transform);
     if (!grid || !focus) return setCamera(null);
@@ -3471,8 +3471,8 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
       )
     );
   }, [focus, maxScale]);
-  const latestRef = chunkKV6PPCWS_cjs.useLatest({ focus, leaving, thumbnail, prefersReduced });
-  chunkKV6PPCWS_cjs.useIsoLayoutEffect(() => {
+  const latestRef = chunkR272FBXD_cjs.useLatest({ focus, leaving, thumbnail, prefersReduced });
+  chunkR272FBXD_cjs.useIsoLayoutEffect(() => {
     const { focus: focus2, leaving: leaving2, thumbnail: thumbnail2, prefersReduced: prefersReduced2 } = latestRef.current;
     const grid = gridRef.current;
     if (!grid) return;
@@ -3583,7 +3583,7 @@ function Bento({ columns = 6, rows = 4, tour = [], maxScale = 3, className, styl
       }
     }
   }, [camera, latestRef]);
-  chunkKV6PPCWS_cjs.useIsoLayoutEffect(() => () => facesRef.current.forEach((a) => a.cancel()), []);
+  chunkR272FBXD_cjs.useIsoLayoutEffect(() => () => facesRef.current.forEach((a) => a.cancel()), []);
   const cells = react.Children.toArray(children).filter(
     (c) => react.isValidElement(c) && c.type === BentoCell
   );
@@ -3977,7 +3977,7 @@ function useChartSize(fixed, fallback = { width: 640, height: 360 }) {
   });
   const fixedW = fixed?.width;
   const fixedH = fixed?.height;
-  chunkKV6PPCWS_cjs.useIsoLayoutEffect(() => {
+  chunkR272FBXD_cjs.useIsoLayoutEffect(() => {
     const el = ref.current;
     if (!el || fixedW !== void 0 && fixedH !== void 0) return;
     const measure = () => {

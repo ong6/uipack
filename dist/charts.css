@@ -2251,6 +2251,12 @@
     }
   }
 }
+/* A host that turns entrances off (<html data-uipack-entrance="off">, src/entrance.ts) gets the
+   resting frame here too. */
+:root[data-uipack-entrance="off"] .uipack-stack .uipack-stack__band,
+:root[data-uipack-entrance="off"] .uipack-span .uipack-span__item {
+  animation: none;
+}
 @keyframes uipack-stack-enter {
   from {
     opacity: 0;

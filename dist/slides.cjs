@@ -2,8 +2,8 @@
 
 var chunkPRNHRSTA_cjs = require('./chunk-PRNHRSTA.cjs');
 require('./chunk-ROALLHW7.cjs');
-var chunkD43QOXLX_cjs = require('./chunk-D43QOXLX.cjs');
-var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
+var chunkTLBFVTUY_cjs = require('./chunk-TLBFVTUY.cjs');
+var chunkR272FBXD_cjs = require('./chunk-R272FBXD.cjs');
 var react = require('react');
 var jsxRuntime = require('react/jsx-runtime');
 
@@ -37,10 +37,10 @@ function SceneViewport({
   onSettled
 }) {
   const host = react.useRef(null), labels = react.useRef(null), runtime = react.useRef();
-  const prefersReduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
+  const prefersReduced = chunkR272FBXD_cjs.usePrefersReducedMotion();
   const reduced = motion === "none" || prefersReduced;
   const stop = story.stops.find((s) => s.id === stopId) ?? story.stops[0];
-  const latestRef = chunkKV6PPCWS_cjs.useLatest({ stop, reduced, paused, onSettled });
+  const latestRef = chunkR272FBXD_cjs.useLatest({ stop, reduced, paused, onSettled });
   const [failed, setFailed] = react.useState(false);
   const fallback = renderMode === "diagram" || failed;
   const [ready, setReady] = react.useState(false);
@@ -189,7 +189,7 @@ function SlideScene(props) {
       errors.join(" ")
     ] });
   return /* @__PURE__ */ jsxRuntime.jsx(
-    chunkD43QOXLX_cjs.CanvasView,
+    chunkTLBFVTUY_cjs.CanvasView,
     {
       restoreFocus: () => opener.current?.focus(),
       open: canvas,
@@ -226,7 +226,7 @@ function Player({
     story.stops.findIndex((s) => s.id === defaultStopId)
   );
   const [internal, setInternal] = react.useState(initial), [paused, setPaused] = react.useState(false), [present, setPresent] = react.useState(false), [diagram, setDiagram] = react.useState(false), [canvas, setCanvas] = react.useState(false), [zoom, setZoom] = react.useState(1);
-  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion() || motion === "none";
+  const reduced = chunkR272FBXD_cjs.usePrefersReducedMotion() || motion === "none";
   const opener = react.useRef(null);
   const root = react.useRef(null);
   const titleId = react.useId();
@@ -261,7 +261,7 @@ function Player({
     };
   }, [present]);
   return /* @__PURE__ */ jsxRuntime.jsx(
-    chunkD43QOXLX_cjs.CanvasView,
+    chunkTLBFVTUY_cjs.CanvasView,
     {
       restoreFocus: () => opener.current?.focus(),
       open: canvas,

@@ -1,17 +1,17 @@
-import { useLayerFlight, zoomSamples, zoomFrame } from './chunk-JZZTE6QO.js';
-export { innerClipStart, zoomFrame, zoomSamples } from './chunk-JZZTE6QO.js';
-import { useFigureHover, hoverAttrs, connectorStroke, flowList, useItemSelection, FocusRing, Node, nodeName, SelectionContext, isPointer, useRovingFocus, FigureHoverContext, Legend, ReplayGlyph, PauseGlyph, PlayGlyph, placeNote } from './chunk-G4DXXXSU.js';
-export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, PACKET_POP, PACKET_SINK, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, isPointer, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-G4DXXXSU.js';
+import { useLayerFlight, zoomSamples, zoomFrame } from './chunk-H33EHDSS.js';
+export { innerClipStart, zoomFrame, zoomSamples } from './chunk-H33EHDSS.js';
+import { useFigureHover, hoverAttrs, connectorStroke, flowList, useItemSelection, FocusRing, Node, nodeName, SelectionContext, isPointer, useRovingFocus, FigureHoverContext, Legend, ReplayGlyph, PauseGlyph, PlayGlyph, placeNote } from './chunk-FQJPLKUS.js';
+export { Bus, Chip, Connector, Defs, Figure, FigureHoverContext, Group, Label, Lane, Legend, Node, PACKET_POP, PACKET_SINK, Packet, anchor, busStub, busStubs, connectorStroke, flowList, grid, hoverAttrs, icons, isPointer, packetScaleKeys, pathFromPoints, pointAlong, polylineLength, route, trim, useFigureHover } from './chunk-FQJPLKUS.js';
 import { useFontFloor, FigureScaleContext } from './chunk-HCR2C6OV.js';
 export { DEFAULT_RENDER_WIDTH, FigureScaleProvider, TOKEN_SHAPE, Token, fontFloor, tokenColor, useFontFloor } from './chunk-HCR2C6OV.js';
-import { CanvasView } from './chunk-5NWU4OWV.js';
+import { CanvasView } from './chunk-MKST5NJE.js';
 export { isUiStyle, sectionOrder, sharedSectionOrder, styleBootScript, uiStyles } from './chunk-EOCXVW6O.js';
 import { smoothstep } from './chunk-V4CVL4FJ.js';
 export { easeInOutCubic, smoothstep } from './chunk-V4CVL4FJ.js';
 import { FigureMotionContext } from './chunk-ZEGJBMAE.js';
 export { FigureChromeContext, FigureMotionContext, useFigureMotion } from './chunk-ZEGJBMAE.js';
-import { usePrefersReducedMotion, useLatest, useIsoLayoutEffect } from './chunk-I6LF4PLF.js';
-export { usePrefersReducedMotion } from './chunk-I6LF4PLF.js';
+import { usePrefersReducedMotion, useLatest, useIsoLayoutEffect } from './chunk-LWCZ6GEJ.js';
+export { usePrefersReducedMotion } from './chunk-LWCZ6GEJ.js';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { useId, useRef, useState, useEffect, createContext, useMemo, useCallback, createElement, useContext, memo } from 'react';
 

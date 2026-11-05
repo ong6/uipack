@@ -1,4 +1,4 @@
-import { prefersReducedMotion } from './chunk-I6LF4PLF.js';
+import { prefersReducedMotion } from './chunk-LWCZ6GEJ.js';
 import { Fragment as Fragment$1 } from 'react';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 

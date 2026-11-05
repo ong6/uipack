@@ -1,115 +1,10 @@
+import { chooseObjectVariant, normalizeObjectVariant, objectVariants, objectEditions, hasObjectLook, objectDirections, directionSymbols, objectLooks, objectDirectionIndex, transferObjectVariant } from './chunk-3FKMP2QD.js';
+export { chooseObjectVariant, directionSymbols, hasObjectLook, normalizeObjectVariant, objectDirectionIndex, objectDirections, objectEditions, objectLooks, objectVariants, parseObjectVariant, transferObjectVariant } from './chunk-3FKMP2QD.js';
 import { studioObjectPalettes } from './chunk-VNW5HB27.js';
-import { CanvasView } from './chunk-5NWU4OWV.js';
-import { keepFocusedInView, usePrefersReducedMotion } from './chunk-I6LF4PLF.js';
+import { CanvasView } from './chunk-MKST5NJE.js';
+import { keepFocusedInView, usePrefersReducedMotion, REDUCED_MOTION_QUERY } from './chunk-LWCZ6GEJ.js';
 import { useState, useRef, useEffect } from 'react';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
-
-// src/objects/variants.ts
-var objectDirections = [
-  {
-    id: "studio",
-    name: "Studio objects",
-    description: "Product photography: one object on a seamless sweep, soft light, a low lens."
-  },
-  {
-    id: "paper-theatre",
-    name: "Paper worlds",
-    description: "Cut-card toy theatres: layered flats in a proscenium under one warm light."
-  },
-  { id: "kinetic", name: "Kinetic sculptures", description: "Brass armatures and glazed ceramic turning on a slate base." },
-  { id: "cartoon", name: "Cartoon worlds", description: "Floating toy islands with toon shading, by day and by night." },
-  {
-    id: "realistic",
-    name: "Realistic close\u2011ups",
-    description: "Low close-ups on real surfaces under grazing window light."
-  },
-  { id: "abstract", name: "Abstract forms", description: "Refractive glass against bands of colour, with obsidian accents." }
-];
-var objectVariants = {
-  ai: [
-    "Studio \xB7 Agent laptop",
-    "Paper \xB7 Thinking machine",
-    "Kinetic \xB7 Neural orrery",
-    "Cartoon \xB7 Night workshop",
-    "Realistic \xB7 Key travel",
-    "Abstract \xB7 Thought lattice"
-  ],
-  contact: [
-    "Signature inbox",
-    "Blue inbox",
-    "Terracotta inbox",
-    "Cartoon \xB7 Little post office",
-    "Kinetic \xB7 Correspondence mobile"
-  ],
-  tennis: [
-    "Studio \xB7 Club rally",
-    "Paper \xB7 Centre court",
-    "Kinetic \xB7 Racket study",
-    "Cartoon \xB7 Courtside club",
-    "Realistic \xB7 Match point",
-    "Abstract \xB7 Elastic exchange"
-  ],
-  trading: [
-    "Studio \xB7 Market abacus",
-    "Paper \xB7 Market accordion",
-    "Kinetic \xB7 Market balance",
-    "Cartoon \xB7 Exchange avenue",
-    "Realistic \xB7 Ticker study",
-    "Abstract \xB7 Risk rhythm"
-  ],
-  server: [
-    "Studio \xB7 Inference hardware",
-    "Paper \xB7 Server city",
-    "Kinetic \xB7 Hanging compute",
-    "Cartoon \xB7 Cloud factory",
-    "Realistic \xB7 Silicon detail",
-    "Abstract \xB7 Signal stack"
-  ],
-  travel: [
-    "Studio \xB7 Folded atlas",
-    "Paper \xB7 Alpine passage",
-    "Kinetic \xB7 Armillary globe",
-    "Cartoon \xB7 Island express",
-    "Realistic \xB7 Field compass",
-    "Abstract \xB7 Passage"
-  ],
-  reading: [
-    "Studio \xB7 Turning pages",
-    "Paper \xB7 A world inside",
-    "Kinetic \xB7 Suspended folio",
-    "Cartoon \xB7 Reading nook",
-    "Realistic \xB7 Quiet chapter",
-    "Abstract \xB7 Unwritten"
-  ]
-};
-function chooseObjectVariant(random = Math.random, count = objectDirections.length) {
-  return Math.min(count - 1, Math.max(0, Math.floor(random() * count)));
-}
-var objectEditions = {
-  ai: ["Signature terminal", "Midnight terminal", "Warm graphite"],
-  contact: ["Signature inbox", "Blue inbox", "Terracotta inbox"],
-  tennis: ["Grass club", "Clay club", "Blue hardcourt"],
-  trading: ["Breakout", "Pullback", "Range reversal"],
-  server: ["Signature hardware", "Blue hardware", "Copper hardware"],
-  travel: ["Woodland atlas", "Coastal atlas", "Desert atlas"],
-  reading: ["Signature cloth", "Oxblood cloth", "Midnight cloth"]
-};
-var directionSymbols = ["\u25D2", "\u25B1", "\u25CE", "\u25A7", "\u25C9", "\u25C7"];
-function parseObjectVariant(value) {
-  const index = Number(value);
-  return value != null && value !== "" && Number.isInteger(index) && index >= 0 && index < objectDirections.length ? index : 0;
-}
-function objectDirectionIndex(kind, variant) {
-  return kind === "contact" ? variant === 3 ? 3 : variant === 4 ? 2 : 0 : variant;
-}
-function normalizeObjectVariant(kind, variant) {
-  return kind === "contact" && variant > 4 ? 0 : variant;
-}
-function transferObjectVariant(from, to, variant) {
-  if (from === to) return normalizeObjectVariant(to, variant);
-  const direction = objectDirectionIndex(from, variant);
-  return to === "contact" ? direction === 2 ? 4 : direction === 3 ? 3 : 0 : direction;
-}
 
 // src/objects/mount.ts
 var REST_START_MS = 5400;
@@ -139,6 +34,7 @@ function mountObjectScene(canvas, options) {
   let resizeObserver;
   let viewportObserver;
   let inViewport = true;
+  const reducedQuery = typeof window.matchMedia === "function" ? window.matchMedia(REDUCED_MOTION_QUERY) : null;
   const loaded = {};
   const stop = () => {
     if (frame) cancelAnimationFrame(frame);
@@ -152,7 +48,7 @@ function mountObjectScene(canvas, options) {
     onReady(false);
   };
   canvas.addEventListener("webglcontextlost", handleContextLost);
-  Promise.all([import('three'), import('./scenes-TQNUOTN6.js'), import('./look-THOY3OIA.js')]).then(async ([THREE, { createObject, disposeObject }, look]) => {
+  Promise.all([import('three'), import('./scenes-U25NCNZX.js'), import('./look-THOY3OIA.js')]).then(async ([THREE, { createObject, disposeObject }, look]) => {
     if (disposed) return;
     materialTextures = look.materialTextures;
     try {
@@ -224,6 +120,7 @@ function mountObjectScene(canvas, options) {
       let elapsed = 0;
       let lastTickAt;
       let lastPaintAt = -Infinity;
+      let restPainted = false;
       const frameInterval = window.matchMedia("(max-width: 767px)").matches ? MOBILE_FRAME_MS : 0;
       const paint = (sceneTime, time) => {
         object.userData.animate?.(sceneTime);
@@ -233,6 +130,7 @@ function mountObjectScene(canvas, options) {
         lastPaintAt = frameInterval ? time - (Number.isFinite(lastPaintAt) ? (time - lastPaintAt) % frameInterval : 0) : time;
         frames += 1;
         canvas.dataset.frames = String(frames);
+        restPainted = flags.reduced;
         const phase = flags.reduced ? "rest" : object.userData.phase;
         canvas.dataset.phase = phase;
         canvas.dataset.pose = object.userData.pose.toFixed(3);
@@ -242,6 +140,7 @@ function mountObjectScene(canvas, options) {
       const render = (time = 0) => {
         frame = null;
         if (disposed || contextLost) return;
+        if (!flags.reduced && reducedQuery?.matches) flags.reduced = true;
         if (document.hidden || !inViewport) {
           lastTickAt = void 0;
           return;
@@ -261,7 +160,9 @@ function mountObjectScene(canvas, options) {
           frame = requestAnimationFrame(render);
         }
       };
-      loaded.settle = () => paint(restTime, performance.now());
+      loaded.settle = () => {
+        if (!restPainted) paint(restTime, performance.now());
+      };
       loaded.draw = () => {
         if (!frame && !disposed) frame = requestAnimationFrame(render);
       };
@@ -487,7 +388,7 @@ function ObjectStage({
   const flagsRef = useRef({ active, paused: false, completed: false, reduced: false, zoom });
   const sceneRef = useRef(null);
   const paletteKey = palette ? JSON.stringify(palette) : "";
-  const resolvedVariant = variant === "random" ? 0 : variant;
+  const resolvedVariant = normalizeObjectVariant(kind, variant === "random" ? objectLooks[kind][0] : variant);
   useEffect(() => {
     flagsRef.current.zoom = zoom;
     sceneRef.current?.resize();
@@ -556,11 +457,11 @@ function ObjectStage({
       className: styles.scene,
       "data-active": active ? "true" : "false",
       "data-kind": kind,
-      "data-variant": variant,
+      "data-variant": resolvedVariant,
       "data-edition": edition,
-      "data-art-direction": objectDirections[objectDirectionIndex(kind, variant === "random" ? 0 : variant)].id,
+      "data-art-direction": objectDirections[objectDirectionIndex(kind, resolvedVariant)].id,
       "data-controls": controls,
-      "data-variant-label": objectVariants[kind][variant === "random" ? 0 : variant],
+      "data-variant-label": objectVariants[kind][resolvedVariant],
       children: [
         /* @__PURE__ */ jsx(Fallback, { kind, label }),
         active && /* @__PURE__ */ jsx("canvas", { ref: canvasRef, className: styles.canvas, "data-ready": ready ? "true" : "false", "aria-hidden": "true" }),
@@ -589,8 +490,7 @@ function ObjectScene(props) {
   useEffect(() => {
     setPick({ roll: Math.random(), turns: 0 });
   }, []);
-  const looks = props.kind === "contact" ? 5 : objectDirections.length;
-  const randomVariant = pick === null ? null : (chooseObjectVariant(() => pick.roll, looks) + pick.turns) % looks;
+  const randomVariant = pick === null ? null : chooseObjectVariant(props.kind, () => pick.roll, pick.turns);
   const canVary = props.variant === void 0 || props.variant === "random";
   const controls = props.controls ?? "full";
   const chosenVariant = canVary ? randomVariant : props.variant;
@@ -600,7 +500,7 @@ function ObjectScene(props) {
     controls === "full" && variant !== null && /* @__PURE__ */ jsxs("div", { className: "uipack-object-edition", children: [
       /* @__PURE__ */ jsxs("span", { children: [
         objectVariants[props.kind][variant],
-        variant === 0 && props.kind !== "contact" && props.edition ? ` \xB7 ${objectEditions[props.kind][props.edition]}` : ""
+        variant === 0 && props.kind !== "contact" && props.edition && hasObjectLook(props.kind, 0) ? ` \xB7 ${objectEditions[props.kind][props.edition]}` : ""
       ] }),
       canVary && /* @__PURE__ */ jsx("button", { type: "button", onClick: anotherLook, "aria-label": "Another look", children: "\u21BB" })
     ] }),
@@ -633,12 +533,24 @@ function ObjectScene(props) {
 }
 function ObjectDirectionPicker({
   value,
-  onChange
+  onChange,
+  kind
 }) {
-  return /* @__PURE__ */ jsx("div", { className: "uipack-object-directions", role: "group", "aria-label": "3D art direction", children: objectDirections.map((direction, index) => /* @__PURE__ */ jsxs("button", { type: "button", "aria-pressed": value === index, onClick: () => onChange(index), children: [
-    /* @__PURE__ */ jsx("span", { "aria-hidden": "true", children: directionSymbols[index] }),
-    direction.name
-  ] }, direction.id)) });
+  return /* @__PURE__ */ jsx("div", { className: "uipack-object-directions", role: "group", "aria-label": "3D art direction", children: objectDirections.map(
+    (direction, index) => kind && !hasObjectLook(kind, index) ? null : /* @__PURE__ */ jsxs(
+      "button",
+      {
+        type: "button",
+        "aria-pressed": value === index,
+        onClick: () => onChange(index),
+        children: [
+          /* @__PURE__ */ jsx("span", { "aria-hidden": "true", children: directionSymbols[index] }),
+          direction.name
+        ]
+      },
+      direction.id
+    )
+  ) });
 }
 
 // src/objects/scene-list.ts
@@ -698,16 +610,21 @@ function ObjectInspector({
 }) {
   const variant = normalizeObjectVariant(kind, requested);
   const contact = kind === "contact";
+  const directions = objectDirections.map((direction, index) => ({
+    direction,
+    index,
+    look: objectLooks[kind].find((look) => objectDirectionIndex(kind, look) === index)
+  })).filter((entry) => entry.look !== void 0);
   return /* @__PURE__ */ jsxs("aside", { className: "uipack-object-inspector", children: [
     /* @__PURE__ */ jsxs(Fragment, { children: [
       /* @__PURE__ */ jsx("h3", { children: "Art direction" }),
-      /* @__PURE__ */ jsx("div", { role: "group", "aria-label": "3D art direction", className: "uipack-direction-list", children: objectDirections.map((direction, index) => ({ direction, index })).filter(({ index }) => !contact || [0, 2, 3].includes(index)).map(({ direction, index }) => /* @__PURE__ */ jsxs(
+      /* @__PURE__ */ jsx("div", { role: "group", "aria-label": "3D art direction", className: "uipack-direction-list", children: directions.map(({ direction, index, look }) => /* @__PURE__ */ jsxs(
         "button",
         {
           type: "button",
           "aria-label": direction.name,
           "aria-pressed": objectDirectionIndex(kind, variant) === index,
-          onClick: () => onVariantChange(contact && index === 2 ? 4 : index),
+          onClick: () => onVariantChange(look),
           children: [
             /* @__PURE__ */ jsx("span", { className: "uipack-direction-symbol", "aria-hidden": "true", children: directionSymbols[index] }),
             /* @__PURE__ */ jsxs("span", { children: [
@@ -719,7 +636,7 @@ function ObjectInspector({
         direction.id
       )) })
     ] }),
-    (contact ? variant < 3 : variant === 0) && /* @__PURE__ */ jsxs("label", { className: "uipack-edition-select", children: [
+    hasObjectLook(kind, 0) && objectDirectionIndex(kind, variant) === 0 && /* @__PURE__ */ jsxs("label", { className: "uipack-edition-select", children: [
       contact ? "Inbox edition" : "Studio edition",
       /* @__PURE__ */ jsx(
         "select",
@@ -800,4 +717,4 @@ function ObjectGallery({
   );
 }
 
-export { AnimationWorkspace, ObjectDirectionPicker, ObjectGallery, ObjectInspector, ObjectScene, chooseObjectVariant, directionSymbols, normalizeObjectVariant, objectDirectionIndex, objectDirections, objectEditions, objectPalettes, objectScenes, objectVariants, parseObjectVariant, transferObjectVariant };
+export { AnimationWorkspace, ObjectDirectionPicker, ObjectGallery, ObjectInspector, ObjectScene, objectPalettes, objectScenes };

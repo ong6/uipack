@@ -458,6 +458,7 @@
 }
 .uipack-slide-starter__figure figcaption span {
   color: var(--presentation-muted);
+  text-wrap: balance;
 }
 .uipack-speaker-guide {
   margin-top: 24px;

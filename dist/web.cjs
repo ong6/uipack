@@ -3,7 +3,7 @@
 var chunkW57HLSTR_cjs = require('./chunk-W57HLSTR.cjs');
 var chunkSDBNPDW6_cjs = require('./chunk-SDBNPDW6.cjs');
 var chunkCRQKMR73_cjs = require('./chunk-CRQKMR73.cjs');
-var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
+var chunkR272FBXD_cjs = require('./chunk-R272FBXD.cjs');
 var jsxRuntime = require('react/jsx-runtime');
 var react = require('react');
 
@@ -559,7 +559,7 @@ function FileTable({ fileName, summary, status, footer, className = "", ...table
 }
 function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger = 45 }) {
   const ref2 = react.useRef(null);
-  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
+  const reduced = chunkR272FBXD_cjs.usePrefersReducedMotion();
   const [state, setState] = react.useState("static");
   react.useEffect(() => {
     const el = ref2.current;
@@ -804,7 +804,7 @@ function DemoPlayer({
   const timing = react.useMemo(() => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
   const mode = modeProp ?? (steps.some((s) => s.prompt) ? "agent" : "steps");
   const rail = mode === "steps" ? railProp : void 0;
-  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion() || still;
+  const reduced = chunkR272FBXD_cjs.usePrefersReducedMotion() || still;
   const stepper = reduced && !still;
   const [held, setHeld] = react.useState(null);
   const classicTabs = rail !== "compact";
@@ -856,8 +856,8 @@ function DemoPlayer({
   const [inView, setInView] = react.useState(false);
   const id = react.useId();
   const armed = react.useRef(false);
-  const playingRef = chunkKV6PPCWS_cjs.useLatest(playing);
-  const doneRef = chunkKV6PPCWS_cjs.useLatest(elapsed >= end);
+  const playingRef = chunkR272FBXD_cjs.useLatest(playing);
+  const doneRef = chunkR272FBXD_cjs.useLatest(elapsed >= end);
   const blank = mode === "steps" && !steps.some((s) => s.screen !== void 0 && s.screen !== null);
   react.useEffect(() => {
     if (DEV2 && blank)
@@ -923,7 +923,7 @@ function DemoPlayer({
   }, [running, loop, cycle, end]);
   const step = steps[frame.step];
   const stepState = (i) => i < frame.step || i === frame.step && frame.settled ? "done" : i === frame.step ? "running" : "pending";
-  const stepChangeRef = chunkKV6PPCWS_cjs.useLatest(onStepChange);
+  const stepChangeRef = chunkR272FBXD_cjs.useLatest(onStepChange);
   react.useEffect(() => {
     stepChangeRef.current?.(frame.step);
   }, [frame.step, stepChangeRef]);
@@ -1218,7 +1218,7 @@ function subscribeFinePointer(changed) {
 }
 function transitionDocument() {
   const doc = typeof document === "undefined" ? void 0 : document;
-  const reduced = chunkKV6PPCWS_cjs.prefersReducedMotion();
+  const reduced = chunkR272FBXD_cjs.prefersReducedMotion();
   return doc?.startViewTransition && !reduced ? doc : void 0;
 }
 function withViewTransition(update) {
@@ -1356,7 +1356,7 @@ function GridBackground({
   spotlight = false
 }) {
   const ref2 = react.useRef(null);
-  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
+  const reduced = chunkR272FBXD_cjs.usePrefersReducedMotion();
   const fine = useFinePointer();
   useParentSpotlight(ref2, spotlight && fine && !reduced);
   return /* @__PURE__ */ jsxRuntime.jsx(
@@ -1465,7 +1465,7 @@ function DriftingGutters({ contentWidth = 1120, top = 72, minViewport = 1280, dr
 }
 function Reveal({ children, variant = "up", stagger = 80, as: Tag = "div", className = "" }) {
   const ref2 = react.useRef(null);
-  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
+  const reduced = chunkR272FBXD_cjs.usePrefersReducedMotion();
   const [state, setState] = react.useState("static");
   react.useEffect(() => {
     const el = ref2.current;
@@ -1513,7 +1513,7 @@ function scrambleFrame(text, t, mode, seed = 0) {
 }
 function TextScramble({ text, mode = "scramble", duration = 1200, as: Tag = "span", className = "" }) {
   const ref2 = react.useRef(null);
-  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
+  const reduced = chunkR272FBXD_cjs.usePrefersReducedMotion();
   const inView = useInView(ref2, { once: true, threshold: 0.5 });
   const [t, setT] = react.useState(1);
   const [tick, setTick] = react.useState(0);
@@ -1567,7 +1567,7 @@ function NumberTicker({
   face = "display"
 }) {
   const ref2 = react.useRef(null);
-  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
+  const reduced = chunkR272FBXD_cjs.usePrefersReducedMotion();
   const inView = useInView(ref2, { once: true, threshold: 0.6 });
   const [current, setCurrent] = react.useState(value);
   const [armed, setArmed] = react.useState(false);
@@ -1609,9 +1609,9 @@ function Marquee({ items, label, duration = 30, reverse = false }) {
   const ref2 = react.useRef(null);
   const copyRef = react.useRef(null);
   const inView = useInView(ref2);
-  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
+  const reduced = chunkR272FBXD_cjs.usePrefersReducedMotion();
   const [paused, setPaused] = react.useState(false);
-  const mounted = chunkKV6PPCWS_cjs.useHydrated();
+  const mounted = chunkR272FBXD_cjs.useHydrated();
   react.useEffect(() => {
     copyRef.current?.setAttribute("inert", "");
   }, [reduced, mounted]);
@@ -1639,7 +1639,7 @@ function Marquee({ items, label, duration = 30, reverse = false }) {
 }
 function useHoverMotion(apply, reset) {
   const ref2 = react.useRef(null);
-  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
+  const reduced = chunkR272FBXD_cjs.usePrefersReducedMotion();
   const onPointerMove = (e) => {
     if (reduced || e.pointerType !== "mouse" && e.pointerType !== "pen") return;
     const el = ref2.current;
@@ -1697,7 +1697,7 @@ function ScrollTransform({
   className = ""
 }) {
   const ref2 = react.useRef(null);
-  const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion();
+  const reduced = chunkR272FBXD_cjs.usePrefersReducedMotion();
   const raw = useScrollProgress(ref2);
   const t = reduced ? 0.5 : raw;
   const style = {
@@ -1752,7 +1752,7 @@ function nativeScrollTo(target, { offset, immediate } = {}) {
   if (!canUseDom()) return;
   const y = resolveTop(target, offset);
   if (y === null) return;
-  window.scrollTo({ top: chunkSDBNPDW6_cjs.clamp(y, 0, maxScroll()), behavior: immediate || chunkKV6PPCWS_cjs.prefersReducedMotion() ? "auto" : "smooth" });
+  window.scrollTo({ top: chunkSDBNPDW6_cjs.clamp(y, 0, maxScroll()), behavior: immediate || chunkR272FBXD_cjs.prefersReducedMotion() ? "auto" : "smooth" });
 }
 function pageOwnsWheel(e) {
   const root = document.documentElement;
@@ -1933,7 +1933,7 @@ function createSmoothScroll({
   };
   const fine = typeof window.matchMedia === "function" ? window.matchMedia(FINE) : null;
   const evaluate = () => {
-    const next = !destroyed && fine !== null && fine.matches && !chunkKV6PPCWS_cjs.prefersReducedMotion();
+    const next = !destroyed && fine !== null && fine.matches && !chunkR272FBXD_cjs.prefersReducedMotion();
     if (next === enabled) return;
     enabled = next;
     if (enabled) attach();
@@ -1982,7 +1982,7 @@ function createSmoothScroll({
   };
   active = controller;
   if (fine) listen(fine, true);
-  const stopReduced = chunkKV6PPCWS_cjs.onReducedMotionChange(evaluate);
+  const stopReduced = chunkR272FBXD_cjs.onReducedMotionChange(evaluate);
   document.addEventListener("click", onClick);
   evaluate();
   return controller;
