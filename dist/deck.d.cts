@@ -38,11 +38,26 @@ interface SlotBudget {
     overflow: SlotOverflow;
 }
 /**
- * The budget table. Sizes are canvas pixels on the 1920×1080 slide, so the measures hold at any
- * screen size. The headline's word limit is also `MAX_TITLE_WORDS` (rule `title-length`).
+ * How a deck is meant to be read, which sets how long its titles run:
+ * - `presented` (default): the speaker is in the room. A title is a 2–5 word label or spoken
+ *   verdict ("Search: twice as fast since March"), the points carry the numbers as fragments, and
+ *   the speaker says the full claim aloud from cue notes.
+ * - `read-alone`: the deck travels without the speaker (a pre-read, a forwarded deck, a consulting
+ *   readout). Each title is the full conclusion as one sentence, so the titles alone tell the argument.
  */
-/** Most body points on one slide: more than three is a second idea or an appendix table. */
-declare const MAX_POINTS = 3;
+type DeckMode = "presented" | "read-alone";
+/**
+ * Most words in a title, by mode: past `presented`, a title is a sentence to read out rather than a
+ * cue to talk from (rule `title-length`). The read-alone limit is also `MAX_TITLE_WORDS`.
+ */
+declare const TITLE_WORDS: Readonly<Record<DeckMode, number>>;
+/** Most body points on one slide: more than four is a second idea or an appendix table. */
+declare const MAX_POINTS = 4;
+/**
+ * The budget table. Sizes are canvas pixels on the 1920×1080 slide, so the measures hold at any
+ * screen size. The headline row is the read-alone ceiling; a presented deck's titles stop at
+ * `TITLE_WORDS.presented` words (rule `title-length`).
+ */
 declare const SLOT_BUDGETS: Readonly<Record<SlotName, SlotBudget>>;
 /** Words as a reader counts them: separators like "·" and "—" are not words. */
 declare const slotWords: (text: string) => string[];
@@ -176,28 +191,28 @@ type StoryMove = Extract<TransitionKind, "advance" | "morph" | "zoom">;
  */
 interface StorySlide {
     id: string;
-    /** Short name. Used as the action title when `headline` is absent. */
+    /** Short name. Used as the on-slide title when `headline` is absent. */
     title: string;
     role?: SlideRole;
     /** Talk track. A string is treated as `say`. */
     notes?: (SpeechGuide & {
         stops?: Record<string, string>;
     }) | string;
-    /** The action title shown on the slide. */
+    /** The title shown on the slide: a short label or verdict when presented, the full conclusion when read alone. */
     headline?: string;
     /** On-slide source line for the slide's numbers. */
     source?: string;
-    /** The eyebrow above the headline, when the slide declares it as data (archetype slides do). */
+    /** The eyebrow above the headline, when the slide has one (optional, off by default), as data. */
     eyebrow?: string;
-    /** The one-sentence lede under the headline, as data. */
+    /** The one-sentence lede under the headline, when the slide has one (optional, off by default), as data. */
     lede?: string;
-    /** Body points, as data: at most three, each within the `point` budget. */
+    /** Body points, as data: 2–4 fragments, each within the `point` budget. */
     points?: readonly string[];
     /** Any other slot text the slide declares (quote, value, owner…), checked against `SLOT_BUDGETS`. */
     slots?: Partial<Record<SlotName, string>>;
 }
 type LintSeverity = "error" | "warn" | "tip";
-type LintRule = "deck-empty" | "duplicate-id" | "title-present" | "title-claim" | "title-length" | "title-specific" | "one-idea" | "notes-present" | "number-source" | "roles-missing" | "answer-first" | "outcome-first" | "closing-ask" | "ask-concrete" | "role-repeat" | "deck-length" | "talk-time" | "template-beats" | "slot-budget";
+type LintRule = "deck-empty" | "duplicate-id" | "title-present" | "title-claim" | "title-length" | "title-specific" | "one-idea" | "notes-present" | "number-source" | "roles-missing" | "answer-first" | "outcome-first" | "closing-ask" | "ask-concrete" | "role-repeat" | "deck-length" | "talk-time" | "template-beats" | "slot-budget" | "notes-cues" | "slide-shape" | "ai-tells";
 interface LintFinding {
     slideId?: string;
     rule: LintRule;
@@ -205,6 +220,12 @@ interface LintFinding {
     message: string;
 }
 interface LintOptions {
+    /**
+     * How the deck is meant to be read. `presented` (default): short titles, fragment points and cue
+     * notes, for a speaker who talks freely. `read-alone`: full-sentence titles and a full talk track,
+     * for a deck sent without its speaker (a pre-read, a forwarded deck, a consulting readout).
+     */
+    mode?: DeckMode;
     /** Applies the template's answer-first setting and its slide and time ranges. */
     template?: StorylineTemplateId;
     /** Speaking time budget in minutes. */
@@ -217,16 +238,21 @@ declare const LINT_RULES: Readonly<Record<LintRule, {
     severity: LintSeverity;
     check: string;
 }>>;
-declare const MAX_TITLE_WORDS = 14;
+/** The read-alone title limit; a presented title stops at `TITLE_WORDS.presented`. */
+declare const MAX_TITLE_WORDS: number;
 
 interface StoryBeat {
     role: SlideRole;
     /** What this beat must achieve. */
     purpose: string;
-    /** The action-title shape, with `<placeholders>`. */
+    /** The short title's shape, with `<placeholders>`: a label, a verdict or a question. */
     titlePattern: string;
-    /** A filled title for a generic engineering project. Illustrative, not real data. */
+    /** A filled short title for a generic engineering project (presented). Illustrative, not real data. */
     example: string;
+    /** The example's body: 2–4 fragments that carry the numbers and cues (presented). */
+    points: readonly string[];
+    /** The same beat as a full-sentence title, for a deck read without its speaker (read-alone). */
+    readAlone: string;
     /** How to write it well, and the common mistake. */
     guidance: string;
     /** Suggested arrival. Omitted means `advance`. */
@@ -263,11 +289,17 @@ interface StorylineTemplate {
 }
 declare const STORYLINE_TEMPLATES: readonly StorylineTemplate[];
 declare function getStorylineTemplate(id: StorylineTemplateId): StorylineTemplate;
-/** A template's example titles as a scaffold deck: one slide per beat, ready to rewrite. */
-declare function templateOutline(template: StorylineTemplate | StorylineTemplateId): StorySlide[];
+/**
+ * A template's examples as a scaffold deck: one slide per beat, ready to rewrite. Presented (the
+ * default), each slide is the short title and its points; read-alone, the full-sentence title.
+ */
+declare function templateOutline(template: StorylineTemplate | StorylineTemplateId, { mode }?: {
+    mode?: DeckMode;
+}): StorySlide[];
 
 /**
- * Check a deck's argument: action titles, answer first, a concrete closing ask, role rhythm,
+ * Check a deck's argument: titles that fit the mode (short labels and verdicts when presented, full
+ * conclusions when read alone), answer first, a concrete closing ask, role rhythm,
  * talk tracks, sources for numbers, and length against the time budget. Runs `LINT_CHECKS` in
  * order. Pure; no DOM.
  */
@@ -388,7 +420,7 @@ declare function Build({ step, as: Tag, className, style, children, }: {
     children?: ReactNode;
 }): react.JSX.Element;
 /**
- * The standard slide frame: canvas padding, an optional eyebrow and a footer with the page.
+ * The standard slide frame: canvas padding, an optional eyebrow (off by default) and a footer with the page.
  * Children are the slide's blocks; `advance` staggers them in reading order.
  */
 declare function Slide({ eyebrow, footer, layout, className, children, }: {
@@ -396,25 +428,33 @@ declare function Slide({ eyebrow, footer, layout, className, children, }: {
     footer?: ReactNode;
     /**
      * `stack` flows top to bottom; `center` centres a statement; `split` is two columns. The
-     * archetypes (`SectionSlide`, `QuoteSlide`, `FactSlide`, `EndSlide`) set `section`, `quote`,
-     * `fact` and `end`: a stack whose body region they fill their own way.
+     * archetypes (`PointsSlide`, `SectionSlide`, `QuoteSlide`, `FactSlide`, `EndSlide`) set `points`,
+     * `section`, `quote`, `fact` and `end`: a stack whose body region they fill their own way.
      */
-    layout?: "stack" | "center" | "split" | "section" | "quote" | "fact" | "end";
+    layout?: "stack" | "center" | "split" | "points" | "section" | "quote" | "fact" | "end";
     className?: string;
     children?: ReactNode;
 }): react.JSX.Element;
 
 interface Frame {
-    /** The section this slide sits in, 1–4 words. */
-    eyebrow: string;
-    /** The claim, one sentence. */
+    /** Optional, off by default: the section this slide sits in, 1–4 words. */
+    eyebrow?: string;
+    /** The title: a 2–5 word label or verdict when presented, the conclusion as a sentence when read alone. */
     headline: string;
     footer?: ReactNode;
 }
+interface PointsSlideProps extends Frame {
+    /** 2–4 fragments that carry the numbers and cues ("p95 198 ms, half of March", "5 indexes → 1"). */
+    points: readonly string[];
+    /** The named artifact behind the numbers, shown over the footer. */
+    source?: string;
+}
+/** Points: a short title and the fragments the speaker talks from. The default for a presented deck. */
+declare function PointsSlide({ eyebrow, headline, points, source, footer }: PointsSlideProps): react.JSX.Element;
 interface SectionSlideProps extends Frame {
     /** The part number, e.g. "02". */
     number: string;
-    /** One sentence on what this part proves. */
+    /** Optional: one plain sentence on what this part covers. */
     lede?: string;
 }
 /** Section: a divider that still makes a claim. The part number fills the body, large, in the accent. */
@@ -448,10 +488,12 @@ interface EndSlideProps extends Frame {
     date: string;
     lede?: string;
 }
-/** End: the ask as a claim, then its three parts in a row: the action, the owner and the date. */
+/** End: the ask in a few words, then its three parts in a row: the action, the owner and the date. */
 declare function EndSlide({ eyebrow, headline, action, owner, date, lede, footer }: EndSlideProps): react.JSX.Element;
 /** What every factory takes besides its archetype's slots: the slide's identity, role and talk. */
-type SlideMeta = Omit<DeckSlide, "render" | "headline" | "eyebrow" | "lede" | "slots" | "source">;
+type SlideMeta = Omit<DeckSlide, "render" | "headline" | "eyebrow" | "lede" | "slots" | "source" | "points">;
+/** A points slide as a `DeckSlide`: the title and points as data, so `lintDeck` reads both. */
+declare function pointsSlide({ eyebrow, headline, points, source, footer, ...meta }: SlideMeta & PointsSlideProps): DeckSlide;
 /** A section divider as a `DeckSlide`, its words as data. */
 declare function sectionSlide({ eyebrow, headline, number, lede, footer, ...meta }: SlideMeta & SectionSlideProps): DeckSlide;
 /** A quote slide as a `DeckSlide`. */
@@ -524,10 +566,11 @@ declare const bentoFocusAt: (step: number, tour: readonly string[]) => string | 
 declare function Bento({ columns, rows, tour, maxScale, className, style, children }: BentoProps): react.JSX.Element;
 
 /**
- * A playable first draft of a storyline template: one slide per beat, titled with the template's
- * example claim, showing the title pattern and how to write it. Every slide is a stub to replace:
- * keep the `id` and `role`, rewrite `headline` with your facts, then swap `render` for real content
- * and add `notes`. `lintDeck` flags every slide still missing a talk track.
+ * A playable first draft of a storyline template: one slide per beat, with the template's example
+ * short title and its fragment points (a presented deck), the title pattern and how to write it.
+ * Every slide is a stub to replace: keep the `id` and `role`, rewrite `headline` and `points` with
+ * your facts, then swap `render` for real content and add cue `notes`. `lintDeck` flags every slide
+ * still missing its notes.
  */
 declare function starterDeck(template: StorylineTemplateId, { footer }?: {
     footer?: ReactNode;
@@ -988,4 +1031,4 @@ interface HarveyTableProps {
 /** Options × criteria: Harvey balls (0–4) and text cells, with one row marked as the recommendation. */
 declare function HarveyTable({ columns, rows, corner, showKey, keyNote, }: HarveyTableProps): react.JSX.Element;
 
-export { Annotation, type AnnotationGeometry, type AnnotationProps, type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, type DeckNotes, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, EndSlide, type EndSlideProps, FactSlide, type FactSlideProps, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_POINTS, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, QuoteSlide, type QuoteSlideProps, REPEATABLE_ROLES, Ref, SLIDE_ROLES, SLOT_BUDGETS, STORYLINE_TEMPLATES, SectionSlide, type SectionSlideProps, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, type SlotBudget, type SlotName, type SlotOverflow, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, Tracker, type TrackerProps, type TransitionKind, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, endSlide, factSlide, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, quoteSlide, sectionSlide, slotLines, slotProblems, slotSentences, slotWords, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, toneOf, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };
+export { Annotation, type AnnotationGeometry, type AnnotationProps, type Band, BarChart, type BarChartProps, type BarDatum, Bento, BentoCell, type BentoCellProps, type BentoProps, Build, CANVAS_HEIGHT, CANVAS_WIDTH, CX_TYPE, type ChartCallout, type ChartSize, ConsultingSlide, type ConsultingSlideProps, type DeckMode, type DeckNotes, DeckPlayer, type DeckPlayerProps, type DeckPosition, type DeckRenderContext, type DeckSlide, DeckSlideContext, type DeckSlideState, type DeckTheme, type DeckTransition, EndSlide, type EndSlideProps, FactSlide, type FactSlideProps, type FormatOptions, type GridPlacement, HarveyBall, type HarveyColumn, type HarveyRow, HarveyTable, type HarveyTableProps, type KpiDelta, type KpiItem, KpiTiles, LINT_RULES, LineChart, type LineChartProps, type LineSeries, type LinearScale, type LintFinding, type LintOptions, type LintRule, type LintSeverity, MAX_POINTS, MAX_TITLE_WORDS, MIN_TEXT_PX, Matrix2x2, type Matrix2x2Props, type MatrixAxis, type MatrixPoint, Morph, Panel, type PanelProps, PointsSlide, type PointsSlideProps, QuoteSlide, type QuoteSlideProps, REPEATABLE_ROLES, Ref, SLIDE_ROLES, SLOT_BUDGETS, STORYLINE_TEMPLATES, SectionSlide, type SectionSlideProps, Slide, type SlideRole, type SlideRoleInfo, SlideThumbnail, type SlotBudget, type SlotName, type SlotOverflow, SoWhat, type SoWhatProps, Sparkline, type StackSegment, StackedBar, type StackedBarProps, type StoryBeat, type StoryMove, type StorySlide, type StorylineEntry, type StorylineTemplate, type StorylineTemplateId, TITLE_WORDS, Tracker, type TrackerProps, type TransitionKind, Waterfall, type WaterfallBar, type WaterfallInput, type WaterfallProps, annotationGeometry, bandLayout, barPath, bentoCamera, bentoFocusAt, bubbleRadius, deckMotion, endSlide, factSlide, formatStoryline, formatValue, formatter, getStorylineTemplate, harveyQuarters, harveyWedge, linearScale, lintDeck, niceStep, niceTicks, pointsSlide, quoteSlide, sectionSlide, slotLines, slotProblems, slotSentences, slotWords, spreadLabels, stackSegments, starterDeck, storylineOf, talkSeconds, templateOutline, textWidth, toneOf, useDeckSlide, waterfallBars, wrapToWidth, zeroBasedDomain };

@@ -52,7 +52,7 @@ function renderSlideSvg(slide, options = {}) {
   const width = options.width ?? 1200;
   const height = Math.round(width * 9 / 16);
   const text = (x, y, value, size = 26, color = colors.ink, weight = 400, mono = false, anchor = "start", role, tracking) => `<text x="${x}" y="${y}"${anchor === "end" ? ' text-anchor="end"' : ""}${role ? ` class="uipack-slide-starter__${role}"` : ""} ${css ? "" : paint({ font: mono ? faces.mono : faces.sans })} font-size="${size}"${paint(css ? { fill: color, font: mono ? faces.mono : faces.sans } : { fill: color })} font-weight="${weight}"${tracking ? ` letter-spacing="${tracking}em"` : ""}>${escapeSvgText(tracking ? value.toUpperCase() : value)}</text>`;
-  const eyebrow = (value) => text(64, 105, value, 15, colors.accent, 600, true, "start", "label", 0.14);
+  const eyebrow = (value) => value ? text(64, 105, value, 15, colors.accent, 600, true, "start", "label", 0.14) : "";
   const foot = (x, value, anchor) => text(x, 635, value, 13, colors.muted, 500, true, anchor, "label", 0.06);
   const rule = (x1, y, x2) => `<path d="M${x1} ${y}H${x2}"${paint({ stroke: colors.rule })} stroke-width="2"/>`;
   const footer = slide.footer ? rule(64, 592, 1136) + foot(64, slide.footer.label, "start") + (slide.footer.page ? foot(1136, slide.footer.page, "end") : "") : "";

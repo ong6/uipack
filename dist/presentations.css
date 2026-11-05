@@ -624,3 +624,8 @@
     display: none;
   }
 }
+
+/* Cue notes are short lines; keep the author's line breaks. */
+.uipack-speaker-guide__section p {
+  white-space: pre-line;
+}
