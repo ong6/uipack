@@ -395,7 +395,7 @@ const models: Record<ArtKind, Model> = {
         y = (v - 0.62) * 2.4;
       const r = Math.hypot(x / 0.86, y / 1.02);
       const frame = smoothstep(0.24, 0.04, Math.abs(r - 0.93));
-      const inside = r < 0.92 ? 1 : 0;
+      const inside = smoothstep(0.84, 0.66, r);
       const strings =
         inside *
         0.5 *
@@ -407,8 +407,8 @@ const models: Record<ArtKind, Model> = {
       return [r1, g1, b1, a * 150];
     });
     const card = new THREE.MeshBasicMaterial({ map: blurred, transparent: true, depthWrite: false, toneMapped: true });
-    const racket = mesh(root, new THREE.PlaneGeometry(1.3, 1.6), themed(card, { dark: { color: 0x7a7f88 } }), -0.95, 0.5, -2.8);
-    racket.rotation.set(-0.12, 0.3, 0.5);
+    const racket = mesh(root, new THREE.PlaneGeometry(1.3, 1.6), themed(card, { dark: { color: 0x7a7f88 } }), 0.95, 0.42, -2.4);
+    racket.rotation.set(-0.3, -0.35, -0.6);
     racket.userData.frameIgnore = true;
 
     const RADIUS = 0.42;
@@ -422,7 +422,7 @@ const models: Record<ArtKind, Model> = {
       64,
       (u, v) => {
         const n = valueNoise(u * 128, v * 64, 128, 31);
-        const a = smoothstep(0.45, 0.95, n) * 160;
+        const a = smoothstep(0.55, 0.95, n) * 90;
         return [a, a, a];
       },
       { srgb: false },
