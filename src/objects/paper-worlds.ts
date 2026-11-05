@@ -634,17 +634,47 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
     t.add(card(shape(crowd(0.52, 0.08, 0)), 0xb4c8d1, -0.76));
     const stand = t.hinge(-0.68);
     t.part(stand, [card(shape(crowd(0.2, 0.085, 0.5).map(([x, y]) => [x, y - FLOOR] as Pt)), C.slate, 0)]);
-    // The court, raked towards the audience from its near baseline. Court units: x across (doubles
-    // ±0.5), y along its length (baselines at 0.06 and 1.56, net at 0.81), so it is 1.5 times as
-    // long as it is wide, and the rake still shows it longer than wide from the audience.
-    const RAKE = 0.6;
-    const NEAR_Z = 0.86;
+    // The court, a raked pop-up riser seated on the stage floor: it rises gently from a fold tab at its
+    // near baseline to a back wall, with card cheeks down to the floor and a soft shadow under it.
+    // Court units: x across (doubles ±0.5), y along its length (baselines at 0.06 and 1.56, net at
+    // 0.81), scaled by SC so the riser stands clear of the crowd flats.
+    const RAKE = 0.44;
+    const SC = 0.88;
+    const NEAR_Z = 0.84;
     const onCourt = (x: number, y: number) =>
-      new THREE.Vector3(x, FLOOR + 0.004 + y * Math.sin(RAKE), NEAR_Z - y * Math.cos(RAKE));
+      new THREE.Vector3(x * SC, FLOOR + 0.004 + y * SC * Math.sin(RAKE), NEAR_Z - y * SC * Math.cos(RAKE));
     const court = new THREE.Group();
     court.position.set(0, FLOOR + 0.004, NEAR_Z);
     court.rotation.x = -Math.PI / 2 + RAKE;
+    court.scale.setScalar(SC);
     t.root.add(court);
+    {
+      const far = onCourt(0, 1.68),
+        hw = 0.68 * SC,
+        depth = NEAR_Z - far.z,
+        top = far.y - FLOOR;
+      // Cheeks: right triangles under the court's sides, cut card standing on the floor.
+      for (const side of [-1, 1])
+        t.add(
+          card(
+            shape([
+              [0, FLOOR],
+              [depth, FLOOR],
+              [depth, FLOOR + top],
+            ]),
+            C.deepViridian,
+            0,
+          )
+            .rotateY(Math.PI / 2)
+            .translate(side * hw - (side > 0 ? CARD : 0), 0, NEAR_Z),
+        );
+      t.add(card(shape(rect(-hw, FLOOR, hw, FLOOR + top)), C.deepViridian, far.z - CARD));
+      // The fold tab the riser is glued down by, a little proud of the near baseline.
+      t.add(block(2 * hw + 0.06, 0.008, 0.1, C.deepViridian, 0, FLOOR + 0.004, NEAR_Z + 0.06));
+      t.root.add(
+        contactShadow(2 * hw + 0.5, depth + 0.4, { y: FLOOR + 0.006, z: (NEAR_Z + far.z) / 2, opacity: 0.4, color: 0x2a1c12 }),
+      );
+    }
     const NET = 0.81,
       HALF = 0.75,
       W = 0.5,
@@ -668,6 +698,7 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
         netCard.holes.push(poly(rect(-0.54 + i * 0.0605, 0.012 + j * 0.036, -0.502 + i * 0.0605, 0.04 + j * 0.036), true));
     const netGroup = new THREE.Group();
     netGroup.position.copy(net);
+    netGroup.scale.set(SC, 1, 1);
     t.root.add(netGroup);
     t.part(netGroup, [
       card(netCard, C.ink, 0, 0.016),
@@ -728,7 +759,8 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
         for (let j = 0; j < 3; j++) {
           const cx = 0.6 + i * 0.052,
             cy = -0.05 + j * 0.05;
-          if (((cx - 0.68) / 0.12) ** 2 + (cy / 0.085) ** 2 < 0.9) head.holes.push(poly(rect(cx - 0.018, cy - 0.017, cx + 0.018, cy + 0.017), true));
+          if (((cx - 0.68) / 0.12) ** 2 + (cy / 0.085) ** 2 < 0.9)
+            head.holes.push(poly(rect(cx - 0.018, cy - 0.017, cx + 0.018, cy + 0.017), true));
         }
       const throat = shape([
         [0.4, -0.022],
@@ -768,15 +800,21 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
       const strike = arm.localToWorld(new THREE.Vector3(0.68, 0, 0.03));
       return { arm, strike };
     };
-    const far = player(-0.3, onCourt(-0.3, NET + HALF + 0.02), 0.72, 1, C.cream);
-    const near = player(0.72, onCourt(0.72, 0.16), 1.05, -1, C.persimmon);
+    const far = player(-0.26, onCourt(-0.3, NET + HALF + 0.02), 0.74, 1, C.cream);
+    const near = player(0.56, onCourt(0.6, 0.1), 0.94, -1, C.persimmon);
     // The ball rides a visible wire from racket to racket, high over the net.
     const a = far.strike,
       b = near.strike;
     const path = new THREE.CatmullRomCurve3([
       a,
-      a.clone().lerp(b, 0.4).setY(net.y + 0.5),
-      a.clone().lerp(b, 0.72).setY(net.y + 0.42),
+      a
+        .clone()
+        .lerp(b, 0.4)
+        .setY(net.y + 0.5),
+      a
+        .clone()
+        .lerp(b, 0.72)
+        .setY(net.y + 0.42),
       b,
     ]);
     t.add(tint(new THREE.TubeGeometry(path, 48, 0.011, 5, false), C.ink, new THREE.Color(C.ink)));
@@ -955,8 +993,7 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
     const midHoles: THREE.Path[] = [];
     for (const [x0, x1, h] of midTowers) {
       midOutline.push([x0, FLOOR + 0.35], [x0, FLOOR + h], [x1, FLOOR + h], [x1, FLOOR + 0.35]);
-      for (let y = FLOOR + h - 0.16; y > FLOOR + 0.45; y -= 0.15)
-        midHoles.push(poly(rect(x0 + 0.08, y, x1 - 0.2, y + 0.06), true));
+      for (let y = FLOOR + h - 0.2; y > FLOOR + 0.45; y -= 0.3) midHoles.push(poly(rect(x0 + 0.1, y, x1 - 0.22, y + 0.09), true));
     }
     midOutline.push([1.85, FLOOR + 0.35], [1.85, FLOOR]);
     t.part(t.root, [card(shape(midOutline.map(([x, y]) => [x * 0.995, y - 0.01] as Pt)), C.apricot, -0.37, 0.01)], t.lamp);
@@ -976,10 +1013,10 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
     const leds: THREE.BufferGeometry[] = [];
     for (const [x0, x1, h] of racks) {
       rackOutline.push([x0, 0.18], [x0, h], [x0 + 0.1, h + 0.06], [x1 - 0.1, h + 0.06], [x1, h], [x1, 0.18]);
-      for (let y = h - 0.22, i = 0; y > 0.32; y -= 0.19, i++) {
-        rackHoles.push(poly(rect(x0 + 0.1, y, x1 - 0.22, y + 0.08), true));
+      for (let y = h - 0.26, i = 0; y > 0.32; y -= 0.34, i++) {
+        rackHoles.push(poly(rect(x0 + 0.1, y, x1 - 0.24, y + 0.11), true));
         leds.push(
-          card(circle(x1 - 0.12, y + 0.04, 0.028) as THREE.Shape, i % 3 === 1 ? C.persimmon : C.sage, CARD + 0.004, 0.012),
+          card(circle(x1 - 0.13, y + 0.055, 0.036) as THREE.Shape, i % 2 === 1 ? C.persimmon : C.sage, CARD + 0.004, 0.012),
         );
       }
     }
@@ -1036,48 +1073,51 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
       walls: 0xb8ccd5,
     });
     // Chart paper: ruled lines on the backdrop.
-    for (let i = 0; i < 7; i++)
+    for (let i = 0; i < 4; i++)
       t.add(
-        card(shape(rect(-1.85, FLOOR + 0.3 + i * 0.27, 1.85, FLOOR + 0.315 + i * 0.27)), 0xf3ebdd, BACK + CARD + 0.004, 0.006),
+        card(shape(rect(-1.85, FLOOR + 0.36 + i * 0.47, 1.85, FLOOR + 0.38 + i * 0.47)), 0xf3ebdd, BACK + CARD + 0.004, 0.006),
       );
-    // Bunting across the top.
-    const bunting = t.hinge(-0.35, 1.3);
-    const flags: THREE.BufferGeometry[] = [];
-    for (let i = 0; i < 9; i++) {
-      const x = -1.45 + i * 0.36,
-        y = -0.06 * Math.cos(((i - 4) / 4) * 1.2) - 0.02;
-      flags.push(
+    // A ticker board hangs across the stage on two cords: an ink band with price marks (an up or down
+    // arrow and two dashes of figures) scrolling along it, wrapping round out of sight behind the frame.
+    const BAND_Y = 0.8,
+      BAND_Z = -0.3,
+      BAND_H = 0.12;
+    t.add(card(shape(rect(-1.85, BAND_Y - BAND_H, 1.85, BAND_Y + BAND_H)), C.ink, BAND_Z, 0.02));
+    for (const x of [-1.15, 1.15]) t.add(card(shape(rect(x - 0.01, BAND_Y + BAND_H, x + 0.01, 1.26)), C.ink, BAND_Z, 0.012));
+    const SPAN = 3.2,
+      ENTRIES = 6;
+    const ticker = Array.from({ length: ENTRIES }, (_, i) => {
+      const entry = new THREE.Group();
+      entry.position.set(0, BAND_Y, BAND_Z + 0.024);
+      entry.scale.setScalar(1.25);
+      t.root.add(entry);
+      const up = i % 3 !== 1;
+      t.part(entry, [
         card(
-          shape([
-            [x - 0.13, y],
-            [x + 0.13, y],
-            [x, y - 0.24],
-          ]),
-          i % 2 ? C.viridian : C.persimmon,
+          shape(
+            up
+              ? [
+                  [-0.07, -0.05],
+                  [0.07, -0.05],
+                  [0, 0.07],
+                ]
+              : [
+                  [-0.07, 0.05],
+                  [0.07, 0.05],
+                  [0, -0.07],
+                ],
+          ),
+          up ? C.sage : C.persimmon,
           0,
-          0.015,
-        ),
-      );
-    }
-    flags.push(
-      tint(
-        new THREE.TubeGeometry(
-          new THREE.CatmullRomCurve3([
-            new THREE.Vector3(-1.8, 0.02, 0),
-            new THREE.Vector3(0, -0.1, 0),
-            new THREE.Vector3(1.8, 0.02, 0),
-          ]),
-          24,
           0.008,
-          4,
         ),
-        C.ink,
-        new THREE.Color(C.ink),
-      ),
-    );
-    t.part(bunting, flags);
-    const FOLDS = [0.45, 0.72, 0.6, 0.95, 0.82, 1.2, 1.06, 1.42, 1.62];
-    const W = 0.43;
+        card(shape(rect(0.11, -0.022, 0.27, 0.022)), C.cream, 0, 0.008),
+        card(shape(rect(0.3, -0.022, 0.38, 0.022)), up ? C.sage : C.persimmon, 0, 0.008),
+      ]);
+      return entry;
+    });
+    const FOLDS = [0.38, 0.62, 0.5, 0.82, 0.7, 1.04, 0.92, 1.24, 1.44];
+    const W = 0.41;
     const panels: THREE.Group[] = [];
     for (let i = 0; i < 8; i++) {
       const panel = new THREE.Group();
@@ -1110,40 +1150,62 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
           0.016,
           0.01,
         ),
-        card(
-          shape([
-            [0.15, 0.08],
-            [0.28, 0.08],
-            [0.28, Math.min(a, b) * 0.55],
-            [0.15, Math.min(a, b) * 0.55],
-          ]),
-          up ? C.sage : 0xf0a689,
-          0.016,
-          0.01,
-        ),
+        // A volume bar on every other panel only, so the fold stays legible on a small card.
+        ...(i % 2
+          ? []
+          : [
+              card(
+                shape([
+                  [0.14, 0.08],
+                  [0.29, 0.08],
+                  [0.29, Math.min(a, b) * 0.55],
+                  [0.14, Math.min(a, b) * 0.55],
+                ]),
+                up ? C.sage : 0xf0a689,
+                0.016,
+                0.01,
+              ),
+            ]),
       ]);
     }
-    // A flag on the last peak.
+    // A price-arrow pennant on the last peak: a swallowtail flag with a cream up-arrow on it, flying
+    // inwards so the gable never hides it.
     const pennant = new THREE.Group();
     t.root.add(pennant);
     t.part(pennant, [
-      card(shape(rect(-0.012, 0, 0.012, 0.42)), C.ink, 0, 0.02),
+      card(shape(rect(-0.016, 0, 0.016, 0.36)), C.ink, 0, 0.02),
       card(
         shape([
-          [0.012, 0.42],
-          [0.28, 0.33],
-          [0.012, 0.24],
+          [-0.016, 0.36],
+          [-0.4, 0.36],
+          [-0.33, 0.255],
+          [-0.4, 0.15],
+          [-0.016, 0.15],
         ]),
         C.persimmon,
         0,
         0.02,
+      ),
+      card(
+        shape([
+          [-0.23, 0.175],
+          [-0.23, 0.24],
+          [-0.28, 0.24],
+          [-0.19, 0.33],
+          [-0.1, 0.24],
+          [-0.15, 0.24],
+          [-0.15, 0.175],
+        ]),
+        C.cream,
+        0.022,
+        0.008,
       ),
     ]);
     ticks.push((angle) => {
       const theta = 0.62 + 0.16 * Math.sin(angle);
       const dx = W * Math.cos(theta),
         dz = W * Math.sin(theta);
-      const x0 = -4 * dx;
+      const x0 = -4.25 * dx;
       panels.forEach((panel, i) => {
         panel.position.x = x0 + i * dx;
         panel.position.z = 0.05 + (i % 2 ? dz : 0);
@@ -1151,14 +1213,19 @@ const scenes: Record<Kind, (ticks: Tick[]) => THREE.Group> = {
       });
       pennant.position.set(x0 + 8 * dx, FLOOR + FOLDS[8], 0.05);
       pennant.rotation.y = 0.3 * Math.sin(angle * 2);
-      bunting.rotation.x = 0.06 * Math.sin(angle + 0.5);
+      // The ticker runs one full span a loop, each mark wrapping behind the frame.
+      ticker.forEach((entry, i) => {
+        // Offset half a slot, so no mark wraps at the loop's seam.
+        const u = ((((i + 0.5) / ENTRIES - angle / TAU) % 1) + 1) % 1;
+        entry.position.x = -1.83 + SPAN * u;
+      });
     });
     return t.finish();
   },
 };
 
 /** Camera per subject: near-frontal, a little above, a little to the right so the layers stack. */
-const pitches: Record<Kind, number> = { travel: 6, reading: 12, tennis: 18, ai: 6, server: 6, trading: 8 };
+const pitches: Record<Kind, number> = { travel: 6, reading: 12, tennis: 22, ai: 6, server: 6, trading: 8 };
 
 export function paperLook(kind: Kind): ObjectLook {
   return {
