@@ -303,7 +303,7 @@ describe("GlassNav", () => {
     fireEvent.keyDown(document, { key: "Escape" });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(document.activeElement).toBe(toggle);
-    // The CTA renders twice: in the bar, and in the menu, where CSS shows it below 520px only.
+    // The CTA renders twice: in the bar, and in the menu, where CSS shows it below 340px only.
     const ctas = screen.getAllByRole("link", { name: "Start" });
     expect(ctas).toHaveLength(2);
     for (const cta of ctas) expect(cta).toHaveAttribute("data-variant", "primary");

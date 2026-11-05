@@ -955,7 +955,7 @@ function NodeSketch({ label, sub, wrapped }: { label: string; sub?: string; wrap
 const tropes = [
   [
     "Purple or indigo accent on a grey page",
-    "Technical's forest and Graphical's orange; Landing keeps indigo only when the brief is a generic landing page",
+    "Technical's forest and Graphical's orange; Landing's cobalt only when the brief is a generic landing page",
   ],
   ["Inter or Roboto everywhere", "IBM Plex on the web, system type in figures, Anton for posters"],
   [

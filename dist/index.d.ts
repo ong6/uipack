@@ -4,8 +4,8 @@ import { T as TokenKind, a as TokenShape, L as LegendItem } from './Legend-n6Gik
 export { b as Legend, c as LegendProps, d as TOKEN_SHAPE, e as Token, f as TokenProps, t as tokenColor } from './Legend-n6GikDm_.js';
 import * as react from 'react';
 import { ReactNode } from 'react';
-import { I as IconName } from './index-DwRqkLtz.js';
-export { i as icons } from './index-DwRqkLtz.js';
+import { I as IconName } from './index-BCiSvaJI.js';
+export { i as icons } from './index-BCiSvaJI.js';
 export { F as FigureChrome, a as FigureChromeContext, b as FigureMotion, c as FigureMotionContext, u as useFigureMotion } from './context-Baoq0bBr.js';
 export { Z as ZoomFrame, R as ZoomRect, a as ZoomSample, b as ZoomSampleOptions, i as innerClipStart, z as zoomFrame, c as zoomSamples } from './zoom-math-DJBPrdGD.js';
 export { e as easeInOutCubic, s as smoothstep } from './math-DL8QKXOl.js';

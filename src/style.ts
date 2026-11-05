@@ -45,7 +45,8 @@ export const uiStyles: readonly UiStyleMeta[] = [
   {
     id: "landing",
     name: "Landing",
-    summary: "The generic landing page: lavender band, indigo CTA, editorial serif headlines, glass and grain.",
+    summary:
+      "The generic landing page done well: cool neutrals, one cobalt CTA, editorial serif headlines, soft layered shadows.",
     fonts: [
       "instrument-serif-latin-400-normal.woff2",
       "instrument-serif-latin-400-italic.woff2",

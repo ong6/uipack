@@ -124,7 +124,7 @@ words nor the style.
 
   | Archetype | Component | Holds |
   | --- | --- | --- |
-  | Nav | `GlassNav` | Brand, links, the CTA. Below 720px: brand on the start edge, Menu on the end edge. Below 520px the CTA moves into the menu |
+  | Nav | `GlassNav` | Brand, links, the CTA. Below 720px: brand on the start edge, Menu on the end edge. The CTA stays in the bar as a compact button beside Menu; below 340px it moves into the menu |
   | Hero | `StarHero` | Eyebrow, headline, subhead, actions on the start edge (default), then the proof: a `DemoPlayer` or a `Figure` |
   | Steps | `Section` + `FeatureGrid numbered` | Three numbered cards |
   | Mechanism | `Section` + `Figure` | A working figure, with quiet chrome on a web page |

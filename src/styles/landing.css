@@ -83,12 +83,10 @@
     --ui-grain: 1;
     --ui-glow: 1;
     --ui-cta-shadow:
-      0 1px 0 rgb(255 255 255 / 0.16) inset,
-      0 1px 2px light-dark(rgb(15 17 21 / 0.18), rgb(0 0 0 / 0.5)),
+      0 1px 0 rgb(255 255 255 / 0.16) inset, 0 1px 2px light-dark(rgb(15 17 21 / 0.18), rgb(0 0 0 / 0.5)),
       0 6px 16px -8px var(--ui-accent);
     --ui-cta-shadow-hover:
-      0 1px 0 rgb(255 255 255 / 0.16) inset,
-      0 1px 2px light-dark(rgb(15 17 21 / 0.18), rgb(0 0 0 / 0.5)),
+      0 1px 0 rgb(255 255 255 / 0.16) inset, 0 1px 2px light-dark(rgb(15 17 21 / 0.18), rgb(0 0 0 / 0.5)),
       0 10px 24px -10px var(--ui-accent);
     --ui-em-style: italic;
     --ui-em-color: var(--ui-accent-ink);
@@ -142,9 +140,7 @@
     --ui-quote-rule: 0 0 transparent;
     --ui-quote-shadow: var(--ui-frame-shadow);
     --ui-plan-featured-border: var(--ui-accent);
-    --ui-plan-featured-ring:
-      0 0 0 1px var(--ui-accent),
-      0 28px 56px -28px color-mix(in srgb, var(--ui-accent) 55%, transparent);
+    --ui-plan-featured-ring: 0 0 0 1px var(--ui-accent), 0 28px 56px -28px color-mix(in srgb, var(--ui-accent) 55%, transparent);
     --ui-cell-fill: color-mix(in srgb, var(--ui-accent) 9%, var(--ui-surface));
     --ui-cell-ink: var(--ui-ink);
     --ui-cell-line: transparent;

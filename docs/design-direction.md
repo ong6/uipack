@@ -17,7 +17,7 @@ The Styles collection is the index of visual languages. Light and dark are theme
 
 ## Landing style
 
-Landing is the generic landing option of `uipack/web`, shown at `/web?style=landing`; the default web style is Technical. Its values live in `src/styles/landing.css`: a neutral page, a secondary tint for bands and panels, and one indigo accent reserved for calls to action and the hero's star. It sets type in three self-hosted roles (Instrument Serif display from heading step 4, IBM Plex Sans text, IBM Plex Mono labels and data) on a 16px × 1.25 scale, with opacity hierarchy (100/87/66), a 12/8/4 container grid and 8-pt spacing. It never recolours Technical, and the shared shell keeps its Technical navigation. The rules and their sources are in [web principles](web-principles.md).
+Landing is the generic landing option of `uipack/web`, shown at `/web?style=landing`; the default web style is Technical. Its values live in `src/styles/landing.css`: a cool neutral page, a pale grey tint for bands and panels, and one cobalt accent reserved for calls to action and the hero's star. It sets type in three self-hosted roles (Instrument Serif display from heading step 4, IBM Plex Sans text, IBM Plex Mono labels and data) on a 16px × 1.25 scale, 12px cards with layered soft shadows, with opacity hierarchy (100/87/66), a 12/8/4 container grid and 8-pt spacing. It never recolours Technical, and the shared shell keeps its Technical navigation. The rules and their sources are in [web principles](web-principles.md).
 
 ## Mechanism style
 

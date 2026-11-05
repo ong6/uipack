@@ -163,6 +163,7 @@
     "LICENSE",
     "docs/*.md",
     "docs/system/*.md",
+    "examples/web-starter/*",
     "AGENTS.md",
     "CLAUDE.md",
     "src/README.md",

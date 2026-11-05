@@ -15,7 +15,7 @@ export const visualStyles = [
     id: "landing",
     name: "Landing (generic)",
     description:
-      "The generic SaaS landing page, kept for when that is the brief: a demo-first hero, lavender band, indigo CTA, serif headlines, glass and grain.",
+      "The generic SaaS landing page, kept for when that is the brief: a demo-first hero, cool neutrals, a cobalt CTA, serif headlines and soft layered shadows.",
     tokens: "src/styles/landing.css",
     guidance: "docs/web-principles.md",
   },

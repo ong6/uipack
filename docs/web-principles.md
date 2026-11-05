@@ -13,9 +13,9 @@ order (`e2e/style-swap.spec.ts`). A style's own order (`uiStyles[].prefers`) is 
 
 | Style | Use it for | Palette | Faces | Ornaments | Own order (opt-in only) |
 | --- | --- | --- | --- | --- | --- |
-| **Technical** (default) | Product and project pages that should read like junxiong.dev's figures | Paper `#f6f5f1`, ink `#1a1c1a`, one forest accent `#205f49` (dark: `#0a100d`, `#e8ece9`, mint `#71dcb2`) | IBM Plex Sans (headlines at 650, −0.02em, display steps at 1.1×), IBM Plex Mono labels | Dotted-grid backdrop, masked; 2px-radius accent square and a mono section index before eyebrows (`01 / HOW IT WORKS`); accent registration marks on cards, plans and the quote; 1px section rules; thin frames, 6px radius, no shadow, no glow or grain; headline emphasis in the accent, not italic; an ink closing band with a mint button | Hero with the figure → steps as numbered rows → demo → proof → FAQ → pricing |
-| **Landing** (generic) | When the brief is a conventional SaaS landing page | Neutral `#f7f7f4`, lavender band `#ebe9f4`, indigo CTA `#4b3fd6` | Instrument Serif display from step 4, Plex Sans, Plex Mono | Grain and glass, soft shadows, 16px cards, round pills, accent glow under the CTA and spotlight; an indigo-black closing band | Hero (centred, demo) → steps → mechanism → proof → FAQ → pricing |
-| **Graphical** | Launches, events, campaigns: a page that should look like a poster | Bone `#f1eee6`, black ink, one signal orange `#f24a00` (text uses `#b23700`) | Anton display in caps at 1.3× the scale, Plex Sans, Plex Mono | The accent disc and a ruled band in the hero backdrop (below 720px a small disc in the corner, no ring); the disc again as every eyebrow marker; 2px ink frames with hard 6px offset shadows; 0 radius; 2px section rules; figure flows in ink, grey and orange; an orange closing band; no glow or grain | Hero → proof (big numbers) → steps → mechanism → pricing → FAQ |
+| **Technical** (default) | Product and project pages that should read like junxiong.dev's figures | Paper `#f6f5f1`, ink `#1a1c1a`, one forest accent `#205f49` (dark: `#0a100d`, `#e8ece9`, mint `#71dcb2`) | IBM Plex Sans (headlines at 650, −0.02em, display steps at 1.1×), IBM Plex Mono labels | A drawing sheet, compact (density 0.8). Dotted-grid backdrop, masked; 2px-radius accent square and a mono section index before eyebrows (`01 / HOW IT WORKS`); a title rule with an end tick and a 40px accent bar over each section's column; `STEP 01` in mono over a hairline on step cards; stats between 1px rules; the quote as an annotation with a 3px accent rule; the featured plan with an accent bar on top; square mono table cells; windows without traffic lights; figure request tokens in ink; accent registration marks on cards and plans; thin frames, 6px radius, no shadow, no glow or grain; headline emphasis in the accent, not italic; an ink closing band with a mint button | Hero with the figure → steps as numbered rows → demo → proof → FAQ → pricing |
+| **Landing** (generic) | When the brief is a conventional SaaS landing page | Cool neutral `#fbfbfa`, pale grey band `#f1f2f4`, cobalt CTA `#2348d6` | Instrument Serif display from step 4 (emphasis in cobalt italic), Plex Sans, Plex Mono | Airy (density 1.1); glass nav; 12px cards lifted by layered soft shadows; 10px controls; steps in tinted round badges; the quote as a white serif card; the featured plan with an accent ring and tinted glow; soft tinted table chips; a near-black closing band with a white button; no lavender, no gradient wash | Hero (centred, demo) → steps → mechanism → proof → FAQ → pricing |
+| **Graphical** | Launches, events, campaigns: a page that should look like a poster | Bone `#f1eee6`, black ink, one signal orange `#f24a00` (text uses `#b23700`) | Anton display in caps at 1.3× the scale, Plex Sans, Plex Mono | The accent disc and a ruled band in the hero backdrop (below 720px the tick band only, so no clipped disc under the nav); giant Anton step numerals; stats between 2px ink rules; the quote as an orange poster block in caps; the featured plan with an orange offset shadow; ink-ruled table cells; the disc again as every eyebrow marker; 2px ink frames with hard 6px offset shadows; 0 radius; 2px section rules; figure flows in ink, grey and orange; an orange closing band; no glow or grain | Hero → proof (big numbers) → steps → mechanism → pricing → FAQ |
 
 **One layout in every style (default).** `WebPage` renders `sections` in the order the page lists
 them and sets `data-ui-layout="shared"`: every style gets the same order, the same hero proof and
@@ -37,9 +37,32 @@ numbered` are one layout in every style, painted through roles. Use them rather 
 the swap keeps them in place.
 
 **The nav at phone width.** Below 720px `GlassNav` folds its links into a menu, with the brand on
-the start edge and Menu on the end edge. Below 520px the CTA moves into the open menu too, so a CTA
-of any length never pushes the toggle off a 390px screen. The hero CTA sits right under the nav and
-goes full width there.
+the start edge and Menu on the end edge. The page's goal stays in the bar as a compact button beside
+Menu (44px touch target, 0.875rem type); only below 340px does it move into the open menu. Keep the CTA label to
+about 20 characters ("Start a free trial") so brand, button and Menu share a 390px bar.
+
+**Show the product's real output.** The largest object above the fold is the product doing its
+job with real-looking rows: never an empty demo panel, a chat box for a product that is not a chat,
+or an icon-in-a-box flow. The parts for it, one layout in every style and painted by the
+treatment roles:
+
+| Part | Shows |
+| --- | --- |
+| `ProductWindow` | A framed product view: window bar, title and status, the output, a footer fact |
+| `DataTable` | Rows with mono heads, rules across every cell, inline bars (`barMax`), one marked row and a worked note |
+| `ScheduleGrid` | People by days (a rota, a calendar): day-off cells, marked cells with a legend; all seven days fit at 390px |
+| `FileTable` | A file's rows as the product reads them (a CSV or export) |
+| `ItemList`, `RecordCard` | Records with a state (needs you, waiting, done); one record's fields |
+| `WorkedExample` | The mechanism as one calculation: input, each rule with its arithmetic, each result (84 covers ÷ 14 = 6 servers) |
+| `BeforeAfter` (or `Proof compare`) | A measured change as two bars to scale |
+| `DemoPlayer` steps mode | No prompt on any step: no composer, the steps as a checklist, a wide result pane holding each step's `screen` (put the parts above in it). The pane is never empty; the last screen is what a still capture shows, so make it the fullest |
+
+On a marketing page, show the mechanism with `WorkedExample` and real numbers rather than a
+`pipeline` figure; when you do use a preset, boxes widen to fit their labels, `legend` takes your
+own entries or `false`, and icons include `person`, `calendar`, `file`, `table`, `receipt`,
+`phone` and `clock`. A working page with every block wired is in
+[`examples/web-starter`](../examples/web-starter/App.tsx) (it ships in the package): copy it,
+then replace the words and rows.
 
 Shared finish rules hold in every style: one accent, glow only for selection (Landing's ambient
 glow is its documented exception, and its spotlight turns off elsewhere), contrast of 4.5:1 for
@@ -58,7 +81,7 @@ Evidence: the first screen of `/web` in each style at 1440 and 390, both themes,
 [`docs/styles/`](styles/) (`web-<style>-<width>-<theme>.png`), with the same deck slides in each
 style (`deck-moves-<style>-<theme>.png`, `deck-consulting-<style>-<theme>.png`).
 
-Rules 5 (grain and glass), 9 (the indigo 60/30/10) and 19–21 (the three Landing faces) describe
+Rules 5 (grain and glass), 9 (the cobalt 60/30/10) and 19–21 (the three Landing faces) describe
 Landing. Technical and Graphical replace them with the table above; every other rule applies to all
 three.
 
@@ -285,7 +308,7 @@ numbers are in [web discoverability](web-discoverability.md).
 | `SpotlightCard` | 14; off for `hover: none` and reduced motion; keyboard focus shows it |
 | `RevealText` | 14, 23; text stays in the DOM, visible without JavaScript; units keep their spaces |
 | `Eyebrow`, `Heading`, `Subhead`, `Body` | 6, 7, 19, 20, 24; `Heading` levels 1–6 |
-| `CtaButton`, `GlassNav` | 1, 5, 9; GlassNav's CTA moves into the menu below 520px |
+| `CtaButton`, `GlassNav` | 1, 5, 9; GlassNav keeps a compact CTA beside Menu on a phone (into the menu only below 340px) |
 | `Proof` | 6, 23, 24; the lead number with its denominator and meter, ruled stats, a named quote with drawn marks |
 | `PricingPlans` | 1, 8, 26; one to three plans fill the column, features and a button per card, the featured plan gets the accent |
 | `ClosingCta` | 1, 9, 24; the third CTA on the style's band roles |

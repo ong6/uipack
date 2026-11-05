@@ -450,12 +450,12 @@
      where brand, button and toggle no longer fit, does it move into the open menu. */
   @container web (max-width: 520px) {
     .uipack-web-nav__cta .uipack-web-cta {
-      min-height: 40px;
+      min-height: 44px;
       padding: 0 12px;
       font-size: 0.875rem;
     }
     .uipack-web-nav__toggle {
-      min-height: 40px;
+      min-height: 44px;
       padding: 0 12px;
       font-size: 0.875rem;
     }
@@ -949,9 +949,10 @@
     background: color-mix(in srgb, var(--web-ink) 2.5%, transparent);
   }
   .uipack-web-demo__dots {
+    /* The style decides whether a window wears traffic lights (Technical: no, a drawing sheet). */
+    display: var(--ui-window-dots, flex);
     position: absolute;
     left: var(--web-s2);
-    display: flex;
     gap: 6px;
   }
   .uipack-web-demo__dots i {
@@ -1110,7 +1111,10 @@
   .uipack-web-demo__metric span {
     color: var(--web-ink-low);
   }
+  /* A screen may hold several parts (a record card over a list): they stack on the 8-pt rhythm. */
   .uipack-web-demo__screen {
+    display: grid;
+    gap: var(--web-s2);
     min-width: 0;
     animation: uipack-web-fade 400ms var(--web-ease) both;
   }
@@ -1697,7 +1701,8 @@
     margin: 0 calc(-1 * var(--ui-num-bleed, 0) * var(--ui-card-pad, var(--web-s4))) var(--web-s1);
     padding: 0 calc(var(--ui-num-bleed, 0) * var(--ui-card-pad, var(--web-s4))) var(--ui-num-gap, 0px);
     border-bottom: var(--ui-num-rule, 0 solid transparent);
-    border-radius: 999px;
+    /* Round for a badge; square where the number's rule bleeds across the card. */
+    border-radius: calc((1 - var(--ui-num-bleed, 0)) * 999px);
     background: var(--ui-num-fill, transparent);
     font: var(--ui-num-weight, 400) var(--ui-num-size, 3rem) / 1 var(--ui-num-font, var(--web-font-display));
     letter-spacing: var(--web-label-tracking);
@@ -2402,17 +2407,31 @@
     background: transparent;
   }
   @container web (max-width: 720px) {
+    /* A week of seven columns fits a 390px phone: compact mono cells, a narrow name column. */
     .uipack-web-schedule td > span {
-      min-width: 2.75rem;
+      min-width: 2.25rem;
       min-height: 2.125rem;
-      padding: 3px 4px;
-      font-size: 0.6875rem;
+      padding: 2px;
+      font-size: 0.625rem;
+      letter-spacing: -0.02em;
     }
     .uipack-web-schedule :is(th, td) {
-      padding: 2px;
+      padding: 1px;
+    }
+    .uipack-web-schedule thead th {
+      padding: 0 1px 6px;
+    }
+    .uipack-web-schedule :is(thead th, tbody th):first-child {
+      padding-inline-end: 6px;
     }
     .uipack-web-schedule tbody th {
-      min-width: 3.75rem;
+      min-width: 3rem;
+    }
+    .uipack-web-schedule tbody th span {
+      font-size: 0.8125rem;
+    }
+    .uipack-web-compare__change {
+      font-size: calc(var(--web-step-5) * var(--web-display-scale));
     }
     .uipack-web-table :is(th, td) {
       padding: 8px;
@@ -2520,7 +2539,10 @@
   }
 
   /* WorkedExample: input, bracket into each rule, results. */
+  /* Its own container: the sheet stacks when the block is narrow, wherever it sits (a 5-column
+     cell on a desktop page included). */
   .uipack-web-worked {
+    container: uipack-worked / inline-size;
     display: grid;
     gap: var(--web-s2);
     min-width: 0;
@@ -2637,6 +2659,8 @@
     .uipack-web-worked {
       padding: var(--web-s2);
     }
+  }
+  @container uipack-worked (max-width: 600px) {
     .uipack-web-worked__sheet {
       grid-template-columns: minmax(0, 1fr);
       gap: var(--web-s2);
@@ -2648,7 +2672,7 @@
       padding-left: var(--web-s2);
     }
     .uipack-web-worked__lines li {
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr) 5.5rem;
       gap: 12px;
     }
     .uipack-web-worked__lines li::before {
@@ -2756,6 +2780,13 @@
     }
     .uipack-web-demo[data-mode="steps"] .uipack-web-demo__work {
       min-height: 0;
+    }
+    /* A phone keeps the checklist short, so the product's output stays near the top. */
+    .uipack-web-demo[data-mode="steps"] .uipack-web-demo__steps li {
+      padding: 6px 4px;
+    }
+    .uipack-web-demo[data-mode="steps"] .uipack-web-demo__steps li small {
+      display: none;
     }
   }
 }

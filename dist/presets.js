@@ -1,4 +1,4 @@
-import { Figure, Defs, Connector, Packet, Node, busStub, route, Lane, Group, Bus, Label, Chip } from './chunk-BQLQOI3L.js';
+import { Figure, Defs, Connector, Packet, Node, busStub, route, Lane, Group, Bus, Label, Chip } from './chunk-2XXJRCYG.js';
 import './chunk-HCR2C6OV.js';
 import './chunk-5NWU4OWV.js';
 import './chunk-V4CVL4FJ.js';
@@ -1237,7 +1237,8 @@ var defaultPipeline = {
 };
 var FLOW = "job";
 function pipelineParts(spec = defaultPipeline, id) {
-  const stage = { w: 136, h: 48, step: 176, y: 96 };
+  const w = nodeWidthFor([...spec.stages, ...spec.queue ? [spec.queue] : []], { min: 136, size: 13, subSize: 10 });
+  const stage = { w, h: 48, step: w + 40, y: 96 };
   const cy = stage.y + stage.h / 2;
   const slots = [];
   spec.stages.forEach((_, i) => {
@@ -1341,10 +1342,10 @@ function pipelineParts(spec = defaultPipeline, id) {
     narrow: /* @__PURE__ */ jsx(Stack, { steps, id: `${id}-n` }),
     viewBox: `0 0 ${Math.max(width, 640)} ${stage.y + stage.h + 48}`,
     narrowViewBox: `0 0 ${NARROW_W} ${stackHeight(steps.length)}`,
-    legend: [
+    legend: spec.legend === false ? [] : spec.legend ?? (spec.queue ? [
       { label: "Inline", kind: "request" },
       { label: "Queued", kind: "change" }
-    ]
+    ] : [])
   };
 }
 var pipeline = (spec = defaultPipeline, id) => presetFigure(spec, pipelineParts, id);

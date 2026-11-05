@@ -7,16 +7,7 @@ import { Node } from "../Node";
 import { Packet } from "../Packet";
 import type { Point } from "../geometry";
 import type { LegendItem } from "../Legend";
-import {
-  Stack,
-  stackHeight,
-  presetFigure,
-  nodeWidthFor,
-  NARROW_W,
-  type FigureMeta,
-  type Item,
-  type PresetParts,
-} from "./shared";
+import { Stack, stackHeight, presetFigure, nodeWidthFor, NARROW_W, type FigureMeta, type Item, type PresetParts } from "./shared";
 
 export interface PipelineSpec {
   figure: FigureMeta;

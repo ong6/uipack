@@ -106,8 +106,7 @@
     --ui-band-pattern: repeating-linear-gradient(90deg, var(--ui-band-ink) 0 2px, transparent 2px 14px) 0 0 / 100% 16px no-repeat;
     /* Below 720px the disc goes: under a sticky nav a corner disc reads as a clipped sliver. The
        tick band stays, and the eyebrow markers carry the disc. */
-    --ui-backdrop-narrow: repeating-linear-gradient(90deg, var(--ui-ink) 0 2px, transparent 2px 14px) 0 100% / 100% 16px
-      no-repeat;
+    --ui-backdrop-narrow: repeating-linear-gradient(90deg, var(--ui-ink) 0 2px, transparent 2px 14px) 0 100% / 100% 16px no-repeat;
     --ui-section-index: none;
     --ui-corner-marks: none;
 

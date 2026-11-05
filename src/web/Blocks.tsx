@@ -199,7 +199,7 @@ export interface ClosingCtaProps {
 
 /**
  * The closing call to action: a full-bleed band painted with the style's band roles (Technical:
- * ink with mint; Graphical: signal orange; Landing: deep indigo), the claim on the start edge and
+ * ink with mint; Graphical: signal orange; Landing: near-black with a white button), the claim on the start edge and
  * the button beside it (below it on a phone).
  */
 export function ClosingCta({ title, intro, action, note, eyebrow, id, className = "" }: ClosingCtaProps) {

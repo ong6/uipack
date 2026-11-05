@@ -1,7 +1,7 @@
 import * as react from 'react';
 import { ReactNode } from 'react';
 import { L as LegendItem, T as TokenKind } from './Legend-n6GikDm_.js';
-import { I as IconName } from './index-DwRqkLtz.js';
+import { I as IconName } from './index-BCiSvaJI.js';
 
 /** One box in a preset spec. */
 interface Item {
@@ -80,6 +80,11 @@ interface PipelineSpec {
         depth?: number;
     };
     laneTitle?: string;
+    /**
+     * The key under the drawing. Default: "Inline" and "Queued" when there is a queue, none without
+     * one. Pass your own entries, or `false` to hide it.
+     */
+    legend?: LegendItem[] | false;
 }
 declare const defaultPipeline: PipelineSpec;
 declare function pipelineParts(spec: PipelineSpec | undefined, id: string): PresetParts;

@@ -135,7 +135,6 @@
     --ui-stroke: 1.25;
     --ui-rule-width: 1px;
     /* Scalars a style may own (research brief, contract change 1) */
-    --ui-density: 1;
     --ui-type-ratio: 1.25;
     --ui-measure: 65ch;
     /* Motion feel */
@@ -155,7 +154,9 @@
     --ui-marker-size: 8px;
     --ui-marker-shape: 2px;
     --ui-marker-color: var(--ui-accent);
-    --ui-section-rule: inset 0 1px 0 var(--ui-line-soft);
+    /* The section rule moves onto the column (--ui-column-rule): a drawing sheet's title rule, not a
+       full-bleed line. */
+    --ui-section-rule: none;
     --ui-grain: 0;
     --ui-glow: 0;
     --ui-cta-shadow: none;
@@ -188,6 +189,58 @@
       linear-gradient(var(--ui-accent), var(--ui-accent)) 0 0 / 1.5px 10px no-repeat,
       linear-gradient(var(--ui-accent), var(--ui-accent)) 100% 100% / 10px 1.5px no-repeat,
       linear-gradient(var(--ui-accent), var(--ui-accent)) 100% 100% / 1.5px 10px no-repeat;
+
+    /* Component treatment on the web (docs/system/style.md, "Treatment roles"): a drawing sheet.
+       Compact rhythm; every section's column opens on a title rule with end ticks and a short accent
+       bar; steps are labelled STEP 01 in mono over a hairline; stats sit between vertical rules; the
+       quote is an annotation (surface, hairline, accent rule), not an inverted card; table cells are
+       square and mono. */
+    --ui-density: 0.8;
+    --ui-column-rule:
+      linear-gradient(var(--ui-accent), var(--ui-accent)) 0 0 / 40px 3px no-repeat,
+      linear-gradient(var(--ui-line), var(--ui-line)) 0 1px / 100% 1px no-repeat,
+      linear-gradient(var(--ui-line), var(--ui-line)) 100% 0 / 1px 9px no-repeat;
+    --ui-column-rule-gap: 28px;
+    --ui-card-fill: var(--ui-surface);
+    --ui-card-pad: 1.5rem;
+    --ui-num-font: var(--ui-web-font-label);
+    --ui-num-size: 0.75rem;
+    --ui-num-weight: 600;
+    --ui-num-prefix: "Step ";
+    --ui-num-pad: inline;
+    --ui-num-rule: 1px solid var(--ui-line-soft);
+    --ui-num-color: var(--ui-accent-ink);
+    --ui-num-fill: transparent;
+    --ui-num-box: auto;
+    --ui-num-bleed: 1;
+    --ui-num-gap: 0.875rem;
+    --ui-num-display: block;
+    --ui-stat-divider: 1px solid var(--ui-line);
+    --ui-quote-fill: var(--ui-surface);
+    --ui-quote-ink: var(--ui-ink);
+    --ui-quote-ink-2: var(--ui-ink-2);
+    --ui-quote-line: var(--ui-line-soft);
+    --ui-quote-mark: var(--ui-accent-ink);
+    --ui-quote-face: var(--ui-web-font-text);
+    --ui-quote-weight: 500;
+    --ui-quote-case: none;
+    --ui-quote-size: 1.375rem;
+    --ui-quote-rule: inset 3px 0 0 var(--ui-accent);
+    --ui-quote-shadow: 0 0 transparent;
+    --ui-plan-featured-border: var(--ui-line);
+    --ui-plan-featured-ring: inset 0 3px 0 var(--ui-accent);
+    --ui-cell-fill: color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface));
+    --ui-cell-ink: var(--ui-ink);
+    --ui-cell-line: color-mix(in srgb, var(--ui-accent) 22%, transparent);
+    --ui-cell-peak: var(--ui-accent);
+    --ui-on-cell-peak: var(--ui-on-accent);
+    --ui-cell-off-ink: var(--ui-ink-3);
+    --ui-cell-radius: 2px;
+    --ui-window-dots: none;
+    --ui-window-bar: transparent;
+    /* Figures on a web page: the request token in ink, not blue, so a diagram carries only the
+       style's green beside its greys. Articles and docs keep the tuned flow hues above. */
+    --ui-web-flow-request: light-dark(#3a4640, #b9c6bf);
 
     /* Roles whose Technical values are tuned for one medium, then --tune-* component values */
     --ui-node: light-dark(#fbfaf6, #0e1512);
@@ -244,47 +297,48 @@
     --tune-object-control-ink-2: light-dark(#526459, #b7c8bf);
   }
 }
-/* Landing — the generic landing option: neutral page, lavender secondary band, indigo CTA accent,
-   editorial serif headlines from heading step 4, 16px cards, grain and glass for depth. Kept for
-   pages that should read as a conventional SaaS landing page; the default web style is Technical.
-   Guide: docs/web-principles.md. */
+/* Landing — the generic landing option, done well: a cool neutral page, a pale grey secondary band,
+   one cobalt accent, editorial serif headlines from heading step 4, 12px cards lifted by layered
+   soft shadows, 10px controls, glass nav. Conventional on purpose (no lavender wash, no
+   indigo-to-violet gradients). Kept for pages that should read as a conventional SaaS landing
+   page; the default web style is Technical. Guide: docs/web-principles.md. */
 @layer uipack.tokens {
   [data-ui-style="landing"] {
-    --ui-paper: light-dark(#f7f7f4, #0d0d13);
-    --ui-surface: light-dark(#ffffff, #16161f);
-    --ui-surface-raised: light-dark(#ffffff, #16161f);
-    --ui-surface-2: light-dark(#ebe9f4, #1e1c2e);
-    --ui-ink: light-dark(rgb(18 18 23), rgb(242 242 247));
+    --ui-paper: light-dark(#fbfbfa, #0b0c10);
+    --ui-surface: light-dark(#ffffff, #14161c);
+    --ui-surface-raised: light-dark(#ffffff, #1a1d24);
+    --ui-surface-2: light-dark(#f1f2f4, #171a21);
+    --ui-ink: light-dark(#0f1115, #f2f3f5);
     --ui-ink-2: color-mix(in srgb, var(--ui-ink) 87%, transparent);
     --ui-ink-3: color-mix(in srgb, var(--ui-ink) 66%, transparent);
-    --ui-line: color-mix(in srgb, var(--ui-ink) 24%, transparent);
-    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 12%, transparent);
-    --ui-accent: light-dark(#4b3fd6, #a99dff);
-    --ui-on-accent: light-dark(#ffffff, #0d0d13);
-    --ui-accent-surface: light-dark(#5a4fe0, #b8aeff);
-    --ui-accent-ink-2: light-dark(#e4e1ff, #2a2466);
-    --ui-accent-line: light-dark(#7a70e6, #8a7ee8);
-    /* Request in slate, so the indigo accent is the only blue-violet in a figure. */
+    --ui-line: color-mix(in srgb, var(--ui-ink) 18%, transparent);
+    --ui-line-soft: color-mix(in srgb, var(--ui-ink) 9%, transparent);
+    --ui-accent: light-dark(#2348d6, #8ba6ff);
+    --ui-on-accent: light-dark(#ffffff, #0b0c10);
+    --ui-accent-surface: light-dark(#2f55e0, #a3b8ff);
+    --ui-accent-ink-2: light-dark(#e3e9ff, #1c2a5e);
+    --ui-accent-line: light-dark(#6f8bf0, #6d86e8);
+    /* Request in slate, so the cobalt accent is the only blue in a figure. */
     --ui-flow-request: light-dark(#5c5c6b, #9a9aab);
     --ui-flow-response: light-dark(#3fb27f, #5fd39b);
     --ui-flow-change: light-dark(#9a63e0, #c39aff);
     --ui-data-pos: light-dark(#1a7a52, #33a979);
     --ui-data-neg: light-dark(#c0482f, #d4623f);
-    --ui-data-context: light-dark(#8e8e99, #6b6b78);
-    --ui-data-1: light-dark(#4b3fd6, #a99dff);
+    --ui-data-context: light-dark(#8d929b, #6a707b);
+    --ui-data-1: light-dark(#2348d6, #8ba6ff);
     --ui-data-2: light-dark(#1a7a52, #33a979);
     --ui-data-3: light-dark(#c27a1f, #c0832b);
     --ui-data-4: light-dark(#5c5c6b, #9a9aab);
-    --ui-on-data-1: light-dark(#ffffff, #0d0d13);
-    --ui-on-data-2: light-dark(#ffffff, #0d0d13);
-    --ui-on-data-3: light-dark(#121217, #0d0d13);
-    --ui-on-data-4: light-dark(#ffffff, #0d0d13);
-    --ui-inv-paper: light-dark(#16161f, #f2f2f7);
-    --ui-inv-surface: light-dark(#1e1c2e, #ffffff);
-    --ui-inv-ink: light-dark(#f2f2f7, #121217);
-    --ui-inv-ink-2: light-dark(#b9b9c6, #4a4a57);
-    --ui-inv-line: light-dark(#3a3850, #c9c7d8);
-    --ui-inv-accent: light-dark(#a99dff, #4b3fd6);
+    --ui-on-data-1: light-dark(#ffffff, #0b0c10);
+    --ui-on-data-2: light-dark(#ffffff, #0b0c10);
+    --ui-on-data-3: light-dark(#0f1115, #0b0c10);
+    --ui-on-data-4: light-dark(#ffffff, #0b0c10);
+    --ui-inv-paper: light-dark(#111318, #f2f3f5);
+    --ui-inv-surface: light-dark(#1a1d24, #ffffff);
+    --ui-inv-ink: light-dark(#f2f3f5, #0f1115);
+    --ui-inv-ink-2: light-dark(#b4b9c2, #474c55);
+    --ui-inv-line: light-dark(#343944, #c9ccd3);
+    --ui-inv-accent: light-dark(#8ba6ff, #2348d6);
 
     --ui-font-display: "Instrument Serif", "Instrument Serif Fallback", ui-serif, Georgia, "Times New Roman", serif;
     --ui-font-text: "IBM Plex Sans", "IBM Plex Sans Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -293,15 +347,14 @@
     --ui-display-tracking: -0.01em;
     --ui-display-case: none;
     --ui-label-tracking: 0.08em;
-    --ui-radius: 16px;
-    --ui-radius-sm: 12px;
-    --ui-radius-xs: 4px;
-    --ui-radius-pill: 999px;
-    --ui-nav-fill: light-dark(rgb(247 247 244 / 0.72), rgb(13 13 19 / 0.66));
-    --ui-nav-blur: blur(14px) saturate(1.4);
+    --ui-radius: 12px;
+    --ui-radius-sm: 10px;
+    --ui-radius-xs: 6px;
+    --ui-radius-pill: 10px;
+    --ui-nav-fill: light-dark(rgb(251 251 250 / 0.78), rgb(11 12 16 / 0.7));
+    --ui-nav-blur: blur(14px) saturate(1.2);
     --ui-stroke: 1.25;
     --ui-rule-width: 1px;
-    --ui-density: 1;
     --ui-type-ratio: 1.25;
     --ui-measure: 65ch;
     --ui-ease-settle: cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -315,37 +368,88 @@
     --ui-backdrop: none;
     --ui-backdrop-mask: none;
     --ui-frame-border: 1px solid var(--ui-line-soft);
-    --ui-card-shadow: none;
+    --ui-card-shadow:
+      0 1px 2px light-dark(rgb(15 17 21 / 0.05), rgb(0 0 0 / 0.35)),
+      0 10px 28px -18px light-dark(rgb(15 17 21 / 0.22), rgb(0 0 0 / 0.7));
     --ui-frame-shadow:
-      0 1px 2px light-dark(rgb(18 18 23 / 0.06), rgb(0 0 0 / 0.4)),
-      0 24px 48px -24px light-dark(rgb(18 18 23 / 0.28), rgb(0 0 0 / 0.7));
+      0 1px 2px light-dark(rgb(15 17 21 / 0.06), rgb(0 0 0 / 0.4)),
+      0 2px 6px -2px light-dark(rgb(15 17 21 / 0.06), rgb(0 0 0 / 0.4)),
+      0 32px 64px -32px light-dark(rgb(15 17 21 / 0.3), rgb(0 0 0 / 0.75));
     --ui-marker-size: 0px;
     --ui-marker-shape: 0px;
     --ui-marker-color: transparent;
     --ui-section-rule: none;
     --ui-grain: 1;
     --ui-glow: 1;
-    --ui-cta-shadow: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 8px 20px -10px var(--ui-accent);
-    --ui-cta-shadow-hover: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 12px 28px -10px var(--ui-accent);
+    --ui-cta-shadow:
+      0 1px 0 rgb(255 255 255 / 0.16) inset, 0 1px 2px light-dark(rgb(15 17 21 / 0.18), rgb(0 0 0 / 0.5)),
+      0 6px 16px -8px var(--ui-accent);
+    --ui-cta-shadow-hover:
+      0 1px 0 rgb(255 255 255 / 0.16) inset, 0 1px 2px light-dark(rgb(15 17 21 / 0.18), rgb(0 0 0 / 0.5)),
+      0 10px 24px -10px var(--ui-accent);
     --ui-em-style: italic;
-    --ui-em-color: currentColor;
+    --ui-em-color: var(--ui-accent-ink);
     --ui-star-fill: 1;
     --ui-display-scale: 1;
 
-    /* Web closing band (ClosingCta): deep indigo-black with a lavender CTA and one soft glow. */
-    --ui-band-fill: light-dark(#16161f, #1e1c2e);
-    --ui-band-ink: light-dark(#f2f2f7, #f2f2f7);
-    --ui-band-ink-2: light-dark(#b9b9c6, #b9b9c6);
-    --ui-band-cta: light-dark(#a99dff, #a99dff);
-    --ui-on-band-cta: light-dark(#0d0d13, #0d0d13);
-    --ui-band-pattern: radial-gradient(
-      70% 140% at 100% 0,
-      color-mix(in srgb, var(--ui-band-cta) 26%, transparent),
-      transparent 70%
-    );
+    /* Web closing band (ClosingCta): a near-black panel with a white button and a hairline of light
+       along its top edge. No gradient wash. */
+    --ui-band-fill: light-dark(#111318, #171a21);
+    --ui-band-ink: light-dark(#f2f3f5, #f2f3f5);
+    --ui-band-ink-2: light-dark(#b4b9c2, #b4b9c2);
+    --ui-band-cta: light-dark(#ffffff, #ffffff);
+    --ui-on-band-cta: light-dark(#0f1115, #0f1115);
+    --ui-band-pattern: linear-gradient(color-mix(in srgb, var(--ui-band-ink) 14%, transparent), transparent) 0 0 / 100% 1px
+      no-repeat;
     --ui-backdrop-narrow: none;
     --ui-section-index: none;
     --ui-corner-marks: none;
+
+    /* Component treatment on the web: a polished SaaS page. An airy rhythm; white cards lifted by
+       layered shadows; steps numbered in a tinted round badge; stats in the serif with no rules; the
+       quote is a white card in the serif with an accent mark; the featured plan wears an accent ring
+       and a tinted glow; table cells are soft tinted chips. */
+    --ui-density: 1.1;
+    --ui-column-rule: none;
+    --ui-column-rule-gap: 0px;
+    --ui-card-fill: var(--ui-surface);
+    --ui-card-pad: 2rem;
+    --ui-num-font: var(--ui-font-text);
+    --ui-num-size: 0.9375rem;
+    --ui-num-weight: 600;
+    --ui-num-prefix: "";
+    --ui-num-pad: none;
+    --ui-num-rule: 0 solid transparent;
+    --ui-num-color: var(--ui-accent-ink);
+    --ui-num-fill: color-mix(in srgb, var(--ui-accent) 10%, var(--ui-surface));
+    --ui-num-box: 2.25rem;
+    --ui-num-bleed: 0;
+    --ui-num-gap: 0px;
+    --ui-num-display: inline-grid;
+    --ui-stat-divider: 0 solid transparent;
+    --ui-quote-fill: var(--ui-surface);
+    --ui-quote-ink: var(--ui-ink);
+    --ui-quote-ink-2: var(--ui-ink-3);
+    --ui-quote-line: var(--ui-line-soft);
+    --ui-quote-mark: var(--ui-accent-ink);
+    --ui-quote-face: var(--ui-font-display);
+    --ui-quote-weight: 400;
+    --ui-quote-case: none;
+    --ui-quote-size: 1.875rem;
+    --ui-quote-rule: 0 0 transparent;
+    --ui-quote-shadow: var(--ui-frame-shadow);
+    --ui-plan-featured-border: var(--ui-accent);
+    --ui-plan-featured-ring: 0 0 0 1px var(--ui-accent), 0 28px 56px -28px color-mix(in srgb, var(--ui-accent) 55%, transparent);
+    --ui-cell-fill: color-mix(in srgb, var(--ui-accent) 9%, var(--ui-surface));
+    --ui-cell-ink: var(--ui-ink);
+    --ui-cell-line: transparent;
+    --ui-cell-peak: var(--ui-accent);
+    --ui-on-cell-peak: var(--ui-on-accent);
+    --ui-cell-off-ink: var(--ui-ink-3);
+    --ui-cell-radius: 6px;
+    --ui-window-dots: flex;
+    --ui-window-bar: var(--ui-surface-2);
+    --ui-web-flow-request: var(--ui-flow-request);
 
     --ui-accent-ink: var(--ui-accent);
     --ui-node: var(--ui-surface);
@@ -422,7 +526,6 @@
     --ui-nav-blur: none;
     --ui-stroke: 2;
     --ui-rule-width: 2px;
-    --ui-density: 1;
     --ui-type-ratio: 1.25;
     --ui-measure: 60ch;
     /* Poster motion: things land, they do not float. */
@@ -469,13 +572,56 @@
     --ui-band-cta: light-dark(#111111, #111111);
     --ui-on-band-cta: light-dark(#f1eee6, #f1eee6);
     --ui-band-pattern: repeating-linear-gradient(90deg, var(--ui-band-ink) 0 2px, transparent 2px 14px) 0 0 / 100% 16px no-repeat;
-    /* Below 720px the disc shrinks into the corner and drops its ring, so it never crosses the
-       eyebrow or the headline (the copy starts 64px down; the disc ends at 48px). */
-    --ui-backdrop-narrow:
-      radial-gradient(circle at 100% 0, var(--ui-accent) 0 48px, transparent 49px),
-      repeating-linear-gradient(90deg, var(--ui-ink) 0 2px, transparent 2px 14px) 0 100% / 100% 16px no-repeat;
+    /* Below 720px the disc goes: under a sticky nav a corner disc reads as a clipped sliver. The
+       tick band stays, and the eyebrow markers carry the disc. */
+    --ui-backdrop-narrow: repeating-linear-gradient(90deg, var(--ui-ink) 0 2px, transparent 2px 14px) 0 100% / 100% 16px no-repeat;
     --ui-section-index: none;
     --ui-corner-marks: none;
+
+    /* Component treatment on the web: a poster. Steps are giant Anton numerals in the accent; stats
+       sit between 2px ink rules; the quote is an orange poster block in caps with a hard shadow;
+       the featured plan casts an orange shadow; table cells are ink-ruled boxes. */
+    --ui-density: 0.95;
+    --ui-column-rule: none;
+    --ui-column-rule-gap: 0px;
+    --ui-card-fill: var(--ui-surface);
+    --ui-card-pad: 1.75rem;
+    --ui-num-font: var(--ui-font-display);
+    --ui-num-size: 4rem;
+    --ui-num-weight: 400;
+    --ui-num-prefix: "";
+    --ui-num-pad: none;
+    --ui-num-rule: 0 solid transparent;
+    --ui-num-color: var(--ui-accent-ink);
+    --ui-num-fill: transparent;
+    --ui-num-box: auto;
+    --ui-num-bleed: 0;
+    --ui-num-gap: 0px;
+    --ui-num-display: block;
+    --ui-stat-divider: 2px solid var(--ui-ink);
+    --ui-quote-fill: var(--ui-accent);
+    --ui-quote-ink: var(--ui-on-accent);
+    --ui-quote-ink-2: var(--ui-accent-ink-2);
+    --ui-quote-line: var(--ui-on-accent);
+    --ui-quote-mark: var(--ui-on-accent);
+    --ui-quote-face: var(--ui-font-display);
+    --ui-quote-weight: 400;
+    --ui-quote-case: uppercase;
+    --ui-quote-size: 2.25rem;
+    --ui-quote-rule: 0 0 transparent;
+    --ui-quote-shadow: 8px 8px 0 var(--ui-ink);
+    --ui-plan-featured-border: var(--ui-ink);
+    --ui-plan-featured-ring: 8px 8px 0 var(--ui-accent);
+    --ui-cell-fill: var(--ui-surface);
+    --ui-cell-ink: var(--ui-ink);
+    --ui-cell-line: var(--ui-ink);
+    --ui-cell-peak: var(--ui-accent);
+    --ui-on-cell-peak: var(--ui-on-accent);
+    --ui-cell-off-ink: var(--ui-ink-3);
+    --ui-cell-radius: 0px;
+    --ui-window-dots: flex;
+    --ui-window-bar: var(--ui-surface-2);
+    --ui-web-flow-request: var(--ui-flow-request);
 
     --ui-node: var(--ui-surface);
     --ui-line-solid: var(--ui-line);
