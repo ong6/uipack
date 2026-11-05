@@ -4,14 +4,17 @@ export { DeckPlayer, type DeckPlayerProps } from "./DeckPlayer";
 export { SlideThumbnail } from "./player/Layer";
 export { Build, Morph, Slide, DeckSlideContext, useDeckSlide, type DeckSlideState } from "./parts";
 export {
+  PointsSlide,
   SectionSlide,
   QuoteSlide,
   FactSlide,
   EndSlide,
+  pointsSlide,
   sectionSlide,
   quoteSlide,
   factSlide,
   endSlide,
+  type PointsSlideProps,
   type SectionSlideProps,
   type QuoteSlideProps,
   type FactSlideProps,
@@ -20,10 +23,12 @@ export {
 export {
   MAX_POINTS,
   SLOT_BUDGETS,
+  TITLE_WORDS,
   slotLines,
   slotProblems,
   slotSentences,
   slotWords,
+  type DeckMode,
   type SlotBudget,
   type SlotName,
   type SlotOverflow,

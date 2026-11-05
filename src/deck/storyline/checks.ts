@@ -2,7 +2,7 @@
 import { WORDS_PER_MINUTE } from "../../speech";
 import { QUANTIFIED_ROLES, REPEATABLE_ROLES, SLIDE_ROLES, type SlideRole } from "./roles";
 import { getStorylineTemplate, type StorylineTemplate } from "./templates";
-import { MAX_POINTS, SLOT_BUDGETS, slotLines, slotProblems, type SlotName } from "../budgets";
+import { MAX_POINTS, SLOT_BUDGETS, TITLE_WORDS, slotLines, slotProblems, type DeckMode, type SlotName } from "../budgets";
 import { MAX_TITLE_WORDS, type LintFinding, type LintOptions, type LintRule, type LintSeverity, type StorySlide } from "./rules";
 import {
   TOPIC_LABELS,
@@ -25,12 +25,18 @@ import {
   hasFirmDate,
   isSpecific,
   inferRoles,
+  titleForm,
+  NOT_CONTRAST_RE,
+  COMPARISON_KICKER_RE,
+  SEMICOLON_CLAUSES_RE,
 } from "./heuristics";
 
 /** What every check reads: the deck, its options, and what is derived from them once. */
 interface LintContext {
   slides: readonly StorySlide[];
   options: LintOptions;
+  /** Presented (the default) or read-alone: sets the title length, where quantities may sit and what notes are. */
+  mode: DeckMode;
   template?: StorylineTemplate;
   /** Whether the answer-first checks run: the option, else the template's setting, else true. */
   answerFirst: boolean;
@@ -59,6 +65,16 @@ function titledSlides(deck: LintContext) {
     .filter(({ headline }) => headline);
 }
 
+/** A slide's body points and declared slots: where a presented slide's numbers sit. */
+const bodyText = (slide: StorySlide) =>
+  [...(slide.points ?? []), ...Object.values(slide.slots ?? {})].filter(Boolean) as string[];
+
+/** Words in a talk track, for the cue and timing checks. */
+const wordCount = (text: string) => text.match(/\S+/g)?.length ?? 0;
+
+/** Most words in a presented slide's `say` before it reads as a script rather than cues. */
+const MAX_CUE_WORDS = 60;
+
 /**
  * The checks, in the order their findings are listed: the deck's identity, then each slide's title
  * and notes, then the storyline (answer, ask, rhythm, beats), then length. A slide's own findings
@@ -85,7 +101,8 @@ export const LINT_CHECKS: readonly LintCheck[] = [
     rule: "title-present",
     check: ({ slides }, report) => {
       for (const slide of slides)
-        if (!headlineOf(slide)) report("error", "No title. Write the slide's point as a sentence.", slide.id);
+        if (!headlineOf(slide))
+          report("error", "No title. Give it a short label or verdict (read-alone: the conclusion as a sentence).", slide.id);
     },
   },
   {
@@ -94,9 +111,26 @@ export const LINT_CHECKS: readonly LintCheck[] = [
       for (const { slide, headline } of titledSlides(deck)) {
         const words = wordsOf(headline);
         const label = normaliseLabel(headline);
-        const prefix = headline.includes(":") ? normaliseLabel(headline.slice(0, headline.indexOf(":"))) : "";
         // A cover may be a label; it is only a tip there.
-        const soften = (s: LintSeverity): LintSeverity => (slide.role === "cover" ? "tip" : s);
+        const soft = (s: LintSeverity): LintSeverity => (slide.role === "cover" ? "tip" : s);
+        if (deck.mode === "presented") {
+          // A short label is fine when presented ("Search latency"); a word that names the slide's kind isn't.
+          if (TOPIC_LABELS.has(label))
+            report(
+              soft("warn"),
+              `"${headline}" names the kind of slide, not its topic. Name the topic ("Search latency") or the verdict ("Search: twice as fast since March").`,
+              slide.id,
+            );
+          else if (TOPIC_OPENING_RE.test(headline))
+            report(
+              soft("tip"),
+              `"${headline}" opens like a topic ("${topicOpening(headline)}"). Name the thing itself, or the verdict.`,
+              slide.id,
+            );
+          continue;
+        }
+        const prefix = headline.includes(":") ? normaliseLabel(headline.slice(0, headline.indexOf(":"))) : "";
+        const soften = soft;
         if (TOPIC_LABELS.has(label)) {
           report(
             soften("error"),
@@ -108,11 +142,7 @@ export const LINT_CHECKS: readonly LintCheck[] = [
         } else if (words.length <= 4 && edgeLabel(label)) {
           report(soften("warn"), `"${headline}" reads like a section label. State the finding instead.`, slide.id);
         } else if (prefix && TOPIC_LABELS.has(prefix) && prefix !== "next") {
-          report(
-            soften("tip"),
-            `"${headline}" opens with a section label. Lead with the claim; put the section in the eyebrow.`,
-            slide.id,
-          );
+          report(soften("tip"), `"${headline}" opens with a section label. Lead with the claim.`, slide.id);
         } else if (TOPIC_OPENING_RE.test(headline)) {
           report(
             soften("warn"),
@@ -126,24 +156,37 @@ export const LINT_CHECKS: readonly LintCheck[] = [
   {
     rule: "title-length",
     check: (deck, report) => {
+      const max = TITLE_WORDS[deck.mode];
       for (const { slide, headline } of titledSlides(deck)) {
         const words = wordsOf(headline).length;
-        if (words > MAX_TITLE_WORDS)
-          report("warn", `Title is ${words} words; keep it to ${MAX_TITLE_WORDS} or move detail to the body.`, slide.id);
+        if (words <= max) continue;
+        if (deck.mode === "presented")
+          report(
+            "warn",
+            `"${headline}" is ${words} words, a sentence to read out. Cut it to a 2–5 word label or verdict, put the numbers in the points and say the rest. (Sent without you? Lint it with mode "read-alone".)`,
+            slide.id,
+          );
+        else report("warn", `Title is ${words} words; keep it to ${MAX_TITLE_WORDS} or move detail to the body.`, slide.id);
       }
     },
   },
   {
     rule: "title-specific",
     check: (deck, report) => {
+      const presented = deck.mode === "presented";
       for (const { slide, headline } of titledSlides(deck)) {
-        if (slide.role && QUANTIFIED_ROLES.includes(slide.role) && !isSpecific(headline)) {
+        // Presented, the quantity may sit in a point under a short title; read alone, the title carries it.
+        const texts = presented ? [headline, ...bodyText(slide)] : [headline];
+        const specific = texts.some(isSpecific);
+        if (slide.role && QUANTIFIED_ROLES.includes(slide.role) && !specific) {
           report(
             "warn",
-            `"${headline}" could describe any quarter. Put the quantity in the title: the number with its unit, or the from→to it moved; a bare count ("two teams") doesn't say how much.`,
+            presented
+              ? `"${headline}" and its points could describe any quarter. Put the quantity on the slide, in the title or a point: the number with its unit, or the from→to it moved; a bare count ("two teams") doesn't say how much.`
+              : `"${headline}" could describe any quarter. Put the quantity in the title: the number with its unit, or the from→to it moved; a bare count ("two teams") doesn't say how much.`,
             slide.id,
           );
-        } else if (slide.role === "plan" && !isSpecific(headline) && !hasFirmDate(headline)) {
+        } else if (slide.role === "plan" && !specific && !texts.some(hasFirmDate)) {
           report("warn", `"${headline}" has no date and no number. Say when each milestone lands, or what it costs.`, slide.id);
         }
       }
@@ -155,6 +198,56 @@ export const LINT_CHECKS: readonly LintCheck[] = [
       for (const { slide, headline } of titledSlides(deck))
         if (/[.!?]["”’)]?\s+\S/.test(headline))
           report("tip", "Title has more than one sentence. One idea per slide: split it or pick one.", slide.id);
+    },
+  },
+  {
+    // The template tell: the same three-part shape, or the same title form, on every slide.
+    rule: "slide-shape",
+    check: (deck, report) => {
+      const content = titledSlides(deck).filter(({ slide }) => deck.roleAt(slide) !== "cover");
+      if (content.length < 4) return;
+      if (content.every(({ slide }) => slide.eyebrow && slide.lede)) {
+        report(
+          "warn",
+          "Every slide has the same three parts: eyebrow, headline, lede. Drop the eyebrow and the lede by default; keep a lede only where a caveat must stay on screen.",
+        );
+        return;
+      }
+      if (deck.mode !== "presented") return;
+      const forms = content.map(({ headline }) => titleForm(headline));
+      if (forms.every((f) => f === forms[0]) && (forms[0] === "colon" || forms[0] === "sentence")) {
+        report(
+          "warn",
+          forms[0] === "colon"
+            ? 'Every title is "Topic: verdict". Mix the forms: a plain label ("Search latency"), a verdict, the occasional question.'
+            : "Every title is a full sentence, so the deck reads as a script. Use short labels and verdicts, and say the sentences aloud.",
+        );
+      }
+    },
+  },
+  {
+    // AI tells: any one is fine now and then; on slide after slide they read as generated.
+    rule: "ai-tells",
+    check: (deck, report) => {
+      const slides = deck.slides.filter((s) => s.role !== "appendix");
+      const linesOf = (s: StorySlide) => [headlineOf(s), s.lede ?? "", ...(s.points ?? [])].filter(Boolean);
+      for (const [re, what, fix] of [
+        [NOT_CONTRAST_RE, '"X, not Y" contrast', 'State the fact ("3 meetings → 1") and say the contrast aloud if it matters'],
+        [COMPARISON_KICKER_RE, "comparison bolted onto the claim", 'Give the baseline its own point ("March: 410 ms") or say it'],
+      ] as const) {
+        const hits = slides.filter((s) => linesOf(s).some((l) => re.test(l)));
+        if (hits.length > 1)
+          report("warn", `${hits.length} slides use a ${what} (${hits.map((s) => s.id).join(", ")}). ${fix}.`, hits[1].id);
+      }
+      for (const slide of slides) {
+        const line = linesOf(slide).find((l) => SEMICOLON_CLAUSES_RE.test(l));
+        if (line)
+          report(
+            "tip",
+            `"${line}" balances two clauses on a semicolon. Make them two points, or keep one and say the other.`,
+            slide.id,
+          );
+      }
     },
   },
   {
@@ -200,18 +293,38 @@ export const LINT_CHECKS: readonly LintCheck[] = [
     check: ({ presented }, report) => {
       for (const slide of presented)
         if (!sayOf(slide.notes))
-          report("warn", "No talk track. Notes carry what you say; the title carries the claim.", slide.id);
+          report(
+            "warn",
+            "No speaker notes. Give the cues: the claim you'll say, the number to point at, and the bridge in `next`.",
+            slide.id,
+          );
+    },
+  },
+  {
+    rule: "notes-cues",
+    check: ({ presented, mode }, report) => {
+      if (mode !== "presented") return;
+      for (const slide of presented) {
+        const words = wordCount(sayOf(slide.notes));
+        if (words > MAX_CUE_WORDS)
+          report(
+            "warn",
+            `The notes run ${words} words, a script to recite. Cut them to a few short cue lines (the claim to say, the number to point at) and the bridge in \`next\`; you'll say it in your own words.`,
+            slide.id,
+          );
+      }
     },
   },
   {
     rule: "number-source",
     check: (deck, report) => {
       for (const { slide, headline } of titledSlides(deck)) {
-        if (slide.role === "plan" || slide.role === "ask" || !hasClaimNumber(headline)) continue;
+        if (slide.role === "plan" || slide.role === "ask") continue;
+        if (![headline, ...(slide.points ?? [])].some(hasClaimNumber)) continue;
         if (namedSource(notesText(slide.notes)) || (slide.source && slide.source.trim())) continue;
         report(
           "warn",
-          'The title has a number but no source. Name the artifact it came from ("the search latency dashboard", "load test 12", "the Q3 user survey", a URL) and its window in the notes, or set the slide\'s `source`. Hearsay ("someone mentioned", "trust me") doesn\'t count.',
+          'The slide has a number but no source. Name the artifact it came from ("the search latency dashboard", "load test 12", "the Q3 user survey", a URL) and its window in the notes, or set the slide\'s `source`. Hearsay ("someone mentioned", "trust me") doesn\'t count.',
           slide.id,
         );
       }
@@ -254,10 +367,11 @@ export const LINT_CHECKS: readonly LintCheck[] = [
   },
   {
     rule: "outcome-first",
-    check: ({ answerFirst, presented }, report) => {
+    check: ({ answerFirst, presented, mode }, report) => {
       const first = presented[0];
       const text = first ? headlineOf(first) : "";
-      if (answerFirst && first && text && !isSpecific(text) && !OUTCOME_RE.test(text)) {
+      const points = first && mode === "presented" ? (first.points ?? []) : [];
+      if (answerFirst && first && text && !isSpecific(text) && !OUTCOME_RE.test(text) && !points.some(isSpecific)) {
         report(
           "tip",
           "Slide one names the work, not the outcome. Say what got faster, cheaper or safer for the business, and by how much.",
@@ -288,7 +402,8 @@ export const LINT_CHECKS: readonly LintCheck[] = [
     rule: "ask-concrete",
     check: ({ asks }, report) => {
       for (const ask of asks) {
-        const text = `${headlineOf(ask)}. ${notesText(ask.notes)}`;
+        // The ask's parts may sit in its points or its end-slide slots (action, owner, date).
+        const text = [headlineOf(ask), ...bodyText(ask), notesText(ask.notes)].join(". ");
         const missing: string[] = [];
         if (!DECISION_RE.test(text)) missing.push("a decision or action verb");
         if (!hasOwner(text)) missing.push("an owner");
@@ -372,7 +487,7 @@ export const LINT_CHECKS: readonly LintCheck[] = [
   },
   {
     rule: "talk-time",
-    check: ({ slides, presented, options, template }, report) => {
+    check: ({ slides, presented, options, template, mode }, report) => {
       const budget = options.minutes ?? template?.minutes.max;
       if (budget === undefined) return;
       const seconds = talkSeconds(slides);
@@ -384,7 +499,8 @@ export const LINT_CHECKS: readonly LintCheck[] = [
           "warn",
           `The talk track runs about ${Math.round(seconds / 60)} minutes at ${WORDS_PER_MINUTE} words a minute, over the ${budget}-minute budget.`,
         );
-      } else if (seconds < floor * 30 && presented.every((s) => sayOf(s.notes))) {
+      } else if (mode === "read-alone" && seconds < floor * 30 && presented.every((s) => sayOf(s.notes))) {
+        // Presented notes are cues, said in the speaker's own words, so their length isn't the talk's.
         // Only once every slide has a track: a missing one is already its own finding.
         report(
           "warn",
@@ -403,6 +519,7 @@ function lintContext(slides: readonly StorySlide[], options: LintOptions): LintC
   return {
     slides,
     options,
+    mode: options.mode ?? "presented",
     template,
     answerFirst: options.answerFirst ?? template?.answerFirst ?? true,
     inferred,
@@ -413,7 +530,8 @@ function lintContext(slides: readonly StorySlide[], options: LintOptions): LintC
 }
 
 /**
- * Check a deck's argument: action titles, answer first, a concrete closing ask, role rhythm,
+ * Check a deck's argument: titles that fit the mode (short labels and verdicts when presented, full
+ * conclusions when read alone), answer first, a concrete closing ask, role rhythm,
  * talk tracks, sources for numbers, and length against the time budget. Runs `LINT_CHECKS` in
  * order. Pure; no DOM.
  */

@@ -339,3 +339,25 @@ export function inferRoles(slides: readonly StorySlide[]): (SlideRole | undefine
     return undefined;
   });
 }
+
+/**
+ * The form a title takes, for the deck-shape check: a question, a "Topic: verdict" pair, a full
+ * sentence (more than six words), or a short label or verdict. Humans mix these within a deck; a
+ * template repeats one.
+ */
+export type TitleForm = "question" | "colon" | "sentence" | "short";
+export function titleForm(title: string): TitleForm {
+  const t = title.trim();
+  if (/\?["”’)]?$/.test(t)) return "question";
+  if (wordsOf(t).length > 6) return "sentence";
+  if (/^[^:]{1,40}:\s+\S/.test(t)) return "colon";
+  return "short";
+}
+
+/** "X, not Y" and "not X, but Y": a contrast that corrects a misreading nobody made. */
+export const NOT_CONTRAST_RE = /,\s+not\s+(?:a\s+|an\s+|the\s+)?[\p{L}\p{N}]|\bnot\b[^,.;:!?]{1,40},\s+but\b/iu;
+/** A comparison bolted onto a claim: "…, twice as fast as March", "…, 3× faster than Q2". */
+export const COMPARISON_KICKER_RE =
+  /,\s+(?:(?:twice|half|three times|four times|\d+(?:\.\d+)?\s*[x×]|\d+(?:\.\d+)?\s+times)\s+(?:as\s+\p{L}+\s+as|\p{L}+er\s+than)|\p{L}+er\s+than)\b/iu;
+/** Two clauses balanced on a semicolon: "Same teams and the same six months; only the order changed." */
+export const SEMICOLON_CLAUSES_RE = /\S\s*;\s+\p{L}/u;

@@ -20,7 +20,8 @@ interface SlideStarterBase {
 export interface OpeningSlideStarter extends SlideStarterBase {
   layout: "opening";
   content: {
-    eyebrow: string;
+    /** Optional, off by default: a section name above the headline. */
+    eyebrow?: string;
     headline: [string, string];
     context: string;
   };
@@ -29,7 +30,8 @@ export interface OpeningSlideStarter extends SlideStarterBase {
 export interface ExplanationSlideStarter extends SlideStarterBase {
   layout: "explanation";
   content: {
-    eyebrow: string;
+    /** Optional, off by default: a section name above the headline. */
+    eyebrow?: string;
     headline: string;
     foundation: { title: string; detail: string };
     applications: [{ title: string; detail: string }, { title: string; detail: string }];
@@ -39,7 +41,8 @@ export interface ExplanationSlideStarter extends SlideStarterBase {
 export interface SystemSlideStarter extends SlideStarterBase {
   layout: "system";
   content: {
-    eyebrow: string;
+    /** Optional, off by default: a section name above the headline. */
+    eyebrow?: string;
     headline: string;
     steps: [{ title: string; detail: string }, { title: string; detail: string }, { title: string; detail: string }];
     caption: string;

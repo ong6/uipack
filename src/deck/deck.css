@@ -216,12 +216,50 @@
   text-transform: uppercase;
 }
 
-/* Archetypes: section, quote, fact and end (archetypes.tsx). Each keeps the eyebrow, headline
-   and footer where every slide has them and fills only the body region, between the headline and
-   the footer. Colours and faces are deck tokens, so each renders in every style and tone. */
-.uipack-deck-slide:is([data-layout="section"], [data-layout="quote"], [data-layout="fact"], [data-layout="end"])
+/* Archetypes: points, section, quote, fact and end (archetypes.tsx). Each keeps the headline and
+   footer (and an eyebrow, when a slide has one) where every slide has them and fills only the body
+   region, between the headline and the footer. Colours and faces are deck tokens, so each renders
+   in every style and tone. */
+.uipack-deck-slide:is(
+    [data-layout="points"],
+    [data-layout="section"],
+    [data-layout="quote"],
+    [data-layout="fact"],
+    [data-layout="end"]
+  )
   > .uipack-deck-footer {
   margin-top: 0;
+}
+/* Points: the fragments the speaker talks from, large enough to read from the back, one per line. */
+.uipack-deck-points {
+  display: grid;
+  gap: 36px;
+  margin: 88px 0 auto;
+  padding: 0;
+  list-style: none;
+}
+.uipack-deck-points > li {
+  position: relative;
+  max-width: 30ch;
+  padding-left: 56px;
+  font-size: 56px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.uipack-deck-points > li::before {
+  content: "";
+  position: absolute;
+  top: 0.5em;
+  left: 0;
+  width: 24px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--deck-accent);
+}
+.uipack-deck-points__source {
+  margin-bottom: 24px;
 }
 /* Section: the part number fills the body's lower right, in the accent, above a rule. */
 .uipack-deck-section-number {
@@ -900,6 +938,12 @@
 .uipack-deck-read__detail figcaption {
   color: var(--deck-muted);
   font: 500 12px/1.35 var(--deck-mono);
+}
+/* Cue notes are short lines; keep the author's line breaks wherever the track is shown. */
+.uipack-deck-presenter__notes p,
+.uipack-deck-read__notes p,
+.uipack-deck-print__say > p {
+  white-space: pre-line;
 }
 .uipack-deck-read__notes p {
   margin: 0 0 12px;

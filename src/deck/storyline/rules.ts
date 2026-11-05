@@ -2,7 +2,7 @@
 import { WORDS_PER_MINUTE, type SpeechGuide } from "../../speech";
 import type { SlideRole } from "./roles";
 import type { StorylineTemplateId } from "./templates";
-import type { SlotName } from "../budgets";
+import { TITLE_WORDS, type DeckMode, type SlotName } from "../budgets";
 
 /**
  * The minimal slide shape the linter reads. A `DeckSlide` already fits; add `role`, and
@@ -10,20 +10,20 @@ import type { SlotName } from "../budgets";
  */
 export interface StorySlide {
   id: string;
-  /** Short name. Used as the action title when `headline` is absent. */
+  /** Short name. Used as the on-slide title when `headline` is absent. */
   title: string;
   role?: SlideRole;
   /** Talk track. A string is treated as `say`. */
   notes?: (SpeechGuide & { stops?: Record<string, string> }) | string;
-  /** The action title shown on the slide. */
+  /** The title shown on the slide: a short label or verdict when presented, the full conclusion when read alone. */
   headline?: string;
   /** On-slide source line for the slide's numbers. */
   source?: string;
-  /** The eyebrow above the headline, when the slide declares it as data (archetype slides do). */
+  /** The eyebrow above the headline, when the slide has one (optional, off by default), as data. */
   eyebrow?: string;
-  /** The one-sentence lede under the headline, as data. */
+  /** The one-sentence lede under the headline, when the slide has one (optional, off by default), as data. */
   lede?: string;
-  /** Body points, as data: at most three, each within the `point` budget. */
+  /** Body points, as data: 2–4 fragments, each within the `point` budget. */
   points?: readonly string[];
   /** Any other slot text the slide declares (quote, value, owner…), checked against `SLOT_BUDGETS`. */
   slots?: Partial<Record<SlotName, string>>;
@@ -50,7 +50,10 @@ export type LintRule =
   | "deck-length"
   | "talk-time"
   | "template-beats"
-  | "slot-budget";
+  | "slot-budget"
+  | "notes-cues"
+  | "slide-shape"
+  | "ai-tells";
 
 export interface LintFinding {
   slideId?: string;
@@ -60,6 +63,12 @@ export interface LintFinding {
 }
 
 export interface LintOptions {
+  /**
+   * How the deck is meant to be read. `presented` (default): short titles, fragment points and cue
+   * notes, for a speaker who talks freely. `read-alone`: full-sentence titles and a full talk track,
+   * for a deck sent without its speaker (a pre-read, a forwarded deck, a consulting readout).
+   */
+  mode?: DeckMode;
   /** Applies the template's answer-first setting and its slide and time ranges. */
   template?: StorylineTemplateId;
   /** Speaking time budget in minutes. */
@@ -72,23 +81,31 @@ export interface LintOptions {
 export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; check: string }>> = {
   "deck-empty": { severity: "error", check: "The deck has at least one slide." },
   "duplicate-id": { severity: "error", check: "Slide IDs are unique (they appear in URLs and presenter sync)." },
-  "title-present": { severity: "error", check: "Every slide has an action title." },
+  "title-present": { severity: "error", check: "Every slide has a title." },
   "title-claim": {
     severity: "error",
-    check: "The title states a claim of three or more words, not a topic label like 'Background' or 'Architecture'.",
+    check:
+      "Presented: the title names the slide's topic or verdict, not its kind ('Background', 'Results', 'Next steps' warn). Read-alone: the title states a claim of three or more words, not a topic label.",
   },
-  "title-length": { severity: "warn", check: "The title is at most 14 words." },
+  "title-length": {
+    severity: "warn",
+    check:
+      "Presented: the title is at most 6 words, a label or a verdict, never a sentence to read out. Read-alone: at most 14 words.",
+  },
   "title-specific": {
     severity: "warn",
     check:
-      "An answer, evidence, problem or recommendation title quantifies its claim: a number that isn't a date or a version, a multiple or fraction ('twice', 'a third'), a number word with a unit ('three weeks', 'one engineer'), or a comparison of two quantities ('one meeting, not three'). A plan title carries a date or a number. A bare count ('two teams', 'one big improvement'), 'no regressions', adjectives and names don't count.",
+      "An answer, evidence, problem or recommendation slide quantifies its claim, in the title or (presented) a point: a number that isn't a date or a version, a multiple or fraction ('twice', 'a third'), a number word with a unit ('three weeks', 'one engineer'), or a comparison of two quantities ('from 40 to 6 minutes'). A plan title carries a date or a number. A bare count ('two teams', 'one big improvement'), 'no regressions', adjectives and names don't count.",
   },
   "one-idea": { severity: "tip", check: "The title is one sentence: one idea per slide." },
-  "notes-present": { severity: "warn", check: "Every presented slide has a talk track." },
+  "notes-present": {
+    severity: "warn",
+    check: "Every presented slide has speaker notes: cues when presented, a talk track when read alone.",
+  },
   "number-source": {
     severity: "warn",
     check:
-      "A number in a title names its source in the notes: a named artifact ('the search latency dashboard', 'load test 12', 'the Q3 user survey') or a URL, with no hedge ('trust me', 'someone mentioned', 'said so'); or in the slide's `source`.",
+      "A number in a title or a point names its source in the notes: a named artifact ('the search latency dashboard', 'load test 12', 'the Q3 user survey') or a URL, with no hedge ('trust me', 'someone mentioned', 'said so'); or in the slide's `source`.",
   },
   "roles-missing": {
     severity: "warn",
@@ -117,7 +134,7 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   "talk-time": {
     severity: "warn",
     check:
-      "The talk track fits the time budget at 135 words a minute, and covers at least half of it (the minutes given, else the template's shortest length, capped at one minute per presented slide).",
+      "The notes fit the time budget at 135 words a minute. Read-alone decks' talk tracks also cover at least half of it (the minutes given, else the template's shortest length, capped at one minute per presented slide); a presented deck's cues aren't timed.",
   },
   "template-beats": {
     severity: "warn",
@@ -127,10 +144,26 @@ export const LINT_RULES: Readonly<Record<LintRule, { severity: LintSeverity; che
   "slot-budget": {
     severity: "warn",
     check:
-      "Every slot the slide declares as data (title, eyebrow, headline lines, lede, body points, and archetype slots such as quote, value, owner and date) fits its text budget in SLOT_BUDGETS: an eyebrow is one to four words, a lede one sentence, a headline at most two lines, a body point at most 12 words on one line and at most three a slide, a label no sentence.",
+      "Every slot the slide declares as data (title, eyebrow, headline lines, lede, body points, and archetype slots such as quote, value, owner and date) fits its text budget in SLOT_BUDGETS: an eyebrow is one to four words, a lede one sentence, a headline at most two lines, a body point a fragment of at most 8 words on one line and at most four a slide, a label no sentence.",
+  },
+  "notes-cues": {
+    severity: "warn",
+    check:
+      "Presented: each slide's `say` is cues, not a script: at most 60 words (the claim to say, the number to point at), with the bridge in `next`.",
+  },
+  "slide-shape": {
+    severity: "warn",
+    check:
+      "The deck doesn't repeat one shape on every slide: not eyebrow + headline + lede throughout, and (presented) not the same title form throughout ('Topic: verdict' or a full sentence on every slide). Mix labels, verdicts and the occasional question.",
+  },
+  "ai-tells": {
+    severity: "warn",
+    check:
+      "No templated rhetoric: a 'X, not Y' contrast or an appended comparison ('…, twice as fast as March') on more than one slide warns; a semicolon joining two clauses in a title, lede or point is a tip.",
   },
 };
 
-export const MAX_TITLE_WORDS = 14;
+/** The read-alone title limit; a presented title stops at `TITLE_WORDS.presented`. */
+export const MAX_TITLE_WORDS = TITLE_WORDS["read-alone"];
 // The speaking pace (135 words a minute) is shared with the presentations entry's estimateSpeechSeconds.
 export { WORDS_PER_MINUTE };
