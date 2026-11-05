@@ -3,6 +3,15 @@ import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.j
 import type { ObjectLook } from "./look";
 import { playLoop, TAU, vec, type Tick } from "./procedural";
 import { clamp, smoothstep } from "../math";
+import {
+  Batch,
+  ballGeometry,
+  kineticLook,
+  PLINTH_TOP,
+  rodGeometry,
+  sculptureMaterials,
+  sculpturePlinth,
+} from "./kinetic-sculptures";
 
 // Original procedural studies. Contact legacy variants 0–2 stay in scenes.ts.
 const colors = { cream: 0xf6e9ca, coral: 0xe97c5d, blue: 0x6997ad, green: 0x8bb39b, dark: 0x293f49, gold: 0xbe965c };
@@ -111,47 +120,59 @@ function cartoonMailbox(root: THREE.Group, ticks: Tick[]) {
 
 /* ---------------------------------------------------------------- Kinetic (variant 4) */
 
-/** A brass mobile of three hanging envelopes over a ceramic inbox tray, with a signal on an orbit. */
+/**
+ * A brass mobile of three glazed ceramic envelopes over a ceramic inbox tray, on the kinetic
+ * direction's turned base (kinetic-sculptures.ts). The beam turns and each letter swings on its pin.
+ */
 function kineticMobile(root: THREE.Group, ticks: Tick[]) {
-  const ORBIT_RADIUS = 1.39;
-  const HANGER_LENGTHS = [0.65, 1.05, 0.48];
-  root.rotation.set(0.12, -0.2, 0);
-  addMesh(root, new THREE.CylinderGeometry(0.98, 1.04, 0.16, 64), colors.dark, 0, -1.45);
-  const rim = addMesh(root, new THREE.TorusGeometry(0.98, 0.022, 8, 80), colors.gold, 0, -1.36, 0, true);
-  rim.rotation.x = Math.PI / 2;
-  rod(root, vec(0, -1.37, -0.3), vec(0, 1.45, -0.3), colors.gold, 0.04);
+  const m = sculptureMaterials();
+  const HANGER_LENGTHS = [0.62, 1.0, 0.46];
+  const POST_Z = -0.3;
+  sculpturePlinth(root, m);
+  new Batch(root)
+    .strut(m.brass, vec(0, PLINTH_TOP, POST_Z), vec(0, 1.32, POST_Z), 0.036, [false, false])
+    .add(m.brass, new THREE.CylinderGeometry(0.09, 0.12, 0.06, 24).translate(0, PLINTH_TOP + 0.03, POST_Z))
+    .done();
+  // The inbox: a bone ceramic tray on the stone top.
+  const tray = new Batch(root);
+  tray.add(m.bone, new RoundedBoxGeometry(1.2, 0.08, 0.76, 2, 0.03).translate(0, PLINTH_TOP + 0.04, 0.14));
+  for (const x of [-0.58, 0.58])
+    tray.add(m.bone, new RoundedBoxGeometry(0.06, 0.2, 0.76, 2, 0.025).translate(x, PLINTH_TOP + 0.1, 0.14));
+  tray.add(m.bone, new RoundedBoxGeometry(1.2, 0.2, 0.06, 2, 0.025).translate(0, PLINTH_TOP + 0.1, -0.22));
+  tray.add(m.celadon, new RoundedBoxGeometry(0.62, 0.05, 0.42, 2, 0.02).rotateY(0.15).translate(0, PLINTH_TOP + 0.105, 0.16));
+  tray.done();
   const mobile = new THREE.Group();
   root.add(mobile);
-  mobile.position.set(0, 0.95, -0.3);
-  rod(mobile, vec(-1.18, 0), vec(1.18, 0), colors.gold, 0.028);
-  sphere(mobile, 0.09, colors.gold);
+  mobile.position.set(0, 1.32, POST_Z);
+  new Batch(mobile)
+    .strut(m.brass, vec(-1.1, 0, 0), vec(1.1, 0, 0), 0.026)
+    .add(m.brass, ballGeometry(vec(0, 0, 0), 0.08))
+    .done();
+  const glazes = [m.bone, m.celadon, m.oxblood];
   for (let i = 0; i < 3; i++) {
     const hanger = new THREE.Group();
     mobile.add(hanger);
-    hanger.position.x = (i - 1) * 0.98;
+    hanger.position.x = (i - 1) * 1.0;
     const length = HANGER_LENGTHS[i];
-    rod(hanger, vec(0, 0), vec(0, -length), colors.gold, 0.009);
-    const letter = envelope(hanger, [colors.cream, colors.blue, colors.coral][i]);
+    const letter = new THREE.Group();
     letter.position.y = -length - 0.21;
+    hanger.add(letter);
+    new Batch(hanger).strut(m.brass, vec(0, 0, 0), vec(0, -length, 0), 0.011, [false, true]).done();
+    const env = new Batch(letter).add(glazes[i], new RoundedBoxGeometry(0.62, 0.42, 0.06, 2, 0.02));
+    // The flap: a brass V on both faces.
+    for (const z of [-0.034, 0.034]) {
+      env.add(m.brass, rodGeometry(vec(-0.27, 0.17, z), vec(0, -0.03, z), 0.01));
+      env.add(m.brass, rodGeometry(vec(0, -0.03, z), vec(0.27, 0.17, z), 0.01));
+    }
+    env.done();
     ticks.push((angle) => {
       hanger.rotation.z = 0.085 * Math.sin(angle + i * 1.8);
       letter.rotation.y = 0.32 * Math.sin(angle + i);
     });
   }
-  // Ceramic receiving tray and the brass orbit suggest many channels, one inbox.
-  box(root, 1.25, 0.1, 0.78, colors.cream, 0, -1.23, 0.16);
-  for (const x of [-0.59, 0.59]) box(root, 0.08, 0.18, 0.78, colors.cream, x, -1.11, 0.16);
-  box(root, 1.25, 0.18, 0.08, colors.cream, 0, -1.11, -0.2);
-  const orbit = new THREE.Group();
-  root.add(orbit);
-  orbit.rotation.set(0.85, 0.3, 0);
-  orbit.position.y = -0.05;
-  addMesh(orbit, new THREE.TorusGeometry(ORBIT_RADIUS, 0.012, 8, 80), colors.gold, 0, 0, 0, true);
-  const signal = sphere(orbit, 0.075, colors.gold);
   ticks.push((angle) => {
     mobile.rotation.y = 0.3 + 0.38 * Math.sin(angle);
-    mobile.rotation.z = 0.06 * Math.sin(angle);
-    signal.position.set(ORBIT_RADIUS * Math.cos(angle), ORBIT_RADIUS * Math.sin(angle), 0);
+    mobile.rotation.z = 0.05 * Math.sin(angle);
   });
 }
 
@@ -160,7 +181,7 @@ export function createContactDirection(variant: 3 | 4) {
     ticks: Tick[] = [];
   if (variant === 3) cartoonMailbox(root, ticks);
   else kineticMobile(root, ticks);
-  root.userData.look = { castShadows: true } satisfies ObjectLook;
+  root.userData.look = (variant === 3 ? { castShadows: true } : kineticLook()) satisfies ObjectLook;
   root.userData.style = variant === 3 ? "cartoon" : "kinetic";
   playLoop(root, ticks, REST_MS, variant === 3 ? "letter-delivery" : "correspondence-mobile");
   return root;
