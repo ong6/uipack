@@ -1,12 +1,22 @@
 'use strict';
 
-var chunkFD5DXHMS_cjs = require('./chunk-FD5DXHMS.cjs');
+var chunkX3NRT47Q_cjs = require('./chunk-X3NRT47Q.cjs');
 var chunkSDBNPDW6_cjs = require('./chunk-SDBNPDW6.cjs');
+var chunkCRQKMR73_cjs = require('./chunk-CRQKMR73.cjs');
 var chunkKV6PPCWS_cjs = require('./chunk-KV6PPCWS.cjs');
 var jsxRuntime = require('react/jsx-runtime');
 var react = require('react');
 
-function WebSurface({ children, theme, as: Tag = "div", className = "", style, uiStyle, layout }) {
+function WebSurface({
+  children,
+  theme,
+  as: Tag = "div",
+  className = "",
+  style,
+  uiStyle,
+  layout,
+  figureChrome = "quiet"
+}) {
   return /* @__PURE__ */ jsxRuntime.jsx(
     Tag,
     {
@@ -15,7 +25,7 @@ function WebSurface({ children, theme, as: Tag = "div", className = "", style, u
       "data-ui-style": uiStyle,
       "data-ui-layout": layout,
       style,
-      children
+      children: /* @__PURE__ */ jsxRuntime.jsx(chunkCRQKMR73_cjs.FigureChromeContext.Provider, { value: figureChrome, children })
     }
   );
 }
@@ -26,30 +36,43 @@ function GridItem({ children, span = [4, 4, 4], className = "", as: Tag = "div" 
   const style = { "--span-w": span[0], "--span-m": span[1], "--span-n": span[2] };
   return /* @__PURE__ */ jsxRuntime.jsx(Tag, { className: `uipack-web-grid__item ${className}`.trim(), style, children });
 }
-var SHARED = { hero: "demo", align: "center", steps: "cards" };
+var SHARED = { hero: "demo", align: "start", steps: "cards" };
 function WebPage({
   sections,
   nav,
   uiStyle = "technical",
-  layout = "style",
+  layout = "shared",
   order,
   theme,
+  figureChrome,
   className = "",
   style,
   as,
   children
 }) {
-  const meta = chunkFD5DXHMS_cjs.uiStyles.find((s) => s.id === uiStyle);
+  const meta = chunkX3NRT47Q_cjs.uiStyles.find((s) => s.id === uiStyle);
   const page = { uiStyle, layout, defaults: layout === "style" ? meta.layout : SHARED };
-  const ids = order ? order.filter((id) => id in sections) : chunkFD5DXHMS_cjs.sectionOrder(uiStyle, Object.keys(sections), layout);
-  return /* @__PURE__ */ jsxRuntime.jsxs(WebSurface, { uiStyle, theme, className, style, as, layout, children: [
-    nav,
-    ids.map((id) => {
-      const section = sections[id];
-      return /* @__PURE__ */ jsxRuntime.jsx(react.Fragment, { children: typeof section === "function" ? section(page) : section }, id);
-    }),
-    children
-  ] });
+  const ids = order ? order.filter((id) => id in sections) : chunkX3NRT47Q_cjs.sectionOrder(uiStyle, Object.keys(sections), layout);
+  return /* @__PURE__ */ jsxRuntime.jsxs(
+    WebSurface,
+    {
+      uiStyle,
+      theme,
+      className,
+      style,
+      as,
+      layout,
+      figureChrome,
+      children: [
+        nav,
+        ids.map((id) => {
+          const section = sections[id];
+          return /* @__PURE__ */ jsxRuntime.jsx(react.Fragment, { children: typeof section === "function" ? section(page) : section }, id);
+        }),
+        children
+      ]
+    }
+  );
 }
 function Eyebrow({ children, className = "", as: Tag = "p", id }) {
   return /* @__PURE__ */ jsxRuntime.jsx(Tag, { id, className: `uipack-web-eyebrow ${className}`.trim(), children });
@@ -96,7 +119,10 @@ function GlassNav({ brand, links, cta, sticky = true, label = "Primary" }) {
   }, [open]);
   return /* @__PURE__ */ jsxRuntime.jsx("header", { className: "uipack-web-nav", "data-sticky": sticky || void 0, "data-open": open || void 0, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-nav__bar", children: [
     /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-nav__brand", children: brand }),
-    /* @__PURE__ */ jsxRuntime.jsx("nav", { "aria-label": label, className: "uipack-web-nav__nav", children: /* @__PURE__ */ jsxRuntime.jsx("ul", { id: listId, className: "uipack-web-nav__links", children: links.map((l) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsx("a", { href: l.href, onClick: () => setOpen(false), children: l.label }) }, l.href + l.label)) }) }),
+    /* @__PURE__ */ jsxRuntime.jsx("nav", { "aria-label": label, className: "uipack-web-nav__nav", children: /* @__PURE__ */ jsxRuntime.jsxs("ul", { id: listId, className: "uipack-web-nav__links", children: [
+      links.map((l) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsx("a", { href: l.href, onClick: () => setOpen(false), children: l.label }) }, l.href + l.label)),
+      cta && /* @__PURE__ */ jsxRuntime.jsx("li", { className: "uipack-web-nav__menu-cta", onClick: () => setOpen(false), children: cta })
+    ] }) }),
     cta && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-nav__cta", children: cta }),
     /* @__PURE__ */ jsxRuntime.jsx(
       "button",
@@ -156,7 +182,10 @@ function Section({
       "aria-labelledby": title ? headingId : void 0,
       children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-section__inner", children: [
         (eyebrow || title || intro) && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-section__head", children: [
-          eyebrow && /* @__PURE__ */ jsxRuntime.jsx(Eyebrow, { children: eyebrow }),
+          eyebrow && /* @__PURE__ */ jsxRuntime.jsxs(Eyebrow, { children: [
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-section__index", "aria-hidden": "true" }),
+            eyebrow
+          ] }),
           title && /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 2, id: headingId, children: title }),
           intro && /* @__PURE__ */ jsxRuntime.jsx(Body, { children: intro })
         ] }),
@@ -165,15 +194,299 @@ function Section({
     }
   );
 }
-function FeatureGrid({ features, spotlight = false }) {
-  return /* @__PURE__ */ jsxRuntime.jsx(Grid, { as: "ul", className: "uipack-web-features", children: features.map((f) => {
+function FeatureGrid({ features, spotlight = false, numbered = false }) {
+  return /* @__PURE__ */ jsxRuntime.jsx(Grid, { as: numbered ? "ol" : "ul", className: `uipack-web-features${numbered ? " uipack-web-features--numbered" : ""}`, children: features.map((f, i) => {
     const inner = /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+      numbered && /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-feature__num", "aria-hidden": "true", children: [
+        i < 9 && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-feature__pad", children: "0" }),
+        i + 1
+      ] }),
       f.icon && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-feature__icon", children: f.icon }),
       /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 3, size: 1, children: f.href ? /* @__PURE__ */ jsxRuntime.jsx("a", { href: f.href, children: f.title }) : f.title }),
       /* @__PURE__ */ jsxRuntime.jsx(Body, { children: f.body })
     ] });
     return /* @__PURE__ */ jsxRuntime.jsx(GridItem, { as: "li", span: [4, 4, 4], children: spotlight ? /* @__PURE__ */ jsxRuntime.jsx(SpotlightCard, { children: inner }) : /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-feature", children: inner }) }, f.title);
   }) });
+}
+function WorkedExample({ title, given, lines, note, label, className = "" }) {
+  return /* @__PURE__ */ jsxRuntime.jsxs(
+    "div",
+    {
+      className: `uipack-web-worked ${className}`.trim(),
+      role: "group",
+      "aria-label": label ?? (typeof title === "string" ? title : "Worked example"),
+      children: [
+        title && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-worked__title", children: title }),
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-worked__sheet", style: { "--lines": lines.length }, children: [
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-worked__given", children: [
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-worked__value", children: given.value }),
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-worked__label", children: given.label })
+          ] }),
+          /* @__PURE__ */ jsxRuntime.jsx("ol", { className: "uipack-web-worked__lines", children: lines.map((l, i) => /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
+            /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-worked__rule", children: [
+              /* @__PURE__ */ jsxRuntime.jsx("span", { children: l.rule }),
+              l.working && /* @__PURE__ */ jsxRuntime.jsx("code", { children: l.working })
+            ] }),
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-worked__arrow", "aria-hidden": "true" }),
+            /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-worked__result", children: [
+              /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-worked__value", children: l.result.value }),
+              /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-worked__label", children: l.result.label })
+            ] })
+          ] }, i)) })
+        ] }),
+        note && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-worked__note", children: note })
+      ]
+    }
+  );
+}
+function BeforeAfter({ before, after, change, tags = ["Before", "After"], className = "" }) {
+  const max = Math.max(before.measure, after.measure, Number.EPSILON);
+  const side = (s, tag, key) => /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-compare__row", "data-side": key, children: [
+    /* @__PURE__ */ jsxRuntime.jsxs("dt", { children: [
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-compare__tag", children: tag }),
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-compare__label", children: s.label })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsxs("dd", { children: [
+      /* @__PURE__ */ jsxRuntime.jsx(
+        "span",
+        {
+          className: "uipack-web-compare__bar",
+          style: { "--v": Math.max(0.012, s.measure / max) },
+          "aria-hidden": "true"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-compare__value", children: s.value })
+    ] })
+  ] });
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-compare ${className}`.trim(), children: [
+    change && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-compare__change", children: change }),
+    /* @__PURE__ */ jsxRuntime.jsxs("dl", { children: [
+      side(before, tags[0], "before"),
+      side(after, tags[1], "after")
+    ] })
+  ] });
+}
+function Proof({ lead, compare, stats = [], quote, className = "" }) {
+  const ratio = lead?.ratio === void 0 ? void 0 : Math.min(1, Math.max(0, lead.ratio));
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-proof ${className}`.trim(), "data-has-quote": quote ? "" : void 0, children: [
+    (lead || compare || stats.length > 0) && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-proof__numbers", children: [
+      compare && /* @__PURE__ */ jsxRuntime.jsx(BeforeAfter, { ...compare }),
+      lead && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-proof__lead", children: [
+        /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-web-proof__value", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("span", { children: lead.value }),
+          lead.of && /* @__PURE__ */ jsxRuntime.jsx("small", { children: lead.of })
+        ] }),
+        /* @__PURE__ */ jsxRuntime.jsx(Body, { emphasis: "medium", children: lead.label }),
+        ratio !== void 0 && /* @__PURE__ */ jsxRuntime.jsx(
+          "span",
+          {
+            className: "uipack-web-proof__meter",
+            role: "img",
+            "aria-label": `${Math.round(ratio * 1e3) / 10}%`,
+            style: { "--ratio": ratio }
+          }
+        )
+      ] }),
+      stats.length > 0 && /* @__PURE__ */ jsxRuntime.jsx("dl", { className: "uipack-web-proof__stats", children: stats.map((s, i) => /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx("dt", { children: s.label }),
+        /* @__PURE__ */ jsxRuntime.jsx("dd", { children: s.value })
+      ] }, i)) })
+    ] }),
+    quote && /* @__PURE__ */ jsxRuntime.jsxs("figure", { className: "uipack-web-quote", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("blockquote", { children: /* @__PURE__ */ jsxRuntime.jsx("p", { children: quote.text }) }),
+      /* @__PURE__ */ jsxRuntime.jsxs("figcaption", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx("strong", { children: quote.name }),
+        quote.role && /* @__PURE__ */ jsxRuntime.jsx("span", { children: quote.role })
+      ] })
+    ] })
+  ] });
+}
+var Check = () => /* @__PURE__ */ jsxRuntime.jsx("svg", { viewBox: "0 0 16 16", "aria-hidden": "true", className: "uipack-web-plan__check", children: /* @__PURE__ */ jsxRuntime.jsx(
+  "path",
+  {
+    d: "M3.5 8.5l3 3 6-7",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "1.75",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }
+) });
+function PricingPlans({ plans, note, className = "" }) {
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-pricing ${className}`.trim(), children: [
+    /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "uipack-web-pricing__plans", style: { "--plans": Math.min(3, plans.length) }, children: plans.map((p, i) => /* @__PURE__ */ jsxRuntime.jsxs("li", { className: "uipack-web-plan", "data-featured": p.featured ? "" : void 0, children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-plan__head", children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 3, size: 1, className: "uipack-web-plan__name", children: p.name }),
+        p.badge && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-plan__badge", children: p.badge })
+      ] }),
+      /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-web-plan__price", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("span", { children: p.price }),
+        p.period && /* @__PURE__ */ jsxRuntime.jsx("small", { children: p.period })
+      ] }),
+      p.summary && /* @__PURE__ */ jsxRuntime.jsx(Body, { children: p.summary }),
+      p.features && p.features.length > 0 && /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "uipack-web-plan__features", children: p.features.map((f, j) => /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Check, {}),
+        /* @__PURE__ */ jsxRuntime.jsx("span", { children: f })
+      ] }, j)) }),
+      p.action && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-plan__action", children: /* @__PURE__ */ jsxRuntime.jsx(CtaButton, { href: p.action.href, variant: p.featured ? "primary" : "secondary", children: p.action.label }) })
+    ] }, i)) }),
+    note && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-pricing__note", children: note })
+  ] });
+}
+function ClosingCta({ title, intro, action, note, eyebrow, id, className = "" }) {
+  const headingId = id ? `${id}-title` : void 0;
+  return /* @__PURE__ */ jsxRuntime.jsx("section", { id, className: `uipack-web-closing ${className}`.trim(), "aria-labelledby": headingId, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-closing__inner", children: [
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-closing__copy", children: [
+      eyebrow && /* @__PURE__ */ jsxRuntime.jsx(Eyebrow, { children: eyebrow }),
+      /* @__PURE__ */ jsxRuntime.jsx(Heading, { level: 2, size: 5, id: headingId, children: title }),
+      intro && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-closing__intro", children: intro })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-closing__action", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("a", { className: "uipack-web-cta uipack-web-closing__cta", "data-size": "lg", "data-variant": "primary", href: action.href, children: action.label }),
+      note && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-closing__note", children: note })
+    ] })
+  ] }) });
+}
+function SiteFooter({ brand, links = [], note, children, className = "" }) {
+  return /* @__PURE__ */ jsxRuntime.jsx("footer", { className: `uipack-web-footer ${className}`.trim(), children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-footer__inner", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-footer__brand", children: brand }),
+    links.length > 0 && /* @__PURE__ */ jsxRuntime.jsx("nav", { "aria-label": "Footer", className: "uipack-web-footer__nav", children: /* @__PURE__ */ jsxRuntime.jsx("ul", { children: links.map((l, i) => /* @__PURE__ */ jsxRuntime.jsx("li", { children: /* @__PURE__ */ jsxRuntime.jsx("a", { href: l.href, children: l.label }) }, i)) }) }),
+    children && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-footer__extra", children }),
+    note && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-footer__note", children: note })
+  ] }) });
+}
+function Brand({ children, href }) {
+  return href ? /* @__PURE__ */ jsxRuntime.jsx("a", { className: "uipack-web-brand", href, children }) : /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-brand", children });
+}
+function ProductWindow({
+  title,
+  subtitle,
+  status,
+  address,
+  footer,
+  footerEnd,
+  label,
+  children,
+  className = ""
+}) {
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-window ${className}`.trim(), role: "group", "aria-label": label, children: [
+    address && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-window__bar", "aria-hidden": "true", children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-window__dots", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("i", {}),
+        /* @__PURE__ */ jsxRuntime.jsx("i", {}),
+        /* @__PURE__ */ jsxRuntime.jsx("i", {})
+      ] }),
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-window__address", children: address })
+    ] }),
+    (title || status) && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-window__head", children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
+        title && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-window__title", children: title }),
+        subtitle && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-window__subtitle", children: subtitle })
+      ] }),
+      status && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-window__status", children: status })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-window__body", children }),
+    (footer || footerEnd) && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-window__foot", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("span", { children: footer }),
+      footerEnd && /* @__PURE__ */ jsxRuntime.jsx("span", { children: footerEnd })
+    ] })
+  ] });
+}
+function DataTable({ columns, rows, highlight, label, note, className = "" }) {
+  const marked = new Set(highlight === void 0 ? [] : Array.isArray(highlight) ? highlight : [highlight]);
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-table ${className}`.trim(), children: [
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-table__scroll", role: "region", "aria-label": label, tabIndex: 0, children: /* @__PURE__ */ jsxRuntime.jsxs("table", { children: [
+      /* @__PURE__ */ jsxRuntime.jsx("caption", { className: "uipack-web-demo__sr", children: label }),
+      /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsx("tr", { children: columns.map((c) => /* @__PURE__ */ jsxRuntime.jsx("th", { scope: "col", "data-align": c.align ?? (c.barMax !== void 0 ? "start" : void 0), children: c.label }, c.key)) }) }),
+      /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: rows.map((row, i) => /* @__PURE__ */ jsxRuntime.jsx("tr", { "data-highlight": marked.has(i) || void 0, children: columns.map((c, j) => {
+        const v = row[c.key];
+        const Cell = j === 0 ? "th" : "td";
+        const bar = c.barMax !== void 0 && typeof v === "number" ? Math.max(0, Math.min(1, v / c.barMax)) : void 0;
+        return /* @__PURE__ */ jsxRuntime.jsx(Cell, { scope: j === 0 ? "row" : void 0, "data-align": c.align, children: bar === void 0 ? v : /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-table__bar", style: { "--v": bar }, children: [
+          /* @__PURE__ */ jsxRuntime.jsx("i", { "aria-hidden": "true" }),
+          /* @__PURE__ */ jsxRuntime.jsx("span", { children: v })
+        ] }) }, c.key);
+      }) }, i)) })
+    ] }) }),
+    note && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-table__note", children: note })
+  ] });
+}
+var isCell = (c) => typeof c === "object" && c !== null && !react.isValidElement(c) && !Array.isArray(c) && "value" in c;
+function ScheduleGrid({
+  columns,
+  rows,
+  label,
+  corner = "Staff",
+  offLabel = "Off",
+  legend,
+  className = ""
+}) {
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-schedule ${className}`.trim(), children: [
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-table__scroll", role: "region", "aria-label": label, tabIndex: 0, children: /* @__PURE__ */ jsxRuntime.jsxs("table", { children: [
+      /* @__PURE__ */ jsxRuntime.jsx("caption", { className: "uipack-web-demo__sr", children: label }),
+      /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx("th", { scope: "col", children: corner }),
+        columns.map((c, i) => /* @__PURE__ */ jsxRuntime.jsx("th", { scope: "col", children: c }, i))
+      ] }) }),
+      /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: rows.map((r, i) => /* @__PURE__ */ jsxRuntime.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntime.jsxs("th", { scope: "row", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("span", { children: r.name }),
+          r.detail && /* @__PURE__ */ jsxRuntime.jsx("small", { children: r.detail })
+        ] }),
+        columns.map((_, j) => {
+          const raw = r.cells[j];
+          const cell = isCell(raw) ? raw : { value: raw };
+          const empty = cell.value === null || cell.value === void 0 || cell.value === "";
+          const tone = cell.tone ?? (empty ? "off" : "shift");
+          return /* @__PURE__ */ jsxRuntime.jsx("td", { "data-tone": tone, children: /* @__PURE__ */ jsxRuntime.jsx("span", { children: empty ? offLabel : cell.value }) }, j);
+        })
+      ] }, i)) })
+    ] }) }),
+    legend && legend.length > 0 && /* @__PURE__ */ jsxRuntime.jsx("ul", { className: "uipack-web-schedule__legend", children: legend.map((l, i) => /* @__PURE__ */ jsxRuntime.jsxs("li", { children: [
+      /* @__PURE__ */ jsxRuntime.jsx("i", { "data-tone": l.tone, "aria-hidden": "true" }),
+      l.label
+    ] }, i)) })
+  ] });
+}
+var STATUS_TEXT = { done: "Done", pending: "Waiting", attention: "Needs you" };
+function ItemList({ items, label, className = "" }) {
+  return /* @__PURE__ */ jsxRuntime.jsx("ul", { className: `uipack-web-list ${className}`.trim(), "aria-label": label, children: items.map((it, i) => /* @__PURE__ */ jsxRuntime.jsxs("li", { "data-status": it.status, children: [
+    it.status && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-list__mark", role: "img", "aria-label": STATUS_TEXT[it.status] }),
+    /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "uipack-web-list__text", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("strong", { children: it.title }),
+      it.detail && /* @__PURE__ */ jsxRuntime.jsx("span", { children: it.detail })
+    ] }),
+    it.meta !== void 0 && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-list__meta", children: it.meta })
+  ] }, i)) });
+}
+function RecordCard({ title, eyebrow, status, fields, className = "" }) {
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `uipack-web-record ${className}`.trim(), children: [
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-record__head", children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
+        eyebrow && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-record__eyebrow", children: eyebrow }),
+        /* @__PURE__ */ jsxRuntime.jsx("p", { className: "uipack-web-record__title", children: title })
+      ] }),
+      status && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-window__status", children: status })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsx("dl", { children: fields.map((f, i) => /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
+      /* @__PURE__ */ jsxRuntime.jsx("dt", { children: f.label }),
+      /* @__PURE__ */ jsxRuntime.jsx("dd", { children: f.value })
+    ] }, i)) })
+  ] });
+}
+function FileTable({ fileName, summary, status, footer, className = "", ...table }) {
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    ProductWindow,
+    {
+      className: `uipack-web-file ${className}`.trim(),
+      label: fileName,
+      title: /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-file__name", children: fileName }),
+      subtitle: summary,
+      status,
+      footer,
+      children: /* @__PURE__ */ jsxRuntime.jsx(DataTable, { label: fileName, ...table })
+    }
+  );
 }
 function RevealText({ text = "", lines, as: Tag = "p", className = "", stagger = 45 }) {
   const ref2 = react.useRef(null);
@@ -299,11 +612,12 @@ function StarHero({
   children,
   noise = 0.07,
   headingId,
-  align = "center"
+  align = "start"
 }) {
+  const backdrop = visual ?? (children ? null : /* @__PURE__ */ jsxRuntime.jsx(StarChart, { values }));
   return /* @__PURE__ */ jsxRuntime.jsxs("section", { className: "uipack-web-hero", "data-align": align, "aria-labelledby": headingId, children: [
     /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__backdrop", "aria-hidden": "true" }),
-    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__visual", children: visual ?? /* @__PURE__ */ jsxRuntime.jsx(StarChart, { values }) }),
+    backdrop && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-hero__visual", children: backdrop }),
     noise > 0 && /* @__PURE__ */ jsxRuntime.jsx(NoiseLayer, { opacity: noise }),
     /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-hero__copy", children: [
       eyebrow && /* @__PURE__ */ jsxRuntime.jsx(Eyebrow, { children: eyebrow }),
@@ -388,6 +702,7 @@ function DemoPlayer({
   initialMetric,
   metricLabel,
   placeholder = "Ask for something\u2026",
+  mode: modeProp,
   autoplay = true,
   static: still = false,
   loop = false,
@@ -397,6 +712,7 @@ function DemoPlayer({
   onStepChange
 }) {
   const timing = react.useMemo(() => ({ ...DEFAULT_TIMING, ...timingProp }), [timingProp]);
+  const mode = modeProp ?? (steps.some((s) => s.prompt) ? "agent" : "steps");
   const reduced = chunkKV6PPCWS_cjs.usePrefersReducedMotion() || still;
   const rootRef = react.useRef(null);
   const tabsRef = react.useRef(null);
@@ -506,7 +822,10 @@ function DemoPlayer({
   const doneCount = queuedOnly ? 0 : isCurrent ? frame.actionsDone : actions.length;
   const promptDone = !step?.prompt || frame.typed >= (step.prompt?.length ?? 0);
   const runningIdx = isCurrent && promptDone && !frame.settled && frame.actionsDone < actions.length ? frame.actionsDone : -1;
-  const screen = lastWith(steps, frame.settled ? frame.step : frame.step - 1, (s) => s.screen ?? void 0);
+  const settledScreen = lastWith(steps, frame.settled ? frame.step : frame.step - 1, (s) => s.screen ?? void 0);
+  const firstScreen = steps.findIndex((s) => s.screen !== void 0 && s.screen !== null);
+  const screen = settledScreen ?? (firstScreen >= 0 ? steps[firstScreen].screen : void 0);
+  const screenKey = settledScreen !== void 0 ? frame.settled ? frame.step : frame.step - 1 : `first-${firstScreen}`;
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "section",
     {
@@ -515,6 +834,7 @@ function DemoPlayer({
       "aria-label": label,
       "data-state": reduced ? "static" : finished ? "finished" : running ? "playing" : "paused",
       "data-step": frame.step,
+      "data-mode": mode,
       children: [
         /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__window", children: [
           /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__chrome", "aria-hidden": "true", children: [
@@ -526,7 +846,21 @@ function DemoPlayer({
             address && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__address", children: address })
           ] }),
           /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__body", children: [
-            /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__work", children: [
+            /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-demo__work", children: mode === "steps" ? /* @__PURE__ */ jsxRuntime.jsx("ol", { className: "uipack-web-demo__log uipack-web-demo__steps", "aria-label": "Progress", children: steps.map((s, i) => {
+              const state = i < frame.step || i === frame.step && frame.settled ? "done" : i === frame.step ? "running" : "pending";
+              const detail = (s.actions ?? []).map(toAction).find((a) => a.detail)?.detail;
+              return /* @__PURE__ */ jsxRuntime.jsxs("li", { "data-state": state, children: [
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__tick", "aria-hidden": "true", children: state === "done" ? /* @__PURE__ */ jsxRuntime.jsx("svg", { viewBox: "0 0 16 16", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M3.5 8.5l3 3 6-7" }) }) : null }),
+                /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
+                  /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__num", children: String(i + 1).padStart(2, "0") }),
+                  " ",
+                  s.title
+                ] }),
+                detail && /* @__PURE__ */ jsxRuntime.jsx("small", { children: detail }),
+                state === "running" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__sr", children: " (in progress)" }),
+                state === "pending" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__sr", children: " (queued)" })
+              ] }, s.id);
+            }) }) : /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
               /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__composer", "data-typing": typing || void 0, children: [
                 /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__sr", children: promptText }),
                 /* @__PURE__ */ jsxRuntime.jsx("span", { "aria-hidden": "true", className: visiblePrompt ? "" : "uipack-web-demo__placeholder", children: visiblePrompt || placeholder }),
@@ -542,13 +876,13 @@ function DemoPlayer({
                   state === "pending" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "uipack-web-demo__sr", children: " (queued)" })
                 ] }, `${actionStep}-${i}`);
               }) })
-            ] }),
+            ] }) }),
             /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "uipack-web-demo__result", children: [
               frame.metric !== void 0 && /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "uipack-web-demo__metric", children: [
                 /* @__PURE__ */ jsxRuntime.jsx("strong", { "data-testid": "demo-metric", children: frame.metric }, frame.metric),
                 metricLabel && /* @__PURE__ */ jsxRuntime.jsx("span", { children: metricLabel })
               ] }),
-              screen !== void 0 && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-demo__screen", children: screen }, frame.settled ? frame.step : frame.step - 1)
+              screen !== void 0 && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "uipack-web-demo__screen", children: screen }, screenKey)
             ] })
           ] })
         ] }),
@@ -2210,11 +2544,15 @@ exports.AI_CRAWLERS = AI_CRAWLERS;
 exports.Aurora = Aurora;
 exports.BackgroundFrame = BackgroundFrame;
 exports.BeamLines = BeamLines;
+exports.BeforeAfter = BeforeAfter;
 exports.Body = Body;
+exports.Brand = Brand;
+exports.ClosingCta = ClosingCta;
 exports.CtaButton = CtaButton;
 exports.DEFAULT_STAR_VALUES = DEFAULT_STAR_VALUES;
 exports.DEFAULT_TIMING = DEFAULT_TIMING;
 exports.DISPLAY_FROM_STEP = DISPLAY_FROM_STEP;
+exports.DataTable = DataTable;
 exports.DemoPlayer = DemoPlayer;
 exports.DotGrid = DotGrid;
 exports.DriftingGutters = DriftingGutters;
@@ -2222,6 +2560,7 @@ exports.EMPHASIS = EMPHASIS;
 exports.Eyebrow = Eyebrow;
 exports.FAQ = FAQ;
 exports.FeatureGrid = FeatureGrid;
+exports.FileTable = FileTable;
 exports.GRID_COLUMNS = GRID_COLUMNS;
 exports.GlassNav = GlassNav;
 exports.GrainOverlay = GrainOverlay;
@@ -2229,6 +2568,7 @@ exports.Grid = Grid;
 exports.GridItem = GridItem;
 exports.HeadTags = HeadTags;
 exports.Heading = Heading;
+exports.ItemList = ItemList;
 exports.JsonLd = JsonLd;
 exports.LLMS_FULL_PATH = LLMS_FULL_PATH;
 exports.LineGrid = LineGrid;
@@ -2237,14 +2577,20 @@ exports.Marquee = Marquee;
 exports.MaskedStar = MaskedStar;
 exports.NoiseLayer = NoiseLayer;
 exports.NumberTicker = NumberTicker;
+exports.PricingPlans = PricingPlans;
+exports.ProductWindow = ProductWindow;
+exports.Proof = Proof;
+exports.RecordCard = RecordCard;
 exports.Reveal = Reveal;
 exports.RevealText = RevealText;
 exports.RhymeIcon = RhymeIcon;
 exports.SMOOTH_SCROLL_ATTR = SMOOTH_SCROLL_ATTR;
 exports.SMOOTH_SCROLL_PREVENT_ATTR = SMOOTH_SCROLL_PREVENT_ATTR;
 exports.SPACE = SPACE;
+exports.ScheduleGrid = ScheduleGrid;
 exports.ScrollTransform = ScrollTransform;
 exports.Section = Section;
+exports.SiteFooter = SiteFooter;
 exports.SmoothScroll = SmoothScroll;
 exports.SpotlightCard = SpotlightCard;
 exports.StarChart = StarChart;
@@ -2261,6 +2607,7 @@ exports.WHEEL_LINE_PX = WHEEL_LINE_PX;
 exports.WHEEL_PAGE_FRACTION = WHEEL_PAGE_FRACTION;
 exports.WebPage = WebPage;
 exports.WebSurface = WebSurface;
+exports.WorkedExample = WorkedExample;
 exports.article = article;
 exports.breadcrumbList = breadcrumbList;
 exports.buildCrawlFiles = buildCrawlFiles;

@@ -1,6 +1,6 @@
 import * as react from 'react';
 import { S as SpeechGuide } from './speech-BOroEnEA.cjs';
-import { U as UiStyleId } from './style-CBYPyqqV.cjs';
+import { U as UiStyleId } from './style-D_zKtqes.cjs';
 
 type PresentationTheme = "light" | "dark";
 
