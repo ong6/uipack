@@ -6,13 +6,16 @@ export { AnimationWorkspace, ObjectGallery, ObjectInspector } from "./gallery";
 export {
   chooseObjectVariant,
   directionSymbols,
+  hasObjectLook,
   normalizeObjectVariant,
   objectDirectionIndex,
   objectDirections,
   objectEditions,
+  objectLooks,
   objectVariants,
   parseObjectVariant,
   transferObjectVariant,
+  type KindWithLook,
   type ObjectEdition,
   type ObjectVariant,
 } from "./variants";

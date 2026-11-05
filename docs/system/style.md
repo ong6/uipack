@@ -287,7 +287,8 @@ Hover changes stroke, fill and opacity only, never layout. A 3D style may add ph
 ## 3D
 
 A 3D art direction is a style. The scene's subject and its camera stops are writing and layout,
-so the same story can be rendered in another direction.
+so the same story can be rendered in another direction. Each object scene offers only the two or three
+directions that suit its subject (`objectLooks`; reasons in [objects.md](../objects.md#directions-per-subject)).
 
 | Direction | Character |
 | --- | --- |
@@ -296,7 +297,7 @@ so the same story can be rendered in another direction.
 | Kinetic | Brass armatures and glazed ceramic on a turned slate base |
 | Cartoon | Floating toy islands, toon shading, day and night |
 | Realistic | Low macro close-ups on real surfaces, grazing window light |
-| Abstract | Refractive glass against colour bands, obsidian accents |
+| Abstract | Refractive glass against colour bands |
 | Mechanism (SVG) | Isometric solids in four tones by facing, one lit part in the accent |
 
 Shared 3D rules: the scene's palette maps to the four roles (`paper`, `ink`, `muted`, `accent`);

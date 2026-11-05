@@ -12,17 +12,18 @@ import "../src/slides/slides.css";
 import "../src/presentations/presentations.css";
 import "./presentations.css";
 
-// Each object card opens the travel study in its own direction, the scene its still shows.
 /** Docs link to the repository, as the Foundations pages do. */
 const REPO = "https://github.com/ong6/uipack/blob/main";
 
+// Each object card opens the scene its still shows (scripts/style-stills.mjs keeps the same
+// subjects): one the direction offers, since a subject keeps only the directions that suit it.
 const objectLinks = {
-  studio: "Open the woodland atlas",
-  "paper-theatre": "Open the alpine passage",
-  kinetic: "Open the armillary globe",
-  cartoon: "Open the island express",
-  realistic: "Open the field compass",
-  abstract: "Open the glass passage",
+  studio: { story: "travel", label: "Open the woodland atlas" },
+  "paper-theatre": { story: "travel", label: "Open the alpine passage" },
+  kinetic: { story: "travel", label: "Open the armillary globe" },
+  cartoon: { story: "tennis", label: "Open the courtside club" },
+  realistic: { story: "reading", label: "Open the quiet chapter" },
+  abstract: { story: "ai", label: "Open the thought lattice" },
 };
 
 /* A talk given from the slides: short titles, the points the speaker talks from, no eyebrow or lede. */
@@ -150,8 +151,10 @@ export default function CatalogShowcase() {
                   ) : style.id === "mechanism" ? (
                     <a href={`/mechanism?theme=${theme}`}>Verification gate machine</a>
                   ) : (
-                    <a href={`/animations?story=travel&variant=${"variant" in style ? style.variant : 0}&theme=${theme}`}>
-                      {objectLinks[style.id as keyof typeof objectLinks]}
+                    <a
+                      href={`/animations?story=${objectLinks[style.id as keyof typeof objectLinks].story}&variant=${"variant" in style ? style.variant : 0}&theme=${theme}`}
+                    >
+                      {objectLinks[style.id as keyof typeof objectLinks].label}
                     </a>
                   )}
                 </div>

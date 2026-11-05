@@ -5,6 +5,7 @@
 // stage's live flags (active, paused, reduced…) from the object it is given, each frame.
 import type { ObjectKind, ObjectPalette } from "./scenes";
 import type { ObjectEdition, ObjectVariant } from "./variants";
+import { REDUCED_MOTION_QUERY } from "../env";
 
 const REST_START_MS = 5400;
 const MOBILE_FRAME_MS = 1000 / 30;
@@ -81,6 +82,8 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
   let resizeObserver: ResizeObserver | undefined;
   let viewportObserver: IntersectionObserver | undefined;
   let inViewport = true;
+  // Read live by the loop, below. A MediaQueryList's `matches` is current whenever it is read.
+  const reducedQuery = typeof window.matchMedia === "function" ? window.matchMedia(REDUCED_MOTION_QUERY) : null;
   // Filled in once the scene has loaded.
   const loaded: Partial<Pick<ObjectSceneHandle, "draw" | "resume" | "replay" | "settle" | "resize">> = {};
 
@@ -175,6 +178,8 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
         let elapsed = 0;
         let lastTickAt: number | undefined;
         let lastPaintAt = -Infinity;
+        // The last paint was the reduced-motion rest pose: settling again would paint the same frame.
+        let restPainted = false;
         const frameInterval = window.matchMedia("(max-width: 767px)").matches ? MOBILE_FRAME_MS : 0;
         const paint = (sceneTime: number, time: number) => {
           object.userData.animate?.(sceneTime);
@@ -184,6 +189,7 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
           lastPaintAt = frameInterval ? time - (Number.isFinite(lastPaintAt) ? (time - lastPaintAt) % frameInterval : 0) : time;
           frames += 1;
           canvas.dataset.frames = String(frames);
+          restPainted = flags.reduced;
           const phase = flags.reduced ? "rest" : object.userData.phase;
           canvas.dataset.phase = phase;
           canvas.dataset.pose = object.userData.pose.toFixed(3);
@@ -193,6 +199,12 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
         const render = (time = 0) => {
           frame = null;
           if (disposed || contextLost) return;
+          // The stage sets `flags.reduced` from React when the setting changes, but a loaded main
+          // thread can keep painting long before that effect runs (on CI's software WebGL a
+          // Realistic loop painted 190 more frames in 5 s). So a playing loop also checks the query
+          // itself and settles on its next frame; the stage's effect then agrees (and, the rest pose
+          // already painted, paints nothing more).
+          if (!flags.reduced && reducedQuery?.matches) flags.reduced = true;
           if (document.hidden || !inViewport) {
             lastTickAt = undefined;
             return;
@@ -212,7 +224,9 @@ export function mountObjectScene(canvas: HTMLCanvasElement, options: ObjectScene
             frame = requestAnimationFrame(render);
           }
         };
-        loaded.settle = () => paint(restTime, performance.now());
+        loaded.settle = () => {
+          if (!restPainted) paint(restTime, performance.now());
+        };
         loaded.draw = () => {
           if (!frame && !disposed) frame = requestAnimationFrame(render);
         };

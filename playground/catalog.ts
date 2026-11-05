@@ -1,5 +1,5 @@
 // Data-only modules, not the uipack/objects barrel: this file is in the playground's entry chunk.
-import { objectDirections } from "../src/objects/variants";
+import { objectDirectionIndex, objectDirections, objectLooks } from "../src/objects/variants";
 import { objectScenes } from "../src/objects/scene-list";
 /** Content type and visual style are independent axes. Register styles here, never fork the shell. */
 export const visualStyles = [
@@ -357,34 +357,26 @@ export const animationEntries: CatalogEntry[] = [
   },
 ];
 
-/** Each style has six real rendered examples, reachable through the gallery's selector. */
-export const objectStyleEntries = objectDirections.flatMap((direction, variant) =>
-  objectScenes
-    .filter((scene) => scene.id !== "contact")
-    .map((scene) => ({
-      id: `${scene.id}-${direction.id}`,
-      title: `${scene.title} / ${direction.name}`,
-      type: "animations" as const,
-      styleId: direction.id,
-      tags: ["Objects", direction.id],
-      href: `/animations?story=${scene.id}&variant=${variant}`,
-    })),
-);
-
-objectStyleEntries.push(
-  ...(
-    [
-      { variant: 3, styleId: "cartoon", title: "Little post office" },
-      { variant: 4, styleId: "kinetic", title: "Correspondence mobile" },
-    ] as const
-  ).map((item) => ({
-    id: `contact-${item.styleId}`,
-    title: `Contact inbox / ${item.title}`,
-    type: "animations" as const,
-    styleId: item.styleId,
-    tags: ["Objects", item.styleId],
-    href: `/animations?story=contact&variant=${item.variant}`,
-  })),
+/**
+ * One rendered example per subject and direction it offers (`objectLooks`), reachable through the
+ * gallery's selector. Contact's Studio editions are one Studio example; its Cartoon post office is another.
+ */
+export const objectStyleEntries = objectDirections.flatMap((direction, index) =>
+  objectScenes.flatMap((scene) => {
+    const variant = objectLooks[scene.id].find((look) => objectDirectionIndex(scene.id, look) === index);
+    return variant === undefined
+      ? []
+      : [
+          {
+            id: `${scene.id}-${direction.id}`,
+            title: `${scene.title} / ${direction.name}`,
+            type: "animations" as const,
+            styleId: direction.id,
+            tags: ["Objects", direction.id],
+            href: `/animations?story=${scene.id}&variant=${variant}`,
+          },
+        ];
+  }),
 );
 
 /** Web building blocks, shown on /web. Flashy pieces earn their motion; low-key pieces are the defaults. */

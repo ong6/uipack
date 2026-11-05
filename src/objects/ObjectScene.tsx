@@ -4,8 +4,10 @@ import {
   objectDirectionIndex,
   normalizeObjectVariant,
   chooseObjectVariant,
+  hasObjectLook,
   objectDirections,
   objectEditions,
+  objectLooks,
   objectVariants,
   directionSymbols,
   type ObjectEdition,
@@ -25,9 +27,12 @@ export interface ObjectSceneProps {
   controls?: "full" | "playback";
   /** Reveal the host page behind the artwork, in either theme. */
   surface?: "styled" | "page";
-  /** Pick once per mount, or pin a curated look for a reproducible preview. */
+  /**
+   * Pick once per mount from the kind's looks (`objectLooks`), or pin one for a reproducible
+   * preview. A variant the kind does not offer shows its default look.
+   */
   variant?: ObjectVariant | "random";
-  /** Original edition within Studio; ignored by Paper and Kinetic. */
+  /** Original edition within Studio; ignored by the other directions. */
   edition?: ObjectEdition;
   /**
    * Where Studio tennis fetches its model. Default: the package's
@@ -193,7 +198,7 @@ function ObjectStage({
   // The scene keys on the palette's values, not its identity: an inline `palette={{…}}` is a new
   // object on every parent render and must not tear down and rebuild the WebGL renderer.
   const paletteKey = palette ? JSON.stringify(palette) : "";
-  const resolvedVariant = variant === "random" ? 0 : variant;
+  const resolvedVariant = normalizeObjectVariant(kind, variant === "random" ? objectLooks[kind][0] : variant);
 
   useEffect(() => {
     flagsRef.current.zoom = zoom;
@@ -267,11 +272,11 @@ function ObjectStage({
       className={styles.scene}
       data-active={active ? "true" : "false"}
       data-kind={kind}
-      data-variant={variant}
+      data-variant={resolvedVariant}
       data-edition={edition}
-      data-art-direction={objectDirections[objectDirectionIndex(kind, variant === "random" ? 0 : variant)].id}
+      data-art-direction={objectDirections[objectDirectionIndex(kind, resolvedVariant)].id}
       data-controls={controls}
-      data-variant-label={objectVariants[kind][variant === "random" ? 0 : variant]}
+      data-variant-label={objectVariants[kind][resolvedVariant]}
     >
       <Fallback kind={kind} label={label} />
       {active && <canvas ref={canvasRef} className={styles.canvas} data-ready={ready ? "true" : "false"} aria-hidden="true" />}
@@ -298,15 +303,13 @@ export function ObjectScene(props: ObjectSceneProps) {
     [zoom, setZoom] = useState(1);
   const opener = useRef<HTMLButtonElement>(null);
   // One random roll per mount, taken after it so the server and client agree. The look is derived
-  // from it for the current kind (contact has five), and Another look steps on from there.
+  // from it among the current kind's looks, and Another look steps on through them.
   const [pick, setPick] = useState<{ roll: number; turns: number } | null>(null);
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- a client-only random value, set once after hydration
     setPick({ roll: Math.random(), turns: 0 });
   }, []);
-  const looks = props.kind === "contact" ? 5 : objectDirections.length;
-  const randomVariant =
-    pick === null ? null : (((chooseObjectVariant(() => pick.roll, looks) + pick.turns) % looks) as ObjectVariant);
+  const randomVariant = pick === null ? null : chooseObjectVariant(props.kind, () => pick.roll, pick.turns);
   const canVary = props.variant === undefined || props.variant === "random";
   const controls = props.controls ?? "full";
   const chosenVariant = canVary ? randomVariant : (props.variant as ObjectVariant);
@@ -319,7 +322,9 @@ export function ObjectScene(props: ObjectSceneProps) {
           <span>
             {objectVariants[props.kind][variant]}
             {/* A non-default Studio edition is named after the direction's own name, never instead of it. */}
-            {variant === 0 && props.kind !== "contact" && props.edition ? ` · ${objectEditions[props.kind][props.edition]}` : ""}
+            {variant === 0 && props.kind !== "contact" && props.edition && hasObjectLook(props.kind, 0)
+              ? ` · ${objectEditions[props.kind][props.edition]}`
+              : ""}
           </span>
           {canVary && (
             <button type="button" onClick={anotherLook} aria-label="Another look">
@@ -354,22 +359,35 @@ export function ObjectScene(props: ObjectSceneProps) {
   );
 }
 
-/** Shared style selector; consumers own the selected value and URL persistence. */
+/**
+ * Shared style selector; consumers own the selected value and URL persistence. With `kind`, it
+ * offers only that kind's looks (`objectLooks`); without, every direction, for a set of scenes
+ * (each scene shows its own default for a direction it lacks).
+ */
 export function ObjectDirectionPicker({
   value,
   onChange,
+  kind,
 }: {
   value: ObjectVariant | "random";
   onChange: (value: ObjectVariant) => void;
+  kind?: Exclude<ObjectKind, "contact">;
 }) {
   return (
     <div className="uipack-object-directions" role="group" aria-label="3D art direction">
-      {objectDirections.map((direction, index) => (
-        <button key={direction.id} type="button" aria-pressed={value === index} onClick={() => onChange(index as ObjectVariant)}>
-          <span aria-hidden="true">{directionSymbols[index]}</span>
-          {direction.name}
-        </button>
-      ))}
+      {objectDirections.map((direction, index) =>
+        kind && !hasObjectLook(kind, index as ObjectVariant) ? null : (
+          <button
+            key={direction.id}
+            type="button"
+            aria-pressed={value === index}
+            onClick={() => onChange(index as ObjectVariant)}
+          >
+            <span aria-hidden="true">{directionSymbols[index]}</span>
+            {direction.name}
+          </button>
+        ),
+      )}
     </div>
   );
 }

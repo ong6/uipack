@@ -104,9 +104,11 @@ test("curated look persists through loop, theme and expanded canvas", async ({ p
   const object = page.locator(".uipack-object");
   const canvas = object.locator("canvas");
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
-  const first = Number(await object.getAttribute("data-variant"));
-  await page.getByRole("button", { name: /Paper worlds/ }).click();
-  await expect(object).toHaveAttribute("data-variant", String((first + 1) % 3));
+  // Tennis offers Studio, Cartoon and Realistic only, and the inspector lists only those.
+  const directions = page.getByRole("group", { name: "3D art direction" }).getByRole("button");
+  await expect(directions).toHaveText([/Studio objects/, /Cartoon worlds/, /Realistic close/]);
+  await page.getByRole("button", { name: /Cartoon worlds/ }).click();
+  await expect(object).toHaveAttribute("data-variant", "3");
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
   const next = await object.getAttribute("data-variant");
   await page.getByRole("button", { name: "dark mode", exact: true }).click();

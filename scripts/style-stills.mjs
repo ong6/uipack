@@ -1,21 +1,32 @@
 // Regenerates the object art-direction stills on /styles (playground/assets/styles/*.jpg).
-// One scene (the travel study) in each of the six directions and both themes, so the cards
-// compare looks rather than subjects. Needs the dev server: `npx vite --port 5285`, then
-// `node scripts/style-stills.mjs [baseURL]`. No image dependency: the browser downscales.
+// One scene per direction, in both themes: travel where the direction offers it, otherwise a
+// subject that keeps the direction (the same as the card links in playground/CatalogShowcase.tsx).
+// Needs the dev server: `npx vite --port 5285`, then
+// `node scripts/style-stills.mjs [baseURL] [direction ids…]` (default: all six).
+// No image dependency: the browser downscales.
 import { chromium } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
 
 const base = process.argv[2] ?? "http://localhost:5285";
+const only = process.argv.slice(3);
 const out = new URL("../playground/assets/styles/", import.meta.url);
-const directions = ["studio", "paper-theatre", "kinetic", "cartoon", "realistic", "abstract"];
+const directions = [
+  ["studio", "travel"],
+  ["paper-theatre", "travel"],
+  ["kinetic", "travel"],
+  ["cartoon", "tennis"],
+  ["realistic", "reading"],
+  ["abstract", "ai"],
+];
 const [W, H] = [720, 360];
 mkdirSync(out, { recursive: true });
 
 const browser = await chromium.launch();
 for (const theme of ["light", "dark"]) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 2, reducedMotion: "reduce" });
-  for (const [variant, id] of directions.entries()) {
-    await page.goto(`${base}/animations?story=travel&variant=${variant}&theme=${theme}`, { waitUntil: "networkidle" });
+  for (const [variant, [id, story]] of directions.entries()) {
+    if (only.length && !only.includes(id)) continue;
+    await page.goto(`${base}/animations?story=${story}&variant=${variant}&theme=${theme}`, { waitUntil: "networkidle" });
     await page.waitForTimeout(5000);
     const canvas = page.locator(".uipack-gallery-stage canvas").first();
     const box = await canvas.boundingBox();
